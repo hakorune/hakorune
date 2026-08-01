@@ -206,12 +206,15 @@ impl ModuleBuilderInvocationSessionV1 {
                         let outcome =
                             declaration_facts.with_record_schema_demand_view(|record_schemas| {
                                 declaration_facts.with_enum_variant_demand_view(|enum_variants| {
-                                    resolver.resolve_script_forest_with_declaration_views(
-                                        view,
-                                        window,
-                                        record_schemas,
-                                        enum_variants,
-                                    )
+                                    declaration_facts.with_enum_match_demand_view(|enum_matches| {
+                                        resolver.resolve_script_forest_with_declaration_views(
+                                            view,
+                                            window,
+                                            record_schemas,
+                                            enum_variants,
+                                            enum_matches,
+                                        )
+                                    })
                                 })
                             });
                         match outcome.map_err(|error| {

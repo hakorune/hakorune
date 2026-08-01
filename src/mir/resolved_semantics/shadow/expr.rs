@@ -185,6 +185,20 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 }
                 self.resolve_arguments(expr, arguments, path)
             }
+            ASTNode::EnumMatchExpr {
+                enum_name,
+                scrutinee,
+                arms,
+                else_expr,
+                ..
+            } if self.is_script_lexical_core() => self.resolve_direct_enum_match(
+                expr,
+                enum_name,
+                scrutinee,
+                arms,
+                else_expr.as_deref(),
+                path,
+            ),
             ASTNode::Call {
                 callee, arguments, ..
             } => {

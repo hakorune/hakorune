@@ -26,6 +26,7 @@ use super::calls::{
     PreparedRawFromCallV1, PreparedRawFunctionPreflightV1, RawLegacyMethodCallInputV1,
 };
 use super::enum_variant_source_demand::EnumVariantSourceDemandPortV1;
+use super::enum_match_source_demand::EnumMatchSourceDemandPortV1;
 use super::exprs_enum_match::{PreparedRawEnumMatchV1, PreparedRawEnumVariantHeaderV1};
 use super::fields::PreparedRawFieldReadV1;
 use super::indexing::PreparedRawIndexReadV1;
@@ -83,6 +84,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + RawLoopChildEntryPortV1
     + RecordLiteralSourceDemandPortV1
     + EnumVariantSourceDemandPortV1
+    + EnumMatchSourceDemandPortV1
     + RawLambdaCaptureDemandPortV1
     + QMarkPropagationSourceDemandPortV1
 {
@@ -106,6 +108,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + RawLoopChildEntryPortV1
         + RecordLiteralSourceDemandPortV1
         + EnumVariantSourceDemandPortV1
+        + EnumMatchSourceDemandPortV1
         + RawLambdaCaptureDemandPortV1
         + QMarkPropagationSourceDemandPortV1
 {
@@ -378,10 +381,15 @@ impl super::MirBuilder {
             node @ ASTNode::EnumMatchExpr { .. } => {
                 use crate::mir::resolved_semantics::ExprChildRoleV1;
 
-                let source = port.prepare_expression_child_source_v1(
-                    &node,
-                    ExprChildRoleV1::EnumMatchScrutinee,
-                )?;
+                let receipt_backed = port.has_enum_match_scrutinee_receipt_v1(&node)?;
+                let source = receipt_backed
+                    .then(|| {
+                        port.prepare_expression_child_source_v1(
+                            &node,
+                            ExprChildRoleV1::EnumMatchScrutinee,
+                        )
+                    })
+                    .transpose()?;
                 let ASTNode::EnumMatchExpr {
                     enum_name,
                     scrutinee,
@@ -394,13 +402,14 @@ impl super::MirBuilder {
                 };
                 let prepared =
                     PreparedRawEnumMatchV1::prepare(self, enum_name, *scrutinee, arms, else_expr)?;
-                let mut scoped =
-                    super::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
-                        port,
-                        vec![source],
-                        Vec::new(),
-                    );
-                self.lower_prepared_raw_enum_match_with_port_v1(&mut scoped, prepared)
+                if !receipt_backed {
+                    return self.lower_prepared_raw_enum_match_with_port_v1(port, prepared);
+                }
+                let source = source.expect("receipt-backed EnumMatch prepared its source");
+                let mut scoped = RawStructuredChildScopePortV1::new(port, vec![source], Vec::new());
+                let value = self.lower_prepared_raw_enum_match_with_port_v1(&mut scoped, prepared)?;
+                scoped.complete_exact_demands_v1()?;
+                Ok(value)
             }
 
             ASTNode::Lambda { params, body, .. } => {

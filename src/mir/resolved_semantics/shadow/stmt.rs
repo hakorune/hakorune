@@ -241,7 +241,12 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             ASTNode::Break { .. } => self.resolve_loop_exit(path, false),
             ASTNode::Continue { .. } => self.resolve_loop_exit(path, true),
             ASTNode::Return { .. } => self.resolve_return(statement, path),
-            expression if is_closed_expression(expression) => self.resolve_expr(expression, path),
+            expression
+                if is_closed_expression(expression)
+                    || matches!(expression, ASTNode::EnumMatchExpr { .. }) =>
+            {
+                self.resolve_expr(expression, path)
+            }
             other => Err(ShadowResolveErrorV0::UnsupportedStatement {
                 kind: other.node_type(),
                 site: path.stmt(),

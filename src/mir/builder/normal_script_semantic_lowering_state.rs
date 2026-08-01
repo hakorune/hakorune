@@ -19,6 +19,7 @@ pub(super) struct ScriptSemanticLoweringState {
     lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
     record_literal_demands: BTreeMap<SourceNodeSiteV1, u32>,
     enum_variant_demands: BTreeMap<SourceNodeSiteV1, EnumVariantAdmissionV1>,
+    enum_match_scrutinee_receipts: BTreeSet<SourceNodeSiteV1>,
     qmark_propagation_receipts: BTreeSet<SourceNodeSiteV1>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
@@ -57,6 +58,7 @@ impl ScriptSemanticLoweringState {
             lambda_captures: BTreeMap::new(),
             record_literal_demands: BTreeMap::new(),
             enum_variant_demands: BTreeMap::new(),
+            enum_match_scrutinee_receipts: BTreeSet::new(),
             qmark_propagation_receipts: BTreeSet::new(),
             materialized_outboxes: BTreeSet::new(),
         }
@@ -169,6 +171,25 @@ impl ScriptSemanticLoweringState {
         site: &SourceNodeSiteV1,
     ) -> Option<&EnumVariantAdmissionV1> {
         self.enum_variant_demands.get(site)
+    }
+
+    pub(super) fn install_enum_match_scrutinee_receipts<Receipts>(
+        &mut self,
+        receipts: Receipts,
+    ) -> Result<(), String>
+    where
+        Receipts: IntoIterator<Item = SourceNodeSiteV1>,
+    {
+        for site in receipts {
+            if !self.enum_match_scrutinee_receipts.insert(site) {
+                return Err("[freeze:contract][script-enum-match/duplicate-receipt]".to_owned());
+            }
+        }
+        Ok(())
+    }
+
+    pub(super) fn has_enum_match_scrutinee_receipt(&self, site: &SourceNodeSiteV1) -> bool {
+        self.enum_match_scrutinee_receipts.contains(site)
     }
 
     pub(super) fn install_qmark_propagation_receipts<Receipts>(

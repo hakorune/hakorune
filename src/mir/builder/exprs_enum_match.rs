@@ -3,7 +3,9 @@ use crate::mir::builder::calls::drive_call_arguments_v1;
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1,
 };
-use crate::mir::resolved_semantics::EnumVariantAdmissionV1;
+use crate::mir::resolved_semantics::{
+    admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumVariantAdmissionV1,
+};
 use crate::mir::{CompareOp, MirInstruction, MirType, ValueId};
 
 pub(in crate::mir::builder) use super::enum_match_scopebox::{
@@ -61,6 +63,25 @@ impl PreparedRawEnumMatchV1 {
         arms: Vec<EnumMatchArm>,
         else_expr: Option<Box<ASTNode>>,
     ) -> Result<Self, String> {
+        if let Some(admission) = builder
+            .comp_ctx
+            .enum_decls
+            .get(&enum_name)
+            .and_then(|decl| {
+                admit_direct_enum_match_v1(
+                    &decl.type_parameters,
+                    &decl.variants,
+                    &arms,
+                    else_expr.as_deref(),
+                )
+            })
+        {
+            return Ok(Self {
+                enum_name,
+                scrutinee,
+                route: PreparedRawEnumMatchRouteV1::from_admission(admission),
+            });
+        }
         if else_expr.is_some() {
             return Err(format!(
                 "[freeze:contract][mir_builder/enum_match] `{}` else-arm lowering is outside direct-MIR guard-let MVP",
@@ -118,6 +139,23 @@ impl PreparedRawEnumMatchV1 {
             scrutinee,
             route,
         })
+    }
+}
+
+impl PreparedRawEnumMatchRouteV1 {
+    fn from_admission(admission: EnumMatchAdmissionV1) -> Self {
+        match admission {
+            EnumMatchAdmissionV1::PayloadProjection {
+                variant_name,
+                tag,
+                declared_payload_type_name,
+            } => Self::PayloadProjection {
+                variant_name: variant_name.into(),
+                tag,
+                declared_payload_type_name: declared_payload_type_name.map(Into::into),
+            },
+            EnumMatchAdmissionV1::BoolSelect { specs } => Self::BoolSelect { specs },
+        }
     }
 }
 

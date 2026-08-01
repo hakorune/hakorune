@@ -16,6 +16,7 @@ mod callable_module_header_view;
 mod callable_symbol;
 mod direct_call;
 mod direct_call_verifier;
+mod enum_match_demand;
 mod enum_variant_demand;
 mod function_root;
 mod function_view;
@@ -67,6 +68,9 @@ pub(crate) use callable_module_header_view::{
 };
 pub(crate) use callable_symbol::CanonicalCallableSymbolV1;
 pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
+pub(crate) use enum_match_demand::{
+    admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1,
+};
 pub(crate) use enum_variant_demand::{EnumVariantAdmissionV1, EnumVariantDemandV1};
 pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,

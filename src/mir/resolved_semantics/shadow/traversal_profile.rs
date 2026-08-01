@@ -55,7 +55,8 @@ impl ShadowTraversalProfileV1 {
                 | ASTNode::GroupedAssignmentExpr { .. }
                 | ASTNode::ArrayLiteral { .. }
                 | ASTNode::MapLiteral { .. }
-                | ASTNode::RecordLiteral { .. } => true,
+                | ASTNode::RecordLiteral { .. }
+                | ASTNode::EnumMatchExpr { .. } => true,
                 ASTNode::FromCall { .. } => matches!(self, Self::ScriptLexicalCoreV1),
                 ASTNode::BlockExpr {
                     prelude_stmts,

@@ -53,7 +53,15 @@ fn enum_variant_receipt_is_complete_and_projects_its_argument() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
     let outcome = facts.with_record_schema_demand_view(|records| {
         facts.with_enum_variant_demand_view(|variants| {
-            resolver.resolve_script_with_declaration_views(view, &window(), records, variants)
+            facts.with_enum_match_demand_view(|matches| {
+                resolver.resolve_script_with_declaration_views(
+                    view,
+                    &window(),
+                    records,
+                    variants,
+                    matches,
+                )
+            })
         })
     });
     let ResolveScriptOutcomeV1::Complete(product) = outcome.expect("enum resolve") else {
@@ -133,7 +141,15 @@ fn ordinary_from_call_stays_deferred() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
     let outcome = facts.with_record_schema_demand_view(|records| {
         facts.with_enum_variant_demand_view(|variants| {
-            resolver.resolve_script_with_declaration_views(view, &window, records, variants)
+            facts.with_enum_match_demand_view(|matches| {
+                resolver.resolve_script_with_declaration_views(
+                    view,
+                    &window,
+                    records,
+                    variants,
+                    matches,
+                )
+            })
         })
     });
     assert!(matches!(

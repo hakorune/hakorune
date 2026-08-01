@@ -7,7 +7,7 @@
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::function_view::{FunctionBodyOriginV1, ReceiverPolicyV1};
 use crate::mir::resolved_semantics::{
-    EnumVariantDemandV1, RecordSchemaDemandV1, ScriptSyntaxViewV1, SourcePathSegmentV1,
+    EnumMatchDemandV1, EnumVariantDemandV1, RecordSchemaDemandV1, ScriptSyntaxViewV1, SourcePathSegmentV1,
 };
 use crate::mir::resolved_semantics::{FunctionSyntaxViewV1, SemanticOwnerRootProfileV1};
 
@@ -24,6 +24,7 @@ pub(super) struct ShadowRootTraversalInputV1<'ast, 'schema> {
     root_profile: SemanticOwnerRootProfileV1,
     traversal_profile: ShadowTraversalProfileV1,
     enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
+    enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
     record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
 }
 
@@ -57,6 +58,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             root_profile: view.root_profile(),
             traversal_profile,
             enum_variant_demand: None,
+            enum_match_demand: None,
             record_schema_demand: None,
         }
     }
@@ -66,6 +68,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
         window: &'ast VerifiedScriptRootDemandWindowV1,
         record_schema_demand: &'schema dyn RecordSchemaDemandV1,
         enum_variant_demand: &'schema dyn EnumVariantDemandV1,
+        enum_match_demand: &'schema dyn EnumMatchDemandV1,
     ) -> Self {
         Self {
             params: &[],
@@ -74,6 +77,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             root_profile: view.root_profile(),
             traversal_profile: ShadowTraversalProfileV1::ScriptLexicalCoreV1,
             enum_variant_demand: Some(enum_variant_demand),
+            enum_match_demand: Some(enum_match_demand),
             record_schema_demand: Some(record_schema_demand),
         }
     }
@@ -100,6 +104,10 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
 
     pub(super) const fn enum_variant_demand(&self) -> Option<&'schema dyn EnumVariantDemandV1> {
         self.enum_variant_demand
+    }
+
+    pub(super) const fn enum_match_demand(&self) -> Option<&'schema dyn EnumMatchDemandV1> {
+        self.enum_match_demand
     }
 
     pub(super) fn body_path(&self) -> ShadowSourcePathV0 {

@@ -7,7 +7,7 @@ use crate::mir::resolved_semantics::source_site::{
 };
 use crate::mir::resolved_semantics::FunctionSyntaxViewV1;
 use crate::mir::resolved_semantics::{
-    EnumVariantAdmissionV1, EnumVariantDemandV1, RecordSchemaDemandV1, ScriptSyntaxViewV1,
+    EnumMatchDemandV1, EnumVariantAdmissionV1, EnumVariantDemandV1, RecordSchemaDemandV1, ScriptSyntaxViewV1,
     VerifiedScriptRootDemandWindowV1,
 };
 
@@ -71,12 +71,14 @@ pub(super) struct ShadowResolverV0<'ast, 'schema> {
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
     traversal_profile: ShadowTraversalProfileV1,
     method_call_observations: BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>,
-    record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
-    enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
-    record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
-    enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
-    qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
-    match_control_sites: BTreeSet<SourceExprSiteV1>,
+    pub(super) record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
+    pub(super) enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
+    pub(super) enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
+    pub(super) record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
+    pub(super) enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
+    pub(super) enum_match_demands: BTreeSet<SourceExprSiteV1>,
+    pub(super) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
+    pub(super) match_control_sites: BTreeSet<SourceExprSiteV1>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
@@ -131,9 +133,16 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
     window: &'ast VerifiedScriptRootDemandWindowV1,
     record_schemas: &dyn RecordSchemaDemandV1,
     enum_variants: &dyn EnumVariantDemandV1,
+    enum_matches: &dyn EnumMatchDemandV1,
 ) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
     let input =
-        ShadowRootTraversalInputV1::sparse_script(view, window, record_schemas, enum_variants);
+        ShadowRootTraversalInputV1::sparse_script(
+            view,
+            window,
+            record_schemas,
+            enum_variants,
+            enum_matches,
+        );
     let profile = input.root_profile();
     traverse_shadow_root_v1(
         input,
@@ -150,9 +159,16 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'a
     window: &'ast VerifiedScriptRootDemandWindowV1,
     record_schemas: &dyn RecordSchemaDemandV1,
     enum_variants: &dyn EnumVariantDemandV1,
+    enum_matches: &dyn EnumMatchDemandV1,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
     let input =
-        ShadowRootTraversalInputV1::sparse_script(view, window, record_schemas, enum_variants);
+        ShadowRootTraversalInputV1::sparse_script(
+            view,
+            window,
+            record_schemas,
+            enum_variants,
+            enum_matches,
+        );
     let profile = input.root_profile();
     traverse_shadow_root_v1(
         input,
@@ -249,6 +265,7 @@ fn traverse_shadow_root_v1<'ast, 'schema>(
         input.traversal_profile(),
         input.record_schema_demand(),
         input.enum_variant_demand(),
+        input.enum_match_demand(),
     );
     if receiver_policy == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
@@ -306,6 +323,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         traversal_profile: ShadowTraversalProfileV1,
         record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
         enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
+        enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
     ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
@@ -362,8 +380,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             method_call_observations: BTreeMap::new(),
             record_schema_demand,
             enum_variant_demand,
+            enum_match_demand,
             record_literal_demands: BTreeMap::new(),
             enum_variant_demands: BTreeMap::new(),
+            enum_match_demands: BTreeSet::new(),
             qmark_propagation_sites: BTreeSet::new(),
             match_control_sites: BTreeSet::new(),
         }
@@ -389,82 +409,12 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 resolved_exits: self.resolved_exits,
                 record_literal_demands: self.record_literal_demands,
                 enum_variant_demands: self.enum_variant_demands,
+                enum_match_demands: self.enum_match_demands,
                 qmark_propagation_sites: self.qmark_propagation_sites,
                 match_control_sites: self.match_control_sites,
             },
             lambdas: self.lambdas.into_boxed_slice(),
         }
-    }
-
-    pub(super) fn admit_record_literal(
-        &mut self,
-        site: SourceExprSiteV1,
-        record_type_name: &str,
-        fields: &[(String, ASTNode)],
-    ) -> Result<(), ShadowResolveErrorV0> {
-        let Some(admission) = self
-            .record_schema_demand
-            .and_then(|schemas| schemas.admit_fully_explicit_literal(record_type_name, fields))
-        else {
-            return Err(ShadowResolveErrorV0::UnsupportedExpression {
-                kind: "RecordLiteral",
-                site,
-            });
-        };
-        if self
-            .record_literal_demands
-            .insert(site.clone(), admission.explicit_field_count())
-            .is_some()
-        {
-            return Err(ShadowResolveErrorV0::DuplicateRecordLiteralDemand { site });
-        }
-        Ok(())
-    }
-
-    pub(super) fn admit_enum_variant(
-        &mut self,
-        site: SourceExprSiteV1,
-        enum_name: &str,
-        variant_name: &str,
-        arguments: &[ASTNode],
-    ) -> Result<(), ShadowResolveErrorV0> {
-        let Some(admission) = self
-            .enum_variant_demand
-            .and_then(|variants| variants.admit_direct_variant(enum_name, variant_name, arguments))
-        else {
-            return Err(ShadowResolveErrorV0::UnsupportedExpression {
-                kind: "FromCall",
-                site,
-            });
-        };
-        if self
-            .enum_variant_demands
-            .insert(site.clone(), admission)
-            .is_some()
-        {
-            return Err(ShadowResolveErrorV0::DuplicateEnumVariantDemand { site });
-        }
-        Ok(())
-    }
-
-    pub(super) fn admit_qmark_propagation(
-        &mut self,
-        site: SourceExprSiteV1,
-    ) -> Result<(), ShadowResolveErrorV0> {
-        if !self.qmark_propagation_sites.insert(site.clone()) {
-            return Err(ShadowResolveErrorV0::DuplicateQMarkPropagation { site });
-        }
-        Ok(())
-    }
-
-    pub(super) fn admit_match_control(
-        &mut self,
-        site: SourceExprSiteV1,
-    ) -> Result<(), ShadowResolveErrorV0> {
-        if !self.match_control_sites.insert(site.clone()) {
-            return Err(ShadowResolveErrorV0::DuplicateMatchControl { site });
-        }
-        Ok(())
     }
 
     fn finish_qualified_receiver_observations(

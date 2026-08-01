@@ -79,6 +79,7 @@ pub(crate) struct VerifiedResolvedScriptV1 {
     core: VerifiedResolvedOwnerCoreV1,
     record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
     enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
+    enum_match_demands: BTreeSet<SourceExprSiteV1>,
     qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     match_control_sites: BTreeSet<SourceExprSiteV1>,
 }
@@ -353,6 +354,7 @@ impl VerifiedResolvedScriptV1 {
         data: ResolvedFunctionDataV1,
         record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
         enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
+        enum_match_demands: BTreeSet<SourceExprSiteV1>,
         qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
         match_control_sites: BTreeSet<SourceExprSiteV1>,
     ) -> Result<Self, ResolvedFunctionVerificationErrorV1> {
@@ -360,6 +362,7 @@ impl VerifiedResolvedScriptV1 {
             core: seal_owner_core(data)?,
             record_literal_demands,
             enum_variant_demands,
+            enum_match_demands,
             qmark_propagation_sites,
             match_control_sites,
         })
@@ -383,6 +386,10 @@ impl VerifiedResolvedScriptV1 {
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &EnumVariantAdmissionV1)> {
         self.enum_variant_demands.iter()
+    }
+
+    pub(crate) fn enum_match_demands(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.enum_match_demands.iter()
     }
 
     pub(crate) fn qmark_propagation_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {

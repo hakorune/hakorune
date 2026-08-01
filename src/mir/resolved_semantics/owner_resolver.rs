@@ -20,7 +20,7 @@ use super::resolver::{
 use super::script_view::ScriptSyntaxViewV1;
 use super::shadow::{resolve_function_shadow_view_v0, ShadowLambdaSyntaxV0};
 use super::{
-    EnumVariantDemandV1, FunctionOriginV1, OwnedExprSiteV1, RecordSchemaDemandV1,
+    EnumMatchDemandV1, EnumVariantDemandV1, FunctionOriginV1, OwnedExprSiteV1, RecordSchemaDemandV1,
     VerifiedScriptRootDemandWindowV1,
 };
 
@@ -50,8 +50,15 @@ impl FunctionSemanticResolverSessionV1 {
         window: &VerifiedScriptRootDemandWindowV1,
         record_schemas: &dyn RecordSchemaDemandV1,
         enum_variants: &dyn EnumVariantDemandV1,
+        enum_matches: &dyn EnumMatchDemandV1,
     ) -> Result<ResolveScriptForestOutcomeV1, ResolveOwnerForestErrorV1> {
-        let tree = match construct_script_owner_tree_v1(view, window, record_schemas, enum_variants)
+        let tree = match construct_script_owner_tree_v1(
+            view,
+            window,
+            record_schemas,
+            enum_variants,
+            enum_matches,
+        )
         {
             Ok(tree) => tree,
             Err(error) if error.is_script_source_deferral() => {

@@ -11,8 +11,8 @@ use super::declaration_order::sorted_method_entries;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
 use crate::ast::{ASTNode, EnumVariantDecl, FieldDecl};
 use crate::mir::resolved_semantics::{
-    EnumVariantAdmissionV1, EnumVariantDemandV1, FullyExplicitRecordLiteralAdmissionV1,
-    RecordSchemaDemandV1,
+    admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1, EnumVariantAdmissionV1,
+    EnumVariantDemandV1, FullyExplicitRecordLiteralAdmissionV1, RecordSchemaDemandV1,
 };
 
 #[derive(Debug)]
@@ -92,6 +92,13 @@ impl PreparedNormalProgramDeclarationFactsV1 {
         use_view: impl FnOnce(&dyn EnumVariantDemandV1) -> R,
     ) -> R {
         use_view(&EnumVariantDemandViewV1 { facts: self })
+    }
+
+    pub(super) fn with_enum_match_demand_view<R>(
+        &self,
+        use_view: impl FnOnce(&dyn EnumMatchDemandV1) -> R,
+    ) -> R {
+        use_view(&EnumMatchDemandViewV1 { facts: self })
     }
 
     pub(super) fn install_into(self, context: &mut CompilationContext) {
@@ -226,6 +233,30 @@ fn collect_operations(
 
 struct EnumVariantDemandViewV1<'facts> {
     facts: &'facts PreparedNormalProgramDeclarationFactsV1,
+}
+
+struct EnumMatchDemandViewV1<'facts> {
+    facts: &'facts PreparedNormalProgramDeclarationFactsV1,
+}
+
+impl EnumMatchDemandV1 for EnumMatchDemandViewV1<'_> {
+    fn admit_direct_enum_match(
+        &self,
+        enum_name: &str,
+        arms: &[crate::ast::EnumMatchArm],
+        else_expr: Option<&ASTNode>,
+    ) -> Option<EnumMatchAdmissionV1> {
+        let operation_ordinal = self.facts.effective_enum_operations.get(enum_name)?;
+        let NormalProgramDeclarationFactOperationV1::Enum {
+            type_parameters,
+            variants,
+            ..
+        } = self.facts.operations.get(*operation_ordinal)?
+        else {
+            return None;
+        };
+        admit_direct_enum_match_v1(type_parameters, variants, arms, else_expr)
+    }
 }
 
 impl EnumVariantDemandV1 for EnumVariantDemandViewV1<'_> {

@@ -32,22 +32,7 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-NEXT-NAMED-FAMILY3-D0 (fresh design stop)
-
-latest structural finding:
-  Function/Lambda production now validates its complete recursive shadow tree
-  before canonical owner issue. Script Lambda can use the same construction
-  rule and ordered BindingRef receipt without moving closure publication.
-
-accepted series:
-  Function/Lambda construction tree -> Script Lambda observer retirement
-
-latest production closeout:
-  RAW-SCRIPT-CALL-PREFLIGHT-CLASSIFIER-SSOT0-D0 (Decision B, R4 retained)
-
-next decision:
-  choose one non-Call/Object Deferred responsibility from a fresh live-edge
-  census. FunctionCall remains R4-retained and must not receive another selector.
+  see CURRENT_STATE.toml
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -253,9 +238,15 @@ closed — ENUM-MATCH-SOURCE-OWNER-FILE-SPLIT0-S0
   ScopeBox preparation/lowering now has its private sibling; enum-match owner
   is below the file boundary with raw behavior and diagnostics unchanged.
 
-selected — RAW-SCRIPT-ENUM-MATCH-DIRECT-SCRUTINEE0-I0-R0 (T2)
-  Share direct EnumMatch preflight with a declaration-facts view. The sole
-  Script child demand is the scrutinee; arms remain existing-owner observations.
+closed — RAW-SCRIPT-ENUM-MATCH-DIRECT-SCRUTINEE0-I0-R0 (T2)
+  One shared direct enum preflight now serves raw lowering and the borrowed
+  declaration-facts view. Complete co-seals EnumMatchScrutinee only; arms
+  remain raw-owner observations. Selected/legacy parity is green.
+
+selected — SCRIPT-ROOT-ADMISSION-WITNESS0-S0
+  Move root-demand AST shape proof into one private witness, leaving the
+  demand window responsible only for ordinal coverage. No eligibility, route,
+  diagnostic, raw/reference, or lowering behavior changes.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

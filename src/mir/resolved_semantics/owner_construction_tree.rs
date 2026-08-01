@@ -13,7 +13,7 @@ use super::shadow::{
     resolve_script_owner_shadow_view_v0, ShadowLambdaSyntaxV0, ShadowResolveErrorV0,
     ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, VerifiedScriptRootDemandWindowV1,
 };
-use super::{EnumVariantDemandV1, RecordSchemaDemandV1};
+use super::{EnumMatchDemandV1, EnumVariantDemandV1, RecordSchemaDemandV1};
 
 pub(super) struct ShadowOwnerConstructionTreeV1<'ast> {
     pub(super) function: ShadowResolvedFunctionV0,
@@ -44,9 +44,16 @@ pub(super) fn construct_script_owner_tree_v1<'ast>(
     window: &'ast VerifiedScriptRootDemandWindowV1,
     record_schemas: &dyn RecordSchemaDemandV1,
     enum_variants: &dyn EnumVariantDemandV1,
+    enum_matches: &dyn EnumMatchDemandV1,
 ) -> Result<ShadowOwnerConstructionTreeV1<'ast>, ShadowResolveErrorV0> {
     let ShadowResolvedOwnerV0 { function, lambdas } =
-        resolve_script_owner_shadow_view_v0(view, window, record_schemas, enum_variants)?;
+        resolve_script_owner_shadow_view_v0(
+            view,
+            window,
+            record_schemas,
+            enum_variants,
+            enum_matches,
+        )?;
     construct_owner_tree_v1(
         function,
         lambdas,

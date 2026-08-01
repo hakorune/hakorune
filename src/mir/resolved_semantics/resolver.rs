@@ -109,7 +109,7 @@ impl FunctionSemanticResolverSessionV1 {
         view: ScriptSyntaxViewV1<'_>,
         window: &super::VerifiedScriptRootDemandWindowV1,
     ) -> Result<ResolveScriptOutcomeV1, ResolveFunctionErrorV1> {
-        self.resolve_script_with_declaration_views(view, window, &(), &())
+        self.resolve_script_with_declaration_views(view, window, &(), &(), &())
     }
 
     pub(crate) fn resolve_script_with_declaration_views(
@@ -118,8 +118,15 @@ impl FunctionSemanticResolverSessionV1 {
         window: &super::VerifiedScriptRootDemandWindowV1,
         record_schemas: &dyn RecordSchemaDemandV1,
         enum_variants: &dyn EnumVariantDemandV1,
+        enum_matches: &dyn super::EnumMatchDemandV1,
     ) -> Result<ResolveScriptOutcomeV1, ResolveFunctionErrorV1> {
-        let draft = match resolve_script_shadow_view_v0(view, window, record_schemas, enum_variants)
+        let draft = match resolve_script_shadow_view_v0(
+            view,
+            window,
+            record_schemas,
+            enum_variants,
+            enum_matches,
+        )
         {
             Ok(draft) => draft,
             Err(error) if error.is_script_source_deferral() => {
@@ -165,6 +172,7 @@ impl FunctionSemanticResolverSessionV1 {
     ) -> Result<SealedScriptConstructionV1, ResolveFunctionErrorV1> {
         let record_literal_demands = draft.record_literal_demands.clone();
         let enum_variant_demands = draft.enum_variant_demands.clone();
+        let enum_match_demands = draft.enum_match_demands.clone();
         let qmark_propagation_sites = draft.qmark_propagation_sites.clone();
         let match_control_sites = draft.match_control_sites.clone();
         let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), None)?;
@@ -172,6 +180,7 @@ impl FunctionSemanticResolverSessionV1 {
             canonical.data,
             record_literal_demands,
             enum_variant_demands,
+            enum_match_demands,
             qmark_propagation_sites,
             match_control_sites,
         )

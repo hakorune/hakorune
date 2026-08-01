@@ -7,6 +7,9 @@
 //! carrier can manufacture the Complete loan.
 
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
+use super::normal_script_enum_match_demand::{
+    seal_enum_match_demands_v1, VerifiedScriptEnumMatchDemandV1,
+};
 use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
@@ -50,6 +53,7 @@ struct ScriptBoundaryReceiptPackV1 {
 struct ScriptOperationalDemandReceiptPackV1 {
     record_literal_demands: Box<[VerifiedScriptRecordLiteralDemandV1]>,
     enum_variant_demands: Box<[VerifiedScriptEnumVariantDemandV1]>,
+    enum_match_demands: Box<[VerifiedScriptEnumMatchDemandV1]>,
     qmark_propagations: Box<[VerifiedScriptQMarkPropagationV1]>,
     match_controls: Box<[VerifiedScriptMatchControlDemandV1]>,
 }
@@ -225,6 +229,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 })
             })
             .collect::<Result<Vec<_>, String>>()?;
+        let enum_match_demands = seal_enum_match_demands_v1(source.source_ast(), product)?;
         let qmark_propagations = product
             .qmark_propagation_sites()
             .map(|site| {
@@ -462,6 +467,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             demands: ScriptOperationalDemandReceiptPackV1 {
                 record_literal_demands: record_literal_demands.into_boxed_slice(),
                 enum_variant_demands: enum_variant_demands.into_boxed_slice(),
+                enum_match_demands,
                 qmark_propagations: qmark_propagations.into_boxed_slice(),
                 match_controls: match_controls.into_boxed_slice(),
             },
@@ -516,6 +522,11 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             .enum_variant_demands
             .iter()
             .map(|receipt| (&receipt.site, &receipt.admission))
+    }
+
+    #[cfg(test)]
+    pub(super) fn enum_match_demands(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.demands.enum_match_demands.iter().map(|receipt| &receipt.site)
     }
 
     #[cfg(test)]
@@ -709,6 +720,12 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 .iter()
                 .map(|receipt| (receipt.site.node().clone(), receipt.admission.clone())),
         )?;
+        state.install_enum_match_scrutinee_receipts(
+            self.demands
+                .enum_match_demands
+                .iter()
+                .map(|receipt| receipt.site.node().clone()),
+        )?;
         state.install_qmark_propagation_receipts(
             self.demands
                 .qmark_propagations
@@ -746,6 +763,9 @@ mod enum_declaration_tests;
 #[cfg(test)]
 #[path = "normal_script_enum_variant_tests.rs"]
 mod enum_variant_tests;
+#[cfg(test)]
+#[path = "normal_script_enum_match_tests.rs"]
+mod enum_match_tests;
 #[cfg(test)]
 #[path = "normal_script_map_literal_tests.rs"]
 mod map_literal_tests;
