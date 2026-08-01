@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-VM-BRIDGE-RETIRE0-I0-R0 is closed: the explicit JoinIR VM bridge is deleted and Structured JoinIR-to-MIR conversion has one neutral production owner."
+status = "MIRBUILDER-VM-BRIDGE-RETIRE0-I0-R0 is closed; JOINIR-LOOP-RECIPE-COREPLAN0-D0 is awaiting an all-route ownership decision."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
+current_design_stop = "JOINIR-LOOP-RECIPE-COREPLAN0-D0"
 current_execution_row = "JOINIR-LOOP-RECIPE-COREPLAN0-D0"
 current_execution_summary = "Design one verified Recipe/CorePlan Loop owner that replaces both normalized-shadow mutations before the located Loop source handoff can consume it."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
