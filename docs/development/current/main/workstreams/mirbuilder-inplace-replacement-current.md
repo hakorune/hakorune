@@ -32,11 +32,12 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0
+  SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
 
 latest structural finding:
-  Direct Script Lambda is unsafe: Script has no atomic recursive child-owner
-  forest, and forest upvar sets do not encode capture ABI first-demand order.
+  A construction-local recursive shadow tree plus ordered BindingRef receipt
+  can preserve Lambda capture ABI, but must first be exercised by existing
+  Function/Lambda production before any Script cutover.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
@@ -266,23 +267,23 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0
+  SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
 
   Change:
-    Design root-neutral Script recursive forest construction and an ordered
-    BindingRef capture receipt co-sealed with each Lambda child owner.
+    Existing Function/Lambda owner resolution builds one construction-local
+    recursive shadow tree and records first-demand capture events before IDs.
 
   Contract:
-    Complete/Deferred is chosen before owner issue. Ordered capture rows must
-    equal child upvar relations without using names or BTreeSet order.
+    Function/Lambda behavior and canonical graph remain unchanged. No Script
+    consumer, capture ABI materialization, or closure publication changes.
 
   Done:
-    Record a minimal live prerequisite series or NoSafeSlice. Lambda lowering,
-    ClosureBodyId publication, and raw observer retirement remain out of scope.
+    Existing Function/Lambda consumes the new tree once; ordered event rows are
+    construction-local and are verified against each child upvar relation.
 
   Stop:
-    Stop if this needs a second resolver, owner issue at Lambda encounter,
-    partial forest, name reconstruction, or lowering/publication changes.
+    Stop if a public view changes, a caller-zero Script scaffold appears, owner
+    issue moves to Lambda encounter, or any lowering/publication behavior moves.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -294,6 +295,11 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0
+  -> Accept-corrected. Ordered BindingRef receipt is the only capture-order
+     authority; its set must equal child upvars. A live Function/Lambda S0
+     precedes Script T2; no forest iteration or raw name observer is capture ABI.
+
   RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0
   -> NoSafe for direct I0. Script has no recursive child-owner forest and
      forest upvar sets omit first-demand ABI order. Do not retain the raw

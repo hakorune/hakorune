@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0 is closed NoSafe for direct I0: Script lacks atomic recursive child-owner forest construction, and forest upvars lack first-demand capture ABI order. Ordered-capture prerequisite design is current."
+status = "SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0 is closed Accept-corrected: live Function/Lambda S0 must first create construction-local recursive shadow trees and ordered capture receipts before Script Lambda T2 can retire its raw observer."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0"
-current_execution_row = "SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0"
-current_execution_summary = "Design one root-neutral recursive Script owner-forest construction and one co-sealed ordered BindingRef capture receipt. It must decide Complete/Deferred before owner issue and prove ordered rows equal child upvar relations; no Lambda lowering I0 is open."
+current_design_stop = "SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0"
+current_execution_row = "SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0"
+current_execution_summary = "Refactor existing Function/Lambda production through one construction-local recursive shadow tree. It records Lambda topology and first-demand upvar events before canonical owner issue; Script remains unchanged in S0."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
@@ -448,7 +448,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0 closes NoSafe for direct I0: Script needs atomic recursive forest construction plus first-demand ordered BindingRef capture receipts before raw name observation can retire. Forest upvar set iteration is not capture ABI order; Lambda lowering remains Deferred."""
+latest_card_summary = """SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0 is Accept-corrected: a live Function/Lambda S0 will establish construction-local recursive shadow trees and ordered BindingRef capture receipts before Script Lambda T2. Capture ABI never comes from forest set iteration; Lambda lowering remains unchanged in S0."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -651,7 +651,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0"
+current_blocker_token = "SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
