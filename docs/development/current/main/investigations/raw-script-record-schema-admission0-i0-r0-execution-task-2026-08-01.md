@@ -132,3 +132,50 @@ Raw/reference routes keep their existing collection/install timing.
   silently using a missing receipt in a Complete Script source;
 - RecordUpdate or constructor `New` activation;
 - a touched source/check file reaching 800 lines.
+
+## Worktree coordination fence
+
+This row is intentionally paused until the pre-existing builder WIP is
+owned and isolated.  It must not be folded into the record-schema change,
+reformatted by this row, or staged by this row.
+
+Read-only inventory on 2026-08-01 found 14 modified builder files.  The
+following overlap directly with this row's lifecycle/source-port seam:
+
+```text
+normal_default_root_catalog_lifecycle.rs
+program_root_lowering.rs
+program_root_work_plan.rs
+raw_invocation_source_transport.rs
+recursive_child_lowering.rs
+normal_script_semantic_source_tests.rs
+```
+
+`normal_script_semantic_source_tests.rs` has a material-sized unowned diff;
+the remaining overlap is not assumed to be formatting-only.  This row may
+not make that judgement by diff-stat alone.
+
+Resume only after the WIP owner has committed, stashed, or otherwise
+explicitly handed off the complete overlapping change set.  Then repeat the
+normal restart check and record the fresh baseline before editing:
+
+```text
+git status -sb
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+The implementation order after that handoff is fixed:
+
+```text
+1. declaration facts: effective-record index + private borrowed view
+2. neutral resolved-semantics admission vocabulary and verified receipt
+3. shared Script traversal gate before RecordLiteral child descent
+4. selected lifecycle collect -> borrow -> move/install handoff
+5. receipt-backed structured RecordFieldValue port; legacy path unchanged
+6. focused parity, failure/reuse, and raw/reference tests
+```
+
+This fence is coordination only.  It neither changes the selected closure nor
+creates a second collector, resolver, forest, projection, compatibility
+route, or fallback.
