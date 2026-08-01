@@ -1,5 +1,5 @@
 //! Draft/sealed publication boundary for resolved function semantics.
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
@@ -77,6 +77,7 @@ pub struct VerifiedResolvedFunctionV1 {
 pub(crate) struct VerifiedResolvedScriptV1 {
     core: VerifiedResolvedOwnerCoreV1,
     record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
+    qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -348,10 +349,12 @@ impl VerifiedResolvedScriptV1 {
     pub(crate) fn from_canonical_data(
         data: ResolvedFunctionDataV1,
         record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
+        qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     ) -> Result<Self, ResolvedFunctionVerificationErrorV1> {
         Ok(Self {
             core: seal_owner_core(data)?,
             record_literal_demands,
+            qmark_propagation_sites,
         })
     }
 
@@ -367,5 +370,9 @@ impl VerifiedResolvedScriptV1 {
         self.record_literal_demands
             .iter()
             .map(|(site, count)| (site, *count))
+    }
+
+    pub(crate) fn qmark_propagation_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.qmark_propagation_sites.iter()
     }
 }

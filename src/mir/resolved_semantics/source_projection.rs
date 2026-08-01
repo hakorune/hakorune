@@ -209,6 +209,13 @@ fn project_segment<'source>(
             },
             SourcePathSegmentV1::Operand,
         ) => ProjectedSourceNodeV1::Node(operand),
+        (
+            ASTNode::QMarkPropagate {
+                expression: operand,
+                ..
+            },
+            SourcePathSegmentV1::QMarkOperand,
+        ) => ProjectedSourceNodeV1::Node(operand),
         (ASTNode::BinaryOp { left, .. }, SourcePathSegmentV1::Lhs) => {
             ProjectedSourceNodeV1::Node(left)
         }

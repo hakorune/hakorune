@@ -8,7 +8,8 @@
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
-    ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1,
+    ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1,
+    ScriptRootQMarkPropagationAdmissionV1, ScriptRootResolvedDemandV1,
     ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
@@ -131,6 +132,16 @@ impl ScriptRootDemandWindowBuilderV1 {
                     )
                 }
                 Admission::DirectPortAwareExpression
+                    if matches!(statement, ASTNode::QMarkPropagate { .. }) =>
+                {
+                    (
+                        Semantic::Resolved(ScriptRootResolvedDemandV1::QMarkPropagation(
+                            ScriptRootQMarkPropagationAdmissionV1::new(),
+                        )),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
+                Admission::DirectPortAwareExpression
                     if matches!(statement, ASTNode::Return { .. }) =>
                 {
                     (
@@ -203,6 +214,9 @@ fn validate_boundary(
         ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IfControl(_)) => {
             matches!(statement, ASTNode::If { .. })
         }
+        ScriptRootSemanticDispositionV1::Resolved(
+            ScriptRootResolvedDemandV1::QMarkPropagation(_),
+        ) => matches!(statement, ASTNode::QMarkPropagate { .. }),
         ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::ReturnExit(_)) => {
             matches!(statement, ASTNode::Return { .. })
         }

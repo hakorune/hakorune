@@ -153,7 +153,8 @@
         "script_context_scope_diagnostic_boundary": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn context_scope_is_complete_without_observing_value_or_body"},
         "script_array_literal_compositional_allocation": {"path": "src/mir/builder/normal_script_array_literal_tests.rs", "anchor": "fn prior_local_array_elements_use_complete_script_sources_and_match_legacy"},
         "script_weak_reference_compositional": {"path": "src/mir/builder/normal_script_weak_reference_tests.rs", "anchor": "fn weak_reference_uses_complete_script_source_and_matches_legacy"},
-        "script_map_literal_compositional_mutation": {"path": "src/mir/builder/normal_script_map_literal_tests.rs", "anchor": "fn prior_local_map_values_use_complete_script_sources_and_match_legacy"}
+        "script_map_literal_compositional_mutation": {"path": "src/mir/builder/normal_script_map_literal_tests.rs", "anchor": "fn prior_local_map_values_use_complete_script_sources_and_match_legacy"},
+        "script_root_qmark_propagation": {"path": "src/mir/builder/normal_script_qmark_tests.rs", "anchor": "fn root_qmark_await_seals_the_exact_operand_and_matches_legacy"}
       },
       "deferred_fixtures": {
         "script_weak_unary": {"reason": "UnsafeRuntimeStatement", "path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn weak_unary_remains_deferred"},

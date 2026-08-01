@@ -660,7 +660,6 @@ fn projects_match_children_and_enum_scrutinee_without_widening_enum_arms() {
 fn keeps_the_parked_segment_vocabulary_explicitly_rejected() {
     let parked = [
         SourcePathSegmentV1::Binding(0),
-        SourcePathSegmentV1::QMarkOperand,
         SourcePathSegmentV1::EnumMatchArm(0),
         SourcePathSegmentV1::EnumMatchElse,
     ];
@@ -669,6 +668,19 @@ fn keeps_the_parked_segment_vocabulary_explicitly_rejected() {
         assert!(!projector_admits_segment_kind(&segment));
         assert!(project_source_node_v1(&root, &site(vec![segment])).is_none());
     }
+}
+
+#[test]
+fn projects_qmark_operand_only_from_a_qmark_parent() {
+    let root = ASTNode::QMarkPropagate {
+        expression: Box::new(literal(66)),
+        span: Span::unknown(),
+    };
+    assert_literal(&root, vec![SourcePathSegmentV1::QMarkOperand], 66);
+    assert!(
+        project_source_node_v1(&literal(0), &site(vec![SourcePathSegmentV1::QMarkOperand]),)
+            .is_none()
+    );
 }
 
 #[test]

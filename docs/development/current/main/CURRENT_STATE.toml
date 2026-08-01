@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-QMARK-CONTROL-RESULT0-D0 is closed Accept-B: QMark propagation is a Script-source co-sealed receipt, not a shared resolved-exit extension. A real root `(await 42)?` source verifies on current MIR, so the next I0 may admit only root QMark with an existing safe operand closure, exact QMarkOperand descent, and unchanged existing control/result owner. GroupedAssignmentExpr, Loop/JoinIR, and broad FieldAccess remain NoSafe."
+status = "RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0 is closed: safe root QMark now co-seals one Script propagation receipt, lowers its exact QMarkOperand through the selected port, and preserves legacy MIR/verification plus RootLower diagnostic/reuse parity. The next stop is a fresh bounded Script responsibility-family census; no successor is preselected. GroupedAssignmentExpr, Loop/JoinIR, and broad FieldAccess remain NoSafe."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0"
-current_execution_row = "RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0"
-current_execution_summary = "Co-seal a root-QMark Script propagation receipt with the existing Script semantic source. Admit only `QMarkPropagate(existing-safe operand)` at the Program root; prepare exactly one QMarkOperand child source and invoke the existing owner once. Preserve `operand -> isOk -> branch -> Return(res) -> getValue`, RootLower diagnostics, raw/reference behavior, and no fallback/retry."
+current_design_stop = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0"
+current_execution_row = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0"
+current_execution_summary = "Run one fresh, bounded static live-edge census after the QMark closeout. Select at most one Script responsibility family only when it has a named production consumer and an atomically removable old authority; do not preselect or implement a successor during this D0."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"

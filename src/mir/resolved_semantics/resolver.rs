@@ -137,11 +137,14 @@ impl FunctionSemanticResolverSessionV1 {
         draft: ShadowResolvedFunctionV0,
     ) -> Result<VerifiedResolvedScriptV1, ResolveFunctionErrorV1> {
         let record_literal_demands = draft.record_literal_demands.clone();
+        let qmark_propagation_sites = draft.qmark_propagation_sites.clone();
         let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), None)?;
-        Ok(
-            VerifiedResolvedScriptV1::from_canonical_data(canonical.data, record_literal_demands)
-                .map_err(ResolveFunctionErrorV1::Verification)?,
+        Ok(VerifiedResolvedScriptV1::from_canonical_data(
+            canonical.data,
+            record_literal_demands,
+            qmark_propagation_sites,
         )
+        .map_err(ResolveFunctionErrorV1::Verification)?)
     }
 
     pub(super) fn seal_owner(

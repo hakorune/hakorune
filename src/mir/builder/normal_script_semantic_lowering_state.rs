@@ -15,6 +15,7 @@ pub(super) struct ScriptSemanticLoweringState {
     nowaits: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     outboxes: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
     record_literal_demands: BTreeMap<SourceNodeSiteV1, u32>,
+    qmark_propagation_receipts: BTreeSet<SourceNodeSiteV1>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
 impl ScriptSemanticLoweringState {
@@ -50,6 +51,7 @@ impl ScriptSemanticLoweringState {
                 .map(|(site, bindings)| (site, bindings.into_iter().collect()))
                 .collect(),
             record_literal_demands: BTreeMap::new(),
+            qmark_propagation_receipts: BTreeSet::new(),
             materialized_outboxes: BTreeSet::new(),
         }
     }
@@ -101,6 +103,25 @@ impl ScriptSemanticLoweringState {
         site: &SourceNodeSiteV1,
     ) -> Option<u32> {
         self.record_literal_demands.get(site).copied()
+    }
+
+    pub(super) fn install_qmark_propagation_receipts<Receipts>(
+        &mut self,
+        receipts: Receipts,
+    ) -> Result<(), String>
+    where
+        Receipts: IntoIterator<Item = SourceNodeSiteV1>,
+    {
+        for site in receipts {
+            if !self.qmark_propagation_receipts.insert(site) {
+                return Err("[freeze:contract][script-qmark/duplicate-receipt]".to_owned());
+            }
+        }
+        Ok(())
+    }
+
+    pub(super) fn has_qmark_propagation_receipt(&self, site: &SourceNodeSiteV1) -> bool {
+        self.qmark_propagation_receipts.contains(site)
     }
 
     pub(super) fn record(&mut self, binding: BindingRefV1, value: ValueId) -> Result<(), String> {

@@ -1,6 +1,6 @@
 //! Shadow-only resolver output and closed failure vocabulary.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use crate::mir::resolved_semantics::source_site::{
@@ -191,6 +191,9 @@ pub(crate) enum ShadowResolveErrorV0 {
     DuplicateRecordLiteralDemand {
         site: SourceExprSiteV1,
     },
+    DuplicateQMarkPropagation {
+        site: SourceExprSiteV1,
+    },
     FunctionCallArityOverflow {
         site: SourceExprSiteV1,
     },
@@ -213,6 +216,7 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     pub(crate) record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
+    pub(crate) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
 }
 
 #[derive(Debug)]

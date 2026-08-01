@@ -35,6 +35,7 @@ use super::ops::{
     lower_prepared_raw_unary_with_port_v1, BinaryExpressionDescentPortV1, PreparedRawUnaryV1,
     RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1, ShortCircuitExpressionDescentPortV1,
 };
+use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
@@ -79,6 +80,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + RawBoxMethodChildPortV1
     + RawLoopChildEntryPortV1
     + RecordLiteralSourceDemandPortV1
+    + QMarkPropagationSourceDemandPortV1
 {
 }
 
@@ -99,6 +101,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + RawBoxMethodChildPortV1
         + RawLoopChildEntryPortV1
         + RecordLiteralSourceDemandPortV1
+        + QMarkPropagationSourceDemandPortV1
 {
 }
 
@@ -244,8 +247,23 @@ impl super::MirBuilder {
                 callee, arguments, ..
             } => self.build_indirect_call_expression_with_port_v1(port, *callee, arguments),
 
-            ASTNode::QMarkPropagate { expression, .. } => {
-                self.build_qmark_propagate_expression_with_port_v1(port, *expression)
+            node @ ASTNode::QMarkPropagate { .. } => {
+                let receipt_backed = port.has_qmark_propagation_receipt_v1(&node)?;
+                let source = receipt_backed
+                    .then(|| {
+                        port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::QMarkOperand)
+                    })
+                    .transpose()?;
+                let ASTNode::QMarkPropagate { expression, .. } = node else {
+                    unreachable!("qmark receipt query keeps its AST shape");
+                };
+                if let Some(source) = source {
+                    port.with_prepared_child_source_v1(source, |port| {
+                        self.build_qmark_propagate_expression_with_port_v1(port, *expression)
+                    })
+                } else {
+                    self.build_qmark_propagate_expression_with_port_v1(port, *expression)
+                }
             }
 
             node @ ASTNode::MatchExpr { .. } => {

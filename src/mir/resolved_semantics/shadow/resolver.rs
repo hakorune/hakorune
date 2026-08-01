@@ -74,6 +74,7 @@ pub(super) struct ShadowResolverV0<'ast, 'schema> {
     method_call_observations: BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>,
     record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
     record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
+    qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
@@ -306,6 +307,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             method_call_observations: BTreeMap::new(),
             record_schema_demand,
             record_literal_demands: BTreeMap::new(),
+            qmark_propagation_sites: BTreeSet::new(),
         }
     }
 
@@ -327,6 +329,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 direct_calls: self.direct_calls,
                 resolved_exits: self.resolved_exits,
                 record_literal_demands: self.record_literal_demands,
+                qmark_propagation_sites: self.qmark_propagation_sites,
             },
             lambdas: self.lambdas.into_boxed_slice(),
         }
@@ -353,6 +356,16 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             .is_some()
         {
             return Err(ShadowResolveErrorV0::DuplicateRecordLiteralDemand { site });
+        }
+        Ok(())
+    }
+
+    pub(super) fn admit_qmark_propagation(
+        &mut self,
+        site: SourceExprSiteV1,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        if !self.qmark_propagation_sites.insert(site.clone()) {
+            return Err(ShadowResolveErrorV0::DuplicateQMarkPropagation { site });
         }
         Ok(())
     }

@@ -11,6 +11,7 @@ use crate::mir::{MirBuilder, ValueId};
 
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 
+use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::RecursiveChildLoweringPortV1;
@@ -187,6 +188,15 @@ where
         literal: &ASTNode,
     ) -> Result<Option<u32>, String> {
         self.child.record_literal_explicit_field_count_v1(literal)
+    }
+}
+
+impl<Port> QMarkPropagationSourceDemandPortV1 for RawStructuredChildScopePortV1<'_, Port>
+where
+    Port: QMarkPropagationSourceDemandPortV1,
+{
+    fn has_qmark_propagation_receipt_v1(&self, qmark: &ASTNode) -> Result<bool, String> {
+        self.child.has_qmark_propagation_receipt_v1(qmark)
     }
 }
 

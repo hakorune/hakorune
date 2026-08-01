@@ -14,6 +14,7 @@ pub(crate) fn is_statement_expression_surface_v1(node: &ASTNode) -> bool {
         ASTNode::Literal { .. }
             | ASTNode::Variable { .. }
             | ASTNode::BinaryOp { .. }
+            | ASTNode::QMarkPropagate { .. }
             | ASTNode::UnaryOp { .. }
             | ASTNode::MethodCall { .. }
             | ASTNode::FunctionCall { .. }
@@ -65,6 +66,7 @@ pub(crate) enum ExprChildRoleV1 {
     ReturnValue,
     UnaryOperand,
     AwaitOperand,
+    QMarkOperand,
     BinaryLeft,
     BinaryRight,
     IfCondition,
@@ -134,6 +136,10 @@ impl ExprChildRoleV1 {
             ),
             (Self::AwaitOperand, ASTNode::AwaitExpression { expression, .. }) => (
                 SourcePathSegmentV1::Operand,
+                ExprChildSyntaxV1::Node(expression),
+            ),
+            (Self::QMarkOperand, ASTNode::QMarkPropagate { expression, .. }) => (
+                SourcePathSegmentV1::QMarkOperand,
                 ExprChildSyntaxV1::Node(expression),
             ),
             (Self::BinaryLeft, ASTNode::BinaryOp { left, .. }) => {
@@ -547,5 +553,21 @@ mod tests {
             role.resolve(&local).expect("matching local role").syntax(),
             ExprChildSyntaxV1::Missing
         ));
+    }
+
+    #[test]
+    fn qmark_operand_has_its_own_exact_child_role() {
+        let qmark = ASTNode::QMarkPropagate {
+            expression: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let child = ExprChildRoleV1::QMarkOperand
+            .resolve(&qmark)
+            .expect("QMark operand role");
+        assert_eq!(child.segment(), SourcePathSegmentV1::QMarkOperand);
+        assert!(matches!(child.syntax(), ExprChildSyntaxV1::Node(_)));
     }
 }

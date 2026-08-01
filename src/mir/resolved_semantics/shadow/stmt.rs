@@ -21,6 +21,9 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     ) -> Result<(), ShadowResolveErrorV0> {
         match demand {
             ScriptRootResolvedDemandV1::LexicalCore => self.resolve_stmt(statement, path),
+            ScriptRootResolvedDemandV1::QMarkPropagation(_) => {
+                self.resolve_qmark_propagation(statement, path)
+            }
             ScriptRootResolvedDemandV1::IfControl(_) => {
                 let ASTNode::If {
                     condition,
@@ -41,6 +44,24 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 self.resolve_binding_rebind(statement, path)
             }
         }
+    }
+
+    fn resolve_qmark_propagation(
+        &mut self,
+        statement: &'ast ASTNode,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let ASTNode::QMarkPropagate { expression, .. } = statement else {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Script root QMark admission source drift",
+                site: path.stmt(),
+            });
+        };
+        self.admit_qmark_propagation(path.expr())?;
+        self.resolve_expr(
+            expression,
+            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::QMarkOperand),
+        )
     }
 
     fn stmt_expr_path(

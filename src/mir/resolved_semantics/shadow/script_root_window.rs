@@ -23,9 +23,21 @@ pub(crate) enum ScriptRootSemanticDispositionV1 {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ScriptRootResolvedDemandV1 {
     LexicalCore,
+    QMarkPropagation(ScriptRootQMarkPropagationAdmissionV1),
     IfControl(ScriptRootIfControlAdmissionV1),
     ReturnExit(ScriptRootReturnExitAdmissionV1),
     BindingRebind(ScriptRootBindingRebindAdmissionV1),
+}
+
+/// Receipt for one root QMark whose propagation remains owned by the existing
+/// lowering terminal. The payload deliberately carries no CFG or exit state.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct ScriptRootQMarkPropagationAdmissionV1(());
+
+impl ScriptRootQMarkPropagationAdmissionV1 {
+    pub(crate) const fn new() -> Self {
+        Self(())
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

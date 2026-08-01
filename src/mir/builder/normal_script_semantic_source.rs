@@ -13,8 +13,9 @@ use crate::mir::resolved_semantics::{
     BindingRefV1, ResolvedAssignmentTargetV1, ScriptDiagnosticBoundaryV1,
     ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
     SemanticOwnerForestDraftV1, SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceNodeSiteV1, SourceStmtSiteV1, VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1,
-    VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
+    SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
+    VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1,
+    VerifiedSemanticOwnerProductV1,
 };
 
 use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
@@ -29,6 +30,7 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     using_directives: Box<[VerifiedScriptUsingDirectiveV1]>,
     existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
     record_literal_demands: Box<[VerifiedScriptRecordLiteralDemandV1]>,
+    qmark_propagations: Box<[VerifiedScriptQMarkPropagationV1]>,
     runtime_source_indices: Box<[usize]>,
 }
 
@@ -58,6 +60,21 @@ pub(super) struct VerifiedScriptExistingDiagnosticBoundaryV1 {
 pub(super) struct VerifiedScriptRecordLiteralDemandV1 {
     site: SourceExprSiteV1,
     explicit_field_count: u32,
+}
+
+/// A source-only authorization for the existing QMark control/result owner.
+/// It proves the exact operand site and that propagation targets this Script
+/// execution owner; CFG, Return, and result materialization remain elsewhere.
+#[derive(Debug)]
+pub(super) struct VerifiedScriptQMarkPropagationV1 {
+    site: SourceExprSiteV1,
+    operand_site: SourceExprSiteV1,
+    target: ScriptQMarkPropagationTargetV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ScriptQMarkPropagationTargetV1 {
+    CurrentScriptOwner,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -100,6 +117,58 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 })
             })
             .collect::<Result<Vec<_>, _>>()?;
+        let qmark_propagations = product
+            .qmark_propagation_sites()
+            .map(|site| {
+                let statement_site = SourceStmtSiteV1::from_node(site.node().clone());
+                let source_statement_index = program_statement_index(&statement_site)?;
+                let Some(entry) = window.entry_at(source_statement_index) else {
+                    return Err("[mir/script-semantic/qmark-window] missing root demand".to_owned());
+                };
+                if entry.site().node() != site.node()
+                    || !matches!(
+                        entry.semantic(),
+                        ScriptRootSemanticDispositionV1::Resolved(
+                            crate::mir::resolved_semantics::ScriptRootResolvedDemandV1::QMarkPropagation(_)
+                        )
+                    )
+                {
+                    return Err("[mir/script-semantic/qmark-window] source mismatch".to_owned());
+                }
+                let projected = crate::mir::resolved_semantics::project_source_node_v1(
+                    source.source_ast(),
+                    site.node(),
+                )
+                .ok_or_else(|| "[mir/script-semantic/qmark-projection] missing QMark".to_owned())?;
+                let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
+                    ASTNode::QMarkPropagate { .. },
+                ) = projected
+                else {
+                    return Err("[mir/script-semantic/qmark-site] expected QMarkPropagate".to_owned());
+                };
+                let operand_site = SourcePathV1::from_node(site.node())
+                    .child(SourcePathSegmentV1::QMarkOperand)
+                    .expr();
+                let projected_operand = crate::mir::resolved_semantics::project_source_node_v1(
+                    source.source_ast(),
+                    operand_site.node(),
+                )
+                .ok_or_else(|| {
+                    "[mir/script-semantic/qmark-operand-projection] missing exact operand".to_owned()
+                })?;
+                if !matches!(
+                    projected_operand,
+                    crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(_)
+                ) {
+                    return Err("[mir/script-semantic/qmark-operand-site] expected node".to_owned());
+                }
+                Ok(VerifiedScriptQMarkPropagationV1 {
+                    site: site.clone(),
+                    operand_site,
+                    target: ScriptQMarkPropagationTargetV1::CurrentScriptOwner,
+                })
+            })
+            .collect::<Result<Vec<_>, String>>()?;
         let mut runtime_source_indices = Vec::new();
         for entry in window.entries() {
             let source_statement_index = program_statement_index(&entry.site())?;
@@ -228,6 +297,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             using_directives: using_directives.into_boxed_slice(),
             existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
             record_literal_demands: record_literal_demands.into_boxed_slice(),
+            qmark_propagations: qmark_propagations.into_boxed_slice(),
             runtime_source_indices: runtime_source_indices.into_boxed_slice(),
         })
     }
@@ -246,6 +316,21 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
 
     pub(super) fn runtime_source_indices(&self) -> &[usize] {
         &self.runtime_source_indices
+    }
+
+    #[cfg(test)]
+    pub(super) fn qmark_propagations(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &SourceExprSiteV1,
+            &SourceExprSiteV1,
+            &ScriptQMarkPropagationTargetV1,
+        ),
+    > {
+        self.qmark_propagations
+            .iter()
+            .map(|receipt| (&receipt.site, &receipt.operand_site, &receipt.target))
     }
 
     #[cfg(test)]
@@ -386,6 +471,11 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 .iter()
                 .map(|receipt| (receipt.site.node().clone(), receipt.explicit_field_count)),
         )?;
+        state.install_qmark_propagation_receipts(
+            self.qmark_propagations
+                .iter()
+                .map(|receipt| receipt.site.node().clone()),
+        )?;
         Ok(state)
     }
 }
@@ -411,6 +501,9 @@ mod block_expr_tests;
 #[cfg(test)]
 #[path = "normal_script_map_literal_tests.rs"]
 mod map_literal_tests;
+#[cfg(test)]
+#[path = "normal_script_qmark_tests.rs"]
+mod qmark_tests;
 #[cfg(test)]
 #[path = "normal_script_record_literal_tests.rs"]
 mod record_literal_tests;

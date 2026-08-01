@@ -35,18 +35,19 @@ current execution:
   RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
 
 latest structural finding:
-  one declaration-facts product can lend positive-only record schema admission
-  before moving into the existing RootLower install; no second collector is
-  required.
+  safe root QMark now uses a Script-only propagation receipt co-sealed with the
+  shared Script semantic source. The existing QMark owner retains its
+  control/result sequence; shared resolved exits stay statement-only.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
 
 latest production closeout:
-  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
+  RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0
 
 consultation decision:
-  fresh bounded family census required; no successor preselected
+  fresh bounded responsibility-family census required; no successor
+  preselected.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -266,29 +267,20 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
 
   Change:
-    Co-seal a root-QMark propagation receipt with the existing Script semantic
-    source. Admit only root `QMarkPropagate(existing-safe operand)`, prepare
-    one exact QMarkOperand source, and invoke the existing QMark owner once.
+    Run one fresh bounded static live-edge census after the QMark closeout.
 
   Contract:
-    The Script receipt carries exact QMark/operand sites and
-    `CurrentScriptOwner`, not RegionId, ValueId, or a synthetic Return. Preserve
-    `operand -> isOk -> branch -> Return(res) -> getValue` exactly. Unsafe QMark
-    defers before operand traversal; user diagnostics remain RootLower-owned.
+    Select at most one responsibility family with a named production consumer
+    and an atomically removable old authority. No successor is preselected.
 
   Done:
-    Root `(await 42)?` reaches Complete, receives one QMarkOperand handoff, and
-    matches legacy MIR/verification/order. Safe root QMark loses only its
-    Deferred -> bare script_root edge; nested QMark and other CONTROL families
-    remain Deferred.
+    Record one evidence-backed candidate decision or NoSafeSlice result.
 
   Stop:
-    Do not extend the shared resolved-exit algebra, fabricate an AST Return,
-    alter QMark runtime-call/type/SSA or Return order, reclassify after lowering,
-    or mix nested QMark, Loop/Match/Try/Lambda/Call work into this row.
+    Do not implement during this D0, reopen QMark, or run a broad/parallel scan.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -300,6 +292,14 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0
+  -> Root `QMarkPropagate(existing-safe operand)` now co-seals its exact
+     QMarkOperand receipt with the Script source and reaches the existing
+     control/result owner once. MIR/verification parity, RootLower diagnostic
+     parity, fresh reuse, source projection, and the shared guard are green;
+     safe QMark no longer reaches Deferred -> bare script_root(). Next blocker:
+     fresh bounded responsibility-family census.
+
   RAW-SCRIPT-QMARK-CONTROL-RESULT0-D0
   -> Accept-B. Common resolved exits are statement-only and must not be
      generalized for QMark. Instead, a Script-only co-sealed propagation receipt
