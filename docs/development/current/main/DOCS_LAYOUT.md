@@ -73,6 +73,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/type-abi-naming-and-box-descriptor-ssot.md`
   - naming boundary for TypeBox ABI v2 vs historical TypeAbi* descriptor
     projection surfaces and future BoxDescriptor naming
+- `design/ring2-provider-link-abi-lifecycle-ssot.md`
+  - separates ring trust/responsibility, provider residency, BID-TLV/TypedFast
+    ABI transport, dispatch binding, optimization outcome, provider-image
+    lifetime, and the required B-prime `fini`/structural `destroy` split
 - `design/typed-object-exact-slot-abi-ssot.md`
   - typed-object exact slot ABI split owner; keeps compat `field_get_hii`
     separate from selected `typed_object.slot_load/store_*` exact routes
