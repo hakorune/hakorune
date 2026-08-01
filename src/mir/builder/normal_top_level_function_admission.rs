@@ -4,6 +4,7 @@
 //! therefore local to the Program work plan, while its physical draft contract
 //! deliberately preserves the legacy `name/arity` collector identity.
 
+use super::callable_declaration_catalog::SelectedTopLevelFunctionKeyV1;
 use super::calls::LegacyFunctionPendingSessionV1;
 use super::module_draft_collector::{FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1};
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
@@ -18,44 +19,11 @@ use crate::mir::MirBuilder;
 /// legacy replacement behavior.
 /// Cloning transports the same Program occurrence into the recursive source
 /// carrier; it does not issue another source identity.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) struct NormalTopLevelFunctionSourceKeyV1 {
-    statement_index: usize,
-    declared_name: Box<str>,
-    declared_arity: usize,
-}
-
-impl NormalTopLevelFunctionSourceKeyV1 {
-    pub(in crate::mir::builder) fn new(
-        statement_index: usize,
-        declared_name: impl Into<Box<str>>,
-        declared_arity: usize,
-    ) -> Self {
-        Self {
-            statement_index,
-            declared_name: declared_name.into(),
-            declared_arity,
-        }
-    }
-
-    pub(in crate::mir::builder) const fn statement_index(&self) -> usize {
-        self.statement_index
-    }
-
-    pub(in crate::mir::builder) fn declared_name(&self) -> &str {
-        &self.declared_name
-    }
-
-    pub(in crate::mir::builder) const fn declared_arity(&self) -> usize {
-        self.declared_arity
-    }
-}
-
 /// One selected-normal top-level declaration paired with its legacy physical
 /// draft relation.  It owns no AST, Builder borrow, or collector state.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct NormalTopLevelFunctionDraftAdmissionV1 {
-    source_key: NormalTopLevelFunctionSourceKeyV1,
+    source_key: SelectedTopLevelFunctionKeyV1,
     physical_symbol: Box<str>,
     physical_arity: usize,
     _seal: NormalTopLevelFunctionDraftAdmissionSealV1,
@@ -65,7 +33,9 @@ pub(in crate::mir::builder) struct NormalTopLevelFunctionDraftAdmissionV1 {
 struct NormalTopLevelFunctionDraftAdmissionSealV1;
 
 impl NormalTopLevelFunctionDraftAdmissionV1 {
-    pub(in crate::mir::builder) fn seal(source_key: NormalTopLevelFunctionSourceKeyV1) -> Self {
+    pub(in crate::mir::builder) fn from_catalog_key(
+        source_key: SelectedTopLevelFunctionKeyV1,
+    ) -> Self {
         let physical_symbol = format!(
             "{}/{}",
             source_key.declared_name(),
@@ -81,7 +51,7 @@ impl NormalTopLevelFunctionDraftAdmissionV1 {
         }
     }
 
-    pub(in crate::mir::builder) fn source_key(&self) -> &NormalTopLevelFunctionSourceKeyV1 {
+    pub(in crate::mir::builder) fn source_key(&self) -> &SelectedTopLevelFunctionKeyV1 {
         &self.source_key
     }
 
@@ -170,32 +140,5 @@ impl RawInvocationChildPortV1<'_, '_> {
                 },
             )?;
         self.commit_normal_top_level_function_pending_v1(pending, admission)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mir::builder::module_draft_collector::FunctionDraftKeyV1;
-
-    #[test]
-    fn distinct_occurrences_keep_one_legacy_physical_projection() {
-        let first = NormalTopLevelFunctionDraftAdmissionV1::seal(
-            NormalTopLevelFunctionSourceKeyV1::new(2, "same", 1),
-        );
-        let second = NormalTopLevelFunctionDraftAdmissionV1::seal(
-            NormalTopLevelFunctionSourceKeyV1::new(9, "same", 1),
-        );
-
-        assert_ne!(
-            first.source_key().statement_index(),
-            second.source_key().statement_index()
-        );
-        assert_eq!(first.physical_symbol(), "same/1");
-        assert_eq!(second.physical_arity(), 1);
-        let (key, symbol, arity) = second.into_legacy_collector_parts();
-        assert_eq!(key, FunctionDraftKeyV1::LegacySymbol("same/1".to_owned()));
-        assert_eq!(symbol, "same/1");
-        assert_eq!(arity, 1);
     }
 }

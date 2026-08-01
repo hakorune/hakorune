@@ -17,9 +17,9 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::ValueId;
 
+use super::callable_declaration_catalog::SelectedTopLevelFunctionKeyV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
-use super::normal_top_level_function_admission::NormalTopLevelFunctionSourceKeyV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
@@ -32,7 +32,7 @@ pub(in crate::mir::builder) enum RawInvocationRootLineageV1 {
     ScriptRoot,
     Main(RawSourceLocatorV1),
     Cataloged(CanonicalSameModuleCallableKeyV1),
-    TopLevel(NormalTopLevelFunctionSourceKeyV1),
+    TopLevel(SelectedTopLevelFunctionKeyV1),
     InstanceConstructor(NormalInstanceConstructorSourceKeyV1),
     NestedBoxMethod {
         parent_site: SourceNodeSiteV1,

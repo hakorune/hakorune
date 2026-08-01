@@ -186,6 +186,7 @@ impl ModuleBuilderInvocationSessionV1 {
                     lowering_statements,
                     expansion.is_app_mode(),
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+                    Some(catalog.selected_source_inventory()),
                 );
                 let work = work.into_parts();
                 let script_source = match work.script_root_admission.as_ref() {

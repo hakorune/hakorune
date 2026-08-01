@@ -4,7 +4,8 @@ use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableDeclarationCatalogErrorV1,
-    SameModuleCallableNamespaceV1,
+    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1, SelectedNormalCallableSourceSiteV1,
+    SelectedTopLevelFunctionKeyV1, VerifiedSelectedNormalCallableSourceInventoryV1,
 };
 
 #[derive(Debug)]
@@ -56,6 +57,7 @@ pub(crate) struct VerifiedSameModuleCallableDeclarationCatalogV1 {
         BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationV1>,
     static_keys_by_method_and_arity:
         BTreeMap<(Box<str>, u32), Box<[CanonicalSameModuleCallableKeyV1]>>,
+    selected_source_inventory: VerifiedSelectedNormalCallableSourceInventoryV1,
 }
 
 #[cfg_attr(not(test), allow(dead_code))]
@@ -67,7 +69,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             return Err(SameModuleCallableDeclarationCatalogErrorV1::ProgramRequired);
         };
 
-        Self::seal_statements(statements)
+        Self::seal_statements(statements, true)
     }
 
     /// Seals the Builder's existing root surface without widening declaration
@@ -76,21 +78,36 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
         root: &ASTNode,
     ) -> Result<Self, SameModuleCallableDeclarationCatalogErrorV1> {
         match root {
-            ASTNode::Program { statements, .. } => Self::seal_statements(statements),
-            ASTNode::BoxDeclaration { .. } => Self::seal_statements(std::slice::from_ref(root)),
-            _ => Self::seal_statements(&[]),
+            ASTNode::Program { statements, .. } => Self::seal_statements(statements, true),
+            ASTNode::BoxDeclaration { .. } => {
+                Self::seal_statements(std::slice::from_ref(root), false)
+            }
+            _ => Self::seal_statements(&[], false),
         }
     }
 
     fn seal_statements(
         statements: &[ASTNode],
+        collect_selected_program_sources: bool,
     ) -> Result<Self, SameModuleCallableDeclarationCatalogErrorV1> {
         let mut rows_by_key = BTreeMap::new();
         let mut static_keys_by_method_and_arity =
             BTreeMap::<(Box<str>, u32), Vec<CanonicalSameModuleCallableKeyV1>>::new();
         let mut box_owners = BTreeSet::new();
+        let mut selected_source_rows = Vec::new();
 
-        for statement in statements {
+        for (statement_index, statement) in statements.iter().enumerate() {
+            if collect_selected_program_sources {
+                if let ASTNode::FunctionDeclaration { name, params, .. } = statement {
+                    let key =
+                        SelectedTopLevelFunctionKeyV1::new(statement_index, name, params.len());
+                    selected_source_rows.push((
+                        SelectedNormalCallableKeyV1::TopLevel(key),
+                        SelectedNormalCallableSourceSiteV1::ProgramFunction { statement_index },
+                    ));
+                    continue;
+                }
+            }
             let ASTNode::BoxDeclaration {
                 name,
                 methods,
@@ -186,6 +203,15 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                         SameModuleCallableDeclarationCatalogErrorV1::DuplicateCanonicalKey(key),
                     );
                 }
+                if collect_selected_program_sources {
+                    selected_source_rows.push((
+                        SelectedNormalCallableKeyV1::Cataloged(key.clone()),
+                        SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
+                            statement_index,
+                            method_key: map_name.clone().into_boxed_str(),
+                        },
+                    ));
+                }
                 if namespace == SameModuleCallableNamespaceV1::StaticBoxMethod {
                     static_keys_by_method_and_arity
                         .entry((map_name.clone().into_boxed_str(), arity))
@@ -205,6 +231,9 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
         Ok(Self {
             rows_by_key,
             static_keys_by_method_and_arity,
+            selected_source_inventory: VerifiedSelectedNormalCallableSourceInventoryV1::seal(
+                selected_source_rows,
+            ),
         })
     }
 
@@ -214,6 +243,12 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
 
     pub(crate) fn is_empty(&self) -> bool {
         self.rows_by_key.is_empty()
+    }
+
+    pub(in crate::mir::builder) const fn selected_source_inventory(
+        &self,
+    ) -> &VerifiedSelectedNormalCallableSourceInventoryV1 {
+        &self.selected_source_inventory
     }
 
     pub(crate) fn declaration(

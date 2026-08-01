@@ -244,6 +244,7 @@ impl MirBuilder {
             statements,
             expansion.is_app_mode(),
             work_plan_admission,
+            None,
         )
         .into_parts();
         self.lower_program_root_work_plan_with_callable_port_v1(

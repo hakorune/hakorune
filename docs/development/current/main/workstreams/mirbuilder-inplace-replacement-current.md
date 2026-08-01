@@ -479,14 +479,14 @@ closed — CALLABLE-RESULT-BINDING-REPRESENTATION-INGRESS0-D0 (NoSafeSlice)
   Activation has no production issuer; cataloged lowering keeps only key,
   symbol, arity, and lineage. The disconnected observer/session is not an
   acceptable second resolver.
-current — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-D0 (design stop)
-  Decide one live callable key/forest/projection product consumed by Lower,
-  replacing raw-body-only ingress without a second traversal or caller-zero.
-
+closed — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-D0 / SOURCE-INVENTORY0-S0
+  Catalog now owns exact top-level/Box sites; work-plan consumes its key.
+current — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-I0-R0
+  Co-seal eligible callable key/site/forest/projection and loan selected Lower;
+  Complete bare roots become zero, while whole-request Deferred runs once.
 already closed — do not reopen as WIP
-  QMark propagation, root Match control, StaticConst completion, and fully
-  explicit Record schema admission. Their detailed evidence is Git history;
-  only a regression can reopen their authority.
+  QMark, root Match, StaticConst, and explicit Record schema; only a regression
+  can reopen their Git-history evidence.
 ```
 
 ## Production invariants

@@ -1,3 +1,4 @@
+use super::callable_declaration_catalog::VerifiedSelectedNormalCallableSourceInventoryV1;
 use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
@@ -5,16 +6,14 @@ use super::normal_instance_constructor_admission::NormalInstanceConstructorSourc
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };
-use super::normal_script_root_demand_window::ScriptRootDemandWindowBuilderV1;
 use super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
+use super::normal_script_root_demand_window::ScriptRootDemandWindowBuilderV1;
 #[cfg(test)]
 use super::normal_script_runtime_work::NormalScriptRuntimeStatementAdmissionV1;
 use super::normal_script_runtime_work::{
     PreparedNormalScriptRuntimeInputV1, PreparedNormalScriptRuntimeWorkV1,
 };
-use super::normal_top_level_function_admission::{
-    NormalTopLevelFunctionDraftAdmissionV1, NormalTopLevelFunctionSourceKeyV1,
-};
+use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::MirBuilder;
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
 use std::collections::HashMap;
@@ -168,7 +167,13 @@ impl PreparedProgramRootWorkPlanV1 {
         statements: Vec<ASTNode>,
         is_app_mode: bool,
         work_plan_admission: ProgramRootWorkPlanAdmissionV1,
+        selected_callable_sources: Option<&VerifiedSelectedNormalCallableSourceInventoryV1>,
     ) -> Self {
+        assert_eq!(
+            selected_callable_sources.is_some(),
+            work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+            "selected callable inventory must match work-plan admission",
+        );
         let mut immediate = Vec::new();
         let mut deferred_static = Vec::new();
         let mut runtime_statements = Vec::new();
@@ -197,6 +202,7 @@ impl PreparedProgramRootWorkPlanV1 {
                 statement_index,
                 work_plan_admission,
                 normal_script_kind,
+                selected_callable_sources,
             );
             match disposition {
                 ProgramRootStatementDispositionV1::ImmediateAndRuntime { work, runtime } => {
@@ -372,6 +378,7 @@ fn classify_statement(
     statement_index: usize,
     work_plan_admission: ProgramRootWorkPlanAdmissionV1,
     normal_script_kind: Option<NormalScriptProgramItemAdmissionV1>,
+    selected_callable_sources: Option<&VerifiedSelectedNormalCallableSourceInventoryV1>,
 ) -> ProgramRootStatementDispositionV1 {
     match &statement {
         ASTNode::BoxDeclaration {
@@ -479,13 +486,17 @@ fn classify_statement(
                     PreparedProgramRootTopLevelFunctionWorkV1::RawCompatibility(parts)
                 }
                 ProgramRootWorkPlanAdmissionV1::SelectedNormal => {
-                    let source_key = NormalTopLevelFunctionSourceKeyV1::new(
-                        statement_index,
-                        name.clone(),
-                        params.len(),
-                    );
+                    let source_key = selected_callable_sources
+                        .and_then(|sources| sources.top_level_function(statement_index))
+                        .filter(|key| {
+                            key.declared_name() == name && key.declared_arity() == params.len()
+                        })
+                        .cloned()
+                        .expect("selected callable catalog/work-plan source contract");
                     PreparedProgramRootTopLevelFunctionWorkV1::SelectedNormal {
-                        admission: NormalTopLevelFunctionDraftAdmissionV1::seal(source_key),
+                        admission: NormalTopLevelFunctionDraftAdmissionV1::from_catalog_key(
+                            source_key,
+                        ),
                         parts,
                     }
                 }
@@ -509,7 +520,23 @@ fn classify_statement(
 mod tests {
     use super::*;
     use crate::ast::{DeclarationAttrs, LiteralValue, Span};
+    use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
     use crate::parser::NyashParser;
+
+    fn selected_plan(statements: Vec<ASTNode>, is_app_mode: bool) -> PreparedProgramRootWorkPlanV1 {
+        let root = ASTNode::Program {
+            statements: statements.clone(),
+            span: Span::unknown(),
+        };
+        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
+            .expect("selected callable catalog");
+        PreparedProgramRootWorkPlanV1::prepare(
+            statements,
+            is_app_mode,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+            Some(catalog.selected_source_inventory()),
+        )
+    }
     fn literal(value: i64) -> ASTNode {
         ASTNode::Literal {
             value: LiteralValue::Integer(value),
@@ -570,7 +597,7 @@ mod tests {
     }
     #[test]
     fn app_partition_preserves_source_order_and_runtime_retention() {
-        let plan = PreparedProgramRootWorkPlanV1::prepare(
+        let plan = selected_plan(
             vec![
                 box_declaration("Page", false),
                 function("helper"),
@@ -579,7 +606,6 @@ mod tests {
                 box_declaration("Main", true),
             ],
             true,
-            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
         );
         let parts = plan.into_parts();
         assert_eq!(
@@ -613,11 +639,7 @@ mod tests {
         .expect("parsed Script partition fixture") else {
             panic!("expected Program root")
         };
-        let plan = PreparedProgramRootWorkPlanV1::prepare(
-            statements,
-            false,
-            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
-        );
+        let plan = selected_plan(statements, false);
         let parts = plan.into_parts();
         assert_eq!(parts.terminal, ProgramRootTerminalScheduleV1::ScriptRuntime);
         assert_eq!(parts.deferred_static.len(), 0);
@@ -643,11 +665,7 @@ mod tests {
     }
     #[test]
     fn selected_script_transports_one_constructor_source_to_its_second_demand() {
-        let plan = PreparedProgramRootWorkPlanV1::prepare(
-            vec![instance_box_with_birth("Page")],
-            false,
-            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
-        );
+        let plan = selected_plan(vec![instance_box_with_birth("Page")], false);
         let parts = plan.into_parts();
         let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
             panic!("expected immediate instance Box")
@@ -676,11 +694,7 @@ mod tests {
             unreachable!()
         };
         *is_record = true;
-        let plan = PreparedProgramRootWorkPlanV1::prepare(
-            vec![nonplain],
-            false,
-            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
-        );
+        let plan = selected_plan(vec![nonplain], false);
         let parts = plan.into_parts();
         let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
             panic!("expected immediate instance Box")
@@ -704,11 +718,7 @@ mod tests {
         constructors.insert("init/0".to_owned(), function("init"));
         constructors.insert("birth/1".to_owned(), function("birth"));
         constructors.insert("not-a-function".to_owned(), literal(0));
-        let plan = PreparedProgramRootWorkPlanV1::prepare(
-            vec![declaration],
-            true,
-            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
-        );
+        let plan = selected_plan(vec![declaration], true);
         let parts = plan.into_parts();
         let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
             panic!("expected immediate instance Box")
@@ -729,6 +739,7 @@ mod tests {
             vec![box_declaration("Helpers", true), literal(7)],
             false,
             ProgramRootWorkPlanAdmissionV1::RawCompatibility,
+            None,
         );
         let parts = plan.into_parts();
         assert!(matches!(
@@ -738,11 +749,7 @@ mod tests {
     }
     #[test]
     fn selected_top_level_functions_keep_distinct_source_occurrences() {
-        let plan = PreparedProgramRootWorkPlanV1::prepare(
-            vec![function("same"), function("same")],
-            false,
-            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
-        );
+        let plan = selected_plan(vec![function("same"), function("same")], false);
         let parts = plan.into_parts();
         let admissions = parts
             .immediate
@@ -766,6 +773,7 @@ mod tests {
             vec![function("same")],
             false,
             ProgramRootWorkPlanAdmissionV1::RawCompatibility,
+            None,
         );
         let parts = plan.into_parts();
         assert!(matches!(

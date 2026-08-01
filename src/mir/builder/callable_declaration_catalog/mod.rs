@@ -7,6 +7,7 @@ mod catalog;
 mod error;
 mod key;
 mod recovery;
+mod selected_source_inventory;
 
 // These are intentionally disconnected S0 exports. CUT0 supplies their first
 // production producer/consumer, so keep the public module surface stable now.
@@ -23,6 +24,10 @@ pub(crate) use key::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespa
 pub(crate) use recovery::{
     BareStaticRecoveryDecisionErrorV1, BareStaticRecoveryDecisionV1,
     BareStaticRecoveryNoRecoveryReasonV1,
+};
+pub(in crate::mir::builder) use selected_source_inventory::{
+    SelectedNormalCallableKeyV1, SelectedNormalCallableSourceSiteV1, SelectedTopLevelFunctionKeyV1,
+    VerifiedSelectedNormalCallableSourceInventoryV1,
 };
 
 #[cfg(test)]
