@@ -32,12 +32,12 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-ENUM-MATCH-SEALED-ROUTE0-D0
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
 
 latest structural finding:
-  EnumMatch lowers its exact scrutinee once; arms select a prepared route but
-  are not expression-child descents. Its route/preflight authority must be
-  separated from a prospective Script source receipt before activation.
+  EnumMatch has only one actual child descent, but has no single pre-seal enum
+  inventory authority: Program enums retain their diagnostic terminal and
+  prelude enums are outside declaration facts. No facts-only Complete seam exists.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
@@ -46,7 +46,8 @@ latest production closeout:
   RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0
 
 consultation decision:
-  bounded census selects EnumMatch route observation as the next D0.
+  fresh bounded responsibility-family census required; no successor
+  preselected.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -266,24 +267,22 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-ENUM-MATCH-SEALED-ROUTE0-D0
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
 
   Change:
-    Decide whether root EnumMatch can admit one exact EnumMatchScrutinee source
-    handoff while arm bodies remain route-observed only.
+    Run one fresh bounded static live-edge census after the EnumMatch NoSafe
+    closeout.
 
   Contract:
-    Existing EnumMatch prepare remains the sole catalog/route authority and
-    existing lowering retains VariantTag/Select or VariantProject/result
-    emission. Any user diagnostic stays in its current lifecycle stage.
+    Select at most one responsibility family with a named production consumer
+    and an atomically removable old authority. No successor is preselected.
 
   Done:
-    Select one receipt contract and I0, or close NoSafeSlice with a concrete
-    preflight/diagnostic or child-demand counterexample.
+    Record one evidence-backed candidate decision or NoSafeSlice result.
 
   Stop:
-    Do not resolve arm bodies, move route metadata into semantic source, widen
-    MatchExpr, or implement before the D0 closes.
+    Do not implement during this D0, reopen EnumMatch, or run a broad/parallel
+    scan.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -295,6 +294,14 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-ENUM-MATCH-SEALED-ROUTE0-D0
+  -> NoSafeSlice. Existing lowering descends only EnumMatchScrutinee, but
+     Program enum declarations still terminate at the selected unsupported
+     diagnostic owner, while prelude enum inventory is outside prepared Program
+     declaration facts. Mirroring mutable enum route preflight would create a
+     second authority. A later enum family must first establish one inventory
+     owner and an EnumDeclaration completion policy; no I0 is opened.
+
   RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
   -> Fresh static census rejects reopening GroupedAssignment, Loop/JoinIR,
      FieldAccess, and broad Call/Object. It selects EnumMatch because existing
