@@ -8,9 +8,9 @@
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
-    ScriptRootIfControlAdmissionV1, ScriptRootMatchControlAdmissionV1,
-    ScriptRootQMarkPropagationAdmissionV1, ScriptRootResolvedDemandV1,
-    ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
+    ScriptRootIfControlAdmissionV1, ScriptRootIndexWriteAdmissionV1,
+    ScriptRootMatchControlAdmissionV1, ScriptRootQMarkPropagationAdmissionV1,
+    ScriptRootResolvedDemandV1, ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
 };
 
@@ -143,6 +143,12 @@ impl ScriptRootAdmissionWitnessV1 {
                         Runtime::RetainedExistingTerminal,
                     )
                 }
+                Admission::DirectPortAwareExpression if is_index_write_assignment(statement) => (
+                    Semantic::Resolved(ScriptRootResolvedDemandV1::IndexWrite(
+                        ScriptRootIndexWriteAdmissionV1::new(),
+                    )),
+                    Runtime::RetainedExistingTerminal,
+                ),
                 Admission::DirectPortAwareExpression | Admission::DirectPrint => (
                     Semantic::Resolved(ScriptRootResolvedDemandV1::LexicalCore),
                     Runtime::RetainedExistingTerminal,
@@ -190,6 +196,9 @@ impl ScriptRootAdmissionWitnessV1 {
             }
             ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_)) => {
                 is_variable_target_binding_rebind(statement)
+            }
+            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IndexWrite(_)) => {
+                is_index_write_assignment(statement)
             }
             ScriptRootSemanticDispositionV1::Transparent(
                 ScriptTransparentBoundaryV1::UsingDirective,
@@ -239,7 +248,6 @@ impl ScriptRootAdmissionWitnessV1 {
     pub(super) fn admission(self) -> NormalScriptProgramItemAdmissionV1 {
         self.admission
     }
-
 }
 
 fn is_program_record_declaration(statement: &ASTNode) -> bool {
@@ -262,6 +270,14 @@ fn is_variable_target_binding_rebind(statement: &ASTNode) -> bool {
     ) || matches!(statement, ASTNode::GroupedAssignmentExpr { .. })
 }
 
+fn is_index_write_assignment(statement: &ASTNode) -> bool {
+    matches!(
+        statement,
+        ASTNode::Assignment { target, .. }
+            if matches!(target.as_ref(), ASTNode::Index { target, .. } if matches!(target.as_ref(), ASTNode::Variable { .. }))
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -269,6 +285,29 @@ mod tests {
     use crate::mir::resolved_semantics::{
         ScriptRootResolvedDemandV1, ScriptRootSemanticDispositionV1,
     };
+    use crate::parser::NyashParser;
+
+    #[test]
+    fn ordinary_index_write_issues_one_typed_root_receipt() {
+        let ASTNode::Program { statements, .. } =
+            NyashParser::parse_from_string("local xs = [1]\nxs[0] = 2")
+                .expect("IndexWrite source")
+        else {
+            unreachable!("parser returns Program");
+        };
+        let witness = ScriptRootAdmissionWitnessV1::issue(
+            1,
+            2,
+            &statements[1],
+            Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
+            false,
+        )
+        .expect("IndexWrite witness");
+        assert!(matches!(
+            witness.semantic(),
+            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IndexWrite(_))
+        ));
+    }
 
     #[test]
     fn direct_if_issues_one_typed_root_control_receipt() {
@@ -380,5 +419,4 @@ mod tests {
             ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_))
         ));
     }
-
 }

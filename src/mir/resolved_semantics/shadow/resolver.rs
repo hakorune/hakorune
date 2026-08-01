@@ -7,8 +7,8 @@ use crate::mir::resolved_semantics::source_site::{
 };
 use crate::mir::resolved_semantics::FunctionSyntaxViewV1;
 use crate::mir::resolved_semantics::{
-    EnumMatchDemandV1, EnumVariantAdmissionV1, EnumVariantDemandV1, RecordSchemaDemandV1, ScriptSyntaxViewV1,
-    VerifiedScriptRootDemandWindowV1,
+    EnumMatchDemandV1, EnumVariantAdmissionV1, EnumVariantDemandV1, RecordSchemaDemandV1,
+    ScriptSyntaxViewV1, VerifiedScriptRootDemandWindowV1,
 };
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
@@ -58,6 +58,7 @@ pub(super) struct ShadowResolverV0<'ast, 'schema> {
     declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
     variable_uses: BTreeMap<SourceExprSiteV1, ShadowLexicalRefV0>,
     assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
+    array_initialized_locals: BTreeSet<ShadowBindingOrdinalV0>,
     ancestor_capture_events: Vec<ShadowAncestorCaptureEventV0>,
     direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
     resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
@@ -135,14 +136,13 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
     enum_variants: &dyn EnumVariantDemandV1,
     enum_matches: &dyn EnumMatchDemandV1,
 ) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
-    let input =
-        ShadowRootTraversalInputV1::sparse_script(
-            view,
-            window,
-            record_schemas,
-            enum_variants,
-            enum_matches,
-        );
+    let input = ShadowRootTraversalInputV1::sparse_script(
+        view,
+        window,
+        record_schemas,
+        enum_variants,
+        enum_matches,
+    );
     let profile = input.root_profile();
     traverse_shadow_root_v1(
         input,
@@ -161,14 +161,13 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'a
     enum_variants: &dyn EnumVariantDemandV1,
     enum_matches: &dyn EnumMatchDemandV1,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    let input =
-        ShadowRootTraversalInputV1::sparse_script(
-            view,
-            window,
-            record_schemas,
-            enum_variants,
-            enum_matches,
-        );
+    let input = ShadowRootTraversalInputV1::sparse_script(
+        view,
+        window,
+        record_schemas,
+        enum_variants,
+        enum_matches,
+    );
     let profile = input.root_profile();
     traverse_shadow_root_v1(
         input,
@@ -366,6 +365,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             declarations: BTreeMap::new(),
             variable_uses: BTreeMap::new(),
             assignment_targets: BTreeMap::new(),
+            array_initialized_locals: BTreeSet::new(),
             ancestor_capture_events: Vec::new(),
             direct_calls: BTreeMap::new(),
             resolved_exits: BTreeMap::new(),
@@ -654,6 +654,18 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         declarations.push(binding);
         scope.declarations = declarations.into_boxed_slice();
         Ok(binding)
+    }
+
+    pub(super) fn is_array_initialized_local(&self, binding: ShadowBindingOrdinalV0) -> bool {
+        self.array_initialized_locals.contains(&binding)
+    }
+
+    pub(super) fn record_array_initialized_local(&mut self, binding: ShadowBindingOrdinalV0) {
+        self.array_initialized_locals.insert(binding);
+    }
+
+    pub(super) fn invalidate_array_initialized_local(&mut self, binding: ShadowBindingOrdinalV0) {
+        self.array_initialized_locals.remove(&binding);
     }
 
     pub(super) fn enter_region_scope(

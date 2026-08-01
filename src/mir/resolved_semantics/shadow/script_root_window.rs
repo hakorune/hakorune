@@ -28,6 +28,7 @@ pub(crate) enum ScriptRootResolvedDemandV1 {
     IfControl(ScriptRootIfControlAdmissionV1),
     ReturnExit(ScriptRootReturnExitAdmissionV1),
     BindingRebind(ScriptRootBindingRebindAdmissionV1),
+    IndexWrite(ScriptRootIndexWriteAdmissionV1),
 }
 
 /// Receipt for one root QMark whose propagation remains owned by the existing
@@ -76,6 +77,17 @@ impl ScriptRootReturnExitAdmissionV1 {
 pub(crate) struct ScriptRootBindingRebindAdmissionV1(());
 
 impl ScriptRootBindingRebindAdmissionV1 {
+    pub(crate) const fn new() -> Self {
+        Self(())
+    }
+}
+
+/// Receipt for ordinary Assignment whose Index target requires the Script-only
+/// prior-Local Array admission before any target or value child is traversed.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct ScriptRootIndexWriteAdmissionV1(());
+
+impl ScriptRootIndexWriteAdmissionV1 {
     pub(crate) const fn new() -> Self {
         Self(())
     }

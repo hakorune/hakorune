@@ -46,6 +46,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             ScriptRootResolvedDemandV1::BindingRebind(_) => {
                 self.resolve_binding_rebind(statement, path)
             }
+            ScriptRootResolvedDemandV1::IndexWrite(_) => self.resolve_index_write(statement, path),
         }
     }
 
@@ -299,6 +300,54 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         self.resolve_stmt(statement, path)
     }
 
+    fn resolve_index_write(
+        &mut self,
+        statement: &'ast ASTNode,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let ASTNode::Assignment { target, value, .. } = statement else {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Script root IndexWrite admission source drift",
+                site: path.stmt(),
+            });
+        };
+        let ASTNode::Index {
+            target: receiver, ..
+        } = target.as_ref()
+        else {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Script root IndexWrite target source drift",
+                site: path.stmt(),
+            });
+        };
+        let ASTNode::Variable { name, .. } = receiver.as_ref() else {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Script root IndexWrite receiver source drift",
+                site: path.stmt(),
+            });
+        };
+        let Some(binding) = self.lookup(name) else {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Script root IndexWrite requires prior Local Array",
+                site: path.stmt(),
+            });
+        };
+        if !self.is_array_initialized_local(binding) {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Script root IndexWrite requires prior Local Array",
+                site: path.stmt(),
+            });
+        }
+        self.resolve_assignment_target(
+            target,
+            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentTarget),
+        )?;
+        self.resolve_expr(
+            value,
+            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentValue),
+        )
+    }
+
     fn resolve_declaration(
         &mut self,
         statement: &'ast ASTNode,
@@ -345,7 +394,12 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             } else {
                 ShadowBindingKindV0::Local { ordinal }
             };
-            self.declare_binding(name, kind, origin)?;
+            let binding = self.declare_binding(name, kind, origin)?;
+            if !outbox
+                && matches!(initial_values.get(index), Some(Some(initial)) if matches!(initial.as_ref(), ASTNode::ArrayLiteral { .. }))
+            {
+                self.record_array_initialized_local(binding);
+            }
         }
         Ok(())
     }

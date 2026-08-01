@@ -282,13 +282,20 @@ closed — MIRBUILDER-R4-RESIDUAL-CONFORMANCE1-D0
   Lambda already has its sealed child owner and ordered receipt. No generic
   cleanup I0 exists at this seam.
 
-selected — RAW-SCRIPT-INDEX-WRITE-MUTATION-DESCENT0-D0
-  Census the narrow ordinary `Assignment` form whose target is an `Index` of a
-  prior-Local Array. It is profile-dependent Deferred, not a root-admission
-  residual. Select I0 only if one shared IndexWrite fact route and the existing
-  exact `IndexTarget` / `IndexSubscript` / `AssignmentValue` handoff delete its
-  selected Deferred-to-bare-`script_root(())` reachability. CompoundAssignment,
-  FieldWrite, Index read, Loop, Call/Object, Lambda, and Box runtime are out.
+closed — RAW-SCRIPT-INDEX-WRITE-MUTATION-DESCENT0-I0-R0 (T2)
+  Ordinary `Assignment(Index(Variable(prior Local Array), index), value)` now
+  uses one construction-local Array-initialized binding proof before child
+  descent, then the shared `IndexWrite` resolver fact and existing exact
+  `IndexTarget` / `IndexSubscript` / `AssignmentValue` handoff. The raw index
+  mutation owner remains the sole operational owner. Map/scalar/rebound locals,
+  CompoundAssignment, FieldWrite, Index read, Loop, Call/Object, Lambda, and
+  Box runtime remain Deferred. The selected prior-Local Array form no longer
+  reaches Deferred-to-bare-`script_root(())`; its fixture identity is ratcheted.
+
+selected — RAW-SCRIPT-NEXT-NAMED-FAMILY5-D0
+  Run a fresh live-edge census. No prior residual is implicitly selected:
+  Loop/JoinIR, Call/Object, FieldWrite, CompoundAssignment, Lambda, Box runtime,
+  and the named R4 retained families require their own exact owner deletion.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

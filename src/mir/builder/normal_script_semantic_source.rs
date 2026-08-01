@@ -767,6 +767,9 @@ mod enum_variant_tests;
 #[path = "normal_script_enum_match_tests.rs"]
 mod enum_match_tests;
 #[cfg(test)]
+#[path = "normal_script_index_write_tests.rs"]
+mod index_write_tests;
+#[cfg(test)]
 #[path = "normal_script_map_literal_tests.rs"]
 mod map_literal_tests;
 #[cfg(test)]

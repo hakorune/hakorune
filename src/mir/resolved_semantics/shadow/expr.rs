@@ -259,6 +259,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                         site: target_site,
                     });
                 };
+                self.invalidate_array_initialized_local(binding);
                 ShadowAssignmentTargetV0::BindingRebind(binding)
             }
             ASTNode::FieldAccess { object, .. } => {
