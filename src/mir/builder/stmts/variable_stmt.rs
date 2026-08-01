@@ -635,15 +635,31 @@ mod local_contract_tests {
         assert_eq!(bindings[1].ordinal(), 1);
         assert_eq!(
             bindings[0].value(),
-            *builder.function_state.variable_ctx.variable_map.get("first").expect("first")
+            *builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .get("first")
+                .expect("first")
         );
         assert_eq!(
             bindings[1].value(),
-            *builder.function_state.variable_ctx.variable_map.get("second").expect("second")
+            *builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .get("second")
+                .expect("second")
         );
         assert_eq!(receipt.result(), bindings[1].value());
         assert_eq!(
-            builder.function_state.current_function.as_ref().expect("function").metadata.outbox_bindings,
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("function")
+                .metadata
+                .outbox_bindings,
             vec!["first", "second"]
         );
     }

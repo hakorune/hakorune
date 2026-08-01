@@ -381,9 +381,12 @@ impl RawInvocationSourceContextV1 {
         })
     }
 }
-fn body_item_site(kind: SourceBodyKindV1, site: &SourceNodeSiteV1, index: usize) -> SourceNodeSiteV1 {
-    if kind == SourceBodyKindV1::Function
-        && site.segments() == [SourcePathSegmentV1::FunctionBody]
+fn body_item_site(
+    kind: SourceBodyKindV1,
+    site: &SourceNodeSiteV1,
+    index: usize,
+) -> SourceNodeSiteV1 {
+    if kind == SourceBodyKindV1::Function && site.segments() == [SourcePathSegmentV1::FunctionBody]
     {
         return SourcePathV1::root_body(index).node();
     }
@@ -399,7 +402,9 @@ fn body_item_site(kind: SourceBodyKindV1, site: &SourceNodeSiteV1, index: usize)
         segments.push(kind.item_segment(index as u32));
         return SourceNodeSiteV1::from_segments(segments);
     }
-    SourcePathV1::from_node(site).child(kind.item_segment(index as u32)).node()
+    SourcePathV1::from_node(site)
+        .child(kind.item_segment(index as u32))
+        .node()
 }
 
 fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
@@ -575,7 +580,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                 local @ ASTNode::Local { .. } => self.lower_script_local_v1(builder, local),
                 nowait @ ASTNode::Nowait { .. } => self.lower_script_nowait_v1(builder, nowait),
                 outbox @ ASTNode::Outbox { .. } => self.lower_script_outbox_v1(builder, outbox),
-                other => super::stmts::block_stmt::build_statement_with_port_v1(builder, self, other),
+                other => {
+                    super::stmts::block_stmt::build_statement_with_port_v1(builder, self, other)
+                }
             };
         }
         super::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)

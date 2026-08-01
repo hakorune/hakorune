@@ -171,8 +171,9 @@ impl RawInvocationChildPortV1<'_, '_> {
         let admission =
             NormalInstanceConstructorDraftAdmissionV1::seal(source_key.clone(), params.len());
         let source_root =
-            super::raw_invocation_source_transport::RawInvocationRootLineageV1::
-                InstanceConstructor(source_key.clone());
+            super::raw_invocation_source_transport::RawInvocationRootLineageV1::InstanceConstructor(
+                source_key.clone(),
+            );
         builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
         let pending = super::raw_invocation_source_transport::RawSourceTransportPortV1::
             with_source_transport_v1(

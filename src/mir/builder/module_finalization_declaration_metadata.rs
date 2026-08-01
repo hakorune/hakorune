@@ -78,7 +78,10 @@ mod tests {
         );
         context.user_box_field_decls.insert(
             "Page".to_owned(),
-            vec![field("title", Some("String"), false), field("next", None, true)],
+            vec![
+                field("title", Some("String"), false),
+                field("next", None, true),
+            ],
         );
         context.record_decls.insert(
             "Point".to_owned(),
@@ -108,10 +111,7 @@ mod tests {
             module.metadata.user_box_decls.get("Page"),
             Some(&vec!["title".to_owned(), "next".to_owned()])
         );
-        assert_eq!(
-            module.metadata.user_box_field_decls["Page"][1].name,
-            "next"
-        );
+        assert_eq!(module.metadata.user_box_field_decls["Page"][1].name, "next");
         assert!(module.metadata.user_box_field_decls["Page"][1].is_weak);
         assert_eq!(module.metadata.record_decls["Point"].fields[0].name, "x");
         assert!(!module.metadata.enum_decls.is_empty());

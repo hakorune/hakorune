@@ -691,5 +691,4 @@ mod tests {
             assert!(headers.signature("rejected_child/0").is_none());
         });
     }
-
 }

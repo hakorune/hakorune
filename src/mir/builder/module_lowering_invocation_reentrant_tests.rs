@@ -10,13 +10,13 @@ use crate::mir::builder::calls::CanonicalFunctionSessionErrorV1;
 use crate::mir::builder::module_lowering_invocation::{
     LegacyChildDraftAdmissionV1, ModuleLoweringInvocationV1, ModuleLoweringPortChildErrorV1,
 };
+use crate::mir::builder::raw_invocation_source_transport::{
+    RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
+    RawSourceTransportPortV1,
+};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawBoxMethodChildPortV1, RawInvocationChildPortV1,
     RawLegacyChildLoweringPortV1,
-};
-use crate::mir::builder::raw_invocation_source_transport::{
-    RawInvocationRootLineageV1, RawInvocationSourceContextV1,
-    RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
 use crate::mir::builder::RawSourceLocatorV1;
 use crate::mir::{
@@ -649,9 +649,7 @@ fn located_enum_match_lowers_only_the_exact_scrutinee_and_keeps_result_shape() {
                     enum_match(),
                     RawInvocationRootLineageV1::ScriptRoot,
                 ),
-                |port, enum_match| {
-                    drive_legacy_expression_v1(builder, port, enum_match)
-                },
+                |port, enum_match| drive_legacy_expression_v1(builder, port, enum_match),
             )
         })
         .expect("located EnumMatch");
@@ -735,7 +733,9 @@ fn located_loop_preserves_legacy_route_result_and_instructions() {
             value: LiteralValue::Bool(true),
             span: Span::unknown(),
         }),
-        body: vec![ASTNode::Break { span: Span::unknown() }],
+        body: vec![ASTNode::Break {
+            span: Span::unknown(),
+        }],
         span: Span::unknown(),
     };
     let mut legacy = MirBuilder::new();
@@ -752,8 +752,7 @@ fn located_loop_preserves_legacy_route_result_and_instructions() {
             node,
         )
     });
-    let selected_rows =
-        invocation.with_header_port(|builder, _| sorted_instruction_debug(builder));
+    let selected_rows = invocation.with_header_port(|builder, _| sorted_instruction_debug(builder));
     assert_eq!(selected_result, legacy_result);
     assert_eq!(selected_rows, sorted_instruction_debug(&legacy));
 }

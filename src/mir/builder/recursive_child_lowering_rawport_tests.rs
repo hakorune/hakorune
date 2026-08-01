@@ -1,9 +1,3 @@
-use crate::ast::{ASTNode, BinaryOperator, CatchClause, CheckItem, FieldDecl, LiteralValue, Span};
-use crate::mir::{
-    BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
-    MirInstruction, MirModule, MirType,
-};
-use crate::parser::NyashParser;
 use super::me_call_header_observation::{
     prepare_me_lowered_call_v1, MeCallHeaderObservationPortV1, MeCallHeaderSourceV1,
     PreparedMeReceiverV1,
@@ -19,6 +13,12 @@ use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, RawInvocationChildPortV1,
     RawLegacyChildLoweringPortV1,
 };
+use crate::ast::{ASTNode, BinaryOperator, CatchClause, CheckItem, FieldDecl, LiteralValue, Span};
+use crate::mir::{
+    BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
+    MirInstruction, MirModule, MirType,
+};
+use crate::parser::NyashParser;
 fn int(value: i64) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(value),
@@ -520,8 +520,15 @@ fn raw_invocation_port_preserves_assignment_and_compound_children() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("raw_port_assignment/0".to_string());
     let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 1).unwrap();
-    builder.function_state.variable_ctx.variable_map.insert("x".into(), old);
-    builder.function_state.binding_ctx.insert("x".into(), BindingId::new(0));
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("x".into(), old);
+    builder
+        .function_state
+        .binding_ctx
+        .insert("x".into(), BindingId::new(0));
     with_port!(builder, port, {
         let ordinary = ASTNode::Assignment {
             target: Box::new(variable("x")),
@@ -568,7 +575,9 @@ fn raw_invocation_port_preserves_assignment_and_compound_children() {
         )
         .unwrap();
         let rows = instructions(builder);
-        assert!(rows.iter().any(|row| matches!(row, MirInstruction::FieldSet { .. })));
+        assert!(rows
+            .iter()
+            .any(|row| matches!(row, MirInstruction::FieldSet { .. })));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }

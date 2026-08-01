@@ -193,8 +193,7 @@ where
         }
         node @ ASTNode::FastMemRegion { .. } => {
             use crate::mir::resolved_semantics::BodyChildRoleV1;
-            let source =
-                child.prepare_body_child_source_v1(&node, BodyChildRoleV1::FastMemBody)?;
+            let source = child.prepare_body_child_source_v1(&node, BodyChildRoleV1::FastMemBody)?;
             let ASTNode::FastMemRegion {
                 contract,
                 body,

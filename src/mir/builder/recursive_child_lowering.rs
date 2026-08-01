@@ -2,11 +2,11 @@
 //! This module owns the typed body, statement, and expression entry boundary.
 //! It owns no source navigation, callable-result plan, location, ledger,
 //! MethodCall route, or result-publication policy.
-use std::cell::RefCell;
-use std::rc::Rc;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use super::calls::LegacyFunctionPendingSessionV1;
 use super::function_signature_lookup::FunctionSignatureLookupV1;
@@ -18,18 +18,17 @@ use super::module_lowering_invocation::{
     ModuleLoweringPortV1,
 };
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
+use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
+pub(in crate::mir::builder) use super::raw_expression_recursion_guard::with_legacy_expression_recursion_guard_v1;
 use super::raw_invocation_source_transport::{
-    RawInvocationRootLineageV1, RawInvocationSourceContextV1,
-    RawInvocationSourceTransportV1, RawSourceTransportPortV1, RawUnlocatedPortalV1,
+    RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
+    RawSourceTransportPortV1, RawUnlocatedPortalV1,
 };
-use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
-use super::raw_structured_child_scope::PreparedRawChildSourceV1;
-pub(in crate::mir::builder) use super::raw_expression_recursion_guard::
-    with_legacy_expression_recursion_guard_v1;
 use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
+use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 
 pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
     function_name: &str,
@@ -80,7 +79,9 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Ok(PreparedRawChildSourceV1::Preserve)
     }
     fn prepare_body_statement_source_v1(
-        &self, _statement: &ASTNode, _index: usize,
+        &self,
+        _statement: &ASTNode,
+        _index: usize,
     ) -> Result<PreparedRawChildSourceV1, String> {
         Ok(PreparedRawChildSourceV1::Preserve)
     }
@@ -341,8 +342,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         ModuleLoweringPortChildErrorV1,
     > {
         let (admission, lowering) = prepared.into_parts();
-        let source_root =
-            RawInvocationRootLineageV1::Main(admission.source_locator().clone());
+        let source_root = RawInvocationRootLineageV1::Main(admission.source_locator().clone());
         let pending = self.with_source_transport_v1(
             RawInvocationSourceTransportV1::root((), source_root),
             |port, ()| {
@@ -587,9 +587,7 @@ impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1 {
             condition, body, ..
         } = loop_node
         else {
-            return Err(
-                "[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned(),
-            );
+            return Err("[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned());
         };
         super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, *condition, body)
     }
@@ -768,9 +766,7 @@ where
     super::raw_expression_recursion_guard::with_legacy_expression_recursion_guard_v1(
         builder,
         node_kind,
-        move |builder| {
-        builder.build_expression_impl_with_port_v1(port, input)
-        },
+        move |builder| builder.build_expression_impl_with_port_v1(port, input),
     )
 }
 

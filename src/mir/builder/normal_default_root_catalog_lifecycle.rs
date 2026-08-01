@@ -188,16 +188,18 @@ impl ModuleBuilderInvocationSessionV1 {
                 let script_source = match work.script_semantic_window.as_ref() {
                     None => None,
                     Some(window) => {
-                        let view = ScriptSyntaxViewV1::from_program(source.source_ast()).ok_or_else(|| {
-                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                "[mir/script-semantic/source-root] expected Program".into(),
-                            )
-                        })?;
-                        let mut resolver = FunctionSemanticResolverSessionV1::new(0).map_err(|error| {
-                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                format!("[mir/script-semantic/owner] {error:?}").into(),
-                            )
-                        })?;
+                        let view = ScriptSyntaxViewV1::from_program(source.source_ast())
+                            .ok_or_else(|| {
+                                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                    "[mir/script-semantic/source-root] expected Program".into(),
+                                )
+                            })?;
+                        let mut resolver =
+                            FunctionSemanticResolverSessionV1::new(0).map_err(|error| {
+                                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                    format!("[mir/script-semantic/owner] {error:?}").into(),
+                                )
+                            })?;
                         match resolver.resolve_script(view, window).map_err(|error| {
                             NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
                                 format!("[mir/script-semantic/seal] {error:?}").into(),

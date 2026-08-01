@@ -44,12 +44,10 @@ mod decls; // declarations lowering split
 mod drained_module_candidate; // HEADERPORT0-I0-DRAIN0-S0 disconnected candidate
 #[cfg(test)]
 mod drained_module_candidate_p0; // HEADERPORT0-I0-DRAIN0-P0 fixtures
+mod entry_materialization; // source-only callable Main materialization facts
 mod exprs_call;
 mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
-mod entry_materialization; // source-only callable Main materialization facts
-mod normal_runtime_inputs; // selected normal ingress runtime snapshot
-mod normal_instance_constructor_admission;
 mod fact_session;
 #[cfg(test)]
 mod fact_session_p0_tests;
@@ -66,6 +64,8 @@ mod instance_box_method_batch;
 mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
+mod normal_instance_constructor_admission;
+mod normal_runtime_inputs; // selected normal ingress runtime snapshot
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract
@@ -116,16 +116,16 @@ pub(in crate::mir) use raw_root_child_work::{
     RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1, RawRootStaticChildWorkV1,
 };
 mod raw_root_static_child_admission;
-pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
-pub(in crate::mir) use raw_source_projection::{
-    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawRootProjectionPartsV1, RawSourceLocatorV1,
-    RawSourceOriginV1, RawSourceProjectionErrorV1,
-};
 pub(in crate::mir) use entry_materialization::{
     CallableMainMaterializationPolicyV1, CallableMainMaterializationTargetV1,
     NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
 };
 pub(in crate::mir) use normal_runtime_inputs::NormalRuntimeInputSnapshotV1;
+pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
+pub(in crate::mir) use raw_source_projection::{
+    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawRootProjectionPartsV1, RawSourceLocatorV1,
+    RawSourceOriginV1, RawSourceProjectionErrorV1,
+};
 #[allow(dead_code)]
 mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
 #[cfg(test)]
@@ -239,10 +239,10 @@ pub(in crate::mir) use module_invocation_session::{
 };
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
-mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
-mod normal_script_semantic_source; // Producer-backed lexical Script source
-mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
 mod normal_cataloged_box_method_admission; // Selected normal cataloged-child identity
+mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
+mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
+mod normal_script_semantic_source; // Producer-backed lexical Script source
 mod program_root_lowering; // Shared typed/generic Program root owner
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
     CompletedNormalDefaultRootCatalogLifecycleV1, NormalDefaultRootCatalogLifecycleErrorV1,
@@ -317,10 +317,10 @@ mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 polic
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
 };
-mod recursive_child_lowering;
-mod raw_invocation_source_transport;
 mod raw_expression_recursion_guard;
+mod raw_invocation_source_transport;
 mod raw_structured_child_scope;
+mod recursive_child_lowering;
 #[cfg(test)]
 mod recursive_child_lowering_rawport_tests;
 #[cfg(test)]
@@ -380,34 +380,34 @@ pub mod joinir_id_remapper; // Phase 189: JoinIR ID remapping (ValueId/BlockId t
 mod joinir_inline_boundary_injector; // Phase 189: JoinInlineBoundary Copy instruction injector
 mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
 mod module_compat_policy; // CUT0-S0-COMPAT0 ingress policy snapshot
-mod module_finalization_declaration_metadata; // Shared finalizer declaration-metadata handoff
-mod module_finalization_function_metadata; // Shared finalizer function-metadata handoff
 #[cfg(test)]
 mod module_compat_policy_p0; // CUT0-S0-COMPAT0 typed failure fixtures
+mod module_finalization_declaration_metadata; // Shared finalizer declaration-metadata handoff
+mod module_finalization_function_metadata; // Shared finalizer function-metadata handoff
 #[cfg(test)]
 mod module_invocation_cut0_p0; // CUT0-P0 disconnected all-route adapter
 mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
 #[cfg(test)]
 mod module_lifecycle_capture_tests;
+mod normal_script_direct_statement_owner; // Selected Script direct statement terminals
+mod normal_script_program_item_admission; // Selected Script Program-item source admission
+mod normal_script_root_demand_window; // Selected Script source-only semantic demand receipt
+mod normal_script_runtime_block_port;
+mod normal_script_runtime_work; // Selected Script runtime Box callable admission
+mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 mod ops;
 mod phi;
 #[allow(dead_code)]
 mod phi_completion; // PHI0-S0: disconnected semantic completion vocabulary
 mod phi_merge;
-mod return_type_strategy; // finalization-only return-type strategy
 #[allow(dead_code)]
 mod phi_type_publication;
 #[allow(dead_code)]
 mod port_aware_function_draft_impl;
 mod program_declaration_facts; // Normal Program source-only declaration facts
 mod program_root_work_plan; // Normal Program source-only work partition
-mod normal_script_direct_statement_owner; // Selected Script direct statement terminals
-mod normal_script_program_item_admission; // Selected Script Program-item source admission
-mod normal_script_root_demand_window; // Selected Script source-only semantic demand receipt
-mod normal_script_runtime_work; // Selected Script runtime Box callable admission
-mod normal_script_runtime_block_port;
-mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 mod program_static_table_metadata; // Normal Program paired static-table metadata
+mod return_type_strategy; // finalization-only return-type strategy
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
                          // legacy large-match remains inline for now (planned extraction)
 pub(in crate::mir) mod emission; // emission::*（Const/Compare/Branch の薄い発行箱）

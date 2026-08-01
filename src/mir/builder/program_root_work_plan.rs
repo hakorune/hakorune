@@ -1,5 +1,3 @@
-use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
-use std::collections::HashMap;
 use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
@@ -7,17 +5,19 @@ use super::normal_instance_constructor_admission::NormalInstanceConstructorSourc
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };
+use super::normal_script_root_demand_window::ScriptRootDemandWindowBuilderV1;
 #[cfg(test)]
 use super::normal_script_runtime_work::NormalScriptRuntimeStatementAdmissionV1;
 use super::normal_script_runtime_work::{
     PreparedNormalScriptRuntimeInputV1, PreparedNormalScriptRuntimeWorkV1,
 };
-use super::normal_script_root_demand_window::ScriptRootDemandWindowBuilderV1;
-use crate::mir::resolved_semantics::VerifiedScriptRootDemandWindowV1;
 use super::normal_top_level_function_admission::{
     NormalTopLevelFunctionDraftAdmissionV1, NormalTopLevelFunctionSourceKeyV1,
 };
 use super::MirBuilder;
+use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
+use crate::mir::resolved_semantics::VerifiedScriptRootDemandWindowV1;
+use std::collections::HashMap;
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootWorkPlanV1 {
     immediate: Box<[PreparedProgramRootImmediateWorkV1]>,
@@ -174,7 +174,9 @@ impl PreparedProgramRootWorkPlanV1 {
         let mut runtime_statements = Vec::new();
         let mut script_window = (!is_app_mode
             && work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal)
-            .then(|| ScriptRootDemandWindowBuilderV1::for_program_statement_count(statements.len()));
+            .then(|| {
+                ScriptRootDemandWindowBuilderV1::for_program_statement_count(statements.len())
+            });
         for (statement_index, statement) in statements.into_iter().enumerate() {
             let normal_script_kind = (work_plan_admission
                 == ProgramRootWorkPlanAdmissionV1::SelectedNormal)

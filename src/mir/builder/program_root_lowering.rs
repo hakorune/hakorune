@@ -150,8 +150,8 @@ impl MirBuilder {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
             let mut port = RawInvocationChildPortV1::new(&mut module_port);
             match script_mode {
-                NormalScriptRootLoweringMode::Complete(source) => {
-                    port.with_script_semantic_source_v1(source, |port| {
+                NormalScriptRootLoweringMode::Complete(source) => port
+                    .with_script_semantic_source_v1(source, |port| {
                         self.lower_prepared_program_root_with_callable_port_v1(
                             work,
                             snapshot,
@@ -160,8 +160,7 @@ impl MirBuilder {
                             runtime_inputs,
                             port,
                         )
-                    })?
-                }
+                    })?,
                 NormalScriptRootLoweringMode::Deferred => port.with_source_transport_v1(
                     RawInvocationSourceTransportV1::script_root(()),
                     |port, ()| {
