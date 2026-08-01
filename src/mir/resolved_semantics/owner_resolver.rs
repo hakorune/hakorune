@@ -20,7 +20,8 @@ use super::resolver::{
 use super::script_view::ScriptSyntaxViewV1;
 use super::shadow::{resolve_function_shadow_view_v0, ShadowLambdaSyntaxV0};
 use super::{
-    FunctionOriginV1, OwnedExprSiteV1, RecordSchemaDemandV1, VerifiedScriptRootDemandWindowV1,
+    EnumVariantDemandV1, FunctionOriginV1, OwnedExprSiteV1, RecordSchemaDemandV1,
+    VerifiedScriptRootDemandWindowV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -43,13 +44,15 @@ struct PendingParentV1 {
 }
 
 impl FunctionSemanticResolverSessionV1 {
-    pub(crate) fn resolve_script_forest_with_record_schemas(
+    pub(crate) fn resolve_script_forest_with_declaration_views(
         &mut self,
         view: ScriptSyntaxViewV1<'_>,
         window: &VerifiedScriptRootDemandWindowV1,
         record_schemas: &dyn RecordSchemaDemandV1,
+        enum_variants: &dyn EnumVariantDemandV1,
     ) -> Result<ResolveScriptForestOutcomeV1, ResolveOwnerForestErrorV1> {
-        let tree = match construct_script_owner_tree_v1(view, window, record_schemas) {
+        let tree = match construct_script_owner_tree_v1(view, window, record_schemas, enum_variants)
+        {
             Ok(tree) => tree,
             Err(_) => return Ok(ResolveScriptForestOutcomeV1::Deferred),
         };

@@ -10,11 +10,15 @@ use super::compilation_context::CompilationContext;
 use super::declaration_order::sorted_method_entries;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
 use crate::ast::{ASTNode, EnumVariantDecl, FieldDecl};
-use crate::mir::resolved_semantics::{FullyExplicitRecordLiteralAdmissionV1, RecordSchemaDemandV1};
+use crate::mir::resolved_semantics::{
+    EnumVariantAdmissionV1, EnumVariantDemandV1, FullyExplicitRecordLiteralAdmissionV1,
+    RecordSchemaDemandV1,
+};
 
 #[derive(Debug)]
 pub(super) struct PreparedNormalProgramDeclarationFactsV1 {
     operations: Box<[NormalProgramDeclarationFactOperationV1]>,
+    effective_enum_operations: HashMap<Box<str>, usize>,
     effective_record_operations: HashMap<Box<str>, usize>,
     _seal: PreparedNormalProgramDeclarationFactsSealV1,
 }
@@ -60,10 +64,17 @@ struct StaticScalarFactUpdateV1 {
 impl PreparedNormalProgramDeclarationFactsV1 {
     pub(super) fn collect(root: &ASTNode) -> Self {
         let mut operations = Vec::new();
+        let mut effective_enum_operations = HashMap::new();
         let mut effective_record_operations = HashMap::new();
-        collect_operations(root, &mut operations, &mut effective_record_operations);
+        collect_operations(
+            root,
+            &mut operations,
+            &mut effective_enum_operations,
+            &mut effective_record_operations,
+        );
         Self {
             operations: operations.into_boxed_slice(),
+            effective_enum_operations,
             effective_record_operations,
             _seal: PreparedNormalProgramDeclarationFactsSealV1,
         }
@@ -74,6 +85,13 @@ impl PreparedNormalProgramDeclarationFactsV1 {
         use_view: impl FnOnce(&dyn RecordSchemaDemandV1) -> R,
     ) -> R {
         use_view(&RecordSchemaDemandViewV1 { facts: self })
+    }
+
+    pub(super) fn with_enum_variant_demand_view<R>(
+        &self,
+        use_view: impl FnOnce(&dyn EnumVariantDemandV1) -> R,
+    ) -> R {
+        use_view(&EnumVariantDemandViewV1 { facts: self })
     }
 
     pub(super) fn install_into(self, context: &mut CompilationContext) {
@@ -126,12 +144,18 @@ impl PreparedNormalProgramDeclarationFactsV1 {
 fn collect_operations(
     node: &ASTNode,
     operations: &mut Vec<NormalProgramDeclarationFactOperationV1>,
+    effective_enum_operations: &mut HashMap<Box<str>, usize>,
     effective_record_operations: &mut HashMap<Box<str>, usize>,
 ) {
     match node {
         ASTNode::Program { statements, .. } => {
             for statement in statements {
-                collect_operations(statement, operations, effective_record_operations);
+                collect_operations(
+                    statement,
+                    operations,
+                    effective_enum_operations,
+                    effective_record_operations,
+                );
             }
         }
         ASTNode::BrandDeclaration {
@@ -147,11 +171,15 @@ fn collect_operations(
             variants,
             type_parameters,
             ..
-        } => operations.push(NormalProgramDeclarationFactOperationV1::Enum {
-            name: name.clone(),
-            type_parameters: type_parameters.clone(),
-            variants: variants.clone(),
-        }),
+        } => {
+            let operation_ordinal = operations.len();
+            operations.push(NormalProgramDeclarationFactOperationV1::Enum {
+                name: name.clone(),
+                type_parameters: type_parameters.clone(),
+                variants: variants.clone(),
+            });
+            effective_enum_operations.insert(name.clone().into_boxed_str(), operation_ordinal);
+        }
         ASTNode::BoxDeclaration {
             name,
             fields,
@@ -193,6 +221,51 @@ fn collect_operations(
             }
         }
         _ => {}
+    }
+}
+
+struct EnumVariantDemandViewV1<'facts> {
+    facts: &'facts PreparedNormalProgramDeclarationFactsV1,
+}
+
+impl EnumVariantDemandV1 for EnumVariantDemandViewV1<'_> {
+    fn admit_direct_variant(
+        &self,
+        enum_name: &str,
+        variant_name: &str,
+        arguments: &[ASTNode],
+    ) -> Option<EnumVariantAdmissionV1> {
+        let operation_ordinal = self.facts.effective_enum_operations.get(enum_name)?;
+        let NormalProgramDeclarationFactOperationV1::Enum {
+            type_parameters,
+            variants,
+            ..
+        } = self.facts.operations.get(*operation_ordinal)?
+        else {
+            return None;
+        };
+        if !type_parameters.is_empty() {
+            return None;
+        }
+        let (tag, variant) = variants
+            .iter()
+            .enumerate()
+            .find(|(_, variant)| variant.name == variant_name)?;
+        if variant.requires_compat_payload_box()
+            || arguments.len() != variant.payload_arity()
+            || arguments.len() > u32::MAX as usize
+            || (crate::semantics::option_contract::requires_non_nullish_payload(
+                enum_name,
+                variant_name,
+            ) && crate::mir::builder::exprs_enum_match::enum_variant_arguments_are_statically_nullish_v1(arguments))
+        {
+            return None;
+        }
+        Some(EnumVariantAdmissionV1::new(
+            u32::try_from(tag).ok()?,
+            arguments.len() as u32,
+            variant.payload_type_name.clone().map(Into::into),
+        ))
     }
 }
 

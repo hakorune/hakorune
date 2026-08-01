@@ -237,27 +237,19 @@ closed — RAW-SCRIPT-ENUM-INVENTORY-VIEW0-D0 (NoStandaloneRow)
   A view alone had no real Script consumer; AST-only EnumMatch proof is
   forbidden. The producer audit below corrected that premise.
 
-selected — RAW-SCRIPT-ENUM-VARIANT-PRODUCER0-I0-R0 (T2)
+closed — RAW-SCRIPT-ENUM-VARIANT-PRODUCER0-I0-R0 (T2)
+  The one declaration-facts scan now proves only final non-generic
+  `Type::Variant(args*)` routes with exact arity; Complete co-seals exact
+  `CallArgument` receipts and invokes the existing enum emitter once.
+  Ordinary/invalid/raw/reference FromCall remains Deferred; selected/legacy
+  `VariantMake` parity is fixed by the shared fixture ratchet.
 
-Change:
-  Reuse the one declaration-facts scan for an effective enum view and admit
-  only its proven `Type::Variant(args*)` FromCall route. Co-seal exact argument
-  receipts and route it once to the existing enum emitter; delete this form's
-  Deferred -> bare `script_root(())` reachability.
-
-Contract:
-  The shared pure enum-route policy, not a second classifier, proves only
-  final non-generic unit/single-scalar variants with exact arity and existing
-  lexical-safe arguments. Ordinary FromCall, invalid/generic/record payload,
-  and raw/reference stay unchanged and Deferred.
-
-Done:
-  `enum Flag { On(i64) } Flag::On(7)` is Complete with one `VariantMake` route,
-  exact `CallArgument` descent, and selected/legacy MIR parity.
-
-Stop:
-  Stop if the receipt needs mutable CompilationContext, a second Program scan,
-  reclassified ordinary FromCall, or any FunctionCall/header authority.
+selected — SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0
+  Behavior-neutral cleanup before another family: design one receipt-pack
+  boundary, separate source Deferral from invariant rejection, centralize
+  demand-window construction/validation, split the >800-line test module,
+  synchronize the pointer card, and anchor every closed Complete family.
+  No semantic admission, lowering route, or compatibility retirement changes.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

@@ -208,6 +208,9 @@ pub(crate) enum ShadowResolveErrorV0 {
     DuplicateRecordLiteralDemand {
         site: SourceExprSiteV1,
     },
+    DuplicateEnumVariantDemand {
+        site: SourceExprSiteV1,
+    },
     DuplicateQMarkPropagation {
         site: SourceExprSiteV1,
     },
@@ -237,6 +240,8 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     pub(crate) record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
+    pub(crate) enum_variant_demands:
+        BTreeMap<SourceExprSiteV1, crate::mir::resolved_semantics::EnumVariantAdmissionV1>,
     pub(crate) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     pub(crate) match_control_sites: BTreeSet<SourceExprSiteV1>,
 }

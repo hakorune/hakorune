@@ -28,7 +28,7 @@ use super::shadow::{
     ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowScopeIdV0, ShadowScopeKindV0,
 };
 use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
-use super::RecordSchemaDemandV1;
+use super::{EnumVariantDemandV1, RecordSchemaDemandV1};
 use super::{
     ResolvedFunctionVerificationErrorV1, VerifiedResolvedFunctionV1, VerifiedResolvedScriptV1,
 };
@@ -108,16 +108,18 @@ impl FunctionSemanticResolverSessionV1 {
         view: ScriptSyntaxViewV1<'_>,
         window: &super::VerifiedScriptRootDemandWindowV1,
     ) -> Result<ResolveScriptOutcomeV1, ResolveFunctionErrorV1> {
-        self.resolve_script_with_record_schemas(view, window, &())
+        self.resolve_script_with_declaration_views(view, window, &(), &())
     }
 
-    pub(crate) fn resolve_script_with_record_schemas(
+    pub(crate) fn resolve_script_with_declaration_views(
         &mut self,
         view: ScriptSyntaxViewV1<'_>,
         window: &super::VerifiedScriptRootDemandWindowV1,
         record_schemas: &dyn RecordSchemaDemandV1,
+        enum_variants: &dyn EnumVariantDemandV1,
     ) -> Result<ResolveScriptOutcomeV1, ResolveFunctionErrorV1> {
-        let draft = match resolve_script_shadow_view_v0(view, window, record_schemas) {
+        let draft = match resolve_script_shadow_view_v0(view, window, record_schemas, enum_variants)
+        {
             Ok(draft) => draft,
             Err(_) => return Ok(ResolveScriptOutcomeV1::Deferred),
         };
@@ -158,12 +160,14 @@ impl FunctionSemanticResolverSessionV1 {
         draft: ShadowResolvedFunctionV0,
     ) -> Result<SealedScriptConstructionV1, ResolveFunctionErrorV1> {
         let record_literal_demands = draft.record_literal_demands.clone();
+        let enum_variant_demands = draft.enum_variant_demands.clone();
         let qmark_propagation_sites = draft.qmark_propagation_sites.clone();
         let match_control_sites = draft.match_control_sites.clone();
         let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), None)?;
         let product = VerifiedResolvedScriptV1::from_canonical_data(
             canonical.data,
             record_literal_demands,
+            enum_variant_demands,
             qmark_propagation_sites,
             match_control_sites,
         )

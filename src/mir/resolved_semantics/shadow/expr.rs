@@ -174,7 +174,17 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 self.record_direct_call(path.expr(), name, arguments.len())?;
                 self.resolve_arguments(expr, arguments, path)
             }
-            ASTNode::FromCall { arguments, .. } => self.resolve_arguments(expr, arguments, path),
+            ASTNode::FromCall {
+                parent,
+                method,
+                arguments,
+                ..
+            } => {
+                if self.is_script_lexical_core() {
+                    self.admit_enum_variant(path.expr(), parent, method, arguments)?;
+                }
+                self.resolve_arguments(expr, arguments, path)
+            }
             ASTNode::Call {
                 callee, arguments, ..
             } => {

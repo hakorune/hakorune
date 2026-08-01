@@ -10,7 +10,7 @@ use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, ResolvedAssignmentTargetV1, ScriptDiagnosticBoundaryV1,
+    BindingRefV1, EnumVariantAdmissionV1, ResolvedAssignmentTargetV1, ScriptDiagnosticBoundaryV1,
     ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
     SemanticOwnerForestDraftV1, SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceExprSiteV1,
     SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
@@ -30,6 +30,7 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     using_directives: Box<[VerifiedScriptUsingDirectiveV1]>,
     existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
     record_literal_demands: Box<[VerifiedScriptRecordLiteralDemandV1]>,
+    enum_variant_demands: Box<[VerifiedScriptEnumVariantDemandV1]>,
     qmark_propagations: Box<[VerifiedScriptQMarkPropagationV1]>,
     match_controls: Box<[VerifiedScriptMatchControlDemandV1]>,
     runtime_source_indices: Box<[usize]>,
@@ -61,6 +62,12 @@ pub(super) struct VerifiedScriptExistingDiagnosticBoundaryV1 {
 pub(super) struct VerifiedScriptRecordLiteralDemandV1 {
     site: SourceExprSiteV1,
     explicit_field_count: u32,
+}
+
+#[derive(Debug)]
+pub(super) struct VerifiedScriptEnumVariantDemandV1 {
+    site: SourceExprSiteV1,
+    admission: EnumVariantAdmissionV1,
 }
 
 /// A source-only authorization for the existing QMark control/result owner.
@@ -151,6 +158,55 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 })
             })
             .collect::<Result<Vec<_>, _>>()?;
+        let enum_variant_demands = product
+            .enum_variant_demands()
+            .map(|(site, admission)| {
+                let projected = crate::mir::resolved_semantics::project_source_node_v1(
+                    source.source_ast(),
+                    site.node(),
+                )
+                .ok_or_else(|| {
+                    "[mir/script-semantic/enum-variant-projection] missing exact FromCall"
+                        .to_owned()
+                })?;
+                let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
+                    ASTNode::FromCall { arguments, .. },
+                ) = projected
+                else {
+                    return Err(
+                        "[mir/script-semantic/enum-variant-site] expected FromCall".to_owned()
+                    );
+                };
+                if arguments.len() != admission.argument_count() as usize {
+                    return Err(
+                        "[mir/script-semantic/enum-variant-cardinality] mismatch".to_owned()
+                    );
+                }
+                for index in 0..admission.argument_count() {
+                    let child_site = SourcePathV1::from_node(site.node())
+                        .child(SourcePathSegmentV1::Argument(index))
+                        .expr();
+                    if !matches!(
+                        crate::mir::resolved_semantics::project_source_node_v1(
+                            source.source_ast(),
+                            child_site.node(),
+                        ),
+                        Some(crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
+                            _
+                        ))
+                    ) {
+                        return Err(
+                            "[mir/script-semantic/enum-variant-argument-site] expected node"
+                                .to_owned(),
+                        );
+                    }
+                }
+                Ok(VerifiedScriptEnumVariantDemandV1 {
+                    site: site.clone(),
+                    admission: admission.clone(),
+                })
+            })
+            .collect::<Result<Vec<_>, String>>()?;
         let qmark_propagations = product
             .qmark_propagation_sites()
             .map(|site| {
@@ -381,6 +437,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             using_directives: using_directives.into_boxed_slice(),
             existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
             record_literal_demands: record_literal_demands.into_boxed_slice(),
+            enum_variant_demands: enum_variant_demands.into_boxed_slice(),
             qmark_propagations: qmark_propagations.into_boxed_slice(),
             match_controls: match_controls.into_boxed_slice(),
             runtime_source_indices: runtime_source_indices.into_boxed_slice(),
@@ -423,6 +480,15 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         self.match_controls
             .iter()
             .map(|receipt| (&receipt.site, receipt.arm_count))
+    }
+
+    #[cfg(test)]
+    pub(super) fn enum_variant_demands(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &EnumVariantAdmissionV1)> {
+        self.enum_variant_demands
+            .iter()
+            .map(|receipt| (&receipt.site, &receipt.admission))
     }
 
     #[cfg(test)]
@@ -594,6 +660,11 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 .iter()
                 .map(|receipt| (receipt.site.node().clone(), receipt.explicit_field_count)),
         )?;
+        state.install_enum_variant_demands(
+            self.enum_variant_demands
+                .iter()
+                .map(|receipt| (receipt.site.node().clone(), receipt.admission.clone())),
+        )?;
         state.install_qmark_propagation_receipts(
             self.qmark_propagations
                 .iter()
@@ -627,6 +698,9 @@ mod call_retention_tests;
 #[cfg(test)]
 #[path = "normal_script_enum_declaration_tests.rs"]
 mod enum_declaration_tests;
+#[cfg(test)]
+#[path = "normal_script_enum_variant_tests.rs"]
+mod enum_variant_tests;
 #[cfg(test)]
 #[path = "normal_script_map_literal_tests.rs"]
 mod map_literal_tests;

@@ -25,7 +25,8 @@ use super::calls::{
     lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,
     PreparedRawFromCallV1, PreparedRawFunctionPreflightV1, RawLegacyMethodCallInputV1,
 };
-use super::exprs_enum_match::PreparedRawEnumMatchV1;
+use super::enum_variant_source_demand::EnumVariantSourceDemandPortV1;
+use super::exprs_enum_match::{PreparedRawEnumMatchV1, PreparedRawEnumVariantHeaderV1};
 use super::fields::PreparedRawFieldReadV1;
 use super::indexing::PreparedRawIndexReadV1;
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
@@ -81,6 +82,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + RawBoxMethodChildPortV1
     + RawLoopChildEntryPortV1
     + RecordLiteralSourceDemandPortV1
+    + EnumVariantSourceDemandPortV1
     + RawLambdaCaptureDemandPortV1
     + QMarkPropagationSourceDemandPortV1
 {
@@ -103,6 +105,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + RawBoxMethodChildPortV1
         + RawLoopChildEntryPortV1
         + RecordLiteralSourceDemandPortV1
+        + EnumVariantSourceDemandPortV1
         + RawLambdaCaptureDemandPortV1
         + QMarkPropagationSourceDemandPortV1
 {
@@ -211,14 +214,60 @@ impl super::MirBuilder {
                 self.build_method_call_from_input_v1(port, &input)
             }
 
-            ASTNode::FromCall {
-                parent,
-                method,
-                arguments,
-                ..
-            } => {
-                let prepared = PreparedRawFromCallV1::prepare(self, parent, method, arguments)?;
-                self.lower_prepared_raw_from_call_with_port_v1(port, prepared)
+            node @ ASTNode::FromCall { .. } => {
+                let receipt = port.enum_variant_admission_v1(&node)?;
+                let sources = match receipt.as_ref() {
+                    Some(admission) => {
+                        let ASTNode::FromCall { arguments, .. } = &node else {
+                            unreachable!("FromCall receipt query keeps its AST shape")
+                        };
+                        if arguments.len() != admission.argument_count() as usize {
+                            return Err(
+                                "[freeze:contract][script-enum/receipt-cardinality]".to_owned()
+                            );
+                        }
+                        (0..admission.argument_count())
+                            .map(|index| {
+                                port.prepare_expression_child_source_v1(
+                                    &node,
+                                    ExprChildRoleV1::CallArgument(index),
+                                )
+                            })
+                            .collect::<Result<Vec<_>, _>>()?
+                    }
+                    None => Vec::new(),
+                };
+                let ASTNode::FromCall {
+                    parent,
+                    method,
+                    arguments,
+                    ..
+                } = node
+                else {
+                    unreachable!("FromCall match arm keeps its AST shape")
+                };
+                match receipt {
+                    Some(admission) => {
+                        let header =
+                            PreparedRawEnumVariantHeaderV1::from_verified_admission_v1(&admission);
+                        let mut scoped =
+                            RawStructuredChildScopePortV1::new(port, sources, Vec::new());
+                        let value = self.lower_prepared_raw_enum_variant_with_port_v1(
+                            &mut scoped,
+                            parent,
+                            method,
+                            arguments,
+                            header,
+                        )?;
+                        scoped.complete_exact_demands_v1()?;
+                        Ok(value)
+                    }
+                    None => {
+                        let prepared =
+                            PreparedRawFromCallV1::prepare(self, parent, method, arguments)?;
+                        self.lower_prepared_raw_from_call_with_port_v1(port, prepared)
+                    }
+                }
             }
 
             // Phase 152-A: Grouped assignment expression (x = expr)

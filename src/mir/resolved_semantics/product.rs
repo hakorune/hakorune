@@ -4,6 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use hakorune_mir_core::BindingId;
 
 use super::direct_call::ResolvedDirectCallTargetV1;
+use super::enum_variant_demand::EnumVariantAdmissionV1;
 use super::function_root::ResolvedFunctionLoweringRootsV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::if_region::ResolvedIfRegionIndexV1;
@@ -77,6 +78,7 @@ pub struct VerifiedResolvedFunctionV1 {
 pub(crate) struct VerifiedResolvedScriptV1 {
     core: VerifiedResolvedOwnerCoreV1,
     record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
+    enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
     qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     match_control_sites: BTreeSet<SourceExprSiteV1>,
 }
@@ -350,12 +352,14 @@ impl VerifiedResolvedScriptV1 {
     pub(crate) fn from_canonical_data(
         data: ResolvedFunctionDataV1,
         record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
+        enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
         qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
         match_control_sites: BTreeSet<SourceExprSiteV1>,
     ) -> Result<Self, ResolvedFunctionVerificationErrorV1> {
         Ok(Self {
             core: seal_owner_core(data)?,
             record_literal_demands,
+            enum_variant_demands,
             qmark_propagation_sites,
             match_control_sites,
         })
@@ -373,6 +377,12 @@ impl VerifiedResolvedScriptV1 {
         self.record_literal_demands
             .iter()
             .map(|(site, count)| (site, *count))
+    }
+
+    pub(crate) fn enum_variant_demands(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &EnumVariantAdmissionV1)> {
+        self.enum_variant_demands.iter()
     }
 
     pub(crate) fn qmark_propagation_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {

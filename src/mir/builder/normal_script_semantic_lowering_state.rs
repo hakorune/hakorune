@@ -3,7 +3,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::stmts::variable_stmt::OutboxBindingValueV1;
-use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1, SourceNodeSiteV1};
+use crate::mir::resolved_semantics::{
+    BindingRefV1, EnumVariantAdmissionV1, SourceExprSiteV1, SourceNodeSiteV1,
+};
 use crate::mir::ValueId;
 
 #[derive(Debug, Default)]
@@ -16,6 +18,7 @@ pub(super) struct ScriptSemanticLoweringState {
     outboxes: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
     lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
     record_literal_demands: BTreeMap<SourceNodeSiteV1, u32>,
+    enum_variant_demands: BTreeMap<SourceNodeSiteV1, EnumVariantAdmissionV1>,
     qmark_propagation_receipts: BTreeSet<SourceNodeSiteV1>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
@@ -53,6 +56,7 @@ impl ScriptSemanticLoweringState {
                 .collect(),
             lambda_captures: BTreeMap::new(),
             record_literal_demands: BTreeMap::new(),
+            enum_variant_demands: BTreeMap::new(),
             qmark_propagation_receipts: BTreeSet::new(),
             materialized_outboxes: BTreeSet::new(),
         }
@@ -143,6 +147,28 @@ impl ScriptSemanticLoweringState {
         site: &SourceNodeSiteV1,
     ) -> Option<u32> {
         self.record_literal_demands.get(site).copied()
+    }
+
+    pub(super) fn install_enum_variant_demands<Demands>(
+        &mut self,
+        demands: Demands,
+    ) -> Result<(), String>
+    where
+        Demands: IntoIterator<Item = (SourceNodeSiteV1, EnumVariantAdmissionV1)>,
+    {
+        for (site, admission) in demands {
+            if self.enum_variant_demands.insert(site, admission).is_some() {
+                return Err("[freeze:contract][script-enum/duplicate-demand]".to_owned());
+            }
+        }
+        Ok(())
+    }
+
+    pub(super) fn enum_variant_demand(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Option<&EnumVariantAdmissionV1> {
+        self.enum_variant_demands.get(site)
     }
 
     pub(super) fn install_qmark_propagation_receipts<Receipts>(

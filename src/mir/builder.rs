@@ -317,6 +317,7 @@ mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 polic
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
 };
+mod enum_variant_source_demand;
 mod qmark_source_demand;
 mod raw_expression_recursion_guard;
 mod raw_invocation_source_transport;

@@ -4,12 +4,25 @@ use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
     RawAstChildLoweringPortV1,
 };
+use crate::mir::resolved_semantics::EnumVariantAdmissionV1;
 use crate::mir::{CompareOp, MirInstruction, MirType, ValueId};
 
 pub(in crate::mir::builder) struct PreparedRawEnumVariantHeaderV1 {
     tag: u32,
     declared_payload_type: Option<MirType>,
     _seal: PreparedRawEnumVariantHeaderSealV1,
+}
+
+impl PreparedRawEnumVariantHeaderV1 {
+    pub(in crate::mir::builder) fn from_verified_admission_v1(
+        admission: &EnumVariantAdmissionV1,
+    ) -> Self {
+        Self {
+            tag: admission.tag(),
+            declared_payload_type: payload_mir_type(admission.declared_payload_type_name()),
+            _seal: PreparedRawEnumVariantHeaderSealV1,
+        }
+    }
 }
 
 struct PreparedRawEnumVariantHeaderSealV1;
@@ -158,7 +171,7 @@ pub(in crate::mir::builder) fn prepare_raw_enum_variant_header_v1(
         ));
     }
     if crate::semantics::option_contract::requires_non_nullish_payload(enum_name, variant_name)
-        && arguments.iter().any(ast_is_statically_nullish)
+        && enum_variant_arguments_are_statically_nullish_v1(arguments)
     {
         return Err(crate::semantics::option_contract::nullish_payload_error(
             "mir_builder/enum_ctor",
@@ -561,6 +574,12 @@ fn looks_like_generic_type_param(raw: &str) -> bool {
         && raw
             .chars()
             .all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit())
+}
+
+pub(in crate::mir) fn enum_variant_arguments_are_statically_nullish_v1(
+    arguments: &[ASTNode],
+) -> bool {
+    arguments.iter().any(ast_is_statically_nullish)
 }
 
 fn ast_is_statically_nullish(ast: &ASTNode) -> bool {

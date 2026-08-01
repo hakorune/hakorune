@@ -6,10 +6,10 @@
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::function_view::{FunctionBodyOriginV1, ReceiverPolicyV1};
-use crate::mir::resolved_semantics::{FunctionSyntaxViewV1, SemanticOwnerRootProfileV1};
 use crate::mir::resolved_semantics::{
-    RecordSchemaDemandV1, ScriptSyntaxViewV1, SourcePathSegmentV1,
+    EnumVariantDemandV1, RecordSchemaDemandV1, ScriptSyntaxViewV1, SourcePathSegmentV1,
 };
+use crate::mir::resolved_semantics::{FunctionSyntaxViewV1, SemanticOwnerRootProfileV1};
 
 use super::path::ShadowSourcePathV0;
 use super::script_root_window::{
@@ -23,6 +23,7 @@ pub(super) struct ShadowRootTraversalInputV1<'ast, 'schema> {
     receiver_policy: ReceiverPolicyV1,
     root_profile: SemanticOwnerRootProfileV1,
     traversal_profile: ShadowTraversalProfileV1,
+    enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
     record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
 }
 
@@ -55,6 +56,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             receiver_policy: view.receiver_policy(),
             root_profile: view.root_profile(),
             traversal_profile,
+            enum_variant_demand: None,
             record_schema_demand: None,
         }
     }
@@ -63,6 +65,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
         view: ScriptSyntaxViewV1<'ast>,
         window: &'ast VerifiedScriptRootDemandWindowV1,
         record_schema_demand: &'schema dyn RecordSchemaDemandV1,
+        enum_variant_demand: &'schema dyn EnumVariantDemandV1,
     ) -> Self {
         Self {
             params: &[],
@@ -70,6 +73,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             receiver_policy: ReceiverPolicyV1::Absent,
             root_profile: view.root_profile(),
             traversal_profile: ShadowTraversalProfileV1::ScriptLexicalCoreV1,
+            enum_variant_demand: Some(enum_variant_demand),
             record_schema_demand: Some(record_schema_demand),
         }
     }
@@ -92,6 +96,10 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
 
     pub(super) const fn record_schema_demand(&self) -> Option<&'schema dyn RecordSchemaDemandV1> {
         self.record_schema_demand
+    }
+
+    pub(super) const fn enum_variant_demand(&self) -> Option<&'schema dyn EnumVariantDemandV1> {
+        self.enum_variant_demand
     }
 
     pub(super) fn body_path(&self) -> ShadowSourcePathV0 {

@@ -205,11 +205,14 @@ impl ModuleBuilderInvocationSessionV1 {
                             })?;
                         let outcome =
                             declaration_facts.with_record_schema_demand_view(|record_schemas| {
-                                resolver.resolve_script_forest_with_record_schemas(
-                                    view,
-                                    window,
-                                    record_schemas,
-                                )
+                                declaration_facts.with_enum_variant_demand_view(|enum_variants| {
+                                    resolver.resolve_script_forest_with_declaration_views(
+                                        view,
+                                        window,
+                                        record_schemas,
+                                        enum_variants,
+                                    )
+                                })
                             });
                         match outcome.map_err(|error| {
                             NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
