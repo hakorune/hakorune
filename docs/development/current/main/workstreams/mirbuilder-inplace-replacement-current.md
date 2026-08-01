@@ -410,23 +410,32 @@ closed — MIRBUILDER-VM-BRIDGE-RETIRE0-I0-R0
   conversion is rehomed to `join_ir_to_mir`, its one existing normalized consumer
   remains, and the VM-bridge plus shared-substrate R4 fences are retired.
 
-current — JOINIR-LOOP-RECIPE-COREPLAN0-D0
+closed — JOINIR-LOOP-RECIPE-COREPLAN0-D0 (NoSafeSlice)
+  Nineteen registry routes plus two normalized-shadow shapes still use ordered
+  operational decline, physical CorePlan composition, name/ValueId carrier
+  recovery, a phase-only converter snapshot, and shared-driver fallback. No
+  current product can prove all-route logical binding coverage and delete both
+  mutation routes atomically.
+
+current — JOINIR-LOOP-LOGICAL-INTERFACE0-D0
 
 Change:
-  Design one verified Recipe/CorePlan Loop owner that replaces both
-  normalized-shadow mutations before the located Loop source handoff consumes it.
+  Determine whether every atomic-cutover Loop caller can issue one exact,
+  ordered logical input/carrier/exit/continuation interface from located source
+  and binding identity, without Builder, ValueId, variable_map, or name recovery.
 
 Contract:
-  Do not reopen the retired VM bridge, add a VM execution lane, or treat the
-  existing located Loop source receipt as a Loop-plan replacement.
+  Audit selected Script, shared block-driver, and any raw/reference membership.
+  Do not construct CorePlan, activate a route, alter normalized shadow, or
+  change Loop grammar, result semantics, VM behavior, or diagnostics.
 
 Done:
-  The all-route Loop input, producer, consumer, and atomic old-edge deletion are
-  explicit, or the boundary closes as NoSafeSlice.
+  Name one unique all-caller producer for the logical interface, or close as
+  NoSafeSlice at the first absent producer.
 
 Stop:
-  Do not implement a Loop I0 until both normalized-shadow mutation routes have
-  one verified Recipe/CorePlan replacement.
+  Do not open S0 or Loop I0 if source binding must be reconstructed from a name
+  or ValueId, requires Builder mutation, or forces unproven raw/reference change.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
