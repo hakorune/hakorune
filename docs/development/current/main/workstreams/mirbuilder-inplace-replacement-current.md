@@ -265,31 +265,22 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
+  RAW-SCRIPT-RECORD-RESULT-TYPE0-D0
 
-  Change:
-    After CatalogSeal, collect Program declaration facts once; loan a private
-    immutable record-schema demand view to ScriptSemanticSeal; then move the
-    same prepared facts into the existing RootLower install. This admits only a
-    fully explicit known non-generic RecordLiteral, proving default descent is
-    zero before any Complete selection.
+  Decision:
+    Record schema admission is NoSafeSlice on the current baseline. The
+    minimal record declaration + literal Programs panic in existing legacy
+    RootLower at return-type inference for `RecordValuePublish`, before a
+    selected-route comparison can start.
 
-  Contract:
-    No mutable Builder or `comp_ctx` reads occur in Script semantics. Record
-    schema/default/contract/publication and all user diagnostics remain owned
-    by existing RootLower. Omitted defaults, invalid schema forms, RecordUpdate,
-    QMark control/result, Loop JoinIR, Lambda capture, and broad BlockExpr
-    remain Deferred; no second resolver, fallback, retry, or mixed routing.
+  D0:
+    Establish the existing record-result type authority and one valid legacy
+    production fixture. Do not activate Script schema admission or change
+    record defaults, contracts, publication, or diagnostics.
 
-  Done:
-    `FullyExplicitRecordLiteralV1 -> Deferred -> bare script_root()` is zero;
-    the exact same source-only declaration facts install once at RootLower;
-    all source/check files remain below 800 lines and
-    `program_root_work_plan.rs` does not grow.
-
-  Stop:
-    Stop when a schema loan requires a second declaration scan, mutable Builder
-    access, or moves record diagnostics into ScriptSemanticSeal.
+  Reopen condition:
+    A legacy record fixture reaches finalization without the missing-type panic;
+    then rerun the schema-admission parity gate from the existing task.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -301,6 +292,12 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
+  -> NoSafeSlice. The schema loan is structurally valid, but no self-contained
+     legacy record fixture survives final return-type inference. The record
+     schema WIP is retained only in a recoverable local stash; no partial route
+     landed.
+
   RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0
   -> Accepts a source-only seam: `PreparedNormalProgramDeclarationFactsV1`
      already derives record fields/defaults from Program without Builder access.
