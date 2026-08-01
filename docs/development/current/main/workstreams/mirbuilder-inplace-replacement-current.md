@@ -387,22 +387,30 @@ closed — MIRBUILDER-R4-FENCE-EVIDENCE-MATURITY0-D0 (NoSafeSlice)
   None of the seven R4 fences has an all-route replacement owner: source and
   fixture anchors prove presence only, never atomic route replacement parity.
 
-current — MIRBUILDER-FINAL-R4-RETENTION-POLICY0-D0
+closed — MIRBUILDER-FINAL-R4-RETENTION-POLICY0-D0 (Decision)
+  R4 named retains are migration inventory only. `MIRBUILDER-FINAL-PIPELINE-v1`
+  requires every active fence to retire or complete an all-route rehome. A final
+  named operation may remain only behind one typed all-route product, with the
+  generic compatibility portal, source-erasing terminal, and old production edge at zero.
+
+current — MIRBUILDER-R4-REHOME-ORDER0-D0
 
 Change:
-  Decide whether a named R4 retained operation may satisfy final conformance,
-  or whether every active fence must gain an all-route rehome before completion.
+  Order all seven R4 fences by dependency, default-production impact, and the
+  first missing all-route product; select exactly one rehome design.
 
 Contract:
-  Do not promote source anchors to route parity or reopen any retained fence
-  under a renamed partial I0.
+  Do not treat source or fixture anchors as route parity. Do not select a
+  dependency fence before its consumer fences, or rename a partial compatibility
+  edge into a final retained operation.
 
 Done:
-  The completion predicate, release authority, and allowed R4 end state are
-  explicit; only then may a concrete all-route rehome or final cleanup proceed.
+  One first all-route rehome D0 names every route, its typed product, the single
+  production caller, and the same-commit generic old-edge deletion.
 
 Stop:
-  Stop implementation until the final R4 retention policy is selected.
+  Stop if no candidate can name all routes or delete its generic compatibility
+  edge atomically; record NoSafeSlice rather than opening a partial I0.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
