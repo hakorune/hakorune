@@ -66,9 +66,8 @@ fn direct_enum_match_seals_only_its_scrutinee_receipt() {
             })
         })
     });
-    let resolved = outcome.expect("direct EnumMatch resolve");
-    let ResolveScriptOutcomeV1::Complete(product) = resolved else {
-        panic!("direct EnumMatch must complete: {resolved:?}");
+    let ResolveScriptOutcomeV1::Complete(product) = outcome.expect("direct EnumMatch resolve") else {
+        panic!("direct EnumMatch must complete");
     };
     let sealed = super::VerifiedScriptSemanticSourceV1::seal(&prepared, product, &window)
         .expect("EnumMatch source seal");
