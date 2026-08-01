@@ -32,7 +32,7 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-NEXT-NAMED-FAMILY0-D0
+  RAW-SCRIPT-CALL-OBJECT-OWNER-BOUNDARY0-D0
 
 latest structural finding:
   Function/Lambda production now validates its complete recursive shadow tree
@@ -46,8 +46,7 @@ latest production closeout:
   RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
 
 next decision:
-  fresh named-family census; do not pre-authorize Control, Call/Object,
-  Allocation, Weak, or Box from the Lambda closeout.
+  design one Call/Object owner boundary; no implementation is authorized.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -185,6 +184,11 @@ closed — RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
   the shared forest. Selected lowering materializes that receipt into the
   existing closure-emission owner; Deferred/raw/reference retain the old
   observer. Focused Script parity and Lambda lifecycle tests are green.
+
+closed — RAW-SCRIPT-NEXT-NAMED-FAMILY0-D0 (NoSafeSlice)
+  Call/Object needs header/type/origin preflight; Loop drops receipts before
+  JoinIR; EnumMatch needs external inventory; GroupedAssignment needs a second
+  target demand. No safe I0 exists. Next is Call/Object boundary design only.
 
 after that — fresh named-family census
   Select exactly one remaining Deferred responsibility family. Control,
