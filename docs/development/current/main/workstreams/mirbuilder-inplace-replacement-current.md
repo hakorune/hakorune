@@ -274,10 +274,21 @@ closed — SCRIPT-DEFERRED-RESIDUAL-MANIFEST-RATCHET0-S0
   exact admission/shape/family, owner/release fields, and a fixture anchor.
   Nested/profile failures and Lambda capture remain deliberately outside it.
 
-selected — MIRBUILDER-R4-RESIDUAL-CONFORMANCE1-D0
-  Reconcile the mechanically anchored root registry with each live R4 fence,
-  including the narrowed Deferred/raw Lambda surface. No I0 is selected unless
-  a fresh live edge has one exact production owner deletion.
+closed — MIRBUILDER-R4-RESIDUAL-CONFORMANCE1-D0
+  The mechanically anchored registry is exact for unconditional root-admission
+  residuals. Profile-dependent Deferred shapes are not falsely counted as
+  root entries: they require their own exact D0. The Lambda fence now means
+  Deferred/raw/reference Lambda capture/publication only; selected lexical
+  Lambda already has its sealed child owner and ordered receipt. No generic
+  cleanup I0 exists at this seam.
+
+selected — RAW-SCRIPT-INDEX-WRITE-MUTATION-DESCENT0-D0
+  Census the narrow ordinary `Assignment` form whose target is an `Index` of a
+  prior-Local Array. It is profile-dependent Deferred, not a root-admission
+  residual. Select I0 only if one shared IndexWrite fact route and the existing
+  exact `IndexTarget` / `IndexSubscript` / `AssignmentValue` handoff delete its
+  selected Deferred-to-bare-`script_root(())` reachability. CompoundAssignment,
+  FieldWrite, Index read, Loop, Call/Object, Lambda, and Box runtime are out.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
@@ -318,7 +329,7 @@ retained by final conformance.
 | retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | explicit VM keep skip/trim bridge only | caller zero or one explicit-lane owner replaces every success/failure continuation |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` | two live nested static/instance method `LegacyChildDraftAdmissionV1` issuers | one function-relative located-source contract deletes both issuers |
 | active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected ControlBody Lambda, CallObject, NestedBoxAdmission portals | Lambda lineage and nested admission rows retire their portals; CallObject is R4-retained until an all-route preflight recipe or named final operation boundary exists |
-| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda still enters raw capture/publication without semantic child-owner source | exact `forest.child_at`, parent edge/scope, projected LambdaBodyRoot, and single ClosureBodyId publication replace the edge atomically |
+| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | Deferred/raw/reference nested Lambda still enters raw capture/publication without semantic child-owner source | selected lexical Lambda already uses the sealed child owner and ordered receipt; the remaining Deferred/raw/reference edge retires only when exact `forest.child_at`, parent edge/scope, projected LambdaBodyRoot, and single ClosureBodyId publication replace it atomically |
 | active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | located Loop product delegates to existing raw JoinIR route | verified Loop plan consumes the same located product and source-erasing terminal becomes zero |
 | retain-fenced | `JOINMODULE-SHARED-REFERENCE-SUBSTRATE-SUNSET-001` | JoinModule model/converter/lowering shared only by normalized-shadow and VM bridge fences | both consumer fences close and fresh census proves all production callers zero |
 
