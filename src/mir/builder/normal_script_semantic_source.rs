@@ -406,6 +406,9 @@ mod array_literal_tests;
 #[path = "normal_script_binding_rebind_tests.rs"]
 mod binding_rebind_tests;
 #[cfg(test)]
+#[path = "normal_script_block_expr_tests.rs"]
+mod block_expr_tests;
+#[cfg(test)]
 #[path = "normal_script_map_literal_tests.rs"]
 mod map_literal_tests;
 #[cfg(test)]

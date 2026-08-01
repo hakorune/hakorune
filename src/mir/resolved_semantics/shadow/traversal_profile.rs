@@ -53,8 +53,53 @@ impl ShadowTraversalProfileV1 {
                 | ASTNode::ArrayLiteral { .. }
                 | ASTNode::MapLiteral { .. }
                 | ASTNode::RecordLiteral { .. } => true,
+                ASTNode::BlockExpr {
+                    prelude_stmts,
+                    tail_expr,
+                    ..
+                } => {
+                    prelude_stmts
+                        .iter()
+                        .all(|statement| self.allows_block_expr_prelude_statement(statement))
+                        && self.is_block_expr_pure_expression(tail_expr)
+                }
                 _ => false,
             },
+        }
+    }
+
+    fn allows_block_expr_prelude_statement(self, statement: &ASTNode) -> bool {
+        match statement {
+            ASTNode::Print { expression, .. } => self.is_block_expr_pure_expression(expression),
+            expression => self.is_block_expr_pure_expression(expression),
+        }
+    }
+
+    fn is_block_expr_pure_expression(self, expression: &ASTNode) -> bool {
+        match expression {
+            ASTNode::Literal { .. } => true,
+            ASTNode::UnaryOp { operand, .. } => self.is_block_expr_pure_expression(operand),
+            ASTNode::BinaryOp { left, right, .. } => {
+                self.is_block_expr_pure_expression(left)
+                    && self.is_block_expr_pure_expression(right)
+            }
+            ASTNode::AwaitExpression { expression, .. } => {
+                self.is_block_expr_pure_expression(expression)
+            }
+            ASTNode::CheckExpr { items, .. } => items
+                .iter()
+                .all(|item| self.is_block_expr_pure_expression(&item.expression)),
+            ASTNode::BlockExpr {
+                prelude_stmts,
+                tail_expr,
+                ..
+            } => {
+                prelude_stmts
+                    .iter()
+                    .all(|statement| self.allows_block_expr_prelude_statement(statement))
+                    && self.is_block_expr_pure_expression(tail_expr)
+            }
+            _ => false,
         }
     }
 }

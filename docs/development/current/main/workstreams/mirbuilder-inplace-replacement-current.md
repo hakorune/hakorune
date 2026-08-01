@@ -266,12 +266,11 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY4-D0
 
   Change:
-    Run a fresh bounded census after the Loop/JoinIR and FieldAccess
-    NoSafeSlice decisions; do not select a successor solely because it has an
-    existing lowering terminal.
+    Run a fresh bounded census after the pure BlockExpr cutover; do
+    not select a successor solely because it has an existing lowering terminal.
 
   Contract:
     A candidate must carry its sealed Script receipt to an existing owner. It
@@ -283,8 +282,8 @@ current
     receipt for a bounded I0; otherwise close NoSafeSlice once.
 
   Stop:
-    Do not reopen Loop/JoinIR without a receipt-consuming planner seam, or
-    auto-select Call/Object, Lambda, Box, or broad mutation.
+    Do not reopen Loop/JoinIR or broad FieldAccess without a receipt-consuming
+    owner seam, or auto-select Call/Object, Lambda, Box, or broad mutation.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -296,6 +295,13 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-BLOCKEXPR-PURE-DESCENT0-I0-R0
+  -> ScriptLexicalCore now admits pure BlockExpr only through the shared shadow
+     traversal. Its existing raw owner receives exact prelude/tail sources,
+     lowers the prelude eagerly in source order then the tail once, and retains
+     its existing escaping-exit preflight. Variable/Local and escaping-exit
+     diagnostic parity are green; no new source authority exists.
+
   RAW-SCRIPT-LOOP-JOINIR-SEMANTIC-ADMISSION0-D0
   -> NoSafeSlice. `PreparedLocatedRawLoopChildEntryV1` seals exact condition
      and body receipts but deliberately drops them before the sole JoinIR
