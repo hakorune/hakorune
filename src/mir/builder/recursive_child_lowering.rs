@@ -14,8 +14,7 @@ use super::me_call_header_observation::{
     MeCallHeaderObservationPortV1, MeCallHeaderSourceV1, MeCallParameterObservationV1,
 };
 use super::module_lowering_invocation::{
-    LegacyChildDraftAdmissionV1, LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1,
-    ModuleLoweringPortV1,
+    LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
 };
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
@@ -117,28 +116,75 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
 
     fn lower_static_box_method(
         &mut self,
+        _builder: &mut MirBuilder,
+        _function_name: String,
+        _params: Vec<String>,
+        _param_decls: Vec<ParamDecl>,
+        _return_type_name: Option<String>,
+        _body: Vec<ASTNode>,
+        _uses: Vec<String>,
+        _attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][raw-box-method/loose-static-input]".to_owned())
+    }
+
+    fn lower_nested_box_method(
+        &mut self,
         builder: &mut MirBuilder,
-        function_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-    ) -> Result<(), String>;
+        input: super::nested_box_method_source::NestedBoxMethodLoweringInputV1,
+    ) -> Result<(), String> {
+        let (
+            _,
+            function_name,
+            kind,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        ) = input.into_parts();
+        match kind {
+            super::nested_box_method_source::NestedBoxMethodKindV1::Static => self
+                .lower_static_box_method(
+                    builder,
+                    function_name,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                ),
+            super::nested_box_method_source::NestedBoxMethodKindV1::Instance { owner } => self
+                .lower_instance_box_method(
+                    builder,
+                    function_name,
+                    owner,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                ),
+        }
+    }
 
     fn lower_instance_box_method(
         &mut self,
-        builder: &mut MirBuilder,
-        function_name: String,
-        box_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-    ) -> Result<(), String>;
+        _builder: &mut MirBuilder,
+        _function_name: String,
+        _box_name: String,
+        _params: Vec<String>,
+        _param_decls: Vec<ParamDecl>,
+        _return_type_name: Option<String>,
+        _body: Vec<ASTNode>,
+        _uses: Vec<String>,
+        _attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][raw-box-method/loose-instance-input]".to_owned())
+    }
 }
 
 /// One raw Loop child-entry boundary.
@@ -331,12 +377,20 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             .commit_normal_instance_constructor_pending(pending, admission)
     }
 
-    pub(in crate::mir::builder) fn commit_legacy_nested_box_method_pending_v1(
+    pub(in crate::mir::builder) fn commit_legacy_nested_box_method_symbol_pending_v1(
         &mut self,
         pending: LegacyFunctionPendingSessionV1<'_>,
-        admission: LegacyChildDraftAdmissionV1,
+        symbol: String,
+        arity: usize,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        self.module_port.commit_legacy_pending(pending, admission)
+        self.module_port.commit_legacy_symbol_pending(
+            pending,
+            (
+                super::module_draft_collector::FunctionDraftKeyV1::LegacySymbol(symbol.clone()),
+                symbol,
+                arity,
+            ),
+        )
     }
 
     pub(in crate::mir::builder) fn complete_raw_root_static_child_branded(
@@ -616,55 +670,14 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         )
     }
 
-    fn lower_static_box_method(
+    fn lower_nested_box_method(
         &mut self,
         builder: &mut MirBuilder,
-        function_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
+        input: super::nested_box_method_source::NestedBoxMethodLoweringInputV1,
     ) -> Result<(), String> {
-        super::nested_box_method_source::lower_static_box_method_v1(
-            self,
-            builder,
-            function_name,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-        )
+        super::nested_box_method_source::lower_nested_box_method_v1(self, builder, input)
     }
 
-    fn lower_instance_box_method(
-        &mut self,
-        builder: &mut MirBuilder,
-        function_name: String,
-        box_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-    ) -> Result<(), String> {
-        super::nested_box_method_source::lower_instance_box_method_v1(
-            self,
-            builder,
-            function_name,
-            box_name,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-        )
-    }
 }
 
 impl RawFunctionHeaderLookupPortV1 for RawInvocationChildPortV1<'_, '_> {

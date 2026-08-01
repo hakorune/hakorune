@@ -358,27 +358,29 @@ closed — NESTED-BOX-METHOD-SOURCE-EXTRACTION0-S0
   behavior-neutral owner. Existing collector admission, unlocated transport,
   headers, normalization, diagnostics, and raw/reference behavior are unchanged.
 
-current — NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-I0-R0
+closed — NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-I0-R0
+  The two nested-method batches now issue one owned method-key/body input;
+  a located parent seals `NestedBoxMethod` at `FunctionBody`. Both legacy
+  admission issuers and the `NestedBoxAdmission` portal are deleted.
+
+current — SCRIPT-ROOT-ADMISSION-WITNESS0-S0
 
 Change:
-  Replace the two self-created nested-Box unlocated frames with one
-  function-relative located method source product from the parent Box and
-  exact method declaration; delete both legacy issuer edges atomically.
+  Move Script root admission AST-shape proof into one private witness; keep
+  the demand window as ordinal coverage storage only.
 
 Contract:
-  Keep existing method-body lowering, header observation, collector policy,
-  arity normalization, diagnostics, and raw/reference behavior. Do not create
-  a global Box/method projection, second collector, or fallback.
+  Operational admission, shadow traversal, raw lowering, Complete/Deferred
+  eligibility, and diagnostic precedence stay unchanged.
 
 Done:
-  Static and instance nested methods use the one located source product;
-  `LegacyChildDraftAdmissionV1` and `NestedBoxAdmission` production issuers
-  are zero, while focused reentrant collector tests stay green.
+  Root disposition shape validation has one issuer, while window sealing has
+  zero AST-shape classifier arms; focused selected-Script parity stays green.
 
 Stop:
-  Stop if the product needs AST reconstruction, method-map scanning, a second
-  collector, or any production unlocated fallback. Keep every source/check
-  file <800.
+  Stop if this duplicates operational/raw route classification, reclassifies
+  Program items in semantic sealing, or changes eligibility. Keep every
+  source/check file <800.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
@@ -417,8 +419,7 @@ retained by final conformance.
 | retain-fenced | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | arbitrary-AST raw static-Main helper-first batch through `RawLegacyChildLoweringPortV1` | one located-source and entry-materialization owner atomically deletes dispatcher, helper, and legacy Main-policy edges |
 | retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two dev-gated normalized-shadow mutations plus comparison observer | verified Recipe/CorePlan loop owner replaces both mutations and observer disposition is explicit |
 | retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | explicit VM keep skip/trim bridge only | caller zero or one explicit-lane owner replaces every success/failure continuation |
-| retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` | two live nested static/instance method `LegacyChildDraftAdmissionV1` issuers | one function-relative located-source contract deletes both issuers |
-| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected ControlBody Lambda, CallObject, NestedBoxAdmission portals | Lambda lineage and nested admission rows retire their portals; CallObject is R4-retained until an all-route preflight recipe or named final operation boundary exists |
+| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected ControlBody Lambda and CallObject portals | Lambda lineage retires ControlBody; CallObject is R4-retained until an all-route preflight recipe or named final operation boundary exists |
 | retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | Deferred/raw/reference nested Lambda still enters raw capture/publication without semantic child-owner source | selected lexical Lambda already uses the sealed child owner and ordered receipt; the remaining Deferred/raw/reference edge retires only when exact `forest.child_at`, parent edge/scope, projected LambdaBodyRoot, and single ClosureBodyId publication replace it atomically |
 | active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | located Loop product delegates to existing raw JoinIR route | verified Loop plan consumes the same located product and source-erasing terminal becomes zero |
 | retain-fenced | `JOINMODULE-SHARED-REFERENCE-SUBSTRATE-SUNSET-001` | JoinModule model/converter/lowering shared only by normalized-shadow and VM bridge fences | both consumer fences close and fresh census proves all production callers zero |
@@ -426,17 +427,16 @@ retained by final conformance.
 Current exact registry count:
 
 ```text
-retain-fenced        = 6
+retain-fenced        = 5
 active compatibility = 2
 active retirement    = 0
 active rehome         = 0
 unregistered         = 0
 ```
 
-`LegacyChildDraftAdmissionV1` latest exact census: 16 occurrences in 4
-`src/mir` files. Seven are production-core and nine are live-path proof
-occurrences. The only live issuers are the two nested-method sites registered
-under `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001`.
+`NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` is closed. Test-only
+`LegacyChildDraftAdmissionV1` fixtures remain; nested-method production now
+uses `PreparedNestedBoxMethodSourceV1` and direct legacy-symbol completion.
 
 ## Other live compatibility contract
 

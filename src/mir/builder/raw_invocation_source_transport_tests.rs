@@ -61,27 +61,6 @@ fn located_root_derives_exact_body_item_without_reissuing_lineage() {
 }
 
 #[test]
-fn compatibility_reason_is_forwarded_once_to_body_item() {
-    let (_, context) =
-        RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::unlocated(
-            Vec::<ASTNode>::new(),
-            RawUnlocatedPortalV1::NestedBoxAdmission,
-        ));
-    let (_, child) = RawInvocationSourceContextV1::from_transport(context.body_statement(
-        ASTNode::Break {
-            span: crate::ast::Span::unknown(),
-        },
-        0,
-    ));
-    assert_eq!(
-        child,
-        RawInvocationSourceContextV1::UnlocatedCompatibility(
-            RawUnlocatedPortalV1::NestedBoxAdmission
-        )
-    );
-}
-
-#[test]
 fn located_controls_and_diagnostic_terminals_keep_exact_parent_sites() {
     let controls = [
         ASTNode::If {

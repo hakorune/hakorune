@@ -34,13 +34,28 @@ pub(in crate::mir::builder) enum RawInvocationRootLineageV1 {
     Cataloged(CanonicalSameModuleCallableKeyV1),
     TopLevel(NormalTopLevelFunctionSourceKeyV1),
     InstanceConstructor(NormalInstanceConstructorSourceKeyV1),
+    NestedBoxMethod {
+        parent_site: SourceNodeSiteV1,
+        method_key: Box<str>,
+    },
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawUnlocatedPortalV1 {
     ControlBody,
     CallObject,
-    NestedBoxAdmission,
+}
+
+impl RawInvocationRootLineageV1 {
+    pub(in crate::mir::builder) fn nested_box_method(
+        parent_site: SourceNodeSiteV1,
+        method_key: String,
+    ) -> Self {
+        Self::NestedBoxMethod {
+            parent_site,
+            method_key: method_key.into_boxed_str(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

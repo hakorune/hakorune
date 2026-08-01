@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::module_lifecycle::RootCallableCapturePortV1;
+use super::nested_box_method_source::NestedBoxMethodLoweringInputV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
 use super::{MirBuilder, SameModuleCallableNamespaceV1};
@@ -77,15 +78,18 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
         Port: RawBoxMethodChildPortV1,
     {
         for method in self.methods {
-            port.lower_static_box_method(
+            port.lower_nested_box_method(
                 builder,
-                method.function_name,
-                method.params,
-                method.param_decls,
-                method.return_type_name,
-                method.body,
-                method.uses,
-                method.attrs,
+                NestedBoxMethodLoweringInputV1::static_method(
+                    method.method_name,
+                    method.function_name,
+                    method.params,
+                    method.param_decls,
+                    method.return_type_name,
+                    method.body,
+                    method.uses,
+                    method.attrs,
+                ),
             )?;
         }
         Ok(())

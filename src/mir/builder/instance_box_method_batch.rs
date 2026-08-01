@@ -10,6 +10,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::declaration_order::sorted_method_entries;
 use super::module_lifecycle::RootCallableCapturePortV1;
+use super::nested_box_method_source::NestedBoxMethodLoweringInputV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
 use super::{MirBuilder, SameModuleCallableNamespaceV1};
@@ -78,16 +79,19 @@ impl PreparedInstanceBoxMethodBatchV1 {
         Port: RawBoxMethodChildPortV1,
     {
         for method in self.methods {
-            port.lower_instance_box_method(
+            port.lower_nested_box_method(
                 builder,
-                method.function_name,
-                self.owner.clone(),
-                method.params,
-                method.param_decls,
-                method.return_type_name,
-                method.body,
-                method.uses,
-                method.attrs,
+                NestedBoxMethodLoweringInputV1::instance_method(
+                    method.method_name,
+                    method.function_name,
+                    self.owner.clone(),
+                    method.params,
+                    method.param_decls,
+                    method.return_type_name,
+                    method.body,
+                    method.uses,
+                    method.attrs,
+                ),
             )?;
         }
         Ok(())

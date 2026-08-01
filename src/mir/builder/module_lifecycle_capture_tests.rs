@@ -72,6 +72,7 @@ impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
         )
     }
 
+
     fn lower_instance_box_method(
         &mut self,
         builder: &mut MirBuilder,
@@ -217,7 +218,6 @@ fn parsed_instance_declaration(source: &str) -> ASTNode {
     };
     statements.remove(0)
 }
-
 #[test]
 fn mirbuilder_minimal_literal_integer_path_smoke() {
     let mut builder = MirBuilder::new();
