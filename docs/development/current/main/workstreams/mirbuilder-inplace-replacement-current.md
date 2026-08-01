@@ -442,7 +442,6 @@ closed premise sequence — normalized-shadow coverage / grammar / receipt
   mutation fence; do not rebuild it or a name-set facade.
 
 closed — JOINMODULE-NORMALIZED-SHADOW-MUTATION-RETIRE0-I0-R0
-
 Change:
   Retire the duplicate dev-only normalized-shadow Loop mutation authority
   instead of migrating it.  Delete the direct and block-suffix entries, suffix
@@ -473,13 +472,16 @@ Stop:
   observer, or cannot preserve ordinary Loop diagnostics/results without
   retrying the retired route.
 
-current — JOINIR-LOOP-MISSING-TRANSIENT-TYPE-OWNER0-D0 (design stop)
-
-  Decide which source/type product must prove GenericLoop transient carrier
-  representation before Builder effects.  Do not restore normalized-shadow,
-  infer from names or `ValueId`, activate Loop, or add fallback.  Accept only
-  one bounded owner plus a focused failure/success fixture; otherwise close as
-  NoSafeSlice and return to the next named family.
+closed — JOINIR-LOOP-MISSING-TRANSIENT-TYPE-OWNER0-D0 (NoSafeSlice)
+  Existing call-result activation and assignment `BindingRef` truths have no
+  production loan. GenericLoop's String -> `ValueId` -> `type_ctx` recovery is
+  the wrong authority. The five-fixture failure predates this retirement;
+  `loop_continue_only_min.hako` is green and is not this blocker.
+current — CALLABLE-RESULT-BINDING-REPRESENTATION-INGRESS0-D0 (design stop)
+  Decide one live ingress that co-seals exact call-result representation with
+  its resolved assignment `BindingRef` before Builder effects.  A caller-zero
+  receipt, name/`ValueId` recovery, `type_ctx` backfill, Loop activation, and
+  fallback are forbidden.  Reuse the existing five-case call-result matrix.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
