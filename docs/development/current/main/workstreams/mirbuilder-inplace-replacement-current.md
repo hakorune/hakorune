@@ -32,22 +32,21 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
+  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
 
 latest structural finding:
-  Existing Function/Lambda production now seals a construction-local ordered
-  BindingRef receipt against canonical upvar observations. The next decision is
-  whether that receipt can retire the Script Lambda raw observer without moving
-  closure publication authority.
+  Function/Lambda production now validates its complete recursive shadow tree
+  before canonical owner issue. Script Lambda can use the same construction
+  rule and ordered BindingRef receipt without moving closure publication.
 
 accepted series:
-  Function/Lambda recursive shadow receipt -> Script Lambda lineage T2 gate
+  Function/Lambda construction tree -> Script Lambda observer retirement
 
 latest production closeout:
-  SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
+  SEMANTIC-OWNER-RECURSIVE-CONSTRUCTION-TREE0-S1
 
 consultation decision:
-  Revalidate the narrow Script Lambda cutover before selecting any I0.
+  Accept-corrected: narrow lexical Script Lambda I0 is authorized.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -175,11 +174,16 @@ closed — SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
   BindingRef capture receipt against canonical upvar observations. No Script
   route, capture ABI materialization, or closure publication changed.
 
-now — RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
-  Revalidate the narrow Script Lambda cutover against the landed shared core:
-  child lineage, ordered BindingRef receipt, raw-observer deletion, and the
-  one existing closure-publication owner. Open I0 only when its real positive
-  fixture and exact old-edge deletion are demonstrated.
+closed — SEMANTIC-OWNER-RECURSIVE-CONSTRUCTION-TREE0-S1
+  Existing Function/Lambda recursive forest now completes shadow validation
+  before canonical ID issue, so a rejected nested Lambda leaves the session
+  ready for a fresh owner at ordinal zero.
+
+now — RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
+  One lexical Script Lambda child forest and ordered BindingRef receipt replace
+  the selected raw name observer. The existing closure-emission owner retains
+  capture publication and ClosureBodyId reserve/commit; raw/reference and
+  Deferred keep the old route.
 
 after that — fresh named-family census
   Select exactly one remaining Deferred responsibility family. Control,
@@ -316,9 +320,23 @@ closed
 current design gate
   RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
 
-  Revalidate the narrow Script Lambda cutover against the landed receipt. Open
-  I0 only with a real positive fixture and one same-commit deletion of the raw
-  observer edge; closure publication remains the existing owner.
+  closed Accept-corrected. A direct cutover was unsafe while recursive forest
+  construction issued IDs before child validation. The live S1 below removes
+  that ordering fault; the real lexical positive fixture and exact old edge are
+  now fixed for one atomic I0.
+
+closed
+  SEMANTIC-OWNER-RECURSIVE-CONSTRUCTION-TREE0-S1
+  -> Function/Lambda production first builds and validates the full recursive
+     shadow tree, then issues IDs and canonicalizes it; nested failure consumes
+     no session owner ID. Existing owner-forest tests remain green.
+
+current
+  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
+  -> admit only `local outer = 7; local f = fn() { outer }` and its no-capture
+     companion through one Script child forest/ordered BindingRef receipt;
+     selected lowering deletes its raw name-observer edge while existing closure
+     publication remains the sole NewClosure/body-ID owner.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -336,9 +354,9 @@ closed
      precedes Script T2; no forest iteration or raw name observer is capture ABI.
 
   RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0
-  -> NoSafe for direct I0. Script has no recursive child-owner forest and
-     forest upvar sets omit first-demand ABI order. Do not retain the raw
-     name observer beside a forest or use BTreeSet iteration as capture order.
+  -> closed Accept-corrected. Direct I0 was NoSafe until ordered receipts and
+     pre-issue recursive construction landed; the narrow lexical T2 I0 now has
+     one real fixture and retains the existing closure-publication owner.
 
   RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0
   -> Lambda selected for child-owner lineage D0. Box runtime crosses nested

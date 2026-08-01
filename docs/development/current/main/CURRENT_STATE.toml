@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0 is closed: existing Function/Lambda resolution now seals construction-local first-demand BindingRef capture receipts against canonical upvar observations. Next is the narrow Script Lambda lineage/capture T2 design gate."
+status = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0 is closed Accept-corrected: live Function/Lambda recursive construction now validates the whole shadow tree before canonical owner issue. The narrow Script Lambda I0 may use that core to retire its selected raw name observer."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0"
-current_execution_row = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0"
-current_execution_summary = "Revalidate the narrow Script Lambda cutover against the landed shared core: child lineage, ordered BindingRef receipt, raw-observer deletion, and the one existing closure-publication owner. No implementation opens until its positive fixture and exact old-edge deletion are proven."
+current_design_stop = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0"
+current_execution_row = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0"
+current_execution_summary = "For lexical `local outer = 7; local f = fn() { outer }`, co-seal one Script Lambda child owner and ordered BindingRef capture receipt; selected lowering bypasses the raw name observer once while the existing closure-publication owner remains sole NewClosure/body-ID authority."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
@@ -448,7 +448,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0 is closed: Function/Lambda production seals ordered first-demand BindingRef capture receipts against canonical upvar observations. Capture ABI never comes from forest set iteration; Script lowering remains unchanged. Next: RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0."""
+latest_card_summary = """RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0 is closed Accept-corrected: Function/Lambda production now validates one construction-local recursive shadow tree before owner issue. The next atomic Script Lambda I0 consumes that core, ordered BindingRef receipts, and the existing closure-publication owner; raw/reference remain unchanged."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

@@ -5,6 +5,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::callable_index::VerifiedCallableIndexV1;
 use super::function_view::FunctionSyntaxViewV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, ScopeId};
+use super::owner_construction_tree::{
+    construct_function_owner_tree_v1, ShadowOwnerConstructionTreeV1,
+};
 use super::owner_forest::{
     OwnerParentEdgeV1, SemanticOwnerForestDraftV1, SemanticOwnerForestVerificationErrorV1,
     VerifiedSemanticOwnerForestV1,
@@ -13,10 +16,7 @@ use super::resolver::{
     AncestorBindingV1, FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1,
     SealedOwnerConstructionV1,
 };
-use super::shadow::{
-    resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0, ShadowLambdaSyntaxV0,
-    ShadowResolvedOwnerV0,
-};
+use super::shadow::{resolve_function_shadow_view_v0, ShadowLambdaSyntaxV0};
 use super::{FunctionOriginV1, OwnedExprSiteV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -38,7 +38,10 @@ impl FunctionSemanticResolverSessionV1 {
         root: FunctionSyntaxViewV1<'_>,
     ) -> Result<VerifiedSemanticOwnerForestV1, ResolveOwnerForestErrorV1> {
         let mut draft = SemanticOwnerForestDraftV1::new();
-        self.resolve_owner_recursive(root, &BTreeMap::new(), None, None, None, &mut draft)?;
+        let tree = construct_function_owner_tree_v1(root, &BTreeSet::new())
+            .map_err(ResolveFunctionErrorV1::Syntax)
+            .map_err(ResolveOwnerForestErrorV1::Function)?;
+        self.seal_owner_tree(tree, &BTreeMap::new(), None, None, None, &mut draft)?;
         draft
             .seal()
             .map_err(ResolveOwnerForestErrorV1::Verification)
@@ -50,8 +53,11 @@ impl FunctionSemanticResolverSessionV1 {
         callable_index: &VerifiedCallableIndexV1,
     ) -> Result<VerifiedSemanticOwnerForestV1, ResolveOwnerForestErrorV1> {
         let mut draft = SemanticOwnerForestDraftV1::new();
-        self.resolve_owner_recursive(
-            root,
+        let tree = construct_function_owner_tree_v1(root, &BTreeSet::new())
+            .map_err(ResolveFunctionErrorV1::Syntax)
+            .map_err(ResolveOwnerForestErrorV1::Function)?;
+        self.seal_owner_tree(
+            tree,
             &BTreeMap::new(),
             None,
             None,
@@ -71,8 +77,11 @@ impl FunctionSemanticResolverSessionV1 {
         callable_index: &VerifiedCallableIndexV1,
     ) -> Result<VerifiedSemanticOwnerForestV1, ResolveOwnerForestErrorV1> {
         let mut draft = SemanticOwnerForestDraftV1::new();
-        self.resolve_owner_recursive(
-            root,
+        let tree = construct_function_owner_tree_v1(root, &BTreeSet::new())
+            .map_err(ResolveFunctionErrorV1::Syntax)
+            .map_err(ResolveOwnerForestErrorV1::Function)?;
+        self.seal_owner_tree(
+            tree,
             &BTreeMap::new(),
             None,
             Some((origin, owner)),
@@ -84,9 +93,9 @@ impl FunctionSemanticResolverSessionV1 {
             .map_err(ResolveOwnerForestErrorV1::Verification)
     }
 
-    fn resolve_owner_recursive<'ast>(
+    fn seal_owner_tree<'ast>(
         &mut self,
-        view: FunctionSyntaxViewV1<'ast>,
+        tree: ShadowOwnerConstructionTreeV1<'ast>,
         ancestor_bindings: &BTreeMap<Box<str>, AncestorBindingV1>,
         parent: Option<PendingParentV1>,
         reserved: Option<(FunctionOriginV1, FunctionOwnerIdV1)>,
@@ -99,11 +108,7 @@ impl FunctionSemanticResolverSessionV1 {
                 .issue_owner()
                 .map_err(ResolveOwnerForestErrorV1::Function)?,
         };
-        let ancestor_names = ancestor_bindings.keys().cloned().collect::<BTreeSet<_>>();
-        let shadow = resolve_owner_shadow_view_v0(view, ancestor_names)
-            .map_err(ResolveFunctionErrorV1::Syntax)
-            .map_err(ResolveOwnerForestErrorV1::Function)?;
-        let ShadowResolvedOwnerV0 { function, lambdas } = shadow;
+        let ShadowOwnerConstructionTreeV1 { function, children } = tree;
         let SealedOwnerConstructionV1 {
             product,
             binding_refs,
@@ -121,18 +126,20 @@ impl FunctionSemanticResolverSessionV1 {
         }
         .map_err(ResolveOwnerForestErrorV1::Function)?;
 
-        let children = lambdas
-            .into_vec()
+        let children = children
             .into_iter()
-            .map(|lambda| {
+            .map(|child| {
                 let child_bindings =
-                    visible_bindings_for_child(ancestor_bindings, &binding_refs, &lambda);
+                    visible_bindings_for_child(ancestor_bindings, &binding_refs, &child.lambda);
                 let child_parent = PendingParentV1 {
                     parent_owner: owner,
-                    definition_site: OwnedExprSiteV1::new(owner, lambda.definition_site.clone()),
-                    parent_scope: scope_ids[&lambda.parent_scope],
+                    definition_site: OwnedExprSiteV1::new(
+                        owner,
+                        child.lambda.definition_site.clone(),
+                    ),
+                    parent_scope: scope_ids[&child.lambda.parent_scope],
                 };
-                (lambda, child_bindings, child_parent)
+                (child.tree, child_bindings, child_parent)
             })
             .collect::<Vec<_>>();
 
@@ -155,9 +162,9 @@ impl FunctionSemanticResolverSessionV1 {
             .insert_ordered_capture_demands(owner, ordered_capture_demands)
             .map_err(ResolveOwnerForestErrorV1::Verification)?;
 
-        for (lambda, child_bindings, child_parent) in children {
-            self.resolve_owner_recursive(
-                lambda.syntax_view(),
+        for (child, child_bindings, child_parent) in children {
+            self.seal_owner_tree(
+                *child,
                 &child_bindings,
                 Some(child_parent),
                 None,

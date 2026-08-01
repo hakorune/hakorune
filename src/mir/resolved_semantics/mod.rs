@@ -24,6 +24,7 @@ mod loop_region;
 mod normalized;
 mod normalized_callable_catalog;
 mod ordered_capture;
+mod owner_construction_tree;
 mod owner_forest;
 mod owner_forest_payload;
 mod owner_resolver;

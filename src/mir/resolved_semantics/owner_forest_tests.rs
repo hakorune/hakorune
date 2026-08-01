@@ -227,6 +227,22 @@ fn resolver_seals_one_noncapturing_lambda_as_a_child_owner() {
 }
 
 #[test]
+fn recursive_forest_issues_no_owner_before_nested_shadow_validation() {
+    let invalid = function(vec![local("f", lambda(&[], vec![variable("missing")]))]);
+    let valid = function(vec![int(1)]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+
+    assert!(session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&invalid).unwrap())
+        .is_err());
+
+    let next = session
+        .resolve(FunctionSyntaxViewV1::from_ast(&valid).unwrap())
+        .unwrap();
+    assert_eq!(next.function_origin().function_ordinal(), 0);
+}
+
+#[test]
 fn resolver_seals_read_only_ancestor_use_as_structural_upvar() {
     let tree = function(vec![
         local("outer", int(1)),
