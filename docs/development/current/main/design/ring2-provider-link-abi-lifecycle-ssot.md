@@ -181,10 +181,17 @@ The production design has exactly three decision authorities:
 
 ```text
 what may be called:
-  BoxCallableRegistry
+  admitted BoxCallableRegistry
 
 how the selected callable is reached:
-  sealed RoutePlan + plan stamp + provider image pin
+  one route-binding authority with two separate products:
+    semantic RoutePlan
+    RuntimeExecutablePlan {
+      semantic_plan,
+      plan_stamp,
+      provider_image_pin,
+      function_address,
+    }
 
 whether the instance may be called now:
   host lifecycle controller / future ObjectCell authority
@@ -196,6 +203,13 @@ decision authorities:
 ```text
 PluginLoaderV2:
   observes and publishes provider image/export facts
+
+ProviderAdmissionSeal:
+  one-shot BoxCallableRegistry construction transaction
+  verifies ABI/version/capabilities, init success, export collisions,
+  signature/ownership/effect, and granted host capabilities
+  publishes only an admitted registry or one typed rejection
+  is not retained as a fourth runtime authority
 
 BoxDescriptor / historical TypeAbi* views:
   read-only descriptor projections
@@ -210,12 +224,20 @@ runtime object substrate:
 The minimal production path is:
 
 ```text
-provider export snapshot
-  -> BoxCallableRegistry
-  -> one sealed RoutePlan
+provider export facts
+  -> one ProviderAdmissionSeal
+  -> one admitted BoxCallableRegistry snapshot
+  -> one semantic RoutePlan
+  -> one RuntimeExecutablePlan
   -> one host lifecycle gate
   -> one selected invocation
 ```
+
+`BoxCallableRegistry::seal` may physically implement `ProviderAdmissionSeal`,
+but the admission checks must remain an explicit all-or-nothing stage before
+registry publication.  Raw export facts are never callable registry truth.
+`RoutePlan` contains IDs and route shape only; executable address, image pin,
+and `PlanStamp` belong exclusively to `RuntimeExecutablePlan`.
 
 ### Typed Fast ABI target
 
@@ -397,7 +419,8 @@ share does not create another instance
 clone creates a fresh instance through birth
 the user fini hook is attempted at most once for one lifecycle transaction
 fini failure is observable, remaining teardown still runs, and partial Alive is never republished
-method calls after Finalizing begins fail before plugin method execution
+new ordinary lease requests after Finalizing begins fail before plugin method execution
+already-issued ordinary leases drain before the user fini hook
 destroy is called exactly once when structural ownership ends
 destroy never invokes user fini implicitly
 singleton shutdown has an explicit outstanding-share disposition
@@ -642,8 +665,10 @@ forbidden.
 
 ```text
 provider exports
-  -> immutable provider-scoped BoxCallableRegistry snapshot
-  -> sealed RoutePlan + PlanStamp + provider image pin
+  -> ProviderAdmissionSeal
+  -> immutable admitted BoxCallableRegistry snapshot
+  -> semantic RoutePlan
+  -> RuntimeExecutablePlan + PlanStamp + provider image pin
   -> existing BID execution exactly once
 
 same-series retirement:
