@@ -268,12 +268,16 @@ closed — SCRIPT-DEFERRED-RESIDUAL-REGISTRY0-S0
   It is observability/R4 ownership only: semantic disposition, resolver
   traversal, raw lowering, route selection, and raw/reference are unchanged.
 
-selected — SCRIPT-DEFERRED-RESIDUAL-MANIFEST-RATCHET0-S0
-  Bind the root-only sidecar to the existing R4 manifest and compact guard,
-  replacing the FunctionCall singleton assertion with table-driven checks.
-  Enumerate only unconditional root residuals with stable owner, release
-  condition, and fixture anchor; nested/profile failures and active Lambda
-  capture work stay out of this series.
+closed — SCRIPT-DEFERRED-RESIDUAL-MANIFEST-RATCHET0-S0
+  The root-only sidecar and R4 manifest now share a table-driven guard. The
+  old FunctionCall singleton assertion is gone; every registered residual has
+  exact admission/shape/family, owner/release fields, and a fixture anchor.
+  Nested/profile failures and Lambda capture remain deliberately outside it.
+
+selected — MIRBUILDER-R4-RESIDUAL-CONFORMANCE1-D0
+  Reconcile the mechanically anchored root registry with each live R4 fence,
+  including the narrowed Deferred/raw Lambda surface. No I0 is selected unless
+  a fresh live edge has one exact production owner deletion.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
