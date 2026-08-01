@@ -324,23 +324,34 @@ closed — RAW-SCRIPT-LAMBDA-DEFERRED-CAPTURE-PUBLICATION0-D0 (R4 retain/rehome)
   Lambda operation boundary) that lets the existing emitter delete both the
   raw observer and generic portal atomically.
 
-next design gate — MIRBUILDER-R4-RESIDUAL-FINAL-CONFORMANCE0-D0
+closed — MIRBUILDER-R4-RESIDUAL-FINAL-CONFORMANCE0-D0 (incomplete inventory)
+  The root-only registry is mechanically sound but cannot claim all R4
+  surfaces: raw/reference Lambda capture-publication and nested/profile
+  Deferred paths are outside its root AST vocabulary. Final conformance is
+  therefore not claimed.
+
+closed — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-LAMBDA0-S0
+  The manifest/guard now fixes the raw/reference Lambda capture-publication
+  operation, its ControlBody transport, release condition, and focused raw
+  dispatcher fixture. No route or semantic behavior changes.
+
+next design gate — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0
 
 Change:
-  Reconcile every active Script compatibility/fence surface into a final
-  rehome candidate or explicit retained operation owner with a release test.
+  Census non-root/profile Deferred paths, beginning with nested CallObject and
+  ControlBody, and decide their exact R4 registry boundaries.
 
 Contract:
-  This is final-residual ownership only; no source grammar, selected Script
-  admission, raw/reference behavior, or new small I0 is activated.
+  Root-only entries, Lambda's raw/reference entry, and all production routes
+  remain unchanged. This is an inventory boundary, not a source admission row.
 
 Done:
-  The R4 list is closed, complete, and mechanically auditable: each residual
-  has one owner, transport, release condition, and conformance evidence.
+  Every observed profile residual is either an exact named registry entry or
+  proved unreachable; a later final-conformance D0 may then make its claim.
 
 Stop:
-  Do not hide an unowned residual behind generic `script_root`, or broaden a
-  retention entry without a named operation owner and final release condition.
+  Do not add a generic catch-all entry, infer nested shape from root syntax, or
+  claim `unregistered = 0` before the profile census is complete.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

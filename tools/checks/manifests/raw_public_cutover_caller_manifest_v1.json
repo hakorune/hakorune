@@ -176,6 +176,9 @@
         "script_undefined_variable": {"reason": "UndefinedVariable", "path": "src/mir/builder/normal_script_semantic_source_runtime_tests.rs", "anchor": "fn selected_and_or_failure_discards_candidate_and_reuses_compiler"},
         "script_function_call_preflight": {"reason": "FunctionCallPreflightAuthority", "path": "src/mir/builder/normal_script_semantic_source_call_retention_tests.rs", "anchor": "fn script_function_call_remains_r4_retained"}
       },
+      "script_noncomplete_profile_residuals": {
+        "raw_reference_lambda_capture_publication": {"semantic_terminal": "raw/reference has no Script semantic source", "transport_owner": "RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001::ControlBody", "operation_owner": "PreparedRawLambdaLexicalCaptureLifecycleV1", "release_condition": "one all-route lineage/capture product or final named Lambda operation boundary deletes the raw observer and generic portal atomically", "fixture": {"path": "src/mir/builder/raw_expression_dispatch/tests.rs", "anchor": "fn raw_lambda_dispatches_once_with_source_ordered_captures"}}
+      },
       "retire_when": "every selected Script demand is Complete or explicitly retained by R4, and the compatibility caller is zero",
       "script_deferred_residuals": {
         "function_call": {"admission": "DirectPortAwareExpression", "shape": "FunctionCall", "family": "CallObjectPreflight", "semantic_terminal": "Deferred before argument descent", "transport_owner": "RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001::CallObject", "operation_owner": "PreparedRawFunctionPreflightV1", "release_condition": "all-route preflight recipe migration or named final retained operation owner", "fixture": {"path": "src/mir/builder/normal_script_semantic_source_call_retention_tests.rs", "anchor": "fn script_function_call_remains_r4_retained"}},
