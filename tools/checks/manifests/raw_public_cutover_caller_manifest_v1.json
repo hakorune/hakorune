@@ -158,9 +158,18 @@
       },
       "deferred_fixtures": {
         "script_weak_unary": {"reason": "UnsafeRuntimeStatement", "path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn weak_unary_remains_deferred"},
-        "script_undefined_variable": {"reason": "UndefinedVariable", "path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_and_or_failure_discards_candidate_and_reuses_compiler"}
+        "script_undefined_variable": {"reason": "UndefinedVariable", "path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_and_or_failure_discards_candidate_and_reuses_compiler"},
+        "script_function_call_preflight": {"reason": "FunctionCallPreflightAuthority", "path": "src/mir/builder/normal_script_semantic_source_call_retention_tests.rs", "anchor": "fn script_function_call_remains_r4_retained"}
       },
-      "retire_when": "every selected Script demand is Complete or explicitly retained by R4, and the compatibility caller is zero"
+      "retire_when": "every selected Script demand is Complete or explicitly retained by R4, and the compatibility caller is zero",
+      "r4_retained_families": {
+        "script_function_call_preflight": {
+          "semantic_terminal": "Deferred before argument descent",
+          "transport_owner": "RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001::CallObject",
+          "operation_owner": "PreparedRawFunctionPreflightV1",
+          "release_condition": "all-route preflight recipe migration or named final retained operation owner"
+        }
+      }
     }
   },
   "old_raw_non_test_callers": 0

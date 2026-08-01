@@ -745,7 +745,7 @@ def main() -> int:
     def require_fixture_map(fixtures, expected_reason=None):
         for fixture_id, receipt in fixtures.items():
             require((ROOT / receipt["path"]).read_text(), receipt["anchor"], f"{fixture_id} fixture"); assert expected_reason is None or receipt["reason"] == expected_reason[fixture_id], f"{fixture_id} Deferred reason drift"
-    require_fixture_map(ratchet["complete_fixtures"]); require_fixture_map(ratchet["deferred_fixtures"], {"script_weak_unary": "UnsafeRuntimeStatement", "script_undefined_variable": "UndefinedVariable"})
+    require_fixture_map(ratchet["complete_fixtures"]); require_fixture_map(ratchet["deferred_fixtures"], {"script_weak_unary": "UnsafeRuntimeStatement", "script_undefined_variable": "UndefinedVariable", "script_function_call_preflight": "FunctionCallPreflightAuthority"}); retained = ratchet["r4_retained_families"]["script_function_call_preflight"]; assert retained == {"semantic_terminal": "Deferred before argument descent", "transport_owner": "RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001::CallObject", "operation_owner": "PreparedRawFunctionPreflightV1", "release_condition": "all-route preflight recipe migration or named final retained operation owner"}, "FunctionCall R4 retention contract drift"
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")
     expected_build_module = caller_manifest.get("direct_build_module_production", {})
     actual_build_module = {

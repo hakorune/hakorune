@@ -631,6 +631,9 @@ mod qmark_tests;
 #[path = "normal_script_record_literal_tests.rs"]
 mod record_literal_tests;
 #[cfg(test)]
+#[path = "normal_script_semantic_source_call_retention_tests.rs"]
+mod call_retention_tests;
+#[cfg(test)]
 #[path = "normal_script_root_return_tests.rs"]
 mod return_tests;
 #[cfg(test)]

@@ -32,7 +32,7 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-CALL-PREFLIGHT-CLASSIFIER-SSOT0-D0 (design stop)
+  RAW-SCRIPT-NEXT-NAMED-FAMILY1-D0 (fresh design stop)
 
 latest structural finding:
   Function/Lambda production now validates its complete recursive shadow tree
@@ -46,7 +46,8 @@ latest production closeout:
   RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
 
 next decision:
-  external/owner decision required before another FunctionCall selector.
+  choose one non-Call/Object Deferred responsibility from a fresh live-edge
+  census. FunctionCall is R4-retained and must not receive another selector.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -200,17 +201,19 @@ closed — RAW-SCRIPT-DIRECT-CALL-CATALOG-RECEIPT0-D0 (NoSafeSlice)
   or replace RootLower header observation without a second classifier.
   Next asks only whether the existing preflight can publish one SSOT receipt.
 
-design stop — FunctionCall premise audit
+closed — RAW-SCRIPT-CALL-PREFLIGHT-CLASSIFIER-SSOT0-D0 (Decision B, R4 retained)
   The semantic unit is not a callable name or catalog target: one preflight
   owns special-name classification plus header/environment observation before
-  ordinary call descent. A catalog loan alone cannot replace that authority.
-  Do not run a fourth Script-call census. Resume only with an owner decision
-  for a reusable preflight receipt or an explicit R4 compatibility retention.
+  ordinary call descent. Retain FunctionCall as one operation authority through
+  R4; the Deferred floor is `FunctionCallPreflightAuthority`. Release requires
+  either one all-route preflight recipe or a named final retained operation
+  boundary. Do not run a fourth Script-call census.
 
-after that — fresh named-family census
+next — RAW-SCRIPT-NEXT-NAMED-FAMILY1-D0
   Select exactly one remaining Deferred responsibility family. Control,
-  Call/Object, allocation, Weak, Lambda, and Box are not a pre-authorized
-  batch. `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` remains the monotonic
+  allocation, Weak, Lambda, and Box are not a pre-authorized batch. Call/Object
+  is excluded until its all-route preflight seam or R4 final rehome is selected.
+  `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` remains the monotonic
   fixture-identity ratchet through R4.
 
 already closed — do not reopen as WIP
@@ -251,7 +254,7 @@ retained by final conformance.
 | retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two dev-gated normalized-shadow mutations plus comparison observer | verified Recipe/CorePlan loop owner replaces both mutations and observer disposition is explicit |
 | retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | explicit VM keep skip/trim bridge only | caller zero or one explicit-lane owner replaces every success/failure continuation |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` | two live nested static/instance method `LegacyChildDraftAdmissionV1` issuers | one function-relative located-source contract deletes both issuers |
-| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected ControlBody Lambda, CallObject, NestedBoxAdmission portals | Lambda lineage, CallObject, and nested admission rows delete all three portals |
+| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected ControlBody Lambda, CallObject, NestedBoxAdmission portals | Lambda lineage and nested admission rows retire their portals; CallObject is R4-retained until an all-route preflight recipe or named final operation boundary exists |
 | retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda still enters raw capture/publication without semantic child-owner source | exact `forest.child_at`, parent edge/scope, projected LambdaBodyRoot, and single ClosureBodyId publication replace the edge atomically |
 | active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | located Loop product delegates to existing raw JoinIR route | verified Loop plan consumes the same located product and source-erasing terminal becomes zero |
 | retain-fenced | `JOINMODULE-SHARED-REFERENCE-SUBSTRATE-SUNSET-001` | JoinModule model/converter/lowering shared only by normalized-shadow and VM bridge fences | both consumer fences close and fresh census proves all production callers zero |
