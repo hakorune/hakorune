@@ -32,12 +32,11 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0
+  SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0
 
 latest structural finding:
-  Lambda has one named raw capture/publication owner and one selected Deferred
-  edge, but its name-ordered capture ABI and ClosureBodyId publication cannot
-  yet be derived from forest relations alone.
+  Direct Script Lambda is unsafe: Script has no atomic recursive child-owner
+  forest, and forest upvar sets do not encode capture ABI first-demand order.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
@@ -267,23 +266,23 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0
+  SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0
 
   Change:
-    Decide whether Script child-owner lineage plus an ordered BindingRef capture
-    receipt can feed the existing Lambda lifecycle without another observer.
+    Design root-neutral Script recursive forest construction and an ordered
+    BindingRef capture receipt co-sealed with each Lambda child owner.
 
   Contract:
-    Existing Lambda owner retains capture ABI materialization, NewClosure/type,
-    inline/external body publication, and exactly-one ClosureBodyId policy.
+    Complete/Deferred is chosen before owner issue. Ordered capture rows must
+    equal child upvar relations without using names or BTreeSet order.
 
   Done:
-    Record Accept or NoSafeSlice with capture order, parent scope/site, failure,
-    and publication ownership fixed. No I0 opens until then.
+    Record a minimal live prerequisite series or NoSafeSlice. Lambda lowering,
+    ClosureBodyId publication, and raw observer retirement remain out of scope.
 
   Stop:
-    Stop if capture order needs name reconstruction, forest iteration becomes
-    ABI order, or body publication needs a second owner/retry.
+    Stop if this needs a second resolver, owner issue at Lambda encounter,
+    partial forest, name reconstruction, or lowering/publication changes.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -295,6 +294,11 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0
+  -> NoSafe for direct I0. Script has no recursive child-owner forest and
+     forest upvar sets omit first-demand ABI order. Do not retain the raw
+     name observer beside a forest or use BTreeSet iteration as capture order.
+
   RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0
   -> Lambda selected for child-owner lineage D0. Box runtime crosses nested
      callable/constructor/metadata/runtime owners; other narrow capability

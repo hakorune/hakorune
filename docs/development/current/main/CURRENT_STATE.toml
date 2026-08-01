@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0 is closed: Lambda is the sole selected D0 because it has one existing capture/publication owner and one selected Deferred edge; I0 awaits ordered capture ABI design."
+status = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0 is closed NoSafe for direct I0: Script lacks atomic recursive child-owner forest construction, and forest upvars lack first-demand capture ABI order. Ordered-capture prerequisite design is current."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0"
-current_execution_row = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0"
-current_execution_summary = "Decide whether one co-sealed Script child-owner lineage and ordered BindingRef capture receipt can feed the existing Lambda owner without a second observer, name reconstruction, or duplicate ClosureBodyId publication. No I0 is open."
+current_design_stop = "SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0"
+current_execution_row = "SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0"
+current_execution_summary = "Design one root-neutral recursive Script owner-forest construction and one co-sealed ordered BindingRef capture receipt. It must decide Complete/Deferred before owner issue and prove ordered rows equal child upvar relations; no Lambda lowering I0 is open."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
@@ -448,7 +448,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0 selects Lambda for a child-owner lineage design stop. The existing raw owner still owns name-ordered capture ABI and ClosureBodyId publication; forest upvar sets alone are insufficient. Box runtime remains NoSafe and other narrow capability families are closed."""
+latest_card_summary = """RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0 closes NoSafe for direct I0: Script needs atomic recursive forest construction plus first-demand ordered BindingRef capture receipts before raw name observation can retire. Forest upvar set iteration is not capture ABI order; Lambda lowering remains Deferred."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -651,7 +651,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0"
+current_blocker_token = "SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
