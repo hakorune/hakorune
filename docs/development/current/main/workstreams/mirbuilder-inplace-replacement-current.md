@@ -393,24 +393,32 @@ closed — MIRBUILDER-FINAL-R4-RETENTION-POLICY0-D0 (Decision)
   named operation may remain only behind one typed all-route product, with the
   generic compatibility portal, source-erasing terminal, and old production edge at zero.
 
-current — MIRBUILDER-R4-REHOME-ORDER0-D0
+closed — MIRBUILDER-R4-REHOME-ORDER0-D0 (NoSafeSlice)
+  No active fence can yet name an all-route typed product and atomic generic
+  old-edge deletion. Required-order DAG: VM bridge policy; normalized-shadow
+  Loop Recipe/CorePlan; located Loop plan consumer; raw static-Main source and
+  entry materialization; Lambda lineage; CallObject preflight; then their
+  transport/substrate-derived closeouts.
+
+current — MIRBUILDER-VM-BRIDGE-RETIREMENT-POLICY0-D0
 
 Change:
-  Order all seven R4 fences by dependency, default-production impact, and the
-  first missing all-route product; select exactly one rehome design.
+  Decide whether the default-off explicit JoinIR VM bridge is retired as an
+  obsolete opt-in lane, or each bridge target first receives a canonical
+  all-route VM owner.
 
 Contract:
-  Do not treat source or fixture anchors as route parity. Do not select a
-  dependency fence before its consumer fences, or rename a partial compatibility
-  edge into a final retained operation.
+  Account for target miss, env-off, success, non-strict failure continuation,
+  and strict-failure exit. Do not call ordinary-VM continuation a typed rehome,
+  or replace the bridge with an untyped runner branch.
 
 Done:
-  One first all-route rehome D0 names every route, its typed product, the single
-  production caller, and the same-commit generic old-edge deletion.
+  One permitted final disposition names every continuation, the production
+  caller, and the exact later I0 old-edge deletion.
 
 Stop:
-  Stop if no candidate can name all routes or delete its generic compatibility
-  edge atomically; record NoSafeSlice rather than opening a partial I0.
+  Do not edit the runner, bridge dispatch, target table, or JoinModule substrate
+  until the opt-in lane's final semantic status is explicit.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
