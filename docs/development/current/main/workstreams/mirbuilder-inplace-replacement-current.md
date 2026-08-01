@@ -230,25 +230,34 @@ closed — RAW-SCRIPT-GROUPED-BINDING-REBIND0-I0-R0 (T2)
   ValueId owner, fallback, retry, or raw/reference change.
 
 closed — RAW-SCRIPT-ENUM-DECLARATION-COMPLETION0-I0-R0 (T2)
-  EnumDeclaration is now a typed Program transfer and retains one exact
-  zero-child runtime completion: the existing declaration-facts owner remains
-  the sole enum inventory producer/installer, while the completion validates
-  source, sets span, and emits Void. The selected unsupported enum declaration
-  edge is zero. No constructor, match, registry copy, raw/reference change, or
-  preflight policy moved in this row.
+  EnumDeclaration is a typed Program transfer plus one existing Void
+  completion; declaration facts remain the sole inventory producer/installer.
 
 closed — RAW-SCRIPT-ENUM-INVENTORY-VIEW0-D0 (NoStandaloneRow)
-  A borrowed enum view can reuse the declaration-facts inventory without a
-  second scan, but it has no real selected Script consumer: enum values are
-  produced by `Type::Variant(...)` / `FromCall`, which is Deferred. An AST-only
-  EnumMatch fixture would not prove the production route. Do not land a view
-  scaffold or reopen EnumMatch until its value producer is selected.
+  A view alone had no real Script consumer; AST-only EnumMatch proof is
+  forbidden. The producer audit below corrected that premise.
 
-next — RAW-SCRIPT-ENUM-VARIANT-PRODUCER0-D0
-  Audit the narrow `Type::Variant` / `FromCall` enum-value producer before any
-  EnumMatch work. It must either name one real production consumer and a
-  same-commit old-edge deletion without reopening FunctionCall R4 retention, or
-  close NoSafeSlice and return to a fresh non-Call/Object family census.
+selected — RAW-SCRIPT-ENUM-VARIANT-PRODUCER0-I0-R0 (T2)
+
+Change:
+  Reuse the one declaration-facts scan for an effective enum view and admit
+  only its proven `Type::Variant(args*)` FromCall route. Co-seal exact argument
+  receipts and route it once to the existing enum emitter; delete this form's
+  Deferred -> bare `script_root(())` reachability.
+
+Contract:
+  The shared pure enum-route policy, not a second classifier, proves only
+  final non-generic unit/single-scalar variants with exact arity and existing
+  lexical-safe arguments. Ordinary FromCall, invalid/generic/record payload,
+  and raw/reference stay unchanged and Deferred.
+
+Done:
+  `enum Flag { On(i64) } Flag::On(7)` is Complete with one `VariantMake` route,
+  exact `CallArgument` descent, and selected/legacy MIR parity.
+
+Stop:
+  Stop if the receipt needs mutable CompilationContext, a second Program scan,
+  reclassified ordinary FromCall, or any FunctionCall/header authority.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
