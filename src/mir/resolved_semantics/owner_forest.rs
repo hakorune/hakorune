@@ -5,6 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::normalized::{
     NormalizedBindingKeyV1, NormalizedResolvedFunctionGraphV1, NormalizedScopeKeyV1,
 };
+use super::ordered_capture::{verify_ordered_capture_demands, OrderedCaptureDemandV1};
 use super::owner_forest_payload::VerifiedSemanticOwnerProductV1;
 use super::records::{BindingOriginV1, ResolvedLexicalRefV1, ResolvedScopeRecordV1, ScopeOriginV1};
 use super::{
@@ -117,6 +118,7 @@ pub struct NormalizedSemanticOwnerForestGraphV1 {
 pub(crate) struct SemanticOwnerForestDraftV1 {
     owners: BTreeMap<FunctionOwnerIdV1, VerifiedSemanticOwnerProductV1>,
     parents: BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
+    ordered_capture_demands: BTreeMap<FunctionOwnerIdV1, Box<[OrderedCaptureDemandV1]>>,
 }
 
 #[derive(Debug)]
@@ -127,6 +129,7 @@ pub struct VerifiedSemanticOwnerForestV1 {
     child_at: BTreeMap<OwnedExprSiteV1, FunctionOwnerIdV1>,
     upvar_observations: Box<[UpvarObservationV1]>,
     upvars: Box<[UpvarRefV1]>,
+    ordered_capture_demands: BTreeMap<FunctionOwnerIdV1, Box<[OrderedCaptureDemandV1]>>,
     normalized: NormalizedSemanticOwnerForestGraphV1,
 }
 
@@ -152,6 +155,9 @@ pub enum SemanticOwnerForestVerificationErrorV1 {
     NonAncestorUpvarSource(UpvarRefV1),
     InvisibleUpvarSource(UpvarRefV1),
     ShadowedUpvarSource(UpvarRefV1),
+    OrderedCaptureOwnerMissing(FunctionOwnerIdV1),
+    OrderedCaptureSetMismatch(FunctionOwnerIdV1),
+    OrderedCaptureFirstDemandMismatch(FunctionOwnerIdV1),
 }
 
 impl SemanticOwnerForestDraftV1 {
@@ -189,6 +195,21 @@ impl SemanticOwnerForestDraftV1 {
             return Err(SemanticOwnerForestVerificationErrorV1::DuplicateParent(
                 child,
             ));
+        }
+        Ok(())
+    }
+
+    pub(crate) fn insert_ordered_capture_demands(
+        &mut self,
+        owner: FunctionOwnerIdV1,
+        demands: Box<[OrderedCaptureDemandV1]>,
+    ) -> Result<(), SemanticOwnerForestVerificationErrorV1> {
+        if self
+            .ordered_capture_demands
+            .insert(owner, demands)
+            .is_some()
+        {
+            return Err(SemanticOwnerForestVerificationErrorV1::OrderedCaptureSetMismatch(owner));
         }
         Ok(())
     }
@@ -244,6 +265,12 @@ impl SemanticOwnerForestDraftV1 {
         }
         let root = roots[0];
         let (upvar_observations, upvars) = derive_and_verify_upvars(&owners, &self.parents)?;
+        verify_ordered_capture_demands(
+            &self.ordered_capture_demands,
+            &owners,
+            &upvar_observations,
+            &upvars,
+        )?;
         let normalized =
             build_normalized_forest(root, &owners, &self.parents, &upvar_observations, &upvars)?;
         Ok(VerifiedSemanticOwnerForestV1 {
@@ -253,6 +280,7 @@ impl SemanticOwnerForestDraftV1 {
             child_at,
             upvar_observations,
             upvars,
+            ordered_capture_demands: self.ordered_capture_demands,
             normalized,
         })
     }
@@ -710,6 +738,16 @@ impl VerifiedSemanticOwnerForestV1 {
 
     pub fn upvar_observations(&self) -> &[UpvarObservationV1] {
         &self.upvar_observations
+    }
+
+    pub(crate) fn ordered_capture_demands(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> &[OrderedCaptureDemandV1] {
+        self.ordered_capture_demands
+            .get(&owner)
+            .map(Box::as_ref)
+            .unwrap_or_default()
     }
 
     pub fn normalized_graph(&self) -> &NormalizedSemanticOwnerForestGraphV1 {

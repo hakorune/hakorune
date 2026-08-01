@@ -16,12 +16,12 @@ use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use super::owner_boundary::ShadowLambdaSyntaxV0;
 use super::path::ShadowSourcePathV0;
 use super::product::{
-    ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
-    ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0,
-    ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
-    ShadowQualifiedReceiverDispositionV0, ShadowRegionKindV0, ShadowRegionRecordV0,
-    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
-    ShadowScopeRecordV0,
+    ShadowAncestorCaptureAccessV0, ShadowAncestorCaptureEventV0, ShadowAssignmentTargetV0,
+    ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0, ShadowDirectCallUseV0,
+    ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0, ShadowMethodCallObservationV0,
+    ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, ShadowRegionKindV0,
+    ShadowRegionRecordV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0,
+    ShadowScopeKindV0, ShadowScopeRecordV0,
 };
 use super::root_traversal::ShadowRootTraversalInputV1;
 use super::traversal_profile::ShadowTraversalProfileV1;
@@ -60,6 +60,7 @@ pub(super) struct ShadowResolverV0<'ast, 'schema> {
     declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
     variable_uses: BTreeMap<SourceExprSiteV1, ShadowLexicalRefV0>,
     assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
+    ancestor_capture_events: Vec<ShadowAncestorCaptureEventV0>,
     direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
     resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     lambda_mode: ShadowLambdaModeV0,
@@ -295,6 +296,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             declarations: BTreeMap::new(),
             variable_uses: BTreeMap::new(),
             assignment_targets: BTreeMap::new(),
+            ancestor_capture_events: Vec::new(),
             direct_calls: BTreeMap::new(),
             resolved_exits: BTreeMap::new(),
             lambda_mode,
@@ -328,6 +330,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 declarations: self.declarations,
                 variable_uses: self.variable_uses,
                 assignment_targets: self.assignment_targets,
+                ancestor_capture_events: self.ancestor_capture_events.into_boxed_slice(),
                 direct_calls: self.direct_calls,
                 resolved_exits: self.resolved_exits,
                 record_literal_demands: self.record_literal_demands,
@@ -478,6 +481,20 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
 
     pub(super) fn record_use(&mut self, site: SourceExprSiteV1, lexical_ref: ShadowLexicalRefV0) {
         self.variable_uses.insert(site, lexical_ref);
+    }
+
+    pub(super) fn record_ancestor_capture(
+        &mut self,
+        site: SourceExprSiteV1,
+        name: &str,
+        access: ShadowAncestorCaptureAccessV0,
+    ) {
+        self.ancestor_capture_events
+            .push(ShadowAncestorCaptureEventV0 {
+                site,
+                name: name.into(),
+                access,
+            });
     }
 
     pub(super) fn qualified_receiver_is_requested(&self, site: &SourceExprSiteV1) -> bool {

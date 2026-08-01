@@ -21,9 +21,10 @@ mod vocabulary;
 pub(super) use ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 pub(super) use owner_boundary::ShadowLambdaSyntaxV0;
 pub(super) use product::{
-    ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowControlExitV0, ShadowDirectCallUseV0,
-    ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0, ShadowRegionKindV0,
-    ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
+    ShadowAncestorCaptureAccessV0, ShadowAssignmentTargetV0, ShadowBindingKindV0,
+    ShadowControlExitV0, ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0,
+    ShadowLexicalRefV0, ShadowRegionKindV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0,
+    ShadowScopeKindV0,
 };
 pub(in crate::mir) use product::{ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0};
 pub(in crate::mir) use product::{ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0};
@@ -38,8 +39,7 @@ pub(crate) use script_root_window::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
     ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1,
     ScriptRootMatchControlAdmissionV1, ScriptRootQMarkPropagationAdmissionV1,
-    ScriptRootResolvedDemandV1,
-    ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
+    ScriptRootResolvedDemandV1, ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };

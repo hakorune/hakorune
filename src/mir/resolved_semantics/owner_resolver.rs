@@ -108,6 +108,7 @@ impl FunctionSemanticResolverSessionV1 {
             product,
             binding_refs,
             scope_ids,
+            ordered_capture_demands,
         } = match callable_index {
             Some(index) => self.seal_owner_with_ancestors_and_callable_index(
                 owner,
@@ -149,6 +150,9 @@ impl FunctionSemanticResolverSessionV1 {
         }
         draft
             .insert_owner(owner, product)
+            .map_err(ResolveOwnerForestErrorV1::Verification)?;
+        draft
+            .insert_ordered_capture_demands(owner, ordered_capture_demands)
             .map_err(ResolveOwnerForestErrorV1::Verification)?;
 
         for (lambda, child_bindings, child_parent) in children {

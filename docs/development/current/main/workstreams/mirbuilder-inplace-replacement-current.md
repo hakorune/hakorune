@@ -32,22 +32,22 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
+  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
 
 latest structural finding:
-  A construction-local recursive shadow tree plus ordered BindingRef receipt
-  can preserve Lambda capture ABI, but must first be exercised by existing
-  Function/Lambda production before any Script cutover.
+  Existing Function/Lambda production now seals a construction-local ordered
+  BindingRef receipt against canonical upvar observations. The next decision is
+  whether that receipt can retire the Script Lambda raw observer without moving
+  closure publication authority.
 
 accepted series:
-  dense Function/Lambda root-neutral core -> sparse selected-Script cutover
+  Function/Lambda recursive shadow receipt -> Script Lambda lineage T2 gate
 
 latest production closeout:
-  RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0
+  SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
 
 consultation decision:
-  fresh bounded responsibility-family census required; no successor
-  preselected.
+  Revalidate the narrow Script Lambda cutover before selecting any I0.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -170,16 +170,12 @@ before T2:
 ### Recovered WIP order
 
 ```text
-now — SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
-  Existing Function/Lambda production proves the construction-local recursive
-  shadow tree and ordered BindingRef capture receipt. No Script route changes.
+closed — SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
+  Existing Function/Lambda production seals one construction-local ordered
+  BindingRef capture receipt against canonical upvar observations. No Script
+  route, capture ABI materialization, or closure publication changed.
 
-next — RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
-  The already accepted sparse Script cutover consumes that same core and
-  deletes the manual visible-name/admit_expression Script mini-resolver. It
-  preserves the current Complete fixture set; it does not activate Lambda.
-
-then — RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
+now — RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
   Revalidate the narrow Script Lambda cutover against the landed shared core:
   child lineage, ordered BindingRef receipt, raw-observer deletion, and the
   one existing closure-publication owner. Open I0 only when its real positive
@@ -296,7 +292,7 @@ R2bi RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0
 R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
-current
+closed
   SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
 
   Change:
@@ -308,12 +304,21 @@ current
     consumer, capture ABI materialization, or closure publication changes.
 
   Done:
-    Existing Function/Lambda consumes the new tree once; ordered event rows are
-    construction-local and are verified against each child upvar relation.
+    Existing Function/Lambda consumes the new tree once; ordered first-demand
+    BindingRef rows are construction-local until canonicalization and are
+    verified against each child upvar relation and first observation.
 
-  Stop:
-    Stop if a public view changes, a caller-zero Script scaffold appears, owner
-    issue moves to Lambda encounter, or any lowering/publication behavior moves.
+  Evidence:
+    release check plus the dedicated order fixture and all owner-forest tests
+    are green; no Script route, capture ABI materialization, or closure
+    publication changed.
+
+current design gate
+  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
+
+  Revalidate the narrow Script Lambda cutover against the landed receipt. Open
+  I0 only with a real positive fixture and one same-commit deletion of the raw
+  observer edge; closure publication remains the existing owner.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,

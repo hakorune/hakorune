@@ -76,6 +76,23 @@ pub(crate) enum ShadowLexicalRefV0 {
     Ancestor(Box<str>),
 }
 
+/// Construction-local first-demand order for one ancestor capture.
+///
+/// This intentionally keeps the ancestor name only until canonicalization;
+/// the sealed forest stores BindingRef-based rows instead.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ShadowAncestorCaptureAccessV0 {
+    Read,
+    Rebind,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ShadowAncestorCaptureEventV0 {
+    pub(crate) site: SourceExprSiteV1,
+    pub(crate) name: Box<str>,
+    pub(crate) access: ShadowAncestorCaptureAccessV0,
+}
+
 /// Positive lexical disposition for one pre-verified qualified receiver site.
 ///
 /// Shadow binding ordinals are intentionally erased: source-call routing needs
@@ -216,6 +233,7 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ShadowLexicalRefV0>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
+    pub(crate) ancestor_capture_events: Box<[ShadowAncestorCaptureEventV0]>,
     pub(crate) direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     pub(crate) record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,

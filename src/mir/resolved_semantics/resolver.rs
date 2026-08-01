@@ -11,6 +11,8 @@ use super::function_view::FunctionSyntaxViewV1;
 use super::ids::{
     BindingRefV1, FunctionOwnerIssueExhaustedV1, FunctionOwnerIssuerV1, RegionId, ScopeId,
 };
+use super::ordered_capture::OrderedCaptureDemandV1;
+use super::owner_forest::UpvarAccessKindV1;
 use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
 use super::records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
@@ -20,10 +22,10 @@ use super::records::{
 };
 use super::script_view::ScriptSyntaxViewV1;
 use super::shadow::{
-    resolve_function_shadow_view_v0, resolve_script_shadow_view_v0, ShadowAssignmentTargetV0,
-    ShadowBindingKindV0, ShadowBindingOrdinalV0, ShadowControlExitV0, ShadowExitOriginV0,
-    ShadowLexicalRefV0, ShadowRegionIdV0, ShadowRegionKindV0, ShadowResolveErrorV0,
-    ShadowResolvedFunctionV0, ShadowScopeIdV0, ShadowScopeKindV0,
+    resolve_function_shadow_view_v0, resolve_script_shadow_view_v0, ShadowAncestorCaptureAccessV0,
+    ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingOrdinalV0, ShadowControlExitV0,
+    ShadowExitOriginV0, ShadowLexicalRefV0, ShadowRegionIdV0, ShadowRegionKindV0,
+    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowScopeIdV0, ShadowScopeKindV0,
 };
 use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
 use super::RecordSchemaDemandV1;
@@ -59,6 +61,7 @@ pub(super) struct SealedOwnerConstructionV1 {
     pub(super) product: VerifiedResolvedFunctionV1,
     pub(super) binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
     pub(super) scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
+    pub(super) ordered_capture_demands: Box<[OrderedCaptureDemandV1]>,
 }
 
 #[derive(Debug, Clone)]
@@ -70,6 +73,7 @@ struct CanonicalizedDraftV1 {
     data: ResolvedFunctionDataV1,
     binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
     scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
+    ordered_capture_demands: Box<[OrderedCaptureDemandV1]>,
 }
 
 impl FunctionSemanticResolverSessionV1 {
@@ -216,6 +220,7 @@ impl FunctionSemanticResolverSessionV1 {
             product,
             binding_refs: canonical.binding_refs,
             scope_ids: canonical.scope_ids,
+            ordered_capture_demands: canonical.ordered_capture_demands,
         })
     }
 }
@@ -427,6 +432,28 @@ fn canonicalize_draft(
         None => BTreeMap::new(),
     };
 
+    let mut seen_capture_bindings = std::collections::BTreeSet::new();
+    let mut ordered_capture_demands = Vec::new();
+    for event in &draft.ancestor_capture_events {
+        let source_binding = ancestors
+            .get(&event.name)
+            .ok_or(ResolveFunctionErrorV1::DraftInvariant(
+                "shadow capture event has no canonical ancestor binding",
+            ))?
+            .reference;
+        if seen_capture_bindings.insert(source_binding) {
+            ordered_capture_demands.push(OrderedCaptureDemandV1::new(
+                source_binding,
+                event.site.clone(),
+                match event.access {
+                    ShadowAncestorCaptureAccessV0::Read => UpvarAccessKindV1::Read,
+                    ShadowAncestorCaptureAccessV0::Rebind => UpvarAccessKindV1::Rebind,
+                },
+            ));
+        }
+    }
+    let ordered_capture_demands = ordered_capture_demands.into_boxed_slice();
+
     let data = ResolvedFunctionDataV1 {
         owner,
         function_origin,
@@ -450,6 +477,7 @@ fn canonicalize_draft(
         data,
         binding_refs,
         scope_ids,
+        ordered_capture_demands,
     })
 }
 

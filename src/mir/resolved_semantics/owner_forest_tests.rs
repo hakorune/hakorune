@@ -361,6 +361,17 @@ fn resolver_deduplicates_multiple_reads_and_rebinds_of_the_same_structural_upvar
         .upvar_observations()
         .iter()
         .any(|row| row.access() == UpvarAccessKindV1::Rebind));
+    let demands = forest.ordered_capture_demands(child);
+    assert_eq!(demands.len(), 1);
+    assert_eq!(demands[0].source_binding(), lhs_upvar.source());
+    assert_eq!(demands[0].first_access(), UpvarAccessKindV1::Rebind);
+    assert_eq!(
+        demands[0].first_demand(),
+        &expr_site(vec![
+            SourcePathSegmentV1::LambdaBody(0),
+            SourcePathSegmentV1::Target,
+        ])
+    );
 }
 
 #[test]

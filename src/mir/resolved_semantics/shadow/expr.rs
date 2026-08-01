@@ -5,8 +5,8 @@ use crate::mir::resolved_semantics::{ExprChildRoleV1, ReceiverPolicyV1};
 
 use super::path::ShadowSourcePathV0;
 use super::product::{
-    ShadowAssignmentTargetV0, ShadowLexicalRefV0, ShadowMethodCallReceiverV0,
-    ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
+    ShadowAncestorCaptureAccessV0, ShadowAssignmentTargetV0, ShadowLexicalRefV0,
+    ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
 use super::resolver::ShadowResolverV0;
 
@@ -219,6 +219,11 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             ASTNode::Variable { name, .. } => {
                 let Some(binding) = self.lookup(name) else {
                     if self.ancestor_is_visible(name) {
+                        self.record_ancestor_capture(
+                            target_site.clone(),
+                            name,
+                            ShadowAncestorCaptureAccessV0::Rebind,
+                        );
                         self.record_assignment(
                             target_site,
                             ShadowAssignmentTargetV0::AncestorRebind(name.clone().into()),
@@ -329,6 +334,11 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         let site = path.expr();
         let Some(binding) = self.lookup(name) else {
             if self.ancestor_is_visible(name) {
+                self.record_ancestor_capture(
+                    site.clone(),
+                    name,
+                    ShadowAncestorCaptureAccessV0::Rebind,
+                );
                 self.record_assignment(site, ShadowAssignmentTargetV0::AncestorRebind(name.into()));
                 return Ok(());
             }
@@ -350,6 +360,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         let lexical_ref = if let Some(binding) = self.lookup(name) {
             ShadowLexicalRefV0::Local(binding)
         } else if self.ancestor_is_visible(name) {
+            self.record_ancestor_capture(site.clone(), name, ShadowAncestorCaptureAccessV0::Read);
             ShadowLexicalRefV0::Ancestor(name.into())
         } else if self.qualified_receiver_is_requested(&site) {
             self.record_qualified_receiver_disposition(
@@ -382,6 +393,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         let lexical_ref = if let Some(binding) = self.receiver() {
             ShadowLexicalRefV0::Local(binding)
         } else if self.ancestor_is_visible("me") {
+            self.record_ancestor_capture(site.clone(), "me", ShadowAncestorCaptureAccessV0::Read);
             ShadowLexicalRefV0::Ancestor("me".into())
         } else {
             return Err(ShadowResolveErrorV0::UnsupportedExpression { kind, site });

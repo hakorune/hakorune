@@ -23,6 +23,7 @@ mod if_region;
 mod loop_region;
 mod normalized;
 mod normalized_callable_catalog;
+mod ordered_capture;
 mod owner_forest;
 mod owner_forest_payload;
 mod owner_resolver;
@@ -124,8 +125,7 @@ pub(crate) use shadow::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
     ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1,
     ScriptRootMatchControlAdmissionV1, ScriptRootQMarkPropagationAdmissionV1,
-    ScriptRootResolvedDemandV1,
-    ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
+    ScriptRootResolvedDemandV1, ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
@@ -157,6 +157,8 @@ mod function_root_tests;
 mod if_region_tests;
 #[cfg(test)]
 mod loop_region_tests;
+#[cfg(test)]
+mod ordered_capture_tests;
 #[cfg(test)]
 mod owner_forest_tests;
 #[cfg(test)]
