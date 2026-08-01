@@ -25,6 +25,13 @@ pub(crate) enum VerifiedSemanticOwnerProductV1 {
 }
 
 impl VerifiedSemanticOwnerProductV1 {
+    pub(crate) const fn as_script(&self) -> Option<&VerifiedResolvedScriptV1> {
+        match self {
+            Self::Function(_) => None,
+            Self::Script(product) => Some(product),
+        }
+    }
+
     pub(crate) const fn core(&self) -> &VerifiedResolvedOwnerCoreV1 {
         match self {
             Self::Function(product) => product.core(),

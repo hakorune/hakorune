@@ -7,15 +7,16 @@
 use crate::ast::ASTNode;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum ShadowTraversalProfileV1 {
+pub(crate) enum ShadowTraversalProfileV1 {
     FullFunctionV1,
     ScriptLexicalCoreV1,
+    ScriptLambdaLeafV1,
 }
 impl ShadowTraversalProfileV1 {
     pub(super) fn allows_statement(self, statement: &ASTNode) -> bool {
         match self {
             Self::FullFunctionV1 => true,
-            Self::ScriptLexicalCoreV1 => match statement {
+            Self::ScriptLexicalCoreV1 | Self::ScriptLambdaLeafV1 => match statement {
                 ASTNode::Print { .. } => true,
                 ASTNode::Nowait { .. } => true,
                 ASTNode::ScopeBox { .. } => true,
@@ -44,8 +45,9 @@ impl ShadowTraversalProfileV1 {
     pub(super) fn allows_expression(self, expression: &ASTNode) -> bool {
         match self {
             Self::FullFunctionV1 => true,
-            Self::ScriptLexicalCoreV1 => match expression {
+            Self::ScriptLexicalCoreV1 | Self::ScriptLambdaLeafV1 => match expression {
                 ASTNode::Literal { .. } | ASTNode::Variable { .. } => true,
+                ASTNode::Lambda { .. } => matches!(self, Self::ScriptLexicalCoreV1),
                 ASTNode::UnaryOp { .. } => true,
                 ASTNode::BinaryOp { .. }
                 | ASTNode::AwaitExpression { .. }

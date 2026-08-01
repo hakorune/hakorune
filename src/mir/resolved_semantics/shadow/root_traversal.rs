@@ -39,6 +39,13 @@ enum ShadowRootItemsV1<'ast> {
 
 impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
     pub(super) fn dense(view: FunctionSyntaxViewV1<'ast>) -> Self {
+        Self::dense_with_profile(view, ShadowTraversalProfileV1::FullFunctionV1)
+    }
+
+    pub(super) fn dense_with_profile(
+        view: FunctionSyntaxViewV1<'ast>,
+        traversal_profile: ShadowTraversalProfileV1,
+    ) -> Self {
         Self {
             params: view.params(),
             items: ShadowRootItemsV1::Dense {
@@ -47,7 +54,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             },
             receiver_policy: view.receiver_policy(),
             root_profile: view.root_profile(),
-            traversal_profile: ShadowTraversalProfileV1::FullFunctionV1,
+            traversal_profile,
             record_schema_demand: None,
         }
     }

@@ -33,7 +33,9 @@ pub(in crate::mir) use resolver::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
 };
 pub(super) use resolver::{
-    resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0, resolve_script_shadow_view_v0,
+    resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0,
+    resolve_owner_shadow_view_with_profile_v0, resolve_script_owner_shadow_view_v0,
+    resolve_script_shadow_view_v0,
 };
 pub(crate) use script_root_window::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
@@ -43,6 +45,7 @@ pub(crate) use script_root_window::{
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
+pub(super) use traversal_profile::ShadowTraversalProfileV1;
 
 #[cfg(test)]
 mod assignment_traversal_tests;

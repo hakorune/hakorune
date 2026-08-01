@@ -1,7 +1,9 @@
 //! One consuming production lifecycle for raw Lambda capture and publication.
 
+use super::raw_invocation_source_transport::RawSourceTransportPortV1;
 use super::raw_lambda_closure_emission::PreparedRawLambdaClosureEmissionV1;
 use super::raw_lambda_lexical_observation::RawLambdaLexicalObservationV1;
+use super::recursive_child_lowering::{RawInvocationChildPortV1, RawLegacyChildLoweringPortV1};
 use super::{MirBuilder, ValueId};
 use crate::ast::ASTNode;
 use std::collections::BTreeMap;
@@ -13,6 +15,16 @@ pub(super) struct PreparedRawLambdaLexicalCaptureLifecycleV1 {
 }
 
 impl PreparedRawLambdaLexicalCaptureLifecycleV1 {
+    pub(super) fn lower_with_selected_captures_v1(
+        params: Vec<String>,
+        body: Vec<ASTNode>,
+        captures: Vec<(String, ValueId)>,
+        builder: &mut MirBuilder,
+    ) -> Result<ValueId, String> {
+        PreparedRawLambdaClosureEmissionV1::prepare(params, body, captures, None)
+            .lower_with_builder_v1(builder)
+    }
+
     pub(super) fn prepare(params: Vec<String>, body: Vec<ASTNode>) -> Result<Self, String> {
         let observation = RawLambdaLexicalObservationV1::observe(&params, &body)
             .map_err(|error| error.to_string())?;
@@ -29,6 +41,34 @@ impl PreparedRawLambdaLexicalCaptureLifecycleV1 {
         let receiver = environment.materialize_receiver(&self.observation, builder)?;
         PreparedRawLambdaClosureEmissionV1::prepare(self.params, self.body, captures, receiver)
             .lower_with_builder_v1(builder)
+    }
+}
+
+pub(in crate::mir::builder) trait RawLambdaCaptureDemandPortV1 {
+    fn selected_lambda_captures_v1(&self) -> Result<Option<Vec<(String, ValueId)>>, String>;
+}
+
+impl RawLambdaCaptureDemandPortV1 for RawLegacyChildLoweringPortV1 {
+    fn selected_lambda_captures_v1(&self) -> Result<Option<Vec<(String, ValueId)>>, String> {
+        Ok(None)
+    }
+}
+
+impl RawLambdaCaptureDemandPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn selected_lambda_captures_v1(&self) -> Result<Option<Vec<(String, ValueId)>>, String> {
+        let Some(ledger) = &self.semantic_ledger else {
+            return Ok(None);
+        };
+        let site = self
+            .current_source_context_v1()
+            .and_then(|context| context.site().cloned())
+            .ok_or_else(|| "[freeze:contract][script-lambda/missing-site]".to_owned())?;
+        ledger
+            .borrow()
+            .lambda_captures(&site)
+            .transpose()?
+            .map(Some)
+            .ok_or_else(|| "[freeze:contract][script-lambda/missing-sealed-receipt]".to_owned())
     }
 }
 
@@ -217,5 +257,54 @@ mod tests {
         assert!(
             matches!(instruction, MirInstruction::NewClosure { body_id: Some(0), captures, .. } if captures == &vec![("outer".into(), crate::mir::ValueId(7))])
         );
+    }
+
+    #[test]
+    fn selected_capture_receipt_uses_the_existing_closure_emitter() {
+        let mut builder = MirBuilder::new();
+        builder.prepare_module().unwrap();
+
+        let dst = PreparedRawLambdaLexicalCaptureLifecycleV1::lower_with_selected_captures_v1(
+            vec![],
+            vec![variable("outer")],
+            vec![("outer".into(), crate::mir::ValueId(7))],
+            &mut builder,
+        )
+        .unwrap();
+
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        assert!(function.blocks.values().flat_map(|block| &block.instructions).any(
+            |instruction| matches!(instruction, MirInstruction::NewClosure { dst: value, captures, .. } if *value == dst && captures == &vec![("outer".into(), crate::mir::ValueId(7))])
+        ));
+    }
+
+    #[test]
+    fn selected_script_lambda_capture_matches_legacy_lowering() {
+        use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
+        use crate::parser::NyashParser;
+
+        let source = "local outer = 7\nlocal f = fn() { outer }\nf";
+        let mut legacy = MirCompiler::with_options(false);
+        let legacy = legacy
+            .compile_with_source(
+                NyashParser::parse_from_string(source).unwrap(),
+                Some("lambda"),
+            )
+            .unwrap();
+        let normal = MirCompiler::with_options(false)
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    NyashParser::parse_from_string(source).unwrap(),
+                    Some("lambda"),
+                    std::collections::HashMap::new(),
+                )
+                .unwrap(),
+            )
+            .unwrap();
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
     }
 }

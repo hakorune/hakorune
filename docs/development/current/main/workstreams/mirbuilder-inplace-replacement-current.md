@@ -32,7 +32,7 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
+  RAW-SCRIPT-NEXT-NAMED-FAMILY0-D0
 
 latest structural finding:
   Function/Lambda production now validates its complete recursive shadow tree
@@ -43,10 +43,11 @@ accepted series:
   Function/Lambda construction tree -> Script Lambda observer retirement
 
 latest production closeout:
-  SEMANTIC-OWNER-RECURSIVE-CONSTRUCTION-TREE0-S1
+  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
 
-consultation decision:
-  Accept-corrected: narrow lexical Script Lambda I0 is authorized.
+next decision:
+  fresh named-family census; do not pre-authorize Control, Call/Object,
+  Allocation, Weak, or Box from the Lambda closeout.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -179,11 +180,11 @@ closed — SEMANTIC-OWNER-RECURSIVE-CONSTRUCTION-TREE0-S1
   before canonical ID issue, so a rejected nested Lambda leaves the session
   ready for a fresh owner at ordinal zero.
 
-now — RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
-  One lexical Script Lambda child forest and ordered BindingRef receipt replace
-  the selected raw name observer. The existing closure-emission owner retains
-  capture publication and ClosureBodyId reserve/commit; raw/reference and
-  Deferred keep the old route.
+closed — RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
+  Script Lambda now seals one child owner and ordered BindingRef receipt in
+  the shared forest. Selected lowering materializes that receipt into the
+  existing closure-emission owner; Deferred/raw/reference retain the old
+  observer. Focused Script parity and Lambda lifecycle tests are green.
 
 after that — fresh named-family census
   Select exactly one remaining Deferred responsibility family. Control,

@@ -96,7 +96,7 @@ pub use owner_forest::{
     VerifiedSemanticOwnerForestV1,
 };
 pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
-pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;
+pub(crate) use owner_resolver::{ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1};
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
 pub use product::VerifiedResolvedFunctionV1;

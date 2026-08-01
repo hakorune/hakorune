@@ -36,6 +36,7 @@ use super::ops::{
     RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1, ShortCircuitExpressionDescentPortV1,
 };
 use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
+use super::raw_lambda_capture_lifecycle::RawLambdaCaptureDemandPortV1;
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
@@ -80,6 +81,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + RawBoxMethodChildPortV1
     + RawLoopChildEntryPortV1
     + RecordLiteralSourceDemandPortV1
+    + RawLambdaCaptureDemandPortV1
     + QMarkPropagationSourceDemandPortV1
 {
 }
@@ -101,6 +103,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + RawBoxMethodChildPortV1
         + RawLoopChildEntryPortV1
         + RecordLiteralSourceDemandPortV1
+        + RawLambdaCaptureDemandPortV1
         + QMarkPropagationSourceDemandPortV1
 {
 }
@@ -142,8 +145,11 @@ impl super::MirBuilder {
                 let e = BinaryExpr::try_from(node).expect("ASTNode::BinaryOp must convert");
                 let left = *e.left;
                 let right = *e.right;
-                let mut scoped =
-                    RawStructuredChildScopePortV1::new(port, vec![left_source, right_source], Vec::new());
+                let mut scoped = RawStructuredChildScopePortV1::new(
+                    port,
+                    vec![left_source, right_source],
+                    Vec::new(),
+                );
                 let result = match e.operator {
                     operator @ (crate::ast::BinaryOperator::And
                     | crate::ast::BinaryOperator::Or) => {
@@ -183,7 +189,10 @@ impl super::MirBuilder {
             node @ ASTNode::UnaryOp { .. } => {
                 let source =
                     port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::UnaryOperand)?;
-                let ASTNode::UnaryOp { operator, operand, .. } = node else {
+                let ASTNode::UnaryOp {
+                    operator, operand, ..
+                } = node
+                else {
                     unreachable!("unary match arm retains its AST shape");
                 };
                 let prepared = PreparedRawUnaryV1::prepare(operator, *operand);
@@ -251,7 +260,10 @@ impl super::MirBuilder {
                 let receipt_backed = port.has_qmark_propagation_receipt_v1(&node)?;
                 let source = receipt_backed
                     .then(|| {
-                        port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::QMarkOperand)
+                        port.prepare_expression_child_source_v1(
+                            &node,
+                            ExprChildRoleV1::QMarkOperand,
+                        )
                     })
                     .transpose()?;
                 let ASTNode::QMarkPropagate { expression, .. } = node else {
@@ -287,10 +299,7 @@ impl super::MirBuilder {
                     )?);
                 }
                 sources.push(
-                    port.prepare_expression_child_source_v1(
-                        &node,
-                        ExprChildRoleV1::MatchElse,
-                    )?,
+                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::MatchElse)?,
                 );
                 let ASTNode::MatchExpr {
                     scrutinee,
@@ -346,6 +355,11 @@ impl super::MirBuilder {
             }
 
             ASTNode::Lambda { params, body, .. } => {
+                if let Some(captures) = port.selected_lambda_captures_v1()? {
+                    return super::raw_lambda_capture_lifecycle::PreparedRawLambdaLexicalCaptureLifecycleV1::lower_with_selected_captures_v1(
+                        params, body, captures, self,
+                    );
+                }
                 super::raw_lambda_capture_lifecycle::PreparedRawLambdaLexicalCaptureLifecycleV1::prepare(
                     params, body,
                 )?
@@ -428,11 +442,12 @@ impl super::MirBuilder {
                 let ASTNode::ArrayLiteral { elements, .. } = node else {
                     unreachable!("array match arm retains its AST shape")
                 };
-                let mut scoped = super::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
-                    port,
-                    sources,
-                    Vec::new(),
-                );
+                let mut scoped =
+                    super::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
+                        port,
+                        sources,
+                        Vec::new(),
+                    );
                 let value = self.build_array_literal_with_port_v1(&mut scoped, elements)?;
                 scoped.complete_exact_demands_v1()?;
                 Ok(value)
@@ -453,11 +468,12 @@ impl super::MirBuilder {
                 let ASTNode::MapLiteral { entries, .. } = node else {
                     unreachable!("map match arm retains its AST shape")
                 };
-                let mut scoped = super::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
-                    port,
-                    sources,
-                    Vec::new(),
-                );
+                let mut scoped =
+                    super::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
+                        port,
+                        sources,
+                        Vec::new(),
+                    );
                 let value = self.build_map_literal_with_port_v1(&mut scoped, entries)?;
                 scoped.complete_exact_demands_v1()?;
                 Ok(value)
@@ -486,7 +502,9 @@ impl super::MirBuilder {
                             unreachable!("record receipt query keeps its AST shape");
                         };
                         if fields.len() != field_count as usize {
-                            return Err("[freeze:contract][script-record/receipt-cardinality]".to_owned());
+                            return Err(
+                                "[freeze:contract][script-record/receipt-cardinality]".to_owned()
+                            );
                         }
                         Some(
                             (0..field_count)
@@ -511,16 +529,19 @@ impl super::MirBuilder {
                 };
                 match sources {
                     Some(sources) => {
-                    let mut scoped = RawStructuredChildScopePortV1::new(port, sources, Vec::new());
-                    let value = self.build_record_literal_value_with_port_v1(
-                        &mut scoped,
-                        record_type_name,
-                        fields,
-                    )?;
-                    scoped.complete_exact_demands_v1()?;
-                    Ok(value)
-                }
-                    None => self.build_record_literal_value_with_port_v1(port, record_type_name, fields),
+                        let mut scoped =
+                            RawStructuredChildScopePortV1::new(port, sources, Vec::new());
+                        let value = self.build_record_literal_value_with_port_v1(
+                            &mut scoped,
+                            record_type_name,
+                            fields,
+                        )?;
+                        scoped.complete_exact_demands_v1()?;
+                        Ok(value)
+                    }
+                    None => {
+                        self.build_record_literal_value_with_port_v1(port, record_type_name, fields)
+                    }
                 }
             }
             ASTNode::RecordUpdate { base, updates, .. } => {
@@ -529,10 +550,8 @@ impl super::MirBuilder {
 
             node @ ASTNode::BlockExpr { .. } => {
                 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
-                let prelude = port.prepare_body_child_source_v1(
-                    &node,
-                    BodyChildRoleV1::BlockExprPrelude,
-                )?;
+                let prelude =
+                    port.prepare_body_child_source_v1(&node, BodyChildRoleV1::BlockExprPrelude)?;
                 let tail =
                     port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::BlockExprTail)?;
                 let ASTNode::BlockExpr {

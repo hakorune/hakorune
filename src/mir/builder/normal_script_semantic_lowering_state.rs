@@ -14,6 +14,7 @@ pub(super) struct ScriptSemanticLoweringState {
     locals: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     nowaits: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     outboxes: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
+    lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
     record_literal_demands: BTreeMap<SourceNodeSiteV1, u32>,
     qmark_propagation_receipts: BTreeSet<SourceNodeSiteV1>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
@@ -50,10 +51,49 @@ impl ScriptSemanticLoweringState {
                 .into_iter()
                 .map(|(site, bindings)| (site, bindings.into_iter().collect()))
                 .collect(),
+            lambda_captures: BTreeMap::new(),
             record_literal_demands: BTreeMap::new(),
             qmark_propagation_receipts: BTreeSet::new(),
             materialized_outboxes: BTreeSet::new(),
         }
+    }
+
+    pub(super) fn install_lambda_captures<Captures>(
+        &mut self,
+        captures: Captures,
+    ) -> Result<(), String>
+    where
+        Captures: IntoIterator<Item = (SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>)>,
+    {
+        for (site, capture_bindings) in captures {
+            if self
+                .lambda_captures
+                .insert(site, capture_bindings)
+                .is_some()
+            {
+                return Err("[freeze:contract][script-lambda/duplicate-receipt]".to_owned());
+            }
+        }
+        Ok(())
+    }
+
+    pub(super) fn lambda_captures(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Option<Result<Vec<(String, ValueId)>, String>> {
+        self.lambda_captures.get(site).map(|captures| {
+            captures
+                .iter()
+                .map(|(name, binding)| {
+                    self.value(*binding)
+                        .map(|value| (name.to_string(), value))
+                        .ok_or_else(|| {
+                            "[freeze:contract][script-lambda/capture-before-materialization]"
+                                .to_owned()
+                        })
+                })
+                .collect()
+        })
     }
 
     pub(super) fn variable_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {

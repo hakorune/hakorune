@@ -92,6 +92,31 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         product: VerifiedResolvedScriptV1,
         window: &VerifiedScriptRootDemandWindowV1,
     ) -> Result<Self, String> {
+        let owner = product.core().data().owner;
+        let mut draft = SemanticOwnerForestDraftV1::new();
+        draft
+            .insert_product(owner, VerifiedSemanticOwnerProductV1::Script(product))
+            .map_err(|error| format!("[mir/script-semantic/forest] {error:?}"))?;
+        let forest = draft
+            .seal()
+            .map_err(|error| format!("[mir/script-semantic/forest] {error:?}"))?;
+        Self::seal_with_forest(source, forest, window)
+    }
+
+    pub(super) fn seal_with_forest(
+        source: &'source PreparedNormalDefaultProgramRootV1,
+        forest: VerifiedSemanticOwnerForestV1,
+        window: &VerifiedScriptRootDemandWindowV1,
+    ) -> Result<Self, String> {
+        let [root] = forest.roots() else {
+            return Err("[mir/script-semantic/forest] expected one Script root".to_owned());
+        };
+        let product = forest
+            .semantic_owner(*root)
+            .and_then(VerifiedSemanticOwnerProductV1::as_script)
+            .ok_or_else(|| {
+                "[mir/script-semantic/forest] expected Script root product".to_owned()
+            })?;
         let ASTNode::Program { statements, .. } = source.source_ast() else {
             return Err("[mir/script-semantic/source-root] expected Program".to_owned());
         };
@@ -338,14 +363,6 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 runtime_source_indices.push(source_statement_index);
             }
         }
-        let mut draft = SemanticOwnerForestDraftV1::new();
-        let owner = product.core().data().owner;
-        draft
-            .insert_product(owner, VerifiedSemanticOwnerProductV1::Script(product))
-            .map_err(|error| format!("[mir/script-semantic/forest] {error:?}"))?;
-        let forest = draft
-            .seal()
-            .map_err(|error| format!("[mir/script-semantic/forest] {error:?}"))?;
         let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
             source.source_ast(),
             &forest,
@@ -399,9 +416,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     #[cfg(test)]
-    pub(super) fn match_controls(
-        &self,
-    ) -> impl Iterator<Item = (&SourceExprSiteV1, u32)> {
+    pub(super) fn match_controls(&self) -> impl Iterator<Item = (&SourceExprSiteV1, u32)> {
         self.match_controls
             .iter()
             .map(|receipt| (&receipt.site, receipt.arm_count))
@@ -533,6 +548,36 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 | ResolvedAssignmentTargetV1::FieldWrite { .. }
                 | ResolvedAssignmentTargetV1::IndexWrite { .. } => None,
             });
+        let lambda_captures = self
+            .forest
+            .semantic_owners()
+            .filter_map(|(child, _)| {
+                let parent = self.forest.parent(child)?;
+                Some((parent.definition_site().site().node().clone(), child))
+            })
+            .map(|(site, child)| {
+                let captures = self
+                    .forest
+                    .ordered_capture_demands(child)
+                    .iter()
+                    .map(|demand| {
+                        let binding = demand.source_binding();
+                        let name = self
+                            .forest
+                            .semantic_owner(binding.owner())
+                            .and_then(|owner| owner.binding(binding))
+                            .ok_or_else(|| {
+                                "[freeze:contract][script-lambda/capture-binding]".to_owned()
+                            })?
+                            .diagnostic_name()
+                            .into();
+                        Ok((name, binding))
+                    })
+                    .collect::<Result<Vec<_>, String>>()?
+                    .into_boxed_slice();
+                Ok((site, captures))
+            })
+            .collect::<Result<Vec<_>, String>>()?;
         let mut state = ScriptSemanticLoweringState::from_facts(
             locals,
             nowaits,
@@ -540,6 +585,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             variables,
             assignments,
         );
+        state.install_lambda_captures(lambda_captures)?;
         state.install_record_literal_demands(
             self.record_literal_demands
                 .iter()
@@ -576,11 +622,11 @@ mod block_expr_tests;
 #[path = "normal_script_map_literal_tests.rs"]
 mod map_literal_tests;
 #[cfg(test)]
-#[path = "normal_script_qmark_tests.rs"]
-mod qmark_tests;
-#[cfg(test)]
 #[path = "normal_script_match_tests.rs"]
 mod match_tests;
+#[cfg(test)]
+#[path = "normal_script_qmark_tests.rs"]
+mod qmark_tests;
 #[cfg(test)]
 #[path = "normal_script_record_literal_tests.rs"]
 mod record_literal_tests;

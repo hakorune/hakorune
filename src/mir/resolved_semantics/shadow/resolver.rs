@@ -105,11 +105,24 @@ pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_v0<'ast>(
     view: FunctionSyntaxViewV1<'ast>,
     ancestor_names: BTreeSet<Box<str>>,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    resolve_shadow_view(
+    resolve_owner_shadow_view_with_profile_v0(
+        view,
+        ancestor_names,
+        ShadowTraversalProfileV1::FullFunctionV1,
+    )
+}
+
+pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_with_profile_v0<'ast>(
+    view: FunctionSyntaxViewV1<'ast>,
+    ancestor_names: BTreeSet<Box<str>>,
+    traversal_profile: ShadowTraversalProfileV1,
+) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
+    resolve_shadow_view_with_profile(
         view,
         ShadowLambdaModeV0::Inventory,
         ancestor_names,
         ShadowMethodCallObservationModeV0::Disabled,
+        traversal_profile,
     )
 }
 
@@ -130,13 +143,46 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
     .map(|resolver| resolver.finish_owner(profile).function)
 }
 
+pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'ast>(
+    view: ScriptSyntaxViewV1<'ast>,
+    window: &'ast VerifiedScriptRootDemandWindowV1,
+    record_schemas: &dyn RecordSchemaDemandV1,
+) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
+    let input = ShadowRootTraversalInputV1::sparse_script(view, window, record_schemas);
+    let profile = input.root_profile();
+    traverse_shadow_root_v1(
+        input,
+        ShadowLambdaModeV0::Inventory,
+        BTreeSet::new(),
+        BTreeSet::new(),
+        ShadowMethodCallObservationModeV0::Disabled,
+    )
+    .map(|resolver| resolver.finish_owner(profile))
+}
+
 fn resolve_shadow_view<'ast>(
     view: FunctionSyntaxViewV1<'ast>,
     lambda_mode: ShadowLambdaModeV0,
     ancestor_names: BTreeSet<Box<str>>,
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    let input = ShadowRootTraversalInputV1::dense(view);
+    resolve_shadow_view_with_profile(
+        view,
+        lambda_mode,
+        ancestor_names,
+        method_call_observation_mode,
+        ShadowTraversalProfileV1::FullFunctionV1,
+    )
+}
+
+fn resolve_shadow_view_with_profile<'ast>(
+    view: FunctionSyntaxViewV1<'ast>,
+    lambda_mode: ShadowLambdaModeV0,
+    ancestor_names: BTreeSet<Box<str>>,
+    method_call_observation_mode: ShadowMethodCallObservationModeV0,
+    traversal_profile: ShadowTraversalProfileV1,
+) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
+    let input = ShadowRootTraversalInputV1::dense_with_profile(view, traversal_profile);
     let root_profile = input.root_profile();
     traverse_shadow_root_v1(
         input,

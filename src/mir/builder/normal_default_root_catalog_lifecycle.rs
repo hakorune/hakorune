@@ -18,7 +18,7 @@ use super::{
     NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
 };
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptSyntaxViewV1,
+    FunctionSemanticResolverSessionV1, ResolveScriptForestOutcomeV1, ScriptSyntaxViewV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -205,7 +205,7 @@ impl ModuleBuilderInvocationSessionV1 {
                             })?;
                         let outcome =
                             declaration_facts.with_record_schema_demand_view(|record_schemas| {
-                                resolver.resolve_script_with_record_schemas(
+                                resolver.resolve_script_forest_with_record_schemas(
                                     view,
                                     window,
                                     record_schemas,
@@ -216,15 +216,17 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/script-semantic/seal] {error:?}").into(),
                             )
                         })? {
-                            ResolveScriptOutcomeV1::Complete(product) => Some(
-                                VerifiedScriptSemanticSourceV1::seal(&source, product, window)
-                                    .map_err(|error| {
-                                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                            error.into(),
-                                        )
-                                    })?,
+                            ResolveScriptForestOutcomeV1::Complete(forest) => Some(
+                                VerifiedScriptSemanticSourceV1::seal_with_forest(
+                                    &source, forest, window,
+                                )
+                                .map_err(|error| {
+                                    NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                        error.into(),
+                                    )
+                                })?,
                             ),
-                            ResolveScriptOutcomeV1::Deferred => None,
+                            ResolveScriptForestOutcomeV1::Deferred => None,
                         }
                     }
                 };

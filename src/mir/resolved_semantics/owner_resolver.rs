@@ -6,23 +6,33 @@ use super::callable_index::VerifiedCallableIndexV1;
 use super::function_view::FunctionSyntaxViewV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, ScopeId};
 use super::owner_construction_tree::{
-    construct_function_owner_tree_v1, ShadowOwnerConstructionTreeV1,
+    construct_function_owner_tree_v1, construct_script_owner_tree_v1, ShadowOwnerConstructionTreeV1,
 };
 use super::owner_forest::{
     OwnerParentEdgeV1, SemanticOwnerForestDraftV1, SemanticOwnerForestVerificationErrorV1,
     VerifiedSemanticOwnerForestV1,
 };
+use super::owner_forest_payload::VerifiedSemanticOwnerProductV1;
 use super::resolver::{
     AncestorBindingV1, FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1,
-    SealedOwnerConstructionV1,
+    SealedOwnerConstructionV1, SealedScriptConstructionV1,
 };
+use super::script_view::ScriptSyntaxViewV1;
 use super::shadow::{resolve_function_shadow_view_v0, ShadowLambdaSyntaxV0};
-use super::{FunctionOriginV1, OwnedExprSiteV1};
+use super::{
+    FunctionOriginV1, OwnedExprSiteV1, RecordSchemaDemandV1, VerifiedScriptRootDemandWindowV1,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolveOwnerForestErrorV1 {
     Function(ResolveFunctionErrorV1),
     Verification(SemanticOwnerForestVerificationErrorV1),
+}
+
+#[derive(Debug)]
+pub(crate) enum ResolveScriptForestOutcomeV1 {
+    Complete(VerifiedSemanticOwnerForestV1),
+    Deferred,
 }
 
 #[derive(Debug, Clone)]
@@ -33,6 +43,27 @@ struct PendingParentV1 {
 }
 
 impl FunctionSemanticResolverSessionV1 {
+    pub(crate) fn resolve_script_forest_with_record_schemas(
+        &mut self,
+        view: ScriptSyntaxViewV1<'_>,
+        window: &VerifiedScriptRootDemandWindowV1,
+        record_schemas: &dyn RecordSchemaDemandV1,
+    ) -> Result<ResolveScriptForestOutcomeV1, ResolveOwnerForestErrorV1> {
+        let tree = match construct_script_owner_tree_v1(view, window, record_schemas) {
+            Ok(tree) => tree,
+            Err(_) => return Ok(ResolveScriptForestOutcomeV1::Deferred),
+        };
+        let (origin, owner) = self
+            .issue_owner()
+            .map_err(ResolveOwnerForestErrorV1::Function)?;
+        let mut draft = SemanticOwnerForestDraftV1::new();
+        self.seal_script_owner_tree(tree, owner, origin, &mut draft)?;
+        draft
+            .seal()
+            .map(ResolveScriptForestOutcomeV1::Complete)
+            .map_err(ResolveOwnerForestErrorV1::Verification)
+    }
+
     pub(crate) fn resolve_forest(
         &mut self,
         root: FunctionSyntaxViewV1<'_>,
@@ -173,6 +204,57 @@ impl FunctionSemanticResolverSessionV1 {
             )?;
         }
         Ok(owner)
+    }
+
+    fn seal_script_owner_tree<'ast>(
+        &mut self,
+        tree: ShadowOwnerConstructionTreeV1<'ast>,
+        owner: FunctionOwnerIdV1,
+        origin: FunctionOriginV1,
+        draft: &mut SemanticOwnerForestDraftV1,
+    ) -> Result<(), ResolveOwnerForestErrorV1> {
+        let ShadowOwnerConstructionTreeV1 { function, children } = tree;
+        let SealedScriptConstructionV1 {
+            product,
+            binding_refs,
+            scope_ids,
+            ordered_capture_demands,
+        } = self
+            .seal_script_owner_with_maps(owner, origin, function)
+            .map_err(ResolveOwnerForestErrorV1::Function)?;
+        let children = children
+            .into_iter()
+            .map(|child| {
+                let child_bindings =
+                    visible_bindings_for_child(&BTreeMap::new(), &binding_refs, &child.lambda);
+                let child_parent = PendingParentV1 {
+                    parent_owner: owner,
+                    definition_site: OwnedExprSiteV1::new(
+                        owner,
+                        child.lambda.definition_site.clone(),
+                    ),
+                    parent_scope: scope_ids[&child.lambda.parent_scope],
+                };
+                (child.tree, child_bindings, child_parent)
+            })
+            .collect::<Vec<_>>();
+        draft
+            .insert_product(owner, VerifiedSemanticOwnerProductV1::Script(product))
+            .map_err(ResolveOwnerForestErrorV1::Verification)?;
+        draft
+            .insert_ordered_capture_demands(owner, ordered_capture_demands)
+            .map_err(ResolveOwnerForestErrorV1::Verification)?;
+        for (child, child_bindings, child_parent) in children {
+            self.seal_owner_tree(
+                *child,
+                &child_bindings,
+                Some(child_parent),
+                None,
+                None,
+                draft,
+            )?;
+        }
+        Ok(())
     }
 }
 
