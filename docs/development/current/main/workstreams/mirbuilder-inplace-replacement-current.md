@@ -341,23 +341,34 @@ closed — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0
   shape-specific owners, while Lambda leaf composes its capture owner with a
   child operation. Final R4 conformance remains unclaimed.
 
-next design gate — SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0
+closed — SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0 (NoSafeSlice)
+  Profile gates collapse to unbranded Deferred before any source product can
+  survive. A receipt needs a new Deferred lifecycle product; Lambda leaf also
+  loses its parent boundary and cannot infer a child operation residual.
+
+rejected candidate — Nested Box function-relative source contract
+  The live static/instance `LegacyChildDraftAdmissionV1` issuers have no
+  projectable method source root: source paths lack Box/method segments and
+  batches discard method identity. A false FunctionBody identity, second
+  lifecycle, or raw/reference rewrite is not a bounded replacement.
+
+next design gate — MIRBUILDER-R4-RESIDUAL-FINAL-CONFORMANCE0-D0
 
 Change:
-  Decide a same-traversal, typed profile stop receipt keyed to an existing
-  named residual; use it to observe exact non-root Deferred reachability.
+  Audit every active R4 fence for exact surface, owner, transport, fixture
+  evidence, and a final retain/rehome/retire decision.
 
 Contract:
-  No AST rescan, generic catch-all classification, route change, or new
-  operation owner. The receipt observes an existing profile gate only.
+  Root-only and raw/reference residual entries remain valid but insufficient.
+  No new source product, path vocabulary, planner, or production route moves.
 
 Done:
-  The product proves profile, exact stop site, and one existing residual key,
-  or closes NoSafeSlice if those facts cannot be co-sealed.
+  Every active fence is either mechanically evidenced or named as a concrete
+  missing authority; only then can final conformance be accepted or blocked.
 
 Stop:
-  Do not let a Lambda leaf infer a child operation owner, and do not replace
-  any operation-specific release condition with a shared one.
+  Do not use a root-only registry to claim full R4 conformance, and do not
+  add generic entries that hide source-path or lifecycle authority gaps.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
