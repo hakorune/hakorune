@@ -32,12 +32,12 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
+  RAW-SCRIPT-ENUM-MATCH-SEALED-ROUTE0-D0
 
 latest structural finding:
-  safe root QMark now uses a Script-only propagation receipt co-sealed with the
-  shared Script semantic source. The existing QMark owner retains its
-  control/result sequence; shared resolved exits stay statement-only.
+  EnumMatch lowers its exact scrutinee once; arms select a prepared route but
+  are not expression-child descents. Its route/preflight authority must be
+  separated from a prospective Script source receipt before activation.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
@@ -46,8 +46,7 @@ latest production closeout:
   RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0
 
 consultation decision:
-  fresh bounded responsibility-family census required; no successor
-  preselected.
+  bounded census selects EnumMatch route observation as the next D0.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -267,20 +266,24 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
+  RAW-SCRIPT-ENUM-MATCH-SEALED-ROUTE0-D0
 
   Change:
-    Run one fresh bounded static live-edge census after the QMark closeout.
+    Decide whether root EnumMatch can admit one exact EnumMatchScrutinee source
+    handoff while arm bodies remain route-observed only.
 
   Contract:
-    Select at most one responsibility family with a named production consumer
-    and an atomically removable old authority. No successor is preselected.
+    Existing EnumMatch prepare remains the sole catalog/route authority and
+    existing lowering retains VariantTag/Select or VariantProject/result
+    emission. Any user diagnostic stays in its current lifecycle stage.
 
   Done:
-    Record one evidence-backed candidate decision or NoSafeSlice result.
+    Select one receipt contract and I0, or close NoSafeSlice with a concrete
+    preflight/diagnostic or child-demand counterexample.
 
   Stop:
-    Do not implement during this D0, reopen QMark, or run a broad/parallel scan.
+    Do not resolve arm bodies, move route metadata into semantic source, widen
+    MatchExpr, or implement before the D0 closes.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -292,6 +295,13 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
+  -> Fresh static census rejects reopening GroupedAssignment, Loop/JoinIR,
+     FieldAccess, and broad Call/Object. It selects EnumMatch because existing
+     lowering has one exact scrutinee descent while arm syntax is route
+     observation; the required next proof is metadata/preflight and diagnostic
+     ownership, not a second resolver.
+
   RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0
   -> Root `QMarkPropagate(existing-safe operand)` now co-seals its exact
      QMarkOperand receipt with the Script source and reaches the existing
