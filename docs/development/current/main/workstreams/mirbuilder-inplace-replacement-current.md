@@ -243,10 +243,17 @@ closed — RAW-SCRIPT-ENUM-MATCH-DIRECT-SCRUTINEE0-I0-R0 (T2)
   declaration-facts view. Complete co-seals EnumMatchScrutinee only; arms
   remain raw-owner observations. Selected/legacy parity is green.
 
-selected — SCRIPT-ROOT-ADMISSION-WITNESS0-S0
-  Move root-demand AST shape proof into one private witness, leaving the
-  demand window responsible only for ordinal coverage. No eligibility, route,
-  diagnostic, raw/reference, or lowering behavior changes.
+closed — SCRIPT-ROOT-ADMISSION-WITNESS0-S0
+  Root-demand AST shape/disposition proof now has one private witness; the
+  demand window retains ordinal coverage only. Eligibility, route, diagnostic,
+  raw/reference, and lowering behavior are unchanged.
+
+selected — RAW-SCRIPT-NEXT-NAMED-FAMILY4-D0
+  Confirm the residual map without opening a speculative I0: Loop remains
+  JoinIR-fenced; Call/Object, Field/Index/New, Box runtime, and Lambda
+  capture/publication remain R4-owned; TryCatch/Throw and non-final Return
+  retain their existing control/result owners. No successor is selected
+  automatically; resume only from a fresh live-edge census.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
