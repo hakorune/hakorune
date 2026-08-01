@@ -304,24 +304,33 @@ closed — SCRIPT-SEMANTIC-RATCHET-COVERAGE0-S0
   lowering, and Deferred reasons are unchanged; the shared manifest guard
   rejects any later fixture-identity regression.
 
-next design gate — MIRBUILDER-LOOP-JOINIR-SOURCE-ERASING-TERMINAL0-D0
+closed — MIRBUILDER-LOOP-JOINIR-SOURCE-ERASING-TERMINAL0-D0 (R4 retain/rehome)
+  `PreparedLocatedRawLoopChildEntryV1::lower_with_existing_route_v1` retains
+  exact receipts only until it passes raw condition/body to
+  `lower_loop_or_freeze_v1 -> try_cf_loop_joinir -> route_loop`. The existing
+  verified generic loop plan is test-only and callable-result-specific, not a
+  selected Script consumer. The terminal stays under
+  `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001`; release requires one
+  all-route located plan from the existing planner/registry, including every
+  dynamic child/claim schedule, to replace that terminal once.
+
+next design gate — RAW-SCRIPT-LAMBDA-DEFERRED-CAPTURE-PUBLICATION0-D0
 
 Change:
-  Decide whether the existing located Loop condition/body receipts can reach
-  one verified JoinIR-plan consumer without source erasure; otherwise record
-  the exact R4 retention/rehome boundary.
+  Decide whether Deferred/raw/reference Lambda capture and single
+  ClosureBodyId publication can replace their raw observer edge atomically.
 
 Contract:
-  This is a Loop/JoinIR owner decision only. Script admission, Call/Object,
-  Lambda capture/publication, and raw/reference behavior do not move.
+  Selected lexical Lambda child ownership and ordered capture receipts are
+  closed. No Call/Object, Box runtime, or second Lambda resolver is in scope.
 
 Done:
-  Name the sole production caller, the source-erasing edge to delete, or the
-  final retained operation owner and release condition.
+  Name the exact raw capture/publication edge to delete, or its R4 retained
+  operation owner and release condition.
 
 Stop:
-  Do not open an I0 if the verified plan cannot consume the located product
-  exactly once, or if the decision needs a second JoinIR planner.
+  Do not open an I0 if forest child lineage, capture order, and one
+  ClosureBodyId publication cannot be consumed by one existing owner.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
