@@ -48,6 +48,46 @@ for the first Builder effect:
 is not imported into the pure policy evaluator and is not a semantic Recipe
 field.
 
+## Current D0-S0 execution brief — stage matrix contract
+
+### Change
+
+Fix the Generic V0/V1 stage-matrix contract before adding a test bridge. The
+matrix has one row for each V0/V1 × mode × contract arm: facts absent or
+mismatched, composer precondition/allocation/`Err`, strict shadow
+`Some`/`None`/`Err`, release verifier `Ok`/`Err`, release lower
+`Some`/`Ok(None)`/`Err`, nested Generic calls, and legacy receipts. Each row
+records a source anchor, first-effect owner, legacy outcome, receipt (if any),
+and evidence level `Observed`, `NotYetObserved`, or `UnresolvedStop`.
+
+### Contract
+
+This is docs-only. It fixes the meaning of `PreEffectDeclined`,
+`PreEffectBlocked`, `TerminalFreezeTarget`, `ImpossibleEdge`, and
+`UnresolvedStop`. It does not change code, fixtures, scheduler, policy,
+Recipe, JoinSig, PHI, physicalization, or candidate publication. The existing
+M3-F synthetic non-Generic fixture is explicitly excluded from Generic
+evidence.
+
+### Done
+
+Every current Generic branch has a matrix row with an owner, legacy outcome,
+receipt or explicit unresolved marker. An unobserved effect boundary is never
+labelled decline. The matrix is sufficient input for the next test-only slice:
+actual AST → facts → selector → `V0-only`/`V1-only`/`Both`/`Neither` fixtures.
+
+### Stop
+
+Do not infer first effect, V0/V1 precedence, or winner from route names,
+comments, or a static effect matrix. If closing an `UnresolvedStop` would
+require touching a Generic handler, `all_route_preflight`, or an M5/M6/M10
+owner, stop and return to the design boundary.
+
+Gate: `git diff --check`,
+`bash tools/checks/current_state_pointer_guard.sh`,
+`bash tools/checks/lib/joinir_logical_demand_contract.sh`, and this card below
+800 lines. The docs-only diff is limited to this card and current-state mirrors.
+
 ## Ordered M4 tasks
 
 ### M4-D0 — exhaustive stage matrix (`...-D0-S0`)
@@ -151,4 +191,3 @@ legacy receipt module; policy code has zero registry/receipt imports; M4
 helpers have zero production callers; and any future semantic target has zero
 `Option`, `Retry`, or raw suffix. M10-only deletion checks stay inactive until
 the atomic cutover card is active.
-
