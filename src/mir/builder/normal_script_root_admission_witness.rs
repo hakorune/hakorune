@@ -1,4 +1,4 @@
-//! Private source-shape witness for selected Script root demand admission.
+//! Private source-shape decision for selected Script root demand admission.
 //!
 //! The work plan has already classified the operational route.  This module
 //! is the sole place that proves the selected AST node and that route may
@@ -17,16 +17,16 @@ use crate::mir::resolved_semantics::{
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_root_demand_window::ScriptRootDemandWindowBuildErrorV1;
 
-/// A source-shape-proven disposition, consumable only by ordinal storage.
+/// One source-shape decision, consumable only by ordinal storage.
 #[derive(Clone, Copy, Debug)]
-pub(super) struct ScriptRootAdmissionWitnessV1 {
+pub(super) struct ScriptRootSemanticDecisionV1 {
     admission: NormalScriptProgramItemAdmissionV1,
     semantic: ScriptRootSemanticDispositionV1,
     runtime: ScriptRootRuntimeDispositionV1,
 }
 
-impl ScriptRootAdmissionWitnessV1 {
-    pub(super) fn issue(
+impl ScriptRootSemanticDecisionV1 {
+    pub(super) fn decide(
         source_statement_index: usize,
         statement_count: usize,
         statement: &ASTNode,
@@ -170,71 +170,12 @@ impl ScriptRootAdmissionWitnessV1 {
             }
         };
 
-        Self::new(statement, admission, semantic, runtime)
-    }
-
-    fn new(
-        statement: &ASTNode,
-        admission: NormalScriptProgramItemAdmissionV1,
-        semantic: ScriptRootSemanticDispositionV1,
-        runtime: ScriptRootRuntimeDispositionV1,
-    ) -> Result<Self, ScriptRootDemandWindowBuildErrorV1> {
-        let compatible = match semantic {
-            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::LexicalCore)
-            | ScriptRootSemanticDispositionV1::Deferred(_) => true,
-            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IfControl(_)) => {
-                matches!(statement, ASTNode::If { .. })
-            }
-            ScriptRootSemanticDispositionV1::Resolved(
-                ScriptRootResolvedDemandV1::QMarkPropagation(_),
-            ) => matches!(statement, ASTNode::QMarkPropagate { .. }),
-            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::MatchControl(_)) => {
-                matches!(statement, ASTNode::MatchExpr { .. })
-            }
-            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::ReturnExit(_)) => {
-                matches!(statement, ASTNode::Return { .. })
-            }
-            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_)) => {
-                is_variable_target_binding_rebind(statement)
-            }
-            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IndexWrite(_)) => {
-                is_index_write_assignment(statement)
-            }
-            ScriptRootSemanticDispositionV1::Transparent(
-                ScriptTransparentBoundaryV1::UsingDirective,
-            ) => matches!(statement, ASTNode::UsingStatement { .. }),
-            ScriptRootSemanticDispositionV1::Transferred(
-                ScriptTransferredBoundaryV1::ProgramStaticMetadata,
-            ) => matches!(statement, ASTNode::StaticConstTable { .. }),
-            ScriptRootSemanticDispositionV1::Transferred(
-                ScriptTransferredBoundaryV1::ProgramEnumDeclaration,
-            ) => matches!(statement, ASTNode::EnumDeclaration { .. }),
-            ScriptRootSemanticDispositionV1::Transferred(
-                ScriptTransferredBoundaryV1::TopLevelCallable,
-            ) => matches!(statement, ASTNode::FunctionDeclaration { .. }),
-            ScriptRootSemanticDispositionV1::Transferred(
-                ScriptTransferredBoundaryV1::ProgramRecordDeclaration,
-            ) => is_program_record_declaration(statement),
-            ScriptRootSemanticDispositionV1::Diagnostic(
-                ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
-            ) => super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(statement),
-            ScriptRootSemanticDispositionV1::Diagnostic(
-                ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
-            ) => matches!(statement, ASTNode::Me { .. }),
-            ScriptRootSemanticDispositionV1::Diagnostic(
-                ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
-            ) => matches!(statement, ASTNode::This { .. }),
-            ScriptRootSemanticDispositionV1::Diagnostic(
-                ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
-            ) => matches!(statement, ASTNode::ContextScope { .. }),
-        };
-        compatible
-            .then_some(Self {
-                admission,
-                semantic,
-                runtime,
-            })
-            .ok_or(ScriptRootDemandWindowBuildErrorV1::StatementBoundaryMismatch)
+        validate_source_boundary(statement, semantic)?;
+        Ok(Self {
+            admission,
+            semantic,
+            runtime,
+        })
     }
 
     pub(super) fn semantic(self) -> ScriptRootSemanticDispositionV1 {
@@ -248,6 +189,66 @@ impl ScriptRootAdmissionWitnessV1 {
     pub(super) fn admission(self) -> NormalScriptProgramItemAdmissionV1 {
         self.admission
     }
+}
+
+fn validate_source_boundary(
+    statement: &ASTNode,
+    semantic: ScriptRootSemanticDispositionV1,
+) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
+    let compatible = match semantic {
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::LexicalCore)
+        | ScriptRootSemanticDispositionV1::Deferred(_) => true,
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IfControl(_)) => {
+            matches!(statement, ASTNode::If { .. })
+        }
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::QMarkPropagation(
+            _,
+        )) => matches!(statement, ASTNode::QMarkPropagate { .. }),
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::MatchControl(_)) => {
+            matches!(statement, ASTNode::MatchExpr { .. })
+        }
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::ReturnExit(_)) => {
+            matches!(statement, ASTNode::Return { .. })
+        }
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_)) => {
+            is_variable_target_binding_rebind(statement)
+        }
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IndexWrite(_)) => {
+            is_index_write_assignment(statement)
+        }
+        ScriptRootSemanticDispositionV1::Transparent(ScriptTransparentBoundaryV1::UsingDirective) => {
+            matches!(statement, ASTNode::UsingStatement { .. })
+        }
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::ProgramStaticMetadata,
+        ) => matches!(statement, ASTNode::StaticConstTable { .. }),
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::ProgramEnumDeclaration,
+        ) => matches!(statement, ASTNode::EnumDeclaration { .. }),
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::TopLevelCallable,
+        ) => matches!(statement, ASTNode::FunctionDeclaration { .. }),
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::ProgramRecordDeclaration,
+        ) => is_program_record_declaration(statement),
+        ScriptRootSemanticDispositionV1::Diagnostic(
+            ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
+        ) => super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(
+            statement,
+        ),
+        ScriptRootSemanticDispositionV1::Diagnostic(
+            ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
+        ) => matches!(statement, ASTNode::Me { .. }),
+        ScriptRootSemanticDispositionV1::Diagnostic(
+            ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
+        ) => matches!(statement, ASTNode::This { .. }),
+        ScriptRootSemanticDispositionV1::Diagnostic(
+            ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
+        ) => matches!(statement, ASTNode::ContextScope { .. }),
+    };
+    compatible
+        .then_some(())
+        .ok_or(ScriptRootDemandWindowBuildErrorV1::StatementBoundaryMismatch)
 }
 
 fn is_program_record_declaration(statement: &ASTNode) -> bool {
@@ -295,16 +296,16 @@ mod tests {
         else {
             unreachable!("parser returns Program");
         };
-        let witness = ScriptRootAdmissionWitnessV1::issue(
+        let decision = ScriptRootSemanticDecisionV1::decide(
             1,
             2,
             &statements[1],
             Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
             false,
         )
-        .expect("IndexWrite witness");
+        .expect("IndexWrite decision");
         assert!(matches!(
-            witness.semantic(),
+            decision.semantic(),
             ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IndexWrite(_))
         ));
     }
@@ -320,16 +321,16 @@ mod tests {
             else_body: None,
             span: Span::unknown(),
         };
-        let witness = ScriptRootAdmissionWitnessV1::issue(
+        let decision = ScriptRootSemanticDecisionV1::decide(
             0,
             1,
             &if_statement,
             Some(NormalScriptProgramItemAdmissionV1::DirectIfStatement),
             false,
         )
-        .expect("If witness");
+        .expect("If decision");
         assert!(matches!(
-            witness.semantic(),
+            decision.semantic(),
             ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IfControl(_))
         ));
     }
@@ -340,16 +341,16 @@ mod tests {
             value: None,
             span: Span::unknown(),
         };
-        let witness = ScriptRootAdmissionWitnessV1::issue(
+        let decision = ScriptRootSemanticDecisionV1::decide(
             0,
             2,
             &return_statement,
             Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
             false,
         )
-        .expect("non-final Return witness");
+        .expect("non-final Return decision");
         assert!(matches!(
-            witness.semantic(),
+            decision.semantic(),
             ScriptRootSemanticDispositionV1::Deferred(_)
         ));
     }
@@ -391,31 +392,31 @@ mod tests {
             span: Span::unknown(),
         };
         for statement in [&variable_target, &grouped] {
-            let witness = ScriptRootAdmissionWitnessV1::issue(
+            let decision = ScriptRootSemanticDecisionV1::decide(
                 0,
                 1,
                 statement,
                 Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
                 false,
             )
-            .expect("binding-rebind witness");
+            .expect("binding-rebind decision");
             assert!(matches!(
-                witness.semantic(),
+                decision.semantic(),
                 ScriptRootSemanticDispositionV1::Resolved(
                     ScriptRootResolvedDemandV1::BindingRebind(_)
                 )
             ));
         }
-        let field_witness = ScriptRootAdmissionWitnessV1::issue(
+        let field_decision = ScriptRootSemanticDecisionV1::decide(
             0,
             1,
             &field_target,
             Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
             false,
         )
-        .expect("field target witness");
+        .expect("field target decision");
         assert!(!matches!(
-            field_witness.semantic(),
+            field_decision.semantic(),
             ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_))
         ));
     }

@@ -2,14 +2,14 @@
 //!
 //! This sidecar records only source shapes intentionally outside the current
 //! Script Complete closure.  It does not select lowering, alter admission, or
-//! inspect child syntax.  The root-admission witness remains the sole proof
+//! inspect child syntax.  The root-admission decision remains the sole proof
 //! that the operational admission and source node belong together.
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::ScriptRootSemanticDispositionV1;
 
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
-use super::normal_script_root_admission_witness::ScriptRootAdmissionWitnessV1;
+use super::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum ScriptDeferredResidualKindV1 {
@@ -75,7 +75,7 @@ impl ScriptDeferredResidualRegistryBuilderV1 {
         &mut self,
         source_statement_index: usize,
         statement: &ASTNode,
-        witness: ScriptRootAdmissionWitnessV1,
+        decision: ScriptRootSemanticDecisionV1,
     ) {
         let kind = match statement {
             ASTNode::FunctionCall { .. } => Some(ScriptDeferredResidualKindV1::FunctionCall),
@@ -90,7 +90,7 @@ impl ScriptDeferredResidualRegistryBuilderV1 {
             ASTNode::Throw { .. } => Some(ScriptDeferredResidualKindV1::Throw),
             ASTNode::Return { .. }
                 if matches!(
-                    witness.semantic(),
+                    decision.semantic(),
                     ScriptRootSemanticDispositionV1::Deferred(_)
                 ) =>
             {
@@ -98,18 +98,18 @@ impl ScriptDeferredResidualRegistryBuilderV1 {
             }
             ASTNode::BoxDeclaration { .. }
                 if matches!(
-                    witness.semantic(),
+                    decision.semantic(),
                     ScriptRootSemanticDispositionV1::Deferred(_)
                 ) =>
             {
-                Some(ScriptDeferredResidualKindV1::Box(witness.admission()))
+                Some(ScriptDeferredResidualKindV1::Box(decision.admission()))
             }
             _ => None,
         };
         if let Some(kind) = kind {
             self.entries.push(ScriptDeferredResidualEntryV1 {
                 source_statement_index,
-                admission: witness.admission(),
+                admission: decision.admission(),
                 kind,
             });
         }
@@ -143,15 +143,15 @@ mod tests {
             arguments: Vec::new(),
             span: Span::unknown(),
         };
-        let witness = ScriptRootAdmissionWitnessV1::issue(
+        let decision = ScriptRootSemanticDecisionV1::decide(
             3,
             4,
             &call,
             Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
             false,
         )
-        .expect("call witness");
-        registry.record(3, &call, witness);
+        .expect("call decision");
+        registry.record(3, &call, decision);
         let entries = registry.seal();
         assert_eq!(entries.entries().len(), 1);
         assert_eq!(entries.entries()[0].source_statement_index(), 3);
@@ -296,15 +296,15 @@ mod tests {
         let statement_count = cases.len() + 1;
 
         for (index, (statement, admission, _)) in cases.iter().enumerate() {
-            let witness = ScriptRootAdmissionWitnessV1::issue(
+            let decision = ScriptRootSemanticDecisionV1::decide(
                 index,
                 statement_count,
                 statement,
                 Some(*admission),
                 false,
             )
-            .expect("residual witness");
-            registry.record(index, statement, witness);
+            .expect("residual decision");
+            registry.record(index, statement, decision);
         }
 
         let entries = registry.seal();

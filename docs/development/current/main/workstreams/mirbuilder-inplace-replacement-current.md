@@ -482,9 +482,13 @@ closed — SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0
   projection into the request ledger, and deletes copied receipt maps and
   staged install APIs; source transport and admission are unchanged.
 
-current — SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3
-  -> collapse witness issue/new into one atomic semantic decision without
-  changing operational classification or invariant re-projection.
+closed — SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3
+  -> witness `issue -> new` is now one private semantic decision; operational
+  classification and invariant re-projection remain separate owners.
+
+current — SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4
+  -> extract Script-root resolved dispatch from shared statement traversal
+  without creating a second recursive resolver or widening Complete.
 
 ### Refactor Series queue
 
@@ -494,7 +498,7 @@ current — SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3
 | 1 | `SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1` | Move Record/Enum/QMark/Match receipt sealing into one private pack and delete the standalone EnumMatch seal module. No acceptance or dispatcher change. |
 | 2 | `SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2` | Closed: co-sealed immutable facts from core and receipt packs; facade-side late reconstruction and `expect` edges are zero. |
 | 3 | `SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0` | Closed: Complete source and co-sealed projection now move once into the request ledger; read-only receipt maps/install APIs are deleted and the raw-port tests are split. |
-| 4 | `SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3` | Collapse witness `issue -> new` into one atomic semantic decision; retain operational classification and invariant re-projection as separate owners. |
+| 4 | `SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3` | Closed: one private semantic decision now combines source-shape validation and selected-Script disposition issuance. |
 | 5 | `SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4` | Extract Script-root demand dispatch from shared statement traversal without creating a second recursive resolver. |
 | 6 | `SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2` | Replace the ordinal/admission/transfer tuple with one typed selected-Script occurrence; first shrink the 786-line work-plan owner in the same live series. |
 

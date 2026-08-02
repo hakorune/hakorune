@@ -1,7 +1,7 @@
 //! Ordinal storage and total-coverage seal for selected Script root demand.
 //!
 //! Source-shape policy belongs to `normal_script_root_admission_witness`; this
-//! module receives only the private witness and turns it into a canonical
+//! module receives only the private decision and turns it into a canonical
 //! ProgramBody-ordinal window.
 
 use crate::ast::ASTNode;
@@ -14,7 +14,7 @@ use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissio
 use super::normal_script_deferred_residual_registry::{
     PreparedScriptDeferredResidualRegistryV1, ScriptDeferredResidualRegistryBuilderV1,
 };
-use super::normal_script_root_admission_witness::ScriptRootAdmissionWitnessV1;
+use super::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
 
 /// Complete/Deferred root admission evidence prepared from one Program pass.
 #[derive(Debug)]
@@ -58,7 +58,7 @@ impl ScriptRootDemandWindowBuilderV1 {
 
     /// Records a source-shape-proven work-plan disposition at its original
     /// Program ordinal.  AST inspection is intentionally delegated to the
-    /// private admission witness.
+    /// private admission decision.
     pub(super) fn record_selected_work_item(
         &mut self,
         source_statement_index: usize,
@@ -66,7 +66,7 @@ impl ScriptRootDemandWindowBuilderV1 {
         admission: Option<NormalScriptProgramItemAdmissionV1>,
         transferred_top_level_callable: bool,
     ) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
-        let witness = ScriptRootAdmissionWitnessV1::issue(
+        let decision = ScriptRootSemanticDecisionV1::decide(
             source_statement_index,
             self.entries.len(),
             statement,
@@ -74,14 +74,14 @@ impl ScriptRootDemandWindowBuilderV1 {
             transferred_top_level_callable,
         )?;
         self.deferred_residuals
-            .record(source_statement_index, statement, witness);
-        self.record_witness(source_statement_index, witness)
+            .record(source_statement_index, statement, decision);
+        self.record_decision(source_statement_index, decision)
     }
 
-    fn record_witness(
+    fn record_decision(
         &mut self,
         source_statement_index: usize,
-        witness: ScriptRootAdmissionWitnessV1,
+        decision: ScriptRootSemanticDecisionV1,
     ) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
         let Some(slot) = self.entries.get_mut(source_statement_index) else {
             return Err(ScriptRootDemandWindowBuildErrorV1::SourceOrdinalOutOfBounds);
@@ -96,8 +96,8 @@ impl ScriptRootDemandWindowBuilderV1 {
             .stmt();
         *slot = Some(VerifiedScriptRootDemandEntryV1::new(
             site,
-            witness.semantic(),
-            witness.runtime(),
+            decision.semantic(),
+            decision.runtime(),
         ));
         Ok(())
     }
@@ -130,7 +130,7 @@ mod tests {
     };
 
     #[test]
-    fn ordinal_window_stores_only_witness_issued_dispositions() {
+    fn ordinal_window_stores_only_decided_dispositions() {
         let using = ASTNode::UsingStatement {
             namespace_name: "std.math".to_owned(),
             span: Span::unknown(),
@@ -143,7 +143,7 @@ mod tests {
                 Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
                 false,
             )
-            .expect("Using witness");
+            .expect("Using decision");
         let entry = window
             .seal()
             .expect("sealed window")
@@ -164,7 +164,7 @@ mod tests {
     }
 
     #[test]
-    fn witness_preserves_final_return_and_binding_rebind_admission() {
+    fn decision_preserves_final_return_and_binding_rebind_admission() {
         let return_statement = ASTNode::Return {
             value: None,
             span: Span::unknown(),
@@ -188,7 +188,7 @@ mod tests {
                 Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
                 false,
             )
-            .expect("binding-rebind witness");
+            .expect("binding-rebind decision");
         window
             .record_selected_work_item(
                 1,
@@ -196,7 +196,7 @@ mod tests {
                 Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
                 false,
             )
-            .expect("final-return witness");
+            .expect("final-return decision");
         let sealed = window.seal().expect("sealed window");
         let sealed = sealed.window();
         assert!(matches!(
