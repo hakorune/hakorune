@@ -28,6 +28,15 @@ The authority split is:
 - Portable `LoopRecipeArtifactV1` is the future Rust/.hako common final semantic wire contract.
 - `joinir-loop-selfhost-recipe-pipeline-ssot.md` is the replacement/cutover authority.
 
+## Production authority status
+
+Current production is `route_loop` -> ordered 19-route scheduler -> route
+composers/CorePlan/PlanLowerer/JoinIR merge/route PHI writers. Portable
+`VerifiedLoopRecipeV1` has zero physical production consumers through M9.
+There is no post-router legacy Loop fallback: Retry is scheduler-internal and
+exhaustion freezes. M5-M8 remain caller-zero; only atomic M10 activates the
+portable consumer and deletes selected old physical edges.
+
 ```text
 Source / projection
 -> StructuralFacts
@@ -435,15 +444,17 @@ Change:
 
 Contract:
 : Only the physicalizer maps logical roles to real block/value IDs. PHIs come
-  exclusively from JoinSig. The existing Accum composer is a parity oracle only.
+  exclusively from JoinSig. It consumes `VerifiedLoopRecipeV1` or its verified
+  elaboration, never artifact source/provenance or a legacy composer input. The
+  existing Accum composer is a parity oracle only.
   Control edges are explicit recipe items; value-only calculations are
   operations, and a called function body owns a separate recipe rather than
   being expanded inside a Call operation.
 
 Done:
 : Normalized recipe, verifier counterexamples, MIR/PHI/type/result parity, late
-  failure candidate discard, and fresh compiler reuse are green. Caller remains
-  zero.
+  failure discard, and fresh reuse are green; legacy-composer and production
+  callers remain zero.
 
 Stop:
 : Do not import synthetic AST or current physical composer as new authority.
@@ -458,12 +469,15 @@ Change:
 
 Contract:
 : Verifier checks predecessor count, dominance obligations, edge arity/types,
-  carrier closure, exits, and unreachable policy. It rejects; it never repairs
-  or chooses another recipe.
+  carrier closure, exits, and unreachable policy. `LoopPhiMaterializerV1`
+  consumes only verified JoinSig plus logical-to-physical mapping; it cannot
+  read AST, route/env, `variable_map`, tags, or infer repair. It rejects; it
+  never chooses another recipe.
 
 Done:
-: Route-specific block allocators/PHI builders and lower-side AST route decisions
-  have zero callers inside the new subtree.
+: Route-specific block/PHI allocators and lower-side AST decisions have zero new-
+  subtree callers. General SSA `for_pred` is unused or identity, whole-function
+  PHI repair reports `changed=0`, and Function DraftSeal never repairs.
 
 Stop:
 : No family adapter may bypass shared CFG/JoinSig/PHI owners.
@@ -514,7 +528,9 @@ Contract:
 Done:
 : Accepted corpus produces verified recipes and parity MIR. Unverified direct
   lower, cloned-AST recipe reconstruction, post-effect continuation, and
-  duplicate CFG/PHI authorities are zero in the new subtree.
+  duplicate CFG/PHI authorities are zero in the new subtree. The M10 deletion
+  manifest covers every old route callback, composer, Retry/continuation, and
+  Loop-specific PHI/repair edge selected for same-commit retirement.
 
 Stop:
 : An unfitting route opens one bounded vocabulary extension, never a compatibility
@@ -562,7 +578,10 @@ Contract:
 Done:
 : Rust/selfhost recipe parity, winner equivalence, five-adapter fault injection,
   fresh reuse, accepted corpus/backend parity, representative phase29bq smokes,
-  quick/release, shared guards, and old-symbol census are green.
+  quick/release, shared guards, and old-symbol census are green. Production
+  verified-recipe consumer and Loop PHI materializer counts are exactly one;
+  ordered scheduler, selected old composer/PHI edges, Retry, and fallback counts
+  are zero.
 
 Stop:
 : Retry/fallback, source redecision, unverified lower, partial publish,
