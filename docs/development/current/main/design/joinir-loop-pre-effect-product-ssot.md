@@ -1227,3 +1227,17 @@ so direct topology and raw-front selection cannot exclude this arm.
 No terminality certificate, product, physicalizer, caller, or runtime behavior
 changed. Compose/lower remains separately Builder-bound and may mutate before
 later failures. Fresh D6 inventory must select the next unlanded route.
+
+### Next-route selection D6 decision
+
+Decision: select `NestedLoopMinimal` provenance D0. Its accepted outer body has
+a finite complete schedule: optional inner declaration, required inner init,
+one opaque inner Loop, and final outer step. D0 may decide a projection-aware
+topology for those outer whole statements only. The inner Loop condition, body,
+and accumulation details are an opaque transferred boundary.
+
+Scan/Split/BoolPredicate routes use find-anywhere/reconstructed or nested
+semantic shapes; conditional-loop and generic routes have open policy/grammar
+boundaries. They must not be folded into this finite outer-body card. No
+selector/preflight, terminality, product, execution, or physical behavior is
+authorized.
