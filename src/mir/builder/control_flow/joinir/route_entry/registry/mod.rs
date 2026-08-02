@@ -193,6 +193,9 @@ fn execute_selected_routes_in_order<T, E>(
 }
 
 #[cfg(test)]
+mod effect_order_matrix_tests;
+
+#[cfg(test)]
 mod tests {
     use super::{execute_selected_routes_in_order, select_recipe_first_routes};
     use crate::mir::builder::control_flow::joinir::route_entry::registry::types::LoopRouteId;

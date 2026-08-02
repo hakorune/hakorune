@@ -129,3 +129,12 @@ CharMap and ArrayJoin prove this is essential. Generic V0/V1 prove that a
 post-effect verifier/lower failure cannot remain `None` at cutover. Next row is
 `JOINIR-LOOP-ROUTE-EFFECT-ORDER-MATRIX0-P0`; it changes only registry proof
 surfaces and leaves route behavior unchanged.
+
+## P0 closeout
+
+`registry/effect_order_matrix_tests.rs` now ratchets all 19 `ENTRIES` rows in
+production order, their qualification boundary, first physical boundary, and
+post-effect-`None` class. It names Generic V0/V1 as the only explicit release
+conversion of verifier/lower failure to `None`; the existing scheduler retry
+test remains the counterexample. Registry tests and the shared MirBuilder guard
+are green. Next is all-route S0 only.

@@ -469,33 +469,33 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-ROUTE-EFFECT-ORDER-MATRIX0-P0`
-Parent: `JOINIR-LOOP-ALL-ROUTE-PRE-EFFECT-PRODUCT0-D0` (closed)
-Ceremony: BoxShape proof; no route behavior change.
+Row: `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S0`
+Parent: `JOINIR-LOOP-ROUTE-EFFECT-ORDER-MATRIX0-P0` (closed)
+Ceremony: all-route substrate; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add one table-driven 19-row registry ratchet and the ordered-retry
-  counterexample. It records predicate/suppression, pre-effect decline, first
-  Builder effect, and post-effect-`None` classification without route execution.
+  Add one private non-Clone Builder-free logical demand product and one producer
+  that consumes the existing Facts/registry authority for every one of the 19
+  rows. It owns no physicalizer and has no production caller in S0.
 
 Contract:
-  `ENTRIES` and raw execution order are the exact membership truth; diagnostic
-  projection is not a substitute. Keep all route predicates, suppression,
-  errors, and `Option` behavior unchanged. Reuse the registry test module and
-  shared MirBuilder guard; no per-row shell guard or runtime log is added.
+  `ENTRIES` and raw execution order remain the exact membership truth;
+  diagnostic projection is not a substitute. Product issuance is Builder-free
+  and owns selected/rejected/ambiguous pre-effect dispositions plus located
+  demands and logical roles only. It must never reconstruct a synthetic AST.
 
 Done:
-  Test data covers exactly every `LoopRouteId` in `ENTRIES`, fails on order or
-  cardinality drift, and classifies the Generic V0/V1 post-effect-`None` paths.
-  The existing A-returns-None/B-runs test remains the explicit counterexample.
-  `cargo test --lib route_entry::registry::` and the shared guard are green.
+  One producer result corresponds to every P0 matrix row and exposes no Builder,
+  `CorePlan`, `ValueId`, `BasicBlockId`, PHI, `Frag`, or MIR instruction. Its
+  focused tests prove all 19 selected/rejected dispositions and source-demand
+  order; the P0 ratchet and shared guard remain green.
 
 Stop:
-  Stop if P0 needs a Builder, invokes a route/composer, changes a predicate or
-  diagnostic, makes a source AST clone/rewrite, or claims product coverage from
-  output/tag parity. S0 alone may introduce the selected product; no Loop I0,
-  raw/reference ingress, or fallback-preserving wrapper is authorized.
+  Stop if any route needs Builder/CorePlan/physical IDs to issue its product,
+  if a product reclassifies environment or source syntax, if coverage is partial,
+  or if production routing changes. No physicalizer, Loop I0, raw/reference
+  ingress, universal ingress, or fallback-preserving wrapper is authorized.
 
 ## Production invariants
 
