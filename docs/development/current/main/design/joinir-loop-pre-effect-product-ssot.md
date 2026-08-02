@@ -925,3 +925,17 @@ has no route-local source topology. D0 must first establish only
 extractor-observed whole-statement coordinates and ScopeBox lineage. Nested
 continue-if contents and cloned or derived facts remain non-source; terminality,
 raw tail, product, physical safety, and callers remain separate cards.
+
+### LoopContinueOnly provenance D0 decision
+
+Decision: NoSafeSlice. The extractor observes only the continue-if index and
+requires it to be zero. Carrier updates are collapsed into a `BTreeMap`, losing
+raw statement indices, duplicates, and source order; the loop step is retained
+only as a cloned expression, with no observed statement index. Therefore a
+continue-if-only coordinate would be incomplete and misleading, and no
+truthful whole-statement topology can be issued.
+
+The prerequisite is a separate extractor-topology D0 that defines complete
+observed indices together with update cardinality and duplicate policy, without
+changing route acceptance. No projection plumbing, selection, terminality,
+product, physicalization, caller, or runtime behavior changed here.
