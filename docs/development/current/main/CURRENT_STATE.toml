@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-BREAK-TERMINALITY0-S0 closed; JOINIR-LOOP-PREFLIGHT-MATRIX-REALIGN0-S0 selected."
+status = "JOINIR-LOOP-PREFLIGHT-MATRIX-REALIGN0-S0 closed; JOINIR-IF-PHI-JOIN-PROVENANCE0-D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S0 may realign only the all-route preflight observation matrix with the already-issued LoopBreak classifications: direct generic is policy/terminality unavailable, ScopeBox is lineage unavailable, specialized topology remains unavailable. It must not change any route, producer, product, qualification, selector, or runtime behavior."
-current_execution_row = "JOINIR-LOOP-PREFLIGHT-MATRIX-REALIGN0-S0"
-current_execution_summary = "Direct generic LoopBreak has a singleton raw schedule and scheduler-terminality certificate, but remains mutation-first and physically unsafe. The next BoxShape card repairs the stale preflight observation matrix before another route is added."
+current_design_stop = "D0 may design only IfPhiJoin route-local source provenance from the existing facts/projection. It must inventory condition, branch-update, step/carrier roles, direct/ScopeBox semantics, and raw schedule without AST re-match or derived-expression authority. It must not expand another route, issue a product, claim terminality/raw tail, refactor composers, add a physicalizer/context, change runtime routing, retry, or add a production caller."
+current_execution_row = "JOINIR-IF-PHI-JOIN-PROVENANCE0-D0"
+current_execution_summary = "The all-route preflight observation matrix now matches LoopBreak direct policy, ScopeBox lineage, and specialized source absence (16/2/1). LoopBreak remains mutation-first and physically unsafe; the next BoxCount is IfPhiJoin source provenance."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-PREFLIGHT-MATRIX-REALIGN0-S0"
+current_blocker_token = "JOINIR-IF-PHI-JOIN-PROVENANCE0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

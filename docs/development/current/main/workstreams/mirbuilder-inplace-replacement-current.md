@@ -469,26 +469,27 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-PREFLIGHT-MATRIX-REALIGN0-S0`
-Parent: `JOINIR-LOOP-BREAK-TERMINALITY0-S0` (closed)
-Ceremony: realign the all-route preflight observation matrix; production behavior remains zero-change.
+Row: `JOINIR-IF-PHI-JOIN-PROVENANCE0-D0`
+Parent: `JOINIR-LOOP-PREFLIGHT-MATRIX-REALIGN0-S0` (closed)
+Ceremony: design one IfPhiJoin route-local source provenance box; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Update only LoopBreak's observation-matrix disposition/count to match the
-  already-issued all-route preflight classifier.
+  Inventory IfPhiJoin operands, projection coordinates, direct/ScopeBox behavior,
+  and actual raw schedule before any source-topology implementation.
 
 Contract:
-  `all_route_preflight.rs` is behavior authority; the effect-order matrix is its
-  observation SSOT and may not preserve an older source-topology classification.
+  Existing IfPhiJoin extractor/facts/projection are authority. D0 may not recover
+  source through AST re-match, cloned recipe, generic raw slot, or route reclassification.
 
 Done:
-  Matrix fixture/counts agree with direct policy, ScopeBox lineage, and specialized
-  source-topology rejection. No product/caller/qualification/route change.
+  Design names a minimum truthful topology, typed no-topology/direct-lineage
+  rejects, fixture/gate, and terminality prerequisite. No product/caller is added.
 
 Stop:
-  Stop if S0 changes production classifier/route behavior or touches another route.
-  No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
+  Stop if D0 uses cloned/derived expressions as source authority, expands another
+  route, or claims physical readiness. No runtime routing, Loop I0, raw/reference
+  ingress, or fallback is authorized.
 
 ## Production invariants
 

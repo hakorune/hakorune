@@ -708,3 +708,9 @@ existing effect-order matrix stale: direct LoopBreak now belongs to the
 policy/terminality-unavailable bucket, ScopeBox to lineage-unavailable, and
 specialized LoopBreak remains source-topology-unavailable. The next BoxShape
 card changes that observation only, from 17/1/1 to 16/2/1.
+
+Matrix-realignment S0 implementation record: `effect_order_matrix_tests.rs` now
+records `LoopBreakRecipe` as policy/terminality unavailable and ratchets the
+current preflight totals to 16 source-unavailable, 2 policy/terminally
+unavailable, and 1 direct-only. No production classifier, selector, route, or
+qualification changed.
