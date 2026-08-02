@@ -48,21 +48,20 @@ CALLS_MOD="$ROOT_DIR/src/mir/builder/calls/mod.rs"
 CALLS_BUILD="$ROOT_DIR/src/mir/builder/calls/build.rs"
 FUNCTION_CALL_ROUTE="$ROOT_DIR/src/mir/builder/calls/function_call_preflight_route.rs"
 FUNCTION_SPECIAL="$ROOT_DIR/src/mir/builder/calls/special_method_handlers.rs"
-FASTMEM_CALLS="$ROOT_DIR/src/mir/builder/fastmem/calls.rs"
-ENUM_MATCH="$ROOT_DIR/src/mir/builder/exprs_enum_match.rs"
+FASTMEM_CALLS="$ROOT_DIR/src/mir/builder/fastmem/calls.rs"; ENUM_MATCH="$ROOT_DIR/src/mir/builder/exprs_enum_match.rs"
+SCOPEBOX_ENUM="$ROOT_DIR/src/mir/builder/enum_match_scopebox.rs"
 METHOD_CALL_HANDLERS="$ROOT_DIR/src/mir/builder/method_call_handlers.rs"
 PROPERTY_READS="$ROOT_DIR/src/mir/builder/property_reads.rs"
 FIELDS="$ROOT_DIR/src/mir/builder/fields.rs"
 PROPERTY_TESTS="$ROOT_DIR/src/tests/mir_unified_members_property_read.rs"
 RECORD_HELPER="$ROOT_DIR/src/mir/builder/record_helper_args.rs"
 RECORD_HELPER_TESTS="$ROOT_DIR/src/mir/builder/record_helper_args_tests.rs"
-INDEXING="$ROOT_DIR/src/mir/builder/indexing.rs"
-PRINT_STMT="$ROOT_DIR/src/mir/builder/stmts/print_stmt.rs"
+INDEXING="$ROOT_DIR/src/mir/builder/indexing.rs"; PRINT_STMT="$ROOT_DIR/src/mir/builder/stmts/print_stmt.rs"
 METHOD_CALL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_route0.py"
 RECORD_HELPER_GUARD="$ROOT_DIR/tools/checks/impl/k2_wide_allocator_record_construction_read_guard.sh"
 guard_exact_counts() {
   while IFS='|' read -r file pattern expected label; do
-    count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+    count="$({ rg -o -P "$pattern" "$file" || true; } | wc -l | tr -d '[:space:]')"
     if [[ "$count" != "$expected" ]]; then
       guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
     fi
@@ -116,6 +115,7 @@ guard_require_files \
   "$FUNCTION_SPECIAL" \
   "$FASTMEM_CALLS" \
   "$ENUM_MATCH" \
+  "$SCOPEBOX_ENUM" \
   "$METHOD_CALL_HANDLERS" \
   "$PROPERTY_READS" \
   "$FIELDS" \
@@ -203,9 +203,9 @@ do
   fi
 done
 guard_exact_counts <<EOF
-$ENUM_MATCH|struct\\s+PreparedRawScopeBoxV1\\b|1|opaque prepared raw ScopeBox route
-$ENUM_MATCH|enum\\s+PreparedRawScopeBoxRouteV1\\b|1|private raw ScopeBox route vocabulary
-$ENUM_MATCH|fn\\s+lower_prepared_raw_scopebox_with_port_v1\\s*<Port>|1|prepared raw ScopeBox lowering owner
+$SCOPEBOX_ENUM|struct\\s+PreparedRawScopeBoxV1\\b|1|opaque prepared raw ScopeBox route
+$SCOPEBOX_ENUM|enum\\s+PreparedRawScopeBoxRouteV1\\b|1|private raw ScopeBox route vocabulary
+$SCOPEBOX_ENUM|fn\\s+lower_prepared_raw_scopebox_with_port_v1\\s*<Port>|1|prepared raw ScopeBox lowering owner
 $STATEMENT_SURFACE|PreparedRawScopeBoxV1::prepare\\s*\\(|1|sole raw ScopeBox route issuer
 $STATEMENT_SURFACE|lower_prepared_raw_scopebox_with_port_v1\\s*\\(|1|sole prepared raw ScopeBox caller
 $INDEXING|struct\\s+PreparedRawIndexReadV1\\b|1|opaque prepared raw Index-read route
@@ -217,7 +217,7 @@ $ENUM_MATCH|struct\\s+PreparedRawEnumMatchV1\\b|1|opaque prepared raw EnumMatch 
 $ENUM_MATCH|enum\\s+PreparedRawEnumMatchRouteV1\\b|1|private raw EnumMatch route vocabulary
 $ENUM_MATCH|fn\\s+lower_prepared_raw_enum_match_with_port_v1\\s*<Port>|1|prepared raw EnumMatch lowering owner
 $RAW_DISPATCH|PreparedRawEnumMatchV1::prepare\\s*\\(|1|sole raw EnumMatch route issuer
-$RAW_DISPATCH|lower_prepared_raw_enum_match_with_port_v1\\s*\\(|1|sole prepared raw EnumMatch caller
+$RAW_DISPATCH|lower_prepared_raw_enum_match_with_port_v1\\s*\\(|2|sole dispatch owner has both scoped EnumMatch branches
 EOF
 if rg -n -P 'fn\s+try_build_guard_let_scopebox(?:_with_port_v1)?\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
@@ -641,8 +641,8 @@ $RAW_DISPATCH|lower_prepared_raw_field_read_with_port_v1\\s*\\(|1|sole prepared 
 $PRINT_STMT|struct\\s+PreparedRawPrintV1\\b|1|opaque prepared raw Print route
 $PRINT_STMT|enum\\s+PreparedRawPrintRouteV1\\b|1|private raw Print route vocabulary
 $PRINT_STMT|fn\\s+lower_prepared_raw_print_with_port_v1\\s*<Port>|1|prepared raw Print lowering owner
-$STATEMENT_SURFACE|PreparedRawPrintV1::prepare\\s*\\(|1|sole raw Print route issuer
-$STATEMENT_SURFACE|lower_prepared_raw_print_with_port_v1\\s*\\(|1|sole prepared raw Print caller
+$PRINT_STMT|let\\s+prepared\\s*=\\s*PreparedRawPrintV1::prepare\\s*\\(|1|sole raw Print route issuer
+$PRINT_STMT|let\\s+value\\s*=\\s*lower_prepared_raw_print_with_port_v1\\s*\\(|1|sole prepared raw Print caller
 $FUNCTION_CALL_ROUTE|struct\\s+PreparedRawFunctionPreflightV1\\b|1|opaque direct FunctionCall preflight
 $FUNCTION_CALL_ROUTE|enum\\s+PreparedRawFunctionPreflightRouteV1\\b|1|private direct FunctionCall route vocabulary
 $FUNCTION_CALL_ROUTE|fn\\s+lower_prepared_raw_function_preflight_with_port_v1\\s*<Port>|1|prepared direct FunctionCall lowering owner
@@ -780,6 +780,7 @@ for file in \
   "$FUNCTION_SPECIAL" \
   "$FASTMEM_CALLS" \
   "$ENUM_MATCH" \
+  "$SCOPEBOX_ENUM" \
   "$METHOD_CALL_HANDLERS" \
   "$PROPERTY_READS" \
   "$FIELDS" \
