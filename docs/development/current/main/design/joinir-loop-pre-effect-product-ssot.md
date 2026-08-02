@@ -1215,3 +1215,15 @@ No guard-internal inspection, source borrowing, reconstructed recipe validation,
 terminality, product, physicalizer, caller, or runtime behavior was added. The
 next card is terminality D0; `Ok(None)` contract behavior must be audited from
 route execution evidence rather than inferred from topology.
+
+### LoopArrayJoin terminality D0 decision
+
+Decision: NoSafeSlice. `route_loop_array_join` uses `route_standard` with
+`skip_without_contract`; in non-planner mode without a recipe contract it
+returns `Ok(None)` and raw route execution continues. The live terminality
+capability retains only source/Facts, not `RouterEnv` or contract disposition,
+so direct topology and raw-front selection cannot exclude this arm.
+
+No terminality certificate, product, physicalizer, caller, or runtime behavior
+changed. Compose/lower remains separately Builder-bound and may mutate before
+later failures. Fresh D6 inventory must select the next unlanded route.
