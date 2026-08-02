@@ -768,3 +768,22 @@ topology-absent result. The effect-order matrix now records `15` source,
 `3` policy/terminality, and `1` direct-only rows. No route is Qualified and no
 selector, source bridge, AST observer, composer, lowerer, Builder, product,
 caller, or terminality behavior changed.
+
+### IfPhiJoin terminality D0 decision
+
+Decision: accept a direct scheduler-terminality-only S0. `route_if_phi_join`
+has contract and composition error arms, then delegates to the verified lower;
+there is no route-local `Ok(None)` path. The composed `LoopV0` ultimately
+returns `Some(void)` or an error. The direct certificate requires actual raw
+selection exactly `[IfPhiJoin]`, two distinct direct topology sites, raw body
+arity two, and observed coordinates either `(if_else, step) = (0, 1)` or
+`(1, 0)`. This retains observation order rather than assuming composer order.
+ScopeBox receives no certificate.
+
+This is strictly scheduler terminality. `lower_loop_v0` begins physical work
+by allocating its loop frame and PHI ValueIds before later failure points, and
+the composer synthesizes its canonical recipe from cloned facts. S0 must not
+claim pre-effect safety, rollback, raw tail, all-route policy, semantic-order
+equivalence, product, Qualified, caller, or runtime success. It adds only the
+opaque certificate, direct/reversed/ScopeBox fixtures, and a guarded
+`route_if_phi_join` `Ok(None)`-count ratchet.

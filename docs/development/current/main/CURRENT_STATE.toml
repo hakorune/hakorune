@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-IF-PHI-JOIN-PREFLIGHT-CLASSIFICATION0-S0 closed; JOINIR-IF-PHI-JOIN-TERMINALITY0-D0 selected."
+status = "JOINIR-IF-PHI-JOIN-TERMINALITY0-D0 closed; JOINIR-IF-PHI-JOIN-TERMINALITY0-S0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 must audit whether direct IfPhiJoin can truthfully receive a scheduler-terminality certificate. It must census every route handler success/failure arm, actual raw schedule/front, and first physical mutation before any failure. It must distinguish scheduler terminality from raw-tail, all-route policy, logical product, physical safety, and runtime success; ScopeBox remains fail-closed."
-current_execution_row = "JOINIR-IF-PHI-JOIN-TERMINALITY0-D0"
-current_execution_summary = "IfPhiJoin preflight S0 keeps classify_front as the sole canonicalizer/selector consumer: absent topology is source-unavailable, ScopeBox rejects before policy, and direct topology is policy/terminality-unavailable. Matrix observation is 15/3/1; no product or terminality claim exists."
+current_design_stop = "S0 may add only a direct IfPhiJoin scheduler-terminality certificate. It requires actual raw selection [IfPhiJoin], exact two-site direct topology with distinct coordinates in either observed order (if,step)=(0,1) or (1,0), and a route handler with no Ok(None) arm. It must not infer composer semantic order, issue a product/Qualified/caller, claim raw-tail/all-route policy/physical safety/rollback/runtime result, or modify a selector, composer, lowerer, Builder, or route handler. ScopeBox remains fail-closed."
+current_execution_row = "JOINIR-IF-PHI-JOIN-TERMINALITY0-S0"
+current_execution_summary = "IfPhiJoin terminality D0 accepts a direct scheduler-only certificate: route_if_phi_join returns Err or successful Some(void), but lower_loop_v0 begins physical work before later failures. Direct raw orders if-step and step-if are both eligible as observed provenance; ScopeBox stays unqualified."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-IF-PHI-JOIN-TERMINALITY0-D0"
+current_blocker_token = "JOINIR-IF-PHI-JOIN-TERMINALITY0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
