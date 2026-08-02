@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-SPLIT-SCAN-TERMINALITY0-D0 is NoSafeSlice; next-route D9 selected."
+status = "JOINIR-BOOL-PREDICATE-SCAN-PROVENANCE0-D0 selected after fresh D9 registry inventory."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D9 must fresh-inventory the remaining registry routes and select one unlanded bounded D0; environment/contract-dependent Ok(None) and mutation-before-error boundaries remain NoSafe."
-current_execution_row = "JOINIR-NEXT-ROUTE-SELECTION0-D9"
-current_execution_summary = "SplitScan terminality is NoSafe: no-contract route_standard Ok(None) continues raw tail and source/Facts cannot bind environment or recipe-contract state."
+current_design_stop = "BoolPredicateScan D0 may retain only the first accepted top-level predicate-if and final step as opaque topology under complete projection alignment; nested predicate/substring/return internals, siblings, selector, terminality, and physical behavior remain nonclaims."
+current_execution_row = "JOINIR-BOOL-PREDICATE-SCAN-PROVENANCE0-D0"
+current_execution_summary = "Fresh D9 inventory selected the bounded BoolPredicateScan source-topology card; default facts remain topology absent and acceptance behavior must not change."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-NEXT-ROUTE-SELECTION0-D9"
+current_blocker_token = "JOINIR-BOOL-PREDICATE-SCAN-PROVENANCE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -1372,3 +1372,18 @@ composer/lower behavior where later failures cannot be claimed effect-free.
 
 No terminality certificate, product, physicalizer, caller, or runtime behavior
 changed. Fresh D9 inventory must select the next bounded route.
+
+### Next-route selection D9 decision
+
+Decision: select `BoolPredicateScan` provenance D0. Its sole acceptance owner
+recognizes the existing scan condition/final-step profile and the first
+qualifying top-level predicate-if. D0 may retain only that opaque predicate-if
+site plus the opaque final-step site when the flattened projection completely
+aligns. Default callers must remain topology absent and acceptance must not
+change.
+
+Nested predicate, substring, and return internals; unclassified siblings;
+body completeness/order; reconstructed recipe; selector/preflight,
+terminality, product, execution, and physical behavior remain
+non-authoritative. Conditional, true-break, and generic routes retain broader
+nested/open-policy boundaries and are deferred.
