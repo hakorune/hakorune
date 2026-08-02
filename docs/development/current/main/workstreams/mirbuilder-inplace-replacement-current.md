@@ -467,9 +467,14 @@ closed — MIRBUILDER-CALLABLE-LAMBDA-GUARD-SCOPE0-P0
   -> the stale global text-order assertion is replaced by scoped callable-port
   and Lambda-dispatch proofs. Production and capture order are unchanged.
 
-current — SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1
-  -> extract Record/Enum/QMark/Match receipt sealing behind one private live
-  pack and delete the standalone EnumMatch seal module; no surface widening.
+closed — SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1
+  -> Record/Enum/QMark/Match receipt sealing now has one private pack and the
+  standalone EnumMatch seal module is deleted. Complete admission and lowering
+  are unchanged.
+
+current — SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2
+  -> co-seal immutable lowering facts from core and both receipt packs, then
+  delete late facade-side forest/path reconstruction without moving user errors.
 
 ### Refactor Series queue
 

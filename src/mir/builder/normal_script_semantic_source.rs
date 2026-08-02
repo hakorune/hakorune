@@ -7,19 +7,17 @@
 //! carrier can manufacture the Complete loan.
 
 use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
-use super::normal_script_enum_match_demand::{
-    seal_enum_match_demands_v1, VerifiedScriptEnumMatchDemandV1,
+use super::normal_script_operational_demand_receipt_pack::{
+    ScriptOperationalDemandReceiptPackV1, ScriptQMarkPropagationTargetV1,
 };
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::normal_script_semantic_source_core::ScriptSemanticSourceCoreV1;
-use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, EnumVariantAdmissionV1, ResolvedAssignmentTargetV1, ScriptDiagnosticBoundaryV1,
-    ScriptRootSemanticDispositionV1, SemanticOwnerForestDraftV1, SourceBindingSiteV1,
-    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
-    VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1,
-    VerifiedSemanticOwnerProductV1,
+    SemanticOwnerForestDraftV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    SourceStmtSiteV1, VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1,
+    VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
 };
 
 use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
@@ -29,51 +27,6 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     core: ScriptSemanticSourceCoreV1<'source>,
     boundaries: ScriptBoundaryReceiptPackV1,
     demands: ScriptOperationalDemandReceiptPackV1,
-}
-
-/// Receipts which authorize exact structured lowering descendants.
-#[derive(Debug)]
-struct ScriptOperationalDemandReceiptPackV1 {
-    record_literal_demands: Box<[VerifiedScriptRecordLiteralDemandV1]>,
-    enum_variant_demands: Box<[VerifiedScriptEnumVariantDemandV1]>,
-    enum_match_demands: Box<[VerifiedScriptEnumMatchDemandV1]>,
-    qmark_propagations: Box<[VerifiedScriptQMarkPropagationV1]>,
-    match_controls: Box<[VerifiedScriptMatchControlDemandV1]>,
-}
-
-#[derive(Debug)]
-pub(super) struct VerifiedScriptRecordLiteralDemandV1 {
-    site: SourceExprSiteV1,
-    explicit_field_count: u32,
-}
-
-#[derive(Debug)]
-pub(super) struct VerifiedScriptEnumVariantDemandV1 {
-    site: SourceExprSiteV1,
-    admission: EnumVariantAdmissionV1,
-}
-
-/// A source-only authorization for the existing QMark control/result owner.
-/// It proves the exact operand site and that propagation targets this Script
-/// execution owner; CFG, Return, and result materialization remain elsewhere.
-#[derive(Debug)]
-pub(super) struct VerifiedScriptQMarkPropagationV1 {
-    site: SourceExprSiteV1,
-    operand_site: SourceExprSiteV1,
-    target: ScriptQMarkPropagationTargetV1,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ScriptQMarkPropagationTargetV1 {
-    CurrentScriptOwner,
-}
-
-/// Source-only receipt for a root Match expression. Blocks, branches, PHI,
-/// result materialization, and type publication remain with the raw owner.
-#[derive(Debug)]
-pub(super) struct VerifiedScriptMatchControlDemandV1 {
-    site: SourceExprSiteV1,
-    arm_count: u32,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -108,190 +61,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 "[mir/script-semantic/forest] expected Script root product".to_owned()
             })?;
         let boundaries = ScriptBoundaryReceiptPackV1::seal(source, product, window)?;
-        let record_literal_demands = product
-            .record_literal_demands()
-            .map(|(site, explicit_field_count)| {
-                let projected = crate::mir::resolved_semantics::project_source_node_v1(
-                    source.source_ast(),
-                    site.node(),
-                )
-                .ok_or_else(|| {
-                    "[mir/script-semantic/record-projection] missing exact RecordLiteral".to_owned()
-                })?;
-                let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
-                    ASTNode::RecordLiteral { fields, .. },
-                ) = projected
-                else {
-                    return Err(
-                        "[mir/script-semantic/record-site] expected RecordLiteral".to_owned()
-                    );
-                };
-                if fields.len() != explicit_field_count as usize {
-                    return Err("[mir/script-semantic/record-cardinality] mismatch".to_owned());
-                }
-                Ok(VerifiedScriptRecordLiteralDemandV1 {
-                    site: site.clone(),
-                    explicit_field_count,
-                })
-            })
-            .collect::<Result<Vec<_>, _>>()?;
-        let enum_variant_demands = product
-            .enum_variant_demands()
-            .map(|(site, admission)| {
-                let projected = crate::mir::resolved_semantics::project_source_node_v1(
-                    source.source_ast(),
-                    site.node(),
-                )
-                .ok_or_else(|| {
-                    "[mir/script-semantic/enum-variant-projection] missing exact FromCall"
-                        .to_owned()
-                })?;
-                let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
-                    ASTNode::FromCall { arguments, .. },
-                ) = projected
-                else {
-                    return Err(
-                        "[mir/script-semantic/enum-variant-site] expected FromCall".to_owned()
-                    );
-                };
-                if arguments.len() != admission.argument_count() as usize {
-                    return Err(
-                        "[mir/script-semantic/enum-variant-cardinality] mismatch".to_owned()
-                    );
-                }
-                for index in 0..admission.argument_count() {
-                    let child_site = SourcePathV1::from_node(site.node())
-                        .child(SourcePathSegmentV1::Argument(index))
-                        .expr();
-                    if !matches!(
-                        crate::mir::resolved_semantics::project_source_node_v1(
-                            source.source_ast(),
-                            child_site.node(),
-                        ),
-                        Some(crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
-                            _
-                        ))
-                    ) {
-                        return Err(
-                            "[mir/script-semantic/enum-variant-argument-site] expected node"
-                                .to_owned(),
-                        );
-                    }
-                }
-                Ok(VerifiedScriptEnumVariantDemandV1 {
-                    site: site.clone(),
-                    admission: admission.clone(),
-                })
-            })
-            .collect::<Result<Vec<_>, String>>()?;
-        let enum_match_demands = seal_enum_match_demands_v1(source.source_ast(), product)?;
-        let qmark_propagations = product
-            .qmark_propagation_sites()
-            .map(|site| {
-                let statement_site = SourceStmtSiteV1::from_node(site.node().clone());
-                let source_statement_index = program_statement_index(&statement_site)?;
-                let Some(entry) = window.entry_at(source_statement_index) else {
-                    return Err("[mir/script-semantic/qmark-window] missing root demand".to_owned());
-                };
-                if entry.site().node() != site.node()
-                    || !matches!(
-                        entry.semantic(),
-                        ScriptRootSemanticDispositionV1::Resolved(
-                            crate::mir::resolved_semantics::ScriptRootResolvedDemandV1::QMarkPropagation(_)
-                        )
-                    )
-                {
-                    return Err("[mir/script-semantic/qmark-window] source mismatch".to_owned());
-                }
-                let projected = crate::mir::resolved_semantics::project_source_node_v1(
-                    source.source_ast(),
-                    site.node(),
-                )
-                .ok_or_else(|| "[mir/script-semantic/qmark-projection] missing QMark".to_owned())?;
-                let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
-                    ASTNode::QMarkPropagate { .. },
-                ) = projected
-                else {
-                    return Err("[mir/script-semantic/qmark-site] expected QMarkPropagate".to_owned());
-                };
-                let operand_site = SourcePathV1::from_node(site.node())
-                    .child(SourcePathSegmentV1::QMarkOperand)
-                    .expr();
-                let projected_operand = crate::mir::resolved_semantics::project_source_node_v1(
-                    source.source_ast(),
-                    operand_site.node(),
-                )
-                .ok_or_else(|| {
-                    "[mir/script-semantic/qmark-operand-projection] missing exact operand".to_owned()
-                })?;
-                if !matches!(
-                    projected_operand,
-                    crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(_)
-                ) {
-                    return Err("[mir/script-semantic/qmark-operand-site] expected node".to_owned());
-                }
-                Ok(VerifiedScriptQMarkPropagationV1 {
-                    site: site.clone(),
-                    operand_site,
-                    target: ScriptQMarkPropagationTargetV1::CurrentScriptOwner,
-                })
-            })
-            .collect::<Result<Vec<_>, String>>()?;
-        let match_controls = product
-            .match_control_sites()
-            .map(|site| {
-                let statement_site = SourceStmtSiteV1::from_node(site.node().clone());
-                let source_statement_index = program_statement_index(&statement_site)?;
-                let Some(entry) = window.entry_at(source_statement_index) else {
-                    return Err("[mir/script-semantic/match-window] missing root demand".to_owned());
-                };
-                if entry.site().node() != site.node()
-                    || !matches!(
-                        entry.semantic(),
-                        ScriptRootSemanticDispositionV1::Resolved(
-                            crate::mir::resolved_semantics::ScriptRootResolvedDemandV1::MatchControl(_)
-                        )
-                    )
-                {
-                    return Err("[mir/script-semantic/match-window] source mismatch".to_owned());
-                }
-                let projected = crate::mir::resolved_semantics::project_source_node_v1(
-                    source.source_ast(),
-                    site.node(),
-                )
-                .ok_or_else(|| "[mir/script-semantic/match-projection] missing MatchExpr".to_owned())?;
-                let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
-                    ASTNode::MatchExpr {
-                        arms, ..
-                    },
-                ) = projected
-                else {
-                    return Err("[mir/script-semantic/match-site] expected MatchExpr".to_owned());
-                };
-                let arm_count = u32::try_from(arms.len())
-                    .map_err(|_| "[mir/script-semantic/match-arm-count] overflow".to_owned())?;
-                let mut roles = Vec::with_capacity(arms.len() + 2);
-                roles.push(SourcePathSegmentV1::MatchScrutinee);
-                roles.extend((0..arm_count).map(SourcePathSegmentV1::MatchArm));
-                roles.push(SourcePathSegmentV1::MatchElse);
-                for role in roles {
-                    let child_site = SourcePathV1::from_node(site.node()).child(role).expr();
-                    if !matches!(
-                        crate::mir::resolved_semantics::project_source_node_v1(
-                            source.source_ast(),
-                            child_site.node(),
-                        ),
-                        Some(crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(_))
-                    ) {
-                        return Err("[mir/script-semantic/match-child-site] expected node".to_owned());
-                    }
-                }
-                Ok(VerifiedScriptMatchControlDemandV1 {
-                    site: site.clone(),
-                    arm_count,
-                })
-            })
-            .collect::<Result<Vec<_>, String>>()?;
+        let demands = ScriptOperationalDemandReceiptPackV1::seal(source, product, window)?;
         let core = ScriptSemanticSourceCoreV1::seal(
             source,
             forest,
@@ -303,13 +73,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         Ok(Self {
             core,
             boundaries,
-            demands: ScriptOperationalDemandReceiptPackV1 {
-                record_literal_demands: record_literal_demands.into_boxed_slice(),
-                enum_variant_demands: enum_variant_demands.into_boxed_slice(),
-                enum_match_demands,
-                qmark_propagations: qmark_propagations.into_boxed_slice(),
-                match_controls: match_controls.into_boxed_slice(),
-            },
+            demands,
         })
     }
 
@@ -340,7 +104,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         ),
     > {
         self.demands
-            .qmark_propagations
+            .qmark_propagations()
             .iter()
             .map(|receipt| (&receipt.site, &receipt.operand_site, &receipt.target))
     }
@@ -348,7 +112,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     #[cfg(test)]
     pub(super) fn match_controls(&self) -> impl Iterator<Item = (&SourceExprSiteV1, u32)> {
         self.demands
-            .match_controls
+            .match_controls()
             .iter()
             .map(|receipt| (&receipt.site, receipt.arm_count))
     }
@@ -358,7 +122,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &EnumVariantAdmissionV1)> {
         self.demands
-            .enum_variant_demands
+            .enum_variant_demands()
             .iter()
             .map(|receipt| (&receipt.site, &receipt.admission))
     }
@@ -366,7 +130,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     #[cfg(test)]
     pub(super) fn enum_match_demands(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
         self.demands
-            .enum_match_demands
+            .enum_match_demands()
             .iter()
             .map(|receipt| &receipt.site)
     }
@@ -552,38 +316,29 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         state.install_lambda_captures(lambda_captures)?;
         state.install_record_literal_demands(
             self.demands
-                .record_literal_demands
+                .record_literal_demands()
                 .iter()
                 .map(|receipt| (receipt.site.node().clone(), receipt.explicit_field_count)),
         )?;
         state.install_enum_variant_demands(
             self.demands
-                .enum_variant_demands
+                .enum_variant_demands()
                 .iter()
                 .map(|receipt| (receipt.site.node().clone(), receipt.admission.clone())),
         )?;
         state.install_enum_match_scrutinee_receipts(
             self.demands
-                .enum_match_demands
+                .enum_match_demands()
                 .iter()
                 .map(|receipt| receipt.site.node().clone()),
         )?;
         state.install_qmark_propagation_receipts(
             self.demands
-                .qmark_propagations
+                .qmark_propagations()
                 .iter()
                 .map(|receipt| receipt.site.node().clone()),
         )?;
         Ok(state)
-    }
-}
-
-fn program_statement_index(site: &SourceStmtSiteV1) -> Result<usize, String> {
-    match site.node().segments() {
-        [crate::mir::resolved_semantics::SourcePathSegmentV1::ProgramBodyRoot, crate::mir::resolved_semantics::SourcePathSegmentV1::ProgramBody(index)] => {
-            Ok(*index as usize)
-        }
-        _ => Err("[mir/script-semantic/window-site] expected ProgramBody ordinal".to_owned()),
     }
 }
 

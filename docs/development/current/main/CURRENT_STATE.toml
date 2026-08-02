@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1 active: extract Record/Enum/QMark/Match receipts behind one live pack without changing admission or lowering."
+status = "SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2 active: co-seal immutable lowering projection and remove late Script source reconstruction."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "Extraction only: keep one VerifiedScriptSemanticSourceV1 constructor, one operational receipt pack, unchanged Complete/Deferred decisions, and unchanged raw dispatcher/lowering owners."
-current_execution_row = "SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1"
-current_execution_summary = "Move RecordLiteral, EnumVariant, EnumMatch, QMark, and Match receipt sealing into one private pack; absorb and delete the standalone EnumMatch seal module. No AST-family activation, resolver change, retry, or raw/reference delta."
+current_design_stop = "Co-seal projection facts only. Do not change Complete admission, BindingRef-to-ValueId authority, source transport, raw/reference behavior, or user diagnostic timing."
+current_execution_row = "SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2"
+current_execution_summary = "Create one immutable projection from Script core and receipt packs; delete late forest/path reconstruction from the facade. Keep Complete source borrowed until the later move-only loan cutover."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

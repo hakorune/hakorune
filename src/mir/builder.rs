@@ -250,6 +250,7 @@ mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
 mod normal_cataloged_box_method_admission; // Selected normal cataloged-child identity
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
 mod normal_script_boundary_receipt_pack; // Script retained boundary receipts
+mod normal_script_operational_demand_receipt_pack; // Script structured demand receipts
 mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
 mod normal_script_semantic_source; // Producer-backed lexical Script source
 mod normal_script_semantic_source_core; // Shared Script source/forest/projection core
@@ -329,7 +330,6 @@ pub(in crate::mir) use located_legacy_lowering::{
 };
 mod enum_match_source_demand;
 mod enum_variant_source_demand;
-mod normal_script_enum_match_demand;
 mod qmark_source_demand;
 mod raw_expression_recursion_guard;
 mod raw_invocation_source_transport;
