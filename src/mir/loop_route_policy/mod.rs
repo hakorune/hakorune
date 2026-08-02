@@ -6,11 +6,17 @@
 #[cfg(test)]
 mod adapter;
 mod evaluate;
+mod policy;
 mod policy_evidence;
 mod schema;
 
 #[allow(unused_imports)]
 pub(crate) use evaluate::freeze_loop_route_schedule_v1;
+#[allow(unused_imports)]
+pub(crate) use policy::{
+    evaluate_frozen_loop_route_schedule_v1, LoopPolicyBlockedReasonV1, LoopQualifiedV1,
+    LoopRoutePolicyEvaluationV1,
+};
 #[allow(unused_imports)]
 pub(crate) use policy_evidence::{
     LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,

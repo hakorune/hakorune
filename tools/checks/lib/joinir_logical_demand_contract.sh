@@ -148,6 +148,7 @@ guard_joinir_logical_demand_contract() {
     "$loop_route_policy_dir/mod.rs" \
     "$loop_route_policy_dir/schema.rs" \
     "$loop_route_policy_dir/evaluate.rs" \
+    "$loop_route_policy_dir/policy.rs" \
     "$loop_route_policy_dir/policy_evidence.rs" \
     "$loop_route_policy_dir/adapter.rs" \
     "$loop_route_policy_dir/tests.rs"
@@ -183,6 +184,14 @@ guard_joinir_logical_demand_contract() {
     'match[[:space:]]+[^\n]*(route_id|LoopRouteId)|LoopRouteId::[A-Za-z0-9_]+[[:space:]]*=>' \
     "${loop_route_policy_production_files[@]}" >/dev/null; then
     guard_fail "$tag" "opaque Loop route provenance acquired dispatch authority"
+  fi
+  local pure_policy_external_callers=()
+  mapfile -t pure_policy_external_callers < <(
+    { rg -l 'evaluate_frozen_loop_route_schedule_v1\(' "$root_dir/src" || true; } \
+      | awk -v prefix="$loop_route_policy_dir/" 'index($0, prefix) != 1'
+  )
+  if (( ${#pure_policy_external_callers[@]} != 0 )); then
+    guard_fail "$tag" "pure Loop policy evaluator acquired a production caller"
   fi
   if rg -n -U \
     '#\[derive\([^]]*Clone[^]]*\)\][[:space:]]*\npub\(crate\) struct (FrozenLoopRouteScheduleV1|FrozenLoopRouteRowV1)' \
