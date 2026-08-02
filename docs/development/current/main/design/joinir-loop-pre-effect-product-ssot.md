@@ -1431,3 +1431,28 @@ routes could consume it without recomputing policy. It must also state the
 separate mutation/retry boundary. No witness implementation, route behavior,
 terminality certificate, product, physicalizer, caller, or runtime change is
 authorized until that design is accepted.
+
+### Route-execution witness D0 decision
+
+Decision: accept the shared-root taxonomy and select a behavior-neutral S0.
+The exact common branch is limited to `LoopTrueEarlyExit`, `LoopArrayJoin`,
+`ScanWithInit`, and `SplitScan`: `route_standard` observes non-planner mode,
+an absent recipe contract, and `skip_without_contract`, then returns `Ok(None)`
+to the ordered raw schedule. `LoopCharMap` is instead planner-required-only;
+`NestedLoopMinimal` depends on a release composer result; Generic V0/V1 has
+post-effect retry debt. BoolPredicateScan and conditional routes must not be
+claimed in the shared set without separate evidence.
+
+No existing object binds all execution facts. S0 may introduce one private,
+non-Clone `RouteExecutionWitnessV1`, issued in `route_loop` after its read-only
+gates and immediately before registry execution, the first Builder-effect
+boundary. It must bind the already-selected raw schedule, `RouterEnv`, and a
+sealed Present/Absent recipe-contract disposition once. Registry execution is
+the sole consumer; handlers must not reread or recompute these facts. A
+by-value exhausted continuation may return the same captured state only after
+the exact schedule is exhausted.
+
+The witness centralizes execution-state observation; it proves neither
+terminality nor a successful lower. It cannot settle the CharMap, Nested,
+Generic, mutation, rollback, or retry boundaries. No route behavior, product,
+physicalizer, caller, or runtime behavior changes are authorized in S0.
