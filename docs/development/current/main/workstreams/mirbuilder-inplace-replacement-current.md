@@ -469,31 +469,32 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-SOURCE-RECEIPT-FOUNDATION0-S0`
-Parent: `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S0` (Refactor Series 1/4)
-Ceremony: BoxShape-only substrate; production consumers remain zero.
+Row: `JOINIR-LOOP-LOGICAL-DEMAND-VOCABULARY0-S1`
+Parent: `JOINIR-LOOP-SOURCE-RECEIPT-FOUNDATION0-S0` (closed; Refactor Series 2/4)
+Ceremony: BoxShape-only vocabulary; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Mint one loop-relative raw source receipt before `flatten_scope_boxes` and
-  carry it through `LoopFacts`. It records original condition/body order only;
-  it has no route, builder, lowering, or production caller authority.
+  Add private registry-local source/role/product vocabulary over
+  `LoopSourceReceiptV1`. It models only logical demand and typed disposition;
+  it has no route adapter, builder, lowering, or production caller authority.
 
 Contract:
-  Facts keep analysis views separate from original source identity. A receipt
-  never indexes flattened `RecipeBody`, clones/rebuilds AST, selects a route, or
-  grants a reusable/raw ingress. Existing facts and runtime routing are unchanged.
+  Vocabulary imports no `MirBuilder`, `CorePlan`, physical ID, PHI, `Frag`, MIR
+  instruction, composer, or lowerer. It does not move `LoopRouteId` out of the
+  physical registry or scan/select route entries. Existing facts and runtime
+  routing are unchanged.
 
 Done:
-  A ScopeBox-wrapped body proves receipt ordinals remain original-body ordinals
-  even when the analysis body is flattened. Existing facts tests, P0 registry
-  ratchet, and shared guard are green; every touched source file is below 800 lines.
+  Source and role types have focused tests for receipt availability and logical
+  ordering. The P0 registry ratchet and shared guard remain green; every touched
+  source file is below 800 lines. Producer wiring stays for S2.
 
 Stop:
-  Stop if the receipt needs AST matching/rewrite, adds route-specific policy,
-  changes facts/routing/diagnostics, or cannot preserve raw ordinals through
-  flattening. No product producer, physicalizer, Loop I0, raw/reference ingress,
-  universal ingress, or fallback-preserving wrapper is authorized.
+  Stop if vocabulary needs a physical import, `LoopRouteId` move, AST
+  matching/rewrite, route-specific policy, or a caller. No product producer,
+  physicalizer, Loop I0, raw/reference ingress, universal ingress, or
+  fallback-preserving wrapper is authorized.
 
 ## Production invariants
 

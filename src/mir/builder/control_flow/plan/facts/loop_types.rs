@@ -8,6 +8,7 @@ use super::feature_facts::LoopFeatureFacts;
 use super::loop_array_join_facts::LoopArrayJoinFacts;
 use super::loop_char_map_facts::LoopCharMapFacts;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
+use super::loop_source_receipt::LoopSourceReceiptV1;
 use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
 use super::nested_loop_minimal_facts::NestedLoopMinimalFacts;
 use super::scan_shapes::StepShape;
@@ -28,6 +29,7 @@ use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::Loo
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopFacts {
+    pub source_receipt: LoopSourceReceiptV1,
     pub step_shape: StepShape,
     pub skeleton: SkeletonFacts,
     pub features: LoopFeatureFacts,
@@ -56,6 +58,10 @@ pub(in crate::mir::builder) struct LoopFacts {
 }
 
 impl LoopFacts {
+    pub fn source_receipt(&self) -> &LoopSourceReceiptV1 {
+        &self.source_receipt
+    }
+
     pub fn scan_with_init(&self) -> Option<&ScanWithInitFacts> {
         self.scan_with_init.as_ref()
     }

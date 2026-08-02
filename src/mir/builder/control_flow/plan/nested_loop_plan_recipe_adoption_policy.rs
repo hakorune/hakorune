@@ -58,6 +58,7 @@ mod tests {
 
     fn base_loop_facts() -> LoopFacts {
         LoopFacts {
+            source_receipt: Default::default(),
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,

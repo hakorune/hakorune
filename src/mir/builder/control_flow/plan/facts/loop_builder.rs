@@ -40,6 +40,7 @@ use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCo
 
 use super::loop_condition_shape::try_extract_condition_shape;
 use super::loop_scan_with_init::try_extract_scan_with_init_facts;
+use super::loop_source_receipt::LoopSourceReceiptV1;
 use super::loop_split_scan::try_extract_split_scan_facts;
 use super::loop_step_shape::try_extract_step_shape;
 use super::loop_types::LoopFacts;
@@ -67,6 +68,7 @@ fn try_build_loop_facts_inner(
     // Phase 29ai P4/P7: keep Facts conservative; only return Some when we can
     // build a concrete route fact set (no guesses / no hardcoded names).
     //
+    let source_receipt = LoopSourceReceiptV1::from_raw_loop_body(body);
     let flat_body = flatten_scope_boxes(body);
     let body = flat_body.as_slice();
 
@@ -199,6 +201,7 @@ fn try_build_loop_facts_inner(
     let features = try_extract_loop_feature_facts(body)?;
 
     let facts = LoopFacts {
+        source_receipt,
         step_shape,
         skeleton,
         features,

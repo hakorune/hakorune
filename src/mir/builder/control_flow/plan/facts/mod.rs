@@ -14,6 +14,7 @@ pub(in crate::mir::builder) mod loop_break_tests;
 pub(in crate::mir::builder) mod loop_builder;
 pub(in crate::mir::builder) mod loop_condition_shape;
 pub(in crate::mir::builder) mod loop_scan_with_init;
+pub(in crate::mir::builder) mod loop_source_receipt;
 pub(in crate::mir::builder) mod loop_split_scan;
 pub(in crate::mir::builder) mod loop_step_shape;
 #[cfg(test)]

@@ -161,3 +161,13 @@ all-route product. The series is BoxShape-only and each commit must build.
 The future I0/R0 is a separate decision after this series. Generic and nested
 routes that cannot establish physical admissibility before effects must return a
 typed pre-effect rejection in S2; they must never preserve a `None` retry.
+
+### S0 series 1 evidence
+
+`LoopSourceReceiptV1` is minted from the original loop body before
+`flatten_scope_boxes` and carried by `LoopFacts`. It records only original
+condition/body ordinal coordinates; it owns no AST reference, route, planner,
+or lowerer. Synthetic `LoopFacts` have an unavailable receipt, so a later
+producer must reject rather than infer source coordinates. Its ScopeBox test
+proves one original body statement remains ordinal one when the analysis body
+has flattened to two statements. No production caller or routing behavior moved.

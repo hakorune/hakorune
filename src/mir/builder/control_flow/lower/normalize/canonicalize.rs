@@ -77,6 +77,7 @@ mod tests {
         let mut cleanup_kinds_present = BTreeSet::new();
         cleanup_kinds_present.insert(ExitKindFacts::Return);
         let facts = LoopFacts {
+            source_receipt: Default::default(),
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
@@ -142,6 +143,7 @@ mod tests {
     #[test]
     fn canonical_projects_empty_exit_kinds_present() {
         let facts = LoopFacts {
+            source_receipt: Default::default(),
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
@@ -179,6 +181,7 @@ mod tests {
     #[test]
     fn canonical_preserves_loop_facts_content() {
         let facts = LoopFacts {
+            source_receipt: Default::default(),
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
