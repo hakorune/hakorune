@@ -34,6 +34,7 @@ fn map_source_error(error: LoopSourceViewErrorV1) -> LoopDemandRejectionV1 {
         LoopSourceViewErrorV1::ReceiptBodyLengthMismatch => {
             LoopDemandRejectionV1::SourceReceiptMismatch
         }
+        LoopSourceViewErrorV1::SourceFrameMismatch => LoopDemandRejectionV1::SourceFrameMismatch,
         LoopSourceViewErrorV1::SlotOutOfBounds => LoopDemandRejectionV1::SourceSlotUnavailable,
     }
 }
@@ -87,7 +88,9 @@ mod tests {
             span: Span::unknown(),
         }));
         let body = Box::leak(Box::<[ASTNode]>::default());
-        let receipt = Box::leak(Box::new(LoopSourceReceiptV1::from_raw_loop_body(body)));
+        let receipt = Box::leak(Box::new(LoopSourceReceiptV1::from_raw_loop(
+            condition, body,
+        )));
         LoopSourceViewV1::try_new(condition, body, receipt).expect("source")
     }
 

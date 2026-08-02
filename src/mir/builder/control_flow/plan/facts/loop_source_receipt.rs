@@ -19,12 +19,34 @@ pub(in crate::mir::builder) enum LoopSourceSlotV1 {
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub(in crate::mir::builder) struct LoopSourceReceiptV1 {
     raw_body_statement_count: Option<usize>,
+    source_frame: Option<LoopSourceFrameStampV1>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct LoopSourceFrameStampV1 {
+    condition_address: usize,
+    body_address: usize,
+    body_len: usize,
 }
 
 impl LoopSourceReceiptV1 {
+    pub(in crate::mir::builder) fn from_raw_loop(condition: &ASTNode, body: &[ASTNode]) -> Self {
+        Self {
+            raw_body_statement_count: Some(body.len()),
+            source_frame: Some(LoopSourceFrameStampV1 {
+                condition_address: condition as *const ASTNode as usize,
+                body_address: body.as_ptr() as usize,
+                body_len: body.len(),
+            }),
+        }
+    }
+
+    /// Test-only receipt for source-order assertions without a borrowing frame.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn from_raw_loop_body(body: &[ASTNode]) -> Self {
         Self {
             raw_body_statement_count: Some(body.len()),
+            source_frame: None,
         }
     }
 
@@ -34,6 +56,18 @@ impl LoopSourceReceiptV1 {
 
     pub(in crate::mir::builder) fn raw_body_statement_count(&self) -> Option<usize> {
         self.raw_body_statement_count
+    }
+
+    pub(in crate::mir::builder) fn matches_source_frame(
+        &self,
+        condition: &ASTNode,
+        body: &[ASTNode],
+    ) -> bool {
+        self.source_frame.is_some_and(|stamp| {
+            stamp.condition_address == condition as *const ASTNode as usize
+                && stamp.body_address == body.as_ptr() as usize
+                && stamp.body_len == body.len()
+        })
     }
 
     /// Returns the stable ordinal in the original loop source.
@@ -76,7 +110,11 @@ mod tests {
             span: Span::unknown(),
         }];
 
-        let receipt = LoopSourceReceiptV1::from_raw_loop_body(&body);
+        let condition = ASTNode::Literal {
+            value: LiteralValue::Bool(true),
+            span: Span::unknown(),
+        };
+        let receipt = LoopSourceReceiptV1::from_raw_loop(&condition, &body);
         let flattened = flatten_scope_boxes(&body);
 
         assert!(receipt.is_available());

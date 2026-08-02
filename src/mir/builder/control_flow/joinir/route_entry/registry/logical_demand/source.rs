@@ -9,6 +9,7 @@ use crate::mir::builder::control_flow::plan::facts::loop_source_receipt::{
 pub(crate) enum LoopSourceViewErrorV1 {
     ReceiptUnavailable,
     ReceiptBodyLengthMismatch,
+    SourceFrameMismatch,
     SlotOutOfBounds,
 }
 
@@ -36,6 +37,9 @@ impl<'src> LoopSourceViewV1<'src> {
             None => Err(LoopSourceViewErrorV1::ReceiptUnavailable),
             Some(count) if count != body.len() => {
                 Err(LoopSourceViewErrorV1::ReceiptBodyLengthMismatch)
+            }
+            Some(_) if !receipt.matches_source_frame(condition, body) => {
+                Err(LoopSourceViewErrorV1::SourceFrameMismatch)
             }
             Some(_) => Ok(Self {
                 condition,
@@ -92,7 +96,7 @@ mod tests {
     fn view_preserves_receipt_order_without_rebuilding_nodes() {
         let condition = literal(0);
         let body = vec![literal(1), literal(2)];
-        let receipt = LoopSourceReceiptV1::from_raw_loop_body(&body);
+        let receipt = LoopSourceReceiptV1::from_raw_loop(&condition, &body);
         let view = LoopSourceViewV1::try_new(&condition, &body, &receipt).expect("view");
 
         assert_eq!(
@@ -116,11 +120,25 @@ mod tests {
             Err(LoopSourceViewErrorV1::ReceiptUnavailable)
         ));
 
-        let receipt = LoopSourceReceiptV1::from_raw_loop_body(&body);
+        let receipt = LoopSourceReceiptV1::from_raw_loop(&condition, &body);
         let view = LoopSourceViewV1::try_new(&condition, &body, &receipt).expect("view");
         assert!(matches!(
             view.demand(LoopSourceSlotV1::BodyStatement(1)),
             Err(LoopSourceViewErrorV1::SlotOutOfBounds)
+        ));
+    }
+
+    #[test]
+    fn view_rejects_same_length_foreign_source_frame() {
+        let condition = literal(0);
+        let body = vec![literal(1)];
+        let receipt = LoopSourceReceiptV1::from_raw_loop(&condition, &body);
+        let foreign_condition = literal(0);
+        let foreign_body = vec![literal(1)];
+
+        assert!(matches!(
+            LoopSourceViewV1::try_new(&foreign_condition, &foreign_body, &receipt),
+            Err(LoopSourceViewErrorV1::SourceFrameMismatch)
         ));
     }
 }

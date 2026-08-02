@@ -8,6 +8,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::
 pub(crate) enum LoopDemandRejectionV1 {
     SourceReceiptUnavailable,
     SourceReceiptMismatch,
+    SourceFrameMismatch,
     SourceSlotUnavailable,
     RouteSourceTopologyUnavailable { route: LoopRouteId },
     PreEffectPhysicalAdmissibilityUnavailable { route: LoopRouteId },
@@ -76,7 +77,7 @@ mod tests {
             span: Span::unknown(),
         };
         let body = vec![];
-        let receipt = LoopSourceReceiptV1::from_raw_loop_body(&body);
+        let receipt = LoopSourceReceiptV1::from_raw_loop(&condition, &body);
         let source = LoopSourceViewV1::try_new(&condition, &body, &receipt).expect("source");
         let roles = LogicalRoleSetV1::try_new(vec![LogicalRoleV1::LoopBinding].into_boxed_slice())
             .expect("roles");

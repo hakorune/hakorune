@@ -68,7 +68,7 @@ fn try_build_loop_facts_inner(
     // Phase 29ai P4/P7: keep Facts conservative; only return Some when we can
     // build a concrete route fact set (no guesses / no hardcoded names).
     //
-    let source_receipt = LoopSourceReceiptV1::from_raw_loop_body(body);
+    let source_receipt = LoopSourceReceiptV1::from_raw_loop(condition, body);
     let (flat_body, source_projection) = flatten_scope_boxes_with_projection(body).into_parts();
     let body = flat_body.as_slice();
 
