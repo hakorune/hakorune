@@ -299,8 +299,14 @@ pub(crate) fn route_loop(
     };
     let recipe_first_allowed = strict_or_dev || release_recipe_first_allowed;
     if recipe_first_allowed {
+        let execution = registry::RouteExecutionWitnessV1::issue(
+            selection.raw_execution_routes(),
+            outcome.facts.as_ref(),
+            &env,
+            outcome.recipe_contract.is_some(),
+        );
         if let Some(success) =
-            registry::try_execute_recipe_first_selection(builder, ctx, &outcome, &env, &selection)?
+            registry::try_execute_route_execution_witness(builder, ctx, &outcome, execution)?
         {
             trace_legacy_selected(success.route.as_str());
             trace_entry_route("recipe_first");

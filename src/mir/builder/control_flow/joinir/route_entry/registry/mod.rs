@@ -23,6 +23,8 @@ mod selection;
 mod types;
 mod utils;
 
+use execution_witness::RouteExecutionResultV1;
+pub(crate) use execution_witness::RouteExecutionWitnessV1;
 use handlers::*;
 use predicates::*;
 use route_id::{entry_keys, LoopRouteId};
@@ -157,49 +159,32 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
     select_recipe_first_routes(facts).diagnostic_effective_names()
 }
 
-pub(crate) fn try_route_recipe_first_with_success(
+pub(crate) fn try_execute_route_execution_witness(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    witness: RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<LegacyRouteSuccess>, String> {
-    let selection = select_recipe_first_routes(outcome.facts.as_ref());
-    try_execute_recipe_first_selection(builder, ctx, outcome, env, &selection)
-}
-
-pub(crate) fn try_execute_recipe_first_selection(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
-    selection: &RecipeFirstRouteSelectionV1,
-) -> Result<Option<LegacyRouteSuccess>, String> {
-    execute_selected_routes_in_order(selection.raw_execution_routes(), |route_id| {
-        let entry = ENTRIES
-            .iter()
-            .find(|entry| entry.id == route_id)
-            .expect("recipe-first selection route must be present in ENTRIES");
-        let Some(route) = entry.route else {
-            return Ok(None);
-        };
-        if let Some(value) = route(builder, ctx, outcome, env)? {
-            return Ok(Some(value));
-        }
-        Ok(None)
-    })
-    .map(|success| success.map(|(route, value)| LegacyRouteSuccess { route, value }))
-}
-
-fn execute_selected_routes_in_order<T, E>(
-    routes: &[LoopRouteId],
-    mut execute: impl FnMut(LoopRouteId) -> Result<Option<T>, E>,
-) -> Result<Option<(LoopRouteId, T)>, E> {
-    for route in routes {
-        if let Some(value) = execute(*route)? {
-            return Ok(Some((*route, value)));
-        }
-    }
-    Ok(None)
+    witness
+        .execute_selected_in_order(|execution, route_id| {
+            let entry = ENTRIES
+                .iter()
+                .find(|entry| entry.id == route_id)
+                .expect("recipe-first selection route must be present in ENTRIES");
+            let Some(route) = entry.route else {
+                return Ok(None);
+            };
+            if let Some(value) = route(builder, ctx, outcome, execution.env())? {
+                return Ok(Some(value));
+            }
+            Ok(None)
+        })
+        .map(|result| match result {
+            RouteExecutionResultV1::Succeeded { route, value } => {
+                Some(LegacyRouteSuccess { route, value })
+            }
+            RouteExecutionResultV1::Exhausted(_) => None,
+        })
 }
 
 #[cfg(test)]
@@ -207,7 +192,7 @@ mod effect_order_matrix_tests;
 
 #[cfg(test)]
 mod tests {
-    use super::{execute_selected_routes_in_order, select_recipe_first_routes};
+    use super::select_recipe_first_routes;
     use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
 
     #[test]
@@ -218,37 +203,5 @@ mod tests {
         assert!(selection.matched_routes().is_empty());
         assert!(selection.raw_execution_routes().is_empty());
         assert!(selection.diagnostic_effective_routes().is_empty());
-    }
-
-    #[test]
-    fn raw_execution_continues_after_a_selected_route_returns_none() {
-        let routes = [LoopRouteId::LoopSimpleWhile, LoopRouteId::GenericLoopV1];
-        let mut attempted = Vec::new();
-
-        let result = execute_selected_routes_in_order(&routes, |route| {
-            attempted.push(route);
-            Ok::<_, ()>((route == LoopRouteId::GenericLoopV1).then_some(7_u8))
-        });
-
-        assert_eq!(result, Ok(Some((LoopRouteId::GenericLoopV1, 7_u8))));
-        assert_eq!(attempted, routes);
-    }
-
-    #[test]
-    fn raw_execution_propagates_error_without_trying_later_routes() {
-        let routes = [LoopRouteId::LoopSimpleWhile, LoopRouteId::GenericLoopV1];
-        let mut attempted = Vec::new();
-
-        let result = execute_selected_routes_in_order(&routes, |route| {
-            attempted.push(route);
-            if route == LoopRouteId::LoopSimpleWhile {
-                Err("route failed")
-            } else {
-                Ok(Some(7_u8))
-            }
-        });
-
-        assert_eq!(result, Err("route failed"));
-        assert_eq!(attempted, [LoopRouteId::LoopSimpleWhile]);
     }
 }

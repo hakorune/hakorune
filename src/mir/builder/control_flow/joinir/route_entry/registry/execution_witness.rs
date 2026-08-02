@@ -74,10 +74,10 @@ impl<'execution> RouteExecutionWitnessV1<'execution> {
     /// exhausted schedule returns it, preserving the single execution scope.
     pub(crate) fn execute_selected_in_order<T, E>(
         self,
-        mut execute: impl FnMut(LoopRouteId) -> Result<Option<T>, E>,
+        mut execute: impl FnMut(&Self, LoopRouteId) -> Result<Option<T>, E>,
     ) -> Result<RouteExecutionResultV1<'execution, T>, E> {
         for route in self.raw_schedule {
-            if let Some(value) = execute(*route)? {
+            if let Some(value) = execute(&self, *route)? {
                 return Ok(RouteExecutionResultV1::Succeeded {
                     route: *route,
                     value,
@@ -131,7 +131,7 @@ mod tests {
         let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, true);
         let mut attempted = Vec::new();
 
-        let result = witness.execute_selected_in_order(|route| {
+        let result = witness.execute_selected_in_order(|_, route| {
             attempted.push(route);
             Ok::<_, ()>(None::<u8>)
         });
@@ -154,7 +154,7 @@ mod tests {
         let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
         let mut attempted = Vec::new();
 
-        let result = witness.execute_selected_in_order(|route| {
+        let result = witness.execute_selected_in_order(|_, route| {
             attempted.push(route);
             Ok::<_, ()>((route == LoopRouteId::LoopTrueEarlyExit).then_some(7_u8))
         });
@@ -176,7 +176,7 @@ mod tests {
         let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
         let mut attempted = Vec::new();
 
-        let result = witness.execute_selected_in_order(|route| {
+        let result = witness.execute_selected_in_order(|_, route| {
             attempted.push(route);
             Err::<Option<u8>, _>("route failed")
         });
