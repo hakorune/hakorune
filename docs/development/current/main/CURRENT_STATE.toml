@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2 active: replace the Script tuple handoff with one typed occurrence."
+status = "MIRBUILDER-NEXT-NAMED-FAMILY4-D0 active: select the next whole Script responsibility family."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "Shrink the 786-line work-plan owner before replacing its ordinal/admission/transfer tuple with one typed selected-Script occurrence."
-current_execution_row = "SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2"
-current_execution_summary = "Replace the tuple with a typed selected-Script occurrence; do not widen Complete or change Deferred/raw/reference behavior."
+current_design_stop = "Select a whole responsibility family with one existing production owner, source boundary, and same-commit old-edge retirement; do not reopen per-node ceremony."
+current_execution_row = "MIRBUILDER-NEXT-NAMED-FAMILY4-D0"
+current_execution_summary = "Run a bounded selected-Script family census and either select one authority replacement or record NoSafeSlice."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

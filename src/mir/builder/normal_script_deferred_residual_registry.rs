@@ -10,6 +10,7 @@ use crate::mir::resolved_semantics::ScriptRootSemanticDispositionV1;
 
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
+use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum ScriptDeferredResidualKindV1 {
@@ -144,11 +145,13 @@ mod tests {
             span: Span::unknown(),
         };
         let decision = ScriptRootSemanticDecisionV1::decide(
-            3,
             4,
             &call,
-            Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
-            false,
+            SelectedScriptProgramOccurrenceV1::new(
+                3,
+                &call,
+                NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression,
+            ),
         )
         .expect("call decision");
         registry.record(3, &call, decision);
@@ -297,11 +300,9 @@ mod tests {
 
         for (index, (statement, admission, _)) in cases.iter().enumerate() {
             let decision = ScriptRootSemanticDecisionV1::decide(
-                index,
                 statement_count,
                 statement,
-                Some(*admission),
-                false,
+                SelectedScriptProgramOccurrenceV1::new(index, statement, *admission),
             )
             .expect("residual decision");
             registry.record(index, statement, decision);

@@ -14,8 +14,9 @@ use crate::mir::resolved_semantics::{
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
 };
 
-use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_root_demand_window::ScriptRootDemandWindowBuildErrorV1;
+use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
+use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 
 /// One source-shape decision, consumable only by ordinal storage.
 #[derive(Clone, Copy, Debug)]
@@ -27,17 +28,16 @@ pub(super) struct ScriptRootSemanticDecisionV1 {
 
 impl ScriptRootSemanticDecisionV1 {
     pub(super) fn decide(
-        source_statement_index: usize,
         statement_count: usize,
         statement: &ASTNode,
-        admission: Option<NormalScriptProgramItemAdmissionV1>,
-        transferred_top_level_callable: bool,
+        occurrence: SelectedScriptProgramOccurrenceV1,
     ) -> Result<Self, ScriptRootDemandWindowBuildErrorV1> {
         use NormalScriptProgramItemAdmissionV1 as Admission;
         use ScriptRootRuntimeDispositionV1 as Runtime;
         use ScriptRootSemanticDispositionV1 as Semantic;
 
-        let admission = admission.expect("selected Script work item must retain admission");
+        let source_statement_index = occurrence.source_statement_index();
+        let admission = occurrence.admission();
         let (semantic, runtime) = if matches!(statement, ASTNode::EnumDeclaration { .. }) {
             (
                 Semantic::Transferred(ScriptTransferredBoundaryV1::ProgramEnumDeclaration),
@@ -48,7 +48,7 @@ impl ScriptRootSemanticDecisionV1 {
                 Semantic::Transferred(ScriptTransferredBoundaryV1::ProgramRecordDeclaration),
                 Runtime::RetainedExistingTerminal,
             )
-        } else if transferred_top_level_callable {
+        } else if occurrence.transfers_top_level_callable() {
             (
                 Semantic::Transferred(ScriptTransferredBoundaryV1::TopLevelCallable),
                 Runtime::None,
@@ -297,11 +297,13 @@ mod tests {
             unreachable!("parser returns Program");
         };
         let decision = ScriptRootSemanticDecisionV1::decide(
-            1,
             2,
             &statements[1],
-            Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
-            false,
+            SelectedScriptProgramOccurrenceV1::new(
+                1,
+                &statements[1],
+                NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression,
+            ),
         )
         .expect("IndexWrite decision");
         assert!(matches!(
@@ -322,11 +324,13 @@ mod tests {
             span: Span::unknown(),
         };
         let decision = ScriptRootSemanticDecisionV1::decide(
-            0,
             1,
             &if_statement,
-            Some(NormalScriptProgramItemAdmissionV1::DirectIfStatement),
-            false,
+            SelectedScriptProgramOccurrenceV1::new(
+                0,
+                &if_statement,
+                NormalScriptProgramItemAdmissionV1::DirectIfStatement,
+            ),
         )
         .expect("If decision");
         assert!(matches!(
@@ -342,11 +346,13 @@ mod tests {
             span: Span::unknown(),
         };
         let decision = ScriptRootSemanticDecisionV1::decide(
-            0,
             2,
             &return_statement,
-            Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
-            false,
+            SelectedScriptProgramOccurrenceV1::new(
+                0,
+                &return_statement,
+                NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression,
+            ),
         )
         .expect("non-final Return decision");
         assert!(matches!(
@@ -393,11 +399,13 @@ mod tests {
         };
         for statement in [&variable_target, &grouped] {
             let decision = ScriptRootSemanticDecisionV1::decide(
-                0,
                 1,
                 statement,
-                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
-                false,
+                SelectedScriptProgramOccurrenceV1::new(
+                    0,
+                    statement,
+                    NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression,
+                ),
             )
             .expect("binding-rebind decision");
             assert!(matches!(
@@ -408,11 +416,13 @@ mod tests {
             ));
         }
         let field_decision = ScriptRootSemanticDecisionV1::decide(
-            0,
             1,
             &field_target,
-            Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
-            false,
+            SelectedScriptProgramOccurrenceV1::new(
+                0,
+                &field_target,
+                NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression,
+            ),
         )
         .expect("field target decision");
         assert!(!matches!(

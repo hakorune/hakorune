@@ -489,8 +489,8 @@ closed — SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3
 closed — SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4
   -> resolved root-demand dispatch is private; recursive traversal remains one shared matcher.
 
-current — SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2
-  -> shrink the work-plan owner, then replace its selected-Script tuple with one typed occurrence.
+closed — SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2 -> typed occurrence now replaces the selected-Script tuple.
+current — MIRBUILDER-NEXT-NAMED-FAMILY4-D0 -> select one whole responsibility family or NoSafeSlice.
 
 ### Refactor Series queue
 
@@ -502,7 +502,7 @@ current — SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2
 | 3 | `SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0` | Closed: Complete source and co-sealed projection now move once into the request ledger; read-only receipt maps/install APIs are deleted and the raw-port tests are split. |
 | 4 | `SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3` | Closed: one private semantic decision now combines source-shape validation and selected-Script disposition issuance. |
 | 5 | `SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4` | Closed: root-demand dispatch is extracted; recursive statement/expression traversal remains shared. |
-| 6 | `SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2` | Replace the ordinal/admission/transfer tuple with one typed selected-Script occurrence; first shrink the 786-line work-plan owner in the same live series. |
+| 6 | `SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2` | Closed: split tests first, then replace the selected-Script tuple with one typed occurrence. |
 
 Rows 1–3 are one behavior-neutral BoxShape series. Rows 4–6 are a later
 admission-authority series and are not pre-authorized to widen Complete.

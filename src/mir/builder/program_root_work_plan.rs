@@ -8,6 +8,7 @@ use super::normal_script_program_item_admission::{
 };
 use super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
 use super::normal_script_root_demand_window::ScriptRootDemandWindowBuilderV1;
+use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 #[cfg(test)]
 use super::normal_script_runtime_work::NormalScriptRuntimeStatementAdmissionV1;
 use super::normal_script_runtime_work::{
@@ -187,13 +188,13 @@ impl PreparedProgramRootWorkPlanV1 {
                 == ProgramRootWorkPlanAdmissionV1::SelectedNormal)
                 .then(|| classify_normal_script_program_item_v1(&statement));
             if let Some(window) = &mut script_window {
+                let occurrence = SelectedScriptProgramOccurrenceV1::new(
+                    statement_index,
+                    &statement,
+                    normal_script_kind.expect("selected Script runtime classifier"),
+                );
                 window
-                    .record_selected_work_item(
-                        statement_index,
-                        &statement,
-                        normal_script_kind,
-                        matches!(statement, ASTNode::FunctionDeclaration { .. }),
-                    )
+                    .record_selected_work_item(&statement, occurrence)
                     .expect("selected Script demand-window source contract");
             }
             let disposition = classify_statement(

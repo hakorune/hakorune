@@ -10,11 +10,13 @@ use crate::mir::resolved_semantics::{
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
 
+#[cfg(test)]
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_deferred_residual_registry::{
     PreparedScriptDeferredResidualRegistryV1, ScriptDeferredResidualRegistryBuilderV1,
 };
 use super::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
+use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 
 /// Complete/Deferred root admission evidence prepared from one Program pass.
 #[derive(Debug)]
@@ -61,21 +63,17 @@ impl ScriptRootDemandWindowBuilderV1 {
     /// private admission decision.
     pub(super) fn record_selected_work_item(
         &mut self,
-        source_statement_index: usize,
         statement: &ASTNode,
-        admission: Option<NormalScriptProgramItemAdmissionV1>,
-        transferred_top_level_callable: bool,
+        occurrence: SelectedScriptProgramOccurrenceV1,
     ) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
         let decision = ScriptRootSemanticDecisionV1::decide(
-            source_statement_index,
             self.entries.len(),
             statement,
-            admission,
-            transferred_top_level_callable,
+            occurrence,
         )?;
         self.deferred_residuals
-            .record(source_statement_index, statement, decision);
-        self.record_decision(source_statement_index, decision)
+            .record(occurrence.source_statement_index(), statement, decision);
+        self.record_decision(occurrence.source_statement_index(), decision)
     }
 
     fn record_decision(
@@ -138,10 +136,12 @@ mod tests {
         let mut window = ScriptRootDemandWindowBuilderV1::for_program_statement_count(1);
         window
             .record_selected_work_item(
-                0,
                 &using,
-                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
-                false,
+                SelectedScriptProgramOccurrenceV1::new(
+                    0,
+                    &using,
+                    NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression,
+                ),
             )
             .expect("Using decision");
         let entry = window
@@ -183,18 +183,22 @@ mod tests {
         let mut window = ScriptRootDemandWindowBuilderV1::for_program_statement_count(2);
         window
             .record_selected_work_item(
-                0,
                 &assignment,
-                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
-                false,
+                SelectedScriptProgramOccurrenceV1::new(
+                    0,
+                    &assignment,
+                    NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression,
+                ),
             )
             .expect("binding-rebind decision");
         window
             .record_selected_work_item(
-                1,
                 &return_statement,
-                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
-                false,
+                SelectedScriptProgramOccurrenceV1::new(
+                    1,
+                    &return_statement,
+                    NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression,
+                ),
             )
             .expect("final-return decision");
         let sealed = window.seal().expect("sealed window");

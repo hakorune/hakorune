@@ -1,6 +1,9 @@
 use super::*;
 use crate::ast::{DeclarationAttrs, LiteralValue, Span};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
+use crate::mir::resolved_semantics::{
+    ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
+};
 use crate::parser::NyashParser;
 
 fn selected_plan(statements: Vec<ASTNode>, is_app_mode: bool) -> PreparedProgramRootWorkPlanV1 {
@@ -255,6 +258,31 @@ fn selected_top_level_functions_keep_distinct_source_occurrences() {
     assert_eq!(admissions[1].source_key().statement_index(), 1);
     assert_eq!(admissions[0].physical_symbol(), "same/0");
     assert_eq!(admissions[1].physical_symbol(), "same/0");
+}
+
+#[test]
+fn selected_script_window_keeps_callable_transfer_at_its_original_ordinal() {
+    let plan = selected_plan(vec![literal(1), function("helper"), literal(2)], false);
+    let parts = plan.into_parts();
+    let admission = parts
+        .script_root_admission
+        .expect("selected Script admission");
+    assert!(matches!(
+        admission.window().entry_at(1).expect("function entry").semantic(),
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::TopLevelCallable
+        )
+    ));
+    let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
+        panic!("expected selected Script runtime work")
+    };
+    assert_eq!(
+        (
+            runtime.source_statement_index_at(0),
+            runtime.source_statement_index_at(1)
+        ),
+        (0, 2)
+    );
 }
 
 #[test]
