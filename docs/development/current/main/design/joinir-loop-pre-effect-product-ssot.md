@@ -649,3 +649,21 @@ fixture fixes raw selection to `[AccumConstLoop]` and the terminal certificate;
 ScopeBox receives none. The shared guard ratchets that the Accum handler has no
 `Ok(None)` return. This is scheduler terminality only and does not modify all-route
 preflight's zero-qualified policy, product issuance, physicalization, or caller.
+
+### LoopBreakRecipe provenance D0 decision
+
+Decision: accepted one narrow source-topology box only for the generic fallback's
+direct three-statement branch. `LoopBreakFacts` currently carries cloned and, in
+some subsets, derived expressions with no source sites; `LoopSourceProjectionV1`
+cannot resolve AST and preflight must not reconstruct it. S0 may retain only three
+opaque whole-statement sites observed in that existing branch: break-if, carrier
+update, and step. ScopeBox lineage stays in the topology so preflight can reject
+borrowability later. All specialized/local/prelude/parse subsets remain topology
+absent. Raw tail and scheduler terminality are deliberately unclaimed; existing
+composer is mutation-first and remains NoSafeSlice for logical consumption.
+
+S0 implementation record: the generic branch retains those coordinates only when
+the break-if is the first flattened statement. The local-prelude variant has no
+distinct carrier-update/step schedule and remains topology absent. Direct and
+ScopeBox fixtures fix the coordinate and lineage behavior; all-route preflight
+still has zero qualified routes.

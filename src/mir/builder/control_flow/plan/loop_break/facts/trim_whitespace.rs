@@ -40,6 +40,7 @@ pub(in crate::mir::builder::control_flow::plan) fn try_extract_loop_break_trim_w
         carrier_update_in_body: loop_increment.clone(),
         loop_increment,
         step_placement: LoopBreakStepPlacement::Last,
+        source_topology: None,
     })
 }
 
@@ -72,5 +73,6 @@ fn try_extract_trim_header_condition_subset(
         carrier_update_in_body: loop_increment.clone(),
         loop_increment,
         step_placement: LoopBreakStepPlacement::Last,
+        source_topology: None,
     })
 }

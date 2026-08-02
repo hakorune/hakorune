@@ -45,13 +45,21 @@ pub(in crate::mir::builder::control_flow::plan) mod trim_whitespace_helpers;
 mod types;
 
 pub(in crate::mir::builder) use body_local_facts::{LoopBodyLocalShape, LoopBreakBodyLocalFacts};
-pub(in crate::mir::builder) use types::LoopBreakFacts;
+pub(in crate::mir::builder) use types::{LoopBreakFacts, LoopBreakSourceTopologyV1};
 
 pub(in crate::mir::builder) fn try_extract_loop_break_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopBreakFacts>, Freeze> {
     core::try_extract_loop_break_facts(condition, body)
+}
+
+pub(in crate::mir::builder) fn try_extract_loop_break_facts_with_projection(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    source_projection: &crate::mir::builder::control_flow::facts::stmt_view::LoopSourceProjectionV1,
+) -> Result<Option<LoopBreakFacts>, Freeze> {
+    core::try_extract_loop_break_facts_with_projection(condition, body, source_projection)
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_break_body_local_facts(

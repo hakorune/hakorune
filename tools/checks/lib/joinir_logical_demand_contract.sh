@@ -17,6 +17,7 @@ guard_joinir_logical_demand_contract() {
   local projection="$root_dir/src/mir/builder/control_flow/facts/stmt_view.rs"
   local simple_while="$root_dir/src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs"
   local accum_const="$root_dir/src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs"
+  local loop_break_facts="$root_dir/src/mir/builder/control_flow/plan/loop_break/facts/types.rs"
   local files=(
     "$route_id"
     "$simple_terminality"
@@ -29,6 +30,7 @@ guard_joinir_logical_demand_contract() {
     "$projection"
     "$simple_while"
     "$accum_const"
+    "$loop_break_facts"
   )
   local file lines
 
@@ -45,6 +47,7 @@ guard_joinir_logical_demand_contract() {
     "$projection"
     "$simple_while"
     "$accum_const"
+    "$loop_break_facts"
   )
   for file in "${logical_files[@]}"; do
     if rg -n -w \

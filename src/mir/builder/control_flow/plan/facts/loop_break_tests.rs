@@ -1,7 +1,10 @@
 //! Phase 29ai P11: Tests for loop_break facts extraction.
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_facts;
+use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes_with_projection;
+use crate::mir::builder::control_flow::plan::loop_break::facts::{
+    try_extract_loop_break_facts, try_extract_loop_break_facts_with_projection,
+};
 
 fn v(name: &str) -> ASTNode {
     ASTNode::Variable {
@@ -133,6 +136,55 @@ fn extract_loop_break_read_digits_subset() {
             ..
         }
     ));
+    assert!(facts.source_topology.is_none());
+}
+
+fn generic_three_statement_loop_body() -> Vec<ASTNode> {
+    vec![
+        ASTNode::If {
+            condition: Box::new(v("stop")),
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
+            else_body: None,
+            span: Span::unknown(),
+        },
+        assign("sum", binop(BinaryOperator::Add, v("sum"), lit_int(1))),
+        assign("i", binop(BinaryOperator::Add, v("i"), lit_int(1))),
+    ]
+}
+
+#[test]
+fn generic_loop_break_topology_preserves_direct_and_scope_box_sites() {
+    let condition = binop(BinaryOperator::Less, v("i"), lit_int(3));
+    let direct_raw_body = generic_three_statement_loop_body();
+    let (direct_body, direct_projection) =
+        flatten_scope_boxes_with_projection(&direct_raw_body).into_parts();
+    let direct_facts =
+        try_extract_loop_break_facts_with_projection(&condition, &direct_body, &direct_projection)
+            .expect("no freeze")
+            .expect("generic loop break facts");
+    let direct_topology = direct_facts.source_topology.expect("direct topology");
+    assert_eq!(direct_topology.break_if().raw_body_index(), 0);
+    assert_eq!(direct_topology.carrier_update().raw_body_index(), 1);
+    assert_eq!(direct_topology.step().raw_body_index(), 2);
+    assert!(direct_topology.break_if().scope_box_children().is_empty());
+
+    let scoped_raw_body = vec![ASTNode::ScopeBox {
+        body: generic_three_statement_loop_body(),
+        span: Span::unknown(),
+    }];
+    let (scoped_body, scoped_projection) =
+        flatten_scope_boxes_with_projection(&scoped_raw_body).into_parts();
+    let scoped_facts =
+        try_extract_loop_break_facts_with_projection(&condition, &scoped_body, &scoped_projection)
+            .expect("no freeze")
+            .expect("generic scope-box loop break facts");
+    let scoped_topology = scoped_facts.source_topology.expect("scope-box topology");
+    assert_eq!(scoped_topology.break_if().raw_body_index(), 0);
+    assert_eq!(scoped_topology.break_if().scope_box_children(), &[0]);
+    assert_eq!(scoped_topology.carrier_update().scope_box_children(), &[1]);
+    assert_eq!(scoped_topology.step().scope_box_children(), &[2]);
 }
 
 #[test]

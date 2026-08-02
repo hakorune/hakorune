@@ -242,6 +242,7 @@ mod tests {
             carrier_update_in_body,
             loop_increment,
             step_placement: crate::mir::builder::control_flow::plan::LoopBreakStepPlacement::Last,
+            source_topology: None,
         };
 
         let loop_stmt = ASTNode::Loop {
@@ -295,6 +296,7 @@ mod tests {
             carrier_update_in_body: step_expr.clone(),
             loop_increment: step_expr,
             step_placement: crate::mir::builder::control_flow::plan::LoopBreakStepPlacement::Last,
+            source_topology: None,
         };
         let loop_stmt = ASTNode::Loop {
             condition: Box::new(cond),

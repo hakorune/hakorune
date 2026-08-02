@@ -29,7 +29,7 @@ use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     try_extract_generic_loop_v1_facts,
 };
 use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_body_local_facts;
-use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_facts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_facts_with_projection;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_entry::{
     try_extract_loop_cond_break_continue_facts,
     try_extract_loop_cond_break_continue_facts_with_limit,
@@ -184,7 +184,8 @@ fn try_build_loop_facts_inner(
         &observation,
         &source_projection,
     )?;
-    let loop_break = try_extract_loop_break_facts(condition, body)?;
+    let loop_break =
+        try_extract_loop_break_facts_with_projection(condition, body, &source_projection)?;
     let loop_break_body_local = try_extract_loop_break_body_local_facts(condition, body)?;
 
     let has_any = scan_with_init.is_some()

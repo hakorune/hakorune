@@ -6,6 +6,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, extract_loop_increment_plan, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::facts::stmt_view::LoopSourceProjectionV1;
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts;
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{
     has_continue_statement, has_return_statement,
@@ -16,7 +17,9 @@ use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_loop::{
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
-use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::{
+    LoopBreakFacts, LoopBreakSourceTopologyV1,
+};
 
 // Import subset extractors
 use super::body_local_subset::try_extract_loop_break_body_local_subset;
@@ -32,6 +35,19 @@ use super::trim_whitespace::try_extract_loop_break_trim_whitespace_subset;
 pub(in crate::mir::builder) fn try_extract_loop_break_facts(
     condition: &ASTNode,
     body: &[ASTNode],
+) -> Result<Option<LoopBreakFacts>, Freeze> {
+    try_extract_loop_break_facts_with_projection(
+        condition,
+        body,
+        &LoopSourceProjectionV1::default(),
+    )
+}
+
+/// Extract LoopBreak facts while preserving the already-observed body sites.
+pub(in crate::mir::builder) fn try_extract_loop_break_facts_with_projection(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    source_projection: &LoopSourceProjectionV1,
 ) -> Result<Option<LoopBreakFacts>, Freeze> {
     if let Some(read_digits) = try_extract_loop_break_read_digits_subset(condition, body) {
         return Ok(Some(read_digits));
@@ -58,13 +74,14 @@ pub(in crate::mir::builder) fn try_extract_loop_break_facts(
     }
 
     // Fallback: generic extraction
-    try_extract_generic(condition, body)
+    try_extract_generic(condition, body, source_projection)
 }
 
 /// Generic extraction for simple 3-statement loops with break.
 fn try_extract_generic(
     condition: &ASTNode,
     body: &[ASTNode],
+    source_projection: &LoopSourceProjectionV1,
 ) -> Result<Option<LoopBreakFacts>, Freeze> {
     let Some(loop_var) = extract_loop_var_for_plan_subset(condition)
         .or_else(|| extract_loop_var_for_len_condition(condition))
@@ -129,5 +146,23 @@ fn try_extract_generic(
         carrier_update_in_body,
         loop_increment,
         step_placement: LoopBreakStepPlacement::Last,
+        source_topology: generic_direct_three_source_topology(body, source_projection, break_idx),
     }))
+}
+
+fn generic_direct_three_source_topology(
+    body: &[ASTNode],
+    source_projection: &LoopSourceProjectionV1,
+    break_idx: usize,
+) -> Option<LoopBreakSourceTopologyV1> {
+    // The local-prelude variant has no distinct three-site schedule: its
+    // carrier update and step may coincide. Do not invent an ordering for it.
+    if break_idx != 0 || source_projection.flattened_body_len() != Some(body.len()) {
+        return None;
+    }
+    Some(LoopBreakSourceTopologyV1::generic_direct_three(
+        source_projection.site_for_flattened_index(0)?.clone(),
+        source_projection.site_for_flattened_index(1)?.clone(),
+        source_projection.site_for_flattened_index(2)?.clone(),
+    ))
 }

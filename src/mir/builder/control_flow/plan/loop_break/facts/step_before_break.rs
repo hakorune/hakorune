@@ -109,5 +109,6 @@ pub(in crate::mir::builder::control_flow::plan) fn try_extract_loop_break_step_b
         carrier_update_in_body,
         loop_increment,
         step_placement: LoopBreakStepPlacement::BeforeBreak,
+        source_topology: None,
     })
 }
