@@ -1527,3 +1527,19 @@ The scheduler still retries in the same order; compose facts remain explicit;
 no attempt escapes, and no terminality, lower-success, prefix/suffix-effect,
 rollback, or nonshared-route claim is issued. The next card is D2, a
 design-only bounded continuation-consume audit.
+
+### Route-execution witness D2 decision
+
+Decision: retain the typed four-member decline as an attempt outcome instead
+of erasing it immediately into `Ok(None)`. The minimal next box is a private
+typed outcome with ordinary retry, success, and the exact shared
+absent-contract decline. `route_standard` is the sole issuer before planner
+trace/compose/lower; the registry scheduler is the sole consumer and continues
+the already-captured exact suffix for that decline. Ordinary `None` remains an
+ordinary retry outcome.
+
+This is a bounded pre-effect continuation observation only. It does not change
+route behavior, selection, retry, Builder effects, terminality, suffix
+effect-freedom, exhaustion, raw fallback, rollback, lower success, or the
+nonshared route families. S2 may implement only this result preservation and
+projection boundary.
