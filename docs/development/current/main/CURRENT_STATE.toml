@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-D1 closed; JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-S0 selected."
+status = "JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-S0 closed; JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S0 may add only the accepted all-route preflight child transaction under live_ordered_terminality. It consumes LiveLoopFactsV1 by value, canonicalizes/selects once, diagnoses only raw front with strict source/scope/policy/retry precedence, and issues no Qualified product. It must not refactor composers, promote the direct product, add a physicalizer/context, change runtime routing, retry, or add a production caller."
-current_execution_row = "JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-S0"
-current_execution_summary = "D1 selected a private child of live_ordered_terminality so the existing sole live bridge remains intact. Current preflight consumes one raw schedule and returns NoCandidate or front typed rejection only; all 19 rows remain unqualified."
+current_design_stop = "D0 may design only AccumConstLoop's missing all-route policy/terminality proof from its existing source topology. It must inventory actual raw schedule, every legacy None path, and direct/ScopeBox semantics before code. It must not expand any other route, refactor composers, add a physicalizer/context, change runtime routing, retry, or add a production caller."
+current_execution_row = "JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-D0"
+current_execution_summary = "All-route preflight now consumes one existing live pair and raw schedule, returning NoCandidate or typed raw-front rejection with zero Qualified rows. AccumConstLoop is the next isolated policy/terminality blocker because its source topology is already truthful."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-S0"
+current_blocker_token = "JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

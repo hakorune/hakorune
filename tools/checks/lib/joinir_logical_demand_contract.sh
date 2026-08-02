@@ -9,6 +9,7 @@ guard_joinir_logical_demand_contract() {
   local live_ordered_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality"
   local live_ordered_parent="$live_ordered_dir/mod.rs"
   local live_ordered_transaction="$live_ordered_dir/transaction.rs"
+  local all_route_preflight="$live_ordered_dir/all_route_preflight.rs"
   local live_ordered_product="$live_ordered_dir/logical_product.rs"
   local loop_preflight="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/loop_preflight.rs"
   local route_handlers="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/handlers/routes.rs"
@@ -20,6 +21,7 @@ guard_joinir_logical_demand_contract() {
     "$simple_terminality"
     "$live_ordered_parent"
     "$live_ordered_transaction"
+    "$all_route_preflight"
     "$live_ordered_product"
     "$loop_preflight"
     "$projection"
@@ -60,6 +62,17 @@ guard_joinir_logical_demand_contract() {
     'diagnostic_effective|matched_routes|ASTNode::|try_extract_|LoopSourceView|logical_demand' \
     >/dev/null; then
     guard_fail "$tag" "live ordered transaction re-acquired diagnostic, AST, source-view, or legacy-demand authority"
+  fi
+  local all_route_selection_calls all_route_production
+  all_route_selection_calls="$(rg -c 'select_recipe_first_routes\(Some\(&canonical\)\)' "$all_route_preflight" || true)"
+  if [[ "$all_route_selection_calls" != "1" ]]; then
+    guard_fail "$tag" "all-route preflight must select the canonical raw schedule exactly once"
+  fi
+  all_route_production="$(sed '/^#\[cfg(test)\]/,$d' "$all_route_preflight")"
+  if printf '%s\n' "$all_route_production" | rg -n \
+    'diagnostic_effective|matched_routes|ASTNode::|try_extract_|LoopSourceView|logical_product|qualify_live_loop_facts' \
+    >/dev/null; then
+    guard_fail "$tag" "all-route preflight acquired diagnostic, AST, or direct-product authority"
   fi
   if sed '/^#\[cfg(test)\]/,$d' "$live_ordered_product" | rg -n \
     'ASTNode::|LoopFacts|select_recipe_first_routes|logical_demand|MirBuilder|CorePlan|ValueId|BasicBlockId|RouteFn|ComposeFn' \

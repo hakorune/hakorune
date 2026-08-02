@@ -469,28 +469,27 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-S0`
-Parent: `JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-D1` (closed)
-Ceremony: implement one all-route live preflight transaction; production consumers remain zero.
+Row: `JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-D0`
+Parent: `JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-S0` (closed)
+Ceremony: design one AccumConstLoop policy/terminality proof; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add the private live_ordered_terminality child that consumes the existing live
-  capability, canonicalizes/selects once, and returns NoCandidate/front rejection.
+  Inventory AccumConstLoop's actual raw schedule, direct/ScopeBox source semantics,
+  legacy handler None paths, and the exact scheduler-terminality proof boundary.
 
 Contract:
-  Existing bind bridge is the only source ingress. Producer uses raw execution order
-  once, exposes no source/Facts/selection parts, and issues no Qualified product.
+  Existing Accum source topology is authority. D0 must not re-match AST or infer
+  operands from clones; it must distinguish all-route policy/terminality from source.
 
 Done:
-  Empty is NoCandidate; raw front diagnoses source then ScopeBox then policy/terminality
-  then retry debt. No row skips to a later candidate. Fixtures cover each precedence
-  class; direct historical product remains caller-zero and unimported.
+  Design fixes actual raw order, handler terminality, strict/release policy, direct/
+  ScopeBox fixtures, and whether any earlier route blocks Accum. No product/caller is added.
 
 Stop:
-  Stop if S0 adds a bridge/accessor, generic raw resolver, selection/policy reread,
-  treats Simple/Accum as qualified, or claims physical readiness. No runtime routing,
-  Loop I0, raw/reference ingress, or fallback is authorized.
+  Stop if D0 treats source topology as terminality, skips earlier raw routes, expands
+  another route, or claims physical readiness. No runtime routing, Loop I0, raw/reference
+  ingress, or fallback is authorized.
 
 ## Production invariants
 

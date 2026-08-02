@@ -616,3 +616,13 @@ It never skips a rejected front to select a later candidate. `SchedulerOrderBloc
 is reserved for a future self-qualified later candidate with an undischargeable
 prefix; current S0 has zero qualified rows. RouterEnv/environment is not read or
 captured because no truthful dynamic all-route policy proof exists yet.
+
+### All-route preflight producer S0 evidence
+
+`all_route_preflight.rs` now lives beside the direct historical transaction and
+consumes the same private `LiveLoopFactsV1` capability by value. It canonicalizes
+once, selects the raw schedule once, and emits only `NoCandidate` or the raw
+front's typed rejection. Direct SimpleWhile is policy/terminality-rejected rather
+than qualified; ScopeBox lineage precedes that policy diagnosis. The shared guard
+ratchets this child’s one selection, no direct-product dependency, and unchanged
+sole source bridge. No all-route product, consumer, or caller exists.
