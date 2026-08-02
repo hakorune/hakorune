@@ -489,8 +489,8 @@ closed — SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3
 closed — SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4
   -> resolved root-demand dispatch is private; recursive traversal remains one shared matcher.
 
-closed — SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2 -> typed occurrence now replaces the selected-Script tuple.
-current — MIRBUILDER-NEXT-NAMED-FAMILY4-D0 -> select one whole responsibility family or NoSafeSlice.
+closed — T2 typed occurrence; Family4 D0 NoSafeSlice because remaining roots retain named R4 operation/control owners.
+current — MIRBUILDER-RAW-REFERENCE-FINAL-PROFILE0-D0 -> decide raw/reference final compilation-profile ownership before Loop work.
 
 ### Refactor Series queue
 

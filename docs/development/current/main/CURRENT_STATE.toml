@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-NEXT-NAMED-FAMILY4-D0 active: select the next whole Script responsibility family."
+status = "MIRBUILDER-RAW-REFERENCE-FINAL-PROFILE0-D0 active: decide raw/reference final compilation-profile ownership."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "Select a whole responsibility family with one existing production owner, source boundary, and same-commit old-edge retirement; do not reopen per-node ceremony."
-current_execution_row = "MIRBUILDER-NEXT-NAMED-FAMILY4-D0"
-current_execution_summary = "Run a bounded selected-Script family census and either select one authority replacement or record NoSafeSlice."
+current_design_stop = "Raw/reference Loop callers have neither a resolved semantic ingress nor a typed final operation; choose resolved, explicit retained, or retirement profile before Loop work."
+current_execution_row = "MIRBUILDER-RAW-REFERENCE-FINAL-PROFILE0-D0"
+current_execution_summary = "Decide raw/reference final compilation-profile ownership before opening any Loop final-pipeline row."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
