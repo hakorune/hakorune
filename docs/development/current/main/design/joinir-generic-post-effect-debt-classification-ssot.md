@@ -88,6 +88,24 @@ Gate: `git diff --check`,
 `bash tools/checks/lib/joinir_logical_demand_contract.sh`, and this card below
 800 lines. The docs-only diff is limited to this card and current-state mirrors.
 
+### D0-A1 — source-to-selection observation (test-only)
+
+The first test-only slice now consumes the actual facts builder and
+`select_recipe_first_routes`. It stops before `RouteExecutionWitness`, Generic
+handlers, composers, verifier, and lowerer. The observed release fixtures are:
+
+| fixture | facts | raw selection | evidence boundary |
+| --- | --- | --- | --- |
+| simple while | V0 + V1 | `LoopSimpleWhile, GenericLoopV0` | V0 is an unreached tail, not a V0-only winner |
+| local plus step | V1 only | `GenericLoopV1` | source-to-selection only |
+| nested loop plus step | V0 + V1 | `GenericLoopV0, GenericLoopV1` | Both is real; precedence remains unresolved |
+| unsupported import plus step | neither | empty | no facts/no schedule |
+
+The planner-required fixture additionally records that V0 extraction is
+suppressed before selection. These tests are observation evidence, not a
+winner decision. Strict-mode and post-effect handler stages remain
+`NotYetObserved` or `UnresolvedStop` until the next slice.
+
 ## Ordered M4 tasks
 
 ### M4-D0 — exhaustive stage matrix (`...-D0-S0`)

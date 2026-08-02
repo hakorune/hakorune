@@ -200,6 +200,8 @@ pub(crate) fn try_execute_route_execution_witness(
 
 #[cfg(test)]
 mod effect_order_matrix_tests;
+#[cfg(test)]
+mod generic_selection_matrix_tests;
 
 #[cfg(test)]
 mod tests {
