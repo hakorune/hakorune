@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-ROUTE-EXECUTION-WITNESS0-D1 is accepted; attempt-scoped continuation S1 selected."
+status = "JOINIR-ROUTE-EXECUTION-WITNESS0-S1 is approved for behavior-neutral implementation."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RouteExecutionWitness S1 may add one non-Clone attempt-scoped observation with actual route and exact captured suffix; only route_standard may issue the four-member absent-contract pre-effect decline disposition. It must translate back to existing Ok(None), avoid policy recomputation, and exclude prefix/suffix terminality, compose/lower, mutation, rollback, and other route families."
+current_design_stop = "S1 may introduce only a non-Clone attempt observation (current route/cursor/exact after-current suffix) and typed four-member absent-contract policy. route_standard is the sole issuance site and must project it to existing Ok(None). No prefix/suffix terminality, compose/lower, mutation, rollback, reselect, or other route family claim is authorized."
 current_execution_row = "JOINIR-ROUTE-EXECUTION-WITNESS0-S1"
-current_execution_summary = "D1 accepts a bounded pre-effect continuation proof for exactly LoopTrueEarlyExit/LoopArrayJoin/ScanWithInit/SplitScan; current witness lacks attempt cursor and branch disposition, so S1 is selected."
+current_execution_summary = "S1 design is approved: witness owns the schedule; stack-local attempts borrow exact current route and suffix; a typed four-member policy replaces skip_without_contract bool inference."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

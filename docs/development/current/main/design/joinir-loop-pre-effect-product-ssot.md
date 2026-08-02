@@ -1494,3 +1494,22 @@ alone.
 This proves neither a prefix, suffix terminality, exhaustion, lower success,
 raw fallback, rollback, or any other route family. CharMap, Nested, Generic,
 BoolPredicate, and conditional routes remain excluded.
+
+### Route-execution witness S1 decision
+
+Decision: accept one behavior-neutral attempt-scoped observation. The witness
+remains the sole raw-schedule owner. Its scheduler creates a stack-local,
+non-Clone attempt for each cursor, exposing only the current route, cursor, and
+the exact after-current suffix. The attempt cannot escape the scheduler and
+does not borrow Builder state.
+
+Replace `StandardEntry`'s boolean skip-without-contract policy with an optional
+typed four-member absent-contract disposition. Only the four exact routes may
+construct a member; `route_standard` is the sole issuer after observing the
+captured non-planner/absent-contract branch and must project that disposition
+back to the existing `Ok(None)`. It must not infer membership from a boolean or
+reselect routes.
+
+S1 does not alter scheduler retry, compose/lower facts, Builder effects,
+mutation/rollback, or route behavior. It issues no escaping certificate and
+proves no prefix/suffix terminality or lower success.
