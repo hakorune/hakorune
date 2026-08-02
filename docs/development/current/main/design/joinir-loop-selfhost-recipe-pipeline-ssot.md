@@ -389,13 +389,17 @@ M3 task order:
    alone advances; Qualified/Blocked stop, and Blocked has no resume/suffix API.
    Qualified owns facts plus a private seal, never recipe, callback, or receipt;
    Generic remains an opaque M4 debt key.
-6. `M3-F / JOINIR-LOOP-CALLER-ZERO-POLICY-PARITY0-P1` — **active**. A
+6. `M3-F / JOINIR-LOOP-CALLER-ZERO-POLICY-PARITY0-P1` — **closed**. A
    `cfg(test)` adapter compares the actual isolated legacy witness scheduler
    with the pure audit; `all_route_preflight` is not an oracle. It fixes an
    ordered typed-decline→success counterexample, all-declined exhaustion, and a
    fresh row-zero Blocked stop. Generic debt stays M4-only. Production Recipe
    callers, PHI owners, fallback removal, and second schedulers remain zero;
    those belong to M5/M6/M10.
+7. `M4 / JOINIR-GENERIC-POST-EFFECT-DEBT-RECIPE0-D0-S2` — **active**. Decide
+   whether each Generic V0/V1 post-effect `None` is pre-effect decline or a
+   qualified terminal recipe with `Freeze`; preserve the opaque receipt boundary
+   and prove winner equivalence before any recipe production connection.
 
 #### Docs-only cleanup — SSOT role disambiguation (non-row)
 
