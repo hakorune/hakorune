@@ -253,3 +253,14 @@ Facts sources; direct/nested ScopeBox and builder-carriage fixtures are green.
 The next blocker is D2: decide whether the one existing topology can issue a
 truthful borrowed `Selected` demand without creating a path resolver or a
 runtime connection. All other routes remain rejected.
+
+## D2 direct SimpleWhile selection decision
+
+Decision: accepted for direct top-level step only. A receipt gains an opaque
+condition/body-frame identity stamp, checked before source borrowing. For an
+exact-one `LoopSimpleWhile` selection, a topology whose step has empty
+ScopeBox lineage may borrow only the raw condition and that raw body statement;
+the demand owns the coordinate and logical role. Nested ScopeBox lineage remains
+`Rejected` rather than being resolved. This preserves source-frame identity
+without storing AST, re-matching, generic path resolution, selector re-run, or
+runtime connection. All other 18 routes remain typed rejected.

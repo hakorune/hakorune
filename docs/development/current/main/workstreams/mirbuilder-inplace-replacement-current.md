@@ -469,29 +469,29 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-SIMPLE-WHILE-LOGICAL-SELECTION0-D2`
-Parent: `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE-CONTRACT0-P0` (closed)
-Ceremony: design consultation; production consumers remain zero.
+Row: `JOINIR-DIRECT-SIMPLE-WHILE-LOGICAL-DEMAND0-S0`
+Parent: `JOINIR-LOOP-SIMPLE-WHILE-LOGICAL-SELECTION0-D2` (closed)
+Ceremony: one direct logical demand; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Decide the minimal one-route connection from simple-while Facts topology to a
-  truthful logical `Selected` demand. Source borrowing must remain constrained to
-  the same loop input frame; no reusable source resolver is allowed.
+  Issue Selected only for exact-one direct top-level SimpleWhile. Source borrowing
+  is constrained by receipt frame stamp to condition plus one raw body statement;
+  nested ScopeBox lineage stays rejected, with no resolver.
 
 Contract:
-  Name the sole source-borrowing authority, selected-demand payload, mismatch
-  rejection, and ownership/lifetime boundary. Facts remain coordinate-only and
-  the producer may not re-run selection or inspect raw AST.
+  Producer consumes existing selection once and only sees a stamped source view
+  plus Facts topology. Product exposes only verified condition/step borrows and
+  owned coordinate/roles; it cannot expose arbitrary body access.
 
 Done:
-  A design note names an implementation row with fixture and existing shared
-  gate. It explicitly preserves the 18 other typed rejections and zero runtime
-  consumers; worktree remains clean.
+  Direct exact-one SimpleWhile becomes Selected. Same-length foreign source frame,
+  nested lineage, unavailable topology, no-route, overlap, and other 18 routes
+  remain typed terminal outcomes. Shared guard and focused tests are green.
 
 Stop:
-  Stop before code if selected issuance needs an AST resolver/re-match, a second
-  selector, producer retry change, another route topology, or physical/runtime
+  Stop if direct issuance needs AST resolver/re-match, any nested path traversal,
+  a second selector, retry change, another route topology, or physical/runtime
   owner. No physicalizer, Loop I0, raw/reference ingress, universal ingress, or
   fallback wrapper is authorized.
 
