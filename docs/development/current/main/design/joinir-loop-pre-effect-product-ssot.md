@@ -1473,3 +1473,24 @@ mutation/rollback, or classify CharMap, Nested, Generic, BoolPredicate, or
 conditional routes as the shared root. The next card is D1: a design-only
 audit of whether the captured decline and remaining schedule can prove bounded
 pre-effect continuation for precisely the four known shared routes.
+
+### Route-execution witness D1 decision
+
+Decision: accept one bounded pre-effect continuation proof, not terminality.
+For exactly `LoopTrueEarlyExit`, `LoopArrayJoin`, `ScanWithInit`, and
+`SplitScan`, the existing standard route declines before planner trace,
+compose, or lower when captured planner-required is false, captured contract
+is absent, and its static entry is a shared skip-without-contract member. The
+captured scheduler then continues with its exact suffix.
+
+The current witness lacks an attempt cursor and an actual decline disposition,
+so it cannot issue that proof alone. S1 may add one non-Clone attempt-scoped
+observation for the current route plus its exact captured suffix. Only the
+standard-entry absent-contract branch may issue a typed four-member decline
+disposition, which translates back to the existing `Ok(None)`. Membership must
+be typed or otherwise single-sourced; do not infer it from the boolean flag
+alone.
+
+This proves neither a prefix, suffix terminality, exhaustion, lower success,
+raw fallback, rollback, or any other route family. CharMap, Nested, Generic,
+BoolPredicate, and conditional routes remain excluded.
