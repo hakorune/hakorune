@@ -8,7 +8,36 @@ Related:
 - docs/development/current/main/design/feature-helper-boundary-ssot.md
 - docs/development/current/main/design/verified-recipe-port-sig-ssot.md
 - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
+- docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md
 - src/mir/builder/control_flow/plan/REGISTRY.md
+
+## SSOT role disambiguation
+
+The authority split is:
+
+- `RecipeTree + Parts` is the current production in-builder recursive
+  implementation and parity oracle through portable Loop pipeline M10.
+- Portable `LoopRecipeArtifactV1` is the future Rust/.hako common final semantic wire contract.
+- `joinir-loop-selfhost-recipe-pipeline-ssot.md` is the replacement/cutover authority.
+
+Relative to the future portable contract, this document is the legacy authority
+through portable Loop pipeline M10: it describes the recursive implementation
+that production executes inside `MirBuilder` today, not the portable Loop final
+SSOT.
+
+Retirement and demotion are conditional, not calendar-based:
+
+- Portable Loop pipeline M10 must switch the production caller to the verified
+  portable-recipe path and
+  remove the selected old scheduler/physical edges. Only then does RecipeTree +
+  Parts lose production meaning authority and become a parity/historical oracle.
+- Portable Loop pipeline M12 must observe zero production references to the
+  legacy family adapters and
+  one shared verifier/CFG/JoinSig/PHI/physicalizer authority before reducing or
+  retiring the remaining adapter phase-2 surfaces.
+- Until those conditions are green, this document remains authoritative only for
+  the current in-builder implementation; it cannot override the active pipeline
+  task order or define the future Rust/.hako wire contract.
 
 ## Goal
 

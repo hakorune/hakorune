@@ -7,7 +7,7 @@ use super::normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
 use super::route_id::LoopRouteId;
 use super::schema::{
     LoopExitKindV1, LoopRecipeArtifactV1, LoopRecipeBlockV1, LoopRecipeExitV1, LoopRecipeItemRowV1,
-    LoopRecipeItemV1, LoopSourcePathStepV1, LoopValueClassV1,
+    LoopRecipeItemV1, LoopRecipeSourceOwnerV1, LoopSourcePathStepV1, LoopValueClassV1,
 };
 use super::verify::LoopRecipeVerifierV1;
 
@@ -54,6 +54,48 @@ fn semantic_normalization_is_independent_of_route_provenance() {
 }
 
 #[test]
+fn semantic_normalization_is_independent_of_source_binding() {
+    let original = golden();
+    let mut alternate = original.clone();
+    alternate.source_binding.owner = LoopRecipeSourceOwnerV1::function_body(0, 7);
+    alternate.source_binding.loops[0].path.steps[0] = LoopSourcePathStepV1::BodyItem { index: 9 };
+    alternate.source_binding.loops[1].path.steps[0] = LoopSourcePathStepV1::BodyItem { index: 9 };
+
+    let left = LoopRecipeVerifierV1::verify_artifact(original).expect("left verifies");
+    let right = LoopRecipeVerifierV1::verify_artifact(alternate).expect("right verifies");
+    let left_json =
+        LoopRecipeNormalizerV1::normalize_semantic(left.recipe()).expect("left semantic normalize");
+    let right_json = LoopRecipeNormalizerV1::normalize_semantic(right.recipe())
+        .expect("right semantic normalize");
+
+    assert_eq!(left_json, right_json);
+}
+
+#[test]
+fn source_bound_normalization_excludes_route_and_includes_source() {
+    let original = golden();
+    let mut alternate_route = original.clone();
+    alternate_route.provenance.producer_route = LoopRouteId::GenericLoopV1;
+    let mut alternate_source = original.clone();
+    alternate_source.source_binding.owner = LoopRecipeSourceOwnerV1::function_body(0, 7);
+
+    let original = LoopRecipeVerifierV1::verify_artifact(original).expect("original verifies");
+    let alternate_route =
+        LoopRecipeVerifierV1::verify_artifact(alternate_route).expect("route verifies");
+    let alternate_source =
+        LoopRecipeVerifierV1::verify_artifact(alternate_source).expect("source verifies");
+    let original_json = LoopRecipeNormalizerV1::normalize_source_bound(&original)
+        .expect("original source-bound normalize");
+    let route_json = LoopRecipeNormalizerV1::normalize_source_bound(&alternate_route)
+        .expect("route source-bound normalize");
+    let source_json = LoopRecipeNormalizerV1::normalize_source_bound(&alternate_source)
+        .expect("source source-bound normalize");
+
+    assert_eq!(original_json, route_json);
+    assert_ne!(original_json, source_json);
+}
+
+#[test]
 fn unsupported_version_is_typed() {
     let mut artifact = golden();
     artifact.schema_version = 2;
@@ -61,15 +103,158 @@ fn unsupported_version_is_typed() {
 }
 
 #[test]
-fn empty_source_path_is_typed() {
+fn source_binding_requires_exact_coverage() {
     let mut artifact = golden();
-    artifact.recipe.loops[1].source.steps.clear();
+    artifact.source_binding.loops.pop();
     assert_eq!(
         reject(artifact),
-        Reject::EmptySourcePath {
-            loop_key: LoopNodeKeyV1::new(1)
+        Reject::SourceBindingCoverageMismatch {
+            expected: 2,
+            found: 1,
         }
     );
+}
+
+#[test]
+fn source_binding_order_is_canonical() {
+    let mut artifact = golden();
+    artifact.source_binding.loops.swap(0, 1);
+    assert_eq!(
+        reject(artifact),
+        Reject::NonCanonicalSourceBindingOrder {
+            expected: LoopNodeKeyV1::new(0),
+            found: LoopNodeKeyV1::new(1),
+        }
+    );
+}
+
+#[test]
+fn source_binding_paths_are_unique() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[1].path = artifact.source_binding.loops[0].path.clone();
+    assert_eq!(
+        reject(artifact),
+        Reject::DuplicateLoopSourcePath {
+            first: LoopNodeKeyV1::new(0),
+            second: LoopNodeKeyV1::new(1),
+        }
+    );
+}
+
+#[test]
+fn root_source_path_starts_with_body_item() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[0].path.steps =
+        vec![LoopSourcePathStepV1::LoopBodyItem { index: 0 }];
+    assert_eq!(
+        reject(artifact),
+        Reject::RootSourcePathMustStartWithBodyItem {
+            loop_key: LoopNodeKeyV1::new(0),
+        }
+    );
+}
+
+#[test]
+fn source_path_rejects_body_item_after_root() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[0]
+        .path
+        .steps
+        .push(LoopSourcePathStepV1::BodyItem { index: 3 });
+    assert_eq!(
+        reject(artifact),
+        Reject::SourcePathBodyItemAfterRoot {
+            loop_key: LoopNodeKeyV1::new(0),
+            step_index: 1,
+        }
+    );
+}
+
+#[test]
+fn root_source_path_may_include_outer_loop_ancestry() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[0]
+        .path
+        .steps
+        .push(LoopSourcePathStepV1::LoopBodyItem { index: 4 });
+    artifact.source_binding.loops[1]
+        .path
+        .steps
+        .insert(1, LoopSourcePathStepV1::LoopBodyItem { index: 4 });
+    LoopRecipeVerifierV1::verify_artifact(artifact).expect("outer source Loop ancestry is valid");
+}
+
+#[test]
+fn nested_source_path_is_a_strict_parent_prefix_descendant() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[1].path.steps = vec![
+        LoopSourcePathStepV1::BodyItem { index: 9 },
+        LoopSourcePathStepV1::LoopBodyItem { index: 0 },
+    ];
+    assert_eq!(
+        reject(artifact),
+        Reject::NestedSourcePathNotDescendant {
+            loop_key: LoopNodeKeyV1::new(1),
+            parent_loop: LoopNodeKeyV1::new(0),
+        }
+    );
+}
+
+#[test]
+fn nested_source_path_enters_parent_loop_body_first() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[1].path.steps[1] =
+        LoopSourcePathStepV1::ScopeBodyItem { index: 0 };
+    assert_eq!(
+        reject(artifact),
+        Reject::NestedSourcePathMustEnterLoopBody {
+            loop_key: LoopNodeKeyV1::new(1),
+            parent_loop: LoopNodeKeyV1::new(0),
+        }
+    );
+}
+
+#[test]
+fn nested_source_path_rejects_additional_body_item() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[1]
+        .path
+        .steps
+        .push(LoopSourcePathStepV1::BodyItem { index: 3 });
+    assert_eq!(
+        reject(artifact),
+        Reject::SourcePathBodyItemAfterRoot {
+            loop_key: LoopNodeKeyV1::new(1),
+            step_index: 2,
+        }
+    );
+}
+
+#[test]
+fn nested_source_path_rejects_intermediate_loop_skip() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[1]
+        .path
+        .steps
+        .push(LoopSourcePathStepV1::LoopBodyItem { index: 1 });
+    assert_eq!(
+        reject(artifact),
+        Reject::NestedSourcePathSkipsIntermediateLoop {
+            loop_key: LoopNodeKeyV1::new(1),
+            parent_loop: LoopNodeKeyV1::new(0),
+            step_index: 2,
+        }
+    );
+}
+
+#[test]
+fn nested_source_path_allows_scopes_after_direct_loop_entry() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[1]
+        .path
+        .steps
+        .push(LoopSourcePathStepV1::ScopeBodyItem { index: 3 });
+    LoopRecipeVerifierV1::verify_artifact(artifact).expect("trailing source scopes are valid");
 }
 
 #[test]
@@ -163,10 +348,6 @@ fn recursive_loop_preorder_is_canonical() {
     let mut second = artifact.recipe.loops[1].clone();
     second.key = LoopNodeKeyV1::new(2);
     second.body = LoopBlockKeyV1::new(2);
-    second
-        .source
-        .steps
-        .push(LoopSourcePathStepV1::LoopBody { index: 1 });
     artifact.recipe.loops[1].body = LoopBlockKeyV1::new(3);
     artifact.recipe.loops.push(second);
 
@@ -270,6 +451,40 @@ fn unknown_wire_field_is_rejected_instead_of_silently_ignored() {
         .as_object_mut()
         .expect("artifact object")
         .insert("legacy_family".to_owned(), serde_json::json!("loop_v0"));
+    let json = serde_json::to_string(&value).expect("fixture encodes");
+    assert!(matches!(
+        LoopRecipeNormalizerV1::decode_and_verify(&json),
+        Err(LoopRecipeDecodeErrorV1::Json(_))
+    ));
+}
+
+#[test]
+fn source_owner_wire_rejects_program_body() {
+    let mut value: serde_json::Value =
+        serde_json::from_str(ACCUM_NESTED_GOLDEN).expect("golden value");
+    value["source_binding"]["owner"] = serde_json::json!({
+        "kind": "program_body",
+        "compilation_unit_ordinal": 0,
+        "program_ordinal": 0
+    });
+    let json = serde_json::to_string(&value).expect("fixture encodes");
+    assert!(matches!(
+        LoopRecipeNormalizerV1::decode_and_verify(&json),
+        Err(LoopRecipeDecodeErrorV1::Json(_))
+    ));
+}
+
+#[test]
+fn semantic_loop_wire_rejects_embedded_source_authority() {
+    let mut value: serde_json::Value =
+        serde_json::from_str(ACCUM_NESTED_GOLDEN).expect("golden value");
+    value["recipe"]["loops"][0]
+        .as_object_mut()
+        .expect("loop object")
+        .insert(
+            "source".to_owned(),
+            serde_json::json!({"steps": [{"kind": "body_item", "index": 2}]}),
+        );
     let json = serde_json::to_string(&value).expect("fixture encodes");
     assert!(matches!(
         LoopRecipeNormalizerV1::decode_and_verify(&json),

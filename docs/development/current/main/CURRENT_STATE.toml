@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; C0/M1/M2 and M3-A census are closed, and M3-B root source authority is the active design stop."
+status = "JOINIR all-route convergence is task-ordered; C0/M1/M2 and M3-A/M3-B are closed, and M3-C frozen policy rows are active."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "After the 797-line preflight test extraction, follow the selfhost-ready Loop pipeline: owned StructuralFacts -> one RoutePolicy winner -> one recursive structured LoopRecipe artifact -> verifier/elaborated JoinSig -> one candidate physicalizer. Legacy 11/1/1/4/2 first-mutation profiles are migration adapters/provenance only, never semantic recipe kinds or downstream switches. The existing compile candidate is the abort boundary; no LoopEmissionDraftV1. Generic V0/V1 debt remains a mandatory standalone design stop. M9 proves only the .hako recipe producer; after Rust M10/M11 cutover/handoff, M12 retires legacy family adapters to zero before reserved SH1-SH5 move verifier, CFG/PHI, physical MIR JSON, identity, and default Loop authority into the canonical selfhost MirBuilder."
-current_execution_row = "JOINIR-LOOP-ROOT-SOURCE-AUTHORITY0-D0-S1"
-current_execution_summary = "C0/M1/M2 and M3-A are closed. The all-19 code-arm census found six exact gaps instead of one generic wall. M3-B is now the design stop: name the caller-owned portable root LoopSourcePath authority, then map route-local body topology beneath it; ScopeBox lineage must gain an accepted typed path step or fail closed. No policy DTO producer or caller is authorized before this source boundary is fixed."
+current_execution_row = "JOINIR-LOOP-FROZEN-POLICY-ROWS0-S2"
+current_execution_summary = "C0/M1/M2 and M3-A/M3-B are closed. Sealed resolved Loop source authority is distinct from the structurally verified portable wire claim; Function owner, compact Body/Scope/Loop path grammar, typed unsupported ancestry, caller-zero E2E, and downstream non-read guards are fixed. M3-C now freezes the existing 19-row schedule and all policy observations once in a neutral non-Clone owned DTO; selection, retry, recipe, AST, Builder, composer, and lower authority remain forbidden."
 current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "joinir-loop-selfhost-recipe-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
-latest_card_summary = """C0/M1/M2 and M3-A are closed. M3 is split into root source authority, frozen owned policy rows, typed prefix/outcome closure, one pure chooser, and caller-zero legacy parity. Current M3-B must name the portable root LoopSourcePath owner before route-local topology can become structural facts; ScopeBox lineage is typed or fail-closed. Generic V0/V1 remain exact M4 debt, NestedMinimal remains a separate named blocker, and route/family identity stays diagnostic only. M10/M11 cut over and retire handoffs; M12 removes migration adapters before SH1-SH5."""
+latest_card_summary = """C0/M1/M2 and M3-A/M3-B are closed. Sealed local Loop source authority and the portable structural wire claim are separate capabilities; Function owner/path grammar and caller-zero E2E are fixed. M3-C now freezes the existing 19-row schedule and policy observations into one neutral owned DTO without selecting, retrying, composing, lowering, or reading AST/Builder. Generic V0/V1 remain exact M4 debt, NestedMinimal remains separate, route/family identity stays diagnostic, M6 consolidates CFG/JoinSig/PHI, and M12 retires migration adapters before SH1-SH5."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-ROOT-SOURCE-AUTHORITY0-D0-S1"
+current_blocker_token = "JOINIR-LOOP-FROZEN-POLICY-ROWS0-S2"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

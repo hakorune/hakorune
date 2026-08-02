@@ -19,6 +19,15 @@ Related:
 Choose the clean final architecture rather than the shortest wrapper around the
 19 legacy physical routes.
 
+## SSOT role disambiguation
+
+The authority split is:
+
+- `RecipeTree + Parts` is the current production in-builder recursive
+  implementation and parity oracle through portable Loop pipeline M10.
+- Portable `LoopRecipeArtifactV1` is the future Rust/.hako common final semantic wire contract.
+- `joinir-loop-selfhost-recipe-pipeline-ssot.md` is the replacement/cutover authority.
+
 ```text
 Source / projection
 -> StructuralFacts
@@ -323,11 +332,37 @@ M3 task order:
    TrueBreak plus Cond4 source topology missing; late AST policy rereads;
    NestedMinimal composer dependence; non-Generic `Option` terminality not
    sealed; Generic V0/V1 post-effect retry debt.
-2. `M3-B / JOINIR-LOOP-ROOT-SOURCE-AUTHORITY0-D0-S1` — issue one owned root
+2. `M3-B / JOINIR-LOOP-ROOT-SOURCE-AUTHORITY0-D0-S1` — **closed**. Issue one owned root
    `LoopSourcePathV1` before route-local observation. Map the 12 existing
    body-topology receipts beneath it; ScopeBox lineage is either represented by
    an accepted typed path extension or fails closed. Do not infer a root path
    from route-local body indices.
+
+   M3-B close acceptance (not a new row or a new IR/route):
+
+   - Portable artifact JSON, including a structurally verified
+     `StructurallyVerifiedLoopRecipeSourceClaimV1`, is a portable source claim; it is not
+     local source authority. Only the separately named, sealed exact-loop lookup
+     capability `VerifiedResolvedLoopSourceV1` is local source authority.
+   - The compact path grammar is closed: the first step is `BodyItem`, and every
+     later step is `ScopeBodyItem` or `LoopBodyItem`. A semantic child Loop path
+     is exactly its semantic parent's full prefix, one `LoopBodyItem`, then zero
+     or more `ScopeBodyItem` steps; it cannot skip an intermediate Loop.
+   - The current issuer accepts only `DeclaredFunction`. `Program` remains a
+     typed unsupported owner until a separate sealed producer is approved.
+   - Semantic Recipe, CFG, JoinSig, PHI, and physicalization consumers cannot
+     read source binding, provenance, or either source-authority capability.
+   - Done requires one adapter-to-artifact verification fixture: consume the
+     sealed exact-loop token, project the portable claim, bind it to the recipe,
+     and pass full artifact verification end to end.
+
+   Close proof (2026-08-03): sealed exact-loop local capability is non-Clone;
+   portable JSON proves only a private structural claim; Function owner and
+   compact path grammar are closed and fail typed on unsupported ancestry;
+   production callers are zero; artifact fields are contract-private; the E2E
+   fixture is green. Contract/source/resolved tests are 32/10/11, registry is
+   80, shared/pointer guards and release build are green, largest Rust file is
+   703 lines, and two-stage independent close audit reports blocker zero.
 3. `M3-C / JOINIR-LOOP-FROZEN-POLICY-ROWS0-S2` — add sibling neutral owner
    `src/mir/loop_route_policy/` with a non-Clone owned schedule and 19 ordered
    row observations. Freeze typed suppression, raw cursor, mode/release facts,
@@ -351,6 +386,20 @@ M3 task order:
    legacy execution, not `all_route_preflight`; production callers and second
    schedulers remain zero. Include one production-derived decline-then-success
    counterexample. Recipe-kind parity moves to M5/M8.
+
+#### Docs-only cleanup — SSOT role disambiguation (non-row)
+
+This clarification neither inserted nor advanced an execution row. M3-B closed
+separately by the proof above. Remaining work stays with the existing owners:
+
+- route selection and pre-effect Retry typing stay in M3; Generic V0/V1
+  post-effect retry debt stays in M4;
+- shared CFG/JoinSig/PHI consolidation stays in M6;
+- legacy adapter phase-2 reduction/retirement stays in M12 after M10/M11
+  cutover and handoff evidence are green.
+
+This cleanup authorizes no new IR, semantic recipe variant, route, scheduler,
+retry path, or physical lowering owner.
 
 M3 gates stay in the existing shared MirBuilder guard. New policy files are
 split by schema/evaluator/adapter/tests and each remains below 800 lines.

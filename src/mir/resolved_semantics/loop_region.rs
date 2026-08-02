@@ -7,11 +7,12 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::ids::{RegionId, ScopeId};
+use super::owner_source_kind::SemanticOwnerSourceKindV1;
 use super::product::{
     ResolvedFunctionDataV1, ResolvedScopeRegionPairV1, VerifiedResolvedFunctionV1,
 };
 use super::records::{RegionKindV1, RegionOriginV1, ScopeKindV1, ScopeOriginV1};
-use super::source_site::{SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
+use super::source_site::{FunctionOriginV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
 use super::verifier::exact_source_region_v1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -28,6 +29,30 @@ impl ResolvedLoopRegionBundleV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolvedLoopRegionLookupErrorV1 {
     MissingExactBundle(SourceStmtSiteV1),
+}
+
+/// Owner-branded source identity for one Loop admitted by the sealed index.
+///
+/// This token is intentionally non-`Clone`: a downstream portable-source
+/// adapter must consume the exact lookup result rather than minting source
+/// authority from a route-local AST view or facts projection.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedResolvedLoopSourceV1 {
+    function_origin: FunctionOriginV1,
+    owner_source_kind: SemanticOwnerSourceKindV1,
+    site: SourceStmtSiteV1,
+}
+
+impl VerifiedResolvedLoopSourceV1 {
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        FunctionOriginV1,
+        SemanticOwnerSourceKindV1,
+        SourceStmtSiteV1,
+    ) {
+        (self.function_origin, self.owner_source_kind, self.site)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -69,6 +94,19 @@ impl VerifiedResolvedFunctionV1 {
     /// Returns only the sealed cardinality for future source/flow bijection.
     pub(crate) fn loop_region_bundle_count(&self) -> usize {
         self.core.loop_regions.len()
+    }
+
+    /// Issues exact Loop source identity only after the sealed site lookup.
+    pub(crate) fn resolved_loop_source(
+        &self,
+        site: &SourceStmtSiteV1,
+    ) -> Result<VerifiedResolvedLoopSourceV1, ResolvedLoopRegionLookupErrorV1> {
+        self.loop_region_bundle(site)?;
+        Ok(VerifiedResolvedLoopSourceV1 {
+            function_origin: self.function_origin(),
+            owner_source_kind: self.source_kind(),
+            site: site.clone(),
+        })
     }
 }
 

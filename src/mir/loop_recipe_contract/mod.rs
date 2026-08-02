@@ -5,6 +5,7 @@ mod ids;
 mod normalize;
 pub(crate) mod route_id;
 mod schema;
+mod source_binding;
 mod verify;
 
 #[cfg(test)]
@@ -23,11 +24,21 @@ pub(crate) use ids::{
 pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
 #[allow(unused_imports)]
 pub(crate) use schema::{
-    LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1, LoopNodeV1,
-    LoopOperationV1, LoopRecipeArtifactV1, LoopRecipeBindingV1, LoopRecipeBlockV1,
-    LoopRecipeCarrierV1, LoopRecipeExitV1, LoopRecipeItemRowV1, LoopRecipeItemV1,
-    LoopRecipeProvenanceV1, LoopRecipeV1, LoopRecipeValueV1, LoopSourcePathStepV1,
+    LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,
+    LoopNodeSourceBindingV1, LoopNodeV1, LoopOperationV1, LoopRecipeArtifactV1,
+    LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1, LoopRecipeExitV1,
+    LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1,
+    LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeValueV1, LoopSourcePathStepV1,
     LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
 };
 #[allow(unused_imports)]
-pub(crate) use verify::{LoopRecipeVerifierV1, VerifiedLoopRecipeArtifactV1, VerifiedLoopRecipeV1};
+pub(crate) use verify::{LoopRecipeVerifierV1, VerifiedLoopRecipeV1};
+
+/// Test-only end-to-end seam. The structural source-claim capability remains
+/// private even when sibling modules exercise artifact verification.
+#[cfg(test)]
+pub(crate) fn verify_artifact_for_test(
+    artifact: LoopRecipeArtifactV1,
+) -> Result<(), LoopRecipeRejectReasonV1> {
+    verify::LoopRecipeVerifierV1::verify_artifact(artifact).map(drop)
+}

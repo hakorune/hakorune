@@ -10,8 +10,37 @@ pub(crate) enum LoopRecipeRejectReasonV1 {
     UnsupportedVersion {
         found: u16,
     },
-    EmptySourcePath {
+    SourceBindingCoverageMismatch {
+        expected: usize,
+        found: usize,
+    },
+    NonCanonicalSourceBindingOrder {
+        expected: LoopNodeKeyV1,
+        found: LoopNodeKeyV1,
+    },
+    DuplicateLoopSourcePath {
+        first: LoopNodeKeyV1,
+        second: LoopNodeKeyV1,
+    },
+    RootSourcePathMustStartWithBodyItem {
         loop_key: LoopNodeKeyV1,
+    },
+    SourcePathBodyItemAfterRoot {
+        loop_key: LoopNodeKeyV1,
+        step_index: usize,
+    },
+    NestedSourcePathNotDescendant {
+        loop_key: LoopNodeKeyV1,
+        parent_loop: LoopNodeKeyV1,
+    },
+    NestedSourcePathMustEnterLoopBody {
+        loop_key: LoopNodeKeyV1,
+        parent_loop: LoopNodeKeyV1,
+    },
+    NestedSourcePathSkipsIntermediateLoop {
+        loop_key: LoopNodeKeyV1,
+        parent_loop: LoopNodeKeyV1,
+        step_index: usize,
     },
     EmptyBindingLabel {
         key: LoopBindingKeyV1,

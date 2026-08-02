@@ -10,6 +10,9 @@ use super::schema::{
     LoopConditionV1, LoopExitKindV1, LoopOperationV1, LoopRecipeArtifactV1, LoopRecipeItemV1,
     LoopRecipeProvenanceV1, LoopRecipeV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
 };
+use super::source_binding::{
+    LoopRecipeSourceClaimVerifierV1, StructurallyVerifiedLoopRecipeSourceClaimV1,
+};
 
 #[derive(Debug)]
 pub(crate) struct VerifiedLoopRecipeV1(LoopRecipeV1);
@@ -19,49 +22,66 @@ impl VerifiedLoopRecipeV1 {
         &self.0
     }
 
+    pub(crate) fn root_loop(&self) -> LoopNodeKeyV1 {
+        self.0.root_loop
+    }
+
     pub(crate) fn into_recipe(self) -> LoopRecipeV1 {
         self.0
     }
 }
 
+/// Artifact whose recipe and source wire claim are structurally valid.
+///
+/// This type does not prove source existence, declared-function identity, or
+/// correspondence with an AST. Only the semantic recipe is safe to expose to
+/// consumers outside this contract module.
 #[derive(Debug)]
-pub(crate) struct VerifiedLoopRecipeArtifactV1 {
+pub(super) struct VerifiedLoopRecipeArtifactV1 {
     provenance: LoopRecipeProvenanceV1,
+    source_binding: StructurallyVerifiedLoopRecipeSourceClaimV1,
     recipe: VerifiedLoopRecipeV1,
 }
 
 impl VerifiedLoopRecipeArtifactV1 {
-    pub(crate) fn provenance(&self) -> &LoopRecipeProvenanceV1 {
+    pub(super) fn provenance(&self) -> &LoopRecipeProvenanceV1 {
         &self.provenance
     }
 
-    pub(crate) fn recipe(&self) -> &VerifiedLoopRecipeV1 {
+    pub(super) fn recipe(&self) -> &VerifiedLoopRecipeV1 {
         &self.recipe
     }
 
-    pub(crate) fn into_artifact(self) -> LoopRecipeArtifactV1 {
-        LoopRecipeArtifactV1 {
-            schema_version: LOOP_RECIPE_SCHEMA_VERSION_V1,
-            provenance: self.provenance,
-            recipe: self.recipe.into_recipe(),
-        }
+    pub(super) fn source_binding(&self) -> &StructurallyVerifiedLoopRecipeSourceClaimV1 {
+        &self.source_binding
     }
 }
 
 pub(crate) struct LoopRecipeVerifierV1;
 
 impl LoopRecipeVerifierV1 {
-    pub(crate) fn verify_artifact(
+    /// Verifies the semantic recipe and the internal shape of its source wire
+    /// claim. This performs no lookup against a source owner or AST.
+    pub(super) fn verify_artifact(
         artifact: LoopRecipeArtifactV1,
     ) -> Result<VerifiedLoopRecipeArtifactV1, Reject> {
-        if artifact.schema_version != LOOP_RECIPE_SCHEMA_VERSION_V1 {
+        let LoopRecipeArtifactV1 {
+            schema_version,
+            provenance,
+            source_binding,
+            recipe,
+        } = artifact;
+        if schema_version != LOOP_RECIPE_SCHEMA_VERSION_V1 {
             return Err(Reject::UnsupportedVersion {
-                found: artifact.schema_version,
+                found: schema_version,
             });
         }
-        let recipe = Self::verify(artifact.recipe)?;
+        let recipe = Self::verify(recipe)?;
+        let source_binding =
+            LoopRecipeSourceClaimVerifierV1::verify(recipe.as_recipe(), source_binding)?;
         Ok(VerifiedLoopRecipeArtifactV1 {
-            provenance: artifact.provenance,
+            provenance,
+            source_binding,
             recipe,
         })
     }
@@ -167,11 +187,6 @@ fn check_loop_tree(recipe: &LoopRecipeV1) -> Result<(), Reject> {
         return Err(Reject::RootLoopMustBeZero);
     }
     for loop_node in &recipe.loops {
-        if loop_node.source.steps.is_empty() {
-            return Err(Reject::EmptySourcePath {
-                loop_key: loop_node.key,
-            });
-        }
         if loop_node.key == recipe.root_loop {
             if loop_node.parent.is_some() {
                 return Err(Reject::InvalidRootParent);

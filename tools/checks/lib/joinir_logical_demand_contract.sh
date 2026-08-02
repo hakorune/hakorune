@@ -6,6 +6,7 @@ guard_joinir_logical_demand_contract() {
   local tag="$2"
   local route_id="$root_dir/src/mir/loop_recipe_contract/route_id.rs"
   local portable_recipe_dir="$root_dir/src/mir/loop_recipe_contract"
+  local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
   local if_phi_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_if_phi_join_terminality.rs"
@@ -76,6 +77,65 @@ guard_joinir_logical_demand_contract() {
   if rg -n -w 'LoopRouteId|producer_route' \
     "$portable_recipe_dir/verify.rs" "$portable_recipe_dir/normalize.rs" >/dev/null; then
     guard_fail "$tag" "portable semantic verifier/normalizer acquired route provenance authority"
+  fi
+  local loop_structural_fact_files=()
+  mapfile -t loop_structural_fact_files < <(
+    find "$loop_structural_facts_dir" -maxdepth 1 -name '*.rs' -type f | sort
+  )
+  guard_require_files "$tag" \
+    "$loop_structural_facts_dir/README.md" \
+    "$loop_structural_facts_dir/mod.rs" \
+    "$loop_structural_facts_dir/resolved_source_adapter.rs"
+  if (( ${#loop_structural_fact_files[@]} == 0 )); then
+    guard_fail "$tag" "Loop structural facts subtree has no Rust contract files"
+  fi
+  local loop_structural_production_files=()
+  for file in "${loop_structural_fact_files[@]}"; do
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    if (( lines >= 800 )); then
+      guard_fail "$tag" "file exceeds boundary: ${file#"$root_dir/"} lines=$lines"
+    fi
+    [[ "$file" == "$loop_structural_facts_dir/tests.rs" ]] || \
+      loop_structural_production_files+=("$file")
+  done
+  if rg -n -w \
+    'ASTNode|MirBuilder|CorePlan|ValueId|BasicBlockId|MirInstruction|Phi|Frag|LoopRouteContext|CanonicalLoopFacts|RouteAttemptOutcome|RouteFn|ComposeFn|LoopRecipeArtifactV1|LoopRouteId|LoopRecipeProvenanceV1|producer_route' \
+    "${loop_structural_production_files[@]}" >/dev/null; then
+    guard_fail "$tag" "Loop structural source authority acquired artifact, route, retry, AST, or physical authority"
+  fi
+  local structural_binding_callers
+  structural_binding_callers="$(
+    { rg -l 'bind_resolved_loop_root_v1\(' "$root_dir/src/mir" || true; } \
+      | awk -v prefix="$loop_structural_facts_dir/" 'index($0, prefix) != 1' \
+      | wc -l \
+      | tr -d '[:space:]'
+  )"
+  if [[ "$structural_binding_callers" != "0" ]]; then
+    guard_fail "$tag" "caller-zero Loop source adapter acquired a production caller"
+  fi
+  local external_portable_source_files=()
+  mapfile -t external_portable_source_files < <(
+    { rg -l -w \
+        'LoopRecipeArtifactV1|LoopRecipeSourceBindingV1|LoopNodeSourceBindingV1|LoopRecipeSourceOwnerV1|LoopSourcePathV1|LoopSourcePathStepV1|LoopRecipeProvenanceV1' \
+        "$root_dir/src/mir" || true; } \
+      | awk \
+          -v recipe_prefix="$portable_recipe_dir/" \
+          -v structural_prefix="$loop_structural_facts_dir/" \
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1'
+  )
+  if (( ${#external_portable_source_files[@]} != 0 )); then
+    guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"
+  fi
+  local external_resolved_source_files=()
+  mapfile -t external_resolved_source_files < <(
+    { rg -l -w 'VerifiedResolvedLoopSourceV1' "$root_dir/src/mir" || true; } \
+      | awk \
+          -v structural_prefix="$loop_structural_facts_dir/" \
+          -v resolved_prefix="$root_dir/src/mir/resolved_semantics/" \
+          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1'
+  )
+  if (( ${#external_resolved_source_files[@]} != 0 )); then
+    guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
   fi
   for file in "${files[@]}"; do
     lines="$(wc -l < "$file" | tr -d '[:space:]')"

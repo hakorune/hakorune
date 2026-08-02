@@ -230,6 +230,29 @@ fn query_reports_a_typed_missing_exact_bundle() {
 }
 
 #[test]
+fn exact_lookup_issues_non_synthetic_loop_source_identity() {
+    let product = resolve(&function(vec![loop_stmt(Vec::new())]));
+    let site = stmt(vec![SourcePathSegmentV1::Body(0)]);
+    let source = product.resolved_loop_source(&site).unwrap();
+
+    let (origin, source_kind, issued_site) = source.into_parts();
+    assert_eq!(origin, product.function_origin());
+    assert_eq!(source_kind, product.source_kind());
+    assert_eq!(issued_site, site);
+}
+
+#[test]
+fn missing_lookup_cannot_issue_loop_source_identity() {
+    let product = resolve(&function(vec![loop_stmt(Vec::new())]));
+    let missing = stmt(vec![SourcePathSegmentV1::Body(7)]);
+
+    assert_eq!(
+        product.resolved_loop_source(&missing),
+        Err(ResolvedLoopRegionLookupErrorV1::MissingExactBundle(missing))
+    );
+}
+
+#[test]
 fn sealed_bundle_ids_point_to_exact_authoritative_records() {
     let product = seal(loop_data(owner())).unwrap();
     let pair = product

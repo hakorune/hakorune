@@ -3,32 +3,44 @@
   "provenance": {
     "producer_route": "accum_const_loop"
   },
+  "source_binding": {
+    "owner": {
+      "kind": "function_body",
+      "compilation_unit_ordinal": 0,
+      "function_ordinal": 0
+    },
+    "loops": [
+      {
+        "loop_key": 0,
+        "path": {
+          "steps": [
+            { "kind": "body_item", "index": 2 }
+          ]
+        }
+      },
+      {
+        "loop_key": 1,
+        "path": {
+          "steps": [
+            { "kind": "body_item", "index": 2 },
+            { "kind": "loop_body_item", "index": 0 }
+          ]
+        }
+      }
+    ]
+  },
   "recipe": {
     "root_loop": 0,
     "loops": [
       {
         "key": 0,
         "parent": null,
-        "source": {
-          "steps": [
-            { "kind": "function_body" },
-            { "kind": "body", "index": 2 }
-          ]
-        },
         "condition": { "kind": "predicate", "block": 0, "value": 2 },
         "body": 1
       },
       {
         "key": 1,
         "parent": 0,
-        "source": {
-          "steps": [
-            { "kind": "function_body" },
-            { "kind": "body", "index": 2 },
-            { "kind": "loop_body_root" },
-            { "kind": "loop_body", "index": 0 }
-          ]
-        },
         "condition": { "kind": "always" },
         "body": 2
       }

@@ -13,15 +13,84 @@ pub(crate) const LOOP_RECIPE_SCHEMA_VERSION_V1: u16 = 1;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct LoopRecipeArtifactV1 {
-    pub(crate) schema_version: u16,
-    pub(crate) provenance: LoopRecipeProvenanceV1,
-    pub(crate) recipe: LoopRecipeV1,
+    pub(super) schema_version: u16,
+    pub(super) provenance: LoopRecipeProvenanceV1,
+    pub(super) source_binding: LoopRecipeSourceBindingV1,
+    pub(super) recipe: LoopRecipeV1,
+}
+
+impl LoopRecipeArtifactV1 {
+    /// Assembles the portable wire without exposing source/provenance fields to
+    /// semantic or physical consumers.
+    pub(crate) fn new(
+        provenance: LoopRecipeProvenanceV1,
+        source_binding: LoopRecipeSourceBindingV1,
+        recipe: LoopRecipeV1,
+    ) -> Self {
+        Self {
+            schema_version: LOOP_RECIPE_SCHEMA_VERSION_V1,
+            provenance,
+            source_binding,
+            recipe,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct LoopRecipeProvenanceV1 {
     pub(crate) producer_route: LoopRouteId,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct LoopRecipeSourceBindingV1 {
+    pub(crate) owner: LoopRecipeSourceOwnerV1,
+    pub(crate) loops: Vec<LoopNodeSourceBindingV1>,
+}
+
+impl LoopRecipeSourceBindingV1 {
+    pub(crate) fn new(owner: LoopRecipeSourceOwnerV1, loops: Vec<LoopNodeSourceBindingV1>) -> Self {
+        Self { owner, loops }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+/// Declared-function identity claimed by the wire artifact.
+///
+/// These ordinals are structural coordinates, not proof that the declaration
+/// exists or owns the claimed source paths.
+pub(crate) enum LoopRecipeSourceOwnerV1 {
+    FunctionBody {
+        compilation_unit_ordinal: u32,
+        function_ordinal: u32,
+    },
+}
+
+impl LoopRecipeSourceOwnerV1 {
+    pub(crate) const fn function_body(
+        compilation_unit_ordinal: u32,
+        function_ordinal: u32,
+    ) -> Self {
+        Self::FunctionBody {
+            compilation_unit_ordinal,
+            function_ordinal,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct LoopNodeSourceBindingV1 {
+    pub(crate) loop_key: LoopNodeKeyV1,
+    pub(crate) path: LoopSourcePathV1,
+}
+
+impl LoopNodeSourceBindingV1 {
+    pub(crate) fn new(loop_key: LoopNodeKeyV1, path: LoopSourcePathV1) -> Self {
+        Self { loop_key, path }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -43,24 +112,28 @@ pub(crate) struct LoopRecipeV1 {
 pub(crate) struct LoopNodeV1 {
     pub(crate) key: LoopNodeKeyV1,
     pub(crate) parent: Option<LoopNodeKeyV1>,
-    pub(crate) source: LoopSourcePathV1,
     pub(crate) condition: LoopConditionV1,
     pub(crate) body: LoopBlockKeyV1,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct LoopSourcePathV1 {
     pub(crate) steps: Vec<LoopSourcePathStepV1>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+impl LoopSourcePathV1 {
+    pub(crate) fn new(steps: Vec<LoopSourcePathStepV1>) -> Self {
+        Self { steps }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub(crate) enum LoopSourcePathStepV1 {
-    FunctionBody,
-    Body { index: u32 },
-    LoopBodyRoot,
-    LoopBody { index: u32 },
+    BodyItem { index: u32 },
+    ScopeBodyItem { index: u32 },
+    LoopBodyItem { index: u32 },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

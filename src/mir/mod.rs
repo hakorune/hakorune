@@ -114,6 +114,7 @@ pub mod instruction_kinds; // small kind-specific metadata (Const/BinOp)
 pub mod loop_api; // Minimal LoopBuilder facade (adapter-ready)
 pub mod loop_canonicalizer; // Phase 1: Loop skeleton canonicalization (AST preprocessing)
 pub(crate) mod loop_recipe_contract; // Builder-free recursive Loop recipe wire
+pub(crate) mod loop_structural_facts; // resolved source -> portable Loop source binding
 pub mod map_lookup_fusion_plan; // MIR-owned MapGet/MapHas same-key fusion metadata
 pub mod map_missing_empty_route_plan; // MIR-owned local empty MapGet missing-route metadata
 pub mod map_repr_plan; // MIR-owned MapBox representation plan family
