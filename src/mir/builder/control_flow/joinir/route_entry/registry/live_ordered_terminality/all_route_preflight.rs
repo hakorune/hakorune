@@ -1,32 +1,35 @@
-//! One-shot all-route preflight rejection from the existing live capability.
-
-use super::LiveLoopFactsV1;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::loop_preflight::{
     LoopPreflightDispositionV1, LoopPreflightRejectV1,
 };
 use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
-use crate::mir::builder::control_flow::joinir::route_entry::registry::selection::select_recipe_first_routes;
-use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-
 mod split_scan;
 use split_scan::classify_split_scan;
 mod bool_predicate_scan;
 use bool_predicate_scan::classify_bool_predicate_scan;
-
-/// Consumes the only live pair. Current all-route preflight has no Qualified arm.
-pub(crate) fn issue_all_route_preflight_v1(
-    live: LiveLoopFactsV1<'_>,
+pub(crate) fn observe_selected_preflight_v1(
+    facts: Option<&CanonicalLoopFacts>,
+    raw_schedule: &[LoopRouteId],
 ) -> LoopPreflightDispositionV1 {
-    let _bound_source_frame = (live.condition, live.body);
-    let canonical = canonicalize_loop_facts(live.facts);
-    let selection = select_recipe_first_routes(Some(&canonical));
-    let Some(&front) = selection.raw_execution_routes().first() else {
+    let Some(&front) = raw_schedule.first() else {
         return LoopPreflightDispositionV1::NoCandidate;
     };
-    LoopPreflightDispositionV1::Rejected(classify_front(&canonical.facts, front))
+    let Some(facts) = facts else {
+        return LoopPreflightDispositionV1::Rejected(
+            LoopPreflightRejectV1::SourceTopologyUnavailable { route: front },
+        );
+    };
+    LoopPreflightDispositionV1::Rejected(classify_front(&facts.facts, front))
 }
-
+#[cfg(test)]
+pub(crate) fn issue_all_route_preflight_v1(
+    live: super::LiveLoopFactsV1<'_>,
+) -> LoopPreflightDispositionV1 {
+    let canonical = crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts(live.facts);
+    let selection = crate::mir::builder::control_flow::joinir::route_entry::registry::selection::select_recipe_first_routes(Some(&canonical));
+    observe_selected_preflight_v1(Some(&canonical), selection.raw_execution_routes())
+}
 fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV1 {
     match route {
         LoopRouteId::LoopBreakRecipe => classify_loop_break(facts),

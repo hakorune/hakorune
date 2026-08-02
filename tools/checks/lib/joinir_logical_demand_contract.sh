@@ -78,8 +78,9 @@ guard_joinir_logical_demand_contract() {
   local all_route_selection_calls all_route_production
   all_route_production="$(sed '/^#\[cfg(test)\]/,$d' "$all_route_preflight")"
   all_route_selection_calls="$(printf '%s\n' "$all_route_production" | rg -c 'select_recipe_first_routes\(Some\(&canonical\)\)' || true)"
-  if [[ "$all_route_selection_calls" != "1" ]]; then
-    guard_fail "$tag" "all-route preflight must select the canonical raw schedule exactly once"
+  all_route_selection_calls="${all_route_selection_calls:-0}"
+  if [[ "$all_route_selection_calls" != "0" ]]; then
+    guard_fail "$tag" "all-route preflight must consume the router-selected raw schedule without reselecting"
   fi
   if printf '%s\n' "$all_route_production" | rg -n \
     'diagnostic_effective|matched_routes|ASTNode::|try_extract_|LoopSourceView|logical_product|qualify_live_loop_facts' \

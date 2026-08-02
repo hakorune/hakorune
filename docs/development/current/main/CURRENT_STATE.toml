@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-D3 is accepted; S0 is selected."
+status = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-S0 is closed; the next bounded claim requires a fresh design card."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "LivePreflightFrame D3 selects a router-issued, one-shot frame plus private legacy continuation: preflight may observe the existing one selection but must return the identical legacy execution inputs without reselecting or becoming a scheduler. S0 is all-rejected, Builder-free, and behavior-neutral; no qualification, terminality, physicalization, or cutover is authorized."
-current_execution_row = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-S0"
-current_execution_summary = "S0 must introduce only the one-selection live preflight-frame/legacy-continuation boundary, consume the existing all-route classifier once, and then preserve unchanged legacy execution."
+current_design_stop = "LivePreflightFrame S0 is closed: router-owned one-selection preflight observation returns a private legacy continuation without reselecting or becoming a scheduler. The next card must be design-only and may not promote all-rejected observation, S2 shared decline, or topology availability into qualification, terminality, physicalization, or cutover."
+current_execution_row = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-NEXT-DESIGN"
+current_execution_summary = "S0 consumes the router's selected schedule and canonical facts exactly once for all-rejected preflight observation, then preserves legacy execution through a private continuation."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-S0"
+current_blocker_token = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-NEXT-DESIGN"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

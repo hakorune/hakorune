@@ -298,22 +298,20 @@ pub(crate) fn route_loop(
         release_allows_nested_recipe_first(&outcome)
     };
     let recipe_first_allowed = strict_or_dev || release_recipe_first_allowed;
-    if recipe_first_allowed {
-        let execution = registry::RouteExecutionWitnessV1::issue(
-            selection.raw_execution_routes(),
-            &env,
-            outcome.recipe_contract.is_some(),
-        );
-        if let Some(success) = registry::try_execute_route_execution_witness(
-            builder,
-            ctx,
-            outcome.facts.as_ref(),
-            execution,
-        )? {
-            trace_legacy_selected(success.route.as_str());
-            trace_entry_route("recipe_first");
-            return Ok(Some(success.value));
-        }
+    let exhausted_candidate_names = selection.diagnostic_effective_names();
+    let frame = registry::issue_live_preflight_frame(
+        ctx,
+        outcome.facts.as_ref(),
+        selection,
+        env,
+        outcome.recipe_contract.is_some(),
+        recipe_first_allowed,
+    );
+    let legacy = registry::observe_all_route_preflight_v1(frame).into_legacy_execution();
+    if let Some(success) = legacy.try_execute_if_allowed(builder, ctx)? {
+        trace_legacy_selected(success.route.as_str());
+        trace_entry_route("recipe_first");
+        return Ok(Some(success.value));
     }
 
     // recipe-first paths are handled by registry above.
@@ -335,11 +333,10 @@ pub(crate) fn route_loop(
     }
 
     // No route matched - return None (caller will handle error)
-    let candidate_names = selection.diagnostic_effective_names();
-    let candidate_text = if candidate_names.is_empty() {
+    let candidate_text = if exhausted_candidate_names.is_empty() {
         "none".to_string()
     } else {
-        candidate_names.join(",")
+        exhausted_candidate_names.join(",")
     };
     planner_reject_detail::set_last_plan_reject_detail_if_absent(format!(
         "route_exhausted func={} loop_kind={} facts_present={} candidates={}",

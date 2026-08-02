@@ -1597,3 +1597,17 @@ policy/terminality, and generic post-effect retry debt retain their existing
 typed rejections. No source re-match, route skip, qualification/product,
 terminality, effects, fallback, rollback, lower success, physicalizer, or I0
 cutover claim is authorized.
+
+### Live preflight frame S0 implementation record
+
+`route_loop` now transfers its one existing selection, canonical facts, source
+frame, environment, contract disposition, and release gate into a private
+non-Clone preflight frame. The all-route classifier consumes the captured raw
+front without canonicalizing or selecting again. Its all-rejected observation
+returns a private continuation, which alone may issue the existing execution
+witness and invoke the unchanged legacy registry when the captured gate allows.
+
+There is no qualified disposition, source re-match, new scheduler, Builder
+state in the frame, behavior change, terminality, physicalization, rollback,
+fallback, lower-success, or cutover claim. The next step requires a fresh
+design-only selection.
