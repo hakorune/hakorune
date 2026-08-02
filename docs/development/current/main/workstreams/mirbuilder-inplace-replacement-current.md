@@ -489,6 +489,11 @@ Done:
   while no-route and overlap remain terminal. Shared guard rejects forbidden
   physical imports and validates every logical source file is below 800 lines.
 
+Gate hold:
+  Current shared guard has unrelated stale ScopeBox/EnumMatch/Print cardinality
+  expectations on main. Audit that baseline drift before adding its P0 ratchet;
+  no logical-demand behavior or test matrix may change while it is red.
+
 Stop:
   Stop if a guard requires a second per-row script, admits a physical import,
   or the ratchet changes producer behavior. No source-provenance expansion,
