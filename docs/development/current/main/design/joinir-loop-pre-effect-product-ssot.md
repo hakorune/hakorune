@@ -1360,3 +1360,15 @@ all assert `SplitScan` as raw front before asserting that result.
 No source borrowing, branch inspection, recipe validation, terminality,
 product, physicalizer, caller, or runtime behavior changed. The next card is
 terminality D0.
+
+### SplitScan terminality D0 decision
+
+Decision: NoSafeSlice. `route_split_scan` uses `route_standard` with
+`skip_without_contract`; non-planner execution without a recipe contract
+returns `Ok(None)` and ordered raw execution continues. Contract presence and
+planner-required state are runtime gate facts, not capabilities carried by
+SplitScan source topology/Facts/preflight. A contract-bearing path also enters
+composer/lower behavior where later failures cannot be claimed effect-free.
+
+No terminality certificate, product, physicalizer, caller, or runtime behavior
+changed. Fresh D9 inventory must select the next bounded route.
