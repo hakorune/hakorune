@@ -52,6 +52,48 @@ contract before M10; it does not claim that current production lowering already
 consumes it. Wiring one family into production before M10 is out of order and
 would create a second authority.
 
+## Post-M4 production-authority handoff — taskized
+
+The clean production connection is deliberately staged. The following is a
+handoff plan, not a claim that any step is already wired:
+
+1. **M5 — one caller-zero vertical pilot.** Use `AccumConstLoop` to consume one
+   verified portable Recipe inside the existing unpublished compile candidate.
+   The pilot must exercise Recipe verification, JoinSig elaboration, the new
+   PHI/materialization seam, terminal physicalization, candidate discard, fresh
+   reuse, and MIR parity. It must not become a `route_loop` caller or a second
+   production scheduler.
+2. **M6 — one Recipe-only physicalization owner.** Establish the shared
+   `LoopCfgSkeletonLoweringV1`, `LoopJoinSigV1`, and
+   `LoopPhiMaterializerV1` services. The PHI service consumes verified JoinSig
+   plus logical-to-physical mapping only; legacy repair and route-specific PHI
+   writers remain explicitly outside this owner. New-subtree duplicate writers
+   must be zero, while the global production consumer count remains zero.
+3. **M7/M8/M9 — semantic closure before wiring.** Move the five migration
+   families, all 19 producer rows, and the `.hako` producer onto the same
+   recursive Recipe contract. Adapters remain data-producing migration seams;
+   they cannot select, retry, allocate PHIs, or publish.
+4. **M10 — first production consumer and one atomic deletion.** Switch
+   `route_loop` to the frozen facts → one policy winner → verified Recipe → one
+   candidate physicalizer path. In the same commit, delete the selected old
+   JoinIR/JoinModule fallback caller and its selected legacy PHI/Retry edges.
+   This is the first point at which Recipe becomes the execution authority;
+   before it, the old path remains the honest authority.
+5. **M11 — located-source handoff.** Feed located Loop provenance into the same
+   Recipe path and remove the source-erasing handoff. No new producer or
+   fallback is allowed.
+6. **M12 — adapter retirement.** After M10/M11, delete migration-only family
+   wrappers and duplicate physical authorities. Retain only source-policy rows
+   that produce the common recursive Recipe. A remaining adapter is not “done”
+   while it still owns allocation, PHI repair, retry, AST rematch, or route
+   selection.
+
+The handoff gates are therefore: **M5 caller-zero**, **M6 shared Recipe-only
+PHI owner**, **M10 exactly one production consumer plus one same-commit old
+fallback deletion**, and **M12 zero duplicate family physical authorities**.
+Until those gates are green, the statements “Recipe is the execution SSOT”,
+“PHI has one global writer”, or “JoinIR is historical only” are prohibited.
+
 ## Closed vocabulary for the census
 
 Every observed Generic path is assigned exactly one disposition, with evidence
