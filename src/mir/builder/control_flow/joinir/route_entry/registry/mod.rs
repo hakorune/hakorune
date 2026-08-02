@@ -8,6 +8,7 @@ use crate::mir::builder::MirBuilder;
 use super::router::LoopRouteContext;
 
 mod direct_accum_const_loop_terminality;
+mod direct_if_phi_join_terminality;
 mod direct_loop_break_terminality;
 mod direct_simple_while_terminality;
 mod handlers;

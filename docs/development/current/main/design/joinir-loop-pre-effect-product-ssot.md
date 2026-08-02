@@ -787,3 +787,19 @@ claim pre-effect safety, rollback, raw tail, all-route policy, semantic-order
 equivalence, product, Qualified, caller, or runtime success. It adds only the
 opaque certificate, direct/reversed/ScopeBox fixtures, and a guarded
 `route_if_phi_join` `Ok(None)`-count ratchet.
+
+### IfPhiJoin terminality S0 implementation record
+
+`DirectIfPhiJoinTerminalityV1` now accepts only an exact direct two-statement
+receipt whose distinct if-else and step sites retain one of the two observed
+source orders, `(0, 1)` or `(1, 0)`. Both fixtures prove the singleton raw
+schedule `[IfPhiJoin]`; ScopeBox is fail-closed. The shared guard ratchets
+`route_if_phi_join` to zero `Ok(None)` returns. This certificate says only
+that the selected scheduler route ends `Some(void)` or `Err`: it adds no
+pre-effect/product/Qualified/caller/rollback/physical/runtime claim.
+
+The next design stop is logical-product eligibility. Because the existing
+composer rebuilds a canonical if-then-step recipe from cloned facts while the
+accepted raw source order can be reversed, scheduler terminality alone cannot
+provide an ordered borrowed raw tail. D0 must decide whether that boundary is a
+NoSafeSlice before any product is considered.
