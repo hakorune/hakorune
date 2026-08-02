@@ -511,6 +511,63 @@ If any condition is missing, keep Generic debt as a legacy diagnostic and keep
 the ordered scheduler authoritative. No `GenericDebt -> Blocked` rewrite,
 `Retry` deletion, or production caller is allowed under D2-B.
 
+#### D2-B-E1 — overlap evidence matrix (design stop)
+
+The next bounded task is to join the three existing observations for each
+claimed `Both` row into one evidence matrix. This is an observation/oracle
+product, not a new policy owner.
+
+| column | required evidence |
+| --- | --- |
+| source/mode | exact A3 grammar row, release/strict/planner-required mode |
+| frame input | production-derived `RouterEnv` (`strict_or_dev`, `planner_required`, `has_body_local`) and recipe-contract disposition |
+| selection | actual facts, raw schedule, and `Both`/`V0Suppressed`/`V1-only`/`Neither` disposition |
+| direct stage | fresh-candidate V0 and V1 composer/verifier/lower stage, first-effect owner, candidate delta |
+| legacy witness | attempted prefix, typed debt receipt (if any), outer error or terminal winner |
+| comparison | pure pre-effect disposition versus legacy route, prefix, and terminal |
+| classification | `PreEffectDeclined`, `PreEffectBlocked`, `TerminalFreezeTarget`, `ImpossibleEdge`, or `UnresolvedStop` |
+
+Run the direct V0 and V1 paths on separate fresh candidates before reading the
+legacy witness. Then run the real witness for the same source row and mode.
+The observer must capture the same `LivePreflightFrameV1` environment and
+recipe-contract inputs used by production. The current test helper's fixed
+`strict_or_dev=false`, `planner_required=false`, `has_body_local=false`, and
+absent-contract setup is not sufficient evidence for a production winner
+claim unless an explicit Generic-equivalence guard proves the difference is
+unobservable.
+`all_route_preflight`, synthetic outcomes, malformed plans, and failure
+injection are forbidden. A4's `env.console.error(i)` row remains a separate
+`effectful outer Err / UnresolvedStop` row; it is not a debt receipt and is not
+evidence for V0/V1 precedence.
+
+Done requires every claimed `Both` row to have a real stage, first-effect
+owner, candidate snapshot, and witness terminal. Every observed typed debt must
+also record its receipt kind and whether a later suffix was actually attempted.
+The bounded decision may close only by either a source-derived pre-effect V0
+winner certificate covering the claimed modes/rows with no debt-to-different-
+winner edge, or a complete disjointness invariant. A V0 success with no debt
+is only one legacy terminal observation; it does not prove pre-effect
+qualification or global winner equivalence.
+
+Stop and retain the legacy scheduler/receipts when a facts-only or
+lower-unmeasured row remains, a candidate abort boundary is missing, a natural
+debt receipt is not observed, an outer error needs semantic relabelling, V0
+failure would require retry through a dirty candidate, production and test
+frame/env/contract inputs differ, or policy/witness route/prefix/terminal
+disagree. `V0Suppressed` planner-required rows are a separate pre-effect gate,
+not overlap proof. No Generic Recipe, PHI, JoinSig, Retry rewrite, or
+`route_loop` production caller is permitted in this row.
+
+#### M5 boundary while D2-B is open
+
+An isolated `AccumConstLoop` caller-zero test candidate may be designed as the
+later M5 pilot only if it imports no Generic handler/receipt/policy authority,
+does not call `route_loop`, and cannot publish or become a production
+consumer. It is a parity and candidate-abort probe, not a way to bypass M4.
+Generic M5 extensions, Generic Recipe consumption, Retry deletion, shared
+CFG/JoinSig/PHI wiring, and all production cutover remain prohibited until
+D2-B/D4 closes the claimed Generic rows and winner/disjointness proof.
+
 ### M4-D4 — handoff and close (`...-D0-S4`)
 
 Seal a disposition for every D0 row, decide V0/V1 precedence, and make the
