@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LIVE-ORDERED-TERMINALITY-TRANSACTION0-S0 closed; JOINIR-LOOP-LOGICAL-PRODUCT-ISSUANCE0-D0 selected."
+status = "JOINIR-LOOP-LOGICAL-PRODUCT-ISSUANCE0-D0 closed; JOINIR-DIRECT-SIMPLE-LOGICAL-PRODUCT0-S0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 may design the next logical-product issuance boundary from the completed ordered terminality proof. It must identify one product owner, consumer, source-borrow scope, failure vocabulary, and retirement path for the old test-only producer before code. It must not add a physicalizer, change runtime routing, retry, or add a production caller."
-current_execution_row = "JOINIR-LOOP-LOGICAL-PRODUCT-ISSUANCE0-D0"
-current_execution_summary = "The registry-owned transaction now consumes one live pair and raw schedule, producing only direct SimpleWhile scheduler-terminality evidence with the ordered GenericLoopV0 tail. D0 must choose the logical-product boundary before any issuance."
+current_design_stop = "S0 may issue only an opaque direct SimpleWhile logical product from the completed transaction disposition, then retire the old test-only logical_demand subtree in the same commit. The product issuer must consume only the disposition; no raw/Facts/selection accessors, generic slots, physicalizer, runtime routing, retry, or production caller are authorized."
+current_execution_row = "JOINIR-DIRECT-SIMPLE-LOGICAL-PRODUCT0-S0"
+current_execution_summary = "D0 selected a private source lease carried in the terminality proof and a sibling logical-product issuer. Existing consumers are unsafe (0), so the future physicalizer is design-only and old forged logical_demand must retire with its replacement fixture/guard."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-LOGICAL-PRODUCT-ISSUANCE0-D0-DESIGN-STOP"
+current_blocker_token = "JOINIR-DIRECT-SIMPLE-LOGICAL-PRODUCT0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

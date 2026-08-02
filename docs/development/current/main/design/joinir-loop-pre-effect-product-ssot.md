@@ -469,3 +469,28 @@ an unknown earlier route blocks, and empty raw order is `NoRoute`. The shared
 guard ratchets one bridge, one selection call, no diagnostic projection, no AST
 re-match, and no legacy logical-demand dependency. There remains no production
 consumer and no logical product.
+
+### Direct SimpleWhile logical product D0 decision
+
+Decision: accepted a private `live_ordered_terminality/logical_product/` sibling
+whose issuer consumes `LiveOrderedTerminalityDispositionV1` by value and nothing
+else. The transaction must place a private direct source lease (condition and
+the direct raw step) only in its positive terminality proof; therefore the issuer
+does not receive raw source, Facts, selection, receipt, topology, a slot, or a
+callback. It issues a non-Clone direct-SimpleWhile product retaining route roles
+and the ordered `UnreachedLegacyTail`. This remains a pre-effect admission
+request, not composition/lowering/execution success.
+
+There is no safe existing consumer: all current route paths start with Builder
+bound composition/lowering, and `located_loop` already consumes a physical
+CorePlan. The only consumer is a future design boundary
+`DirectSimpleWhilePhysicalizerV1`; S0 creates neither that API nor a production
+caller. Final all-route policy is unchanged: this partial product stays
+disconnected and is not cutover authority.
+
+S0 replaces—not supplements—the forged `logical_demand` test-only producer.
+Its new actual-order fixtures and shared guard must land before the old
+source/roles/product/producer subtree and address-stamped receipt APIs are
+deleted in the same commit, eliminating dual issuance and every independent
+source ingress. ScopeBox/nested/unknown-earlier/empty remain fail-closed;
+Accum remains non-issued.

@@ -469,29 +469,32 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-LOGICAL-PRODUCT-ISSUANCE0-D0`
-Parent: `JOINIR-LIVE-ORDERED-TERMINALITY-TRANSACTION0-S0` (closed)
-Ceremony: select one logical-product issuance boundary; production consumers remain zero.
+Row: `JOINIR-DIRECT-SIMPLE-LOGICAL-PRODUCT0-S0`
+Parent: `JOINIR-LOOP-LOGICAL-PRODUCT-ISSUANCE0-D0` (closed)
+Ceremony: issue one opaque direct SimpleWhile logical product and retire its forged predecessor; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Decide the opaque logical product, its sole consumer, source-borrow scope,
-  failure vocabulary, and replacement path for the legacy test-only producer.
+  Add a private source lease to the transaction's positive proof, then let its
+  sibling issuer consume only that disposition and issue one opaque direct
+  SimpleWhile product. Delete the old test-only logical_demand subtree together.
 
 Contract:
-  The completed transaction is the sole schedule/terminality authority. D0 must
-  not re-observe AST, rerun selection, or let a product expose raw source, Facts,
-  selection, topology traversal, or a reusable request/slot API.
+  The transaction remains sole schedule/terminality authority. The issuer reads
+  neither AST/Facts/selection nor topology; it consumes its disposition by value.
+  Product borrows remain private, non-Clone, route-local, and carry the ordered tail.
 
 Done:
-  The design names exactly one product owner and one consumer, separates logical
-  issuance from physical lowering, preserves tail/error semantics, and gives a
-  one-row retirement/migration plan for old test-only logical demand evidence.
+  Actual direct fixture issues SimpleWhile with GenericLoopV0 tail; ScopeBox,
+  nested, unknown earlier, and empty fail closed. Product issuer has no Builder,
+  CorePlan, physical IDs, or caller; old forged producer/source/roles/product tests
+  are replaced then deleted in the same commit.
 
 Stop:
-  Stop if D0 treats terminality as execution success, assumes a production caller,
-  issues Accum, exposes parts/generic slots, or needs a physical/runtime owner.
-  No physicalizer, Loop I0, raw/reference ingress, or fallback wrapper is authorized.
+  Stop if S0 treats terminality as execution success, assumes a production caller,
+  issues Accum, retains a second source ingress, exposes parts/generic slots, or
+  needs a physical/runtime owner. No physicalizer, Loop I0, raw/reference ingress,
+  or fallback wrapper is authorized.
 
 ## Production invariants
 
