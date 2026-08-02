@@ -127,6 +127,30 @@ suppressed before selection. These tests are observation evidence, not a
 winner decision. Strict-mode and post-effect handler stages remain
 `NotYetObserved` or `UnresolvedStop` until the next slice.
 
+### Current D3 execution brief
+
+Change:
+: Add a `#[cfg(test)]` observer that feeds the A1 `Both` input through the real
+  facts/selection result, `RouteExecutionWitnessV1`, `ENTRIES`, and Generic
+  handlers, then records the attempted prefix, receipt stage, and terminal.
+
+Contract:
+: The existing witness scheduler and handlers remain the only execution
+  authority. The observer is test-only; it does not alter policy, Recipe,
+  JoinSig, PHI, candidate publication, or `all_route_preflight`.
+
+Done:
+: The trace proves the raw `[GenericLoopV0, GenericLoopV1]` schedule reaches
+  the real handler path and records success, outer error, or an actual
+  `LegacyComposerResultReceiptV1`. A debt-to-later-winner trace is compared
+  with the current pure-policy disposition; absence of such a trace remains
+  explicit evidence, not a fabricated proof.
+
+Stop:
+: If the real handler cannot be reached without production setup changes,
+  synthetic outcomes, or forced failure injection, retain `UnresolvedStop`,
+  keep the legacy scheduler, and do not advance to M5.
+
 ## Ordered M4 tasks
 
 ### M4-D0 — exhaustive stage matrix (`...-D0-S0`)
