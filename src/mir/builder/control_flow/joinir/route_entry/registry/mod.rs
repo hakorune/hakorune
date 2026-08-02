@@ -10,6 +10,7 @@ use super::router::LoopRouteContext;
 mod direct_simple_while_terminality;
 mod handlers;
 mod legacy_observer;
+pub(in crate::mir::builder) mod live_ordered_terminality;
 mod logical_demand;
 mod predicates;
 mod route_id;

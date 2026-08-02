@@ -455,3 +455,17 @@ binding bridge, exactly one raw selection call, no diagnostic projection or AST
 re-match, and no public raw/Facts/selection accessors. The old
 `logical_demand::producer` remains test-only legacy evidence and is not a caller
 or dependency of this transaction; a later row may retire it after replacement.
+
+### Live ordered terminality transaction S0 evidence
+
+The registry now owns `live_ordered_terminality/` as one narrow parent with a
+private non-Clone carrier and a consuming transaction child. The facts builder
+is the sole caller of `bind_live_loop_facts_v1`; the transaction canonicalizes
+that exact owned Facts value and invokes raw selection once. Its only positive
+result is `PreEffectSchedulerTerminalV1`, which exposes the selected route and
+ordered unreached tail, never AST/Facts/selection. Actual direct facts prove
+SimpleWhile with `[GenericLoopV0]` tail; ScopeBox fails current certification,
+an unknown earlier route blocks, and empty raw order is `NoRoute`. The shared
+guard ratchets one bridge, one selection call, no diagnostic projection, no AST
+re-match, and no legacy logical-demand dependency. There remains no production
+consumer and no logical product.

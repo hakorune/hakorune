@@ -11,7 +11,6 @@
 pub(in crate::mir::builder) mod loop_break_tests;
 
 // Flattened from loop_facts/
-pub(in crate::mir::builder) mod live_loop_facts;
 pub(in crate::mir::builder) mod loop_builder;
 pub(in crate::mir::builder) mod loop_condition_shape;
 pub(in crate::mir::builder) mod loop_scan_with_init;
@@ -45,7 +44,6 @@ pub(in crate::mir::builder) mod skeleton_facts;
 pub(in crate::mir::builder) mod string_is_integer_facts;
 
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
-pub(in crate::mir::builder) use live_loop_facts::LiveLoopFactsV1;
 #[cfg(test)]
 pub(in crate::mir::builder) use loop_builder::try_build_live_loop_facts;
 #[cfg(test)]

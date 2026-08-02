@@ -38,13 +38,15 @@ use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::try
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 
-use super::live_loop_facts::LiveLoopFactsV1;
 use super::loop_condition_shape::try_extract_condition_shape;
 use super::loop_scan_with_init::try_extract_scan_with_init_facts;
 use super::loop_source_receipt::LoopSourceReceiptV1;
 use super::loop_split_scan::try_extract_split_scan_facts;
 use super::loop_step_shape::try_extract_step_shape;
 use super::loop_types::LoopFacts;
+use crate::mir::builder::control_flow::joinir::route_entry::registry::live_ordered_terminality::{
+    bind_live_loop_facts_v1, LiveLoopFactsV1,
+};
 
 #[cfg(test)]
 pub(in crate::mir::builder) fn try_build_loop_facts(
@@ -64,7 +66,7 @@ pub(in crate::mir::builder) fn try_build_live_loop_facts<'src>(
     body: &'src [ASTNode],
 ) -> Result<Option<LiveLoopFactsV1<'src>>, Freeze> {
     try_build_loop_facts_inner(condition, body)
-        .map(|facts| facts.map(|facts| LiveLoopFactsV1::from_facts(condition, body, facts)))
+        .map(|facts| facts.map(|facts| bind_live_loop_facts_v1(condition, body, facts)))
 }
 
 pub(in crate::mir::builder) fn try_build_loop_facts_with_ctx(

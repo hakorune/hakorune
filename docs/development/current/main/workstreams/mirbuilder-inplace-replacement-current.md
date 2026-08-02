@@ -469,34 +469,29 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LIVE-ORDERED-TERMINALITY-TRANSACTION0-S0`
-Parent: `JOINIR-LIVE-ORDERED-TERMINALITY-TRANSACTION0-D1` (closed)
-Ceremony: implement one live ordered certificate transaction; production consumers remain zero.
+Row: `JOINIR-LOOP-LOGICAL-PRODUCT-ISSUANCE0-D0`
+Parent: `JOINIR-LIVE-ORDERED-TERMINALITY-TRANSACTION0-S0` (closed)
+Ceremony: select one logical-product issuance boundary; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add the accepted registry-owned live carrier and consuming transaction. Bind
-  source/Facts once, select the canonical raw schedule once, and retain the
-  GenericLoopV0 tail as ordered terminality evidence.
+  Decide the opaque logical product, its sole consumer, source-borrow scope,
+  failure vocabulary, and replacement path for the legacy test-only producer.
 
 Contract:
-  The registry parent owns private source/Facts fields and its consuming child.
-  The facts builder is the sole narrow binding-bridge caller. The transaction
-  consumes once, invokes existing selection once, and exposes only a pre-effect
-  scheduler-terminality disposition—not raw source, Facts, selection, topology
-  traversal, a logical product, or a reusable request/slot API.
+  The completed transaction is the sole schedule/terminality authority. D0 must
+  not re-observe AST, rerun selection, or let a product expose raw source, Facts,
+  selection, topology traversal, or a reusable request/slot API.
 
 Done:
-  Direct actual selection returns terminal SimpleWhile evidence with ordered
-  GenericLoopV0 tail. ScopeBox/nested/unknown/earlier overlap fail closed;
-  empty raw schedule is NoRoute. Shared guard fixes sole bridge, one selection,
-  no parts accessors, and no diagnostic projection/predicate re-match.
+  The design names exactly one product owner and one consumer, separates logical
+  issuance from physical lowering, preserves tail/error semantics, and gives a
+  one-row retirement/migration plan for old test-only logical demand evidence.
 
 Stop:
-  Stop if S0 calls the old logical-demand producer, hides the tail, picks first
-  route without certificate, exposes parts/generic slots, re-runs selection,
-  selects Accum, or needs a physical/runtime owner. No physicalizer, Loop I0,
-  raw/reference ingress, or fallback wrapper is authorized.
+  Stop if D0 treats terminality as execution success, assumes a production caller,
+  issues Accum, exposes parts/generic slots, or needs a physical/runtime owner.
+  No physicalizer, Loop I0, raw/reference ingress, or fallback wrapper is authorized.
 
 ## Production invariants
 
