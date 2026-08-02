@@ -1,5 +1,5 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::lower::PlanBuildOutcome;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::PlanLowerer;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::FlowboxVia;
@@ -7,18 +7,19 @@ use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use super::super::types::{route_labels, RouterEnv};
+use super::super::execution_witness::RouteExecutionWitnessV1;
+use super::super::types::route_labels;
 use super::debug_log_recipe_entry;
 use crate::mir::builder::control_flow::joinir::route_entry::router::lower_verified_core_plan;
 
 pub(crate) fn route_generic_loop_v1(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V1, env);
-    let Some(facts) = outcome.facts.as_ref() else {
+    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V1, witness);
+    let Some(facts) = compose_facts else {
         return Ok(None);
     };
     if facts.facts.generic_loop_v1().is_none() {
@@ -26,12 +27,12 @@ pub(crate) fn route_generic_loop_v1(
     }
     let core_plan = RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, ctx)
         .map_err(|error| error.to_string())?;
-    if env.strict_or_dev {
+    if witness.strict_or_dev() {
         return lower_verified_core_plan(
             builder,
             ctx,
-            env.strict_or_dev,
-            outcome.facts.as_ref(),
+            witness.strict_or_dev(),
+            compose_facts,
             core_plan,
             FlowboxVia::Shadow,
         );
@@ -48,11 +49,11 @@ pub(crate) fn route_generic_loop_v1(
 pub(crate) fn route_generic_loop_v0(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V0, env);
-    let Some(facts) = outcome.facts.as_ref() else {
+    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V0, witness);
+    let Some(facts) = compose_facts else {
         return Ok(None);
     };
     if facts.facts.generic_loop_v0().is_none() {
@@ -60,12 +61,12 @@ pub(crate) fn route_generic_loop_v0(
     }
     let core_plan = RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, ctx)
         .map_err(|error| error.to_string())?;
-    if env.strict_or_dev {
+    if witness.strict_or_dev() {
         return lower_verified_core_plan(
             builder,
             ctx,
-            env.strict_or_dev,
-            outcome.facts.as_ref(),
+            witness.strict_or_dev(),
+            compose_facts,
             core_plan,
             FlowboxVia::Shadow,
         );

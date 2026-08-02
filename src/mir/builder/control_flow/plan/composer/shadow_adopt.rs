@@ -3,6 +3,7 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::verify::diagnostics::span_format::normalize_span_line_col;
@@ -13,10 +14,27 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
     outcome: &PlanBuildOutcome,
     ctx: &LoopRouteContext,
 ) -> Option<String> {
+    strict_nested_loop_guard_from_observations(
+        outcome.facts.as_ref(),
+        outcome.recipe_contract.is_some(),
+        ctx,
+    )
+}
+
+/// Applies the strict nested-loop guard to already-observed planner inputs.
+///
+/// This keeps registry handlers independent of `PlanBuildOutcome`: they receive
+/// compose facts explicitly and read contract disposition from their execution
+/// witness.
+pub(in crate::mir::builder) fn strict_nested_loop_guard_from_observations(
+    facts: Option<&CanonicalLoopFacts>,
+    recipe_contract_present: bool,
+    ctx: &LoopRouteContext,
+) -> Option<String> {
     if joinir_dev::debug_enabled() {
-        let features = flowbox_tags::features_from_facts(outcome.facts.as_ref());
+        let features = flowbox_tags::features_from_facts(facts);
         let features_csv = features.join(",");
-        let recipe_contract_state = if outcome.recipe_contract.is_some() {
+        let recipe_contract_state = if recipe_contract_present {
             "Some"
         } else {
             "None"
@@ -27,10 +45,8 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
             features_csv, recipe_contract_state
         ));
     }
-    let facts_present = outcome.facts.is_some();
-    let nested_loop = outcome
-        .facts
-        .as_ref()
+    let facts_present = facts.is_some();
+    let nested_loop = facts
         .map(|facts| facts.nested_loop)
         .unwrap_or_else(|| detect_nested_loop(ctx.body));
     if joinir_dev::debug_enabled() {
@@ -43,7 +59,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
     if !nested_loop {
         return None;
     }
-    if allow_strict_nested_loop_continue_min1(outcome, ctx) {
+    if allow_strict_nested_loop_continue_min1(facts, ctx) {
         return None;
     }
 
@@ -63,15 +79,13 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
             "[plan/freeze:nested_loop_guard] func={} span={} recipe_contract={} route_kind={} depth={:?}",
             ctx.func_name,
             ctx.condition.span(),
-            outcome.recipe_contract.is_some(),
+            recipe_contract_present,
             ctx.route_kind.semantic_label(),
             ctx.step_tree_max_loop_depth
         ));
     }
 
-    let plan_repr_raw = outcome
-        .facts
-        .as_ref()
+    let plan_repr_raw = facts
         .and_then(|facts| {
             facts.facts.loop_continue_only().map(|loop_continue| {
                 let mut carrier_vars: Vec<String> =
@@ -98,13 +112,13 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
 }
 
 fn allow_strict_nested_loop_continue_min1(
-    outcome: &PlanBuildOutcome,
+    facts: Option<&CanonicalLoopFacts>,
     ctx: &LoopRouteContext,
 ) -> bool {
     if ctx.route_kind != LoopRouteKind::LoopContinueOnly {
         return false;
     }
-    let Some(facts) = outcome.facts.as_ref() else {
+    let Some(facts) = facts else {
         return false;
     };
     if !facts.nested_loop {

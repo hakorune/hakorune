@@ -305,9 +305,12 @@ pub(crate) fn route_loop(
             &env,
             outcome.recipe_contract.is_some(),
         );
-        if let Some(success) =
-            registry::try_execute_route_execution_witness(builder, ctx, &outcome, execution)?
-        {
+        if let Some(success) = registry::try_execute_route_execution_witness(
+            builder,
+            ctx,
+            outcome.facts.as_ref(),
+            execution,
+        )? {
             trace_legacy_selected(success.route.as_str());
             trace_entry_route("recipe_first");
             return Ok(Some(success.value));

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-ROUTE-EXECUTION-WITNESS0-D0 is accepted; behavior-neutral S0 selected."
+status = "JOINIR-ROUTE-EXECUTION-WITNESS0-S0 is closed; shared terminality D1 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RouteExecutionWitness S0 may add one private non-Clone execution-state observation box issued by route_loop after read-only gates and before registry execution; it binds exact selection schedule, RouterEnv, and Present/Absent recipe-contract disposition without recomputation. It must preserve behavior and cannot claim terminality, compose/lower safety, CharMap/Nested/Generic equivalence, or a retry policy."
-current_execution_row = "JOINIR-ROUTE-EXECUTION-WITNESS0-S0"
-current_execution_summary = "Shared D0 is accepted: exactly four prior NoSafe routes share route_standard skip-without-contract raw-tail continuation; the smallest new owner is router-issued RouteExecutionWitnessV1 consumed by registry execution."
+current_design_stop = "RouteExecutionWitness D1 is design-only: determine whether the captured pre-effect decline disposition plus exact remaining raw schedule can form a bounded shared continuation proof for the four skip-without-contract routes. It must preserve reachable Ok(None), exclude compose/lower mutation, and keep CharMap/Nested/Generic/Bool/conditional branches separate."
+current_execution_row = "JOINIR-ROUTE-EXECUTION-WITNESS0-D1"
+current_execution_summary = "RouteExecutionWitness S0 is closed: router issues one captured execution observation, registry is the sole schedule consumer, handlers use witness only for decline authority, and compose facts remain explicit inputs."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-ROUTE-EXECUTION-WITNESS0-S0"
+current_blocker_token = "JOINIR-ROUTE-EXECUTION-WITNESS0-D1"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -1456,3 +1456,20 @@ The witness centralizes execution-state observation; it proves neither
 terminality nor a successful lower. It cannot settle the CharMap, Nested,
 Generic, mutation, rollback, or retry boundaries. No route behavior, product,
 physicalizer, caller, or runtime behavior changes are authorized in S0.
+
+### Route-execution witness S0 implementation record
+
+The router now issues one non-Clone execution observation immediately before
+registry execution. Registry is its sole raw-schedule consumer. Every route
+handler receives the witness for decline authority and an explicit
+`compose_facts` input for compose/verify/lower; handlers no longer receive
+`PlanBuildOutcome` or `RouterEnv`. Thus planner flags, body-local state, and
+sealed contract presence have one pre-effect observation path, while compose
+facts remain an ordinary lowering input rather than witness authority.
+
+The captured scheduler retains existing `Ok(None)` continuation exactly. It
+does not issue a terminality certificate, change standard-entry flags, absorb
+mutation/rollback, or classify CharMap, Nested, Generic, BoolPredicate, or
+conditional routes as the shared root. The next card is D1: a design-only
+audit of whether the captured decline and remaining schedule can prove bounded
+pre-effect continuation for precisely the four known shared routes.

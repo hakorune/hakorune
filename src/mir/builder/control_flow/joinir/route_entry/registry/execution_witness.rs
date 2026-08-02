@@ -60,12 +60,20 @@ impl<'execution> RouteExecutionWitnessV1<'execution> {
         self.facts
     }
 
-    pub(crate) fn env(&self) -> &RouterEnv {
-        self.env
+    pub(crate) fn strict_or_dev(&self) -> bool {
+        self.env.strict_or_dev
     }
 
-    pub(crate) fn recipe_contract(&self) -> RecipeContractDispositionV1 {
-        self.recipe_contract
+    pub(crate) fn planner_required(&self) -> bool {
+        self.env.planner_required
+    }
+
+    pub(crate) fn has_body_local(&self) -> bool {
+        self.env.has_body_local
+    }
+
+    pub(crate) fn recipe_contract_present(&self) -> bool {
+        matches!(self.recipe_contract, RecipeContractDispositionV1::Present)
     }
 
     /// Runs the exact captured schedule without selection or policy recompute.
@@ -96,7 +104,7 @@ pub(crate) enum RouteExecutionResultV1<'execution, T> {
 
 #[cfg(test)]
 mod tests {
-    use super::{RecipeContractDispositionV1, RouteExecutionResultV1, RouteExecutionWitnessV1};
+    use super::{RouteExecutionResultV1, RouteExecutionWitnessV1};
     use crate::mir::builder::control_flow::joinir::route_entry::registry::{
         route_id::LoopRouteId, RouterEnv,
     };
@@ -117,11 +125,10 @@ mod tests {
 
         assert_eq!(witness.raw_schedule(), schedule);
         assert!(witness.facts().is_none());
-        assert!(!witness.env().strict_or_dev);
-        assert_eq!(
-            witness.recipe_contract(),
-            RecipeContractDispositionV1::Absent
-        );
+        assert!(!witness.strict_or_dev());
+        assert!(!witness.planner_required());
+        assert!(!witness.has_body_local());
+        assert!(!witness.recipe_contract_present());
     }
 
     #[test]
@@ -141,10 +148,7 @@ mod tests {
         };
         assert_eq!(attempted, schedule);
         assert_eq!(witness.raw_schedule(), schedule);
-        assert_eq!(
-            witness.recipe_contract(),
-            RecipeContractDispositionV1::Present
-        );
+        assert!(witness.recipe_contract_present());
     }
 
     #[test]

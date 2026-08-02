@@ -2,7 +2,6 @@
 //! This module defines the ordered recipe-first entries and their handlers.
 
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::lower::PlanBuildOutcome;
 use crate::mir::builder::MirBuilder;
 
 use super::router::LoopRouteContext;
@@ -162,7 +161,7 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
 pub(crate) fn try_execute_route_execution_witness(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
+    compose_facts: Option<&CanonicalLoopFacts>,
     witness: RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<LegacyRouteSuccess>, String> {
     witness
@@ -174,7 +173,7 @@ pub(crate) fn try_execute_route_execution_witness(
             let Some(route) = entry.route else {
                 return Ok(None);
             };
-            if let Some(value) = route(builder, ctx, outcome, execution.env())? {
+            if let Some(value) = route(builder, ctx, compose_facts, execution)? {
                 return Ok(Some(value));
             }
             Ok(None)

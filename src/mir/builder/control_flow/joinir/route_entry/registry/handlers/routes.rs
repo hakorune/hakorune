@@ -1,9 +1,8 @@
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::PlanLowerer;
-use crate::mir::builder::control_flow::lower::{
-    planner_rule_route_label, PlanBuildOutcome, PlanRuleId,
-};
+use crate::mir::builder::control_flow::lower::{planner_rule_route_label, PlanRuleId};
 use crate::mir::builder::control_flow::plan::composer::{
-    strict_nested_loop_guard, try_compose_core_loop_v2_nested_minimal,
+    strict_nested_loop_guard_from_observations, try_compose_core_loop_v2_nested_minimal,
 };
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
@@ -13,9 +12,10 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
 use super::super::super::router::{lower_verified_core_plan, LoopRouteContext};
-use super::super::types::{route_labels, PlannerFirstMode, RouterEnv, StandardEntry};
+use super::super::execution_witness::RouteExecutionWitnessV1;
+use super::super::types::{route_labels, PlannerFirstMode, StandardEntry};
 use super::super::utils::loop_break_recipe_needs_flowbox_adopt_tag_in_strict;
-use super::{debug_log_recipe_entry, emit_planner_first};
+use super::{debug_log_recipe_entry, emit_planner_first_from_witness};
 use super::{
     release_allows_loop_cond_break_continue, release_allows_loop_cond_continue_only,
     release_skips_nested_loop, route_standard,
@@ -24,43 +24,43 @@ use super::{
 pub(crate) fn route_loop_break_recipe(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    if env.planner_required && outcome.recipe_contract.is_none() {
+    if witness.planner_required() && !witness.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "LoopBreakRecipe requires recipe_contract in planner_required mode",
         )
         .to_string());
     }
-    emit_planner_first(
+    emit_planner_first_from_witness(
         PlannerFirstMode::StrictOrDev,
-        env,
+        witness,
         PlanRuleId::LoopBreakRecipe,
     );
-    debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::LoopBreakRecipe), env);
+    debug_log_recipe_entry(
+        planner_rule_route_label(PlanRuleId::LoopBreakRecipe),
+        witness,
+    );
 
-    let facts = outcome
-        .facts
-        .as_ref()
-        .expect("loop_break_recipe facts present");
+    let facts = compose_facts.expect("loop_break_recipe facts present");
     let core_plan = RecipeComposer::compose_loop_break_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
-    if env.strict_or_dev {
+    if witness.strict_or_dev() {
         let loop_break_facts = facts
             .facts
             .loop_break()
             .expect("loop_break_recipe is present");
-        let needs_flowbox_tag = env.has_body_local
+        let needs_flowbox_tag = witness.has_body_local()
             || loop_break_recipe_needs_flowbox_adopt_tag_in_strict(loop_break_facts);
 
         if needs_flowbox_tag {
             return lower_verified_core_plan(
                 builder,
                 ctx,
-                env.strict_or_dev,
-                outcome.facts.as_ref(),
+                witness.strict_or_dev(),
+                compose_facts,
                 core_plan,
                 FlowboxVia::Shadow,
             );
@@ -73,8 +73,8 @@ pub(crate) fn route_loop_break_recipe(
     lower_verified_core_plan(
         builder,
         ctx,
-        env.strict_or_dev,
-        outcome.facts.as_ref(),
+        witness.strict_or_dev(),
+        compose_facts,
         core_plan,
         FlowboxVia::Release,
     )
@@ -83,23 +83,27 @@ pub(crate) fn route_loop_break_recipe(
 pub(crate) fn route_if_phi_join(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    if env.planner_required && outcome.recipe_contract.is_none() {
+    if witness.planner_required() && !witness.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "IfPhiJoin requires recipe_contract in planner_required mode",
         )
         .to_string());
     }
-    emit_planner_first(PlannerFirstMode::StrictOrDev, env, PlanRuleId::IfPhiJoin);
-    debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::IfPhiJoin), env);
+    emit_planner_first_from_witness(
+        PlannerFirstMode::StrictOrDev,
+        witness,
+        PlanRuleId::IfPhiJoin,
+    );
+    debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::IfPhiJoin), witness);
 
-    let facts = outcome.facts.as_ref().expect("if_phi_join facts present");
+    let facts = compose_facts.expect("if_phi_join facts present");
     let core_plan = RecipeComposer::compose_if_phi_join_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
-    let via = if env.strict_or_dev {
+    let via = if witness.strict_or_dev() {
         FlowboxVia::Shadow
     } else {
         FlowboxVia::Release
@@ -107,8 +111,8 @@ pub(crate) fn route_if_phi_join(
     lower_verified_core_plan(
         builder,
         ctx,
-        env.strict_or_dev,
-        outcome.facts.as_ref(),
+        witness.strict_or_dev(),
+        compose_facts,
         core_plan,
         via,
     )
@@ -117,27 +121,34 @@ pub(crate) fn route_if_phi_join(
 pub(crate) fn route_loop_continue_only(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    if env.planner_required && outcome.recipe_contract.is_none() {
+    if witness.planner_required() && !witness.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "LoopContinueOnly requires recipe_contract in planner_required mode",
         )
         .to_string());
     }
-    emit_planner_first(
+    emit_planner_first_from_witness(
         PlannerFirstMode::StrictOrDev,
-        env,
+        witness,
         PlanRuleId::LoopContinueOnly,
     );
-    debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::LoopContinueOnly), env);
-    if env.planner_required {
-        if let Some(err) = strict_nested_loop_guard(outcome, ctx) {
+    debug_log_recipe_entry(
+        planner_rule_route_label(PlanRuleId::LoopContinueOnly),
+        witness,
+    );
+    if witness.planner_required() {
+        if let Some(err) = strict_nested_loop_guard_from_observations(
+            compose_facts,
+            witness.recipe_contract_present(),
+            ctx,
+        ) {
             flowbox_tags::emit_flowbox_freeze_tag_from_facts(
-                env.strict_or_dev,
+                witness.strict_or_dev(),
                 "unstructured",
-                outcome.facts.as_ref(),
+                compose_facts,
             );
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!("{}", err));
@@ -145,13 +156,10 @@ pub(crate) fn route_loop_continue_only(
         }
     }
 
-    let facts = outcome
-        .facts
-        .as_ref()
-        .expect("loop_continue_only facts present");
+    let facts = compose_facts.expect("loop_continue_only facts present");
     let core_plan = RecipeComposer::compose_loop_continue_only_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
-    let via = if env.strict_or_dev {
+    let via = if witness.strict_or_dev() {
         FlowboxVia::Shadow
     } else {
         FlowboxVia::Release
@@ -159,8 +167,8 @@ pub(crate) fn route_loop_continue_only(
     lower_verified_core_plan(
         builder,
         ctx,
-        env.strict_or_dev,
-        outcome.facts.as_ref(),
+        witness.strict_or_dev(),
+        compose_facts,
         core_plan,
         via,
     )
@@ -169,8 +177,8 @@ pub(crate) fn route_loop_continue_only(
 pub(crate) fn route_loop_true_early_exit(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopTrueEarlyExit),
@@ -183,14 +191,14 @@ pub(crate) fn route_loop_true_early_exit(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_loop_simple_while(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
     if detect_nested_loop(ctx.body) {
         return Ok(None);
@@ -206,14 +214,14 @@ pub(crate) fn route_loop_simple_while(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Release,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_loop_char_map(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: route_labels::LOOP_CHAR_MAP,
@@ -226,14 +234,14 @@ pub(crate) fn route_loop_char_map(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_loop_array_join(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: route_labels::LOOP_ARRAY_JOIN,
@@ -246,14 +254,14 @@ pub(crate) fn route_loop_array_join(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_scan_with_init(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::ScanWithInit),
@@ -266,14 +274,14 @@ pub(crate) fn route_scan_with_init(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_split_scan(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::SplitScan),
@@ -286,14 +294,14 @@ pub(crate) fn route_split_scan(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_bool_predicate_scan(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::BoolPredicateScan),
@@ -306,36 +314,36 @@ pub(crate) fn route_bool_predicate_scan(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_accum_const_loop(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    if env.planner_required && outcome.recipe_contract.is_none() {
+    if witness.planner_required() && !witness.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "AccumConstLoop requires recipe_contract in planner_required mode",
         )
         .to_string());
     }
-    emit_planner_first(
+    emit_planner_first_from_witness(
         PlannerFirstMode::StrictOrDev,
-        env,
+        witness,
         PlanRuleId::AccumConstLoop,
     );
-    debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::AccumConstLoop), env);
+    debug_log_recipe_entry(
+        planner_rule_route_label(PlanRuleId::AccumConstLoop),
+        witness,
+    );
 
-    let facts = outcome
-        .facts
-        .as_ref()
-        .expect("accum_const_loop facts present");
+    let facts = compose_facts.expect("accum_const_loop facts present");
     let core_plan = RecipeComposer::compose_accum_const_loop_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
-    if env.strict_or_dev {
+    if witness.strict_or_dev() {
         PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
         return PlanLowerer::lower(builder, core_plan, ctx);
     }
@@ -343,8 +351,8 @@ pub(crate) fn route_accum_const_loop(
     lower_verified_core_plan(
         builder,
         ctx,
-        env.strict_or_dev,
-        outcome.facts.as_ref(),
+        witness.strict_or_dev(),
+        compose_facts,
         core_plan,
         FlowboxVia::Release,
     )
@@ -353,11 +361,11 @@ pub(crate) fn route_accum_const_loop(
 pub(crate) fn route_nested_loop_minimal(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    debug_log_recipe_entry(route_labels::NESTED_LOOP_MINIMAL, env);
-    let Some(facts) = outcome.facts.as_ref() else {
+    debug_log_recipe_entry(route_labels::NESTED_LOOP_MINIMAL, witness);
+    let Some(facts) = compose_facts else {
         return Ok(None);
     };
     if facts.facts.nested_loop_minimal().is_none() {
@@ -365,7 +373,7 @@ pub(crate) fn route_nested_loop_minimal(
     }
 
     let Some(core_plan) = try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)? else {
-        if env.strict_or_dev {
+        if witness.strict_or_dev() {
             return Err(
                 "nested_loop_minimal strict/dev route failed: compose rejected".to_string(),
             );
@@ -373,7 +381,7 @@ pub(crate) fn route_nested_loop_minimal(
         return Ok(None);
     };
 
-    let via = if env.strict_or_dev {
+    let via = if witness.strict_or_dev() {
         FlowboxVia::Shadow
     } else {
         FlowboxVia::Release
@@ -381,8 +389,8 @@ pub(crate) fn route_nested_loop_minimal(
     lower_verified_core_plan(
         builder,
         ctx,
-        env.strict_or_dev,
-        outcome.facts.as_ref(),
+        witness.strict_or_dev(),
+        compose_facts,
         core_plan,
         via,
     )
@@ -391,10 +399,10 @@ pub(crate) fn route_nested_loop_minimal(
 pub(crate) fn route_loop_true_break_continue(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    if release_skips_nested_loop(ctx, env) {
+    if release_skips_nested_loop(ctx, witness) {
         return Ok(None);
     }
 
@@ -410,16 +418,16 @@ pub(crate) fn route_loop_true_break_continue(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_loop_cond_break_continue(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    if !release_allows_loop_cond_break_continue(ctx, outcome, env) {
+    if !release_allows_loop_cond_break_continue(ctx, witness) {
         return Ok(None);
     }
 
@@ -435,16 +443,16 @@ pub(crate) fn route_loop_cond_break_continue(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_loop_cond_continue_only(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    if !release_allows_loop_cond_continue_only(ctx, outcome, env) {
+    if !release_allows_loop_cond_continue_only(ctx, witness) {
         return Ok(None);
     }
 
@@ -460,16 +468,16 @@ pub(crate) fn route_loop_cond_continue_only(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_loop_cond_continue_with_return(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
-    if release_skips_nested_loop(ctx, env) {
+    if release_skips_nested_loop(ctx, witness) {
         return Ok(None);
     }
 
@@ -485,14 +493,14 @@ pub(crate) fn route_loop_cond_continue_with_return(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }
 
 pub(crate) fn route_loop_cond_return_in_body(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    witness: &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopCondReturnInBody),
@@ -506,5 +514,5 @@ pub(crate) fn route_loop_cond_return_in_body(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
+    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
 }

@@ -1,7 +1,8 @@
 use super::super::router::LoopRouteContext;
+use super::execution_witness::RouteExecutionWitnessV1;
 use super::route_id::LoopRouteId;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::lower::{CorePlan, Freeze, PlanBuildOutcome, PlanRuleId};
+use crate::mir::builder::control_flow::lower::{CorePlan, Freeze, PlanRuleId};
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
@@ -24,8 +25,8 @@ pub(crate) type PredicateFn = fn(&CanonicalLoopFacts) -> bool;
 pub(crate) type RouteFn = fn(
     &mut MirBuilder,
     &LoopRouteContext,
-    &PlanBuildOutcome,
-    &RouterEnv,
+    Option<&CanonicalLoopFacts>,
+    &RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<ValueId>, String>;
 
 pub(crate) struct Entry {
