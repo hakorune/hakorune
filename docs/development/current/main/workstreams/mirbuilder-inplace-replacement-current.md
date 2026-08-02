@@ -469,30 +469,29 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-SIMPLE-WHILE-TERMINALITY0-D0`
-Parent: `JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3` (closed)
-Ceremony: inventory one route's terminality proof; production consumers remain zero.
+Row: `JOINIR-DIRECT-SIMPLE-WHILE-TERMINALITY0-S0`
+Parent: `JOINIR-LOOP-SIMPLE-WHILE-TERMINALITY0-D0` (closed)
+Ceremony: issue one narrow pre-effect terminality certificate; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Inventory every existing SimpleWhile route decline and classify its terminality
-  evidence as GuaranteedTerminal, pre-effect Ineligible, or post-effect Unknown.
+  Encode only the direct non-nested SimpleWhile fact that its legacy route cannot
+  return `Ok(None)` after the existing nested pre-gate; errors remain terminal.
 
 Contract:
-  Raw schedule order is authority; GenericLoopV0 remains an unreached tail only
-  after SimpleWhile terminality is proven. Facts/source receipt alone are not a
-  terminality proof and cloned recipe facts are non-authority.
+  Source/projection topology plus the existing route's static terminal behavior
+  are authority. The certificate proves scheduler terminality, not lowering success,
+  Builder readiness, rollback, or a selected logical product.
 
 Done:
-  The table names every decline source, owner, evidence, and non-claim; it proves
-  whether any source-only SimpleWhile terminal certificate is possible. No code
-  changes occur in D0; a later row is separately selected.
+  Direct and ScopeBox/nested fixtures distinguish terminal direct shape from
+  pre-effect ineligibility. The shared ratchet proves the handler's only None
+  return is the nested pre-gate; later compose/lower yields Some or Err.
 
 Stop:
-  Stop if any classification needs Builder/CorePlan/verifier/lower execution,
-  invents first-winner policy, re-runs selection, selects Accum, or needs a
-  physical/runtime owner. No physicalizer, Loop I0, raw/reference ingress, or
-  fallback wrapper is authorized.
+  Stop if S0 treats errors as success, proves lowering readiness/rollback, changes
+  legacy retry, re-runs selection, selects Accum, or needs a physical/runtime owner.
+  No physicalizer, Loop I0, raw/reference ingress, or fallback wrapper is authorized.
 
 ## Production invariants
 

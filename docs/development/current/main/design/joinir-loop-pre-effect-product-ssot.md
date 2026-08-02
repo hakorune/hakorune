@@ -387,3 +387,20 @@ uses Builder-bound composition/lowering, `JOINIR-LOOP-SIMPLE-WHILE-TERMINALITY0-
 must inventory whether its every decline can be classified without effects.
 Until then, SimpleWhile is not reissued and GenericLoopV0 is not silently
 chosen.
+
+### SimpleWhile terminality D0 decision
+
+Decision: accepted a bounded direct non-nested terminality certificate. The
+existing handler's only `Ok(None)` is its `detect_nested_loop(ctx.body)` pre-gate.
+For the direct source topology already accepted by SimpleWhile Facts, that gate
+is ineligible before composition. Its `StandardEntry` has both None-returning
+configuration flags disabled; missing contract and every composer/lower failure
+propagate `Err`, which terminates the legacy scheduler. The composed SimpleWhile
+path is `CorePlan::Loop`; loop completion returns `Some(void)` or `Err`, not
+`None`. This proves only scheduler terminality—not builder readiness, lowering
+success, rollback, or runtime behavior.
+
+S0 may encode that narrow certificate with direct/nested fixtures and an
+existing shared guard ratchet. It may not issue a product or select a route;
+the ordered terminality transaction remains a later box and must retain
+GenericLoopV0 as an unreached legacy tail when the certificate is consumed.
