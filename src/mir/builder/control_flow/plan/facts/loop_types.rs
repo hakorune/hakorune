@@ -7,6 +7,7 @@ use super::bool_predicate_scan_facts::BoolPredicateScanFacts;
 use super::feature_facts::LoopFeatureFacts;
 use super::loop_array_join_facts::LoopArrayJoinFacts;
 use super::loop_char_map_facts::LoopCharMapFacts;
+use super::loop_scan_with_init::ScanWithInitSourceTopologyV1;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
 use super::loop_source_receipt::LoopSourceReceiptV1;
 use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
@@ -160,6 +161,9 @@ pub(in crate::mir::builder) struct ScanWithInitFacts {
     pub needle: String,
     pub step_lit: i64,
     pub dynamic_needle: bool,
+    /// Opaque source coordinates for only the statements observed by the
+    /// scan extractor. This is deliberately not a complete-body claim.
+    pub source_topology: Option<ScanWithInitSourceTopologyV1>,
 }
 
 #[derive(Debug, Clone)]

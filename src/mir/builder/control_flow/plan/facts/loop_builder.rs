@@ -39,7 +39,7 @@ use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 
 use super::loop_condition_shape::try_extract_condition_shape;
-use super::loop_scan_with_init::try_extract_scan_with_init_facts;
+use super::loop_scan_with_init::try_extract_scan_with_init_facts_with_projection;
 use super::loop_source_receipt::LoopSourceReceiptV1;
 use super::loop_split_scan::try_extract_split_scan_facts;
 use super::loop_step_shape::try_extract_step_shape;
@@ -92,8 +92,13 @@ fn try_build_loop_facts_inner(
         try_extract_condition_shape(condition)?.unwrap_or(ConditionShape::Unknown);
     let step_shape = try_extract_step_shape(body)?.unwrap_or(StepShape::Unknown);
     let observation = scan_condition_observation(&condition_shape, &step_shape);
-    let scan_with_init =
-        try_extract_scan_with_init_facts(condition, body, &condition_shape, &step_shape)?;
+    let scan_with_init = try_extract_scan_with_init_facts_with_projection(
+        condition,
+        body,
+        &condition_shape,
+        &step_shape,
+        &source_projection,
+    )?;
     let split_scan = try_extract_split_scan_facts(condition, body)?;
     let loop_simple_while =
         try_extract_loop_simple_while_facts_with_projection(condition, body, &source_projection)?;

@@ -6,13 +6,56 @@ use super::scan_shapes::{
     step_delta_from_profile, ConditionShape, StepShape,
 };
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use crate::mir::builder::control_flow::facts::stmt_view::{
+    LoopSourceBodySiteV1, LoopSourceProjectionV1,
+};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+
+/// Opaque coordinates for the two whole statements observed by ScanWithInit.
+///
+/// The matcher permits unrelated prefix/sibling statements, so this records
+/// neither a whole-body schedule nor any inner expression authority.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct ScanWithInitSourceTopologyV1 {
+    matched_if_return: LoopSourceBodySiteV1,
+    final_step: LoopSourceBodySiteV1,
+}
+
+impl ScanWithInitSourceTopologyV1 {
+    pub(in crate::mir::builder) fn has_scope_box_lineage(&self) -> bool {
+        !self.matched_if_return.scope_box_children().is_empty()
+            || !self.final_step.scope_box_children().is_empty()
+    }
+}
+
+struct ScanIfReturnMatch {
+    haystack: String,
+    needle: String,
+    dynamic_needle: bool,
+    matched_index: usize,
+}
 
 pub(super) fn try_extract_scan_with_init_facts(
     condition: &ASTNode,
     body: &[ASTNode],
     condition_shape: &ConditionShape,
     step_shape: &StepShape,
+) -> Result<Option<ScanWithInitFacts>, Freeze> {
+    try_extract_scan_with_init_facts_with_projection(
+        condition,
+        body,
+        condition_shape,
+        step_shape,
+        &LoopSourceProjectionV1::default(),
+    )
+}
+
+pub(super) fn try_extract_scan_with_init_facts_with_projection(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    condition_shape: &ConditionShape,
+    step_shape: &StepShape,
+    source_projection: &LoopSourceProjectionV1,
 ) -> Result<Option<ScanWithInitFacts>, Freeze> {
     let mut idx_var: Option<String> = None;
     let mut expected_haystack: Option<String> = None;
@@ -103,7 +146,7 @@ pub(super) fn try_extract_scan_with_init_facts(
     };
     let idx_var = idx_var.as_str();
 
-    if let Some((haystack_var, needle, dynamic_needle)) = find_scan_if_return(
+    if let Some(scan_match) = find_scan_if_return(
         body,
         idx_var,
         expected_haystack.as_deref(),
@@ -114,10 +157,11 @@ pub(super) fn try_extract_scan_with_init_facts(
     ) {
         return Ok(Some(ScanWithInitFacts {
             loop_var: idx_var.to_string(),
-            haystack: haystack_var,
-            needle,
+            haystack: scan_match.haystack,
+            needle: scan_match.needle,
             step_lit,
-            dynamic_needle,
+            dynamic_needle: scan_match.dynamic_needle,
+            source_topology: source_topology_for(body, source_projection, scan_match.matched_index),
         }));
     }
 
@@ -132,14 +176,14 @@ fn find_scan_if_return(
     shape_needle_var: Option<&str>,
     step_lit: i64,
     include_tail: bool,
-) -> Option<(String, String, bool)> {
+) -> Option<ScanIfReturnMatch> {
     // Find `if s.substring(i, i + 1) == ch { return i }` anywhere except the last step.
     let stmts: Box<dyn Iterator<Item = &ASTNode>> = if include_tail {
         Box::new(body.iter())
     } else {
         Box::new(body.iter().take(body.len().saturating_sub(1)))
     };
-    for stmt in stmts {
+    for (matched_index, stmt) in stmts.enumerate() {
         let ASTNode::If {
             condition,
             then_body,
@@ -346,10 +390,32 @@ fn find_scan_if_return(
             continue;
         }
 
-        return Some((haystack_var, needle, dynamic_needle));
+        return Some(ScanIfReturnMatch {
+            haystack: haystack_var,
+            needle,
+            dynamic_needle,
+            matched_index,
+        });
     }
 
     None
+}
+
+fn source_topology_for(
+    body: &[ASTNode],
+    projection: &LoopSourceProjectionV1,
+    matched_index: usize,
+) -> Option<ScanWithInitSourceTopologyV1> {
+    let final_step_index = body.len().checked_sub(1)?;
+    if matched_index >= final_step_index || projection.flattened_body_len() != Some(body.len()) {
+        return None;
+    }
+    Some(ScanWithInitSourceTopologyV1 {
+        matched_if_return: projection.site_for_flattened_index(matched_index)?.clone(),
+        final_step: projection
+            .site_for_flattened_index(final_step_index)?
+            .clone(),
+    })
 }
 
 pub(super) fn match_index_of_bound(condition: &ASTNode, idx_var: &str) -> bool {
@@ -379,4 +445,150 @@ pub(super) fn match_index_of_bound(condition: &ASTNode, idx_var: &str) -> bool {
         _ => return false,
     };
     a == idx_var || b == idx_var
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::Span;
+    use crate::mir::builder::control_flow::plan::facts::loop_builder::try_build_loop_facts;
+    use crate::mir::builder::control_flow::plan::facts::loop_condition_shape::try_extract_condition_shape;
+    use crate::mir::builder::control_flow::plan::facts::loop_step_shape::try_extract_step_shape;
+
+    fn v(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn scan_condition() -> ASTNode {
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(v("i")),
+            right: Box::new(ASTNode::MethodCall {
+                object: Box::new(v("s")),
+                method: "length".to_string(),
+                arguments: vec![],
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }
+    }
+
+    fn matched_if_return() -> ASTNode {
+        ASTNode::If {
+            condition: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Equal,
+                left: Box::new(ASTNode::MethodCall {
+                    object: Box::new(v("s")),
+                    method: "substring".to_string(),
+                    arguments: vec![
+                        v("i"),
+                        ASTNode::BinaryOp {
+                            operator: BinaryOperator::Add,
+                            left: Box::new(v("i")),
+                            right: Box::new(ASTNode::Literal {
+                                value: LiteralValue::Integer(1),
+                                span: Span::unknown(),
+                            }),
+                            span: Span::unknown(),
+                        },
+                    ],
+                    span: Span::unknown(),
+                }),
+                right: Box::new(v("ch")),
+                span: Span::unknown(),
+            }),
+            then_body: vec![ASTNode::Return {
+                value: Some(Box::new(v("i"))),
+                span: Span::unknown(),
+            }],
+            else_body: None,
+            span: Span::unknown(),
+        }
+    }
+
+    fn final_step() -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(v("i")),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(v("i")),
+                right: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }
+    }
+
+    fn topology_for(raw_body: Vec<ASTNode>) -> ScanWithInitSourceTopologyV1 {
+        try_build_loop_facts(&scan_condition(), &raw_body)
+            .expect("facts extraction")
+            .expect("loop facts")
+            .scan_with_init
+            .expect("scan facts")
+            .source_topology
+            .expect("aligned scan topology")
+    }
+
+    #[test]
+    fn source_topology_keeps_only_matched_if_return_and_final_step() {
+        let topology = topology_for(vec![matched_if_return(), final_step()]);
+
+        assert_eq!(topology.matched_if_return.raw_body_index(), 0);
+        assert_eq!(topology.final_step.raw_body_index(), 1);
+        assert!(!topology.has_scope_box_lineage());
+    }
+
+    #[test]
+    fn source_topology_retains_scope_box_lineage_without_borrowing() {
+        let topology = topology_for(vec![ASTNode::ScopeBox {
+            body: vec![matched_if_return(), final_step()],
+            span: Span::unknown(),
+        }]);
+
+        assert_eq!(topology.matched_if_return.raw_body_index(), 0);
+        assert_eq!(topology.matched_if_return.scope_box_children(), &[0]);
+        assert_eq!(topology.final_step.raw_body_index(), 0);
+        assert_eq!(topology.final_step.scope_box_children(), &[1]);
+        assert!(topology.has_scope_box_lineage());
+    }
+
+    #[test]
+    fn source_topology_keeps_prefix_sibling_outside_observed_pair() {
+        let prefix = ASTNode::Local {
+            variables: vec!["unused".to_string()],
+            initial_values: vec![None],
+            declared_type_names: vec![],
+            span: Span::unknown(),
+        };
+        let topology = topology_for(vec![prefix, matched_if_return(), final_step()]);
+
+        assert_eq!(topology.matched_if_return.raw_body_index(), 1);
+        assert_eq!(topology.final_step.raw_body_index(), 2);
+        assert!(!topology.has_scope_box_lineage());
+    }
+
+    #[test]
+    fn legacy_extractor_keeps_source_topology_absent() {
+        let condition = scan_condition();
+        let body = vec![matched_if_return(), final_step()];
+        let condition_shape = try_extract_condition_shape(&condition)
+            .expect("condition shape")
+            .expect("known condition shape");
+        let step_shape = try_extract_step_shape(&body)
+            .expect("step shape")
+            .expect("known step shape");
+
+        let facts =
+            try_extract_scan_with_init_facts(&condition, &body, &condition_shape, &step_shape)
+                .expect("facts extraction")
+                .expect("scan facts");
+
+        assert!(facts.source_topology.is_none());
+    }
 }
