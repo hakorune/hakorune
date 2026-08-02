@@ -129,6 +129,30 @@ fn located_controls_and_diagnostic_terminals_keep_exact_parent_sites() {
     }
 }
 
+#[test]
+fn lambda_statement_keeps_an_exact_parent_site() {
+    let lambda = ASTNode::Lambda {
+        params: Vec::new(),
+        body: vec![integer(1)],
+        span: Span::unknown(),
+    };
+    let (_, root) =
+        RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
+            Vec::<ASTNode>::new(),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ));
+    let (_, child) = RawInvocationSourceContextV1::from_transport(root.body_statement(lambda, 4));
+
+    assert!(matches!(
+        child,
+        RawInvocationSourceContextV1::Located { .. }
+    ));
+    assert_eq!(
+        child.site().expect("located Lambda statement").segments(),
+        &[SourcePathSegmentV1::Body(4)]
+    );
+}
+
 fn assignment(target: ASTNode, value: ASTNode) -> ASTNode {
     ASTNode::Assignment {
         target: Box::new(target),

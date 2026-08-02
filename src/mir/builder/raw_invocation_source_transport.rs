@@ -43,7 +43,6 @@ pub(in crate::mir::builder) enum RawInvocationRootLineageV1 {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawUnlocatedPortalV1 {
-    ControlBody,
     CallObject,
 }
 
@@ -438,8 +437,6 @@ fn body_item_site(
 
 fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
     match statement {
-        ASTNode::Lambda { .. } => RawUnlocatedPortalV1::ControlBody,
-
         ASTNode::Break { .. }
         | ASTNode::Continue { .. }
         | ASTNode::UsingStatement { .. }
@@ -478,7 +475,8 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
         | ASTNode::FunctionCall { .. }
         | ASTNode::Call { .. } => RawUnlocatedPortalV1::CallObject,
 
-        ASTNode::Program { .. }
+        ASTNode::Lambda { .. }
+        | ASTNode::Program { .. }
         | ASTNode::BoxDeclaration { .. }
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }

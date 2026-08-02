@@ -209,10 +209,11 @@ closed — RAW-SCRIPT-LAMBDA-DEFERRED-CAPTURE-PUBLICATION0-D0 (R4 retain/rehome)
   lineage, so neither has `forest.child_at` or an ordered BindingRef capture
   receipt. The live `RawLambdaLexicalObservationV1 -> variable_map snapshot ->
   PreparedRawLambdaClosureEmissionV1` lifecycle remains the named owner under
-  `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` and the ControlBody portal.
+  `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` without an unlocated
+  transport portal.
   Release requires one all-route lineage/capture product (or one final named
-  Lambda operation boundary) that lets the existing emitter delete both the
-  raw observer and generic portal atomically.
+  Lambda operation boundary) that lets the existing emitter delete the raw
+  observer atomically.
 
 closed — MIRBUILDER-R4-RESIDUAL-FINAL-CONFORMANCE0-D0 (incomplete inventory)
   The root-only registry is mechanically sound but cannot claim all R4
@@ -222,12 +223,12 @@ closed — MIRBUILDER-R4-RESIDUAL-FINAL-CONFORMANCE0-D0 (incomplete inventory)
 
 closed — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-LAMBDA0-S0
   The manifest/guard now fixes the raw/reference Lambda capture-publication
-  operation, its ControlBody transport, release condition, and focused raw
-  dispatcher fixture. No route or semantic behavior changes.
+  operation, direct recursive compatibility, release condition, and focused
+  raw dispatcher fixture. No route or semantic behavior changes.
 
 closed — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0
-  Nested CallObject, ControlBody, and Lambda-leaf profile gates are reachable.
-  They cannot share one R4 operation entry: CallObject and control/result keep
+  Nested CallObject and Lambda-leaf profile gates are reachable. They cannot
+  share one R4 operation entry: CallObject and control/result keep
   shape-specific owners, while Lambda leaf composes its capture owner with a
   child operation. Final R4 conformance remains unclaimed.
 
@@ -430,28 +431,35 @@ them into one physical terminal would create a second region/JoinIR planner.
 The repository-wide target is therefore not one Return writer; it is one
 physical consumer for each sealed operation, with no retry or fallback.
 
+closed — RAW-CONTROLBODY-UNLOCATED-PORTAL-RETIRE0-R0 (RET0)
+  The unreachable unlocated portal, its dead Lambda classifier arm, fabricated
+  test construction, and false R4 transport claims are deleted. Lambda remains
+  located; raw/reference capture retains its named operation; CallObject is the
+  sole unlocated recursive portal. Focused transport/Loop tests and shared
+  R4/current-pointer guards are green.
+
 ### Active execution brief
 
-`RAW-CONTROLBODY-UNLOCATED-PORTAL-RETIRE0-R0` — RET0, no replacement credit.
+`CONTROL-RESULT-CLEANUP-POLICY-SNAPSHOT0-S0` — live BoxShape refactor.
 
 Change:
-  Delete the unreachable `RawUnlocatedPortalV1::ControlBody`, the dead Lambda
-  classifier arm, its fabricated test construction, and false R4 transport
-  claims. `CallObject` remains the sole unlocated recursive portal.
+  Capture immutable cleanup Return/Throw policy once at normal ingress and at
+  raw/reference TryCatch ingress; loan it to `PreparedRawTryCatchV1` and delete
+  the two cleanup-time environment reads.
 
 Contract:
-  Located Lambda transport and `PreparedRawLambdaLexicalCaptureLifecycleV1`
-  remain unchanged. Script admission, diagnostics, MIR, raw/reference behavior,
-  and accepted surfaces do not change. Add no adapter or replacement portal.
+  Preserve the existing allow/deny diagnostics, first-catch-only lowering,
+  successful restoration, failure partial-state, and RootLower timing. Do not
+  add ambient Builder policy, a default environment-read fallback, or Script
+  Complete activation.
 
 Done:
-  Production source and the R4 manifest contain no `ControlBody`; located
-  Lambda and raw Lambda capture tests remain green; the shared R4 and current
-  pointer guards pass.
+  Each prepared TryCatch has one typed policy; lower-side cleanup policy reads
+  are zero; snapshot immutability and existing cleanup/reuse tests are green.
 
 Stop:
-  If a real production constructor depends on `ControlBody`, return to D0 and
-  identify its exact source owner. Do not preserve it with a renamed variant.
+  If selected and raw/reference routes cannot loan one captured policy without
+  ambient state or fallback, return this row to a profile-ingress D0.
 
 ### Refactor Series queue
 
