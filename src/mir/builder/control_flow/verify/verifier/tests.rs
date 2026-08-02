@@ -398,6 +398,7 @@ mod tests {
     fn debug_value_join_invariant_allows_empty_when_not_needed() {
         let facts = LoopFacts {
             source_receipt: Default::default(),
+            source_projection: Default::default(),
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
@@ -436,6 +437,7 @@ mod tests {
     fn debug_value_join_invariant_panics_without_exit_kinds() {
         let facts = LoopFacts {
             source_receipt: Default::default(),
+            source_projection: Default::default(),
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,

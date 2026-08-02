@@ -19,6 +19,7 @@ use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCond
 use crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCondReturnInBodyFacts;
+use crate::mir::builder::control_flow::facts::stmt_view::LoopSourceProjectionV1;
 use crate::mir::builder::control_flow::facts::IfPhiJoinFacts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
@@ -30,6 +31,7 @@ use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::Loo
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopFacts {
     pub source_receipt: LoopSourceReceiptV1,
+    pub source_projection: LoopSourceProjectionV1,
     pub step_shape: StepShape,
     pub skeleton: SkeletonFacts,
     pub features: LoopFeatureFacts,
@@ -60,6 +62,10 @@ pub(in crate::mir::builder) struct LoopFacts {
 impl LoopFacts {
     pub fn source_receipt(&self) -> &LoopSourceReceiptV1 {
         &self.source_receipt
+    }
+
+    pub fn source_projection(&self) -> &LoopSourceProjectionV1 {
+        &self.source_projection
     }
 
     pub fn scan_with_init(&self) -> Option<&ScanWithInitFacts> {

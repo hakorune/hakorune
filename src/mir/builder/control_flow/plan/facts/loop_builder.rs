@@ -1,7 +1,7 @@
 //! Main builder functions for LoopFacts
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes;
+use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes_with_projection;
 use crate::mir::builder::control_flow::facts::try_extract_if_phi_join_facts;
 use std::collections::BTreeMap;
 
@@ -69,7 +69,7 @@ fn try_build_loop_facts_inner(
     // build a concrete route fact set (no guesses / no hardcoded names).
     //
     let source_receipt = LoopSourceReceiptV1::from_raw_loop_body(body);
-    let flat_body = flatten_scope_boxes(body);
+    let (flat_body, source_projection) = flatten_scope_boxes_with_projection(body).into_parts();
     let body = flat_body.as_slice();
 
     let condition_shape =
@@ -202,6 +202,7 @@ fn try_build_loop_facts_inner(
 
     let facts = LoopFacts {
         source_receipt,
+        source_projection,
         step_shape,
         skeleton,
         features,

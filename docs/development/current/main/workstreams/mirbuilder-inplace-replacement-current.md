@@ -469,31 +469,31 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-SOURCE-PROJECTION0-S0`
-Parent: `JOINIR-LOOP-ROUTE-SOURCE-PROVENANCE0-D1` (closed)
-Ceremony: BoxCount foundation; production consumers remain zero.
+Row: `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1`
+Parent: `JOINIR-LOOP-SOURCE-PROJECTION0-S0` (closed)
+Ceremony: one route-local provenance box; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Issue one facts-private `LoopSourceProjectionV1` alongside ScopeBox flattening.
-  It aligns every flattened analysis statement with an opaque original-body and
-  ScopeBox-child coordinate; it stores no AST and changes no route Facts.
+  Add only `LoopSimpleWhileFacts` topology: condition receipt plus the one
+  flattened increment's opaque source coordinate. Its extractor must consume
+  the aligned projection rather than inspect/re-match the original AST.
 
 Contract:
-  The projection is created once in `try_build_loop_facts_inner` before analysis.
-  It has no AST resolver, route ID, selector, producer, lowerer, or caller;
-  route-local topology belongs to later individual Facts boxes.
+  The topology has no AST, route ID, selector, producer, lowerer, or caller.
+  It remains unavailable whenever the fact's increment is not uniquely aligned;
+  all producer dispositions remain rejection in this row.
 
 Done:
-  Nested ScopeBox fixture proves flattened indices retain distinct opaque lineage
-  coordinates. Existing Facts/registry tests and shared guard remain green; every
-  touched source file remains below 800 lines.
+  Direct and nested ScopeBox fixtures prove the selected increment coordinate.
+  Existing Facts/registry tests and shared guard remain green; every touched
+  source file remains below 800 lines.
 
 Stop:
-  Stop if projection needs AST clone/resolve, generic AST traversal, route
-  topology, selector/producer change, or physical/runtime owner. No physicalizer,
-  Loop I0, raw/reference ingress, universal ingress, or fallback wrapper is
-  authorized.
+  Stop if simple-while provenance needs AST clone/resolve, a second extractor,
+  another route topology, selector/producer change, or physical/runtime owner.
+  No physicalizer, Loop I0, raw/reference ingress, universal ingress, or
+  fallback wrapper is authorized.
 
 ## Production invariants
 

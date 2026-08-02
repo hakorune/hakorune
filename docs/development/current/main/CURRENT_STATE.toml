@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-ROUTE-SOURCE-PROVENANCE0-D1 closed; JOINIR-LOOP-SOURCE-PROJECTION0-S0 selected."
+status = "JOINIR-LOOP-SOURCE-PROJECTION0-S0 closed; JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S0 may add only the facts-private source projection issued alongside ScopeBox flattening. It must retain coordinates, not AST; it must not add route topology, selected demands, producer acceptance, physicalization, retry changes, or production callers."
-current_execution_row = "JOINIR-LOOP-SOURCE-PROJECTION0-S0"
-current_execution_summary = "Add one aligned flattened-analysis-index to original-body/ScopeBox coordinate projection and carry it through LoopFacts. Prove nested ScopeBox lineage; route Facts remain unchanged."
+current_design_stop = "S1 may add only LoopSimpleWhile's condition/step source topology to its Facts, sourced from the aligned projection. It must not add another route topology, AST matching/rewrite, broad resolver, selector/producer change, physicalizer, retry change, or production caller."
+current_execution_row = "JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1"
+current_execution_summary = "Capture the one flattened increment's opaque original-body/ScopeBox coordinate in LoopSimpleWhileFacts, with direct and nested ScopeBox fixtures. All logical producer dispositions remain unchanged in S1."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-SOURCE-PROJECTION0-S0"
+current_blocker_token = "JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

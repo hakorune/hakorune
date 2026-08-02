@@ -227,3 +227,12 @@ Source authority is `try_build_loop_facts_inner` before flattening. Registry,
 logical product/producer, and physical layers cannot issue coordinates, match
 AST, resolve a generic path, select a route, or lower. Typed provenance failure
 remains rejection, never `None` retry.
+
+### Source projection S0 evidence
+
+`flatten_scope_boxes_with_projection` is now the sole top-level ScopeBox
+flatten operation for loop Facts. It returns the existing cloned analysis body
+and a coordinate-only `LoopSourceProjectionV1`; `LoopFacts` carries the latter.
+Nested ScopeBox lineage is covered by a focused fixture. No route topology,
+producer disposition, runtime path, or source resolver changed. S1 may add only
+the `LoopSimpleWhileFacts` step coordinate.

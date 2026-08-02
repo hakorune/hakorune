@@ -413,6 +413,7 @@ mod tests {
         let (nested, condition, body) = nested_facts();
         let facts = LoopFacts {
             source_receipt: Default::default(),
+            source_projection: Default::default(),
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
@@ -473,6 +474,7 @@ mod tests {
         let (nested, condition, body) = nested_facts();
         let facts = LoopFacts {
             source_receipt: Default::default(),
+            source_projection: Default::default(),
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
                 kind: SkeletonKind::Loop,
