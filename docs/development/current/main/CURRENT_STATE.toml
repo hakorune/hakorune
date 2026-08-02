@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-IF-PHI-JOIN-PROVENANCE0-S0 was already closed; JOINIR-LOOP-TRUE-EARLY-EXIT-PROVENANCE0-D0 selected."
+status = "JOINIR-LOOP-TRUE-EARLY-EXIT-PROVENANCE0-D0 accepted and S0 closed; JOINIR-LOOP-TRUE-EARLY-EXIT-PREFLIGHT0-D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 must audit whether LoopTrueEarlyExit can retain optional projection-aware whole-statement topology without changing facts acceptance: Return is exit-if then step; Break is exit-if, carrier update, then step. Nested exit-if contents and cloned semantic fields are not source sites. D0 must define direct/ScopeBox/mismatch behavior before S0; terminality, product, physical safety, caller, and runtime remain separate."
-current_execution_row = "JOINIR-LOOP-TRUE-EARLY-EXIT-PROVENANCE0-D0"
-current_execution_summary = "A stale IfPhiJoin pointer was corrected after commit/history audit. LoopTrueEarlyExit is the next unlanded bounded route, beginning with provenance design only."
+current_design_stop = "D0 must decide whether all-route preflight may consume only optional LoopTrueEarlyExit topology and raw-front selection to distinguish missing topology, ScopeBox lineage, and direct policy/terminality unavailability. It must not borrow source, issue a qualification/product, or change selection, terminality, physical safety, caller, or runtime behavior."
+current_execution_row = "JOINIR-LOOP-TRUE-EARLY-EXIT-PREFLIGHT0-D0"
+current_execution_summary = "LoopTrueEarlyExit provenance S0 retains optional Return/Break whole-statement topology only; its first consumer, if any, requires a separate preflight design."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-TRUE-EARLY-EXIT-PROVENANCE0-D0"
+current_blocker_token = "JOINIR-LOOP-TRUE-EARLY-EXIT-PREFLIGHT0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

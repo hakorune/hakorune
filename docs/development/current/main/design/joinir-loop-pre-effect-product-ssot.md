@@ -1063,3 +1063,18 @@ whether those flattened observations can be represented through the existing
 projection. The nested exit-if payload/condition and cloned carrier expression
 remain non-authoritative. Terminality, selection use, product, physical safety,
 caller, and runtime behavior are out of scope.
+
+### LoopTrueEarlyExit provenance D0/S0 implementation record
+
+Decision: accept behavior-neutral optional topology S0. The projection-aware
+extractor retains Return as opaque `exit-if, step`, and Break as opaque
+`exit-if, carrier-update, step`, only when the accepted flattened body has the
+exact corresponding arity and a complete aligned projection. Default-projection
+calls remain topology-absent; any mismatch leaves existing facts acceptance
+unchanged. ScopeBox lineage is retained only as observation. Direct Return and
+Break plus ScopeBox fixtures fix the contract.
+
+Nested exit-if condition/payload and the cloned carrier expression have no
+source authority. No selector/preflight consumer, terminality, product,
+composer/lowerer/Builder, physicalizer, caller, or runtime behavior changed.
+The next card is preflight D0 only.

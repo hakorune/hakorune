@@ -4,6 +4,9 @@ use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, extract_loop_increment_plan, is_true_literal, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::facts::stmt_view::{
+    LoopSourceBodySiteV1, LoopSourceProjectionV1,
+};
 use crate::mir::builder::control_flow::plan::domain::LoopTrueEarlyExitKind;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
@@ -16,11 +19,33 @@ pub(in crate::mir::builder) struct LoopTrueEarlyExitFacts {
     pub carrier_var: Option<String>,
     pub carrier_update: Option<ASTNode>,
     pub loop_increment: ASTNode,
+    pub source_topology: Option<LoopTrueEarlyExitSourceTopologyV1>,
+}
+
+/// Opaque whole-statement observations for one accepted early-exit loop.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct LoopTrueEarlyExitSourceTopologyV1 {
+    exit_kind: LoopTrueEarlyExitKind,
+    exit_if: LoopSourceBodySiteV1,
+    carrier_update: Option<LoopSourceBodySiteV1>,
+    step: LoopSourceBodySiteV1,
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_true_early_exit_facts(
     condition: &ASTNode,
     body: &[ASTNode],
+) -> Result<Option<LoopTrueEarlyExitFacts>, Freeze> {
+    try_extract_loop_true_early_exit_facts_with_projection(
+        condition,
+        body,
+        &LoopSourceProjectionV1::default(),
+    )
+}
+
+pub(in crate::mir::builder) fn try_extract_loop_true_early_exit_facts_with_projection(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    source_projection: &LoopSourceProjectionV1,
 ) -> Result<Option<LoopTrueEarlyExitFacts>, Freeze> {
     if !is_true_literal(condition) {
         return Ok(None);
@@ -76,6 +101,7 @@ pub(in crate::mir::builder) fn try_extract_loop_true_early_exit_facts(
                 carrier_var: None,
                 carrier_update: None,
                 loop_increment,
+                source_topology: source_topology_for(body, source_projection, exit_kind, None),
             }))
         }
         LoopTrueEarlyExitKind::Break => {
@@ -110,9 +136,36 @@ pub(in crate::mir::builder) fn try_extract_loop_true_early_exit_facts(
                 carrier_var: Some(carrier_var),
                 carrier_update: Some(carrier_update),
                 loop_increment,
+                source_topology: source_topology_for(body, source_projection, exit_kind, Some(1)),
             }))
         }
     }
+}
+
+fn source_topology_for(
+    body: &[ASTNode],
+    projection: &LoopSourceProjectionV1,
+    exit_kind: LoopTrueEarlyExitKind,
+    carrier_index: Option<usize>,
+) -> Option<LoopTrueEarlyExitSourceTopologyV1> {
+    let expected_len = match exit_kind {
+        LoopTrueEarlyExitKind::Return => 2,
+        LoopTrueEarlyExitKind::Break => 3,
+    };
+    if body.len() != expected_len || projection.flattened_body_len() != Some(expected_len) {
+        return None;
+    }
+    Some(LoopTrueEarlyExitSourceTopologyV1 {
+        exit_kind,
+        exit_if: projection.site_for_flattened_index(0)?.clone(),
+        carrier_update: match carrier_index {
+            Some(index) => Some(projection.site_for_flattened_index(index)?.clone()),
+            None => None,
+        },
+        step: projection
+            .site_for_flattened_index(expected_len - 1)?
+            .clone(),
+    })
 }
 
 fn extract_exit_if(body: &[ASTNode]) -> Option<(LoopTrueEarlyExitKind, ASTNode, Option<ASTNode>)> {
@@ -184,6 +237,7 @@ fn extract_carrier_update(stmt: &ASTNode) -> Option<(String, ASTNode)> {
 mod tests {
     use super::*;
     use crate::ast::{LiteralValue, Span};
+    use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes_with_projection;
 
     fn v(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -296,6 +350,68 @@ mod tests {
         assert_eq!(facts.loop_var, "i");
         assert_eq!(facts.exit_kind, LoopTrueEarlyExitKind::Break);
         assert_eq!(facts.carrier_var.as_deref(), Some("sum"));
+    }
+
+    #[test]
+    fn facts_retains_only_whole_direct_return_and_break_sites() {
+        for (raw_body, expected_len, has_carrier) in [
+            (
+                vec![if_return(v("done"), Some(v("value"))), increment("i")],
+                2,
+                false,
+            ),
+            (
+                vec![
+                    if_break(v("done")),
+                    carrier_update("sum", v("i")),
+                    increment("i"),
+                ],
+                3,
+                true,
+            ),
+        ] {
+            let (body, projection) = flatten_scope_boxes_with_projection(&raw_body).into_parts();
+            let facts = try_extract_loop_true_early_exit_facts_with_projection(
+                &lit_true(),
+                &body,
+                &projection,
+            )
+            .expect("Ok")
+            .expect("accepted early exit");
+            let topology = facts.source_topology.expect("whole-statement topology");
+            assert_eq!(topology.exit_if.raw_body_index(), 0);
+            assert_eq!(topology.step.raw_body_index(), (expected_len - 1) as u32);
+            assert_eq!(topology.carrier_update.is_some(), has_carrier);
+            assert!(topology.exit_if.scope_box_children().is_empty());
+            assert!(topology.step.scope_box_children().is_empty());
+        }
+    }
+
+    #[test]
+    fn facts_retains_scope_box_lineage_without_borrowing_sites() {
+        let raw_body = vec![ASTNode::ScopeBox {
+            body: vec![
+                if_break(v("done")),
+                carrier_update("sum", v("i")),
+                increment("i"),
+            ],
+            span: Span::unknown(),
+        }];
+        let (body, projection) = flatten_scope_boxes_with_projection(&raw_body).into_parts();
+        let facts =
+            try_extract_loop_true_early_exit_facts_with_projection(&lit_true(), &body, &projection)
+                .expect("Ok")
+                .expect("accepted early exit");
+        let topology = facts.source_topology.expect("observational topology");
+        assert_eq!(topology.exit_if.scope_box_children(), [0]);
+        assert_eq!(
+            topology
+                .carrier_update
+                .expect("break carrier")
+                .scope_box_children(),
+            [1]
+        );
+        assert_eq!(topology.step.scope_box_children(), [2]);
     }
 
     #[test]
