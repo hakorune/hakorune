@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0 active: decide final operation-local ownership for residual selected-Script R4 families."
+status = "MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0 closed: residual R4 ownership is operation-local; shared residual scheduling is rejected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "Decision B-prime forbids raw/reference-profile reopening and universal ingress. Decide whether residual Call/Object, Loop, ControlResult, and Box runtime finish as operation-local typed all-route products; reject a shared residual scheduler unless it has a same-day consumer."
-current_execution_row = "MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0"
-current_execution_summary = "Design-only: map each residual's existing operation owner, source handoff, diagnostic owner, callers, physical terminal, and final old edge. No per-family I0, code, route, or raw/reference change is authorized."
+current_design_stop = "Loop remains R4-fenced until one selected route can be sealed before Builder effects and consumed by one physicalizer. Decision B-prime still forbids raw/reference-profile reopening and universal ingress."
+current_execution_row = "JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0"
+current_execution_summary = "Design-only: decide whether existing Loop facts, 19-route selection, and mutable composers can split into one pre-effect logical route/child-demand recipe and one physicalizer. No Loop activation, new wrapper, raw/reference, or route behavior change is authorized."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0"
+current_blocker_token = "JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

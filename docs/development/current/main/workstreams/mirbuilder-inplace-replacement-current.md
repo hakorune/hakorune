@@ -489,8 +489,8 @@ closed — SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3
 closed — SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4
   -> resolved root-demand dispatch is private; recursive traversal remains one shared matcher.
 
-closed — T2 typed occurrence; Family4 D0 NoSafeSlice because remaining roots retain named R4 operation/control owners.
-next — MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0: decide operation-local typed all-route ownership versus a rejected shared residual scheduler; raw/reference and universal ingress stay closed.
+closed — MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0 (Accept): shared occurrence identity only; residual R4 ownership stays operation-local and the shared scheduler is rejected.
+next — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0: decide pure route selection plus one physicalizer; Loop activation, wrappers, raw/reference, and route changes stay closed.
 
 ### Refactor Series queue
 
