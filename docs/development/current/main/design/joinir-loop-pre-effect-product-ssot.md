@@ -1048,3 +1048,18 @@ can represent both with ScopeBox lineage. S0 may retain only those opaque whole
 statement sites; branch-internal conditions and updates remain cloned semantic
 facts. Terminality, product, physicalization, callers, and runtime remain
 separate cards.
+
+### Current-pointer correction and next-route selection D3 decision
+
+Decision: `IfPhiJoin` provenance S0 was already closed in `0c0eb73a14`; its
+topology, preflight, terminality, and later logical-product NoSafe boundary are
+recorded above. The stale current pointer selected it again, so no duplicate
+implementation is authorized.
+
+Select `LoopTrueEarlyExit` provenance D0. It is the next registry route with a
+bounded extractor shape and no existing topology: Return has whole top-level
+`exit-if, step`; Break has `exit-if, carrier-update, step`. D0 must decide only
+whether those flattened observations can be represented through the existing
+projection. The nested exit-if payload/condition and cloned carrier expression
+remain non-authoritative. Terminality, selection use, product, physical safety,
+caller, and runtime behavior are out of scope.
