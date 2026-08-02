@@ -317,6 +317,26 @@ the complete Generic grammar, make V0 a pre-effect winner, classify a natural
 debt-to-V1 continuation, or close D2/D3. The next real verifier/lower failure,
 or any coverage hole, remains an explicit `UnresolvedStop`.
 
+### D2-A1 — one bounded Generic corpus extension
+
+Extend the observer by exactly one natural V0 candidate: an additive condition
+(`j + m < n`) with the existing numeric progression body. Reuse the same
+facts→selector→composer→`CorePlan::Loop`→verifier→lower path and a fresh
+candidate seed for `j`, `m`, and `n`. This is a reachability row, not a new
+policy or semantic recipe kind.
+
+Done: the raw selection and actual stage are recorded, and the fresh repeat is
+stable. Stop if a specialized route wins, facts cannot be selected, setup needs
+synthetic catalog/AST state, or any verifier/lower failure appears; retain the
+row as `UnresolvedStop` instead of broadening the corpus. Receiver/scanner,
+state-machine, RecipeOnly-break, and other facts-only fixtures remain outside
+this slice until their production route ownership is separately proven.
+
+Observation: the additive row is green in all three modes. Its selected
+Generic row reaches a `CorePlan::Loop` root and terminal `PlanLowerer::lower ->
+Some` with a stable fresh repeat. This is one more accepted-plan data point; it
+does not authorize V0 precedence or close D2-B.
+
 ### D2-B — gated V0 overlap decision (`JOINIR-GENERIC-V0-PRE-EFFECT-WINNER-TERMINAL0-D2-S2`)
 
 This is the next design stop, not an implementation permission. It may begin

@@ -94,6 +94,14 @@ pub(super) fn progression_condition() -> ASTNode {
     less(variable("i"), integer(3))
 }
 
+pub(super) fn additive_condition() -> ASTNode {
+    less(add(variable("j"), variable("m")), variable("n"))
+}
+
+pub(super) fn additive_body() -> Vec<ASTNode> {
+    vec![assign("j", add(variable("j"), integer(1)))]
+}
+
 fn progression_step() -> ASTNode {
     assign("i", add(variable("i"), integer(1)))
 }
@@ -140,6 +148,13 @@ fn generic_v1_only_fixture_records_source_to_raw_selection() {
     assert_eq!(observation.v0_facts, false);
     assert_eq!(observation.v1_facts, true);
     assert_eq!(observation.raw_routes, vec![LoopRouteId::GenericLoopV1]);
+}
+
+#[test]
+fn generic_v0_additive_condition_records_source_to_raw_selection() {
+    let observation = observe_release(&additive_condition(), &additive_body());
+    assert!(observation.v0_facts);
+    assert!(observation.raw_routes.contains(&LoopRouteId::GenericLoopV0));
 }
 
 #[test]

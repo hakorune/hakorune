@@ -5,7 +5,8 @@
 //! changes the production scheduler or creates a Recipe/PHI consumer.
 
 use super::generic_selection_matrix_tests::{
-    both_body, neither_body, progression_condition, simple_while_body, v1_only_body,
+    additive_body, additive_condition, both_body, neither_body, progression_condition,
+    simple_while_body, v1_only_body,
 };
 use super::route_id::LoopRouteId;
 use super::select_recipe_first_routes;
@@ -88,7 +89,12 @@ struct ReachabilityRowV1 {
 fn seeded_builder() -> MirBuilder {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("generic_reachability/0".to_string());
-    for (name, ty) in [("i", MirType::Integer), ("j", MirType::Integer)] {
+    for (name, ty) in [
+        ("i", MirType::Integer),
+        ("j", MirType::Integer),
+        ("m", MirType::Integer),
+        ("n", MirType::Integer),
+    ] {
         let value = builder.alloc_typed(ty);
         builder
             .function_state
@@ -121,6 +127,7 @@ fn snapshot(builder: &MirBuilder) -> CandidateSnapshotV1 {
 fn fixture(name: &str) -> (crate::ast::ASTNode, Vec<crate::ast::ASTNode>) {
     match name {
         "v1-only" => (progression_condition(), v1_only_body()),
+        "v0-additive" => (additive_condition(), additive_body()),
         "both" => (progression_condition(), both_body()),
         "simple-while" => (progression_condition(), simple_while_body()),
         "neither" => (progression_condition(), neither_body()),
@@ -246,6 +253,7 @@ fn observe_fixture(mode: CorpusModeV1, name: &str) -> Vec<ReachabilityRowV1> {
 fn generic_accepted_plan_reachability_corpus_is_test_only_and_repeatable() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let mut accepted = 0usize;
+    let mut both_lower_some = 0usize;
     for mode in [
         CorpusModeV1::Release,
         CorpusModeV1::Strict,
@@ -256,7 +264,7 @@ fn generic_accepted_plan_reachability_corpus_is_test_only_and_repeatable() {
             ("HAKO_JOINIR_PLANNER_REQUIRED", mode.planner_required()),
             ("NYASH_JOINIR_STRICT", None),
         ]);
-        for name in ["v1-only", "both", "simple-while", "neither"] {
+        for name in ["v1-only", "v0-additive", "both", "simple-while", "neither"] {
             let rows = observe_fixture(mode, name);
             for row in rows {
                 assert!(
@@ -267,6 +275,13 @@ fn generic_accepted_plan_reachability_corpus_is_test_only_and_repeatable() {
                     row.first_effect_owner == EffectOwnerV1::GenericComposer,
                     "accepted Generic composition must leave candidate evidence: {row:?}"
                 );
+                if name == "v0-additive" {
+                    assert_eq!(
+                        row.stage,
+                        PlanStageV1::LowerSome,
+                        "additive V0 row must reach a terminal lower success: {row:?}"
+                    );
+                }
                 let repeat = observe_fixture(mode, name)
                     .into_iter()
                     .find(|candidate| candidate.route == row.route)
@@ -279,6 +294,9 @@ fn generic_accepted_plan_reachability_corpus_is_test_only_and_repeatable() {
                 assert_eq!(row.after_lower, repeat.after_lower);
                 if row.stage == PlanStageV1::LowerSome {
                     accepted += 1;
+                    if name == "both" {
+                        both_lower_some += 1;
+                    }
                 }
             }
         }
@@ -286,5 +304,9 @@ fn generic_accepted_plan_reachability_corpus_is_test_only_and_repeatable() {
     assert!(
         accepted >= 3,
         "known Generic corpus must reach lower success in at least three rows"
+    );
+    assert!(
+        both_lower_some >= 2,
+        "Both fixture must observe V0/V1 lower success in at least two mode rows"
     );
 }
