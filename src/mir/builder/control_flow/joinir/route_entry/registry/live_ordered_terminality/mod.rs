@@ -6,8 +6,10 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::LoopFacts;
 
+mod logical_product;
 mod transaction;
 
+pub(crate) use logical_product::issue_pre_effect_terminal_v1;
 pub(crate) use transaction::qualify_live_loop_facts_v1;
 
 /// Opaque non-Clone capability binding one live loop frame to its derived facts.
@@ -33,12 +35,19 @@ pub(in crate::mir::builder) fn bind_live_loop_facts_v1<'src>(
 
 /// A route that is proven to stop legacy scheduling, without claiming success.
 #[derive(Debug)]
-pub(crate) struct PreEffectSchedulerTerminalV1 {
+pub(crate) struct PreEffectSchedulerTerminalV1<'src> {
     route: super::route_id::LoopRouteId,
     unreached_legacy_tail: Box<[super::route_id::LoopRouteId]>,
+    source_lease: DirectSimpleWhileSourceLeaseV1<'src>,
 }
 
-impl PreEffectSchedulerTerminalV1 {
+#[derive(Debug)]
+struct DirectSimpleWhileSourceLeaseV1<'src> {
+    condition: &'src ASTNode,
+    step: &'src ASTNode,
+}
+
+impl<'src> PreEffectSchedulerTerminalV1<'src> {
     pub(crate) fn route(&self) -> super::route_id::LoopRouteId {
         self.route
     }
@@ -50,9 +59,9 @@ impl PreEffectSchedulerTerminalV1 {
 
 /// Fail-closed result of the one-shot ordered terminality transaction.
 #[derive(Debug)]
-pub(crate) enum LiveOrderedTerminalityDispositionV1 {
+pub(crate) enum LiveOrderedTerminalityDispositionV1<'src> {
     NoRoute,
     BlockedCurrent { route: super::route_id::LoopRouteId },
     BlockedEarlier { route: super::route_id::LoopRouteId },
-    PreEffectSchedulerTerminal(PreEffectSchedulerTerminalV1),
+    PreEffectSchedulerTerminal(PreEffectSchedulerTerminalV1<'src>),
 }

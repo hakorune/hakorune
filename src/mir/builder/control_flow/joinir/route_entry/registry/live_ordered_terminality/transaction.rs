@@ -1,7 +1,8 @@
 //! Consumes the private live carrier and proves only scheduler terminality.
 
 use super::{
-    LiveLoopFactsV1, LiveOrderedTerminalityDispositionV1, PreEffectSchedulerTerminalV1,
+    DirectSimpleWhileSourceLeaseV1, LiveLoopFactsV1, LiveOrderedTerminalityDispositionV1,
+    PreEffectSchedulerTerminalV1,
 };
 use crate::mir::builder::control_flow::joinir::route_entry::registry::direct_simple_while_terminality::certify_direct_simple_while_terminality;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
@@ -10,17 +11,18 @@ use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts
 
 pub(crate) fn qualify_live_loop_facts_v1(
     live: LiveLoopFactsV1<'_>,
-) -> LiveOrderedTerminalityDispositionV1 {
-    let _bound_source_frame = (live.condition, live.body);
+) -> LiveOrderedTerminalityDispositionV1<'_> {
+    let source = (live.condition, live.body);
     let canonical = canonicalize_loop_facts(live.facts);
     let selection = select_recipe_first_routes(Some(&canonical));
-    qualify_raw_order(&canonical.facts, selection.raw_execution_routes())
+    qualify_raw_order(&canonical.facts, selection.raw_execution_routes(), source)
 }
 
-fn qualify_raw_order(
+fn qualify_raw_order<'src>(
     facts: &crate::mir::builder::control_flow::plan::facts::LoopFacts,
     raw_order: &[LoopRouteId],
-) -> LiveOrderedTerminalityDispositionV1 {
+    source: (&'src crate::ast::ASTNode, &'src [crate::ast::ASTNode]),
+) -> LiveOrderedTerminalityDispositionV1<'src> {
     let Some((&current, tail)) = raw_order.split_first() else {
         return LiveOrderedTerminalityDispositionV1::NoRoute;
     };
@@ -33,6 +35,10 @@ fn qualify_raw_order(
     LiveOrderedTerminalityDispositionV1::PreEffectSchedulerTerminal(PreEffectSchedulerTerminalV1 {
         route: current,
         unreached_legacy_tail: tail.into(),
+        source_lease: DirectSimpleWhileSourceLeaseV1 {
+            condition: source.0,
+            step: &source.1[0],
+        },
     })
 }
 
@@ -123,7 +129,8 @@ mod tests {
         assert!(matches!(
             qualify_raw_order(
                 &facts,
-                &[LoopRouteId::LoopBreakRecipe, LoopRouteId::LoopSimpleWhile]
+                &[LoopRouteId::LoopBreakRecipe, LoopRouteId::LoopSimpleWhile],
+                (&condition, &body),
             ),
             LiveOrderedTerminalityDispositionV1::BlockedEarlier {
                 route: LoopRouteId::LoopBreakRecipe
@@ -139,7 +146,7 @@ mod tests {
                 .unwrap()
                 .unwrap();
         assert!(matches!(
-            qualify_raw_order(&facts, &[]),
+            qualify_raw_order(&facts, &[], (&condition, &body)),
             LiveOrderedTerminalityDispositionV1::NoRoute
         ));
     }

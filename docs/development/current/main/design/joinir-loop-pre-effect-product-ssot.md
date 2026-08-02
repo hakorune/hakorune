@@ -494,3 +494,15 @@ source/roles/product/producer subtree and address-stamped receipt APIs are
 deleted in the same commit, eliminating dual issuance and every independent
 source ingress. ScopeBox/nested/unknown-earlier/empty remain fail-closed;
 Accum remains non-issued.
+
+### Direct SimpleWhile logical product S0 evidence
+
+`logical_product.rs` now consumes only the terminality disposition and issues a
+non-Clone direct-SimpleWhile product with private source lease, fixed logical
+roles, selected route, and ordered GenericLoopV0 tail. Its actual-source fixture
+proves issuance only after the real `[LoopSimpleWhile, GenericLoopV0]` schedule;
+the transaction retains the existing fail-closed ScopeBox, unknown-earlier, and
+empty cases. The former `logical_demand` subtree was deleted in the same change,
+including its forged selection, independent source view, roles vocabulary, and
+address-stamped receipt APIs. The receipt is now raw-body arity only. No Builder,
+CorePlan, physical ID, runtime, or production caller entered this box.

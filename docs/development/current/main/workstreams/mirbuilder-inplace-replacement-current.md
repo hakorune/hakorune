@@ -469,32 +469,28 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-DIRECT-SIMPLE-LOGICAL-PRODUCT0-S0`
-Parent: `JOINIR-LOOP-LOGICAL-PRODUCT-ISSUANCE0-D0` (closed)
-Ceremony: issue one opaque direct SimpleWhile logical product and retire its forged predecessor; production consumers remain zero.
+Row: `JOINIR-DIRECT-SIMPLE-PHYSICALIZER0-D0`
+Parent: `JOINIR-DIRECT-SIMPLE-LOGICAL-PRODUCT0-S0` (closed)
+Ceremony: design one disconnected direct SimpleWhile physicalizer; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add a private source lease to the transaction's positive proof, then let its
-  sibling issuer consume only that disposition and issue one opaque direct
-  SimpleWhile product. Delete the old test-only logical_demand subtree together.
+  Fix the sealed physical context, one-effect commit point, error surface, and
+  future all-route replacement boundary for the direct product consumer.
 
 Contract:
-  The transaction remains sole schedule/terminality authority. The issuer reads
-  neither AST/Facts/selection nor topology; it consumes its disposition by value.
-  Product borrows remain private, non-Clone, route-local, and carry the ordered tail.
+  The physicalizer may consume only the opaque direct product; it must not choose
+  routes, inspect facts/raw selection, retry GenericLoopV0, or claim cutover.
 
 Done:
-  Actual direct fixture issues SimpleWhile with GenericLoopV0 tail; ScopeBox,
-  nested, unknown earlier, and empty fail closed. Product issuer has no Builder,
-  CorePlan, physical IDs, or caller; old forged producer/source/roles/product tests
-  are replaced then deleted in the same commit.
+  The design identifies an existing reusable physical seam or records NoSafeSlice,
+  with an explicit one-effect transaction and error/no-retry contract. It preserves
+  all-route policy and keeps product consumer/caller count at zero.
 
 Stop:
-  Stop if S0 treats terminality as execution success, assumes a production caller,
-  issues Accum, retains a second source ingress, exposes parts/generic slots, or
-  needs a physical/runtime owner. No physicalizer, Loop I0, raw/reference ingress,
-  or fallback wrapper is authorized.
+  Stop if D0 adds a caller, reuses the legacy scheduler, exposes product parts,
+  assumes terminality means lower success, or treats SimpleWhile as all-route
+  cutover. No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 

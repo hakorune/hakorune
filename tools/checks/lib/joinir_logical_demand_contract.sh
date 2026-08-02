@@ -4,12 +4,12 @@
 guard_joinir_logical_demand_contract() {
   local root_dir="$1"
   local tag="$2"
-  local demand_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/logical_demand"
   local route_id="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/route_id.rs"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local live_ordered_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality"
   local live_ordered_parent="$live_ordered_dir/mod.rs"
   local live_ordered_transaction="$live_ordered_dir/transaction.rs"
+  local live_ordered_product="$live_ordered_dir/logical_product.rs"
   local route_handlers="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/handlers/routes.rs"
   local projection="$root_dir/src/mir/builder/control_flow/facts/stmt_view.rs"
   local simple_while="$root_dir/src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs"
@@ -19,11 +19,7 @@ guard_joinir_logical_demand_contract() {
     "$simple_terminality"
     "$live_ordered_parent"
     "$live_ordered_transaction"
-    "$demand_dir/mod.rs"
-    "$demand_dir/source.rs"
-    "$demand_dir/roles.rs"
-    "$demand_dir/product.rs"
-    "$demand_dir/producer.rs"
+    "$live_ordered_product"
     "$projection"
     "$simple_while"
     "$accum_const"
@@ -38,11 +34,7 @@ guard_joinir_logical_demand_contract() {
     fi
   done
   local logical_files=(
-    "$demand_dir/mod.rs"
-    "$demand_dir/source.rs"
-    "$demand_dir/roles.rs"
-    "$demand_dir/product.rs"
-    "$demand_dir/producer.rs"
+    "$live_ordered_product"
     "$projection"
     "$simple_while"
     "$accum_const"
@@ -54,11 +46,6 @@ guard_joinir_logical_demand_contract() {
       guard_fail "$tag" "logical loop demand/provenance acquired physical or selection authority: ${file#"$root_dir/"}"
     fi
   done
-  if sed '/^#\[cfg(test)\]/,$d' "$demand_dir/producer.rs" | rg -n \
-    'ASTNode::|flatten_scope_boxes|try_extract_|select_recipe_first_routes|ENTRIES' \
-    >/dev/null; then
-    guard_fail "$tag" "logical producer re-acquired AST, projection, extractor, or selector authority"
-  fi
   local selection_calls bridge_files
   selection_calls="$(rg -c 'select_recipe_first_routes\(Some\(&canonical\)\)' "$live_ordered_transaction" || true)"
   if [[ "$selection_calls" != "1" ]]; then
@@ -70,6 +57,11 @@ guard_joinir_logical_demand_contract() {
     'diagnostic_effective|matched_routes|ASTNode::|try_extract_|LoopSourceView|logical_demand' \
     >/dev/null; then
     guard_fail "$tag" "live ordered transaction re-acquired diagnostic, AST, source-view, or legacy-demand authority"
+  fi
+  if sed '/^#\[cfg(test)\]/,$d' "$live_ordered_product" | rg -n \
+    'ASTNode::|LoopFacts|select_recipe_first_routes|logical_demand|MirBuilder|CorePlan|ValueId|BasicBlockId|RouteFn|ComposeFn' \
+    >/dev/null; then
+    guard_fail "$tag" "logical product issuer acquired source, selection, or physical authority"
   fi
   bridge_files="$(rg -l '\bbind_live_loop_facts_v1\b' "$root_dir/src/mir/builder/control_flow" | wc -l | tr -d '[:space:]')"
   if [[ "$bridge_files" != "2" ]]; then
