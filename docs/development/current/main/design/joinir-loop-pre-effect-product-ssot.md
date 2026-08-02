@@ -834,3 +834,20 @@ D0 must still establish a route-local borrowed condition/update/step lease and
 its logical roles/order. It must not widen the SimpleWhile transaction by
 analogy, treat terminality as all-route qualification, or touch AST matching,
 selection, composer/lowerer/Builder, physicalization, runtime, or callers.
+
+### AccumConstLoop logical-product D0 decision
+
+Decision: accept a narrow route-specific S0. `LiveLoopFactsV1` remains the
+only non-Clone owner consuming source, Facts, and the one canonical selection.
+Its terminality disposition gains an Accum-specific direct source lease for the
+raw condition, accumulator-update, and step; `logical_product` receives only
+that proof and issues the corresponding product variant. The source roles are
+in raw order: condition/`LoopBinding`, update/`AccumulatorBinding`, then
+step/`LoopBackContinuation`.
+
+The transaction must prove Accum is the first raw route and must fail closed
+for an earlier route, failed direct certificate, ScopeBox lineage, non-two-item
+body, or update/step indices other than distinct `0/1`. S0 may not re-match
+AST/Facts, traverse projection, reselect, alter the SimpleWhile variant,
+qualify all routes, or touch composition/lowering/Builder/physical/runtime
+paths or callers. Issuance remains a disconnected pre-effect request only.
