@@ -469,27 +469,26 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-S0`
-Parent: `JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-D0` (closed)
-Ceremony: issue one direct AccumConstLoop scheduler-terminality certificate; production consumers remain zero.
+Row: `JOINIR-LOOP-BREAK-PROVENANCE0-D0`
+Parent: `JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-S0` (closed)
+Ceremony: design one LoopBreakRecipe route-local source provenance box; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Encode the exact direct two-site source proof and actual sole raw schedule needed
-  to establish Accum handler scheduler terminality without issuing any product.
+  Inventory LoopBreakRecipe's route-local operands, transferred/opaque boundaries,
+  projection coordinates, direct/ScopeBox semantics, and actual raw schedule.
 
 Contract:
-  Source topology/receipt plus actual raw schedule are authority. Certificate proves
-  only `Some|Err`, not composition/lower success, Builder readiness, rollback, or runtime.
+  Facts/projection are authority. D0 may not recover source by AST re-match, cloned
+  recipe, generic raw slot, or route-kind reclassification.
 
 Done:
-  Direct fixture proves raw `[AccumConstLoop]` and terminal certificate; ScopeBox,
-  missing topology, bad arity/index, or duplicate sites receive no certificate. No product/caller is added.
+  Design names a minimum truthful topology and typed no-topology/direct-lineage rejects,
+  plus fixture/gate and any terminality prerequisite. No product/caller is added.
 
 Stop:
-  Stop if S0 treats source topology alone as terminality, hides the single raw-schedule
-  proof, expands another route, or claims physical readiness. No runtime routing, Loop I0,
-  raw/reference ingress, or fallback is authorized.
+  Stop if D0 uses a cloned recipe as source authority, expands another route, or claims
+  physical readiness. No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 

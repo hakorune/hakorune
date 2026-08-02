@@ -640,3 +640,12 @@ S0 requires existing topology to show raw body arity two, accumulator-update ind
 zero, step index one, distinct sites, and empty ScopeBox lineage, plus an actual
 raw-schedule fixture. ScopeBox/topology/index mismatch issues no certificate. The
 certificate does not qualify the all-route preflight or issue a product/caller.
+
+### AccumConstLoop terminality S0 evidence
+
+`DirectAccumConstLoopTerminalityV1` now requires raw body arity two, distinct
+direct update/step sites at indices zero/one, and empty ScopeBox lineage. Its actual
+fixture fixes raw selection to `[AccumConstLoop]` and the terminal certificate;
+ScopeBox receives none. The shared guard ratchets that the Accum handler has no
+`Ok(None)` return. This is scheduler terminality only and does not modify all-route
+preflight's zero-qualified policy, product issuance, physicalization, or caller.

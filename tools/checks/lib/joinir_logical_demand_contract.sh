@@ -6,6 +6,7 @@ guard_joinir_logical_demand_contract() {
   local tag="$2"
   local route_id="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/route_id.rs"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
+  local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
   local live_ordered_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality"
   local live_ordered_parent="$live_ordered_dir/mod.rs"
   local live_ordered_transaction="$live_ordered_dir/transaction.rs"
@@ -19,6 +20,7 @@ guard_joinir_logical_demand_contract() {
   local files=(
     "$route_id"
     "$simple_terminality"
+    "$accum_terminality"
     "$live_ordered_parent"
     "$live_ordered_transaction"
     "$all_route_preflight"
@@ -88,5 +90,12 @@ guard_joinir_logical_demand_contract() {
   none_count="$(printf '%s\n' "$simple_route_body" | rg -c 'return Ok\(None\)' || true)"
   if [[ "$none_count" != "1" ]] || ! printf '%s\n' "$simple_route_body" | rg -q 'detect_nested_loop\(ctx\.body\)'; then
     guard_fail "$tag" "SimpleWhile terminality contract drifted from its single nested None pre-gate"
+  fi
+  local accum_route_body accum_none_count
+  accum_route_body="$(sed -n '/pub(crate) fn route_accum_const_loop(/,/pub(crate) fn route_nested_loop_minimal(/p' "$route_handlers")"
+  accum_none_count="$(printf '%s\n' "$accum_route_body" | rg -c 'return Ok\(None\)' || true)"
+  accum_none_count="${accum_none_count:-0}"
+  if [[ "$accum_none_count" != "0" ]]; then
+    guard_fail "$tag" "AccumConstLoop terminality contract acquired an Ok(None) path"
   fi
 }
