@@ -684,8 +684,6 @@ binding. It does not authorize Generic production cutover, Retry deletion,
 PHI ownership, or broad non-Generic cutover. Those remain downstream gates
 after all overlap classes have a policy owner.
 
-#### M5 boundary while D2-B is open
-
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:

@@ -235,6 +235,61 @@ pub(super) fn lower_effect_block(
     Ok(effects)
 }
 
+#[cfg(test)]
+mod carrier_target_tests {
+    use super::collect_loop_carrier_targets;
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+
+    fn variable(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.into(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn increment(name: &str) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(variable(name)),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(variable(name)),
+                right: Box::new(integer(1)),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn carrier_targets_recurse_into_nested_loop_and_if() {
+        let body = vec![ASTNode::Loop {
+            condition: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: Span::unknown(),
+            }),
+            body: vec![ASTNode::If {
+                condition: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Bool(true),
+                    span: Span::unknown(),
+                }),
+                then_body: vec![increment("j")],
+                else_body: None,
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        }];
+
+        assert_eq!(collect_loop_carrier_targets(&body), vec!["j"]);
+    }
+}
+
 pub(super) fn lower_if_effect(
     builder: &mut MirBuilder,
     phi_bindings: &BTreeMap<String, crate::mir::ValueId>,
