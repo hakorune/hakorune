@@ -386,6 +386,7 @@ mod tests {
                 acc_var: "sum".to_string(),
                 acc_update,
                 inner_init_lit: 0,
+                source_topology: None,
             },
             outer_condition,
             body,

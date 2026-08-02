@@ -13,7 +13,7 @@ use super::loop_char_map_facts::try_extract_loop_char_map_facts_with_projection;
 use super::loop_continue_only_facts::try_extract_loop_continue_only_facts_with_projection;
 use super::loop_simple_while_facts::try_extract_loop_simple_while_facts_with_projection;
 use super::loop_true_early_exit_facts::try_extract_loop_true_early_exit_facts_with_projection;
-use super::nested_loop_minimal_facts::try_extract_nested_loop_minimal_facts;
+use super::nested_loop_minimal_facts::try_extract_nested_loop_minimal_facts_with_projection;
 use super::nested_loop_profile::CLUSTER_PROFILES;
 use super::scan_shapes::{scan_condition_observation, ConditionShape, StepShape};
 use super::skeleton_facts::try_extract_loop_skeleton_facts;
@@ -192,7 +192,8 @@ fn try_build_loop_facts_inner(
         &source_projection,
     )?;
     let loop_true_break_continue = try_extract_loop_true_break_continue_facts(condition, body)?;
-    let nested_loop_minimal = try_extract_nested_loop_minimal_facts(condition, body)?;
+    let nested_loop_minimal =
+        try_extract_nested_loop_minimal_facts_with_projection(condition, body, &source_projection)?;
     let bool_predicate_scan = try_extract_bool_predicate_scan_facts(condition, body, &observation)?;
     let accum_const_loop = try_extract_accum_const_loop_facts_with_projection(
         condition,

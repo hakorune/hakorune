@@ -1255,3 +1255,16 @@ projection remains topology absent.
 This preserves variable arity and repetitions, including pre/post-inner outer
 writes and repeated uninitialized locals. No inner-loop AST authority, selector,
 preflight, terminality, product, execution, or physical behavior is added.
+
+### NestedLoopMinimal provenance S0 implementation record
+
+The existing outer-body scan now emits its complete ordered role schedule beside
+the unchanged semantic values. The projection-aware facts path zips only that
+schedule to opaque sites when fully aligned; default callers stay topology
+absent. Direct variable schedules and ScopeBox lineage fixtures fix the
+contract. A composer-only default `None` initialization preserves its existing
+synthetic facts construction without adding source authority.
+
+No inner-loop inspection, selector/preflight consumer, terminality, product,
+execution, physicalizer, caller, or runtime behavior changed. The next card is
+preflight D0.
