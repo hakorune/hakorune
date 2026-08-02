@@ -208,6 +208,7 @@ mod tests {
                         right: Box::new(lit_int(1)),
                         span: Span::unknown(),
                     },
+                    source_topology: None,
                 },
             ),
             loop_char_map: None,

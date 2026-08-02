@@ -10,7 +10,7 @@ use super::bool_predicate_scan_facts::try_extract_bool_predicate_scan_facts;
 use super::feature_facts::try_extract_loop_feature_facts;
 use super::loop_array_join_facts::try_extract_loop_array_join_facts;
 use super::loop_char_map_facts::try_extract_loop_char_map_facts;
-use super::loop_simple_while_facts::try_extract_loop_simple_while_facts;
+use super::loop_simple_while_facts::try_extract_loop_simple_while_facts_with_projection;
 use super::loop_true_early_exit_facts::try_extract_loop_true_early_exit_facts;
 use super::nested_loop_minimal_facts::try_extract_nested_loop_minimal_facts;
 use super::nested_loop_profile::CLUSTER_PROFILES;
@@ -79,7 +79,8 @@ fn try_build_loop_facts_inner(
     let scan_with_init =
         try_extract_scan_with_init_facts(condition, body, &condition_shape, &step_shape)?;
     let split_scan = try_extract_split_scan_facts(condition, body)?;
-    let loop_simple_while = try_extract_loop_simple_while_facts(condition, body)?;
+    let loop_simple_while =
+        try_extract_loop_simple_while_facts_with_projection(condition, body, &source_projection)?;
     let loop_char_map = try_extract_loop_char_map_facts(condition, body, &observation)?;
     let loop_array_join = try_extract_loop_array_join_facts(condition, body, &observation)?;
     let string_is_integer = try_extract_string_is_integer_facts(condition, body)?;

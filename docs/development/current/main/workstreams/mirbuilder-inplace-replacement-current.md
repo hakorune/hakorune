@@ -469,31 +469,31 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1`
-Parent: `JOINIR-LOOP-SOURCE-PROJECTION0-S0` (closed)
-Ceremony: one route-local provenance box; production consumers remain zero.
+Row: `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE-CONTRACT0-P0`
+Parent: `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1` (closed)
+Ceremony: one route-local contract ratchet; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add only `LoopSimpleWhileFacts` topology: condition receipt plus the one
-  flattened increment's opaque source coordinate. Its extractor must consume
-  the aligned projection rather than inspect/re-match the original AST.
+  Ratchet only the simple-while projection/topology relationship through focused
+  fixtures and the existing shared logical-demand helper. Producer behavior stays
+  unchanged; source topology remains facts-private.
 
 Contract:
-  The topology has no AST, route ID, selector, producer, lowerer, or caller.
-  It remains unavailable whenever the fact's increment is not uniquely aligned;
-  all producer dispositions remain rejection in this row.
+  Projection and topology source files have no Builder/CorePlan/physical ID,
+  selector, producer, lowerer, or caller. Missing/non-unique alignment remains
+  unavailable and all producer dispositions remain rejection.
 
 Done:
-  Direct and nested ScopeBox fixtures prove the selected increment coordinate.
-  Existing Facts/registry tests and shared guard remain green; every touched
-  source file remains below 800 lines.
+  Direct/nested ScopeBox and builder-carriage fixtures prove the increment
+  coordinate. Existing Facts/registry tests and shared guard remain green;
+  every touched source file remains below 800 lines.
 
 Stop:
-  Stop if simple-while provenance needs AST clone/resolve, a second extractor,
-  another route topology, selector/producer change, or physical/runtime owner.
-  No physicalizer, Loop I0, raw/reference ingress, universal ingress, or
-  fallback wrapper is authorized.
+  Stop if the ratchet needs an AST resolver, a new standalone guard, a second
+  route topology, selector/producer change, or physical/runtime owner. No
+  physicalizer, Loop I0, raw/reference ingress, universal ingress, or fallback
+  wrapper is authorized.
 
 ## Production invariants
 

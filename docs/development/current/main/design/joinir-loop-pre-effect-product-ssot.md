@@ -236,3 +236,12 @@ and a coordinate-only `LoopSourceProjectionV1`; `LoopFacts` carries the latter.
 Nested ScopeBox lineage is covered by a focused fixture. No route topology,
 producer disposition, runtime path, or source resolver changed. S1 may add only
 the `LoopSimpleWhileFacts` step coordinate.
+
+### LoopSimpleWhile provenance S1 evidence
+
+`LoopSimpleWhileFacts` now optionally carries one opaque step coordinate when
+the single flattened increment aligns with the facts-side projection. Direct
+extractor and production Facts-builder fixtures cover nested ScopeBox lineage.
+The topology retains no AST and is not consumed by the producer; all 19 current
+logical dispositions remain the same typed rejections. P0 only ratchets this
+boundary before any selected-demand connection is considered.

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-SOURCE-PROJECTION0-S0 closed; JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1 selected."
+status = "JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1 closed; JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE-CONTRACT0-P0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S1 may add only LoopSimpleWhile's condition/step source topology to its Facts, sourced from the aligned projection. It must not add another route topology, AST matching/rewrite, broad resolver, selector/producer change, physicalizer, retry change, or production caller."
-current_execution_row = "JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1"
-current_execution_summary = "Capture the one flattened increment's opaque original-body/ScopeBox coordinate in LoopSimpleWhileFacts, with direct and nested ScopeBox fixtures. All logical producer dispositions remain unchanged in S1."
+current_design_stop = "P0 may ratchet only simple-while provenance: fixture coverage and shared-guard source/line boundaries. It must not consume the topology in the producer, change any disposition, add another route, AST resolver, physicalizer, retry change, or production caller."
+current_execution_row = "JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE-CONTRACT0-P0"
+current_execution_summary = "Fix direct/nested ScopeBox topology and builder carriage with focused tests, then extend the existing shared logical-demand helper for provenance files. All 19 producer dispositions remain unchanged."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1"
+current_blocker_token = "JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE-CONTRACT0-P0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
