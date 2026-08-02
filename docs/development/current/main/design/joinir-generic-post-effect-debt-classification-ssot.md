@@ -576,6 +576,8 @@ Implementation observation: the test-only `GenericOverlapEvidenceRowV1` now
 stores, for the actual `Both` fixture in release/strict/planner-required modes,
 the direct fresh-candidate V0/V1 stages and before/after candidate snapshots
 beside the frame-bound witness trace.
+Those snapshots are stage-owner hints only (cursor/block/map counts); they are
+not the M5 whole-candidate isolation proof and must not be promoted as one.
 Release/strict retain raw `[GenericLoopV0, GenericLoopV1]` and the witness
 terminates at V0 without a debt receipt; planner-required retains only V1.
 This is a joined evidence matrix, not a winner oracle: the direct stage and
@@ -614,6 +616,12 @@ overlap proof. A V1 direct-stage error cannot serve as an accepted-V1 semantic
 baseline. Any additional fixture must pass through full `try_build_outcome` and
 the actual raw selector before it is called a production overlap. Do not add a
 new route, Recipe kind, scheduler, or production consumer for this task.
+
+The pure evaluator for that certificate must consume only the frame-derived
+environment/contract, canonical facts, and the already-issued raw schedule.
+`raw_schedule.first() == GenericLoopV0` alone is not a certificate; the V0
+qualification predicate and its covered grammar rows must be fixed in the same
+test-only matrix.
 
 The existing `normalized_semantic_plans` helper is not by itself sufficient:
 it preserves `BasicBlockId`/`ValueId`/PHI/fragment identifiers. D2-B2 must add
