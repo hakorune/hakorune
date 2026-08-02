@@ -202,3 +202,28 @@ enforces the per-file limit. The 19-row producer ratchet is green. S0 is closed.
 The next blocker is D1: Facts need a minimal, route-local pre-flatten
 provenance contract. It must preserve source topology without cloned AST, a
 second selector, or a reusable raw-source ingress.
+
+## D1 route-source provenance decision
+
+Decision: accepted. `LoopSourceReceiptV1` remains a count/ordinal receipt; it
+cannot authorize a selected demand. Add a facts-private
+`LoopSourceProjectionV1` alongside the one existing ScopeBox flatten operation:
+each flattened analysis statement receives an opaque original-body plus
+ScopeBox-child coordinate. It owns no AST and has no path-to-AST resolver.
+
+The projection is common infrastructure only. Route Facts own their own small,
+typed topology later; `LoopFacts` must not grow a route-to-topology map. The
+first BoxCount series is:
+
+1. `JOINIR-LOOP-SOURCE-PROJECTION0-S0`: issue and retain aligned ScopeBox
+   lineage; no route behavior changes.
+2. `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1`: add only the simple-while
+   condition/step topology, permitting this one logical demand to become
+   selected while every other route remains rejected.
+3. `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE-CONTRACT0-P0`: fixture and shared-guard
+   ratchet, then repeat one route = one topology = one fixture/gate/commit.
+
+Source authority is `try_build_loop_facts_inner` before flattening. Registry,
+logical product/producer, and physical layers cannot issue coordinates, match
+AST, resolve a generic path, select a route, or lower. Typed provenance failure
+remains rejection, never `None` retry.

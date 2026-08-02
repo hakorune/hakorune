@@ -469,31 +469,31 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-ROUTE-SOURCE-PROVENANCE0-D1`
-Parent: `JOINIR-LOOP-LOGICAL-DEMAND-CONTRACT0-P0` (closed)
-Ceremony: design consultation; production consumers remain zero.
+Row: `JOINIR-LOOP-SOURCE-PROJECTION0-S0`
+Parent: `JOINIR-LOOP-ROUTE-SOURCE-PROVENANCE0-D1` (closed)
+Ceremony: BoxCount foundation; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Choose the smallest facts-side pre-flatten provenance contract required to
-  turn route-local source topology into a future logical demand. Keep source
-  identity separate from flattened analysis facts and from raw ingress.
+  Issue one facts-private `LoopSourceProjectionV1` alongside ScopeBox flattening.
+  It aligns every flattened analysis statement with an opaque original-body and
+  ScopeBox-child coordinate; it stores no AST and changes no route Facts.
 
 Contract:
-  D1 must name source authority, non-authority, location vocabulary, ownership,
-  lifetime/Clone boundary, and exact pre-flatten issue point. It must state why
-  `LoopSourceReceiptV1` count/ordinal alone cannot authorize selected demands.
+  The projection is created once in `try_build_loop_facts_inner` before analysis.
+  It has no AST resolver, route ID, selector, producer, lowerer, or caller;
+  route-local topology belongs to later individual Facts boxes.
 
 Done:
-  One design note maps all 19 routes to a finite source-provenance vocabulary,
-  defines typed unavailable/mismatch boundaries, and names the first BoxCount
-  implementation slice with fixture and fast gate. Worktree remains clean.
+  Nested ScopeBox fixture proves flattened indices retain distinct opaque lineage
+  coordinates. Existing Facts/registry tests and shared guard remain green; every
+  touched source file remains below 800 lines.
 
 Stop:
-  Stop before code if the proposal needs cloned AST, an extractor-specific
-  second selector, a universal raw-source view, or any physical/runtime owner.
-  No physicalizer, Loop I0, raw/reference ingress, universal ingress, or
-  fallback-preserving wrapper is authorized.
+  Stop if projection needs AST clone/resolve, generic AST traversal, route
+  topology, selector/producer change, or physical/runtime owner. No physicalizer,
+  Loop I0, raw/reference ingress, universal ingress, or fallback wrapper is
+  authorized.
 
 ## Production invariants
 
