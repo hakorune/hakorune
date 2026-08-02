@@ -6,6 +6,8 @@ guard_joinir_logical_demand_contract() {
   local tag="$2"
   local demand_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/logical_demand"
   local route_id="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/route_id.rs"
+  local projection="$root_dir/src/mir/builder/control_flow/facts/stmt_view.rs"
+  local simple_while="$root_dir/src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs"
   local files=(
     "$route_id"
     "$demand_dir/mod.rs"
@@ -13,6 +15,8 @@ guard_joinir_logical_demand_contract() {
     "$demand_dir/roles.rs"
     "$demand_dir/product.rs"
     "$demand_dir/producer.rs"
+    "$projection"
+    "$simple_while"
   )
   local file lines
 
@@ -27,7 +31,7 @@ guard_joinir_logical_demand_contract() {
     if rg -n -w \
       'MirBuilder|CorePlan|ValueId|BasicBlockId|MirInstruction|Phi|Frag|RouteFn|ComposeFn|try_execute_recipe_first_selection|select_recipe_first_routes|ENTRIES' \
       "$file" >/dev/null; then
-      guard_fail "$tag" "logical loop demand acquired physical or selection authority: ${file#"$root_dir/"}"
+      guard_fail "$tag" "logical loop demand/provenance acquired physical or selection authority: ${file#"$root_dir/"}"
     fi
   done
 }

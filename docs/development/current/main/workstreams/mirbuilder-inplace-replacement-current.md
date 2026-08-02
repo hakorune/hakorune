@@ -469,31 +469,31 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE-CONTRACT0-P0`
-Parent: `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE0-S1` (closed)
-Ceremony: one route-local contract ratchet; production consumers remain zero.
+Row: `JOINIR-LOOP-SIMPLE-WHILE-LOGICAL-SELECTION0-D2`
+Parent: `JOINIR-LOOP-SIMPLE-WHILE-PROVENANCE-CONTRACT0-P0` (closed)
+Ceremony: design consultation; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Ratchet only the simple-while projection/topology relationship through focused
-  fixtures and the existing shared logical-demand helper. Producer behavior stays
-  unchanged; source topology remains facts-private.
+  Decide the minimal one-route connection from simple-while Facts topology to a
+  truthful logical `Selected` demand. Source borrowing must remain constrained to
+  the same loop input frame; no reusable source resolver is allowed.
 
 Contract:
-  Projection and topology source files have no Builder/CorePlan/physical ID,
-  selector, producer, lowerer, or caller. Missing/non-unique alignment remains
-  unavailable and all producer dispositions remain rejection.
+  Name the sole source-borrowing authority, selected-demand payload, mismatch
+  rejection, and ownership/lifetime boundary. Facts remain coordinate-only and
+  the producer may not re-run selection or inspect raw AST.
 
 Done:
-  Direct/nested ScopeBox and builder-carriage fixtures prove the increment
-  coordinate. Existing Facts/registry tests and shared guard remain green;
-  every touched source file remains below 800 lines.
+  A design note names an implementation row with fixture and existing shared
+  gate. It explicitly preserves the 18 other typed rejections and zero runtime
+  consumers; worktree remains clean.
 
 Stop:
-  Stop if the ratchet needs an AST resolver, a new standalone guard, a second
-  route topology, selector/producer change, or physical/runtime owner. No
-  physicalizer, Loop I0, raw/reference ingress, universal ingress, or fallback
-  wrapper is authorized.
+  Stop before code if selected issuance needs an AST resolver/re-match, a second
+  selector, producer retry change, another route topology, or physical/runtime
+  owner. No physicalizer, Loop I0, raw/reference ingress, universal ingress, or
+  fallback wrapper is authorized.
 
 ## Production invariants
 
