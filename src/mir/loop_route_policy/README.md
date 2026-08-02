@@ -1,14 +1,14 @@
 # Frozen Loop Route Policy Rows
 
-This module is the neutral, caller-zero M3-C boundary for one owned snapshot of
-the legacy Loop route schedule and its already-observed policy inputs.
+This module is the neutral, caller-zero M3-C/M3-E boundary for one owned
+snapshot of the legacy Loop route schedule and explicit policy evidence.
 
 Authority is deliberately narrow:
 
 ```text
-owned route IDs + owned typed observations
+owned route IDs + owned typed observations/evidence
   -> canonical schedule validation
-  -> FrozenLoopRouteScheduleV1
+  -> FrozenLoopRouteScheduleV1 + LoopRoutePolicyEvidenceV1
 ```
 
 `FrozenLoopRouteScheduleV1` owns exactly the 19 canonical route IDs in raw
@@ -23,7 +23,7 @@ This module does not own or perform route predicates, suppression evaluation,
 winner selection, retry, terminality, recipe construction, AST observation,
 Builder mutation, composition, lowering, or physical ID allocation. In
 particular, `evaluate.rs` performs only structural validation and row sealing;
-the pure M3-E route-policy evaluator does not live here yet.
+E0 evidence is data-only, and the pure M3-E evaluator does not live here yet.
 
 The migration adapter is test-only and constructs fixtures without importing
 or invoking the production registry or selection code. The production facade

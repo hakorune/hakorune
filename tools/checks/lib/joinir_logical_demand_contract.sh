@@ -148,6 +148,7 @@ guard_joinir_logical_demand_contract() {
     "$loop_route_policy_dir/mod.rs" \
     "$loop_route_policy_dir/schema.rs" \
     "$loop_route_policy_dir/evaluate.rs" \
+    "$loop_route_policy_dir/policy_evidence.rs" \
     "$loop_route_policy_dir/adapter.rs" \
     "$loop_route_policy_dir/tests.rs"
   if (( ${#loop_route_policy_files[@]} == 0 )); then

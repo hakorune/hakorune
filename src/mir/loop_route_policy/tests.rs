@@ -10,6 +10,7 @@ fn retained_observation() -> FrozenLoopRouteObservationV1 {
         },
         LoopGlobalEntryDispositionV1::Allowed,
         LoopRouteSourceDispositionV1::Available,
+        LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable),
     )
 }
 
@@ -30,6 +31,7 @@ fn strict_observation(
         },
         LoopGlobalEntryDispositionV1::Allowed,
         source,
+        LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable),
     )
 }
 
@@ -130,6 +132,9 @@ fn suppressed_disposition_requires_at_least_one_typed_cause() {
                     },
                     LoopGlobalEntryDispositionV1::Allowed,
                     LoopRouteSourceDispositionV1::Available,
+                    LoopRoutePolicyEvidenceV1::Candidate(
+                        LoopRouteCandidateFactsV1::SourceAvailable,
+                    ),
                 )
             } else {
                 retained_observation()
@@ -200,6 +205,10 @@ fn row_preserves_closed_typed_dispositions_without_evaluating_them() {
             LoopRouteSourceUnavailableV1::ScopeBoxLineageUnsupported,
         )
     );
+    assert_eq!(
+        row.policy_evidence(),
+        LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable)
+    );
 }
 
 #[test]
@@ -235,6 +244,7 @@ fn mode_and_global_snapshots_must_be_frozen_once_for_all_rows() {
         },
         LoopGlobalEntryDispositionV1::BlockedByReleaseGate,
         LoopRouteSourceDispositionV1::Available,
+        LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable),
     );
     assert_eq!(
         freeze_loop_route_schedule_v1(

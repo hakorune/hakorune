@@ -71,6 +71,7 @@ pub(crate) fn freeze_loop_route_schedule_v1(
             mode_release: observation.mode_release,
             global_entry: observation.global_entry,
             source: observation.source,
+            policy_evidence: observation.policy_evidence,
         });
     }
 

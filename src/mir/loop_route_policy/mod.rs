@@ -1,4 +1,4 @@
-//! Owned, caller-zero M3-C snapshot of the canonical Loop route rows.
+//! Owned, caller-zero M3-C snapshot plus M3-E policy evidence for Loop rows.
 //!
 //! `evaluate` is structural validation/sealing only. It is not the M3-E route
 //! policy evaluator. See `README.md` for the authority boundary.
@@ -6,10 +6,16 @@
 #[cfg(test)]
 mod adapter;
 mod evaluate;
+mod policy_evidence;
 mod schema;
 
 #[allow(unused_imports)]
 pub(crate) use evaluate::freeze_loop_route_schedule_v1;
+#[allow(unused_imports)]
+pub(crate) use policy_evidence::{
+    LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,
+    LoopRoutePolicyEvidenceV1, LoopRoutePolicySourceDeclineReasonV1,
+};
 #[allow(unused_imports)]
 pub(crate) use schema::{
     FrozenLoopRouteObservationV1, FrozenLoopRouteRowV1, FrozenLoopRouteScheduleRejectV1,

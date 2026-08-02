@@ -2,6 +2,8 @@
 
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 
+use super::policy_evidence::LoopRoutePolicyEvidenceV1;
+
 pub(crate) const CANONICAL_LOOP_ROUTE_COUNT_V1: usize = 19;
 
 /// The frozen legacy order used only as migration parity/provenance.
@@ -107,6 +109,7 @@ pub(crate) struct FrozenLoopRouteObservationV1 {
     pub(super) mode_release: LoopModeReleaseSnapshotV1,
     pub(super) global_entry: LoopGlobalEntryDispositionV1,
     pub(super) source: LoopRouteSourceDispositionV1,
+    pub(super) policy_evidence: LoopRoutePolicyEvidenceV1,
 }
 
 impl FrozenLoopRouteObservationV1 {
@@ -115,12 +118,14 @@ impl FrozenLoopRouteObservationV1 {
         mode_release: LoopModeReleaseSnapshotV1,
         global_entry: LoopGlobalEntryDispositionV1,
         source: LoopRouteSourceDispositionV1,
+        policy_evidence: LoopRoutePolicyEvidenceV1,
     ) -> Self {
         Self {
             suppression,
             mode_release,
             global_entry,
             source,
+            policy_evidence,
         }
     }
 }
@@ -134,6 +139,7 @@ pub(crate) struct FrozenLoopRouteRowV1 {
     pub(super) mode_release: LoopModeReleaseSnapshotV1,
     pub(super) global_entry: LoopGlobalEntryDispositionV1,
     pub(super) source: LoopRouteSourceDispositionV1,
+    pub(super) policy_evidence: LoopRoutePolicyEvidenceV1,
 }
 
 impl FrozenLoopRouteRowV1 {
@@ -160,6 +166,10 @@ impl FrozenLoopRouteRowV1 {
 
     pub(crate) fn source(&self) -> LoopRouteSourceDispositionV1 {
         self.source
+    }
+
+    pub(crate) fn policy_evidence(&self) -> LoopRoutePolicyEvidenceV1 {
+        self.policy_evidence
     }
 }
 
