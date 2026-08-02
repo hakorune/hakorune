@@ -12,6 +12,7 @@ mod direct_if_phi_join_terminality;
 mod direct_loop_break_terminality;
 mod direct_loop_continue_only_terminality;
 mod direct_simple_while_terminality;
+mod execution_witness;
 mod handlers;
 mod legacy_observer;
 pub(in crate::mir::builder) mod live_ordered_terminality;
