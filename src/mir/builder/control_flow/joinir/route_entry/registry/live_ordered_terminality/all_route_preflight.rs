@@ -26,9 +26,31 @@ fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV
     match route {
         LoopRouteId::LoopBreakRecipe => classify_loop_break(facts),
         LoopRouteId::IfPhiJoin => classify_if_phi_join(facts),
+        LoopRouteId::LoopContinueOnly => classify_loop_continue_only(facts),
         LoopRouteId::LoopSimpleWhile => classify_simple_while(facts),
         LoopRouteId::AccumConstLoop => classify_accum_const(facts),
         _ => LoopPreflightRejectV1::SourceTopologyUnavailable { route },
+    }
+}
+
+fn classify_loop_continue_only(facts: &LoopFacts) -> LoopPreflightRejectV1 {
+    let Some(continue_only) = facts.loop_continue_only() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::LoopContinueOnly,
+        };
+    };
+    let Some(topology) = continue_only.source_topology.as_ref() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::LoopContinueOnly,
+        };
+    };
+    if topology.has_scope_box_lineage() {
+        return LoopPreflightRejectV1::ScopeBoxLineageNotBorrowable {
+            route: LoopRouteId::LoopContinueOnly,
+        };
+    }
+    LoopPreflightRejectV1::PolicyAndTerminalityUnavailable {
+        route: LoopRouteId::LoopContinueOnly,
     }
 }
 

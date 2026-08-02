@@ -26,6 +26,14 @@ pub(in crate::mir::builder) struct LoopContinueOnlySourceTopologyV1 {
     schedule: Box<[LoopContinueOnlyObservedStmtV1]>,
 }
 
+impl LoopContinueOnlySourceTopologyV1 {
+    pub(in crate::mir::builder) fn has_scope_box_lineage(&self) -> bool {
+        self.schedule
+            .iter()
+            .any(|observed| !observed.site.scope_box_children().is_empty())
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct LoopContinueOnlyObservedStmtV1 {
     site: LoopSourceBodySiteV1,
