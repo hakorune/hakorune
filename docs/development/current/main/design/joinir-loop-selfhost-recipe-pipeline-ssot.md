@@ -187,24 +187,61 @@ Identity ordinals and diagnostic TLS are explicitly excluded from the live
 Builder immutability claim. The M1-B fixture is now green, so M1 is closed;
 M2 is the next design stop.
 
-### M2 — `JOINIR-LOOP-PORTABLE-RECIPE-CONTRACT0-D0-S0`
+### M2 — `JOINIR-LOOP-PORTABLE-RECIPE-CONTRACT0-S0`
+
+Design stop: `D0` is closed after independent worker review. The portable
+contract is a new neutral owner at `src/mir/loop_recipe_contract/`; it is not a
+wrapper around the existing Builder recipe tree.
+
+Source authority:
+: The selected RoutePolicy winner supplies an existing neutral route identity,
+  owned source provenance, and normalized operands. Existing
+  `LoopRouteId` is behavior-neutral identity and must move to, or be re-exported
+  from, the neutral owner before portable producers consume it.
+
+Non-authority:
+: `RecipeTree`/`RecipeBody`/`StmtRef`/`CondBlockView`, `CorePlan`/`Frag`,
+  `BasicBlockId`/`ValueId`, `MirBuilder`, route composers, PHI builders, AST
+  reconstruction, callbacks, retry, and opaque legacy-emission commands.
+
+Fail-fast boundary:
+: `LoopRecipeContractV1` contains only versioned data: route key, one mutation
+  family, recipe-local contiguous keys, owned source-relative paths, a bounded
+  Accum-ready operation subset, carriers/exits, and `LoopJoinSigV1`. JoinSig
+  stores logical targets and ordered edge payloads only. Sibling disposition and
+  validation-reason types remain separate; M3 owns policy declines and M4 owns
+  Generic post-effect debt.
+
+Canonical form:
+: Encode as fixed-field structs and ordered arrays with stable snake-case tags;
+  never depend on map iteration or allocation order. The family is one field
+  (`LoopV0`, `Nested`, `LoopTrue`, `LoopCond`, `Generic`), not duplicated
+  `recipe_family`/`mutation_family` fields. Logical keys are new `u32`
+  newtypes and never physical MIR IDs. Existing source-site objects are
+  projected to portable relative paths rather than borrowed across the boundary.
+
+S0 execution brief:
 
 Change:
-: Define owned vocabulary for route kind, stable source/operand references,
-  logical block/value/binding roles, operations, carriers, exits, JoinSig,
-  mutation family, and typed reject/decline/error reasons.
+: Add the disconnected neutral DTO, canonical normalizer, structural validator,
+  typed rejection reasons, and one Accum golden. Move/re-export only the neutral
+  route identity needed by the DTO; do not connect a production caller.
 
 Contract:
-: No AST, borrowed facts, Builder, physical IDs, callback, or retry crosses the
-  boundary. Provide one deterministic normalized representation usable by Rust
-  and `.hako` parity.
+: Rust and `.hako` later consume the same normalized data contract. M2 has no
+  AST producer, route selection, Generic classification, CFG/PHI allocation,
+  physicalization, or publication authority.
 
 Done:
-: Disconnected vocabulary round-trips the normalized representation and rejects
-  missing/duplicate/invalid roles without Builder access.
+: One valid golden completes decode → validate → normalize → encode → decode
+  equality; malformed fixtures reject missing/duplicate/dangling roles/keys,
+  JoinSig payload errors, invalid exits, noncanonical order, and unsupported
+  versions. All tests are Builder-free and touched files stay below 800 lines.
 
 Stop:
-: Do not hide legacy route functions or AST nodes inside opaque recipe payloads.
+: Do not infer all 19 operation vocabularies, add `EmitLegacyRoute`/opaque
+  statement commands, put physical IDs or borrowed facts in the DTO, or advance
+  to M3/M4/M5 before this contract is green.
 
 ### M3 — `JOINIR-LOOP-STRUCTURAL-FACTS-ROUTE-POLICY0-P0-S1`
 
