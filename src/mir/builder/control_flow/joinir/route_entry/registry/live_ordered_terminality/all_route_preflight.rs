@@ -28,9 +28,31 @@ fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV
         LoopRouteId::IfPhiJoin => classify_if_phi_join(facts),
         LoopRouteId::LoopContinueOnly => classify_loop_continue_only(facts),
         LoopRouteId::LoopTrueEarlyExit => classify_loop_true_early_exit(facts),
+        LoopRouteId::LoopCharMap => classify_loop_char_map(facts),
         LoopRouteId::LoopSimpleWhile => classify_simple_while(facts),
         LoopRouteId::AccumConstLoop => classify_accum_const(facts),
         _ => LoopPreflightRejectV1::SourceTopologyUnavailable { route },
+    }
+}
+
+fn classify_loop_char_map(facts: &LoopFacts) -> LoopPreflightRejectV1 {
+    let Some(char_map) = facts.loop_char_map() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::LoopCharMap,
+        };
+    };
+    let Some(topology) = char_map.source_topology.as_ref() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::LoopCharMap,
+        };
+    };
+    if topology.has_scope_box_lineage() {
+        return LoopPreflightRejectV1::ScopeBoxLineageNotBorrowable {
+            route: LoopRouteId::LoopCharMap,
+        };
+    }
+    LoopPreflightRejectV1::PolicyAndTerminalityUnavailable {
+        route: LoopRouteId::LoopCharMap,
     }
 }
 

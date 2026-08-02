@@ -35,6 +35,14 @@ pub(in crate::mir::builder) struct LoopCharMapSourceTopologyV1 {
     step: LoopSourceBodySiteV1,
 }
 
+impl LoopCharMapSourceTopologyV1 {
+    pub(in crate::mir::builder) fn has_scope_box_lineage(&self) -> bool {
+        !self.substring_local.scope_box_children().is_empty()
+            || !self.result_update.scope_box_children().is_empty()
+            || !self.step.scope_box_children().is_empty()
+    }
+}
+
 pub(in crate::mir::builder) fn try_extract_loop_char_map_facts(
     condition: &ASTNode,
     body: &[ASTNode],
