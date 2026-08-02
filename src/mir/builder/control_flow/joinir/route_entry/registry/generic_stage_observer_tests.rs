@@ -8,7 +8,7 @@ use super::execution_witness::{
     PostEffectRetryDebtV1, RouteAttemptOutcomeV1, RouteExecutionResultV1, RouteExecutionWitnessV1,
 };
 use super::generic_selection_matrix_tests::{
-    both_body, progression_condition, v1_only_effect_body,
+    both_body, effect_without_local_body, progression_condition, v1_only_effect_body,
 };
 use super::route_id::LoopRouteId;
 use super::{dispatch_entry, select_recipe_first_routes, RouterEnv};
@@ -173,6 +173,15 @@ fn observe_v1_effect_fixture(mode: ObserverModeV1) -> GenericStageTraceV1 {
     )
 }
 
+fn observe_effect_without_local_fixture(mode: ObserverModeV1) -> GenericStageTraceV1 {
+    observe_selected_fixture(
+        mode,
+        progression_condition(),
+        effect_without_local_body(),
+        "generic_stage_observer/effect-no-local",
+    )
+}
+
 #[test]
 fn generic_both_fixture_reaches_actual_entries_handler_path() {
     let trace = observe_both_fixture(ObserverModeV1::Release);
@@ -276,6 +285,27 @@ fn generic_v1_effect_fixture_stops_at_actual_handler_error_without_retry() {
         assert!(
             matches!(trace.terminal, TerminalTraceV1::Error(_)),
             "effect-call row must stop at the actual handler error: {trace:?}"
+        );
+    }
+}
+
+#[test]
+fn generic_effect_without_local_fixture_is_not_both_and_stops_without_retry() {
+    for mode in [
+        ObserverModeV1::Release,
+        ObserverModeV1::Strict,
+        ObserverModeV1::StrictPlannerRequired,
+    ] {
+        let trace = observe_effect_without_local_fixture(mode);
+        let repeat = observe_effect_without_local_fixture(mode);
+        assert_eq!(trace, repeat, "effect boundary drift: {mode:?}");
+        assert_eq!(trace.raw_schedule, vec![LoopRouteId::GenericLoopV1]);
+        assert_eq!(trace.attempted.len(), 1);
+        assert_eq!(trace.attempted[0].route, LoopRouteId::GenericLoopV1);
+        assert!(trace.generic_debts.is_empty());
+        assert!(
+            matches!(trace.terminal, TerminalTraceV1::Error(_)),
+            "effect boundary must stop at the actual handler error: {trace:?}"
         );
     }
 }

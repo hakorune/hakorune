@@ -474,6 +474,19 @@ body. The fresh-candidate trace therefore classifies the row as an effectful
 successful V1 terminal. This is the intended A3 evidence: facts acceptance and
 lowering support are currently separate boundaries.
 
+### D2-B-E1 observation — effect body without local
+
+The smallest natural overlap probe removes only `local tmp = 0` from A4 and
+keeps `env.console.error(i)` plus the numeric step. It does **not** produce a
+`Both` row: the actual facts boundary reports V0 absent, V1 present, and raw
+`[GenericLoopV1]` in release, strict, and planner-required modes. The fresh
+candidate reachability row enters the Generic composer, changes candidate
+state, and stops at an outer `ComposerError`; the witness attempts exactly V1,
+records no typed Generic debt, and does not retry. This row is therefore a
+bounded V0-negative facts/lower boundary, not V0/V1 precedence or winner
+equivalence evidence. Keep it explicit so future V0 grammar changes cannot
+silently turn an effect body into an overlap claim.
+
 #### D0 invariant refinement — lower `None`
 
 Two stage-matrix arms can now be classified by an existing code invariant:

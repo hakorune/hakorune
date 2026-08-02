@@ -167,6 +167,17 @@ pub(super) fn v1_only_effect_body() -> Vec<ASTNode> {
     ]
 }
 
+pub(super) fn effect_without_local_body() -> Vec<ASTNode> {
+    vec![
+        method_call(
+            field(variable("env"), "console"),
+            "error",
+            vec![variable("i")],
+        ),
+        progression_step(),
+    ]
+}
+
 pub(super) fn both_body() -> Vec<ASTNode> {
     let inner = ASTNode::Loop {
         condition: Box::new(less(variable("j"), integer(3))),
@@ -198,6 +209,14 @@ fn generic_v1_only_fixture_records_source_to_raw_selection() {
 #[test]
 fn generic_v1_only_effect_fixture_records_v1_ownership() {
     let observation = observe_release(&progression_condition(), &v1_only_effect_body());
+    assert!(!observation.v0_facts);
+    assert!(observation.v1_facts);
+    assert_eq!(observation.raw_routes, vec![LoopRouteId::GenericLoopV1]);
+}
+
+#[test]
+fn generic_effect_without_local_fixture_records_v0_boundary() {
+    let observation = observe_release(&progression_condition(), &effect_without_local_body());
     assert!(!observation.v0_facts);
     assert!(observation.v1_facts);
     assert_eq!(observation.raw_routes, vec![LoopRouteId::GenericLoopV1]);

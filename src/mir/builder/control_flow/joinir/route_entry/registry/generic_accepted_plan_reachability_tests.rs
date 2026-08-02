@@ -5,8 +5,9 @@
 //! changes the production scheduler or creates a Recipe/PHI consumer.
 
 use super::generic_selection_matrix_tests::{
-    additive_body, additive_condition, both_body, neither_body, progression_condition,
-    simple_while_body, true_body, true_condition, v1_only_body, v1_only_effect_body,
+    additive_body, additive_condition, both_body, effect_without_local_body, neither_body,
+    progression_condition, simple_while_body, true_body, true_condition, v1_only_body,
+    v1_only_effect_body,
 };
 use super::route_id::LoopRouteId;
 use super::select_recipe_first_routes;
@@ -129,6 +130,7 @@ fn fixture(name: &str) -> (crate::ast::ASTNode, Vec<crate::ast::ASTNode>) {
     match name {
         "v1-only" => (progression_condition(), v1_only_body()),
         "v1-only-effect" => (progression_condition(), v1_only_effect_body()),
+        "effect-no-local" => (progression_condition(), effect_without_local_body()),
         "v0-additive" => (additive_condition(), additive_body()),
         "v1-true-body-step" => (true_condition(), true_body()),
         "both" => (progression_condition(), both_body()),
@@ -275,6 +277,7 @@ fn generic_accepted_plan_reachability_corpus_is_test_only_and_repeatable() {
         for name in [
             "v1-only",
             "v1-only-effect",
+            "effect-no-local",
             "v0-additive",
             "v1-true-body-step",
             "both",
@@ -284,21 +287,21 @@ fn generic_accepted_plan_reachability_corpus_is_test_only_and_repeatable() {
             let rows = observe_fixture(mode, name);
             for row in rows {
                 if row.stage == PlanStageV1::ComposerError {
-                    if name == "v1-only-effect" {
+                    if matches!(name, "v1-only-effect" | "effect-no-local") {
                         assert_eq!(
                             row.route,
                             LoopRouteId::GenericLoopV1,
-                            "effect-call row must remain V1-only: {row:?}"
+                            "effect-call boundary must remain V1-only: {row:?}"
                         );
                         assert_eq!(
                             row.first_effect_owner,
                             EffectOwnerV1::GenericComposer,
-                            "effect-call row must classify composer failure as effectful: {row:?}"
+                            "effect-call boundary must classify composer failure as effectful: {row:?}"
                         );
                         assert_eq!(
                             row.stage,
                             PlanStageV1::ComposerError,
-                            "effect-call row must stop at the actual composer error: {row:?}"
+                            "effect-call boundary must stop at the actual composer error: {row:?}"
                         );
                     }
                     // Composer errors are split by the observed candidate
