@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-IF-PHI-JOIN-LOGICAL-PRODUCT0-D0 closed as NoSafeSlice; JOINIR-LOOP-NEXT-ROUTE-SELECTION0-D0 selected."
+status = "JOINIR-LOOP-NEXT-ROUTE-SELECTION0-D0 closed; JOINIR-ACCUM-CONST-LOOP-LOGICAL-PRODUCT0-D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 must choose the next bounded Loop route/card after IfPhiJoin logical-product eligibility closed as NoSafeSlice. It must inventory route-local source topology, scheduler terminality, and product readiness without treating a direct terminality certificate as a product proof. It must select one owner and one evidence boundary; no implementation, selector, composer, lowerer, Builder, physicalizer, caller, or runtime route change is authorized."
-current_execution_row = "JOINIR-LOOP-NEXT-ROUTE-SELECTION0-D0"
-current_execution_summary = "IfPhiJoin logical-product D0 is NoSafeSlice: the only existing product issuer owns a SimpleWhile-specific borrowed condition/step lease and fixed roles. IfPhiJoin accepts reverse raw order while its composer synthesizes canonical order from clones, so it lacks a source-order-preserving borrowed tail."
+current_design_stop = "D0 must decide whether direct AccumConstLoop may enter a route-local pre-effect logical-product authority. It must use only the existing one-shot live facts bridge, canonical selection, direct projection-aligned condition/update/step topology, singleton raw schedule, and scheduler certificate. It must define the source-bound lease and roles/order or fail closed. It must not widen the SimpleWhile transaction under S0, re-match AST, traverse projection, rerun selection, qualify all routes, invoke composer/lowerer/Builder, issue a caller, or claim physical/runtime safety."
+current_execution_row = "JOINIR-ACCUM-CONST-LOOP-LOGICAL-PRODUCT0-D0"
+current_execution_summary = "Next-route D0 selects AccumConstLoop: direct topology retains update/step at raw indices 0/1 with empty lineage, raw schedule is singleton [AccumConstLoop], and its handler is scheduler-terminal. Existing address-stamped receipt identity is now bound by LiveLoopFactsV1; exact lease/roles remain D0 work."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-NEXT-ROUTE-SELECTION0-D0"
+current_blocker_token = "JOINIR-ACCUM-CONST-LOOP-LOGICAL-PRODUCT0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

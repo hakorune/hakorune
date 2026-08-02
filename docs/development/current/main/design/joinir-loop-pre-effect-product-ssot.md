@@ -819,3 +819,18 @@ No product, Qualified, caller, selector, composer, lowerer, Builder, or
 physical behavior changes. The next card must select another route from fresh
 topology/terminality/product-readiness evidence rather than retrying this
 boundary under a renamed IfPhiJoin implementation.
+
+### Next-route selection D0 decision
+
+Decision: select `AccumConstLoop` logical-product eligibility D0. Its direct
+facts already retain projection-aligned accumulator-update and step sites at
+raw indices `0/1`; the direct fixture proves singleton raw schedule
+`[AccumConstLoop]`, and the direct scheduler certificate has no `Ok(None)`
+path. Unlike IfPhiJoin, its source ordering does not conflict with a synthetic
+canonical composer order. The former address-stamped receipt identity blocker
+is now bound by the existing non-Clone `LiveLoopFactsV1` bridge.
+
+D0 must still establish a route-local borrowed condition/update/step lease and
+its logical roles/order. It must not widen the SimpleWhile transaction by
+analogy, treat terminality as all-route qualification, or touch AST matching,
+selection, composer/lowerer/Builder, physicalization, runtime, or callers.
