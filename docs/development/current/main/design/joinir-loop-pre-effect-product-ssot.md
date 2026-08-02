@@ -1091,3 +1091,26 @@ The generic handler can normally return `Ok(None)` without a planner contract,
 so this classification grants no terminality, qualification, product, source
 lease, physical-safety, caller, or runtime claim. The next card is terminality
 D0 and must audit that contract boundary rather than infer it from topology.
+
+### LoopTrueEarlyExit terminality D0 decision
+
+Decision: NoSafeSlice. `route_loop_true_early_exit` uses `route_standard` with
+`skip_without_contract`. When planner-required mode is off and no recipe
+contract is present, that route normally returns `Ok(None)` and the registry
+continues to its raw-tail candidates. The direct Return/Break topology records
+neither `RouterEnv` nor recipe-contract state, so it cannot exclude that arm.
+
+Strict planner-required missing-contract errors and successful compose/lower
+paths do not repair this proof gap: they are environment-specific branches, not
+a topology-derived route guarantee. Moreover, compose/lower mutates Builder
+state before all later failures are excluded, so physical safety is separately
+unproven. No terminality certificate, product, physicalizer, caller, or runtime
+behavior changed. A revival needs an upstream non-Clone route-execution witness
+that binds raw schedule, environment, and contract disposition before Builder
+effects.
+
+### Next-route selection D4
+
+Select no implementation yet. Re-inventory the registry after the completed
+LoopBreak/IfPhiJoin/ContinueOnly/LoopTrueEarlyExit paths and choose one unlanded
+bounded route with its source authority and failure boundary written first.

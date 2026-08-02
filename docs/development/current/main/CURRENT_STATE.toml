@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-TRUE-EARLY-EXIT-PREFLIGHT0-D0 accepted and S0 closed; JOINIR-LOOP-TRUE-EARLY-EXIT-TERMINALITY0-D0 selected."
+status = "JOINIR-LOOP-TRUE-EARLY-EXIT-TERMINALITY0-D0 is NoSafeSlice; JOINIR-NEXT-ROUTE-SELECTION0-D4 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 must audit route-local terminality for LoopTrueEarlyExit. Its generic route handler may return Ok(None) without a planner contract, so terminality must not be inferred from direct topology or preflight. Any S0 must prove the exact contract and raw-tail boundary or close NoSafe; product, physical safety, caller, and runtime remain separate."
-current_execution_row = "JOINIR-LOOP-TRUE-EARLY-EXIT-TERMINALITY0-D0"
-current_execution_summary = "LoopTrueEarlyExit preflight S0 consumes only raw-front topology for source/ScopeBox/policy classification. It issues no qualification or terminality proof."
+current_design_stop = "D4 must inventory registry order and completed route histories to select exactly one next unlanded bounded D0. It must not reselect a historical S0, infer terminality from topology, or start code before the owner/authority/nonclaim boundary is fixed."
+current_execution_row = "JOINIR-NEXT-ROUTE-SELECTION0-D4"
+current_execution_summary = "LoopTrueEarlyExit terminality is NoSafe: route_standard may Ok(None) without a contract and continue the raw tail; topology cannot constrain RouterEnv or contract state."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-TRUE-EARLY-EXIT-TERMINALITY0-D0"
+current_blocker_token = "JOINIR-NEXT-ROUTE-SELECTION0-D4"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
