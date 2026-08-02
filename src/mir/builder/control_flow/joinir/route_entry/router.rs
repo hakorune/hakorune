@@ -138,6 +138,11 @@ pub(super) fn lower_verified_core_plan(
     core_plan: CorePlan,
     via: FlowboxVia,
 ) -> Result<Option<ValueId>, String> {
+    if !matches!(&core_plan, CorePlan::Loop(_)) {
+        return Err(
+            Freeze::contract("selected Loop route produced a non-Loop CorePlan root").to_string(),
+        );
+    }
     PlanVerifier::verify(&core_plan)?;
     flowbox_tags::emit_flowbox_adopt_tag_from_coreplan(strict_or_dev, &core_plan, facts, via);
     PlanLowerer::lower(builder, core_plan, ctx)

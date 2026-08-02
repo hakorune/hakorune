@@ -45,7 +45,11 @@ pub(crate) fn route_loop_break_recipe(
         attempt,
     );
 
-    let facts = compose_facts.expect("loop_break_recipe facts present");
+    let Some(facts) = compose_facts else {
+        return Ok(RouteAttemptOutcomeV1::PreEffectBlocked(
+            super::super::execution_witness::PreEffectBlockedReasonV1::SelectedFactsUnavailable,
+        ));
+    };
     let core_plan = RecipeComposer::compose_loop_break_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
@@ -66,12 +70,21 @@ pub(crate) fn route_loop_break_recipe(
                 core_plan,
                 FlowboxVia::Shadow,
             )
-            .map(RouteAttemptOutcomeV1::from_retry_option);
+            .and_then(RouteAttemptOutcomeV1::from_selected_loop_option);
         }
 
+        if !matches!(
+            &core_plan,
+            crate::mir::builder::control_flow::lower::CorePlan::Loop(_)
+        ) {
+            return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
+                "selected LoopBreakRecipe produced a non-Loop CorePlan root",
+            )
+            .to_string());
+        }
         PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
         return PlanLowerer::lower(builder, core_plan, ctx)
-            .map(RouteAttemptOutcomeV1::from_retry_option);
+            .and_then(RouteAttemptOutcomeV1::from_selected_loop_option);
     }
 
     lower_verified_core_plan(
@@ -82,7 +95,7 @@ pub(crate) fn route_loop_break_recipe(
         core_plan,
         FlowboxVia::Release,
     )
-    .map(RouteAttemptOutcomeV1::from_retry_option)
+    .and_then(RouteAttemptOutcomeV1::from_selected_loop_option)
 }
 
 pub(crate) fn route_if_phi_join(
@@ -104,7 +117,11 @@ pub(crate) fn route_if_phi_join(
     );
     debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::IfPhiJoin), attempt);
 
-    let facts = compose_facts.expect("if_phi_join facts present");
+    let Some(facts) = compose_facts else {
+        return Ok(RouteAttemptOutcomeV1::PreEffectBlocked(
+            super::super::execution_witness::PreEffectBlockedReasonV1::SelectedFactsUnavailable,
+        ));
+    };
     let core_plan = RecipeComposer::compose_if_phi_join_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
@@ -121,7 +138,7 @@ pub(crate) fn route_if_phi_join(
         core_plan,
         via,
     )
-    .map(RouteAttemptOutcomeV1::from_retry_option)
+    .and_then(RouteAttemptOutcomeV1::from_selected_loop_option)
 }
 
 pub(crate) fn route_loop_continue_only(
@@ -162,7 +179,11 @@ pub(crate) fn route_loop_continue_only(
         }
     }
 
-    let facts = compose_facts.expect("loop_continue_only facts present");
+    let Some(facts) = compose_facts else {
+        return Ok(RouteAttemptOutcomeV1::PreEffectBlocked(
+            super::super::execution_witness::PreEffectBlockedReasonV1::SelectedFactsUnavailable,
+        ));
+    };
     let core_plan = RecipeComposer::compose_loop_continue_only_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
     let via = if attempt.strict_or_dev() {
@@ -178,7 +199,7 @@ pub(crate) fn route_loop_continue_only(
         core_plan,
         via,
     )
-    .map(RouteAttemptOutcomeV1::from_retry_option)
+    .and_then(RouteAttemptOutcomeV1::from_selected_loop_option)
 }
 
 pub(crate) fn route_loop_true_early_exit(
@@ -208,7 +229,9 @@ pub(crate) fn route_loop_simple_while(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if detect_nested_loop(ctx.body) {
-        return Ok(RouteAttemptOutcomeV1::Retry);
+        return Ok(RouteAttemptOutcomeV1::PreEffectDeclined(
+            super::super::execution_witness::PreEffectDeclineReasonV1::NestedLoopShapeUnavailable,
+        ));
     }
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopSimpleWhile),
@@ -346,14 +369,27 @@ pub(crate) fn route_accum_const_loop(
         attempt,
     );
 
-    let facts = compose_facts.expect("accum_const_loop facts present");
+    let Some(facts) = compose_facts else {
+        return Ok(RouteAttemptOutcomeV1::PreEffectBlocked(
+            super::super::execution_witness::PreEffectBlockedReasonV1::SelectedFactsUnavailable,
+        ));
+    };
     let core_plan = RecipeComposer::compose_accum_const_loop_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
     if attempt.strict_or_dev() {
+        if !matches!(
+            &core_plan,
+            crate::mir::builder::control_flow::lower::CorePlan::Loop(_)
+        ) {
+            return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
+                "selected AccumConstLoop produced a non-Loop CorePlan root",
+            )
+            .to_string());
+        }
         PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
         return PlanLowerer::lower(builder, core_plan, ctx)
-            .map(RouteAttemptOutcomeV1::from_retry_option);
+            .and_then(RouteAttemptOutcomeV1::from_selected_loop_option);
     }
 
     lower_verified_core_plan(
@@ -364,7 +400,7 @@ pub(crate) fn route_accum_const_loop(
         core_plan,
         FlowboxVia::Release,
     )
-    .map(RouteAttemptOutcomeV1::from_retry_option)
+    .and_then(RouteAttemptOutcomeV1::from_selected_loop_option)
 }
 
 pub(crate) fn route_nested_loop_minimal(
@@ -375,10 +411,14 @@ pub(crate) fn route_nested_loop_minimal(
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     debug_log_recipe_entry(route_labels::NESTED_LOOP_MINIMAL, attempt);
     let Some(facts) = compose_facts else {
-        return Ok(RouteAttemptOutcomeV1::Retry);
+        return Ok(RouteAttemptOutcomeV1::PreEffectDeclined(
+            super::super::execution_witness::PreEffectDeclineReasonV1::NestedLoopFactsUnavailable,
+        ));
     };
     if facts.facts.nested_loop_minimal().is_none() {
-        return Ok(RouteAttemptOutcomeV1::Retry);
+        return Ok(RouteAttemptOutcomeV1::PreEffectDeclined(
+            super::super::execution_witness::PreEffectDeclineReasonV1::NestedLoopFactsUnavailable,
+        ));
     }
 
     let Some(core_plan) = try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)? else {
@@ -387,7 +427,9 @@ pub(crate) fn route_nested_loop_minimal(
                 "nested_loop_minimal strict/dev route failed: compose rejected".to_string(),
             );
         }
-        return Ok(RouteAttemptOutcomeV1::Retry);
+        return Ok(RouteAttemptOutcomeV1::PreEffectDeclined(
+            super::super::execution_witness::PreEffectDeclineReasonV1::NestedComposerUnavailable,
+        ));
     };
 
     let via = if attempt.strict_or_dev() {
@@ -403,7 +445,7 @@ pub(crate) fn route_nested_loop_minimal(
         core_plan,
         via,
     )
-    .map(RouteAttemptOutcomeV1::from_retry_option)
+    .and_then(RouteAttemptOutcomeV1::from_selected_loop_option)
 }
 
 pub(crate) fn route_loop_true_break_continue(
@@ -413,7 +455,9 @@ pub(crate) fn route_loop_true_break_continue(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if release_skips_nested_loop(ctx, attempt) {
-        return Ok(RouteAttemptOutcomeV1::Retry);
+        return Ok(RouteAttemptOutcomeV1::PreEffectBlocked(
+            super::super::execution_witness::PreEffectBlockedReasonV1::ReleaseNestedLoopGate,
+        ));
     }
 
     const ENTRY: StandardEntry = StandardEntry {
@@ -438,7 +482,9 @@ pub(crate) fn route_loop_cond_break_continue(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if !release_allows_loop_cond_break_continue(ctx, compose_facts, attempt) {
-        return Ok(RouteAttemptOutcomeV1::Retry);
+        return Ok(RouteAttemptOutcomeV1::PreEffectBlocked(
+            super::super::execution_witness::PreEffectBlockedReasonV1::ReleaseLoopCondGate,
+        ));
     }
 
     const ENTRY: StandardEntry = StandardEntry {
@@ -463,7 +509,9 @@ pub(crate) fn route_loop_cond_continue_only(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if !release_allows_loop_cond_continue_only(ctx, compose_facts, attempt) {
-        return Ok(RouteAttemptOutcomeV1::Retry);
+        return Ok(RouteAttemptOutcomeV1::PreEffectBlocked(
+            super::super::execution_witness::PreEffectBlockedReasonV1::ReleaseLoopCondGate,
+        ));
     }
 
     const ENTRY: StandardEntry = StandardEntry {
@@ -488,7 +536,9 @@ pub(crate) fn route_loop_cond_continue_with_return(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if release_skips_nested_loop(ctx, attempt) {
-        return Ok(RouteAttemptOutcomeV1::Retry);
+        return Ok(RouteAttemptOutcomeV1::PreEffectBlocked(
+            super::super::execution_witness::PreEffectBlockedReasonV1::ReleaseNestedLoopGate,
+        ));
     }
 
     const ENTRY: StandardEntry = StandardEntry {

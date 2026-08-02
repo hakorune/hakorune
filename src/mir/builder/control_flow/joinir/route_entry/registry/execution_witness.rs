@@ -93,7 +93,9 @@ impl<'execution> RouteExecutionWitnessV1<'execution> {
                         value,
                     });
                 }
-                RouteAttemptOutcomeV1::Retry => {}
+                RouteAttemptOutcomeV1::PreEffectDeclined(_)
+                | RouteAttemptOutcomeV1::PreEffectBlocked(_)
+                | RouteAttemptOutcomeV1::PostEffectRetryDebt(_) => {}
                 RouteAttemptOutcomeV1::SharedAbsentContractDeclined(decline) => {
                     decline.consume_at(&attempt);
                 }
@@ -168,22 +170,56 @@ impl<'attempt, 'execution> RouteExecutionAttemptV1<'attempt, 'execution> {
 
 /// Private outcome for one captured route attempt.
 ///
-/// `SharedAbsentContractDeclined` is not terminality: the existing scheduler
-/// consumes it by advancing through its already-captured exact suffix.
+/// The legacy scheduler still advances through typed non-success outcomes
+/// while M3-E proves the pure policy.  The typed categories prevent policy
+/// code from confusing pre-effect decline with post-effect Generic debt.
 pub(crate) enum RouteAttemptOutcomeV1<T> {
     Succeeded(T),
-    Retry,
+    /// A source/policy gate declined before compose or lower touched Builder.
+    PreEffectDeclined(PreEffectDeclineReasonV1),
+    /// A selected route was blocked by a release/policy gate before effects.
+    PreEffectBlocked(PreEffectBlockedReasonV1),
+    /// Legacy scheduler debt after a route reached compose/lower or Generic.
+    PostEffectRetryDebt(PostEffectRetryDebtV1),
     SharedAbsentContractDeclined(SharedAbsentContractDeclineV1),
 }
 
 impl<T> RouteAttemptOutcomeV1<T> {
-    /// Projects the ordinary retry channel; it does not classify shared decline.
-    pub(crate) fn from_retry_option(result: Option<T>) -> Self {
+    /// Seals a selected Loop route at its physical boundary.
+    ///
+    /// Every non-Generic selected Loop composer emits a Loop-root plan whose
+    /// lowering must produce a completion value. `None` therefore terminates
+    /// the selected attempt instead of advancing to a later route.
+    pub(crate) fn from_selected_loop_option(result: Option<T>) -> Result<Self, String> {
         match result {
-            Some(value) => Self::Succeeded(value),
-            None => Self::Retry,
+            Some(value) => Ok(Self::Succeeded(value)),
+            None => Err(crate::mir::builder::control_flow::lower::Freeze::contract(
+                "selected Loop route produced no completion after physical lowering",
+            )
+            .to_string()),
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PreEffectDeclineReasonV1 {
+    PlannerRequiredOnly,
+    NestedLoopShapeUnavailable,
+    NestedLoopFactsUnavailable,
+    NestedComposerUnavailable,
+    GenericFactsUnavailable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PreEffectBlockedReasonV1 {
+    ReleaseNestedLoopGate,
+    ReleaseLoopCondGate,
+    SelectedFactsUnavailable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PostEffectRetryDebtV1 {
+    GenericLegacy,
 }
 
 /// Non-Clone proof that this exact cursor took the shared pre-effect decline.
@@ -205,7 +241,10 @@ pub(crate) enum RouteExecutionResultV1<'execution, T> {
 
 #[cfg(test)]
 mod tests {
-    use super::{RouteAttemptOutcomeV1, RouteExecutionResultV1, RouteExecutionWitnessV1};
+    use super::{
+        PreEffectBlockedReasonV1, PreEffectDeclineReasonV1, RouteAttemptOutcomeV1,
+        RouteExecutionResultV1, RouteExecutionWitnessV1,
+    };
     use crate::mir::builder::control_flow::joinir::route_entry::registry::{
         route_id::LoopRouteId, RouterEnv, SharedAbsentContractDeclineRouteV1,
     };
@@ -240,7 +279,9 @@ mod tests {
 
         let result = witness.execute_selected_in_order(|_, attempt| {
             attempted.push(attempt.current_route());
-            Ok::<_, ()>(RouteAttemptOutcomeV1::<u8>::Retry)
+            Ok::<_, ()>(RouteAttemptOutcomeV1::<u8>::PreEffectDeclined(
+                PreEffectDeclineReasonV1::NestedLoopShapeUnavailable,
+            ))
         });
 
         let RouteExecutionResultV1::Exhausted(witness) = result.expect("no route errors") else {
@@ -261,9 +302,12 @@ mod tests {
         let result = witness.execute_selected_in_order(|_, attempt| {
             let route = attempt.current_route();
             attempted.push(route);
-            Ok::<_, ()>(RouteAttemptOutcomeV1::from_retry_option(
-                (route == LoopRouteId::LoopTrueEarlyExit).then_some(7_u8),
-            ))
+            Ok::<_, ()>(
+                RouteAttemptOutcomeV1::from_selected_loop_option(
+                    (route == LoopRouteId::LoopTrueEarlyExit).then_some(7_u8),
+                )
+                .expect("selected loop test route completes"),
+            )
         });
 
         assert!(matches!(
@@ -274,6 +318,40 @@ mod tests {
             })
         ));
         assert_eq!(attempted, [LoopRouteId::LoopTrueEarlyExit]);
+    }
+
+    #[test]
+    fn selected_loop_none_is_a_terminal_error_not_suffix_retry() {
+        let result = RouteAttemptOutcomeV1::<u8>::from_selected_loop_option(None);
+
+        assert!(matches!(result, Err(message) if message.contains("no completion")));
+    }
+
+    #[test]
+    fn blocked_outcome_keeps_legacy_suffix_advance_until_pure_policy_cutover() {
+        let env = env();
+        let schedule = [LoopRouteId::LoopTrueEarlyExit, LoopRouteId::SplitScan];
+        let witness = RouteExecutionWitnessV1::issue(&schedule, &env, false);
+        let mut attempted = Vec::new();
+
+        let result = witness.execute_selected_in_order(|_, attempt| {
+            attempted.push(attempt.current_route());
+            if attempt.current_route() == LoopRouteId::LoopTrueEarlyExit {
+                return Ok::<_, ()>(RouteAttemptOutcomeV1::PreEffectBlocked(
+                    PreEffectBlockedReasonV1::ReleaseNestedLoopGate,
+                ));
+            }
+            Ok(RouteAttemptOutcomeV1::Succeeded(11_u8))
+        });
+
+        assert!(matches!(
+            result,
+            Ok(RouteExecutionResultV1::Succeeded {
+                route: LoopRouteId::SplitScan,
+                value: 11,
+            })
+        ));
+        assert_eq!(attempted, schedule);
     }
 
     #[test]
@@ -309,7 +387,9 @@ mod tests {
                 attempt.cursor(),
                 attempt.exact_after_current_suffix().to_vec(),
             ));
-            Ok::<_, ()>(RouteAttemptOutcomeV1::<u8>::Retry)
+            Ok::<_, ()>(RouteAttemptOutcomeV1::<u8>::PreEffectDeclined(
+                PreEffectDeclineReasonV1::NestedLoopShapeUnavailable,
+            ))
         });
 
         assert!(matches!(result, Ok(RouteExecutionResultV1::Exhausted(_))));

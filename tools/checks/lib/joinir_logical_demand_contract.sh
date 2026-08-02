@@ -8,6 +8,7 @@ guard_joinir_logical_demand_contract() {
   local portable_recipe_dir="$root_dir/src/mir/loop_recipe_contract"
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
+  local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
   local if_phi_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_if_phi_join_terminality.rs"
@@ -264,8 +265,11 @@ guard_joinir_logical_demand_contract() {
   local simple_route_body retry_count
   simple_route_body="$(sed -n '/pub(crate) fn route_loop_simple_while(/,/pub(crate) fn route_loop_char_map(/p' "$route_handlers")"
   retry_count="$(printf '%s\n' "$simple_route_body" | rg -c 'return Ok\(RouteAttemptOutcomeV1::Retry\)' || true)"
-  if [[ "$retry_count" != "1" ]] || ! printf '%s\n' "$simple_route_body" | rg -q 'detect_nested_loop\(ctx\.body\)'; then
-    guard_fail "$tag" "SimpleWhile terminality contract drifted from its single nested Retry pre-gate"
+  retry_count="${retry_count:-0}"
+  if [[ "$retry_count" != "0" ]] || \
+     ! printf '%s\n' "$simple_route_body" | rg -q 'PreEffectDeclineReasonV1::NestedLoopShapeUnavailable' || \
+     ! printf '%s\n' "$simple_route_body" | rg -q 'detect_nested_loop\(ctx\.body\)'; then
+    guard_fail "$tag" "SimpleWhile pre-effect nested gate lost its typed decline"
   fi
   local accum_route_body accum_retry_count
   accum_route_body="$(sed -n '/pub(crate) fn route_accum_const_loop(/,/pub(crate) fn route_nested_loop_minimal(/p' "$route_handlers")"
@@ -302,5 +306,38 @@ guard_joinir_logical_demand_contract() {
   shared_decline_issuers="$(rg -c 'issue_shared_absent_contract_decline\(' "$handler_entry" || true)"
   if [[ "$shared_decline_issuers" != "1" ]]; then
     guard_fail "$tag" "route_standard must remain the sole shared-decline issuer"
+  fi
+  local selected_loop_adapter_calls
+  selected_loop_adapter_calls="$({
+    rg -o 'from_selected_loop_option' \
+      "$route_handlers" "$handler_entry" || true
+  } | wc -l | tr -d '[:space:]')"
+  if [[ "$selected_loop_adapter_calls" != "9" ]]; then
+    guard_fail "$tag" "non-Generic selected Loop boundary must seal through one typed Option adapter: count=$selected_loop_adapter_calls expected=9"
+  fi
+  if rg -n 'from_retry_option|from_post_effect_option|RouteAttemptOutcomeV1::Retry' \
+    "$route_registry_dir" -g '*.rs' >/dev/null; then
+    guard_fail "$tag" "ordinary Retry/ambiguous Option projection remains in Loop registry"
+  fi
+  if rg -n 'compose_facts\.expect' "$route_handlers" "$handler_entry" >/dev/null; then
+    guard_fail "$tag" "selected Loop route still panics instead of issuing typed facts blocker"
+  fi
+  local generic_debt_files=()
+  mapfile -t generic_debt_files < <(
+    { rg -l 'PostEffectRetryDebtV1::GenericLegacy' "$route_registry_dir" || true; }
+  )
+  if (( ${#generic_debt_files[@]} != 1 )) || [[ "${generic_debt_files[0]}" != *"/handlers/generic.rs" ]]; then
+    guard_fail "$tag" "Generic post-effect debt must remain isolated to generic handlers"
+  fi
+  if rg -n 'PostEffectRetryDebtV1::LowerOption' "$route_registry_dir" >/dev/null; then
+    guard_fail "$tag" "unclassified post-effect LowerOption debt remains after selected Loop sealing"
+  fi
+  if ! rg -q 'selected Loop route produced a non-Loop CorePlan root' \
+    "$root_dir/src/mir/builder/control_flow/joinir/route_entry/router.rs"; then
+    guard_fail "$tag" "shared Loop route boundary lost its non-Loop CorePlan blocker"
+  fi
+  if ! rg -q 'selected LoopBreakRecipe produced a non-Loop CorePlan root' "$route_handlers" || \
+     ! rg -q 'selected AccumConstLoop produced a non-Loop CorePlan root' "$route_handlers"; then
+    guard_fail "$tag" "strict Loop route boundaries lost their CorePlan root blockers"
   fi
 }

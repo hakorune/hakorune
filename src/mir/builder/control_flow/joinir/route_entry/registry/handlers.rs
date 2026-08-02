@@ -20,7 +20,6 @@ pub(crate) fn route_generic_loop_v0_at_attempt(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     generic::route_generic_loop_v0(builder, ctx, compose_facts, attempt)
-        .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 pub(crate) fn route_generic_loop_v1_at_attempt(
@@ -30,7 +29,6 @@ pub(crate) fn route_generic_loop_v1_at_attempt(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     generic::route_generic_loop_v1(builder, ctx, compose_facts, attempt)
-        .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 fn debug_log_recipe_entry(route_label: &str, attempt: &RouteExecutionAttemptV1<'_, '_>) {
@@ -56,7 +54,9 @@ fn route_standard(
     entry: &StandardEntry,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if entry.planner_required_only && !attempt.planner_required() {
-        return Ok(RouteAttemptOutcomeV1::Retry);
+        return Ok(RouteAttemptOutcomeV1::PreEffectDeclined(
+            super::execution_witness::PreEffectDeclineReasonV1::PlannerRequiredOnly,
+        ));
     }
     if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(Freeze::contract(entry.missing_contract_msg).to_string());
@@ -77,7 +77,11 @@ fn route_standard(
     }
     debug_log_recipe_entry(entry.route_label, attempt);
 
-    let facts = compose_facts.expect("facts present for route_standard");
+    let Some(facts) = compose_facts else {
+        return Ok(RouteAttemptOutcomeV1::PreEffectBlocked(
+            super::execution_witness::PreEffectBlockedReasonV1::SelectedFactsUnavailable,
+        ));
+    };
     let core_plan = with_standard_compose_binding_boundary(builder, |builder| {
         (entry.compose)(builder, facts, ctx)
     })
@@ -95,7 +99,7 @@ fn route_standard(
         core_plan,
         via,
     )
-    .map(RouteAttemptOutcomeV1::from_retry_option)
+    .and_then(RouteAttemptOutcomeV1::from_selected_loop_option)
 }
 
 fn with_standard_compose_binding_boundary<T, E, F>(builder: &mut MirBuilder, f: F) -> Result<T, E>

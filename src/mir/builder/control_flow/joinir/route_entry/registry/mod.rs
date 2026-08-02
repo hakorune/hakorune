@@ -178,7 +178,10 @@ pub(crate) fn try_execute_route_execution_witness(
                 .find(|entry| entry.id == route_id)
                 .expect("recipe-first selection route must be present in ENTRIES");
             let Some(route) = entry.route else {
-                return Ok(RouteAttemptOutcomeV1::Retry);
+                return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
+                    "selected recipe-first route has no execution handler",
+                )
+                .to_string());
             };
             route(builder, ctx, compose_facts, attempt)
         })

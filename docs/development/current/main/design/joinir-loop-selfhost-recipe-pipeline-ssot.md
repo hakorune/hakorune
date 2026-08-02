@@ -33,9 +33,9 @@ The authority split is:
 Current production is `route_loop` -> ordered 19-route scheduler -> route
 composers/CorePlan/PlanLowerer/JoinIR merge/route PHI writers. Portable
 `VerifiedLoopRecipeV1` has zero physical production consumers through M9.
-There is no post-router legacy Loop fallback: Retry is scheduler-internal and
-exhaustion freezes. M5-M8 remain caller-zero; only atomic M10 activates the
-portable consumer and deletes selected old physical edges.
+The current JoinIR/JoinModule path remains execution authority until M10; Retry is
+scheduler-internal and exhaustion freezes; it is not a portable Recipe consumer.
+M5-M8 remain caller-zero; only atomic M10 activates the portable consumer and deletes selected old physical edges.
 
 ```text
 Source / projection
@@ -379,13 +379,11 @@ M3 task order:
    The fixture adapter is `cfg(test)`-only and the facade has zero production
    callers. Focused tests 10/10, shared/pointer guards, diff/line checks, and
    release build are green; selection/retry/recipe/Builder/lowering remain out.
-4. `M3-D / JOINIR-LOOP-PREFIX-OUTCOME-TYPING0-S3` — replace every ordinary
-   pre-effect Retry with typed Declined/Terminal/Blocked evidence and remove
-   late AST rereads from policy authority. Seal the 17 non-Generic selected
-   Loop outcomes as success-or-Err, or stop at an exact route blocker;
-   NestedMinimal composer dependence is not reassigned to Generic debt. A
-   migration-only receipt records the actual legacy composer/result kind for
-   later parity; the pure policy cannot read it.
+4. `M3-D / JOINIR-LOOP-PREFIX-OUTCOME-TYPING0-S3` — **active**. The prefix
+   slice now types pre-effect Declined/Blocked versus Generic post-effect debt
+   and seals selected non-Generic Loop `Option` boundaries as success-or-Err;
+   NestedMinimal remains separate. Remaining: migration-only composer/result
+   receipt and the M3-E pure evaluator; neither may become policy authority.
 5. `M3-E / JOINIR-LOOP-PURE-ROUTE-POLICY0-S4` — one left-to-right evaluator
    consumes only frozen rows. Declined alone advances; Qualified and Blocked
    both stop. Qualified owns structural facts plus a private seal, never a
@@ -570,7 +568,7 @@ Change:
 Delete in the same commit:
 : Ordered `RouteFn` retry scheduler, `RouteAttemptOutcomeV1::Retry`,
   `from_retry_option`, private legacy continuation, Generic error-to-None,
-  selected old physical composers/edges, and new-subtree AST reconstruction
+  selected old JoinIR caller/physical edges and new-subtree AST reconstruction
   facades.
 
 Contract:
