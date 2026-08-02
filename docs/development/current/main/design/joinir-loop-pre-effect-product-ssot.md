@@ -1268,3 +1268,14 @@ synthetic facts construction without adding source authority.
 No inner-loop inspection, selector/preflight consumer, terminality, product,
 execution, physicalizer, caller, or runtime behavior changed. The next card is
 preflight D0.
+
+### NestedLoopMinimal preflight D0/S0 implementation record
+
+Decision: accept raw-front-only classification S0. The existing aggregate
+lineage accessor covers the complete variable schedule without exposing roles
+or inner Loop contents. Sibling fixtures prove direct policy rejection,
+ScopeBox rejection, and topology-absent source rejection while keeping the
+production classifier below 800 lines.
+
+No source borrowing, inner-loop inspection, terminality, product, physicalizer,
+caller, or runtime behavior changed. The next card is terminality D0.
