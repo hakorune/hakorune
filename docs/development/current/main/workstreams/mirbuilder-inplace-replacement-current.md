@@ -490,7 +490,7 @@ closed — SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4
   -> resolved root-demand dispatch is private; recursive traversal remains one shared matcher.
 
 closed — MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0 (Accept): shared occurrence identity only; residual R4 ownership stays operation-local and the shared scheduler is rejected.
-next — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0: decide pure route selection plus one physicalizer; Loop activation, wrappers, raw/reference, and route changes stay closed.
+closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): candidate selection remains post-effect fallback, composers are physical, and no logical recipe consumer exists; do not reopen a renamed Loop slice.
 
 ### Refactor Series queue
 
