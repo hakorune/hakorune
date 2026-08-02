@@ -464,6 +464,103 @@ fn generic_both_facts_emit_test_only_recursive_carrier_observation() {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GenericCarrierPolicyDispositionV1 {
+    V1ForNestedCarriers,
+    UnresolvedStop,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct GenericCarrierPolicyFrameV1 {
+    has_overlap: bool,
+    strict_or_dev: bool,
+    planner_required: bool,
+    contract_present: bool,
+    v1_stage_accepted: bool,
+}
+
+// Test-only neutral policy probe. It receives no AST, RecipeBody, CorePlan, or
+// route ID; production selection remains unchanged until D2 closes.
+fn evaluate_nested_carrier_policy_probe(
+    observation: &GenericLoopCarrierObservationV1,
+    frame: GenericCarrierPolicyFrameV1,
+) -> GenericCarrierPolicyDispositionV1 {
+    if (frame.planner_required && !frame.strict_or_dev)
+        || !frame.has_overlap
+        || !frame.contract_present
+        || !frame.v1_stage_accepted
+    {
+        return GenericCarrierPolicyDispositionV1::UnresolvedStop;
+    }
+    match observation {
+        GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(_) => {
+            GenericCarrierPolicyDispositionV1::V1ForNestedCarriers
+        }
+        GenericLoopCarrierObservationV1::CompleteNoRecursiveCarrier
+        | GenericLoopCarrierObservationV1::Unavailable(_)
+        | GenericLoopCarrierObservationV1::Ambiguous(_) => {
+            GenericCarrierPolicyDispositionV1::UnresolvedStop
+        }
+    }
+}
+
+#[test]
+fn generic_nested_carrier_policy_probe_requires_complete_overlap_evidence() {
+    for mode in [
+        CorpusModeV1::Release,
+        CorpusModeV1::Strict,
+        CorpusModeV1::StrictPlannerRequired,
+    ] {
+        let (both, raw_schedule) = observe_generic_carrier_facts(mode, "both");
+        let frame = GenericCarrierPolicyFrameV1 {
+            has_overlap: raw_schedule.as_slice()
+                == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1],
+            strict_or_dev: mode.strict_or_dev(),
+            planner_required: matches!(mode, CorpusModeV1::StrictPlannerRequired),
+            contract_present: true,
+            v1_stage_accepted: true,
+        };
+        let expected = if matches!(mode, CorpusModeV1::Release | CorpusModeV1::Strict) {
+            GenericCarrierPolicyDispositionV1::V1ForNestedCarriers
+        } else {
+            GenericCarrierPolicyDispositionV1::UnresolvedStop
+        };
+        assert_eq!(evaluate_nested_carrier_policy_probe(&both, frame), expected);
+
+        let (simple, simple_schedule) = observe_generic_carrier_facts(mode, "simple-while");
+        let simple_frame = GenericCarrierPolicyFrameV1 {
+            has_overlap: simple_schedule.len() > 1,
+            strict_or_dev: mode.strict_or_dev(),
+            planner_required: matches!(mode, CorpusModeV1::StrictPlannerRequired),
+            contract_present: true,
+            v1_stage_accepted: true,
+        };
+        assert_eq!(
+            evaluate_nested_carrier_policy_probe(&simple, simple_frame),
+            GenericCarrierPolicyDispositionV1::UnresolvedStop
+        );
+    }
+
+    for observation in [
+        GenericLoopCarrierObservationV1::Unavailable("LoopRange".to_string()),
+        GenericLoopCarrierObservationV1::Ambiguous("assignment target".to_string()),
+    ] {
+        assert_eq!(
+            evaluate_nested_carrier_policy_probe(
+                &observation,
+                GenericCarrierPolicyFrameV1 {
+                    has_overlap: true,
+                    strict_or_dev: true,
+                    planner_required: false,
+                    contract_present: true,
+                    v1_stage_accepted: true,
+                },
+            ),
+            GenericCarrierPolicyDispositionV1::UnresolvedStop
+        );
+    }
+}
+
 #[test]
 fn generic_carrier_observation_marks_preserved_unsupported_container_unavailable() {
     let body = vec![ASTNode::LoopRange {

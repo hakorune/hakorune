@@ -714,7 +714,10 @@ Planner-required V0 suppression remains a distinct gate.
 
 Do not add a route-name branch, re-read source AST in policy, or use this field
 as a winner. D1 must leave all overlap classes unresolved and production
-selection unchanged; policy promotion remains a later D2 gate.
+selection unchanged. A test-only neutral probe may consume only the observation,
+opaque overlap/mode/contract snapshots, and an independently accepted V1 stage;
+it may return `V1ForNestedCarriers` only for complete recursive coverage, and
+otherwise returns `UnresolvedStop`. Policy promotion remains a later D2 gate.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
