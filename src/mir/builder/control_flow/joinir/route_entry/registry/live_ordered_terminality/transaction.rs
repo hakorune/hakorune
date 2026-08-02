@@ -96,7 +96,10 @@ fn qualify_raw_order<'src>(
                     route: current,
                     unreached_legacy_tail: Box::default(),
                     source_lease: super::DirectTerminalSourceLeaseV1::LoopContinueOnly(
-                        super::DirectLoopContinueOnlySourceLeaseV1,
+                        super::DirectLoopContinueOnlySourceLeaseV1 {
+                            condition: source.0,
+                            body: source.1,
+                        },
                     ),
                 },
             )

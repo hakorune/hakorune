@@ -21,6 +21,12 @@ pub(crate) struct VerifiedDirectLoopBreakLogicalProductV1<'src> {
     roles: [DirectLoopBreakLogicalRoleV1; 4],
 }
 
+#[derive(Debug)]
+pub(crate) struct VerifiedDirectLoopContinueOnlyLogicalProductV1<'src> {
+    terminality: PreEffectSchedulerTerminalV1<'src>,
+    roles: [DirectLoopContinueOnlyLogicalRoleV1; 4],
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum DirectAccumConstLoopLogicalRoleV1 {
     LoopBinding,
@@ -33,6 +39,14 @@ enum DirectLoopBreakLogicalRoleV1 {
     LoopCondition,
     BreakIfSubtree,
     CarrierUpdate,
+    LoopBackContinuation,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DirectLoopContinueOnlyLogicalRoleV1 {
+    LoopCondition,
+    ContinueIfSubtree,
+    CarrierUpdateSequence,
     LoopBackContinuation,
 }
 
@@ -72,11 +86,22 @@ impl<'src> VerifiedDirectLoopBreakLogicalProductV1<'src> {
     }
 }
 
+impl<'src> VerifiedDirectLoopContinueOnlyLogicalProductV1<'src> {
+    pub(crate) fn route(&self) -> LoopRouteId {
+        self.terminality.route()
+    }
+
+    pub(crate) fn unreached_legacy_tail(&self) -> &[LoopRouteId] {
+        self.terminality.unreached_legacy_tail()
+    }
+}
+
 #[derive(Debug)]
 pub(crate) enum VerifiedLoopLogicalProductV1<'src> {
     DirectSimpleWhile(VerifiedDirectSimpleWhileLogicalProductV1<'src>),
     DirectAccumConstLoop(VerifiedDirectAccumConstLoopLogicalProductV1<'src>),
     DirectLoopBreak(VerifiedDirectLoopBreakLogicalProductV1<'src>),
+    DirectLoopContinueOnly(VerifiedDirectLoopContinueOnlyLogicalProductV1<'src>),
 }
 
 impl<'src> VerifiedLoopLogicalProductV1<'src> {
@@ -85,6 +110,7 @@ impl<'src> VerifiedLoopLogicalProductV1<'src> {
             Self::DirectSimpleWhile(product) => product.route(),
             Self::DirectAccumConstLoop(product) => product.route(),
             Self::DirectLoopBreak(product) => product.route(),
+            Self::DirectLoopContinueOnly(product) => product.route(),
         }
     }
 
@@ -93,6 +119,7 @@ impl<'src> VerifiedLoopLogicalProductV1<'src> {
             Self::DirectSimpleWhile(product) => product.unreached_legacy_tail(),
             Self::DirectAccumConstLoop(product) => product.unreached_legacy_tail(),
             Self::DirectLoopBreak(product) => product.unreached_legacy_tail(),
+            Self::DirectLoopContinueOnly(product) => product.unreached_legacy_tail(),
         }
     }
 }
@@ -149,6 +176,27 @@ pub(crate) fn issue_pre_effect_terminal_v1<'src>(
                         ],
                     },
                 ),
+                LoopRouteId::LoopContinueOnly => {
+                    let super::DirectTerminalSourceLeaseV1::LoopContinueOnly(lease) =
+                        &terminality.source_lease
+                    else {
+                        return LoopLogicalProductDispositionV1::BlockedCurrent {
+                            route: LoopRouteId::LoopContinueOnly,
+                        };
+                    };
+                    let _ = (lease.condition, lease.body);
+                    VerifiedLoopLogicalProductV1::DirectLoopContinueOnly(
+                        VerifiedDirectLoopContinueOnlyLogicalProductV1 {
+                            terminality,
+                            roles: [
+                                DirectLoopContinueOnlyLogicalRoleV1::LoopCondition,
+                                DirectLoopContinueOnlyLogicalRoleV1::ContinueIfSubtree,
+                                DirectLoopContinueOnlyLogicalRoleV1::CarrierUpdateSequence,
+                                DirectLoopContinueOnlyLogicalRoleV1::LoopBackContinuation,
+                            ],
+                        },
+                    )
+                }
                 route => return LoopLogicalProductDispositionV1::BlockedCurrent { route },
             };
             LoopLogicalProductDispositionV1::Issued(product)
@@ -163,6 +211,56 @@ mod tests {
     use crate::mir::builder::control_flow::joinir::route_entry::registry::live_ordered_terminality::qualify_live_loop_facts_v1;
     use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
     use crate::mir::builder::control_flow::plan::facts::try_build_live_loop_facts;
+
+    fn continue_only_fixture(scope_boxed: bool) -> (ASTNode, Vec<ASTNode>) {
+        let variable = |name: &str| ASTNode::Variable {
+            name: name.into(),
+            span: Span::unknown(),
+        };
+        let increment = |name: &str| ASTNode::Assignment {
+            target: Box::new(variable(name)),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(variable(name)),
+                right: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let condition = ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(variable("i")),
+            right: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(3),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let statements = vec![
+            ASTNode::If {
+                condition: Box::new(variable("skip")),
+                then_body: vec![ASTNode::Continue {
+                    span: Span::unknown(),
+                }],
+                else_body: None,
+                span: Span::unknown(),
+            },
+            increment("sum"),
+            increment("i"),
+        ];
+        let body = if scope_boxed {
+            vec![ASTNode::ScopeBox {
+                body: statements,
+                span: Span::unknown(),
+            }]
+        } else {
+            statements
+        };
+        (condition, body)
+    }
 
     #[test]
     fn issues_only_actual_direct_simple_while_with_ordered_tail() {
@@ -287,6 +385,34 @@ mod tests {
             LoopLogicalProductDispositionV1::Issued(product)
                 if product.route() == LoopRouteId::LoopBreakRecipe
                 && product.unreached_legacy_tail().is_empty()
+        ));
+    }
+
+    #[test]
+    fn issues_only_actual_direct_continue_only_with_empty_tail() {
+        let (condition, body) = continue_only_fixture(false);
+        let live = try_build_live_loop_facts(&condition, &body)
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            issue_pre_effect_terminal_v1(qualify_live_loop_facts_v1(live)),
+            LoopLogicalProductDispositionV1::Issued(product)
+                if product.route() == LoopRouteId::LoopContinueOnly
+                && product.unreached_legacy_tail().is_empty()
+        ));
+    }
+
+    #[test]
+    fn scope_box_continue_only_does_not_issue_a_product() {
+        let (condition, body) = continue_only_fixture(true);
+        let live = try_build_live_loop_facts(&condition, &body)
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            issue_pre_effect_terminal_v1(qualify_live_loop_facts_v1(live)),
+            LoopLogicalProductDispositionV1::BlockedCurrent {
+                route: LoopRouteId::LoopContinueOnly
+            }
         ));
     }
 }

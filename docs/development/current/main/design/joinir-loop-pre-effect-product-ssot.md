@@ -1015,3 +1015,36 @@ consumer. Existing composition is explicitly out of scope because it rebuilds
 carrier updates from a key-sorted `BTreeMap` and enters mutating `lower_loop_v0`.
 No composer/lowerer/Builder/physicalization/rollback/caller/runtime claim is
 authorized. Fixtures must fix direct issuance and ScopeBox/current rejection.
+
+### LoopContinueOnly logical-product S0 implementation record
+
+The terminality capability now retains only the opaque direct condition/body
+lease required to preserve source authority. Its by-value issuer creates a
+caller-zero product with the four fixed aggregate roles; it never exposes a
+per-carrier site, source-order promise, or AST resolver. Direct issuance and
+ScopeBox rejection are fixture-fixed. No execution consumer was introduced.
+
+### LoopContinueOnly physicalizer D0 decision
+
+Decision: NoSafeSlice. The only execution chain is
+`route_loop_continue_only → compose_loop_continue_only_recipe → lower_loop_v0
+→ lower_verified_core_plan/PlanLowerer`. After initial checks,
+`lower_loop_v0` allocates blocks and carrier/after PHI ValueIds, and updates
+`variable_map`, before header verification and body lowering can still fail.
+Continue-with-PHI construction and subsequent physical emission can fail too.
+There is no rollback capability around those mutations.
+
+The opaque aggregate product cannot safely call this legacy path: doing so
+would discard its authority boundary and leave partial Builder state on an
+error. A builder-free validation plus transactional commit/snapshot boundary is
+a separate BoxShape series, not a physicalizer slice. No consumer, composer,
+lowerer, Builder, caller, or runtime behavior changed.
+
+### Next-route selection D2 decision
+
+Decision: select `IfPhiJoin` provenance S0. Its accepted complete body has two
+top-level sites, the whole if-else and loop step, and the existing projection
+can represent both with ScopeBox lineage. S0 may retain only those opaque whole
+statement sites; branch-internal conditions and updates remain cloned semantic
+facts. Terminality, product, physicalization, callers, and runtime remain
+separate cards.

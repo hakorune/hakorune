@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-CONTINUE-ONLY-TERMINALITY0-S0 closed; JOINIR-LOOP-CONTINUE-ONLY-LOGICAL-PRODUCT0-D0 accepted JOINIR-LOOP-CONTINUE-ONLY-LOGICAL-PRODUCT0-S0."
+status = "JOINIR-LOOP-CONTINUE-ONLY-LOGICAL-PRODUCT0-S0 closed; JOINIR-LOOP-CONTINUE-ONLY-PHYSICALIZER0-D0 is NoSafeSlice; JOINIR-IF-PHI-JOIN-PROVENANCE0-S0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S0 may add only a disconnected ContinueOnly logical product. The terminality proof must retain an opaque direct condition/body lease, and the issuer may consume that proof by value only after the complete direct schedule and singleton raw selection are certified. Roles are fixed to LoopCondition, opaque ContinueIfSubtree, aggregate CarrierUpdateSequence, and LoopBackContinuation; per-carrier order and nested AST authority are excluded. No composer/lowerer/Builder/physical/caller/runtime behavior may change."
-current_execution_row = "JOINIR-LOOP-CONTINUE-ONLY-LOGICAL-PRODUCT0-S0"
-current_execution_summary = "ContinueOnly terminality S0 certifies only direct pre-effect route selection. Logical-product D0 accepts a source-bound aggregate-carrier product, not composer source order or physical safety."
+current_design_stop = "S0 may add only optional projection-aware IfPhiJoin source topology for the complete direct two-statement shape: the whole top-level if-else and loop step. It must preserve facts acceptance, use opaque sites only, and remain absent on projection mismatch/ScopeBox lineage. Branch-internal condition and updates remain cloned semantic facts, not source sites. It must not alter selection, terminality/product/physical/caller/runtime behavior."
+current_execution_row = "JOINIR-IF-PHI-JOIN-PROVENANCE0-S0"
+current_execution_summary = "ContinueOnly logical product is closed and its physicalizer is NoSafe because existing lowering mutates before failures are excluded. IfPhiJoin provenance is next."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-CONTINUE-ONLY-LOGICAL-PRODUCT0-S0"
+current_blocker_token = "JOINIR-IF-PHI-JOIN-PROVENANCE0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

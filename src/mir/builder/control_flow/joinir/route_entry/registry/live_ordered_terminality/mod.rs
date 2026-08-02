@@ -54,7 +54,7 @@ enum DirectTerminalSourceLeaseV1<'src> {
     SimpleWhile(DirectSimpleWhileSourceLeaseV1<'src>),
     AccumConstLoop(DirectAccumConstLoopSourceLeaseV1<'src>),
     LoopBreak(DirectLoopBreakSourceLeaseV1<'src>),
-    LoopContinueOnly(DirectLoopContinueOnlySourceLeaseV1),
+    LoopContinueOnly(DirectLoopContinueOnlySourceLeaseV1<'src>),
 }
 
 #[derive(Debug)]
@@ -72,9 +72,12 @@ struct DirectLoopBreakSourceLeaseV1<'src> {
     step: &'src ASTNode,
 }
 
-/// Deliberately carries no raw AST lease: terminality has no source-order claim.
+/// Opaque whole-body lease for the later aggregate-only logical product.
 #[derive(Debug)]
-struct DirectLoopContinueOnlySourceLeaseV1;
+struct DirectLoopContinueOnlySourceLeaseV1<'src> {
+    condition: &'src ASTNode,
+    body: &'src [ASTNode],
+}
 
 impl<'src> PreEffectSchedulerTerminalV1<'src> {
     pub(crate) fn route(&self) -> super::route_id::LoopRouteId {
