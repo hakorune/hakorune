@@ -469,30 +469,34 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LIVE-ORDERED-TERMINALITY-TRANSACTION0-D1`
-Parent: `JOINIR-DIRECT-SIMPLE-WHILE-TERMINALITY0-S0` (closed)
-Ceremony: design one live ordered certificate transaction; production consumers remain zero.
+Row: `JOINIR-LIVE-ORDERED-TERMINALITY-TRANSACTION0-S0`
+Parent: `JOINIR-LIVE-ORDERED-TERMINALITY-TRANSACTION0-D1` (closed)
+Ceremony: implement one live ordered certificate transaction; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Bind live source/Facts, one existing raw schedule, and terminality certificates
-  in an opaque consumed transaction that retains the GenericLoopV0 tail evidence.
+  Add the accepted registry-owned live carrier and consuming transaction. Bind
+  source/Facts once, select the canonical raw schedule once, and retain the
+  GenericLoopV0 tail as ordered terminality evidence.
 
 Contract:
-  The transaction consumes its live pair once, invokes existing selection once, and
-  may only expose terminal disposition/product—not raw source, Facts, selection,
-  topology traversal, or a reusable request/slot API.
+  The registry parent owns private source/Facts fields and its consuming child.
+  The facts builder is the sole narrow binding-bridge caller. The transaction
+  consumes once, invokes existing selection once, and exposes only a pre-effect
+  scheduler-terminality disposition—not raw source, Facts, selection, topology
+  traversal, a logical product, or a reusable request/slot API.
 
 Done:
-  The design fixes ownership/lifetime, certificate ordering, terminal tail evidence,
-  failure vocabulary, and direct/nested/overlap fixtures. A later S0 alone
-  implements it with SimpleWhile only.
+  Direct actual selection returns terminal SimpleWhile evidence with ordered
+  GenericLoopV0 tail. ScopeBox/nested/unknown/earlier overlap fail closed;
+  empty raw schedule is NoRoute. Shared guard fixes sole bridge, one selection,
+  no parts accessors, and no diagnostic projection/predicate re-match.
 
 Stop:
-  Stop if the transaction hides the tail, picks first route without certificate,
-  exposes parts/generic slots, re-runs selection, selects Accum, or needs a
-  physical/runtime owner. No physicalizer, Loop I0, raw/reference ingress, or
-  fallback wrapper is authorized.
+  Stop if S0 calls the old logical-demand producer, hides the tail, picks first
+  route without certificate, exposes parts/generic slots, re-runs selection,
+  selects Accum, or needs a physical/runtime owner. No physicalizer, Loop I0,
+  raw/reference ingress, or fallback wrapper is authorized.
 
 ## Production invariants
 

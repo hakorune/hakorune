@@ -415,3 +415,43 @@ ineligibility. The existing shared guard statically ratchets that the handler
 has exactly one `Ok(None)` return and it is the nested pre-gate; later route
 behavior remains `Some` or `Err`. D1 must design ordered consumption with the
 live source frame and full raw schedule tail.
+
+### Live ordered terminality transaction D1 decision
+
+Decision: accepted one registry-owned parent module containing the private
+`LiveLoopFactsV1<'src>` carrier and its consuming transaction child. This is the
+only arrangement that lets the transaction consume the same live source/Facts
+pair without exposing a raw-parts accessor or a generic callback portal: Rust
+sibling privacy cannot express a facts-owned carrier that only registry may
+open. `try_build_loop_facts_inner` remains the sole AST observation authority;
+the facts builder may call the registry parent’s narrow binding bridge exactly
+once, and the parent’s child alone may read the private carrier fields.
+
+The transaction consumes the capability by value, canonicalizes that exact owned
+Facts value, calls `select_recipe_first_routes(Some(&canonical))` exactly once,
+and uses only `raw_execution_routes()` as schedule authority. It issues no
+logical product and no success claim. Its positive disposition is only
+`PreEffectSchedulerTerminal`: the selected route is proven to stop the legacy
+scheduler with either `Some` or `Err`, and it retains the later raw suffix as
+an ordered `UnreachedLegacyTail`. For the actual direct SimpleWhile shape, raw
+order is `[LoopSimpleWhile, GenericLoopV0]`; the positive proof therefore keeps
+`GenericLoopV0`, in that order, as tail evidence. It neither deletes, rejects,
+executes, nor selects that route.
+
+A candidate requires every earlier raw route to have a route-specific
+pre-effect-ineligible certificate and itself to have a scheduler-terminality
+certificate. Current direct SimpleWhile is first, so its earlier proof set is
+empty but its terminality certificate remains mandatory. Unknown earlier routes,
+unknown current terminality, ScopeBox/nested source, and unsupported routes fail
+closed with a typed non-selection; empty raw order is `NoRoute`. The result has
+no raw/Facts/selection getter, no reusable request or slot, and no Builder,
+physicalizer, runtime, retry, or fallback behavior.
+
+S0 fixture and guard contract: actual derived direct facts must produce the
+SimpleWhile/GenericLoopV0 order and terminal proof with exact tail; ScopeBox and
+nested fixtures must fail closed; a synthetic unknown earlier prefix must block
+SimpleWhile; raw empty is `NoRoute`. The shared guard must ratchet the sole
+binding bridge, exactly one raw selection call, no diagnostic projection or AST
+re-match, and no public raw/Facts/selection accessors. The old
+`logical_demand::producer` remains test-only legacy evidence and is not a caller
+or dependency of this transaction; a later row may retire it after replacement.
