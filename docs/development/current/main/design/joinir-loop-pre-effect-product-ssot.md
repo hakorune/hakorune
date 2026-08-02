@@ -1139,3 +1139,16 @@ absent; facts acceptance and synthetic-recipe behavior are unchanged.
 No source resolver, synthetic `ch` authority, preflight, terminality, product,
 composer/lowerer/Builder, physicalizer, caller, or runtime behavior was added.
 The next card is preflight D0.
+
+### LoopCharMap preflight D0 decision
+
+Decision: accept raw-front-only classification S0. The all-route preflight may
+read only optional opaque CharMap topology and reject as source unavailable,
+ScopeBox lineage not borrowable, or direct policy-and-terminality unavailable.
+It may add only an aggregate lineage accessor; synthetic `ch`, reconstructed
+recipe AST, source resolvers, selection changes, and execution are forbidden.
+
+The route is planner-required-only and can `Ok(None)` outside that mode, so no
+terminality/product/physical claim is authorized. Keep the production
+classifier below the existing file cap; place direct/ScopeBox/topology-absent
+fixtures in its sibling test module.
