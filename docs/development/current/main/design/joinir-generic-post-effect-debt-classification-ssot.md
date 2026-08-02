@@ -302,6 +302,21 @@ consider fixing the real `Both` overlap before effect. If V0 debt → V1 success
 is observed, or V0 acceptance has a coverage hole, D2 remains `UnresolvedStop`
 and the legacy scheduler stays authoritative.
 
+### D2-A observation — accepted-plan reachability corpus
+
+The test-only corpus now exercises the real source → facts → selector boundary
+for `V1-only`, `Both`, `simple-while`, and `Neither` under release, strict, and
+strict+planner-required configurations. Every selected Generic composer row in
+the known corpus produces a `CorePlan::Loop` root and identifies the Generic
+composer as the first observed candidate effect. Verifier/lower stage results,
+candidate snapshots, and fresh-candidate repeatability are recorded without a
+production caller; at least three rows reach `PlanLowerer::lower -> Some`.
+
+This closes only the known-corpus reachability observation. It does not prove
+the complete Generic grammar, make V0 a pre-effect winner, classify a natural
+debt-to-V1 continuation, or close D2/D3. The next real verifier/lower failure,
+or any coverage hole, remains an explicit `UnresolvedStop`.
+
 ### M4-D4 — handoff and close (`...-D0-S4`)
 
 Seal a disposition for every D0 row, decide V0/V1 precedence, and make the

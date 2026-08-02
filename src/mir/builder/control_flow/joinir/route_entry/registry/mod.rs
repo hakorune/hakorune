@@ -211,6 +211,8 @@ fn dispatch_entry(
 #[cfg(test)]
 mod effect_order_matrix_tests;
 #[cfg(test)]
+mod generic_accepted_plan_reachability_tests;
+#[cfg(test)]
 mod generic_selection_matrix_tests;
 #[cfg(test)]
 mod generic_stage_observer_tests;

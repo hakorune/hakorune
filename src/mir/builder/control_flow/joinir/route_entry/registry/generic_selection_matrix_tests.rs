@@ -98,11 +98,11 @@ fn progression_step() -> ASTNode {
     assign("i", add(variable("i"), integer(1)))
 }
 
-fn simple_while_body() -> Vec<ASTNode> {
+pub(super) fn simple_while_body() -> Vec<ASTNode> {
     vec![progression_step()]
 }
 
-fn v1_only_body() -> Vec<ASTNode> {
+pub(super) fn v1_only_body() -> Vec<ASTNode> {
     vec![
         ASTNode::Local {
             variables: vec!["tmp".into()],
@@ -123,7 +123,7 @@ pub(super) fn both_body() -> Vec<ASTNode> {
     vec![inner, progression_step()]
 }
 
-fn neither_body() -> Vec<ASTNode> {
+pub(super) fn neither_body() -> Vec<ASTNode> {
     vec![
         ASTNode::ImportStatement {
             path: "unsupported".into(),
