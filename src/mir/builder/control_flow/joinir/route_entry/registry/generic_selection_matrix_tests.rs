@@ -57,6 +57,23 @@ fn assign(name: &str, value: ASTNode) -> ASTNode {
     }
 }
 
+fn field(object: ASTNode, name: &str) -> ASTNode {
+    ASTNode::FieldAccess {
+        object: Box::new(object),
+        field: name.into(),
+        span: Span::unknown(),
+    }
+}
+
+fn method_call(object: ASTNode, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
+    ASTNode::MethodCall {
+        object: Box::new(object),
+        method: method.into(),
+        arguments,
+        span: Span::unknown(),
+    }
+}
+
 fn observe(condition: &ASTNode, body: &[ASTNode]) -> GenericSelectionObservation {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let facts = try_build_loop_facts(condition, body)
@@ -133,6 +150,23 @@ pub(super) fn v1_only_body() -> Vec<ASTNode> {
     ]
 }
 
+pub(super) fn v1_only_effect_body() -> Vec<ASTNode> {
+    vec![
+        ASTNode::Local {
+            variables: vec!["tmp".into()],
+            initial_values: vec![Some(Box::new(integer(0)))],
+            declared_type_names: Vec::new(),
+            span: Span::unknown(),
+        },
+        method_call(
+            field(variable("env"), "console"),
+            "error",
+            vec![variable("i")],
+        ),
+        progression_step(),
+    ]
+}
+
 pub(super) fn both_body() -> Vec<ASTNode> {
     let inner = ASTNode::Loop {
         condition: Box::new(less(variable("j"), integer(3))),
@@ -158,6 +192,14 @@ fn generic_v1_only_fixture_records_source_to_raw_selection() {
     let observation = observe_release(&progression_condition(), &v1_only_body());
     assert_eq!(observation.v0_facts, false);
     assert_eq!(observation.v1_facts, true);
+    assert_eq!(observation.raw_routes, vec![LoopRouteId::GenericLoopV1]);
+}
+
+#[test]
+fn generic_v1_only_effect_fixture_records_v1_ownership() {
+    let observation = observe_release(&progression_condition(), &v1_only_effect_body());
+    assert!(!observation.v0_facts);
+    assert!(observation.v1_facts);
     assert_eq!(observation.raw_routes, vec![LoopRouteId::GenericLoopV1]);
 }
 

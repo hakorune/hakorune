@@ -409,8 +409,8 @@ The first census snapshot is intentionally small and source-anchored:
 | --- | --- | --- | --- | --- |
 | condition | numeric comparison (`i < 3`), additive numeric comparison (`j + m < n`), literal `true` | extended boolean/block-expression conditions | specialized condition families | `Observed-LowerSome` / `UnresolvedStop` |
 | step placement | final numeric assignment; body-derived step | `InBody`, `InContinueIf`, `InBreakElseIf`, `BodyManaged` variants | scanner/state-machine-owned steps | `Observed-LowerSome` / `FactsOnly-Unwired` |
-| body items | local + assignment, nested Loop + assignment | If/Exit/Program/ScopeBox and call/effect bodies | LoopCond/LoopBreak-owned exits | `Observed-LowerSome` / `FactsOnly-Unwired` |
-| value expressions | integer literals, variables, arithmetic | call/field/index/array/map/Match/ThisField/Grouped/Await/QMark arms | unsupported source family gates | `Observed-LowerSome` / `UnresolvedStop` |
+| body items | local + assignment, nested Loop + assignment | local + `env.console.error(i)` + step, If/Exit/Program/ScopeBox and other call/effect bodies | LoopCond/LoopBreak-owned exits | `Observed-LowerSome` / `Observed-ComposerError` / `FactsOnly-Unwired` |
+| value expressions | integer literals, variables, arithmetic | `env.console.error(i)` effect-call row; field/index/array/map/Match/ThisField/Grouped/Await/QMark arms | unsupported source family gates | `Observed-LowerSome` / `Observed-ComposerError` / `UnresolvedStop` |
 | recursion | one nested Loop in the Both fixture | deeper nesting and Loop+If+Return combinations | nested-specialized route ownership | `Observed-LowerSome` / `UnresolvedStop` |
 | stage failures | no natural verifier/lower failure observed | `ReleaseVerifierRejected`, `ReleaseLowerFailed`, and strict shadow failure | — | `UnresolvedStop` |
 
@@ -426,6 +426,53 @@ can accept these recursively, while the current normalizer/lowerer has no
 matching direct arm or can fail before a terminal plan. They are therefore
 `FactsOnly-Unwired` or `UnresolvedStop`, never silently `PreEffectDeclined` or
 `Expected-NonGeneric`.
+
+#### A3 owner inventory
+
+| owner | consumes | emits | non-authority |
+| --- | --- | --- | --- |
+| `facts/extract/v0.rs`, `facts/extract/v1.rs` | AST condition/body, canonical policy | Generic V0/V1 facts or `None`/`Freeze` | no MIR IDs, effects, or winner |
+| `facts/expr_generic_loop.rs`, `facts/stmt_classifier`, `body_check/validation_{v0,v1}.rs` | expression/statement subtrees | acceptance, shape, step disposition | facts acceptance is not lower proof |
+| `registry/predicates.rs`, `selection.rs` | `CanonicalLoopFacts` | raw route list | no V0/V1 winner equivalence |
+| `recipe_tree/generic_loop_composer.rs` + `generic_loop_pipeline` | selected facts + `LoopRouteContext` | `CorePlan::Loop` or `Freeze`, candidate mutation | no retry/policy authority |
+| `verify/verifier/core.rs` and recursive validators | `CorePlan` | verifier `Ok`/`Err` | no source/facts interpretation |
+| `lower/core.rs`, `loop_lowering.rs`, `loop_completion.rs` | verified plan + Builder | MIR mutation, `Some(Void)`/`Err` | no route selection |
+| `execution_witness.rs` + Generic handlers (D3 observer only) | raw schedule, env, facts | attempted prefix, receipt, terminal | no pure policy authority |
+
+The Generic condition predicate and nested RecipeBlock condition predicate are
+separate owners (`facts/expr_generic_loop.rs` versus `facts/expr_bool.rs`). A
+Generic fact accepted by the first may still fail an `ExitAllowed`/`NoExit`
+RecipeBlock precondition; A3 records that as a boundary, never as a silent
+decline.
+
+### D2-A4 — V1-only local-plus-effect row
+
+Change:
+: Observe one natural V1-only body containing `local tmp = 0`, a supported
+  `env.console.error(i)` effect call, and the final numeric step. The local must make
+  V0 reject before selection; the real V1 facts→selector→composer→verifier→
+  lower path is observed on a fresh candidate in all three modes.
+
+Contract:
+: Test-only evidence. Reuse the existing Generic observer and scope boundary;
+  no new route, policy, Recipe, PHI, retry, or production caller.
+
+Done:
+: Raw selection is exactly Generic V1, the stage and first-effect owner are
+  recorded, and a fresh repeat is identical. A composer/lower error after an
+  effect is an explicit `UnresolvedStop` row.
+
+Stop:
+: If facts do not select V1, setup needs synthetic catalog state, or the
+  effect call exposes a facts/lower mismatch, retain the row as unresolved and
+  do not broaden to arbitrary calls or close D2-B.
+
+Observation: all three modes select exactly `GenericLoopV1`, but the current
+composer enters its pipeline and returns `Err` after candidate effects for this
+body. The fresh-candidate trace therefore classifies the row as an effectful
+`ComposerPipelineError`/`UnresolvedStop`, not as a pre-effect decline or a
+successful V1 terminal. This is the intended A3 evidence: facts acceptance and
+lowering support are currently separate boundaries.
 
 #### D0 invariant refinement — lower `None`
 

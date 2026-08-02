@@ -7,7 +7,9 @@
 use super::execution_witness::{
     PostEffectRetryDebtV1, RouteAttemptOutcomeV1, RouteExecutionResultV1, RouteExecutionWitnessV1,
 };
-use super::generic_selection_matrix_tests::{both_body, progression_condition};
+use super::generic_selection_matrix_tests::{
+    both_body, progression_condition, v1_only_effect_body,
+};
 use super::route_id::LoopRouteId;
 use super::{dispatch_entry, select_recipe_first_routes, RouterEnv};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
@@ -98,12 +100,15 @@ fn seeded_builder() -> MirBuilder {
     builder
 }
 
-fn observe_both_fixture(mode: ObserverModeV1) -> GenericStageTraceV1 {
+fn observe_selected_fixture(
+    mode: ObserverModeV1,
+    condition: crate::ast::ASTNode,
+    body: Vec<crate::ast::ASTNode>,
+    function_name: &str,
+) -> GenericStageTraceV1 {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let _config = mode.config();
-    let condition = progression_condition();
-    let body = both_body();
-    let ctx = LoopRouteContext::new(&condition, &body, "generic_stage_observer/0", false, false);
+    let ctx = LoopRouteContext::new(&condition, &body, function_name, false, false);
     let outcome = try_build_outcome(&ctx).expect("Both fixture must build facts");
     let facts = outcome
         .facts
@@ -148,6 +153,24 @@ fn observe_both_fixture(mode: ObserverModeV1) -> GenericStageTraceV1 {
         generic_debts,
         terminal,
     }
+}
+
+fn observe_both_fixture(mode: ObserverModeV1) -> GenericStageTraceV1 {
+    observe_selected_fixture(
+        mode,
+        progression_condition(),
+        both_body(),
+        "generic_stage_observer/0",
+    )
+}
+
+fn observe_v1_effect_fixture(mode: ObserverModeV1) -> GenericStageTraceV1 {
+    observe_selected_fixture(
+        mode,
+        progression_condition(),
+        v1_only_effect_body(),
+        "generic_stage_observer/v1-effect",
+    )
 }
 
 #[test]
@@ -227,5 +250,32 @@ fn generic_both_fixture_records_mode_specific_witness_boundaries() {
                 "no Generic debt receipt was observed for {mode:?}: {trace:?}"
             );
         }
+    }
+}
+
+#[test]
+fn generic_v1_effect_fixture_stops_at_actual_handler_error_without_retry() {
+    for mode in [
+        ObserverModeV1::Release,
+        ObserverModeV1::Strict,
+        ObserverModeV1::StrictPlannerRequired,
+    ] {
+        let trace = observe_v1_effect_fixture(mode);
+        let repeat = observe_v1_effect_fixture(mode);
+        assert_eq!(trace, repeat, "V1 effect witness drift: {mode:?}");
+        assert_eq!(trace.raw_schedule, vec![LoopRouteId::GenericLoopV1]);
+        assert_eq!(
+            trace.attempted,
+            vec![AttemptTraceV1 {
+                route: LoopRouteId::GenericLoopV1,
+                cursor: 0,
+                suffix: Vec::new(),
+            }]
+        );
+        assert!(trace.generic_debts.is_empty());
+        assert!(
+            matches!(trace.terminal, TerminalTraceV1::Error(_)),
+            "effect-call row must stop at the actual handler error: {trace:?}"
+        );
     }
 }
