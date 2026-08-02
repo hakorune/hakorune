@@ -851,3 +851,14 @@ body, or update/step indices other than distinct `0/1`. S0 may not re-match
 AST/Facts, traverse projection, reselect, alter the SimpleWhile variant,
 qualify all routes, or touch composition/lowering/Builder/physical/runtime
 paths or callers. Issuance remains a disconnected pre-effect request only.
+
+### AccumConstLoop logical-product S0 implementation record
+
+The one-shot live transaction now has an Accum-specific direct source lease for
+the raw condition, accumulator update, and step. It reaches the terminality
+disposition only when Accum is the first and sole raw route and the existing
+direct certificate accepts its `0/1` topology. `logical_product` consumes that
+disposition by value and issues the route-specific three-role product; it takes
+no source, Facts, projection, or selection input. Direct and ScopeBox fixtures
+fix issuance and fail-closed behavior. No physical consumer, Builder/CorePlan,
+route cutover, runtime effect, or production caller has been added.

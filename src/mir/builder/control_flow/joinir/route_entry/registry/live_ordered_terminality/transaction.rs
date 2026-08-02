@@ -5,6 +5,7 @@ use super::{
     PreEffectSchedulerTerminalV1,
 };
 use crate::mir::builder::control_flow::joinir::route_entry::registry::direct_simple_while_terminality::certify_direct_simple_while_terminality;
+use crate::mir::builder::control_flow::joinir::route_entry::registry::direct_accum_const_loop_terminality::certify_direct_accum_const_loop_terminality;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::selection::select_recipe_first_routes;
 use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
@@ -26,20 +27,44 @@ fn qualify_raw_order<'src>(
     let Some((&current, tail)) = raw_order.split_first() else {
         return LiveOrderedTerminalityDispositionV1::NoRoute;
     };
-    if current != LoopRouteId::LoopSimpleWhile {
-        return LiveOrderedTerminalityDispositionV1::BlockedEarlier { route: current };
+    match current {
+        LoopRouteId::LoopSimpleWhile => {
+            if certify_direct_simple_while_terminality(facts).is_none() {
+                return LiveOrderedTerminalityDispositionV1::BlockedCurrent { route: current };
+            }
+            LiveOrderedTerminalityDispositionV1::PreEffectSchedulerTerminal(
+                PreEffectSchedulerTerminalV1 {
+                    route: current,
+                    unreached_legacy_tail: tail.into(),
+                    source_lease: super::DirectTerminalSourceLeaseV1::SimpleWhile(
+                        DirectSimpleWhileSourceLeaseV1 {
+                            condition: source.0,
+                            step: &source.1[0],
+                        },
+                    ),
+                },
+            )
+        }
+        LoopRouteId::AccumConstLoop => {
+            if !tail.is_empty() || certify_direct_accum_const_loop_terminality(facts).is_none() {
+                return LiveOrderedTerminalityDispositionV1::BlockedCurrent { route: current };
+            }
+            LiveOrderedTerminalityDispositionV1::PreEffectSchedulerTerminal(
+                PreEffectSchedulerTerminalV1 {
+                    route: current,
+                    unreached_legacy_tail: Box::default(),
+                    source_lease: super::DirectTerminalSourceLeaseV1::AccumConstLoop(
+                        super::DirectAccumConstLoopSourceLeaseV1 {
+                            condition: source.0,
+                            acc_update: &source.1[0],
+                            step: &source.1[1],
+                        },
+                    ),
+                },
+            )
+        }
+        _ => LiveOrderedTerminalityDispositionV1::BlockedEarlier { route: current },
     }
-    if certify_direct_simple_while_terminality(facts).is_none() {
-        return LiveOrderedTerminalityDispositionV1::BlockedCurrent { route: current };
-    }
-    LiveOrderedTerminalityDispositionV1::PreEffectSchedulerTerminal(PreEffectSchedulerTerminalV1 {
-        route: current,
-        unreached_legacy_tail: tail.into(),
-        source_lease: DirectSimpleWhileSourceLeaseV1 {
-            condition: source.0,
-            step: &source.1[0],
-        },
-    })
 }
 
 #[cfg(test)]
@@ -91,6 +116,41 @@ mod tests {
         (condition, body)
     }
 
+    fn accum_fixture(scope_boxed: bool) -> (ASTNode, Vec<ASTNode>) {
+        let condition = ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(variable("i")),
+            right: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(3),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let increment = |name: &str, value| ASTNode::Assignment {
+            target: Box::new(variable(name)),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(variable(name)),
+                right: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(value),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let statements = vec![increment("sum", 1), increment("i", 1)];
+        let body = if scope_boxed {
+            vec![ASTNode::ScopeBox {
+                body: statements,
+                span: Span::unknown(),
+            }]
+        } else {
+            statements
+        };
+        (condition, body)
+    }
+
     #[test]
     fn actual_direct_simple_while_retains_generic_v0_tail() {
         let (condition, body) = fixture(false);
@@ -115,6 +175,34 @@ mod tests {
             qualify_live_loop_facts_v1(live),
             LiveOrderedTerminalityDispositionV1::BlockedCurrent {
                 route: LoopRouteId::LoopSimpleWhile
+            }
+        ));
+    }
+
+    #[test]
+    fn actual_direct_accum_is_singleton_terminal() {
+        let (condition, body) = accum_fixture(false);
+        let live = try_build_live_loop_facts(&condition, &body)
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            qualify_live_loop_facts_v1(live),
+            LiveOrderedTerminalityDispositionV1::PreEffectSchedulerTerminal(proof)
+                if proof.route() == LoopRouteId::AccumConstLoop
+                && proof.unreached_legacy_tail().is_empty()
+        ));
+    }
+
+    #[test]
+    fn scope_box_accum_fails_closed() {
+        let (condition, body) = accum_fixture(true);
+        let live = try_build_live_loop_facts(&condition, &body)
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            qualify_live_loop_facts_v1(live),
+            LiveOrderedTerminalityDispositionV1::BlockedCurrent {
+                route: LoopRouteId::AccumConstLoop
             }
         ));
     }

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-ACCUM-CONST-LOOP-LOGICAL-PRODUCT0-D0 closed; JOINIR-ACCUM-CONST-LOOP-LOGICAL-PRODUCT0-S0 selected."
+status = "JOINIR-ACCUM-CONST-LOOP-LOGICAL-PRODUCT0-S0 closed; JOINIR-ACCUM-CONST-LOOP-PHYSICALIZER0-D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S0 may extend only the private one-shot terminality transaction and logical-product issuer for direct AccumConstLoop. It adds an Accum-specific source lease and terminal/product variant; raw order must be first-route Accum with direct two-statement indices update=0/step=1 and empty ScopeBox lineage. Roles are condition/LoopBinding, raw update/AccumulatorBinding, raw step/LoopBackContinuation. It must not re-match AST or Facts, traverse projection, rerun selection, widen existing SimpleWhile meanings, qualify all routes, invoke composer/lowerer/Builder, issue a caller, or claim lowering/runtime/physical safety."
-current_execution_row = "JOINIR-ACCUM-CONST-LOOP-LOGICAL-PRODUCT0-S0"
-current_execution_summary = "Accum product D0 accepts a narrow route-specific transaction extension. LiveLoopFactsV1 remains the sole non-Clone source/facts/selection consumer; terminality proof owns the direct condition/update/step lease, and logical_product consumes only that proof. ScopeBox, swapped/equal indices, non-two-statement shapes, and earlier routes fail closed."
+current_design_stop = "D0 must audit whether the direct Accum logical product has any safe physicalizer boundary. It must trace every existing route/composer/lowerer mutation and failure arm, verify whether product authority can reach them without reintroducing legacy retry, and fail closed if Builder mutation precedes all remaining failures. It must not implement a consumer, widen the product, change selection/composer/lowerer/Builder/runtime routing, or issue a caller before that decision."
+current_execution_row = "JOINIR-ACCUM-CONST-LOOP-PHYSICALIZER0-D0"
+current_execution_summary = "Accum product S0 extends only the private one-shot terminality transaction: direct singleton Accum retains a condition/update/step lease and issues a three-role logical product. ScopeBox, non-singleton/earlier schedules, and failed direct certificates stay fail-closed; no physical consumer or caller exists."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-ACCUM-CONST-LOOP-LOGICAL-PRODUCT0-S0"
+current_blocker_token = "JOINIR-ACCUM-CONST-LOOP-PHYSICALIZER0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

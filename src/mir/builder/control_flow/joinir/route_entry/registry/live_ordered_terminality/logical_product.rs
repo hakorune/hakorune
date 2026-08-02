@@ -9,6 +9,19 @@ pub(crate) struct VerifiedDirectSimpleWhileLogicalProductV1<'src> {
     roles: [DirectSimpleWhileLogicalRoleV1; 2],
 }
 
+#[derive(Debug)]
+pub(crate) struct VerifiedDirectAccumConstLoopLogicalProductV1<'src> {
+    terminality: PreEffectSchedulerTerminalV1<'src>,
+    roles: [DirectAccumConstLoopLogicalRoleV1; 3],
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DirectAccumConstLoopLogicalRoleV1 {
+    LoopBinding,
+    AccumulatorBinding,
+    LoopBackContinuation,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum DirectSimpleWhileLogicalRoleV1 {
     LoopBinding,
@@ -25,12 +38,44 @@ impl<'src> VerifiedDirectSimpleWhileLogicalProductV1<'src> {
     }
 }
 
+impl<'src> VerifiedDirectAccumConstLoopLogicalProductV1<'src> {
+    pub(crate) fn route(&self) -> LoopRouteId {
+        self.terminality.route()
+    }
+
+    pub(crate) fn unreached_legacy_tail(&self) -> &[LoopRouteId] {
+        self.terminality.unreached_legacy_tail()
+    }
+}
+
+#[derive(Debug)]
+pub(crate) enum VerifiedLoopLogicalProductV1<'src> {
+    DirectSimpleWhile(VerifiedDirectSimpleWhileLogicalProductV1<'src>),
+    DirectAccumConstLoop(VerifiedDirectAccumConstLoopLogicalProductV1<'src>),
+}
+
+impl<'src> VerifiedLoopLogicalProductV1<'src> {
+    pub(crate) fn route(&self) -> LoopRouteId {
+        match self {
+            Self::DirectSimpleWhile(product) => product.route(),
+            Self::DirectAccumConstLoop(product) => product.route(),
+        }
+    }
+
+    pub(crate) fn unreached_legacy_tail(&self) -> &[LoopRouteId] {
+        match self {
+            Self::DirectSimpleWhile(product) => product.unreached_legacy_tail(),
+            Self::DirectAccumConstLoop(product) => product.unreached_legacy_tail(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(crate) enum LoopLogicalProductDispositionV1<'src> {
     NoRoute,
     BlockedCurrent { route: LoopRouteId },
     BlockedEarlier { route: LoopRouteId },
-    Issued(VerifiedDirectSimpleWhileLogicalProductV1<'src>),
+    Issued(VerifiedLoopLogicalProductV1<'src>),
 }
 
 /// The issuer consumes terminality proof and has no source/Facts/selection input.
@@ -46,13 +91,29 @@ pub(crate) fn issue_pre_effect_terminal_v1<'src>(
             LoopLogicalProductDispositionV1::BlockedEarlier { route }
         }
         LiveOrderedTerminalityDispositionV1::PreEffectSchedulerTerminal(terminality) => {
-            LoopLogicalProductDispositionV1::Issued(VerifiedDirectSimpleWhileLogicalProductV1 {
-                terminality,
-                roles: [
-                    DirectSimpleWhileLogicalRoleV1::LoopBinding,
-                    DirectSimpleWhileLogicalRoleV1::LoopBackContinuation,
-                ],
-            })
+            let product = match terminality.route() {
+                LoopRouteId::LoopSimpleWhile => VerifiedLoopLogicalProductV1::DirectSimpleWhile(
+                    VerifiedDirectSimpleWhileLogicalProductV1 {
+                        terminality,
+                        roles: [
+                            DirectSimpleWhileLogicalRoleV1::LoopBinding,
+                            DirectSimpleWhileLogicalRoleV1::LoopBackContinuation,
+                        ],
+                    },
+                ),
+                LoopRouteId::AccumConstLoop => VerifiedLoopLogicalProductV1::DirectAccumConstLoop(
+                    VerifiedDirectAccumConstLoopLogicalProductV1 {
+                        terminality,
+                        roles: [
+                            DirectAccumConstLoopLogicalRoleV1::LoopBinding,
+                            DirectAccumConstLoopLogicalRoleV1::AccumulatorBinding,
+                            DirectAccumConstLoopLogicalRoleV1::LoopBackContinuation,
+                        ],
+                    },
+                ),
+                route => return LoopLogicalProductDispositionV1::BlockedCurrent { route },
+            };
+            LoopLogicalProductDispositionV1::Issued(product)
         }
     }
 }
@@ -101,6 +162,44 @@ mod tests {
             LoopLogicalProductDispositionV1::Issued(product)
                 if product.route() == LoopRouteId::LoopSimpleWhile
                 && product.unreached_legacy_tail() == [LoopRouteId::GenericLoopV0]
+        ));
+    }
+
+    #[test]
+    fn issues_only_actual_direct_accum_with_empty_tail() {
+        let variable = |name: &str| ASTNode::Variable {
+            name: name.into(),
+            span: Span::unknown(),
+        };
+        let integer = |value| ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        };
+        let condition = ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(variable("i")),
+            right: Box::new(integer(3)),
+            span: Span::unknown(),
+        };
+        let increment = |name: &str| ASTNode::Assignment {
+            target: Box::new(variable(name)),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(variable(name)),
+                right: Box::new(integer(1)),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let body = vec![increment("sum"), increment("i")];
+        let live = try_build_live_loop_facts(&condition, &body)
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            issue_pre_effect_terminal_v1(qualify_live_loop_facts_v1(live)),
+            LoopLogicalProductDispositionV1::Issued(product)
+                if product.route() == LoopRouteId::AccumConstLoop
+                && product.unreached_legacy_tail().is_empty()
         ));
     }
 }

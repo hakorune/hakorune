@@ -40,12 +40,25 @@ pub(in crate::mir::builder) fn bind_live_loop_facts_v1<'src>(
 pub(crate) struct PreEffectSchedulerTerminalV1<'src> {
     route: super::route_id::LoopRouteId,
     unreached_legacy_tail: Box<[super::route_id::LoopRouteId]>,
-    source_lease: DirectSimpleWhileSourceLeaseV1<'src>,
+    source_lease: DirectTerminalSourceLeaseV1<'src>,
 }
 
 #[derive(Debug)]
 struct DirectSimpleWhileSourceLeaseV1<'src> {
     condition: &'src ASTNode,
+    step: &'src ASTNode,
+}
+
+#[derive(Debug)]
+enum DirectTerminalSourceLeaseV1<'src> {
+    SimpleWhile(DirectSimpleWhileSourceLeaseV1<'src>),
+    AccumConstLoop(DirectAccumConstLoopSourceLeaseV1<'src>),
+}
+
+#[derive(Debug)]
+struct DirectAccumConstLoopSourceLeaseV1<'src> {
+    condition: &'src ASTNode,
+    acc_update: &'src ASTNode,
     step: &'src ASTNode,
 }
 
