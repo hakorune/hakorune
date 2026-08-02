@@ -6,17 +6,18 @@
 //! Program while sealing one shared forest and projection; no raw source
 //! carrier can manufacture the Complete loan.
 
-use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
+use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
 use super::normal_script_enum_match_demand::{
     seal_enum_match_demands_v1, VerifiedScriptEnumMatchDemandV1,
 };
+use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
+use super::normal_script_semantic_source_core::ScriptSemanticSourceCoreV1;
 use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, EnumVariantAdmissionV1, ResolvedAssignmentTargetV1, ScriptDiagnosticBoundaryV1,
-    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
-    SemanticOwnerForestDraftV1, SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
+    ScriptRootSemanticDispositionV1, SemanticOwnerForestDraftV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
     VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1,
     VerifiedSemanticOwnerProductV1,
 };
@@ -30,24 +31,6 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     demands: ScriptOperationalDemandReceiptPackV1,
 }
 
-/// The stable shared owner products. Family receipts may not add authority here.
-#[derive(Debug)]
-struct ScriptSemanticSourceCoreV1<'source> {
-    source: &'source PreparedNormalDefaultProgramRootV1,
-    forest: VerifiedSemanticOwnerForestV1,
-    projection: VerifiedSourceProjectionV1,
-    runtime_source_indices: Box<[usize]>,
-}
-
-/// Root boundaries which retain their existing operational terminal.
-#[derive(Debug)]
-struct ScriptBoundaryReceiptPackV1 {
-    outbox_materializations: Box<[VerifiedScriptOutboxMaterializationV1]>,
-    static_const_completions: Box<[VerifiedScriptStaticConstCompletionV1]>,
-    using_directives: Box<[VerifiedScriptUsingDirectiveV1]>,
-    existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
-}
-
 /// Receipts which authorize exact structured lowering descendants.
 #[derive(Debug)]
 struct ScriptOperationalDemandReceiptPackV1 {
@@ -56,28 +39,6 @@ struct ScriptOperationalDemandReceiptPackV1 {
     enum_match_demands: Box<[VerifiedScriptEnumMatchDemandV1]>,
     qmark_propagations: Box<[VerifiedScriptQMarkPropagationV1]>,
     match_controls: Box<[VerifiedScriptMatchControlDemandV1]>,
-}
-
-#[derive(Debug)]
-pub(super) struct VerifiedScriptStaticConstCompletionV1 {
-    site: SourceStmtSiteV1,
-}
-
-#[derive(Debug)]
-pub(super) struct VerifiedScriptOutboxMaterializationV1 {
-    site: SourceStmtSiteV1,
-    bindings: Box<[BindingRefV1]>,
-}
-
-#[derive(Debug)]
-pub(super) struct VerifiedScriptUsingDirectiveV1 {
-    site: SourceStmtSiteV1,
-}
-
-#[derive(Debug)]
-pub(super) struct VerifiedScriptExistingDiagnosticBoundaryV1 {
-    site: SourceStmtSiteV1,
-    boundary: ScriptDiagnosticBoundaryV1,
 }
 
 #[derive(Debug)]
@@ -146,13 +107,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             .ok_or_else(|| {
                 "[mir/script-semantic/forest] expected Script root product".to_owned()
             })?;
-        let ASTNode::Program { statements, .. } = source.source_ast() else {
-            return Err("[mir/script-semantic/source-root] expected Program".to_owned());
-        };
-        let mut static_const_completions = Vec::new();
-        let mut outbox_materializations = Vec::new();
-        let mut using_directives = Vec::new();
-        let mut existing_diagnostic_boundaries = Vec::new();
+        let boundaries = ScriptBoundaryReceiptPackV1::seal(source, product, window)?;
         let record_literal_demands = product
             .record_literal_demands()
             .map(|(site, explicit_field_count)| {
@@ -337,133 +292,17 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 })
             })
             .collect::<Result<Vec<_>, String>>()?;
-        let mut runtime_source_indices = Vec::new();
-        for entry in window.entries() {
-            let source_statement_index = program_statement_index(&entry.site())?;
-            let Some(statement) = statements.get(source_statement_index) else {
-                return Err(format!(
-                    "[mir/script-semantic/window-coverage] source_statement_index={source_statement_index}"
-                ));
-            };
-            match entry.semantic() {
-                ScriptRootSemanticDispositionV1::Resolved(
-                    crate::mir::resolved_semantics::ScriptRootResolvedDemandV1::LexicalCore,
-                )
-                    if matches!(statement, ASTNode::Outbox { .. }) =>
-                {
-                    let ASTNode::Outbox { variables, .. } = statement else {
-                        unreachable!("Outbox match stays exact");
-                    };
-                    let bindings = variables
-                        .iter()
-                        .enumerate()
-                        .map(|(ordinal, _)| {
-                            product
-                                .declaration_binding(&SourceBindingSiteV1::Outbox {
-                                    statement: entry.site().clone(),
-                                    ordinal: ordinal as u32,
-                                })
-                                .ok_or_else(|| {
-                                    "[mir/script-semantic/outbox-binding] missing exact binding"
-                                        .to_owned()
-                                })
-                        })
-                        .collect::<Result<Box<[_]>, _>>()?;
-                    outbox_materializations.push(VerifiedScriptOutboxMaterializationV1 {
-                        site: entry.site().clone(),
-                        bindings,
-                    });
-                }
-                ScriptRootSemanticDispositionV1::Transferred(
-                    ScriptTransferredBoundaryV1::ProgramStaticMetadata,
-                ) if matches!(statement, ASTNode::StaticConstTable { .. }) => {
-                    static_const_completions.push(VerifiedScriptStaticConstCompletionV1 {
-                        site: entry.site().clone(),
-                    });
-                }
-                ScriptRootSemanticDispositionV1::Transferred(
-                    ScriptTransferredBoundaryV1::ProgramEnumDeclaration,
-                ) if matches!(statement, ASTNode::EnumDeclaration { .. }) => {}
-                ScriptRootSemanticDispositionV1::Transferred(
-                    ScriptTransferredBoundaryV1::ProgramRecordDeclaration,
-                ) if matches!(
-                    statement,
-                    ASTNode::BoxDeclaration {
-                        is_record: true,
-                        is_static: false,
-                        is_sync: false,
-                        ..
-                    }
-                ) => {}
-                ScriptRootSemanticDispositionV1::Transparent(
-                    crate::mir::resolved_semantics::ScriptTransparentBoundaryV1::UsingDirective,
-                ) if matches!(statement, ASTNode::UsingStatement { .. }) => {
-                    using_directives.push(VerifiedScriptUsingDirectiveV1 {
-                        site: entry.site().clone(),
-                    });
-                }
-                ScriptRootSemanticDispositionV1::Diagnostic(
-                    ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
-                ) if super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(statement) => {
-                    existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
-                        site: entry.site().clone(),
-                        boundary: ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
-                    });
-                }
-                ScriptRootSemanticDispositionV1::Diagnostic(
-                    ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
-                ) if matches!(statement, ASTNode::Me { .. }) => {
-                    existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
-                        site: entry.site().clone(),
-                        boundary: ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
-                    });
-                }
-                ScriptRootSemanticDispositionV1::Diagnostic(
-                    ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
-                ) if matches!(statement, ASTNode::This { .. }) => {
-                    existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
-                        site: entry.site().clone(),
-                        boundary: ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
-                    });
-                }
-                ScriptRootSemanticDispositionV1::Diagnostic(
-                    ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
-                ) if matches!(statement, ASTNode::ContextScope { .. }) => {
-                    existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
-                        site: entry.site().clone(),
-                        boundary: ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
-                    });
-                }
-                ScriptRootSemanticDispositionV1::Resolved(_)
-                | ScriptRootSemanticDispositionV1::Deferred(_)
-                | ScriptRootSemanticDispositionV1::Transferred(
-                    ScriptTransferredBoundaryV1::TopLevelCallable,
-                ) => {}
-                _ => return Err("[mir/script-semantic/window-boundary] source mismatch".to_owned()),
-            }
-            if entry.runtime() == ScriptRootRuntimeDispositionV1::RetainedExistingTerminal {
-                runtime_source_indices.push(source_statement_index);
-            }
-        }
-        let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
-            source.source_ast(),
-            &forest,
-            SemanticOwnerRootProfileV1::Script,
-        )
-        .map_err(|error| format!("[mir/script-semantic/projection] {error}"))?;
+        let core = ScriptSemanticSourceCoreV1::seal(
+            source,
+            forest,
+            boundaries
+                .runtime_source_indices()
+                .to_vec()
+                .into_boxed_slice(),
+        )?;
         Ok(Self {
-            core: ScriptSemanticSourceCoreV1 {
-                source,
-                forest,
-                projection,
-                runtime_source_indices: runtime_source_indices.into_boxed_slice(),
-            },
-            boundaries: ScriptBoundaryReceiptPackV1 {
-                outbox_materializations: outbox_materializations.into_boxed_slice(),
-                static_const_completions: static_const_completions.into_boxed_slice(),
-                using_directives: using_directives.into_boxed_slice(),
-                existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
-            },
+            core,
+            boundaries,
             demands: ScriptOperationalDemandReceiptPackV1 {
                 record_literal_demands: record_literal_demands.into_boxed_slice(),
                 enum_variant_demands: enum_variant_demands.into_boxed_slice(),
@@ -475,19 +314,19 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     pub(super) fn source(&self) -> &PreparedNormalDefaultProgramRootV1 {
-        self.core.source
+        self.core.source()
     }
 
     pub(super) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
-        &self.core.forest
+        self.core.forest()
     }
 
     pub(super) fn projection(&self) -> &VerifiedSourceProjectionV1 {
-        &self.core.projection
+        self.core.projection()
     }
 
     pub(super) fn runtime_source_indices(&self) -> &[usize] {
-        &self.core.runtime_source_indices
+        self.core.runtime_source_indices()
     }
 
     #[cfg(test)]
@@ -526,7 +365,10 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
 
     #[cfg(test)]
     pub(super) fn enum_match_demands(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
-        self.demands.enum_match_demands.iter().map(|receipt| &receipt.site)
+        self.demands
+            .enum_match_demands
+            .iter()
+            .map(|receipt| &receipt.site)
     }
 
     #[cfg(test)]
@@ -534,7 +376,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         &self,
     ) -> impl Iterator<Item = (&SourceStmtSiteV1, &[BindingRefV1])> {
         self.boundaries
-            .outbox_materializations
+            .outbox_materializations()
             .iter()
             .map(|receipt| (&receipt.site, receipt.bindings.as_ref()))
     }
@@ -542,7 +384,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     #[cfg(test)]
     pub(super) fn static_const_completion_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.boundaries
-            .static_const_completions
+            .static_const_completions()
             .iter()
             .map(|receipt| &receipt.site)
     }
@@ -550,7 +392,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     #[cfg(test)]
     pub(super) fn existing_diagnostic_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.boundaries
-            .existing_diagnostic_boundaries
+            .existing_diagnostic_boundaries()
             .iter()
             .map(|receipt| &receipt.site)
     }
@@ -558,7 +400,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     #[cfg(test)]
     pub(super) fn using_directive_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.boundaries
-            .using_directives
+            .using_directives()
             .iter()
             .map(|receipt| &receipt.site)
     }
@@ -566,7 +408,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     #[cfg(test)]
     pub(super) fn receiver_absent_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.boundaries
-            .existing_diagnostic_boundaries
+            .existing_diagnostic_boundaries()
             .iter()
             .filter(|receipt| {
                 receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent
@@ -577,7 +419,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     #[cfg(test)]
     pub(super) fn bare_this_unsupported_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.boundaries
-            .existing_diagnostic_boundaries
+            .existing_diagnostic_boundaries()
             .iter()
             .filter(|receipt| {
                 receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported
@@ -586,10 +428,10 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     pub(super) fn local_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
-        let [root] = self.core.forest.roots() else {
+        let [root] = self.core.forest().roots() else {
             return None;
         };
-        let owner = self.core.forest.semantic_owner(*root)?;
+        let owner = self.core.forest().semantic_owner(*root)?;
         owner.declaration_binding(&SourceBindingSiteV1::Local {
             statement: SourceStmtSiteV1::from_node(site.clone()),
             ordinal: 0,
@@ -597,10 +439,10 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     pub(super) fn variable_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
-        let [root] = self.core.forest.roots() else {
+        let [root] = self.core.forest().roots() else {
             return None;
         };
-        let owner = self.core.forest.semantic_owner(*root)?;
+        let owner = self.core.forest().semantic_owner(*root)?;
         owner.variable_refs().find_map(|(candidate, reference)| {
             if candidate.node() != site {
                 return None;
@@ -615,10 +457,10 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     pub(super) fn lowering_state(&self) -> Result<ScriptSemanticLoweringState, String> {
-        let [root] = self.core.forest.roots() else {
+        let [root] = self.core.forest().roots() else {
             return Err("[freeze:contract][script-record/root-cardinality]".to_owned());
         };
-        let Some(owner) = self.core.forest.semantic_owner(*root) else {
+        let Some(owner) = self.core.forest().semantic_owner(*root) else {
             return Err("[freeze:contract][script-record/root-owner]".to_owned());
         };
         let locals = owner.declaration_sites().filter_map(|site| match site {
@@ -641,7 +483,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         });
         let outboxes = self
             .boundaries
-            .outbox_materializations
+            .outbox_materializations()
             .iter()
             .map(|receipt| {
                 (
@@ -669,23 +511,23 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             });
         let lambda_captures = self
             .core
-            .forest
+            .forest()
             .semantic_owners()
             .filter_map(|(child, _)| {
-                let parent = self.core.forest.parent(child)?;
+                let parent = self.core.forest().parent(child)?;
                 Some((parent.definition_site().site().node().clone(), child))
             })
             .map(|(site, child)| {
                 let captures = self
                     .core
-                    .forest
+                    .forest()
                     .ordered_capture_demands(child)
                     .iter()
                     .map(|demand| {
                         let binding = demand.source_binding();
                         let name = self
                             .core
-                            .forest
+                            .forest()
                             .semantic_owner(binding.owner())
                             .and_then(|owner| owner.binding(binding))
                             .ok_or_else(|| {
@@ -761,11 +603,11 @@ mod call_retention_tests;
 #[path = "normal_script_enum_declaration_tests.rs"]
 mod enum_declaration_tests;
 #[cfg(test)]
-#[path = "normal_script_enum_variant_tests.rs"]
-mod enum_variant_tests;
-#[cfg(test)]
 #[path = "normal_script_enum_match_tests.rs"]
 mod enum_match_tests;
+#[cfg(test)]
+#[path = "normal_script_enum_variant_tests.rs"]
+mod enum_variant_tests;
 #[cfg(test)]
 #[path = "normal_script_index_write_tests.rs"]
 mod index_write_tests;

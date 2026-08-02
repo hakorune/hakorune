@@ -249,8 +249,10 @@ pub(in crate::mir) use module_invocation_session::{
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
 mod normal_cataloged_box_method_admission; // Selected normal cataloged-child identity
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
+mod normal_script_boundary_receipt_pack; // Script retained boundary receipts
 mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
 mod normal_script_semantic_source; // Producer-backed lexical Script source
+mod normal_script_semantic_source_core; // Shared Script source/forest/projection core
 mod program_root_lowering; // Shared typed/generic Program root owner
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
     CompletedNormalDefaultRootCatalogLifecycleV1, NormalDefaultRootCatalogLifecycleErrorV1,

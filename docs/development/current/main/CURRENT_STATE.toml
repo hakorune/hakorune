@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-NEXT-NAMED-FAMILY4-D0 closed as NoSafeSlice: every remaining clean root residual belongs to an explicit R4, excluded, or ownerless boundary."
+status = "SCRIPT-SEMANTIC-SOURCE-PACK-EXTRACTION1-S0 active: extract the stable Script source core and retained-boundary receipts without changing Complete closure or lowering."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "Do not merge Return, Throw, QMark, TryCatch, Match/CorePlan, and DraftSeal into one physical exit owner. Share only cleanup policy and protected-region transient state; keep one physical consumer per sealed operation."
-current_execution_row = "MIRBUILDER-NEXT-NAMED-FAMILY4-D0"
-current_execution_summary = "Do not open I0: clean residuals map to R4/NoSafeSlice owners, while Arrow lacks a lowering owner and ThisField/MeField reopen CallObject. Resume after source ownership changes or EnumMatch WIP lands."
+current_design_stop = "This S0 is behavior-neutral: retain VerifiedScriptSemanticSourceV1 as the sole live facade and do not activate a new Script family, resolver, route, or lowering owner."
+current_execution_row = "SCRIPT-SEMANTIC-SOURCE-PACK-EXTRACTION1-S0"
+current_execution_summary = "Extract core source/forest/projection ownership and one retained-boundary receipt pack from the 795-line facade. Delete the inline boundary validation loop; selected, Deferred, raw, and reference routes remain unchanged."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

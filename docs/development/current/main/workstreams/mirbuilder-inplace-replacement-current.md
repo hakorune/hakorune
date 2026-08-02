@@ -458,11 +458,11 @@ closed — CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0 (NoSafeSlice)
   suffix contract, Throw lacks a located child role, and TryCatch needs a
   first-catch-only protected-region contract. All retain their operation owner.
 
-closed — MIRBUILDER-NEXT-NAMED-FAMILY4-D0 (NoSafeSlice)
-  -> every clean named root residual belongs to an explicit R4/excluded owner.
-  `Arrow` has no named MIR lowering owner; `ThisField` and `MeField` reopen the
-  all-route CallObject portal. Do not open I0 before source ownership changes
-  or the independent EnumMatch WIP lands cleanly.
+current — SCRIPT-SEMANTIC-SOURCE-PACK-EXTRACTION1-S0
+  -> behavior-neutral extraction only: `VerifiedScriptSemanticSourceV1` stays
+  the sole live facade while stable source/forest/projection ownership and the
+  retained boundary loop move into private packs. No Complete family, resolver,
+  route, lowering owner, raw/reference path, or shared guard changes.
 
 ### Refactor Series queue
 
@@ -478,9 +478,9 @@ inside/outside TryCatch, nested TryCatch failure, ordinary raw Return, and an
 injected inconsistent active defer state. QMark, Throw, Match/CorePlan,
 DraftSeal, Script activation, Loop, and CallObject are outside rows 1–3.
 
-Parked cleanup: `SCRIPT-SEMANTIC-RECEIPT-LIFECYCLE-CONSOLIDATION1-S0` may
-resume only after the current EnumMatch source WIP is clean. It remains
-behavior-neutral and must not grow the Script Complete surface.
+This S0 replaces the parked receipt consolidation: it must delete the facade's
+inline retained-boundary loop in the same commit, keep every source/check file
+below 800 lines, and must not grow the Script Complete surface.
 
 ## Production invariants
 
