@@ -322,11 +322,13 @@ def verify_route_matrix_g0(
     matrix_path = root / "src/mir/builder/module_invocation_route_matrix.rs"
     raw_port_path = root / "src/mir/builder/recursive_child_lowering.rs"
     raw_tests_path = root / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
+    raw_header_tests_path = root / "src/mir/builder/recursive_child_lowering_rawport_header_tests.rs"
     proof = proof_path.read_text()
     policy = policy_path.read_text()
     matrix = matrix_path.read_text()
     raw_port = raw_port_path.read_text()
     raw_tests = raw_tests_path.read_text()
+    raw_header_tests = raw_header_tests_path.read_text()
 
     for path, text in (
         (proof_path, proof),
@@ -334,6 +336,7 @@ def verify_route_matrix_g0(
         (matrix_path, matrix),
         (raw_port_path, raw_port),
         (raw_tests_path, raw_tests),
+        (raw_header_tests_path, raw_header_tests),
     ):
         if len(text.splitlines()) >= 800:
             raise AssertionError(f"ROUTEINV-P0e source/proof must remain below 800 lines: {path}")

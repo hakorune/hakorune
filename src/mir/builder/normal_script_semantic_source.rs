@@ -10,7 +10,6 @@ use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
 use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDemandReceiptPackV1;
 #[cfg(test)]
 use super::normal_script_operational_demand_receipt_pack::ScriptQMarkPropagationTargetV1;
-use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
 use super::normal_script_semantic_source_core::ScriptSemanticSourceCoreV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
@@ -207,8 +206,8 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         self.lowering_projection.variable_binding_at(site)
     }
 
-    pub(super) fn lowering_state(&self) -> Result<ScriptSemanticLoweringState, String> {
-        self.lowering_projection.lowering_state()
+    pub(super) fn into_lowering_projection(self) -> VerifiedScriptLoweringProjectionV1 {
+        self.lowering_projection
     }
 }
 

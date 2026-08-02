@@ -8,7 +8,6 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
 use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDemandReceiptPackV1;
-use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::normal_script_semantic_source_core::ScriptSemanticSourceCoreV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, EnumVariantAdmissionV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
@@ -193,26 +192,57 @@ impl VerifiedScriptLoweringProjectionV1 {
             .find_map(|(candidate, binding)| (candidate.node() == site).then_some(*binding))
     }
 
-    /// Creates fresh physical state for one lowering execution without reading
-    /// semantic forest data or reconstructing source paths.
-    pub(super) fn lowering_state(&self) -> Result<ScriptSemanticLoweringState, String> {
-        let mut state = ScriptSemanticLoweringState::from_facts(
-            self.locals.iter().cloned(),
-            self.nowaits.iter().cloned(),
-            self.outboxes.iter().cloned(),
-            self.variables.iter().cloned(),
-            self.assignments.iter().cloned(),
-        );
-        state.install_lambda_captures(self.lambda_captures.iter().cloned())?;
-        state.install_record_literal_demands(self.record_literal_demands.iter().cloned())?;
-        state.install_enum_variant_demands(self.enum_variant_demands.iter().cloned())?;
-        state.install_enum_match_scrutinee_receipts(
-            self.enum_match_scrutinee_receipts.iter().cloned(),
-        )?;
-        state.install_qmark_propagation_receipts(
-            self.qmark_propagation_receipts.iter().cloned(),
-        )?;
-        Ok(state)
+    pub(super) fn assignment_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
+        self.assignments
+            .iter()
+            .find_map(|(candidate, binding)| (candidate.node() == site).then_some(*binding))
+    }
+
+    pub(super) fn nowait_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
+        self.nowaits
+            .iter()
+            .find_map(|(candidate, binding)| (candidate == site).then_some(*binding))
+    }
+
+    pub(super) fn outbox_bindings_at(&self, site: &SourceNodeSiteV1) -> Option<&[BindingRefV1]> {
+        self.outboxes
+            .iter()
+            .find_map(|(candidate, bindings)| (candidate == site).then_some(bindings.as_ref()))
+    }
+
+    pub(super) fn lambda_captures_at(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Option<&[(Box<str>, BindingRefV1)]> {
+        self.lambda_captures
+            .iter()
+            .find_map(|(candidate, captures)| (candidate == site).then_some(captures.as_ref()))
+    }
+
+    pub(super) fn record_literal_explicit_field_count_at(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Option<u32> {
+        self.record_literal_demands
+            .iter()
+            .find_map(|(candidate, count)| (candidate == site).then_some(*count))
+    }
+
+    pub(super) fn enum_variant_demand_at(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Option<&EnumVariantAdmissionV1> {
+        self.enum_variant_demands
+            .iter()
+            .find_map(|(candidate, demand)| (candidate == site).then_some(demand))
+    }
+
+    pub(super) fn has_enum_match_scrutinee_receipt_at(&self, site: &SourceNodeSiteV1) -> bool {
+        self.enum_match_scrutinee_receipts.contains(site)
+    }
+
+    pub(super) fn has_qmark_propagation_receipt_at(&self, site: &SourceNodeSiteV1) -> bool {
+        self.qmark_propagation_receipts.contains(site)
     }
 }
 

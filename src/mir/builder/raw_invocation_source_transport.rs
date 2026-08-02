@@ -20,6 +20,7 @@ use crate::mir::ValueId;
 use super::callable_declaration_catalog::SelectedTopLevelFunctionKeyV1;
 use super::normal_callable_semantic_source::VerifiedNormalCallableSemanticLoanV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
+use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
@@ -209,7 +210,7 @@ impl RawInvocationChildPortV1<'_, '_> {
 
     pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(
         &mut self,
-        source: &VerifiedScriptSemanticSourceV1<'_>,
+        source: VerifiedScriptSemanticSourceV1<'_>,
         execute: impl FnOnce(&mut Self) -> R,
     ) -> Result<R, String> {
         let [root] = source.forest().roots() else {
@@ -228,7 +229,9 @@ impl RawInvocationChildPortV1<'_, '_> {
         {
             return Err("[freeze:contract][mir/script-semantic/source-proof]".to_owned());
         }
-        let state = Rc::new(RefCell::new(source.lowering_state()?));
+        let state = Rc::new(RefCell::new(ScriptSemanticLoweringState::new(
+            source.into_lowering_projection(),
+        )));
         let parent = std::mem::replace(&mut self.semantic_ledger, Some(state));
         let result = self.with_source_transport_v1(
             RawInvocationSourceTransportV1::script_semantic_root(()),

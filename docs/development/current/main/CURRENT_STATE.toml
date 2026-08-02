@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0 active: consume the verified Script lowering projection once without changing source transport."
+status = "SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3 active: collapse witness issue/new into one atomic Script semantic decision."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "Move only the already co-sealed lowering projection into the one selected lowering loan. Do not change Complete admission, source transport, raw/reference behavior, or user diagnostic timing."
-current_execution_row = "SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0"
-current_execution_summary = "Consume Complete source once, move the verified projection into the request ledger, and retire read-only receipt maps from mutable Script lowering state."
+current_design_stop = "Keep operational work-plan classification and invariant re-projection separate while making semantic witness issuance and owner creation one atomic selected-Script decision."
+current_execution_row = "SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3"
+current_execution_summary = "Replace the split witness issue/new handoff with one atomic semantic decision; do not widen Complete or change Deferred/raw/reference behavior."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

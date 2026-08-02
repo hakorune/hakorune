@@ -77,7 +77,7 @@ pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
 }
 
 pub(super) enum NormalScriptRootLoweringMode<'source> {
-    Complete(&'source VerifiedScriptSemanticSourceV1<'source>),
+    Complete(VerifiedScriptSemanticSourceV1<'source>),
     Deferred,
 }
 

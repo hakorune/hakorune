@@ -282,7 +282,7 @@ impl ModuleBuilderInvocationSessionV1 {
                         brand,
                         declaration_facts,
                         callable_mode,
-                        match script_source.as_ref() {
+                        match script_source {
                             Some(source) => NormalScriptRootLoweringMode::Complete(source),
                             None => NormalScriptRootLoweringMode::Deferred,
                         },
