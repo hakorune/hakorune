@@ -458,29 +458,35 @@ closed — CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0 (NoSafeSlice)
   suffix contract, Throw lacks a located child role, and TryCatch needs a
   first-catch-only protected-region contract. All retain their operation owner.
 
-current — SCRIPT-SEMANTIC-SOURCE-PACK-EXTRACTION1-S0
-  -> behavior-neutral extraction only: `VerifiedScriptSemanticSourceV1` stays
-  the sole live facade while stable source/forest/projection ownership and the
-  retained boundary loop move into private packs. No Complete family, resolver,
-  route, lowering owner, raw/reference path, or shared guard changes.
+closed — SCRIPT-SEMANTIC-SOURCE-PACK-EXTRACTION1-S0
+  -> `VerifiedScriptSemanticSourceV1` remains the sole live facade; stable
+  source/forest/projection ownership and retained boundaries now live in two
+  private packs. The facade fell from 795 to 637 lines without surface change.
+
+closed — MIRBUILDER-CALLABLE-LAMBDA-GUARD-SCOPE0-P0
+  -> the stale global text-order assertion is replaced by scoped callable-port
+  and Lambda-dispatch proofs. Production and capture order are unchanged.
+
+current — SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1
+  -> extract Record/Enum/QMark/Match receipt sealing behind one private live
+  pack and delete the standalone EnumMatch seal module; no surface widening.
 
 ### Refactor Series queue
 
 | Order | Row | Bounded responsibility |
 |---:|---|---|
-| 1 | `CONTROL-RESULT-CLEANUP-POLICY-SNAPSHOT0-S0` | Capture one immutable cleanup Return/Throw policy at the owning ingress, loan it to prepared TryCatch, and delete lower-side environment reads. Stop if this needs ambient Builder state or a default env-read fallback. |
-| 2 | `RAW-PROTECTED-REGION-TRANSIENT-STATE0-S1` | Replace the seven loose return-defer/cleanup fields with one total typed state across Function state reset/close, function transaction, cleanup admission, TryCatch transaction, and Return completion. Preserve success restoration and failure partial-state exactly. |
-| 3 | `RAW-RETURN-DEFER-INVARIANT0-R0` | Make active defer constructible only with slot and target; replace only active-with-missing-target direct Return with a contract rejection. Ordinary non-deferred Return remains unchanged. |
-| 4 | `CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0` | Reassess Script TryCatch/Throw/nonfinal Return as separate logical operations after policy/state cleanup. No Complete activation is pre-authorized. |
+| 0 | `MIRBUILDER-CALLABLE-LAMBDA-GUARD-SCOPE0-P0` | Replace the false cross-function string-position test with scoped callable-port and Lambda-dispatch assertions; shared guard stays below 800 lines. |
+| 1 | `SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1` | Move Record/Enum/QMark/Match receipt sealing into one private pack and delete the standalone EnumMatch seal module. No acceptance or dispatcher change. |
+| 2 | `SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2` | Co-seal the immutable lowering projection from core and receipt packs; delete the late forest/path reconstruction and its `expect` edges. |
+| 3 | `SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0` | Consume Complete source once, move the verified projection into the request ledger, and remove read-only receipt maps/install APIs from mutable lowering state. Split the touched 808-line raw-port test file. |
+| 4 | `SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3` | Collapse witness `issue -> new` into one atomic semantic decision; retain operational classification and invariant re-projection as separate owners. |
+| 5 | `SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4` | Extract Script-root demand dispatch from shared statement traversal without creating a second recursive resolver. |
+| 6 | `SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2` | Replace the ordinal/admission/transfer tuple with one typed selected-Script occurrence; first shrink the 786-line work-plan owner in the same live series. |
 
-Focused counterexamples are QMark inside TryCatch+cleanup, `return match`
-inside/outside TryCatch, nested TryCatch failure, ordinary raw Return, and an
-injected inconsistent active defer state. QMark, Throw, Match/CorePlan,
-DraftSeal, Script activation, Loop, and CallObject are outside rows 1–3.
-
-This S0 replaces the parked receipt consolidation: it must delete the facade's
-inline retained-boundary loop in the same commit, keep every source/check file
-below 800 lines, and must not grow the Script Complete surface.
+Rows 1–3 are one behavior-neutral BoxShape series. Rows 4–6 are a later
+admission-authority series and are not pre-authorized to widen Complete.
+Shadow source-deferral/invariant separation and the fixture-identity ratchet
+are already live; do not reopen them. No docs-only select/close commits.
 
 ## Production invariants
 

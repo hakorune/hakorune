@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SCRIPT-SEMANTIC-SOURCE-PACK-EXTRACTION1-S0 active: extract the stable Script source core and retained-boundary receipts without changing Complete closure or lowering."
+status = "SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1 active: extract Record/Enum/QMark/Match receipts behind one live pack without changing admission or lowering."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "This S0 is behavior-neutral: retain VerifiedScriptSemanticSourceV1 as the sole live facade and do not activate a new Script family, resolver, route, or lowering owner."
-current_execution_row = "SCRIPT-SEMANTIC-SOURCE-PACK-EXTRACTION1-S0"
-current_execution_summary = "Extract core source/forest/projection ownership and one retained-boundary receipt pack from the 795-line facade. Delete the inline boundary validation loop; selected, Deferred, raw, and reference routes remain unchanged."
+current_design_stop = "Extraction only: keep one VerifiedScriptSemanticSourceV1 constructor, one operational receipt pack, unchanged Complete/Deferred decisions, and unchanged raw dispatcher/lowering owners."
+current_execution_row = "SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1"
+current_execution_summary = "Move RecordLiteral, EnumVariant, EnumMatch, QMark, and Match receipt sealing into one private pack; absorb and delete the standalone EnumMatch seal module. No AST-family activation, resolver change, retry, or raw/reference delta."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
