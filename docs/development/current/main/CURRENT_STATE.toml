@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-CHAR-MAP-PREFLIGHT0-D0 accepted and S0 closed; JOINIR-LOOP-CHAR-MAP-TERMINALITY0-D0 selected."
+status = "JOINIR-LOOP-CHAR-MAP-TERMINALITY0-D0 is NoSafeSlice; JOINIR-NEXT-ROUTE-SELECTION0-D5 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 must audit LoopCharMap terminality. The route is planner-required-only and may Ok(None) outside that mode, so direct topology/preflight cannot imply scheduler terminality. Any S0 must bind the exact environment/contract/raw-tail boundary or close NoSafe; product, physical safety, caller, and runtime remain separate."
-current_execution_row = "JOINIR-LOOP-CHAR-MAP-TERMINALITY0-D0"
-current_execution_summary = "LoopCharMap preflight S0 fixes raw-front direct, ScopeBox, and topology-absent typed rejection outcomes in a sibling test module."
+current_design_stop = "D5 must inventory the remaining registry routes and select exactly one next unlanded bounded D0. It must preserve the separate NoSafe outcomes for routes whose execution can Ok(None) without environment/contract evidence."
+current_execution_row = "JOINIR-NEXT-ROUTE-SELECTION0-D5"
+current_execution_summary = "LoopCharMap terminality is NoSafe because planner-required-only route_standard may Ok(None) outside that mode; source/facts cannot bind RouterEnv or recipe contract."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-CHAR-MAP-TERMINALITY0-D0"
+current_blocker_token = "JOINIR-NEXT-ROUTE-SELECTION0-D5"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

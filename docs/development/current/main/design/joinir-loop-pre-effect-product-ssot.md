@@ -1164,3 +1164,18 @@ terminality, product, physicalizer, caller, or runtime behavior changed.
 The next card is terminality D0. Planner-required-only `Ok(None)` behavior
 must be audited from route environment/contract evidence, never inferred from
 topology or preflight.
+
+### LoopCharMap terminality D0 decision
+
+Decision: NoSafeSlice. `route_loop_char_map` is planner-required-only, so
+`route_standard` normally returns `Ok(None)` when that environment flag is off
+and the registry continues its raw tail. Existing live terminality binds only
+source/Facts and recomputes selection; it does not bind `RouterEnv` or the
+dynamic recipe-contract disposition. Direct topology and raw-front preflight
+therefore cannot prove scheduler terminality.
+
+Contract-accepted compose/lower success does not close this gap, and its
+Builder-bound lowering can fail after effects. No terminality certificate,
+product, physicalizer, caller, or runtime behavior changed. A future revival
+needs an execution-scoped environment-and-contract witness upstream of Builder
+effects. Select the next unlanded route through fresh D5 inventory.
