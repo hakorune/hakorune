@@ -6,6 +6,7 @@ use super::{
 };
 use crate::mir::builder::control_flow::joinir::route_entry::registry::direct_simple_while_terminality::certify_direct_simple_while_terminality;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::direct_accum_const_loop_terminality::certify_direct_accum_const_loop_terminality;
+use crate::mir::builder::control_flow::joinir::route_entry::registry::direct_loop_break_terminality::certify_direct_loop_break_terminality;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::selection::select_recipe_first_routes;
 use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
@@ -58,6 +59,28 @@ fn qualify_raw_order<'src>(
                             condition: source.0,
                             acc_update: &source.1[0],
                             step: &source.1[1],
+                        },
+                    ),
+                },
+            )
+        }
+        LoopRouteId::LoopBreakRecipe => {
+            if facts.loop_break().is_none() {
+                return LiveOrderedTerminalityDispositionV1::BlockedEarlier { route: current };
+            }
+            if !tail.is_empty() || certify_direct_loop_break_terminality(facts).is_none() {
+                return LiveOrderedTerminalityDispositionV1::BlockedCurrent { route: current };
+            }
+            LiveOrderedTerminalityDispositionV1::PreEffectSchedulerTerminal(
+                PreEffectSchedulerTerminalV1 {
+                    route: current,
+                    unreached_legacy_tail: Box::default(),
+                    source_lease: super::DirectTerminalSourceLeaseV1::LoopBreak(
+                        super::DirectLoopBreakSourceLeaseV1 {
+                            condition: source.0,
+                            break_if: &source.1[0],
+                            carrier_update: &source.1[1],
+                            step: &source.1[2],
                         },
                     ),
                 },

@@ -53,12 +53,21 @@ struct DirectSimpleWhileSourceLeaseV1<'src> {
 enum DirectTerminalSourceLeaseV1<'src> {
     SimpleWhile(DirectSimpleWhileSourceLeaseV1<'src>),
     AccumConstLoop(DirectAccumConstLoopSourceLeaseV1<'src>),
+    LoopBreak(DirectLoopBreakSourceLeaseV1<'src>),
 }
 
 #[derive(Debug)]
 struct DirectAccumConstLoopSourceLeaseV1<'src> {
     condition: &'src ASTNode,
     acc_update: &'src ASTNode,
+    step: &'src ASTNode,
+}
+
+#[derive(Debug)]
+struct DirectLoopBreakSourceLeaseV1<'src> {
+    condition: &'src ASTNode,
+    break_if: &'src ASTNode,
+    carrier_update: &'src ASTNode,
     step: &'src ASTNode,
 }
 

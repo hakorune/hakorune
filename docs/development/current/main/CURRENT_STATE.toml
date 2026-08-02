@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-D0 closed; JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-S0 selected."
+status = "JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-S0 closed; JOINIR-LOOP-BREAK-PHYSICALIZER0-D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S0 may extend only the one-shot terminality transaction and logical-product issuer for generic direct LoopBreak. It adds a route-specific condition/break-if/carrier-update/step lease and product variant after first-and-sole raw LoopBreak selection plus the existing direct 0/1/2 certificate. Roles are LoopCondition, opaque BreakGate, CarrierUpdate, LoopBackContinuation. It must not re-match AST or inspect break-if internals, traverse projection, rerun selection, alter other route meanings, invoke composer/lowerer/Builder, issue a caller, or claim physical/runtime safety."
-current_execution_row = "JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-S0"
-current_execution_summary = "LoopBreak product D0 accepts generic direct only: direct three-site topology and singleton raw schedule permit a source-bound whole-statement lease. Break-if stays opaque; nested condition/update placement does not become source authority. Physical consumption remains unproven."
+current_design_stop = "D0 must audit whether the direct LoopBreak logical product has any safe physicalizer boundary. It must trace route/composer/lowerer mutation and every later failure, and must reject a consumer if the opaque product cannot reach execution without legacy retry or Builder mutation precedes failures. It must not implement a consumer, widen product meaning, change selection/composer/lowerer/Builder/runtime routing, or issue a caller before the decision."
+current_execution_row = "JOINIR-LOOP-BREAK-PHYSICALIZER0-D0"
+current_execution_summary = "LoopBreak product S0 now issues only from direct generic singleton selection through the one-shot transaction. It retains raw condition/break-if/carrier-update/step with opaque BreakIfSubtree role; ScopeBox and non-direct forms fail closed. No physical consumer exists."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-S0"
+current_blocker_token = "JOINIR-LOOP-BREAK-PHYSICALIZER0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

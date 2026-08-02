@@ -15,10 +15,24 @@ pub(crate) struct VerifiedDirectAccumConstLoopLogicalProductV1<'src> {
     roles: [DirectAccumConstLoopLogicalRoleV1; 3],
 }
 
+#[derive(Debug)]
+pub(crate) struct VerifiedDirectLoopBreakLogicalProductV1<'src> {
+    terminality: PreEffectSchedulerTerminalV1<'src>,
+    roles: [DirectLoopBreakLogicalRoleV1; 4],
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum DirectAccumConstLoopLogicalRoleV1 {
     LoopBinding,
     AccumulatorBinding,
+    LoopBackContinuation,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DirectLoopBreakLogicalRoleV1 {
+    LoopCondition,
+    BreakIfSubtree,
+    CarrierUpdate,
     LoopBackContinuation,
 }
 
@@ -48,10 +62,21 @@ impl<'src> VerifiedDirectAccumConstLoopLogicalProductV1<'src> {
     }
 }
 
+impl<'src> VerifiedDirectLoopBreakLogicalProductV1<'src> {
+    pub(crate) fn route(&self) -> LoopRouteId {
+        self.terminality.route()
+    }
+
+    pub(crate) fn unreached_legacy_tail(&self) -> &[LoopRouteId] {
+        self.terminality.unreached_legacy_tail()
+    }
+}
+
 #[derive(Debug)]
 pub(crate) enum VerifiedLoopLogicalProductV1<'src> {
     DirectSimpleWhile(VerifiedDirectSimpleWhileLogicalProductV1<'src>),
     DirectAccumConstLoop(VerifiedDirectAccumConstLoopLogicalProductV1<'src>),
+    DirectLoopBreak(VerifiedDirectLoopBreakLogicalProductV1<'src>),
 }
 
 impl<'src> VerifiedLoopLogicalProductV1<'src> {
@@ -59,6 +84,7 @@ impl<'src> VerifiedLoopLogicalProductV1<'src> {
         match self {
             Self::DirectSimpleWhile(product) => product.route(),
             Self::DirectAccumConstLoop(product) => product.route(),
+            Self::DirectLoopBreak(product) => product.route(),
         }
     }
 
@@ -66,6 +92,7 @@ impl<'src> VerifiedLoopLogicalProductV1<'src> {
         match self {
             Self::DirectSimpleWhile(product) => product.unreached_legacy_tail(),
             Self::DirectAccumConstLoop(product) => product.unreached_legacy_tail(),
+            Self::DirectLoopBreak(product) => product.unreached_legacy_tail(),
         }
     }
 }
@@ -108,6 +135,17 @@ pub(crate) fn issue_pre_effect_terminal_v1<'src>(
                             DirectAccumConstLoopLogicalRoleV1::LoopBinding,
                             DirectAccumConstLoopLogicalRoleV1::AccumulatorBinding,
                             DirectAccumConstLoopLogicalRoleV1::LoopBackContinuation,
+                        ],
+                    },
+                ),
+                LoopRouteId::LoopBreakRecipe => VerifiedLoopLogicalProductV1::DirectLoopBreak(
+                    VerifiedDirectLoopBreakLogicalProductV1 {
+                        terminality,
+                        roles: [
+                            DirectLoopBreakLogicalRoleV1::LoopCondition,
+                            DirectLoopBreakLogicalRoleV1::BreakIfSubtree,
+                            DirectLoopBreakLogicalRoleV1::CarrierUpdate,
+                            DirectLoopBreakLogicalRoleV1::LoopBackContinuation,
                         ],
                     },
                 ),
@@ -199,6 +237,55 @@ mod tests {
             issue_pre_effect_terminal_v1(qualify_live_loop_facts_v1(live)),
             LoopLogicalProductDispositionV1::Issued(product)
                 if product.route() == LoopRouteId::AccumConstLoop
+                && product.unreached_legacy_tail().is_empty()
+        ));
+    }
+
+    #[test]
+    fn issues_only_actual_direct_loop_break_with_empty_tail() {
+        let variable = |name: &str| ASTNode::Variable {
+            name: name.into(),
+            span: Span::unknown(),
+        };
+        let integer = |value| ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        };
+        let condition = ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(variable("i")),
+            right: Box::new(integer(3)),
+            span: Span::unknown(),
+        };
+        let increment = |name: &str| ASTNode::Assignment {
+            target: Box::new(variable(name)),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(variable(name)),
+                right: Box::new(integer(1)),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let body = vec![
+            ASTNode::If {
+                condition: Box::new(variable("stop")),
+                then_body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
+                else_body: None,
+                span: Span::unknown(),
+            },
+            increment("sum"),
+            increment("i"),
+        ];
+        let live = try_build_live_loop_facts(&condition, &body)
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            issue_pre_effect_terminal_v1(qualify_live_loop_facts_v1(live)),
+            LoopLogicalProductDispositionV1::Issued(product)
+                if product.route() == LoopRouteId::LoopBreakRecipe
                 && product.unreached_legacy_tail().is_empty()
         ));
     }

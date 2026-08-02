@@ -892,3 +892,15 @@ internal update receive no source authority. S0 may not re-match AST, traverse
 projection, rerun selection, alter another route, or touch composition,
 lowering, Builder, physicalization, callers, or runtime. The product is
 disconnected and does not claim physical safety.
+
+### LoopBreak logical-product S0 implementation record
+
+The one-shot transaction now adds a generic-direct LoopBreak branch only after
+the direct `0/1/2` certificate and a sole raw `[LoopBreakRecipe]` schedule. Its
+private lease retains raw condition, opaque break-if statement, carrier update,
+and step; the product consumes that proof by value with the four fixed roles.
+An injected earlier LoopBreak without actual LoopBreak facts remains
+`BlockedEarlier`, preserving the existing raw-order rule. Direct issuance is
+fixture-fixed; ScopeBox and specialized forms remain fail-closed. No AST
+inspection of the break-if subtree, physical consumer, caller, or runtime
+behavior was added.
