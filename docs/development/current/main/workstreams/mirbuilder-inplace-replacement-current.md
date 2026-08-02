@@ -469,27 +469,26 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-BREAK-TERMINALITY0-S0`
-Parent: `JOINIR-LOOP-BREAK-TERMINALITY0-D0` (closed)
-Ceremony: add one direct generic LoopBreakRecipe scheduler-terminality certificate; production consumers remain zero.
+Row: `JOINIR-LOOP-PREFLIGHT-MATRIX-REALIGN0-S0`
+Parent: `JOINIR-LOOP-BREAK-TERMINALITY0-S0` (closed)
+Ceremony: realign the all-route preflight observation matrix; production behavior remains zero-change.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Certify only the direct generic three-site topology whose fixture selects raw
-  `[LoopBreakRecipe]` and whose handler cannot return `Ok(None)`.
+  Update only LoopBreak's observation-matrix disposition/count to match the
+  already-issued all-route preflight classifier.
 
 Contract:
-  Existing topology, exact raw schedule fixture, and handler outcome boundary are
-  authority. Terminality means `Some | Err`, never pre-effect/product readiness.
+  `all_route_preflight.rs` is behavior authority; the effect-order matrix is its
+  observation SSOT and may not preserve an older source-topology classification.
 
 Done:
-  Direct fixture proves schedule plus certificate; ScopeBox has no certificate;
-  shared guard fixes handler `return Ok(None)` count at zero. No product/caller/qualification.
+  Matrix fixture/counts agree with direct policy, ScopeBox lineage, and specialized
+  source-topology rejection. No product/caller/qualification/route change.
 
 Stop:
-  Stop if S0 uses AST/recipe/source re-match, changes the current route schedule,
-  treats terminality as physical safety, or widens another subset. No runtime routing,
-  Loop I0, raw/reference ingress, or fallback is authorized.
+  Stop if S0 changes production classifier/route behavior or touches another route.
+  No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 

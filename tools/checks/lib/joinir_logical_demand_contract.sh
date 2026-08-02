@@ -7,6 +7,7 @@ guard_joinir_logical_demand_contract() {
   local route_id="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/route_id.rs"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
+  local loop_break_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_loop_break_terminality.rs"
   local live_ordered_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality"
   local live_ordered_parent="$live_ordered_dir/mod.rs"
   local live_ordered_transaction="$live_ordered_dir/transaction.rs"
@@ -22,6 +23,7 @@ guard_joinir_logical_demand_contract() {
     "$route_id"
     "$simple_terminality"
     "$accum_terminality"
+    "$loop_break_terminality"
     "$live_ordered_parent"
     "$live_ordered_transaction"
     "$all_route_preflight"
@@ -100,5 +102,12 @@ guard_joinir_logical_demand_contract() {
   accum_none_count="${accum_none_count:-0}"
   if [[ "$accum_none_count" != "0" ]]; then
     guard_fail "$tag" "AccumConstLoop terminality contract acquired an Ok(None) path"
+  fi
+  local loop_break_route_body loop_break_none_count
+  loop_break_route_body="$(sed -n '/pub(crate) fn route_loop_break_recipe(/,/pub(crate) fn route_if_phi_join(/p' "$route_handlers")"
+  loop_break_none_count="$(printf '%s\n' "$loop_break_route_body" | rg -c 'return Ok\(None\)' || true)"
+  loop_break_none_count="${loop_break_none_count:-0}"
+  if [[ "$loop_break_none_count" != "0" ]]; then
+    guard_fail "$tag" "LoopBreakRecipe terminality contract acquired an Ok(None) path"
   fi
 }

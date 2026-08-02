@@ -700,3 +700,11 @@ certificate. This is not a pre-effect proof: `lower_loop_v0` begins physical
 work after its precondition checks, first allocating carrier PHI ValueIds, and
 later errors have no rollback. S0 therefore adds no product, qualified arm,
 caller, composer reuse, or physical claim.
+
+S0 implementation record: the direct fixture fixes the exact singleton raw
+schedule and its certificate; ScopeBox remains fail-closed. The shared guard
+ratchets the LoopBreak handler's `Ok(None)` count to zero. This makes the
+existing effect-order matrix stale: direct LoopBreak now belongs to the
+policy/terminality-unavailable bucket, ScopeBox to lineage-unavailable, and
+specialized LoopBreak remains source-topology-unavailable. The next BoxShape
+card changes that observation only, from 17/1/1 to 16/2/1.
