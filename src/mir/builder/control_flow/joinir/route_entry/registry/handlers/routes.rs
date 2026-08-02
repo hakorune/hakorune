@@ -66,11 +66,12 @@ pub(crate) fn route_loop_break_recipe(
                 core_plan,
                 FlowboxVia::Shadow,
             )
-            .map(RouteAttemptOutcomeV1::from_legacy);
+            .map(RouteAttemptOutcomeV1::from_retry_option);
         }
 
         PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
-        return PlanLowerer::lower(builder, core_plan, ctx).map(RouteAttemptOutcomeV1::from_legacy);
+        return PlanLowerer::lower(builder, core_plan, ctx)
+            .map(RouteAttemptOutcomeV1::from_retry_option);
     }
 
     lower_verified_core_plan(
@@ -81,7 +82,7 @@ pub(crate) fn route_loop_break_recipe(
         core_plan,
         FlowboxVia::Release,
     )
-    .map(RouteAttemptOutcomeV1::from_legacy)
+    .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 pub(crate) fn route_if_phi_join(
@@ -120,7 +121,7 @@ pub(crate) fn route_if_phi_join(
         core_plan,
         via,
     )
-    .map(RouteAttemptOutcomeV1::from_legacy)
+    .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 pub(crate) fn route_loop_continue_only(
@@ -177,7 +178,7 @@ pub(crate) fn route_loop_continue_only(
         core_plan,
         via,
     )
-    .map(RouteAttemptOutcomeV1::from_legacy)
+    .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 pub(crate) fn route_loop_true_early_exit(
@@ -351,7 +352,8 @@ pub(crate) fn route_accum_const_loop(
 
     if attempt.strict_or_dev() {
         PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
-        return PlanLowerer::lower(builder, core_plan, ctx).map(RouteAttemptOutcomeV1::from_legacy);
+        return PlanLowerer::lower(builder, core_plan, ctx)
+            .map(RouteAttemptOutcomeV1::from_retry_option);
     }
 
     lower_verified_core_plan(
@@ -362,7 +364,7 @@ pub(crate) fn route_accum_const_loop(
         core_plan,
         FlowboxVia::Release,
     )
-    .map(RouteAttemptOutcomeV1::from_legacy)
+    .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 pub(crate) fn route_nested_loop_minimal(
@@ -401,7 +403,7 @@ pub(crate) fn route_nested_loop_minimal(
         core_plan,
         via,
     )
-    .map(RouteAttemptOutcomeV1::from_legacy)
+    .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 pub(crate) fn route_loop_true_break_continue(

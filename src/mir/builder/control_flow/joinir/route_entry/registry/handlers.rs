@@ -20,7 +20,7 @@ pub(crate) fn route_generic_loop_v0_at_attempt(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     generic::route_generic_loop_v0(builder, ctx, compose_facts, attempt)
-        .map(RouteAttemptOutcomeV1::from_legacy)
+        .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 pub(crate) fn route_generic_loop_v1_at_attempt(
@@ -30,7 +30,7 @@ pub(crate) fn route_generic_loop_v1_at_attempt(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     generic::route_generic_loop_v1(builder, ctx, compose_facts, attempt)
-        .map(RouteAttemptOutcomeV1::from_legacy)
+        .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 fn debug_log_recipe_entry(route_label: &str, attempt: &RouteExecutionAttemptV1<'_, '_>) {
@@ -95,7 +95,7 @@ fn route_standard(
         core_plan,
         via,
     )
-    .map(RouteAttemptOutcomeV1::from_legacy)
+    .map(RouteAttemptOutcomeV1::from_retry_option)
 }
 
 fn with_standard_compose_binding_boundary<T, E, F>(builder: &mut MirBuilder, f: F) -> Result<T, E>

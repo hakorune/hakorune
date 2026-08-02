@@ -177,7 +177,8 @@ pub(crate) enum RouteAttemptOutcomeV1<T> {
 }
 
 impl<T> RouteAttemptOutcomeV1<T> {
-    pub(crate) fn from_legacy(result: Option<T>) -> Self {
+    /// Projects the ordinary retry channel; it does not classify shared decline.
+    pub(crate) fn from_retry_option(result: Option<T>) -> Self {
         match result {
             Some(value) => Self::Succeeded(value),
             None => Self::Retry,
@@ -260,7 +261,7 @@ mod tests {
         let result = witness.execute_selected_in_order(|_, attempt| {
             let route = attempt.current_route();
             attempted.push(route);
-            Ok::<_, ()>(RouteAttemptOutcomeV1::from_legacy(
+            Ok::<_, ()>(RouteAttemptOutcomeV1::from_retry_option(
                 (route == LoopRouteId::LoopTrueEarlyExit).then_some(7_u8),
             ))
         });
