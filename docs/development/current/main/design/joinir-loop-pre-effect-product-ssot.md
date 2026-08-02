@@ -277,3 +277,20 @@ rejects as `SourceFrameMismatch`; no-route, overlap, unavailable topology, and
 the other 18 routes retain terminal typed outcomes. The shared guard forbids
 producer AST matching, projection traversal, extractor invocation, and selector
 re-entry. There is still no physicalizer or production caller.
+
+## Next-route provenance D0 decision
+
+Decision: accepted `AccumConstLoop` as the next one-route S0. Its existing
+extractor admits exactly two flattened statements: an accumulator update and a
+loop increment. S0 may retain only their two aligned `LoopSourceBodySiteV1`
+coordinates when the common projection proves the complete flattened body; it
+does not issue `Selected`. A later selection row may borrow raw `Condition`,
+`BodyStatement(acc_update)`, and `BodyStatement(step)` only when the receipt
+frame matches, both lineages are empty, and their raw indices differ.
+
+`LoopCharMap` remains parked despite its explicit three-child payload because
+its synthetic `ch` boundary and competing generic shape require a separate
+exact-selection proof. `LoopTrueEarlyExit` remains parked because its direct
+raw `if` must be treated as an opaque exit subtree, including separate
+return/break and carrier policy. No AST clone, path resolver, selector re-run,
+physicalizer, runtime caller, or second route is authorized in Accum S0.

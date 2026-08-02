@@ -469,31 +469,31 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-NEXT-ROUTE-PROVENANCE0-D0`
-Parent: `JOINIR-DIRECT-SIMPLE-WHILE-LOGICAL-DEMAND0-S0` (closed)
-Ceremony: select exactly one next provenance design; production consumers remain zero.
+Row: `JOINIR-ACCUM-CONST-LOOP-PROVENANCE0-S0`
+Parent: `JOINIR-LOOP-NEXT-ROUTE-PROVENANCE0-D0` (closed)
+Ceremony: add only one facts-local two-site topology; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Inventory only the 18 remaining typed-rejected routes and select one candidate
-  for a route-local provenance box. Name its source authority, directness/path
-  boundary, failure vocabulary, fixture, and existing shared-gate evidence.
+  Add AccumConstLoop source topology with aligned accumulator-update and step
+  coordinates from the existing flattened-body projection. No producer result
+  changes in this row.
 
 Contract:
-  The direct SimpleWhile Selected product is closed: it borrows only the stamped
-  raw condition and direct step. D0 is documentation-only and cannot add a
-  resolver, source ingress, selector pass, route issuance, physicalizer, or caller.
+  Source authority is the existing pre-flatten raw frame plus its one projection.
+  Facts retain only two coordinates; the extractor must not retain AST or expose
+  a resolver. Direct SimpleWhile remains the only Selected product.
 
 Done:
-  One next route is selected with exact source/non-authority and fail-fast
-  boundaries, a one-route fixture plan, and a shared-gate plan. No code changes
-  occur in D0; a later S0 is separately selected.
+  Direct and nested ScopeBox fixtures prove Accum topology alignment/carriage;
+  every producer disposition remains unchanged and the existing shared guard and
+  focused tests are green. A later row decides whether direct two-site borrowing
+  can issue Selected.
 
 Stop:
-  Stop if the candidate needs AST resolver/re-match, nested path traversal, a
-  second selector, retry change, multi-route topology, or physical/runtime owner.
-  No physicalizer, Loop I0, raw/reference ingress, universal ingress, or fallback
-  wrapper is authorized.
+  Stop if topology needs AST resolver/re-match, nested path traversal, another
+  route, selector pass, retry change, or physical/runtime owner. No physicalizer,
+  Loop I0, raw/reference ingress, universal ingress, or fallback wrapper is authorized.
 
 ## Production invariants
 
