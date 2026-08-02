@@ -271,6 +271,37 @@ Gate: compare winner and attempted prefix with the legacy witness oracle;
 `all_route_preflight` is forbidden as the oracle. The test bridge is
 test-only, and route IDs/receipts do not enter the pure policy result.
 
+### Next bounded evidence slice — `JOINIR-GENERIC-ACCEPTED-PLAN-REACHABILITY0-D1-S1`
+
+Choose the accepted-plan reachability audit before any V0-precedence policy
+change. Run the existing D2 `V0-only`/`V1-only`/`Both`/`Neither` source fixtures
+through the real facts and selector once, then observe each selected Generic
+row on a fresh test candidate:
+
+```text
+RecipeComposer::compose_generic_loop_v0/v1_recipe
+-> CorePlan::Loop root assertion
+-> release PlanVerifier
+-> release PlanLowerer (or strict shadow equivalent)
+```
+
+The observer records only stage evidence (`Accepted`, terminal-like `Err/None`,
+or `UnresolvedStop`), first-effect owner, and candidate snapshot/fresh-reuse
+result. It must not become a route policy, precedence oracle, Retry scheduler,
+Recipe/JoinSig/PHI producer, or production caller. Composer errors remain outer
+errors; legacy receipts remain diagnostic only.
+
+Done means every fixture × mode row has an observed stage or an explicit
+`UnresolvedStop`, with production caller count zero and no synthetic malformed
+plan or forced failure injection. A green corpus is evidence about the known
+Generic grammar only; it does not close D2 or prove all Generic inputs. Any
+natural verifier/lower failure becomes the next concrete classification row.
+
+Only after this slice may `JOINIR-GENERIC-V0-PRE-EFFECT-WINNER-TERMINAL0-D2-S2`
+consider fixing the real `Both` overlap before effect. If V0 debt → V1 success
+is observed, or V0 acceptance has a coverage hole, D2 remains `UnresolvedStop`
+and the legacy scheduler stays authoritative.
+
 ### M4-D4 — handoff and close (`...-D0-S4`)
 
 Seal a disposition for every D0 row, decide V0/V1 precedence, and make the
