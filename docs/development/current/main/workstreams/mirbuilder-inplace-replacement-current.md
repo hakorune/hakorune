@@ -91,13 +91,6 @@ closed — RAW-SCRIPT-CALL-PREFLIGHT-CLASSIFIER-SSOT0-D0 (Decision B, R4 retaine
   either one all-route preflight recipe or a named final retained operation
   boundary. Do not run a fourth Script-call census.
 
-next — RAW-SCRIPT-NEXT-NAMED-FAMILY1-D0
-  Select exactly one remaining Deferred responsibility family. Control,
-  allocation, Weak, Lambda, and Box are not a pre-authorized batch. Call/Object
-  is excluded until its all-route preflight seam or R4 final rehome is selected.
-  `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` remains the monotonic
-  fixture-identity ratchet through R4.
-
 closed — RAW-SCRIPT-GROUPED-BINDING-REBIND0-I0-R0 (T2)
   The earlier GroupedAssignment NoSafe premise is stale: Script root
   BindingRebind receipts and the BindingRef -> ValueId ledger now exist.
@@ -414,6 +407,69 @@ already closed — do not reopen as WIP
   QMark, root Match, StaticConst, and explicit Record schema; only a regression
   can reopen their Git-history evidence.
 ```
+
+## Protected-region control-state design
+
+Decision: share policy and transient state, not physical exit writers.
+
+```text
+cleanup policy
+  -> one immutable snapshot
+
+TryCatch transient control
+  -> one total typed state
+
+sealed operation
+  -> its existing physical consumer exactly once
+```
+
+TryCatch is a protected-region transaction, QMark is a conditional propagation
+recipe, Throw is a terminator, raw Return owns defer completion, Match may use
+CorePlan, and canonical Function Return is committed by DraftSeal. Combining
+them into one physical terminal would create a second region/JoinIR planner.
+The repository-wide target is therefore not one Return writer; it is one
+physical consumer for each sealed operation, with no retry or fallback.
+
+### Active execution brief
+
+`RAW-CONTROLBODY-UNLOCATED-PORTAL-RETIRE0-R0` — RET0, no replacement credit.
+
+Change:
+  Delete the unreachable `RawUnlocatedPortalV1::ControlBody`, the dead Lambda
+  classifier arm, its fabricated test construction, and false R4 transport
+  claims. `CallObject` remains the sole unlocated recursive portal.
+
+Contract:
+  Located Lambda transport and `PreparedRawLambdaLexicalCaptureLifecycleV1`
+  remain unchanged. Script admission, diagnostics, MIR, raw/reference behavior,
+  and accepted surfaces do not change. Add no adapter or replacement portal.
+
+Done:
+  Production source and the R4 manifest contain no `ControlBody`; located
+  Lambda and raw Lambda capture tests remain green; the shared R4 and current
+  pointer guards pass.
+
+Stop:
+  If a real production constructor depends on `ControlBody`, return to D0 and
+  identify its exact source owner. Do not preserve it with a renamed variant.
+
+### Refactor Series queue
+
+| Order | Row | Bounded responsibility |
+|---:|---|---|
+| 1 | `CONTROL-RESULT-CLEANUP-POLICY-SNAPSHOT0-S0` | Capture one immutable cleanup Return/Throw policy at the owning ingress, loan it to prepared TryCatch, and delete lower-side environment reads. Stop if this needs ambient Builder state or a default env-read fallback. |
+| 2 | `RAW-PROTECTED-REGION-TRANSIENT-STATE0-S1` | Replace the seven loose return-defer/cleanup fields with one total typed state across Function state reset/close, function transaction, cleanup admission, TryCatch transaction, and Return completion. Preserve success restoration and failure partial-state exactly. |
+| 3 | `RAW-RETURN-DEFER-INVARIANT0-R0` | Make active defer constructible only with slot and target; replace only active-with-missing-target direct Return with a contract rejection. Ordinary non-deferred Return remains unchanged. |
+| 4 | `CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0` | Reassess Script TryCatch/Throw/nonfinal Return as separate logical operations after policy/state cleanup. No Complete activation is pre-authorized. |
+
+Focused counterexamples are QMark inside TryCatch+cleanup, `return match`
+inside/outside TryCatch, nested TryCatch failure, ordinary raw Return, and an
+injected inconsistent active defer state. QMark, Throw, Match/CorePlan,
+DraftSeal, Script activation, Loop, and CallObject are outside rows 1–3.
+
+Parked cleanup: `SCRIPT-SEMANTIC-RECEIPT-LIFECYCLE-CONSOLIDATION1-S0` may
+resume only after the current EnumMatch source WIP is clean. It remains
+behavior-neutral and must not grow the Script Complete surface.
 
 ## Production invariants
 
@@ -874,27 +930,6 @@ after final-pipeline Complete only
   resume Ownership taskboard
   then select later unimplemented language features
 ```
-
-## Short landed tail
-
-| Commit | Result |
-|---|---|
-| `3aad4871ea` | opened the root-neutral shared-shadow traversal consultation |
-| `583c3dcf5a` | moved dense Function/Lambda consumers through one private root-neutral traversal input |
-| `78771167ef` | separated identity-free shadow facts from final owner/origin canonicalization |
-| `106e5cbe5b` | moved the existing nine-kind selected diagnostic family into Complete semantic coverage without changing diagnostics |
-| `67237924fb` | moved StaticConst zero-child completion into Complete while preserving metadata/runtime owners |
-| `1f17bc93d1` | composed And/Or into the existing recursive Script closure |
-| `a78d4e968a` | composed CheckExpr into the existing recursive Script closure |
-| `074e944fec` | composed Await into the existing recursive Script closure |
-| `b562263854` | composed Binary into the existing recursive Script closure |
-| `c1c7852b76` | composed Print into Script lexical closure |
-| `1adb617542` | composed Unary into Script lexical closure |
-| `7bf6c9b996` | established the first selected Script lexical binding closure |
-
-The repeated constructor history above is the final legacy example of the old
-per-constructor cadence. Future constructors in one accepted family share one
-implementation-coupled batch and one batch-boundary census.
 
 ## Fixed packs
 
