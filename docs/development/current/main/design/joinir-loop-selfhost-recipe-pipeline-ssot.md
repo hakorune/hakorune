@@ -459,10 +459,39 @@ Done:
 Stop:
 : Keep an uncovered entry under a named owner rather than hiding it in fallback.
 
-## Complete Loop selfhost lane — reserved after M11
+### M12 — `JOINIR-LOOP-LEGACY-FAMILY-ADAPTER-RETIRE0-R2`
+
+Change:
+: After M10/M11 have removed the old physical edges, classify every remaining
+  `11/1/1/4/2` first-mutation profile, family adapter receipt, and route wrapper
+  as semantic producer input, migration-only evidence, or duplicate facade.
+  Delete the migration-only and duplicate rows; keep only source-policy rows
+  that produce the common recursive recipe.
+
+Contract:
+: This is a retirement pass, not a new lowering design. The new verifier,
+  CFG/JoinSig/PHI owners, and physicalizer already have authority count one.
+  Do not introduce an intermediate three-family semantic layer or merge
+  distinct source predicates merely to reduce a count.
+
+Done:
+: Production references to `ComposerMutationFamily`/equivalent legacy
+  first-mutation enums and family adapter dispatch are zero. Family-specific
+  recipe variants, verifier branches, CFG/PHI branches, and physicalizer
+  branches are zero. Duplicate producer wrappers are zero; retained route rows
+  are data-only source recognition/policy inputs. The terminal physicalizer has
+  exactly one production caller and all accepted-corpus/parity/quick/release
+  gates remain green.
+
+Stop:
+: If a retained adapter still owns physical allocation, retry, AST rematch, or
+  route selection, M12 is not complete. Keep the exact owner named and repair
+  it; do not relabel it as a semantic feature or leave it for selfhost cleanup.
+
+## Complete Loop selfhost lane — reserved after M12
 
 Entry:
-: M1 through M11 are closed, the portable wire contract is frozen, and the
+: M1 through M12 are closed, the portable wire contract is frozen, and the
   Rust production path has one terminal physicalizer with no retry/fallback.
   Exact task order is `SH1 -> SH2 -> SH3 -> SH4 -> SH5`; only read-only census
   and fixture preparation may run ahead.
@@ -595,7 +624,8 @@ Stop:
 - D/P rows: docs/proof commits; no implementation claim.
 - S rows: one reusable vocabulary/service or one bounded adapter cohort plus fixtures.
 - Partial pipeline remains caller-zero until M8/M9 closure.
-- M10: one atomic I0/R0 commit; M11: one retirement commit.
+- M10: one atomic I0/R0 commit; M11: one handoff retirement commit; M12: one
+  legacy-family adapter census/retirement series.
 - SH1/SH2 are disconnected service rows; SH3 is an ordered implementation
   series with one adapter cohort per commit;
   SH4 connects only the explicit identity route; SH5 is the sole `.hako`
