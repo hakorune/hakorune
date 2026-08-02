@@ -1,5 +1,7 @@
 use super::super::router::LoopRouteContext;
-use super::execution_witness::{RouteExecutionAttemptV1, RouteExecutionWitnessV1};
+use super::execution_witness::{
+    RouteAttemptOutcomeV1, RouteExecutionAttemptV1, RouteExecutionWitnessV1,
+};
 use super::route_id::LoopRouteId;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::{CorePlan, Freeze, PlanRuleId};
@@ -27,7 +29,7 @@ pub(crate) type RouteFn = fn(
     &LoopRouteContext,
     Option<&CanonicalLoopFacts>,
     &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String>;
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String>;
 
 pub(crate) struct Entry {
     pub id: LoopRouteId,

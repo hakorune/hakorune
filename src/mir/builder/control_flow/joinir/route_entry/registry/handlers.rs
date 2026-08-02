@@ -5,7 +5,9 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
 use super::super::router::{lower_verified_core_plan, LoopRouteContext};
-use super::execution_witness::{RouteExecutionAttemptV1, RouteExecutionWitnessV1};
+use super::execution_witness::{
+    RouteAttemptOutcomeV1, RouteExecutionAttemptV1, RouteExecutionWitnessV1,
+};
 use super::types::StandardEntry;
 use super::utils::emit_planner_first;
 
@@ -18,8 +20,9 @@ pub(crate) fn route_generic_loop_v0_at_attempt(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     generic::route_generic_loop_v0(builder, ctx, compose_facts, attempt.witness())
+        .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
 pub(crate) fn route_generic_loop_v1_at_attempt(
@@ -27,8 +30,9 @@ pub(crate) fn route_generic_loop_v1_at_attempt(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     generic::route_generic_loop_v1(builder, ctx, compose_facts, attempt.witness())
+        .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
 fn debug_log_recipe_entry(route_label: &str, witness: &RouteExecutionWitnessV1<'_>) {
@@ -52,24 +56,19 @@ fn route_standard(
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
     entry: &StandardEntry,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     let witness = attempt.witness();
     if entry.planner_required_only && !witness.planner_required() {
-        return Ok(None);
+        return Ok(RouteAttemptOutcomeV1::Retry);
     }
     if witness.planner_required() && !witness.recipe_contract_present() {
         return Err(Freeze::contract(entry.missing_contract_msg).to_string());
     }
     if let Some(policy) = entry.absent_contract_decline {
-        if policy.route_id() != attempt.current_route() {
-            return Err(format!(
-                "route_standard absent-contract policy mismatch: expected {}, got {}",
-                policy.route_id(),
-                attempt.current_route()
-            ));
-        }
         if policy.declines(witness) {
-            return Ok(None);
+            return attempt
+                .issue_shared_absent_contract_decline(policy)
+                .map(RouteAttemptOutcomeV1::SharedAbsentContractDeclined);
         }
     }
 
@@ -96,6 +95,7 @@ fn route_standard(
         core_plan,
         via,
     )
+    .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
 fn with_standard_compose_binding_boundary<T, E, F>(builder: &mut MirBuilder, f: F) -> Result<T, E>

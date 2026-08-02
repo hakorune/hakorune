@@ -22,14 +22,14 @@ mod selection;
 mod types;
 mod utils;
 
-use execution_witness::RouteExecutionResultV1;
 pub(crate) use execution_witness::RouteExecutionWitnessV1;
+use execution_witness::{RouteAttemptOutcomeV1, RouteExecutionResultV1};
 use handlers::*;
 use predicates::*;
 use route_id::{entry_keys, LoopRouteId};
 pub(crate) use selection::{select_recipe_first_routes, RecipeFirstRouteSelectionV1};
 use types::LegacyRouteSuccess;
-pub(crate) use types::{Entry, RouterEnv};
+pub(crate) use types::{Entry, RouterEnv, SharedAbsentContractDeclineRouteV1};
 
 pub(crate) fn collect_b_lite_shadow_report(
     selection: &RecipeFirstRouteSelectionV1,
@@ -172,12 +172,9 @@ pub(crate) fn try_execute_route_execution_witness(
                 .find(|entry| entry.id == route_id)
                 .expect("recipe-first selection route must be present in ENTRIES");
             let Some(route) = entry.route else {
-                return Ok(None);
+                return Ok(RouteAttemptOutcomeV1::Retry);
             };
-            if let Some(value) = route(builder, ctx, compose_facts, attempt)? {
-                return Ok(Some(value));
-            }
-            Ok(None)
+            route(builder, ctx, compose_facts, attempt)
         })
         .map(|result| match result {
             RouteExecutionResultV1::Succeeded { route, value } => {

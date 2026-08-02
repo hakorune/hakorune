@@ -6,7 +6,10 @@
 
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 
-use super::{route_id::LoopRouteId, types::RouterEnv};
+use super::{
+    route_id::LoopRouteId,
+    types::{RouterEnv, SharedAbsentContractDeclineRouteV1},
+};
 
 /// The recipe-contract observation captured at the registry boundary.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -82,18 +85,27 @@ impl<'execution> RouteExecutionWitnessV1<'execution> {
     /// exhausted schedule returns it, preserving the single execution scope.
     pub(crate) fn execute_selected_in_order<T, E>(
         self,
-        mut execute: impl FnMut(&Self, &RouteExecutionAttemptV1<'_, 'execution>) -> Result<Option<T>, E>,
+        mut execute: impl FnMut(
+            &Self,
+            &RouteExecutionAttemptV1<'_, 'execution>,
+        ) -> Result<RouteAttemptOutcomeV1<T>, E>,
     ) -> Result<RouteExecutionResultV1<'execution, T>, E> {
         for cursor in 0..self.raw_schedule.len() {
             let attempt = RouteExecutionAttemptV1 {
                 witness: &self,
                 cursor,
             };
-            if let Some(value) = execute(&self, &attempt)? {
-                return Ok(RouteExecutionResultV1::Succeeded {
-                    route: attempt.current_route(),
-                    value,
-                });
+            match execute(&self, &attempt)? {
+                RouteAttemptOutcomeV1::Succeeded(value) => {
+                    return Ok(RouteExecutionResultV1::Succeeded {
+                        route: attempt.current_route(),
+                        value,
+                    });
+                }
+                RouteAttemptOutcomeV1::Retry => {}
+                RouteAttemptOutcomeV1::SharedAbsentContractDeclined(decline) => {
+                    decline.consume_at(&attempt);
+                }
             }
         }
         Ok(RouteExecutionResultV1::Exhausted(self))
@@ -127,6 +139,29 @@ impl<'attempt, 'execution> RouteExecutionAttemptV1<'attempt, 'execution> {
     pub(crate) fn exact_after_current_suffix(&self) -> &[LoopRouteId] {
         &self.witness.raw_schedule[self.cursor + 1..]
     }
+
+    /// Issues the exact shared decline only before compose/lower can run.
+    pub(crate) fn issue_shared_absent_contract_decline(
+        &self,
+        policy: SharedAbsentContractDeclineRouteV1,
+    ) -> Result<SharedAbsentContractDeclineV1, String> {
+        if policy.route_id() != self.current_route() {
+            return Err(format!(
+                "route_standard absent-contract policy mismatch: expected {}, got {}",
+                policy.route_id(),
+                self.current_route()
+            ));
+        }
+        if !policy.declines(self.witness()) {
+            return Err(
+                "route_standard issued shared absent-contract decline outside its captured branch"
+                    .to_string(),
+            );
+        }
+        Ok(SharedAbsentContractDeclineV1 {
+            route: self.current_route(),
+        })
+    }
 }
 
 impl<'attempt, 'execution> std::ops::Deref for RouteExecutionAttemptV1<'attempt, 'execution> {
@@ -134,6 +169,36 @@ impl<'attempt, 'execution> std::ops::Deref for RouteExecutionAttemptV1<'attempt,
 
     fn deref(&self) -> &Self::Target {
         self.witness()
+    }
+}
+
+/// Private outcome for one captured route attempt.
+///
+/// `SharedAbsentContractDeclined` is not terminality: the existing scheduler
+/// consumes it by advancing through its already-captured exact suffix.
+pub(crate) enum RouteAttemptOutcomeV1<T> {
+    Succeeded(T),
+    Retry,
+    SharedAbsentContractDeclined(SharedAbsentContractDeclineV1),
+}
+
+impl<T> RouteAttemptOutcomeV1<T> {
+    pub(crate) fn from_legacy(result: Option<T>) -> Self {
+        match result {
+            Some(value) => Self::Succeeded(value),
+            None => Self::Retry,
+        }
+    }
+}
+
+/// Non-Clone proof that this exact cursor took the shared pre-effect decline.
+pub(crate) struct SharedAbsentContractDeclineV1 {
+    route: LoopRouteId,
+}
+
+impl SharedAbsentContractDeclineV1 {
+    fn consume_at(&self, attempt: &RouteExecutionAttemptV1<'_, '_>) {
+        debug_assert_eq!(self.route, attempt.current_route());
     }
 }
 
@@ -145,9 +210,9 @@ pub(crate) enum RouteExecutionResultV1<'execution, T> {
 
 #[cfg(test)]
 mod tests {
-    use super::{RouteExecutionResultV1, RouteExecutionWitnessV1};
+    use super::{RouteAttemptOutcomeV1, RouteExecutionResultV1, RouteExecutionWitnessV1};
     use crate::mir::builder::control_flow::joinir::route_entry::registry::{
-        route_id::LoopRouteId, RouterEnv,
+        route_id::LoopRouteId, RouterEnv, SharedAbsentContractDeclineRouteV1,
     };
 
     fn env() -> RouterEnv {
@@ -181,7 +246,7 @@ mod tests {
 
         let result = witness.execute_selected_in_order(|_, attempt| {
             attempted.push(attempt.current_route());
-            Ok::<_, ()>(None::<u8>)
+            Ok::<_, ()>(RouteAttemptOutcomeV1::<u8>::Retry)
         });
 
         let RouteExecutionResultV1::Exhausted(witness) = result.expect("no route errors") else {
@@ -202,7 +267,9 @@ mod tests {
         let result = witness.execute_selected_in_order(|_, attempt| {
             let route = attempt.current_route();
             attempted.push(route);
-            Ok::<_, ()>((route == LoopRouteId::LoopTrueEarlyExit).then_some(7_u8))
+            Ok::<_, ()>(RouteAttemptOutcomeV1::from_legacy(
+                (route == LoopRouteId::LoopTrueEarlyExit).then_some(7_u8),
+            ))
         });
 
         assert!(matches!(
@@ -224,7 +291,7 @@ mod tests {
 
         let result = witness.execute_selected_in_order(|_, attempt| {
             attempted.push(attempt.current_route());
-            Err::<Option<u8>, _>("route failed")
+            Err::<RouteAttemptOutcomeV1<u8>, _>("route failed")
         });
 
         assert!(matches!(result, Err("route failed")));
@@ -248,7 +315,7 @@ mod tests {
                 attempt.cursor(),
                 attempt.exact_after_current_suffix().to_vec(),
             ));
-            Ok::<_, ()>(None::<u8>)
+            Ok::<_, ()>(RouteAttemptOutcomeV1::<u8>::Retry)
         });
 
         assert!(matches!(result, Ok(RouteExecutionResultV1::Exhausted(_))));
@@ -264,5 +331,55 @@ mod tests {
                 (LoopRouteId::SplitScan, 2, vec![]),
             ]
         );
+    }
+
+    #[test]
+    fn shared_decline_advances_only_the_captured_suffix() {
+        let env = env();
+        let schedule = [LoopRouteId::LoopTrueEarlyExit, LoopRouteId::SplitScan];
+        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
+        let mut attempted = Vec::new();
+
+        let result = witness.execute_selected_in_order(|_, attempt| {
+            attempted.push(attempt.current_route());
+            if attempt.current_route() == LoopRouteId::LoopTrueEarlyExit {
+                let decline = attempt.issue_shared_absent_contract_decline(
+                    SharedAbsentContractDeclineRouteV1::LoopTrueEarlyExit,
+                )?;
+                return Ok::<_, String>(RouteAttemptOutcomeV1::SharedAbsentContractDeclined(
+                    decline,
+                ));
+            }
+            Ok::<_, String>(RouteAttemptOutcomeV1::Succeeded(9_u8))
+        });
+
+        assert!(matches!(
+            result,
+            Ok(RouteExecutionResultV1::Succeeded {
+                route: LoopRouteId::SplitScan,
+                value: 9,
+            })
+        ));
+        assert_eq!(attempted, schedule);
+    }
+
+    #[test]
+    fn shared_decline_issuer_rejects_any_nonshared_captured_branch() {
+        let schedule = [LoopRouteId::LoopTrueEarlyExit];
+        let planner_env = RouterEnv {
+            planner_required: true,
+            ..env()
+        };
+        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &planner_env, false);
+
+        let result = witness.execute_selected_in_order(|_, attempt| {
+            attempt
+                .issue_shared_absent_contract_decline(
+                    SharedAbsentContractDeclineRouteV1::LoopTrueEarlyExit,
+                )
+                .map(RouteAttemptOutcomeV1::<u8>::SharedAbsentContractDeclined)
+        });
+
+        assert!(matches!(result, Err(message) if message.contains("outside its captured branch")));
     }
 }

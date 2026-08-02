@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-ROUTE-EXECUTION-WITNESS0-D2 is accepted; typed continuation outcome S2 selected."
+status = "JOINIR-ROUTE-EXECUTION-WITNESS0-S2 is closed; the next bounded claim requires a fresh design card."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RouteExecutionWitness S2 may preserve a typed four-member pre-effect decline as a private attempt outcome and let only the existing scheduler consume it by continuing its captured suffix. Ordinary retry remains a separate outcome; no terminality, effects, raw fallback, rollback, or nonshared route claim is authorized."
-current_execution_row = "JOINIR-ROUTE-EXECUTION-WITNESS0-S2"
-current_execution_summary = "D2 accepts typed continuation consumption: route_standard must preserve the exact decline outcome until registry consumes its captured suffix instead of erasing it directly to Ok(None)."
+current_design_stop = "RouteExecutionWitness S2 is closed: the typed four-member pre-effect decline is a private attempt outcome, and only the existing scheduler consumes it by continuing its captured suffix. A next card must be design-only and may not infer terminality, effects, raw fallback, rollback, lower success, or nonshared-route behavior from that observation."
+current_execution_row = "JOINIR-ROUTE-EXECUTION-WITNESS0-NEXT-DESIGN"
+current_execution_summary = "S2 preserves exact four-member shared absent-contract decline until the registry consumes it; ordinary retry remains distinct, compose facts stay explicit, and a guard prevents decline-authority bypass."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-ROUTE-EXECUTION-WITNESS0-S2"
+current_blocker_token = "JOINIR-ROUTE-EXECUTION-WITNESS0-NEXT-DESIGN"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -15,6 +15,7 @@ guard_joinir_logical_demand_contract() {
   local all_route_preflight="$live_ordered_dir/all_route_preflight.rs"
   local live_ordered_product="$live_ordered_dir/logical_product.rs"
   local loop_preflight="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/loop_preflight.rs"
+  local handler_entry="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs"
   local route_handlers="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/handlers/routes.rs"
   local projection="$root_dir/src/mir/builder/control_flow/facts/stmt_view.rs"
   local simple_while="$root_dir/src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs"
@@ -94,31 +95,38 @@ guard_joinir_logical_demand_contract() {
   if [[ "$bridge_files" != "2" ]]; then
     guard_fail "$tag" "live facts binding bridge must remain registry-defined and facts-builder-called only"
   fi
-  local simple_route_body none_count
+  local simple_route_body retry_count
   simple_route_body="$(sed -n '/pub(crate) fn route_loop_simple_while(/,/pub(crate) fn route_loop_char_map(/p' "$route_handlers")"
-  none_count="$(printf '%s\n' "$simple_route_body" | rg -c 'return Ok\(None\)' || true)"
-  if [[ "$none_count" != "1" ]] || ! printf '%s\n' "$simple_route_body" | rg -q 'detect_nested_loop\(ctx\.body\)'; then
-    guard_fail "$tag" "SimpleWhile terminality contract drifted from its single nested None pre-gate"
+  retry_count="$(printf '%s\n' "$simple_route_body" | rg -c 'return Ok\(RouteAttemptOutcomeV1::Retry\)' || true)"
+  if [[ "$retry_count" != "1" ]] || ! printf '%s\n' "$simple_route_body" | rg -q 'detect_nested_loop\(ctx\.body\)'; then
+    guard_fail "$tag" "SimpleWhile terminality contract drifted from its single nested Retry pre-gate"
   fi
-  local accum_route_body accum_none_count
+  local accum_route_body accum_retry_count
   accum_route_body="$(sed -n '/pub(crate) fn route_accum_const_loop(/,/pub(crate) fn route_nested_loop_minimal(/p' "$route_handlers")"
-  accum_none_count="$(printf '%s\n' "$accum_route_body" | rg -c 'return Ok\(None\)' || true)"
-  accum_none_count="${accum_none_count:-0}"
-  if [[ "$accum_none_count" != "0" ]]; then
-    guard_fail "$tag" "AccumConstLoop terminality contract acquired an Ok(None) path"
+  accum_retry_count="$(printf '%s\n' "$accum_route_body" | rg -c 'return Ok\(RouteAttemptOutcomeV1::Retry\)' || true)"
+  accum_retry_count="${accum_retry_count:-0}"
+  if [[ "$accum_retry_count" != "0" ]]; then
+    guard_fail "$tag" "AccumConstLoop terminality contract acquired a Retry path"
   fi
-  local loop_break_route_body loop_break_none_count
+  local loop_break_route_body loop_break_retry_count
   loop_break_route_body="$(sed -n '/pub(crate) fn route_loop_break_recipe(/,/pub(crate) fn route_if_phi_join(/p' "$route_handlers")"
-  loop_break_none_count="$(printf '%s\n' "$loop_break_route_body" | rg -c 'return Ok\(None\)' || true)"
-  loop_break_none_count="${loop_break_none_count:-0}"
-  if [[ "$loop_break_none_count" != "0" ]]; then
-    guard_fail "$tag" "LoopBreakRecipe terminality contract acquired an Ok(None) path"
+  loop_break_retry_count="$(printf '%s\n' "$loop_break_route_body" | rg -c 'return Ok\(RouteAttemptOutcomeV1::Retry\)' || true)"
+  loop_break_retry_count="${loop_break_retry_count:-0}"
+  if [[ "$loop_break_retry_count" != "0" ]]; then
+    guard_fail "$tag" "LoopBreakRecipe terminality contract acquired a Retry path"
   fi
-  local if_phi_route_body if_phi_none_count
+  local if_phi_route_body if_phi_retry_count
   if_phi_route_body="$(sed -n '/pub(crate) fn route_if_phi_join(/,/pub(crate) fn route_loop_continue_only(/p' "$route_handlers")"
-  if_phi_none_count="$(printf '%s\n' "$if_phi_route_body" | rg -c 'return Ok\(None\)' || true)"
-  if_phi_none_count="${if_phi_none_count:-0}"
-  if [[ "$if_phi_none_count" != "0" ]]; then
-    guard_fail "$tag" "IfPhiJoin terminality contract acquired an Ok(None) path"
+  if_phi_retry_count="$(printf '%s\n' "$if_phi_route_body" | rg -c 'return Ok\(RouteAttemptOutcomeV1::Retry\)' || true)"
+  if_phi_retry_count="${if_phi_retry_count:-0}"
+  if [[ "$if_phi_retry_count" != "0" ]]; then
+    guard_fail "$tag" "IfPhiJoin terminality contract acquired a Retry path"
+  fi
+  if rg -n '\b(env\.(planner_required|strict_or_dev|has_body_local)|outcome\.recipe_contract)' \
+    "$route_handlers" "$handler_entry" >/dev/null; then
+    guard_fail "$tag" "route decline authority bypassed the execution witness"
+  fi
+  if ! rg -q 'compose_facts: Option<&CanonicalLoopFacts>' "$route_handlers"; then
+    guard_fail "$tag" "route compose facts must remain an explicit non-witness input"
   fi
 }

@@ -12,7 +12,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
 use super::super::super::router::{lower_verified_core_plan, LoopRouteContext};
-use super::super::execution_witness::RouteExecutionAttemptV1;
+use super::super::execution_witness::{RouteAttemptOutcomeV1, RouteExecutionAttemptV1};
 use super::super::types::{
     route_labels, PlannerFirstMode, SharedAbsentContractDeclineRouteV1, StandardEntry,
 };
@@ -28,7 +28,7 @@ pub(crate) fn route_loop_break_recipe(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "LoopBreakRecipe requires recipe_contract in planner_required mode",
@@ -65,11 +65,12 @@ pub(crate) fn route_loop_break_recipe(
                 compose_facts,
                 core_plan,
                 FlowboxVia::Shadow,
-            );
+            )
+            .map(RouteAttemptOutcomeV1::from_legacy);
         }
 
         PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
-        return PlanLowerer::lower(builder, core_plan, ctx);
+        return PlanLowerer::lower(builder, core_plan, ctx).map(RouteAttemptOutcomeV1::from_legacy);
     }
 
     lower_verified_core_plan(
@@ -80,6 +81,7 @@ pub(crate) fn route_loop_break_recipe(
         core_plan,
         FlowboxVia::Release,
     )
+    .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
 pub(crate) fn route_if_phi_join(
@@ -87,7 +89,7 @@ pub(crate) fn route_if_phi_join(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "IfPhiJoin requires recipe_contract in planner_required mode",
@@ -118,6 +120,7 @@ pub(crate) fn route_if_phi_join(
         core_plan,
         via,
     )
+    .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
 pub(crate) fn route_loop_continue_only(
@@ -125,7 +128,7 @@ pub(crate) fn route_loop_continue_only(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "LoopContinueOnly requires recipe_contract in planner_required mode",
@@ -174,6 +177,7 @@ pub(crate) fn route_loop_continue_only(
         core_plan,
         via,
     )
+    .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
 pub(crate) fn route_loop_true_early_exit(
@@ -181,7 +185,7 @@ pub(crate) fn route_loop_true_early_exit(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopTrueEarlyExit),
         missing_contract_msg: "LoopTrueEarlyExit requires recipe_contract in planner_required mode",
@@ -201,9 +205,9 @@ pub(crate) fn route_loop_simple_while(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if detect_nested_loop(ctx.body) {
-        return Ok(None);
+        return Ok(RouteAttemptOutcomeV1::Retry);
     }
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopSimpleWhile),
@@ -224,7 +228,7 @@ pub(crate) fn route_loop_char_map(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: route_labels::LOOP_CHAR_MAP,
         missing_contract_msg: "LoopCharMap requires recipe_contract in planner_required mode",
@@ -244,7 +248,7 @@ pub(crate) fn route_loop_array_join(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: route_labels::LOOP_ARRAY_JOIN,
         missing_contract_msg: "LoopArrayJoin requires recipe_contract in planner_required mode",
@@ -264,7 +268,7 @@ pub(crate) fn route_scan_with_init(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::ScanWithInit),
         missing_contract_msg: "ScanWithInit requires recipe_contract in planner_required mode",
@@ -284,7 +288,7 @@ pub(crate) fn route_split_scan(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::SplitScan),
         missing_contract_msg: "SplitScan requires recipe_contract in planner_required mode",
@@ -304,7 +308,7 @@ pub(crate) fn route_bool_predicate_scan(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::BoolPredicateScan),
         missing_contract_msg: "BoolPredicateScan requires recipe_contract in planner_required mode",
@@ -324,7 +328,7 @@ pub(crate) fn route_accum_const_loop(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "AccumConstLoop requires recipe_contract in planner_required mode",
@@ -347,7 +351,7 @@ pub(crate) fn route_accum_const_loop(
 
     if attempt.strict_or_dev() {
         PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
-        return PlanLowerer::lower(builder, core_plan, ctx);
+        return PlanLowerer::lower(builder, core_plan, ctx).map(RouteAttemptOutcomeV1::from_legacy);
     }
 
     lower_verified_core_plan(
@@ -358,6 +362,7 @@ pub(crate) fn route_accum_const_loop(
         core_plan,
         FlowboxVia::Release,
     )
+    .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
 pub(crate) fn route_nested_loop_minimal(
@@ -365,13 +370,13 @@ pub(crate) fn route_nested_loop_minimal(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     debug_log_recipe_entry(route_labels::NESTED_LOOP_MINIMAL, attempt);
     let Some(facts) = compose_facts else {
-        return Ok(None);
+        return Ok(RouteAttemptOutcomeV1::Retry);
     };
     if facts.facts.nested_loop_minimal().is_none() {
-        return Ok(None);
+        return Ok(RouteAttemptOutcomeV1::Retry);
     }
 
     let Some(core_plan) = try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)? else {
@@ -380,7 +385,7 @@ pub(crate) fn route_nested_loop_minimal(
                 "nested_loop_minimal strict/dev route failed: compose rejected".to_string(),
             );
         }
-        return Ok(None);
+        return Ok(RouteAttemptOutcomeV1::Retry);
     };
 
     let via = if attempt.strict_or_dev() {
@@ -396,6 +401,7 @@ pub(crate) fn route_nested_loop_minimal(
         core_plan,
         via,
     )
+    .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
 pub(crate) fn route_loop_true_break_continue(
@@ -403,9 +409,9 @@ pub(crate) fn route_loop_true_break_continue(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if release_skips_nested_loop(ctx, attempt) {
-        return Ok(None);
+        return Ok(RouteAttemptOutcomeV1::Retry);
     }
 
     const ENTRY: StandardEntry = StandardEntry {
@@ -428,9 +434,9 @@ pub(crate) fn route_loop_cond_break_continue(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if !release_allows_loop_cond_break_continue(ctx, attempt) {
-        return Ok(None);
+        return Ok(RouteAttemptOutcomeV1::Retry);
     }
 
     const ENTRY: StandardEntry = StandardEntry {
@@ -453,9 +459,9 @@ pub(crate) fn route_loop_cond_continue_only(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if !release_allows_loop_cond_continue_only(ctx, attempt) {
-        return Ok(None);
+        return Ok(RouteAttemptOutcomeV1::Retry);
     }
 
     const ENTRY: StandardEntry = StandardEntry {
@@ -478,9 +484,9 @@ pub(crate) fn route_loop_cond_continue_with_return(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     if release_skips_nested_loop(ctx, attempt) {
-        return Ok(None);
+        return Ok(RouteAttemptOutcomeV1::Retry);
     }
 
     const ENTRY: StandardEntry = StandardEntry {
@@ -503,7 +509,7 @@ pub(crate) fn route_loop_cond_return_in_body(
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopCondReturnInBody),
         missing_contract_msg:

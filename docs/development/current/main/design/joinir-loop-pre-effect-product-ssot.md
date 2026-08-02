@@ -1543,3 +1543,19 @@ route behavior, selection, retry, Builder effects, terminality, suffix
 effect-freedom, exhaustion, raw fallback, rollback, lower success, or the
 nonshared route families. S2 may implement only this result preservation and
 projection boundary.
+
+### Route-execution witness S2 implementation record
+
+The registry now has one private attempt outcome vocabulary: success, ordinary
+retry, and the exact typed shared absent-contract decline. `route_standard` is
+the sole issuer of the latter, after the actual attempt identity and captured
+non-planner/absent-contract branch agree, and before planner trace, compose, or
+lower. The existing scheduler remains its sole consumer and advances only the
+already-captured suffix. No second scheduler or escaping certificate exists.
+
+All compose/lower facts remain explicit route inputs, not witness authority. A
+structural guard rejects direct handler reads of decline environment/contract
+inputs and requires explicit compose facts. S2 preserves retry behavior and
+issues no terminality, effect-freedom, exhaustion, fallback, rollback,
+lower-success, or nonshared-route claim. The next card must start with a fresh
+design-only scope decision.
