@@ -327,3 +327,22 @@ ingress, path resolver, second selector, physicalizer, runtime connection, or
 retry mechanism. Until then, Accum remains
 `RouteSourceTopologyUnavailable { AccumConstLoop }` and the existing direct
 SimpleWhile result has no production caller.
+
+## Live source-frame capability D2 decision
+
+Decision: accepted a consuming, factory-issued live transaction; rejected all
+address/nonce repairs and any constructor that accepts source, facts, and
+selection as independent values. The existing facts builder is the sole issuer
+of a private non-Clone live pair retaining `&condition`, `&body`, and the
+`LoopFacts` derived from those same borrows. A later registry-side transaction
+(not `logical_demand/`) consumes that pair, canonicalizes its retained facts,
+calls the existing selector exactly once, and consumes itself to qualify a
+route-local product. It exposes no raw view, facts, selection, generic slot
+lookup, or parts constructor.
+
+The first implementation box is `JOINIR-LIVE-LOOP-FACTS0-S0`: issue the live
+pair only. S1 then adds the registry transaction and reissues SimpleWhile
+through it; Accum remains rejected until its own selected row. The guarantee is
+per capability transaction (one selection and one terminal consumption), not
+global uniqueness for a loop. There is no runtime/physicalizer caller in this
+series.

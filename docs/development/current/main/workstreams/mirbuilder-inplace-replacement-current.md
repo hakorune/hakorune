@@ -469,29 +469,28 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-LIVE-SOURCE-FRAME-CAPABILITY0-D2`
-Parent: `JOINIR-ACCUM-CONST-LOOP-LOGICAL-SELECTION0-D1` (closed: NoSafeSelected)
-Ceremony: design one live source-frame capability; production consumers remain zero.
+Row: `JOINIR-LIVE-LOOP-FACTS0-S0`
+Parent: `JOINIR-LOOP-LIVE-SOURCE-FRAME-CAPABILITY0-D2` (closed)
+Ceremony: issue one private live facts pair; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Bind pre-flatten source, Facts, existing route selection, and raw borrows with
-  one non-forgeable live capability that rejects temporal address reuse.
+  The existing facts builder mints a non-Clone pair retaining raw condition/body
+  borrows with exactly the LoopFacts derived from them. No selection or product yet.
 
 Contract:
-  Address-only receipt stamps are insufficient after the original source frame can
-  drop. The capability must preserve the raw borrow lifetime and bind the facts/
-  selection transaction without exposing a generic raw AST ingress or resolver.
+  The pair has a private issuer and no parts/raw accessor. Facts-only legacy output
+  stays available for existing callers; this S0 adds no generic AST ingress/resolver.
 
 Done:
-  The decision records source authority, lifetime/consumption shape, failure and
-  invalidation rules, SimpleWhile revalidation, fixture plan, and shared-gate
-  coverage. A later S0 alone implements the chosen capability.
+  Source-lifetime fixtures prove paired facts retain the original raw frame and
+  cannot be copied or constructed from foreign parts. Existing facts behavior and
+  logical dispositions remain unchanged; shared guard and focused tests are green.
 
 Stop:
-  Stop if the capability becomes a generic source ingress/resolver, duplicates
-  selection, widens facts AST ownership, changes retry, or needs a physical/runtime
-  owner. No physicalizer, Loop I0, raw/reference ingress, or fallback wrapper is authorized.
+  Stop if S0 selects/canonicalizes/issues demand, exposes raw parts, widens Facts
+  AST ownership, changes retry, or needs a physical/runtime owner. No physicalizer,
+  Loop I0, raw/reference ingress, or fallback wrapper is authorized.
 
 ## Production invariants
 
