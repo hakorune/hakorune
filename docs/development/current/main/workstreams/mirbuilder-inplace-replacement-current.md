@@ -469,28 +469,28 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-COMPOSE-MUTATION-CENSUS0-P0`
-Parent: `JOINIR-LOOP-ALL-ROUTE-PHYSICALIZATION0-D0` (closed, NoSafeSlice)
-Ceremony: fix static all-route compose mutation/None evidence; production consumers remain zero.
+Row: `JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-D0`
+Parent: `JOINIR-LOOP-COMPOSE-MUTATION-CENSUS0-P0` (closed)
+Ceremony: select one all-route Builder-free preflight dialect; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Extend the existing 19-row effect matrix with every current composer family’s
-  Builder mutation surface, selected-after-effect None behavior, and first mutation.
+  Define owner, source/policy input, all-route membership, typed rejection, and
+  route-local logical operands for an all-route preflight result.
 
 Contract:
-  Census is source-level observation only. It must not become a second selector,
-  route policy, product, physicalizer, caller, or runtime decision source.
+  The dialect may not contain Builder, CorePlan, physical IDs, AST reconstruction,
+  selector rerun, generic slots, lowering callbacks, or a physical consumer.
 
 Done:
-  All 19 rows name current composer family, Builder mutation set, first mutation,
-  and selected-after-effect None class. The shared guard fixes matrix cardinality
-  and physicalizer/product caller count at zero.
+  The design accounts for all 19 rows and the five census families, names their
+  source/provenance blockers and typed rejection, and gives a no-dual-authority
+  migration path from legacy composers while keeping caller count at zero.
 
 Stop:
-  Stop if P0 refactors a composer, changes matrix into routing policy, reopens a
-  product seam, or claims rollback/cutover. No runtime routing, Loop I0, raw/reference
-  ingress, or fallback is authorized.
+  Stop if D0 merely wraps current composers/CorePlan, reopens direct product as an
+  all-route product, claims physical readiness, or adds a caller. No runtime routing,
+  Loop I0, raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 

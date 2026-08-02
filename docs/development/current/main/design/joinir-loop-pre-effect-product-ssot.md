@@ -541,3 +541,13 @@ equivalent journal) with abort/publish-once proof; and only then (3) a sealed
 context committing `Result<ValueId, Freeze>` once, with no `None`/retry and an
 atomic scheduler replacement. P0 next fixes static mutation/None evidence only;
 it does not implement any of these boxes.
+
+### Compose mutation census P0 evidence
+
+The registry matrix now preserves the existing exact 19-row order and additionally
+distinguishes five first-mutation families: eleven LoopV0-frame routes, one Nested
+block-ID route, one LoopTrue skeleton route, four LoopCond-frame routes, and two
+Generic-skeleton routes. Its cardinality test prevents collapsing Nested or
+LoopTrue into a generic direct-block label. This is observation only: it changes
+no predicate, route, composer, lowerer, or caller, and it is the input inventory
+for the next Builder-free preflight design stop.
