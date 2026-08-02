@@ -129,4 +129,12 @@ guard_joinir_logical_demand_contract() {
   if ! rg -q 'compose_facts: Option<&CanonicalLoopFacts>' "$route_handlers"; then
     guard_fail "$tag" "route compose facts must remain an explicit non-witness input"
   fi
+  if rg -n '\.facts\(\)' "$route_handlers" "$handler_entry" >/dev/null; then
+    guard_fail "$tag" "route decline authority acquired witness facts"
+  fi
+  local shared_decline_issuers
+  shared_decline_issuers="$(rg -c 'issue_shared_absent_contract_decline\(' "$handler_entry" || true)"
+  if [[ "$shared_decline_issuers" != "1" ]]; then
+    guard_fail "$tag" "route_standard must remain the sole shared-decline issuer"
+  fi
 }

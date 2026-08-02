@@ -4,8 +4,6 @@
 //! observations only: selection, facts, environment, and recipe-contract
 //! presence.  It does not decide route policy, terminality, or lowering.
 
-use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-
 use super::{
     route_id::LoopRouteId,
     types::{RouterEnv, SharedAbsentContractDeclineRouteV1},
@@ -34,7 +32,6 @@ impl RecipeContractDispositionV1 {
 /// caller receives it back only when every captured route declined execution.
 pub(crate) struct RouteExecutionWitnessV1<'execution> {
     raw_schedule: &'execution [LoopRouteId],
-    facts: Option<&'execution CanonicalLoopFacts>,
     env: &'execution RouterEnv,
     recipe_contract: RecipeContractDispositionV1,
 }
@@ -43,13 +40,11 @@ impl<'execution> RouteExecutionWitnessV1<'execution> {
     /// Issues one witness from observations already computed by the router.
     pub(crate) fn issue(
         raw_schedule: &'execution [LoopRouteId],
-        facts: Option<&'execution CanonicalLoopFacts>,
         env: &'execution RouterEnv,
         recipe_contract_present: bool,
     ) -> Self {
         Self {
             raw_schedule,
-            facts,
             env,
             recipe_contract: RecipeContractDispositionV1::from_present(recipe_contract_present),
         }
@@ -57,10 +52,6 @@ impl<'execution> RouteExecutionWitnessV1<'execution> {
 
     pub(crate) fn raw_schedule(&self) -> &[LoopRouteId] {
         self.raw_schedule
-    }
-
-    pub(crate) fn facts(&self) -> Option<&CanonicalLoopFacts> {
-        self.facts
     }
 
     pub(crate) fn strict_or_dev(&self) -> bool {
@@ -123,11 +114,6 @@ pub(crate) struct RouteExecutionAttemptV1<'attempt, 'execution> {
 }
 
 impl<'attempt, 'execution> RouteExecutionAttemptV1<'attempt, 'execution> {
-    /// Borrows the execution-scoped observations captured for this attempt.
-    pub(crate) fn witness(&self) -> &'attempt RouteExecutionWitnessV1<'execution> {
-        self.witness
-    }
-
     pub(crate) fn current_route(&self) -> LoopRouteId {
         self.witness.raw_schedule[self.cursor]
     }
@@ -138,6 +124,22 @@ impl<'attempt, 'execution> RouteExecutionAttemptV1<'attempt, 'execution> {
 
     pub(crate) fn exact_after_current_suffix(&self) -> &[LoopRouteId] {
         &self.witness.raw_schedule[self.cursor + 1..]
+    }
+
+    pub(crate) fn strict_or_dev(&self) -> bool {
+        self.witness.strict_or_dev()
+    }
+
+    pub(crate) fn planner_required(&self) -> bool {
+        self.witness.planner_required()
+    }
+
+    pub(crate) fn has_body_local(&self) -> bool {
+        self.witness.has_body_local()
+    }
+
+    pub(crate) fn recipe_contract_present(&self) -> bool {
+        self.witness.recipe_contract_present()
     }
 
     /// Issues the exact shared decline only before compose/lower can run.
@@ -152,7 +154,7 @@ impl<'attempt, 'execution> RouteExecutionAttemptV1<'attempt, 'execution> {
                 self.current_route()
             ));
         }
-        if !policy.declines(self.witness()) {
+        if !policy.declines(self.planner_required(), self.recipe_contract_present()) {
             return Err(
                 "route_standard issued shared absent-contract decline outside its captured branch"
                     .to_string(),
@@ -161,14 +163,6 @@ impl<'attempt, 'execution> RouteExecutionAttemptV1<'attempt, 'execution> {
         Ok(SharedAbsentContractDeclineV1 {
             route: self.current_route(),
         })
-    }
-}
-
-impl<'attempt, 'execution> std::ops::Deref for RouteExecutionAttemptV1<'attempt, 'execution> {
-    type Target = RouteExecutionWitnessV1<'execution>;
-
-    fn deref(&self) -> &Self::Target {
-        self.witness()
     }
 }
 
@@ -227,10 +221,9 @@ mod tests {
     fn witness_captures_router_observations_without_recomputing_them() {
         let env = env();
         let schedule = [LoopRouteId::LoopArrayJoin];
-        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
+        let witness = RouteExecutionWitnessV1::issue(&schedule, &env, false);
 
         assert_eq!(witness.raw_schedule(), schedule);
-        assert!(witness.facts().is_none());
         assert!(!witness.strict_or_dev());
         assert!(!witness.planner_required());
         assert!(!witness.has_body_local());
@@ -241,7 +234,7 @@ mod tests {
     fn exhausted_schedule_returns_the_same_scoped_witness_by_value() {
         let env = env();
         let schedule = [LoopRouteId::LoopTrueEarlyExit, LoopRouteId::SplitScan];
-        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, true);
+        let witness = RouteExecutionWitnessV1::issue(&schedule, &env, true);
         let mut attempted = Vec::new();
 
         let result = witness.execute_selected_in_order(|_, attempt| {
@@ -261,7 +254,7 @@ mod tests {
     fn success_stops_at_the_first_route_without_visiting_later_schedule_entries() {
         let env = env();
         let schedule = [LoopRouteId::LoopTrueEarlyExit, LoopRouteId::SplitScan];
-        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
+        let witness = RouteExecutionWitnessV1::issue(&schedule, &env, false);
         let mut attempted = Vec::new();
 
         let result = witness.execute_selected_in_order(|_, attempt| {
@@ -286,7 +279,7 @@ mod tests {
     fn error_stops_before_later_schedule_entries() {
         let env = env();
         let schedule = [LoopRouteId::LoopTrueEarlyExit, LoopRouteId::SplitScan];
-        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
+        let witness = RouteExecutionWitnessV1::issue(&schedule, &env, false);
         let mut attempted = Vec::new();
 
         let result = witness.execute_selected_in_order(|_, attempt| {
@@ -306,7 +299,7 @@ mod tests {
             LoopRouteId::LoopArrayJoin,
             LoopRouteId::SplitScan,
         ];
-        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
+        let witness = RouteExecutionWitnessV1::issue(&schedule, &env, false);
         let mut observed = Vec::new();
 
         let result = witness.execute_selected_in_order(|_, attempt| {
@@ -337,7 +330,7 @@ mod tests {
     fn shared_decline_advances_only_the_captured_suffix() {
         let env = env();
         let schedule = [LoopRouteId::LoopTrueEarlyExit, LoopRouteId::SplitScan];
-        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
+        let witness = RouteExecutionWitnessV1::issue(&schedule, &env, false);
         let mut attempted = Vec::new();
 
         let result = witness.execute_selected_in_order(|_, attempt| {
@@ -370,7 +363,7 @@ mod tests {
             planner_required: true,
             ..env()
         };
-        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &planner_env, false);
+        let witness = RouteExecutionWitnessV1::issue(&schedule, &planner_env, false);
 
         let result = witness.execute_selected_in_order(|_, attempt| {
             attempt

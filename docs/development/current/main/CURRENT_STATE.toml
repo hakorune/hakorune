@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-ROUTE-EXECUTION-WITNESS0-S2 is closed; the next bounded claim requires a fresh design card."
+status = "JOINIR-ROUTE-EXECUTION-WITNESS0-S2.1 is closed; the next bounded claim requires a fresh design card."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RouteExecutionWitness S2 is closed: the typed four-member pre-effect decline is a private attempt outcome, and only the existing scheduler consumes it by continuing its captured suffix. A next card must be design-only and may not infer terminality, effects, raw fallback, rollback, lower success, or nonshared-route behavior from that observation."
+current_design_stop = "RouteExecutionWitness S2.1 closes the compose-facts authority repair: the typed four-member pre-effect decline remains a private attempt outcome, and only the existing scheduler consumes it by continuing its captured suffix. A next card must be design-only and may not infer terminality, effects, raw fallback, rollback, lower success, or nonshared-route behavior from that observation."
 current_execution_row = "JOINIR-ROUTE-EXECUTION-WITNESS0-NEXT-DESIGN"
-current_execution_summary = "S2 preserves exact four-member shared absent-contract decline until the registry consumes it; ordinary retry remains distinct, compose facts stay explicit, and a guard prevents decline-authority bypass."
+current_execution_summary = "S2.1 removes facts and raw-schedule exposure from route attempts; compose facts remain explicit for both lowering and conditional release checks, while scalar decline inputs stay attempt-scoped."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

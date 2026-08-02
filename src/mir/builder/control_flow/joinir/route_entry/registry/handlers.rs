@@ -5,9 +5,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
 use super::super::router::{lower_verified_core_plan, LoopRouteContext};
-use super::execution_witness::{
-    RouteAttemptOutcomeV1, RouteExecutionAttemptV1, RouteExecutionWitnessV1,
-};
+use super::execution_witness::{RouteAttemptOutcomeV1, RouteExecutionAttemptV1};
 use super::types::StandardEntry;
 use super::utils::emit_planner_first;
 
@@ -21,7 +19,7 @@ pub(crate) fn route_generic_loop_v0_at_attempt(
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
-    generic::route_generic_loop_v0(builder, ctx, compose_facts, attempt.witness())
+    generic::route_generic_loop_v0(builder, ctx, compose_facts, attempt)
         .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
@@ -31,15 +29,15 @@ pub(crate) fn route_generic_loop_v1_at_attempt(
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
-    generic::route_generic_loop_v1(builder, ctx, compose_facts, attempt.witness())
+    generic::route_generic_loop_v1(builder, ctx, compose_facts, attempt)
         .map(RouteAttemptOutcomeV1::from_legacy)
 }
 
-fn debug_log_recipe_entry(route_label: &str, witness: &RouteExecutionWitnessV1<'_>) {
+fn debug_log_recipe_entry(route_label: &str, attempt: &RouteExecutionAttemptV1<'_, '_>) {
     if !crate::config::env::joinir_dev::debug_enabled() {
         return;
     }
-    let entry_state = if witness.planner_required() {
+    let entry_state = if attempt.planner_required() {
         "recipe_contract enforced"
     } else {
         "recipe-only entry"
@@ -57,15 +55,17 @@ fn route_standard(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
     entry: &StandardEntry,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
-    let witness = attempt.witness();
-    if entry.planner_required_only && !witness.planner_required() {
+    if entry.planner_required_only && !attempt.planner_required() {
         return Ok(RouteAttemptOutcomeV1::Retry);
     }
-    if witness.planner_required() && !witness.recipe_contract_present() {
+    if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(Freeze::contract(entry.missing_contract_msg).to_string());
     }
     if let Some(policy) = entry.absent_contract_decline {
-        if policy.declines(witness) {
+        if policy.declines(
+            attempt.planner_required(),
+            attempt.recipe_contract_present(),
+        ) {
             return attempt
                 .issue_shared_absent_contract_decline(policy)
                 .map(RouteAttemptOutcomeV1::SharedAbsentContractDeclined);
@@ -73,16 +73,16 @@ fn route_standard(
     }
 
     if let Some(rule) = entry.plan_rule {
-        emit_planner_first_from_witness(entry.planner_first, witness, rule);
+        emit_planner_first_from_attempt(entry.planner_first, attempt, rule);
     }
-    debug_log_recipe_entry(entry.route_label, witness);
+    debug_log_recipe_entry(entry.route_label, attempt);
 
     let facts = compose_facts.expect("facts present for route_standard");
     let core_plan = with_standard_compose_binding_boundary(builder, |builder| {
         (entry.compose)(builder, facts, ctx)
     })
     .map_err(|freeze| freeze.to_string())?;
-    let via = if witness.strict_or_dev() {
+    let via = if attempt.strict_or_dev() {
         entry.flowbox_via_strict
     } else {
         entry.flowbox_via_release
@@ -90,7 +90,7 @@ fn route_standard(
     lower_verified_core_plan(
         builder,
         ctx,
-        witness.strict_or_dev(),
+        attempt.strict_or_dev(),
         compose_facts,
         core_plan,
         via,
@@ -108,50 +108,48 @@ where
     result
 }
 
-fn emit_planner_first_from_witness(
+fn emit_planner_first_from_attempt(
     mode: super::types::PlannerFirstMode,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
     rule: crate::mir::builder::control_flow::lower::PlanRuleId,
 ) {
     let env = super::types::RouterEnv {
-        strict_or_dev: witness.strict_or_dev(),
-        planner_required: witness.planner_required(),
-        has_body_local: witness.has_body_local(),
+        strict_or_dev: attempt.strict_or_dev(),
+        planner_required: attempt.planner_required(),
+        has_body_local: attempt.has_body_local(),
     };
     emit_planner_first(mode, &env, rule);
 }
 
 fn release_skips_nested_loop(
     ctx: &LoopRouteContext,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> bool {
-    !witness.planner_required() && detect_nested_loop(ctx.body)
+    !attempt.planner_required() && detect_nested_loop(ctx.body)
 }
 
 fn release_allows_loop_cond_continue_only(
     ctx: &LoopRouteContext,
-    witness: &RouteExecutionWitnessV1<'_>,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> bool {
-    if witness.planner_required() || !detect_nested_loop(ctx.body) {
+    if attempt.planner_required() || !detect_nested_loop(ctx.body) {
         return true;
     }
-    witness
-        .facts()
+    compose_facts
         .and_then(|facts| facts.facts.loop_cond_continue_only())
         .is_some()
 }
 
 fn release_allows_loop_cond_break_continue(
     _ctx: &LoopRouteContext,
-    witness: &RouteExecutionWitnessV1<'_>,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> bool {
-    if witness.planner_required() {
+    if attempt.planner_required() {
         return true;
     }
-    let Some(facts) = witness
-        .facts()
-        .and_then(|facts| facts.facts.loop_cond_break_continue())
-    else {
+    let Some(facts) = compose_facts.and_then(|facts| facts.facts.loop_cond_break_continue()) else {
         return false;
     };
     // Release route allows nested-loop shapes only when loop_cond_break_continue

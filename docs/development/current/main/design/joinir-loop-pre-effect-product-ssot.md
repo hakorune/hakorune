@@ -1559,3 +1559,17 @@ inputs and requires explicit compose facts. S2 preserves retry behavior and
 issues no terminality, effect-freedom, exhaustion, fallback, rollback,
 lower-success, or nonshared-route claim. The next card must start with a fresh
 design-only scope decision.
+
+### Route-execution witness S2.1 authority repair
+
+Review found that the initial witness still carried `CanonicalLoopFacts` and
+that conditional release helpers could read them through the attempt. That
+created a second facts authority beside explicit `compose_facts`, contrary to
+the S0 boundary. S2.1 removes facts and the general witness/raw-schedule
+accessor from handlers. Attempts expose only current route/cursor/suffix and
+the captured scalar decline inputs; all compose and conditional release facts
+remain explicit inputs. The shared guard ratchets both the absence of handler
+`facts()` reads and `route_standard` as the sole shared-decline issuer.
+
+This is behavior-neutral authority repair. It adds no route qualification,
+terminality, effect, fallback, rollback, lower-success, or cutover claim.

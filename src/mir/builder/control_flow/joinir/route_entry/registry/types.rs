@@ -1,7 +1,5 @@
 use super::super::router::LoopRouteContext;
-use super::execution_witness::{
-    RouteAttemptOutcomeV1, RouteExecutionAttemptV1, RouteExecutionWitnessV1,
-};
+use super::execution_witness::{RouteAttemptOutcomeV1, RouteExecutionAttemptV1};
 use super::route_id::LoopRouteId;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::{CorePlan, Freeze, PlanRuleId};
@@ -76,8 +74,8 @@ impl SharedAbsentContractDeclineRouteV1 {
         }
     }
 
-    pub(crate) fn declines(self, witness: &RouteExecutionWitnessV1<'_>) -> bool {
-        !witness.planner_required() && !witness.recipe_contract_present()
+    pub(crate) fn declines(self, planner_required: bool, recipe_contract_present: bool) -> bool {
+        !planner_required && !recipe_contract_present
     }
 }
 
@@ -126,9 +124,9 @@ mod tests {
             has_body_local: false,
         };
         let schedule = [LoopRouteId::LoopTrueEarlyExit];
-        let absent_contract = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
+        let absent_contract = RouteExecutionWitnessV1::issue(&schedule, &env, false);
         assert!(policies
             .into_iter()
-            .all(|policy| policy.declines(&absent_contract)));
+            .all(|policy| policy.declines(false, absent_contract.recipe_contract_present())));
     }
 }

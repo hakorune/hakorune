@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use super::super::execution_witness::RouteExecutionWitnessV1;
+use super::super::execution_witness::RouteExecutionAttemptV1;
 use super::super::types::route_labels;
 use super::debug_log_recipe_entry;
 use crate::mir::builder::control_flow::joinir::route_entry::router::lower_verified_core_plan;
@@ -16,9 +16,9 @@ pub(crate) fn route_generic_loop_v1(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V1, witness);
+    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V1, attempt);
     let Some(facts) = compose_facts else {
         return Ok(None);
     };
@@ -27,11 +27,11 @@ pub(crate) fn route_generic_loop_v1(
     }
     let core_plan = RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, ctx)
         .map_err(|error| error.to_string())?;
-    if witness.strict_or_dev() {
+    if attempt.strict_or_dev() {
         return lower_verified_core_plan(
             builder,
             ctx,
-            witness.strict_or_dev(),
+            attempt.strict_or_dev(),
             compose_facts,
             core_plan,
             FlowboxVia::Shadow,
@@ -50,9 +50,9 @@ pub(crate) fn route_generic_loop_v0(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V0, witness);
+    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V0, attempt);
     let Some(facts) = compose_facts else {
         return Ok(None);
     };
@@ -61,11 +61,11 @@ pub(crate) fn route_generic_loop_v0(
     }
     let core_plan = RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, ctx)
         .map_err(|error| error.to_string())?;
-    if witness.strict_or_dev() {
+    if attempt.strict_or_dev() {
         return lower_verified_core_plan(
             builder,
             ctx,
-            witness.strict_or_dev(),
+            attempt.strict_or_dev(),
             compose_facts,
             core_plan,
             FlowboxVia::Shadow,

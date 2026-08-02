@@ -301,7 +301,6 @@ pub(crate) fn route_loop(
     if recipe_first_allowed {
         let execution = registry::RouteExecutionWitnessV1::issue(
             selection.raw_execution_routes(),
-            outcome.facts.as_ref(),
             &env,
             outcome.recipe_contract.is_some(),
         );

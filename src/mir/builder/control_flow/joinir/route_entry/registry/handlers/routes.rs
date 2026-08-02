@@ -17,7 +17,7 @@ use super::super::types::{
     route_labels, PlannerFirstMode, SharedAbsentContractDeclineRouteV1, StandardEntry,
 };
 use super::super::utils::loop_break_recipe_needs_flowbox_adopt_tag_in_strict;
-use super::{debug_log_recipe_entry, emit_planner_first_from_witness};
+use super::{debug_log_recipe_entry, emit_planner_first_from_attempt};
 use super::{
     release_allows_loop_cond_break_continue, release_allows_loop_cond_continue_only,
     release_skips_nested_loop, route_standard,
@@ -35,7 +35,7 @@ pub(crate) fn route_loop_break_recipe(
         )
         .to_string());
     }
-    emit_planner_first_from_witness(
+    emit_planner_first_from_attempt(
         PlannerFirstMode::StrictOrDev,
         attempt,
         PlanRuleId::LoopBreakRecipe,
@@ -96,7 +96,7 @@ pub(crate) fn route_if_phi_join(
         )
         .to_string());
     }
-    emit_planner_first_from_witness(
+    emit_planner_first_from_attempt(
         PlannerFirstMode::StrictOrDev,
         attempt,
         PlanRuleId::IfPhiJoin,
@@ -135,7 +135,7 @@ pub(crate) fn route_loop_continue_only(
         )
         .to_string());
     }
-    emit_planner_first_from_witness(
+    emit_planner_first_from_attempt(
         PlannerFirstMode::StrictOrDev,
         attempt,
         PlanRuleId::LoopContinueOnly,
@@ -335,7 +335,7 @@ pub(crate) fn route_accum_const_loop(
         )
         .to_string());
     }
-    emit_planner_first_from_witness(
+    emit_planner_first_from_attempt(
         PlannerFirstMode::StrictOrDev,
         attempt,
         PlanRuleId::AccumConstLoop,
@@ -435,7 +435,7 @@ pub(crate) fn route_loop_cond_break_continue(
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
-    if !release_allows_loop_cond_break_continue(ctx, attempt) {
+    if !release_allows_loop_cond_break_continue(ctx, compose_facts, attempt) {
         return Ok(RouteAttemptOutcomeV1::Retry);
     }
 
@@ -460,7 +460,7 @@ pub(crate) fn route_loop_cond_continue_only(
     compose_facts: Option<&CanonicalLoopFacts>,
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
-    if !release_allows_loop_cond_continue_only(ctx, attempt) {
+    if !release_allows_loop_cond_continue_only(ctx, compose_facts, attempt) {
         return Ok(RouteAttemptOutcomeV1::Retry);
     }
 
