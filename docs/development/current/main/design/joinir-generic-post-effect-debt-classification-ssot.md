@@ -572,6 +572,15 @@ disagree. `V0Suppressed` planner-required rows are a separate pre-effect gate,
 not overlap proof. No Generic Recipe, PHI, JoinSig, Retry rewrite, or
 `route_loop` production caller is permitted in this row.
 
+Implementation observation: the test-only `GenericOverlapEvidenceRowV1` now
+stores, for the actual `Both` fixture in release/strict/planner-required modes,
+the direct fresh-candidate V0/V1 stages beside the frame-bound witness trace.
+Release/strict retain raw `[GenericLoopV0, GenericLoopV1]` and the witness
+terminates at V0 without a debt receipt; planner-required retains only V1.
+This is a joined evidence matrix, not a winner oracle: the direct stage and
+legacy terminal are recorded together, while pre-effect policy equivalence and
+disjointness remain open.
+
 #### M5 boundary while D2-B is open
 
 An isolated `AccumConstLoop` caller-zero test candidate may be designed as the

@@ -25,7 +25,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum CorpusModeV1 {
+pub(super) enum CorpusModeV1 {
     Release,
     Strict,
     StrictPlannerRequired,
@@ -53,7 +53,7 @@ impl CorpusModeV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum PlanStageV1 {
+pub(super) enum PlanStageV1 {
     ComposerError,
     NonLoopRoot,
     VerifierRejected,
@@ -63,9 +63,16 @@ enum PlanStageV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum EffectOwnerV1 {
+pub(super) enum EffectOwnerV1 {
     None,
     GenericComposer,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct GenericDirectStageEvidenceV1 {
+    pub(super) route: LoopRouteId,
+    pub(super) stage: PlanStageV1,
+    pub(super) first_effect_owner: EffectOwnerV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -256,6 +263,38 @@ fn observe_fixture(mode: CorpusModeV1, name: &str) -> Vec<ReachabilityRowV1> {
             )
         })
         .map(|route| observe_row(mode, route, facts, &ctx))
+        .collect()
+}
+
+pub(super) fn observe_both_direct_stage(
+    strict_or_dev: bool,
+    planner_required: bool,
+) -> Vec<GenericDirectStageEvidenceV1> {
+    let mode = if planner_required {
+        CorpusModeV1::StrictPlannerRequired
+    } else if strict_or_dev {
+        CorpusModeV1::Strict
+    } else {
+        CorpusModeV1::Release
+    };
+    let _config = crate::test_support::ScopedTestConfig::apply(&[
+        (
+            "HAKO_JOINIR_STRICT",
+            if strict_or_dev { Some("1") } else { None },
+        ),
+        (
+            "HAKO_JOINIR_PLANNER_REQUIRED",
+            if planner_required { Some("1") } else { None },
+        ),
+        ("NYASH_JOINIR_STRICT", None),
+    ]);
+    observe_fixture(mode, "both")
+        .into_iter()
+        .map(|row| GenericDirectStageEvidenceV1 {
+            route: row.route,
+            stage: row.stage,
+            first_effect_owner: row.first_effect_owner,
+        })
         .collect()
 }
 

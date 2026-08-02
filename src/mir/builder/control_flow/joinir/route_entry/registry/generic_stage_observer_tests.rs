@@ -10,6 +10,9 @@ use super::execution_witness::{
 use super::generic_selection_matrix_tests::{
     both_body, effect_without_local_body, progression_condition, v1_only_effect_body,
 };
+use super::generic_accepted_plan_reachability_tests::{
+    observe_both_direct_stage, GenericDirectStageEvidenceV1,
+};
 use super::route_id::LoopRouteId;
 use super::dispatch_entry;
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
@@ -97,6 +100,13 @@ struct GenericStageTraceV1 {
     attempted: Vec<AttemptTraceV1>,
     generic_debts: Vec<GenericDebtTraceV1>,
     terminal: TerminalTraceV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct GenericOverlapEvidenceRowV1 {
+    mode: ObserverModeV1,
+    direct: Vec<GenericDirectStageEvidenceV1>,
+    witness: GenericStageTraceV1,
 }
 
 fn seeded_builder() -> MirBuilder {
@@ -254,6 +264,14 @@ fn observe_effect_without_local_fixture(mode: ObserverModeV1) -> GenericStageTra
     )
 }
 
+fn observe_both_evidence(mode: ObserverModeV1) -> GenericOverlapEvidenceRowV1 {
+    GenericOverlapEvidenceRowV1 {
+        mode,
+        direct: observe_both_direct_stage(mode.strict_or_dev(), mode.planner_required()),
+        witness: observe_both_fixture(mode),
+    }
+}
+
 #[test]
 fn generic_both_fixture_reaches_actual_entries_handler_path() {
     let trace = observe_both_fixture(ObserverModeV1::Release);
@@ -346,6 +364,57 @@ fn generic_both_fixture_records_mode_specific_witness_boundaries() {
             );
         }
     }
+}
+
+#[test]
+fn generic_both_evidence_matrix_keeps_direct_stage_and_witness_separate() {
+    let matrix = [
+        observe_both_evidence(ObserverModeV1::Release),
+        observe_both_evidence(ObserverModeV1::Strict),
+        observe_both_evidence(ObserverModeV1::StrictPlannerRequired),
+    ];
+    for row in matrix {
+        assert!(
+            row.direct
+                .iter()
+                .all(|evidence| evidence.first_effect_owner
+                    == super::generic_accepted_plan_reachability_tests::EffectOwnerV1::GenericComposer),
+            "direct stage must record a Generic composer effect owner: {row:?}"
+        );
+        assert!(
+            row.witness.generic_debts.is_empty(),
+            "Both evidence must not turn absence of a debt receipt into a proof: {row:?}"
+        );
+        match row.mode {
+            ObserverModeV1::Release | ObserverModeV1::Strict => {
+                assert_eq!(
+                    row.direct.iter().map(|evidence| evidence.route).collect::<Vec<_>>(),
+                    vec![LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
+                );
+                assert_eq!(
+                    row.witness.raw_schedule,
+                    vec![LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
+                );
+                assert_eq!(
+                    row.witness.terminal,
+                    TerminalTraceV1::Succeeded(LoopRouteId::GenericLoopV0)
+                );
+            }
+            ObserverModeV1::StrictPlannerRequired => {
+                assert_eq!(
+                    row.direct.iter().map(|evidence| evidence.route).collect::<Vec<_>>(),
+                    vec![LoopRouteId::GenericLoopV1]
+                );
+                assert_eq!(
+                    row.witness.raw_schedule,
+                    vec![LoopRouteId::GenericLoopV1]
+                );
+            }
+        }
+    }
+    // This matrix records the real pair of observations; it is not a pure
+    // winner oracle.  D2-B still needs pre-effect policy equivalence or a
+    // production-derived disjointness proof.
 }
 
 #[test]
