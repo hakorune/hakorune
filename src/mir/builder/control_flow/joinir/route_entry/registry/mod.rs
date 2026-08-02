@@ -217,6 +217,8 @@ mod generic_accepted_plan_reachability_tests;
 mod generic_selection_matrix_tests;
 #[cfg(test)]
 mod generic_stage_observer_tests;
+#[cfg(test)]
+mod scoped_nongeneric_cutover_tests;
 
 #[cfg(test)]
 mod tests {

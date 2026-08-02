@@ -96,6 +96,19 @@ Use full `try_build_outcome` -> shared frame -> raw selector. Record every
 candidate row that is genuinely singleton and non-Generic. A direct extractor
 pair is not enough; the production selector must show no Generic suffix.
 
+The first bounded census is now fixed by
+`registry/scoped_nongeneric_cutover_tests.rs`:
+
+| source row | production raw schedule | disposition |
+| --- | --- | --- |
+| direct Accum fixture | `[AccumConstLoop]` | singleton pilot candidate |
+| simple-while fixture | `[LoopSimpleWhile, GenericLoopV0]` | overlap; keep legacy |
+| nested-loop fixture | `[GenericLoopV0, GenericLoopV1]` | Generic overlap; keep legacy |
+
+This is a bounded N0 witness, not a claim that all 19 rows are classified.
+The singleton row still cannot enter production until N1 proves the shared
+CFG/JoinSig/PHI owner and the portable physicalizer contract.
+
 ### N1 — shared-owner prerequisite
 
 Complete the M5 caller-zero pilot and M6 shared CFG/JoinSig/PHI owners. Keep
@@ -119,4 +132,3 @@ Stop the bridge and keep the old path when a singleton proof is missing, a
 Generic suffix exists, a physicalizer returns `Option`, a failure would need
 legacy retry, PHI ownership is duplicated, or parity/candidate isolation is
 unmeasured. Do not rename an overlapping row as “non-Generic” to make it fit.
-
