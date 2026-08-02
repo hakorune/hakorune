@@ -469,28 +469,28 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-DIRECT-SIMPLE-PHYSICALIZER0-D0`
-Parent: `JOINIR-DIRECT-SIMPLE-LOGICAL-PRODUCT0-S0` (closed)
-Ceremony: design one disconnected direct SimpleWhile physicalizer; production consumers remain zero.
+Row: `JOINIR-LOOP-ALL-ROUTE-PHYSICALIZATION0-D0`
+Parent: `JOINIR-DIRECT-SIMPLE-PHYSICALIZER0-D0` (closed, NoSafeSlice)
+Ceremony: design the all-route physicalization prerequisite; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Fix the sealed physical context, one-effect commit point, error surface, and
-  future all-route replacement boundary for the direct product consumer.
+  Fix the sealed all-route context, Builder-free compose proof, one-effect commit,
+  terminal error surface, and atomic legacy scheduler replacement requirements.
 
 Contract:
-  The physicalizer may consume only the opaque direct product; it must not choose
-  routes, inspect facts/raw selection, retry GenericLoopV0, or claim cutover.
+  The direct NoSafeSlice is authority: no partial consumer may choose routes,
+  inspect facts/raw selection, retry GenericLoopV0, or claim cutover.
 
 Done:
-  The design identifies an existing reusable physical seam or records NoSafeSlice,
-  with an explicit one-effect transaction and error/no-retry contract. It preserves
-  all-route policy and keeps product consumer/caller count at zero.
+  The design gives all-route membership/compose prerequisites, a sealed context,
+  one-effect transaction, terminal no-retry errors, and an atomic deletion plan for
+  the legacy scheduler. It keeps product consumer/caller count at zero.
 
 Stop:
-  Stop if D0 adds a caller, reuses the legacy scheduler, exposes product parts,
-  assumes terminality means lower success, or treats SimpleWhile as all-route
-  cutover. No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
+  Stop if D0 adds a caller, reuses legacy composition as a product seam, exposes
+  product parts, assumes terminality means lower success, or treats SimpleWhile as
+  all-route cutover. No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 

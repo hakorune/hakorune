@@ -506,3 +506,21 @@ empty cases. The former `logical_demand` subtree was deleted in the same change,
 including its forged selection, independent source view, roles vocabulary, and
 address-stamped receipt APIs. The receipt is now raw-body arity only. No Builder,
 CorePlan, physical ID, runtime, or production caller entered this box.
+
+### Direct SimpleWhile physicalizer D0 closeout
+
+Decision: rejected as `NoSafeSlice`. The opaque product exports neither source
+lease nor Facts/CorePlan, while every existing SimpleWhile path is Builder-bound:
+`route_standard` requires route context/outcome/environment, the composer rebuilds
+AST from Facts, and `lower_loop_v0` allocates frame/PHI/block state before later
+effect emission. Existing wrappers do not provide Builder rollback. Reusing that
+path would discard product authority and retain the legacy `Result<Option<_>>`
+retry scheduler, so it cannot be a disconnected consumer.
+
+Future cutover requires an all-route pre-effect product and a sealed exact
+physicalization context (Builder, source/facts/outcome/environment, and policy),
+a Builder-free compose/preflight proof before the first mutation, one commit
+boundary, and terminal `Result<ValueId, Freeze>` errors with no `None`/retry.
+Only then may the named production caller replace the full ordered scheduler and
+delete its old physical edges atomically. Direct SimpleWhile remains caller-zero;
+its GenericLoopV0 tail is audit evidence, never fallback.
