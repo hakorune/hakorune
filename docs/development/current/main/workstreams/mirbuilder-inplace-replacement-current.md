@@ -469,29 +469,30 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-DIRECT-SIMPLE-WHILE-TERMINALITY0-S0`
-Parent: `JOINIR-LOOP-SIMPLE-WHILE-TERMINALITY0-D0` (closed)
-Ceremony: issue one narrow pre-effect terminality certificate; production consumers remain zero.
+Row: `JOINIR-LIVE-ORDERED-TERMINALITY-TRANSACTION0-D1`
+Parent: `JOINIR-DIRECT-SIMPLE-WHILE-TERMINALITY0-S0` (closed)
+Ceremony: design one live ordered certificate transaction; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Encode only the direct non-nested SimpleWhile fact that its legacy route cannot
-  return `Ok(None)` after the existing nested pre-gate; errors remain terminal.
+  Bind live source/Facts, one existing raw schedule, and terminality certificates
+  in an opaque consumed transaction that retains the GenericLoopV0 tail evidence.
 
 Contract:
-  Source/projection topology plus the existing route's static terminal behavior
-  are authority. The certificate proves scheduler terminality, not lowering success,
-  Builder readiness, rollback, or a selected logical product.
+  The transaction consumes its live pair once, invokes existing selection once, and
+  may only expose terminal disposition/product—not raw source, Facts, selection,
+  topology traversal, or a reusable request/slot API.
 
 Done:
-  Direct and ScopeBox/nested fixtures distinguish terminal direct shape from
-  pre-effect ineligibility. The shared ratchet proves the handler's only None
-  return is the nested pre-gate; later compose/lower yields Some or Err.
+  The design fixes ownership/lifetime, certificate ordering, terminal tail evidence,
+  failure vocabulary, and direct/nested/overlap fixtures. A later S0 alone
+  implements it with SimpleWhile only.
 
 Stop:
-  Stop if S0 treats errors as success, proves lowering readiness/rollback, changes
-  legacy retry, re-runs selection, selects Accum, or needs a physical/runtime owner.
-  No physicalizer, Loop I0, raw/reference ingress, or fallback wrapper is authorized.
+  Stop if the transaction hides the tail, picks first route without certificate,
+  exposes parts/generic slots, re-runs selection, selects Accum, or needs a
+  physical/runtime owner. No physicalizer, Loop I0, raw/reference ingress, or
+  fallback wrapper is authorized.
 
 ## Production invariants
 

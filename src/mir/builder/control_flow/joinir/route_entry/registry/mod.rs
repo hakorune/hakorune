@@ -7,6 +7,7 @@ use crate::mir::builder::MirBuilder;
 
 use super::router::LoopRouteContext;
 
+mod direct_simple_while_terminality;
 mod handlers;
 mod legacy_observer;
 mod logical_demand;

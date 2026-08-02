@@ -404,3 +404,14 @@ S0 may encode that narrow certificate with direct/nested fixtures and an
 existing shared guard ratchet. It may not issue a product or select a route;
 the ordered terminality transaction remains a later box and must retain
 GenericLoopV0 as an unreached legacy tail when the certificate is consumed.
+
+### Direct SimpleWhile terminality S0 evidence
+
+`DirectSimpleWhileTerminalityV1` now issues only for exactly one raw direct
+statement, empty ScopeBox lineage, and non-nested Facts. It carries no AST or
+product and proves only that the existing handler's nested None pre-gate is
+unreachable. Direct and ScopeBox fixtures distinguish terminality from
+ineligibility. The existing shared guard statically ratchets that the handler
+has exactly one `Ok(None)` return and it is the nested pre-gate; later route
+behavior remains `Some` or `Err`. D1 must design ordered consumption with the
+live source frame and full raw schedule tail.
