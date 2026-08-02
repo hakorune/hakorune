@@ -687,3 +687,16 @@ read-digits specialized LoopBreak to source-topology unavailable. Each fixture
 also asserts the actual raw front is `LoopBreakRecipe`. The production selector
 still runs exactly once; the shared guard now excludes test-only selector calls
 when checking that production boundary.
+
+### LoopBreakRecipe terminality D0 decision
+
+Decision: accept a scheduler-terminality-only S0 for the generic direct
+three-statement topology. Its fixture proves the exact raw schedule is
+`[LoopBreakRecipe]`; direct source receipt/sites are `0/1/2` with empty ScopeBox
+lineage. `route_loop_break_recipe` has no `Ok(None)` return: its pre-compose
+contract failure, compose/verification/lowering failures are `Err`, and a
+successful loop lower finalizes as `Some(void)`. ScopeBox receives no
+certificate. This is not a pre-effect proof: `lower_loop_v0` begins physical
+work after its precondition checks, first allocating carrier PHI ValueIds, and
+later errors have no rollback. S0 therefore adds no product, qualified arm,
+caller, composer reuse, or physical claim.

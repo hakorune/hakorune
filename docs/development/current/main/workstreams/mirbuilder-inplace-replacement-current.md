@@ -469,27 +469,27 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-BREAK-TERMINALITY0-D0`
-Parent: `JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-S0` (closed)
-Ceremony: design one direct generic LoopBreakRecipe scheduler-terminality proof; production consumers remain zero.
+Row: `JOINIR-LOOP-BREAK-TERMINALITY0-S0`
+Parent: `JOINIR-LOOP-BREAK-TERMINALITY0-D0` (closed)
+Ceremony: add one direct generic LoopBreakRecipe scheduler-terminality certificate; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Inventory the actual direct generic raw schedule and all LoopBreak handler
-  outcomes before versus after its first physical effect.
+  Certify only the direct generic three-site topology whose fixture selects raw
+  `[LoopBreakRecipe]` and whose handler cannot return `Ok(None)`.
 
 Contract:
-  Existing raw selection, handler, and composer effect boundary are authority.
-  D0 may not infer terminality from provenance or a successful focused fixture.
+  Existing topology, exact raw schedule fixture, and handler outcome boundary are
+  authority. Terminality means `Some | Err`, never pre-effect/product readiness.
 
 Done:
-  Design names any truthful direct certificate, raw schedule fixture, effect-boundary
-  evidence, and fail-closed ScopeBox behavior. No product/caller/qualification.
+  Direct fixture proves schedule plus certificate; ScopeBox has no certificate;
+  shared guard fixes handler `return Ok(None)` count at zero. No product/caller/qualification.
 
 Stop:
-  Stop if D0 uses AST/recipe/source re-match, skips an effect boundary, changes the
-  current route schedule, or claims physical readiness. No runtime routing, Loop I0,
-  raw/reference ingress, or fallback is authorized.
+  Stop if S0 uses AST/recipe/source re-match, changes the current route schedule,
+  treats terminality as physical safety, or widens another subset. No runtime routing,
+  Loop I0, raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 
