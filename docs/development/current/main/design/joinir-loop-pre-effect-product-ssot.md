@@ -1127,3 +1127,15 @@ whole statements only. The recipe's reconstructed body, including synthetic
 No preflight, selector, terminality, product, composer/lowerer, Builder,
 physicalizer, caller, or runtime change is authorized. The planner-required
 route's ordinary `Ok(None)` behavior makes terminality a later independent D0.
+
+### LoopCharMap provenance D0/S0 implementation record
+
+Decision: accept behavior-neutral optional topology S0. The projection-aware
+facts path retains only the opaque flattened sites at `0/1/2` for substring
+local, result update, and final step when the complete three-statement body is
+aligned. The legacy wrapper supplies the default projection and stays topology
+absent; facts acceptance and synthetic-recipe behavior are unchanged.
+
+No source resolver, synthetic `ch` authority, preflight, terminality, product,
+composer/lowerer/Builder, physicalizer, caller, or runtime behavior was added.
+The next card is preflight D0.
