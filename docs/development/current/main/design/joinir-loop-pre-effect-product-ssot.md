@@ -987,3 +987,31 @@ product, composer/lowerer/Builder change, physicalizer, caller, or runtime
 behavior. Its fixtures must cover direct issuance, ScopeBox rejection,
 malformed/duplicate/non-final topology rejection, and injected-earlier-route
 rejection.
+
+### LoopContinueOnly terminality S0 implementation record
+
+The facts-owned topology now has one opaque complete-direct-schedule predicate.
+It verifies matching raw arity, direct indices and empty ScopeBox lineage,
+`ContinueIf@0`, one or more distinct interior carrier updates, and a final
+step. A route-local certificate consumes that predicate only with the sole raw
+selection `[LoopContinueOnly]`; malformed, ScopeBox, and injected-earlier
+schedules fail closed. It keeps no AST source lease and changes no execution
+path, so it claims neither lower success nor physical safety.
+
+### LoopContinueOnly logical-product D0 decision
+
+Decision: accept a narrow disconnected S0. The terminality proof must retain
+an opaque direct lease of only the loop condition and whole direct body. The
+logical-product issuer then consumes terminality by value and may issue exactly
+four aggregate roles: `LoopCondition`, opaque `ContinueIfSubtree`, aggregate
+`CarrierUpdateSequence`, and `LoopBackContinuation`. The carrier sequence is
+one-or-more as a unit; it grants neither per-carrier source order nor a nested
+AST resolver.
+
+The complete-direct topology predicate and singleton raw selection remain the
+only admission proof. S0 may not re-match AST/Facts, rerun selection, traverse
+projection, borrow source independently, alter another route, or create a
+consumer. Existing composition is explicitly out of scope because it rebuilds
+carrier updates from a key-sorted `BTreeMap` and enters mutating `lower_loop_v0`.
+No composer/lowerer/Builder/physicalization/rollback/caller/runtime claim is
+authorized. Fixtures must fix direct issuance and ScopeBox/current rejection.
