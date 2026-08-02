@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2 active: co-seal immutable lowering projection and remove late Script source reconstruction."
+status = "SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0 active: consume the verified Script lowering projection once without changing source transport."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "Co-seal projection facts only. Do not change Complete admission, BindingRef-to-ValueId authority, source transport, raw/reference behavior, or user diagnostic timing."
-current_execution_row = "SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2"
-current_execution_summary = "Create one immutable projection from Script core and receipt packs; delete late forest/path reconstruction from the facade. Keep Complete source borrowed until the later move-only loan cutover."
+current_design_stop = "Move only the already co-sealed lowering projection into the one selected lowering loan. Do not change Complete admission, source transport, raw/reference behavior, or user diagnostic timing."
+current_execution_row = "SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0"
+current_execution_summary = "Consume Complete source once, move the verified projection into the request ledger, and retire read-only receipt maps from mutable Script lowering state."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

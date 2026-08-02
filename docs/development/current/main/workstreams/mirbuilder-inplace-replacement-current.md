@@ -472,9 +472,14 @@ closed — SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1
   standalone EnumMatch seal module is deleted. Complete admission and lowering
   are unchanged.
 
-current — SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2
-  -> co-seal immutable lowering facts from core and both receipt packs, then
-  delete late facade-side forest/path reconstruction without moving user errors.
+closed — SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2
+  -> one immutable projection now co-seals core facts and both receipt packs;
+  the live facade delegates lowering-state creation and no longer reconstructs
+  forest facts, source paths, or capture receipts after semantic sealing.
+
+current — SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0
+  -> consume the existing verified projection once into the selected request
+  ledger; source transport and all Complete/Deferred admission stay unchanged.
 
 ### Refactor Series queue
 
@@ -482,7 +487,7 @@ current — SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2
 |---:|---|---|
 | 0 | `MIRBUILDER-CALLABLE-LAMBDA-GUARD-SCOPE0-P0` | Replace the false cross-function string-position test with scoped callable-port and Lambda-dispatch assertions; shared guard stays below 800 lines. |
 | 1 | `SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1` | Move Record/Enum/QMark/Match receipt sealing into one private pack and delete the standalone EnumMatch seal module. No acceptance or dispatcher change. |
-| 2 | `SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2` | Co-seal the immutable lowering projection from core and receipt packs; delete the late forest/path reconstruction and its `expect` edges. |
+| 2 | `SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2` | Closed: co-sealed immutable facts from core and receipt packs; facade-side late reconstruction and `expect` edges are zero. |
 | 3 | `SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0` | Consume Complete source once, move the verified projection into the request ledger, and remove read-only receipt maps/install APIs from mutable lowering state. Split the touched 808-line raw-port test file. |
 | 4 | `SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3` | Collapse witness `issue -> new` into one atomic semantic decision; retain operational classification and invariant re-projection as separate owners. |
 | 5 | `SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4` | Extract Script-root demand dispatch from shared statement traversal without creating a second recursive resolver. |

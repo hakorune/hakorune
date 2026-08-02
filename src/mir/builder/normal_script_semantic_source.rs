@@ -7,17 +7,21 @@
 //! carrier can manufacture the Complete loan.
 
 use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
-use super::normal_script_operational_demand_receipt_pack::{
-    ScriptOperationalDemandReceiptPackV1, ScriptQMarkPropagationTargetV1,
-};
+use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDemandReceiptPackV1;
+#[cfg(test)]
+use super::normal_script_operational_demand_receipt_pack::ScriptQMarkPropagationTargetV1;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
+use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
 use super::normal_script_semantic_source_core::ScriptSemanticSourceCoreV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, EnumVariantAdmissionV1, ResolvedAssignmentTargetV1, ScriptDiagnosticBoundaryV1,
-    SemanticOwnerForestDraftV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
-    SourceStmtSiteV1, VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1,
-    VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
+    BindingRefV1, SemanticOwnerForestDraftV1, SourceNodeSiteV1, VerifiedResolvedScriptV1,
+    VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1,
+    VerifiedSemanticOwnerProductV1,
+};
+#[cfg(test)]
+use crate::mir::resolved_semantics::{
+    EnumVariantAdmissionV1, ScriptDiagnosticBoundaryV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 
 use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
@@ -27,6 +31,7 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     core: ScriptSemanticSourceCoreV1<'source>,
     boundaries: ScriptBoundaryReceiptPackV1,
     demands: ScriptOperationalDemandReceiptPackV1,
+    lowering_projection: VerifiedScriptLoweringProjectionV1,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -70,10 +75,13 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 .to_vec()
                 .into_boxed_slice(),
         )?;
+        let lowering_projection =
+            VerifiedScriptLoweringProjectionV1::seal(&core, &boundaries, &demands)?;
         Ok(Self {
             core,
             boundaries,
             demands,
+            lowering_projection,
         })
     }
 
@@ -192,153 +200,15 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     pub(super) fn local_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
-        let [root] = self.core.forest().roots() else {
-            return None;
-        };
-        let owner = self.core.forest().semantic_owner(*root)?;
-        owner.declaration_binding(&SourceBindingSiteV1::Local {
-            statement: SourceStmtSiteV1::from_node(site.clone()),
-            ordinal: 0,
-        })
+        self.lowering_projection.local_binding_at(site)
     }
 
     pub(super) fn variable_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
-        let [root] = self.core.forest().roots() else {
-            return None;
-        };
-        let owner = self.core.forest().semantic_owner(*root)?;
-        owner.variable_refs().find_map(|(candidate, reference)| {
-            if candidate.node() != site {
-                return None;
-            }
-            match reference {
-                crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) => {
-                    Some(*binding)
-                }
-                _ => None,
-            }
-        })
+        self.lowering_projection.variable_binding_at(site)
     }
 
     pub(super) fn lowering_state(&self) -> Result<ScriptSemanticLoweringState, String> {
-        let [root] = self.core.forest().roots() else {
-            return Err("[freeze:contract][script-record/root-cardinality]".to_owned());
-        };
-        let Some(owner) = self.core.forest().semantic_owner(*root) else {
-            return Err("[freeze:contract][script-record/root-owner]".to_owned());
-        };
-        let locals = owner.declaration_sites().filter_map(|site| match site {
-            SourceBindingSiteV1::Local { statement, .. } => Some((
-                statement.node().clone(),
-                owner
-                    .declaration_binding(site)
-                    .expect("local declaration binding"),
-            )),
-            _ => None,
-        });
-        let nowaits = owner.declaration_sites().filter_map(|site| match site {
-            SourceBindingSiteV1::Nowait { statement } => Some((
-                statement.node().clone(),
-                owner
-                    .declaration_binding(site)
-                    .expect("nowait declaration binding"),
-            )),
-            _ => None,
-        });
-        let outboxes = self
-            .boundaries
-            .outbox_materializations()
-            .iter()
-            .map(|receipt| {
-                (
-                    receipt.site.node().clone(),
-                    receipt.bindings.iter().copied(),
-                )
-            });
-        let variables = owner
-            .variable_refs()
-            .filter_map(|(site, reference)| match reference {
-                crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) => {
-                    Some((site.clone(), *binding))
-                }
-                _ => None,
-            });
-        let assignments = owner
-            .assignment_targets()
-            .filter_map(|(site, target)| match target {
-                ResolvedAssignmentTargetV1::BindingRebind(binding) => {
-                    Some((site.clone(), *binding))
-                }
-                ResolvedAssignmentTargetV1::UpvarRebind(_)
-                | ResolvedAssignmentTargetV1::FieldWrite { .. }
-                | ResolvedAssignmentTargetV1::IndexWrite { .. } => None,
-            });
-        let lambda_captures = self
-            .core
-            .forest()
-            .semantic_owners()
-            .filter_map(|(child, _)| {
-                let parent = self.core.forest().parent(child)?;
-                Some((parent.definition_site().site().node().clone(), child))
-            })
-            .map(|(site, child)| {
-                let captures = self
-                    .core
-                    .forest()
-                    .ordered_capture_demands(child)
-                    .iter()
-                    .map(|demand| {
-                        let binding = demand.source_binding();
-                        let name = self
-                            .core
-                            .forest()
-                            .semantic_owner(binding.owner())
-                            .and_then(|owner| owner.binding(binding))
-                            .ok_or_else(|| {
-                                "[freeze:contract][script-lambda/capture-binding]".to_owned()
-                            })?
-                            .diagnostic_name()
-                            .into();
-                        Ok((name, binding))
-                    })
-                    .collect::<Result<Vec<_>, String>>()?
-                    .into_boxed_slice();
-                Ok((site, captures))
-            })
-            .collect::<Result<Vec<_>, String>>()?;
-        let mut state = ScriptSemanticLoweringState::from_facts(
-            locals,
-            nowaits,
-            outboxes,
-            variables,
-            assignments,
-        );
-        state.install_lambda_captures(lambda_captures)?;
-        state.install_record_literal_demands(
-            self.demands
-                .record_literal_demands()
-                .iter()
-                .map(|receipt| (receipt.site.node().clone(), receipt.explicit_field_count)),
-        )?;
-        state.install_enum_variant_demands(
-            self.demands
-                .enum_variant_demands()
-                .iter()
-                .map(|receipt| (receipt.site.node().clone(), receipt.admission.clone())),
-        )?;
-        state.install_enum_match_scrutinee_receipts(
-            self.demands
-                .enum_match_demands()
-                .iter()
-                .map(|receipt| receipt.site.node().clone()),
-        )?;
-        state.install_qmark_propagation_receipts(
-            self.demands
-                .qmark_propagations()
-                .iter()
-                .map(|receipt| receipt.site.node().clone()),
-        )?;
-        Ok(state)
+        self.lowering_projection.lowering_state()
     }
 }
 

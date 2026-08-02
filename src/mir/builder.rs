@@ -252,6 +252,7 @@ mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifec
 mod normal_script_boundary_receipt_pack; // Script retained boundary receipts
 mod normal_script_operational_demand_receipt_pack; // Script structured demand receipts
 mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
+mod normal_script_semantic_lowering_projection; // Immutable Script lowering projection
 mod normal_script_semantic_source; // Producer-backed lexical Script source
 mod normal_script_semantic_source_core; // Shared Script source/forest/projection core
 mod program_root_lowering; // Shared typed/generic Program root owner
