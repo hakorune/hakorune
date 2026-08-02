@@ -7,6 +7,7 @@ guard_joinir_logical_demand_contract() {
   local demand_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/logical_demand"
   local route_id="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/route_id.rs"
   local projection="$root_dir/src/mir/builder/control_flow/facts/stmt_view.rs"
+  local live_facts="$root_dir/src/mir/builder/control_flow/plan/facts/live_loop_facts.rs"
   local simple_while="$root_dir/src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs"
   local accum_const="$root_dir/src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs"
   local files=(
@@ -17,6 +18,7 @@ guard_joinir_logical_demand_contract() {
     "$demand_dir/product.rs"
     "$demand_dir/producer.rs"
     "$projection"
+    "$live_facts"
     "$simple_while"
     "$accum_const"
   )

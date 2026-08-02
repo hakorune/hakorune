@@ -38,6 +38,7 @@ use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::try
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 
+use super::live_loop_facts::LiveLoopFactsV1;
 use super::loop_condition_shape::try_extract_condition_shape;
 use super::loop_scan_with_init::try_extract_scan_with_init_facts;
 use super::loop_source_receipt::LoopSourceReceiptV1;
@@ -51,6 +52,19 @@ pub(in crate::mir::builder) fn try_build_loop_facts(
     body: &[ASTNode],
 ) -> Result<Option<LoopFacts>, Freeze> {
     try_build_loop_facts_inner(condition, body)
+}
+
+/// Builds facts while retaining the exact live source frame that produced them.
+///
+/// This opaque pair has no parts accessor. A later registry transaction is the
+/// only planned consumer; production callers remain zero in this foundation.
+#[cfg(test)]
+pub(in crate::mir::builder) fn try_build_live_loop_facts<'src>(
+    condition: &'src ASTNode,
+    body: &'src [ASTNode],
+) -> Result<Option<LiveLoopFactsV1<'src>>, Freeze> {
+    try_build_loop_facts_inner(condition, body)
+        .map(|facts| facts.map(|facts| LiveLoopFactsV1::from_facts(condition, body, facts)))
 }
 
 pub(in crate::mir::builder) fn try_build_loop_facts_with_ctx(

@@ -469,28 +469,28 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LIVE-LOOP-FACTS0-S0`
-Parent: `JOINIR-LOOP-LIVE-SOURCE-FRAME-CAPABILITY0-D2` (closed)
-Ceremony: issue one private live facts pair; production consumers remain zero.
+Row: `JOINIR-LIVE-LOOP-LOGICAL-TRANSACTION0-S1`
+Parent: `JOINIR-LIVE-LOOP-FACTS0-S0` (closed)
+Ceremony: consume one live pair into one registry-side transaction; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  The existing facts builder mints a non-Clone pair retaining raw condition/body
-  borrows with exactly the LoopFacts derived from them. No selection or product yet.
+  Consume the live pair, canonicalize its retained facts, and call existing route
+  selection once inside a registry-side opaque transaction. Reissue SimpleWhile only.
 
 Contract:
-  The pair has a private issuer and no parts/raw accessor. Facts-only legacy output
-  stays available for existing callers; this S0 adds no generic AST ingress/resolver.
+  Transaction reveals no source view, facts, selection, or generic slot API. It owns
+  exactly one selection and terminal consumption; product remains route-local only.
 
 Done:
-  Source-lifetime fixtures prove paired facts retain the original raw frame and
-  cannot be copied or constructed from foreign parts. Existing facts behavior and
-  logical dispositions remain unchanged; shared guard and focused tests are green.
+  Direct SimpleWhile pointer identity and nested rejection are re-proven through
+  the transaction. Empty/ambiguous and all remaining routes stay terminal; Accum
+  topology stays rejected. Shared guard and focused tests are green.
 
 Stop:
-  Stop if S0 selects/canonicalizes/issues demand, exposes raw parts, widens Facts
-  AST ownership, changes retry, or needs a physical/runtime owner. No physicalizer,
-  Loop I0, raw/reference ingress, or fallback wrapper is authorized.
+  Stop if S1 exposes parts/generic slots, adds a second selection, selects Accum,
+  changes retry, or needs a physical/runtime owner. No physicalizer, Loop I0,
+  raw/reference ingress, or fallback wrapper is authorized.
 
 ## Production invariants
 

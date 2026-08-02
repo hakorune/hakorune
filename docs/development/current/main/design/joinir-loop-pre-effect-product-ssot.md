@@ -346,3 +346,13 @@ through it; Accum remains rejected until its own selected row. The guarantee is
 per capability transaction (one selection and one terminal consumption), not
 global uniqueness for a loop. There is no runtime/physicalizer caller in this
 series.
+
+### LiveLoopFacts S0 evidence
+
+`LiveLoopFactsV1<'src>` is now an opaque, non-Clone pair issued only by the
+facts builder's test-facing foundation. It retains the original condition/body
+borrows and exactly their derived `LoopFacts`, with no fields or parts accessor
+outside its facts module. Its source-lifetime fixture proves the retained frame
+is the input frame; registry logical-disposition tests remain unchanged. The
+shared logical-demand guard covers this new source-authority file and its line
+limit. S1 may consume this pair only in a registry-side transaction.
