@@ -469,27 +469,27 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-IF-PHI-JOIN-PROVENANCE0-D0`
-Parent: `JOINIR-LOOP-PREFLIGHT-MATRIX-REALIGN0-S0` (closed)
-Ceremony: design one IfPhiJoin route-local source provenance box; production consumers remain zero.
+Row: `JOINIR-IF-PHI-JOIN-PROVENANCE0-S0`
+Parent: `JOINIR-IF-PHI-JOIN-PROVENANCE0-D0` (closed)
+Ceremony: add one IfPhiJoin route-local source provenance box; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Inventory IfPhiJoin operands, projection coordinates, direct/ScopeBox behavior,
-  and actual raw schedule before any source-topology implementation.
+  Retain only the extractor-observed top-level if-else and actual step sites in
+  IfPhiJoin facts, independent of their accepted raw order.
 
 Contract:
-  Existing IfPhiJoin extractor/facts/projection are authority. D0 may not recover
-  source through AST re-match, cloned recipe, generic raw slot, or route reclassification.
+  Existing extractor-observed indices and projection are authority. Nested branch
+  condition/update values remain cloned/derived facts and are never source sites.
 
 Done:
-  Design names a minimum truthful topology, typed no-topology/direct-lineage
-  rejects, fixture/gate, and terminality prerequisite. No product/caller is added.
+  Direct, ScopeBox, and reversed-order fixtures fix exact observed sites/lineage.
+  Preflight remains unqualified; no product/caller/terminality claim is added.
 
 Stop:
-  Stop if D0 uses cloned/derived expressions as source authority, expands another
-  route, or claims physical readiness. No runtime routing, Loop I0, raw/reference
-  ingress, or fallback is authorized.
+  Stop if S0 re-matches nested AST, assumes if-step ordering, exports branch
+  operands as source sites, expands another route, or claims physical readiness.
+  No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 

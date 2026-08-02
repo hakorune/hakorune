@@ -714,3 +714,14 @@ records `LoopBreakRecipe` as policy/terminality unavailable and ratchets the
 current preflight totals to 16 source-unavailable, 2 policy/terminally
 unavailable, and 1 direct-only. No production classifier, selector, route, or
 qualification changed.
+
+### IfPhiJoin provenance D0 decision
+
+Decision: accept a two-site S0 sourced only from extractor-observed top-level
+indices: the whole if-else statement and the loop step statement. The extractor
+may accept raw `if; step` or `step; if`; it must therefore carry those observed
+indices rather than infer `0/1` or use composer order. Projection has no nested
+AST resolver, so if-condition and then/else carrier updates remain clone/derived
+facts, never source operands. The existing flattened projection retains direct
+empty lineage and ScopeBox lineage for both whole statements. S0 adds no raw-tail
+or terminality claim, all-route classification/product/caller, or physical work.
