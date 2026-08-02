@@ -7,6 +7,7 @@ guard_joinir_logical_demand_contract() {
   local route_id="$root_dir/src/mir/loop_recipe_contract/route_id.rs"
   local portable_recipe_dir="$root_dir/src/mir/loop_recipe_contract"
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
+  local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
   local if_phi_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_if_phi_join_terminality.rs"
@@ -136,6 +137,75 @@ guard_joinir_logical_demand_contract() {
   )
   if (( ${#external_resolved_source_files[@]} != 0 )); then
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
+  fi
+  local loop_route_policy_files=()
+  mapfile -t loop_route_policy_files < <(
+    find "$loop_route_policy_dir" -maxdepth 1 -name '*.rs' -type f | sort
+  )
+  guard_require_files "$tag" \
+    "$loop_route_policy_dir/README.md" \
+    "$loop_route_policy_dir/mod.rs" \
+    "$loop_route_policy_dir/schema.rs" \
+    "$loop_route_policy_dir/evaluate.rs" \
+    "$loop_route_policy_dir/adapter.rs" \
+    "$loop_route_policy_dir/tests.rs"
+  if (( ${#loop_route_policy_files[@]} == 0 )); then
+    guard_fail "$tag" "frozen Loop route policy subtree has no Rust files"
+  fi
+  local loop_route_policy_production_files=()
+  for file in "${loop_route_policy_files[@]}"; do
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    if (( lines >= 800 )); then
+      guard_fail "$tag" "file exceeds boundary: ${file#"$root_dir/"} lines=$lines"
+    fi
+    case "$file" in
+      "$loop_route_policy_dir/adapter.rs"|"$loop_route_policy_dir/tests.rs") ;;
+      *) loop_route_policy_production_files+=("$file") ;;
+    esac
+  done
+  if ! rg -q -U '#\[cfg\(test\)\][[:space:]]*\nmod adapter;' \
+    "$loop_route_policy_dir/mod.rs"; then
+    guard_fail "$tag" "Loop route migration adapter must remain cfg(test)-only"
+  fi
+  if rg -n -w \
+    'ASTNode|MirBuilder|CanonicalLoopFacts|CorePlan|ValueId|BasicBlockId|MirInstruction|Frag|RouteFn|RouteAttemptOutcomeV1|Retry|LoopRecipeV1|VerifiedLoopRecipeV1|LoopPhysicalizerV1' \
+    "${loop_route_policy_production_files[@]}" >/dev/null; then
+    guard_fail "$tag" "frozen Loop route policy acquired AST, recipe, retry, or physical authority"
+  fi
+  if rg -n \
+    'builder::control_flow::joinir::route_entry::registry|select_recipe_first_routes|RecipeFirstRouteSelectionV1|\bENTRIES\b|pred_[a-z0-9_]+' \
+    "${loop_route_policy_production_files[@]}" >/dev/null; then
+    guard_fail "$tag" "frozen Loop route policy imported live registry, selection, or predicate authority"
+  fi
+  if rg -n \
+    'match[[:space:]]+[^\n]*(route_id|LoopRouteId)|LoopRouteId::[A-Za-z0-9_]+[[:space:]]*=>' \
+    "${loop_route_policy_production_files[@]}" >/dev/null; then
+    guard_fail "$tag" "opaque Loop route provenance acquired dispatch authority"
+  fi
+  if rg -n -U \
+    '#\[derive\([^]]*Clone[^]]*\)\][[:space:]]*\npub\(crate\) struct (FrozenLoopRouteScheduleV1|FrozenLoopRouteRowV1)' \
+    "$loop_route_policy_dir/schema.rs" >/dev/null; then
+    guard_fail "$tag" "frozen Loop route schedule or row became Clone"
+  fi
+  local freeze_facade_definitions freeze_facade_external_callers
+  freeze_facade_definitions="$(
+    rg -c 'freeze_loop_route_schedule_v1\(' \
+      "$loop_route_policy_dir/mod.rs" \
+      "$loop_route_policy_dir/schema.rs" \
+      "$loop_route_policy_dir/evaluate.rs" || true
+  )"
+  freeze_facade_definitions="$(printf '%s\n' "$freeze_facade_definitions" | awk -F: '{sum += $NF} END {print sum + 0}')"
+  if [[ "$freeze_facade_definitions" != "1" ]]; then
+    guard_fail "$tag" "frozen Loop route facade must have exactly one production definition"
+  fi
+  freeze_facade_external_callers="$(
+    { rg -l 'freeze_loop_route_schedule_v1\(' "$root_dir/src" || true; } \
+      | awk -v prefix="$loop_route_policy_dir/" 'index($0, prefix) != 1' \
+      | wc -l \
+      | tr -d '[:space:]'
+  )"
+  if [[ "$freeze_facade_external_callers" != "0" ]]; then
+    guard_fail "$tag" "caller-zero frozen Loop route facade acquired a production caller"
   fi
   for file in "${files[@]}"; do
     lines="$(wc -l < "$file" | tr -d '[:space:]')"

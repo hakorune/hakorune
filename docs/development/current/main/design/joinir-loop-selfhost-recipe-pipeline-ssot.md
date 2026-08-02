@@ -372,11 +372,13 @@ M3 task order:
    fixture is green. Contract/source/resolved tests are 32/10/11, registry is
    80, shared/pointer guards and release build are green, largest Rust file is
    703 lines, and two-stage independent close audit reports blocker zero.
-3. `M3-C / JOINIR-LOOP-FROZEN-POLICY-ROWS0-S2` — add sibling neutral owner
-   `src/mir/loop_route_policy/` with a non-Clone owned schedule and 19 ordered
-   row observations. Freeze typed suppression, raw cursor, mode/release facts,
-   global entry disposition, and source disposition once. The migration
-   adapter reselects nothing, has zero production callers, and retires at M12.
+3. `M3-C / JOINIR-LOOP-FROZEN-POLICY-ROWS0-S2` — **closed**. The sibling
+   neutral owner `src/mir/loop_route_policy/` seals a non-Clone 19-row schedule
+   with one owned observation snapshot; typed rejects cover order, counts,
+   duplicate/suffix, inconsistent global/mode facts, and empty suppression.
+   The fixture adapter is `cfg(test)`-only and the facade has zero production
+   callers. Focused tests 10/10, shared/pointer guards, diff/line checks, and
+   release build are green; selection/retry/recipe/Builder/lowering remain out.
 4. `M3-D / JOINIR-LOOP-PREFIX-OUTCOME-TYPING0-S3` — replace every ordinary
    pre-effect Retry with typed Declined/Terminal/Blocked evidence and remove
    late AST rereads from policy authority. Seal the 17 non-Generic selected
