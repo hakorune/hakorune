@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LIVE-LOOP-LOGICAL-TRANSACTION0-S1 closed (NoSafeSelected); JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3 selected."
+status = "JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3 closed; JOINIR-LOOP-SIMPLE-WHILE-TERMINALITY0-D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D3 may decide whether logical qualification should consume the existing full raw-execution list, a route-local verified winner, or another pre-effect uniqueness proof. It must preserve legacy execution order, identify all affected routes, define ambiguity/fail-fast behavior, and prove no selector duplication before code. It must not change runtime routing, physicalize, retry, or add a production caller."
-current_execution_row = "JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3"
-current_execution_summary = "Live transaction S1 cannot reissue SimpleWhile: actual raw execution is [LoopSimpleWhile, GenericLoopV0], not exact-one. D3 selects a truthful logical uniqueness boundary before transaction implementation."
+current_design_stop = "D0 may inventory every LoopSimpleWhile legacy decline point and classify it as GuaranteedTerminal, pre-effect Ineligible, or post-effect Unknown. It must identify source authority and required proof for each classification before code. It must not select a route, change legacy execution order, re-run selection, physicalize, retry, or add a production caller."
+current_execution_row = "JOINIR-LOOP-SIMPLE-WHILE-TERMINALITY0-D0"
+current_execution_summary = "Logical uniqueness requires an ordered pre-effect terminality certificate. D0 audits SimpleWhile's legacy composer/verifier/lower decline points; SimpleWhile remains unselected until terminality is proven."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3-DESIGN-STOP"
+current_blocker_token = "JOINIR-LOOP-SIMPLE-WHILE-TERMINALITY0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

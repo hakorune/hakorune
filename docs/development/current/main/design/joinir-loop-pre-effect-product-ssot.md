@@ -368,3 +368,22 @@ silently selecting its first entry. D3 must decide a pre-effect uniqueness
 boundary that accounts for the full raw execution list without using the
 diagnostic projection, rerunning predicates, or adding fallback. Until then,
 the live transaction and reissued SimpleWhile product are not implemented.
+
+## Logical selection uniqueness D3 decision
+
+Decision: accepted an ordered pre-effect terminality certificate as the only
+future route-winner boundary. A logical transaction consumes the existing raw
+schedule once. It may select route `r` only after every earlier entry is proven
+pre-effect ineligible and `r` is proven guaranteed to terminate under the same
+legacy conditions; later entries remain an `UnreachedLegacyTail`, not rejected
+or deleted. Any post-effect-dependent/unknown earlier or current route blocks
+pre-effect issuance rather than falling through. This preserves legacy order
+without treating priority as success.
+
+The currently safe terminal boundary remains full raw-list exact-one;
+diagnostic-effective routes and first-entry selection are non-authority. Since
+direct SimpleWhile is `[LoopSimpleWhile, GenericLoopV0]` and its route still
+uses Builder-bound composition/lowering, `JOINIR-LOOP-SIMPLE-WHILE-TERMINALITY0-D0`
+must inventory whether its every decline can be classified without effects.
+Until then, SimpleWhile is not reissued and GenericLoopV0 is not silently
+chosen.

@@ -469,29 +469,30 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3`
-Parent: `JOINIR-LIVE-LOOP-LOGICAL-TRANSACTION0-S1` (closed: NoSafeSelected)
-Ceremony: decide the logical uniqueness boundary; production consumers remain zero.
+Row: `JOINIR-LOOP-SIMPLE-WHILE-TERMINALITY0-D0`
+Parent: `JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3` (closed)
+Ceremony: inventory one route's terminality proof; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Decide how a logical transaction may establish one route without silently
-  changing the legacy ordered retry list. Inventory direct SimpleWhile overlap.
+  Inventory every existing SimpleWhile route decline and classify its terminality
+  evidence as GuaranteedTerminal, pre-effect Ineligible, or post-effect Unknown.
 
 Contract:
-  Actual direct SimpleWhile raw execution is `[LoopSimpleWhile, GenericLoopV0]`.
-  D3 must not substitute diagnostic projection, re-run predicates, or simply pick
-  the first legacy route without an explicit pre-effect proof.
+  Raw schedule order is authority; GenericLoopV0 remains an unreached tail only
+  after SimpleWhile terminality is proven. Facts/source receipt alone are not a
+  terminality proof and cloned recipe facts are non-authority.
 
 Done:
-  The decision names the source of logical uniqueness, all resulting terminal
-  dispositions, exact legacy non-effects, fixture plan, and shared-gate proof.
-  A later S0 alone implements the chosen boundary.
+  The table names every decline source, owner, evidence, and non-claim; it proves
+  whether any source-only SimpleWhile terminal certificate is possible. No code
+  changes occur in D0; a later row is separately selected.
 
 Stop:
-  Stop if the choice changes legacy execution order, invents first-winner policy,
-  re-runs selection/predicates, selects Accum, or needs a physical/runtime owner.
-  No physicalizer, Loop I0, raw/reference ingress, or fallback wrapper is authorized.
+  Stop if any classification needs Builder/CorePlan/verifier/lower execution,
+  invents first-winner policy, re-runs selection, selects Accum, or needs a
+  physical/runtime owner. No physicalizer, Loop I0, raw/reference ingress, or
+  fallback wrapper is authorized.
 
 ## Production invariants
 
