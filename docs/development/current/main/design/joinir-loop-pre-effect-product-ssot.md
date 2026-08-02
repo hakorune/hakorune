@@ -803,3 +803,19 @@ composer rebuilds a canonical if-then-step recipe from cloned facts while the
 accepted raw source order can be reversed, scheduler terminality alone cannot
 provide an ordered borrowed raw tail. D0 must decide whether that boundary is a
 NoSafeSlice before any product is considered.
+
+### IfPhiJoin logical-product D0 decision
+
+Decision: NoSafeSlice. The existing logical-product issuer accepts only its
+private direct-SimpleWhile terminality disposition, which owns a borrowed
+condition/step lease and SimpleWhile-specific product roles. The IfPhiJoin
+certificate is intentionally opaque and owns no borrowed source lease. More
+importantly, accepted IfPhiJoin provenance permits raw `(step, if_else)` while
+the existing composer synthesizes its canonical if-then-step recipe from
+cloned facts. There is no source-order-preserving raw tail or semantic-order
+equivalence proof to adapt the SimpleWhile issuer.
+
+No product, Qualified, caller, selector, composer, lowerer, Builder, or
+physical behavior changes. The next card must select another route from fresh
+topology/terminality/product-readiness evidence rather than retrying this
+boundary under a renamed IfPhiJoin implementation.
