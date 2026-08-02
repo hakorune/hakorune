@@ -904,3 +904,15 @@ An injected earlier LoopBreak without actual LoopBreak facts remains
 fixture-fixed; ScopeBox and specialized forms remain fail-closed. No AST
 inspection of the break-if subtree, physical consumer, caller, or runtime
 behavior was added.
+
+### LoopBreak physicalizer D0 decision
+
+Decision: NoSafeSlice. The direct LoopBreak product is opaque and its only
+legacy execution path composes cloned facts into a Builder-bound recipe then
+enters `lower_loop_v0`. That lowerer allocates its frame and ValueIds before
+later header/body failures, with no rollback boundary. Reusing it would discard
+the product authority and revive the retry scheduler.
+
+No consumer, physicalizer, caller, selector, composer, lowerer, Builder, or
+runtime behavior changes. The next card returns to one-route readiness
+selection rather than retrying LoopBreak physicalization.
