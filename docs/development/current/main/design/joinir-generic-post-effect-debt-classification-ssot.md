@@ -684,6 +684,29 @@ binding. It does not authorize Generic production cutover, Retry deletion,
 PHI ownership, or broad non-Generic cutover. Those remain downstream gates
 after all overlap classes have a policy owner.
 
+#### D2-B2b — facts-only carrier observation contract
+
+The policy must not inspect `ASTNode`, `RecipeBody`, route IDs, or CorePlan.
+The extraction owner must first emit one owned Builder-free observation, for
+example `GenericCarrierObservationV1`, containing the recursively collected
+non-loop binding targets and the exact `has_recursive_carrier` disposition.
+The neutral policy then consumes only that observation plus the already-frozen
+raw schedule and mode/contract snapshot. This preserves the M3 rule that
+Facts observe and Policy selects; it also prevents a second AST matcher from
+appearing in `loop_route_policy`.
+
+The first implementation slice is still test-only: the real `Both` facts must
+show `j` as a recursive target, while a top-level-only body must not. Missing
+or ambiguous observation is `UnresolvedStop`, never an implicit V1 winner.
+`V1ForNestedCarriers` may suppress V0 only when the observation is present,
+the raw schedule contains the claimed overlap, and V1 has a separate natural
+stage result. Planner-required V0 suppression remains a distinct gate.
+
+Do not add a route-name branch, re-read source AST in policy, or mutate the
+production `CanonicalLoopFacts` contract until this observation schema and its
+cross-mode fixtures are accepted. The next design decision is the smallest
+owned observation shape; all other overlap classes remain unresolved.
+
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:
