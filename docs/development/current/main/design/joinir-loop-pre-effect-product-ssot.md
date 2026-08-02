@@ -1611,3 +1611,11 @@ There is no qualified disposition, source re-match, new scheduler, Builder
 state in the frame, behavior change, terminality, physicalization, rollback,
 fallback, lower-success, or cutover claim. The next step requires a fresh
 design-only selection.
+
+### Generic post-effect preflight S0 implementation record
+
+When Generic V0 or V1 is the selected raw front with canonical facts, preflight
+now reports its existing `PostEffectRetryDebt` rather than source-topology
+absence. This records the actual release behavior: verifier/lower may retry
+only after Builder-bound work. Facts-absent and all other classifications remain
+unchanged. No execution, qualification, terminality, or cutover behavior moved.

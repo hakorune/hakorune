@@ -26,7 +26,8 @@ pub(crate) fn observe_selected_preflight_v1(
 pub(crate) fn issue_all_route_preflight_v1(
     live: super::LiveLoopFactsV1<'_>,
 ) -> LoopPreflightDispositionV1 {
-    let canonical = crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts(live.facts);
+    let canonical =
+        crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts(live.facts);
     let selection = crate::mir::builder::control_flow::joinir::route_entry::registry::selection::select_recipe_first_routes(Some(&canonical));
     observe_selected_preflight_v1(Some(&canonical), selection.raw_execution_routes())
 }
@@ -44,6 +45,9 @@ fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV
         LoopRouteId::BoolPredicateScan => classify_bool_predicate_scan(facts),
         LoopRouteId::LoopSimpleWhile => classify_simple_while(facts),
         LoopRouteId::AccumConstLoop => classify_accum_const(facts),
+        LoopRouteId::GenericLoopV0 | LoopRouteId::GenericLoopV1 => {
+            LoopPreflightRejectV1::PostEffectRetryDebt { route }
+        }
         _ => LoopPreflightRejectV1::SourceTopologyUnavailable { route },
     }
 }

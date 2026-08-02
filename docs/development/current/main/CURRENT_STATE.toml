@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-S0 is closed; the next bounded claim requires a fresh design card."
+status = "JOINIR-LOOP-GENERIC-POST-EFFECT-PREFLIGHT0-S0 is closed; the next bounded claim requires a fresh design card."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "LivePreflightFrame S0 is closed: router-owned one-selection preflight observation returns a private legacy continuation without reselecting or becoming a scheduler. The next card must be design-only and may not promote all-rejected observation, S2 shared decline, or topology availability into qualification, terminality, physicalization, or cutover."
 current_execution_row = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-NEXT-DESIGN"
-current_execution_summary = "S0 consumes the router's selected schedule and canonical facts exactly once for all-rejected preflight observation, then preserves legacy execution through a private continuation."
+current_execution_summary = "Generic V0/V1 raw-front facts now report their existing post-effect retry debt rather than topology absence; no execution behavior changed."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
