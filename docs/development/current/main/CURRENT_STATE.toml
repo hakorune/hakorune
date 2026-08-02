@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-SOURCE-RECEIPT-FOUNDATION0-S0 closed; S0 Refactor Series continues with JOINIR-LOOP-LOGICAL-DEMAND-VOCABULARY0-S1."
+status = "JOINIR-LOOP-LOGICAL-DEMAND-VOCABULARY0-S1 closed; S0 Refactor Series continues with JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S2."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S1 may move LoopRouteId and its stable keys once into a neutral registry sibling, then define private registry-local logical-demand vocabulary over the facts-side source receipt. It must not add a route adapter/producer, select a route, invoke a composer, or add a raw/reference or universal ingress."
-current_execution_row = "JOINIR-LOOP-LOGICAL-DEMAND-VOCABULARY0-S1 (S0 series 2/4)"
-current_execution_summary = "Move LoopRouteId/key identity out of physical types.rs, then add private source/role/product vocabulary with no Builder, CorePlan, other physical ID, lowering API, route adapter, or production caller. Receipt remains the only source-order substrate."
+current_design_stop = "S2 may add one all-19-route logical producer that consumes existing selection once and issues a typed disposition before any route execution. It must not invoke a composer, lower, mutate a Builder, alter retry behavior, or add a production caller, raw/reference profile, or universal ingress."
+current_execution_row = "JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S2 (S0 series 3/4)"
+current_execution_summary = "Add one private source/facts/selection-only producer over every existing route identity. It returns Selected, NoRoute, Rejected, or Ambiguous and remains disconnected from runtime routing."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-LOGICAL-DEMAND-VOCABULARY0-S1"
+current_blocker_token = "JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S2"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

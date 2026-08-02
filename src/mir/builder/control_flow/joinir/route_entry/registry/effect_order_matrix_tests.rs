@@ -4,7 +4,7 @@
 //! The future all-route producer must replace these post-effect `None` paths;
 //! this P0 module only makes the debt explicit and cardinality-checked.
 
-use super::{types::LoopRouteId, ENTRIES};
+use super::{route_id::LoopRouteId, ENTRIES};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum QualificationBoundary {

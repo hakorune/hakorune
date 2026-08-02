@@ -5,7 +5,7 @@
 
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 
-use super::{predicates::*, types::LoopRouteId, ENTRIES};
+use super::{predicates::*, route_id::LoopRouteId, ENTRIES};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RecipeFirstRouteSelectionV1 {
@@ -163,7 +163,7 @@ mod tests {
         select_recipe_first_routes, LocatedGenericLoopV1SelectionErrorV1,
         RecipeFirstRouteSelectionV1, VerifiedLocatedGenericLoopV1SelectionV1,
     };
-    use crate::mir::builder::control_flow::joinir::route_entry::registry::types::LoopRouteId;
+    use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
     use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
     use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
     use crate::mir::callable_result_representation::{

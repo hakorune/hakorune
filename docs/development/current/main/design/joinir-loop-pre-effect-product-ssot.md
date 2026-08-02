@@ -173,3 +173,13 @@ or lowerer. Synthetic `LoopFacts` have an unavailable receipt, so a later
 producer must reject rather than infer source coordinates. Its ScopeBox test
 proves one original body statement remains ordinal one when the analysis body
 has flattened to two statements. No production caller or routing behavior moved.
+
+### S0 series 2 evidence
+
+`LoopRouteId` and its stable keys now live in neutral `route_id.rs`; registry
+selection, execution order, and P0's 19-row matrix remain unchanged. Private
+`logical_demand` vocabulary owns source views, logical role order, and typed
+`Selected`/`NoRoute`/`Rejected`/`Ambiguous` dispositions. The selected product
+is non-Clone, source nodes are borrowed rather than rebuilt, and the subtree has
+no Builder, CorePlan, physical-ID, composer, lowerer, selector, or caller import.
+S2 alone may issue the product; it must stay pre-effect and disconnected.

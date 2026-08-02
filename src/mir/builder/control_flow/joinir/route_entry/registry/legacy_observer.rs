@@ -6,7 +6,7 @@
 //! uses the historical ordered registry. The purpose is to make route ownership
 //! debt visible before retiring named routes.
 
-use super::{selection::RecipeFirstRouteSelectionV1, types::LoopRouteId};
+use super::{route_id::LoopRouteId, selection::RecipeFirstRouteSelectionV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopRouteDenyReason {
@@ -123,7 +123,7 @@ fn join_or_none(items: &[LoopRouteId]) -> String {
 #[cfg(test)]
 mod tests {
     use super::{join_or_none, LoopRouteDecision, LoopRouteDenyReason};
-    use crate::mir::builder::control_flow::joinir::route_entry::registry::types::LoopRouteId;
+    use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
 
     #[test]
     fn b_lite_deny_reason_maps_to_owner() {

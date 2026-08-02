@@ -9,15 +9,18 @@ use super::router::LoopRouteContext;
 
 mod handlers;
 mod legacy_observer;
+mod logical_demand;
 mod predicates;
+mod route_id;
 mod selection;
 mod types;
 mod utils;
 
 use handlers::*;
 use predicates::*;
+use route_id::{entry_keys, LoopRouteId};
 pub(crate) use selection::{select_recipe_first_routes, RecipeFirstRouteSelectionV1};
-use types::{entry_keys, LegacyRouteSuccess, LoopRouteId};
+use types::LegacyRouteSuccess;
 pub(crate) use types::{Entry, RouterEnv};
 
 pub(crate) fn collect_b_lite_shadow_report(
@@ -198,7 +201,7 @@ mod effect_order_matrix_tests;
 #[cfg(test)]
 mod tests {
     use super::{execute_selected_routes_in_order, select_recipe_first_routes};
-    use crate::mir::builder::control_flow::joinir::route_entry::registry::types::LoopRouteId;
+    use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
 
     #[test]
     fn empty_facts_select_no_recipe_first_routes() {
