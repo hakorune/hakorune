@@ -964,3 +964,26 @@ of continue-if, carrier updates, and final step only for complete top-level
 observations. The legacy wrapper uses the default projection and stays topology
 absent; facts acceptance and cloned semantic fields are unchanged. The next
 card must decide direct/ScopeBox provenance consumption separately.
+
+### LoopContinueOnly terminality D0 decision
+
+Decision: accept a narrow direct pre-effect scheduler certificate S0. The
+certificate may be issued only from a facts-owned opaque proof of a complete
+direct schedule: `ContinueIf@0`, one or more distinct `CarrierUpdate`s, and a
+final `Step`, with no ScopeBox lineage and the sole raw selection
+`[LoopContinueOnly]`. Missing or malformed topology, ScopeBox lineage, or an
+earlier route must fail closed.
+
+This proves only that the selected route does not normally decline into the
+legacy tail before effects. It must not claim a successful route value:
+`PlanLowerer` may return `Ok(None)` for a void loop. It also must not claim raw
+source order or semantic equivalence, because the composer reconstitutes
+carrier updates from a `BTreeMap`; nor may it grant AST authority below the
+opaque whole statements.
+
+`lower_loop_v0` mutates frame/block/ValueId state before later failures are
+excluded, so physical safety and rollback remain unproven. S0 adds no logical
+product, composer/lowerer/Builder change, physicalizer, caller, or runtime
+behavior. Its fixtures must cover direct issuance, ScopeBox rejection,
+malformed/duplicate/non-final topology rejection, and injected-earlier-route
+rejection.
