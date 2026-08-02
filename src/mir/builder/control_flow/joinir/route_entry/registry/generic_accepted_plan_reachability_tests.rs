@@ -18,7 +18,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::{
 use crate::mir::builder::control_flow::lower::PlanLowerer;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner::try_build_outcome;
-use crate::mir::builder::control_flow::plan::CorePlan;
+use crate::mir::builder::control_flow::plan::{CoreLoopPlan, CorePlan};
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
@@ -100,6 +100,14 @@ struct ReachabilityRowV1 {
     before_lower: CandidateSnapshotV1,
     after_lower: CandidateSnapshotV1,
     semantic_digest: Option<CorePlanSemanticDigestV1>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct NestedCarrierSemanticEvidenceV1 {
+    route: LoopRouteId,
+    outer_final_value_names: Vec<String>,
+    outer_phi_tags: Vec<String>,
+    nested_final_value_names: Vec<String>,
 }
 
 fn seeded_builder() -> MirBuilder {
@@ -282,6 +290,75 @@ fn observe_fixture(mode: CorpusModeV1, name: &str) -> Vec<ReachabilityRowV1> {
         .collect()
 }
 
+fn compose_both_plan(route: LoopRouteId) -> CorePlan {
+    let (condition, body) = fixture("both");
+    let ctx = LoopRouteContext::new(&condition, &body, "generic_reachability/0", false, false);
+    let outcome = try_build_outcome(&ctx).expect("Both fixture must produce Generic facts");
+    let facts = outcome
+        .facts
+        .as_ref()
+        .expect("Both fixture must retain canonical facts");
+    let mut builder = seeded_builder();
+    let _scope = LexicalScopeGuard::new(&mut builder);
+    match route {
+        LoopRouteId::GenericLoopV0 => {
+            RecipeComposer::compose_generic_loop_v0_recipe(&mut builder, facts, &ctx)
+        }
+        LoopRouteId::GenericLoopV1 => {
+            RecipeComposer::compose_generic_loop_v1_recipe(&mut builder, facts, &ctx)
+        }
+        other => panic!("unexpected non-Generic route in carrier witness: {other:?}"),
+    }
+    .expect("Both Generic route must compose for the semantic witness")
+}
+
+fn nested_loop<'a>(plans: &'a [CorePlan]) -> Option<&'a CoreLoopPlan> {
+    for plan in plans {
+        match plan {
+            CorePlan::Loop(loop_plan) => return Some(loop_plan),
+            CorePlan::Seq(items) => {
+                if let Some(loop_plan) = nested_loop(items) {
+                    return Some(loop_plan);
+                }
+            }
+            CorePlan::If(if_plan) => {
+                if let Some(loop_plan) = nested_loop(&if_plan.then_plans) {
+                    return Some(loop_plan);
+                }
+                if let Some(else_plans) = if_plan.else_plans.as_ref() {
+                    if let Some(loop_plan) = nested_loop(else_plans) {
+                        return Some(loop_plan);
+                    }
+                }
+            }
+            CorePlan::BranchN(_) | CorePlan::Effect(_) | CorePlan::Exit(_) => {}
+        }
+    }
+    None
+}
+
+fn nested_carrier_evidence(route: LoopRouteId) -> NestedCarrierSemanticEvidenceV1 {
+    let plan = compose_both_plan(route);
+    let CorePlan::Loop(outer) = plan else {
+        panic!("Both Generic route must compose to an outer Loop")
+    };
+    let nested = nested_loop(&outer.body).expect("Both fixture must retain its inner Loop");
+    NestedCarrierSemanticEvidenceV1 {
+        route,
+        outer_final_value_names: outer
+            .final_values
+            .iter()
+            .map(|(name, _)| name.clone())
+            .collect(),
+        outer_phi_tags: outer.phis.iter().map(|phi| phi.tag.clone()).collect(),
+        nested_final_value_names: nested
+            .final_values
+            .iter()
+            .map(|(name, _)| name.clone())
+            .collect(),
+    }
+}
+
 pub(super) fn observe_both_direct_stage(
     strict_or_dev: bool,
     planner_required: bool,
@@ -316,6 +393,35 @@ pub(super) fn observe_both_direct_stage(
             semantic_digest: row.semantic_digest,
         })
         .collect()
+}
+
+#[test]
+fn generic_both_nested_carrier_semantic_witness_is_not_alpha_noise() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let v0 = nested_carrier_evidence(LoopRouteId::GenericLoopV0);
+    let v1 = nested_carrier_evidence(LoopRouteId::GenericLoopV1);
+
+    // Source-level meaning: the inner loop writes the outer `j`, so the
+    // binding must remain observable after the outer loop.  V1 carries that
+    // binding through the outer loop; V0's plan does not.
+    assert!(v0.nested_final_value_names.iter().any(|name| name == "j"));
+    assert!(!v0.outer_final_value_names.iter().any(|name| name == "j"));
+    assert!(v1.outer_final_value_names.iter().any(|name| name == "j"));
+    assert!(v1.outer_phi_tags.iter().any(|tag| tag == "loop_carrier_j"));
+    assert!(v1.outer_phi_tags.iter().any(|tag| tag == "loop_step_in_j"));
+    assert_ne!(v0, v1, "carrier meaning must remain visible in evidence");
+
+    for strict_or_dev in [false, true] {
+        let stages = observe_both_direct_stage(strict_or_dev, false);
+        assert_eq!(
+            stages.len(),
+            2,
+            "release/strict Both must exercise both fresh Generic candidates"
+        );
+        for stage in stages {
+            assert_eq!(stage.stage, PlanStageV1::LowerSome, "{stage:?}");
+        }
+    }
 }
 
 #[test]

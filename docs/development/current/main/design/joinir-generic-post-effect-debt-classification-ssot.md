@@ -650,6 +650,40 @@ before selection and is recorded separately. D2-B2 therefore remains an
 explicit `UnresolvedStop`; no Generic winner or production cutover is
 authorized.
 
+#### D2-B2-NESTED-CARRIER-MEANING — external binding witness
+
+The `Both` digest difference is a semantic boundary, not an alpha-remapping
+or CFG-noise problem. Its body contains an inner loop that writes the outer
+binding `j`. V0 only observes top-level body writes, while V1 recursively
+collects nested assignment targets, creates the outer `loop_carrier_j` and
+`loop_step_in_j` PHIs, and publishes `j` in the outer `final_values`. The
+lowerer restores the pre-loop binding map and reapplies only those outer final
+values; therefore treating the two plans as equivalent would hide a real
+post-iteration binding difference and could lose `j` across outer iterations.
+
+The first follow-up is test-only `nested_carrier_semantic_witness`. It must
+use the real `Both` AST, `try_build_outcome`, the actual raw selector, and
+fresh V0/V1 candidates. The evidence records the outer and nested
+`final_values`/PHI tags, verifies both plans, and confirms the existing
+composer/verifier/lower path on release and strict fresh candidates. It is a
+meaning witness, not a runtime oracle or a production policy.
+
+The next policy gate is a facts-only
+`GenericOverlapDisposition::V1ForNestedCarriers`: recursively observed writes
+to an outer binding (including writes in nested Loop/If/Exit paths) suppress
+V0 before Builder effects and select V1. Planner-required remains a separate
+pre-effect gate. V0 remains eligible for overlap rows without a recursive
+carrier. Every other overlap class (including natural If/Exit cases) stays
+`UnresolvedStop` until its own witness exists. If V1 cannot verify/lower a
+claimed row, retain the legacy scheduler and classify that row as unresolved;
+do not convert the failure into a retry or a global Freeze.
+
+Done for this boundary requires the structural witness, fresh-repeat
+stability, and a source-level observable expectation for the outer `j`
+binding. It does not authorize Generic production cutover, Retry deletion,
+PHI ownership, or broad non-Generic cutover. Those remain downstream gates
+after all overlap classes have a policy owner.
+
 #### M5 boundary while D2-B is open
 
 An isolated `AccumConstLoop` caller-zero test candidate may be designed as the
