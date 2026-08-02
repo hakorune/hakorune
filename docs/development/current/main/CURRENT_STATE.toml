@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-ACCUM-CONST-LOOP-PHYSICALIZER0-D0 closed as NoSafeSlice; JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-D0 selected."
+status = "JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-D0 closed; JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-S0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 must decide whether generic direct LoopBreak can form a pre-effect logical product. It must audit the direct three-site topology, singleton raw schedule, scheduler certificate, and whether an opaque break-if subtree plus carrier-update/step can receive fixed source roles without AST re-match or synthetic composer order. It must select exact lease/roles or close NoSafeSlice; no selector, composer, lowerer, Builder, physicalizer, caller, or runtime change is authorized."
-current_execution_row = "JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-D0"
-current_execution_summary = "Accum physicalizer D0 is NoSafeSlice: route_accum_const_loop reaches compose_accum_const_loop_recipe then lower_loop_v0, which mutates with build_coreloop_frame and alloc_typed before later header/body failures. The disconnected Accum product therefore has no safe consumer."
+current_design_stop = "S0 may extend only the one-shot terminality transaction and logical-product issuer for generic direct LoopBreak. It adds a route-specific condition/break-if/carrier-update/step lease and product variant after first-and-sole raw LoopBreak selection plus the existing direct 0/1/2 certificate. Roles are LoopCondition, opaque BreakGate, CarrierUpdate, LoopBackContinuation. It must not re-match AST or inspect break-if internals, traverse projection, rerun selection, alter other route meanings, invoke composer/lowerer/Builder, issue a caller, or claim physical/runtime safety."
+current_execution_row = "JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-S0"
+current_execution_summary = "LoopBreak product D0 accepts generic direct only: direct three-site topology and singleton raw schedule permit a source-bound whole-statement lease. Break-if stays opaque; nested condition/update placement does not become source authority. Physical consumption remains unproven."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-D0"
+current_blocker_token = "JOINIR-LOOP-BREAK-LOGICAL-PRODUCT0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

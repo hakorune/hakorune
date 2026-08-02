@@ -876,3 +876,19 @@ No physicalizer, consumer, caller, selector, composer, lowerer, Builder, or
 runtime behavior changed. The next logical-product D0 is LoopBreak, whose
 direct topology and scheduler certificate exist but whose break-if subtree and
 carrier placement roles still require an independent source-bound design.
+
+### LoopBreak logical-product D0 decision
+
+Decision: accept a generic-direct-only S0. The existing direct topology and
+certificate prove raw arity three, distinct direct sites at `0/1/2`, singleton
+raw schedule `[LoopBreakRecipe]`, and no route-local `Ok(None)`. The one-shot
+transaction may therefore own a source lease of raw condition, whole break-if
+statement, carrier update, and step. Product roles remain in raw order:
+`LoopCondition`, opaque `BreakGate`, `CarrierUpdate`, and
+`LoopBackContinuation`.
+
+The break-if is a whole opaque statement only: its nested condition and any
+internal update receive no source authority. S0 may not re-match AST, traverse
+projection, rerun selection, alter another route, or touch composition,
+lowering, Builder, physicalization, callers, or runtime. The product is
+disconnected and does not claim physical safety.
