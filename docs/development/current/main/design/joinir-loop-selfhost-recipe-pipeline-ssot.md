@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/recipe-first-entry-contract-ssot.md
   - docs/development/current/main/design/recipe-tree-and-parts-ssot.md
   - docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md
+  - docs/development/current/main/design/joinir-generic-post-effect-debt-classification-ssot.md
   - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
 ---
 
@@ -391,54 +392,49 @@ M3 task order:
    Generic remains an opaque M4 debt key.
 6. `M3-F / JOINIR-LOOP-CALLER-ZERO-POLICY-PARITY0-P1` — **closed**. A
    `cfg(test)` adapter compares the actual isolated legacy witness scheduler
-   with the pure audit; `all_route_preflight` is not an oracle. It fixes an
-   ordered typed-decline→success counterexample, all-declined exhaustion, and a
-   fresh row-zero Blocked stop. Generic debt stays M4-only. Production Recipe
-   callers, PHI owners, fallback removal, and second schedulers remain zero;
-   those belong to M5/M6/M10.
-7. `M4 / JOINIR-GENERIC-POST-EFFECT-DEBT-RECIPE0-D0-S2` — **active**. Decide
-   whether each Generic V0/V1 post-effect `None` is pre-effect decline or a
-   qualified terminal recipe with `Freeze`; preserve the opaque receipt boundary
-   and prove winner equivalence before any recipe production connection.
-
-#### Docs-only cleanup — SSOT role disambiguation (non-row)
-
-This clarification neither inserted nor advanced an execution row. M3-B closed
-separately by the proof above. Remaining work stays with the existing owners:
-
-- route selection and pre-effect Retry typing stay in M3; Generic V0/V1
-  post-effect retry debt stays in M4;
-- shared CFG/JoinSig/PHI consolidation stays in M6;
-- legacy adapter phase-2 reduction/retirement stays in M12 after M10/M11
-  cutover and handoff evidence are green.
-
-This cleanup authorizes no new IR, semantic recipe variant, route, scheduler,
-retry path, or physical lowering owner.
-
-M3 gates stay in the existing shared MirBuilder guard. New policy files are
-split by schema/evaluator/adapter/tests and each remains below 800 lines.
-
-### M4 — `JOINIR-GENERIC-POST-EFFECT-DEBT-RECIPE0-D0-S2`
+   with the pure audit; `all_route_preflight` is not an oracle. It fixes a
+   non-Generic typed-decline→success mechanism fixture, all-declined
+   exhaustion, and a fresh row-zero Blocked stop. This is not evidence for a
+   Generic V0/V1 debt-to-success edge. Generic debt stays M4-only. Production
+   Recipe callers, PHI owners, fallback removal, and second schedulers remain
+   zero; those belong to M5/M6/M10.
+7. `M4 / JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0` — **active**.
+   Complete the stage matrix, target dispositions, V0/V1 overlap proof, and
+   execution-path winner equivalence described in the dedicated M4 card before
+   any Generic Recipe production connection.
+Docs-only role cleanup authorizes no new IR, recipe variant, route, scheduler,
+retry path, or physical owner. M3 keeps selection/decline typing, M4 owns
+Generic debt, M6 owns shared CFG/JoinSig/PHI, and M12 retires adapters after
+M10/M11 evidence. New policy files remain below 800 lines.
+### M4 — `JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0`
 
 Change:
-: Enumerate every Generic V0/V1 verifier/lower `None`, preceding mutation,
-  V0-to-V1 continuation, and later-success fixture. Decide whether V0/V1 remain
-  distinct pure policies or one is semantically subsumed.
+: Follow the dedicated
+  `joinir-generic-post-effect-debt-classification-ssot.md` card. Enumerate
+  facts, composer, strict/release verifier/lower, nested, and receipt stages;
+  assign each to a closed target disposition; and settle V0/V1 overlap and
+  precedence through a production-derived execution fixture or a complete
+  disjointness proof.
 
 Contract:
-: Only Builder-free decline or a verified Generic recipe with terminal physical
-  `Freeze` is accepted. Legacy post-effect retry is not a recipe outcome. New
-  classification remains disconnected until cutover.
+: M4 is design/test-only. `PreEffectDeclined`, `PreEffectBlocked`,
+  `TerminalFreezeTarget`, `ImpossibleEdge`, and `UnresolvedStop` are evidence
+  dispositions, not new production Recipe variants. Post-effect retry remains
+  a legacy receipt boundary until a later atomic cutover. No Generic Recipe,
+  JoinSig, PHI, physicalizer, candidate publish, or JoinIR deletion is claimed.
 
 Done:
-: Generic winner equivalence is green and selected Generic recipe contains no
-  `Option`, raw suffix, or retry capability. A production-derived V0-to-V1
-  later-success fixture exists, or the policy predicates prove that edge
-  impossible; distinct V0/V1 policy versus typed V1 subsumption is decided.
+: Every Generic V0/V1 stage has an explicit disposition and first-effect
+  owner; V0/V1 precedence is fixed; and the actual legacy witness winner is
+  equivalent to the target policy, or a closed predicate proves the simultaneous
+  V0/V1 edge impossible. Legacy behavior and production callers remain
+  unchanged.
 
 Stop:
-: If winner cannot be known before effects, all-route cutover stops here. Do not
-  weaken the architecture or restart unrelated per-route proof loops.
+: If the winner cannot be selected before the first effect, or any stage is
+  `UnresolvedStop`, keep the old scheduler/receipt path and do not advance to
+  Generic Recipe production. Do not add a Loop-local Builder, undo journal,
+  symbolic MIR replacement, or another route-by-route proof loop.
 
 ### M5 — `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-S3`
 

@@ -75,6 +75,7 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - Normalized ExprLowerer（式の一般化 SSOT）: `docs/development/current/main/design/normalized-expr-lowering.md`
 - CorePlan Skeleton/Feature（箱増殖を止めるSSOT）: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 - RecipeTree + Parts（現行in-builder再帰実装・parity oracle。portable最終SSOTではない）: `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
+- Generic Loop post-effect debt classification（M4の全段階分類・V0/V1 precedence・winner equivalence の設計停止）: `docs/development/current/main/design/joinir-generic-post-effect-debt-classification-ssot.md`
 - Recipe-first entry contract（runtime は Facts→Recipe→Verifier→Lower、historical planner-payload wording は note-only）: `docs/development/current/main/design/recipe-first-entry-contract-ssot.md`
 - Condition observation（no rewrite SSOT）: `docs/development/current/main/design/condition-observation-ssot.md`
 - generic_loop_v1 acceptance by Recipe（ShapeId hint-only SSOT）: `docs/development/current/main/design/generic-loop-v1-acceptance-by-recipe-ssot.md`

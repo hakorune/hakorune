@@ -1120,6 +1120,50 @@ superseded_by = ""
 retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
+path = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "recipe-first-entry-contract-ssot.md"
+classification_basis = "CURRENT_STATE: active Loop replacement/cutover authority"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "Loop replacement/cutover authority is replaced explicitly"
+
+[[documents]]
+path = "joinir-generic-post-effect-debt-classification-ssot.md"
+role = "authority"
+owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+classification_basis = "CURRENT_STATE: active Generic debt design stop"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "M4 Generic debt classification is closed and handed off"
+
+[[documents]]
+path = "joinir-loop-pre-effect-product-ssot.md"
+role = "authority"
+owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+classification_basis = "Loop pipeline: pre-effect product boundary"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "pre-effect product boundary is replaced explicitly"
+
+[[documents]]
+path = "joinir-pattern-selection-shadow-ssot.md"
+role = "supporting"
+owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+classification_basis = "Loop pipeline: route selection shadow evidence"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "route selection shadow evidence is retired or superseded"
+
+[[documents]]
 path = "record-and-packed-array-lowering-ssot.md"
 role = "authority"
 owner = "INDEX.md"
