@@ -1,6 +1,6 @@
 # RecipeTree + Parts SSOT
 
-Status: SSOT  
+Status: Current implementation SSOT (legacy authority until M10; not the final portable Loop SSOT)
 Scope: Recipe の再帰構造と Parts/Verifier の責務境界を固定する。
 
 Related:
@@ -20,10 +20,10 @@ The authority split is:
 - Portable `LoopRecipeArtifactV1` is the future Rust/.hako common final semantic wire contract.
 - `joinir-loop-selfhost-recipe-pipeline-ssot.md` is the replacement/cutover authority.
 
-Relative to the future portable contract, this document is the legacy authority
-through portable Loop pipeline M10: it describes the recursive implementation
-that production executes inside `MirBuilder` today, not the portable Loop final
-SSOT.
+The new portable Recipe design is accepted, but production authority is still
+the legacy in-builder path until M10: this document describes the recursive
+implementation that production executes inside `MirBuilder`, not the final
+portable Loop SSOT.
 
 Retirement and demotion are conditional, not calendar-based:
 

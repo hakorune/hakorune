@@ -31,6 +31,27 @@ M4 may record a target disposition, but it must not issue a
 `VerifiedLoopRecipeV1`, `LoopJoinSigV1`, `LoopPhiMaterializerV1`, or candidate
 publish. Those belong to M5--M10 in the parent pipeline card.
 
+## Downstream production-authority handoff map
+
+The portable Recipe contract is the accepted semantic target, but it is not
+yet the production authority. Live execution remains the legacy
+`RecipeComposer -> CorePlan/PlanVerifier/PlanLowerer -> JoinIR/JoinModule`
+path until the atomic M10 cutover.
+
+| task | production meaning | required gate |
+| --- | --- | --- |
+| M5 Accum pilot | caller-zero end-to-end consumer of one verified Recipe; parity oracle only | recipe/verifier/JoinSig/PHI/physicalizer parity, candidate abort, fresh reuse |
+| M6 shared owners | establish one new-subtree CFG/JoinSig/`LoopPhiMaterializerV1` owner | route-specific PHI/block writers have zero new-subtree callers; global production count remains zero until M10 |
+| M7/M8 closure | five migration families and all 19 producers emit the same recursive Recipe | adapters cannot select, retry, allocate PHIs, or publish |
+| M9 Rust/.hako parity | prove the portable producer contract across hosts | no `.hako` physicalizer or default-route authority claim |
+| M10 cutover | make the verified Recipe physicalizer the single production consumer and delete the selected JoinIR fallback caller/old PHI edges atomically | winner equivalence, one terminal physicalizer, Retry/fallback/old selected callers = 0 |
+| M12 retirement | reduce temporary family adapters after M10/M11 | family adapter/first-mutation/duplicate physical authorities = 0; retained rows are data-only policy inputs |
+
+“Recipe is the SSOT” therefore means the semantic target and replacement
+contract before M10; it does not claim that current production lowering already
+consumes it. Wiring one family into production before M10 is out of order and
+would create a second authority.
+
 ## Closed vocabulary for the census
 
 Every observed Generic path is assigned exactly one disposition, with evidence
