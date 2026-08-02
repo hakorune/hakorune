@@ -1292,3 +1292,17 @@ witness and cannot claim a strict-only proof.
 Composer/lower effects are separately mutable before later errors. No
 terminality certificate, product, physicalizer, caller, or runtime behavior
 changed. Fresh D7 inventory must select the next unlanded route.
+
+### Next-route selection D7 decision
+
+Decision: select `ScanWithInit` provenance D0. Its sole acceptance owner finds
+one qualifying top-level if-return anywhere before the final step. D0 must
+decide whether optional opaque topology can retain only that observed if-return
+site and final-step site with full projection alignment. It must not pretend to
+own a complete body schedule because sibling statements are intentionally
+unclassified.
+
+Condition internals, return payload, reconstructed semantic facts, unclassified
+siblings, selector/preflight, terminality, product, execution, and physical
+behavior remain out of scope. Split/BoolPredicate and conditional/generic
+routes retain broader nested/open-policy boundaries and are deferred.
