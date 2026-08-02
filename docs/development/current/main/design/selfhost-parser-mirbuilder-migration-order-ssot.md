@@ -2,6 +2,7 @@
 Status: SSOT
 Scope: single-developer 運用で `.hako` mirbuilder / parser 移植順序を固定する
 Related:
+  - docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md
 - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
 - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
 - docs/development/current/main/design/hako-mirbuilder-migration-phase0-entry-contract-ssot.md
@@ -192,6 +193,9 @@ loop 系の current cleanup target は、semantic lowering から PHI/dominance 
 
 - first code-side owner extraction should introduce `JoinSig` / `PhiMaterializer` for one loop family only
 - do not migrate all loop families in one phase
+- the active Rust-to-selfhost Loop contract and family order are owned by
+  `joinir-loop-selfhost-recipe-pipeline-ssot.md`; this document retains the
+  general selfhost migration order
 
 ### 4) Stage1/Stage2 identity (milestone)
 

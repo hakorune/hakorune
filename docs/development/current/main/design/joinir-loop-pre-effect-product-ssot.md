@@ -1,9 +1,10 @@
 ---
-Status: Active design stop
+Status: Historical evidence — superseded by `joinir-loop-selfhost-recipe-pipeline-ssot.md`
 Date: 2026-08-02
 Decision: accepted — `JOINIR-LOOP-ALL-ROUTE-PRE-EFFECT-PRODUCT0-D0`
 Scope: all-route Loop qualification and the future logical-product / physicalizer boundary
 Related:
+  - docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md
   - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
   - docs/development/current/main/design/recipe-first-entry-contract-ssot.md
   - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
@@ -93,9 +94,10 @@ is not evidence of pre-effect uniqueness.
 
 ## Task order
 
-The authoritative order is the final `All-route convergence task map D4`
-section. Earlier D/S records below are landed evidence, not a scheduler. The
-current row is always `CURRENT_STATE.toml.current_blocker_token`.
+The active task order moved to
+`joinir-loop-selfhost-recipe-pipeline-ssot.md`. All D/S records and the D4 map
+below are historical evidence, not a scheduler. The current row is always
+`CURRENT_STATE.toml.current_blocker_token`.
 
 ## Gates and stop line
 
@@ -1611,7 +1613,10 @@ absence. This records the actual release behavior: verifier/lower may retry
 only after Builder-bound work. Facts-absent and all other classifications remain
 unchanged. No execution, qualification, terminality, or cutover behavior moved.
 
-### All-route convergence task map D4 decision
+### Historical all-route convergence task map D4 (superseded)
+
+Status: evidence only. The selfhost-ready recipe pipeline card owns current
+task order.
 
 Decision: stop the route-by-route provenance loop and converge by responsibility
 family. Five independent audits agree that the live graph has one selection and

@@ -5,10 +5,10 @@ status = "JOINIR all-route convergence is task-ordered; the next executable row 
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "The convergence audit selects cleanup before semantic promotion: split the 797-line live preflight tests, retire duplicate/dormant proof authority, then type pre-effect decline separately from post-effect retry debt. Qualified, physicalization, and cutover remain forbidden until the named later rows close."
+current_design_stop = "After the 797-line preflight test extraction, follow the selfhost-ready Loop pipeline: owned StructuralFacts -> one RoutePolicy winner -> portable LoopRecipeContract/JoinSig -> verifier -> one candidate physicalizer. The existing compile candidate is the abort boundary; no LoopEmissionDraftV1. Generic V0/V1 debt remains a mandatory standalone design stop."
 current_execution_row = "JOINIR-LOOP-PREFLIGHT-TEST-EXTRACT0-C0"
 current_execution_summary = "Move the in-file all-route preflight core tests to a sibling module without changing classifier, selection, retry, or runtime behavior; keep every touched source/check file below 800 lines."
-current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
+current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,9 +440,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "joinir-loop-pre-effect-product-ssot"
-latest_card_path = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
-latest_card_summary = """The worker-reviewed all-route convergence map is authoritative. Start with PREFLIGHT-TEST-EXTRACT0-C0; do not reopen per-route provenance, Qualified, physicalization, or cutover ahead of the ordered proof rows."""
+latest_card = "joinir-loop-selfhost-recipe-pipeline-ssot"
+latest_card_path = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
+latest_card_summary = """The selfhost-ready Loop recipe map is authoritative. Start with PREFLIGHT-TEST-EXTRACT0-C0, then build one owned portable Facts/Policy/Recipe/JoinSig/Verify/Lower pipeline; use the existing compile candidate only as abort/publication boundary, with Generic debt isolated before family closure."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

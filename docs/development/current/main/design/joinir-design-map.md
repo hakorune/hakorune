@@ -23,6 +23,7 @@ Related:
 - 「JoinIR が何を保証し、何を Fail-Fast で落とすべきか」→ `joinir-architecture-overview.md`
 - 「どのファイルを触るべきか」「入口はどこか」「追加手順は？」→ この `joinir-design-map.md`
 - 「Rust/.hako を同一契約でどう拡張するか（docs-first + gate-first）」→ `joinir-extension-dual-route-contract-ssot.md`
+- 「Loopをselfhost可能なFacts/Policy/Recipe/JoinSigへ収束させる現在順序」→ `joinir-loop-selfhost-recipe-pipeline-ssot.md`
 - 「経緯/ログ/切り分け」→ `docs/development/current/main/phases/` と `docs/development/current/main/investigations/`
 
 ---

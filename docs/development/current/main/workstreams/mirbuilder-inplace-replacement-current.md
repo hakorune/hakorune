@@ -471,7 +471,7 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 The sole current row is `CURRENT_STATE.toml.current_blocker_token`. The active
 JoinIR contract and ordered convergence map live in
-`design/joinir-loop-pre-effect-product-ssot.md`. Closed route-local provenance
+`design/joinir-loop-selfhost-recipe-pipeline-ssot.md`. Closed route-local provenance
 records below are evidence only and must not schedule another route.
 
 ## Production invariants
