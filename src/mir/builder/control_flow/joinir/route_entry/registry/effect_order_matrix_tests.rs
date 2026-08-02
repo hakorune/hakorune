@@ -30,9 +30,17 @@ enum PostEffectNone {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CurrentPreflightStatus {
+    SourceTopologyUnavailable,
+    PolicyAndTerminalityUnavailable,
+    DirectOnlyNotAllRoute,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct EffectOrderRow {
     route: LoopRouteId,
     selection: &'static str,
+    preflight_status: CurrentPreflightStatus,
     qualification: QualificationBoundary,
     first_mutation: ComposerMutationFamily,
     post_effect_none: PostEffectNone,
@@ -44,6 +52,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopBreakRecipe,
         selection: "loop_break",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -51,6 +60,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::IfPhiJoin,
         selection: "if_phi_join",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -58,6 +68,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopContinueOnly,
         selection: "loop_continue_only",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsContractAndNestedGate,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -65,6 +76,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopTrueEarlyExit,
         selection: "loop_true_early_exit",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -72,6 +84,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopSimpleWhile,
         selection: "loop_simple_while && !nested",
+        preflight_status: CurrentPreflightStatus::DirectOnlyNotAllRoute,
         qualification: QualificationBoundary::FactsContractAndNestedGate,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -79,6 +92,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopCharMap,
         selection: "loop_char_map",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -86,6 +100,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopArrayJoin,
         selection: "loop_array_join",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -93,6 +108,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::ScanWithInit,
         selection: "scan_with_init",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -100,6 +116,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::SplitScan,
         selection: "split_scan",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -107,6 +124,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::BoolPredicateScan,
         selection: "bool_predicate_scan",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -114,6 +132,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::AccumConstLoop,
         selection: "accum_const_loop",
+        preflight_status: CurrentPreflightStatus::PolicyAndTerminalityUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -121,6 +140,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::NestedLoopMinimal,
         selection: "nested_loop_minimal",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndNestedGate,
         first_mutation: ComposerMutationFamily::NestedBlockIdsThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -128,6 +148,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopTrueBreakContinue,
         selection: "loop_true_break_continue && !loop_break",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsContractAndReleaseGate,
         first_mutation: ComposerMutationFamily::LoopTrueSkeletonThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -135,6 +156,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopCondBreakContinue,
         selection: "loop_cond_break_continue; !loop_break; !scan; !return_only",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsContractAndReleaseGate,
         first_mutation: ComposerMutationFamily::LoopCondFrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -142,6 +164,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopCondContinueOnly,
         selection: "loop_cond_continue_only && !loop_continue_only",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsContractAndReleaseGate,
         first_mutation: ComposerMutationFamily::LoopCondFrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -149,6 +172,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopCondContinueWithReturn,
         selection: "loop_cond_continue_with_return",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsContractAndReleaseGate,
         first_mutation: ComposerMutationFamily::LoopCondFrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -156,6 +180,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::LoopCondReturnInBody,
         selection: "loop_cond_return_in_body; !scan; return_only",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopCondFrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -163,6 +188,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::GenericLoopV0,
         selection: "generic_loop_v0",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::GenericSkeletonThenAstLower,
         post_effect_none: PostEffectNone::GenericReleaseFailureBecomesNone,
@@ -170,6 +196,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::GenericLoopV1,
         selection: "generic_loop_v1; !break; !simple; !cond_break; !scan",
+        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::GenericSkeletonThenAstLower,
         post_effect_none: PostEffectNone::GenericReleaseFailureBecomesNone,
@@ -246,4 +273,21 @@ fn mutation_families_cover_every_current_composer_without_collapsing_nested_or_l
         count(ComposerMutationFamily::GenericSkeletonThenAstLower),
         2
     );
+}
+
+#[test]
+fn all_routes_remain_unissued_until_all_route_source_and_policy_proofs_exist() {
+    let count = |status| {
+        EFFECT_ORDER_MATRIX
+            .iter()
+            .filter(|row| row.preflight_status == status)
+            .count()
+    };
+
+    assert_eq!(count(CurrentPreflightStatus::SourceTopologyUnavailable), 17);
+    assert_eq!(
+        count(CurrentPreflightStatus::PolicyAndTerminalityUnavailable),
+        1
+    );
+    assert_eq!(count(CurrentPreflightStatus::DirectOnlyNotAllRoute), 1);
 }

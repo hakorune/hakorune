@@ -578,3 +578,12 @@ the direct issuer only once all membership/operands/policy proof exists. Legacy
 composers remain the only execution path until an all-route Builder-free compose
 proof, `LoopEmissionDraftV1` publish/abort proof, and atomic scheduler cutover
 are separately complete.
+
+### Preflight schema matrix P0 evidence
+
+The 19-row registry matrix now fixes all current preflight states: 17 routes
+reject for missing route-local source topology, AccumConstLoop rejects for missing
+policy/terminality proof despite its operands, and direct SimpleWhile is explicitly
+direct-only rather than all-route-qualified. The matrix has zero qualified rows.
+This separation prevents a generic raw-body fallback or accidental promotion of
+the disconnected direct product when the private preflight vocabulary is added.
