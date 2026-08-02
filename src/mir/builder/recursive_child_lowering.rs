@@ -9,6 +9,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use super::calls::LegacyFunctionPendingSessionV1;
+use super::control_flow::cleanup::CleanupExitPolicyV1;
 use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::me_call_header_observation::{
     MeCallHeaderObservationPortV1, MeCallHeaderSourceV1, MeCallParameterObservationV1,
@@ -62,6 +63,12 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         builder: &mut MirBuilder,
         input: Self::ExpressionInput,
     ) -> Result<ValueId, String>;
+
+    /// Isolated test-only ports deny cleanup exits unless they explicitly
+    /// provide an operation policy. Production ports must override this.
+    fn cleanup_exit_policy_v1(&self) -> CleanupExitPolicyV1 {
+        CleanupExitPolicyV1::default()
+    }
 
     fn prepare_expression_child_source_v1(
         &self,
@@ -268,6 +275,7 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(super) active_source: Option<RawInvocationSourceContextV1>,
     pub(super) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
     pub(super) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
+    pub(super) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
 }
 
@@ -278,11 +286,22 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) fn new(
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
     ) -> Self {
+        Self::new_with_cleanup_exit_policy(
+            module_port,
+            CleanupExitPolicyV1::capture_from_environment(),
+        )
+    }
+
+    pub(in crate::mir::builder) fn new_with_cleanup_exit_policy(
+        module_port: &'port mut ModuleLoweringPortV1<'collector>,
+        cleanup_exit_policy: CleanupExitPolicyV1,
+    ) -> Self {
         Self {
             module_port,
             active_source: None,
             semantic_ledger: None,
             callable_ledger: None,
+            cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
     }
@@ -297,6 +316,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             active_source: self.active_source.clone(),
             semantic_ledger: self.semantic_ledger.clone(),
             callable_ledger: self.callable_ledger.clone(),
+            cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
     }
@@ -467,6 +487,10 @@ impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
+
+    fn cleanup_exit_policy_v1(&self) -> CleanupExitPolicyV1 {
+        CleanupExitPolicyV1::capture_from_environment()
+    }
 
     fn lower_body(
         &mut self,

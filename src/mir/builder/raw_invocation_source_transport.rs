@@ -581,6 +581,10 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn cleanup_exit_policy_v1(&self) -> super::control_flow::cleanup::CleanupExitPolicyV1 {
+        self.cleanup_exit_policy
+    }
+
     fn lower_body(
         &mut self,
         builder: &mut MirBuilder,

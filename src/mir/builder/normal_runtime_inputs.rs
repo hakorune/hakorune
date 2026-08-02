@@ -10,6 +10,7 @@
 pub(in crate::mir) struct NormalRuntimeInputSnapshotV1 {
     script_args: Box<[String]>,
     entry_safepoint: bool,
+    cleanup_exit_policy: crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1,
 }
 
 impl NormalRuntimeInputSnapshotV1 {
@@ -27,6 +28,8 @@ impl NormalRuntimeInputSnapshotV1 {
         Self {
             script_args,
             entry_safepoint: crate::config::env::builder_safepoint_entry(),
+            cleanup_exit_policy:
+                crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1::capture_from_environment(),
         }
     }
 
@@ -38,12 +41,20 @@ impl NormalRuntimeInputSnapshotV1 {
         &self.script_args
     }
 
+    pub(in crate::mir::builder) const fn cleanup_exit_policy(
+        &self,
+    ) -> crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1 {
+        self.cleanup_exit_policy
+    }
+
     /// Empty inputs for disconnected and unit-test seams. The selected normal
     /// lifecycle always receives `capture_from_normal_ingress()`.
     pub(in crate::mir::builder) fn empty() -> Self {
         Self {
             script_args: Box::new([]),
             entry_safepoint: false,
+            cleanup_exit_policy:
+                crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1::default(),
         }
     }
 }
@@ -88,6 +99,8 @@ mod tests {
                 ("NYASH_SCRIPT_ARGS_JSON", Some(r#"["before"]"#)),
                 ("HAKO_SCRIPT_ARGS_JSON", None),
                 ("NYASH_BUILDER_SAFEPOINT_ENTRY", Some("1")),
+                ("NYASH_CLEANUP_ALLOW_RETURN", Some("1")),
+                ("NYASH_CLEANUP_ALLOW_THROW", Some("0")),
             ],
             NormalRuntimeInputSnapshotV1::capture_from_normal_ingress,
         );
@@ -96,10 +109,14 @@ mod tests {
                 ("NYASH_SCRIPT_ARGS_JSON", Some(r#"["after"]"#)),
                 ("HAKO_SCRIPT_ARGS_JSON", None),
                 ("NYASH_BUILDER_SAFEPOINT_ENTRY", Some("0")),
+                ("NYASH_CLEANUP_ALLOW_RETURN", Some("0")),
+                ("NYASH_CLEANUP_ALLOW_THROW", Some("1")),
             ],
             || {
                 assert_eq!(snapshot.script_args(), ["before"]);
                 assert!(snapshot.entry_safepoint_enabled());
+                assert!(snapshot.cleanup_exit_policy().allows_return());
+                assert!(!snapshot.cleanup_exit_policy().allows_throw());
             },
         );
     }

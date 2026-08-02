@@ -4,6 +4,7 @@
 //! including proper handling of deferred returns and cleanup blocks.
 
 use crate::ast::{ASTNode, CatchClause};
+use crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1;
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_body_v1, RawAstChildLoweringPortV1,
 };
@@ -15,6 +16,7 @@ pub(in crate::mir::builder) struct PreparedRawTryCatchV1 {
     try_body: Vec<ASTNode>,
     catch_clauses: Vec<CatchClause>,
     finally_body: Option<Vec<ASTNode>>,
+    cleanup_exit_policy: CleanupExitPolicyV1,
 }
 
 impl PreparedRawTryCatchV1 {
@@ -22,11 +24,13 @@ impl PreparedRawTryCatchV1 {
         try_body: Vec<ASTNode>,
         catch_clauses: Vec<CatchClause>,
         finally_body: Option<Vec<ASTNode>>,
+        cleanup_exit_policy: CleanupExitPolicyV1,
     ) -> Self {
         Self {
             try_body,
             catch_clauses,
             finally_body,
+            cleanup_exit_policy,
         }
     }
 }
@@ -43,6 +47,7 @@ where
         try_body,
         catch_clauses,
         finally_body,
+        cleanup_exit_policy,
     } = prepared;
     let try_block = builder.next_block_id();
     let catch_block = builder.next_block_id();
@@ -106,8 +111,8 @@ where
             builder.start_new_block(finally_block_id)?;
             transaction.enter_cleanup(
                 &mut builder.function_state,
-                crate::config::env::cleanup_allow_return(),
-                crate::config::env::cleanup_allow_throw(),
+                cleanup_exit_policy.allows_return(),
+                cleanup_exit_policy.allows_throw(),
             );
             drive_legacy_body_v1(builder, port, finally_statements)?;
             cleanup_terminated = builder.is_current_block_terminated();
@@ -148,6 +153,7 @@ mod tests {
 
     struct RecordingBodyPortV1 {
         demands: Vec<i64>,
+        cleanup_policies: Vec<(bool, bool)>,
         fail_on: Option<i64>,
     }
 
@@ -155,6 +161,7 @@ mod tests {
         fn new(fail_on: Option<i64>) -> Self {
             Self {
                 demands: Vec::new(),
+                cleanup_policies: Vec::new(),
                 fail_on,
             }
         }
@@ -178,6 +185,12 @@ mod tests {
                 return Err("[try-catch/test-invalid-body]".to_string());
             };
             self.demands.push(*tag);
+            if builder.function_state.in_cleanup_block {
+                self.cleanup_policies.push((
+                    builder.function_state.cleanup_allow_return,
+                    builder.function_state.cleanup_allow_throw,
+                ));
+            }
             if self.fail_on == Some(*tag) {
                 return Err(format!("fail-{tag}"));
             }
@@ -226,6 +239,7 @@ mod tests {
             body(try_tag),
             catch_tags.iter().copied().map(catch).collect(),
             finally_tag.map(body),
+            CleanupExitPolicyV1::default(),
         )
     }
 
@@ -282,5 +296,31 @@ mod tests {
         assert_eq!(port.demands, vec![1, 2, 3]);
         assert!(builder.function_state.in_cleanup_block);
         assert!(!builder.function_state.return_defer_active);
+    }
+
+    #[test]
+    fn cleanup_body_uses_the_policy_captured_before_lowering() {
+        let policy = crate::test_support::with_env_vars(
+            &[
+                ("NYASH_CLEANUP_ALLOW_RETURN", Some("1")),
+                ("NYASH_CLEANUP_ALLOW_THROW", Some("0")),
+            ],
+            CleanupExitPolicyV1::capture_from_environment,
+        );
+        let prepared =
+            PreparedRawTryCatchV1::prepare(body(1), vec![catch(2)], Some(body(3)), policy);
+        crate::test_support::with_env_vars(
+            &[
+                ("NYASH_CLEANUP_ALLOW_RETURN", Some("0")),
+                ("NYASH_CLEANUP_ALLOW_THROW", Some("1")),
+            ],
+            || {
+                let mut builder = builder();
+                let mut port = RecordingBodyPortV1::new(None);
+                lower_prepared_raw_try_catch_with_port_v1(&mut builder, &mut port, prepared)
+                    .unwrap();
+                assert_eq!(port.cleanup_policies, vec![(true, false)]);
+            },
+        );
     }
 }

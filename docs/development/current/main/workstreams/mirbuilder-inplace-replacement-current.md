@@ -438,28 +438,31 @@ closed — RAW-CONTROLBODY-UNLOCATED-PORTAL-RETIRE0-R0 (RET0)
   sole unlocated recursive portal. Focused transport/Loop tests and shared
   R4/current-pointer guards are green.
 
+closed — CONTROL-RESULT-CLEANUP-POLICY-SNAPSHOT0-S0
+  -> cleanup policy is captured at selected normal ingress or explicit raw
+  TryCatch ingress, then owned by `PreparedRawTryCatchV1`; cleanup lowering no
+  longer reads the environment. Snapshot/region tests are green.
+
 ### Active execution brief
 
-`CONTROL-RESULT-CLEANUP-POLICY-SNAPSHOT0-S0` — live BoxShape refactor.
+`RAW-PROTECTED-REGION-TRANSIENT-STATE0-S1` — live BoxShape refactor.
 
 Change:
-  Capture immutable cleanup Return/Throw policy once at normal ingress and at
-  raw/reference TryCatch ingress; loan it to `PreparedRawTryCatchV1` and delete
-  the two cleanup-time environment reads.
+  Replace the seven loose TryCatch defer/cleanup fields with one total typed
+  state across its transaction and function-state lifecycle.
 
 Contract:
-  Preserve the existing allow/deny diagnostics, first-catch-only lowering,
-  successful restoration, failure partial-state, and RootLower timing. Do not
-  add ambient Builder policy, a default environment-read fallback, or Script
-  Complete activation.
+  Preserve successful restoration, failure partial state, cleanup diagnostics,
+  first-catch-only lowering, and RootLower timing. Do not activate Script
+  TryCatch/Throw or create a shared physical Return owner.
 
 Done:
-  Each prepared TryCatch has one typed policy; lower-side cleanup policy reads
-  are zero; snapshot immutability and existing cleanup/reuse tests are green.
+  All TryCatch consumers use the typed state; targeted success/failure/reuse
+  tests and the shared guard are green.
 
 Stop:
-  If selected and raw/reference routes cannot loan one captured policy without
-  ambient state or fallback, return this row to a profile-ingress D0.
+  If totalization changes failure partial state or needs an ambient fallback,
+  return to `CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0`.
 
 ### Refactor Series queue
 

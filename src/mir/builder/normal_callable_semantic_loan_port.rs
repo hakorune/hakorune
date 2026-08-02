@@ -124,6 +124,12 @@ impl RecursiveChildLoweringPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn cleanup_exit_policy_v1(
+        &self,
+    ) -> crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1 {
+        self.inner.cleanup_exit_policy_v1()
+    }
+
     fn lower_body(
         &mut self,
         builder: &mut MirBuilder,

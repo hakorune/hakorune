@@ -161,7 +161,10 @@ impl MirBuilder {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
-            let mut port = RawInvocationChildPortV1::new(&mut module_port);
+            let mut port = RawInvocationChildPortV1::new_with_cleanup_exit_policy(
+                &mut module_port,
+                runtime_inputs.cleanup_exit_policy(),
+            );
             match script_mode {
                 NormalScriptRootLoweringMode::Complete(source) => port
                     .with_script_semantic_source_v1(source, |port| {

@@ -20,7 +20,9 @@ use crate::mir::builder::indexing::{
     lower_prepared_raw_index_assignment_with_port_v1, PreparedRawIndexAssignmentV1,
 };
 use crate::mir::builder::raw_structured_child_scope::RawStructuredChildScopePortV1;
-use crate::mir::builder::recursive_child_lowering::drive_legacy_body_v1;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_body_v1, RecursiveChildLoweringPortV1,
+};
 use crate::mir::builder::stmts::task_scope_stmt::{
     lower_prepared_raw_task_scope_with_port_v1, PreparedRawTaskScopeV1,
 };
@@ -434,10 +436,15 @@ where
             let mut body_sources = vec![try_source];
             body_sources.extend(catch_source);
             body_sources.extend(cleanup_source);
+            let cleanup_exit_policy = port.cleanup_exit_policy_v1();
             let mut scoped =
                 RawStructuredChildScopePortV1::new(port, Vec::new(), body_sources);
-            let prepared =
-                PreparedRawTryCatchV1::prepare(try_body, catch_clauses, finally_body);
+            let prepared = PreparedRawTryCatchV1::prepare(
+                try_body,
+                catch_clauses,
+                finally_body,
+                cleanup_exit_policy,
+            );
             let value =
                 lower_prepared_raw_try_catch_with_port_v1(builder, &mut scoped, prepared)?;
             scoped.complete_exact_demands_v1()?;

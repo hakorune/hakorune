@@ -48,6 +48,12 @@ where
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn cleanup_exit_policy_v1(
+        &self,
+    ) -> crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1 {
+        self.child.cleanup_exit_policy_v1()
+    }
+
     fn lower_body(
         &mut self,
         builder: &mut MirBuilder,
