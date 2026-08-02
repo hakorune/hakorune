@@ -1,6 +1,6 @@
 ---
 Status: Active task-order SSOT
-Date: 2026-08-02
+Date: 2026-08-03
 Decision: accepted — `JOINIR-LOOP-SELFHOST-RECIPE-PIPELINE0-D0`
 Scope: production Loop meaning, selfhost-portable recipe, terminal candidate lowering, and atomic retirement
 Related:
@@ -64,6 +64,22 @@ The final authority flow is the existing north star:
 Resolve -> Observe -> Facts -> Recipe -> Verify -> Lower -> Seal -> Collect
 -> Atomic Publish
 ```
+
+There are two separate cutovers over that one semantic contract:
+
+```text
+M10/M11:
+  Rust production Loop authority -> the portable verified-recipe pipeline
+
+SH5:
+  .hako selfhost Loop authority -> its own verified-recipe physicalizer
+```
+
+M9 proves only the portable `.hako` producer. It is not complete selfhosting.
+The Rust cutover must land and retire its old scheduler before the later `.hako`
+physicalization lane becomes active. The Rust pipeline may remain afterward as
+an explicit Stage0/bootstrap reference; it must never become an automatic
+fallback from the `.hako` path.
 
 ## Structural owners
 
@@ -186,7 +202,9 @@ Contract:
 
 Done:
 : Generic winner equivalence is green and selected Generic recipe contains no
-  `Option`, raw suffix, or retry capability.
+  `Option`, raw suffix, or retry capability. A production-derived V0-to-V1
+  later-success fixture exists, or the policy predicates prove that edge
+  impossible; distinct V0/V1 policy versus typed V1 subsumption is decided.
 
 Stop:
 : If winner cannot be known before effects, all-route cutover stops here. Do not
@@ -210,6 +228,8 @@ Done:
 
 Stop:
 : Do not import synthetic AST or current physical composer as new authority.
+  M6 must replace and promote this pilot into the shared services; it must not
+  leave a second Accum-only implementation beside them.
 
 ### M6 — `JOINIR-LOOP-CFG-JOINSIG-PHI0-S4`
 
@@ -253,8 +273,10 @@ Stop:
 ### M8 — `JOINIR-LOOP-ALL19-PORTABLE-RECIPE0-S6`
 
 Change:
-: Migrate remaining routes as pure Facts/Policy-to-family-recipe adapters. Add
-  only missing source observation or portable vocabulary.
+: Migrate the remaining 14 routes as five adapter cohorts: LoopV0 recurrence,
+  LoopV0 exits/joins, LoopV0 scans, LoopCond exits, and Generic V0. Add only
+  missing source observation or portable vocabulary. Each route is one data
+  row/golden, not a new verifier, CFG, PHI, or physicalizer authority.
 
 Contract:
 : 19/19 routes have typed pre-effect decline or verified recipe. Legacy winner
@@ -278,8 +300,9 @@ Change:
 
 Contract:
 : Rust and `.hako` share the data contract and verifier expectations, not host
-  callbacks. Rust remains the thin allocation/emission terminal until a later
-  explicit migration.
+  callbacks. The `.hako` side emits the owned recipe and Rust verifies both
+  normalized products. Rust remains the thin allocation/emission terminal until
+  the later SH lane.
 
 Done:
 : Route ID, prefix reasons, logical roles, JoinSig, verifier result, and
@@ -288,6 +311,9 @@ Done:
 
 Stop:
 : Do not widen language semantics or Rust source recognition to force parity.
+  Do not claim `.hako` verifier, CFG/PHI, physical MIR, or default authority.
+  The no-hostbridge claim covers the portable producer subtree, not unrelated
+  compatibility providers elsewhere in the canonical builder.
 
 ### M10 — `JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0`
 
@@ -331,6 +357,135 @@ Done:
 Stop:
 : Keep an uncovered entry under a named owner rather than hiding it in fallback.
 
+## Complete Loop selfhost lane — reserved after M11
+
+Entry:
+: M1 through M11 are closed, the portable wire contract is frozen, and the
+  Rust production path has one terminal physicalizer with no retry/fallback.
+  Exact task order is `SH1 -> SH2 -> SH3 -> SH4 -> SH5`; only read-only census
+  and fixture preparation may run ahead.
+
+Authority home:
+: New production `.hako` owners live under canonical `lang/src/mir/builder/**`.
+  Existing `lang/src/compiler/mirbuilder/**`, direct JSON Loop templates,
+  LoopSSA text rewrite, synthetic-ID PHI injection, and token-only facts are
+  compatibility/parity oracles until explicitly retired; they are not promoted
+  as the portable authority.
+
+Scope:
+: This lane completes Loop lowering inside the selfhost MirBuilder. It does not
+  by itself delete the Rust Stage0/bootstrap compiler, migrate the parser, add
+  language syntax, or change backend policy. Repository-wide Rust removal needs
+  a separate zero-caller decision after SH5.
+
+### SH1 — `SELFHOST-LOOP-RECIPE-VERIFIER0-SH1`
+
+Change:
+: Implement the portable Loop recipe/JoinSig schema and independent verifier in
+  the canonical `.hako` home. Reuse data vocabulary from old recipe boxes only
+  when it satisfies the new owned wire contract.
+
+Contract:
+: The verifier consumes only the owned recipe, checks role/source/carrier/exit
+  coverage plus JoinSig edge arity/types, and issues a verified product or typed
+  rejection. It cannot read Program JSON, select a route, repair, lower, retry,
+  delegate, or call a host bridge.
+
+Done:
+: All 19 positive recipes and the shared missing/duplicate role, undefined
+  carrier, missing edge, and arity/type counterexamples match Rust verifier
+  codes and structured fields. Count-only PortSig is not accepted as JoinSig.
+
+Stop:
+: Do not connect CFG allocation, PHI emission, MIR JSON, or the default route.
+  Rust remains the physical authority.
+
+### SH2 — `SELFHOST-LOOP-CFG-JOINSIG-PHI0-SH2`
+
+Change:
+: Add one `.hako` CFG skeleton service, one JoinSig edge-payload service, one
+  PHI materializer, and one structural verifier over an unpublished draft.
+
+Contract:
+: Services consume only the SH1 verified product. Family adapters cannot infer
+  edges from AST/Program JSON, allocate their own PHIs, repair invalid graphs,
+  select, retry, publish, or invoke legacy text/synthetic-ID PHI rewriting.
+
+Done:
+: Five-family representatives and then the 19-row matrix match Rust predecessor,
+  dominance, edge payload, carrier/exit, unreachable, and normalized structural
+  plan results. Shared services are the sole CFG/PHI owners in the new subtree.
+
+Stop:
+: No public MIR JSON or default-route connection. A route that does not fit opens
+  one bounded portable vocabulary decision, never a route-local physicalizer.
+
+### SH3 — `SELFHOST-LOOP-PHYSICAL-MIR-JSON0-SH3`
+
+Change:
+: Add one terminal `.hako` Loop physicalizer that maps verified logical roles
+  to deterministic block/value IDs in an unpublished module draft, seals the
+  function/module, and serializes MIR JSON v0 only after complete success.
+
+Contract:
+: Land as one ordered implementation series: Accum vertical slice, five-family
+  closure, then the five M8 cohorts/all 19, with one family/cohort plus fixtures
+  per commit. The physicalizer accepts no AST, raw recipe, `Option`, suffix,
+  retry, fallback, delegate, or route-selection capability.
+
+Done:
+: All 19 have deterministic normalized recipe and MIR JSON parity, verifier/VM
+  result parity, PHI/type/result parity, and no partial artifact on injected
+  late failure. Covered direct Loop templates, recipe rematch, and route-local
+  emitters have zero callers in the new subtree.
+
+Stop:
+: Do not touch the default route, Stage identity, parser, language surface, or
+  backend policy. Failure is typed terminal and discards the unpublished draft.
+
+### SH4 — `SELFHOST-LOOP-STAGE1-STAGE2-IDENTITY0-SH4`
+
+Change:
+: Connect SH3 only to the explicit selfhost identity route and align the identity
+  harness with its live Stage1-only route contract before measuring parity.
+
+Contract:
+: Program JSON v0 and MIR JSON v0 must be produced without compatibility route,
+  automatic Rust fallback, hostbridge, or default-route mutation. Stage0 remains
+  an explicit bootstrap/reference lane.
+
+Done:
+: The 19-route matrix, selfhost subset/full gates, portable producer/verifier
+  reports, and `selfhost_identity_check.sh --mode full` are green on the exact
+  Stage1/Stage2 route. Stale `auto`/`--allow-compat-route` expectations are gone.
+
+Stop:
+: Identity mismatch, missing Stage artifacts, harness drift, or delegate use
+  blocks SH5; do not normalize it away by weakening the comparison.
+
+### SH5 — `SELFHOST-LOOP-DEFAULT-CUTOVER0-SH5-I0-R0`
+
+Change:
+: Atomically switch the canonical `.hako` MirBuilder Loop branch from
+  registry/fallback direct lowerers to the SH1-SH3 pipeline. In the same commit,
+  delete covered default compatibility dispatch, Loop direct emitters, recipe
+  shape rematch, text-PHI claims, and automatic Rust/delegate fallback.
+
+Contract:
+: Meaning once, verification once, physical allocation once, sealed MIR JSON
+  publication once. Default success or typed terminal failure are the only
+  outcomes; Stage0 bootstrap is explicit and never selected as fallback.
+
+Done:
+: Default selfhost Loop selection/meaning/verifier/physicalizer authority count
+  is one; retry/fallback/hostbridge/dual dispatch are zero; all 19, full identity,
+  selfhost corpus, representative backend, quick/release, and old-caller census
+  are green.
+
+Stop:
+: Any uncovered Loop stays under a named old owner and blocks cutover. Do not
+  hide it in delegate/fallback or claim repository-wide Rust retirement.
+
 ## Gates and commit cadence
 
 - Prelude: one physical-move commit.
@@ -338,6 +493,10 @@ Stop:
 - S rows: one reusable vocabulary/service or one accepted family plus fixtures.
 - Partial pipeline remains caller-zero until M8/M9 closure.
 - M10: one atomic I0/R0 commit; M11: one retirement commit.
+- SH1/SH2 are disconnected service rows; SH3 is an ordered implementation
+  series with one family/cohort per commit;
+  SH4 connects only the explicit identity route; SH5 is the sole `.hako`
+  atomic default cutover/retirement commit.
 - Daily: focused module/registry, current pointer, MirBuilder structural guard.
 - Recipe milestones: normalized Rust report plus `.hako` parity when enabled.
 - Cutover: accepted corpus/backend, selfhost identity, representative phase29bq,
@@ -354,6 +513,7 @@ symbolic MIR fragment redesign
 route-local terminality mini-products and physicalizers
 cosmetic Direct shell unification
 language expansion, Ownership/View, performance, backend expansion
+whole-MIR block-argument rewrite or general immutable graph IR
 ```
 
 The portable recipe itself is intentionally symbolic at the control/role level;
