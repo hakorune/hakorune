@@ -27,9 +27,31 @@ fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV
         LoopRouteId::LoopBreakRecipe => classify_loop_break(facts),
         LoopRouteId::IfPhiJoin => classify_if_phi_join(facts),
         LoopRouteId::LoopContinueOnly => classify_loop_continue_only(facts),
+        LoopRouteId::LoopTrueEarlyExit => classify_loop_true_early_exit(facts),
         LoopRouteId::LoopSimpleWhile => classify_simple_while(facts),
         LoopRouteId::AccumConstLoop => classify_accum_const(facts),
         _ => LoopPreflightRejectV1::SourceTopologyUnavailable { route },
+    }
+}
+
+fn classify_loop_true_early_exit(facts: &LoopFacts) -> LoopPreflightRejectV1 {
+    let Some(early_exit) = facts.loop_true_early_exit() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::LoopTrueEarlyExit,
+        };
+    };
+    let Some(topology) = early_exit.source_topology.as_ref() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::LoopTrueEarlyExit,
+        };
+    };
+    if topology.has_scope_box_lineage() {
+        return LoopPreflightRejectV1::ScopeBoxLineageNotBorrowable {
+            route: LoopRouteId::LoopTrueEarlyExit,
+        };
+    }
+    LoopPreflightRejectV1::PolicyAndTerminalityUnavailable {
+        route: LoopRouteId::LoopTrueEarlyExit,
     }
 }
 
@@ -431,6 +453,61 @@ mod tests {
         )
     }
 
+    fn early_exit_fixture(scope_boxed: bool, returns: bool) -> (ASTNode, Vec<ASTNode>) {
+        let v = |name: &str| ASTNode::Variable {
+            name: name.into(),
+            span: Span::unknown(),
+        };
+        let increment = |name: &str| ASTNode::Assignment {
+            target: Box::new(v(name)),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(v(name)),
+                right: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let exit = if returns {
+            ASTNode::Return {
+                value: Some(Box::new(v("sum"))),
+                span: Span::unknown(),
+            }
+        } else {
+            ASTNode::Break {
+                span: Span::unknown(),
+            }
+        };
+        let mut statements = vec![ASTNode::If {
+            condition: Box::new(v("done")),
+            then_body: vec![exit],
+            else_body: None,
+            span: Span::unknown(),
+        }];
+        if !returns {
+            statements.push(increment("sum"));
+        }
+        statements.push(increment("i"));
+        let body = if scope_boxed {
+            vec![ASTNode::ScopeBox {
+                body: statements,
+                span: Span::unknown(),
+            }]
+        } else {
+            statements
+        };
+        (
+            ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: Span::unknown(),
+            },
+            body,
+        )
+    }
+
     #[test]
     fn direct_simple_is_policy_rejected_not_qualified() {
         let (condition, body) = fixture(false);
@@ -561,6 +638,40 @@ mod tests {
             LoopPreflightDispositionV1::Rejected(
                 LoopPreflightRejectV1::SourceTopologyUnavailable {
                     route: LoopRouteId::LoopBreakRecipe
+                }
+            )
+        ));
+    }
+
+    #[test]
+    fn direct_early_exit_return_and_break_are_policy_rejected() {
+        for returns in [true, false] {
+            let (condition, body) = early_exit_fixture(false, returns);
+            let live = try_build_live_loop_facts(&condition, &body)
+                .unwrap()
+                .unwrap();
+            assert!(matches!(
+                issue_all_route_preflight_v1(live),
+                LoopPreflightDispositionV1::Rejected(
+                    LoopPreflightRejectV1::PolicyAndTerminalityUnavailable {
+                        route: LoopRouteId::LoopTrueEarlyExit
+                    }
+                )
+            ));
+        }
+    }
+
+    #[test]
+    fn scope_box_early_exit_is_rejected_before_policy() {
+        let (condition, body) = early_exit_fixture(true, false);
+        let live = try_build_live_loop_facts(&condition, &body)
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            issue_all_route_preflight_v1(live),
+            LoopPreflightDispositionV1::Rejected(
+                LoopPreflightRejectV1::ScopeBoxLineageNotBorrowable {
+                    route: LoopRouteId::LoopTrueEarlyExit
                 }
             )
         ));

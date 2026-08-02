@@ -31,6 +31,17 @@ pub(in crate::mir::builder) struct LoopTrueEarlyExitSourceTopologyV1 {
     step: LoopSourceBodySiteV1,
 }
 
+impl LoopTrueEarlyExitSourceTopologyV1 {
+    pub(in crate::mir::builder) fn has_scope_box_lineage(&self) -> bool {
+        !self.exit_if.scope_box_children().is_empty()
+            || self
+                .carrier_update
+                .as_ref()
+                .is_some_and(|site| !site.scope_box_children().is_empty())
+            || !self.step.scope_box_children().is_empty()
+    }
+}
+
 pub(in crate::mir::builder) fn try_extract_loop_true_early_exit_facts(
     condition: &ASTNode,
     body: &[ASTNode],

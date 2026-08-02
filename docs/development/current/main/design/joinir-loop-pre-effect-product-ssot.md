@@ -1078,3 +1078,16 @@ Nested exit-if condition/payload and the cloned carrier expression have no
 source authority. No selector/preflight consumer, terminality, product,
 composer/lowerer/Builder, physicalizer, caller, or runtime behavior changed.
 The next card is preflight D0 only.
+
+### LoopTrueEarlyExit preflight D0/S0 implementation record
+
+Decision: accept a raw-front-only preflight S0. Its single route branch reads
+only optional opaque topology: absent facts/topology reject as source
+unavailable; any ScopeBox lineage rejects as not borrowable; direct topology
+rejects as policy-and-terminality unavailable. Direct Return and Break plus a
+ScopeBox Break fixture fix those outcomes.
+
+The generic handler can normally return `Ok(None)` without a planner contract,
+so this classification grants no terminality, qualification, product, source
+lease, physical-safety, caller, or runtime claim. The next card is terminality
+D0 and must audit that contract boundary rather than infer it from topology.
