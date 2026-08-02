@@ -168,7 +168,9 @@ fn lower_pre_i0_return_reference(
 
     with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
         builder.metadata_ctx.set_current_span(span);
-        if builder.function_state.in_cleanup_block && !builder.function_state.cleanup_allow_return {
+        if builder.function_state.protected_region.cleanup.active
+            && !builder.function_state.protected_region.cleanup.allow_return
+        {
             return Err("return is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_RETURN=1 to permit)".to_string());
         }
         if let Some(return_value) =
@@ -338,12 +340,12 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
         temp_slot_counter: builder.core_ctx.temp_slot_counter,
         recursion_depth: builder.recursion_depth,
         current_span: builder.metadata_ctx.current_span(),
-        in_cleanup_block: builder.function_state.in_cleanup_block,
-        cleanup_allow_return: builder.function_state.cleanup_allow_return,
-        return_defer_active: builder.function_state.return_defer_active,
-        return_defer_slot: builder.function_state.return_defer_slot,
-        return_defer_target: builder.function_state.return_defer_target,
-        return_deferred_emitted: builder.function_state.return_deferred_emitted,
+        in_cleanup_block: builder.function_state.protected_region.cleanup.active,
+        cleanup_allow_return: builder.function_state.protected_region.cleanup.allow_return,
+        return_defer_active: builder.function_state.protected_region.return_defer.active,
+        return_defer_slot: builder.function_state.protected_region.return_defer.slot,
+        return_defer_target: builder.function_state.protected_region.return_defer.target,
+        return_deferred_emitted: builder.function_state.protected_region.return_defer.emitted,
     }
 }
 
@@ -394,9 +396,9 @@ fn configured_defer_has_exact_pre_i0_parity() {
     assert_eq!(selected_target, reference_target);
 
     for builder in [&mut selected, &mut reference] {
-        builder.function_state.return_defer_active = true;
-        builder.function_state.return_defer_slot = Some(selected_slot);
-        builder.function_state.return_defer_target = Some(selected_target);
+        builder.function_state.protected_region.return_defer.active = true;
+        builder.function_state.protected_region.return_defer.slot = Some(selected_slot);
+        builder.function_state.protected_region.return_defer.target = Some(selected_target);
     }
 
     let expression = value_return(type_check(integer(8)));
@@ -413,8 +415,8 @@ fn cleanup_and_child_failures_plus_same_builder_reuse_have_exact_pre_i0_parity()
     let mut selected = builder("return_parity_cleanup/0");
     let mut reference = builder("return_parity_cleanup/0");
     for builder in [&mut selected, &mut reference] {
-        builder.function_state.in_cleanup_block = true;
-        builder.function_state.cleanup_allow_return = false;
+        builder.function_state.protected_region.cleanup.active = true;
+        builder.function_state.protected_region.cleanup.allow_return = false;
     }
 
     let cleanup = value_return(type_check(integer(8)));
@@ -425,8 +427,8 @@ fn cleanup_and_child_failures_plus_same_builder_reuse_have_exact_pre_i0_parity()
         snapshot(&reference, reference_result)
     );
 
-    selected.function_state.in_cleanup_block = false;
-    reference.function_state.in_cleanup_block = false;
+    selected.function_state.protected_region.cleanup.active = false;
+    reference.function_state.protected_region.cleanup.active = false;
     let recovery = value_return(integer(1));
     let selected_result = lower_selected(&mut selected, recovery.clone());
     let reference_result = lower_pre_i0_return_reference(&mut reference, recovery);

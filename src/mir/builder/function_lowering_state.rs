@@ -18,6 +18,33 @@ use crate::mir::builder::vars::resolved_binding_state::ResolvedBindingLoweringSt
 use crate::mir::instruction::FastMemRegionId;
 use crate::mir::{BasicBlockId, MirFunction, ValueId};
 
+/// Total transient state owned by a protected TryCatch region.
+///
+/// This groups the return-defer vector and cleanup admission vector so each
+/// transaction can capture and restore one complete value. The individual
+/// members intentionally remain accessible within the builder until R0 turns
+/// the active-defer shape into a stronger invariant.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) struct ProtectedRegionTransientStateV1 {
+    pub(super) return_defer: ReturnDeferTransientStateV1,
+    pub(super) cleanup: CleanupTransientStateV1,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) struct ReturnDeferTransientStateV1 {
+    pub(super) active: bool,
+    pub(super) slot: Option<ValueId>,
+    pub(super) target: Option<BasicBlockId>,
+    pub(super) emitted: bool,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) struct CleanupTransientStateV1 {
+    pub(super) active: bool,
+    pub(super) allow_return: bool,
+    pub(super) allow_throw: bool,
+}
+
 /// The sole physical owner of FunctionOwned Builder state.
 ///
 /// `core_ctx`, observation state, module state, and legacy compatibility state
@@ -38,13 +65,7 @@ pub(super) struct FunctionLoweringStateV1 {
     pub(super) schedule_mat_map: HashMap<(BasicBlockId, ValueId), ValueId>,
     pub(super) pin_slot_names: HashMap<ValueId, String>,
     pub(super) frag_emit_session: FragEmitSession,
-    pub(super) return_defer_active: bool,
-    pub(super) return_defer_slot: Option<ValueId>,
-    pub(super) return_defer_target: Option<BasicBlockId>,
-    pub(super) return_deferred_emitted: bool,
-    pub(super) in_cleanup_block: bool,
-    pub(super) cleanup_allow_return: bool,
-    pub(super) cleanup_allow_throw: bool,
+    pub(super) protected_region: ProtectedRegionTransientStateV1,
     pub(super) suppress_pin_entry_copy_next: bool,
     pub(super) in_unified_boxcall_fallback: bool,
 }
@@ -63,13 +84,7 @@ impl FunctionLoweringStateV1 {
     }
 
     fn write_neutral_transient_control_vector_v1(&mut self) {
-        self.return_defer_active = false;
-        self.return_defer_slot = None;
-        self.return_defer_target = None;
-        self.return_deferred_emitted = false;
-        self.in_cleanup_block = false;
-        self.cleanup_allow_return = false;
-        self.cleanup_allow_throw = false;
+        self.protected_region = ProtectedRegionTransientStateV1::default();
         self.suppress_pin_entry_copy_next = false;
         self.in_unified_boxcall_fallback = false;
     }
@@ -102,13 +117,7 @@ impl FunctionLoweringStateV1 {
             && self.schedule_mat_map.is_empty()
             && self.pin_slot_names.is_empty()
             && self.frag_emit_session.is_empty_for_commit()
-            && !self.return_defer_active
-            && self.return_defer_slot.is_none()
-            && self.return_defer_target.is_none()
-            && !self.return_deferred_emitted
-            && !self.in_cleanup_block
-            && !self.cleanup_allow_return
-            && !self.cleanup_allow_throw
+            && self.protected_region == ProtectedRegionTransientStateV1::default()
             && !self.suppress_pin_entry_copy_next
             && !self.in_unified_boxcall_fallback
     }

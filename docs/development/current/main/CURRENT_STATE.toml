@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-PROTECTED-REGION-TRANSIENT-STATE0-S1 is selected: totalize TryCatch defer/cleanup state without changing success restoration or failure partial-state behavior."
+status = "RAW-RETURN-DEFER-INVARIANT0-R0 is selected: reject only inconsistent active defer state while preserving ordinary Return and protected-region restoration."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "Do not merge Return, Throw, QMark, TryCatch, Match/CorePlan, and DraftSeal into one physical exit owner. Share only cleanup policy and protected-region transient state; keep one physical consumer per sealed operation."
-current_execution_row = "RAW-PROTECTED-REGION-TRANSIENT-STATE0-S1"
-current_execution_summary = "Replace the seven loose TryCatch defer/cleanup state fields with one total typed state while preserving successful restoration, failure partial state, diagnostics, and Script admission."
+current_execution_row = "RAW-RETURN-DEFER-INVARIANT0-R0"
+current_execution_summary = "Make active return-defer state require slot and target, reject only the inconsistent active state, and preserve ordinary Return plus protected-region restoration."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

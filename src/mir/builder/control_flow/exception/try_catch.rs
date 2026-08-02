@@ -123,7 +123,7 @@ where
         }
 
         builder.start_new_block(exit_block)?;
-        if builder.function_state.return_deferred_emitted && !cleanup_terminated {
+        if builder.function_state.protected_region.return_defer.emitted && !cleanup_terminated {
             builder.emit_instruction(MirInstruction::Return {
                 value: Some(ret_slot),
             })?;
@@ -185,10 +185,10 @@ mod tests {
                 return Err("[try-catch/test-invalid-body]".to_string());
             };
             self.demands.push(*tag);
-            if builder.function_state.in_cleanup_block {
+            if builder.function_state.protected_region.cleanup.active {
                 self.cleanup_policies.push((
-                    builder.function_state.cleanup_allow_return,
-                    builder.function_state.cleanup_allow_throw,
+                    builder.function_state.protected_region.cleanup.allow_return,
+                    builder.function_state.protected_region.cleanup.allow_throw,
                 ));
             }
             if self.fail_on == Some(*tag) {
@@ -275,10 +275,20 @@ mod tests {
             .unwrap_err();
             assert_eq!(error, format!("fail-{fail_on}"));
             assert_eq!(port.demands, expected_demands);
-            assert!(builder.function_state.return_defer_active);
-            assert!(builder.function_state.return_defer_slot.is_some());
-            assert!(builder.function_state.return_defer_target.is_some());
-            assert!(!builder.function_state.in_cleanup_block);
+            assert!(builder.function_state.protected_region.return_defer.active);
+            assert!(builder
+                .function_state
+                .protected_region
+                .return_defer
+                .slot
+                .is_some());
+            assert!(builder
+                .function_state
+                .protected_region
+                .return_defer
+                .target
+                .is_some());
+            assert!(!builder.function_state.protected_region.cleanup.active);
         }
     }
 
@@ -294,8 +304,8 @@ mod tests {
         .unwrap_err();
         assert_eq!(error, "fail-3");
         assert_eq!(port.demands, vec![1, 2, 3]);
-        assert!(builder.function_state.in_cleanup_block);
-        assert!(!builder.function_state.return_defer_active);
+        assert!(builder.function_state.protected_region.cleanup.active);
+        assert!(!builder.function_state.protected_region.return_defer.active);
     }
 
     #[test]

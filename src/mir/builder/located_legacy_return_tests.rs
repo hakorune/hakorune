@@ -304,8 +304,16 @@ fn located_return_cleanup_and_child_failures_require_fresh_sessions() {
     let mut cleanup_session =
         LocatedLegacyLoweringSessionV1::verify(&cleanup_plan, &cleanup_caller).unwrap();
     let mut cleanup_builder = builder_for(CLEANUP_SOURCE, "located_return_cleanup/0");
-    cleanup_builder.function_state.in_cleanup_block = true;
-    cleanup_builder.function_state.cleanup_allow_return = false;
+    cleanup_builder
+        .function_state
+        .protected_region
+        .cleanup
+        .active = true;
+    cleanup_builder
+        .function_state
+        .protected_region
+        .cleanup
+        .allow_return = false;
     let cleanup_scope = LexicalScopeGuard::new(&mut cleanup_builder);
     lower_root_statements(
         &mut cleanup_session,

@@ -40,16 +40,16 @@ pub(in crate::mir::builder) fn ensure_cleanup_exit_allowed_v1(
     state: &FunctionLoweringStateV1,
     kind: CleanupExitKindV1,
 ) -> Result<(), String> {
-    if !state.in_cleanup_block {
+    if !state.protected_region.cleanup.active {
         return Ok(());
     }
     let (allowed, diagnostic) = match kind {
         CleanupExitKindV1::Return => (
-            state.cleanup_allow_return,
+            state.protected_region.cleanup.allow_return,
             "return is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_RETURN=1 to permit)",
         ),
         CleanupExitKindV1::Throw => (
-            state.cleanup_allow_throw,
+            state.protected_region.cleanup.allow_throw,
             "throw is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_THROW=1 to permit)",
         ),
     };
@@ -93,7 +93,7 @@ mod tests {
             Ok(())
         );
 
-        state.in_cleanup_block = true;
+        state.protected_region.cleanup.active = true;
         let return_error =
             ensure_cleanup_exit_allowed_v1(&state, CleanupExitKindV1::Return).unwrap_err();
         let throw_error =
@@ -107,12 +107,12 @@ mod tests {
             "throw is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_THROW=1 to permit)"
         );
 
-        state.cleanup_allow_return = true;
+        state.protected_region.cleanup.allow_return = true;
         assert_eq!(
             ensure_cleanup_exit_allowed_v1(&state, CleanupExitKindV1::Return),
             Ok(())
         );
-        state.cleanup_allow_throw = true;
+        state.protected_region.cleanup.allow_throw = true;
         assert_eq!(
             ensure_cleanup_exit_allowed_v1(&state, CleanupExitKindV1::Throw),
             Ok(())

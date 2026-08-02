@@ -187,13 +187,13 @@ fn seeded_builder() -> MirBuilder {
         .function_state
         .pin_slot_names
         .insert(ValueId::new(713), "outer_pin".into());
-    builder.function_state.return_defer_active = true;
-    builder.function_state.return_defer_slot = Some(ValueId::new(714));
-    builder.function_state.return_defer_target = Some(BasicBlockId::new(715));
-    builder.function_state.return_deferred_emitted = true;
-    builder.function_state.in_cleanup_block = true;
-    builder.function_state.cleanup_allow_return = true;
-    builder.function_state.cleanup_allow_throw = true;
+    builder.function_state.protected_region.return_defer.active = true;
+    builder.function_state.protected_region.return_defer.slot = Some(ValueId::new(714));
+    builder.function_state.protected_region.return_defer.target = Some(BasicBlockId::new(715));
+    builder.function_state.protected_region.return_defer.emitted = true;
+    builder.function_state.protected_region.cleanup.active = true;
+    builder.function_state.protected_region.cleanup.allow_return = true;
+    builder.function_state.protected_region.cleanup.allow_throw = true;
     builder.function_state.suppress_pin_entry_copy_next = true;
     builder.function_state.in_unified_boxcall_fallback = true;
     builder.recursion_depth = 7;
@@ -319,19 +319,19 @@ fn assert_outer_state(builder: &MirBuilder) {
     assert_eq!(builder.function_state.local_ssa_map.len(), 1);
     assert_eq!(builder.function_state.schedule_mat_map.len(), 1);
     assert_eq!(builder.function_state.pin_slot_names.len(), 1);
-    assert!(builder.function_state.return_defer_active);
+    assert!(builder.function_state.protected_region.return_defer.active);
     assert_eq!(
-        builder.function_state.return_defer_slot,
+        builder.function_state.protected_region.return_defer.slot,
         Some(ValueId::new(714))
     );
     assert_eq!(
-        builder.function_state.return_defer_target,
+        builder.function_state.protected_region.return_defer.target,
         Some(BasicBlockId::new(715))
     );
-    assert!(builder.function_state.return_deferred_emitted);
-    assert!(builder.function_state.in_cleanup_block);
-    assert!(builder.function_state.cleanup_allow_return);
-    assert!(builder.function_state.cleanup_allow_throw);
+    assert!(builder.function_state.protected_region.return_defer.emitted);
+    assert!(builder.function_state.protected_region.cleanup.active);
+    assert!(builder.function_state.protected_region.cleanup.allow_return);
+    assert!(builder.function_state.protected_region.cleanup.allow_throw);
     assert!(builder.function_state.suppress_pin_entry_copy_next);
     assert!(builder.function_state.in_unified_boxcall_fallback);
     assert_eq!(builder.recursion_depth, 7);

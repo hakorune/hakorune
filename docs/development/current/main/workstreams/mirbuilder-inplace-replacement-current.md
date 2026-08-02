@@ -443,26 +443,26 @@ closed — CONTROL-RESULT-CLEANUP-POLICY-SNAPSHOT0-S0
   TryCatch ingress, then owned by `PreparedRawTryCatchV1`; cleanup lowering no
   longer reads the environment. Snapshot/region tests are green.
 
+closed — RAW-PROTECTED-REGION-TRANSIENT-STATE0-S1
+  -> `ProtectedRegionTransientStateV1` now owns the complete return-defer and
+  cleanup vector. Function and TryCatch transactions capture/restore that one
+  value; success restoration and failure partial state remain covered by tests.
+
 ### Active execution brief
 
-`RAW-PROTECTED-REGION-TRANSIENT-STATE0-S1` — live BoxShape refactor.
+`RAW-RETURN-DEFER-INVARIANT0-R0` — narrow return-defer contract hardening.
 
 Change:
-  Replace the seven loose TryCatch defer/cleanup fields with one total typed
-  state across its transaction and function-state lifecycle.
+  Make active defer require both slot and target. Replace only the historical
+  active-with-missing-slot-or-target direct-Return fallback with rejection.
 
 Contract:
-  Preserve successful restoration, failure partial state, cleanup diagnostics,
-  first-catch-only lowering, and RootLower timing. Do not activate Script
-  TryCatch/Throw or create a shared physical Return owner.
-
-Done:
-  All TryCatch consumers use the typed state; targeted success/failure/reuse
-  tests and the shared guard are green.
+  Ordinary non-deferred Return, valid protected-region defer, cleanup policy,
+  failure discard, and RootLower timing remain unchanged.
 
 Stop:
-  If totalization changes failure partial state or needs an ambient fallback,
-  return to `CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0`.
+  If this requires a new physical Return owner, changes ordinary Return, or
+  needs retry/fallback, return to `CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0`.
 
 ### Refactor Series queue
 

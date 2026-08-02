@@ -31,9 +31,9 @@
 //! Into efficient control flow using CorePlan system.
 //!
 //! # Defer Mechanism
-//! When `return_defer_active` is true:
-//! - Copies return value to `return_defer_slot`
-//! - Jumps to `return_defer_target` (cleanup block)
+//! When protected-region return defer is active:
+//! - Copies return value to its configured slot
+//! - Jumps to its configured target (cleanup block)
 //! - Allows cleanup code execution before actual return
 //!
 //! # Related
@@ -120,7 +120,7 @@ pub(in crate::mir::builder) fn try_apply_match_return_optimization(
     value: Option<&ASTNode>,
     emit_tag: bool,
 ) -> Result<Option<ValueId>, String> {
-    if builder.function_state.return_defer_active {
+    if builder.function_state.protected_region.return_defer.active {
         return Ok(None);
     }
 
@@ -159,13 +159,13 @@ pub(in crate::mir::builder) fn emit_return_from_value(
     builder: &mut MirBuilder,
     return_value: ValueId,
 ) -> Result<ValueId, String> {
-    if builder.function_state.return_defer_active {
+    if builder.function_state.protected_region.return_defer.active {
         // Defer: copy into slot and jump to target
         if let (Some(slot), Some(target)) = (
-            builder.function_state.return_defer_slot,
-            builder.function_state.return_defer_target,
+            builder.function_state.protected_region.return_defer.slot,
+            builder.function_state.protected_region.return_defer.target,
         ) {
-            builder.function_state.return_deferred_emitted = true;
+            builder.function_state.protected_region.return_defer.emitted = true;
             builder.emit_instruction(MirInstruction::Copy {
                 dst: slot,
                 src: return_value,

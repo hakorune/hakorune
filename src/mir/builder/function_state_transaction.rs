@@ -11,6 +11,7 @@ use hakorune_mir_builder::BindingContext;
 
 use crate::mir::builder::function_lowering_state::{
     FunctionCompilationScratchV1, FunctionLoweringStateV1, FunctionScopeStateV1,
+    ProtectedRegionTransientStateV1,
 };
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::builder::variable_context::VariableContext;
@@ -57,13 +58,7 @@ pub(super) struct CapturedFunctionOwnedStateV1 {
     pub(super) schedule_mat_map: HashMap<(BasicBlockId, ValueId), ValueId>,
     pub(super) pin_slot_names: HashMap<ValueId, String>,
     pub(super) frag_emit_session: FragEmitSession,
-    pub(super) return_defer_active: bool,
-    pub(super) return_defer_slot: Option<ValueId>,
-    pub(super) return_defer_target: Option<BasicBlockId>,
-    pub(super) return_deferred_emitted: bool,
-    pub(super) in_cleanup_block: bool,
-    pub(super) cleanup_allow_return: bool,
-    pub(super) cleanup_allow_throw: bool,
+    pub(super) protected_region: ProtectedRegionTransientStateV1,
     pub(super) suppress_pin_entry_copy_next: bool,
     pub(super) in_unified_boxcall_fallback: bool,
 }
@@ -106,13 +101,7 @@ impl FunctionOwnedStateTransactionV1 {
             schedule_mat_map: std::mem::take(&mut state.schedule_mat_map),
             pin_slot_names: std::mem::take(&mut state.pin_slot_names),
             frag_emit_session: std::mem::take(&mut state.frag_emit_session),
-            return_defer_active: state.return_defer_active,
-            return_defer_slot: state.return_defer_slot,
-            return_defer_target: state.return_defer_target,
-            return_deferred_emitted: state.return_deferred_emitted,
-            in_cleanup_block: state.in_cleanup_block,
-            cleanup_allow_return: state.cleanup_allow_return,
-            cleanup_allow_throw: state.cleanup_allow_throw,
+            protected_region: state.protected_region,
             suppress_pin_entry_copy_next: state.suppress_pin_entry_copy_next,
             in_unified_boxcall_fallback: state.in_unified_boxcall_fallback,
         };
@@ -159,13 +148,7 @@ impl FunctionOwnedStateTransactionV1 {
         state.schedule_mat_map = caller.schedule_mat_map;
         state.pin_slot_names = caller.pin_slot_names;
         state.frag_emit_session = caller.frag_emit_session;
-        state.return_defer_active = caller.return_defer_active;
-        state.return_defer_slot = caller.return_defer_slot;
-        state.return_defer_target = caller.return_defer_target;
-        state.return_deferred_emitted = caller.return_deferred_emitted;
-        state.in_cleanup_block = caller.in_cleanup_block;
-        state.cleanup_allow_return = caller.cleanup_allow_return;
-        state.cleanup_allow_throw = caller.cleanup_allow_throw;
+        state.protected_region = caller.protected_region;
         state.suppress_pin_entry_copy_next = caller.suppress_pin_entry_copy_next;
         state.in_unified_boxcall_fallback = caller.in_unified_boxcall_fallback;
     }
@@ -240,13 +223,13 @@ mod tests {
             (BasicBlockId::new(22), ValueId::new(23), 0),
             ValueId::new(24),
         );
-        state.return_defer_active = true;
-        state.return_defer_slot = Some(ValueId::new(25));
-        state.return_defer_target = Some(BasicBlockId::new(26));
-        state.return_deferred_emitted = true;
-        state.in_cleanup_block = true;
-        state.cleanup_allow_return = true;
-        state.cleanup_allow_throw = true;
+        state.protected_region.return_defer.active = true;
+        state.protected_region.return_defer.slot = Some(ValueId::new(25));
+        state.protected_region.return_defer.target = Some(BasicBlockId::new(26));
+        state.protected_region.return_defer.emitted = true;
+        state.protected_region.cleanup.active = true;
+        state.protected_region.cleanup.allow_return = true;
+        state.protected_region.cleanup.allow_throw = true;
         state.suppress_pin_entry_copy_next = true;
         state.in_unified_boxcall_fallback = true;
 
@@ -268,13 +251,13 @@ mod tests {
         assert!(!state.compilation.is_reserved_value_id(ValueId::new(19)));
         assert!(state.pending_phis.is_empty());
         assert!(state.local_ssa_map.is_empty());
-        assert!(!state.return_defer_active);
-        assert!(state.return_defer_slot.is_none());
-        assert!(state.return_defer_target.is_none());
-        assert!(!state.return_deferred_emitted);
-        assert!(!state.in_cleanup_block);
-        assert!(!state.cleanup_allow_return);
-        assert!(!state.cleanup_allow_throw);
+        assert!(!state.protected_region.return_defer.active);
+        assert!(state.protected_region.return_defer.slot.is_none());
+        assert!(state.protected_region.return_defer.target.is_none());
+        assert!(!state.protected_region.return_defer.emitted);
+        assert!(!state.protected_region.cleanup.active);
+        assert!(!state.protected_region.cleanup.allow_return);
+        assert!(!state.protected_region.cleanup.allow_throw);
         assert!(!state.suppress_pin_entry_copy_next);
         assert!(!state.in_unified_boxcall_fallback);
 
@@ -326,13 +309,19 @@ mod tests {
         assert!(state.compilation.is_reserved_value_id(ValueId::new(19)));
         assert_eq!(state.pending_phis.len(), 1);
         assert_eq!(state.local_ssa_map.len(), 1);
-        assert!(state.return_defer_active);
-        assert_eq!(state.return_defer_slot, Some(ValueId::new(25)));
-        assert_eq!(state.return_defer_target, Some(BasicBlockId::new(26)));
-        assert!(state.return_deferred_emitted);
-        assert!(state.in_cleanup_block);
-        assert!(state.cleanup_allow_return);
-        assert!(state.cleanup_allow_throw);
+        assert!(state.protected_region.return_defer.active);
+        assert_eq!(
+            state.protected_region.return_defer.slot,
+            Some(ValueId::new(25))
+        );
+        assert_eq!(
+            state.protected_region.return_defer.target,
+            Some(BasicBlockId::new(26))
+        );
+        assert!(state.protected_region.return_defer.emitted);
+        assert!(state.protected_region.cleanup.active);
+        assert!(state.protected_region.cleanup.allow_return);
+        assert!(state.protected_region.cleanup.allow_throw);
         assert!(state.suppress_pin_entry_copy_next);
         assert!(state.in_unified_boxcall_fallback);
     }

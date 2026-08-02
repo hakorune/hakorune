@@ -428,12 +428,12 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
         debug_join_counter: builder.core_ctx.debug_join_counter,
         recursion_depth: builder.recursion_depth,
         current_span: builder.metadata_ctx.current_span(),
-        in_cleanup_block: builder.function_state.in_cleanup_block,
-        cleanup_allow_return: builder.function_state.cleanup_allow_return,
-        return_defer_active: builder.function_state.return_defer_active,
-        return_defer_slot: builder.function_state.return_defer_slot,
-        return_defer_target: builder.function_state.return_defer_target,
-        return_deferred_emitted: builder.function_state.return_deferred_emitted,
+        in_cleanup_block: builder.function_state.protected_region.cleanup.active,
+        cleanup_allow_return: builder.function_state.protected_region.cleanup.allow_return,
+        return_defer_active: builder.function_state.protected_region.return_defer.active,
+        return_defer_slot: builder.function_state.protected_region.return_defer.slot,
+        return_defer_target: builder.function_state.protected_region.return_defer.target,
+        return_deferred_emitted: builder.function_state.protected_region.return_defer.emitted,
     }
 }
 

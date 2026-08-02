@@ -1,51 +1,18 @@
 //! Narrow transient-state owner for one raw TryCatch region.
 //!
-//! This transaction deliberately owns only the seven defer/cleanup fields
-//! touched by TryCatch. It restores them on successful completion only:
+//! This transaction deliberately owns only the total protected-region state
+//! touched by TryCatch. It restores it on successful completion only:
 //! typed failures retain the exact partially-mutated state of the historical
 //! lowering path, while the outer candidate session remains responsible for
 //! discarding unpublished Builder effects.
 
-use crate::mir::builder::function_lowering_state::FunctionLoweringStateV1;
+use crate::mir::builder::function_lowering_state::{
+    FunctionLoweringStateV1, ProtectedRegionTransientStateV1,
+};
 use crate::mir::{BasicBlockId, ValueId};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct RawTryCatchCallerFunctionStateV1 {
-    return_defer_active: bool,
-    return_defer_slot: Option<ValueId>,
-    return_defer_target: Option<BasicBlockId>,
-    return_deferred_emitted: bool,
-    in_cleanup_block: bool,
-    cleanup_allow_return: bool,
-    cleanup_allow_throw: bool,
-}
-
-impl RawTryCatchCallerFunctionStateV1 {
-    fn capture(state: &FunctionLoweringStateV1) -> Self {
-        Self {
-            return_defer_active: state.return_defer_active,
-            return_defer_slot: state.return_defer_slot,
-            return_defer_target: state.return_defer_target,
-            return_deferred_emitted: state.return_deferred_emitted,
-            in_cleanup_block: state.in_cleanup_block,
-            cleanup_allow_return: state.cleanup_allow_return,
-            cleanup_allow_throw: state.cleanup_allow_throw,
-        }
-    }
-
-    fn restore(self, state: &mut FunctionLoweringStateV1) {
-        state.return_defer_active = self.return_defer_active;
-        state.return_defer_slot = self.return_defer_slot;
-        state.return_defer_target = self.return_defer_target;
-        state.return_deferred_emitted = self.return_deferred_emitted;
-        state.in_cleanup_block = self.in_cleanup_block;
-        state.cleanup_allow_return = self.cleanup_allow_return;
-        state.cleanup_allow_throw = self.cleanup_allow_throw;
-    }
-}
-
 pub(super) struct ActiveRawTryCatchFunctionStateV1 {
-    caller: RawTryCatchCallerFunctionStateV1,
+    caller: ProtectedRegionTransientStateV1,
 }
 
 impl ActiveRawTryCatchFunctionStateV1 {
@@ -54,11 +21,11 @@ impl ActiveRawTryCatchFunctionStateV1 {
         return_slot: ValueId,
         return_target: BasicBlockId,
     ) -> Self {
-        let caller = RawTryCatchCallerFunctionStateV1::capture(state);
-        state.return_defer_active = true;
-        state.return_defer_slot = Some(return_slot);
-        state.return_defer_target = Some(return_target);
-        state.return_deferred_emitted = false;
+        let caller = state.protected_region;
+        state.protected_region.return_defer.active = true;
+        state.protected_region.return_defer.slot = Some(return_slot);
+        state.protected_region.return_defer.target = Some(return_target);
+        state.protected_region.return_defer.emitted = false;
         Self { caller }
     }
 
@@ -68,14 +35,14 @@ impl ActiveRawTryCatchFunctionStateV1 {
         allow_return: bool,
         allow_throw: bool,
     ) {
-        state.in_cleanup_block = true;
-        state.cleanup_allow_return = allow_return;
-        state.cleanup_allow_throw = allow_throw;
-        state.return_defer_active = false;
+        state.protected_region.cleanup.active = true;
+        state.protected_region.cleanup.allow_return = allow_return;
+        state.protected_region.cleanup.allow_throw = allow_throw;
+        state.protected_region.return_defer.active = false;
     }
 
     pub(super) fn leave_cleanup(&self, state: &mut FunctionLoweringStateV1) {
-        state.in_cleanup_block = false;
+        state.protected_region.cleanup.active = false;
     }
 
     pub(super) fn complete_success(
@@ -83,7 +50,7 @@ impl ActiveRawTryCatchFunctionStateV1 {
         state: &mut FunctionLoweringStateV1,
         value: ValueId,
     ) -> CompletedRawTryCatchV1 {
-        self.caller.restore(state);
+        state.protected_region = self.caller;
         CompletedRawTryCatchV1 { value }
     }
 
@@ -120,24 +87,24 @@ mod tests {
 
     fn seeded_state() -> FunctionLoweringStateV1 {
         let mut state = FunctionLoweringStateV1::default();
-        state.return_defer_active = false;
-        state.return_defer_slot = Some(ValueId(41));
-        state.return_defer_target = Some(BasicBlockId(42));
-        state.return_deferred_emitted = true;
-        state.in_cleanup_block = true;
-        state.cleanup_allow_return = true;
-        state.cleanup_allow_throw = false;
+        state.protected_region.return_defer.active = false;
+        state.protected_region.return_defer.slot = Some(ValueId(41));
+        state.protected_region.return_defer.target = Some(BasicBlockId(42));
+        state.protected_region.return_defer.emitted = true;
+        state.protected_region.cleanup.active = true;
+        state.protected_region.cleanup.allow_return = true;
+        state.protected_region.cleanup.allow_throw = false;
         state
     }
 
     #[test]
-    fn success_restores_exact_seven_field_caller_state() {
+    fn success_restores_exact_protected_region_caller_state() {
         let mut state = seeded_state();
-        let caller = RawTryCatchCallerFunctionStateV1::capture(&state);
+        let caller = state.protected_region;
         let transaction =
             ActiveRawTryCatchFunctionStateV1::begin(&mut state, ValueId(7), BasicBlockId(8));
         transaction.enter_cleanup(&mut state, false, true);
-        state.return_deferred_emitted = false;
+        state.protected_region.return_defer.emitted = false;
         transaction.leave_cleanup(&mut state);
 
         assert_eq!(
@@ -146,7 +113,7 @@ mod tests {
                 .into_value(),
             ValueId(9)
         );
-        assert_eq!(RawTryCatchCallerFunctionStateV1::capture(&state), caller);
+        assert_eq!(state.protected_region, caller);
     }
 
     #[test]
@@ -155,39 +122,39 @@ mod tests {
         let transaction =
             ActiveRawTryCatchFunctionStateV1::begin(&mut state, ValueId(7), BasicBlockId(8));
         transaction.enter_cleanup(&mut state, false, true);
-        state.return_deferred_emitted = false;
+        state.protected_region.return_defer.emitted = false;
 
         let rejected = transaction.reject("primary".to_string());
         assert_eq!(rejected.error(), "primary");
         rejected.discard();
 
-        assert!(!state.return_defer_active);
-        assert_eq!(state.return_defer_slot, Some(ValueId(7)));
-        assert_eq!(state.return_defer_target, Some(BasicBlockId(8)));
-        assert!(!state.return_deferred_emitted);
-        assert!(state.in_cleanup_block);
-        assert!(!state.cleanup_allow_return);
-        assert!(state.cleanup_allow_throw);
+        assert!(!state.protected_region.return_defer.active);
+        assert_eq!(state.protected_region.return_defer.slot, Some(ValueId(7)));
+        assert_eq!(
+            state.protected_region.return_defer.target,
+            Some(BasicBlockId(8))
+        );
+        assert!(!state.protected_region.return_defer.emitted);
+        assert!(state.protected_region.cleanup.active);
+        assert!(!state.protected_region.cleanup.allow_return);
+        assert!(state.protected_region.cleanup.allow_throw);
     }
 
     #[test]
     fn nested_success_restores_outer_state_before_caller_state() {
         let mut state = seeded_state();
-        let caller = RawTryCatchCallerFunctionStateV1::capture(&state);
+        let caller = state.protected_region;
         let outer =
             ActiveRawTryCatchFunctionStateV1::begin(&mut state, ValueId(10), BasicBlockId(11));
         outer.enter_cleanup(&mut state, false, true);
-        let outer_installed = RawTryCatchCallerFunctionStateV1::capture(&state);
+        let outer_installed = state.protected_region;
 
         let inner =
             ActiveRawTryCatchFunctionStateV1::begin(&mut state, ValueId(12), BasicBlockId(13));
         inner.complete_success(&mut state, ValueId(14)).into_value();
-        assert_eq!(
-            RawTryCatchCallerFunctionStateV1::capture(&state),
-            outer_installed
-        );
+        assert_eq!(state.protected_region, outer_installed);
 
         outer.complete_success(&mut state, ValueId(15)).into_value();
-        assert_eq!(RawTryCatchCallerFunctionStateV1::capture(&state), caller);
+        assert_eq!(state.protected_region, caller);
     }
 }

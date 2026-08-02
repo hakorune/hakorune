@@ -187,8 +187,8 @@ fn current_terminator(builder: &MirBuilder) -> Option<MirInstruction> {
 #[test]
 fn cleanup_precedes_match_child_and_return_effects() {
     let mut builder = builder("ret0_cleanup/0");
-    builder.function_state.in_cleanup_block = true;
-    builder.function_state.cleanup_allow_return = false;
+    builder.function_state.protected_region.cleanup.active = true;
+    builder.function_state.protected_region.cleanup.allow_return = false;
     let input = ReturnInputV1 { value: integer(1) };
     let mut port = RecordingReturnPortV1::accepting();
 
@@ -314,9 +314,9 @@ fn configured_defer_reuses_copy_and_jump_completion_without_direct_return() {
     let mut builder = builder("ret0_defer/0");
     let slot = builder.next_value_id();
     let target = builder.next_block_id();
-    builder.function_state.return_defer_active = true;
-    builder.function_state.return_defer_slot = Some(slot);
-    builder.function_state.return_defer_target = Some(target);
+    builder.function_state.protected_region.return_defer.active = true;
+    builder.function_state.protected_region.return_defer.slot = Some(slot);
+    builder.function_state.protected_region.return_defer.target = Some(target);
     let input = ReturnInputV1 { value: integer(1) };
     let mut port = RecordingReturnPortV1::accepting();
 
@@ -329,7 +329,7 @@ fn configured_defer_reuses_copy_and_jump_completion_without_direct_return() {
     .unwrap();
     let rows = instructions(&builder);
 
-    assert!(builder.function_state.return_deferred_emitted);
+    assert!(builder.function_state.protected_region.return_defer.emitted);
     assert_eq!(return_count(&builder), 0);
     assert_eq!(
         rows.iter()
