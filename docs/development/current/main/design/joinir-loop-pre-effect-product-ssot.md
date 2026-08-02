@@ -1573,3 +1573,27 @@ remain explicit inputs. The shared guard ratchets both the absence of handler
 
 This is behavior-neutral authority repair. It adds no route qualification,
 terminality, effect, fallback, rollback, lower-success, or cutover claim.
+
+### Live preflight frame D3 decision
+
+Decision: the next owner is a router-issued, non-Clone live preflight frame
+with a private legacy-execution continuation. `route_loop` is the only live
+join of source context, canonical facts, the selected raw schedule, `RouterEnv`,
+and contract disposition. It must issue the frame after the existing single
+selection and before Builder execution. The all-route preflight consumer may
+observe that exact frame once, but must return a continuation carrying the same
+legacy execution inputs; it may not reselect, reconstruct a witness, or become
+a second scheduler.
+
+Do not extend `RouteExecutionWitnessV1`: it owns execution scheduling and has
+no live source frame. Do not extend the disconnected `LiveLoopFactsV1`: its
+own canonicalize/select path is not a production authority. The four shared
+S2 decline observations are not preflight qualification or terminality proof.
+
+S0 is restricted to an all-rejected, Builder-free routing boundary: one source
+frame, one existing selection, one existing preflight classifier, and unchanged
+legacy execution through the returned continuation. Missing topology, ScopeBox,
+policy/terminality, and generic post-effect retry debt retain their existing
+typed rejections. No source re-match, route skip, qualification/product,
+terminality, effects, fallback, rollback, lower success, physicalizer, or I0
+cutover claim is authorized.
