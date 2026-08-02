@@ -475,15 +475,16 @@ Ceremony: BoxShape-only vocabulary; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add private registry-local source/role/product vocabulary over
-  `LoopSourceReceiptV1`. It models only logical demand and typed disposition;
-  it has no route adapter, builder, lowering, or production caller authority.
+  Move `LoopRouteId` and its stable keys once from physical `types.rs` to a
+  neutral registry sibling, then add private registry-local source/role/product
+  vocabulary over `LoopSourceReceiptV1`. It models only logical demand and typed
+  disposition; it has no route adapter, builder, lowering, or production caller.
 
 Contract:
-  Vocabulary imports no `MirBuilder`, `CorePlan`, physical ID, PHI, `Frag`, MIR
-  instruction, composer, or lowerer. It does not move `LoopRouteId` out of the
-  physical registry or scan/select route entries. Existing facts and runtime
-  routing are unchanged.
+  The neutral route identity imports only `std`; vocabulary imports no
+  `MirBuilder`, `CorePlan`, other physical ID, PHI, `Frag`, MIR instruction,
+  composer, or lowerer. It does not scan/select route entries. Existing facts
+  and runtime routing are unchanged.
 
 Done:
   Source and role types have focused tests for receipt availability and logical
@@ -491,10 +492,10 @@ Done:
   source file is below 800 lines. Producer wiring stays for S2.
 
 Stop:
-  Stop if vocabulary needs a physical import, `LoopRouteId` move, AST
-  matching/rewrite, route-specific policy, or a caller. No product producer,
-  physicalizer, Loop I0, raw/reference ingress, universal ingress, or
-  fallback-preserving wrapper is authorized.
+  Stop if neutral identity needs a registry back-reference, vocabulary needs a
+  physical import, AST matching/rewrite, route-specific policy, or a caller.
+  No product producer, physicalizer, Loop I0, raw/reference ingress, universal
+  ingress, or fallback-preserving wrapper is authorized.
 
 ## Production invariants
 

@@ -149,8 +149,10 @@ all-route product. The series is BoxShape-only and each commit must build.
      through `LoopFacts`, and prove raw body order remains observable. No
      selector, producer, physicalizer, or caller changes.
 2. `JOINIR-LOOP-LOGICAL-DEMAND-VOCABULARY0-S1`
-   - Add private registry-local source/role/product vocabulary. It imports no
-     Builder, CorePlan, physical ID, or lowering API and has no route adapter.
+   - Move `LoopRouteId` and its stable keys from physical `types.rs` into a
+     neutral registry sibling, then add private registry-local source/role/product
+     vocabulary. It imports no Builder, CorePlan, other physical ID, or lowering
+     API and has no route adapter.
 3. `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S2`
    - Add one all-19-route producer over existing selection/Facts. It returns a
      typed selected/rejected/ambiguous disposition without invoking a composer.
