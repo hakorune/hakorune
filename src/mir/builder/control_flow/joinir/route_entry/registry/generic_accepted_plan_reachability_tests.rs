@@ -17,6 +17,9 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::{
     lower_verified_core_plan, LoopRouteContext,
 };
 use crate::mir::builder::control_flow::lower::PlanLowerer;
+use crate::mir::builder::control_flow::plan::facts::{
+    observe_generic_loop_carrier_observation, GenericLoopCarrierObservationV1,
+};
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner::try_build_outcome;
 use crate::mir::builder::control_flow::plan::{CoreLoopPlan, CorePlan};
@@ -25,7 +28,6 @@ use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirType};
-use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum CorpusModeV1 {
@@ -112,89 +114,10 @@ struct NestedCarrierSemanticEvidenceV1 {
     nested_final_value_names: Vec<String>,
 }
 
-/// Test-only projection of extraction facts; it is not a route or policy authority.
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum GenericCarrierObservationDispositionV1 {
-    CompleteNoRecursiveCarrier,
-    CompleteRecursiveCarrier(Vec<String>),
-    Unavailable(&'static str),
-    Ambiguous(&'static str),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct GenericCarrierObservationV1 {
-    disposition: GenericCarrierObservationDispositionV1,
-}
-
-// Fixture-scoped probe for D2-B2b. Before promotion, the production extractor
-// must cover every accepted container or return typed unavailable/ambiguous;
-// silently treating an unsupported container as carrier-free is forbidden.
-fn collect_recursive_carrier_targets(
-    body: &[ASTNode],
-    loop_var: &str,
-    nested: bool,
-    targets: &mut BTreeSet<String>,
-) -> Result<(), &'static str> {
-    for stmt in body {
-        match stmt {
-            ASTNode::Assignment { target, .. } if nested => {
-                if let ASTNode::Variable { name, .. } = target.as_ref() {
-                    if name != loop_var {
-                        targets.insert(name.clone());
-                    }
-                }
-            }
-            ASTNode::If {
-                then_body,
-                else_body,
-                ..
-            } => {
-                collect_recursive_carrier_targets(then_body, loop_var, true, targets)?;
-                if let Some(else_body) = else_body {
-                    collect_recursive_carrier_targets(else_body, loop_var, true, targets)?;
-                }
-            }
-            ASTNode::Loop { body, .. } => {
-                collect_recursive_carrier_targets(body, loop_var, true, targets)?;
-            }
-            ASTNode::ScopeBox { body, .. } => {
-                collect_recursive_carrier_targets(body, loop_var, nested, targets)?;
-            }
-            ASTNode::Program { statements, .. } => {
-                collect_recursive_carrier_targets(statements, loop_var, nested, targets)?;
-            }
-            ASTNode::LoopRange { .. } => return Err("LoopRange"),
-            ASTNode::Lambda { .. } => return Err("Lambda"),
-            ASTNode::BlockExpr { .. } => return Err("BlockExpr"),
-            ASTNode::TryCatch { .. } => return Err("TryCatch"),
-            ASTNode::TaskScope { .. } => return Err("TaskScope"),
-            ASTNode::ContextScope { .. } => return Err("ContextScope"),
-            ASTNode::FastMemRegion { .. } => return Err("FastMemRegion"),
-            ASTNode::BuildGate { .. } => return Err("BuildGate"),
-            _ => {}
-        }
-    }
-    Ok(())
-}
-
-fn observe_carrier_body(body: &[ASTNode], loop_var: &str) -> GenericCarrierObservationV1 {
-    let mut targets = BTreeSet::new();
-    let disposition = match collect_recursive_carrier_targets(body, loop_var, false, &mut targets) {
-        Ok(()) if targets.is_empty() => {
-            GenericCarrierObservationDispositionV1::CompleteNoRecursiveCarrier
-        }
-        Ok(()) => GenericCarrierObservationDispositionV1::CompleteRecursiveCarrier(
-            targets.into_iter().collect(),
-        ),
-        Err(container) => GenericCarrierObservationDispositionV1::Unavailable(container),
-    };
-    GenericCarrierObservationV1 { disposition }
-}
-
 fn observe_generic_carrier_facts(
     mode: CorpusModeV1,
     name: &str,
-) -> (GenericCarrierObservationV1, Vec<LoopRouteId>) {
+) -> (GenericLoopCarrierObservationV1, Vec<LoopRouteId>) {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let _config = crate::test_support::ScopedTestConfig::apply(&[
         ("HAKO_JOINIR_STRICT", mode.env().1),
@@ -212,7 +135,7 @@ fn observe_generic_carrier_facts(
         .facts
         .generic_loop_v1()
         .expect("carrier observation requires Generic V1 facts");
-    let observation = observe_carrier_body(&v1.body, &v1.loop_var);
+    let observation = v1.carrier_observation.clone();
     let raw_schedule = select_recipe_first_routes(Some(facts))
         .raw_execution_routes()
         .to_vec();
@@ -514,10 +437,10 @@ fn generic_both_facts_emit_test_only_recursive_carrier_observation() {
         let (both, raw_schedule) = observe_generic_carrier_facts(mode, "both");
         let (both_repeat, repeat_schedule) = observe_generic_carrier_facts(mode, "both");
         assert_eq!(
-            both.disposition,
-            GenericCarrierObservationDispositionV1::CompleteRecursiveCarrier(vec!["j".into()])
+            both,
+            GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(vec!["j".into()])
         );
-        assert_eq!(both.disposition, both_repeat.disposition);
+        assert_eq!(both, both_repeat);
         assert_eq!(raw_schedule, repeat_schedule);
         if matches!(mode, CorpusModeV1::StrictPlannerRequired) {
             assert_eq!(raw_schedule, vec![LoopRouteId::GenericLoopV1]);
@@ -532,10 +455,10 @@ fn generic_both_facts_emit_test_only_recursive_carrier_observation() {
         let (simple_repeat, repeat_simple_schedule) =
             observe_generic_carrier_facts(mode, "simple-while");
         assert_eq!(
-            simple.disposition,
-            GenericCarrierObservationDispositionV1::CompleteNoRecursiveCarrier
+            simple,
+            GenericLoopCarrierObservationV1::CompleteNoRecursiveCarrier
         );
-        assert_eq!(simple.disposition, simple_repeat.disposition);
+        assert_eq!(simple, simple_repeat);
         assert_eq!(simple_schedule, repeat_simple_schedule);
         assert!(!simple_schedule.contains(&LoopRouteId::GenericLoopV1));
     }
@@ -556,14 +479,48 @@ fn generic_carrier_observation_marks_preserved_unsupported_container_unavailable
         body: Vec::new(),
         span: Span::unknown(),
     }];
-    let observation = observe_carrier_body(&body, "i");
+    let observation = observe_generic_loop_carrier_observation(&body, "i");
     assert_eq!(
-        observation.disposition,
-        GenericCarrierObservationDispositionV1::Unavailable("LoopRange")
+        observation,
+        GenericLoopCarrierObservationV1::Unavailable("LoopRange".to_string())
     );
     assert_ne!(
-        observation.disposition,
-        GenericCarrierObservationDispositionV1::CompleteNoRecursiveCarrier
+        observation,
+        GenericLoopCarrierObservationV1::CompleteNoRecursiveCarrier
+    );
+}
+
+#[test]
+fn generic_carrier_observation_marks_indirect_nested_write_ambiguous() {
+    let body = vec![ASTNode::Loop {
+        condition: Box::new(ASTNode::Literal {
+            value: LiteralValue::Bool(true),
+            span: Span::unknown(),
+        }),
+        body: vec![ASTNode::Assignment {
+            target: Box::new(ASTNode::Index {
+                target: Box::new(ASTNode::Variable {
+                    name: "j".to_string(),
+                    span: Span::unknown(),
+                }),
+                index: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(0),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }),
+            value: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    }];
+    let observation = observe_generic_loop_carrier_observation(&body, "i");
+    assert_eq!(
+        observation,
+        GenericLoopCarrierObservationV1::Ambiguous("assignment target".to_string())
     );
 }
 

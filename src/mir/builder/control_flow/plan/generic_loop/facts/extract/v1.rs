@@ -31,7 +31,7 @@ use super::super::super::facts_types::{
 };
 use super::collection::{
     body_has_break_or_continue_stmt, collect_increment_loop_var_candidates_from_body,
-    collect_loop_var_candidates_from_body,
+    collect_loop_var_candidates_from_body, observe_generic_loop_carrier_observation,
 };
 
 #[derive(Default)]
@@ -208,6 +208,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1(
             condition: condition.clone(),
             loop_increment,
             body: RecipeBody::new(flat_body.clone()),
+            carrier_observation: observe_generic_loop_carrier_observation(&flat_body, loop_var),
             body_lowering_policy,
             body_exit_allowed,
             body_no_exit,

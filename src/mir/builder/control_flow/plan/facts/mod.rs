@@ -43,6 +43,8 @@ pub(in crate::mir::builder) mod scan_shapes;
 pub(in crate::mir::builder) mod skeleton_facts;
 pub(in crate::mir::builder) mod string_is_integer_facts;
 
+pub(in crate::mir::builder) use super::generic_loop::facts::extract::observe_generic_loop_carrier_observation;
+pub(in crate::mir::builder) use super::generic_loop::facts_types::GenericLoopCarrierObservationV1;
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 #[cfg(test)]
 pub(in crate::mir::builder) use loop_builder::try_build_live_loop_facts;

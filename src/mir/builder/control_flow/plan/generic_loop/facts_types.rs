@@ -43,6 +43,18 @@ impl GenericLoopV1StepDispositionV1 {
     }
 }
 
+/// Builder-free carrier coverage emitted by Generic V1 facts extraction.
+///
+/// This is observation only. Route policy must not infer a winner from it
+/// without the frozen schedule and a separately verified stage result.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum GenericLoopCarrierObservationV1 {
+    CompleteNoRecursiveCarrier,
+    CompleteRecursiveCarrier(Vec<String>),
+    Unavailable(String),
+    Ambiguous(String),
+}
+
 /// Facts extracted for generic loop v0 (ExitIf-capable, no carriers)
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct GenericLoopV0Facts {
@@ -61,6 +73,7 @@ pub(in crate::mir::builder) struct GenericLoopV1Facts {
     pub condition: ASTNode,
     pub loop_increment: ASTNode,
     pub body: RecipeBody,
+    pub carrier_observation: GenericLoopCarrierObservationV1,
     pub body_lowering_policy: BodyLoweringPolicy,
     pub body_exit_allowed: Option<ExitAllowedBlockRecipe>,
     pub body_no_exit: Option<NoExitBlockRecipe>,

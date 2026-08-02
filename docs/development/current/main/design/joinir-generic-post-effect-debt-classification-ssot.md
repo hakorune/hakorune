@@ -703,18 +703,18 @@ ScopeBox flattening; every preserved but unsupported container is
 `Unavailable`, never silently skipped. Cross-mode Both/simple, unsupported,
 and fresh-repeat fixtures are the schema-acceptance gate.
 
-The first implementation slice is still test-only: the real `Both` facts must
-show `j` as a recursive target, while a top-level-only body must produce
-`Complete::NoRecursiveCarrier`. Missing, unsupported, or ambiguous coverage is
+The schema gate is green for real cross-mode `Both`/simple observations,
+preserved-container `Unavailable`, and fresh repeat stability. D1 now emits
+this observation from `GenericLoopV1Facts` as a facts-only field; it does not
+change selection or lowering. Missing, unsupported, or ambiguous coverage is
 `UnresolvedStop`, never an implicit V1 winner. `V1ForNestedCarriers` may
 suppress V0 only when the observation is complete, the raw schedule contains
 the claimed overlap, and V1 has a separate natural stage result.
 Planner-required V0 suppression remains a distinct gate.
 
-Do not add a route-name branch, re-read source AST in policy, or mutate the
-production `CanonicalLoopFacts` contract until this observation schema and its
-cross-mode fixtures are accepted. The next design decision is the smallest
-owned observation shape; all other overlap classes remain unresolved.
+Do not add a route-name branch, re-read source AST in policy, or use this field
+as a winner. D1 must leave all overlap classes unresolved and production
+selection unchanged; policy promotion remains a later D2 gate.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

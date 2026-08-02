@@ -1,5 +1,7 @@
+use super::super::super::facts_types::GenericLoopCarrierObservationV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::generic_loop_canon::matches_loop_increment;
+use std::collections::BTreeSet;
 
 /// Returns true when the loop body writes to variables other than the loop var.
 pub(in crate::mir::builder) fn body_writes_non_loop_vars(
@@ -25,6 +27,104 @@ pub(in crate::mir::builder) fn body_writes_non_loop_vars(
         }
     }
     false
+}
+
+/// Observe nested writes without consulting Builder state or choosing a route.
+pub(in crate::mir::builder) fn observe_generic_loop_carrier_observation(
+    body: &[ASTNode],
+    loop_var: &str,
+) -> GenericLoopCarrierObservationV1 {
+    let mut targets = BTreeSet::new();
+    match collect_recursive_carrier_targets(body, loop_var, false, &mut targets) {
+        Ok(()) if targets.is_empty() => GenericLoopCarrierObservationV1::CompleteNoRecursiveCarrier,
+        Ok(()) => {
+            GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(targets.into_iter().collect())
+        }
+        Err(CarrierObservationError::Unavailable(container)) => {
+            GenericLoopCarrierObservationV1::Unavailable(container.to_string())
+        }
+        Err(CarrierObservationError::Ambiguous(reason)) => {
+            GenericLoopCarrierObservationV1::Ambiguous(reason.to_string())
+        }
+    }
+}
+
+enum CarrierObservationError {
+    Unavailable(&'static str),
+    Ambiguous(&'static str),
+}
+
+fn collect_recursive_carrier_targets(
+    body: &[ASTNode],
+    loop_var: &str,
+    nested: bool,
+    targets: &mut BTreeSet<String>,
+) -> Result<(), CarrierObservationError> {
+    for stmt in body {
+        match stmt {
+            ASTNode::Assignment { target, .. } if nested => match target.as_ref() {
+                ASTNode::Variable { name, .. } if name != loop_var => {
+                    targets.insert(name.clone());
+                }
+                ASTNode::Variable { .. } => {}
+                _ => return Err(CarrierObservationError::Ambiguous("assignment target")),
+            },
+            ASTNode::CompoundAssignment { target, .. } if nested => match target.as_ref() {
+                ASTNode::Variable { name, .. } if name != loop_var => {
+                    targets.insert(name.clone());
+                }
+                ASTNode::Variable { .. } => {}
+                _ => {
+                    return Err(CarrierObservationError::Ambiguous(
+                        "compound-assignment target",
+                    ))
+                }
+            },
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                collect_recursive_carrier_targets(then_body, loop_var, true, targets)?;
+                if let Some(else_body) = else_body {
+                    collect_recursive_carrier_targets(else_body, loop_var, true, targets)?;
+                }
+            }
+            ASTNode::Loop { body, .. } => {
+                collect_recursive_carrier_targets(body, loop_var, true, targets)?;
+            }
+            ASTNode::ScopeBox { body, .. } => {
+                collect_recursive_carrier_targets(body, loop_var, nested, targets)?;
+            }
+            ASTNode::Program { statements, .. } => {
+                collect_recursive_carrier_targets(statements, loop_var, nested, targets)?;
+            }
+            ASTNode::LoopRange { .. } => {
+                return Err(CarrierObservationError::Unavailable("LoopRange"))
+            }
+            ASTNode::Lambda { .. } => return Err(CarrierObservationError::Unavailable("Lambda")),
+            ASTNode::BlockExpr { .. } => {
+                return Err(CarrierObservationError::Unavailable("BlockExpr"))
+            }
+            ASTNode::TryCatch { .. } => {
+                return Err(CarrierObservationError::Unavailable("TryCatch"))
+            }
+            ASTNode::TaskScope { .. } => {
+                return Err(CarrierObservationError::Unavailable("TaskScope"))
+            }
+            ASTNode::ContextScope { .. } => {
+                return Err(CarrierObservationError::Unavailable("ContextScope"))
+            }
+            ASTNode::FastMemRegion { .. } => {
+                return Err(CarrierObservationError::Unavailable("FastMemRegion"))
+            }
+            ASTNode::BuildGate { .. } => {
+                return Err(CarrierObservationError::Unavailable("BuildGate"))
+            }
+            _ => {}
+        }
+    }
+    Ok(())
 }
 
 /// Collect loop var candidates from body by finding variables used in increment expressions.
