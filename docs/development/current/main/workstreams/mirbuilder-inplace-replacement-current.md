@@ -394,30 +394,21 @@ closed — NORMAL-CALLABLE-LEXICAL-BINDING-MATERIALIZATION0-I0-R0
   retains its existing ordered/name compatibility owner. Focused top-level /
   static / plain-instance compound-rebind and direct-capture parity, reuse,
   loan-consumption, guard, and test compilation are green.
-current — NORMAL-CALLABLE-DIRECT-LAMBDA-CAPTURE-MATERIALIZATION0-I0-R0
-Change:
-  For a selected root callable's direct Lambda child, pass the forest's
-  existing ordered BindingRef capture receipt through the callable ledger to
-  the existing closure emitter and remove its legacy name-observation edge.
-
-Contract:
-  The forest remains capture existence/ancestry truth and its ordered receipt
-  remains capture-slot order truth. The callable ledger only projects each
-  already-materialized root binding to its existing ValueId. Lambda body
-  lowering, deeper descendants, capture ABI, ClosureBodyId/NewClosure,
-  FunctionCall, raw/reference, and diagnostics do not move.
-
-Done:
-  A direct capturing or noncapturing Lambda uses one exact forest child receipt
-  and existing closure emission once; its former root-callable raw observer
-  path is unreachable. Descendant capture forms retain their existing owner.
-  Missing/foreign/duplicate receipt or unavailable root ValueId hard-rejects
-  before closure publication; no fallback or retry exists.
-
-Stop:
-  Stop if direct-child ownership cannot be proven before legacy observation,
-  any descendant needs the root ledger, preserving existing capture order
-  requires a second classifier, or a touched source/check file reaches 800.
+closed — NORMAL-CALLABLE-DIRECT-LAMBDA-CAPTURE-MATERIALIZATION0-I0-R0
+  Selected root callable direct Lambda children now consume the forest's
+  ordered BindingRef capture receipt through the callable ledger and the
+  selected name-observation edge is unreachable. The forest remains
+  capture-existence/ancestry truth and the receipt remains capture-slot order
+  truth; the ledger only projects already-materialized root bindings to
+  ValueIds. Missing, foreign, duplicate, or unavailable receipts fail before
+  closure publication. Descendant capture forms, Lambda-body lowering,
+  capture ABI, ClosureBodyId/NewClosure, FunctionCall, raw/reference, and
+  diagnostics remain with their existing owners.
+current — MIRBUILDER-NEXT-NAMED-FAMILY-CENSUS0-D0
+  Select the next named responsibility family from the live inventory before
+  opening implementation. The decision must name its single authority,
+  selected old edge, Complete/Deferred boundary, and file placement below the
+  800-line limit; do not create a select/close document pair.
 already closed — do not reopen as WIP
   QMark, root Match, StaticConst, and explicit Record schema; only a regression
   can reopen their Git-history evidence.

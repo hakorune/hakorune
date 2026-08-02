@@ -31,6 +31,7 @@ OPS_MOD = ROOT / "src/mir/builder/ops/mod.rs"
 CALLABLE_SEMANTIC_SOURCE, CALLABLE_SEMANTIC_LOAN, CATALOGED_METHOD_LOWERING = (ROOT / "src/mir/builder/normal_callable_semantic_source.rs", ROOT / "src/mir/builder/normal_callable_semantic_loan_port.rs", ROOT / "src/mir/builder/normal_cataloged_box_method_lowering.rs")
 CALLABLE_CATALOG, CALLABLE_RESOLVER, RAW_SOURCE_TRANSPORT = ROOT / "src/mir/builder/callable_declaration_catalog/catalog.rs", ROOT / "src/mir/resolved_semantics/owner_resolver.rs", ROOT / "src/mir/builder/raw_invocation_source_transport.rs"
 CALLABLE_LEDGER, CALLABLE_MATERIALIZATION, CALLABLE_ENTRY_PORT = map(lambda name: ROOT / f"src/mir/builder/{name}.rs", ("normal_callable_semantic_lowering_state", "normal_callable_binding_materialization", "normal_callable_binding_materialization_port"))
+RAW_LAMBDA_CAPTURE = ROOT / "src/mir/builder/raw_lambda_capture_lifecycle.rs"
 SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
     ROOT / "src/mir/compiler/raw_public_ingress_p0.rs",
@@ -153,6 +154,7 @@ def main() -> int:
             CALLABLE_SEMANTIC_SOURCE, CALLABLE_SEMANTIC_LOAN, CATALOGED_METHOD_LOWERING,
             CALLABLE_CATALOG, CALLABLE_RESOLVER, RAW_SOURCE_TRANSPORT,
             CALLABLE_LEDGER, CALLABLE_MATERIALIZATION, CALLABLE_ENTRY_PORT,
+            RAW_LAMBDA_CAPTURE,
             *SOURCES,
         )
     }
@@ -167,6 +169,7 @@ def main() -> int:
     normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]; normal_collector_drain = texts[NORMAL_COLLECTOR_DRAIN]
     callable_source, callable_loan, callable_catalog, callable_resolver, raw_source_transport = map(production_code, (CALLABLE_SEMANTIC_SOURCE, CALLABLE_SEMANTIC_LOAN, CALLABLE_CATALOG, CALLABLE_RESOLVER, RAW_SOURCE_TRANSPORT))
     callable_ledger, callable_materialization, callable_entry_port = map(production_code, (CALLABLE_LEDGER, CALLABLE_MATERIALIZATION, CALLABLE_ENTRY_PORT))
+    raw_lambda_capture = production_code(RAW_LAMBDA_CAPTURE)
     program_root_lowering = production_code(PROGRAM_ROOT_LOWERING)
     decls = production_code(DECLS)
     raw_static_main_compat = production_code(RAW_STATIC_MAIN_COMPAT)
@@ -522,6 +525,7 @@ def main() -> int:
     if not all(x in callable_source for x in ("VerifiedNormalCallableSemanticSourceV1", "if !is_app_mode && !inventory.blockers().is_empty()", "resolve_selected_callable_forests", "seal_with_root_profile", "fn loan")) or "RawInvocationSourceTransportV1::root" in callable_source: raise AssertionError("callable semantic source authority drift")
     if not all(x in callable_loan for x in ("NormalCallableSemanticLoanPortV1", "CallableLoanConsumptionV1", "with_callable_source_scope", "semantic_ledger.take()", "fn consume", "fn complete")) or "RawInvocationSourceTransportV1::root" in callable_loan: raise AssertionError("callable semantic loan drift")
     if not all(x in callable_ledger + callable_materialization + callable_entry_port for x in ("install_entry_values", "record_completed_local", "read_variable", "lower_callable_binding_rebind_v1", "CallableEntryShapeV1")): raise AssertionError("callable BindingRef materialization drift")
+    if not all(x in callable_ledger + raw_lambda_capture for x in ("ordered_capture_demands", "direct_lambda_captures", "callable_ledger")) or raw_lambda_capture.index("if let Some(ledger) = &self.callable_ledger") > raw_lambda_capture.index("RawLambdaLexicalObservationV1::observe"): raise AssertionError("callable direct-Lambda capture authority drift")
     if not all(x in callable_catalog for x in ("SelectedCallableSemanticBlockerV1::NonPlainInstanceBox", "selected_semantic_blockers.push")) or not all(x in callable_resolver for x in ("for root in roots", "deferred |= selected_callable_source_deferral(error)?", "if deferred", "for tree in trees")): raise AssertionError("callable batch admission drift")
     if raw_source_transport.count("fn callable_semantic_root(") != 1 or "loan: &VerifiedNormalCallableSemanticLoanV1" not in raw_source_transport: raise AssertionError("callable typed transport drift")
     for terminal in ("lower_normal_top_level_function_with_source_v1", "lower_normal_cataloged_static_box_method_with_source_v1", "lower_normal_cataloged_instance_box_method_with_source_v1"):

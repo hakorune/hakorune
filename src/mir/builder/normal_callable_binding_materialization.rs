@@ -1,6 +1,7 @@
 //! Exact root-owner BindingRef materialization for selected callable bodies.
-//! Nested Lambda capture materialization remains with its existing ordered
-//! capture/name compatibility owner; this ledger never claims child owners.
+//! Direct child Lambda captures consume the forest's ordered BindingRef
+//! receipt through this root ledger. Lambda bodies and descendant-owner
+//! materialization remain outside this authority.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::stmts::{drive_local_statement_with_receipt_v1, RawLegacyLocalInputV1};

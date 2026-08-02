@@ -56,6 +56,13 @@ impl RawLambdaCaptureDemandPortV1 for RawLegacyChildLoweringPortV1 {
 
 impl RawLambdaCaptureDemandPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn selected_lambda_captures_v1(&self) -> Result<Option<Vec<(String, ValueId)>>, String> {
+        if let Some(ledger) = &self.callable_ledger {
+            let site = self
+                .current_source_context_v1()
+                .and_then(|context| context.site().cloned())
+                .ok_or_else(|| "[freeze:contract][callable-lambda/missing-site]".to_owned())?;
+            return ledger.borrow_mut().direct_lambda_captures(&site).map(Some);
+        }
         let Some(ledger) = &self.semantic_ledger else {
             return Ok(None);
         };

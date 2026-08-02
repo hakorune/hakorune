@@ -5,7 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::builder::stmts::CompletedLocalStatementV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, SourceBindingSiteV1,
-    SourceNodeSiteV1, VerifiedResolvedFunctionV1,
+    SourceNodeSiteV1, VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::ValueId;
 
@@ -20,15 +20,21 @@ pub(super) struct CallableSemanticLoweringState {
     locals: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
     variables: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     assignments: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
+    direct_lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
     values: BTreeMap<BindingRefV1, ValueId>,
     entry_installed: bool,
     materialized_locals: BTreeSet<SourceNodeSiteV1>,
     consumed_variables: BTreeSet<SourceNodeSiteV1>,
     consumed_assignments: BTreeSet<SourceNodeSiteV1>,
+    consumed_direct_lambdas: BTreeSet<SourceNodeSiteV1>,
 }
 
 impl CallableSemanticLoweringState {
-    pub(super) fn from_owner(owner: &VerifiedResolvedFunctionV1) -> Result<Self, String> {
+    pub(super) fn from_forest(forest: &VerifiedSemanticOwnerForestV1) -> Result<Self, String> {
+        let [root] = forest.roots() else {
+            return Err(freeze("root-cardinality"));
+        };
+        let owner = forest.owner(*root).ok_or_else(|| freeze("root-owner"))?;
         let owner_id = owner.owner();
         let mut receiver = None;
         let mut parameters = BTreeMap::new();
@@ -101,17 +107,51 @@ impl CallableSemanticLoweringState {
             }
         }
 
+        let mut direct_lambda_captures = BTreeMap::new();
+        for (child, _) in forest.owners() {
+            let Some(edge) = forest.parent(child) else {
+                continue;
+            };
+            if edge.parent_owner() != owner_id {
+                continue;
+            }
+            let captures = forest
+                .ordered_capture_demands(child)
+                .iter()
+                .map(|demand| {
+                    let binding = demand.source_binding();
+                    if binding.owner() != owner_id {
+                        return Err(freeze("direct-lambda-foreign-capture"));
+                    }
+                    let name = owner
+                        .binding(binding)
+                        .ok_or_else(|| freeze("direct-lambda-missing-binding"))?
+                        .diagnostic_name();
+                    Ok((Box::<str>::from(name), binding))
+                })
+                .collect::<Result<Vec<_>, String>>()?
+                .into_boxed_slice();
+            if direct_lambda_captures
+                .insert(edge.definition_site().site().node().clone(), captures)
+                .is_some()
+            {
+                return Err(freeze("duplicate-direct-lambda-site"));
+            }
+        }
+
         Ok(Self {
             receiver,
             parameters,
             locals,
             variables,
             assignments,
+            direct_lambda_captures,
             values: BTreeMap::new(),
             entry_installed: false,
             materialized_locals: BTreeSet::new(),
             consumed_variables: BTreeSet::new(),
             consumed_assignments: BTreeSet::new(),
+            consumed_direct_lambdas: BTreeSet::new(),
         })
     }
 
@@ -204,14 +244,39 @@ impl CallableSemanticLoweringState {
         Ok(())
     }
 
+    pub(super) fn direct_lambda_captures(
+        &mut self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<Vec<(String, ValueId)>, String> {
+        let captures = self
+            .direct_lambda_captures
+            .get(site)
+            .ok_or_else(|| freeze("missing-direct-lambda-site"))?;
+        if !self.consumed_direct_lambdas.insert(site.clone()) {
+            return Err(freeze("duplicate-direct-lambda-consumption"));
+        }
+        captures
+            .iter()
+            .map(|(name, binding)| {
+                let value = self
+                    .values
+                    .get(binding)
+                    .copied()
+                    .ok_or_else(|| freeze("direct-lambda-capture-before-materialization"))?;
+                Ok((name.to_string(), value))
+            })
+            .collect()
+    }
+
     pub(super) fn finish(self) -> Result<(), String> {
         if !self.entry_installed
             || self.materialized_locals.len() != self.locals.len()
             || self.consumed_variables.len() != self.variables.len()
             || self.consumed_assignments.len() != self.assignments.len()
+            || self.consumed_direct_lambdas.len() != self.direct_lambda_captures.len()
         {
             return Err(format!(
-                "{} entry={} locals={}/{} variables={}/{} assignments={}/{}",
+                "{} entry={} locals={}/{} variables={}/{} assignments={}/{} lambdas={}/{}",
                 freeze("incomplete-consumption"),
                 self.entry_installed,
                 self.materialized_locals.len(),
@@ -220,6 +285,8 @@ impl CallableSemanticLoweringState {
                 self.variables.len(),
                 self.consumed_assignments.len(),
                 self.assignments.len(),
+                self.consumed_direct_lambdas.len(),
+                self.direct_lambda_captures.len(),
             ));
         }
         Ok(())

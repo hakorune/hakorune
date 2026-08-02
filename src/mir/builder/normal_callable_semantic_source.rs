@@ -121,12 +121,8 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         if !std::ptr::eq(projected, function) {
             return Err("[freeze:contract][mir/callable-semantic/root-identity]".to_owned());
         }
-        let owner = row
-            .forest
-            .owner(*root)
-            .ok_or_else(|| "[freeze:contract][mir/callable-semantic/root-owner]".to_owned())?;
         let lowering_state =
-            super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_owner(owner)?;
+            super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_forest(&row.forest)?;
         let lineage = match &row.key {
             SelectedNormalCallableKeyV1::TopLevel(key) => {
                 super::raw_invocation_source_transport::RawInvocationRootLineageV1::TopLevel(
