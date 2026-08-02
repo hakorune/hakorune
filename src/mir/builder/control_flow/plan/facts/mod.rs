@@ -49,7 +49,9 @@ pub(in crate::mir::builder) use loop_builder::try_build_live_loop_facts;
 #[cfg(test)]
 pub(in crate::mir::builder) use loop_builder::try_build_loop_facts;
 pub(in crate::mir::builder) use loop_builder::try_build_loop_facts_with_ctx;
-pub(in crate::mir::builder) use loop_continue_only_facts::try_extract_loop_continue_only_facts;
+pub(in crate::mir::builder) use loop_continue_only_facts::{
+    try_extract_loop_continue_only_facts, try_extract_loop_continue_only_facts_with_projection,
+};
 pub(in crate::mir::builder) use loop_types::LoopFacts;
 pub(in crate::mir::builder) type LoopSimpleWhileFacts =
     loop_simple_while_facts::LoopSimpleWhileFacts;

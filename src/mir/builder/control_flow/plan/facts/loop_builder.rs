@@ -10,6 +10,7 @@ use super::bool_predicate_scan_facts::try_extract_bool_predicate_scan_facts;
 use super::feature_facts::try_extract_loop_feature_facts;
 use super::loop_array_join_facts::try_extract_loop_array_join_facts;
 use super::loop_char_map_facts::try_extract_loop_char_map_facts;
+use super::loop_continue_only_facts::try_extract_loop_continue_only_facts_with_projection;
 use super::loop_simple_while_facts::try_extract_loop_simple_while_facts_with_projection;
 use super::loop_true_early_exit_facts::try_extract_loop_true_early_exit_facts;
 use super::nested_loop_minimal_facts::try_extract_nested_loop_minimal_facts;
@@ -17,7 +18,6 @@ use super::nested_loop_profile::CLUSTER_PROFILES;
 use super::scan_shapes::{scan_condition_observation, ConditionShape, StepShape};
 use super::skeleton_facts::try_extract_loop_skeleton_facts;
 use super::string_is_integer_facts::try_extract_string_is_integer_facts;
-use super::try_extract_loop_continue_only_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
     LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
 };
@@ -174,7 +174,8 @@ fn try_build_loop_facts_inner(
     };
     let if_phi_join =
         try_extract_if_phi_join_facts_with_projection(condition, body, &source_projection)?;
-    let loop_continue_only = try_extract_loop_continue_only_facts(condition, body)?;
+    let loop_continue_only =
+        try_extract_loop_continue_only_facts_with_projection(condition, body, &source_projection)?;
     let loop_true_early_exit = try_extract_loop_true_early_exit_facts(condition, body)?;
     let loop_true_break_continue = try_extract_loop_true_break_continue_facts(condition, body)?;
     let nested_loop_minimal = try_extract_nested_loop_minimal_facts(condition, body)?;

@@ -4,6 +4,10 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, extract_loop_increment_plan, has_break_statement, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::facts::stmt_view::{
+    LoopSourceBodySiteV1, LoopSourceProjectionV1,
+};
+use crate::mir::builder::control_flow::generic_loop_canon::canon_update_for_loop_var;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use std::collections::BTreeMap;
 
@@ -14,11 +18,42 @@ pub(in crate::mir::builder) struct LoopContinueOnlyFacts {
     pub continue_condition: ASTNode,
     pub carrier_updates: BTreeMap<String, ASTNode>,
     pub loop_increment: ASTNode,
+    pub source_topology: Option<LoopContinueOnlySourceTopologyV1>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct LoopContinueOnlySourceTopologyV1 {
+    schedule: Box<[LoopContinueOnlyObservedStmtV1]>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct LoopContinueOnlyObservedStmtV1 {
+    site: LoopSourceBodySiteV1,
+    role: LoopContinueOnlyObservedStmtRoleV1,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum LoopContinueOnlyObservedStmtRoleV1 {
+    ContinueIf,
+    CarrierUpdate { carrier: String },
+    Step,
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_continue_only_facts(
     condition: &ASTNode,
     body: &[ASTNode],
+) -> Result<Option<LoopContinueOnlyFacts>, Freeze> {
+    try_extract_loop_continue_only_facts_with_projection(
+        condition,
+        body,
+        &LoopSourceProjectionV1::default(),
+    )
+}
+
+pub(in crate::mir::builder) fn try_extract_loop_continue_only_facts_with_projection(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    source_projection: &LoopSourceProjectionV1,
 ) -> Result<Option<LoopContinueOnlyFacts>, Freeze> {
     let Some(loop_var) = extract_loop_var_for_subset(condition) else {
         return Ok(None);
@@ -50,6 +85,7 @@ pub(in crate::mir::builder) fn try_extract_loop_continue_only_facts(
         Ok(Some(inc)) => inc,
         _ => return Ok(None),
     };
+    let source_topology = source_topology_for(body, source_projection, &loop_var);
 
     Ok(Some(LoopContinueOnlyFacts {
         loop_var,
@@ -57,7 +93,65 @@ pub(in crate::mir::builder) fn try_extract_loop_continue_only_facts(
         continue_condition,
         carrier_updates,
         loop_increment,
+        source_topology,
     }))
+}
+
+fn source_topology_for(
+    body: &[ASTNode],
+    projection: &LoopSourceProjectionV1,
+    loop_var: &str,
+) -> Option<LoopContinueOnlySourceTopologyV1> {
+    if projection.flattened_body_len() != Some(body.len()) || body.len() < 3 {
+        return None;
+    }
+    let mut schedule = Vec::with_capacity(body.len());
+    let mut carriers = std::collections::BTreeSet::new();
+    for (index, stmt) in body.iter().enumerate() {
+        let role = if index == 0 && find_continue_condition(&body[..1]).is_some() {
+            LoopContinueOnlyObservedStmtRoleV1::ContinueIf
+        } else if index + 1 == body.len() && canon_update_for_loop_var(stmt, loop_var).is_some() {
+            LoopContinueOnlyObservedStmtRoleV1::Step
+        } else if let Some(carrier) = carrier_update_name(stmt, loop_var) {
+            if !carriers.insert(carrier.clone()) {
+                return None;
+            }
+            LoopContinueOnlyObservedStmtRoleV1::CarrierUpdate { carrier }
+        } else {
+            return None;
+        };
+        schedule.push(LoopContinueOnlyObservedStmtV1 {
+            site: projection.site_for_flattened_index(index)?.clone(),
+            role,
+        });
+    }
+    matches!(
+        schedule.first()?.role,
+        LoopContinueOnlyObservedStmtRoleV1::ContinueIf
+    )
+    .then_some(LoopContinueOnlySourceTopologyV1 {
+        schedule: schedule.into(),
+    })
+}
+
+fn carrier_update_name(stmt: &ASTNode, loop_var: &str) -> Option<String> {
+    let ASTNode::Assignment { target, value, .. } = stmt else {
+        return None;
+    };
+    let ASTNode::Variable { name, .. } = target.as_ref() else {
+        return None;
+    };
+    let ASTNode::BinaryOp {
+        operator: BinaryOperator::Add,
+        left,
+        ..
+    } = value.as_ref()
+    else {
+        return None;
+    };
+    (name != loop_var
+        && matches!(left.as_ref(), ASTNode::Variable { name: lhs, .. } if lhs == name))
+    .then(|| name.clone())
 }
 
 fn extract_loop_var_for_subset(condition: &ASTNode) -> Option<String> {

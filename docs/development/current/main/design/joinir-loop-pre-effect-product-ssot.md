@@ -956,3 +956,11 @@ The old extractor wrapper supplies a default projection and remains topology
 absent. No selection, terminality, product, physicalizer, caller, or runtime
 behavior is added. Later cards must separately decide whether a direct topology
 may be borrowed; ScopeBox lineage here is observation only.
+
+### LoopContinueOnly extractor-topology S0 implementation record
+
+The projection-aware facts path now retains an optional ordered opaque schedule
+of continue-if, carrier updates, and final step only for complete top-level
+observations. The legacy wrapper uses the default projection and stays topology
+absent; facts acceptance and cloned semantic fields are unchanged. The next
+card must decide direct/ScopeBox provenance consumption separately.
