@@ -512,13 +512,21 @@ fn generic_nested_carrier_policy_probe_requires_complete_overlap_evidence() {
         CorpusModeV1::StrictPlannerRequired,
     ] {
         let (both, raw_schedule) = observe_generic_carrier_facts(mode, "both");
+        let v1_stage_accepted = observe_both_direct_stage(
+            mode.strict_or_dev(),
+            matches!(mode, CorpusModeV1::StrictPlannerRequired),
+        )
+        .iter()
+        .any(|row| {
+            row.route == LoopRouteId::GenericLoopV1 && matches!(row.stage, PlanStageV1::LowerSome)
+        });
         let frame = GenericCarrierPolicyFrameV1 {
             has_overlap: raw_schedule.as_slice()
                 == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1],
             strict_or_dev: mode.strict_or_dev(),
             planner_required: matches!(mode, CorpusModeV1::StrictPlannerRequired),
             contract_present: true,
-            v1_stage_accepted: true,
+            v1_stage_accepted,
         };
         let expected = if matches!(mode, CorpusModeV1::Release | CorpusModeV1::Strict) {
             GenericCarrierPolicyDispositionV1::V1ForNestedCarriers
