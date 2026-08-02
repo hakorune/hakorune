@@ -686,13 +686,38 @@ after all overlap classes have a policy owner.
 
 #### M5 boundary while D2-B is open
 
-An isolated `AccumConstLoop` caller-zero test candidate may be designed as the
-later M5 pilot only if it imports no Generic handler/receipt/policy authority,
-does not call `route_loop`, and cannot publish or become a production
-consumer. It is a parity and candidate-abort probe, not a way to bypass M4.
-Generic M5 extensions, Generic Recipe consumption, Retry deletion, shared
-CFG/JoinSig/PHI wiring, and all production cutover remain prohibited until
-D2-B/D4 closes the claimed Generic rows and winner/disjointness proof.
+#### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
+
+Change:
+: Fix the Accum pilot contract only: real `try_build_outcome` -> shared
+  `LivePreflightFrameV1` -> raw selector, passive portable Recipe
+  verification, and the caller-zero/authority guard. Do not add a composer,
+  physicalizer, candidate mutation, or `route_loop` caller.
+
+Contract:
+: Source authority is the production-derived facts/frame/raw schedule. The
+  portable artifact/verifier is a passive semantic contract. The legacy
+  Accum composer/CorePlan/PlanLowerer/JoinIR path is parity evidence only;
+  `diagnostic_effective`, route-name certificates, and legacy receipts are
+  non-authority.
+
+Done:
+: A real direct Accum row proves exact raw schedule `[AccumConstLoop]`, no
+  Generic suffix, fresh-repeat stability across release/strict/planner modes,
+  and zero portable production callers. The existing golden Recipe verifies
+  independently. All touched files remain below 800 lines.
+
+Stop:
+: Any Generic suffix, missing shared M6 CFG/JoinSig/PHI owner, candidate
+  mutation, legacy composer import into the portable path, or request for
+  runtime MIR parity returns this row to design. M6 establishes the shared
+  physical owners first; only afterward may the caller-zero vertical pilot
+  exercise candidate abort/fresh reuse. M10a is the separate future singleton
+  production bridge; Generic D2 remains required for M10b.
+
+This row is the only M5 work permitted while D2-B is open. Generic Recipe
+consumption, Retry deletion, shared CFG/JoinSig/PHI implementation, and all
+production cutover remain prohibited; this evidence does not bypass M4.
 
 ### M4-D4 — handoff and close (`...-D0-S4`)
 

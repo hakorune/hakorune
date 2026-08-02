@@ -440,28 +440,28 @@ Stop:
 ### M5 — `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-S3`
 
 Change:
-: Implement AccumConstLoop through the complete final boxes: StructuralFacts,
-  RoutePolicy, owned recursive Recipe, verifier/elaborated JoinSig, symbolic
-  CFG/edge plan, and candidate physicalizer.
+: Before M6, execute only the design/test-only Accum contract row: real
+  StructuralFacts/frame/raw-selector evidence, passive owned Recipe
+  verification, and caller-zero guards. The complete vertical pilot begins
+  after M6 establishes the shared CFG/JoinSig/PHI owners.
 
 Contract:
-: Only the physicalizer maps logical roles to real block/value IDs. PHIs come
-  exclusively from JoinSig. It consumes `VerifiedLoopRecipeV1` or its verified
-  elaboration, never artifact source/provenance or a legacy composer input. The
-  existing Accum composer is a parity oracle only.
-  Control edges are explicit recipe items; value-only calculations are
-  operations, and a called function body owns a separate recipe rather than
-  being expanded inside a Call operation.
+: The passive row consumes no Builder, composer, physical ID, PHI, candidate,
+  or `route_loop`. The later pilot's physicalizer alone maps logical roles to
+  IDs; PHIs come exclusively from JoinSig and the existing Accum composer is a
+  parity oracle only. Control edges remain explicit recipe items; value-only
+  calculations remain operations, and called bodies remain separate recipes.
 
 Done:
-: Normalized recipe, verifier counterexamples, MIR/PHI/type/result parity, late
-  failure discard, and fresh reuse are green; legacy-composer and production
-  callers remain zero.
+: The D0 row proves the real Accum singleton schedule, no Generic suffix,
+  passive Recipe verification, fresh-repeat stability, and zero production
+  callers. The post-M6 vertical pilot must additionally prove MIR/PHI/type/
+  result parity, late-failure discard, and fresh reuse.
 
 Stop:
-: Do not import synthetic AST or current physical composer as new authority.
-  M6 must replace and promote this pilot into the shared services; it must not
-  leave a second Accum-only implementation beside them.
+: Do not import synthetic AST or current physical composer into D0, and do not
+  mutate a candidate before M6. M6 must promote the later pilot into shared
+  services; it must not leave a second Accum-only implementation beside them.
 
 ### M6 — `JOINIR-LOOP-CFG-JOINSIG-PHI0-S4`
 

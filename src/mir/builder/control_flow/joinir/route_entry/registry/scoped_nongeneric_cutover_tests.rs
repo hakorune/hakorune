@@ -64,12 +64,22 @@ fn is_generic(route: &LoopRouteId) -> bool {
     )
 }
 
-fn raw_schedule(condition: ASTNode, body: Vec<ASTNode>, name: &str) -> Vec<LoopRouteId> {
+fn raw_schedule_with_mode(
+    condition: ASTNode,
+    body: Vec<ASTNode>,
+    name: &str,
+    strict_or_dev: bool,
+    planner_required: bool,
+) -> Vec<LoopRouteId> {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let ctx = LoopRouteContext::new(&condition, &body, name, false, false);
     let outcome = try_build_outcome(&ctx).expect("N0 fixture must build facts");
-    let frame = test_issue_live_preflight_frame(&ctx, &outcome, false, false);
+    let frame = test_issue_live_preflight_frame(&ctx, &outcome, strict_or_dev, planner_required);
     frame.test_raw_schedule().to_vec()
+}
+
+fn raw_schedule(condition: ASTNode, body: Vec<ASTNode>, name: &str) -> Vec<LoopRouteId> {
+    raw_schedule_with_mode(condition, body, name, false, false)
 }
 
 fn direct_accum_body() -> Vec<ASTNode> {
@@ -121,4 +131,34 @@ fn n0_census_keeps_only_a_known_accum_singleton_candidate() {
         vec![LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
     );
     assert!(overlap.len() > 1);
+}
+
+#[test]
+fn n0_accum_singleton_is_frame_bound_and_repeatable_across_modes() {
+    for (label, strict_or_dev, planner_required) in [
+        ("release", false, false),
+        ("strict", true, false),
+        ("planner-required", true, true),
+    ] {
+        let first = raw_schedule_with_mode(
+            progression_condition(),
+            direct_accum_body(),
+            "scoped_nongeneric/accum",
+            strict_or_dev,
+            planner_required,
+        );
+        let second = raw_schedule_with_mode(
+            progression_condition(),
+            direct_accum_body(),
+            "scoped_nongeneric/accum",
+            strict_or_dev,
+            planner_required,
+        );
+        assert_eq!(first, second, "fresh frame drift in {label} mode");
+        assert_eq!(first, vec![LoopRouteId::AccumConstLoop], "{label} mode");
+        assert!(
+            !first.iter().any(is_generic),
+            "{label} mode has Generic suffix"
+        );
+    }
 }
