@@ -1,6 +1,9 @@
 //! Phase 29aj P7: bool_predicate_scan facts (SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
+use crate::mir::builder::control_flow::facts::stmt_view::{
+    LoopSourceBodySiteV1, LoopSourceProjectionV1,
+};
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     loop_var_from_profile, step_delta_from_profile, ConditionShape, LengthMethod,
     ScanConditionObservation, StepShape,
@@ -17,12 +20,42 @@ pub(in crate::mir::builder) struct BoolPredicateScanFacts {
     pub condition: ASTNode,
     pub step_lit: i64,
     pub cond_profile: CondProfile,
+    /// Opaque source coordinates for the first accepted predicate-if and final
+    /// step only. This deliberately does not claim complete body coverage.
+    pub source_topology: Option<BoolPredicateScanSourceTopologyV1>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct BoolPredicateScanSourceTopologyV1 {
+    matched_predicate_if: LoopSourceBodySiteV1,
+    final_step: LoopSourceBodySiteV1,
+}
+
+impl BoolPredicateScanSourceTopologyV1 {
+    pub(in crate::mir::builder) fn has_scope_box_lineage(&self) -> bool {
+        !self.matched_predicate_if.scope_box_children().is_empty()
+            || !self.final_step.scope_box_children().is_empty()
+    }
 }
 
 pub(in crate::mir::builder) fn try_extract_bool_predicate_scan_facts(
     condition: &ASTNode,
     body: &[ASTNode],
     observation: &ScanConditionObservation,
+) -> Result<Option<BoolPredicateScanFacts>, Freeze> {
+    try_extract_bool_predicate_scan_facts_with_projection(
+        condition,
+        body,
+        observation,
+        &LoopSourceProjectionV1::default(),
+    )
+}
+
+pub(in crate::mir::builder) fn try_extract_bool_predicate_scan_facts_with_projection(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    observation: &ScanConditionObservation,
+    source_projection: &LoopSourceProjectionV1,
 ) -> Result<Option<BoolPredicateScanFacts>, Freeze> {
     let condition_shape = &observation.condition_shape;
     let step_shape = &observation.step_shape;
@@ -52,11 +85,14 @@ pub(in crate::mir::builder) fn try_extract_bool_predicate_scan_facts(
         return Ok(None);
     }
 
-    let (predicate_receiver, predicate_method) =
-        match extract_predicate_check(body, &loop_var, &haystack) {
-            Some(values) => values,
-            None => return Ok(None),
-        };
+    let PredicateCheckMatch {
+        predicate_receiver,
+        predicate_method,
+        matched_index,
+    } = match extract_predicate_check(body, &loop_var, &haystack) {
+        Some(values) => values,
+        None => return Ok(None),
+    };
 
     Ok(Some(BoolPredicateScanFacts {
         loop_var,
@@ -66,15 +102,39 @@ pub(in crate::mir::builder) fn try_extract_bool_predicate_scan_facts(
         condition: condition.clone(),
         step_lit,
         cond_profile: observation.cond_profile.clone(),
+        source_topology: source_topology_for(body, source_projection, matched_index),
     }))
+}
+
+fn source_topology_for(
+    body: &[ASTNode],
+    projection: &LoopSourceProjectionV1,
+    matched_index: usize,
+) -> Option<BoolPredicateScanSourceTopologyV1> {
+    let final_step_index = body.len().checked_sub(1)?;
+    if matched_index >= final_step_index || projection.flattened_body_len() != Some(body.len()) {
+        return None;
+    }
+    Some(BoolPredicateScanSourceTopologyV1 {
+        matched_predicate_if: projection.site_for_flattened_index(matched_index)?.clone(),
+        final_step: projection
+            .site_for_flattened_index(final_step_index)?
+            .clone(),
+    })
+}
+
+struct PredicateCheckMatch {
+    predicate_receiver: String,
+    predicate_method: String,
+    matched_index: usize,
 }
 
 fn extract_predicate_check(
     body: &[ASTNode],
     loop_var: &str,
     haystack: &str,
-) -> Option<(String, String)> {
-    for stmt in body {
+) -> Option<PredicateCheckMatch> {
+    for (matched_index, stmt) in body.iter().enumerate() {
         let ASTNode::If {
             condition,
             then_body,
@@ -138,7 +198,11 @@ fn extract_predicate_check(
             _ => continue,
         };
 
-        return Some((receiver, method.clone()));
+        return Some(PredicateCheckMatch {
+            predicate_receiver: receiver,
+            predicate_method: method.clone(),
+            matched_index,
+        });
     }
 
     None
@@ -203,6 +267,7 @@ mod tests {
     use super::*;
     use crate::ast::Span;
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::scan_condition_observation;
+    use crate::mir::builder::control_flow::plan::facts::try_build_loop_facts;
 
     fn v(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -341,6 +406,40 @@ mod tests {
         assert_eq!(facts.predicate_receiver, "me");
         assert_eq!(facts.predicate_method, "is_digit");
         assert_eq!(facts.step_lit, 1);
+        assert!(facts.source_topology.is_none());
+    }
+
+    #[test]
+    fn production_facts_retain_direct_and_scope_box_predicate_sites() {
+        let condition = condition_length("i", "s");
+        let statements = vec![
+            predicate_if("this", "is_digit", "s", "i"),
+            loop_increment("i", 1),
+        ];
+
+        let direct = try_build_loop_facts(&condition, &statements)
+            .expect("direct no freeze")
+            .expect("direct facts")
+            .bool_predicate_scan
+            .expect("direct BoolPredicateScan facts");
+        assert!(!direct
+            .source_topology
+            .expect("direct topology")
+            .has_scope_box_lineage());
+
+        let scoped_body = vec![ASTNode::ScopeBox {
+            body: statements,
+            span: Span::unknown(),
+        }];
+        let scoped = try_build_loop_facts(&condition, &scoped_body)
+            .expect("scope no freeze")
+            .expect("scope facts")
+            .bool_predicate_scan
+            .expect("scope BoolPredicateScan facts");
+        assert!(scoped
+            .source_topology
+            .expect("scope topology")
+            .has_scope_box_lineage());
     }
 
     #[test]

@@ -1387,3 +1387,17 @@ body completeness/order; reconstructed recipe; selector/preflight,
 terminality, product, execution, and physical behavior remain
 non-authoritative. Conditional, true-break, and generic routes retain broader
 nested/open-policy boundaries and are deferred.
+
+### BoolPredicateScan provenance S0 implementation record
+
+The extractor now retains the existing first qualifying top-level predicate-if
+index and the existing final-step index beside unchanged semantic facts. The
+projection-aware path emits only those two opaque sites when the complete
+flattened body aligns; the legacy wrapper passes the default projection and
+remains topology absent. Local fixtures preserve legacy absence and fix direct
+versus ScopeBox lineage under the production facts path.
+
+Nested predicate, substring, and return internals; sibling statements;
+whole-body coverage/order; reconstructed recipe; selector/preflight,
+terminality, product, execution, physicalizer, caller, and runtime behavior
+remain non-authoritative. The next card is preflight D0.

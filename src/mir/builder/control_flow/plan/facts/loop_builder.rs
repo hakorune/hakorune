@@ -6,7 +6,7 @@ use crate::mir::builder::control_flow::facts::try_extract_if_phi_join_facts_with
 use std::collections::BTreeMap;
 
 use super::accum_const_loop_facts::try_extract_accum_const_loop_facts_with_projection;
-use super::bool_predicate_scan_facts::try_extract_bool_predicate_scan_facts;
+use super::bool_predicate_scan_facts::try_extract_bool_predicate_scan_facts_with_projection;
 use super::feature_facts::try_extract_loop_feature_facts;
 use super::loop_array_join_facts::try_extract_loop_array_join_facts_with_projection;
 use super::loop_char_map_facts::try_extract_loop_char_map_facts_with_projection;
@@ -200,7 +200,12 @@ fn try_build_loop_facts_inner(
     let loop_true_break_continue = try_extract_loop_true_break_continue_facts(condition, body)?;
     let nested_loop_minimal =
         try_extract_nested_loop_minimal_facts_with_projection(condition, body, &source_projection)?;
-    let bool_predicate_scan = try_extract_bool_predicate_scan_facts(condition, body, &observation)?;
+    let bool_predicate_scan = try_extract_bool_predicate_scan_facts_with_projection(
+        condition,
+        body,
+        &observation,
+        &source_projection,
+    )?;
     let accum_const_loop = try_extract_accum_const_loop_facts_with_projection(
         condition,
         body,
