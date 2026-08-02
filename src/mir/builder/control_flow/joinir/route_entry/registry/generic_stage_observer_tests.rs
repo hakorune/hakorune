@@ -12,8 +12,48 @@ use super::route_id::LoopRouteId;
 use super::{dispatch_entry, select_recipe_first_routes, RouterEnv};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::single_planner::try_build_outcome;
+use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ObserverModeV1 {
+    Release,
+    Strict,
+    StrictPlannerRequired,
+}
+
+impl ObserverModeV1 {
+    fn env(self) -> RouterEnv {
+        RouterEnv {
+            strict_or_dev: !matches!(self, Self::Release),
+            planner_required: matches!(self, Self::StrictPlannerRequired),
+            has_body_local: false,
+        }
+    }
+
+    fn config(self) -> crate::test_support::ScopedTestConfig {
+        crate::test_support::ScopedTestConfig::apply(&[
+            (
+                "HAKO_JOINIR_STRICT",
+                if matches!(self, Self::Release) {
+                    None
+                } else {
+                    Some("1")
+                },
+            ),
+            (
+                "HAKO_JOINIR_PLANNER_REQUIRED",
+                if matches!(self, Self::StrictPlannerRequired) {
+                    Some("1")
+                } else {
+                    None
+                },
+            ),
+            ("NYASH_JOINIR_STRICT", None),
+        ])
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct AttemptTraceV1 {
@@ -58,8 +98,9 @@ fn seeded_builder() -> MirBuilder {
     builder
 }
 
-fn observe_both_fixture() -> GenericStageTraceV1 {
+fn observe_both_fixture(mode: ObserverModeV1) -> GenericStageTraceV1 {
     crate::runtime::ring0::ensure_global_ring0_initialized();
+    let _config = mode.config();
     let condition = progression_condition();
     let body = both_body();
     let ctx = LoopRouteContext::new(&condition, &body, "generic_stage_observer/0", false, false);
@@ -71,13 +112,10 @@ fn observe_both_fixture() -> GenericStageTraceV1 {
     let raw_schedule = select_recipe_first_routes(Some(facts))
         .raw_execution_routes()
         .to_vec();
-    let env = RouterEnv {
-        strict_or_dev: false,
-        planner_required: false,
-        has_body_local: false,
-    };
+    let env = mode.env();
     let witness = RouteExecutionWitnessV1::issue(&raw_schedule, &env, false);
     let mut builder = seeded_builder();
+    let _scope = LexicalScopeGuard::new(&mut builder);
     let mut attempted = Vec::new();
     let mut generic_debts = Vec::new();
     let result = witness.execute_selected_in_order(|_, attempt| {
@@ -114,12 +152,7 @@ fn observe_both_fixture() -> GenericStageTraceV1 {
 
 #[test]
 fn generic_both_fixture_reaches_actual_entries_handler_path() {
-    let _config = crate::test_support::ScopedTestConfig::apply(&[
-        ("HAKO_JOINIR_STRICT", None),
-        ("HAKO_JOINIR_PLANNER_REQUIRED", None),
-        ("NYASH_JOINIR_STRICT", None),
-    ]);
-    let trace = observe_both_fixture();
+    let trace = observe_both_fixture(ObserverModeV1::Release);
 
     assert_eq!(
         trace.raw_schedule,
@@ -142,4 +175,57 @@ fn generic_both_fixture_reaches_actual_entries_handler_path() {
         trace.terminal,
         TerminalTraceV1::Succeeded(LoopRouteId::GenericLoopV0)
     );
+}
+
+#[test]
+fn generic_both_fixture_records_mode_specific_witness_boundaries() {
+    let modes = [
+        ObserverModeV1::Release,
+        ObserverModeV1::Strict,
+        ObserverModeV1::StrictPlannerRequired,
+    ];
+
+    for mode in modes {
+        let trace = observe_both_fixture(mode);
+        let repeat = observe_both_fixture(mode);
+        assert_eq!(trace, repeat, "mode-specific witness drift: {mode:?}");
+
+        assert!(
+            !trace.raw_schedule.is_empty(),
+            "Both fixture must retain a selected route in {mode:?}"
+        );
+        match mode {
+            ObserverModeV1::Release | ObserverModeV1::Strict => assert_eq!(
+                trace.raw_schedule,
+                vec![LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1],
+                "release/strict Both selection must retain the V0/V1 overlap"
+            ),
+            ObserverModeV1::StrictPlannerRequired => assert_eq!(
+                trace.raw_schedule,
+                vec![LoopRouteId::GenericLoopV1],
+                "planner-required selection must suppress Generic V0 before the witness"
+            ),
+        }
+        assert_eq!(
+            trace.attempted.first().map(|row| row.route),
+            trace.raw_schedule.first().copied(),
+            "witness must attempt the captured prefix in {mode:?}"
+        );
+
+        if trace.raw_schedule == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1] {
+            assert_eq!(
+                trace.attempted,
+                vec![AttemptTraceV1 {
+                    route: LoopRouteId::GenericLoopV0,
+                    cursor: 0,
+                    suffix: vec![LoopRouteId::GenericLoopV1],
+                }],
+                "a V0 terminal/error must not silently continue to V1: {mode:?}"
+            );
+            assert!(
+                trace.generic_debts.is_empty(),
+                "no Generic debt receipt was observed for {mode:?}: {trace:?}"
+            );
+        }
+    }
 }

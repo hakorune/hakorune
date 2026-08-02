@@ -188,6 +188,16 @@ Done:
   with the current pure-policy disposition; absence of such a trace remains
   explicit evidence, not a fabricated proof.
 
+The bounded mode extension now runs the same observer under release, strict,
+and strict+planner-required configuration. Release and strict retain the raw
+`[GenericLoopV0, GenericLoopV1]` overlap and both stop at the first V0 attempt
+(success or outer error) without a debt receipt or V1 continuation.
+Planner-required suppresses Generic V0 before the witness and observes the
+single Generic V1 route. Each mode is repeated on a fresh candidate and must
+produce the same raw schedule and trace. This is execution evidence only; the
+strict/planner error rows remain `UnresolvedStop` and do not close winner
+equivalence.
+
 Stop:
 : If the real handler cannot be reached without production setup changes,
   synthetic outcomes, or forced failure injection, retain `UnresolvedStop`,
