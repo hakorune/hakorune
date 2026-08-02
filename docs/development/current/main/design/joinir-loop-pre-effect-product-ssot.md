@@ -1306,3 +1306,29 @@ Condition internals, return payload, reconstructed semantic facts, unclassified
 siblings, selector/preflight, terminality, product, execution, and physical
 behavior remain out of scope. Split/BoolPredicate and conditional/generic
 routes retain broader nested/open-policy boundaries and are deferred.
+
+### ScanWithInit terminality D0 decision
+
+Decision: NoSafeSlice. `route_scan_with_init` uses `route_standard` with
+`skip_without_contract`; without its recipe contract in non-planner mode it
+returns `Ok(None)` and ordered raw execution continues. Source topology/Facts
+does not bind the environment or contract disposition, so it cannot prove
+route terminality. Composer/lower may also mutate before later errors.
+
+No terminality certificate, product, physicalizer, caller, or runtime behavior
+changed. Fresh D8 inventory selects the next bounded source-only card.
+
+### Next-route selection D8 decision
+
+Decision: select `SplitScan` provenance D0. The sole acceptance owner chooses
+the first qualifying top-level split-if and derives semantic names from it. D0
+may retain only that whole if statement as one opaque source site, and only
+when the flattened projection is completely aligned. Default callers must keep
+topology absent and the existing acceptance result must remain unchanged.
+
+The if condition, then/else internals, unclassified sibling statements, body
+completeness/order, and reconstructed recipe AST are non-authoritative.
+BoolPredicateScan has nested predicate semantics and no equally bounded
+source-site proof; conditional and generic routes retain their open
+policy/grammar boundaries. Selector/preflight, terminality, product,
+execution, and physical behavior are not authorized by this selection.
