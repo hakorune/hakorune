@@ -862,3 +862,17 @@ disposition by value and issues the route-specific three-role product; it takes
 no source, Facts, projection, or selection input. Direct and ScopeBox fixtures
 fix issuance and fail-closed behavior. No physical consumer, Builder/CorePlan,
 route cutover, runtime effect, or production caller has been added.
+
+### AccumConstLoop physicalizer D0 decision
+
+Decision: NoSafeSlice. The only existing Accum execution path enters
+`route_accum_const_loop`, composes a builder-bound recipe, and calls
+`lower_loop_v0`. That lowerer mutates through `build_coreloop_frame` and
+`alloc_typed` before later header/body lowering failures are excluded. The
+opaque product cannot reach that path without discarding product authority and
+reintroducing the legacy retry scheduler; no rollback boundary exists.
+
+No physicalizer, consumer, caller, selector, composer, lowerer, Builder, or
+runtime behavior changed. The next logical-product D0 is LoopBreak, whose
+direct topology and scheduler certificate exist but whose break-if subtree and
+carrier placement roles still require an independent source-bound design.
