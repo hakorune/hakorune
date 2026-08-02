@@ -14,6 +14,7 @@ mod product;
 mod resolver;
 mod root_traversal;
 mod script_admission;
+mod script_root_dispatch;
 mod script_root_window;
 mod stmt;
 mod traversal_profile;

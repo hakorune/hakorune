@@ -9,100 +9,10 @@ use super::product::{
     ShadowResolveErrorV0, ShadowScopeKindV0,
 };
 use super::resolver::ShadowResolverV0;
-use super::script_root_window::ScriptRootResolvedDemandV1;
 use super::vocabulary::{classify_shadow_ast_disposition_v0, ShadowAstDispositionV0};
 
 impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
-    pub(super) fn resolve_root_statement(
-        &mut self,
-        statement: &'ast ASTNode,
-        path: &ShadowSourcePathV0,
-        demand: ScriptRootResolvedDemandV1,
-    ) -> Result<(), ShadowResolveErrorV0> {
-        match demand {
-            ScriptRootResolvedDemandV1::LexicalCore => self.resolve_stmt(statement, path),
-            ScriptRootResolvedDemandV1::QMarkPropagation(_) => {
-                self.resolve_qmark_propagation(statement, path)
-            }
-            ScriptRootResolvedDemandV1::MatchControl(_) => {
-                self.resolve_match_control(statement, path)
-            }
-            ScriptRootResolvedDemandV1::IfControl(_) => {
-                let ASTNode::If {
-                    condition,
-                    then_body,
-                    else_body,
-                    ..
-                } = statement
-                else {
-                    return Err(ShadowResolveErrorV0::UnsupportedStatement {
-                        kind: "Script root If admission source drift",
-                        site: path.stmt(),
-                    });
-                };
-                self.resolve_if(statement, condition, then_body, else_body.as_deref(), path)
-            }
-            ScriptRootResolvedDemandV1::ReturnExit(_) => self.resolve_return(statement, path),
-            ScriptRootResolvedDemandV1::BindingRebind(_) => {
-                self.resolve_binding_rebind(statement, path)
-            }
-            ScriptRootResolvedDemandV1::IndexWrite(_) => self.resolve_index_write(statement, path),
-        }
-    }
-
-    fn resolve_qmark_propagation(
-        &mut self,
-        statement: &'ast ASTNode,
-        path: &ShadowSourcePathV0,
-    ) -> Result<(), ShadowResolveErrorV0> {
-        let ASTNode::QMarkPropagate { expression, .. } = statement else {
-            return Err(ShadowResolveErrorV0::UnsupportedStatement {
-                kind: "Script root QMark admission source drift",
-                site: path.stmt(),
-            });
-        };
-        self.admit_qmark_propagation(path.expr())?;
-        self.resolve_expr(
-            expression,
-            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::QMarkOperand),
-        )
-    }
-
-    fn resolve_match_control(
-        &mut self,
-        statement: &'ast ASTNode,
-        path: &ShadowSourcePathV0,
-    ) -> Result<(), ShadowResolveErrorV0> {
-        let ASTNode::MatchExpr {
-            scrutinee,
-            arms,
-            else_expr,
-            ..
-        } = statement
-        else {
-            return Err(ShadowResolveErrorV0::UnsupportedStatement {
-                kind: "Script root Match admission source drift",
-                site: path.stmt(),
-            });
-        };
-        self.admit_match_control(path.expr())?;
-        self.resolve_expr(
-            scrutinee,
-            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::MatchScrutinee),
-        )?;
-        for (index, (_, expression)) in arms.iter().enumerate() {
-            self.resolve_expr(
-                expression,
-                &Self::stmt_expr_path(statement, path, ExprChildRoleV1::MatchArm(index as u32)),
-            )?;
-        }
-        self.resolve_expr(
-            else_expr,
-            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::MatchElse),
-        )
-    }
-
-    fn stmt_expr_path(
+    pub(super) fn stmt_expr_path(
         statement: &ASTNode,
         path: &ShadowSourcePathV0,
         role: ExprChildRoleV1,
@@ -153,7 +63,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         Ok(())
     }
 
-    fn resolve_stmt(
+    pub(super) fn resolve_stmt(
         &mut self,
         statement: &'ast ASTNode,
         path: &ShadowSourcePathV0,
@@ -255,7 +165,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         }
     }
 
-    fn resolve_return(
+    pub(super) fn resolve_return(
         &mut self,
         statement: &'ast ASTNode,
         path: &ShadowSourcePathV0,
@@ -281,7 +191,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         )
     }
 
-    fn resolve_binding_rebind(
+    pub(super) fn resolve_binding_rebind(
         &mut self,
         statement: &'ast ASTNode,
         path: &ShadowSourcePathV0,
@@ -300,7 +210,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         self.resolve_stmt(statement, path)
     }
 
-    fn resolve_index_write(
+    pub(super) fn resolve_index_write(
         &mut self,
         statement: &'ast ASTNode,
         path: &ShadowSourcePathV0,
@@ -461,7 +371,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         result
     }
 
-    fn resolve_if(
+    pub(super) fn resolve_if(
         &mut self,
         statement: &'ast ASTNode,
         condition: &'ast ASTNode,

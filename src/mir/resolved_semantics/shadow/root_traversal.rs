@@ -12,6 +12,7 @@ use crate::mir::resolved_semantics::{
 use crate::mir::resolved_semantics::{FunctionSyntaxViewV1, SemanticOwnerRootProfileV1};
 
 use super::path::ShadowSourcePathV0;
+use super::script_root_dispatch::dispatch_resolved_script_root_statement;
 use super::script_root_window::{
     ScriptRootResolvedDemandV1, ScriptRootSemanticDispositionV1, VerifiedScriptRootDemandWindowV1,
 };
@@ -169,7 +170,8 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
                                     },
                                 );
                             }
-                            resolver.resolve_root_statement(
+                            dispatch_resolved_script_root_statement(
+                                resolver,
                                 statement,
                                 &ShadowSourcePathV0::program_body()
                                     .child(SourcePathSegmentV1::ProgramBody(*index)),
