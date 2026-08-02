@@ -667,3 +667,16 @@ the break-if is the first flattened statement. The local-prelude variant has no
 distinct carrier-update/step schedule and remains topology absent. Direct and
 ScopeBox fixtures fix the coordinate and lineage behavior; all-route preflight
 still has zero qualified routes.
+
+### LoopBreakRecipe preflight classification D0 decision
+
+Decision: the existing all-route preflight owns this classification and keeps its
+single canonical raw-schedule selection. For raw front `LoopBreakRecipe`, S0 reads
+only `LoopBreakFacts.source_topology`, with strict precedence: absent facts or
+topology is `SourceTopologyUnavailable`; any nonempty site lineage is
+`ScopeBoxLineageNotBorrowable`; only an all-direct three-site topology reaches
+`PolicyAndTerminalityUnavailable`. The last outcome is deliberately not Qualified:
+the three coordinates do not prove raw tail, handler terminality, builder-free
+logical consumption, or physical safety. Fixtures must fix the raw schedule front
+and each reject. S0 adds no AST re-match, selector rerun, product, caller, route
+skip, or composer/physical authority.

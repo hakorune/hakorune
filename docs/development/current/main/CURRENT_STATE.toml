@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-BREAK-PROVENANCE0-S0 closed; JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-D0 selected."
+status = "JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-D0 closed; JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-S0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 may classify only LoopBreakRecipe's existing generic three-site topology at all-route preflight: unavailable provenance, non-borrowable ScopeBox lineage, or remaining policy/terminality absence. It must first verify raw schedule authority and exact reject precedence. It must not issue a product, claim a raw tail or terminality, expand another subset/route, refactor composers, add a physicalizer/context, change runtime routing, retry, or add a production caller."
-current_execution_row = "JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-D0"
-current_execution_summary = "LoopBreak generic direct three-statement facts now retain opaque break-if/carrier-update/step sites and ScopeBox lineage; all other subsets remain topology absent. Composer remains NoSafeSlice, raw tail/terminality remain unproven, and all-route Qualified remains zero."
+current_design_stop = "S0 may add only LoopBreakRecipe classification to the existing all-route preflight: source topology unavailable, ScopeBox lineage not borrowable, or direct policy/terminality unavailable, in that order. It must assert the actual raw schedule front once per focused fixture. It must not qualify a route, issue a product, claim a raw tail or terminality, expand another subset/route, refactor composers, add a physicalizer/context, change runtime routing, retry, or add a production caller."
+current_execution_row = "JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-S0"
+current_execution_summary = "LoopBreak generic direct three-statement facts retain opaque sites and ScopeBox lineage. Preflight S0 may expose only typed absence/lineage/policy-terminally rejects; composer remains NoSafeSlice, raw tail/terminality remain unproven, and all-route Qualified remains zero."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-D0-DESIGN-STOP"
+current_blocker_token = "JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
