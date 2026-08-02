@@ -725,3 +725,15 @@ AST resolver, so if-condition and then/else carrier updates remain clone/derived
 facts, never source operands. The existing flattened projection retains direct
 empty lineage and ScopeBox lineage for both whole statements. S0 adds no raw-tail
 or terminality claim, all-route classification/product/caller, or physical work.
+
+### IfPhiJoin provenance S0 implementation record
+
+`IfPhiJoinFacts` now retains `IfPhiJoinSourceTopologyV1` only when the existing
+flattened projection aligns with the accepted extractor body. The extractor
+carries the observed if-else and step indices, so direct `if; step`, direct
+`step; if`, and ScopeBox-wrapped `if; step` retain their actual coordinates and
+lineage. The production loop-facts builder forwards that same projection. The
+legacy no-projection facts entry leaves topology absent. No nested branch
+expression gains a source resolver or source authority. The next card is the
+all-route-preflight classification D0; no terminality, product, physical, or
+caller claim has been added.

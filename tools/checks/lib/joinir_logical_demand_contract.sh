@@ -19,6 +19,7 @@ guard_joinir_logical_demand_contract() {
   local simple_while="$root_dir/src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs"
   local accum_const="$root_dir/src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs"
   local loop_break_facts="$root_dir/src/mir/builder/control_flow/plan/loop_break/facts/types.rs"
+  local if_phi_join="$root_dir/src/mir/builder/control_flow/facts/if_phi_join_facts.rs"
   local files=(
     "$route_id"
     "$simple_terminality"
@@ -33,6 +34,7 @@ guard_joinir_logical_demand_contract() {
     "$simple_while"
     "$accum_const"
     "$loop_break_facts"
+    "$if_phi_join"
   )
   local file lines
 

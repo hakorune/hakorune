@@ -7,11 +7,13 @@ use crate::mir::builder::control_flow::generic_loop_canon::canon_update_for_loop
 pub(crate) struct IfPhiJoinParts {
     pub loop_var: String,   // Loop variable name (e.g., "i")
     pub merged_var: String, // Primary PHI carrier (e.g., "sum")
+    pub if_else_index: usize,
+    pub step_index: usize,
     #[allow(dead_code)]
     // Phase 291x-126: validation evidence, currently asserted by focused tests.
     pub carrier_count: usize, // Validation: 1-2 accumulators
-                            // Note: has_else (always true), phi_like_merge (implicit) omitted
-                            // AST reused from ctx - no duplication
+                              // Note: has_else (always true), phi_like_merge (implicit) omitted
+                              // AST reused from ctx - no duplication
 }
 
 /// Extract if_phi_join parts.
@@ -47,8 +49,16 @@ pub(crate) fn extract_loop_with_if_phi_parts(
     };
 
     // Phase 2: Find if-else statement
-    let if_stmt = match super::common_helpers::find_if_else_statement(body) {
-        Some(stmt) => stmt,
+    let (if_else_index, if_stmt) = match body.iter().enumerate().find(|(_, stmt)| {
+        matches!(
+            stmt,
+            ASTNode::If {
+                else_body: Some(_),
+                ..
+            }
+        )
+    }) {
+        Some((index, stmt)) => (index, stmt),
         None => return Ok(None), // No if-else → Not if_phi_join
     };
 
@@ -64,20 +74,22 @@ pub(crate) fn extract_loop_with_if_phi_parts(
     }
 
     // Phase 4b: Validate allowed top-level statements (if + loop increment only)
-    let mut inc_count = 0usize;
-    for stmt in body {
+    let mut step_index = None;
+    for (index, stmt) in body.iter().enumerate() {
         if std::ptr::eq(stmt, if_stmt) {
             continue;
         }
         if canon_update_for_loop_var(stmt, &loop_var).is_some() {
-            inc_count += 1;
-            if inc_count > 1 {
+            if step_index.replace(index).is_some() {
                 return Ok(None);
             }
             continue;
         }
         return Ok(None);
     }
+    let Some(step_index) = step_index else {
+        return Ok(None);
+    };
 
     // Phase 4c: Validate NO forbidden control flow (break/continue/nested-if only)
     // if_phi_join allows ONE if-else (the PHI pattern) but rejects nested if
@@ -92,6 +104,8 @@ pub(crate) fn extract_loop_with_if_phi_parts(
     Ok(Some(IfPhiJoinParts {
         loop_var,
         merged_var,
+        if_else_index,
+        step_index,
         carrier_count,
     }))
 }

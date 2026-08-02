@@ -2,7 +2,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes_with_projection;
-use crate::mir::builder::control_flow::facts::try_extract_if_phi_join_facts;
+use crate::mir::builder::control_flow::facts::try_extract_if_phi_join_facts_with_projection;
 use std::collections::BTreeMap;
 
 use super::accum_const_loop_facts::try_extract_accum_const_loop_facts_with_projection;
@@ -172,7 +172,8 @@ fn try_build_loop_facts_inner(
     } else {
         try_extract_generic_loop_v1_facts(condition, body)?
     };
-    let if_phi_join = try_extract_if_phi_join_facts(condition, body)?;
+    let if_phi_join =
+        try_extract_if_phi_join_facts_with_projection(condition, body, &source_projection)?;
     let loop_continue_only = try_extract_loop_continue_only_facts(condition, body)?;
     let loop_true_early_exit = try_extract_loop_true_early_exit_facts(condition, body)?;
     let loop_true_break_continue = try_extract_loop_true_break_continue_facts(condition, body)?;
