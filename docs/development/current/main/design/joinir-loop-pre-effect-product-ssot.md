@@ -1203,3 +1203,15 @@ Nested guard contents, get receiver/argument, cloned semantic fields, and
 reconstructed recipe AST remain non-authoritative. No preflight, terminality,
 product, execution, physicalizer, caller, or runtime behavior changed. The
 next card is preflight D0.
+
+### LoopArrayJoin preflight D0/S0 implementation record
+
+Decision: accept raw-front-only classification S0. The classifier reads only
+the opaque aggregate lineage check and distinguishes topology absent, ScopeBox
+lineage, and direct policy-and-terminality unavailable. Sibling fixtures fix
+each result and keep the production parent below 800 lines.
+
+No guard-internal inspection, source borrowing, reconstructed recipe validation,
+terminality, product, physicalizer, caller, or runtime behavior was added. The
+next card is terminality D0; `Ok(None)` contract behavior must be audited from
+route execution evidence rather than inferred from topology.
