@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-BREAK-PHYSICALIZER0-D0 closed as NoSafeSlice; JOINIR-LOOP-NEXT-ROUTE-SELECTION1-D0 selected."
+status = "JOINIR-LOOP-NEXT-ROUTE-SELECTION1-D0 closed; JOINIR-LOOP-CONTINUE-ONLY-PROVENANCE0-D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 must choose one next bounded Loop route after SimpleWhile, AccumConstLoop, LoopBreak, and IfPhiJoin evidence. It must inventory source topology, raw scheduling, scheduler terminality, and product role readiness, selecting one owner or recording NoSafeSlice. It must not treat existing direct products as physicalizer authority or implement a selector/composer/lowerer/Builder/physicalizer/caller/runtime change."
-current_execution_row = "JOINIR-LOOP-NEXT-ROUTE-SELECTION1-D0"
-current_execution_summary = "LoopBreak physicalizer D0 is NoSafeSlice: its only execution path composes a builder-bound recipe and lower_loop_v0 mutates frame/ValueIds before later failures. The disconnected product has no safe consumer."
+current_design_stop = "D0 must decide whether LoopContinueOnly can retain direct source provenance. It must audit the existing top-level continue-if/update/step extractor shape and projection, retain only extractor-observed whole statements with direct/ScopeBox lineage, and explicitly exclude nested continue-if contents or cloned/derived expressions. It must not claim terminality/raw tail/product/physical readiness or alter selection, composer, lowerer, Builder, caller, or runtime routing."
+current_execution_row = "JOINIR-LOOP-CONTINUE-ONLY-PROVENANCE0-D0"
+current_execution_summary = "Next-route D0 selects LoopContinueOnly: it has a bounded top-level continue-if/update/step shape and is the next registry route. Direct source topology must be proven before terminality or product work."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-NEXT-ROUTE-SELECTION1-D0"
+current_blocker_token = "JOINIR-LOOP-CONTINUE-ONLY-PROVENANCE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

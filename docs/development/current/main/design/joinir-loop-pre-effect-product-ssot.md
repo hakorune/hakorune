@@ -916,3 +916,12 @@ the product authority and revive the retry scheduler.
 No consumer, physicalizer, caller, selector, composer, lowerer, Builder, or
 runtime behavior changes. The next card returns to one-route readiness
 selection rather than retrying LoopBreak physicalization.
+
+### Next-route selection D1 decision
+
+Decision: select `LoopContinueOnly` provenance D0. It is the next registry
+route with a bounded top-level continue-if/update/step shape, but it currently
+has no route-local source topology. D0 must first establish only
+extractor-observed whole-statement coordinates and ScopeBox lineage. Nested
+continue-if contents and cloned or derived facts remain non-source; terminality,
+raw tail, product, physical safety, and callers remain separate cards.
