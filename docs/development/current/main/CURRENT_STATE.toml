@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-ACCUM-CONST-LOOP-PROVENANCE0-S0 closed; JOINIR-ACCUM-CONST-LOOP-LOGICAL-SELECTION0-D1 selected."
+status = "JOINIR-ACCUM-CONST-LOOP-LOGICAL-SELECTION0-D1 closed (NoSafeSelected); JOINIR-LOOP-LIVE-SOURCE-FRAME-CAPABILITY0-D2 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D1 may decide whether AccumConstLoop's two coordinates permit one truthful direct borrowed Selected product. It must establish source authority, directness/index-distinctness checks, product roles, typed rejection, fixtures, and shared-gate proof before code. It must not resolve ScopeBox lineage, re-run selection, change runtime routing, physicalize, retry, or add a production caller."
-current_execution_row = "JOINIR-ACCUM-CONST-LOOP-LOGICAL-SELECTION0-D1"
-current_execution_summary = "AccumConstLoop now retains two aligned source coordinates but remains rejected. D1 decides only direct two-site logical selection; all other routes remain unchanged."
+current_design_stop = "D2 may design one non-forgeable live source-frame capability that binds facts, existing route selection, and raw source borrows within one transaction. It must address ABA/temporal identity and state how the existing SimpleWhile Selected product is revalidated. It must not add another route, a generic raw ingress/resolver, re-run selection, change runtime routing, physicalize, retry, or add a production caller."
+current_execution_row = "JOINIR-LOOP-LIVE-SOURCE-FRAME-CAPABILITY0-D2"
+current_execution_summary = "AccumConstLoop two-site projection is retained but cannot become Selected with address stamps alone. D2 selects a bounded live capability design before any further logical issuance."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-ACCUM-CONST-LOOP-LOGICAL-SELECTION0-D1-DESIGN-STOP"
+current_blocker_token = "JOINIR-LOOP-LIVE-SOURCE-FRAME-CAPABILITY0-D2-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

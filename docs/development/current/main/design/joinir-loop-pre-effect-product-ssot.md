@@ -306,3 +306,24 @@ resolving it. The producer explicitly proves this new topology remains
 logical disposition, selector, runtime route, physicalizer, or caller. D1 must
 now decide whether the direct two-site case can issue a truthful borrowed
 product.
+
+### AccumConstLoop logical-selection D1 decision
+
+Decision: `NoSafeSelected` with the current receipt. Direct Accum topology is
+structurally sufficient only under a trusted live source transaction: both
+lineages must be empty, the two raw indices must differ, and the three borrows
+would be condition/update/step with `LoopBinding`, `AccumulatorBinding`, and
+`LoopBackContinuation` roles. However, `LoopSourceReceiptV1` records address
+integers and length without a lifetime/brand relationship to `LoopFacts` or
+the existing selection. After an original source frame drops, address reuse can
+falsely satisfy the stamp. The concurrent foreign-frame test does not prove
+this temporal identity.
+
+Before further Selected issuance, D2 must design one non-forgeable live
+source-frame capability binding the original raw borrows, Facts, and the one
+existing selection transaction. It must revalidate the already-disconnected
+direct SimpleWhile product too. The capability must not become generic AST
+ingress, path resolver, second selector, physicalizer, runtime connection, or
+retry mechanism. Until then, Accum remains
+`RouteSourceTopologyUnavailable { AccumConstLoop }` and the existing direct
+SimpleWhile result has no production caller.

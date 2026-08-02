@@ -469,30 +469,29 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-ACCUM-CONST-LOOP-LOGICAL-SELECTION0-D1`
-Parent: `JOINIR-ACCUM-CONST-LOOP-PROVENANCE0-S0` (closed)
-Ceremony: decide one direct two-site logical demand; production consumers remain zero.
+Row: `JOINIR-LOOP-LIVE-SOURCE-FRAME-CAPABILITY0-D2`
+Parent: `JOINIR-ACCUM-CONST-LOOP-LOGICAL-SELECTION0-D1` (closed: NoSafeSelected)
+Ceremony: design one live source-frame capability; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Decide whether exact-one AccumConstLoop can issue a product borrowing only raw
-  condition, accumulator-update, and step. Select the rejection boundary first.
+  Bind pre-flatten source, Facts, existing route selection, and raw borrows with
+  one non-forgeable live capability that rejects temporal address reuse.
 
 Contract:
-  Source authority is the stamped pre-flatten frame plus the two Facts coordinates.
-  D1 must prove empty ScopeBox lineage and distinct raw indices are sufficient;
-  cloned Facts AST remains non-authority and no generic resolver is permitted.
+  Address-only receipt stamps are insufficient after the original source frame can
+  drop. The capability must preserve the raw borrow lifetime and bind the facts/
+  selection transaction without exposing a generic raw AST ingress or resolver.
 
 Done:
-  The decision records an exact payload/role vocabulary, typed directness/frame/
-  topology failures, direct/nested/foreign-frame fixtures, and existing shared
-  guard coverage. A later S0 alone implements the chosen result.
+  The decision records source authority, lifetime/consumption shape, failure and
+  invalidation rules, SimpleWhile revalidation, fixture plan, and shared-gate
+  coverage. A later S0 alone implements the chosen capability.
 
 Stop:
-  Stop if issuing a result needs AST resolver/re-match, nested path traversal,
-  another route, selector pass, retry change, or physical/runtime owner. No
-  physicalizer, Loop I0, raw/reference ingress, universal ingress, or fallback
-  wrapper is authorized.
+  Stop if the capability becomes a generic source ingress/resolver, duplicates
+  selection, widens facts AST ownership, changes retry, or needs a physical/runtime
+  owner. No physicalizer, Loop I0, raw/reference ingress, or fallback wrapper is authorized.
 
 ## Production invariants
 
