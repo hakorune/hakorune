@@ -469,31 +469,30 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-ACCUM-CONST-LOOP-PROVENANCE0-S0`
-Parent: `JOINIR-LOOP-NEXT-ROUTE-PROVENANCE0-D0` (closed)
-Ceremony: add only one facts-local two-site topology; production consumers remain zero.
+Row: `JOINIR-ACCUM-CONST-LOOP-LOGICAL-SELECTION0-D1`
+Parent: `JOINIR-ACCUM-CONST-LOOP-PROVENANCE0-S0` (closed)
+Ceremony: decide one direct two-site logical demand; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add AccumConstLoop source topology with aligned accumulator-update and step
-  coordinates from the existing flattened-body projection. No producer result
-  changes in this row.
+  Decide whether exact-one AccumConstLoop can issue a product borrowing only raw
+  condition, accumulator-update, and step. Select the rejection boundary first.
 
 Contract:
-  Source authority is the existing pre-flatten raw frame plus its one projection.
-  Facts retain only two coordinates; the extractor must not retain AST or expose
-  a resolver. Direct SimpleWhile remains the only Selected product.
+  Source authority is the stamped pre-flatten frame plus the two Facts coordinates.
+  D1 must prove empty ScopeBox lineage and distinct raw indices are sufficient;
+  cloned Facts AST remains non-authority and no generic resolver is permitted.
 
 Done:
-  Direct and nested ScopeBox fixtures prove Accum topology alignment/carriage;
-  every producer disposition remains unchanged and the existing shared guard and
-  focused tests are green. A later row decides whether direct two-site borrowing
-  can issue Selected.
+  The decision records an exact payload/role vocabulary, typed directness/frame/
+  topology failures, direct/nested/foreign-frame fixtures, and existing shared
+  guard coverage. A later S0 alone implements the chosen result.
 
 Stop:
-  Stop if topology needs AST resolver/re-match, nested path traversal, another
-  route, selector pass, retry change, or physical/runtime owner. No physicalizer,
-  Loop I0, raw/reference ingress, universal ingress, or fallback wrapper is authorized.
+  Stop if issuing a result needs AST resolver/re-match, nested path traversal,
+  another route, selector pass, retry change, or physical/runtime owner. No
+  physicalizer, Loop I0, raw/reference ingress, universal ingress, or fallback
+  wrapper is authorized.
 
 ## Production invariants
 

@@ -4,6 +4,9 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     extract_loop_increment_plan, has_break_statement, has_continue_statement, has_if_else_statement,
 };
+use crate::mir::builder::control_flow::facts::stmt_view::{
+    LoopSourceBodySiteV1, LoopSourceProjectionV1,
+};
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     loop_var_from_profile, step_delta_from_profile, ConditionShape, ScanConditionObservation,
 };
@@ -18,12 +21,44 @@ pub(in crate::mir::builder) struct AccumConstLoopFacts {
     pub acc_update: ASTNode,
     pub loop_increment: ASTNode,
     pub cond_profile: CondProfile,
+    pub source_topology: Option<AccumConstLoopSourceTopologyV1>,
+}
+
+/// Route-local locations for the two statements accepted by AccumConstLoop.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct AccumConstLoopSourceTopologyV1 {
+    acc_update: LoopSourceBodySiteV1,
+    step: LoopSourceBodySiteV1,
+}
+
+impl AccumConstLoopSourceTopologyV1 {
+    pub(in crate::mir::builder) fn acc_update(&self) -> &LoopSourceBodySiteV1 {
+        &self.acc_update
+    }
+
+    pub(in crate::mir::builder) fn step(&self) -> &LoopSourceBodySiteV1 {
+        &self.step
+    }
 }
 
 pub(in crate::mir::builder) fn try_extract_accum_const_loop_facts(
     condition: &ASTNode,
     body: &[ASTNode],
     observation: &ScanConditionObservation,
+) -> Result<Option<AccumConstLoopFacts>, Freeze> {
+    try_extract_accum_const_loop_facts_with_projection(
+        condition,
+        body,
+        observation,
+        &LoopSourceProjectionV1::default(),
+    )
+}
+
+pub(in crate::mir::builder) fn try_extract_accum_const_loop_facts_with_projection(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    observation: &ScanConditionObservation,
+    source_projection: &LoopSourceProjectionV1,
 ) -> Result<Option<AccumConstLoopFacts>, Freeze> {
     let _ = step_delta_from_profile(&observation.cond_profile);
     let ConditionShape::VarLessLiteral { .. } = observation.condition_shape else {
@@ -58,7 +93,21 @@ pub(in crate::mir::builder) fn try_extract_accum_const_loop_facts(
         acc_update,
         loop_increment,
         cond_profile: observation.cond_profile.clone(),
+        source_topology: source_topology_for(body, source_projection),
     }))
+}
+
+fn source_topology_for(
+    body: &[ASTNode],
+    source_projection: &LoopSourceProjectionV1,
+) -> Option<AccumConstLoopSourceTopologyV1> {
+    if source_projection.flattened_body_len() != Some(body.len()) {
+        return None;
+    }
+    Some(AccumConstLoopSourceTopologyV1 {
+        acc_update: source_projection.site_for_flattened_index(0)?.clone(),
+        step: source_projection.site_for_flattened_index(1)?.clone(),
+    })
 }
 
 fn extract_accum_const_update(stmt: &ASTNode, loop_var: &str) -> Option<(String, ASTNode)> {
@@ -103,9 +152,11 @@ fn extract_accum_const_update(stmt: &ASTNode, loop_var: &str) -> Option<(String,
 mod tests {
     use super::*;
     use crate::ast::Span;
+    use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes_with_projection;
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
         scan_condition_observation, ConditionShape, StepShape,
     };
+    use crate::mir::builder::control_flow::plan::facts::try_build_loop_facts;
 
     fn v(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -208,6 +259,53 @@ mod tests {
 
         assert_eq!(facts.loop_var, "i");
         assert_eq!(facts.acc_var, "sum");
+        assert!(facts.source_topology.is_none());
+    }
+
+    #[test]
+    fn accum_topology_keeps_direct_update_and_step_coordinates() {
+        let condition = condition_lt("i", 3);
+        let raw_body = vec![accum_const("sum", 1), increment("i", 1)];
+        let (body, projection) = flatten_scope_boxes_with_projection(&raw_body).into_parts();
+
+        let facts = try_extract_accum_const_loop_facts_with_projection(
+            &condition,
+            &body,
+            &accum_loop_observation(),
+            &projection,
+        )
+        .expect("no freeze")
+        .expect("accum facts");
+        let topology = facts.source_topology.expect("aligned topology");
+
+        assert_eq!(topology.acc_update().raw_body_index(), 0);
+        assert_eq!(topology.acc_update().scope_box_children(), &[] as &[u32]);
+        assert_eq!(topology.step().raw_body_index(), 1);
+        assert_eq!(topology.step().scope_box_children(), &[] as &[u32]);
+    }
+
+    #[test]
+    fn loop_facts_builder_carries_nested_accum_coordinates() {
+        let condition = condition_lt("i", 3);
+        let raw_body = vec![ASTNode::ScopeBox {
+            body: vec![accum_const("sum", 1), increment("i", 1)],
+            span: Span::unknown(),
+        }];
+
+        let facts = try_build_loop_facts(&condition, &raw_body)
+            .expect("no freeze")
+            .expect("accum facts");
+        let topology = facts
+            .accum_const_loop()
+            .expect("accum facts")
+            .source_topology
+            .as_ref()
+            .expect("source topology");
+
+        assert_eq!(topology.acc_update().raw_body_index(), 0);
+        assert_eq!(topology.acc_update().scope_box_children(), &[0]);
+        assert_eq!(topology.step().raw_body_index(), 0);
+        assert_eq!(topology.step().scope_box_children(), &[1]);
     }
 
     #[test]

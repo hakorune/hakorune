@@ -194,6 +194,45 @@ mod tests {
         }
     }
 
+    fn accum_fixture() -> Fixture {
+        let condition = Box::new(ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(variable("i")),
+            right: Box::new(literal(3)),
+            span: Span::unknown(),
+        });
+        let body = vec![
+            ASTNode::Assignment {
+                target: Box::new(variable("sum")),
+                value: Box::new(ASTNode::BinaryOp {
+                    operator: BinaryOperator::Add,
+                    left: Box::new(variable("sum")),
+                    right: Box::new(literal(1)),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            },
+            ASTNode::Assignment {
+                target: Box::new(variable("i")),
+                value: Box::new(ASTNode::BinaryOp {
+                    operator: BinaryOperator::Add,
+                    left: Box::new(variable("i")),
+                    right: Box::new(literal(1)),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            },
+        ];
+        let facts = try_build_loop_facts(condition.as_ref(), &body)
+            .expect("facts build")
+            .expect("accum facts");
+        Fixture {
+            condition,
+            body,
+            facts,
+        }
+    }
+
     fn source(fixture: &Fixture) -> LoopSourceViewV1<'_> {
         LoopSourceViewV1::try_new(
             fixture.condition.as_ref(),
@@ -260,6 +299,26 @@ mod tests {
             LoopQualificationDispositionV1::Rejected(
                 LoopDemandRejectionV1::RouteSourceTopologyNotDirectlyBorrowable {
                     route: LoopRouteId::LoopSimpleWhile
+                }
+            )
+        ));
+    }
+
+    #[test]
+    fn accum_topology_remains_rejected_before_its_selection_row() {
+        let fixture = accum_fixture();
+        let selection =
+            RecipeFirstRouteSelectionV1::selection_for_test(&[LoopRouteId::AccumConstLoop]);
+
+        assert!(fixture
+            .facts
+            .accum_const_loop()
+            .is_some_and(|facts| facts.source_topology.is_some()));
+        assert!(matches!(
+            qualify_selected_loop_route_v1(&selection, Ok(source(&fixture)), &fixture.facts),
+            LoopQualificationDispositionV1::Rejected(
+                LoopDemandRejectionV1::RouteSourceTopologyUnavailable {
+                    route: LoopRouteId::AccumConstLoop
                 }
             )
         ));

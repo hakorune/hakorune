@@ -294,3 +294,15 @@ exact-selection proof. `LoopTrueEarlyExit` remains parked because its direct
 raw `if` must be treated as an opaque exit subtree, including separate
 return/break and carrier policy. No AST clone, path resolver, selector re-run,
 physicalizer, runtime caller, or second route is authorized in Accum S0.
+
+### AccumConstLoop provenance S0 evidence
+
+`AccumConstLoopFacts` now retains optional route-local accumulator-update and
+step coordinates only when the existing projection covers the complete two-item
+analysis body. Direct and nested ScopeBox fixtures prove those coordinates are
+aligned and carried through `LoopFacts`; the latter retains lineage rather than
+resolving it. The producer explicitly proves this new topology remains
+`RouteSourceTopologyUnavailable { AccumConstLoop }`, so this S0 changes no
+logical disposition, selector, runtime route, physicalizer, or caller. D1 must
+now decide whether the direct two-site case can issue a truthful borrowed
+product.
