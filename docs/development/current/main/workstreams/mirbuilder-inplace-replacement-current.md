@@ -469,28 +469,28 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-ALL-ROUTE-PHYSICALIZATION0-D0`
-Parent: `JOINIR-DIRECT-SIMPLE-PHYSICALIZER0-D0` (closed, NoSafeSlice)
-Ceremony: design the all-route physicalization prerequisite; production consumers remain zero.
+Row: `JOINIR-LOOP-COMPOSE-MUTATION-CENSUS0-P0`
+Parent: `JOINIR-LOOP-ALL-ROUTE-PHYSICALIZATION0-D0` (closed, NoSafeSlice)
+Ceremony: fix static all-route compose mutation/None evidence; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Fix the sealed all-route context, Builder-free compose proof, one-effect commit,
-  terminal error surface, and atomic legacy scheduler replacement requirements.
+  Extend the existing 19-row effect matrix with every current composer family’s
+  Builder mutation surface, selected-after-effect None behavior, and first mutation.
 
 Contract:
-  The direct NoSafeSlice is authority: no partial consumer may choose routes,
-  inspect facts/raw selection, retry GenericLoopV0, or claim cutover.
+  Census is source-level observation only. It must not become a second selector,
+  route policy, product, physicalizer, caller, or runtime decision source.
 
 Done:
-  The design gives all-route membership/compose prerequisites, a sealed context,
-  one-effect transaction, terminal no-retry errors, and an atomic deletion plan for
-  the legacy scheduler. It keeps product consumer/caller count at zero.
+  All 19 rows name current composer family, Builder mutation set, first mutation,
+  and selected-after-effect None class. The shared guard fixes matrix cardinality
+  and physicalizer/product caller count at zero.
 
 Stop:
-  Stop if D0 adds a caller, reuses legacy composition as a product seam, exposes
-  product parts, assumes terminality means lower success, or treats SimpleWhile as
-  all-route cutover. No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
+  Stop if P0 refactors a composer, changes matrix into routing policy, reopens a
+  product seam, or claims rollback/cutover. No runtime routing, Loop I0, raw/reference
+  ingress, or fallback is authorized.
 
 ## Production invariants
 

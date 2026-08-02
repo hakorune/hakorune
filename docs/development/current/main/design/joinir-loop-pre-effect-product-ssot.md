@@ -524,3 +524,20 @@ boundary, and terminal `Result<ValueId, Freeze>` errors with no `None`/retry.
 Only then may the named production caller replace the full ordered scheduler and
 delete its old physical edges atomically. Direct SimpleWhile remains caller-zero;
 its GenericLoopV0 tail is audit evidence, never fallback.
+
+### All-route physicalization D0 closeout
+
+Decision: rejected as `NoSafeSlice` for current `CorePlan` reuse. All 19
+composers take `&mut MirBuilder` before returning a `CorePlan` that already owns
+physical `ValueId`/`BasicBlockId`; no all-Builder rollback exists. The current
+families are 11 LoopV0-frame recipe routes, Nested direct blocks, LoopTrue direct
+blocks, four LoopCond frames, and two Generic skeletons. Their existing local
+variable-map restores and poisoned sessions do not cover core/type/MIR mutation.
+
+The accepted future architecture is: (1) an all-19 Builder-free logical
+preflight/product dialect with exact source/facts/policy ownership and no AST
+reconstruction; (2) a separately designed all-state `LoopEmissionDraftV1` (or
+equivalent journal) with abort/publish-once proof; and only then (3) a sealed
+context committing `Result<ValueId, Freeze>` once, with no `None`/retry and an
+atomic scheduler replacement. P0 next fixes static mutation/None evidence only;
+it does not implement any of these boxes.
