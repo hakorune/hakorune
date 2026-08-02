@@ -551,3 +551,30 @@ Generic-skeleton routes. Its cardinality test prevents collapsing Nested or
 LoopTrue into a generic direct-block label. This is observation only: it changes
 no predicate, route, composer, lowerer, or caller, and it is the input inventory
 for the next Builder-free preflight design stop.
+
+### Builder-free all-route preflight D0 decision
+
+Decision: accepted one registry-owned, private all-route preflight issuer. It
+will bind the original live frame, exact owned Facts/policy snapshot, and one
+`raw_execution_routes()` schedule; it cannot re-match AST, rebuild source,
+re-read environment policy, use diagnostic selection, or expose a generic raw
+slot. The future non-Clone result is `NoCandidate`, typed `Rejected { route,
+reason }`, or `Qualified` with route-local borrowed operands, ordered schedule
+evidence, logical roles/boundaries, and a mutation-family label—but no Builder,
+CorePlan, physical IDs, composer/lowerer, or consumer.
+
+All 19 routes are mandatory membership, not mandatory current qualification.
+Current truthful raw operands exist only for direct SimpleWhile (condition and
+step) and direct AccumConstLoop (condition, accumulator update, step). Accum
+remains policy/terminality-blocked; Simple remains the disconnected direct
+product and is not an all-route issuance exception. The other 17 routes lack
+route-local raw topology and must reject `SourceTopologyUnavailable`; ScopeBox
+lineage rejects separately. Generic V0/V1 additionally retain post-effect retry
+debt and must not qualify. P0 next records this exact schema/membership/source/
+policy matrix before the preflight module exists.
+
+The migration rule is no dual authority: the future all-route issuer subsumes
+the direct issuer only once all membership/operands/policy proof exists. Legacy
+composers remain the only execution path until an all-route Builder-free compose
+proof, `LoopEmissionDraftV1` publish/abort proof, and atomic scheduler cutover
+are separately complete.

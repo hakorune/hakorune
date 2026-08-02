@@ -469,28 +469,28 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-D0`
-Parent: `JOINIR-LOOP-COMPOSE-MUTATION-CENSUS0-P0` (closed)
-Ceremony: select one all-route Builder-free preflight dialect; production consumers remain zero.
+Row: `JOINIR-LOOP-PREFLIGHT-SCHEMA-MATRIX0-P0`
+Parent: `JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-D0` (closed)
+Ceremony: fix static all-route preflight schema/membership evidence; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Define owner, source/policy input, all-route membership, typed rejection, and
-  route-local logical operands for an all-route preflight result.
+  Add 19-row schema evidence for route source topology, policy/terminality, operand
+  capability, typed rejection, and five physical mutation families.
 
 Contract:
-  The dialect may not contain Builder, CorePlan, physical IDs, AST reconstruction,
-  selector rerun, generic slots, lowering callbacks, or a physical consumer.
+  Matrix is observation only. It may not become a selector/product/physicalizer,
+  contain AST reconstruction/generic slots, or imply a production caller.
 
 Done:
-  The design accounts for all 19 rows and the five census families, names their
-  source/provenance blockers and typed rejection, and gives a no-dual-authority
-  migration path from legacy composers while keeping caller count at zero.
+  Exactly 19 rows retain ENTRIES order and record known source/policy capability:
+  Simple/Accum are distinct from 17 source-topology blockers; all current rows are
+  unissued. Shared guard fixes matrix cardinality and caller count at zero.
 
 Stop:
-  Stop if D0 merely wraps current composers/CorePlan, reopens direct product as an
-  all-route product, claims physical readiness, or adds a caller. No runtime routing,
-  Loop I0, raw/reference ingress, or fallback is authorized.
+  Stop if P0 adds a preflight module, treats Simple as accepted all-route issuance,
+  hides missing topology, or claims physical readiness. No runtime routing, Loop I0,
+  raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 

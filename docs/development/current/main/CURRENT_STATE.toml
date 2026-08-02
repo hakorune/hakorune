@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-COMPOSE-MUTATION-CENSUS0-P0 closed; JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-D0 selected."
+status = "JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-D0 closed; JOINIR-LOOP-PREFLIGHT-SCHEMA-MATRIX0-P0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D0 may design one all-route Builder-free preflight dialect from the completed 19-route mutation census. It must define owner, source/policy input, all-route membership, typed rejection, and no-AST-rebuild/no-physical-ID contracts before code. It must not refactor composers, add a physicalizer/context, change runtime routing, retry, or add a production caller."
-current_execution_row = "JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-D0"
-current_execution_summary = "P0 fixed the 19-route mutation/None census: 11 LoopV0-frame routes, Nested blocks, LoopTrue skeleton, four LoopCond frames, and two Generic skeletons. D0 must select the Builder-free all-route preflight dialect before any refactor."
+current_design_stop = "P0 may add only a static 19-route preflight schema/membership/policy/source matrix. It must classify current source/policy blockers as typed pre-effect rejection and must not add a preflight module, refactor composers, promote the direct product, add a physicalizer/context, change runtime routing, retry, or add a production caller."
+current_execution_row = "JOINIR-LOOP-PREFLIGHT-SCHEMA-MATRIX0-P0"
+current_execution_summary = "D0 selected one registry-owned Builder-free all-route preflight issuer. It consumes live facts/policy and raw schedule once; all 19 routes are membership, but only Simple/Accum have source operands and neither is all-route-issued yet. P0 fixes this matrix before code."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-D0-DESIGN-STOP"
+current_blocker_token = "JOINIR-LOOP-PREFLIGHT-SCHEMA-MATRIX0-P0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
