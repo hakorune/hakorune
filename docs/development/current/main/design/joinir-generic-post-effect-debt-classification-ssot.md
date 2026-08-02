@@ -337,6 +337,19 @@ Generic row reaches a `CorePlan::Loop` root and terminal `PlanLowerer::lower ->
 Some` with a stable fresh repeat. This is one more accepted-plan data point; it
 does not authorize V0 precedence or close D2-B.
 
+### D2-A2 — true-condition body-derived step (bounded probe)
+
+Probe one natural V1 candidate with `loop(true)` and a body-derived numeric
+step. First record the real selector result. If `LoopTrue*`, LoopCond, or any
+other specialized family owns the row, classify it as `Expected-NonGeneric` and
+stop; do not force it through Generic. Only a raw `GenericLoopV1` selection may
+enter the existing reachability observer, using the same fresh candidate and
+stage/repeat gates as D2-A1.
+
+This probe is intentionally one source shape. It does not widen the Generic
+semantic contract, alter overlap policy, or convert extractor-only facts into
+D2-B evidence.
+
 ### D2-B — gated V0 overlap decision (`JOINIR-GENERIC-V0-PRE-EFFECT-WINNER-TERMINAL0-D2-S2`)
 
 This is the next design stop, not an implementation permission. It may begin
