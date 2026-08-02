@@ -574,12 +574,55 @@ not overlap proof. No Generic Recipe, PHI, JoinSig, Retry rewrite, or
 
 Implementation observation: the test-only `GenericOverlapEvidenceRowV1` now
 stores, for the actual `Both` fixture in release/strict/planner-required modes,
-the direct fresh-candidate V0/V1 stages beside the frame-bound witness trace.
+the direct fresh-candidate V0/V1 stages and before/after candidate snapshots
+beside the frame-bound witness trace.
 Release/strict retain raw `[GenericLoopV0, GenericLoopV1]` and the witness
 terminates at V0 without a debt receipt; planner-required retains only V1.
 This is a joined evidence matrix, not a winner oracle: the direct stage and
 legacy terminal are recorded together, while pre-effect policy equivalence and
 disjointness remain open.
+
+#### D2-B-E2 — semantic parity for real Generic overlap
+
+The current `Both` row is a real source overlap, not merely an incomplete
+observer row. `GenericLoopV0` extraction rejects only the named V1 shape guard;
+the remaining Generic V1 facts may coexist with V0 facts. Therefore an
+evidence-only disjointness claim is unavailable for this class.
+
+The next design task is
+`JOINIR-GENERIC-OVERLAP-SEMANTIC-PARITY0-D2-B2`. It remains test-only and
+must use the existing Facts -> selection boundary and fresh candidates. For
+each claimed natural overlap row (starting with `Both`, then existing nested
+loop/If/exit fixtures that actually reach both facts), record release and
+strict-mode rows:
+
+- the frame-derived environment/contract and raw selection;
+- independent V0 and V1 compose -> verify -> lower stages, first-effect owner,
+  and before/after candidate snapshots;
+- an alpha-normalized semantic CorePlan digest that erases physical IDs while
+  retaining loop carrier, body/condition operations, PHI inputs, exits, and
+  result binding semantics;
+- the real legacy witness route, attempted prefix, debt receipt, and terminal.
+
+This task may close only when every claimed row has a pre-effect V0 winner
+certificate, V0 terminal semantic parity with the accepted V1 meaning, no
+V0-debt -> different-V1-winner edge, and fresh-repeat stability. Any semantic
+digest difference, natural V0 failure/debt, unmeasured grammar arm, or missing
+candidate delta keeps the row `UnresolvedStop`. Planner-required V0 suppression
+is a separate pre-effect gate; it does not require a V0/V1 digest and is not
+overlap proof. A V1 direct-stage error cannot serve as an accepted-V1 semantic
+baseline. Any additional fixture must pass through full `try_build_outcome` and
+the actual raw selector before it is called a production overlap. Do not add a
+new route, Recipe kind, scheduler, or production consumer for this task.
+
+The existing `normalized_semantic_plans` helper is not by itself sufficient:
+it preserves `BasicBlockId`/`ValueId`/PHI/fragment identifiers. D2-B2 must add
+an explicit deterministic first-seen remapping layer (test-only or a narrowly
+owned shared helper) before treating two fresh candidates as semantically
+equal. Capture the digest before moving the plan into `PlanLowerer` (including
+the strict shadow path). Digest equality is sufficient evidence for the
+recorded shape, not a substitute for runtime/MIR parity; digest difference
+keeps the row `UnresolvedStop`.
 
 #### M5 boundary while D2-B is open
 

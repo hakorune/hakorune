@@ -68,20 +68,23 @@ pub(super) enum EffectOwnerV1 {
     GenericComposer,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct GenericDirectStageEvidenceV1 {
     pub(super) route: LoopRouteId,
     pub(super) stage: PlanStageV1,
     pub(super) first_effect_owner: EffectOwnerV1,
+    pub(super) before_compose: CandidateSnapshotV1,
+    pub(super) before_lower: CandidateSnapshotV1,
+    pub(super) after_lower: CandidateSnapshotV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct CandidateSnapshotV1 {
-    current_block: Option<BasicBlockId>,
-    block_count: usize,
-    next_value_id: Option<u32>,
-    variable_count: usize,
-    typed_value_count: usize,
+pub(super) struct CandidateSnapshotV1 {
+    pub(super) current_block: Option<BasicBlockId>,
+    pub(super) block_count: usize,
+    pub(super) next_value_id: Option<u32>,
+    pub(super) variable_count: usize,
+    pub(super) typed_value_count: usize,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -91,6 +94,7 @@ struct ReachabilityRowV1 {
     root_is_loop: bool,
     stage: PlanStageV1,
     first_effect_owner: EffectOwnerV1,
+    before_compose: CandidateSnapshotV1,
     before_lower: CandidateSnapshotV1,
     after_lower: CandidateSnapshotV1,
 }
@@ -181,6 +185,7 @@ fn observe_row(
             } else {
                 EffectOwnerV1::None
             },
+            before_compose,
             before_lower: after_compose.clone(),
             after_lower: after_compose,
         };
@@ -199,6 +204,7 @@ fn observe_row(
             root_is_loop,
             stage: PlanStageV1::NonLoopRoot,
             first_effect_owner,
+            before_compose,
             before_lower: before_lower.clone(),
             after_lower: before_lower,
         };
@@ -210,6 +216,7 @@ fn observe_row(
             root_is_loop,
             stage: PlanStageV1::VerifierRejected,
             first_effect_owner,
+            before_compose,
             before_lower: before_lower.clone(),
             after_lower: before_lower,
         };
@@ -237,6 +244,7 @@ fn observe_row(
         root_is_loop,
         stage,
         first_effect_owner,
+        before_compose,
         before_lower,
         after_lower: snapshot(&builder),
     }
@@ -294,6 +302,9 @@ pub(super) fn observe_both_direct_stage(
             route: row.route,
             stage: row.stage,
             first_effect_owner: row.first_effect_owner,
+            before_compose: row.before_compose,
+            before_lower: row.before_lower,
+            after_lower: row.after_lower,
         })
         .collect()
 }
