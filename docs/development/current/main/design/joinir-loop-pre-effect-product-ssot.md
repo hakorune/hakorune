@@ -1179,3 +1179,15 @@ Builder-bound lowering can fail after effects. No terminality certificate,
 product, physicalizer, caller, or runtime behavior changed. A future revival
 needs an execution-scoped environment-and-contract witness upstream of Builder
 effects. Select the next unlanded route through fresh D5 inventory.
+
+### Next-route selection D5 decision
+
+Decision: select `LoopArrayJoin` provenance D0. Its extractor admits one exact
+flattened three-statement body: separator guard, array append, and final step.
+D0 may decide an optional opaque projection-aligned topology for those whole
+statements only. Nested guard contents, get receiver/argument, cloned semantic
+fields, and reconstructed recipe AST are not source authority.
+
+No selector/preflight, terminality, product, composer/lowerer, Builder,
+physicalizer, caller, or runtime behavior is authorized. Its `route_standard`
+contract behavior makes terminality a later separate D0.
