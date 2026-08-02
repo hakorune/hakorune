@@ -1152,3 +1152,15 @@ The route is planner-required-only and can `Ok(None)` outside that mode, so no
 terminality/product/physical claim is authorized. Keep the production
 classifier below the existing file cap; place direct/ScopeBox/topology-absent
 fixtures in its sibling test module.
+
+### LoopCharMap preflight S0 implementation record
+
+The raw-front classifier now consumes only the opaque aggregate lineage check.
+Sibling fixtures prove direct policy rejection, ScopeBox rejection, and a
+manually absent topology source rejection; the production parent and test child
+remain separately below 800 lines. No synthetic recipe inspection, selector,
+terminality, product, physicalizer, caller, or runtime behavior changed.
+
+The next card is terminality D0. Planner-required-only `Ok(None)` behavior
+must be audited from route environment/contract evidence, never inferred from
+topology or preflight.

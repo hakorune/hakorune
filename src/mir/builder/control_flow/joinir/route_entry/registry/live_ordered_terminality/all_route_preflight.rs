@@ -190,6 +190,9 @@ fn classify_accum_const(facts: &LoopFacts) -> LoopPreflightRejectV1 {
 }
 
 #[cfg(test)]
+mod char_map_tests;
+
+#[cfg(test)]
 mod tests {
     use super::{classify_front, issue_all_route_preflight_v1};
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
