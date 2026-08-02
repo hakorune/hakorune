@@ -698,6 +698,11 @@ mode/contract snapshot. This preserves the M3 rule that Facts observe and
 Policy selects, and prevents a second AST matcher from appearing in
 `loop_route_policy`.
 
+The extractor recurses through the accepted `If`/`Loop`/`Program` grammar after
+ScopeBox flattening; every preserved but unsupported container is
+`Unavailable`, never silently skipped. Cross-mode Both/simple, unsupported,
+and fresh-repeat fixtures are the schema-acceptance gate.
+
 The first implementation slice is still test-only: the real `Both` facts must
 show `j` as a recursive target, while a top-level-only body must produce
 `Complete::NoRecursiveCarrier`. Missing, unsupported, or ambiguous coverage is

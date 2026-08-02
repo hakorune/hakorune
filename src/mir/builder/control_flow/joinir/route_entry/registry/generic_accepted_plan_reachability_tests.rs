@@ -12,7 +12,7 @@ use super::generic_selection_matrix_tests::{
 use super::generic_semantic_digest_tests::{core_plan_semantic_digest, CorePlanSemanticDigestV1};
 use super::route_id::LoopRouteId;
 use super::select_recipe_first_routes;
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
     lower_verified_core_plan, LoopRouteContext,
 };
@@ -114,9 +114,16 @@ struct NestedCarrierSemanticEvidenceV1 {
 
 /// Test-only projection of extraction facts; it is not a route or policy authority.
 #[derive(Debug, Clone, PartialEq, Eq)]
+enum GenericCarrierObservationDispositionV1 {
+    CompleteNoRecursiveCarrier,
+    CompleteRecursiveCarrier(Vec<String>),
+    Unavailable(&'static str),
+    Ambiguous(&'static str),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct GenericCarrierObservationV1 {
-    recursive_targets: Vec<String>,
-    has_recursive_carrier: bool,
+    disposition: GenericCarrierObservationDispositionV1,
 }
 
 // Fixture-scoped probe for D2-B2b. Before promotion, the production extractor
@@ -127,7 +134,7 @@ fn collect_recursive_carrier_targets(
     loop_var: &str,
     nested: bool,
     targets: &mut BTreeSet<String>,
-) {
+) -> Result<(), &'static str> {
     for stmt in body {
         match stmt {
             ASTNode::Assignment { target, .. } if nested => {
@@ -142,17 +149,46 @@ fn collect_recursive_carrier_targets(
                 else_body,
                 ..
             } => {
-                collect_recursive_carrier_targets(then_body, loop_var, true, targets);
+                collect_recursive_carrier_targets(then_body, loop_var, true, targets)?;
                 if let Some(else_body) = else_body {
-                    collect_recursive_carrier_targets(else_body, loop_var, true, targets);
+                    collect_recursive_carrier_targets(else_body, loop_var, true, targets)?;
                 }
             }
-            ASTNode::Loop { body, .. } | ASTNode::ScopeBox { body, .. } => {
-                collect_recursive_carrier_targets(body, loop_var, true, targets);
+            ASTNode::Loop { body, .. } => {
+                collect_recursive_carrier_targets(body, loop_var, true, targets)?;
             }
+            ASTNode::ScopeBox { body, .. } => {
+                collect_recursive_carrier_targets(body, loop_var, nested, targets)?;
+            }
+            ASTNode::Program { statements, .. } => {
+                collect_recursive_carrier_targets(statements, loop_var, nested, targets)?;
+            }
+            ASTNode::LoopRange { .. } => return Err("LoopRange"),
+            ASTNode::Lambda { .. } => return Err("Lambda"),
+            ASTNode::BlockExpr { .. } => return Err("BlockExpr"),
+            ASTNode::TryCatch { .. } => return Err("TryCatch"),
+            ASTNode::TaskScope { .. } => return Err("TaskScope"),
+            ASTNode::ContextScope { .. } => return Err("ContextScope"),
+            ASTNode::FastMemRegion { .. } => return Err("FastMemRegion"),
+            ASTNode::BuildGate { .. } => return Err("BuildGate"),
             _ => {}
         }
     }
+    Ok(())
+}
+
+fn observe_carrier_body(body: &[ASTNode], loop_var: &str) -> GenericCarrierObservationV1 {
+    let mut targets = BTreeSet::new();
+    let disposition = match collect_recursive_carrier_targets(body, loop_var, false, &mut targets) {
+        Ok(()) if targets.is_empty() => {
+            GenericCarrierObservationDispositionV1::CompleteNoRecursiveCarrier
+        }
+        Ok(()) => GenericCarrierObservationDispositionV1::CompleteRecursiveCarrier(
+            targets.into_iter().collect(),
+        ),
+        Err(container) => GenericCarrierObservationDispositionV1::Unavailable(container),
+    };
+    GenericCarrierObservationV1 { disposition }
 }
 
 fn observe_generic_carrier_facts(
@@ -176,13 +212,7 @@ fn observe_generic_carrier_facts(
         .facts
         .generic_loop_v1()
         .expect("carrier observation requires Generic V1 facts");
-    let mut targets = BTreeSet::new();
-    collect_recursive_carrier_targets(&v1.body, &v1.loop_var, false, &mut targets);
-    let has_recursive_carrier = !targets.is_empty();
-    let observation = GenericCarrierObservationV1 {
-        recursive_targets: targets.into_iter().collect(),
-        has_recursive_carrier,
-    };
+    let observation = observe_carrier_body(&v1.body, &v1.loop_var);
     let raw_schedule = select_recipe_first_routes(Some(facts))
         .raw_execution_routes()
         .to_vec();
@@ -482,8 +512,10 @@ fn generic_both_facts_emit_test_only_recursive_carrier_observation() {
         CorpusModeV1::StrictPlannerRequired,
     ] {
         let (both, raw_schedule) = observe_generic_carrier_facts(mode, "both");
-        assert_eq!(both.recursive_targets, vec!["j"]);
-        assert!(both.has_recursive_carrier);
+        assert_eq!(
+            both.disposition,
+            GenericCarrierObservationDispositionV1::CompleteRecursiveCarrier(vec!["j".into()])
+        );
         if matches!(mode, CorpusModeV1::StrictPlannerRequired) {
             assert_eq!(raw_schedule, vec![LoopRouteId::GenericLoopV1]);
         } else {
@@ -494,10 +526,38 @@ fn generic_both_facts_emit_test_only_recursive_carrier_observation() {
         }
 
         let (simple, simple_schedule) = observe_generic_carrier_facts(mode, "simple-while");
-        assert!(simple.recursive_targets.is_empty());
-        assert!(!simple.has_recursive_carrier);
+        assert_eq!(
+            simple.disposition,
+            GenericCarrierObservationDispositionV1::CompleteNoRecursiveCarrier
+        );
         assert!(!simple_schedule.contains(&LoopRouteId::GenericLoopV1));
     }
+}
+
+#[test]
+fn generic_carrier_observation_marks_preserved_unsupported_container_unavailable() {
+    let body = vec![ASTNode::LoopRange {
+        var_name: "k".to_string(),
+        start: Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(0),
+            span: Span::unknown(),
+        }),
+        end: Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(1),
+            span: Span::unknown(),
+        }),
+        body: Vec::new(),
+        span: Span::unknown(),
+    }];
+    let observation = observe_carrier_body(&body, "i");
+    assert_eq!(
+        observation.disposition,
+        GenericCarrierObservationDispositionV1::Unavailable("LoopRange")
+    );
+    assert_ne!(
+        observation.disposition,
+        GenericCarrierObservationDispositionV1::CompleteNoRecursiveCarrier
+    );
 }
 
 #[test]
