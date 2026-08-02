@@ -12,6 +12,7 @@ use super::generic_selection_matrix_tests::{
 use super::generic_semantic_digest_tests::{core_plan_semantic_digest, CorePlanSemanticDigestV1};
 use super::route_id::LoopRouteId;
 use super::select_recipe_first_routes;
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
     lower_verified_core_plan, LoopRouteContext,
 };
@@ -24,6 +25,7 @@ use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirType};
+use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum CorpusModeV1 {
@@ -108,6 +110,83 @@ struct NestedCarrierSemanticEvidenceV1 {
     outer_final_value_names: Vec<String>,
     outer_phi_tags: Vec<String>,
     nested_final_value_names: Vec<String>,
+}
+
+/// Test-only projection of extraction facts; it is not a route or policy authority.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct GenericCarrierObservationV1 {
+    recursive_targets: Vec<String>,
+    has_recursive_carrier: bool,
+}
+
+// Fixture-scoped probe for D2-B2b. Before promotion, the production extractor
+// must cover every accepted container or return typed unavailable/ambiguous;
+// silently treating an unsupported container as carrier-free is forbidden.
+fn collect_recursive_carrier_targets(
+    body: &[ASTNode],
+    loop_var: &str,
+    nested: bool,
+    targets: &mut BTreeSet<String>,
+) {
+    for stmt in body {
+        match stmt {
+            ASTNode::Assignment { target, .. } if nested => {
+                if let ASTNode::Variable { name, .. } = target.as_ref() {
+                    if name != loop_var {
+                        targets.insert(name.clone());
+                    }
+                }
+            }
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                collect_recursive_carrier_targets(then_body, loop_var, true, targets);
+                if let Some(else_body) = else_body {
+                    collect_recursive_carrier_targets(else_body, loop_var, true, targets);
+                }
+            }
+            ASTNode::Loop { body, .. } | ASTNode::ScopeBox { body, .. } => {
+                collect_recursive_carrier_targets(body, loop_var, true, targets);
+            }
+            _ => {}
+        }
+    }
+}
+
+fn observe_generic_carrier_facts(
+    mode: CorpusModeV1,
+    name: &str,
+) -> (GenericCarrierObservationV1, Vec<LoopRouteId>) {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let _config = crate::test_support::ScopedTestConfig::apply(&[
+        ("HAKO_JOINIR_STRICT", mode.env().1),
+        ("HAKO_JOINIR_PLANNER_REQUIRED", mode.planner_required()),
+        ("NYASH_JOINIR_STRICT", None),
+    ]);
+    let (condition, body) = fixture(name);
+    let ctx = LoopRouteContext::new(&condition, &body, "generic_reachability/0", false, false);
+    let outcome = try_build_outcome(&ctx).expect("carrier fixture must build facts");
+    let facts = outcome
+        .facts
+        .as_ref()
+        .expect("carrier fixture must retain canonical facts");
+    let v1 = facts
+        .facts
+        .generic_loop_v1()
+        .expect("carrier observation requires Generic V1 facts");
+    let mut targets = BTreeSet::new();
+    collect_recursive_carrier_targets(&v1.body, &v1.loop_var, false, &mut targets);
+    let has_recursive_carrier = !targets.is_empty();
+    let observation = GenericCarrierObservationV1 {
+        recursive_targets: targets.into_iter().collect(),
+        has_recursive_carrier,
+    };
+    let raw_schedule = select_recipe_first_routes(Some(facts))
+        .raw_execution_routes()
+        .to_vec();
+    (observation, raw_schedule)
 }
 
 fn seeded_builder() -> MirBuilder {
@@ -393,6 +472,32 @@ pub(super) fn observe_both_direct_stage(
             semantic_digest: row.semantic_digest,
         })
         .collect()
+}
+
+#[test]
+fn generic_both_facts_emit_test_only_recursive_carrier_observation() {
+    for mode in [
+        CorpusModeV1::Release,
+        CorpusModeV1::Strict,
+        CorpusModeV1::StrictPlannerRequired,
+    ] {
+        let (both, raw_schedule) = observe_generic_carrier_facts(mode, "both");
+        assert_eq!(both.recursive_targets, vec!["j"]);
+        assert!(both.has_recursive_carrier);
+        if matches!(mode, CorpusModeV1::StrictPlannerRequired) {
+            assert_eq!(raw_schedule, vec![LoopRouteId::GenericLoopV1]);
+        } else {
+            assert_eq!(
+                raw_schedule,
+                vec![LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
+            );
+        }
+
+        let (simple, simple_schedule) = observe_generic_carrier_facts(mode, "simple-while");
+        assert!(simple.recursive_targets.is_empty());
+        assert!(!simple.has_recursive_carrier);
+        assert!(!simple_schedule.contains(&LoopRouteId::GenericLoopV1));
+    }
 }
 
 #[test]
