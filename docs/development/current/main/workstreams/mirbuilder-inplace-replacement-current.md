@@ -467,29 +467,12 @@ closed — SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4
 closed — MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0 (Accept): shared occurrence identity only; residual R4 ownership stays operation-local and the shared scheduler is rejected.
 closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): candidate selection remains post-effect fallback, composers are physical, and no logical recipe consumer exists; do not reopen a renamed Loop slice.
 
-## Active design task
+## Active task pointer
 
-Row: `JOINIR-IF-PHI-JOIN-PROVENANCE0-S0`
-Parent: `JOINIR-IF-PHI-JOIN-PROVENANCE0-D0` (closed)
-Ceremony: add one IfPhiJoin route-local source provenance box; production consumers remain zero.
-Design: `design/joinir-loop-pre-effect-product-ssot.md`
-
-Change:
-  Retain only the extractor-observed top-level if-else and actual step sites in
-  IfPhiJoin facts, independent of their accepted raw order.
-
-Contract:
-  Existing extractor-observed indices and projection are authority. Nested branch
-  condition/update values remain cloned/derived facts and are never source sites.
-
-Done:
-  Direct, ScopeBox, and reversed-order fixtures fix exact observed sites/lineage.
-  Preflight remains unqualified; no product/caller/terminality claim is added.
-
-Stop:
-  Stop if S0 re-matches nested AST, assumes if-step ordering, exports branch
-  operands as source sites, expands another route, or claims physical readiness.
-  No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
+The sole current row is `CURRENT_STATE.toml.current_blocker_token`. The active
+JoinIR contract and ordered convergence map live in
+`design/joinir-loop-pre-effect-product-ssot.md`. Closed route-local provenance
+records below are evidence only and must not schedule another route.
 
 ## Production invariants
 
@@ -591,7 +574,7 @@ closed
     are green; no Script route, capture ABI materialization, or closure
     publication changed.
 
-current design gate
+closed historical design gate
   RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
 
   closed Accept-corrected. A direct cutover was unsafe while recursive forest
@@ -605,7 +588,7 @@ closed
      shadow tree, then issues IDs and canonicalizes it; nested failure consumes
      no session owner ID. Existing owner-forest tests remain green.
 
-current
+closed historical
   RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
   -> admit only `local outer = 7; local f = fn() { outer }` and its no-capture
      companion through one Script child forest/ordered BindingRef receipt;

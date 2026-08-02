@@ -93,18 +93,9 @@ is not evidence of pre-effect uniqueness.
 
 ## Task order
 
-1. `JOINIR-LOOP-ROUTE-EFFECT-ORDER-MATRIX0-P0`
-   - Add one table-driven test/manifest ratchet for every registry row and the
-     source-backed minimal Counter loop fixture. Reuse the registry test module
-     and `mirbuilder_inplace_replacement_guard.sh`; add no row-specific shell
-     guard and change no route behavior.
-2. `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S0`
-   - After P0 proves the input, implement one Builder-free producer over all
-     19 rows. Partial family coverage has no production consumer.
-3. `JOINIR-LOOP-SINGLE-PHYSICALIZER-CUTOVER0-I0-R0`
-   - Switch the named production caller only after the product is all-route.
-     Delete the ordered `RouteFn -> Option` retry loop and every selected old
-     physicalization edge atomically.
+The authoritative order is the final `All-route convergence task map D4`
+section. Earlier D/S records below are landed evidence, not a scheduler. The
+current row is always `CURRENT_STATE.toml.current_blocker_token`.
 
 ## Gates and stop line
 
@@ -1619,3 +1610,224 @@ now reports its existing `PostEffectRetryDebt` rather than source-topology
 absence. This records the actual release behavior: verifier/lower may retry
 only after Builder-bound work. Facts-absent and all other classifications remain
 unchanged. No execution, qualification, terminality, or cutover behavior moved.
+
+### All-route convergence task map D4 decision
+
+Decision: stop the route-by-route provenance loop and converge by responsibility
+family. Five independent audits agree that the live graph has one selection and
+one legacy scheduler, while preflight is still observation-only, `Retry` erases
+the pre/post-effect boundary, Generic V0/V1 retain explicit post-effect debt,
+and no all-state Loop rollback/draft exists. This map supersedes the original
+three-row task order; it does not supersede landed evidence.
+
+Current facts-present raw-front classification is `12` direct-topology routes at
+`PolicyAndTerminalityUnavailable`, `5` conditional routes at
+`SourceTopologyUnavailable`, `2` Generic routes at `PostEffectRetryDebt`, and
+`0` Qualified. The static effect-order matrix is not classification authority.
+
+#### A. Authority and line-budget cleanup
+
+1. `JOINIR-LOOP-PREFLIGHT-TEST-EXTRACT0-C0`
+   - Change: move the core tests currently embedded after the production
+     classifier into a sibling test module.
+   - Contract: no classifier, selector, facts, retry, or runtime change.
+   - Done: the production parent has comfortable headroom below 800 lines; the
+     focused preflight and registry suites plus both shared guards are green.
+   - Stop: do not combine this physical move with helper generalization.
+
+2. `JOINIR-LOOP-DORMANT-TERMINALITY-PROOF-RETIRE0-C1-R0`
+   - Change: first relocate live `all_route_preflight` out of the dormant direct
+     proof subtree, then retire the five caller-zero Direct terminality
+     certificates, test-only transaction/logical product, source bridge, and
+     their obsolete guard clauses in a short buildable refactor series.
+   - Contract: preserve live preflight fixtures and production behavior. This is
+     authority deletion, not terminality denial or a new common certifier.
+   - Done: production preflight has one registry-owned path; dormant issuer and
+     consumer symbols have zero definitions/callers; each series commit builds.
+   - Stop: if a named non-test consumer appears, close a re-own/retire D0 before
+     deletion. Do not boolify or merge route-specific topology checks.
+
+3. `JOINIR-LOOP-EFFECT-MATRIX-AUTHORITY-REPAIR0-C2`
+   - Change: remove `CurrentPreflightStatus` from the test-only effect matrix.
+     Keep only registry order, qualification inputs, five first-mutation
+     families, and post-effect-None debt. Live classifier fixtures are the sole
+     disposition authority.
+   - Contract: exact `ENTRIES` order and `11/1/1/4/2` mutation-family counts stay
+     fixed; Generic V0/V1 remain the only explicit failure-to-retry conversions.
+   - Done: no stale `15/3/1` classification can remain green independently of
+     production preflight; no route behavior changes.
+   - Stop: do not replace the removed duplicate with another static status table.
+
+4. `JOINIR-LOOP-WITNESS-ATTEMPT-BOUNDARY0-C3`
+   - Change: remove the unused whole-witness callback argument from ordered
+     execution and replace handler-local `RouterEnv` reconstruction with exact
+     scalar inputs.
+   - Contract: attempt remains the sole handler decline view; compose facts stay
+     explicit and are not absorbed into the witness.
+   - Done: production callbacks consume only attempt plus explicit compose data;
+     the shared guard rejects handler-side environment reconstruction.
+   - Stop: no policy move, retry change, or new scheduler in this row.
+
+#### B. Make the effect boundary explicit
+
+5. `JOINIR-LOOP-ROUTE-ATTEMPT-EFFECT-DISPOSITION0-D0-P0`
+   - Change: census every outcome site across all 19 routes and classify it as
+     pre-effect decline, exact shared absent-contract decline, post-compose or
+     lower retry debt with stage, explicit Generic release debt, success, or
+     error.
+   - Contract: classify actual compose/verify/lower propagation, not only local
+     `Ok(None)` spelling. Keep the exact ordered suffix counterexample.
+   - Done: every scheduler continuation has one stage and one issuing owner;
+     unknown/ambiguous sites fail the P0 ratchet.
+   - Stop: this row records existing behavior only; it cannot remove retry.
+
+6. `JOINIR-LOOP-TYPED-ATTEMPT-OUTCOME0-S0`
+   - Change: replace undifferentiated ordinary `Retry`/`from_retry_option` with
+     typed pre-effect and post-effect outcomes while projecting both to the
+     unchanged legacy continuation.
+   - Contract: shared four-route absent-contract decline remains distinct from
+     ordinary pre-effect decline and from post-effect debt.
+   - Done: the scheduler never receives an effect-ambiguous retry; order and
+     runtime parity remain unchanged.
+   - Stop: do not interpret typed post-effect debt as safe continuation.
+
+7. `JOINIR-DIRECT-ROUTE-INDIRECT-NONE-AUDIT0-D1`
+   - Change: audit LoopBreak, IfPhi, ContinueOnly, SimpleWhile, and Accum through
+     compose, verify, and lower, including indirect `PlanLowerer::Ok(None)`.
+   - Contract: no future terminality claim may rely on route-local grep or on the
+     retired direct certificates. ContinueOnly's documented lower `None` tension
+     is the first counterexample.
+   - Done: each route is proved over the full result path or remains explicitly
+     unqualified; D1 does not recreate a dormant certificate graph.
+   - Stop: any Builder-state-dependent conclusion remains post-effect debt.
+
+8. `JOINIR-LOOP-PLANNING-MODE-SNAPSHOT0-S1`
+   - Change: freeze planner/strict/body-local mode once and pass the same snapshot
+     through outcome construction, live preflight, and execution witness.
+   - Contract: recipe/compose facts remain separate; environment is not reread
+     by `PlannerGate`, router, or handlers.
+   - Done: one mode authority and one contract disposition feed the exact raw
+     schedule.
+   - Stop: a borrowed snapshot may not escape its live frame.
+
+9. `JOINIR-LOOP-PRE-EFFECT-DECISION-OWNER0-S2`
+   - Change: issue route-local pre-effect verdicts from the same live frame.
+     Consume the exact four shared declines, then CharMap's planner-only decline
+     separately; move nested/release gates only with equivalent typed proof.
+   - Contract: one selection, no Builder, no route skip, no second scheduler.
+   - Done: moved gates are deleted in the same commit and cannot be recomputed by
+     handlers; the legacy continuation still owns execution.
+   - Stop: topology, successful lower, and scheduler terminality are not implied.
+
+#### C. Complete Builder-free route readiness
+
+10. `JOINIR-LOOP-CONDITIONAL-SOURCE-TOPOLOGY0-S3`
+    - Change: add projection-aligned opaque topology for the remaining five
+      routes in the order ContinueWithReturn, ReturnInBody, ContinueOnly,
+      BreakContinue, then LoopTrueBreakContinue; use one accepted authority
+      family per commit.
+    - Contract: extractor/projection observation only. Cloned recipe AST and
+      nested path reconstruction are never source authority.
+    - Done: truthful routes leave `SourceTopologyUnavailable`; direct,
+      ScopeBox, absent, and actual-raw-front fixtures are sealed.
+    - Stop: split the family if exact membership or nested ownership differs.
+
+11. `JOINIR-LOOP-NESTED-COMPOSE-DISPOSITION0-D2-S4`
+    - Change: separate NestedLoopMinimal's accept/decline decision from its
+      Builder-taking composer.
+    - Contract: mutation ownership does not move; inner semantics cannot be
+      inferred from outer schedule provenance.
+    - Done: release-composer-dependent retry is classified before the first
+      block/value allocation or remains an explicit blocker.
+    - Stop: no speculative Builder call is allowed as preflight.
+
+12. `JOINIR-LOOP-BUILDER-FREE-COMPOSE0-D3-S5`
+    - Change: define one all-19 logical dialect carrying located source/facts,
+      policy, roles/boundaries, ordered evidence, and mutation-family label.
+    - Contract: no `MirBuilder`, `CorePlan`, `ValueId`, `BasicBlockId`, AST
+      reconstruction, or physical composer call. Partial family products have
+      zero production consumers.
+    - Done: Facts -> Recipe -> Verify is total for accepted membership and
+      produces a non-Clone `VerifiedLoopRouteDemandV1`.
+    - Stop: Generic V0/V1 cannot qualify while verifier/lower failure still
+      becomes retry; route-local physical composition is not a logical proof.
+
+13. `JOINIR-LOOP-POST-EFFECT-RETRY-RETIRE0-D4`
+    - Change: decide for each post-effect debt whether the all-route cutover will
+      reject before effects or return terminal Freeze from a detached draft.
+    - Contract: failure must never continue the raw suffix on a mutated Builder.
+      This design row does not change release behavior on the legacy path.
+    - Done: every debt has one pre-effect or draft-owned terminal disposition and
+      an exact old `None` projection to delete at atomic cutover.
+    - Stop: no live-Builder rollback wrapper or silent `None` projection is an
+      accepted target.
+
+#### D. Own physical mutation once
+
+14. `JOINIR-LOOP-BUILDER-MUTATION-VECTOR0-P1`
+    - Change: seal the exact Builder state touched by the five mutation families
+      across compose, verify, and lower, with late-failure counterexamples.
+    - Contract: local variable-map and provisional-PHI restoration are recorded
+      as partial, never whole-state rollback.
+    - Done: block/value cursors, blocks/terminators, types, bindings, current
+      block, PHI/Frag/session state, and relevant metadata have named owners.
+    - Stop: do not start a draft whose complete state vector is unknown.
+
+15. `JOINIR-LOOP-EMISSION-DRAFT0-D4-S6`
+    - Change: design then implement a detached candidate/projected image with
+      abort-by-drop and consume-once publish. Prefer this over an undo journal.
+    - Contract: live Builder is unchanged until publish; draft operations return
+      terminal `Result<_, Freeze>`, never `Option` or retry.
+    - Done: one representative fixture per mutation family proves compose,
+      verify, and late-lower failure leave the live snapshot identical; success
+      publishes once and matches legacy MIR.
+    - Stop: no partial publication, double commit, fallback, or live-first write.
+
+16. `JOINIR-LOOP-SINGLE-PHYSICALIZER0-S7`
+    - Change: make one sole consumer from verified demand plus emission draft to
+      `Result<LoopPhysicalSuccessV1, Freeze>`; keep five explicit family adapters
+      inside that physicalizer.
+    - Contract: no route selection, AST/Facts reread, raw suffix, or fallback.
+    - Done: consumer remains caller-zero until all accepted families and parity
+      fixtures are complete.
+    - Stop: the physicalizer cannot become a second scheduler.
+
+17. `JOINIR-LOOP-ATOMIC-SCHEDULER-CUTOVER0-I1-R1`
+    - Change: switch named caller `route_loop` to verified demand -> single
+      physicalizer. In the same atomic commit delete ordered `RouteFn -> Option`,
+      Generic error-to-None projection, private legacy continuation, and selected
+      old physical edges.
+    - Contract: selection exactly once, physical publish exactly once, retry,
+      reselection, and fallback zero.
+    - Done: focused registry, representative phase29bq smokes, quick/release,
+      accepted corpus/backend parity, shared guards, and old-symbol census green.
+    - Stop: any diagnostic-order, error-reuse, MIR, backend, or corpus mismatch.
+
+18. `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF0-R2`
+    - Change: consume the same located product from the prepared raw Loop child
+      entry and delete the source-erasing handoff, closing the R4 Loop fence.
+    - Contract: no new ingress or raw/reference profile widening.
+    - Done: old terminal caller zero and manifest fence closed with parity.
+    - Stop: do not reconstruct source lineage in an adapter.
+
+#### E. Repository completion order
+
+After the Loop fence closes, schedule fresh D/S/I/R series in manifest order:
+raw static Main located-source/entry materialization, raw Lambda lineage/capture,
+then CallObject all-route operation ownership. Only then run
+`MIRBUILDER-R4-FINAL-CONFORMANCE0-R0` and
+`MIRBUILDER-FINAL-PIPELINE-AUDIT0-R0`. Completion requires one ingress,
+selector, Facts, Recipe, verifier, terminal physical commit, and Return writer;
+unverified lower, AST redecision, partial publish, fallback, and retry must all
+be zero across the accepted corpus and backends.
+
+Park cosmetic Direct shell unification, superficial preflight helper merging,
+composer skeleton cleanup, renewed per-route provenance loops, Generic rollback
+workarounds, Stage-B, Ownership, View, `.hako` selfhost, language, performance,
+and backend expansion until their named predecessor row closes.
+
+Normal S-row gates are the focused module test, full registry test,
+`current_state_pointer_guard.sh`, and `mirbuilder_inplace_replacement_guard.sh`.
+No new per-row shell guard is allowed. Every touched source/check file stays
+below 800 lines. D rows stop at design; I/R rows switch the named caller and
+delete the selected old authority in the same milestone commit.

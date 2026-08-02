@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-GENERIC-POST-EFFECT-PREFLIGHT0-S0 is closed; the next bounded claim requires a fresh design card."
+status = "JOINIR all-route convergence is task-ordered; the next executable row is the behavior-neutral preflight test extraction."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "LivePreflightFrame S0 is closed: router-owned one-selection preflight observation returns a private legacy continuation without reselecting or becoming a scheduler. The next card must be design-only and may not promote all-rejected observation, S2 shared decline, or topology availability into qualification, terminality, physicalization, or cutover."
-current_execution_row = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-NEXT-DESIGN"
-current_execution_summary = "Generic V0/V1 raw-front facts now report their existing post-effect retry debt rather than topology absence; no execution behavior changed."
+current_design_stop = "The convergence audit selects cleanup before semantic promotion: split the 797-line live preflight tests, retire duplicate/dormant proof authority, then type pre-effect decline separately from post-effect retry debt. Qualified, physicalization, and cutover remain forbidden until the named later rows close."
+current_execution_row = "JOINIR-LOOP-PREFLIGHT-TEST-EXTRACT0-C0"
+current_execution_summary = "Move the in-file all-route preflight core tests to a sibling module without changing classifier, selection, retry, or runtime behavior; keep every touched source/check file below 800 lines."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -440,9 +440,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "mirbuilder-inplace-replacement-current"
-latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-ENUM-MATCH-DIRECT-SCRUTINEE0-I0-R0 is closed: the shared direct enum preflight now has one raw and one declaration-facts consumer; selected Complete co-seals only EnumMatchScrutinee while arms remain raw-owner observations. Next is the behavior-neutral root-admission witness S0."""
+latest_card = "joinir-loop-pre-effect-product-ssot"
+latest_card_path = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
+latest_card_summary = """The worker-reviewed all-route convergence map is authoritative. Start with PREFLIGHT-TEST-EXTRACT0-C0; do not reopen per-route provenance, Qualified, physicalization, or cutover ahead of the ordered proof rows."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-LIVE-PREFLIGHT-FRAME0-NEXT-DESIGN"
+current_blocker_token = "JOINIR-LOOP-PREFLIGHT-TEST-EXTRACT0-C0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
