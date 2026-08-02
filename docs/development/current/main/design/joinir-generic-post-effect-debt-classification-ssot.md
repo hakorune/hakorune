@@ -317,6 +317,28 @@ the complete Generic grammar, make V0 a pre-effect winner, classify a natural
 debt-to-V1 continuation, or close D2/D3. The next real verifier/lower failure,
 or any coverage hole, remains an explicit `UnresolvedStop`.
 
+### D2-B — gated V0 overlap decision (`JOINIR-GENERIC-V0-PRE-EFFECT-WINNER-TERMINAL0-D2-S2`)
+
+This is the next design stop, not an implementation permission. It may begin
+only after D2-A has named the accepted Generic coverage boundary and every
+selected `Both` row has a production-derived stage result. The candidate
+policy is an effect-free V0 winner certificate; it is not a new route, Recipe
+kind, or scheduler.
+
+The decision closes only if all of these hold:
+
+- V0 acceptance covers the `Both` rows being claimed, including strict and
+  planner-required dispositions;
+- no observed V0 post-effect debt reaches a V1 success with a different winner;
+- V0 failure, if any, is classified before or at the candidate abort boundary,
+  never silently reselected through a dirty Builder;
+- the pure policy result and the legacy witness agree on route and attempted
+  prefix for every accepted fixture.
+
+If any condition is missing, keep Generic debt as a legacy diagnostic and keep
+the ordered scheduler authoritative. No `GenericDebt -> Blocked` rewrite,
+`Retry` deletion, or production caller is allowed under D2-B.
+
 ### M4-D4 — handoff and close (`...-D0-S4`)
 
 Seal a disposition for every D0 row, decide V0/V1 precedence, and make the
