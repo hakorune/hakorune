@@ -5,6 +5,7 @@
 //! this wrapper and select `callable_semantic_root`.
 
 use std::collections::BTreeSet;
+use std::{cell::RefCell, rc::Rc};
 
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
@@ -90,71 +91,33 @@ impl<'loan, 'port, 'collector> NormalCallableSemanticLoanPortV1<'loan, 'port, 'c
         execute: impl FnOnce(
             &mut RawInvocationChildPortV1<'port, 'collector>,
             super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
-        ) -> R,
-    ) -> R {
+        ) -> Result<R, String>,
+    ) -> Result<R, String> {
+        let transport = super::raw_invocation_source_transport::RawInvocationSourceTransportV1::
+            callable_semantic_root((), &loan);
+        let (_, state) = loan.into_parts();
+        let state = Rc::new(RefCell::new(state));
         let script_ledger = self.inner.semantic_ledger.take();
-        let result = loan.with_source_transport(|transport| execute(self.inner, transport));
+        let parent_callable = self.inner.callable_ledger.replace(state.clone());
+        let result = execute(self.inner, transport);
+        self.inner.callable_ledger = parent_callable;
         self.inner.semantic_ledger = script_ledger;
-        result
+        match result {
+            Ok(value) => {
+                Rc::try_unwrap(state)
+                    .map_err(|_| "[freeze:contract][mir/callable-semantic/ledger-loan]".to_owned())?
+                    .into_inner()
+                    .finish()?;
+                Ok(value)
+            }
+            Err(error) => Err(error),
+        }
     }
 }
 
 #[cfg(test)]
-mod tests {
-    use super::CallableLoanConsumptionV1;
-    use crate::mir::builder::callable_declaration_catalog::{
-        SelectedNormalCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1,
-    };
-    use crate::parser::NyashParser;
-    use std::collections::BTreeSet;
-
-    fn keys() -> Vec<SelectedNormalCallableKeyV1> {
-        let program = NyashParser::parse_from_string(
-            "function first() { return 1 } function second() { return 2 }",
-        )
-        .unwrap();
-        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program)
-            .unwrap()
-            .selected_source_inventory()
-            .entries()
-            .map(|(key, _)| key.clone())
-            .collect()
-    }
-
-    fn tracker(
-        expected: impl IntoIterator<Item = SelectedNormalCallableKeyV1>,
-    ) -> CallableLoanConsumptionV1 {
-        CallableLoanConsumptionV1 {
-            expected: expected.into_iter().collect::<BTreeSet<_>>(),
-            consumed: BTreeSet::new(),
-        }
-    }
-
-    #[test]
-    fn callable_loan_consumption_rejects_missing_duplicate_and_unconsumed_rows() {
-        let keys = keys();
-        let mut missing = tracker([keys[0].clone()]);
-        assert!(missing
-            .consume(keys[1].clone())
-            .unwrap_err()
-            .contains("missing-loan"));
-
-        let mut duplicate = tracker([keys[0].clone()]);
-        duplicate.consume(keys[0].clone()).unwrap();
-        assert!(duplicate
-            .consume(keys[0].clone())
-            .unwrap_err()
-            .contains("duplicate-loan"));
-
-        assert!(tracker([keys[0].clone()])
-            .complete()
-            .unwrap_err()
-            .contains("unconsumed-loan"));
-        let mut complete = tracker([keys[0].clone()]);
-        complete.consume(keys[0].clone()).unwrap();
-        complete.complete().unwrap();
-    }
-}
+#[path = "normal_callable_semantic_loan_port_tests.rs"]
+mod tests;
 
 impl RecursiveChildLoweringPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_> {
     type BodyInput = Vec<ASTNode>;

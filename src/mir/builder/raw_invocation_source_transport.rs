@@ -604,6 +604,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                 "[freeze:contract][raw-invocation/missing-statement-source-receipt]".to_owned(),
             );
         }
+        if self.callable_ledger.is_some() && matches!(input, ASTNode::Local { .. }) {
+            return self.lower_callable_local_v1(builder, input);
+        }
         if self.semantic_ledger.is_some() {
             return match input {
                 local @ ASTNode::Local { .. } => self.lower_script_local_v1(builder, local),
@@ -630,6 +633,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         if self.semantic_ledger.is_some() && matches!(input, ASTNode::Local { .. }) {
             return self.lower_script_local_v1(builder, input);
         }
+        if self.callable_ledger.is_some() && matches!(input, ASTNode::Local { .. }) {
+            return self.lower_callable_local_v1(builder, input);
+        }
         if self.semantic_ledger.is_some() && matches!(input, ASTNode::Nowait { .. }) {
             return self.lower_script_nowait_v1(builder, input);
         }
@@ -639,11 +645,23 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         if self.semantic_ledger.is_some()
             && (matches!(
                 &input,
-                (ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. })
+                ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. }
                     if matches!(target.as_ref(), ASTNode::Variable { .. })
             ) || matches!(&input, ASTNode::GroupedAssignmentExpr { .. }))
         {
             return self.lower_script_binding_rebind_v1(builder, input);
+        }
+        if self.callable_ledger.is_some()
+            && (matches!(
+                &input,
+                ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. }
+                    if matches!(target.as_ref(), ASTNode::Variable { .. })
+            ) || matches!(&input, ASTNode::GroupedAssignmentExpr { .. }))
+        {
+            return self.lower_callable_binding_rebind_v1(builder, input);
+        }
+        if self.callable_ledger.is_some() && matches!(input, ASTNode::Variable { .. }) {
+            return self.read_callable_variable_v1();
         }
         if let (Some(ledger), ASTNode::Variable { .. }) = (&self.semantic_ledger, &input) {
             let site = self

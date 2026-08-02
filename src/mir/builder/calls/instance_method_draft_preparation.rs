@@ -47,11 +47,16 @@ impl InstanceMethodDraftPreparationRequestV1 {
 
 pub(in crate::mir::builder) struct PreparedInstanceMethodDraftBodyV1 {
     body: Vec<ASTNode>,
+    explicit_parameter_count: usize,
 }
 
 impl PreparedInstanceMethodDraftBodyV1 {
     pub(in crate::mir::builder) fn body(&self) -> &[ASTNode] {
         &self.body
+    }
+
+    pub(in crate::mir::builder) const fn explicit_parameter_count(&self) -> usize {
+        self.explicit_parameter_count
     }
 
     pub(in crate::mir::builder) fn into_body(self) -> Vec<ASTNode> {
@@ -74,6 +79,7 @@ pub(in crate::mir::builder) fn prepare_instance_method_draft_body_v1(
         attrs,
     } = request;
 
+    let explicit_parameter_count = params.len();
     builder.create_method_skeleton(function_name, &box_name, &params, &body)?;
     builder.set_current_function_declared_signature(
         mir_method_param_decls_from_source(&box_name, &params, &param_decls),
@@ -83,7 +89,10 @@ pub(in crate::mir::builder) fn prepare_instance_method_draft_body_v1(
     builder.set_current_function_declared_capability_uses(&uses);
     builder.setup_method_params(&box_name, &params)?;
 
-    Ok(PreparedInstanceMethodDraftBodyV1 { body })
+    Ok(PreparedInstanceMethodDraftBodyV1 {
+        body,
+        explicit_parameter_count,
+    })
 }
 
 pub(in crate::mir::builder) fn run_function_body_step_tree_guard_v1(

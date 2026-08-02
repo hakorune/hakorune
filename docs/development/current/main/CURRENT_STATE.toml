@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-I0-R0 is closed: one selected callable batch co-seals exact Program sites, forests, and projections; typed loans are consumed exactly once by top-level/static/plain-instance terminals, while whole-batch Deferred preserves existing diagnostics."
+status = "NORMAL-CALLABLE-LEXICAL-BINDING-MATERIALIZATION0-I0-R0 is closed: selected callable loans now install one root-owner BindingRef-to-ValueId projection for formal entries, Local, Variable, and rebind facts while retaining Lambda capture compatibility ownership."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = ""
-current_execution_row = "NORMAL-CALLABLE-LEXICAL-BINDING-MATERIALIZATION0-I0-R0"
-current_execution_summary = "Use each exact callable semantic loan to install one callable-scoped BindingRef-to-ValueId projection for parameters and the already-resolved Local/Variable/rebind closure; keep FunctionCall Deferred and do not claim callable-result representation ingress."
+current_execution_row = "NORMAL-CALLABLE-DIRECT-LAMBDA-CAPTURE-MATERIALIZATION0-I0-R0"
+current_execution_summary = "For a selected root callable's direct Lambda child only, consume the forest's existing ordered BindingRef capture receipt through the callable ledger and retire the legacy name-observation edge; retain nested descendant captures, Lambda-body lowering, capture ABI, and raw/reference."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-CALLABLE-LEXICAL-BINDING-MATERIALIZATION0-I0-R0"
+current_blocker_token = "NORMAL-CALLABLE-DIRECT-LAMBDA-CAPTURE-MATERIALIZATION0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

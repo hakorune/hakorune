@@ -25,7 +25,10 @@ mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod callable_declaration_catalog; // Complete same-module callable declaration authority
 #[cfg(test)]
 mod literal_postemit_retirement_tests;
+mod normal_callable_binding_materialization;
+mod normal_callable_binding_materialization_port; // existing formal ValueId handoff
 mod normal_callable_semantic_loan_port; // Selected-only outer callable loan
+mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
 mod normal_cataloged_box_method_lowering;
 pub(crate) use callable_declaration_catalog::{

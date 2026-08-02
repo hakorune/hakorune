@@ -387,32 +387,37 @@ closed — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-I0-R0
   whole batch Deferred before resolution; App remains eligible. Callable scope
   cannot borrow the Script BindingRef-to-ValueId ledger. Raw/reference and user
   diagnostic order are unchanged; fallback/retry and partial forest are zero.
-current — NORMAL-CALLABLE-LEXICAL-BINDING-MATERIALIZATION0-I0-R0
+closed — NORMAL-CALLABLE-LEXICAL-BINDING-MATERIALIZATION0-I0-R0
+  Root callable loans now install one scoped BindingRef-to-ValueId projection
+  for formal entries, Local, Variable, and rebind facts. The old name-derived
+  semantic identity recovery is gone from this closure; nested Lambda capture
+  retains its existing ordered/name compatibility owner. Focused top-level /
+  static / plain-instance compound-rebind and direct-capture parity, reuse,
+  loan-consumption, guard, and test compilation are green.
+current — NORMAL-CALLABLE-DIRECT-LAMBDA-CAPTURE-MATERIALIZATION0-I0-R0
 Change:
-  Each typed callable loan installs one callable-scoped request-local
-  BindingRef-to-ValueId projection around the existing top-level, static, or
-  plain-instance body Lower. Replace Complete-domain receiver/parameter/Local
-  BindingId allocation and Variable/rebind semantic identity recovery from
-  names; restore the parent Script authority after the child session.
+  For a selected root callable's direct Lambda child, pass the forest's
+  existing ordered BindingRef capture receipt through the callable ledger to
+  the existing closure emitter and remove its legacy name-observation edge.
 
 Contract:
-  `VerifiedResolvedFunctionV1` remains identity truth. The new state is only a
-  physical projection and verifies exact Receiver/Parameter/Local declaration,
-  Variable-use, and rebind consumption. Existing `variable_map` may retain
-  runtime/type compatibility data but cannot decide semantic identity.
-  FunctionCall stays Deferred; raw/reference and user diagnostics do not move.
+  The forest remains capture existence/ancestry truth and its ordered receipt
+  remains capture-slot order truth. The callable ledger only projects each
+  already-materialized root binding to its existing ValueId. Lambda body
+  lowering, deeper descendants, capture ABI, ClosureBodyId/NewClosure,
+  FunctionCall, raw/reference, and diagnostics do not move.
 
 Done:
-  The three Complete terminals seed canonical receiver/parameter bindings,
-  publish Local values, read/rebind by exact source-site BindingRef, and finish
-  exactly once. Missing/duplicate/foreign facts hard-reject without retry or
-  partial draft publication. Focused top-level/static/instance, shadowing,
-  Script-ledger restoration, failure-reuse, and parity fixtures are green.
+  A direct capturing or noncapturing Lambda uses one exact forest child receipt
+  and existing closure emission once; its former root-callable raw observer
+  path is unreachable. Descendant capture forms retain their existing owner.
+  Missing/foreign/duplicate receipt or unavailable root ValueId hard-rejects
+  before closure publication; no fallback or retry exists.
 
 Stop:
-  No call-result activation, Loop, Ownership, capture ABI, second resolver,
-  AST rescan, durable global binding map, name-derived BindingRef, partial
-  batch, fallback, or source/check file at or above 800 lines.
+  Stop if direct-child ownership cannot be proven before legacy observation,
+  any descendant needs the root ledger, preserving existing capture order
+  requires a second classifier, or a touched source/check file reaches 800.
 already closed — do not reopen as WIP
   QMark, root Match, StaticConst, and explicit Record schema; only a regression
   can reopen their Git-history evidence.

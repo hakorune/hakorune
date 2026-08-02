@@ -6,13 +6,15 @@
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::{MirBuilder, MirFunction, MirType};
 
-use super::calls::function_lowering;
 use super::calls::instance_method_draft_preparation::{
     prepare_instance_method_draft_body_v1, run_function_body_step_tree_guard_v1,
     InstanceMethodDraftPreparationRequestV1,
 };
 use super::calls::lowering::mir_param_decls_from_source;
 use super::module_lowering_invocation::LoweringHeaderPortV1;
+use super::normal_callable_binding_materialization_port::{
+    CallableBindingMaterializationPortV1, CallableEntryShapeV1,
+};
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 
 /// Body completion token which deliberately contains no header loan.
@@ -55,7 +57,7 @@ impl MirBuilder {
         attrs: DeclarationAttrs,
     ) -> Result<PortAwarePreparedDraftBodyV1, String>
     where
-        Port: RawExpressionDispatchPortV1,
+        Port: RawExpressionDispatchPortV1 + CallableBindingMaterializationPortV1,
     {
         self.create_function_skeleton(function_name, &params, &body)?;
         self.set_current_function_declared_signature(
@@ -65,9 +67,14 @@ impl MirBuilder {
         self.set_current_function_runes(&attrs);
         self.set_current_function_declared_capability_uses(&uses);
         self.setup_function_params(&params)?;
+        port.adopt_callable_entry_values_v1(
+            self,
+            CallableEntryShapeV1::Static {
+                parameter_count: params.len(),
+            },
+        )?;
         run_function_body_step_tree_guard_v1(self, &body, &self.current_function_name_for_port()?)?;
-        let program_ast = function_lowering::wrap_in_program(body);
-        let _ = self.build_expression_impl_with_port_v1(port, program_ast)?;
+        let _ = port.lower_body(self, body)?;
         prepare_port_aware_draft_body_completion_v1(self)
     }
 
@@ -86,7 +93,7 @@ impl MirBuilder {
         attrs: DeclarationAttrs,
     ) -> Result<PortAwarePreparedDraftBodyV1, String>
     where
-        Port: RawExpressionDispatchPortV1,
+        Port: RawExpressionDispatchPortV1 + CallableBindingMaterializationPortV1,
     {
         let prepared = prepare_instance_method_draft_body_v1(
             self,
@@ -101,13 +108,18 @@ impl MirBuilder {
                 attrs,
             ),
         )?;
+        port.adopt_callable_entry_values_v1(
+            self,
+            CallableEntryShapeV1::Instance {
+                parameter_count: prepared.explicit_parameter_count(),
+            },
+        )?;
         run_function_body_step_tree_guard_v1(
             self,
             prepared.body(),
             &self.current_function_name_for_port()?,
         )?;
-        let _ =
-            super::stmts::block_stmt::build_block_with_port_v1(self, port, prepared.into_body())?;
+        let _ = port.lower_body(self, prepared.into_body())?;
         prepare_port_aware_draft_body_completion_v1(self)
     }
 

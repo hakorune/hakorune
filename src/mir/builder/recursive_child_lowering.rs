@@ -16,6 +16,7 @@ use super::me_call_header_observation::{
 use super::module_lowering_invocation::{
     LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
 };
+use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
@@ -266,6 +267,7 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(super) module_port: &'port mut ModuleLoweringPortV1<'collector>,
     pub(super) active_source: Option<RawInvocationSourceContextV1>,
     pub(super) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
+    pub(super) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
     _seal: RawInvocationChildPortSealV1,
 }
 
@@ -280,6 +282,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             module_port,
             active_source: None,
             semantic_ledger: None,
+            callable_ledger: None,
             _seal: RawInvocationChildPortSealV1,
         }
     }
@@ -293,6 +296,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             module_port: &mut *self.module_port,
             active_source: self.active_source.clone(),
             semantic_ledger: self.semantic_ledger.clone(),
+            callable_ledger: self.callable_ledger.clone(),
             _seal: RawInvocationChildPortSealV1,
         }
     }

@@ -273,6 +273,29 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
     Ok(last_value.unwrap_or_else(|| builder.next_value_id()))
 }
 
+pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_preclaims_with_receipt_v1(
+    builder: &mut MirBuilder,
+    variables: Vec<String>,
+    initial_values: Vec<ValueId>,
+    declared_type_names: Vec<Option<String>>,
+    preclaimed_arrays: Vec<
+        Option<(
+            String,
+            crate::typed_array_contract_spec::ArrayElementContractSpec,
+        )>,
+    >,
+    receipt_values: &mut Vec<ValueId>,
+) -> Result<ValueId, String> {
+    build_local_statement_from_values_with_types_and_preclaims_with_receipt(
+        builder,
+        variables,
+        initial_values,
+        declared_type_names,
+        preclaimed_arrays,
+        Some(receipt_values),
+    )
+}
+
 /// One canonical Outbox local materialization in source-ordinal order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) struct OutboxBindingValueV1 {

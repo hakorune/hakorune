@@ -29,6 +29,7 @@ pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticSourceV1<'sourc
 pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticLoanV1<'source> {
     lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
     _function: &'source ASTNode,
+    lowering_state: super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
 }
 
 #[derive(Debug)]
@@ -120,6 +121,12 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         if !std::ptr::eq(projected, function) {
             return Err("[freeze:contract][mir/callable-semantic/root-identity]".to_owned());
         }
+        let owner = row
+            .forest
+            .owner(*root)
+            .ok_or_else(|| "[freeze:contract][mir/callable-semantic/root-owner]".to_owned())?;
+        let lowering_state =
+            super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_owner(owner)?;
         let lineage = match &row.key {
             SelectedNormalCallableKeyV1::TopLevel(key) => {
                 super::raw_invocation_source_transport::RawInvocationRootLineageV1::TopLevel(
@@ -135,6 +142,7 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         Ok(VerifiedNormalCallableSemanticLoanV1 {
             lineage,
             _function: function,
+            lowering_state,
         })
     }
 
@@ -146,15 +154,13 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
 }
 
 impl VerifiedNormalCallableSemanticLoanV1<'_> {
-    pub(super) fn with_source_transport<R>(
+    pub(super) fn into_parts(
         self,
-        execute: impl FnOnce(
-            super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
-        ) -> R,
-    ) -> R {
-        let transport = super::raw_invocation_source_transport::RawInvocationSourceTransportV1::
-            callable_semantic_root((), &self);
-        execute(transport)
+    ) -> (
+        super::raw_invocation_source_transport::RawInvocationRootLineageV1,
+        super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
+    ) {
+        (self.lineage, self.lowering_state)
     }
 
     pub(super) fn lineage(
@@ -227,6 +233,71 @@ mod tests {
     use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
     use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
     use crate::parser::NyashParser;
+
+    fn assert_callable_materialization_parity(source: &str) {
+        let legacy = MirCompiler::with_options(false)
+            .compile_with_source(
+                NyashParser::parse_from_string(source).unwrap(),
+                Some("callable-materialization.hako"),
+            )
+            .unwrap();
+        let normal = MirCompiler::with_options(false)
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    NyashParser::parse_from_string(source).unwrap(),
+                    Some("callable-materialization.hako"),
+                    std::collections::HashMap::new(),
+                )
+                .unwrap(),
+            )
+            .unwrap();
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+    }
+
+    #[test]
+    fn callable_entry_local_variable_and_rebind_materialization_keeps_parity() {
+        assert_callable_materialization_parity(
+            "function helper(x) { local y = x y += 1 return y }\n\
+             static box Tools { add(x) { local y = x y += 1 return y } }\n\
+             box Page { show(x) { local y = x y += 1 return y } }\n\
+             function capture(first, second) {\n\
+                 local f = fn(){ first + second }\n\
+                 return first\n\
+             }",
+        );
+
+        let mut compiler = MirCompiler::with_options(false);
+        assert!(compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    NyashParser::parse_from_string(
+                        "function bad(x) { local y = missing return y }",
+                    )
+                    .unwrap(),
+                    Some("callable-materialization-failure.hako"),
+                    std::collections::HashMap::new(),
+                )
+                .unwrap(),
+            )
+            .is_err());
+        compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    NyashParser::parse_from_string(
+                        "function good(x) { local y = x y += 1 return y }",
+                    )
+                    .unwrap(),
+                    Some("callable-materialization-reuse.hako"),
+                    std::collections::HashMap::new(),
+                )
+                .unwrap(),
+            )
+            .unwrap();
+    }
 
     #[test]
     fn mixed_callable_batch_seals_and_reacquires_exact_program_sites() {
