@@ -737,3 +737,22 @@ legacy no-projection facts entry leaves topology absent. No nested branch
 expression gains a source resolver or source authority. The next card is the
 all-route-preflight classification D0; no terminality, product, physical, or
 caller claim has been added.
+
+### IfPhiJoin preflight classification D0 decision
+
+Decision: the existing all-route preflight remains the sole classifier and
+single raw-schedule selector. Its `IfPhiJoin` raw-front branch may read only
+optional `IfPhiJoinFacts.source_topology` and its opaque if-else/step sites.
+The strict rejection order is: absent facts or topology gives
+`SourceTopologyUnavailable`; any nonempty ScopeBox lineage gives
+`ScopeBoxLineageNotBorrowable`; two direct sites give
+`PolicyAndTerminalityUnavailable`. The last case is not Qualified: provenance
+does not prove raw tail, handler terminality, Builder-free logical consumption,
+or physical safety. Actual if/step source order is retained provenance only and
+is not a preflight policy input.
+
+S0 adds this one classifier branch and fixtures that first assert the actual
+raw front is `IfPhiJoin`, then assert direct, ScopeBox, and topology-absent
+rejections. It updates the effect-order observation from `16/2/1` to `15/3/1`.
+It adds no AST re-match, source projection access, selector rerun, route skip,
+product, caller, handler/composer/lowerer/Builder change, or terminality claim.
