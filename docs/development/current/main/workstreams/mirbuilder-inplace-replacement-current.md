@@ -469,27 +469,27 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-D0`
-Parent: `JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-S0` (closed)
-Ceremony: design one AccumConstLoop policy/terminality proof; production consumers remain zero.
+Row: `JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-S0`
+Parent: `JOINIR-ACCUM-CONST-LOOP-TERMINALITY0-D0` (closed)
+Ceremony: issue one direct AccumConstLoop scheduler-terminality certificate; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Inventory AccumConstLoop's actual raw schedule, direct/ScopeBox source semantics,
-  legacy handler None paths, and the exact scheduler-terminality proof boundary.
+  Encode the exact direct two-site source proof and actual sole raw schedule needed
+  to establish Accum handler scheduler terminality without issuing any product.
 
 Contract:
-  Existing Accum source topology is authority. D0 must not re-match AST or infer
-  operands from clones; it must distinguish all-route policy/terminality from source.
+  Source topology/receipt plus actual raw schedule are authority. Certificate proves
+  only `Some|Err`, not composition/lower success, Builder readiness, rollback, or runtime.
 
 Done:
-  Design fixes actual raw order, handler terminality, strict/release policy, direct/
-  ScopeBox fixtures, and whether any earlier route blocks Accum. No product/caller is added.
+  Direct fixture proves raw `[AccumConstLoop]` and terminal certificate; ScopeBox,
+  missing topology, bad arity/index, or duplicate sites receive no certificate. No product/caller is added.
 
 Stop:
-  Stop if D0 treats source topology as terminality, skips earlier raw routes, expands
-  another route, or claims physical readiness. No runtime routing, Loop I0, raw/reference
-  ingress, or fallback is authorized.
+  Stop if S0 treats source topology alone as terminality, hides the single raw-schedule
+  proof, expands another route, or claims physical readiness. No runtime routing, Loop I0,
+  raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 

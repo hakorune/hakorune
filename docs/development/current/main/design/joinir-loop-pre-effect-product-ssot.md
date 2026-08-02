@@ -626,3 +626,17 @@ front's typed rejection. Direct SimpleWhile is policy/terminality-rejected rathe
 than qualified; ScopeBox lineage precedes that policy diagnosis. The shared guard
 ratchets this child’s one selection, no direct-product dependency, and unchanged
 sole source bridge. No all-route product, consumer, or caller exists.
+
+### AccumConstLoop terminality D0 decision
+
+Decision: accepted a narrow direct scheduler-terminality certificate. The canonical
+raw shape selects exactly `[AccumConstLoop]`: SimpleWhile requires one body step,
+GenericV0 rejects non-loop accumulator writes, and GenericV1 is predicate-suppressed
+by Accum. The route has no `Ok(None)` path: contract absence, composer failure, and
+verify/lower failure are `Err`; its `CorePlan::Loop` completion is `Some` or `Err`.
+This proves no lower success, mutation rollback, Builder readiness, or runtime result.
+
+S0 requires existing topology to show raw body arity two, accumulator-update index
+zero, step index one, distinct sites, and empty ScopeBox lineage, plus an actual
+raw-schedule fixture. ScopeBox/topology/index mismatch issues no certificate. The
+certificate does not qualify the all-route preflight or issue a product/caller.
