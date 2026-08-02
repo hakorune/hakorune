@@ -37,6 +37,7 @@ pub(crate) use execution_witness::{
 use execution_witness::{RouteAttemptOutcomeV1, RouteExecutionResultV1};
 use handlers::*;
 pub(crate) use live_preflight_frame::{issue_live_preflight_frame, observe_all_route_preflight_v1};
+pub(crate) use live_preflight_frame::LivePreflightFrameV1;
 use predicates::*;
 use route_id::{entry_keys, LoopRouteId};
 pub(crate) use selection::{select_recipe_first_routes, RecipeFirstRouteSelectionV1};

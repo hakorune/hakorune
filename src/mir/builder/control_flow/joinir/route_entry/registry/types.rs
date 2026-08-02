@@ -15,6 +15,7 @@ pub(crate) mod route_labels {
     pub(crate) const GENERIC_LOOP_V1: &str = "generic_loop_v1";
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct RouterEnv {
     pub strict_or_dev: bool,
     pub planner_required: bool,

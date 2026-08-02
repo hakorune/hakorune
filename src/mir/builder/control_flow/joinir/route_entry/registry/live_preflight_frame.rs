@@ -92,3 +92,41 @@ impl<'frame> LegacyRouteExecutionContinuationV1<'frame> {
         try_execute_route_execution_witness(builder, ctx, self.facts, witness)
     }
 }
+
+impl<'frame> LivePreflightFrameV1<'frame> {
+    /// Test-only witness access bound to the exact production frame.
+    ///
+    /// The witness borrows the frame-owned raw schedule and environment.  A
+    /// release-gated frame cannot be bypassed by an observer.
+    #[cfg(test)]
+    pub(crate) fn test_witness_if_allowed(&self) -> Option<RouteExecutionWitnessV1<'_>> {
+        if !self.recipe_first_allowed {
+            return None;
+        }
+        Some(RouteExecutionWitnessV1::issue(
+            self.selection.raw_execution_routes(),
+            &self.env,
+            self.recipe_contract_present,
+        ))
+    }
+
+    #[cfg(test)]
+    pub(crate) fn test_env(&self) -> RouterEnv {
+        self.env
+    }
+
+    #[cfg(test)]
+    pub(crate) fn test_recipe_contract_present(&self) -> bool {
+        self.recipe_contract_present
+    }
+
+    #[cfg(test)]
+    pub(crate) fn test_recipe_first_allowed(&self) -> bool {
+        self.recipe_first_allowed
+    }
+
+    #[cfg(test)]
+    pub(crate) fn test_raw_schedule(&self) -> &[super::route_id::LoopRouteId] {
+        self.selection.raw_execution_routes()
+    }
+}

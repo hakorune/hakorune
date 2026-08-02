@@ -542,12 +542,13 @@ product, not a new policy owner.
 
 Run the direct V0 and V1 paths on separate fresh candidates before reading the
 legacy witness. Then run the real witness for the same source row and mode.
-The observer must capture the same `LivePreflightFrameV1` environment and
-recipe-contract inputs used by production. The current test helper's fixed
-`strict_or_dev=false`, `planner_required=false`, `has_body_local=false`, and
-absent-contract setup is not sufficient evidence for a production winner
-claim unless an explicit Generic-equivalence guard proves the difference is
-unobservable.
+The observer now constructs the same `LivePreflightFrameV1` through the shared
+production preparation helper, capturing `strict_or_dev`, `planner_required`,
+`has_body_local` from facts, recipe-contract presence from the outcome, and
+`recipe_first_allowed`. The test-only witness accessor borrows only the frame's
+raw schedule and environment; it cannot bypass a release gate. The strict
+planner ambiguity rejection remains a production pre-frame gate and is not
+fabricated by the observer.
 `all_route_preflight`, synthetic outcomes, malformed plans, and failure
 injection are forbidden. A4's `env.console.error(i)` row remains a separate
 `effectful outer Err / UnresolvedStop` row; it is not a debt receipt and is not

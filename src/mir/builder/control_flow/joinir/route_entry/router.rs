@@ -203,6 +203,55 @@ fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
     loop_cond.release_allowed()
 }
 
+fn issue_live_preflight_frame_from_outcome<'frame>(
+    ctx: &LoopRouteContext<'frame>,
+    outcome: &'frame PlanBuildOutcome,
+    selection: registry::RecipeFirstRouteSelectionV1,
+    strict_or_dev: bool,
+    planner_required: bool,
+) -> registry::LivePreflightFrameV1<'frame> {
+    let has_body_local = outcome
+        .facts
+        .as_ref()
+        .and_then(|facts| facts.facts.loop_break_body_local())
+        .is_some();
+    let env = registry::RouterEnv {
+        strict_or_dev,
+        planner_required,
+        has_body_local,
+    };
+    let release_recipe_first_allowed = if !loop_body_has_nested_loop(ctx.body) {
+        true
+    } else {
+        release_allows_nested_recipe_first(outcome)
+    };
+    let recipe_first_allowed = strict_or_dev || release_recipe_first_allowed;
+    registry::issue_live_preflight_frame(
+        ctx,
+        outcome.facts.as_ref(),
+        selection,
+        env,
+        outcome.recipe_contract.is_some(),
+        recipe_first_allowed,
+    )
+}
+
+#[cfg(test)]
+pub(crate) fn test_issue_live_preflight_frame<'frame>(
+    ctx: &LoopRouteContext<'frame>,
+    outcome: &'frame PlanBuildOutcome,
+    strict_or_dev: bool,
+    planner_required: bool,
+) -> registry::LivePreflightFrameV1<'frame> {
+    issue_live_preflight_frame_from_outcome(
+        ctx,
+        outcome,
+        registry::select_recipe_first_routes(outcome.facts.as_ref()),
+        strict_or_dev,
+        planner_required,
+    )
+}
+
 pub(crate) fn route_loop(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
@@ -223,19 +272,6 @@ pub(crate) fn route_loop(
         || crate::config::env::joinir_dev_enabled();
     let planner_required =
         strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
-    // body-local flowbox tagging is handled in the recipe-first loop_break_recipe path
-    // and must not depend on legacy planner-only state.
-    let has_body_local = outcome
-        .facts
-        .as_ref()
-        .and_then(|f| f.facts.loop_break_body_local())
-        .is_some();
-
-    let env = registry::RouterEnv {
-        strict_or_dev,
-        planner_required,
-        has_body_local,
-    };
     let selection = registry::select_recipe_first_routes(outcome.facts.as_ref());
     let allow_shadow_fallback = outcome.recipe_contract.is_none();
     let debug_enabled = crate::config::env::joinir_dev::debug_enabled();
@@ -291,26 +327,13 @@ pub(crate) fn route_loop(
         }
     }
 
-    // In release, keep nested-loop recipe-first blocked by default.
-    // Exceptions:
-    // - nested_loop_minimal facts (same compose contract as release_adopt nested-minimal lane)
-    // - generic_loop_v{1,0} facts (recipe-first best-effort; only no-match `Ok(None)` continues routing, `Err` propagates)
-    // - migrated scan families (Phase C15/C16 recipe-first pipelines are already gated)
-    // - loop_cond_break_continue with explicit exit-driven accept kinds.
-    let release_recipe_first_allowed = if !loop_body_has_nested_loop(ctx.body) {
-        true
-    } else {
-        release_allows_nested_recipe_first(&outcome)
-    };
-    let recipe_first_allowed = strict_or_dev || release_recipe_first_allowed;
     let exhausted_candidate_names = selection.diagnostic_effective_names();
-    let frame = registry::issue_live_preflight_frame(
+    let frame = issue_live_preflight_frame_from_outcome(
         ctx,
-        outcome.facts.as_ref(),
+        &outcome,
         selection,
-        env,
-        outcome.recipe_contract.is_some(),
-        recipe_first_allowed,
+        strict_or_dev,
+        planner_required,
     );
     let legacy = registry::observe_all_route_preflight_v1(frame).into_legacy_execution();
     if let Some(success) = legacy.try_execute_if_allowed(builder, ctx)? {

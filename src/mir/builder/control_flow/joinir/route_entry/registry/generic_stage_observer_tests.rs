@@ -5,14 +5,16 @@
 //! ENTRIES dispatch used by production through the existing witness executor.
 
 use super::execution_witness::{
-    PostEffectRetryDebtV1, RouteAttemptOutcomeV1, RouteExecutionResultV1, RouteExecutionWitnessV1,
+    PostEffectRetryDebtV1, RouteAttemptOutcomeV1, RouteExecutionResultV1,
 };
 use super::generic_selection_matrix_tests::{
     both_body, effect_without_local_body, progression_condition, v1_only_effect_body,
 };
 use super::route_id::LoopRouteId;
-use super::{dispatch_entry, select_recipe_first_routes, RouterEnv};
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use super::dispatch_entry;
+use crate::mir::builder::control_flow::joinir::route_entry::router::{
+    test_issue_live_preflight_frame, LoopRouteContext,
+};
 use crate::mir::builder::control_flow::plan::single_planner::try_build_outcome;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
@@ -26,12 +28,12 @@ enum ObserverModeV1 {
 }
 
 impl ObserverModeV1 {
-    fn env(self) -> RouterEnv {
-        RouterEnv {
-            strict_or_dev: !matches!(self, Self::Release),
-            planner_required: matches!(self, Self::StrictPlannerRequired),
-            has_body_local: false,
-        }
+    fn strict_or_dev(self) -> bool {
+        !matches!(self, Self::Release)
+    }
+
+    fn planner_required(self) -> bool {
+        matches!(self, Self::StrictPlannerRequired)
     }
 
     fn config(self) -> crate::test_support::ScopedTestConfig {
@@ -75,11 +77,22 @@ struct GenericDebtTraceV1 {
 enum TerminalTraceV1 {
     Succeeded(LoopRouteId),
     Exhausted,
+    Blocked,
     Error(String),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct FrameTraceV1 {
+    strict_or_dev: bool,
+    planner_required: bool,
+    has_body_local: bool,
+    recipe_contract_present: bool,
+    recipe_first_allowed: bool,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 struct GenericStageTraceV1 {
+    frame: FrameTraceV1,
     raw_schedule: Vec<LoopRouteId>,
     attempted: Vec<AttemptTraceV1>,
     generic_debts: Vec<GenericDebtTraceV1>,
@@ -114,11 +127,49 @@ fn observe_selected_fixture(
         .facts
         .as_ref()
         .expect("Both fixture must produce canonical facts");
-    let raw_schedule = select_recipe_first_routes(Some(facts))
-        .raw_execution_routes()
-        .to_vec();
-    let env = mode.env();
-    let witness = RouteExecutionWitnessV1::issue(&raw_schedule, &env, false);
+    let frame = test_issue_live_preflight_frame(
+        &ctx,
+        &outcome,
+        mode.strict_or_dev(),
+        mode.planner_required(),
+    );
+    let env = frame.test_env();
+    let frame_trace = FrameTraceV1 {
+        strict_or_dev: env.strict_or_dev,
+        planner_required: env.planner_required,
+        has_body_local: env.has_body_local,
+        recipe_contract_present: frame.test_recipe_contract_present(),
+        recipe_first_allowed: frame.test_recipe_first_allowed(),
+    };
+    assert!(
+        !frame_trace.planner_required || frame_trace.strict_or_dev,
+        "planner-required frame must imply strict/dev"
+    );
+    assert_eq!(
+        frame_trace.has_body_local,
+        facts.facts.loop_break_body_local().is_some(),
+        "frame body-local flag must come from canonical facts"
+    );
+    assert_eq!(
+        frame_trace.recipe_contract_present,
+        outcome.recipe_contract.is_some(),
+        "frame contract flag must come from the planner outcome"
+    );
+    let frame_raw_schedule = frame.test_raw_schedule().to_vec();
+    let Some(witness) = frame.test_witness_if_allowed() else {
+        return GenericStageTraceV1 {
+            frame: frame_trace,
+            raw_schedule: frame_raw_schedule,
+            attempted: Vec::new(),
+            generic_debts: Vec::new(),
+            terminal: TerminalTraceV1::Blocked,
+        };
+    };
+    let raw_schedule = witness.raw_schedule().to_vec();
+    assert_eq!(
+        raw_schedule, frame_raw_schedule,
+        "witness must borrow the exact frame raw schedule"
+    );
     let mut builder = seeded_builder();
     let _scope = LexicalScopeGuard::new(&mut builder);
     let mut attempted = Vec::new();
@@ -147,7 +198,28 @@ fn observe_selected_fixture(
         Ok(RouteExecutionResultV1::Exhausted(_)) => TerminalTraceV1::Exhausted,
         Err(error) => TerminalTraceV1::Error(error),
     };
+    assert!(
+        attempted.len() <= raw_schedule.len(),
+        "attempted prefix cannot exceed the captured raw schedule"
+    );
+    for (index, attempt) in attempted.iter().enumerate() {
+        assert_eq!(
+            attempt.route,
+            raw_schedule[index],
+            "attempted route must remain the captured raw prefix"
+        );
+        assert_eq!(
+            attempt.cursor, index,
+            "attempt cursor must remain the captured raw prefix order"
+        );
+        assert_eq!(
+            attempt.suffix,
+            raw_schedule[index + 1..],
+            "attempt suffix must remain the captured raw suffix"
+        );
+    }
     GenericStageTraceV1 {
+        frame: frame_trace,
         raw_schedule,
         attempted,
         generic_debts,
@@ -221,6 +293,20 @@ fn generic_both_fixture_records_mode_specific_witness_boundaries() {
         let trace = observe_both_fixture(mode);
         let repeat = observe_both_fixture(mode);
         assert_eq!(trace, repeat, "mode-specific witness drift: {mode:?}");
+        assert_eq!(
+            trace.frame.strict_or_dev,
+            !matches!(mode, ObserverModeV1::Release),
+            "frame must capture the production strict/dev mode"
+        );
+        assert_eq!(
+            trace.frame.planner_required,
+            matches!(mode, ObserverModeV1::StrictPlannerRequired),
+            "frame must capture the production planner-required mode"
+        );
+        assert!(
+            trace.frame.recipe_first_allowed,
+            "Generic Both fixture must remain recipe-first allowed"
+        );
 
         assert!(
             !trace.raw_schedule.is_empty(),
