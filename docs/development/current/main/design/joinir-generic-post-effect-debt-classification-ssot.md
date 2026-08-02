@@ -404,6 +404,21 @@ facts-only must not be counted by D2-B; rows that are accepted by facts but not
 measured at lower remain unresolved. `GenericLoopV1ShapeId` is a hint policy,
 not an exhaustive grammar, so it cannot close this table by itself.
 
+#### D0 invariant refinement — lower `None`
+
+Two stage-matrix arms can now be classified by an existing code invariant:
+
+- both successful Generic composers construct `CorePlan::Loop` only;
+- `PlanLowerer::lower` dispatches that root to `lower_loop`, whose completion
+  emits the loop `Void` value and returns `Ok(Some(_))`.
+
+Therefore `ReleaseLowerReturnedNone` and `StrictShadowLowerReturnedNone` are
+`ImpossibleEdge` for a valid selected Generic plan. The legacy receipt arms
+remain as fail-fast diagnostics if that invariant is violated; this statement
+does not authorize deleting them before M10. `ReleaseVerifierRejected` and
+`ReleaseLowerFailed` still require natural structural rows and remain
+`UnresolvedStop`.
+
 ### D2-B — gated V0 overlap decision (`JOINIR-GENERIC-V0-PRE-EFFECT-WINNER-TERMINAL0-D2-S2`)
 
 This is the next design stop, not an implementation permission. It may begin
