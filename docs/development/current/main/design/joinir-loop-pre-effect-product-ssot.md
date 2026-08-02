@@ -1279,3 +1279,16 @@ production classifier below 800 lines.
 
 No source borrowing, inner-loop inspection, terminality, product, physicalizer,
 caller, or runtime behavior changed. The next card is terminality D0.
+
+### NestedLoopMinimal terminality D0 decision
+
+Decision: NoSafeSlice. In release mode, the nested composer can reject before
+allocation and `route_nested_loop_minimal` returns `Ok(None)`, letting ordered
+execution continue its raw tail. Source topology/Facts/raw-front evidence does
+not bind `strict_or_dev` or the composer result. Strict/dev converts that same
+case to an error, but the existing terminality capability has no environment
+witness and cannot claim a strict-only proof.
+
+Composer/lower effects are separately mutable before later errors. No
+terminality certificate, product, physicalizer, caller, or runtime behavior
+changed. Fresh D7 inventory must select the next unlanded route.
