@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-TRUE-EARLY-EXIT-TERMINALITY0-D0 is NoSafeSlice; JOINIR-NEXT-ROUTE-SELECTION0-D4 selected."
+status = "JOINIR-LOOP-TRUE-EARLY-EXIT-TERMINALITY0-D0 is NoSafeSlice; JOINIR-NEXT-ROUTE-SELECTION0-D4 selected JOINIR-LOOP-CHAR-MAP-PROVENANCE0-D0."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "D4 must inventory registry order and completed route histories to select exactly one next unlanded bounded D0. It must not reselect a historical S0, infer terminality from topology, or start code before the owner/authority/nonclaim boundary is fixed."
-current_execution_row = "JOINIR-NEXT-ROUTE-SELECTION0-D4"
-current_execution_summary = "LoopTrueEarlyExit terminality is NoSafe: route_standard may Ok(None) without a contract and continue the raw tail; topology cannot constrain RouterEnv or contract state."
+current_design_stop = "D0 must decide whether LoopCharMap may retain only optional projection-aware topology for the complete flattened three-statement body: substring local, result update, and final step. It must preserve facts acceptance and prohibit synthetic ch/AST source authority. ScopeBox lineage is observation only; preflight, terminality, product, physical safety, caller, and runtime remain separate."
+current_execution_row = "JOINIR-LOOP-CHAR-MAP-PROVENANCE0-D0"
+current_execution_summary = "D4 selected LoopCharMap as the next unlanded registry route. Its legacy recipe reconstructs synthetic AST, so provenance must remain opaque and behavior-neutral."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-NEXT-ROUTE-SELECTION0-D4"
+current_blocker_token = "JOINIR-LOOP-CHAR-MAP-PROVENANCE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

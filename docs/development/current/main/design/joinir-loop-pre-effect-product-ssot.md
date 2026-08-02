@@ -1114,3 +1114,16 @@ effects.
 Select no implementation yet. Re-inventory the registry after the completed
 LoopBreak/IfPhiJoin/ContinueOnly/LoopTrueEarlyExit paths and choose one unlanded
 bounded route with its source authority and failure boundary written first.
+
+### Next-route selection D4 decision
+
+Decision: select `LoopCharMap` provenance D0. Its facts accept one exact
+flattened three-statement shape—substring local, result update using that
+binding, and final `+1` step—but retain only cloned or derived semantic fields.
+D0 may decide an optional projection-aware opaque topology for those three
+whole statements only. The recipe's reconstructed body, including synthetic
+`ch`, is not source authority and cannot be validated from this topology.
+
+No preflight, selector, terminality, product, composer/lowerer, Builder,
+physicalizer, caller, or runtime change is authorized. The planner-required
+route's ordinary `Ok(None)` behavior makes terminality a later independent D0.
