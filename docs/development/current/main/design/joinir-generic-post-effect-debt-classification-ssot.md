@@ -376,11 +376,15 @@ condition arms
 Each row maps to the smallest natural AST fixture and the same actual
 facts→selector→fresh candidate composer→`CorePlan::Loop`→verifier→lower
 observer. Record `Observed-LowerSome`, `Observed-Composer+Verifier`,
-`Expected-NonGeneric/Suppressed`, or `UnresolvedStop`; facts-only extractor
-tests are not promoted. The table must include near-misses such as unsupported
-value/lower arms and preserve their first-effect owner rather than hiding them
-as decline. `all_route_preflight`, malformed synthetic plans, and failure
-injection remain forbidden.
+`FactsOnly-Unwired`, `Expected-NonGeneric/Suppressed`, or `UnresolvedStop`;
+facts-only extractor tests are not promoted. The table must include near-misses
+such as unsupported value/lower arms and preserve their first-effect owner
+rather than hiding them as decline. `all_route_preflight`, malformed
+synthetic plans, and failure injection remain forbidden.
+
+The stage-only observer does not establish a winner. For every `Both` row, D3
+must additionally compare the actual witness attempted prefix and any debt
+receipt with the legacy terminal; no stage-only row may be promoted to D2-B.
 
 This census is the boundary for D2-B. A recursive or expression arm that is
 accepted by facts but has no lower-stage observation keeps D2-B stopped; do not
@@ -390,14 +394,14 @@ claim universal V0 winner equivalence from the finite known corpus.
 
 The first census snapshot is intentionally small and source-anchored:
 
-| axis | observed through composer/verifier/lower | facts-only or non-Generic boundary | status |
-| --- | --- | --- | --- |
-| condition | numeric comparison (`i < 3`), additive numeric comparison (`j + m < n`), literal `true` | extended boolean/block-expression conditions | `Observed-LowerSome` / `UnresolvedStop` |
-| step placement | final numeric assignment; body-derived step | `InBody`, `InContinueIf`, `InBreakElseIf`, `BodyManaged` variants | `Observed-LowerSome` / `FactsOnly-Unwired` |
-| body items | local + assignment, nested Loop + assignment | If/Exit/Program/ScopeBox and call/effect bodies | `Observed-LowerSome` / `FactsOnly-Unwired` |
-| value expressions | integer literals, variables, arithmetic | call/field/index/array/map/Match/ThisField/Grouped/Await/QMark arms | `Observed-LowerSome` / `UnresolvedStop` |
-| recursion | one nested Loop in the Both fixture | deeper nesting and Loop+If+Return combinations | `Observed-LowerSome` / `UnresolvedStop` |
-| stage failures | no natural verifier/lower failure observed | `ReleaseVerifierRejected`, `ReleaseLowerFailed`, and strict shadow failure | `UnresolvedStop` |
+| axis | observed through composer/verifier/lower | facts-only boundary | non-Generic/suppressed boundary | status |
+| --- | --- | --- | --- | --- |
+| condition | numeric comparison (`i < 3`), additive numeric comparison (`j + m < n`), literal `true` | extended boolean/block-expression conditions | specialized condition families | `Observed-LowerSome` / `UnresolvedStop` |
+| step placement | final numeric assignment; body-derived step | `InBody`, `InContinueIf`, `InBreakElseIf`, `BodyManaged` variants | scanner/state-machine-owned steps | `Observed-LowerSome` / `FactsOnly-Unwired` |
+| body items | local + assignment, nested Loop + assignment | If/Exit/Program/ScopeBox and call/effect bodies | LoopCond/LoopBreak-owned exits | `Observed-LowerSome` / `FactsOnly-Unwired` |
+| value expressions | integer literals, variables, arithmetic | call/field/index/array/map/Match/ThisField/Grouped/Await/QMark arms | unsupported source family gates | `Observed-LowerSome` / `UnresolvedStop` |
+| recursion | one nested Loop in the Both fixture | deeper nesting and Loop+If+Return combinations | nested-specialized route ownership | `Observed-LowerSome` / `UnresolvedStop` |
+| stage failures | no natural verifier/lower failure observed | `ReleaseVerifierRejected`, `ReleaseLowerFailed`, and strict shadow failure | — | `UnresolvedStop` |
 
 The table is a coverage ledger, not a new semantic vocabulary. Rows marked
 facts-only must not be counted by D2-B; rows that are accepted by facts but not
