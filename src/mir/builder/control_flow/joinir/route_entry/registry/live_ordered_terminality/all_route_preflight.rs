@@ -30,9 +30,31 @@ fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV
         LoopRouteId::LoopTrueEarlyExit => classify_loop_true_early_exit(facts),
         LoopRouteId::LoopCharMap => classify_loop_char_map(facts),
         LoopRouteId::LoopArrayJoin => classify_loop_array_join(facts),
+        LoopRouteId::NestedLoopMinimal => classify_nested_loop_minimal(facts),
         LoopRouteId::LoopSimpleWhile => classify_simple_while(facts),
         LoopRouteId::AccumConstLoop => classify_accum_const(facts),
         _ => LoopPreflightRejectV1::SourceTopologyUnavailable { route },
+    }
+}
+
+fn classify_nested_loop_minimal(facts: &LoopFacts) -> LoopPreflightRejectV1 {
+    let Some(nested) = facts.nested_loop_minimal() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::NestedLoopMinimal,
+        };
+    };
+    let Some(topology) = nested.source_topology.as_ref() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::NestedLoopMinimal,
+        };
+    };
+    if topology.has_scope_box_lineage() {
+        return LoopPreflightRejectV1::ScopeBoxLineageNotBorrowable {
+            route: LoopRouteId::NestedLoopMinimal,
+        };
+    }
+    LoopPreflightRejectV1::PolicyAndTerminalityUnavailable {
+        route: LoopRouteId::NestedLoopMinimal,
     }
 }
 
@@ -216,6 +238,9 @@ mod array_join_tests;
 
 #[cfg(test)]
 mod char_map_tests;
+
+#[cfg(test)]
+mod nested_loop_tests;
 
 #[cfg(test)]
 mod tests {
