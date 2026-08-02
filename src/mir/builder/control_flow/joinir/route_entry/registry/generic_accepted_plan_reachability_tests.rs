@@ -6,7 +6,7 @@
 
 use super::generic_selection_matrix_tests::{
     additive_body, additive_condition, both_body, neither_body, progression_condition,
-    simple_while_body, v1_only_body,
+    simple_while_body, true_body, true_condition, v1_only_body,
 };
 use super::route_id::LoopRouteId;
 use super::select_recipe_first_routes;
@@ -128,6 +128,7 @@ fn fixture(name: &str) -> (crate::ast::ASTNode, Vec<crate::ast::ASTNode>) {
     match name {
         "v1-only" => (progression_condition(), v1_only_body()),
         "v0-additive" => (additive_condition(), additive_body()),
+        "v1-true-body-step" => (true_condition(), true_body()),
         "both" => (progression_condition(), both_body()),
         "simple-while" => (progression_condition(), simple_while_body()),
         "neither" => (progression_condition(), neither_body()),
@@ -264,9 +265,32 @@ fn generic_accepted_plan_reachability_corpus_is_test_only_and_repeatable() {
             ("HAKO_JOINIR_PLANNER_REQUIRED", mode.planner_required()),
             ("NYASH_JOINIR_STRICT", None),
         ]);
-        for name in ["v1-only", "v0-additive", "both", "simple-while", "neither"] {
+        for name in [
+            "v1-only",
+            "v0-additive",
+            "v1-true-body-step",
+            "both",
+            "simple-while",
+            "neither",
+        ] {
             let rows = observe_fixture(mode, name);
             for row in rows {
+                if row.stage == PlanStageV1::ComposerError {
+                    assert_eq!(
+                        row.first_effect_owner,
+                        EffectOwnerV1::None,
+                        "composer precondition failure must be pre-effect: {row:?}"
+                    );
+                    let repeat = observe_fixture(mode, name)
+                        .into_iter()
+                        .find(|candidate| candidate.route == row.route)
+                        .expect("repeat fixture must retain selected Generic route");
+                    assert_eq!(
+                        row.stage, repeat.stage,
+                        "fresh candidate stage drift: {row:?}"
+                    );
+                    continue;
+                }
                 assert!(
                     row.root_is_loop,
                     "Generic composer root must be Loop: {row:?}"
@@ -280,6 +304,13 @@ fn generic_accepted_plan_reachability_corpus_is_test_only_and_repeatable() {
                         row.stage,
                         PlanStageV1::LowerSome,
                         "additive V0 row must reach a terminal lower success: {row:?}"
+                    );
+                }
+                if name == "v1-true-body-step" {
+                    assert_eq!(
+                        row.stage,
+                        PlanStageV1::LowerSome,
+                        "true-condition V1 row must reach a terminal lower success: {row:?}"
                     );
                 }
                 let repeat = observe_fixture(mode, name)

@@ -332,10 +332,13 @@ row as `UnresolvedStop` instead of broadening the corpus. Receiver/scanner,
 state-machine, RecipeOnly-break, and other facts-only fixtures remain outside
 this slice until their production route ownership is separately proven.
 
-Observation: the additive row is green in all three modes. Its selected
-Generic row reaches a `CorePlan::Loop` root and terminal `PlanLowerer::lower ->
-Some` with a stable fresh repeat. This is one more accepted-plan data point; it
-does not authorize V0 precedence or close D2-B.
+Observation: the additive row is green in all three modes. Its accepted
+Generic row reaches a `CorePlan::Loop` root and terminal
+`PlanLowerer::lower -> Some` with a stable fresh repeat. A selected
+strict+planner-required V1 row may instead stop at a pre-effect composer
+precondition; that row is recorded as `UnresolvedStop`, not accepted. This is
+one more bounded data point; it does not authorize V0 precedence or close
+D2-B.
 
 ### D2-A2 — true-condition body-derived step (bounded probe)
 
@@ -349,6 +352,39 @@ stage/repeat gates as D2-A1.
 This probe is intentionally one source shape. It does not widen the Generic
 semantic contract, alter overlap policy, or convert extractor-only facts into
 D2-B evidence.
+
+Observation: the true-condition row is selected as Generic V1 and reaches a
+terminal `PlanLowerer::lower -> Some` where its composer precondition is
+satisfied, with stable fresh repeat. Any strict+planner-required precondition
+failure remains an explicit unresolved row. This adds one natural
+body-derived-step row; it still does not close the recursive Generic grammar
+or D2-B.
+
+### D2-A3 — Generic structural grammar boundary census
+
+Stop adding one-off fixtures after the bounded probes. Build one test-only
+structure table from the actual facts/lower owners:
+
+```text
+condition arms
+× step dispositions
+× body/control items
+× supported value-expression arms
+× recursive depth boundary
+```
+
+Each row maps to the smallest natural AST fixture and the same actual
+facts→selector→fresh candidate composer→`CorePlan::Loop`→verifier→lower
+observer. Record `Observed-LowerSome`, `Observed-Composer+Verifier`,
+`Expected-NonGeneric/Suppressed`, or `UnresolvedStop`; facts-only extractor
+tests are not promoted. The table must include near-misses such as unsupported
+value/lower arms and preserve their first-effect owner rather than hiding them
+as decline. `all_route_preflight`, malformed synthetic plans, and failure
+injection remain forbidden.
+
+This census is the boundary for D2-B. A recursive or expression arm that is
+accepted by facts but has no lower-stage observation keeps D2-B stopped; do not
+claim universal V0 winner equivalence from the finite known corpus.
 
 ### D2-B — gated V0 overlap decision (`JOINIR-GENERIC-V0-PRE-EFFECT-WINNER-TERMINAL0-D2-S2`)
 

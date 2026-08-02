@@ -102,6 +102,17 @@ pub(super) fn additive_body() -> Vec<ASTNode> {
     vec![assign("j", add(variable("j"), integer(1)))]
 }
 
+pub(super) fn true_condition() -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::Bool(true),
+        span: Span::unknown(),
+    }
+}
+
+pub(super) fn true_body() -> Vec<ASTNode> {
+    vec![assign("i", add(variable("i"), integer(1)))]
+}
+
 fn progression_step() -> ASTNode {
     assign("i", add(variable("i"), integer(1)))
 }
@@ -155,6 +166,16 @@ fn generic_v0_additive_condition_records_source_to_raw_selection() {
     let observation = observe_release(&additive_condition(), &additive_body());
     assert!(observation.v0_facts);
     assert!(observation.raw_routes.contains(&LoopRouteId::GenericLoopV0));
+}
+
+#[test]
+fn generic_true_condition_body_step_records_real_route_ownership() {
+    let observation = observe_release(&true_condition(), &true_body());
+    assert!(observation.v1_facts);
+    assert!(
+        observation.raw_routes.contains(&LoopRouteId::GenericLoopV1),
+        "true-condition body-derived step must retain a Generic V1 route: {observation:?}"
+    );
 }
 
 #[test]
