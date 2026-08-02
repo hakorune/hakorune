@@ -89,6 +89,16 @@ mod nested_loop_plan_recipe_adoption_policy;
 // CorePlan の構成要素
 // M1 scaffold: RecipeTree vocabulary + Parts dispatch entry (no calls from existing pipeline)
 mod parts;
+
+#[cfg(test)]
+pub(crate) fn reset_loop_physical_effect_probe() {
+    parts::reset_loop_physical_effect_probe();
+}
+
+#[cfg(test)]
+pub(crate) fn take_loop_physical_effect_probe() -> usize {
+    parts::take_loop_physical_effect_probe()
+}
 pub(in crate::mir::builder) mod recipe_tree;
 // M5f: Neutral re-export layer for parts (parts should not depend on features)
 mod steps;

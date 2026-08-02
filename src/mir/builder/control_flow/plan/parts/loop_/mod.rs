@@ -15,6 +15,27 @@ mod loop_v0;
 mod nested_depth1;
 mod vars;
 
+#[cfg(test)]
+pub(crate) mod test_probe {
+    use std::cell::Cell;
+
+    thread_local! {
+        static LOOP_PHYSICAL_EFFECTS: Cell<usize> = const { Cell::new(0) };
+    }
+
+    pub(crate) fn reset() {
+        LOOP_PHYSICAL_EFFECTS.with(|count| count.set(0));
+    }
+
+    pub(crate) fn record_after_frame() {
+        LOOP_PHYSICAL_EFFECTS.with(|count| count.set(count.get() + 1));
+    }
+
+    pub(crate) fn take() -> usize {
+        LOOP_PHYSICAL_EFFECTS.with(|count| count.replace(0))
+    }
+}
+
 pub(in crate::mir::builder) type LoopBodyContractKind =
     crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 

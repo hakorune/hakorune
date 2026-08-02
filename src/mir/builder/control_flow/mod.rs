@@ -73,6 +73,16 @@ pub(in crate::mir::builder) mod generic_loop_canon;
 // Phase 273 P0: Plan Extractor (Pure) + PlanLowerer SSOT
 pub(in crate::mir::builder) mod plan;
 
+#[cfg(test)]
+pub(crate) fn reset_loop_physical_effect_probe() {
+    plan::reset_loop_physical_effect_probe();
+}
+
+#[cfg(test)]
+pub(crate) fn take_loop_physical_effect_probe() -> usize {
+    plan::take_loop_physical_effect_probe()
+}
+
 // Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
 pub(crate) use joinir::detect_skip_whitespace_shape;
 

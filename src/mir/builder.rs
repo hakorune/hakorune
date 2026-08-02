@@ -346,6 +346,16 @@ mod recursive_child_lowering_tests;
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
+
+#[cfg(test)]
+pub(crate) fn reset_loop_physical_effect_probe() {
+    control_flow::reset_loop_physical_effect_probe();
+}
+
+#[cfg(test)]
+pub(crate) fn take_loop_physical_effect_probe() -> usize {
+    control_flow::take_loop_physical_effect_probe()
+}
 mod weak_field_write_route;
 
 // Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
@@ -509,6 +519,30 @@ pub struct MirBuilder {
     /// File mode: false (explicit local required)
     /// REPL mode: true (暗黙 local 許可)
     pub(crate) repl_mode: bool,
+}
+
+#[cfg(test)]
+impl MirBuilder {
+    /// Full candidate-abort fingerprint for the M1 proof fixture.
+    ///
+    /// This is test-only observation: it does not define a production snapshot
+    /// or introduce a second publication path.
+    pub(crate) fn loop_candidate_test_fingerprint(&self) -> String {
+        format!(
+            "{:?}",
+            (
+                &self.current_module,
+                &self.function_state,
+                &self.core_ctx,
+                &self.scope_ctx,
+                &self.metadata_ctx,
+                &self.comp_ctx,
+                self.recursion_depth,
+                self.root_is_app_mode,
+                self.repl_mode,
+            )
+        )
+    }
 }
 
 impl Default for MirBuilder {

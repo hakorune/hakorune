@@ -101,6 +101,8 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     }
 
     let frame = build_coreloop_frame(builder, &carrier_vars, &carrier_inits, LOOP_V0_ERR)?;
+    #[cfg(test)]
+    crate::mir::builder::control_flow::plan::parts::loop_::test_probe::record_after_frame();
 
     let mut break_phi_dsts = BTreeMap::new();
     for var in &carrier_vars {

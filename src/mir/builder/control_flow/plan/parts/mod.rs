@@ -32,6 +32,16 @@ mod if_exit_special;
 pub(super) mod if_general;
 pub(super) mod join_scope;
 mod loop_;
+
+#[cfg(test)]
+pub(crate) fn reset_loop_physical_effect_probe() {
+    loop_::test_probe::reset();
+}
+
+#[cfg(test)]
+pub(crate) fn take_loop_physical_effect_probe() -> usize {
+    loop_::test_probe::take()
+}
 pub(super) mod stmt;
 mod stmt_debug;
 mod stmt_shape;

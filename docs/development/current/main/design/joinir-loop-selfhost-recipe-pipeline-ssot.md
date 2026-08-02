@@ -148,6 +148,45 @@ Stop:
 : Move any outside caller into the existing compile transaction first. Never
   create a Loop-local candidate as a shortcut.
 
+M1 proof bundle (closed with the focused gates below):
+
+- `M1-A` static scope manifest: pin normal/default, REPL, vm-hako reference,
+  Raw public/reference, and canonical ingress. Normal/default, REPL, and
+  vm-hako reference are the positive Loop-reaching family and converge on
+  `ModuleBuilderInvocationSessionV1`; Raw and canonical rows are explicit
+  typed-unreachable-before-Loop rows, not silent omissions.
+- `M1-B` positive behavior: inject a deterministic failure after the first
+  Loop physicalization effect, compare a full live-Builder fingerprint, drop
+  the whole candidate, and compile a fresh request on the same compiler. The
+  fingerprint covers source/config, all five core cursors, current
+  module/function/block, function/scope state, and publication state.
+- `M1-C` negative behavior: Raw public/reference and canonical Script/Main
+  Loop-shaped inputs reject before candidate opening or direct-live mutation;
+  their existing pre-effect rejection is fixed as a reachability contract.
+- `M1-D` ambient inventory: invocation identity allocation is an owned
+  monotonic non-publication write and is not required to roll back. Planner
+  reject/parity TLS is diagnostic/control transport; nested fast-path depth is
+  RAII-scoped. Any new semantic ambient write is a blocker until it has an
+  owner, reset/unwind law, and fixture.
+
+M1 acceptance gates:
+
+```text
+route_loop production caller = 1
+try_cf_loop_joinir definition/caller = 1/1
+lower_loop_or_freeze_v1 callers = 2 typed child ports
+all positive Loop ingress -> existing unpublished candidate -> success-only commit
+Raw/canonical Loop ingress -> typed pre-effect unreachable
+unowned semantic ambient writes = 0
+M1-B full-fingerprint late Loop failure/reuse = green
+```
+
+The existing shared MirBuilder guard owns `M1-A` topology/manifest checks.
+It does not claim dynamic rollback; `M1-B` is the required behavior proof.
+Identity ordinals and diagnostic TLS are explicitly excluded from the live
+Builder immutability claim. The M1-B fixture is now green, so M1 is closed;
+M2 is the next design stop.
+
 ### M2 — `JOINIR-LOOP-PORTABLE-RECIPE-CONTRACT0-D0-S0`
 
 Change:
