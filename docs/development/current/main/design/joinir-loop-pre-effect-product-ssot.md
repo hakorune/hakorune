@@ -1346,3 +1346,17 @@ Condition and branch internals, sibling statements, whole-body coverage/order,
 and reconstructed recipe AST remain non-authoritative. No selector/preflight,
 terminality, product, execution, physicalizer, caller, or runtime behavior
 changed. The next card is preflight D0.
+
+### SplitScan preflight S0 implementation record
+
+Decision: accept raw-front-only classification S0. The SplitScan classifier is
+its own sibling box to keep the live classifier below the 800-line limit. It
+reads only topology presence and its aggregate ScopeBox lineage: topology
+absent rejects as source-unavailable, ScopeBox lineage rejects as
+non-borrowable, and direct topology rejects as policy-and-terminality
+unavailable. Direct, prefix-sibling, ScopeBox, and topology-absent fixtures
+all assert `SplitScan` as raw front before asserting that result.
+
+No source borrowing, branch inspection, recipe validation, terminality,
+product, physicalizer, caller, or runtime behavior changed. The next card is
+terminality D0.

@@ -9,6 +9,9 @@ use crate::mir::builder::control_flow::joinir::route_entry::registry::selection:
 use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
 use crate::mir::builder::control_flow::plan::facts::LoopFacts;
 
+mod split_scan;
+use split_scan::classify_split_scan;
+
 /// Consumes the only live pair. Current all-route preflight has no Qualified arm.
 pub(crate) fn issue_all_route_preflight_v1(
     live: LiveLoopFactsV1<'_>,
@@ -32,6 +35,7 @@ fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV
         LoopRouteId::LoopArrayJoin => classify_loop_array_join(facts),
         LoopRouteId::NestedLoopMinimal => classify_nested_loop_minimal(facts),
         LoopRouteId::ScanWithInit => classify_scan_with_init(facts),
+        LoopRouteId::SplitScan => classify_split_scan(facts),
         LoopRouteId::LoopSimpleWhile => classify_simple_while(facts),
         LoopRouteId::AccumConstLoop => classify_accum_const(facts),
         _ => LoopPreflightRejectV1::SourceTopologyUnavailable { route },
@@ -257,6 +261,8 @@ fn classify_accum_const(facts: &LoopFacts) -> LoopPreflightRejectV1 {
 
 #[cfg(test)]
 mod array_join_tests;
+#[cfg(test)]
+mod split_scan_tests;
 
 #[cfg(test)]
 mod char_map_tests;
