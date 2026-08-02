@@ -29,9 +29,31 @@ fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV
         LoopRouteId::LoopContinueOnly => classify_loop_continue_only(facts),
         LoopRouteId::LoopTrueEarlyExit => classify_loop_true_early_exit(facts),
         LoopRouteId::LoopCharMap => classify_loop_char_map(facts),
+        LoopRouteId::LoopArrayJoin => classify_loop_array_join(facts),
         LoopRouteId::LoopSimpleWhile => classify_simple_while(facts),
         LoopRouteId::AccumConstLoop => classify_accum_const(facts),
         _ => LoopPreflightRejectV1::SourceTopologyUnavailable { route },
+    }
+}
+
+fn classify_loop_array_join(facts: &LoopFacts) -> LoopPreflightRejectV1 {
+    let Some(array_join) = facts.loop_array_join() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::LoopArrayJoin,
+        };
+    };
+    let Some(topology) = array_join.source_topology.as_ref() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::LoopArrayJoin,
+        };
+    };
+    if topology.has_scope_box_lineage() {
+        return LoopPreflightRejectV1::ScopeBoxLineageNotBorrowable {
+            route: LoopRouteId::LoopArrayJoin,
+        };
+    }
+    LoopPreflightRejectV1::PolicyAndTerminalityUnavailable {
+        route: LoopRouteId::LoopArrayJoin,
     }
 }
 
@@ -188,6 +210,9 @@ fn classify_accum_const(facts: &LoopFacts) -> LoopPreflightRejectV1 {
         route: LoopRouteId::AccumConstLoop,
     }
 }
+
+#[cfg(test)]
+mod array_join_tests;
 
 #[cfg(test)]
 mod char_map_tests;

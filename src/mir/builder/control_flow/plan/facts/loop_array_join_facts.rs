@@ -35,6 +35,14 @@ pub(in crate::mir::builder) struct LoopArrayJoinSourceTopologyV1 {
     step: LoopSourceBodySiteV1,
 }
 
+impl LoopArrayJoinSourceTopologyV1 {
+    pub(in crate::mir::builder) fn has_scope_box_lineage(&self) -> bool {
+        !self.separator_guard.scope_box_children().is_empty()
+            || !self.array_append.scope_box_children().is_empty()
+            || !self.step.scope_box_children().is_empty()
+    }
+}
+
 pub(in crate::mir::builder) fn try_extract_loop_array_join_facts(
     condition: &ASTNode,
     body: &[ASTNode],
