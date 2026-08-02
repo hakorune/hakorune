@@ -10,6 +10,7 @@ guard_joinir_logical_demand_contract() {
   local live_ordered_parent="$live_ordered_dir/mod.rs"
   local live_ordered_transaction="$live_ordered_dir/transaction.rs"
   local live_ordered_product="$live_ordered_dir/logical_product.rs"
+  local loop_preflight="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/loop_preflight.rs"
   local route_handlers="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/handlers/routes.rs"
   local projection="$root_dir/src/mir/builder/control_flow/facts/stmt_view.rs"
   local simple_while="$root_dir/src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs"
@@ -20,6 +21,7 @@ guard_joinir_logical_demand_contract() {
     "$live_ordered_parent"
     "$live_ordered_transaction"
     "$live_ordered_product"
+    "$loop_preflight"
     "$projection"
     "$simple_while"
     "$accum_const"
@@ -35,6 +37,7 @@ guard_joinir_logical_demand_contract() {
   done
   local logical_files=(
     "$live_ordered_product"
+    "$loop_preflight"
     "$projection"
     "$simple_while"
     "$accum_const"

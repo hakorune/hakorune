@@ -469,28 +469,29 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-S0`
-Parent: `JOINIR-LOOP-PREFLIGHT-SCHEMA-MATRIX0-P0` (closed)
-Ceremony: add private all-route preflight vocabulary only; production consumers remain zero.
+Row: `JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-D1`
+Parent: `JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-S0` (closed)
+Ceremony: select one all-route live preflight transaction; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add a private non-Clone disposition/rejection vocabulary matching the frozen
-  all-route schema; no producer or qualified product is permitted.
+  Define ownership, policy snapshot, one-selection boundary, source capability
+  handoff, and typed all-route rejection flow for the sole preflight producer.
 
 Contract:
-  Vocabulary has no AST/Facts/selection/policy inputs, physical imports, generic
-  slots, producer, consumer, or caller. It names only NoCandidate/rejection shape.
+  Producer must consume one live pair and one policy snapshot, use raw execution
+  order once, expose no source/Facts/selection parts, and issue no current Qualified
+  product until all-route membership proof exists.
 
 Done:
-  Unit tests distinguish source-topology, scope-lineage, policy/terminality, scheduler
-  order, and post-effect retry-debt rejection. Shared guard fixes no physical imports
-  and no preflight producer/caller.
+  Design fixes exact constructor/visibility, rejection precedence, direct-product
+  coexistence/retirement boundary, and fixtures for no candidate/source/policy/order/
+  retry-debt. Producer/caller count remains zero pending later S0.
 
 Stop:
-  Stop if S0 adds a producer, treats Simple/Accum as qualified, hides missing topology,
-  or claims physical readiness. No runtime routing, Loop I0, raw/reference ingress,
-  or fallback is authorized.
+  Stop if D1 makes a generic raw resolver, re-runs selection/policy, treats Simple/Accum
+  as qualified, or claims physical readiness. No runtime routing, Loop I0, raw/reference
+  ingress, or fallback is authorized.
 
 ## Production invariants
 

@@ -587,3 +587,13 @@ policy/terminality proof despite its operands, and direct SimpleWhile is explici
 direct-only rather than all-route-qualified. The matrix has zero qualified rows.
 This separation prevents a generic raw-body fallback or accidental promotion of
 the disconnected direct product when the private preflight vocabulary is added.
+
+### Builder-free preflight vocabulary S0 evidence
+
+`loop_preflight.rs` now owns only non-Clone `NoCandidate`/typed rejection
+vocabulary. It distinguishes source topology, ScopeBox lineage, policy/terminality,
+scheduler order, and post-effect retry debt without importing AST/Facts/selection,
+Builder, CorePlan, physical IDs, composer, or lowerer. Its unit fixture fixes those
+reasons as separate pre-effect outcomes; there is no producer, qualified variant,
+consumer, or caller. D1 must now decide how one live facts/policy/schedule
+transaction reaches this vocabulary without a second authority.
