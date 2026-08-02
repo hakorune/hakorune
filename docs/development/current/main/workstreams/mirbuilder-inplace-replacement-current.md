@@ -490,7 +490,7 @@ closed — SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4
   -> resolved root-demand dispatch is private; recursive traversal remains one shared matcher.
 
 closed — T2 typed occurrence; Family4 D0 NoSafeSlice because remaining roots retain named R4 operation/control owners.
-current — MIRBUILDER-RAW-REFERENCE-FINAL-PROFILE0-D0 -> decide raw/reference final compilation-profile ownership before Loop work.
+no current I0 — Decision B-prime forbids raw/reference-profile reopening; remaining named R4 owners require a new top-level authority decision.
 
 ### Refactor Series queue
 
