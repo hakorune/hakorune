@@ -23,8 +23,8 @@ Choose the clean final architecture rather than the shortest wrapper around the
 Source / projection
 -> StructuralFacts
 -> one RoutePolicy winner
--> LoopRecipeContract + JoinSig
--> RecipeVerifier
+-> one recursive LoopRecipe artifact
+-> RecipeVerifier / logical JoinSig elaboration
 -> verified symbolic CFG / edge plan
 -> one candidate Physicalizer
 -> FunctionDraftSeal
@@ -53,10 +53,13 @@ callbacks / trait objects / Rust-only lifetimes
 retry / raw suffix / selector capability
 ```
 
-It owns stable source coordinates or normalized operands, route kind, logical
-block/value/binding roles, carrier and exit obligations, JoinSig edge payloads,
-and typed rejection reasons. Rust and `.hako` compare a deterministic normalized
-recipe representation, not allocation addresses or physical MIR IDs.
+It owns stable source coordinates or normalized operands and one recursive
+structured recipe: loop condition, nested body items, carrier declarations, and
+typed exits. A producer receipt may retain the legacy route name for diagnostics,
+but route names and first-mutation profiles are not semantic recipe inputs.
+The verifier elaborates the structured recipe into logical CFG/JoinSig
+obligations. Rust and `.hako` compare a deterministic normalized recipe
+representation, not allocation addresses or physical MIR IDs.
 
 The final authority flow is the existing north star:
 
@@ -87,9 +90,10 @@ fallback from the `.hako` path.
 | --- | --- | --- |
 | `LoopStructuralFactsV1` | source/control observations and stable provenance | route policy, MIR IDs, emission |
 | `LoopRoutePolicyV1` | one ordered winner or typed rejection | Builder probes, physical execution, retry |
-| `LoopRecipeContractV1` | logical blocks, operations, carriers, exits, family | AST reconstruction, physical IDs |
-| `LoopJoinSigV1` | continue/break/return/after edge payloads | PHI allocation, CFG repair |
-| `LoopRecipeVerifierV1` | coverage, roles, edge arity/types, dominance obligations | repair, fallback, another recipe |
+| `LoopRecipeArtifactV1` | owned provenance plus one recursive `LoopRecipeV1` | route/family dispatch, AST reconstruction, physical IDs |
+| `LoopRecipeV1` | condition, recursive body/control items, carriers, exits | legacy family, policy selection, physical IDs |
+| `LoopRecipeVerifierV1` | recipe coverage and logical JoinSig/CFG elaboration | repair, fallback, another recipe |
+| `LoopJoinSigV1` | verified logical edge payload obligations | PHI allocation, CFG repair |
 | `LoopCfgSkeletonLoweringV1` | physical blocks/edges/terminators from verified roles | route selection, AST reading |
 | `LoopPhiMaterializerV1` | PHIs from verified JoinSig only | source inference, route-specific repair |
 | `LoopPhysicalizerV1` | one terminal candidate mutation | `Option`, retry, raw suffix, publication |
@@ -100,8 +104,9 @@ Names may be shortened during implementation. Ownership boundaries may not.
 ## Current evidence
 
 - Production registry membership is exactly 19 ordered routes.
-- First mutation families are `11/1/1/4/2`: LoopV0, Nested, LoopTrue,
-  LoopCond, Generic.
+- Legacy first-mutation profiles are `11/1/1/4/2`: LoopV0, Nested, LoopTrue,
+  LoopCond, Generic. They describe where old physical lowerers first mutate,
+  not five semantic Loop kinds and not five portable recipe variants.
 - `lower_loop_v0` allocates frame/PHI/ValueIds before later header/body failure.
 - The existing compile session uses a fresh candidate Builder and publishes it
   only after whole-module success.
@@ -187,17 +192,21 @@ Identity ordinals and diagnostic TLS are explicitly excluded from the live
 Builder immutability claim. The M1-B fixture is now green, so M1 is closed;
 M2 is the next design stop.
 
-### M2 — `JOINIR-LOOP-PORTABLE-RECIPE-CONTRACT0-S0`
+### M2 — `JOINIR-LOOP-PORTABLE-RECURSIVE-RECIPE0-S0`
 
-Design stop: `D0` is closed after independent worker review. The portable
-contract is a new neutral owner at `src/mir/loop_recipe_contract/`; it is not a
-wrapper around the existing Builder recipe tree.
+Design stop: `D0-R1` is closed after independent worker review. The selected
+portable contract is a new neutral owner at `src/mir/loop_recipe_contract/`; it
+is not a wrapper around the existing Builder recipe tree. This revision
+explicitly demotes the old `11/1/1/4/2` first-mutation profiles from semantic
+families to migration receipts.
 
 Source authority:
-: The selected RoutePolicy winner supplies an existing neutral route identity,
-  owned source provenance, and normalized operands. Existing
-  `LoopRouteId` is behavior-neutral identity and must move to, or be re-exported
-  from, the neutral owner before portable producers consume it.
+: The selected RoutePolicy winner supplies owned source provenance and
+  normalized operands. A producer receipt may carry the existing neutral
+  `LoopRouteId` for diagnostics/parity only; the verified semantic recipe must
+  not dispatch on it. Existing `LoopRouteId` is behavior-neutral identity and
+  must move to, or be re-exported from, the neutral owner before portable
+  producers consume it.
 
 Non-authority:
 : `RecipeTree`/`RecipeBody`/`StmtRef`/`CondBlockView`, `CorePlan`/`Frag`,
@@ -205,27 +214,35 @@ Non-authority:
   reconstruction, callbacks, retry, and opaque legacy-emission commands.
 
 Fail-fast boundary:
-: `LoopRecipeContractV1` contains only versioned data: route key, one mutation
-  family, recipe-local contiguous keys, owned source-relative paths, a bounded
-  Accum-ready operation subset, carriers/exits, and `LoopJoinSigV1`. JoinSig
-  stores logical targets and ordered edge payloads only. Sibling disposition and
+: `LoopRecipeArtifactV1` contains versioned owned provenance and one
+  `LoopRecipeV1`. The semantic recipe is a structured recursive product:
+  condition (`Always` or `Predicate`), ordered body items (`Operation`, `If`,
+  nested `Loop`, and typed `Exit`), carriers, and exit declarations. Recipe
+  keys are contiguous and local; the operation subset is Accum-ready only.
+  Logical JoinSig is an elaborated/verified obligation, not a second route
+  language and never a physical CFG. Legacy first-mutation family is excluded
+  from the wire contract; if migration diagnostics need it, keep it in a
+  Rust-only receipt outside the semantic recipe. Sibling disposition and
   validation-reason types remain separate; M3 owns policy declines and M4 owns
   Generic post-effect debt.
 
 Canonical form:
 : Encode as fixed-field structs and ordered arrays with stable snake-case tags;
-  never depend on map iteration or allocation order. The family is one field
-  (`LoopV0`, `Nested`, `LoopTrue`, `LoopCond`, `Generic`), not duplicated
-  `recipe_family`/`mutation_family` fields. Logical keys are new `u32`
-  newtypes and never physical MIR IDs. Existing source-site objects are
-  projected to portable relative paths rather than borrowed across the boundary.
+  never depend on map iteration or allocation order. Recursive items use
+  preorder recipe-local contiguous keys. Conditions, exits, carriers, and join
+  payloads are typed products rather than a boolean feature bag, so invalid
+  combinations are rejected instead of represented as contradictory flags.
+  Logical keys are new `u32` newtypes and never physical MIR IDs. Existing
+  source-site objects are projected to portable relative paths rather than
+  borrowed across the boundary.
 
 S0 execution brief:
 
 Change:
-: Add the disconnected neutral DTO, canonical normalizer, structural validator,
-  typed rejection reasons, and one Accum golden. Move/re-export only the neutral
-  route identity needed by the DTO; do not connect a production caller.
+: Add the disconnected neutral recursive DTO (`LoopRecipeArtifactV1` /
+  `LoopRecipeV1`), canonical normalizer, structural validator, typed rejection
+  reasons, and one Accum golden. Move/re-export only the neutral route identity
+  needed by the producer receipt; do not connect a production caller.
 
 Contract:
 : Rust and `.hako` later consume the same normalized data contract. M2 has no
@@ -233,15 +250,18 @@ Contract:
   physicalization, or publication authority.
 
 Done:
-: One valid golden completes decode → validate → normalize → encode → decode
-  equality; malformed fixtures reject missing/duplicate/dangling roles/keys,
-  JoinSig payload errors, invalid exits, noncanonical order, and unsupported
+: One valid recursive golden completes decode → validate → normalize → encode →
+  decode equality, including one nested Loop item and typed exits/carrier
+  closure. Malformed fixtures reject duplicate/dangling local keys, invalid
+  condition/exit/carrier references, noncanonical order, and unsupported
   versions. All tests are Builder-free and touched files stay below 800 lines.
 
 Stop:
 : Do not infer all 19 operation vocabularies, add `EmitLegacyRoute`/opaque
-  statement commands, put physical IDs or borrowed facts in the DTO, or advance
-  to M3/M4/M5 before this contract is green.
+  statement commands, put physical IDs or borrowed facts in the DTO, encode a
+  fixed five-block CFG/terminator table, or let route/family names drive
+  verification/physicalization. Do not advance to M3/M4/M5 before this
+  contract is green.
 
 ### M3 — `JOINIR-LOOP-STRUCTURAL-FACTS-ROUTE-POLICY0-P0-S1`
 
@@ -290,8 +310,8 @@ Stop:
 
 Change:
 : Implement AccumConstLoop through the complete final boxes: StructuralFacts,
-  RoutePolicy, owned Recipe/JoinSig, verifier, symbolic CFG/edge plan, and
-  candidate physicalizer.
+  RoutePolicy, owned recursive Recipe, verifier/elaborated JoinSig, symbolic
+  CFG/edge plan, and candidate physicalizer.
 
 Contract:
 : Only the physicalizer maps logical roles to real block/value IDs. PHIs come
@@ -325,17 +345,22 @@ Done:
 Stop:
 : No family adapter may bypass shared CFG/JoinSig/PHI owners.
 
-### M7 — `JOINIR-LOOP-FIVE-FAMILY-PORTABLE-RECIPE0-S5`
+### M7 — `JOINIR-LOOP-RECURSIVE-RECIPE-CLOSURE0-S5`
 
 Change:
-: Add representative recipes for LoopV0=`AccumConstLoop`,
-  Nested=`NestedLoopMinimal`, LoopTrue=`LoopTrueBreakContinue`,
-  LoopCond=`LoopCondBreakContinue`, and Generic=`GenericLoopV1` after M4.
+: Add representative producers for the five legacy first-mutation profiles:
+  LoopV0=`AccumConstLoop`, Nested=`NestedLoopMinimal`,
+  LoopTrue=`LoopTrueBreakContinue`, LoopCond=`LoopCondBreakContinue`, and
+  Generic=`GenericLoopV1` after M4. Every producer emits the same recursive
+  semantic `LoopRecipeV1`.
 
 Contract:
-: Families may have distinct data variants but share one portable envelope,
-  verifier terminal, CFG/JoinSig/PHI services, and physicalizer. A sixth family
-  requires evidence.
+: The five profiles are migration adapters only. They share one portable
+  recursive recipe envelope, verifier/elaboration terminal,
+  CFG/JoinSig/PHI services, and physicalizer. A profile-specific semantic
+  variant is forbidden unless a concrete source counterexample proves a
+  bounded vocabulary extension; a sixth legacy profile is never a new semantic
+  recipe kind.
 
 Done:
 : Normalized recipe/MIR parity and post-first-mutation candidate-abort tests are
@@ -349,10 +374,11 @@ Stop:
 ### M8 — `JOINIR-LOOP-ALL19-PORTABLE-RECIPE0-S6`
 
 Change:
-: Migrate the remaining 14 routes as five adapter cohorts: LoopV0 recurrence,
-  LoopV0 exits/joins, LoopV0 scans, LoopCond exits, and Generic V0. Add only
-  missing source observation or portable vocabulary. Each route is one data
-  row/golden, not a new verifier, CFG, PHI, or physicalizer authority.
+: Migrate the remaining 14 routes as bounded adapter cohorts: LoopV0
+  recurrence, LoopV0 exits/joins, LoopV0 scans, LoopCond exits, and Generic
+  V0. Add only missing source observation or portable vocabulary. Each route is
+  one producer data row/golden for the same recursive recipe, not a new
+  verifier, CFG, PHI, or physicalizer authority.
 
 Contract:
 : 19/19 routes have typed pre-effect decline or verified recipe. Legacy winner
@@ -408,7 +434,7 @@ Contract:
   terminal `Freeze` plus whole-candidate discard.
 
 Done:
-: Rust/selfhost recipe parity, winner equivalence, five-family fault injection,
+: Rust/selfhost recipe parity, winner equivalence, five-adapter fault injection,
   fresh reuse, accepted corpus/backend parity, representative phase29bq smokes,
   quick/release, shared guards, and old-symbol census are green.
 
@@ -488,7 +514,7 @@ Contract:
   select, retry, publish, or invoke legacy text/synthetic-ID PHI rewriting.
 
 Done:
-: Five-family representatives and then the 19-row matrix match Rust predecessor,
+: Five legacy-adapter representatives and then the 19-row matrix match Rust predecessor,
   dominance, edge payload, carrier/exit, unreachable, and normalized structural
   plan results. Shared services are the sole CFG/PHI owners in the new subtree.
 
@@ -504,9 +530,10 @@ Change:
   function/module, and serializes MIR JSON v0 only after complete success.
 
 Contract:
-: Land as one ordered implementation series: Accum vertical slice, five-family
-  closure, then the five M8 cohorts/all 19, with one family/cohort plus fixtures
-  per commit. The physicalizer accepts no AST, raw recipe, `Option`, suffix,
+: Land as one ordered implementation series: Accum vertical slice, recursive
+  recipe/feature closure, then the five M8 adapter cohorts/all 19, with one
+  cohort plus fixtures per commit. The physicalizer accepts no AST, raw recipe,
+  `Option`, suffix,
   retry, fallback, delegate, or route-selection capability.
 
 Done:
@@ -566,11 +593,11 @@ Stop:
 
 - Prelude: one physical-move commit.
 - D/P rows: docs/proof commits; no implementation claim.
-- S rows: one reusable vocabulary/service or one accepted family plus fixtures.
+- S rows: one reusable vocabulary/service or one bounded adapter cohort plus fixtures.
 - Partial pipeline remains caller-zero until M8/M9 closure.
 - M10: one atomic I0/R0 commit; M11: one retirement commit.
 - SH1/SH2 are disconnected service rows; SH3 is an ordered implementation
-  series with one family/cohort per commit;
+  series with one adapter cohort per commit;
   SH4 connects only the explicit identity route; SH5 is the sole `.hako`
   atomic default cutover/retirement commit.
 - Daily: focused module/registry, current pointer, MirBuilder structural guard.

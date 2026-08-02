@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; C0/M1 are closed, M2 design is accepted, and the disconnected portable recipe contract S0 is active."
+status = "JOINIR all-route convergence is task-ordered; C0/M1 are closed, M2 recursive-recipe design is accepted, and the disconnected portable recipe contract S0 is active."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "After the 797-line preflight test extraction, follow the selfhost-ready Loop pipeline: owned StructuralFacts -> one RoutePolicy winner -> portable LoopRecipeContract/JoinSig -> verifier -> one candidate physicalizer. The existing compile candidate is the abort boundary; no LoopEmissionDraftV1. Generic V0/V1 debt remains a mandatory standalone design stop. M9 proves only the .hako recipe producer; after Rust M10/M11 closure, reserved SH1-SH5 move verifier, CFG/PHI, physical MIR JSON, identity, and default Loop authority into the canonical selfhost MirBuilder."
-current_execution_row = "JOINIR-LOOP-PORTABLE-RECIPE-CONTRACT0-D0-S0"
-current_execution_summary = "C0 and M1 are closed; M2 D0 is accepted after independent design review. S0 now builds the neutral Builder-free LoopRecipeContract/JoinSig DTO, canonical normalizer, and structural reject vocabulary with one Accum golden; no production caller or physicalizer is allowed."
+current_design_stop = "After the 797-line preflight test extraction, follow the selfhost-ready Loop pipeline: owned StructuralFacts -> one RoutePolicy winner -> one recursive structured LoopRecipe artifact -> verifier/elaborated JoinSig -> one candidate physicalizer. Legacy 11/1/1/4/2 first-mutation profiles are migration adapters/provenance only, never semantic recipe kinds or downstream switches. The existing compile candidate is the abort boundary; no LoopEmissionDraftV1. Generic V0/V1 debt remains a mandatory standalone design stop. M9 proves only the .hako recipe producer; after Rust M10/M11 closure, reserved SH1-SH5 move verifier, CFG/PHI, physical MIR JSON, identity, and default Loop authority into the canonical selfhost MirBuilder."
+current_execution_row = "JOINIR-LOOP-PORTABLE-RECURSIVE-RECIPE0-S0"
+current_execution_summary = "C0 and M1 are closed; M2 now selects one neutral recursive LoopRecipe artifact with typed condition/body/exit/carrier structure. Legacy first-mutation profiles remain migration receipts only. S0 builds the disconnected Builder-free DTO, canonical normalizer, and structural reject vocabulary with one Accum golden; no production caller or physicalizer is allowed."
 current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "joinir-loop-selfhost-recipe-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
-latest_card_summary = """C0 and M1 are closed; M2 D0 is accepted after independent worker review. M2-S0 now builds the neutral Builder-free LoopRecipeContract/JoinSig DTO, canonical normalizer, and structural reject vocabulary with one Accum golden, while keeping production callers and physicalization at zero. The selfhost-ready Facts/Policy/Recipe/JoinSig/Verify/Lower map remains authoritative; M9 is producer parity only and M11 later unlocks SH1-SH5."""
+latest_card_summary = """C0 and M1 are closed; M2 now selects one neutral recursive LoopRecipe artifact after independent worker review. Legacy first-mutation profiles are migration receipts only, while verifier/CFG/JoinSig/PHI/physicalizer consume the same semantic recipe. M2-S0 builds the disconnected Builder-free DTO, canonical normalizer, and structural reject vocabulary with one Accum golden; production callers and physicalization remain zero. M9 is producer parity only and M11 later unlocks SH1-SH5."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-PORTABLE-RECIPE-CONTRACT0-S0"
+current_blocker_token = "JOINIR-LOOP-PORTABLE-RECURSIVE-RECIPE0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
