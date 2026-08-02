@@ -189,8 +189,9 @@ M1-B full-fingerprint late Loop failure/reuse = green
 The existing shared MirBuilder guard owns `M1-A` topology/manifest checks.
 It does not claim dynamic rollback; `M1-B` is the required behavior proof.
 Identity ordinals and diagnostic TLS are explicitly excluded from the live
-Builder immutability claim. The M1-B fixture is now green, so M1 is closed;
-M2 is the next design stop.
+Builder immutability claim. The M1-B fixture is now green, so M1 is closed.
+M2-S0 is also closed by the portable-contract proof bundle below; M3 is the
+next design stop.
 
 ### M2 — `JOINIR-LOOP-PORTABLE-RECURSIVE-RECIPE0-S0`
 
@@ -262,6 +263,28 @@ Stop:
   fixed five-block CFG/terminator table, or let route/family names drive
   verification/physicalization. Do not advance to M3/M4/M5 before this
   contract is green.
+
+M2-S0 proof bundle (closed 2026-08-03):
+
+```text
+neutral owner = src/mir/loop_recipe_contract/
+production callers = 0
+typed per-Loop source path = green
+explicit input/value-definition closure = green
+carrier entry availability = green
+recursive loop/block/item preorder = green
+duplicate arena-row counterexample = green
+portable contract tests = 18/18 green
+route registry tests = 80/80 green
+shared MirBuilder guard = green
+current-state pointer guard = green
+release hakorune build = green
+largest touched Rust file = verify.rs (688 lines)
+independent close audit = blocker 0
+```
+
+The carrier proof here ends at entry availability. Dominance plus backedge and
+exit closure remain M5/M6 JoinSig/verifier work; M2 does not claim them.
 
 ### M3 — `JOINIR-LOOP-STRUCTURAL-FACTS-ROUTE-POLICY0-P0-S1`
 

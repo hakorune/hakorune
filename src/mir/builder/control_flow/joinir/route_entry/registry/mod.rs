@@ -18,7 +18,11 @@ pub(in crate::mir::builder) mod live_ordered_terminality;
 mod live_preflight_frame;
 mod loop_preflight;
 mod predicates;
-mod route_id;
+/// Compatibility facade; producer identity now lives beside the portable
+/// artifact and remains non-semantic provenance.
+pub(crate) mod route_id {
+    pub(crate) use crate::mir::loop_recipe_contract::route_id::{entry_keys, LoopRouteId};
+}
 mod selection;
 mod types;
 mod utils;
@@ -192,7 +196,6 @@ mod effect_order_matrix_tests;
 #[cfg(test)]
 mod tests {
     use super::select_recipe_first_routes;
-    use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
 
     #[test]
     fn empty_facts_select_no_recipe_first_routes() {

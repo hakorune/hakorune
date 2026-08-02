@@ -1,0 +1,33 @@
+//! Neutral selfhost-portable recursive Loop recipe contract.
+
+mod error;
+mod ids;
+mod normalize;
+pub(crate) mod route_id;
+mod schema;
+mod verify;
+
+#[cfg(test)]
+mod tests;
+
+// M2 is intentionally disconnected. Keep one stable facade for later producers
+// without turning caller-zero exports into warning noise.
+#[allow(unused_imports)]
+pub(crate) use error::LoopRecipeRejectReasonV1;
+#[allow(unused_imports)]
+pub(crate) use ids::{
+    LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
+    LoopNodeKeyV1, LoopValueKeyV1,
+};
+#[allow(unused_imports)]
+pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
+#[allow(unused_imports)]
+pub(crate) use schema::{
+    LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1, LoopNodeV1,
+    LoopOperationV1, LoopRecipeArtifactV1, LoopRecipeBindingV1, LoopRecipeBlockV1,
+    LoopRecipeCarrierV1, LoopRecipeExitV1, LoopRecipeItemRowV1, LoopRecipeItemV1,
+    LoopRecipeProvenanceV1, LoopRecipeV1, LoopRecipeValueV1, LoopSourcePathStepV1,
+    LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
+};
+#[allow(unused_imports)]
+pub(crate) use verify::{LoopRecipeVerifierV1, VerifiedLoopRecipeArtifactV1, VerifiedLoopRecipeV1};

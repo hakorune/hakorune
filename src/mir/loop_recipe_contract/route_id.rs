@@ -1,8 +1,9 @@
-//! Stable identity for entries in the ordered loop-route registry.
+//! Stable producer identity shared by the legacy registry and portable artifact.
 //!
-//! This module is intentionally neutral: it cannot select, compose, or lower a
-//! route. Logical-demand vocabulary may depend on this identity without
-//! importing the physical registry types.
+//! This identity is provenance only. Semantic recipe verification and lowering
+//! must not dispatch on it.
+
+use serde::{Deserialize, Serialize};
 
 pub(crate) mod entry_keys {
     pub(crate) const LOOP_BREAK_RECIPE: &str = "loop_break_recipe";
@@ -26,7 +27,8 @@ pub(crate) mod entry_keys {
     pub(crate) const GENERIC_LOOP_V1: &str = "generic_loop_v1";
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub(crate) enum LoopRouteId {
     LoopBreakRecipe,
     IfPhiJoin,
@@ -50,7 +52,7 @@ pub(crate) enum LoopRouteId {
 }
 
 impl LoopRouteId {
-    pub(crate) fn as_str(self) -> &'static str {
+    pub(crate) const fn as_str(self) -> &'static str {
         match self {
             Self::LoopBreakRecipe => entry_keys::LOOP_BREAK_RECIPE,
             Self::IfPhiJoin => entry_keys::IF_PHI_JOIN,

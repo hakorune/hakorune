@@ -4,7 +4,8 @@
 guard_joinir_logical_demand_contract() {
   local root_dir="$1"
   local tag="$2"
-  local route_id="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/route_id.rs"
+  local route_id="$root_dir/src/mir/loop_recipe_contract/route_id.rs"
+  local portable_recipe_dir="$root_dir/src/mir/loop_recipe_contract"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
   local if_phi_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_if_phi_join_terminality.rs"
@@ -42,6 +43,40 @@ guard_joinir_logical_demand_contract() {
   local file lines
 
   guard_require_files "$tag" "${files[@]}"
+  local portable_recipe_files=()
+  mapfile -t portable_recipe_files < <(find "$portable_recipe_dir" -maxdepth 1 -name '*.rs' -type f | sort)
+  guard_require_files "$tag" \
+    "$portable_recipe_dir/README.md" \
+    "$portable_recipe_dir/schema.rs" \
+    "$portable_recipe_dir/verify.rs" \
+    "$portable_recipe_dir/normalize.rs"
+  if (( ${#portable_recipe_files[@]} == 0 )); then
+    guard_fail "$tag" "portable Loop recipe subtree has no Rust contract files"
+  fi
+  for file in "${portable_recipe_files[@]}"; do
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    if (( lines >= 800 )); then
+      guard_fail "$tag" "file exceeds boundary: ${file#"$root_dir/"} lines=$lines"
+    fi
+  done
+  local portable_production_files=()
+  for file in "${portable_recipe_files[@]}"; do
+    [[ "$file" == "$portable_recipe_dir/tests.rs" ]] || portable_production_files+=("$file")
+  done
+  if rg -n -w \
+    'ASTNode|MirBuilder|CorePlan|ValueId|BasicBlockId|MirInstruction|Phi|Frag|RouteAttemptOutcome|RouteFn|ComposeFn' \
+    "${portable_production_files[@]}" >/dev/null; then
+    guard_fail "$tag" "portable Loop recipe acquired source, physical, or retry authority"
+  fi
+  if rg -n \
+    'mutation_family|LoopMutationFamily|LoopRecipeFamily|legacy_family|opaque.*(emit|command)' \
+    "${portable_production_files[@]}" >/dev/null; then
+    guard_fail "$tag" "portable Loop recipe acquired legacy family or opaque emission authority"
+  fi
+  if rg -n -w 'LoopRouteId|producer_route' \
+    "$portable_recipe_dir/verify.rs" "$portable_recipe_dir/normalize.rs" >/dev/null; then
+    guard_fail "$tag" "portable semantic verifier/normalizer acquired route provenance authority"
+  fi
   for file in "${files[@]}"; do
     lines="$(wc -l < "$file" | tr -d '[:space:]')"
     if (( lines >= 800 )); then
