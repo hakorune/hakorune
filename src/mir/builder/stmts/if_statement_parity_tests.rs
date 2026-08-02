@@ -430,10 +430,26 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
         current_span: builder.metadata_ctx.current_span(),
         in_cleanup_block: builder.function_state.protected_region.cleanup.active,
         cleanup_allow_return: builder.function_state.protected_region.cleanup.allow_return,
-        return_defer_active: builder.function_state.protected_region.return_defer.active,
-        return_defer_slot: builder.function_state.protected_region.return_defer.slot,
-        return_defer_target: builder.function_state.protected_region.return_defer.target,
-        return_deferred_emitted: builder.function_state.protected_region.return_defer.emitted,
+        return_defer_active: builder
+            .function_state
+            .protected_region
+            .return_defer
+            .is_active(),
+        return_defer_slot: builder
+            .function_state
+            .protected_region
+            .return_defer
+            .retained_slot(),
+        return_defer_target: builder
+            .function_state
+            .protected_region
+            .return_defer
+            .retained_target(),
+        return_deferred_emitted: builder
+            .function_state
+            .protected_region
+            .return_defer
+            .emitted(),
     }
 }
 

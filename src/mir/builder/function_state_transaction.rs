@@ -223,10 +223,11 @@ mod tests {
             (BasicBlockId::new(22), ValueId::new(23), 0),
             ValueId::new(24),
         );
-        state.protected_region.return_defer.active = true;
-        state.protected_region.return_defer.slot = Some(ValueId::new(25));
-        state.protected_region.return_defer.target = Some(BasicBlockId::new(26));
-        state.protected_region.return_defer.emitted = true;
+        state
+            .protected_region
+            .return_defer
+            .activate(ValueId::new(25), BasicBlockId::new(26));
+        state.protected_region.return_defer.mark_emitted();
         state.protected_region.cleanup.active = true;
         state.protected_region.cleanup.allow_return = true;
         state.protected_region.cleanup.allow_throw = true;
@@ -251,10 +252,18 @@ mod tests {
         assert!(!state.compilation.is_reserved_value_id(ValueId::new(19)));
         assert!(state.pending_phis.is_empty());
         assert!(state.local_ssa_map.is_empty());
-        assert!(!state.protected_region.return_defer.active);
-        assert!(state.protected_region.return_defer.slot.is_none());
-        assert!(state.protected_region.return_defer.target.is_none());
-        assert!(!state.protected_region.return_defer.emitted);
+        assert!(!state.protected_region.return_defer.is_active());
+        assert!(state
+            .protected_region
+            .return_defer
+            .retained_slot()
+            .is_none());
+        assert!(state
+            .protected_region
+            .return_defer
+            .retained_target()
+            .is_none());
+        assert!(!state.protected_region.return_defer.emitted());
         assert!(!state.protected_region.cleanup.active);
         assert!(!state.protected_region.cleanup.allow_return);
         assert!(!state.protected_region.cleanup.allow_throw);
@@ -309,16 +318,16 @@ mod tests {
         assert!(state.compilation.is_reserved_value_id(ValueId::new(19)));
         assert_eq!(state.pending_phis.len(), 1);
         assert_eq!(state.local_ssa_map.len(), 1);
-        assert!(state.protected_region.return_defer.active);
+        assert!(state.protected_region.return_defer.is_active());
         assert_eq!(
-            state.protected_region.return_defer.slot,
+            state.protected_region.return_defer.retained_slot(),
             Some(ValueId::new(25))
         );
         assert_eq!(
-            state.protected_region.return_defer.target,
+            state.protected_region.return_defer.retained_target(),
             Some(BasicBlockId::new(26))
         );
-        assert!(state.protected_region.return_defer.emitted);
+        assert!(state.protected_region.return_defer.emitted());
         assert!(state.protected_region.cleanup.active);
         assert!(state.protected_region.cleanup.allow_return);
         assert!(state.protected_region.cleanup.allow_throw);

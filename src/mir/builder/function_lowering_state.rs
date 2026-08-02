@@ -30,12 +30,143 @@ pub(super) struct ProtectedRegionTransientStateV1 {
     pub(super) cleanup: CleanupTransientStateV1,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub(super) struct ReturnDeferTransientStateV1 {
-    pub(super) active: bool,
-    pub(super) slot: Option<ValueId>,
-    pub(super) target: Option<BasicBlockId>,
-    pub(super) emitted: bool,
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum ReturnDeferTransientStateV1 {
+    Inactive {
+        retained_destination: Option<ReturnDeferDestinationV1>,
+        emitted: bool,
+    },
+    Active {
+        destination: ReturnDeferDestinationV1,
+        emitted: bool,
+    },
+    #[cfg(test)]
+    InvalidActiveForTest,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct ReturnDeferDestinationV1 {
+    slot: ValueId,
+    target: BasicBlockId,
+}
+
+impl Default for ReturnDeferTransientStateV1 {
+    fn default() -> Self {
+        Self::Inactive {
+            retained_destination: None,
+            emitted: false,
+        }
+    }
+}
+
+impl ReturnDeferTransientStateV1 {
+    pub(super) fn activate(&mut self, slot: ValueId, target: BasicBlockId) {
+        *self = Self::Active {
+            destination: ReturnDeferDestinationV1 { slot, target },
+            emitted: false,
+        };
+    }
+
+    pub(super) fn deactivate_for_cleanup(&mut self) {
+        let retained_destination = match self {
+            Self::Inactive {
+                retained_destination,
+                ..
+            } => *retained_destination,
+            Self::Active { destination, .. } => Some(*destination),
+            #[cfg(test)]
+            Self::InvalidActiveForTest => None,
+        };
+        *self = Self::Inactive {
+            retained_destination,
+            emitted: self.emitted(),
+        };
+    }
+
+    pub(super) fn is_active(&self) -> bool {
+        match self {
+            Self::Active { .. } => true,
+            Self::Inactive { .. } => false,
+            #[cfg(test)]
+            Self::InvalidActiveForTest => true,
+        }
+    }
+
+    pub(super) fn active_destination(&self) -> Result<Option<ReturnDeferDestinationV1>, String> {
+        match self {
+            Self::Inactive { .. } => Ok(None),
+            Self::Active { destination, .. } => Ok(Some(*destination)),
+            #[cfg(test)]
+            Self::InvalidActiveForTest => Err(
+                "[return-defer/invariant] active defer lacks configured destination".to_string(),
+            ),
+        }
+    }
+
+    pub(super) fn retained_slot(&self) -> Option<ValueId> {
+        self.retained_destination()
+            .map(|destination| destination.slot)
+    }
+
+    pub(super) fn retained_target(&self) -> Option<BasicBlockId> {
+        self.retained_destination()
+            .map(|destination| destination.target)
+    }
+
+    pub(super) fn emitted(&self) -> bool {
+        match self {
+            Self::Inactive { emitted, .. } | Self::Active { emitted, .. } => *emitted,
+            #[cfg(test)]
+            Self::InvalidActiveForTest => false,
+        }
+    }
+
+    pub(super) fn mark_emitted(&mut self) {
+        match self {
+            Self::Inactive { emitted, .. } | Self::Active { emitted, .. } => *emitted = true,
+            #[cfg(test)]
+            Self::InvalidActiveForTest => {}
+        }
+    }
+
+    fn retained_destination(&self) -> Option<ReturnDeferDestinationV1> {
+        match self {
+            Self::Inactive {
+                retained_destination,
+                ..
+            } => *retained_destination,
+            Self::Active { destination, .. } => Some(*destination),
+            #[cfg(test)]
+            Self::InvalidActiveForTest => None,
+        }
+    }
+
+    #[cfg(test)]
+    pub(super) fn inactive_with_retained_destination_for_test(
+        slot: ValueId,
+        target: BasicBlockId,
+        emitted: bool,
+    ) -> Self {
+        Self::Inactive {
+            retained_destination: Some(ReturnDeferDestinationV1 { slot, target }),
+            emitted,
+        }
+    }
+
+    #[cfg(test)]
+    pub(super) fn invalid_active_for_test() -> Self {
+        Self::InvalidActiveForTest
+    }
+}
+
+impl ReturnDeferDestinationV1 {
+    pub(super) const fn slot(self) -> ValueId {
+        self.slot
+    }
+
+    pub(super) const fn target(self) -> BasicBlockId {
+        self.target
+    }
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

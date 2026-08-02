@@ -187,10 +187,9 @@ fn seeded_builder() -> MirBuilder {
         .function_state
         .pin_slot_names
         .insert(ValueId::new(713), "outer_pin".into());
-    builder.function_state.protected_region.return_defer.active = true;
-    builder.function_state.protected_region.return_defer.slot = Some(ValueId::new(714));
-    builder.function_state.protected_region.return_defer.target = Some(BasicBlockId::new(715));
-    builder.function_state.protected_region.return_defer.emitted = true;
+    let defer = &mut builder.function_state.protected_region.return_defer;
+    defer.activate(ValueId::new(714), BasicBlockId::new(715));
+    defer.mark_emitted();
     builder.function_state.protected_region.cleanup.active = true;
     builder.function_state.protected_region.cleanup.allow_return = true;
     builder.function_state.protected_region.cleanup.allow_throw = true;
@@ -319,19 +318,20 @@ fn assert_outer_state(builder: &MirBuilder) {
     assert_eq!(builder.function_state.local_ssa_map.len(), 1);
     assert_eq!(builder.function_state.schedule_mat_map.len(), 1);
     assert_eq!(builder.function_state.pin_slot_names.len(), 1);
-    assert!(builder.function_state.protected_region.return_defer.active);
+    let protected_region = builder.function_state.protected_region;
+    assert!(protected_region.return_defer.is_active());
     assert_eq!(
-        builder.function_state.protected_region.return_defer.slot,
+        protected_region.return_defer.retained_slot(),
         Some(ValueId::new(714))
     );
     assert_eq!(
-        builder.function_state.protected_region.return_defer.target,
+        protected_region.return_defer.retained_target(),
         Some(BasicBlockId::new(715))
     );
-    assert!(builder.function_state.protected_region.return_defer.emitted);
-    assert!(builder.function_state.protected_region.cleanup.active);
-    assert!(builder.function_state.protected_region.cleanup.allow_return);
-    assert!(builder.function_state.protected_region.cleanup.allow_throw);
+    assert!(protected_region.return_defer.emitted());
+    assert!(protected_region.cleanup.active);
+    assert!(protected_region.cleanup.allow_return);
+    assert!(protected_region.cleanup.allow_throw);
     assert!(builder.function_state.suppress_pin_entry_copy_next);
     assert!(builder.function_state.in_unified_boxcall_fallback);
     assert_eq!(builder.recursion_depth, 7);

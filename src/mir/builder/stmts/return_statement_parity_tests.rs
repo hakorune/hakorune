@@ -342,10 +342,26 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
         current_span: builder.metadata_ctx.current_span(),
         in_cleanup_block: builder.function_state.protected_region.cleanup.active,
         cleanup_allow_return: builder.function_state.protected_region.cleanup.allow_return,
-        return_defer_active: builder.function_state.protected_region.return_defer.active,
-        return_defer_slot: builder.function_state.protected_region.return_defer.slot,
-        return_defer_target: builder.function_state.protected_region.return_defer.target,
-        return_deferred_emitted: builder.function_state.protected_region.return_defer.emitted,
+        return_defer_active: builder
+            .function_state
+            .protected_region
+            .return_defer
+            .is_active(),
+        return_defer_slot: builder
+            .function_state
+            .protected_region
+            .return_defer
+            .retained_slot(),
+        return_defer_target: builder
+            .function_state
+            .protected_region
+            .return_defer
+            .retained_target(),
+        return_deferred_emitted: builder
+            .function_state
+            .protected_region
+            .return_defer
+            .emitted(),
     }
 }
 
@@ -396,9 +412,11 @@ fn configured_defer_has_exact_pre_i0_parity() {
     assert_eq!(selected_target, reference_target);
 
     for builder in [&mut selected, &mut reference] {
-        builder.function_state.protected_region.return_defer.active = true;
-        builder.function_state.protected_region.return_defer.slot = Some(selected_slot);
-        builder.function_state.protected_region.return_defer.target = Some(selected_target);
+        builder
+            .function_state
+            .protected_region
+            .return_defer
+            .activate(selected_slot, selected_target);
     }
 
     let expression = value_return(type_check(integer(8)));

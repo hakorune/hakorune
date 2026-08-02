@@ -22,10 +22,10 @@ impl ActiveRawTryCatchFunctionStateV1 {
         return_target: BasicBlockId,
     ) -> Self {
         let caller = state.protected_region;
-        state.protected_region.return_defer.active = true;
-        state.protected_region.return_defer.slot = Some(return_slot);
-        state.protected_region.return_defer.target = Some(return_target);
-        state.protected_region.return_defer.emitted = false;
+        state
+            .protected_region
+            .return_defer
+            .activate(return_slot, return_target);
         Self { caller }
     }
 
@@ -38,7 +38,7 @@ impl ActiveRawTryCatchFunctionStateV1 {
         state.protected_region.cleanup.active = true;
         state.protected_region.cleanup.allow_return = allow_return;
         state.protected_region.cleanup.allow_throw = allow_throw;
-        state.protected_region.return_defer.active = false;
+        state.protected_region.return_defer.deactivate_for_cleanup();
     }
 
     pub(super) fn leave_cleanup(&self, state: &mut FunctionLoweringStateV1) {
@@ -87,10 +87,12 @@ mod tests {
 
     fn seeded_state() -> FunctionLoweringStateV1 {
         let mut state = FunctionLoweringStateV1::default();
-        state.protected_region.return_defer.active = false;
-        state.protected_region.return_defer.slot = Some(ValueId(41));
-        state.protected_region.return_defer.target = Some(BasicBlockId(42));
-        state.protected_region.return_defer.emitted = true;
+        state.protected_region.return_defer =
+            crate::mir::builder::function_lowering_state::ReturnDeferTransientStateV1::inactive_with_retained_destination_for_test(
+                ValueId(41),
+                BasicBlockId(42),
+                true,
+            );
         state.protected_region.cleanup.active = true;
         state.protected_region.cleanup.allow_return = true;
         state.protected_region.cleanup.allow_throw = false;
@@ -104,7 +106,6 @@ mod tests {
         let transaction =
             ActiveRawTryCatchFunctionStateV1::begin(&mut state, ValueId(7), BasicBlockId(8));
         transaction.enter_cleanup(&mut state, false, true);
-        state.protected_region.return_defer.emitted = false;
         transaction.leave_cleanup(&mut state);
 
         assert_eq!(
@@ -122,19 +123,20 @@ mod tests {
         let transaction =
             ActiveRawTryCatchFunctionStateV1::begin(&mut state, ValueId(7), BasicBlockId(8));
         transaction.enter_cleanup(&mut state, false, true);
-        state.protected_region.return_defer.emitted = false;
-
         let rejected = transaction.reject("primary".to_string());
         assert_eq!(rejected.error(), "primary");
         rejected.discard();
 
-        assert!(!state.protected_region.return_defer.active);
-        assert_eq!(state.protected_region.return_defer.slot, Some(ValueId(7)));
+        assert!(!state.protected_region.return_defer.is_active());
         assert_eq!(
-            state.protected_region.return_defer.target,
+            state.protected_region.return_defer.retained_slot(),
+            Some(ValueId(7))
+        );
+        assert_eq!(
+            state.protected_region.return_defer.retained_target(),
             Some(BasicBlockId(8))
         );
-        assert!(!state.protected_region.return_defer.emitted);
+        assert!(!state.protected_region.return_defer.emitted());
         assert!(state.protected_region.cleanup.active);
         assert!(!state.protected_region.cleanup.allow_return);
         assert!(state.protected_region.cleanup.allow_throw);

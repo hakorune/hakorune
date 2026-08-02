@@ -448,21 +448,26 @@ closed — RAW-PROTECTED-REGION-TRANSIENT-STATE0-S1
   cleanup vector. Function and TryCatch transactions capture/restore that one
   value; success restoration and failure partial state remain covered by tests.
 
+closed — RAW-RETURN-DEFER-INVARIANT0-R0
+  -> active return defer is now a valid-only state with one slot/target
+  destination. The old active-with-missing-destination direct Return fallback
+  is a contract rejection; ordinary Return and valid defer remain unchanged.
+
 ### Active execution brief
 
-`RAW-RETURN-DEFER-INVARIANT0-R0` — narrow return-defer contract hardening.
+`CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0` — design-only ownership decision.
 
 Change:
-  Make active defer require both slot and target. Replace only the historical
-  active-with-missing-slot-or-target direct-Return fallback with rejection.
+  Reassess Script TryCatch, Throw, and nonfinal Return as separate source-demand
+  operations after protected-region cleanup; no Complete activation is assumed.
 
 Contract:
-  Ordinary non-deferred Return, valid protected-region defer, cleanup policy,
-  failure discard, and RootLower timing remain unchanged.
+  Keep one physical consumer per sealed operation. Do not merge Return, Throw,
+  QMark, TryCatch, Match/CorePlan, or DraftSeal into a shared physical owner.
 
 Stop:
-  If this requires a new physical Return owner, changes ordinary Return, or
-  needs retry/fallback, return to `CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0`.
+  If exact child demand, diagnostic precedence, or operation ownership cannot
+  be stated without a second resolver or fallback, close as NoSafeSlice.
 
 ### Refactor Series queue
 

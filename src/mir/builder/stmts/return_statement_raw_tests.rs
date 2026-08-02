@@ -1,4 +1,5 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::builder::function_lowering_state::ReturnDeferTransientStateV1;
 use crate::mir::builder::recursive_child_lowering::drive_raw_legacy_expression_v1;
 use crate::mir::{ConstValue, MirBuilder, MirInstruction};
 
@@ -165,14 +166,20 @@ fn raw_configured_defer_keeps_exact_copy_jump_completion() {
     let mut builder = builder("ret0_i0_defer/0");
     let slot = builder.next_value_id();
     let target = builder.next_block_id();
-    builder.function_state.protected_region.return_defer.active = true;
-    builder.function_state.protected_region.return_defer.slot = Some(slot);
-    builder.function_state.protected_region.return_defer.target = Some(target);
+    builder
+        .function_state
+        .protected_region
+        .return_defer
+        .activate(slot, target);
 
     let result = drive_raw_legacy_expression_v1(&mut builder, value_return(integer(7))).unwrap();
     let rows = instructions(&builder);
 
-    assert!(builder.function_state.protected_region.return_defer.emitted);
+    assert!(builder
+        .function_state
+        .protected_region
+        .return_defer
+        .emitted());
     assert_eq!(return_count(&builder), 0);
     assert_eq!(
         rows.iter()
@@ -193,6 +200,25 @@ fn raw_configured_defer_keeps_exact_copy_jump_completion() {
             ..
         }) if row_target == target
     ));
+}
+
+#[test]
+fn raw_invalid_active_defer_rejects_without_return_fallback() {
+    let mut builder = builder("ret0_i0_invalid_defer/0");
+    builder.function_state.protected_region.return_defer =
+        ReturnDeferTransientStateV1::invalid_active_for_test();
+
+    let error = drive_raw_legacy_expression_v1(&mut builder, value_return(integer(7))).unwrap_err();
+
+    assert_eq!(
+        error,
+        "[return-defer/invariant] active defer lacks configured destination"
+    );
+    assert_eq!(return_count(&builder), 0);
+    assert!(!instructions(&builder).iter().any(|row| matches!(
+        row,
+        MirInstruction::Copy { .. } | MirInstruction::Jump { .. }
+    )));
 }
 
 #[test]

@@ -120,7 +120,12 @@ pub(in crate::mir::builder) fn try_apply_match_return_optimization(
     value: Option<&ASTNode>,
     emit_tag: bool,
 ) -> Result<Option<ValueId>, String> {
-    if builder.function_state.protected_region.return_defer.active {
+    if builder
+        .function_state
+        .protected_region
+        .return_defer
+        .is_active()
+    {
         return Ok(None);
     }
 
@@ -159,13 +164,26 @@ pub(in crate::mir::builder) fn emit_return_from_value(
     builder: &mut MirBuilder,
     return_value: ValueId,
 ) -> Result<ValueId, String> {
-    if builder.function_state.protected_region.return_defer.active {
-        // Defer: copy into slot and jump to target
-        if let (Some(slot), Some(target)) = (
-            builder.function_state.protected_region.return_defer.slot,
-            builder.function_state.protected_region.return_defer.target,
-        ) {
-            builder.function_state.protected_region.return_defer.emitted = true;
+    if builder
+        .function_state
+        .protected_region
+        .return_defer
+        .is_active()
+    {
+        // Defer: copy into the configured slot and jump to the configured target.
+        if let Some(destination) = builder
+            .function_state
+            .protected_region
+            .return_defer
+            .active_destination()?
+        {
+            let slot = destination.slot();
+            let target = destination.target();
+            builder
+                .function_state
+                .protected_region
+                .return_defer
+                .mark_emitted();
             builder.emit_instruction(MirInstruction::Copy {
                 dst: slot,
                 src: return_value,
@@ -176,11 +194,7 @@ pub(in crate::mir::builder) fn emit_return_from_value(
             }
             Ok(return_value)
         } else {
-            // Fallback: no configured slot/target; emit a real return
-            builder.emit_instruction(MirInstruction::Return {
-                value: Some(return_value),
-            })?;
-            Ok(return_value)
+            unreachable!("active defer always has a configured destination")
         }
     } else {
         // Normal return

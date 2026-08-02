@@ -123,7 +123,13 @@ where
         }
 
         builder.start_new_block(exit_block)?;
-        if builder.function_state.protected_region.return_defer.emitted && !cleanup_terminated {
+        if builder
+            .function_state
+            .protected_region
+            .return_defer
+            .emitted()
+            && !cleanup_terminated
+        {
             builder.emit_instruction(MirInstruction::Return {
                 value: Some(ret_slot),
             })?;
@@ -275,18 +281,22 @@ mod tests {
             .unwrap_err();
             assert_eq!(error, format!("fail-{fail_on}"));
             assert_eq!(port.demands, expected_demands);
-            assert!(builder.function_state.protected_region.return_defer.active);
             assert!(builder
                 .function_state
                 .protected_region
                 .return_defer
-                .slot
+                .is_active());
+            assert!(builder
+                .function_state
+                .protected_region
+                .return_defer
+                .retained_slot()
                 .is_some());
             assert!(builder
                 .function_state
                 .protected_region
                 .return_defer
-                .target
+                .retained_target()
                 .is_some());
             assert!(!builder.function_state.protected_region.cleanup.active);
         }
@@ -305,7 +315,11 @@ mod tests {
         assert_eq!(error, "fail-3");
         assert_eq!(port.demands, vec![1, 2, 3]);
         assert!(builder.function_state.protected_region.cleanup.active);
-        assert!(!builder.function_state.protected_region.return_defer.active);
+        assert!(!builder
+            .function_state
+            .protected_region
+            .return_defer
+            .is_active());
     }
 
     #[test]
