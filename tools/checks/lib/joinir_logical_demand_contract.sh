@@ -34,4 +34,9 @@ guard_joinir_logical_demand_contract() {
       guard_fail "$tag" "logical loop demand/provenance acquired physical or selection authority: ${file#"$root_dir/"}"
     fi
   done
+  if sed '/^#\[cfg(test)\]/,$d' "$demand_dir/producer.rs" | rg -n \
+    'ASTNode::|flatten_scope_boxes|try_extract_|select_recipe_first_routes|ENTRIES' \
+    >/dev/null; then
+    guard_fail "$tag" "logical producer re-acquired AST, projection, extractor, or selector authority"
+  fi
 }

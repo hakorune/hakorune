@@ -469,31 +469,31 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-DIRECT-SIMPLE-WHILE-LOGICAL-DEMAND0-S0`
-Parent: `JOINIR-LOOP-SIMPLE-WHILE-LOGICAL-SELECTION0-D2` (closed)
-Ceremony: one direct logical demand; production consumers remain zero.
+Row: `JOINIR-LOOP-NEXT-ROUTE-PROVENANCE0-D0`
+Parent: `JOINIR-DIRECT-SIMPLE-WHILE-LOGICAL-DEMAND0-S0` (closed)
+Ceremony: select exactly one next provenance design; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Issue Selected only for exact-one direct top-level SimpleWhile. Source borrowing
-  is constrained by receipt frame stamp to condition plus one raw body statement;
-  nested ScopeBox lineage stays rejected, with no resolver.
+  Inventory only the 18 remaining typed-rejected routes and select one candidate
+  for a route-local provenance box. Name its source authority, directness/path
+  boundary, failure vocabulary, fixture, and existing shared-gate evidence.
 
 Contract:
-  Producer consumes existing selection once and only sees a stamped source view
-  plus Facts topology. Product exposes only verified condition/step borrows and
-  owned coordinate/roles; it cannot expose arbitrary body access.
+  The direct SimpleWhile Selected product is closed: it borrows only the stamped
+  raw condition and direct step. D0 is documentation-only and cannot add a
+  resolver, source ingress, selector pass, route issuance, physicalizer, or caller.
 
 Done:
-  Direct exact-one SimpleWhile becomes Selected. Same-length foreign source frame,
-  nested lineage, unavailable topology, no-route, overlap, and other 18 routes
-  remain typed terminal outcomes. Shared guard and focused tests are green.
+  One next route is selected with exact source/non-authority and fail-fast
+  boundaries, a one-route fixture plan, and a shared-gate plan. No code changes
+  occur in D0; a later S0 is separately selected.
 
 Stop:
-  Stop if direct issuance needs AST resolver/re-match, any nested path traversal,
-  a second selector, retry change, another route topology, or physical/runtime
-  owner. No physicalizer, Loop I0, raw/reference ingress, universal ingress, or
-  fallback wrapper is authorized.
+  Stop if the candidate needs AST resolver/re-match, nested path traversal, a
+  second selector, retry change, multi-route topology, or physical/runtime owner.
+  No physicalizer, Loop I0, raw/reference ingress, universal ingress, or fallback
+  wrapper is authorized.
 
 ## Production invariants
 

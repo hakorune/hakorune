@@ -264,3 +264,16 @@ the demand owns the coordinate and logical role. Nested ScopeBox lineage remains
 `Rejected` rather than being resolved. This preserves source-frame identity
 without storing AST, re-matching, generic path resolution, selector re-run, or
 runtime connection. All other 18 routes remain typed rejected.
+
+### Direct SimpleWhile logical-demand S0 evidence
+
+The producer now issues `Selected` only for exact-one `LoopSimpleWhile` with a
+matching source frame and an empty ScopeBox lineage. Its non-Clone, route-local
+payload exposes just the verified raw condition and raw step statement, plus the
+owned topology, loop-binding name, and `LoopBinding`/`LoopBackContinuation`
+roles; it cannot expose an arbitrary body slot. Nested ScopeBox lineage rejects
+as `RouteSourceTopologyNotDirectlyBorrowable`; a same-length foreign frame
+rejects as `SourceFrameMismatch`; no-route, overlap, unavailable topology, and
+the other 18 routes retain terminal typed outcomes. The shared guard forbids
+producer AST matching, projection traversal, extractor invocation, and selector
+re-entry. There is still no physicalizer or production caller.

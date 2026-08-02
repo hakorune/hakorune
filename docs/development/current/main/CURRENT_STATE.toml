@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-SIMPLE-WHILE-LOGICAL-SELECTION0-D2 closed; JOINIR-DIRECT-SIMPLE-WHILE-LOGICAL-DEMAND0-S0 selected."
+status = "JOINIR-DIRECT-SIMPLE-WHILE-LOGICAL-DEMAND0-S0 closed; JOINIR-LOOP-NEXT-ROUTE-PROVENANCE0-D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S0 may add only direct top-level SimpleWhile logical demand issuance: receipt source-frame stamp, route-local condition/step borrows, and typed mismatch/directness rejection. It must not resolve ScopeBox lineage, add another route, re-run selection, change runtime routing, physicalize, retry, or add a production caller."
-current_execution_row = "JOINIR-DIRECT-SIMPLE-WHILE-LOGICAL-DEMAND0-S0"
-current_execution_summary = "Issue Selected only for exact-one LoopSimpleWhile with an identity-matched raw frame and empty ScopeBox lineage. Nested/non-direct topology and the other 18 routes remain typed rejected."
+current_design_stop = "D0 may inventory and select exactly one next rejected route for a route-local provenance design. It must name source authority, non-authority, directness/path boundary, typed rejection, fixture, and shared-gate proof before code. It must not add a route, resolve a path, re-run selection, change runtime routing, physicalize, retry, or add a production caller."
+current_execution_row = "JOINIR-LOOP-NEXT-ROUTE-PROVENANCE0-D0"
+current_execution_summary = "Direct top-level LoopSimpleWhile is the sole selected logical demand. D0 selects one next typed-rejected route and a provenance-only design; all remaining routes stay rejected."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-DIRECT-SIMPLE-WHILE-LOGICAL-DEMAND0-S0"
+current_blocker_token = "JOINIR-LOOP-NEXT-ROUTE-PROVENANCE0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
