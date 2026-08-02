@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-BOOL-PREDICATE-SCAN-PROVENANCE0-S0 is closed; preflight D0 selected."
+status = "JOINIR-BOOL-PREDICATE-SCAN-PREFLIGHT0-S0 is closed; shared route-execution witness D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "BoolPredicateScan preflight D0 may consume only opaque topology presence and aggregate ScopeBox lineage for raw-front rejection; source borrowing, nested inspection, terminality, product, and physical behavior remain nonclaims."
-current_execution_row = "JOINIR-BOOL-PREDICATE-SCAN-PREFLIGHT0-D0"
-current_execution_summary = "BoolPredicateScan provenance S0 retains only the first accepted top-level predicate-if and final step under projection alignment; the legacy wrapper stays topology absent."
+current_design_stop = "ROUTE-EXECUTION-WITNESS0-D0 is a design-only shared-root audit: classify each existing route-local NoSafe branch, name the smallest non-Clone owner that could bind raw schedule plus RouterEnv plus recipe-contract disposition before Builder effects, and explicitly separate non-isomorphic branches. No implementation or terminality promotion is authorized."
+current_execution_row = "JOINIR-ROUTE-EXECUTION-WITNESS0-D0"
+current_execution_summary = "BoolPredicateScan preflight is closed; repeated route_standard terminality NoSafe evidence is elevated to one shared execution-witness design audit before another route-local terminality card."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-BOOL-PREDICATE-SCAN-PREFLIGHT0-D0"
+current_blocker_token = "JOINIR-ROUTE-EXECUTION-WITNESS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

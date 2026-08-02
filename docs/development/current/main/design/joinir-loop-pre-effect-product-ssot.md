@@ -1401,3 +1401,33 @@ Nested predicate, substring, and return internals; sibling statements;
 whole-body coverage/order; reconstructed recipe; selector/preflight,
 terminality, product, execution, physicalizer, caller, and runtime behavior
 remain non-authoritative. The next card is preflight D0.
+
+### BoolPredicateScan preflight S0 implementation record
+
+Decision: accept raw-front-only classification S0. A sibling classifier keeps
+the production parent below 800 lines and consumes only optional opaque
+predicate-if/final-step topology plus aggregate ScopeBox lineage. Direct and
+prefix-sibling topology reject as policy-and-terminality unavailable; ScopeBox
+and topology-absent fixtures reject earlier. Each fixture first proves
+`BoolPredicateScan` is the raw front.
+
+No source borrowing, nested predicate inspection, recipe validation,
+terminality, product, physicalizer, caller, or runtime behavior changed.
+
+### Route-execution witness D0 selection
+
+Decision: stop adding route-local terminality cards before a shared-root
+design audit. Four completed routes (`LoopTrueEarlyExit`, `LoopArrayJoin`,
+`ScanWithInit`, and `SplitScan`) share the exact
+`route_standard + skip_without_contract` release `Ok(None)` raw-tail branch.
+`LoopCharMap` and `NestedLoopMinimal` share the higher-level missing execution
+capability but have non-isomorphic entry branches; generic and conditional
+families remain unclassified.
+
+D0 is documentation/design only. It must inventory the exact branch taxonomy,
+locate the smallest pre-effect named owner for a non-Clone witness that binds
+raw schedule, `RouterEnv`, and recipe-contract disposition, and state which
+routes could consume it without recomputing policy. It must also state the
+separate mutation/retry boundary. No witness implementation, route behavior,
+terminality certificate, product, physicalizer, caller, or runtime change is
+authorized until that design is accepted.

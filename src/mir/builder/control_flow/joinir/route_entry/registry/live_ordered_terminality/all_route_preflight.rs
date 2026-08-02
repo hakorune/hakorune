@@ -11,6 +11,8 @@ use crate::mir::builder::control_flow::plan::facts::LoopFacts;
 
 mod split_scan;
 use split_scan::classify_split_scan;
+mod bool_predicate_scan;
+use bool_predicate_scan::classify_bool_predicate_scan;
 
 /// Consumes the only live pair. Current all-route preflight has no Qualified arm.
 pub(crate) fn issue_all_route_preflight_v1(
@@ -36,6 +38,7 @@ fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV
         LoopRouteId::NestedLoopMinimal => classify_nested_loop_minimal(facts),
         LoopRouteId::ScanWithInit => classify_scan_with_init(facts),
         LoopRouteId::SplitScan => classify_split_scan(facts),
+        LoopRouteId::BoolPredicateScan => classify_bool_predicate_scan(facts),
         LoopRouteId::LoopSimpleWhile => classify_simple_while(facts),
         LoopRouteId::AccumConstLoop => classify_accum_const(facts),
         _ => LoopPreflightRejectV1::SourceTopologyUnavailable { route },
@@ -261,6 +264,8 @@ fn classify_accum_const(facts: &LoopFacts) -> LoopPreflightRejectV1 {
 
 #[cfg(test)]
 mod array_join_tests;
+#[cfg(test)]
+mod bool_predicate_scan_tests;
 #[cfg(test)]
 mod split_scan_tests;
 
