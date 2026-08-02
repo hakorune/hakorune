@@ -453,21 +453,25 @@ closed — RAW-RETURN-DEFER-INVARIANT0-R0
   destination. The old active-with-missing-destination direct Return fallback
   is a contract rejection; ordinary Return and valid defer remain unchanged.
 
+closed — CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0 (NoSafeSlice)
+  -> final root Return remains Complete; nonfinal Return needs a terminated
+  suffix contract, Throw lacks a located child role, and TryCatch needs a
+  first-catch-only protected-region contract. All retain their operation owner.
+
 ### Active execution brief
 
-`CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0` — design-only ownership decision.
+`MIRBUILDER-NEXT-NAMED-FAMILY4-D0` — fresh bounded production census.
 
 Change:
-  Reassess Script TryCatch, Throw, and nonfinal Return as separate source-demand
-  operations after protected-region cleanup; no Complete activation is assumed.
+  Select one independently ownable family outside the dirty EnumMatch WIP and
+  explicit R4/NoSafeSlice residuals; implementation is not pre-authorized.
 
 Contract:
-  Keep one physical consumer per sealed operation. Do not merge Return, Throw,
-  QMark, TryCatch, Match/CorePlan, or DraftSeal into a shared physical owner.
+  Do not reopen Call/Loop R4, legacy TryCatch/Throw, nonfinal Return, or merge
+  distinct operation owners. Keep source/check files under 800 lines.
 
 Stop:
-  If exact child demand, diagnostic precedence, or operation ownership cannot
-  be stated without a second resolver or fallback, close as NoSafeSlice.
+  If no caller-owning family exists, record NoSafeSlice without partial landing.
 
 ### Refactor Series queue
 

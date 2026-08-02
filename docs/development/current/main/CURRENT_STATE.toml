@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0 is selected: reassess Script TryCatch, Throw, and nonfinal Return as separate logical operations after protected-region cleanup."
+status = "MIRBUILDER-NEXT-NAMED-FAMILY4-D0 is selected: choose one production family outside EnumMatch WIP and explicit R4/NoSafeSlice residuals."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "Do not merge Return, Throw, QMark, TryCatch, Match/CorePlan, and DraftSeal into one physical exit owner. Share only cleanup policy and protected-region transient state; keep one physical consumer per sealed operation."
-current_execution_row = "CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0"
-current_execution_summary = "Decide source-demand ownership for Script TryCatch, Throw, and nonfinal Return without pre-authorizing Complete activation or a shared physical exit owner."
+current_execution_row = "MIRBUILDER-NEXT-NAMED-FAMILY4-D0"
+current_execution_summary = "Choose one independently ownable production family after the control/result NoSafeSlice; do not reopen R4 Call/Loop, legacy TryCatch/Throw, or dirty EnumMatch files."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
