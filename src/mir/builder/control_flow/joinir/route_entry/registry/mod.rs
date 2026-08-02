@@ -3,6 +3,7 @@
 
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::MirBuilder;
+use crate::mir::ValueId;
 
 use super::router::LoopRouteContext;
 
@@ -177,18 +178,7 @@ pub(crate) fn try_execute_route_execution_witness(
 ) -> Result<Option<LegacyRouteSuccess>, String> {
     witness
         .execute_selected_in_order(|_execution, attempt| {
-            let route_id = attempt.current_route();
-            let entry = ENTRIES
-                .iter()
-                .find(|entry| entry.id == route_id)
-                .expect("recipe-first selection route must be present in ENTRIES");
-            let Some(route) = entry.route else {
-                return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
-                    "selected recipe-first route has no execution handler",
-                )
-                .to_string());
-            };
-            route(builder, ctx, compose_facts, attempt)
+            dispatch_entry(builder, ctx, compose_facts, attempt)
         })
         .map(|result| match result {
             RouteExecutionResultV1::Succeeded { route, value } => {
@@ -198,10 +188,32 @@ pub(crate) fn try_execute_route_execution_witness(
         })
 }
 
+fn dispatch_entry(
+    builder: &mut MirBuilder,
+    ctx: &LoopRouteContext,
+    compose_facts: Option<&CanonicalLoopFacts>,
+    attempt: &execution_witness::RouteExecutionAttemptV1<'_, '_>,
+) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
+    let route_id = attempt.current_route();
+    let entry = ENTRIES
+        .iter()
+        .find(|entry| entry.id == route_id)
+        .expect("recipe-first selection route must be present in ENTRIES");
+    let Some(route) = entry.route else {
+        return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
+            "selected recipe-first route has no execution handler",
+        )
+        .to_string());
+    };
+    route(builder, ctx, compose_facts, attempt)
+}
+
 #[cfg(test)]
 mod effect_order_matrix_tests;
 #[cfg(test)]
 mod generic_selection_matrix_tests;
+#[cfg(test)]
+mod generic_stage_observer_tests;
 
 #[cfg(test)]
 mod tests {

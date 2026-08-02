@@ -90,7 +90,7 @@ fn observe_release(condition: &ASTNode, body: &[ASTNode]) -> GenericSelectionObs
     observe(condition, body)
 }
 
-fn progression_condition() -> ASTNode {
+pub(super) fn progression_condition() -> ASTNode {
     less(variable("i"), integer(3))
 }
 
@@ -114,7 +114,7 @@ fn v1_only_body() -> Vec<ASTNode> {
     ]
 }
 
-fn both_body() -> Vec<ASTNode> {
+pub(super) fn both_body() -> Vec<ASTNode> {
     let inner = ASTNode::Loop {
         condition: Box::new(less(variable("j"), integer(3))),
         body: vec![assign("j", add(variable("j"), integer(1)))],
@@ -167,11 +167,14 @@ fn generic_both_fixture_records_overlap_without_deciding_precedence() {
 #[test]
 fn generic_neither_fixture_records_empty_facts_and_schedule() {
     let observation = observe_release(&progression_condition(), &neither_body());
-    assert_eq!(observation, GenericSelectionObservation {
-        v0_facts: false,
-        v1_facts: false,
-        raw_routes: Vec::new(),
-    });
+    assert_eq!(
+        observation,
+        GenericSelectionObservation {
+            v0_facts: false,
+            v1_facts: false,
+            raw_routes: Vec::new(),
+        }
+    );
 }
 
 #[test]
@@ -182,7 +185,5 @@ fn generic_v0_is_suppressed_by_planner_required_before_selection() {
     ]);
     let observation = observe(&progression_condition(), &[progression_step()]);
     assert!(!observation.v0_facts);
-    assert!(!observation
-        .raw_routes
-        .contains(&LoopRouteId::GenericLoopV0));
+    assert!(!observation.raw_routes.contains(&LoopRouteId::GenericLoopV0));
 }

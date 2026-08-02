@@ -219,6 +219,12 @@ The existing synthetic CharMap decline/success fixture is not evidence for this
 task. If the target cannot select the winner before the first effect, mark M4
 `UnresolvedStop` and do not advance to Generic Recipe production.
 
+Current observation: the real A1 `Both` trace is
+`[GenericLoopV0, GenericLoopV1] -> GenericLoopV0 success`, with no debt receipt
+and no V1 attempt. This proves the handler path is reachable, but it does not
+prove pre-effect Generic qualification or the required debt-to-later-winner
+equivalence; M4 remains `UnresolvedStop`.
+
 Gate: compare winner and attempted prefix with the legacy witness oracle;
 `all_route_preflight` is forbidden as the oracle. The test bridge is
 test-only, and route IDs/receipts do not enter the pure policy result.

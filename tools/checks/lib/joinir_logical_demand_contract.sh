@@ -334,7 +334,12 @@ guard_joinir_logical_demand_contract() {
   fi
   local generic_debt_files=()
   mapfile -t generic_debt_files < <(
-    { rg -l 'PostEffectRetryDebtV1::Generic\(' "$route_registry_dir" || true; }
+    {
+      # Test-only D3 observers may capture the migration receipt, but the
+      # production constructor/owner must remain in the Generic handlers.
+      rg -l 'PostEffectRetryDebtV1::Generic\(' "$route_registry_dir" \
+        --glob '*.rs' --glob '!**/*_tests.rs' || true
+    }
   )
   if (( ${#generic_debt_files[@]} != 1 )) || [[ "${generic_debt_files[0]}" != *"/handlers/generic.rs" ]]; then
     guard_fail "$tag" "Generic post-effect debt receipt must remain isolated to generic handlers"
