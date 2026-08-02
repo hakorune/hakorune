@@ -27,17 +27,8 @@ Legacy fallback/retry、完成Program形ごとのvariant列挙は作らない。
 
 ## Current state
 
-```text
-active lane:
-  MirBuilder in-place replacement
-
-current execution:
-  see CURRENT_STATE.toml
-```
-
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
-diffs and proof transcripts; this card keeps only the live boundary, active
-fences, compact queue, and short landed tail.
+diffs and proof transcripts; this card keeps the live task and boundaries.
 
 ## Root-neutral semantic foundation
 
@@ -52,22 +43,6 @@ and the shared guard own the detailed proof.
 ### Recovered WIP order
 
 ```text
-closed — SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
-  Existing Function/Lambda production seals one construction-local ordered
-  BindingRef capture receipt against canonical upvar observations. No Script
-  route, capture ABI materialization, or closure publication changed.
-
-closed — SEMANTIC-OWNER-RECURSIVE-CONSTRUCTION-TREE0-S1
-  Existing Function/Lambda recursive forest now completes shadow validation
-  before canonical ID issue, so a rejected nested Lambda leaves the session
-  ready for a fresh owner at ordinal zero.
-
-closed — RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
-  Script Lambda now seals one child owner and ordered BindingRef receipt in
-  the shared forest. Selected lowering materializes that receipt into the
-  existing closure-emission owner; Deferred/raw/reference retain the old
-  observer. Focused Script parity and Lambda lifecycle tests are green.
-
 closed — RAW-SCRIPT-NEXT-NAMED-FAMILY0-D0 (NoSafeSlice)
   Call/Object needs header/type/origin preflight; Loop drops receipts before
   JoinIR; EnumMatch needs external inventory; GroupedAssignment needs a second
@@ -492,22 +467,45 @@ closed — SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4
 closed — MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0 (Accept): shared occurrence identity only; residual R4 ownership stays operation-local and the shared scheduler is rejected.
 closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): candidate selection remains post-effect fallback, composers are physical, and no logical recipe consumer exists; do not reopen a renamed Loop slice.
 
-### Refactor Series queue
+## Active design task
 
-| Order | Row | Bounded responsibility |
-|---:|---|---|
-| 0 | `MIRBUILDER-CALLABLE-LAMBDA-GUARD-SCOPE0-P0` | Replace the false cross-function string-position test with scoped callable-port and Lambda-dispatch assertions; shared guard stays below 800 lines. |
-| 1 | `SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1` | Move Record/Enum/QMark/Match receipt sealing into one private pack and delete the standalone EnumMatch seal module. No acceptance or dispatcher change. |
-| 2 | `SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2` | Closed: co-sealed immutable facts from core and receipt packs; facade-side late reconstruction and `expect` edges are zero. |
-| 3 | `SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0` | Closed: Complete source and co-sealed projection now move once into the request ledger; read-only receipt maps/install APIs are deleted and the raw-port tests are split. |
-| 4 | `SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3` | Closed: one private semantic decision now combines source-shape validation and selected-Script disposition issuance. |
-| 5 | `SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4` | Closed: root-demand dispatch is extracted; recursive statement/expression traversal remains shared. |
-| 6 | `SCRIPT-ROOT-ADMISSION-OCCURRENCE-HANDOFF0-T2` | Closed: split tests first, then replace the selected-Script tuple with one typed occurrence. |
+Row: `JOINIR-LOOP-ALL-ROUTE-PRE-EFFECT-PRODUCT0-D0`
+Parent: `JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0`
+Ceremony: T2 design stop; no implementation is authorized by this row.
 
-Rows 1–3 are one behavior-neutral BoxShape series. Rows 4–6 are a later
-admission-authority series and are not pre-authorized to widen Complete.
-Shadow source-deferral/invariant separation and the fixture-identity ratchet
-are already live; do not reopen them. No docs-only select/close commits.
+Change:
+  Seal one 19-row effect-order matrix, then decide the sole producer and exact
+  schema for one non-Clone Builder-free Loop product and its one consuming
+  physicalizer ingress. The later cutover must delete ordered RouteFn retry.
+
+Contract:
+  `try_build_loop_facts_inner`, `ENTRIES`, predicates, suppression, and raw
+  execution order are current source authorities. The product owns exactly one
+  selected route or typed reject/freeze disposition, exact source-located
+  condition/body/cleanup/suffix demands, transferred/opaque boundaries, and
+  logical binding/carrier identities. It owns no `MirBuilder`, `CorePlan`, real
+  `ValueId`/`BasicBlockId`, PHI, `Frag`, MIR emission, or environment retry.
+  `LoopRouteKind`, disconnected located-GenericV1 products, and dropped located
+  receipts are evidence only, not alternate selectors.
+
+Done:
+  Every `LoopRouteId` has one predicate/suppression row, pre-effect decline
+  classification, first Builder-effect boundary, and post-effect-`None`
+  classification. The existing A-returns-None/B-runs scheduler test is fixed as
+  the counterexample. The decision names the product owner, failure owner,
+  production caller, single physicalizer ingress, old edges deleted at cutover,
+  exact Refactor Series order, and reusable registry/shared-guard proof.
+
+Stop:
+  Stop if product issuance needs Builder state, physical IDs, CorePlan
+  composition, route execution, AST rewrite, or diagnostic/runtime parity as a
+  substitute for the 19-row proof. Do not open Loop I0, preserve post-effect
+  retry behind a new wrapper, reopen raw/reference, or add universal ingress.
+
+Planned continuation after D0:
+  `EFFECT-ORDER-MATRIX0-P0 -> ALL-ROUTE-LOGICAL-PRODUCER0-S0 ->`
+  `SINGLE-PHYSICALIZER-CUTOVER0-I0-R0`. Each transition must consume the
+  previous typed product; partial family coverage cannot cut over production.
 
 ## Production invariants
 

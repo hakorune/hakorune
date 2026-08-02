@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 closed: NoSafeSlice; current candidate execution is mutable and fallback-based."
+status = "JOINIR-LOOP-ALL-ROUTE-PRE-EFFECT-PRODUCT0-D0 selected: define one Builder-free product and one typed physicalizer ingress before any Loop I0."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "Loop has no all-route logical recipe producer: selection is an ordered candidate schedule, composers mutate Builder state, and CorePlan is physical. A new wrapper would be a second planner. Decision B-prime still forbids raw/reference-profile reopening and universal ingress."
-current_execution_row = "JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (closed NoSafeSlice)"
-current_execution_summary = "No Loop I0 is authorized. A future owner decision must first establish all-route pre-effect route/child-demand production and a typed ingress to one physicalizer; do not reopen a renamed Loop slice."
+current_design_stop = "Decide the sole all-19-route pre-effect product owner, exact located child-demand membership, typed reject/freeze dispositions, and one consuming physicalizer ingress. The decision must delete ordered post-effect retry at the later cutover; Decision B-prime still forbids raw/reference-profile reopening and universal ingress."
+current_execution_row = "JOINIR-LOOP-ALL-ROUTE-PRE-EFFECT-PRODUCT0-D0"
+current_execution_summary = "T2 design stop: seal the 19-route effect-order matrix and select one non-Clone Builder-free logical product plus one physicalizer ingress. No Loop I0, new wrapper, acceptance change, raw/reference route, or fallback-preserving cutover is authorized in D0."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0"
+current_blocker_token = "JOINIR-LOOP-ALL-ROUTE-PRE-EFFECT-PRODUCT0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
