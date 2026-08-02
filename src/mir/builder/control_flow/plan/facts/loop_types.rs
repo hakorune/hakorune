@@ -10,6 +10,7 @@ use super::loop_char_map_facts::LoopCharMapFacts;
 use super::loop_scan_with_init::ScanWithInitSourceTopologyV1;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
 use super::loop_source_receipt::LoopSourceReceiptV1;
+use super::loop_split_scan::SplitScanSourceTopologyV1;
 use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
 use super::nested_loop_minimal_facts::NestedLoopMinimalFacts;
 use super::scan_shapes::StepShape;
@@ -173,4 +174,7 @@ pub(in crate::mir::builder) struct SplitScanFacts {
     pub result_var: String,
     pub i_var: String,
     pub start_var: String,
+    /// Opaque source coordinate for only the first accepted top-level split-if.
+    /// This deliberately does not claim complete body coverage or branch sites.
+    pub source_topology: Option<SplitScanSourceTopologyV1>,
 }

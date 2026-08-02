@@ -2,25 +2,55 @@
 
 use super::loop_types::SplitScanFacts;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use crate::mir::builder::control_flow::facts::stmt_view::{
+    LoopSourceBodySiteV1, LoopSourceProjectionV1,
+};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct SplitScanSourceTopologyV1 {
+    matched_if: LoopSourceBodySiteV1,
+}
+
+impl SplitScanSourceTopologyV1 {
+    pub(in crate::mir::builder) fn has_scope_box_lineage(&self) -> bool {
+        !self.matched_if.scope_box_children().is_empty()
+    }
+}
 
 pub(super) fn try_extract_split_scan_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<SplitScanFacts>, Freeze> {
+    try_extract_split_scan_facts_with_projection(
+        condition,
+        body,
+        &LoopSourceProjectionV1::default(),
+    )
+}
+
+pub(super) fn try_extract_split_scan_facts_with_projection(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    source_projection: &LoopSourceProjectionV1,
+) -> Result<Option<SplitScanFacts>, Freeze> {
     let Some((i_var, s_var, sep_var)) = try_extract_split_scan_condition_vars(condition) else {
         return Ok(None);
     };
 
-    let Some(if_stmt) = body.iter().find_map(|stmt| match stmt {
-        ASTNode::If {
-            condition,
-            then_body,
-            else_body,
-            ..
-        } => Some((condition.as_ref(), then_body, else_body.as_ref())),
-        _ => None,
-    }) else {
+    let Some((matched_index, if_stmt)) =
+        body.iter()
+            .enumerate()
+            .find_map(|(index, stmt)| match stmt {
+                ASTNode::If {
+                    condition,
+                    then_body,
+                    else_body,
+                    ..
+                } => Some((index, (condition.as_ref(), then_body, else_body.as_ref()))),
+                _ => None,
+            })
+    else {
         return Ok(None);
     };
     let (match_condition, then_body, else_body) = if_stmt;
@@ -74,7 +104,21 @@ pub(super) fn try_extract_split_scan_facts(
         result_var,
         i_var,
         start_var,
+        source_topology: source_topology_for(body, source_projection, matched_index),
     }))
+}
+
+fn source_topology_for(
+    body: &[ASTNode],
+    projection: &LoopSourceProjectionV1,
+    matched_index: usize,
+) -> Option<SplitScanSourceTopologyV1> {
+    if matched_index >= body.len() || projection.flattened_body_len() != Some(body.len()) {
+        return None;
+    }
+    Some(SplitScanSourceTopologyV1 {
+        matched_if: projection.site_for_flattened_index(matched_index)?.clone(),
+    })
 }
 
 fn try_extract_split_scan_condition_vars(condition: &ASTNode) -> Option<(String, String, String)> {

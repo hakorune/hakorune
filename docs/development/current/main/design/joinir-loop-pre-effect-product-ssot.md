@@ -1332,3 +1332,17 @@ BoolPredicateScan has nested predicate semantics and no equally bounded
 source-site proof; conditional and generic routes retain their open
 policy/grammar boundaries. Selector/preflight, terminality, product,
 execution, and physical behavior are not authorized by this selection.
+
+### SplitScan provenance S0 implementation record
+
+The extractor now preserves the existing first-top-level-If selection exactly
+while carrying its flattened index through the accepted facts path. A
+projection-aware entry records one opaque matched-if site only when projection
+length equals the flattened body length; the legacy wrapper supplies the
+default projection and therefore remains topology absent. The direct fixture
+fixes accepted facts plus a topology whose aggregate ScopeBox lineage is false.
+
+Condition and branch internals, sibling statements, whole-body coverage/order,
+and reconstructed recipe AST remain non-authoritative. No selector/preflight,
+terminality, product, execution, physicalizer, caller, or runtime behavior
+changed. The next card is preflight D0.

@@ -114,6 +114,10 @@ fn loopfacts_ok_some_for_canonical_split_scan_minimal() {
     assert_eq!(split_scan.result_var, "result");
     assert_eq!(split_scan.i_var, "i");
     assert_eq!(split_scan.start_var, "start");
+    assert!(!split_scan
+        .source_topology
+        .expect("direct SplitScan topology")
+        .has_scope_box_lineage());
 }
 
 #[test]

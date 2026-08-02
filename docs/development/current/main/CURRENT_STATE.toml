@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-SPLIT-SCAN-PROVENANCE0-D0 selected after fresh D8 registry inventory."
+status = "JOINIR-SPLIT-SCAN-PROVENANCE0-S0 is closed; preflight D0 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "SplitScan D0 may retain only the first accepted top-level split-if as opaque topology under complete projection alignment; branch internals, siblings, reconstructed recipe, selector, terminality, and physical behavior remain nonclaims."
-current_execution_row = "JOINIR-SPLIT-SCAN-PROVENANCE0-D0"
-current_execution_summary = "Fresh D8 inventory selected the bounded SplitScan source-topology card; default facts remain topology absent and acceptance behavior must not change."
+current_design_stop = "SplitScan preflight D0 may consume only opaque topology presence and aggregate ScopeBox lineage for raw-front rejection; source borrowing, branch inspection, terminality, product, and physical behavior remain nonclaims."
+current_execution_row = "JOINIR-SPLIT-SCAN-PREFLIGHT0-D0"
+current_execution_summary = "SplitScan provenance S0 now retains only the first accepted top-level split-if under projection alignment; the legacy wrapper stays topology absent."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-SPLIT-SCAN-PROVENANCE0-D0"
+current_blocker_token = "JOINIR-SPLIT-SCAN-PREFLIGHT0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

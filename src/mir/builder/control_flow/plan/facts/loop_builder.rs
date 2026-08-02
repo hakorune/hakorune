@@ -41,7 +41,7 @@ use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCo
 use super::loop_condition_shape::try_extract_condition_shape;
 use super::loop_scan_with_init::try_extract_scan_with_init_facts_with_projection;
 use super::loop_source_receipt::LoopSourceReceiptV1;
-use super::loop_split_scan::try_extract_split_scan_facts;
+use super::loop_split_scan::try_extract_split_scan_facts_with_projection;
 use super::loop_step_shape::try_extract_step_shape;
 use super::loop_types::LoopFacts;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::live_ordered_terminality::{
@@ -99,7 +99,8 @@ fn try_build_loop_facts_inner(
         &step_shape,
         &source_projection,
     )?;
-    let split_scan = try_extract_split_scan_facts(condition, body)?;
+    let split_scan =
+        try_extract_split_scan_facts_with_projection(condition, body, &source_projection)?;
     let loop_simple_while =
         try_extract_loop_simple_while_facts_with_projection(condition, body, &source_projection)?;
     let loop_char_map = try_extract_loop_char_map_facts_with_projection(
