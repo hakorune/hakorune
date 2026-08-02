@@ -469,32 +469,30 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S2`
-Parent: `JOINIR-LOOP-LOGICAL-DEMAND-VOCABULARY0-S1` (closed; Refactor Series 3/4)
-Ceremony: all-route logical producer; production consumers remain zero.
+Row: `JOINIR-LOOP-LOGICAL-DEMAND-CONTRACT0-P0`
+Parent: `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S2` (closed; Refactor Series 4/4)
+Ceremony: contract ratchet; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add one private producer over existing selection, facts, source, and neutral
-  route identity. It issues `Selected`, `NoRoute`, `Rejected`, or `Ambiguous`
-  before physical routing, without invoking a composer or lowerer.
+  Ratchet the private logical-demand subtree through the existing shared guard.
+  Fix all 19 exact-one selected routes as typed pre-effect source-topology
+  rejections until Facts own route-specific raw provenance.
 
 Contract:
-  Producer consumes existing raw execution selection once: none is `NoRoute`,
-  multiple is `Ambiguous`, unavailable/mismatched source receipt is `Rejected`,
-  and exactly one is adapted by its corresponding route-local logical adapter.
-  It imports no Builder/physical/lowering API and changes no runtime routing.
+  Logical source/roles/product/producer import no Builder, CorePlan, physical
+  ID (apart from neutral LoopRouteId), MIR/PHI/Frag, composer/lowerer, selector,
+  `ENTRIES`, or execution API. Existing shared guard owns the line limit.
 
 Done:
-  Every one of P0's 19 route identities has one source-only adapter result. The
-  producer's tests prove typed terminal disposition and no Builder construction;
-  P0's registry ratchet and shared guard remain green. Every touched source file
-  is below 800 lines.
+  Tests prove all 19 exact-one route identities reject by their own route ID,
+  while no-route and overlap remain terminal. Shared guard rejects forbidden
+  physical imports and validates every logical source file is below 800 lines.
 
 Stop:
-  Stop if any adapter needs AST rewrite, a synthetic source node, route
-  re-selection, a Builder/CorePlan/physical ID, composer/lowerer, or a caller.
-  No physicalizer, Loop I0, raw/reference ingress, universal ingress, or
+  Stop if a guard requires a second per-row script, admits a physical import,
+  or the ratchet changes producer behavior. No source-provenance expansion,
+  physicalizer, Loop I0, raw/reference ingress, universal ingress, or
   fallback-preserving wrapper is authorized.
 
 ## Production invariants

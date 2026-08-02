@@ -183,3 +183,13 @@ selection, execution order, and P0's 19-row matrix remain unchanged. Private
 is non-Clone, source nodes are borrowed rather than rebuilt, and the subtree has
 no Builder, CorePlan, physical-ID, composer, lowerer, selector, or caller import.
 S2 alone may issue the product; it must stay pre-effect and disconnected.
+
+### S0 series 3 evidence
+
+`qualify_selected_loop_route_v1` consumes `raw_execution_routes()` once and
+issues `NoRoute`, `Ambiguous`, or a typed rejection before any route execution.
+All 19 exact-one routes currently reject as
+`RouteSourceTopologyUnavailable { route }`: the receipt deliberately lacks the
+per-extractor raw source topology needed for a truthful selected demand. This is
+the required fail-fast boundary; it does not clone/re-match AST, invoke a
+composer/lowerer, alter the legacy retry path, or have a production caller.

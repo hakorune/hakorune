@@ -9,6 +9,8 @@ pub(crate) enum LoopDemandRejectionV1 {
     SourceReceiptUnavailable,
     SourceReceiptMismatch,
     SourceSlotUnavailable,
+    RouteSourceTopologyUnavailable { route: LoopRouteId },
+    PreEffectPhysicalAdmissibilityUnavailable { route: LoopRouteId },
     RoutePayloadUnavailable,
 }
 
