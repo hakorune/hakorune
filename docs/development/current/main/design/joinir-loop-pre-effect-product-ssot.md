@@ -597,3 +597,22 @@ Builder, CorePlan, physical IDs, composer, or lowerer. Its unit fixture fixes th
 reasons as separate pre-effect outcomes; there is no producer, qualified variant,
 consumer, or caller. D1 must now decide how one live facts/policy/schedule
 transaction reaches this vocabulary without a second authority.
+
+### All-route preflight producer D1 decision
+
+Decision: accepted `live_ordered_terminality/all_route_preflight.rs` as a private
+child beside the historical direct transaction/product. It consumes the existing
+non-Clone `LiveLoopFactsV1` by value, so no second facts bridge, raw source
+accessor, callback, or widened field visibility exists. Direct and all-route paths
+cannot consume one capability sequentially; they coexist only as caller-zero,
+disconnected evidence until the all-route issuer can preserve direct operands/tail
+and retire the direct child atomically.
+
+The transaction canonicalizes the owned Facts and invokes existing selection once,
+using only `raw_execution_routes()`. Empty schedule is `NoCandidate`. Otherwise it
+diagnoses only the raw front in order: missing topology, then non-borrowable
+ScopeBox lineage, then policy/terminality, then explicit post-effect retry debt.
+It never skips a rejected front to select a later candidate. `SchedulerOrderBlocked`
+is reserved for a future self-qualified later candidate with an undischargeable
+prefix; current S0 has zero qualified rows. RouterEnv/environment is not read or
+captured because no truthful dynamic all-route policy proof exists yet.

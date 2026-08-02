@@ -469,29 +469,28 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-D1`
-Parent: `JOINIR-LOOP-BUILDER-FREE-PREFLIGHT0-S0` (closed)
-Ceremony: select one all-route live preflight transaction; production consumers remain zero.
+Row: `JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-S0`
+Parent: `JOINIR-LOOP-ALL-ROUTE-PREFLIGHT-PRODUCER0-D1` (closed)
+Ceremony: implement one all-route live preflight transaction; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Define ownership, policy snapshot, one-selection boundary, source capability
-  handoff, and typed all-route rejection flow for the sole preflight producer.
+  Add the private live_ordered_terminality child that consumes the existing live
+  capability, canonicalizes/selects once, and returns NoCandidate/front rejection.
 
 Contract:
-  Producer must consume one live pair and one policy snapshot, use raw execution
-  order once, expose no source/Facts/selection parts, and issue no current Qualified
-  product until all-route membership proof exists.
+  Existing bind bridge is the only source ingress. Producer uses raw execution order
+  once, exposes no source/Facts/selection parts, and issues no Qualified product.
 
 Done:
-  Design fixes exact constructor/visibility, rejection precedence, direct-product
-  coexistence/retirement boundary, and fixtures for no candidate/source/policy/order/
-  retry-debt. Producer/caller count remains zero pending later S0.
+  Empty is NoCandidate; raw front diagnoses source then ScopeBox then policy/terminality
+  then retry debt. No row skips to a later candidate. Fixtures cover each precedence
+  class; direct historical product remains caller-zero and unimported.
 
 Stop:
-  Stop if D1 makes a generic raw resolver, re-runs selection/policy, treats Simple/Accum
-  as qualified, or claims physical readiness. No runtime routing, Loop I0, raw/reference
-  ingress, or fallback is authorized.
+  Stop if S0 adds a bridge/accessor, generic raw resolver, selection/policy reread,
+  treats Simple/Accum as qualified, or claims physical readiness. No runtime routing,
+  Loop I0, raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 
