@@ -469,33 +469,31 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S0`
-Parent: `JOINIR-LOOP-ROUTE-EFFECT-ORDER-MATRIX0-P0` (closed)
-Ceremony: all-route substrate; production consumers remain zero.
+Row: `JOINIR-LOOP-SOURCE-RECEIPT-FOUNDATION0-S0`
+Parent: `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S0` (Refactor Series 1/4)
+Ceremony: BoxShape-only substrate; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Add one private non-Clone Builder-free logical demand product and one producer
-  that consumes the existing Facts/registry authority for every one of the 19
-  rows. It owns no physicalizer and has no production caller in S0.
+  Mint one loop-relative raw source receipt before `flatten_scope_boxes` and
+  carry it through `LoopFacts`. It records original condition/body order only;
+  it has no route, builder, lowering, or production caller authority.
 
 Contract:
-  `ENTRIES` and raw execution order remain the exact membership truth;
-  diagnostic projection is not a substitute. Product issuance is Builder-free
-  and owns selected/rejected/ambiguous pre-effect dispositions plus located
-  demands and logical roles only. It must never reconstruct a synthetic AST.
+  Facts keep analysis views separate from original source identity. A receipt
+  never indexes flattened `RecipeBody`, clones/rebuilds AST, selects a route, or
+  grants a reusable/raw ingress. Existing facts and runtime routing are unchanged.
 
 Done:
-  One producer result corresponds to every P0 matrix row and exposes no Builder,
-  `CorePlan`, `ValueId`, `BasicBlockId`, PHI, `Frag`, or MIR instruction. Its
-  focused tests prove all 19 selected/rejected dispositions and source-demand
-  order; the P0 ratchet and shared guard remain green.
+  A ScopeBox-wrapped body proves receipt ordinals remain original-body ordinals
+  even when the analysis body is flattened. Existing facts tests, P0 registry
+  ratchet, and shared guard are green; every touched source file is below 800 lines.
 
 Stop:
-  Stop if any route needs Builder/CorePlan/physical IDs to issue its product,
-  if a product reclassifies environment or source syntax, if coverage is partial,
-  or if production routing changes. No physicalizer, Loop I0, raw/reference
-  ingress, universal ingress, or fallback-preserving wrapper is authorized.
+  Stop if the receipt needs AST matching/rewrite, adds route-specific policy,
+  changes facts/routing/diagnostics, or cannot preserve raw ordinals through
+  flattening. No product producer, physicalizer, Loop I0, raw/reference ingress,
+  universal ingress, or fallback-preserving wrapper is authorized.
 
 ## Production invariants
 

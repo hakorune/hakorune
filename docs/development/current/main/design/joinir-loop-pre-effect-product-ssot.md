@@ -138,3 +138,26 @@ post-effect-`None` class. It names Generic V0/V1 as the only explicit release
 conversion of verifier/lower failure to `None`; the existing scheduler retry
 test remains the counterexample. Registry tests and the shared MirBuilder guard
 are green. Next is all-route S0 only.
+
+## S0 Refactor Series contract
+
+Purpose: establish the source-identity substrate required by the selected
+all-route product. The series is BoxShape-only and each commit must build.
+
+1. `JOINIR-LOOP-SOURCE-RECEIPT-FOUNDATION0-S0`
+   - Mint a loop-relative source receipt before `flatten_scope_boxes`, carry it
+     through `LoopFacts`, and prove raw body order remains observable. No
+     selector, producer, physicalizer, or caller changes.
+2. `JOINIR-LOOP-LOGICAL-DEMAND-VOCABULARY0-S1`
+   - Add private registry-local source/role/product vocabulary. It imports no
+     Builder, CorePlan, physical ID, or lowering API and has no route adapter.
+3. `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S2`
+   - Add one all-19-route producer over existing selection/Facts. It returns a
+     typed selected/rejected/ambiguous disposition without invoking a composer.
+4. `JOINIR-LOOP-LOGICAL-DEMAND-CONTRACT0-P0`
+   - Ratchet source order, all-route correspondence, and forbidden physical
+     imports through the existing shared guard. Production consumers remain 0.
+
+The future I0/R0 is a separate decision after this series. Generic and nested
+routes that cannot establish physical admissibility before effects must return a
+typed pre-effect rejection in S2; they must never preserve a `None` retry.
