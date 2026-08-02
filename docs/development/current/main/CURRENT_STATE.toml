@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S2 closed; S0 Refactor Series ends with JOINIR-LOOP-LOGICAL-DEMAND-CONTRACT0-P0."
+status = "JOINIR-LOOP-LOGICAL-DEMAND-CONTRACT0-P0 closed; JOINIR-LOOP-ROUTE-SOURCE-PROVENANCE0-D1 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "P0 may ratchet the private logical-demand subtree with the existing shared guard and prove its exact 19-row relation. It must not change route selection, source provenance, producer behavior, physicalization, retry, or add any production caller."
-current_execution_row = "JOINIR-LOOP-LOGICAL-DEMAND-CONTRACT0-P0 (S0 series 4/4)"
-current_execution_summary = "Add source-import and line-limit checks to the existing shared guard, then ratchet all 19 selected-route outcomes as typed pre-effect topology rejections. Production consumers remain zero."
+current_design_stop = "D1 must choose the minimal facts-side, pre-flatten source-provenance representation for the all-route logical producer. It must not add a route-specific workaround, AST re-match/rewrite, producer acceptance change, physicalizer, retry change, or production caller."
+current_execution_row = "JOINIR-LOOP-ROUTE-SOURCE-PROVENANCE0-D1"
+current_execution_summary = "Design one route-local provenance contract that lets Facts identify original condition/body/nested locations without storing cloned AST or turning LoopFacts into a universal raw-source ingress."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-LOGICAL-DEMAND-CONTRACT0-P0"
+current_blocker_token = "JOINIR-LOOP-ROUTE-SOURCE-PROVENANCE0-D1"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

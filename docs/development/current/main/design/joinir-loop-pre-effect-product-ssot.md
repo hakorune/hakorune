@@ -193,3 +193,12 @@ All 19 exact-one routes currently reject as
 per-extractor raw source topology needed for a truthful selected demand. This is
 the required fail-fast boundary; it does not clone/re-match AST, invoke a
 composer/lowerer, alter the legacy retry path, or have a production caller.
+
+### S0 series 4 evidence and D1 handoff
+
+The existing shared MirBuilder guard now calls a small library helper that
+checks the logical-demand subtree for forbidden physical/selection imports and
+enforces the per-file limit. The 19-row producer ratchet is green. S0 is closed.
+The next blocker is D1: Facts need a minimal, route-local pre-flatten
+provenance contract. It must preserve source topology without cloned AST, a
+second selector, or a reusable raw-source ingress.

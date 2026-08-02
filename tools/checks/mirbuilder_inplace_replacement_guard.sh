@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-TAG="mirbuilder-inplace-replacement-guard"
-source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+TAG="mirbuilder-inplace-replacement-guard"; source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+source "$ROOT_DIR/tools/checks/lib/joinir_logical_demand_contract.sh"
 MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-inplace-replacement-v1.tsv"
 CALLER_MANIFEST="$ROOT_DIR/tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json"
 STRUCTURAL_RATCHET="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-structural-ratchet.tsv"
@@ -49,8 +49,7 @@ CALLS_BUILD="$ROOT_DIR/src/mir/builder/calls/build.rs"
 FUNCTION_CALL_ROUTE="$ROOT_DIR/src/mir/builder/calls/function_call_preflight_route.rs"
 FUNCTION_SPECIAL="$ROOT_DIR/src/mir/builder/calls/special_method_handlers.rs"
 FASTMEM_CALLS="$ROOT_DIR/src/mir/builder/fastmem/calls.rs"; ENUM_MATCH="$ROOT_DIR/src/mir/builder/exprs_enum_match.rs"
-SCOPEBOX_ENUM="$ROOT_DIR/src/mir/builder/enum_match_scopebox.rs"
-METHOD_CALL_HANDLERS="$ROOT_DIR/src/mir/builder/method_call_handlers.rs"
+SCOPEBOX_ENUM="$ROOT_DIR/src/mir/builder/enum_match_scopebox.rs"; METHOD_CALL_HANDLERS="$ROOT_DIR/src/mir/builder/method_call_handlers.rs"
 PROPERTY_READS="$ROOT_DIR/src/mir/builder/property_reads.rs"
 FIELDS="$ROOT_DIR/src/mir/builder/fields.rs"
 PROPERTY_TESTS="$ROOT_DIR/src/tests/mir_unified_members_property_read.rs"
@@ -729,6 +728,7 @@ if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
   guard_fail "$TAG" "Match owned input must have one consuming production owner"
 fi
 if rg -n -P '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" >/dev/null; then guard_fail "$TAG" "owned compound expression dispatcher clone returned"; fi
+guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \

@@ -469,35 +469,30 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-LOGICAL-DEMAND-CONTRACT0-P0`
-Parent: `JOINIR-LOOP-ALL-ROUTE-LOGICAL-PRODUCER0-S2` (closed; Refactor Series 4/4)
-Ceremony: contract ratchet; production consumers remain zero.
+Row: `JOINIR-LOOP-ROUTE-SOURCE-PROVENANCE0-D1`
+Parent: `JOINIR-LOOP-LOGICAL-DEMAND-CONTRACT0-P0` (closed)
+Ceremony: design consultation; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Ratchet the private logical-demand subtree through the existing shared guard.
-  Fix all 19 exact-one selected routes as typed pre-effect source-topology
-  rejections until Facts own route-specific raw provenance.
+  Choose the smallest facts-side pre-flatten provenance contract required to
+  turn route-local source topology into a future logical demand. Keep source
+  identity separate from flattened analysis facts and from raw ingress.
 
 Contract:
-  Logical source/roles/product/producer import no Builder, CorePlan, physical
-  ID (apart from neutral LoopRouteId), MIR/PHI/Frag, composer/lowerer, selector,
-  `ENTRIES`, or execution API. Existing shared guard owns the line limit.
+  D1 must name source authority, non-authority, location vocabulary, ownership,
+  lifetime/Clone boundary, and exact pre-flatten issue point. It must state why
+  `LoopSourceReceiptV1` count/ordinal alone cannot authorize selected demands.
 
 Done:
-  Tests prove all 19 exact-one route identities reject by their own route ID,
-  while no-route and overlap remain terminal. Shared guard rejects forbidden
-  physical imports and validates every logical source file is below 800 lines.
-
-Gate hold:
-  Current shared guard has unrelated stale ScopeBox/EnumMatch/Print cardinality
-  expectations on main. Audit that baseline drift before adding its P0 ratchet;
-  no logical-demand behavior or test matrix may change while it is red.
+  One design note maps all 19 routes to a finite source-provenance vocabulary,
+  defines typed unavailable/mismatch boundaries, and names the first BoxCount
+  implementation slice with fixture and fast gate. Worktree remains clean.
 
 Stop:
-  Stop if a guard requires a second per-row script, admits a physical import,
-  or the ratchet changes producer behavior. No source-provenance expansion,
-  physicalizer, Loop I0, raw/reference ingress, universal ingress, or
+  Stop before code if the proposal needs cloned AST, an extractor-specific
+  second selector, a universal raw-source view, or any physical/runtime owner.
+  No physicalizer, Loop I0, raw/reference ingress, universal ingress, or
   fallback-preserving wrapper is authorized.
 
 ## Production invariants
