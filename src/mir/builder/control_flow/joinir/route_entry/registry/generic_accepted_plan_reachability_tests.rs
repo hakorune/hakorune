@@ -512,10 +512,13 @@ fn generic_both_facts_emit_test_only_recursive_carrier_observation() {
         CorpusModeV1::StrictPlannerRequired,
     ] {
         let (both, raw_schedule) = observe_generic_carrier_facts(mode, "both");
+        let (both_repeat, repeat_schedule) = observe_generic_carrier_facts(mode, "both");
         assert_eq!(
             both.disposition,
             GenericCarrierObservationDispositionV1::CompleteRecursiveCarrier(vec!["j".into()])
         );
+        assert_eq!(both.disposition, both_repeat.disposition);
+        assert_eq!(raw_schedule, repeat_schedule);
         if matches!(mode, CorpusModeV1::StrictPlannerRequired) {
             assert_eq!(raw_schedule, vec![LoopRouteId::GenericLoopV1]);
         } else {
@@ -526,10 +529,14 @@ fn generic_both_facts_emit_test_only_recursive_carrier_observation() {
         }
 
         let (simple, simple_schedule) = observe_generic_carrier_facts(mode, "simple-while");
+        let (simple_repeat, repeat_simple_schedule) =
+            observe_generic_carrier_facts(mode, "simple-while");
         assert_eq!(
             simple.disposition,
             GenericCarrierObservationDispositionV1::CompleteNoRecursiveCarrier
         );
+        assert_eq!(simple.disposition, simple_repeat.disposition);
+        assert_eq!(simple_schedule, repeat_simple_schedule);
         assert!(!simple_schedule.contains(&LoopRouteId::GenericLoopV1));
     }
 }
