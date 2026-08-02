@@ -289,23 +289,71 @@ exit closure remain M5/M6 JoinSig/verifier work; M2 does not claim them.
 ### M3 — `JOINIR-LOOP-STRUCTURAL-FACTS-ROUTE-POLICY0-P0-S1`
 
 Change:
-: Map all 19 routes to exact source observation, suppression, mode/contract
-  inputs, prefix decline, and current pre/post-effect outcome. One pure policy
-  consumes one frozen schedule and selects one recipe candidate.
+: Replace the borrowed, execution-coupled route decision surface with one
+  owned structural observation and one pure ordered policy. M3 is split below
+  because source identity, row freezing, outcome typing, and winner parity are
+  distinct authorities.
 
 Contract:
-: AST rematch/rewrite, composer execution, Builder probe, physical execution,
-  fallback, and second scheduler are zero. Every earlier candidate has a typed
-  pre-effect decline.
+: `CanonicalLoopFacts` remains a legacy adapter input, not the portable DTO:
+  it owns AST-bearing family facts. The neutral policy owner imports no AST,
+  Builder, composer, CorePlan, physical ID, LoopRecipe, callback, retry, or
+  `all_route_preflight`. Raw execution order comes only from the already-frozen
+  legacy selection. Route IDs live only in an opaque parity receipt; qualified
+  structural facts and the semantic recipe never dispatch on them.
 
 Done:
-: Legacy final winner equals the pure winner by raw schedule, route ID, prefix
-  reasons, and recipe kind for all existing fixtures. Partial coverage stays
-  caller-zero.
+: Non-Generic decidable fixtures agree on frozen raw schedule, selected
+  route-or-exhaustion, and typed prefix reasons. Generic V0/V1 stop at an exact
+  M4 debt; full all-19 winner and recipe parity are not claimed before M4/M8.
+  Partial coverage remains caller-zero.
 
 Stop:
-: An execution-dependent decision becomes an exact family blocker, not `Unknown`
-  or runtime probing.
+: An execution-dependent decision becomes an exact named blocker, never
+  `Unknown`, suffix skipping, runtime probing, or a new scheduler. Policy may
+  not read legacy recipe-contract presence as semantic authority: that bit is
+  compatibility parity only because the final order is Facts → Policy → Recipe.
+
+M3 task order:
+
+1. `M3-A / JOINIR-LOOP-POLICY-OUTCOME-CENSUS0-P0` — **closed** by the
+   independent multi-worker code-arm audit. All 19 `ENTRIES` rows have
+   predicate, suppression, outer/route gate, Retry/None stage, first-effect
+   owner, and retirement class. Exact gaps are: portable root source path missing;
+   TrueBreak plus Cond4 source topology missing; late AST policy rereads;
+   NestedMinimal composer dependence; non-Generic `Option` terminality not
+   sealed; Generic V0/V1 post-effect retry debt.
+2. `M3-B / JOINIR-LOOP-ROOT-SOURCE-AUTHORITY0-D0-S1` — issue one owned root
+   `LoopSourcePathV1` before route-local observation. Map the 12 existing
+   body-topology receipts beneath it; ScopeBox lineage is either represented by
+   an accepted typed path extension or fails closed. Do not infer a root path
+   from route-local body indices.
+3. `M3-C / JOINIR-LOOP-FROZEN-POLICY-ROWS0-S2` — add sibling neutral owner
+   `src/mir/loop_route_policy/` with a non-Clone owned schedule and 19 ordered
+   row observations. Freeze typed suppression, raw cursor, mode/release facts,
+   global entry disposition, and source disposition once. The migration
+   adapter reselects nothing, has zero production callers, and retires at M12.
+4. `M3-D / JOINIR-LOOP-PREFIX-OUTCOME-TYPING0-S3` — replace every ordinary
+   pre-effect Retry with typed Declined/Terminal/Blocked evidence and remove
+   late AST rereads from policy authority. Seal the 17 non-Generic selected
+   Loop outcomes as success-or-Err, or stop at an exact route blocker;
+   NestedMinimal composer dependence is not reassigned to Generic debt. A
+   migration-only receipt records the actual legacy composer/result kind for
+   later parity; the pure policy cannot read it.
+5. `M3-E / JOINIR-LOOP-PURE-ROUTE-POLICY0-S4` — one left-to-right evaluator
+   consumes only frozen rows. Declined alone advances; Qualified and Blocked
+   both stop. Qualified owns structural facts plus a private seal, never a
+   route ID, recipe, suffix, or callback. Generic emits only the opaque M4 debt
+   key until M4 resolves it. A Blocked value has no resume API or suffix;
+   resolution issues a fresh closed schedule and evaluates again from row zero.
+6. `M3-F / JOINIR-LOOP-CALLER-ZERO-POLICY-PARITY0-P1` — compare the actual
+   isolated legacy scheduler result with the pure audit result. The oracle is
+   legacy execution, not `all_route_preflight`; production callers and second
+   schedulers remain zero. Include one production-derived decline-then-success
+   counterexample. Recipe-kind parity moves to M5/M8.
+
+M3 gates stay in the existing shared MirBuilder guard. New policy files are
+split by schema/evaluator/adapter/tests and each remains below 800 lines.
 
 ### M4 — `JOINIR-GENERIC-POST-EFFECT-DEBT-RECIPE0-D0-S2`
 
@@ -339,6 +387,9 @@ Change:
 Contract:
 : Only the physicalizer maps logical roles to real block/value IDs. PHIs come
   exclusively from JoinSig. The existing Accum composer is a parity oracle only.
+  Control edges are explicit recipe items; value-only calculations are
+  operations, and a called function body owns a separate recipe rather than
+  being expanded inside a Call operation.
 
 Done:
 : Normalized recipe, verifier counterexamples, MIR/PHI/type/result parity, late
@@ -383,7 +434,10 @@ Contract:
   CFG/JoinSig/PHI services, and physicalizer. A profile-specific semantic
   variant is forbidden unless a concrete source counterexample proves a
   bounded vocabulary extension; a sixth legacy profile is never a new semantic
-  recipe kind.
+  recipe kind. Call and completed Record construction may be value operations;
+  branching Match/If/Loop are control items, while lambda/function bodies are
+  separately owned recipes. Future expression-valued control requires an
+  explicit block-result/join vocabulary, never AST lifting or opaque payloads.
 
 Done:
 : Normalized recipe/MIR parity and post-first-mutation candidate-abort tests are
