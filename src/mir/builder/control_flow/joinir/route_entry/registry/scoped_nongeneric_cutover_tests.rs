@@ -4,8 +4,8 @@
 //! production and never calls a composer, physicalizer, or legacy witness.
 //! A singleton row is a pilot candidate, not a cutover authorization.
 
-use super::route_id::LoopRouteId;
 use super::super::router::{test_issue_live_preflight_frame, LoopRouteContext};
+use super::route_id::LoopRouteId;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::single_planner::try_build_outcome;
 
@@ -58,7 +58,10 @@ fn progression_step() -> ASTNode {
 }
 
 fn is_generic(route: &LoopRouteId) -> bool {
-    matches!(route, LoopRouteId::GenericLoopV0 | LoopRouteId::GenericLoopV1)
+    matches!(
+        route,
+        LoopRouteId::GenericLoopV0 | LoopRouteId::GenericLoopV1
+    )
 }
 
 fn raw_schedule(condition: ASTNode, body: Vec<ASTNode>, name: &str) -> Vec<LoopRouteId> {

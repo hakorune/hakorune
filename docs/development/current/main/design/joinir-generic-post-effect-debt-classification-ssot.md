@@ -640,6 +640,16 @@ the strict shadow path). Digest equality is sufficient evidence for the
 recorded shape, not a substitute for runtime/MIR parity; digest difference
 keeps the row `UnresolvedStop`.
 
+Current evidence: the test-only
+`registry/generic_semantic_digest_tests.rs` remaps ValueId, BasicBlockId,
+LocalSlotId, LoopId, PHI inputs, Frag edges, and branch arguments before the
+plan is moved into `PlanLowerer`. Fresh release/strict `Both` candidates are
+stable, but their V0 and V1 digests differ (the planned nested-carrier and
+step shapes are not semantically identical). Planner-required suppresses V0
+before selection and is recorded separately. D2-B2 therefore remains an
+explicit `UnresolvedStop`; no Generic winner or production cutover is
+authorized.
+
 #### M5 boundary while D2-B is open
 
 An isolated `AccumConstLoop` caller-zero test candidate may be designed as the

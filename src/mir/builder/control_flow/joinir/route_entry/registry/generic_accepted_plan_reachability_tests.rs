@@ -9,6 +9,7 @@ use super::generic_selection_matrix_tests::{
     progression_condition, simple_while_body, true_body, true_condition, v1_only_body,
     v1_only_effect_body,
 };
+use super::generic_semantic_digest_tests::{core_plan_semantic_digest, CorePlanSemanticDigestV1};
 use super::route_id::LoopRouteId;
 use super::select_recipe_first_routes;
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
@@ -68,7 +69,7 @@ pub(super) enum EffectOwnerV1 {
     GenericComposer,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(super) struct GenericDirectStageEvidenceV1 {
     pub(super) route: LoopRouteId,
     pub(super) stage: PlanStageV1,
@@ -76,6 +77,7 @@ pub(super) struct GenericDirectStageEvidenceV1 {
     pub(super) before_compose: CandidateSnapshotV1,
     pub(super) before_lower: CandidateSnapshotV1,
     pub(super) after_lower: CandidateSnapshotV1,
+    pub(super) semantic_digest: Option<CorePlanSemanticDigestV1>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -87,7 +89,7 @@ pub(super) struct CandidateSnapshotV1 {
     pub(super) typed_value_count: usize,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 struct ReachabilityRowV1 {
     mode: CorpusModeV1,
     route: LoopRouteId,
@@ -97,6 +99,7 @@ struct ReachabilityRowV1 {
     before_compose: CandidateSnapshotV1,
     before_lower: CandidateSnapshotV1,
     after_lower: CandidateSnapshotV1,
+    semantic_digest: Option<CorePlanSemanticDigestV1>,
 }
 
 fn seeded_builder() -> MirBuilder {
@@ -188,6 +191,7 @@ fn observe_row(
             before_compose,
             before_lower: after_compose.clone(),
             after_lower: after_compose,
+            semantic_digest: None,
         };
     };
     let root_is_loop = matches!(&plan, CorePlan::Loop(_));
@@ -207,6 +211,7 @@ fn observe_row(
             before_compose,
             before_lower: before_lower.clone(),
             after_lower: before_lower,
+            semantic_digest: None,
         };
     }
     if PlanVerifier::verify(&plan).is_err() {
@@ -219,8 +224,10 @@ fn observe_row(
             before_compose,
             before_lower: before_lower.clone(),
             after_lower: before_lower,
+            semantic_digest: None,
         };
     }
+    let semantic_digest = Some(core_plan_semantic_digest(&plan));
     let lower_result = if mode.strict_or_dev() {
         lower_verified_core_plan(
             &mut builder,
@@ -247,6 +254,7 @@ fn observe_row(
         before_compose,
         before_lower,
         after_lower: snapshot(&builder),
+        semantic_digest,
     }
 }
 
@@ -305,6 +313,7 @@ pub(super) fn observe_both_direct_stage(
             before_compose: row.before_compose,
             before_lower: row.before_lower,
             after_lower: row.after_lower,
+            semantic_digest: row.semantic_digest,
         })
         .collect()
 }

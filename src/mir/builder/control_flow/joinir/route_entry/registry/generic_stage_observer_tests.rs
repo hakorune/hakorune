@@ -4,17 +4,17 @@
 //! source-to-selection result from the A1 Both fixture, then invokes the same
 //! ENTRIES dispatch used by production through the existing witness executor.
 
+use super::dispatch_entry;
 use super::execution_witness::{
     PostEffectRetryDebtV1, RouteAttemptOutcomeV1, RouteExecutionResultV1,
-};
-use super::generic_selection_matrix_tests::{
-    both_body, effect_without_local_body, progression_condition, v1_only_effect_body,
 };
 use super::generic_accepted_plan_reachability_tests::{
     observe_both_direct_stage, GenericDirectStageEvidenceV1,
 };
+use super::generic_selection_matrix_tests::{
+    both_body, effect_without_local_body, progression_condition, v1_only_effect_body,
+};
 use super::route_id::LoopRouteId;
-use super::dispatch_entry;
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
     test_issue_live_preflight_frame, LoopRouteContext,
 };
@@ -102,7 +102,7 @@ struct GenericStageTraceV1 {
     terminal: TerminalTraceV1,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 struct GenericOverlapEvidenceRowV1 {
     mode: ObserverModeV1,
     direct: Vec<GenericDirectStageEvidenceV1>,
@@ -214,8 +214,7 @@ fn observe_selected_fixture(
     );
     for (index, attempt) in attempted.iter().enumerate() {
         assert_eq!(
-            attempt.route,
-            raw_schedule[index],
+            attempt.route, raw_schedule[index],
             "attempted route must remain the captured raw prefix"
         );
         assert_eq!(
@@ -375,10 +374,8 @@ fn generic_both_evidence_matrix_keeps_direct_stage_and_witness_separate() {
     ];
     for row in matrix {
         assert!(
-            row.direct
-                .iter()
-                .all(|evidence| evidence.first_effect_owner
-                    == super::generic_accepted_plan_reachability_tests::EffectOwnerV1::GenericComposer),
+            row.direct.iter().all(|evidence| evidence.first_effect_owner
+                == super::generic_accepted_plan_reachability_tests::EffectOwnerV1::GenericComposer),
             "direct stage must record a Generic composer effect owner: {row:?}"
         );
         assert!(
@@ -388,7 +385,10 @@ fn generic_both_evidence_matrix_keeps_direct_stage_and_witness_separate() {
         match row.mode {
             ObserverModeV1::Release | ObserverModeV1::Strict => {
                 assert_eq!(
-                    row.direct.iter().map(|evidence| evidence.route).collect::<Vec<_>>(),
+                    row.direct
+                        .iter()
+                        .map(|evidence| evidence.route)
+                        .collect::<Vec<_>>(),
                     vec![LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
                 );
                 assert_eq!(
@@ -402,19 +402,57 @@ fn generic_both_evidence_matrix_keeps_direct_stage_and_witness_separate() {
             }
             ObserverModeV1::StrictPlannerRequired => {
                 assert_eq!(
-                    row.direct.iter().map(|evidence| evidence.route).collect::<Vec<_>>(),
+                    row.direct
+                        .iter()
+                        .map(|evidence| evidence.route)
+                        .collect::<Vec<_>>(),
                     vec![LoopRouteId::GenericLoopV1]
                 );
-                assert_eq!(
-                    row.witness.raw_schedule,
-                    vec![LoopRouteId::GenericLoopV1]
-                );
+                assert_eq!(row.witness.raw_schedule, vec![LoopRouteId::GenericLoopV1]);
             }
         }
     }
     // This matrix records the real pair of observations; it is not a pure
     // winner oracle.  D2-B still needs pre-effect policy equivalence or a
     // production-derived disjointness proof.
+}
+
+#[test]
+fn generic_both_alpha_digest_keeps_parity_stop_explicit() {
+    for mode in [ObserverModeV1::Release, ObserverModeV1::Strict] {
+        let row = observe_both_evidence(mode);
+        let repeat = observe_both_evidence(mode);
+        let digests = row
+            .direct
+            .iter()
+            .map(|evidence| {
+                evidence
+                    .semantic_digest
+                    .clone()
+                    .expect("accepted plan digest")
+            })
+            .collect::<Vec<_>>();
+        let repeat_digests = repeat
+            .direct
+            .iter()
+            .map(|evidence| {
+                evidence
+                    .semantic_digest
+                    .clone()
+                    .expect("accepted plan digest")
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(digests, repeat_digests, "fresh digest drift: {mode:?}");
+        assert_eq!(digests.len(), 2, "Both must retain V0 and V1: {mode:?}");
+        assert_ne!(
+            digests[0], digests[1],
+            "semantic digest difference must keep D2-B2 unresolved: {mode:?}"
+        );
+    }
+
+    let planner = observe_both_evidence(ObserverModeV1::StrictPlannerRequired);
+    assert_eq!(planner.direct.len(), 1);
+    assert!(planner.direct[0].semantic_digest.is_some());
 }
 
 #[test]
