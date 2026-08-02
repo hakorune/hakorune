@@ -69,11 +69,11 @@ guard_joinir_logical_demand_contract() {
     guard_fail "$tag" "live ordered transaction re-acquired diagnostic, AST, source-view, or legacy-demand authority"
   fi
   local all_route_selection_calls all_route_production
-  all_route_selection_calls="$(rg -c 'select_recipe_first_routes\(Some\(&canonical\)\)' "$all_route_preflight" || true)"
+  all_route_production="$(sed '/^#\[cfg(test)\]/,$d' "$all_route_preflight")"
+  all_route_selection_calls="$(printf '%s\n' "$all_route_production" | rg -c 'select_recipe_first_routes\(Some\(&canonical\)\)' || true)"
   if [[ "$all_route_selection_calls" != "1" ]]; then
     guard_fail "$tag" "all-route preflight must select the canonical raw schedule exactly once"
   fi
-  all_route_production="$(sed '/^#\[cfg(test)\]/,$d' "$all_route_preflight")"
   if printf '%s\n' "$all_route_production" | rg -n \
     'diagnostic_effective|matched_routes|ASTNode::|try_extract_|LoopSourceView|logical_product|qualify_live_loop_facts' \
     >/dev/null; then

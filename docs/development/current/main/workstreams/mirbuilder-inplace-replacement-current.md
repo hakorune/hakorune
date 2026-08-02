@@ -469,27 +469,27 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-S0`
-Parent: `JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-D0` (closed)
-Ceremony: add one LoopBreakRecipe all-route preflight classification box; production consumers remain zero.
+Row: `JOINIR-LOOP-BREAK-TERMINALITY0-D0`
+Parent: `JOINIR-LOOP-BREAK-PREFLIGHT-CLASSIFICATION0-S0` (closed)
+Ceremony: design one direct generic LoopBreakRecipe scheduler-terminality proof; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Classify LoopBreakRecipe through existing facts/topology only: unavailable
-  source, ScopeBox lineage, then policy/terminality unavailable.
+  Inventory the actual direct generic raw schedule and all LoopBreak handler
+  outcomes before versus after its first physical effect.
 
 Contract:
-  Existing raw selection, LoopBreak facts, and projection are authority. One raw
-  schedule selection remains the only schedule read; no source reconstruction or terminality claim.
+  Existing raw selection, handler, and composer effect boundary are authority.
+  D0 may not infer terminality from provenance or a successful focused fixture.
 
 Done:
-  Direct generic, ScopeBox generic, and specialized LoopBreak fixtures fix the
-  ordered typed rejects and actual raw schedule front. No product/caller/qualification.
+  Design names any truthful direct certificate, raw schedule fixture, effect-boundary
+  evidence, and fail-closed ScopeBox behavior. No product/caller/qualification.
 
 Stop:
-  Stop if S0 uses AST/recipe/source re-match, skips a rejected front, changes the
-  current route schedule, asserts raw tail/terminality, or claims physical readiness.
-  No runtime routing, Loop I0, raw/reference ingress, or fallback is authorized.
+  Stop if D0 uses AST/recipe/source re-match, skips an effect boundary, changes the
+  current route schedule, or claims physical readiness. No runtime routing, Loop I0,
+  raw/reference ingress, or fallback is authorized.
 
 ## Production invariants
 

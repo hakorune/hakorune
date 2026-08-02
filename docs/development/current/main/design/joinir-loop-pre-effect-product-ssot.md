@@ -680,3 +680,10 @@ the three coordinates do not prove raw tail, handler terminality, builder-free
 logical consumption, or physical safety. Fixtures must fix the raw schedule front
 and each reject. S0 adds no AST re-match, selector rerun, product, caller, route
 skip, or composer/physical authority.
+
+S0 implementation record: the preflight fixture set fixes generic direct to the
+policy/terminality rejection, generic ScopeBox to the lineage rejection, and a
+read-digits specialized LoopBreak to source-topology unavailable. Each fixture
+also asserts the actual raw front is `LoopBreakRecipe`. The production selector
+still runs exactly once; the shared guard now excludes test-only selector calls
+when checking that production boundary.
