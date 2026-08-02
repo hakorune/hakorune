@@ -472,6 +472,7 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 Row: `JOINIR-LOOP-ALL-ROUTE-PRE-EFFECT-PRODUCT0-D0`
 Parent: `JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0`
 Ceremony: T2 design stop; no implementation is authorized by this row.
+Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
   Seal one 19-row effect-order matrix, then decide the sole producer and exact

@@ -139,6 +139,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - compiler pipeline thinning execution order; keeps semantic refresh,
     optimizer, verifier, and JoinIR thinning as facade/boundary cleanup before
     any behavior merge
+- `design/joinir-loop-pre-effect-product-ssot.md`
+  - active all-route Loop qualification contract; keeps Builder-free logical
+    demand production, typed physicalization, and ordered retry retirement
+    separate until their atomic cutover
 - `design/joinir-target-lowerer-thinning-ssot.md`
   - JoinIR target-specific lowerer thinning order; keeps shared seams,
     LowerOnly observation, and route-specific behavior separated
