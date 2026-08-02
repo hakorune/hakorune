@@ -939,3 +939,20 @@ The prerequisite is a separate extractor-topology D0 that defines complete
 observed indices together with update cardinality and duplicate policy, without
 changing route acceptance. No projection plumbing, selection, terminality,
 product, physicalization, caller, or runtime behavior changed here.
+
+### LoopContinueOnly extractor-topology D0 decision
+
+Decision: accept behavior-neutral optional source topology S0. Existing facts
+retain their current BTreeMap and cloned-step behavior. A projection-aware
+extractor may retain opaque role/site entries only when the whole flattened body
+is exactly: continue-if at index `0`, one or more distinct carrier updates in
+observed order, and one final top-level loop step. The entries are `ContinueIf`,
+`CarrierUpdate { carrier }`, and `Step`; each maps through the existing
+projection and carries no AST/expression resolver. Duplicate carriers, a
+nested-only/missing/non-final step, another top-level statement, or projection
+mismatch makes topology absent, not a new facts rejection.
+
+The old extractor wrapper supplies a default projection and remains topology
+absent. No selection, terminality, product, physicalizer, caller, or runtime
+behavior is added. Later cards must separately decide whether a direct topology
+may be borrowed; ScopeBox lineage here is observation only.
