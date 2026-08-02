@@ -13,6 +13,10 @@ The whole-pipeline authority, including DraftSeal and atomic module publication,
 is owned by `mirbuilder-final-pipeline-ssot.md`; this document owns only its
 Recipe-first front half.
 
+Current-state note: the portable verified-recipe path is the target contract,
+not yet the production Loop authority. `route_loop` still executes the legacy
+JoinIR scheduler until the atomic M10 cutover in the Loop pipeline SSOT.
+
 ## Pipeline (SSOT)
 
 AST

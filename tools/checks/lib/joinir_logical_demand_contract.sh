@@ -343,8 +343,8 @@ guard_joinir_logical_demand_contract() {
     guard_fail "$tag" "ambiguous Generic post-effect debt remains after receipt classification"
   fi
   local generic_receipt_calls generic_receipt_composers
-  generic_receipt_calls="$(rg -c 'generic_debt\(COMPOSER' "$route_registry_dir/handlers/generic.rs" | awk -F: '{sum += $2} END {print sum + 0}')"
-  generic_receipt_composers="$(rg -c 'const COMPOSER: LegacyGenericComposerV1' "$route_registry_dir/handlers/generic.rs" | awk -F: '{sum += $2} END {print sum + 0}')"
+  generic_receipt_calls="$(rg -n -U 'generic_debt\([[:space:]]*COMPOSER' "$route_registry_dir/handlers/generic.rs" | rg -c 'generic_debt' || true)"
+  generic_receipt_composers="$(rg -c 'const COMPOSER: LegacyGenericComposerV1' "$route_registry_dir/handlers/generic.rs" | awk '{sum += $1} END {print sum + 0}')"
   if [[ "$generic_receipt_calls" != "8" ]] || [[ "$generic_receipt_composers" != "2" ]]; then
     guard_fail "$tag" "Generic V0/V1 receipt branches must remain symmetric: calls=$generic_receipt_calls composers=$generic_receipt_composers"
   fi

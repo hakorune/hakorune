@@ -240,6 +240,76 @@ pub(crate) enum RouteExecutionResultV1<'execution, T> {
     Exhausted(RouteExecutionWitnessV1<'execution>),
 }
 
+/// Test-only bridge for M3-F parity.  It drives the real execution witness
+/// scheduler while keeping route-id comparison outside the pure policy owner.
+#[cfg(test)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LegacyPolicyAttemptDispositionV1 {
+    PreEffectDeclined,
+    PreEffectBlocked,
+    Succeeded,
+}
+
+#[cfg(test)]
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum LegacyPolicyParityReceiptV1 {
+    Succeeded {
+        route: LoopRouteId,
+        attempted: Box<[LoopRouteId]>,
+    },
+    Exhausted {
+        attempted: Box<[LoopRouteId]>,
+    },
+}
+
+#[cfg(test)]
+pub(crate) fn execute_legacy_policy_parity_v1(
+    raw_schedule: &[LoopRouteId],
+    dispositions: &[LegacyPolicyAttemptDispositionV1],
+) -> Result<LegacyPolicyParityReceiptV1, String> {
+    let env = RouterEnv {
+        strict_or_dev: false,
+        planner_required: false,
+        has_body_local: false,
+    };
+    let witness = RouteExecutionWitnessV1::issue(raw_schedule, &env, true);
+    let mut attempted = Vec::new();
+    let result = witness.execute_selected_in_order(|_, attempt| {
+        let route = attempt.current_route();
+        attempted.push(route);
+        let disposition = dispositions.get(attempt.cursor()).copied().ok_or_else(|| {
+            format!(
+                "missing M3-F test disposition at cursor {}",
+                attempt.cursor()
+            )
+        })?;
+        match disposition {
+            LegacyPolicyAttemptDispositionV1::PreEffectDeclined => {
+                Ok::<RouteAttemptOutcomeV1<()>, String>(RouteAttemptOutcomeV1::PreEffectDeclined(
+                    PreEffectDeclineReasonV1::NestedLoopShapeUnavailable,
+                ))
+            }
+            LegacyPolicyAttemptDispositionV1::PreEffectBlocked => {
+                Ok::<RouteAttemptOutcomeV1<()>, String>(RouteAttemptOutcomeV1::PreEffectBlocked(
+                    PreEffectBlockedReasonV1::ReleaseNestedLoopGate,
+                ))
+            }
+            LegacyPolicyAttemptDispositionV1::Succeeded => {
+                Ok::<RouteAttemptOutcomeV1<()>, String>(RouteAttemptOutcomeV1::Succeeded(()))
+            }
+        }
+    })?;
+    Ok(match result {
+        RouteExecutionResultV1::Succeeded { route, .. } => LegacyPolicyParityReceiptV1::Succeeded {
+            route,
+            attempted: attempted.into_boxed_slice(),
+        },
+        RouteExecutionResultV1::Exhausted(_) => LegacyPolicyParityReceiptV1::Exhausted {
+            attempted: attempted.into_boxed_slice(),
+        },
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::{

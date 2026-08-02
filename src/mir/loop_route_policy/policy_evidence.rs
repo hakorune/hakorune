@@ -9,6 +9,7 @@ use super::schema::LoopRouteSourceUnavailableV1;
 pub(crate) enum LoopRoutePolicySourceDeclineReasonV1 {
     SuppressedByEarlierCandidate,
     Unavailable(LoopRouteSourceUnavailableV1),
+    PreEffectDeclined,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

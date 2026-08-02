@@ -383,17 +383,19 @@ M3 task order:
    pre-effect Declined/Blocked versus Generic debt, selected non-Generic Loop
    terminal boundaries, and `JOINIR-LOOP-GENERIC-COMPOSER-RESULT-RECEIPT0-S3a`
    closed V0/V1 composer/result evidence without entering policy.
-5. `M3-E / JOINIR-LOOP-PURE-ROUTE-POLICY0-S4` — **active**. E0 now adds a
-   closed policy-evidence DTO (`SourceDeclined/Candidate/PolicyBlocked/
-   GenericDebt`) without route-ID dispatch; E1 will evaluate frozen rows left
-   to right. Declined alone advances; Qualified/Blocked stop, and Blocked has no
-   resume/suffix API. Qualified owns facts plus a private seal, never recipe,
-   callback, or receipt; Generic remains an opaque M4 debt key.
-6. `M3-F / JOINIR-LOOP-CALLER-ZERO-POLICY-PARITY0-P1` — compare the actual
-   isolated legacy scheduler result with the pure audit result. The oracle is
-   legacy execution, not `all_route_preflight`; production callers and second
-   schedulers remain zero. Include one production-derived decline-then-success
-   counterexample. Recipe-kind parity moves to M5/M8.
+5. `M3-E / JOINIR-LOOP-PURE-ROUTE-POLICY0-S4` — **closed**. E0 owns a closed
+   policy-evidence DTO (`SourceDeclined/Candidate/PolicyBlocked/GenericDebt`)
+   without route-ID dispatch; E1 evaluates frozen rows left to right. Declined
+   alone advances; Qualified/Blocked stop, and Blocked has no resume/suffix API.
+   Qualified owns facts plus a private seal, never recipe, callback, or receipt;
+   Generic remains an opaque M4 debt key.
+6. `M3-F / JOINIR-LOOP-CALLER-ZERO-POLICY-PARITY0-P1` — **active**. A
+   `cfg(test)` adapter compares the actual isolated legacy witness scheduler
+   with the pure audit; `all_route_preflight` is not an oracle. It fixes an
+   ordered typed-decline→success counterexample, all-declined exhaustion, and a
+   fresh row-zero Blocked stop. Generic debt stays M4-only. Production Recipe
+   callers, PHI owners, fallback removal, and second schedulers remain zero;
+   those belong to M5/M6/M10.
 
 #### Docs-only cleanup — SSOT role disambiguation (non-row)
 

@@ -348,6 +348,11 @@ mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extract
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
 
 #[cfg(test)]
+pub(crate) use control_flow::joinir::route_entry::registry::{
+    execute_legacy_policy_parity_v1, LegacyPolicyAttemptDispositionV1, LegacyPolicyParityReceiptV1,
+};
+
+#[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {
     control_flow::reset_loop_physical_effect_probe();
 }

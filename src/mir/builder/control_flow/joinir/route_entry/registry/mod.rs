@@ -29,6 +29,10 @@ mod types;
 mod utils;
 
 pub(crate) use execution_witness::RouteExecutionWitnessV1;
+#[cfg(test)]
+pub(crate) use execution_witness::{
+    execute_legacy_policy_parity_v1, LegacyPolicyAttemptDispositionV1, LegacyPolicyParityReceiptV1,
+};
 use execution_witness::{RouteAttemptOutcomeV1, RouteExecutionResultV1};
 use handlers::*;
 pub(crate) use live_preflight_frame::{issue_live_preflight_frame, observe_all_route_preflight_v1};

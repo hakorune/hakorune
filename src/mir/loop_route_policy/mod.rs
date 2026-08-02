@@ -1,7 +1,7 @@
 //! Owned, caller-zero M3-C snapshot plus M3-E policy evidence for Loop rows.
 //!
-//! `evaluate` is structural validation/sealing only. It is not the M3-E route
-//! policy evaluator. See `README.md` for the authority boundary.
+//! `evaluate` is structural validation/sealing only; `policy` is the M3-E pure
+//! evaluator. See `README.md` for the authority boundary.
 
 #[cfg(test)]
 mod adapter;

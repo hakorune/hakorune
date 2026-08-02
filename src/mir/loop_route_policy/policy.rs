@@ -5,7 +5,7 @@
 
 use super::policy_evidence::{
     LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,
-    LoopRoutePolicyEvidenceV1, LoopRoutePolicySourceDeclineReasonV1,
+    LoopRoutePolicyEvidenceV1,
 };
 use super::schema::{
     FrozenLoopRouteScheduleV1, LoopRouteSourceDispositionV1, LoopRouteSuppressionDispositionV1,
@@ -53,15 +53,7 @@ pub(crate) fn evaluate_frozen_loop_route_schedule_v1(
             continue;
         }
         match row.policy_evidence() {
-            LoopRoutePolicyEvidenceV1::SourceDeclined(reason) => {
-                if matches!(
-                    reason,
-                    LoopRoutePolicySourceDeclineReasonV1::SuppressedByEarlierCandidate
-                        | LoopRoutePolicySourceDeclineReasonV1::Unavailable(_)
-                ) {
-                    continue;
-                }
-            }
+            LoopRoutePolicyEvidenceV1::SourceDeclined(_) => continue,
             LoopRoutePolicyEvidenceV1::Candidate(facts) => {
                 return LoopRoutePolicyEvaluationV1::Qualified(LoopQualifiedV1 {
                     facts,

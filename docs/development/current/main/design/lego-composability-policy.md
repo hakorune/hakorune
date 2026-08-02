@@ -28,7 +28,7 @@ fast gate / fixture が増えても、設計が “組み立てやすく・分�
 
 「レゴ部品」を最小化する最終形は、制御構造の語彙を増やさずに **契約（Verifier）**で表現力を増やす。
 
-- **RecipeTree（構造SSOT）**: `Seq / Stmt / If / Loop / Exit(Break/Continue/Return)` だけ。
+- **RecipeTree（現行in-builder構造実装・parity oracle）**: `Seq / Stmt / If / Loop / Exit(Break/Continue/Return)` だけ。portable Loopの最終semantic SSOTは `LoopRecipeArtifactV1`。
   - `else` は `If` の一部（then-only は else 省略可だが、join_payload 非空なら completeness policy で freeze）。
 - **VerifiedRecipe（配線可能性SSOT）**: `PortSig / Obligation / JoinPayload / CarrierList` を Verifier が再帰合成して固定。
 - **Lower/Parts**: VerifiedRecipe を **機械的に配線するだけ**（再判定・例外処理なし）。

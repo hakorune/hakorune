@@ -14,6 +14,10 @@ Related:
 
 ## Summary (SSOT)
 
+Current-state note: this is the target verified wiring contract. The live Loop
+physical authority remains the legacy JoinIR/Parts path until M6 shared owners
+and the atomic M10 production cutover are green.
+
 - 目的: VerifiedRecipe の PortSig/obligation を固定し、join/phi/loop-carried の silent wrong を防止する。
 - 適用範囲: NoExit / IfJoin / LoopV0 / ExitAllowed / ExitOnly の VerifiedRecipeBlock。
 - 検査対象: Fallthrough / Break / Continue / Return の obligation（Return は空なら許容）。
