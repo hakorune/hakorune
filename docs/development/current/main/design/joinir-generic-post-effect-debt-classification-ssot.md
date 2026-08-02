@@ -587,9 +587,11 @@ disjointness remain open.
 #### D2-B-E2 — semantic parity for real Generic overlap
 
 The current `Both` row is a real source overlap, not merely an incomplete
-observer row. `GenericLoopV0` extraction rejects only the named V1 shape guard;
-the remaining Generic V1 facts may coexist with V0 facts. Therefore an
-evidence-only disjointness claim is unavailable for this class.
+observer row. In this row, the common body/step conditions and the named V1
+shape guard still leave both Generic facts present. This does not claim that
+the V0 extractor has only one rejection rule; it means this concrete overlap
+survives the existing extraction gates. Therefore an evidence-only
+disjointness claim is unavailable for this class.
 
 The next design task is
 `JOINIR-GENERIC-OVERLAP-SEMANTIC-PARITY0-D2-B2`. It remains test-only and
