@@ -306,9 +306,11 @@ and the legacy scheduler stays authoritative.
 
 The test-only corpus now exercises the real source → facts → selector boundary
 for `V1-only`, `Both`, `simple-while`, and `Neither` under release, strict, and
-strict+planner-required configurations. Every selected Generic composer row in
+strict+planner-required configurations. Every accepted Generic composer row in
 the known corpus produces a `CorePlan::Loop` root and identifies the Generic
-composer as the first observed candidate effect. Verifier/lower stage results,
+composer as the first observed candidate effect. Composer errors are retained
+as either precondition stops (no candidate effect) or effectful unresolved
+stops; they are never relabelled as decline. Verifier/lower stage results,
 candidate snapshots, and fresh-candidate repeatability are recorded without a
 production caller; at least three rows reach `PlanLowerer::lower -> Some`.
 
@@ -332,13 +334,12 @@ row as `UnresolvedStop` instead of broadening the corpus. Receiver/scanner,
 state-machine, RecipeOnly-break, and other facts-only fixtures remain outside
 this slice until their production route ownership is separately proven.
 
-Observation: the additive row is green in all three modes. Its accepted
-Generic row reaches a `CorePlan::Loop` root and terminal
-`PlanLowerer::lower -> Some` with a stable fresh repeat. A selected
-strict+planner-required V1 row may instead stop at a pre-effect composer
-precondition; that row is recorded as `UnresolvedStop`, not accepted. This is
-one more bounded data point; it does not authorize V0 precedence or close
-D2-B.
+Observation: release and strict additive rows reach a `CorePlan::Loop` root and
+terminal `PlanLowerer::lower -> Some` with a stable fresh repeat. In
+strict+planner-required mode, the selected Generic V1 row can reach a lower
+error after candidate effects; that is an effectful `UnresolvedStop`, not a
+pre-effect decline or an accepted terminal row. This is one more bounded data
+point; it does not authorize V0 precedence or close D2-B.
 
 ### D2-A2 — true-condition body-derived step (bounded probe)
 
@@ -354,11 +355,11 @@ semantic contract, alter overlap policy, or convert extractor-only facts into
 D2-B evidence.
 
 Observation: the true-condition row is selected as Generic V1 and reaches a
-terminal `PlanLowerer::lower -> Some` where its composer precondition is
-satisfied, with stable fresh repeat. Any strict+planner-required precondition
-failure remains an explicit unresolved row. This adds one natural
-body-derived-step row; it still does not close the recursive Generic grammar
-or D2-B.
+terminal `PlanLowerer::lower -> Some` outside planner-required mode, with stable
+fresh repeat. Any strict+planner-required composer or lower failure remains an
+explicit unresolved row, classified by whether the fresh candidate changed.
+This adds one natural body-derived-step row; it still does not close the
+recursive Generic grammar or D2-B.
 
 ### D2-A3 — Generic structural grammar boundary census
 
@@ -407,6 +408,14 @@ The table is a coverage ledger, not a new semantic vocabulary. Rows marked
 facts-only must not be counted by D2-B; rows that are accepted by facts but not
 measured at lower remain unresolved. `GenericLoopV1ShapeId` is a hint policy,
 not an exhaustive grammar, so it cannot close this table by itself.
+
+The first explicit facts/lower mismatch set is `ThisField`, `MeField`,
+`GroupedAssignmentExpr`, `Await`, `QMark`, `MatchExpr`, `New` with field
+initializers, and unresolved/invalid `FromCall` forms. Facts-side predicates
+can accept these recursively, while the current normalizer/lowerer has no
+matching direct arm or can fail before a terminal plan. They are therefore
+`FactsOnly-Unwired` or `UnresolvedStop`, never silently `PreEffectDeclined` or
+`Expected-NonGeneric`.
 
 #### D0 invariant refinement — lower `None`
 
