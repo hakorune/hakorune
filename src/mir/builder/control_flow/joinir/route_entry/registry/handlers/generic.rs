@@ -10,9 +10,21 @@ use crate::mir::ValueId;
 use super::super::execution_witness::{
     PostEffectRetryDebtV1, PreEffectDeclineReasonV1, RouteAttemptOutcomeV1, RouteExecutionAttemptV1,
 };
+use super::super::legacy_receipt::{
+    LegacyComposerResultReceiptV1, LegacyGenericComposerV1, LegacyGenericResultKindV1,
+};
 use super::super::types::route_labels;
 use super::debug_log_recipe_entry;
 use crate::mir::builder::control_flow::joinir::route_entry::router::lower_verified_core_plan;
+
+fn generic_debt(
+    composer: LegacyGenericComposerV1,
+    result: LegacyGenericResultKindV1,
+) -> RouteAttemptOutcomeV1<ValueId> {
+    RouteAttemptOutcomeV1::PostEffectRetryDebt(PostEffectRetryDebtV1::Generic(
+        LegacyComposerResultReceiptV1::new(composer, result),
+    ))
+}
 
 pub(crate) fn route_generic_loop_v1(
     builder: &mut MirBuilder,
@@ -21,6 +33,7 @@ pub(crate) fn route_generic_loop_v1(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     debug_log_recipe_entry(route_labels::GENERIC_LOOP_V1, attempt);
+    const COMPOSER: LegacyGenericComposerV1 = LegacyGenericComposerV1::V1;
     let Some(facts) = compose_facts else {
         return Ok(RouteAttemptOutcomeV1::PreEffectDeclined(
             PreEffectDeclineReasonV1::GenericFactsUnavailable,
@@ -44,20 +57,27 @@ pub(crate) fn route_generic_loop_v1(
         )
         .map(|result| match result {
             Some(value) => RouteAttemptOutcomeV1::Succeeded(value),
-            None => {
-                RouteAttemptOutcomeV1::PostEffectRetryDebt(PostEffectRetryDebtV1::GenericLegacy)
-            }
+            None => generic_debt(
+                COMPOSER,
+                LegacyGenericResultKindV1::StrictShadowLowerReturnedNone,
+            ),
         });
     }
     if PlanVerifier::verify(&core_plan).is_err() {
-        return Ok(RouteAttemptOutcomeV1::PostEffectRetryDebt(
-            PostEffectRetryDebtV1::GenericLegacy,
+        return Ok(generic_debt(
+            COMPOSER,
+            LegacyGenericResultKindV1::ReleaseVerifierRejected,
         ));
     }
     match PlanLowerer::lower(builder, core_plan, ctx) {
         Ok(Some(value)) => Ok(RouteAttemptOutcomeV1::Succeeded(value)),
-        Ok(None) | Err(_) => Ok(RouteAttemptOutcomeV1::PostEffectRetryDebt(
-            PostEffectRetryDebtV1::GenericLegacy,
+        Ok(None) => Ok(generic_debt(
+            COMPOSER,
+            LegacyGenericResultKindV1::ReleaseLowerReturnedNone,
+        )),
+        Err(_) => Ok(generic_debt(
+            COMPOSER,
+            LegacyGenericResultKindV1::ReleaseLowerFailed,
         )),
     }
 }
@@ -69,6 +89,7 @@ pub(crate) fn route_generic_loop_v0(
     attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<RouteAttemptOutcomeV1<ValueId>, String> {
     debug_log_recipe_entry(route_labels::GENERIC_LOOP_V0, attempt);
+    const COMPOSER: LegacyGenericComposerV1 = LegacyGenericComposerV1::V0;
     let Some(facts) = compose_facts else {
         return Ok(RouteAttemptOutcomeV1::PreEffectDeclined(
             PreEffectDeclineReasonV1::GenericFactsUnavailable,
@@ -92,20 +113,27 @@ pub(crate) fn route_generic_loop_v0(
         )
         .map(|result| match result {
             Some(value) => RouteAttemptOutcomeV1::Succeeded(value),
-            None => {
-                RouteAttemptOutcomeV1::PostEffectRetryDebt(PostEffectRetryDebtV1::GenericLegacy)
-            }
+            None => generic_debt(
+                COMPOSER,
+                LegacyGenericResultKindV1::StrictShadowLowerReturnedNone,
+            ),
         });
     }
     if PlanVerifier::verify(&core_plan).is_err() {
-        return Ok(RouteAttemptOutcomeV1::PostEffectRetryDebt(
-            PostEffectRetryDebtV1::GenericLegacy,
+        return Ok(generic_debt(
+            COMPOSER,
+            LegacyGenericResultKindV1::ReleaseVerifierRejected,
         ));
     }
     match PlanLowerer::lower(builder, core_plan, ctx) {
         Ok(Some(value)) => Ok(RouteAttemptOutcomeV1::Succeeded(value)),
-        Ok(None) | Err(_) => Ok(RouteAttemptOutcomeV1::PostEffectRetryDebt(
-            PostEffectRetryDebtV1::GenericLegacy,
+        Ok(None) => Ok(generic_debt(
+            COMPOSER,
+            LegacyGenericResultKindV1::ReleaseLowerReturnedNone,
+        )),
+        Err(_) => Ok(generic_debt(
+            COMPOSER,
+            LegacyGenericResultKindV1::ReleaseLowerFailed,
         )),
     }
 }

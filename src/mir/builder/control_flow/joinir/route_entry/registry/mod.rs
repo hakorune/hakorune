@@ -14,6 +14,7 @@ mod direct_simple_while_terminality;
 mod execution_witness;
 mod handlers;
 mod legacy_observer;
+mod legacy_receipt;
 pub(in crate::mir::builder) mod live_ordered_terminality;
 mod live_preflight_frame;
 mod loop_preflight;

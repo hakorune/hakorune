@@ -5,6 +5,7 @@
 //! presence.  It does not decide route policy, terminality, or lowering.
 
 use super::{
+    legacy_receipt::LegacyComposerResultReceiptV1,
     route_id::LoopRouteId,
     types::{RouterEnv, SharedAbsentContractDeclineRouteV1},
 };
@@ -219,7 +220,7 @@ pub(crate) enum PreEffectBlockedReasonV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PostEffectRetryDebtV1 {
-    GenericLegacy,
+    Generic(LegacyComposerResultReceiptV1),
 }
 
 /// Non-Clone proof that this exact cursor took the shared pre-effect decline.

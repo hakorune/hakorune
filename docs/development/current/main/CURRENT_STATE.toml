@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; C0/M1/M2 and M3-A/M3-B/M3-C are closed, and M3-D prefix outcome typing is active."
+status = "JOINIR all-route convergence is task-ordered; C0/M1/M2 and M3-A/M3-B/M3-C/M3-D are closed, and M3-E pure route policy is active."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "After the 797-line preflight test extraction, follow the selfhost-ready Loop pipeline: owned StructuralFacts -> one RoutePolicy winner -> one recursive structured LoopRecipe artifact -> verifier/elaborated JoinSig -> one candidate physicalizer. Legacy 11/1/1/4/2 first-mutation profiles are migration adapters/provenance only, never semantic recipe kinds or downstream switches. The existing compile candidate is the abort boundary; no LoopEmissionDraftV1. Generic V0/V1 debt remains a mandatory standalone design stop. M9 proves only the .hako recipe producer; after Rust M10/M11 cutover/handoff, M12 retires legacy family adapters to zero before reserved SH1-SH5 move verifier, CFG/PHI, physical MIR JSON, identity, and default Loop authority into the canonical selfhost MirBuilder."
-current_execution_row = "JOINIR-LOOP-PREFIX-OUTCOME-TYPING0-S3"
-current_execution_summary = "C0/M1/M2 and M3-A/M3-B/M3-C are closed. Sealed resolved Loop source authority is distinct from the structurally verified portable wire claim; Function owner, compact Body/Scope/Loop path grammar, typed unsupported ancestry, caller-zero E2E, and downstream non-read guards are fixed. M3-C now seals the existing 19-row schedule and policy observations once in a neutral non-Clone DTO; its cfg(test)-only adapter has zero production callers, and shared guard, 10 focused tests, pointer checks, and release build are green. M3-D now types pre-effect decline/block versus Generic post-effect debt and seals selected non-Generic Option boundaries; the portable Recipe remains caller-zero until M5 candidate pilot, M6 shared PHI owner, and M10 atomic production connection."
+current_execution_row = "JOINIR-LOOP-PURE-ROUTE-POLICY0-S4"
+current_execution_summary = "C0/M1/M2 and M3-A/M3-B/M3-C/M3-D are closed. Sealed resolved Loop source authority is distinct from the structurally verified portable wire claim; Function owner, compact Body/Scope/Loop path grammar, typed unsupported ancestry, caller-zero E2E, and downstream non-read guards are fixed. M3-C seals the existing 19-row schedule and policy observations once in a neutral non-Clone DTO; M3-D types pre-effect decline/block versus Generic post-effect debt, seals selected non-Generic Option boundaries, and classifies Generic V0/V1 debt with migration-only receipts. M3-E now owns the pure evaluator; the portable Recipe remains caller-zero until M5 candidate pilot, M6 shared PHI owner, and M10 atomic production connection."
 current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "joinir-loop-selfhost-recipe-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
-latest_card_summary = """C0/M1/M2 and M3-A/M3-B are closed. Sealed local Loop source authority and the portable structural wire claim are separate capabilities; Function owner/path grammar and caller-zero E2E are fixed. M3-C freezes the existing 19-row schedule and policy observations into one neutral owned DTO; M3-D types selected-route outcomes and keeps Generic V0/V1 as exact M4 debt. Production connection is explicitly staged: M5 candidate-only family pilot, M6 shared CFG/JoinSig/PHI owners, M10 first production consumer plus same-commit JoinIR fallback retirement, then M12 adapter cleanup before SH1-SH5."""
+latest_card_summary = """C0/M1/M2 and M3-A/M3-B/M3-C/M3-D are closed. Sealed local Loop source authority and the portable structural wire claim are separate capabilities; Function owner/path grammar and caller-zero E2E are fixed. M3-C freezes the existing 19-row schedule; M3-D types selected-route outcomes and records closed Generic V0/V1 debt receipts. M3-E pure policy is next. Production connection is staged: M5 candidate-only family pilot, M6 shared CFG/JoinSig/PHI owners, M10 first production consumer plus same-commit JoinIR fallback retirement, then M12 adapter cleanup before SH1-SH5."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

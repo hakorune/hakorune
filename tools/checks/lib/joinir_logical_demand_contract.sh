@@ -324,13 +324,30 @@ guard_joinir_logical_demand_contract() {
   fi
   local generic_debt_files=()
   mapfile -t generic_debt_files < <(
-    { rg -l 'PostEffectRetryDebtV1::GenericLegacy' "$route_registry_dir" || true; }
+    { rg -l 'PostEffectRetryDebtV1::Generic\(' "$route_registry_dir" || true; }
   )
   if (( ${#generic_debt_files[@]} != 1 )) || [[ "${generic_debt_files[0]}" != *"/handlers/generic.rs" ]]; then
-    guard_fail "$tag" "Generic post-effect debt must remain isolated to generic handlers"
+    guard_fail "$tag" "Generic post-effect debt receipt must remain isolated to generic handlers"
   fi
-  if rg -n 'PostEffectRetryDebtV1::LowerOption' "$route_registry_dir" >/dev/null; then
-    guard_fail "$tag" "unclassified post-effect LowerOption debt remains after selected Loop sealing"
+  if rg -n 'GenericLegacy|PostEffectRetryDebtV1::LowerOption' "$route_registry_dir" >/dev/null; then
+    guard_fail "$tag" "ambiguous Generic post-effect debt remains after receipt classification"
+  fi
+  local generic_receipt_calls generic_receipt_composers
+  generic_receipt_calls="$(rg -c 'generic_debt\(COMPOSER' "$route_registry_dir/handlers/generic.rs" | awk -F: '{sum += $2} END {print sum + 0}')"
+  generic_receipt_composers="$(rg -c 'const COMPOSER: LegacyGenericComposerV1' "$route_registry_dir/handlers/generic.rs" | awk -F: '{sum += $2} END {print sum + 0}')"
+  if [[ "$generic_receipt_calls" != "8" ]] || [[ "$generic_receipt_composers" != "2" ]]; then
+    guard_fail "$tag" "Generic V0/V1 receipt branches must remain symmetric: calls=$generic_receipt_calls composers=$generic_receipt_composers"
+  fi
+  if rg -n 'LegacyComposerResultReceiptV1|LegacyGenericResultKindV1|PostEffectRetryDebtV1' \
+    "$loop_route_policy_dir" >/dev/null; then
+    guard_fail "$tag" "pure route policy acquired migration receipt or post-effect debt"
+  fi
+  local receipt_owner_files=()
+  mapfile -t receipt_owner_files < <(
+    { rg -l 'enum LegacyGenericComposerV1|enum LegacyGenericResultKindV1|struct LegacyComposerResultReceiptV1' "$route_registry_dir" || true; }
+  )
+  if (( ${#receipt_owner_files[@]} != 1 )) || [[ "${receipt_owner_files[0]}" != *"/legacy_receipt.rs" ]]; then
+    guard_fail "$tag" "Generic migration receipt owner drifted outside legacy_receipt.rs"
   fi
   if ! rg -q 'selected Loop route produced a non-Loop CorePlan root' \
     "$root_dir/src/mir/builder/control_flow/joinir/route_entry/router.rs"; then

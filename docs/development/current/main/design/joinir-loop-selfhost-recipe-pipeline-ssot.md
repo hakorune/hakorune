@@ -379,12 +379,11 @@ M3 task order:
    The fixture adapter is `cfg(test)`-only and the facade has zero production
    callers. Focused tests 10/10, shared/pointer guards, diff/line checks, and
    release build are green; selection/retry/recipe/Builder/lowering remain out.
-4. `M3-D / JOINIR-LOOP-PREFIX-OUTCOME-TYPING0-S3` — **active**. The prefix
-   slice now types pre-effect Declined/Blocked versus Generic post-effect debt
-   and seals selected non-Generic Loop `Option` boundaries as success-or-Err;
-   NestedMinimal remains separate. Remaining: migration-only composer/result
-   receipt and the M3-E pure evaluator; neither may become policy authority.
-5. `M3-E / JOINIR-LOOP-PURE-ROUTE-POLICY0-S4` — one left-to-right evaluator
+4. `M3-D / JOINIR-LOOP-PREFIX-OUTCOME-TYPING0-S3` — **closed**. Typed
+   pre-effect Declined/Blocked versus Generic debt, selected non-Generic Loop
+   terminal boundaries, and `JOINIR-LOOP-GENERIC-COMPOSER-RESULT-RECEIPT0-S3a`
+   closed V0/V1 composer/result evidence without entering policy.
+5. `M3-E / JOINIR-LOOP-PURE-ROUTE-POLICY0-S4` — **active**. One left-to-right evaluator
    consumes only frozen rows. Declined alone advances; Qualified and Blocked
    both stop. Qualified owns structural facts plus a private seal, never a
    route ID, recipe, suffix, or callback. Generic emits only the opaque M4 debt
