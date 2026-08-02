@@ -469,28 +469,29 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active design task
 
-Row: `JOINIR-LIVE-LOOP-LOGICAL-TRANSACTION0-S1`
-Parent: `JOINIR-LIVE-LOOP-FACTS0-S0` (closed)
-Ceremony: consume one live pair into one registry-side transaction; production consumers remain zero.
+Row: `JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3`
+Parent: `JOINIR-LIVE-LOOP-LOGICAL-TRANSACTION0-S1` (closed: NoSafeSelected)
+Ceremony: decide the logical uniqueness boundary; production consumers remain zero.
 Design: `design/joinir-loop-pre-effect-product-ssot.md`
 
 Change:
-  Consume the live pair, canonicalize its retained facts, and call existing route
-  selection once inside a registry-side opaque transaction. Reissue SimpleWhile only.
+  Decide how a logical transaction may establish one route without silently
+  changing the legacy ordered retry list. Inventory direct SimpleWhile overlap.
 
 Contract:
-  Transaction reveals no source view, facts, selection, or generic slot API. It owns
-  exactly one selection and terminal consumption; product remains route-local only.
+  Actual direct SimpleWhile raw execution is `[LoopSimpleWhile, GenericLoopV0]`.
+  D3 must not substitute diagnostic projection, re-run predicates, or simply pick
+  the first legacy route without an explicit pre-effect proof.
 
 Done:
-  Direct SimpleWhile pointer identity and nested rejection are re-proven through
-  the transaction. Empty/ambiguous and all remaining routes stay terminal; Accum
-  topology stays rejected. Shared guard and focused tests are green.
+  The decision names the source of logical uniqueness, all resulting terminal
+  dispositions, exact legacy non-effects, fixture plan, and shared-gate proof.
+  A later S0 alone implements the chosen boundary.
 
 Stop:
-  Stop if S1 exposes parts/generic slots, adds a second selection, selects Accum,
-  changes retry, or needs a physical/runtime owner. No physicalizer, Loop I0,
-  raw/reference ingress, or fallback wrapper is authorized.
+  Stop if the choice changes legacy execution order, invents first-winner policy,
+  re-runs selection/predicates, selects Accum, or needs a physical/runtime owner.
+  No physicalizer, Loop I0, raw/reference ingress, or fallback wrapper is authorized.
 
 ## Production invariants
 

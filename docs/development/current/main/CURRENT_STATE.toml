@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LIVE-LOOP-FACTS0-S0 closed; JOINIR-LIVE-LOOP-LOGICAL-TRANSACTION0-S1 selected."
+status = "JOINIR-LIVE-LOOP-LOGICAL-TRANSACTION0-S1 closed (NoSafeSelected); JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3 selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S1 may add only a registry-side consuming transaction that accepts the live facts pair, canonicalizes its retained facts, runs existing selection once, and reissues only direct SimpleWhile through that transaction. It must not add Accum selection, expose raw/facts/selection parts, re-run selection, change runtime routing, physicalize, retry, or add a production caller."
-current_execution_row = "JOINIR-LIVE-LOOP-LOGICAL-TRANSACTION0-S1"
-current_execution_summary = "Replace the disconnected three-input SimpleWhile producer ingress with one consuming live transaction. Accum and the other 17 routes remain typed rejected."
+current_design_stop = "D3 may decide whether logical qualification should consume the existing full raw-execution list, a route-local verified winner, or another pre-effect uniqueness proof. It must preserve legacy execution order, identify all affected routes, define ambiguity/fail-fast behavior, and prove no selector duplication before code. It must not change runtime routing, physicalize, retry, or add a production caller."
+current_execution_row = "JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3"
+current_execution_summary = "Live transaction S1 cannot reissue SimpleWhile: actual raw execution is [LoopSimpleWhile, GenericLoopV0], not exact-one. D3 selects a truthful logical uniqueness boundary before transaction implementation."
 current_execution_design = "docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LIVE-LOOP-LOGICAL-TRANSACTION0-S1"
+current_blocker_token = "JOINIR-LOOP-LOGICAL-SELECTION-UNIQUENESS0-D3-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

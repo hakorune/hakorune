@@ -356,3 +356,15 @@ outside its facts module. Its source-lifetime fixture proves the retained frame
 is the input frame; registry logical-disposition tests remain unchanged. The
 shared logical-demand guard covers this new source-authority file and its line
 limit. S1 may consume this pair only in a registry-side transaction.
+
+### Live logical-transaction S1 result
+
+Decision: `NoSafeSelected` without a logical uniqueness decision. The direct
+SimpleWhile fixture's actual existing `raw_execution_routes()` is
+`[LoopSimpleWhile, GenericLoopV0]`; its earlier Selected test used a test-forged
+single-route selection and therefore cannot prove a transaction-issued result.
+The live capability does not authorize changing legacy ordered execution or
+silently selecting its first entry. D3 must decide a pre-effect uniqueness
+boundary that accounts for the full raw execution list without using the
+diagnostic projection, rerunning predicates, or adding fallback. Until then,
+the live transaction and reissued SimpleWhile product are not implemented.
