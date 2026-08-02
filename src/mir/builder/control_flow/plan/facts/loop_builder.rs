@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 use super::accum_const_loop_facts::try_extract_accum_const_loop_facts_with_projection;
 use super::bool_predicate_scan_facts::try_extract_bool_predicate_scan_facts;
 use super::feature_facts::try_extract_loop_feature_facts;
-use super::loop_array_join_facts::try_extract_loop_array_join_facts;
+use super::loop_array_join_facts::try_extract_loop_array_join_facts_with_projection;
 use super::loop_char_map_facts::try_extract_loop_char_map_facts_with_projection;
 use super::loop_continue_only_facts::try_extract_loop_continue_only_facts_with_projection;
 use super::loop_simple_while_facts::try_extract_loop_simple_while_facts_with_projection;
@@ -103,7 +103,12 @@ fn try_build_loop_facts_inner(
         &observation,
         &source_projection,
     )?;
-    let loop_array_join = try_extract_loop_array_join_facts(condition, body, &observation)?;
+    let loop_array_join = try_extract_loop_array_join_facts_with_projection(
+        condition,
+        body,
+        &observation,
+        &source_projection,
+    )?;
     let string_is_integer = try_extract_string_is_integer_facts(condition, body)?;
     // Phase 29bq: Extract loop_cond_break_continue BEFORE generic_loop_v0
     // Reason: loop_cond_break_continue handles shapes (like ExitIfTree) that generic_loop_v0

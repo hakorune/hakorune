@@ -5,6 +5,9 @@ use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     extract_loop_increment_plan, has_break_statement, has_continue_statement,
     has_if_else_statement, has_return_statement,
 };
+use crate::mir::builder::control_flow::facts::stmt_view::{
+    LoopSourceBodySiteV1, LoopSourceProjectionV1,
+};
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     loop_var_from_profile, step_delta_from_profile, ConditionShape, ScanConditionObservation,
     StepShape,
@@ -22,12 +25,34 @@ pub(in crate::mir::builder) struct LoopArrayJoinFacts {
     pub result_var: String,
     pub separator_var: String,
     pub cond_profile: CondProfile,
+    pub source_topology: Option<LoopArrayJoinSourceTopologyV1>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct LoopArrayJoinSourceTopologyV1 {
+    separator_guard: LoopSourceBodySiteV1,
+    array_append: LoopSourceBodySiteV1,
+    step: LoopSourceBodySiteV1,
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_array_join_facts(
     condition: &ASTNode,
     body: &[ASTNode],
     observation: &ScanConditionObservation,
+) -> Result<Option<LoopArrayJoinFacts>, Freeze> {
+    try_extract_loop_array_join_facts_with_projection(
+        condition,
+        body,
+        observation,
+        &LoopSourceProjectionV1::default(),
+    )
+}
+
+pub(in crate::mir::builder) fn try_extract_loop_array_join_facts_with_projection(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    observation: &ScanConditionObservation,
+    source_projection: &LoopSourceProjectionV1,
 ) -> Result<Option<LoopArrayJoinFacts>, Freeze> {
     let condition_shape = &observation.condition_shape;
     let step_shape = &observation.step_shape;
@@ -95,7 +120,22 @@ pub(in crate::mir::builder) fn try_extract_loop_array_join_facts(
         result_var,
         separator_var,
         cond_profile: observation.cond_profile.clone(),
+        source_topology: source_topology_for(body, source_projection),
     }))
+}
+
+fn source_topology_for(
+    body: &[ASTNode],
+    projection: &LoopSourceProjectionV1,
+) -> Option<LoopArrayJoinSourceTopologyV1> {
+    if body.len() != 3 || projection.flattened_body_len() != Some(3) {
+        return None;
+    }
+    Some(LoopArrayJoinSourceTopologyV1 {
+        separator_guard: projection.site_for_flattened_index(0)?.clone(),
+        array_append: projection.site_for_flattened_index(1)?.clone(),
+        step: projection.site_for_flattened_index(2)?.clone(),
+    })
 }
 
 fn extract_separator_guard(stmt: &ASTNode, idx_var: &str) -> Option<(ASTNode, String, String)> {

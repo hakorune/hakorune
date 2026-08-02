@@ -1191,3 +1191,15 @@ fields, and reconstructed recipe AST are not source authority.
 No selector/preflight, terminality, product, composer/lowerer, Builder,
 physicalizer, caller, or runtime behavior is authorized. Its `route_standard`
 contract behavior makes terminality a later separate D0.
+
+### LoopArrayJoin provenance D0/S0 implementation record
+
+Decision: accept behavior-neutral optional topology S0. The projection-aware
+facts path retains the opaque sites at `0/1/2` for separator guard, array
+append, and final step only when the exact flattened body aligns. The legacy
+wrapper keeps default-projection topology absent and facts acceptance unchanged.
+
+Nested guard contents, get receiver/argument, cloned semantic fields, and
+reconstructed recipe AST remain non-authoritative. No preflight, terminality,
+product, execution, physicalizer, caller, or runtime behavior changed. The
+next card is preflight D0.
