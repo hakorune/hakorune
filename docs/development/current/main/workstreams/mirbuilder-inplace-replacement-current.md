@@ -404,11 +404,12 @@ closed — NORMAL-CALLABLE-DIRECT-LAMBDA-CAPTURE-MATERIALIZATION0-I0-R0
   closure publication. Descendant capture forms, Lambda-body lowering,
   capture ABI, ClosureBodyId/NewClosure, FunctionCall, raw/reference, and
   diagnostics remain with their existing owners.
-current — MIRBUILDER-NEXT-NAMED-FAMILY-CENSUS0-D0
-  Select the next named responsibility family from the live inventory before
-  opening implementation. The decision must name its single authority,
-  selected old edge, Complete/Deferred boundary, and file placement below the
-  800-line limit; do not create a select/close document pair.
+closed — MIRBUILDER-NEXT-NAMED-FAMILY-CENSUS0-D0 (NoSafeSlice)
+  Loop/JoinIR retains its located-receipt-to-raw-route operation until a
+  verified Loop plan consumes that receipt. TryCatch/Throw/nonfinal Return
+  retain one cleanup/result-policy family, and Field/Index/New/RecordUpdate
+  retain all-route CallObject preflight owners. No standalone selected old edge
+  can be deleted without creating a second planner/resolver; no I0 is opened.
 already closed — do not reopen as WIP
   QMark, root Match, StaticConst, and explicit Record schema; only a regression
   can reopen their Git-history evidence.

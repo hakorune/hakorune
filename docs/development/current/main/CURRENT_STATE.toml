@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-DIRECT-LAMBDA-CAPTURE-MATERIALIZATION0-I0-R0 is closed: selected root callable direct Lambda children now consume the forest's ordered BindingRef capture receipts through the callable ledger; nested descendants, Lambda bodies, capture ABI, and raw/reference remain unchanged."
+status = "MIRBUILDER-NEXT-NAMED-FAMILY-CENSUS0-D0 is closed NoSafeSlice: Loop/JoinIR, ControlResult, and CallObject residuals retain their named all-route operation owners; no standalone I0 is selected."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "MIRBUILDER-NEXT-NAMED-FAMILY-CENSUS0-D0"
-current_execution_summary = "Select one remaining named semantic family from the current responsibility inventory. Do not open another implementation row until its single authority, selected old edge, complete/deferred boundary, and 800-line file placement are proved."
+current_design_stop = "No bounded standalone I0 remains after the callable direct-Lambda cutover. Loop requires a verified plan consumer for its located receipt; ControlResult requires one cleanup/result policy; CallObject requires an all-route operation boundary."
+current_execution_row = ""
+current_execution_summary = "No implementation row is selected. Preserve the named R4/compatibility owners; reopen only from their stated release conditions, not by relabeling a Script admission edge."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-NEXT-NAMED-FAMILY-CENSUS0-D0"
+current_blocker_token = "MIRBUILDER-NEXT-NAMED-FAMILY-CENSUS0-D0:CLOSED-NOSAFESLICE"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
