@@ -9,6 +9,12 @@ Loop pipeline SSOT. It is a design and test-only boundary. It does not create a
 portable Recipe producer, a PHI writer, a second scheduler, or a production
 cutover.
 
+The scoped non-Generic bridge decision is tracked separately in
+`joinir-loop-scoped-nongeneric-cutover-ssot.md`: broad non-Generic-first
+production cutover is rejected; only a proven singleton/disjoint pilot may be
+considered after the shared M6 owners exist. D2 remains required for global
+M10b.
+
 ## Authority and non-claims
 
 The current execution authority is still:

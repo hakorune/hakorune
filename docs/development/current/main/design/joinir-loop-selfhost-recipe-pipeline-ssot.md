@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/recipe-tree-and-parts-ssot.md
   - docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md
   - docs/development/current/main/design/joinir-generic-post-effect-debt-classification-ssot.md
+  - docs/development/current/main/design/joinir-loop-scoped-nongeneric-cutover-ssot.md
   - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
 ---
 
@@ -560,7 +561,7 @@ Stop:
   The no-hostbridge claim covers the portable producer subtree, not unrelated
   compatibility providers elsewhere in the canonical builder.
 
-### M10 — `JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0`
+### M10b — `JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0` (final; optional M10a bridge is separate)
 
 Change:
 : Switch `route_loop` to frozen source -> StructuralFacts -> one policy winner
