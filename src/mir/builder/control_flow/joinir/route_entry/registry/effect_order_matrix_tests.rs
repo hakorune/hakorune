@@ -60,7 +60,7 @@ const EFFECT_ORDER_MATRIX: &[EffectOrderRow] = &[
     EffectOrderRow {
         route: LoopRouteId::IfPhiJoin,
         selection: "if_phi_join",
-        preflight_status: CurrentPreflightStatus::SourceTopologyUnavailable,
+        preflight_status: CurrentPreflightStatus::PolicyAndTerminalityUnavailable,
         qualification: QualificationBoundary::FactsAndContract,
         first_mutation: ComposerMutationFamily::LoopV0FrameThenAstLower,
         post_effect_none: PostEffectNone::LowererResultFlowsToScheduler,
@@ -284,10 +284,10 @@ fn all_routes_remain_unissued_until_all_route_source_and_policy_proofs_exist() {
             .count()
     };
 
-    assert_eq!(count(CurrentPreflightStatus::SourceTopologyUnavailable), 16);
+    assert_eq!(count(CurrentPreflightStatus::SourceTopologyUnavailable), 15);
     assert_eq!(
         count(CurrentPreflightStatus::PolicyAndTerminalityUnavailable),
-        2
+        3
     );
     assert_eq!(count(CurrentPreflightStatus::DirectOnlyNotAllRoute), 1);
 }

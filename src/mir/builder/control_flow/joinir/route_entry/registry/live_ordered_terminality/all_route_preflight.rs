@@ -25,9 +25,33 @@ pub(crate) fn issue_all_route_preflight_v1(
 fn classify_front(facts: &LoopFacts, route: LoopRouteId) -> LoopPreflightRejectV1 {
     match route {
         LoopRouteId::LoopBreakRecipe => classify_loop_break(facts),
+        LoopRouteId::IfPhiJoin => classify_if_phi_join(facts),
         LoopRouteId::LoopSimpleWhile => classify_simple_while(facts),
         LoopRouteId::AccumConstLoop => classify_accum_const(facts),
         _ => LoopPreflightRejectV1::SourceTopologyUnavailable { route },
+    }
+}
+
+fn classify_if_phi_join(facts: &LoopFacts) -> LoopPreflightRejectV1 {
+    let Some(if_phi_join) = facts.if_phi_join() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::IfPhiJoin,
+        };
+    };
+    let Some(topology) = if_phi_join.source_topology.as_ref() else {
+        return LoopPreflightRejectV1::SourceTopologyUnavailable {
+            route: LoopRouteId::IfPhiJoin,
+        };
+    };
+    if !topology.if_else().scope_box_children().is_empty()
+        || !topology.step().scope_box_children().is_empty()
+    {
+        return LoopPreflightRejectV1::ScopeBoxLineageNotBorrowable {
+            route: LoopRouteId::IfPhiJoin,
+        };
+    }
+    LoopPreflightRejectV1::PolicyAndTerminalityUnavailable {
+        route: LoopRouteId::IfPhiJoin,
     }
 }
 
@@ -101,7 +125,7 @@ fn classify_accum_const(facts: &LoopFacts) -> LoopPreflightRejectV1 {
 
 #[cfg(test)]
 mod tests {
-    use super::issue_all_route_preflight_v1;
+    use super::{classify_front, issue_all_route_preflight_v1};
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::joinir::route_entry::registry::loop_preflight::{
         LoopPreflightDispositionV1, LoopPreflightRejectV1,
@@ -201,6 +225,64 @@ mod tests {
         (condition, body)
     }
 
+    fn if_phi_fixture(scope_boxed: bool) -> (ASTNode, Vec<ASTNode>) {
+        let v = |name: &str| ASTNode::Variable {
+            name: name.into(),
+            span: Span::unknown(),
+        };
+        let int = |value| ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        };
+        let condition = ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(v("i")),
+            right: Box::new(int(3)),
+            span: Span::unknown(),
+        };
+        let update_sum = |value| ASTNode::Assignment {
+            target: Box::new(v("sum")),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(v("sum")),
+                right: Box::new(int(value)),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let if_else = ASTNode::If {
+            condition: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Greater,
+                left: Box::new(v("i")),
+                right: Box::new(int(0)),
+                span: Span::unknown(),
+            }),
+            then_body: vec![update_sum(1)],
+            else_body: Some(vec![update_sum(0)]),
+            span: Span::unknown(),
+        };
+        let step = ASTNode::Assignment {
+            target: Box::new(v("i")),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(v("i")),
+                right: Box::new(int(1)),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let statements = vec![if_else, step];
+        let body = if scope_boxed {
+            vec![ASTNode::ScopeBox {
+                body: statements,
+                span: Span::unknown(),
+            }]
+        } else {
+            statements
+        };
+        (condition, body)
+    }
+
     fn assert_loop_break_front(condition: &ASTNode, body: &[ASTNode]) {
         let facts = try_build_loop_facts(condition, body)
             .expect("no freeze")
@@ -211,6 +293,19 @@ mod tests {
                 .raw_execution_routes()
                 .first(),
             Some(&LoopRouteId::LoopBreakRecipe)
+        );
+    }
+
+    fn assert_if_phi_front(condition: &ASTNode, body: &[ASTNode]) {
+        let facts = try_build_loop_facts(condition, body)
+            .expect("no freeze")
+            .expect("loop facts");
+        let canonical = canonicalize_loop_facts(facts);
+        assert_eq!(
+            select_recipe_first_routes(Some(&canonical))
+                .raw_execution_routes()
+                .first(),
+            Some(&LoopRouteId::IfPhiJoin)
         );
     }
 
@@ -343,6 +438,58 @@ mod tests {
                     route: LoopRouteId::LoopSimpleWhile
                 }
             )
+        ));
+    }
+
+    #[test]
+    fn direct_if_phi_is_policy_rejected_after_raw_front_check() {
+        let (condition, body) = if_phi_fixture(false);
+        assert_if_phi_front(&condition, &body);
+        let live = try_build_live_loop_facts(&condition, &body)
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            issue_all_route_preflight_v1(live),
+            LoopPreflightDispositionV1::Rejected(
+                LoopPreflightRejectV1::PolicyAndTerminalityUnavailable {
+                    route: LoopRouteId::IfPhiJoin
+                }
+            )
+        ));
+    }
+
+    #[test]
+    fn scope_box_if_phi_is_rejected_before_policy() {
+        let (condition, body) = if_phi_fixture(true);
+        assert_if_phi_front(&condition, &body);
+        let live = try_build_live_loop_facts(&condition, &body)
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            issue_all_route_preflight_v1(live),
+            LoopPreflightDispositionV1::Rejected(
+                LoopPreflightRejectV1::ScopeBoxLineageNotBorrowable {
+                    route: LoopRouteId::IfPhiJoin
+                }
+            )
+        ));
+    }
+
+    #[test]
+    fn topology_absent_if_phi_is_source_rejected_after_raw_front_check() {
+        let (condition, body) = if_phi_fixture(false);
+        assert_if_phi_front(&condition, &body);
+        let mut facts = try_build_loop_facts(&condition, &body).unwrap().unwrap();
+        facts
+            .if_phi_join
+            .as_mut()
+            .expect("IfPhiJoin facts")
+            .source_topology = None;
+        assert!(matches!(
+            classify_front(&facts, LoopRouteId::IfPhiJoin),
+            LoopPreflightRejectV1::SourceTopologyUnavailable {
+                route: LoopRouteId::IfPhiJoin
+            }
         ));
     }
 

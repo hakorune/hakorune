@@ -756,3 +756,15 @@ raw front is `IfPhiJoin`, then assert direct, ScopeBox, and topology-absent
 rejections. It updates the effect-order observation from `16/2/1` to `15/3/1`.
 It adds no AST re-match, source projection access, selector rerun, route skip,
 product, caller, handler/composer/lowerer/Builder change, or terminality claim.
+
+### IfPhiJoin preflight classification S0 implementation record
+
+`classify_front` now has one `IfPhiJoin` branch. It reads only the optional
+IfPhiJoin topology and the two opaque whole-statement sites: missing facts or
+topology reject for source unavailability, ScopeBox lineage rejects before
+policy, and direct topology rejects for unavailable policy/terminality. The
+fixtures assert the actual raw front before each direct, ScopeBox, or
+topology-absent result. The effect-order matrix now records `15` source,
+`3` policy/terminality, and `1` direct-only rows. No route is Qualified and no
+selector, source bridge, AST observer, composer, lowerer, Builder, product,
+caller, or terminality behavior changed.
