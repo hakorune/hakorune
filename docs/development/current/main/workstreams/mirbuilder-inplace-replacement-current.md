@@ -458,20 +458,11 @@ closed — CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0 (NoSafeSlice)
   suffix contract, Throw lacks a located child role, and TryCatch needs a
   first-catch-only protected-region contract. All retain their operation owner.
 
-### Active execution brief
-
-`MIRBUILDER-NEXT-NAMED-FAMILY4-D0` — fresh bounded production census.
-
-Change:
-  Select one independently ownable family outside the dirty EnumMatch WIP and
-  explicit R4/NoSafeSlice residuals; implementation is not pre-authorized.
-
-Contract:
-  Do not reopen Call/Loop R4, legacy TryCatch/Throw, nonfinal Return, or merge
-  distinct operation owners. Keep source/check files under 800 lines.
-
-Stop:
-  If no caller-owning family exists, record NoSafeSlice without partial landing.
+closed — MIRBUILDER-NEXT-NAMED-FAMILY4-D0 (NoSafeSlice)
+  -> every clean named root residual belongs to an explicit R4/excluded owner.
+  `Arrow` has no named MIR lowering owner; `ThisField` and `MeField` reopen the
+  all-route CallObject portal. Do not open I0 before source ownership changes
+  or the independent EnumMatch WIP lands cleanly.
 
 ### Refactor Series queue
 
