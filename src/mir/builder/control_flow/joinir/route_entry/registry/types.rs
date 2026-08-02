@@ -1,5 +1,5 @@
 use super::super::router::LoopRouteContext;
-use super::execution_witness::RouteExecutionWitnessV1;
+use super::execution_witness::{RouteExecutionAttemptV1, RouteExecutionWitnessV1};
 use super::route_id::LoopRouteId;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::{CorePlan, Freeze, PlanRuleId};
@@ -26,7 +26,7 @@ pub(crate) type RouteFn = fn(
     &mut MirBuilder,
     &LoopRouteContext,
     Option<&CanonicalLoopFacts>,
-    &RouteExecutionWitnessV1<'_>,
+    &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String>;
 
 pub(crate) struct Entry {
@@ -52,14 +52,81 @@ pub(crate) enum PlannerFirstMode {
 pub(crate) type ComposeFn =
     fn(&mut MirBuilder, &CanonicalLoopFacts, &LoopRouteContext) -> Result<CorePlan, Freeze>;
 
+/// The only routes whose release, absent-contract decline is a shared policy.
+///
+/// This is intentionally an exact vocabulary rather than a boolean route
+/// flag. Adding another route requires an explicit policy decision here.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SharedAbsentContractDeclineRouteV1 {
+    LoopTrueEarlyExit,
+    LoopArrayJoin,
+    ScanWithInit,
+    SplitScan,
+}
+
+impl SharedAbsentContractDeclineRouteV1 {
+    pub(crate) const fn route_id(self) -> LoopRouteId {
+        match self {
+            Self::LoopTrueEarlyExit => LoopRouteId::LoopTrueEarlyExit,
+            Self::LoopArrayJoin => LoopRouteId::LoopArrayJoin,
+            Self::ScanWithInit => LoopRouteId::ScanWithInit,
+            Self::SplitScan => LoopRouteId::SplitScan,
+        }
+    }
+
+    pub(crate) fn declines(self, witness: &RouteExecutionWitnessV1<'_>) -> bool {
+        !witness.planner_required() && !witness.recipe_contract_present()
+    }
+}
+
 pub(crate) struct StandardEntry {
     pub route_label: &'static str,
     pub missing_contract_msg: &'static str,
     pub compose: ComposeFn,
     pub planner_required_only: bool,
-    pub skip_without_contract: bool,
+    pub absent_contract_decline: Option<SharedAbsentContractDeclineRouteV1>,
     pub planner_first: PlannerFirstMode,
     pub plan_rule: Option<PlanRuleId>,
     pub flowbox_via_strict: FlowboxVia,
     pub flowbox_via_release: FlowboxVia,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{RouterEnv, SharedAbsentContractDeclineRouteV1};
+    use crate::mir::builder::control_flow::joinir::route_entry::registry::{
+        route_id::LoopRouteId, RouteExecutionWitnessV1,
+    };
+
+    #[test]
+    fn shared_absent_contract_decline_vocabulary_is_exactly_the_four_confirmed_routes() {
+        use SharedAbsentContractDeclineRouteV1 as Policy;
+
+        let policies = [
+            Policy::LoopTrueEarlyExit,
+            Policy::LoopArrayJoin,
+            Policy::ScanWithInit,
+            Policy::SplitScan,
+        ];
+        assert_eq!(
+            policies.map(Policy::route_id),
+            [
+                LoopRouteId::LoopTrueEarlyExit,
+                LoopRouteId::LoopArrayJoin,
+                LoopRouteId::ScanWithInit,
+                LoopRouteId::SplitScan,
+            ]
+        );
+
+        let env = RouterEnv {
+            strict_or_dev: false,
+            planner_required: false,
+            has_body_local: false,
+        };
+        let schedule = [LoopRouteId::LoopTrueEarlyExit];
+        let absent_contract = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
+        assert!(policies
+            .into_iter()
+            .all(|policy| policy.declines(&absent_contract)));
+    }
 }

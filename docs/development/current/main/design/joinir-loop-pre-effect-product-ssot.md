@@ -1513,3 +1513,17 @@ reselect routes.
 S1 does not alter scheduler retry, compose/lower facts, Builder effects,
 mutation/rollback, or route behavior. It issues no escaping certificate and
 proves no prefix/suffix terminality or lower success.
+
+### Route-execution witness S1 implementation record
+
+The scheduler now creates a stack-local attempt at every captured cursor. Each
+handler receives that attempt, which exposes only the current route, cursor,
+and exact after-current suffix. `StandardEntry` uses a typed optional
+four-member absent-contract policy rather than a boolean. `route_standard`
+validates its member identity against the actual attempt route before
+projecting the observed decline to the unchanged `Ok(None)`.
+
+The scheduler still retries in the same order; compose facts remain explicit;
+no attempt escapes, and no terminality, lower-success, prefix/suffix-effect,
+rollback, or nonshared-route claim is issued. The next card is D2, a
+design-only bounded continuation-consume audit.

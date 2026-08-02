@@ -12,8 +12,10 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
 use super::super::super::router::{lower_verified_core_plan, LoopRouteContext};
-use super::super::execution_witness::RouteExecutionWitnessV1;
-use super::super::types::{route_labels, PlannerFirstMode, StandardEntry};
+use super::super::execution_witness::RouteExecutionAttemptV1;
+use super::super::types::{
+    route_labels, PlannerFirstMode, SharedAbsentContractDeclineRouteV1, StandardEntry,
+};
 use super::super::utils::loop_break_recipe_needs_flowbox_adopt_tag_in_strict;
 use super::{debug_log_recipe_entry, emit_planner_first_from_witness};
 use super::{
@@ -25,9 +27,9 @@ pub(crate) fn route_loop_break_recipe(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    if witness.planner_required() && !witness.recipe_contract_present() {
+    if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "LoopBreakRecipe requires recipe_contract in planner_required mode",
         )
@@ -35,31 +37,31 @@ pub(crate) fn route_loop_break_recipe(
     }
     emit_planner_first_from_witness(
         PlannerFirstMode::StrictOrDev,
-        witness,
+        attempt,
         PlanRuleId::LoopBreakRecipe,
     );
     debug_log_recipe_entry(
         planner_rule_route_label(PlanRuleId::LoopBreakRecipe),
-        witness,
+        attempt,
     );
 
     let facts = compose_facts.expect("loop_break_recipe facts present");
     let core_plan = RecipeComposer::compose_loop_break_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
-    if witness.strict_or_dev() {
+    if attempt.strict_or_dev() {
         let loop_break_facts = facts
             .facts
             .loop_break()
             .expect("loop_break_recipe is present");
-        let needs_flowbox_tag = witness.has_body_local()
+        let needs_flowbox_tag = attempt.has_body_local()
             || loop_break_recipe_needs_flowbox_adopt_tag_in_strict(loop_break_facts);
 
         if needs_flowbox_tag {
             return lower_verified_core_plan(
                 builder,
                 ctx,
-                witness.strict_or_dev(),
+                attempt.strict_or_dev(),
                 compose_facts,
                 core_plan,
                 FlowboxVia::Shadow,
@@ -73,7 +75,7 @@ pub(crate) fn route_loop_break_recipe(
     lower_verified_core_plan(
         builder,
         ctx,
-        witness.strict_or_dev(),
+        attempt.strict_or_dev(),
         compose_facts,
         core_plan,
         FlowboxVia::Release,
@@ -84,9 +86,9 @@ pub(crate) fn route_if_phi_join(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    if witness.planner_required() && !witness.recipe_contract_present() {
+    if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "IfPhiJoin requires recipe_contract in planner_required mode",
         )
@@ -94,16 +96,16 @@ pub(crate) fn route_if_phi_join(
     }
     emit_planner_first_from_witness(
         PlannerFirstMode::StrictOrDev,
-        witness,
+        attempt,
         PlanRuleId::IfPhiJoin,
     );
-    debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::IfPhiJoin), witness);
+    debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::IfPhiJoin), attempt);
 
     let facts = compose_facts.expect("if_phi_join facts present");
     let core_plan = RecipeComposer::compose_if_phi_join_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
-    let via = if witness.strict_or_dev() {
+    let via = if attempt.strict_or_dev() {
         FlowboxVia::Shadow
     } else {
         FlowboxVia::Release
@@ -111,7 +113,7 @@ pub(crate) fn route_if_phi_join(
     lower_verified_core_plan(
         builder,
         ctx,
-        witness.strict_or_dev(),
+        attempt.strict_or_dev(),
         compose_facts,
         core_plan,
         via,
@@ -122,9 +124,9 @@ pub(crate) fn route_loop_continue_only(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    if witness.planner_required() && !witness.recipe_contract_present() {
+    if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "LoopContinueOnly requires recipe_contract in planner_required mode",
         )
@@ -132,21 +134,21 @@ pub(crate) fn route_loop_continue_only(
     }
     emit_planner_first_from_witness(
         PlannerFirstMode::StrictOrDev,
-        witness,
+        attempt,
         PlanRuleId::LoopContinueOnly,
     );
     debug_log_recipe_entry(
         planner_rule_route_label(PlanRuleId::LoopContinueOnly),
-        witness,
+        attempt,
     );
-    if witness.planner_required() {
+    if attempt.planner_required() {
         if let Some(err) = strict_nested_loop_guard_from_observations(
             compose_facts,
-            witness.recipe_contract_present(),
+            attempt.recipe_contract_present(),
             ctx,
         ) {
             flowbox_tags::emit_flowbox_freeze_tag_from_facts(
-                witness.strict_or_dev(),
+                attempt.strict_or_dev(),
                 "unstructured",
                 compose_facts,
             );
@@ -159,7 +161,7 @@ pub(crate) fn route_loop_continue_only(
     let facts = compose_facts.expect("loop_continue_only facts present");
     let core_plan = RecipeComposer::compose_loop_continue_only_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
-    let via = if witness.strict_or_dev() {
+    let via = if attempt.strict_or_dev() {
         FlowboxVia::Shadow
     } else {
         FlowboxVia::Release
@@ -167,7 +169,7 @@ pub(crate) fn route_loop_continue_only(
     lower_verified_core_plan(
         builder,
         ctx,
-        witness.strict_or_dev(),
+        attempt.strict_or_dev(),
         compose_facts,
         core_plan,
         via,
@@ -178,27 +180,27 @@ pub(crate) fn route_loop_true_early_exit(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopTrueEarlyExit),
         missing_contract_msg: "LoopTrueEarlyExit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_true_early_exit_recipe,
         planner_required_only: false,
-        skip_without_contract: true,
+        absent_contract_decline: Some(SharedAbsentContractDeclineRouteV1::LoopTrueEarlyExit),
         planner_first: PlannerFirstMode::StrictOrDevPlannerRequired,
         plan_rule: Some(PlanRuleId::LoopTrueEarlyExit),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_loop_simple_while(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
     if detect_nested_loop(ctx.body) {
         return Ok(None);
@@ -208,122 +210,122 @@ pub(crate) fn route_loop_simple_while(
         missing_contract_msg: "LoopSimpleWhile requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_simple_while_recipe,
         planner_required_only: false,
-        skip_without_contract: false,
+        absent_contract_decline: None,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopSimpleWhile),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Release,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_loop_char_map(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: route_labels::LOOP_CHAR_MAP,
         missing_contract_msg: "LoopCharMap requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_char_map_recipe,
         planner_required_only: true,
-        skip_without_contract: false,
+        absent_contract_decline: None,
         planner_first: PlannerFirstMode::Never,
         plan_rule: None,
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_loop_array_join(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: route_labels::LOOP_ARRAY_JOIN,
         missing_contract_msg: "LoopArrayJoin requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_array_join_recipe,
         planner_required_only: false,
-        skip_without_contract: true,
+        absent_contract_decline: Some(SharedAbsentContractDeclineRouteV1::LoopArrayJoin),
         planner_first: PlannerFirstMode::Never,
         plan_rule: None,
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_scan_with_init(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::ScanWithInit),
         missing_contract_msg: "ScanWithInit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_scan_with_init_recipe,
         planner_required_only: false,
-        skip_without_contract: true,
+        absent_contract_decline: Some(SharedAbsentContractDeclineRouteV1::ScanWithInit),
         planner_first: PlannerFirstMode::StrictOrDevPlannerRequired,
         plan_rule: Some(PlanRuleId::ScanWithInit),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_split_scan(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::SplitScan),
         missing_contract_msg: "SplitScan requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_split_scan_recipe,
         planner_required_only: false,
-        skip_without_contract: true,
+        absent_contract_decline: Some(SharedAbsentContractDeclineRouteV1::SplitScan),
         planner_first: PlannerFirstMode::StrictOrDevPlannerRequired,
         plan_rule: Some(PlanRuleId::SplitScan),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_bool_predicate_scan(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::BoolPredicateScan),
         missing_contract_msg: "BoolPredicateScan requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_bool_predicate_scan_recipe,
         planner_required_only: false,
-        skip_without_contract: false,
+        absent_contract_decline: None,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::BoolPredicateScan),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_accum_const_loop(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    if witness.planner_required() && !witness.recipe_contract_present() {
+    if attempt.planner_required() && !attempt.recipe_contract_present() {
         return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
             "AccumConstLoop requires recipe_contract in planner_required mode",
         )
@@ -331,19 +333,19 @@ pub(crate) fn route_accum_const_loop(
     }
     emit_planner_first_from_witness(
         PlannerFirstMode::StrictOrDev,
-        witness,
+        attempt,
         PlanRuleId::AccumConstLoop,
     );
     debug_log_recipe_entry(
         planner_rule_route_label(PlanRuleId::AccumConstLoop),
-        witness,
+        attempt,
     );
 
     let facts = compose_facts.expect("accum_const_loop facts present");
     let core_plan = RecipeComposer::compose_accum_const_loop_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
-    if witness.strict_or_dev() {
+    if attempt.strict_or_dev() {
         PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
         return PlanLowerer::lower(builder, core_plan, ctx);
     }
@@ -351,7 +353,7 @@ pub(crate) fn route_accum_const_loop(
     lower_verified_core_plan(
         builder,
         ctx,
-        witness.strict_or_dev(),
+        attempt.strict_or_dev(),
         compose_facts,
         core_plan,
         FlowboxVia::Release,
@@ -362,9 +364,9 @@ pub(crate) fn route_nested_loop_minimal(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    debug_log_recipe_entry(route_labels::NESTED_LOOP_MINIMAL, witness);
+    debug_log_recipe_entry(route_labels::NESTED_LOOP_MINIMAL, attempt);
     let Some(facts) = compose_facts else {
         return Ok(None);
     };
@@ -373,7 +375,7 @@ pub(crate) fn route_nested_loop_minimal(
     }
 
     let Some(core_plan) = try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)? else {
-        if witness.strict_or_dev() {
+        if attempt.strict_or_dev() {
             return Err(
                 "nested_loop_minimal strict/dev route failed: compose rejected".to_string(),
             );
@@ -381,7 +383,7 @@ pub(crate) fn route_nested_loop_minimal(
         return Ok(None);
     };
 
-    let via = if witness.strict_or_dev() {
+    let via = if attempt.strict_or_dev() {
         FlowboxVia::Shadow
     } else {
         FlowboxVia::Release
@@ -389,7 +391,7 @@ pub(crate) fn route_nested_loop_minimal(
     lower_verified_core_plan(
         builder,
         ctx,
-        witness.strict_or_dev(),
+        attempt.strict_or_dev(),
         compose_facts,
         core_plan,
         via,
@@ -400,9 +402,9 @@ pub(crate) fn route_loop_true_break_continue(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    if release_skips_nested_loop(ctx, witness) {
+    if release_skips_nested_loop(ctx, attempt) {
         return Ok(None);
     }
 
@@ -412,22 +414,22 @@ pub(crate) fn route_loop_true_break_continue(
             "loop_true_break_continue requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_true_break_continue_recipe,
         planner_required_only: false,
-        skip_without_contract: false,
+        absent_contract_decline: None,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopTrueBreak),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_loop_cond_break_continue(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    if !release_allows_loop_cond_break_continue(ctx, witness) {
+    if !release_allows_loop_cond_break_continue(ctx, attempt) {
         return Ok(None);
     }
 
@@ -437,22 +439,22 @@ pub(crate) fn route_loop_cond_break_continue(
             "loop_cond_break_continue requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_break_continue_recipe,
         planner_required_only: false,
-        skip_without_contract: false,
+        absent_contract_decline: None,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopCondBreak),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_loop_cond_continue_only(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    if !release_allows_loop_cond_continue_only(ctx, witness) {
+    if !release_allows_loop_cond_continue_only(ctx, attempt) {
         return Ok(None);
     }
 
@@ -462,22 +464,22 @@ pub(crate) fn route_loop_cond_continue_only(
             "loop_cond_continue_only requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_continue_only_recipe,
         planner_required_only: false,
-        skip_without_contract: false,
+        absent_contract_decline: None,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopCondContinueOnly),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_loop_cond_continue_with_return(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
-    if release_skips_nested_loop(ctx, witness) {
+    if release_skips_nested_loop(ctx, attempt) {
         return Ok(None);
     }
 
@@ -487,20 +489,20 @@ pub(crate) fn route_loop_cond_continue_with_return(
             "loop_cond_continue_with_return requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_continue_with_return_recipe,
         planner_required_only: false,
-        skip_without_contract: false,
+        absent_contract_decline: None,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopCondContinueWithReturn),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }
 
 pub(crate) fn route_loop_cond_return_in_body(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     compose_facts: Option<&CanonicalLoopFacts>,
-    witness: &RouteExecutionWitnessV1<'_>,
+    attempt: &RouteExecutionAttemptV1<'_, '_>,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopCondReturnInBody),
@@ -508,11 +510,11 @@ pub(crate) fn route_loop_cond_return_in_body(
             "loop_cond_return_in_body requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_return_in_body_recipe,
         planner_required_only: false,
-        skip_without_contract: false,
+        absent_contract_decline: None,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopCondReturnInBody),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    route_standard(builder, ctx, compose_facts, witness, &ENTRY)
+    route_standard(builder, ctx, compose_facts, attempt, &ENTRY)
 }

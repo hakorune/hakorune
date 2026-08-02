@@ -82,17 +82,58 @@ impl<'execution> RouteExecutionWitnessV1<'execution> {
     /// exhausted schedule returns it, preserving the single execution scope.
     pub(crate) fn execute_selected_in_order<T, E>(
         self,
-        mut execute: impl FnMut(&Self, LoopRouteId) -> Result<Option<T>, E>,
+        mut execute: impl FnMut(&Self, &RouteExecutionAttemptV1<'_, 'execution>) -> Result<Option<T>, E>,
     ) -> Result<RouteExecutionResultV1<'execution, T>, E> {
-        for route in self.raw_schedule {
-            if let Some(value) = execute(&self, *route)? {
+        for cursor in 0..self.raw_schedule.len() {
+            let attempt = RouteExecutionAttemptV1 {
+                witness: &self,
+                cursor,
+            };
+            if let Some(value) = execute(&self, &attempt)? {
                 return Ok(RouteExecutionResultV1::Succeeded {
-                    route: *route,
+                    route: attempt.current_route(),
                     value,
                 });
             }
         }
         Ok(RouteExecutionResultV1::Exhausted(self))
+    }
+}
+
+/// A stack-local observation of one exact route attempt within a witness.
+///
+/// It cannot outlive the witness execution and exposes only the current route,
+/// its cursor, and the exact suffix after that route. It does not grant any
+/// scheduling, builder-effect, or retry authority.
+pub(crate) struct RouteExecutionAttemptV1<'attempt, 'execution> {
+    witness: &'attempt RouteExecutionWitnessV1<'execution>,
+    cursor: usize,
+}
+
+impl<'attempt, 'execution> RouteExecutionAttemptV1<'attempt, 'execution> {
+    /// Borrows the execution-scoped observations captured for this attempt.
+    pub(crate) fn witness(&self) -> &'attempt RouteExecutionWitnessV1<'execution> {
+        self.witness
+    }
+
+    pub(crate) fn current_route(&self) -> LoopRouteId {
+        self.witness.raw_schedule[self.cursor]
+    }
+
+    pub(crate) fn cursor(&self) -> usize {
+        self.cursor
+    }
+
+    pub(crate) fn exact_after_current_suffix(&self) -> &[LoopRouteId] {
+        &self.witness.raw_schedule[self.cursor + 1..]
+    }
+}
+
+impl<'attempt, 'execution> std::ops::Deref for RouteExecutionAttemptV1<'attempt, 'execution> {
+    type Target = RouteExecutionWitnessV1<'execution>;
+
+    fn deref(&self) -> &Self::Target {
+        self.witness()
     }
 }
 
@@ -138,8 +179,8 @@ mod tests {
         let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, true);
         let mut attempted = Vec::new();
 
-        let result = witness.execute_selected_in_order(|_, route| {
-            attempted.push(route);
+        let result = witness.execute_selected_in_order(|_, attempt| {
+            attempted.push(attempt.current_route());
             Ok::<_, ()>(None::<u8>)
         });
 
@@ -158,7 +199,8 @@ mod tests {
         let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
         let mut attempted = Vec::new();
 
-        let result = witness.execute_selected_in_order(|_, route| {
+        let result = witness.execute_selected_in_order(|_, attempt| {
+            let route = attempt.current_route();
             attempted.push(route);
             Ok::<_, ()>((route == LoopRouteId::LoopTrueEarlyExit).then_some(7_u8))
         });
@@ -180,12 +222,47 @@ mod tests {
         let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
         let mut attempted = Vec::new();
 
-        let result = witness.execute_selected_in_order(|_, route| {
-            attempted.push(route);
+        let result = witness.execute_selected_in_order(|_, attempt| {
+            attempted.push(attempt.current_route());
             Err::<Option<u8>, _>("route failed")
         });
 
         assert!(matches!(result, Err("route failed")));
         assert_eq!(attempted, [LoopRouteId::LoopTrueEarlyExit]);
+    }
+
+    #[test]
+    fn attempt_observes_its_cursor_and_exact_suffix_without_owning_schedule() {
+        let env = env();
+        let schedule = [
+            LoopRouteId::LoopTrueEarlyExit,
+            LoopRouteId::LoopArrayJoin,
+            LoopRouteId::SplitScan,
+        ];
+        let witness = RouteExecutionWitnessV1::issue(&schedule, None, &env, false);
+        let mut observed = Vec::new();
+
+        let result = witness.execute_selected_in_order(|_, attempt| {
+            observed.push((
+                attempt.current_route(),
+                attempt.cursor(),
+                attempt.exact_after_current_suffix().to_vec(),
+            ));
+            Ok::<_, ()>(None::<u8>)
+        });
+
+        assert!(matches!(result, Ok(RouteExecutionResultV1::Exhausted(_))));
+        assert_eq!(
+            observed,
+            vec![
+                (
+                    LoopRouteId::LoopTrueEarlyExit,
+                    0,
+                    vec![LoopRouteId::LoopArrayJoin, LoopRouteId::SplitScan],
+                ),
+                (LoopRouteId::LoopArrayJoin, 1, vec![LoopRouteId::SplitScan]),
+                (LoopRouteId::SplitScan, 2, vec![]),
+            ]
+        );
     }
 }

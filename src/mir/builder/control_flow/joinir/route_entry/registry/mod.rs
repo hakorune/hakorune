@@ -144,13 +144,13 @@ pub(crate) const ENTRIES: &[Entry] = &[
         id: LoopRouteId::GenericLoopV0,
         name: entry_keys::GENERIC_LOOP_V0,
         predicate: pred_generic_loop_v0,
-        route: Some(route_generic_loop_v0),
+        route: Some(route_generic_loop_v0_at_attempt),
     },
     Entry {
         id: LoopRouteId::GenericLoopV1,
         name: entry_keys::GENERIC_LOOP_V1,
         predicate: pred_generic_loop_v1,
-        route: Some(route_generic_loop_v1),
+        route: Some(route_generic_loop_v1_at_attempt),
     },
 ];
 
@@ -165,7 +165,8 @@ pub(crate) fn try_execute_route_execution_witness(
     witness: RouteExecutionWitnessV1<'_>,
 ) -> Result<Option<LegacyRouteSuccess>, String> {
     witness
-        .execute_selected_in_order(|execution, route_id| {
+        .execute_selected_in_order(|_execution, attempt| {
+            let route_id = attempt.current_route();
             let entry = ENTRIES
                 .iter()
                 .find(|entry| entry.id == route_id)
@@ -173,7 +174,7 @@ pub(crate) fn try_execute_route_execution_witness(
             let Some(route) = entry.route else {
                 return Ok(None);
             };
-            if let Some(value) = route(builder, ctx, compose_facts, execution)? {
+            if let Some(value) = route(builder, ctx, compose_facts, attempt)? {
                 return Ok(Some(value));
             }
             Ok(None)
