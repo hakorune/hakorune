@@ -129,3 +129,29 @@ fresh candidate reuse after the discard. The central family enum and
 source-bound package are now the next design/implementation slice; they remain
 unwired until their exhaustive matches and typed exclusion boundary are
 planned.
+
+## Next design stop: central family-plan/source-bound boundary
+
+The worker audit closed this boundary without authorizing a caller switch.
+The selection authority remains in `src/mir/compiler`:
+`CanonicalLoweringPreflightV1` issues one
+`CanonicalFirstFamilyPlanV1::DirectAccum(CanonicalDirectAccumPlanV1)`. The
+`resolved_lowering` layer remains only the concrete plan consumer and keeps
+`CanonicalSsaFunctionSessionV2` as the sole SSA/CFG/PHI owner.
+
+The source-bound package is intentionally a closed four-route domain for now.
+`ExactCanonicalPreflightPlanV1`/`SourceBoundCanonicalPackageV1` must not mint a
+DirectAccum token, header, finish schedule, or continuation before the
+candidate ingress is selected. Its conversion from the central enum therefore
+becomes fallible and rejects DirectAccum with a typed
+`DirectAccumRequiresCandidateIngress` boundary before token/header issuance.
+The old module-invocation/header families are not widened merely to carry a
+loop body profile, and DirectAccum is not mislabeled as Trivial.
+
+The next implementation slice is limited to the compiler enum arm, its brand
+and exhaustive typed exclusions, a direct-only preflight constructor, and
+unchanged Trivial/A+ evidence. `route_loop`, public caller wiring, Generic or
+Retry removal, PHI-writer retirement, old-edge deletion, and selfhost remain
+explicit non-claims. A later function-body integration must decompose the
+current whole-function pilot into a body-owned DirectAccum plan that borrows
+the outer canonical session; it must not nest a second completion/SSA owner.
