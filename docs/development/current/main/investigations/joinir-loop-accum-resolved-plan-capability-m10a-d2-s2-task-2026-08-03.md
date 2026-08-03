@@ -100,5 +100,17 @@ The resolved issuer now owns the full preflight sequence as
 singleton observation → policy handoff → `CanonicalDirectAccumPlanV1`. This
 keeps the one-shot boundary explicit while the plan is still caller-zero.
 
-The remaining work is the actual resolved plan variant and canonical lowerer
-facade. No production compiler caller has been switched yet.
+The next safe slice is now landed as a direct-only preflight module:
+`verify_direct_accum_function_v1(function, exact_loop_stmt)`. It validates the
+closed function prefix/suffix and completion contract, then calls the one-shot
+issuer. The ordinary `verify(unit)` and source-bound package remain untouched;
+no central family enum or production caller has been widened yet.
+
+The plan now retains a non-Clone `VerifiedDirectAccumPolicyReceiptV1` after
+consuming the handoff's winner for Recipe demand. This preserves policy
+provenance without retaining a raw schedule cursor or adding a second policy
+authority.
+
+The remaining work is the candidate-only canonical lowerer facade and its
+success/failure/fresh-reuse proof. The central family enum and source-bound
+package stay parked until that lowerer is green.

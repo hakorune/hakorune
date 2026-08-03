@@ -38,6 +38,15 @@ pub(crate) struct VerifiedLoopPolicyWinnerV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedDirectAccumRouteAdmissionV1 {
     winner: VerifiedLoopPolicyWinnerV1,
+    receipt: VerifiedDirectAccumPolicyReceiptV1,
+}
+
+/// Typed evidence that the DirectAccum winner came from the policy-owned
+/// frozen schedule. The plan retains this receipt after consuming the winner
+/// for Recipe demand, so policy provenance is not silently discarded.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedDirectAccumPolicyReceiptV1 {
+    frame_key: LoopExecutionFrameKeyV1,
     _schedule_seal: DirectAccumPolicyScheduleSealV1,
 }
 
@@ -93,16 +102,32 @@ impl VerifiedLoopPolicyWinnerV1 {
                 actual: self.raw_cursor,
             });
         }
+        let frame_key = self.frame_key.clone();
         Ok(VerifiedDirectAccumRouteAdmissionV1 {
             winner: self,
-            _schedule_seal: DirectAccumPolicyScheduleSealV1,
+            receipt: VerifiedDirectAccumPolicyReceiptV1 {
+                frame_key,
+                _schedule_seal: DirectAccumPolicyScheduleSealV1,
+            },
         })
     }
 }
 
 impl VerifiedDirectAccumRouteAdmissionV1 {
+    pub(crate) fn into_parts(
+        self,
+    ) -> (VerifiedLoopPolicyWinnerV1, VerifiedDirectAccumPolicyReceiptV1) {
+        (self.winner, self.receipt)
+    }
+
     pub(crate) fn into_policy_winner(self) -> VerifiedLoopPolicyWinnerV1 {
         self.winner
+    }
+}
+
+impl VerifiedDirectAccumPolicyReceiptV1 {
+    pub(crate) fn frame_key(&self) -> &LoopExecutionFrameKeyV1 {
+        &self.frame_key
     }
 }
 

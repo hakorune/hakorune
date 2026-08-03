@@ -88,6 +88,29 @@ fn named_function(name: &str, body: Vec<ASTNode>) -> ASTNode {
 }
 
 #[test]
+fn direct_accum_preflight_issues_one_whole_function_plan() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        super::direct_accum_projection::direct_accum_function_for_test(),
+    )
+    .expect("DirectAccum fixture resolves");
+    let input = unit.root_function_input().expect("function input");
+    let body = input.source().root_body().expect("root body");
+    let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
+    let plan = super::direct_accum_capability::verify_direct_accum_function_v1(input, loop_stmt)
+        .expect("DirectAccum plan");
+    let (input, loop_stmt, receipt, _recipe, effect_plan, completion) = plan.into_parts();
+
+    assert_eq!(loop_stmt.owner(), input.owner());
+    let source = input
+        .function()
+        .resolved_loop_source(loop_stmt.site())
+        .expect("loop source");
+    assert!(receipt.frame_key().matches(&source.frame_key()));
+    assert_eq!(effect_plan.entries().len(), 5);
+    assert!(completion.is_implicit_void());
+}
+
+#[test]
 fn resolved_owner_header_seals_zero_arity_binding_ssa_before_plan_consumption() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
         local("x", literal(0)),

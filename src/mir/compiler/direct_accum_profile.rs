@@ -9,7 +9,7 @@ use crate::mir::loop_recipe_contract::{
 };
 use crate::mir::loop_route_policy::{
     DirectAccumRouteAdmissionRejectV1, VerifiedDirectAccumPolicyHandoffV1,
-    VerifiedLoopPolicyWinnerV1,
+    VerifiedDirectAccumPolicyReceiptV1, VerifiedLoopPolicyWinnerV1,
 };
 use crate::mir::loop_structural_facts::{
     issue_selected_loop_recipe_demand_v1, DirectAccumBindingEffectEntryV1,
@@ -67,6 +67,7 @@ pub(crate) fn issue_direct_accum_plan_v1<'source>(
 pub(crate) struct CanonicalDirectAccumPlanV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
+    policy_receipt: VerifiedDirectAccumPolicyReceiptV1,
     recipe: VerifiedDirectAccumRecipeProductV1,
     effect_plan: VerifiedDirectAccumBindingEffectPlanV1,
     completion: VerifiedFunctionCompletionV1,
@@ -78,6 +79,7 @@ impl<'source> CanonicalDirectAccumPlanV1<'source> {
     ) -> (
         ResolvedFunctionLoweringInputV1<'source>,
         LocatedStmtV1<'source>,
+        VerifiedDirectAccumPolicyReceiptV1,
         VerifiedDirectAccumRecipeProductV1,
         VerifiedDirectAccumBindingEffectPlanV1,
         VerifiedFunctionCompletionV1,
@@ -85,6 +87,7 @@ impl<'source> CanonicalDirectAccumPlanV1<'source> {
         (
             self.input,
             self.loop_stmt,
+            self.policy_receipt,
             self.recipe,
             self.effect_plan,
             self.completion,
@@ -105,6 +108,7 @@ pub(crate) fn issue_direct_accum_plan_from_handoff_v1<'source>(
         return Err(DirectAccumProfileRejectV1::CompletionOwnerMismatch);
     }
     let (admission, observation) = handoff.into_parts();
+    let (winner, policy_receipt) = admission.into_parts();
     let (facts, source) = observation.into_parts();
     if !source.matches_identity(
         input.function().function_origin(),
@@ -119,7 +123,7 @@ pub(crate) fn issue_direct_accum_plan_from_handoff_v1<'source>(
     let effect_plan =
         VerifiedDirectAccumBindingEffectPlanV1::issue(input.owner(), source.frame_key(), shape);
     let demand = issue_selected_loop_recipe_demand_v1(
-        admission.into_policy_winner(),
+        winner,
         facts,
         source,
     )
@@ -129,6 +133,7 @@ pub(crate) fn issue_direct_accum_plan_from_handoff_v1<'source>(
     Ok(CanonicalDirectAccumPlanV1 {
         input,
         loop_stmt,
+        policy_receipt,
         recipe,
         effect_plan,
         completion,
@@ -150,6 +155,7 @@ pub(crate) fn admit_direct_accum_profile_v1<'source>(
     let admission = winner
         .into_direct_accum_v1()
         .map_err(DirectAccumProfileRejectV1::RouteAdmission)?;
+    let (winner, policy_receipt) = admission.into_parts();
     let source = input
         .function()
         .resolved_loop_source(loop_stmt.site())
@@ -162,13 +168,14 @@ pub(crate) fn admit_direct_accum_profile_v1<'source>(
     let effect_plan =
         VerifiedDirectAccumBindingEffectPlanV1::issue(input.owner(), source.frame_key(), shape);
     let demand =
-        issue_selected_loop_recipe_demand_v1(admission.into_policy_winner(), facts, source)
+        issue_selected_loop_recipe_demand_v1(winner, facts, source)
             .map_err(DirectAccumProfileRejectV1::Demand)?;
     let recipe =
         produce_direct_accum_recipe_v1(demand).map_err(DirectAccumProfileRejectV1::Recipe)?;
     Ok(CanonicalDirectAccumPlanV1 {
         input,
         loop_stmt,
+        policy_receipt,
         recipe,
         effect_plan,
         completion,
@@ -193,7 +200,7 @@ mod tests {
         let completion = verify_function_completion_v1(input).expect("completion");
         let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion)
             .expect("DirectAccum plan");
-        let (_input, _loop, _recipe, effect_plan, _completion) = profile.into_parts();
+        let (_input, _loop, _receipt, _recipe, effect_plan, _completion) = profile.into_parts();
         assert_eq!(effect_plan.entries().len(), 5);
         let roles = effect_plan
             .entries()

@@ -32,6 +32,8 @@ pub(in crate::mir) mod direct_accum_profile;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_projection;
 #[allow(dead_code)]
+pub(in crate::mir) mod direct_accum_capability;
+#[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]

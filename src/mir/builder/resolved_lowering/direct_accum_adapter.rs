@@ -283,7 +283,7 @@ mod tests {
             .expect("source");
         let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion)
             .expect("profile");
-        let (input, _loop_stmt, _recipe, plan, _completion) = profile.into_parts();
+        let (input, _loop_stmt, _receipt, _recipe, plan, _completion) = profile.into_parts();
         let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
         let mut port = CanonicalDirectAccumBindingPort::new(
             &mut identity,
@@ -323,7 +323,7 @@ mod tests {
             .expect("source");
         let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion)
             .expect("profile");
-        let (input, _loop_stmt, _recipe, plan, _completion) = profile.into_parts();
+        let (input, _loop_stmt, _receipt, _recipe, plan, _completion) = profile.into_parts();
         let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
         let mut port = CanonicalDirectAccumBindingPort::new(
             &mut identity,
