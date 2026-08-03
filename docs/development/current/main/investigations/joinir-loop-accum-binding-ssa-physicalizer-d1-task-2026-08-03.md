@@ -1,5 +1,5 @@
 ---
-Status: Caller-zero S0 implementation closed — operation emission/parity pending
+Status: Caller-zero S1 operation/candidate boundary green — MIR parity pending
 Date: 2026-08-03
 Decision: `JOINIR-LOOP-ACCUM-BINDING-SSA-PHYSICALIZER-D1`
 Scope: replace the superseded P1-S1 operation-emission shape with a
@@ -184,6 +184,48 @@ carrier↔header-read coverage guard, repeated-read aliasing, write-then-read
 visibility, and injected operation/SSA/finish failure proving shared-PhiTxn
 abort plus candidate discard/fresh-session reuse. It remains caller-zero until
 those gates are green.
+
+## S1 MIR parity design stop
+
+The remaining parity slice is an observer boundary, not another lowerer. A
+test-only shared alpha-digest support module will accept immutable MIR plus
+canonical role/value/type witness data and return ID-independent CFG,
+instruction, PHI, and final-binding rows. The legacy snapshot and candidate
+observer will each provide a thin adapter to that DTO; the support module must
+not import CorePlan, PlanLowerer, Recipe, route, PHI mutation, or Binding-SSA
+mutation APIs.
+
+Change:
+
+```text
+legacy physical snapshot + candidate observer
+  -> shared immutable alpha digest
+  -> exact DirectAccum parity assertion
+```
+
+Contract:
+
+```text
+candidate adapter reads the sealed receipt/builder metadata only;
+it does not add a second emitter, production caller, or publication owner.
+Final rows cover i, sum, and Unit/Void result with canonical provenance.
+```
+
+Done:
+
+```text
+CFG/pred-succ/terminators, PHI inputs, operation rows, and final rows match;
+raw ValueId/BasicBlockId never appear; candidate failure/reuse and existing
+guards stay green; every touched Rust file remains below 800 lines.
+```
+
+Stop:
+
+```text
+if the candidate receipt cannot expose final provenance without inventing a
+new authority, stop and revise the receipt/SSOT; do not add a duplicate
+lowerer or compare raw IDs.
+```
 
 ## Required products
 
