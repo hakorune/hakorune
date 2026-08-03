@@ -1,11 +1,24 @@
+use self::semantic_digest_test_support::{semantic_digest, AlphaPhysicalMirDigestV2};
 use super::*;
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan};
-use crate::mir::loop_recipe_contract::{
-    LoopBinaryI64OpV1, LoopBindingKeyV1, LoopBlockKeyV1, LoopCompareI64OpV1, LoopConditionV1,
-    LoopItemKeyV1, LoopOperationV1, LoopRecipeArtifactV1, LoopRecipeItemV1, LoopRecipeVerifierV1,
-    LoopValueKeyV1,
+use crate::mir::builder::control_flow::plan::loop_accum_physicalizer::physicalize_direct_accum_v1;
+use crate::mir::builder::control_flow::plan::loop_physical_input::{
+    LoopPhysicalRoleV1, VerifiedLoopBindingProjectionV1, VerifiedLoopInputProjectionV1,
+    VerifiedLoopPhysicalRolePlanV1,
 };
-use crate::mir::{BinaryOp, CompareOp, ConstValue, ValueId};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan};
+use crate::mir::builder::emission::loop_operation;
+use crate::mir::builder::module_invocation_session::{
+    BuilderCoreSeedPolicyV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
+};
+use crate::mir::loop_recipe_contract::{
+    direct_accum_product_for_test, LoopBinaryI64OpV1, LoopBindingKeyV1, LoopBlockKeyV1,
+    LoopCompareI64OpV1, LoopConditionV1, LoopItemKeyV1, LoopOperationV1, LoopRecipeArtifactV1,
+    LoopRecipeItemV1, LoopRecipeVerifierV1, LoopValueKeyV1, VerifiedLoopPhysicalInputV1,
+};
+use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIssuerV1};
+use crate::mir::{
+    BasicBlockId, BinaryOp, BindingId, CompareOp, ConstValue, MirInstruction, MirType, ValueId,
+};
 use std::collections::BTreeMap;
 
 #[path = "loop_accum_legacy_oracle_support.rs"]
@@ -329,6 +342,244 @@ fn legacy_effect(
         }
         other => panic!("unexpected legacy Accum effect in {phase}: {other:?}"),
     }
+}
+
+fn direct_physical_roles() -> VerifiedLoopPhysicalRolePlanV1 {
+    VerifiedLoopPhysicalRolePlanV1::try_new(vec![
+        (LoopPhysicalRoleV1::Preheader, BasicBlockId::new(0)),
+        (LoopPhysicalRoleV1::Header, BasicBlockId::new(1)),
+        (LoopPhysicalRoleV1::Body, BasicBlockId::new(2)),
+        (LoopPhysicalRoleV1::Step, BasicBlockId::new(3)),
+        (LoopPhysicalRoleV1::After, BasicBlockId::new(4)),
+    ])
+    .expect("DirectAccum physical roles")
+}
+
+fn seed_direct_physical_inputs(
+    builder: &mut MirBuilder,
+) -> (
+    VerifiedLoopBindingProjectionV1,
+    VerifiedLoopInputProjectionV1,
+) {
+    builder.enter_function_for_test("accum_physicalizer_parity/0".to_owned());
+    let initial_i = loop_operation::emit_const_i64(builder, 0).expect("initial i");
+    let initial_sum = loop_operation::emit_const_i64(builder, 0).expect("initial sum");
+    let owner = FunctionOwnerIssuerV1::new_for_compilation()
+        .expect("owner issuer")
+        .issue()
+        .expect("function owner");
+    let bindings = VerifiedLoopBindingProjectionV1::try_new(
+        owner,
+        vec![
+            (
+                LoopBindingKeyV1::new(0),
+                BindingRefV1::new(owner, BindingId::new(0)),
+            ),
+            (
+                LoopBindingKeyV1::new(1),
+                BindingRefV1::new(owner, BindingId::new(1)),
+            ),
+        ],
+    )
+    .expect("binding projection");
+    let inputs = VerifiedLoopInputProjectionV1::try_new(
+        BasicBlockId::new(0),
+        vec![
+            (LoopValueKeyV1::new(0), LoopBindingKeyV1::new(0), initial_i),
+            (
+                LoopValueKeyV1::new(1),
+                LoopBindingKeyV1::new(1),
+                initial_sum,
+            ),
+        ],
+    )
+    .expect("input projection");
+    (bindings, inputs)
+}
+
+fn physicalizer_labels(
+    function: &crate::mir::MirFunction,
+) -> Result<BTreeMap<ValueId, String>, String> {
+    let roles = [
+        ("P", BasicBlockId::new(0)),
+        ("H", BasicBlockId::new(1)),
+        ("B", BasicBlockId::new(2)),
+        ("S", BasicBlockId::new(3)),
+        ("A", BasicBlockId::new(4)),
+    ];
+    let mut labels = BTreeMap::new();
+    for (role, block_id) in roles {
+        let block = function
+            .blocks
+            .get(&block_id)
+            .ok_or_else(|| format!("physicalizer role block missing: {role}"))?;
+        let mut entry_constants = 0;
+        let mut phi_index = 0;
+        for instruction in &block.instructions {
+            match instruction {
+                MirInstruction::Phi { dst, .. } => {
+                    let label = if role == "H" {
+                        match phi_index {
+                            0 => "phi:carrier:i".to_owned(),
+                            1 => "phi:carrier:sum".to_owned(),
+                            index => format!("phi:header:join:{index}"),
+                        }
+                    } else {
+                        format!(
+                            "phi:{}:join:{}",
+                            match role {
+                                "S" => "step",
+                                "A" => "after",
+                                other => other,
+                            },
+                            phi_index
+                        )
+                    };
+                    labels.insert(*dst, label);
+                    phi_index += 1;
+                }
+                MirInstruction::Const { dst, value } => {
+                    let label = if role == "P" && entry_constants < 2 {
+                        let label = if entry_constants == 0 {
+                            "binding:i"
+                        } else {
+                            "binding:sum"
+                        };
+                        entry_constants += 1;
+                        label.to_owned()
+                    } else {
+                        format!("const:{value:?}")
+                    };
+                    labels.insert(*dst, label);
+                }
+                MirInstruction::Copy { dst, src } => {
+                    let label = labels.get(src).cloned().ok_or_else(|| {
+                        format!("physicalizer copy source is uncredited: {src:?}")
+                    })?;
+                    labels.insert(*dst, label);
+                }
+                MirInstruction::BinOp { dst, op, lhs, rhs } => {
+                    let left = labels
+                        .get(lhs)
+                        .cloned()
+                        .ok_or_else(|| format!("physicalizer bin lhs is uncredited: {lhs:?}"))?;
+                    let right = labels
+                        .get(rhs)
+                        .cloned()
+                        .ok_or_else(|| format!("physicalizer bin rhs is uncredited: {rhs:?}"))?;
+                    labels.insert(*dst, format!("bin:{op:?}:{left}:{right}"));
+                }
+                MirInstruction::Compare { dst, op, lhs, rhs } => {
+                    let left = labels.get(lhs).cloned().ok_or_else(|| {
+                        format!("physicalizer compare lhs is uncredited: {lhs:?}")
+                    })?;
+                    let right = labels.get(rhs).cloned().ok_or_else(|| {
+                        format!("physicalizer compare rhs is uncredited: {rhs:?}")
+                    })?;
+                    labels.insert(*dst, format!("compare:{op:?}:{left}:{right}"));
+                }
+                _ => {}
+            }
+        }
+    }
+    Ok(labels)
+}
+
+fn direct_physicalizer_semantic_digest(
+    builder: &MirBuilder,
+    receipt: &crate::mir::builder::control_flow::plan::loop_accum_physicalizer::LoopPhysicalSuccessReceiptV1,
+) -> Result<AlphaPhysicalMirDigestV2, String> {
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| "physicalizer function missing".to_owned())?;
+    let labels = physicalizer_labels(function)?;
+    let final_bindings = receipt
+        .final_values
+        .iter()
+        .map(|(binding, value)| {
+            let name = match binding.raw() {
+                0 => "i",
+                1 => "sum",
+                other => return Err(format!("unexpected final binding {other}")),
+            };
+            let provenance = labels
+                .get(value)
+                .cloned()
+                .ok_or_else(|| format!("final value is uncredited: {value:?}"))?;
+            Ok(physical_digest_test_support::AlphaFinalBindingWitnessV1 {
+                name: name.to_owned(),
+                value: *value,
+                provenance,
+            })
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    let result = match receipt.result {
+        crate::mir::builder::control_flow::plan::loop_accum_physicalizer::LoopResultDispositionV1::Unit => {
+            physical_digest_test_support::AlphaFunctionResultWitnessV1 {
+                value: None,
+                provenance: "unit".to_owned(),
+                expected_type: MirType::Void,
+            }
+        }
+        crate::mir::builder::control_flow::plan::loop_accum_physicalizer::LoopResultDispositionV1::Value(value) => {
+            physical_digest_test_support::AlphaFunctionResultWitnessV1 {
+                value: Some(value),
+                provenance: "value".to_owned(),
+                expected_type: MirType::Integer,
+            }
+        }
+    };
+    let alpha = physical_digest_test_support::observe_mir(
+        function,
+        &physical_digest_test_support::MirRoleWitnessV1::new(vec![
+            ("P", BasicBlockId::new(0)),
+            ("H", BasicBlockId::new(1)),
+            ("B", BasicBlockId::new(2)),
+            ("S", BasicBlockId::new(3)),
+            ("A", BasicBlockId::new(4)),
+        ])?,
+        &labels,
+        &final_bindings,
+        &result,
+        &builder.function_state.type_ctx.value_types,
+    )?;
+    semantic_digest(
+        &alpha,
+        &[
+            "final:i:carrier:i:Integer",
+            "final:sum:carrier:sum:Integer",
+            "result:unit:Void",
+        ],
+    )
+}
+
+#[test]
+fn direct_physicalizer_semantic_core_matches_legacy() {
+    let live = MirBuilder::new();
+    let before = live.loop_candidate_test_fingerprint();
+    let config = BuilderInvocationConfigV1::snapshot_with_policy(
+        &live,
+        BuilderCoreSeedPolicyV1::ContinueLive,
+    );
+    let mut candidate = ModuleBuilderInvocationSessionV1::open(&live, config);
+    let (bindings, inputs) = seed_direct_physical_inputs(candidate.builder_mut());
+    let receipt = physicalize_direct_accum_v1(
+        candidate.builder_mut(),
+        VerifiedLoopPhysicalInputV1::from_direct_accum(direct_accum_product_for_test()),
+        bindings,
+        inputs,
+        direct_physical_roles(),
+    )
+    .expect("DirectAccum physicalizer");
+    let actual = direct_physicalizer_semantic_digest(candidate.builder(), &receipt)
+        .expect("physicalizer semantic digest");
+    let legacy = physical_parity_tests::direct_legacy_semantic_digest();
+    assert_eq!(actual.semantic, legacy.semantic);
+    assert!(actual.legacy_aux.rows.is_empty());
+    drop(candidate);
+    assert_eq!(live.loop_candidate_test_fingerprint(), before);
 }
 
 #[test]

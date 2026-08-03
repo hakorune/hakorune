@@ -144,8 +144,11 @@ drops the unpublished candidate, proves the live Builder fingerprint is
 unchanged, and succeeds on fresh candidate reuse. A companion readiness
 rejection test proves a physically-emitted candidate is still not externally
 published while its function remains open. Production recipe, physicalizer,
-and `route_loop` callers remain zero. Shared alpha semantic parity is the next
-S0 gate; no production cutover is implied by this progress.
+and `route_loop` callers remain zero. The real physicalizer also reuses the
+existing immutable `observe_mir`/semantic digest and matches the legacy
+DirectAccum semantic core while retaining no legacy auxiliary rows. M10a S0's
+caller-zero evidence is complete; no production cutover is implied by this
+progress.
 
 ## Acceptance gates for the S0 implementation
 
