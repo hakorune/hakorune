@@ -296,6 +296,32 @@ projection (or an exact preflight fact product) must be named before D0-C.
 Schema/verify/normalize tests must prove deterministic semantic output and
 reject every omitted obligation without touching a Builder.
 
+### D0-B0 — same-pass facts projection (next implementation row)
+
+Change:
+: Add an owner-branded `VerifiedTrivialIfRecipeFactsV1` emitted by the existing
+  trivial analyzer traversal. It records only the selected explicit-else
+  shape's condition/value operations, branch writes, merge binding, and
+  post-merge read witness; the portable mapper will later convert these to
+  recipe-local keys.
+
+Contract:
+: `IfControl`, `ResolvedTrivialCanonicalOwnerV1`, and their verifiers retain
+  their existing authorities. The new facts box is a same-pass witness, not a
+  second policy analyzer, and it has no Builder, MIR IDs, route retry, or
+  portable `BindingRefV1` ownership.
+
+Done:
+: The golden explicit-else fixture emits one facts witness; unsupported nested,
+  exit, heterogeneous, or multi-write shapes typed-reject before Builder
+  effects. A guard/test proves no post-hoc source traversal is used, focused
+  profile tests remain green, and touched Rust/test files stay below 800 lines.
+
+Stop:
+: If the existing analyzer cannot emit the facts without a second source pass
+  or duplicated acceptance policy, stop and reopen D0-B design rather than
+  adding a second semantic owner.
+
 ### D0-C — one canonical production consumer
 
 After D0-A/B, select one exact If shape and connect it through the existing
