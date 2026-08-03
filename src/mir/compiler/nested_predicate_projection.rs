@@ -11,8 +11,8 @@ use crate::mir::loop_structural_facts::{
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, FunctionOriginV1, LoopExecutionFrameKeyV1,
-    ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, ScopeId, ScopeKindV1, SourceExprSiteV1,
-    SourceStmtSiteV1, VerifiedResolvedFunctionV1,
+    ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, ScopeId, ScopeKindV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
@@ -97,6 +97,7 @@ pub(crate) struct VerifiedNestedLoopSourceShapeV1 {
     pub(crate) function_origin: FunctionOriginV1,
     pub(crate) root_site: SourceStmtSiteV1,
     pub(crate) child_site: SourceStmtSiteV1,
+    pub(crate) child_declaration_site: SourceBindingSiteV1,
     pub(crate) root_condition: NestedPredicateConditionEvidenceV1,
     pub(crate) child_condition: NestedPredicateConditionEvidenceV1,
     pub(crate) root_initializers: [NestedRootInitializerEvidenceV1; 2],
@@ -264,6 +265,10 @@ pub(crate) fn issue_nested_predicate_source_projection_v1(
             function_origin: function.function_origin(),
             root_site: root_loop.site().clone(),
             child_site,
+            child_declaration_site: SourceBindingSiteV1::Local {
+                statement: local_j.site().clone(),
+                ordinal: 0,
+            },
             root_condition,
             child_condition,
             root_initializers,

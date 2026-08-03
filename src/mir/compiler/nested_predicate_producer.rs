@@ -50,6 +50,10 @@ impl VerifiedNestedPredicateRecipeProductV1 {
         &self.join_sig
     }
 
+    pub(crate) fn source_handoff(&self) -> &VerifiedNestedPhysicalSourceHandoffV1 {
+        &self.source_handoff
+    }
+
     pub(crate) fn into_parts(
         self,
     ) -> (

@@ -6,7 +6,8 @@
 
 use crate::mir::loop_structural_facts::VerifiedLoopSourceForestBindingV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ScopeId, SourceStmtSiteV1,
+    BindingRefV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ScopeId, SourceBindingSiteV1,
+    SourceStmtSiteV1,
 };
 
 use super::nested_predicate_projection::{
@@ -118,19 +119,19 @@ impl VerifiedNestedPhysicalSourceHandoffV1 {
         &self.shape.child_site
     }
 
+    pub(crate) fn child_declaration_site(&self) -> &SourceBindingSiteV1 {
+        &self.shape.child_declaration_site
+    }
+
     pub(crate) fn bindings(&self) -> &[NestedBindingEvidenceV1; 3] {
         &self.shape.bindings
     }
 
-    pub(crate) fn conditions(
-        &self,
-    ) -> [&NestedPredicateConditionEvidenceV1; 2] {
+    pub(crate) fn conditions(&self) -> [&NestedPredicateConditionEvidenceV1; 2] {
         [&self.shape.root_condition, &self.shape.child_condition]
     }
 
-    pub(crate) fn updates(
-        &self,
-    ) -> [&NestedPredicateUpdateEvidenceV1; 4] {
+    pub(crate) fn updates(&self) -> [&NestedPredicateUpdateEvidenceV1; 4] {
         [
             &self.shape.initialize_child,
             &self.shape.increment_root,

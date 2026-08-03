@@ -55,6 +55,8 @@ pub(in crate::mir) mod nested_predicate_source_handoff;
 pub(in crate::mir) mod nested_predicate_topology;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_physical_input;
+#[allow(dead_code)]
+pub(in crate::mir) mod nested_predicate_effect_plan;
 #[cfg(test)]
 mod nested_predicate_producer_tests;
 #[cfg(test)]
@@ -63,6 +65,8 @@ mod nested_predicate_topology_tests;
 mod nested_predicate_physical_input_tests;
 #[cfg(test)]
 mod nested_predicate_projection_tests;
+#[cfg(test)]
+mod nested_predicate_effect_plan_tests;
 mod normal_default_pipeline;
 #[allow(dead_code)]
 pub(crate) mod normal_source_plan;

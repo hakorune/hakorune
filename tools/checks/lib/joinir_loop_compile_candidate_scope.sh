@@ -31,6 +31,8 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_topology_tests="$root_dir/src/mir/compiler/nested_predicate_topology_tests.rs"
   local nested_physical_input="$root_dir/src/mir/compiler/nested_predicate_physical_input.rs"
   local nested_physical_input_tests="$root_dir/src/mir/compiler/nested_predicate_physical_input_tests.rs"
+  local nested_effect_plan="$root_dir/src/mir/compiler/nested_predicate_effect_plan.rs"
+  local nested_effect_plan_tests="$root_dir/src/mir/compiler/nested_predicate_effect_plan_tests.rs"
   local producer_facade="$root_dir/src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs"
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
@@ -41,6 +43,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$source_adapter" "$nested_source_projection" "$nested_recipe_producer" \
     "$nested_source_handoff" "$nested_topology" "$nested_topology_tests" \
     "$nested_physical_input" "$nested_physical_input_tests" \
+    "$nested_effect_plan" "$nested_effect_plan_tests" \
     "$producer_facade"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
@@ -247,9 +250,42 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_producer_refs
   nested_producer_refs="$(rg -n -F 'produce_nested_predicate_recipe_v1(' "$root_dir/src" --glob '*.rs' || true)"
   if [[ "$(printf '%s\n' "$nested_producer_refs" \
-      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
+      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_effect_plan_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
     guard_fail "$tag" "Nested Predicate Recipe producer escaped caller-zero boundary"
   fi
+  for required in \
+    'VerifiedNestedPrefixInputV1' \
+    'VerifiedNestedBindingEffectPlanV1' \
+    'pub(crate) const ALL: [Self; 9]' \
+    'NestedScopeRetirementBoundaryV1::RootLoopRegionExit' \
+    'issue_nested_binding_execution_claims_v1('
+  do
+    rg -n -F "$required" "$nested_effect_plan" >/dev/null || \
+      guard_fail "$tag" "Nested Predicate resolver effect-plan anchor missing: $required"
+  done
+  for forbidden in \
+    'ASTNode' 'MirBuilder' 'ValueId' 'BasicBlockId' 'PhiTxn' \
+    'BindingSsaBuilderV1' 'CanonicalSsaFunctionSessionV2' 'Retry' 'route_loop('
+  do
+    if rg -n -F "$forbidden" "$nested_effect_plan" >/dev/null; then
+      guard_fail "$tag" "Nested Predicate resolver effect plan crossed physical/route authority: $forbidden"
+    fi
+  done
+  local nested_effect_plan_refs
+  nested_effect_plan_refs="$(rg -l -F 'issue_nested_binding_execution_claims_v1(' "$root_dir/src" --glob '*.rs' || true)"
+  if printf '%s\n' "$nested_effect_plan_refs" | awk -v issuer="$nested_effect_plan" -v tests="$nested_effect_plan_tests" \
+      '$0 != issuer && $0 != tests && $0 != "" { found = 1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "Nested Predicate resolver effect-plan issuer escaped caller-zero boundary"
+  fi
+  for file in "$nested_effect_plan" "$nested_effect_plan_tests"; do
+    local effect_plan_lines
+    effect_plan_lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    if (( effect_plan_lines >= 800 )); then
+      guard_fail "$tag" "Nested Predicate effect-plan file exceeds boundary: ${file#"$root_dir/"} lines=$effect_plan_lines"
+    fi
+  done
   for forbidden in 'ASTNode' 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry'
   do
     if rg -n -F "$forbidden" "$source_adapter" >/dev/null; then
