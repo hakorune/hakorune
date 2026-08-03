@@ -1,7 +1,7 @@
 # JOINIR-IF-RECIPE-SSA-ADOPTION0-D0
 
-Status: D0 queued design task; located-legacy S0/S1 retirement green — do not
-wire production If yet.
+Status: D0-A census closed; D0-B portable contract design stop — do not wire
+production If yet.
 Date: 2026-08-04
 
 This card records the next cleanup target after the Loop cutover lane. It is
@@ -110,9 +110,81 @@ Mixed raw/descent guards are intentionally retained for the later raw-parity
 retirement lane; they are not evidence that the deleted located session still
 exists.
 
+## D0-A preliminary authority census (2026-08-04)
+
+The first PHI/CFG audit fixes the boundary without claiming a single writer:
+
+| Surface | Current production owner | Candidate reachability | Disposition |
+| --- | --- | --- | --- |
+| resolved trivial If | profile/IfControl supplies semantics; `CanonicalCfgSessionV1` + `BindingSsaBuilderV1`/`PhiTxn` physicalize | existing resolved candidate ingress | first pilot candidate when the fixture includes an explicit else and post-merge read |
+| resolved located If | pre-SSA compatibility owner: `located_if.rs` + `IfCfgSessionV1` + `define_join_phis` | resolved source-bound candidate | parity oracle; private CFG/PHI session is not canonical |
+| raw/descent If | `if_form.rs::lower_if_form_with_condition...`, `normalize_if_else_phi` / `merge_modified_vars`, and logical short-circuit/conditional-expression joins | raw/default ingress | remains raw authority until its own cutover |
+| CorePlan/JoinIR If | `plan/lowerer/plan_lowering.rs` + `plan/features/if_join.rs::apply_if_joins` | plan/JoinIR route and loop features | direct production If-PHI writer; first retirement target only if the selected shape reaches this owner |
+| JoinIR inline / route-local | merge coordinator, exit-PHI builder, rewriter stages, loop-cond features | loop/JoinIR routes | separate Loop/JoinIR adoption lane |
+| JoinIR-to-MIR converter | `join_ir_to_mir/joinir_block_converter/handlers.rs` direct PHI writers | JoinIR conversion callers | downstream physicalizer; separate caller-zero row |
+| JSON-v0 bridge | `json_v0_bridge` `if_else`/`merge`/`ternary`/`match_expr` writers and Stage1 Program-JSON producer | bootstrap/compat callers | separate phase-29ci retirement lane |
+
+The semantic SSA owner is already named (`BindingSsaBuilderV1`/`PhiTxn` and
+`CanonicalCfgSessionV1`); exclusive physicalization is not complete. The first
+If shape is a resolved-trivial explicit-else, fallthrough-only join with one
+outer `BindingRef` assignment per branch and a post-merge read (exact i64/Bool
+condition, no nested control, return, short-circuit, call, record, or match).
+The minimal fixture is equivalent to
+`local x=0; if (x<1) { x=1 } else { x=2 }; return x`. This exercises two real
+predecessors and the existing canonical session without touching the A+ pre-SSA
+`IfCfgSessionV1` lane. An implicit-else is a later, smaller follow-up shape.
+
+Candidate classification is explicit: resolved-trivial and resolved A+ roots
+are inside the unpublished resolved-module candidate; raw IfForm/CorePlan
+roots require per-entry proof and are not assumed candidate-scoped; JSON-v0
+bridge writers are standalone bootstrap/compat builders (`NoCandidate`) and
+cannot be used as evidence for canonical candidate isolation. `cf_common`,
+`emission::branch`, and `phi_lifecycle` are shared physical sinks, not semantic
+authorities; their sink caller counts are separate from owner retirement.
+
+The census is not closed until each surface has an exact caller set and the
+selected old writer has a proven candidate-scoped retirement edge. In
+particular, do not retire both raw `IfForm` and CorePlan `apply_if_joins` from
+the first pilot, and do not use a carrier-free trivial fixture without a
+post-merge read as PHI proof.
+
+### D0-A caller-set confirmation
+
+The bounded production roots are now identified:
+
+```text
+raw IfForm:
+  normal_script_direct_statement_owner::lower_direct_if_statement_v1
+    -> block_stmt/if_statement_descent -> IfForm
+  control_flow::cf_if_with_port_v1 -> IfForm
+
+CorePlan If:
+  PlanLowerer::lower_if -> plan/features/if_join::apply_if_joins
+  (one non-test apply_if_joins caller; loop features can construct CoreIfPlan)
+
+resolved A+ If:
+  source_bound_package::consume -> lower_resolved_function_draft
+    -> located_if.rs -> IfCfgSessionV1/define_join_phis
+
+resolved trivial If:
+  CanonicalTrivialSsaLowererV1::lower_if -> session.cfg
+  (post-merge BindingSSA read creates the provisional/patch PhiTxn row)
+```
+
+The selected first pilot is the resolved-trivial path with an explicit-else,
+fallthrough-only join, one outer `BindingRef` assignment per branch, and a
+post-merge read. The existing
+`CanonicalTrivialSsaLowererV1::lower_if` is already the canonical physicalizer;
+the new gate is a single verified-Recipe producer/adapter feeding that same
+session, not a second SSA owner. A+ located
+`IfCfgSessionV1`, raw `IfForm`, CorePlan `apply_if_joins`, JoinIR inline writers,
+and JSON-v0 remain separate owners until their own caller-zero rows. The
+existing lowerer must stop re-reading source to make route decisions once the
+Recipe adapter is promoted; otherwise the Recipe remains only a parity oracle.
+
 ## Ordered task sequence
 
-### D0-A — authority and caller census (design only)
+### D0-A — authority and caller census (closed)
 
 Inventory every production and test caller for:
 
@@ -130,6 +202,35 @@ located legacy sessions and raw child carriers
 For every surface record owner, input contract, mutation boundary, and
 whether it can be reached from an unpublished compile candidate. This is a
 BoxShape task: no new accepted source shape and no production wiring.
+
+The matrix is now closed by the caller-set confirmation and independent worker
+review. The selected first owner is the resolved-trivial canonical session; its
+first old edge is shape-scoped to `CanonicalTrivialSsaLowererV1::lower_if`.
+Other writers remain explicit non-selected owners.
+
+### D0-A closeout / D0-B handoff
+
+```text
+source authority:
+  resolved-trivial profile + canonical BindingSSA/CFG/PHI session
+non-authority:
+  raw IfForm, A+ IfCfgSession, CorePlan apply_if_joins, JoinIR converter,
+  JSON-v0 writers, RecipeTree/StmtRef
+fail-fast boundary:
+  unsupported branch effects or non-trivial transfers reject before Builder
+  effects; no old writer is retried after a selected recipe
+selected next slice:
+  design the AST/Builder/physical-ID-free IfRecipeV1 for the one-binding
+  implicit-else shape, then prove its verified recipe can feed the existing
+  canonical trivial session
+non-claims:
+  no whole-repository PHI writer unification, no A+/raw/CorePlan/JSON-v0
+  retirement, and no production Recipe consumer yet
+```
+
+The next row is D0-B. Do not begin production wiring until the portable
+contract, exact pre-effect rejection boundary, and a shape-scoped parity gate
+are written.
 
 ### D0-B — portable IfRecipeV1 contract
 
