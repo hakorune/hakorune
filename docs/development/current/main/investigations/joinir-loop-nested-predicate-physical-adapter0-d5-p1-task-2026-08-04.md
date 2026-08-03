@@ -177,3 +177,32 @@ P1 does not claim that the Nested physicalizer is production-ready, that all
 Loop routes have one winner, that Generic retry debt is classified, or that
 route-specific PHI materializers have been retired. Those are later
 winner-equivalence and D5-I0 gates.
+
+## Remembered post-cutover convergence task
+
+Keep this as a named follow-up; do not let the temporary family adapters become
+the final design:
+
+```text
+JOINIR-LOOP-RECURSIVE-FRAME-CONVERGENCE0-M12
+```
+
+After D5-I0 has one production physicalizer caller:
+
+1. extend the shared JoinSig owner with explicit branch-transfer/merge
+   obligations for conditional `break`/`continue`/`return` versus fallthrough;
+2. prove `LoopV0`, `LoopTrue`, and `LoopCond` are the same verified recursive
+   frame (`Always | Predicate` plus typed exit rows), with no route/family tag in
+   semantic input;
+3. replace their family switch with one recursive physicalizer consuming only
+   `VerifiedRecipe + VerifiedJoinSig + VerifiedPhysicalFramePlan + effect plan`;
+4. make Nested consume the same frame recursively, preserve carrier/latch
+   ordering, and keep `ParentBodyResume` distinct from `Root.After`;
+5. classify Generic V0/V1 post-effect debt separately, then remove its retry
+   projection rather than mixing it into the unified admission;
+6. require family production callers = 0, physicalizer caller = 1,
+   `Option`/`Retry` = 0, parity green, and late-failure candidate isolation.
+
+This is a cleanup/cutover follow-up, not part of caller-zero D5-P1. The
+portable `LoopRecipeV1` already supplies the single recursive semantic shape;
+the remaining work is JoinSig closure and physical adapter convergence.
