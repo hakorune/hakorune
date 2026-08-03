@@ -38,6 +38,25 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowerer
     if_recipe: CanonicalIfRecipeAdmissionDispositionV1,
 }
 
+enum IfMaterializationTopologyV1 {
+    Legacy,
+    Selected(super::if_recipe_physicalizer::CanonicalIfRecipeExplicitElseTopologyV1),
+}
+
+impl IfMaterializationTopologyV1 {
+    fn selected_binding(&self) -> Option<crate::mir::resolved_semantics::BindingRefV1> {
+        match self {
+            Self::Legacy => None,
+            Self::Selected(topology) => Some(topology.binding()),
+        }
+    }
+}
+
+enum IfMaterializationOutcomeV1 {
+    Legacy,
+    Selected(super::if_recipe_physicalizer::CanonicalIfPhysicalReceiptV1),
+}
+
 impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     pub(in crate::mir::builder::resolved_lowering) fn new(
         builder: &'builder mut MirBuilder,
@@ -433,21 +452,44 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
 
     fn lower_if(&mut self, statement: &LocatedStmtV1<'source>) -> Result<(), String> {
         if self.if_recipe.is_not_selected() {
-            return self.lower_if_materialization(statement, None);
+            return self.lower_if_legacy_unselected(statement);
         }
         let demand = self
             .if_recipe
             .take_if(statement)
             .map_err(|error| format!("[freeze:contract][if_recipe/take] {error:?}"))?;
-        super::if_recipe_physicalizer::physicalize_if_recipe_v1(self, statement, demand)
+        super::if_recipe_physicalizer::physicalize_if_recipe_v1(self, statement, demand).map(|_| ())
+    }
+
+    fn lower_if_legacy_unselected(
+        &mut self,
+        statement: &LocatedStmtV1<'source>,
+    ) -> Result<(), String> {
+        self.lower_if_materialization_core(statement, IfMaterializationTopologyV1::Legacy)
             .map(|_| ())
     }
 
-    pub(super) fn lower_if_materialization(
+    pub(super) fn lower_if_recipe_selected(
         &mut self,
         statement: &LocatedStmtV1<'source>,
-        selected_explicit_else: Option<bool>,
-    ) -> Result<(), String> {
+        topology: super::if_recipe_physicalizer::CanonicalIfRecipeExplicitElseTopologyV1,
+    ) -> Result<super::if_recipe_physicalizer::CanonicalIfPhysicalReceiptV1, String> {
+        match self.lower_if_materialization_core(
+            statement,
+            IfMaterializationTopologyV1::Selected(topology),
+        )? {
+            IfMaterializationOutcomeV1::Selected(receipt) => Ok(receipt),
+            IfMaterializationOutcomeV1::Legacy => {
+                Err("[freeze:contract][if_recipe/selected_topology_not_materialized]".to_string())
+            }
+        }
+    }
+
+    fn lower_if_materialization_core(
+        &mut self,
+        statement: &LocatedStmtV1<'source>,
+        topology: IfMaterializationTopologyV1,
+    ) -> Result<IfMaterializationOutcomeV1, String> {
         let ASTNode::If { else_body, .. } = statement.node() else {
             unreachable!("If helper requires If")
         };
@@ -478,8 +520,20 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         )?;
         let header = self.current_block()?;
         let then_block = self.builder.next_block_id();
-        let explicit_else = selected_explicit_else
-            .unwrap_or_else(|| matches!(row.else_port(), ResolvedIfElsePortV1::Explicit(_)));
+        let selected_binding = topology.selected_binding();
+        let explicit_else = match &topology {
+            IfMaterializationTopologyV1::Legacy => {
+                matches!(row.else_port(), ResolvedIfElsePortV1::Explicit(_))
+            }
+            IfMaterializationTopologyV1::Selected(_) => {
+                if else_body.is_none() {
+                    return Err(
+                        "[freeze:contract][if_recipe/selected_else_body_missing]".to_string()
+                    );
+                }
+                true
+            }
+        };
         let else_block = explicit_else.then(|| self.builder.next_block_id());
         let merge = self.builder.next_block_id();
         self.builder.ensure_block_exists(then_block)?;
@@ -523,11 +577,23 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .semantics
             .close_scope_region_success(then_scope, &mut self.session.identity)?;
         let then_exit = self.current_block()?;
+        let then_value = selected_binding
+            .map(|binding| {
+                self.session.identity.read_entry(
+                    self.builder,
+                    &mut self.session.phis,
+                    then_exit,
+                    binding,
+                )
+            })
+            .transpose()?;
         self.emit_jump(then_exit, merge)?;
 
-        if let Some(else_block) = else_block {
-            self.seal_block_if_needed(else_block)?;
-            self.builder.start_new_block(else_block)?;
+        let mut else_exit = None;
+        let mut else_value = None;
+        if let Some(else_block_id) = else_block {
+            self.seal_block_if_needed(else_block_id)?;
+            self.builder.start_new_block(else_block_id)?;
             let else_body = self
                 .input
                 .source()
@@ -548,8 +614,20 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             self.session
                 .semantics
                 .close_scope_region_success(else_scope, &mut self.session.identity)?;
-            let else_exit = self.current_block()?;
-            self.emit_jump(else_exit, merge)?;
+            let branch_exit = self.current_block()?;
+            let branch_value = selected_binding
+                .map(|binding| {
+                    self.session.identity.read_entry(
+                        self.builder,
+                        &mut self.session.phis,
+                        branch_exit,
+                        binding,
+                    )
+                })
+                .transpose()?;
+            self.emit_jump(branch_exit, merge)?;
+            else_exit = Some(branch_exit);
+            else_value = branch_value;
         } else if else_body.is_some() || regions.else_pair().is_some() {
             return Err("[freeze:contract][canonical_binding_ssa/else_topology]".to_string());
         }
@@ -559,7 +637,31 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         row.finish_coverage()
             .map_err(|error| format!("[freeze:contract][if_control/coverage] {error:?}"))?;
         let _representation_only = self.profile.claim_if_merges(statement.site())?;
-        self.session.semantics.close_region(control)
+        self.session.semantics.close_region(control)?;
+        if let (
+            IfMaterializationTopologyV1::Selected(topology),
+            Some(then_value),
+            Some(else_block),
+            Some(else_exit),
+            Some(else_value),
+        ) = (topology, then_value, else_block, else_exit, else_value)
+        {
+            return Ok(IfMaterializationOutcomeV1::Selected(
+                super::if_recipe_physicalizer::CanonicalIfPhysicalReceiptV1::new(
+                    header,
+                    condition,
+                    then_block,
+                    else_block,
+                    then_exit,
+                    else_exit,
+                    merge,
+                    then_value,
+                    else_value,
+                    topology.binding(),
+                ),
+            ));
+        }
+        Ok(IfMaterializationOutcomeV1::Legacy)
     }
 
     fn emit_jump(&mut self, source: BasicBlockId, target: BasicBlockId) -> Result<(), String> {

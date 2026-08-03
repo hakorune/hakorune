@@ -460,9 +460,8 @@ fn if_recipe_candidate_discards_after_late_draft_seal_failure_and_reuses_compile
     else {
         panic!("explicit-else If fixture must select trivial Binding SSA")
     };
-    let mut candidate = super::module_session::CanonicalModuleLoweringSessionV1::open(
-        &compiler.builder,
-    );
+    let mut candidate =
+        super::module_session::CanonicalModuleLoweringSessionV1::open(&compiler.builder);
     let error = candidate
         .builder_mut()
         .lower_resolved_trivial_function_draft_with_seal_failure_for_test(plan)
@@ -485,6 +484,53 @@ fn if_recipe_candidate_discards_after_late_draft_seal_failure_and_reuses_compile
     assert!(result.verification_result.is_ok());
     assert_eq!(result.module.functions.len(), 2);
     assert!(result.module.functions.contains_key("capability_fixture/0"));
+}
+
+#[test]
+fn if_recipe_selected_shape_preserves_branch_merge_and_phi_receipt() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        local("x", literal(0)),
+        if_stmt(
+            bool_literal(true),
+            vec![assignment("x", 1)],
+            Some(vec![assignment("x", 2)]),
+        ),
+        ASTNode::Return {
+            value: Some(Box::new(variable("x"))),
+            span: Span::unknown(),
+        },
+    ]))
+    .expect("If fixture resolves");
+    let mut compiler = MirCompiler::with_options(false);
+    let result = compiler
+        .compile_resolved(unit.lowering_input(), Some("if-receipt.hako"))
+        .expect("selected If physicalization");
+    let function = result
+        .module
+        .functions
+        .get("capability_fixture/0")
+        .expect("selected If function");
+    let branch_count = function
+        .blocks
+        .values()
+        .filter(|block| {
+            matches!(
+                block.terminator,
+                Some(crate::mir::MirInstruction::Branch { .. })
+            )
+        })
+        .count();
+    let phi_inputs = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Phi { inputs, .. } => Some(inputs.len()),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(branch_count, 1);
+    assert_eq!(phi_inputs, vec![2]);
 }
 
 #[test]

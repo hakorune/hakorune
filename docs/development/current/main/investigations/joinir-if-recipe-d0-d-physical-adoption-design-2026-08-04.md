@@ -1,8 +1,8 @@
 # JOINIR-IF-RECIPE-D0-D-PHYSICAL-ADOPTION
 
-Status: design closed; the D0-D1/D0-D2 pilot and its late-failure/candidate-
-isolation proof are implemented locally with focused tests/guards green.
-D0-D3 shape-scoped old-edge cutover remains the later gate. D0-C1/C2
+Status: D0-D3 selected-shape old-edge cutover is implemented locally; focused
+tests, receipt parity, line budgets, and reusable guards are green. This is a
+shape-scoped If adoption slice, not global PHI/SSA retirement. D0-C1/C2
 admission-only wiring is superseded locally by the consuming pilot.
 Date: 2026-08-04
 
@@ -119,13 +119,20 @@ consumed there, and the physicalizer returns a typed `Result` without
 `Option`/retry/fallback. It validates the fixed logical/source correspondence
 before delegating emission to the existing canonical-session-backed lowerer.
 
-This is deliberately a bounded adoption slice, not a completed cutover. The
-selected-shape old source-driven edge is still present behind the common
-lowering helper. The test-only late-seal failure now runs after the selected
-If lowering returns, and proves candidate drop, unchanged live fingerprint,
-and fresh same-compiler reuse. Do not claim exclusive PHI/CFG production
-authority or global If retirement until D0-D3 and the remaining acceptance
-gates are green.
+D0-D3 now splits the old edge by shape: selected explicit-else demand enters
+`lower_if_recipe_selected` with a private JoinSig-derived topology token,
+while unselected/legacy shapes enter `lower_if_legacy_unselected`. The
+selected core returns a typed physical receipt containing the actual branch,
+merge, predecessor, and value evidence; the physicalizer validates that
+receipt before success. The reusable guard proves the selected helper has one
+production caller (the physicalizer), and that selected code does not call the
+legacy helper or inspect source-driven topology.
+
+The test-only late-seal failure runs after selected If lowering returns and
+proves candidate drop, unchanged live fingerprint, and fresh same-compiler
+reuse. This remains a bounded adoption slice: it does not claim exclusive
+PHI/CFG production authority or global If retirement, and it does not broaden
+to implicit-else, nested/effect shapes, raw/A+/CorePlan/JoinIR, or JSON-v0.
 
 ## Ordered tasks
 
@@ -261,6 +268,7 @@ explicitly the D0-C limitation, the Result-only `take_if` contract and
 unconsumed/second-take failures are fixed, logical-to-physical mapping is a
 required proof, the selected old edge is shape-scoped rather than global
 `lower_if` caller-zero, candidate/PHI parity and late-failure fingerprints are
-named, and near-limit owners are excluded from physicalizer growth. D0-D1 and
-D0-D2 are implemented; D0-D3 is now design-closed with the execution brief
-above and may proceed to its shape-scoped cutover evidence.
+named, and near-limit owners are excluded from physicalizer growth. D0-D1,
+D0-D2, and the D0-D3 selected-shape cutover are implemented with focused
+gates green. The next work must be a separately scoped adoption/design row;
+do not silently widen this slice into global PHI/SSA or all-If retirement.

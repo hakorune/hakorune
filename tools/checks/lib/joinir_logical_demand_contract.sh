@@ -560,6 +560,7 @@ guard_joinir_if_recipe_contract() {
   local tests="$contract_dir/tests.rs"
   local adapter="$root_dir/src/mir/builder/resolved_lowering/if_recipe_adapter.rs"
   local physicalizer="$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/if_recipe_physicalizer.rs"
+  local lowerer="$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs"
   local files=(
     "$contract_dir/README.md"
     "$contract_dir/mod.rs"
@@ -574,6 +575,7 @@ guard_joinir_if_recipe_contract() {
     "$tests"
     "$adapter"
     "$physicalizer"
+    "$lowerer"
   )
   local file lines
 
@@ -598,9 +600,19 @@ guard_joinir_if_recipe_contract() {
     guard_fail "$tag" "If logical/physical-input proof acquired physical, AST, route, retry, or Option authority"
   fi
   if rg -n -w \
-    'ASTNode|MirBuilder|CorePlan|ValueId|BasicBlockId|RouteAttemptOutcomeV1|Retry|Option|new_ssa|new_phi' \
+    'ASTNode|MirBuilder|CorePlan|RouteAttemptOutcomeV1|Retry|Option|new_ssa|new_phi|lower_if_legacy_unselected|lower_if_materialization_core|ResolvedIfElsePortV1|else_port|Some\(true\)' \
     "$physicalizer" >/dev/null; then
     guard_fail "$tag" "If physicalizer acquired route, retry, raw AST, or a second physical owner"
+  fi
+  if ! rg -q 'lower_if_recipe_selected\(' "$physicalizer" || \
+     rg -n 'lower_if_legacy_unselected|lower_if_materialization_core|lower_if_materialization\(' \
+       "$physicalizer" >/dev/null; then
+    guard_fail "$tag" "selected If physicalizer must use only the named selected helper"
+  fi
+  if ! rg -q 'fn lower_if_recipe_selected\(' "$lowerer" || \
+     ! rg -q 'fn lower_if_legacy_unselected\(' "$lowerer" || \
+     ! rg -q 'IfMaterializationTopologyV1::Selected' "$lowerer"; then
+    guard_fail "$tag" "If lowerer lost the selected/legacy shape-scoped helper split"
   fi
   if rg -n -U \
     '#\[derive\([^)]*Clone[^)]*\)\][[:space:]]*\n[[:space:]]*(pub\(crate\)[[:space:]]+)?struct[[:space:]]+(VerifiedIfJoinSigV1|VerifiedIfPhysicalInputV1)' \
@@ -658,6 +670,14 @@ guard_joinir_if_recipe_contract() {
   )
   if (( ${#physicalizer_callers[@]} != 1 )) || [[ "${physicalizer_callers[0]}" != "$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs" ]]; then
     guard_fail "$tag" "If physicalizer must have exactly one production caller: trivial SSA lowerer"
+  fi
+  local selected_helper_callers=()
+  mapfile -t selected_helper_callers < <(
+    { rg -l 'lower_if_recipe_selected\(' "$root_dir/src/mir" || true; } \
+      | awk -v lowerer="$lowerer" '$0 != lowerer && $0 !~ /_tests\.rs$/'
+  )
+  if (( ${#selected_helper_callers[@]} != 1 )) || [[ "${selected_helper_callers[0]}" != "$physicalizer" ]]; then
+    guard_fail "$tag" "selected If helper must have exactly one production caller: physicalizer"
   fi
   if ! rg -q 'physical_input\.into_parts\(' "$physicalizer" || \
      ! rg -q 'Result<CanonicalIfPhysicalSuccessV1' "$physicalizer"; then

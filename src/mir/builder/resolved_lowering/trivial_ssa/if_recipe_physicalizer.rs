@@ -10,8 +10,9 @@ use crate::mir::compiler::located::LocatedStmtV1;
 use crate::mir::if_recipe_contract::{
     IfJoinEdgeRoleV1, IfJoinPortV1, IfSourcePathStepV1, IfValueClassV1,
 };
-use crate::mir::resolved_semantics::SourcePathSegmentV1;
+use crate::mir::resolved_semantics::{BindingRefV1, SourcePathSegmentV1};
 use crate::mir::resolved_value_profile::product::TrivialRepresentationV1;
+use crate::mir::{BasicBlockId, ValueId};
 
 use super::super::if_recipe_adapter::{
     CanonicalIfPhysicalCorrespondenceV1, CanonicalIfPhysicalDemandV1,
@@ -21,6 +22,106 @@ use super::lowerer::CanonicalTrivialSsaLowererV1;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct CanonicalIfPhysicalSuccessV1;
 
+/// The only topology capability the selected physicalizer can mint. It is
+/// created after the demand/JoinSig proof, so selected lowering cannot accept
+/// an arbitrary bool or re-select topology from source syntax.
+#[derive(Debug)]
+pub(super) struct CanonicalIfRecipeExplicitElseTopologyV1 {
+    binding: BindingRefV1,
+}
+
+impl CanonicalIfRecipeExplicitElseTopologyV1 {
+    pub(super) const fn new(binding: BindingRefV1) -> Self {
+        Self { binding }
+    }
+
+    pub(super) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+}
+
+#[derive(Debug)]
+pub(super) struct CanonicalIfPhysicalReceiptV1 {
+    header: BasicBlockId,
+    condition: ValueId,
+    then_block: BasicBlockId,
+    else_block: BasicBlockId,
+    then_exit: BasicBlockId,
+    else_exit: BasicBlockId,
+    merge: BasicBlockId,
+    predecessors: [BasicBlockId; 2],
+    values: [ValueId; 2],
+    binding: BindingRefV1,
+}
+
+impl CanonicalIfPhysicalReceiptV1 {
+    pub(super) fn new(
+        header: BasicBlockId,
+        condition: ValueId,
+        then_block: BasicBlockId,
+        else_block: BasicBlockId,
+        then_exit: BasicBlockId,
+        else_exit: BasicBlockId,
+        merge: BasicBlockId,
+        then_value: ValueId,
+        else_value: ValueId,
+        binding: BindingRefV1,
+    ) -> Self {
+        Self {
+            header,
+            condition,
+            then_block,
+            else_block,
+            then_exit,
+            else_exit,
+            merge,
+            predecessors: [then_exit, else_exit],
+            values: [then_value, else_value],
+            binding,
+        }
+    }
+
+    pub(super) const fn header(&self) -> BasicBlockId {
+        self.header
+    }
+
+    pub(super) const fn condition(&self) -> ValueId {
+        self.condition
+    }
+
+    pub(super) const fn then_block(&self) -> BasicBlockId {
+        self.then_block
+    }
+
+    pub(super) const fn else_block(&self) -> BasicBlockId {
+        self.else_block
+    }
+
+    pub(super) const fn then_exit(&self) -> BasicBlockId {
+        self.then_exit
+    }
+
+    pub(super) const fn else_exit(&self) -> BasicBlockId {
+        self.else_exit
+    }
+
+    pub(super) const fn merge(&self) -> BasicBlockId {
+        self.merge
+    }
+
+    pub(super) const fn predecessors(&self) -> [BasicBlockId; 2] {
+        self.predecessors
+    }
+
+    pub(super) const fn values(&self) -> [ValueId; 2] {
+        self.values
+    }
+
+    pub(super) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+}
+
 pub(super) fn physicalize_if_recipe_v1<'builder, 'source>(
     lowerer: &mut CanonicalTrivialSsaLowererV1<'builder, 'source>,
     statement: &LocatedStmtV1<'source>,
@@ -29,8 +130,47 @@ pub(super) fn physicalize_if_recipe_v1<'builder, 'source>(
     let (physical_input, correspondence) = demand.into_parts();
     let (artifact, join_sig) = physical_input.into_parts();
     verify_demand(statement, &correspondence, &artifact, join_sig.as_sig())?;
-    lowerer.lower_if_materialization(statement, Some(true))?;
+    let topology = CanonicalIfRecipeExplicitElseTopologyV1::new(correspondence.entry_binding());
+    let receipt = lowerer.lower_if_recipe_selected(statement, topology)?;
+    verify_physical_receipt(&correspondence, join_sig.as_sig(), &receipt)?;
     Ok(CanonicalIfPhysicalSuccessV1)
+}
+
+fn verify_physical_receipt(
+    correspondence: &CanonicalIfPhysicalCorrespondenceV1,
+    join_sig: &crate::mir::if_recipe_contract::IfJoinSigV1,
+    receipt: &CanonicalIfPhysicalReceiptV1,
+) -> Result<(), String> {
+    if receipt.binding() != correspondence.entry_binding()
+        || receipt.predecessors() != [receipt.then_exit(), receipt.else_exit()]
+        || receipt.values()[0] == receipt.condition()
+        || receipt.values()[1] == receipt.condition()
+    {
+        return Err("[freeze:contract][if_recipe/physical_receipt_mismatch]".to_string());
+    }
+    if receipt.then_exit() != receipt.then_block()
+        || receipt.else_exit() != receipt.else_block()
+        || receipt.then_block() == receipt.else_block()
+    {
+        return Err("[freeze:contract][if_recipe/physical_branch_mismatch]".to_string());
+    }
+    let blocks = [
+        receipt.header(),
+        receipt.then_block(),
+        receipt.else_block(),
+        receipt.merge(),
+    ];
+    for (index, block) in blocks.iter().enumerate() {
+        if blocks[index + 1..].contains(block) {
+            return Err("[freeze:contract][if_recipe/physical_blocks_overlap]".to_string());
+        }
+    }
+    if join_sig.edges[3].to != IfJoinPortV1::Continuation
+        || join_sig.edges[4].to != IfJoinPortV1::Continuation
+    {
+        return Err("[freeze:contract][if_recipe/physical_join_mismatch]".to_string());
+    }
+    Ok(())
 }
 
 fn verify_demand(
@@ -45,11 +185,8 @@ fn verify_demand(
     if correspondence.entry_binding().owner() != statement.owner() {
         return Err("[freeze:contract][if_recipe/binding_owner_mismatch]".to_string());
     }
-    let Some(SourcePathSegmentV1::Body(root_index)) = correspondence
-        .if_site()
-        .node()
-        .segments()
-        .first()
+    let Some(SourcePathSegmentV1::Body(root_index)) =
+        correspondence.if_site().node().segments().first()
     else {
         return Err("[freeze:contract][if_recipe/if_site_not_root_body]".to_string());
     };
