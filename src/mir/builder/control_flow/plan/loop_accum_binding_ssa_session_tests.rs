@@ -26,6 +26,9 @@ mod failure_tests;
 #[path = "loop_accum_binding_ssa_operation_tests.rs"]
 mod operation_tests;
 
+#[path = "loop_accum_binding_ssa_candidate_tests.rs"]
+mod candidate_tests;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 enum PhysicalRoleV1 {
     Preheader,

@@ -15,6 +15,7 @@ guard_joinir_logical_demand_contract() {
   local loop_accum_physical_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physical_parity_tests.rs"
   local loop_accum_physical_role_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physical_role_plan_tests.rs"
   local loop_accum_binding_ssa_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_session_tests.rs"
+  local loop_accum_candidate_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_candidate_tests.rs"
   local loop_physical_edge_path="$root_dir/src/mir/builder/control_flow/plan/loop_physical_edge_path.rs"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
@@ -57,7 +58,7 @@ guard_joinir_logical_demand_contract() {
     "$loop_phi_materializer" "$loop_phi_materializer_tests" \
     "$loop_accum_semantic_tests" "$loop_accum_physical_tests" \
     "$loop_accum_physical_role_tests" \
-    "$loop_accum_binding_ssa_tests" \
+    "$loop_accum_binding_ssa_tests" "$loop_accum_candidate_tests" \
     "$loop_physical_edge_path"
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_physical_tests"; then
     guard_fail "$tag" "physical parity observer must remain cfg(test)-only"
@@ -68,10 +69,18 @@ guard_joinir_logical_demand_contract() {
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_binding_ssa_tests"; then
     guard_fail "$tag" "Binding-SSA session proof must remain cfg(test)-only"
   fi
+  if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_candidate_tests"; then
+    guard_fail "$tag" "candidate observer proof must remain cfg(test)-only"
+  fi
   if rg -n \
     'LoopPhiMaterializer|materialize_loop_phis|insert_phi_at_head|update_phi_instruction|CorePlan|PlanLowerer|RouteAttemptOutcome|Retry|Option<' \
     "$loop_accum_binding_ssa_tests" >/dev/null; then
     guard_fail "$tag" "Binding-SSA session proof bypassed canonical owner boundary"
+  fi
+  if rg -n \
+    'prepare_external_commit|commit_raw_direct|route_loop|LoopPhiMaterializer|materialize_loop_phis' \
+    "$loop_accum_candidate_tests" >/dev/null; then
+    guard_fail "$tag" "candidate observer acquired publication or legacy production authority"
   fi
   local portable_recipe_files=()
   mapfile -t portable_recipe_files < <(find "$portable_recipe_dir" -maxdepth 1 -name '*.rs' -type f | sort)

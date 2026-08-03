@@ -133,9 +133,25 @@ cargo check: green
 mirbuilder guard: green
 ```
 
-This is still a caller-zero operation proof. Full legacy MIR parity,
-final-result receipt parity, outer compile-candidate discard/reuse, and
-production wiring remain open S1 gates.
+This is still a caller-zero operation proof. Full legacy MIR/final-result
+receipt parity and production wiring remain open S1 gates.
+
+The outer candidate boundary is now also proven in
+`loop_accum_binding_ssa_candidate_tests.rs`: the observer borrows only
+`&mut session.builder_mut()` from an existing unpublished
+`ModuleBuilderInvocationSessionV1`, returns an owned alpha digest, and never
+obtains commit authority. A successful candidate is dropped, an injected
+post-effect failure performs shared `PhiTxn::abort_on_err` before drop, and a
+fresh candidate produces the same digest while the live-builder fingerprint
+remains unchanged.
+
+Evidence:
+
+```text
+candidate baseline/failure/fresh-reuse: green
+live candidate fingerprint: unchanged in all three cases
+publication/route_loop caller: zero
+```
 
 ## Next S1 boundary: operation emission, not another PHI/SSA owner
 
