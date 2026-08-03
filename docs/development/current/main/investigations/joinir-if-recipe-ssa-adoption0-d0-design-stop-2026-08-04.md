@@ -221,7 +221,7 @@ fail-fast boundary:
   effects; no old writer is retried after a selected recipe
 selected next slice:
   design the AST/Builder/physical-ID-free IfRecipeV1 for the one-binding
-  implicit-else shape, then prove its verified recipe can feed the existing
+  explicit-else shape, then prove its verified recipe can feed the existing
   canonical trivial session
 non-claims:
   no whole-repository PHI writer unification, no A+/raw/CorePlan/JSON-v0
@@ -234,22 +234,50 @@ are written.
 
 ### D0-B — portable IfRecipeV1 contract
 
-Design one recursive semantic product, analogous to the Loop recipe, with:
+Durable contract boundary: `docs/development/current/main/design/joinir-if-recipe-contract-ssot.md`.
+
+Design one recursive semantic product, analogous to the Loop recipe, with the
+following selected-shape contract:
 
 ```text
-condition
-then block
-optional else block
-branch-transfer obligations
-join/exit shape
-carrier/merge obligations
-source provenance without AST, Builder, or physical IDs
+IfRecipeArtifactV1:
+  schema version + owned source provenance/binding + one IfRecipeV1
+
+IfRecipeV1:
+  condition value (Bool, produced by the admitted i64 comparison profile)
+  then block + explicit else block (both fallthrough-only)
+  one outer BindingRef assignment in each branch
+  post-merge read obligation for that BindingRef
+  ElseDisposition::Explicit(block) now; ImplicitFallthrough later and distinct
+  branch-transfer obligations and JoinSig merge/predecessor obligations
+  source provenance without AST, Builder, ValueId, or BasicBlockId
 ```
 
 The recipe is the semantic boundary; existing raw/plan/resolved structures are
-parity oracles until a named producer and consumer are proven. Control flow
-must remain in the recursive block algebra; leaf operations do not contain a
-nested If or Loop.
+parity oracles until a named producer and consumer are proven. The contract
+must expose enough operation/BindingRef facts for the canonical lowerer adapter
+to consume the recipe without re-reading AST or `LocatedStmt` to make a route
+decision. Control flow remains in the recursive block algebra; leaf operations
+do not contain a nested If or Loop. Do not introduce a second universal control
+algebra while the Loop contract is still the active portable owner: first prove
+the shape-scoped If artifact, then decide any shared control vocabulary in a
+separate design row.
+
+Verifier fail-fast rules for this row are: exactly two branch predecessors;
+explicit else is not implicit fallthrough; exactly one write to the same outer
+BindingRef per branch; both branch writes have the same admitted value class;
+the post-merge read names that binding; no nested control, return/throw,
+short-circuit, call, record, match, BlockExpr, or hidden fallback; canonical
+recipe-local key order and no physical IDs. JoinSig elaboration, not the
+schema verifier, owns predecessor/value-edge proof. The physicalizer may only
+consume the verified product and return success or Freeze.
+
+D0-B stops before production connection. `VerifiedResolvedIfFlowV1` alone is
+not a recipe producer because it does not carry the condition type, branch
+assignment cardinality, or post-merge read. A shape-specific builder-free
+projection (or an exact preflight fact product) must be named before D0-C.
+Schema/verify/normalize tests must prove deterministic semantic output and
+reject every omitted obligation without touching a Builder.
 
 ### D0-C — one canonical production consumer
 
@@ -297,6 +325,10 @@ later retirement lane after If parity is green.
 ```text
 D0-A: every If/PHI/CFG writer has one classified owner and caller set
 D0-B: IfRecipeV1 has no AST/Builder/ValueId/BasicBlockId ownership
+D0-B: Explicit(block) vs ImplicitFallthrough is represented distinctly
+D0-B: selected explicit-else shape has two branch writes + post-merge read
+D0-B: shape-specific builder-free projection supplies all verifier inputs
+D0-B: schema/verify/normalize rejection and deterministic semantic parity green
 D0-C: selected recipe producer = exactly 1; physicalizer = exactly 1
 D0-C: selected caller is inside an unpublished compile candidate
 D0-D: selected old If/PHI writer caller = 0 after cutover
