@@ -228,10 +228,11 @@ The consultation returned:
 6. explicit non-claims for Generic/D2, M7-M9, all-route scheduler deletion,
    selfhost authority, and final M10b.
 
-The design boundary is closed and the shared-core extraction is landed. The
-next implementation boundary is the DirectAccum profile preflight and its
-owner-issued binding/input projection; no production caller or old-edge
-retirement is claimed until that focused gate is green.
+The design boundary is closed, the shared-core extraction is landed, and the
+resolved DirectAccum profile is caller-zero in commit `fc12f21834`. Its focused
+policy/source/Recipe/witness/completion gate is green. The next implementation
+boundary is the physicalizer borrow adapter; no production caller or old-edge
+retirement is claimed until that adapter has an abort/fresh-reuse gate.
 
 ## Acceptance gates for D2 and the next refactor series
 
