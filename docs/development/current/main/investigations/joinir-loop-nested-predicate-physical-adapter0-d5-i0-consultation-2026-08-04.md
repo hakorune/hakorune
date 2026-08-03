@@ -1,6 +1,6 @@
 # JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-I0
 
-Status: I0-A landed — bounded resolved-source I0 implementation is in progress.
+Status: I0-B design closed — bounded resolved-source physicalizer is authorized.
 Date: 2026-08-04
 Design inputs:
 
@@ -14,7 +14,8 @@ Connect the first Nested physical adapter to the existing unpublished compile
 candidate and canonical function session only after the production caller,
 fallback authority, and winner-equivalence boundaries are explicitly closed.
 This card is the design gate and bounded execution task for D5-I0. I0-A only
-issues and tests the sealed plan; it does not yet publish physical MIR.
+issues and tests the sealed plan; I0-B now owns one physicalizer implementation
+over the existing canonical session.
 
 ## Landed prerequisites
 
@@ -158,6 +159,38 @@ claimed by this milestone.
 
 Next is I0-B: borrow the existing canonical SSA/CFG/PHI owner for one bounded
 Nested physicalizer, with candidate-only mutation and terminal failure.
+
+## I0-B design resolution
+
+The worker API audit confirms that the existing DirectAccum lowerer is the
+correct lifecycle template:
+
+```text
+CanonicalModuleLoweringSessionV1 (outer candidate)
+  -> CanonicalFunctionLoweringSessionV1 (function draft)
+  -> CanonicalSsaFunctionSessionV2
+       identity + semantic stack + CanonicalCfgSessionV1 + one PhiTxn
+  -> Nested role adapter + Nested physicalizer
+  -> existing draft seal / external commit
+```
+
+Nested adds no module family, function session, SSA map, PHI transaction, or
+route scheduler. The only new boxes are a sibling lowerer, nine-role identity
+adapter, and topology-driven physicalizer. The adapter must publish `i` and
+`sum`, activate declaration-only `j`, then consume the exact first assignment
+before any `j` read. The semantic stack enters root and child LoopBody pairs;
+the existing `close_scope_region_success` contract is sufficient because the
+child pair has no declarations and the root pair retires `j` exactly at
+`Root.After` (proven by the P1 scope test).
+
+The physicalizer allocates the verified ten unique blocks plus ParentResume,
+uses the existing topology alias for child preheader, and leaves Root.After
+open for the existing completion/finalization path. It must emit only the
+sealed `Enter -> PredicateTrue/False -> Backedge` shape; mixed transfer remains
+a typed reject. Required I0-B tests are end-to-end MIR verification, owner/
+frame/block alias checks, role ordering and read-before-init rejection,
+predecessor seals, and candidate drop/fresh-request reuse after injected late
+failure.
 
 ## Acceptance gates
 
