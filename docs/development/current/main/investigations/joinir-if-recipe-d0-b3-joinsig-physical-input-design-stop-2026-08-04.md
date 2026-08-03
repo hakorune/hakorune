@@ -1,12 +1,12 @@
 # JOINIR-IF-RECIPE-D0-B3-JOINSIG-PHYSICAL-INPUT-DESIGN-STOP
 
-Status: design stop; implementation not authorized
+Status: D0-B3-A authorized; caller-zero logical JoinSig only
 Date: 2026-08-04
 Decision target: fixed-shell `IfRecipe` -> logical `IfJoinSig` -> one-shot physical-input capability
 
-This card starts only after D0-B2-D classified the mapper rejection enum. It
-is the boundary before any If JoinSig, PHI, CFG, or production consumer is
-implemented.
+This card starts only after D0-B2-D classified the mapper rejection enum. The
+first bounded slice is authorized below; PHI, CFG, and production consumers
+remain outside the authorization.
 
 ## Current authority
 
@@ -97,10 +97,11 @@ invariant firewall until a real future producer makes one reachable.
 
 ## Ordered task slice
 
-1. **Schema/owner design** — freeze the logical port, edge, join-row, reject,
-   and non-Clone wrapper vocabulary in this card.
-2. **Caller-zero elaborator** — implement deterministic elaboration from
-   `VerifiedIfRecipeV1` only; no production caller and no physical imports.
+1. **Schema/owner design** — frozen by this card. D0-B3-A is authorized for
+   the logical port, edge, join-row, reject, and non-Clone wrapper vocabulary.
+2. **Caller-zero elaborator** — D0-B3-A: implement deterministic elaboration
+   from `VerifiedIfRecipeV1` only; no production caller and no physical
+   imports. The one-shot physical-input seal remains a later D0-B3-B slice.
 3. **One-shot physical-input seal** — consume an artifact and internally
    elaborate the matching signature; prove independent artifact/signature
    mixing is impossible.
@@ -134,4 +135,3 @@ invariant firewall until a real future producer makes one reachable.
 This row does not prove physical MIR predecessors, PHI placement, CFG shape,
 Builder candidate isolation, or production If behavior. Those belong to D0-C
 and D0-D after a named producer/consumer and old-edge retirement plan exist.
-
