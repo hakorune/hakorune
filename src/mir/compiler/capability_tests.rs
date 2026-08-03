@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::resolved_region_flow::ResolvedElseFallthroughV1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
@@ -42,6 +42,23 @@ fn assignment(name: &str, value: i64) -> ASTNode {
     ASTNode::Assignment {
         target: Box::new(variable(name)),
         value: Box::new(literal(value)),
+        span: Span::unknown(),
+    }
+}
+
+fn bool_assignment(name: &str, value: bool) -> ASTNode {
+    ASTNode::Assignment {
+        target: Box::new(variable(name)),
+        value: Box::new(bool_literal(value)),
+        span: Span::unknown(),
+    }
+}
+
+fn binary(operator: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
+    ASTNode::BinaryOp {
+        operator,
+        left: Box::new(left),
+        right: Box::new(right),
         span: Span::unknown(),
     }
 }
@@ -531,6 +548,60 @@ fn if_recipe_selected_shape_preserves_branch_merge_and_phi_receipt() {
         .collect::<Vec<_>>();
     assert_eq!(branch_count, 1);
     assert_eq!(phi_inputs, vec![2]);
+}
+
+#[test]
+fn if_recipe_selected_bool_merge_preserves_bool_phi_receipt() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        local("flag", bool_literal(true)),
+        if_stmt(
+            bool_literal(true),
+            vec![bool_assignment("flag", false)],
+            Some(vec![bool_assignment("flag", true)]),
+        ),
+        binary(BinaryOperator::Equal, variable("flag"), bool_literal(true)),
+    ]))
+    .expect("Bool If fixture resolves");
+    let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_) =
+        CanonicalLoweringPreflightV1::verify(&unit).expect("Bool If plan")
+    else {
+        panic!("Bool explicit-else If must select trivial Binding SSA")
+    };
+
+    let mut compiler = MirCompiler::with_options(false);
+    let result = compiler
+        .compile_resolved(unit.lowering_input(), Some("if-bool-receipt.hako"))
+        .expect("selected Bool If physicalization");
+    let function = result
+        .module
+        .functions
+        .get("capability_fixture/0")
+        .expect("selected Bool If function");
+    let phis = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Phi {
+                inputs, type_hint, ..
+            } => Some((inputs.len(), type_hint.clone())),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(phis.len(), 1);
+    assert_eq!(phis[0].0, 2);
+    assert!(phis[0].1.is_none() || phis[0].1 == Some(crate::mir::MirType::Bool));
+    assert!(function.blocks.values().any(|block| {
+        block.instructions.iter().any(|instruction| {
+            matches!(
+                instruction,
+                crate::mir::MirInstruction::Const {
+                    value: crate::mir::ConstValue::Bool(_),
+                    ..
+                }
+            )
+        })
+    }));
 }
 
 #[test]
