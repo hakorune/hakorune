@@ -10,6 +10,7 @@ pub(in crate::mir::builder) mod canonical_cfg;
 mod canonical_ssa;
 mod completion_consumption;
 mod direct_accum_adapter;
+mod direct_accum_lowerer;
 mod draft_seal;
 mod draft_seal_owner;
 mod flow_consumption;
@@ -58,11 +59,13 @@ mod void_tests;
 use crate::mir::compiler::capability::{
     CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1,
 };
+use crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::{MirFunction, MirModule};
 
 use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
+use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal::ReadyFunctionDraftSealV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
 use lowerer::CanonicalFunctionLowererV1;
@@ -236,6 +239,98 @@ impl MirBuilder {
                 let current_block = builder.function_state.current_block.ok_or_else(|| {
                     "[freeze:contract][f1_draft_seal/current_block_missing]".to_string()
                 })?;
+                Ok::<_, String>((ready, current_block))
+            })()
+        };
+        let (ready, current_block) = match lowering {
+            Ok(result) => result,
+            Err(error) => {
+                session.discard_unpublished();
+                return Err(error.into());
+            }
+        };
+        let open = ReadyFunctionDraftSealV1::new(ready, current_block).open(session);
+        let prepared = open.prepare().map_err(reject_draft_seal)?;
+        Ok(prepared.commit().into_draft())
+    }
+
+    /// Caller-zero DirectAccum draft consumer. The plan is lowered only on a
+    /// private function session; the outer candidate remains the sole abort
+    /// boundary and no route scheduler is reachable from this method.
+    pub(in crate::mir) fn lower_resolved_direct_accum_function_draft(
+        &mut self,
+        plan: CanonicalDirectAccumPlanV1<'_>,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        self.lower_resolved_direct_accum_function_draft_inner(plan, false)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn lower_resolved_direct_accum_function_draft_with_seal_failure_for_test(
+        &mut self,
+        plan: CanonicalDirectAccumPlanV1<'_>,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        self.lower_resolved_direct_accum_function_draft_inner(plan, true)
+    }
+
+    fn lower_resolved_direct_accum_function_draft_inner(
+        &mut self,
+        plan: CanonicalDirectAccumPlanV1<'_>,
+        _inject_seal_failure: bool,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        let input = plan.input();
+        let crate::ast::ASTNode::FunctionDeclaration {
+            name,
+            params,
+            body,
+            return_type_name,
+            attrs,
+            uses,
+            ..
+        } = input.source().root()
+        else {
+            return Err(CanonicalResolvedBuildErrorV1::BuilderContract(
+                "[freeze:contract][direct_accum/root_not_function]".into(),
+            ));
+        };
+        let function_name = format!("{}/{}", name, params.len());
+        let mut session = self.open_resolved_function_draft_seal_session_v1(&function_name);
+        let lowering = {
+            let builder = session.builder_view_mut_for_lowering();
+            (|| {
+                builder
+                    .function_state
+                    .resolved_binding_state
+                    .install(input.function())?;
+                builder.create_function_skeleton(function_name, params, body)?;
+                builder.set_current_function_declared_signature(
+                    params
+                        .iter()
+                        .map(|name| MirParamDecl {
+                            name: name.clone(),
+                            declared_type_name: None,
+                            implicit_receiver: false,
+                        })
+                        .collect(),
+                    return_type_name.clone(),
+                );
+                builder.set_current_function_runes(attrs);
+                builder.set_current_function_declared_capability_uses(uses);
+                let ready = CanonicalDirectAccumSsaLowererV1::new(builder, plan)?.lower()?;
+                let current_block = builder.function_state.current_block.ok_or_else(|| {
+                    "[freeze:contract][direct_accum/current_block_missing]".to_string()
+                })?;
+                #[cfg(test)]
+                if _inject_seal_failure {
+                    builder
+                        .function_state
+                        .current_function
+                        .as_mut()
+                        .and_then(|function| function.get_block_mut(current_block))
+                        .ok_or_else(|| {
+                            "[freeze:contract][direct_accum/test_failure_block_missing]".to_string()
+                        })?
+                        .set_terminator(crate::mir::MirInstruction::Return { value: None });
+                }
                 Ok::<_, String>((ready, current_block))
             })()
         };

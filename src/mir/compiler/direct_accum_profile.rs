@@ -19,6 +19,9 @@ use crate::mir::loop_structural_facts::{
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::BindingRefV1;
 
+use super::direct_accum_prefix::{
+    issue_direct_accum_prefix_input_v1, DirectAccumPrefixRejectV1, VerifiedDirectAccumPrefixInputV1,
+};
 use super::direct_accum_projection::{
     issue_direct_accum_facts_from_source_v1, DirectAccumProjectionRejectV1,
 };
@@ -32,6 +35,7 @@ pub(crate) enum DirectAccumProfileRejectV1 {
     SourceLookup,
     Projection(DirectAccumProjectionRejectV1),
     Demand(SelectedLoopDemandRejectV1),
+    Prefix(DirectAccumPrefixRejectV1),
     MissingStructuralShape,
     Recipe(DirectAccumRecipeProducerRejectV1),
     CompletionOwnerMismatch,
@@ -49,16 +53,16 @@ pub(crate) fn issue_direct_accum_plan_v1<'source>(
         .function()
         .resolved_loop_source(loop_stmt.site())
         .map_err(|_| DirectAccumProfileRejectV1::SourceLookup)?;
+    let prefix = issue_direct_accum_prefix_input_v1(input, &loop_stmt)
+        .map_err(DirectAccumProfileRejectV1::Prefix)?;
     let facts = issue_direct_accum_facts_from_source_v1(input, &loop_stmt, &source)
         .map_err(DirectAccumProfileRejectV1::Projection)?;
     let observation = facts
         .into_direct_accum_singleton_observation_v1(source)
         .map_err(|_| DirectAccumProfileRejectV1::SourceLookup)?;
-    let handoff = crate::mir::loop_route_policy::issue_direct_accum_route_admission_v1(
-        observation,
-    )
-    .map_err(DirectAccumProfileRejectV1::PolicyAdmission)?;
-    issue_direct_accum_plan_from_handoff_v1(input, loop_stmt, handoff, completion)
+    let handoff = crate::mir::loop_route_policy::issue_direct_accum_route_admission_v1(observation)
+        .map_err(DirectAccumProfileRejectV1::PolicyAdmission)?;
+    issue_direct_accum_plan_from_handoff_v1(input, loop_stmt, handoff, prefix, completion)
 }
 
 /// One resolved DirectAccum whole-function plan. The physicalizer consumes the
@@ -68,18 +72,24 @@ pub(crate) struct CanonicalDirectAccumPlanV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
     policy_receipt: VerifiedDirectAccumPolicyReceiptV1,
+    prefix: VerifiedDirectAccumPrefixInputV1,
     recipe: VerifiedDirectAccumRecipeProductV1,
     effect_plan: VerifiedDirectAccumBindingEffectPlanV1,
     completion: VerifiedFunctionCompletionV1,
 }
 
 impl<'source> CanonicalDirectAccumPlanV1<'source> {
+    pub(crate) const fn input(&self) -> ResolvedFunctionLoweringInputV1<'source> {
+        self.input
+    }
+
     pub(crate) fn into_parts(
         self,
     ) -> (
         ResolvedFunctionLoweringInputV1<'source>,
         LocatedStmtV1<'source>,
         VerifiedDirectAccumPolicyReceiptV1,
+        VerifiedDirectAccumPrefixInputV1,
         VerifiedDirectAccumRecipeProductV1,
         VerifiedDirectAccumBindingEffectPlanV1,
         VerifiedFunctionCompletionV1,
@@ -88,6 +98,7 @@ impl<'source> CanonicalDirectAccumPlanV1<'source> {
             self.input,
             self.loop_stmt,
             self.policy_receipt,
+            self.prefix,
             self.recipe,
             self.effect_plan,
             self.completion,
@@ -102,6 +113,7 @@ pub(crate) fn issue_direct_accum_plan_from_handoff_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
     handoff: VerifiedDirectAccumPolicyHandoffV1,
+    prefix: VerifiedDirectAccumPrefixInputV1,
     completion: VerifiedFunctionCompletionV1,
 ) -> Result<CanonicalDirectAccumPlanV1<'source>, DirectAccumProfileRejectV1> {
     if completion.owner() != input.owner() || loop_stmt.owner() != input.owner() {
@@ -122,18 +134,15 @@ pub(crate) fn issue_direct_accum_plan_from_handoff_v1<'source>(
         .ok_or(DirectAccumProfileRejectV1::MissingStructuralShape)?;
     let effect_plan =
         VerifiedDirectAccumBindingEffectPlanV1::issue(input.owner(), source.frame_key(), shape);
-    let demand = issue_selected_loop_recipe_demand_v1(
-        winner,
-        facts,
-        source,
-    )
-    .map_err(DirectAccumProfileRejectV1::Demand)?;
+    let demand = issue_selected_loop_recipe_demand_v1(winner, facts, source)
+        .map_err(DirectAccumProfileRejectV1::Demand)?;
     let recipe =
         produce_direct_accum_recipe_v1(demand).map_err(DirectAccumProfileRejectV1::Recipe)?;
     Ok(CanonicalDirectAccumPlanV1 {
         input,
         loop_stmt,
         policy_receipt,
+        prefix,
         recipe,
         effect_plan,
         completion,
@@ -167,15 +176,17 @@ pub(crate) fn admit_direct_accum_profile_v1<'source>(
         .ok_or(DirectAccumProfileRejectV1::MissingStructuralShape)?;
     let effect_plan =
         VerifiedDirectAccumBindingEffectPlanV1::issue(input.owner(), source.frame_key(), shape);
-    let demand =
-        issue_selected_loop_recipe_demand_v1(winner, facts, source)
-            .map_err(DirectAccumProfileRejectV1::Demand)?;
+    let demand = issue_selected_loop_recipe_demand_v1(winner, facts, source)
+        .map_err(DirectAccumProfileRejectV1::Demand)?;
     let recipe =
         produce_direct_accum_recipe_v1(demand).map_err(DirectAccumProfileRejectV1::Recipe)?;
+    let prefix = issue_direct_accum_prefix_input_v1(input, &loop_stmt)
+        .map_err(DirectAccumProfileRejectV1::Prefix)?;
     Ok(CanonicalDirectAccumPlanV1 {
         input,
         loop_stmt,
         policy_receipt,
+        prefix,
         recipe,
         effect_plan,
         completion,
@@ -198,9 +209,10 @@ mod tests {
         let body = input.source().root_body().expect("root body");
         let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
         let completion = verify_function_completion_v1(input).expect("completion");
-        let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion)
-            .expect("DirectAccum plan");
-        let (_input, _loop, _receipt, _recipe, effect_plan, _completion) = profile.into_parts();
+        let profile =
+            issue_direct_accum_plan_v1(input, loop_stmt, completion).expect("DirectAccum plan");
+        let (_input, _loop, _receipt, _prefix, _recipe, effect_plan, _completion) =
+            profile.into_parts();
         assert_eq!(effect_plan.entries().len(), 5);
         let roles = effect_plan
             .entries()

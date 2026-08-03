@@ -28,11 +28,13 @@ pub(in crate::mir) mod canonical_finalization;
 pub(in crate::mir) mod canonical_physical_completion;
 pub(in crate::mir) mod capability;
 #[allow(dead_code)]
+pub(in crate::mir) mod direct_accum_capability;
+#[allow(dead_code)]
+pub(in crate::mir) mod direct_accum_prefix;
+#[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_profile;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_projection;
-#[allow(dead_code)]
-pub(in crate::mir) mod direct_accum_capability;
 #[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;

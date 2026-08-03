@@ -98,9 +98,21 @@ fn direct_accum_preflight_issues_one_whole_function_plan() {
     let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
     let plan = super::direct_accum_capability::verify_direct_accum_function_v1(input, loop_stmt)
         .expect("DirectAccum plan");
-    let (input, loop_stmt, receipt, _recipe, effect_plan, completion) = plan.into_parts();
+    let (input, loop_stmt, receipt, prefix, _recipe, effect_plan, completion) = plan.into_parts();
 
     assert_eq!(loop_stmt.owner(), input.owner());
+    assert_eq!(prefix.owner(), input.owner());
+    assert_eq!(prefix.locals().len(), 2);
+    for (ordinal, local) in prefix.locals().iter().enumerate() {
+        assert_eq!(local.binding().owner(), input.owner());
+        assert_eq!(local.initial(), 0);
+        assert_eq!(
+            local.kind(),
+            crate::mir::resolved_semantics::BindingKindV1::Local {
+                ordinal: ordinal as u32,
+            }
+        );
+    }
     let source = input
         .function()
         .resolved_loop_source(loop_stmt.site())
@@ -108,6 +120,77 @@ fn direct_accum_preflight_issues_one_whole_function_plan() {
     assert!(receipt.frame_key().matches(&source.frame_key()));
     assert_eq!(effect_plan.entries().len(), 5);
     assert!(completion.is_implicit_void());
+}
+
+#[test]
+fn direct_accum_candidate_lowerer_consumes_one_canonical_session() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        super::direct_accum_projection::direct_accum_function_for_test(),
+    )
+    .expect("DirectAccum fixture resolves");
+    let input = unit.root_function_input().expect("function input");
+    let body = input.source().root_body().expect("root body");
+    let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
+    let plan = super::direct_accum_capability::verify_direct_accum_function_v1(input, loop_stmt)
+        .expect("DirectAccum plan");
+    let current = crate::mir::builder::MirBuilder::new();
+    let mut candidate = super::module_session::CanonicalModuleLoweringSessionV1::open(&current);
+    let draft = candidate
+        .builder_mut()
+        .lower_resolved_direct_accum_function_draft(plan)
+        .expect("candidate DirectAccum draft");
+    assert_eq!(draft.signature.name, "accum/0");
+    assert_eq!(draft.blocks.len(), 5);
+}
+
+#[test]
+fn direct_accum_candidate_discards_after_late_draft_seal_failure() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        super::direct_accum_projection::direct_accum_function_for_test(),
+    )
+    .expect("DirectAccum fixture resolves");
+    let input = unit.root_function_input().expect("function input");
+    let body = input.source().root_body().expect("root body");
+    let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
+    let plan = super::direct_accum_capability::verify_direct_accum_function_v1(input, loop_stmt)
+        .expect("DirectAccum plan");
+    let current = crate::mir::builder::MirBuilder::new();
+    let mut candidate = super::module_session::CanonicalModuleLoweringSessionV1::open(&current);
+    let error = candidate
+        .builder_mut()
+        .lower_resolved_direct_accum_function_draft_with_seal_failure_for_test(plan)
+        .expect_err("late draft-seal failure must reject");
+    assert!(matches!(
+        error,
+        super::CanonicalResolvedBuildErrorV1::BuilderContract(_)
+    ));
+    assert!(current.current_function_name().is_none());
+    assert!(current.current_function_entry_block().is_none());
+}
+
+#[test]
+fn direct_accum_candidate_can_be_reopened_after_a_discard() {
+    let current = crate::mir::builder::MirBuilder::new();
+    for _ in 0..2 {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+            super::direct_accum_projection::direct_accum_function_for_test(),
+        )
+        .expect("DirectAccum fixture resolves");
+        let input = unit.root_function_input().expect("function input");
+        let body = input.source().root_body().expect("root body");
+        let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
+        let plan =
+            super::direct_accum_capability::verify_direct_accum_function_v1(input, loop_stmt)
+                .expect("DirectAccum plan");
+        let mut candidate = super::module_session::CanonicalModuleLoweringSessionV1::open(&current);
+        let draft = candidate
+            .builder_mut()
+            .lower_resolved_direct_accum_function_draft(plan)
+            .expect("fresh candidate DirectAccum draft");
+        assert_eq!(draft.signature.name, "accum/0");
+        assert_eq!(draft.blocks.len(), 5);
+    }
+    assert!(current.current_function_name().is_none());
 }
 
 #[test]

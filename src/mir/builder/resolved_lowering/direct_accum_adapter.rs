@@ -262,9 +262,7 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::compiler::direct_accum_profile::{
-        issue_direct_accum_plan_v1,
-    };
+    use crate::mir::compiler::direct_accum_profile::issue_direct_accum_plan_v1;
     use crate::mir::compiler::direct_accum_projection::direct_accum_function_for_test;
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
     use crate::mir::resolved_control_flow::verify_function_completion_v1;
@@ -281,9 +279,9 @@ mod tests {
             .function()
             .resolved_loop_source(loop_stmt.site())
             .expect("source");
-        let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion)
-            .expect("profile");
-        let (input, _loop_stmt, _receipt, _recipe, plan, _completion) = profile.into_parts();
+        let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion).expect("profile");
+        let (input, _loop_stmt, _receipt, _prefix, _recipe, plan, _completion) =
+            profile.into_parts();
         let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
         let mut port = CanonicalDirectAccumBindingPort::new(
             &mut identity,
@@ -321,9 +319,9 @@ mod tests {
             .function()
             .resolved_loop_source(loop_stmt.site())
             .expect("source");
-        let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion)
-            .expect("profile");
-        let (input, _loop_stmt, _receipt, _recipe, plan, _completion) = profile.into_parts();
+        let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion).expect("profile");
+        let (input, _loop_stmt, _receipt, _prefix, _recipe, plan, _completion) =
+            profile.into_parts();
         let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
         let mut port = CanonicalDirectAccumBindingPort::new(
             &mut identity,

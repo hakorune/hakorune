@@ -39,19 +39,22 @@ projection, and function completion witness. It must not own
    call `route_loop`, the 19-route registry, legacy `CanonicalLoopFacts`, or
    an AST rescan. It consumes the already sealed singleton observation and S1
    policy handoff exactly once.
-2. Add an explicit `CanonicalFirstFamilyPlanV1::DirectAccum` variant and update
-   every exhaustive match intentionally. Trivial and CurrentCanonicalAPlus
-   keep their current contracts; no Loop arm is added to either lowerer.
-3. Add the smallest DirectAccum lowerer facade over the existing
+2. Add the smallest DirectAccum lowerer facade over the existing
    `CanonicalSsaFunctionSessionV2`. Prefix bindings, CFG, PHI, and completion
    all use that same session. The loop physicalizer receives only owner-issued
    input/role projections and returns a typed Unit/After continuation.
-4. Use the existing `CanonicalModuleLoweringSessionV1` as the sole abort
+3. Use the existing `CanonicalModuleLoweringSessionV1` as the sole abort
    boundary. A physicalization or completion error drops the whole candidate;
    there is no next-route retry or live-Builder mutation.
-5. Add focused success, late-failure, candidate-discard, and fresh-reuse
+4. Add focused success, late-failure, candidate-discard, and fresh-reuse
    tests before any production caller beyond the canonical resolved compile
    entry is enabled.
+5. Only after the lowerer and candidate proofs are green, add the explicit
+   `CanonicalFirstFamilyPlanV1::DirectAccum` variant and update every
+   exhaustive match intentionally. Trivial and CurrentCanonicalAPlus keep
+   their current contracts; no Loop arm is added to either lowerer. This
+   ordering keeps the central enum/source-bound package out of the proof until
+   the concrete consumer is known to be sound.
 
 ## Hard gates
 
@@ -111,6 +114,18 @@ consuming the handoff's winner for Recipe demand. This preserves policy
 provenance without retaining a raw schedule cursor or adding a second policy
 authority.
 
-The remaining work is the candidate-only canonical lowerer facade and its
-success/failure/fresh-reuse proof. The central family enum and source-bound
-package stay parked until that lowerer is green.
+The plan now also owns an AST-free `VerifiedDirectAccumPrefixInputV1`. The
+source projection seals the two local declaration sites, BindingRefs, kinds,
+diagnostic names, and zero initializers once; the lowerer does not rescan the
+prefix AST or reconstruct declaration identity.
+
+The candidate-only canonical lowerer facade is now caller-zero green. It uses
+the existing `CanonicalSsaFunctionSessionV2`, publishes the sealed prefix,
+consumes the role-aware physicalizer, seals the open `After` block without
+writing `Return`, and hands implicit completion to the existing draft seal.
+Focused evidence covers successful candidate lowering, a late draft-seal
+failure that leaves the live Builder untouched after candidate discard, and
+fresh candidate reuse after the discard. The central family enum and
+source-bound package are now the next design/implementation slice; they remain
+unwired until their exhaustive matches and typed exclusion boundary are
+planned.
