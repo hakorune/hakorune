@@ -15,6 +15,9 @@ production cutover is rejected; only a proven singleton/disjoint pilot may be
 considered after the shared M6 owners exist. D2 remains required for global
 M10b.
 
+The independent nested-carrier observation/policy lane is tracked in
+`investigations/joinir-generic-v0-nested-carrier-scope-fix-2026-08-03.md`.
+
 ## Authority and non-claims
 
 The current execution authority is still:
