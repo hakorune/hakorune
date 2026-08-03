@@ -120,19 +120,21 @@ Recipe/JoinSig and keeps logical operation/value keys separate from physical
 IDs. It rejects a missing carrier header read before MIR emission, emits the
 condition/body `ConstI64`, `CompareI64`, `BinaryI64`, `ReadBinding`, and
 `WriteBinding` operations through the existing CFG/Binding-SSA/PhiTxn owners,
-and proves repeated-read aliasing plus write-then-read visibility.
+and proves repeated-read aliasing plus write-then-read visibility. A malformed
+operation after a prior MIR effect now aborts the same shared `PhiTxn` and a
+fresh caller-zero session can create its PHIs again.
 
 Evidence:
 
 ```text
-binding-ssa session tests: 5/5
+binding-ssa session tests: 6/6
 loop_phi_materializer suite: 24/24
 cargo check: green
 mirbuilder guard: green
 ```
 
-This is still a caller-zero operation proof. Operation-level failure injection,
-full legacy MIR parity, final-result receipt parity, candidate abort/reuse, and
+This is still a caller-zero operation proof. Full legacy MIR parity,
+final-result receipt parity, outer compile-candidate discard/reuse, and
 production wiring remain open S1 gates.
 
 ## Next S1 boundary: operation emission, not another PHI/SSA owner

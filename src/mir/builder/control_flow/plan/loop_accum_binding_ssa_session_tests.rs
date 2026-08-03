@@ -20,6 +20,9 @@ use crate::mir::{
 };
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "loop_accum_binding_ssa_failure_tests.rs"]
+mod failure_tests;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 enum PhysicalRoleV1 {
     Preheader,
