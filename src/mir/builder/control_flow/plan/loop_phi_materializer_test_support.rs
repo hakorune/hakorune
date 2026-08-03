@@ -107,3 +107,58 @@ pub(in crate::mir::builder) fn seeded_builder() -> MirBuilder {
     seed_builder(&mut builder);
     builder
 }
+
+pub(in crate::mir::builder) fn standard5_builder() -> MirBuilder {
+    let mut builder = seeded_builder();
+    let function = builder.function_state.current_function.as_mut().unwrap();
+    let body = function.get_block_mut(bb(2)).unwrap();
+    body.instructions.clear();
+    body.instruction_spans.clear();
+    function
+        .get_block_mut(bb(1))
+        .unwrap()
+        .predecessors
+        .remove(&bb(2));
+    function
+        .get_block_mut(bb(1))
+        .unwrap()
+        .add_predecessor(bb(3));
+    function
+        .get_block_mut(bb(2))
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: bb(3),
+            edge_args: None,
+        });
+    function
+        .get_block_mut(bb(3))
+        .unwrap()
+        .predecessors
+        .remove(&bb(1));
+    function
+        .get_block_mut(bb(3))
+        .unwrap()
+        .add_predecessor(bb(2));
+    let step = function.get_block_mut(bb(3)).unwrap();
+    step.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(11),
+        value: ConstValue::Integer(1),
+    });
+    step.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(13),
+        value: ConstValue::Integer(1),
+    });
+    step.set_terminator(MirInstruction::Jump {
+        target: bb(1),
+        edge_args: None,
+    });
+    function
+        .get_block_mut(bb(4))
+        .unwrap()
+        .set_terminator(MirInstruction::Return { value: None });
+    function
+        .get_block_mut(bb(4))
+        .unwrap()
+        .add_predecessor(bb(1));
+    builder
+}

@@ -1,6 +1,6 @@
 use super::*;
 use crate::mir::builder::control_flow::plan::loop_phi_materializer_test_support::{
-    bb, seed_builder, seeded_builder,
+    bb, seed_builder, seeded_builder, standard5_builder,
 };
 use crate::mir::builder::module_invocation_session::BuilderCoreSeedPolicyV1;
 use crate::mir::builder::{
@@ -13,11 +13,21 @@ use crate::mir::loop_recipe_contract::{
 use crate::mir::MirInstruction;
 
 const GOLDEN: &str = include_str!("../../../loop_recipe_contract/fixtures/accum_nested_v1.json");
+const DIRECT_GOLDEN: &str =
+    include_str!("../../../loop_recipe_contract/fixtures/accum_direct_v1.json");
 
 fn verified_sig() -> VerifiedLoopJoinSigV1 {
     let artifact: LoopRecipeArtifactV1 = serde_json::from_str(GOLDEN).expect("golden JSON");
     let verified = LoopRecipeVerifierV1::verify(artifact.recipe().clone()).expect("recipe shape");
     LoopJoinSigElaboratorV1::elaborate(&verified).expect("bounded JoinSig")
+}
+
+fn direct_verified_sig() -> VerifiedLoopJoinSigV1 {
+    let artifact: LoopRecipeArtifactV1 =
+        serde_json::from_str(DIRECT_GOLDEN).expect("direct golden JSON");
+    let verified =
+        LoopRecipeVerifierV1::verify(artifact.recipe().clone()).expect("direct recipe shape");
+    LoopJoinSigElaboratorV1::elaborate(&verified).expect("direct bounded JoinSig")
 }
 
 fn candidate_session(live: &MirBuilder) -> ModuleBuilderInvocationSessionV1 {
@@ -112,6 +122,81 @@ fn materializer_input(sig: &VerifiedLoopJoinSigV1) -> VerifiedLoopLogicalToPhysi
     VerifiedLoopLogicalToPhysicalMapV1::try_new(sig, map_input(sig)).expect("sealed map")
 }
 
+fn direct_map_input(sig: &VerifiedLoopJoinSigV1) -> LoopLogicalToPhysicalMapInputV1 {
+    use LoopJoinPortV1::*;
+    let ports = vec![
+        (LoopNodeKeyV1::new(0), Preheader, bb(0)),
+        (LoopNodeKeyV1::new(0), Header, bb(1)),
+        (LoopNodeKeyV1::new(0), Body, bb(2)),
+        (LoopNodeKeyV1::new(0), After, bb(4)),
+    ];
+    let edge_paths = sig
+        .as_sig()
+        .loops
+        .iter()
+        .flat_map(|row| {
+            row.edges.iter().map(|edge| {
+                let (blocks, terminal) = match edge.role {
+                    LoopJoinEdgeRoleV1::Enter => (vec![bb(0), bb(1)], bb(0)),
+                    LoopJoinEdgeRoleV1::PredicateTrue => (vec![bb(1), bb(2)], bb(1)),
+                    LoopJoinEdgeRoleV1::PredicateFalse => (vec![bb(1), bb(4)], bb(1)),
+                    LoopJoinEdgeRoleV1::Backedge => (vec![bb(2), bb(3), bb(1)], bb(3)),
+                    role => panic!("unexpected direct edge role: {role:?}"),
+                };
+                LoopPhysicalEdgePathV1::from_parts(row.key, edge.role, blocks, terminal)
+            })
+        })
+        .collect::<Vec<_>>();
+    LoopLogicalToPhysicalMapInputV1 {
+        ports,
+        values: vec![
+            (
+                LoopValueKeyV1::new(0),
+                ValueId::new(10),
+                LoopValueClassV1::I64,
+            ),
+            (
+                LoopValueKeyV1::new(3),
+                ValueId::new(12),
+                LoopValueClassV1::I64,
+            ),
+            (
+                LoopValueKeyV1::new(5),
+                ValueId::new(11),
+                LoopValueClassV1::I64,
+            ),
+            (
+                LoopValueKeyV1::new(7),
+                ValueId::new(13),
+                LoopValueClassV1::I64,
+            ),
+        ],
+        destinations: vec![
+            (
+                LoopNodeKeyV1::new(0),
+                LoopBindingKeyV1::new(0),
+                ValueId::new(20),
+            ),
+            (
+                LoopNodeKeyV1::new(0),
+                LoopBindingKeyV1::new(1),
+                ValueId::new(21),
+            ),
+        ],
+        predecessors: vec![
+            (bb(1), vec![bb(0), bb(3)]),
+            (bb(2), vec![bb(1)]),
+            (bb(3), vec![bb(2)]),
+            (bb(4), vec![bb(1)]),
+        ],
+        edge_paths,
+    }
+}
+
+fn direct_materializer_input(sig: &VerifiedLoopJoinSigV1) -> VerifiedLoopLogicalToPhysicalMapV1 {
+    VerifiedLoopLogicalToPhysicalMapV1::try_new(sig, direct_map_input(sig)).expect("direct map")
+}
+
 #[test]
 fn map_rejects_duplicate_predecessor_before_builder_effect() {
     let sig = verified_sig();
@@ -130,6 +215,38 @@ fn map_rejects_missing_edge_path_before_builder_effect() {
     });
     let error = VerifiedLoopLogicalToPhysicalMapV1::try_new(&sig, input).unwrap_err();
     assert!(error.to_string().contains("missing physical edge path"));
+}
+
+#[test]
+fn direct_standard5_witness_uses_step_as_header_phi_predecessor() {
+    let sig = direct_verified_sig();
+    let mut builder = standard5_builder();
+    let receipt = materialize_loop_phis(&mut builder, &sig, direct_materializer_input(&sig))
+        .expect("direct Standard5 PHI materialization");
+    assert_eq!(receipt.sites().len(), 2);
+    assert_eq!(
+        receipt.sites()[0].inputs.as_ref(),
+        &[(bb(0), ValueId::new(10)), (bb(3), ValueId::new(13))]
+    );
+    assert_eq!(
+        receipt.sites()[1].inputs.as_ref(),
+        &[(bb(0), ValueId::new(12)), (bb(3), ValueId::new(11))]
+    );
+}
+
+#[test]
+fn direct_standard5_witness_rejects_body_to_header_shortcut() {
+    let sig = direct_verified_sig();
+    let mut input = direct_map_input(&sig);
+    let path = input
+        .edge_paths
+        .iter_mut()
+        .find(|path| path.role == LoopJoinEdgeRoleV1::Backedge)
+        .expect("backedge path");
+    path.blocks = vec![bb(2), bb(1)].into_boxed_slice();
+    path.terminal_predecessor = bb(2);
+    let error = VerifiedLoopLogicalToPhysicalMapV1::try_new(&sig, input).unwrap_err();
+    assert!(error.to_string().contains("predecessor mismatch"));
 }
 
 #[test]
