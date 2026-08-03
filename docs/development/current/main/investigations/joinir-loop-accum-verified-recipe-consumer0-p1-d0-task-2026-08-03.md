@@ -1,7 +1,7 @@
 ---
-Status: Design stop
+Status: Accepted design / caller-zero task ready
 Date: 2026-08-03
-Decision: pending worker consultation — `JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1-D0`
+Decision: accepted after worker consultation — `JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1-D0`
 Scope: caller-zero Accum physicalizer seam after M6-A/B and P4-S0 evidence
 Related:
   - joinir-loop-accum-verified-recipe-consumer-p1-design-2026-08-03.md
@@ -90,6 +90,32 @@ Before code, a worker must return:
 6. explicit non-claims for Generic/D2, nested predicate loops, full all-route
    parity, and legacy retirement.
 
+## Selected design (closed 2026-08-03)
+
+The worker consultation selected one ownership-preserving sequence:
+
+```text
+VerifiedRecipe / JoinSig / sealed paths
+  -> Builder-free PhysicalRolePlanV1
+  -> candidate-local PhysicalAllocationV1
+       (blocks and ValueIds reserved; no instructions/PHI/Binding writes)
+  -> LoopPhiMaterializerV1 two-phase handle
+       (the handle owns the existing PhiTxn; no low-level caller escapes)
+  -> Binding SSA-backed operation emission
+       (ReadBinding aliases the current binding; WriteBinding updates it)
+  -> handle patch + commit
+  -> CFG/SSA/type/result verification
+```
+
+The M6-B PHI adapter remains the only Loop-level PHI entry. Its next bounded
+extension is a begin/finalize handle around the same `PhiTxn`; the physicalizer
+does not call `phi_lifecycle` directly. The operation-result map is a short-lived
+projection distinct from the M6-B edge payload/destination map and never becomes
+a second Binding SSA owner.
+
+The first implementation task is
+`joinir-loop-accum-verified-recipe-consumer0-p1-s0-task-2026-08-03.md`.
+
 ## Stop conditions
 
 Stop and revise the design if the proposed implementation:
@@ -104,7 +130,7 @@ Stop and revise the design if the proposed implementation:
 
 ## Acceptance for this design row
 
-- the consultation closes the four ownership questions above;
+- the worker consultation closes the four ownership questions above;
 - P4-S0's legacy snapshot and all existing PHI/SSA guards remain green;
 - no production caller or new physical mutation is added by this row;
 - the next implementation row is a single bounded caller-zero Accum slice,
