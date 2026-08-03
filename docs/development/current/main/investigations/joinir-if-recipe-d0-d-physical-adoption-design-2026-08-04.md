@@ -1,7 +1,8 @@
 # JOINIR-IF-RECIPE-D0-D-PHYSICAL-ADOPTION
 
-Status: design stop active; no D0-D code is authorized until this card is
-closed. D0-C1/C2 admission-only wiring is landed in `38f6a751d2`.
+Status: design closed; D0-D1/D0-D2 implementation is authorized. D0-D3
+shape-scoped old-edge cutover remains a later gate. D0-C1/C2 admission-only
+wiring is landed in `38f6a751d2`.
 Date: 2026-08-04
 
 ## Why this is a new boundary
@@ -67,14 +68,56 @@ must not rescan AST to select a route, repair a missing predecessor, or invent a
 PHI input. After selection, failure is terminal `Freeze`; there is no `Option`,
 Retry, fallback, route registry, or reselection.
 
+The handoff API is explicitly `Result`-only after selection:
+
+```text
+take_if(statement)
+  -> Result<VerifiedIfPhysicalInputV1, CanonicalIfDemandRejectV1>
+```
+
+`NotThisShape` is resolved before this API is entered. The demand owns a
+consumed/unconsumed state, rejects a second take, and returns a terminal
+`SelectedIfNotConsumed` error at function finish. No `Option` is allowed as a
+physicalizer input or output.
+
+The selected handoff must return a concrete non-`Clone`
+`CanonicalIfPhysicalDemandV1`, not `Result<(), _>` followed by a discarded
+payload. The demand owns the verified physical input, expected source If site,
+and a producer-side correspondence receipt containing the owner-branded Join
+`BindingRef`, condition site, then/else assignment sites, and continuation
+read. These rows come from the same-pass facts (`if_site`, condition,
+assignments, and continuation read); they are not a portable-schema widening
+and do not authorize an AST/facts rescan. `into_parts(self)` has exactly one
+production consumer: the physicalizer.
+
+## Physical mapping proof
+
+`IfJoinSigV1` contains recipe-local keys, not physical IDs. The physicalizer
+must therefore prove this correspondence before emitting the selected shape:
+
+```text
+JoinSig logical ports/edges
+  -> verified IfControl row and source site
+  -> canonical profile BindingRef/representation claims
+  -> actual BasicBlockId predecessors and ValueId PHI inputs
+```
+
+Its minimum state is an `&mut MirBuilder`, the existing mutable
+`CanonicalSsaFunctionSessionV2`, the selected `IfControl` row, the
+`TrivialProfileConsumptionV1`/BindingSSA claim ledger, and an immutable source
+leaf view. It must validate the logical digest, branch predecessor count, value
+class, and post-merge BindingSSA read before physical emission. Reading a
+JoinSig without proving this mapping is not physical adoption.
+
 ## Ordered tasks
 
 ### D0-D1 — demand handoff
 
 - Replace the current claim-and-drop operation with a single-use `take_if` that
-  returns the verified physical input/demand exactly once.
+  returns the verified physical input/demand exactly once through `Result`.
 - Keep `NotThisShape` pre-effect and typed; do not pass it into the physicalizer.
-- Add a guard proving the selected payload is not discarded and the production
+- Add a guard proving the selected payload is not discarded, second take is
+  rejected, unconsumed demand freezes at finish, and the production
   demand/physicalizer caller count is exactly one.
 
 ### D0-D2 — physicalizer pilot
@@ -83,14 +126,18 @@ Retry, fallback, route registry, or reselection.
 - Consume JoinSig/artifact source identity and drive the existing canonical
   session for the selected explicit-else join.
 - Preserve the existing source leaf emission only as an admitted immutable view;
-  route choice and branch topology come from the verified demand.
+  route choice and branch topology come from the verified demand. The
+  physicalizer must carry the logical-to-physical mapping proof above.
 - Add a typed `Result` terminal and late failure injection inside the existing
   unpublished function/module candidate.
 
 ### D0-D3 — shape-scoped old-edge cutover
 
-- Prove the selected explicit-else path no longer invokes the old
-  source-driven branch-selection sequence.
+- Split the common `lower_if` into a named selected-shape dispatch and an
+  unselected legacy helper (for example `lower_if_legacy_unselected`). Prove
+  the selected explicit-else path no longer invokes the old source-driven
+  branch-selection sequence. A global `lower_if` caller-zero count is not a
+  valid proof because unselected Ifs still use the legacy helper.
 - Retire only that old edge; do not delete global `lower_if`, raw IfForm, A+,
   CorePlan/JoinIR, or JSON-v0 writers.
 - Keep all unselected writers and shapes under their own guards and design rows.
@@ -111,9 +158,67 @@ same compiler succeeds on the next request after failure
 all touched Rust/test files < 800 lines
 ```
 
+The late-failure harness must inject failure after selected branch/merge/PHI
+work but before the inner function draft seal and outer module commit. It must
+compare the pre/post fingerprints of the live Builder, module/function list,
+ID cursors, current function, catalog/metadata, BindingSSA, and pending PHI
+state, then compile a fresh request on the same compiler. Parity must compare
+the existing explicit-else oracle against JoinSig digest, branch/merge edges,
+two predecessor/value pairs, PHI count and inputs, post-merge BindingSSA read,
+interpreter result, and diagnostics.
+
+The 800-line budget includes every touched Rust owner: the new physicalizer
+module, adapter, lowerer, test harness, and guards. `capability.rs` is already
+800 lines and `compiler/mod.rs`/`source_bound_package.rs` are near the limit;
+do not add physicalization logic there. Extract a small module instead.
+
+## Fixed logical-to-physical topology
+
+The selected fixed shell uses this table; the physicalizer may verify it but
+must not infer or repair it:
+
+| Logical port/edge | Physical correspondence |
+| --- | --- |
+| Entry / Condition | existing current block alias and condition value |
+| Condition → Then/Else | one branch with two distinct fresh targets |
+| Then / Else | fresh branch blocks |
+| Then/Else transfer | each actual branch exit jumps to the one fresh merge block |
+| Continuation | fresh merge block; exactly two branch predecessors |
+| Join values | exactly `then_exit -> then_value` and `else_exit -> else_value` |
+
+`CanonicalCfgSessionV1` owns the sealed predecessor witness and
+`BindingSsaBuilderV1`/`PhiTxn` owns final value publication. An implicit header
+predecessor, guessed `ValueId`, or repaired missing edge is a typed Freeze.
+
+## Old-edge dispatch boundary
+
+The common lowerer must be split into a shape-scoped dispatch:
+
+```text
+lower_if
+  -> lower_if_recipe(selected demand)
+  -> lower_if_legacy(unselected/implicit/unsupported)
+```
+
+The selected arm may not call the legacy helper. The guard proves this
+selected-edge property; a repository-wide `lower_if` caller-zero count is not
+required and would be misleading. `ResolvedIfElsePortV1`/AST `else_body`
+topology selection remains only in the legacy arm for unselected shapes.
+
 ## Explicit non-claims
 
 This row does not unify every PHI/SSA writer, does not cover implicit-else,
 nested/Loop/Call/Record/Match/short-circuit/effect shapes, and does not retire
 raw/A+/CorePlan/JoinIR/JSON-v0 paths. Repository-wide sole-writer claims require
 later independent caller-zero rows.
+
+## Design closeout
+
+The worker audit confirmed this boundary is complete: the payload drop is
+explicitly the D0-C limitation, the Result-only `take_if` contract and
+unconsumed/second-take failures are fixed, logical-to-physical mapping is a
+required proof, the selected old edge is shape-scoped rather than global
+`lower_if` caller-zero, candidate/PHI parity and late-failure fingerprints are
+named, and near-limit owners are excluded from physicalizer growth. D0-D1 and
+D0-D2 may now be implemented without reopening the contract; D0-D3 still
+requires its own cutover evidence.
