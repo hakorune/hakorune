@@ -270,3 +270,46 @@ Non-claims: normal/default `compile_with_source`, all-loop support, Generic
 V0/V1 debt, nested/Call/Record/Match, selfhost, and repository-wide PHI-writer
 retirement remain separate tasks. PHI/SSA design and lifecycle SSOT is already
 complete; this stop concerns only production caller convergence.
+
+## Accepted execution brief: RESOLVED-FIRST-FAMILY-CUTOVER-M10A-D2-I0-R0-S0
+
+Scope is one exact resolved `AccumConstLoop` source-unit family. Extend the
+existing `CanonicalLoweringPreflightV1::verify` boundary with a conservative
+source-unit adapter that issues `DirectAccum` only for the already-closed
+singleton/prefix/suffix/completion shape. Non-direct inputs retain the current
+Trivial/A+ result or typed rejection; a DirectAccum lowering error is terminal
+and never re-enters the legacy route.
+
+The DirectAccum arm in `compile_resolved_first_family` must consume the existing
+source-bound full candidate chain, not a new Builder path:
+
+```text
+preflight -> bind_canonical_source -> begin_canonical_invocation
+-> lower -> collect -> completion/drain/finalization/postprocess
+-> prepare_external_commit -> one commit
+```
+
+Acceptance gates:
+
+1. `compile_resolved` has exactly one DirectAccum production caller: the
+   existing first-family owner. `route_loop`, registry, `CanonicalLoopFacts`,
+   Generic/Retry, and the old `CapabilityNotActivated` edge are absent from
+   the accepted DirectAccum branch.
+2. Every failure after candidate open leaves the live Builder fingerprint
+   unchanged and performs zero external commit. Success performs one commit;
+   a fresh compiler/request remains reusable.
+3. The physicalizer caller count becomes exactly one at the existing
+   source-bound consumer. `CanonicalSsaFunctionSessionV2` remains exactly one
+   per function; no `LoopPhiMaterializer`, legacy PHI writer, or second
+   Binding SSA/CFG/PHI owner is added.
+4. Existing resolved Trivial/A+ behavior, final MIR verification, module
+   postprocess, and external-commit parity remain green. Touched Rust files
+   stay below 800 lines. The public `MirCompileResult::verification_result`
+   contract is compared on both pre-transform rejection and final-success
+   fixtures; source-bound result projection must not silently change meaning.
+
+Non-claims remain: normal/default `compile_with_source`, Generic V0/V1 debt,
+nested/Call/Record/Match, all-loop coverage, selfhost, and repository-wide
+legacy PHI-writer retirement. If the source-unit adapter cannot prove the
+winner before Builder effects, stop and return to design rather than adding a
+fallback or a second ingress.
