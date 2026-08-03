@@ -19,6 +19,9 @@ use super::nested_predicate_projection::{
     NestedObservedRecurrenceOwnerV1, VerifiedNestedLoopSourceProjectionV1,
     VerifiedNestedLoopSourceShapeV1,
 };
+use super::nested_predicate_source_handoff::{
+    NestedPhysicalSourceHandoffRejectV1, VerifiedNestedPhysicalSourceHandoffV1,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum NestedPredicateRecipeProducerRejectV1 {
@@ -28,12 +31,14 @@ pub(crate) enum NestedPredicateRecipeProducerRejectV1 {
     SourceBinding(LoopSourceForestBindingRejectV1),
     Recipe(LoopRecipeRejectReasonV1),
     JoinSig(LoopJoinSigRejectReasonV1),
+    SourceHandoff(NestedPhysicalSourceHandoffRejectV1),
 }
 
 #[derive(Debug)]
 pub(crate) struct VerifiedNestedPredicateRecipeProductV1 {
     recipe: crate::mir::loop_recipe_contract::VerifiedLoopRecipeV1,
     join_sig: crate::mir::loop_recipe_contract::VerifiedLoopJoinSigV1,
+    source_handoff: VerifiedNestedPhysicalSourceHandoffV1,
 }
 
 impl VerifiedNestedPredicateRecipeProductV1 {
@@ -53,13 +58,32 @@ impl VerifiedNestedPredicateRecipeProductV1 {
     ) {
         (self.recipe, self.join_sig)
     }
+
+    /// Consumes the semantic product and splits the one-time source handoff
+    /// for the caller-zero physical-topology issuer.
+    pub(crate) fn into_topology_input(
+        self,
+    ) -> (
+        crate::mir::loop_recipe_contract::VerifiedLoopRecipeV1,
+        crate::mir::loop_recipe_contract::VerifiedLoopJoinSigV1,
+        VerifiedNestedPhysicalSourceHandoffV1,
+    ) {
+        (self.recipe, self.join_sig, self.source_handoff)
+    }
 }
 
 pub(crate) fn produce_nested_predicate_recipe_v1(
     projection: VerifiedNestedLoopSourceProjectionV1,
 ) -> Result<VerifiedNestedPredicateRecipeProductV1, NestedPredicateRecipeProducerRejectV1> {
-    let (forest_binding, shape, _root_frame_key) = projection.into_parts();
+    let (forest_binding, shape, root_frame_key) = projection.into_parts();
     validate_shape(&shape)?;
+    let source_handoff = VerifiedNestedPhysicalSourceHandoffV1::issue(
+        &forest_binding,
+        shape,
+        root_frame_key,
+    )
+    .map_err(NestedPredicateRecipeProducerRejectV1::SourceHandoff)?;
+    let shape = source_handoff.shape();
     let recipe = nested_recipe(&shape);
     let verified_for_source =
         crate::mir::loop_recipe_contract::LoopRecipeVerifierV1::verify(recipe.clone())
@@ -81,6 +105,7 @@ pub(crate) fn produce_nested_predicate_recipe_v1(
     Ok(VerifiedNestedPredicateRecipeProductV1 {
         recipe: verified_recipe,
         join_sig,
+        source_handoff,
     })
 }
 

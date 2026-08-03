@@ -49,6 +49,8 @@ mod module_session;
 pub(in crate::mir) mod nested_predicate_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_producer;
+#[allow(dead_code)]
+pub(in crate::mir) mod nested_predicate_source_handoff;
 #[cfg(test)]
 mod nested_predicate_producer_tests;
 #[cfg(test)]

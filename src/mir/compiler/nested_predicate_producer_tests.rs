@@ -116,6 +116,28 @@ fn nested_producer_emits_verified_recipe_and_joinsig() {
 }
 
 #[test]
+fn nested_producer_splits_one_source_handoff_for_topology() {
+    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
+        .expect("nested producer");
+    let (recipe, join_sig, handoff) = product.into_topology_input();
+    assert_eq!(recipe.as_recipe().loops.len(), 2);
+    assert_eq!(join_sig.as_sig().loops.len(), 2);
+    assert_eq!(handoff.forest_parent_receipt().member_count(), 2);
+    assert_eq!(
+        handoff.forest_parent_receipt().parent_indices(),
+        &[None, Some(0)]
+    );
+    assert_eq!(
+        handoff.bindings()[0].binding.owner(),
+        handoff.bindings()[1].binding.owner()
+    );
+    assert_ne!(handoff.bindings()[0].binding, handoff.bindings()[1].binding);
+    assert_ne!(handoff.bindings()[1].binding, handoff.bindings()[2].binding);
+    assert!(!handoff.root_site().node().segments().is_empty());
+    assert!(!handoff.child_site().node().segments().is_empty());
+}
+
+#[test]
 fn nested_producer_matches_existing_recipe_and_joinsig_oracle() {
     let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
         .expect("nested producer");
