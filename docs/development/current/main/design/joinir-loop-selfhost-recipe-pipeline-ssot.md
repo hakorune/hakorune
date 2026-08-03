@@ -508,17 +508,21 @@ Stop:
 ### M7 — `JOINIR-LOOP-RECURSIVE-RECIPE-CLOSURE0-S5`
 
 Change:
-: Add representative producers for the five legacy first-mutation profiles:
+: Establish one caller-zero producer facade, then add the five legacy
+  first-mutation profiles as sequential cohorts:
   LoopV0=`AccumConstLoop`, Nested=`NestedLoopMinimal`,
   LoopTrue=`LoopTrueBreakContinue`, LoopCond=`LoopCondBreakContinue`, and
-  Generic=`GenericLoopV1` after M4. Every producer emits the same recursive
-  semantic `LoopRecipeV1`.
+  Generic=`GenericLoopV1` only after M4. Every accepted producer emits the
+  same recursive semantic `LoopRecipeV1`; M7 does not require a source-bound
+  artifact until a sealed root+child source witness exists.
 
 Contract:
-: The five profiles are migration adapters only. They share one portable
-  recursive recipe envelope, verifier/elaboration terminal,
-  JoinSig obligations, canonical CFG/Binding-SSA/PhiTxn services, and one
-  physicalizer. A profile-specific semantic
+: The five profiles are migration adapters only and are added one cohort at a
+  time behind the same sealed demand. They share one portable recursive recipe
+  envelope, verifier/elaboration terminal, JoinSig obligations, canonical
+  CFG/Binding-SSA/PhiTxn services, and one physicalizer. PHI/SSA remains owned
+  by the existing canonical CFG/Binding-SSA/PhiTxn chain; M6-B's materializer
+  is caller-zero evidence only. A profile-specific semantic
   variant is forbidden unless a concrete source counterexample proves a
   bounded vocabulary extension; a sixth legacy profile is never a new semantic
   recipe kind. Call and completed Record construction may be value operations;
@@ -527,13 +531,18 @@ Contract:
   explicit block-result/join vocabulary, never AST lifting or opaque payloads.
 
 Done:
-: Normalized recipe/MIR parity and post-first-mutation candidate-abort tests are
-  green for all representatives. Family adapters cannot select, retry, or
-  publish.
+: The facade and each accepted cohort have deterministic normalized
+  Recipe/JoinSig parity and caller-zero guards. Physical MIR/candidate-abort
+  evidence is reused from the existing P1/M5 harness; family adapters cannot
+  select, retry, or publish. LoopTrue/LoopCond require a shared logical
+  branch/merge closure, Nested source-bound parity requires a root+child source
+  forest witness, and Generic requires the M4 debt/winner gate.
 
 Stop:
 : Generic may not be omitted/mocked; Nested inner semantics may not be inferred
-  from outer provenance.
+  from outer provenance or hand-built source paths. Conditional exits may not be
+  collapsed to direct exits, and a missing JoinSig branch/merge vocabulary opens
+  a shared design stop rather than an adapter-local workaround.
 
 ### M8 — `JOINIR-LOOP-ALL19-PORTABLE-RECIPE0-S6`
 

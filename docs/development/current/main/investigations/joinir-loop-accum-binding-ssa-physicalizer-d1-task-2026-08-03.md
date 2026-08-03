@@ -1,5 +1,5 @@
 ---
-Status: Caller-zero S1 operation/candidate boundary green — MIR parity pending
+Status: Caller-zero S1/R3 semantic parity green — production wiring intentionally pending
 Date: 2026-08-03
 Decision: `JOINIR-LOOP-ACCUM-BINDING-SSA-PHYSICALIZER-D1`
 Scope: replace the superseded P1-S1 operation-emission shape with a
@@ -281,10 +281,11 @@ all five touched Rust test files: <800 lines
 production route_loop / commit / LoopPhiMaterializer callers: unchanged/zero
 ```
 
-R3 remains open: split the immutable observer into semantic-core and named
-legacy-auxiliary rows, then compare the legacy and candidate semantic core
-without raw IDs. The observed legacy six-PHI versus candidate two-PHI shape is
-an expected parity-design boundary, not evidence of a second PHI/SSA owner.
+R3 is closed for the caller-zero representative: the immutable observer is
+split into semantic-core and named legacy-auxiliary rows. Legacy and candidate
+semantic cores match without raw IDs; the observed legacy six-PHI versus
+candidate two-PHI shape is classified by the explicit auxiliary policy. This
+is an expected parity-design boundary, not evidence of a second PHI/SSA owner.
 
 ## Required products
 
