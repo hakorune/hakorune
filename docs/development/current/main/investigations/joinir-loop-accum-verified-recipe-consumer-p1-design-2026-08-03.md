@@ -50,6 +50,26 @@ Anchors:
   the seeded direct-backedge map and therefore must not claim PlanLowerer
   parity.
 
+## P1-D0 topology seal (design-only)
+
+The portable logical edge remains unchanged. The later physical mapping must
+carry an explicit one-to-many path and all PHI consequences; the materializer
+must never infer a path from logical port names.
+
+| logical obligation | physical witness required | PHI consequence | M6-B scope |
+| --- | --- | --- | --- |
+| `Enter: Preheader -> Header` | canonical preheader/header edge | header incoming `(preheader, init)` | in scope |
+| `PredicateTrue: Header -> Body` | header branch to body | no new PHI row | in scope |
+| `PredicateFalse: Header -> After` | header branch plus sealed after reachability | after/final merge row | deferred to P1b |
+| `Backedge: Body -> Header` | Standard5 path `Body -> Step -> Header` | header predecessor is terminal `Step`; any staging PHI is explicit | direct body predecessor is not a parity claim |
+| `Break: Body -> After` | body-to-after edge or sealed forwarding path | after/final merge row | deferred to P1b |
+| nested `Always` child | child enter and child break forwarding only | no child predicate/backedge PHI in this golden | shape only; no physical writer |
+
+This seal keeps `VerifiedLoopJoinSigV1` as the semantic authority and makes
+logical-edge expansion a separate physical capability. `PlanLowerer` remains a
+parity oracle only. The Accum pilot cannot close until the deferred after rows,
+the Standard5 step predecessor, and the nested forwarding witness are sealed.
+
 ## Chosen shape for the next owner
 
 Keep `LoopJoinSigV1` semantic and implementation-neutral. Do not add a
@@ -111,4 +131,3 @@ PHI writer, stop and reopen the design; do not create a parallel scheduler.
 - `PhiTxn` and Binding-SSA remain the sole PHI/SSA lifecycle owners.
 - No M10a singleton bridge, Generic policy change, Retry deletion, or D2
   promotion is authorized by this card.
-
