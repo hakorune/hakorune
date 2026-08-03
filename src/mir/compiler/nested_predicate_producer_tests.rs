@@ -4,6 +4,9 @@ use super::nested_predicate_producer::{
 use super::nested_predicate_projection::issue_nested_predicate_source_projection_v1;
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+use crate::mir::loop_recipe_contract::{
+    LoopJoinSigElaboratorV1, LoopRecipeV1, LoopRecipeVerifierV1,
+};
 
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
@@ -110,6 +113,26 @@ fn nested_producer_emits_verified_recipe_and_joinsig() {
     assert_eq!(product.recipe().as_recipe().loops.len(), 2);
     assert_eq!(product.join_sig().as_sig().loops.len(), 2);
     assert_eq!(product.recipe().as_recipe().inputs.len(), 2);
+}
+
+#[test]
+fn nested_producer_matches_existing_recipe_and_joinsig_oracle() {
+    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
+        .expect("nested producer");
+    let json: serde_json::Value = serde_json::from_str(include_str!(
+        "../loop_recipe_contract/fixtures/nested_predicate_v1.json"
+    ))
+    .expect("nested recipe fixture");
+    let mut expected: LoopRecipeV1 =
+        serde_json::from_value(json["recipe"].clone()).expect("nested semantic recipe");
+    expected.bindings[0].label = "root_0".into();
+    expected.bindings[1].label = "root_1".into();
+    expected.bindings[2].label = "child_0".into();
+    assert_eq!(product.recipe().as_recipe(), &expected);
+    let expected_verified = LoopRecipeVerifierV1::verify(expected).expect("fixture verifies");
+    let expected_join_sig =
+        LoopJoinSigElaboratorV1::elaborate(&expected_verified).expect("fixture JoinSig");
+    assert_eq!(product.join_sig().as_sig(), expected_join_sig.as_sig());
 }
 
 #[test]

@@ -71,9 +71,10 @@ new verification logic.
    claim contains both loop paths with parent `0 -> 1`.
 2. Root initializer values are validated as `0` without adding root constants;
    child initializer emits exactly one local zero constant.
-3. Typed negatives reject missing/mismatched root initializer evidence,
-   nonzero child initialization, forest/Recipe parent mismatch, and any
-   unsupported shape before a Recipe or JoinSig escapes.
+3. Typed producer negatives reject missing/mismatched root initializer
+   evidence, nonzero child initialization, and unsupported shape before a
+   Recipe or JoinSig escapes. Forest/Recipe parent mismatch remains owned and
+   tested by the consuming source-binding adapter.
 4. Producer module imports no AST/Builder/physical/PHI/SSA/route scheduler
    symbols. Caller count is exactly one under `cfg(test)` and zero in
    production.
