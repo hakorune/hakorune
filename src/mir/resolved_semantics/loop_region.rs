@@ -242,11 +242,7 @@ impl VerifiedResolvedFunctionV1 {
         &self,
         root: &SourceStmtSiteV1,
     ) -> Result<VerifiedResolvedLoopSourceForestV1, ResolvedLoopSourceForestRejectV1> {
-        if self.source_kind() != SemanticOwnerSourceKindV1::DeclaredFunction {
-            return Err(ResolvedLoopSourceForestRejectV1::UnsupportedOwnerRoot(
-                self.source_kind(),
-            ));
-        }
+        require_declared_function_owner(self.source_kind())?;
         if !self.core.loop_regions.by_site.contains_key(root) {
             return Err(ResolvedLoopSourceForestRejectV1::MissingRoot(root.clone()));
         }
@@ -262,6 +258,16 @@ impl VerifiedResolvedFunctionV1 {
         sites.sort_by(|left, right| left.node().segments().cmp(right.node().segments()));
         build_source_forest(self, root, sites)
     }
+}
+
+fn require_declared_function_owner(
+    owner_kind: SemanticOwnerSourceKindV1,
+) -> Result<(), ResolvedLoopSourceForestRejectV1> {
+    (owner_kind == SemanticOwnerSourceKindV1::DeclaredFunction)
+        .then_some(())
+        .ok_or(ResolvedLoopSourceForestRejectV1::UnsupportedOwnerRoot(
+            owner_kind,
+        ))
 }
 
 fn build_source_forest(
@@ -295,6 +301,15 @@ fn build_source_forest(
     Ok(VerifiedResolvedLoopSourceForestV1 {
         members: members.into_boxed_slice(),
     })
+}
+
+#[cfg(test)]
+pub(super) fn build_source_forest_for_test(
+    owner: &VerifiedResolvedFunctionV1,
+    root: &SourceStmtSiteV1,
+    sites: Vec<SourceStmtSiteV1>,
+) -> Result<VerifiedResolvedLoopSourceForestV1, ResolvedLoopSourceForestRejectV1> {
+    build_source_forest(owner, root, sites)
 }
 
 fn forest_parent_index(
@@ -454,6 +469,26 @@ mod source_forest_tests {
         assert_eq!(
             forest_parent_index(&root, &orphan, &orphan_sites, &orphan_positions),
             Err(ResolvedLoopSourceForestRejectV1::OrphanDescendant(orphan))
+        );
+    }
+
+    #[test]
+    fn forest_rejects_non_declared_owner_kinds_before_lookup() {
+        assert_eq!(
+            require_declared_function_owner(SemanticOwnerSourceKindV1::Script),
+            Err(ResolvedLoopSourceForestRejectV1::UnsupportedOwnerRoot(
+                SemanticOwnerSourceKindV1::Script,
+            ))
+        );
+        assert_eq!(
+            require_declared_function_owner(SemanticOwnerSourceKindV1::Lambda),
+            Err(ResolvedLoopSourceForestRejectV1::UnsupportedOwnerRoot(
+                SemanticOwnerSourceKindV1::Lambda,
+            ))
+        );
+        assert_eq!(
+            require_declared_function_owner(SemanticOwnerSourceKindV1::DeclaredFunction),
+            Ok(())
         );
     }
 

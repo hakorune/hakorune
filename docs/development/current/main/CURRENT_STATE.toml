@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. The canonical Loop family envelope is clean. Nested source-bound parity is now the selected D0 implementation for a sealed root+child forest; LoopTrue/LoopCond remain behind shared logical branch/merge closure, and Generic remains behind M4 debt/winner equivalence. No new production consumer is authorized at this boundary."
+status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. The canonical Loop family envelope is clean. Nested D0 source authority and bounded fixture coverage are landed; D1 source-binding projection is next. LoopTrue/LoopCond remain behind shared logical branch/merge closure, and Generic remains behind M4 debt/winner equivalence. No new production consumer is authorized at this boundary."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "joinir-loop-nested-source-forest-d0-design-2026-08-03"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-source-forest-d0-design-2026-08-03.md"
-latest_card_summary = """DirectAccum family-envelope F0/F1/F2/F3 is landed and pushed. Nested D0 now has a sealed non-Clone root+child source forest witness with canonical preorder, local parent links, and Builder-free typed fail-fast tests. Bounded duplicate/sibling/owner/deeper fixture expansion remains; no Nested producer, route, retry, PHI/SSA, or physicalizer caller is authorized yet."""
+latest_card_summary = """DirectAccum family-envelope F0/F1/F2/F3 is landed and pushed. Nested D0 now has a sealed non-Clone root+child source forest witness with canonical preorder, local parent links, and bounded Builder-free fail-fast fixtures. D1 source-binding projection is next; no Nested producer, route, retry, PHI/SSA, or physicalizer caller is authorized yet."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

@@ -4,8 +4,9 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 
 use super::ids::{FunctionOwnerIdV1, FunctionOwnerIssuerV1, RegionId, ScopeId};
 use super::loop_region::{
-    build_verified_loop_region_index_v1, ResolvedLoopRegionLookupErrorV1,
-    ResolvedLoopRegionVerificationErrorV1,
+    build_source_forest_for_test, build_verified_loop_region_index_v1,
+    ResolvedLoopRegionLookupErrorV1, ResolvedLoopRegionVerificationErrorV1,
+    ResolvedLoopSourceForestRejectV1,
 };
 use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
 use super::records::{
@@ -247,6 +248,61 @@ fn nested_loop_source_forest_rejects_missing_root_before_issuing_members() {
         product.resolved_loop_source_forest(&missing),
         Err(super::loop_region::ResolvedLoopSourceForestRejectV1::MissingRoot(missing,))
     );
+}
+
+#[test]
+fn nested_loop_source_forest_rejects_missing_child_and_duplicate_site() {
+    let product = resolve(&function(vec![loop_stmt(Vec::new())]));
+    let root = stmt(vec![SourcePathSegmentV1::Body(0)]);
+    let missing_child = stmt(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::LoopBody(0),
+    ]);
+
+    assert_eq!(
+        build_source_forest_for_test(&product, &root, vec![root.clone(), missing_child.clone()]),
+        Err(ResolvedLoopSourceForestRejectV1::MissingRoot(missing_child))
+    );
+    assert_eq!(
+        build_source_forest_for_test(&product, &root, vec![root.clone(), root.clone()]),
+        Err(ResolvedLoopSourceForestRejectV1::DuplicateSite(root))
+    );
+}
+
+#[test]
+fn nested_loop_source_forest_keeps_siblings_under_root_and_deep_parent_links() {
+    let siblings = resolve(&function(vec![loop_stmt(vec![
+        loop_stmt(Vec::new()),
+        loop_stmt(Vec::new()),
+    ])]));
+    let root = stmt(vec![SourcePathSegmentV1::Body(0)]);
+    let first = stmt(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::LoopBody(0),
+    ]);
+    let second = stmt(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::LoopBody(1),
+    ]);
+    let forest = siblings
+        .resolved_loop_source_forest(&root)
+        .expect("sibling loops share the selected root");
+    assert_eq!(forest.members().len(), 3);
+    assert_eq!(forest.members()[1].source().site(), &first);
+    assert_eq!(forest.members()[1].parent_index(), Some(0));
+    assert_eq!(forest.members()[2].source().site(), &second);
+    assert_eq!(forest.members()[2].parent_index(), Some(0));
+
+    let deep = resolve(&function(vec![loop_stmt(vec![loop_stmt(vec![loop_stmt(
+        Vec::new(),
+    )])])]));
+    let deep_forest = deep
+        .resolved_loop_source_forest(&root)
+        .expect("deep nesting remains source-owned");
+    assert_eq!(deep_forest.members().len(), 3);
+    assert_eq!(deep_forest.members()[0].parent_index(), None);
+    assert_eq!(deep_forest.members()[1].parent_index(), Some(0));
+    assert_eq!(deep_forest.members()[2].parent_index(), Some(1));
 }
 
 #[test]
