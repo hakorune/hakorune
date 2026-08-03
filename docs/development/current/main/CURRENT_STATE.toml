@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. Nested D0/D1 source ownership, the synthetic nested-Always witness, D2-B JoinSig closure, D2-C/D2-C1a source projection, and the D2-D caller-zero Recipe producer are landed and pushed. LoopTrue/LoopCond remain behind shared logical branch/merge closure, Generic remains behind M4 debt/winner equivalence, and no physical Loop cutover is authorized yet."
+status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. Nested D0/D1 source ownership, the synthetic nested-Always witness, D2-B JoinSig closure, D2-C/D2-C1a source projection, and the D2-D caller-zero Recipe producer/parity oracle are landed and pushed. The next physical work is a DirectAccum-only canonical session pilot; Nested Predicate remains semantic-only until its physical topology is sealed."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, M7-S0 synthetic nested-Always caller-zero evidence, D2-B bounded nested-Predicate JoinSig closure, D2-C/D2-C1a source closure, and the D2-D caller-zero Recipe producer are landed. The active stop is D2-D parity/negative closure: compare the producer's canonical Recipe/JoinSig against the existing nested fixture and preserve typed rejection before any physical consumer. No AST reread, route/retry, PHI/SSA, Builder, or physical caller is allowed. PHI/SSA remains CanonicalSsaFunctionSessionV2 -> CanonicalCfgSessionV1 + BindingSsaBuilderV1 + PhiTxn; Generic M4 remains unresolved and production route wiring is forbidden."
-current_execution_row = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-D-PARITY"
-current_execution_summary = "DirectAccum remains the only canonical production family. D2-D producer is landed at a77eb0d509: it consumes VerifiedNestedLoopSourceProjectionV1 once, maps the two-loop forest and three binding positions into a canonical Recipe, preserves root i/sum as opaque zero-valued inputs, emits only the child zero initializer, source-binds after semantic verification, and returns VerifiedLoopRecipeV1 + VerifiedLoopJoinSigV1. The next slice is producer parity/negative closure; physical M6 remains separate."
-current_execution_design = "docs/development/current/main/investigations/joinir-loop-nested-predicate-closure-d2-d-recipe-producer-2026-08-03.md"
+current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, M7-S0 synthetic nested-Always caller-zero evidence, D2-B bounded nested-Predicate JoinSig closure, D2-C/D2-C1a source closure, and D2-D caller-zero Recipe producer/parity are landed. D3 is now the design stop: pilot the existing DirectAccum product through one unpublished canonical session using CanonicalCfgSessionV1 + BindingSsaBuilderV1 + PhiTxn; do not physicalize Nested Predicate or infer PHI/CFG topology from JoinSig. Generic M4 remains unresolved and full Loop route wiring is forbidden."
+current_execution_row = "JOINIR-LOOP-RECIPE-D3-CANONICAL-PHYSICAL-PILOT"
+current_execution_summary = "DirectAccum remains the only canonical production family. D2-D semantic producer/parity is green at 0246f8adcd. D3 is a DirectAccum-only physical pilot: VerifiedDirectAccumRecipeProductV1 -> VerifiedLoopPhysicalInputV1 -> owner-issued projections -> Standard5 role plan -> existing physicalizer inside one unpublished ModuleBuilderInvocationSessionV1 candidate, with existing CanonicalSsaFunctionSessionV2/CanonicalCfgSessionV1/BindingSsaBuilderV1/PhiTxn ownership. Nested Predicate stays semantic-only."
+current_execution_design = "docs/development/current/main/investigations/joinir-loop-recipe-d3-canonical-physical-pilot-2026-08-03.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,9 +440,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "joinir-loop-nested-predicate-closure-d2-d-recipe-producer-2026-08-03"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-predicate-closure-d2-d-recipe-producer-2026-08-03.md"
-latest_card_summary = """D2-C1a root initializer evidence is green and pushed at 677cde5913. D2-D caller-zero producer is implemented and pushed at a77eb0d509: source projection -> canonical two-loop RecipeArtifact -> crate-visible source-bound verifier terminal -> VerifiedLoopRecipe + VerifiedLoopJoinSig. Root inputs remain opaque; child zero initializer is the only emitted local constant. Producer guard and targeted gates are green; parity/negative closure is next, with no PHI/SSA/Builder/route/physical wiring."""
+latest_card = "joinir-loop-recipe-d3-canonical-physical-pilot-2026-08-03"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-recipe-d3-canonical-physical-pilot-2026-08-03.md"
+latest_card_summary = """D2-D caller-zero producer/parity is green and pushed at 0246f8adcd. D3 is now design-frozen for a DirectAccum-only canonical physical pilot: reuse one unpublished candidate session and the existing CanonicalSsaFunctionSessionV2 -> CanonicalCfgSessionV1 + BindingSsaBuilderV1 + PhiTxn chain, with abort/drop failure handling. Nested Predicate physical topology is explicitly deferred."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-D-PARITY"
+current_blocker_token = "JOINIR-LOOP-RECIPE-D3-CANONICAL-PHYSICAL-PILOT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
