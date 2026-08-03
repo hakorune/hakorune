@@ -1,0 +1,125 @@
+---
+Status: Design stop
+Date: 2026-08-03
+Decision: accepted boundary — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT-DESIGN0-M5-P4`
+Scope: define the test-only physical-parity seam before the first production
+       Loop physicalizer exists
+Related:
+  - joinir-loop-accum-semantic-parity-readbinding-m5-task-2026-08-03.md
+  - joinir-loop-physical-edge-path-p1b-task-2026-08-03.md
+  - ../design/joinir-loop-selfhost-recipe-pipeline-ssot.md
+  - ../design/phi-lifecycle-ssot.md
+  - ../design/binding-ssa-first-control-lowering-ssot.md
+---
+
+# DirectAccum physical-parity snapshot: design stop
+
+## Why this is a stop
+
+The M5 ReadBinding task has closed the portable/legacy operation, dataflow, and
+final-carrier digest. A full MIR parity test is not yet implementable without
+changing the ownership boundary:
+
+```text
+portable Recipe -> JoinSig -> LoopPhiMaterializerV1
+```
+
+currently materializes only verified PHI sites through the existing
+`phi_lifecycle` and Binding SSA owners. It does not emit the loop's CFG,
+instructions, or result value. The legacy `RecipeComposer` -> `CorePlan` ->
+`PlanLowerer` remains the only complete physical producer.
+
+Creating a second CFG/instruction lowerer in a test to make the parity test
+green would be a second semantic authority. It would also make a future
+physicalizer pass its own copy of the legacy implementation, which defeats the
+M6/M10 design. Therefore this row defines the seam and stops; it does not add a
+synthetic physical producer.
+
+## Decision
+
+Define a test-only `MirPhysicalAlphaSnapshotV1` contract with two producers:
+
+1. **Legacy oracle producer** — observes the existing candidate MIR after the
+   legacy PlanLowerer succeeds.
+2. **Future physicalizer producer** — observes the same candidate after the
+   single production physicalizer exists.
+
+The snapshot is a comparison format, not an IR and not a new lowering API. It
+must erase allocation identity while retaining semantic structure:
+
+- CFG roles and explicit edge-path roles (`preheader`, `header`, `body`,
+  `step`, `after`, and nested path prefixes);
+- terminator shape and successor role;
+- instruction/dataflow rows with canonical binding/value provenance;
+- PHI binding/class rows and predecessor port roles, sourced from existing
+  `PhiTxn`/`phi_lifecycle` receipts and Binding SSA evidence;
+- final binding/result/unit semantics and MIR type classes.
+
+Raw `ValueId`, `BasicBlockId`, allocation order, AST nodes, `CorePlan`, and
+route names are not snapshot authority. Canonicalization must use the verified
+JoinSig/path witness and binding roles, never guess from block numbers or
+route-local indices.
+
+## Required API shape (test-only until M10a)
+
+The first implementation may live in a separate `cfg(test)` child module (the
+existing 793-line materializer test parent must not grow). The minimal shape is:
+
+```rust
+struct MirPhysicalAlphaSnapshotV1 {
+    cfg: Box<[CfgRoleRowV1]>,
+    instructions: Box<[InstructionRowV1]>,
+    phis: Box<[PhiRoleRowV1]>,
+    results: Box<[ResultRowV1]>,
+}
+```
+
+The row types are comparison DTOs only. They must not expose a constructor that
+accepts AST/CorePlan or provide emission/mutation methods. A legacy observer
+may read those types internally, but the future consumer receives only the
+candidate MIR plus the already verified JoinSig/physical map and existing PHI
+receipt. No snapshot helper may allocate a second PHI/SSA writer.
+
+## Ordered work
+
+1. **P4-D0 (this row):** document row membership, canonical role grammar, and
+   the exact legacy observer boundary. No code producer is added.
+2. **P4-S0:** implement the legacy observer in a separate test-only child and
+   compare it against the already-green P1b structural/path digest. This is
+   evidence collection, not a portable physicalizer.
+3. **M6 completion:** finish the shared CFG/JoinSig/PHI services. The existing
+   PHI lifecycle and Binding SSA remain the sole writers.
+4. **M10a pilot:** implement one real Accum physicalizer that emits CFG,
+   operations, and result values through the shared services. Only then add
+   the second snapshot producer and full MIR/PHI/type/result parity.
+5. **M10a gates:** add late-failure candidate discard and fresh-session reuse
+   to the same physical parity child. A failure must return terminal `Freeze`,
+   never retry or invoke another route.
+
+## Explicit non-claims
+
+- M5 does not yet prove full physical MIR CFG/instruction/result parity.
+- `LoopPhiMaterializerV1` is not a complete Loop physicalizer.
+- No production `route_loop` caller, Retry change, Generic disposition, or
+  JoinIR fallback deletion is authorized by this row.
+- PHI/SSA ownership is already SSOT'd; this row only defines how future
+  evidence observes it. It must not introduce a competing PHI authority.
+
+## Stop conditions
+
+Stop and return to design if any implementation requires:
+
+- rebuilding AST or `CorePlan` in the portable consumer;
+- a test-only CFG/instruction lowerer that duplicates PlanLowerer semantics;
+- direct PHI insertion outside `phi_lifecycle`/`PhiTxn`;
+- route selection, Retry, raw suffix, or post-effect `Ok(None)`;
+- claiming full parity before the real physicalizer producer exists.
+
+## Acceptance for this design row
+
+- the M5 logical operation/dataflow/final-carrier digest remains green;
+- this contract identifies both observer boundaries and all erased identity;
+- the next implementation row is explicitly blocked on the first shared
+  physicalizer, not on another route-by-route oracle;
+- all source changes remain under the 800-line limit and production callers
+  remain unchanged.

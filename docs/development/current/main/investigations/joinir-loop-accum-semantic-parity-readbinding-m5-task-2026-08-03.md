@@ -8,6 +8,7 @@ Related:
   - ../design/phi-lifecycle-ssot.md
   - ../design/binding-ssa-first-control-lowering-ssot.md
   - joinir-loop-physical-edge-path-p1b-task-2026-08-03.md
+  - joinir-loop-accum-mir-physical-snapshot-design0-m5-p4-task-2026-08-03.md
 ---
 
 # DirectAccum semantic parity: ReadBinding fixture
@@ -95,16 +96,19 @@ requires otherwise.
   `RecipeComposer`/`PlanVerifier`/`PlanLowerer`, and its alpha-normalized
   operation/dataflow/final-carrier digest equals the portable projection.
 - Full MIR physical CFG, PHI receipt, type, and post-lower result parity is
-  still open. The current digest is not that claim; it is the next slice before
-  M10a.
+  still open. The current digest is not that claim. The remaining boundary is
+  now a design stop in
+  `joinir-loop-accum-mir-physical-snapshot-design0-m5-p4-task-2026-08-03.md`:
+  no test-only CFG/instruction lowerer may be added before the shared
+  physicalizer exists.
 
 ## Acceptance and stop conditions
 
 - DirectAccum portable and legacy operation/dataflow/final-carrier digests are
   equal after alpha normalization.
 - Before M10a, add the separate physical MIR/PHI/type/result digest and the
-  late-failure/fresh-session gates; do not promote the current operation digest
-  to full parity.
+  late-failure/fresh-session gates, following the P4 design-stop card; do not
+  promote the current operation digest to full parity.
 - The structural P1b digest remains green and unchanged.
 - Nested portable golden remains structural/path evidence only; it has no
   equivalent legacy semantic oracle in this task.
