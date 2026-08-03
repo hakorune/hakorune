@@ -93,6 +93,43 @@ pub(crate) fn evaluate_frozen_loop_route_schedule_v1(
 }
 
 #[cfg(test)]
+pub(crate) fn issue_policy_winner_for_test(candidate_cursor: usize) -> VerifiedLoopPolicyWinnerV1 {
+    let observations = super::schema::CANONICAL_LOOP_ROUTE_ORDER_V1
+        .iter()
+        .enumerate()
+        .map(|(cursor, _)| {
+            let evidence = if cursor == candidate_cursor {
+                LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable)
+            } else {
+                LoopRoutePolicyEvidenceV1::SourceDeclined(
+                    super::policy_evidence::LoopRoutePolicySourceDeclineReasonV1::PreEffectDeclined,
+                )
+            };
+            super::schema::FrozenLoopRouteObservationV1::new(
+                super::schema::LoopRouteSuppressionDispositionV1::Retained,
+                super::schema::LoopModeReleaseSnapshotV1::Release {
+                    admission: super::schema::LoopReleaseAdmissionObservationV1::Allowed,
+                },
+                super::schema::LoopGlobalEntryDispositionV1::Allowed,
+                super::schema::LoopRouteSourceDispositionV1::Available,
+                evidence,
+            )
+        })
+        .collect::<Box<[_]>>();
+    let schedule = super::evaluate::freeze_loop_route_schedule_v1(
+        super::schema::CANONICAL_LOOP_ROUTE_ORDER_V1.into(),
+        observations,
+    )
+    .expect("policy winner test fixture seals");
+    let LoopRoutePolicyEvaluationV1::Qualified(qualified) =
+        evaluate_frozen_loop_route_schedule_v1(&schedule)
+    else {
+        panic!("policy winner test fixture must qualify");
+    };
+    qualified.into_parts().1
+}
+
+#[cfg(test)]
 mod tests {
     use super::{
         evaluate_frozen_loop_route_schedule_v1, LoopPolicyBlockedReasonV1,

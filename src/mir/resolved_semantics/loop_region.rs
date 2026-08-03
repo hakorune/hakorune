@@ -44,6 +44,19 @@ pub(crate) struct VerifiedResolvedLoopSourceV1 {
 }
 
 impl VerifiedResolvedLoopSourceV1 {
+    /// Checks an independently-owned identity witness without exposing the
+    /// source capability's fields or consuming its ownership.
+    pub(crate) fn matches_identity(
+        &self,
+        function_origin: FunctionOriginV1,
+        owner_source_kind: SemanticOwnerSourceKindV1,
+        site: &SourceStmtSiteV1,
+    ) -> bool {
+        self.function_origin == function_origin
+            && self.owner_source_kind == owner_source_kind
+            && &self.site == site
+    }
+
     pub(crate) fn into_parts(
         self,
     ) -> (

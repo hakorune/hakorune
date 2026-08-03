@@ -29,5 +29,13 @@ the closed `Body` / `ScopeBody` / `LoopBody` statement lineage are portable in
 this slice. Lambda and Program owners, every other ancestor, and orphan
 body-root markers fail with typed rejection.
 
-M3-B is intentionally caller-zero. Production wiring belongs to a later card
-at the located source carrier before Loop syntax is decomposed.
+`selected_demand.rs` is the next neutral handoff. It consumes one opaque policy
+winner, one AST-free structural identity witness, and one exact resolved-source
+capability, then returns a non-Clone selected demand. It performs identity
+checking only; it does not create a Recipe, select a family, or touch PHI/SSA.
+Direct Accum is caller-zero evidence. Nested source-bound is not claimed until
+the resolver can issue a sealed root-plus-child forest capability.
+
+M3-B and the selected-demand issuer are intentionally caller-zero. Production
+wiring belongs to a later card at the located source carrier before Loop syntax
+is decomposed.

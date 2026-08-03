@@ -1,6 +1,6 @@
 # JOINIR Loop Selected-Demand Issuer S0
 
-Status: Design-approved, caller-zero implementation slice.
+Status: Green, caller-zero implementation slice.
 
 Task: `JOINIR-LOOP-SELECTED-DEMAND-ISSUER0-S0`
 
@@ -45,17 +45,19 @@ used for semantic selection, reverse lookup, or family dispatch.
 
 - Direct Accum: one test-only positive handoff fixture; production callers
   remain zero.
-- Nested: reject with `NestedSourceForestUnavailable` until a sealed root plus
-  exact child source forest capability exists. Do not synthesize child paths
-  from raw indices or AST.
+- Nested: no source-bound demand is issued in S0. The current root-only source
+  capability cannot represent a recursive forest, so Nested remains a typed
+  non-claim until a sealed root plus exact child forest capability exists. Do
+  not synthesize child paths from raw indices or AST.
 - LoopTrue / LoopCond: remain behind their shared logical JoinSig closure.
 - Generic V0/V1: remains behind the independent M4 debt classification.
 
 ## Required gates
 
 1. Positive Direct Accum handoff consumes all three capabilities once.
-2. Negative fixtures cover no winner, blocked/exhausted policy, facts/source
-   identity mismatch, and missing nested source forest.
+2. Negative fixtures cover no winner, blocked/exhausted policy, and
+   facts/source identity mismatch. Nested source-bound remains caller-zero and
+   is explicitly not claimed until the forest owner exists.
 3. The issuer and policy layer have zero imports of Recipe, AST,
    `CanonicalLoopFacts`, Builder, CorePlan, PlanLowerer, PHI, Binding SSA,
    Retry, scheduler, physicalizer, or Generic debt machinery.
