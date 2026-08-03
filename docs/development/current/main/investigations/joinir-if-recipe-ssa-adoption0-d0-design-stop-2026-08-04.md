@@ -1,8 +1,9 @@
 # JOINIR-IF-RECIPE-SSA-ADOPTION0-D0
 
 Status: D0-A census closed; D0-B0 same-pass facts projection implemented and
-tested; D0-B1 portable schema/verification design selected, implementation
-next — do not wire production If yet.
+tested; D0-B1 portable schema/source-claim/structural verification and
+normalization implemented and tested. The mapper, JoinSig, and production If
+consumer remain unstarted — do not wire production If yet.
 Date: 2026-08-04
 
 This card records the next cleanup target after the Loop cutover lane. It is
@@ -270,7 +271,8 @@ The implementation order is:
 D0-B0  same-pass VerifiedTrivialIfRecipeFactsV1 projection
        (condition/branch operation/write cardinality/continuation facts)
 D0-B1  IfRecipeArtifactV1 schema + recipe-local IDs + source claim
-D0-B2  structural verifier + deterministic normalizer
+       structural verifier + deterministic normalizer (landed)
+D0-B2  same-pass facts -> recipe mapper and source-witness design stop
 D0-B3  non-Clone IfJoinSig elaborator and typed physical-input seal
 ```
 
@@ -354,11 +356,21 @@ Done:
   byte-stable, route/source receipts do not alter semantic normalization, and
   no production If caller or PHI/SSA writer changes.
 
+Closeout:
+: `src/mir/if_recipe_contract/` now owns the fixed-shell schema, recipe-local
+  IDs, structural source-claim verifier, typed structural verifier, and
+  semantic/source-bound normalizers. Five focused tests and the library check
+  are green; every touched Rust file remains below 800 lines. The module has a
+  README that fixes its authority and forbidden-dependency boundary. Commit
+  `8999950faf` is pushed. The next row must design the facts-to-recipe mapper
+  and source correspondence before any JoinSig or production wiring.
+
 Stop:
 : If facts cannot be mapped without reopening AST/source traversal, or if the
   schema requires Loop carrier/exit semantics or owner-branded identity, stop
-  and return to this design boundary. Do not add the mapper or JoinSig until
-  this artifact verifier is independently green.
+  and return to this design boundary. The artifact verifier is now green; do
+  not add the mapper or JoinSig in this closeout commit. They require the next
+  source-witness design row.
 
 ### D0-C — one canonical production consumer
 
@@ -409,7 +421,10 @@ D0-B: IfRecipeV1 has no AST/Builder/ValueId/BasicBlockId ownership
 D0-B: Explicit(block) vs ImplicitFallthrough is represented distinctly
 D0-B: selected explicit-else shape has two branch writes + post-merge read
 D0-B: same-pass `VerifiedTrivialIfRecipeFactsV1` supplies all verifier inputs
-D0-B: schema/verify/normalize rejection and deterministic semantic parity green
+D0-B1: schema/source-claim/verify/normalize rejection and deterministic
+       semantic parity green
+D0-B2: facts-to-recipe mapping has one same-pass source witness and no second
+       acceptance policy (not started)
 D0-C: selected recipe producer = exactly 1; physicalizer = exactly 1
 D0-C: selected caller is inside an unpublished compile candidate
 D0-D: selected old If/PHI writer caller = 0 after cutover

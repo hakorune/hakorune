@@ -1,5 +1,5 @@
 ---
-Status: accepted design boundary; D0-B0 facts landed, D0-B1 schema/verification selected
+Status: accepted design boundary; D0-B0 facts and D0-B1 schema/verification/normalization landed; D0-B2 mapper is the next design stop
 Date: 2026-08-04
 Decision: JOINIR-IF-RECIPE-CONTRACT-V1
 Scope: portable semantic contract for the first resolved-trivial If shape
@@ -122,6 +122,9 @@ it may not return `Option`, retry, or a different route.
 
 ## Non-claims
 
-This document does not claim that the schema exists in Rust, that a production
-If recipe consumer exists, or that repository-wide PHI/CFG ownership is
-unified. Those claims require D0-B implementation and D0-C/D0-D evidence.
+The fixed-shell schema, source-claim verifier, structural verifier, and
+deterministic normalizers now exist in
+`src/mir/if_recipe_contract/` (commit `8999950faf`). This remains a
+caller-zero contract: no production If recipe consumer, facts mapper, JoinSig,
+or PHI/CFG wiring is connected. Repository-wide PHI/CFG ownership is not
+unified. Those claims require the D0-B2 mapper and D0-C/D0-D evidence.
