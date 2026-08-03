@@ -9,6 +9,7 @@ mod error;
 mod ids;
 mod join_sig;
 mod normalize;
+mod physical_input;
 mod schema;
 mod source_binding;
 mod verify;
@@ -23,6 +24,7 @@ pub(crate) use join_sig::{
     IfJoinSigRejectReasonV1, IfJoinSigV1, IfJoinValueEdgeV1, VerifiedIfJoinSigV1,
 };
 pub(crate) use normalize::{IfRecipeDecodeErrorV1, IfRecipeNormalizerV1};
+pub(crate) use physical_input::{IfPhysicalInputRejectReasonV1, VerifiedIfPhysicalInputV1};
 pub(crate) use schema::{
     IfBinaryOpV1, IfBindingRoleV1, IfBlockRoleV1, IfCompareOpV1, IfContinuationV1,
     IfElseDispositionV1, IfJoinRowV1, IfOperationV1, IfRecipeArtifactV1, IfRecipeBindingV1,

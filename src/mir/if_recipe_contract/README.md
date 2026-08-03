@@ -21,6 +21,11 @@ production consumption remain later rows.
 - `IfJoinSigElaboratorV1` consumes only `VerifiedIfRecipeV1` and seals the
   fixed logical transfer edges and join values. `VerifiedIfJoinSigV1` is a
   non-`Clone` caller-zero proof, not a physical CFG or PHI owner.
+- `VerifiedIfPhysicalInputV1::from_artifact` is the caller-zero one-shot
+  pairing boundary. It consumes one verified artifact and internally
+  elaborates the matching JoinSig, so callers cannot supply an unrelated
+  artifact/signature pair. This wrapper still has no Builder, MIR IDs, CFG,
+  PHI, or production consumer.
 
 ## Forbidden dependencies
 
@@ -42,7 +47,8 @@ production path.
 
 ## Current non-claims
 
-- No production If lowerer consumes this artifact or the logical JoinSig yet.
+- No production If lowerer consumes this artifact, logical JoinSig, or
+  physical-input wrapper yet.
 - No canonical PHI writer or physical block projection is created here.
 - Verification proves internal artifact structure, not AST provenance or MIR
   parity.

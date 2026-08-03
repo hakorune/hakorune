@@ -286,3 +286,21 @@ fn logical_joinsig_elaborates_fixed_shell_deterministically() {
     assert_eq!(sig.join.else_value, IfValueKeyV1::new(5));
     assert_eq!(sig.join.class, IfValueClassV1::I64);
 }
+
+#[test]
+fn physical_input_consumes_and_keeps_one_artifact_joinsig_pair() {
+    let expected_artifact = IfRecipeVerifierV1::verify_artifact(golden()).expect("expected");
+    let expected_sig =
+        IfJoinSigElaboratorV1::elaborate(expected_artifact.recipe()).expect("expected sig");
+    let input_artifact = IfRecipeVerifierV1::verify_artifact(golden()).expect("input");
+    let input =
+        VerifiedIfPhysicalInputV1::from_artifact(input_artifact).expect("physical input seal");
+
+    assert_eq!(input.join_sig(), &expected_sig);
+    assert_eq!(
+        input.artifact().provenance().profile,
+        IfRecipeProfileV1::ResolvedTrivialExplicitElse
+    );
+    let (_artifact, sealed_sig) = input.into_parts();
+    assert_eq!(sealed_sig, expected_sig);
+}
