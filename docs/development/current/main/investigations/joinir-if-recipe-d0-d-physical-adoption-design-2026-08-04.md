@@ -295,3 +295,38 @@ late-failure reuse are green; no lowerer owner grows past 800 lines.
 Stop: if the fixture selects A+, `NotThisShape`, or a different
 return/continuation contract, stop and open an implicit-else/value-shape design
 row instead of widening this shell.
+
+### Bool merge proof closeout (2026-08-04)
+
+The selected fixture resolved through the existing trivial Binding-SSA owner
+and consumed the same physicalizer with an `InlineBool` local, explicit-else
+Bool writes, a Bool continuation read, and one two-predecessor PHI. The focused
+Bool receipt test, the existing If/candidate suites, policy proof tests,
+library check, reusable guards, and all touched-file line budgets are green in
+commit `da31f3bc34`. No lowerer, topology token, JoinSig variant, or PHI owner
+was added.
+
+## Next design stop — implicit-else If
+
+The next candidate is not a mechanical `else_body: None` toggle. Current
+facts deliberately return `NotThisShape`, the mapper reports missing facts,
+the verifier requires explicit else, and the JoinSig/receipt model assumes two
+branch exits. An implicit-else join has a baseline/header-to-merge edge and a
+one-sided branch write, so its predecessor/value correspondence is a distinct
+semantic shape.
+
+Source authority: same-pass resolved If facts plus a new implicit baseline and
+edge witness. Logical authority: an explicit `ImplicitFallthrough` artifact,
+dedicated JoinSig/receipt shape, and the existing verifier. Physical authority:
+the same `CanonicalCfgSessionV1`/`BindingSsaBuilderV1`/`PhiTxn` chain once the
+new receipt is sealed.
+
+Non-authority: explicit-else recipe weakening, AST-derived topology inference,
+legacy `IfCfgSessionV1`, raw/CorePlan/JoinIR, JSON-v0, or a second PHI writer.
+Fail-fast: unsupported baseline value, missing one-sided write/read witness,
+or physical predecessor/value mismatch freezes before Builder effects; no
+retry/reselection.
+
+Recommended next slice: design-only census and one counterexample fixture for
+the implicit baseline edge, then a separate artifact/JoinSig/receipt task. Do
+not implement implicit-else in this card until that contract is written.
