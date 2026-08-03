@@ -293,7 +293,8 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "Nested source-binding adapter imported physical/route authority: $forbidden"
     fi
   done
-  for required in '#![cfg(test)]' 'NestedEffectAdapter' 'publish_initialized_prefix' 'consume_role' 'finish(&self)' ; do
+  for required in '#![cfg(test)]' 'NestedEffectAdapter' 'publish_initialized_prefix' 'consume_role' 'finish(&self)' \
+    'enter_scope_region' 'close_scope_region_success' 'ScopeKindV1::LoopBody' 'Root.After' ; do
     rg -n -F "$required" "$nested_effect_adapter_tests" >/dev/null || \
       guard_fail "$tag" "Nested Predicate effect adapter test anchor missing: $required"
   done

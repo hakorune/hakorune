@@ -11,6 +11,9 @@ use std::collections::BTreeSet;
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
+use crate::mir::builder::resolved_lowering::semantic_stack::{
+    ResolvedScopeRetirementV1, ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::nested_predicate_effect_plan::{
     issue_nested_binding_execution_claims_v1, NestedBindingEffectEntryV1,
@@ -339,4 +342,85 @@ fn effect_adapter_rejects_out_of_order_and_duplicate_claims() {
         )
         .unwrap_err()
         .contains("order_mismatch"));
+}
+
+#[test]
+fn scope_pairs_retire_outer_j_only_at_root_loop_exit() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function())
+        .expect("nested function resolves");
+    let claims = claims_for(&unit);
+    let input = unit.root_function_input().expect("root function input");
+    let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
+    let mut adapter = NestedEffectAdapter::new(&mut identity, claims.effect_plan());
+    adapter
+        .publish_initialized_prefix(&claims)
+        .expect("initialized prefix");
+    adapter
+        .consume_role(
+            NestedBindingEffectRoleV1::RootPredicateReadI,
+            &mut MirBuilder::new(),
+            &mut PhiTxn::begin("nested-scope-test"),
+        )
+        .expect("root predicate");
+    adapter
+        .activate_child_declaration(&claims)
+        .expect("child declaration-only activation");
+    adapter
+        .consume_role(
+            NestedBindingEffectRoleV1::ChildInitializeWriteJ,
+            &mut MirBuilder::new(),
+            &mut PhiTxn::begin("nested-scope-test"),
+        )
+        .expect("first child assignment");
+    drop(adapter);
+
+    let mut stack = ResolvedSemanticStackV1::new_with_expectations(
+        input.function(),
+        input.function().lowering_roots(),
+        ResolvedSemanticExpectedCountsV1::new(0, 0, 0),
+    )
+    .expect("semantic stack roots");
+    let root = stack
+        .enter_scope_region(
+            input.function(),
+            claims.prefix().root_loop_pair(),
+            crate::mir::resolved_semantics::ScopeKindV1::LoopBody,
+            crate::mir::resolved_semantics::RegionKindV1::Loop,
+        )
+        .expect("root loop pair");
+    let child = stack
+        .enter_scope_region(
+            input.function(),
+            claims.prefix().child_loop_pair(),
+            crate::mir::resolved_semantics::ScopeKindV1::LoopBody,
+            crate::mir::resolved_semantics::RegionKindV1::Loop,
+        )
+        .expect("child loop pair");
+    stack
+        .close_scope_region_success(child, &mut identity)
+        .expect("child pair closes without retiring outer j");
+
+    let mut builder = MirBuilder::new();
+    let mut phis = PhiTxn::begin("nested-scope-read");
+    identity
+        .read_entry(
+            &mut builder,
+            &mut phis,
+            BasicBlockId::new(0),
+            claims.prefix().uninitialized().binding(),
+        )
+        .expect("outer j remains active after child close");
+    stack
+        .close_scope_region_success(root, &mut identity)
+        .expect("root pair closes at Root.After");
+    assert!(identity
+        .read_entry(
+            &mut builder,
+            &mut phis,
+            BasicBlockId::new(0),
+            claims.prefix().uninitialized().binding(),
+        )
+        .unwrap_err()
+        .contains("declaration_not_active"));
+    stack.finish().expect("scope stack balanced");
 }

@@ -1,9 +1,27 @@
 # JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-P1
 
-Status: design accepted — caller-zero resolver-issued prefix/effect claims.
+Status: implementation checkpoint — caller-zero resolver-issued prefix/effect
+claims and canonical identity/scope harness are green; production wiring remains
+out of scope.
 Date: 2026-08-04
 Design authority:
 `joinir-loop-nested-predicate-d4-physical-emission-design-2026-08-04.md`
+
+## Checkpoint
+
+The following caller-zero slices are now landed and pushed:
+
+```text
+P1-A  resolver-issued prefix/effect products + mismatch guard
+P1-B  declaration-only identity seam + initialized-readiness gate
+P1-C  ordered effect consumer + duplicate/order rejection
+P1-D  exact root/child LoopBody pair enter/close; Root.After retires j once
+```
+
+Focused evidence is green: nested effect-plan (4), ordered/scope consumer (3),
+resolved-lowering regression (123), and the shared inplace-replacement guard.
+P1-E still owns the final contract guard tightening. No production route,
+physicalizer, Retry removal, or live-builder caller has been added.
 
 ## Objective
 
