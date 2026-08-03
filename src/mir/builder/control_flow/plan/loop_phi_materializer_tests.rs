@@ -1,6 +1,6 @@
 use super::*;
 use crate::mir::builder::control_flow::plan::loop_phi_materializer_test_support::{
-    bb, seed_builder, seeded_builder, standard5_builder,
+    bb, nested_resume_builder, seed_builder, seeded_builder, standard5_builder,
 };
 use crate::mir::builder::module_invocation_session::BuilderCoreSeedPolicyV1;
 use crate::mir::builder::{
@@ -444,6 +444,25 @@ fn nested_golden_witness_keeps_child_after_parent_resume_explicit() {
         }
     }
     assert_ne!(parent_resume_paths[0].as_slice(), &[bb(6), bb(8)]);
+}
+
+#[test]
+fn nested_golden_root_materializer_uses_parent_resume_terminal() {
+    let sig = verified_sig();
+    let mut builder = nested_resume_builder();
+    let map = VerifiedLoopLogicalToPhysicalMapV1::try_new(&sig, nested_resume_map_input(&sig))
+        .expect("nested physical witness");
+    let receipt =
+        materialize_loop_phis(&mut builder, &sig, map).expect("nested root PHI materialization");
+    assert_eq!(receipt.sites().len(), 2);
+    assert_eq!(
+        receipt.sites()[0].inputs.as_ref(),
+        &[(bb(0), ValueId::new(10)), (bb(8), ValueId::new(11))]
+    );
+    assert_eq!(
+        receipt.sites()[1].inputs.as_ref(),
+        &[(bb(0), ValueId::new(12)), (bb(8), ValueId::new(13))]
+    );
 }
 
 #[test]
