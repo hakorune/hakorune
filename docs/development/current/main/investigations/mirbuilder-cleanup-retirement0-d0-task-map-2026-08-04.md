@@ -1,11 +1,12 @@
 # MIRBUILDER-CLEANUP-RETIREMENT0-D0
 
 Status: parked BoxShape task map; audit complete, implementation not
-authorized by this card.
+authorized by this card. The executable cleanup lane remains behind the
+active If D0-B3 row.
 Date: 2026-08-04
 
 This card records the cleanup opportunities raised by the dead-code audit. It
-is deliberately separate from the active If D0-A authority/PHI census. The
+is deliberately separate from the active If D0-B3 physical-input lane. The
 goal is to reduce duplicate shells and retire proven disconnected code without
 changing route selection, Recipe semantics, SSA/PHI authority, or the JSON-v0
 compatibility contract.
@@ -17,10 +18,21 @@ safe deletion claim.
 
 ### Tier 1: `_p0` proof modules
 
-All 28 `src/mir/compiler/*_p0.rs` modules are test-only/compile-only and have
-zero production callers. They are still load-bearing contract evidence: many
-have no live twin, and roughly 15 active guards reference their exact file or
-symbol. The largest is 752 lines; all remain below the 800-line boundary.
+The current path-scoped manifest is **26** `src/mir/compiler/*_p0.rs` modules
+(the broader `src/mir` tree contains 54 `_p0.rs` files, which is a different
+set). All 26 compiler rows are `#[cfg(test)]` modules with zero production
+callers; they are test-only evidence, not compile-only production code. The
+manifest contains 115 tests in total. Nineteen rows are referenced by exact
+basename/symbol guards and seven have no exact guard, but every row still
+needs evidence migration before deletion. The exact guard census spans 20
+guard files (some guard multiple rows). The largest is 752 lines; all remain
+below the 800-line boundary.
+
+The first baseline is not entirely green: `raw_public_cutover_parity_success_p0`
+currently has 2 passing and 4 failing snapshot/parity assertions, so it is a
+red parked row, not a deletion candidate. The focused compiler suite is also
+not a deletion gate (`369 passed / 14 failed`); use row-specific tests plus the
+affected guard and `cargo check --lib`.
 
 Safe rule:
 
@@ -32,9 +44,16 @@ stable replacement fixture/manifest
 ```
 
 Deletion follows the proof dependency DAG (independent drain/session proofs,
-then canonical leaf-to-root, then raw public leaf-to-root). Loop candidate
-abort and resolved DirectAccum hardening remain a separate final lane after
-Loop production cutover. No `_p0` batch deletion is authorized here.
+then canonical leaf-to-root, then raw public leaf-to-root). There are four
+test-only edges into `raw_root_finalization_p0` from raw postprocess,
+publication, publication-adapter, and external-commit rows; migrate the
+shared finalization evidence before those dependents. Do not append moved
+tests to near-limit live owners (`raw_root_decl_access.rs` 767 lines,
+`raw_root_eligibility.rs` 770, `source_bound_package.rs` 759,
+`raw_root_source_facts.rs` 711); use dedicated contract-test modules instead.
+Loop candidate abort and resolved DirectAccum hardening remain a separate
+final lane after Loop production cutover. No `_p0` batch deletion is
+authorized here.
 
 ### `source_coverage.rs` is live
 
@@ -84,10 +103,12 @@ Recipe semantics, or PHI/SSA ownership. `T4` remains an independent
 caller-zero lane because the bridge has its own Program-JSON compatibility
 contract and direct PHI bypasses.
 
-The worker inventory fixes three audit boundaries:
+The worker inventory fixes four audit boundaries:
 
-- Every `_p0` file is test/compile-only, but its tests and guards are evidence;
-  the 28-file set is migrated and retired leaf-to-root, never batch-deleted.
+- The compiler-scoped `_p0` set is 26 files/115 tests, not 28; the broader
+  54-file `src/mir` inventory must not be silently folded into this card.
+  Every row is test-only, but its tests and guards are evidence; migrate and
+  retire leaf-to-root, never batch-delete.
 - `source_coverage.rs` is a live production owner used by `if_control.rs`;
   it is excluded from the delete set. Only its “no direct lowering consumer”
   wording may be corrected.
@@ -103,17 +124,26 @@ are zero. These are explicit stop conditions, not implied cleanup work.
 
 ### T1-D0 — proof-module and mask census (design stop)
 
-Freeze the 28-file manifest, guard dependencies, live-twin/proof-owner status,
-and the three resolved-module lint baseline. Record `source_coverage.rs` as a
-live owner. No deletion and no route/PHI changes.
+Freeze the 26-file compiler manifest (and separately record the 54-file
+whole-`src/mir` inventory), 115-test count, 20 guard-file paths and their row
+dependencies,
+live-twin/proof-owner status, and the three resolved-module lint baseline.
+Record `source_coverage.rs` as a live owner. Record
+`raw_public_cutover_parity_success_p0` as a red baseline row requiring repair
+or explicit parking. No deletion and no route/PHI changes.
 
 ### T1-S0 — proof migration and guarded `_p0` retirement
 
-Work from leaf to root in small buildable commits. For each row, add or point
-to a stable contract test, retarget every guard, run the focused gate, then
-delete only the now-redundant file/registration. Acceptance is caller-zero,
-guard-zero, twin/proof coverage, and fast-gate green. Keep source coverage and
-Loop-specific p0 proofs until their independent lanes close.
+Work from leaf to root in small buildable commits. Start with independent,
+guard-free rows (`drain_policy_p0`, `raw_root_body_p0`, `raw_root_drain_p0`)
+only after their evidence is moved to stable owner-local contract tests.
+Defer the four finalization dependents until the shared finalization evidence
+is migrated. Keep `raw_public_cutover_parity_success_p0` parked while its
+2/6 baseline is red. For each row, retarget every guard, run the focused test
+and guard, then delete only the now-redundant module registration/file.
+Acceptance is caller-zero, guard-zero, twin/proof coverage, row gate green,
+`cargo check --lib`, and pointer guard. Keep source coverage and Loop-specific
+p0 proofs until their independent lanes close.
 
 ### T1-S1 — narrow stale-mask cleanup
 
@@ -124,12 +154,15 @@ series; never use a global `force-warn` result as permission to delete schema.
 
 ### T2-D0/S0 — route-neutral Recipe carrier dedup
 
-The 11 route-specific `XRecipe { arena, root }` structs are structurally
-identical. Introduce one `BuiltRecipeTree` (name provisional) with aliases,
-then migrate in at most five refactor commits and delete the aliases. This is
-shape dedup only: route Facts, matcher/composer policy, and portable
-`LoopRecipeArtifactV1` remain separate authorities. Guard old type names at
-zero and the new bundle at one shared definition.
+The 11 route-specific `XRecipe { arena, root }` structs
+(`AccumConstLoop`, `ArrayJoin`, `BoolPredicateScan`, `CharMap`, `IfPhiJoin`,
+`LoopBreak`, `LoopContinueOnly`, `LoopSimpleWhile`, `LoopTrueEarlyExit`,
+`ScanWithInit`, `SplitScan`) are structurally identical. Introduce one
+`BuiltRecipeTree` (name provisional) with aliases, then migrate in at most
+five refactor commits and delete the aliases. This is shape dedup only: the
+builders still own route-specific Facts/AST reconstruction and contract
+policy, and portable `LoopRecipeArtifactV1` remains a separate authority.
+Guard old type names at zero and the new bundle at one shared definition.
 
 ### T2-D1/S1 — trivial canonical policy-matrix consolidation
 
@@ -137,13 +170,22 @@ The four `analyze_trivial_canonical_*` wrappers are policy-matrix delegators,
 not strict byte-identical functions. Add a neutral
 `TrivialCanonicalAnalysisModeV1` (`ordinary/main × closed/finite-direct-call`),
 migrate capability callers and tests, then collapse the shared analyzer kernel.
-Keep `main` role data in the mode even if currently unused. Guard the four old
-symbols at zero and the new production entry at one capability owner.
+Keep `main` role data in the mode even if currently unused. Place the mode in a
+small neutral module (for example `analyzer_mode.rs`):
+`resolved_value_profile/analyzer.rs` is already 766 lines, so adding the enum
+there risks violating the 800-line source limit. Guard the four old symbols at
+zero and the new production entry at one capability owner.
 
 ### T3-D0..S3 — test facade and naming cleanup
 
 First manifest every `_for_test` facade with cfg scope, owner, mutation class,
-all callers, and candidate reachability. Delete only confirmed USE=0 helpers.
+all callers, and candidate reachability. The current broad inventory is 91
+definitions and roughly 340 `MirBuilder` test-API call sites, not 91
+deletions. The first concrete candidate is `builder_test_api`: seven public
+methods and an unconditional module registration; all observed callers are
+test bodies. Make the module `#[cfg(test)]` first, prove zero non-test callers,
+then move owner-local fixtures in small buildable steps. Delete only
+confirmed USE=0 helpers.
 Move pure fixtures/observers into owner-local `#[cfg(test)] test_support`;
 keep sealed-brand forges, failure injection, Builder/SSA mutation, reset, and
 private lifecycle helpers owner-local. Normalize mixed re-exports only after
@@ -151,20 +193,27 @@ the owner boundary is guarded. Do not move PHI/SSA helpers in this lane.
 
 Callable-result exports get a separate C0→C1→C2 series: split direct
 submodule/test-only imports first, then narrow the nine allows, and remove root
-exports only after caller-zero proof. `has_scope_box_lineage` remains a
-route-specific aggregation over a shared site primitive; do not replace it with
-a global body-wide boolean. The two `type_facts.rs` files are distinct
-domains; naming audit precedes any mechanical rename.
+exports only after caller-zero proof. The census must distinguish the live Raw
+emission path from `located_loop`, `emission_port`, and
+`source_instance_result_contract`, whose direct execution callers are currently
+zero or test-only despite production-module compilation. `has_scope_box_lineage`
+remains a route-specific aggregation over a shared site primitive; do not
+replace it with a global body-wide boolean. The two `type_facts.rs` files are
+distinct domains; naming audit precedes any mechanical rename.
 
 ### T4-D0..R0 — JSON-v0 bridge retirement
 
 This is a separate phase-29ci/29cj lane, not a unification of MIR lowering.
-First freeze four caller families (runtime direct MIR JSON, Stage-1 handoff,
-selfhost producer/consumer, Program JSON-v0 compatibility). Route direct loop
-PHI bypasses in `json_v0_bridge/lowering/loop_.rs` and `loop_range.rs` through
-LoopForm or explicitly quarantine them before bridge deletion. Preserve
-Program-specific import-bundle/trace behavior until all tools, probes, stage1
-wrappers, and compat callers are zero. Only then hard-delete the bridge.
+The current census is eight direct bridge call lines across seven production
+surfaces, plus one Stage-1 stub parser caller. Freeze four caller families:
+runtime direct/env provider, Stage-1 handoff/emit, selfhost
+producer/consumer/fallback, and Program JSON-v0 compatibility loader/tools.
+Route direct loop PHI bypasses in `json_v0_bridge/lowering/loop_.rs` and
+`loop_range.rs` through LoopForm or explicitly quarantine them before bridge
+deletion. Preserve Program-specific import-bundle/trace behavior until all
+tools, probes, stage1 wrappers, and compat callers are zero. Do not delete
+`src/stage1/program_json_v0*` merely because a CLI flag retires. Only then
+hard-delete the bridge.
 
 ## Cross-lane rules and acceptance
 
@@ -175,6 +224,12 @@ wrappers, and compat callers are zero. Only then hard-delete the bridge.
   BoxCount and BoxShape changes are not mixed.
 - Each deletion has a stable replacement proof, caller/guard census, focused
   gate, and explicit rollback boundary.
-- The current blocker remains the If D0-B2 facts-mapper design stop; this cleanup card is parked
+- `phi_input_materializer.rs` and route-local PHI repair remain outside T1–T4;
+  their size/authority split is a separate behavior-neutral SSA lane.
+- This cleanup card is parked behind the active If D0-B3 physical-input row
   and may run in parallel only as read-only audit/design work until a bounded
-  row is promoted.
+  row is promoted. T3/T4 must not move/delete `BindingSsaBuilderV1`,
+  `PhiTxn`, `CanonicalCfgSessionV1`, Loop/JoinIR PHI writers, or change
+  route/Recipe semantics. Existing semantic/lifecycle PHI/SSA owners are
+  authoritative, but exclusive production writer retirement remains a later
+  migration lane.
