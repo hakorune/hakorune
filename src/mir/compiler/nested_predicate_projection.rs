@@ -26,6 +26,8 @@ pub(crate) enum NestedPredicateProjectionRejectV1 {
     SourceNavigation,
     RootPredicateShape,
     ChildPredicateShape,
+    RootInitializerShape,
+    RootInitializerBindingMismatch,
     RootBodySchedule,
     ChildBodySchedule,
     MissingBinding,
@@ -68,6 +70,14 @@ pub(crate) struct NestedPredicateUpdateEvidenceV1 {
     pub(crate) delta: i64,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct NestedRootInitializerEvidenceV1 {
+    pub(crate) statement_site: SourceStmtSiteV1,
+    pub(crate) value_site: SourceExprSiteV1,
+    pub(crate) binding: BindingRefV1,
+    pub(crate) value: i64,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NestedRootBodyRoleV1 {
     LocalJ,
@@ -89,6 +99,7 @@ pub(crate) struct VerifiedNestedLoopSourceShapeV1 {
     pub(crate) child_site: SourceStmtSiteV1,
     pub(crate) root_condition: NestedPredicateConditionEvidenceV1,
     pub(crate) child_condition: NestedPredicateConditionEvidenceV1,
+    pub(crate) root_initializers: [NestedRootInitializerEvidenceV1; 2],
     pub(crate) initialize_child: NestedPredicateUpdateEvidenceV1,
     pub(crate) increment_root: NestedPredicateUpdateEvidenceV1,
     pub(crate) increment_ancestor: NestedPredicateUpdateEvidenceV1,
@@ -156,6 +167,13 @@ pub(crate) fn issue_nested_predicate_source_projection_v1(
     let root_body = source
         .child_body_from_stmt(root_loop, BodyChildRoleV1::LoopBody)
         .map_err(|_| NestedPredicateProjectionRejectV1::SourceNavigation)?;
+    let function_body = source
+        .root_body()
+        .map_err(|_| NestedPredicateProjectionRejectV1::SourceNavigation)?;
+    let root_local = source
+        .body_stmt(&function_body, 0)
+        .map_err(|_| NestedPredicateProjectionRejectV1::SourceNavigation)?;
+    let root_initializers = observe_root_initializers(source, function, &root_local)?;
     if root_body.statements().len() != 4 {
         return Err(NestedPredicateProjectionRejectV1::RootBodySchedule);
     }
@@ -209,7 +227,11 @@ pub(crate) fn issue_nested_predicate_source_projection_v1(
     let root_binding = root_condition.binding;
     let sum_binding = increment_ancestor.binding;
 
-    let child_binding = declaration_binding(function, local_j.site())?;
+    if root_initializers[0].binding != root_binding || root_initializers[1].binding != sum_binding {
+        return Err(NestedPredicateProjectionRejectV1::RootInitializerBindingMismatch);
+    }
+
+    let child_binding = declaration_binding(function, local_j.site(), 0)?;
     if initialize_child.binding != child_binding || increment_child.binding != child_binding {
         return Err(NestedPredicateProjectionRejectV1::BindingMismatch);
     }
@@ -244,6 +266,7 @@ pub(crate) fn issue_nested_predicate_source_projection_v1(
             child_site,
             root_condition,
             child_condition,
+            root_initializers,
             initialize_child,
             increment_root,
             increment_ancestor,
@@ -292,6 +315,50 @@ fn is_local_j(node: &ASTNode) -> bool {
             ..
         } if variables == &["j"] && initial_values.len() == 1 && initial_values[0].is_none()
     )
+}
+
+fn observe_root_initializers(
+    source: crate::mir::compiler::source_view::FunctionSourceViewV1<'_>,
+    function: &VerifiedResolvedFunctionV1,
+    statement: &LocatedStmtV1<'_>,
+) -> Result<[NestedRootInitializerEvidenceV1; 2], NestedPredicateProjectionRejectV1> {
+    let ASTNode::Local {
+        variables,
+        initial_values,
+        ..
+    } = statement.node()
+    else {
+        return Err(NestedPredicateProjectionRejectV1::RootInitializerShape);
+    };
+    if variables.len() != 2
+        || initial_values.len() != 2
+        || initial_values.iter().any(Option::is_none)
+    {
+        return Err(NestedPredicateProjectionRejectV1::RootInitializerShape);
+    }
+    let first = observe_root_initializer(source, function, statement, 0)?;
+    let second = observe_root_initializer(source, function, statement, 1)?;
+    Ok([first, second])
+}
+
+fn observe_root_initializer(
+    source: crate::mir::compiler::source_view::FunctionSourceViewV1<'_>,
+    function: &VerifiedResolvedFunctionV1,
+    statement: &LocatedStmtV1<'_>,
+    ordinal: u32,
+) -> Result<NestedRootInitializerEvidenceV1, NestedPredicateProjectionRejectV1> {
+    let value = source
+        .child_expr_from_stmt(statement, ExprChildRoleV1::LocalInitializer(ordinal))
+        .map_err(|_| NestedPredicateProjectionRejectV1::RootInitializerShape)?;
+    let binding = declaration_binding(function, statement.site(), ordinal)
+        .map_err(|_| NestedPredicateProjectionRejectV1::RootInitializerBindingMismatch)?;
+    Ok(NestedRootInitializerEvidenceV1 {
+        statement_site: statement.site().clone(),
+        value_site: value.site().clone(),
+        binding,
+        value: integer_constant(value.node())
+            .map_err(|_| NestedPredicateProjectionRejectV1::RootInitializerShape)?,
+    })
 }
 
 fn observe_condition(
@@ -424,12 +491,13 @@ fn assignment_binding(
 fn declaration_binding(
     function: &VerifiedResolvedFunctionV1,
     site: &SourceStmtSiteV1,
+    ordinal: u32,
 ) -> Result<BindingRefV1, NestedPredicateProjectionRejectV1> {
     function
         .declaration_binding(
             &crate::mir::resolved_semantics::SourceBindingSiteV1::Local {
                 statement: site.clone(),
-                ordinal: 0,
+                ordinal,
             },
         )
         .ok_or(NestedPredicateProjectionRejectV1::MissingBinding)

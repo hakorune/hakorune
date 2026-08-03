@@ -123,6 +123,16 @@ fn nested_projection_seals_source_shape_and_lexical_recurrence_boundary() {
     assert_eq!(shape.increment_root.delta, 1);
     assert_eq!(shape.increment_ancestor.delta, 1);
     assert_eq!(shape.increment_child.delta, 1);
+    assert_eq!(shape.root_initializers[0].value, 0);
+    assert_eq!(shape.root_initializers[1].value, 0);
+    assert_eq!(
+        shape.root_initializers[0].binding,
+        shape.bindings[0].binding
+    );
+    assert_eq!(
+        shape.root_initializers[1].binding,
+        shape.bindings[1].binding
+    );
     assert_eq!(
         shape.root_body_roles,
         [
@@ -210,5 +220,83 @@ fn nested_projection_rejects_extra_child_statement() {
     assert_eq!(
         issue_nested_predicate_source_projection_v1(input, &root),
         Err(NestedPredicateProjectionRejectV1::ChildBodySchedule)
+    );
+}
+
+#[test]
+fn nested_projection_rejects_missing_root_initializer() {
+    let mut tree = nested_function();
+    let ASTNode::FunctionDeclaration { body, .. } = &mut tree else {
+        unreachable!();
+    };
+    let ASTNode::Local { initial_values, .. } = &mut body[0] else {
+        unreachable!();
+    };
+    initial_values[0] = None;
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
+    let (input, root) = root_input_and_loop(&unit);
+    assert_eq!(
+        issue_nested_predicate_source_projection_v1(input, &root),
+        Err(NestedPredicateProjectionRejectV1::RootInitializerShape)
+    );
+}
+
+#[test]
+fn nested_projection_rejects_non_integer_root_initializer() {
+    let mut tree = nested_function();
+    let ASTNode::FunctionDeclaration { body, .. } = &mut tree else {
+        unreachable!();
+    };
+    let ASTNode::Local { initial_values, .. } = &mut body[0] else {
+        unreachable!();
+    };
+    initial_values[0] = Some(Box::new(ASTNode::Literal {
+        value: LiteralValue::String("zero".into()),
+        span: Span::unknown(),
+    }));
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
+    let (input, root) = root_input_and_loop(&unit);
+    assert_eq!(
+        issue_nested_predicate_source_projection_v1(input, &root),
+        Err(NestedPredicateProjectionRejectV1::RootInitializerShape)
+    );
+}
+
+#[test]
+fn nested_projection_rejects_reordered_root_declarations() {
+    let mut tree = nested_function();
+    let ASTNode::FunctionDeclaration { body, .. } = &mut tree else {
+        unreachable!();
+    };
+    let ASTNode::Local { variables, .. } = &mut body[0] else {
+        unreachable!();
+    };
+    variables.swap(0, 1);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
+    let (input, root) = root_input_and_loop(&unit);
+    assert_eq!(
+        issue_nested_predicate_source_projection_v1(input, &root),
+        Err(NestedPredicateProjectionRejectV1::RootInitializerBindingMismatch)
+    );
+}
+
+#[test]
+fn nested_projection_rejects_initializer_binding_mismatch() {
+    let mut tree = nested_function();
+    let ASTNode::FunctionDeclaration { body, .. } = &mut tree else {
+        unreachable!();
+    };
+    let ASTNode::Loop { condition, .. } = &mut body[1] else {
+        unreachable!();
+    };
+    let ASTNode::BinaryOp { left, .. } = condition.as_mut() else {
+        unreachable!();
+    };
+    *left = Box::new(variable("sum"));
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
+    let (input, root) = root_input_and_loop(&unit);
+    assert_eq!(
+        issue_nested_predicate_source_projection_v1(input, &root),
+        Err(NestedPredicateProjectionRejectV1::RootInitializerBindingMismatch)
     );
 }

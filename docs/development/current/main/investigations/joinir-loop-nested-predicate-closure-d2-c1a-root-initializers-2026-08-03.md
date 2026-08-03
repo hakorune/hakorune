@@ -47,8 +47,10 @@ typed failure. No Recipe key/value key is issued here.
    exact values `0` without an AST in the returned product.
 2. Typed negatives cover non-integer/missing/reordered initializer evidence
    and initializer binding mismatch.
-3. Existing D2-C source projection, D2-B JoinSig, Recipe, PHI/SSA tests remain
-   green; all touched files stay below 800 lines.
+3. Existing D2-C source projection, D2-B JoinSig, Recipe, and the targeted
+   `phi_lifecycle` suite remain green; all touched files stay below 800 lines.
+   The broad `cargo test -q phi --lib` name filter still reports three
+   unrelated pre-existing CFG/SSA failures; C1a does not touch those owners.
 4. Existing caller-zero source projection guard remains green and no D2-D
    production producer is wired.
 
