@@ -5,10 +5,10 @@ status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only 
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, M7-S0 synthetic nested-Always caller-zero evidence, D2-B bounded nested-Predicate JoinSig closure, D2-C/D2-C1a source closure, D2-D caller-zero Recipe producer/parity, the D4 source handoff, the caller-zero symbolic Nested Predicate topology issuer, and D5-P0 caller-zero physical input/block projection are landed. D5-P1 is authorized only for resolver-issued prefix/effect claims and one declaration-only canonical identity seam for uninitialized j. CanonicalSsaFunctionSessionV2 remains the PHI/SSA/CFG lifecycle owner; legacy Loop writers are not retired. Generic M4, production Nested emission, and full Loop route wiring remain forbidden."
-current_execution_row = "JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-P1"
-current_execution_summary = "DirectAccum remains the only canonical production family and the only currently wired canonical PHI/SSA physicalizer. D3 closeout is evidenced by the existing CanonicalDirectAccumSsaLowererV1 -> CanonicalSsaFunctionSessionV2 -> physicalize_direct_accum_v1_with_port path and green hardening/physicalizer/phi_lifecycle gates. D4 and D5-P0 are caller-zero: the Nested topology, semantic Recipe/JoinSig pair, and ten-block candidate-local projection are sealed. D5-P1 now fixes the resolver-issued prefix/effect contract for root i/sum and uninitialized child j; no production caller or legacy-writer retirement is authorized."
-current_execution_design = "docs/development/current/main/investigations/joinir-loop-nested-predicate-physical-adapter0-d5-p1-task-2026-08-04.md"
+current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, M7-S0 synthetic nested-Always caller-zero evidence, D2-B bounded nested-Predicate JoinSig closure, D2-C/D2-C1a source closure, D2-D caller-zero Recipe producer/parity, the D4 source handoff, the caller-zero symbolic Nested Predicate topology issuer, D5-P0 caller-zero physical input/block projection, and D5-P1 caller-zero resolver/effect/scope claims are landed. D5-I0 is now a design consultation stop: no production Nested emission is authorized until the named unpublished-candidate caller, JoinSig branch-transfer closure, selected fallback retirement, and winner/parity gates are fixed. CanonicalSsaFunctionSessionV2 remains the PHI/SSA/CFG lifecycle owner; Generic M4 and full Loop route wiring remain forbidden."
+current_execution_row = "JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-I0"
+current_execution_summary = "DirectAccum remains the only canonical production family and the only currently wired canonical PHI/SSA physicalizer. D4/D5-P0/P1 are caller-zero: Nested source, Recipe/JoinSig, topology, candidate block projection, resolver-issued prefix/effect claims, declaration-only j readiness, ordered effects, and exact LoopBody retirement are sealed and tested. D5-I0 is not yet implementation-authorized; it must first prove one named unpublished-candidate production caller, one Nested physicalizer boundary, JoinSig branch-transfer obligations, selected legacy fallback retirement, legacy/new parity, and late-failure candidate isolation."
+current_execution_design = "docs/development/current/main/investigations/joinir-loop-nested-predicate-physical-adapter0-d5-i0-consultation-2026-08-04.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,8 +440,8 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "joinir-loop-nested-predicate-physical-adapter0-d5-p0-task-2026-08-04"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-predicate-physical-adapter0-d5-p0-task-2026-08-04.md"
+latest_card = "joinir-loop-nested-predicate-physical-adapter0-d5-i0-consultation-2026-08-04"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-predicate-physical-adapter0-d5-i0-consultation-2026-08-04.md"
 latest_card_summary = """D3 is closed by the existing DirectAccum canonical pilot: CanonicalDirectAccumSsaLowererV1 owns one CanonicalSsaFunctionSessionV2 and borrows CanonicalCfgSessionV1/BindingSsaBuilderV1/PhiTxn into the accepted physicalizer; hardening, physicalizer, phi_lifecycle, guard, and cargo check gates are green. D4 source handoff and caller-zero symbolic topology are landed: ten ports, eleven symbolic edges, child resume, expanded root backedge, carrier visibility through ParentBodyResume, source roles, and predecessor seals are fixed without PHI/SSA or production wiring. D5 design is closed and P0 now fixes the caller-zero semantic-pair and candidate-local physical block projection; P1 prefix/effect claims and I0 production wiring remain later."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-P1"
+current_blocker_token = "JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-I0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
