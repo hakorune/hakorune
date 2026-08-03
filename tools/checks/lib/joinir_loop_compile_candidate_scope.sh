@@ -23,12 +23,14 @@ guard_joinir_loop_compile_candidate_scope() {
   local hardening_test="$root_dir/src/mir/compiler/resolved_direct_accum_hardening_p0.rs"
   local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
+  local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
-    "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region"
+    "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
+    "$source_adapter"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
   [[ "$(head -n1 "$manifest")" == "$header" ]] || \
@@ -131,7 +133,7 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "Nested source-forest anchor missing: $required"
   done
   if rg -n -F 'resolved_loop_source_forest(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /_tests?\.rs$/ { found = 1 } END { exit found }'; then
+      | awk -F: '$1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested source forest escaped its caller-zero resolver boundary"
@@ -140,6 +142,28 @@ guard_joinir_loop_compile_candidate_scope() {
   do
     if rg -n -F "$forbidden" "$loop_region" >/dev/null; then
       guard_fail "$tag" "Nested source forest imported physical/route authority: $forbidden"
+    fi
+  done
+
+  for required in \
+    'VerifiedLoopSourceForestBindingV1' \
+    'bind_resolved_loop_source_forest_v1(' \
+    'into_source_binding(' \
+    'LoopSourceForestBindingRejectV1'
+  do
+    rg -n -F "$required" "$source_adapter" >/dev/null || \
+      guard_fail "$tag" "Nested source-binding adapter anchor missing: $required"
+  done
+  if rg -n -F 'bind_resolved_loop_source_forest_v1(' "$root_dir/src" --glob '*.rs' \
+      | awk -F: '$1 !~ /loop_structural_facts\/resolved_source_adapter\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "Nested source-binding adapter escaped its caller-zero boundary"
+  fi
+  for forbidden in 'ASTNode' 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry'
+  do
+    if rg -n -F "$forbidden" "$source_adapter" >/dev/null; then
+      guard_fail "$tag" "Nested source-binding adapter imported physical/route authority: $forbidden"
     fi
   done
 

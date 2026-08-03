@@ -12,6 +12,13 @@ VerifiedResolvedFunctionV1::resolved_loop_source(site)
   -> VerifiedLoopRootSourceV1
   -> into_root_claim(&VerifiedLoopRecipeV1)
   -> LoopRecipeSourceBindingV1
+
+VerifiedResolvedFunctionV1::resolved_loop_source_forest(root)
+  -> VerifiedResolvedLoopSourceForestV1
+  -> bind_resolved_loop_source_forest_v1(forest)
+  -> VerifiedLoopSourceForestBindingV1
+  -> into_source_binding(&VerifiedLoopRecipeV1)
+  -> LoopRecipeSourceBindingV1
 ```
 
 `VerifiedResolvedLoopSourceV1` and `VerifiedLoopRootSourceV1` are local source
@@ -34,7 +41,8 @@ winner, one AST-free structural identity witness, and one exact resolved-source
 capability, then returns a non-Clone selected demand. It performs identity
 checking only; it does not create a Recipe, select a family, or touch PHI/SSA.
 Direct Accum is caller-zero evidence. Nested source-bound is not claimed until
-the resolver can issue a sealed root-plus-child forest capability.
+the resolver forest is consumed by the caller-zero D1 adapter and its recipe
+correspondence is verified.
 
 The Direct Accum S0 projection keeps the AST-bearing observation in
 `mir/compiler/direct_accum_projection.rs`. That adapter navigates only through

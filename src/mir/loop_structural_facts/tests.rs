@@ -14,9 +14,10 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::{
-    bind_resolved_loop_root_v1, issue_selected_loop_recipe_demand_v1,
-    verified_loop_structural_facts_for_test_with_frame, LoopRootSourceBindingRejectV1,
-    DirectAccumSingletonObservationRejectV1, SelectedLoopDemandRejectV1,
+    bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1,
+    issue_selected_loop_recipe_demand_v1, verified_loop_structural_facts_for_test_with_frame,
+    DirectAccumSingletonObservationRejectV1, LoopRootSourceBindingRejectV1,
+    LoopSourceForestBindingRejectV1, SelectedLoopDemandRejectV1, projection_for_test,
 };
 
 fn int(value: i64) -> ASTNode {
@@ -100,6 +101,13 @@ fn root_recipe() -> LoopRecipeV1 {
 
 fn verified_root_recipe() -> VerifiedLoopRecipeV1 {
     LoopRecipeVerifierV1::verify(root_recipe()).expect("minimal semantic recipe verifies")
+}
+
+fn nested_artifact() -> LoopRecipeArtifactV1 {
+    serde_json::from_str(include_str!(
+        "../loop_recipe_contract/fixtures/accum_nested_v1.json"
+    ))
+    .expect("nested recipe artifact fixture")
 }
 
 #[test]
@@ -278,6 +286,127 @@ fn nested_loop_preserves_loop_body_root_and_item_identity() {
             LoopSourcePathStepV1::BodyItem { index: 0 },
             LoopSourcePathStepV1::LoopBodyItem { index: 0 },
         ])
+    );
+}
+
+#[test]
+fn nested_source_forest_projects_to_verified_artifact_binding() {
+    let tree = function(vec![
+        int(0),
+        int(1),
+        loop_stmt(vec![loop_stmt(Vec::new())]),
+    ]);
+    let product = resolve_function(&tree);
+    let root = stmt(vec![SourcePathSegmentV1::Body(2)]);
+    let artifact = nested_artifact();
+    let recipe = LoopRecipeVerifierV1::verify(artifact.recipe().clone())
+        .expect("nested recipe semantic verifier");
+
+    let projection = bind_resolved_loop_source_forest_v1(
+        product
+            .resolved_loop_source_forest(&root)
+            .expect("nested source forest"),
+    )
+    .expect("portable nested source projection");
+    assert_eq!(projection.members().len(), 2);
+    assert_eq!(projection.members()[0].parent_index(), None);
+    assert_eq!(
+        projection.members()[0].path(),
+        &LoopSourcePathV1::new(vec![LoopSourcePathStepV1::BodyItem { index: 2 }])
+    );
+    assert_eq!(projection.members()[1].parent_index(), Some(0));
+    assert_eq!(
+        projection.members()[1].path(),
+        &LoopSourcePathV1::new(vec![
+            LoopSourcePathStepV1::BodyItem { index: 2 },
+            LoopSourcePathStepV1::LoopBodyItem { index: 0 },
+        ])
+    );
+
+    let source_binding = projection
+        .into_source_binding(&recipe)
+        .expect("recipe/source parent correspondence");
+    let rebound = LoopRecipeArtifactV1::new(
+        LoopRecipeProvenanceV1 {
+            producer_route: LoopRouteId::AccumConstLoop,
+        },
+        source_binding,
+        artifact.recipe().clone(),
+    );
+    verify_artifact_for_test(rebound).expect("source-bound nested artifact verifies");
+}
+
+#[test]
+fn nested_source_forest_projection_preserves_scope_path() {
+    let tree = function(vec![loop_stmt(vec![ASTNode::ScopeBox {
+        body: vec![loop_stmt(Vec::new())],
+        span: Span::unknown(),
+    }])]);
+    let product = resolve_function(&tree);
+    let root = stmt(vec![SourcePathSegmentV1::Body(0)]);
+    let projection = bind_resolved_loop_source_forest_v1(
+        product
+            .resolved_loop_source_forest(&root)
+            .expect("scope-wrapped nested source forest"),
+    )
+    .expect("scope-wrapped portable projection");
+
+    assert_eq!(projection.members().len(), 2);
+    assert_eq!(
+        projection.members()[1].path(),
+        &LoopSourcePathV1::new(vec![
+            LoopSourcePathStepV1::BodyItem { index: 0 },
+            LoopSourcePathStepV1::LoopBodyItem { index: 0 },
+            LoopSourcePathStepV1::ScopeBodyItem { index: 0 },
+        ])
+    );
+}
+
+#[test]
+fn nested_source_binding_rejects_recipe_coverage_mismatch() {
+    let projection = projection_for_test(&[None]);
+    let artifact = nested_artifact();
+    let recipe = LoopRecipeVerifierV1::verify(artifact.recipe().clone()).unwrap();
+
+    assert_eq!(
+        projection.into_source_binding(&recipe),
+        Err(LoopSourceForestBindingRejectV1::RecipeLoopCoverageMismatch {
+            expected: 2,
+            found: 1,
+        })
+    );
+}
+
+#[test]
+fn nested_source_binding_rejects_root_and_out_of_range_parent() {
+    let artifact = nested_artifact();
+    let recipe = LoopRecipeVerifierV1::verify(artifact.recipe().clone()).unwrap();
+
+    assert_eq!(
+        projection_for_test(&[Some(1), Some(0)]).into_source_binding(&recipe),
+        Err(LoopSourceForestBindingRejectV1::RootParentMismatch)
+    );
+    assert_eq!(
+        projection_for_test(&[None, Some(9)]).into_source_binding(&recipe),
+        Err(LoopSourceForestBindingRejectV1::ParentIndexOutOfRange {
+            member_index: 1,
+            parent_index: 9,
+        })
+    );
+}
+
+#[test]
+fn nested_source_binding_rejects_recipe_parent_mismatch() {
+    let artifact = nested_artifact();
+    let recipe = LoopRecipeVerifierV1::verify(artifact.recipe().clone()).unwrap();
+
+    assert_eq!(
+        projection_for_test(&[None, None]).into_source_binding(&recipe),
+        Err(LoopSourceForestBindingRejectV1::RecipeParentMismatch {
+            member_index: 1,
+            expected: Some(crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0)),
+            found: None,
+        })
     );
 }
 

@@ -10,8 +10,13 @@ mod types;
 
 #[allow(unused_imports)]
 pub(crate) use resolved_source_adapter::{
-    bind_resolved_loop_root_v1, LoopRootSourceBindingRejectV1, VerifiedLoopRootSourceV1,
+    bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1, LoopRootSourceBindingRejectV1,
+    LoopSourceForestBindingRejectV1, VerifiedLoopSourceForestBindingMemberV1,
+    VerifiedLoopSourceForestBindingV1, VerifiedLoopRootSourceV1,
 };
+
+#[cfg(test)]
+pub(crate) use resolved_source_adapter::projection_for_test;
 
 pub(crate) use direct_accum_effect_plan::{
     DirectAccumBindingEffectEntryV1, DirectAccumBindingEffectRoleV1,
