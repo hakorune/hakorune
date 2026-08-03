@@ -11,7 +11,7 @@ use crate::mir::loop_structural_facts::{
 };
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, ExprChildRoleV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
-    SourceExprSiteV1, VerifiedResolvedFunctionV1,
+    SourceExprSiteV1, VerifiedResolvedFunctionV1, VerifiedResolvedLoopSourceV1,
 };
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
@@ -33,18 +33,39 @@ pub(crate) enum DirectAccumProjectionRejectV1 {
     BindingMismatch,
 }
 
+#[cfg(test)]
+pub(crate) use tests::direct_accum_function_for_test;
+
 pub(crate) fn issue_direct_accum_facts_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     loop_stmt: &LocatedStmtV1<'_>,
 ) -> Result<VerifiedLoopStructuralFactsV1, DirectAccumProjectionRejectV1> {
+    let resolved_source = input
+        .function()
+        .resolved_loop_source(loop_stmt.site())
+        .map_err(|_| DirectAccumProjectionRejectV1::SourceLookup)?;
+    issue_direct_accum_facts_from_source_v1(input, loop_stmt, &resolved_source)
+}
+
+/// Same projection with the source capability already issued by the resolved
+/// owner. This keeps the production profile on one lookup/one frame path.
+pub(crate) fn issue_direct_accum_facts_from_source_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    loop_stmt: &LocatedStmtV1<'_>,
+    resolved_source: &VerifiedResolvedLoopSourceV1,
+) -> Result<VerifiedLoopStructuralFactsV1, DirectAccumProjectionRejectV1> {
     if input.owner() != loop_stmt.owner() {
         return Err(DirectAccumProjectionRejectV1::ForeignOwner);
     }
+    if !resolved_source.matches_identity(
+        input.function().function_origin(),
+        input.function().source_kind(),
+        loop_stmt.site(),
+    ) {
+        return Err(DirectAccumProjectionRejectV1::SourceLookup);
+    }
     let source = input.source();
     let function = input.function();
-    let resolved_source = function
-        .resolved_loop_source(loop_stmt.site())
-        .map_err(|_| DirectAccumProjectionRejectV1::SourceLookup)?;
     let body = source
         .child_body_from_stmt(loop_stmt, BodyChildRoleV1::LoopBody)
         .map_err(|_| DirectAccumProjectionRejectV1::SourceNavigation)?;
@@ -302,6 +323,10 @@ mod tests {
             source,
         )
         .expect("Direct Accum facts/source/winner frame must seal");
+    }
+
+    pub(crate) fn direct_accum_function_for_test() -> ASTNode {
+        function()
     }
 
     #[test]

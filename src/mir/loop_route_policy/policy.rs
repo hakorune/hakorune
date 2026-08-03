@@ -10,7 +10,9 @@ use super::policy_evidence::{
 };
 use super::schema::{
     FrozenLoopRouteScheduleV1, LoopRouteSourceDispositionV1, LoopRouteSuppressionDispositionV1,
+    CANONICAL_LOOP_ROUTE_ORDER_V1,
 };
+use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::resolved_semantics::LoopExecutionFrameKeyV1;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -26,6 +28,20 @@ pub(crate) struct VerifiedLoopPolicyWinnerV1 {
     seal: LoopQualifiedSealV1,
 }
 
+/// Policy-owned admission brand for the DirectAccum profile.
+///
+/// The lowerer never inspects a route cursor. This brand is issued only after
+/// the frozen policy winner is checked against the canonical Accum row.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedDirectAccumRouteAdmissionV1 {
+    winner: VerifiedLoopPolicyWinnerV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DirectAccumRouteAdmissionRejectV1 {
+    WrongWinnerCursor { expected: usize, actual: usize },
+}
+
 impl LoopQualifiedV1 {
     pub(crate) fn into_parts(self) -> (LoopRouteCandidateFactsV1, VerifiedLoopPolicyWinnerV1) {
         (self.facts, self.winner)
@@ -39,6 +55,28 @@ impl VerifiedLoopPolicyWinnerV1 {
 
     pub(crate) fn frame_key(&self) -> &LoopExecutionFrameKeyV1 {
         &self.frame_key
+    }
+
+    pub(crate) fn into_direct_accum_v1(
+        self,
+    ) -> Result<VerifiedDirectAccumRouteAdmissionV1, DirectAccumRouteAdmissionRejectV1> {
+        let expected = CANONICAL_LOOP_ROUTE_ORDER_V1
+            .iter()
+            .position(|route| *route == LoopRouteId::AccumConstLoop)
+            .expect("canonical route order contains AccumConstLoop");
+        if self.raw_cursor != expected {
+            return Err(DirectAccumRouteAdmissionRejectV1::WrongWinnerCursor {
+                expected,
+                actual: self.raw_cursor,
+            });
+        }
+        Ok(VerifiedDirectAccumRouteAdmissionV1 { winner: self })
+    }
+}
+
+impl VerifiedDirectAccumRouteAdmissionV1 {
+    pub(crate) fn into_policy_winner(self) -> VerifiedLoopPolicyWinnerV1 {
+        self.winner
     }
 }
 

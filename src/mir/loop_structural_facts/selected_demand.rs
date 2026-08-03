@@ -95,7 +95,6 @@ impl VerifiedLoopStructuralFactsV1 {
         }
     }
 
-    #[cfg(test)]
     pub(crate) fn direct_accum_shape(&self) -> Option<&DirectAccumStructuralShapeV1> {
         match &self.payload {
             LoopStructuralFactsPayloadV1::IdentityOnly => None,
