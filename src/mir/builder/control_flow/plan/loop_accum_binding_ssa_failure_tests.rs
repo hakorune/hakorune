@@ -3,8 +3,8 @@
 #![cfg(test)]
 
 use super::{
-    CanonicalLoopSsaSessionV1, LoopOperationV1, LoopValueKeyV1,
-    PhysicalRoleV1, VerifiedLoopOperationScheduleV1,
+    CanonicalLoopSsaSessionV1, LoopOperationV1, LoopValueKeyV1, PhysicalRoleV1,
+    VerifiedLoopOperationScheduleV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirInstruction};
@@ -37,29 +37,28 @@ fn operation_failure_aborts_shared_phi_transaction_and_fresh_session_reuses() {
     session.emit_header_carriers(&schedule, &mut values);
     assert_eq!(header_phi_count(&session.builder), 2);
 
-    let failed = session.emit_operations(
-        PhysicalRoleV1::Header,
-        &[
-            LoopOperationV1::ConstI64 {
-                result: LoopValueKeyV1::new(11),
-                value: 1,
-            },
-            LoopOperationV1::BinaryI64 {
-                op: super::LoopBinaryI64OpV1::Add,
-                left: LoopValueKeyV1::new(99),
-                right: LoopValueKeyV1::new(11),
-                result: LoopValueKeyV1::new(12),
-            },
-        ],
-        &mut values,
-    )
-    .expect_err("missing operation input must fail after a prior MIR effect");
+    let failed = session
+        .emit_operations(
+            PhysicalRoleV1::Header,
+            &[
+                LoopOperationV1::ConstI64 {
+                    result: LoopValueKeyV1::new(11),
+                    value: 1,
+                },
+                LoopOperationV1::BinaryI64 {
+                    op: super::LoopBinaryI64OpV1::Add,
+                    left: LoopValueKeyV1::new(99),
+                    right: LoopValueKeyV1::new(11),
+                    result: LoopValueKeyV1::new(12),
+                },
+            ],
+            &mut values,
+        )
+        .expect_err("missing operation input must fail after a prior MIR effect");
     assert!(failed.contains("missing binary lhs"));
 
     let super::CanonicalLoopSsaSessionV1 {
-        mut builder,
-        phis,
-        ..
+        mut builder, phis, ..
     } = session;
     let abort = phis.abort_on_err(&mut builder, failed);
     assert_eq!(abort.pending_count(), 2);
