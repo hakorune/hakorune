@@ -101,7 +101,7 @@ caller is added:
 1. **Owner and shape** — define one non-Clone
    `VerifiedLoopBindingEffectWitnessV1` (name provisional) issued by the
    resolved function owner. It may contain only exact `BindingRefV1` roles,
-   update/step `SourceStmtSiteV1` claims, and the same
+   update/step assignment-target `SourceExprSiteV1` claims, and the same
    `LoopExecutionFrameKeyV1`; it must contain no `ValueId`, block id, recipe
    route, or AST clone.
 2. **Ledger handoff** — the canonical lowerer consumes this witness once to
@@ -119,10 +119,19 @@ caller is added:
    existing function completion contract handles the loop's fallthrough after
    the physicalizer returns `Unit`.
 
-Required D1 evidence: wrong-frame, foreign-owner, wrong-site, duplicate-claim,
+Required D1 evidence: wrong-frame, foreign-owner, wrong-target-site, duplicate-claim,
 and unclaimed-site rejection tests; one caller-zero adapter parity test; and a
 static guard proving that the production physicalizer has no local SSA/CFG/
 PhiTxn owner and no `route_loop` caller.
+
+The issuer lane itself is also part of D1: the ordinary
+`CanonicalFunctionLowererV1` currently uses a compatibility pre-SSA identity,
+while `CanonicalTrivialSsaLowererV1` owns Binding SSA but its admitted profile
+and control-flow product reject `Loop`. The bridge must either replace the
+former with the existing SSA owner for this whole function or introduce one
+explicit DirectAccum resolved-owner profile that already owns that same SSA
+chain. It must not call the physicalizer from both lanes or silently widen the
+trivial profile with an unverified Loop arm.
 
 ## Current production observations
 
