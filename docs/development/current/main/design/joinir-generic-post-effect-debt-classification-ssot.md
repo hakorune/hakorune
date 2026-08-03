@@ -721,15 +721,15 @@ opaque overlap/mode/contract snapshots, and an independently accepted V1 stage;
 it may return `V1ForNestedCarriers` only for complete recursive coverage, and
 otherwise returns `UnresolvedStop`. Policy promotion remains a later D2 gate.
 
-#### D2-B3 — frame/witness reconciliation and consumer parity
+#### D2-B3 — landed semantic stop
 
-Use one real preflight frame for env/contract/raw schedule, then compare the
-facts-only policy disposition with fresh V0/V1 stages and the legacy witness.
-The current Both row must record `V1ForNestedCarriers` versus legacy V0 success
-as an explicit semantic mismatch, so it remains `UnresolvedStop`. Also compare
-recursive observation targets with V1 outer carrier PHI/final-value targets;
-any mismatch or unaccepted container keeps the row unresolved. No production
-policy, Retry rewrite, PHI wiring, or Generic cutover is allowed in B3.
+The same preflight frame now feeds facts observation, fresh V0/V1 stages, and
+the legacy witness. Both records `V1ForNestedCarriers` versus legacy V0 success
+as a semantic mismatch; V0 is not a source-semantic winner, so D2 remains
+`UnresolvedStop`. Observation targets and V1 outer PHI/final-value targets are
+checked, while `Program`/`CompoundAssignment` stay `Unavailable`. No policy,
+Retry, PHI wiring, or Generic cutover is authorized. M6 shared-owner work is
+the next caller-zero design stop; D2 resumes before M10b.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

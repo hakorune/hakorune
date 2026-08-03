@@ -34,6 +34,13 @@ M10b: all-route verified Recipe consumer + old scheduler/PHI deletion
 the Generic proof non-critical for the selected singleton pilot, but it cannot
 close M4 or authorize global Retry/fallback deletion.
 
+## Parallel lanes and hard order
+
+D2-B3 remains test-only and `UnresolvedStop`; M6-A/B may proceed caller-zero
+without selecting a Generic winner. M10a is forbidden until M6 and the named
+post-M6 Accum vertical pilot are green. Its order is
+`M6-A -> M6-B -> Accum pilot -> M10a`; M10b still waits for D2 and M7-M9.
+
 ## Why broad partial cutover is rejected
 
 The current `route_loop` issues one production frame from one raw schedule and
@@ -111,14 +118,16 @@ CFG/JoinSig/PHI owner and the portable physicalizer contract.
 
 ### N1 — shared-owner prerequisite
 
-Complete the M5 caller-zero pilot and M6 shared CFG/JoinSig/PHI owners. Keep
-all portable production callers at zero until this gate is green.
+Complete the M5 caller-zero pilot, M6-A/B shared CFG/JoinSig/PHI owners, and
+`JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1`. Keep portable production
+callers at zero until the pilot is green.
 
 ### N2 — `JOINIR-LOOP-NONGENERIC-DISJOINT-SUBSET-CUTOVER0`
 
 Optionally wire one or more N0 rows through the shared portable physicalizer.
-This is M10a only. It does not remove the ordered scheduler, Generic receipts,
-or any old PHI writer globally.
+This is M10a only: the singleton branch exclusively owns its dispatch, retires
+its selected old Accum JoinIR/PHI edge in the same commit, and never falls back.
+The ordered scheduler, Generic receipts, and other old PHI writers remain.
 
 ### N3 — final M10b
 

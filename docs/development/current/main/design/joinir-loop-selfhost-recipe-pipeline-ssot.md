@@ -37,7 +37,9 @@ composers/CorePlan/PlanLowerer/JoinIR merge/route PHI writers. Portable
 `VerifiedLoopRecipeV1` has zero physical production consumers through M9.
 The current JoinIR/JoinModule path remains execution authority until M10; Retry is
 scheduler-internal and exhaustion freezes; it is not a portable Recipe consumer.
-M5-M8 remain caller-zero; only atomic M10 activates the portable consumer and deletes selected old physical edges.
+M5/M6 remain caller-zero; after M6 and the post-M6 Accum pilot, optional M10a may
+activate one proven singleton and retire its selected old edge. M10b is the
+first all-route consumer and retires the scheduler/fallback/remaining old PHI edges.
 
 ```text
 Source / projection
@@ -455,8 +457,9 @@ Contract:
 Done:
 : The D0 row proves the real Accum singleton schedule, no Generic suffix,
   passive Recipe verification, fresh-repeat stability, and zero production
-  callers. The post-M6 vertical pilot must additionally prove MIR/PHI/type/
-  result parity, late-failure discard, and fresh reuse.
+  callers. Named post-M6 pilot `JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1`
+  must additionally prove MIR/PHI/type/result parity, late-failure discard,
+  and fresh reuse.
 
 Stop:
 : Do not import synthetic AST or current physical composer into D0, and do not
@@ -466,23 +469,25 @@ Stop:
 ### M6 — `JOINIR-LOOP-CFG-JOINSIG-PHI0-S4`
 
 Change:
-: Establish one CFG skeleton owner, one JoinSig edge-payload owner, one PHI
-  materializer, and one structural verifier.
+: Establish one caller-zero chain: verified Recipe -> CFG/JoinSig -> verifier ->
+  PHI materializer. Split pure logical elaboration (M6-A) from physical
+  emission (M6-B); no production caller is added.
 
 Contract:
-: Verifier checks predecessor count, dominance obligations, edge arity/types,
-  carrier closure, exits, and unreachable policy. `LoopPhiMaterializerV1`
-  consumes only verified JoinSig plus logical-to-physical mapping; it cannot
-  read AST, route/env, `variable_map`, tags, or infer repair. It rejects; it
-  never chooses another recipe.
+: M6-A has no Builder/physical IDs and verifies predecessor/dominance, edge
+  arity/types, carrier closure, exits, and unreachable policy. M6-B
+  `LoopPhiMaterializerV1` consumes only verified JoinSig plus logical-to-physical
+  mapping; AST, route/env, `variable_map`, tags, and repair inference are
+  forbidden. Both reject; neither chooses another recipe.
 
 Done:
-: Route-specific block/PHI allocators and lower-side AST decisions have zero new-
-  subtree callers. General SSA `for_pred` is unused or identity, whole-function
-  PHI repair reports `changed=0`, and Function DraftSeal never repairs.
+: Deterministic Accum JoinSig/counterexamples are green; route-specific
+  block/PHI callers in the new subtree are zero, `for_pred` is identity,
+  whole-function repair is `changed=0`, and DraftSeal never repairs.
 
 Stop:
-: No family adapter may bypass shared CFG/JoinSig/PHI owners.
+: Bypass, production wiring, route-local AST/PHI inference, duplicate writer,
+  or temporary repair stops M6.
 
 ### M7 — `JOINIR-LOOP-RECURSIVE-RECIPE-CLOSURE0-S5`
 
@@ -593,15 +598,14 @@ Stop:
 
 Change:
 : Feed located Loop source/provenance into the same StructuralFacts/recipe path;
-  delete the source-erasing handoff and covered normalized-shadow entries.
+  delete the source-erasing handoff and covered shadow entries.
 
 Contract:
-: No new ingress, source reconstruction, profile widening, or second recipe
-  producer.
+: No new ingress, source reconstruction, profile widening, or second producer.
 
 Done:
-: Old located terminal, scheduler, selected composers, normalized mutation
-  entries, and Loop R4 fences have zero callers; manifest/parity green.
+: Old located terminal/scheduler, selected composers, mutation entries, and
+  Loop R4 fences have zero callers; manifest/parity green.
 
 Stop:
 : Keep an uncovered entry under a named owner rather than hiding it in fallback.
@@ -609,26 +613,21 @@ Stop:
 ### M12 — `JOINIR-LOOP-LEGACY-FAMILY-ADAPTER-RETIRE0-R2`
 
 Change:
-: After M10/M11 have removed the old physical edges, classify every remaining
-  `11/1/1/4/2` first-mutation profile, family adapter receipt, and route wrapper
-  as semantic producer input, migration-only evidence, or duplicate facade.
-  Delete the migration-only and duplicate rows; keep only source-policy rows
-  that produce the common recursive recipe.
+: After M10/M11 remove old physical edges, classify each `11/1/1/4/2`
+  first-mutation profile, family receipt, and route wrapper as semantic input,
+  migration evidence, or duplicate facade; delete migration-only/duplicate
+  rows and keep only source-policy rows producing the common recipe.
 
 Contract:
-: This is a retirement pass, not a new lowering design. The new verifier,
-  CFG/JoinSig/PHI owners, and physicalizer already have authority count one.
-  Do not introduce an intermediate three-family semantic layer or merge
-  distinct source predicates merely to reduce a count.
+: Retirement only: verifier, CFG/JoinSig/PHI owners, and physicalizer have
+  authority count one; no three-family layer or predicate merge.
 
 Done:
 : Production references to `ComposerMutationFamily`/equivalent legacy
   first-mutation enums and family adapter dispatch are zero. Family-specific
-  recipe variants, verifier branches, CFG/PHI branches, and physicalizer
-  branches are zero. Duplicate producer wrappers are zero; retained route rows
-  are data-only source recognition/policy inputs. The terminal physicalizer has
-  exactly one production caller and all accepted-corpus/parity/quick/release
-  gates remain green.
+  recipe/verifier/CFG/PHI/physicalizer branches and duplicate producer wrappers
+  are zero; retained route rows are data-only source policy. The terminal
+  physicalizer has one production caller and all parity/quick/release gates green.
 
 Stop:
 : If a retained adapter still owns physical allocation, retry, AST rematch, or
