@@ -10,6 +10,8 @@ guard_joinir_logical_demand_contract() {
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
   local loop_phi_materializer="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer.rs"
+  local loop_phi_materializer_tests="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer_tests.rs"
+  local loop_physical_edge_path="$root_dir/src/mir/builder/control_flow/plan/loop_physical_edge_path.rs"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
   local if_phi_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_if_phi_join_terminality.rs"
@@ -47,7 +49,8 @@ guard_joinir_logical_demand_contract() {
   local file lines
 
   guard_require_files "$tag" "${files[@]}"
-  guard_require_files "$tag" "$loop_phi_materializer"
+  guard_require_files "$tag" \
+    "$loop_phi_materializer" "$loop_phi_materializer_tests" "$loop_physical_edge_path"
   local portable_recipe_files=()
   mapfile -t portable_recipe_files < <(find "$portable_recipe_dir" -maxdepth 1 -name '*.rs' -type f | sort)
   guard_require_files "$tag" \
@@ -91,7 +94,9 @@ guard_joinir_logical_demand_contract() {
       | awk \
           -v prefix="$portable_recipe_dir/" \
           -v materializer="$loop_phi_materializer" \
-          'index($0, prefix) != 1 && $0 != materializer'
+          -v materializer_tests="$loop_phi_materializer_tests" \
+          -v edge_path="$loop_physical_edge_path" \
+          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != edge_path'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -104,7 +109,9 @@ guard_joinir_logical_demand_contract() {
   local loop_phi_external_callers=()
   mapfile -t loop_phi_external_callers < <(
     { rg -l 'materialize_loop_phis\(' "$root_dir/src/mir" || true; } \
-      | awk -v materializer="$loop_phi_materializer" '$0 != materializer'
+      | awk -v materializer="$loop_phi_materializer" \
+          -v materializer_tests="$loop_phi_materializer_tests" \
+          '$0 != materializer && $0 != materializer_tests'
   )
   if (( ${#loop_phi_external_callers[@]} != 0 )); then
     guard_fail "$tag" "caller-zero Loop PHI materializer acquired a production caller"
@@ -153,7 +160,8 @@ guard_joinir_logical_demand_contract() {
           -v recipe_prefix="$portable_recipe_dir/" \
           -v structural_prefix="$loop_structural_facts_dir/" \
           -v materializer="$loop_phi_materializer" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && $0 != materializer'
+          -v materializer_tests="$loop_phi_materializer_tests" \
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && $0 != materializer && $0 != materializer_tests'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"

@@ -6,6 +6,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::mir::builder::control_flow::plan::loop_physical_edge_path::LoopPhysicalEdgePathV1;
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::ssa::binding::{BindingSsaIrV1, MirBindingSsaAdapterV1};
 use crate::mir::builder::MirBuilder;
@@ -23,6 +24,7 @@ pub(in crate::mir::builder) struct LoopLogicalToPhysicalMapInputV1 {
     pub(in crate::mir::builder) values: Vec<(LoopValueKeyV1, ValueId, LoopValueClassV1)>,
     pub(in crate::mir::builder) destinations: Vec<(LoopNodeKeyV1, LoopBindingKeyV1, ValueId)>,
     pub(in crate::mir::builder) predecessors: Vec<(BasicBlockId, Vec<BasicBlockId>)>,
+    pub(in crate::mir::builder) edge_paths: Vec<LoopPhysicalEdgePathV1>,
 }
 
 #[derive(Debug)]
@@ -31,6 +33,7 @@ pub(in crate::mir::builder) struct VerifiedLoopLogicalToPhysicalMapV1 {
     values: BTreeMap<LoopValueKeyV1, (ValueId, LoopValueClassV1)>,
     destinations: BTreeMap<(LoopNodeKeyV1, LoopBindingKeyV1), ValueId>,
     predecessors: BTreeMap<BasicBlockId, Box<[BasicBlockId]>>,
+    edge_paths: BTreeMap<(LoopNodeKeyV1, LoopJoinEdgeRoleV1), Box<[LoopPhysicalEdgePathV1]>>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -104,11 +107,13 @@ impl VerifiedLoopLogicalToPhysicalMapV1 {
                 Ok((block, rows.into_boxed_slice()))
             })
             .collect::<Result<BTreeMap<_, _>, _>>()?;
+        let edge_paths = grouped_edge_paths(input.edge_paths)?;
         let map = Self {
             ports,
             values,
             destinations,
             predecessors,
+            edge_paths,
         };
         map.validate_signature(sig)?;
         Ok(map)
@@ -118,10 +123,13 @@ impl VerifiedLoopLogicalToPhysicalMapV1 {
         &self,
         sig: &VerifiedLoopJoinSigV1,
     ) -> Result<(), LoopPhiMaterializerErrorV1> {
+        let mut known_edge_roles = BTreeSet::new();
         for row in &sig.as_sig().loops {
             for edge in &row.edges {
+                known_edge_roles.insert((row.key, edge.role));
                 self.port(row.key, edge.from)?;
                 self.port(row.key, edge.to)?;
+                self.validate_edge_paths(row.key, edge)?;
                 for payload in &edge.payload {
                     let (_, class) = self.value(payload.value)?;
                     if class != payload.class {
@@ -160,7 +168,109 @@ impl VerifiedLoopLogicalToPhysicalMapV1 {
                 }
             }
         }
+        if self
+            .edge_paths
+            .keys()
+            .any(|key| !known_edge_roles.contains(key))
+        {
+            return Err(map_error("physical edge path has no logical JoinSig edge"));
+        }
         Ok(())
+    }
+
+    fn validate_edge_paths(
+        &self,
+        loop_key: LoopNodeKeyV1,
+        edge: &crate::mir::loop_recipe_contract::LoopJoinEdgeV1,
+    ) -> Result<(), LoopPhiMaterializerErrorV1> {
+        let paths = self.edge_paths.get(&(loop_key, edge.role)).ok_or_else(|| {
+            map_error(format!(
+                "missing physical edge path loop={loop_key:?} role={:?}",
+                edge.role
+            ))
+        })?;
+        let from = self.port(loop_key, edge.from)?;
+        let to = self.port(loop_key, edge.to)?;
+        let matching = paths
+            .iter()
+            .filter(|path| path.blocks.first() == Some(&from) && path.blocks.last() == Some(&to))
+            .count();
+        if matching == 0 {
+            return Err(map_error(format!(
+                "edge path endpoint mismatch loop={loop_key:?} role={:?} from={from:?} to={to:?}",
+                edge.role
+            )));
+        }
+        if is_header_input(edge.role) && paths.len() != 1 {
+            return Err(map_error(format!(
+                "header edge path must be unique loop={loop_key:?} role={:?} count={}",
+                edge.role,
+                paths.len()
+            )));
+        }
+        for path in paths {
+            self.validate_edge_path(path, from, to)?;
+        }
+        Ok(())
+    }
+
+    fn validate_edge_path(
+        &self,
+        path: &LoopPhysicalEdgePathV1,
+        from: BasicBlockId,
+        to: BasicBlockId,
+    ) -> Result<(), LoopPhiMaterializerErrorV1> {
+        if path.blocks.len() < 2 {
+            return Err(map_error(format!(
+                "physical edge path is too short loop={:?} role={:?}",
+                path.loop_key, path.role
+            )));
+        }
+        if path.blocks.first() != Some(&from) || path.blocks.last() != Some(&to) {
+            return Err(map_error(format!(
+                "physical edge path endpoints loop={:?} role={:?} expected=({from:?},{to:?}) actual={:?}",
+                path.loop_key, path.role, path.blocks
+            )));
+        }
+        if path.terminal_predecessor != path.blocks[path.blocks.len() - 2] {
+            return Err(map_error(format!(
+                "physical edge path terminal predecessor mismatch loop={:?} role={:?}",
+                path.loop_key, path.role
+            )));
+        }
+        for pair in path.blocks.windows(2) {
+            let predecessors = self.predecessors.get(&pair[1]).ok_or_else(|| {
+                map_error(format!(
+                    "missing predecessor witness target={:?} loop={:?} role={:?}",
+                    pair[1], path.loop_key, path.role
+                ))
+            })?;
+            if !predecessors.contains(&pair[0]) {
+                return Err(map_error(format!(
+                    "physical edge path predecessor mismatch target={:?} predecessor={:?} loop={:?} role={:?}",
+                    pair[1], pair[0], path.loop_key, path.role
+                )));
+            }
+        }
+        Ok(())
+    }
+
+    fn header_path(
+        &self,
+        loop_key: LoopNodeKeyV1,
+        edge: &crate::mir::loop_recipe_contract::LoopJoinEdgeV1,
+    ) -> Result<&LoopPhysicalEdgePathV1, LoopPhiMaterializerErrorV1> {
+        let paths = self
+            .edge_paths
+            .get(&(loop_key, edge.role))
+            .ok_or_else(|| map_error(format!("missing header edge path loop={loop_key:?}")))?;
+        if paths.len() != 1 {
+            return Err(map_error(format!(
+                "header edge path is not unique loop={loop_key:?} role={:?}",
+                edge.role
+            )));
+        }
+        Ok(&paths[0])
     }
 
     fn port(
@@ -226,7 +336,10 @@ impl VerifiedLoopLogicalToPhysicalMapV1 {
                         .value;
                     let (physical, incoming_class) = self.value(incoming)?;
                     class.get_or_insert(incoming_class);
-                    inputs.push((self.port(row.key, edge.from)?, physical));
+                    inputs.push((
+                        self.header_path(row.key, edge)?.terminal_predecessor,
+                        physical,
+                    ));
                 }
                 inputs.sort_unstable_by_key(|(block, value)| (*block, *value));
                 Ok(PendingPhiV1 {
@@ -422,6 +535,29 @@ fn unique_destinations(
     Ok(map)
 }
 
+fn grouped_edge_paths(
+    rows: Vec<LoopPhysicalEdgePathV1>,
+) -> Result<
+    BTreeMap<(LoopNodeKeyV1, LoopJoinEdgeRoleV1), Box<[LoopPhysicalEdgePathV1]>>,
+    LoopPhiMaterializerErrorV1,
+> {
+    let mut grouped =
+        BTreeMap::<(LoopNodeKeyV1, LoopJoinEdgeRoleV1), Vec<LoopPhysicalEdgePathV1>>::new();
+    for path in rows {
+        grouped
+            .entry((path.loop_key, path.role))
+            .or_default()
+            .push(path);
+    }
+    Ok(grouped
+        .into_iter()
+        .map(|(key, mut paths)| {
+            paths.sort_by_key(|path| path.blocks.clone());
+            (key, paths.into_boxed_slice())
+        })
+        .collect())
+}
+
 fn header_inputs(
     map: &VerifiedLoopLogicalToPhysicalMapV1,
     row: &crate::mir::loop_recipe_contract::LoopJoinLoopV1,
@@ -430,7 +566,10 @@ fn header_inputs(
         .edges
         .iter()
         .filter(|edge| is_header_input(edge.role))
-        .map(|edge| map.port(row.key, edge.from))
+        .map(|edge| {
+            map.header_path(row.key, edge)
+                .map(|path| path.terminal_predecessor)
+        })
         .collect::<Result<Vec<_>, _>>()?;
     incoming.sort_unstable();
     if incoming.windows(2).any(|pair| pair[0] == pair[1]) {
@@ -472,324 +611,5 @@ fn preflight_error(error: impl Into<String>) -> LoopPhiMaterializerErrorV1 {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mir::builder::module_invocation_session::BuilderCoreSeedPolicyV1;
-    use crate::mir::builder::{
-        BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, MirBuilder,
-        ModuleBuilderInvocationSessionV1,
-    };
-    use crate::mir::loop_recipe_contract::{
-        LoopJoinSigElaboratorV1, LoopRecipeArtifactV1, LoopRecipeVerifierV1,
-    };
-    use crate::mir::{
-        BasicBlock, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
-    };
-
-    const GOLDEN: &str =
-        include_str!("../../../loop_recipe_contract/fixtures/accum_nested_v1.json");
-
-    fn verified_sig() -> VerifiedLoopJoinSigV1 {
-        let artifact: LoopRecipeArtifactV1 = serde_json::from_str(GOLDEN).expect("golden JSON");
-        let verified =
-            LoopRecipeVerifierV1::verify(artifact.recipe().clone()).expect("recipe shape");
-        LoopJoinSigElaboratorV1::elaborate(&verified).expect("bounded JoinSig")
-    }
-
-    fn bb(id: u32) -> BasicBlockId {
-        BasicBlockId::new(id)
-    }
-
-    fn seed_builder(builder: &mut MirBuilder) {
-        let mut function = MirFunction::new(
-            FunctionSignature {
-                name: "m6b/accum/0".to_string(),
-                params: Vec::new(),
-                return_type: MirType::Void,
-                effects: EffectMask::PURE,
-            },
-            bb(0),
-        );
-        for id in 1..8 {
-            function.add_block(BasicBlock::new(bb(id)));
-        }
-        {
-            let entry = function.get_block_mut(bb(0)).unwrap();
-            entry.add_instruction(MirInstruction::Const {
-                dst: ValueId::new(30),
-                value: ConstValue::Bool(true),
-            });
-            entry.add_instruction(MirInstruction::Const {
-                dst: ValueId::new(10),
-                value: ConstValue::Integer(0),
-            });
-            entry.add_instruction(MirInstruction::Const {
-                dst: ValueId::new(12),
-                value: ConstValue::Integer(0),
-            });
-            entry.set_terminator(MirInstruction::Jump {
-                target: bb(1),
-                edge_args: None,
-            });
-        }
-        function
-            .get_block_mut(bb(1))
-            .unwrap()
-            .set_terminator(MirInstruction::Branch {
-                condition: ValueId::new(30),
-                then_bb: bb(2),
-                else_bb: bb(3),
-                then_edge_args: None,
-                else_edge_args: None,
-            });
-        {
-            let body = function.get_block_mut(bb(2)).unwrap();
-            body.add_instruction(MirInstruction::Const {
-                dst: ValueId::new(11),
-                value: ConstValue::Integer(1),
-            });
-            body.add_instruction(MirInstruction::Const {
-                dst: ValueId::new(13),
-                value: ConstValue::Integer(1),
-            });
-            body.set_terminator(MirInstruction::Jump {
-                target: bb(1),
-                edge_args: None,
-            });
-        }
-        function
-            .get_block_mut(bb(3))
-            .unwrap()
-            .set_terminator(MirInstruction::Return { value: None });
-        function
-            .get_block_mut(bb(1))
-            .unwrap()
-            .add_predecessor(bb(0));
-        function
-            .get_block_mut(bb(1))
-            .unwrap()
-            .add_predecessor(bb(2));
-        function
-            .get_block_mut(bb(2))
-            .unwrap()
-            .add_predecessor(bb(1));
-        function
-            .get_block_mut(bb(3))
-            .unwrap()
-            .add_predecessor(bb(1));
-        for (value, ty) in [
-            (30, MirType::Bool),
-            (10, MirType::Integer),
-            (11, MirType::Integer),
-            (12, MirType::Integer),
-            (13, MirType::Integer),
-        ] {
-            function
-                .metadata
-                .value_types
-                .insert(ValueId::new(value), ty);
-        }
-        let value_types = function.metadata.value_types.clone();
-        builder.function_state.current_function = Some(function);
-        builder.function_state.type_ctx.value_types = value_types;
-    }
-
-    fn seeded_builder() -> MirBuilder {
-        let mut builder = MirBuilder::new();
-        seed_builder(&mut builder);
-        builder
-    }
-
-    fn candidate_session(live: &MirBuilder) -> ModuleBuilderInvocationSessionV1 {
-        let config = BuilderInvocationConfigV1::snapshot_with_policy(
-            live,
-            BuilderCoreSeedPolicyV1::ContinueLive,
-        );
-        let mut session = ModuleBuilderInvocationSessionV1::open(live, config);
-        seed_builder(session.builder_mut());
-        session
-    }
-
-    fn map_input() -> LoopLogicalToPhysicalMapInputV1 {
-        use LoopJoinPortV1::*;
-        LoopLogicalToPhysicalMapInputV1 {
-            ports: vec![
-                (LoopNodeKeyV1::new(0), Preheader, bb(0)),
-                (LoopNodeKeyV1::new(0), Header, bb(1)),
-                (LoopNodeKeyV1::new(0), Body, bb(2)),
-                (LoopNodeKeyV1::new(0), After, bb(3)),
-                (LoopNodeKeyV1::new(1), Preheader, bb(2)),
-                (LoopNodeKeyV1::new(1), Header, bb(4)),
-                (LoopNodeKeyV1::new(1), Body, bb(5)),
-                (LoopNodeKeyV1::new(1), After, bb(6)),
-            ],
-            values: vec![
-                (
-                    LoopValueKeyV1::new(0),
-                    ValueId::new(10),
-                    LoopValueClassV1::I64,
-                ),
-                (
-                    LoopValueKeyV1::new(3),
-                    ValueId::new(12),
-                    LoopValueClassV1::I64,
-                ),
-                (
-                    LoopValueKeyV1::new(5),
-                    ValueId::new(11),
-                    LoopValueClassV1::I64,
-                ),
-                (
-                    LoopValueKeyV1::new(6),
-                    ValueId::new(13),
-                    LoopValueClassV1::I64,
-                ),
-            ],
-            destinations: vec![
-                (
-                    LoopNodeKeyV1::new(0),
-                    LoopBindingKeyV1::new(0),
-                    ValueId::new(20),
-                ),
-                (
-                    LoopNodeKeyV1::new(0),
-                    LoopBindingKeyV1::new(1),
-                    ValueId::new(21),
-                ),
-            ],
-            predecessors: vec![(bb(1), vec![bb(0), bb(2)])],
-        }
-    }
-
-    fn materializer_input(sig: &VerifiedLoopJoinSigV1) -> VerifiedLoopLogicalToPhysicalMapV1 {
-        VerifiedLoopLogicalToPhysicalMapV1::try_new(sig, map_input()).expect("sealed map")
-    }
-
-    #[test]
-    fn map_rejects_duplicate_predecessor_before_builder_effect() {
-        let sig = verified_sig();
-        let mut input = map_input();
-        input.predecessors[0].1.push(bb(0));
-        let error = VerifiedLoopLogicalToPhysicalMapV1::try_new(&sig, input).unwrap_err();
-        assert!(error.to_string().contains("duplicate predecessor"));
-    }
-
-    #[test]
-    fn materializer_emits_exact_accum_header_phis() {
-        let sig = verified_sig();
-        let mut builder = seeded_builder();
-        let before = builder.function_state.variable_ctx.variable_map.clone();
-        let receipt = materialize_loop_phis(&mut builder, &sig, materializer_input(&sig))
-            .expect("PHI materialization");
-        assert_eq!(receipt.sites().len(), 2);
-        assert_eq!(
-            receipt.sites()[0].inputs.as_ref(),
-            &[(bb(0), ValueId::new(10)), (bb(2), ValueId::new(11))]
-        );
-        assert_eq!(
-            receipt.sites()[1].inputs.as_ref(),
-            &[(bb(0), ValueId::new(12)), (bb(2), ValueId::new(13))]
-        );
-        let function = builder.function_state.current_function.as_ref().unwrap();
-        let phis = function
-            .get_block(bb(1))
-            .unwrap()
-            .instructions
-            .iter()
-            .filter_map(|instruction| match instruction {
-                MirInstruction::Phi { dst, inputs, .. } => Some((*dst, inputs.clone())),
-                _ => None,
-            })
-            .collect::<Vec<_>>();
-        assert_eq!(phis.len(), 2);
-        assert_eq!(builder.function_state.variable_ctx.variable_map, before);
-    }
-
-    #[test]
-    fn provisional_failure_rolls_back_empty_phi() {
-        let sig = verified_sig();
-        let mut builder = seeded_builder();
-        let map = materializer_input(&sig);
-        let error = materialize_impl(&mut builder, &sig, map, Some(0)).unwrap_err();
-        assert!(error.to_string().contains("txn_abort"));
-        assert!(builder
-            .function_state
-            .current_function
-            .as_ref()
-            .unwrap()
-            .get_block(bb(1))
-            .unwrap()
-            .instructions
-            .iter()
-            .all(|instruction| !matches!(instruction, MirInstruction::Phi { .. })));
-    }
-
-    #[test]
-    fn stale_cfg_witness_rejects_before_phi_effect() {
-        let sig = verified_sig();
-        let mut builder = seeded_builder();
-        builder
-            .function_state
-            .current_function
-            .as_mut()
-            .unwrap()
-            .get_block_mut(bb(1))
-            .unwrap()
-            .predecessors
-            .remove(&bb(2));
-        let error =
-            materialize_loop_phis(&mut builder, &sig, materializer_input(&sig)).unwrap_err();
-        assert!(error.to_string().contains("sealed predecessor mismatch"));
-        assert!(builder
-            .function_state
-            .current_function
-            .as_ref()
-            .unwrap()
-            .get_block(bb(1))
-            .unwrap()
-            .instructions
-            .iter()
-            .all(|instruction| !matches!(instruction, MirInstruction::Phi { .. })));
-    }
-
-    #[test]
-    fn fresh_builder_reuse_is_deterministic() {
-        let sig = verified_sig();
-        let mut left = seeded_builder();
-        let mut right = seeded_builder();
-        let left_receipt =
-            materialize_loop_phis(&mut left, &sig, materializer_input(&sig)).unwrap();
-        let right_receipt =
-            materialize_loop_phis(&mut right, &sig, materializer_input(&sig)).unwrap();
-        assert_eq!(left_receipt, right_receipt);
-    }
-
-    #[test]
-    fn candidate_abort_after_m6b_effect_allows_fresh_retry() {
-        let live = MirBuilder::new();
-        let before = live.loop_candidate_test_fingerprint();
-        let sig = verified_sig();
-        let mut first = candidate_session(&live);
-        let first_receipt =
-            materialize_loop_phis(first.builder_mut(), &sig, materializer_input(&sig))
-                .expect("first candidate materialization");
-        let first_error = first.prepare_external_commit().unwrap_err();
-        assert_eq!(
-            first_error,
-            BuilderCommitReadinessErrorV1::CurrentFunctionOpen
-        );
-        assert_eq!(live.loop_candidate_test_fingerprint(), before);
-
-        let mut second = candidate_session(&live);
-        let second_receipt =
-            materialize_loop_phis(second.builder_mut(), &sig, materializer_input(&sig))
-                .expect("fresh candidate materialization");
-        assert_eq!(first_receipt, second_receipt);
-        let second_error = second.prepare_external_commit().unwrap_err();
-        assert_eq!(
-            second_error,
-            BuilderCommitReadinessErrorV1::CurrentFunctionOpen
-        );
-        assert_eq!(live.loop_candidate_test_fingerprint(), before);
-    }
-}
+#[path = "loop_phi_materializer_tests.rs"]
+mod tests;

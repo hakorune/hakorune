@@ -67,7 +67,9 @@ Sealing requires:
   witness;
 - `terminal_predecessor == blocks[len - 2]`;
 - `Enter`, `Backedge`, and `Continue` have exactly one path;
-- `PredicateFalse` and `Break` may have zero or more paths;
+- `PredicateFalse` and `Break` may fan out; when the logical edge is present,
+  it must have at least one matching path (a role with no logical edge has no
+  path row);
 - no implicit `[from, to]` fallback when a path row is absent.
 
 Header PHI input construction consumes the explicit path's terminal
@@ -149,4 +151,3 @@ only; its legacy nested composer is not an equivalent semantic oracle.
 
 If a path needs route-specific repair, AST reconstruction, or a second PHI
 writer, stop P1b and reopen the design rather than adding a fallback.
-
