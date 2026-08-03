@@ -2,11 +2,16 @@
 
 use super::loop_accum_physicalizer::*;
 use super::loop_physical_input::*;
-use crate::mir::builder::emission::loop_operation;
+use crate::mir::builder::emission::{
+    loop_operation,
+    phi_lifecycle::{PhiToken, PhiTxn},
+};
 use crate::mir::builder::module_invocation_session::{
     BuilderCommitReadinessErrorV1, BuilderCoreSeedPolicyV1, BuilderInvocationConfigV1,
     ModuleBuilderInvocationSessionV1,
 };
+use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
+use crate::mir::builder::ssa::binding::BindingSsaBuilderV1;
 use crate::mir::loop_recipe_contract::{
     direct_accum_product_for_test, VerifiedLoopPhysicalInputV1,
 };
@@ -107,6 +112,44 @@ fn direct_accum_physicalizer_emits_through_existing_owners() {
             .len(),
         5
     );
+}
+
+#[test]
+fn direct_accum_borrowing_seam_leaves_owner_commit_to_caller() {
+    let mut builder = MirBuilder::new();
+    let (bindings, inputs) = seed_direct_accum(&mut builder, "direct_accum_physicalizer/borrow");
+    let owner = bindings.owner();
+    let mut cfg = CanonicalCfgSessionV1::new();
+    let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
+    let mut phis = Some(PhiTxn::begin("loop_direct_accum_borrowing_test"));
+
+    let receipt = physicalize_direct_accum_v1_borrowing(
+        &mut builder,
+        VerifiedLoopPhysicalInputV1::from_direct_accum(direct_accum_product_for_test()),
+        bindings,
+        inputs,
+        roles(),
+        &mut cfg,
+        &mut ssa,
+        &mut phis,
+    )
+    .expect("borrowed physicalization");
+
+    ssa.finish().expect("caller-owned SSA finish");
+    cfg.finish(
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("function"),
+    )
+    .expect("caller-owned CFG finish");
+    phis.take()
+        .expect("caller-owned PHI transaction")
+        .commit(&mut builder)
+        .expect("caller-owned PHI commit");
+    assert_eq!(receipt.result, LoopResultDispositionV1::Unit);
+    assert_eq!(receipt.final_values.len(), 2);
 }
 
 #[test]

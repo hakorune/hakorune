@@ -8,7 +8,10 @@ use super::loop_physical_input::{
     LoopPhysicalInputRejectV1, LoopPhysicalRoleV1, VerifiedLoopBindingProjectionV1,
     VerifiedLoopInputProjectionV1, VerifiedLoopPhysicalRolePlanV1,
 };
-use crate::mir::builder::emission::{loop_operation, phi_lifecycle::PhiTxn};
+use crate::mir::builder::emission::{
+    loop_operation,
+    phi_lifecycle::{PhiToken, PhiTxn},
+};
 use crate::mir::builder::resolved_lowering::canonical_cfg::{
     CanonicalCfgErrorV1, CanonicalCfgSessionV1,
 };
@@ -69,9 +72,16 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1(
     inputs: VerifiedLoopInputProjectionV1,
     roles: VerifiedLoopPhysicalRolePlanV1,
 ) -> Result<LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1> {
-    let mut session =
-        DirectAccumPhysicalizerV1::preflight(builder, input, bindings, inputs, roles)?;
-    session.emit()
+    let owner = bindings.owner();
+    let mut cfg = CanonicalCfgSessionV1::new();
+    let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
+    let mut phis = Some(PhiTxn::begin("loop_direct_accum_physicalizer"));
+    let mut session = DirectAccumPhysicalizerV1::preflight(
+        builder, input, bindings, inputs, roles, &mut cfg, &mut ssa, &mut phis,
+    )?;
+    let receipt = session.emit()?;
+    drop(session);
+    finish_caller_zero(builder, cfg, ssa, phis, receipt)
 }
 
 #[cfg(test)]
@@ -83,33 +93,61 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1_with_test_failure(
     roles: VerifiedLoopPhysicalRolePlanV1,
     failure: DirectAccumPhysicalizerTestFailurePointV1,
 ) -> Result<LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1> {
-    let mut session =
-        DirectAccumPhysicalizerV1::preflight(builder, input, bindings, inputs, roles)?;
+    let owner = bindings.owner();
+    let mut cfg = CanonicalCfgSessionV1::new();
+    let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
+    let mut phis = Some(PhiTxn::begin("loop_direct_accum_physicalizer"));
+    let mut session = DirectAccumPhysicalizerV1::preflight(
+        builder, input, bindings, inputs, roles, &mut cfg, &mut ssa, &mut phis,
+    )?;
     session.failure = Some(failure);
-    session.emit()
+    let receipt = session.emit()?;
+    drop(session);
+    finish_caller_zero(builder, cfg, ssa, phis, receipt)
 }
 
-struct DirectAccumPhysicalizerV1<'a> {
-    builder: &'a mut MirBuilder,
+/// Borrowing production seam. The caller owns the function-wide CFG/SSA/PHI
+/// services and decides when they are finished or committed.
+pub(in crate::mir::builder) fn physicalize_direct_accum_v1_borrowing(
+    builder: &mut MirBuilder,
     input: VerifiedLoopPhysicalInputV1,
     bindings: VerifiedLoopBindingProjectionV1,
     inputs: VerifiedLoopInputProjectionV1,
     roles: VerifiedLoopPhysicalRolePlanV1,
-    cfg: CanonicalCfgSessionV1,
-    ssa: BindingSsaBuilderV1<crate::mir::builder::emission::phi_lifecycle::PhiToken>,
-    phis: Option<PhiTxn>,
+    cfg: &mut CanonicalCfgSessionV1,
+    ssa: &mut BindingSsaBuilderV1<PhiToken>,
+    phis: &mut Option<PhiTxn>,
+) -> Result<LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1> {
+    let mut session = DirectAccumPhysicalizerV1::preflight(
+        builder, input, bindings, inputs, roles, cfg, ssa, phis,
+    )?;
+    session.emit()
+}
+
+struct DirectAccumPhysicalizerV1<'builder, 'owners> {
+    builder: &'builder mut MirBuilder,
+    input: VerifiedLoopPhysicalInputV1,
+    bindings: VerifiedLoopBindingProjectionV1,
+    inputs: VerifiedLoopInputProjectionV1,
+    roles: VerifiedLoopPhysicalRolePlanV1,
+    cfg: &'owners mut CanonicalCfgSessionV1,
+    ssa: &'owners mut BindingSsaBuilderV1<PhiToken>,
+    phis: &'owners mut Option<PhiTxn>,
     values: BTreeMap<crate::mir::loop_recipe_contract::LoopValueKeyV1, ValueId>,
     #[cfg(test)]
     failure: Option<DirectAccumPhysicalizerTestFailurePointV1>,
 }
 
-impl<'a> DirectAccumPhysicalizerV1<'a> {
+impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
     fn preflight(
-        builder: &'a mut MirBuilder,
+        builder: &'builder mut MirBuilder,
         input: VerifiedLoopPhysicalInputV1,
         bindings: VerifiedLoopBindingProjectionV1,
         inputs: VerifiedLoopInputProjectionV1,
         roles: VerifiedLoopPhysicalRolePlanV1,
+        cfg: &'owners mut CanonicalCfgSessionV1,
+        ssa: &'owners mut BindingSsaBuilderV1<PhiToken>,
+        phis: &'owners mut Option<PhiTxn>,
     ) -> Result<Self, LoopPhysicalizeErrorV1> {
         let function = builder
             .function_state
@@ -172,9 +210,9 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
         validate_direct_shape(&input)?;
         Ok(Self {
             builder,
-            ssa: BindingSsaBuilderV1::new(bindings.owner()),
-            phis: Some(PhiTxn::begin("loop_direct_accum_physicalizer")),
-            cfg: CanonicalCfgSessionV1::new(),
+            ssa,
+            phis,
+            cfg,
             input,
             bindings,
             inputs,
@@ -199,13 +237,6 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
             Ok(values) => values,
             Err(error) => return self.abort(error),
         };
-        if let Err(error) = self.finish_owners() {
-            return self.abort(error);
-        }
-        let phis = self.phis.take().expect("active PHI transaction");
-        if let Err(error) = phis.commit(self.builder_mut()) {
-            return Err(LoopPhysicalizeErrorV1::PhiAbort(error.to_string()));
-        }
         Ok(LoopPhysicalSuccessReceiptV1 {
             final_values,
             result: LoopResultDispositionV1::Unit,
@@ -462,20 +493,6 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
             .map(Vec::into_boxed_slice)
     }
 
-    fn finish_owners(&mut self) -> Result<(), LoopPhysicalizeErrorV1> {
-        let ssa = std::mem::replace(
-            &mut self.ssa,
-            BindingSsaBuilderV1::new(self.bindings.owner()),
-        );
-        ssa.finish()
-            .map_err(|error| LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")))?;
-        let cfg = std::mem::replace(&mut self.cfg, CanonicalCfgSessionV1::new());
-        let function = self.function_ref()?;
-        cfg.finish(function)
-            .map_err(LoopPhysicalizeErrorV1::Cfg)
-            .map(|_| ())
-    }
-
     fn seal(&mut self, block: BasicBlockId) -> Result<(), LoopPhysicalizeErrorV1> {
         let function = self
             .builder
@@ -620,6 +637,44 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
         let aborted = phis.abort_on_err(self.builder, format!("{error:?}"));
         Err(LoopPhysicalizeErrorV1::PhiAbort(aborted.to_string()))
     }
+}
+
+fn finish_caller_zero<T>(
+    builder: &mut MirBuilder,
+    cfg: CanonicalCfgSessionV1,
+    ssa: BindingSsaBuilderV1<PhiToken>,
+    mut phis: Option<PhiTxn>,
+    receipt: T,
+) -> Result<T, LoopPhysicalizeErrorV1> {
+    if let Err(error) = ssa.finish() {
+        return abort_caller_zero(
+            builder,
+            &mut phis,
+            LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")),
+        );
+    }
+    let Some(function) = builder.function_state.current_function.as_ref() else {
+        return abort_caller_zero(builder, &mut phis, LoopPhysicalizeErrorV1::MissingFunction);
+    };
+    if let Err(error) = cfg.finish(function) {
+        return abort_caller_zero(builder, &mut phis, LoopPhysicalizeErrorV1::Cfg(error));
+    }
+    let txn = phis.take().expect("caller-zero PHI transaction");
+    txn.commit(builder)
+        .map_err(|error| LoopPhysicalizeErrorV1::PhiAbort(error.to_string()))?;
+    Ok(receipt)
+}
+
+fn abort_caller_zero<T>(
+    builder: &mut MirBuilder,
+    phis: &mut Option<PhiTxn>,
+    error: LoopPhysicalizeErrorV1,
+) -> Result<T, LoopPhysicalizeErrorV1> {
+    let Some(txn) = phis.take() else {
+        return Err(error);
+    };
+    let aborted = txn.abort_on_err(builder, format!("{error:?}"));
+    Err(LoopPhysicalizeErrorV1::PhiAbort(aborted.to_string()))
 }
 
 fn validate_direct_shape(
