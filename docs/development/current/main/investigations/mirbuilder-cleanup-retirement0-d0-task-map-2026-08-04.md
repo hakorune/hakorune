@@ -20,20 +20,22 @@ The six-item cleanup request is accepted as one ordered program, not as a
 
 ```text
 T1-D0  freeze evidence/lint/guard baseline (read-only; immediately allowed)
-  -> T1-S0  migrate proof evidence, then retire one compiler *_p0 row/commit
-  -> T1-S1  narrow stale resolved-module masks one accessor group/commit
-  -> T2-S0  deduplicate 11 route-neutral Recipe carrier shells
-  -> T2-S1  consolidate the four trivial analyzer policy wrappers
-  -> T3-S0  cfg(test) facades, callable-result exports, then naming audit
-  -> T4-R0  JSON-v0 bridge caller-zero retirement and hard delete
+  ├─ T1-S0  proof-DAG serial: migrate evidence, retire one *_p0 row/commit
+  ├─ T1-S1  after its affected rows: narrow one resolved-module mask/group
+  ├─ T2-S0  route-neutral Recipe carrier dedup (disjoint branch)
+  ├─ T2-S1  trivial analyzer policy-matrix dedup (disjoint branch)
+  └─ T3-S0  facades/callable-result/naming (split into small branches)
+
+T4-D0..R0  JSON-v0 bridge caller-zero retirement (separate late phase)
 ```
 
 `T1-D0` is the only cleanup action to run during the active If
 implementation. `T2-S0`, `T2-S1`, and the first T3 census may be parallel
 only when their files and guards are disjoint from the If adapter/lowerer and
-the worktree is clean. `T1-S0` remains proof-DAG serial (leaf to root), and
-T4 is a separate phase lane. No cleanup commit may be mixed with D0-D1/D0-D2
-or with D0-D3 selected old-edge cutover.
+the worktree is clean. `T1-S0` remains proof-DAG serial (leaf to root), while
+T1-S1 waits for each affected mask's evidence. T4 is a separate late phase
+lane. No cleanup commit may be mixed with D0-D1/D0-D2 or with D0-D3 selected
+old-edge cutover.
 
 Every executable row follows the same reversible transaction:
 
@@ -216,13 +218,13 @@ zero and the new production entry at one capability owner.
 ### T3-D0..S3 — test facade and naming cleanup
 
 First manifest every `_for_test` facade with cfg scope, owner, mutation class,
-all callers, and candidate reachability. The current broad inventory is 91
-definitions and roughly 340 `MirBuilder` test-API call sites, not 91
-deletions. The first concrete candidate is `builder_test_api`: seven public
-methods and an unconditional module registration; all observed callers are
-test bodies. Make the module `#[cfg(test)]` first, prove zero non-test callers,
-then move owner-local fixtures in small buildable steps. Delete only
-confirmed USE=0 helpers.
+all callers, and candidate reachability. The broad inventory is 91 definition
+mentions (the current regex census is 84 definitions/78 unique) and roughly
+340 `MirBuilder` test-API call sites, not 91 deletions. `builder_test_api` is
+already registered under `#[cfg(test)]`; do not create a redundant cfg-only
+commit. Instead separate pure observers from sealed-brand forges,
+Builder/SSA mutation, failure injection, reset, and lifecycle helpers, then
+move/delete only confirmed USE=0 helpers in small buildable steps.
 Move pure fixtures/observers into owner-local `#[cfg(test)] test_support`;
 keep sealed-brand forges, failure injection, Builder/SSA mutation, reset, and
 private lifecycle helpers owner-local. Normalize mixed re-exports only after
@@ -248,10 +250,18 @@ the complete inventory by four caller families:
 runtime direct/env provider, Stage-1 handoff/emit, selfhost
 producer/consumer/fallback, and Program JSON-v0 compatibility loader/tools.
 Do not authorize deletion from the old eight-line count alone.
+The current `source_to_mir_json` host-provider path is still a live source/MIR
+authority, so bridge retirement first needs a direct replacement or an
+explicitly quarantined compatibility owner. Count public kernel exports and
+plugin dispatch, the JSON artifact loader, runtime env provider, selfhost
+fallbacks, and external integration tests in caller-zero. `maybe_dump_mir` is
+a separate diagnostic utility and must be moved to a neutral MIR dump owner
+before it stops pinning bridge modules.
 Route direct loop PHI bypasses in `json_v0_bridge/lowering/loop_.rs` and
 `loop_range.rs` through LoopForm or explicitly quarantine them before bridge
-deletion. Preserve Program-specific import-bundle/trace behavior until all
-tools, probes, stage1 wrappers, and compat callers are zero. Do not delete
+deletion; do not migrate them into the active If/Loop PHI lane here. Preserve
+Program-specific import-bundle/trace behavior until all tools, probes, stage1
+wrappers, and compat callers are zero. Do not delete
 `src/stage1/program_json_v0*` merely because a CLI flag retires. Only then
 hard-delete the bridge.
 
