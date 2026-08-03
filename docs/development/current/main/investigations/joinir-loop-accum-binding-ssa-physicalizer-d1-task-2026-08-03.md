@@ -187,8 +187,17 @@ those gates are green.
 
 ## S1 MIR parity design stop
 
-The remaining parity slice is an observer boundary, not another lowerer. A
-test-only shared alpha-digest support module will accept immutable MIR plus
+The remaining parity slice is an observer boundary, not another lowerer. Before
+adding the observer, the duplicated caller-zero emission helpers must be
+collapsed into one borrowed test-only emitter. The sequence is:
+
+```text
+R1: CanonicalLoopSsaState + borrowed emitter; existing session delegates
+R2: candidate observer delegates to that emitter; duplicate helpers disappear
+R3: shared immutable alpha observer + legacy/candidate adapters compare parity
+```
+
+The final shared alpha-digest support module will accept immutable MIR plus
 canonical role/value/type witness data and return ID-independent CFG,
 instruction, PHI, and final-binding rows. The legacy snapshot and candidate
 observer will each provide a thin adapter to that DTO; the support module must
@@ -198,7 +207,8 @@ mutation APIs.
 Change:
 
 ```text
-legacy physical snapshot + candidate observer
+one borrowed emitter
+  -> legacy/candidate observations
   -> shared immutable alpha digest
   -> exact DirectAccum parity assertion
 ```
@@ -206,8 +216,9 @@ legacy physical snapshot + candidate observer
 Contract:
 
 ```text
-candidate adapter reads the sealed receipt/builder metadata only;
-it does not add a second emitter, production caller, or publication owner.
+candidate adapter reads the sealed receipt/builder metadata only after using the
+same borrowed emitter; it does not add a second emitter, production caller, or
+publication owner.
 Final rows cover i, sum, and Unit/Void result with canonical provenance.
 ```
 
