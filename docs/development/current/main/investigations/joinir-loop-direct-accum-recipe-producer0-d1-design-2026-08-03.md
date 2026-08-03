@@ -1,6 +1,6 @@
 # JOINIR Direct Accum Recipe Producer D1
 
-Status: Design stop; caller-zero boundary for worker review.
+Status: Design accepted after worker audit; caller-zero implementation task next.
 
 Task: `JOINIR-LOOP-DIRECT-ACCUM-RECIPE-PRODUCER0-D1`
 
@@ -38,7 +38,7 @@ portable source claim (`bind_resolved_loop_root_v1` + recipe root claim).
 ### 1. Facts payload handoff
 
 `VerifiedLoopStructuralFactsV1` needs one consuming, typed accessor for the
-Direct Accum payload (for example `into_direct_accum_v1`). The accessor must
+Direct Accum payload (`into_direct_accum_v1`). The accessor must
 consume the sealed facts and return the owned structural shape; it must not
 expose `Clone`, AST, route IDs, or a second facts issuer. Non-Direct-Accum
 payloads reject before recipe construction.
@@ -46,18 +46,28 @@ payloads reject before recipe construction.
 ### 2. Recipe-local key mapping
 
 `BindingRefV1` and source sites are compiler identities, not portable recipe
-keys. The producer must create deterministic recipe-local keys from the fixed
-Direct Accum shape order:
+keys. The producer must create deterministic recipe-local keys from semantic
+roles, never from BindingId/name ordering:
 
 ```text
-induction binding -> accumulator binding -> condition value
-  -> update reads/constant -> step reads/constant
+induction -> LoopBindingKeyV1(0)
+accumulator -> LoopBindingKeyV1(1)
+condition: Const(bound) -> v3, Read(induction) -> v2, Less -> v4
+body: accumulator Read -> v5, Const(update_delta) -> v6, Add -> v7,
+      Write(accumulator, v7), induction Read -> v8, Const(step_delta) -> v9,
+      Add -> v10, Write(induction, v10)
 ```
 
-The mapping must be owned by this producer, use no name lookup, and reject
-duplicate/conflicting binding roles. Labels in `LoopRecipeBindingV1` are
-diagnostic-only and must not be used as semantic identity. The mapping must be
-documented so the Rust and `.hako` producers can normalize the same result.
+The mapping is owned by this producer, uses no name lookup, and rejects
+duplicate/conflicting roles. Binding labels are diagnostic-only (`induction`
+and `accumulator`) and never semantic identity. `inputs=[v0,v1]` are explicit
+pre-loop values; the producer must not invent initializer constants. The
+mapping is documented so Rust and `.hako` producers normalize identically.
+
+Operation order is a separate canonical contract from value-key allocation:
+the existing Direct Accum golden freezes `Const(bound)` before
+`Read(induction)` in the condition block, while the value keys remain
+role-based (`v2` is the read result and `v3` is the constant).
 
 ### 3. Direct Accum recipe shape
 
@@ -131,3 +141,12 @@ producer into production while this stop is active.
 - no production `route_loop` cutover;
 - no all-family adapter, Nested, LoopCond, or call/record/match expansion;
 - no AST rewrite, source-name authority, or physical MIR IDs in the artifact.
+
+## Worker audit result
+
+The independent design review confirmed the role-based mapping above and the
+terminal reject boundary: consumed/missing capability, non-Direct-Accum
+payload, conflicting roles, source-claim failure, verifier failure, and
+JoinSig failure all stop before any retry or next-route callback. The review
+also confirmed that PHI/SSA remains exclusively
+`CanonicalCfgSessionV1` + `BindingSsaBuilderV1` + `PhiTxn`.
