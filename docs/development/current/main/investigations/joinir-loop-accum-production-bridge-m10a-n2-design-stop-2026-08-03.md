@@ -95,11 +95,12 @@ Decision is now closed:
    it never becomes `None`, retry, or fallback. `Unit` goes through the
    existing completion contract.
 
-The first implementation is a behavior-neutral Refactor Series: extract the
-shared SSA machinery behind thin A+/Trivial/Profile facades, then add the
+The behavior-neutral Refactor Series extracted the shared SSA machinery behind
+the canonical profile boundary in commit `240d76d1bf`; the Trivial facade and
+its 116 focused tests remain green. The next implementation is the
 DirectAccum admission/profile and caller-zero vertical. Every touched Rust
 file remains below 800 lines. No `route_loop`, scheduler, handler, or PHI
-writer edit is part of the refactor series.
+writer edit is part of the refactor series or the profile preflight.
 
 ## Current production observations
 
@@ -227,10 +228,10 @@ The consultation returned:
 6. explicit non-claims for Generic/D2, M7-M9, all-route scheduler deletion,
    selfhost authority, and final M10b.
 
-The design boundary is now closed. The next implementation boundary is the
-behavior-neutral shared-SSA-core extraction; no production caller or old-edge
-retirement is claimed until its focused gate and the DirectAccum profile gate
-are green.
+The design boundary is closed and the shared-core extraction is landed. The
+next implementation boundary is the DirectAccum profile preflight and its
+owner-issued binding/input projection; no production caller or old-edge
+retirement is claimed until that focused gate is green.
 
 ## Acceptance gates for D2 and the next refactor series
 
