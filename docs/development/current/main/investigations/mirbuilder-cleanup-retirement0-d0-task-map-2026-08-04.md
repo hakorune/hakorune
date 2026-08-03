@@ -62,6 +62,45 @@ submodule ownership ledger before any allow relocation.
 
 ## Ordered work packages
 
+## Worker-verified execution order
+
+The worker census confirms that the headline deletion list is a cleanup
+program, not a single delete commit. The following order is now the task
+board order:
+
+```text
+T1-D0 proof/mask baseline
+  -> T1-S0 one proof module at a time
+  -> T1-S1 narrow resolved-module masks
+  -> T2-S0 route-neutral recipe bundle dedup
+  -> T2-S1 trivial policy-matrix dedup
+  -> T3-S0 test-facade/callable-result/naming lanes
+  -> T4-R0 JSON-v0 bridge caller-zero retirement
+```
+
+`T1-D0` is the only prerequisite for deletion. `T2` and `T3` may be
+parallelized after the baseline is recorded, but must not change route policy,
+Recipe semantics, or PHI/SSA ownership. `T4` remains an independent
+caller-zero lane because the bridge has its own Program-JSON compatibility
+contract and direct PHI bypasses.
+
+The worker inventory fixes three audit boundaries:
+
+- Every `_p0` file is test/compile-only, but its tests and guards are evidence;
+  the 28-file set is migrated and retired leaf-to-root, never batch-deleted.
+- `source_coverage.rs` is a live production owner used by `if_control.rs`;
+  it is excluded from the delete set. Only its “no direct lowering consumer”
+  wording may be corrected.
+- `resolved_control_flow` and `resolved_region_flow` can narrow stale masks
+  after caller/lint baselines. `resolved_semantics` has staged live schema and
+  needs its own ownership ledger before any module-level allow is removed.
+
+The same audit also records the non-mechanical boundaries: `_for_test`
+facades that forge brands or mutate Builder/SSA state stay owner-local, the
+two `type_facts.rs` files are different domains until a naming decision is
+written, and the JSON-v0 bridge is deleted only after its four caller families
+are zero. These are explicit stop conditions, not implied cleanup work.
+
 ### T1-D0 — proof-module and mask census (design stop)
 
 Freeze the 28-file manifest, guard dependencies, live-twin/proof-owner status,
