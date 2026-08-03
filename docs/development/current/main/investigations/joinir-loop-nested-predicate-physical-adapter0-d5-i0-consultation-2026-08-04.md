@@ -1,6 +1,6 @@
 # JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-I0
 
-Status: I0-B/C implemented — bounded resolved-source physicalizer and candidate isolation are green; I0-D/E parity and retirement remain.
+Status: I0-B/C implemented — bounded resolved-source physicalizer and candidate isolation are green; I0-D is now a parity design stop and I0-E is a scoped retirement proof.
 Date: 2026-08-04
 Design inputs:
 
@@ -204,6 +204,85 @@ in `Child.Body`, then recurrence `j` update in `Child.Step`, before the
 `Step -> Header` backedge. This is a semantic-to-physical placement rule, not a
 second source claim or a silent role drop; I0-B must assert it explicitly.
 
+## D5-I0-D design stop: winner parity and retirement boundary
+
+The new production authority is deliberately narrow:
+
+```text
+compile_resolved
+  -> CanonicalNestedPredicatePlanV1
+  -> Nested canonical physicalizer
+  -> unpublished compile candidate
+```
+
+The old `route_loop` / `route_nested_loop_minimal` path is not its parity
+oracle. Caller census shows that it remains reachable from the normal/raw
+ingress (`try_cf_loop_joinir`, `recursive_child_lowering`, and
+`raw_loop_child_entry`). Deleting that route globally would break the still
+legacy normal path and is outside this card.
+
+The exact Nested fixture also cannot be compared through the public legacy
+entrypoints: `compile_with_source` stops at callable semantic
+incomplete-consumption, while `compile_raw_with_source` stops at typed raw
+eligibility rejection, before a comparable old MIR is produced. Therefore
+raw `MirPrinter` bytes are not a valid D5-I0 parity oracle.
+
+Recommended next slice is a test-only legacy route oracle (effective winner
+and semantic digest from the existing facts/registry boundary), followed by
+alpha-normalized CFG/terminator/PHI invariants, MIR verification, and the
+existing runtime result `9`. The new subtree must still have one winner and
+zero post-effect `Option`/`Retry`. A broader normal-ingress cutover is a
+separate task.
+
+I0-E is consequently split into two proofs:
+
+1. prove that the selected resolved ingress has zero old fallback callers
+   (already structurally true in `source_bound_package.rs`, to be guard-
+   recorded); and
+2. retire `route_nested_loop_minimal` only in a later normal-ingress cutover
+   after its remaining callers reach zero.
+
+Stop and return to design if the effective legacy winner cannot be isolated,
+or if the semantic digest/CFG proof shows that Nested is not the same winner
+as `NestedPredicate`.
+
+## Post-D5 convergence queue (ordered, do not start during this design stop)
+
+The following cleanup is intentionally recorded here so it is not lost, but
+does not widen D5-I0 or claim that the canonical owner is already universal.
+
+```text
+JOINIR-LOCATED-LEGACY-RETIRE0-S0
+  caller census -> move the test oracle -> delete only caller-zero located_legacy_*
+
+JOINIR-IF-RECIPE-CANONICAL-SSA-D0
+  audit IfForm vs CorePlan::If, define one portable IfRecipeV1/JoinSig
+  boundary, and name the legacy authority and fail-fast seam
+
+JOINIR-IF-RECIPE-PHYSICAL-ADAPTER0-I0
+  one If family consumes the existing unpublished candidate and
+  CanonicalSsaFunctionSessionV2; prove parity before retiring one old If edge
+
+JOINIR-SSA-PHI-CANONICAL-ADOPTION0-M10
+  migrate If merge, loop-variant PHI materializers, and JoinIR PHI/CFG
+  writers to the existing Binding SSA + Canonical CFG + one PhiTxn owner;
+  only then claim production-wide PHI adoption
+
+JOINIR-RAW-DESCENT-PARITY-RETIRE0-S0
+  after caller-zero proof, collapse the six raw/descent/parity trios without
+  changing the semantic authority
+
+JOINIR-LOOP-RECURSIVE-FRAME-CONVERGENCE0-M12
+  unify LoopV0/LoopTrue/LoopCond as one recursive semantic frame, recurse
+  Nested through that frame, and keep Generic post-effect debt separate
+  until its own winner classification is closed
+```
+
+The If and PHI rows are opportunities, not current claims. `BindingSsaBuilderV1`,
+`CanonicalCfgSessionV1`, and `PhiTxn` are already the SSA/PHI design SSOT, but
+route-specific writers and legacy JoinIR remain production edges until the
+M10 adoption gates close.
+
 ## Acceptance gates
 
 ```text
@@ -211,9 +290,9 @@ named production caller = exactly 1
 Nested physicalizer production caller = exactly 1
 caller is inside unpublished compile candidate = proven
 live Builder direct caller = 0
-selected old fallback caller = 0 after cutover
+selected resolved-ingress old fallback caller = 0 (guard proof)
 post-effect Option/Retry/route reselection = 0 on the new subtree
-legacy/new winner and MIR parity = green for the selected fixture
+  legacy/new effective winner and semantic CFG/PHI parity = green for the selected fixture
 late physical failure leaves live builder and fresh request unchanged
 no route-local PHI/SSA/identity/scope authority
 all touched Rust/test files < 800 lines
