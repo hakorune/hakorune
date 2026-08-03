@@ -258,3 +258,86 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
         self.identity.seal_block(builder, phis, block, witness)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::compiler::direct_accum_profile::admit_direct_accum_profile_v1;
+    use crate::mir::compiler::direct_accum_projection::direct_accum_function_for_test;
+    use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+    use crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame;
+    use crate::mir::resolved_control_flow::verify_function_completion_v1;
+
+    #[test]
+    fn adapter_role_contract_is_named_and_keyed() {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(direct_accum_function_for_test())
+            .expect("fixture resolves");
+        let input = unit.root_function_input().expect("input");
+        let body = input.source().root_body().expect("body");
+        let loop_stmt = input.source().body_stmt(&body, 1).expect("loop");
+        let completion = verify_function_completion_v1(input).expect("completion");
+        let source = input
+            .function()
+            .resolved_loop_source(loop_stmt.site())
+            .expect("source");
+        let winner = issue_policy_winner_for_test_with_frame(10, &source.frame_key());
+        let profile =
+            admit_direct_accum_profile_v1(input, loop_stmt, winner, completion).expect("profile");
+        let (input, _loop_stmt, _recipe, plan, _completion) = profile.into_parts();
+        let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
+        let mut port = CanonicalDirectAccumBindingPort::new(
+            &mut identity,
+            &plan,
+            input.owner(),
+            &source.frame_key(),
+        )
+        .expect("adapter");
+
+        for role in DirectAccumBindingEffectRoleV1::ALL {
+            let entry = plan.entry(role);
+            let expected_key = entry.recipe_binding();
+            let expected_binding = entry.binding();
+            port.check_entry(role, expected_key, expected_binding)
+                .expect("exact role mapping");
+        }
+        assert_eq!(
+            port.binding_for(LoopBindingKeyV1::new(0)),
+            Ok(plan
+                .entry(DirectAccumBindingEffectRoleV1::ConditionInductionRead)
+                .binding())
+        );
+        assert!(port.finish_effect_claims().is_err());
+    }
+
+    #[test]
+    fn adapter_rejects_duplicate_role_claims_before_identity_access() {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(direct_accum_function_for_test())
+            .expect("fixture resolves");
+        let input = unit.root_function_input().expect("input");
+        let body = input.source().root_body().expect("body");
+        let loop_stmt = input.source().body_stmt(&body, 1).expect("loop");
+        let completion = verify_function_completion_v1(input).expect("completion");
+        let source = input
+            .function()
+            .resolved_loop_source(loop_stmt.site())
+            .expect("source");
+        let winner = issue_policy_winner_for_test_with_frame(10, &source.frame_key());
+        let profile =
+            admit_direct_accum_profile_v1(input, loop_stmt, winner, completion).expect("profile");
+        let (input, _loop_stmt, _recipe, plan, _completion) = profile.into_parts();
+        let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
+        let mut port = CanonicalDirectAccumBindingPort::new(
+            &mut identity,
+            &plan,
+            input.owner(),
+            &source.frame_key(),
+        )
+        .expect("adapter");
+        let role = DirectAccumBindingEffectRoleV1::ConditionInductionRead;
+        let entry = plan.entry(role);
+        port.claimed.insert(role);
+        assert!(port
+            .check_entry(role, entry.recipe_binding(), entry.binding())
+            .is_err());
+    }
+}
