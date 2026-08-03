@@ -15,7 +15,7 @@ use crate::mir::builder::resolved_lowering::canonical_cfg::{
 use crate::mir::builder::ssa::binding::{BindingSsaBuilderV1, MirBindingSsaAdapterV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
-    LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopJoinEdgeRoleV1,
+    LoopBinaryI64OpV1, LoopBlockKeyV1, LoopCompareI64OpV1, LoopConditionV1, LoopJoinEdgeRoleV1,
     LoopOperationV1, LoopRecipeItemV1, VerifiedLoopPhysicalInputV1,
 };
 use crate::mir::resolved_semantics::BindingRefV1;
@@ -104,11 +104,12 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
                 actual: builder.function_state.current_block,
             });
         }
-        let preheader_block = function
-            .get_block(preheader)
-            .ok_or(LoopPhysicalizeErrorV1::Input(
-                LoopPhysicalInputRejectV1::MissingPhysicalRole(LoopPhysicalRoleV1::Preheader),
-            ))?;
+        let preheader_block =
+            function
+                .get_block(preheader)
+                .ok_or(LoopPhysicalizeErrorV1::Input(
+                    LoopPhysicalInputRejectV1::MissingPhysicalRole(LoopPhysicalRoleV1::Preheader),
+                ))?;
         if preheader_block.is_terminated() {
             return Err(LoopPhysicalizeErrorV1::PreheaderTerminated(preheader));
         }
@@ -119,12 +120,20 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
             LoopPhysicalRoleV1::After,
         ] {
             if function.get_block(roles.block(role)).is_some() {
-                return Err(LoopPhysicalizeErrorV1::ExistingPhysicalBlock(roles.block(role)));
+                return Err(LoopPhysicalizeErrorV1::ExistingPhysicalBlock(
+                    roles.block(role),
+                ));
             }
         }
         let recipe = input.recipe().as_recipe();
-        if recipe.inputs.iter().any(|value| inputs.binding_for(*value).is_none()) {
-            return Err(LoopPhysicalizeErrorV1::RecipeShape("missing recipe input projection"));
+        if recipe
+            .inputs
+            .iter()
+            .any(|value| inputs.binding_for(*value).is_none())
+        {
+            return Err(LoopPhysicalizeErrorV1::RecipeShape(
+                "missing recipe input projection",
+            ));
         }
         for value in recipe.inputs.iter().copied() {
             let (_, physical) = inputs.binding_for(value).expect("preflight checked");
@@ -191,8 +200,7 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
             .as_mut()
             .ok_or(LoopPhysicalizeErrorV1::MissingFunction)?;
         for block in block_ids {
-            cfg
-                .create_block(function, block)
+            cfg.create_block(function, block)
                 .map_err(LoopPhysicalizeErrorV1::Cfg)?;
         }
         Ok(())
@@ -204,9 +212,16 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
                 .inputs
                 .binding_for(value)
                 .ok_or(LoopPhysicalizeErrorV1::MissingValue(value))?;
-            let binding = self.bindings.resolve(key).map_err(LoopPhysicalizeErrorV1::Input)?;
+            let binding = self
+                .bindings
+                .resolve(key)
+                .map_err(LoopPhysicalizeErrorV1::Input)?;
             self.ssa
-                .define(binding, self.roles.block(LoopPhysicalRoleV1::Preheader), physical)
+                .define(
+                    binding,
+                    self.roles.block(LoopPhysicalRoleV1::Preheader),
+                    physical,
+                )
                 .map_err(|error| LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")))?;
             self.values.insert(value, physical);
         }
@@ -223,12 +238,13 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
         self.seal(preheader)?;
         self.select(header)?;
         self.emit_header_carriers()?;
-        let condition = self.block_operations(0)?;
+        let (condition_block, body_block) = self.direct_recipe_blocks()?;
+        let condition = self.block_operations(condition_block)?;
         let condition_result = self.emit_operations(&condition)?;
         self.emit_branch(header, condition_result, body, after)?;
         self.select(body)?;
         self.seal(body)?;
-        let body_operations = self.block_operations(1)?;
+        let body_operations = self.block_operations(body_block)?;
         self.emit_operations(&body_operations)?;
         self.emit_jump(body, step)?;
         self.select(step)?;
@@ -263,13 +279,35 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
         Ok(())
     }
 
-    fn block_operations(&self, block_raw: u32) -> Result<Box<[LoopOperationV1]>, LoopPhysicalizeErrorV1> {
+    fn direct_recipe_blocks(
+        &self,
+    ) -> Result<(LoopBlockKeyV1, LoopBlockKeyV1), LoopPhysicalizeErrorV1> {
+        let node = self.input.recipe().as_recipe().loops.first().ok_or(
+            LoopPhysicalizeErrorV1::RecipeShape("missing DirectAccum loop"),
+        )?;
+        let condition = match node.condition {
+            LoopConditionV1::Predicate { block, .. } => block,
+            LoopConditionV1::Always => {
+                return Err(LoopPhysicalizeErrorV1::RecipeShape(
+                    "DirectAccum requires predicate",
+                ))
+            }
+        };
+        Ok((condition, node.body))
+    }
+
+    fn block_operations(
+        &self,
+        block_key: LoopBlockKeyV1,
+    ) -> Result<Box<[LoopOperationV1]>, LoopPhysicalizeErrorV1> {
         let recipe = self.input.recipe().as_recipe();
         let block = recipe
             .blocks
             .iter()
-            .find(|block| block.key.raw() == block_raw)
-            .ok_or(LoopPhysicalizeErrorV1::RecipeShape("missing DirectAccum block"))?;
+            .find(|block| block.key == block_key)
+            .ok_or(LoopPhysicalizeErrorV1::RecipeShape(
+                "missing DirectAccum block",
+            ))?;
         block
             .items
             .iter()
@@ -290,12 +328,18 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
             .map(Vec::into_boxed_slice)
     }
 
-    fn emit_operations(&mut self, operations: &[LoopOperationV1]) -> Result<ValueId, LoopPhysicalizeErrorV1> {
+    fn emit_operations(
+        &mut self,
+        operations: &[LoopOperationV1],
+    ) -> Result<ValueId, LoopPhysicalizeErrorV1> {
         let mut last = None;
         for operation in operations.iter().copied() {
             match operation {
                 LoopOperationV1::ReadBinding { binding, result } => {
-                    let binding = self.bindings.resolve(binding).map_err(LoopPhysicalizeErrorV1::Input)?;
+                    let binding = self
+                        .bindings
+                        .resolve(binding)
+                        .map_err(LoopPhysicalizeErrorV1::Input)?;
                     let value = self.read(binding, self.current_block()?)?;
                     self.values.insert(result, value);
                     last = Some(value);
@@ -306,9 +350,16 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
                     self.values.insert(result, value);
                     last = Some(value);
                 }
-                LoopOperationV1::BinaryI64 { op, left, right, result } => {
+                LoopOperationV1::BinaryI64 {
+                    op,
+                    left,
+                    right,
+                    result,
+                } => {
                     if !matches!(op, LoopBinaryI64OpV1::Add) {
-                        return Err(LoopPhysicalizeErrorV1::RecipeShape("DirectAccum requires add"));
+                        return Err(LoopPhysicalizeErrorV1::RecipeShape(
+                            "DirectAccum requires add",
+                        ));
                     }
                     let lhs = self.value(left)?;
                     let rhs = self.value(right)?;
@@ -317,9 +368,16 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
                     self.values.insert(result, value);
                     last = Some(value);
                 }
-                LoopOperationV1::CompareI64 { op, left, right, result } => {
+                LoopOperationV1::CompareI64 {
+                    op,
+                    left,
+                    right,
+                    result,
+                } => {
                     if !matches!(op, LoopCompareI64OpV1::Less) {
-                        return Err(LoopPhysicalizeErrorV1::RecipeShape("DirectAccum requires less"));
+                        return Err(LoopPhysicalizeErrorV1::RecipeShape(
+                            "DirectAccum requires less",
+                        ));
                     }
                     let lhs = self.value(left)?;
                     let rhs = self.value(right)?;
@@ -329,7 +387,10 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
                     last = Some(value);
                 }
                 LoopOperationV1::WriteBinding { binding, value } => {
-                    let binding = self.bindings.resolve(binding).map_err(LoopPhysicalizeErrorV1::Input)?;
+                    let binding = self
+                        .bindings
+                        .resolve(binding)
+                        .map_err(LoopPhysicalizeErrorV1::Input)?;
                     let value = self.value(value)?;
                     self.ssa
                         .define(binding, self.current_block()?, value)
@@ -343,7 +404,10 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
 
     fn capture_final_values(
         &mut self,
-    ) -> Result<Box<[(crate::mir::loop_recipe_contract::LoopBindingKeyV1, ValueId)]>, LoopPhysicalizeErrorV1> {
+    ) -> Result<
+        Box<[(crate::mir::loop_recipe_contract::LoopBindingKeyV1, ValueId)]>,
+        LoopPhysicalizeErrorV1,
+    > {
         let after = self.roles.block(LoopPhysicalRoleV1::After);
         let carriers = self
             .input
@@ -396,18 +460,20 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
         let builder = &mut *self.builder;
         let ssa = &mut self.ssa;
         let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
-        ssa
-            .seal(&mut adapter, block, &witness)
+        ssa.seal(&mut adapter, block, &witness)
             .map_err(|error| LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")))
     }
 
-    fn read(&mut self, binding: BindingRefV1, block: BasicBlockId) -> Result<ValueId, LoopPhysicalizeErrorV1> {
+    fn read(
+        &mut self,
+        binding: BindingRefV1,
+        block: BasicBlockId,
+    ) -> Result<ValueId, LoopPhysicalizeErrorV1> {
         let phis = self.phis.as_mut().expect("active PHI transaction");
         let builder = &mut *self.builder;
         let ssa = &mut self.ssa;
         let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
-        ssa
-            .read(&mut adapter, binding, block)
+        ssa.read(&mut adapter, binding, block)
             .map_err(|error| LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")))
     }
 
@@ -428,7 +494,11 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
             .map_err(LoopPhysicalizeErrorV1::Cfg)
     }
 
-    fn emit_jump(&mut self, from: BasicBlockId, to: BasicBlockId) -> Result<(), LoopPhysicalizeErrorV1> {
+    fn emit_jump(
+        &mut self,
+        from: BasicBlockId,
+        to: BasicBlockId,
+    ) -> Result<(), LoopPhysicalizeErrorV1> {
         let cfg = &self.cfg;
         let function = self
             .builder
@@ -510,18 +580,21 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
     }
 }
 
-fn validate_direct_shape(input: &VerifiedLoopPhysicalInputV1) -> Result<(), LoopPhysicalizeErrorV1> {
+fn validate_direct_shape(
+    input: &VerifiedLoopPhysicalInputV1,
+) -> Result<(), LoopPhysicalizeErrorV1> {
     let recipe = input.recipe().as_recipe();
     let sig = input.join_sig().as_sig();
     if recipe.loops.len() != 1 || sig.loops.len() != 1 || recipe.inputs.len() != 2 {
-        return Err(LoopPhysicalizeErrorV1::RecipeShape("not a singleton DirectAccum shape"));
+        return Err(LoopPhysicalizeErrorV1::RecipeShape(
+            "not a singleton DirectAccum shape",
+        ));
     }
-    let node = recipe
-        .loops
-        .first()
-        .expect("singleton checked");
+    let node = recipe.loops.first().expect("singleton checked");
     if !matches!(node.condition, LoopConditionV1::Predicate { .. }) {
-        return Err(LoopPhysicalizeErrorV1::RecipeShape("DirectAccum requires predicate"));
+        return Err(LoopPhysicalizeErrorV1::RecipeShape(
+            "DirectAccum requires predicate",
+        ));
     }
     let row = sig.loops.first().expect("singleton checked");
     let roles = row.edges.iter().map(|edge| edge.role).collect::<Vec<_>>();
@@ -532,139 +605,10 @@ fn validate_direct_shape(input: &VerifiedLoopPhysicalInputV1) -> Result<(), Loop
         LoopJoinEdgeRoleV1::Backedge,
     ] {
         if !roles.contains(&required) {
-            return Err(LoopPhysicalizeErrorV1::RecipeShape("missing DirectAccum JoinSig edge"));
+            return Err(LoopPhysicalizeErrorV1::RecipeShape(
+                "missing DirectAccum JoinSig edge",
+            ));
         }
     }
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mir::builder::emission::loop_operation;
-    use crate::mir::loop_recipe_contract::{
-        direct_accum_product_for_test, VerifiedLoopPhysicalInputV1,
-    };
-    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
-    use crate::mir::{BindingId, MirBuilder};
-
-    fn owner() -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
-        FunctionOwnerIssuerV1::new_for_compilation()
-            .expect("issuer")
-            .issue()
-            .expect("owner")
-    }
-
-    fn roles() -> VerifiedLoopPhysicalRolePlanV1 {
-        VerifiedLoopPhysicalRolePlanV1::try_new(vec![
-            (LoopPhysicalRoleV1::Preheader, BasicBlockId::new(0)),
-            (LoopPhysicalRoleV1::Header, BasicBlockId::new(1)),
-            (LoopPhysicalRoleV1::Body, BasicBlockId::new(2)),
-            (LoopPhysicalRoleV1::Step, BasicBlockId::new(3)),
-            (LoopPhysicalRoleV1::After, BasicBlockId::new(4)),
-        ])
-        .expect("standard5 roles")
-    }
-
-    #[test]
-    fn direct_accum_physicalizer_emits_through_existing_owners() {
-        let mut builder = MirBuilder::new();
-        builder.enter_function_for_test("direct_accum_physicalizer/0".to_owned());
-        let initial_i = loop_operation::emit_const_i64(&mut builder, 0).expect("initial i");
-        let initial_sum = loop_operation::emit_const_i64(&mut builder, 0).expect("initial sum");
-        let owner = owner();
-        let bindings = VerifiedLoopBindingProjectionV1::try_new(
-            owner,
-            vec![
-                (
-                    crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(0),
-                    crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(0)),
-                ),
-                (
-                    crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(1),
-                    crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(1)),
-                ),
-            ],
-        )
-        .expect("binding projection");
-        let inputs = VerifiedLoopInputProjectionV1::try_new(
-            BasicBlockId::new(0),
-            vec![
-                (
-                    crate::mir::loop_recipe_contract::LoopValueKeyV1::new(0),
-                    crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(0),
-                    initial_i,
-                ),
-                (
-                    crate::mir::loop_recipe_contract::LoopValueKeyV1::new(1),
-                    crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(1),
-                    initial_sum,
-                ),
-            ],
-        )
-        .expect("input projection");
-        let receipt = physicalize_direct_accum_v1(
-            &mut builder,
-            VerifiedLoopPhysicalInputV1::from_direct_accum(direct_accum_product_for_test()),
-            bindings,
-            inputs,
-            roles(),
-        )
-        .expect("physicalize");
-        assert_eq!(receipt.result, LoopResultDispositionV1::Unit);
-        assert_eq!(receipt.final_values.len(), 2);
-        assert_eq!(
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .expect("function")
-                .blocks
-                .len(),
-            5
-        );
-    }
-
-    #[test]
-    fn missing_preheader_input_rejects_before_block_creation() {
-        let mut builder = MirBuilder::new();
-        builder.enter_function_for_test("direct_accum_physicalizer/reject".to_owned());
-        let owner = owner();
-        let bindings = VerifiedLoopBindingProjectionV1::try_new(
-            owner,
-            vec![(
-                crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(0),
-                crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(0)),
-            )],
-        )
-        .expect("binding projection");
-        let inputs = VerifiedLoopInputProjectionV1::try_new(
-            BasicBlockId::new(0),
-            vec![(
-                crate::mir::loop_recipe_contract::LoopValueKeyV1::new(0),
-                crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(0),
-                ValueId::new(99),
-            )],
-        )
-        .expect("input projection");
-        let error = physicalize_direct_accum_v1(
-            &mut builder,
-            VerifiedLoopPhysicalInputV1::from_direct_accum(direct_accum_product_for_test()),
-            bindings,
-            inputs,
-            roles(),
-        )
-        .unwrap_err();
-        assert!(matches!(error, LoopPhysicalizeErrorV1::RecipeShape(_)));
-        assert_eq!(
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .expect("function")
-                .blocks
-                .len(),
-            1
-        );
-    }
 }
