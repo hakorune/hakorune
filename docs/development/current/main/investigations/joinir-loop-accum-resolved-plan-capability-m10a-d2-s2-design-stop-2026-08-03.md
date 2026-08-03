@@ -35,6 +35,21 @@ handoff, selected Recipe/JoinSig, effect plan, resolved input/source
 projection, and Unit completion witness. It does not own `BindingSsaBuilderV1`,
 `CanonicalCfgSessionV1`, `PhiTxn`, `ValueId`, or a live `MirBuilder`.
 
+## PHI/SSA status boundary
+
+The SSA/CFG/PHI **owner** is already an SSOT: one
+`CanonicalSsaFunctionSessionV2` contains the
+`ResolvedSsaIdentityStateV2`/`BindingSsaBuilderV1`,
+`CanonicalCfgSessionV1`, `PhiTxn`, semantic stack, and completion consumer.
+DirectAccum must borrow this owner and must not introduce a second identity,
+CFG, or PHI transaction.
+
+This does not claim that the Recipe-specific PHI **writer** is already the
+production-only writer. Route-specific materializers, the legacy
+`phi_input_materializer`, and the JoinIR fallback still exist; their retirement
+belongs to the later M6 physicalizer cutover. S2 therefore proves owner reuse,
+not repository-wide PHI-writer retirement.
+
 ## Design gates before code
 
 1. **Preflight boundary**: identify the resolved source entry that can issue
