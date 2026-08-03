@@ -139,19 +139,21 @@ The selection authority remains in `src/mir/compiler`:
 `resolved_lowering` layer remains only the concrete plan consumer and keeps
 `CanonicalSsaFunctionSessionV2` as the sole SSA/CFG/PHI owner.
 
-The source-bound package is intentionally a closed four-route domain for now.
-`ExactCanonicalPreflightPlanV1`/`SourceBoundCanonicalPackageV1` must not mint a
-DirectAccum token, header, finish schedule, or continuation before the
-candidate ingress is selected. Its conversion from the central enum therefore
-becomes fallible and rejects DirectAccum with a typed
-`DirectAccumRequiresCandidateIngress` boundary before token/header issuance.
-The old module-invocation/header families are not widened merely to carry a
-loop body profile, and DirectAccum is not mislabeled as Trivial.
+The source-bound package remains closed at the module-lifecycle level, but the
+candidate pilot may carry a DirectAccum plan in its exact plan sum. It reuses
+the existing `BindingSsaTrivial` module token/header/policy because that is the
+external candidate/collector/finalization lifecycle, not because the loop is
+semantically a Trivial body. No new `ModuleInvocationFamilyV1`,
+`ResolvedOwnerHeaderFamilyV1`, or finish schedule is introduced merely for a
+body profile. The mapping is documented and tested at the source-bound seam;
+the compiler-layer `CanonicalFirstFamilyPlanV1` remains the one selection
+authority.
 
 The next implementation slice is limited to the compiler enum arm, its brand
-and exhaustive typed exclusions, a direct-only preflight constructor, and
-unchanged Trivial/A+ evidence. `route_loop`, public caller wiring, Generic or
-Retry removal, PHI-writer retirement, old-edge deletion, and selfhost remain
-explicit non-claims. A later function-body integration must decompose the
-current whole-function pilot into a body-owned DirectAccum plan that borrows
-the outer canonical session; it must not nest a second completion/SSA owner.
+and exhaustive typed exclusions, the exact source-bound plan arm, a
+direct-only preflight constructor, and unchanged Trivial/A+ evidence.
+`route_loop`, public caller wiring, Generic or Retry removal, PHI-writer
+retirement, old-edge deletion, and selfhost remain explicit non-claims. A
+later function-body integration must decompose the current whole-function
+pilot into a body-owned DirectAccum plan that borrows the outer canonical
+session; it must not nest a second completion/SSA owner.
