@@ -14,6 +14,9 @@ use crate::mir::MirInstruction;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 
+#[path = "loop_accum_semantic_parity_tests.rs"]
+mod accum_semantic_parity_tests;
+
 const GOLDEN: &str = include_str!("../../../loop_recipe_contract/fixtures/accum_nested_v1.json");
 const DIRECT_GOLDEN: &str =
     include_str!("../../../loop_recipe_contract/fixtures/accum_direct_v1.json");
@@ -158,17 +161,17 @@ fn direct_map_input(sig: &VerifiedLoopJoinSigV1) -> LoopLogicalToPhysicalMapInpu
                 LoopValueClassV1::I64,
             ),
             (
-                LoopValueKeyV1::new(3),
+                LoopValueKeyV1::new(1),
                 ValueId::new(12),
                 LoopValueClassV1::I64,
             ),
             (
-                LoopValueKeyV1::new(5),
+                LoopValueKeyV1::new(7),
                 ValueId::new(11),
                 LoopValueClassV1::I64,
             ),
             (
-                LoopValueKeyV1::new(7),
+                LoopValueKeyV1::new(10),
                 ValueId::new(13),
                 LoopValueClassV1::I64,
             ),
@@ -510,6 +513,29 @@ fn direct_standard5_witness_uses_step_as_header_phi_predecessor() {
     assert_eq!(
         receipt.sites()[1].inputs.as_ref(),
         &[(bb(0), ValueId::new(12)), (bb(3), ValueId::new(11))]
+    );
+}
+
+#[test]
+fn direct_readbinding_fixture_closes_dynamic_carrier_values() {
+    let sig = direct_verified_sig();
+    let row = sig.as_sig().loops.first().expect("direct loop row");
+    let backedge = row
+        .edges
+        .iter()
+        .find(|edge| edge.role == LoopJoinEdgeRoleV1::Backedge)
+        .expect("direct backedge");
+    let payload = backedge
+        .payload
+        .iter()
+        .map(|entry| (entry.binding, entry.value))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        payload,
+        vec![
+            (LoopBindingKeyV1::new(0), LoopValueKeyV1::new(10)),
+            (LoopBindingKeyV1::new(1), LoopValueKeyV1::new(7))
+        ]
     );
 }
 

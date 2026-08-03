@@ -26,87 +26,110 @@
       {
         "key": 0,
         "parent": null,
-        "condition": { "kind": "predicate", "block": 0, "value": 2 },
+        "condition": { "kind": "predicate", "block": 0, "value": 4 },
         "body": 1
       }
     ],
     "blocks": [
-      { "key": 0, "owner_loop": 0, "items": [0, 1] },
-      { "key": 1, "owner_loop": 0, "items": [2, 3, 4, 5, 6, 7] }
+      { "key": 0, "owner_loop": 0, "items": [0, 1, 2] },
+      { "key": 1, "owner_loop": 0, "items": [3, 4, 5, 6, 7, 8, 9, 10] }
     ],
     "items": [
       {
         "key": 0,
         "item": {
           "kind": "operation",
-          "operation": { "kind": "const_i64", "result": 1, "value": 3 }
+          "operation": { "kind": "const_i64", "result": 3, "value": 3 }
         }
       },
       {
         "key": 1,
         "item": {
           "kind": "operation",
-          "operation": {
-            "kind": "compare_i64",
-            "op": "less",
-            "left": 0,
-            "right": 1,
-            "result": 2
-          }
+          "operation": { "kind": "read_binding", "binding": 0, "result": 2 }
         }
       },
       {
         "key": 2,
         "item": {
           "kind": "operation",
-          "operation": { "kind": "const_i64", "result": 4, "value": 1 }
+          "operation": {
+            "kind": "compare_i64",
+            "op": "less",
+            "left": 2,
+            "right": 3,
+            "result": 4
+          }
         }
       },
       {
         "key": 3,
         "item": {
           "kind": "operation",
-          "operation": {
-            "kind": "binary_i64",
-            "op": "add",
-            "left": 3,
-            "right": 4,
-            "result": 5
-          }
+          "operation": { "kind": "read_binding", "binding": 1, "result": 5 }
         }
       },
       {
         "key": 4,
         "item": {
           "kind": "operation",
-          "operation": { "kind": "write_binding", "binding": 1, "value": 5 }
+          "operation": { "kind": "const_i64", "result": 6, "value": 1 }
         }
       },
       {
         "key": 5,
         "item": {
           "kind": "operation",
-          "operation": { "kind": "const_i64", "result": 6, "value": 1 }
-        }
-      },
-      {
-        "key": 6,
-        "item": {
-          "kind": "operation",
           "operation": {
             "kind": "binary_i64",
             "op": "add",
-            "left": 0,
+            "left": 5,
             "right": 6,
             "result": 7
           }
         }
       },
       {
+        "key": 6,
+        "item": {
+          "kind": "operation",
+          "operation": { "kind": "write_binding", "binding": 1, "value": 7 }
+        }
+      },
+      {
         "key": 7,
         "item": {
           "kind": "operation",
-          "operation": { "kind": "write_binding", "binding": 0, "value": 7 }
+          "operation": {
+            "kind": "read_binding", "binding": 0, "result": 8
+          }
+        }
+      },
+      {
+        "key": 8,
+        "item": {
+          "kind": "operation",
+          "operation": { "kind": "const_i64", "result": 9, "value": 1 }
+        }
+      },
+      {
+        "key": 9,
+        "item": {
+          "kind": "operation",
+          "operation": {
+            "kind": "binary_i64",
+            "op": "add",
+            "left": 8,
+            "right": 9,
+            "result": 10
+          }
+        }
+      },
+      {
+        "key": 10,
+        "item": {
+          "kind": "operation",
+          "operation": { "kind": "write_binding", "binding": 0, "value": 10 }
         }
       }
     ],
@@ -117,14 +140,17 @@
     "values": [
       { "key": 0, "class": "i64" },
       { "key": 1, "class": "i64" },
-      { "key": 2, "class": "bool" },
+      { "key": 2, "class": "i64" },
       { "key": 3, "class": "i64" },
-      { "key": 4, "class": "i64" },
+      { "key": 4, "class": "bool" },
       { "key": 5, "class": "i64" },
       { "key": 6, "class": "i64" },
-      { "key": 7, "class": "i64" }
+      { "key": 7, "class": "i64" },
+      { "key": 8, "class": "i64" },
+      { "key": 9, "class": "i64" },
+      { "key": 10, "class": "i64" }
     ],
-    "inputs": [0, 3],
+    "inputs": [0, 1],
     "carriers": [
       {
         "key": 0,
@@ -138,7 +164,7 @@
         "owner_loop": 0,
         "binding": 1,
         "class": "i64",
-        "entry_value": 3
+        "entry_value": 1
       }
     ],
     "exits": []
