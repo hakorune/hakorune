@@ -1,6 +1,7 @@
 # JOINIR-LOOP-NESTED-PREDICATE-D4-PHYSICAL-TOPOLOGY
 
-Status: design stop opened after the DirectAccum canonical pilot closeout.
+Status: design stop: source-handoff correction required before the caller-zero
+topology issuer can be implemented.
 Date: 2026-08-04
 
 ## Decision
@@ -17,6 +18,33 @@ VerifiedNestedLoopSourceProjectionV1
 
 `LoopJoinSig` is a logical dataflow contract. It must not be used to infer
 physical blocks, predecessor identities, or PHI destinations.
+
+## Linear source-handoff correction
+
+`VerifiedNestedLoopSourceProjectionV1` is non-`Clone` and D2-D consumes it by
+value while producing the Recipe and JoinSig. Therefore the topology issuer
+must not accept a second projection, reread the source, or rebuild source
+identity from the Recipe. D2-D must split one source projection into one
+semantic product and one non-`Clone` physical handoff before either consumer
+continues:
+
+```text
+VerifiedNestedLoopSourceProjectionV1 (consume once)
+  -> VerifiedNestedPredicateRecipeProductV1
+       { VerifiedLoopRecipeV1, VerifiedLoopJoinSigV1,
+         VerifiedNestedPhysicalSourceHandoffV1 }
+  -> D4 topology issuer consumes the product/handoff
+```
+
+`VerifiedNestedPhysicalSourceHandoffV1` is source-bound evidence only. Its
+minimum fields are the resolver owner, root frame key, root/child statement
+sites, the three resolver `BindingRefV1`/`ScopeId` pairs, recurrence-owner and
+parent-visibility flags, plus the condition/update role sites needed to bind
+topology roles. It contains no AST, source-name lookup, Recipe/JoinSig key
+authority, `BasicBlockId`, `ValueId`, PHI/SSA state, or Builder reference.
+
+This correction is a prerequisite design slice, not a production connection:
+the D4 issuer remains caller-zero and consumes the handoff exactly once.
 
 ## Required topology evidence
 
@@ -36,6 +64,21 @@ identity, not labels or ordinal guesses. It must seal:
 The topology issuer may observe the already sealed source projection and
 existing canonical role vocabulary, but it must not reread AST or legacy
 facts, synthesize root input constants, or map by source name.
+
+The issuer's physical-independent topology vocabulary is also explicit:
+
+| scope | ports | required named continuation/expansion |
+| --- | --- | --- |
+| root | Preheader/Header/Body/Step/After | root Standard5 edges |
+| child | Preheader/Header/Body/Step/After | child Preheader aliases the root Body port; alias is explicit, not inferred |
+| nested resume | ParentBodyResume(root, child) | child After -> ParentBodyResume -> root Step -> root Header |
+
+The logical JoinSig child `Body -> Header` row is not copied as a physical
+edge. It is expanded into the child subloop, child After -> parent resume,
+parent resume -> root Step, and root Step -> root Header. Predecessor seals
+must name exact topology edges/ports, never physical IDs. Carrier destinations
+must keep root `i`/`sum` visible to the parent After and child `j` local to the
+child recurrence; `j` must not be emitted into the parent tail.
 
 ## Explicitly out of scope
 
