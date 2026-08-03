@@ -150,8 +150,15 @@ Only DirectAccum may eventually compare against the legacy PlanLowerer/CorePlan
 oracle. Before that comparison is implemented, decide whether to revise the
 direct fixture to carry explicit `ReadBinding` operations (and update its
 verified IDs/maps) or to keep P1b structural-only and defer semantic parity to
-the production recipe-consumer task. No production wiring or fallback is added
-by this design stop.
+the named M5 test-only task
+[`joinir-loop-accum-semantic-parity-readbinding-m5-task-2026-08-03.md`](joinir-loop-accum-semantic-parity-readbinding-m5-task-2026-08-03.md).
+No production wiring or fallback is added by this design stop.
+
+P1b-4a alone does not satisfy the named post-M6 Accum pilot's MIR/PHI/type/result
+parity gate from the Loop pipeline SSOT. P1b-4b must therefore be closed before
+any M10a caller switch. If implemented, keep the semantic oracle in a separate
+test child from the structural materializer tests; do not widen the existing
+767-line test module or introduce a second PHI/SSA owner.
 
 The nested portable golden remains JoinSig/path-witness/M6-B-root-receipt
 evidence only; its legacy nested composer is not an equivalent semantic oracle.
