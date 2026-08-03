@@ -6,6 +6,8 @@
 //! A parent test module may include this file with `#[path]` when it needs a
 //! semantic oracle for the portable Accum fixture.
 
+#![cfg(test)]
+
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::lower::{try_build_outcome, PlanLowerer};
