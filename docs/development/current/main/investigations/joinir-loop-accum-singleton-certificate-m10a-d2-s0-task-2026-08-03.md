@@ -88,3 +88,18 @@ because loop count does not prove SimpleWhile/Generic disjointness. If the
 source classifier cannot issue the exclusivity proof without importing legacy
 facts, this task remains `NoSafeSlice` and the full observation product must be
 designed instead.
+
+## Caller-zero implementation progress
+
+The source-side slice is now caller-zero green. The resolved DirectAccum
+projector issues `VerifiedDirectAccumDisjointnessV1`, and the structural-facts
+boundary co-seals it with the exact source/frame facts as
+`VerifiedDirectAccumSingletonObservationV1`. The observation is non-Clone and
+contains no physical identity or route cursor. Focused structural-facts and
+DirectAccum projection tests, the DirectAccum family tests, binary check, and
+current-state pointer guard are green.
+
+This does not yet authorize policy schedule construction. The next slice must
+consume this observation in the policy SSOT, prove the canonical row matrix,
+and keep Generic/overlap rows typed rather than silently converting them to
+decline.

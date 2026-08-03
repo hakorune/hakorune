@@ -6,8 +6,9 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::loop_structural_facts::{
-    issue_direct_accum_structural_facts_v1, DirectAccumObservedShapeV1,
-    DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1, VerifiedLoopStructuralFactsV1,
+    issue_direct_accum_structural_facts_v1, DirectAccumDisjointnessRejectV1,
+    DirectAccumObservedShapeV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,
+    VerifiedLoopStructuralFactsV1,
 };
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, ExprChildRoleV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
@@ -31,6 +32,7 @@ pub(crate) enum DirectAccumProjectionRejectV1 {
     NonBindingTarget,
     ConstantShape,
     BindingMismatch,
+    Disjointness(DirectAccumDisjointnessRejectV1),
 }
 
 #[cfg(test)]
@@ -118,7 +120,8 @@ pub(crate) fn issue_direct_accum_facts_from_source_v1(
         frame_key: resolved_source.frame_key(),
         shape,
     };
-    Ok(issue_direct_accum_structural_facts_v1(observed))
+    issue_direct_accum_structural_facts_v1(observed)
+        .map_err(DirectAccumProjectionRejectV1::Disjointness)
 }
 
 fn observe_condition(
@@ -311,14 +314,24 @@ mod tests {
         assert_eq!(shape.step.delta, 1);
         assert_eq!(shape.update.binding, shape.accumulator);
         assert_eq!(shape.step.binding, shape.induction);
+        assert!(
+            facts
+                .direct_accum_disjointness()
+                .expect("source-side exclusivity proof")
+                .grammar_is_terminal()
+        );
 
         let source = input
             .function()
             .resolved_loop_source(loop_stmt.site())
             .unwrap();
         let frame_key = source.frame_key();
+        let observation = facts
+            .into_direct_accum_singleton_observation_v1(source)
+            .expect("DirectAccum singleton observation must seal");
+        let (facts, source) = observation.into_parts();
         crate::mir::loop_structural_facts::issue_selected_loop_recipe_demand_v1(
-            crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame(4, &frame_key),
+            crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame(10, &frame_key),
             facts,
             source,
         )

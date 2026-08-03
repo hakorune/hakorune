@@ -45,6 +45,20 @@ are never re-resolved. A source-issued `LoopExecutionFrameKeyV1` is carried by
 the winner, facts, and source capability so selected demand rejects a foreign
 execution frame before sealing.
 
+The DirectAccum pilot separates shape from route exclusivity:
+
+```text
+DirectAccumStructuralShapeV1
+  -> VerifiedDirectAccumDisjointnessV1
+  -> VerifiedDirectAccumSingletonObservationV1
+```
+
+The disjointness proof is issued only after the resolved projector has checked
+the exact two-assignment, no-control-flow grammar. It contains no route ID or
+raw cursor. Shape access alone cannot mint the proof, and policy must not
+fabricate the other-route decline rows without consuming this observation.
+The legacy `CanonicalLoopFacts` schedule remains a parity oracle only.
+
 This S0 remains caller-zero: it does not construct a Recipe, invoke the
 legacy scheduler, mutate a Builder, or become a PHI/SSA writer. Production
 physical ownership remains `CanonicalCfgSessionV1` + function-owned

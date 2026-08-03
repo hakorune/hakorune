@@ -3,6 +3,7 @@
 //! See `README.md` for the authority and caller-zero contract.
 
 mod direct_accum_effect_plan;
+mod direct_accum_exclusivity;
 mod resolved_source_adapter;
 mod selected_demand;
 mod types;
@@ -16,11 +17,16 @@ pub(crate) use direct_accum_effect_plan::{
     DirectAccumBindingEffectEntryV1, DirectAccumBindingEffectRoleV1,
     VerifiedDirectAccumBindingEffectPlanV1,
 };
+pub(crate) use direct_accum_exclusivity::{
+    issue_direct_accum_disjointness_v1, DirectAccumDisjointnessRejectV1,
+    VerifiedDirectAccumDisjointnessV1,
+};
 #[allow(unused_imports)]
 pub(crate) use selected_demand::{
     issue_direct_accum_structural_facts_v1, issue_selected_loop_recipe_demand_v1,
-    DirectAccumFactsPayloadRejectV1, SelectedLoopDemandRejectV1, VerifiedLoopStructuralFactsV1,
-    VerifiedSelectedLoopRecipeDemandV1,
+    DirectAccumFactsPayloadRejectV1, DirectAccumSingletonObservationRejectV1,
+    SelectedLoopDemandRejectV1, VerifiedDirectAccumSingletonObservationV1,
+    VerifiedLoopStructuralFactsV1, VerifiedSelectedLoopRecipeDemandV1,
 };
 pub(crate) use types::{
     DirectAccumObservedShapeV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,

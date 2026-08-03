@@ -9,6 +9,10 @@ use crate::mir::resolved_semantics::{
     VerifiedResolvedLoopSourceV1,
 };
 
+use super::direct_accum_exclusivity::{
+    issue_direct_accum_disjointness_v1, DirectAccumDisjointnessRejectV1,
+    VerifiedDirectAccumDisjointnessV1,
+};
 use super::types::{DirectAccumStructuralShapeV1, LoopStructuralFactsPayloadV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -30,11 +34,33 @@ pub(crate) struct VerifiedLoopStructuralFactsV1 {
     identity: LoopStructuralFactsIdentityV1,
     frame_key: LoopExecutionFrameKeyV1,
     payload: LoopStructuralFactsPayloadV1,
+    direct_accum_disjointness: Option<VerifiedDirectAccumDisjointnessV1>,
     _seal: VerifiedLoopStructuralFactsSealV1,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 struct VerifiedSelectedLoopRecipeDemandSealV1;
+
+#[derive(Debug, PartialEq, Eq)]
+struct VerifiedDirectAccumSingletonObservationSealV1;
+
+/// One source-owned DirectAccum candidate together with an explicit
+/// pre-effect exclusivity proof. This is the only product allowed to mint the
+/// later policy admission for the singleton pilot.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedDirectAccumSingletonObservationV1 {
+    facts: VerifiedLoopStructuralFactsV1,
+    source: VerifiedResolvedLoopSourceV1,
+    _seal: VerifiedDirectAccumSingletonObservationSealV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DirectAccumSingletonObservationRejectV1 {
+    ExecutionFrameMismatch,
+    FactsSourceIdentityMismatch,
+    NotDirectAccum,
+    MissingDisjointness,
+}
 
 /// One-way handoff accepted by the caller-zero Recipe producer facade.
 #[derive(Debug, PartialEq, Eq)]
@@ -54,6 +80,7 @@ pub(crate) enum SelectedLoopDemandRejectV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DirectAccumFactsPayloadRejectV1 {
     NotDirectAccum,
+    MissingDisjointness,
 }
 
 impl VerifiedSelectedLoopRecipeDemandV1 {
@@ -70,8 +97,9 @@ impl VerifiedSelectedLoopRecipeDemandV1 {
 
 pub(crate) fn issue_direct_accum_structural_facts_v1(
     observed: super::types::DirectAccumObservedShapeV1,
-) -> VerifiedLoopStructuralFactsV1 {
-    VerifiedLoopStructuralFactsV1 {
+) -> Result<VerifiedLoopStructuralFactsV1, DirectAccumDisjointnessRejectV1> {
+    let disjointness = issue_direct_accum_disjointness_v1(&observed.shape)?;
+    Ok(VerifiedLoopStructuralFactsV1 {
         identity: LoopStructuralFactsIdentityV1 {
             function_origin: observed.function_origin,
             owner_source_kind: observed.owner_source_kind,
@@ -79,14 +107,20 @@ pub(crate) fn issue_direct_accum_structural_facts_v1(
         },
         frame_key: observed.frame_key,
         payload: LoopStructuralFactsPayloadV1::DirectAccum(observed.shape),
+        direct_accum_disjointness: Some(disjointness),
         _seal: VerifiedLoopStructuralFactsSealV1,
-    }
+    })
 }
 
 impl VerifiedLoopStructuralFactsV1 {
     pub(crate) fn into_direct_accum_v1(
         self,
     ) -> Result<DirectAccumStructuralShapeV1, DirectAccumFactsPayloadRejectV1> {
+        if matches!(&self.payload, LoopStructuralFactsPayloadV1::DirectAccum(_))
+            && self.direct_accum_disjointness.is_none()
+        {
+            return Err(DirectAccumFactsPayloadRejectV1::MissingDisjointness);
+        }
         match self.payload {
             LoopStructuralFactsPayloadV1::DirectAccum(shape) => Ok(shape),
             LoopStructuralFactsPayloadV1::IdentityOnly => {
@@ -100,6 +134,46 @@ impl VerifiedLoopStructuralFactsV1 {
             LoopStructuralFactsPayloadV1::IdentityOnly => None,
             LoopStructuralFactsPayloadV1::DirectAccum(shape) => Some(shape),
         }
+    }
+
+    pub(crate) fn direct_accum_disjointness(&self) -> Option<&VerifiedDirectAccumDisjointnessV1> {
+        self.direct_accum_disjointness.as_ref()
+    }
+
+    pub(crate) fn into_direct_accum_singleton_observation_v1(
+        self,
+        source: VerifiedResolvedLoopSourceV1,
+    ) -> Result<VerifiedDirectAccumSingletonObservationV1, DirectAccumSingletonObservationRejectV1>
+    {
+        if !source.frame_key().matches(&self.frame_key) {
+            return Err(DirectAccumSingletonObservationRejectV1::ExecutionFrameMismatch);
+        }
+        if !source.matches_identity(
+            self.identity.function_origin,
+            self.identity.owner_source_kind,
+            &self.identity.site,
+        ) {
+            return Err(DirectAccumSingletonObservationRejectV1::FactsSourceIdentityMismatch);
+        }
+        if !matches!(&self.payload, LoopStructuralFactsPayloadV1::DirectAccum(_)) {
+            return Err(DirectAccumSingletonObservationRejectV1::NotDirectAccum);
+        }
+        if self.direct_accum_disjointness.is_none() {
+            return Err(DirectAccumSingletonObservationRejectV1::MissingDisjointness);
+        }
+        Ok(VerifiedDirectAccumSingletonObservationV1 {
+            facts: self,
+            source,
+            _seal: VerifiedDirectAccumSingletonObservationSealV1,
+        })
+    }
+}
+
+impl VerifiedDirectAccumSingletonObservationV1 {
+    pub(crate) fn into_parts(
+        self,
+    ) -> (VerifiedLoopStructuralFactsV1, VerifiedResolvedLoopSourceV1) {
+        (self.facts, self.source)
     }
 }
 
@@ -161,6 +235,7 @@ pub(crate) fn verified_loop_structural_facts_for_test_with_frame(
         },
         frame_key,
         payload: LoopStructuralFactsPayloadV1::IdentityOnly,
+        direct_accum_disjointness: None,
         _seal: VerifiedLoopStructuralFactsSealV1,
     }
 }

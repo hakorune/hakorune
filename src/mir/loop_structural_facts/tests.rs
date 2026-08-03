@@ -16,7 +16,7 @@ use crate::mir::resolved_semantics::{
 use super::{
     bind_resolved_loop_root_v1, issue_selected_loop_recipe_demand_v1,
     verified_loop_structural_facts_for_test_with_frame, LoopRootSourceBindingRejectV1,
-    SelectedLoopDemandRejectV1,
+    DirectAccumSingletonObservationRejectV1, SelectedLoopDemandRejectV1,
 };
 
 fn int(value: i64) -> ASTNode {
@@ -177,6 +177,26 @@ fn selected_demand_rejects_foreign_execution_frame() {
             source,
         ),
         Err(SelectedLoopDemandRejectV1::ExecutionFrameMismatch)
+    );
+}
+
+#[test]
+fn singleton_observation_rejects_identity_only_facts() {
+    let tree = function(vec![loop_stmt(Vec::new())]);
+    let product = resolve_function(&tree);
+    let site = stmt(vec![SourcePathSegmentV1::Body(0)]);
+    let source = product.resolved_loop_source(&site).unwrap();
+    let frame_key = source.frame_key();
+    let facts = verified_loop_structural_facts_for_test_with_frame(
+        crate::mir::resolved_semantics::FunctionOriginV1::new(0, 0),
+        SemanticOwnerSourceKindV1::DeclaredFunction,
+        site,
+        frame_key,
+    );
+
+    assert_eq!(
+        facts.into_direct_accum_singleton_observation_v1(source),
+        Err(DirectAccumSingletonObservationRejectV1::NotDirectAccum)
     );
 }
 
