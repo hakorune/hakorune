@@ -1,12 +1,13 @@
 //! Portable fixed-shell If recipe contract.
 //!
 //! This row is intentionally disconnected from production lowering. It owns
-//! only recipe-local wire identities, source-claim structure, and structural
-//! verification/normalization. Facts mapping, JoinSig, PHI, and Builder
-//! physicalization belong to later rows.
+//! only recipe-local wire identities, source-claim structure, structural
+//! verification/normalization, and caller-zero logical JoinSig elaboration.
+//! PHI and Builder physicalization belong to later rows.
 
 mod error;
 mod ids;
+mod join_sig;
 mod normalize;
 mod schema;
 mod source_binding;
@@ -17,6 +18,10 @@ mod tests;
 
 pub(crate) use error::IfRecipeRejectReasonV1;
 pub(crate) use ids::{IfBindingKeyV1, IfBlockKeyV1, IfItemKeyV1, IfValueKeyV1};
+pub(crate) use join_sig::{
+    IfJoinEdgeRoleV1, IfJoinEdgeV1, IfJoinObligationV1, IfJoinPortV1, IfJoinSigElaboratorV1,
+    IfJoinSigRejectReasonV1, IfJoinSigV1, IfJoinValueEdgeV1, VerifiedIfJoinSigV1,
+};
 pub(crate) use normalize::{IfRecipeDecodeErrorV1, IfRecipeNormalizerV1};
 pub(crate) use schema::{
     IfBinaryOpV1, IfBindingRoleV1, IfBlockRoleV1, IfCompareOpV1, IfContinuationV1,

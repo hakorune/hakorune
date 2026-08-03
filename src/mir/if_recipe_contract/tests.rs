@@ -255,3 +255,34 @@ fn unknown_json_fields_are_rejected_before_verification() {
     let error = IfRecipeNormalizerV1::decode_and_verify(&value.to_string()).unwrap_err();
     assert!(matches!(error, IfRecipeDecodeErrorV1::Json(_)));
 }
+
+#[test]
+fn logical_joinsig_elaborates_fixed_shell_deterministically() {
+    let artifact = golden();
+    let verified = IfRecipeVerifierV1::verify_artifact(artifact).expect("golden verifies");
+    let left = IfJoinSigElaboratorV1::elaborate(verified.recipe()).expect("left JoinSig");
+    let right = IfJoinSigElaboratorV1::elaborate(verified.recipe()).expect("right JoinSig");
+    assert_eq!(left, right);
+
+    let sig = left.as_sig();
+    assert_eq!(sig.ports.len(), 5);
+    assert_eq!(sig.edges.len(), 5);
+    assert_eq!(sig.edges[0].role, IfJoinEdgeRoleV1::Enter);
+    assert_eq!(sig.edges[0].from, IfJoinPortV1::Entry);
+    assert_eq!(sig.edges[0].to, IfJoinPortV1::Condition);
+    assert_eq!(sig.edges[1].role, IfJoinEdgeRoleV1::True);
+    assert_eq!(sig.edges[1].to, IfJoinPortV1::Then);
+    assert_eq!(sig.edges[2].role, IfJoinEdgeRoleV1::False);
+    assert_eq!(sig.edges[2].to, IfJoinPortV1::Else);
+    assert_eq!(sig.edges[3].role, IfJoinEdgeRoleV1::ThenTransfer);
+    assert_eq!(sig.edges[3].from, IfJoinPortV1::Then);
+    assert_eq!(sig.edges[4].role, IfJoinEdgeRoleV1::ElseTransfer);
+    assert_eq!(sig.edges[4].from, IfJoinPortV1::Else);
+    assert_eq!(sig.edges[3].to, IfJoinPortV1::Continuation);
+    assert_eq!(sig.edges[4].to, IfJoinPortV1::Continuation);
+    assert_eq!(sig.join.binding, IfBindingKeyV1::new(0));
+    assert_eq!(sig.join.entry_value, IfValueKeyV1::new(0));
+    assert_eq!(sig.join.then_value, IfValueKeyV1::new(4));
+    assert_eq!(sig.join.else_value, IfValueKeyV1::new(5));
+    assert_eq!(sig.join.class, IfValueClassV1::I64);
+}

@@ -2,7 +2,8 @@
 
 This directory owns the Builder-free, fixed-shell semantic contract for the
 first If migration slice. It is intentionally disconnected from production
-lowering until a later mapper and JoinSig row are accepted.
+lowering; the caller-zero logical JoinSig is accepted, while physical input and
+production consumption remain later rows.
 
 ## Authority
 
@@ -17,13 +18,16 @@ lowering until a later mapper and JoinSig row are accepted.
   It does not prove that the named AST/function exists or produced the recipe.
 - `IfRecipeNormalizerV1` exposes semantic-only and source-bound views. Source
   and provenance are never part of semantic normalization.
+- `IfJoinSigElaboratorV1` consumes only `VerifiedIfRecipeV1` and seals the
+  fixed logical transfer edges and join values. `VerifiedIfJoinSigV1` is a
+  non-`Clone` caller-zero proof, not a physical CFG or PHI owner.
 
 ## Forbidden dependencies
 
 This subtree must not import AST nodes, `MirBuilder`, `CorePlan`, physical
 `ValueId`/`BasicBlockId`, `BindingRef`, route selection/retry, PHI sessions,
-or legacy mutation policy. Facts mapping, JoinSig elaboration, PHI
-physicalization, and production caller wiring belong to later task rows.
+or legacy mutation policy. Facts mapping is owned by the resolved profile;
+PHI physicalization and production caller wiring belong to later task rows.
 
 `IfRecipeProvenanceV1` is a profile receipt, not route authority. The portable
 recipe is not a synthetic Loop and does not reuse Loop carrier/exit ownership.
@@ -38,7 +42,7 @@ production path.
 
 ## Current non-claims
 
-- No production If lowerer consumes this artifact yet.
-- No `JoinSig` or canonical PHI writer is created here.
+- No production If lowerer consumes this artifact or the logical JoinSig yet.
+- No canonical PHI writer or physical block projection is created here.
 - Verification proves internal artifact structure, not AST provenance or MIR
   parity.
