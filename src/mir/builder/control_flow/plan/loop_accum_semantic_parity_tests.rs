@@ -14,6 +14,12 @@ mod legacy_oracle;
 #[path = "loop_accum_physical_parity_tests.rs"]
 mod physical_parity_tests;
 
+#[path = "loop_accum_physical_digest_test_support.rs"]
+mod physical_digest_test_support;
+
+#[path = "loop_accum_semantic_digest_test_support.rs"]
+mod semantic_digest_test_support;
+
 #[path = "loop_accum_physical_role_plan_tests.rs"]
 mod physical_role_plan_tests;
 

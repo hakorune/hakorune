@@ -197,20 +197,44 @@ R2: candidate observer delegates to that emitter; duplicate helpers disappear
 R3: shared immutable alpha observer + legacy/candidate adapters compare parity
 ```
 
-The final shared alpha-digest support module will accept immutable MIR plus
-canonical role/value/type witness data and return ID-independent CFG,
-instruction, PHI, and final-binding rows. The legacy snapshot and candidate
-observer will each provide a thin adapter to that DTO; the support module must
-not import CorePlan, PlanLowerer, Recipe, route, PHI mutation, or Binding-SSA
-mutation APIs.
+The final shared parity support is an observer boundary, not a second PHI/SSA
+authority. It accepts immutable MIR plus canonical role/value/type witnesses
+and returns two explicit layers:
+
+```text
+SemanticCoreDigestV1
+  canonical terminator-derived CFG edges
+  semantic operation rows
+  binding-carrier merge rows
+  final i/sum bindings and Unit/Void result
+
+LegacyAuxiliaryDigestV1
+  named legacy compatibility PHI/copy/forwarding artifacts
+  step/after publication artifacts
+  incomplete cached predecessor metadata
+```
+
+The candidate adapter must produce the same semantic core and an empty
+auxiliary layer. The legacy adapter may produce auxiliary rows only through a
+named `DirectAccumLegacyAuxPolicyV1` allow-list. Unknown auxiliary kinds,
+required-edge violations, semantic PHIs that cannot be credited by the
+receipt, and missing values are hard errors; they are not silently ignored.
+Full raw MIR equality is deliberately not a gate while the legacy fallback
+still emits compatibility artifacts. Raw ValueId/BasicBlockId allocation,
+instruction count, PHI count, printer text, and route names are non-claims.
+
+The shared observer must not import CorePlan, PlanLowerer, Recipe, route, PHI
+mutation, or Binding-SSA mutation APIs. PHI/SSA generation remains owned by
+`CanonicalCfgSessionV1` + the function-owned `BindingSsaBuilderV1` + one
+caller-owned `PhiTxn`; the parity DTO only observes the sealed result.
 
 Change:
 
 ```text
 one borrowed emitter
   -> legacy/candidate observations
-  -> shared immutable alpha digest
-  -> exact DirectAccum parity assertion
+  -> shared immutable semantic/auxiliary digest
+  -> semantic-core equality + explicit legacy-auxiliary policy assertion
 ```
 
 Contract:
@@ -225,17 +249,19 @@ Final rows cover i, sum, and Unit/Void result with canonical provenance.
 Done:
 
 ```text
-CFG/pred-succ/terminators, PHI inputs, operation rows, and final rows match;
-raw ValueId/BasicBlockId never appear; candidate failure/reuse and existing
-guards stay green; every touched Rust file remains below 800 lines.
+semantic CFG/operation/carrier/final rows match; candidate auxiliary rows are
+empty; legacy auxiliary rows match the named allow-list; raw ValueId/BasicBlockId
+never appear in the semantic core; candidate failure/reuse and existing guards
+stay green; every touched Rust file remains below 800 lines.
 ```
 
 Stop:
 
 ```text
 if the candidate receipt cannot expose final provenance without inventing a
-new authority, stop and revise the receipt/SSOT; do not add a duplicate
-lowerer or compare raw IDs.
+new authority, or if a legacy PHI/copy cannot be classified by the explicit
+auxiliary policy, stop and revise the receipt/SSOT; do not add a duplicate
+lowerer, weaken equality with a generic ignore, or compare raw IDs.
 ```
 
 ## R1/R2 result
@@ -255,8 +281,10 @@ all five touched Rust test files: <800 lines
 production route_loop / commit / LoopPhiMaterializer callers: unchanged/zero
 ```
 
-R3 remains open: extract the immutable alpha observer and compare legacy and
-candidate CFG, PHI, operation, and final-binding rows without raw IDs.
+R3 remains open: split the immutable observer into semantic-core and named
+legacy-auxiliary rows, then compare the legacy and candidate semantic core
+without raw IDs. The observed legacy six-PHI versus candidate two-PHI shape is
+an expected parity-design boundary, not evidence of a second PHI/SSA owner.
 
 ## Required products
 

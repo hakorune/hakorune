@@ -17,6 +17,8 @@ guard_joinir_logical_demand_contract() {
   local loop_accum_binding_ssa_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_session_tests.rs"
   local loop_accum_emitter_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_emitter_tests.rs"
   local loop_accum_candidate_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_candidate_tests.rs"
+  local loop_accum_digest_support="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physical_digest_test_support.rs"
+  local loop_accum_semantic_digest_support="$root_dir/src/mir/builder/control_flow/plan/loop_accum_semantic_digest_test_support.rs"
   local loop_physical_edge_path="$root_dir/src/mir/builder/control_flow/plan/loop_physical_edge_path.rs"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
@@ -61,6 +63,7 @@ guard_joinir_logical_demand_contract() {
     "$loop_accum_physical_role_tests" \
     "$loop_accum_binding_ssa_tests" "$loop_accum_emitter_tests" \
     "$loop_accum_candidate_tests" \
+    "$loop_accum_digest_support" "$loop_accum_semantic_digest_support" \
     "$loop_physical_edge_path"
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_physical_tests"; then
     guard_fail "$tag" "physical parity observer must remain cfg(test)-only"
@@ -77,6 +80,16 @@ guard_joinir_logical_demand_contract() {
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_candidate_tests"; then
     guard_fail "$tag" "candidate observer proof must remain cfg(test)-only"
   fi
+  for digest_support in "$loop_accum_digest_support" "$loop_accum_semantic_digest_support"; do
+    if ! rg -q '^#!\[cfg\(test\)\]' "$digest_support"; then
+      guard_fail "$tag" "physical parity digest support must remain cfg(test)-only: ${digest_support#"$root_dir/"}"
+    fi
+    if rg -n \
+      '^(use|pub[[:space:]].*use)[[:space:]].*(MirBuilder|CorePlan|PlanLowerer|PhiTxn|BindingSsaBuilder|RouteAttemptOutcome|RouteFn|LoopPhiMaterializer|ASTNode|variable_map)' \
+      "$digest_support" >/dev/null; then
+      guard_fail "$tag" "immutable physical parity digest support acquired production or mutation authority: ${digest_support#"$root_dir/"}"
+    fi
+  done
   for binding_ssa_file in "$loop_accum_binding_ssa_tests" "$loop_accum_emitter_tests"; do
     if rg -n \
       'LoopPhiMaterializer|materialize_loop_phis|insert_phi_at_head|update_phi_instruction|CorePlan|PlanLowerer|RouteAttemptOutcome|Retry' \

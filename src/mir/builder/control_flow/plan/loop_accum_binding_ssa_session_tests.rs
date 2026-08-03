@@ -109,6 +109,7 @@ struct VerifiedLoopOperationScheduleV1 {
     body: Box<[LoopOperationV1]>,
     header_reads: Box<[LoopBindingKeyV1]>,
     condition_result: LoopValueKeyV1,
+    final_values: Box<[(LoopBindingKeyV1, LoopValueKeyV1)]>,
 }
 
 impl VerifiedLoopOperationScheduleV1 {
@@ -132,16 +133,23 @@ impl VerifiedLoopOperationScheduleV1 {
         };
         let condition = operations_for_block(recipe, condition_block);
         let body = operations_for_block(recipe, root.body);
-        let expected = sig
+        let root_join = sig
             .as_sig()
             .loops
             .iter()
             .find(|row| row.key.raw() == recipe.root_loop.raw())
-            .expect("root join row")
+            .expect("root join row");
+        let expected = root_join
             .carriers
             .iter()
             .map(|payload| payload.binding)
             .collect::<BTreeSet<_>>();
+        let final_values = root_join
+            .carriers
+            .iter()
+            .map(|payload| (payload.binding, payload.value))
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
         let mut actual = BTreeSet::new();
         for binding in header_reads.iter().copied() {
             if !actual.insert(binding) {
@@ -159,6 +167,7 @@ impl VerifiedLoopOperationScheduleV1 {
             body,
             header_reads: header_reads.into_boxed_slice(),
             condition_result,
+            final_values,
         })
     }
 }
