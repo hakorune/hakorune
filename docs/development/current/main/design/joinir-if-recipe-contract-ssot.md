@@ -52,7 +52,7 @@ provenance/binding, and one semantic `IfRecipeV1`. The semantic product owns:
 then block
 explicit else block for the selected shape
 ElseDisposition::Explicit(block) | ImplicitFallthrough (later shape)
-ordered leaf operations and BindingRef/value facts
+ordered leaf operations plus recipe-local binding/value keys
 branch-transfer obligations
 post-merge read obligation
 logical JoinSig merge/predecessor/value-edge obligations
@@ -61,6 +61,8 @@ recipe-local canonical keys only
 
 The schema has no AST nodes, `LocatedStmt`, `MirBuilder`, `CorePlan`, physical
 `ValueId`, physical `BasicBlockId`, callbacks, route retry, or emission command.
+The producer-side `BindingRefV1` correspondence remains outside the artifact;
+the wire carries only `IfBindingKeyV1`/`IfValueKeyV1`-style local identities.
 Control flow stays in the recursive block algebra. Operations are leaves; a
 nested If or Loop is a block item, never an opaque operation payload.
 
@@ -70,7 +72,11 @@ second universal control algebra merely to remove a few duplicate structs.
 
 ## Verification and elaboration
 
-`IfRecipeVerifierV1` owns structural obligations:
+The existing resolved topology/effect verifiers remain authorities for their
+own products. A same-pass shape projection supplies the additional condition,
+branch-operation, assignment-cardinality, and continuation facts; it must not
+re-scan the source after the recipe is sealed. `IfRecipeVerifierV1` owns only
+the portable structural obligations:
 
 - canonical local key order and unique definitions;
 - exact condition/value classes;
@@ -87,9 +93,11 @@ separate owners, as in the Loop contract.
 
 The source-side producer cannot be `VerifiedResolvedIfFlowV1` alone: that flow
 does not carry enough condition/assignment/cardinality information. D0-B must
-add a builder-free shape projection or exact preflight facts. The D0-C adapter
-then consumes the verified recipe and supplies the existing canonical trivial
-lowerer without re-reading source to make route decisions.
+add a builder-free shape projection (`VerifiedTrivialIfRecipeFactsV1`) from the
+same pre-Builder traversal. The D0-C adapter then consumes the verified recipe
+and supplies the existing canonical trivial lowerer. The lowerer may borrow an
+immutable source view for already-admitted leaf emission, but it must not
+re-scan source to choose a route, repair JoinSig, or reinterpret the recipe.
 
 ## Cutover boundary
 

@@ -263,6 +263,23 @@ algebra while the Loop contract is still the active portable owner: first prove
 the shape-scoped If artifact, then decide any shared control vocabulary in a
 separate design row.
 
+The implementation order is:
+
+```text
+D0-B0  same-pass VerifiedTrivialIfRecipeFactsV1 projection
+       (condition/branch operation/write cardinality/continuation facts)
+D0-B1  IfRecipeArtifactV1 schema + recipe-local IDs + source claim
+D0-B2  structural verifier + deterministic normalizer
+D0-B3  non-Clone IfJoinSig elaborator and typed physical-input seal
+```
+
+`VerifiedResolvedIfFlowV1` and `VerifiedTrivialCanonicalOwnerV1` remain their
+own authorities; the new facts projection fills only the missing expression
+and branch-operation contract. `BindingRefV1` is retained only in the
+producer/adapter correspondence, never in the portable artifact. If/Loop
+control shells stay separate until both have independent production consumers
+and caller-zero evidence; only pure validation helpers may later be shared.
+
 Verifier fail-fast rules for this row are: exactly two branch predecessors;
 explicit else is not implicit fallthrough; exactly one write to the same outer
 BindingRef per branch; both branch writes have the same admitted value class;
@@ -327,7 +344,7 @@ D0-A: every If/PHI/CFG writer has one classified owner and caller set
 D0-B: IfRecipeV1 has no AST/Builder/ValueId/BasicBlockId ownership
 D0-B: Explicit(block) vs ImplicitFallthrough is represented distinctly
 D0-B: selected explicit-else shape has two branch writes + post-merge read
-D0-B: shape-specific builder-free projection supplies all verifier inputs
+D0-B: same-pass `VerifiedTrivialIfRecipeFactsV1` supplies all verifier inputs
 D0-B: schema/verify/normalize rejection and deterministic semantic parity green
 D0-C: selected recipe producer = exactly 1; physicalizer = exactly 1
 D0-C: selected caller is inside an unpublished compile candidate
