@@ -1,7 +1,7 @@
 //! ROOT0-DRAIN0-POLICY0 focused proof for the neutral policy SSOT.
 
-use super::super::module_invocation_identity::ModuleInvocationFamilyV1;
-use super::super::module_invocation_policy::{
+use super::module_invocation_identity::ModuleInvocationFamilyV1;
+use super::module_invocation_policy::{
     InvocationConditionPolicyV1, InvocationFallbackPolicyV1, InvocationInventoryAuthorityV1,
     InvocationRootPolicyV1, ModuleInvocationPolicyV1,
 };

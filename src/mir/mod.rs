@@ -124,6 +124,8 @@ pub(crate) mod module_invocation_identity;
 #[cfg(test)]
 mod module_invocation_identity_idkernel_p0;
 pub(crate) mod module_invocation_policy;
+#[cfg(test)]
+mod module_invocation_policy_tests;
 pub mod naming; // Static box / entry naming rules（NamingBox）
 pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name vocabulary
 pub mod optimizer;
