@@ -274,10 +274,10 @@ Done:
   closed by this oracle.
 
 The first I0-E runtime guard is now green: resolved Nested compilation records
-zero legacy loop-physicalizer effects. A structural caller census/guard is
-still required before the old resolved-ingress edge can be called caller-zero;
-this test does not authorize deleting the normal/raw `route_nested_loop_minimal`
-path.
+zero legacy loop-physicalizer effects. The structural resolved-ingress guard is
+also green: `src/mir/compiler` has one canonical Nested physical caller and no
+legacy Loop edge references. This guard scopes only the resolved ingress; it
+does not authorize deleting the normal/raw `route_nested_loop_minimal` path.
 
 Stop:
   If the helper requires Builder mutation, public-ingress widening, or a
@@ -364,7 +364,7 @@ Nested physicalizer production caller = exactly 1
 caller is inside unpublished compile candidate = proven
 live Builder direct caller = 0
 selected resolved-ingress old fallback caller = 0 (guard proof)
-  runtime legacy-loop effect guard = 0 (green); structural caller-zero proof pending
+  runtime legacy-loop effect guard = 0; structural resolved-ingress guard = green
 post-effect Option/Retry/route reselection = 0 on the new subtree
   legacy/new effective winner and semantic CFG/PHI parity = green for the selected fixture
 late physical failure leaves live builder and fresh request unchanged
