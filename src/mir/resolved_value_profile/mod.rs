@@ -11,6 +11,7 @@ pub(crate) mod error;
 mod function_return;
 mod operator;
 mod parameter_entry;
+mod recipe_mapper;
 pub(crate) mod product;
 mod recipe_facts;
 
@@ -72,3 +73,4 @@ pub(crate) fn analyze_trivial_canonical_owner_with_finite_direct_calls_v1(
 
 pub(crate) use consumption::TrivialProfileConsumptionV1;
 pub(crate) use direct_call::VerifiedTrivialDirectCallV1;
+pub(crate) use recipe_mapper::{map_trivial_if_recipe_v1, IfRecipeMapRejectV1};

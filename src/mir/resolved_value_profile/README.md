@@ -50,6 +50,13 @@ R0a-I1 connects this witness through the route-local callable-ABI facade. Only
 the co-sealed exact `i64` row reaches production; the terminal remains return-
 value authority and resolved Lower does not reread the raw annotation.
 
+The D0-B2 If mapper is a disconnected elaboration owned by this directory. It
+consumes one sealed `VerifiedTrivialIfRecipeFactsV1` plus the function-origin
+receipt, creates recipe-local keys, and immediately invokes the portable
+IfRecipe verifier. It may not rescan source, infer missing entry values, select
+routes, return `Option`, or emit Builder/SSA effects. A missing pre-If entry
+witness is a typed rejection; JoinSig and canonical PHI remain later owners.
+
 Profile rejection is data, not fallback. A later compiler route may select the
 existing canonical A+ path from a sealed rejection before Builder effects, but
 it must never retry A+ after a trivial-profile lowering failure or mix the two

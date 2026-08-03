@@ -121,6 +121,24 @@ pub(crate) struct AssignmentFactV1 {
     representation: TrivialRepresentationV1,
 }
 
+impl AssignmentFactV1 {
+    pub(crate) const fn statement(&self) -> &SourceStmtSiteV1 {
+        &self.statement
+    }
+
+    pub(crate) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(crate) const fn value(&self) -> &SourceExprSiteV1 {
+        &self.value
+    }
+
+    pub(crate) const fn representation(&self) -> TrivialRepresentationV1 {
+        self.representation
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct IfEntryWitnessV1 {
     binding: BindingRefV1,
@@ -220,6 +238,14 @@ impl VerifiedTrivialIfRecipeFactsV1 {
 
     pub(crate) fn entry_witness(&self) -> Option<IfEntryWitnessV1> {
         self.if_fact.entry_witness
+    }
+
+    pub(crate) fn then_assignment(&self) -> Option<&AssignmentFactV1> {
+        self.if_fact.then_assignments.first()
+    }
+
+    pub(crate) fn else_assignment(&self) -> Option<&AssignmentFactV1> {
+        self.if_fact.else_assignments.first()
     }
 
     pub(crate) fn expressions(&self) -> &[TrivialRecipeExprFactV1] {

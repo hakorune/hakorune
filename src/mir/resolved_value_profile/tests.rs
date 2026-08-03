@@ -2,6 +2,7 @@ use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::{
     capability::CanonicalLoweringPreflightV1, VerifiedResolvedSourceUnitV1,
 };
+use crate::mir::if_recipe_contract::{IfRecipeNormalizerV1, IfSourcePathStepV1};
 use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_control_v1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::SourcePathV1;
@@ -259,6 +260,44 @@ fn same_pass_if_recipe_facts_decline_implicit_else_shape() {
     ]));
 
     assert!(product.recipe_facts().is_none());
+}
+
+#[test]
+fn same_pass_if_recipe_maps_to_verified_portable_artifact() {
+    let root = function(vec![
+        local("x", Some(int(0))),
+        if_(
+            binary(BinaryOperator::Less, variable("x"), int(1)),
+            vec![assignment("x", int(1))],
+            Some(vec![assignment("x", int(2))]),
+        ),
+        return_(Some(variable("x"))),
+    ]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
+    let product = match analyze_trivial_canonical_owner_v1(input, &completion, &if_control).unwrap()
+    {
+        TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
+        TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
+    };
+    let verified = super::map_trivial_if_recipe_v1(&product, input.function())
+        .expect("same-pass facts map to portable artifact");
+    let semantic = IfRecipeNormalizerV1::normalize_semantic(verified.recipe())
+        .expect("semantic normalization");
+    assert!(semantic.contains("explicit"));
+    assert_eq!(verified.recipe().as_recipe().joins.len(), 1);
+    assert!(!semantic.contains("compilation_unit_ordinal"));
+    assert_eq!(
+        verified.source_binding().as_source_binding().claims[2]
+            .path
+            .steps,
+        vec![
+            IfSourcePathStepV1::BodyItem { index: 1 },
+            IfSourcePathStepV1::IfThenItem { index: 0 },
+        ]
+    );
 }
 
 #[test]
