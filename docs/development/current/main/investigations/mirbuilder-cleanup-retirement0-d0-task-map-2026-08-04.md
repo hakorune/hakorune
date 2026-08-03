@@ -1,9 +1,8 @@
 # MIRBUILDER-CLEANUP-RETIREMENT0-D0
 
-Status: T1-D0 baseline is closed and T1-S0 `drain_policy_p0` retirement is the
-selected bounded cleanup row. The If D0-D3 boundary is landed separately; this
-lane remains behavior-neutral and must not alter Recipe, route, or PHI/SSA
-authority.
+Status: T1-D0 baseline and T1-S0 `drain_policy_p0` retirement are closed. The
+If D0-D3 boundary is landed separately; this lane remains behavior-neutral and
+must not alter Recipe, route, or PHI/SSA authority.
 Date: 2026-08-04
 
 This card records the cleanup opportunities raised by the dead-code audit. It
@@ -131,6 +130,15 @@ files stay below 800 lines.
 Stop: if the live owner needs production imports, a new public facade, or any
 semantic change to policy behavior, return to design and do not delete the
 proof module.
+
+### T1-S0 closeout (2026-08-04)
+
+The two policy tests now live beside `module_invocation_policy` in
+`module_invocation_policy_tests.rs`; the compiler-only registration and
+`drain_policy_p0.rs` were removed. The replacement test owner preserves both
+assertions and has no production caller or new guard. Focused tests, library
+check, the reusable in-place guard, pointer guard, zero source references, and
+the 800-line budget are green in commit `32f457e77e`.
 
 ### `source_coverage.rs` is live
 

@@ -272,3 +272,26 @@ named, and near-limit owners are excluded from physicalizer growth. D0-D1,
 D0-D2, and the D0-D3 selected-shape cutover are implemented with focused
 gates green. The next work must be a separately scoped adoption/design row;
 do not silently widen this slice into global PHI/SSA or all-If retirement.
+
+## Next selected row — `JOINIR-IF-RECIPE-BOOL-MERGE-P0`
+
+Worker review selected the existing explicit-else shell's `InlineBool` merge
+as the next bounded production proof. This reuses the already admitted profile,
+facts mapper, portable value class, JoinSig, selected helper, canonical CFG,
+Binding SSA, and `PhiTxn`; it does not add a lowerer branch or a new PHI owner.
+
+Change: add one resolved-trivial fixture with a Bool local, explicit-else
+Bool assignments, and a continuation Bool read; prove the selected demand and
+physical receipt consume the existing Bool class.
+
+Contract: retain the current explicit-else/fallthrough topology and one outer
+BindingRef per branch. No implicit-else, return-ABI widening, route retry,
+schema/JoinSig variant, or global PHI/SSA caller-zero claim.
+
+Done: profile/mapper admission, selected-helper use, Bool receipt class, two
+actual PHI predecessors, interpreter/diagnostic parity, and same-candidate
+late-failure reuse are green; no lowerer owner grows past 800 lines.
+
+Stop: if the fixture selects A+, `NotThisShape`, or a different
+return/continuation contract, stop and open an implicit-else/value-shape design
+row instead of widening this shell.
