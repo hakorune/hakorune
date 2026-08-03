@@ -73,6 +73,26 @@ capability handoff** that carries one source-issued `LoopExecutionFrameKeyV1`
 and exact located loop identity to the future singleton bridge. Until that
 handoff exists, the correct outcome is typed `NoSafe`, not AST/name lookup.
 
+The production issuer candidate is now fixed more precisely: the
+`CanonicalFunctionLowererV1`/`CanonicalTrivialSsaLowererV1` located-source
+boundary, never `route_loop`. The latter already owns the function's
+`CanonicalCfgSessionV1`, `BindingSsaBuilderV1`, and `PhiTxn`. The physicalizer
+core must borrow those owners; only the caller-zero test wrapper may create
+local owners and commit/abort them. Promoting the current standalone
+physicalizer unchanged would create a second SSA/CFG authority and is
+`NoSafe`.
+
+The audit then found one further unresolved handoff: the portable
+Recipe/JoinSig intentionally carries no source sites, while the canonical
+identity ledger must still claim the DirectAccum update/step assignments
+before the physicalizer emits their writes. The production bridge therefore
+needs a separate, execution-scoped **binding-effect witness** (exact
+`BindingRefV1` roles plus sealed source assignment sites) alongside the
+portable physical input. It must be issued from the same resolved frame,
+consumed once by the canonical lowerer, and must not become a second Recipe,
+SSA, or PHI authority. Until this witness and its claim/update contract are
+specified, external-SSA injection remains `NoSafe`.
+
 ## Current production observations
 
 The current `route_loop` path is still:
