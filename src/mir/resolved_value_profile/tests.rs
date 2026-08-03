@@ -301,6 +301,65 @@ fn same_pass_if_recipe_maps_to_verified_portable_artifact() {
 }
 
 #[test]
+fn recipe_mapper_rejects_implicit_else_before_portable_mapping() {
+    let root = function(vec![
+        local("x", Some(int(0))),
+        if_(
+            binary(BinaryOperator::Less, variable("x"), int(1)),
+            vec![assignment("x", int(1))],
+            None,
+        ),
+        return_(Some(variable("x"))),
+    ]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
+    let product = match analyze_trivial_canonical_owner_v1(input, &completion, &if_control).unwrap()
+    {
+        TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
+        TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
+    };
+
+    assert!(product.recipe_facts().is_none());
+    assert!(matches!(
+        super::map_trivial_if_recipe_v1(&product, input.function()),
+        Err(super::IfRecipeMapRejectV1::MissingFacts)
+    ));
+}
+
+#[test]
+fn recipe_mapper_rejects_foreign_source_owner_before_reading_facts() {
+    let root = function(vec![
+        local("x", Some(int(0))),
+        if_(
+            binary(BinaryOperator::Less, variable("x"), int(1)),
+            vec![assignment("x", int(1))],
+            Some(vec![assignment("x", int(2))]),
+        ),
+        return_(Some(variable("x"))),
+    ]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
+    let product = match analyze_trivial_canonical_owner_v1(input, &completion, &if_control).unwrap()
+    {
+        TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
+        TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
+    };
+
+    let other =
+        VerifiedResolvedSourceUnitV1::resolve_function(function(vec![return_(Some(int(2)))]))
+            .unwrap();
+    let other_input = other.root_function_input().unwrap();
+    assert!(matches!(
+        super::map_trivial_if_recipe_v1(&product, other_input.function()),
+        Err(super::IfRecipeMapRejectV1::OwnerMismatch)
+    ));
+}
+
+#[test]
 fn null_sentinel_flows_locally_and_compares_to_bool() {
     let product = admitted(function(vec![
         local("x", Some(null())),
