@@ -143,7 +143,10 @@ D4 does not claim those proofs early.
 4. Existing D2-B/D2-C/D2-D, DirectAccum pilot, PHI lifecycle, and scope gates
    remain green; all touched files stay below 800 lines.
 
-After this handoff slice lands, the next implementation is a caller-zero
-topology issuer only. Physical emission remains a separate card requiring the existing
+After this handoff slice lands, the caller-zero topology issuer is complete.
+The next frontier is the design stop in
+`joinir-loop-nested-predicate-d4-physical-emission-design-2026-08-04.md`:
+preserve the Recipe/JoinSig pair, issue exact binding/prefix claims, map
+symbolic ports to candidate-local physical blocks, and consume the existing
 CanonicalSsaFunctionSessionV2 -> CanonicalCfgSessionV1 + BindingSsaBuilderV1 +
-PhiTxn chain.
+PhiTxn chain without introducing another authority.
