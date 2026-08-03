@@ -1,7 +1,7 @@
 # JOINIR Loop Canonical Family-Plan Envelope F0
 
 Date: 2026-08-03
-Status: accepted; clean-worktree gate satisfied; F1 implementation in progress.
+Status: accepted; F1 landed; F2 implementation in progress.
 Task: `JOINIR-LOOP-CANONICAL-FAMILY-PLAN-ENVELOPE0-F0`
 
 ## Decision
@@ -86,6 +86,11 @@ test files was verified as rustfmt-only and moved to the named recoverable
 stash `wip/formatting-only-before-loop-family-plan-f1`. F1/F2 must not absorb
 that formatting diff; the series starts from the clean HEAD covered by this
 card.
+
+F1 landed as `a8cd116777`: `source_bound_package.rs` now delegates the plan
+sum and route mapping to `source_bound_plan.rs`, while the old module keeps a
+compatibility re-export for existing callers. The package is 732 lines and
+the extracted owner is 85 lines.
 
 Each series commit must build. The final F2/F3 commit is the only commit that
 changes the enum shape; intermediate F1 commits are mechanical extraction only.
