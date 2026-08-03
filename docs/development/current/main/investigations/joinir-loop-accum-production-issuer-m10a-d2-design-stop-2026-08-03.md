@@ -2,6 +2,7 @@
 Status: Design stop — implementation is not authorized until the issuer boundary is sealed
 Date: 2026-08-03
 Decision: reuse the existing canonical PHI/SSA owner; add only a builder-free resolved singleton policy issuer
+Outcome: NoSafeSlice — the resolved source-side observation product is not yet present
 Related:
   - joinir-loop-accum-production-bridge-m10a-n2-design-stop-2026-08-03.md
   - ../design/phi-lifecycle-ssot.md
@@ -95,3 +96,29 @@ issuer green
 
 The current production caller remains zero until these gates pass. That is a
 deliberate safety boundary, not a missing PHI/SSA design.
+
+## Audit result: issuer is not yet an implementation row
+
+The existing policy evaluator is usable, but its production input side is
+still absent:
+
+```text
+freeze_loop_route_schedule_v1       = production facade, caller-zero
+evaluate_frozen_loop_route_schedule_v1 = pure evaluator, caller-zero
+issue_policy_winner_for_test_with_frame = #[cfg(test)] only
+```
+
+The resolved ingress currently admits only `TrivialBindingSsa` and
+`CurrentCanonicalAPlus`; `verify_body` rejects Loop before a DirectAccum plan
+can be issued. Conversely, `route_loop` receives only `LoopRouteContext` and a
+live `MirBuilder`, so it cannot mint the resolved source/frame capability.
+The legacy `CanonicalLoopFacts` schedule cannot be reused as the resolved
+source authority, and a new schedule that marks every other route declined
+would silently assume disjointness that has not yet been proven.
+
+Therefore this row is a `NoSafeSlice` design boundary, not a request to add a
+test-only winner wrapper under a production name. The next consultation must
+choose and document the source-side observation product that proves the exact
+singleton/disjoint schedule. Only after that product is issued may the
+`CanonicalFirstFamilyPlanV1::DirectAccum` variant and the candidate-scoped
+physicalizer caller be opened.
