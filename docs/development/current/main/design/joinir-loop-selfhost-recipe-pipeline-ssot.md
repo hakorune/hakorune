@@ -478,7 +478,7 @@ Contract:
   bounded Accum vocabulary: deterministic logical ports/edges, value
   availability, owner/ancestor carrier payloads, self exits, and unreachable items;
   nested loops are `Always`-only. Full predecessor/dominance and wider branch/exit closure remain explicit M6-A follow-ups.
-  M6-B `LoopPhiMaterializerV1` consumes only verified JoinSig plus
+  M6-B `LoopPhiMaterializerV1` (see the M6-B design stop) consumes only verified JoinSig plus
   logical-to-physical mapping; AST, route/env, `variable_map`, tags, and repair inference
   are forbidden; this Loop-level producer is not a second PHI/SSA lifecycle authority.
   MIR insert/patch/rollback use existing `phi_lifecycle` and Binding SSA SSOTs. Both reject; neither chooses another recipe.
