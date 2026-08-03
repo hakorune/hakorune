@@ -34,6 +34,10 @@ impl LoopRecipeArtifactV1 {
             recipe,
         }
     }
+
+    pub(crate) fn recipe(&self) -> &LoopRecipeV1 {
+        &self.recipe
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -9,6 +9,7 @@ guard_joinir_logical_demand_contract() {
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
+  local loop_phi_materializer="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer.rs"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
   local if_phi_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_if_phi_join_terminality.rs"
@@ -46,6 +47,7 @@ guard_joinir_logical_demand_contract() {
   local file lines
 
   guard_require_files "$tag" "${files[@]}"
+  guard_require_files "$tag" "$loop_phi_materializer"
   local portable_recipe_files=()
   mapfile -t portable_recipe_files < <(find "$portable_recipe_dir" -maxdepth 1 -name '*.rs' -type f | sort)
   guard_require_files "$tag" \
@@ -86,10 +88,26 @@ guard_joinir_logical_demand_contract() {
     { rg -l -w \
         'LoopJoinPortV1|LoopJoinEdgeRoleV1|LoopJoinPayloadV1|LoopJoinEdgeV1|LoopJoinLoopV1|LoopJoinSigV1|VerifiedLoopJoinSigV1|LoopJoinSigElaboratorV1|LoopJoinSigRejectReasonV1' \
         "$root_dir/src/mir" || true; } \
-      | awk -v prefix="$portable_recipe_dir/" 'index($0, prefix) != 1'
+      | awk \
+          -v prefix="$portable_recipe_dir/" \
+          -v materializer="$loop_phi_materializer" \
+          'index($0, prefix) != 1 && $0 != materializer'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
+  fi
+  if rg -n \
+    'ssa::phi_input_materializer|for_pred|define_phi_final|materialize_all_phi_inputs|BindingSsaBuilderV1|compute_predecessors|update_cfg|RouteAttemptOutcome|RouteFn|CorePlan|CanonicalLoopFacts|ASTNode' \
+    "$loop_phi_materializer" >/dev/null; then
+    guard_fail "$tag" "Loop PHI materializer bypassed the JoinSig/PhiTxn boundary"
+  fi
+  local loop_phi_external_callers=()
+  mapfile -t loop_phi_external_callers < <(
+    { rg -l 'materialize_loop_phis\(' "$root_dir/src/mir" || true; } \
+      | awk -v materializer="$loop_phi_materializer" '$0 != materializer'
+  )
+  if (( ${#loop_phi_external_callers[@]} != 0 )); then
+    guard_fail "$tag" "caller-zero Loop PHI materializer acquired a production caller"
   fi
   local loop_structural_fact_files=()
   mapfile -t loop_structural_fact_files < <(
@@ -134,10 +152,18 @@ guard_joinir_logical_demand_contract() {
       | awk \
           -v recipe_prefix="$portable_recipe_dir/" \
           -v structural_prefix="$loop_structural_facts_dir/" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1'
+          -v materializer="$loop_phi_materializer" \
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && $0 != materializer'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"
+  fi
+  local loop_phi_materializer_production
+  loop_phi_materializer_production="$(sed '/^#\[cfg(test)\]/,$d' "$loop_phi_materializer")"
+  if printf '%s\n' "$loop_phi_materializer_production" | rg -n \
+    'LoopRecipeArtifactV1|LoopRecipeVerifierV1|ASTNode|LoopSourcePath|LoopRecipeProvenanceV1|LoopRouteId' \
+    >/dev/null; then
+    guard_fail "$tag" "Loop PHI materializer production path acquired source/provenance authority"
   fi
   local external_resolved_source_files=()
   mapfile -t external_resolved_source_files < <(
