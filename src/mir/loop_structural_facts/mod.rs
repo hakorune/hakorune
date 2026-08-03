@@ -14,7 +14,8 @@ pub(crate) use resolved_source_adapter::{
 #[allow(unused_imports)]
 pub(crate) use selected_demand::{
     issue_direct_accum_structural_facts_v1, issue_selected_loop_recipe_demand_v1,
-    SelectedLoopDemandRejectV1, VerifiedLoopStructuralFactsV1, VerifiedSelectedLoopRecipeDemandV1,
+    DirectAccumFactsPayloadRejectV1, SelectedLoopDemandRejectV1, VerifiedLoopStructuralFactsV1,
+    VerifiedSelectedLoopRecipeDemandV1,
 };
 pub(crate) use types::{
     DirectAccumObservedShapeV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,

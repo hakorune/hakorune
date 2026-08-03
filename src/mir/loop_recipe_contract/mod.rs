@@ -1,5 +1,6 @@
 //! Neutral selfhost-portable recursive Loop recipe contract.
 
+mod direct_accum_producer;
 mod error;
 mod ids;
 mod join_sig;
@@ -10,10 +11,19 @@ mod source_binding;
 mod verify;
 
 #[cfg(test)]
+#[path = "direct_accum_producer_tests.rs"]
+mod direct_accum_producer_tests;
+
+#[cfg(test)]
 mod tests;
 
 // M2 is intentionally disconnected. Keep one stable facade for later producers
 // without turning caller-zero exports into warning noise.
+#[allow(unused_imports)]
+pub(crate) use direct_accum_producer::{
+    produce_direct_accum_recipe_v1, DirectAccumRecipeProducerRejectV1,
+    VerifiedDirectAccumRecipeProductV1,
+};
 #[allow(unused_imports)]
 pub(crate) use error::LoopRecipeRejectReasonV1;
 #[allow(unused_imports)]

@@ -7,6 +7,7 @@ guard_joinir_logical_demand_contract() {
   local route_id="$root_dir/src/mir/loop_recipe_contract/route_id.rs"
   local portable_recipe_dir="$root_dir/src/mir/loop_recipe_contract"
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
+  local direct_accum_recipe_producer="$portable_recipe_dir/direct_accum_producer.rs"
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
   local loop_phi_materializer="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer.rs"
@@ -126,7 +127,10 @@ guard_joinir_logical_demand_contract() {
   done
   local portable_production_files=()
   for file in "${portable_recipe_files[@]}"; do
-    [[ "$file" == "$portable_recipe_dir/tests.rs" ]] || portable_production_files+=("$file")
+    if [[ "$file" == "$portable_recipe_dir/tests.rs" || "$file" == *_tests.rs ]]; then
+      continue
+    fi
+    portable_production_files+=("$file")
   done
   if rg -n -w \
     'ASTNode|MirBuilder|CorePlan|ValueId|BasicBlockId|MirInstruction|Phi|Frag|RouteAttemptOutcome|RouteFn|ComposeFn' \
@@ -194,8 +198,10 @@ guard_joinir_logical_demand_contract() {
     if (( lines >= 800 )); then
       guard_fail "$tag" "file exceeds boundary: ${file#"$root_dir/"} lines=$lines"
     fi
-    [[ "$file" == "$loop_structural_facts_dir/tests.rs" ]] || \
-      loop_structural_production_files+=("$file")
+    if [[ "$file" == "$loop_structural_facts_dir/tests.rs" || "$file" == *_tests.rs ]]; then
+      continue
+    fi
+    loop_structural_production_files+=("$file")
   done
   if rg -n -w \
     'ASTNode|MirBuilder|CorePlan|ValueId|BasicBlockId|MirInstruction|Phi|Frag|LoopRouteContext|CanonicalLoopFacts|RouteAttemptOutcome|RouteFn|ComposeFn|LoopRecipeArtifactV1|LoopRouteId|LoopRecipeProvenanceV1|producer_route' \
@@ -205,12 +211,22 @@ guard_joinir_logical_demand_contract() {
   local structural_binding_callers
   structural_binding_callers="$(
     { rg -l 'bind_resolved_loop_root_v1\(' "$root_dir/src/mir" || true; } \
-      | awk -v prefix="$loop_structural_facts_dir/" 'index($0, prefix) != 1' \
+      | awk -v prefix="$loop_structural_facts_dir/" -v producer="$direct_accum_recipe_producer" \
+          'index($0, prefix) != 1 && $0 != producer' \
       | wc -l \
       | tr -d '[:space:]'
   )"
   if [[ "$structural_binding_callers" != "0" ]]; then
-    guard_fail "$tag" "caller-zero Loop source adapter acquired a production caller"
+    guard_fail "$tag" "Loop source adapter acquired an unapproved production caller"
+  fi
+  local direct_accum_production_callers=()
+  mapfile -t direct_accum_production_callers < <(
+    { rg -l 'produce_direct_accum_recipe_v1\(' "$root_dir/src/mir" || true; } \
+      | awk -v producer="$direct_accum_recipe_producer" \
+          '$0 != producer && $0 !~ /_tests\.rs$/'
+  )
+  if (( ${#direct_accum_production_callers[@]} != 0 )); then
+    guard_fail "$tag" "Direct Accum Recipe producer acquired a production caller"
   fi
   local external_portable_source_files=()
   mapfile -t external_portable_source_files < <(

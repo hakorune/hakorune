@@ -51,6 +51,11 @@ pub(crate) enum SelectedLoopDemandRejectV1 {
     FactsSourceIdentityMismatch,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DirectAccumFactsPayloadRejectV1 {
+    NotDirectAccum,
+}
+
 impl VerifiedSelectedLoopRecipeDemandV1 {
     pub(crate) fn into_parts(
         self,
@@ -79,6 +84,17 @@ pub(crate) fn issue_direct_accum_structural_facts_v1(
 }
 
 impl VerifiedLoopStructuralFactsV1 {
+    pub(crate) fn into_direct_accum_v1(
+        self,
+    ) -> Result<DirectAccumStructuralShapeV1, DirectAccumFactsPayloadRejectV1> {
+        match self.payload {
+            LoopStructuralFactsPayloadV1::DirectAccum(shape) => Ok(shape),
+            LoopStructuralFactsPayloadV1::IdentityOnly => {
+                Err(DirectAccumFactsPayloadRejectV1::NotDirectAccum)
+            }
+        }
+    }
+
     #[cfg(test)]
     pub(crate) fn direct_accum_shape(&self) -> Option<&DirectAccumStructuralShapeV1> {
         match &self.payload {
