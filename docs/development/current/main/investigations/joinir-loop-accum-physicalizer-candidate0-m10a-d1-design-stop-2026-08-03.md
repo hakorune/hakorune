@@ -129,6 +129,20 @@ legacy snapshot and P1-S1/R3 semantic-core/legacy-auxiliary policy are enough
 to define the comparison boundary; the candidate-side snapshot gets its second
 producer only after the real physicalizer emits MIR.
 
+## S0 implementation progress
+
+The caller-zero vertical slice now has neutral pair/input/role capabilities,
+named CFG block-selection/return seams, an AST-free i64 operation facade, and
+one DirectAccum physicalizer using exactly one CFG session, Binding SSA owner,
+and PhiTxn. The fixture seeds existing preheader values instead of inventing
+initial constants and returns explicit Unit plus final carrier values.
+
+Focused evidence is green for the capability boxes, canonical CFG seams, the
+operation facade, and the DirectAccum success/preflight cases. Production
+recipe, physicalizer, and `route_loop` callers remain zero. Late-failure
+candidate discard/fresh-reuse and shared alpha semantic parity are the next S0
+gates; no production cutover is implied by this progress.
+
 ## Acceptance gates for the S0 implementation
 
 - malformed recipe, JoinSig, role, projection, or operation input rejects

@@ -15,7 +15,13 @@ pub(in crate::mir::builder) enum CanonicalCfgErrorV1 {
         block: BasicBlockId,
         role: CanonicalCfgBlockRoleV1,
     },
+    BlockAlreadyExists {
+        block: BasicBlockId,
+    },
     SourceAlreadyTerminated {
+        source: BasicBlockId,
+    },
+    SourceAfterSeal {
         source: BasicBlockId,
     },
     DuplicateEdge {
@@ -65,8 +71,14 @@ impl fmt::Display for CanonicalCfgErrorV1 {
             Self::MissingBlock { block, role } => {
                 write!(f, "canonical CFG missing {role:?} block {block}")
             }
+            Self::BlockAlreadyExists { block } => {
+                write!(f, "canonical CFG block {block} already exists")
+            }
             Self::SourceAlreadyTerminated { source } => {
                 write!(f, "canonical CFG source block {source} already has a terminator")
+            }
+            Self::SourceAfterSeal { source } => {
+                write!(f, "canonical CFG source block {source} is already sealed")
             }
             Self::DuplicateEdge { source, target } => {
                 write!(f, "canonical CFG duplicate edge {source} -> {target}")

@@ -1,6 +1,7 @@
 use super::error::{CanonicalCfgBlockRoleV1, CanonicalCfgErrorV1};
 use super::predecessors::derive_and_verify_predecessors;
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+use crate::mir::builder::MirBuilder;
+use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -51,6 +52,45 @@ pub(in crate::mir::builder) struct CanonicalCfgSessionV1 {
 impl CanonicalCfgSessionV1 {
     pub(in crate::mir::builder) fn new() -> Self {
         Self::default()
+    }
+
+    pub(in crate::mir::builder) fn create_block(
+        &self,
+        function: &mut MirFunction,
+        block: BasicBlockId,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        if function.get_block(block).is_some() {
+            return Err(CanonicalCfgErrorV1::BlockAlreadyExists { block });
+        }
+        function.add_block(BasicBlock::new(block));
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn select_block(
+        &self,
+        builder: &mut MirBuilder,
+        block: BasicBlockId,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or(CanonicalCfgErrorV1::MissingBlock {
+                block,
+                role: CanonicalCfgBlockRoleV1::Source,
+            })?;
+        if function.get_block(block).is_none() {
+            return Err(CanonicalCfgErrorV1::MissingBlock {
+                block,
+                role: CanonicalCfgBlockRoleV1::Source,
+            });
+        }
+        builder
+            .start_new_block(block)
+            .map_err(|_| CanonicalCfgErrorV1::MissingBlock {
+                block,
+                role: CanonicalCfgBlockRoleV1::Source,
+            })
     }
 
     pub(in crate::mir::builder) fn emit_jump(
@@ -105,6 +145,20 @@ impl CanonicalCfgSessionV1 {
                 .expect("target was checked")
                 .add_predecessor(source);
         }
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn emit_return(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        value: Option<ValueId>,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        self.preflight_terminator(function, source)?;
+        function
+            .get_block_mut(source)
+            .expect("return source was checked")
+            .set_terminator(MirInstruction::Return { value });
         Ok(())
     }
 
@@ -219,6 +273,27 @@ impl CanonicalCfgSessionV1 {
             if target_block.is_sealed() || self.sealed.contains_key(&target) {
                 return Err(CanonicalCfgErrorV1::EdgeAfterSeal { source, target });
             }
+        }
+        Ok(())
+    }
+
+    fn preflight_terminator(
+        &self,
+        function: &MirFunction,
+        source: BasicBlockId,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        let source_block = function
+            .get_block(source)
+            .ok_or(CanonicalCfgErrorV1::MissingBlock {
+                block: source,
+                role: CanonicalCfgBlockRoleV1::Source,
+            })?;
+        derive_and_verify_predecessors(function)?;
+        if source_block.is_terminated() {
+            return Err(CanonicalCfgErrorV1::SourceAlreadyTerminated { source });
+        }
+        if source_block.is_sealed() || self.sealed.contains_key(&source) {
+            return Err(CanonicalCfgErrorV1::SourceAfterSeal { source });
         }
         Ok(())
     }

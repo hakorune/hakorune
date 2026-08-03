@@ -5,6 +5,7 @@ mod error;
 mod ids;
 mod join_sig;
 mod normalize;
+mod physical_input;
 pub(crate) mod route_id;
 mod schema;
 mod source_binding;
@@ -13,6 +14,9 @@ mod verify;
 #[cfg(test)]
 #[path = "direct_accum_producer_tests.rs"]
 mod direct_accum_producer_tests;
+
+#[cfg(test)]
+pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
 
 #[cfg(test)]
 mod tests;
@@ -38,6 +42,8 @@ pub(crate) use join_sig::{
 };
 #[allow(unused_imports)]
 pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
+#[allow(unused_imports)]
+pub(crate) use physical_input::VerifiedLoopPhysicalInputV1;
 #[allow(unused_imports)]
 pub(crate) use schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,

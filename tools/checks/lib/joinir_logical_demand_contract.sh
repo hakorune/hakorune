@@ -160,8 +160,9 @@ guard_joinir_logical_demand_contract() {
           -v physical_role_tests="$loop_accum_physical_role_tests" \
           -v binding_ssa_tests="$loop_accum_binding_ssa_tests" \
           -v producer_tests="$loop_recipe_producer_tests" \
+          -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           -v edge_path="$loop_physical_edge_path" \
-          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != edge_path'
+          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != physicalizer && $0 != edge_path'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -227,6 +228,15 @@ guard_joinir_logical_demand_contract() {
   )
   if (( ${#direct_accum_production_callers[@]} != 0 )); then
     guard_fail "$tag" "Direct Accum Recipe producer acquired a production caller"
+  fi
+  local direct_accum_physicalizer_production_callers=()
+  mapfile -t direct_accum_physicalizer_production_callers < <(
+    { rg -l 'physicalize_direct_accum_v1\(' "$root_dir/src/mir" || true; } \
+      | awk -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
+          '$0 != physicalizer && $0 !~ /_tests\.rs$/'
+  )
+  if (( ${#direct_accum_physicalizer_production_callers[@]} != 0 )); then
+    guard_fail "$tag" "Direct Accum physicalizer acquired a production caller"
   fi
   local external_portable_source_files=()
   mapfile -t external_portable_source_files < <(

@@ -9,6 +9,7 @@
 
 pub mod branch;
 pub mod compare;
+pub(in crate::mir::builder) mod loop_operation;
 pub(super) mod compare_type;
 pub mod constant;
 pub(crate) mod constant_type;

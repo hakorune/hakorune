@@ -1,4 +1,5 @@
 use super::{CanonicalCfgErrorV1, CanonicalCfgSessionV1};
+use crate::mir::builder::MirBuilder;
 use crate::mir::{
     BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType,
     ValueId,
@@ -292,4 +293,46 @@ fn all_blocks_can_finish_without_outgoing_edges() {
     let mut session = CanonicalCfgSessionV1::new();
     seal_all(&mut session, &mut function).unwrap();
     assert_eq!(session.finish(&function).unwrap().blocks().len(), 3);
+}
+
+#[test]
+fn named_block_owner_rejects_duplicate_creation() {
+    let mut function = function(1);
+    let session = CanonicalCfgSessionV1::new();
+    assert_eq!(
+        session.create_block(&mut function, block(0)).unwrap_err(),
+        CanonicalCfgErrorV1::BlockAlreadyExists { block: block(0) }
+    );
+    session.create_block(&mut function, block(1)).unwrap();
+    assert!(function.get_block(block(1)).is_some());
+}
+
+#[test]
+fn named_return_owner_is_checked_and_updates_terminator_truth() {
+    let mut function = function(1);
+    let mut session = CanonicalCfgSessionV1::new();
+    session.emit_return(&mut function, block(0), None).unwrap();
+    assert!(function.get_block(block(0)).unwrap().is_terminated());
+    assert_eq!(
+        session.emit_return(&mut function, block(0), None).unwrap_err(),
+        CanonicalCfgErrorV1::SourceAlreadyTerminated { source: block(0) }
+    );
+}
+
+#[test]
+fn named_selection_never_creates_a_missing_block() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("canonical_cfg/select/0".to_owned());
+    let session = CanonicalCfgSessionV1::new();
+    assert!(matches!(
+        session.select_block(&mut builder, block(99)),
+        Err(CanonicalCfgErrorV1::MissingBlock { block: id, .. }) if id == block(99)
+    ));
+    assert!(builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .get_block(block(99))
+        .is_none());
 }

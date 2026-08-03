@@ -78,6 +78,8 @@ pub(in crate::mir::builder) mod loop_phi_materializer;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_phi_materializer_test_support;
 pub(in crate::mir::builder) mod loop_physical_edge_path;
+pub(in crate::mir::builder) mod loop_physical_input;
+pub(in crate::mir::builder) mod loop_accum_physicalizer;
 // Phase 29bq P2: loop(true) break/continue coverage
 mod loop_true_break_continue;
 // Phase 12: Unified nested loop depth1 module (consolidates 4 variants)

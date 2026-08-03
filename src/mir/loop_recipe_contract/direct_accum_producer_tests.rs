@@ -91,6 +91,10 @@ fn demand() -> VerifiedSelectedLoopRecipeDemandV1 {
     .unwrap()
 }
 
+pub(crate) fn direct_accum_product_for_test() -> super::VerifiedDirectAccumRecipeProductV1 {
+    produce_direct_accum_recipe_v1(demand()).expect("direct accum product")
+}
+
 #[test]
 fn direct_accum_producer_emits_verified_recipe_and_join_sig() {
     let product = produce_direct_accum_recipe_v1(demand()).unwrap();

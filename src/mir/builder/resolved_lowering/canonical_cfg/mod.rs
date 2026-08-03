@@ -11,6 +11,5 @@ mod session;
 #[cfg(test)]
 mod tests;
 
-#[cfg(test)]
 pub(in crate::mir::builder) use error::CanonicalCfgErrorV1;
 pub(in crate::mir::builder) use session::{CanonicalCfgSessionV1, VerifiedPredecessorsV1};

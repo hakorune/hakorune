@@ -47,6 +47,10 @@ impl VerifiedDirectAccumRecipeProductV1 {
     pub(crate) fn join_sig(&self) -> &VerifiedLoopJoinSigV1 {
         &self.join_sig
     }
+
+    pub(crate) fn into_parts(self) -> (VerifiedLoopRecipeV1, VerifiedLoopJoinSigV1) {
+        (self.recipe, self.join_sig)
+    }
 }
 
 pub(crate) fn produce_direct_accum_recipe_v1(
