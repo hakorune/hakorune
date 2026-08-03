@@ -54,8 +54,13 @@ physical effect. The first assignment must still use the existing
 the canonical identity module.
 
 `BindingSsaBuilderV1` remains value-definition/reaching-value authority. The
-adapter owns only an ordered `uninitialized -> defined` witness for `j`; that
-readiness state must not be widened into a second ledger or SSA authority.
+canonical identity state may keep one initialized-binding set as its lifecycle
+gate: `read_entry`, variable-use claims, and assignment reads must reject an
+active-but-uninitialized binding before delegating to SSA (otherwise an open
+read could create a provisional PHI for `j`). This is not a second ledger or
+SSA owner; it is the identity owner's readiness invariant. The effect adapter
+still supplies the ordered `DeclaredUninitialized -> Defined` transition and
+must not keep a competing readiness truth.
 
 ## Exact prefix contract
 
@@ -121,27 +126,21 @@ source/test files below 800 lines.
 
 Add a caller-zero adapter harness that consumes the effect plan in the matrix
 order. It must reject `j` reads before its first assignment, accept the first
-assignment exactly once, and keep a local `DeclaredUninitialized -> Defined`
-state separate from identity activity. Do not add a second identity or SSA
-owner.
+assignment exactly once, and drive the canonical identity owner's
+`DeclaredUninitialized -> Defined` transition. Do not add a local readiness
+map or a second identity/SSA owner.
 
 ### P1-D — exact LoopBody scope retirement
 
-The existing `ResolvedSemanticStackV1` handles function/BlockExpr/If pairs but
-does not yet consume the resolver's sealed `loop_pair()`. Before a
-production-shaped adapter may retire `j`, choose one named, verified seam:
-
-1. preferred: add the minimal canonical loop scope-pair enter/close path using
-   the resolver-issued `loop_pair()` and existing
-   `ResolvedScopeRetirementV1`; or
-2. caller-zero only: add a named
-   `retire_loop_body_scope_exact(scope, declarations, root_loop_site,
-   root_after_site)` handoff that verifies the sealed pair and is explicitly
-   temporary.
-
-Never call generic `retire_scope_success` with a raw declaration list while
-silently skipping LoopBody owner/pair verification. Retirement must be one
-static close at `Root.After`, never an iteration-time operation.
+`ResolvedSemanticStackV1::enter_scope_region` already verifies an arbitrary
+sealed scope/region pair, so the preferred seam is to consume the resolver's
+`loop_pair()` directly with `ScopeKindV1::LoopBody` and
+`RegionKindV1::Loop`. Enter root and child pairs once; close the child pair
+without retiring the outer `j`, then close the root pair exactly once at the
+root predicate-false `Root.After` boundary so the existing
+`ResolvedScopeRetirementV1` owner retires `j`. Never call generic
+`retire_scope_success` with a raw declaration list while skipping pair
+verification, and never retire on an iteration-time backedge.
 
 ### P1-E — guards and evidence
 

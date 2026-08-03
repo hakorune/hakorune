@@ -13,6 +13,12 @@ Loop lowering.
 - `LoopRecipeV1` owns one closed recursive control algebra represented on the
   wire as ordered arenas with recipe-local keys. It contains no source or route
   authority.
+- The semantic Loop node is the single long-term loop shape: `Always` is a
+  degenerate predicate, and a loop with no explicit `break`/`continue`/`return`
+  is the same frame with fewer exit rows. Nested loops recurse through the
+  same `LoopRecipeItemV1::Loop` node; they are not a second semantic family.
+  `LoopV0`, `LoopTrue`, and `LoopCond` names belong to current producers or
+  legacy physical adapters, not to the portable semantic SSOT.
 - External/pre-loop values are named explicitly by `inputs`; every other value
   has exactly one operation result.
 - A carrier entry must be available before its owning Loop is entered. The
@@ -60,3 +66,26 @@ contract correction with no compatibility adapter or V2 alias.
 Start with the Accum-ready operation vocabulary. Add one typed operation only
 when a route migration supplies a counterexample and fixtures. Never add opaque
 AST/statement payloads or legacy-emitter escape hatches.
+
+## Post-cutover convergence gate
+
+After the portable producer has one production caller and the canonical
+session is the physical lifecycle owner, the remaining family adapters are a
+temporary implementation detail. The cleanup target is:
+
+```text
+frame producers (LoopV0 / LoopTrue / LoopCond)
+  -> one general frame adapter (condition + typed exit rows)
+Nested
+  -> recursive use of the same frame adapter
+Generic
+  -> classified and removed; no post-effect retry
+```
+
+The gate is semantic and evidence-based, not a rename: all fixtures must have
+the same verified Recipe/JoinSig winner, CFG/PHI/value parity, and no legacy
+family production caller. Before the one recursive physicalizer can absorb all
+frame producers, JoinSig must also admit the shared logical branch/merge
+obligations for exits that currently reject as a branch-merge mismatch. Do not
+attempt this convergence during D5 caller-zero physical-input work; it is a
+post-cutover refactor gate.
