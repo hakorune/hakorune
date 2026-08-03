@@ -218,6 +218,43 @@ fn homogeneous_if_merge_seals_and_mixed_merge_rejects() {
 }
 
 #[test]
+fn same_pass_if_recipe_facts_capture_explicit_else_shape() {
+    let product = admitted(function(vec![
+        local("x", Some(int(0))),
+        if_(
+            binary(BinaryOperator::Less, variable("x"), int(1)),
+            vec![assignment("x", int(1))],
+            Some(vec![assignment("x", int(2))]),
+        ),
+        return_(Some(variable("x"))),
+    ]));
+
+    let facts = product
+        .recipe_facts()
+        .expect("selected explicit-else shape must emit same-pass facts");
+    assert!(facts.has_explicit_else());
+    assert_eq!(facts.then_assignment_count(), 1);
+    assert_eq!(facts.else_assignment_count(), 1);
+    assert!(facts.continuation_read().is_some());
+    assert!(facts.expression_count() >= 7);
+}
+
+#[test]
+fn same_pass_if_recipe_facts_decline_implicit_else_shape() {
+    let product = admitted(function(vec![
+        local("x", Some(int(0))),
+        if_(
+            binary(BinaryOperator::Less, variable("x"), int(1)),
+            vec![assignment("x", int(1))],
+            None,
+        ),
+        return_(Some(variable("x"))),
+    ]));
+
+    assert!(product.recipe_facts().is_none());
+}
+
+#[test]
 fn null_sentinel_flows_locally_and_compares_to_bool() {
     let product = admitted(function(vec![
         local("x", Some(null())),

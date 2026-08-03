@@ -31,7 +31,13 @@ use super::product::{
     TrivialBindingDefinitionOriginV1, TrivialProfileCoverageSubjectV1, TrivialRepresentationV1,
     TrivialTerminalProfileV1, VerifiedTrivialCanonicalOwnerV1,
 };
+use super::recipe_facts::{RecipeBranchV1, TrivialIfRecipeFactsDraftV1};
 use super::TrivialCanonicalOwnerAnalysisV1;
+
+#[path = "analyzer_branch.rs"]
+mod branch;
+#[path = "analyzer_support.rs"]
+mod support;
 
 pub(super) fn analyze_trivial_canonical_owner_impl_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -116,6 +122,7 @@ struct AnalyzerV1<'a> {
     draft: TrivialProfileDraftV1,
     terminal: Option<TrivialTerminalProfileV1>,
     fact_coverage: ResolvedFactCoverageDraftV1,
+    recipe_facts: TrivialIfRecipeFactsDraftV1,
     expected_if_sites: BTreeSet<SourceStmtSiteV1>,
     visited_if_sites: BTreeSet<SourceStmtSiteV1>,
     direct_call_policy: DirectCallPolicyV1,
@@ -138,6 +145,7 @@ impl<'a> AnalyzerV1<'a> {
             draft: TrivialProfileDraftV1::new(input.owner()),
             terminal: None,
             fact_coverage: ResolvedFactCoverageDraftV1::new(input.owner()),
+            recipe_facts: TrivialIfRecipeFactsDraftV1::default(),
             expected_if_sites: if_control.exact_if_sites().cloned().collect(),
             visited_if_sites: BTreeSet::new(),
             direct_call_policy,
@@ -203,6 +211,7 @@ impl<'a> AnalyzerV1<'a> {
         self.verify_if_control_coverage()?;
         self.fact_coverage.verify(self.input.function())?;
         let parts = self.draft.finish();
+        let recipe_facts = self.recipe_facts.finish();
         let function_return = seal_function_return_v1(
             self.input.owner(),
             requested_return,
@@ -219,6 +228,7 @@ impl<'a> AnalyzerV1<'a> {
             terminal,
             function_return,
             parts.coverage,
+            recipe_facts,
         ))
     }
 
@@ -318,6 +328,9 @@ impl<'a> AnalyzerV1<'a> {
                 declared_type_names,
                 ..
             } => {
+                if self.recipe_facts.in_branch() {
+                    self.recipe_facts.mark_unsupported();
+                }
                 if variables.is_empty()
                     || variables.len() != initial_values.len()
                     || variables.len() != declared_type_names.len()
@@ -407,6 +420,12 @@ impl<'a> AnalyzerV1<'a> {
                     TrivialBindingDefinitionOriginV1::Assignment(target.site().clone()),
                     representation,
                 )?;
+                self.recipe_facts.record_assignment(
+                    statement.site().clone(),
+                    binding,
+                    value.site().clone(),
+                    representation,
+                );
                 Ok(())
             }
             ASTNode::If { else_body, .. } => {
@@ -416,6 +435,11 @@ impl<'a> AnalyzerV1<'a> {
                     .source()
                     .child_expr_from_stmt(statement, ExprChildRoleV1::IfCondition)
                     .map_err(|error| self.source_navigation(error))?;
+                self.recipe_facts.begin_if(
+                    statement.site().clone(),
+                    condition.site().clone(),
+                    else_body.is_some(),
+                );
                 let condition_representation =
                     self.analyze_expr(&condition, environment, writes)?;
                 if condition_representation != TrivialRepresentationV1::InlineBool {
@@ -430,14 +454,24 @@ impl<'a> AnalyzerV1<'a> {
                     .source()
                     .child_body_from_stmt(statement, BodyChildRoleV1::IfThen)
                     .map_err(|error| self.source_navigation(error))?;
-                let (then_environment, then_writes) = self.analyze_branch(&then_body, &baseline)?;
-                let (else_environment, else_writes) = if else_body.is_some() {
-                    let else_body = self
-                        .input
-                        .source()
-                        .child_body_from_stmt(statement, BodyChildRoleV1::IfElse)
-                        .map_err(|error| self.source_navigation(error))?;
-                    self.analyze_branch(&else_body, &baseline)?
+                let else_body = if else_body.is_some() {
+                    Some(
+                        self.input
+                            .source()
+                            .child_body_from_stmt(statement, BodyChildRoleV1::IfElse)
+                            .map_err(|error| self.source_navigation(error))?,
+                    )
+                } else {
+                    None
+                };
+                self.recipe_facts.set_bodies(
+                    then_body.site().clone(),
+                    else_body.as_ref().map(|body| body.site().clone()),
+                );
+                let (then_environment, then_writes) =
+                    self.analyze_branch(&then_body, &baseline, RecipeBranchV1::Then)?;
+                let (else_environment, else_writes) = if let Some(else_body) = else_body {
+                    self.analyze_branch(&else_body, &baseline, RecipeBranchV1::Else)?
                 } else {
                     (baseline.clone(), BTreeSet::new())
                 };
@@ -445,8 +479,9 @@ impl<'a> AnalyzerV1<'a> {
                     .union(&else_writes)
                     .copied()
                     .collect::<BTreeSet<_>>();
+                let merge_binding_list = merge_bindings.iter().copied().collect::<Vec<_>>();
                 *environment = baseline;
-                for binding in merge_bindings {
+                for binding in merge_bindings.iter().copied() {
                     let then_representation = then_environment
                         .get(&binding)
                         .copied()
@@ -469,6 +504,7 @@ impl<'a> AnalyzerV1<'a> {
                         then_representation,
                     )?;
                 }
+                self.recipe_facts.finish_if(&merge_binding_list);
                 Ok(())
             }
             ASTNode::Return { value, .. } => {
@@ -556,24 +592,6 @@ impl<'a> AnalyzerV1<'a> {
         }
     }
 
-    fn analyze_branch(
-        &mut self,
-        body: &LocatedBodyV1<'a>,
-        baseline: &ValueEnvironmentV1,
-    ) -> AnalysisResultV1<(ValueEnvironmentV1, BTreeSet<BindingRefV1>)> {
-        let mut environment = baseline.clone();
-        let mut writes = BTreeSet::new();
-        self.analyze_body(
-            body,
-            &mut environment,
-            &mut writes,
-            ReturnPolicyV1::Forbidden,
-        )?;
-        environment.retain(|binding, _| baseline.contains_key(binding));
-        writes.retain(|binding| baseline.contains_key(binding));
-        Ok((environment, writes))
-    }
-
     fn analyze_expr(
         &mut self,
         expression: &LocatedExprV1<'a>,
@@ -582,7 +600,11 @@ impl<'a> AnalyzerV1<'a> {
     ) -> AnalysisResultV1<TrivialRepresentationV1> {
         let representation = match expression.node() {
             ASTNode::Literal { value, .. } => match derive_trivial_literal_profile_v1(value) {
-                Ok(profile) => profile,
+                Ok(profile) => {
+                    self.recipe_facts
+                        .record_literal(expression.site().clone(), value, profile);
+                    profile
+                }
                 Err(TrivialLiteralProfileStopV1::String) => {
                     return stop_expression(
                         expression,
@@ -594,25 +616,28 @@ impl<'a> AnalyzerV1<'a> {
                 let binding = self
                     .fact_coverage
                     .variable_binding(self.input.function(), expression.site())?;
-                environment
+                let representation = environment
                     .get(&binding)
                     .copied()
-                    .ok_or(TrivialProfileContractErrorV1::MissingReachingProfile { binding })?
+                    .ok_or(TrivialProfileContractErrorV1::MissingReachingProfile { binding })?;
+                self.recipe_facts
+                    .record_read(expression.site().clone(), binding, representation);
+                representation
             }
             ASTNode::BinaryOp { operator, .. } => {
-                let left = self
+                let left_expr = self
                     .input
                     .source()
                     .child_expr_from_expr(expression, ExprChildRoleV1::BinaryLeft)
                     .map_err(|error| self.source_navigation(error))?;
-                let right = self
+                let right_expr = self
                     .input
                     .source()
                     .child_expr_from_expr(expression, ExprChildRoleV1::BinaryRight)
                     .map_err(|error| self.source_navigation(error))?;
-                let left = self.analyze_expr(&left, environment, writes)?;
-                let right = self.analyze_expr(&right, environment, writes)?;
-                match derive_trivial_binary_profile_v1(operator, left, right) {
+                let left = self.analyze_expr(&left_expr, environment, writes)?;
+                let right = self.analyze_expr(&right_expr, environment, writes)?;
+                let representation = match derive_trivial_binary_profile_v1(operator, left, right) {
                     Ok(profile) => profile,
                     Err(TrivialBinaryProfileStopV1::OperatorOutsideProfile) => {
                         return stop_expression(
@@ -626,9 +651,18 @@ impl<'a> AnalyzerV1<'a> {
                             TrivialProfileStopReasonV1::BinaryOperandsNotExact,
                         )
                     }
-                }
+                };
+                self.recipe_facts.record_binary(
+                    expression.site().clone(),
+                    operator,
+                    left_expr.site().clone(),
+                    right_expr.site().clone(),
+                    representation,
+                );
+                representation
             }
             ASTNode::BlockExpr { .. } => {
+                self.recipe_facts.mark_unsupported();
                 self.input
                     .function()
                     .block_expr_scope_region_pair(expression.owner(), expression.site())
@@ -662,6 +696,7 @@ impl<'a> AnalyzerV1<'a> {
             ASTNode::FunctionCall {
                 name, arguments, ..
             } => {
+                self.recipe_facts.mark_unsupported();
                 match self.direct_call_policy {
                     DirectCallPolicyV1::Forbidden => {
                         return stop_expression(
@@ -727,45 +762,5 @@ impl<'a> AnalyzerV1<'a> {
         self.draft
             .record_value(expression.site().clone(), representation)?;
         Ok(representation)
-    }
-
-    fn source_navigation(&self, error: impl ToString) -> AnalysisFailureV1 {
-        TrivialProfileContractErrorV1::SourceNavigation {
-            detail: error.to_string(),
-        }
-        .into()
-    }
-
-    fn claim_if_control(&mut self, statement: &LocatedStmtV1<'a>) -> AnalysisResultV1<()> {
-        let site = statement.site().clone();
-        if !self.expected_if_sites.contains(&site) || !self.visited_if_sites.insert(site.clone()) {
-            return Err(TrivialProfileContractErrorV1::IfControlCoverageMismatch {
-                missing: Box::new([]),
-                extra: vec![site].into_boxed_slice(),
-            }
-            .into());
-        }
-        Ok(())
-    }
-
-    fn verify_if_control_coverage(&self) -> AnalysisResultV1<()> {
-        if self.expected_if_sites == self.visited_if_sites {
-            return Ok(());
-        }
-        Err(TrivialProfileContractErrorV1::IfControlCoverageMismatch {
-            missing: self
-                .expected_if_sites
-                .difference(&self.visited_if_sites)
-                .cloned()
-                .collect::<Vec<_>>()
-                .into_boxed_slice(),
-            extra: self
-                .visited_if_sites
-                .difference(&self.expected_if_sites)
-                .cloned()
-                .collect::<Vec<_>>()
-                .into_boxed_slice(),
-        }
-        .into())
     }
 }

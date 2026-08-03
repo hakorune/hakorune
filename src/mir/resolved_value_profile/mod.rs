@@ -12,6 +12,7 @@ mod function_return;
 mod operator;
 mod parameter_entry;
 pub(crate) mod product;
+mod recipe_facts;
 
 #[cfg(test)]
 mod direct_call_tests;

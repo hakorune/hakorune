@@ -8,6 +8,7 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::direct_call::VerifiedTrivialDirectCallV1;
+use super::recipe_facts::VerifiedTrivialIfRecipeFactsV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) enum TrivialRepresentationV1 {
@@ -262,6 +263,7 @@ pub(crate) struct VerifiedTrivialCanonicalOwnerV1 {
     terminal: TrivialTerminalProfileV1,
     function_return: Option<VerifiedTrivialFunctionReturnV1>,
     coverage: VerifiedTrivialProfileCoverageV1,
+    recipe_facts: Option<VerifiedTrivialIfRecipeFactsV1>,
     _seal: TrivialCanonicalOwnerSealV1,
 }
 
@@ -276,6 +278,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
         terminal: TrivialTerminalProfileV1,
         function_return: Option<VerifiedTrivialFunctionReturnV1>,
         coverage: VerifiedTrivialProfileCoverageV1,
+        recipe_facts: Option<VerifiedTrivialIfRecipeFactsV1>,
     ) -> Self {
         Self {
             owner,
@@ -287,6 +290,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
             terminal,
             function_return,
             coverage,
+            recipe_facts,
             _seal: TrivialCanonicalOwnerSealV1,
         }
     }
@@ -329,6 +333,10 @@ impl VerifiedTrivialCanonicalOwnerV1 {
 
     pub(crate) const fn coverage(&self) -> &VerifiedTrivialProfileCoverageV1 {
         &self.coverage
+    }
+
+    pub(crate) fn recipe_facts(&self) -> Option<&VerifiedTrivialIfRecipeFactsV1> {
+        self.recipe_facts.as_ref()
     }
 
     pub(crate) fn representation_at(

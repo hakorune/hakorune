@@ -1,7 +1,8 @@
 # JOINIR-IF-RECIPE-SSA-ADOPTION0-D0
 
-Status: D0-A census closed; D0-B portable contract design stop — do not wire
-production If yet.
+Status: D0-A census closed; D0-B0 same-pass facts projection implemented and
+tested; D0-B1 portable schema/verification remains a design/implementation
+stop — do not wire production If yet.
 Date: 2026-08-04
 
 This card records the next cleanup target after the Loop cutover lane. It is
@@ -296,7 +297,7 @@ projection (or an exact preflight fact product) must be named before D0-C.
 Schema/verify/normalize tests must prove deterministic semantic output and
 reject every omitted obligation without touching a Builder.
 
-### D0-B0 — same-pass facts projection (next implementation row)
+### D0-B0 — same-pass facts projection (implemented witness)
 
 Change:
 : Add an owner-branded `VerifiedTrivialIfRecipeFactsV1` emitted by the existing
@@ -312,10 +313,12 @@ Contract:
   portable `BindingRefV1` ownership.
 
 Done:
-: The golden explicit-else fixture emits one facts witness; unsupported nested,
-  exit, heterogeneous, or multi-write shapes typed-reject before Builder
-  effects. A guard/test proves no post-hoc source traversal is used, focused
-  profile tests remain green, and touched Rust/test files stay below 800 lines.
+: The golden explicit-else fixture emits one owner-branded facts witness, while
+  implicit-else and other non-selected shapes emit no facts. Existing analyzer
+  admission/rejection remains the authority; this row adds no new accepted
+  source shape and no Builder effect. Focused profile tests are green, the
+  facts are collected during the existing traversal (no post-hoc source pass),
+  and touched Rust/test files stay below 800 lines.
 
 Stop:
 : If the existing analyzer cannot emit the facts without a second source pass
