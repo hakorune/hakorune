@@ -1,6 +1,6 @@
 # JOINIR Direct Accum Structural Projection D1
 
-Status: Design stop; no production caller.
+Status: Green; design closed, caller-zero implementation next.
 
 Task: `JOINIR-LOOP-DIRECT-ACCUM-STRUCTURAL-PROJECTION0-D1`
 
@@ -44,8 +44,13 @@ were issued from one frame.
 ## Design target
 
 The builder-side adapter shall observe one already-selected Direct Accum shape
-and issue an AST-free, typed, sealed product. A future shape is expected to be
-equivalent to:
+and issue an AST-free, typed, sealed product. Exact topology is not invented by
+the adapter: it is issued by the existing `FunctionSourceViewV1` through
+`LocatedStmtV1` / `LocatedExprV1` and the shared
+`BodyChildRoleV1` / `ExprChildRoleV1` navigation policy. The adapter may copy
+the observed constants and binding handles once, then discard the AST view.
+
+A future product is expected to be equivalent to:
 
 ```text
 VerifiedDirectAccumFactsV1 {
@@ -62,36 +67,50 @@ VerifiedDirectAccumFactsV1 {
 }
 ```
 
-The exact public schema is not accepted by this card until the expression
-topology and binding/ref owner are decided. The product must contain no AST,
+The exact public schema is accepted only behind the source-view and resolved
+binding owners above. The product must contain no AST,
 variable-name lookup, raw statement index manufactured by the adapter,
 `CanonicalLoopFacts`, Recipe, Builder, CorePlan, PlanLowerer, PHI, Binding
 SSA, Retry, scheduler, or Generic-debt machinery.
 
-## Required owner decisions
+## Closed owner decisions
 
-1. **Expression topology owner**
+1. **Expression topology owner — accepted**
 
-   Decide which resolver-side or source-analysis owner issues exact sites for
-   the loop condition, accumulator update, and induction step. Body statement
-   coordinates alone are insufficient: a stale or swapped operand site must be
-   rejected rather than inferred from names or AST order.
+   `FunctionSourceViewV1` is the sole topology navigator. The Direct Accum
+   adapter must reach the exact sites using only these shared roles:
 
-2. **Binding identity bridge**
+   ```text
+   LoopBody
+   LoopCondition
+   AssignmentTarget / AssignmentValue
+   BinaryLeft / BinaryRight
+   ```
 
-   Define how the builder-side observed shape is keyed by the already-resolved
-   `BindingRefV1` identities. Name-based reconstruction is forbidden. Shadowed
-   bindings, missing targets, and a site from another loop must be typed rejects.
+   Body statement coordinates alone are insufficient. A stale, swapped, or
+   foreign `Located*` carrier is rejected before the neutral product exists.
+   Hand-written `SourcePathSegmentV1` construction is forbidden.
 
-3. **Execution-frame brand**
+2. **Binding identity bridge — accepted**
 
-   Choose the smallest non-forgeable brand shared by policy winner, structural
-   facts, and resolved source. A raw cursor, source tuple, or matching
-   `(origin, owner, site)` value alone is not sufficient. If the brand cannot be
-   carried without widening the public API, retain the S0 handoff as
-   caller-zero and record the missing owner instead of weakening the contract.
+   `VerifiedResolvedFunctionV1::variable_ref` and
+   `VerifiedResolvedFunctionV1::assignment_target` are the source identity
+   owner. The adapter never reconstructs a binding from a name. Shadowed
+   bindings, missing targets, wrong assignment targets, and a site from another
+   owner are typed rejects.
 
-4. **Projection location**
+3. **Execution-frame brand — accepted**
+
+   `VerifiedResolvedLoopSourceV1` issues an opaque
+   `LoopExecutionFrameKeyV1` containing the private source owner identity. The
+   key is passed into policy evaluation and the Direct Accum facts producer;
+   `VerifiedLoopPolicyWinnerV1`, the structural facts product, and the source
+   capability retain the same key. The selected-demand issuer checks key
+   equality as well as facts/source identity before sealing the handoff. The
+   raw route cursor remains diagnostics only. A key without the source-issued
+   seal, or a post-hoc rebrand, is invalid.
+
+4. **Projection location — accepted**
 
    Keep the adapter at the builder-side boundary that already observes legacy
    facts. The neutral `loop_structural_facts` module may consume only a typed,
@@ -112,10 +131,10 @@ PHI/SSA is already governed by the existing SSOT chain:
 `CanonicalCfgSessionV1` + function-owned `BindingSsaBuilderV1` + `PhiTxn`.
 This card must not create or modify that authority.
 
-## Acceptance gates
+## D1 close gates
 
-The design is not closed until the following are specified and then fixed by
-tests in the implementation slice:
+The design is closed because the following owners and boundaries are explicit;
+the caller-zero S0 card below fixes them with tests:
 
 1. A positive Direct Accum fixture produces one sealed AST-free facts product
    whose exact condition/update/step sites and `BindingRefV1`s match the
@@ -123,8 +142,9 @@ tests in the implementation slice:
 2. Stale or mismatched expression site, missing topology, shadowed name,
    wrong loop owner, and facts/source identity mismatch all reject before any
    Builder effect.
-3. The three-way execution-frame brand is explicit, or the card records a
-   named owner and keeps the production caller at zero.
+3. The three-way execution-frame brand is the source-issued
+   `LoopExecutionFrameKeyV1`; production remains caller-zero until its
+   mismatch tests are green.
 4. The neutral module has zero imports of AST, `CanonicalLoopFacts`, Recipe,
    Builder, CorePlan, PlanLowerer, PHI, Binding SSA, Retry, scheduler,
    physicalizer, and Generic debt machinery.
@@ -139,7 +159,8 @@ Stop and return to design if any owner proposes AST rescans, name-based
 dispatch, raw-path synthesis, a second route evaluator, a second PHI/SSA
 authority, or a production caller before the frame brand is sealed.
 
-After this D1 closes, the next implementation slice may add only the Direct
-Accum observed-shape adapter and its contract tests. It may then feed the
-existing selected-demand issuer; it must not physicalize or alter legacy route
-selection in the same change.
+The next implementation slice is
+`JOINIR-LOOP-DIRECT-ACCUM-STRUCTURAL-PROJECTION0-S0`. It may add only the
+Direct Accum observed-shape adapter, source-issued frame key, and contract
+tests. It may then feed the existing selected-demand issuer; it must not
+physicalize or alter legacy route selection in the same change.
