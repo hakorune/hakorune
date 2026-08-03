@@ -84,9 +84,11 @@ receipt. No snapshot helper may allocate a second PHI/SSA writer.
 
 1. **P4-D0 (this row):** document row membership, canonical role grammar, and
    the exact legacy observer boundary. No code producer is added.
-2. **P4-S0:** implement the legacy observer in a separate test-only child and
-   compare it against the already-green P1b structural/path digest. This is
-   evidence collection, not a portable physicalizer.
+2. **P4-S0:** follow
+   `joinir-loop-accum-mir-physical-snapshot0-m5-p4-s0-task-2026-08-03.md` to
+   implement the legacy observer in a separate test-only child and compare it
+   against the already-green P1b structural/path digest. This is evidence
+   collection, not a portable physicalizer.
 3. **M6 completion:** finish the shared CFG/JoinSig/PHI services. The existing
    PHI lifecycle and Binding SSA remain the sole writers.
 4. **M10a pilot:** implement one real Accum physicalizer that emits CFG,
