@@ -1,7 +1,7 @@
 # JOINIR-LOOP-NESTED-PREDICATE-D4-PHYSICAL-TOPOLOGY
 
-Status: design stop: source-handoff correction required before the caller-zero
-topology issuer can be implemented.
+Status: design closed for the source-handoff split; caller-zero topology issuer
+is authorized after the handoff slice lands.
 Date: 2026-08-04
 
 ## Decision
@@ -46,6 +46,14 @@ authority, `BasicBlockId`, `ValueId`, PHI/SSA state, or Builder reference.
 This correction is a prerequisite design slice, not a production connection:
 the D4 issuer remains caller-zero and consumes the handoff exactly once.
 
+The handoff is split from the semantic view by a consuming method such as
+`into_topology_input()`. The ordinary `recipe()`/`join_sig()` accessors remain
+source-free. The handoff keeps the resolver `FunctionOwnerIdV1` from the
+binding evidence and the existing root `LoopExecutionFrameKeyV1`; it does not
+reconstruct either from portable source ordinals. A child frame is not
+required by this bounded slice. Requiring one is a separate D2-C1b capability,
+not a fabricated child-site token.
+
 ## Required topology evidence
 
 The topology product must be non-Clone and carry resolver/source-bound
@@ -80,6 +88,16 @@ must name exact topology edges/ports, never physical IDs. Carrier destinations
 must keep root `i`/`sum` visible to the parent After and child `j` local to the
 child recurrence; `j` must not be emitted into the parent tail.
 
+The source-role mapping is sealed before topology construction: root
+initializer `i`/`sum` claims root entry, root predicate claims root Header,
+root body/child entry claims root Body (and its explicit child Preheader alias),
+child predicate claims child Header, child updates claim child body/step roles,
+root `i` update claims root Step, and root predicate-false claims root After.
+The symbolic predecessor seals use only these named port/edge references. A
+later canonical adapter will compare the topology owner/frame with the
+`CanonicalSsaFunctionSessionV2` owner/frame and issue physical predecessor
+proofs; D4 itself never borrows that session.
+
 ## Explicitly out of scope
 
 - no Nested Predicate `MirBuilder` mutation, PHI/SSA writer, physicalizer, or
@@ -101,7 +119,7 @@ child recurrence; `j` must not be emitted into the parent tail.
 4. Existing D2-B/D2-C/D2-D, DirectAccum pilot, PHI lifecycle, and scope gates
    remain green; all touched files stay below 800 lines.
 
-After this card closes, the next implementation is a caller-zero topology
-issuer only. Physical emission remains a separate card requiring the existing
+After this handoff slice lands, the next implementation is a caller-zero
+topology issuer only. Physical emission remains a separate card requiring the existing
 CanonicalSsaFunctionSessionV2 -> CanonicalCfgSessionV1 + BindingSsaBuilderV1 +
 PhiTxn chain.
