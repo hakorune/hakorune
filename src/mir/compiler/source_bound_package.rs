@@ -224,6 +224,12 @@ pub(in crate::mir) struct RejectedCanonicalPhysicalLoweringV1<'a> {
     rejected: RejectedCanonicalLoweringV1<'a>,
 }
 
+impl RejectedCanonicalPhysicalLoweringV1<'_> {
+    pub(in crate::mir) fn error(&self) -> &CanonicalPlanLoweringErrorV1 {
+        &self.rejected.error
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir) enum CollectedCanonicalPhysicalInvocationV1<'a> {
     Single {

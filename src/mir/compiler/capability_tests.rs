@@ -153,6 +153,35 @@ fn direct_accum_first_family_plan_reuses_binding_ssa_header_identity() {
 }
 
 #[test]
+fn canonical_preflight_admits_direct_accum_as_the_single_loop_family() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        super::direct_accum_projection::direct_accum_function_for_test(),
+    )
+    .expect("DirectAccum fixture resolves");
+
+    assert!(matches!(
+        CanonicalLoweringPreflightV1::verify(&unit),
+        Ok(CanonicalFirstFamilyPlanV1::DirectAccum(_))
+    ));
+}
+
+#[test]
+fn compile_resolved_direct_accum_uses_source_bound_candidate_commit() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        super::direct_accum_projection::direct_accum_function_for_test(),
+    )
+    .expect("DirectAccum fixture resolves");
+    let mut compiler = MirCompiler::with_options(false);
+
+    let result = compiler
+        .compile_resolved(unit.lowering_input(), Some("direct_accum.hako"))
+        .expect("DirectAccum source-bound compilation");
+
+    assert!(result.verification_result.is_ok());
+    assert_eq!(result.module.functions.len(), 1);
+}
+
+#[test]
 fn direct_accum_candidate_lowerer_consumes_one_canonical_session() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(
         super::direct_accum_projection::direct_accum_function_for_test(),

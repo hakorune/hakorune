@@ -87,6 +87,8 @@ mod resolved_callable_module_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod resolved_callable_module_preflight;
 #[allow(dead_code)]
+mod resolved_direct_accum_cutover;
+#[allow(dead_code)]
 pub(in crate::mir) mod source_bound_package;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_entry_ny_main;
@@ -564,10 +566,12 @@ impl MirCompiler {
         // matching finish schedule through publication; a lowering error
         // returns directly and is never retried through the other owner.
         let (module_session, module, finish_schedule) = match plan {
-            CanonicalFirstFamilyPlanV1::DirectAccum(_) => {
-                return Err(CanonicalLoweringErrorV1::CapabilityNotActivated {
-                    boundary: "direct_accum_source_bound",
-                });
+            CanonicalFirstFamilyPlanV1::DirectAccum(plan) => {
+                return resolved_direct_accum_cutover::compile_direct_accum_source_bound(
+                    self,
+                    plan,
+                    source_file,
+                );
             }
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
                 let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);

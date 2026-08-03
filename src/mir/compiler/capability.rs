@@ -22,6 +22,9 @@ use crate::mir::resolved_value_profile::{
     product::VerifiedTrivialCanonicalOwnerV1, TrivialCanonicalOwnerAnalysisV1,
 };
 
+use super::direct_accum_capability::{
+    probe_direct_accum_source_unit_v1, DirectAccumSourceUnitProbeV1,
+};
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
@@ -137,8 +140,10 @@ impl CanonicalLoweringPreflightV1 {
     pub(crate) fn verify(
         unit: &VerifiedResolvedSourceUnitV1,
     ) -> Result<CanonicalFirstFamilyPlanV1<'_>, CanonicalLoweringErrorV1> {
-        let function = unit.root_function_input()?;
-        Self::verify_function(function)
+        match probe_direct_accum_source_unit_v1(unit)? {
+            DirectAccumSourceUnitProbeV1::Candidate(plan) => Ok(plan),
+            DirectAccumSourceUnitProbeV1::NotCandidate(function) => Self::verify_function(function),
+        }
     }
 
     pub(crate) fn verify_function<'a>(

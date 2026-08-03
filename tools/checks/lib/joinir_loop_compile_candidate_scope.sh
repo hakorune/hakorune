@@ -27,13 +27,14 @@ guard_joinir_loop_compile_candidate_scope() {
   if ! awk -F '\t' '
     NR == 1 { next }
     NF != 6 { exit 1 }
-    $1 !~ /^(normal|repl|raw-public|raw-reference|vm-hako-reference|canonical-resolved|canonical-core-script|canonical-core-main)$/ { exit 1 }
+    $1 !~ /^(normal|repl|raw-public|raw-reference|vm-hako-reference|canonical-resolved|canonical-resolved-direct-accum|canonical-core-script|canonical-core-main)$/ { exit 1 }
     $3 !~ /(SessionV1|TransactionV1)$/ { exit 1 }
     $4 !~ /^(reachable|typed-unreachable)$/ { exit 1 }
     $6 !~ /^identity-monotonic\+diagnostic-scratch/ { exit 1 }
     ($1 ~ /^(normal|repl|vm-hako-reference)$/ && $4 != "reachable") { exit 1 }
-    ($1 ~ /^(raw-public|raw-reference|canonical-)/ && $4 != "typed-unreachable") { exit 1 }
-    END { if (NR != 9) exit 1 }
+    ($1 ~ /^(raw-public|raw-reference|canonical-resolved|canonical-core-)/ && $1 != "canonical-resolved-direct-accum" && $4 != "typed-unreachable") { exit 1 }
+    ($1 == "canonical-resolved-direct-accum" && $4 != "reachable") { exit 1 }
+    END { if (NR != 10) exit 1 }
   ' "$manifest"; then
     guard_fail "$tag" "Loop candidate scope manifest row contract failed"
   fi
@@ -74,6 +75,8 @@ guard_joinir_loop_compile_candidate_scope() {
     "$raw_compile|prepare_external_commit|1" \
     "$raw_open|ModuleBuilderInvocationSessionV1::open_for_token|1" \
     "$canonical|ModuleBuilderInvocationSessionV1::open_for_token|1" \
+    "$root_dir/src/mir/compiler/resolved_direct_accum_cutover.rs|compile_direct_accum_source_bound|1" \
+    "$canonical|lower_resolved_direct_accum_function_draft|1" \
     "$canonical_dispatch|prepare_normal_main_module_transaction|1"
   do
     local file="${required%%|*}"

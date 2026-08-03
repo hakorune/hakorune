@@ -303,19 +303,20 @@ pub(in crate::mir) struct ModulePostprocessOwnerV1<'a> {
     optimize: bool,
 }
 
-impl<'a> ModulePostprocessOwnerV1<'a> {
-    pub(in crate::mir) fn new(verifier: &'a mut MirVerifier, optimize: bool) -> Self {
+impl<'verifier> ModulePostprocessOwnerV1<'verifier> {
+    pub(in crate::mir) fn new(verifier: &'verifier mut MirVerifier, optimize: bool) -> Self {
         Self { verifier, optimize }
     }
 
-    pub(in crate::mir) fn into_stage_parts(self) -> (&'a mut MirVerifier, bool) {
+    pub(in crate::mir) fn into_stage_parts(self) -> (&'verifier mut MirVerifier, bool) {
         (self.verifier, self.optimize)
     }
 
-    pub(in crate::mir) fn run(
+    pub(in crate::mir) fn run<'source>(
         self,
-        finalized: FinalizedModuleInvocationV1<'a>,
-    ) -> Result<PostprocessedModuleInvocationV1<'a>, RejectedModulePostprocessV1<'a>> {
+        finalized: FinalizedModuleInvocationV1<'source>,
+    ) -> Result<PostprocessedModuleInvocationV1<'source>, RejectedModulePostprocessV1<'source>>
+    {
         let FinalizedModuleInvocationV1 { input, .. } = finalized;
         let family = match &input {
             CanonicalFinalizationInputV1::Single(input) => input.token.family(),

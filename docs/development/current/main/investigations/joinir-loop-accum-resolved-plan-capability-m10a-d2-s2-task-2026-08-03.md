@@ -313,3 +313,39 @@ nested/Call/Record/Match, all-loop coverage, selfhost, and repository-wide
 legacy PHI-writer retirement. If the source-unit adapter cannot prove the
 winner before Builder effects, stop and return to design rather than adding a
 fallback or a second ingress.
+
+## I0/R0/S0 implementation result
+
+The accepted slice is now wired through the existing resolved ingress:
+
+```text
+exact `local; loop` source probe
+  -> `DirectAccum` family plan
+  -> source-bound package/token/header
+  -> candidate session + existing DirectAccum lowerer
+  -> collect / completion / drain / finalization / postprocess
+  -> one prepared external commit
+```
+
+The source probe has one production caller in
+`CanonicalLoweringPreflightV1::verify`. A non-candidate continues through the
+existing Trivial/A+ verifier; a candidate-shaped but invalid DirectAccum is a
+typed terminal rejection. The former `CapabilityNotActivated` edge is gone
+only for this branch. No new module family, finish schedule, PHI writer, SSA
+owner, route registry edge, or public opt-in was added.
+
+The candidate chain reuses `CanonicalSsaFunctionSessionV2`,
+`BindingSsaBuilderV1`, `CanonicalCfgSessionV1`, and `PhiTxn`. The small
+postprocess API adjustment separates the verifier borrow lifetime from the
+source artifact lifetime so external commit can occur after postprocess; it
+does not change the owner or stage order.
+
+Guard changes make the boundary executable: only the
+`canonical-resolved-direct-accum` manifest row is reachable, the broad
+canonical-resolved row remains typed-unreachable, the source probe has one
+preflight caller, and the resolved DirectAccum physicalizer has one production
+caller. Focused preflight, compile, DirectAccum, capability, candidate, and
+shared in-place replacement gates are green. Touched Rust files remain below
+800 lines. Result projection is covered by the successful `MirCompileResult`
+verification assertion; failure-injection and fresh-reuse proofs remain the
+next hardening slice before expanding beyond this family.

@@ -13,8 +13,46 @@ use super::direct_accum_profile::{
 };
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::LocatedStmtV1;
-use super::lowering_input::CanonicalLoweringErrorV1;
+use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
+
+/// Source-unit probe result for the one production DirectAccum admission.
+/// `NotCandidate` preserves the ordinary first-family verifier for unrelated
+/// functions; once the closed `local; loop` source shape is present, any
+/// DirectAccum failure is a typed terminal rejection rather than a fallback.
+pub(crate) enum DirectAccumSourceUnitProbeV1<'source> {
+    NotCandidate(ResolvedFunctionLoweringInputV1<'source>),
+    Candidate(CanonicalFirstFamilyPlanV1<'source>),
+}
+
+pub(crate) fn probe_direct_accum_source_unit_v1<'source>(
+    unit: &'source VerifiedResolvedSourceUnitV1,
+) -> Result<DirectAccumSourceUnitProbeV1<'source>, CanonicalLoweringErrorV1> {
+    let function = unit.root_function_input()?;
+    let root = function.source().root();
+    if !matches!(root, ASTNode::FunctionDeclaration { .. }) {
+        return Ok(DirectAccumSourceUnitProbeV1::NotCandidate(function));
+    }
+    let body = function.source().root_body().map_err(source_navigation)?;
+    if body.statements().len() != 2 {
+        return Ok(DirectAccumSourceUnitProbeV1::NotCandidate(function));
+    }
+    let local = function
+        .source()
+        .body_stmt(&body, 0)
+        .map_err(source_navigation)?;
+    let loop_stmt = function
+        .source()
+        .body_stmt(&body, 1)
+        .map_err(source_navigation)?;
+    if !matches!(local.node(), ASTNode::Local { .. })
+        || !matches!(loop_stmt.node(), ASTNode::Loop { .. })
+    {
+        return Ok(DirectAccumSourceUnitProbeV1::NotCandidate(function));
+    }
+    verify_direct_accum_first_family_function_v1(function, loop_stmt)
+        .map(DirectAccumSourceUnitProbeV1::Candidate)
+}
 
 pub(crate) fn verify_direct_accum_function_v1<'source>(
     function: ResolvedFunctionLoweringInputV1<'source>,

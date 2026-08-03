@@ -12,6 +12,7 @@ guard_joinir_logical_demand_contract() {
   # the portable producer. It is not a downstream production consumer; the
   # guard must distinguish this issuer from an accidental route caller.
   local direct_accum_issuer="$root_dir/src/mir/compiler/direct_accum_profile.rs"
+  local direct_accum_capability="$root_dir/src/mir/compiler/direct_accum_capability.rs"
   local direct_accum_projection="$root_dir/src/mir/compiler/direct_accum_projection.rs"
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
@@ -71,7 +72,8 @@ guard_joinir_logical_demand_contract() {
     "$loop_accum_binding_ssa_tests" "$loop_accum_emitter_tests" \
     "$loop_accum_candidate_tests" \
     "$loop_accum_digest_support" "$loop_accum_semantic_digest_support" \
-    "$loop_physical_edge_path" "$direct_accum_issuer" "$direct_accum_projection"
+    "$loop_physical_edge_path" "$direct_accum_issuer" "$direct_accum_capability" \
+    "$direct_accum_projection"
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_physical_tests"; then
     guard_fail "$tag" "physical parity observer must remain cfg(test)-only"
   fi
@@ -243,14 +245,24 @@ guard_joinir_logical_demand_contract() {
   if [[ "$direct_accum_issuer_calls" != "2" ]]; then
     guard_fail "$tag" "Direct Accum issuer call count drift: count=$direct_accum_issuer_calls expected=2"
   fi
+  local direct_accum_source_probe_callers=()
+  mapfile -t direct_accum_source_probe_callers < <(
+    { rg -l 'probe_direct_accum_source_unit_v1\(' "$root_dir/src/mir" || true; } \
+      | awk -v capability="$direct_accum_capability" '$0 != capability && $0 !~ /_tests\.rs$/'
+  )
+  if (( ${#direct_accum_source_probe_callers[@]} != 1 )) || \
+     [[ "${direct_accum_source_probe_callers[0]}" != "$root_dir/src/mir/compiler/capability.rs" ]]; then
+    guard_fail "$tag" "Direct Accum source-unit probe must have exactly one preflight caller"
+  fi
   local direct_accum_physicalizer_production_callers=()
   mapfile -t direct_accum_physicalizer_production_callers < <(
-    { rg -l 'physicalize_direct_accum_v1\(' "$root_dir/src/mir" || true; } \
+    { rg -l 'physicalize_direct_accum_v1(_with_port)?\(' "$root_dir/src/mir" || true; } \
       | awk -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           '$0 != physicalizer && $0 !~ /_tests\.rs$/'
   )
-  if (( ${#direct_accum_physicalizer_production_callers[@]} != 0 )); then
-    guard_fail "$tag" "Direct Accum physicalizer acquired a production caller"
+  if (( ${#direct_accum_physicalizer_production_callers[@]} != 1 )) || \
+     [[ "${direct_accum_physicalizer_production_callers[0]}" != "$root_dir/src/mir/builder/resolved_lowering/direct_accum_lowerer.rs" ]]; then
+    guard_fail "$tag" "Direct Accum physicalizer caller drifted: expected resolved direct lowerer only"
   fi
   local external_portable_source_files=()
   mapfile -t external_portable_source_files < <(
