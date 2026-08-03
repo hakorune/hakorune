@@ -7,8 +7,8 @@ row only after that commit boundary and a clean worktree.
 Date: 2026-08-04
 
 This card records the cleanup opportunities raised by the dead-code audit. It
-is deliberately separate from the active If D0-C producer/consumer design
-stop. The
+is deliberately separate from the active
+`JOINIR-IF-RECIPE-D0-D1-D2-PHYSICALIZER-IMPLEMENTATION` execution row. The
 goal is to reduce duplicate shells and retire proven disconnected code without
 changing route selection, Recipe semantics, SSA/PHI authority, or the JSON-v0
 compatibility contract.
