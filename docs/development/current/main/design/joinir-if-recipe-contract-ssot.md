@@ -1,5 +1,5 @@
 ---
-Status: accepted design boundary; D0-B schema/verification work pending
+Status: accepted design boundary; D0-B0 facts landed, D0-B1 schema/verification selected
 Date: 2026-08-04
 Decision: JOINIR-IF-RECIPE-CONTRACT-V1
 Scope: portable semantic contract for the first resolved-trivial If shape
@@ -44,8 +44,12 @@ empty else because its predecessor and PHI input obligations differ.
 
 ## Contract shape
 
-The eventual `IfRecipeArtifactV1` owns a schema version, owned source
-provenance/binding, and one semantic `IfRecipeV1`. The semantic product owns:
+The eventual `IfRecipeArtifactV1` owns a schema version, structural source
+provenance/binding, and one semantic `IfRecipeV1`. D0-B1 uses a fixed
+four-block shell (`condition`, `then`, `else`, `continuation`) for the selected
+shape. Recursive/nested If items are a later shape; the shell is intentionally
+not a synthetic Loop and does not import Loop carrier/exit semantics. The
+semantic product owns:
 
 ```text
   typed Bool condition value from the admitted i64-comparison profile

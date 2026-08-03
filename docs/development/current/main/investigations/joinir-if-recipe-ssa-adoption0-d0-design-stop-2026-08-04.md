@@ -1,8 +1,8 @@
 # JOINIR-IF-RECIPE-SSA-ADOPTION0-D0
 
 Status: D0-A census closed; D0-B0 same-pass facts projection implemented and
-tested; D0-B1 portable schema/verification remains a design/implementation
-stop — do not wire production If yet.
+tested; D0-B1 portable schema/verification design selected, implementation
+next — do not wire production If yet.
 Date: 2026-08-04
 
 This card records the next cleanup target after the Loop cutover lane. It is
@@ -322,8 +322,43 @@ Done:
 
 Stop:
 : If the existing analyzer cannot emit the facts without a second source pass
-  or duplicated acceptance policy, stop and reopen D0-B design rather than
-  adding a second semantic owner.
+or duplicated acceptance policy, stop and reopen D0-B design rather than
+adding a second semantic owner.
+
+### D0-B1 — portable schema, source claim, and structural verification
+
+Change:
+: Add an If-specific `IfRecipeArtifactV1` contract under
+  `src/mir/if_recipe_contract/`. Use recipe-local binding/value/block/item keys
+  and a fixed four-block shell (`condition`, `then`, `else`, `continuation`)
+  for the selected explicit-else shape. Include `Explicit` and
+  `ImplicitFallthrough` in the schema, but admit only `Explicit` in this row.
+
+Contract:
+: The artifact has no `BindingRefV1`, `FunctionOwnerIdV1`, AST/Located sites,
+  `MirBuilder`, `ValueId`, `BasicBlockId`, route retry, or environment state.
+  Source provenance is an ordinal owner plus a fail-closed structural path
+  claim; it proves wire coverage/order only, not AST existence. The semantic
+  verifier owns canonical keys, defined-before-use, value classes, explicit
+  else, one same-binding write per branch, and the continuation-read
+  obligation. Join predecessor/value-edge proof remains the later non-Clone
+  `IfJoinSig` row. Do not reuse Loop-specific nodes, carriers, exits, or route
+  IDs, and do not extract a shared control algebra in this row.
+
+Done:
+: A golden explicit-else artifact verifies and round-trips through deterministic
+  semantic/source-bound normalization. Typed rejects cover wrong schema,
+  unknown fields, key/order/duplicate/dangling rows, non-Bool condition,
+  missing or mismatched branch writes, implicit-else, unsupported nested/exit
+  operations, and missing/wrong continuation read. Repeated normalization is
+  byte-stable, route/source receipts do not alter semantic normalization, and
+  no production If caller or PHI/SSA writer changes.
+
+Stop:
+: If facts cannot be mapped without reopening AST/source traversal, or if the
+  schema requires Loop carrier/exit semantics or owner-branded identity, stop
+  and return to this design boundary. Do not add the mapper or JoinSig until
+  this artifact verifier is independently green.
 
 ### D0-C — one canonical production consumer
 
