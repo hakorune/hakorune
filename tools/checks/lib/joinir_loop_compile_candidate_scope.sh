@@ -16,10 +16,14 @@ guard_joinir_loop_compile_candidate_scope() {
   local canonical_dispatch="$root_dir/src/mir/compiler/canonical_core_dispatch.rs"
   local canonical_input="$root_dir/src/mir/compiler/lowering_input.rs"
   local m1_test="$root_dir/src/mir/compiler/loop_candidate_abort_p0.rs"
+  local direct_accum_cutover="$root_dir/src/mir/compiler/resolved_direct_accum_cutover.rs"
+  local hardening_test="$root_dir/src/mir/compiler/resolved_direct_accum_hardening_p0.rs"
+  local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
-    "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test"
+    "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
+    "$direct_accum_cutover" "$hardening_test" "$external_commit"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
   [[ "$(head -n1 "$manifest")" == "$header" ]] || \
@@ -75,7 +79,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$raw_compile|prepare_external_commit|1" \
     "$raw_open|ModuleBuilderInvocationSessionV1::open_for_token|1" \
     "$canonical|ModuleBuilderInvocationSessionV1::open_for_token|1" \
-    "$root_dir/src/mir/compiler/resolved_direct_accum_cutover.rs|compile_direct_accum_source_bound|1" \
+    "$direct_accum_cutover|pub(super) fn compile_direct_accum_source_bound(|1" \
     "$canonical|lower_resolved_direct_accum_function_draft|1" \
     "$canonical_dispatch|prepare_normal_main_module_transaction|1"
   do
@@ -117,4 +121,19 @@ guard_joinir_loop_compile_candidate_scope() {
     rg -n -F "$required" "$m1_test" >/dev/null || \
       guard_fail "$tag" "M1 candidate-abort proof anchor missing: $required"
   done
+
+  for required in \
+    'production_failure_after_prepare_discards_candidate_and_reuses_compiler' \
+    'successful_direct_accum_public_result_uses_final_barrier_contract' \
+    'compile_direct_accum_source_bound_with_prepared_failure_for_test'
+  do
+    rg -n -F "$required" "$hardening_test" "$direct_accum_cutover" >/dev/null || \
+      guard_fail "$tag" "resolved DirectAccum hardening proof anchor missing: $required"
+  done
+
+  rg -n -F 'project_canonical_verification_result' "$external_commit" >/dev/null || \
+    guard_fail "$tag" "canonical final-barrier projection anchor missing"
+  if rg -n -F 'pre_transform.map_err' "$external_commit" >/dev/null; then
+    guard_fail "$tag" "canonical publication still projects pre_transform directly"
+  fi
 }

@@ -1,8 +1,7 @@
 # Resolved DirectAccum Commit/Projection Hardening P0 Design
 
 Date: 2026-08-03
-Status: design stop; no production code change authorized until this contract
-is accepted.
+Status: accepted; H0/H1/H2 implemented, H3 guard closeout in progress.
 
 ## Context
 
@@ -105,6 +104,31 @@ Extend the existing shared guards to assert:
 - no retry/fallback/route registry/legacy PHI writer is reachable from this
   family;
 - all touched Rust files remain below 800 lines.
+
+## Implementation result (2026-08-03)
+
+H1 is now covered at the real resolved DirectAccum ingress boundary. The
+test-only seam runs the complete source-bound prepare chain, drops the
+prepared publication product immediately before commit, and returns a typed
+injected error. The fixture verifies the existing Builder fingerprint and
+unpublished-module state are unchanged, then compiles a valid request on the
+same `MirCompiler`.
+
+H2 is implemented in the existing external-commit owner. Canonical evidence
+that has crossed `RequireFinal` projects `verification_result = Ok(())`; the
+sealed `pre_transform` evidence remains available to the owner but is no
+longer exposed as the public canonical result. Raw publication remains on its
+separate pre-transform-reporting path.
+
+The projection parity unit fixture is intentionally synthetic: it models a
+canonical final seal with a retained pre-transform error. Existing natural
+postprocess fixtures separately cover final-verification rejection and
+discard-only ownership. A natural DirectAccum fixture where pre-transform
+verification fails and final verification succeeds is not claimed here.
+
+The shared candidate-scope guard now fixes the one production prepare/commit
+edge, the test-only late-failure proof, and the canonical final-barrier
+projection helper. No PHI/SSA owner or route scheduler was added.
 
 ## Non-claims
 

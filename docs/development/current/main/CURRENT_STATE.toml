@@ -5,9 +5,9 @@ status = "JOINIR all-route convergence is task-ordered; C0/M1/M2 and M3-A/M3-B/M
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "The first resolved DirectAccum production caller and same-compiler success reuse are landed. The active design stop is now P0 commit/projection hardening: freeze ingress late-failure zero-commit/fingerprint parity and decide canonical MirCompileResult.verification_result as final-barrier success before adding a test-only fault seam. Raw and normal/default result semantics remain separate; PHI/SSA remains the existing canonical session owner."
-current_execution_row = "JOINIR-LOOP-ACCUM-RESOLVED-COMMIT-PROJECTION-HARDENING-M10A-D2-P0-DESIGN"
-current_execution_summary = "I0/R0/S0 DirectAccum production cutover and same-compiler success reuse are green. Worker audit found the next hard boundary: prove ingress-level late failure leaves live Builder unchanged with commit=0 and define canonical MirCompileResult.verification_result as final-barrier success, without changing Raw/normal semantics. Implementation is stopped until the P0 contract card is accepted."
+current_design_stop = "P0 commit/projection hardening is accepted and implemented for the resolved DirectAccum lane. The existing canonical PHI/SSA session remains the sole owner. H3 closeout now checks the single prepare/commit edge, ingress late-failure zero-commit/reuse proof, and final-barrier result projection; Raw and normal/default semantics remain separate."
+current_execution_row = "JOINIR-LOOP-ACCUM-RESOLVED-COMMIT-PROJECTION-HARDENING-M10A-D2-H1-H2-I0"
+current_execution_summary = "Resolved DirectAccum now exercises the full source-bound candidate chain, commits once, and exposes canonical final-barrier success. A test-only failure after preparation drops the unpublished product, preserves the live Builder fingerprint, and proves same-compiler reuse. H3 static guard closeout is green; next is focused commit/push and then the broader Loop-family migration remains."
 current_execution_design = "docs/development/current/main/investigations/joinir-loop-accum-resolved-commit-projection-hardening-p0-design-2026-08-03.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-ACCUM-RESOLVED-COMMIT-PROJECTION-HARDENING-M10A-D2-P0-DESIGN"
+current_blocker_token = "JOINIR-LOOP-ACCUM-RESOLVED-COMMIT-PROJECTION-HARDENING-M10A-D2-H1-H2-I0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

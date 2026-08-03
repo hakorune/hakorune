@@ -4,6 +4,7 @@
 //! allowed to pair a postprocessed module with the Builder readiness owner.
 
 use super::module_postprocess::{
+    CanonicalFinalVerificationSealInnerV1, CanonicalFinalVerificationSealV1,
     ModuleVerificationEvidenceV1, PostprocessEvidenceInputV1, PostprocessedModuleInvocationV1,
 };
 use super::publication_kernel::PublishedModuleTransferV1;
@@ -16,6 +17,7 @@ use crate::mir::builder::{
 use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::compiler::source_bound_package::CanonicalSourceContinuationV1;
 use crate::mir::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocationTokenV1};
+use crate::mir::verification_types::VerificationError;
 
 struct LegacyPublicationPayload {
     module: crate::mir::MirModule,
@@ -30,17 +32,26 @@ impl super::publication_kernel::SealedPublicationPayloadV1 for LegacyPublication
         _receipt: crate::mir::builder::BuilderPublicationReceiptV1,
         _module: PublishedModuleTransferV1,
     ) -> Self::Published {
-        let verification_result = match self.verification {
-            ModuleVerificationEvidenceV1::Canonical { pre_transform, .. } => {
-                pre_transform.map_err(|errors| errors.into_vec())
-            }
-            ModuleVerificationEvidenceV1::Raw { .. } => {
-                unreachable!("Raw evidence is owned by the RawDirect publication path")
-            }
-        };
+        let verification_result = project_canonical_verification_result(self.verification);
         MirCompileResult {
             module: self.module,
             verification_result,
+        }
+    }
+}
+
+/// Canonical publication has already crossed `RequireFinal`. Its public
+/// result therefore reports final-barrier success; the retained pre-transform
+/// evidence remains diagnostic state and is not the result contract. Raw uses
+/// a separate publication payload and keeps its reportable pre-transform
+/// semantics.
+fn project_canonical_verification_result(
+    evidence: ModuleVerificationEvidenceV1,
+) -> Result<(), Vec<VerificationError>> {
+    match evidence {
+        ModuleVerificationEvidenceV1::Canonical { .. } => Ok(()),
+        ModuleVerificationEvidenceV1::Raw { .. } => {
+            unreachable!("Raw evidence is owned by the RawDirect publication path")
         }
     }
 }
@@ -217,5 +228,22 @@ impl super::MirCompiler {
         prepared: PreparedModuleExternalCommitV1<'a>,
     ) -> MirCompileResult {
         prepared.commit(&mut self.builder)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn canonical_projection_reports_final_barrier_success() {
+        let evidence = ModuleVerificationEvidenceV1::Canonical {
+            pre_transform: Err(Vec::<VerificationError>::new().into_boxed_slice()),
+            final_verified: CanonicalFinalVerificationSealV1 {
+                _seal: CanonicalFinalVerificationSealInnerV1,
+            },
+        };
+
+        assert_eq!(project_canonical_verification_result(evidence), Ok(()));
     }
 }
