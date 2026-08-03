@@ -297,3 +297,22 @@ Stop:
   PHI owner, a fabricated input value, or an unowned Unit-to-value conversion,
   do not implement. Return to design with that missing capability named. No
   DirectAccum production switch or old-edge deletion is claimed by S3 alone.
+
+S3 audit result:
+: The static census found zero production callers for the DirectAccum profile,
+  physical input, and borrow physicalizer; the canonical resolved ingress still
+  has only `TrivialBindingSsa` and `CurrentCanonicalAPlus` plans, both of which
+  reject Loop. The borrow seam is therefore mechanically correct but not yet a
+  production capability: the profile witness is not consumed by the identity
+  ledger, the raw `ValueId` input projection has no owner provenance, and the
+  current physicalizer closes the loop with `Return(None)` instead of leaving an
+  inline continuation for the outer completion owner.
+
+Recommended next order:
+: Extend the existing `VerifiedLoopBindingEffectWitnessV1` into a role-keyed
+  execution claim (without adding a second witness), add an exact
+  source-site/BindingRef claim plus non-claim entry-read adapter on the existing
+  `ResolvedSsaIdentityStateV2`, split the physicalizer's inline continuation from
+  its caller-zero finish/commit wrapper, and only then add one resolved
+  DirectAccum plan/caller inside the unpublished candidate. Recipe/JoinSig stay
+  portable and source-free; PHI/SSA remains the existing canonical owner.
