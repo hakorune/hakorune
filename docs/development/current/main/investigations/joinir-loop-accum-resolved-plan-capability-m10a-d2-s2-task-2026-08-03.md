@@ -224,3 +224,49 @@ unopened. The shared in-place replacement guard now recognizes exactly the
 compiler-owned DirectAccum issuer and source projection, requires its two
 producer calls, and rejects any other production caller. No runtime route or
 publication authority was added.
+
+## Next design stop: RESOLVED-FIRST-FAMILY-CUTOVER-M10A-D2
+
+Worker decision: the first real production caller must be the existing
+`MirCompiler::compile_resolved_first_family`, reached through the public
+`compile_resolved` owner. `route_loop` is rejected because it receives a live
+`&mut MirBuilder` and raw AST-shaped inputs before source/frame/candidate
+proof; wiring it would preserve effect-after-retry and dual SSA authority.
+A permanent `compile_resolved_direct_accum` opt-in is also rejected because it
+would create a second ingress; a canary may only be a temporary proof, never a
+final owner.
+
+The proposed I0/R0 boundary is one exact resolved singleton:
+
+```text
+CanonicalLoweringPreflightV1
+  -> DirectAccum exact source adapter
+  -> CanonicalFirstFamilyPlanV1::DirectAccum
+  -> bind_canonical_source
+  -> begin_canonical_invocation
+  -> lower / collect / completion / drain / finalization / postprocess
+  -> one prepared external commit
+```
+
+Required proof before implementation:
+
+- exact `AccumConstLoop` winner is selected once before Builder effects;
+  non-direct first-family fixtures preserve Trivial/A+ parity and other Loop
+  shapes reject by typed error without legacy fallback;
+- DirectAccum has exactly one production physicalizer caller and consumes the
+  existing `CanonicalSsaFunctionSessionV2` (`BindingSsaBuilderV1`,
+  `CanonicalCfgSessionV1`, `PhiTxn`) exactly once;
+- every lower/collect/completion/final-verifier/finalization failure drops
+  the unpublished candidate, leaves the live Builder unchanged, and performs
+  zero external commit; success commits exactly once and fresh reuse works;
+- the old `CapabilityNotActivated { boundary:
+  "direct_accum_source_bound" }` edge is removed only in the same cutover;
+  `route_loop`, registry, `CanonicalLoopFacts`, Generic/Retry, and old PHI
+  writers are not fallback paths for this profile;
+- existing resolved Trivial/A+ tests and all touched Rust files remain green
+  and below 800 lines.
+
+Non-claims: normal/default `compile_with_source`, all-loop support, Generic
+V0/V1 debt, nested/Call/Record/Match, selfhost, and repository-wide PHI-writer
+retirement remain separate tasks. PHI/SSA design and lifecycle SSOT is already
+complete; this stop concerns only production caller convergence.
