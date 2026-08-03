@@ -153,6 +153,46 @@ fn direct_accum_borrowing_seam_leaves_owner_commit_to_caller() {
 }
 
 #[test]
+fn production_port_handoff_leaves_after_open_for_continuation() {
+    let mut builder = MirBuilder::new();
+    let (bindings, inputs) = seed_direct_accum(&mut builder, "direct_accum_physicalizer/inline");
+    let owner = bindings.owner();
+    let mut cfg = CanonicalCfgSessionV1::new();
+    let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
+    let mut port = RawDirectAccumBindingPort { ssa: &mut ssa };
+    let mut phis = PhiTxn::begin("loop_direct_accum_inline_test");
+
+    let receipt = physicalize_direct_accum_v1_with_port(
+        &mut builder,
+        VerifiedLoopPhysicalInputV1::from_direct_accum(direct_accum_product_for_test()),
+        bindings,
+        inputs,
+        roles(),
+        &mut cfg,
+        &mut port,
+        &mut phis,
+    )
+    .expect("inline physicalization");
+    assert_eq!(receipt.continuation_block, BasicBlockId::new(4));
+    assert_eq!(
+        builder.function_state.current_block,
+        Some(BasicBlockId::new(4))
+    );
+    let after = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("function")
+        .get_block(BasicBlockId::new(4))
+        .expect("after block");
+    assert!(!after.is_terminated());
+    assert!(after
+        .instructions
+        .iter()
+        .all(|instruction| !matches!(instruction, crate::mir::MirInstruction::Return { .. })));
+}
+
+#[test]
 fn candidate_rejection_discards_physicalized_loop_before_fresh_reuse() {
     let live = MirBuilder::new();
     let before = live.loop_candidate_test_fingerprint();

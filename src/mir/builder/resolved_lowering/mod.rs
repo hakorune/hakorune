@@ -9,6 +9,7 @@ mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
 mod canonical_ssa;
 mod completion_consumption;
+mod direct_accum_adapter;
 mod draft_seal;
 mod draft_seal_owner;
 mod flow_consumption;

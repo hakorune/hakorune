@@ -74,15 +74,18 @@ pub(in crate::mir::builder) mod loop_cond_unified_helpers;
 //       loop_cond_break_continue are now unified into loop_cond/
 pub(in crate::mir::builder) mod loop_cond;
 // M6-B: verified JoinSig -> sealed physical PHI transaction (caller-zero).
+pub(in crate::mir::builder) mod loop_accum_binding_port;
+#[cfg(test)]
+pub(in crate::mir::builder) mod loop_accum_caller_zero;
+pub(in crate::mir::builder) mod loop_accum_physicalizer;
+#[cfg(test)]
+#[path = "loop_accum_physicalizer_tests.rs"]
+mod loop_accum_physicalizer_tests;
 pub(in crate::mir::builder) mod loop_phi_materializer;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_phi_materializer_test_support;
 pub(in crate::mir::builder) mod loop_physical_edge_path;
 pub(in crate::mir::builder) mod loop_physical_input;
-pub(in crate::mir::builder) mod loop_accum_physicalizer;
-#[cfg(test)]
-#[path = "loop_accum_physicalizer_tests.rs"]
-mod loop_accum_physicalizer_tests;
 // Phase 29bq P2: loop(true) break/continue coverage
 mod loop_true_break_continue;
 // Phase 12: Unified nested loop depth1 module (consolidates 4 variants)

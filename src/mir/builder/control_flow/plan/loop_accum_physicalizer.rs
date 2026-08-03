@@ -4,18 +4,23 @@
 //! existing canonical CFG, function-owned Binding SSA, and one PhiTxn; it
 //! does not select routes or publish a candidate module.
 
+pub(in crate::mir::builder) use super::loop_accum_binding_port::DirectAccumBindingPortV1;
+#[cfg(test)]
+pub(in crate::mir::builder) use super::loop_accum_binding_port::RawDirectAccumBindingPort;
+#[cfg(test)]
+use super::loop_accum_caller_zero::{abort_caller_zero, finish_caller_zero};
 use super::loop_physical_input::{
     LoopPhysicalInputRejectV1, LoopPhysicalRoleV1, VerifiedLoopBindingProjectionV1,
     VerifiedLoopInputProjectionV1, VerifiedLoopPhysicalRolePlanV1,
 };
-use crate::mir::builder::emission::{
-    loop_operation,
-    phi_lifecycle::{PhiToken, PhiTxn},
-};
+#[cfg(test)]
+use crate::mir::builder::emission::phi_lifecycle::PhiToken;
+use crate::mir::builder::emission::{loop_operation, phi_lifecycle::PhiTxn};
 use crate::mir::builder::resolved_lowering::canonical_cfg::{
     CanonicalCfgErrorV1, CanonicalCfgSessionV1,
 };
-use crate::mir::builder::ssa::binding::{BindingSsaBuilderV1, MirBindingSsaAdapterV1};
+#[cfg(test)]
+use crate::mir::builder::ssa::binding::BindingSsaBuilderV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
     LoopBinaryI64OpV1, LoopBlockKeyV1, LoopCompareI64OpV1, LoopConditionV1, LoopJoinEdgeRoleV1,
@@ -35,6 +40,15 @@ pub(in crate::mir::builder) enum LoopResultDispositionV1 {
 pub(in crate::mir::builder) struct LoopPhysicalSuccessReceiptV1 {
     pub(in crate::mir::builder) final_values:
         Box<[(crate::mir::loop_recipe_contract::LoopBindingKeyV1, ValueId)]>,
+    pub(in crate::mir::builder) result: LoopResultDispositionV1,
+}
+
+/// Production handoff.  The loop has been emitted, but `After` remains the
+/// caller's open continuation block; no function return or final-value
+/// snapshot is performed here.
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) struct LoopPhysicalContinuationReceiptV1 {
+    pub(in crate::mir::builder) continuation_block: BasicBlockId,
     pub(in crate::mir::builder) result: LoopResultDispositionV1,
 }
 
@@ -65,6 +79,7 @@ pub(in crate::mir::builder) enum DirectAccumPhysicalizerTestFailurePointV1 {
     AfterHeaderCondition,
 }
 
+#[cfg(test)]
 pub(in crate::mir::builder) fn physicalize_direct_accum_v1(
     builder: &mut MirBuilder,
     input: VerifiedLoopPhysicalInputV1,
@@ -75,13 +90,23 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1(
     let owner = bindings.owner();
     let mut cfg = CanonicalCfgSessionV1::new();
     let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
+    let mut port = RawDirectAccumBindingPort { ssa: &mut ssa };
     let mut phis = Some(PhiTxn::begin("loop_direct_accum_physicalizer"));
     let mut session = DirectAccumPhysicalizerV1::preflight(
-        builder, input, bindings, inputs, roles, &mut cfg, &mut ssa, &mut phis,
+        builder,
+        input,
+        bindings,
+        inputs,
+        roles,
+        &mut cfg,
+        &mut port,
+        phis.as_mut().expect("caller-zero PHI transaction"),
     )?;
-    let receipt = session.emit()?;
-    drop(session);
-    finish_caller_zero(builder, cfg, ssa, phis, receipt)
+    let result = session.emit();
+    match result {
+        Ok(receipt) => finish_caller_zero(builder, cfg, ssa, phis, receipt),
+        Err(error) => abort_caller_zero(builder, &mut phis, error),
+    }
 }
 
 #[cfg(test)]
@@ -96,18 +121,29 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1_with_test_failure(
     let owner = bindings.owner();
     let mut cfg = CanonicalCfgSessionV1::new();
     let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
+    let mut port = RawDirectAccumBindingPort { ssa: &mut ssa };
     let mut phis = Some(PhiTxn::begin("loop_direct_accum_physicalizer"));
     let mut session = DirectAccumPhysicalizerV1::preflight(
-        builder, input, bindings, inputs, roles, &mut cfg, &mut ssa, &mut phis,
+        builder,
+        input,
+        bindings,
+        inputs,
+        roles,
+        &mut cfg,
+        &mut port,
+        phis.as_mut().expect("caller-zero PHI transaction"),
     )?;
     session.failure = Some(failure);
-    let receipt = session.emit()?;
-    drop(session);
-    finish_caller_zero(builder, cfg, ssa, phis, receipt)
+    let result = session.emit();
+    match result {
+        Ok(receipt) => finish_caller_zero(builder, cfg, ssa, phis, receipt),
+        Err(error) => abort_caller_zero(builder, &mut phis, error),
+    }
 }
 
 /// Borrowing production seam. The caller owns the function-wide CFG/SSA/PHI
 /// services and decides when they are finished or committed.
+#[cfg(test)]
 pub(in crate::mir::builder) fn physicalize_direct_accum_v1_borrowing(
     builder: &mut MirBuilder,
     input: VerifiedLoopPhysicalInputV1,
@@ -118,27 +154,64 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1_borrowing(
     ssa: &mut BindingSsaBuilderV1<PhiToken>,
     phis: &mut Option<PhiTxn>,
 ) -> Result<LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1> {
+    let mut port = RawDirectAccumBindingPort { ssa };
+    let transaction = phis.as_mut().expect("borrowed PHI transaction");
     let mut session = DirectAccumPhysicalizerV1::preflight(
-        builder, input, bindings, inputs, roles, cfg, ssa, phis,
+        builder,
+        input,
+        bindings,
+        inputs,
+        roles,
+        cfg,
+        &mut port,
+        transaction,
     )?;
-    session.emit()
+    let result = session.emit();
+    match result {
+        Ok(receipt) => Ok(receipt),
+        Err(error) => abort_caller_zero(builder, phis, error),
+    }
 }
 
-struct DirectAccumPhysicalizerV1<'builder, 'owners> {
+/// Generic production entrypoint.  The caller supplies the existing
+/// function-owned identity/SSA port; this helper never creates an owner.
+pub(in crate::mir::builder) fn physicalize_direct_accum_v1_with_port<P>(
+    builder: &mut MirBuilder,
+    input: VerifiedLoopPhysicalInputV1,
+    bindings: VerifiedLoopBindingProjectionV1,
+    inputs: VerifiedLoopInputProjectionV1,
+    roles: VerifiedLoopPhysicalRolePlanV1,
+    cfg: &mut CanonicalCfgSessionV1,
+    port: &mut P,
+    phis: &mut PhiTxn,
+) -> Result<LoopPhysicalContinuationReceiptV1, LoopPhysicalizeErrorV1>
+where
+    P: DirectAccumBindingPortV1,
+{
+    let mut session = DirectAccumPhysicalizerV1::preflight(
+        builder, input, bindings, inputs, roles, cfg, port, phis,
+    )?;
+    session.emit_inline()
+}
+
+struct DirectAccumPhysicalizerV1<'builder, 'owners, P> {
     builder: &'builder mut MirBuilder,
     input: VerifiedLoopPhysicalInputV1,
     bindings: VerifiedLoopBindingProjectionV1,
     inputs: VerifiedLoopInputProjectionV1,
     roles: VerifiedLoopPhysicalRolePlanV1,
     cfg: &'owners mut CanonicalCfgSessionV1,
-    ssa: &'owners mut BindingSsaBuilderV1<PhiToken>,
-    phis: &'owners mut Option<PhiTxn>,
+    port: &'owners mut P,
+    phis: &'owners mut PhiTxn,
     values: BTreeMap<crate::mir::loop_recipe_contract::LoopValueKeyV1, ValueId>,
     #[cfg(test)]
     failure: Option<DirectAccumPhysicalizerTestFailurePointV1>,
 }
 
-impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
+impl<'builder, 'owners, P> DirectAccumPhysicalizerV1<'builder, 'owners, P>
+where
+    P: DirectAccumBindingPortV1,
+{
     fn preflight(
         builder: &'builder mut MirBuilder,
         input: VerifiedLoopPhysicalInputV1,
@@ -146,8 +219,8 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
         inputs: VerifiedLoopInputProjectionV1,
         roles: VerifiedLoopPhysicalRolePlanV1,
         cfg: &'owners mut CanonicalCfgSessionV1,
-        ssa: &'owners mut BindingSsaBuilderV1<PhiToken>,
-        phis: &'owners mut Option<PhiTxn>,
+        port: &'owners mut P,
+        phis: &'owners mut PhiTxn,
     ) -> Result<Self, LoopPhysicalizeErrorV1> {
         let function = builder
             .function_state
@@ -210,7 +283,7 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
         validate_direct_shape(&input)?;
         Ok(Self {
             builder,
-            ssa,
+            port,
             phis,
             cfg,
             input,
@@ -224,21 +297,21 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
     }
 
     fn emit(&mut self) -> Result<LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1> {
-        if let Err(error) = self.create_blocks() {
-            return Err(error);
-        }
-        if let Err(error) = self.seed_inputs() {
-            return self.abort(error);
-        }
-        if let Err(error) = self.emit_cfg_and_operations() {
-            return self.abort(error);
-        }
-        let final_values = match self.capture_final_values() {
-            Ok(values) => values,
-            Err(error) => return self.abort(error),
-        };
+        let continuation = self.emit_inline()?;
+        self.close_after()?;
+        let final_values = self.capture_final_values()?;
         Ok(LoopPhysicalSuccessReceiptV1 {
             final_values,
+            result: continuation.result,
+        })
+    }
+
+    fn emit_inline(&mut self) -> Result<LoopPhysicalContinuationReceiptV1, LoopPhysicalizeErrorV1> {
+        self.create_blocks()?;
+        self.seed_inputs()?;
+        self.emit_cfg_and_operations_inline()?;
+        Ok(LoopPhysicalContinuationReceiptV1 {
+            continuation_block: self.roles.block(LoopPhysicalRoleV1::After),
             result: LoopResultDispositionV1::Unit,
         })
     }
@@ -274,19 +347,17 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
                 .bindings
                 .resolve(key)
                 .map_err(LoopPhysicalizeErrorV1::Input)?;
-            self.ssa
-                .define(
-                    binding,
-                    self.roles.block(LoopPhysicalRoleV1::Preheader),
-                    physical,
-                )
-                .map_err(|error| LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")))?;
+            let preheader = self.roles.block(LoopPhysicalRoleV1::Preheader);
+            let builder = &mut *self.builder;
+            self.port
+                .seed_input(builder, binding, preheader, physical)
+                .map_err(LoopPhysicalizeErrorV1::Ssa)?;
             self.values.insert(value, physical);
         }
         Ok(())
     }
 
-    fn emit_cfg_and_operations(&mut self) -> Result<(), LoopPhysicalizeErrorV1> {
+    fn emit_cfg_and_operations_inline(&mut self) -> Result<(), LoopPhysicalizeErrorV1> {
         let preheader = self.roles.block(LoopPhysicalRoleV1::Preheader);
         let header = self.roles.block(LoopPhysicalRoleV1::Header);
         let body = self.roles.block(LoopPhysicalRoleV1::Body);
@@ -312,12 +383,17 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
         self.select(step)?;
         self.seal(step)?;
         self.emit_jump(step, header)?;
-        self.select(after)?;
-        self.emit_return(after)?;
-        self.seal(after)?;
         self.select(header)?;
         self.seal(header)?;
+        self.select(after)?;
         Ok(())
+    }
+
+    fn close_after(&mut self) -> Result<(), LoopPhysicalizeErrorV1> {
+        let after = self.roles.block(LoopPhysicalRoleV1::After);
+        self.select(after)?;
+        self.emit_return(after)?;
+        self.seal(after)
     }
 
     fn emit_header_carriers(&mut self) -> Result<(), LoopPhysicalizeErrorV1> {
@@ -398,11 +474,13 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
         for operation in operations.iter().copied() {
             match operation {
                 LoopOperationV1::ReadBinding { binding, result } => {
+                    let recipe_binding = binding;
                     let binding = self
                         .bindings
-                        .resolve(binding)
+                        .resolve(recipe_binding)
                         .map_err(LoopPhysicalizeErrorV1::Input)?;
-                    let value = self.read(binding, self.current_block()?)?;
+                    let block = self.current_block()?;
+                    let value = self.read_effect(recipe_binding, binding, block)?;
                     self.values.insert(result, value);
                     last = Some(value);
                 }
@@ -449,14 +527,14 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
                     last = Some(value);
                 }
                 LoopOperationV1::WriteBinding { binding, value } => {
+                    let recipe_binding = binding;
                     let binding = self
                         .bindings
-                        .resolve(binding)
+                        .resolve(recipe_binding)
                         .map_err(LoopPhysicalizeErrorV1::Input)?;
                     let value = self.value(value)?;
-                    self.ssa
-                        .define(binding, self.current_block()?, value)
-                        .map_err(|error| LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")))?;
+                    let block = self.current_block()?;
+                    self.write_effect(recipe_binding, binding, block, value)?;
                     last = Some(value);
                 }
             }
@@ -504,12 +582,11 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
             .cfg
             .seal_block(function, block)
             .map_err(LoopPhysicalizeErrorV1::Cfg)?;
-        let phis = self.phis.as_mut().expect("active PHI transaction");
+        let phis = &mut *self.phis;
         let builder = &mut *self.builder;
-        let ssa = &mut self.ssa;
-        let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
-        ssa.seal(&mut adapter, block, &witness)
-            .map_err(|error| LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")))
+        self.port
+            .seal(builder, phis, block, &witness)
+            .map_err(LoopPhysicalizeErrorV1::Ssa)
     }
 
     fn read(
@@ -517,12 +594,62 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, LoopPhysicalizeErrorV1> {
-        let phis = self.phis.as_mut().expect("active PHI transaction");
+        let phis = &mut *self.phis;
         let builder = &mut *self.builder;
-        let ssa = &mut self.ssa;
-        let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
-        ssa.read(&mut adapter, binding, block)
-            .map_err(|error| LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")))
+        self.port
+            .read_binding(builder, phis, binding, block)
+            .map_err(LoopPhysicalizeErrorV1::Ssa)
+    }
+
+    fn read_effect(
+        &mut self,
+        recipe_binding: crate::mir::loop_recipe_contract::LoopBindingKeyV1,
+        binding: BindingRefV1,
+        block: BasicBlockId,
+    ) -> Result<ValueId, LoopPhysicalizeErrorV1> {
+        let phis = &mut *self.phis;
+        let builder = &mut *self.builder;
+        let value = match (
+            block == self.roles.block(LoopPhysicalRoleV1::Header),
+            block == self.roles.block(LoopPhysicalRoleV1::Body),
+            recipe_binding.raw(),
+        ) {
+            (true, false, 0) => self
+                .port
+                .read_condition_induction(builder, phis, binding, block),
+            (false, true, 1) => self
+                .port
+                .read_update_accumulator(builder, phis, binding, block),
+            (false, true, 0) => self.port.read_step_induction(builder, phis, binding, block),
+            _ => {
+                return Err(LoopPhysicalizeErrorV1::RecipeShape(
+                    "DirectAccum read role is not canonical",
+                ))
+            }
+        };
+        value.map_err(LoopPhysicalizeErrorV1::Ssa)
+    }
+
+    fn write_effect(
+        &mut self,
+        recipe_binding: crate::mir::loop_recipe_contract::LoopBindingKeyV1,
+        binding: BindingRefV1,
+        block: BasicBlockId,
+        value: ValueId,
+    ) -> Result<(), LoopPhysicalizeErrorV1> {
+        let result = match (
+            block == self.roles.block(LoopPhysicalRoleV1::Body),
+            recipe_binding.raw(),
+        ) {
+            (true, 1) => self.port.write_update_accumulator(binding, block, value),
+            (true, 0) => self.port.write_step_induction(binding, block, value),
+            _ => {
+                return Err(LoopPhysicalizeErrorV1::RecipeShape(
+                    "DirectAccum write role is not canonical",
+                ))
+            }
+        };
+        result.map_err(LoopPhysicalizeErrorV1::Ssa)
     }
 
     fn value(
@@ -629,52 +756,6 @@ impl<'builder, 'owners> DirectAccumPhysicalizerV1<'builder, 'owners> {
         }
         Ok(())
     }
-
-    fn abort<T>(&mut self, error: LoopPhysicalizeErrorV1) -> Result<T, LoopPhysicalizeErrorV1> {
-        let Some(phis) = self.phis.take() else {
-            return Err(error);
-        };
-        let aborted = phis.abort_on_err(self.builder, format!("{error:?}"));
-        Err(LoopPhysicalizeErrorV1::PhiAbort(aborted.to_string()))
-    }
-}
-
-fn finish_caller_zero<T>(
-    builder: &mut MirBuilder,
-    cfg: CanonicalCfgSessionV1,
-    ssa: BindingSsaBuilderV1<PhiToken>,
-    mut phis: Option<PhiTxn>,
-    receipt: T,
-) -> Result<T, LoopPhysicalizeErrorV1> {
-    if let Err(error) = ssa.finish() {
-        return abort_caller_zero(
-            builder,
-            &mut phis,
-            LoopPhysicalizeErrorV1::Ssa(format!("{error:?}")),
-        );
-    }
-    let Some(function) = builder.function_state.current_function.as_ref() else {
-        return abort_caller_zero(builder, &mut phis, LoopPhysicalizeErrorV1::MissingFunction);
-    };
-    if let Err(error) = cfg.finish(function) {
-        return abort_caller_zero(builder, &mut phis, LoopPhysicalizeErrorV1::Cfg(error));
-    }
-    let txn = phis.take().expect("caller-zero PHI transaction");
-    txn.commit(builder)
-        .map_err(|error| LoopPhysicalizeErrorV1::PhiAbort(error.to_string()))?;
-    Ok(receipt)
-}
-
-fn abort_caller_zero<T>(
-    builder: &mut MirBuilder,
-    phis: &mut Option<PhiTxn>,
-    error: LoopPhysicalizeErrorV1,
-) -> Result<T, LoopPhysicalizeErrorV1> {
-    let Some(txn) = phis.take() else {
-        return Err(error);
-    };
-    let aborted = txn.abort_on_err(builder, format!("{error:?}"));
-    Err(LoopPhysicalizeErrorV1::PhiAbort(aborted.to_string()))
 }
 
 fn validate_direct_shape(

@@ -353,3 +353,14 @@ Stop:
   outer completion owner cannot consume Unit without fabricating a value, stop
   before adding a resolved Loop plan. Do not broaden the Trivial profile or
   touch `route_loop` in S4.
+
+Implementation progress (caller-zero only):
+: The role-keyed effect plan now lives in the neutral `loop_structural_facts`
+  layer, so the canonical adapter does not import compiler-profile ownership.
+  `ResolvedSsaIdentityStateV2` exposes exact claim, non-claim entry-read, and
+  exact assignment APIs. The physicalizer borrows a named binding port, and
+  its production-shaped entrypoint returns an open `After` continuation while
+  caller-zero wrappers retain the old finish/commit behavior. Focused
+  physicalizer, DirectAccum, resolved-lowering, and binary checks are green.
+  The resolved caller, trailing-statement integration, and old-edge retirement
+  are still unimplemented and remain the next S4/S5 boundary.
