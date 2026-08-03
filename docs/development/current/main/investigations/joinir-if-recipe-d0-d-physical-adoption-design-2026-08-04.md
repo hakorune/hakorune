@@ -160,6 +160,30 @@ gates are green.
   CorePlan/JoinIR, or JSON-v0 writers.
 - Keep all unselected writers and shapes under their own guards and design rows.
 
+### D0-D3 execution brief (design closed)
+
+Change: route the selected explicit-else demand through a named selected
+materializer and retain the existing source-driven helper only for unselected
+shapes. Construct a private explicit-else topology token only after JoinSig
+verification; the physicalizer passes that token, never `Option<bool>` or a
+literal topology choice.
+
+Contract: the selected arm may use the immutable source view for condition and
+branch leaf emission, but it may not inspect `else_port`, choose topology from
+AST shape, call the legacy helper, retry, or create a second CFG/PHI owner.
+The neutral CFG/SSA core returns a compact physical receipt (header,
+condition, branch exits, merge, predecessor/value pairs) which the
+physicalizer validates against the consumed demand before success.
+
+Done: the reusable guard proves one selected-helper caller (the physicalizer),
+zero selected callers of the legacy helper, no selected `else_port`/route
+selection, and parity for branch/merge/predecessor/PHI/continuation output.
+
+Stop: if the receipt cannot be produced from the existing canonical session,
+or if selected emission still needs source-driven topology/reselection, return
+to design. Do not broaden this row to implicit-else, nested/effect shapes,
+global PHI retirement, or raw/A+/JoinIR/JSON-v0 paths.
+
 ## Acceptance gates
 
 ```text
@@ -238,5 +262,5 @@ unconsumed/second-take failures are fixed, logical-to-physical mapping is a
 required proof, the selected old edge is shape-scoped rather than global
 `lower_if` caller-zero, candidate/PHI parity and late-failure fingerprints are
 named, and near-limit owners are excluded from physicalizer growth. D0-D1 and
-D0-D2 may now be implemented without reopening the contract; D0-D3 still
-requires its own cutover evidence.
+D0-D2 are implemented; D0-D3 is now design-closed with the execution brief
+above and may proceed to its shape-scoped cutover evidence.
