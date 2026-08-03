@@ -1,6 +1,7 @@
 # JOINIR-IF-RECIPE-SSA-ADOPTION0-D0
 
-Status: queued design task — do not wire production If yet.
+Status: D0 queued design task; located-legacy S0 census green — do not wire
+production If yet.
 Date: 2026-08-04
 
 This card records the next cleanup target after the Loop cutover lane. It is
@@ -59,6 +60,27 @@ Do not claim any of the following before the census is closed:
 related located/raw carriers still have production-facing references. The
 cleanup task is therefore scoped to a caller census and test migration proof,
 not a blanket `located_legacy_*` deletion.
+
+## Located legacy S0 census (2026-08-04)
+
+The dedicated guard
+`tools/checks/joinir_located_legacy_retire_guard.sh` is green and fixes the
+retirement boundary:
+
+```text
+LocatedLegacyLoweringSessionV1::verify calls = 48, all test-only
+production-root constructors                        = 0
+non-test module/re-export roots                     = builder.rs only
+internal adapter selector/lower pairs               = 6, session-local only
+source/claim carriers                               = retained and still separate
+test oracles                                        = 2 callable-result modules present
+all located components                              < 800 lines
+```
+
+This is a census proof, not deletion. The carrier
+`callable_result_representation::located_legacy` and its caller-ledger/
+loop-claim consumers remain in scope. No normal/raw ingress, IfCfgSession, or
+resolved A+ owner was changed.
 
 ## Ordered task sequence
 
@@ -130,10 +152,23 @@ existing owner, not a new SSA design.
 
 ### D0-E — cheap cleanup, independently gated
 
-1. Prove `LocatedLegacyLoweringSessionV1` has no production constructor caller.
-2. Move or replace its test oracle with the active canonical/descent fixture.
-3. Delete only the proven dead session and its dedicated tests/helpers.
-4. Re-run caller census before touching related raw/located carriers.
+S0 is now complete: the caller census and dedicated guard are green. The next
+S1 deletion task is intentionally separate and atomic:
+
+1. move/replace the two callable-result test oracles with the active
+   canonical/descent fixture;
+2. delete `located_legacy_lowering.rs`, its three unconditional adapters, its
+   five builder-nested test modules, the two callable-result session test
+   modules, and the builder module/re-export;
+3. update the builder/calls and builder/stmts README boundaries and retire
+   only guards whose sole subject was this disconnected session;
+4. re-run the S0 guard (expected caller-zero/deleted state) before touching
+   `callable_result_representation/located_legacy.rs` or any raw/located
+   carrier.
+
+S1 must not modify normal/raw ingress, `located_if.rs`, `IfCfgSessionV1`, or
+the portable IfRecipe design. If the test oracle cannot be moved without
+reintroducing a production caller, stop and open a new design row.
 
 This cleanup must not be mixed with If BoxCount or PHI owner adoption. The
 raw/descent/parity trio for local/return/assignment/binary/short-circuit is a
@@ -150,7 +185,8 @@ D0-D: selected old If/PHI writer caller = 0 after cutover
 D0-D: selected shape has no post-effect Option/Retry/reselection
 D0-D: legacy/new semantic digest, MIR/CFG, PHI, diagnostics, and reuse parity green
 D0-D: injected late failure leaves live Builder/candidate owner unchanged
-D0-E: only proven test-only located session is deleted
+D0-E/S0: 48 test-only verifies, zero production roots, and retained carrier
+D0-E/S1: only the proven disconnected session/adapters/tests are deleted
 all touched Rust/test files < 800 lines
 ```
 
