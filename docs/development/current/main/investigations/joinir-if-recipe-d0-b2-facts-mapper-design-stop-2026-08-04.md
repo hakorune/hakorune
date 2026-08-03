@@ -1,6 +1,6 @@
 # JOINIR-IF-RECIPE-D0-B2-FACTS-MAPPER-DESIGN-STOP
 
-Status: D0-B2-A/B landed; D0-B2-C mapper gates active
+Status: D0-B2-A/B landed; D0-B2-C mapper gates active (partial negative matrix)
 Date: 2026-08-04
 Decision target: same-pass facts -> fixed-shell `IfRecipeArtifactV1`
 
@@ -105,7 +105,10 @@ retry.
    Landed in `1bd50829c5`; the mapper immediately invokes the structural
    verifier and has no production caller.
 3. `D0-B2-C` — call the existing structural verifier and add deterministic
-   semantic/source-bound normalization tests. Do not add JoinSig or PHI.
+   semantic/source-bound normalization tests plus the first negative matrix
+   rows (implicit-else and foreign-owner rejection). Landed in
+   `f2afec934d`; remaining shape-specific negative rows stay open. Do not add
+   JoinSig or PHI.
 4. `D0-B2-D` — close the design row only after the mapper is owner-brand
    independent and its negative matrix is green. Then open D0-B3 for
    non-`Clone` `IfJoinSig` and typed physical-input sealing.

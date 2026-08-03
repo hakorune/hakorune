@@ -1,5 +1,5 @@
 ---
-Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B facts/mapper landed; D0-B2-C gates are active
+Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B facts/mapper landed; D0-B2-C gates are active (partial negative matrix)
 Date: 2026-08-04
 Decision: JOINIR-IF-RECIPE-CONTRACT-V1
 Scope: portable semantic contract for the first resolved-trivial If shape
@@ -130,10 +130,11 @@ it may not return `Option`, retry, or a different route.
 ## Non-claims
 
 The fixed-shell schema, source-claim verifier, structural verifier,
-deterministic normalizers, same-pass entry witness, and caller-zero facts
-mapper now exist in `src/mir/if_recipe_contract/` and
-`src/mir/resolved_value_profile/` (commits `8999950faf`, `a907874551`, and
-`1bd50829c5`). This remains a caller-zero contract: no production If recipe
-consumer, JoinSig, or PHI/CFG wiring is connected. Repository-wide PHI/CFG
-ownership is not unified. Those claims require D0-B2-C gates and D0-C/D0-D
-evidence.
+deterministic normalizers, same-pass entry witness, caller-zero facts mapper,
+and the first mapper rejection rows now exist in
+`src/mir/if_recipe_contract/` and `src/mir/resolved_value_profile/` (commits
+`8999950faf`, `a907874551`, `1bd50829c5`, and `f2afec934d`). The negative
+matrix is still partial. This remains a caller-zero contract: no production If
+recipe consumer, JoinSig, or PHI/CFG wiring is connected. Repository-wide
+PHI/CFG ownership is not unified. Those claims require the remaining D0-B2-C
+gates and D0-C/D0-D evidence.
