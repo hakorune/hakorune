@@ -197,6 +197,113 @@ fn direct_materializer_input(sig: &VerifiedLoopJoinSigV1) -> VerifiedLoopLogical
     VerifiedLoopLogicalToPhysicalMapV1::try_new(sig, direct_map_input(sig)).expect("direct map")
 }
 
+fn nested_resume_map_input(sig: &VerifiedLoopJoinSigV1) -> LoopLogicalToPhysicalMapInputV1 {
+    use LoopJoinPortV1::*;
+    let ports = vec![
+        (LoopNodeKeyV1::new(0), Preheader, bb(0)),
+        (LoopNodeKeyV1::new(0), Header, bb(1)),
+        (LoopNodeKeyV1::new(0), Body, bb(2)),
+        (LoopNodeKeyV1::new(0), After, bb(9)),
+        (LoopNodeKeyV1::new(1), Preheader, bb(2)),
+        (LoopNodeKeyV1::new(1), Header, bb(4)),
+        (LoopNodeKeyV1::new(1), Body, bb(5)),
+        (LoopNodeKeyV1::new(1), After, bb(6)),
+    ];
+    let edge_paths = sig
+        .as_sig()
+        .loops
+        .iter()
+        .flat_map(|row| {
+            row.edges.iter().map(|edge| {
+                let blocks = match (row.key, edge.role) {
+                    (loop_key, LoopJoinEdgeRoleV1::Enter) if loop_key == LoopNodeKeyV1::new(0) => {
+                        vec![bb(0), bb(1)]
+                    }
+                    (loop_key, LoopJoinEdgeRoleV1::PredicateTrue)
+                        if loop_key == LoopNodeKeyV1::new(0) =>
+                    {
+                        vec![bb(1), bb(2)]
+                    }
+                    (loop_key, LoopJoinEdgeRoleV1::PredicateFalse)
+                        if loop_key == LoopNodeKeyV1::new(0) =>
+                    {
+                        vec![bb(1), bb(9)]
+                    }
+                    (loop_key, LoopJoinEdgeRoleV1::Continue)
+                        if loop_key == LoopNodeKeyV1::new(0) =>
+                    {
+                        vec![bb(2), bb(7), bb(8), bb(1)]
+                    }
+                    (loop_key, LoopJoinEdgeRoleV1::Enter) if loop_key == LoopNodeKeyV1::new(1) => {
+                        vec![bb(2), bb(4)]
+                    }
+                    (loop_key, LoopJoinEdgeRoleV1::BodyEntry)
+                        if loop_key == LoopNodeKeyV1::new(1) =>
+                    {
+                        vec![bb(4), bb(5)]
+                    }
+                    (loop_key, LoopJoinEdgeRoleV1::Break) if loop_key == LoopNodeKeyV1::new(1) => {
+                        vec![bb(5), bb(6)]
+                    }
+                    (loop_key, role) => {
+                        panic!("unexpected nested edge loop={loop_key:?} role={role:?}")
+                    }
+                };
+                let terminal = blocks[blocks.len() - 2];
+                LoopPhysicalEdgePathV1::from_parts(row.key, edge.role, blocks, terminal)
+            })
+        })
+        .collect::<Vec<_>>();
+    LoopLogicalToPhysicalMapInputV1 {
+        ports,
+        values: vec![
+            (
+                LoopValueKeyV1::new(0),
+                ValueId::new(10),
+                LoopValueClassV1::I64,
+            ),
+            (
+                LoopValueKeyV1::new(3),
+                ValueId::new(12),
+                LoopValueClassV1::I64,
+            ),
+            (
+                LoopValueKeyV1::new(5),
+                ValueId::new(11),
+                LoopValueClassV1::I64,
+            ),
+            (
+                LoopValueKeyV1::new(6),
+                ValueId::new(13),
+                LoopValueClassV1::I64,
+            ),
+        ],
+        destinations: vec![
+            (
+                LoopNodeKeyV1::new(0),
+                LoopBindingKeyV1::new(0),
+                ValueId::new(20),
+            ),
+            (
+                LoopNodeKeyV1::new(0),
+                LoopBindingKeyV1::new(1),
+                ValueId::new(21),
+            ),
+        ],
+        predecessors: vec![
+            (bb(1), vec![bb(0), bb(8)]),
+            (bb(2), vec![bb(1)]),
+            (bb(4), vec![bb(2)]),
+            (bb(5), vec![bb(4)]),
+            (bb(6), vec![bb(5)]),
+            (bb(7), vec![bb(2), bb(6)]),
+            (bb(8), vec![bb(7)]),
+            (bb(9), vec![bb(1)]),
+        ],
+        edge_paths,
+    }
+}
+
 #[test]
 fn map_rejects_duplicate_predecessor_before_builder_effect() {
     let sig = verified_sig();
@@ -247,6 +354,96 @@ fn direct_standard5_witness_rejects_body_to_header_shortcut() {
     path.terminal_predecessor = bb(2);
     let error = VerifiedLoopLogicalToPhysicalMapV1::try_new(&sig, input).unwrap_err();
     assert!(error.to_string().contains("predecessor mismatch"));
+}
+
+#[test]
+fn nested_golden_witness_keeps_child_after_parent_resume_explicit() {
+    let sig = verified_sig();
+    let payload_keys = |edge: &crate::mir::loop_recipe_contract::LoopJoinEdgeV1| {
+        edge.payload
+            .iter()
+            .map(|payload| (payload.binding, payload.value))
+            .collect::<Vec<_>>()
+    };
+    let root = sig
+        .as_sig()
+        .loops
+        .iter()
+        .find(|row| row.key == LoopNodeKeyV1::new(0))
+        .expect("root JoinSig row");
+    let child = sig
+        .as_sig()
+        .loops
+        .iter()
+        .find(|row| row.key == LoopNodeKeyV1::new(1))
+        .expect("child JoinSig row");
+    let root_continue_edge = root
+        .edges
+        .iter()
+        .find(|edge| edge.role == LoopJoinEdgeRoleV1::Continue)
+        .expect("root continue edge");
+    let child_enter_edge = child
+        .edges
+        .iter()
+        .find(|edge| edge.role == LoopJoinEdgeRoleV1::Enter)
+        .expect("child enter edge");
+    let child_break_edge = child
+        .edges
+        .iter()
+        .find(|edge| edge.role == LoopJoinEdgeRoleV1::Break)
+        .expect("child break edge");
+    assert_eq!(
+        payload_keys(child_enter_edge),
+        vec![
+            (LoopBindingKeyV1::new(0), LoopValueKeyV1::new(0)),
+            (LoopBindingKeyV1::new(1), LoopValueKeyV1::new(3)),
+        ]
+    );
+    assert_eq!(
+        payload_keys(child_break_edge),
+        vec![
+            (LoopBindingKeyV1::new(0), LoopValueKeyV1::new(0)),
+            (LoopBindingKeyV1::new(1), LoopValueKeyV1::new(6)),
+        ]
+    );
+    assert_eq!(
+        payload_keys(root_continue_edge),
+        vec![
+            (LoopBindingKeyV1::new(0), LoopValueKeyV1::new(5)),
+            (LoopBindingKeyV1::new(1), LoopValueKeyV1::new(6)),
+        ]
+    );
+    let map = VerifiedLoopLogicalToPhysicalMapV1::try_new(&sig, nested_resume_map_input(&sig))
+        .expect("nested physical witness");
+    let root_continue = map
+        .edge_paths
+        .get(&(LoopNodeKeyV1::new(0), LoopJoinEdgeRoleV1::Continue))
+        .expect("root continue path");
+    assert_eq!(root_continue.len(), 1);
+    assert_eq!(
+        root_continue[0].blocks.as_ref(),
+        &[bb(2), bb(7), bb(8), bb(1)]
+    );
+    assert_eq!(root_continue[0].terminal_predecessor, bb(8));
+
+    let child_break = map
+        .edge_paths
+        .get(&(LoopNodeKeyV1::new(1), LoopJoinEdgeRoleV1::Break))
+        .expect("child break path");
+    assert_eq!(child_break[0].blocks.as_ref(), &[bb(5), bb(6)]);
+    assert_eq!(child_break[0].terminal_predecessor, bb(5));
+
+    let parent_resume_paths = [vec![bb(6), bb(7)], vec![bb(7), bb(8), bb(1)]];
+    for path in &parent_resume_paths {
+        for pair in path.windows(2) {
+            assert!(map
+                .predecessors
+                .get(&pair[1])
+                .expect("parent-resume predecessor witness")
+                .contains(&pair[0]));
+        }
+    }
+    assert_ne!(parent_resume_paths[0].as_slice(), &[bb(6), bb(8)]);
 }
 
 #[test]
