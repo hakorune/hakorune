@@ -9,9 +9,15 @@ use crate::mir::builder::emission::phi_lifecycle::{PhiToken, PhiTxn};
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::ssa::binding::{BindingSsaBuilderV1, MirBindingSsaAdapterV1};
 use crate::mir::builder::MirBuilder;
-use crate::mir::loop_recipe_contract::LoopBindingKeyV1;
+use crate::mir::loop_recipe_contract::{
+    LoopBinaryI64OpV1, LoopBindingKeyV1, LoopCompareI64OpV1, LoopConditionV1,
+    LoopJoinSigElaboratorV1, LoopOperationV1, LoopRecipeArtifactV1, LoopRecipeItemV1,
+    LoopRecipeVerifierV1, LoopValueKeyV1,
+};
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, FunctionOwnerIssuerV1};
-use crate::mir::{BasicBlockId, BinaryOp, BindingId, ConstValue, MirInstruction, MirType, ValueId};
+use crate::mir::{
+    BasicBlockId, BinaryOp, BindingId, CompareOp, ConstValue, MirInstruction, MirType, ValueId,
+};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -78,6 +84,103 @@ struct LoopSsaEmissionReceiptV1 {
     header_phi_inputs: Box<[Box<[(BasicBlockId, ValueId)]>]>,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+enum OperationScheduleErrorV1 {
+    CarrierReadMissing(LoopBindingKeyV1),
+    CarrierReadDuplicated(LoopBindingKeyV1),
+    UnexpectedCarrierRead(LoopBindingKeyV1),
+}
+
+/// Builder-free operation schedule projected from one verified recipe/join sig.
+#[derive(Debug, PartialEq, Eq)]
+struct VerifiedLoopOperationScheduleV1 {
+    condition: Box<[LoopOperationV1]>,
+    body: Box<[LoopOperationV1]>,
+    header_reads: Box<[LoopBindingKeyV1]>,
+    condition_result: LoopValueKeyV1,
+}
+
+impl VerifiedLoopOperationScheduleV1 {
+    fn from_direct_fixture(header_reads: Vec<LoopBindingKeyV1>) -> Result<Self, OperationScheduleErrorV1> {
+        let artifact: LoopRecipeArtifactV1 =
+            serde_json::from_str(super::super::DIRECT_GOLDEN).expect("direct recipe golden");
+        let verified = LoopRecipeVerifierV1::verify(artifact.recipe().clone())
+            .expect("direct recipe verification");
+        let sig = LoopJoinSigElaboratorV1::elaborate(&verified).expect("direct join sig");
+        let recipe = verified.as_recipe();
+        let root = recipe
+            .loops
+            .iter()
+            .find(|row| row.key == recipe.root_loop)
+            .expect("root loop");
+        let (condition_block, condition_result) = match root.condition {
+            LoopConditionV1::Predicate { block, value } => (block, value),
+            LoopConditionV1::Always => panic!("direct fixture requires predicate"),
+        };
+        let condition = operations_for_block(recipe, condition_block);
+        let body = operations_for_block(recipe, root.body);
+        let expected = sig
+            .as_sig()
+            .loops
+            .iter()
+            .find(|row| row.key.raw() == recipe.root_loop.raw())
+            .expect("root join row")
+            .carriers
+            .iter()
+            .map(|payload| payload.binding)
+            .collect::<BTreeSet<_>>();
+        let mut actual = BTreeSet::new();
+        for binding in header_reads.iter().copied() {
+            if !actual.insert(binding) {
+                return Err(OperationScheduleErrorV1::CarrierReadDuplicated(binding));
+            }
+            if !expected.contains(&binding) {
+                return Err(OperationScheduleErrorV1::UnexpectedCarrierRead(binding));
+            }
+        }
+        if let Some(binding) = expected.difference(&actual).next().copied() {
+            return Err(OperationScheduleErrorV1::CarrierReadMissing(binding));
+        }
+        Ok(Self {
+            condition,
+            body,
+            header_reads: header_reads.into_boxed_slice(),
+            condition_result,
+        })
+    }
+}
+
+fn operations_for_block(
+    recipe: &crate::mir::loop_recipe_contract::LoopRecipeV1,
+    key: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
+) -> Box<[LoopOperationV1]> {
+    recipe
+        .blocks
+        .iter()
+        .find(|block| block.key == key)
+        .expect("recipe block")
+        .items
+        .iter()
+        .map(|item_key| {
+            let item = recipe
+                .items
+                .iter()
+                .find(|row| row.key == *item_key)
+                .expect("recipe item");
+            match item.item {
+                LoopRecipeItemV1::Operation { operation } => operation,
+                _ => panic!("direct operation schedule contains control item"),
+            }
+        })
+        .collect()
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct OperationEmissionReceiptV1 {
+    emitted: Box<[LoopOperationV1]>,
+    values: Box<[(LoopValueKeyV1, ValueId)]>,
+}
+
 /// Candidate-only block creation owner used by this proof fixture.
 struct TestBlockOwnerV1;
 
@@ -121,6 +224,7 @@ struct CanonicalLoopSsaSessionV1 {
     phis: PhiTxn,
     projection: VerifiedLoopBindingProjectionV1,
     blocks: BTreeMap<PhysicalRoleV1, BasicBlockId>,
+    entry_values: BTreeMap<LoopValueKeyV1, ValueId>,
     reads: Vec<(LoopBindingKeyV1, PhysicalRoleV1, ValueId)>,
     defines: Vec<(LoopBindingKeyV1, PhysicalRoleV1, ValueId)>,
     sealed_predecessors: BTreeMap<PhysicalRoleV1, Box<[BasicBlockId]>>,
@@ -156,6 +260,7 @@ impl CanonicalLoopSsaSessionV1 {
             phis: PhiTxn::begin("loop_binding_ssa_session"),
             projection,
             blocks,
+            entry_values: BTreeMap::new(),
             reads: Vec::new(),
             defines: Vec::new(),
             sealed_predecessors: BTreeMap::new(),
@@ -163,6 +268,10 @@ impl CanonicalLoopSsaSessionV1 {
         let preheader = session.block(PhysicalRoleV1::Preheader);
         let initial_i = session.emit_const_i64(preheader, 0);
         let initial_sum = session.emit_const_i64(preheader, 0);
+        session.entry_values.insert(LoopValueKeyV1::new(0), initial_i);
+        session
+            .entry_values
+            .insert(LoopValueKeyV1::new(1), initial_sum);
         session.define_at(
             LoopBindingKeyV1::new(0),
             PhysicalRoleV1::Preheader,
@@ -237,6 +346,114 @@ impl CanonicalLoopSsaSessionV1 {
             .value_types
             .insert(dst, MirType::Integer);
         dst
+    }
+
+    fn emit_compare_less(
+        &mut self,
+        block: BasicBlockId,
+        left: ValueId,
+        right: ValueId,
+    ) -> ValueId {
+        self.builder
+            .start_new_block(block)
+            .expect("select compare block");
+        let dst = self.builder.alloc_value_for_test();
+        self.builder
+            .emit_for_test(MirInstruction::Compare {
+                dst,
+                op: CompareOp::Lt,
+                lhs: left,
+                rhs: right,
+            })
+            .expect("emit compare");
+        self.builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(dst, MirType::Bool);
+        dst
+    }
+
+    fn emit_header_carriers(
+        &mut self,
+        schedule: &VerifiedLoopOperationScheduleV1,
+        values: &mut BTreeMap<LoopValueKeyV1, ValueId>,
+    ) {
+        for binding in schedule.header_reads.iter().copied() {
+            let result = self.read_at(binding, PhysicalRoleV1::Header);
+            let entry = LoopValueKeyV1::new(binding.raw());
+            values.insert(entry, result);
+        }
+    }
+
+    fn emit_operations(
+        &mut self,
+        role: PhysicalRoleV1,
+        operations: &[LoopOperationV1],
+        values: &mut BTreeMap<LoopValueKeyV1, ValueId>,
+    ) -> Result<OperationEmissionReceiptV1, String> {
+        let mut emitted = Vec::with_capacity(operations.len());
+        for operation in operations.iter().copied() {
+            match operation {
+                LoopOperationV1::ReadBinding { binding, result } => {
+                    let value = self.read_at(binding, role);
+                    values.insert(result, value);
+                }
+                LoopOperationV1::ConstI64 { result, value } => {
+                    let value_id = self.emit_const_i64(self.block(role), value);
+                    values.insert(result, value_id);
+                }
+                LoopOperationV1::BinaryI64 {
+                    op,
+                    left,
+                    right,
+                    result,
+                } => {
+                    let left = *values
+                        .get(&left)
+                        .ok_or_else(|| format!("missing binary lhs {left:?}"))?;
+                    let right = *values
+                        .get(&right)
+                        .ok_or_else(|| format!("missing binary rhs {right:?}"))?;
+                    let value_id = match op {
+                        LoopBinaryI64OpV1::Add => self.emit_add(self.block(role), left, right),
+                        LoopBinaryI64OpV1::Sub => {
+                            return Err("DirectAccum schedule requires add".to_owned())
+                        }
+                    };
+                    values.insert(result, value_id);
+                }
+                LoopOperationV1::CompareI64 {
+                    op: LoopCompareI64OpV1::Less,
+                    left,
+                    right,
+                    result,
+                } => {
+                    let left = *values
+                        .get(&left)
+                        .ok_or_else(|| format!("missing compare lhs {left:?}"))?;
+                    let right = *values
+                        .get(&right)
+                        .ok_or_else(|| format!("missing compare rhs {right:?}"))?;
+                    let value_id = self.emit_compare_less(self.block(role), left, right);
+                    values.insert(result, value_id);
+                }
+                LoopOperationV1::CompareI64 { .. } => {
+                    return Err("DirectAccum schedule requires less".to_owned())
+                }
+                LoopOperationV1::WriteBinding { binding, value } => {
+                    let value_id = *values
+                        .get(&value)
+                        .ok_or_else(|| format!("missing write value {value:?}"))?;
+                    self.define_at(binding, role, value_id);
+                }
+            }
+            emitted.push(operation);
+        }
+        Ok(OperationEmissionReceiptV1 {
+            emitted: emitted.into_boxed_slice(),
+            values: values.iter().map(|(key, value)| (*key, *value)).collect(),
+        })
     }
 
     fn define_at(&mut self, key: LoopBindingKeyV1, role: PhysicalRoleV1, value: ValueId) {
@@ -456,4 +673,63 @@ fn canonical_session_has_no_unsealed_predecessor_vectors() {
         .map(|(role, _)| *role)
         .collect::<BTreeSet<_>>();
     assert_eq!(actual, expected);
+}
+
+#[test]
+fn operation_schedule_rejects_missing_carrier_header_read() {
+    let error = VerifiedLoopOperationScheduleV1::from_direct_fixture(vec![
+        LoopBindingKeyV1::new(0),
+    ])
+    .expect_err("missing carrier read must reject before emission");
+    assert_eq!(
+        error,
+        OperationScheduleErrorV1::CarrierReadMissing(LoopBindingKeyV1::new(1))
+    );
+}
+
+#[test]
+fn direct_operation_schedule_emits_through_one_binding_ssa_owner() {
+    let schedule = VerifiedLoopOperationScheduleV1::from_direct_fixture(vec![
+        LoopBindingKeyV1::new(0),
+        LoopBindingKeyV1::new(1),
+    ])
+    .expect("verified direct schedule");
+    let mut session = CanonicalLoopSsaSessionV1::new();
+    session.emit_jump(PhysicalRoleV1::Preheader, PhysicalRoleV1::Header);
+    session.seal(PhysicalRoleV1::Preheader);
+
+    let mut values = session.entry_values.clone();
+    session.emit_header_carriers(&schedule, &mut values);
+    let repeated_i = session.read_at(LoopBindingKeyV1::new(0), PhysicalRoleV1::Header);
+    assert_eq!(repeated_i, values[&LoopValueKeyV1::new(0)]);
+    let header_receipt = session
+        .emit_operations(PhysicalRoleV1::Header, &schedule.condition, &mut values)
+        .expect("condition operations");
+    let condition = values[&schedule.condition_result];
+    session.emit_branch(PhysicalRoleV1::Header, condition);
+
+    session.seal(PhysicalRoleV1::Body);
+    let body_receipt = session
+        .emit_operations(PhysicalRoleV1::Body, &schedule.body, &mut values)
+        .expect("body operations");
+    let visible_sum = session.read_at(LoopBindingKeyV1::new(1), PhysicalRoleV1::Body);
+    assert_eq!(visible_sum, values[&LoopValueKeyV1::new(7)]);
+    session.emit_jump(PhysicalRoleV1::Body, PhysicalRoleV1::Step);
+    session.seal(PhysicalRoleV1::Step);
+    session.emit_jump(PhysicalRoleV1::Step, PhysicalRoleV1::Header);
+    session.seal(PhysicalRoleV1::After);
+    session.emit_return(PhysicalRoleV1::After);
+    session.seal(PhysicalRoleV1::Header);
+
+    assert_eq!(header_receipt.emitted.len(), 3);
+    assert_eq!(body_receipt.emitted.len(), 8);
+    assert_eq!(body_receipt.values.len(), 11);
+    let receipt = session.finish();
+    assert_eq!(receipt.reads.len(), 7);
+    assert_eq!(receipt.defines.len(), 4);
+    assert_eq!(receipt.header_phi_inputs.len(), 2);
+    assert!(receipt
+        .header_phi_inputs
+        .iter()
+        .all(|inputs| inputs.len() == 2));
 }

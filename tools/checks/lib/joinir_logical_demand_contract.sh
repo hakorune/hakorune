@@ -120,8 +120,9 @@ guard_joinir_logical_demand_contract() {
           -v semantic_tests="$loop_accum_semantic_tests" \
           -v physical_tests="$loop_accum_physical_tests" \
           -v physical_role_tests="$loop_accum_physical_role_tests" \
+          -v binding_ssa_tests="$loop_accum_binding_ssa_tests" \
           -v edge_path="$loop_physical_edge_path" \
-          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != edge_path'
+          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != edge_path'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -189,7 +190,8 @@ guard_joinir_logical_demand_contract() {
           -v semantic_tests="$loop_accum_semantic_tests" \
           -v physical_tests="$loop_accum_physical_tests" \
           -v physical_role_tests="$loop_accum_physical_role_tests" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests'
+          -v binding_ssa_tests="$loop_accum_binding_ssa_tests" \
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"

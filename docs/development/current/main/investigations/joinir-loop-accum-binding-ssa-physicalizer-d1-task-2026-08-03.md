@@ -112,6 +112,29 @@ This closes only the CFG/Binding-SSA session slice. It does not yet claim
 Recipe-driven operation emission, full DirectAccum MIR parity, late-failure
 candidate abort for the operation path, or production wiring.
 
+## S1 caller-zero progress
+
+The first operation-emission slice is now green in the same test-only session.
+`VerifiedLoopOperationScheduleV1` is projected from the verified direct
+Recipe/JoinSig and keeps logical operation/value keys separate from physical
+IDs. It rejects a missing carrier header read before MIR emission, emits the
+condition/body `ConstI64`, `CompareI64`, `BinaryI64`, `ReadBinding`, and
+`WriteBinding` operations through the existing CFG/Binding-SSA/PhiTxn owners,
+and proves repeated-read aliasing plus write-then-read visibility.
+
+Evidence:
+
+```text
+binding-ssa session tests: 5/5
+loop_phi_materializer suite: 24/24
+cargo check: green
+mirbuilder guard: green
+```
+
+This is still a caller-zero operation proof. Operation-level failure injection,
+full legacy MIR parity, final-result receipt parity, candidate abort/reuse, and
+production wiring remain open S1 gates.
+
 ## Next S1 boundary: operation emission, not another PHI/SSA owner
 
 The next slice consumes a builder-free `VerifiedLoopOperationScheduleV1`
