@@ -107,6 +107,7 @@ pub mod hako_alloc_huge_page_packed_store_pilot; // MIR-owned C211 huge-page met
 pub mod hotcore_method_summary; // MIR-owned summaries for selected direct-exact hot-core callees
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub(crate) mod inline_leaf; // shared narrow leaf inline shape contract for optimizer/verifier
+pub(crate) mod if_recipe_contract; // Builder-free fixed-shell If recipe wire
 pub mod inline_plan; // MIR-owned InlinePlan metadata derived from rune hints
 pub mod instruction;
 pub mod instruction_introspection; // Introspection helpers for tests (instruction names)
