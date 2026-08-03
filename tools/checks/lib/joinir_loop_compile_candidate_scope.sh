@@ -26,6 +26,9 @@ guard_joinir_loop_compile_candidate_scope() {
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
   local nested_source_projection="$root_dir/src/mir/compiler/nested_predicate_projection.rs"
   local nested_recipe_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs"
+  local nested_source_handoff="$root_dir/src/mir/compiler/nested_predicate_source_handoff.rs"
+  local nested_topology="$root_dir/src/mir/compiler/nested_predicate_topology.rs"
+  local nested_topology_tests="$root_dir/src/mir/compiler/nested_predicate_topology_tests.rs"
   local producer_facade="$root_dir/src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs"
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
@@ -33,7 +36,9 @@ guard_joinir_loop_compile_candidate_scope() {
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
-    "$source_adapter" "$nested_source_projection" "$nested_recipe_producer" "$producer_facade"
+    "$source_adapter" "$nested_source_projection" "$nested_recipe_producer" \
+    "$nested_source_handoff" "$nested_topology" "$nested_topology_tests" \
+    "$producer_facade"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
   [[ "$(head -n1 "$manifest")" == "$header" ]] || \
@@ -189,6 +194,33 @@ guard_joinir_loop_compile_candidate_scope() {
     rg -n -F "$required" "$nested_recipe_producer" >/dev/null || \
       guard_fail "$tag" "Nested Predicate Recipe producer anchor missing: $required"
   done
+  for required in \
+    'VerifiedNestedPhysicalSourceHandoffV1' \
+    'VerifiedNestedPhysicalTopologyV1' \
+    'issue_nested_predicate_physical_topology_v1' \
+    'NestedParentResumePortV1' \
+    'NestedLogicalExpansionV1' \
+    'VerifiedNestedTopologyPredecessorSealV1' \
+    'NestedCarrierDestinationV1' \
+    'into_topology_input'
+  do
+    rg -n -F "$required" "$nested_source_handoff" "$nested_topology" "$nested_recipe_producer" >/dev/null || \
+      guard_fail "$tag" "Nested Predicate topology handoff/topology anchor missing: $required"
+  done
+  for forbidden in \
+    'ASTNode' 'MirBuilder' 'ValueId' 'BasicBlockId' 'PhiTxn' \
+    'BindingSsaBuilderV1' 'CanonicalSsaFunctionSessionV2' 'Retry' 'route_loop('
+  do
+    if rg -n -F "$forbidden" "$nested_source_handoff" "$nested_topology" >/dev/null; then
+      guard_fail "$tag" "Nested Predicate topology crossed physical/route authority: $forbidden"
+    fi
+  done
+  local nested_topology_refs
+  nested_topology_refs="$(rg -n -F 'issue_nested_predicate_physical_topology_v1(' "$root_dir/src" --glob '*.rs' || true)"
+  if [[ "$(printf '%s\n' "$nested_topology_refs" \
+      | awk -F: '$1 !~ /compiler\/nested_predicate_topology\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
+    guard_fail "$tag" "Nested Predicate topology issuer escaped caller-zero boundary"
+  fi
   for forbidden in \
     'ASTNode' 'FunctionSourceViewV1' 'Located' 'MirBuilder' 'ValueId' \
     'BasicBlockId' 'CanonicalCfgSessionV1' 'BindingSsaBuilderV1' 'PhiTxn' \
@@ -201,7 +233,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_producer_refs
   nested_producer_refs="$(rg -n -F 'produce_nested_predicate_recipe_v1(' "$root_dir/src" --glob '*.rs' || true)"
   if [[ "$(printf '%s\n' "$nested_producer_refs" \
-      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
+      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
     guard_fail "$tag" "Nested Predicate Recipe producer escaped caller-zero boundary"
   fi
   for forbidden in 'ASTNode' 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry'

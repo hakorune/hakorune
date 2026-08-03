@@ -1,7 +1,7 @@
 # JOINIR-LOOP-NESTED-PREDICATE-D4-PHYSICAL-TOPOLOGY
 
-Status: design closed for the source-handoff split; caller-zero topology issuer
-is authorized after the handoff slice lands.
+Status: source-handoff split and caller-zero symbolic topology issuer landed;
+physical emission remains a separate design stop.
 Date: 2026-08-04
 
 ## Decision
@@ -69,9 +69,9 @@ identity, not labels or ordinal guesses. It must seal:
 - owner/frame equality with the source projection and the canonical function
   session that will eventually consume it.
 
-The topology issuer may observe the already sealed source projection and
-existing canonical role vocabulary, but it must not reread AST or legacy
-facts, synthesize root input constants, or map by source name.
+The topology issuer consumes the already split source handoff and existing
+canonical role vocabulary, but it must not reread AST or legacy facts,
+synthesize root input constants, or map by source name.
 
 The issuer's physical-independent topology vocabulary is also explicit:
 
@@ -108,12 +108,33 @@ proofs; D4 itself never borrows that session.
   local materializers;
 - no Recipe schema or whole-MIR/block-argument redesign.
 
+## Landed caller-zero slice
+
+The caller-zero issuer is now present in
+`src/mir/compiler/nested_predicate_topology.rs` and is covered by four focused
+tests in `nested_predicate_topology_tests.rs`. The product is non-`Clone`,
+contains symbolic ports/edges/expansions/seals/carrier destinations, and has
+zero production consumers. It does not allocate physical IDs, borrow a
+canonical session, or write PHI/SSA state. The issuer consumes the one-time
+`VerifiedNestedPhysicalSourceHandoffV1` through `into_topology_input()`.
+
+The focused structural slice proves the ten ports, eleven edges, explicit
+child-preheader alias, child-after parent resume, expanded root backedge,
+carrier visibility (`i`/`sum` parent-visible and `j` child-local), source-role
+bindings, and non-empty predecessor seals. Owner/frame comparison with
+`CanonicalSsaFunctionSessionV2`, exact missing-predecessor rejection, and
+physical predecessor/PHI emission remain the next adapter's responsibility;
+D4 does not claim those proofs early.
+
 ## Acceptance gates for the design stop
 
 1. A single topology table maps every source/JoinSig role to one physical port,
    edge role, predecessor witness, and carrier destination.
-2. Positive and negative fixtures cover child normal resume, missing
-   predecessor, owner/frame mismatch, and illegal parent-tail use of `j`.
+2. Focused fixtures cover child normal resume, the expanded root backedge,
+   symbolic predecessor non-emptiness, and illegal parent-tail use of `j`.
+   Missing-predecessor rejection and owner/frame mismatch are deferred to the
+   canonical-session adapter because D4 intentionally has no physical-session
+   authority.
 3. The topology product has zero production consumers and no physical IDs;
    it is only a sealed input for the later canonical-session adapter.
 4. Existing D2-B/D2-C/D2-D, DirectAccum pilot, PHI lifecycle, and scope gates

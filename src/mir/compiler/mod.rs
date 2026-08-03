@@ -51,8 +51,12 @@ pub(in crate::mir) mod nested_predicate_projection;
 pub(in crate::mir) mod nested_predicate_producer;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_source_handoff;
+#[allow(dead_code)]
+pub(in crate::mir) mod nested_predicate_topology;
 #[cfg(test)]
 mod nested_predicate_producer_tests;
+#[cfg(test)]
+mod nested_predicate_topology_tests;
 #[cfg(test)]
 mod nested_predicate_projection_tests;
 mod normal_default_pipeline;

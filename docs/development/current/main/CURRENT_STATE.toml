@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. Nested D0/D1 source ownership, the synthetic nested-Always witness, D2-B JoinSig closure, D2-C/D2-C1a source projection, D2-D Recipe producer/parity, and the existing DirectAccum canonical physical pilot are landed and pushed. The next stop is a caller-zero Nested Predicate physical-topology issuer; no Nested physical emission is authorized yet."
+status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. Nested D0/D1 source ownership, the synthetic nested-Always witness, D2-B JoinSig closure, D2-C/D2-C1a source projection, D2-D Recipe producer/parity, and the D4 caller-zero symbolic physical-topology issuer are landed and pushed. The next stop is the canonical-session physical-emission design; no Nested production emission is authorized yet."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, M7-S0 synthetic nested-Always caller-zero evidence, D2-B bounded nested-Predicate JoinSig closure, D2-C/D2-C1a source closure, D2-D caller-zero Recipe producer/parity, and the existing DirectAccum canonical physical pilot are landed. D4 source-handoff design is closed: D2-D must split one non-Clone VerifiedNestedPhysicalSourceHandoffV1 from the consumed projection, then a caller-zero issuer may seal source-bound Nested Predicate physical topology (root/child ports, child After -> parent resume, Standard5 edges, predecessor seals, and carrier destinations). Do not infer PHI/CFG topology from JoinSig or consume a second source projection. Generic M4 remains unresolved and full Loop route wiring is forbidden."
-current_execution_row = "JOINIR-LOOP-NESTED-PREDICATE-D4-SOURCE-HANDOFF-ISSUER"
-current_execution_summary = "DirectAccum remains the only canonical production family. D3 closeout is evidenced by the existing CanonicalDirectAccumSsaLowererV1 -> CanonicalSsaFunctionSessionV2 -> physicalize_direct_accum_v1_with_port path and green hardening/physicalizer/phi_lifecycle gates. D4 design is closed and implementation starts with a single consuming D2-D source handoff; the caller-zero topology issuer follows. No second projection, physical IDs, PHI/SSA writer, route, or Builder consumer is allowed."
+current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, M7-S0 synthetic nested-Always caller-zero evidence, D2-B bounded nested-Predicate JoinSig closure, D2-C/D2-C1a source closure, D2-D caller-zero Recipe producer/parity, the D4 source handoff, and the caller-zero symbolic Nested Predicate topology issuer are landed. The next design stop is the canonical-session physical-emission adapter: it must compare owner/frame, validate predecessor seals, and consume the existing CanonicalSsaFunctionSessionV2 -> CanonicalCfgSessionV1 + BindingSsaBuilderV1 + PhiTxn chain. D4 topology does not write PHI/SSA and must not be treated as production authority. Generic M4 remains unresolved and full Loop route wiring is forbidden."
+current_execution_row = "JOINIR-LOOP-NESTED-PREDICATE-D4-PHYSICAL-EMISSION-DESIGN"
+current_execution_summary = "DirectAccum remains the only canonical production family and the only currently wired canonical PHI/SSA physicalizer. D3 closeout is evidenced by the existing CanonicalDirectAccumSsaLowererV1 -> CanonicalSsaFunctionSessionV2 -> physicalize_direct_accum_v1_with_port path and green hardening/physicalizer/phi_lifecycle gates. D4 now has a caller-zero symbolic topology issuer with no physical IDs, PHI/SSA writer, route, or Builder consumer. The next slice is design-only for the canonical-session adapter; Nested production emission is still forbidden."
 current_execution_design = "docs/development/current/main/investigations/joinir-loop-nested-predicate-d4-physical-topology-2026-08-04.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "joinir-loop-nested-predicate-d4-physical-topology-2026-08-04"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-predicate-d4-physical-topology-2026-08-04.md"
-latest_card_summary = """D3 is closed by the existing DirectAccum canonical pilot: CanonicalDirectAccumSsaLowererV1 owns one CanonicalSsaFunctionSessionV2 and borrows CanonicalCfgSessionV1/BindingSsaBuilderV1/PhiTxn into the accepted physicalizer; hardening, physicalizer, phi_lifecycle, guard, and cargo check gates are green. D4 now freezes the required Nested Predicate physical topology before any emission."""
+latest_card_summary = """D3 is closed by the existing DirectAccum canonical pilot: CanonicalDirectAccumSsaLowererV1 owns one CanonicalSsaFunctionSessionV2 and borrows CanonicalCfgSessionV1/BindingSsaBuilderV1/PhiTxn into the accepted physicalizer; hardening, physicalizer, phi_lifecycle, guard, and cargo check gates are green. D4 source handoff and caller-zero symbolic topology are now landed: ten ports, eleven edges, child resume, expanded root backedge, carrier visibility, source roles, and predecessor seals are fixed without PHI/SSA or production wiring. The next stop is the canonical-session physical-emission design."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-NESTED-PREDICATE-D4-PHYSICAL-TOPOLOGY"
+current_blocker_token = "JOINIR-LOOP-NESTED-PREDICATE-D4-PHYSICAL-EMISSION-DESIGN"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

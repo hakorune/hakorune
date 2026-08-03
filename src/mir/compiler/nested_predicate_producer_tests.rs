@@ -43,7 +43,7 @@ fn increment(name: &str) -> ASTNode {
     }
 }
 
-fn nested_function() -> ASTNode {
+pub(crate) fn nested_function() -> ASTNode {
     let child = ASTNode::Loop {
         condition: Box::new(ASTNode::BinaryOp {
             operator: BinaryOperator::Less,
@@ -96,7 +96,7 @@ fn nested_function() -> ASTNode {
     }
 }
 
-fn projection_for(
+pub(crate) fn projection_for(
     tree: ASTNode,
 ) -> super::nested_predicate_projection::VerifiedNestedLoopSourceProjectionV1 {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
