@@ -306,6 +306,27 @@ fn nested_loop_source_forest_keeps_siblings_under_root_and_deep_parent_links() {
 }
 
 #[test]
+fn nested_loop_source_forest_keeps_parent_through_lexical_scope() {
+    let product = resolve(&function(vec![loop_stmt(vec![ASTNode::ScopeBox {
+        body: vec![loop_stmt(Vec::new())],
+        span: Span::unknown(),
+    }])]));
+    let root = stmt(vec![SourcePathSegmentV1::Body(0)]);
+    let child = stmt(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::LoopBody(0),
+        SourcePathSegmentV1::ScopeBody(0),
+    ]);
+
+    let forest = product
+        .resolved_loop_source_forest(&root)
+        .expect("scope-wrapped nested loop remains source-owned");
+    assert_eq!(forest.members().len(), 2);
+    assert_eq!(forest.members()[1].source().site(), &child);
+    assert_eq!(forest.members()[1].parent_index(), Some(0));
+}
+
+#[test]
 fn query_reports_a_typed_missing_exact_bundle() {
     let product = resolve(&function(vec![loop_stmt(Vec::new())]));
     let missing = stmt(vec![SourcePathSegmentV1::Body(9)]);
