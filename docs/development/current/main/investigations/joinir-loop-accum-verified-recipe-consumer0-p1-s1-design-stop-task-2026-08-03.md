@@ -73,6 +73,28 @@ mutation. If the existing transaction API cannot express this ordering
 without widening its authority, stop and reopen the design instead of adding
 an adapter around raw MIR instructions.
 
+## API census result (design evidence)
+
+The current implementation does not yet expose a Loop-consumable borrowed
+receipt:
+
+- `BindingSsaBuilderV1::read` already returns a `ValueId`, but it requires a
+  mutable borrow of the function-owned SSA builder plus a mechanical
+  `MirBindingSsaAdapterV1`; it does not return a durable receipt or expose a
+  name-keyed lookup.
+- Existing production call sites are confined to the admitted trivial-SSA
+  lowering path. There is no production Loop caller that can lend this owner
+  to the recipe physicalizer.
+- `LoopPhiMaterializerV1` remains caller-zero and test-only. Its explicit
+  carrier map is a mechanical M6-B observer, not a replacement for the
+  function-owned Binding SSA semantic owner.
+
+Therefore the next implementation card must first provide a borrowed-owner
+seam from the canonical function session (or prove that the existing owner
+can be passed directly). If that seam cannot be added without a second map,
+builder, or PHI writer, the correct result is a new design stop—not a local
+Loop workaround.
+
 ## Required products (next implementation card)
 
 1. `VerifiedLoopOperationScheduleV1`: Builder-free ordered operation keys with

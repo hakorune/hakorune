@@ -52,8 +52,10 @@ pointer guard, and the in-place replacement guard are green.
    SSA fact, or publication.
 3. `LoopPhiMaterializationHandleV1`: a bounded extension of the existing
    `LoopPhiMaterializerV1` that owns the same `PhiTxn` across begin/finalize.
-   The handle is the only Loop-level PHI caller; `phi_lifecycle` remains the
-   sole low-level writer.
+   Within this caller-zero M6-B test seam, the handle is the only Loop-level
+   PHI caller; `phi_lifecycle` remains the sole low-level writer. This is not
+   a final semantic PHI authority: production Loop lowering must consume the
+   function-owned Binding SSA owner before any cutover claim.
 
 This does not establish a new PHI/SSA SSOT. The repository SSOTs remain
 `../design/phi-lifecycle-ssot.md` and

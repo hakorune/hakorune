@@ -107,11 +107,14 @@ VerifiedRecipe / JoinSig / sealed paths
   -> CFG/SSA/type/result verification
 ```
 
-The M6-B PHI adapter remains the only Loop-level PHI entry. Its next bounded
-extension is a begin/finalize handle around the same `PhiTxn`; the physicalizer
-does not call `phi_lifecycle` directly. The operation-result map is a short-lived
-projection distinct from the M6-B edge payload/destination map and never becomes
-a second Binding SSA owner.
+The M6-B PHI adapter remains the only Loop-level PHI entry inside the
+caller-zero test seam. Its next bounded extension is a begin/finalize handle
+around the same `PhiTxn`; the physicalizer does not call `phi_lifecycle`
+directly. This adapter is a mechanical migration observer, not the final
+semantic PHI authority: production Loop lowering must consume the
+function-owned Binding SSA owner before any cutover claim. The operation-result
+map is a short-lived projection distinct from the M6-B edge payload/destination
+map and never becomes a second Binding SSA owner.
 
 The first implementation task is
 `joinir-loop-accum-verified-recipe-consumer0-p1-s0-task-2026-08-03.md`.
