@@ -4,6 +4,7 @@
 
 mod resolved_source_adapter;
 mod selected_demand;
+mod types;
 
 #[allow(unused_imports)]
 pub(crate) use resolved_source_adapter::{
@@ -12,12 +13,17 @@ pub(crate) use resolved_source_adapter::{
 
 #[allow(unused_imports)]
 pub(crate) use selected_demand::{
-    issue_selected_loop_recipe_demand_v1, SelectedLoopDemandRejectV1,
-    VerifiedLoopStructuralFactsV1, VerifiedSelectedLoopRecipeDemandV1,
+    issue_direct_accum_structural_facts_v1, issue_selected_loop_recipe_demand_v1,
+    SelectedLoopDemandRejectV1, VerifiedLoopStructuralFactsV1, VerifiedSelectedLoopRecipeDemandV1,
+};
+pub(crate) use types::{
+    DirectAccumObservedShapeV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,
 };
 
 #[cfg(test)]
-pub(crate) use selected_demand::verified_loop_structural_facts_for_test;
+pub(crate) use selected_demand::{
+    verified_loop_structural_facts_for_test, verified_loop_structural_facts_for_test_with_frame,
+};
 
 #[cfg(test)]
 mod tests;

@@ -12,7 +12,9 @@ use super::product::{
     ResolvedFunctionDataV1, ResolvedScopeRegionPairV1, VerifiedResolvedFunctionV1,
 };
 use super::records::{RegionKindV1, RegionOriginV1, ScopeKindV1, ScopeOriginV1};
-use super::source_site::{FunctionOriginV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
+use super::source_site::{
+    FunctionOriginV1, SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
+};
 use super::verifier::exact_source_region_v1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -43,6 +45,49 @@ pub(crate) struct VerifiedResolvedLoopSourceV1 {
     site: SourceStmtSiteV1,
 }
 
+/// Opaque execution-frame identity shared by one selected Loop handoff.
+///
+/// This is stronger than a route cursor and separate from MIR identity.  Only
+/// the sealed resolved-source lookup can issue it; consumers may compare it,
+/// but cannot construct a key from a route id or raw source index.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct LoopExecutionFrameKeyV1 {
+    function_origin: FunctionOriginV1,
+    owner_source_kind: SemanticOwnerSourceKindV1,
+    site: SourceStmtSiteV1,
+    _seal: LoopExecutionFrameKeySealV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct LoopExecutionFrameKeySealV1;
+
+impl LoopExecutionFrameKeyV1 {
+    fn from_source(source: &VerifiedResolvedLoopSourceV1) -> Self {
+        Self {
+            function_origin: source.function_origin,
+            owner_source_kind: source.owner_source_kind,
+            site: source.site.clone(),
+            _seal: LoopExecutionFrameKeySealV1,
+        }
+    }
+
+    pub(crate) fn matches(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
+#[cfg(test)]
+pub(crate) fn loop_execution_frame_key_for_test() -> LoopExecutionFrameKeyV1 {
+    LoopExecutionFrameKeyV1 {
+        function_origin: FunctionOriginV1::new(0, 0),
+        owner_source_kind: SemanticOwnerSourceKindV1::DeclaredFunction,
+        site: SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+        ])),
+        _seal: LoopExecutionFrameKeySealV1,
+    }
+}
+
 impl VerifiedResolvedLoopSourceV1 {
     /// Checks an independently-owned identity witness without exposing the
     /// source capability's fields or consuming its ownership.
@@ -65,6 +110,10 @@ impl VerifiedResolvedLoopSourceV1 {
         SourceStmtSiteV1,
     ) {
         (self.function_origin, self.owner_source_kind, self.site)
+    }
+
+    pub(crate) fn frame_key(&self) -> LoopExecutionFrameKeyV1 {
+        LoopExecutionFrameKeyV1::from_source(self)
     }
 }
 

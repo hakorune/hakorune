@@ -12,13 +12,13 @@ mod schema;
 
 #[allow(unused_imports)]
 pub(crate) use evaluate::freeze_loop_route_schedule_v1;
-#[cfg(test)]
-pub(crate) use policy::issue_policy_winner_for_test;
 #[allow(unused_imports)]
 pub(crate) use policy::{
     evaluate_frozen_loop_route_schedule_v1, LoopPolicyBlockedReasonV1, LoopQualifiedV1,
     LoopRoutePolicyEvaluationV1, VerifiedLoopPolicyWinnerV1,
 };
+#[cfg(test)]
+pub(crate) use policy::{issue_policy_winner_for_test, issue_policy_winner_for_test_with_frame};
 #[allow(unused_imports)]
 pub(crate) use policy_evidence::{
     LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,

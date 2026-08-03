@@ -11,6 +11,7 @@ use super::policy_evidence::{
 use super::schema::{
     FrozenLoopRouteScheduleV1, LoopRouteSourceDispositionV1, LoopRouteSuppressionDispositionV1,
 };
+use crate::mir::resolved_semantics::LoopExecutionFrameKeyV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct LoopQualifiedV1 {
@@ -21,6 +22,7 @@ pub(crate) struct LoopQualifiedV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopPolicyWinnerV1 {
     raw_cursor: usize,
+    frame_key: LoopExecutionFrameKeyV1,
     seal: LoopQualifiedSealV1,
 }
 
@@ -33,6 +35,10 @@ impl LoopQualifiedV1 {
 impl VerifiedLoopPolicyWinnerV1 {
     pub(crate) fn into_raw_cursor(self) -> usize {
         self.raw_cursor
+    }
+
+    pub(crate) fn frame_key(&self) -> &LoopExecutionFrameKeyV1 {
+        &self.frame_key
     }
 }
 
@@ -54,6 +60,7 @@ pub(crate) enum LoopRoutePolicyEvaluationV1 {
 
 pub(crate) fn evaluate_frozen_loop_route_schedule_v1(
     schedule: &FrozenLoopRouteScheduleV1,
+    frame_key: &LoopExecutionFrameKeyV1,
 ) -> LoopRoutePolicyEvaluationV1 {
     for row in schedule.rows() {
         let raw_cursor = row.raw_cursor();
@@ -73,6 +80,7 @@ pub(crate) fn evaluate_frozen_loop_route_schedule_v1(
                     facts,
                     winner: VerifiedLoopPolicyWinnerV1 {
                         raw_cursor,
+                        frame_key: frame_key.clone(),
                         seal: LoopQualifiedSealV1,
                     },
                 });
@@ -94,6 +102,15 @@ pub(crate) fn evaluate_frozen_loop_route_schedule_v1(
 
 #[cfg(test)]
 pub(crate) fn issue_policy_winner_for_test(candidate_cursor: usize) -> VerifiedLoopPolicyWinnerV1 {
+    let frame_key = crate::mir::resolved_semantics::loop_execution_frame_key_for_test();
+    issue_policy_winner_for_test_with_frame(candidate_cursor, &frame_key)
+}
+
+#[cfg(test)]
+pub(crate) fn issue_policy_winner_for_test_with_frame(
+    candidate_cursor: usize,
+    frame_key: &LoopExecutionFrameKeyV1,
+) -> VerifiedLoopPolicyWinnerV1 {
     let observations = super::schema::CANONICAL_LOOP_ROUTE_ORDER_V1
         .iter()
         .enumerate()
@@ -122,7 +139,7 @@ pub(crate) fn issue_policy_winner_for_test(candidate_cursor: usize) -> VerifiedL
     )
     .expect("policy winner test fixture seals");
     let LoopRoutePolicyEvaluationV1::Qualified(qualified) =
-        evaluate_frozen_loop_route_schedule_v1(&schedule)
+        evaluate_frozen_loop_route_schedule_v1(&schedule, frame_key)
     else {
         panic!("policy winner test fixture must qualify");
     };
@@ -193,7 +210,10 @@ mod tests {
             ),
         );
         assert_eq!(
-            evaluate_frozen_loop_route_schedule_v1(&schedule),
+            evaluate_frozen_loop_route_schedule_v1(
+                &schedule,
+                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
+            ),
             LoopRoutePolicyEvaluationV1::Exhausted
         );
     }
@@ -205,7 +225,10 @@ mod tests {
             LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable),
         );
         let LoopRoutePolicyEvaluationV1::Qualified(qualified) =
-            evaluate_frozen_loop_route_schedule_v1(&schedule)
+            evaluate_frozen_loop_route_schedule_v1(
+                &schedule,
+                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
+            )
         else {
             panic!("declined rows must stop at the first candidate");
         };
@@ -223,7 +246,10 @@ mod tests {
             ),
         );
         assert!(matches!(
-            evaluate_frozen_loop_route_schedule_v1(&blocked),
+            evaluate_frozen_loop_route_schedule_v1(
+                &blocked,
+                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
+            ),
             LoopRoutePolicyEvaluationV1::Blocked(_)
         ));
 
@@ -234,7 +260,10 @@ mod tests {
             ),
         );
         assert_eq!(
-            evaluate_frozen_loop_route_schedule_v1(&exhausted),
+            evaluate_frozen_loop_route_schedule_v1(
+                &exhausted,
+                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
+            ),
             LoopRoutePolicyEvaluationV1::Exhausted
         );
     }
@@ -248,7 +277,10 @@ mod tests {
             ),
         );
         assert!(matches!(
-            evaluate_frozen_loop_route_schedule_v1(&schedule),
+            evaluate_frozen_loop_route_schedule_v1(
+                &schedule,
+                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
+            ),
             LoopRoutePolicyEvaluationV1::Blocked(LoopPolicyBlockedReasonV1::Policy(
                 LoopRoutePolicyBlockReasonV1::PolicyAndTerminalityUnavailable
             ))
@@ -262,7 +294,10 @@ mod tests {
             LoopRoutePolicyEvidenceV1::GenericDebt(LoopGenericDebtKeyV1::GenericPostEffectDebt),
         );
         assert!(matches!(
-            evaluate_frozen_loop_route_schedule_v1(&schedule),
+            evaluate_frozen_loop_route_schedule_v1(
+                &schedule,
+                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
+            ),
             LoopRoutePolicyEvaluationV1::Blocked(LoopPolicyBlockedReasonV1::GenericDebt(
                 LoopGenericDebtKeyV1::GenericPostEffectDebt
             ))

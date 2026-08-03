@@ -82,9 +82,12 @@ pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub use if_region::ResolvedIfRegionVerificationErrorV1;
 pub(crate) use if_region::{ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1};
+#[cfg(test)]
+pub(crate) use loop_region::loop_execution_frame_key_for_test;
 pub use loop_region::ResolvedLoopRegionVerificationErrorV1;
 pub(crate) use loop_region::{
-    ResolvedLoopRegionBundleV1, ResolvedLoopRegionLookupErrorV1, VerifiedResolvedLoopSourceV1,
+    LoopExecutionFrameKeyV1, ResolvedLoopRegionBundleV1, ResolvedLoopRegionLookupErrorV1,
+    VerifiedResolvedLoopSourceV1,
 };
 pub use normalized::{
     NormalizedAssignmentTargetV1, NormalizedAssignmentV1, NormalizedBindingKeyV1,

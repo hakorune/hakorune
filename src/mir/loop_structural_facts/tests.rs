@@ -7,7 +7,7 @@ use crate::mir::loop_recipe_contract::{
     LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1, LoopRecipeV1,
     LoopRecipeVerifierV1, LoopSourcePathStepV1, LoopSourcePathV1, VerifiedLoopRecipeV1,
 };
-use crate::mir::loop_route_policy::issue_policy_winner_for_test;
+use crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SemanticOwnerSourceKindV1,
     SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
@@ -15,7 +15,7 @@ use crate::mir::resolved_semantics::{
 
 use super::{
     bind_resolved_loop_root_v1, issue_selected_loop_recipe_demand_v1,
-    verified_loop_structural_facts_for_test, LoopRootSourceBindingRejectV1,
+    verified_loop_structural_facts_for_test_with_frame, LoopRootSourceBindingRejectV1,
     SelectedLoopDemandRejectV1,
 };
 
@@ -108,15 +108,20 @@ fn selected_demand_consumes_matching_policy_facts_and_source_once() {
     let product = resolve_function(&tree);
     let site = stmt(vec![SourcePathSegmentV1::Body(0)]);
     let source = product.resolved_loop_source(&site).unwrap();
-    let facts = verified_loop_structural_facts_for_test(
+    let frame_key = source.frame_key();
+    let facts = verified_loop_structural_facts_for_test_with_frame(
         crate::mir::resolved_semantics::FunctionOriginV1::new(0, 0),
         SemanticOwnerSourceKindV1::DeclaredFunction,
         site.clone(),
+        frame_key.clone(),
     );
 
-    let demand =
-        issue_selected_loop_recipe_demand_v1(issue_policy_winner_for_test(4), facts, source)
-            .expect("matching selected demand must seal");
+    let demand = issue_selected_loop_recipe_demand_v1(
+        issue_policy_winner_for_test_with_frame(4, &frame_key),
+        facts,
+        source,
+    )
+    .expect("matching selected demand must seal");
     let (winner, _facts, source) = demand.into_parts();
     assert_eq!(winner.into_raw_cursor(), 4);
     let (origin, owner, resolved_site) = source.into_parts();
@@ -133,15 +138,45 @@ fn selected_demand_rejects_facts_source_identity_mismatch() {
     let source_site = stmt(vec![SourcePathSegmentV1::Body(0)]);
     let facts_site = stmt(vec![SourcePathSegmentV1::Body(1)]);
     let source = product.resolved_loop_source(&source_site).unwrap();
-    let facts = verified_loop_structural_facts_for_test(
+    let frame_key = source.frame_key();
+    let facts = verified_loop_structural_facts_for_test_with_frame(
         crate::mir::resolved_semantics::FunctionOriginV1::new(0, 0),
         SemanticOwnerSourceKindV1::DeclaredFunction,
         facts_site,
+        frame_key.clone(),
     );
 
     assert_eq!(
-        issue_selected_loop_recipe_demand_v1(issue_policy_winner_for_test(4), facts, source),
+        issue_selected_loop_recipe_demand_v1(
+            issue_policy_winner_for_test_with_frame(4, &frame_key),
+            facts,
+            source,
+        ),
         Err(SelectedLoopDemandRejectV1::FactsSourceIdentityMismatch)
+    );
+}
+
+#[test]
+fn selected_demand_rejects_foreign_execution_frame() {
+    let tree = function(vec![loop_stmt(Vec::new()), loop_stmt(Vec::new())]);
+    let product = resolve_function(&tree);
+    let site = stmt(vec![SourcePathSegmentV1::Body(1)]);
+    let source = product.resolved_loop_source(&site).unwrap();
+    let foreign_frame = crate::mir::resolved_semantics::loop_execution_frame_key_for_test();
+    let facts = verified_loop_structural_facts_for_test_with_frame(
+        crate::mir::resolved_semantics::FunctionOriginV1::new(0, 0),
+        SemanticOwnerSourceKindV1::DeclaredFunction,
+        site,
+        foreign_frame.clone(),
+    );
+
+    assert_eq!(
+        issue_selected_loop_recipe_demand_v1(
+            issue_policy_winner_for_test_with_frame(4, &foreign_frame),
+            facts,
+            source,
+        ),
+        Err(SelectedLoopDemandRejectV1::ExecutionFrameMismatch)
     );
 }
 

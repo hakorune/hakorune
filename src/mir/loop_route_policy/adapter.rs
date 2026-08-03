@@ -83,9 +83,10 @@ mod parity_tests {
     #[test]
     fn legacy_decline_then_success_matches_pure_policy_winner() {
         let schedule = ordered_decline_then_success_schedule();
-        let LoopRoutePolicyEvaluationV1::Qualified(_) =
-            evaluate_frozen_loop_route_schedule_v1(&schedule)
-        else {
+        let LoopRoutePolicyEvaluationV1::Qualified(_) = evaluate_frozen_loop_route_schedule_v1(
+            &schedule,
+            &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
+        ) else {
             panic!("decline-then-success fixture must qualify");
         };
         let pure_cursor = 5;
@@ -143,7 +144,10 @@ mod parity_tests {
             .collect::<Vec<_>>();
 
         assert_eq!(
-            evaluate_frozen_loop_route_schedule_v1(&schedule),
+            evaluate_frozen_loop_route_schedule_v1(
+                &schedule,
+                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
+            ),
             LoopRoutePolicyEvaluationV1::Exhausted
         );
         assert_eq!(
@@ -187,7 +191,10 @@ mod parity_tests {
 
         assert_eq!(schedule.first().raw_cursor(), 0);
         assert_eq!(
-            evaluate_frozen_loop_route_schedule_v1(&schedule),
+            evaluate_frozen_loop_route_schedule_v1(
+                &schedule,
+                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
+            ),
             LoopRoutePolicyEvaluationV1::Blocked(super::super::LoopPolicyBlockedReasonV1::Policy(
                 LoopRoutePolicyBlockReasonV1::ReleaseNestedLoopGate,
             ))
