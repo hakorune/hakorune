@@ -262,10 +262,11 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::compiler::direct_accum_profile::admit_direct_accum_profile_v1;
+    use crate::mir::compiler::direct_accum_profile::{
+        admit_direct_accum_profile_from_handoff_v1, issue_direct_accum_policy_handoff_for_test,
+    };
     use crate::mir::compiler::direct_accum_projection::direct_accum_function_for_test;
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-    use crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame;
     use crate::mir::resolved_control_flow::verify_function_completion_v1;
 
     #[test]
@@ -280,9 +281,11 @@ mod tests {
             .function()
             .resolved_loop_source(loop_stmt.site())
             .expect("source");
-        let winner = issue_policy_winner_for_test_with_frame(10, &source.frame_key());
-        let profile =
-            admit_direct_accum_profile_v1(input, loop_stmt, winner, completion).expect("profile");
+        let handoff = issue_direct_accum_policy_handoff_for_test(input, &loop_stmt);
+        let profile = admit_direct_accum_profile_from_handoff_v1(
+            input, loop_stmt, handoff, completion,
+        )
+        .expect("profile");
         let (input, _loop_stmt, _recipe, plan, _completion) = profile.into_parts();
         let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
         let mut port = CanonicalDirectAccumBindingPort::new(
@@ -321,9 +324,11 @@ mod tests {
             .function()
             .resolved_loop_source(loop_stmt.site())
             .expect("source");
-        let winner = issue_policy_winner_for_test_with_frame(10, &source.frame_key());
-        let profile =
-            admit_direct_accum_profile_v1(input, loop_stmt, winner, completion).expect("profile");
+        let handoff = issue_direct_accum_policy_handoff_for_test(input, &loop_stmt);
+        let profile = admit_direct_accum_profile_from_handoff_v1(
+            input, loop_stmt, handoff, completion,
+        )
+        .expect("profile");
         let (input, _loop_stmt, _recipe, plan, _completion) = profile.into_parts();
         let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
         let mut port = CanonicalDirectAccumBindingPort::new(

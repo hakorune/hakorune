@@ -8,7 +8,8 @@ use crate::mir::loop_recipe_contract::{
     VerifiedDirectAccumRecipeProductV1,
 };
 use crate::mir::loop_route_policy::{
-    DirectAccumRouteAdmissionRejectV1, VerifiedLoopPolicyWinnerV1,
+    DirectAccumRouteAdmissionRejectV1, VerifiedDirectAccumPolicyHandoffV1,
+    VerifiedLoopPolicyWinnerV1,
 };
 use crate::mir::loop_structural_facts::{
     issue_selected_loop_recipe_demand_v1, DirectAccumBindingEffectEntryV1,
@@ -66,8 +67,52 @@ impl<'source> VerifiedDirectAccumProfileV1<'source> {
     }
 }
 
+/// Consume the sealed source/policy handoff without reselecting or
+/// reprojecting the loop. This is the only production-shaped profile ingress;
+/// the winner-based helper below remains test-only parity evidence.
+pub(crate) fn admit_direct_accum_profile_from_handoff_v1<'source>(
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    loop_stmt: LocatedStmtV1<'source>,
+    handoff: VerifiedDirectAccumPolicyHandoffV1,
+    completion: VerifiedFunctionCompletionV1,
+) -> Result<VerifiedDirectAccumProfileV1<'source>, DirectAccumProfileRejectV1> {
+    if completion.owner() != input.owner() || loop_stmt.owner() != input.owner() {
+        return Err(DirectAccumProfileRejectV1::CompletionOwnerMismatch);
+    }
+    let (admission, observation) = handoff.into_parts();
+    let (facts, source) = observation.into_parts();
+    if !source.matches_identity(
+        input.function().function_origin(),
+        input.function().source_kind(),
+        loop_stmt.site(),
+    ) {
+        return Err(DirectAccumProfileRejectV1::SourceLookup);
+    }
+    let shape = facts
+        .direct_accum_shape()
+        .ok_or(DirectAccumProfileRejectV1::MissingStructuralShape)?;
+    let effect_plan =
+        VerifiedDirectAccumBindingEffectPlanV1::issue(input.owner(), source.frame_key(), shape);
+    let demand = issue_selected_loop_recipe_demand_v1(
+        admission.into_policy_winner(),
+        facts,
+        source,
+    )
+    .map_err(DirectAccumProfileRejectV1::Demand)?;
+    let recipe =
+        produce_direct_accum_recipe_v1(demand).map_err(DirectAccumProfileRejectV1::Recipe)?;
+    Ok(VerifiedDirectAccumProfileV1 {
+        input,
+        loop_stmt,
+        recipe,
+        effect_plan,
+        completion,
+    })
+}
+
 /// Co-seals one already-qualified policy winner with the resolved source,
 /// DirectAccum facts, portable Recipe/JoinSig, effect plan, and completion.
+#[cfg(test)]
 pub(crate) fn admit_direct_accum_profile_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
@@ -106,6 +151,24 @@ pub(crate) fn admit_direct_accum_profile_v1<'source>(
 }
 
 #[cfg(test)]
+pub(crate) fn issue_direct_accum_policy_handoff_for_test(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    loop_stmt: &LocatedStmtV1<'_>,
+) -> VerifiedDirectAccumPolicyHandoffV1 {
+    let source = input
+        .function()
+        .resolved_loop_source(loop_stmt.site())
+        .expect("DirectAccum source");
+    let facts = issue_direct_accum_facts_from_source_v1(input, loop_stmt, &source)
+        .expect("DirectAccum facts");
+    let observation = facts
+        .into_direct_accum_singleton_observation_v1(source)
+        .expect("DirectAccum singleton observation");
+    crate::mir::loop_route_policy::issue_direct_accum_route_admission_v1(observation)
+        .expect("DirectAccum policy handoff")
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::mir::compiler::direct_accum_projection::direct_accum_function_for_test;
@@ -121,16 +184,11 @@ mod tests {
         let body = input.source().root_body().expect("root body");
         let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
         let completion = verify_function_completion_v1(input).expect("completion");
-        let source = input
-            .function()
-            .resolved_loop_source(loop_stmt.site())
-            .expect("loop source");
-        let winner = crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame(
-            10,
-            &source.frame_key(),
-        );
-        let profile = admit_direct_accum_profile_v1(input, loop_stmt, winner, completion)
-            .expect("DirectAccum profile");
+        let handoff = issue_direct_accum_policy_handoff_for_test(input, &loop_stmt);
+        let profile = admit_direct_accum_profile_from_handoff_v1(
+            input, loop_stmt, handoff, completion,
+        )
+        .expect("DirectAccum profile");
         let (_input, _loop, _recipe, effect_plan, _completion) = profile.into_parts();
         assert_eq!(effect_plan.entries().len(), 5);
         let roles = effect_plan

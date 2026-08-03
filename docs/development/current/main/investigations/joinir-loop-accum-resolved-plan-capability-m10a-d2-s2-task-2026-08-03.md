@@ -85,3 +85,15 @@ This task does not wire `route_loop`, classify Generic V0/V1, remove legacy
 Retry, alter the old scheduler, retire old Accum/PHI edges, or activate
 selfhost. Those require separate gates after this capability has a named
 resolved production caller.
+
+## Implementation progress
+
+The first S2 slice is caller-zero green. A new profile ingress consumes
+`VerifiedDirectAccumPolicyHandoffV1` exactly once and builds the existing
+Recipe/effect-plan product without reselecting a winner or reprojecting source
+facts. The old winner-based profile helper is test-only parity evidence. The
+focused DirectAccum/policy suites, binary check, diff check, and all touched
+source line-count checks are green.
+
+The remaining work is the actual resolved plan variant and canonical lowerer
+facade. No production compiler caller has been switched yet.
