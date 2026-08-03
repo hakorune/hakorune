@@ -303,7 +303,7 @@ and consumed the same physicalizer with an `InlineBool` local, explicit-else
 Bool writes, a Bool continuation read, and one two-predecessor PHI. The focused
 Bool receipt test, the existing If/candidate suites, policy proof tests,
 library check, reusable guards, and all touched-file line budgets are green in
-commit `da31f3bc34`. No lowerer, topology token, JoinSig variant, or PHI owner
+commit `f2975b6315`. No lowerer, topology token, JoinSig variant, or PHI owner
 was added.
 
 ## Next design stop — implicit-else If
