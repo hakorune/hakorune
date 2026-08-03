@@ -1,6 +1,6 @@
 # JOINIR-LOOP-RECIPE-D3-CANONICAL-PHYSICAL-PILOT
 
-Status: design stop opened after D2-D semantic parity closure.
+Status: closed by existing DirectAccum canonical implementation and gates.
 Date: 2026-08-03
 
 ## Decision
@@ -87,3 +87,20 @@ Tests may create local canonical owners and explicitly exercise finish/abort.
 After this pilot closes, open a separate design card for Nested Predicate
 physical topology. Do not use the pilot as evidence that all Loop families are
 physically cut over.
+
+## Closeout evidence
+
+The existing production path already satisfies this pilot boundary:
+
+```text
+resolved_lowering/mod.rs
+  -> CanonicalDirectAccumSsaLowererV1
+  -> CanonicalSsaFunctionSessionV2
+  -> physicalize_direct_accum_v1_with_port
+```
+
+The caller count is one for the accepted DirectAccum lane and zero for new
+Nested/Generic physical callers. The targeted hardening, physicalizer,
+`phi_lifecycle`, scope-guard, and `cargo check --lib` gates are green. This
+card therefore adds no duplicate physicalizer; the next design boundary is
+Nested Predicate topology.
