@@ -20,6 +20,7 @@ use super::capability::{
     CanonicalCurrentAPlusPlanV1, CanonicalFirstFamilyPlanV1, CanonicalTrivialBindingSsaPlanV1,
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
+use super::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use crate::mir::builder::resolved_lowering::{
@@ -93,6 +94,9 @@ impl std::error::Error for SourceBindingErrorV1 {}
 pub(in crate::mir) enum ExactCanonicalPreflightPlanV1<'a> {
     APlus(CanonicalCurrentAPlusPlanV1<'a>),
     BindingSsaTrivial(CanonicalTrivialBindingSsaPlanV1<'a>),
+    /// Body-specialized candidate; its external lifecycle reuses
+    /// `BindingSsaTrivial`.
+    DirectAccum(CanonicalDirectAccumPlanV1<'a>),
     BindingSsaAcyclic(VerifiedAcyclicCallableModulePlanV1<'a>),
     BindingSsaRecursive(VerifiedRecursiveCallableModulePlanV1<'a>),
 }
@@ -102,6 +106,7 @@ impl<'a> ExactCanonicalPreflightPlanV1<'a> {
         match plan {
             CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => Self::APlus(plan),
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Self::BindingSsaTrivial(plan),
+            CanonicalFirstFamilyPlanV1::DirectAccum(plan) => Self::DirectAccum(plan),
         }
     }
 
@@ -109,6 +114,7 @@ impl<'a> ExactCanonicalPreflightPlanV1<'a> {
         match self {
             Self::APlus(_) => CanonicalSourceRouteV1::APlus,
             Self::BindingSsaTrivial(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
+            Self::DirectAccum(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
             Self::BindingSsaAcyclic(_) => CanonicalSourceRouteV1::BindingSsaAcyclic,
             Self::BindingSsaRecursive(_) => CanonicalSourceRouteV1::BindingSsaRecursive,
         }
@@ -579,6 +585,21 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                     ),
                 })
             }
+            ExactCanonicalPreflightPlanV1::DirectAccum(plan) => {
+                let header = plan
+                    .seal_resolved_owner_header_v1()
+                    .map_err(SourceBindingErrorV1::Header)?;
+                debug_assert_eq!(
+                    header.family(),
+                    ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
+                );
+                Ok(CanonicalSourceContinuationV1::Single {
+                    header,
+                    policy: ModuleInvocationPolicyV1::policy_for_family(
+                        ModuleInvocationFamilyV1::BindingSsaTrivial,
+                    ),
+                })
+            }
             ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
                 Ok(CanonicalSourceContinuationV1::Callable {
                     source: plan.module(),
@@ -628,34 +649,21 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
         builder: &mut MirBuilder,
     ) -> Result<LoweredCanonicalPlanV1<'a>, RejectedCanonicalLoweringV1<'a>> {
         match plan {
-            ExactCanonicalPreflightPlanV1::APlus(plan) => {
-                match builder.lower_resolved_function_draft(plan) {
-                    Ok(draft) => Ok(LoweredCanonicalPlanV1::Single {
-                        token,
-                        continuation,
-                        draft,
-                    }),
-                    Err(error) => Err(RejectedCanonicalLoweringV1 {
-                        token,
-                        continuation,
-                        error: CanonicalPlanLoweringErrorV1::Single(error),
-                    }),
-                }
-            }
-            ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan) => {
-                match builder.lower_resolved_trivial_function_draft(plan) {
-                    Ok(draft) => Ok(LoweredCanonicalPlanV1::Single {
-                        token,
-                        continuation,
-                        draft,
-                    }),
-                    Err(error) => Err(RejectedCanonicalLoweringV1 {
-                        token,
-                        continuation,
-                        error: CanonicalPlanLoweringErrorV1::Single(error),
-                    }),
-                }
-            }
+            ExactCanonicalPreflightPlanV1::APlus(plan) => lower_single(
+                token,
+                continuation,
+                builder.lower_resolved_function_draft(plan),
+            ),
+            ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan) => lower_single(
+                token,
+                continuation,
+                builder.lower_resolved_trivial_function_draft(plan),
+            ),
+            ExactCanonicalPreflightPlanV1::DirectAccum(plan) => lower_single(
+                token,
+                continuation,
+                builder.lower_resolved_direct_accum_function_draft(plan),
+            ),
             ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
                 match builder.lower_acyclic_callable_drafts(plan) {
                     Ok(drafts) => Ok(LoweredCanonicalPlanV1::Callable {
@@ -686,22 +694,24 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
             }
         }
     }
+}
 
-    #[cfg(test)]
-    fn has_plan_and_continuation(&self) -> bool {
-        match (&self.plan, &self.continuation) {
-            (
-                ExactCanonicalPreflightPlanV1::APlus(_)
-                | ExactCanonicalPreflightPlanV1::BindingSsaTrivial(_),
-                CanonicalSourceContinuationV1::Single { .. },
-            )
-            | (
-                ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(_)
-                | ExactCanonicalPreflightPlanV1::BindingSsaRecursive(_),
-                CanonicalSourceContinuationV1::Callable { .. },
-            ) => true,
-            _ => false,
-        }
+fn lower_single<'a>(
+    token: ModuleInvocationTokenV1,
+    continuation: CanonicalSourceContinuationV1<'a>,
+    result: Result<MirFunction, CanonicalResolvedBuildErrorV1>,
+) -> Result<LoweredCanonicalPlanV1<'a>, RejectedCanonicalLoweringV1<'a>> {
+    match result {
+        Ok(draft) => Ok(LoweredCanonicalPlanV1::Single {
+            token,
+            continuation,
+            draft,
+        }),
+        Err(error) => Err(RejectedCanonicalLoweringV1 {
+            token,
+            continuation,
+            error: CanonicalPlanLoweringErrorV1::Single(error),
+        }),
     }
 }
 

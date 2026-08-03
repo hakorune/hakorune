@@ -564,6 +564,11 @@ impl MirCompiler {
         // matching finish schedule through publication; a lowering error
         // returns directly and is never retried through the other owner.
         let (module_session, module, finish_schedule) = match plan {
+            CanonicalFirstFamilyPlanV1::DirectAccum(_) => {
+                return Err(CanonicalLoweringErrorV1::CapabilityNotActivated {
+                    boundary: "direct_accum_source_bound",
+                });
+            }
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
                 let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);
                 set_candidate_source_hint(session.builder_mut(), source_file);

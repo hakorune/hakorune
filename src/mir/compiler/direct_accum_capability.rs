@@ -7,6 +7,7 @@
 
 use crate::ast::{ASTNode, LiteralValue};
 
+use super::capability::CanonicalFirstFamilyPlanV1;
 use super::direct_accum_profile::{
     issue_direct_accum_plan_v1, CanonicalDirectAccumPlanV1, DirectAccumProfileRejectV1,
 };
@@ -53,11 +54,7 @@ pub(crate) fn verify_direct_accum_function_v1<'source>(
         );
     }
     if loop_stmt.owner() != function.owner() {
-        return unsupported(
-            "loop",
-            loop_stmt.node(),
-            "direct_accum_loop_owner_mismatch",
-        );
+        return unsupported("loop", loop_stmt.node(), "direct_accum_loop_owner_mismatch");
     }
     let body = function.source().root_body().map_err(source_navigation)?;
     if body.statements().len() != 2 {
@@ -71,8 +68,7 @@ pub(crate) fn verify_direct_accum_function_v1<'source>(
         .source()
         .body_stmt(&body, 1)
         .map_err(source_navigation)?;
-    if expected_loop.site() != loop_stmt.site()
-        || !matches!(loop_stmt.node(), ASTNode::Loop { .. })
+    if expected_loop.site() != loop_stmt.site() || !matches!(loop_stmt.node(), ASTNode::Loop { .. })
     {
         return unsupported(
             "root_body/1",
@@ -131,6 +127,17 @@ pub(crate) fn verify_direct_accum_function_v1<'source>(
             reason,
         }
     })
+}
+
+/// Wrap the sealed direct-only plan in the compiler's single whole-unit
+/// family sum. Ordinary first-family verification remains unchanged and does
+/// not probe this Loop profile.
+pub(crate) fn verify_direct_accum_first_family_function_v1<'source>(
+    function: ResolvedFunctionLoweringInputV1<'source>,
+    loop_stmt: LocatedStmtV1<'source>,
+) -> Result<CanonicalFirstFamilyPlanV1<'source>, CanonicalLoweringErrorV1> {
+    verify_direct_accum_function_v1(function, loop_stmt)
+        .map(CanonicalFirstFamilyPlanV1::DirectAccum)
 }
 
 fn source_navigation(error: impl ToString) -> CanonicalLoweringErrorV1 {

@@ -52,14 +52,14 @@ pub(crate) struct VerifiedResolvedOwnerHeaderV1 {
 struct ResolvedOwnerHeaderSealV1;
 
 impl VerifiedResolvedOwnerHeaderV1 {
-    pub(super) fn seal(
+    pub(in crate::mir::compiler) fn seal(
         brand: CanonicalFirstFamilyPlanBrandV1,
         plan: &CanonicalFirstFamilyPlanV1<'_>,
     ) -> Result<Self, ResolvedOwnerHeaderSealErrorV1> {
         Self::seal_input(brand, plan.function_input())
     }
 
-    pub(super) fn seal_input(
+    pub(in crate::mir::compiler) fn seal_input(
         brand: CanonicalFirstFamilyPlanBrandV1,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     ) -> Result<Self, ResolvedOwnerHeaderSealErrorV1> {

@@ -27,9 +27,13 @@ use super::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
 use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
+mod first_family_plan;
 mod function_role_policy;
 mod normal_main_binding;
 mod resolved_owner_header;
+pub(crate) use first_family_plan::{
+    seal_direct_accum_owner_header_v1, CanonicalFirstFamilyPlanBrandV1, CanonicalFirstFamilyPlanV1,
+};
 use function_role_policy::{CanonicalFunctionRolePolicyV1, DirectCallAdmissionV1};
 pub(in crate::mir) use normal_main_binding::bind_sealed_normal_main_parts_v1;
 pub(crate) use resolved_owner_header::{
@@ -49,7 +53,9 @@ impl<'a> CanonicalCurrentAPlusPlanV1<'a> {
         &self,
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
         VerifiedResolvedOwnerHeaderV1::seal_input(
-            CanonicalFirstFamilyPlanBrandV1(ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus),
+            CanonicalFirstFamilyPlanBrandV1::from_family(
+                ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus,
+            ),
             self.function,
         )
     }
@@ -85,7 +91,9 @@ impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
         &self,
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
         VerifiedResolvedOwnerHeaderV1::seal_input(
-            CanonicalFirstFamilyPlanBrandV1(ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa),
+            CanonicalFirstFamilyPlanBrandV1::from_family(
+                ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa,
+            ),
             self.function,
         )
     }
@@ -120,48 +128,6 @@ impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
             self.profile,
             self.block_expr_count,
         )
-    }
-}
-
-/// One whole-unit canonical value-authority selection.
-///
-/// The variant is sealed before the module candidate is opened. A later
-/// lowering failure cannot be reclassified as the temporary A+ route.
-#[derive(Debug)]
-pub(crate) enum CanonicalFirstFamilyPlanV1<'a> {
-    TrivialBindingSsa(CanonicalTrivialBindingSsaPlanV1<'a>),
-    CurrentCanonicalAPlus(CanonicalCurrentAPlusPlanV1<'a>),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct CanonicalFirstFamilyPlanBrandV1(ResolvedOwnerHeaderFamilyV1);
-
-impl CanonicalFirstFamilyPlanBrandV1 {
-    const fn family(self) -> ResolvedOwnerHeaderFamilyV1 {
-        self.0
-    }
-}
-
-impl<'a> CanonicalFirstFamilyPlanV1<'a> {
-    fn brand(&self) -> CanonicalFirstFamilyPlanBrandV1 {
-        let family = match self {
-            Self::TrivialBindingSsa(_) => ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa,
-            Self::CurrentCanonicalAPlus(_) => ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus,
-        };
-        CanonicalFirstFamilyPlanBrandV1(family)
-    }
-
-    fn function_input(&self) -> ResolvedFunctionLoweringInputV1<'a> {
-        match self {
-            Self::TrivialBindingSsa(plan) => plan.function,
-            Self::CurrentCanonicalAPlus(plan) => plan.function,
-        }
-    }
-
-    pub(crate) fn seal_resolved_owner_header_v1(
-        &self,
-    ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
-        VerifiedResolvedOwnerHeaderV1::seal(self.brand(), self)
     }
 }
 
@@ -209,6 +175,11 @@ impl CanonicalLoweringPreflightV1 {
             CanonicalFunctionRolePolicyV1::NormalMain0,
             Some(role),
         )? {
+            CanonicalFirstFamilyPlanV1::DirectAccum(plan) => unsupported(
+                "root",
+                plan.input().source().root(),
+                "direct_accum_not_normal_main",
+            ),
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
             CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
                 let (function, ..) = plan.into_parts();
@@ -231,6 +202,11 @@ impl CanonicalLoweringPreflightV1 {
             CanonicalFunctionRolePolicyV1::NormalMainDirectCall0,
             Some(role),
         )? {
+            CanonicalFirstFamilyPlanV1::DirectAccum(plan) => unsupported(
+                "root",
+                plan.input().source().root(),
+                "direct_accum_not_normal_main_direct_call",
+            ),
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
             CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
                 let (function, ..) = plan.into_parts();

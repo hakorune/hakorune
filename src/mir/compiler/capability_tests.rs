@@ -123,6 +123,36 @@ fn direct_accum_preflight_issues_one_whole_function_plan() {
 }
 
 #[test]
+fn direct_accum_first_family_plan_reuses_binding_ssa_header_identity() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        super::direct_accum_projection::direct_accum_function_for_test(),
+    )
+    .expect("DirectAccum fixture resolves");
+    let input = unit.root_function_input().expect("function input");
+    let body = input.source().root_body().expect("root body");
+    let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
+    let plan = super::direct_accum_capability::verify_direct_accum_first_family_function_v1(
+        input, loop_stmt,
+    )
+    .expect("DirectAccum first-family plan");
+
+    let CanonicalFirstFamilyPlanV1::DirectAccum(plan) = plan else {
+        panic!("DirectAccum issuer must mint the central family-plan variant")
+    };
+    let header = plan
+        .seal_resolved_owner_header_v1()
+        .expect("DirectAccum header");
+
+    assert_eq!(
+        header.family(),
+        ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
+    );
+    assert_eq!(header.symbol().as_mir_name(), "accum/0");
+    assert_eq!(header.arity(), 0);
+    assert_eq!(header.owner(), plan.input().owner());
+}
+
+#[test]
 fn direct_accum_candidate_lowerer_consumes_one_canonical_session() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(
         super::direct_accum_projection::direct_accum_function_for_test(),

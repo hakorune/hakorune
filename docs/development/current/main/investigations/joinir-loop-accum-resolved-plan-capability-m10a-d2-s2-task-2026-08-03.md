@@ -126,9 +126,19 @@ writing `Return`, and hands implicit completion to the existing draft seal.
 Focused evidence covers successful candidate lowering, a late draft-seal
 failure that leaves the live Builder untouched after candidate discard, and
 fresh candidate reuse after the discard. The central family enum and
-source-bound package are now the next design/implementation slice; they remain
-unwired until their exhaustive matches and typed exclusion boundary are
-planned.
+source-bound package were the next design/implementation slice; their
+exhaustive matches and typed exclusion boundary are now landed without a
+caller switch.
+
+The CENTRAL-ENUM-SOURCE-BOUNDARY0-S0 slice is now implemented. The compiler
+family sum owns `DirectAccum(CanonicalDirectAccumPlanV1)`, the exact
+source-bound sum carries it without adding a module/header family, and the
+source-bound consumer calls only the candidate DirectAccum draft lowerer. The
+ordinary Trivial/A+ path has an explicit typed exclusion, while the existing
+canonical SSA/CFG/PHI session remains the sole physical owner. Focused
+DirectAccum, capability, source-binding, no-run, binary-check, pointer-guard,
+and under-800-line checks are green. No `route_loop`, public compile switch,
+Generic/Retry change, or PHI-writer retirement was made.
 
 ## Next design stop: central family-plan/source-bound boundary
 
@@ -157,3 +167,24 @@ retirement, old-edge deletion, and selfhost remain explicit non-claims. A
 later function-body integration must decompose the current whole-function
 pilot into a body-owned DirectAccum plan that borrows the outer canonical
 session; it must not nest a second completion/SSA owner.
+
+## Accepted execution brief: CENTRAL-ENUM-SOURCE-BOUNDARY0-S0
+
+Change: add `DirectAccum(CanonicalDirectAccumPlanV1)` to the compiler-owned
+family sum and carry it through the exact source-bound plan sum. Reuse the
+existing `BindingSsaTrivial` module/header lifecycle identity only at that
+external boundary; do not add a module/header family or a public caller.
+
+Contract: the direct-only issuer is the sole producer of the new arm. The plan
+contains source/policy/Recipe/effect/completion evidence only; the existing
+canonical session remains the sole identity/SSA/CFG/PHI owner. Existing
+Trivial/A+ consumers reject DirectAccum explicitly and never fall through.
+
+Done: central/source-bound exhaustive matches compile; DirectAccum header and
+token mapping are tested; source-bound consume calls only the candidate
+DirectAccum lowerer; existing Trivial/A+ and candidate abort/fresh-reuse gates
+remain green; touched Rust stays below 800 lines.
+
+Stop: stop and return to design if a match requires a new module/header family,
+an AST rescan, a second owner, a live-Builder caller, or a fallback/retry
+projection. Do not wire `route_loop` or public `compile_resolved` in this row.

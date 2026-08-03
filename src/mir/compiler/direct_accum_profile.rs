@@ -19,6 +19,10 @@ use crate::mir::loop_structural_facts::{
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::BindingRefV1;
 
+use super::capability::{
+    seal_direct_accum_owner_header_v1, ResolvedOwnerHeaderSealErrorV1,
+    VerifiedResolvedOwnerHeaderV1,
+};
 use super::direct_accum_prefix::{
     issue_direct_accum_prefix_input_v1, DirectAccumPrefixRejectV1, VerifiedDirectAccumPrefixInputV1,
 };
@@ -81,6 +85,12 @@ pub(crate) struct CanonicalDirectAccumPlanV1<'source> {
 impl<'source> CanonicalDirectAccumPlanV1<'source> {
     pub(crate) const fn input(&self) -> ResolvedFunctionLoweringInputV1<'source> {
         self.input
+    }
+
+    pub(crate) fn seal_resolved_owner_header_v1(
+        &self,
+    ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
+        seal_direct_accum_owner_header_v1(self)
     }
 
     pub(crate) fn into_parts(

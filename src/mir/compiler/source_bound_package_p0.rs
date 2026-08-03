@@ -89,6 +89,46 @@ fn canonical_source_binding_owner0_uses_one_physical_owner() {
 }
 
 #[test]
+fn canonical_source_binding_direct_accum_uses_existing_binding_ssa_lifecycle() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        super::direct_accum_projection::direct_accum_function_for_test(),
+    )
+    .expect("DirectAccum fixture resolves");
+    let input = unit.root_function_input().expect("function input");
+    let body = input.source().root_body().expect("root body");
+    let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
+    let plan = super::direct_accum_capability::verify_direct_accum_first_family_function_v1(
+        input, loop_stmt,
+    )
+    .expect("DirectAccum first-family plan");
+    let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
+    let mut compiler = MirCompiler::new();
+    let package = compiler
+        .bind_canonical_source(exact)
+        .expect("DirectAccum source binding");
+
+    assert_eq!(
+        package.route(),
+        super::source_bound_package::CanonicalSourceRouteV1::BindingSsaTrivial
+    );
+    let active = compiler
+        .begin_canonical_invocation(package, Some("accum.hako"), "accum".to_owned())
+        .expect("DirectAccum physical open");
+    assert_eq!(active.brand().ordinal(), 1);
+    let lowered = active.lower().expect("DirectAccum source-bound lower");
+    assert!(matches!(
+        lowered.lowered(),
+        LoweredCanonicalPlanV1::Single { .. }
+    ));
+    assert_eq!(
+        lowered.brand(),
+        lowered.session_brand(),
+        "source-bound lowering must retain one invocation brand"
+    );
+    assert!(compiler.builder.current_module.is_none());
+}
+
+#[test]
 fn canonical_source_binding_collect0_retains_same_brand_and_receipt() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function("collect0")).unwrap();
     let plan = super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
