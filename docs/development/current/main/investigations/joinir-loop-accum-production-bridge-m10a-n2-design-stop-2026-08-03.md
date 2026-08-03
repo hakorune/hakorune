@@ -316,3 +316,39 @@ Recommended next order:
   its caller-zero finish/commit wrapper, and only then add one resolved
   DirectAccum plan/caller inside the unpublished candidate. Recipe/JoinSig stay
   portable and source-free; PHI/SSA remains the existing canonical owner.
+
+## S4 — `JOINIR-LOOP-ACCUM-WITNESS-CONTINUATION-ADAPTER-M10A-D2-S4`
+
+Change:
+: Reuse the existing `VerifiedLoopBindingEffectWitnessV1` as the execution
+  claim boundary. Replace positional effect arrays with named DirectAccum roles
+  for the three binding reads and two assignment writes; exclude literal RHS
+  sites from identity claims. Add a thin resolved identity adapter that consumes
+  each role exactly once and delegates to the existing function-owned SSA/PHI
+  services. Split the physicalizer's function-shaped `After -> Return(None)`
+  behavior into an inline continuation receipt; only the outer lowerer owns
+  function completion and final CFG/SSA/PhiTxn finish.
+
+Contract:
+: The portable Recipe/JoinSig remains source-free and physical-ID-free. The
+  physicalizer sees only a small binding-effect port, canonical CFG, and the
+  caller-owned `PhiTxn`; it cannot inspect `ResolvedSsaIdentityStateV2`, names,
+  AST, or raw `ValueId` provenance. Exact source-site/BindingRef claims and
+  active-binding checks happen atomically in the resolved adapter. Caller-zero
+  tests may retain the local raw-binding wrapper, but production may not create
+  a second SSA/CFG/PHI owner or commit/abort inside the physicalizer core.
+
+Done:
+: Role claims reject wrong frame/owner/site, duplicate or missing roles, and
+  RHS-literal misclassification. A trailing-statement fixture proves the
+  continuation block remains open and is lowered by the outer owner; no
+  physicalizer `Return(None)` or Unit-to-`None` projection remains. Late PHI or
+  write failure still aborts the shared transaction and the enclosing candidate
+  can be discarded and reused.
+
+Stop:
+: If role claims require name lookup, the physicalizer must read the ledger or
+  `variable_map` directly, the adapter cannot prove active bindings, or the
+  outer completion owner cannot consume Unit without fabricating a value, stop
+  before adding a resolved Loop plan. Do not broaden the Trivial profile or
+  touch `route_loop` in S4.
