@@ -1,6 +1,6 @@
 # JOINIR-IF-RECIPE-D0-B2-FACTS-MAPPER-DESIGN-STOP
 
-Status: design stop; no code implementation authorized yet
+Status: D0-B2-A authorized; entry-witness implementation only
 Date: 2026-08-04
 Decision target: same-pass facts -> fixed-shell `IfRecipeArtifactV1`
 
@@ -27,7 +27,7 @@ condition's `ReadBinding`, choosing an arbitrary expression, or inventing a
 recipe value. Those are silent provenance guesses. The selected golden shape
 needs a logical pre-If entry witness for the branch merge binding.
 
-## Selected boundary (implementation choice still a D0-B2-A stop)
+## Selected boundary (D0-B2-A decision)
 
 Preserve the landed B1 row and close the gap with one non-`Clone` logical entry
 witness capability. Its minimum contract is:
@@ -39,14 +39,12 @@ IfFactDraftV1:
   declaration/source-order proof for the entry binding
 ```
 
-The preferred implementation is to emit this witness during the existing
-same-pass analyzer from the pre-branch `ValueEnvironmentV1`. D0-B2-A must first
-check whether the existing owner product/definition-origin ledger already
-proves the same fact; if so, a mapper-side capability is smaller and no facts
-schema extension is needed. If not, extend the facts owner rather than
-re-scanning source. Either form carries no AST site or physical ID. The mapper
-then creates one recipe-local `Input` value and uses it as
-`IfJoinRowV1.entry_value`.
+Decision: emit this witness during the existing same-pass analyzer from the
+pre-branch `ValueEnvironmentV1`. This is one private facts-field extension, not
+a portable schema change and not a second source traversal. The witness carries
+no AST site or physical ID. The mapper later validates its declaration/order
+against the owner product's definition ledger, creates one recipe-local `Input`
+value, and uses it as `IfJoinRowV1.entry_value`.
 
 This preserves the semantic distinction:
 
@@ -99,10 +97,9 @@ retry.
 
 ## Ordered task slice
 
-1. `D0-B2-A` — audit the existing definition-origin ledger, then choose the
-   smallest non-`Clone` entry-witness capability. Add a same-pass facts field
-   only if the ledger cannot prove pre-branch ownership. Add private typed
-   accessors and `EntryValueWitnessMissing`; no portable schema change.
+1. `D0-B2-A` — add and seal the private same-pass entry witness from the
+   pre-branch environment, with typed accessors and `EntryValueWitnessMissing`.
+   The mapper remains unimplemented and no portable schema changes.
 2. `D0-B2-B` — implement the facts-to-recipe mapper in the facts owner. Convert
    source sites to the fixed source-claim grammar without AST rescanning.
 3. `D0-B2-C` — call the existing structural verifier and add deterministic
