@@ -2,7 +2,7 @@
 
 Status: Design stop; no implementation beyond the caller-zero facade.
 
-Task: `JOINIR-LOOP-SELECTED-DEMAND-SOURCE0-D0`
+Task: `JOINIR-LOOP-SELECTED-RECIPE-DEMAND0-D0`
 
 ## Evidence
 
@@ -30,12 +30,18 @@ structural input exactly once.
 The selected demand must be a non-`Clone`, consuming product with this shape:
 
 ```text
-frozen policy evaluation (Qualified only)
-  + one sealed source/structural projection
+one non-Clone VerifiedLoopPolicyWinnerV1
+  + one VerifiedLoopStructuralFactsV1
+  + one exact resolved-source capability
   + opaque migration receipt for diagnostics
-  -> VerifiedLoopRecipeDemandV1
+  -> VerifiedSelectedLoopRecipeDemandV1
   -> caller-zero producer facade
 ```
+
+The winner, structural facts, and source capability each have one owner and
+must be paired one-to-one. A missing winner is a typed `NoPolicyWinner`,
+`PolicyBlocked`, or `PolicyExhausted` disposition; it never reaches the
+producer. A facts/source mismatch is a typed handoff rejection.
 
 The demand owner may carry typed analysis-only input needed by an adapter, but
 the portable contract receives only owned recipe data. It must not carry:
@@ -67,7 +73,7 @@ into the portable boundary. It also makes `None`/retry semantics implicit.
 
 Add one neutral bridge after policy evaluation. It consumes the non-`Clone`
 qualified result and an independently sealed structural projection, checks the
-pairing/owner invariant once, and emits `VerifiedLoopRecipeDemandV1`. The
+pairing/owner invariant once, and emits `VerifiedSelectedLoopRecipeDemandV1`. The
 policy remains data-only; the source owner remains the source authority; the
 producer facade remains a one-way verifier/JoinSig terminal.
 
@@ -106,6 +112,8 @@ is a typed disposition, not an omitted row or a mock recipe.
 ## Gates for the next implementation card
 
 1. One non-`Clone` selected-demand issuer definition and one consuming caller.
+   The policy winner, structural facts, and exact source handle are each
+   one-to-one and independently owner-checked.
 2. Policy remains free of AST, `CanonicalLoopFacts`, `LoopRecipeV1`, and
    physical/PHI imports.
 3. Source projection has one owner and a typed root/child lineage witness;
@@ -129,4 +137,3 @@ Stop and reopen design if the issuer requires any of the following:
 - a second policy evaluator or retry scheduler;
 - a new PHI/SSA/materializer owner;
 - a source-bound nested claim without a sealed source forest.
-

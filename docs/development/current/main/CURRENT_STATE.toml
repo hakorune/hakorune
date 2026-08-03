@@ -1,12 +1,12 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; C0/M1/M2 and M3-A/M3-B/M3-C/M3-D/M3-E/M3-F are closed, M4/D2 is parked at UnresolvedStop, M6-A caller-zero elaboration is landed, and M6-B remains caller-zero mechanical evidence. P1-S0 and P1-S1-D1/R3 semantic-core parity are closed. M7-D0 and M7-S0 caller-zero facade evidence are green. The next frontier is a design stop for one selected structural demand issuer; PHI/SSA authority remains the existing canonical CFG/Binding-SSA/PhiTxn chain, with production wiring still pending."
+status = "JOINIR all-route convergence is task-ordered; C0/M1/M2 and M3-A/M3-B/M3-C/M3-D/M3-E/M3-F are closed, M4/D2 is parked at UnresolvedStop, M6-A caller-zero elaboration is landed, and M6-B remains caller-zero mechanical evidence. P1-S0 and P1-S1-D1/R3 semantic-core parity are closed. M7-D0 and M7-S0 caller-zero facade evidence are green. The next frontier is the selected-recipe-demand design stop; PHI/SSA authority remains the existing canonical CFG/Binding-SSA/PhiTxn chain, with production wiring still pending."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "After the 797-line preflight test extraction, follow the selfhost-ready Loop pipeline: owned StructuralFacts -> one RoutePolicy winner -> one recursive structured LoopRecipe artifact -> verifier/elaborated JoinSig -> one candidate physicalizer. Legacy 11/1/1/4/2 first-mutation profiles are migration adapters/provenance only, never semantic recipe kinds or downstream switches. The existing compile candidate is the abort boundary; no LoopEmissionDraftV1. Generic V0/V1 debt remains a mandatory standalone design stop. M9 proves only the .hako recipe producer; after Rust M10/M11 cutover/handoff, M12 retires legacy family adapters to zero before reserved SH1-SH5 move verifier, CFG/PHI, physical MIR JSON, identity, and default Loop authority into the canonical selfhost MirBuilder."
-current_execution_row = "JOINIR-LOOP-SELECTED-DEMAND-SOURCE0-D0"
+current_execution_row = "JOINIR-LOOP-SELECTED-RECIPE-DEMAND0-D0"
 current_execution_summary = "D2-B3 remains test-only and UnresolvedStop; Generic policy, Retry, PHI, and production cutover remain unchanged. M6-A's bounded Accum Recipe→logical JoinSig elaboration and M6-B's JoinSig-only PHI materializer remain caller-zero mechanical evidence. P1-S0 and P1-S1-D1/R3 are closed: semantic-core parity is green and legacy-only PHI/copy/step/after rows are classified by an explicit auxiliary policy. M7-S0 fixes one test-only caller-zero facade that consumes one already-owned LoopRecipeV1 plus an opaque diagnostic receipt, then performs exactly one Verifier→JoinSig terminal transition. The next design stop audits the missing selected structural demand: LoopQualifiedV1 currently carries only SourceAvailable, FrozenLoopRouteScheduleV1 is policy/provenance data, CanonicalLoopFacts still contains AST, and the source adapter is root-only. No implementation should add a guessed policy/recipe bridge, source path reconstruction, PHI/SSA owner, scheduler, physicalizer, or production caller until the demand issuer is sealed."
 current_execution_design = "docs/development/current/main/investigations/joinir-loop-selected-demand-source0-d0-design-2026-08-03.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-SELECTED-DEMAND-SOURCE0-D0"
+current_blocker_token = "JOINIR-LOOP-SELECTED-RECIPE-DEMAND0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
