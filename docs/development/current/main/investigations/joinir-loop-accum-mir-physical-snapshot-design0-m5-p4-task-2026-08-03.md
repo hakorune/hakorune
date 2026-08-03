@@ -82,9 +82,9 @@ receipt. No snapshot helper may allocate a second PHI/SSA writer.
 
 ## Ordered work
 
-1. **P4-D0 (this row):** document row membership, canonical role grammar, and
-   the exact legacy observer boundary. No code producer is added.
-2. **P4-S0:** follow
+1. **P4-D0 (closed):** document row membership, canonical role grammar, and
+   the exact legacy observer boundary. No code producer was added.
+2. **P4-S0 (closed):** follow
    `joinir-loop-accum-mir-physical-snapshot0-m5-p4-s0-task-2026-08-03.md` to
    implement the legacy observer in a separate test-only child and compare it
    against the already-green P1b structural/path digest. This is evidence

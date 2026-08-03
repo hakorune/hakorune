@@ -11,6 +11,9 @@ use std::collections::BTreeMap;
 #[path = "loop_accum_legacy_oracle_support.rs"]
 mod legacy_oracle;
 
+#[path = "loop_accum_physical_parity_tests.rs"]
+mod physical_parity_tests;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ProjectedScalar {
     I64(i64),

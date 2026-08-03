@@ -1,5 +1,5 @@
 ---
-Status: Active test-only task order
+Status: Closed test-only observer
 Date: 2026-08-03
 Decision: accepted — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT0-M5-P4-S0`
 Scope: observe one existing legacy Accum physical result without creating a
@@ -88,3 +88,16 @@ The second snapshot producer, full portable-vs-legacy physical parity,
 late-failure candidate discard, and fresh-session reuse require the first real
 shared Loop physicalizer. If implementing the observer needs a duplicate CFG or
 instruction lowerer, stop this row and return to the P4 design card.
+
+## Close evidence (2026-08-03)
+
+- `AlphaPhysicalMirDigestV1` observes the legacy candidate's Standard5 blocks,
+  terminators, arithmetic/compare operations, actual PHI instructions, final
+  carriers, and unit result without retaining raw IDs.
+- The structural P1b witness remains green and still shows the logical
+  backedge as the explicit `Body -> Step -> Header` path.
+- Focused Loop materializer tests: 16/16; `cargo check -q`, current-state
+  pointer guard, and in-place replacement guard are green.
+- No production caller, Retry behavior, candidate publication, or PHI/SSA
+  writer changed. Full portable physical parity remains deferred to the first
+  shared physicalizer.
