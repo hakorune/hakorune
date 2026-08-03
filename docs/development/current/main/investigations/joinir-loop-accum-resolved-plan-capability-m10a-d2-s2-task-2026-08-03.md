@@ -188,3 +188,39 @@ remain green; touched Rust stays below 800 lines.
 Stop: stop and return to design if a match requires a new module/header family,
 an AST rescan, a second owner, a live-Builder caller, or a fallback/retry
 projection. Do not wire `route_loop` or public `compile_resolved` in this row.
+
+## Next accepted slice: CANDIDATE-LOWER-CALLER0-S1
+
+Worker design decision: exercise the existing named terminal
+`MirCompiler::lower_canonical_source` with the DirectAccum source-bound
+package. This is a candidate-only pilot, not a public compile cutover. The
+terminal opens the existing `CanonicalModuleLoweringSessionV1`, consumes the
+package once, and returns `CanonicalLoweringCandidateV1`; live Builder state,
+module publication, and collector/finalization remain untouched.
+
+Acceptance:
+
+1. A DirectAccum source-bound package reaches
+   `lower_canonical_source` and returns one `LoweredCanonicalPlanV1::Single`.
+2. The candidate's draft is produced by the existing DirectAccum lowerer and
+   the same `CanonicalSsaFunctionSessionV2`; no second SSA/CFG/PHI owner or
+   source re-observation is introduced.
+3. The compiler's live Builder remains unopened after candidate success and
+   after an injected late failure; a fresh candidate can be opened afterward.
+4. Existing Trivial/A+ source-bound tests remain green and every touched Rust
+   file stays below 800 lines.
+
+The broad logical-demand guard now has a precise exception for the named
+compiler-owned `direct_accum_profile.rs` issuer and source projection, and
+requires the issuer's two producer call sites while rejecting every other
+production caller. This is guard evidence only; it does not activate a route.
+`route_loop`, public `compile_resolved`, Generic/Retry classification,
+PHI-writer retirement, and external commit remain explicit non-claims.
+
+S1 is now green in the disconnected candidate lane. The focused test invokes
+`MirCompiler::lower_canonical_source` with a DirectAccum package and proves
+that the result is a single lowered draft while the live Builder remains
+unopened. The shared in-place replacement guard now recognizes exactly the
+compiler-owned DirectAccum issuer and source projection, requires its two
+producer calls, and rejects any other production caller. No runtime route or
+publication authority was added.

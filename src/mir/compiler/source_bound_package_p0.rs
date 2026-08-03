@@ -129,6 +129,35 @@ fn canonical_source_binding_direct_accum_uses_existing_binding_ssa_lifecycle() {
 }
 
 #[test]
+fn lower_canonical_source_direct_accum_is_candidate_only() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        super::direct_accum_projection::direct_accum_function_for_test(),
+    )
+    .expect("DirectAccum fixture resolves");
+    let input = unit.root_function_input().expect("function input");
+    let body = input.source().root_body().expect("root body");
+    let loop_stmt = input.source().body_stmt(&body, 1).expect("loop statement");
+    let plan = super::direct_accum_capability::verify_direct_accum_first_family_function_v1(
+        input, loop_stmt,
+    )
+    .expect("DirectAccum first-family plan");
+    let package = ExactCanonicalPreflightPlanV1::from_first_family(plan);
+    let mut compiler = MirCompiler::new();
+    let package = compiler
+        .bind_canonical_source(package)
+        .expect("DirectAccum source binding");
+    let candidate = compiler
+        .lower_canonical_source(package, Some("accum.hako"))
+        .expect("candidate-only DirectAccum lowering");
+
+    assert!(matches!(
+        &candidate.lowered,
+        LoweredCanonicalPlanV1::Single { .. }
+    ));
+    assert!(compiler.builder.current_module.is_none());
+}
+
+#[test]
 fn canonical_source_binding_collect0_retains_same_brand_and_receipt() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function("collect0")).unwrap();
     let plan = super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap();

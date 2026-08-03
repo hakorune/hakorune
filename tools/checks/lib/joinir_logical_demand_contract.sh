@@ -8,6 +8,11 @@ guard_joinir_logical_demand_contract() {
   local portable_recipe_dir="$root_dir/src/mir/loop_recipe_contract"
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
   local direct_accum_recipe_producer="$portable_recipe_dir/direct_accum_producer.rs"
+  # The compiler-owned DirectAccum profile is the sole disconnected issuer of
+  # the portable producer. It is not a downstream production consumer; the
+  # guard must distinguish this issuer from an accidental route caller.
+  local direct_accum_issuer="$root_dir/src/mir/compiler/direct_accum_profile.rs"
+  local direct_accum_projection="$root_dir/src/mir/compiler/direct_accum_projection.rs"
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
   local loop_phi_materializer="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer.rs"
@@ -66,7 +71,7 @@ guard_joinir_logical_demand_contract() {
     "$loop_accum_binding_ssa_tests" "$loop_accum_emitter_tests" \
     "$loop_accum_candidate_tests" \
     "$loop_accum_digest_support" "$loop_accum_semantic_digest_support" \
-    "$loop_physical_edge_path"
+    "$loop_physical_edge_path" "$direct_accum_issuer" "$direct_accum_projection"
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_physical_tests"; then
     guard_fail "$tag" "physical parity observer must remain cfg(test)-only"
   fi
@@ -223,11 +228,20 @@ guard_joinir_logical_demand_contract() {
   local direct_accum_production_callers=()
   mapfile -t direct_accum_production_callers < <(
     { rg -l 'produce_direct_accum_recipe_v1\(' "$root_dir/src/mir" || true; } \
-      | awk -v producer="$direct_accum_recipe_producer" \
-          '$0 != producer && $0 !~ /_tests\.rs$/'
+      | awk -v producer="$direct_accum_recipe_producer" -v issuer="$direct_accum_issuer" \
+          '$0 != producer && $0 != issuer && $0 !~ /_tests\.rs$/'
   )
   if (( ${#direct_accum_production_callers[@]} != 0 )); then
     guard_fail "$tag" "Direct Accum Recipe producer acquired a production caller"
+  fi
+  local direct_accum_issuer_calls
+  direct_accum_issuer_calls="$(
+    { rg -o 'produce_direct_accum_recipe_v1\(' "$direct_accum_issuer" || true; } \
+      | wc -l \
+      | tr -d '[:space:]'
+  )"
+  if [[ "$direct_accum_issuer_calls" != "2" ]]; then
+    guard_fail "$tag" "Direct Accum issuer call count drift: count=$direct_accum_issuer_calls expected=2"
   fi
   local direct_accum_physicalizer_production_callers=()
   mapfile -t direct_accum_physicalizer_production_callers < <(
@@ -271,7 +285,8 @@ guard_joinir_logical_demand_contract() {
       | awk \
           -v structural_prefix="$loop_structural_facts_dir/" \
           -v resolved_prefix="$root_dir/src/mir/resolved_semantics/" \
-          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1'
+          -v projection="$direct_accum_projection" \
+          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && $0 != projection'
   )
   if (( ${#external_resolved_source_files[@]} != 0 )); then
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
