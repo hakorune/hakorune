@@ -4,7 +4,7 @@
 //! not select routes, inspect a live Builder, or lower physical MIR.
 
 use crate::mir::loop_recipe_contract::{
-    produce_direct_accum_recipe_v1, DirectAccumRecipeProducerRejectV1,
+    produce_direct_accum_recipe_v1, DirectAccumRecipeProducerRejectV1, LoopBindingKeyV1,
     VerifiedDirectAccumRecipeProductV1,
 };
 use crate::mir::loop_route_policy::{
@@ -36,27 +36,72 @@ pub(crate) enum DirectAccumProfileRejectV1 {
     CompletionOwnerMismatch,
 }
 
-/// Execution-scoped source claims consumed by the canonical identity ledger.
+/// The five source-effect roles that a DirectAccum execution must claim.
 ///
-/// The witness intentionally contains no AST, names, physical IDs, Recipe, or
-/// PHI data. It records both variable-use and assignment-target claims because
-/// the ledger requires complete coverage before the function owner can finish.
+/// Literal RHS expressions are deliberately absent: they belong to value
+/// coverage, not the BindingRef identity ledger.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) enum DirectAccumBindingEffectRoleV1 {
+    ConditionInductionRead,
+    UpdateAccumulatorRead,
+    StepInductionRead,
+    UpdateAccumulatorWrite,
+    StepInductionWrite,
+}
+
+impl DirectAccumBindingEffectRoleV1 {
+    pub(crate) const ALL: [Self; 5] = [
+        Self::ConditionInductionRead,
+        Self::UpdateAccumulatorRead,
+        Self::StepInductionRead,
+        Self::UpdateAccumulatorWrite,
+        Self::StepInductionWrite,
+    ];
+}
+
+/// One role-keyed source claim prepared for the resolved identity adapter.
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedLoopBindingEffectWitnessV1 {
+pub(crate) struct DirectAccumBindingEffectEntryV1 {
+    role: DirectAccumBindingEffectRoleV1,
+    recipe_binding: LoopBindingKeyV1,
+    site: SourceExprSiteV1,
+    binding: BindingRefV1,
+}
+
+impl DirectAccumBindingEffectEntryV1 {
+    pub(crate) fn role(&self) -> DirectAccumBindingEffectRoleV1 {
+        self.role
+    }
+
+    pub(crate) fn recipe_binding(&self) -> LoopBindingKeyV1 {
+        self.recipe_binding
+    }
+
+    pub(crate) fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+}
+
+/// Builder-free source claims consumed by the canonical identity ledger.
+///
+/// This is a semantic execution plan, not a second SSA owner. It contains no
+/// AST, names, physical IDs, Recipe, or PHI data.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedDirectAccumBindingEffectPlanV1 {
     owner: FunctionOwnerIdV1,
     frame_key: LoopExecutionFrameKeyV1,
-    condition_binding: BindingRefV1,
-    induction: BindingRefV1,
-    accumulator: BindingRefV1,
-    variable_use_sites: [SourceExprSiteV1; 5],
-    assignment_target_sites: [SourceExprSiteV1; 2],
-    _seal: VerifiedLoopBindingEffectWitnessSealV1,
+    entries: [DirectAccumBindingEffectEntryV1; 5],
+    _seal: VerifiedDirectAccumBindingEffectPlanSealV1,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct VerifiedLoopBindingEffectWitnessSealV1;
+struct VerifiedDirectAccumBindingEffectPlanSealV1;
 
-impl VerifiedLoopBindingEffectWitnessV1 {
+impl VerifiedDirectAccumBindingEffectPlanV1 {
     fn issue(
         owner: FunctionOwnerIdV1,
         frame_key: LoopExecutionFrameKeyV1,
@@ -65,21 +110,39 @@ impl VerifiedLoopBindingEffectWitnessV1 {
         Self {
             owner,
             frame_key,
-            condition_binding: shape.condition_binding,
-            induction: shape.induction,
-            accumulator: shape.accumulator,
-            variable_use_sites: [
-                shape.condition_lhs_site.clone(),
-                shape.update.lhs_site.clone(),
-                shape.update.rhs_site.clone(),
-                shape.step.lhs_site.clone(),
-                shape.step.rhs_site.clone(),
+            entries: [
+                DirectAccumBindingEffectEntryV1 {
+                    role: DirectAccumBindingEffectRoleV1::ConditionInductionRead,
+                    recipe_binding: LoopBindingKeyV1::new(0),
+                    site: shape.condition_lhs_site.clone(),
+                    binding: shape.condition_binding,
+                },
+                DirectAccumBindingEffectEntryV1 {
+                    role: DirectAccumBindingEffectRoleV1::UpdateAccumulatorRead,
+                    recipe_binding: LoopBindingKeyV1::new(1),
+                    site: shape.update.lhs_site.clone(),
+                    binding: shape.update.binding,
+                },
+                DirectAccumBindingEffectEntryV1 {
+                    role: DirectAccumBindingEffectRoleV1::StepInductionRead,
+                    recipe_binding: LoopBindingKeyV1::new(0),
+                    site: shape.step.lhs_site.clone(),
+                    binding: shape.step.binding,
+                },
+                DirectAccumBindingEffectEntryV1 {
+                    role: DirectAccumBindingEffectRoleV1::UpdateAccumulatorWrite,
+                    recipe_binding: LoopBindingKeyV1::new(1),
+                    site: shape.update.target_site.clone(),
+                    binding: shape.update.binding,
+                },
+                DirectAccumBindingEffectEntryV1 {
+                    role: DirectAccumBindingEffectRoleV1::StepInductionWrite,
+                    recipe_binding: LoopBindingKeyV1::new(0),
+                    site: shape.step.target_site.clone(),
+                    binding: shape.step.binding,
+                },
             ],
-            assignment_target_sites: [
-                shape.update.target_site.clone(),
-                shape.step.target_site.clone(),
-            ],
-            _seal: VerifiedLoopBindingEffectWitnessSealV1,
+            _seal: VerifiedDirectAccumBindingEffectPlanSealV1,
         }
     }
 
@@ -91,35 +154,29 @@ impl VerifiedLoopBindingEffectWitnessV1 {
         &self.frame_key
     }
 
-    pub(crate) fn condition_binding(&self) -> BindingRefV1 {
-        self.condition_binding
+    pub(crate) fn entries(&self) -> &[DirectAccumBindingEffectEntryV1; 5] {
+        &self.entries
     }
 
-    pub(crate) fn induction(&self) -> BindingRefV1 {
-        self.induction
-    }
-
-    pub(crate) fn accumulator(&self) -> BindingRefV1 {
-        self.accumulator
-    }
-
-    pub(crate) fn variable_use_sites(&self) -> &[SourceExprSiteV1; 5] {
-        &self.variable_use_sites
-    }
-
-    pub(crate) fn assignment_target_sites(&self) -> &[SourceExprSiteV1; 2] {
-        &self.assignment_target_sites
+    pub(crate) fn entry(
+        &self,
+        role: DirectAccumBindingEffectRoleV1,
+    ) -> &DirectAccumBindingEffectEntryV1 {
+        self.entries
+            .iter()
+            .find(|entry| entry.role == role)
+            .expect("all DirectAccum effect roles are sealed")
     }
 }
 
 /// One resolved DirectAccum profile handoff. The physicalizer consumes the
-/// Recipe product and witness only after this whole row has been sealed.
+/// Recipe product and effect plan only after this whole row has been sealed.
 #[derive(Debug)]
 pub(crate) struct VerifiedDirectAccumProfileV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
     recipe: VerifiedDirectAccumRecipeProductV1,
-    witness: VerifiedLoopBindingEffectWitnessV1,
+    effect_plan: VerifiedDirectAccumBindingEffectPlanV1,
     completion: VerifiedFunctionCompletionV1,
 }
 
@@ -130,21 +187,21 @@ impl<'source> VerifiedDirectAccumProfileV1<'source> {
         ResolvedFunctionLoweringInputV1<'source>,
         LocatedStmtV1<'source>,
         VerifiedDirectAccumRecipeProductV1,
-        VerifiedLoopBindingEffectWitnessV1,
+        VerifiedDirectAccumBindingEffectPlanV1,
         VerifiedFunctionCompletionV1,
     ) {
         (
             self.input,
             self.loop_stmt,
             self.recipe,
-            self.witness,
+            self.effect_plan,
             self.completion,
         )
     }
 }
 
 /// Co-seals one already-qualified policy winner with the resolved source,
-/// DirectAccum facts, portable Recipe/JoinSig, effect witness, and completion.
+/// DirectAccum facts, portable Recipe/JoinSig, effect plan, and completion.
 pub(crate) fn admit_direct_accum_profile_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
@@ -166,8 +223,8 @@ pub(crate) fn admit_direct_accum_profile_v1<'source>(
     let shape = facts
         .direct_accum_shape()
         .ok_or(DirectAccumProfileRejectV1::MissingStructuralShape)?;
-    let witness =
-        VerifiedLoopBindingEffectWitnessV1::issue(input.owner(), source.frame_key(), shape);
+    let effect_plan =
+        VerifiedDirectAccumBindingEffectPlanV1::issue(input.owner(), source.frame_key(), shape);
     let demand =
         issue_selected_loop_recipe_demand_v1(admission.into_policy_winner(), facts, source)
             .map_err(DirectAccumProfileRejectV1::Demand)?;
@@ -177,7 +234,7 @@ pub(crate) fn admit_direct_accum_profile_v1<'source>(
         input,
         loop_stmt,
         recipe,
-        witness,
+        effect_plan,
         completion,
     })
 }
@@ -207,9 +264,29 @@ mod tests {
         );
         let profile = admit_direct_accum_profile_v1(input, loop_stmt, winner, completion)
             .expect("DirectAccum profile");
-        let (_input, _loop, _recipe, witness, _completion) = profile.into_parts();
-        assert_eq!(witness.variable_use_sites().len(), 5);
-        assert_eq!(witness.assignment_target_sites().len(), 2);
+        let (_input, _loop, _recipe, effect_plan, _completion) = profile.into_parts();
+        assert_eq!(effect_plan.entries().len(), 5);
+        let roles = effect_plan
+            .entries()
+            .iter()
+            .map(DirectAccumBindingEffectEntryV1::role)
+            .collect::<Vec<_>>();
+        assert_eq!(
+            roles.as_slice(),
+            DirectAccumBindingEffectRoleV1::ALL.as_slice()
+        );
+        assert_eq!(
+            effect_plan
+                .entry(DirectAccumBindingEffectRoleV1::ConditionInductionRead)
+                .recipe_binding(),
+            LoopBindingKeyV1::new(0)
+        );
+        assert_eq!(
+            effect_plan
+                .entry(DirectAccumBindingEffectRoleV1::UpdateAccumulatorWrite)
+                .recipe_binding(),
+            LoopBindingKeyV1::new(1)
+        );
     }
 
     #[test]

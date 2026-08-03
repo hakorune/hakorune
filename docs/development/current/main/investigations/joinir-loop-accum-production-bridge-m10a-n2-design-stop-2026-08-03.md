@@ -83,12 +83,13 @@ Decision is now closed:
    function completion contract before Builder effects. Route names or AST
    rescans are not admission authority.
 4. The non-Clone
-   `VerifiedLoopBindingEffectWitnessV1` is execution-scoped and carries the
-   same frame/owner brand, exact DirectAccum `BindingRefV1` roles, and all
-   canonical source claims: condition/update/step variable-use sites plus the
-   update/step assignment-target sites. It carries no AST clone, names,
-   `ValueId`, `BasicBlockId`, route, Recipe, or PHI data. The identity ledger
-   consumes it once before physicalization; it is not a second ledger.
+   `VerifiedDirectAccumBindingEffectPlanV1` is a builder-free source-effect
+   plan and carries the same frame/owner brand, exact DirectAccum `BindingRefV1`
+   roles, and all canonical source claims: condition/update/step variable-use
+   sites plus the update/step assignment-target sites. It carries no AST clone,
+   names, `ValueId`, `BasicBlockId`, route, Recipe, or PHI data. A resolved
+   identity adapter will consume it once before physicalization; it is not a
+   second ledger.
 5. The physicalizer core borrows the function owner's existing CFG/SSA/PhiTxn.
    Only the caller-zero adapter may create local owners and finish/abort them.
    A failed claim or physicalization drops the unpublished compile candidate;
@@ -303,14 +304,14 @@ S3 audit result:
   physical input, and borrow physicalizer; the canonical resolved ingress still
   has only `TrivialBindingSsa` and `CurrentCanonicalAPlus` plans, both of which
   reject Loop. The borrow seam is therefore mechanically correct but not yet a
-  production capability: the profile witness is not consumed by the identity
+  production capability: the profile effect plan is not consumed by the identity
   ledger, the raw `ValueId` input projection has no owner provenance, and the
   current physicalizer closes the loop with `Return(None)` instead of leaving an
   inline continuation for the outer completion owner.
 
 Recommended next order:
-: Extend the existing `VerifiedLoopBindingEffectWitnessV1` into a role-keyed
-  execution claim (without adding a second witness), add an exact
+: Use the existing `VerifiedDirectAccumBindingEffectPlanV1` as a role-keyed
+  execution claim (without adding a second plan), add an exact
   source-site/BindingRef claim plus non-claim entry-read adapter on the existing
   `ResolvedSsaIdentityStateV2`, split the physicalizer's inline continuation from
   its caller-zero finish/commit wrapper, and only then add one resolved
@@ -320,7 +321,7 @@ Recommended next order:
 ## S4 — `JOINIR-LOOP-ACCUM-WITNESS-CONTINUATION-ADAPTER-M10A-D2-S4`
 
 Change:
-: Reuse the existing `VerifiedLoopBindingEffectWitnessV1` as the execution
+: Reuse the existing `VerifiedDirectAccumBindingEffectPlanV1` as the execution
   claim boundary. Replace positional effect arrays with named DirectAccum roles
   for the three binding reads and two assignment writes; exclude literal RHS
   sites from identity claims. Add a thin resolved identity adapter that consumes
