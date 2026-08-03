@@ -241,10 +241,13 @@ distinct domains; naming audit precedes any mechanical rename.
 ### T4-D0..R0 — JSON-v0 bridge retirement
 
 This is a separate phase-29ci/29cj lane, not a unification of MIR lowering.
-The current census is eight direct bridge call lines across seven production
-surfaces, plus one Stage-1 stub parser caller. Freeze four caller families:
+The earlier “eight direct call lines” headline is an incomplete lower bound,
+not a caller-zero census: the current audit also finds multiple Stage-1,
+selfhost, runtime/plugin, backend, and diagnostic utility surfaces. Freeze
+the complete inventory by four caller families:
 runtime direct/env provider, Stage-1 handoff/emit, selfhost
 producer/consumer/fallback, and Program JSON-v0 compatibility loader/tools.
+Do not authorize deletion from the old eight-line count alone.
 Route direct loop PHI bypasses in `json_v0_bridge/lowering/loop_.rs` and
 `loop_range.rs` through LoopForm or explicitly quarantine them before bridge
 deletion. Preserve Program-specific import-bundle/trace behavior until all
