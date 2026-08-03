@@ -1,6 +1,6 @@
 # JOINIR-IF-RECIPE-D0-B3-JOINSIG-PHYSICAL-INPUT-DESIGN-STOP
 
-Status: D0-B3-A authorized; caller-zero logical JoinSig only
+Status: D0-B3-A landed; D0-B3-B physical-input design stop active
 Date: 2026-08-04
 Decision target: fixed-shell `IfRecipe` -> logical `IfJoinSig` -> one-shot physical-input capability
 
@@ -97,14 +97,14 @@ invariant firewall until a real future producer makes one reachable.
 
 ## Ordered task slice
 
-1. **Schema/owner design** — frozen by this card. D0-B3-A is authorized for
-   the logical port, edge, join-row, reject, and non-Clone wrapper vocabulary.
-2. **Caller-zero elaborator** — D0-B3-A: implement deterministic elaboration
-   from `VerifiedIfRecipeV1` only; no production caller and no physical
-   imports. The one-shot physical-input seal remains a later D0-B3-B slice.
-3. **One-shot physical-input seal** — consume an artifact and internally
-   elaborate the matching signature; prove independent artifact/signature
-   mixing is impossible.
+1. **Schema/owner design** — frozen by this card. D0-B3-A landed the logical
+   port, edge, join-row, reject, and non-Clone wrapper vocabulary in
+   `46a4ccfcf8`.
+2. **Caller-zero elaborator** — D0-B3-A landed deterministic elaboration from
+   `VerifiedIfRecipeV1` only, with no production caller or physical imports.
+3. **One-shot physical-input seal** — D0-B3-B design stop: consume an artifact
+   and internally elaborate the matching signature; prove independent
+   artifact/signature mixing is impossible before implementing the seal.
 4. **Focused gates** — golden deterministic edge/row digest, exactly-two
    distinct predecessor checks, missing/foreign logical value rejects, and
    static grep guards for physical/route dependencies.
