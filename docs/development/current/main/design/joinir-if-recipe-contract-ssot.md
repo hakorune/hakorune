@@ -1,5 +1,5 @@
 ---
-Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B/C facts/mapper gates landed; D0-B2-D firewall classified; D0-B3-A logical JoinSig, D0-B3-B physical-input seal, and D0-B3-C guard/boundary gates landed; D0-C producer/consumer design stop active
+Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B/C facts/mapper gates landed; D0-B2-D firewall classified; D0-B3-A logical JoinSig, D0-B3-B physical-input seal, and D0-B3-C guard/boundary gates landed; D0-C producer/consumer design closed; D0-C1/D0-C2 implementation authorized
 Date: 2026-08-04
 Decision: JOINIR-IF-RECIPE-CONTRACT-V1
 Scope: portable semantic contract for the first resolved-trivial If shape
@@ -127,6 +127,37 @@ edge. It does not retire raw IfForm, A+ IfCfgSession, CorePlan If, JoinIR
 converter writers, or JSON-v0. A physicalizer may return success or Freeze;
 it may not return `Option`, retry, or a different route.
 
+## D0-C producer/consumer decision
+
+The first production seam is the resolved-trivial canonical ingress, not raw
+`IfForm`, A+ `IfCfgSessionV1`, CorePlan/JoinIR, or JSON-v0. The central
+`lower_resolved_trivial_function_draft_retaining_failure_v1` entry is the sole
+producer call site. It consumes the already sealed
+`VerifiedTrivialCanonicalOwnerV1::recipe_facts()` and performs exactly:
+
+```text
+map_trivial_if_recipe_v1(profile, input.function())
+  -> VerifiedIfRecipeArtifactV1
+  -> VerifiedIfPhysicalInputV1::from_artifact
+```
+
+`recipe_facts()==None` is pre-effect `NotThisShape`; it must never become a
+physicalizer `Option`, post-effect retry, or route reselection. Mapper, JoinSig,
+or physical-input rejection is a typed Freeze before Builder mutation.
+
+The consumer is a one-shot admission bridge into the existing
+`CanonicalTrivialSsaLowererV1` and `CanonicalSsaFunctionSessionV2`. It checks
+source-claim/root correspondence and the logical JoinSig, then delegates
+physical CFG/SSA/PHI work to the existing canonical session. It may borrow an
+immutable source view for admitted leaf emission, but may not rescan source to
+choose or repair a route. The existing `lower_if` remains the parity/physical
+oracle until D0-D; D0-C does not claim selected-edge retirement.
+
+D0-C1 promotes the mapper to one production caller. D0-C2 threads and
+consumes the non-Clone physical input once and proves candidate isolation plus
+semantic/MIR/CFG/PHI/interpreter parity. D0-D is the later physical adoption
+row; D0-E is the selected old-edge cutover row.
+
 ## Non-claims
 
 The fixed-shell schema, source-claim verifier, structural verifier,
@@ -136,7 +167,6 @@ and reachable mapper rejection matrix now exist in
 `8999950faf`, `a907874551`, `1bd50829c5`, `f2afec934d`, and
 `1fd0e5ab70`, `46a4ccfcf8`, and `1d9b8aa78d`). Defensive-only mapper variants are not ordinary-input
 coverage; D0-B2-D retains them as a documented sealed-facts firewall without
-synthetic malformed facts. This remains a caller-zero contract: no production
-If recipe consumer, JoinSig/physical-input production consumer, or PHI/CFG wiring is connected. Repository-wide
-PHI/CFG ownership is not unified. Those claims require the D0-B3 logical seal
-and later D0-C/D0-D evidence.
+synthetic malformed facts. D0-C1/D0-C2 now define the first named production
+producer/consumer seam. They do not make repository-wide PHI/CFG ownership
+sole or retire the selected old writer; those claims require D0-D/E evidence.

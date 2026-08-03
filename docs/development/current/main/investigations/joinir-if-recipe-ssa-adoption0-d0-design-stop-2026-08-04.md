@@ -375,25 +375,37 @@ Stop:
   not add the mapper or JoinSig in this closeout commit. They require the next
   source-witness design row.
 
-### D0-C — one canonical production consumer
+### D0-C — one canonical production consumer (design closed)
 
-After D0-A/B, select one exact If shape and connect it through the existing
-resolved source-bound candidate chain:
+The producer/consumer design is fixed in the dedicated card:
+
+`docs/development/current/main/investigations/joinir-if-recipe-d0-c-producer-consumer-design-2026-08-04.md`
+
+The bounded implementation is now authorized as D0-C1/D0-C2. It uses the
+existing resolved-trivial candidate chain and one exact explicit-else shape:
 
 ```text
-one selection/preflight
-  -> sealed IfRecipeV1
-  -> CanonicalSsaFunctionSessionV2
-  -> CanonicalCfgSessionV1 + PhiTxn
-  -> one If merge physicalizer
+one preflight profile/facts witness
+  -> one IfRecipeArtifactV1
+  -> one VerifiedIfPhysicalInputV1 (JoinSig included)
+  -> one admission receipt
+  -> existing CanonicalSsaFunctionSessionV2
+  -> existing CanonicalTrivialSsaLowererV1
   -> unpublished compile candidate
 ```
 
-Do not create a second SSA/PHI transaction, do not connect directly to a raw
-route registry, and do not preserve post-effect route retry at this seam.
-Unsupported branch-transfer shapes must be typed rejects until their JoinSig
-obligations are closed; the physicalizer must not repair missing predecessors
-or invent PHI inputs.
+The sole production producer call is at the central
+`lower_resolved_trivial_function_draft_retaining_failure_v1` ingress, before
+the inner draft-seal session opens. The consumer is a one-shot typed admission
+bridge; `recipe_facts()==None` is pre-effect `NotThisShape`, never a downstream
+`Option` or retry. No second SSA/PHI transaction, raw route registry, source
+rescan for route choice, or new PHI writer is permitted. The existing canonical
+lowerer remains the physical/parity oracle until D0-D.
+
+D0-C1 promotes the mapper to exactly one production caller. D0-C2 threads and
+consumes the non-Clone physical input once, with candidate isolation and
+semantic/MIR/CFG/PHI/interpreter parity gates. Unsupported shapes remain typed
+rejects. D0-D/E alone may remove the selected old physical edge.
 
 ### D0-D — canonical PHI/CFG adoption
 
