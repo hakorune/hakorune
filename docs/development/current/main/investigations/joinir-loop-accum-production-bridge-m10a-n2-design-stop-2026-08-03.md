@@ -97,10 +97,13 @@ Decision is now closed:
 
 The behavior-neutral Refactor Series extracted the shared SSA machinery behind
 the canonical profile boundary in commit `240d76d1bf`; the Trivial facade and
-its 116 focused tests remain green. The next implementation is the
-DirectAccum admission/profile and caller-zero vertical. Every touched Rust
-file remains below 800 lines. No `route_loop`, scheduler, handler, or PHI
-writer edit is part of the refactor series or the profile preflight.
+its 116 focused tests remain green. The resolved DirectAccum admission/profile
+landed in `fc12f21834`, and commit `3e315a4d4e` now makes the physicalizer core
+borrow the caller-owned CFG/SSA/PhiTxn services. Only the caller-zero wrapper
+creates local owners and performs finish/commit; the borrowing seam leaves
+those decisions to its caller. Every touched Rust file remains below 800
+lines. No `route_loop`, scheduler, handler, or PHI writer edit is part of the
+refactor series or profile preflight.
 
 ## Current production observations
 
@@ -229,10 +232,12 @@ The consultation returned:
    selfhost authority, and final M10b.
 
 The design boundary is closed, the shared-core extraction is landed, and the
-resolved DirectAccum profile is caller-zero in commit `fc12f21834`. Its focused
-policy/source/Recipe/witness/completion gate is green. The next implementation
-boundary is the physicalizer borrow adapter; no production caller or old-edge
-retirement is claimed until that adapter has an abort/fresh-reuse gate.
+resolved DirectAccum profile is caller-zero in commit `fc12f21834`. The
+physicalizer borrow adapter is also caller-zero green in `3e315a4d4e`, with
+abort/fresh-reuse evidence and the owner finish/commit boundary explicit. The
+next implementation boundary is the resolved production caller capability and
+Unit-completion contract; no production caller or old-edge retirement is
+claimed until that boundary and the full old-edge census are closed.
 
 ## Acceptance gates for D2 and the next refactor series
 
