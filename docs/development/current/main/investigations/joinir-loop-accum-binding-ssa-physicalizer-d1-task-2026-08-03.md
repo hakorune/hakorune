@@ -238,6 +238,26 @@ new authority, stop and revise the receipt/SSOT; do not add a duplicate
 lowerer or compare raw IDs.
 ```
 
+## R1/R2 result
+
+The owned session and unpublished-candidate adapter now share one borrowed
+`CanonicalLoopSsaEmitterV1` over a `CanonicalLoopSsaStateV1`. The candidate
+path no longer contains a second const/add/compare/read/define/CFG/SSA
+implementation. Operation errors are routed through the emitter's shared
+`PhiTxn::abort_on_err` boundary before the candidate is dropped.
+
+Evidence:
+
+```text
+owned session / operation / rollback tests: green
+candidate baseline/failure/fresh-reuse: green
+all five touched Rust test files: <800 lines
+production route_loop / commit / LoopPhiMaterializer callers: unchanged/zero
+```
+
+R3 remains open: extract the immutable alpha observer and compare legacy and
+candidate CFG, PHI, operation, and final-binding rows without raw IDs.
+
 ## Required products
 
 1. `VerifiedLoopBindingProjectionV1`: sealed owner-checked identity capability;

@@ -1,13 +1,14 @@
 //! Caller-zero Binding-SSA-first DirectAccum session proof.
 //!
-//! The test owns one canonical CFG session, one Binding SSA builder, and one
-//! PhiTxn, matching the production authority boundary without adding a caller.
+//! The fixture owns one candidate function and delegates all emission to the
+//! borrowed emitter in `loop_accum_binding_ssa_emitter_tests.rs`.  The same
+//! emitter is used by the unpublished-candidate observer.
 
 #![cfg(test)]
 
 use crate::mir::builder::emission::phi_lifecycle::{PhiToken, PhiTxn};
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
-use crate::mir::builder::ssa::binding::{BindingSsaBuilderV1, MirBindingSsaAdapterV1};
+use crate::mir::builder::ssa::binding::BindingSsaBuilderV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
     LoopBinaryI64OpV1, LoopBindingKeyV1, LoopCompareI64OpV1, LoopConditionV1,
@@ -15,9 +16,7 @@ use crate::mir::loop_recipe_contract::{
     LoopRecipeVerifierV1, LoopValueKeyV1,
 };
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, FunctionOwnerIssuerV1};
-use crate::mir::{
-    BasicBlockId, BinaryOp, BindingId, CompareOp, ConstValue, MirInstruction, MirType, ValueId,
-};
+use crate::mir::{BasicBlockId, BindingId, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[path = "loop_accum_binding_ssa_failure_tests.rs"]
@@ -28,6 +27,9 @@ mod operation_tests;
 
 #[path = "loop_accum_binding_ssa_candidate_tests.rs"]
 mod candidate_tests;
+
+#[path = "loop_accum_binding_ssa_emitter_tests.rs"]
+mod emitter_tests;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 enum PhysicalRoleV1 {
@@ -114,7 +116,7 @@ impl VerifiedLoopOperationScheduleV1 {
         header_reads: Vec<LoopBindingKeyV1>,
     ) -> Result<Self, OperationScheduleErrorV1> {
         let artifact: LoopRecipeArtifactV1 =
-            serde_json::from_str(super::super::DIRECT_GOLDEN).expect("direct recipe golden");
+            serde_json::from_str(super::DIRECT_GOLDEN).expect("direct recipe golden");
         let verified = LoopRecipeVerifierV1::verify(artifact.recipe().clone())
             .expect("direct recipe verification");
         let sig = LoopJoinSigElaboratorV1::elaborate(&verified).expect("direct join sig");
@@ -228,11 +230,10 @@ impl TestExitOwnerV1 {
     }
 }
 
-struct CanonicalLoopSsaSessionV1 {
-    builder: MirBuilder,
-    cfg: CanonicalCfgSessionV1,
-    ssa: BindingSsaBuilderV1<PhiToken>,
-    phis: PhiTxn,
+pub(super) struct CanonicalLoopSsaStateV1 {
+    cfg: Option<CanonicalCfgSessionV1>,
+    ssa: Option<BindingSsaBuilderV1<PhiToken>>,
+    phis: Option<PhiTxn>,
     projection: VerifiedLoopBindingProjectionV1,
     blocks: BTreeMap<PhysicalRoleV1, BasicBlockId>,
     entry_values: BTreeMap<LoopValueKeyV1, ValueId>,
@@ -241,145 +242,71 @@ struct CanonicalLoopSsaSessionV1 {
     sealed_predecessors: BTreeMap<PhysicalRoleV1, Box<[BasicBlockId]>>,
 }
 
+struct CanonicalLoopSsaSessionV1 {
+    builder: MirBuilder,
+    state: CanonicalLoopSsaStateV1,
+}
+
 impl CanonicalLoopSsaSessionV1 {
     fn new() -> Self {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("loop_binding_ssa_session/0".to_owned());
-        let blocks = TestBlockOwnerV1::install(&mut builder);
-        let owner = FunctionOwnerIssuerV1::new_for_compilation()
-            .expect("owner issuer")
-            .issue()
-            .expect("function owner");
-        let projection = VerifiedLoopBindingProjectionV1::try_new(
-            owner,
-            vec![
-                (
-                    LoopBindingKeyV1::new(0),
-                    BindingRefV1::new(owner, BindingId::new(0)),
-                ),
-                (
-                    LoopBindingKeyV1::new(1),
-                    BindingRefV1::new(owner, BindingId::new(1)),
-                ),
-            ],
-        )
-        .expect("binding projection");
-        let mut session = Self {
-            builder,
-            cfg: CanonicalCfgSessionV1::new(),
-            ssa: BindingSsaBuilderV1::new(projection.owner),
-            phis: PhiTxn::begin("loop_binding_ssa_session"),
-            projection,
-            blocks,
-            entry_values: BTreeMap::new(),
-            reads: Vec::new(),
-            defines: Vec::new(),
-            sealed_predecessors: BTreeMap::new(),
-        };
-        let preheader = session.block(PhysicalRoleV1::Preheader);
-        let initial_i = session.emit_const_i64(preheader, 0);
-        let initial_sum = session.emit_const_i64(preheader, 0);
-        session
-            .entry_values
-            .insert(LoopValueKeyV1::new(0), initial_i);
-        session
-            .entry_values
-            .insert(LoopValueKeyV1::new(1), initial_sum);
-        session.define_at(
-            LoopBindingKeyV1::new(0),
-            PhysicalRoleV1::Preheader,
-            initial_i,
-        );
-        session.define_at(
-            LoopBindingKeyV1::new(1),
-            PhysicalRoleV1::Preheader,
-            initial_sum,
-        );
-        session
+        let mut state = emitter_tests::new_state(&mut builder);
+        {
+            let mut emitter =
+                emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut builder, &mut state);
+            emitter.seed_entries();
+        }
+        Self { builder, state }
     }
 
-    fn block(&self, role: PhysicalRoleV1) -> BasicBlockId {
-        self.blocks[&role]
+    fn entry_values(&self) -> &BTreeMap<LoopValueKeyV1, ValueId> {
+        &self.state.entry_values
     }
 
-    fn emit_const_i64(&mut self, block: BasicBlockId, value: i64) -> ValueId {
-        self.builder
-            .start_new_block(block)
-            .expect("select const block");
-        let dst = self.builder.alloc_value_for_test();
-        self.builder
-            .emit_for_test(MirInstruction::Const {
-                dst,
-                value: ConstValue::Integer(value),
-            })
-            .expect("emit integer const");
-        self.builder
-            .function_state
-            .type_ctx
-            .value_types
-            .insert(dst, MirType::Integer);
-        dst
+    fn emit_jump(&mut self, from: PhysicalRoleV1, to: PhysicalRoleV1) {
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .emit_jump(from, to);
+    }
+
+    fn emit_branch(&mut self, from: PhysicalRoleV1, condition: ValueId) {
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .emit_branch(from, condition);
+    }
+
+    fn seal(&mut self, role: PhysicalRoleV1) {
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .seal(role);
+    }
+
+    fn emit_return(&mut self, role: PhysicalRoleV1) {
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .emit_return(role);
     }
 
     fn emit_const_bool(&mut self, block: BasicBlockId, value: bool) -> ValueId {
-        self.builder
-            .start_new_block(block)
-            .expect("select condition block");
-        let dst = self.builder.alloc_value_for_test();
-        self.builder
-            .emit_for_test(MirInstruction::Const {
-                dst,
-                value: ConstValue::Bool(value),
-            })
-            .expect("emit bool const");
-        self.builder
-            .function_state
-            .type_ctx
-            .value_types
-            .insert(dst, MirType::Bool);
-        dst
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .emit_const_bool(block, value)
+    }
+
+    fn emit_const_i64(&mut self, block: BasicBlockId, value: i64) -> ValueId {
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .emit_const_i64(block, value)
     }
 
     fn emit_add(&mut self, block: BasicBlockId, left: ValueId, right: ValueId) -> ValueId {
-        self.builder
-            .start_new_block(block)
-            .expect("select binary block");
-        let dst = self.builder.alloc_value_for_test();
-        self.builder
-            .emit_for_test(MirInstruction::BinOp {
-                dst,
-                op: BinaryOp::Add,
-                lhs: left,
-                rhs: right,
-            })
-            .expect("emit binary add");
-        self.builder
-            .function_state
-            .type_ctx
-            .value_types
-            .insert(dst, MirType::Integer);
-        dst
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .emit_add(block, left, right)
     }
 
-    fn emit_compare_less(&mut self, block: BasicBlockId, left: ValueId, right: ValueId) -> ValueId {
-        self.builder
-            .start_new_block(block)
-            .expect("select compare block");
-        let dst = self.builder.alloc_value_for_test();
-        self.builder
-            .emit_for_test(MirInstruction::Compare {
-                dst,
-                op: CompareOp::Lt,
-                lhs: left,
-                rhs: right,
-            })
-            .expect("emit compare");
-        self.builder
-            .function_state
-            .type_ctx
-            .value_types
-            .insert(dst, MirType::Bool);
-        dst
+    fn define_at(&mut self, key: LoopBindingKeyV1, role: PhysicalRoleV1, value: ValueId) {
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .define_at(key, role, value);
+    }
+
+    fn read_at(&mut self, key: LoopBindingKeyV1, role: PhysicalRoleV1) -> ValueId {
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .read_at(key, role)
     }
 
     fn emit_header_carriers(
@@ -387,11 +314,8 @@ impl CanonicalLoopSsaSessionV1 {
         schedule: &VerifiedLoopOperationScheduleV1,
         values: &mut BTreeMap<LoopValueKeyV1, ValueId>,
     ) {
-        for binding in schedule.header_reads.iter().copied() {
-            let result = self.read_at(binding, PhysicalRoleV1::Header);
-            let entry = LoopValueKeyV1::new(binding.raw());
-            values.insert(entry, result);
-        }
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .emit_header_carriers(schedule, values);
     }
 
     fn emit_operations(
@@ -400,141 +324,8 @@ impl CanonicalLoopSsaSessionV1 {
         operations: &[LoopOperationV1],
         values: &mut BTreeMap<LoopValueKeyV1, ValueId>,
     ) -> Result<OperationEmissionReceiptV1, String> {
-        let mut emitted = Vec::with_capacity(operations.len());
-        for operation in operations.iter().copied() {
-            match operation {
-                LoopOperationV1::ReadBinding { binding, result } => {
-                    let value = self.read_at(binding, role);
-                    values.insert(result, value);
-                }
-                LoopOperationV1::ConstI64 { result, value } => {
-                    let value_id = self.emit_const_i64(self.block(role), value);
-                    values.insert(result, value_id);
-                }
-                LoopOperationV1::BinaryI64 {
-                    op,
-                    left,
-                    right,
-                    result,
-                } => {
-                    let left = *values
-                        .get(&left)
-                        .ok_or_else(|| format!("missing binary lhs {left:?}"))?;
-                    let right = *values
-                        .get(&right)
-                        .ok_or_else(|| format!("missing binary rhs {right:?}"))?;
-                    let value_id = match op {
-                        LoopBinaryI64OpV1::Add => self.emit_add(self.block(role), left, right),
-                        LoopBinaryI64OpV1::Sub => {
-                            return Err("DirectAccum schedule requires add".to_owned())
-                        }
-                    };
-                    values.insert(result, value_id);
-                }
-                LoopOperationV1::CompareI64 {
-                    op: LoopCompareI64OpV1::Less,
-                    left,
-                    right,
-                    result,
-                } => {
-                    let left = *values
-                        .get(&left)
-                        .ok_or_else(|| format!("missing compare lhs {left:?}"))?;
-                    let right = *values
-                        .get(&right)
-                        .ok_or_else(|| format!("missing compare rhs {right:?}"))?;
-                    let value_id = self.emit_compare_less(self.block(role), left, right);
-                    values.insert(result, value_id);
-                }
-                LoopOperationV1::CompareI64 { .. } => {
-                    return Err("DirectAccum schedule requires less".to_owned())
-                }
-                LoopOperationV1::WriteBinding { binding, value } => {
-                    let value_id = *values
-                        .get(&value)
-                        .ok_or_else(|| format!("missing write value {value:?}"))?;
-                    self.define_at(binding, role, value_id);
-                }
-            }
-            emitted.push(operation);
-        }
-        Ok(OperationEmissionReceiptV1 {
-            emitted: emitted.into_boxed_slice(),
-            values: values.iter().map(|(key, value)| (*key, *value)).collect(),
-        })
-    }
-
-    fn define_at(&mut self, key: LoopBindingKeyV1, role: PhysicalRoleV1, value: ValueId) {
-        let binding = self.projection.resolve(key);
-        self.ssa
-            .define(binding, self.block(role), value)
-            .expect("SSA define");
-        self.defines.push((key, role, value));
-    }
-
-    fn read_at(&mut self, key: LoopBindingKeyV1, role: PhysicalRoleV1) -> ValueId {
-        let binding = self.projection.resolve(key);
-        let block = self.block(role);
-        let mut adapter = MirBindingSsaAdapterV1::new(&mut self.builder, &mut self.phis);
-        let value = self
-            .ssa
-            .read(&mut adapter, binding, block)
-            .expect("SSA read");
-        self.reads.push((key, role, value));
-        value
-    }
-
-    fn emit_jump(&mut self, from: PhysicalRoleV1, to: PhysicalRoleV1) {
-        let source = self.block(from);
-        let target = self.block(to);
-        let function = self
-            .builder
-            .function_state
-            .current_function
-            .as_mut()
-            .expect("candidate function");
-        self.cfg
-            .emit_jump(function, source, target)
-            .expect("canonical jump");
-    }
-
-    fn emit_branch(&mut self, from: PhysicalRoleV1, condition: ValueId) {
-        let source = self.block(from);
-        let body = self.block(PhysicalRoleV1::Body);
-        let after = self.block(PhysicalRoleV1::After);
-        let function = self
-            .builder
-            .function_state
-            .current_function
-            .as_mut()
-            .expect("candidate function");
-        self.cfg
-            .emit_branch(function, source, condition, body, after)
-            .expect("canonical branch");
-    }
-
-    fn seal(&mut self, role: PhysicalRoleV1) {
-        let block = self.block(role);
-        let witness = {
-            let function = self
-                .builder
-                .function_state
-                .current_function
-                .as_mut()
-                .expect("candidate function");
-            self.cfg.seal_block(function, block).expect("CFG seal")
-        };
-        self.sealed_predecessors
-            .insert(role, witness.predecessors().into());
-        let mut adapter = MirBindingSsaAdapterV1::new(&mut self.builder, &mut self.phis);
-        self.ssa
-            .seal(&mut adapter, block, &witness)
-            .expect("SSA seal");
-    }
-
-    fn emit_return(&mut self, role: PhysicalRoleV1) {
-        let block = self.block(role);
-        TestExitOwnerV1::emit_unit_return(&mut self.builder, block);
+        emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+            .emit_operations(role, operations, values)
     }
 
     fn finish(self) -> LoopSsaEmissionReceiptV1 {
@@ -542,50 +333,16 @@ impl CanonicalLoopSsaSessionV1 {
         receipt
     }
 
-    fn finish_with_builder(self) -> (MirBuilder, LoopSsaEmissionReceiptV1) {
-        let CanonicalLoopSsaSessionV1 {
-            mut builder,
-            cfg,
-            ssa,
-            phis,
-            reads,
-            defines,
-            sealed_predecessors,
-            ..
-        } = self;
-        ssa.finish().expect("SSA finish");
-        cfg.finish(
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .expect("candidate function"),
-        )
-        .expect("CFG finish");
-        let header = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .expect("candidate function")
-            .get_block(bb(1))
-            .expect("header");
-        let header_phi_inputs = header
-            .instructions
-            .iter()
-            .filter_map(|instruction| match instruction {
-                MirInstruction::Phi { inputs, .. } => Some(inputs.clone().into_boxed_slice()),
-                _ => None,
-            })
-            .collect::<Vec<_>>()
-            .into_boxed_slice();
-        phis.commit(&mut builder).expect("PhiTxn commit");
-        let receipt = LoopSsaEmissionReceiptV1 {
-            reads: reads.into_boxed_slice(),
-            defines: defines.into_boxed_slice(),
-            sealed_predecessors: sealed_predecessors.into_iter().collect(),
-            header_phi_inputs,
-        };
-        (builder, receipt)
+    fn finish_with_builder(mut self) -> (MirBuilder, LoopSsaEmissionReceiptV1) {
+        let receipt =
+            emitter_tests::CanonicalLoopSsaEmitterV1::new(&mut self.builder, &mut self.state)
+                .finish()
+                .expect("finish canonical session");
+        (self.builder, receipt)
+    }
+
+    fn into_builder(self) -> MirBuilder {
+        self.builder
     }
 }
 
@@ -597,7 +354,7 @@ fn direct_accum_uses_one_canonical_cfg_and_binding_ssa_owner() {
 
     let header_i = session.read_at(LoopBindingKeyV1::new(0), PhysicalRoleV1::Header);
     let header_sum = session.read_at(LoopBindingKeyV1::new(1), PhysicalRoleV1::Header);
-    let condition = session.emit_const_bool(session.block(PhysicalRoleV1::Header), true);
+    let condition = session.emit_const_bool(role_block(PhysicalRoleV1::Header), true);
     session.emit_branch(PhysicalRoleV1::Header, condition);
 
     session.seal(PhysicalRoleV1::Body);
@@ -605,10 +362,10 @@ fn direct_accum_uses_one_canonical_cfg_and_binding_ssa_owner() {
     let body_sum = session.read_at(LoopBindingKeyV1::new(1), PhysicalRoleV1::Body);
     assert_eq!(body_i, header_i);
     assert_eq!(body_sum, header_sum);
-    let one = session.emit_const_i64(session.block(PhysicalRoleV1::Body), 1);
-    let next_sum = session.emit_add(session.block(PhysicalRoleV1::Body), body_sum, one);
+    let one = session.emit_const_i64(role_block(PhysicalRoleV1::Body), 1);
+    let next_sum = session.emit_add(role_block(PhysicalRoleV1::Body), body_sum, one);
     session.define_at(LoopBindingKeyV1::new(1), PhysicalRoleV1::Body, next_sum);
-    let next_i = session.emit_add(session.block(PhysicalRoleV1::Body), body_i, one);
+    let next_i = session.emit_add(role_block(PhysicalRoleV1::Body), body_i, one);
     session.define_at(LoopBindingKeyV1::new(0), PhysicalRoleV1::Body, next_i);
     session.emit_jump(PhysicalRoleV1::Body, PhysicalRoleV1::Step);
 
@@ -668,7 +425,7 @@ fn canonical_session_has_no_unsealed_predecessor_vectors() {
     let mut session = CanonicalLoopSsaSessionV1::new();
     session.emit_jump(PhysicalRoleV1::Preheader, PhysicalRoleV1::Header);
     session.seal(PhysicalRoleV1::Preheader);
-    let condition = session.emit_const_bool(session.block(PhysicalRoleV1::Header), true);
+    let condition = session.emit_const_bool(role_block(PhysicalRoleV1::Header), true);
     session.read_at(LoopBindingKeyV1::new(0), PhysicalRoleV1::Header);
     session.read_at(LoopBindingKeyV1::new(1), PhysicalRoleV1::Header);
     session.emit_branch(PhysicalRoleV1::Header, condition);

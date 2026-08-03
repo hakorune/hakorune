@@ -33,7 +33,7 @@ fn operation_failure_aborts_shared_phi_transaction_and_fresh_session_reuses() {
     let mut session = CanonicalLoopSsaSessionV1::new();
     session.emit_jump(PhysicalRoleV1::Preheader, PhysicalRoleV1::Header);
     session.seal(PhysicalRoleV1::Preheader);
-    let mut values = session.entry_values.clone();
+    let mut values = session.entry_values().clone();
     session.emit_header_carriers(&schedule, &mut values);
     assert_eq!(header_phi_count(&session.builder), 2);
 
@@ -56,19 +56,15 @@ fn operation_failure_aborts_shared_phi_transaction_and_fresh_session_reuses() {
         )
         .expect_err("missing operation input must fail after a prior MIR effect");
     assert!(failed.contains("missing binary lhs"));
+    assert!(failed.contains("txn_abort"));
 
-    let super::CanonicalLoopSsaSessionV1 {
-        mut builder, phis, ..
-    } = session;
-    let abort = phis.abort_on_err(&mut builder, failed);
-    assert_eq!(abort.pending_count(), 2);
-    assert!(abort.cleanup_failures().is_empty());
+    let builder = session.into_builder();
     assert_eq!(header_phi_count(&builder), 0);
 
     let mut fresh = CanonicalLoopSsaSessionV1::new();
     fresh.emit_jump(PhysicalRoleV1::Preheader, PhysicalRoleV1::Header);
     fresh.seal(PhysicalRoleV1::Preheader);
-    let mut fresh_values = fresh.entry_values.clone();
+    let mut fresh_values = fresh.entry_values().clone();
     fresh.emit_header_carriers(&schedule, &mut fresh_values);
     assert_eq!(header_phi_count(&fresh.builder), 2);
 }

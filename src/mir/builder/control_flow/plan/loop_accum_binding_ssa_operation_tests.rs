@@ -19,7 +19,7 @@ fn direct_operation_schedule_emits_through_one_binding_ssa_owner() {
     session.emit_jump(PhysicalRoleV1::Preheader, PhysicalRoleV1::Header);
     session.seal(PhysicalRoleV1::Preheader);
 
-    let mut values = session.entry_values.clone();
+    let mut values = session.entry_values().clone();
     session.emit_header_carriers(&schedule, &mut values);
     let repeated_i = session.read_at(LoopBindingKeyV1::new(0), PhysicalRoleV1::Header);
     assert_eq!(repeated_i, values[&LoopValueKeyV1::new(0)]);
