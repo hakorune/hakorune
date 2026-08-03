@@ -1,15 +1,12 @@
 //! Located materializer for the whole-owner trivial Binding SSA route.
 
 use crate::ast::{ASTNode, LiteralValue};
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
-use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::resolved_control_flow::if_control::{
-    FunctionIfControlUseLedgerV1, ResolvedIfControlMaterializationV1, ResolvedIfElsePortV1,
-    VerifiedResolvedFunctionIfControlV1,
+    ResolvedIfControlMaterializationV1, ResolvedIfElsePortV1, VerifiedResolvedFunctionIfControlV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{
@@ -21,14 +18,11 @@ use crate::mir::resolved_value_profile::product::{
 use crate::mir::resolved_value_profile::TrivialProfileConsumptionV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
-use super::super::completion_consumption::{
-    ReadyFunctionCompletionV1, ResolvedFunctionCompletionConsumptionV1,
-};
-use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
+use super::super::completion_consumption::ReadyFunctionCompletionV1;
 use super::super::MirBuilder;
-use super::identity::ResolvedSsaIdentityStateV2;
 use super::operation::{emit_binary, mir_type};
 use super::parameter_entry::publish_parameter_entries_v1;
+use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 
 pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowererV1<
     'builder,
@@ -36,14 +30,8 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowerer
 > {
     builder: &'builder mut MirBuilder,
     input: ResolvedFunctionLoweringInputV1<'source>,
-    identity: ResolvedSsaIdentityStateV2<'source>,
-    semantics: ResolvedSemanticStackV1,
-    if_control: FunctionIfControlUseLedgerV1,
+    session: CanonicalSsaFunctionSessionV2<'source>,
     profile: TrivialProfileConsumptionV1,
-    completion: ResolvedFunctionCompletionConsumptionV1,
-    cfg: CanonicalCfgSessionV1,
-    phis: PhiTxn,
-    implicit_completion: bool,
 }
 
 impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
@@ -80,33 +68,20 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             requires_direct_call_capability,
         )
         .map_err(str::to_string)?;
-        let if_controls = if_control.row_count();
-        let if_branches = if_controls + if_control.explicit_else_count();
-        let semantics = ResolvedSemanticStackV1::new_with_expectations(
-            input.function(),
-            input.function().lowering_roots(),
-            ResolvedSemanticExpectedCountsV1::new(block_expr_count, if_controls, if_branches),
-        )?;
-        let implicit_completion = completion.is_implicit_void();
-        let completion = ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion)?;
+        let session =
+            CanonicalSsaFunctionSessionV2::new(input, if_control, completion, block_expr_count)?;
         Ok(Self {
             builder,
             input,
-            identity: ResolvedSsaIdentityStateV2::new(input.function()),
-            semantics,
-            if_control: if_control.into_use_ledger(),
+            session,
             profile: TrivialProfileConsumptionV1::new(profile),
-            completion,
-            cfg: CanonicalCfgSessionV1::new(),
-            phis: PhiTxn::begin("canonical_trivial_binding_ssa"),
-            implicit_completion,
         })
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn lower(
         mut self,
     ) -> Result<ReadyFunctionCompletionV1, String> {
-        publish_parameter_entries_v1(self.builder, &mut self.identity, &mut self.profile)?;
+        publish_parameter_entries_v1(self.builder, &mut self.session.identity, &mut self.profile)?;
         let body = self
             .input
             .source()
@@ -116,32 +91,37 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         let body_end = u32::try_from(body.statements().len()).map_err(|_| {
             "[freeze:contract][canonical_binding_ssa/body_length_overflow]".to_string()
         })?;
-        if self.completion_is_implicit() {
+        if self.session.completion_is_implicit() {
             self.profile
                 .claim_terminal_implicit_no_value(body.site(), body_end)?;
         }
         self.seal_current_if_needed()?;
 
-        self.semantics.finish()?;
+        self.session.semantics.finish()?;
         self.finish_cfg()?;
         self.profile.finish()?;
-        self.if_control
+        self.session
+            .if_control
             .finish()
             .map_err(|error| format!("[freeze:contract][if_control/finish] {error:?}"))?;
-        self.identity.finish()?;
-        self.phis
+        self.session.identity.finish()?;
+        self.session
+            .phis
             .commit(self.builder)
             .map_err(|error| error.to_string())?;
         self.builder
             .function_state
             .resolved_binding_state
             .finish(self.input.owner())?;
-        self.completion
-            .finish(body.site(), body_end, self.semantics.function_region())
+        self.session.completion.finish(
+            body.site(),
+            body_end,
+            self.session.semantics.function_region(),
+        )
     }
 
     fn completion_is_implicit(&self) -> bool {
-        self.implicit_completion
+        self.session.completion_is_implicit()
     }
 
     fn lower_body(
@@ -183,7 +163,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             } => self.lower_local(statement, variables, initial_values, coverage),
             ASTNode::Assignment { .. } => self.lower_assignment(statement, coverage),
             ASTNode::Return { .. } => {
-                if self.completion.returns_value() {
+                if self.session.completion.returns_value() {
                     let value = self
                         .input
                         .source()
@@ -195,9 +175,9 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                     let block = self.builder.function_state.current_block.ok_or_else(|| {
                         "[freeze:contract][canonical_completion/current_block_missing]".to_string()
                     })?;
-                    self.completion.claim_explicit_return(
+                    self.session.completion.claim_explicit_return(
                         statement.site(),
-                        self.semantics.function_region(),
+                        self.session.semantics.function_region(),
                         block,
                         return_value,
                     )?;
@@ -212,10 +192,13 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                     }
                     self.profile
                         .claim_terminal_explicit_no_value(statement.site())?;
-                    self.completion
-                        .claim_explicit_unit(statement.site(), self.semantics.function_region())?;
+                    self.session.completion.claim_explicit_unit(
+                        statement.site(),
+                        self.session.semantics.function_region(),
+                    )?;
                 }
-                self.identity
+                self.session
+                    .identity
                     .mark_return(ResolvedExitSiteV1::Statement(statement.site().clone()))?;
                 Ok(())
             }
@@ -263,7 +246,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 statement: statement.site().clone(),
                 ordinal: ordinal as u32,
             };
-            let binding = self.identity.publish_declaration(
+            let binding = self.session.identity.publish_declaration(
                 &site,
                 BindingKindV1::Local {
                     ordinal: ordinal as u32,
@@ -299,6 +282,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 .map_err(|error| format!("[freeze:contract][if_control/target] {error:?}"))?;
         }
         let binding = self
+            .session
             .identity
             .resolve_assignment_binding(target.site(), name)?;
         let value = self
@@ -308,7 +292,8 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .map_err(|error| error.to_string())?;
         let (value, actual) = self.lower_expr(&value, coverage)?;
         let block = self.current_block()?;
-        self.identity
+        self.session
+            .identity
             .define_assignment(target.site(), binding, block, value)?;
         let expected = self.profile.claim_assignment(binding, target.site())?;
         require_representation(actual, expected, "assignment")
@@ -330,9 +315,9 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             ASTNode::Literal { value, .. } => (self.lower_literal(value)?, None),
             ASTNode::Variable { name, .. } => {
                 let block = self.current_block()?;
-                let (_, value) = self.identity.variable_value(
+                let (_, value) = self.session.identity.variable_value(
                     self.builder,
-                    &mut self.phis,
+                    &mut self.session.phis,
                     block,
                     expression.site(),
                     name,
@@ -426,12 +411,14 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 .map_err(|error| format!("[freeze:contract][if_control/body] {error:?}"))?;
         }
         let session = self
+            .session
             .semantics
             .enter_block_expr(self.input.function(), pair)?;
         self.lower_body(&prelude, coverage.as_deref_mut())?;
         let result = self.lower_expr(&tail, coverage)?;
-        self.semantics
-            .close_scope_region_success(session, &mut self.identity)?;
+        self.session
+            .semantics
+            .close_scope_region_success(session, &mut self.session.identity)?;
         Ok(result)
     }
 
@@ -440,6 +427,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             unreachable!("If helper requires If")
         };
         let mut row = self
+            .session
             .if_control
             .claim(statement)
             .map_err(|error| format!("[freeze:contract][if_control/claim] {error:?}"))?;
@@ -458,7 +446,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         )?;
 
         let regions = row.regions();
-        let control = self.semantics.enter_region(
+        let control = self.session.semantics.enter_region(
             self.input.function(),
             regions.control(),
             RegionKindV1::If,
@@ -475,7 +463,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         self.builder.ensure_block_exists(merge)?;
         let false_target = else_block.unwrap_or(merge);
         {
-            let cfg = &self.cfg;
+            let cfg = &self.session.cfg;
             let function = self
                 .builder
                 .function_state
@@ -498,15 +486,16 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .map_err(|error| error.to_string())?;
         row.claim_body(&then_body)
             .map_err(|error| format!("[freeze:contract][if_control/then_body] {error:?}"))?;
-        let then_scope = self.semantics.enter_scope_region(
+        let then_scope = self.session.semantics.enter_scope_region(
             self.input.function(),
             regions.then_pair(),
             ScopeKindV1::IfThen,
             RegionKindV1::IfThen,
         )?;
         self.lower_body(&then_body, Some(&mut row))?;
-        self.semantics
-            .close_scope_region_success(then_scope, &mut self.identity)?;
+        self.session
+            .semantics
+            .close_scope_region_success(then_scope, &mut self.session.identity)?;
         let then_exit = self.current_block()?;
         self.emit_jump(then_exit, merge)?;
 
@@ -523,15 +512,16 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             let pair = regions.else_pair().ok_or_else(|| {
                 "[freeze:contract][canonical_binding_ssa/else_pair_missing]".to_string()
             })?;
-            let else_scope = self.semantics.enter_scope_region(
+            let else_scope = self.session.semantics.enter_scope_region(
                 self.input.function(),
                 pair,
                 ScopeKindV1::IfElse,
                 RegionKindV1::IfElse,
             )?;
             self.lower_body(&else_body, Some(&mut row))?;
-            self.semantics
-                .close_scope_region_success(else_scope, &mut self.identity)?;
+            self.session
+                .semantics
+                .close_scope_region_success(else_scope, &mut self.session.identity)?;
             let else_exit = self.current_block()?;
             self.emit_jump(else_exit, merge)?;
         } else if else_body.is_some() || regions.else_pair().is_some() {
@@ -543,11 +533,11 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         row.finish_coverage()
             .map_err(|error| format!("[freeze:contract][if_control/coverage] {error:?}"))?;
         let _representation_only = self.profile.claim_if_merges(statement.site())?;
-        self.semantics.close_region(control)
+        self.session.semantics.close_region(control)
     }
 
     fn emit_jump(&mut self, source: BasicBlockId, target: BasicBlockId) -> Result<(), String> {
-        let cfg = &self.cfg;
+        let cfg = &self.session.cfg;
         let function = self
             .builder
             .function_state
@@ -580,7 +570,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             return Ok(());
         }
         let witness = {
-            let cfg = &mut self.cfg;
+            let cfg = &mut self.session.cfg;
             let function = self
                 .builder
                 .function_state
@@ -592,12 +582,13 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             cfg.seal_block(function, block)
                 .map_err(|error| error.to_string())?
         };
-        self.identity
-            .seal_block(self.builder, &mut self.phis, block, &witness)
+        self.session
+            .identity
+            .seal_block(self.builder, &mut self.session.phis, block, &witness)
     }
 
     fn finish_cfg(&mut self) -> Result<(), String> {
-        let cfg = std::mem::take(&mut self.cfg);
+        let cfg = std::mem::take(&mut self.session.cfg);
         let function = self
             .builder
             .function_state

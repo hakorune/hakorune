@@ -3,7 +3,6 @@
 mod callable_abi;
 mod direct_call;
 mod direct_call_type;
-mod identity;
 mod lowerer;
 mod operation;
 mod operation_type;

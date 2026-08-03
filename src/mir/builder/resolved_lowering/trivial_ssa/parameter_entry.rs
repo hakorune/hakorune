@@ -11,7 +11,7 @@ use crate::mir::resolved_value_profile::{
 };
 use crate::mir::ValueId;
 
-use super::identity::ResolvedSsaIdentityStateV2;
+use super::super::canonical_ssa::ResolvedSsaIdentityStateV2;
 
 pub(super) fn publish_parameter_entries_v1(
     builder: &mut MirBuilder,

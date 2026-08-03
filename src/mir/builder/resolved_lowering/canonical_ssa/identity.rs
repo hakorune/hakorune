@@ -13,15 +13,18 @@ use crate::mir::{BasicBlockId, ValueId};
 use super::super::identity::ledger::ResolvedIdentityLedgerV2;
 use super::super::semantic_stack::ResolvedScopeRetirementV1;
 
-/// Exact source identity plus the sole reaching-value authority for SSA-I1-T.
-pub(super) struct ResolvedSsaIdentityStateV2<'source> {
+/// Exact source identity plus the sole reaching-value authority for canonical
+/// function profiles.
+pub(in crate::mir::builder::resolved_lowering) struct ResolvedSsaIdentityStateV2<'source> {
     ledger: ResolvedIdentityLedgerV2<'source>,
     ssa: BindingSsaBuilderV1<PhiToken>,
     active: BTreeSet<BindingRefV1>,
 }
 
 impl<'source> ResolvedSsaIdentityStateV2<'source> {
-    pub(super) fn new(product: &'source VerifiedResolvedFunctionV1) -> Self {
+    pub(in crate::mir::builder::resolved_lowering) fn new(
+        product: &'source VerifiedResolvedFunctionV1,
+    ) -> Self {
         Self {
             ledger: ResolvedIdentityLedgerV2::new(product),
             ssa: BindingSsaBuilderV1::new(product.owner()),
@@ -29,7 +32,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         }
     }
 
-    pub(super) fn publish_declaration(
+    pub(in crate::mir::builder::resolved_lowering) fn publish_declaration(
         &mut self,
         site: &SourceBindingSiteV1,
         expected_kind: BindingKindV1,
@@ -52,7 +55,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         Ok(binding)
     }
 
-    pub(super) fn variable_value(
+    pub(in crate::mir::builder::resolved_lowering) fn variable_value(
         &mut self,
         builder: &mut MirBuilder,
         phis: &mut PhiTxn,
@@ -70,7 +73,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         Ok((binding, value))
     }
 
-    pub(super) fn resolve_assignment_binding(
+    pub(in crate::mir::builder::resolved_lowering) fn resolve_assignment_binding(
         &self,
         site: &SourceExprSiteV1,
         expected_name: &str,
@@ -82,7 +85,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         Ok(binding)
     }
 
-    pub(super) fn define_assignment(
+    pub(in crate::mir::builder::resolved_lowering) fn define_assignment(
         &mut self,
         site: &SourceExprSiteV1,
         binding: BindingRefV1,
@@ -95,7 +98,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
             .map_err(|error| error.to_string())
     }
 
-    pub(super) fn seal_block(
+    pub(in crate::mir::builder::resolved_lowering) fn seal_block(
         &mut self,
         builder: &mut MirBuilder,
         phis: &mut PhiTxn,
@@ -108,11 +111,14 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
             .map_err(|error| error.to_string())
     }
 
-    pub(super) fn mark_return(&mut self, site: ResolvedExitSiteV1) -> Result<(), String> {
+    pub(in crate::mir::builder::resolved_lowering) fn mark_return(
+        &mut self,
+        site: ResolvedExitSiteV1,
+    ) -> Result<(), String> {
         self.ledger.mark_return(site)
     }
 
-    pub(super) fn finish(self) -> Result<(), String> {
+    pub(in crate::mir::builder::resolved_lowering) fn finish(self) -> Result<(), String> {
         self.ssa.finish().map_err(|error| error.to_string())?;
         self.ledger.finish(self.active)
     }
