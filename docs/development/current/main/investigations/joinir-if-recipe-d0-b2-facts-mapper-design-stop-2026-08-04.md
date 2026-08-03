@@ -1,6 +1,6 @@
 # JOINIR-IF-RECIPE-D0-B2-FACTS-MAPPER-DESIGN-STOP
 
-Status: D0-B2-A/B/C landed; D0-B2-D invariant-defense design stop active
+Status: D0-B2-A/B/C landed; D0-B2-D closed; superseded by D0-B3 JoinSig design stop
 Date: 2026-08-04
 Decision target: same-pass facts -> fixed-shell `IfRecipeArtifactV1`
 
@@ -110,9 +110,10 @@ retry.
    source-claim paths, arbitrary accepted item indices, and reachable mapper
    and preflight rejection rows are asserted. Do not add JoinSig or PHI.
 4. `D0-B2-D` — classify remaining defensive mapper variants as sealed-facts
-   invariants versus reachable input rejection. Do not synthesize malformed
-   non-`Clone` facts solely to hit defensive arms. Then open D0-B3 for
-   non-`Clone` `IfJoinSig` and typed physical-input sealing.
+   invariants versus reachable input rejection. Closed by retaining those
+   arms as a documented sealed-facts firewall; no synthetic malformed
+   non-`Clone` facts are used. D0-B3 is the next design stop for non-`Clone`
+   `IfJoinSig` and typed physical-input sealing.
 
 The classification is now explicit:
 

@@ -1,5 +1,5 @@
 ---
-Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B/C facts/mapper gates landed; D0-B2-D invariant-defense design stop is active
+Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B/C facts/mapper gates landed; D0-B2-D firewall classified; D0-B3 JoinSig design stop active
 Date: 2026-08-04
 Decision: JOINIR-IF-RECIPE-CONTRACT-V1
 Scope: portable semantic contract for the first resolved-trivial If shape
@@ -135,7 +135,8 @@ and reachable mapper rejection matrix now exist in
 `src/mir/if_recipe_contract/` and `src/mir/resolved_value_profile/` (commits
 `8999950faf`, `a907874551`, `1bd50829c5`, `f2afec934d`, and
 `1fd0e5ab70`). Defensive-only mapper variants are not ordinary-input
-coverage; D0-B2-D must classify or retire them without synthetic malformed
-facts. This remains a caller-zero contract: no production If recipe consumer,
-JoinSig, or PHI/CFG wiring is connected. Repository-wide PHI/CFG ownership is
-not unified. Those claims require D0-B2-D and D0-C/D0-D evidence.
+coverage; D0-B2-D retains them as a documented sealed-facts firewall without
+synthetic malformed facts. This remains a caller-zero contract: no production
+If recipe consumer, JoinSig, or PHI/CFG wiring is connected. Repository-wide
+PHI/CFG ownership is not unified. Those claims require the D0-B3 logical seal
+and later D0-C/D0-D evidence.
