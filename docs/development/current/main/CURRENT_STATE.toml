@@ -440,9 +440,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "joinir-loop-accum-resolved-commit-projection-hardening-p0-design-2026-08-03"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-accum-resolved-commit-projection-hardening-p0-design-2026-08-03.md"
-latest_card_summary = """DirectAccum I0/R0/S0 is landed through compile_resolved and same-compiler success reuse is green. The next P0 design stop freezes ingress late-failure zero-commit/fingerprint parity and canonical final-verification result projection; PHI/SSA ownership remains the existing single canonical session, while Raw/normal semantics stay separate."""
+latest_card = "joinir-loop-canonical-family-plan-envelope-f0-design-2026-08-03"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-canonical-family-plan-envelope-f0-design-2026-08-03.md"
+latest_card_summary = """DirectAccum I0/R0/S0 and commit/projection hardening are landed. The next accepted design stop separates semantic Loop family plans from the BindingSsaTrivial lifecycle, extracts the 796-line source-bound plan owner, and only then nests DirectAccum under one Loop envelope. Nested/True/Cond/Generic placeholders and new PHI/SSA or route owners are forbidden."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
