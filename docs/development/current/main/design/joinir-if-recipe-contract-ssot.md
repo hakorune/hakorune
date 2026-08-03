@@ -1,5 +1,5 @@
 ---
-Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B/C facts/mapper gates landed; D0-B2-D firewall classified; D0-B3-A logical JoinSig, D0-B3-B physical-input seal, and D0-B3-C guard/boundary gates landed; D0-C producer/consumer design closed; D0-C1/D0-C2 implementation authorized
+Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B/C facts/mapper gates landed; D0-B2-D firewall classified; D0-B3-A logical JoinSig, D0-B3-B physical-input seal, and D0-B3-C guard/boundary gates landed; D0-C producer/consumer design and D0-C1/D0-C2 implementation landed; D0-D/E physical adoption and selected-edge cutover remain design-gated
 Date: 2026-08-04
 Decision: JOINIR-IF-RECIPE-CONTRACT-V1
 Scope: portable semantic contract for the first resolved-trivial If shape
@@ -154,9 +154,9 @@ choose or repair a route. The existing `lower_if` remains the parity/physical
 oracle until D0-D; D0-C does not claim selected-edge retirement.
 
 D0-C1 promotes the mapper to one production caller. D0-C2 threads and
-consumes the non-Clone physical input once and proves candidate isolation plus
-semantic/MIR/CFG/PHI/interpreter parity. D0-D is the later physical adoption
-row; D0-E is the selected old-edge cutover row.
+consumes the non-Clone physical input once; focused resolved-lowering parity,
+candidate lifecycle, and structural guards are green. D0-D is the later
+physical adoption row; D0-E is the selected old-edge cutover row.
 
 ## Non-claims
 

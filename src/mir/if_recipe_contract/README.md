@@ -1,9 +1,9 @@
 # Portable If Recipe Contract
 
 This directory owns the Builder-free, fixed-shell semantic contract for the
-first If migration slice. It is intentionally disconnected from production
-lowering; the caller-zero logical JoinSig is accepted, while physical input and
-production consumption remain later rows.
+first If migration slice. The named D0-C adapter is its only production seam;
+the contract remains Builder-free while physical CFG/SSA/PHI work stays in the
+canonical resolved lowerer.
 
 ## Authority
 
@@ -20,12 +20,12 @@ production consumption remain later rows.
   and provenance are never part of semantic normalization.
 - `IfJoinSigElaboratorV1` consumes only `VerifiedIfRecipeV1` and seals the
   fixed logical transfer edges and join values. `VerifiedIfJoinSigV1` is a
-  non-`Clone` caller-zero proof, not a physical CFG or PHI owner.
-- `VerifiedIfPhysicalInputV1::from_artifact` is the caller-zero one-shot
+  non-`Clone` logical proof, not a physical CFG or PHI owner.
+- `VerifiedIfPhysicalInputV1::from_artifact` is the one-shot
   pairing boundary. It consumes one verified artifact and internally
   elaborates the matching JoinSig, so callers cannot supply an unrelated
   artifact/signature pair. This wrapper still has no Builder, MIR IDs, CFG,
-  PHI, or production consumer.
+  or PHI authority; only the named D0-C adapter may consume it.
 
 ## Forbidden dependencies
 
@@ -47,8 +47,9 @@ production path.
 
 ## Current non-claims
 
-- No production If lowerer consumes this artifact, logical JoinSig, or
-  physical-input wrapper yet.
+- Only the named D0-C adapter consumes this artifact, logical JoinSig, and
+  physical-input wrapper; no other production route may construct or consume
+  them.
 - No canonical PHI writer or physical block projection is created here.
 - Verification proves internal artifact structure, not AST provenance or MIR
   parity.

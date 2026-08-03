@@ -17,6 +17,7 @@ mod flow_consumption;
 mod identity;
 pub(in crate::mir::builder) mod if_cfg_ready_bridge;
 mod if_materialization;
+mod if_recipe_adapter;
 mod located_if;
 mod lowerer;
 mod nested_predicate_adapter;
@@ -73,6 +74,10 @@ use super::MirBuilder;
 use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal::ReadyFunctionDraftSealV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
+use if_recipe_adapter::{
+    admit_trivial_if_recipe_v1, produce_trivial_if_physical_input_v1,
+    CanonicalIfRecipeAdmissionDispositionV1,
+};
 use lowerer::CanonicalFunctionLowererV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 
@@ -411,6 +416,23 @@ impl MirBuilder {
         let lowering = {
             let builder = session.builder_view_mut_for_lowering();
             (|| -> Result<_, (NormalFunctionDraftLoweringStageV1, String)> {
+                let recipe_preflight =
+                    produce_trivial_if_physical_input_v1(&profile, input.function()).map_err(
+                        |error| {
+                            (
+                                NormalFunctionDraftLoweringStageV1::BodyLowering,
+                                format!("[freeze:contract][if_recipe/producer] {error:?}"),
+                            )
+                        },
+                    )?;
+                let recipe_admission =
+                    admit_trivial_if_recipe_v1(recipe_preflight, input.function(), &if_control)
+                        .map_err(|error| {
+                            (
+                                NormalFunctionDraftLoweringStageV1::BodyLowering,
+                                format!("[freeze:contract][if_recipe/admission] {error:?}"),
+                            )
+                        })?;
                 builder
                     .function_state
                     .resolved_binding_state
@@ -435,6 +457,7 @@ impl MirBuilder {
                     completion,
                     profile,
                     block_expr_count,
+                    recipe_admission,
                 )
                 .map_err(|error| (NormalFunctionDraftLoweringStageV1::BodyLowering, error))?
                 .lower()

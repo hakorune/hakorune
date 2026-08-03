@@ -549,8 +549,8 @@ guard_joinir_logical_demand_contract() {
 }
 
 # The portable If contract shares this lane guard with the Loop contract.  The
-# If row is intentionally caller-zero: only the contract subtree may mention
-# its logical/physical-input wrappers until D0-C opens a named consumer.
+# D0-C seam permits exactly one named adapter outside the contract subtree;
+# every other logical/physical-input constructor remains caller-zero.
 guard_joinir_if_recipe_contract() {
   local root_dir="$1"
   local tag="$2"
@@ -558,6 +558,7 @@ guard_joinir_if_recipe_contract() {
   local join_sig="$contract_dir/join_sig.rs"
   local physical_input="$contract_dir/physical_input.rs"
   local tests="$contract_dir/tests.rs"
+  local adapter="$root_dir/src/mir/builder/resolved_lowering/if_recipe_adapter.rs"
   local files=(
     "$contract_dir/README.md"
     "$contract_dir/mod.rs"
@@ -570,6 +571,7 @@ guard_joinir_if_recipe_contract() {
     "$contract_dir/source_binding.rs"
     "$contract_dir/verify.rs"
     "$tests"
+    "$adapter"
   )
   local file lines
 
@@ -580,6 +582,11 @@ guard_joinir_if_recipe_contract() {
       guard_fail "$tag" "If recipe contract file exceeds boundary: ${file#"$root_dir/"} lines=$lines"
     fi
   done
+  if rg -n -w \
+    'ASTNode|MirBuilder|CorePlan|ValueId|BasicBlockId|IfCfgSessionV1|RouteAttemptOutcomeV1|Retry|CanonicalSsaFunctionSessionV2|PhiTxn|BindingSsaBuilderV1' \
+    "$adapter" >/dev/null; then
+    guard_fail "$tag" "D0-C If adapter acquired AST, Builder, route, or physical SSA authority"
+  fi
 
   # `schema.rs` legitimately uses Option for the explicit/implicit else
   # disposition.  The physical/logical proof files must not acquire it.
@@ -611,7 +618,7 @@ guard_joinir_if_recipe_contract() {
         "$root_dir/src/mir" || true; }
   )
   for file in "${symbol_files[@]}"; do
-    if [[ "$file" != "$contract_dir"/* ]]; then
+    if [[ "$file" != "$contract_dir"/* && "$file" != "$adapter" ]]; then
       guard_fail "$tag" "If logical/physical-input symbol escaped caller-zero subtree: ${file#"$root_dir/"}"
     fi
   done
@@ -620,8 +627,22 @@ guard_joinir_if_recipe_contract() {
   mapfile -t physical_callers < <(
     { rg -l 'VerifiedIfPhysicalInputV1::from_artifact\(' "$root_dir/src/mir" || true; }
   )
-  if (( ${#physical_callers[@]} != 1 )) || [[ "${physical_callers[0]}" != "$tests" ]]; then
-    guard_fail "$tag" "physical-input issuer must remain test-only and caller-zero"
+  if (( ${#physical_callers[@]} != 2 )) || \
+     ! printf '%s\n' "${physical_callers[@]}" | rg -q "^${tests}$" || \
+     ! printf '%s\n' "${physical_callers[@]}" | rg -q "^${adapter}$"; then
+    guard_fail "$tag" "physical-input issuer must have only contract tests plus the named D0-C adapter"
+  fi
+  local mapper_callers=()
+  mapfile -t mapper_callers < <(
+    { rg -l 'map_trivial_if_recipe_v1\(' "$root_dir/src/mir" || true; } |
+      while IFS= read -r file; do
+        [[ "$file" == "$root_dir/src/mir/resolved_value_profile/recipe_mapper.rs" ]] && continue
+        [[ "$file" == *"/tests.rs" || "$file" == *"_tests.rs" ]] && continue
+        printf '%s\n' "$file"
+      done
+  )
+  if (( ${#mapper_callers[@]} != 1 )) || [[ "${mapper_callers[0]}" != "$adapter" ]]; then
+    guard_fail "$tag" "If recipe mapper must have exactly one production caller: the named D0-C adapter"
   fi
   local elaborator_callers=()
   mapfile -t elaborator_callers < <(

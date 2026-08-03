@@ -1,8 +1,7 @@
 # JOINIR-IF-RECIPE-D0-C-PRODUCER-CONSUMER
 
-Status: design closed; the bounded D0-C1/D0-C2 implementation slice is
-authorized. D0-D physical adoption and selected-edge cutover remain separate
-rows.
+Status: D0-C1/D0-C2 implementation landed and verified. D0-D physical
+adoption and selected-edge cutover remain separate design-gated rows.
 Date: 2026-08-04
 
 This card fixes the first production seam for the portable If recipe. It does
@@ -137,12 +136,34 @@ pending-PHI transaction; it is not the whole-module rollback boundary.
   that shape.
 - Repeat other If families only through new design rows.
 
+## D0-C1/D0-C2 closeout
+
+The named adapter is now wired at the central resolved-trivial draft ingress.
+The preflight producer classifies `NotThisShape` before route execution and
+the one-shot admission consumes the selected physical input at the exact
+sealed If site. The existing canonical lowerer still emits the physical
+branch/merge/PHI shape; no old edge was retired in this closeout.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib
+RUSTFLAGS='-Awarnings' cargo test -q --lib resolved_lowering -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test --features vm-reference -q --lib resolved_lowering::if_tests -- --test-threads=1
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+All focused tests and guards are green. The adapter and touched Rust owners
+remain below 800 lines. The next stop is D0-D design, not selected-edge
+deletion.
+
 ## Acceptance gates
 
 ```text
 producer caller count = 1
 physical-input/JoinSig independent constructors = 0
-consumer/physicalizer caller count = 1
+consumer/admission caller count = 1
 new consumer Option/Retry/reselection = 0
 all touched Rust/test files < 800 lines
 explicit-else fixture maps and consumes one receipt

@@ -19,6 +19,7 @@ use crate::mir::resolved_value_profile::TrivialProfileConsumptionV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 use super::super::completion_consumption::ReadyFunctionCompletionV1;
+use super::super::if_recipe_adapter::CanonicalIfRecipeAdmissionDispositionV1;
 use super::super::MirBuilder;
 use super::operation::{emit_binary, mir_type};
 use super::parameter_entry::publish_parameter_entries_v1;
@@ -32,6 +33,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowerer
     input: ResolvedFunctionLoweringInputV1<'source>,
     session: CanonicalSsaFunctionSessionV2<'source>,
     profile: TrivialProfileConsumptionV1,
+    if_recipe: CanonicalIfRecipeAdmissionDispositionV1,
 }
 
 impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
@@ -42,6 +44,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         completion: VerifiedFunctionCompletionV1,
         profile: VerifiedTrivialCanonicalOwnerV1,
         block_expr_count: usize,
+        if_recipe: CanonicalIfRecipeAdmissionDispositionV1,
     ) -> Result<Self, String> {
         if !builder
             .function_state
@@ -75,6 +78,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             input,
             session,
             profile: TrivialProfileConsumptionV1::new(profile),
+            if_recipe,
         })
     }
 
@@ -104,6 +108,9 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .if_control
             .finish()
             .map_err(|error| format!("[freeze:contract][if_control/finish] {error:?}"))?;
+        self.if_recipe
+            .finish()
+            .map_err(|error| format!("[freeze:contract][if_recipe/finish] {error:?}"))?;
         self.session.identity.finish()?;
         self.session
             .phis
@@ -423,6 +430,9 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     }
 
     fn lower_if(&mut self, statement: &LocatedStmtV1<'source>) -> Result<(), String> {
+        self.if_recipe
+            .claim_if(statement)
+            .map_err(|error| format!("[freeze:contract][if_recipe/claim] {error:?}"))?;
         let ASTNode::If { else_body, .. } = statement.node() else {
             unreachable!("If helper requires If")
         };

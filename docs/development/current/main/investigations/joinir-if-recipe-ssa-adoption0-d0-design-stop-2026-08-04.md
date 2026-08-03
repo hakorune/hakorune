@@ -375,13 +375,13 @@ Stop:
   not add the mapper or JoinSig in this closeout commit. They require the next
   source-witness design row.
 
-### D0-C — one canonical production consumer (design closed)
+### D0-C — one canonical production consumer (C1/C2 landed)
 
 The producer/consumer design is fixed in the dedicated card:
 
 `docs/development/current/main/investigations/joinir-if-recipe-d0-c-producer-consumer-design-2026-08-04.md`
 
-The bounded implementation is now authorized as D0-C1/D0-C2. It uses the
+The bounded implementation is now landed as D0-C1/D0-C2. It uses the
 existing resolved-trivial candidate chain and one exact explicit-else shape:
 
 ```text
@@ -403,9 +403,10 @@ rescan for route choice, or new PHI writer is permitted. The existing canonical
 lowerer remains the physical/parity oracle until D0-D.
 
 D0-C1 promotes the mapper to exactly one production caller. D0-C2 threads and
-consumes the non-Clone physical input once, with candidate isolation and
-semantic/MIR/CFG/PHI/interpreter parity gates. Unsupported shapes remain typed
-rejects. D0-D/E alone may remove the selected old physical edge.
+consumes the non-Clone physical input once, with the existing candidate
+lifecycle and semantic/MIR/CFG/PHI/interpreter parity gates green.
+Unsupported shapes remain typed rejects. D0-D/E alone may remove the selected
+old physical edge.
 
 ### D0-D — canonical PHI/CFG adoption
 
