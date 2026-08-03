@@ -1,5 +1,5 @@
 ---
-Status: active design stop / caller-zero only
+Status: topology design sealed / caller-zero only
 Date: 2026-08-03
 Decision: accepted boundary — topology must be fixed before the Accum pilot
 Scope: `JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1`, no M10a wiring
@@ -60,15 +60,33 @@ must never infer a path from logical port names.
 | --- | --- | --- | --- |
 | `Enter: Preheader -> Header` | canonical preheader/header edge | header incoming `(preheader, init)` | in scope |
 | `PredicateTrue: Header -> Body` | header branch to body | no new PHI row | in scope |
-| `PredicateFalse: Header -> After` | header branch plus sealed after reachability | after/final merge row | deferred to P1b |
+| `PredicateFalse: Header -> After` | header branch plus sealed after reachability | explicit after/final merge row from the header exit predecessor | design sealed; P1b witness |
 | `Backedge: Body -> Header` | Standard5 path `Body -> Step -> Header` | header predecessor is terminal `Step`; any staging PHI is explicit | direct body predecessor is not a parity claim |
-| `Break: Body -> After` | body-to-after edge or sealed forwarding path | after/final merge row | deferred to P1b |
-| nested `Always` child | child enter and child break forwarding only | no child predicate/backedge PHI in this golden | shape only; no physical writer |
+| `Break: Body -> After` | body-to-after edge or sealed forwarding path | explicit after merge over every reachable break predecessor | design sealed; P1b witness |
+| nested `Always` child | parent-body segment -> child header; child break -> child after -> parent step | inherited carrier payload is forwarded; no child predicate/backedge PHI in this golden | design sealed; no physical writer |
+
+The fixtures are intentionally separate:
+
+- `DirectAccumConstLoop` is the singleton/fallthrough row: root
+  `Enter + PredicateTrue + PredicateFalse + Backedge`, with the physical
+  `Body -> Step -> Header` path and after rows sourced from the exact
+  `after_cond_preds` set.
+- `accum_nested_v1.json` is the recursive golden: root `Continue` (not
+  `Backedge`) and an `Always` child with `Enter + Break`, no child-owned
+  carrier, and inherited carrier payload visible on the child edges. The child
+  break forwards through child `After` into the parent `Step` path.
+- The current M6-B seeded direct `Body -> Header` map is a caller-zero PHI
+  seam fixture only; it is not Standard5 parity for either row.
+
+`final_values` is a binding-publication obligation, not another JoinSig edge:
+the physical witness must connect the after-PHI/final value to the existing
+binding publication step without creating a second SSA owner.
 
 This seal keeps `VerifiedLoopJoinSigV1` as the semantic authority and makes
 logical-edge expansion a separate physical capability. `PlanLowerer` remains a
-parity oracle only. The Accum pilot cannot close until the deferred after rows,
-the Standard5 step predecessor, and the nested forwarding witness are sealed.
+parity oracle only. P1-D0 is now closed as a design boundary; P1b must issue
+the sealed physical witness and reject any missing after/step/nested forwarding
+row before PHI materialization. M6-B itself remains unchanged and caller-zero.
 
 ## Chosen shape for the next owner
 

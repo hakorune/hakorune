@@ -474,7 +474,11 @@ fn preflight_error(error: impl Into<String>) -> LoopPhiMaterializerErrorV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::builder::MirBuilder;
+    use crate::mir::builder::module_invocation_session::BuilderCoreSeedPolicyV1;
+    use crate::mir::builder::{
+        BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, MirBuilder,
+        ModuleBuilderInvocationSessionV1,
+    };
     use crate::mir::loop_recipe_contract::{
         LoopJoinSigElaboratorV1, LoopRecipeArtifactV1, LoopRecipeVerifierV1,
     };
@@ -496,8 +500,7 @@ mod tests {
         BasicBlockId::new(id)
     }
 
-    fn seeded_builder() -> MirBuilder {
-        let mut builder = MirBuilder::new();
+    fn seed_builder(builder: &mut MirBuilder) {
         let mut function = MirFunction::new(
             FunctionSignature {
                 name: "m6b/accum/0".to_string(),
@@ -589,7 +592,22 @@ mod tests {
         let value_types = function.metadata.value_types.clone();
         builder.function_state.current_function = Some(function);
         builder.function_state.type_ctx.value_types = value_types;
+    }
+
+    fn seeded_builder() -> MirBuilder {
+        let mut builder = MirBuilder::new();
+        seed_builder(&mut builder);
         builder
+    }
+
+    fn candidate_session(live: &MirBuilder) -> ModuleBuilderInvocationSessionV1 {
+        let config = BuilderInvocationConfigV1::snapshot_with_policy(
+            live,
+            BuilderCoreSeedPolicyV1::ContinueLive,
+        );
+        let mut session = ModuleBuilderInvocationSessionV1::open(live, config);
+        seed_builder(session.builder_mut());
+        session
     }
 
     fn map_input() -> LoopLogicalToPhysicalMapInputV1 {
@@ -744,5 +762,34 @@ mod tests {
         let right_receipt =
             materialize_loop_phis(&mut right, &sig, materializer_input(&sig)).unwrap();
         assert_eq!(left_receipt, right_receipt);
+    }
+
+    #[test]
+    fn candidate_abort_after_m6b_effect_allows_fresh_retry() {
+        let live = MirBuilder::new();
+        let before = live.loop_candidate_test_fingerprint();
+        let sig = verified_sig();
+        let mut first = candidate_session(&live);
+        let first_receipt =
+            materialize_loop_phis(first.builder_mut(), &sig, materializer_input(&sig))
+                .expect("first candidate materialization");
+        let first_error = first.prepare_external_commit().unwrap_err();
+        assert_eq!(
+            first_error,
+            BuilderCommitReadinessErrorV1::CurrentFunctionOpen
+        );
+        assert_eq!(live.loop_candidate_test_fingerprint(), before);
+
+        let mut second = candidate_session(&live);
+        let second_receipt =
+            materialize_loop_phis(second.builder_mut(), &sig, materializer_input(&sig))
+                .expect("fresh candidate materialization");
+        assert_eq!(first_receipt, second_receipt);
+        let second_error = second.prepare_external_commit().unwrap_err();
+        assert_eq!(
+            second_error,
+            BuilderCommitReadinessErrorV1::CurrentFunctionOpen
+        );
+        assert_eq!(live.loop_candidate_test_fingerprint(), before);
     }
 }
