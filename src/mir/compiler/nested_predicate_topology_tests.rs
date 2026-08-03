@@ -74,6 +74,18 @@ fn nested_topology_drops_child_j_at_parent_resume() {
     assert!(carriers[0].resume.is_some());
     assert!(carriers[1].resume.is_some());
     assert!(carriers[2].resume.is_none());
+    assert_eq!(
+        carriers[0].resume,
+        Some(NestedPhysicalNodeRefV1::ParentResume(
+            topology.parent_resume()
+        ))
+    );
+    assert_eq!(
+        carriers[1].resume,
+        Some(NestedPhysicalNodeRefV1::ParentResume(
+            topology.parent_resume()
+        ))
+    );
     assert!(!topology
         .predecessor_seals()
         .iter()

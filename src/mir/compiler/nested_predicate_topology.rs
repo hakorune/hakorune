@@ -344,9 +344,7 @@ fn issue_from_parts(
             0,
             &bindings[0],
             root(NestedPhysicalStageV1::Header),
-            Some(NestedPhysicalNodeRefV1::Port(root(
-                NestedPhysicalStageV1::After,
-            ))),
+            Some(NestedPhysicalNodeRefV1::ParentResume(parent_resume)),
             NestedCarrierVisibilityV1::ParentVisible,
         ),
         carrier(
@@ -354,9 +352,7 @@ fn issue_from_parts(
             1,
             &bindings[1],
             root(NestedPhysicalStageV1::Header),
-            Some(NestedPhysicalNodeRefV1::Port(root(
-                NestedPhysicalStageV1::After,
-            ))),
+            Some(NestedPhysicalNodeRefV1::ParentResume(parent_resume)),
             NestedCarrierVisibilityV1::ParentVisible,
         ),
         carrier(

@@ -85,8 +85,10 @@ The logical JoinSig child `Body -> Header` row is not copied as a physical
 edge. It is expanded into the child subloop, child After -> parent resume,
 parent resume -> root Step, and root Step -> root Header. Predecessor seals
 must name exact topology edges/ports, never physical IDs. Carrier destinations
-must keep root `i`/`sum` visible to the parent After and child `j` local to the
-child recurrence; `j` must not be emitted into the parent tail.
+must keep root `i`/`sum` visible through the named `ParentBodyResume` forwarding
+port and child `j` local to the child recurrence; `j` must not be emitted into
+the parent tail. `Root.After` is the outer exit publication port, not the child
+normal-resume destination.
 
 The source-role mapping is sealed before topology construction: root
 initializer `i`/`sum` claims root entry, root predicate claims root Header,
@@ -120,8 +122,9 @@ canonical session, or write PHI/SSA state. The issuer consumes the one-time
 
 The focused structural slice proves the ten ports, eleven edges, explicit
 child-preheader alias, child-after parent resume, expanded root backedge,
-carrier visibility (`i`/`sum` parent-visible and `j` child-local), source-role
-bindings, and non-empty predecessor seals. Owner/frame comparison with
+carrier visibility (`i`/`sum` parent-visible through `ParentBodyResume` and `j`
+child-local), source-role bindings, and non-empty predecessor seals.
+Owner/frame comparison with
 `CanonicalSsaFunctionSessionV2`, exact missing-predecessor rejection, and
 physical predecessor/PHI emission remain the next adapter's responsibility;
 D4 does not claim those proofs early.
