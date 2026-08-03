@@ -323,4 +323,101 @@ mod tests {
             Err(DirectAccumProjectionRejectV1::BodyArity)
         );
     }
+
+    #[test]
+    fn foreign_located_loop_rejects_before_source_lookup() {
+        let first = VerifiedResolvedSourceUnitV1::resolve_function(function()).unwrap();
+        let second = VerifiedResolvedSourceUnitV1::resolve_function(function()).unwrap();
+        let input = first.root_function_input().unwrap();
+        let body = second
+            .root_function_input()
+            .unwrap()
+            .source()
+            .root_body()
+            .unwrap();
+        let foreign_loop = second
+            .root_function_input()
+            .unwrap()
+            .source()
+            .body_stmt(&body, 1)
+            .unwrap();
+
+        assert_eq!(
+            issue_direct_accum_facts_v1(input, &foreign_loop),
+            Err(DirectAccumProjectionRejectV1::ForeignOwner)
+        );
+    }
+
+    #[test]
+    fn scope_box_loop_uses_source_view_lineage() {
+        let mut tree = function();
+        let ASTNode::FunctionDeclaration { body, .. } = &mut tree else {
+            unreachable!();
+        };
+        let loop_node = body.pop().expect("loop fixture");
+        body.push(ASTNode::ScopeBox {
+            body: vec![loop_node],
+            span: Span::unknown(),
+        });
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
+        let input = unit.root_function_input().unwrap();
+        let root_body = input.source().root_body().unwrap();
+        let scope_stmt = input.source().body_stmt(&root_body, 1).unwrap();
+        let scope_body = input
+            .source()
+            .child_body_from_stmt(&scope_stmt, BodyChildRoleV1::ScopeBody)
+            .unwrap();
+        let loop_stmt = input.source().body_stmt(&scope_body, 0).unwrap();
+
+        let facts = issue_direct_accum_facts_v1(input, &loop_stmt)
+            .expect("ScopeBox lineage must remain navigable through the shared source view");
+        assert_eq!(facts.direct_accum_shape().unwrap().condition_bound, 3);
+    }
+
+    #[test]
+    fn non_binding_assignment_target_rejects_without_name_fallback() {
+        let mut tree = function();
+        let ASTNode::FunctionDeclaration { body, .. } = &mut tree else {
+            unreachable!();
+        };
+        let ASTNode::Local {
+            variables,
+            initial_values,
+            ..
+        } = &mut body[0]
+        else {
+            unreachable!();
+        };
+        variables.push("obj".into());
+        initial_values.push(Some(Box::new(integer(0))));
+        let ASTNode::Loop {
+            body: loop_body, ..
+        } = &mut body[1]
+        else {
+            unreachable!();
+        };
+        loop_body[0] = ASTNode::Assignment {
+            target: Box::new(ASTNode::FieldAccess {
+                object: Box::new(variable("obj")),
+                field: "field".into(),
+                span: Span::unknown(),
+            }),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(variable("sum")),
+                right: Box::new(integer(1)),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
+        let input = unit.root_function_input().unwrap();
+        let function_body = input.source().root_body().unwrap();
+        let loop_stmt = input.source().body_stmt(&function_body, 1).unwrap();
+
+        assert_eq!(
+            issue_direct_accum_facts_v1(input, &loop_stmt),
+            Err(DirectAccumProjectionRejectV1::NonBindingTarget)
+        );
+    }
 }
