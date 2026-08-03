@@ -442,6 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "joinir-if-recipe-ssa-adoption0-d0-design-stop-2026-08-04"
 latest_card_path = "docs/development/current/main/investigations/joinir-if-recipe-ssa-adoption0-d0-design-stop-2026-08-04.md"
+parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 latest_card_summary = """The Loop D5-I0-E scope guard and LocatedLegacy S0/S1 retirement are closed. The disconnected session, three adapters, dedicated test modules, and module/re-export are deleted after the 48-call test-only census; the callable-result carrier/ledger/loop-claim evidence remains. Normal/raw ingress, located_if.rs, IfCfgSessionV1, and the portable IfRecipe remain untouched. The next bounded row is the four-surface IfRecipe D0-A authority/PHI caller census before any production If wiring."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
