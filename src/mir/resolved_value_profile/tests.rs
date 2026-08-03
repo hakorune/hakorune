@@ -298,6 +298,15 @@ fn same_pass_if_recipe_maps_to_verified_portable_artifact() {
             IfSourcePathStepV1::IfThenItem { index: 0 },
         ]
     );
+    assert_eq!(
+        verified.source_binding().as_source_binding().claims[3]
+            .path
+            .steps,
+        vec![
+            IfSourcePathStepV1::BodyItem { index: 1 },
+            IfSourcePathStepV1::IfElseItem { index: 0 },
+        ]
+    );
 }
 
 #[test]
