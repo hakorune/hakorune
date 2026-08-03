@@ -268,8 +268,8 @@ fn same_pass_if_recipe_maps_to_verified_portable_artifact() {
         local("x", Some(int(0))),
         if_(
             binary(BinaryOperator::Less, variable("x"), int(1)),
-            vec![assignment("x", int(1))],
-            Some(vec![assignment("x", int(2))]),
+            vec![int(9), assignment("x", int(1))],
+            Some(vec![int(8), assignment("x", int(2))]),
         ),
         return_(Some(variable("x"))),
     ]);
@@ -295,7 +295,7 @@ fn same_pass_if_recipe_maps_to_verified_portable_artifact() {
             .steps,
         vec![
             IfSourcePathStepV1::BodyItem { index: 1 },
-            IfSourcePathStepV1::IfThenItem { index: 0 },
+            IfSourcePathStepV1::IfThenItem { index: 1 },
         ]
     );
     assert_eq!(
@@ -304,7 +304,7 @@ fn same_pass_if_recipe_maps_to_verified_portable_artifact() {
             .steps,
         vec![
             IfSourcePathStepV1::BodyItem { index: 1 },
-            IfSourcePathStepV1::IfElseItem { index: 0 },
+            IfSourcePathStepV1::IfElseItem { index: 1 },
         ]
     );
 }
@@ -365,6 +365,124 @@ fn recipe_mapper_rejects_foreign_source_owner_before_reading_facts() {
     assert!(matches!(
         super::map_trivial_if_recipe_v1(&product, other_input.function()),
         Err(super::IfRecipeMapRejectV1::OwnerMismatch)
+    ));
+}
+
+#[test]
+fn recipe_mapper_rejects_branch_cardinality_before_portable_mapping() {
+    let root = function(vec![
+        local("x", Some(int(0))),
+        if_(
+            binary(BinaryOperator::Less, variable("x"), int(1)),
+            vec![assignment("x", int(1)), assignment("x", int(2))],
+            Some(vec![assignment("x", int(3))]),
+        ),
+        return_(Some(variable("x"))),
+    ]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
+    let product = match analyze_trivial_canonical_owner_v1(input, &completion, &if_control).unwrap()
+    {
+        TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
+        TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
+    };
+
+    assert!(product.recipe_facts().is_none());
+    assert!(matches!(
+        super::map_trivial_if_recipe_v1(&product, input.function()),
+        Err(super::IfRecipeMapRejectV1::MissingFacts)
+    ));
+}
+
+#[test]
+fn recipe_mapper_rejects_entry_class_drift_before_portable_mapping() {
+    let root = function(vec![
+        local("x", Some(int(0))),
+        if_(
+            binary(BinaryOperator::Less, variable("x"), int(1)),
+            vec![assignment("x", bool_(true))],
+            Some(vec![assignment("x", bool_(false))]),
+        ),
+        return_(Some(variable("x"))),
+    ]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
+    let product = match analyze_trivial_canonical_owner_v1(input, &completion, &if_control).unwrap()
+    {
+        TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
+        TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
+    };
+
+    let facts = product
+        .recipe_facts()
+        .expect("same-pass facts retain the logical entry witness");
+    assert_eq!(
+        facts.entry_witness().unwrap().representation(),
+        TrivialRepresentationV1::InlineI64
+    );
+    assert!(matches!(
+        super::map_trivial_if_recipe_v1(&product, input.function()),
+        Err(super::IfRecipeMapRejectV1::EntryClassMismatch)
+    ));
+}
+
+#[test]
+fn recipe_mapper_rejects_unsupported_branch_representation_before_mapping() {
+    let root = function(vec![
+        local("x", Some(int(0))),
+        if_(
+            binary(BinaryOperator::Less, variable("x"), int(1)),
+            vec![assignment("x", float(1.0))],
+            Some(vec![assignment("x", float(2.0))]),
+        ),
+        return_(Some(variable("x"))),
+    ]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
+    let product = match analyze_trivial_canonical_owner_v1(input, &completion, &if_control).unwrap()
+    {
+        TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
+        TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
+    };
+
+    assert!(product.recipe_facts().is_none());
+    assert!(matches!(
+        super::map_trivial_if_recipe_v1(&product, input.function()),
+        Err(super::IfRecipeMapRejectV1::MissingFacts)
+    ));
+}
+
+#[test]
+fn recipe_mapper_rejects_missing_continuation_read_before_mapping() {
+    let root = function(vec![
+        local("x", Some(int(0))),
+        if_(
+            binary(BinaryOperator::Less, variable("x"), int(1)),
+            vec![assignment("x", int(1))],
+            Some(vec![assignment("x", int(2))]),
+        ),
+        return_(Some(int(42))),
+    ]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
+    let product = match analyze_trivial_canonical_owner_v1(input, &completion, &if_control).unwrap()
+    {
+        TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
+        TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
+    };
+
+    assert!(product.recipe_facts().is_none());
+    assert!(matches!(
+        super::map_trivial_if_recipe_v1(&product, input.function()),
+        Err(super::IfRecipeMapRejectV1::MissingFacts)
     ));
 }
 
