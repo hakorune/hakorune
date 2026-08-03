@@ -138,10 +138,14 @@ and PhiTxn. The fixture seeds existing preheader values instead of inventing
 initial constants and returns explicit Unit plus final carrier values.
 
 Focused evidence is green for the capability boxes, canonical CFG seams, the
-operation facade, and the DirectAccum success/preflight cases. Production
-recipe, physicalizer, and `route_loop` callers remain zero. Late-failure
-candidate discard/fresh-reuse and shared alpha semantic parity are the next S0
-gates; no production cutover is implied by this progress.
+operation facade, and the DirectAccum success/preflight cases. A cfg(test)-only
+failure after header PHI/operation effects now exercises `PhiTxn::abort_on_err`,
+drops the unpublished candidate, proves the live Builder fingerprint is
+unchanged, and succeeds on fresh candidate reuse. A companion readiness
+rejection test proves a physically-emitted candidate is still not externally
+published while its function remains open. Production recipe, physicalizer,
+and `route_loop` callers remain zero. Shared alpha semantic parity is the next
+S0 gate; no production cutover is implied by this progress.
 
 ## Acceptance gates for the S0 implementation
 

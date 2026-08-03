@@ -52,6 +52,14 @@ pub(in crate::mir::builder) enum LoopPhysicalizeErrorV1 {
     Cfg(CanonicalCfgErrorV1),
     Ssa(String),
     PhiAbort(String),
+    #[cfg(test)]
+    InjectedTestFailure(DirectAccumPhysicalizerTestFailurePointV1),
+}
+
+#[cfg(test)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum DirectAccumPhysicalizerTestFailurePointV1 {
+    AfterHeaderCondition,
 }
 
 pub(in crate::mir::builder) fn physicalize_direct_accum_v1(
@@ -66,6 +74,21 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1(
     session.emit()
 }
 
+#[cfg(test)]
+pub(in crate::mir::builder) fn physicalize_direct_accum_v1_with_test_failure(
+    builder: &mut MirBuilder,
+    input: VerifiedLoopPhysicalInputV1,
+    bindings: VerifiedLoopBindingProjectionV1,
+    inputs: VerifiedLoopInputProjectionV1,
+    roles: VerifiedLoopPhysicalRolePlanV1,
+    failure: DirectAccumPhysicalizerTestFailurePointV1,
+) -> Result<LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1> {
+    let mut session =
+        DirectAccumPhysicalizerV1::preflight(builder, input, bindings, inputs, roles)?;
+    session.failure = Some(failure);
+    session.emit()
+}
+
 struct DirectAccumPhysicalizerV1<'a> {
     builder: &'a mut MirBuilder,
     input: VerifiedLoopPhysicalInputV1,
@@ -76,6 +99,8 @@ struct DirectAccumPhysicalizerV1<'a> {
     ssa: BindingSsaBuilderV1<crate::mir::builder::emission::phi_lifecycle::PhiToken>,
     phis: Option<PhiTxn>,
     values: BTreeMap<crate::mir::loop_recipe_contract::LoopValueKeyV1, ValueId>,
+    #[cfg(test)]
+    failure: Option<DirectAccumPhysicalizerTestFailurePointV1>,
 }
 
 impl<'a> DirectAccumPhysicalizerV1<'a> {
@@ -155,6 +180,8 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
             inputs,
             roles,
             values: BTreeMap::new(),
+            #[cfg(test)]
+            failure: None,
         })
     }
 
@@ -241,6 +268,10 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
         let (condition_block, body_block) = self.direct_recipe_blocks()?;
         let condition = self.block_operations(condition_block)?;
         let condition_result = self.emit_operations(&condition)?;
+        #[cfg(test)]
+        self.inject_failure_if_requested(
+            DirectAccumPhysicalizerTestFailurePointV1::AfterHeaderCondition,
+        )?;
         self.emit_branch(header, condition_result, body, after)?;
         self.select(body)?;
         self.seal(body)?;
@@ -569,6 +600,17 @@ impl<'a> DirectAccumPhysicalizerV1<'a> {
 
     fn builder_mut(&mut self) -> &mut MirBuilder {
         self.builder
+    }
+
+    #[cfg(test)]
+    fn inject_failure_if_requested(
+        &self,
+        point: DirectAccumPhysicalizerTestFailurePointV1,
+    ) -> Result<(), LoopPhysicalizeErrorV1> {
+        if self.failure == Some(point) {
+            return Err(LoopPhysicalizeErrorV1::InjectedTestFailure(point));
+        }
+        Ok(())
     }
 
     fn abort<T>(&mut self, error: LoopPhysicalizeErrorV1) -> Result<T, LoopPhysicalizeErrorV1> {

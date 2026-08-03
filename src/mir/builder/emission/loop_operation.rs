@@ -95,11 +95,7 @@ fn require_current_block(builder: &MirBuilder) -> Result<(), String> {
     Ok(())
 }
 
-fn require_i64_operands(
-    builder: &MirBuilder,
-    lhs: ValueId,
-    rhs: ValueId,
-) -> Result<(), String> {
+fn require_i64_operands(builder: &MirBuilder, lhs: ValueId, rhs: ValueId) -> Result<(), String> {
     require_current_block(builder)?;
     for (label, value) in [("lhs", lhs), ("rhs", rhs)] {
         if builder.function_state.type_ctx.get_type(value) != Some(&MirType::Integer) {
@@ -124,7 +120,10 @@ mod tests {
         let rhs = emit_const_i64(&mut builder, 2).expect("rhs");
         let sum = emit_add_i64(&mut builder, lhs, rhs).expect("sum");
         let predicate = emit_less_i64(&mut builder, sum, rhs).expect("predicate");
-        assert_eq!(builder.function_state.type_ctx.get_type(sum), Some(&MirType::Integer));
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(sum),
+            Some(&MirType::Integer)
+        );
         assert_eq!(
             builder.function_state.type_ctx.get_type(predicate),
             Some(&MirType::Bool)
@@ -143,8 +142,7 @@ mod tests {
             .entry_block()
             .instructions
             .len();
-        let error = emit_add_i64(&mut builder, ValueId::new(99), ValueId::new(100))
-            .unwrap_err();
+        let error = emit_add_i64(&mut builder, ValueId::new(99), ValueId::new(100)).unwrap_err();
         assert!(error.contains("i64_operand_type"));
         let after = builder
             .function_state

@@ -201,7 +201,13 @@ mod tests {
         )
         .expect("projection");
         assert_eq!(projection.owner(), owner);
-        assert_eq!(projection.resolve(LoopBindingKeyV1::new(0)).unwrap().binding(), BindingId::new(7));
+        assert_eq!(
+            projection
+                .resolve(LoopBindingKeyV1::new(0))
+                .unwrap()
+                .binding(),
+            BindingId::new(7)
+        );
         assert!(matches!(
             projection.resolve(LoopBindingKeyV1::new(1)),
             Err(LoopPhysicalInputRejectV1::MissingBindingKey(_))
