@@ -23,6 +23,9 @@ use std::collections::{BTreeMap, BTreeSet};
 #[path = "loop_accum_binding_ssa_failure_tests.rs"]
 mod failure_tests;
 
+#[path = "loop_accum_binding_ssa_operation_tests.rs"]
+mod operation_tests;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 enum PhysicalRoleV1 {
     Preheader,
@@ -104,7 +107,9 @@ struct VerifiedLoopOperationScheduleV1 {
 }
 
 impl VerifiedLoopOperationScheduleV1 {
-    fn from_direct_fixture(header_reads: Vec<LoopBindingKeyV1>) -> Result<Self, OperationScheduleErrorV1> {
+    fn from_direct_fixture(
+        header_reads: Vec<LoopBindingKeyV1>,
+    ) -> Result<Self, OperationScheduleErrorV1> {
         let artifact: LoopRecipeArtifactV1 =
             serde_json::from_str(super::super::DIRECT_GOLDEN).expect("direct recipe golden");
         let verified = LoopRecipeVerifierV1::verify(artifact.recipe().clone())
@@ -271,7 +276,9 @@ impl CanonicalLoopSsaSessionV1 {
         let preheader = session.block(PhysicalRoleV1::Preheader);
         let initial_i = session.emit_const_i64(preheader, 0);
         let initial_sum = session.emit_const_i64(preheader, 0);
-        session.entry_values.insert(LoopValueKeyV1::new(0), initial_i);
+        session
+            .entry_values
+            .insert(LoopValueKeyV1::new(0), initial_i);
         session
             .entry_values
             .insert(LoopValueKeyV1::new(1), initial_sum);
@@ -351,12 +358,7 @@ impl CanonicalLoopSsaSessionV1 {
         dst
     }
 
-    fn emit_compare_less(
-        &mut self,
-        block: BasicBlockId,
-        left: ValueId,
-        right: ValueId,
-    ) -> ValueId {
+    fn emit_compare_less(&mut self, block: BasicBlockId, left: ValueId, right: ValueId) -> ValueId {
         self.builder
             .start_new_block(block)
             .expect("select compare block");
@@ -471,7 +473,10 @@ impl CanonicalLoopSsaSessionV1 {
         let binding = self.projection.resolve(key);
         let block = self.block(role);
         let mut adapter = MirBindingSsaAdapterV1::new(&mut self.builder, &mut self.phis);
-        let value = self.ssa.read(&mut adapter, binding, block).expect("SSA read");
+        let value = self
+            .ssa
+            .read(&mut adapter, binding, block)
+            .expect("SSA read");
         self.reads.push((key, role, value));
         value
     }
@@ -501,13 +506,7 @@ impl CanonicalLoopSsaSessionV1 {
             .as_mut()
             .expect("candidate function");
         self.cfg
-            .emit_branch(
-                function,
-                source,
-                condition,
-                body,
-                after,
-            )
+            .emit_branch(function, source, condition, body, after)
             .expect("canonical branch");
     }
 
@@ -536,6 +535,11 @@ impl CanonicalLoopSsaSessionV1 {
     }
 
     fn finish(self) -> LoopSsaEmissionReceiptV1 {
+        let (_builder, receipt) = self.finish_with_builder();
+        receipt
+    }
+
+    fn finish_with_builder(self) -> (MirBuilder, LoopSsaEmissionReceiptV1) {
         let CanonicalLoopSsaSessionV1 {
             mut builder,
             cfg,
@@ -572,12 +576,13 @@ impl CanonicalLoopSsaSessionV1 {
             .collect::<Vec<_>>()
             .into_boxed_slice();
         phis.commit(&mut builder).expect("PhiTxn commit");
-        LoopSsaEmissionReceiptV1 {
+        let receipt = LoopSsaEmissionReceiptV1 {
             reads: reads.into_boxed_slice(),
             defines: defines.into_boxed_slice(),
             sealed_predecessors: sealed_predecessors.into_iter().collect(),
             header_phi_inputs,
-        }
+        };
+        (builder, receipt)
     }
 }
 
@@ -634,14 +639,23 @@ fn binding_projection_rejects_duplicate_and_foreign_identity() {
     let duplicate = VerifiedLoopBindingProjectionV1::try_new(
         owner,
         vec![
-            (LoopBindingKeyV1::new(0), BindingRefV1::new(owner, BindingId::new(0))),
-            (LoopBindingKeyV1::new(0), BindingRefV1::new(owner, BindingId::new(1))),
+            (
+                LoopBindingKeyV1::new(0),
+                BindingRefV1::new(owner, BindingId::new(0)),
+            ),
+            (
+                LoopBindingKeyV1::new(0),
+                BindingRefV1::new(owner, BindingId::new(1)),
+            ),
         ],
     );
     assert!(duplicate.is_err());
     let foreign_row = VerifiedLoopBindingProjectionV1::try_new(
         owner,
-        vec![(LoopBindingKeyV1::new(0), BindingRefV1::new(foreign, BindingId::new(0)))],
+        vec![(
+            LoopBindingKeyV1::new(0),
+            BindingRefV1::new(foreign, BindingId::new(0)),
+        )],
     );
     assert!(foreign_row.is_err());
 }
@@ -680,59 +694,11 @@ fn canonical_session_has_no_unsealed_predecessor_vectors() {
 
 #[test]
 fn operation_schedule_rejects_missing_carrier_header_read() {
-    let error = VerifiedLoopOperationScheduleV1::from_direct_fixture(vec![
-        LoopBindingKeyV1::new(0),
-    ])
-    .expect_err("missing carrier read must reject before emission");
+    let error =
+        VerifiedLoopOperationScheduleV1::from_direct_fixture(vec![LoopBindingKeyV1::new(0)])
+            .expect_err("missing carrier read must reject before emission");
     assert_eq!(
         error,
         OperationScheduleErrorV1::CarrierReadMissing(LoopBindingKeyV1::new(1))
     );
-}
-
-#[test]
-fn direct_operation_schedule_emits_through_one_binding_ssa_owner() {
-    let schedule = VerifiedLoopOperationScheduleV1::from_direct_fixture(vec![
-        LoopBindingKeyV1::new(0),
-        LoopBindingKeyV1::new(1),
-    ])
-    .expect("verified direct schedule");
-    let mut session = CanonicalLoopSsaSessionV1::new();
-    session.emit_jump(PhysicalRoleV1::Preheader, PhysicalRoleV1::Header);
-    session.seal(PhysicalRoleV1::Preheader);
-
-    let mut values = session.entry_values.clone();
-    session.emit_header_carriers(&schedule, &mut values);
-    let repeated_i = session.read_at(LoopBindingKeyV1::new(0), PhysicalRoleV1::Header);
-    assert_eq!(repeated_i, values[&LoopValueKeyV1::new(0)]);
-    let header_receipt = session
-        .emit_operations(PhysicalRoleV1::Header, &schedule.condition, &mut values)
-        .expect("condition operations");
-    let condition = values[&schedule.condition_result];
-    session.emit_branch(PhysicalRoleV1::Header, condition);
-
-    session.seal(PhysicalRoleV1::Body);
-    let body_receipt = session
-        .emit_operations(PhysicalRoleV1::Body, &schedule.body, &mut values)
-        .expect("body operations");
-    let visible_sum = session.read_at(LoopBindingKeyV1::new(1), PhysicalRoleV1::Body);
-    assert_eq!(visible_sum, values[&LoopValueKeyV1::new(7)]);
-    session.emit_jump(PhysicalRoleV1::Body, PhysicalRoleV1::Step);
-    session.seal(PhysicalRoleV1::Step);
-    session.emit_jump(PhysicalRoleV1::Step, PhysicalRoleV1::Header);
-    session.seal(PhysicalRoleV1::After);
-    session.emit_return(PhysicalRoleV1::After);
-    session.seal(PhysicalRoleV1::Header);
-
-    assert_eq!(header_receipt.emitted.len(), 3);
-    assert_eq!(body_receipt.emitted.len(), 8);
-    assert_eq!(body_receipt.values.len(), 11);
-    let receipt = session.finish();
-    assert_eq!(receipt.reads.len(), 7);
-    assert_eq!(receipt.defines.len(), 4);
-    assert_eq!(receipt.header_phi_inputs.len(), 2);
-    assert!(receipt
-        .header_phi_inputs
-        .iter()
-        .all(|inputs| inputs.len() == 2));
 }
