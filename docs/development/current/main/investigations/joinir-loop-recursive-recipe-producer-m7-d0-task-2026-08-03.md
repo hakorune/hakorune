@@ -78,12 +78,18 @@ Write the facade contract, representative matrix, producer caller-zero guard,
 and exact reject reasons. Confirm the existing Accum direct/nested-`Always`
 fixtures are the only accepted logical golden at this boundary.
 
-### M7-S0 — Accum producer cohort
+### M7-S0 — caller-zero producer facade cohort
 
-Expose the existing M5/M6 Accum semantic construction through the common
-facade; do not create an `AccumProducerV2` or a second normalized recipe
-builder. Add a Nested-`Always` semantic golden with explicit child/ancestor
-carrier rows using the same neutral key/arena helpers.
+Establish the common facade as a test-only caller-zero seam that consumes one
+already-owned `LoopRecipeV1` plus an opaque diagnostic receipt. It must not
+invent a policy winner or pretend that the current legacy facts are already a
+portable producer. DirectAccum and Nested-`Always` goldens pass through the
+same verifier/JoinSig terminal; do not create an `AccumProducerV2` or a second
+normalized recipe builder.
+
+The next cohort may connect an actual selected-facts adapter only after its
+source/structural demand is sealed. Until then, this facade proves the
+downstream one-way boundary and remains caller-zero.
 Verify deterministic artifact roundtrip, verifier output, JoinSig output, and
 normalized parity to the legacy oracle. Keep physical candidate/PHI evidence in
 the existing P1/M5 harness; do not call `LoopPhiMaterializerV1`.

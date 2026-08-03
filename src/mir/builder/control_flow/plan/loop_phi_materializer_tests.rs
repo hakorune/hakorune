@@ -16,6 +16,8 @@ use std::fmt::Write as _;
 
 #[path = "loop_accum_semantic_parity_tests.rs"]
 mod accum_semantic_parity_tests;
+#[path = "loop_recipe_producer_facade_tests.rs"]
+mod recipe_producer_facade_tests;
 
 const GOLDEN: &str = include_str!("../../../loop_recipe_contract/fixtures/accum_nested_v1.json");
 pub(crate) const DIRECT_GOLDEN: &str =
