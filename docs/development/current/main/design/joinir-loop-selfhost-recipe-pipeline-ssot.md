@@ -115,9 +115,11 @@ fallback from the `.hako` path.
 | `LoopRecipeArtifactV1` | owned provenance plus one recursive `LoopRecipeV1` | route/family dispatch, AST reconstruction, physical IDs |
 | `LoopRecipeV1` | condition, recursive body/control items, carriers, exits | legacy family, policy selection, physical IDs |
 | `LoopRecipeVerifierV1` | recipe shape, definitions, carrier/exit preconditions | logical edge elaboration, repair, fallback |
-| `LoopJoinSigElaboratorV1` / `LoopJoinSigV1` | bounded logical edge/dataflow obligations | PHI allocation, CFG repair |
-| `LoopCfgSkeletonLoweringV1` | physical blocks/edges/terminators from verified roles | route selection, AST reading |
-| `LoopPhiMaterializerV1` | PHIs from verified JoinSig only | source inference, route-specific repair |
+| `LoopJoinSigElaboratorV1` / `LoopJoinSigV1` | bounded logical edge/dataflow and carrier-visibility obligations | PHI allocation, CFG repair, physical identities |
+| `LoopCfgSkeletonLoweringV1` / `CanonicalCfgSessionV1` | physical blocks/edges/terminators and sealed predecessor witnesses from verified roles | route selection, AST reading, Binding SSA values |
+| function-owned `BindingSsaBuilderV1` | `BindingRef` reaching values, Read/Write definitions, provisional PHI, seal/finish | source inference, route policy, JoinSig discovery |
+| `PhiTxn` + `MirBindingSsaAdapterV1` | the single low-level PHI insert/patch/rollback lifecycle used by Binding SSA | Loop meaning, route selection |
+| `LoopPhiMaterializerV1` | caller-zero mechanical M6-B PHI-map observer/parity evidence only | production PHI authority, source inference, route-specific repair |
 | `LoopPhysicalizerV1` | one terminal candidate mutation | `Option`, retry, raw suffix, publication |
 | compile candidate | whole-compile abort and success-only external commit | Loop meaning or policy |
 
@@ -407,8 +409,10 @@ M3 task order:
    any Generic Recipe production connection.
 Docs-only role cleanup authorizes no new IR, recipe variant, route, scheduler,
 retry path, or physical owner. M3 keeps selection/decline typing, M4 owns
-Generic debt, M6 owns shared CFG/JoinSig/PHI, and M12 retires adapters after
-M10/M11 evidence. New policy files remain below 800 lines.
+Generic debt, M6 owns logical JoinSig obligations and caller-zero mechanical
+evidence, while canonical CFG plus function-owned Binding SSA/PhiTxn own
+production physical PHI/SSA. M12 retires adapters after M10/M11 evidence. New
+policy files remain below 800 lines.
 ### M4 — `JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0`
 
 Change:
@@ -445,13 +449,16 @@ Change:
 : Before M6, execute only the design/test-only Accum contract row: real
   StructuralFacts/frame/raw-selector evidence, passive owned Recipe
   verification, and caller-zero guards. The complete vertical pilot begins
-  after M6 establishes the shared CFG/JoinSig/PHI owners.
+  after M6 establishes the logical JoinSig obligations and caller-zero
+  evidence; production CFG/PHI/SSA remains owned by the canonical CFG session
+  and function-owned Binding SSA.
 
 Contract:
 : The passive row consumes no Builder, composer, physical ID, PHI, candidate,
-  or `route_loop`. The later pilot's physicalizer alone maps logical roles to
-  IDs; PHIs come exclusively from JoinSig and the existing Accum composer is a
-  parity oracle only. Control edges remain explicit recipe items; value-only
+  or `route_loop`. The later pilot consumes logical roles through the
+  canonical CFG and function-owned Binding SSA owners; JoinSig supplies only
+  edge/carrier-visibility obligations. The existing Accum composer is a parity
+  oracle only. Control edges remain explicit recipe items; value-only
   calculations remain operations, and called bodies remain separate recipes.
 
 Done:
@@ -469,23 +476,31 @@ Stop:
 ### M6 — `JOINIR-LOOP-CFG-JOINSIG-PHI0-S4`
 
 Change:
-: Establish one caller-zero chain: verified Recipe -> CFG/JoinSig -> verifier ->
-  PHI materializer; split pure logical elaboration (M6-A) from physical
-  emission (M6-B), with no production caller.
+: Establish one caller-zero logical-to-SSA chain: verified Recipe -> JoinSig
+  obligations -> CanonicalCfgSession -> one function-owned Binding SSA -> one
+  shared PhiTxn, with no production caller. M6-A remains pure logical
+  elaboration. M6-B remains a mechanical PHI-map observer only and is not the
+  production PHI owner.
 
 Contract:
 : M6-A's first caller-zero slice has no Builder/physical IDs and elaborates the
   bounded Accum vocabulary: deterministic logical ports/edges, value
   availability, owner/ancestor carrier payloads, self exits, and unreachable items;
   nested loops are `Always`-only. Full predecessor/dominance and wider branch/exit closure remain explicit M6-A follow-ups.
-  M6-B `LoopPhiMaterializerV1` (see the M6-B design stop) consumes only verified JoinSig plus
-  logical-to-physical mapping; AST, route/env, `variable_map`, tags, and repair inference
-  are forbidden; this Loop-level producer is not a second PHI/SSA lifecycle authority.
-  MIR insert/patch/rollback use existing `phi_lifecycle` and Binding SSA SSOTs. Both reject; neither chooses another recipe.
+  The caller-zero M6-B `LoopPhiMaterializerV1` consumes only verified JoinSig
+  plus a sealed logical-to-physical witness for mechanical parity; AST,
+  route/env, `variable_map`, tags, and repair inference are forbidden. It is
+  not a production PHI/SSA authority and must not be extended into the P1
+  operation emitter. Production physicalization uses one
+  `CanonicalCfgSessionV1`, one function-owned `BindingSsaBuilderV1`, and one
+  caller-owned `PhiTxn` through `MirBindingSsaAdapterV1`.
 
 Done:
-: Deterministic Accum JoinSig/counterexamples are green; the logical owner is caller-zero
-  with a non-Clone product; route-specific block/PHI callers, physical IDs, and production wiring remain zero.
+: Deterministic Accum JoinSig/counterexamples are green; the logical owner is
+  caller-zero with a non-Clone product; M6-B mechanical evidence is green;
+  route-specific block/PHI callers, physical IDs, and production wiring remain
+  zero. The first physical pilot must prove the Binding-SSA-first session
+  rather than promote M6-B into a second PHI owner.
 
 Stop:
 : Bypass, production wiring, route-local AST/PHI inference, duplicate writer, or temporary repair stops M6.
@@ -502,7 +517,8 @@ Change:
 Contract:
 : The five profiles are migration adapters only. They share one portable
   recursive recipe envelope, verifier/elaboration terminal,
-  CFG/JoinSig/PHI services, and physicalizer. A profile-specific semantic
+  JoinSig obligations, canonical CFG/Binding-SSA/PhiTxn services, and one
+  physicalizer. A profile-specific semantic
   variant is forbidden unless a concrete source counterexample proves a
   bounded vocabulary extension; a sixth legacy profile is never a new semantic
   recipe kind. Call and completed Record construction may be value operations;
@@ -587,9 +603,10 @@ Done:
 : Rust/selfhost recipe parity, winner equivalence, five-adapter fault injection,
   fresh reuse, accepted corpus/backend parity, representative phase29bq smokes,
   quick/release, shared guards, and old-symbol census are green. Production
-  verified-recipe consumer and Loop PHI materializer counts are exactly one;
-  ordered scheduler, selected old composer/PHI edges, Retry, and fallback counts
-  are zero.
+  verified-recipe consumer and canonical CFG/Binding-SSA physicalizer counts
+  are exactly one; `LoopPhiMaterializerV1` remains a caller-zero mechanical
+  observer or is retired. Ordered scheduler, selected old composer/PHI edges,
+  Retry, and fallback counts are zero.
 
 Stop:
 : Retry/fallback, source redecision, unverified lower, partial publish,
@@ -620,8 +637,10 @@ Change:
   rows and keep only source-policy rows producing the common recipe.
 
 Contract:
-: Retirement only: verifier, CFG/JoinSig/PHI owners, and physicalizer have
-  authority count one; no three-family layer or predicate merge.
+: Retirement only: verifier, JoinSig obligation producer, canonical CFG,
+  function-owned Binding SSA/PhiTxn, and physicalizer each have authority count
+  one; no three-family layer or predicate merge. The M6-B map/receipt observer
+  is not counted as a second production PHI owner.
 
 Done:
 : Production references to `ComposerMutationFamily`/equivalent legacy

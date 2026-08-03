@@ -1,7 +1,8 @@
 ---
-Status: Active design stop
+Status: Superseded design stop — see `joinir-loop-accum-binding-ssa-physicalizer-d1-task-2026-08-03.md`
 Date: 2026-08-03
-Decision: accepted design boundary — `JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1-S1-D0`
+Decision: superseded — the M6-B handle/borrowed-receipt shape is retained only
+         as history; `JOINIR-LOOP-ACCUM-BINDING-SSA-PHYSICALIZER-D1` is current
 Scope: define the next caller-zero DirectAccum operation-emission slice without
        widening the PHI/SSA authority or connecting a production route
 Related:

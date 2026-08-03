@@ -89,10 +89,13 @@ receipt. No snapshot helper may allocate a second PHI/SSA writer.
    implement the legacy observer in a separate test-only child and compare it
    against the already-green P1b structural/path digest. This is evidence
    collection, not a portable physicalizer.
-3. **M6 completion:** finish the shared CFG/JoinSig/PHI services. The existing
-   PHI lifecycle and Binding SSA remain the sole writers.
+3. **M6 completion:** finish the logical JoinSig evidence and canonical
+   CFG/Binding-SSA physical owner boundary. The existing PHI lifecycle and
+   function-owned Binding SSA remain the sole production writers; the M6-B
+   `LoopPhiMaterializerV1` remains a caller-zero observer.
 4. **M10a pilot:** implement one real Accum physicalizer that emits CFG,
-   operations, and result values through the shared services. Only then add
+   operations, and result values through canonical CFG + Binding SSA + shared
+   `PhiTxn`. Only then add
    the second snapshot producer and full MIR/PHI/type/result parity.
 5. **M10a gates:** add late-failure candidate discard and fresh-session reuse
    to the same physical parity child. A failure must return terminal `Freeze`,

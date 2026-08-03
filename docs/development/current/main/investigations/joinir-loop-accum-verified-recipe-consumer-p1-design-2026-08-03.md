@@ -96,10 +96,14 @@ physical layout. Instead, introduce the physical topology as a separate,
 test-only sealed product in the pilot:
 
 ```text
-VerifiedLoopJoinSigV1
+  VerifiedLoopJoinSigV1
   -> test-only canonical CFG skeleton / predecessor seal
-  -> logical-edge-to-physical-path mapping
-  -> existing LoopPhiMaterializerV1
+  -> logical-edge-to-physical-path obligation
+  -> one function-owned BindingSsaBuilder + shared PhiTxn
+
+`LoopPhiMaterializerV1` remains a caller-zero mechanical observer and is not
+called by the vertical pilot. The pilot must not create a second
+`LoopBindingKey -> ValueId` or PHI destination map.
 ```
 
 The physical mapping must state whether one logical edge is represented by one

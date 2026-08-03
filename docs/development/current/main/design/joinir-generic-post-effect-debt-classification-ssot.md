@@ -756,16 +756,15 @@ Done:
   independently. All touched files remain below 800 lines.
 
 Stop:
-: Any Generic suffix, missing shared M6 CFG/JoinSig/PHI owner, candidate
-  mutation, legacy composer import into the portable path, or request for
-  runtime MIR parity returns this row to design. M6 establishes the shared
-  physical owners first; only afterward may the caller-zero vertical pilot
-  exercise candidate abort/fresh reuse. M10a is the separate future singleton
-  production bridge; Generic D2 remains required for M10b.
+: Any Generic suffix, missing M6 logical JoinSig evidence or canonical
+  CFG/Binding-SSA/PhiTxn owner boundary, candidate mutation, legacy composer
+  import into the portable path, or request for runtime MIR parity returns
+  this row to design. M10a is the separate future singleton production bridge;
+  Generic D2 remains required for M10b.
 
 This row is the only M5 work permitted while D2-B is open. Generic Recipe
-consumption, Retry deletion, shared CFG/JoinSig/PHI implementation, and all
-production cutover remain prohibited; this evidence does not bypass M4.
+consumption, Retry deletion, canonical CFG/Binding-SSA physicalization, and
+all production cutover remain prohibited; this evidence does not bypass M4.
 
 ### M4-D4 — handoff and close (`...-D0-S4`)
 
@@ -779,7 +778,8 @@ JoinIR fallback deletion, or all-route cutover. Those claims require:
 
 ```text
 M5 caller-zero Accum vertical pilot
--> M6 shared CFG/JoinSig/PHI owners
+-> M6 logical JoinSig obligations plus caller-zero mechanical evidence
+-> canonical CFG/Binding-SSA/PhiTxn physical owners
 -> M7 five-family recursive Recipe producer
 -> M8 all 19 adapters
 -> M9 Rust/.hako producer parity

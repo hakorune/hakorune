@@ -1,5 +1,5 @@
 ---
-Status: accepted design / caller-zero test-only
+Status: accepted caller-zero mechanical observer / production-retirement target
 Date: 2026-08-03
 Decision: JOINIR-LOOP-CFG-JOINSIG-PHI0-D0-S4
 Related:
@@ -13,9 +13,10 @@ Related:
 
 ## Decision
 
-M6-B adds one builder-side, caller-zero physical seam for the bounded Accum
-JoinSig. It does not add a PHI/SSA lifecycle authority and does not connect the
-production Loop route.
+M6-B adds one builder-side, caller-zero mechanical observer for the bounded
+Accum JoinSig. It does not add a PHI/SSA lifecycle authority and does not
+connect the production Loop route. Its explicit physical map/receipt is
+parity evidence only; it is not the production physicalizer.
 
 ```text
 VerifiedLoopJoinSigV1
@@ -38,7 +39,7 @@ map. It does not infer missing physical facts.
 | --- | --- | --- |
 | `VerifiedLoopJoinSigV1` | logical edges, visible carrier payloads, roles | physical IDs or MIR |
 | sealed physical map | explicit block/value/dst/predecessor correspondence | AST, route, facts, repair |
-| `LoopPhiMaterializerV1` | exact PHI rows and receipt | selection, CFG construction, `variable_map`, final values |
+| `LoopPhiMaterializerV1` | caller-zero exact PHI rows/receipt observer | production PHI/SSA authority, selection, CFG construction, `variable_map`, final values |
 | `phi_lifecycle` / `PhiTxn` | MIR PHI insert, patch, rollback | Loop meaning or route choice |
 | Binding SSA | binding exposure/reaching definitions | JoinSig carrier discovery |
 
@@ -73,5 +74,7 @@ candidate physicalization are later M6/M7/M5 tasks.
    CorePlan/Retry/legacy-repair imports, and allow only `phi_lifecycle` PHI calls.
 
 M6-B is complete only when these gates are green and the receipt is non-Clone.
-The later Accum vertical pilot is the first permitted candidate/physicalizer
-consumer; M10a remains the first production bridge.
+The later Accum vertical pilot must use canonical CFG plus one
+function-owned `BindingSsaBuilderV1` and shared `PhiTxn`; it must not call this
+observer. M10a remains the first production bridge, and M6-B stays caller-zero
+or is retired before that bridge.

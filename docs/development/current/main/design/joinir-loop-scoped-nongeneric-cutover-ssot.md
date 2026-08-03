@@ -92,8 +92,8 @@ partial bridge fallback/retry = 0
 ```
 
 Before M6 closes, this is test-only. Production M10a is allowed only after
-the shared CFG/JoinSig/PHI owner exists; an explicit temporary-owner ledger is
-not a substitute for that gate.
+the canonical CFG/Binding-SSA/PhiTxn owner boundary exists; an explicit
+temporary M6-B observer ledger is not a substitute for that gate.
 
 ## Ordered tasks
 
@@ -118,9 +118,11 @@ CFG/JoinSig/PHI owner and the portable physicalizer contract.
 
 ### N1 — shared-owner prerequisite
 
-Complete the M5 caller-zero pilot, M6-A/B shared CFG/JoinSig/PHI owners, and
-`JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1`. Keep portable production
-callers at zero until the pilot is green.
+Complete the M5 caller-zero pilot, M6-A logical JoinSig obligations plus
+mechanical evidence, and the canonical CFG/Binding-SSA/PhiTxn owner boundary
+in `JOINIR-LOOP-ACCUM-BINDING-SSA-PHYSICALIZER-D1`. Keep portable production
+callers at zero until the pilot is green; M6-B remains an observer and is not
+the physicalizer input.
 
 ### N2 — `JOINIR-LOOP-NONGENERIC-DISJOINT-SUBSET-CUTOVER0`
 
