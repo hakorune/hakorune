@@ -1,6 +1,6 @@
 # JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-D-RECIPE-PRODUCER
 
-Status: design stop opened after D2-C1a landed.
+Status: producer implementation landed; parity/negative closure is active.
 Date: 2026-08-03
 
 ## Decision

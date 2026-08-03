@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. The canonical Loop family envelope is clean. Nested D0/D1 source ownership, the synthetic nested-Always caller-zero witness, and D2-B bounded nested-Predicate JoinSig closure are landed and pushed. D2-C now owns the resolver/source observation boundary for the real two-predicate NestedLoopMinimal shape. LoopTrue/LoopCond remain behind shared logical branch/merge closure, and Generic remains behind M4 debt/winner equivalence. No new production consumer is authorized at this boundary."
+status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. Nested D0/D1 source ownership, the synthetic nested-Always witness, D2-B JoinSig closure, D2-C/D2-C1a source projection, and the D2-D caller-zero Recipe producer are landed and pushed. LoopTrue/LoopCond remain behind shared logical branch/merge closure, Generic remains behind M4 debt/winner equivalence, and no physical Loop cutover is authorized yet."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, M7-S0 synthetic nested-Always caller-zero evidence, D2-B bounded nested-Predicate JoinSig closure, and D2-C/D2-C1a source closure are landed. D2-D is now the design stop: one caller-zero NestedLoopMinimal producer may consume the sealed source projection, emit a canonical portable Recipe, source-bind it through the verifier terminal, and elaborate JoinSig. No AST reread, route/retry, PHI/SSA, Builder, or physical caller is allowed. PHI/SSA remains CanonicalSsaFunctionSessionV2 -> CanonicalCfgSessionV1 + BindingSsaBuilderV1 + PhiTxn; Generic M4 remains unresolved and production route wiring is forbidden."
-current_execution_row = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-D-RECIPE-PRODUCER"
-current_execution_summary = "DirectAccum remains the only canonical production family. D2-D is caller-zero producer work: consume VerifiedNestedLoopSourceProjectionV1 once, map the two-loop forest and three binding positions into a canonical Recipe, preserve root i/sum as opaque zero-valued inputs, emit only the child zero initializer, source-bind after semantic verification, and return VerifiedLoopRecipeV1 + VerifiedLoopJoinSigV1. Physical M6 remains separate."
+current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, M7-S0 synthetic nested-Always caller-zero evidence, D2-B bounded nested-Predicate JoinSig closure, D2-C/D2-C1a source closure, and the D2-D caller-zero Recipe producer are landed. The active stop is D2-D parity/negative closure: compare the producer's canonical Recipe/JoinSig against the existing nested fixture and preserve typed rejection before any physical consumer. No AST reread, route/retry, PHI/SSA, Builder, or physical caller is allowed. PHI/SSA remains CanonicalSsaFunctionSessionV2 -> CanonicalCfgSessionV1 + BindingSsaBuilderV1 + PhiTxn; Generic M4 remains unresolved and production route wiring is forbidden."
+current_execution_row = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-D-PARITY"
+current_execution_summary = "DirectAccum remains the only canonical production family. D2-D producer is landed at a77eb0d509: it consumes VerifiedNestedLoopSourceProjectionV1 once, maps the two-loop forest and three binding positions into a canonical Recipe, preserves root i/sum as opaque zero-valued inputs, emits only the child zero initializer, source-binds after semantic verification, and returns VerifiedLoopRecipeV1 + VerifiedLoopJoinSigV1. The next slice is producer parity/negative closure; physical M6 remains separate."
 current_execution_design = "docs/development/current/main/investigations/joinir-loop-nested-predicate-closure-d2-d-recipe-producer-2026-08-03.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "joinir-loop-nested-predicate-closure-d2-d-recipe-producer-2026-08-03"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-predicate-closure-d2-d-recipe-producer-2026-08-03.md"
-latest_card_summary = """D2-C1a root initializer evidence is green and pushed at 677cde5913. D2-D is the next design-frozen caller-zero producer: source projection -> canonical two-loop RecipeArtifact -> crate-visible source-bound verifier terminal -> VerifiedLoopRecipe + VerifiedLoopJoinSig. Root inputs remain opaque; child zero initializer is the only emitted local constant. No PHI/SSA/Builder/route/physical wiring is authorized."""
+latest_card_summary = """D2-C1a root initializer evidence is green and pushed at 677cde5913. D2-D caller-zero producer is implemented and pushed at a77eb0d509: source projection -> canonical two-loop RecipeArtifact -> crate-visible source-bound verifier terminal -> VerifiedLoopRecipe + VerifiedLoopJoinSig. Root inputs remain opaque; child zero initializer is the only emitted local constant. Producer guard and targeted gates are green; parity/negative closure is next, with no PHI/SSA/Builder/route/physical wiring."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-D-RECIPE-PRODUCER"
+current_blocker_token = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-D-PARITY"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
