@@ -93,6 +93,37 @@ consumed once by the canonical lowerer, and must not become a second Recipe,
 SSA, or PHI authority. Until this witness and its claim/update contract are
 specified, external-SSA injection remains `NoSafe`.
 
+## D1 design questions: binding-effect witness
+
+The next consultation must close these questions before any Rust production
+caller is added:
+
+1. **Owner and shape** — define one non-Clone
+   `VerifiedLoopBindingEffectWitnessV1` (name provisional) issued by the
+   resolved function owner. It may contain only exact `BindingRefV1` roles,
+   update/step `SourceStmtSiteV1` claims, and the same
+   `LoopExecutionFrameKeyV1`; it must contain no `ValueId`, block id, recipe
+   route, or AST clone.
+2. **Ledger handoff** — the canonical lowerer consumes this witness once to
+   claim the two assignment sites in its existing identity ledger before
+   physicalization. Physical writes then call the same function-owned SSA
+   owner; no physicalizer-local name map or second claim ledger is allowed.
+3. **SSA/CFG borrowing** — the physicalizer core borrows the existing
+   `CanonicalCfgSessionV1`, `BindingSsaBuilderV1`, and `PhiTxn`. A test-only
+   adapter may own local instances solely for caller-zero parity/abort tests;
+   the production path must not call `finish` or `commit` on borrowed owners.
+4. **Failure and candidate scope** — any rejected claim, CFG/SSA error, or
+   physicalizer error returns through the existing unpublished function/session
+   discard boundary. No partial witness, recipe, or legacy retry may escape.
+5. **Unit completion** — the witness does not invent a result value. The
+   existing function completion contract handles the loop's fallthrough after
+   the physicalizer returns `Unit`.
+
+Required D1 evidence: wrong-frame, foreign-owner, wrong-site, duplicate-claim,
+and unclaimed-site rejection tests; one caller-zero adapter parity test; and a
+static guard proving that the production physicalizer has no local SSA/CFG/
+PhiTxn owner and no `route_loop` caller.
+
 ## Current production observations
 
 The current `route_loop` path is still:
