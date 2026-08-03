@@ -5,6 +5,9 @@ use crate::mir::loop_recipe_contract::{
     LoopValueKeyV1,
 };
 
+#[path = "loop_accum_legacy_oracle_support.rs"]
+mod legacy_oracle;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ProjectedScalar {
     I64(i64),
@@ -139,8 +142,7 @@ fn direct_readbinding_projection_reaches_final_carriers() {
         reads
             .iter()
             .filter(|(binding, result)| {
-                *binding == LoopBindingKeyV1::new(0)
-                    && *result == LoopValueKeyV1::new(2)
+                *binding == LoopBindingKeyV1::new(0) && *result == LoopValueKeyV1::new(2)
             })
             .count(),
         4
@@ -149,10 +151,32 @@ fn direct_readbinding_projection_reaches_final_carriers() {
         reads
             .iter()
             .filter(|(binding, result)| {
-                *binding == LoopBindingKeyV1::new(1)
-                    && *result == LoopValueKeyV1::new(5)
+                *binding == LoopBindingKeyV1::new(1) && *result == LoopValueKeyV1::new(5)
             })
             .count(),
         3
+    );
+}
+
+#[test]
+fn direct_legacy_oracle_accepts_equivalent_source() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("accum_semantic_oracle/0".to_owned());
+    let i = builder.alloc_typed(crate::mir::MirType::Integer);
+    let sum = builder.alloc_typed(crate::mir::MirType::Integer);
+    builder.bind_variable_for_test("i", i);
+    builder.bind_variable_for_test("sum", sum);
+    let _scope = crate::mir::builder::vars::lexical_scope::LexicalScopeGuard::new(&mut builder);
+    let (condition, body) = legacy_oracle::direct_accum_source();
+    let result = legacy_oracle::lower_accum_legacy_oracle(
+        &mut builder,
+        &condition,
+        &body,
+        "accum_semantic_oracle/0",
+    )
+    .expect("legacy Accum oracle should lower");
+    assert!(
+        result.is_some(),
+        "legacy Accum must produce a terminal value"
     );
 }
