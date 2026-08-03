@@ -9,9 +9,9 @@ use super::execution_witness::{
     PostEffectRetryDebtV1, RouteAttemptOutcomeV1, RouteExecutionResultV1,
 };
 use super::generic_accepted_plan_reachability_tests::{
-    evaluate_nested_carrier_policy_probe, observe_both_direct_stage, observe_generic_carrier_facts,
-    CorpusModeV1, GenericCarrierPolicyDispositionV1, GenericCarrierPolicyFrameV1,
-    GenericDirectStageEvidenceV1, PlanStageV1,
+    evaluate_nested_carrier_policy_probe, observe_both_direct_stage,
+    GenericCarrierPolicyDispositionV1, GenericCarrierPolicyFrameV1, GenericDirectStageEvidenceV1,
+    PlanStageV1,
 };
 use super::generic_selection_matrix_tests::{
     both_body, effect_without_local_body, progression_condition, v1_only_effect_body,
@@ -21,6 +21,7 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
     test_issue_live_preflight_frame, LoopRouteContext,
 };
+use crate::mir::builder::control_flow::plan::facts::GenericLoopCarrierObservationV1;
 use crate::mir::builder::control_flow::plan::single_planner::try_build_outcome;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
@@ -100,6 +101,7 @@ struct FrameTraceV1 {
 struct GenericStageTraceV1 {
     frame: FrameTraceV1,
     raw_schedule: Vec<LoopRouteId>,
+    carrier_observation: Option<GenericLoopCarrierObservationV1>,
     attempted: Vec<AttemptTraceV1>,
     generic_debts: Vec<GenericDebtTraceV1>,
     terminal: TerminalTraceV1,
@@ -169,10 +171,15 @@ fn observe_selected_fixture(
         "frame contract flag must come from the planner outcome"
     );
     let frame_raw_schedule = frame.test_raw_schedule().to_vec();
+    let carrier_observation = facts
+        .facts
+        .generic_loop_v1()
+        .map(|v1| v1.carrier_observation.clone());
     let Some(witness) = frame.test_witness_if_allowed() else {
         return GenericStageTraceV1 {
             frame: frame_trace,
             raw_schedule: frame_raw_schedule,
+            carrier_observation,
             attempted: Vec::new(),
             generic_debts: Vec::new(),
             terminal: TerminalTraceV1::Blocked,
@@ -233,6 +240,7 @@ fn observe_selected_fixture(
     GenericStageTraceV1 {
         frame: frame_trace,
         raw_schedule,
+        carrier_observation,
         attempted,
         generic_debts,
         terminal,
@@ -513,13 +521,12 @@ fn generic_both_policy_witness_mismatch_remains_unresolved() {
         ObserverModeV1::Strict,
         ObserverModeV1::StrictPlannerRequired,
     ] {
-        let corpus_mode = match mode {
-            ObserverModeV1::Release => CorpusModeV1::Release,
-            ObserverModeV1::Strict => CorpusModeV1::Strict,
-            ObserverModeV1::StrictPlannerRequired => CorpusModeV1::StrictPlannerRequired,
-        };
-        let (observation, raw_schedule) = observe_generic_carrier_facts(corpus_mode, "both");
         let trace = observe_both_fixture(mode);
+        let observation = trace
+            .carrier_observation
+            .as_ref()
+            .expect("Both frame must expose Generic V1 carrier observation");
+        let raw_schedule = &trace.raw_schedule;
         let v1_stage_accepted =
             observe_both_direct_stage(trace.frame.strict_or_dev, trace.frame.planner_required)
                 .iter()
@@ -528,7 +535,7 @@ fn generic_both_policy_witness_mismatch_remains_unresolved() {
                         && matches!(row.stage, PlanStageV1::LowerSome)
                 });
         let disposition = evaluate_nested_carrier_policy_probe(
-            &observation,
+            observation,
             GenericCarrierPolicyFrameV1 {
                 has_overlap: raw_schedule.as_slice()
                     == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1],
@@ -539,14 +546,15 @@ fn generic_both_policy_witness_mismatch_remains_unresolved() {
             },
         );
         let unresolved = disposition == GenericCarrierPolicyDispositionV1::UnresolvedStop
-            || (raw_schedule == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
+            || (raw_schedule.as_slice()
+                == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
                 && disposition == GenericCarrierPolicyDispositionV1::V1ForNestedCarriers
                 && trace.terminal == TerminalTraceV1::Succeeded(LoopRouteId::GenericLoopV0));
         assert!(
             unresolved,
             "policy/witness reconciliation must stop: {mode:?}"
         );
-        if raw_schedule == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1] {
+        if raw_schedule.as_slice() == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1] {
             assert_eq!(
                 disposition,
                 GenericCarrierPolicyDispositionV1::V1ForNestedCarriers

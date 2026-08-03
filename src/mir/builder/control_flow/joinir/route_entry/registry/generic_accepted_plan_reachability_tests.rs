@@ -30,7 +30,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum CorpusModeV1 {
+enum CorpusModeV1 {
     Release,
     Strict,
     StrictPlannerRequired,
@@ -114,7 +114,7 @@ struct NestedCarrierSemanticEvidenceV1 {
     nested_final_value_names: Vec<String>,
 }
 
-pub(super) fn observe_generic_carrier_facts(
+fn observe_generic_carrier_facts(
     mode: CorpusModeV1,
     name: &str,
 ) -> (GenericLoopCarrierObservationV1, Vec<LoopRouteId>) {
