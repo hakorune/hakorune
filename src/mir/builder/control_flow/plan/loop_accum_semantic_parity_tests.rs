@@ -14,13 +14,16 @@ mod legacy_oracle;
 #[path = "loop_accum_physical_parity_tests.rs"]
 mod physical_parity_tests;
 
+#[path = "loop_accum_physical_role_plan_tests.rs"]
+mod physical_role_plan_tests;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ProjectedScalar {
     I64(i64),
     Bool(bool),
 }
 
-fn block<'a>(
+pub(crate) fn block<'a>(
     recipe: &'a crate::mir::loop_recipe_contract::LoopRecipeV1,
     key: LoopBlockKeyV1,
 ) -> &'a crate::mir::loop_recipe_contract::LoopRecipeBlockV1 {
@@ -31,7 +34,7 @@ fn block<'a>(
         .expect("recipe block")
 }
 
-fn item<'a>(
+pub(crate) fn item<'a>(
     recipe: &'a crate::mir::loop_recipe_contract::LoopRecipeV1,
     key: LoopItemKeyV1,
 ) -> &'a LoopRecipeItemV1 {

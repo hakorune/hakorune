@@ -18,7 +18,7 @@ use std::fmt::Write as _;
 mod accum_semantic_parity_tests;
 
 const GOLDEN: &str = include_str!("../../../loop_recipe_contract/fixtures/accum_nested_v1.json");
-const DIRECT_GOLDEN: &str =
+pub(crate) const DIRECT_GOLDEN: &str =
     include_str!("../../../loop_recipe_contract/fixtures/accum_direct_v1.json");
 
 fn verified_sig() -> VerifiedLoopJoinSigV1 {
@@ -27,7 +27,7 @@ fn verified_sig() -> VerifiedLoopJoinSigV1 {
     LoopJoinSigElaboratorV1::elaborate(&verified).expect("bounded JoinSig")
 }
 
-fn direct_verified_sig() -> VerifiedLoopJoinSigV1 {
+pub(crate) fn direct_verified_sig() -> VerifiedLoopJoinSigV1 {
     let artifact: LoopRecipeArtifactV1 =
         serde_json::from_str(DIRECT_GOLDEN).expect("direct golden JSON");
     let verified =
@@ -198,7 +198,7 @@ fn direct_map_input(sig: &VerifiedLoopJoinSigV1) -> LoopLogicalToPhysicalMapInpu
     }
 }
 
-fn direct_materializer_input(sig: &VerifiedLoopJoinSigV1) -> VerifiedLoopLogicalToPhysicalMapV1 {
+pub(crate) fn direct_materializer_input(sig: &VerifiedLoopJoinSigV1) -> VerifiedLoopLogicalToPhysicalMapV1 {
     VerifiedLoopLogicalToPhysicalMapV1::try_new(sig, direct_map_input(sig)).expect("direct map")
 }
 

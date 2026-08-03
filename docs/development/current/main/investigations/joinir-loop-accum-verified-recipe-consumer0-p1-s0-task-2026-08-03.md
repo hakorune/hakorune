@@ -1,5 +1,5 @@
 ---
-Status: Active caller-zero test-only task order
+Status: Closed caller-zero test-only task
 Date: 2026-08-03
 Decision: accepted — `JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1-S0`
 Scope: prove the physical allocation and PHI define-before-use seam for one
@@ -30,6 +30,16 @@ The legacy composer/PlanLowerer remains an oracle in a separate test helper.
 Generic/D2, Retry, route selection, nested predicate loops, after-value
 publication, and production candidate commit are outside this row.
 
+## Result
+
+P1-S0 is closed with a test-only role-plan child and candidate reservation
+product. The DirectAccum witness now proves the explicit `P/H/B/S/A` edge
+paths, alpha-stable candidate-only block/result reservation, and the
+reserve -> provisional PHI define -> abort ordering. The two-phase handle
+owns the existing `PhiTxn`; it does not add a PHI/SSA writer or a production
+caller. Focused materializer tests (19/19), `cargo check`, the current-state
+pointer guard, and the in-place replacement guard are green.
+
 ## Required products
 
 1. `PhysicalRolePlanV1` (Builder-free, non-Clone): canonical `P/H/B/S/A`
@@ -44,6 +54,12 @@ publication, and production candidate commit are outside this row.
    `LoopPhiMaterializerV1` that owns the same `PhiTxn` across begin/finalize.
    The handle is the only Loop-level PHI caller; `phi_lifecycle` remains the
    sole low-level writer.
+
+This does not establish a new PHI/SSA SSOT. The repository SSOTs remain
+`../design/phi-lifecycle-ssot.md` and
+`../design/binding-ssa-first-control-lowering-ssot.md`; this row only proves
+that the verified-recipe seam can consume those owners without bypassing
+them.
 
 ## Ordered slices
 

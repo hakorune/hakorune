@@ -13,6 +13,7 @@ guard_joinir_logical_demand_contract() {
   local loop_phi_materializer_tests="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer_tests.rs"
   local loop_accum_semantic_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_semantic_parity_tests.rs"
   local loop_accum_physical_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physical_parity_tests.rs"
+  local loop_accum_physical_role_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physical_role_plan_tests.rs"
   local loop_physical_edge_path="$root_dir/src/mir/builder/control_flow/plan/loop_physical_edge_path.rs"
   local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
   local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
@@ -54,9 +55,13 @@ guard_joinir_logical_demand_contract() {
   guard_require_files "$tag" \
     "$loop_phi_materializer" "$loop_phi_materializer_tests" \
     "$loop_accum_semantic_tests" "$loop_accum_physical_tests" \
+    "$loop_accum_physical_role_tests" \
     "$loop_physical_edge_path"
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_physical_tests"; then
     guard_fail "$tag" "physical parity observer must remain cfg(test)-only"
+  fi
+  if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_physical_role_tests"; then
+    guard_fail "$tag" "physical role-plan observer must remain cfg(test)-only"
   fi
   local portable_recipe_files=()
   mapfile -t portable_recipe_files < <(find "$portable_recipe_dir" -maxdepth 1 -name '*.rs' -type f | sort)
@@ -104,8 +109,9 @@ guard_joinir_logical_demand_contract() {
           -v materializer_tests="$loop_phi_materializer_tests" \
           -v semantic_tests="$loop_accum_semantic_tests" \
           -v physical_tests="$loop_accum_physical_tests" \
+          -v physical_role_tests="$loop_accum_physical_role_tests" \
           -v edge_path="$loop_physical_edge_path" \
-          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != edge_path'
+          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != edge_path'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -172,7 +178,8 @@ guard_joinir_logical_demand_contract() {
           -v materializer_tests="$loop_phi_materializer_tests" \
           -v semantic_tests="$loop_accum_semantic_tests" \
           -v physical_tests="$loop_accum_physical_tests" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests'
+          -v physical_role_tests="$loop_accum_physical_role_tests" \
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"

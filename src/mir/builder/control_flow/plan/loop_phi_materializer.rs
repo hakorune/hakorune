@@ -368,6 +368,93 @@ pub(in crate::mir::builder) fn materialize_loop_phis(
     materialize_impl(builder, sig, map, None)
 }
 
+/// Test-only two-phase carrier-PHI seam for the caller-zero physicalizer.
+///
+/// The handle deliberately keeps the existing `PhiTxn` alive between
+/// provisional definition and input finalization.  It is not a second PHI
+/// writer and it does not expose `PendingPhiV1` or `PhiToken` to callers.
+#[cfg(test)]
+pub(in crate::mir::builder) struct LoopPhiMaterializationHandleV1 {
+    txn: Option<PhiTxn>,
+    pending: Vec<(PendingPhiV1, crate::mir::builder::emission::phi_lifecycle::PhiToken)>,
+}
+
+#[cfg(test)]
+impl LoopPhiMaterializationHandleV1 {
+    pub(in crate::mir::builder) fn begin(
+        builder: &mut MirBuilder,
+        sig: &VerifiedLoopJoinSigV1,
+        map: VerifiedLoopLogicalToPhysicalMapV1,
+    ) -> Result<Self, LoopPhiMaterializerErrorV1> {
+        let pending = map.pending_phis(sig)?;
+        preflight_builder(builder, &pending)?;
+        let mut txn = PhiTxn::begin(MATERIALIZER_TAG);
+        let mut rows = Vec::with_capacity(pending.len());
+        for row in pending {
+            let token = match txn.define_provisional_phi(
+                builder,
+                row.block,
+                row.dst,
+                MATERIALIZER_TAG,
+            ) {
+                Ok(token) => token,
+                Err(error) => return Err(transaction_error(builder, txn, error)),
+            };
+            rows.push((row, token));
+        }
+        Ok(Self {
+            txn: Some(txn),
+            pending: rows,
+        })
+    }
+
+    pub(in crate::mir::builder) fn destination_values(&self) -> Vec<ValueId> {
+        self.pending
+            .iter()
+            .map(|(row, _)| row.dst)
+            .collect()
+    }
+
+    pub(in crate::mir::builder) fn finalize(
+        mut self,
+        builder: &mut MirBuilder,
+    ) -> Result<LoopPhiMaterializationReceiptV1, LoopPhiMaterializerErrorV1> {
+        let mut txn = self
+            .txn
+            .take()
+            .expect("LoopPhiMaterializationHandleV1 transaction already consumed");
+        let mut sites = Vec::with_capacity(self.pending.len());
+        for (row, token) in self.pending {
+            if let Err(error) = txn.patch_phi_inputs(builder, token, row.inputs.clone(), MATERIALIZER_TAG) {
+                return Err(transaction_error(builder, txn, error));
+            }
+            sites.push(LoopPhiSiteReceiptV1 {
+                loop_key: row.loop_key,
+                binding: row.binding,
+                block: row.block,
+                dst: row.dst,
+                inputs: row.inputs.into_boxed_slice(),
+            });
+        }
+        txn.commit(builder)
+            .map_err(|error| LoopPhiMaterializerErrorV1::Transaction(error.to_string()))?;
+        Ok(LoopPhiMaterializationReceiptV1 {
+            sites: sites.into_boxed_slice(),
+        })
+    }
+
+    pub(in crate::mir::builder) fn abort(
+        self,
+        builder: &mut MirBuilder,
+        error: impl Into<String>,
+    ) -> LoopPhiMaterializerErrorV1 {
+        let txn = self
+            .txn
+            .expect("LoopPhiMaterializationHandleV1 transaction already consumed");
+        transaction_error(builder, txn, error)
+    }
+}
+
 fn materialize_impl(
     builder: &mut MirBuilder,
     sig: &VerifiedLoopJoinSigV1,
