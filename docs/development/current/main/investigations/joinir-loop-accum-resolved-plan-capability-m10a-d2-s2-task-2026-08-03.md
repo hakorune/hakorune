@@ -349,3 +349,13 @@ shared in-place replacement gates are green. Touched Rust files remain below
 800 lines. Result projection is covered by the successful `MirCompileResult`
 verification assertion; failure-injection and fresh-reuse proofs remain the
 next hardening slice before expanding beyond this family.
+
+## Hardening follow-up: fresh reuse
+
+The first hardening slice is now fixed: the same `MirCompiler` compiles the
+resolved DirectAccum source twice, with distinct source-file hints, after the
+first external commit. Both results retain successful
+`MirCompileResult::verification_result` and the one-function module shape.
+The existing candidate-only late-seal failure and reopen tests remain the
+failure-before-publication evidence; postprocess fault injection and explicit
+pre-transform rejection projection remain the next separate hardening slice.

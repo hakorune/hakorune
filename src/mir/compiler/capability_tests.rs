@@ -182,6 +182,23 @@ fn compile_resolved_direct_accum_uses_source_bound_candidate_commit() {
 }
 
 #[test]
+fn compile_resolved_direct_accum_reuses_one_compiler_after_commit() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        super::direct_accum_projection::direct_accum_function_for_test(),
+    )
+    .expect("DirectAccum fixture resolves");
+    let mut compiler = MirCompiler::with_options(false);
+
+    for source_file in ["direct_accum-first.hako", "direct_accum-second.hako"] {
+        let result = compiler
+            .compile_resolved(unit.lowering_input(), Some(source_file))
+            .expect("fresh source-bound DirectAccum compilation");
+        assert!(result.verification_result.is_ok());
+        assert_eq!(result.module.functions.len(), 1);
+    }
+}
+
+#[test]
 fn direct_accum_candidate_lowerer_consumes_one_canonical_session() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(
         super::direct_accum_projection::direct_accum_function_for_test(),
