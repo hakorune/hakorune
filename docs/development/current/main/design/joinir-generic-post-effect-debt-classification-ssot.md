@@ -698,10 +698,12 @@ mode/contract snapshot. This preserves the M3 rule that Facts observe and
 Policy selects, and prevents a second AST matcher from appearing in
 `loop_route_policy`.
 
-The extractor recurses through the accepted `If`/`Loop`/`Program` grammar after
-ScopeBox flattening; every preserved but unsupported container is
-`Unavailable`, never silently skipped. Cross-mode Both/simple, unsupported,
-and fresh-repeat fixtures are the schema-acceptance gate.
+The extractor recurses through the accepted `If`/`Loop` grammar after
+ScopeBox flattening; preserved `Program`/`CompoundAssignment` containers are
+currently `Unavailable` because the V1 carrier consumer has no matching arm.
+Every other preserved unsupported container is also `Unavailable`, never
+silently skipped. Cross-mode Both/simple, unsupported, and fresh-repeat
+fixtures are the schema-acceptance gate.
 
 The schema gate is green for real cross-mode `Both`/simple observations,
 preserved-container `Unavailable`, and fresh repeat stability. D1 now emits
@@ -718,6 +720,16 @@ selection unchanged. A test-only neutral probe may consume only the observation,
 opaque overlap/mode/contract snapshots, and an independently accepted V1 stage;
 it may return `V1ForNestedCarriers` only for complete recursive coverage, and
 otherwise returns `UnresolvedStop`. Policy promotion remains a later D2 gate.
+
+#### D2-B3 — frame/witness reconciliation and consumer parity
+
+Use one real preflight frame for env/contract/raw schedule, then compare the
+facts-only policy disposition with fresh V0/V1 stages and the legacy witness.
+The current Both row must record `V1ForNestedCarriers` versus legacy V0 success
+as an explicit semantic mismatch, so it remains `UnresolvedStop`. Also compare
+recursive observation targets with V1 outer carrier PHI/final-value targets;
+any mismatch or unaccepted container keeps the row unresolved. No production
+policy, Retry rewrite, PHI wiring, or Generic cutover is allowed in B3.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

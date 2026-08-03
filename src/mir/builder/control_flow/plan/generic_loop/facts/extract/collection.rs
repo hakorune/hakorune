@@ -69,17 +69,12 @@ fn collect_recursive_carrier_targets(
                 ASTNode::Variable { .. } => {}
                 _ => return Err(CarrierObservationError::Ambiguous("assignment target")),
             },
-            ASTNode::CompoundAssignment { target, .. } if nested => match target.as_ref() {
-                ASTNode::Variable { name, .. } if name != loop_var => {
-                    targets.insert(name.clone());
-                }
-                ASTNode::Variable { .. } => {}
-                _ => {
-                    return Err(CarrierObservationError::Ambiguous(
-                        "compound-assignment target",
-                    ))
-                }
-            },
+            // The V1 physical carrier collector/lowerer does not consume
+            // compound assignments yet.  Keep this boundary unavailable
+            // instead of claiming a recursive carrier the consumer misses.
+            ASTNode::CompoundAssignment { .. } if nested => {
+                return Err(CarrierObservationError::Unavailable("CompoundAssignment"))
+            }
             ASTNode::If {
                 then_body,
                 else_body,
@@ -96,9 +91,9 @@ fn collect_recursive_carrier_targets(
             ASTNode::ScopeBox { body, .. } => {
                 collect_recursive_carrier_targets(body, loop_var, nested, targets)?;
             }
-            ASTNode::Program { statements, .. } => {
-                collect_recursive_carrier_targets(statements, loop_var, nested, targets)?;
-            }
+            // Program is preserved by scope flattening, but the V1 carrier
+            // consumer has no matching arm.  Do not silently recurse here.
+            ASTNode::Program { .. } => return Err(CarrierObservationError::Unavailable("Program")),
             ASTNode::LoopRange { .. } => {
                 return Err(CarrierObservationError::Unavailable("LoopRange"))
             }

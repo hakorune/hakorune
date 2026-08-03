@@ -9,12 +9,15 @@ use super::execution_witness::{
     PostEffectRetryDebtV1, RouteAttemptOutcomeV1, RouteExecutionResultV1,
 };
 use super::generic_accepted_plan_reachability_tests::{
-    observe_both_direct_stage, GenericDirectStageEvidenceV1,
+    evaluate_nested_carrier_policy_probe, observe_both_direct_stage, observe_generic_carrier_facts,
+    CorpusModeV1, GenericCarrierPolicyDispositionV1, GenericCarrierPolicyFrameV1,
+    GenericDirectStageEvidenceV1, PlanStageV1,
 };
 use super::generic_selection_matrix_tests::{
     both_body, effect_without_local_body, progression_condition, v1_only_effect_body,
 };
 use super::route_id::LoopRouteId;
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
     test_issue_live_preflight_frame, LoopRouteContext,
 };
@@ -499,6 +502,106 @@ fn generic_effect_without_local_fixture_is_not_both_and_stops_without_retry() {
         assert!(
             matches!(trace.terminal, TerminalTraceV1::Error(_)),
             "effect boundary must stop at the actual handler error: {trace:?}"
+        );
+    }
+}
+
+#[test]
+fn generic_both_policy_witness_mismatch_remains_unresolved() {
+    for mode in [
+        ObserverModeV1::Release,
+        ObserverModeV1::Strict,
+        ObserverModeV1::StrictPlannerRequired,
+    ] {
+        let corpus_mode = match mode {
+            ObserverModeV1::Release => CorpusModeV1::Release,
+            ObserverModeV1::Strict => CorpusModeV1::Strict,
+            ObserverModeV1::StrictPlannerRequired => CorpusModeV1::StrictPlannerRequired,
+        };
+        let (observation, raw_schedule) = observe_generic_carrier_facts(corpus_mode, "both");
+        let trace = observe_both_fixture(mode);
+        let v1_stage_accepted =
+            observe_both_direct_stage(trace.frame.strict_or_dev, trace.frame.planner_required)
+                .iter()
+                .any(|row| {
+                    row.route == LoopRouteId::GenericLoopV1
+                        && matches!(row.stage, PlanStageV1::LowerSome)
+                });
+        let disposition = evaluate_nested_carrier_policy_probe(
+            &observation,
+            GenericCarrierPolicyFrameV1 {
+                has_overlap: raw_schedule.as_slice()
+                    == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1],
+                strict_or_dev: trace.frame.strict_or_dev,
+                planner_required: trace.frame.planner_required,
+                contract_present: trace.frame.recipe_contract_present,
+                v1_stage_accepted,
+            },
+        );
+        let unresolved = disposition == GenericCarrierPolicyDispositionV1::UnresolvedStop
+            || (raw_schedule == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
+                && disposition == GenericCarrierPolicyDispositionV1::V1ForNestedCarriers
+                && trace.terminal == TerminalTraceV1::Succeeded(LoopRouteId::GenericLoopV0));
+        assert!(
+            unresolved,
+            "policy/witness reconciliation must stop: {mode:?}"
+        );
+        if raw_schedule == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1] {
+            assert_eq!(
+                disposition,
+                GenericCarrierPolicyDispositionV1::V1ForNestedCarriers
+            );
+            assert_eq!(
+                trace.terminal,
+                TerminalTraceV1::Succeeded(LoopRouteId::GenericLoopV0),
+                "policy/witness route mismatch must remain visible"
+            );
+        } else {
+            assert_eq!(
+                disposition,
+                GenericCarrierPolicyDispositionV1::UnresolvedStop
+            );
+        }
+    }
+}
+
+#[test]
+fn generic_carrier_observation_does_not_overclaim_unhandled_consumers() {
+    let assignment = ASTNode::Assignment {
+        target: Box::new(ASTNode::Variable {
+            name: "j".into(),
+            span: Span::unknown(),
+        }),
+        value: Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(1),
+            span: Span::unknown(),
+        }),
+        span: Span::unknown(),
+    };
+    let program = vec![ASTNode::Program {
+        statements: vec![assignment.clone()],
+        span: Span::unknown(),
+    }];
+    let compound = vec![ASTNode::CompoundAssignment {
+        target: Box::new(ASTNode::Variable {
+            name: "j".into(),
+            span: Span::unknown(),
+        }),
+        operator: BinaryOperator::Add,
+        value: Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(1),
+            span: Span::unknown(),
+        }),
+        span: Span::unknown(),
+    }];
+    for (body, container) in [(program, "Program"), (compound, "CompoundAssignment")] {
+        assert_eq!(
+            crate::mir::builder::control_flow::plan::facts::observe_generic_loop_carrier_observation(
+                &body, "i"
+            ),
+            crate::mir::builder::control_flow::plan::facts::GenericLoopCarrierObservationV1::Unavailable(
+                container.into()
+            )
         );
     }
 }

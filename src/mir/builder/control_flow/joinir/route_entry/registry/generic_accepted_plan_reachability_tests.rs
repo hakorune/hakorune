@@ -114,7 +114,7 @@ struct NestedCarrierSemanticEvidenceV1 {
     nested_final_value_names: Vec<String>,
 }
 
-fn observe_generic_carrier_facts(
+pub(super) fn observe_generic_carrier_facts(
     mode: CorpusModeV1,
     name: &str,
 ) -> (GenericLoopCarrierObservationV1, Vec<LoopRouteId>) {
@@ -465,23 +465,23 @@ fn generic_both_facts_emit_test_only_recursive_carrier_observation() {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum GenericCarrierPolicyDispositionV1 {
+pub(super) enum GenericCarrierPolicyDispositionV1 {
     V1ForNestedCarriers,
     UnresolvedStop,
 }
 
 #[derive(Debug, Clone, Copy)]
-struct GenericCarrierPolicyFrameV1 {
-    has_overlap: bool,
-    strict_or_dev: bool,
-    planner_required: bool,
-    contract_present: bool,
-    v1_stage_accepted: bool,
+pub(super) struct GenericCarrierPolicyFrameV1 {
+    pub(super) has_overlap: bool,
+    pub(super) strict_or_dev: bool,
+    pub(super) planner_required: bool,
+    pub(super) contract_present: bool,
+    pub(super) v1_stage_accepted: bool,
 }
 
 // Test-only neutral policy probe. It receives no AST, RecipeBody, CorePlan, or
 // route ID; production selection remains unchanged until D2 closes.
-fn evaluate_nested_carrier_policy_probe(
+pub(super) fn evaluate_nested_carrier_policy_probe(
     observation: &GenericLoopCarrierObservationV1,
     frame: GenericCarrierPolicyFrameV1,
 ) -> GenericCarrierPolicyDispositionV1 {
@@ -634,6 +634,11 @@ fn generic_both_nested_carrier_semantic_witness_is_not_alpha_noise() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let v0 = nested_carrier_evidence(LoopRouteId::GenericLoopV0);
     let v1 = nested_carrier_evidence(LoopRouteId::GenericLoopV1);
+    let (observation, _) = observe_generic_carrier_facts(CorpusModeV1::Release, "both");
+    assert_eq!(
+        observation,
+        GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(vec!["j".into()])
+    );
 
     // Source-level meaning: the inner loop writes the outer `j`, so the
     // binding must remain observable after the outer loop.  V1 carries that
@@ -643,6 +648,13 @@ fn generic_both_nested_carrier_semantic_witness_is_not_alpha_noise() {
     assert!(v1.outer_final_value_names.iter().any(|name| name == "j"));
     assert!(v1.outer_phi_tags.iter().any(|tag| tag == "loop_carrier_j"));
     assert!(v1.outer_phi_tags.iter().any(|tag| tag == "loop_step_in_j"));
+    let outer_carriers = v1
+        .outer_final_value_names
+        .iter()
+        .filter(|name| name.as_str() == "j")
+        .map(String::as_str)
+        .collect::<Vec<_>>();
+    assert_eq!(outer_carriers, vec!["j"]);
     assert_ne!(v0, v1, "carrier meaning must remain visible in evidence");
 
     for strict_or_dev in [false, true] {
