@@ -112,6 +112,38 @@ This closes only the CFG/Binding-SSA session slice. It does not yet claim
 Recipe-driven operation emission, full DirectAccum MIR parity, late-failure
 candidate abort for the operation path, or production wiring.
 
+## Next S1 boundary: operation emission, not another PHI/SSA owner
+
+The next slice consumes a builder-free `VerifiedLoopOperationScheduleV1`
+derived from the verified Recipe/JoinSig. The schedule carries logical
+operation/value keys and carrier obligations only; it contains no `ValueId`,
+`BasicBlockId`, AST, CorePlan, or source-name lookup. Before emission, every
+JoinSig carrier must have exactly one corresponding physical-header
+`ReadBinding`; otherwise the schedule rejects with `CarrierReadMissing`.
+
+The physicalizer then uses the already-established owners:
+
+```text
+ReadBinding   -> BindingSsaBuilderV1::read
+Const/Binary/Compare -> named candidate MIR operation owner
+WriteBinding  -> emit the value, then BindingSsaBuilderV1::define
+PHI lifecycle -> the one caller-owned PhiTxn used by the SSA adapter
+commit/abort  -> outer unpublished compile-candidate owner
+```
+
+No carrier predeclare/reservation API is added for DirectAccum. An open-header
+`read` is the sole demand-driven provisional-PHI creation path; repeated reads
+must alias the same reaching `ValueId`, and header sealing must patch through
+the existing SSA/PHI SSOT. A future family that needs a carrier without a
+header read requires a separate Binding-SSA design decision, not a
+`LoopPhiMaterializerV1` fallback.
+
+S1 acceptance adds operation-level type/dataflow/final-result parity, the
+carrier↔header-read coverage guard, repeated-read aliasing, write-then-read
+visibility, and injected operation/SSA/finish failure proving shared-PhiTxn
+abort plus candidate discard/fresh-session reuse. It remains caller-zero until
+those gates are green.
+
 ## Required products
 
 1. `VerifiedLoopBindingProjectionV1`: sealed owner-checked identity capability;
