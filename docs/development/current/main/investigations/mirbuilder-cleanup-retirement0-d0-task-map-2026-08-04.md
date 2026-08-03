@@ -2,11 +2,12 @@
 
 Status: parked BoxShape task map; audit complete, implementation not
 authorized by this card. The executable cleanup lane remains behind the
-active If D0-B3 row.
+active If D0-C producer/consumer design stop.
 Date: 2026-08-04
 
 This card records the cleanup opportunities raised by the dead-code audit. It
-is deliberately separate from the active If D0-B3 physical-input lane. The
+is deliberately separate from the active If D0-C producer/consumer design
+stop. The
 goal is to reduce duplicate shells and retire proven disconnected code without
 changing route selection, Recipe semantics, SSA/PHI authority, or the JSON-v0
 compatibility contract.
@@ -226,9 +227,9 @@ hard-delete the bridge.
   gate, and explicit rollback boundary.
 - `phi_input_materializer.rs` and route-local PHI repair remain outside T1–T4;
   their size/authority split is a separate behavior-neutral SSA lane.
-- This cleanup card is parked behind the active If D0-B3 physical-input row
-  and may run in parallel only as read-only audit/design work until a bounded
-  row is promoted. T3/T4 must not move/delete `BindingSsaBuilderV1`,
+- This cleanup card is parked behind the active If D0-C producer/consumer
+  design stop and may run in parallel only as read-only audit/design work
+  until a bounded row is promoted. T3/T4 must not move/delete `BindingSsaBuilderV1`,
   `PhiTxn`, `CanonicalCfgSessionV1`, Loop/JoinIR PHI writers, or change
   route/Recipe semantics. Existing semantic/lifecycle PHI/SSA owners are
   authoritative, but exclusive production writer retirement remains a later
