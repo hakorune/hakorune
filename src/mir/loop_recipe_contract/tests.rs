@@ -3,6 +3,7 @@ use super::ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
     LoopNodeKeyV1, LoopValueKeyV1,
 };
+use super::join_sig::{LoopJoinEdgeRoleV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1};
 use super::normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
 use super::route_id::LoopRouteId;
 use super::schema::{
@@ -19,6 +20,114 @@ fn golden() -> LoopRecipeArtifactV1 {
 
 fn reject(artifact: LoopRecipeArtifactV1) -> Reject {
     LoopRecipeVerifierV1::verify_artifact(artifact).expect_err("fixture must reject")
+}
+
+fn verified_recipe() -> super::verify::VerifiedLoopRecipeV1 {
+    LoopRecipeVerifierV1::verify(golden().recipe).expect("golden recipe verifies")
+}
+
+#[test]
+fn join_sig_accum_nested_is_deterministic_and_closed() {
+    let left = LoopJoinSigElaboratorV1::elaborate(&verified_recipe()).expect("left join signature");
+    let right =
+        LoopJoinSigElaboratorV1::elaborate(&verified_recipe()).expect("right join signature");
+    assert_eq!(left.as_sig(), right.as_sig());
+    assert_eq!(left.as_sig().loops.len(), 2);
+    assert_eq!(left.as_sig().loops[0].carriers.len(), 2);
+    assert_eq!(left.as_sig().loops[1].carriers.len(), 0);
+    assert!(left.as_sig().loops[0].edges.iter().any(|edge| {
+        edge.role == LoopJoinEdgeRoleV1::PredicateTrue
+            && edge
+                .payload
+                .iter()
+                .any(|payload| payload.value == LoopValueKeyV1::new(0))
+    }));
+    assert!(left.as_sig().loops[1]
+        .edges
+        .iter()
+        .any(|edge| edge.role == LoopJoinEdgeRoleV1::Break));
+    let inner_break = left.as_sig().loops[1]
+        .edges
+        .iter()
+        .find(|edge| edge.role == LoopJoinEdgeRoleV1::Break)
+        .expect("inner break edge");
+    assert!(inner_break.payload.iter().any(|payload| {
+        payload.binding == LoopBindingKeyV1::new(1) && payload.value == LoopValueKeyV1::new(6)
+    }));
+}
+
+#[test]
+fn join_sig_rejects_late_value_use_before_any_physical_effect() {
+    let mut artifact = golden();
+    if let LoopRecipeItemV1::Operation {
+        operation: super::schema::LoopOperationV1::BinaryI64 { left, .. },
+    } = &mut artifact.recipe.items[7].item
+    {
+        *left = LoopValueKeyV1::new(5);
+    }
+    let verified = LoopRecipeVerifierV1::verify(artifact.recipe).expect("shape still verifies");
+    assert_eq!(
+        LoopJoinSigElaboratorV1::elaborate(&verified),
+        Err(LoopJoinSigRejectReasonV1::ValueNotAvailable {
+            value: LoopValueKeyV1::new(5)
+        })
+    );
+}
+
+#[test]
+fn join_sig_rejects_missing_carrier_closure() {
+    let mut artifact = golden();
+    artifact.recipe.carriers[0].owner_loop = LoopNodeKeyV1::new(1);
+    let verified = LoopRecipeVerifierV1::verify(artifact.recipe).expect("shape still verifies");
+    assert_eq!(
+        LoopJoinSigElaboratorV1::elaborate(&verified),
+        Err(LoopJoinSigRejectReasonV1::MissingCarrierClosure {
+            loop_key: LoopNodeKeyV1::new(0),
+            binding: LoopBindingKeyV1::new(0),
+        })
+    );
+}
+
+#[test]
+fn join_sig_rejects_item_after_terminal_exit() {
+    let mut artifact = golden();
+    artifact
+        .recipe
+        .values
+        .push(super::schema::LoopRecipeValueV1 {
+            key: LoopValueKeyV1::new(7),
+            class: LoopValueClassV1::I64,
+        });
+    artifact.recipe.items.push(LoopRecipeItemRowV1 {
+        key: LoopItemKeyV1::new(10),
+        item: LoopRecipeItemV1::Operation {
+            operation: super::schema::LoopOperationV1::ConstI64 {
+                result: LoopValueKeyV1::new(7),
+                value: 0,
+            },
+        },
+    });
+    artifact.recipe.blocks[1].items.push(LoopItemKeyV1::new(10));
+    let verified = LoopRecipeVerifierV1::verify(artifact.recipe).expect("shape still verifies");
+    assert_eq!(
+        LoopJoinSigElaboratorV1::elaborate(&verified),
+        Err(LoopJoinSigRejectReasonV1::UnreachableItem {
+            item: LoopItemKeyV1::new(10)
+        })
+    );
+}
+
+#[test]
+fn join_sig_propagates_nested_return_as_terminal() {
+    let mut artifact = golden();
+    artifact.recipe.exits[1].kind = LoopExitKindV1::Return { value: None };
+    let verified = LoopRecipeVerifierV1::verify(artifact.recipe).expect("shape still verifies");
+    assert_eq!(
+        LoopJoinSigElaboratorV1::elaborate(&verified),
+        Err(LoopJoinSigRejectReasonV1::UnreachableItem {
+            item: LoopItemKeyV1::new(6)
+        })
+    );
 }
 
 #[test]

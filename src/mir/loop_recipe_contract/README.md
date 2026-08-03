@@ -15,10 +15,15 @@ Loop lowering.
   authority.
 - External/pre-loop values are named explicitly by `inputs`; every other value
   has exactly one operation result.
-- A carrier entry must be available before its owning Loop is entered. Backedge
-  and exit joins remain the later JoinSig elaboration authority.
+- A carrier entry must be available before its owning Loop is entered. The
+  caller-zero `LoopJoinSigElaboratorV1` elaborates the bounded Accum logical
+  edges and visible ancestor-carrier payloads; its verified product is
+  non-`Clone` and has no production caller. Full dominance/predecessor and
+  wider nested-exit closure remain later M6 work.
 - `LoopRecipeVerifierV1` consumes only `LoopRecipeV1`. It cannot select or retry
   a route and cannot inspect source ownership or the producer receipt.
+- `LoopRecipeVerifierV1` owns structural recipe preconditions; the JoinSig
+  elaborator owns logical dataflow/edge rows. Do not merge these authorities.
 - Artifact verification proves only the wire claim's internal structure:
   canonical source-key order, exact coverage, unique paths, root entry through
   `body_item`, and direct-child path grammar. It does not prove that the named

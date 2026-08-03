@@ -114,8 +114,8 @@ fallback from the `.hako` path.
 | `LoopRoutePolicyV1` | one ordered winner or typed rejection | Builder probes, physical execution, retry |
 | `LoopRecipeArtifactV1` | owned provenance plus one recursive `LoopRecipeV1` | route/family dispatch, AST reconstruction, physical IDs |
 | `LoopRecipeV1` | condition, recursive body/control items, carriers, exits | legacy family, policy selection, physical IDs |
-| `LoopRecipeVerifierV1` | recipe coverage and logical JoinSig/CFG elaboration | repair, fallback, another recipe |
-| `LoopJoinSigV1` | verified logical edge payload obligations | PHI allocation, CFG repair |
+| `LoopRecipeVerifierV1` | recipe shape, definitions, carrier/exit preconditions | logical edge elaboration, repair, fallback |
+| `LoopJoinSigElaboratorV1` / `LoopJoinSigV1` | bounded logical edge/dataflow obligations | PHI allocation, CFG repair |
 | `LoopCfgSkeletonLoweringV1` | physical blocks/edges/terminators from verified roles | route selection, AST reading |
 | `LoopPhiMaterializerV1` | PHIs from verified JoinSig only | source inference, route-specific repair |
 | `LoopPhysicalizerV1` | one terminal candidate mutation | `Option`, retry, raw suffix, publication |
@@ -470,24 +470,24 @@ Stop:
 
 Change:
 : Establish one caller-zero chain: verified Recipe -> CFG/JoinSig -> verifier ->
-  PHI materializer. Split pure logical elaboration (M6-A) from physical
-  emission (M6-B); no production caller is added.
+  PHI materializer; split pure logical elaboration (M6-A) from physical
+  emission (M6-B), with no production caller.
 
 Contract:
-: M6-A has no Builder/physical IDs and verifies predecessor/dominance, edge
-  arity/types, carrier closure, exits, and unreachable policy. M6-B
-  `LoopPhiMaterializerV1` consumes only verified JoinSig plus logical-to-physical
-  mapping; AST, route/env, `variable_map`, tags, and repair inference are
-  forbidden. Both reject; neither chooses another recipe.
+: M6-A's first caller-zero slice has no Builder/physical IDs and elaborates the
+  bounded Accum vocabulary: deterministic logical ports/edges, value
+  availability, owner/ancestor carrier payloads, self exits, and unreachable items;
+  nested loops are `Always`-only. Full predecessor/dominance and wider branch/exit closure remain explicit M6-A follow-ups.
+  M6-B `LoopPhiMaterializerV1` consumes only verified JoinSig plus
+  logical-to-physical mapping; AST, route/env, `variable_map`, tags, and repair inference
+  are forbidden. Both reject; neither chooses another recipe.
 
 Done:
-: Deterministic Accum JoinSig/counterexamples are green; route-specific
-  block/PHI callers in the new subtree are zero, `for_pred` is identity,
-  whole-function repair is `changed=0`, and DraftSeal never repairs.
+: Deterministic Accum JoinSig/counterexamples are green; the logical owner is caller-zero
+  with a non-Clone product; route-specific block/PHI callers, physical IDs, and production wiring remain zero.
 
 Stop:
-: Bypass, production wiring, route-local AST/PHI inference, duplicate writer,
-  or temporary repair stops M6.
+: Bypass, production wiring, route-local AST/PHI inference, duplicate writer, or temporary repair stops M6.
 
 ### M7 — `JOINIR-LOOP-RECURSIVE-RECIPE-CLOSURE0-S5`
 

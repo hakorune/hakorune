@@ -52,6 +52,7 @@ guard_joinir_logical_demand_contract() {
     "$portable_recipe_dir/README.md" \
     "$portable_recipe_dir/schema.rs" \
     "$portable_recipe_dir/verify.rs" \
+    "$portable_recipe_dir/join_sig.rs" \
     "$portable_recipe_dir/normalize.rs"
   if (( ${#portable_recipe_files[@]} == 0 )); then
     guard_fail "$tag" "portable Loop recipe subtree has no Rust contract files"
@@ -79,6 +80,16 @@ guard_joinir_logical_demand_contract() {
   if rg -n -w 'LoopRouteId|producer_route' \
     "$portable_recipe_dir/verify.rs" "$portable_recipe_dir/normalize.rs" >/dev/null; then
     guard_fail "$tag" "portable semantic verifier/normalizer acquired route provenance authority"
+  fi
+  local join_sig_external_files=()
+  mapfile -t join_sig_external_files < <(
+    { rg -l -w \
+        'LoopJoinPortV1|LoopJoinEdgeRoleV1|LoopJoinPayloadV1|LoopJoinEdgeV1|LoopJoinLoopV1|LoopJoinSigV1|VerifiedLoopJoinSigV1|LoopJoinSigElaboratorV1|LoopJoinSigRejectReasonV1' \
+        "$root_dir/src/mir" || true; } \
+      | awk -v prefix="$portable_recipe_dir/" 'index($0, prefix) != 1'
+  )
+  if (( ${#join_sig_external_files[@]} != 0 )); then
+    guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
   fi
   local loop_structural_fact_files=()
   mapfile -t loop_structural_fact_files < <(
