@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "provenance": { "producer_route": "nested_loop_minimal" },
+  "source_binding": {
+    "owner": { "kind": "function_body", "compilation_unit_ordinal": 0, "function_ordinal": 0 },
+    "loops": [
+      { "loop_key": 0, "path": { "steps": [{ "kind": "body_item", "index": 0 }] } },
+      { "loop_key": 1, "path": { "steps": [
+        { "kind": "body_item", "index": 0 },
+        { "kind": "loop_body_item", "index": 0 }
+      ] } }
+    ]
+  },
+  "recipe": {
+    "root_loop": 0,
+    "loops": [
+      { "key": 0, "parent": null, "condition": { "kind": "predicate", "block": 0, "value": 4 }, "body": 1 },
+      { "key": 1, "parent": 0, "condition": { "kind": "predicate", "block": 2, "value": 7 }, "body": 3 }
+    ],
+    "blocks": [
+      { "key": 0, "owner_loop": 0, "items": [0, 1, 2] },
+      { "key": 1, "owner_loop": 0, "items": [3, 4, 16, 17, 18, 19] },
+      { "key": 2, "owner_loop": 1, "items": [5, 6, 7] },
+      { "key": 3, "owner_loop": 1, "items": [8, 9, 10, 11, 12, 13, 14, 15] }
+    ],
+    "items": [
+      { "key": 0, "item": { "kind": "operation", "operation": { "kind": "read_binding", "binding": 0, "result": 1 } } },
+      { "key": 1, "item": { "kind": "operation", "operation": { "kind": "const_i64", "result": 2, "value": 3 } } },
+      { "key": 2, "item": { "kind": "operation", "operation": { "kind": "compare_i64", "op": "less", "left": 1, "right": 2, "result": 4 } } },
+      { "key": 3, "item": { "kind": "operation", "operation": { "kind": "const_i64", "result": 5, "value": 0 } } },
+      { "key": 4, "item": { "kind": "loop", "loop_key": 1 } },
+      { "key": 5, "item": { "kind": "operation", "operation": { "kind": "read_binding", "binding": 2, "result": 6 } } },
+      { "key": 6, "item": { "kind": "operation", "operation": { "kind": "const_i64", "result": 8, "value": 3 } } },
+      { "key": 7, "item": { "kind": "operation", "operation": { "kind": "compare_i64", "op": "less", "left": 6, "right": 8, "result": 7 } } },
+      { "key": 8, "item": { "kind": "operation", "operation": { "kind": "read_binding", "binding": 1, "result": 9 } } },
+      { "key": 9, "item": { "kind": "operation", "operation": { "kind": "const_i64", "result": 10, "value": 1 } } },
+      { "key": 10, "item": { "kind": "operation", "operation": { "kind": "binary_i64", "op": "add", "left": 9, "right": 10, "result": 11 } } },
+      { "key": 11, "item": { "kind": "operation", "operation": { "kind": "write_binding", "binding": 1, "value": 11 } } },
+      { "key": 12, "item": { "kind": "operation", "operation": { "kind": "read_binding", "binding": 2, "result": 12 } } },
+      { "key": 13, "item": { "kind": "operation", "operation": { "kind": "const_i64", "result": 13, "value": 1 } } },
+      { "key": 14, "item": { "kind": "operation", "operation": { "kind": "binary_i64", "op": "add", "left": 12, "right": 13, "result": 14 } } },
+      { "key": 15, "item": { "kind": "operation", "operation": { "kind": "write_binding", "binding": 2, "value": 14 } } },
+      { "key": 16, "item": { "kind": "operation", "operation": { "kind": "read_binding", "binding": 0, "result": 15 } } },
+      { "key": 17, "item": { "kind": "operation", "operation": { "kind": "const_i64", "result": 16, "value": 1 } } },
+      { "key": 18, "item": { "kind": "operation", "operation": { "kind": "binary_i64", "op": "add", "left": 15, "right": 16, "result": 17 } } },
+      { "key": 19, "item": { "kind": "operation", "operation": { "kind": "write_binding", "binding": 0, "value": 17 } } }
+    ],
+    "bindings": [
+      { "key": 0, "label": "i", "class": "i64" },
+      { "key": 1, "label": "sum", "class": "i64" },
+      { "key": 2, "label": "j", "class": "i64" }
+    ],
+    "values": [
+      { "key": 0, "class": "i64" }, { "key": 1, "class": "i64" }, { "key": 2, "class": "i64" },
+      { "key": 3, "class": "i64" }, { "key": 4, "class": "bool" }, { "key": 5, "class": "i64" },
+      { "key": 6, "class": "i64" }, { "key": 7, "class": "bool" }, { "key": 8, "class": "i64" },
+      { "key": 9, "class": "i64" }, { "key": 10, "class": "i64" }, { "key": 11, "class": "i64" },
+      { "key": 12, "class": "i64" }, { "key": 13, "class": "i64" }, { "key": 14, "class": "i64" },
+      { "key": 15, "class": "i64" }, { "key": 16, "class": "i64" }, { "key": 17, "class": "i64" }
+    ],
+    "inputs": [0, 3],
+    "carriers": [
+      { "key": 0, "owner_loop": 0, "binding": 0, "class": "i64", "entry_value": 0 },
+      { "key": 1, "owner_loop": 0, "binding": 1, "class": "i64", "entry_value": 3 },
+      { "key": 2, "owner_loop": 1, "binding": 2, "class": "i64", "entry_value": 5 }
+    ],
+    "exits": []
+  }
+}

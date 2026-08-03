@@ -16,6 +16,10 @@ mod verify;
 mod direct_accum_producer_tests;
 
 #[cfg(test)]
+#[path = "nested_predicate_tests.rs"]
+mod nested_predicate_tests;
+
+#[cfg(test)]
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
 
 #[cfg(test)]

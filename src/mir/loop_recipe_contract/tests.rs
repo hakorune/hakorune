@@ -13,7 +13,6 @@ use super::schema::{
 use super::verify::LoopRecipeVerifierV1;
 
 const ACCUM_NESTED_GOLDEN: &str = include_str!("fixtures/accum_nested_v1.json");
-
 fn golden() -> LoopRecipeArtifactV1 {
     serde_json::from_str(ACCUM_NESTED_GOLDEN).expect("valid golden JSON")
 }

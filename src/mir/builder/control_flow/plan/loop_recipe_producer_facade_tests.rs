@@ -8,16 +8,16 @@
 #![cfg(test)]
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_recipe_contract::{
     LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopRecipeArtifactV1,
     LoopRecipeNormalizerV1, LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopRecipeV1,
     LoopRecipeVerifierV1, VerifiedLoopJoinSigV1, VerifiedLoopRecipeV1,
 };
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_structural_facts::bind_resolved_loop_source_forest_v1;
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourceNodeSiteV1,
-    SourcePathSegmentV1, SourceStmtSiteV1,
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourceNodeSiteV1, SourcePathSegmentV1,
+    SourceStmtSiteV1,
 };
 
 #[derive(Debug)]
@@ -75,8 +75,8 @@ impl VerifiedLoopRecipeProducerFacadeV1 {
     ) -> Result<VerifiedLoopRecipeProductV1, ProducerRejectV1> {
         let VerifiedLoopRecipeDemandV1 { recipe, receipt } = demand;
         let recipe = LoopRecipeVerifierV1::verify(recipe).map_err(ProducerRejectV1::Recipe)?;
-        let join_sig = LoopJoinSigElaboratorV1::elaborate(&recipe)
-            .map_err(ProducerRejectV1::JoinSig)?;
+        let join_sig =
+            LoopJoinSigElaboratorV1::elaborate(&recipe).map_err(ProducerRejectV1::JoinSig)?;
         Ok(VerifiedLoopRecipeProductV1 {
             recipe,
             join_sig,
@@ -188,9 +188,10 @@ fn nested_always_witness_binds_source_without_production_caller() {
     .expect("D1 source projection");
 
     let raw_recipe = recipe_from(super::GOLDEN);
-    let product = VerifiedLoopRecipeProducerFacadeV1::consume(
-        VerifiedLoopRecipeDemandV1::new(raw_recipe.clone(), LoopRouteId::NestedLoopMinimal),
-    )
+    let product = VerifiedLoopRecipeProducerFacadeV1::consume(VerifiedLoopRecipeDemandV1::new(
+        raw_recipe.clone(),
+        LoopRouteId::NestedLoopMinimal,
+    ))
     .expect("nested Always semantic product");
     assert_eq!(product.diagnostic_route(), LoopRouteId::NestedLoopMinimal);
     assert_eq!(product.join_sig().as_sig().loops.len(), 2);
@@ -220,24 +221,29 @@ fn nested_always_witness_binds_source_without_production_caller() {
 
 #[test]
 fn facade_reports_join_sig_reject_without_retry() {
-    let artifact: LoopRecipeArtifactV1 = serde_json::from_str(super::GOLDEN).expect("nested golden");
+    let artifact: LoopRecipeArtifactV1 =
+        serde_json::from_str(super::GOLDEN).expect("nested golden");
     let mut recipe = artifact.recipe().clone();
     recipe.blocks[1]
         .items
         .push(crate::mir::loop_recipe_contract::LoopItemKeyV1::new(10));
-    recipe.items.push(crate::mir::loop_recipe_contract::LoopRecipeItemRowV1 {
-        key: crate::mir::loop_recipe_contract::LoopItemKeyV1::new(10),
-        item: crate::mir::loop_recipe_contract::LoopRecipeItemV1::Operation {
-            operation: crate::mir::loop_recipe_contract::LoopOperationV1::ConstI64 {
-                result: crate::mir::loop_recipe_contract::LoopValueKeyV1::new(7),
-                value: 0,
+    recipe
+        .items
+        .push(crate::mir::loop_recipe_contract::LoopRecipeItemRowV1 {
+            key: crate::mir::loop_recipe_contract::LoopItemKeyV1::new(10),
+            item: crate::mir::loop_recipe_contract::LoopRecipeItemV1::Operation {
+                operation: crate::mir::loop_recipe_contract::LoopOperationV1::ConstI64 {
+                    result: crate::mir::loop_recipe_contract::LoopValueKeyV1::new(7),
+                    value: 0,
+                },
             },
-        },
-    });
-    recipe.values.push(crate::mir::loop_recipe_contract::LoopRecipeValueV1 {
-        key: crate::mir::loop_recipe_contract::LoopValueKeyV1::new(7),
-        class: crate::mir::loop_recipe_contract::LoopValueClassV1::I64,
-    });
+        });
+    recipe
+        .values
+        .push(crate::mir::loop_recipe_contract::LoopRecipeValueV1 {
+            key: crate::mir::loop_recipe_contract::LoopValueKeyV1::new(7),
+            class: crate::mir::loop_recipe_contract::LoopValueClassV1::I64,
+        });
     let result = VerifiedLoopRecipeProducerFacadeV1::consume(VerifiedLoopRecipeDemandV1::new(
         recipe,
         LoopRouteId::AccumConstLoop,

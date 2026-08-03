@@ -138,10 +138,15 @@ fn elaborate_loop(
         .loops
         .get(key.raw() as usize)
         .expect("verified recipe has canonical loop keys");
-    let mut local = inherited.clone();
-    let mut local_available = available.clone();
+    let parent_bindings = inherited.clone();
+    let parent_available = available.clone();
+    let mut local = parent_bindings.clone();
+    let mut local_available = parent_available.clone();
     seed_carriers(recipe, key, &mut local, &mut local_available);
-    if node.parent.is_some() && matches!(node.condition, LoopConditionV1::Predicate { .. }) {
+    if node.parent.is_some()
+        && matches!(node.condition, LoopConditionV1::Predicate { .. })
+        && !is_bounded_nested_predicate(recipe, key)
+    {
         return Err(LoopJoinSigRejectReasonV1::UnsupportedNestedPredicate { loop_key: key });
     }
     let mut edges = vec![LoopJoinEdgeV1 {
@@ -254,13 +259,130 @@ fn elaborate_loop(
         carriers,
         edges,
     });
-    *inherited = body_flow.bindings.clone();
-    *available = body_flow.available.clone();
-    Ok(Flow {
-        bindings: body_flow.bindings,
-        available: body_flow.available,
-        exit: propagated_exit,
+    // A child may update an inherited binding (for example `sum`), but its
+    // own recurrence locals (for example nested `j`) end at the child edge.
+    // Keep this lexical/recurrence boundary in the logical elaborator; the
+    // later physical session owns the actual resume edge and PHI material.
+    let resumed = project_parent_flow(
+        Flow {
+            bindings: body_flow.bindings,
+            available: body_flow.available,
+            exit: propagated_exit,
+        },
+        &parent_bindings,
+        &parent_available,
+    );
+    *inherited = resumed.bindings.clone();
+    *available = resumed.available.clone();
+    Ok(resumed)
+}
+
+fn is_bounded_nested_predicate(recipe: &LoopRecipeV1, key: LoopNodeKeyV1) -> bool {
+    let Some(node) = recipe.loops.get(key.raw() as usize) else {
+        return false;
+    };
+    let Some(parent_key) = node.parent else {
+        return false;
+    };
+    let Some(parent) = recipe.loops.get(parent_key.raw() as usize) else {
+        return false;
+    };
+    if parent.parent.is_some() || !matches!(parent.condition, LoopConditionV1::Predicate { .. }) {
+        return false;
+    }
+    let LoopConditionV1::Predicate { block, .. } = node.condition else {
+        return false;
+    };
+    if !block_has_only_operations(recipe, block, is_nested_predicate_condition_operation)
+        || !block_has_only_operations(recipe, node.body, is_nested_predicate_body_operation)
+    {
+        return false;
+    }
+    if recipe
+        .loops
+        .iter()
+        .any(|candidate| candidate.parent == Some(key))
+    {
+        return false;
+    }
+    let Some(parent_body) = recipe.blocks.get(parent.body.raw() as usize) else {
+        return false;
+    };
+    let mut child_items = 0;
+    for item_key in &parent_body.items {
+        let Some(row) = recipe.items.get(item_key.raw() as usize) else {
+            return false;
+        };
+        match row.item {
+            LoopRecipeItemV1::Loop { loop_key } if loop_key == key => child_items += 1,
+            LoopRecipeItemV1::Operation { .. } => {}
+            LoopRecipeItemV1::If { .. }
+            | LoopRecipeItemV1::Loop { .. }
+            | LoopRecipeItemV1::Exit { .. } => {
+                return false;
+            }
+        }
+    }
+    child_items == 1
+}
+
+fn block_has_only_operations(
+    recipe: &LoopRecipeV1,
+    block: LoopBlockKeyV1,
+    allowed: fn(LoopOperationV1) -> bool,
+) -> bool {
+    let Some(block) = recipe.blocks.get(block.raw() as usize) else {
+        return false;
+    };
+    block.items.iter().all(|item_key| {
+        let Some(row) = recipe.items.get(item_key.raw() as usize) else {
+            return false;
+        };
+        matches!(&row.item, LoopRecipeItemV1::Operation { operation } if allowed(*operation))
     })
+}
+
+fn is_nested_predicate_condition_operation(operation: LoopOperationV1) -> bool {
+    matches!(
+        operation,
+        LoopOperationV1::ReadBinding { .. }
+            | LoopOperationV1::ConstI64 { .. }
+            | LoopOperationV1::CompareI64 { .. }
+    )
+}
+
+fn is_nested_predicate_body_operation(operation: LoopOperationV1) -> bool {
+    matches!(
+        operation,
+        LoopOperationV1::ReadBinding { .. }
+            | LoopOperationV1::ConstI64 { .. }
+            | LoopOperationV1::BinaryI64 { .. }
+            | LoopOperationV1::CompareI64 { .. }
+            | LoopOperationV1::WriteBinding { .. }
+    )
+}
+
+fn project_parent_flow(
+    flow: Flow,
+    parent_bindings: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
+    parent_available: &BTreeSet<LoopValueKeyV1>,
+) -> Flow {
+    let bindings = parent_bindings
+        .iter()
+        .map(|(binding, before)| {
+            (
+                *binding,
+                flow.bindings.get(binding).copied().unwrap_or(*before),
+            )
+        })
+        .collect::<BTreeMap<_, _>>();
+    let mut available = parent_available.clone();
+    available.extend(bindings.values().copied());
+    Flow {
+        bindings,
+        available,
+        exit: flow.exit,
+    }
 }
 
 fn process_block(

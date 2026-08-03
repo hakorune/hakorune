@@ -529,6 +529,12 @@ Contract:
   branching Match/If/Loop are control items, while lambda/function bodies are
   separately owned recipes. Future expression-valued control requires an
   explicit block-result/join vocabulary, never AST lifting or opaque payloads.
+  The real `NestedLoopMinimal` cohort has a root and child `Predicate`, a
+  recurrence-owned child `j`, and an ancestor `sum` update; its bounded
+  caller-zero JoinSig closure is tracked by
+  `joinir-loop-nested-predicate-closure-d2-b-execution-2026-08-03.md`.
+  The nested-`Always` golden remains an M6 logical witness only and is not
+  NestedLoopMinimal source parity.
 
 Done:
 : The facade and each accepted cohort have deterministic normalized
