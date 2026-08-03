@@ -148,7 +148,7 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "Nested source-forest anchor missing: $required"
   done
   if rg -n -F 'resolved_loop_source_forest(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
+      | awk -F: '$1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested source forest escaped its caller-zero resolver boundary"
@@ -236,7 +236,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_topology_refs
   nested_topology_refs="$(rg -n -F 'issue_nested_predicate_physical_emission_input_v1(' "$root_dir/src" --glob '*.rs' || true)"
   if [[ "$(printf '%s\n' "$nested_topology_refs" \
-      | awk -F: '$1 !~ /compiler\/nested_predicate_topology\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
+      | awk -F: '$1 !~ /compiler\/nested_predicate_topology\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
     guard_fail "$tag" "Nested Predicate topology issuer escaped caller-zero boundary"
   fi
   for forbidden in \
@@ -251,7 +251,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_producer_refs
   nested_producer_refs="$(rg -n -F 'produce_nested_predicate_recipe_v1(' "$root_dir/src" --glob '*.rs' || true)"
   if [[ "$(printf '%s\n' "$nested_producer_refs" \
-      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_effect_plan_tests\.rs$/ && $1 !~ /resolved_lowering\/nested_predicate_effect_adapter_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
+      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_effect_plan_tests\.rs$/ && $1 !~ /resolved_lowering\/nested_predicate_effect_adapter_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
     guard_fail "$tag" "Nested Predicate Recipe producer escaped caller-zero boundary"
   fi
   for required in \
@@ -274,8 +274,8 @@ guard_joinir_loop_compile_candidate_scope() {
   done
   local nested_effect_plan_refs
   nested_effect_plan_refs="$(rg -l -F 'issue_nested_binding_execution_claims_v1(' "$root_dir/src" --glob '*.rs' || true)"
-  if printf '%s\n' "$nested_effect_plan_refs" | awk -v issuer="$nested_effect_plan" -v tests="$nested_effect_plan_tests" -v adapter="$nested_effect_adapter_tests" \
-      '$0 != issuer && $0 != tests && $0 != adapter && $0 != "" { found = 1 } END { exit found }'; then
+  if printf '%s\n' "$nested_effect_plan_refs" | awk -v issuer="$nested_effect_plan" -v tests="$nested_effect_plan_tests" -v adapter="$nested_effect_adapter_tests" -v profile="$root_dir/src/mir/compiler/nested_predicate_profile.rs" \
+      '$0 != issuer && $0 != tests && $0 != adapter && $0 != profile && $0 != "" { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested Predicate resolver effect-plan issuer escaped caller-zero boundary"
