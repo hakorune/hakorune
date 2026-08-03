@@ -128,6 +128,9 @@ Use the existing `ModuleBuilderInvocationSessionV1` only in `#[cfg(test)]`:
    success/reuse. Keep all IDs alpha-normalized in parity assertions.
 
 P1a is an isolation/topology scaffold, not full MIR/result parity.
+The current caller-zero fixture starts from an empty live Builder and seeds
+only the unpublished candidate; it therefore does not replace the already
+landed M1-B proof of aborting a populated live compile state.
 
 ### P1b — fixed physical skeleton and parity snapshot
 
