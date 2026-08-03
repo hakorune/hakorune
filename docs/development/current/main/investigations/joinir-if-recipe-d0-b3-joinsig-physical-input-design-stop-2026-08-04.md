@@ -1,6 +1,6 @@
 # JOINIR-IF-RECIPE-D0-B3-JOINSIG-PHYSICAL-INPUT-DESIGN-STOP
 
-Status: D0-B3-A landed; D0-B3-B authorized; physical-input implementation only
+Status: D0-B3-A/B landed; D0-B3-C design stop active
 Date: 2026-08-04
 Decision target: fixed-shell `IfRecipe` -> logical `IfJoinSig` -> one-shot physical-input capability
 
@@ -102,14 +102,15 @@ invariant firewall until a real future producer makes one reachable.
    `46a4ccfcf8`.
 2. **Caller-zero elaborator** — D0-B3-A landed deterministic elaboration from
    `VerifiedIfRecipeV1` only, with no production caller or physical imports.
-3. **One-shot physical-input seal** — D0-B3-B is authorized for the consuming
-   `from_artifact` seal only: consume an artifact, internally elaborate the
-   matching signature, and keep the same artifact+signature pair. No physical
-   IDs, Builder, PHI/CFG, or production caller may be added.
-4. **Focused gates** — golden deterministic edge/row digest, exactly-two
-   distinct predecessor checks, missing/foreign logical value rejects, and
-   static grep guards for physical/route dependencies.
-5. **Design close** — only after all gates are green, open D0-C for the
+3. **One-shot physical-input seal** — D0-B3-B landed in `1d9b8aa78d`:
+   `from_artifact` consumes one verified artifact, internally elaborates the
+   matching signature, and keeps the same artifact+signature pair. No physical
+   IDs, Builder, PHI/CFG, or production caller was added.
+4. **D0-B3-C design stop** — define the stable static guard and focused
+   negative/identity gate set for the new wrapper. The existing seven focused
+   contract tests are green; do not add production wiring or PHI/CFG work in
+   this row.
+5. **Design close** — only after the C gates are frozen and green, open D0-C for the
    canonical producer/consumer adapter. D0-D owns PHI/CFG adoption and caller
    census; it is not part of this card.
 
