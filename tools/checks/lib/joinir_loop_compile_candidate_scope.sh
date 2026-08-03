@@ -24,6 +24,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
+  local nested_source_projection="$root_dir/src/mir/compiler/nested_predicate_projection.rs"
   local producer_facade="$root_dir/src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs"
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
@@ -31,7 +32,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
-    "$source_adapter" "$producer_facade"
+    "$source_adapter" "$nested_source_projection" "$producer_facade"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
   [[ "$(head -n1 "$manifest")" == "$header" ]] || \
@@ -134,7 +135,7 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "Nested source-forest anchor missing: $required"
   done
   if rg -n -F 'resolved_loop_source_forest(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
+      | awk -F: '$1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested source forest escaped its caller-zero resolver boundary"
@@ -156,11 +157,28 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "Nested source-binding adapter anchor missing: $required"
   done
   if rg -n -F 'bind_resolved_loop_source_forest_v1(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /loop_structural_facts\/resolved_source_adapter\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
+      | awk -F: '$1 !~ /loop_structural_facts\/resolved_source_adapter\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested source-binding adapter escaped its caller-zero boundary"
   fi
+
+  for required in \
+    'VerifiedNestedLoopSourceProjectionV1' \
+    'issue_nested_predicate_source_projection_v1' \
+    'NestedObservedRecurrenceOwnerV1' \
+    'resolved_loop_source_forest' \
+    'bind_resolved_loop_source_forest_v1('
+  do
+    rg -n -F "$required" "$nested_source_projection" >/dev/null || \
+      guard_fail "$tag" "Nested Predicate source projection anchor missing: $required"
+  done
+  for forbidden in 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry' 'route_loop('
+  do
+    if rg -n -F "$forbidden" "$nested_source_projection" >/dev/null; then
+      guard_fail "$tag" "Nested Predicate source projection imported physical/route authority: $forbidden"
+    fi
+  done
   for forbidden in 'ASTNode' 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry'
   do
     if rg -n -F "$forbidden" "$source_adapter" >/dev/null; then

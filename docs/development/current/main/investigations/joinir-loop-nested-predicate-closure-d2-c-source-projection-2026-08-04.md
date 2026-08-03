@@ -49,8 +49,8 @@ child parent = Some(root)
 The projection records exact resolver-issued sites, predicate/assignment
 operation enums, literal facts, ordered body schedule, and binding evidence:
 
-- `i`: function lexical owner, root recurrence evidence, parent-visible;
-- `sum`: function lexical owner, root recurrence evidence, child write,
+- `i`: function-owned lexical block, root recurrence evidence, parent-visible;
+- `sum`: function-owned lexical block, root recurrence evidence, child write,
   parent-visible;
 - `j`: outer loop-body lexical owner, child recurrence evidence,
   child-local after normal child resume.
