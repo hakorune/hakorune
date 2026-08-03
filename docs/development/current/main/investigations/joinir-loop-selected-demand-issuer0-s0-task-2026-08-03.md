@@ -22,10 +22,13 @@ VerifiedLoopPolicyWinnerV1
   -> VerifiedSelectedLoopRecipeDemandV1
 ```
 
-All three inputs are non-`Clone`, carry private seals, and are consumed exactly
-once. The selected demand contains only the sealed handoff capabilities and an
-opaque migration receipt for diagnostics. It must not expose a route/family
-dispatch key.
+All three inputs are non-`Clone` and carry private seals. The selected demand
+consumes each exactly once. S0 proves facts/source identity matching plus
+linear winner consumption; the winner's current raw-cursor seal does not yet
+carry a shared execution-frame brand. A full three-way brand is a later design
+stop, not a claim of this slice. The selected demand contains only the sealed
+handoff capabilities and an opaque migration receipt for diagnostics. It must
+not expose a route/family dispatch key.
 
 `VerifiedLoopStructuralFactsV1` is intentionally minimal in S0: an owned,
 AST-free identity witness plus a private seal. It is not `CanonicalLoopFacts`,
@@ -73,3 +76,7 @@ Return to the design stop immediately if the issuer needs AST reconstruction,
 route/family dispatch, a second policy evaluator, source-path manufacture, a
 Recipe builder, physical IDs, PHI/SSA state, Retry, Generic debt conversion,
 or a production caller. Those belong to later owners and milestones.
+
+Do not promote this S0 to a production caller until the Direct Accum facts
+producer supplies an AST-free typed shape and the missing execution-frame
+brand decision is closed.
