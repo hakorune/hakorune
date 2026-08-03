@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. The canonical Loop family envelope is clean. Nested D0/D1 source ownership and the synthetic nested-Always caller-zero witness are landed; the active design stop now defines the missing shared JoinSig closure for the real two-predicate NestedLoopMinimal shape. LoopTrue/LoopCond remain behind shared logical branch/merge closure, and Generic remains behind M4 debt/winner equivalence. No new production consumer is authorized at this boundary."
+status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. The canonical Loop family envelope is clean. Nested D0/D1 source ownership and the synthetic nested-Always caller-zero witness are landed; D2-A selected a bounded D2-B caller-zero JoinSig closure for the real two-predicate NestedLoopMinimal shape. LoopTrue/LoopCond remain behind shared logical branch/merge closure, and Generic remains behind M4 debt/winner equivalence. No new production consumer is authorized at this boundary."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, and M7-S0 synthetic nested-Always caller-zero evidence are landed. Worker audits accepted D2-A as the next design stop: define one-level nested-Predicate JoinSig scope/resume closure for the real NestedLoopMinimal shape, separating child-local j from updated ancestor carriers and rejecting explicit exits/branch families. PHI/SSA remains CanonicalCfgSessionV1 -> BindingSsaBuilderV1 -> PhiTxn; Generic M4 remains unresolved and production route wiring is forbidden."
-current_execution_row = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-A-DESIGN-STOP"
-current_execution_summary = "DirectAccum remains the only canonical production family. The active D2-A row is design-only: audit existing LoopRecipe schema/JoinSig obligations for root+child Predicate, child false-path resume, child-local carrier scope, and ancestor-carrier update visibility. Do not remove UnsupportedNestedPredicate or add a source producer/route/Retry/PHI/SSA/Builder/physicalizer caller until the logical contract and fixtures are accepted."
-current_execution_design = "docs/development/current/main/investigations/joinir-loop-nested-predicate-closure-d2-a-design-stop-2026-08-03.md"
+current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, and M7-S0 synthetic nested-Always caller-zero evidence are landed. D2-A worker audit is closed: D2-B may accept only pure one-level nested Predicate with existing Recipe/JoinSig fields, parent-visible Flow projection, and typed rejection outside the bounded shape. PHI/SSA remains CanonicalCfgSessionV1 -> BindingSsaBuilderV1 -> PhiTxn; Generic M4 remains unresolved and production route wiring is forbidden."
+current_execution_row = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-B"
+current_execution_summary = "DirectAccum remains the only canonical production family. D2-B is caller-zero shared logical work: add the bounded root+child Predicate JoinSig fixture, project updated ancestor carriers while dropping child-local values, preserve existing edge roles, and retain UnsupportedNestedPredicate for wider shapes. No source producer, route/Retry, PHI/SSA, Builder, or physicalizer caller is authorized."
+current_execution_design = "docs/development/current/main/investigations/joinir-loop-nested-predicate-closure-d2-b-execution-2026-08-03.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,9 +440,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "joinir-loop-nested-predicate-closure-d2-a-design-stop-2026-08-03"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-predicate-closure-d2-a-design-stop-2026-08-03.md"
-latest_card_summary = """DirectAccum family-envelope F0/F1/F2/F3, Nested D0/D1 source ownership, and the M7-S0 synthetic nested-Always caller-zero witness are landed and pushed. D2-A is now a design-only stop for the real NestedLoopMinimal root+child Predicate JoinSig closure: child false-path resume, child-local carrier scope, and ancestor-carrier update visibility. No Nested predicate implementation or production caller is authorized yet."""
+latest_card = "joinir-loop-nested-predicate-closure-d2-b-execution-2026-08-03"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-predicate-closure-d2-b-execution-2026-08-03.md"
+latest_card_summary = """DirectAccum family-envelope F0/F1/F2/F3, Nested D0/D1 source ownership, and the M7-S0 synthetic nested-Always caller-zero witness are landed and pushed. D2-A is closed; D2-B now implements only the caller-zero logical nested-Predicate closure: pure child condition, parent-visible carrier projection, existing edge roles, and typed rejects outside the bounded shape. No Nested producer or production caller is authorized."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-A-DESIGN-STOP"
+current_blocker_token = "JOINIR-LOOP-NESTED-PREDICATE-CLOSURE0-D2-B"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

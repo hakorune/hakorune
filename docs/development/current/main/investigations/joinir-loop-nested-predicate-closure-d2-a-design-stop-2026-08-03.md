@@ -14,8 +14,12 @@ outer:   loop (i < 3) { local j; j = 0; inner; i = i + 1 }
 inner:   loop (j < 3) { sum = sum + 1; j = j + 1 }
 ```
 
-It has two predicate loops, a child-owned `j` carrier, and an update to the
-ancestor-owned `sum` carrier.  It has no explicit `Break` or `Continue`.
+It has two predicate loops, a recurrence-owned `j` carrier, and an update to
+the ancestor-owned `sum` carrier.  It has no explicit `Break` or `Continue`.
+The recurrence owner of `j` is the child loop for this bounded recipe, but the
+language declaration is in the outer loop-body scope; those are different
+facts.  This slice therefore rejects any post-child use of `j` rather than
+silently claiming a lexical visibility rule.
 The legacy extractor confirms this route only accepts Local/Assignment/inner
 Loop/outer-step statements; `If` and explicit exits are different families.
 
@@ -50,16 +54,24 @@ writer, or scheduler behavior.  The PHI/SSA SSOT remains
 2. **Child false path:** a nested predicate's `PredicateFalse` edge must close
    to the child `After` port and return a normal flow to the parent body; it is
    not an implicit parent exit.
-3. **Carrier visibility:** child edges expose ancestor carriers through the
-   existing lineage payload rule, while child-owned carriers are declared and
-   closed locally.  The contract must state how an ancestor carrier written in
-   the child is returned to the parent flow.
+3. **Carrier visibility:** the minimal recipe declares root carriers `i` and
+   `sum`, and a child recurrence carrier `j`.  Child edges expose the
+   ancestor carriers through the existing lineage payload rule; the updated
+   ancestor `sum` value is projected back into the parent flow.  Child-local
+   `j` and temporary values are dropped at normal resume.  No child `sum`
+   carrier, duplicate shadow carrier, or lexical-scope claim is added in this
+   row.
 4. **Closure evidence:** use the existing typed errors (`MissingCarrierClosure`,
    `BindingNotAvailable`, `ValueNotAvailable`, `UnsupportedExit`, and
    `BranchMergeMismatch`) where sufficient.  Add a new logical reject only if
    one of these cannot name the violated obligation; never use `Option`/Retry
    as a semantic escape hatch.
-5. **Recipe schema:** first prove the existing `LoopRecipeV1` fields are
+5. **Logical edge scope:** keep the existing `Enter`, `PredicateTrue`,
+   `PredicateFalse`, and `Backedge` roles.  Child `PredicateFalse -> After ->
+   parent tail` is represented by the recursive Recipe item order plus the
+   parent `Backedge`; an explicit physical parent-resume path is a later
+   M6-B/P1 design stop, not a new local edge role here.
+6. **Recipe schema:** first prove the existing `LoopRecipeV1` fields are
    sufficient.  A schema extension is a separate design stop, not an
    implementation convenience in this row.
 
@@ -68,19 +80,21 @@ writer, or scheduler behavior.  The PHI/SSA SSOT remains
 The first fixture is source-free test data, not a production producer:
 
 - root and child are both `Predicate`;
-- child condition block computes `j < literal`;
-- child body writes `sum` and `j` and falls through naturally;
-- outer body continues with the outer `i` update;
+- child condition block is pure `Read/Const/Compare` and computes `j < literal`;
+- child body writes ancestor `sum` and recurrence `j`, then falls through
+  naturally;
+- outer body continues with the outer `i` update and natural root backedge;
 - root/child parent relation and carrier ownership are explicit.
 
 Acceptance requires:
 
 1. Recipe verification succeeds without any route input.
 2. JoinSig is deterministic and contains two rows.
-3. Child `Enter`, `PredicateTrue`, `PredicateFalse`, and normal completion are
-   explicit; no false-path is silently converted to `Break` or `Retry`.
+3. Child `Enter`, `PredicateTrue`, `PredicateFalse`, and natural `Backedge`
+   are explicit; no false-path is silently converted to `Break` or `Retry`.
 4. Child `j` and ancestor `sum` obligations are visible on the appropriate
-   logical edges and the parent flow receives the updated `sum`.
+   logical edges, the parent flow receives updated `sum`, and root rows never
+   expose child-local `j`.
 5. Typed negative fixtures cover missing child carrier, unavailable condition
    value, missing ancestor payload, and malformed/unreachable continuation.
 6. No Builder/CorePlan/PlanLowerer/physical ID/PHI/SSA/Retry/route caller is
