@@ -1,6 +1,6 @@
 # JOINIR-IF-RECIPE-D0-B2-FACTS-MAPPER-DESIGN-STOP
 
-Status: D0-B2-A authorized; entry-witness implementation only
+Status: D0-B2-A/B landed; D0-B2-C mapper gates active
 Date: 2026-08-04
 Decision target: same-pass facts -> fixed-shell `IfRecipeArtifactV1`
 
@@ -99,9 +99,11 @@ retry.
 
 1. `D0-B2-A` — add and seal the private same-pass entry witness from the
    pre-branch environment, with typed accessors and `EntryValueWitnessMissing`.
-   The mapper remains unimplemented and no portable schema changes.
+   Landed in `a907874551`.
 2. `D0-B2-B` — implement the facts-to-recipe mapper in the facts owner. Convert
    source sites to the fixed source-claim grammar without AST rescanning.
+   Landed in `1bd50829c5`; the mapper immediately invokes the structural
+   verifier and has no production caller.
 3. `D0-B2-C` — call the existing structural verifier and add deterministic
    semantic/source-bound normalization tests. Do not add JoinSig or PHI.
 4. `D0-B2-D` — close the design row only after the mapper is owner-brand
