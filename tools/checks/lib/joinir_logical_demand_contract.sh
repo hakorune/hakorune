@@ -559,6 +559,7 @@ guard_joinir_if_recipe_contract() {
   local physical_input="$contract_dir/physical_input.rs"
   local tests="$contract_dir/tests.rs"
   local adapter="$root_dir/src/mir/builder/resolved_lowering/if_recipe_adapter.rs"
+  local physicalizer="$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/if_recipe_physicalizer.rs"
   local files=(
     "$contract_dir/README.md"
     "$contract_dir/mod.rs"
@@ -572,6 +573,7 @@ guard_joinir_if_recipe_contract() {
     "$contract_dir/verify.rs"
     "$tests"
     "$adapter"
+    "$physicalizer"
   )
   local file lines
 
@@ -594,6 +596,11 @@ guard_joinir_if_recipe_contract() {
     'MirBuilder|CorePlan|ValueId|BasicBlockId|CanonicalCfgSession|PhiTxn|BindingSsaBuilderV1|ASTNode|RouteAttemptOutcomeV1|Retry|Option' \
     "$join_sig" "$physical_input" >/dev/null; then
     guard_fail "$tag" "If logical/physical-input proof acquired physical, AST, route, retry, or Option authority"
+  fi
+  if rg -n -w \
+    'ASTNode|MirBuilder|CorePlan|ValueId|BasicBlockId|RouteAttemptOutcomeV1|Retry|Option|new_ssa|new_phi' \
+    "$physicalizer" >/dev/null; then
+    guard_fail "$tag" "If physicalizer acquired route, retry, raw AST, or a second physical owner"
   fi
   if rg -n -U \
     '#\[derive\([^)]*Clone[^)]*\)\][[:space:]]*\n[[:space:]]*(pub\(crate\)[[:space:]]+)?struct[[:space:]]+(VerifiedIfJoinSigV1|VerifiedIfPhysicalInputV1)' \
@@ -618,7 +625,7 @@ guard_joinir_if_recipe_contract() {
         "$root_dir/src/mir" || true; }
   )
   for file in "${symbol_files[@]}"; do
-    if [[ "$file" != "$contract_dir"/* && "$file" != "$adapter" ]]; then
+    if [[ "$file" != "$contract_dir"/* && "$file" != "$adapter" && "$file" != "$physicalizer" ]]; then
       guard_fail "$tag" "If logical/physical-input symbol escaped caller-zero subtree: ${file#"$root_dir/"}"
     fi
   done
@@ -643,6 +650,29 @@ guard_joinir_if_recipe_contract() {
   )
   if (( ${#mapper_callers[@]} != 1 )) || [[ "${mapper_callers[0]}" != "$adapter" ]]; then
     guard_fail "$tag" "If recipe mapper must have exactly one production caller: the named D0-C adapter"
+  fi
+  local physicalizer_callers=()
+  mapfile -t physicalizer_callers < <(
+    { rg -l 'physicalize_if_recipe_v1\(' "$root_dir/src/mir" || true; } \
+      | awk -v physicalizer="$physicalizer" '$0 != physicalizer && $0 !~ /_tests\.rs$/'
+  )
+  if (( ${#physicalizer_callers[@]} != 1 )) || [[ "${physicalizer_callers[0]}" != "$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs" ]]; then
+    guard_fail "$tag" "If physicalizer must have exactly one production caller: trivial SSA lowerer"
+  fi
+  if ! rg -q 'physical_input\.into_parts\(' "$physicalizer" || \
+     ! rg -q 'Result<CanonicalIfPhysicalSuccessV1' "$physicalizer"; then
+    guard_fail "$tag" "If physicalizer must consume the paired payload and return Result-only success"
+  fi
+  local physical_input_part_callers=()
+  mapfile -t physical_input_part_callers < <(
+    { rg -l 'physical_input\.into_parts\(' "$root_dir/src/mir" || true; } \
+      | awk -v physicalizer="$physicalizer" '$0 != physicalizer && $0 !~ /_tests\.rs$/'
+  )
+  if (( ${#physical_input_part_callers[@]} != 0 )); then
+    guard_fail "$tag" "If physical-input payload must be unpacked only by the named physicalizer"
+  fi
+  if rg -n 'claim_if\(|Pending\(_physical_input\)|drop\([^)]*physical_input' "$adapter" >/dev/null; then
+    guard_fail "$tag" "If selected demand payload was silently dropped or claim-only"
   fi
   local elaborator_callers=()
   mapfile -t elaborator_callers < <(

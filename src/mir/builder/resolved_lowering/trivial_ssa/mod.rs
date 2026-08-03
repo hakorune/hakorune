@@ -3,6 +3,7 @@
 mod callable_abi;
 mod direct_call;
 mod direct_call_type;
+mod if_recipe_physicalizer;
 mod lowerer;
 mod operation;
 mod operation_type;

@@ -1,8 +1,9 @@
 # JOINIR-IF-RECIPE-D0-D-PHYSICAL-ADOPTION
 
-Status: design closed; D0-D1/D0-D2 implementation is authorized. D0-D3
-shape-scoped old-edge cutover remains a later gate. D0-C1/C2 admission-only
-wiring is landed in `38f6a751d2`.
+Status: design closed; the D0-D1/D0-D2 pilot is implemented locally and its
+focused tests/guards are green. Late-failure/candidate-isolation closeout and
+D0-D3 shape-scoped old-edge cutover remain later gates. D0-C1/C2 admission-only
+wiring is superseded locally by the consuming pilot.
 Date: 2026-08-04
 
 ## Why this is a new boundary
@@ -108,6 +109,21 @@ Its minimum state is an `&mut MirBuilder`, the existing mutable
 leaf view. It must validate the logical digest, branch predecessor count, value
 class, and post-merge BindingSSA read before physical emission. Reading a
 JoinSig without proving this mapping is not physical adoption.
+
+## Local implementation status
+
+The pilot now carries a non-`Clone` `CanonicalIfPhysicalDemandV1` from the
+same-pass adapter into one dedicated physicalizer caller. The demand owns the
+verified physical input and correspondence receipt; `into_parts(self)` is
+consumed there, and the physicalizer returns a typed `Result` without
+`Option`/retry/fallback. It validates the fixed logical/source correspondence
+before delegating emission to the existing canonical-session-backed lowerer.
+
+This is deliberately a bounded adoption slice, not a completed cutover. The
+selected-shape old source-driven edge is still present behind the common
+lowering helper, and the late-failure harness/candidate-isolation fingerprint
+is not yet closed. Do not claim exclusive PHI/CFG production authority or
+global If retirement until D0-D3 and the remaining acceptance gates are green.
 
 ## Ordered tasks
 

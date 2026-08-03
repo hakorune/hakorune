@@ -19,7 +19,9 @@ use crate::mir::resolved_value_profile::TrivialProfileConsumptionV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 use super::super::completion_consumption::ReadyFunctionCompletionV1;
-use super::super::if_recipe_adapter::CanonicalIfRecipeAdmissionDispositionV1;
+use super::super::if_recipe_adapter::{
+    CanonicalIfPhysicalDemandV1, CanonicalIfRecipeAdmissionDispositionV1,
+};
 use super::super::MirBuilder;
 use super::operation::{emit_binary, mir_type};
 use super::parameter_entry::publish_parameter_entries_v1;
@@ -430,9 +432,22 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     }
 
     fn lower_if(&mut self, statement: &LocatedStmtV1<'source>) -> Result<(), String> {
-        self.if_recipe
-            .claim_if(statement)
-            .map_err(|error| format!("[freeze:contract][if_recipe/claim] {error:?}"))?;
+        if self.if_recipe.is_not_selected() {
+            return self.lower_if_materialization(statement, None);
+        }
+        let demand = self
+            .if_recipe
+            .take_if(statement)
+            .map_err(|error| format!("[freeze:contract][if_recipe/take] {error:?}"))?;
+        super::if_recipe_physicalizer::physicalize_if_recipe_v1(self, statement, demand)
+            .map(|_| ())
+    }
+
+    pub(super) fn lower_if_materialization(
+        &mut self,
+        statement: &LocatedStmtV1<'source>,
+        selected_explicit_else: Option<bool>,
+    ) -> Result<(), String> {
         let ASTNode::If { else_body, .. } = statement.node() else {
             unreachable!("If helper requires If")
         };
@@ -463,7 +478,8 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         )?;
         let header = self.current_block()?;
         let then_block = self.builder.next_block_id();
-        let explicit_else = matches!(row.else_port(), ResolvedIfElsePortV1::Explicit(_));
+        let explicit_else = selected_explicit_else
+            .unwrap_or_else(|| matches!(row.else_port(), ResolvedIfElsePortV1::Explicit(_)));
         let else_block = explicit_else.then(|| self.builder.next_block_id());
         let merge = self.builder.next_block_id();
         self.builder.ensure_block_exists(then_block)?;
