@@ -100,18 +100,10 @@ later ordinary terminal, never retry, and leave the Builder reusable. The one
 V0 structural guard owns only source-consumer/custom-owner counts and evidence
 presence; it is not a route, result, type, or effect authority.
 
-`located_legacy_lowering.rs` is the disconnected EXPR0-L0 session above the
-E0/ARG0/ROUTE0/V0 ports. One stack-scoped, non-Clone session owns the source
-view and exact caller ledger borrowed from one activation plan. Every selected
-or unselected MethodCall row is claimed before route preflight or child
-descent. Receiver and argument inputs come only from PATH0 roles, and the
-existing expression recursion guard is entered exactly once.
-
-Raw body, statement, or expression delegation requires an exact inactive-prefix
-proof. A non-MethodCall prefix containing any activation row therefore fails
-closed; L0 does not add a second expression walker. Any location, claim, child,
-route, or terminal failure poisons the session, forbids retry, and prevents a
-successful finish. The plan, source view, ledger, or current claim is never
-stored in `MirBuilder`. EXPR0-L0 has zero production callers and publishes no
-callable-result representation; active non-MethodCall spines remain a separate
-future boundary if C0 requires them.
+The disconnected EXPR0-L0 `located_legacy_lowering.rs` session and its three
+lowering adapters were retired after the caller census proved zero production
+roots. The callable-result source view, caller ledger, and loop-claim contracts
+remain live in `callable_result_representation`; they are semantic evidence,
+not a hidden lowering route. Raw body/expression descent keeps its own owner,
+and any future located lowering must be introduced through a new candidate
+and explicit production caller rather than resurrecting the retired session.

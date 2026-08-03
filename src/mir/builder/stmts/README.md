@@ -104,14 +104,12 @@ reference rejects Grouped, field, index, and compound surfaces and has no
 production caller. Located `AssignmentValue` navigation remains disconnected
 until ASN0-L0.
 
-ASN0-L0 keeps one detached located adapter in
-`located_legacy_assignment.rs`. It selects an exact Variable-target statement
-once, preserves the outer statement recursion guard, and derives the RHS only
-through the existing `AssignmentValue` role. Production root activation
-remains zero. The shared driver still owns the
-declared-binding preflight and completion; the located expression session and
-caller ledger still own MethodCall claims and order. Field/index/compound and
-If/Loop statement surfaces fail closed instead of probing a raw route.
+The disconnected ASN0-L0 `located_legacy_assignment.rs` adapter was retired
+with the zero-root located session. The live Variable assignment owner remains
+the raw descent path above; `AssignmentValue` navigation and callable-result
+carrier contracts stay disconnected until a separately named canonical ingress
+is approved. Field/index/compound and If/Loop statement surfaces continue to
+fail closed instead of probing a raw route.
 
 The current Loop-body source-view carrier includes a parked `LoopBodyRoot`
 path seam that does not match the actual callable-result ledger row. ASN0-L0

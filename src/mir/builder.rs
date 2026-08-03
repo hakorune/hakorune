@@ -68,7 +68,6 @@ mod instance_box_constructor_batch;
 mod instance_box_declaration_lifecycle;
 mod instance_box_declaration_metadata;
 mod instance_box_method_batch;
-mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 mod nested_box_method_source;
@@ -325,10 +324,6 @@ mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
 mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
 #[allow(dead_code)]
 mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 policy
-#[allow(unused_imports)]
-pub(in crate::mir) use located_legacy_lowering::{
-    LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
-};
 mod enum_match_source_demand;
 mod enum_variant_source_demand;
 mod qmark_source_demand;

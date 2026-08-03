@@ -1,7 +1,7 @@
 # JOINIR-IF-RECIPE-SSA-ADOPTION0-D0
 
-Status: D0 queued design task; located-legacy S0 census green — do not wire
-production If yet.
+Status: D0 queued design task; located-legacy S0/S1 retirement green — do not
+wire production If yet.
 Date: 2026-08-04
 
 This card records the next cleanup target after the Loop cutover lane. It is
@@ -77,10 +77,38 @@ test oracles                                        = 2 callable-result modules 
 all located components                              < 800 lines
 ```
 
-This is a census proof, not deletion. The carrier
+This census has now been followed by the bounded S1 retirement. The carrier
 `callable_result_representation::located_legacy` and its caller-ledger/
 loop-claim consumers remain in scope. No normal/raw ingress, IfCfgSession, or
 resolved A+ owner was changed.
+
+## Located legacy S1 closeout (2026-08-04)
+
+The disconnected session and its test-only adapters were removed after the
+caller-zero proof; no production caller was introduced to preserve the old
+oracles. Deleted scope is limited to:
+
+```text
+builder/located_legacy_lowering.rs
+builder/located_legacy_{assignment,if,return}.rs
+builder/located_legacy_*_tests.rs
+callable_result_representation/tests/{located_legacy_lowering,located_short_circuit_lowering}.rs
+builder.rs module/re-export and callable-result test-module registrations
+```
+
+The live located carrier/ledger/claim files remain. The post-retirement guard
+and focused compile/test checks are green:
+
+```text
+bash tools/checks/joinir_located_legacy_retire_guard.sh
+RUSTFLAGS='-Awarnings' cargo check -q
+RUSTFLAGS='-Awarnings' cargo test -q callable_result_representation --lib
+RUSTFLAGS='-Awarnings' cargo test -q nested_predicate_profile --lib
+```
+
+Mixed raw/descent guards are intentionally retained for the later raw-parity
+retirement lane; they are not evidence that the deleted located session still
+exists.
 
 ## Ordered task sequence
 
@@ -152,23 +180,12 @@ existing owner, not a new SSA design.
 
 ### D0-E — cheap cleanup, independently gated
 
-S0 is now complete: the caller census and dedicated guard are green. The next
-S1 deletion task is intentionally separate and atomic:
-
-1. move/replace the two callable-result test oracles with the active
-   canonical/descent fixture;
-2. delete `located_legacy_lowering.rs`, its three unconditional adapters, its
-   five builder-nested test modules, the two callable-result session test
-   modules, and the builder module/re-export;
-3. update the builder/calls and builder/stmts README boundaries and retire
-   only guards whose sole subject was this disconnected session;
-4. re-run the S0 guard (expected caller-zero/deleted state) before touching
-   `callable_result_representation/located_legacy.rs` or any raw/located
-   carrier.
-
-S1 must not modify normal/raw ingress, `located_if.rs`, `IfCfgSessionV1`, or
-the portable IfRecipe design. If the test oracle cannot be moved without
-reintroducing a production caller, stop and open a new design row.
+S0 and the bounded S1 deletion are complete. The disconnected session,
+adapters, test-only module registrations, and dedicated test modules are
+gone; the carrier and its semantic evidence remain. S1 did not modify
+normal/raw ingress, `located_if.rs`, `IfCfgSessionV1`, or the portable IfRecipe
+design. Any future located lowering requires a new candidate-scoped caller
+and a new design row.
 
 This cleanup must not be mixed with If BoxCount or PHI owner adoption. The
 raw/descent/parity trio for local/return/assignment/binary/short-circuit is a
@@ -186,7 +203,8 @@ D0-D: selected shape has no post-effect Option/Retry/reselection
 D0-D: legacy/new semantic digest, MIR/CFG, PHI, diagnostics, and reuse parity green
 D0-D: injected late failure leaves live Builder/candidate owner unchanged
 D0-E/S0: 48 test-only verifies, zero production roots, and retained carrier
-D0-E/S1: only the proven disconnected session/adapters/tests are deleted
+D0-E/S1: only the proven disconnected session/adapters/tests are deleted; the
+         post-retirement guard and focused checks are green
 all touched Rust/test files < 800 lines
 ```
 
@@ -201,5 +219,6 @@ JOINIR-LOOP-RECURSIVE-FRAME-CONVERGENCE0-M12
 
 If adoption may share the canonical `JoinSig` branch-transfer/merge owner,
 but it must not reopen Generic post-effect debt or silently broaden Nested I0.
-The Loop lane remains the current execution row; this card is the next design
-target, not an implementation authorization.
+The Loop lane's bounded Nested work and the Located S0/S1 retirement are now
+closed. This card is the next design target, not an implementation
+authorization.

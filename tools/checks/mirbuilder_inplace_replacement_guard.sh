@@ -19,14 +19,12 @@ LOOP_ROUTING="$ROOT_DIR/src/mir/builder/control_flow/joinir/routing.rs"
 CONTROL_FLOW_ROOT="$ROOT_DIR/src/mir/builder/control_flow/mod.rs"
 STATEMENT_SURFACE="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/statement_surface.rs"
 LOCAL_DESCENT="$ROOT_DIR/src/mir/builder/stmts/local_statement_descent.rs"
-LOCATED_LOCAL="$ROOT_DIR/src/mir/builder/located_legacy_lowering.rs"
 VARIABLE_STMT="$ROOT_DIR/src/mir/builder/stmts/variable_stmt.rs"
 LOCAL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0.py"
 RAW_DISPATCH="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/mod.rs"
 MATCH_OWNER="$ROOT_DIR/src/mir/builder/exprs_peek.rs"
 BUILDER_BUILD="$ROOT_DIR/src/mir/builder/builder_build.rs"
 ASSIGNMENT_DESCENT="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent.rs"
-LOCATED_ASSIGNMENT="$ROOT_DIR/src/mir/builder/located_legacy_assignment.rs"
 ASSIGNMENT_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent_tests.rs"
 ASSIGNMENT_PARITY_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_parity_tests.rs"
 ASSIGNMENT_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py"
@@ -34,7 +32,6 @@ RETURN_DESCENT="$ROOT_DIR/src/mir/builder/stmts/return_statement_descent.rs"
 RETURN_TESTS="$ROOT_DIR/src/mir/builder/stmts/return_statement_descent_tests.rs"
 RETURN_PARITY_TESTS="$ROOT_DIR/src/mir/builder/stmts/return_statement_parity_tests.rs"
 RETURN_OWNER="$ROOT_DIR/src/mir/builder/stmts/return_stmt.rs"
-LOCATED_RETURN="$ROOT_DIR/src/mir/builder/located_legacy_return.rs"
 RETURN_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_return.py"
 OPS_ROOT="$ROOT_DIR/src/mir/builder/ops/mod.rs"
 BINARY_DESCENT="$ROOT_DIR/src/mir/builder/ops/binary_expression_descent.rs"
@@ -85,20 +82,17 @@ guard_require_files \
   "$CONTROL_FLOW_ROOT" \
   "$STATEMENT_SURFACE" \
   "$LOCAL_DESCENT" \
-  "$LOCATED_LOCAL" \
   "$VARIABLE_STMT" \
   "$LOCAL_GUARD" \
   "$RAW_DISPATCH" \
   "$MATCH_OWNER" \
   "$BUILDER_BUILD" \
   "$ASSIGNMENT_DESCENT" \
-  "$LOCATED_ASSIGNMENT" \
   "$ASSIGNMENT_TESTS" \
   "$ASSIGNMENT_GUARD" \
   "$RETURN_DESCENT" \
   "$RETURN_TESTS" \
   "$RETURN_OWNER" \
-  "$LOCATED_RETURN" \
   "$RETURN_GUARD" \
   "$OPS_ROOT" \
   "$BINARY_DESCENT" \
@@ -474,7 +468,6 @@ while IFS=$'\t' read -r file pattern expected label; do
 done <<EOF
 $STATEMENT_SURFACE	\\bdrive_local_statement_v1\\s*\\(	1	raw/default Local owner caller
 $STATEMENT_SURFACE	\\bRawLegacyLocalInputV1::new\\s*\\(	1	raw/default Local owned input
-$LOCATED_LOCAL	\\bdrive_local_statement_v1\\s*\\(	1	detached located Local owner caller
 EOF
 if rg -n -P '\b(?:fn\s+)?build_local_statement\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
@@ -484,7 +477,7 @@ if rg -n -P '\b(?:fn\s+)?drive_raw_local_statement_v1\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired drive_raw_local_statement_v1 facade returned"
 fi
-if rg -n -w 'retry|fallback' "$LOCAL_DESCENT" "$LOCATED_LOCAL" >/dev/null; then
+if rg -n -w 'retry|fallback' "$LOCAL_DESCENT" >/dev/null; then
   guard_fail "$TAG" "Local owner gained retry or fallback"
 fi
 while IFS=$'\t' read -r file pattern expected label; do
@@ -497,7 +490,6 @@ $STATEMENT_SURFACE	\\bdrive_variable_assignment_v1\\s*\\(	1	exact Variable Assig
 $STATEMENT_SURFACE	\\bRawLegacyVariableAssignmentInputV1::new\\s*\\(	1	exact Variable Assignment owned input
 $RAW_DISPATCH	\\bdrive_variable_assignment_v1\\s*\\(	1	Grouped Assignment owner caller
 $RAW_DISPATCH	\\bRawLegacyVariableAssignmentInputV1::new\\s*\\(	1	Grouped Assignment owned input
-$LOCATED_ASSIGNMENT	\\bdrive_variable_assignment_v1\\s*\\(	1	detached located Assignment owner caller
 EOF
 assignment_external_count="$(
   rg -n -P '\bdrive_variable_assignment_v1\s*\(' \
@@ -508,9 +500,9 @@ assignment_external_count="$(
         -v parity="$ASSIGNMENT_PARITY_TESTS" \
         '$1 != owner && $1 != tests && $1 != parity { count += 1 } END { print count + 0 }'
 )"
-if [[ "$assignment_external_count" != "3" ]]; then
+if [[ "$assignment_external_count" != "2" ]]; then
   guard_fail "$TAG" \
-    "Assignment external owner sites must be two raw/default plus one detached: count=$assignment_external_count"
+    "Assignment external owner sites must be two raw/default: count=$assignment_external_count"
 fi
 if rg -n -P '\b(?:fn\s+)?drive_raw_variable_assignment_v1\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
@@ -520,7 +512,7 @@ if rg -n -P '\b(?:fn\s+)?build_grouped_assignment\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired build_grouped_assignment facade returned"
 fi
-if rg -n -w 'retry|fallback' "$ASSIGNMENT_DESCENT" "$LOCATED_ASSIGNMENT" >/dev/null; then
+if rg -n -w 'retry|fallback' "$ASSIGNMENT_DESCENT" >/dev/null; then
   guard_fail "$TAG" "Assignment owner gained retry or fallback"
 fi
 while IFS=$'\t' read -r file pattern expected label; do
@@ -532,7 +524,6 @@ done <<EOF
 $STATEMENT_SURFACE	\\bdrive_value_return_statement_v1\\s*\\(	1	value-bearing Return owner caller
 $STATEMENT_SURFACE	\\bRawLegacyValueReturnInputV1::new\\s*\\(	1	value-bearing Return owned input
 $STATEMENT_SURFACE	\\bbuild_void_return_statement\\s*\\(	1	exact Void Return owner caller
-$LOCATED_RETURN	\\bdrive_value_return_statement_v1\\s*\\(	1	detached located Return owner caller
 EOF
 return_external_count="$(
   rg -n -P '\bdrive_value_return_statement_v1\s*\(' \
@@ -543,9 +534,9 @@ return_external_count="$(
         -v parity="$RETURN_PARITY_TESTS" \
         '$1 != owner && $1 != tests && $1 != parity { count += 1 } END { print count + 0 }'
 )"
-if [[ "$return_external_count" != "2" ]]; then
+if [[ "$return_external_count" != "1" ]]; then
   guard_fail "$TAG" \
-    "Return external owner sites must be one raw/default plus one detached: count=$return_external_count"
+    "Return external owner sites must be one raw/default: count=$return_external_count"
 fi
 if rg -n -P '\b(?:fn\s+)?drive_raw_value_return_statement_v1\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
@@ -572,8 +563,6 @@ $RAW_DISPATCH	\\bRawLegacyBinaryInputV1::new\\s*\\(	1	raw/default ordinary Binar
 $RAW_DISPATCH	\\bdrive_ordinary_binary_expression_v1\\s*\\(	1	raw/default ordinary Binary owner caller
 $RAW_DISPATCH	\\bRawLegacyShortCircuitInputV1::new\\s*\\(	1	raw/default short-circuit input
 $RAW_DISPATCH	\\bdrive_short_circuit_expression_v1\\s*\\(	1	raw/default short-circuit owner caller
-$LOCATED_LOCAL	\\bdrive_ordinary_binary_expression_v1\\s*\\(	1	detached located ordinary Binary caller
-$LOCATED_LOCAL	\\bdrive_short_circuit_expression_v1\\s*\\(	1	detached located short-circuit caller
 EOF
 ordinary_binary_external_count="$(
   rg -n -P '\bdrive_ordinary_binary_expression_v1\s*\(' \
@@ -583,8 +572,8 @@ ordinary_binary_external_count="$(
         -v tests="$BINARY_TESTS" \
         '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
 )"
-if [[ "$ordinary_binary_external_count" != "2" ]]; then
-  guard_fail "$TAG" "ordinary Binary external sites must be one raw/default plus one detached: count=$ordinary_binary_external_count"
+if [[ "$ordinary_binary_external_count" != "1" ]]; then
+  guard_fail "$TAG" "ordinary Binary external sites must be one raw/default: count=$ordinary_binary_external_count"
 fi
 short_circuit_external_count="$(
   rg -n -P '\bdrive_short_circuit_expression_v1\s*\(' \
@@ -594,8 +583,8 @@ short_circuit_external_count="$(
         -v tests="$SHORT_CIRCUIT_TESTS" \
         '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
 )"
-if [[ "$short_circuit_external_count" != "2" ]]; then
-  guard_fail "$TAG" "short-circuit external sites must be one raw/default plus one detached: count=$short_circuit_external_count"
+if [[ "$short_circuit_external_count" != "1" ]]; then
+  guard_fail "$TAG" "short-circuit external sites must be one raw/default: count=$short_circuit_external_count"
 fi
 for retired_pattern in \
   '\b(?:fn\s+)?build_binary_op\s*\(' \
@@ -616,8 +605,6 @@ $METHOD_CALL_DESCENT|\\benum\\s+CatalogHelperChildV1\\b|1|catalog helper child v
 $METHOD_CALL_DESCENT|\\[method-call-descent/catalog-helper-child-unsupported\\]|1|fail-closed custom-port default
 $RECORD_HELPER|CatalogHelperChildV1::Expression\\(\\*expression\\)|1|owned catalog helper expression terminal
 $RECORD_HELPER|CatalogHelperChildV1::Statement\\(statement\\)|1|owned catalog helper statement terminal
-$LOCATED_LOCAL|drive_raw_legacy_expression_v1\\(builder, expression\\)|1|located unlocated-expression projection
-$LOCATED_LOCAL|drive_raw_legacy_statement_v1\\(builder, statement\\)|1|located unlocated-statement projection
 EOF
 for retired_pattern in \
   'self\.build_expression\(\*expr\.clone\(\)\)' \
@@ -631,7 +618,7 @@ do
   fi
 done
 if rg -n -w 'retry|fallback|reselection' \
-  "$METHOD_CALL_DESCENT" "$RECORD_HELPER" "$LOCATED_LOCAL" >/dev/null; then
+  "$METHOD_CALL_DESCENT" "$RECORD_HELPER" >/dev/null; then
   guard_fail "$TAG" "record-helper descent gained retry, fallback, or reselection"
 fi
 guard_exact_counts <<EOF
@@ -739,7 +726,6 @@ for file in \
   "$NORMAL_ROOT_LIFECYCLE" \
   "$STATEMENT_SURFACE" \
   "$LOCAL_DESCENT" \
-  "$LOCATED_LOCAL" \
   "$VARIABLE_STMT" \
   "$ROOT_DIR/src/mir/builder/stmts/README.md" \
   "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/wiring_tests.rs" \
@@ -749,7 +735,6 @@ for file in \
   "$LOCAL_GUARD" \
   "$RAW_DISPATCH" \
   "$ASSIGNMENT_DESCENT" \
-  "$LOCATED_ASSIGNMENT" \
   "$ASSIGNMENT_TESTS" \
   "$ROOT_DIR/src/mir/builder/stmts/variable_assignment_raw_tests.rs" \
   "$ROOT_DIR/src/mir/builder/stmts/variable_assignment_parity_tests.rs" \
@@ -758,7 +743,6 @@ for file in \
   "$RETURN_DESCENT" \
   "$RETURN_TESTS" \
   "$RETURN_OWNER" \
-  "$LOCATED_RETURN" \
   "$ROOT_DIR/src/mir/builder/stmts/return_statement_raw_tests.rs" \
   "$ROOT_DIR/src/mir/builder/stmts/return_statement_parity_tests.rs" \
   "$RETURN_GUARD" \
