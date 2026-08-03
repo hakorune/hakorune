@@ -60,6 +60,20 @@ fn compile_resolved_nested_predicate_uses_the_candidate_physicalizer() {
 }
 
 #[test]
+fn compile_resolved_nested_predicate_does_not_enter_legacy_loop_physicalizer() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function())
+        .expect("nested source unit");
+    let mut compiler = super::MirCompiler::with_options(false);
+    crate::mir::builder::reset_loop_physical_effect_probe();
+
+    compiler
+        .compile_resolved(unit.lowering_input(), Some("nested-no-legacy.hako"))
+        .expect("nested source-bound compilation");
+
+    assert_eq!(crate::mir::builder::take_loop_physical_effect_probe(), 0);
+}
+
+#[test]
 fn compile_resolved_nested_predicate_reuses_one_compiler_after_commit() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function())
         .expect("nested source unit");
