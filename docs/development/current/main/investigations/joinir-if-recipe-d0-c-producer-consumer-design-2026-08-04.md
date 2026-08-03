@@ -141,8 +141,10 @@ pending-PHI transaction; it is not the whole-module rollback boundary.
 The named adapter is now wired at the central resolved-trivial draft ingress.
 The preflight producer classifies `NotThisShape` before route execution and
 the one-shot admission consumes the selected physical input at the exact
-sealed If site. The existing canonical lowerer still emits the physical
-branch/merge/PHI shape; no old edge was retired in this closeout.
+sealed If site. D0-C is intentionally admission-only: the current admission
+receipt consumes and drops the payload while the existing canonical lowerer
+emits the physical branch/merge/PHI shape. D0-D must replace that drop with a
+typed demand handoff before any old edge is retired.
 
 Evidence:
 

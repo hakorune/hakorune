@@ -155,8 +155,24 @@ oracle until D0-D; D0-C does not claim selected-edge retirement.
 
 D0-C1 promotes the mapper to one production caller. D0-C2 threads and
 consumes the non-Clone physical input once; focused resolved-lowering parity,
-candidate lifecycle, and structural guards are green. D0-D is the later
-physical adoption row; D0-E is the selected old-edge cutover row.
+candidate lifecycle, and structural guards are green. D0-C is admission-only:
+the current receipt consumes and drops the payload while the existing lowerer
+remains the physical oracle. D0-D must hand the payload to a named
+physicalizer before any old edge is retired; D0-E is the selected old-edge
+cutover row.
+
+## D0-D physical adoption design stop
+
+The next design boundary is
+`docs/development/current/main/investigations/joinir-if-recipe-d0-d-physical-adoption-design-2026-08-04.md`.
+Only the resolved-trivial explicit-else shape is eligible. A single-use
+`VerifiedIfPhysicalInputV1`/typed demand must reach one dedicated
+`CanonicalIfRecipePhysicalizerV1`, which accesses the JoinSig/artifact and
+delegates CFG/SSA/PHI work to the existing
+`CanonicalSsaFunctionSessionV2`. The physicalizer returns `Result` only;
+selected failure is terminal Freeze, with no Option/Retry/reselection/fallback.
+Until D0-D closes, the D0-C lowerer remains the physical/parity oracle and the
+selected old source-driven edge is not claimed caller-zero.
 
 ## Non-claims
 

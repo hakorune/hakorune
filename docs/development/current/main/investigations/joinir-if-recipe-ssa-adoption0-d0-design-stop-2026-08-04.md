@@ -408,13 +408,16 @@ lifecycle and semantic/MIR/CFG/PHI/interpreter parity gates green.
 Unsupported shapes remain typed rejects. D0-D/E alone may remove the selected
 old physical edge.
 
-### D0-D — canonical PHI/CFG adoption
+### D0-D — canonical PHI/CFG adoption (design stop)
 
-For the selected If shape, make the canonical session the only production
-writer for its branch blocks, merge block, predecessor seals, and PHI commit.
-Classify and retire only the selected old writer in the same cutover. Then
-repeat for remaining loop-variant and JoinIR writers. This is adoption of the
-existing owner, not a new SSA design.
+The design is tracked in
+`docs/development/current/main/investigations/joinir-if-recipe-d0-d-physical-adoption-design-2026-08-04.md`.
+D0-D must first replace the D0-C admission payload drop with a single-use
+typed demand handoff and a dedicated physicalizer. Only after JoinSig/artifact
+data actually drives the existing `CanonicalSsaFunctionSessionV2` may the
+selected explicit-else old source-driven edge become caller-zero. This is
+adoption of the existing owner, not a new SSA design; other If/Loop/JoinIR
+writers remain separate lanes.
 
 ### D0-E — cheap cleanup, independently gated
 
