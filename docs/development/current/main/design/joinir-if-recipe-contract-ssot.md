@@ -63,6 +63,12 @@ logical JoinSig merge/predecessor/value-edge obligations
 recipe-local canonical keys only
 ```
 
+`IfJoinRowV1.entry_value` is a logical pre-If input, not a condition-expression
+shortcut. The B0 facts product currently lacks this witness; D0-B2 must extend
+the same analyzer pass with the pre-branch binding representation before a
+mapper can construct the row. Synthesizing it from a `ReadBinding` or changing
+the portable row to carry `BindingRefV1` is forbidden.
+
 The schema has no AST nodes, `LocatedStmt`, `MirBuilder`, `CorePlan`, physical
 `ValueId`, physical `BasicBlockId`, callbacks, route retry, or emission command.
 The producer-side `BindingRefV1` correspondence remains outside the artifact;

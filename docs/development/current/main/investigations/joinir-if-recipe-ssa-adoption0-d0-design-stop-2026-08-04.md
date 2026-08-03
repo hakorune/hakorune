@@ -276,6 +276,9 @@ D0-B2  same-pass facts -> recipe mapper and source-witness design stop
 D0-B3  non-Clone IfJoinSig elaborator and typed physical-input seal
 ```
 
+The D0-B2 design stop and ordered execution slice are tracked separately in
+`docs/development/current/main/investigations/joinir-if-recipe-d0-b2-facts-mapper-design-stop-2026-08-04.md`.
+
 `VerifiedResolvedIfFlowV1` and `VerifiedTrivialCanonicalOwnerV1` remain their
 own authorities; the new facts projection fills only the missing expression
 and branch-operation contract. `BindingRefV1` is retained only in the
