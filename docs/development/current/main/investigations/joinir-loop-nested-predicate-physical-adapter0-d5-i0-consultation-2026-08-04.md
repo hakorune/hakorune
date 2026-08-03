@@ -246,6 +246,32 @@ Stop and return to design if the effective legacy winner cannot be isolated,
 or if the semantic digest/CFG proof shows that Nested is not the same winner
 as `NestedPredicate`.
 
+## D5-I0-D execution brief (design closed)
+
+Change:
+  Add a `cfg(test)` read-only oracle at the existing facts/registry boundary.
+  It reports the legacy effective winner for the exact Nested fixture and is
+  consumed only by the Nested profile parity test. No route executes and no
+  Builder state is touched.
+
+Contract:
+  The oracle may call the existing loop-facts canonicalizer and legacy shadow
+  observer, but it must not become a selector, physicalizer, fallback, or
+  public ingress. The old normal/raw route remains authoritative outside the
+  resolved-source pilot.
+
+Done:
+  The focused profile proves `NestedLoopMinimal` is the legacy effective
+  winner, `NestedPredicate` is the resolved winner, the sealed topology and
+  role digest agree, verification/runtime remain green, and the new subtree
+  still has no post-effect retry surface. The selected resolved ingress has
+  an explicit old-fallback caller-zero guard.
+
+Stop:
+  If the helper requires Builder mutation, public-ingress widening, or a
+  second route selector, return to design. If the winners or semantic digest
+  disagree, do not retire any legacy edge.
+
 ## Post-D5 convergence queue (ordered, do not start during this design stop)
 
 The following cleanup is intentionally recorded here so it is not lost, but
