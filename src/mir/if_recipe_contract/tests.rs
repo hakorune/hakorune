@@ -304,3 +304,39 @@ fn physical_input_consumes_and_keeps_one_artifact_joinsig_pair() {
     let (_artifact, sealed_sig) = input.into_parts();
     assert_eq!(sealed_sig, expected_sig);
 }
+
+#[test]
+fn verifier_rejects_before_physical_input_boundary() {
+    let mut invalid = golden();
+    invalid.recipe.else_disposition = IfElseDispositionV1::ImplicitFallthrough;
+
+    assert_eq!(
+        IfRecipeVerifierV1::verify_artifact(invalid).unwrap_err(),
+        IfRecipeRejectReasonV1::ExplicitElseRequired
+    );
+}
+
+#[test]
+fn physical_input_preserves_source_identity_and_logical_signature() {
+    let expected = IfRecipeVerifierV1::verify_artifact(golden()).expect("expected");
+    let mut alternate_artifact = golden();
+    alternate_artifact.source_binding.owner = IfRecipeSourceOwnerV1::FunctionBody {
+        compilation_unit_ordinal: 7,
+        function_ordinal: 9,
+    };
+    let alternate = IfRecipeVerifierV1::verify_artifact(alternate_artifact).expect("alternate");
+    let expected_input = VerifiedIfPhysicalInputV1::from_artifact(expected).expect("expected seal");
+    let alternate_input =
+        VerifiedIfPhysicalInputV1::from_artifact(alternate).expect("alternate seal");
+
+    assert_eq!(expected_input.join_sig(), alternate_input.join_sig());
+    let expected_source =
+        IfRecipeNormalizerV1::normalize_source_bound(expected_input.artifact()).expect("source");
+    let (alternate_artifact, alternate_sig) = alternate_input.into_parts();
+    assert_eq!(&alternate_sig, expected_input.join_sig());
+    assert_ne!(
+        expected_source,
+        IfRecipeNormalizerV1::normalize_source_bound(&alternate_artifact)
+            .expect("alternate source")
+    );
+}

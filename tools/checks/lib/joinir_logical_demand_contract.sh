@@ -547,3 +547,89 @@ guard_joinir_logical_demand_contract() {
     guard_fail "$tag" "strict Loop route boundaries lost their CorePlan root blockers"
   fi
 }
+
+# The portable If contract shares this lane guard with the Loop contract.  The
+# If row is intentionally caller-zero: only the contract subtree may mention
+# its logical/physical-input wrappers until D0-C opens a named consumer.
+guard_joinir_if_recipe_contract() {
+  local root_dir="$1"
+  local tag="$2"
+  local contract_dir="$root_dir/src/mir/if_recipe_contract"
+  local join_sig="$contract_dir/join_sig.rs"
+  local physical_input="$contract_dir/physical_input.rs"
+  local tests="$contract_dir/tests.rs"
+  local files=(
+    "$contract_dir/README.md"
+    "$contract_dir/mod.rs"
+    "$contract_dir/error.rs"
+    "$contract_dir/ids.rs"
+    "$join_sig"
+    "$contract_dir/normalize.rs"
+    "$physical_input"
+    "$contract_dir/schema.rs"
+    "$contract_dir/source_binding.rs"
+    "$contract_dir/verify.rs"
+    "$tests"
+  )
+  local file lines
+
+  guard_require_files "$tag" "${files[@]}"
+  for file in "${files[@]}"; do
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    if (( lines >= 800 )); then
+      guard_fail "$tag" "If recipe contract file exceeds boundary: ${file#"$root_dir/"} lines=$lines"
+    fi
+  done
+
+  # `schema.rs` legitimately uses Option for the explicit/implicit else
+  # disposition.  The physical/logical proof files must not acquire it.
+  if rg -n -w \
+    'MirBuilder|CorePlan|ValueId|BasicBlockId|CanonicalCfgSession|PhiTxn|BindingSsaBuilderV1|ASTNode|RouteAttemptOutcomeV1|Retry|Option' \
+    "$join_sig" "$physical_input" >/dev/null; then
+    guard_fail "$tag" "If logical/physical-input proof acquired physical, AST, route, retry, or Option authority"
+  fi
+  if rg -n -U \
+    '#\[derive\([^)]*Clone[^)]*\)\][[:space:]]*\n[[:space:]]*(pub\(crate\)[[:space:]]+)?struct[[:space:]]+(VerifiedIfJoinSigV1|VerifiedIfPhysicalInputV1)' \
+    "$join_sig" "$physical_input" >/dev/null || \
+     rg -n 'impl[[:space:]]+Clone[[:space:]]+for[[:space:]]+(VerifiedIfJoinSigV1|VerifiedIfPhysicalInputV1)' \
+       "$join_sig" "$physical_input" >/dev/null; then
+    guard_fail "$tag" "verified If logical/physical-input wrappers must remain non-Clone"
+  fi
+  if rg -n 'pub[[:space:]]+(artifact|join_sig)[[:space:]]*:' "$physical_input" >/dev/null; then
+    guard_fail "$tag" "physical-input artifact/signature fields must remain private"
+  fi
+  if [[ "$(rg -c 'pub\(crate\) fn from_artifact\(' "$physical_input" || true)" != "1" ]]; then
+    guard_fail "$tag" "physical-input must have exactly one consuming from_artifact issuer"
+  fi
+  if rg -n 'pub\(crate\) fn (new|from_parts|from_signature|from_join)' "$physical_input" >/dev/null; then
+    guard_fail "$tag" "independent artifact/signature constructor appeared"
+  fi
+
+  local symbol_files=()
+  mapfile -t symbol_files < <(
+    { rg -l -w 'VerifiedIfJoinSigV1|VerifiedIfPhysicalInputV1|IfJoinSigElaboratorV1' \
+        "$root_dir/src/mir" || true; }
+  )
+  for file in "${symbol_files[@]}"; do
+    if [[ "$file" != "$contract_dir"/* ]]; then
+      guard_fail "$tag" "If logical/physical-input symbol escaped caller-zero subtree: ${file#"$root_dir/"}"
+    fi
+  done
+
+  local physical_callers=()
+  mapfile -t physical_callers < <(
+    { rg -l 'VerifiedIfPhysicalInputV1::from_artifact\(' "$root_dir/src/mir" || true; }
+  )
+  if (( ${#physical_callers[@]} != 1 )) || [[ "${physical_callers[0]}" != "$tests" ]]; then
+    guard_fail "$tag" "physical-input issuer must remain test-only and caller-zero"
+  fi
+  local elaborator_callers=()
+  mapfile -t elaborator_callers < <(
+    { rg -l 'IfJoinSigElaboratorV1::elaborate\(' "$root_dir/src/mir" || true; }
+  )
+  for file in "${elaborator_callers[@]}"; do
+    if [[ "$file" != "$contract_dir"/* ]]; then
+      guard_fail "$tag" "If JoinSig elaborator acquired an external caller: ${file#"$root_dir/"}"
+    fi
+  done
+}
