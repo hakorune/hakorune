@@ -170,6 +170,10 @@ impl VerifiedLoopStructuralFactsV1 {
 }
 
 impl VerifiedDirectAccumSingletonObservationV1 {
+    pub(crate) fn frame_key(&self) -> LoopExecutionFrameKeyV1 {
+        self.source.frame_key()
+    }
+
     pub(crate) fn into_parts(
         self,
     ) -> (VerifiedLoopStructuralFactsV1, VerifiedResolvedLoopSourceV1) {

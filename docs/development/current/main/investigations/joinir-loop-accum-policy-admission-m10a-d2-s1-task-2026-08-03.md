@@ -54,3 +54,19 @@ must not receive route IDs, raw cursors, or the full migration schedule.
 - No `CanonicalFirstFamilyPlanV1::DirectAccum`, `route_loop`, physicalizer,
   PHI/SSA owner, Retry removal, or old-edge retirement is included in S1.
 - Every touched Rust file remains below 800 lines.
+
+## Caller-zero implementation progress
+
+The policy handoff is now implemented without a production compiler caller.
+`issue_direct_accum_route_admission_v1` consumes the non-Clone singleton
+observation, constructs the canonical matrix privately, runs the existing
+freeze/evaluate authority, and returns
+`VerifiedDirectAccumPolicyHandoffV1`. The handoff retains the observation for
+the next Recipe stage and keeps the schedule seal/cursor out of the
+physicalizer boundary. Focused policy, structural-facts, DirectAccum, binary,
+and pointer-guard checks are green.
+
+The remaining non-claim is intentional: this is not yet a resolved plan
+variant or a production caller. The next task is to make the canonical
+resolved preflight consume this handoff without adding a second source or SSA
+owner.

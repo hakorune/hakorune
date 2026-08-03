@@ -29,6 +29,22 @@ The migration fixture adapter is test-only. Its M3-F parity submodule may invoke
 the legacy execution witness as an oracle, but it has no production caller; the
 production facade `freeze_loop_route_schedule_v1` remains caller-zero.
 
+The DirectAccum pilot adds one narrower production-shaped handoff:
+
+```text
+VerifiedDirectAccumSingletonObservationV1
+  -> policy-owned 19-row matrix
+  -> freeze/evaluate
+  -> VerifiedDirectAccumPolicyHandoffV1
+```
+
+Only the policy module constructs that matrix. Non-Accum rows use the typed
+singleton-exclusion evidence issued by the source certificate; Generic debt is
+never silently projected to `None`. The handoff retains the source observation
+for the next Recipe stage while hiding route IDs, raw cursors, and the frozen
+schedule from physical lowerers. This remains caller-zero with respect to the
+production compiler until the resolved plan capability is added.
+
 At M12, migration-only schedule adapters and opaque route receipts retire after
 M10/M11 cut over and remove the old physical route edges. Any retained
 source-policy rows must remain data-only inputs to the common recursive recipe.

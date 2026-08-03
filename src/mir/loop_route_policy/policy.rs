@@ -6,13 +6,16 @@
 
 use super::policy_evidence::{
     LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,
-    LoopRoutePolicyEvidenceV1,
+    LoopRoutePolicyEvidenceV1, LoopRoutePolicySourceDeclineReasonV1,
 };
 use super::schema::{
-    FrozenLoopRouteScheduleV1, LoopRouteSourceDispositionV1, LoopRouteSuppressionDispositionV1,
+    FrozenLoopRouteObservationV1, FrozenLoopRouteScheduleRejectV1, FrozenLoopRouteScheduleV1,
+    LoopGlobalEntryDispositionV1, LoopModeReleaseSnapshotV1, LoopReleaseAdmissionObservationV1,
+    LoopRouteSourceDispositionV1, LoopRouteSuppressionDispositionV1,
     CANONICAL_LOOP_ROUTE_ORDER_V1,
 };
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
+use crate::mir::loop_structural_facts::VerifiedDirectAccumSingletonObservationV1;
 use crate::mir::resolved_semantics::LoopExecutionFrameKeyV1;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -35,11 +38,26 @@ pub(crate) struct VerifiedLoopPolicyWinnerV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedDirectAccumRouteAdmissionV1 {
     winner: VerifiedLoopPolicyWinnerV1,
+    _schedule_seal: DirectAccumPolicyScheduleSealV1,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) enum DirectAccumRouteAdmissionRejectV1 {
     WrongWinnerCursor { expected: usize, actual: usize },
+    Schedule(FrozenLoopRouteScheduleRejectV1),
+    PolicyBlocked(LoopPolicyBlockedReasonV1),
+    Exhausted,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct DirectAccumPolicyScheduleSealV1;
+
+/// One-shot handoff retaining the source/facts continuation after policy
+/// admission. The physicalizer never sees the schedule or raw cursor.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedDirectAccumPolicyHandoffV1 {
+    admission: VerifiedDirectAccumRouteAdmissionV1,
+    observation: VerifiedDirectAccumSingletonObservationV1,
 }
 
 impl LoopQualifiedV1 {
@@ -49,6 +67,11 @@ impl LoopQualifiedV1 {
 }
 
 impl VerifiedLoopPolicyWinnerV1 {
+    #[cfg(test)]
+    pub(crate) fn raw_cursor_for_test(&self) -> usize {
+        self.raw_cursor
+    }
+
     pub(crate) fn into_raw_cursor(self) -> usize {
         self.raw_cursor
     }
@@ -70,13 +93,27 @@ impl VerifiedLoopPolicyWinnerV1 {
                 actual: self.raw_cursor,
             });
         }
-        Ok(VerifiedDirectAccumRouteAdmissionV1 { winner: self })
+        Ok(VerifiedDirectAccumRouteAdmissionV1 {
+            winner: self,
+            _schedule_seal: DirectAccumPolicyScheduleSealV1,
+        })
     }
 }
 
 impl VerifiedDirectAccumRouteAdmissionV1 {
     pub(crate) fn into_policy_winner(self) -> VerifiedLoopPolicyWinnerV1 {
         self.winner
+    }
+}
+
+impl VerifiedDirectAccumPolicyHandoffV1 {
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedDirectAccumRouteAdmissionV1,
+        VerifiedDirectAccumSingletonObservationV1,
+    ) {
+        (self.admission, self.observation)
     }
 }
 
@@ -136,6 +173,56 @@ pub(crate) fn evaluate_frozen_loop_route_schedule_v1(
         }
     }
     LoopRoutePolicyEvaluationV1::Exhausted
+}
+
+/// Consumes the source-side singleton proof and lets policy own the complete
+/// canonical matrix. No caller can inject a route id or raw cursor here.
+pub(crate) fn issue_direct_accum_route_admission_v1(
+    observation: VerifiedDirectAccumSingletonObservationV1,
+) -> Result<VerifiedDirectAccumPolicyHandoffV1, DirectAccumRouteAdmissionRejectV1> {
+    let frame_key = observation.frame_key();
+    let observations = CANONICAL_LOOP_ROUTE_ORDER_V1
+        .iter()
+        .map(|route| {
+            let evidence = if *route == LoopRouteId::AccumConstLoop {
+                LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable)
+            } else {
+                LoopRoutePolicyEvidenceV1::SourceDeclined(
+                    LoopRoutePolicySourceDeclineReasonV1::ExcludedByVerifiedSingletonObservation,
+                )
+            };
+            FrozenLoopRouteObservationV1::new(
+                LoopRouteSuppressionDispositionV1::Retained,
+                LoopModeReleaseSnapshotV1::Release {
+                    admission: LoopReleaseAdmissionObservationV1::Allowed,
+                },
+                LoopGlobalEntryDispositionV1::Allowed,
+                LoopRouteSourceDispositionV1::Available,
+                evidence,
+            )
+        })
+        .collect::<Box<[_]>>();
+    let schedule = super::evaluate::freeze_loop_route_schedule_v1(
+        CANONICAL_LOOP_ROUTE_ORDER_V1.into(),
+        observations,
+    )
+    .map_err(DirectAccumRouteAdmissionRejectV1::Schedule)?;
+    let winner = match evaluate_frozen_loop_route_schedule_v1(&schedule, &frame_key) {
+        LoopRoutePolicyEvaluationV1::Qualified(qualified) => qualified.into_parts().1,
+        LoopRoutePolicyEvaluationV1::Blocked(reason) => {
+            return Err(DirectAccumRouteAdmissionRejectV1::PolicyBlocked(reason));
+        }
+        LoopRoutePolicyEvaluationV1::Exhausted => {
+            return Err(DirectAccumRouteAdmissionRejectV1::Exhausted);
+        }
+    };
+    let admission = winner
+        .into_direct_accum_v1()
+        .map_err(DirectAccumRouteAdmissionRejectV1::from);
+    Ok(VerifiedDirectAccumPolicyHandoffV1 {
+        admission: admission?,
+        observation,
+    })
 }
 
 #[cfg(test)]

@@ -10,6 +10,7 @@ pub(crate) enum LoopRoutePolicySourceDeclineReasonV1 {
     SuppressedByEarlierCandidate,
     Unavailable(LoopRouteSourceUnavailableV1),
     PreEffectDeclined,
+    ExcludedByVerifiedSingletonObservation,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -56,6 +57,9 @@ mod tests {
                     LoopRouteSourceUnavailableV1::FactsAbsent,
                 ),
             ),
+            LoopRoutePolicyEvidenceV1::SourceDeclined(
+                LoopRoutePolicySourceDeclineReasonV1::ExcludedByVerifiedSingletonObservation,
+            ),
             LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable),
             LoopRoutePolicyEvidenceV1::PolicyBlocked(
                 LoopRoutePolicyBlockReasonV1::PolicyAndTerminalityUnavailable,
@@ -63,7 +67,7 @@ mod tests {
             LoopRoutePolicyEvidenceV1::GenericDebt(LoopGenericDebtKeyV1::GenericPostEffectDebt),
         ];
 
-        assert_eq!(evidence.len(), 5);
+        assert_eq!(evidence.len(), 6);
         assert!(matches!(
             evidence[0],
             LoopRoutePolicyEvidenceV1::SourceDeclined(_)

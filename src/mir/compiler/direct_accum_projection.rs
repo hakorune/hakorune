@@ -325,13 +325,19 @@ mod tests {
             .function()
             .resolved_loop_source(loop_stmt.site())
             .unwrap();
-        let frame_key = source.frame_key();
         let observation = facts
             .into_direct_accum_singleton_observation_v1(source)
             .expect("DirectAccum singleton observation must seal");
+        let handoff = crate::mir::loop_route_policy::issue_direct_accum_route_admission_v1(
+            observation,
+        )
+        .expect("singleton policy admission must seal");
+        let (admission, observation) = handoff.into_parts();
+        let winner = admission.into_policy_winner();
+        assert_eq!(winner.raw_cursor_for_test(), 10);
         let (facts, source) = observation.into_parts();
         crate::mir::loop_structural_facts::issue_selected_loop_recipe_demand_v1(
-            crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame(10, &frame_key),
+            winner,
             facts,
             source,
         )
