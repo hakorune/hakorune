@@ -92,6 +92,21 @@ pub(crate) fn shadow_report(selection: &RecipeFirstRouteSelectionV1) -> LoopRout
     }
 }
 
+/// Test-only effective-winner projection for a parity oracle.
+///
+/// This deliberately consumes the existing shadow observer rather than
+/// executing a route or introducing another selector.  The normal/raw route
+/// remains the production authority until its own cutover.
+#[cfg(test)]
+pub(crate) fn effective_route_for_test(
+    selection: &RecipeFirstRouteSelectionV1,
+) -> Option<LoopRouteId> {
+    match shadow_report(selection).decision {
+        LoopRouteDecision::Allow(fact) => Some(fact.selected_route),
+        LoopRouteDecision::Deny(_) => None,
+    }
+}
+
 fn resolve_from_effective(
     facts_present: bool,
     effective_candidates: &[LoopRouteId],

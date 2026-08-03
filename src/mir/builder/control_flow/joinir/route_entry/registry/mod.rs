@@ -36,6 +36,8 @@ pub(crate) use execution_witness::{
 };
 use execution_witness::{RouteAttemptOutcomeV1, RouteExecutionResultV1};
 use handlers::*;
+#[cfg(test)]
+pub(crate) use legacy_observer::effective_route_for_test;
 pub(crate) use live_preflight_frame::LivePreflightFrameV1;
 pub(crate) use live_preflight_frame::{issue_live_preflight_frame, observe_all_route_preflight_v1};
 use predicates::*;
@@ -220,6 +222,8 @@ mod generic_semantic_digest_tests;
 #[cfg(test)]
 mod generic_stage_observer_tests;
 #[cfg(test)]
+mod nested_effective_winner_tests;
+#[cfg(test)]
 mod scoped_nongeneric_cutover_tests;
 
 #[cfg(test)]
@@ -235,4 +239,51 @@ mod tests {
         assert!(selection.raw_execution_routes().is_empty());
         assert!(selection.diagnostic_effective_routes().is_empty());
     }
+}
+
+#[cfg(test)]
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum LegacyEffectiveWinnerReceiptV1 {
+    Succeeded {
+        winner: LoopRouteId,
+        attempted: Box<[LoopRouteId]>,
+    },
+    Exhausted {
+        attempted: Box<[LoopRouteId]>,
+    },
+}
+
+#[cfg(test)]
+pub(crate) fn test_legacy_effective_winner_v1(
+    builder: &mut MirBuilder,
+    ctx: &LoopRouteContext<'_>,
+    strict_or_dev: bool,
+    planner_required: bool,
+) -> Result<LegacyEffectiveWinnerReceiptV1, String> {
+    let outcome = crate::mir::builder::control_flow::plan::single_planner::try_build_outcome(ctx)?;
+    let frame = super::router::test_issue_live_preflight_frame(
+        ctx,
+        &outcome,
+        strict_or_dev,
+        planner_required,
+    );
+    let Some(witness) = frame.test_witness_if_allowed() else {
+        return Err("legacy effective-winner oracle was preflight-blocked".to_string());
+    };
+    let mut attempted = Vec::new();
+    let result = witness.execute_selected_in_order(|_, attempt| {
+        attempted.push(attempt.current_route());
+        dispatch_entry(builder, ctx, outcome.facts.as_ref(), attempt)
+    })?;
+    Ok(match result {
+        RouteExecutionResultV1::Succeeded { route, .. } => {
+            LegacyEffectiveWinnerReceiptV1::Succeeded {
+                winner: route,
+                attempted: attempted.into_boxed_slice(),
+            }
+        }
+        RouteExecutionResultV1::Exhausted(_) => LegacyEffectiveWinnerReceiptV1::Exhausted {
+            attempted: attempted.into_boxed_slice(),
+        },
+    })
 }

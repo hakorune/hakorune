@@ -249,23 +249,29 @@ as `NestedPredicate`.
 ## D5-I0-D execution brief (design closed)
 
 Change:
-  Add a `cfg(test)` read-only oracle at the existing facts/registry boundary.
-  It reports the legacy effective winner for the exact Nested fixture and is
-  consumed only by the Nested profile parity test. No route executes and no
-  Builder state is touched.
+  Add a `cfg(test)` legacy effective-winner oracle at the existing
+  facts/registry boundary.  The selection projection remains read-only; a
+  separate test-only receipt may execute the selected legacy route against a
+  disposable seeded `MirBuilder` so that “effective winner” means the route
+  that actually returns `Succeeded`, not merely the first registry candidate.
+  Neither helper is a production selector or ingress.
 
 Contract:
-  The oracle may call the existing loop-facts canonicalizer and legacy shadow
-  observer, but it must not become a selector, physicalizer, fallback, or
-  public ingress. The old normal/raw route remains authoritative outside the
-  resolved-source pilot.
+  The oracle may call the existing loop-facts canonicalizer, legacy shadow
+  observer, and (only inside the disposable test receipt) the existing ordered
+  route executor. It must not become a production selector, physicalizer,
+  fallback, or public ingress. The old normal/raw route remains authoritative
+  outside the resolved-source pilot, and no live compiler Builder is mutated
+  by the oracle.
 
 Done:
-  The focused profile proves `NestedLoopMinimal` is the legacy effective
-  winner, `NestedPredicate` is the resolved winner, the sealed topology and
-  role digest agree, verification/runtime remain green, and the new subtree
-  still has no post-effect retry surface. The selected resolved ingress has
-  an explicit old-fallback caller-zero guard.
+  The focused profile and registry fixture prove `NestedLoopMinimal` is the
+  legacy effective winner (the only attempted route and the successful route),
+  `NestedPredicate` is the resolved winner, the sealed topology and role digest
+  agree, verification/runtime remain green, and the new subtree still has no
+  post-effect retry surface. The selected resolved ingress has a recorded
+  guard target; the guard itself is the next I0-E slice and is not claimed
+  closed by this oracle.
 
 Stop:
   If the helper requires Builder mutation, public-ingress widening, or a
@@ -279,24 +285,50 @@ does not widen D5-I0 or claim that the canonical owner is already universal.
 
 ```text
 JOINIR-LOCATED-LEGACY-RETIRE0-S0
-  caller census -> move the test oracle -> delete only caller-zero located_legacy_*
+  caller census -> move the test oracle -> delete only caller-zero
+  `located_legacy_*` session/adapters. Do not delete live `located_if.rs` or
+  `IfCfgSessionV1`; they belong to the later resolved A+ adoption lane.
 
 JOINIR-IF-RECIPE-CANONICAL-SSA-D0
-  audit IfForm vs CorePlan::If, define one portable IfRecipeV1/JoinSig
-  boundary, and name the legacy authority and fail-fast seam
+  audit the four actual If surfaces (raw IfForm, CorePlan::If/JoinIR,
+  resolved trivial canonical SSA, and resolved A+ IfCfgSessionV1); define one
+  portable IfRecipeV1/IfJoinSig boundary, name each current authority and
+  fail-fast seam, and explicitly do not claim a universal PHI writer yet
 
 JOINIR-IF-RECIPE-PHYSICAL-ADAPTER0-I0
-  one If family consumes the existing unpublished candidate and
-  CanonicalSsaFunctionSessionV2; prove parity before retiring one old If edge
+  pilot one bounded explicit-else scalar-rebind If family. The producer is
+  Builder-free; the consumer borrows the existing unpublished candidate and
+  CanonicalSsaFunctionSessionV2/CanonicalCfgSessionV1/one PhiTxn. Prove
+  semantic CFG/PHI parity before retiring one old If edge
+
+JOINIR-IF-RECIPE-ADOPTION0-A1
+  retire only the selected resolved-canonical-trivial If writer after the
+  pilot proves producer=1, physicalizer=1, Option/Retry=0, MIR/CFG/PHI and
+  candidate-isolation parity. Do not use this as production-wide SSA adoption.
+
+JOINIR-IF-RECIPE-ADOPTION0-B1
+  separately migrate resolved A+ `located_if.rs` / `IfCfgSessionV1` branch
+  transactions after JoinSig transfer/cleanup obligations are typed and
+  closed; do not mix this owner with the trivial pilot.
+
+JOINIR-IF-RECIPE-ADOPTION0-D1
+  separately classify `CorePlan::If` / `apply_if_joins` / direct
+  `phi_input_materializer` as a mechanical planner adapter, then close one
+  selected planner-family caller at a time. CorePlan is not the portable
+  semantic SSOT.
 
 JOINIR-SSA-PHI-CANONICAL-ADOPTION0-M10
-  migrate If merge, loop-variant PHI materializers, and JoinIR PHI/CFG
-  writers to the existing Binding SSA + Canonical CFG + one PhiTxn owner;
-  only then claim production-wide PHI adoption
+  tracking umbrella, not one giant cutover. Its execution rows are A1
+  (resolved-trivial If), B1 (located A+ If), D1 (CorePlan/JoinIR), and D2
+  (loop-variant PHI materializers), each with its own selected-writer
+  caller-zero gate. Only after all rows are green may the umbrella claim
+  Binding SSA + Canonical CFG + one PhiTxn as the production-wide PHI owner.
 
 JOINIR-RAW-DESCENT-PARITY-RETIRE0-S0
-  after caller-zero proof, collapse the six raw/descent/parity trios without
-  changing the semantic authority
+  after caller-zero proof, collapse only the six raw/descent/parity facades
+  that have actually become dead. Keep raw `IfForm` as the normal/default
+  production authority until its own ingress cutover; the resolved If pilot
+  does not make the raw caller zero.
 
 JOINIR-LOOP-RECURSIVE-FRAME-CONVERGENCE0-M12
   unify LoopV0/LoopTrue/LoopCond as one recursive semantic frame, recurse
@@ -308,6 +340,15 @@ The If and PHI rows are opportunities, not current claims. `BindingSsaBuilderV1`
 `CanonicalCfgSessionV1`, and `PhiTxn` are already the SSA/PHI design SSOT, but
 route-specific writers and legacy JoinIR remain production edges until the
 M10 adoption gates close.
+
+Feedback audit (2026-08-04): the “If is the next Loop” direction is valid, but
+the implementation inventory is not a simple two-way split. The four surfaces
+above have different callers and PHI owners, so the D0 census must precede any
+adapter or deletion. `IfRecipeV1` is the semantic boundary; it does not by
+itself make `IfCfgSessionV1`, legacy `IfForm`, CorePlan/JoinIR, or canonical SSA
+the production authority. The cheap `located_legacy_*` cleanup is ordered first
+only as a caller-zero retirement proof, not as an unconditional deletion. The
+Loop frame convergence task stays post-cutover and keeps Generic debt separate.
 
 ## Acceptance gates
 

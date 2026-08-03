@@ -352,6 +352,25 @@ pub(crate) use control_flow::joinir::route_entry::registry::{
     execute_legacy_policy_parity_v1, LegacyPolicyAttemptDispositionV1, LegacyPolicyParityReceiptV1,
 };
 
+/// Test-only bridge for the Nested parity oracle. It projects the existing
+/// facts/registry winner without entering any legacy route or touching a
+/// Builder.
+#[cfg(test)]
+pub(crate) fn loop_route_effective_winner_for_test(
+    condition: &crate::ast::ASTNode,
+    body: &[crate::ast::ASTNode],
+) -> Result<Option<crate::mir::loop_recipe_contract::route_id::LoopRouteId>, String> {
+    let facts = control_flow::plan::facts::try_build_loop_facts(condition, body)
+        .map_err(|error| error.to_string())?;
+    let Some(facts) = facts else {
+        return Ok(None);
+    };
+    let canonical = control_flow::lower::normalize::canonicalize_loop_facts(facts);
+    let selection =
+        control_flow::joinir::route_entry::registry::select_recipe_first_routes(Some(&canonical));
+    Ok(control_flow::joinir::route_entry::registry::effective_route_for_test(&selection))
+}
+
 #[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {
     control_flow::reset_loop_physical_effect_probe();
