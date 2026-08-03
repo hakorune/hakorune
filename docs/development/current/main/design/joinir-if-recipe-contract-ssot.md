@@ -1,5 +1,5 @@
 ---
-Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B/C facts/mapper gates landed; D0-B2-D firewall classified; D0-B3-A logical JoinSig and D0-B3-B physical-input seal landed; D0-B3-C guard implementation authorized
+Status: accepted design boundary; D0-B0/B1 and D0-B2-A/B/C facts/mapper gates landed; D0-B2-D firewall classified; D0-B3-A logical JoinSig, D0-B3-B physical-input seal, and D0-B3-C guard/boundary gates landed; D0-C producer/consumer design stop active
 Date: 2026-08-04
 Decision: JOINIR-IF-RECIPE-CONTRACT-V1
 Scope: portable semantic contract for the first resolved-trivial If shape

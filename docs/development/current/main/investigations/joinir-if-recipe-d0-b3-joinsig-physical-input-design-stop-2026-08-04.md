@@ -1,6 +1,6 @@
 # JOINIR-IF-RECIPE-D0-B3-JOINSIG-PHYSICAL-INPUT-DESIGN-STOP
 
-Status: D0-B3-A/B landed; D0-B3-C guard implementation authorized
+Status: D0-B3-A/B/C landed; D0-C producer/consumer design stop active
 Date: 2026-08-04
 Decision target: fixed-shell `IfRecipe` -> logical `IfJoinSig` -> one-shot physical-input capability
 
@@ -106,13 +106,14 @@ invariant firewall until a real future producer makes one reachable.
    `from_artifact` consumes one verified artifact, internally elaborates the
    matching signature, and keeps the same artifact+signature pair. No physical
    IDs, Builder, PHI/CFG, or production caller was added.
-4. **D0-B3-C design stop** — define the stable static guard and focused
-   negative/identity gate set for the new wrapper. The existing seven focused
-   contract tests are green; do not add production wiring or PHI/CFG work in
-   this row.
-5. **Design close** — only after the C gates are frozen and green, open D0-C for the
-   canonical producer/consumer adapter. D0-D owns PHI/CFG adoption and caller
-   census; it is not part of this card.
+4. **D0-B3-C guard and boundary gates** — landed in `2e3bdb5be0` with nine
+   focused contract tests, the reusable If helper in the existing lane guard,
+   and zero production JoinSig/physical-input callers. The existing Loop
+   guard's three Nested profile allowlist omissions were corrected separately
+   in `b6a936999b`; no Loop semantics changed.
+5. **D0-C design stop** — choose the first named producer/consumer adapter for
+   the verified artifact+physical-input pair. D0-D owns PHI/CFG adoption and
+   caller census; it is not part of this card.
 
 ## D0-B3-C design decision
 
@@ -174,9 +175,15 @@ Verifier errors stop before physical input. The guard/test slice proves only
   `Option` dependencies;
 - production Recipe caller count remains zero;
 - every touched Rust/test file remains below 800 lines.
+- `RUSTFLAGS='-Awarnings' cargo test --lib if_recipe_contract -- --test-threads=1`
+  passes 9/9;
+- `RUSTFLAGS='-Awarnings' cargo check -q --lib`,
+  `bash tools/checks/mirbuilder_inplace_replacement_guard.sh`, and the current
+  pointer guard are green.
 
 ## Non-claims
 
 This row does not prove physical MIR predecessors, PHI placement, CFG shape,
-Builder candidate isolation, or production If behavior. Those belong to D0-C
-and D0-D after a named producer/consumer and old-edge retirement plan exist.
+Builder candidate isolation, or production If behavior. Those belong to the
+D0-C producer/consumer design and D0-D after a named adapter and old-edge
+retirement plan exist.
