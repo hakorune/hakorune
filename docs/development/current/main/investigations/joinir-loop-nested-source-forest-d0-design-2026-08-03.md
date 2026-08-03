@@ -1,7 +1,7 @@
 # JOINIR Nested Loop Source Forest D0
 
 Date: 2026-08-03
-Status: design stop; implementation not authorized until this contract is accepted.
+Status: accepted; D0 resolver witness slice landed; bounded fixture expansion remains.
 Task: `JOINIR-LOOP-NESTED-SOURCE-FOREST0-D0`
 Parent: `JOINIR-LOOP-RECURSIVE-RECIPE-CLOSURE0-S5`
 
@@ -17,6 +17,29 @@ non-`Clone` root+child forest exists.
 This card fixes the source-authority boundary only. It does not add a Nested
 recipe producer, a canonical plan variant, a production caller, a route policy,
 a retry edge, a PHI/SSA writer, or a physicalizer.
+
+## Acceptance decision
+
+The worker design audit accepted this boundary on 2026-08-03. The sealed
+resolved loop-region index is the source authority; the first implementation
+slice may add only its consuming root+child forest witness and Builder-free
+contract tests. The current pointer is therefore authorized to advance to D0
+implementation while all production Nested wiring remains prohibited.
+
+## D0 implementation evidence
+
+The resolver now issues a non-`Clone` `VerifiedResolvedLoopSourceForestV1`
+from the sealed loop-region index. Members are canonical-preorder source
+witnesses with local parent indices; unsupported ancestry, skipped
+intermediate loops, orphan descendants, and missing roots fail before any
+recipe or Builder effect. Focused tests cover a real nested root/child,
+missing root, scope-prefixed child, skipped intermediate loop, unsupported
+ancestry, and orphan scope. The structural guard proves the issuer has no
+production caller and imports no Builder/physical/route authority.
+
+This is intentionally a resolver-only slice. Duplicate-site, sibling-parent,
+owner-root, and deeper-nesting fixtures remain the next bounded test addition;
+no Nested producer or production caller is implied by this landing.
 
 ## Authority map
 

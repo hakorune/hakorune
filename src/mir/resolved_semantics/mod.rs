@@ -87,7 +87,8 @@ pub(crate) use loop_region::loop_execution_frame_key_for_test;
 pub use loop_region::ResolvedLoopRegionVerificationErrorV1;
 pub(crate) use loop_region::{
     LoopExecutionFrameKeyV1, ResolvedLoopRegionBundleV1, ResolvedLoopRegionLookupErrorV1,
-    VerifiedResolvedLoopSourceV1,
+    ResolvedLoopSourceForestRejectV1, VerifiedResolvedLoopSourceForestMemberV1,
+    VerifiedResolvedLoopSourceForestV1, VerifiedResolvedLoopSourceV1,
 };
 pub use normalized::{
     NormalizedAssignmentTargetV1, NormalizedAssignmentV1, NormalizedBindingKeyV1,

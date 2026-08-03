@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. The canonical Loop family envelope is clean. Nested source-bound parity is now the selected design stop for a sealed root+child forest; LoopTrue/LoopCond remain behind shared logical branch/merge closure, and Generic remains behind M4 debt/winner equivalence. No new production consumer is authorized at this boundary."
+status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. The canonical Loop family envelope is clean. Nested source-bound parity is now the selected D0 implementation for a sealed root+child forest; LoopTrue/LoopCond remain behind shared logical branch/merge closure, and Generic remains behind M4 debt/winner equivalence. No new production consumer is authorized at this boundary."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "F0/F1/F2/F3 canonical family-envelope work is landed. The next selected boundary is JOINIR-LOOP-NESTED-SOURCE-FOREST0-D0-DESIGN-STOP: define one sealed, non-Clone root+child Loop source forest before any Nested producer or canonical caller. PHI/SSA remains CanonicalCfgSessionV1 -> BindingSsaBuilderV1 -> PhiTxn; Generic M4 remains unresolved and production route wiring is forbidden."
-current_execution_row = "JOINIR-LOOP-NESTED-SOURCE-FOREST0-D0-DESIGN-STOP"
-current_execution_summary = "DirectAccum is nested under CanonicalLoopFamilyPlanV1 / ExactCanonicalPreflightPlanV1::Loop and the shared guard rejects old top-level variants. The next design stop fixes the missing Nested source authority: VerifiedResolvedLoopSourceV1 is root-only, while portable Nested recipes require a non-Clone root+child forest with canonical preorder, parent coverage, and typed fail-fast for missing/duplicate/skipped/orphan paths. No code implementation is authorized until that contract is accepted."
+current_design_stop = "F0/F1/F2/F3 canonical family-envelope work is landed. The Nested source-forest boundary is accepted after worker audit; D0 implementation is authorized only for the resolver-owned non-Clone root+child witness and Builder-free contract tests. PHI/SSA remains CanonicalCfgSessionV1 -> BindingSsaBuilderV1 -> PhiTxn; Generic M4 remains unresolved and production route wiring is forbidden."
+current_execution_row = "JOINIR-LOOP-NESTED-SOURCE-FOREST0-D0-IMPLEMENTATION"
+current_execution_summary = "DirectAccum is nested under CanonicalLoopFamilyPlanV1 / ExactCanonicalPreflightPlanV1::Loop and the shared guard rejects old top-level variants. D0 now implements the missing Nested source authority: VerifiedResolvedLoopSourceV1 is root-only, while the new forest witness enumerates sealed root descendants in canonical preorder with local parent indices and typed fail-fast for unsupported ancestry. Only Builder-free resolver tests are in scope; no Nested producer or production caller is authorized."
 current_execution_design = "docs/development/current/main/investigations/joinir-loop-nested-source-forest-d0-design-2026-08-03.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "joinir-loop-nested-source-forest-d0-design-2026-08-03"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-source-forest-d0-design-2026-08-03.md"
-latest_card_summary = """DirectAccum family-envelope F0/F1/F2/F3 is landed and pushed. The selected next design stop is Nested root+child source authority: one sealed non-Clone forest, canonical preorder/parent coverage, portable path projection, and typed fail-fast for missing/duplicate/skipped/orphan paths. No Nested producer, route, retry, PHI/SSA, or physicalizer caller is authorized yet."""
+latest_card_summary = """DirectAccum family-envelope F0/F1/F2/F3 is landed and pushed. Nested D0 now has a sealed non-Clone root+child source forest witness with canonical preorder, local parent links, and Builder-free typed fail-fast tests. Bounded duplicate/sibling/owner/deeper fixture expansion remains; no Nested producer, route, retry, PHI/SSA, or physicalizer caller is authorized yet."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-NESTED-SOURCE-FOREST0-D0-DESIGN-STOP"
+current_blocker_token = "JOINIR-LOOP-NESTED-SOURCE-FOREST0-D0-IMPLEMENTATION"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

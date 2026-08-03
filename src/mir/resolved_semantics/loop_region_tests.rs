@@ -220,6 +220,36 @@ fn nested_loop_bundle_uses_the_outer_loop_as_its_exact_parent() {
 }
 
 #[test]
+fn nested_loop_source_forest_is_non_clone_preorder_with_local_parent_links() {
+    let product = resolve(&function(vec![loop_stmt(vec![loop_stmt(Vec::new())])]));
+    let root = stmt(vec![SourcePathSegmentV1::Body(0)]);
+    let child = stmt(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::LoopBody(0),
+    ]);
+
+    let forest = product
+        .resolved_loop_source_forest(&root)
+        .expect("sealed nested source forest");
+    assert_eq!(forest.members().len(), 2);
+    assert_eq!(forest.members()[0].parent_index(), None);
+    assert_eq!(forest.members()[0].source().site(), &root);
+    assert_eq!(forest.members()[1].parent_index(), Some(0));
+    assert_eq!(forest.members()[1].source().site(), &child);
+}
+
+#[test]
+fn nested_loop_source_forest_rejects_missing_root_before_issuing_members() {
+    let product = resolve(&function(vec![loop_stmt(vec![loop_stmt(Vec::new())])]));
+    let missing = stmt(vec![SourcePathSegmentV1::Body(9)]);
+
+    assert_eq!(
+        product.resolved_loop_source_forest(&missing),
+        Err(super::loop_region::ResolvedLoopSourceForestRejectV1::MissingRoot(missing,))
+    );
+}
+
+#[test]
 fn query_reports_a_typed_missing_exact_bundle() {
     let product = resolve(&function(vec![loop_stmt(Vec::new())]));
     let missing = stmt(vec![SourcePathSegmentV1::Body(9)]);

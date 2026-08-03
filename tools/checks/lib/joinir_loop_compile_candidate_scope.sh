@@ -22,12 +22,13 @@ guard_joinir_loop_compile_candidate_scope() {
   local direct_accum_cutover="$root_dir/src/mir/compiler/resolved_direct_accum_cutover.rs"
   local hardening_test="$root_dir/src/mir/compiler/resolved_direct_accum_hardening_p0.rs"
   local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
+  local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
-    "$capability" "$first_family_plan" "$source_bound_plan"
+    "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
   [[ "$(head -n1 "$manifest")" == "$header" ]] || \
@@ -118,6 +119,28 @@ guard_joinir_loop_compile_candidate_scope() {
   do
     rg -n -F "$required" "$capability" "$first_family_plan" "$source_bound_plan" "$canonical" >/dev/null || \
       guard_fail "$tag" "canonical Loop family envelope anchor missing: $required"
+  done
+
+  for required in \
+    'VerifiedResolvedLoopSourceForestV1' \
+    'resolved_loop_source_forest' \
+    'SkippedIntermediateLoop' \
+    'UnsupportedAncestry'
+  do
+    rg -n -F "$required" "$loop_region" >/dev/null || \
+      guard_fail "$tag" "Nested source-forest anchor missing: $required"
+  done
+  if rg -n -F 'resolved_loop_source_forest(' "$root_dir/src" --glob '*.rs' \
+      | awk -F: '$1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /_tests?\.rs$/ { found = 1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "Nested source forest escaped its caller-zero resolver boundary"
+  fi
+  for forbidden in 'ASTNode' 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry'
+  do
+    if rg -n -F "$forbidden" "$loop_region" >/dev/null; then
+      guard_fail "$tag" "Nested source forest imported physical/route authority: $forbidden"
+    fi
   done
 
   if ! rg -n -F 'RawLocatedScalarStmtV1::Loop { .. }' "$raw_recipe" >/dev/null || \
