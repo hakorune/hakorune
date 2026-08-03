@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. The canonical Loop family envelope is clean. Nested D0 source authority and bounded fixture coverage are landed; D1 source-binding projection is the active caller-zero implementation. LoopTrue/LoopCond remain behind shared logical branch/merge closure, and Generic remains behind M4 debt/winner equivalence. No new production consumer is authorized at this boundary."
+status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only resolved Loop production family and its candidate commit/reuse hardening is green. The canonical Loop family envelope is clean. Nested D0 source authority and D1 source-binding projection are landed; the next caller-zero slice is the synthetic nested-Always Recipe/JoinSig witness, explicitly separated from real NestedLoopMinimal predicate parity. LoopTrue/LoopCond remain behind shared logical branch/merge closure, and Generic remains behind M4 debt/winner equivalence. No new production consumer is authorized at this boundary."
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "F0/F1/F2/F3 canonical family-envelope work and Nested D0 source authority/fixture coverage are landed. Worker design audit accepted D1: add only a non-Clone forest-to-portable-source-binding capability, preserving local parent links until recipe correspondence is checked. PHI/SSA remains CanonicalCfgSessionV1 -> BindingSsaBuilderV1 -> PhiTxn; Generic M4 remains unresolved and production route wiring is forbidden."
-current_execution_row = "JOINIR-LOOP-NESTED-SOURCE-FOREST0-D1-SOURCE-BINDING-PROJECTION"
-current_execution_summary = "DirectAccum remains the only canonical production family. D0 issues the sealed Nested source forest; D1 now owns the caller-zero adapter boundary from forest to portable source binding. The adapter must retain non-Clone owner/path/parent evidence, consume a verified recipe only at final wire conversion, and add no producer, route, Retry, PHI/SSA, Builder, or physicalizer caller."
-current_execution_design = "docs/development/current/main/investigations/joinir-loop-nested-source-forest-d1-source-binding-2026-08-03.md"
+current_design_stop = "F0/F1/F2/F3 canonical family-envelope work, Nested D0 source authority, and D1 source-binding projection are landed. Worker design audit accepted the next M7-S0 slice: reuse only the existing test-only Recipe->JoinSig facade plus D0/D1 source binding for the synthetic nested-Always golden; real NestedLoopMinimal inner-Predicate parity remains a later design stop. PHI/SSA remains CanonicalCfgSessionV1 -> BindingSsaBuilderV1 -> PhiTxn; Generic M4 remains unresolved and production route wiring is forbidden."
+current_execution_row = "JOINIR-LOOP-RECURSIVE-RECIPE-PRODUCER0-M7-S0-NESTED-ALWAYS-CALLER0"
+current_execution_summary = "DirectAccum remains the only canonical production family. D0/D1 now provide sealed Nested source ownership. The active caller-zero slice proves the existing nested-Always semantic golden reaches RecipeVerifier -> JoinSig and can be source-bound without changing semantics; it must not claim real NestedLoopMinimal predicate support or add producer/route/Retry/PHI/SSA/Builder/physicalizer callers."
+current_execution_design = "docs/development/current/main/investigations/joinir-loop-recursive-recipe-producer-m7-s0-nested-always-caller0-2026-08-03.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,9 +440,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "joinir-loop-nested-source-forest-d1-source-binding-2026-08-03"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-nested-source-forest-d1-source-binding-2026-08-03.md"
-latest_card_summary = """DirectAccum family-envelope F0/F1/F2/F3 and Nested D0 source forest/fixture coverage are landed and pushed. D1 now adds only a non-Clone forest-to-portable-source-binding capability, preserving local parent links until verified Recipe correspondence. No Nested producer, route, retry, PHI/SSA, or physicalizer caller is authorized."""
+latest_card = "joinir-loop-recursive-recipe-producer-m7-s0-nested-always-caller0-2026-08-03"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-recursive-recipe-producer-m7-s0-nested-always-caller0-2026-08-03.md"
+latest_card_summary = """DirectAccum family-envelope F0/F1/F2/F3 and Nested D0/D1 source ownership are landed and pushed. The active M7-S0 row reuses only the existing test-only nested-Always Recipe->JoinSig facade and attaches D0/D1 source binding as caller-zero evidence. It makes no real NestedLoopMinimal predicate-parity claim and adds no producer, route, retry, PHI/SSA, or physicalizer caller."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-NESTED-SOURCE-FOREST0-D1-SOURCE-BINDING-PROJECTION"
+current_blocker_token = "JOINIR-LOOP-RECURSIVE-RECIPE-PRODUCER0-M7-S0-NESTED-ALWAYS-CALLER0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

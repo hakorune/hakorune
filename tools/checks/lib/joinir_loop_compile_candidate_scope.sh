@@ -24,13 +24,14 @@ guard_joinir_loop_compile_candidate_scope() {
   local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
+  local producer_facade="$root_dir/src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs"
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
-    "$source_adapter"
+    "$source_adapter" "$producer_facade"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
   [[ "$(head -n1 "$manifest")" == "$header" ]] || \
@@ -166,6 +167,22 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "Nested source-binding adapter imported physical/route authority: $forbidden"
     fi
   done
+
+  for required in \
+    '#![cfg(test)]' \
+    'VerifiedLoopRecipeProducerFacadeV1' \
+    'nested_always_witness_binds_source_without_production_caller' \
+    'LoopRouteId::NestedLoopMinimal'
+  do
+    rg -n -F "$required" "$producer_facade" >/dev/null || \
+      guard_fail "$tag" "Nested Always caller-zero facade anchor missing: $required"
+  done
+  if rg -n -F 'VerifiedLoopRecipeProducerFacadeV1::consume(' "$root_dir/src" --glob '*.rs' \
+      | awk -F: '$1 !~ /loop_recipe_producer_facade_tests.rs$/ { found = 1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "Nested Always Recipe facade escaped its caller-zero test boundary"
+  fi
 
   if ! rg -n -F 'RawLocatedScalarStmtV1::Loop { .. }' "$raw_recipe" >/dev/null || \
      ! rg -n -F 'RawUnsupportedBodyStatementKindV1::Loop' "$raw_recipe" >/dev/null || \

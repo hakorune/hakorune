@@ -7,12 +7,18 @@
 
 #![cfg(test)]
 
+use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::loop_recipe_contract::{
     LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopRecipeArtifactV1,
-    LoopRecipeNormalizerV1, LoopRecipeRejectReasonV1, LoopRecipeV1,
+    LoopRecipeNormalizerV1, LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopRecipeV1,
     LoopRecipeVerifierV1, VerifiedLoopJoinSigV1, VerifiedLoopRecipeV1,
 };
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
+use crate::mir::loop_structural_facts::bind_resolved_loop_source_forest_v1;
+use crate::mir::resolved_semantics::{
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourceNodeSiteV1,
+    SourcePathSegmentV1, SourceStmtSiteV1,
+};
 
 #[derive(Debug)]
 struct ProducerReceiptV1 {
@@ -84,6 +90,46 @@ fn recipe_from(json: &str) -> LoopRecipeV1 {
     artifact.recipe().clone()
 }
 
+fn nested_source_fixture() -> ASTNode {
+    ASTNode::FunctionDeclaration {
+        name: "nested_always_fixture".into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![
+            ASTNode::Literal {
+                value: LiteralValue::Integer(0),
+                span: Span::unknown(),
+            },
+            ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            },
+            ASTNode::Loop {
+                condition: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }),
+                body: vec![ASTNode::Loop {
+                    condition: Box::new(ASTNode::Literal {
+                        value: LiteralValue::Integer(1),
+                        span: Span::unknown(),
+                    }),
+                    body: Vec::new(),
+                    span: Span::unknown(),
+                }],
+                span: Span::unknown(),
+            },
+        ],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    }
+}
+
 #[test]
 fn facade_accepts_direct_and_nested_always_golden() {
     let direct = VerifiedLoopRecipeProducerFacadeV1::consume(VerifiedLoopRecipeDemandV1::new(
@@ -122,6 +168,54 @@ fn facade_semantics_ignore_diagnostic_route_receipt() {
         LoopRecipeNormalizerV1::normalize_semantic(right.recipe()).expect("right json");
     assert_eq!(left_json, right_json);
     assert_eq!(left.join_sig().as_sig(), right.join_sig().as_sig());
+}
+
+#[test]
+fn nested_always_witness_binds_source_without_production_caller() {
+    let source = nested_source_fixture();
+    let resolved = FunctionSemanticResolverSessionV1::new(0)
+        .expect("resolver session")
+        .resolve(FunctionSyntaxViewV1::from_ast(&source).expect("source view"))
+        .expect("resolved fixture");
+    let root = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(2),
+    ]));
+    let projection = bind_resolved_loop_source_forest_v1(
+        resolved
+            .resolved_loop_source_forest(&root)
+            .expect("resolved nested source forest"),
+    )
+    .expect("D1 source projection");
+
+    let raw_recipe = recipe_from(super::GOLDEN);
+    let product = VerifiedLoopRecipeProducerFacadeV1::consume(
+        VerifiedLoopRecipeDemandV1::new(raw_recipe.clone(), LoopRouteId::NestedLoopMinimal),
+    )
+    .expect("nested Always semantic product");
+    assert_eq!(product.diagnostic_route(), LoopRouteId::NestedLoopMinimal);
+    assert_eq!(product.join_sig().as_sig().loops.len(), 2);
+
+    let source_binding = projection
+        .into_source_binding(product.recipe())
+        .expect("source/recipe correspondence");
+    let artifact = LoopRecipeArtifactV1::new(
+        LoopRecipeProvenanceV1 {
+            producer_route: product.diagnostic_route(),
+        },
+        source_binding,
+        raw_recipe.clone(),
+    );
+    crate::mir::loop_recipe_contract::verify_artifact_for_test(artifact)
+        .expect("source-bound nested artifact");
+
+    let rebound = LoopRecipeVerifierV1::verify(raw_recipe).expect("rebound recipe");
+    let normalized_product =
+        LoopRecipeNormalizerV1::normalize_semantic(product.recipe()).expect("product semantics");
+    let normalized_rebound =
+        LoopRecipeNormalizerV1::normalize_semantic(&rebound).expect("rebound semantics");
+    assert_eq!(normalized_product, normalized_rebound);
+    let rebound_sig = LoopJoinSigElaboratorV1::elaborate(&rebound).expect("rebound JoinSig");
+    assert_eq!(product.join_sig().as_sig(), rebound_sig.as_sig());
 }
 
 #[test]
