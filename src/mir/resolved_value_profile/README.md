@@ -57,6 +57,32 @@ IfRecipe verifier. It may not rescan source, infer missing entry values, select
 routes, return `Option`, or emit Builder/SSA effects. A missing pre-If entry
 witness is a typed rejection; JoinSig and canonical PHI remain later owners.
 
+### D0-B2 rejection partition
+
+The mapper's rejection enum deliberately has two layers:
+
+```text
+ordinary-input rows:
+  MissingFacts       // producer declined before portable mapping
+  OwnerMismatch      // source receipt belongs to another function
+  EntryClassMismatch // sealed entry and branch representations differ
+
+sealed-facts defenses:
+  MissingEntryWitness, EntryBindingMismatch, MissingAssignment,
+  EntryDefinition*, UnsupportedRepresentation, MissingExpression,
+  CrossRegionDependency, ExpressionCycle, Binding*Mismatch,
+  SourcePathMismatch, ContinuationMismatch, Recipe(...)
+```
+
+The first group is covered by real same-pass fixtures. The second group is an
+invariant firewall for a malformed or future producer; it is not ordinary
+negative-input coverage. Do not synthesize a malformed non-`Clone` facts
+product just to execute those arms. If a future producer makes one reachable,
+promote that variant into the first group with a fixture and an SSOT update.
+Branch source paths preserve the actual item index; the current accepted
+fixture demonstrates both index zero and a non-zero item without changing the
+recipe's semantic normalization.
+
 Profile rejection is data, not fallback. A later compiler route may select the
 existing canonical A+ path from a sealed rejection before Builder effects, but
 it must never retry A+ after a trivial-profile lowering failure or mix the two

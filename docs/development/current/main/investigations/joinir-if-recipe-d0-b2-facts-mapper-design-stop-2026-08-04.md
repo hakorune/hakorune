@@ -1,6 +1,6 @@
 # JOINIR-IF-RECIPE-D0-B2-FACTS-MAPPER-DESIGN-STOP
 
-Status: D0-B2-A/B landed; D0-B2-C mapper gates active (partial negative matrix)
+Status: D0-B2-A/B/C landed; D0-B2-D invariant-defense design stop active
 Date: 2026-08-04
 Decision target: same-pass facts -> fixed-shell `IfRecipeArtifactV1`
 
@@ -105,16 +105,32 @@ retry.
    Landed in `1bd50829c5`; the mapper immediately invokes the structural
    verifier and has no production caller.
 3. `D0-B2-C` — call the existing structural verifier and add deterministic
-   semantic/source-bound normalization tests plus the first negative matrix
-   rows (implicit-else and foreign-owner rejection). Landed in
-   `f2afec934d` and `0c2ee5e9dd`; both branch source-claim paths are now
-   asserted. The accepted trivial branch shape intentionally admits one
-   assignment at item index zero; non-zero branch items remain outside this
-   row rather than being forced into a fixture. Remaining shape-specific
-   negative rows stay open. Do not add JoinSig or PHI.
-4. `D0-B2-D` — close the design row only after the mapper is owner-brand
-   independent and its negative matrix is green. Then open D0-B3 for
+   semantic/source-bound normalization tests plus the reachable negative
+   matrix. Landed in `f2afec934d`, `0c2ee5e9dd`, and `1fd0e5ab70`; both branch
+   source-claim paths, arbitrary accepted item indices, and reachable mapper
+   and preflight rejection rows are asserted. Do not add JoinSig or PHI.
+4. `D0-B2-D` — classify remaining defensive mapper variants as sealed-facts
+   invariants versus reachable input rejection. Do not synthesize malformed
+   non-`Clone` facts solely to hit defensive arms. Then open D0-B3 for
    non-`Clone` `IfJoinSig` and typed physical-input sealing.
+
+The classification is now explicit:
+
+```text
+reachable ordinary input:
+  MissingFacts, OwnerMismatch, EntryClassMismatch
+
+sealed-facts / mapper firewall:
+  MissingEntryWitness, EntryBindingMismatch, MissingAssignment,
+  EntryDefinition*, UnsupportedRepresentation, MissingExpression,
+  CrossRegionDependency, ExpressionCycle, Binding*Mismatch,
+  SourcePathMismatch, ContinuationMismatch, Recipe(...)
+```
+
+Nested/control/effect shapes either make the facts product absent or stop in
+the analyzer's earlier typed boundary. They are not silently promoted to a
+mapper-specific failure. A future producer may promote a defensive variant
+only with a new same-pass fixture and an SSOT update.
 
 ## Acceptance gates
 
@@ -125,12 +141,16 @@ retry.
   `BasicBlockId` appears in the portable artifact;
 - same source origin with different owner brands has identical semantic
   normalization;
-- actual source claim role/order/path indices are preserved and foreign or
-  duplicate claims reject;
+- actual source claim role/order/path indices are preserved (including a
+  non-zero branch item) and foreign or duplicate claims reject;
 - golden explicit-else maps and re-verifies deterministically;
-- negatives cover missing entry witness, nested/control/effect operations,
-  branch-cardinality mismatch, cross-region operands, missing continuation,
-  and unsupported representation;
+- reachable negatives cover implicit-else, branch-cardinality mismatch,
+  missing continuation, unsupported representation, foreign owner, and entry
+  class drift; nested/control/effect shapes are recorded as preflight
+  `MissingFacts` or earlier typed analyzer stops;
+- defensive-only variants (missing entry witness, cross-region operands,
+  expression cycle, missing expression, source-path mismatch, and verifier
+  rejection) are not claimed as ordinary-input coverage;
 - no production Recipe caller, JoinSig, PHI writer, route retry, or Builder
   mutation is introduced;
 - all touched Rust/test files remain below 800 lines.
