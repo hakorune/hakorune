@@ -95,5 +95,10 @@ facts. The old winner-based profile helper is test-only parity evidence. The
 focused DirectAccum/policy suites, binary check, diff check, and all touched
 source line-count checks are green.
 
+The resolved issuer now owns the full preflight sequence as
+`issue_direct_accum_plan_v1`: exact source lookup → structural projection →
+singleton observation → policy handoff → `CanonicalDirectAccumPlanV1`. This
+keeps the one-shot boundary explicit while the plan is still caller-zero.
+
 The remaining work is the actual resolved plan variant and canonical lowerer
 facade. No production compiler caller has been switched yet.
