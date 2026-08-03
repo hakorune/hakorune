@@ -1,6 +1,6 @@
 # JOINIR Direct Accum Structural Projection S0
 
-Status: Design-approved; caller-zero implementation slice.
+Status: Green; caller-zero implementation slice closed in `6d28f4fb2f`.
 
 Task: `JOINIR-LOOP-DIRECT-ACCUM-STRUCTURAL-PROJECTION0-S0`
 
