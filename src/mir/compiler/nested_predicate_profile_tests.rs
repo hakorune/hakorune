@@ -38,3 +38,38 @@ fn nested_plan_seals_existing_binding_ssa_header_family() {
     );
     assert_eq!(header.owner(), plan.input().owner());
 }
+
+#[test]
+fn compile_resolved_nested_predicate_uses_the_candidate_physicalizer() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function())
+        .expect("nested source unit");
+    let mut compiler = super::MirCompiler::with_options(false);
+
+    let result = compiler
+        .compile_resolved(unit.lowering_input(), Some("nested_predicate.hako"))
+        .expect("nested predicate source-bound compilation");
+
+    assert_eq!(result.verification_result, Ok(()));
+    assert_eq!(result.module.functions.len(), 1);
+    assert!(result
+        .module
+        .functions
+        .contains_key("nested_loop_minimal/0"));
+    assert!(compiler.builder.current_module.is_none());
+}
+
+#[test]
+fn compile_resolved_nested_predicate_reuses_one_compiler_after_commit() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function())
+        .expect("nested source unit");
+    let mut compiler = super::MirCompiler::with_options(false);
+
+    for source_file in ["nested-first.hako", "nested-second.hako"] {
+        let result = compiler
+            .compile_resolved(unit.lowering_input(), Some(source_file))
+            .expect("fresh nested source-bound compilation");
+        assert_eq!(result.verification_result, Ok(()));
+        assert_eq!(result.module.functions.len(), 1);
+        assert!(compiler.builder.current_module.is_none());
+    }
+}

@@ -1,6 +1,6 @@
 # JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-I0
 
-Status: I0-B design closed — bounded resolved-source physicalizer is authorized.
+Status: I0-B implemented — bounded resolved-source physicalizer is green; I0-C/D candidate isolation and parity remain.
 Date: 2026-08-04
 Design inputs:
 
@@ -87,7 +87,7 @@ MirCompiler::compile_resolved
   -> SourceBoundCanonicalPackageV1::consume_parts
 ```
 
-The first-family sum will gain one bounded variant:
+The first-family sum now carries one bounded variant:
 
 ```text
 CanonicalLoopFamilyPlanV1::NestedPredicate
@@ -157,8 +157,12 @@ seals. The source-bound package has typed placeholder arms for the still
 unimplemented physicalizer; no Nested MIR writer or production cutover is
 claimed by this milestone.
 
-Next is I0-B: borrow the existing canonical SSA/CFG/PHI owner for one bounded
-Nested physicalizer, with candidate-only mutation and terminal failure.
+I0-B is now landed for the resolved source-bound fixture: the sibling lowerer,
+nine-role identity adapter, topology-driven physicalizer, and cutover
+orchestrator all borrow the existing canonical candidate/function/SSA/CFG/PHI
+owners. End-to-end MIR verification and same-compiler reuse are green. The
+remaining I0-C/D work is to add explicit late-failure candidate isolation and
+legacy/new winner parity evidence before any selected legacy edge is retired.
 
 ## I0-B design resolution
 
@@ -191,6 +195,12 @@ a typed reject. Required I0-B tests are end-to-end MIR verification, owner/
 frame/block alias checks, role ordering and read-before-init rejection,
 predecessor seals, and candidate drop/fresh-request reuse after injected late
 failure.
+
+The topology's `ChildUpdate` destination is intentionally `Child.Step`: the
+physical adapter splits the child-body source order into ancestor `sum` update
+in `Child.Body`, then recurrence `j` update in `Child.Step`, before the
+`Step -> Header` backedge. This is a semantic-to-physical placement rule, not a
+second source claim or a silent role drop; I0-B must assert it explicitly.
 
 ## Acceptance gates
 

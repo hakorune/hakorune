@@ -115,6 +115,8 @@ pub(in crate::mir) mod resolved_callable_module_preflight;
 #[allow(dead_code)]
 mod resolved_direct_accum_cutover;
 #[allow(dead_code)]
+mod resolved_nested_predicate_cutover;
+#[allow(dead_code)]
 pub(in crate::mir) mod source_bound_package;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_bound_plan;
@@ -606,12 +608,11 @@ impl MirCompiler {
                 );
             }
             CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(plan)) => {
-                return Err(CanonicalLoweringErrorV1::BuilderContract {
-                    detail: format!(
-                        "nested_predicate/{}/physicalizer_not_activated",
-                        plan.input().source().root().node_type()
-                    ),
-                });
+                return resolved_nested_predicate_cutover::compile_nested_predicate_source_bound(
+                    self,
+                    plan,
+                    source_file,
+                );
             }
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
                 let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);

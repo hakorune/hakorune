@@ -19,6 +19,9 @@ pub(in crate::mir::builder) mod if_cfg_ready_bridge;
 mod if_materialization;
 mod located_if;
 mod lowerer;
+mod nested_predicate_adapter;
+mod nested_predicate_lowerer;
+mod nested_predicate_physicalizer;
 mod ownership;
 mod semantic_stack;
 mod trivial_ssa;
@@ -264,6 +267,13 @@ impl MirBuilder {
         plan: CanonicalDirectAccumPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
         self.lower_resolved_direct_accum_function_draft_inner(plan, false)
+    }
+
+    pub(in crate::mir) fn lower_resolved_nested_predicate_function_draft(
+        &mut self,
+        plan: crate::mir::compiler::nested_predicate_profile::CanonicalNestedPredicatePlanV1<'_>,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        nested_predicate_lowerer::lower_nested_predicate_function_draft(self, plan)
     }
 
     #[cfg(test)]

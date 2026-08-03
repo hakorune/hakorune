@@ -210,4 +210,13 @@ impl VerifiedNestedPhysicalCandidateInputV1 {
     pub(crate) fn blocks(&self) -> &VerifiedNestedPhysicalBlockProjectionV1 {
         &self.blocks
     }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedNestedPhysicalEmissionInputV1,
+        VerifiedNestedPhysicalBlockProjectionV1,
+    ) {
+        (self.emission, self.blocks)
+    }
 }

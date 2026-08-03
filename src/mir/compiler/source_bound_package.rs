@@ -627,13 +627,11 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                 )
             }
             ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(
-                _plan,
+                plan,
             )) => lower_single(
                 token,
                 continuation,
-                Err(CanonicalResolvedBuildErrorV1::BuilderContract(
-                    "nested_predicate/physicalizer_not_activated".into(),
-                )),
+                builder.lower_resolved_nested_predicate_function_draft(plan),
             ),
             ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
                 match builder.lower_acyclic_callable_drafts(plan) {
