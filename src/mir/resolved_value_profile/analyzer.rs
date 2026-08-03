@@ -480,6 +480,8 @@ impl<'a> AnalyzerV1<'a> {
                     .copied()
                     .collect::<BTreeSet<_>>();
                 let merge_binding_list = merge_bindings.iter().copied().collect::<Vec<_>>();
+                self.recipe_facts
+                    .finish_if(&merge_binding_list, &baseline);
                 *environment = baseline;
                 for binding in merge_bindings.iter().copied() {
                     let then_representation = then_environment
@@ -504,7 +506,6 @@ impl<'a> AnalyzerV1<'a> {
                         then_representation,
                     )?;
                 }
-                self.recipe_facts.finish_if(&merge_binding_list);
                 Ok(())
             }
             ASTNode::Return { value, .. } => {

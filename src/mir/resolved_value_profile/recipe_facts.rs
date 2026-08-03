@@ -121,6 +121,22 @@ pub(crate) struct AssignmentFactV1 {
     representation: TrivialRepresentationV1,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct IfEntryWitnessV1 {
+    binding: BindingRefV1,
+    representation: TrivialRepresentationV1,
+}
+
+impl IfEntryWitnessV1 {
+    pub(crate) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(crate) const fn representation(&self) -> TrivialRepresentationV1 {
+        self.representation
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct IfFactDraftV1 {
     statement: SourceStmtSiteV1,
@@ -131,6 +147,7 @@ struct IfFactDraftV1 {
     then_assignments: Vec<AssignmentFactV1>,
     else_assignments: Vec<AssignmentFactV1>,
     continuation_read: Option<SourceExprSiteV1>,
+    entry_witness: Option<IfEntryWitnessV1>,
 }
 
 impl IfFactDraftV1 {
@@ -144,6 +161,7 @@ impl IfFactDraftV1 {
             then_assignments: Vec::new(),
             else_assignments: Vec::new(),
             continuation_read: None,
+            entry_witness: None,
         }
     }
 
@@ -198,6 +216,10 @@ impl VerifiedTrivialIfRecipeFactsV1 {
 
     pub(crate) fn continuation_read(&self) -> Option<&SourceExprSiteV1> {
         self.if_fact.continuation_read.as_ref()
+    }
+
+    pub(crate) fn entry_witness(&self) -> Option<IfEntryWitnessV1> {
+        self.if_fact.entry_witness
     }
 
     pub(crate) fn expressions(&self) -> &[TrivialRecipeExprFactV1] {
@@ -350,12 +372,25 @@ impl TrivialIfRecipeFactsDraftV1 {
         !self.branches.is_empty()
     }
 
-    pub(super) fn finish_if(&mut self, merge_bindings: &[BindingRefV1]) {
+    pub(super) fn finish_if(
+        &mut self,
+        merge_bindings: &[BindingRefV1],
+        baseline: &BTreeMap<BindingRefV1, TrivialRepresentationV1>,
+    ) {
         let Some(index) = self.if_stack.pop() else {
             return;
         };
-        if merge_bindings.len() == 1 {
-            self.pending_continuation = Some((index, merge_bindings[0]));
+        if let [binding] = merge_bindings {
+            let Some(representation) = baseline.get(binding).copied() else {
+                self.unsupported = true;
+                self.pending_continuation = None;
+                return;
+            };
+            self.ifs[index].entry_witness = Some(IfEntryWitnessV1 {
+                binding: *binding,
+                representation,
+            });
+            self.pending_continuation = Some((index, *binding));
         } else {
             self.pending_continuation = None;
         }
@@ -370,6 +405,7 @@ impl TrivialIfRecipeFactsDraftV1 {
             || if_fact.then_assignments.len() != 1
             || if_fact.else_assignments.len() != 1
             || if_fact.continuation_read.is_none()
+            || if_fact.entry_witness.is_none()
         {
             return None;
         }

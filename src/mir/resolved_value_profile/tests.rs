@@ -236,6 +236,13 @@ fn same_pass_if_recipe_facts_capture_explicit_else_shape() {
     assert_eq!(facts.then_assignment_count(), 1);
     assert_eq!(facts.else_assignment_count(), 1);
     assert!(facts.continuation_read().is_some());
+    assert_eq!(
+        facts
+            .entry_witness()
+            .expect("pre-If entry witness")
+            .representation(),
+        TrivialRepresentationV1::InlineI64
+    );
     assert!(facts.expression_count() >= 7);
 }
 
