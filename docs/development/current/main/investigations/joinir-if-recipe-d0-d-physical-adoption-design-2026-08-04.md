@@ -1,9 +1,9 @@
 # JOINIR-IF-RECIPE-D0-D-PHYSICAL-ADOPTION
 
-Status: design closed; the D0-D1/D0-D2 pilot is implemented locally and its
-focused tests/guards are green. Late-failure/candidate-isolation closeout and
-D0-D3 shape-scoped old-edge cutover remain later gates. D0-C1/C2 admission-only
-wiring is superseded locally by the consuming pilot.
+Status: design closed; the D0-D1/D0-D2 pilot and its late-failure/candidate-
+isolation proof are implemented locally with focused tests/guards green.
+D0-D3 shape-scoped old-edge cutover remains the later gate. D0-C1/C2
+admission-only wiring is superseded locally by the consuming pilot.
 Date: 2026-08-04
 
 ## Why this is a new boundary
@@ -121,9 +121,11 @@ before delegating emission to the existing canonical-session-backed lowerer.
 
 This is deliberately a bounded adoption slice, not a completed cutover. The
 selected-shape old source-driven edge is still present behind the common
-lowering helper, and the late-failure harness/candidate-isolation fingerprint
-is not yet closed. Do not claim exclusive PHI/CFG production authority or
-global If retirement until D0-D3 and the remaining acceptance gates are green.
+lowering helper. The test-only late-seal failure now runs after the selected
+If lowering returns, and proves candidate drop, unchanged live fingerprint,
+and fresh same-compiler reuse. Do not claim exclusive PHI/CFG production
+authority or global If retirement until D0-D3 and the remaining acceptance
+gates are green.
 
 ## Ordered tasks
 

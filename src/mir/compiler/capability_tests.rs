@@ -435,6 +435,59 @@ fn preflight_selects_trivial_binding_ssa_with_carrier_free_if_control() {
 }
 
 #[test]
+fn if_recipe_candidate_discards_after_late_draft_seal_failure_and_reuses_compiler() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        local("x", literal(0)),
+        if_stmt(
+            bool_literal(true),
+            vec![assignment("x", 1)],
+            Some(vec![assignment("x", 2)]),
+        ),
+        ASTNode::Return {
+            value: Some(Box::new(variable("x"))),
+            span: Span::unknown(),
+        },
+    ]))
+    .expect("If fixture resolves");
+    let mut compiler = MirCompiler::with_options(false);
+    compiler.builder.set_source_file_hint("before.hako");
+    compiler.builder.next_value_id();
+    compiler.builder.next_block_id();
+    let before = compiler.builder.loop_candidate_test_fingerprint();
+
+    let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        CanonicalLoweringPreflightV1::verify(&unit).expect("If plan")
+    else {
+        panic!("explicit-else If fixture must select trivial Binding SSA")
+    };
+    let mut candidate = super::module_session::CanonicalModuleLoweringSessionV1::open(
+        &compiler.builder,
+    );
+    let error = candidate
+        .builder_mut()
+        .lower_resolved_trivial_function_draft_with_seal_failure_for_test(plan)
+        .expect_err("late draft-seal failure must reject after If PHI work");
+    assert!(matches!(
+        error,
+        super::CanonicalResolvedBuildErrorV1::BuilderContract(detail)
+            if detail.contains("DraftSeal") || detail.contains("draft_seal")
+    ));
+    drop(candidate);
+
+    assert_eq!(compiler.builder.loop_candidate_test_fingerprint(), before);
+    assert!(compiler.builder.current_module.is_none());
+    assert!(compiler.builder.current_function_name().is_none());
+    assert!(compiler.builder.current_function_entry_block().is_none());
+
+    let result = compiler
+        .compile_resolved(unit.lowering_input(), Some("reused-if.hako"))
+        .expect("same compiler must accept a fresh If request");
+    assert!(result.verification_result.is_ok());
+    assert_eq!(result.module.functions.len(), 2);
+    assert!(result.module.functions.contains_key("capability_fixture/0"));
+}
+
+#[test]
 fn preflight_rejects_nonfallthrough_branch_routes() {
     let return_unit = unsupported_branch(ASTNode::Return {
         value: Some(Box::new(literal(1))),

@@ -387,7 +387,16 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_trivial_function_draft_retaining_failure_v1(plan)
+        self.lower_resolved_trivial_function_draft_inner(plan, false)
+            .map_err(RejectedNormalFunctionDraftLoweringV1::into_compatibility_error)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn lower_resolved_trivial_function_draft_with_seal_failure_for_test(
+        &mut self,
+        plan: CanonicalTrivialBindingSsaPlanV1<'_>,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        self.lower_resolved_trivial_function_draft_inner(plan, true)
             .map_err(RejectedNormalFunctionDraftLoweringV1::into_compatibility_error)
     }
 
@@ -397,6 +406,14 @@ impl MirBuilder {
     pub(in crate::mir) fn lower_resolved_trivial_function_draft_retaining_failure_v1(
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
+    ) -> Result<MirFunction, RejectedNormalFunctionDraftLoweringV1> {
+        self.lower_resolved_trivial_function_draft_inner(plan, false)
+    }
+
+    fn lower_resolved_trivial_function_draft_inner(
+        &mut self,
+        plan: CanonicalTrivialBindingSsaPlanV1<'_>,
+        _inject_seal_failure: bool,
     ) -> Result<MirFunction, RejectedNormalFunctionDraftLoweringV1> {
         let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
         let crate::ast::ASTNode::FunctionDeclaration {
@@ -468,6 +485,22 @@ impl MirBuilder {
                         "[freeze:contract][f1_draft_seal/current_block_missing]".to_string(),
                     )
                 })?;
+                #[cfg(test)]
+                if _inject_seal_failure {
+                    builder
+                        .function_state
+                        .current_function
+                        .as_mut()
+                        .and_then(|function| function.get_block_mut(current_block))
+                        .ok_or_else(|| {
+                            (
+                                NormalFunctionDraftLoweringStageV1::BodyLowering,
+                                "[freeze:contract][if_recipe/test_failure_block_missing]"
+                                    .to_string(),
+                            )
+                        })?
+                        .set_terminator(crate::mir::MirInstruction::Return { value: None });
+                }
                 Ok((ready, current_block))
             })()
         };
