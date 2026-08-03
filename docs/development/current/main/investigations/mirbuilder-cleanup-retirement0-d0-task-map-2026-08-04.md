@@ -1,9 +1,9 @@
 # MIRBUILDER-CLEANUP-RETIREMENT0-D0
 
-Status: parked BoxShape task map; audit complete, implementation not
-authorized by this card. The executable cleanup lane remains read-only while
-If D0-D1/D0-D2 physicalizer work is in progress; promote a bounded cleanup
-row only after that commit boundary and a clean worktree.
+Status: T1-D0 baseline is closed and T1-S0 `drain_policy_p0` retirement is the
+selected bounded cleanup row. The If D0-D3 boundary is landed separately; this
+lane remains behavior-neutral and must not alter Recipe, route, or PHI/SSA
+authority.
 Date: 2026-08-04
 
 This card records the cleanup opportunities raised by the dead-code audit. It
@@ -93,6 +93,44 @@ tests to near-limit live owners (`raw_root_decl_access.rs` 767 lines,
 Loop candidate abort and resolved DirectAccum hardening remain a separate
 final lane after Loop production cutover. No `_p0` batch deletion is
 authorized here.
+
+## T1-D0 baseline closeout (2026-08-04)
+
+The baseline is frozen before any deletion:
+
+```text
+compiler-scoped _p0 files: 26
+whole src/mir _p0 inventory: 54 (separate, not a delete set)
+compiler-scoped _p0 tests: 115
+guard files with exact _p0 evidence: 20
+red parked row: raw_public_cutover_parity_success_p0 (2 pass / 4 fail)
+live exclusion: resolved_control_flow/source_coverage.rs
+```
+
+The first safe leaf is `src/mir/compiler/drain_policy_p0.rs` (73 lines, two
+policy-only tests, no guard dependency). Its proof is a direct twin of the
+production `module_invocation_policy` contract and can be moved without
+changing any route, source, Builder, CFG, SSA, PHI, or publication behavior.
+The four raw-root finalization dependents and all Loop-specific proof rows stay
+parked until their evidence owners are separately closed.
+
+## T1-S0 execution brief — `drain_policy_p0`
+
+Change: move the two policy SSOT tests into the existing neutral
+`module_invocation_policy` test owner, remove the test-only compiler module
+registration and file, and keep the test names/coverage equivalent.
+
+Contract: test evidence only; no production API, route policy, Recipe,
+Builder/CFG/SSA/PHI, candidate, or JSON-v0 behavior may change.
+
+Done: the policy tests run from their live owner, `drain_policy_p0` has zero
+references, `cargo test --lib module_invocation_policy` and `cargo check --lib`
+are green, the in-place/current-pointer guards remain green, and all touched
+files stay below 800 lines.
+
+Stop: if the live owner needs production imports, a new public facade, or any
+semantic change to policy behavior, return to design and do not delete the
+proof module.
 
 ### `source_coverage.rs` is live
 
