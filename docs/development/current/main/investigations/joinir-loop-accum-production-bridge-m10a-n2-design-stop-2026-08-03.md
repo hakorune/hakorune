@@ -261,3 +261,39 @@ global PHI/materializer retirement, M7-M9 route coverage, `.hako` selfhost
 physicalization, or M10b atomic scheduler cutover. PHI/SSA lifecycle and
 reaching-definition authority are already SSOT'd; this stop concerns only the
 production consumer wiring and legacy-edge retirement.
+
+## S3 — `JOINIR-LOOP-ACCUM-PRODUCTION-CALLER-CONTRACT-AUDIT-M10A-D2-S3`
+
+Change:
+: Audit the exact resolved ingress before adding a caller. The audit must name
+  the typed plan variant that admits one DirectAccum profile, the one-way
+  source/frame-to-profile handoff, the existing function-owned Binding SSA
+  input projection, the physical role issuer, and the Unit completion consumer.
+  Recount production callers and the selected old Accum/PHI edge at the same
+  boundary. This is a design stop; it does not wire `route_loop` or add a new
+  scheduler.
+
+Contract:
+: The caller must run inside `CanonicalModuleLoweringSessionV1`'s unpublished
+  candidate and consume the co-sealed profile once. `LocatedStmtV1` and
+  `ResolvedFunctionLoweringInputV1` may be used only at the issuer boundary;
+  the physicalizer receives Recipe/JoinSig plus owner-issued projections and
+  never re-resolves AST, names, or routes. Binding/input/role projections must
+  come from the same resolved function owner and existing
+  `CanonicalCfgSessionV1`/`BindingSsaBuilderV1`/`PhiTxn` chain. Unit completion
+  must use the existing function-exit/value-carrier contract; it may not become
+  `None`, a fabricated `ValueId`, or retry.
+
+Done:
+: A compact design result identifies the exact production caller seam, proves
+  whether the current canonical plan/lowerer can carry it without a second
+  owner, and fixes the smallest typed capability product for any missing
+  projection or completion handoff. Static census shows the caller count and
+  old-edge disposition; focused reject tests cover foreign owner/frame,
+  missing projection, and unsupported Unit mapping before Builder effects.
+
+Stop:
+: If the only available caller is `route_loop`, a raw AST path, a fresh SSA/CFG/
+  PHI owner, a fabricated input value, or an unowned Unit-to-value conversion,
+  do not implement. Return to design with that missing capability named. No
+  DirectAccum production switch or old-edge deletion is claimed by S3 alone.
