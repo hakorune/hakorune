@@ -73,3 +73,39 @@ fn compile_resolved_nested_predicate_reuses_one_compiler_after_commit() {
         assert!(compiler.builder.current_module.is_none());
     }
 }
+
+#[test]
+fn nested_prepared_failure_drops_candidate_and_preserves_fresh_reuse() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function())
+        .expect("nested source unit");
+    let mut compiler = super::MirCompiler::with_options(false);
+    compiler.builder.set_source_file_hint("before.hako");
+    compiler.builder.next_value_id();
+    compiler.builder.next_block_id();
+    let before = compiler.builder.loop_candidate_test_fingerprint();
+
+    let error = super::resolved_nested_predicate_cutover::
+        compile_nested_predicate_source_bound_with_prepared_failure_for_test(
+            &mut compiler,
+            unit.lowering_input(),
+            Some("failed.hako"),
+        )
+        .expect_err("prepared commit failure must be terminal");
+    assert!(matches!(
+        error,
+        super::CanonicalLoweringErrorV1::BuilderContract { detail }
+            if detail.contains("nested_predicate/test_injected_prepared_commit_failure")
+    ));
+    assert_eq!(compiler.builder.loop_candidate_test_fingerprint(), before);
+    assert!(compiler.builder.current_module.is_none());
+
+    let result = compiler
+        .compile_resolved(unit.lowering_input(), Some("reused.hako"))
+        .expect("same compiler must accept a fresh Nested compilation");
+    assert_eq!(result.verification_result, Ok(()));
+    assert_eq!(result.module.functions.len(), 1);
+    assert_eq!(
+        compiler.builder.current_source_file().as_deref(),
+        Some("reused.hako")
+    );
+}

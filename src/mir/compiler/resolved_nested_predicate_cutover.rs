@@ -4,8 +4,10 @@
 //! owns no selection, Recipe production, SSA, PHI, or fallback authority.
 
 use super::canonical_finalization::CanonicalModuleFinalizerV1;
+#[cfg(test)]
+use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use super::external_commit::PreparedModuleExternalCommitV1;
-use super::lowering_input::CanonicalLoweringErrorV1;
+use super::lowering_input::{CanonicalLoweringErrorV1, ResolvedModuleLoweringInputV1};
 use super::module_postprocess::ModulePostprocessOwnerV1;
 use super::nested_predicate_profile::CanonicalNestedPredicatePlanV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
@@ -18,6 +20,33 @@ pub(super) fn compile_nested_predicate_source_bound(
 ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
     let prepared = prepare_nested_predicate_source_bound(compiler, plan, source_file)?;
     Ok(compiler.commit_prepared_module(prepared))
+}
+
+/// Test-only late failure after the unpublished candidate has reached the
+/// external-commit barrier. Dropping the prepared product must leave the live
+/// compiler untouched; production has no fault-injection branch.
+#[cfg(test)]
+pub(in crate::mir) fn compile_nested_predicate_source_bound_with_prepared_failure_for_test(
+    compiler: &mut MirCompiler,
+    input: ResolvedModuleLoweringInputV1<'_>,
+    source_file: Option<&str>,
+) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
+    let plan = CanonicalLoweringPreflightV1::verify(input.source_unit())?;
+    let CanonicalFirstFamilyPlanV1::Loop(
+        super::capability::CanonicalLoopFamilyPlanV1::NestedPredicate(plan),
+    ) = plan
+    else {
+        return Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
+            site: "nested_predicate_test_failure".into(),
+            actual: input.source_unit().syntax_root().node_type(),
+            reason: "nested_predicate_test_requires_nested_plan",
+        });
+    };
+    let prepared = prepare_nested_predicate_source_bound(compiler, plan, source_file)?;
+    drop(prepared);
+    Err(CanonicalLoweringErrorV1::BuilderContract {
+        detail: "nested_predicate/test_injected_prepared_commit_failure".into(),
+    })
 }
 
 fn prepare_nested_predicate_source_bound<'source>(

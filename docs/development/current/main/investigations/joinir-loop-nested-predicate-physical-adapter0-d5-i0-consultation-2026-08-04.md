@@ -1,6 +1,6 @@
 # JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-I0
 
-Status: I0-B implemented — bounded resolved-source physicalizer is green; I0-C/D candidate isolation and parity remain.
+Status: I0-B/C implemented — bounded resolved-source physicalizer and candidate isolation are green; I0-D/E parity and retirement remain.
 Date: 2026-08-04
 Design inputs:
 
@@ -157,12 +157,14 @@ seals. The source-bound package has typed placeholder arms for the still
 unimplemented physicalizer; no Nested MIR writer or production cutover is
 claimed by this milestone.
 
-I0-B is now landed for the resolved source-bound fixture: the sibling lowerer,
-nine-role identity adapter, topology-driven physicalizer, and cutover
+I0-B/C are now landed for the resolved source-bound fixture: the sibling
+lowerer, nine-role identity adapter, topology-driven physicalizer, and cutover
 orchestrator all borrow the existing canonical candidate/function/SSA/CFG/PHI
-owners. End-to-end MIR verification and same-compiler reuse are green. The
-remaining I0-C/D work is to add explicit late-failure candidate isolation and
-legacy/new winner parity evidence before any selected legacy edge is retired.
+owners. End-to-end MIR verification, same-compiler reuse, and a test-only
+prepared-commit failure that drops the unpublished product while preserving the
+live Builder are green. The remaining I0-D/E work is legacy/new winner parity
+and selected legacy-edge retirement; no mid-physicalizer production fault hook
+is authorized.
 
 ## I0-B design resolution
 
