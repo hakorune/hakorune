@@ -27,20 +27,26 @@ condition's `ReadBinding`, choosing an arbitrary expression, or inventing a
 recipe value. Those are silent provenance guesses. The selected golden shape
 needs a logical pre-If entry witness for the branch merge binding.
 
-## Selected design
+## Selected boundary (implementation choice still a D0-B2-A stop)
 
-Extend the same-pass facts owner with one logical entry witness:
+Preserve the landed B1 row and close the gap with one non-`Clone` logical entry
+witness capability. Its minimum contract is:
 
 ```text
 IfFactDraftV1:
   entry_binding: BindingRefV1
   entry_representation: TrivialRepresentationV1
+  declaration/source-order proof for the entry binding
 ```
 
-The analyzer records it from the pre-branch `ValueEnvironmentV1` for the one
-selected merge binding, before branch effects. It carries no AST site and no
-physical ID. The mapper then creates one recipe-local `Input` value for that
-witness and uses it as `IfJoinRowV1.entry_value`.
+The preferred implementation is to emit this witness during the existing
+same-pass analyzer from the pre-branch `ValueEnvironmentV1`. D0-B2-A must first
+check whether the existing owner product/definition-origin ledger already
+proves the same fact; if so, a mapper-side capability is smaller and no facts
+schema extension is needed. If not, extend the facts owner rather than
+re-scanning source. Either form carries no AST site or physical ID. The mapper
+then creates one recipe-local `Input` value and uses it as
+`IfJoinRowV1.entry_value`.
 
 This preserves the semantic distinction:
 
@@ -56,8 +62,10 @@ Rejected alternatives:
 
 - infer entry from a condition read or branch expression: unsound provenance;
 - change `IfJoinRowV1` to carry a `BindingRefV1`: portable owner/identity leak;
-- typed-reject every entry: leaves the selected explicit-else shape without a
-  valid JoinRow and postpones the actual contract rather than closing it.
+- silently synthesize an entry value: forbidden. If the capability cannot
+  prove the pre-If value, the mapper returns `EntryValueWitnessMissing` as a
+  pre-effect typed rejection; this is a contract failure when facts were
+  already sealed as admitted.
 
 ## Mapper boundary
 
@@ -91,8 +99,10 @@ retry.
 
 ## Ordered task slice
 
-1. `D0-B2-A` — add and seal the logical entry witness during the existing
-   analyzer pass; add private typed accessors only. No portable schema change.
+1. `D0-B2-A` — audit the existing definition-origin ledger, then choose the
+   smallest non-`Clone` entry-witness capability. Add a same-pass facts field
+   only if the ledger cannot prove pre-branch ownership. Add private typed
+   accessors and `EntryValueWitnessMissing`; no portable schema change.
 2. `D0-B2-B` — implement the facts-to-recipe mapper in the facts owner. Convert
    source sites to the fixed source-claim grammar without AST rescanning.
 3. `D0-B2-C` — call the existing structural verifier and add deterministic
