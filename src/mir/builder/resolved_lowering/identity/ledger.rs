@@ -106,6 +106,16 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         site: &SourceExprSiteV1,
         expected_name: &str,
     ) -> Result<BindingRefV1, String> {
+        let binding = self.resolve_variable_binding(site, expected_name)?;
+        self.claim_variable_use_binding(site, binding)?;
+        Ok(binding)
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn resolve_variable_binding(
+        &self,
+        site: &SourceExprSiteV1,
+        expected_name: &str,
+    ) -> Result<BindingRefV1, String> {
         let reference = self.product.variable_ref(site).ok_or_else(|| {
             format!("[freeze:contract][canonical_identity/use_missing] site={site:?}")
         })?;
@@ -115,7 +125,6 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
             ));
         };
         self.verify_name(binding, expected_name)?;
-        self.claim_variable_use_binding(site, binding)?;
         Ok(binding)
     }
 
