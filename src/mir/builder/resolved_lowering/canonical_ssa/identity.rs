@@ -73,6 +73,34 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         Ok((binding, value))
     }
 
+    /// Consume an exact witness claim without consulting names or rebuilding
+    /// source identity. The ledger and active-binding check remain one API
+    /// boundary so an adapter cannot write a retired binding.
+    pub(in crate::mir::builder::resolved_lowering) fn claim_variable_use_binding(
+        &mut self,
+        site: &SourceExprSiteV1,
+        binding: BindingRefV1,
+    ) -> Result<(), String> {
+        self.require_active(binding)?;
+        self.ledger.claim_variable_use_binding(site, binding)
+    }
+
+    /// Read an already-adopted entry binding without claiming another source
+    /// site. This is the non-claim seed/read operation for a loop adapter.
+    pub(in crate::mir::builder::resolved_lowering) fn read_entry(
+        &mut self,
+        builder: &mut MirBuilder,
+        phis: &mut PhiTxn,
+        block: BasicBlockId,
+        binding: BindingRefV1,
+    ) -> Result<ValueId, String> {
+        self.require_active(binding)?;
+        let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
+        self.ssa
+            .read(&mut adapter, binding, block)
+            .map_err(|error| error.to_string())
+    }
+
     pub(in crate::mir::builder::resolved_lowering) fn resolve_assignment_binding(
         &self,
         site: &SourceExprSiteV1,
@@ -92,6 +120,22 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
+        self.ledger.claim_assignment_binding(site, binding)?;
+        self.ssa
+            .define(binding, block, value)
+            .map_err(|error| error.to_string())
+    }
+
+    /// Exact assignment claim plus active-binding check for execution
+    /// adapters. The legacy lowerer keeps its existing two-step API.
+    pub(in crate::mir::builder::resolved_lowering) fn define_assignment_exact(
+        &mut self,
+        site: &SourceExprSiteV1,
+        binding: BindingRefV1,
+        block: BasicBlockId,
+        value: ValueId,
+    ) -> Result<(), String> {
+        self.require_active(binding)?;
         self.ledger.claim_assignment_binding(site, binding)?;
         self.ssa
             .define(binding, block, value)
