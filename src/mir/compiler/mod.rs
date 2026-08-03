@@ -91,6 +91,8 @@ mod resolved_direct_accum_cutover;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_bound_package;
 #[allow(dead_code)]
+pub(in crate::mir) mod source_bound_plan;
+#[allow(dead_code)]
 pub(in crate::mir) mod source_entry_ny_main;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_entry_physical;

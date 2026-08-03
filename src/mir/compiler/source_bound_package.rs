@@ -11,18 +11,18 @@
 use std::num::NonZeroU64;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use super::canonical_drain_manifest::{
     CanonicalDrainIdentityV1, CanonicalDrainManifestErrorV1, CanonicalDrainManifestV1,
     CanonicalDrainRowV1,
 };
 use super::capability::{
-    CanonicalCurrentAPlusPlanV1, CanonicalFirstFamilyPlanV1, CanonicalTrivialBindingSsaPlanV1,
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
-use super::direct_accum_profile::CanonicalDirectAccumPlanV1;
-use super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
+use super::source_bound_plan::{family_for_route_v1, route_for_family_v1};
+pub(in crate::mir) use super::source_bound_plan::{
+    CanonicalSourceRouteV1, ExactCanonicalPreflightPlanV1,
+};
 use crate::mir::builder::resolved_lowering::{
     CallableModuleTransactionErrorV1, CanonicalResolvedBuildErrorV1,
     VerifiedUnpublishedCallableDraftSetV1,
@@ -42,37 +42,6 @@ use crate::mir::module_invocation_policy::ModuleInvocationPolicyV1;
 
 static NEXT_COMPILER_DOMAIN: AtomicU64 = AtomicU64::new(1);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) enum CanonicalSourceRouteV1 {
-    APlus,
-    BindingSsaTrivial,
-    BindingSsaAcyclic,
-    BindingSsaRecursive,
-}
-
-const fn family_for_route(route: CanonicalSourceRouteV1) -> ModuleInvocationFamilyV1 {
-    match route {
-        CanonicalSourceRouteV1::APlus => ModuleInvocationFamilyV1::CanonicalAPlus,
-        CanonicalSourceRouteV1::BindingSsaTrivial => ModuleInvocationFamilyV1::BindingSsaTrivial,
-        CanonicalSourceRouteV1::BindingSsaAcyclic => ModuleInvocationFamilyV1::BindingSsaAcyclic,
-        CanonicalSourceRouteV1::BindingSsaRecursive => {
-            ModuleInvocationFamilyV1::BindingSsaRecursive
-        }
-    }
-}
-
-fn route_for_family(family: ModuleInvocationFamilyV1) -> CanonicalSourceRouteV1 {
-    match family {
-        ModuleInvocationFamilyV1::CanonicalAPlus => CanonicalSourceRouteV1::APlus,
-        ModuleInvocationFamilyV1::BindingSsaTrivial => CanonicalSourceRouteV1::BindingSsaTrivial,
-        ModuleInvocationFamilyV1::BindingSsaAcyclic => CanonicalSourceRouteV1::BindingSsaAcyclic,
-        ModuleInvocationFamilyV1::BindingSsaRecursive => {
-            CanonicalSourceRouteV1::BindingSsaRecursive
-        }
-        ModuleInvocationFamilyV1::Raw => unreachable!("canonical package cannot carry Raw"),
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum SourceBindingErrorV1 {
     DomainExhausted,
@@ -87,39 +56,6 @@ impl std::fmt::Display for SourceBindingErrorV1 {
 }
 
 impl std::error::Error for SourceBindingErrorV1 {}
-
-/// The four canonical preflight routes.  Raw remains on the closed RAW0
-/// chain and is intentionally not rewrapped by SOURCE-BIND0.
-#[derive(Debug)]
-pub(in crate::mir) enum ExactCanonicalPreflightPlanV1<'a> {
-    APlus(CanonicalCurrentAPlusPlanV1<'a>),
-    BindingSsaTrivial(CanonicalTrivialBindingSsaPlanV1<'a>),
-    /// Body-specialized candidate; its external lifecycle reuses
-    /// `BindingSsaTrivial`.
-    DirectAccum(CanonicalDirectAccumPlanV1<'a>),
-    BindingSsaAcyclic(VerifiedAcyclicCallableModulePlanV1<'a>),
-    BindingSsaRecursive(VerifiedRecursiveCallableModulePlanV1<'a>),
-}
-
-impl<'a> ExactCanonicalPreflightPlanV1<'a> {
-    pub(crate) fn from_first_family(plan: CanonicalFirstFamilyPlanV1<'a>) -> Self {
-        match plan {
-            CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => Self::APlus(plan),
-            CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Self::BindingSsaTrivial(plan),
-            CanonicalFirstFamilyPlanV1::DirectAccum(plan) => Self::DirectAccum(plan),
-        }
-    }
-
-    fn route(&self) -> CanonicalSourceRouteV1 {
-        match self {
-            Self::APlus(_) => CanonicalSourceRouteV1::APlus,
-            Self::BindingSsaTrivial(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
-            Self::DirectAccum(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
-            Self::BindingSsaAcyclic(_) => CanonicalSourceRouteV1::BindingSsaAcyclic,
-            Self::BindingSsaRecursive(_) => CanonicalSourceRouteV1::BindingSsaRecursive,
-        }
-    }
-}
 
 #[derive(Debug)]
 pub(in crate::mir) enum CanonicalSourceContinuationV1<'a> {
@@ -626,7 +562,7 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
     }
 
     pub(crate) fn route(&self) -> CanonicalSourceRouteV1 {
-        route_for_family(self.token.family())
+        route_for_family_v1(self.token.family())
     }
 
     pub(crate) const fn brand(&self) -> ModuleInvocationBrandV1 {
@@ -756,7 +692,7 @@ impl InvocationIdentityIssuerV1 {
         &mut self,
         route: CanonicalSourceRouteV1,
     ) -> Result<ModuleInvocationTokenV1, SourceBindingErrorV1> {
-        self.issue_family(family_for_route(route))
+        self.issue_family(family_for_route_v1(route))
     }
 
     /// Mint one Raw-family token after the compiler has selected an exact
