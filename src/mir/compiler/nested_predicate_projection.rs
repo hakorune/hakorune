@@ -171,7 +171,10 @@ pub(crate) fn issue_nested_predicate_source_projection_v1(
     let increment_root = source
         .body_stmt(&root_body, 3)
         .map_err(|_| NestedPredicateProjectionRejectV1::SourceNavigation)?;
-    if !is_local_j(local_j.node()) || !matches!(child_loop.node(), ASTNode::Loop { .. }) {
+    if !is_local_j(local_j.node())
+        || !matches!(child_loop.node(), ASTNode::Loop { .. })
+        || child_loop.site() != &child_site
+    {
         return Err(NestedPredicateProjectionRejectV1::RootBodySchedule);
     }
 
