@@ -107,8 +107,11 @@ retry.
 3. `D0-B2-C` — call the existing structural verifier and add deterministic
    semantic/source-bound normalization tests plus the first negative matrix
    rows (implicit-else and foreign-owner rejection). Landed in
-   `f2afec934d`; remaining shape-specific negative rows stay open. Do not add
-   JoinSig or PHI.
+   `f2afec934d` and `0c2ee5e9dd`; both branch source-claim paths are now
+   asserted. The accepted trivial branch shape intentionally admits one
+   assignment at item index zero; non-zero branch items remain outside this
+   row rather than being forced into a fixture. Remaining shape-specific
+   negative rows stay open. Do not add JoinSig or PHI.
 4. `D0-B2-D` — close the design row only after the mapper is owner-brand
    independent and its negative matrix is green. Then open D0-B3 for
    non-`Clone` `IfJoinSig` and typed physical-input sealing.
