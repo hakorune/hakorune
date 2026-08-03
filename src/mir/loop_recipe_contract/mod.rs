@@ -58,7 +58,9 @@ pub(crate) use schema::{
     LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
 };
 #[allow(unused_imports)]
-pub(crate) use verify::{LoopRecipeVerifierV1, VerifiedLoopRecipeV1};
+pub(crate) use verify::{
+    verify_source_bound_recipe_v1, LoopRecipeVerifierV1, VerifiedLoopRecipeV1,
+};
 
 /// Test-only end-to-end seam. The structural source-claim capability remains
 /// private even when sibling modules exercise artifact verification.

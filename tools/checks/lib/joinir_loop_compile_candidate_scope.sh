@@ -25,6 +25,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
   local nested_source_projection="$root_dir/src/mir/compiler/nested_predicate_projection.rs"
+  local nested_recipe_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs"
   local producer_facade="$root_dir/src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs"
 
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
@@ -32,7 +33,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
-    "$source_adapter" "$nested_source_projection" "$producer_facade"
+    "$source_adapter" "$nested_source_projection" "$nested_recipe_producer" "$producer_facade"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
   [[ "$(head -n1 "$manifest")" == "$header" ]] || \
@@ -179,6 +180,30 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "Nested Predicate source projection imported physical/route authority: $forbidden"
     fi
   done
+  for required in \
+    'VerifiedNestedPredicateRecipeProductV1' \
+    'produce_nested_predicate_recipe_v1' \
+    'verify_source_bound_recipe_v1' \
+    'LoopJoinSigElaboratorV1::elaborate'
+  do
+    rg -n -F "$required" "$nested_recipe_producer" >/dev/null || \
+      guard_fail "$tag" "Nested Predicate Recipe producer anchor missing: $required"
+  done
+  for forbidden in \
+    'ASTNode' 'FunctionSourceViewV1' 'Located' 'MirBuilder' 'ValueId' \
+    'BasicBlockId' 'CanonicalCfgSessionV1' 'BindingSsaBuilderV1' 'PhiTxn' \
+    'Retry' 'route_loop('
+  do
+    if rg -n -F "$forbidden" "$nested_recipe_producer" >/dev/null; then
+      guard_fail "$tag" "Nested Predicate Recipe producer imported forbidden authority: $forbidden"
+    fi
+  done
+  local nested_producer_refs
+  nested_producer_refs="$(rg -n -F 'produce_nested_predicate_recipe_v1(' "$root_dir/src" --glob '*.rs' || true)"
+  if [[ "$(printf '%s\n' "$nested_producer_refs" \
+      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
+    guard_fail "$tag" "Nested Predicate Recipe producer escaped caller-zero boundary"
+  fi
   for forbidden in 'ASTNode' 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry'
   do
     if rg -n -F "$forbidden" "$source_adapter" >/dev/null; then

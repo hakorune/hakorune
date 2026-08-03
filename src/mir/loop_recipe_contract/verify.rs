@@ -103,6 +103,15 @@ impl LoopRecipeVerifierV1 {
     }
 }
 
+/// Consumes a source-bound artifact while exposing only the semantic Recipe.
+/// The provenance and structurally verified source claim remain private to
+/// this contract module.
+pub(crate) fn verify_source_bound_recipe_v1(
+    artifact: LoopRecipeArtifactV1,
+) -> Result<VerifiedLoopRecipeV1, Reject> {
+    LoopRecipeVerifierV1::verify_artifact(artifact).map(VerifiedLoopRecipeArtifactV1::into_recipe)
+}
+
 fn check_canonical_keys(recipe: &LoopRecipeV1) -> Result<(), Reject> {
     for (domain, canonical) in [
         (
