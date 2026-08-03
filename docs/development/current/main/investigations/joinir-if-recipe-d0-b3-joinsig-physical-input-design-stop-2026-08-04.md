@@ -1,6 +1,6 @@
 # JOINIR-IF-RECIPE-D0-B3-JOINSIG-PHYSICAL-INPUT-DESIGN-STOP
 
-Status: D0-B3-A/B landed; D0-B3-C design stop active
+Status: D0-B3-A/B landed; D0-B3-C guard implementation authorized
 Date: 2026-08-04
 Decision target: fixed-shell `IfRecipe` -> logical `IfJoinSig` -> one-shot physical-input capability
 
@@ -113,6 +113,49 @@ invariant firewall until a real future producer makes one reachable.
 5. **Design close** — only after the C gates are frozen and green, open D0-C for the
    canonical producer/consumer adapter. D0-D owns PHI/CFG adoption and caller
    census; it is not part of this card.
+
+## D0-B3-C design decision
+
+The next bounded slice is a shared guard plus the smallest boundary tests. It
+does not add a new per-row shell guard.
+
+**Source authority**
+
+- `VerifiedIfRecipeArtifactV1` is the sole input product.
+- `VerifiedIfJoinSigV1` is the logical-edge product.
+- `VerifiedIfPhysicalInputV1::from_artifact` is the only physical-input issuer.
+
+**Non-authority**
+
+- raw schema, AST/facts rescans, route selection/retry, Builder, physical IDs,
+  CFG, PHI/SSA, and production callers remain outside this slice.
+- `into_parts` is a test-only observation until D0-C.
+
+**Guard and gates**
+
+- Add `guard_joinir_if_recipe_contract` to the existing
+  `tools/checks/lib/joinir_logical_demand_contract.sh` and call it from the
+  existing `mirbuilder_inplace_replacement_guard.sh` entry. The helper is
+  currently 549 lines; the entry guard is 783 lines, so keep the entry change
+  to one call and keep all checks in the reusable helper.
+- Guard the If contract production files for `<800` lines and forbid
+  `MirBuilder`, physical IDs, CFG/PHI, AST, route/retry, and `Option` in the
+  physical-input/JoinSig files. Do not scan raw `schema.rs` for `Option` because
+  its explicit-else field legitimately uses it.
+- Guard non-`Clone` verified wrappers, one `from_artifact` definition, zero
+  production callers, zero production `into_parts` callers, and zero external
+  JoinSig/physical-input construction.
+- Extend focused tests only with (a) raw malformed artifact stops at the
+  verifier, and (b) changing source receipt preserves the logical signature
+  while the physical input retains the source identity. Do not synthesize a
+  malformed verified product or force unreachable JoinSig reject arms.
+
+**Fail-fast boundary and non-claims**
+
+Verifier errors stop before physical input. The guard/test slice proves only
+  caller-zero API and logical identity; it does not prove physical MIR
+  predecessors, PHI placement, CFG shape, candidate isolation, or production
+  behavior. D0-C remains the next design row after this slice is green.
 
 ## Acceptance gates
 
