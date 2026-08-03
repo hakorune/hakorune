@@ -175,6 +175,6 @@ wrappers, and compat callers are zero. Only then hard-delete the bridge.
   BoxCount and BoxShape changes are not mixed.
 - Each deletion has a stable replacement proof, caller/guard census, focused
   gate, and explicit rollback boundary.
-- The current blocker remains the If D0-A census; this cleanup card is parked
+- The current blocker remains the If D0-B2 facts-mapper design stop; this cleanup card is parked
   and may run in parallel only as read-only audit/design work until a bounded
   row is promoted.
