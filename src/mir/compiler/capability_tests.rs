@@ -577,6 +577,18 @@ fn if_recipe_selected_bool_merge_preserves_bool_phi_receipt() {
         .functions
         .get("capability_fixture/0")
         .expect("selected Bool If function");
+    let bool_values = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Const {
+                dst,
+                value: crate::mir::ConstValue::Bool(_),
+            } => Some(*dst),
+            _ => None,
+        })
+        .collect::<std::collections::HashSet<_>>();
     let phis = function
         .blocks
         .values()
@@ -584,24 +596,17 @@ fn if_recipe_selected_bool_merge_preserves_bool_phi_receipt() {
         .filter_map(|instruction| match instruction {
             crate::mir::MirInstruction::Phi {
                 inputs, type_hint, ..
-            } => Some((inputs.len(), type_hint.clone())),
+            } => Some((inputs.clone(), type_hint.clone())),
             _ => None,
         })
         .collect::<Vec<_>>();
     assert_eq!(phis.len(), 1);
-    assert_eq!(phis[0].0, 2);
+    assert_eq!(phis[0].0.len(), 2);
     assert!(phis[0].1.is_none() || phis[0].1 == Some(crate::mir::MirType::Bool));
-    assert!(function.blocks.values().any(|block| {
-        block.instructions.iter().any(|instruction| {
-            matches!(
-                instruction,
-                crate::mir::MirInstruction::Const {
-                    value: crate::mir::ConstValue::Bool(_),
-                    ..
-                }
-            )
-        })
-    }));
+    assert!(phis[0]
+        .0
+        .iter()
+        .all(|(_, value)| bool_values.contains(value)));
 }
 
 #[test]
