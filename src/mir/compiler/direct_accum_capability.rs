@@ -7,7 +7,7 @@
 
 use crate::ast::{ASTNode, LiteralValue};
 
-use super::capability::CanonicalFirstFamilyPlanV1;
+use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1};
 use super::direct_accum_profile::{
     issue_direct_accum_plan_v1, CanonicalDirectAccumPlanV1, DirectAccumProfileRejectV1,
 };
@@ -175,7 +175,8 @@ pub(crate) fn verify_direct_accum_first_family_function_v1<'source>(
     loop_stmt: LocatedStmtV1<'source>,
 ) -> Result<CanonicalFirstFamilyPlanV1<'source>, CanonicalLoweringErrorV1> {
     verify_direct_accum_function_v1(function, loop_stmt)
-        .map(CanonicalFirstFamilyPlanV1::DirectAccum)
+        .map(CanonicalLoopFamilyPlanV1::DirectAccum)
+        .map(CanonicalFirstFamilyPlanV1::Loop)
 }
 
 fn source_navigation(error: impl ToString) -> CanonicalLoweringErrorV1 {

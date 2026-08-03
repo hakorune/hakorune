@@ -35,7 +35,9 @@ fn prepare_direct_accum_source_bound<'source>(
         .map_err(|error| bridge_error("header", error))?;
     let module_name = header.symbol().as_mir_name().to_owned();
     let package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::DirectAccum(plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::Loop(
+            super::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
+        ))
         .map_err(|rejected| bridge_error("source_binding", rejected.error()))?;
     let finalized = compiler
         .begin_canonical_invocation(package, source_file, module_name)
@@ -69,7 +71,10 @@ pub(in crate::mir) fn compile_direct_accum_source_bound_with_prepared_failure_fo
     source_file: Option<&str>,
 ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
     let plan = CanonicalLoweringPreflightV1::verify(input.source_unit())?;
-    let CanonicalFirstFamilyPlanV1::DirectAccum(plan) = plan else {
+    let CanonicalFirstFamilyPlanV1::Loop(
+        super::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
+    ) = plan
+    else {
         return Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
             site: "direct_accum_test_failure".into(),
             actual: input.source_unit().syntax_root().node_type(),

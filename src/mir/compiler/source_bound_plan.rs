@@ -6,9 +6,9 @@
 
 use super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use super::capability::{
-    CanonicalCurrentAPlusPlanV1, CanonicalFirstFamilyPlanV1, CanonicalTrivialBindingSsaPlanV1,
+    CanonicalCurrentAPlusPlanV1, CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1,
+    CanonicalTrivialBindingSsaPlanV1,
 };
-use super::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use crate::mir::module_invocation_identity::ModuleInvocationFamilyV1;
 
@@ -49,9 +49,8 @@ fn route_for_family(family: ModuleInvocationFamilyV1) -> CanonicalSourceRouteV1 
 pub(in crate::mir) enum ExactCanonicalPreflightPlanV1<'a> {
     APlus(CanonicalCurrentAPlusPlanV1<'a>),
     BindingSsaTrivial(CanonicalTrivialBindingSsaPlanV1<'a>),
-    /// Body-specialized candidate; its external lifecycle reuses
-    /// `BindingSsaTrivial`.
-    DirectAccum(CanonicalDirectAccumPlanV1<'a>),
+    /// Semantic Loop family; its external lifecycle reuses `BindingSsaTrivial`.
+    Loop(CanonicalLoopFamilyPlanV1<'a>),
     BindingSsaAcyclic(VerifiedAcyclicCallableModulePlanV1<'a>),
     BindingSsaRecursive(VerifiedRecursiveCallableModulePlanV1<'a>),
 }
@@ -61,7 +60,7 @@ impl<'a> ExactCanonicalPreflightPlanV1<'a> {
         match plan {
             CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => Self::APlus(plan),
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Self::BindingSsaTrivial(plan),
-            CanonicalFirstFamilyPlanV1::DirectAccum(plan) => Self::DirectAccum(plan),
+            CanonicalFirstFamilyPlanV1::Loop(plan) => Self::Loop(plan),
         }
     }
 
@@ -69,7 +68,7 @@ impl<'a> ExactCanonicalPreflightPlanV1<'a> {
         match self {
             Self::APlus(_) => CanonicalSourceRouteV1::APlus,
             Self::BindingSsaTrivial(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
-            Self::DirectAccum(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
+            Self::Loop(_) => CanonicalSourceRouteV1::BindingSsaTrivial,
             Self::BindingSsaAcyclic(_) => CanonicalSourceRouteV1::BindingSsaAcyclic,
             Self::BindingSsaRecursive(_) => CanonicalSourceRouteV1::BindingSsaRecursive,
         }

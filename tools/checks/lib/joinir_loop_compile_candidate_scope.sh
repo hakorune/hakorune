@@ -15,6 +15,9 @@ guard_joinir_loop_compile_candidate_scope() {
   local canonical="$root_dir/src/mir/compiler/source_bound_package.rs"
   local canonical_dispatch="$root_dir/src/mir/compiler/canonical_core_dispatch.rs"
   local canonical_input="$root_dir/src/mir/compiler/lowering_input.rs"
+  local capability="$root_dir/src/mir/compiler/capability.rs"
+  local first_family_plan="$root_dir/src/mir/compiler/capability/first_family_plan.rs"
+  local source_bound_plan="$root_dir/src/mir/compiler/source_bound_plan.rs"
   local m1_test="$root_dir/src/mir/compiler/loop_candidate_abort_p0.rs"
   local direct_accum_cutover="$root_dir/src/mir/compiler/resolved_direct_accum_cutover.rs"
   local hardening_test="$root_dir/src/mir/compiler/resolved_direct_accum_hardening_p0.rs"
@@ -23,7 +26,8 @@ guard_joinir_loop_compile_candidate_scope() {
   guard_require_files "$tag" "$manifest" "$routing" "$router" "$raw_child" \
     "$recursive_child" "$normal" "$raw_compile" "$raw_open" "$raw_recipe" \
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
-    "$direct_accum_cutover" "$hardening_test" "$external_commit"
+    "$direct_accum_cutover" "$hardening_test" "$external_commit" \
+    "$capability" "$first_family_plan" "$source_bound_plan"
 
   local header=$'ingress_kind\tpublic_ingress\tcandidate_owner\tloop_reachability\tpublication_owner\tambient_write_policy'
   [[ "$(head -n1 "$manifest")" == "$header" ]] || \
@@ -100,6 +104,20 @@ guard_joinir_loop_compile_candidate_scope() {
     if rg -n -F "$forbidden" "$root_dir/src" --glob '*.rs' >/dev/null; then
       guard_fail "$tag" "direct live Builder Loop edge returned: $forbidden"
     fi
+  done
+
+  if rg -n -F 'CanonicalFirstFamilyPlanV1::DirectAccum' "$root_dir/src" --glob '*.rs' >/dev/null || \
+     rg -n -F 'ExactCanonicalPreflightPlanV1::DirectAccum' "$root_dir/src" --glob '*.rs' >/dev/null; then
+    guard_fail "$tag" "DirectAccum escaped the canonical Loop family envelope"
+  fi
+  for required in \
+    'CanonicalLoopFamilyPlanV1' \
+    'Loop(CanonicalLoopFamilyPlanV1::DirectAccum' \
+    'CanonicalFirstFamilyPlanV1::Loop' \
+    'ExactCanonicalPreflightPlanV1::Loop'
+  do
+    rg -n -F "$required" "$capability" "$first_family_plan" "$source_bound_plan" "$canonical" >/dev/null || \
+      guard_fail "$tag" "canonical Loop family envelope anchor missing: $required"
   done
 
   if ! rg -n -F 'RawLocatedScalarStmtV1::Loop { .. }' "$raw_recipe" >/dev/null || \

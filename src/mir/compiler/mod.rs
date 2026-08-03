@@ -212,7 +212,9 @@ mod source_bound_package_p0;
 mod source_view_tests;
 
 use crate::mir::builder::BuilderInvocationConfigV1;
-use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
+use capability::{
+    CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1, CanonicalLoweringPreflightV1,
+};
 pub(in crate::mir) use lowering_input::LegacyModuleLoweringInputV1;
 pub use lowering_input::{
     CanonicalLoweringErrorV1, ResolvedModuleLoweringInputV1, VerifiedResolvedSourceUnitV1,
@@ -570,7 +572,7 @@ impl MirCompiler {
         // matching finish schedule through publication; a lowering error
         // returns directly and is never retried through the other owner.
         let (module_session, module, finish_schedule) = match plan {
-            CanonicalFirstFamilyPlanV1::DirectAccum(plan) => {
+            CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::DirectAccum(plan)) => {
                 return resolved_direct_accum_cutover::compile_direct_accum_source_bound(
                     self,
                     plan,

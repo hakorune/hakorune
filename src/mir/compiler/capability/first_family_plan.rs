@@ -5,6 +5,23 @@ use super::resolved_owner_header::{
 };
 use super::{CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1};
 
+/// Semantic Loop-family envelope. The DirectAccum pilot is the only admitted
+/// variant; other families require their own sealed source/body products.
+#[derive(Debug)]
+pub(crate) enum CanonicalLoopFamilyPlanV1<'a> {
+    DirectAccum(CanonicalDirectAccumPlanV1<'a>),
+}
+
+impl<'a> CanonicalLoopFamilyPlanV1<'a> {
+    pub(crate) fn function_input(
+        &self,
+    ) -> super::super::function_input::ResolvedFunctionLoweringInputV1<'a> {
+        match self {
+            Self::DirectAccum(plan) => plan.input(),
+        }
+    }
+}
+
 /// One whole-unit canonical value-authority selection.
 ///
 /// The variant is sealed before the module candidate is opened. A later
@@ -13,7 +30,7 @@ use super::{CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1};
 pub(crate) enum CanonicalFirstFamilyPlanV1<'a> {
     /// A whole-function Loop profile. Its external header brand remains the
     /// existing TrivialBindingSsa contract; this is not a Trivial body.
-    DirectAccum(CanonicalDirectAccumPlanV1<'a>),
+    Loop(CanonicalLoopFamilyPlanV1<'a>),
     TrivialBindingSsa(CanonicalTrivialBindingSsaPlanV1<'a>),
     CurrentCanonicalAPlus(CanonicalCurrentAPlusPlanV1<'a>),
 }
@@ -34,7 +51,7 @@ impl CanonicalFirstFamilyPlanBrandV1 {
 impl<'a> CanonicalFirstFamilyPlanV1<'a> {
     pub(in crate::mir::compiler) fn brand(&self) -> CanonicalFirstFamilyPlanBrandV1 {
         let family = match self {
-            Self::DirectAccum(_) | Self::TrivialBindingSsa(_) => {
+            Self::Loop(_) | Self::TrivialBindingSsa(_) => {
                 ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
             }
             Self::CurrentCanonicalAPlus(_) => ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus,
@@ -44,7 +61,7 @@ impl<'a> CanonicalFirstFamilyPlanV1<'a> {
 
     pub(in crate::mir::compiler) fn function_input(&self) -> ResolvedFunctionLoweringInputV1<'a> {
         match self {
-            Self::DirectAccum(plan) => plan.input(),
+            Self::Loop(plan) => plan.function_input(),
             Self::TrivialBindingSsa(plan) => plan.function,
             Self::CurrentCanonicalAPlus(plan) => plan.function,
         }

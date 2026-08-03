@@ -5,9 +5,9 @@ status = "JOINIR all-route convergence is task-ordered; DirectAccum is the only 
 date = "2026-08-03"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "F0 semantic/lifecycle separation is accepted and F1 source-bound plan extraction is landed. F2 is now authorized: nest DirectAccum under one CanonicalLoopFamilyPlanV1 / ExactCanonicalPreflightPlanV1::Loop envelope while preserving BindingSsaTrivial lifecycle routing, candidate commit behavior, and the existing PHI/SSA owner."
-current_execution_row = "JOINIR-LOOP-CANONICAL-FAMILY-PLAN-ENVELOPE0-F2-IMPLEMENTATION"
-current_execution_summary = "F1 extracted CanonicalSourceRouteV1 and ExactCanonicalPreflightPlanV1 into source_bound_plan.rs; source_bound_package.rs fell from 796 to 732 lines and all focused source-bound/capability/hardening tests plus guards are green. The next slice is the exhaustive DirectAccum envelope migration; no Nested/True/Cond/Generic placeholders or lifecycle-family changes are allowed."
+current_design_stop = "F0 semantic/lifecycle separation and F1 source-bound plan extraction are landed. F2/F3 are landed: DirectAccum now lives under one CanonicalLoopFamilyPlanV1 / ExactCanonicalPreflightPlanV1::Loop envelope while preserving BindingSsaTrivial lifecycle routing, candidate commit behavior, and the existing PHI/SSA owner."
+current_execution_row = "JOINIR-LOOP-CANONICAL-FAMILY-PLAN-ENVELOPE0-F3-CLOSEOUT"
+current_execution_summary = "F1 extracted CanonicalSourceRouteV1 and ExactCanonicalPreflightPlanV1 into source_bound_plan.rs; F2 nested DirectAccum under the semantic Loop family envelope; F3 added focused envelope tests and a shared guard rejecting old top-level variants. source_bound_package.rs remains below 800 lines, focused source-bound/capability/hardening tests and structural guards are green. No Nested/True/Cond/Generic placeholders, lifecycle-family changes, route/retry edges, or new PHI/SSA owners were introduced."
 current_execution_design = "docs/development/current/main/investigations/joinir-loop-canonical-family-plan-envelope-f0-design-2026-08-03.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "joinir-loop-canonical-family-plan-envelope-f0-design-2026-08-03"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-canonical-family-plan-envelope-f0-design-2026-08-03.md"
-latest_card_summary = """DirectAccum I0/R0/S0 and commit/projection hardening are landed. F1 extracted the 796-line source-bound plan owner into source_bound_plan.rs (a8cd116777). F2 now nests only DirectAccum under one semantic Loop family envelope while retaining BindingSsaTrivial lifecycle routing; Nested/True/Cond/Generic placeholders and new PHI/SSA or route owners remain forbidden."""
+latest_card_summary = """DirectAccum I0/R0/S0 and commit/projection hardening are landed. F1 extracted the 796-line source-bound plan owner into source_bound_plan.rs (a8cd116777). F2/F3 now nest only DirectAccum under one semantic Loop family envelope, cover it with focused tests and a shared no-bypass guard, and retain BindingSsaTrivial lifecycle routing; Nested/True/Cond/Generic placeholders and new PHI/SSA or route owners remain forbidden."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-CANONICAL-FAMILY-PLAN-ENVELOPE0-F2-IMPLEMENTATION"
+current_blocker_token = "JOINIR-LOOP-CANONICAL-FAMILY-PLAN-ENVELOPE0-F3-CLOSEOUT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

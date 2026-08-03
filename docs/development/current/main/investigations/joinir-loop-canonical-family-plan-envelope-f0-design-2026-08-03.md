@@ -1,7 +1,7 @@
 # JOINIR Loop Canonical Family-Plan Envelope F0
 
 Date: 2026-08-03
-Status: accepted; F1 landed; F2 implementation in progress.
+Status: accepted; F1/F2/F3 landed.
 Task: `JOINIR-LOOP-CANONICAL-FAMILY-PLAN-ENVELOPE0-F0`
 
 ## Decision
@@ -78,6 +78,13 @@ Add focused tests and shared guards for:
 - no lifecycle-family, route/retry, second PHI/SSA, or production `route_loop`
   edge is introduced;
 - all touched Rust/check files remain below 800 lines.
+
+F2/F3 landed with the DirectAccum-only semantic envelope.  The old
+top-level DirectAccum variants are absent from the Rust source, the
+source-bound route still maps to `BindingSsaTrivial`, and the shared
+candidate-scope guard now rejects any future bypass of the Loop envelope.
+No Nested/LoopTrue/LoopCond/Generic placeholder, lifecycle-family change,
+route/retry edge, or PHI/SSA owner was introduced.
 
 ## Clean-worktree boundary
 

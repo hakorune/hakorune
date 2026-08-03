@@ -3,8 +3,8 @@ use crate::mir::resolved_region_flow::ResolvedElseFallthroughV1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 use super::capability::{
-    CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1, ResolvedOwnerHeaderFamilyV1,
-    ResolvedOwnerHeaderSealErrorV1,
+    CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1, CanonicalLoweringPreflightV1,
+    ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1,
 };
 use super::{CanonicalLoweringErrorV1, MirCompiler, VerifiedResolvedSourceUnitV1};
 
@@ -136,7 +136,8 @@ fn direct_accum_first_family_plan_reuses_binding_ssa_header_identity() {
     )
     .expect("DirectAccum first-family plan");
 
-    let CanonicalFirstFamilyPlanV1::DirectAccum(plan) = plan else {
+    let CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::DirectAccum(plan)) = plan
+    else {
         panic!("DirectAccum issuer must mint the central family-plan variant")
     };
     let header = plan
@@ -161,7 +162,9 @@ fn canonical_preflight_admits_direct_accum_as_the_single_loop_family() {
 
     assert!(matches!(
         CanonicalLoweringPreflightV1::verify(&unit),
-        Ok(CanonicalFirstFamilyPlanV1::DirectAccum(_))
+        Ok(CanonicalFirstFamilyPlanV1::Loop(
+            CanonicalLoopFamilyPlanV1::DirectAccum(_),
+        ))
     ));
 }
 

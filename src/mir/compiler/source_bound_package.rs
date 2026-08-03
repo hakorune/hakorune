@@ -16,7 +16,8 @@ use super::canonical_drain_manifest::{
     CanonicalDrainRowV1,
 };
 use super::capability::{
-    ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
+    CanonicalLoopFamilyPlanV1, ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1,
+    VerifiedResolvedOwnerHeaderV1,
 };
 use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use super::source_bound_plan::{family_for_route_v1, route_for_family_v1};
@@ -527,7 +528,7 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                     ),
                 })
             }
-            ExactCanonicalPreflightPlanV1::DirectAccum(plan) => {
+            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::DirectAccum(plan)) => {
                 let header = plan
                     .seal_resolved_owner_header_v1()
                     .map_err(SourceBindingErrorV1::Header)?;
@@ -601,11 +602,13 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                 continuation,
                 builder.lower_resolved_trivial_function_draft(plan),
             ),
-            ExactCanonicalPreflightPlanV1::DirectAccum(plan) => lower_single(
-                token,
-                continuation,
-                builder.lower_resolved_direct_accum_function_draft(plan),
-            ),
+            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::DirectAccum(plan)) => {
+                lower_single(
+                    token,
+                    continuation,
+                    builder.lower_resolved_direct_accum_function_draft(plan),
+                )
+            }
             ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
                 match builder.lower_acyclic_callable_drafts(plan) {
                     Ok(drafts) => Ok(LoweredCanonicalPlanV1::Callable {

@@ -36,6 +36,7 @@ mod normal_main_binding;
 mod resolved_owner_header;
 pub(crate) use first_family_plan::{
     seal_direct_accum_owner_header_v1, CanonicalFirstFamilyPlanBrandV1, CanonicalFirstFamilyPlanV1,
+    CanonicalLoopFamilyPlanV1,
 };
 use function_role_policy::{CanonicalFunctionRolePolicyV1, DirectCallAdmissionV1};
 pub(in crate::mir) use normal_main_binding::bind_sealed_normal_main_parts_v1;
@@ -180,7 +181,9 @@ impl CanonicalLoweringPreflightV1 {
             CanonicalFunctionRolePolicyV1::NormalMain0,
             Some(role),
         )? {
-            CanonicalFirstFamilyPlanV1::DirectAccum(plan) => unsupported(
+            CanonicalFirstFamilyPlanV1::Loop(
+                super::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
+            ) => unsupported(
                 "root",
                 plan.input().source().root(),
                 "direct_accum_not_normal_main",
@@ -207,7 +210,9 @@ impl CanonicalLoweringPreflightV1 {
             CanonicalFunctionRolePolicyV1::NormalMainDirectCall0,
             Some(role),
         )? {
-            CanonicalFirstFamilyPlanV1::DirectAccum(plan) => unsupported(
+            CanonicalFirstFamilyPlanV1::Loop(
+                super::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
+            ) => unsupported(
                 "root",
                 plan.input().source().root(),
                 "direct_accum_not_normal_main_direct_call",
