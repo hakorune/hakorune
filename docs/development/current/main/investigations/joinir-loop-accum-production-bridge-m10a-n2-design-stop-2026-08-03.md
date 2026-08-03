@@ -1,7 +1,7 @@
 ---
-Status: Accepted design stop — source-capability handoff is required before bridge wiring
+Status: Accepted design — canonical SSA owner/profile handoff is fixed; implementation may proceed
 Date: 2026-08-03
-Decision: direct `route_loop` bridge is `NoSafe`; next row is the resolved-source capability handoff
+Decision: keep one `CanonicalSsaFunctionLowererV2` owner; admit DirectAccum as an explicit whole-function profile, then borrow its existing CFG/Binding-SSA/PhiTxn for the bridge
 Scope: one disjoint DirectAccum singleton bridge through the existing compile candidate
 Related:
   - joinir-loop-scoped-nongeneric-cutover-ssot.md
@@ -14,12 +14,12 @@ Related:
 
 # DirectAccum singleton production bridge: M10a/N2 design stop
 
-## Why this is a design stop
+## Why this was a design stop
 
-The caller-zero M10a slice is now complete. The real DirectAccum physicalizer
-uses the existing `CanonicalCfgSessionV1`, function-owned
-`BindingSsaBuilderV1`, and `PhiTxn`; candidate abort/fresh reuse and shared
-semantic-core parity are green. No production caller exists yet.
+The caller-zero M10a slice is complete. The real DirectAccum physicalizer
+proves candidate abort/fresh reuse and shared semantic-core parity, but it has
+no production caller. The missing decision was not a new PHI/SSA design: it
+was how the resolved loop profile enters the already SSOT'd function owner.
 
 N2 is the first behavior-changing wiring boundary. It must prove that the
 portable path can own one genuinely disjoint singleton source without turning
@@ -67,71 +67,39 @@ The worker audit closed the design question without authorizing router wiring:
    alone. A full production raw-schedule census must prove that the portable
    singleton branch is disjoint before same-commit retirement.
 
-Decision: do not edit `route_loop`, handlers, scheduler, or PHI writers for
-N2. The next executable row is a small, non-Builder **resolved-source
-capability handoff** that carries one source-issued `LoopExecutionFrameKeyV1`
-and exact located loop identity to the future singleton bridge. Until that
-handoff exists, the correct outcome is typed `NoSafe`, not AST/name lookup.
+Decision is now closed:
 
-The production issuer candidate is now fixed more precisely: the
-`CanonicalFunctionLowererV1`/`CanonicalTrivialSsaLowererV1` located-source
-boundary, never `route_loop`. The latter already owns the function's
-`CanonicalCfgSessionV1`, `BindingSsaBuilderV1`, and `PhiTxn`. The physicalizer
-core must borrow those owners; only the caller-zero test wrapper may create
-local owners and commit/abort them. Promoting the current standalone
-physicalizer unchanged would create a second SSA/CFG authority and is
-`NoSafe`.
+1. `CanonicalSsaFunctionLowererV2` is the only canonical function owner. It
+   owns one `ResolvedIdentityLedgerV2`, `CanonicalCfgSessionV1`,
+   `BindingSsaBuilderV1`, and `PhiTxn` for the whole function. `If`, Loop, and
+   straight-line statements are profiles over this same owner.
+2. `DirectAccum` is an explicit whole-function admission/profile variant, not
+   a second lowerer state. `CanonicalFunctionLowererV1` remains the
+   compatibility A+ facade; `CanonicalTrivialSsaLowererV1` remains the exact
+   carrier-free profile. Neither is silently widened with a Loop arm.
+3. The profile co-seals one `VerifiedDirectAccumRouteAdmissionV1` from the
+   existing frozen policy winner/schedule, one `VerifiedResolvedLoopSourceV1`,
+   one `VerifiedSelectedLoopRecipeDemandV1`, a binding-effect witness, and the
+   function completion contract before Builder effects. Route names or AST
+   rescans are not admission authority.
+4. The non-Clone
+   `VerifiedLoopBindingEffectWitnessV1` is execution-scoped and carries the
+   same frame/owner brand, exact DirectAccum `BindingRefV1` roles, and all
+   canonical source claims: condition/update/step variable-use sites plus the
+   update/step assignment-target sites. It carries no AST clone, names,
+   `ValueId`, `BasicBlockId`, route, Recipe, or PHI data. The identity ledger
+   consumes it once before physicalization; it is not a second ledger.
+5. The physicalizer core borrows the function owner's existing CFG/SSA/PhiTxn.
+   Only the caller-zero adapter may create local owners and finish/abort them.
+   A failed claim or physicalization drops the unpublished compile candidate;
+   it never becomes `None`, retry, or fallback. `Unit` goes through the
+   existing completion contract.
 
-The audit then found one further unresolved handoff: the portable
-Recipe/JoinSig intentionally carries no source sites, while the canonical
-identity ledger must still claim the DirectAccum update/step assignments
-before the physicalizer emits their writes. The production bridge therefore
-needs a separate, execution-scoped **binding-effect witness** (exact
-`BindingRefV1` roles plus sealed source assignment sites) alongside the
-portable physical input. It must be issued from the same resolved frame,
-consumed once by the canonical lowerer, and must not become a second Recipe,
-SSA, or PHI authority. Until this witness and its claim/update contract are
-specified, external-SSA injection remains `NoSafe`.
-
-## D1 design questions: binding-effect witness
-
-The next consultation must close these questions before any Rust production
-caller is added:
-
-1. **Owner and shape** — define one non-Clone
-   `VerifiedLoopBindingEffectWitnessV1` (name provisional) issued by the
-   resolved function owner. It may contain only exact `BindingRefV1` roles,
-   update/step assignment-target `SourceExprSiteV1` claims, and the same
-   `LoopExecutionFrameKeyV1`; it must contain no `ValueId`, block id, recipe
-   route, or AST clone.
-2. **Ledger handoff** — the canonical lowerer consumes this witness once to
-   claim the two assignment sites in its existing identity ledger before
-   physicalization. Physical writes then call the same function-owned SSA
-   owner; no physicalizer-local name map or second claim ledger is allowed.
-3. **SSA/CFG borrowing** — the physicalizer core borrows the existing
-   `CanonicalCfgSessionV1`, `BindingSsaBuilderV1`, and `PhiTxn`. A test-only
-   adapter may own local instances solely for caller-zero parity/abort tests;
-   the production path must not call `finish` or `commit` on borrowed owners.
-4. **Failure and candidate scope** — any rejected claim, CFG/SSA error, or
-   physicalizer error returns through the existing unpublished function/session
-   discard boundary. No partial witness, recipe, or legacy retry may escape.
-5. **Unit completion** — the witness does not invent a result value. The
-   existing function completion contract handles the loop's fallthrough after
-   the physicalizer returns `Unit`.
-
-Required D1 evidence: wrong-frame, foreign-owner, wrong-target-site, duplicate-claim,
-and unclaimed-site rejection tests; one caller-zero adapter parity test; and a
-static guard proving that the production physicalizer has no local SSA/CFG/
-PhiTxn owner and no `route_loop` caller.
-
-The issuer lane itself is also part of D1: the ordinary
-`CanonicalFunctionLowererV1` currently uses a compatibility pre-SSA identity,
-while `CanonicalTrivialSsaLowererV1` owns Binding SSA but its admitted profile
-and control-flow product reject `Loop`. The bridge must either replace the
-former with the existing SSA owner for this whole function or introduce one
-explicit DirectAccum resolved-owner profile that already owns that same SSA
-chain. It must not call the physicalizer from both lanes or silently widen the
-trivial profile with an unverified Loop arm.
+The first implementation is a behavior-neutral Refactor Series: extract the
+shared SSA machinery behind thin A+/Trivial/Profile facades, then add the
+DirectAccum admission/profile and caller-zero vertical. Every touched Rust
+file remains below 800 lines. No `route_loop`, scheduler, handler, or PHI
+writer edit is part of the refactor series.
 
 ## Current production observations
 
@@ -162,12 +130,12 @@ router. If the resolved source capability is not available at the caller, the
 correct result is a typed design rejection and a caller-side capability seam,
 not a new AST matcher.
 
-## Design questions that must be closed
+## Implementation contract after D2
 
-### 1. Exact production issuer and frame identity
+### 1. Exact issuer and co-sealed inputs
 
-Choose the one owner that issues all of the following from the same execution
-frame:
+The canonical resolved ingress must issue all of the following from one
+function execution frame:
 
 ```text
 raw schedule == [AccumConstLoop]
@@ -177,12 +145,28 @@ VerifiedResolvedLoopSourceV1
 VerifiedSelectedLoopRecipeDemandV1
 ```
 
-The issuer must prove singleton/disjointness before the first Builder effect.
-`diagnostic_effective`, `LoopRouteContext::route_kind`, and route-name checks
-are not authority. The bridge must not add a second selector beside
+The profile must prove singleton/disjointness before the first Builder effect.
+`diagnostic_effective`, `LoopRouteContext::route_kind`, route names, and AST
+rescans are not authority. The bridge must not add a second selector beside
 `RecipeFirstRouteSelectionV1`.
 
-### 2. Candidate-scope caller census
+### 2. Refactor-series order
+
+The next code slice is behavior-neutral and does not widen acceptance:
+
+```text
+shared SSA/CFG/identity/completion core
+  -> thin A+ and Trivial facades remain green
+  -> explicit DirectAccum whole-function profile
+  -> caller-zero physicalizer borrow adapter
+  -> one resolved production caller
+  -> selected old-edge retirement
+```
+
+Do not add a Loop arm to the Trivial analyzer, create a second SSA owner, or
+wire `route_loop` during the extraction series.
+
+### 3. Candidate-scope caller census
 
 Prove that the one production physicalizer caller is inside the existing
 `ModuleBuilderInvocationSessionV1` candidate and that no live external
@@ -199,7 +183,7 @@ portable singleton branch -> Retry/Option/fallback = 0
 live Builder direct callers = 0
 ```
 
-### 3. Production binding/input projection owner
+### 4. Production binding/input projection owner
 
 The caller-zero physicalizer requires an owner-issued
 `VerifiedLoopBindingProjectionV1` and an input projection that points to
@@ -209,25 +193,26 @@ resolved BindingRef/ValueId owner at the current function boundary and issue
 the projection once. If this requires seeding a new SSA owner, stop: the
 existing function-owned Binding SSA is the only authority.
 
-### 4. Unit completion contract
+### 5. Unit completion contract
 
 The physicalizer currently returns an explicit `LoopResultDispositionV1::Unit`
 receipt, while `route_loop` exposes `Result<Option<ValueId>, String>` to its
-caller. N2 must select the existing function-completion/value-carrier
-contract for a unit loop. It may not fabricate a `ValueId`, silently map Unit
+caller. The DirectAccum profile must select the existing function-completion/
+value-carrier contract for a unit loop. It may not fabricate a `ValueId`, silently map Unit
 to `None`, or widen the physicalizer into a scheduler. The selected mapping
 must preserve legacy completion semantics and be covered by the parity gate.
 
-### 5. Selected old-edge retirement
+### 6. Selected old-edge retirement
 
 Determine from the full raw-schedule census whether `AccumConstLoop` has any
 production overlap beyond the bounded singleton fixture. If none exists, the
-same N2 commit may remove the selected `route_accum_const_loop`/legacy PHI edge.
+the same production bridge commit may remove the selected
+`route_accum_const_loop`/legacy PHI edge.
 If an overlap remains, keep its old edge behind an explicitly named legacy
 owner and prove that the singleton portable branch can never call it. Do not
 delete a shared route entry merely because the direct fixture is singleton.
 
-## Required worker consultation output (closed)
+## Required consultation output (closed)
 
 The consultation returned:
 
@@ -242,21 +227,25 @@ The consultation returned:
 6. explicit non-claims for Generic/D2, M7-M9, all-route scheduler deletion,
    selfhost authority, and final M10b.
 
-The missing capability path is now the next implementation boundary; no
-production caller or old-edge retirement is claimed by this card.
+The design boundary is now closed. The next implementation boundary is the
+behavior-neutral shared-SSA-core extraction; no production caller or old-edge
+retirement is claimed until its focused gate and the DirectAccum profile gate
+are green.
 
-## Acceptance gates for N2 design
+## Acceptance gates for D2 and the next refactor series
 
-- no code changes to `route_loop`, handlers, scheduler, or PHI writers for this
-  design stop;
-- current M10a caller-zero gates remain green;
-- the design names exactly one future source/policy/demand issuer and one
-  future physicalizer caller, while recording that the current route entry is
-  not a valid issuer;
-- unresolved resolved-source, candidate-scope, Unit-completion, or old-edge
-  questions remain typed `NoSafe` rather than being bridged by AST/name lookup;
-- the resulting implementation slice is one scoped singleton bridge, not a
-  partial all-route cutover.
+- the existing PHI/SSA SSOT remains the only physical owner;
+- shared-core extraction preserves the Trivial profile's current acceptance
+  and focused tests;
+- DirectAccum admission is co-sealed with the policy winner, resolved source,
+  recipe/JoinSig, binding-effect witness, and Unit completion contract;
+- witness rejection covers wrong frame, foreign owner, wrong variable-use or
+  target site, duplicate claim, and unclaimed claim;
+- the physicalizer core has no production-local SSA/CFG/PhiTxn owner and has
+  no `route_loop` caller;
+- production caller switch and old-edge retirement remain a later atomic row;
+- Generic, overlap schedules, all-route Retry deletion, M7-M9, selfhost
+  authority, and M10b remain explicit non-claims.
 
 ## Explicit non-claims
 
