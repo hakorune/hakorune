@@ -84,9 +84,27 @@ requires otherwise.
    - keep production materializer callers at zero and keep Generic/Retry
      untouched.
 
+## Current progress
+
+- Slice 1 is green: the fixture has explicit `ReadBinding` operations and the
+  verifier/JoinSig backedge closes on `i=v10` and `sum=v7`.
+- Slice 2 is green: a separate test child evaluates reads as binding-source
+  aliases and reaches final carriers `(i=3, sum=3)` without extending the
+  M6-B physical map.
+- Slice 3 is green: the test-only legacy oracle reaches the existing
+  `RecipeComposer`/`PlanVerifier`/`PlanLowerer`, and its alpha-normalized
+  operation/dataflow/final-carrier digest equals the portable projection.
+- Full MIR physical CFG, PHI receipt, type, and post-lower result parity is
+  still open. The current digest is not that claim; it is the next slice before
+  M10a.
+
 ## Acceptance and stop conditions
 
-- DirectAccum portable and legacy digests are equal after alpha normalization.
+- DirectAccum portable and legacy operation/dataflow/final-carrier digests are
+  equal after alpha normalization.
+- Before M10a, add the separate physical MIR/PHI/type/result digest and the
+  late-failure/fresh-session gates; do not promote the current operation digest
+  to full parity.
 - The structural P1b digest remains green and unchanged.
 - Nested portable golden remains structural/path evidence only; it has no
   equivalent legacy semantic oracle in this task.

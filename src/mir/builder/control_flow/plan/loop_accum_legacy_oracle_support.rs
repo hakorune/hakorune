@@ -68,6 +68,25 @@ pub(super) fn lower_accum_legacy_oracle(
     body: &[ASTNode],
     func_name: &str,
 ) -> Result<Option<ValueId>, String> {
+    let plan = prepare_accum_legacy_plan(builder, condition, body, func_name)?;
+    PlanLowerer::lower(
+        builder,
+        plan,
+        &LoopRouteContext::new(condition, body, func_name, false, false),
+    )
+}
+
+/// Compose and verify the legacy CorePlan without consuming it.
+///
+/// This is test-only inspection support for the semantic parity digest.  The
+/// production composer/lowerer remain the authorities; the helper merely lets
+/// tests retain a clone before the consuming lower call.
+pub(super) fn prepare_accum_legacy_plan(
+    builder: &mut MirBuilder,
+    condition: &ASTNode,
+    body: &[ASTNode],
+    func_name: &str,
+) -> Result<CorePlan, String> {
     let ctx = LoopRouteContext::new(condition, body, func_name, false, false);
     let outcome = try_build_outcome(&ctx)?;
     let facts = outcome
@@ -84,5 +103,5 @@ pub(super) fn lower_accum_legacy_oracle(
         return Err("legacy Accum oracle produced a non-Loop CorePlan".to_string());
     }
     PlanVerifier::verify(&plan)?;
-    PlanLowerer::lower(builder, plan, &ctx)
+    Ok(plan)
 }
