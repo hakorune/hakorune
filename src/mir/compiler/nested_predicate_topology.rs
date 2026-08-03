@@ -212,18 +212,58 @@ impl VerifiedNestedPhysicalTopologyV1 {
     }
 }
 
+/// Non-Clone semantic/physical handoff for the later canonical adapter.
+///
+/// The Recipe and JoinSig are retained alongside topology so a topology
+/// observer cannot accidentally drop the semantic pair before physicalization.
+#[derive(Debug)]
+pub(crate) struct VerifiedNestedPhysicalEmissionInputV1 {
+    recipe: crate::mir::loop_recipe_contract::VerifiedLoopRecipeV1,
+    join_sig: crate::mir::loop_recipe_contract::VerifiedLoopJoinSigV1,
+    topology: VerifiedNestedPhysicalTopologyV1,
+}
+
+impl VerifiedNestedPhysicalEmissionInputV1 {
+    pub(crate) fn recipe(&self) -> &crate::mir::loop_recipe_contract::VerifiedLoopRecipeV1 {
+        &self.recipe
+    }
+
+    pub(crate) fn join_sig(&self) -> &crate::mir::loop_recipe_contract::VerifiedLoopJoinSigV1 {
+        &self.join_sig
+    }
+
+    pub(crate) fn topology(&self) -> &VerifiedNestedPhysicalTopologyV1 {
+        &self.topology
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        crate::mir::loop_recipe_contract::VerifiedLoopRecipeV1,
+        crate::mir::loop_recipe_contract::VerifiedLoopJoinSigV1,
+        VerifiedNestedPhysicalTopologyV1,
+    ) {
+        (self.recipe, self.join_sig, self.topology)
+    }
+}
+
 /// Consumes the semantic product and its one-time source handoff. No caller is
 /// wired to production; this is a sealed input for the later canonical adapter.
-pub(crate) fn issue_nested_predicate_physical_topology_v1(
+pub(crate) fn issue_nested_predicate_physical_emission_input_v1(
     product: VerifiedNestedPredicateRecipeProductV1,
-) -> Result<VerifiedNestedPhysicalTopologyV1, NestedPhysicalTopologyRejectV1> {
+) -> Result<VerifiedNestedPhysicalEmissionInputV1, NestedPhysicalTopologyRejectV1> {
     let (recipe, join_sig, handoff) = product.into_topology_input();
-    issue_from_parts(recipe, join_sig, handoff)
+    let topology = issue_from_parts(&recipe, &join_sig, handoff)?;
+    Ok(VerifiedNestedPhysicalEmissionInputV1 {
+        recipe,
+        join_sig,
+        topology,
+    })
 }
 
 fn issue_from_parts(
-    recipe: VerifiedLoopRecipeV1,
-    join_sig: VerifiedLoopJoinSigV1,
+    recipe: &VerifiedLoopRecipeV1,
+    join_sig: &VerifiedLoopJoinSigV1,
     handoff: VerifiedNestedPhysicalSourceHandoffV1,
 ) -> Result<VerifiedNestedPhysicalTopologyV1, NestedPhysicalTopologyRejectV1> {
     validate_recipe(recipe.as_recipe())?;

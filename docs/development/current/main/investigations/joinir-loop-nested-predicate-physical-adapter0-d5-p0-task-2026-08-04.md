@@ -23,6 +23,21 @@ The preseeded fixture is an explicit test capability, not a production source
 authority. Resolver-issued prefix/effect claims are P1. Production cutover is
 D5-I0 and is not part of this task.
 
+## Implementation progress
+
+The caller-zero slice is landed in:
+
+- `nested_predicate_topology.rs`: `VerifiedNestedPhysicalEmissionInputV1`
+  preserves Recipe + JoinSig + topology through one consuming issuer;
+- `nested_predicate_physical_input.rs`: the candidate-local
+  `VerifiedNestedPhysicalBlockProjectionV1` and P0 candidate bundle;
+- `nested_predicate_physical_input_tests.rs`: positive pair/alias/resume proof
+  plus owner/frame, duplicate-block, and alias rejection fixtures.
+
+The issuer has no production caller. The projection has eleven symbolic node
+references and ten unique physical blocks; `Child.Preheader` maps only to
+`Root.Body`, and `ParentBodyResume` remains distinct from `Root.After`.
+
 ## Required implementation slice
 
 1. Add a named non-`Clone` emission-input product that keeps Recipe, JoinSig,
@@ -76,7 +91,10 @@ Focused tests must be green, together with the existing Nested, Recipe,
 structural-facts, DirectAccum physicalizer, PHI lifecycle, pointer, and
 candidate-scope guards. A full production `cargo test` is not required by this
 caller-zero task; unrelated repository-wide warning/format drift is not part
-of the acceptance claim.
+of the acceptance claim. The current evidence is Nested 30, Recipe 49,
+structural-facts 19, DirectAccum hardening 2, DirectAccum physicalizer 6, PHI
+lifecycle 6, and `cargo check --lib` green; the structural/current-state guards
+are green as well.
 
 ## Next task after P0
 

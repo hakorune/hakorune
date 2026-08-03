@@ -36,12 +36,13 @@ composer/CorePlan/PlanLowerer path, and Generic retry remain outside this card.
 
 ### 1. Preserve the semantic pair through the physical boundary
 
-`issue_nested_predicate_physical_topology_v1` currently consumes
+The former topology-only issuer consumed
 `VerifiedNestedPredicateRecipeProductV1` and returns only topology. That
-silently drops the verified Recipe and JoinSig before a physicalizer can
-consume them. The next seam must return one non-`Clone`
+silently dropped the verified Recipe and JoinSig before a physicalizer could
+consume them. P0 replaces that boundary with one non-`Clone`
 `VerifiedNestedPhysicalEmissionInputV1` (or an equivalent named product) that
-owns the Recipe, JoinSig, topology, and effect plan together.
+owns the Recipe, JoinSig, and topology together; P1 adds the separately sealed
+effect plan to the candidate bundle.
 
 Rules:
 

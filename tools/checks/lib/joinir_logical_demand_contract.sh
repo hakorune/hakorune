@@ -173,9 +173,11 @@ guard_joinir_logical_demand_contract() {
           -v nested_producer_tests="$nested_predicate_producer_tests" \
           -v nested_topology="$root_dir/src/mir/compiler/nested_predicate_topology.rs" \
           -v nested_topology_tests="$root_dir/src/mir/compiler/nested_predicate_topology_tests.rs" \
+          -v nested_physical_input="$root_dir/src/mir/compiler/nested_predicate_physical_input.rs" \
+          -v nested_physical_input_tests="$root_dir/src/mir/compiler/nested_predicate_physical_input_tests.rs" \
           -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           -v edge_path="$loop_physical_edge_path" \
-          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != physicalizer && $0 != edge_path'
+          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != physicalizer && $0 != edge_path'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
