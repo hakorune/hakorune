@@ -1,7 +1,8 @@
 //! Pure left-to-right evaluation of frozen Loop policy evidence.
 //!
-//! The evaluator does not inspect route IDs or cursors. Declined evidence is
-//! consumed internally; only Qualified, Blocked, or Exhausted escape.
+//! The evaluator does not inspect route IDs. Declined evidence is consumed
+//! internally; only Qualified, Blocked, or Exhausted escape. A qualified
+//! result carries the frozen row cursor as opaque migration provenance.
 
 use super::policy_evidence::{
     LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,
@@ -14,12 +15,24 @@ use super::schema::{
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct LoopQualifiedV1 {
     facts: LoopRouteCandidateFactsV1,
+    winner: VerifiedLoopPolicyWinnerV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedLoopPolicyWinnerV1 {
+    raw_cursor: usize,
     seal: LoopQualifiedSealV1,
 }
 
 impl LoopQualifiedV1 {
-    pub(crate) fn facts(&self) -> LoopRouteCandidateFactsV1 {
-        self.facts
+    pub(crate) fn into_parts(self) -> (LoopRouteCandidateFactsV1, VerifiedLoopPolicyWinnerV1) {
+        (self.facts, self.winner)
+    }
+}
+
+impl VerifiedLoopPolicyWinnerV1 {
+    pub(crate) fn into_raw_cursor(self) -> usize {
+        self.raw_cursor
     }
 }
 
@@ -43,6 +56,7 @@ pub(crate) fn evaluate_frozen_loop_route_schedule_v1(
     schedule: &FrozenLoopRouteScheduleV1,
 ) -> LoopRoutePolicyEvaluationV1 {
     for row in schedule.rows() {
+        let raw_cursor = row.raw_cursor();
         if matches!(
             row.suppression(),
             LoopRouteSuppressionDispositionV1::SuppressedBy(_)
@@ -57,7 +71,10 @@ pub(crate) fn evaluate_frozen_loop_route_schedule_v1(
             LoopRoutePolicyEvidenceV1::Candidate(facts) => {
                 return LoopRoutePolicyEvaluationV1::Qualified(LoopQualifiedV1 {
                     facts,
-                    seal: LoopQualifiedSealV1,
+                    winner: VerifiedLoopPolicyWinnerV1 {
+                        raw_cursor,
+                        seal: LoopQualifiedSealV1,
+                    },
                 });
             }
             LoopRoutePolicyEvidenceV1::PolicyBlocked(reason) => {
@@ -150,10 +167,39 @@ mod tests {
             3,
             LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable),
         );
+        let LoopRoutePolicyEvaluationV1::Qualified(qualified) =
+            evaluate_frozen_loop_route_schedule_v1(&schedule)
+        else {
+            panic!("declined rows must stop at the first candidate");
+        };
+        let (facts, winner) = qualified.into_parts();
+        assert_eq!(facts, LoopRouteCandidateFactsV1::SourceAvailable);
+        assert_eq!(winner.into_raw_cursor(), 3);
+    }
+
+    #[test]
+    fn winner_capability_is_absent_from_non_qualified_results() {
+        let blocked = schedule(
+            4,
+            LoopRoutePolicyEvidenceV1::PolicyBlocked(
+                LoopRoutePolicyBlockReasonV1::PolicyAndTerminalityUnavailable,
+            ),
+        );
         assert!(matches!(
-            evaluate_frozen_loop_route_schedule_v1(&schedule),
-            LoopRoutePolicyEvaluationV1::Qualified(_)
+            evaluate_frozen_loop_route_schedule_v1(&blocked),
+            LoopRoutePolicyEvaluationV1::Blocked(_)
         ));
+
+        let exhausted = schedule(
+            0,
+            LoopRoutePolicyEvidenceV1::SourceDeclined(
+                LoopRoutePolicySourceDeclineReasonV1::SuppressedByEarlierCandidate,
+            ),
+        );
+        assert_eq!(
+            evaluate_frozen_loop_route_schedule_v1(&exhausted),
+            LoopRoutePolicyEvaluationV1::Exhausted
+        );
     }
 
     #[test]
