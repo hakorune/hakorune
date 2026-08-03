@@ -17,6 +17,9 @@ mod physical_parity_tests;
 #[path = "loop_accum_physical_role_plan_tests.rs"]
 mod physical_role_plan_tests;
 
+#[path = "loop_accum_binding_ssa_session_tests.rs"]
+mod binding_ssa_session_tests;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ProjectedScalar {
     I64(i64),

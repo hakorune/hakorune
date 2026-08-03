@@ -1,5 +1,5 @@
 ---
-Status: Accepted design stop — caller-zero implementation not started
+Status: Caller-zero S0 implementation closed — operation emission/parity pending
 Date: 2026-08-03
 Decision: `JOINIR-LOOP-ACCUM-BINDING-SSA-PHYSICALIZER-D1`
 Scope: replace the superseded P1-S1 operation-emission shape with a
@@ -86,6 +86,31 @@ The current `CanonicalCfgSessionV1` lacks explicit block-creation and Return
 helpers. P1-S1-D1 must either add thin candidate-only facade seams for those
 operations or borrow the existing named owners; raw `add_block`/`set_terminator`
 calls in the physicalizer are a hard stop.
+
+## S0 result
+
+The caller-zero session proof is now implemented in
+`loop_accum_binding_ssa_session_tests.rs`. It owns exactly one candidate
+function, one `CanonicalCfgSessionV1`, one `BindingSsaBuilderV1`, and one
+shared `PhiTxn`; the test does not call `LoopPhiMaterializerV1` and does not
+add a production caller. The owner-issued binding projection rejects duplicate
+keys and foreign owners, while the DirectAccum fixture proves P/H/B/S/A edge
+creation, demand-driven header PHIs, body aliases, binding definitions, and
+all five predecessor seals.
+
+Evidence:
+
+```text
+focused caller-zero tests: 3/3
+loop_phi_materializer suite: 22/22
+cargo check: green
+mirbuilder guard: green
+current-state pointer guard: green
+```
+
+This closes only the CFG/Binding-SSA session slice. It does not yet claim
+Recipe-driven operation emission, full DirectAccum MIR parity, late-failure
+candidate abort for the operation path, or production wiring.
 
 ## Required products
 
