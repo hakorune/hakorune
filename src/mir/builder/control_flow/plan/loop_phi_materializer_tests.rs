@@ -11,6 +11,8 @@ use crate::mir::loop_recipe_contract::{
     LoopJoinSigElaboratorV1, LoopRecipeArtifactV1, LoopRecipeVerifierV1,
 };
 use crate::mir::MirInstruction;
+use std::collections::{BTreeMap, BTreeSet};
+use std::fmt::Write as _;
 
 const GOLDEN: &str = include_str!("../../../loop_recipe_contract/fixtures/accum_nested_v1.json");
 const DIRECT_GOLDEN: &str =
@@ -304,6 +306,176 @@ fn nested_resume_map_input(sig: &VerifiedLoopJoinSigV1) -> LoopLogicalToPhysical
     }
 }
 
+fn remap_block(block: BasicBlockId) -> BasicBlockId {
+    match block {
+        block if block == bb(0) => bb(40),
+        block if block == bb(1) => bb(17),
+        block if block == bb(2) => bb(91),
+        block if block == bb(3) => bb(73),
+        block if block == bb(4) => bb(29),
+        other => other,
+    }
+}
+
+fn remap_value(value: ValueId) -> ValueId {
+    match value {
+        value if value == ValueId::new(10) => ValueId::new(201),
+        value if value == ValueId::new(11) => ValueId::new(303),
+        value if value == ValueId::new(12) => ValueId::new(202),
+        value if value == ValueId::new(13) => ValueId::new(404),
+        value if value == ValueId::new(20) => ValueId::new(505),
+        value if value == ValueId::new(21) => ValueId::new(606),
+        other => other,
+    }
+}
+
+fn permuted_direct_map_input(sig: &VerifiedLoopJoinSigV1) -> LoopLogicalToPhysicalMapInputV1 {
+    let mut input = direct_map_input(sig);
+    for (_, _, block) in &mut input.ports {
+        *block = remap_block(*block);
+    }
+    let old_predecessors = std::mem::take(&mut input.predecessors);
+    input.predecessors = old_predecessors
+        .into_iter()
+        .map(|(block, predecessors)| {
+            (
+                remap_block(block),
+                predecessors.into_iter().map(remap_block).collect(),
+            )
+        })
+        .collect();
+    for path in &mut input.edge_paths {
+        for block in &mut path.blocks {
+            *block = remap_block(*block);
+        }
+        path.terminal_predecessor = remap_block(path.terminal_predecessor);
+    }
+    for (_, value, _) in &mut input.values {
+        *value = remap_value(*value);
+    }
+    for (_, _, destination) in &mut input.destinations {
+        *destination = remap_value(*destination);
+    }
+    input
+}
+
+fn alpha_normalized_direct_digest(
+    sig: &VerifiedLoopJoinSigV1,
+    map: &VerifiedLoopLogicalToPhysicalMapV1,
+) -> String {
+    let mut bindings = BTreeSet::new();
+    let mut values = BTreeSet::new();
+    for row in &sig.as_sig().loops {
+        for carrier in &row.carriers {
+            bindings.insert(carrier.binding);
+            values.insert(carrier.value);
+        }
+        for edge in &row.edges {
+            for payload in &edge.payload {
+                bindings.insert(payload.binding);
+                values.insert(payload.value);
+            }
+        }
+    }
+    let binding_labels = bindings
+        .into_iter()
+        .enumerate()
+        .map(|(index, key)| (key, format!("b{index}")))
+        .collect::<BTreeMap<_, _>>();
+    let value_labels = values
+        .into_iter()
+        .enumerate()
+        .map(|(index, key)| (key, format!("v{index}")))
+        .collect::<BTreeMap<_, _>>();
+    let mut digest = String::new();
+    for (loop_index, row) in sig.as_sig().loops.iter().enumerate() {
+        writeln!(&mut digest, "loop=l{loop_index}").unwrap();
+        for edge in &row.edges {
+            let paths = map
+                .edge_paths
+                .get(&(row.key, edge.role))
+                .expect("sealed edge path");
+            let shapes = paths
+                .iter()
+                .map(|path| format!("len{}:terminal{}", path.blocks.len(), path.blocks.len() - 2))
+                .collect::<Vec<_>>();
+            let payload = edge
+                .payload
+                .iter()
+                .map(|entry| {
+                    format!(
+                        "{}:{}:{:?}",
+                        binding_labels[&entry.binding], value_labels[&entry.value], entry.class
+                    )
+                })
+                .collect::<Vec<_>>();
+            writeln!(
+                &mut digest,
+                "edge={:?}:{:?}->{:?}:paths={:?}:payload={:?}",
+                edge.role, edge.from, edge.to, shapes, payload
+            )
+            .unwrap();
+        }
+    }
+    for pending in map.pending_phis(sig).expect("sealed PHI rows") {
+        let row = sig
+            .as_sig()
+            .loops
+            .iter()
+            .find(|row| row.key == pending.loop_key)
+            .expect("pending loop row");
+        let input_roles = pending
+            .inputs
+            .iter()
+            .map(|(predecessor, value)| {
+                let role = row
+                    .edges
+                    .iter()
+                    .filter(|edge| is_header_input(edge.role))
+                    .find(|edge| {
+                        map.edge_paths
+                            .get(&(row.key, edge.role))
+                            .is_some_and(|paths| {
+                                paths
+                                    .iter()
+                                    .any(|path| path.terminal_predecessor == *predecessor)
+                            })
+                    })
+                    .map(|edge| format!("{:?}", edge.role))
+                    .unwrap_or_else(|| "unknown".to_string());
+                format!(
+                    "{role}:{}",
+                    value_labels[&value_key_for_physical(row, map, *value)]
+                )
+            })
+            .collect::<Vec<_>>();
+        writeln!(
+            &mut digest,
+            "phi:{}:{:?}:{:?}",
+            binding_labels[&pending.binding], pending.class, input_roles
+        )
+        .unwrap();
+    }
+    digest
+}
+
+fn value_key_for_physical(
+    row: &crate::mir::loop_recipe_contract::LoopJoinLoopV1,
+    map: &VerifiedLoopLogicalToPhysicalMapV1,
+    physical: ValueId,
+) -> LoopValueKeyV1 {
+    row.edges
+        .iter()
+        .flat_map(|edge| edge.payload.iter())
+        .find(|payload| {
+            map.values
+                .get(&payload.value)
+                .is_some_and(|(value, _)| *value == physical)
+        })
+        .map(|payload| payload.value)
+        .expect("physical value has logical payload")
+}
+
 #[test]
 fn map_rejects_duplicate_predecessor_before_builder_effect() {
     let sig = verified_sig();
@@ -354,6 +526,20 @@ fn direct_standard5_witness_rejects_body_to_header_shortcut() {
     path.terminal_predecessor = bb(2);
     let error = VerifiedLoopLogicalToPhysicalMapV1::try_new(&sig, input).unwrap_err();
     assert!(error.to_string().contains("predecessor mismatch"));
+}
+
+#[test]
+fn direct_alpha_digest_ignores_physical_id_allocation() {
+    let sig = direct_verified_sig();
+    let left = VerifiedLoopLogicalToPhysicalMapV1::try_new(&sig, direct_map_input(&sig))
+        .expect("left direct map");
+    let right = VerifiedLoopLogicalToPhysicalMapV1::try_new(&sig, permuted_direct_map_input(&sig))
+        .expect("permuted direct map");
+    let left_digest = alpha_normalized_direct_digest(&sig, &left);
+    let right_digest = alpha_normalized_direct_digest(&sig, &right);
+    assert_eq!(left_digest, right_digest);
+    assert!(!left_digest.contains("201"));
+    assert!(!left_digest.contains("505"));
 }
 
 #[test]

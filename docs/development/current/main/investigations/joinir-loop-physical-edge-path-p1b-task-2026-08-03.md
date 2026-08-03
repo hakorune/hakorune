@@ -129,16 +129,32 @@ M6-B materializer. Assert that:
 - malformed path/predecessor/after rows reject before PHI insertion;
 - live candidate isolation still comes from P1a/M1-B, not a second transaction.
 
-### P1b-4 — alpha-normalized parity
+### P1b-4a — structural alpha digest
 
 Define a test-only `AlphaNormalizedDigestV1` over role labels and semantic value
 labels, never raw `BasicBlockId`, `ValueId`, route names, or allocation order.
-The digest includes logical paths, predecessor sets, header PHI rows, after
-rows, inherited child payloads, final forwarding, types, and result semantics.
+The first slice is deliberately structural: logical edge roles/ports, physical
+path shape, predecessor-role mapping, and verified header PHI input rows. It
+proves that physical-ID allocation is not leaking into the sealed JoinSig/map/
+materializer contract.
 
-Only DirectAccum may compare against the legacy PlanLowerer/CorePlan oracle.
-The nested portable golden is JoinSig/path-witness/M6-B-root-receipt evidence
-only; its legacy nested composer is not an equivalent semantic oracle.
+This slice does **not** claim runtime arithmetic, final-value, type, or result
+parity with `PlanLowerer`. The current direct fixture uses carrier entry values
+directly and has no `ReadBinding` operation, while the legacy lowerer reads the
+dynamic carrier/PHI values. Calling this full semantic parity would therefore
+be unsound.
+
+### P1b-4b — semantic parity design stop
+
+Only DirectAccum may eventually compare against the legacy PlanLowerer/CorePlan
+oracle. Before that comparison is implemented, decide whether to revise the
+direct fixture to carry explicit `ReadBinding` operations (and update its
+verified IDs/maps) or to keep P1b structural-only and defer semantic parity to
+the production recipe-consumer task. No production wiring or fallback is added
+by this design stop.
+
+The nested portable golden remains JoinSig/path-witness/M6-B-root-receipt
+evidence only; its legacy nested composer is not an equivalent semantic oracle.
 
 ## Gates and non-claims
 
