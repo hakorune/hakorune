@@ -67,6 +67,10 @@ mod nested_predicate_physical_input_tests;
 mod nested_predicate_projection_tests;
 #[cfg(test)]
 mod nested_predicate_effect_plan_tests;
+#[allow(dead_code)]
+pub(in crate::mir) mod nested_predicate_profile;
+#[cfg(test)]
+mod nested_predicate_profile_tests;
 mod normal_default_pipeline;
 #[allow(dead_code)]
 pub(crate) mod normal_source_plan;
@@ -600,6 +604,14 @@ impl MirCompiler {
                     plan,
                     source_file,
                 );
+            }
+            CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(plan)) => {
+                return Err(CanonicalLoweringErrorV1::BuilderContract {
+                    detail: format!(
+                        "nested_predicate/{}/physicalizer_not_activated",
+                        plan.input().source().root().node_type()
+                    ),
+                });
             }
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
                 let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);

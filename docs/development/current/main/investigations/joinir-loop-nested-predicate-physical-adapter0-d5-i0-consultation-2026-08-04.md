@@ -1,6 +1,6 @@
 # JOINIR-LOOP-NESTED-PREDICATE-PHYSICAL-ADAPTER0-D5-I0
 
-Status: design consultation stop — production cutover is not yet authorized.
+Status: I0-A landed — bounded resolved-source I0 implementation is in progress.
 Date: 2026-08-04
 Design inputs:
 
@@ -13,7 +13,8 @@ Design inputs:
 Connect the first Nested physical adapter to the existing unpublished compile
 candidate and canonical function session only after the production caller,
 fallback authority, and winner-equivalence boundaries are explicitly closed.
-This card is the design gate for D5-I0; it is not permission to wire a route.
+This card is the design gate and bounded execution task for D5-I0. I0-A only
+issues and tests the sealed plan; it does not yet publish physical MIR.
 
 ## Landed prerequisites
 
@@ -71,19 +72,92 @@ reselection, AST reread, or post-effect `None` projection may cross this seam.
    canonical CFG/PHI result, diagnostics, and candidate isolation for late
    failure?
 
-## Minimum I0 implementation slice after approval
+## Consultation resolution
+
+The exact existing production chain is now fixed:
 
 ```text
-I0-A  caller census and named unpublished-candidate owner
-I0-B  one Nested physicalizer consumer of sealed P0/P1 products
-I0-C  one representative production fixture with legacy parity
-I0-D  late-failure candidate discard + fresh-request reuse
-I0-E  atomic caller switch and selected legacy-edge deletion
+MirCompiler::compile_resolved
+  -> compile_resolved_first_family
+  -> CanonicalLoweringPreflightV1::verify
+  -> CanonicalModuleLoweringSessionV1
+  -> bind_canonical_source
+  -> begin_canonical_invocation
+  -> SourceBoundCanonicalPackageV1::consume_parts
+```
+
+The first-family sum will gain one bounded variant:
+
+```text
+CanonicalLoopFamilyPlanV1::NestedPredicate
+  -> ExactCanonicalPreflightPlanV1::Loop
+  -> existing BindingSsaTrivial invocation family
+```
+
+No new `ModuleInvocationFamilyV1` is needed. The sole production physical
+owner is the existing `CanonicalSsaFunctionSessionV2`; Nested borrows its
+`ResolvedSsaIdentityStateV2`, `CanonicalCfgSessionV1`, `ResolvedSemanticStackV1`,
+and one `PhiTxn`. A route-local PHI/SSA session is forbidden.
+
+The Nested probe must run before the existing DirectAccum probe. Both pilots
+use the top-level `Local + Loop` envelope; allowing DirectAccum to inspect the
+shape first would turn a Nested producer failure into a misleading DirectAccum
+terminal. The probe must therefore classify the Nested sentinel first and,
+once present, make every producer/effect/JoinSig failure a typed terminal. Only
+a clearly non-Nested shape may continue to DirectAccum or the ordinary family.
+
+The plan issuer consumes the already-sealed products in this order:
+
+```text
+projection -> Nested Recipe product
+           -> P1 effect claims from product.source_handoff()
+           -> physical emission input (Recipe consumed once)
+           -> owner/frame/header seals
+```
+
+It must provide the same resolved-owner header seal as DirectAccum so the
+existing source-bound package can bind it without a second lifecycle family.
+
+I0 admission is limited to the currently sealed Nested fixture:
+
+```text
+Enter -> PredicateTrue / PredicateFalse -> Backedge
+```
+
+Mixed break/continue/return/fallthrough transfer remains a typed reject until
+the shared JoinSig branch-transfer owner is closed. Generic V0/V1 debt and all
+other Loop families remain on their existing lanes.
+
+The implementation is explicitly scoped to `compile_resolved` and its
+unpublished `CanonicalModuleLoweringSessionV1` candidate. It does not claim
+that public `compile_with_source` or the `.hako` normal ingress consumes this
+Nested plan.
+
+## Minimum I0 implementation slice
+
+```text
+I0-A  add Nested plan/probe and first-family variant; reject unsupported shapes
+I0-B  add canonical resolved Nested lowerer and one physicalizer core
+I0-C  add the resolved-source cutover orchestrator, using DirectAccum's chain
+I0-D  add one representative fixture, legacy parity, and late-failure reuse
+I0-E  retire only the selected Nested legacy edge and prove caller counts
 ```
 
 I0-A/B must remain one route/family only. Do not add a universal Loop
 physicalizer, Generic fallback, route registry rewrite, or all-route cutover in
 this slice.
+
+## I0-A landed boundary
+
+The first-family preflight now probes the Nested structural sentinel before
+DirectAccum and issues `CanonicalNestedPredicatePlanV1` from the existing
+projection, Recipe/JoinSig/topology, effect claims, completion, and owner/frame
+seals. The source-bound package has typed placeholder arms for the still
+unimplemented physicalizer; no Nested MIR writer or production cutover is
+claimed by this milestone.
+
+Next is I0-B: borrow the existing canonical SSA/CFG/PHI owner for one bounded
+Nested physicalizer, with candidate-only mutation and terminal failure.
 
 ## Acceptance gates
 

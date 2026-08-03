@@ -1,15 +1,17 @@
 use super::super::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use super::super::function_input::ResolvedFunctionLoweringInputV1;
+use super::super::nested_predicate_profile::CanonicalNestedPredicatePlanV1;
 use super::resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
 use super::{CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1};
 
-/// Semantic Loop-family envelope. The DirectAccum pilot is the only admitted
-/// variant; other families require their own sealed source/body products.
+/// Semantic Loop-family envelope. Each variant carries one sealed
+/// source/body product; the external lifecycle remains BindingSsaTrivial.
 #[derive(Debug)]
 pub(crate) enum CanonicalLoopFamilyPlanV1<'a> {
     DirectAccum(CanonicalDirectAccumPlanV1<'a>),
+    NestedPredicate(CanonicalNestedPredicatePlanV1<'a>),
 }
 
 impl<'a> CanonicalLoopFamilyPlanV1<'a> {
@@ -18,6 +20,7 @@ impl<'a> CanonicalLoopFamilyPlanV1<'a> {
     ) -> super::super::function_input::ResolvedFunctionLoweringInputV1<'a> {
         match self {
             Self::DirectAccum(plan) => plan.input(),
+            Self::NestedPredicate(plan) => plan.input(),
         }
     }
 }

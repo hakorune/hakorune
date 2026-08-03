@@ -28,6 +28,9 @@ use super::direct_accum_capability::{
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
+use super::nested_predicate_profile::{
+    probe_nested_predicate_source_unit_v1, NestedPredicateSourceUnitProbeV1,
+};
 use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
 mod first_family_plan;
@@ -141,6 +144,10 @@ impl CanonicalLoweringPreflightV1 {
     pub(crate) fn verify(
         unit: &VerifiedResolvedSourceUnitV1,
     ) -> Result<CanonicalFirstFamilyPlanV1<'_>, CanonicalLoweringErrorV1> {
+        match probe_nested_predicate_source_unit_v1(unit)? {
+            NestedPredicateSourceUnitProbeV1::Candidate(plan) => return Ok(plan),
+            NestedPredicateSourceUnitProbeV1::NotCandidate => {}
+        }
         match probe_direct_accum_source_unit_v1(unit)? {
             DirectAccumSourceUnitProbeV1::Candidate(plan) => Ok(plan),
             DirectAccumSourceUnitProbeV1::NotCandidate(function) => Self::verify_function(function),
@@ -188,6 +195,13 @@ impl CanonicalLoweringPreflightV1 {
                 plan.input().source().root(),
                 "direct_accum_not_normal_main",
             ),
+            CanonicalFirstFamilyPlanV1::Loop(
+                super::capability::CanonicalLoopFamilyPlanV1::NestedPredicate(plan),
+            ) => unsupported(
+                "root",
+                plan.input().source().root(),
+                "nested_predicate_not_normal_main",
+            ),
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
             CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
                 let (function, ..) = plan.into_parts();
@@ -216,6 +230,13 @@ impl CanonicalLoweringPreflightV1 {
                 "root",
                 plan.input().source().root(),
                 "direct_accum_not_normal_main_direct_call",
+            ),
+            CanonicalFirstFamilyPlanV1::Loop(
+                super::capability::CanonicalLoopFamilyPlanV1::NestedPredicate(plan),
+            ) => unsupported(
+                "root",
+                plan.input().source().root(),
+                "nested_predicate_not_normal_main_direct_call",
             ),
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
             CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {

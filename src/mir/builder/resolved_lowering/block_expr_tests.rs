@@ -107,6 +107,11 @@ fn build(root: ASTNode) -> crate::mir::MirModule {
         ) => {
             panic!("block-expression fixture must not admit DirectAccum")
         }
+        crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::Loop(
+            crate::mir::compiler::capability::CanonicalLoopFamilyPlanV1::NestedPredicate(_),
+        ) => {
+            panic!("block-expression fixture must not admit NestedPredicate")
+        }
     }
 }
 

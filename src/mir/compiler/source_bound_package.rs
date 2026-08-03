@@ -543,6 +543,23 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                     ),
                 })
             }
+            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(
+                plan,
+            )) => {
+                let header = plan
+                    .seal_resolved_owner_header_v1()
+                    .map_err(SourceBindingErrorV1::Header)?;
+                debug_assert_eq!(
+                    header.family(),
+                    ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
+                );
+                Ok(CanonicalSourceContinuationV1::Single {
+                    header,
+                    policy: ModuleInvocationPolicyV1::policy_for_family(
+                        ModuleInvocationFamilyV1::BindingSsaTrivial,
+                    ),
+                })
+            }
             ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
                 Ok(CanonicalSourceContinuationV1::Callable {
                     source: plan.module(),
@@ -609,6 +626,15 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                     builder.lower_resolved_direct_accum_function_draft(plan),
                 )
             }
+            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(
+                _plan,
+            )) => lower_single(
+                token,
+                continuation,
+                Err(CanonicalResolvedBuildErrorV1::BuilderContract(
+                    "nested_predicate/physicalizer_not_activated".into(),
+                )),
+            ),
             ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
                 match builder.lower_acyclic_callable_drafts(plan) {
                     Ok(drafts) => Ok(LoweredCanonicalPlanV1::Callable {
