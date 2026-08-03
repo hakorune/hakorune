@@ -1,8 +1,9 @@
 # MIRBUILDER-CLEANUP-RETIREMENT0-D0
 
 Status: parked BoxShape task map; audit complete, implementation not
-authorized by this card. The executable cleanup lane remains behind the
-active If D0-C producer/consumer design stop.
+authorized by this card. The executable cleanup lane remains read-only while
+If D0-D1/D0-D2 physicalizer work is in progress; promote a bounded cleanup
+row only after that commit boundary and a clean worktree.
 Date: 2026-08-04
 
 This card records the cleanup opportunities raised by the dead-code audit. It
@@ -11,6 +12,41 @@ stop. The
 goal is to reduce duplicate shells and retire proven disconnected code without
 changing route selection, Recipe semantics, SSA/PHI authority, or the JSON-v0
 compatibility contract.
+
+## Worker re-audit decision (2026-08-04)
+
+The six-item cleanup request is accepted as one ordered program, not as a
+5,300-line delete. The safe dependency order is:
+
+```text
+T1-D0  freeze evidence/lint/guard baseline (read-only; immediately allowed)
+  -> T1-S0  migrate proof evidence, then retire one compiler *_p0 row/commit
+  -> T1-S1  narrow stale resolved-module masks one accessor group/commit
+  -> T2-S0  deduplicate 11 route-neutral Recipe carrier shells
+  -> T2-S1  consolidate the four trivial analyzer policy wrappers
+  -> T3-S0  cfg(test) facades, callable-result exports, then naming audit
+  -> T4-R0  JSON-v0 bridge caller-zero retirement and hard delete
+```
+
+`T1-D0` is the only cleanup action to run during the active If
+implementation. `T2-S0`, `T2-S1`, and the first T3 census may be parallel
+only when their files and guards are disjoint from the If adapter/lowerer and
+the worktree is clean. `T1-S0` remains proof-DAG serial (leaf to root), and
+T4 is a separate phase lane. No cleanup commit may be mixed with D0-D1/D0-D2
+or with D0-D3 selected old-edge cutover.
+
+Every executable row follows the same reversible transaction:
+
+```text
+caller/owner census
+  -> stable replacement evidence
+  -> retarget guard and focused test
+  -> buildable single-purpose commit
+  -> delete/retire bounded old symbol
+```
+
+Rollback is the whole row commit (including guard retarget); a failed fast
+gate leaves the row parked rather than adding a new fixture or fallback.
 
 ## Audit corrections
 
@@ -227,9 +263,9 @@ hard-delete the bridge.
   gate, and explicit rollback boundary.
 - `phi_input_materializer.rs` and route-local PHI repair remain outside T1–T4;
   their size/authority split is a separate behavior-neutral SSA lane.
-- This cleanup card is parked behind the active If D0-C producer/consumer
-  design stop and may run in parallel only as read-only audit/design work
-  until a bounded row is promoted. T3/T4 must not move/delete `BindingSsaBuilderV1`,
+- This cleanup card is parked behind active If D0-D1/D0-D2 implementation and
+  may run in parallel only as read-only audit/design work until a bounded row
+  is promoted after a clean-worktree boundary. T3/T4 must not move/delete `BindingSsaBuilderV1`,
   `PhiTxn`, `CanonicalCfgSessionV1`, Loop/JoinIR PHI writers, or change
   route/Recipe semantics. Existing semantic/lifecycle PHI/SSA owners are
   authoritative, but exclusive production writer retirement remains a later
