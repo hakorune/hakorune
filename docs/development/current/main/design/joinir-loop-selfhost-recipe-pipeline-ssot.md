@@ -503,8 +503,9 @@ Done:
   and production wiring remain zero. `LoopPhiMaterializationReceiptV1` is
   non-Clone and the materializer remains an observer, not a second PHI owner.
   The first physical pilot must prove the Binding-SSA-first session rather
-  than promote M6-B into a second PHI owner. The next bounded slice is the
-  explicit P1b physical edge-path witness.
+  than promote M6-B into a second PHI owner. The structural P1b edge-path
+  witness is now closed as caller-zero evidence; P1b-4b full physical parity
+  remains deferred to the accepted P4 physical-snapshot design stop.
 
 Stop:
 : Bypass, production wiring, route-local AST/PHI inference, duplicate writer, or temporary repair stops M6.

@@ -1,5 +1,5 @@
 ---
-Status: active test-only task order
+Status: closed structural P1b-0..4a evidence; P1b-4b full semantic parity remains deferred to P4
 Date: 2026-08-03
 Decision: accepted boundary — `JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1B-FIXED-CFG-PARITY0-S2`
 Scope: explicit logical-edge to Standard5 physical-path witness
@@ -174,3 +174,45 @@ evidence only; its legacy nested composer is not an equivalent semantic oracle.
 
 If a path needs route-specific repair, AST reconstruction, or a second PHI
 writer, stop P1b and reopen the design rather than adding a fallback.
+
+## P1b structural closeout
+
+P1b-0 through P1b-4a are now closed as test-only structural evidence. The
+explicit `LoopPhysicalEdgePathV1` capability and sealed map reject missing
+paths, wrong endpoints, invalid adjacent predecessor witnesses, terminal
+predecessor mismatches, duplicate predecessor rows, and implicit Body→Header
+fallback before PHI effect. DirectAccum proves the Standard5
+`Body→Step→Header` witness and header inputs `(Preheader, init)` / `(Step,
+next)`; the nested `Always` golden proves explicit parent-resume paths and
+root-only carrier PHI receipts. The alpha-normalized structural digest is
+stable under physical ID permutation.
+
+Acceptance evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib loop_physical_input -- --test-threads=1
+  3 passed
+RUSTFLAGS='-Awarnings' cargo test -q --lib loop_phi_materializer -- --test-threads=1
+  33 passed
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+  ok (logical-demand, caller-zero, forbidden-owner, line-budget guards)
+bash tools/checks/current_state_pointer_guard.sh
+  ok
+git diff --check
+  ok
+```
+
+All touched Rust/test files remain below 800 lines; the materializer is 702
+lines and its extracted test module is 795 lines. Production
+`materialize_loop_phis`, route, physicalizer, and `route_loop` callers remain
+zero. No grammar, IR, route, Retry, fallback, publication, or Generic policy
+behavior changed. The M6-B observer remains the only PHI receipt consumer in
+this structural evidence lane, while `PhiTxn` and Binding SSA remain the sole
+PHI/SSA owners.
+
+P1b-4b is intentionally not claimed: full MIR/instruction/type/result parity
+with `PlanLowerer` requires the single shared physicalizer and belongs to the
+accepted design stop
+`JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT-DESIGN0-M5-P4`. The P1b card, loop
+pipeline SSOT, topology design, PHI references, Builder README, and current
+state mirrors are synchronized as part of this closeout.

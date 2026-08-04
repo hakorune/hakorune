@@ -49,5 +49,6 @@ Caller-zero Loop observer boundary
   Missing paths, predecessor mismatches, unknown types, and duplicate
   destinations fail before or within that transaction.
 - Canonical CFG, function-owned Binding SSA, and `PhiTxn` remain the sole
-  production owners. M6-B introduces no grammar, IR, route, Retry, or
-  publication behavior.
+  production owners. M6-B and the structural P1b edge-path witness introduce
+  no grammar, IR, route, Retry, or publication behavior. Full physical parity
+  is deferred to the accepted P4 physical-snapshot design stop.

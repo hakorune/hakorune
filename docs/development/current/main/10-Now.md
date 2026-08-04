@@ -29,8 +29,8 @@ Related:
   graph toward `mirbuilder_north_star`; cell/pack/LOC counts are not the goal
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
-- current frontier: M6-B caller-zero PHI evidence is closed; follow the P1b
-  explicit physical edge-path card named by `latest_card_path` before
+- current frontier: M6-B and structural P1b evidence are closed; follow the
+  P4 physical-snapshot design card named by `latest_card_path` before
   production changes
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work

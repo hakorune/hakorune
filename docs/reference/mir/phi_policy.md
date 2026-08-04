@@ -43,6 +43,6 @@ Loop M6-B caller-zero boundary
   does not select routes, infer CFG, or publish MIR.
 - Its PHI writes are transactional through `PhiTxn`; canonical CFG and
   function-owned Binding SSA remain the production lifecycle owners.
-- The M6-B closeout changes no source grammar, MIR shape, Retry/fallback, or
-  route behavior. The next physical slice is the explicit P1b edge-path
-  witness.
+- The M6-B closeout and structural P1b witness change no source grammar, MIR
+  shape, Retry/fallback, or route behavior. Full physical parity is deferred to
+  the accepted P4 physical-snapshot design stop.

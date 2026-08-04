@@ -84,9 +84,11 @@ binding publication step without creating a second SSA owner.
 
 This seal keeps `VerifiedLoopJoinSigV1` as the semantic authority and makes
 logical-edge expansion a separate physical capability. `PlanLowerer` remains a
-parity oracle only. P1-D0 is now closed as a design boundary; P1b must issue
-the sealed physical witness and reject any missing after/step/nested forwarding
-row before PHI materialization. M6-B itself remains unchanged and caller-zero.
+parity oracle only. P1-D0 is closed as a design boundary, and P1b-0..4a now
+close the sealed physical witness with explicit after/step/nested forwarding
+rows rejected before PHI materialization. M6-B remains unchanged and
+caller-zero. P1b-4b full MIR/instruction/type/result parity remains the P4
+physical-snapshot design stop.
 
 ## Chosen shape for the next owner
 

@@ -35,6 +35,13 @@ physicalizer pass its own copy of the legacy implementation, which defeats the
 M6/M10 design. Therefore this row defines the seam and stops; it does not add a
 synthetic physical producer.
 
+The prerequisite structural P1b witness is closed: explicit physical paths,
+sealed predecessor rows, Standard5 `Body -> Step -> Header`, and the
+alpha-normalized JoinSig/map/PHI receipt digest are deterministic and
+caller-zero. This card therefore owns the next design question; it must not
+reopen P1 topology or extend `LoopPhiMaterializerV1` into an operation/CFG
+lowerer.
+
 ## Decision
 
 Define a test-only `MirPhysicalAlphaSnapshotV1` contract with two producers:

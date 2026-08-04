@@ -251,4 +251,5 @@ the existing `PhiTxn` lifecycle. It must not read AST/routes/CorePlan,
 recompute CFG, touch `variable_map`, infer Binding SSA, or add Retry/fallback.
 Canonical CFG plus one function-owned Binding SSA remains the production
 physicalization owner. The focused M6-B suite is 33/33 and the structural guard
-is green; the next bounded physical slice is the explicit P1b edge-path task.
+is green; the structural P1b edge-path task is closed. Full MIR/instruction/
+type/result parity remains the accepted P4 physical-snapshot design stop.

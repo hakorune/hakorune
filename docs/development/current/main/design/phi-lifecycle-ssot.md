@@ -213,5 +213,7 @@ the sole production owners; the observer's non-`Clone` receipt is parity
 evidence only.
 
 The M6-B focused suite is green at 33/33 and the caller-zero structural guard
-is green. The next physical work is the explicit P1b edge-path witness; no
-grammar, IR, route, Retry, or publication behavior follows from M6-B.
+is green. The explicit P1b edge-path witness is now structurally closed; full
+MIR/instruction/type/result parity remains the accepted P4 physical-snapshot
+design stop. No grammar, IR, route, Retry, or publication behavior follows
+from M6-B or P1b.
