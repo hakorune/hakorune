@@ -493,17 +493,17 @@ closed — JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0
 accepted — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0
   -> resolver-owned source projection; loop_route_policy row-brand admission;
      dedicated profile-specific Recipe producer; all pre-effect and caller-zero
-     boundaries are fixed in the pipeline SSOT. Reference docs are mandatory
-     after S0-S2 implementation.
+     boundaries are fixed in the pipeline SSOT. Reference closeout is now
+     landed with the S2 implementation.
 closed — JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0
   -> resolver-owned AST-free LoopTrue projection with exact source/frame identity
      and typed caller-zero rejects; no route switch, Builder/CFG/PHI, retry, or fallback.
 closed — JOINIR-LOOP-TRUE-POLICY-DEMAND0-M7-S3-S1
   -> one-consume schedule admits only canonical LoopTrue and retains receipt+projection; no raw cursor, schedule, Recipe, JoinSig, retry, or physical capability.
-next — JOINIR-LOOP-TRUE-RECIPE-JOINSIG-PARITY0-M7-S3-S2
-  -> issue the dedicated caller-zero Recipe, verify it, and elaborate JoinSig; physical Builder effects and fallback stay zero.
-required after S2 — JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3
-  -> update recipe README/reference page with landed envelope, caller-zero status, non-claims; run reference-link/grammar/current-pointer guards.
+closed — JOINIR-LOOP-TRUE-RECIPE-JOINSIG-PARITY0-M7-S3-S2
+  -> caller-zero producer emits, verifies, and elaborates the fixed source-bound Recipe; physical Builder effects and fallback remain zero.
+closed — JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3
+  -> README/reference page records the landed envelope, caller-zero status, non-claims, and green focused/pointer/in-place/R4 guards.
 ```
 
 ## Production invariants
@@ -947,10 +947,10 @@ closed
 
 ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure is closed;
-     M7-S3-D0 is accepted and source projection S0 is now closed with
+     M7-S3 S0/S1/S2 and its reference closeout are now closed with
      resolver-owned identity/frame receipts and typed caller-zero rejects
-  2. execute M7-S3 policy demand S1, then caller-zero Recipe/JoinSig S2;
-     update reference docs after S0-S2 implementation
+  2. execute the active Generic M4 debt classification before M7-S4;
+     no mock winner, retry projection, or physical route switch
   3. close Generic M4 D2 before M7-S4; no mock winner or retry projection
   4. close M7 five-family parity, M8 all-19 producers, and M9 host parity
   5. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located

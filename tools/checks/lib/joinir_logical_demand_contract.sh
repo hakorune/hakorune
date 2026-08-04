@@ -389,7 +389,8 @@ guard_joinir_logical_demand_contract() {
   fi
   freeze_facade_external_callers="$(
     { rg -l 'freeze_loop_route_schedule_v1\(' "$root_dir/src" || true; } \
-      | awk -v prefix="$loop_route_policy_dir/" 'index($0, prefix) != 1' \
+      | awk -v prefix="$loop_route_policy_dir/" \
+          'index($0, prefix) != 1 && $0 !~ /\/tests\.rs$/ && $0 !~ /_tests\.rs$/' \
       | wc -l \
       | tr -d '[:space:]'
   )"

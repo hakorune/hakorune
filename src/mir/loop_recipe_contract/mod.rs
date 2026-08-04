@@ -5,6 +5,7 @@ mod error;
 mod ids;
 mod join_sig;
 mod join_sig_branch;
+mod loop_true_break_continue_producer;
 mod normalize;
 mod physical_input;
 pub(crate) mod route_id;
@@ -23,6 +24,10 @@ mod nested_predicate_tests;
 #[cfg(test)]
 #[path = "join_sig_branch_tests.rs"]
 mod join_sig_branch_tests;
+
+#[cfg(test)]
+#[path = "loop_true_break_continue_producer_tests.rs"]
+mod loop_true_break_continue_producer_tests;
 
 #[cfg(test)]
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
@@ -49,6 +54,11 @@ pub(crate) use join_sig::{
     LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1,
     LoopJoinPayloadV1, LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
     LoopJoinSigV1, VerifiedLoopJoinSigV1,
+};
+#[allow(unused_imports)]
+pub(crate) use loop_true_break_continue_producer::{
+    produce_loop_true_break_continue_recipe_v1, LoopTrueBreakContinueRecipeProducerRejectV1,
+    VerifiedLoopTrueBreakContinueRecipeProductV1,
 };
 #[allow(unused_imports)]
 pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};

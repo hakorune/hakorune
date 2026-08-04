@@ -678,8 +678,11 @@ Stop:
   support in `phi_policy.md` or `phi_invariants.md`; update those only after a
   later physical adoption changes their contract.
 
-#### M7-S3 — `JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0` (accepted)
-Decision: accepted after independent worker audits; source projection S0 and policy demand S1 are closed. Next row: `JOINIR-LOOP-TRUE-RECIPE-JOINSIG-PARITY0-M7-S3-S2`.
+#### M7-S3 — `JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0` (closed)
+Decision: accepted after independent worker audits; source projection S0,
+policy demand S1, caller-zero Recipe/JoinSig parity S2, and the required
+reference closeout S3 are closed. The next ordered blocker is the active
+Generic M4 debt classification.
 Source authority:
 : Resolver-owned `VerifiedResolvedLoopSourceV1` plus one semantic source
   traversal issues an AST-free `VerifiedLoopTrueBreakContinueProjectionV1`.
@@ -701,12 +704,12 @@ Fail-fast envelope:
   suffix reconstruction, fallback, AST payloads, physical IDs, CFG/PHI, and
   route switches are forbidden.
 Execution tasks:
-: S0 is closed with resolver-owned source projection and source-identity/frame rejects. S1 is closed with one-consume schedule admission and a profile-specific policy receipt. S2 is Recipe -> verifier -> JoinSig caller-zero parity; S3 is the mandatory reference closeout and guards. Use the
+: S0 is closed with resolver-owned source projection and source-identity/frame rejects. S1 is closed with one-consume schedule admission and a profile-specific policy receipt. S2 is Recipe -> verifier -> JoinSig caller-zero parity, and S3 is closed with the mandatory reference documentation and guards. Use the
   phase143 fixture plus implicit-else, divergent-write, Return, wrong-frame,
   and wrong-winner negatives; run focused tests, pointer/in-place/R4 guards,
   diff checks, and the <800-line budget.
-Reference closeout task (`JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`):
-: After S2 implementation, update
+Reference closeout task (`JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`, closed):
+: After S2 implementation, updated
   `src/mir/loop_recipe_contract/README.md` and
   `docs/reference/mir/loop-recipe-contract.md` with the source projection,
   policy brand, exact envelope, caller-zero status, and non-claims. Do not

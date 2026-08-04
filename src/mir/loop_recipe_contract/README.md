@@ -41,6 +41,28 @@ Loop lowering.
   non-`Clone` validation capability. Its wire DTO remains intentionally
   `Clone`; neither type is source authority.
 
+## LoopTrue S2 producer
+
+`produce_loop_true_break_continue_recipe_v1` is the caller-zero S2 producer
+for the sealed `LoopTrueBreakContinue` policy brand. It consumes one
+`VerifiedLoopTrueBreakContinuePolicyDemandV1`, retains its policy receipt, and
+projects the sealed source shape into the existing envelope:
+
+```text
+policy demand
+  -> fixed LoopTrue RecipeV1
+  -> source-bound artifact verification
+  -> VerifiedLoopJoinSigV1
+```
+
+The exact envelope is one `Always` loop with three blocks, one I64 binding and
+carrier, four values, one `ReadBinding`, one bound `ConstI64`, one `Equal`
+comparison, one explicit-else `If`, and direct owner-targeted `Break`/`Continue`
+exits. The producer is deterministic and has no AST inspection, route switch,
+retry/fallback, physical CFG/PHI, or Builder effect. The result is a verified
+logical product only; it does not claim a production caller or physical
+adoption.
+
 ## Forbidden dependencies
 
 This subtree must not import AST nodes, `MirBuilder`, `CorePlan`, physical

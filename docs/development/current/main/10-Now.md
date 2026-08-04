@@ -29,13 +29,13 @@ Related:
   graph toward `mirbuilder_north_star`; cell/pack/LOC counts are not the goal
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
-- current frontier: Decision B-prime and M7-S2-A are closed, and M7-S3-D0 is
-  accepted. Source projection S0 and row-branded policy demand S1 are closed
-  with resolver-owned identity/frame receipts and one-consume frozen schedule.
-  The next row is caller-zero Recipe/JoinSig parity S2; no route/physical
-  change is authorized. After S2, the named reference closeout must update the
-  recipe README and reference page before the cohort is complete. M10b still
-  waits on M7/M8/M9 and Generic D2.
+- current frontier: Decision B-prime, M7-S2-A, and the full M7-S3 LoopTrue
+  source-to-Recipe cohort are closed. S0/S1/S2 plus the required reference
+  closeout have resolver-owned identity/frame receipts, one-consume frozen
+  schedule, source-bound Recipe/JoinSig parity, and explicit non-claims. The
+  next row is Generic M4 debt classification; no Generic production Recipe,
+  route, or physical change is authorized yet. M10b still waits on
+  M7/M8/M9 and Generic D2.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

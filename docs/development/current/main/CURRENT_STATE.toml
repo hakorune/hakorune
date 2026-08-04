@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Decision B-prime is restored, M7-S2-A is closed, and M7-S3 source projection S0 plus policy demand S1 are closed: resolver-owned AST-free LoopTrue projection, explicit source/frame identity, typed caller-zero rejects, and frozen-schedule policy admission are green. The next executable row is caller-zero Recipe/JoinSig parity S2; M10b still waits on M7/M8/M9 and Generic D2."
+status = "Decision B-prime is restored, M7-S2-A is closed, and the full M7-S3 LoopTrue source-to-Recipe cohort is closed: resolver-owned AST-free projection, explicit source/frame identity, frozen-schedule policy admission, caller-zero Recipe/JoinSig parity, and the required reference closeout are green. The next executable row is the active Generic M4 debt classification; M10b still waits on M7/M8/M9 and Generic D2."
 date = "2026-08-05"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "M7-S3-D0 is accepted, S0 source projection and S1 policy demand are closed: resolver-owned AST-free source projection is separate from loop_route_policy row-brand admission, and the owned schedule is consumed once into a profile-specific policy receipt. The next slice may implement caller-zero Recipe/JoinSig parity S2 only; no physical Builder effect, retry, fallback, or reference closeout before S2 is authorized."
-current_execution_row = "JOINIR-LOOP-TRUE-RECIPE-JOINSIG-PARITY0-M7-S3-S2"
-current_execution_summary = "M7-S2-A is closed with one ordered logical branch row, Break/Continue edges, no Backedge, and focused caller-zero rejects. M7-S3 S0 seals the exact LoopTrue source projection and S1 seals frozen-schedule policy demand with source/frame identity; S2 is caller-zero Recipe -> verifier -> JoinSig parity, followed by the mandatory reference closeout task."
+current_design_stop = "M7-S3-D0 is closed: S0 source projection, S1 policy demand, S2 caller-zero Recipe/JoinSig parity, and S3 reference closeout are landed. The next slice is the active Generic M4 debt classification only; no Generic Recipe production connection, physical Builder effect, retry, fallback, or M7-S4 route work is authorized before that design/test boundary closes."
+current_execution_row = "JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0"
+current_execution_summary = "M7-S2-A is closed with one ordered logical branch row, Break/Continue edges, no Backedge, and focused caller-zero rejects. M7-S3 S0 seals exact LoopTrue source projection, S1 seals one-consume frozen-schedule policy demand, S2 emits and verifies the fixed source-bound Recipe then elaborates JoinSig, and S3 lands the recipe README/reference closeout. Generic M4 remains the next ordered design/test boundary."
 current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 joinir_if_recipe_two_call_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-two-call-arms-d0-d2-execution-task-2026-08-04.md"
 joinir_if_recipe_call_implicit_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-call-branch-implicit-d0-d2-execution-task-2026-08-04.md"
@@ -455,7 +455,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
-latest_card_summary = """B-prime is restored and the stale C/NoSafeSlice closeout is superseded. Universal raw/reference ingress is rejected; normalized-shadow mutation is already retired. M7-S2-A closes the caller-zero LoopTrue explicit Break/Continue logical JoinSig shape with no physical CFG/PHI change. M7-S3 S0 source projection and S1 policy demand are now closed; S2 Recipe/JoinSig parity is next, then the named reference closeout updates the recipe README and reference page. M10b remains ordered after M7/M8/M9 and Generic D2."""
+latest_card_summary = """B-prime is restored and the stale C/NoSafeSlice closeout is superseded. Universal raw/reference ingress is rejected; normalized-shadow mutation is already retired. M7-S2-A closes the caller-zero LoopTrue explicit Break/Continue logical JoinSig shape with no physical CFG/PHI change. M7-S3 S0/S1/S2 and the named reference closeout are closed; the next ordered boundary is Generic M4 debt classification. M10b remains ordered after M7/M8/M9 and Generic D2."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -658,7 +658,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-TRUE-RECIPE-JOINSIG-PARITY0-M7-S3-S2"
+current_blocker_token = "JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
