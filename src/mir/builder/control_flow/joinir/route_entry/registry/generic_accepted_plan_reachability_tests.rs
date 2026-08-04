@@ -30,14 +30,14 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum CorpusModeV1 {
+pub(super) enum CorpusModeV1 {
     Release,
     Strict,
     StrictPlannerRequired,
 }
 
 impl CorpusModeV1 {
-    fn env(self) -> (&'static str, Option<&'static str>) {
+    pub(super) fn env(self) -> (&'static str, Option<&'static str>) {
         match self {
             Self::Release => ("HAKO_JOINIR_STRICT", None),
             Self::Strict => ("HAKO_JOINIR_STRICT", Some("1")),
@@ -45,14 +45,14 @@ impl CorpusModeV1 {
         }
     }
 
-    fn planner_required(self) -> Option<&'static str> {
+    pub(super) fn planner_required(self) -> Option<&'static str> {
         match self {
             Self::StrictPlannerRequired => Some("1"),
             Self::Release | Self::Strict => None,
         }
     }
 
-    fn strict_or_dev(self) -> bool {
+    pub(super) fn strict_or_dev(self) -> bool {
         !matches!(self, Self::Release)
     }
 }
@@ -94,16 +94,16 @@ pub(super) struct CandidateSnapshotV1 {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-struct ReachabilityRowV1 {
-    mode: CorpusModeV1,
-    route: LoopRouteId,
-    root_is_loop: bool,
-    stage: PlanStageV1,
-    first_effect_owner: EffectOwnerV1,
-    before_compose: CandidateSnapshotV1,
-    before_lower: CandidateSnapshotV1,
-    after_lower: CandidateSnapshotV1,
-    semantic_digest: Option<CorePlanSemanticDigestV1>,
+pub(super) struct ReachabilityRowV1 {
+    pub(super) mode: CorpusModeV1,
+    pub(super) route: LoopRouteId,
+    pub(super) root_is_loop: bool,
+    pub(super) stage: PlanStageV1,
+    pub(super) first_effect_owner: EffectOwnerV1,
+    pub(super) before_compose: CandidateSnapshotV1,
+    pub(super) before_lower: CandidateSnapshotV1,
+    pub(super) after_lower: CandidateSnapshotV1,
+    pub(super) semantic_digest: Option<CorePlanSemanticDigestV1>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -298,7 +298,7 @@ fn observe_row(
     }
 }
 
-fn observe_fixture(mode: CorpusModeV1, name: &str) -> Vec<ReachabilityRowV1> {
+pub(super) fn observe_fixture(mode: CorpusModeV1, name: &str) -> Vec<ReachabilityRowV1> {
     let (condition, body) = fixture(name);
     let ctx = LoopRouteContext::new(&condition, &body, "generic_reachability/0", false, false);
     let outcome = match try_build_outcome(&ctx) {

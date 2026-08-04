@@ -18,6 +18,10 @@ names.
 Route diagnostic reason/proof spelling is owned by
 `docs/reference/mir/route-diagnostics-vocabulary.md`.
 
+Generic Loop V0/V1 post-effect stage evidence is documented separately in
+`docs/reference/mir/generic-loop-stage-matrix.md`; that page is inspection-only
+and does not select a production route.
+
 ## Metadata Classes
 
 `metadata` is not one semantic bucket. Rows must belong to one of these classes

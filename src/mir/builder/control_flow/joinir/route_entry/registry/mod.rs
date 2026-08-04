@@ -220,6 +220,8 @@ mod generic_selection_matrix_tests;
 #[cfg(test)]
 mod generic_semantic_digest_tests;
 #[cfg(test)]
+mod generic_stage_matrix_tests;
+#[cfg(test)]
 mod generic_stage_observer_tests;
 #[cfg(test)]
 mod nested_effective_winner_tests;

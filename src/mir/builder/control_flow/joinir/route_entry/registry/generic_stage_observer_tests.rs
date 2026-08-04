@@ -28,22 +28,22 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ObserverModeV1 {
+pub(super) enum ObserverModeV1 {
     Release,
     Strict,
     StrictPlannerRequired,
 }
 
 impl ObserverModeV1 {
-    fn strict_or_dev(self) -> bool {
+    pub(super) fn strict_or_dev(self) -> bool {
         !matches!(self, Self::Release)
     }
 
-    fn planner_required(self) -> bool {
+    pub(super) fn planner_required(self) -> bool {
         matches!(self, Self::StrictPlannerRequired)
     }
 
-    fn config(self) -> crate::test_support::ScopedTestConfig {
+    pub(super) fn config(self) -> crate::test_support::ScopedTestConfig {
         crate::test_support::ScopedTestConfig::apply(&[
             (
                 "HAKO_JOINIR_STRICT",
@@ -67,21 +67,21 @@ impl ObserverModeV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct AttemptTraceV1 {
-    route: LoopRouteId,
-    cursor: usize,
-    suffix: Vec<LoopRouteId>,
+pub(super) struct AttemptTraceV1 {
+    pub(super) route: LoopRouteId,
+    pub(super) cursor: usize,
+    pub(super) suffix: Vec<LoopRouteId>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct GenericDebtTraceV1 {
-    route: LoopRouteId,
-    composer: super::legacy_receipt::LegacyGenericComposerV1,
-    result: super::legacy_receipt::LegacyGenericResultKindV1,
+pub(super) struct GenericDebtTraceV1 {
+    pub(super) route: LoopRouteId,
+    pub(super) composer: super::legacy_receipt::LegacyGenericComposerV1,
+    pub(super) result: super::legacy_receipt::LegacyGenericResultKindV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-enum TerminalTraceV1 {
+pub(super) enum TerminalTraceV1 {
     Succeeded(LoopRouteId),
     Exhausted,
     Blocked,
@@ -89,22 +89,22 @@ enum TerminalTraceV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct FrameTraceV1 {
-    strict_or_dev: bool,
-    planner_required: bool,
-    has_body_local: bool,
-    recipe_contract_present: bool,
-    recipe_first_allowed: bool,
+pub(super) struct FrameTraceV1 {
+    pub(super) strict_or_dev: bool,
+    pub(super) planner_required: bool,
+    pub(super) has_body_local: bool,
+    pub(super) recipe_contract_present: bool,
+    pub(super) recipe_first_allowed: bool,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct GenericStageTraceV1 {
-    frame: FrameTraceV1,
-    raw_schedule: Vec<LoopRouteId>,
-    carrier_observation: Option<GenericLoopCarrierObservationV1>,
-    attempted: Vec<AttemptTraceV1>,
-    generic_debts: Vec<GenericDebtTraceV1>,
-    terminal: TerminalTraceV1,
+pub(super) struct GenericStageTraceV1 {
+    pub(super) frame: FrameTraceV1,
+    pub(super) raw_schedule: Vec<LoopRouteId>,
+    pub(super) carrier_observation: Option<GenericLoopCarrierObservationV1>,
+    pub(super) attempted: Vec<AttemptTraceV1>,
+    pub(super) generic_debts: Vec<GenericDebtTraceV1>,
+    pub(super) terminal: TerminalTraceV1,
 }
 
 #[derive(Debug, PartialEq)]
@@ -128,7 +128,7 @@ fn seeded_builder() -> MirBuilder {
     builder
 }
 
-fn observe_selected_fixture(
+pub(super) fn observe_selected_fixture(
     mode: ObserverModeV1,
     condition: crate::ast::ASTNode,
     body: Vec<crate::ast::ASTNode>,
@@ -557,7 +557,8 @@ fn generic_both_policy_witness_mismatch_remains_unresolved() {
         if raw_schedule.as_slice() == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1] {
             assert_eq!(
                 disposition,
-                GenericCarrierPolicyDispositionV1::V1ForNestedCarriers
+                GenericCarrierPolicyDispositionV1::UnresolvedStop,
+                "the current Generic handler has no recipe contract receipt; the pure policy probe must remain unresolved"
             );
             assert_eq!(
                 trace.terminal,
@@ -590,19 +591,26 @@ fn generic_carrier_observation_does_not_overclaim_unhandled_consumers() {
         statements: vec![assignment.clone()],
         span: Span::unknown(),
     }];
-    let compound = vec![ASTNode::CompoundAssignment {
-        target: Box::new(ASTNode::Variable {
-            name: "j".into(),
+    let compound = ASTNode::Loop {
+        condition: Box::new(ASTNode::Literal {
+            value: LiteralValue::Bool(true),
             span: Span::unknown(),
         }),
-        operator: BinaryOperator::Add,
-        value: Box::new(ASTNode::Literal {
-            value: LiteralValue::Integer(1),
+        body: vec![ASTNode::CompoundAssignment {
+            target: Box::new(ASTNode::Variable {
+                name: "j".into(),
+                span: Span::unknown(),
+            }),
+            operator: BinaryOperator::Add,
+            value: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }),
             span: Span::unknown(),
-        }),
+        }],
         span: Span::unknown(),
-    }];
-    for (body, container) in [(program, "Program"), (compound, "CompoundAssignment")] {
+    };
+    for (body, container) in [(program, "Program"), (vec![compound], "CompoundAssignment")] {
         assert_eq!(
             crate::mir::builder::control_flow::plan::facts::observe_generic_loop_carrier_observation(
                 &body, "i"

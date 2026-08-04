@@ -160,6 +160,51 @@ while these unresolved rows or the semantic digest mismatch remain.
    explicit blocker in this card.
 6. Keep all touched Rust and test files below 800 lines.
 
+## D0-S1 implementation evidence
+
+The test-only matrix is implemented in
+`src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs`
+(under 800 lines) and is registered beside the existing facts/reachability and
+witness observers. It records the real facts/selection/composer/verifier/
+lowerer snapshots, first effect owner, contract-present bit, attempted prefix,
+typed debt receipt, terminal, and disposition. It also emits explicit
+`NotYetObserved` rows for strict shadow `None`/`Err`, release verifier/lower
+failure arms, and nested fastpath/fallback arms that have no natural witness.
+
+The two pre-existing observer mismatches were audited against source ownership:
+
+* the pure nested-carrier policy probe now remains `UnresolvedStop` when the
+  production Generic outcome has no RecipeContract; the probe does not ignore
+  its contract gate;
+* `CompoundAssignment` coverage now uses a nested source container, matching
+  the extractor's documented `nested == true` unavailable boundary. A
+  top-level compound statement is not relabelled as unavailable.
+
+The matrix confirms the current Both overlap and the ordinary
+`contract_present = false` Generic handler input. It does not claim V0/V1
+precedence, winner equivalence, or a production Recipe consumer. The current
+generic `V0-only` class remains explicitly unresolved because the existing
+`v0-additive` source fixture is not proven to select only V0.
+
+Focused evidence already green:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib generic_stage_matrix_tests -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib generic_stage_observer_tests -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib generic_accepted_plan_reachability_tests -- --test-threads=1
+```
+
+The broader `generic_` gate remains a required next check; any unrelated
+baseline failure must stay recorded rather than being hidden by this row.
+
+The broad check was run and reached `388 passed, 1 failed` in 390 tests. The
+single failure is the pre-existing, out-of-scope
+`mir::global_call_route_plan::tests::runtime_methods::collection_builders::refresh_module_semantic_metadata_accepts_array_string_push_in_generic_pure_string_body`
+assertion at `src/mir/global_call_route_plan/tests/runtime_methods/collection_builders.rs:696`.
+It reproduces in isolation and is not changed by this M4 test-only slice; it
+must be handled by its own global-call route task rather than weakening this
+matrix or mixing unrelated ownership changes into the commit.
+
 ## Acceptance gates
 
 The task is complete only when the matrix is deterministic on a fresh
@@ -209,4 +254,3 @@ Stop and return to the parent design stop if any requested fix requires:
 * deleting legacy receipts before a proven M10 handoff;
 * changing a test expectation without an audited source/fixture contract;
 * any touched source/test file reaching 800 lines.
-
