@@ -82,6 +82,20 @@ SSOTs, the MIR reference pages, `src/mir/builder/README.md`, and current
 pointer mirrors after implementation; reference synchronization is an
 acceptance condition, not optional cleanup.
 
+#### M10a D2-S5 prerequisite — final-carrier publication
+
+The first candidate audit found a missing production obligation before the
+P4-S1 observer can claim final-carrier parity: the resolved `After` block has
+the Unit return, but final `i`/`sum` bindings are not read at sealed `After`.
+The accepted P1/D1 contract requires those reads before Binding SSA/PhiTxn
+finish. The separate task
+`JOINIR-LOOP-ACCUM-FINAL-CARRIER-PROJECTION-M10A-D2-S5` owns the caller-side
+fix. It keeps the generic open-After continuation receipt unchanged, seals
+the existing After witness through the canonical port, reads verified carrier
+keys through the same adapter into a typed caller-owned receipt, then runs the
+existing claim/finish/commit order. P4-S1 is paused until D2-S5 is green; the
+observer may not infer final values from header PHIs.
+
 ## Selfhost boundary
 
 The Rust producer lands first, but the semantic product must be directly

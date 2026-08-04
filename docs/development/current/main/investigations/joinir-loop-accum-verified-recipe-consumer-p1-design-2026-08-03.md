@@ -114,6 +114,18 @@ rows and be rejected before Builder effects when incomplete. The materializer
 does not receive AST, `CanonicalLoopFacts`, `CorePlan`, `variable_map`, route
 names, or a retry capability.
 
+## D2-S5 handoff (2026-08-04)
+
+The resolved DirectAccum candidate is now the first production consumer of
+this contract. Its initial audit showed that the `After` carrier publication
+step is still missing: final role-keyed bindings must be read at sealed
+`After`, before Binding SSA/PhiTxn finish, and stored in a caller-owned typed
+receipt. The separate accepted task
+`JOINIR-LOOP-ACCUM-FINAL-CARRIER-PROJECTION-M10A-D2-S5` owns that fix. The
+generic open-After continuation receipt stays unchanged; the resolved lowerer
+owns the DirectAccum-specific receipt. P4 must not replace this evidence with
+header-PHI inference.
+
 ## Ordered pilot tasks
 
 ### P1-D0 — topology matrix (this stop)

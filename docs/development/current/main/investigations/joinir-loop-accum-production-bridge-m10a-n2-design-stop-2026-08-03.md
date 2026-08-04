@@ -391,3 +391,19 @@ writer, or selector. Its implementation closeout must synchronize the P4
 cards, Loop pipeline SSOT, PHI/SSA design SSOTs, MIR reference pages,
 `src/mir/builder/README.md`, and current pointer mirrors; those reference
 updates are acceptance work, not optional cleanup.
+
+## Reconciliation after the P4 candidate audit (2026-08-04)
+
+The first actual candidate audit found that the resolved lowerer closes the
+five-block topology with an `After` Unit return but does not yet read/publish
+the final `i`/`sum` carriers. This violates the already accepted P1/D1
+binding-publication contract; it is not a snapshot-observer discrepancy.
+
+The next implementation authority is the separate task
+`JOINIR-LOOP-ACCUM-FINAL-CARRIER-PROJECTION-M10A-D2-S5`. It keeps the caller's
+canonical CFG/Binding-SSA/PhiTxn session, seals `After`, reads the verified
+carrier keys through `CanonicalDirectAccumBindingPort`, stores a typed
+caller-owned receipt, and only then finishes effect claims and the existing
+commit transaction. No header-PHI synthesis, second writer, route/retry,
+Generic, fallback, grammar, or IR change is allowed. P4-S1 remains paused
+until D2-S5 is green.

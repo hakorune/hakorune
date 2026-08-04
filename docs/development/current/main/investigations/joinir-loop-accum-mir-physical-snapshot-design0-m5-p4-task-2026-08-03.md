@@ -1,5 +1,5 @@
 ---
-Status: Closed design boundary; P4-S1 task active
+Status: Closed design boundary; P4-S1 paused on M10a D2-S5
 Date: 2026-08-03
 Decision: accepted boundary — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT-DESIGN0-M5-P4`
 Scope: define the test-only physical-parity seam before the first production
@@ -180,3 +180,20 @@ The successor remains test-only and keeps `route_loop`, Retry/fallback,
 Generic policy, PHI/SSA ownership, grammar, and IR behavior unchanged. Its
 acceptance includes exact role/terminator validation, late candidate abort and
 fresh-session reuse, and synchronized reference-document updates.
+
+## Successor design stop — final carrier publication
+
+The first actual resolved candidate exposed a production contract gap before
+P4-S1 could honestly compare final carriers: the candidate's `After` block
+has the Unit return but no final `i`/`sum` carrier reads. P1/D1 requires those
+role-keyed reads at sealed `After` before the function-owned Binding SSA and
+`PhiTxn` finish. P4-S1 must not derive them from header PHIs or fabricate
+observer rows.
+
+The separate accepted task
+`JOINIR-LOOP-ACCUM-FINAL-CARRIER-PROJECTION-M10A-D2-S5` therefore owns the
+caller-side fix: keep `CanonicalDirectAccumBindingPort` alive, split the
+`After` seal so the port seals the verified predecessor witness, read the
+verified carrier keys through `read_entry_for_key`, store a typed receipt, then
+finish claims and the existing identity/PhiTxn/completion transaction. P4-S1
+resumes only after D2-S5's focused success/failure/reuse gates are green.
