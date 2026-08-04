@@ -74,8 +74,9 @@ Current practical rules:
 - `box` owns identity and fields.
 - `record` owns identity-free aggregate data.
 - `delegate` forwards behavior only.
-- Public field/property exposure should be explicit and documented by the
-  owning box surface.
+- Public field exposure and public method behavior should be explicit and
+  documented by the owning box surface. Computed Property is not a canonical
+  member kind.
 
 ## Legacy Quarantine
 

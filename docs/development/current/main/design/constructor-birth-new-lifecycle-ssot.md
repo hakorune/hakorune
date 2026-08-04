@@ -4,6 +4,7 @@ Date: 2026-05-15
 Scope: source-level object construction lifecycle: `new`, `birth`, field initializers, explicit reuse methods, factories, and `fini`.
 Related:
   - docs/reference/language/lifecycle.md
+  - docs/development/current/main/design/box-member-field-method-surface-ssot.md
   - docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md
   - docs/development/current/main/design/mimalloc-object-lifecycle-queue-ssot.md
   - docs/development/current/main/design/ownership-home-model-ssot.md

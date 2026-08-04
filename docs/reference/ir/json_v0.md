@@ -51,14 +51,20 @@ Special notes
 - `Var("me")`: Bridge 既定では未定義エラー。デバッグ用に `NYASH_BRIDGE_ME_DUMMY=1` でダミー `NewBox{class}` を注入可（`NYASH_BRIDGE_ME_CLASS` 省略時は `Main`）。
 - `--ny-parser-pipe` は stdin の JSON v0 を受け取り、MIR→MIR‑Interp 経由で実行する。
 
-Unified Members (Phase‑15)
-- Source‑level unified members (stored/computed/once/birth_once) are lowered before JSON emission into regular slots/methods; JSON v0 remains unchanged.
-- Lowering conventions:
-  - stored → slot (initializer becomes a one‑time evaluation in construction path)
-  - computed/get → synthetic getter method; field read becomes method call
-  - once → synthetic getter + hidden `Option<T>` slot with first‑read initialization; uncaught exception on first read poisons the property and rethrows on subsequent reads
-  - birth_once → hidden slot initialized before user `birth` body in declaration order; uncaught exception aborts construction
-  - method postfix `catch/cleanup` lower to try/catch/finally when Stage‑3 is enabled; when disabled, bodies execute without handlers
+Box members
+- Accepted target: stored/weak fields become slots and behavior remains an
+  ordinary method. Program JSON v0 gains no Property node.
+- Current production compatibility still lowers computed/once/birth_once
+  source forms into synthetic methods/hidden state. That route is scheduled for
+  atomic retirement by
+  `BOX-MEMBER-PROPERTY-RETIRE0-I0-R0-G0`; it is not a permanent JSON contract.
+- After cutover, `__get_*` is an ordinary method spelling and must not recover
+  Property meaning. Stale artifacts that require magic-name recovery reject.
+- Stored initializer expressions remain construction-path work in declaration
+  order. Method postfix `catch/cleanup` uses the one protected-region owner
+  when that language row is active.
+- Design/task order:
+  [box-member-field-method-surface-ssot.md](../../development/current/main/design/box-member-field-method-surface-ssot.md).
 
 CLI/Env cheatsheet
 - Pipe: `echo '{...}' | target/release/nyash --ny-parser-pipe`

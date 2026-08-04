@@ -200,6 +200,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/ownership-home-model-ssot.md`
   - durable cross-layer Home authority map; separates Home/place, value
     capability, callable ABI, Home Flow, Binding SSA, and physical storage
+- `design/box-member-field-method-surface-ssot.md`
+  - accepted field-or-method Box surface and the parked atomic retirement order
+    for computed/once/birth_once Property authority before Home Flow adoption
 - `investigations/hakorune-home-ownership-task-2026-08-04.md`
   - parked successor taskboard; closes taxonomy/composites/representation/
     storage/CFG design before grammar, then stages Unique, boundary, Shared,

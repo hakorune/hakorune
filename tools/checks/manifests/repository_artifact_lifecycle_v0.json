@@ -1,22 +1,22 @@
 {
   "counts": {
     "checks": 3597,
-    "design_direct": 854,
-    "docs": 12639,
+    "design_direct": 862,
+    "docs": 12715,
     "docs_development_archive": 2791,
-    "docs_development_current": 8425,
+    "docs_development_current": 8501,
     "main_direct": 168,
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1039,
     "private": 0,
-    "src": 3782,
+    "src": 3903,
     "tools": 7214
   },
   "design_registry": {
     "authority_registry_decided": true,
     "c1_review": {
       "basis": "explicit README section evidence",
-      "row_count": 114,
+      "row_count": 115,
       "rows": [
         {
           "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
@@ -46,6 +46,11 @@
         {
           "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09; B\u2032 Box lifecycle, Ownership SSA/ObjectCell boundary, and adaptive runtime strategy",
           "path": "box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09; accepted field-or-method Box surface and computed/once/birth_once Property retirement order",
+          "path": "box-member-field-method-surface-ssot.md",
           "role": "authority"
         },
         {
@@ -694,11 +699,6 @@
           "review_status": "pending"
         },
         {
-          "family_key": "joinir-pattern-selection",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "language-minimal-surface",
           "file_count": 1,
           "review_status": "pending"
@@ -834,28 +834,28 @@
           "review_status": "pending"
         }
       ],
-      "family_count": 48,
+      "family_count": 47,
       "multi_file_family_count": 13,
       "role_assignment": "none",
-      "singleton_family_count": 35
+      "singleton_family_count": 34
     },
-    "direct_files": 854,
-    "markdown_files": 833,
+    "direct_files": 862,
+    "markdown_files": 841,
     "non_markdown_files": 21,
     "owned_sidecar_count": 119,
-    "registered_count": 658,
+    "registered_count": 667,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
-      "docs/development/current/main/CURRENT_STATE.toml": 3,
-      "docs/development/current/main/DOCS_LAYOUT.md": 57,
-      "docs/development/current/main/design/README.md": 125
+      "docs/development/current/main/CURRENT_STATE.toml": 4,
+      "docs/development/current/main/DOCS_LAYOUT.md": 62,
+      "docs/development/current/main/design/README.md": 127
     },
-    "seed_union_count": 166,
+    "seed_union_count": 172,
     "status_counts": {
-      "active_like": 128,
-      "closed": 12,
-      "other_or_missing": 693
+      "active_like": 133,
+      "closed": 14,
+      "other_or_missing": 694
     },
     "unregistered": [
       "allocator-hook-activation-proof-v0.toml",
@@ -888,7 +888,6 @@
       "exit-branch-feature-ssot.md",
       "exitbranch-ssot.md",
       "hakorune-naming-and-rename-task-order-ssot.md",
-      "joinir-pattern-selection-shadow-ssot.md",
       "language-minimal-surface-task-breakdown-ssot.md",
       "map-literal-eviction-and-blockexpr-roadmap-ssot.md",
       "mapbox-proof-bearing-route-ssot.md",
@@ -937,14 +936,14 @@
       "trim-route-lowering-readiness-integration-inventory.md"
     ],
     "unregistered_baseline": 77,
-    "unregistered_count": 77,
-    "unseeded_count": 688,
+    "unregistered_count": 76,
+    "unseeded_count": 690,
     "violations": []
   },
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1394,
-    "document_count": 8425,
+    "document_count": 8501,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
       "cluster_count": 1369,
@@ -1924,26 +1923,30 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5236,
-    "root_count": 3809,
+    "reachable_count": 5256,
+    "root_count": 3813,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1039,
-      "current_pointer": 4,
-      "design_authority": 262,
+      "current_pointer": 5,
+      "design_authority": 270,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3182
+      "reference_src_tools": 3174
     },
-    "unreachable_count": 3189,
-    "unreachable_pending_count": 1795,
+    "unreachable_count": 3245,
+    "unreachable_pending_count": 1851,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
   },
   "inventory": "repository-artifact-lifecycle-v0",
   "phase_296x": {
-    "archive_candidate_count": 1,
+    "archive_candidate_count": 5,
     "archive_candidates": [
+      "docs/development/current/main/phases/phase-296x/296x-1448-CONDITION-BINDING-RESOLUTION-ADAPTER-PROBE-001.md",
+      "docs/development/current/main/phases/phase-296x/296x-1450-SCOPE-MANAGER-CONDITION-BINDING-ADAPTER-WIRING-DESIGN-001.md",
+      "docs/development/current/main/phases/phase-296x/296x-1452-SCOPE-MANAGER-CONDITION-BINDING-INPUT-PROBE-001.md",
+      "docs/development/current/main/phases/phase-296x/296x-1454-TRIM-ROUTE-LOWERING-PROOF-UPDATE-001.md",
       "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
     ],
     "card_count": 1036,
@@ -2513,10 +2516,6 @@
       "docs/development/current/main/phases/phase-296x/296x-1440-PROMOTED-CARRIER-IDENTITY-JOIN-ID-DESIGN-INVENTORY-001.md",
       "docs/development/current/main/phases/phase-296x/296x-1442-PROMOTED-CARRIER-IDENTITY-POLICY-DECISION-001.md",
       "docs/development/current/main/phases/phase-296x/296x-1446-CONDITION-BINDING-RESOLUTION-REWRITE-DESIGN-001.md",
-      "docs/development/current/main/phases/phase-296x/296x-1448-CONDITION-BINDING-RESOLUTION-ADAPTER-PROBE-001.md",
-      "docs/development/current/main/phases/phase-296x/296x-1450-SCOPE-MANAGER-CONDITION-BINDING-ADAPTER-WIRING-DESIGN-001.md",
-      "docs/development/current/main/phases/phase-296x/296x-1452-SCOPE-MANAGER-CONDITION-BINDING-INPUT-PROBE-001.md",
-      "docs/development/current/main/phases/phase-296x/296x-1454-TRIM-ROUTE-LOWERING-PROOF-UPDATE-001.md",
       "docs/development/current/main/phases/phase-296x/296x-1456-EXECUTABLE-TRIM-ROUTE-LOWERING-IMPLEMENTATION-DESIGN-001.md",
       "docs/development/current/main/phases/phase-296x/296x-1458-TRIM-ROUTE-LOWERING-READINESS-GATE-001.md",
       "docs/development/current/main/phases/phase-296x/296x-1460-TRIM-ROUTE-LOWERING-READINESS-INTEGRATION-INVENTORY-001.md",
@@ -2805,7 +2804,7 @@
       "docs/development/current/main/phases/phase-296x/3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001.md",
       "docs/development/current/main/phases/phase-296x/array-receiver-residence-proof-chain.md"
     ],
-    "externally_referenced_count": 856,
+    "externally_referenced_count": 852,
     "needs_review": [
       "docs/development/current/main/phases/phase-296x/1778-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001.md",
       "docs/development/current/main/phases/phase-296x/2098-SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001.md",
@@ -3615,7 +3614,7 @@
         "current_pointer": false,
         "direct_files": 1039,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 1381,
+        "external_reference_count": 1376,
         "phase": "phase-296x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-296x/STATUS.md",

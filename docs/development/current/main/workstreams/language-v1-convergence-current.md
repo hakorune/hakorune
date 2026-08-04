@@ -849,6 +849,24 @@ semantic_compatibility_requires_explicit_profile = 1
 runtime_backend_fallback = 0
 ```
 
+Next: `BOX-MEMBER-FIELD-METHOD-SURFACE0-D0`.
+
+### 4B. BOX-MEMBER-PROPERTY-RETIRE0
+
+Status: target accepted; implementation parked behind the active MirBuilder
+lane.
+
+Canonical Box value members converge to stored/weak fields; computation is an
+ordinary method. The fixed order is surface D0 -> full census D1 -> stored
+initializer owner extraction -> source migration -> atomic Property retirement
+and diagnostics -> independent same-name field/method audit. Exact contracts
+and stop lines are owned by
+[`box-member-field-method-surface-ssot.md`](../design/box-member-field-method-surface-ssot.md).
+
+This row must close before Home Flow production adoption so `obj.x` has one
+place meaning and `obj.x()` has one call/result relation. It does not implement
+Home Flow, readonly, visibility enforcement, memo/lazy, or same-name admission.
+
 Next: `LANGV1-OWNERSHIP-IDENTITY-001`.
 
 ### 5. LANGV1-OWNERSHIP-IDENTITY-001

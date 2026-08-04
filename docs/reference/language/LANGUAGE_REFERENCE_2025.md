@@ -399,6 +399,12 @@ local double = fn(x) { x * 2 }  # 単一式なら省略可
 
 ### **2.5 プロパティ（統一メンバ — Phase 15、既定ON: NYASH_ENABLE_UNIFIED_MEMBERS）**
 
+> **Compat2025 / current-production evidence:** この節の computed / once /
+> birth_once 構文は最終Language v1 surfaceではない。accepted targetは
+> field-or-methodであり、新規コードでは使用しない。退役順は
+> `docs/development/current/main/design/box-member-field-method-surface-ssot.md`
+> を参照。
+
 概要
 - Box 内のメンバを「格納/計算/一度だけ（遅延 or 生成時）」で統一的に扱います。JSON v0/MIR は変更せず、ローワで既存の slot/method に展開します。
 - Decision: computed の canonical syntax は `get name: Type { ... }` / `get name: Type => expr` とする。既存の `name: Type { ... }` / `name: Type => expr` は互換短縮形として受理しますが、説明と新規コードでは `get` を推奨します。

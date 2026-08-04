@@ -28,6 +28,12 @@ Parked execution board:
 Related lifecycle authority:
 `constructor-birth-new-lifecycle-ssot.md`
 
+Box member source prerequisite:
+`box-member-field-method-surface-ssot.md`
+
+The Property retirement owned there must make `obj.x` one unambiguous stored
+place and `obj.x()` one ordinary call before Home Flow production adoption.
+
 The constructor document owns `new`/`birth`/field-initializer ordering and
 the direct-`birth` ban. `OWN-HOME-BIRTH-D0` on the parked board owns the
 remaining Home-specific construction transaction questions, especially

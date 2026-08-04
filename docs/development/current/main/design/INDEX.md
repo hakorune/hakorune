@@ -7487,6 +7487,61 @@ superseded_by = ""
 retire_when = "Box lifecycle and ownership substrate adopt an explicitly accepted replacement constitution"
 
 [[documents]]
+path = "box-member-field-method-surface-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "docs/reference/language/EBNF.md"
+classification_basis = "README:現役の設計図（入口）; accepted field-or-method Box surface and computed/once/birth_once Property retirement order"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "the Box member surface and Property retirement order are replaced by an explicitly accepted language Decision"
+
+[[documents]]
+path = "joinir-if-recipe-contract-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+classification_basis = "CURRENT_STATE:portable If Recipe/JoinSig/physical-adoption boundary"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "the portable If recipe contract is replaced by an explicitly accepted control-recipe authority"
+
+[[documents]]
+path = "joinir-loop-scoped-nongeneric-cutover-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+classification_basis = "CURRENT_STATE:scoped non-Generic bridge and final atomic Loop cutover boundary"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "the scoped Loop bridge closes or the final atomic cutover replaces it"
+
+[[documents]]
+path = "ownership-home-model-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "docs/reference/language/ownership.md"
+classification_basis = "DOCS_LAYOUT:durable cross-layer Home/place/value/callable-ABI authority map"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "the source Home model and cross-layer authority split are replaced explicitly"
+
+[[documents]]
+path = "ring2-provider-link-abi-lifecycle-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "docs/architecture/RINGS.md"
+classification_basis = "DOCS_LAYOUT:ring2 provider link ABI and provider-image lifecycle authority"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "ring2 provider transport, residency, and lifecycle adopt an explicitly accepted replacement"
+
+[[documents]]
 path = "design-registry-v1-sharded-manifest-ssot.md"
 role = "authority"
 owner = "INDEX.md"

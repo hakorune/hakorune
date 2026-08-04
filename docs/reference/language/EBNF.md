@@ -6,6 +6,10 @@ parser synchronization remains pending; parser acceptance alone is not grammar
 authority. Practical bootstrap / phase-1 support status is tracked in
 `docs/reference/language/stage-profiles.md`.
 
+Selfhost tooling uses `--syntax-3` with compatibility alias `--stage3`.
+These flags select an implementation surface; they do not independently define
+canonical language semantics.
+
 Design SSOT note (Scope Exit Semantics):
 - `throw` is prohibited in surface language design.
 - parser は `throw` を常時 reject する（`[freeze:contract][parser/throw_reserved]`）。
@@ -761,9 +765,24 @@ Known enum variants must use `Type::Variant`; dot variant spelling fail-fasts.
 Match exhaustiveness expansion and PackedArray runtime/backend lowering remain
 separate rows.
 
-## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
+## Box Members
 
-This section adds a minimal grammar for Box members (a unified member model) without changing JSON v0/MIR. Parsing is controlled by env `NYASH_ENABLE_UNIFIED_MEMBERS` (default ON; set `0/false/off` to disable).
+Decision: accepted target; production cutover pending.
+
+The canonical Box member surface separates storage from behavior:
+
+```text
+obj.x    = stored field access
+obj.x()  = method call
+```
+
+Source-level computed/once/birth_once Property forms are accepted only by the
+current production compatibility implementation. They retire through
+`BOX-MEMBER-PROPERTY-RETIRE0-I0-R0-G0`; they are not part of the final grammar.
+The ordered retirement contract is
+[`box-member-field-method-surface-ssot.md`](../../development/current/main/design/box-member-field-method-surface-ssot.md).
+
+### Accepted target grammar
 
 ```
 box_decl       := 'box' IDENT '{' member* '}'
@@ -771,29 +790,25 @@ box_decl       := 'box' IDENT '{' member* '}'
 member         := visibility_block
                 | weak_stored
                 | stored
-                | computed
-                | once_decl
-                | birth_once_decl
                 | delegate_decl
                 | transition_member
                 | invariant_member
                 | method_decl
                 | gate_member
-                | block_as_role      ; nyash-mode (block-first) equivalent
 
 visibility_block := ( 'public' | 'private' ) '{' member* '}'
-                  ; member visibility grouping (Phase 285A1.3). `weak` is allowed inside.
+                  ; member visibility grouping. `weak` is allowed inside.
 
 weak_stored    := 'weak' IDENT ( ':' TYPE )?
-                  ; weak field declaration (Phase 285A1.2). Enforces WeakRef type at compile-time.
+                  ; non-owning stored field relation
 
 visibility_weak_sugar := ('public'|'private') 'weak' IDENT ( ':' TYPE )?
-                  ; sugar syntax (Phase 285A1.4). Equivalent to visibility block form.
+                  ; equivalent to visibility block form
                   ; e.g., `public weak parent` ≡ `public { weak parent }`
 
 stored         := IDENT ( '=' expr )?
                 | IDENT ':' TYPE ( '=' expr )?
-                  ; stored property (read/write). `IDENT` alone is the simple
+                  ; stored field (read/write). `IDENT` alone is the simple
                   ; untyped stored field form. `IDENT ':' TYPE` carries
                   ; declared-type metadata for tooling / typed-object planning;
                   ; it is not a general runtime type check.
@@ -805,26 +820,11 @@ delegate_expose:= IDENT ( 'as' IDENT )? ','?
                   ; DEL-002 Stage0 capsule. Carries explicit method exposure
                   ; metadata only. No forwarding/collision/interface semantics.
 
-computed       := get_computed | legacy_computed
-
-get_computed  := 'get' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
-                  ; canonical computed property syntax. `get` is contextual
-                  ; only in Box member head position.
-
-legacy_computed:= IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
-                  ; compatibility shorthand for computed properties. Accepted,
-                  ; but canonical docs should prefer `get IDENT`.
-
-once_decl      := 'once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
-                  ; lazy once. First read computes and caches; later reads return cached value.
-
-birth_once_decl:= 'birth_once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
-                  ; eager once. Computed during construction (before user birth), in declaration order.
-
 method_decl    := IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block handler_tail?
                   ; return annotation is optional. `: void` is an explicit
                   ; no-value contract; omission is an unannotated result contract,
-                  ; not implicit void or source-level result inference.
+                  ; not implicit void or source-level result inference. `birth`
+                  ; is a constructor hook governed by the construction SSOT.
 
 gate_member    := 'gate' build_predicate '{' member* '}' ('else' ('gate' build_predicate '{' member* '}' | '{' member* '}'))?
                   ; member-level build selection. Branches must preserve the
@@ -833,14 +833,11 @@ gate_member    := 'gate' build_predicate '{' member* '}' ('else' ('gate' build_p
 params         := param (',' param)*
 param          := IDENT (':' TYPE_REF)?
 TYPE_REF       := ('void' | IDENT ('.' IDENT)*) ('<' TYPE_REF (',' TYPE_REF)* '>')? ('[' ']')*
-                  ; parameter list (Phase 285A1.5+)
+                  ; parameter list
                   ; Type annotations are preserved as AST metadata.
                   ; `params` remains the canonical names-only compatibility surface.
                   ; Numeric substrate names such as i64/u64/usize are IDENT
                   ; names here. Literal suffix grammar is not live.
-
-; nyash-mode (block-first) variant — gated with NYASH_ENABLE_UNIFIED_MEMBERS=1
-block_as_role  := block 'as' ( 'once' | 'birth_once' )? IDENT ':' TYPE
 
 handler_tail   := ( catch_block )? ( cleanup_block )?
 catch_block    := 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block
@@ -855,19 +852,38 @@ postfix_cleanup    := primary_expr 'cleanup' block
 Semantics (summary)
 - stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
 - stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order. Initializer expressions are evaluated for each construction, so `field: ArrayBox = new ArrayBox()` creates a per-instance value rather than a shared static default.
-- computed/get: read‑only; each read evaluates the block; assignment is an error unless a setter is explicitly defined.
-- once/birth_once poison and exception behavior in existing implementations is
-  compatibility evidence, not canonical postfix-catch semantics.
-- handlers are accepted target protected-region/cleanup syntax for computed,
-  once, birth_once, and method bodies; semantic activation awaits
+- weak: a stored, non-owning relation; it is not a Property kind.
+- field declaration syntax admits neither `=>` nor a block body. Computation is
+  an ordinary method and therefore requires `()` at the call site.
+- method handlers are accepted target protected-region/cleanup syntax; semantic activation awaits
   `LANGUAGE-RECOVERABLE-FAILURE-D0` and later grammar/runtime rows.
 
 Target lowering boundary (no JSON v0 change)
 - stored → slot; declared type, when present, is copied into field-declaration metadata
-- computed/get, once, birth_once, and method handlers require the one
-  ProtectedRegion/Cleanup owner; they must not synthesize source `try`, generic
-  Catch/Throw, or a backend no-op fallback.
+- methods → ordinary callable lowering and generated callable Home ABI
+- method handlers require the one ProtectedRegion/Cleanup owner; they must not
+  synthesize source `try`, generic Catch/Throw, or a backend no-op fallback.
 - unsupported routes reject before protected-body effects. JSON v0 is unchanged.
+
+### Current production compatibility grammar
+
+Until the retirement row lands, the Rust parser still accepts these legacy
+Property heads behind `NYASH_ENABLE_UNIFIED_MEMBERS` (default ON):
+
+```ebnf
+get_computed    := 'get' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
+legacy_computed := IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
+once_decl       := 'once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
+birth_once_decl := 'birth_once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
+block_as_role   := block 'as' ( 'once' | 'birth_once' )? IDENT ':' TYPE
+```
+
+These spellings are implementation evidence, not canonical alternatives. The
+cutover deletes their parser edges, synthetic getter/cache/cycle machinery,
+magic-name recovery, field-read reroute, environment gate, and old-only docs.
+Removed syntax receives an exact method/field migration diagnostic. Ordinary
+members named `get`, `once`, or `birth_once` remain legal because those words
+are contextual rather than global hard keywords.
 
 ## Legacy: `init { ... }` field list (compatibility)
 
@@ -877,7 +893,10 @@ Semantics (SSOT):
 - `init { a, b, c }` declares **untyped stored slots** named `a`, `b`, `c` (equivalent to writing `a` / `b` / `c` as stored members without type).
 - `init { weak x, weak y }` declares **weak fields** (equivalent to writing `weak x` / `weak y` as members).
 - It does not execute code. Initialization logic belongs in `birth(...) { ... }` and assignments.
-- **New code** should prefer the direct syntax: `field_name` for simple dynamic slots, `field_name: Type` for declared-type metadata, `weak field_name` for weak fields, or the rest of the unified member model (`get`/`once`/`birth_once`).
+- **New code** should use direct stored fields (`field_name`,
+  `field_name: Type`, and their `= expr` initializer forms), `weak field_name`
+  for weak storage, and ordinary methods for computation. Do not introduce new
+  `get`/`once`/`birth_once` Property declarations.
 - Legacy `init { weak field }` syntax still works for backward compatibility but is superseded by `weak field`.
 
 ## Enum Declarations (Phase-163x parser surface)
