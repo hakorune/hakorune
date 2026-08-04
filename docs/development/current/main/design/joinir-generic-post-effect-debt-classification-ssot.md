@@ -813,6 +813,25 @@ the active workstream with commands, evidence kind, line budgets, and explicit
 non-claims. A green witness only opens a later D3 decision for this exact
 BindingRef-proven class; parent Generic D2 remains `UnresolvedStop`.
 
+The 2026-08-05 test-only witness is green under an explicit clean environment:
+
+```bash
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4_s2 -- --nocapture
+```
+
+The three tests cover parsed-source positive Release/Strict rows, a parsed
+shadowing negative, and a separate strict planner-required row. The latter
+records V0 as `SuppressedByPlannerRequired`, captures `[V1]` under the same
+mode-scoped facts/selector snapshot, and remains `UnresolvedStop`; it does not
+call the V0 composer. Direct-stage evidence uses the parsed condition/body and
+canonical facts, while legacy B4-S1 carrier tags are corroborating only. The
+evidence is resolver/source identity (`BindingRefV1`, loop forest/frame, and
+Generic facts), not runtime parity. The test sibling is 328 lines and the
+production caller/import census remains zero. No selector, planner policy,
+Retry/fallback, Recipe/JoinSig/PHI/physicalizer, Builder, MIR, or runtime
+authority changed.
+
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:

@@ -148,3 +148,28 @@ physicalization, Retry, and scheduler authority remain unchanged.
 
 Those claims remain blocked until the parent M4 design stop closes with a
 complete matrix, precedence/disjointness proof, and witness equivalence.
+
+## D2-B4-S2 BindingRef disjointness witness
+
+The bounded S2 witness is green with:
+
+```bash
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4_s2 -- --nocapture
+```
+
+Its source authority is one parsed outer-`j` function, the sealed resolved
+loop forest, resolver-issued assignment/read `BindingRefV1`s, the shared
+function/frame identity, and canonical `GenericLoopV1Facts` observation. The
+positive Release/Strict row captures `[GenericLoopV0, GenericLoopV1]`; the
+shadowing row resolves the inner `local j` to a different binding and remains
+`UnresolvedStop`. The strict planner-required row records V0 as
+`SuppressedByPlannerRequired`, captures `[GenericLoopV1]` under the same mode
+scope, and remains unresolved. V0/V1 final-value and PHI tags from the older
+S1 observer are corroborating only and are not used as BindingRef authority.
+
+This is cfg(test)-only evidence (328-line sibling, no production caller). It
+does not claim runtime-result parity, V0/V1 precedence, a winner, a Generic
+Recipe/JoinSig/PHI/physicalizer consumer, Retry/fallback removal, or any
+Builder/MIR/backend route change. The exact source and typed suppression
+boundary are recorded in the active S2 design card.

@@ -1,11 +1,40 @@
 ---
-Status: active design stop — implementation not started
+Status: execution checkpoint — test-only witness green; production decision still paused
 Date: 2026-08-05
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Decision: accepted — `JOINIR-GENERIC-NESTED-CARRIER-BINDINGREF-DISJOINTNESS0-D2-B4-S2`
 ---
 
 # Generic nested-carrier BindingRef disjointness — D2-B4-S2
+
+## Execution checkpoint — 2026-08-05
+
+The bounded `#[cfg(test)]` registry witness has been started in:
+
+```text
+src/mir/builder/control_flow/joinir/route_entry/registry/
+  generic_nested_carrier_bindingref_tests.rs
+```
+
+The focused command was:
+
+```bash
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4_s2 -- --nocapture
+```
+
+Result: 3/3 tests passed. The parsed-source positive and shadowing-negative
+BindingRef checks are green in Release/Strict coverage. The planner-required
+row is separately recorded as `SuppressedByPlannerRequired` for V0 and remains
+`UnresolvedStop`; no V0 composer is called in that mode. The raw schedule is
+captured under the same mode-scoped configuration (`[V1]` for planner-required,
+`[V0, V1]` for Release/Strict).
+
+The direct-stage observation now consumes the same parsed condition/body and
+canonical facts path as the witness. The legacy B4-S1 V0/V1 final-value/PHI
+projection remains explicitly corroborating evidence only; it never issues the
+BindingRef decision. No production selector, retry, fallback, planner policy,
+Recipe/JoinSig/PHI/physicalizer caller, Builder, MIR, or runtime route changed.
 
 ## Boundary
 
@@ -92,3 +121,40 @@ docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current
 Even a green witness authorizes only a later design decision for this exact
 BindingRef-proven class. The parent Generic D2 disposition and all other
 overlap classes remain `UnresolvedStop`.
+
+## Evidence closeout — 2026-08-05
+
+The focused row is now green, but this document remains a design stop rather
+than an implementation promotion. Evidence kind is resolver/source identity
+(`BindingRefV1` plus loop-source forest/frame) and canonical Generic facts;
+runtime-result parity is explicitly later work. Touched Rust source and the
+test sibling remain below the 800-line budget. The production caller/import
+census remains zero.
+
+The planner-required V0-facts absence is an existing typed contract boundary:
+the extractor suppresses V0 under strict planner-required mode and the V0
+composer must retain its fail-fast contract freeze when called without facts.
+The test records this as typed suppression instead of treating it as a false
+carrier or a fixture failure. Synthetic `both_body()`/legacy carrier tags are
+not semantic authority and are not used by the evaluator.
+
+Neighboring gates were also green under the same clean environment:
+
+```bash
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4 -- --nocapture
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_stage_observer -- --nocapture
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_both_semantic_parity_matrix_is_fresh_and_explicit -- --nocapture
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+The observed counts were 8, 9, 1, and successful pointer/diff checks.
+
+Reference closeout is required in the same task boundary and is tracked in the
+Generic post-effect SSOT, the Generic stage-matrix reference, the Generic loop
+README, the resolved-semantics README, `CURRENT_STATE.toml`, `10-Now.md`, and
+the MIRBuilder workstream. A green test does not authorize D3, parent Generic
+D2 resolution, production selection, or old-route retirement.

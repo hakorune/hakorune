@@ -99,6 +99,22 @@ Post-effect stage boundary (M4 test/reference lane):
   binding, with a shadowing negative. This does not select a production
   winner or add a Recipe/JoinSig/PHI/physicalizer caller.
 
+The D2-B4-S2 cfg(test) witness is green with:
+
+```bash
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4_s2 -- --nocapture
+```
+
+The positive row uses parsed source/canonical facts and resolver-issued
+`BindingRefV1`s; the shadowing row remains unresolved. In strict
+planner-required mode the V0 facts contract is intentionally suppressed, so
+the test records `SuppressedByPlannerRequired`, captures the `[GenericLoopV1]`
+schedule in the same mode scope, and never calls the V0 composer. Legacy
+carrier labels/tags are corroborating only. This remains test-only evidence;
+no Generic route, Recipe, JoinSig, PHI, physicalizer, Builder, MIR, or runtime
+authority is changed.
+
 LOOP0-P0b-T0 associated-source boundary:
 - T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under
   Refactor Series Mode.

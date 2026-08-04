@@ -492,10 +492,10 @@ closed — JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0
 
 closed — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0 and
   `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-S1`; M7 S0/S1/S2/S3 are closed.
-  The new cfg(test) sibling matrix records Release/Strict Both as a
-  carrier-projected V1 certificate candidate, planner-required separately, and
-  legacy V0/no-debt as a mismatch. Parent Generic D2 remains UnresolvedStop;
-  D2-B4-S2 owns the next BindingRefV1 shadowing-safe design stop; no production policy or cutover; Reference/README closeout landed.
+  The cfg(test) matrix keeps Release/Strict Both as a candidate and
+  planner-required separate; Parent Generic D2 remains unresolved. D2-B4-S2
+  parsed-source BindingRef witness is green (3 tests), with typed V0 suppression;
+  no policy/cutover, legacy-tag authority, selector, Recipe/JoinSig/PHI, Builder/MIR route, Retry/fallback retirement, or runtime-parity claim.
 closed — JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0
   -> resolver-owned AST-free LoopTrue projection with exact source/frame identity
      and typed caller-zero rejects; no route switch, Builder/CFG/PHI, retry, or fallback.

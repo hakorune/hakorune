@@ -148,6 +148,19 @@ evidence. A shadowing local must resolve to a different binding and remain
 `UnresolvedStop`. This identity witness is not a Planner, Recipe, PHI, MIR, or
 runtime authority.
 
+The bounded cfg(test) witness is green with:
+
+```bash
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4_s2 -- --nocapture
+```
+
+Its evidence kind is resolver/source identity plus canonical Generic facts, not
+runtime-result parity. Planner-required V0 suppression is recorded as a typed
+unavailable row; the V0 composer is not called without V0 facts. Synthetic
+legacy carrier labels/tags are corroboration only. The row remains a design
+stop and does not authorize a production caller or route policy.
+
 ## B0-L3b-I1a exact lowering roots
 
 The verified product owns one seal-derived ID-only lowering-root carrier. It

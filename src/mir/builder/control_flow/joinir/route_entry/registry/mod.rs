@@ -218,6 +218,8 @@ mod generic_accepted_plan_reachability_tests;
 #[cfg(test)]
 mod generic_nested_carrier_winner_tests;
 #[cfg(test)]
+mod generic_nested_carrier_bindingref_tests;
+#[cfg(test)]
 mod generic_selection_matrix_tests;
 #[cfg(test)]
 mod generic_semantic_digest_tests;

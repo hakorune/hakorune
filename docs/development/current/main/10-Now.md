@@ -36,6 +36,9 @@ Related:
   shadowing must reject. The parent Generic D2 disposition remains unresolved.
   No Generic production Recipe, route, physical, Retry, or fallback change is
   authorized; M10b still waits on M7/M8/M9 and D2.
+  The bounded parsed-source witness is green (3 tests): planner-required V0
+  suppression is typed and mode-scoped, while the positive/negative evidence
+  remains resolver/source identity rather than runtime parity.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
