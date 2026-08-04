@@ -138,6 +138,16 @@ S1 proves identity topology only. Located source coverage, carrier effects,
 ports, ValueId, BasicBlockId, PHI policy, Builder/Lower connections, and
 canonical Loop runtime activation remain disconnected.
 
+## Generic nested-carrier identity boundary
+
+The accepted D2-B4-S2 design stop will consume resolver-issued `BindingRefV1`
+assignment/read sites for one actual nested-loop source fixture. Only an inner
+write and post-loop outer read that resolve to the same strict-ancestor binding
+under the same function/frame/source identity may issue test-only disjointness
+evidence. A shadowing local must resolve to a different binding and remain
+`UnresolvedStop`. This identity witness is not a Planner, Recipe, PHI, MIR, or
+runtime authority.
+
 ## B0-L3b-I1a exact lowering roots
 
 The verified product owns one seal-derived ID-only lowering-root carrier. It

@@ -463,9 +463,10 @@ M3 task order:
    Recipe callers, PHI owners, fallback removal, and second schedulers remain
    zero; those belong to M5/M6/M10.
 7. `M4 / JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0` — **active**
-   after D2-B4-S1 closeout. Resolve the parent Generic D2 winner/disjointness
-   disposition described in the dedicated M4 card before any Generic Recipe
-   production connection.
+   at the D2-B4-S2 BindingRef disjointness design stop after D2-B4-S1
+   closeout. Resolve the parent Generic D2 winner/disjointness disposition
+   described in the dedicated M4 card before any Generic Recipe production
+   connection.
 Docs-only role cleanup authorizes no new IR, recipe variant, route, scheduler,
 retry path, or physical owner. M3 keeps selection/decline typing, M4 owns
 Generic debt, M6 owns logical JoinSig obligations and caller-zero mechanical

@@ -780,6 +780,39 @@ the active workstream. This is a design/test boundary only; it does not
 authorize Generic policy promotion, Recipe production, Retry deletion, M7-S4,
 M10a, or M10b.
 
+#### D2-B4-S2 — `JOINIR-GENERIC-NESTED-CARRIER-BINDINGREF-DISJOINTNESS0-D2-B4-S2` (design stop)
+
+Decision: accepted as the next bounded continuation. B4-S1's label-based
+candidate and V1 tags are corroborating evidence only; they are not safe
+against shadowing. Use one actual parsed outer-`j` source in which an inner
+loop writes `j` and the outer loop later reads `j`, then resolve the assignment
+and read through the same resolver-issued `BindingRefV1`.
+
+The authoritative chain is `VerifiedResolvedFunctionV1`, exact loop-region
+sites from `VerifiedResolvedLoopSourceForestV1`, resolver-issued assignment/read
+BindingRefs, the shared `LivePreflightFrameV1`, natural raw `Both` schedule
+`[V0, V1]`, and the existing `GenericLoopV1Facts.carrier_observation`.
+The test-only witness may issue only when both sites point to the same
+strict-ancestor binding under the same function/frame/source identity. A
+shadowing `local j` must resolve to a different BindingRef and issue no
+disjointness. Planner-required `[V1]`, missing/foreign/ambiguous sites,
+owner/frame mismatch, and every other overlap class remain `UnresolvedStop`.
+
+The runtime-result oracle is not a separate B5 row: the post-loop read is
+folded into this resolved source fixture, while executable MIR/VM parity is a
+later gate. Names, route labels, plan digests, legacy receipts, and terminal
+status are non-authority. No selector/policy, facts suppression, Retry,
+Recipe/JoinSig/PHI/physicalizer, scheduler, Builder, MIR, or production caller
+changes are allowed.
+
+The execution task is
+`investigations/joinir-generic-nested-carrier-bindingref-disjointness-d2-b4-s2-design-2026-08-05.md`.
+Its implementation closeout must update the Generic stage-matrix reference,
+Generic README, resolved-semantics README, this SSOT, current pointers, and
+the active workstream with commands, evidence kind, line budgets, and explicit
+non-claims. A green witness only opens a later D3 decision for this exact
+BindingRef-proven class; parent Generic D2 remains `UnresolvedStop`.
+
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:

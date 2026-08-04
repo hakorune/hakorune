@@ -30,11 +30,12 @@ Related:
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
-  source-to-Recipe cohort, and Generic D2-B4-S1 are closed. The parent Generic
-  D2 disposition remains unresolved: Release/Strict Both produced only a
-  test-only carrier-projected V1 candidate, while planner-required stayed
-  separate. No Generic production Recipe, route, physical, Retry, or fallback
-  change is authorized; M10b still waits on M7/M8/M9 and D2.
+  source-to-Recipe cohort, and Generic D2-B4-S1 are closed. The active stop is
+  D2-B4-S2: a test-only `BindingRefV1` disjointness witness must prove that an
+  inner write and post-loop outer `j` read share the same resolved binding;
+  shadowing must reject. The parent Generic D2 disposition remains unresolved.
+  No Generic production Recipe, route, physical, Retry, or fallback change is
+  authorized; M10b still waits on M7/M8/M9 and D2.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

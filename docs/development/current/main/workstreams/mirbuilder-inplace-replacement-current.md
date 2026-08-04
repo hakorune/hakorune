@@ -495,7 +495,7 @@ closed — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0 and
   The new cfg(test) sibling matrix records Release/Strict Both as a
   carrier-projected V1 certificate candidate, planner-required separately, and
   legacy V0/no-debt as a mismatch. Parent Generic D2 remains UnresolvedStop;
-  no production policy or cutover was added; Reference/README closeout landed.
+  D2-B4-S2 owns the next BindingRefV1 shadowing-safe design stop; no production policy or cutover; Reference/README closeout landed.
 closed — JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0
   -> resolver-owned AST-free LoopTrue projection with exact source/frame identity
      and typed caller-zero rejects; no route switch, Builder/CFG/PHI, retry, or fallback.
@@ -950,8 +950,8 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure is closed;
      M7-S3 S0/S1/S2 and its reference closeout are now closed with
      resolver-owned identity/frame receipts and typed caller-zero rejects
-  2. resolve the parent Generic M4 D2 after D2-B4-S1; no mock winner, retry
-     projection, or physical route switch
+  2. execute D2-B4-S2 BindingRefV1 disjointness before resolving parent M4 D2;
+     no mock winner, retry projection, or physical route switch
   3. close M7 five-family parity, M8 all-19 producers, and M9 host parity
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement

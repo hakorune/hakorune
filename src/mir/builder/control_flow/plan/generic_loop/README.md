@@ -94,6 +94,10 @@ Post-effect stage boundary (M4 test/reference lane):
   Release/Strict Both only yields a carrier-projected V1 candidate; the parent
   Generic D2 disposition remains UnresolvedStop because legacy V0 has no debt
   receipt.
+  D2-B4-S2 is the next design stop: a test-only BindingRefV1 witness must
+  prove that an inner write and post-loop outer read share one strict-ancestor
+  binding, with a shadowing negative. This does not select a production
+  winner or add a Recipe/JoinSig/PHI/physicalizer caller.
 
 LOOP0-P0b-T0 associated-source boundary:
 - T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under
