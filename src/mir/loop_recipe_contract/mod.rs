@@ -4,6 +4,7 @@ mod direct_accum_producer;
 mod error;
 mod ids;
 mod join_sig;
+mod join_sig_branch;
 mod normalize;
 mod physical_input;
 pub(crate) mod route_id;
@@ -18,6 +19,10 @@ mod direct_accum_producer_tests;
 #[cfg(test)]
 #[path = "nested_predicate_tests.rs"]
 mod nested_predicate_tests;
+
+#[cfg(test)]
+#[path = "join_sig_branch_tests.rs"]
+mod join_sig_branch_tests;
 
 #[cfg(test)]
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
@@ -41,8 +46,9 @@ pub(crate) use ids::{
 };
 #[allow(unused_imports)]
 pub(crate) use join_sig::{
-    LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1, LoopJoinPayloadV1, LoopJoinPortV1,
-    LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopJoinSigV1,
+    LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1,
+    LoopJoinPayloadV1, LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
+    LoopJoinSigV1, VerifiedLoopJoinSigV1,
 };
 #[allow(unused_imports)]
 pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};

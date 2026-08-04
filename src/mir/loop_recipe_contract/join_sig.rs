@@ -7,6 +7,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::ids::{LoopBindingKeyV1, LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
+use super::join_sig_branch::{direct_branch_row, is_supported_loop_branch_pair, loop_exit_edge};
 use super::schema::{
     LoopConditionV1, LoopExitKindV1, LoopOperationV1, LoopRecipeItemV1, LoopRecipeV1,
     LoopValueClassV1,
@@ -60,6 +61,29 @@ pub(crate) struct LoopJoinLoopV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LoopJoinSigV1 {
     pub(crate) loops: Vec<LoopJoinLoopV1>,
+    pub(crate) branches: Vec<LoopJoinBranchV1>,
+}
+
+/// Caller-zero logical evidence for the bounded LoopTrue branch shape.
+///
+/// This is deliberately not a CFG edge or a PHI plan.  It records the source
+/// If item and its two direct exits so a later physical consumer can decide
+/// how to materialize the already-verified choice.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct LoopJoinBranchV1 {
+    pub(crate) owner_loop: LoopNodeKeyV1,
+    pub(crate) if_item: LoopItemKeyV1,
+    pub(crate) condition: LoopValueKeyV1,
+    pub(crate) then_exit: LoopJoinBranchExitV1,
+    pub(crate) else_exit: LoopJoinBranchExitV1,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct LoopJoinBranchExitV1 {
+    pub(crate) exit_item: LoopItemKeyV1,
+    pub(crate) role: LoopJoinEdgeRoleV1,
+    pub(crate) target_loop: LoopNodeKeyV1,
+    pub(crate) payload: Vec<LoopJoinPayloadV1>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -105,6 +129,7 @@ impl LoopJoinSigElaboratorV1 {
     ) -> Result<VerifiedLoopJoinSigV1, LoopJoinSigRejectReasonV1> {
         let recipe = verified.as_recipe();
         let mut rows = Vec::with_capacity(recipe.loops.len());
+        let mut branches = Vec::new();
         let mut available = recipe.inputs.iter().copied().collect::<BTreeSet<_>>();
         let mut bindings = BTreeMap::new();
         seed_carriers(recipe, verified.root_loop(), &mut bindings, &mut available);
@@ -114,17 +139,23 @@ impl LoopJoinSigElaboratorV1 {
             &mut bindings,
             &mut available,
             &mut rows,
+            &mut branches,
         )?;
         rows.sort_by_key(|row| row.key);
-        Ok(VerifiedLoopJoinSigV1(LoopJoinSigV1 { loops: rows }))
+        branches.sort_by_key(|branch| (branch.owner_loop, branch.if_item));
+        Ok(VerifiedLoopJoinSigV1(LoopJoinSigV1 {
+            loops: rows,
+            branches,
+        }))
     }
 }
 
 #[derive(Debug)]
-struct Flow {
-    bindings: BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
-    available: BTreeSet<LoopValueKeyV1>,
-    exit: Option<(LoopItemKeyV1, LoopExitKindV1)>,
+pub(super) struct Flow {
+    pub(super) bindings: BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
+    pub(super) available: BTreeSet<LoopValueKeyV1>,
+    pub(super) exit: Option<(LoopItemKeyV1, LoopExitKindV1)>,
+    pub(super) alternate_exit: Option<(LoopItemKeyV1, LoopExitKindV1)>,
 }
 
 fn elaborate_loop(
@@ -133,6 +164,7 @@ fn elaborate_loop(
     inherited: &mut BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     available: &mut BTreeSet<LoopValueKeyV1>,
     rows: &mut Vec<LoopJoinLoopV1>,
+    branches: &mut Vec<LoopJoinBranchV1>,
 ) -> Result<Flow, LoopJoinSigRejectReasonV1> {
     let node = recipe
         .loops
@@ -157,8 +189,16 @@ fn elaborate_loop(
     }];
 
     if let LoopConditionV1::Predicate { block, value } = node.condition {
-        let flow = process_block(recipe, key, block, &mut local, &mut local_available, rows)?;
-        if flow.exit.is_some() {
+        let flow = process_block(
+            recipe,
+            key,
+            block,
+            &mut local,
+            &mut local_available,
+            rows,
+            branches,
+        )?;
+        if flow.exit.is_some() || flow.alternate_exit.is_some() {
             return Err(LoopJoinSigRejectReasonV1::UnsupportedExit {
                 item: block_item(recipe, block),
             });
@@ -195,6 +235,7 @@ fn elaborate_loop(
         &mut local,
         &mut local_available,
         rows,
+        branches,
     )?;
     for binding in body_flow.bindings.keys() {
         if !entry_bindings.contains(binding)
@@ -210,46 +251,58 @@ fn elaborate_loop(
         }
     }
     let body_payload = visible_payloads(recipe, key, &body_flow.bindings)?;
-    let propagated_exit = match body_flow.exit {
-        None => {
-            edges.push(LoopJoinEdgeV1 {
-                from: LoopJoinPortV1::Body,
-                to: LoopJoinPortV1::Header,
-                role: LoopJoinEdgeRoleV1::Backedge,
-                payload: body_payload,
-            });
-            None
+    let propagated_exit = if let Some(else_exit) = body_flow.alternate_exit {
+        let then_exit = body_flow
+            .exit
+            .expect("alternate branch exit always has a primary exit");
+        if !is_supported_loop_branch_pair(key, then_exit.1, else_exit.1) {
+            return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: then_exit.0 });
         }
-        Some((item, LoopExitKindV1::Continue { target_loop })) if target_loop == key => {
-            edges.push(LoopJoinEdgeV1 {
-                from: LoopJoinPortV1::Body,
-                to: LoopJoinPortV1::Header,
-                role: LoopJoinEdgeRoleV1::Continue,
-                payload: body_payload,
-            });
-            let _ = item;
-            None
+        edges.push(loop_exit_edge(then_exit.1, body_payload.clone()));
+        edges.push(loop_exit_edge(else_exit.1, body_payload));
+        None
+    } else {
+        match body_flow.exit {
+            None => {
+                edges.push(LoopJoinEdgeV1 {
+                    from: LoopJoinPortV1::Body,
+                    to: LoopJoinPortV1::Header,
+                    role: LoopJoinEdgeRoleV1::Backedge,
+                    payload: body_payload,
+                });
+                None
+            }
+            Some((item, LoopExitKindV1::Continue { target_loop })) if target_loop == key => {
+                edges.push(LoopJoinEdgeV1 {
+                    from: LoopJoinPortV1::Body,
+                    to: LoopJoinPortV1::Header,
+                    role: LoopJoinEdgeRoleV1::Continue,
+                    payload: body_payload,
+                });
+                let _ = item;
+                None
+            }
+            Some((item, LoopExitKindV1::Break { target_loop })) if target_loop == key => {
+                edges.push(LoopJoinEdgeV1 {
+                    from: LoopJoinPortV1::Body,
+                    to: LoopJoinPortV1::After,
+                    role: LoopJoinEdgeRoleV1::Break,
+                    payload: body_payload,
+                });
+                let _ = item;
+                None
+            }
+            Some((item, exit @ LoopExitKindV1::Return { .. })) => {
+                edges.push(LoopJoinEdgeV1 {
+                    from: LoopJoinPortV1::Body,
+                    to: LoopJoinPortV1::FunctionExit,
+                    role: LoopJoinEdgeRoleV1::Return,
+                    payload: body_payload,
+                });
+                Some((item, exit))
+            }
+            Some((item, _)) => return Err(LoopJoinSigRejectReasonV1::UnsupportedExit { item }),
         }
-        Some((item, LoopExitKindV1::Break { target_loop })) if target_loop == key => {
-            edges.push(LoopJoinEdgeV1 {
-                from: LoopJoinPortV1::Body,
-                to: LoopJoinPortV1::After,
-                role: LoopJoinEdgeRoleV1::Break,
-                payload: body_payload,
-            });
-            let _ = item;
-            None
-        }
-        Some((item, exit @ LoopExitKindV1::Return { .. })) => {
-            edges.push(LoopJoinEdgeV1 {
-                from: LoopJoinPortV1::Body,
-                to: LoopJoinPortV1::FunctionExit,
-                role: LoopJoinEdgeRoleV1::Return,
-                payload: body_payload,
-            });
-            Some((item, exit))
-        }
-        Some((item, _)) => return Err(LoopJoinSigRejectReasonV1::UnsupportedExit { item }),
     };
 
     let carriers = payloads(recipe, key, &body_flow.bindings)?;
@@ -268,6 +321,7 @@ fn elaborate_loop(
             bindings: body_flow.bindings,
             available: body_flow.available,
             exit: propagated_exit,
+            alternate_exit: None,
         },
         &parent_bindings,
         &parent_available,
@@ -382,6 +436,7 @@ fn project_parent_flow(
         bindings,
         available,
         exit: flow.exit,
+        alternate_exit: flow.alternate_exit,
     }
 }
 
@@ -392,6 +447,7 @@ fn process_block(
     bindings: &mut BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     available: &mut BTreeSet<LoopValueKeyV1>,
     rows: &mut Vec<LoopJoinLoopV1>,
+    branches: &mut Vec<LoopJoinBranchV1>,
 ) -> Result<Flow, LoopJoinSigRejectReasonV1> {
     let block = recipe
         .blocks
@@ -401,9 +457,10 @@ fn process_block(
         bindings: bindings.clone(),
         available: available.clone(),
         exit: None,
+        alternate_exit: None,
     };
     for item_key in &block.items {
-        if flow.exit.is_some() {
+        if flow.exit.is_some() || flow.alternate_exit.is_some() {
             return Err(LoopJoinSigRejectReasonV1::UnreachableItem { item: *item_key });
         }
         let row = recipe
@@ -426,10 +483,12 @@ fn process_block(
                     &mut flow.bindings,
                     &mut flow.available,
                     rows,
+                    branches,
                 )?;
                 flow.bindings = child.bindings;
                 flow.available = child.available;
                 flow.exit = child.exit;
+                flow.alternate_exit = child.alternate_exit;
             }
             LoopRecipeItemV1::If {
                 condition,
@@ -446,32 +505,68 @@ fn process_block(
                     &mut then_bindings,
                     &mut then_available,
                     rows,
+                    branches,
                 )?;
-                let (else_bindings, else_available, else_exit) =
-                    if let Some(else_block) = else_block {
-                        let mut else_bindings = flow.bindings.clone();
-                        let mut else_available = flow.available.clone();
-                        let else_flow = process_block(
-                            recipe,
-                            owner_loop,
-                            else_block,
-                            &mut else_bindings,
-                            &mut else_available,
-                            rows,
-                        )?;
-                        (else_flow.bindings, else_flow.available, else_flow.exit)
-                    } else {
-                        (flow.bindings.clone(), flow.available.clone(), None)
-                    };
-                if then_flow.exit != else_exit
-                    || then_flow.bindings != else_bindings
-                    || then_flow.available != else_available
+                let explicit_else_block = else_block;
+                let else_flow = if let Some(else_block) = explicit_else_block {
+                    let mut else_bindings = flow.bindings.clone();
+                    let mut else_available = flow.available.clone();
+                    let else_flow = process_block(
+                        recipe,
+                        owner_loop,
+                        else_block,
+                        &mut else_bindings,
+                        &mut else_available,
+                        rows,
+                        branches,
+                    )?;
+                    else_flow
+                } else {
+                    Flow {
+                        bindings: flow.bindings.clone(),
+                        available: flow.available.clone(),
+                        exit: None,
+                        alternate_exit: None,
+                    }
+                };
+                if then_flow.alternate_exit.is_some() || else_flow.alternate_exit.is_some() {
+                    return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: *item_key });
+                }
+                if then_flow.exit.is_some() && else_flow.exit.is_some() {
+                    if then_flow.bindings != else_flow.bindings
+                        || then_flow.available != else_flow.available
+                    {
+                        return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch {
+                            item: *item_key,
+                        });
+                    }
+                    let branch = direct_branch_row(
+                        recipe,
+                        owner_loop,
+                        *item_key,
+                        condition,
+                        then_block,
+                        explicit_else_block,
+                        &then_flow,
+                        &else_flow,
+                    )?;
+                    branches.push(branch);
+                    flow.bindings = then_flow.bindings;
+                    flow.available = then_flow.available;
+                    flow.exit = then_flow.exit;
+                    flow.alternate_exit = else_flow.exit;
+                    continue;
+                }
+                if then_flow.exit != else_flow.exit
+                    || then_flow.bindings != else_flow.bindings
+                    || then_flow.available != else_flow.available
                 {
                     return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: *item_key });
                 }
                 flow.bindings = then_flow.bindings;
                 flow.available = then_flow.available;
                 flow.exit = then_flow.exit;
+                flow.alternate_exit = None;
             }
             LoopRecipeItemV1::Exit { exit } => {
                 let exit_row = recipe
@@ -577,7 +672,7 @@ fn payloads(
         .collect()
 }
 
-fn visible_payloads(
+pub(super) fn visible_payloads(
     recipe: &LoopRecipeV1,
     key: LoopNodeKeyV1,
     bindings: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,

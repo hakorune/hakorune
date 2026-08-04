@@ -115,10 +115,11 @@ located RawInvocation Loop
 
 Therefore universal raw/reference semantic ingress is rejected. This does not
 authorize M10b: M7 five-family closure, M8 all-19 producers, M9 host parity,
-and the Generic D2 winner boundary remain mandatory. The next Lego slice is
-the caller-zero M7-S2-A logical branch-exit closure for one `loop(true)` with
-an explicit `Break` arm and `Continue` arm. It changes no Recipe wire schema,
-physical CFG/PHI, route, scheduler, runtime, grammar, or diagnostics.
+and the Generic D2 winner boundary remain mandatory. M7-S2-A is now closed as
+caller-zero logical evidence for one `loop(true)` with an explicit `Break` arm
+and `Continue` arm; it changed no Recipe wire schema, physical CFG/PHI, route,
+scheduler, runtime, grammar, or diagnostics. The next Lego slice is the
+design-only M7-S3 bounded LoopTrue source/policy/Recipe cohort.
 
 ## Selfhost boundary
 
@@ -613,7 +614,7 @@ Stop:
   collapsed to direct exits, and a missing JoinSig branch/merge vocabulary opens
   a shared design stop rather than an adapter-local workaround.
 
-#### M7-S2-A — `JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0` (selected next row)
+#### M7-S2-A — `JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0` (closed)
 
 Change:
 : Extend only the caller-zero logical JoinSig owner for one root `Always` Loop
@@ -657,21 +658,13 @@ Contract:
   direct supported exits. It never mints a physical or recipe value.
 
 Done:
-: The existing `phase143_p2_loop_true_if_bc_min.hako` semantic shape elaborates
-  deterministically with one ordered branch row, Break then Continue arms,
-  no merge obligation, and no Backedge. Implicit-else fallthrough, branch
-  binding writes/merges, nested control, Return, call, and effect counterexamples
-  retain typed rejection. Producer/physical production callers and old-edge
-  deletion remain zero; focused tests, shared guards, `cargo check --lib`, and
-  touched-file line budgets are green.
-
-  The focused fixture set is exactly:
-
-  1. explicit then-Break / else-Continue produces one branch row;
-  2. implicit-else Break plus fallthrough stays `BranchMergeMismatch`;
-  3. divergent branch binding writes stay `BranchMergeMismatch`;
-  4. the phase143 shape is deterministic across fresh elaborations and its
-     legacy route/runtime oracle remains unchanged.
+: `LoopJoinSigV1.branches` now elaborates one deterministic ordered branch row
+  with Break then Continue arms, no merge obligation, and no Backedge.
+  Focused caller-zero tests cover the positive shape, determinism,
+  implicit-else fallthrough, divergent branch writes, and Return-arm rejection.
+  Producer/physical production callers and old-edge deletion remain zero;
+  `cargo test loop_recipe_contract --lib`, diff checks, and touched-file line
+  budgets are green.
 
 Stop:
 : Do not widen S2-A to mixed fallthrough or binding merge. Those require a
@@ -684,6 +677,29 @@ Stop:
   S2-A changes no physical PHI contract, it must not claim production PHI
   support in `phi_policy.md` or `phi_invariants.md`; update those only after a
   later physical adoption changes their contract.
+
+#### M7-S3 — `JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0` (next design stop)
+
+Change:
+: Design the bounded source/policy/Recipe cohort that can feed the closed
+  M7-S2-A logical branch product. Keep the source shape exact and caller-zero
+  until its authority chain is accepted.
+
+Contract:
+: Resolve source ownership, route admission, and Recipe issuance as separate
+  products. The source view may prove only the resolved LoopTrue shape; policy
+  may select only an admitted semantic profile; Recipe issuance may consume
+  only that product and must fail fast without AST reconstruction, raw suffix
+  retry, or physical Builder effects.
+
+Done:
+: One compact design brief names source authority, non-authority, fail-fast
+  boundary, fixture/gate, and the exact production-caller/non-claims boundary.
+
+Stop:
+: Do not implement a source projector, policy producer, Recipe producer, or
+  route switch until this design boundary is accepted. LoopCond remains behind
+  the bounded LoopTrue cohort.
 
 ### M8 — `JOINIR-LOOP-ALL19-PORTABLE-RECIPE0-S6`
 

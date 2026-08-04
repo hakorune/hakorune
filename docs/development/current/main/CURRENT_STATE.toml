@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Decision B-prime is restored: raw public/reference NarrowV1 rejects Loop before physical open, RawLegacyChildLoweringPortV1 is not a compilation profile, and normalized-shadow mutation is retired. M10b still waits on M7/M8/M9 and Generic D2. The active row is the caller-zero M7-S2-A LoopTrue explicit Break/Continue JoinSig closure."
+status = "Decision B-prime is restored and M7-S2-A is closed: raw public/reference NarrowV1 rejects Loop before physical open, RawLegacyChildLoweringPortV1 is not a compilation profile, normalized-shadow mutation is retired, and the caller-zero LoopTrue branch JoinSig product is green. M10b still waits on M7/M8/M9 and Generic D2. The next row is a design stop for the bounded LoopTrue source/policy/Recipe cohort."
 date = "2026-08-04"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "B-prime caller membership is accepted and no owner-level design stop remains. The exact active boundary is M7-S2-A: one caller-zero Always Loop with a sole explicit-else If, direct then-Break, direct else-Continue, no fallthrough, and no binding merge. Recipe V1 and physical CFG/PHI remain unchanged."
-current_execution_row = "JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0"
-current_execution_summary = "Extend only LoopJoinSigElaboratorV1 for the bounded LoopTrue explicit Break/Continue shape. Emit one ordered logical branch row plus Break/Continue Loop edges and no natural Backedge or merge. Keep implicit fallthrough, branch writes, nested control, Return, calls, and effects as typed rejects. Production callers and old-edge deletion remain zero."
+current_design_stop = "B-prime caller membership and M7-S2-A logical closure are accepted. The next boundary is design-only: choose the source authority, route policy, Recipe issuer, and fail-fast rejection for the same bounded LoopTrue explicit-else Break/Continue shape. No source projector or route switch may be implemented until that contract is accepted."
+current_execution_row = "JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0"
+current_execution_summary = "M7-S2-A is closed with one ordered logical branch row, Break/Continue edges, no Backedge, and focused caller-zero rejects for implicit fallthrough, divergent writes, and Return. The next row must fix the bounded LoopTrue source/policy/Recipe cohort before implementation."
 current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 joinir_if_recipe_two_call_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-two-call-arms-d0-d2-execution-task-2026-08-04.md"
 joinir_if_recipe_call_implicit_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-call-branch-implicit-d0-d2-execution-task-2026-08-04.md"
@@ -455,7 +455,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
-latest_card_summary = """B-prime is restored and the stale C/NoSafeSlice closeout is superseded. Universal raw/reference ingress is rejected; normalized-shadow mutation is already retired. M10b remains ordered after M7/M8/M9 and Generic D2. The current executable row is the caller-zero M7-S2-A LoopTrue explicit Break/Continue JoinSig closure, with Recipe V1 and physical CFG/PHI unchanged."""
+latest_card_summary = """B-prime is restored and the stale C/NoSafeSlice closeout is superseded. Universal raw/reference ingress is rejected; normalized-shadow mutation is already retired. M7-S2-A now closes the caller-zero LoopTrue explicit Break/Continue logical JoinSig shape with no physical CFG/PHI change and synchronized reference docs. M10b remains ordered after M7/M8/M9 and Generic D2. The current blocker is the next design-only source/policy/Recipe cohort."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -658,7 +658,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0"
+current_blocker_token = "JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

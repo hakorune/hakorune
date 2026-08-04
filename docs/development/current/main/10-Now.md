@@ -29,11 +29,12 @@ Related:
   graph toward `mirbuilder_north_star`; cell/pack/LOC counts are not the goal
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
-- current frontier: Decision B-prime is restored. Raw public/reference
-  NarrowV1 rejects Loop before physical open, RawLegacy is not a profile, and
-  normalized-shadow mutation is retired. M10b still waits on M7/M8/M9 and
-  Generic D2. The active row is the caller-zero M7-S2-A LoopTrue explicit
-  Break/Continue JoinSig closure; Recipe V1 and physical CFG/PHI stay unchanged.
+- current frontier: Decision B-prime is restored and M7-S2-A is closed. Raw
+  public/reference NarrowV1 rejects Loop before physical open, RawLegacy is
+  not a profile, normalized-shadow mutation is retired, and the caller-zero
+  LoopTrue explicit Break/Continue JoinSig row is green with no physical
+  CFG/PHI change. M10b still waits on M7/M8/M9 and Generic D2. The active
+  blocker is the design-only bounded LoopTrue source/policy/Recipe cohort.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

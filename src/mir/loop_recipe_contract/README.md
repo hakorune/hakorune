@@ -22,10 +22,13 @@ Loop lowering.
 - External/pre-loop values are named explicitly by `inputs`; every other value
   has exactly one operation result.
 - A carrier entry must be available before its owning Loop is entered. The
-  caller-zero `LoopJoinSigElaboratorV1` elaborates the bounded Accum logical
-  edges and visible ancestor-carrier payloads; its verified product is
-  non-`Clone` and has no production caller. Full dominance/predecessor and
-  wider nested-exit closure remain later M6 work.
+  caller-zero `LoopJoinSigElaboratorV1` elaborates bounded Accum edges,
+  visible ancestor-carrier payloads, and the accepted M7-S2-A LoopTrue
+  explicit-else branch row. The branch row records direct then-`break` and
+  else-`continue` exits without creating physical CFG/PHI obligations. Its
+  verified product is non-`Clone` and has no production caller. Full
+  dominance/predecessor, binding merges, implicit fallthrough, and wider
+  nested-exit closure remain later slices.
 - `LoopRecipeVerifierV1` consumes only `LoopRecipeV1`. It cannot select or retry
   a route and cannot inspect source ownership or the producer receipt.
 - `LoopRecipeVerifierV1` owns structural recipe preconditions; the JoinSig
@@ -84,8 +87,8 @@ Generic
 
 The gate is semantic and evidence-based, not a rename: all fixtures must have
 the same verified Recipe/JoinSig winner, CFG/PHI/value parity, and no legacy
-family production caller. Before the one recursive physicalizer can absorb all
-frame producers, JoinSig must also admit the shared logical branch/merge
-obligations for exits that currently reject as a branch-merge mismatch. Do not
-attempt this convergence during D5 caller-zero physical-input work; it is a
-post-cutover refactor gate.
+family production caller. M7-S2-A closes only one caller-zero logical branch
+shape; physical consumers, binding merges, implicit fallthrough, and broader
+branch/merge obligations remain explicitly out of scope. Do not attempt this
+convergence during D5 caller-zero physical-input work; it is a post-cutover
+refactor gate.

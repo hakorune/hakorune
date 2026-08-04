@@ -482,20 +482,27 @@ JOINIR-LOOP-ALL-ROUTE-MEMBERSHIP-BPRIME0-D0
   Loop before physical open; RawLegacyChildLoweringPortV1 is not a profile;
   normalized-shadow mutation is retired and its observer is non-mutating.
 
-JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0
+closed — JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0
+  -> `LoopJoinSigV1.branches` now records the exact direct then-Break /
+     else-Continue pair; the owning Loop receives Break/Continue edges and no
+     Backedge. Recipe V1, physical CFG/PHI, routes, callers, and old edges are
+     unchanged. Focused positive, determinism, implicit-else, divergent-write,
+     and Return-arm tests are green; `src/mir/loop_recipe_contract/README.md`
+     and `docs/reference/mir/loop-recipe-contract.md` are synchronized.
+
+JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0
   Change:
-    extend caller-zero JoinSig for one Always Loop containing one explicit If
-    with direct then-Break and else-Continue arms
+    design the bounded LoopTrue source/policy/Recipe cohort that can feed the
+    now-closed caller-zero logical branch product
   Contract:
-    LoopJoinSigElaboratorV1 is the sole issuer; Recipe V1, Builder, physical
-    CFG/PHI, route_loop, scheduler, runtime, grammar, and diagnostics unchanged
+    source authority, route policy, Recipe issuance, and fail-fast rejection
+    must remain separate; no production route or physical consumer changes
   Done:
-    one ordered branch row; Break/Continue edges; no Backedge/merge; negative
-    fallthrough/write/nested/Return/call/effect fixtures reject; callers remain 0
+    one compact source-authority/producer contract with a fixture, gate, and
+    explicit caller-zero boundary
   Stop:
-    no mixed fallthrough/binding merge, source projector, policy producer,
-    Retry/fallback, or old-edge deletion in this row; update/create
-    docs/reference/mir/loop-recipe-contract.md only after code/tests are green
+    do not implement the source projector, policy producer, or route switch
+    until the design boundary and non-claims are accepted
 ```
 
 ## Production invariants
@@ -938,8 +945,9 @@ closed
   -> focused semantic, direct-owner, transport, pointer, and shared guards green
 
 ordered after B-prime correction
-  1. implement M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure
-  2. add the bounded LoopTrue source/policy/Recipe cohort, then LoopCond
+  1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure is closed;
+     reference docs and focused rejects are synchronized
+  2. design the bounded LoopTrue source/policy/Recipe cohort, then LoopCond
   3. close Generic M4 D2 before M7-S4; no mock winner or retry projection
   4. close M7 five-family parity, M8 all-19 producers, and M9 host parity
   5. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
