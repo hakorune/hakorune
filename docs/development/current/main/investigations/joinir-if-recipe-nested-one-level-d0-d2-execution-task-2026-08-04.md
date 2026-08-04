@@ -1,5 +1,5 @@
 ---
-Status: D0 execution authorized; D1/D2 gated on D0 green
+Status: D0 and D1 execution green; D2 gated on a production-consumer design stop
 Date: 2026-08-04
 Parent: joinir-if-recipe-nested-one-level-design-stop-2026-08-04.md
 Decision: if accepted, execute only depth-one nested pure fallthrough D0,
@@ -49,11 +49,39 @@ parity/candidate-abort evidence remain gated and are not claimed by this row.
 
 ## D1 — caller and owner census
 
-Prove one nested producer/mapper/composition chain and one selected physicalizer
-caller. Existing CanonicalCfg, Binding SSA, and PhiTxn remain sole physical
-owners. New route, retry, transaction, and PHI/SSA owner counts must be zero.
+Prove one nested producer/mapper/composition chain and keep the nested
+physicalizer caller at **zero** while the profile is disconnected. Existing
+CanonicalCfg, Binding SSA, and PhiTxn remain the sole physical owners. New
+route, retry, transaction, and PHI/SSA owner counts must be zero. A future
+production-consumer row may change the nested physicalizer caller from zero to
+one only after a separate design stop; it must not be smuggled into this
+census.
+
+D1 census evidence (2026-08-04):
+
+* Facts producer chain: one analyzer call to `nested_candidate()`, one sealed
+  product sidecar, and one mapper input accessor.
+* Mapper, verifier, and JoinSig composer have no production callers. Their
+  only external execution caller is the focused nested test module; the
+  verifier call remains inside the mapper.
+* Nested artifact/mapper/composer/verifier symbols have zero references from
+  `src/mir/builder/**` and zero production references from compiler/lowering
+  routes. Nested physicalizer/adapter/route callers are zero.
+* No touched file adds a CFG, Binding SSA, PHI transaction, PHI materializer,
+  route, retry, or candidate owner. All touched source/test files remain below
+  800 lines. Focused nested tests are 3/3 green, and the existing current-state
+  and in-place replacement guards remain green.
 
 ## D2 — parity and candidate abort
+
+D2 is not yet executable against the new nested artifact: the current
+production compile still selects the existing canonical physical oracle for a
+nested source and does not consume `NestedIfRecipeArtifactV1`. The existing
+canonical oracle can already emit two nested PHIs and reuse the candidate
+abort seam, but that proves only physical parity, not nested-artifact
+consumption. The required design stop is
+`joinir-if-recipe-nested-production-consumer-design-stop-2026-08-04.md`; do
+not wire or claim D2 before that row is accepted.
 
 Use the exact source fixture:
 
