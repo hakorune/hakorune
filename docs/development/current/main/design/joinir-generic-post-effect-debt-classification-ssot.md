@@ -880,13 +880,25 @@ The next design stop is
 
 That card designs, but does not implement, one co-sealed
 `VerifiedResolvedCarrierEligibilityV1` capability from parsed source,
-resolver BindingRefs/source forest, canonical Generic facts, and the live
-preflight frame. Only `registry/selection.rs` may later consume it. Missing,
-foreign, ambiguous, planner-suppressed, unsupported, or unstable rows remain
-`UnresolvedStop` and retain the legacy execution edge; no post-effect retry or
-fallback is allowed. No V0 suppression, V1 precedence, Recipe/JoinSig/PHI,
-physicalizer, Builder, MIR, backend, or M10 cutover is authorized until this
-handoff contract and its full typed matrix are accepted.
+resolver BindingRefs/source forest, and a neutral facts identity. Mode,
+execution flags, and the unfiltered schedule belong to a separate
+`PreflightSeedV1`; they are not carrier identity. Because `CanonicalLoopFacts`
+is AST-bearing and source-blind, the resolved
+`RecipeFirstSelectionInputV1` variant must consume a private non-`Clone`
+`VerifiedResolvedCarrierSelectionInputV1` wrapper containing facts,
+eligibility, seed, and `InvocationSealV1`. Facts and capability must never be
+passed as independently pairable values. The closed input has typed
+`Legacy` (only `NotApplicable`/`ProvenOutsideTarget`) and `Resolved` variants;
+target rows with a missing or invalid handoff are `UnresolvedStop`, never an
+optional-field legacy fallback. The resolver first issues a typed observation,
+the neutral facts boundary issues eligibility, and only
+`registry/selection.rs` consumes the wrapper. Final selection precedes
+`LivePreflightFrameV1` issuance, so the handoff has no selection/frame cycle.
+Missing, foreign, ambiguous, planner-suppressed, unsupported, or unstable rows
+remain `UnresolvedStop` and retain the legacy execution edge; no post-effect
+retry or fallback is allowed. No V0 suppression, V1 precedence,
+Recipe/JoinSig/PHI, physicalizer, Builder, MIR, backend, or M10 cutover is
+authorized until this handoff contract and its full typed matrix are accepted.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
