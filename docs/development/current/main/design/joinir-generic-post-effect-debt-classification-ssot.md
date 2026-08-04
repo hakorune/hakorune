@@ -1,6 +1,6 @@
 # Generic Loop post-effect debt classification
 
-Status: active design stop
+Status: active design stop — bounded D2-B4 continuation
 
 Decision: accepted — `JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0`
 
@@ -120,7 +120,7 @@ for the first Builder effect:
 is not imported into the pure policy evaluator and is not a semantic Recipe
 field.
 
-## Current D0-S0 execution brief — stage matrix contract
+## Closed D0-S0 stage matrix contract
 
 ### Change
 
@@ -731,8 +731,40 @@ the legacy witness. Both records `V1ForNestedCarriers` versus legacy V0 success
 as a semantic mismatch; V0 is not a source-semantic winner, so D2 remains
 `UnresolvedStop`. Observation targets and V1 outer PHI/final-value targets are
 checked, while `Program`/`CompoundAssignment` stay `Unavailable`. No policy,
-Retry, PHI wiring, or Generic cutover is authorized. M6 shared-owner work is
-the next caller-zero design stop; D2 resumes before M10b.
+Retry, PHI wiring, or Generic cutover is authorized. M6-B and P1b are already
+closed; the next bounded continuation is D2-B4 below, and the parent D2
+decision remains unresolved before M10b.
+
+#### D2-B4 — `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-D0` (active design stop)
+
+Decision: provisional. Accept only a test-only pre-effect winner-certificate
+candidate when the existing recursive-carrier observation is complete, the raw
+schedule contains the claimed `Both` overlap, and the real fresh-candidate V1
+stage succeeds with outer carrier/final-value targets exactly matching the
+source-derived recursive targets. `CompleteNoRecursiveCarrier`, `Unavailable`,
+`Ambiguous`, missing/failed V1 stages, and every other overlap class remain
+`UnresolvedStop`; planner-required V0 suppression remains a separate gate.
+
+Source authority is the shared `LivePreflightFrameV1`, resolved Generic facts
+observation, frozen raw schedule/mode snapshot, and natural V1 stage result.
+The probe must not inspect AST, route names, `diagnostic_effective`, legacy
+receipts, or post-effect success as policy. It must not add a selector arm,
+Recipe/JoinSig/PHI/physicalizer, scheduler, Retry/fallback, or production
+caller. A legacy V0 success without a debt receipt is a mismatch, not proof.
+
+The execution task is
+`investigations/joinir-generic-nested-carrier-winner-d2-b4-d0-design-2026-08-05.md`.
+Its acceptance matrix compares source targets, V1 outer targets, first-effect
+owner, witness prefix/receipt/terminal, and fresh-repeat stability under
+release and strict modes; planner-required is recorded separately. If any
+claimed row lacks exact target equality or candidate isolation, retain
+`UnresolvedStop` and the legacy scheduler.
+
+Implementation closeout must update the parent SSOT, this task, the Generic
+stage-matrix reference, Generic README, `CURRENT_STATE.toml`, `10-Now.md`, and
+the active workstream. This is a design/test boundary only; it does not
+authorize Generic policy promotion, Recipe production, Retry deletion, M7-S4,
+M10a, or M10b.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

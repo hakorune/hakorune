@@ -1,7 +1,7 @@
 # Generic Loop V0/V1 Stage Matrix
 
 Status: inspection-only reference
-Date: 2026-08-04
+Date: 2026-08-05
 
 This page documents the current test-only evidence boundary for Generic Loop
 V0/V1 post-effect debt. It is not a production route policy, Recipe contract,
@@ -15,8 +15,10 @@ The executable task and acceptance evidence are
 `docs/development/current/main/investigations/joinir-generic-structural-grammar-census-d2-a3-s1-execution-task-2026-08-04.md`;
 the closed ledger is
 `docs/development/current/main/investigations/joinir-generic-post-effect-debt-classification-d0-s1-execution-task-2026-08-04.md`.
-The active overlap parity task is
+The closed overlap parity evidence is recorded in
 `docs/development/current/main/investigations/joinir-generic-overlap-semantic-parity-d2-b2-execution-task-2026-08-04.md`.
+The active bounded continuation is
+`docs/development/current/main/investigations/joinir-generic-nested-carrier-winner-d2-b4-d0-design-2026-08-05.md`.
 The machine-readable test observer is
 `src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs`.
 
@@ -102,8 +104,9 @@ before effect and reaches V1 separately. The pure probe and final comparison
 remain `UnresolvedStop`; no winner or retry policy follows from this evidence.
 The matrix is closed as deterministic evidence;
 `ParityDispositionV1::UnresolvedStop` is a classification, not a policy
-evaluator or winner. The next bounded design boundary is caller-zero M6-B
-(`JOINIR-LOOP-CFG-JOINSIG-PHI0-D0-S4`).
+evaluator or winner. The next bounded design stop is D2-B4: a test-only
+certificate candidate for complete recursive-carrier observations with a
+natural V1 stage; all other classes remain unresolved.
 
 ## Snapshot ownership
 

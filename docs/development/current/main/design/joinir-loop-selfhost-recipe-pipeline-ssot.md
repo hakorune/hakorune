@@ -462,10 +462,10 @@ M3 task order:
    Generic V0/V1 debt-to-success edge. Generic debt stays M4-only. Production
    Recipe callers, PHI owners, fallback removal, and second schedulers remain
    zero; those belong to M5/M6/M10.
-7. `M4 / JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0` — **active**.
-   Complete the stage matrix, target dispositions, V0/V1 overlap proof, and
-   execution-path winner equivalence described in the dedicated M4 card before
-   any Generic Recipe production connection.
+7. `M4 / JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0` — **active**
+   with bounded D2-B4 continuation. Complete only the nested-carrier
+   winner-certificate design and unresolved target dispositions described in
+   the dedicated M4 card before any Generic Recipe production connection.
 Docs-only role cleanup authorizes no new IR, recipe variant, route, scheduler,
 retry path, or physical owner. M3 keeps selection/decline typing, M4 owns
 Generic debt, M6 owns logical JoinSig obligations and caller-zero mechanical

@@ -490,11 +490,11 @@ closed — JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0
      and Return-arm tests are green; `src/mir/loop_recipe_contract/README.md`
      and `docs/reference/mir/loop-recipe-contract.md` are synchronized.
 
-accepted — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0
-  -> resolver-owned source projection; loop_route_policy row-brand admission;
-     dedicated profile-specific Recipe producer; all pre-effect and caller-zero
-     boundaries are fixed in the pipeline SSOT. Reference closeout is now
-     landed with the S2 implementation.
+closed — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0; active D2-B4 design
+  -> `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-D0`; M7 S0/S1/S2/S3 are
+     closed. Complete recursive-carrier observation plus natural V1 stage may
+     form a test-only certificate; other overlap classes remain UnresolvedStop.
+     No production policy or cutover; task is the parent-linked D2-B4 card.
 closed — JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0
   -> resolver-owned AST-free LoopTrue projection with exact source/frame identity
      and typed caller-zero rejects; no route switch, Builder/CFG/PHI, retry, or fallback.
@@ -949,15 +949,14 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure is closed;
      M7-S3 S0/S1/S2 and its reference closeout are now closed with
      resolver-owned identity/frame receipts and typed caller-zero rejects
-  2. execute the active Generic M4 debt classification before M7-S4;
-     no mock winner, retry projection, or physical route switch
-  3. close Generic M4 D2 before M7-S4; no mock winner or retry projection
-  4. close M7 five-family parity, M8 all-19 producers, and M9 host parity
-  5. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
+  2. complete Generic M4 D2-B4 before M7-S4; no mock winner, retry projection,
+     or physical route switch
+  3. close M7 five-family parity, M8 all-19 producers, and M9 host parity
+  4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement
-  6. keep every source/check file below 800 lines; no universal raw ingress,
+  5. keep every source/check file below 800 lines; no universal raw ingress,
      Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
-  7. R4 consumes the live fence registry above; every item must retire, reown,
+  6. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance
 
 R4
