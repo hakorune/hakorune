@@ -29,11 +29,12 @@ Related:
   graph toward `mirbuilder_north_star`; cell/pack/LOC counts are not the goal
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
-- current frontier: M6-B and structural P1b evidence are closed. The bounded
-  M10a resolved DirectAccum bridge now has one production physicalizer caller,
+- current frontier: M6-B, structural P1b, and the bounded M10a resolved
+  DirectAccum bridge are closed. M10a has one production physicalizer caller,
   sealed-After final-carrier publication, and green P4-S1 semantic snapshot
-  parity. The latest card records the closed singleton evidence; all-route
-  scheduler/Generic/Retry and selfhost cutovers remain parked.
+  parity. The active blocker is now the M10b all-route premise reset: raw/
+  reference and normalized-shadow callers still lack one source/binding
+  semantic ingress, so no partial cutover or compatibility adapter is allowed.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

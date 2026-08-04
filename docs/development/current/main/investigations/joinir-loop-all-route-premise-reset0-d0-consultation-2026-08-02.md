@@ -1,11 +1,11 @@
 # JoinIR Loop all-route premise reset — D0 consultation
 
-Status: external design question
-Date: 2026-08-02
+Status: Closed design stop — NoSafeSlice; owner decision required
+Date: 2026-08-04
 Current row: `JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0`
-Decision requested: decide whether universal resolved semantic ingress is a
-final-pipeline prerequisite for Loop, or redefine atomic Loop caller membership
-without preserving an untyped compatibility edge.
+Decision: `NoSafeSlice` — reject the current partial Loop cutover premise
+until the project selects a universal semantic ingress or a typed final
+retained operation for excluded callers.
 
 ## Context
 
@@ -186,3 +186,42 @@ Failure / retry / publication contract:
 Focused proof set:
 First executable row, or exact owner-level stop:
 ```
+
+## Closeout — 2026-08-04
+
+Decision: `C / NoSafeSlice`.
+
+The all-route membership audit is closed with the following evidence:
+
+```text
+resolved Function/Lambda:
+  facts exist, but no ordinary Loop consumer publishes ordered logical inputs
+selected Script:
+  Loop is deferred before child descent; no BindingRef/exit/continuation product
+located raw invocation:
+  condition/body receipts are discarded before the sole raw JoinIR route
+shared normalized-shadow routes:
+  host variable_map and physical mutation remain active authorities
+raw/reference:
+  no source lineage or binding environment exists
+```
+
+Candidate A (universal root-neutral semantic ingress) is not a bounded
+implementation row yet: it requires a new all-caller source/binding producer,
+including raw/reference, without creating a second resolver. Candidate B has no
+typed final retained operation with an independent all-route consumer and
+sunset path; keeping raw/reference or normalized shadow as an untyped edge is
+not an accepted final-pipeline contract. Therefore M10b must not be started.
+
+The required owner-level decision is one of:
+
+```text
+1. authorize and design the universal semantic ingress, or
+2. define a typed final retained Loop operation covering every excluded caller
+   and both normalized-shadow mutation entries, or
+3. explicitly park/revise the Loop final-pipeline objective.
+```
+
+No Rust, grammar, IR, route, retry, fallback, raw/reference, or diagnostic
+change is authorized by this closeout. The next executable row remains unset;
+the current blocker is the owner decision above, not another Loop adapter.

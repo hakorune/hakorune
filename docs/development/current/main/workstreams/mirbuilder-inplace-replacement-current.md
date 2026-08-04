@@ -474,6 +474,18 @@ JoinIR contract and ordered convergence map live in
 `design/joinir-loop-selfhost-recipe-pipeline-ssot.md`. Closed route-local provenance
 records below are evidence only and must not schedule another route.
 
+Current design stop:
+
+```text
+JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0-DESIGN-STOP
+  P4-S1 singleton DirectAccum evidence is closed.
+  M10b all-route cutover is not executable because raw/reference and the
+  normalized-shadow callers do not share one source/binding semantic ingress.
+  Do not add a Script-only/raw-only resolver, name-based recovery table, or
+  compatibility adapter. The next owner decision is universal ingress,
+  typed final retained operation, or explicit Loop objective revision.
+```
+
 ## Production invariants
 
 ```text
@@ -913,14 +925,16 @@ closed
      recursively lexical-safe body; existing FastMem lower remains owner
   -> focused semantic, direct-owner, transport, pointer, and shared guards green
 
-ordered after fresh evidence only
-  1. complete the current ContextScope diagnostic-boundary row
-  2. census exactly one Deferred family; TaskScope and Outbox are named
-     design gates, not preselected implementation work
-  3. activate one responsibility capability per row, with Control / Mutation /
-     JoinIR / Exit before Call/Object, allocation, Weak, Lambda, and Box
-  4. keep Program work-plan ownership below the file-size boundary by extracting
-     a neutral demand-window module only when the selected row needs it
+ordered after owner decision only
+  1. resolve `JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0-DESIGN-STOP` by choosing
+     universal semantic ingress, a typed final retained operation, or an
+     explicit Loop objective revision
+  2. if universal ingress is authorized, taskize one root-neutral producer and
+     its exact all-route source/binding coverage before any M10b code
+  3. if a typed retained operation is authorized, name its all-route consumer
+     and both normalized-shadow deletion edges before implementation
+  4. keep Program work-plan ownership below the file-size boundary; do not
+     create a Script-only/raw-only resolver or compatibility adapter
   5. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance
 

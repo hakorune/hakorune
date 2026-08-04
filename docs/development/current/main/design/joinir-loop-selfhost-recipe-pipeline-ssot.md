@@ -63,7 +63,7 @@ Candidate isolation is not route qualification. Meaning must be decided before
 the first Builder effect; selected physicalization returns terminal success or
 `Freeze` and cannot advance to another route.
 
-### Bounded M10a DirectAccum pilot — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT0-M5-P4-S1`
+### Bounded M10a DirectAccum pilot — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT0-M5-P4-S1` (closed)
 
 The resolved DirectAccum profile is selected by the canonical resolved ingress
 and reaches exactly one production physicalizer caller in
@@ -71,16 +71,14 @@ and reaches exactly one production physicalizer caller in
 function-owned Binding SSA, canonical CFG, and `PhiTxn`; it does not create a
 second writer or change `route_loop`.
 
-The active next slice is test-only physical observation. It adapts the actual
-unpublished DirectAccum candidate to the immutable alpha snapshot already used
-by the legacy observer, compares semantic CFG/operation/PHI/result meaning,
-and proves late candidate discard plus fresh-session reuse. Raw physical IDs,
-printer text, all-route parity, Retry/fallback retirement, Generic widening,
-default compile activation, grammar, and IR changes remain outside this row.
-The task card requires synchronized updates to this SSOT, the PHI/SSA design
-SSOTs, the MIR reference pages, `src/mir/builder/README.md`, and current
-pointer mirrors after implementation; reference synchronization is an
-acceptance condition, not optional cleanup.
+The actual unpublished DirectAccum candidate now matches the immutable alpha
+semantic snapshot, including sealed-After final-carrier publication, late
+candidate discard, and fresh-session reuse. Raw physical IDs, printer text,
+all-route parity, Retry/fallback retirement, Generic widening, default compile
+activation, grammar, and IR changes remain outside this row. The task card and
+the PHI/SSA design SSOTs, MIR reference pages, `src/mir/builder/README.md`,
+and current pointer mirrors were synchronized as part of the implementation
+closeout.
 
 #### M10a D2-S5 prerequisite — final-carrier publication (closed)
 
@@ -94,6 +92,17 @@ through the canonical port, verified carrier keys are read through the same
 adapter into a typed caller-owned receipt, and the existing claim/finish/commit
 order follows. P4-S1 is green; its observer does not infer final values from
 header PHIs.
+
+### M10b successor premise — `JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0` (design stop)
+
+M10b is the first all-route consumer, but it cannot start from the singleton
+M10a proof. Raw/reference callers lack source lineage and BindingRef state;
+located raw Loop receipts are discarded before the legacy route, and the two
+normalized-shadow mutation entries remain physical authorities. The accepted
+premise-reset closeout therefore records `NoSafeSlice`: choose a universal
+root-neutral semantic ingress or a typed final retained operation covering all
+excluded callers before authorizing any M10b implementation. No partial Loop
+cutover, fallback adapter, or new resolver is allowed in this stop.
 
 ## Selfhost boundary
 
