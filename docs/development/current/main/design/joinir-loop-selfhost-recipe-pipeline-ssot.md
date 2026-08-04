@@ -679,8 +679,7 @@ Stop:
   later physical adoption changes their contract.
 
 #### M7-S3 — `JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0` (accepted)
-Decision: accepted after independent worker audits. The next executable row is
-`JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0`.
+Decision: accepted after independent worker audits; source projection S0 is closed. Next row: `JOINIR-LOOP-TRUE-POLICY-DEMAND0-M7-S3-S1`.
 Source authority:
 : Resolver-owned `VerifiedResolvedLoopSourceV1` plus one semantic source
   traversal issues an AST-free `VerifiedLoopTrueBreakContinueProjectionV1`.
@@ -702,11 +701,12 @@ Fail-fast envelope:
   suffix reconstruction, fallback, AST payloads, physical IDs, CFG/PHI, and
   route switches are forbidden.
 Execution tasks:
-: S0 source projection and source-identity/frame rejects; S1 policy admission
-  and profile-specific demand; S2 Recipe -> verifier -> JoinSig caller-zero
-  parity; S3 guards and closeout. Use the phase143 fixture plus implicit-else,
-  divergent-write, Return, wrong-frame, and wrong-winner negatives; run focused
-  tests, pointer/in-place/R4 guards, diff checks, and the <800-line budget.
+: S0 is closed with resolver-owned source projection and source-identity/frame
+  rejects. S1 is policy admission and profile-specific demand; S2 is Recipe ->
+  verifier -> JoinSig caller-zero parity; S3 is guards and closeout. Use the
+  phase143 fixture plus implicit-else, divergent-write, Return, wrong-frame,
+  and wrong-winner negatives; run focused tests, pointer/in-place/R4 guards,
+  diff checks, and the <800-line budget.
 Reference closeout:
 : After S0-S2 implementation, update
   `src/mir/loop_recipe_contract/README.md` and

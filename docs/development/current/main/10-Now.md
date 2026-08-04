@@ -30,9 +30,10 @@ Related:
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
 - current frontier: Decision B-prime and M7-S2-A are closed, and M7-S3-D0 is
-  accepted. The next row is source projection S0: resolver-owned AST-free
-  LoopTrue projection, then row-branded policy demand and caller-zero Recipe
-  parity. No route/physical change is authorized; reference docs are mandatory
+  accepted. Source projection S0 is closed with resolver-owned AST-free
+  LoopTrue projection, explicit source/frame identity, and typed rejects. The
+  next row is row-branded policy demand S1, followed by caller-zero Recipe
+  parity; no route/physical change is authorized. Reference docs are mandatory
   after S0-S2. M10b still waits on M7/M8/M9 and Generic D2.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work

@@ -941,8 +941,10 @@ closed
 
 ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure is closed;
-     reference docs and focused rejects are synchronized
-  2. design the bounded LoopTrue source/policy/Recipe cohort, then LoopCond
+     M7-S3-D0 is accepted and source projection S0 is now closed with
+     resolver-owned identity/frame receipts and typed caller-zero rejects
+  2. execute M7-S3 policy demand S1, then caller-zero Recipe/JoinSig S2;
+     update reference docs after S0-S2 implementation
   3. close Generic M4 D2 before M7-S4; no mock winner or retry projection
   4. close M7 five-family parity, M8 all-19 producers, and M9 host parity
   5. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located

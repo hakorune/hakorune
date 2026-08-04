@@ -14,6 +14,7 @@ guard_joinir_logical_demand_contract() {
   local direct_accum_issuer="$root_dir/src/mir/compiler/direct_accum_profile.rs"
   local direct_accum_capability="$root_dir/src/mir/compiler/direct_accum_capability.rs"
   local direct_accum_projection="$root_dir/src/mir/compiler/direct_accum_projection.rs"
+  local loop_true_source_projection="$root_dir/src/mir/compiler/loop_true_break_continue_projection.rs"
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
   local loop_phi_materializer="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer.rs"
@@ -75,7 +76,7 @@ guard_joinir_logical_demand_contract() {
     "$loop_accum_candidate_tests" \
     "$loop_accum_digest_support" "$loop_accum_semantic_digest_support" \
     "$loop_physical_edge_path" "$direct_accum_issuer" "$direct_accum_capability" \
-    "$direct_accum_projection"
+    "$direct_accum_projection" "$loop_true_source_projection"
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_physical_tests"; then
     guard_fail "$tag" "physical parity observer must remain cfg(test)-only"
   fi
@@ -228,7 +229,8 @@ guard_joinir_logical_demand_contract() {
   structural_binding_callers="$(
     { rg -l 'bind_resolved_loop_root_v1\(' "$root_dir/src/mir" || true; } \
       | awk -v prefix="$loop_structural_facts_dir/" -v producer="$direct_accum_recipe_producer" \
-          'index($0, prefix) != 1 && $0 != producer' \
+          -v projection="$loop_true_source_projection" \
+          'index($0, prefix) != 1 && $0 != producer && $0 != projection' \
       | wc -l \
       | tr -d '[:space:]'
   )"
@@ -308,7 +310,8 @@ guard_joinir_logical_demand_contract() {
           -v structural_prefix="$loop_structural_facts_dir/" \
           -v resolved_prefix="$root_dir/src/mir/resolved_semantics/" \
           -v projection="$direct_accum_projection" \
-          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && $0 != projection'
+          -v loop_true_projection="$loop_true_source_projection" \
+          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && $0 != projection && $0 != loop_true_projection'
   )
   if (( ${#external_resolved_source_files[@]} != 0 )); then
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
