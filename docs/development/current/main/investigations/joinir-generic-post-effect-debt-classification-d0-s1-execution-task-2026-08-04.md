@@ -1,5 +1,6 @@
 ---
-Status: active; test-only stage-matrix completeness and disposition audit
+Status: closed as the test-only matrix ledger; M4 remains unresolved and is
+handed to the bounded D2-A3-S1 child
 Date: 2026-08-04
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Decision: accepted — JOINIR-LOOP-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S1
@@ -204,6 +205,15 @@ assertion at `src/mir/global_call_route_plan/tests/runtime_methods/collection_bu
 It reproduces in isolation and is not changed by this M4 test-only slice; it
 must be handled by its own global-call route task rather than weakening this
 matrix or mixing unrelated ownership changes into the commit.
+
+## D0-S1 closeout
+
+D0-S1 is closed as a deterministic evidence-ledger slice. It does not close
+M4: the matrix intentionally retains `NotYetObserved`/`UnresolvedStop` rows
+for natural strict/release failure arms, nested depth, and a proven V0-only
+fixture. The next active row is the bounded D2-A3 child
+`JOINIR-GENERIC-STRUCTURAL-GRAMMAR-CENSUS0-D2-A3-S1`, which performs a
+read-only natural-arm/depth census without changing the production route.
 
 ## Acceptance gates
 

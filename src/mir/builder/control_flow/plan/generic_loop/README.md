@@ -65,6 +65,22 @@ Related docs:
 - `docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md`
 - `docs/development/current/main/design/compiler-expressivity-first-policy.md`
 
+Post-effect stage boundary (M4 test/reference lane):
+- `generic_stage_matrix_tests` is an observation-only ledger. It does not own
+  Generic winner selection, Recipe/JoinSig/PHI production, physicalization,
+  retry, or candidate publication.
+- `contract_present = false` is recorded as evidence; it is not an implicit
+  pre-effect decline. A missing receipt keeps the row unresolved.
+- The first Builder effect is determined from block, ValueId, typed-value, and
+  binding snapshots. Restoring a variable map is not candidate rollback.
+- Nested lowering observes the depth-1 fastpath first and the
+  `nested_loop_recipe_adoption` fallback second. Neither test helper is a
+  precedence oracle.
+- Legacy receipts remain diagnostic until the parent M4/M10 gates close.
+- The active D2-A3-S1 census is test-only and changes no language grammar or
+  IR semantics. After implementation, the stage-matrix reference page and
+  parent design SSOT must be synchronized before the card can close.
+
 LOOP0-P0b-T0 associated-source boundary:
 - T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under
   Refactor Series Mode.

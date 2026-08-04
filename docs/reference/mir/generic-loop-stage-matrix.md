@@ -12,6 +12,8 @@ PHI owner, scheduler, or backend lowering specification.
 The design authority is
 `docs/development/current/main/design/joinir-generic-post-effect-debt-classification-ssot.md`.
 The executable task and acceptance evidence are
+`docs/development/current/main/investigations/joinir-generic-structural-grammar-census-d2-a3-s1-execution-task-2026-08-04.md`;
+the closed ledger is
 `docs/development/current/main/investigations/joinir-generic-post-effect-debt-classification-d0-s1-execution-task-2026-08-04.md`.
 The machine-readable test observer is
 `src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs`.
@@ -63,6 +65,12 @@ UnresolvedStop      evidence is insufficient to choose the above
 An effectful composer/verifier/lowerer failure is never labelled
 `PreEffectDeclined`. Unobserved natural arms are retained as
 `NotYetObserved`/`UnresolvedStop` rows; no failure injection is used.
+
+The active D2-A3-S1 census may add natural strict/release failure-arm and
+nested-depth observations only. It must preserve the lower-`None`
+`ImpossibleEdge` invariant for valid Generic completion and must not change
+grammar or IR semantics. This page is a required post-implementation
+closeout surface for that task.
 
 ## Snapshot ownership
 

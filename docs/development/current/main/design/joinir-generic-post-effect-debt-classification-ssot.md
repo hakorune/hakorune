@@ -124,8 +124,8 @@ field.
 
 ### Change
 
-Fix the Generic V0/V1 stage-matrix contract; the test-only D0-S1 witness is
-tracked in `investigations/joinir-generic-post-effect-debt-classification-d0-s1-execution-task-2026-08-04.md`. The matrix has one row for each V0/V1 × mode × contract arm: facts absent or
+Fix the Generic V0/V1 stage-matrix contract; the test-only D0-S1 witness is tracked in `investigations/joinir-generic-post-effect-debt-classification-d0-s1-execution-task-2026-08-04.md`; its active D2-A3 child is
+`investigations/joinir-generic-structural-grammar-census-d2-a3-s1-execution-task-2026-08-04.md`. The matrix has one row for each V0/V1 × mode × contract arm: facts absent or
 mismatched, composer precondition/allocation/`Err`, strict shadow
 `Some`/`None`/`Err`, release verifier `Ok`/`Err`, release lower
 `Some`/`Ok(None)`/`Err`, nested Generic calls, and legacy receipts. Each row
@@ -250,7 +250,7 @@ Gate: a test rejects any Builder-mutating row labelled Builder-free; the pure
 policy subtree imports neither registry handlers nor legacy receipts. No
 production caller or Recipe/PHI type is added.
 
-### M4-D2 — V0/V1 overlap and precedence (`...-D0-S2`)
+### M4-D2 — V0/V1 overlap and precedence (`...-D2-S2`)
 
 Audit the actual facts extractors and selection predicates using fixtures for
 `V0-only`, `V1-only`, `Both`, and `Neither`, under strict, release, and
