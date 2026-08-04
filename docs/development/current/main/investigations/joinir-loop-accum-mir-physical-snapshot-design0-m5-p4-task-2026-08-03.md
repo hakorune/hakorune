@@ -135,3 +135,29 @@ Stop and return to design if any implementation requires:
   physicalizer, not on another route-by-route oracle;
 - all source changes remain under the 800-line limit and production callers
   remain unchanged.
+
+## Design-stop execution brief and reference closeout
+
+Source authority is the verified JoinSig, P1b physical-path witness, existing
+candidate MIR, `PhiTxn`, and function-owned Binding SSA. The snapshot observer
+is non-authoritative comparison data; it must not own AST/source policy,
+CorePlan lowering, CFG construction, operation emission, route selection,
+Retry, publication, or a second PHI/SSA lifecycle. Any missing role/path,
+unknown physical meaning, candidate mutation outside the existing producer, or
+need for a duplicate lowerer is a fail-fast return to this design stop.
+
+The recommended next implementation is only after a single shared M10a
+physicalizer exists: add its second snapshot producer, compare the legacy and
+new candidates through `MirPhysicalAlphaSnapshotV1`, then prove late-failure
+discard and fresh-session reuse. Do not implement a test-only substitute
+physicalizer to satisfy the comparison.
+
+After that implementation, completion requires exact evidence and synchronized
+updates to this card, the P4-S0 observer card, the Loop pipeline and PHI/SSA
+design SSOTs, `docs/reference/mir/phi_invariants.md`,
+`docs/reference/mir/phi_policy.md`, `src/mir/builder/README.md`,
+`CURRENT_STATE.toml`, and `10-Now.md`. Record the commands, test counts,
+caller census, and all touched-file line counts; state explicitly that no
+grammar, IR, Generic policy, Retry/fallback, or route behavior changed unless
+a separate accepted M10a cutover card authorizes it. Reference-document
+synchronization is part of implementation acceptance, not optional cleanup.
