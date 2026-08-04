@@ -365,8 +365,8 @@ Stop:
 Change:
   Atomically delete old parser edges, synthetic Property emission, dependency
   scan, PropertyKind/PropertyRegistry, dynamic field-read reroute, env gates,
-  selfhost formatter/oracle, and old-only guards/docs. Land exact removed-syntax
-  diagnostics in the same cutover.
+  selfhost formatter/oracle, and old-only executable guards. Land exact
+  removed-syntax diagnostics in the same cutover.
 
 Contract:
   Stored fields, weak fields, field initializers, methods, birth, delegate,
@@ -382,7 +382,37 @@ Stop:
   off environment switch. A required compatibility profile needs an explicit
   source/profile contract and is not authorized here.
 
-### 6. `BOX-MEMBER-SAME-NAME0-D0`
+### 6. `BOX-MEMBER-PROPERTY-REFERENCE-CLOSEOUT0-DOC0`
+
+Change:
+  Immediately after the production cutover, update normative reference docs,
+  generated support views, examples, and environment-variable documentation
+  from "accepted target / current compatibility" to the implemented
+  field-or-method contract.
+
+Contract:
+  At minimum synchronize language EBNF/index/Compat2025 notes, JSON v0, field
+  visibility/delegation, lifecycle and constructor references, stage profiles,
+  grammar registry projections, examples/style guidance, and
+  `docs/reference/language/ownership.md`. Ownership docs may now rely on
+  `obj.x` as a stored place and `obj.x()` as a call, but must keep Home grammar,
+  Home Flow, Unique/Shared lowering, and ownership performance inactive until
+  their own rows land.
+
+Done:
+  No current reference page claims that computed/once/birth_once Property or
+  `NYASH_ENABLE_UNIFIED_MEMBERS` is a live production feature. Historical
+  pages are explicitly labeled and do not recommend old syntax. The reference
+  grammar matches both production parsers, generated support views are fresh,
+  and `CURRENT_STATE.toml` plus the parked language taskboard point at the next
+  real blocker. Property retirement is not marked complete before this row.
+
+Stop:
+  A documentation mismatch that reflects a real parser/runtime difference
+  reopens the implementation row; docs must not hide it as historical prose.
+  This row does not activate Home ownership or add a new member surface.
+
+### 7. `BOX-MEMBER-SAME-NAME0-D0`
 
 Change:
   After retirement, independently audit whether `x: T` and `x(): T` already
@@ -414,6 +444,8 @@ do not combine Property retirement with Home Flow implementation
 do not combine BoxShape deletion with same-name BoxCount activation
 do not delete stored initializers or weak fields
 do not silently include the legacy `init { fields }` list in this retirement
+do not close Property retirement before reference/ownership DOC0 is green
+do not describe the field/method prerequisite as Home Flow activation
 do not change the active CURRENT_STATE lane from this parked design
 ```
 
@@ -429,6 +461,8 @@ hidden_once_state = 0
 hidden_birth_once_dependency_scan = 0
 stored_initializer_owner_count = 1
 property_compatibility_env_gate_count = 0
+current_reference_property_compatibility_claim_count = 0
+ownership_reference_prerequisite_synced = 1
 same_name_acceptance_added_by_retirement = 0
 home_flow_production_delta = 0
 ```

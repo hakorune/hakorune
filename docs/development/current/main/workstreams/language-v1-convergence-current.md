@@ -859,8 +859,8 @@ lane.
 Canonical Box value members converge to stored/weak fields; computation is an
 ordinary method. The fixed order is surface D0 -> full census D1 -> stored
 initializer owner extraction -> source migration -> atomic Property retirement
-and diagnostics -> independent same-name field/method audit. Exact contracts
-and stop lines are owned by
+and diagnostics -> reference/ownership docs closeout -> independent same-name
+field/method audit. Exact contracts and stop lines are owned by
 [`box-member-field-method-surface-ssot.md`](../design/box-member-field-method-surface-ssot.md).
 
 This row must close before Home Flow production adoption so `obj.x` has one

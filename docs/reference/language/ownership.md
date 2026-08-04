@@ -16,6 +16,9 @@ Related authorities:
 - `lifecycle.md`: `fini()`, Alive/Dead/Freed, weak references, and reclamation;
 - `../../development/current/main/design/ownership-home-model-ssot.md`:
   cross-layer compiler authority;
+- `../../development/current/main/design/box-member-field-method-surface-ssot.md`:
+  field/method source prerequisite and mandatory post-cutover reference
+  closeout;
 - `../../development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`:
   parked decision and implementation order.
 
@@ -29,6 +32,7 @@ historical evidence only. They do not restore `move`, source `view`, source
 | --- | --- |
 | Home direction and durable laws | accepted by this page |
 | exact HomeV1 source grammar | provisional; D0 rows open |
+| Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
 | Rust/Hako parser and AST Home carriers | inactive / absent |
 | resolver, Home Flow, callable Home ABI | inactive / absent |
 | canonical Builder/source producers | 0 |
