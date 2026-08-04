@@ -56,17 +56,20 @@ Sparse Ownership profile
   their resolver, Loan Flow, ABI, Builder, runtime, and backend gates close
 ```
 
-The compiler chooses exactly one profile for a source unit. A Sparse failure
-does not retry SharedV1, and a SharedV1 success is not evidence that Sparse
-semantics are implemented. SharedV1 can retire only after implicit-share
-producers, cross-profile bridges, fallback attempts, and source-unit users
-reach zero. The concrete manifest/edition spelling remains a later grammar
-decision; this card does not invent one.
+The target compiler chooses exactly one profile for a complete source unit
+(with project/manifest selection supplying that unit-wide choice). A Sparse
+failure does not retry SharedV1, and a SharedV1 success is not evidence that
+Sparse semantics are implemented. The production profile selector is not yet
+implemented (`0` current opt-in); the concrete manifest/edition spelling and
+source-unit/project selection mechanism remain later grammar decisions. No
+current source can opt into Sparse through this card. SharedV1 can retire only
+after implicit-share producers, cross-profile bridges, fallback attempts, and
+source-unit users reach zero.
 
 Backwards compatibility therefore means:
 
 * old source keeps its current SharedV1 meaning while activation is zero;
-* migrated source selects Sparse at a whole-unit boundary;
+* future migrated source selects Sparse at a whole-unit boundary;
 * ordinary local code keeps its existing lightweight spelling;
 * only ownership-changing boundaries (`move`, `share`, result `view`, stores,
   capture, suspension, and unknown ABI) require source or contract changes;
@@ -86,15 +89,20 @@ TextRef / StringSpan / TextPlan / PiecesN
 StringViewBox
   object-world compatibility value with identity/BoxBase/handle behavior
 
-StringBox / handle / freeze.str
+StringBox / handle
   retained or externally visible representation at an explicit boundary
+
+freeze.str
+  canonical text-corridor birth sink for that representation
 ```
 
 `StringViewBox` is therefore not the implementation of the zero-bookkeeping
 language View. Its allocation, identity, base retention, and handle registry
 costs are real and remain governed by the string birth/placement SSOTs. The
 transient string lane may carry `StringSpan`/`TextPlan`/`PiecesN` without
-creating an observable Box, and `freeze.str` remains the retained birth sink.
+creating an observable Box. In the selected canonical text corridor,
+`freeze.str` is the retained birth sink; this does not claim repository-wide
+direct `StringBox::new` callers are retired.
 Do not alias `StringViewBox` into a non-owning object or change `BoxBase::new`
 semantics as a shortcut.
 
@@ -165,7 +173,7 @@ policies.
 | current BindingRef → ValueId | function-owned Binding SSA | a second ownership value map |
 | owner-token create/forward/consume | Ownership SSA / exact ABI | `StringViewBox` or `Arc` shape |
 | transient text | `TextPlan` / `PiecesN` boundary docs | public Box identity |
-| retained text birth | `freeze.str` sink | substring helper names or benchmark branches |
+| retained text birth in the selected canonical corridor | `freeze.str` sink | substring helper names, benchmark branches, or unrelated runtime compatibility callers |
 | object compatibility | `StringBox` / `StringViewBox` substrate | language View semantics |
 
 ## Parked execution train
@@ -175,7 +183,7 @@ existing parent taskboard order. This card records the clean dependency view:
 
 ```text
 0  OWNERSHIP-SPARSE-RESUME-D0 readiness after MirBuilder final pipeline
-1  OWN-GRAM-REJECT0 (Rust/Hako inactive-syntax rejection)
+1  OWN-GRAM-REJECT0-HAKO0-S0 -> OWN-GRAM-REJECT0-G0 (Rust/Hako inactive-syntax rejection)
 2  O2-P0a/P0r/P0b1/P0c evidence census
 3  GRAM-MOVE0 -> GRAM-SHARE0 -> GRAM-PARAM0 -> GRAM-RESULT0
 4  O2-A0 -> O2-L0 -> O2-M0 -> O2-DIAG0
@@ -183,8 +191,9 @@ existing parent taskboard order. This card records the clean dependency view:
 6  ALIAS-I0 -> ALIAS-CFG0 (whole-root, no alias PHI/reassignment)
 7  ABI0 (noescape receiver/parameter, explicit move/share, Owned/Trivial result)
 8  VIEW0 -> PROJ-D0/S0/ABI0/R0/CALL0/DIAG0/I0
-9  SHARE-PLAN0 -> SHARE-I0 and later resource/weak/sync rows
-10 OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
+9  UCALL-B0 (exact Box receiver-call substrate) -> PROJ-I0
+10 SHARE-PLAN0 -> SHARE-I0 and later resource/weak/sync rows
+11 OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
 ```
 
 The first View product consumes an already verified callable ABI and Loan Flow;
@@ -214,7 +223,8 @@ Every ownership/View row must prove, in its own commit:
   cross await/yield, enter PHI, or cross an unknown ABI in the first profile;
 * explicit `share` is the only independent-lifetime acquisition;
 * transient text remains non-Box and `freeze.str` remains the only retained
-  string birth sink;
+  string birth sink in the selected canonical text corridor (not a
+  repository-wide caller census);
 * unsupported routes fail fast, with no hidden retain, raw-pointer fallback,
   or method-name inference;
 * focused parser/resolver/Loan/SSA/MIR/runtime/backend parity and all touched
@@ -225,12 +235,17 @@ Every ownership/View row must prove, in its own commit:
 This parked card does not claim:
 
 * parser-live ownership syntax or a fixed manifest/edition spelling;
-* production Sparse activation, Ownership SSA callers, or SharedV1 retirement;
+* production Sparse activation/selector, Ownership SSA callers, or SharedV1 retirement;
 * a runtime Box representation for language View;
 * that `StringViewBox` is cheap, zero-allocation, or interchangeable with
   `TextRef`/`StringSpan`;
 * field/projection/static/temporary View, View PHI, cross-await/thread View,
   plugin/FFI View ABI, or exclusive/noalias mutation;
+* `@rune Ownership` metadata as a callable ownership ABI;
+* `weak`/`fini` as part of the View capability algebra (`weak` is a
+  generation-aware non-owner and `fini` is lifecycle/finalization);
+* `CondBlockView`, `MemoryView`/`Span`, `TextRef`, or `StringViewBox` as a
+  substitute authority for source ownership or Loan Flow;
 * GC/RC strategy, arena promotion, or C-level performance guarantees.
 
 Until the MirBuilder final-pipeline checkpoint reopens the parent taskboard,
