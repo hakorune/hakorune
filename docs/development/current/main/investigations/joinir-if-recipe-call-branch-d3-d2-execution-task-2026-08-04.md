@@ -1,5 +1,5 @@
 ---
-Status: Ready for implementation — D2 candidate-abort and parity evidence
+Status: Completed — D2 candidate-abort and parity evidence
 Date: 2026-08-04
 Parent: joinir-if-recipe-call-branch-d3-design-stop-2026-08-04.md
 Decision: open exactly two D2 proofs for the selected direct static i64
@@ -71,10 +71,13 @@ CanonicalModuleLoweringSessionV1::open
   -> drop unpublished candidate
 ```
 
-Use the same selected Call-RHS fixture (or a source-equivalent single-function
-fixture if the module front door cannot expose the seam). The injected failure
-must occur after the call, branch blocks, and PHI work have been produced but
-before external publication.
+Use the same selected Call-RHS shape through a source-equivalent function plan
+with the finite direct-call admission already used by the D0 profile. The
+ordinary `compile_resolved` ingress still forbids direct calls; do not widen it
+in this row. The injected failure must occur after the call, branch blocks, and
+PHI work have been produced but before external publication. The fresh-reuse
+half may use the existing acyclic callable-module front door, which is the
+production-shaped direct-call route already owning this capability.
 
 The proof must assert:
 
@@ -101,6 +104,21 @@ src/mir/compiler/<small call-rhs test helper>.rs (only if needed)
 Keep every touched Rust/test file below 800 lines. If a fixture helper would
 grow a large module, extract a test-only helper instead of extending a
 production owner.
+
+## Evidence — 2026-08-04
+
+Both proofs are green:
+
+* the `vm-reference` acyclic callable-module fixture emits one direct Call in
+  the selected branch, one two-input PHI with matching predecessor/value rows,
+  capability metadata, and the expected interpreter results for both branch
+  inputs;
+* the Call-RHS candidate fixture fails after call/CFG/PHI work, preserves the
+  live Builder fingerprint and unpublished state, and then compiles a fresh
+  acyclic module on the same compiler.
+
+No production route, transaction owner, retry edge, or global PHI/SSA claim
+was added by this row.
 
 ## Acceptance gates
 

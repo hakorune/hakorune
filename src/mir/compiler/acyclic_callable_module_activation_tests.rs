@@ -207,6 +207,98 @@ fn calls_in_both_fallthrough_if_arms_execute() {
 }
 
 #[test]
+fn one_call_rhs_branch_preserves_call_phi_and_parity() {
+    let branch = function(
+        "branch_call_rhs",
+        vec![
+            local("result", variable("x")),
+            ASTNode::If {
+                condition: Box::new(binary(BinaryOperator::Greater, variable("x"), integer(0))),
+                then_body: vec![assignment("result", call("left", variable("x")))],
+                else_body: Some(vec![assignment(
+                    "result",
+                    binary(BinaryOperator::Add, variable("x"), integer(2)),
+                )]),
+                span: Span::unknown(),
+            },
+            ASTNode::Return {
+                value: Some(Box::new(variable("result"))),
+                span: Span::unknown(),
+            },
+        ],
+    );
+    let result = compile(vec![
+        branch,
+        returning(
+            "left",
+            binary(BinaryOperator::Add, variable("x"), integer(1)),
+        ),
+    ]);
+    let branch_function = &result.module.functions["branch_call_rhs/1"];
+    let calls = branch_function
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .filter_map(|instruction| match instruction {
+            MirInstruction::Call {
+                dst: Some(dst),
+                callee: Some(crate::mir::Callee::Global(target)),
+                args,
+                ..
+            } => Some((*dst, target.as_str(), args.as_slice())),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(calls.len(), 1);
+    let (call_result, target, call_args) = calls[0];
+    assert_eq!(target, "left/1");
+    assert_eq!(call_args.len(), 1);
+    assert_eq!(
+        branch_function
+            .metadata
+            .canonical_direct_static_call_capabilities
+            .len(),
+        1
+    );
+
+    let phis = branch_function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter_map(|instruction| match instruction {
+            MirInstruction::Phi { dst, inputs, .. } => Some((*dst, inputs.clone())),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(phis.len(), 1);
+    let (_phi, inputs) = &phis[0];
+    assert_eq!(inputs.len(), 2);
+    assert!(inputs.iter().any(|(_, value)| *value == call_result));
+    let merge = branch_function
+        .blocks
+        .values()
+        .find(|block| {
+            block.instructions.iter().any(|instruction| {
+                matches!(instruction, MirInstruction::Phi { dst, .. } if *dst == phis[0].0)
+            })
+        })
+        .expect("Call-RHS merge block");
+    let input_blocks = inputs
+        .iter()
+        .map(|(block, _)| *block)
+        .collect::<std::collections::BTreeSet<_>>();
+    let predecessors = merge
+        .predecessors
+        .iter()
+        .copied()
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(input_blocks, predecessors);
+
+    assert_eq!(execute(&result, "branch_call_rhs", 1), VMValue::Integer(2));
+    assert_eq!(execute(&result, "branch_call_rhs", -1), VMValue::Integer(1));
+}
+
+#[test]
 fn zero_call_and_recursive_graphs_reject_without_poisoning_the_compiler() {
     for rejected in [
         vec![returning("a", variable("x")), returning("b", variable("x"))],
