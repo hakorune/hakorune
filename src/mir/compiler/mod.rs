@@ -175,6 +175,8 @@ mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
 #[cfg(test)]
+mod if_recipe_candidate_abort_d2_tests;
+#[cfg(test)]
 mod legacy_candidate_session_tests;
 #[cfg(test)]
 mod loop_candidate_abort_p0;

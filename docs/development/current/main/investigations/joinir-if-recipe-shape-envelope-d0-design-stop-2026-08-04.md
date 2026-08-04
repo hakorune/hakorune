@@ -275,3 +275,31 @@ fingerprint, that candidate internals need a public snapshot API, or that
 legacy If/CorePlan/JoinIR/Loop/PHI writers are retired. Candidate isolation is
 whole-compile replacement semantics: abort proves the live Builder was never
 mutated, while success proves a fresh candidate can be committed.
+
+## D2 completion evidence — 2026-08-04
+
+D2 is green for the accepted paired proof:
+
+* the existing explicit-else late draft-seal abort test remains green;
+* `if_recipe_candidate_abort_d2_tests.rs` adds the implicit-fallthrough twin
+  with the same outer binding and continuation read;
+* both tests poison the candidate only after selected lowering has emitted
+  physical CFG/PHI work, drop the unpublished whole-compile candidate, compare
+  the live Builder fingerprint/current module/current function/entry block,
+  and compile a fresh request on the same compiler;
+* the separate implicit receipt test still fixes the `[header, then_exit]`
+  predecessor contract.
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_candidate_abort_d2_tests -- --test-threads=1  # 1 passed
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_candidate_discards_after_late_draft_seal_failure_and_reuses_compiler -- --test-threads=1  # 1 passed
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_selected_implicit_fallthrough_uses_header_baseline_phi_input -- --test-threads=1  # 1 passed
+RUSTFLAGS='-Awarnings' cargo test -q --lib resolved_lowering -- --test-threads=1  # 130 passed
+RUSTFLAGS='-Awarnings' cargo check -q --lib
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+```
+
+The evidence is intentionally limited to the whole-compile candidate boundary:
+it does not fingerprint stack-local `PhiTxn`, prove every failure stage, or
+retire any legacy writer.
