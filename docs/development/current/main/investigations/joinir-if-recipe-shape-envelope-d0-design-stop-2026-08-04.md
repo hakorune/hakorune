@@ -303,3 +303,16 @@ bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 The evidence is intentionally limited to the whole-compile candidate boundary:
 it does not fingerprint stack-local `PhiTxn`, prove every failure stage, or
 retire any legacy writer.
+
+## D3 handoff — selected Call-valued branch
+
+D2 is complete for the explicit/implicit no-call envelope. The next design
+stop is recorded separately in:
+
+`joinir-if-recipe-call-branch-d3-design-stop-2026-08-04.md`
+
+The selected next shape is one direct static i64 call as one explicit-else
+branch assignment RHS. It reuses the fixed If topology, JoinSig, canonical
+SSA/PHI owner, and already sealed direct-call ABI/emitter. Nested/effect/
+return/record/match/short-circuit shapes, call-valued implicit fallthrough,
+and global PHI/SSA retirement remain separate non-claims.
