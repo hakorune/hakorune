@@ -406,9 +406,9 @@ The stage-only observer does not establish a winner. For every `Both` row, D3
 must additionally compare the actual witness attempted prefix and any debt
 receipt with the legacy terminal; no stage-only row may be promoted to D2-B.
 
-This census is the boundary for D2-B. A recursive or expression arm that is
-accepted by facts but has no lower-stage observation keeps D2-B stopped; do not
-claim universal V0 winner equivalence from the finite known corpus.
+This census is the boundary for D2-B. D2-A3-S1 now observes the Both fixture's inner Loop reaching
+`Depth1Fastpath` in all three modes; Generic fallback and natural verifier/lower failure arms
+remain `NotYetObserved`/`UnresolvedStop`; accepted facts without lower proof still keep D2-B stopped.
 
 #### A3 boundary snapshot
 
@@ -420,8 +420,8 @@ The first census snapshot is intentionally small and source-anchored:
 | step placement | final numeric assignment; body-derived step | `InBody`, `InContinueIf`, `InBreakElseIf`, `BodyManaged` variants | scanner/state-machine-owned steps | `Observed-LowerSome` / `FactsOnly-Unwired` |
 | body items | local + assignment, nested Loop + assignment | local + `env.console.error(i)` + step, If/Exit/Program/ScopeBox and other call/effect bodies | LoopCond/LoopBreak-owned exits | `Observed-LowerSome` / `Observed-ComposerError` / `FactsOnly-Unwired` |
 | value expressions | integer literals, variables, arithmetic | `env.console.error(i)` effect-call row; field/index/array/map/Match/ThisField/Grouped/Await/QMark arms | unsupported source family gates | `Observed-LowerSome` / `Observed-ComposerError` / `UnresolvedStop` |
-| recursion | one nested Loop in the Both fixture | deeper nesting and Loop+If+Return combinations | nested-specialized route ownership | `Observed-LowerSome` / `UnresolvedStop` |
-| stage failures | no natural verifier/lower failure observed | `ReleaseVerifierRejected`, `ReleaseLowerFailed`, and strict shadow failure | — | `UnresolvedStop` |
+| recursion | one nested Loop in Both reaches `Depth1Fastpath`; fallback is not reached | deeper nesting and Loop+If+Return combinations | nested-specialized route ownership | `Observed-LowerSome` / `NotYetObserved` |
+| stage failures | no natural verifier/lower failure observed in accepted-body reruns | `ReleaseVerifierRejected`, `ReleaseLowerFailed`, and strict shadow failure | — | `UnresolvedStop` |
 
 The table is a coverage ledger, not a new semantic vocabulary. Rows marked
 facts-only must not be counted by D2-B; rows that are accepted by facts but not
@@ -511,7 +511,7 @@ does not authorize deleting them before M10. `ReleaseVerifierRejected` and
 `ReleaseLowerFailed` still require natural structural rows and remain
 `UnresolvedStop`.
 
-### D2-B — gated V0 overlap decision (`JOINIR-GENERIC-V0-PRE-EFFECT-WINNER-TERMINAL0-D2-S2`)
+### D2-B — gated V0 overlap decision (`JOINIR-GENERIC-OVERLAP-SEMANTIC-PARITY0-D2-B2`)
 
 This is the next design stop, not an implementation permission. It may begin
 only after D2-A has named the accepted Generic coverage boundary and every

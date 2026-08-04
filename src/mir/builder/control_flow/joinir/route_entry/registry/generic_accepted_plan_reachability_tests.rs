@@ -71,6 +71,8 @@ pub(super) enum PlanStageV1 {
 pub(super) enum EffectOwnerV1 {
     None,
     GenericComposer,
+    NestedDepth1Fastpath,
+    NestedGenericFallback,
 }
 
 #[derive(Debug, Clone, PartialEq)]

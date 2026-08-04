@@ -32,6 +32,13 @@ not a Generic winner oracle.
 | Both | `both` | release/strict: `GenericLoopV0, GenericLoopV1`; planner-required: `GenericLoopV1` | observed overlap; precedence unresolved |
 | Neither | `neither` | empty | `PreEffectDeclined` before Builder effects |
 
+The `Both` fixture's nested inner Loop is also observed through the actual
+depth-1 handoff: release, strict, and strict+planner-required all reach
+`NestedDepth1Fastpath = Succeeded` with a Builder delta. The subsequent
+`NestedGenericFallback` is `NotYetObserved` because the fastpath succeeds;
+fresh-candidate repeats are identical. The matrix's nested `GenericLoopV1`
+route label is trace metadata only; it is not a V1 selector or winner claim.
+
 `contract_present = false` is an ordinary current Generic input for release
 and strict modes. It is recorded in the matrix; it is not silently converted
 to a Generic pre-effect decline. The pure nested-carrier policy probe may still
@@ -66,11 +73,21 @@ An effectful composer/verifier/lowerer failure is never labelled
 `PreEffectDeclined`. Unobserved natural arms are retained as
 `NotYetObserved`/`UnresolvedStop` rows; no failure injection is used.
 
-The active D2-A3-S1 census may add natural strict/release failure-arm and
-nested-depth observations only. It must preserve the lower-`None`
-`ImpossibleEdge` invariant for valid Generic completion and must not change
-grammar or IR semantics. This page is a required post-implementation
-closeout surface for that task.
+The accepted-body re-observation still finds no natural strict shadow `Err`,
+release verifier `Err`, or release lower `Err`. Those rows remain explicit
+`UnresolvedStop` evidence; strict shadow `None` and release lower `Ok(None)`
+retain the valid-Generic completion `ImpossibleEdge` invariant.
+
+The nested diagnostic calls the raw `lower_nested_loop_depth1_any` helper to
+preserve an `Err` outcome; production wraps that helper with `.ok()` before its
+fallback. This keeps the observer aligned with production order without
+creating a second route authority.
+
+D2-A3-S1 has now closed its bounded natural strict/release failure-arm and
+nested-depth observation. It preserved the lower-`None` `ImpossibleEdge`
+invariant and changed no grammar or IR semantics. This page was synchronized
+as the required post-implementation closeout surface; deeper failure arms and
+V0/V1 winner equivalence remain parent design-stop work.
 
 ## Snapshot ownership
 

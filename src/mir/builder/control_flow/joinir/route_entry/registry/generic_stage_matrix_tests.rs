@@ -16,6 +16,9 @@ use super::generic_stage_observer_tests::{
 use super::route_id::LoopRouteId;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::features::generic_loop_body::{
+    observe_nested_depth1, NestedStageResultV1,
+};
 use crate::mir::builder::control_flow::plan::single_planner::try_build_outcome;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -460,6 +463,115 @@ fn missing_arm_row(
     )
 }
 
+fn nested_snapshot(
+    snapshot: &crate::mir::builder::control_flow::plan::features::generic_loop_body::
+        NestedBuilderSnapshotV1,
+) -> CandidateSnapshotV1 {
+    CandidateSnapshotV1 {
+        current_block: snapshot.current_block,
+        block_count: snapshot.block_count,
+        next_value_id: snapshot.next_value_id,
+        variable_count: snapshot.variable_count,
+        typed_value_count: snapshot.typed_value_count,
+    }
+}
+
+fn nested_result_outcome(result: NestedStageResultV1) -> MatrixOutcomeV1 {
+    match result {
+        NestedStageResultV1::Succeeded => MatrixOutcomeV1::Succeeded,
+        NestedStageResultV1::ReturnedNone | NestedStageResultV1::ReturnedErr => {
+            MatrixOutcomeV1::Failed
+        }
+        NestedStageResultV1::NotObserved => MatrixOutcomeV1::NotObserved,
+    }
+}
+
+fn nested_result_disposition(result: NestedStageResultV1) -> Option<MatrixDispositionV1> {
+    match result {
+        NestedStageResultV1::Succeeded => None,
+        NestedStageResultV1::ReturnedNone
+        | NestedStageResultV1::ReturnedErr
+        | NestedStageResultV1::NotObserved => Some(MatrixDispositionV1::UnresolvedStop),
+    }
+}
+
+fn nested_result_evidence(result: NestedStageResultV1) -> MatrixEvidenceV1 {
+    match result {
+        NestedStageResultV1::NotObserved => MatrixEvidenceV1::NotYetObserved,
+        NestedStageResultV1::Succeeded
+        | NestedStageResultV1::ReturnedNone
+        | NestedStageResultV1::ReturnedErr => MatrixEvidenceV1::Observed,
+    }
+}
+
+fn nested_rows(mode: CorpusModeV1) -> Vec<GenericStageDispositionRowV1> {
+    let source = source_selection(mode, FixtureClassV1::Both);
+    let observation =
+        observe_nested_depth1(mode.strict_or_dev(), mode.planner_required().is_some());
+    let source_fixture = "both/nested-depth1";
+    let source_anchor = "generic_loop_body::nested_depth_observer_tests::observe_nested_depth1";
+    let fastpath_owner = if observation.before_fastpath != observation.after_fastpath {
+        EffectOwnerV1::NestedDepth1Fastpath
+    } else {
+        EffectOwnerV1::None
+    };
+    let fastpath_snapshots = Some(nested_snapshot(&observation.before_fastpath));
+    let fastpath_after = Some(nested_snapshot(&observation.after_fastpath));
+    let fastpath_row = GenericStageDispositionRowV1 {
+        fixture: FixtureClassV1::Both,
+        source_fixture,
+        mode,
+        route: Some(LoopRouteId::GenericLoopV1),
+        raw_schedule: source.raw_schedule.clone(),
+        contract_present: source.contract_present,
+        stage: MatrixStageV1::NestedFastpath,
+        outcome: nested_result_outcome(observation.fastpath),
+        first_effect_owner: fastpath_owner,
+        before_compose: fastpath_snapshots,
+        before_lower: fastpath_after.clone(),
+        after_lower: fastpath_after,
+        receipt: None,
+        attempted_prefix: Vec::new(),
+        terminal: if observation.fastpath == NestedStageResultV1::Succeeded {
+            MatrixTerminalV1::Succeeded(LoopRouteId::GenericLoopV1)
+        } else {
+            MatrixTerminalV1::NotObserved
+        },
+        disposition: nested_result_disposition(observation.fastpath),
+        evidence: nested_result_evidence(observation.fastpath),
+        source_anchor,
+    };
+
+    let fallback_owner = match (
+        observation.before_fallback.as_ref(),
+        observation.after_fallback.as_ref(),
+    ) {
+        (Some(before), Some(after)) if before != after => EffectOwnerV1::NestedGenericFallback,
+        _ => EffectOwnerV1::None,
+    };
+    let fallback_row = GenericStageDispositionRowV1 {
+        fixture: FixtureClassV1::Both,
+        source_fixture,
+        mode,
+        route: Some(LoopRouteId::GenericLoopV1),
+        raw_schedule: source.raw_schedule,
+        contract_present: source.contract_present,
+        stage: MatrixStageV1::NestedGenericFallback,
+        outcome: nested_result_outcome(observation.fallback),
+        first_effect_owner: fallback_owner,
+        before_compose: observation.before_fallback.as_ref().map(nested_snapshot),
+        before_lower: observation.before_fallback.as_ref().map(nested_snapshot),
+        after_lower: observation.after_fallback.as_ref().map(nested_snapshot),
+        receipt: None,
+        attempted_prefix: Vec::new(),
+        terminal: MatrixTerminalV1::NotObserved,
+        disposition: nested_result_disposition(observation.fallback),
+        evidence: nested_result_evidence(observation.fallback),
+        source_anchor,
+    };
+    vec![fastpath_row, fallback_row]
+}
+
 fn required_stages(mode: CorpusModeV1) -> &'static [MatrixStageV1] {
     if mode.strict_or_dev() {
         &[
@@ -527,6 +639,7 @@ fn build_matrix() -> Vec<GenericStageDispositionRowV1> {
             }
             rows.extend(direct_rows(fixture, mode, &source, trace.as_ref()));
         }
+        rows.extend(nested_rows(mode));
     }
 
     for mode in modes {
@@ -592,9 +705,7 @@ fn generic_stage_disposition_matrix_is_complete_and_repeatable() {
 #[test]
 fn generic_stage_matrix_never_calls_effectful_failure_a_decline() {
     for row in build_matrix() {
-        if row.outcome == MatrixOutcomeV1::Failed
-            && row.first_effect_owner == EffectOwnerV1::GenericComposer
-        {
+        if row.outcome == MatrixOutcomeV1::Failed && row.first_effect_owner != EffectOwnerV1::None {
             assert_ne!(
                 row.disposition,
                 Some(MatrixDispositionV1::PreEffectDeclined),

@@ -1,5 +1,6 @@
 ---
-Status: active; test-only D2-A3 natural-arm and nested-depth census
+Status: closed as bounded test-only D2-A3 natural-arm and nested-depth census;
+parent D2-A3/D2-B remains unresolved
 Date: 2026-08-04
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Previous: joinir-generic-post-effect-debt-classification-d0-s1-execution-task-2026-08-04.md
@@ -75,6 +76,14 @@ NestedGenericFallback:
   fastpath returns None/Err, then nested_loop_recipe_adoption is attempted
 ```
 
+The observer calls `lower_nested_loop_depth1_any` directly so that a raw
+`Err` remains visible; production `helpers::lower_nested_loop_plan` applies
+`.ok()` to the same helper before entering fallback. This is a diagnostic
+view of the exact production order, not a second route. The duplicated test
+fixture is structurally identical to the registry `Both` fixture; the matrix
+keeps its `GenericLoopV1` route field only as an execution-trace label, not as
+selector or winner evidence for the nested owner.
+
 The observer is allowed to report `NotObserved` when a private helper cannot
 be reached through a natural source shape. It must not call a production
 helper with by-name routing or alter helper visibility merely for the test.
@@ -133,6 +142,55 @@ git diff --check
 The broad `generic_` gate is evidence-only for this row. The known unrelated
 `collection_builders.rs:696` baseline failure must remain recorded and must
 not be fixed by weakening the Generic matrix.
+
+## Implementation evidence
+
+The accepted-body re-observation reuses the existing D0-S1
+`generic_accepted_plan_reachability_tests::observe_fixture` fresh-candidate
+path. No malformed plan or forced failure is introduced. The nested observer
+is implemented in
+`src/mir/builder/control_flow/plan/features/generic_loop_body/nested_depth_observer_tests.rs`
+and is connected to the D0-S1 matrix. It calls the actual depth-1 helper and,
+only after a natural fastpath error, the actual Generic fallback; it does not
+alter production helper visibility or route selection.
+
+Observed result for the existing `Both` nested source anchor:
+
+```text
+release                 Depth1Fastpath = Succeeded; fallback = NotYetObserved
+strict                  Depth1Fastpath = Succeeded; fallback = NotYetObserved
+strict+planner_required Depth1Fastpath = Succeeded; fallback = NotYetObserved
+fresh repeat            identical snapshots and disposition
+```
+
+The first effect owner is `NestedDepth1Fastpath`. No natural strict shadow
+`Err`, release verifier `Err`, or release lower `Err` was observed; those rows
+remain explicit `UnresolvedStop`. Strict shadow `None` and release lower
+`Ok(None)` retain the valid Generic completion `ImpossibleEdge` invariant.
+
+Focused gates passed:
+
+```text
+generic_stage_matrix_tests             2 passed
+generic_stage_observer_tests           8 passed
+generic_accepted_plan_reachability     6 passed
+generic_loop_body                      23 passed
+```
+
+The broad `generic_` gate reached `390 passed, 1 failed, 1 ignored`; the one
+failure is the pre-existing unrelated
+`collection_builders.rs:696::refresh_module_semantic_metadata_accepts_array_string_push_in_generic_pure_string_body`
+baseline and is not changed here. Pointer guard, logical-demand guard,
+in-place replacement guard, and `git diff --check` are green.
+
+## D2-A3-S1 closeout
+
+This bounded census is complete with unresolved natural failure/deeper-depth
+rows explicitly retained. The parent M4/D2-B design stop remains active: this
+slice does not prove V0/V1 precedence, winner equivalence, retry removal, or
+any production Recipe/JoinSig/PHI/physicalizer change. No normative grammar or
+IR behavior changed. The reference surfaces listed below were synchronized as
+part of this closeout, not deferred cleanup.
 
 ## Post-implementation reference closeout
 

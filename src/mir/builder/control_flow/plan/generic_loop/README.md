@@ -77,9 +77,11 @@ Post-effect stage boundary (M4 test/reference lane):
   `nested_loop_recipe_adoption` fallback second. Neither test helper is a
   precedence oracle.
 - Legacy receipts remain diagnostic until the parent M4/M10 gates close.
-- The active D2-A3-S1 census is test-only and changes no language grammar or
-  IR semantics. After implementation, the stage-matrix reference page and
-  parent design SSOT must be synchronized before the card can close.
+- D2-A3-S1 is a closed test-only census: the Both fixture reaches the depth-1
+  fastpath in release/strict/planner-required modes, while Generic fallback is
+  not naturally reached. It changes no language grammar or IR semantics.
+  The stage-matrix reference page and parent design SSOT are mandatory
+  post-implementation closeout surfaces.
 
 LOOP0-P0b-T0 associated-source boundary:
 - T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under
