@@ -18,7 +18,7 @@ impl IfRecipeSourceClaimVerifierV1 {
     pub(crate) fn verify(
         binding: IfRecipeSourceBindingV1,
     ) -> Result<VerifiedIfRecipeSourceClaimV1, Reject> {
-        if binding.claims.len() != 4 {
+        if !matches!(binding.claims.len(), 4 | 5) {
             return Err(Reject::SourceClaimCoverageMismatch {
                 expected: 4,
                 found: binding.claims.len(),
@@ -39,6 +39,11 @@ impl IfRecipeSourceClaimVerifierV1 {
             binding.claims[3].role,
             IfSourceClaimRoleV1::ElseAssignment | IfSourceClaimRoleV1::ImplicitBaseline
         ) {
+            return Err(Reject::SourceClaimOrderMismatch);
+        }
+        if binding.claims.len() == 5
+            && binding.claims[4].role != IfSourceClaimRoleV1::DirectStaticCall
+        {
             return Err(Reject::SourceClaimOrderMismatch);
         }
 
@@ -74,9 +79,59 @@ impl IfRecipeSourceClaimVerifierV1 {
                 IfSourceClaimRoleV1::ImplicitBaseline => {
                     claim.path.steps[1..] == [IfSourcePathStepV1::IfImplicitBaseline]
                 }
+                IfSourceClaimRoleV1::DirectStaticCall => matches!(
+                    claim.path.steps.as_slice(),
+                    [
+                        IfSourcePathStepV1::BodyItem { .. },
+                        IfSourcePathStepV1::IfThenItem { .. } | IfSourcePathStepV1::IfElseItem { .. },
+                        IfSourcePathStepV1::AssignmentValue,
+                    ]
+                ),
                 IfSourceClaimRoleV1::IfNode => false,
             };
             if *found != root_index || !suffix_ok {
+                return Err(Reject::InvalidSourcePath);
+            }
+        }
+
+        if let Some(call_claim) = binding.claims.get(4) {
+            if binding.claims[3].role != IfSourceClaimRoleV1::ElseAssignment {
+                return Err(Reject::DirectStaticCallRequiresExplicitElse);
+            }
+            let call_item = match call_claim.path.steps.as_slice() {
+                [
+                    IfSourcePathStepV1::BodyItem { index: found },
+                    IfSourcePathStepV1::IfThenItem { index },
+                    IfSourcePathStepV1::AssignmentValue,
+                ] if *found == root_index => Some((true, *index)),
+                [
+                    IfSourcePathStepV1::BodyItem { index: found },
+                    IfSourcePathStepV1::IfElseItem { index },
+                    IfSourcePathStepV1::AssignmentValue,
+                ] if *found == root_index => Some((false, *index)),
+                _ => None,
+            };
+            let Some((then_branch, call_item)) = call_item else {
+                return Err(Reject::InvalidSourcePath);
+            };
+            let expected_item = if then_branch {
+                match binding.claims[2].path.steps.as_slice() {
+                    [
+                        IfSourcePathStepV1::BodyItem { index: found },
+                        IfSourcePathStepV1::IfThenItem { index },
+                    ] if *found == root_index => Some(*index),
+                    _ => None,
+                }
+            } else {
+                match binding.claims[3].path.steps.as_slice() {
+                    [
+                        IfSourcePathStepV1::BodyItem { index: found },
+                        IfSourcePathStepV1::IfElseItem { index },
+                    ] if *found == root_index => Some(*index),
+                    _ => None,
+                }
+            };
+            if expected_item != Some(call_item) {
                 return Err(Reject::InvalidSourcePath);
             }
         }

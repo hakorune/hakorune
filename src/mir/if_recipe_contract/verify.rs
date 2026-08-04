@@ -67,6 +67,33 @@ impl IfRecipeVerifierV1 {
         }
         let recipe = Self::verify(artifact.recipe)?;
         let source_binding = IfRecipeSourceClaimVerifierV1::verify(artifact.source_binding)?;
+        let direct_ops = direct_static_call_count(recipe.as_recipe());
+        if direct_ops > 0 && disposition != IfElseDispositionV1::Explicit {
+            return Err(Reject::DirectStaticCallRequiresExplicitElse);
+        }
+        let direct_claims = source_binding
+            .as_source_binding()
+            .claims
+            .iter()
+            .filter(|claim| {
+                claim.role == super::schema::IfSourceClaimRoleV1::DirectStaticCall
+            })
+            .count();
+        if direct_ops != direct_claims {
+            return Err(Reject::DirectStaticCallCountMismatch { found: direct_ops });
+        }
+        let (then_ops, else_ops) = direct_static_call_branch_counts(recipe.as_recipe());
+        let (then_claims, else_claims) = direct_static_call_claim_branch_counts(
+            source_binding.as_source_binding(),
+        );
+        if (then_ops, else_ops) != (then_claims, else_claims) {
+            return Err(Reject::DirectStaticCallBranchMismatch {
+                then_ops,
+                else_ops,
+                then_claims,
+                else_claims,
+            });
+        }
         Ok(VerifiedIfRecipeArtifactV1 {
             provenance: artifact.provenance,
             source_binding,
@@ -191,6 +218,55 @@ impl IfRecipeVerifierV1 {
     }
 }
 
+fn direct_static_call_count(recipe: &IfRecipeV1) -> usize {
+    recipe
+        .condition_block
+        .items
+        .iter()
+        .chain(recipe.then_block.items.iter())
+        .chain(recipe.else_block.iter().flat_map(|block| block.items.iter()))
+        .chain(recipe.continuation_block.items.iter())
+        .filter(|item| matches!(item.operation, IfOperationV1::DirectStaticCall { .. }))
+        .count()
+}
+
+fn direct_static_call_branch_counts(recipe: &IfRecipeV1) -> (usize, usize) {
+    let count = |block: &IfRecipeBlockV1| {
+        block
+            .items
+            .iter()
+            .filter(|item| matches!(item.operation, IfOperationV1::DirectStaticCall { .. }))
+            .count()
+    };
+    (count(&recipe.then_block), recipe.else_block.as_ref().map(count).unwrap_or(0))
+}
+
+fn direct_static_call_claim_branch_counts(
+    binding: &super::schema::IfRecipeSourceBindingV1,
+) -> (usize, usize) {
+    binding
+        .claims
+        .iter()
+        .filter(|claim| {
+            claim.role == super::schema::IfSourceClaimRoleV1::DirectStaticCall
+        })
+        .fold((0, 0), |(then_count, else_count), claim| {
+            match claim.path.steps.as_slice() {
+                [
+                    super::schema::IfSourcePathStepV1::BodyItem { .. },
+                    super::schema::IfSourcePathStepV1::IfThenItem { .. },
+                    super::schema::IfSourcePathStepV1::AssignmentValue,
+                ] => (then_count + 1, else_count),
+                [
+                    super::schema::IfSourcePathStepV1::BodyItem { .. },
+                    super::schema::IfSourcePathStepV1::IfElseItem { .. },
+                    super::schema::IfSourcePathStepV1::AssignmentValue,
+                ] => (then_count, else_count + 1),
+                _ => (then_count, else_count),
+            }
+        })
+}
+
 fn verify_blocks(recipe: &IfRecipeV1) -> Result<(), Reject> {
     let blocks: [(Option<&IfRecipeBlockV1>, IfBlockRoleV1, &str); 4] = [
         (
@@ -286,7 +362,12 @@ fn verify_condition_block(
         .condition_block
         .items
         .iter()
-        .any(|item| matches!(item.operation, IfOperationV1::WriteBinding { .. }))
+        .any(|item| {
+            matches!(
+                item.operation,
+                IfOperationV1::WriteBinding { .. } | IfOperationV1::DirectStaticCall { .. }
+            )
+        })
     {
         return Err(Reject::UnsupportedOperation);
     }
@@ -426,6 +507,9 @@ fn verify_operations(
                 use_value(values, definitions, left, IfValueClassV1::I64)?;
                 use_value(values, definitions, right, IfValueClassV1::I64)?;
                 define_value(values, definitions, result, IfValueClassV1::Bool)?;
+            }
+            IfOperationV1::DirectStaticCall { result } => {
+                define_value(values, definitions, result, IfValueClassV1::I64)?;
             }
             IfOperationV1::WriteBinding { binding, value } => {
                 if !allow_write {

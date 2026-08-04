@@ -8,7 +8,9 @@ use std::collections::BTreeMap;
 
 use crate::ast::{BinaryOperator, LiteralValue};
 use crate::mir::compiler::located::SourceBodySiteV1;
-use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1, SourceStmtSiteV1};
+use crate::mir::resolved_semantics::{
+    BindingRefV1, SourceExprSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+};
 
 use super::product::TrivialRepresentationV1;
 
@@ -72,6 +74,7 @@ pub(crate) enum TrivialRecipeExprKindV1 {
         left: SourceExprSiteV1,
         right: SourceExprSiteV1,
     },
+    DirectStaticCall,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -166,6 +169,7 @@ struct IfFactDraftV1 {
     else_assignments: Vec<AssignmentFactV1>,
     continuation_read: Option<SourceExprSiteV1>,
     entry_witness: Option<IfEntryWitnessV1>,
+    direct_call_site: Option<SourceExprSiteV1>,
 }
 
 impl IfFactDraftV1 {
@@ -180,6 +184,7 @@ impl IfFactDraftV1 {
             else_assignments: Vec::new(),
             continuation_read: None,
             entry_witness: None,
+            direct_call_site: None,
         }
     }
 
@@ -259,6 +264,10 @@ impl VerifiedTrivialIfRecipeFactsV1 {
     pub(crate) fn expression_count(&self) -> usize {
         self.expressions.len()
     }
+
+    pub(crate) fn direct_call_site(&self) -> Option<&SourceExprSiteV1> {
+        self.if_fact.direct_call_site.as_ref()
+    }
 }
 
 #[derive(Debug, Default)]
@@ -269,6 +278,7 @@ pub(super) struct TrivialIfRecipeFactsDraftV1 {
     branches: Vec<(usize, RecipeBranchV1)>,
     pending_continuation: Option<(usize, BindingRefV1)>,
     unsupported: bool,
+    direct_call_site: Option<SourceExprSiteV1>,
 }
 
 impl TrivialIfRecipeFactsDraftV1 {
@@ -398,6 +408,24 @@ impl TrivialIfRecipeFactsDraftV1 {
         self.unsupported = true;
     }
 
+    pub(super) fn record_direct_call(&mut self, site: SourceExprSiteV1) {
+        let is_branch_assignment_value = self.in_branch()
+            && matches!(site.node().segments().last(), Some(SourcePathSegmentV1::Value));
+        if !is_branch_assignment_value || self.direct_call_site.is_some() {
+            self.unsupported = true;
+            return;
+        }
+        self.direct_call_site = Some(site.clone());
+        self.expressions.insert(
+            site.clone(),
+            TrivialRecipeExprFactV1::new(
+                site,
+                TrivialRepresentationV1::InlineI64,
+                TrivialRecipeExprKindV1::DirectStaticCall,
+            ),
+        );
+    }
+
     pub(super) fn in_branch(&self) -> bool {
         !self.branches.is_empty()
     }
@@ -430,7 +458,11 @@ impl TrivialIfRecipeFactsDraftV1 {
         if self.unsupported || self.ifs.len() != 1 {
             return None;
         }
-        let if_fact = self.ifs.into_iter().next()?;
+        let mut if_fact = self.ifs.into_iter().next()?;
+        if self.direct_call_site.is_some() && !if_fact.explicit_else {
+            return None;
+        }
+        if_fact.direct_call_site = self.direct_call_site;
         let branch_shape_ok = if if_fact.explicit_else {
             if_fact.then_assignments.len() == 1
                 && if_fact.else_assignments.len() == 1

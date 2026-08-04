@@ -696,7 +696,6 @@ impl<'a> AnalyzerV1<'a> {
             ASTNode::FunctionCall {
                 name, arguments, ..
             } => {
-                self.recipe_facts.mark_unsupported();
                 match self.direct_call_policy {
                     DirectCallPolicyV1::Forbidden => {
                         return stop_expression(
@@ -750,6 +749,7 @@ impl<'a> AnalyzerV1<'a> {
                     index,
                 )?;
                 self.draft.record_direct_call(row)?;
+                self.recipe_facts.record_direct_call(expression.site().clone());
                 return Ok(TrivialRepresentationV1::InlineI64);
             }
             _ => {

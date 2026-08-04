@@ -60,6 +60,7 @@ pub(crate) enum IfSourcePathStepV1 {
     IfThenItem { index: u32 },
     IfElseItem { index: u32 },
     IfImplicitBaseline,
+    AssignmentValue,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -76,6 +77,7 @@ pub(crate) enum IfSourceClaimRoleV1 {
     ThenAssignment,
     ElseAssignment,
     ImplicitBaseline,
+    DirectStaticCall,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -188,6 +190,9 @@ pub(crate) enum IfOperationV1 {
         op: IfCompareOpV1,
         left: IfValueKeyV1,
         right: IfValueKeyV1,
+        result: IfValueKeyV1,
+    },
+    DirectStaticCall {
         result: IfValueKeyV1,
     },
     WriteBinding {

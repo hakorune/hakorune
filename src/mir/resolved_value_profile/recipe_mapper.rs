@@ -45,6 +45,7 @@ pub(crate) enum IfRecipeMapRejectV1 {
     BindingOwnerMismatch,
     SourcePathMismatch { role: &'static str },
     ContinuationMismatch,
+    DirectCallProfileMismatch,
     Recipe(IfRecipeRejectReasonV1),
 }
 
@@ -214,6 +215,14 @@ impl<'a> MapperState<'a> {
                 self.push_item(block, binary_operation(op, left, right, result));
                 Ok(result)
             }
+            TrivialRecipeExprKindV1::DirectStaticCall => {
+                if value_class(representation)? != IfValueClassV1::I64 {
+                    return Err(IfRecipeMapRejectV1::UnsupportedRepresentation);
+                }
+                let result = self.new_value(IfValueClassV1::I64, false);
+                self.push_item(block, IfOperationV1::DirectStaticCall { result });
+                Ok(result)
+            }
         }
     }
 }
@@ -236,6 +245,19 @@ pub(crate) fn map_trivial_if_recipe_v1(
         .ok_or(IfRecipeMapRejectV1::MissingAssignment { branch: "then" })?;
     let explicit_else = facts.has_explicit_else();
     let else_assignment = facts.else_assignment();
+    if let Some(call_site) = facts.direct_call_site() {
+        if !explicit_else
+            || profile.direct_calls().len() != 1
+            || profile
+                .direct_calls()
+                .iter()
+                .filter(|row| row.site() == call_site)
+                .count()
+                != 1
+        {
+            return Err(IfRecipeMapRejectV1::DirectCallProfileMismatch);
+        }
+    }
     if entry.binding() != then_assignment.binding()
         || else_assignment.is_some_and(|assignment| entry.binding() != assignment.binding())
     {
@@ -535,6 +557,12 @@ fn source_binding(
             path: implicit_baseline_path(root_index),
         });
     }
+    if let Some(call_site) = facts.direct_call_site() {
+        claims.push(IfSourceClaimV1 {
+            role: IfSourceClaimRoleV1::DirectStaticCall,
+            path: direct_call_path(call_site, root_index)?,
+        });
+    }
     Ok(IfRecipeSourceBindingV1 {
         owner: IfRecipeSourceOwnerV1::FunctionBody {
             compilation_unit_ordinal: origin.compilation_unit_ordinal(),
@@ -542,6 +570,27 @@ fn source_binding(
         },
         claims,
     })
+}
+
+fn direct_call_path(
+    site: &SourceExprSiteV1,
+    root: u32,
+) -> Result<IfSourcePathV1, IfRecipeMapRejectV1> {
+    match site.node().segments() {
+        [
+            SourcePathSegmentV1::Body(index),
+            SourcePathSegmentV1::IfThen(item),
+            SourcePathSegmentV1::Value,
+        ] if *index == root => Ok(IfRecipeSourcePath::then_value_path(root, *item)),
+        [
+            SourcePathSegmentV1::Body(index),
+            SourcePathSegmentV1::IfElse(item),
+            SourcePathSegmentV1::Value,
+        ] if *index == root => Ok(IfRecipeSourcePath::else_value_path(root, *item)),
+        _ => Err(IfRecipeMapRejectV1::SourcePathMismatch {
+            role: "direct_static_call",
+        }),
+    }
 }
 
 fn if_node_path(site: &SourceStmtSiteV1, root: u32) -> Result<IfSourcePathV1, IfRecipeMapRejectV1> {
@@ -623,6 +672,26 @@ impl IfRecipeSourcePath {
             steps: vec![
                 IfSourcePathStepV1::BodyItem { index: root },
                 IfSourcePathStepV1::IfElseItem { index: item },
+            ],
+        }
+    }
+
+    fn then_value_path(root: u32, item: u32) -> IfSourcePathV1 {
+        IfSourcePathV1 {
+            steps: vec![
+                IfSourcePathStepV1::BodyItem { index: root },
+                IfSourcePathStepV1::IfThenItem { index: item },
+                IfSourcePathStepV1::AssignmentValue,
+            ],
+        }
+    }
+
+    fn else_value_path(root: u32, item: u32) -> IfSourcePathV1 {
+        IfSourcePathV1 {
+            steps: vec![
+                IfSourcePathStepV1::BodyItem { index: root },
+                IfSourcePathStepV1::IfElseItem { index: item },
+                IfSourcePathStepV1::AssignmentValue,
             ],
         }
     }

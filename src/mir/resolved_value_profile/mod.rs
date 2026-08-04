@@ -18,6 +18,8 @@ mod recipe_facts;
 #[cfg(test)]
 mod direct_call_tests;
 #[cfg(test)]
+mod recipe_call_tests;
+#[cfg(test)]
 mod parameter_tests;
 #[cfg(test)]
 mod return_tests;

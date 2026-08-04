@@ -1,5 +1,5 @@
 ---
-Status: Ready — D0 Call-leaf facts/recipe contract only
+Status: Completed — D0 Call-leaf facts/recipe contract only
 Date: 2026-08-04
 Parent: joinir-if-recipe-call-branch-d3-design-stop-2026-08-04
 Decision: admit one direct static i64 call only as one explicit-else branch
@@ -36,6 +36,35 @@ Because D0 admits exactly one call, a new call key is not required; the exact
 source claim and the existing direct-call profile row are the pairing key. If
 implementation evidence shows that a source claim cannot be made unambiguous,
 stop and reopen design before inventing a second identity system.
+
+## D0 evidence
+
+The slice is closed without a production physicalizer or route change:
+
+* same-pass facts retain one `DirectStaticCall` leaf only for an explicit-else
+  branch assignment RHS; condition, continuation, duplicate, and implicit
+  fallthrough calls remain unadmitted;
+* the portable schema carries one recipe-local result key plus an exact
+  `DirectStaticCall` source claim, while the co-sealed direct-call profile row
+  remains the owner of target, arguments, representation, and effect;
+* structural verification rejects direct-call branch/claim mismatches and
+  keeps physical IDs, callable headers, and runtime handles out of the artifact;
+* five focused tests cover facts, mapping, mismatch rejection, condition
+  rejection, and duplicate/implicit rejection.
+
+The following gates passed on 2026-08-04:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib resolved_value_profile -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_contract -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo check -q --lib
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Every touched Rust/test file remains below 800 lines. The selected If
+physicalizer, direct-call emitter, legacy routes, and global PHI/SSA owners
+were not modified. D1 caller census and D2 candidate-abort/production parity
+remain separate design/execution rows and are intentionally not started here.
 
 ## Allowed implementation surface
 
