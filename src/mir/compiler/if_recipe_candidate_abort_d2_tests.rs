@@ -356,6 +356,10 @@ fn explicit_two_call_rhs_preserves_targets_phi_and_runtime_parity() {
         .iter()
         .map(|(predecessor, _)| *predecessor)
         .collect::<BTreeSet<_>>();
+    let input_values = inputs
+        .iter()
+        .map(|(_, value)| *value)
+        .collect::<BTreeSet<_>>();
     let actual_predecessors = predecessors
         .get(&merge_block)
         .into_iter()
@@ -363,6 +367,11 @@ fn explicit_two_call_rhs_preserves_targets_phi_and_runtime_parity() {
         .copied()
         .collect::<BTreeSet<_>>();
     assert_eq!(input_predecessors, actual_predecessors);
+    assert_eq!(
+        input_values,
+        calls.iter().map(|(_, dst)| *dst).collect::<BTreeSet<_>>(),
+        "the shared PHI consumes both direct-call results"
+    );
 
     let mut interpreter = MirInterpreter::new();
     assert_eq!(
