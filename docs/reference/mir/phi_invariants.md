@@ -40,3 +40,14 @@ Diagnostics
   wiring in the LLVM path.
 - Bridge verifier may allow `verify_allow_no_phi()` in PHI-off mode, but
   the invariants above still apply to resolver synthesis order.
+
+Caller-zero Loop observer boundary
+- `LoopPhiMaterializerV1` is mechanical parity evidence for a verified Loop
+  JoinSig plus a sealed logical-to-physical map; it is not a production PHI or
+  SSA owner.
+- PHI mutation uses one `PhiTxn` provisional/patch/commit/abort lifecycle.
+  Missing paths, predecessor mismatches, unknown types, and duplicate
+  destinations fail before or within that transaction.
+- Canonical CFG, function-owned Binding SSA, and `PhiTxn` remain the sole
+  production owners. M6-B introduces no grammar, IR, route, Retry, or
+  publication behavior.

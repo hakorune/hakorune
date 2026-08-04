@@ -36,3 +36,13 @@ Backends
 Acceptance
 - Default smokes/CI run with PHI‑on.
 - Legacy PHI‑off runs must document the reason in `CURRENT_TASK.md` (e.g., reproducing historical MIR13 bugs) and avoid committing the override into shared scripts.
+
+Loop M6-B caller-zero boundary
+- `LoopPhiMaterializerV1` is a test/evidence observer only. It consumes
+  verified logical JoinSig obligations and an explicit physical path map; it
+  does not select routes, infer CFG, or publish MIR.
+- Its PHI writes are transactional through `PhiTxn`; canonical CFG and
+  function-owned Binding SSA remain the production lifecycle owners.
+- The M6-B closeout changes no source grammar, MIR shape, Retry/fallback, or
+  route behavior. The next physical slice is the explicit P1b edge-path
+  witness.

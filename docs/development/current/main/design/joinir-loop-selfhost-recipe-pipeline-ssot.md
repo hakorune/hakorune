@@ -497,10 +497,14 @@ Contract:
 
 Done:
 : Deterministic Accum JoinSig/counterexamples are green; the logical owner is
-  caller-zero with a non-Clone product; M6-B mechanical evidence is green;
-  route-specific block/PHI callers, physical IDs, and production wiring remain
-  zero. The first physical pilot must prove the Binding-SSA-first session
-  rather than promote M6-B into a second PHI owner.
+  caller-zero with a non-Clone product; M6-B mechanical evidence is green
+  (the focused `loop_phi_materializer` suite is 33/33 and the structural
+  MirBuilder guard is green); route-specific block/PHI callers, physical IDs,
+  and production wiring remain zero. `LoopPhiMaterializationReceiptV1` is
+  non-Clone and the materializer remains an observer, not a second PHI owner.
+  The first physical pilot must prove the Binding-SSA-first session rather
+  than promote M6-B into a second PHI owner. The next bounded slice is the
+  explicit P1b physical edge-path witness.
 
 Stop:
 : Bypass, production wiring, route-local AST/PHI inference, duplicate writer, or temporary repair stops M6.

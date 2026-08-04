@@ -1,5 +1,5 @@
 ---
-Status: accepted caller-zero mechanical observer / production-retirement target
+Status: closed caller-zero mechanical observer; reference closeout complete; P1b is next
 Date: 2026-08-03
 Decision: JOINIR-LOOP-CFG-JOINSIG-PHI0-D0-S4
 Related:
@@ -91,3 +91,28 @@ Rust/test files below 800 lines, and state explicitly that no Generic/D2,
 route, AST, CorePlan, Retry, grammar, or IR authority changed. Reference
 document synchronization is part of the implementation acceptance criteria,
 not optional cleanup.
+
+## M6-B closeout
+
+The bounded M6-B implementation and evidence are complete. The focused
+`loop_phi_materializer` suite passes 33/33 tests, including explicit map/path
+rejection before PHI effects, Standard5 path witnesses, nested-`Always`
+root-only receipts, transactional abort after provisional PHI, fresh-builder
+determinism, candidate abort/fresh reuse, and untouched `variable_map`.
+`LoopPhiMaterializationReceiptV1` is intentionally non-`Clone`.
+
+The structural `mirbuilder_inplace_replacement_guard.sh` is green; it includes
+the logical-demand contract, caller-zero materializer census, forbidden-owner
+imports, and line-budget checks. `materialize_loop_phis` has no production
+caller, and the materializer remains below 800 lines (702) while its extracted
+test module remains below the boundary (795). The implementation consumes only
+verified JoinSig plus the sealed physical map and uses `PhiTxn` for provisional,
+patch, commit, and abort; it does not infer CFG, read AST/routes, or touch
+Binding SSA ownership.
+
+No Generic/D2, route, AST, CorePlan, Retry, grammar, or IR authority changed.
+The design SSOT, this card, `phi-lifecycle-ssot.md`, the MIR PHI reference
+pages, `src/mir/builder/README.md`, `CURRENT_STATE.toml`, and `10-Now.md` are
+synchronized as part of this closeout. The next bounded execution boundary is
+`JOINIR-LOOP-ACCUM-VERIFIED-RECIPE-CONSUMER0-P1B-FIXED-CFG-PARITY0-S2`, the
+explicit physical edge-path task; P1 topology is already sealed.

@@ -200,3 +200,18 @@ PHI を挿入する前に、対象 block が存在している必要がありま
 - 責務: 呼び出し元が `start_new_block(bb_id)` を呼んで block を作成する
 - 順序: `start_new_block(bb_id)` → `define_provisional_phi()` / `define_phi_final()` / `patch_phi_inputs()`
 - 違反検知: block が存在しない場合、`[freeze:contract][cf_common/phi_block_missing] ... op=... tag=...` で fail-fast
+
+## Caller-zero Loop M6-B boundary
+
+`LoopPhiMaterializerV1` is a bounded, caller-zero mechanical observer. It
+consumes a verified Loop JoinSig plus an explicitly sealed
+logical-to-physical map and routes every PHI mutation through `PhiTxn`'s
+provisional/patch/commit/abort lifecycle. It does not discover carriers,
+infer CFG paths, read AST/routes, touch `variable_map`, or become a production
+PHI/SSA owner. The canonical CFG session and function-owned Binding SSA remain
+the sole production owners; the observer's non-`Clone` receipt is parity
+evidence only.
+
+The M6-B focused suite is green at 33/33 and the caller-zero structural guard
+is green. The next physical work is the explicit P1b edge-path witness; no
+grammar, IR, route, Retry, or publication behavior follows from M6-B.

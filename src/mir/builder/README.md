@@ -241,3 +241,14 @@ Prep rule:
 - member call は「route selection を 1 回、emit を 1 回」の順に保つ。
   static receiver / env method / this-me normalization は `calls/*` の classifier
   helper で決め、`build.rs` から重複判定しない
+
+## Loop PHI observer boundary (M6-B)
+
+`LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical
+observer, not a second Builder or production PHI/SSA owner. It consumes only a
+verified Loop JoinSig and a sealed logical-to-physical edge/path map, then uses
+the existing `PhiTxn` lifecycle. It must not read AST/routes/CorePlan,
+recompute CFG, touch `variable_map`, infer Binding SSA, or add Retry/fallback.
+Canonical CFG plus one function-owned Binding SSA remains the production
+physicalization owner. The focused M6-B suite is 33/33 and the structural guard
+is green; the next bounded physical slice is the explicit P1b edge-path task.
