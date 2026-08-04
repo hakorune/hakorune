@@ -50,6 +50,39 @@ existing candidate seam; prove live state is unchanged and fresh reuse works.
 If that fault point does not exist, stop and open a design row instead of
 adding a new test-only fault mechanism.
 
+## Post-implementation reference closeout — `JOINIR-IF-RECIPE-REFERENCE-CLOSEOUT0-DOC0`
+
+This row is parked until the nested profile has a production consumer and its
+physical/candidate gates are green. It is mandatory before the nested recipe
+slice is declared complete.
+
+Change:
+  Synchronize the normative language, IR, and MIR reference pages with the
+  production nested-If contract; keep the one-If V1 shell and all parked
+  shapes explicitly distinguished.
+
+Contract:
+  Update only claims proved by the selected route. At minimum audit
+  `docs/reference/language/EBNF.md`, `grammar-contract.md`, `statements.md`,
+  `docs/reference/ir/ast-json-v0.md`, `docs/reference/ir/json_v0.md`, and
+  `docs/reference/mir/phi_policy.md` / `phi_invariants.md`. Keep portable
+  recipe names, recursive depth limits, JoinSig/PHI ownership, and backend
+  fail-fast behavior consistent with the sealed product. Do not move
+  implementation detail into the reference pages.
+
+Done:
+  Reference grammar and examples match parser-live syntax; nested depth and
+  rejection boundaries are stated; JSON/MIR/PHI pages do not claim a second
+  physical owner or an unimplemented recursive route; historical/provisional
+  pages are labeled; the current-state pointer and active card point to the
+  next real blocker.
+
+Stop:
+  Any mismatch that indicates a real parser, artifact, verifier, or runtime
+  difference reopens the implementation/design row. Documentation must not
+  hide an unproved route as historical prose. This closeout does not widen
+  nested depth, activate ownership/Home rules, or add a new grammar surface.
+
 ## Required gates
 
 Use the focused resolved profile, IfRecipe contract, canonical-session, and
