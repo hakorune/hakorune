@@ -1,5 +1,5 @@
 ---
-Status: D0 landed; D1 caller/capability census is next
+Status: D1 landed; D2 parity and candidate-abort proof is next
 Date: 2026-08-04
 Parent: joinir-if-recipe-shape-envelope-d0-design-stop-2026-08-04
 Decision: admit exactly one direct static i64 call in each explicit-else
@@ -150,6 +150,36 @@ two rows are consumed by the existing exact-once ledger and that capability
 installation, ABI verification, call emission, and If physicalization each
 still have one owner. D1 changes no source acceptance and adds no production
 caller.
+
+### D1 completion evidence
+
+The post-D0 census is unchanged and remains single-owner at every boundary:
+
+| authority | production owner/caller | test-only evidence |
+| --- | --- | --- |
+| `VerifiedTrivialDirectCallV1::seal` | `resolved_value_profile/analyzer.rs:745` (1) | none |
+| `claim_direct_call` | `trivial_ssa/lowerer.rs:377` (1) | ledger order/exact-once tests |
+| direct-call capability install | `trivial_ssa/lowerer.rs:68` (1) | capability fixture tests |
+| capability verification | `trivial_ssa/direct_call.rs:45` (1) | direct-call emission tests |
+| ABI/target materialization | `trivial_ssa/direct_call.rs:49-54` (1) | direct-call tests |
+| `trivial_ssa::direct_call::emit` | `trivial_ssa/lowerer.rs:383` (1) | direct-call tests |
+| If physicalizer | `lowerer/if_materialization.rs:50` -> `if_recipe_physicalizer.rs:339` (1) | recipe physicalizer tests |
+
+No second sealer, resolver, emitter, capability owner, physicalizer, route,
+transaction, CFG, SSA, or PHI owner was introduced. The two D0 profile rows
+remain consumed by the existing ordered exact-once ledger; D1 made no source
+acceptance or production-caller change.
+
+Read-only evidence was collected with:
+
+```text
+rg -n "VerifiedTrivialDirectCallV1::seal|claim_direct_call|direct_call::emit|physicalize_if_recipe_v1|verify_for_emission" src/mir
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+```
+
+D1 closes without a code commit. The next row is D2 parity and candidate
+abort/reuse evidence, still without a new owner or fallback route.
 
 ## D2 — parity and candidate-abort proof
 
