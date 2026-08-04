@@ -100,7 +100,7 @@ fn function(else_body: Option<Vec<ASTNode>>) -> ASTNode {
     }
 }
 
-fn call_rhs_program() -> ASTNode {
+fn call_rhs_program(explicit_else: bool) -> ASTNode {
     fn function(name: &str, body: Vec<ASTNode>) -> ASTNode {
         ASTNode::FunctionDeclaration {
             name: name.to_owned(),
@@ -131,15 +131,17 @@ fn call_rhs_program() -> ASTNode {
                     value: Box::new(call("left_call_abort_d2", variable("p0"))),
                     span: Span::unknown(),
                 }],
-                Some(vec![ASTNode::Assignment {
-                    target: Box::new(variable("x")),
-                    value: Box::new(binary(
-                        BinaryOperator::Add,
-                        variable("p0"),
-                        literal(2),
-                    )),
-                    span: Span::unknown(),
-                }]),
+                explicit_else.then(|| {
+                    vec![ASTNode::Assignment {
+                        target: Box::new(variable("x")),
+                        value: Box::new(binary(
+                            BinaryOperator::Add,
+                            variable("p0"),
+                            literal(2),
+                        )),
+                        span: Span::unknown(),
+                    }]
+                }),
             ),
             ASTNode::Return {
                 value: Some(Box::new(variable("x"))),
@@ -261,7 +263,14 @@ fn implicit_if_candidate_discards_after_late_draft_seal_failure() {
 
 #[test]
 fn call_rhs_candidate_discards_after_call_and_phi_seal_failure() {
-    let source = VerifiedResolvedCallableProgramV1::resolve(call_rhs_program())
+    let source = VerifiedResolvedCallableProgramV1::resolve(call_rhs_program(true))
         .expect("Call-RHS abort module resolves");
     assert_call_candidate_abort_reuses_compiler(source, "call-rhs-reused.hako");
+}
+
+#[test]
+fn implicit_call_rhs_candidate_discards_after_call_and_phi_seal_failure() {
+    let source = VerifiedResolvedCallableProgramV1::resolve(call_rhs_program(false))
+        .expect("implicit Call-RHS abort module resolves");
+    assert_call_candidate_abort_reuses_compiler(source, "implicit-call-rhs-reused.hako");
 }

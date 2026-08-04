@@ -1,5 +1,5 @@
 ---
-Status: D0 complete; D1 execution authorized; D2 gated on D1 green
+Status: Completed — D2 parity and candidate-abort evidence
 Date: 2026-08-04
 Parent: joinir-if-recipe-call-branch-implicit-design-stop-2026-08-04.md
 Decision: if the design stop is accepted, execute only D0 facts/claims,
@@ -77,6 +77,23 @@ new route/transaction   = 0
 new PHI/SSA writer      = 0
 ```
 
+### D1 evidence — 2026-08-04
+
+The static caller audit confirms the D0 change stayed inside the existing
+owner chain:
+
+| Product/edge | Production caller | Disposition |
+| --- | ---: | --- |
+| `VerifiedTrivialDirectCallV1::seal` | 1 (`resolved_value_profile/analyzer.rs`) | reuse one sealer |
+| `trivial_ssa::direct_call::emit` | 1 (`trivial_ssa/lowerer.rs`) | reuse one emitter |
+| If recipe physicalizer | 1 (`trivial_ssa/lowerer.rs`) | reuse one selected physicalizer |
+| implicit Call-RHS route/transaction | 0 | no new owner |
+| PHI/SSA writer added by D0 | 0 | existing Binding SSA / PhiTxn only |
+
+Raw, MethodCall, dynamic, unified, CorePlan/JoinIR, and JSON-v0 call paths
+remain separate non-selected columns. `DirectStaticCallRequiresExplicitElse`
+has no source-code reference after D0.
+
 ## D2 — parity and candidate abort
 
 Mirror the completed explicit-else Call-RHS proof with `else_body = None`:
@@ -90,6 +107,34 @@ Mirror the completed explicit-else Call-RHS proof with `else_body = None`:
 
 Reuse the existing candidate-session failure seam. Do not add a fault toggle,
 rollback journal, second transaction, or production Builder snapshot API.
+
+### D2 evidence — 2026-08-04
+
+The implicit then-only fixture is green through both proof halves:
+
+* the `vm-reference` acyclic callable-module fixture executes the direct call
+  on the true branch and preserves the header baseline on the false branch;
+* MIR contains exactly one direct `left/1` Call and one two-input PHI whose
+  predecessor set matches the merge block and whose inputs include the call
+  result;
+* the capability row remains one direct-call row and no ownership operation is
+  emitted;
+* the late draft-seal failure after Call/CFG/PHI work preserves the live
+  Builder fingerprint and unpublished state, then a fresh compile on the same
+  compiler succeeds;
+* no retry, fallback, route reselection, second transaction, or PHI/SSA owner
+  was added.
+
+Green gates:
+
+```text
+vm-reference implicit success/parity       = 1 passed
+vm-reference acyclic module suite          = 6 passed
+candidate-abort suite                      = 3 passed
+resolved_value_profile / if_recipe_contract / direct_call = green
+cargo check --lib                          = green
+current-state + in-place guards            = green
+```
 
 ## Required gates
 

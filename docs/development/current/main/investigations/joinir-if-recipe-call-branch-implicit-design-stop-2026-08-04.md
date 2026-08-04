@@ -1,9 +1,12 @@
 ---
-Status: Design stop accepted; D0 execution authorized
+Status: Design stop closed; implicit Call-RHS D0/D1/D2 complete
 Date: 2026-08-04
 Decision: evaluate one direct static i64 Call in the then-assignment RHS of
   an implicit-fallthrough If; reuse the existing implicit JoinSig and direct
   call capability without adding a route or physical owner
+Outcome: the bounded implicit then-RHS Call shape is complete through D2
+  parity and candidate-abort/fresh-reuse. The next If shape requires a new
+  design consultation; no broader Call or If shape is implied by this row.
 Exception: genuine next-shape design consultation after the completed D3
   explicit-else Call-RHS proof
 ParentCurrentCard: docs/development/current/main/investigations/joinir-if-recipe-call-branch-d3-d2-execution-task-2026-08-04.md
