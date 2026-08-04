@@ -4,12 +4,19 @@ Scope: selfhost を進める前に compiler 側（Facts/Normalize/CorePlan）で
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/20-Decisions.md
+- docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md
 - docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md
 - docs/development/current/main/design/local-patch-prevention-ssot.md
 - docs/development/current/main/phases/archive/phase-29br/README.md
 ---
 
 # Policy: Compiler expressivity first (pause selfhost workarounds)
+
+This policy is one implementation discipline under the accepted
+AI-verifiable development North Star. Compiler expressivity is valuable when
+it shortens the verified path from source intent to one exact fact, Recipe,
+diagnostic, and repair boundary; it is not permission to widen syntax or add
+another semantic authority.
 
 ## Current MirBuilder replacement scope
 
