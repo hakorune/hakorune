@@ -1,5 +1,5 @@
 ---
-Status: D1 landed; D2 parity and candidate-abort proof is next
+Status: D2 landed; exact two-call legacy-edge I0/R0 is next
 Date: 2026-08-04
 Parent: joinir-if-recipe-shape-envelope-d0-design-stop-2026-08-04
 Decision: admit exactly one direct static i64 call in each explicit-else
@@ -180,6 +180,39 @@ bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 
 D1 closes without a code commit. The next row is D2 parity and candidate
 abort/reuse evidence, still without a new owner or fallback route.
+
+## D2 completion evidence
+
+The D2 proof is implemented in
+`src/mir/compiler/if_recipe_candidate_abort_d2_tests.rs` (388 lines, below the
+800-line limit). The explicit-else fixture now calls distinct `left` and
+`right` static helpers from the two assignment RHSs. The VM-gated parity test
+proves:
+
+* both sealed target symbols are present as exactly two MIR `Call`s;
+* both results retain the existing Integer ABI receipt and the single
+  function-level direct-call capability marker;
+* the recipe emits one shared merge `Phi` whose two input predecessors equal
+  the actual branch predecessors;
+* the interpreter returns the left and right helper results for the two runtime
+  conditions.
+
+The existing DraftSeal-failure candidate tests now use the same explicit
+two-call fixture. They prove that failure after call/CFG/PHI work leaves the
+live Builder fingerprint and module state unchanged, and that a fresh compile
+on the same compiler succeeds. The implicit one-call candidate proof remains
+separate.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib compiler::if_recipe_candidate_abort_d2_tests -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test --features vm-reference -q --lib compiler::if_recipe_candidate_abort_d2_tests -- --test-threads=1
+```
+
+D2 made no physicalizer, route, capability, CFG/SSA/PHI, or fallback-owner
+change. The next and final implementation row is the exact two-call shape's
+legacy-edge I0/R0 cutover.
 
 ## D2 — parity and candidate-abort proof
 

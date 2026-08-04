@@ -1,8 +1,9 @@
 //! D2 candidate-abort proof for the selected If recipe shape.
 //!
 //! The production path already owns a whole unpublished compile candidate.
-//! These tests cover the existing no-call envelope plus the selected Call-RHS
-//! candidate-abort proof; they do not add a fault toggle or transaction owner.
+//! These tests cover the existing no-call envelope plus the selected one-call
+//! and two-call RHS candidate-abort proofs; they do not add a fault toggle or
+//! transaction owner.
 
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 
@@ -134,11 +135,7 @@ fn call_rhs_program(explicit_else: bool) -> ASTNode {
                 explicit_else.then(|| {
                     vec![ASTNode::Assignment {
                         target: Box::new(variable("x")),
-                        value: Box::new(binary(
-                            BinaryOperator::Add,
-                            variable("p0"),
-                            literal(2),
-                        )),
+                        value: Box::new(call("right_call_abort_d2", variable("p0"))),
                         span: Span::unknown(),
                     }]
                 }),
@@ -160,8 +157,19 @@ fn call_rhs_program(explicit_else: bool) -> ASTNode {
             span: Span::unknown(),
         }],
     );
+    let right = function(
+        "right_call_abort_d2",
+        vec![ASTNode::Return {
+            value: Some(Box::new(binary(
+                BinaryOperator::Add,
+                variable("p0"),
+                literal(2),
+            ))),
+            span: Span::unknown(),
+        }],
+    );
     ASTNode::Program {
-        statements: vec![branch, left],
+        statements: vec![branch, left, right],
         span: Span::unknown(),
     }
 }
@@ -229,9 +237,8 @@ fn assert_call_candidate_abort_reuses_compiler(
     let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) = plan else {
         panic!("Call-RHS fixture must select TrivialBindingSsa")
     };
-    let mut candidate = super::module_session::CanonicalModuleLoweringSessionV1::open(
-        &compiler.builder,
-    );
+    let mut candidate =
+        super::module_session::CanonicalModuleLoweringSessionV1::open(&compiler.builder);
     let error = candidate
         .builder_mut()
         .lower_resolved_trivial_function_draft_with_seal_failure_for_test(plan)
@@ -273,4 +280,109 @@ fn implicit_call_rhs_candidate_discards_after_call_and_phi_seal_failure() {
     let source = VerifiedResolvedCallableProgramV1::resolve(call_rhs_program(false))
         .expect("implicit Call-RHS abort module resolves");
     assert_call_candidate_abort_reuses_compiler(source, "implicit-call-rhs-reused.hako");
+}
+
+#[cfg(feature = "vm-reference")]
+#[test]
+fn explicit_two_call_rhs_preserves_targets_phi_and_runtime_parity() {
+    use std::collections::BTreeSet;
+
+    use crate::backend::{MirInterpreter, VMValue};
+    use crate::mir::verification::utils::compute_predecessors;
+    use crate::mir::{Callee, MirInstruction, MirType};
+
+    let source = VerifiedResolvedCallableProgramV1::resolve(call_rhs_program(true))
+        .expect("two-call parity module resolves");
+    let result = MirCompiler::with_options(false)
+        .compile_resolved_callable_module(source.lowering_input(), Some("two-call-d2.hako"))
+        .expect("two-call parity module lowers");
+    assert!(result.verification_result.is_ok());
+
+    let function = &result.module.functions["if_call_abort_d2/1"];
+    let calls = function
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .filter_map(|instruction| match instruction {
+            MirInstruction::Call {
+                dst: Some(dst),
+                callee: Some(Callee::Global(target)),
+                ..
+            } => Some((target.clone(), *dst)),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(calls.len(), 2);
+    assert_eq!(
+        calls
+            .iter()
+            .map(|(target, _)| target.as_str())
+            .collect::<BTreeSet<_>>(),
+        BTreeSet::from(["left_call_abort_d2/1", "right_call_abort_d2/1"])
+    );
+    assert!(calls
+        .iter()
+        .all(|(_, dst)| function.metadata.value_types.get(dst) == Some(&MirType::Integer)));
+    assert_eq!(
+        function
+            .metadata
+            .canonical_direct_static_call_capabilities
+            .len(),
+        1,
+        "capability remains one function-level marker"
+    );
+
+    let predecessors = compute_predecessors(function);
+    let phi_rows = function
+        .blocks
+        .iter()
+        .flat_map(|(block_id, block)| {
+            block
+                .phi_instructions()
+                .map(move |instruction| (*block_id, instruction))
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(phi_rows.len(), 1, "one shared merge binding has one PHI");
+    let (merge_block, instruction) = phi_rows[0];
+    let MirInstruction::Phi {
+        inputs, type_hint, ..
+    } = instruction
+    else {
+        unreachable!("phi_instructions yields only Phi rows")
+    };
+    assert_eq!(*type_hint, Some(MirType::Integer));
+    assert_eq!(inputs.len(), 2);
+    let input_predecessors = inputs
+        .iter()
+        .map(|(predecessor, _)| *predecessor)
+        .collect::<BTreeSet<_>>();
+    let actual_predecessors = predecessors
+        .get(&merge_block)
+        .into_iter()
+        .flatten()
+        .copied()
+        .collect::<BTreeSet<_>>();
+    assert_eq!(input_predecessors, actual_predecessors);
+
+    let mut interpreter = MirInterpreter::new();
+    assert_eq!(
+        interpreter
+            .execute_function_with_args(
+                &result.module,
+                "if_call_abort_d2/1",
+                &[VMValue::Integer(1)],
+            )
+            .unwrap(),
+        VMValue::Integer(2)
+    );
+    assert_eq!(
+        interpreter
+            .execute_function_with_args(
+                &result.module,
+                "if_call_abort_d2/1",
+                &[VMValue::Integer(-1)],
+            )
+            .unwrap(),
+        VMValue::Integer(1)
+    );
 }
