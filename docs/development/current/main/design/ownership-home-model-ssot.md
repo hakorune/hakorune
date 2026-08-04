@@ -25,6 +25,15 @@ Source-language authority:
 Parked execution board:
 `../investigations/hakorune-home-ownership-task-2026-08-04.md`
 
+Related lifecycle authority:
+`constructor-birth-new-lifecycle-ssot.md`
+
+The constructor document owns `new`/`birth`/field-initializer ordering and
+the direct-`birth` ban. `OWN-HOME-BIRTH-D0` on the parked board owns the
+remaining Home-specific construction transaction questions, especially
+partial-construction failure cleanup. Neither document silently replaces the
+other.
+
 Current-lane rule: this document does not move the row named by
 `CURRENT_STATE.toml`. Ownership resumes only after the MirBuilder final-pipeline
 checkpoint named there.
@@ -53,6 +62,32 @@ HomeValue
 share
   the only ordinary source operation that may add an independent owner
 ```
+
+### `new` and `birth` Home boundary
+
+At the source level, `new` is the primary creation boundary for a fresh
+object identity and its first candidate Home token. The successful lifecycle
+order is fixed by the constructor SSOT:
+
+```text
+new
+  -> declaration-site field initializers
+  -> matching birth(args...)
+  -> optional explicit field overrides
+  -> publish as usable
+```
+
+`birth` is a constructor hook, not a second ownership verb and not a direct
+receiver method. Its parameters use ordinary Handle/Trivial rules unless an
+explicit resolved Home-demand declaration says otherwise. A constructing
+`me` is unpublished; it cannot escape through storage, return, callback, or
+`share` before publication. The exact cleanup/no-double-finalization rule for
+field or birth failure is intentionally delegated to
+`OWN-HOME-BIRTH-D0`; it is not implied by `fini()`.
+
+`new` and `share` therefore have different authority: `new` creates the first
+Home candidate for a fresh identity, while `share` adds an independent owner
+to an already existing identity.
 
 `Home` is a compiler concept, not a planned source keyword. One Shared object
 identity may have several independent Home tokens installed in different Home

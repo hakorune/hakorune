@@ -6,11 +6,18 @@ Related:
   - docs/reference/language/lifecycle.md
   - docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md
   - docs/development/current/main/design/mimalloc-object-lifecycle-queue-ssot.md
+  - docs/development/current/main/design/ownership-home-model-ssot.md
+  - docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md
 ---
 
 # Constructor Birth / New Lifecycle SSOT
 
 Decision: accepted.
+
+This document owns construction ordering and the direct-`birth` ban. The Home
+document owns Home tokens and destinations; `OWN-HOME-BIRTH-D0` closes the
+currently unspecified partial-construction failure/cleanup contract without
+changing the successful lifecycle order below.
 
 Hakorune keeps construction small and explicit:
 

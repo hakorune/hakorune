@@ -66,6 +66,7 @@ RESUME
      -> STORAGE DESTINATIONS
      -> CALLABLE ABI
      -> TRANSFER/FAILURE TIMING
+     -> BIRTH/CONSTRUCTION
      -> SHARE/FINI/CLEANUP
   -> SURFACE DECISION
   -> PASSIVE RELATION + ABI + BOUNDARY
@@ -120,6 +121,23 @@ Use static search first, then one case and a small sample before any complete
 corpus pass. This is evidence, not syntax authority.
 
 Deliverable: one source-kind × destination-kind × representation matrix.
+
+The matrix is not complete until it emits the decision inputs consumed by the
+next D0 rows. These are semantic counts, not raw lexical hit totals. Each
+count must include its classification rule, a small sample of source paths,
+and an explicit `unknown/unresolved` bucket:
+
+| Next D0 | Required census input |
+| --- | --- |
+| `OWN-HOME-REPRESENTATION-D0` | distinct nominal types that need an independent Shared owner; distinct type symbols observed in both Unique-only and potential-Shared contexts |
+| `OWN-COMPOSITE-TRIVIAL-D0` | owner-bearing record/enum declarations or instantiations; `Option`/`Result` wrapping an owner-bearing payload; unresolved generic `T`/`Any`/recursive sites |
+| `OWN-HOME-TAKE-EXPR0-D0` | local Home rename, explicit rebinding, or lifetime-narrowing sites that cannot use an existing destination; ordinary `local x = y` aliases are excluded |
+| `OWN-HOME-FIELD-TAKE0-D0` | field/container reads that remove or replace an owner-bearing Home; ordinary field reads and stores are excluded |
+| `OWN-HOME-BIRTH-D0` | `new` sites by target, birth hook declarations/parameters, declaration initializers and explicit override stores, and fallible construction paths after a prior Home store |
+
+The census must state `0` when a row has no corpus consumer. A raw `rg`
+count such as every `new` token is an inventory hint only; it cannot by itself
+close a representation, composite, or transfer decision.
 
 ## Milestone 2 — semantic decisions before grammar
 
@@ -258,6 +276,48 @@ Fix the exact transfer point relative to:
 The source must retain a coherent Home when argument preparation fails before
 the call boundary. Select one effect-free preflight/commit rule; do not let
 individual lowerers choose when consumption becomes visible.
+
+### `OWN-HOME-BIRTH-D0`
+
+Dependency: `OWN-FIELD-CONTAINER-DEST-D0` plus
+`OWN-HOME-TRANSFER-FAILURE-D0`. The source-level construction lifecycle is
+owned by [`constructor-birth-new-lifecycle-ssot.md`](../design/constructor-birth-new-lifecycle-ssot.md);
+this row supplies the missing Home boundary and must not redefine constructor
+syntax or direct-`birth` policy.
+
+Close the Home behavior of the complete construction transaction:
+
+- `new` allocates a fresh object identity and is the source-level primary
+  producer of the first candidate `HomeValue`/Home token; `share` is a later
+  owner acquisition, not a second birth operation;
+- declaration-site field initializers, the `birth(args...)` hook, and the
+  optional `new Box { field: expr }` override block are classified through the
+  destination matrix, with no hidden `share` or implicit partial transfer;
+- `birth` parameters follow normal Handle/Trivial rules by default. A
+  consuming/Home-demand parameter is allowed only when the resolved
+  declaration/ABI explicitly seals that demand; the name `birth` alone never
+  consumes an argument;
+- the fresh `me` remains an unpublished/constructing object until the existing
+  lifecycle reaches its publish point. A partially constructed object must not
+  escape through a field, return, global, container, callback, or `share`;
+- construction failures are classified by phase: argument preparation, field
+  initializer, `birth` body, explicit override, and publication. For each
+  phase, decide which already-installed Home tokens are cleaned, how the
+  partially constructed `me` is retired, and how no-leak/no-double-cleanup is
+  proven;
+- direct receiver `birth(...)` remains forbidden, and `fini()` remains the
+  logical usable-lifetime hook rather than a physical-free or construction
+  rollback spelling.
+
+The existing constructor SSOT fixes the successful order as
+`new -> declaration initializers -> birth -> optional explicit overrides ->
+publish`. It does not currently define partial-construction rollback; that is
+the deliberate D0 gap, not an invitation to infer cleanup from runtime tags.
+
+Done only when the row has a phase-by-phase Home state/recovery matrix,
+bounded corpus fixtures for each admitted failure boundary, and a named
+single cleanup owner. No parser, Home Flow, or runtime implementation begins
+from this row alone.
 
 ### `OWN-HOME-SURFACE-D0`
 
