@@ -140,3 +140,18 @@ the physicalizer, an untyped nullable topology, a receipt that cannot be
 cross-checked against JoinSig, a legacy writer needed to complete the selected
 shape, or a broader PHI/SSA retirement claim.
 
+## Accepted execution slice — `JOINIR-IF-RECIPE-SHAPE-ENVELOPE-D0`
+
+The design boundary is accepted for one behavior-neutral contract slice.
+Implement only the D0 correspondence/receipt checks and their tests:
+
+* explicit and implicit dispositions must cross-check their complete ordered
+  source claims, JoinSig ports/roles, topology variant, and receipt values;
+* mutated receipt/disposition/source evidence must fail before Builder effects;
+* the typed explicit/implicit values envelope remains the only physical shape
+  input; no route, retry, fallback, or new PHI writer may be added.
+
+Do not implement D1 caller retirement or D2 candidate-fingerprint expansion in
+the same change. Those are the next bounded checks after D0 is green. Any
+failure that needs a lowerer topology change, another source family, or a
+global PHI/SSA claim reopens a design stop.
