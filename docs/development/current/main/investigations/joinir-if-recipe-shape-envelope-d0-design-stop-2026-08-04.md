@@ -184,3 +184,65 @@ bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 
 No new recipe profile, lowerer branch, route/retry edge, PHI writer, or
 legacy caller was added. D1 caller census is the next bounded row.
+
+## D1 caller census — 2026-08-04
+
+The selected explicit/implicit If shape has one production chain. The counts
+below are source counts, not retirement claims:
+
+| Product | Production count | Exact path | Role |
+| --- | ---: | --- | --- |
+| `produce_trivial_if_physical_input_v1` | 1 | `resolved_lowering/mod.rs:437` | same-pass artifact/physical-input producer |
+| `admit_trivial_if_recipe_v1` | 1 | `resolved_lowering/mod.rs:446` | one-shot source-site admission |
+| `physicalize_if_recipe_v1` | 1 caller | `trivial_ssa/lowerer.rs:461` | selected demand consumer |
+| `lower_if_recipe_selected` | 1 caller | `trivial_ssa/if_recipe_physicalizer.rs:356` | selected topology bridge |
+| `selected_receipt` | 1 production caller | `trivial_ssa/lowerer.rs:667` | receipt constructor after canonical lowering |
+
+The physicalizer owns both receipt variants. Production constructs the typed
+topology in `if_recipe_physicalizer.rs:347-355`, emits typed physical values
+in `trivial_ssa/lowerer.rs:652-664`, and calls the receipt constructor once.
+The only other receipt/value constructor references are test-only fixtures:
+
+* `if_recipe_adapter.rs:556-574` builds a demand fixture;
+* `if_recipe_physicalizer.rs:577-706` uses the `#[cfg(test)]` correspondence
+  helper, direct explicit receipt fixture, and cross-shape envelope tests.
+
+The selected physicalizer therefore has one production caller and no
+production route selector, retry edge, or second receipt writer in this
+shape. The following remain live but are explicitly outside the selected
+authority:
+
+| Non-selected family | Live authority/path | Census disposition |
+| --- | --- | --- |
+| located legacy If | `resolved_lowering/located_if.rs` → `if_materialization.rs:52` (`IfCfgSessionV1`) | legacy/session path; tests also open the session |
+| CorePlan/JoinIR If | `control_flow/plan/lowerer/plan_lowering.rs:218` → `features/if_join.rs:37` | plan PHI/CFG path; not a selected Recipe consumer |
+| raw IfForm | `builder/if_form.rs` → `stmts/if_statement_descent.rs` and `control_flow/mod.rs` | raw statement path; not retired |
+| JSON-v0/import bridge | `global_call_route_plan/program_json_emit_body.rs:309` and `compiler/normal_default_pipeline.rs:272` | bridge/import path; no selected receipt claim |
+
+This census does not delete or redirect any of those paths. It proves only
+that the selected recipe chain is locally single-entry/single-consumer; it
+does not claim global If or PHI/SSA caller-zero.
+
+## D2 opening boundary — candidate-abort proof
+
+D2 is now the active design row. Its source authority is the existing
+unpublished candidate/session lifecycle plus the selected chain recorded
+above. The selected physicalizer may prove that a late failure is discarded
+with the candidate; it may not invent a second Loop/If transaction or use the
+live Builder as an undo target.
+
+The smallest permitted D2 proof is one explicit and one implicit fixture with
+the same outer binding and continuation read:
+
+1. capture the candidate/module/function/ID-cursor/Binding-SSA/`PhiTxn`
+   fingerprint before selected lowering;
+2. inject one late selected-physicalization failure after the first physical
+   mutation inside the unpublished candidate;
+3. discard the candidate and prove the live compiler state is unchanged;
+4. compile a fresh valid fixture on the same compiler and prove it succeeds.
+
+D2 does not authorize a new rollback journal, detached per-If Builder,
+symbolic MIR, route retry, legacy caller deletion, global PHI/SSA adoption,
+or parity claims for raw/CorePlan/JoinIR/Loop/other If shapes. If the existing
+candidate lifecycle cannot expose this fingerprint without widening an
+owner or crossing the 800-line limit, stop and reopen the design before code.
