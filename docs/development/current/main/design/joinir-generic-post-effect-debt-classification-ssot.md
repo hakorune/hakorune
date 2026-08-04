@@ -735,9 +735,11 @@ Retry, PHI wiring, or Generic cutover is authorized. M6-B and P1b are already
 closed; the next bounded continuation is D2-B4 below, and the parent D2
 decision remains unresolved before M10b.
 
-#### D2-B4 — `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-D0` (active design stop)
+#### D2-B4 — `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-D0` (accepted bounded execution brief)
 
-Decision: provisional. Accept only a test-only pre-effect winner-certificate
+Decision: accepted. The next implementation row is
+`JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-S1`. Accept only a test-only
+pre-effect winner-certificate
 candidate when the existing recursive-carrier observation is complete, the raw
 schedule contains the claimed `Both` overlap, and the real fresh-candidate V1
 stage succeeds with outer carrier/final-value targets exactly matching the
@@ -747,6 +749,12 @@ source-derived recursive targets. `CompleteNoRecursiveCarrier`, `Unavailable`,
 
 Source authority is the shared `LivePreflightFrameV1`, resolved Generic facts
 observation, frozen raw schedule/mode snapshot, and natural V1 stage result.
+The equality claim is limited to deterministic source-binding labels and the
+required V1 `loop_carrier_<label>` / `loop_step_in_<label>` tags; no
+shadowing-safe BindingRef identity is exposed by this row. The existing
+test-only probe's `contract_present` gate is superseded only inside the new
+B4 evaluator because the real `Both` frame has no Generic Recipe contract;
+the false bit is recorded evidence and never policy authority.
 The probe must not inspect AST, route names, `diagnostic_effective`, legacy
 receipts, or post-effect success as policy. It must not add a selector arm,
 Recipe/JoinSig/PHI/physicalizer, scheduler, Retry/fallback, or production
@@ -760,7 +768,7 @@ release and strict modes; planner-required is recorded separately. If any
 claimed row lacks exact target equality or candidate isolation, retain
 `UnresolvedStop` and the legacy scheduler.
 
-Implementation closeout must update the parent SSOT, this task, the Generic
+Implementation closeout for S1 must update the parent SSOT, this task, the Generic
 stage-matrix reference, Generic README, `CURRENT_STATE.toml`, `10-Now.md`, and
 the active workstream. This is a design/test boundary only; it does not
 authorize Generic policy promotion, Recipe production, Retry deletion, M7-S4,

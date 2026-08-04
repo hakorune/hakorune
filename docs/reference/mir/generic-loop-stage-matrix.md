@@ -17,7 +17,7 @@ the closed ledger is
 `docs/development/current/main/investigations/joinir-generic-post-effect-debt-classification-d0-s1-execution-task-2026-08-04.md`.
 The closed overlap parity evidence is recorded in
 `docs/development/current/main/investigations/joinir-generic-overlap-semantic-parity-d2-b2-execution-task-2026-08-04.md`.
-The active bounded continuation is
+The accepted bounded continuation (implementation row S1) is
 `docs/development/current/main/investigations/joinir-generic-nested-carrier-winner-d2-b4-d0-design-2026-08-05.md`.
 The machine-readable test observer is
 `src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs`.

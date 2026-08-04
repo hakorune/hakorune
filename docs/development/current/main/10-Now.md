@@ -30,11 +30,11 @@ Related:
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
 - current frontier: Decision B-prime, M7-S2-A, and the full M7-S3 LoopTrue
-  source-to-Recipe cohort are closed. The active Generic M4 subrow is
-  `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-D0`: only complete recursive
-  carrier observation plus natural V1 stage success may form a test-only
-  certificate. No Generic production Recipe, route, physical, Retry, or
-  fallback change is authorized; M10b still waits on M7/M8/M9 and D2.
+  source-to-Recipe cohort are closed. Generic M4 D2-B4-D0 is an accepted
+  bounded brief; the next row is `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-S1`.
+  Only complete recursive carrier labels plus natural V1 stage success may form
+  a test-only certificate. No Generic production Recipe, route, physical,
+  Retry, or fallback change is authorized; M10b still waits on M7/M8/M9 and D2.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

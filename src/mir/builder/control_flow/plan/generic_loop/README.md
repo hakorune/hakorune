@@ -89,9 +89,9 @@ Post-effect stage boundary (M4 test/reference lane):
   proof. The matrix is closed as deterministic evidence;
   `ParityDispositionV1::UnresolvedStop` is a classification, not a policy
   evaluator. No route, Recipe, JoinSig, PHI, or retry authority changes here.
-  M6-B and P1b are closed; the next design boundary is the bounded D2-B4
-  nested-carrier winner certificate
-  (`JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-D0`).
+  M6-B and P1b are closed; D2-B4 is an accepted bounded brief and its next
+  implementation row is the test-only nested-carrier winner certificate
+  (`JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-S1`).
 
 LOOP0-P0b-T0 associated-source boundary:
 - T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under

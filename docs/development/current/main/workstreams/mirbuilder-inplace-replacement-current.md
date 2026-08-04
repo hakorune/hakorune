@@ -490,11 +490,12 @@ closed — JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0
      and Return-arm tests are green; `src/mir/loop_recipe_contract/README.md`
      and `docs/reference/mir/loop-recipe-contract.md` are synchronized.
 
-closed — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0; active D2-B4 design
-  -> `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-D0`; M7 S0/S1/S2/S3 are
-     closed. Complete recursive-carrier observation plus natural V1 stage may
-     form a test-only certificate; other overlap classes remain UnresolvedStop.
-     No production policy or cutover; task is the parent-linked D2-B4 card.
+closed — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0; accepted D2-B4
+  -> `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-D0`, next implementation row
+     `...-S1`; M7 S0/S1/S2/S3 are closed. Complete recursive-carrier labels
+     plus natural V1 stage may form a test-only certificate; other overlap
+     classes remain UnresolvedStop. No production policy or cutover; S1 is the
+     new cfg(test) sibling matrix and must close the Generic reference docs.
 closed — JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0
   -> resolver-owned AST-free LoopTrue projection with exact source/frame identity
      and typed caller-zero rejects; no route switch, Builder/CFG/PHI, retry, or fallback.
