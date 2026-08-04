@@ -1,5 +1,5 @@
 ---
-Status: Planned; gated by the implicit Call-RHS design stop
+Status: D0 execution authorized; D1/D2 gated on D0 green
 Date: 2026-08-04
 Parent: joinir-if-recipe-call-branch-implicit-design-stop-2026-08-04.md
 Decision: if the design stop is accepted, execute only D0 facts/claims,

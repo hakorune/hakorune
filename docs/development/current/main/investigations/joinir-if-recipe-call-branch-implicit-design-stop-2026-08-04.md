@@ -1,5 +1,5 @@
 ---
-Status: Design stop open; implementation not authorized
+Status: Design stop accepted; D0 execution authorized
 Date: 2026-08-04
 Decision: evaluate one direct static i64 Call in the then-assignment RHS of
   an implicit-fallthrough If; reuse the existing implicit JoinSig and direct
@@ -170,5 +170,6 @@ Return to design before implementation if the candidate requires any of:
 * field/container/Home transfer or an implicit ownership rule;
 * a touched source/test file over 800 lines.
 
-Implementation remains blocked at this design stop until the D0 contract and
-its rejection matrix are accepted in the current state pointer.
+The design stop is accepted for the bounded D0 row. D1/D2 remain gated on the
+green D0 contract and rejection matrix; no broader Call or If shape is
+authorized.
