@@ -1,5 +1,5 @@
 ---
-Status: Design accepted; D2 implementation/parity green; reference closeout pending
+Status: Closed; D2 implementation/parity and normative reference closeout green
 Date: 2026-08-04
 Parent: joinir-if-recipe-nested-one-level-d0-d2-execution-task-2026-08-04.md
 Decision: D0 and D1 are green; choose one nested proof adapter consumed by the
@@ -134,5 +134,24 @@ returns/multiple bindings, parameterized conditions without a new profile, raw
 lookup, retry/fallback, or any touched source/test file over 800 lines.
 
 This design stop does not change grammar, JSON v0, ownership/Home, or the
-normative reference pages. The reference closeout remains parked until the
-production consumer and D2 gates are green.
+normative reference pages. The production consumer and D2 gates are green;
+the bounded normative reference closeout is recorded in the execution card
+and remains limited to the proved one-level profile.
+
+## Closeout evidence (2026-08-04)
+
+* The selected nested adapter admits the sealed artifact/JoinSig once and
+  reuses the existing canonical lowerer as the only CFG/Binding-SSA/PhiTxn
+  physical owner.
+* Three same-topology constant fixtures prove the 1/2/3 outcomes, exact
+  two-PHI predecessor/value correspondence, and inner-merge-to-outer-then
+  wiring.
+* Existing candidate-seal failure and fresh-reuse tests prove live Builder
+  state is unchanged after a late failure.
+* The normative grammar, AST-JSON, JSON-v0, and PHI references now state the
+  recursive parser versus one-level resolved boundary and do not activate
+  deeper/effectful If or Home ownership.
+
+Disposition: this design stop is closed. The next If shape requires a new
+design consultation; no broader route, physicalizer, or ownership rule is
+authorized by this card.
