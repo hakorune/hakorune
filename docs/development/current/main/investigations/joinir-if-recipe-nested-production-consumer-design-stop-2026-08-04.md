@@ -1,5 +1,5 @@
 ---
-Status: Design accepted; D2 execution authorized within the bounded adapter
+Status: Design accepted; D2 implementation/parity green; reference closeout pending
 Date: 2026-08-04
 Parent: joinir-if-recipe-nested-one-level-d0-d2-execution-task-2026-08-04.md
 Decision: D0 and D1 are green; choose one nested proof adapter consumed by the

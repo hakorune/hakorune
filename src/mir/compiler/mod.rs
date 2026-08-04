@@ -187,6 +187,8 @@ mod module_postprocess_p0;
 #[cfg(test)]
 mod module_session_borrow_p0_tests;
 #[cfg(test)]
+mod nested_if_recipe_d2_tests;
+#[cfg(test)]
 mod prod_activation_p0_r1;
 #[cfg(test)]
 mod raw_public_cutover_parity_snapshot;

@@ -81,6 +81,28 @@ the verified artifact/JoinSig, while the existing canonical lowerer remains
 the sole CFG/SSA/PHI physicalizer. Do not manufacture child
 `CanonicalIfPhysicalDemandV1` values or add a second physicalizer.
 
+D2 implementation evidence (2026-08-04):
+
+* `if_recipe_adapter.rs` admits the sealed nested artifact/JoinSig once and
+  tracks both source sites with a non-reusable admission witness. The existing
+  canonical lowerer consumes the nested node demand through the same selected
+  CFG/Binding-SSA/PhiTxn path; no second physicalizer or transaction was added.
+* Focused tests cover three constant-condition outcomes (1/2/3), exactly two
+  PHIs, predecessor/value correspondence, and the inner-merge predecessor
+  feeding the outer-then edge. The candidate-abort test injects the existing
+  draft-seal failure, verifies the live fingerprint/module/function state is
+  unchanged, and compiles a fresh request on the same compiler.
+* The nested vm-reference test, nested recipe contract tests, existing If
+  candidate-abort tests, `cargo check --lib`, current-state pointer guard, and
+  in-place replacement guard are green. Every touched source/test file remains
+  below 800 lines.
+
+Disposition: D2 production consumption and parity/abort evidence are green.
+The required `JOINIR-IF-RECIPE-REFERENCE-CLOSEOUT0-DOC0` remains the next
+documentation-only closeout; it must update normative reference pages from
+the proved nested contract and must not widen depth or activate Home
+ownership.
+
 Use the exact source fixture:
 
 ```text

@@ -10,17 +10,18 @@ use crate::mir::resolved_control_flow::if_control::{
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, RegionKindV1, ResolvedExitSiteV1, ScopeKindV1, SourceBindingSiteV1,
+    BindingKindV1, BindingRefV1, RegionKindV1, ResolvedExitSiteV1, ScopeKindV1,
+    SourceBindingSiteV1,
 };
 use crate::mir::resolved_value_profile::product::{
     TrivialRepresentationV1, VerifiedTrivialCanonicalOwnerV1,
 };
 use crate::mir::resolved_value_profile::TrivialProfileConsumptionV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
-
 use super::super::completion_consumption::ReadyFunctionCompletionV1;
 use super::super::if_recipe_adapter::{
     CanonicalIfPhysicalDemandV1, CanonicalIfRecipeAdmissionDispositionV1,
+    CanonicalIfRecipeNodeDemandV1,
 };
 use super::super::MirBuilder;
 use super::operation::{emit_binary, mir_type};
@@ -458,7 +459,15 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .if_recipe
             .take_if(statement)
             .map_err(|error| format!("[freeze:contract][if_recipe/take] {error:?}"))?;
-        super::if_recipe_physicalizer::physicalize_if_recipe_v1(self, statement, demand).map(|_| ())
+        match demand {
+            CanonicalIfRecipeNodeDemandV1::Single(demand) => {
+                super::if_recipe_physicalizer::physicalize_if_recipe_v1(self, statement, demand)
+                    .map(|_| ())
+            }
+            CanonicalIfRecipeNodeDemandV1::Nested(demand) => {
+                super::nested_if_proof::lower(self, statement, demand)
+            }
+        }
     }
 
     fn lower_if_legacy_unselected(
@@ -484,7 +493,16 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             }
         }
     }
-
+    pub(super) fn lower_nested_if_recipe_selected(
+        &mut self,
+        statement: &LocatedStmtV1<'source>,
+        binding: BindingRefV1,
+    ) -> Result<(), String> {
+        let topology = super::if_recipe_physicalizer::CanonicalIfRecipeTopologyV1::ExplicitElse(
+            super::if_recipe_physicalizer::CanonicalIfRecipeExplicitElseTopologyV1::new(binding),
+        );
+        self.lower_if_recipe_selected(statement, topology).map(|_| ())
+    }
     fn lower_if_materialization_core(
         &mut self,
         statement: &LocatedStmtV1<'source>,
@@ -511,7 +529,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             TrivialRepresentationV1::InlineBool,
             "if_condition",
         )?;
-
         let regions = row.regions();
         let control = self.session.semantics.enter_region(
             self.input.function(),
@@ -562,7 +579,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 .map_err(|error| error.to_string())?;
         }
         self.seal_block_if_needed(header)?;
-
         self.seal_block_if_needed(then_block)?;
         self.builder.start_new_block(then_block)?;
         let then_body = self
@@ -594,7 +610,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             })
             .transpose()?;
         self.emit_jump(then_exit, merge)?;
-
         let mut else_exit = None;
         let mut else_value = None;
         if let Some(else_block_id) = else_block {
@@ -637,7 +652,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         } else if else_body.is_some() || regions.else_pair().is_some() {
             return Err("[freeze:contract][canonical_binding_ssa/else_topology]".to_string());
         }
-
         self.seal_block_if_needed(merge)?;
         self.builder.start_new_block(merge)?;
         row.finish_coverage()
@@ -681,7 +695,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .as_mut()
             .ok_or_else(|| {
                 "[freeze:contract][canonical_binding_ssa/function_missing]".to_string()
-            })?;
+        })?;
         cfg.emit_jump(function, source, target)
             .map_err(|error| error.to_string())
     }

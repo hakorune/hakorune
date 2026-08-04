@@ -8,7 +8,8 @@
 use crate::mir::compiler::located::LocatedStmtV1;
 use crate::mir::if_recipe_contract::{
     IfPhysicalInputRejectReasonV1, IfRecipeSourceOwnerV1, IfSourcePathStepV1,
-    VerifiedIfPhysicalInputV1,
+    NestedIfJoinSigComposerV1, NestedIfJoinSigRejectReasonV1, VerifiedIfPhysicalInputV1,
+    VerifiedNestedIfJoinSigV1, VerifiedNestedIfRecipeArtifactV1,
 };
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_semantics::{
@@ -16,20 +17,23 @@ use crate::mir::resolved_semantics::{
     VerifiedResolvedFunctionV1,
 };
 use crate::mir::resolved_value_profile::{
-    map_trivial_if_recipe_v1,
+    map_nested_trivial_if_recipe_v1, map_trivial_if_recipe_v1,
     product::{TrivialRepresentationV1, VerifiedTrivialCanonicalOwnerV1},
-    IfRecipeMapRejectV1,
+    IfRecipeMapRejectV1, NestedIfRecipeMapRejectV1,
 };
 
 #[derive(Debug)]
 pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipePreflightV1 {
     NotThisShape,
     Selected(CanonicalIfPhysicalDemandV1),
+    NestedSelected(NestedIfRecipeDemandV1),
 }
 
 #[derive(Debug)]
 pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipeProducerRejectV1 {
     Mapper(IfRecipeMapRejectV1),
+    NestedMapper(NestedIfRecipeMapRejectV1),
+    NestedJoin(NestedIfJoinSigRejectReasonV1),
     PhysicalInput(IfPhysicalInputRejectReasonV1),
     Correspondence(CanonicalIfRecipeCorrespondenceRejectV1),
 }
@@ -54,12 +58,17 @@ pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipeAdmissionRe
     SelectedIfNotConsumed,
     SelectedIfConsumedTwice,
     UnexpectedIfSite,
+    NestedIfControlCardinality { found: usize },
+    NestedIfSiteMismatch,
+    NestedIfNodeConsumedTwice,
+    NestedIfNodeNotConsumed,
 }
 
 #[derive(Debug)]
 pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipeAdmissionDispositionV1 {
     NotSelected,
     Selected(CanonicalIfRecipeAdmissionV1),
+    NestedSelected(NestedIfRecipeAdmissionV1),
 }
 
 impl CanonicalIfRecipeAdmissionDispositionV1 {
@@ -70,10 +79,15 @@ impl CanonicalIfRecipeAdmissionDispositionV1 {
     pub(in crate::mir::builder::resolved_lowering) fn take_if(
         &mut self,
         statement: &LocatedStmtV1<'_>,
-    ) -> Result<CanonicalIfPhysicalDemandV1, CanonicalIfRecipeAdmissionRejectV1> {
+    ) -> Result<CanonicalIfRecipeNodeDemandV1, CanonicalIfRecipeAdmissionRejectV1> {
         match self {
             Self::NotSelected => Err(CanonicalIfRecipeAdmissionRejectV1::MissingIfClaim),
-            Self::Selected(admission) => admission.take_site(statement.site()),
+            Self::Selected(admission) => admission
+                .take_site(statement.site())
+                .map(CanonicalIfRecipeNodeDemandV1::Single),
+            Self::NestedSelected(admission) => admission
+                .take_site(statement.site())
+                .map(CanonicalIfRecipeNodeDemandV1::Nested),
         }
     }
 
@@ -83,8 +97,15 @@ impl CanonicalIfRecipeAdmissionDispositionV1 {
         match self {
             Self::NotSelected => Ok(()),
             Self::Selected(admission) => admission.finish(),
+            Self::NestedSelected(admission) => admission.finish(),
         }
     }
+}
+
+#[derive(Debug)]
+pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipeNodeDemandV1 {
+    Single(CanonicalIfPhysicalDemandV1),
+    Nested(NestedIfNodeDemandV1),
 }
 
 #[derive(Debug)]
@@ -97,6 +118,32 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalIfRecipeAdmission
 enum CanonicalIfRecipeAdmissionStateV1 {
     Pending(CanonicalIfPhysicalDemandV1),
     Consumed,
+}
+
+#[derive(Debug)]
+pub(in crate::mir::builder::resolved_lowering) struct NestedIfRecipeDemandV1 {
+    _artifact: VerifiedNestedIfRecipeArtifactV1,
+    _join_sig: VerifiedNestedIfJoinSigV1,
+    expected_sites: [SourceStmtSiteV1; 2],
+    binding: BindingRefV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir::builder::resolved_lowering) struct NestedIfNodeDemandV1 {
+    _node_index: usize,
+    binding: BindingRefV1,
+}
+
+impl NestedIfNodeDemandV1 {
+    pub(in crate::mir::builder::resolved_lowering) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+}
+
+#[derive(Debug)]
+pub(in crate::mir::builder::resolved_lowering) struct NestedIfRecipeAdmissionV1 {
+    proof: NestedIfRecipeDemandV1,
+    consumed: [bool; 2],
 }
 
 /// A one-shot, same-pass physical demand.  The portable artifact remains
@@ -215,7 +262,24 @@ pub(in crate::mir::builder::resolved_lowering) fn produce_trivial_if_physical_in
     source_function: &VerifiedResolvedFunctionV1,
 ) -> Result<CanonicalIfRecipePreflightV1, CanonicalIfRecipeProducerRejectV1> {
     let Some(facts) = profile.recipe_facts() else {
-        return Ok(CanonicalIfRecipePreflightV1::NotThisShape);
+        let Some(nested_facts) = profile.nested_recipe_facts() else {
+            return Ok(CanonicalIfRecipePreflightV1::NotThisShape);
+        };
+        let artifact = map_nested_trivial_if_recipe_v1(profile, source_function)
+            .map_err(CanonicalIfRecipeProducerRejectV1::NestedMapper)?;
+        let join_sig = NestedIfJoinSigComposerV1::compose(&artifact)
+            .map_err(CanonicalIfRecipeProducerRejectV1::NestedJoin)?;
+        return Ok(CanonicalIfRecipePreflightV1::NestedSelected(
+            NestedIfRecipeDemandV1 {
+                _artifact: artifact,
+                _join_sig: join_sig,
+                expected_sites: [
+                    nested_facts.outer().statement().clone(),
+                    nested_facts.inner().statement().clone(),
+                ],
+                binding: nested_facts.shared_binding(),
+            },
+        ));
     };
     let correspondence = correspondence_from_facts(facts)
         .map_err(CanonicalIfRecipeProducerRejectV1::Correspondence)?;
@@ -236,6 +300,12 @@ pub(in crate::mir::builder::resolved_lowering) fn admit_trivial_if_recipe_v1(
     source_function: &VerifiedResolvedFunctionV1,
     if_control: &VerifiedResolvedFunctionIfControlV1,
 ) -> Result<CanonicalIfRecipeAdmissionDispositionV1, CanonicalIfRecipeAdmissionRejectV1> {
+    let preflight = match preflight {
+        CanonicalIfRecipePreflightV1::NestedSelected(demand) => {
+            return admit_nested_if_recipe_v1(demand, source_function, if_control);
+        }
+        other => other,
+    };
     let CanonicalIfRecipePreflightV1::Selected(demand) = preflight else {
         return Ok(CanonicalIfRecipeAdmissionDispositionV1::NotSelected);
     };
@@ -289,6 +359,38 @@ pub(in crate::mir::builder::resolved_lowering) fn admit_trivial_if_recipe_v1(
     ))
 }
 
+fn admit_nested_if_recipe_v1(
+    demand: NestedIfRecipeDemandV1,
+    _source_function: &VerifiedResolvedFunctionV1,
+    if_control: &VerifiedResolvedFunctionIfControlV1,
+) -> Result<CanonicalIfRecipeAdmissionDispositionV1, CanonicalIfRecipeAdmissionRejectV1> {
+    let mut sites = if_control.exact_if_sites();
+    let outer = sites
+        .next()
+        .cloned()
+        .ok_or(CanonicalIfRecipeAdmissionRejectV1::NestedIfControlCardinality { found: 0 })?;
+    let inner = sites
+        .next()
+        .cloned()
+        .ok_or(CanonicalIfRecipeAdmissionRejectV1::NestedIfControlCardinality { found: 1 })?;
+    if sites.next().is_some() {
+        return Err(
+            CanonicalIfRecipeAdmissionRejectV1::NestedIfControlCardinality {
+                found: if_control.row_count(),
+            },
+        );
+    }
+    if [outer, inner] != demand.expected_sites {
+        return Err(CanonicalIfRecipeAdmissionRejectV1::NestedIfSiteMismatch);
+    }
+    Ok(CanonicalIfRecipeAdmissionDispositionV1::NestedSelected(
+        NestedIfRecipeAdmissionV1 {
+            proof: demand,
+            consumed: [false; 2],
+        },
+    ))
+}
+
 impl CanonicalIfRecipeAdmissionV1 {
     fn take_site(
         &mut self,
@@ -314,6 +416,36 @@ impl CanonicalIfRecipeAdmissionV1 {
             CanonicalIfRecipeAdmissionStateV1::Pending(_) => {
                 Err(CanonicalIfRecipeAdmissionRejectV1::SelectedIfNotConsumed)
             }
+        }
+    }
+}
+
+impl NestedIfRecipeAdmissionV1 {
+    fn take_site(
+        &mut self,
+        site: &SourceStmtSiteV1,
+    ) -> Result<NestedIfNodeDemandV1, CanonicalIfRecipeAdmissionRejectV1> {
+        let index = self
+            .proof
+            .expected_sites
+            .iter()
+            .position(|expected| expected == site)
+            .ok_or(CanonicalIfRecipeAdmissionRejectV1::UnexpectedIfSite)?;
+        if self.consumed[index] {
+            return Err(CanonicalIfRecipeAdmissionRejectV1::NestedIfNodeConsumedTwice);
+        }
+        self.consumed[index] = true;
+        Ok(NestedIfNodeDemandV1 {
+            _node_index: index,
+            binding: self.proof.binding,
+        })
+    }
+
+    fn finish(self) -> Result<(), CanonicalIfRecipeAdmissionRejectV1> {
+        if self.consumed == [true, true] {
+            Ok(())
+        } else {
+            Err(CanonicalIfRecipeAdmissionRejectV1::NestedIfNodeNotConsumed)
         }
     }
 }
