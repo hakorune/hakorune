@@ -190,8 +190,9 @@ V0-only / V1-only / Both / Neither
 
 The current S2/D3 rows cover only natural Both, shadowing, and planner
 suppression. They do not close this matrix or prove V0-debt-to-V1 equivalence.
-Rows without the sealed capability remain unresolved and retain the old
-execution edge.
+The test-only protocol model enumerates the matrix axes but does not replace
+source-resolver evidence or prove V0-debt-to-V1 equivalence. Rows without the
+sealed capability remain unresolved and retain the old execution edge.
 
 ## Staged implementation proposal
 
@@ -299,7 +300,7 @@ fail-fast/sunset contract are mandatory; documentation cannot be deferred.
 ```text
 S2 identity witness: 3 focused tests, test-only
 D3 typed matrix: 1 focused test over 4 rows, test-only
-handoff protocol: 5 cfg(test) tests over typed Legacy/Resolved/Reject boundaries
+handoff protocol: 6 cfg(test) tests, including a generated 1,440-row typed matrix
 production selector callers of BindingRef capability: 0
 current Both trace: [V0, V1] -> V0 success; no V1 debt attempt
 ```
