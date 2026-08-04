@@ -332,7 +332,9 @@ impl MirBuilder {
                 );
                 builder.set_current_function_runes(attrs);
                 builder.set_current_function_declared_capability_uses(uses);
-                let ready = CanonicalDirectAccumSsaLowererV1::new(builder, plan)?.lower()?;
+                let (ready, final_receipt) =
+                    CanonicalDirectAccumSsaLowererV1::new(builder, plan)?.lower()?;
+                final_receipt.consume_for_candidate()?;
                 let current_block = builder.function_state.current_block.ok_or_else(|| {
                     "[freeze:contract][direct_accum/current_block_missing]".to_string()
                 })?;

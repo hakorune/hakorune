@@ -405,5 +405,16 @@ canonical CFG/Binding-SSA/PhiTxn session, seals `After`, reads the verified
 carrier keys through `CanonicalDirectAccumBindingPort`, stores a typed
 caller-owned receipt, and only then finishes effect claims and the existing
 commit transaction. No header-PHI synthesis, second writer, route/retry,
-Generic, fallback, grammar, or IR change is allowed. P4-S1 remains paused
-until D2-S5 is green.
+Generic, fallback, grammar, or IR change is allowed. The following wording is
+historical; D2-S5 and P4-S1 are now closed in the closeout below.
+
+## D2-S5/P4 closeout (2026-08-04)
+
+D2-S5 is now implemented. The resolved caller seals `After` with the canonical
+CFG/Binding-SSA port, reads carrier keys 0/1 into an owned
+`DirectAccumFinalBindingReceiptV1`, then runs the existing effect-claim,
+identity, `PhiTxn`, completion, and candidate-commit order. P4-S1 observes the
+actual candidate and matches the legacy semantic core. The singleton branch
+still has exactly one non-test physicalizer caller; no route_loop, scheduler,
+Retry/fallback, Generic, grammar, IR, or selfhost authority changed. Reference
+MIR and builder/PHI SSOT closeout is recorded in the implementation cards.

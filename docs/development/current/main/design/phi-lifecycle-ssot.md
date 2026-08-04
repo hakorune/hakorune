@@ -217,3 +217,23 @@ is green. The explicit P1b edge-path witness is now structurally closed; full
 MIR/instruction/type/result parity remains the accepted P4 physical-snapshot
 design stop. No grammar, IR, route, Retry, or publication behavior follows
 from M6-B or P1b.
+
+## Resolved DirectAccum final-carrier receipt (M10a D2-S5)
+
+The bounded resolved DirectAccum consumer follows one strict order:
+
+```text
+emit open After continuation
+  -> derive and verify terminator predecessors
+  -> seal After through the existing Binding-SSA adapter
+  -> read verified carrier keys 0/1
+  -> store DirectAccumFinalBindingReceiptV1
+  -> finish claims, identity, PhiTxn, and completion
+```
+
+Reading a carrier only after a sealed single-predecessor `After` forwards the
+reaching value directly and does not create a synthetic final PHI. The generic
+open-After continuation receipt remains separate. The receipt is a handoff
+product, not a second PHI/SSA owner; missing, duplicate, reordered, or
+non-Unit rows fail fast before finish/commit. P4-S1 observes the resulting
+candidate MIR and does not repair or infer PHI rows.

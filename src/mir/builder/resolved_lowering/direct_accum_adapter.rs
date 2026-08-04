@@ -73,7 +73,7 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn finish_effect_claims(
-        self,
+        &self,
     ) -> Result<(), String> {
         for role in DirectAccumBindingEffectRoleV1::ALL {
             if !self.claimed.contains(&role) {

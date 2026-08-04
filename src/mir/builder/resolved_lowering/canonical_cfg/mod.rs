@@ -13,3 +13,12 @@ mod tests;
 
 pub(in crate::mir::builder) use error::CanonicalCfgErrorV1;
 pub(in crate::mir::builder) use session::{CanonicalCfgSessionV1, VerifiedPredecessorsV1};
+
+/// Test-only observer seam for consumers that need the canonical CFG edge
+/// witness without owning a session or repairing cached block metadata.
+#[cfg(test)]
+pub(in crate::mir::builder) fn verify_terminator_edges_for_test(
+    function: &crate::mir::MirFunction,
+) -> Result<(), CanonicalCfgErrorV1> {
+    predecessors::derive_and_verify_predecessors(function).map(|_| ())
+}

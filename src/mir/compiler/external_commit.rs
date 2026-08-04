@@ -95,6 +95,14 @@ impl<'a> PreparedModuleExternalCommitV1<'a> {
         &self.evidence
     }
 
+    /// Test-only read boundary for immutable candidate observation.  The
+    /// prepared product remains unpublished and no mutable Builder or commit
+    /// capability is exposed through this view.
+    #[cfg(test)]
+    pub(in crate::mir) fn module_for_snapshot_test(&self) -> &crate::mir::MirModule {
+        &self.module
+    }
+
     pub(in crate::mir) fn prepare(
         postprocessed: PostprocessedModuleInvocationV1<'a>,
     ) -> Result<Self, ExternalCommitPreparationErrorV1> {

@@ -50,5 +50,16 @@ Caller-zero Loop observer boundary
   destinations fail before or within that transaction.
 - Canonical CFG, function-owned Binding SSA, and `PhiTxn` remain the sole
   production owners. M6-B and the structural P1b edge-path witness introduce
-  no grammar, IR, route, Retry, or publication behavior. Full physical parity
-  is deferred to the accepted P4 physical-snapshot design stop.
+  no grammar, IR, route, Retry, or publication behavior.
+
+Resolved DirectAccum final-carrier boundary (M10a D2-S5/P4-S1)
+- The resolved caller seals the `After` block from terminator-derived
+  predecessors before reading final carrier bindings.
+- Carrier keys 0/1 are read through the same function-owned Binding-SSA
+  adapter and handed to a typed `DirectAccumFinalBindingReceiptV1`; no second
+  map or PHI writer is allowed.
+- A sealed `After` block with one predecessor forwards directly and must not
+  gain synthetic final PHIs. The P4-S1 observer compares the resulting MIR
+  semantically and never fabricates final rows from header PHIs.
+- The generic open-After continuation receipt is unchanged. This is a
+  singleton resolved profile, not an all-route or IR-wide loop rule.

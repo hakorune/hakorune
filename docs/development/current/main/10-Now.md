@@ -30,10 +30,10 @@ Related:
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
 - current frontier: M6-B and structural P1b evidence are closed. The bounded
-  M10a resolved DirectAccum bridge has one production physicalizer caller, but
-  the actual candidate is missing sealed-After final-carrier publication.
-  Follow the D2-S5 design/implementation task named by `latest_card_path`;
-  P4-S1 remains paused until its gates are green.
+  M10a resolved DirectAccum bridge now has one production physicalizer caller,
+  sealed-After final-carrier publication, and green P4-S1 semantic snapshot
+  parity. The latest card records the closed singleton evidence; all-route
+  scheduler/Generic/Retry and selfhost cutovers remain parked.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

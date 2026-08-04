@@ -44,5 +44,13 @@ Loop M6-B caller-zero boundary
 - Its PHI writes are transactional through `PhiTxn`; canonical CFG and
   function-owned Binding SSA remain the production lifecycle owners.
 - The M6-B closeout and structural P1b witness change no source grammar, MIR
-  shape, Retry/fallback, or route behavior. Full physical parity is deferred to
-  the accepted P4 physical-snapshot design stop.
+  shape, Retry/fallback, or route behavior.
+
+Resolved DirectAccum final-carrier profile (M10a D2-S5/P4-S1)
+- The canonical resolved lowerer is the sole production caller for this
+  singleton profile and borrows the existing CFG, Binding SSA, and `PhiTxn`.
+- It seals `After` first, reads carrier keys 0/1 through the canonical adapter,
+  and stores a typed final-binding receipt before identity/PHI completion.
+- Because `After` has one predecessor, the final reads are aliases and do not
+  authorize synthetic After PHIs. The test-only P4 snapshot observes actual
+  candidate MIR; it does not alter PHI policy or infer source semantics.

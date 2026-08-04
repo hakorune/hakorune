@@ -6,7 +6,7 @@
 #![cfg(test)]
 
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, MirType, ValueId};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct AlphaPhysicalMirDigestV1 {
@@ -30,15 +30,32 @@ impl MirRoleWitnessV1 {
         if rows.is_empty() {
             return Err("MIR role witness must not be empty".to_owned());
         }
-        if rows
-            .windows(2)
-            .any(|pair| pair[0].0 == pair[1].0 || pair[0].1 == pair[1].1)
-        {
-            return Err("MIR role witness contains a duplicate role or block".to_owned());
+        let mut roles = BTreeSet::new();
+        let mut blocks = BTreeSet::new();
+        for (role, block) in &rows {
+            if !roles.insert(role.clone()) || !blocks.insert(*block) {
+                return Err("MIR role witness contains a duplicate role or block".to_owned());
+            }
         }
         Ok(Self {
             rows: rows.into_boxed_slice(),
         })
+    }
+
+    pub(crate) fn standard5(
+        preheader: BasicBlockId,
+        header: BasicBlockId,
+        body: BasicBlockId,
+        step: BasicBlockId,
+        after: BasicBlockId,
+    ) -> Result<Self, String> {
+        Self::new(vec![
+            ("P", preheader),
+            ("H", header),
+            ("B", body),
+            ("S", step),
+            ("A", after),
+        ])
     }
 }
 

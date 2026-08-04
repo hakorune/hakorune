@@ -486,6 +486,18 @@ publication requires coverage, seal, SSA, CFG, RC, and MIR verification
 optional loop optimization facts are post-MIR and consumer-gated
 ```
 
+## Resolved DirectAccum final-carrier handoff (M10a D2-S5)
+
+For the bounded Standard5 resolved DirectAccum profile, final carrier
+publication is owned by the function-wide Binding SSA session. The caller
+seals `After` from terminators, uses the same adapter to read verified carrier
+keys 0/1, and transfers the rows to `DirectAccumFinalBindingReceiptV1` before
+`BindingSsaBuilderV1::finish` and `PhiTxn::commit`. A sealed single-predecessor
+read forwards directly; an open-block read is not an acceptable substitute.
+The receipt does not add a name-keyed map, a second PHI writer, or generic
+completion metadata. This profile is covered by the P4-S1 semantic snapshot;
+all other Loop families remain separate.
+
 This decision does not claim ProgramV0 source authority, REPL owner lifetime,
 Lambda capture/cell layout, QMark/Throw/Try/Finally support, durable SA4 region
 materialization, default-route cutover, or Hako Lower parity.

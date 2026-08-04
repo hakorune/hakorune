@@ -25,6 +25,58 @@ pub(super) fn compile_direct_accum_source_bound(
     Ok(compiler.commit_prepared_module(prepared))
 }
 
+/// Test-only read seam for the P4 physical snapshot.  It follows the exact
+/// resolved DirectAccum ingress and stops at the unpublished external-commit
+/// product; no alternate lowerer or publication path is introduced.
+#[cfg(test)]
+pub(in crate::mir) fn prepare_direct_accum_source_bound_for_snapshot_test<'source>(
+    compiler: &mut MirCompiler,
+    input: ResolvedModuleLoweringInputV1<'source>,
+    source_file: Option<&str>,
+) -> Result<PreparedModuleExternalCommitV1<'source>, CanonicalLoweringErrorV1> {
+    let plan = CanonicalLoweringPreflightV1::verify(input.source_unit())?;
+    let CanonicalFirstFamilyPlanV1::Loop(
+        super::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
+    ) = plan
+    else {
+        return Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
+            site: "direct_accum_snapshot_test".into(),
+            actual: input.source_unit().syntax_root().node_type(),
+            reason: "direct_accum_snapshot_requires_direct_plan",
+        });
+    };
+    prepare_direct_accum_source_bound(compiler, plan, source_file)
+}
+
+#[cfg(test)]
+impl MirCompiler {
+    pub(in crate::mir) fn prepare_direct_accum_candidate_for_snapshot_test<'source>(
+        &mut self,
+        input: ResolvedModuleLoweringInputV1<'source>,
+        source_file: Option<&str>,
+    ) -> Result<PreparedModuleExternalCommitV1<'source>, CanonicalLoweringErrorV1> {
+        prepare_direct_accum_source_bound_for_snapshot_test(self, input, source_file)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn compile_direct_accum_candidate_with_prepared_failure_for_test(
+        &mut self,
+        input: ResolvedModuleLoweringInputV1<'_>,
+        source_file: Option<&str>,
+    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
+        compile_direct_accum_source_bound_with_prepared_failure_for_test(
+            self,
+            input,
+            source_file,
+        )
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn builder_test_fingerprint_for_snapshot(&self) -> String {
+        self.builder.loop_candidate_test_fingerprint()
+    }
+}
+
 fn prepare_direct_accum_source_bound<'source>(
     compiler: &mut MirCompiler,
     plan: CanonicalDirectAccumPlanV1<'source>,

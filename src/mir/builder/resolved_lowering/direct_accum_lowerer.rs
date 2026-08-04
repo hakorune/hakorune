@@ -5,7 +5,9 @@
 //! to the existing role-aware physicalizer.  It owns no route selection and
 //! no second CFG, SSA, or PHI transaction.
 
-use crate::mir::builder::control_flow::plan::loop_accum_physicalizer::physicalize_direct_accum_v1_with_port;
+use crate::mir::builder::control_flow::plan::loop_accum_physicalizer::{
+    physicalize_direct_accum_v1_with_port, DirectAccumBindingPortV1, LoopResultDispositionV1,
+};
 use crate::mir::builder::control_flow::plan::loop_physical_input::{
     direct_accum_physical_input, LoopPhysicalRoleV1, VerifiedLoopBindingProjectionV1,
     VerifiedLoopInputProjectionV1, VerifiedLoopPhysicalRolePlanV1,
@@ -13,15 +15,60 @@ use crate::mir::builder::control_flow::plan::loop_physical_input::{
 use crate::mir::builder::emission::constant::emit_integer;
 use crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::loop_recipe_contract::{LoopBindingKeyV1, LoopValueKeyV1};
+use crate::mir::loop_recipe_contract::{
+    LoopBindingKeyV1, LoopValueKeyV1, VerifiedLoopPhysicalInputV1,
+};
 use crate::mir::loop_structural_facts::VerifiedDirectAccumBindingEffectPlanV1;
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_semantics::BindingKindV1;
-use crate::mir::{BasicBlockId, MirBuilder};
+use crate::mir::{BasicBlockId, MirBuilder, ValueId};
 
+use super::canonical_cfg::{CanonicalCfgSessionV1, VerifiedPredecessorsV1};
 use super::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use super::completion_consumption::ReadyFunctionCompletionV1;
 use super::direct_accum_adapter::CanonicalDirectAccumBindingPort;
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct DirectAccumFinalBindingReceiptV1 {
+    rows: Box<[(LoopBindingKeyV1, ValueId)]>,
+    result: LoopResultDispositionV1,
+}
+
+impl DirectAccumFinalBindingReceiptV1 {
+    fn new(
+        expected_keys: &[LoopBindingKeyV1],
+        rows: Vec<(LoopBindingKeyV1, ValueId)>,
+        result: LoopResultDispositionV1,
+    ) -> Result<Self, String> {
+        if rows.len() != expected_keys.len()
+            || rows
+                .iter()
+                .zip(expected_keys)
+                .any(|((actual, _), expected)| actual != expected)
+        {
+            return Err("[freeze:contract][direct_accum/final_carrier_rows]".into());
+        }
+        if !matches!(result, LoopResultDispositionV1::Unit) {
+            return Err("[freeze:contract][direct_accum/final_result_not_unit]".into());
+        }
+        Ok(Self {
+            rows: rows.into_boxed_slice(),
+            result,
+        })
+    }
+
+    pub(super) fn consume_for_candidate(self) -> Result<(), String> {
+        if self.rows.len() != 2 || !matches!(self.result, LoopResultDispositionV1::Unit) {
+            return Err("[freeze:contract][direct_accum/final_carrier_receipt]".into());
+        }
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(super) fn rows(&self) -> &[(LoopBindingKeyV1, ValueId)] {
+        &self.rows
+    }
+}
 
 pub(in crate::mir::builder::resolved_lowering) struct CanonicalDirectAccumSsaLowererV1<
     'builder,
@@ -69,7 +116,7 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
 
     pub(in crate::mir::builder::resolved_lowering) fn lower(
         mut self,
-    ) -> Result<ReadyFunctionCompletionV1, String> {
+    ) -> Result<(ReadyFunctionCompletionV1, DirectAccumFinalBindingReceiptV1), String> {
         let (bindings, inputs) = self.publish_prefix()?;
         let preheader = self.current_block()?;
         let roles = self.allocate_roles(preheader)?;
@@ -78,6 +125,7 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             .take()
             .ok_or_else(|| "[freeze:contract][direct_accum/recipe_reconsumed]".to_string())?;
         let physical_input = direct_accum_physical_input(recipe);
+        let final_carrier_keys = direct_accum_final_carrier_keys(&physical_input)?;
         let mut port = CanonicalDirectAccumBindingPort::new(
             &mut self.session.identity,
             &self.effect_plan,
@@ -95,8 +143,33 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             &mut self.session.phis,
         )
         .map_err(|error| format!("[freeze:contract][direct_accum/physicalizer] {error:?}"))?;
+        seal_after_with_port(
+            self.builder,
+            &mut self.session.cfg,
+            &mut self.session.phis,
+            &mut port,
+            continuation.continuation_block,
+        )?;
+        let final_values = final_carrier_keys
+            .iter()
+            .copied()
+            .map(|key| {
+                port.read_entry_for_key(
+                    self.builder,
+                    &mut self.session.phis,
+                    continuation.continuation_block,
+                    key,
+                )
+                .map(|value| (key, value))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let final_receipt = DirectAccumFinalBindingReceiptV1::new(
+            &final_carrier_keys,
+            final_values,
+            continuation.result.clone(),
+        )?;
         port.finish_effect_claims()?;
-        self.finish_after(continuation.continuation_block)?;
+        drop(port);
 
         let body = self
             .input
@@ -123,6 +196,7 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
         self.session
             .completion
             .finish(body.site(), body_end, target_function)
+            .map(|ready| (ready, final_receipt))
     }
 
     fn publish_prefix(
@@ -193,30 +267,94 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             .map_err(|error| format!("[freeze:contract][direct_accum/roles] {error:?}"))
     }
 
-    fn finish_after(&mut self, after: BasicBlockId) -> Result<(), String> {
-        if self.builder.function_state.current_block != Some(after) {
-            return Err("[freeze:contract][direct_accum/after_not_current]".into());
-        }
-        let function = self
-            .builder
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or_else(|| "[freeze:contract][direct_accum/function_missing]".to_string())?;
-        let witness = self
-            .session
-            .cfg
-            .seal_block(function, after)
-            .map_err(|error| error.to_string())?;
-        self.session
-            .identity
-            .seal_block(self.builder, &mut self.session.phis, after, &witness)
-    }
-
     fn current_block(&self) -> Result<BasicBlockId, String> {
         self.builder
             .function_state
             .current_block
             .ok_or_else(|| "[freeze:contract][direct_accum/current_block_missing]".to_string())
+    }
+}
+
+fn direct_accum_final_carrier_keys(
+    input: &VerifiedLoopPhysicalInputV1,
+) -> Result<Box<[LoopBindingKeyV1]>, String> {
+    let loop_row = input
+        .join_sig()
+        .as_sig()
+        .loops
+        .first()
+        .ok_or_else(|| "[freeze:contract][direct_accum/root_join_sig_missing]".to_string())?;
+    let keys = loop_row
+        .carriers
+        .iter()
+        .map(|carrier| carrier.binding)
+        .collect::<Vec<_>>();
+    let expected = [LoopBindingKeyV1::new(0), LoopBindingKeyV1::new(1)];
+    if keys.as_slice() != expected {
+        return Err("[freeze:contract][direct_accum/final_carrier_shape]".into());
+    }
+    Ok(keys.into_boxed_slice())
+}
+
+fn seal_after_with_port(
+    builder: &mut MirBuilder,
+    cfg: &mut CanonicalCfgSessionV1,
+    phis: &mut crate::mir::builder::emission::phi_lifecycle::PhiTxn,
+    port: &mut CanonicalDirectAccumBindingPort<'_, '_>,
+    after: BasicBlockId,
+) -> Result<(), String> {
+    if builder.function_state.current_block != Some(after) {
+        return Err("[freeze:contract][direct_accum/after_not_current]".into());
+    }
+    let witness: VerifiedPredecessorsV1 = {
+        let function = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "[freeze:contract][direct_accum/function_missing]".to_string())?;
+        cfg.seal_block(function, after)
+            .map_err(|error| error.to_string())?
+    };
+    port.seal(builder, phis, after, &witness)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn final_binding_receipt_rejects_missing_duplicate_and_non_unit_rows() {
+        let expected = [LoopBindingKeyV1::new(0), LoopBindingKeyV1::new(1)];
+        let valid = vec![
+            (LoopBindingKeyV1::new(0), ValueId::new(10)),
+            (LoopBindingKeyV1::new(1), ValueId::new(11)),
+        ];
+        assert!(DirectAccumFinalBindingReceiptV1::new(
+            &expected,
+            valid.clone(),
+            LoopResultDispositionV1::Unit,
+        )
+        .is_ok());
+        assert!(DirectAccumFinalBindingReceiptV1::new(
+            &expected,
+            valid[..1].to_vec(),
+            LoopResultDispositionV1::Unit,
+        )
+        .is_err());
+        assert!(DirectAccumFinalBindingReceiptV1::new(
+            &expected,
+            vec![
+                (LoopBindingKeyV1::new(0), ValueId::new(10)),
+                (LoopBindingKeyV1::new(0), ValueId::new(11)),
+            ],
+            LoopResultDispositionV1::Unit,
+        )
+        .is_err());
+        assert!(DirectAccumFinalBindingReceiptV1::new(
+            &expected,
+            valid,
+            LoopResultDispositionV1::Value(ValueId::new(12)),
+        )
+        .is_err());
     }
 }

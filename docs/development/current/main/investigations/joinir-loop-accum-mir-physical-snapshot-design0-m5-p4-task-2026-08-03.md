@@ -1,5 +1,5 @@
 ---
-Status: Closed design boundary; P4-S1 paused on M10a D2-S5
+Status: Closed design and implementation boundary; P4-S1 landed
 Date: 2026-08-03
 Decision: accepted boundary — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT-DESIGN0-M5-P4`
 Scope: define the test-only physical-parity seam before the first production
@@ -184,16 +184,23 @@ fresh-session reuse, and synchronized reference-document updates.
 ## Successor design stop — final carrier publication
 
 The first actual resolved candidate exposed a production contract gap before
-P4-S1 could honestly compare final carriers: the candidate's `After` block
-has the Unit return but no final `i`/`sum` carrier reads. P1/D1 requires those
-role-keyed reads at sealed `After` before the function-owned Binding SSA and
-`PhiTxn` finish. P4-S1 must not derive them from header PHIs or fabricate
-observer rows.
+P4-S1 could honestly compare final carriers. The successor D2-S5 task closed
+it by reading role-keyed carriers at sealed `After` before the function-owned
+Binding SSA and `PhiTxn` finish. P4-S1 now compares the resulting candidate
+MIR without deriving final values from header PHIs or fabricating observer
+rows.
 
 The separate accepted task
-`JOINIR-LOOP-ACCUM-FINAL-CARRIER-PROJECTION-M10A-D2-S5` therefore owns the
+`JOINIR-LOOP-ACCUM-FINAL-CARRIER-PROJECTION-M10A-D2-S5` implemented the
 caller-side fix: keep `CanonicalDirectAccumBindingPort` alive, split the
 `After` seal so the port seals the verified predecessor witness, read the
 verified carrier keys through `read_entry_for_key`, store a typed receipt, then
-finish claims and the existing identity/PhiTxn/completion transaction. P4-S1
-resumes only after D2-S5's focused success/failure/reuse gates are green.
+finish claims and the existing identity/PhiTxn/completion transaction. D2-S5's
+focused success/failure/reuse gates and P4-S1 parity are green.
+
+## Implementation closeout (2026-08-04)
+
+P4-S1 is closed with 6/6 loop tests, 3/3 resolved snapshot tests, 1/1 final
+receipt validation, green `cargo check`, and green structural/current pointer
+guards. Full physical IDs and printer text remain nonclaims; the accepted
+semantic snapshot boundary is now the live evidence for this singleton.

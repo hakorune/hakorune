@@ -251,5 +251,10 @@ the existing `PhiTxn` lifecycle. It must not read AST/routes/CorePlan,
 recompute CFG, touch `variable_map`, infer Binding SSA, or add Retry/fallback.
 Canonical CFG plus one function-owned Binding SSA remains the production
 physicalization owner. The focused M6-B suite is 33/33 and the structural guard
-is green; the structural P1b edge-path task is closed. Full MIR/instruction/
-type/result parity remains the accepted P4 physical-snapshot design stop.
+is green; the structural P1b edge-path task is closed. The bounded resolved
+DirectAccum bridge now seals `After` before reading carrier keys 0/1 through
+`CanonicalDirectAccumBindingPort`, hands an owned
+`DirectAccumFinalBindingReceiptV1` to the candidate helper, and then finishes
+the existing Binding-SSA/PhiTxn lifecycle. The P4-S1 immutable candidate
+snapshot is green for this singleton; it does not synthesize After PHIs or
+become a second PHI/SSA owner. All-route physical parity remains separate.

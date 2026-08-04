@@ -1,5 +1,5 @@
 ---
-Status: Taskized design boundary; implementation not started
+Status: Closed implementation boundary
 Date: 2026-08-04
 Decision: accepted — `JOINIR-LOOP-ACCUM-FINAL-CARRIER-PROJECTION-M10A-D2-S5`
 Scope: make the resolved DirectAccum production candidate publish its final
@@ -134,3 +134,41 @@ legacy-edge retirement, default `compile_with_source` activation, raw MIR ID
 parity, printer-text parity, M10b scheduler cutover, grammar changes, IR
 changes, or selfhost ownership. It only closes the missing final-carrier
 publication evidence for the resolved DirectAccum candidate.
+
+## Implementation closeout (2026-08-04)
+
+The resolved lowerer now keeps the generic open-After continuation receipt
+unchanged, derives the sealed predecessor witness, seals `After` through the
+existing `CanonicalDirectAccumBindingPort`, reads verified carrier keys 0/1,
+and hands an owned `DirectAccumFinalBindingReceiptV1` to the candidate helper
+before effect/identity/PhiTxn/completion finish. The receipt rejects missing,
+duplicate, reordered, or non-Unit rows. No open-After read or header-PHI
+synthesis is used.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib loop_accum -- --test-threads=1
+  6 passed, 0 failed
+RUSTFLAGS='-Awarnings' cargo test -q --lib resolved_candidate_ -- --test-threads=1
+  3 passed, 0 failed
+RUSTFLAGS='-Awarnings' cargo test -q --lib final_binding_receipt_rejects_missing_duplicate_and_non_unit_rows -- --test-threads=1
+  1 passed, 0 failed
+RUSTFLAGS='-Awarnings' cargo check -q
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+The non-test physicalizer caller census remains exactly one at
+`resolved_lowering/direct_accum_lowerer.rs`; route_loop, Retry/Option,
+fallback, Generic, and legacy physicalizer callers remain zero for this
+branch. `wc -l` at closeout reports 360 lines for the production lowerer,
+340 for its adapter, and 563 for resolved lowering; every touched Rust file
+remains below the 800-line budget. No grammar, IR, route, Generic, Retry,
+fallback, or selfhost authority changed.
+
+Reference-document closeout completed in the same implementation series:
+the M10a/P4/P1 cards, Loop pipeline, PHI lifecycle, Binding-SSA SSOT,
+`docs/reference/mir/phi_invariants.md`, `docs/reference/mir/phi_policy.md`,
+`src/mir/builder/README.md`, and current mirrors now describe this receipt and
+its sealed-After order.

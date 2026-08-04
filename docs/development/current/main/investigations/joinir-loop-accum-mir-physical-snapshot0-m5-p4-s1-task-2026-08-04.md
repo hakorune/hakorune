@@ -1,5 +1,5 @@
 ---
-Status: Paused at design boundary; successor M10a D2-S5 task active
+Status: Closed implementation boundary
 Date: 2026-08-04
 Decision: accepted — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT0-M5-P4-S1`
 Scope: compare the legacy Accum oracle with the already-connected resolved
@@ -31,16 +31,13 @@ caller-zero wording. Before implementation, reconcile those claims in the
 active cards and `CURRENT_STATE.toml`; do not use a stale zero-caller claim as
 an acceptance criterion.
 
-## Current blocker — production final-carrier contract
+## Resolved prerequisite — production final-carrier contract
 
-The first actual resolved candidate has the expected five-block topology and
-Unit/After return, but its After block currently lacks the final `i`/`sum`
-carrier evidence required by the accepted P1/D1 binding-publication contract.
-This is not an observer mismatch. Do not project final values from header
-PHIs or synthesize snapshot rows. P4-S1 is paused until
-`JOINIR-LOOP-ACCUM-FINAL-CARRIER-PROJECTION-M10A-D2-S5` adds the caller-owned
-sealed-After read and typed final-carrier receipt. This card resumes only
-after the successor task's focused gates are green.
+The actual resolved candidate initially lacked the final `i`/`sum` carrier
+publication required by P1/D1. D2-S5 now seals `After`, reads both verified
+bindings through the canonical adapter, and hands a typed receipt to the
+candidate helper. The observer therefore does not infer final values from
+header PHIs or synthesize After rows.
 
 ## Authority boundary
 
@@ -95,8 +92,23 @@ RUSTFLAGS='-Awarnings' cargo check -q
 
 The focused test names and counts must be recorded in this card at closeout.
 
-The late-failure/reuse evidence must be rerun after D2-S5; it may not claim
-final-carrier parity while the production receipt is absent.
+The late-failure/reuse evidence was rerun after D2-S5 and remains green.
+
+## Implementation closeout (2026-08-04)
+
+The actual resolved candidate is adapted into the immutable alpha snapshot
+with typed Standard5 role discovery, terminator-derived edge verification,
+full duplicate/coverage checks, and the existing legacy auxiliary-row policy.
+The candidate semantic core matches the legacy observer; its `After` block has
+no synthetic PHI while the Header owns exactly two carrier PHIs. Candidate
+abort leaves the external Builder unchanged and a fresh candidate is stable.
+
+Focused evidence: `loop_accum` 6/6, resolved snapshot 3/3, final receipt
+validation 1/1, `cargo check` green, current-state and in-place replacement
+guards green. The new resolved snapshot observer is 373 lines and the
+physical-digest support is 278 lines; all touched Rust sources remain below
+800 lines. No grammar, IR, route, Generic, Retry, fallback, or selfhost
+authority changed.
 
 ## Explicit non-claims
 
