@@ -1,650 +1,315 @@
 # Box Lifecycle and Finalization (SSOT)
 
-Status: SSOT (language-level), with implementation status notes.
+Status: Normative C′ target; production activation 0.
 
-Decision: B′ eager-fini tombstone semantics accepted on 2026-07-14; Home
-ownership direction accepted on 2026-08-04.
+Decision: `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0` accepted on 2026-08-05.
+C′ explicitly supersedes B′ eager `obj.fini()` / Dead-with-live-Home
+semantics.
 
-Implementation status: transitional. Current `InstanceBox`, global
-finalization tracking, plugin Drop-fini routes, and generation-0 host/weak
-tables do not yet implement the full decision. Unsupported B′ profiles must
-remain unclaimed/fail-fast until their taskboard rows close.
+Implementation status: transitional. Current `InstanceBox`, Arc/Drop paths,
+global finalizer tracking, plugin finalization, `DestroyOwned`, parsers, and
+backends do not yet implement the complete C′ contract. They are migration
+evidence, not language authority.
 
-Design note:
-- Source-level Home transfer, ordinary handles, result relations, and explicit
-  Shared entry are owned by `docs/reference/language/ownership.md` (SSOT).
-- For normative exit-order, canonical `cleanup`, Compat2025 DropScope
-  aliases (`fini {}` / `local ... fini {}`), postfix protected-region/cleanup
-  routing, and
-  ownership-transfer terminology, see
-  `docs/reference/language/scope-exit-semantics.md` (SSOT).
-- This file remains authoritative for object states (Alive/Dead/Freed), weak refs, and memory policy.
-- Runtime/Ownership SSA implementation order is owned by
-  `docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`.
+Related authorities:
 
-This document defines the Hakorune/Nyash object lifecycle model: logical
-finalization (`fini()`), strong/weak object residency, and what is (and is not)
-guaranteed across backends. It does not decide whether a source binding is an
-Home holder, ordinary handle, or Shared owner.
+- source Home/handle/transfer/share: [ownership.md](ownership.md)
+- scope exit and cleanup: [scope-exit-semantics.md](scope-exit-semantics.md)
+- construction order: `docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md`
+- C′ cross-layer design:
+  `docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md`
+- parked execution order:
+  `docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`
+- superseded B′ history:
+  `docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
 
-Construction SSOT:
-- Source-level construction order and the `birth` direct-call policy are fixed
-  in `docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md`.
-- Short rule: `birth` is a constructor hook. It is fired only by `new`.
-  Direct receiver calls such as `obj.birth(...)` are forbidden.
+## Core rule
+
+```text
+birth(args) = new-only construction hook
+fini { ... } = last-Home-only finalization hook
+close()/shutdown()/commit()/abort() = ordinary domain methods
+cleanup { ... } = lexical exit action
+physical reclaim = runtime storage operation after payload teardown
+```
+
+`fini` is not an ordinary callable method. Canonical v1 rejects:
+
+```hako
+object.fini()
+
+box Bad {
+    fini() { ... }
+}
+```
+
+The accepted hook spelling is:
+
+```hako
+box File {
+    fini {
+        me.closeBestEffort()
+    }
+}
+```
+
+The hook is optional. A Box without one still receives field/native structural
+teardown when its last Home ends.
 
 ## Terms
 
-- **Binding**: a local variable slot (created by `local`) that points to a value.
-- **Box value**: an object reference (user-defined / builtin / plugin).
-- **Strong owner token**: an independently consumable owner that contributes
-  to keeping the object alive.
-- **Ordinary handle**: a non-owning source capability governed by
-  `ownership.md`; it does not add a Home/strong token.
-- **Weak reference**: a non-owning reference; it does not keep the object alive and may become dead.
-- **Finalization (`fini`)**: a logical end-of-life hook. It is not “physical deallocation”.
-- **Structural drop**: runtime payload/field-token teardown needed for memory
-  safety. It is not user `fini()`.
+- **Home**: an independently consumable lifetime-supporting owner token stored
+  in a verified Home place.
+- **ordinary handle**: a non-owning source capability supported by a Home; it
+  does not participate in owner counting or finalization.
+- **Shared Home**: one of several independent Homes supporting the same
+  identity after explicit `share`.
+- **weak token**: generation-aware non-owner that does not delay finalization.
+- **terminal Home release**: the release that leaves no remaining Home for the
+  identity.
+- **FinalizerLease**: non-escapable privileged access used only while the C′
+  DropPlan runs.
+- **structural drop**: release of stored tokens/native payload and eventual
+  storage reclaim. It is not a user-callable operation.
 
-## Construction lifecycle (`new` / field initializers / `birth`)
+## Construction
 
-Canonical construction surface:
-
-```nyash
-local obj = new SomeBox(arg0, arg1)
-```
-
-Explicit construction-site field initializers are also canonical:
-
-```nyash
-local report = new Report {
-    accepted: fields.accepted
-    reason: fields.reason
-}
-```
-
-This form is meant to make initialization a single checked boundary, not to
-reduce line count. Duplicate fields and unknown fields on a known user-defined
-box fail-fast. For repeated report construction, keep call sites small with a
-same-owner helper such as `makeReport(fields)` and use this initializer block
-inside that helper when it improves clarity.
-
-Construction order:
+Successful construction remains:
 
 ```text
-allocate object identity
-run declaration-site field initializers
-run matching birth(args...)
-run construction-site field initializer block assignments
-publish the object as usable
+new
+-> declaration-site field initializers
+-> birth(args)
+-> optional explicit field overrides
+-> publish usable identity and first Home
 ```
 
-Rules:
+`birth` is the constructor hook invoked only by `new`; direct receiver `birth(...)` calls, including `obj.birth(...)`, are forbidden.
 
-- `new Box(args...)` is the canonical source surface for constructing a box.
-- `new Box { field: expr }` and `new Box(args...) { field: expr }` are
-  explicit field-initializer sugar for ordinary post-construction field
-  assignments.
-- `birth(...)` is a constructor hook, not an ordinary public method.
-- Direct receiver `birth(...)` calls such as `obj.birth(...)` are forbidden.
-- Stored field initializers are per-instance values and run before `birth`.
-- Reuse/reset/reactivation must use explicit ordinary methods such as
-  `reset`, `reactivate`, `configure`, `clear`, or `attach`.
-- `birth` must not be reused as a reset or reactivation surface.
-- Named constructor arguments are reserved for a later row; current canonical
-  construction uses positional arguments.
-- Shorthand field copy and wildcard copy are reserved for later rows; current
-  construction-site field initializers must use `field: expr`.
-- `with` copy-update is record-only. Ordinary boxes are identity/resource
-  boundaries, so they must not be implicitly shallow-copied by `with`.
+Object reuse is an ordinary domain operation. Methods named `reset`, `reactivate`, `configure`, `clear`, or `attach` may prepare an already-alive object according to its Box contract; they never re-run `birth` or bypass the terminal Home DropPlan.
 
-Example:
+If construction fails before publication:
 
-```nyash
-local page = new HakoAllocPageModel(PageId(0), Bytes(32), 2, 2)
-local report = new Report { accepted: 1, reason: 0 }
-page.reactivate()
-page.resetForReuse(Bytes(64), 4)
-```
+1. do not run the incomplete outer Box `fini` hook;
+2. release only already-initialized field Homes;
+3. release them in reverse installation/declaration order;
+4. a fully constructed child runs its own hook only if that release is the
+   child's terminal Home release;
+5. reclaim the unpublished outer storage without publishing a usable handle.
 
-Non-canonical and rejected:
+Exact partial-construction receipts remain gated by `OWN-HOME-BIRTH-D0`.
 
-```nyash
-page.birth(PageId(0), Bytes(32), 2, 2)
-```
+## C′ lifecycle states
 
-Rationale:
+The canonical source-visible lifecycle is:
 
 ```text
-Allowing direct birth calls would let user code reinitialize an existing object
-identity. That makes lifecycle state ambiguous and weakens verifier reasoning.
+Constructing
+-> Alive
+-> Finalizing
+-> PayloadDropped
 ```
 
-## 0) Two-layer model (resource vs memory)
+A weak-only tombstone/control cell may remain after payload drop until the last
+weak token disappears. That physical residue is not a source-usable Dead Box.
 
-Nyash separates two concerns:
+C′ removes B′'s ordinary state in which `obj.fini()` made a Box Dead while
+strong/Home owners remained alive. Domain states such as Open/Closed,
+Connected/Disconnected, or Committed/Aborted remain ordinary Box data and
+method contracts.
 
-- **Resource lifecycle (deterministic)**: `fini()` defines *logical* end-of-life and must be safe and explicit.
-- **Heap memory reclamation (non-deterministic)**: physical memory is reclaimed by the runtime implementation (typically reference counting). Timing is not part of the language semantics.
+## Sole terminal DropPlan
 
-This split lets Nyash keep “箱理論” simple:
-- Programs must use `fini()` (or sugar that guarantees it) to deterministically release external resources (fd/socket/native handles).
-- Programs must not rely on GC timing for correctness.
-
-### No manual physical free on normal Box
-
-The normal source-level Box API does not expose raw `free`, physical
-`reclaim`, or the runtime's selected RC strategy.
+Every owner-ending edge releases exactly one Home. Only the terminal transition
+may dispatch the hook:
 
 ```text
-deterministic resource shutdown:
-  explicit fini() / cleanup
-
-end one ownership lifetime:
-  scope exit, transfer, or verified DestroyOwned materialization
-
-physical backing-allocation/control-cell memory reclamation:
-  runtime/backend strategy; not a source timing guarantee
+release one Home
+-> determine/win terminal transition
+-> prevent weak upgrade and new ordinary leases
+-> drain already-issued leases required by the selected profile
+-> create one FinalizerLease
+-> run the Box fini hook at most once
+-> release stored fields in reverse declaration order
+-> structurally drop native payload
+-> publish weak-only tombstone or reclaim storage
 ```
 
-`fini()` does guarantee logical payload teardown and publication of payload
-absence. It does not guarantee when the backing allocation or control-cell
-memory is returned to an allocator.
+The compiler and runtime do not each call the hook. For StaticUnique, the
+compiler may prove and directly materialize the terminal DropPlan. For Shared,
+one runtime/ObjectCell zero-owner winner enters the same plan. A refcount value
+never defines source ownership by itself.
 
-An optimizer may prove a Box statically unique and materialize its terminal
-ownership consume as immediate structural drop/reclamation. That does not add
-a source `unique` type or a second reclaim operation. A future exclusive
-source capability or raw-memory API requires a separate language Decision and
-pointer/provenance model; it is outside the normal Box lifecycle contract.
+If the hook Faults, finalization is not rolled back. Preserve the first Fault
+in time, continue remaining field/native release best effort, record later
+Faults as suppressed diagnostics, and publish the primary terminal Fault.
 
-## 1) Scope model (locals)
+## Local, transfer, and Shared behavior
 
-- `local` is block-scoped: the binding exists from its declaration to the end of the lexical block (`{ ... }`).
-- Leaving a block ends its bindings immediately (including inner `{}` blocks).
-- Ending an owning Home slot consumes/forwards its token according to the
-  sealed exit plan. Ending an ordinary handle adds no ownership destroy.
-- Consuming the last owner may or may not immediately return backing memory;
-  that depends on the verified representation and remaining strong/weak roots.
+| Event | Owner effect | Hook behavior |
+| --- | --- | --- |
+| owning local scope end | release one Home | run only if terminal |
+| ordinary handle scope end | none | never |
+| `take` / Home-demand call | atomically forward one Home | never in transit |
+| terminal return | forward Home to protected result carrier | never in transit |
+| explicit `share` | add one independent Home | never on acquisition |
+| Shared non-last release | remove one Home | never |
+| Shared terminal release | remove last Home | exactly one winner runs plan |
+| weak-token drop | weak bookkeeping only | never for target |
 
-This is the “variable lifetime” rule. Object lifetime is defined below.
+Ordinary aliases remain free of retain/release. Unique code does not become RC
+merely because C′ has automatic finalization. Only an admitted Shared/weak
+physical profile pays its selected bookkeeping cost.
 
-## 2) Object lifetime (strong / weak)
+## Fields and ordering
 
-### Strong ownership
+C′ applies only to fields classified as verified owning Home destinations by
+`OWN-FIELD-CONTAINER-DEST-D0`. A current Box-typed field is not silently
+reclassified merely from its spelling.
 
-- A strong reference keeps the object alive.
-- When the last strong reference to an object disappears, the object becomes eligible for physical destruction by the runtime.
-  - In typical implementations this is immediate (reference-counted drop) for acyclic graphs, but the language does not require immediacy.
-- Last-strong structural drop never calls user-defined `fini()`.
-- Shared-lane assignment, parameter/result transport, and Shared owning fields
-  may preserve Box identity while carrying independent Home tokens. Ordinary
-  local handles/parameters are not independent strong owners.
-- A destination with a sealed Home demand transfers one available token. If
-  the source must remain usable with an independent lifetime, the source uses
-  explicit `share`. Ordinary assignment does not silently add an owner.
-- One object identity may have multiple independently consumable strong
-  ownership tokens. Destroying each distinct token once is legal; consuming
-  the same token twice is a verifier/checked-carrier error, not an idempotent
-  object operation.
+For a fully constructed parent:
 
-### Weak references
+```text
+Parent.fini hook
+-> release verified owning/weak field tokens in reverse declaration order
+-> parent native payload structural drop
+```
 
-Weak references exist to avoid cycles and to represent back-pointers safely.
+An owning child field release runs `Child.fini` only if it is the child's
+terminal Home. A remaining Shared Home delays child finalization.
 
-Language-level guidance:
-- Ordinary results and owning destinations carry/forward owners.
-- Ordinary local aliases and parameters do not add owners.
-- Independent lifetime enters the Shared lane through `share`.
-- Back-pointers / caches / parent links that would create cycles should be weak.
+The parent hook may call ordinary best-effort domain methods in a chosen order
+while fields remain usable:
 
-Required property:
-- A weak reference never keeps the object alive.
-
-Observable operations (surface-level; exact API depends on the box type):
-- “Is alive?” check.
-- Weak-to-strong conversion (may fail): `weak_to_strong()`.
-
-## 3) Finalization (`fini`) — what it means
-
-`fini()` is a **logical** termination hook:
-- After `fini()` has executed successfully for an object, the object must be treated as unusable (use-after-fini is an error).
-- `fini()` must be **idempotent** (calling it multiple times is allowed and must not double-free resources).
-  - This supports “external force fini” and best-effort cleanup paths safely.
-  - A later call after Dead is a no-op. Recursive `fini()` from the winning
-    finalizer transaction is a fail-fast reentrancy error; it is not a second
-    completed call. Concurrent callers do not execute a second hook and wait
-    for the terminal transaction result.
-- Calling `fini()` does not consume the caller's strong ownership token.
-  Teardown may still destroy ownership tokens stored in the object's fields.
-- Source/runtime `fini()` must enter the object lifecycle transaction. It must
-  not dispatch the user hook directly.
-
-### Fail-fast after `fini`
-
-After an object is finalized, operations must fail fast (use-after-fini).
-Permitted exceptions (optional, per type) are strictly observational operations such as identity / debug string.
-
-### Object states (Alive / Finalizing / Dead / Freed)
-
-Nyash distinguishes:
-
-- **Alive**: normal state; methods/fields are usable.
-- **Finalizing**: runtime-internal transaction state. New ordinary payload
-  access is rejected while the winning finalizer drains existing access.
-- **Dead**: finalized by `fini()`; object identity may still exist but is not usable.
-- **Freed**: strong count is zero and structural payload reclamation is
-  complete. A generation-bearing weak tombstone/control cell may remain until
-  the last weak token disappears.
-
-State transitions (conceptual):
-
-- `Alive --fini()--> Finalizing --> Dead --(last strong)--> Freed`
-- `Alive --(runtime)--> Freed`
-
-SSOT rule:
-- `fini()` is the only operation that creates the **Dead** state.
-- Runtime reclamation does not imply `fini()` was executed.
-- `Dead` with a remaining strong token is not `Freed`, even though its payload
-  is already absent.
-- The control cell is reclaimable only when strong and weak counts are both
-  zero; generation wrap permanently retires that slot.
-
-### Dead: allowed vs forbidden operations
-
-Allowed on **Dead** (minimal set):
-- Debug/observation from immutable tombstone metadata: `typeName`, `id`, and a
-  runtime-provided debug representation (if provided)
-- Identity checks: `==` (identity only), and identity-based hashing if the type supports hashing
-- Strong identity aliasing/forwarding is allowed; it does not resurrect the
-  payload. A completed Dead alias can still be destroyed normally.
-
-Forbidden on **Dead** (Fail-Fast, UseAfterFini):
-- Field read/write
-- Method calls
-- ByRef (`RefGet/RefSet`) operations
-- Conversions / truthiness (`if dead_box { ... }` is an error)
-- Creating new weak references from a dead object (`weak dead` is an error)
-  - Note: the surface form is `weak <expr>` (not `weak(<expr>)`).
-
-### Finalization precedence
-
-When explicit object finalization is requested:
-1) If the object is already finalized, do nothing (idempotent).
-2) Atomically enter Finalizing and reject new ordinary payload access.
-3) Drain existing ordinary access; the winner receives a privileged,
-   non-escapable finalizer self-access capability.
-4) Run user-defined `fini()` once if present.
-5) Release and clear stored owning/Shared field tokens in reverse declaration
-   order. Do **not** implicitly call child user `fini()`.
-6) Destroy stored weak tokens without upgrading, traversing, or finalizing
-   their targets.
-7) Tear down native payload/storage, publish payload absence, then publish Dead.
-
-A parent that semantically owns a child resource calls `child.fini()`
-explicitly inside its user hook. Any future exclusive-field surface requires a
-separate language Decision after exclusivity and transfer can be enforced; no
-`owned field` spelling is reserved here.
-
-### Weak references are non-owning
-
-Weak references are values (`WeakRef`) that can be stored in locals or fields:
-- They are **not** part of ownership.
-- Object finalization must not follow or upgrade weak references. The weak
-  token itself still has a copy/drop discipline so its control-cell weak count
-  can be reclaimed safely.
-- Calling `fini()` “through” a weak reference is invalid (non-owning references cannot decide the target’s lifetime).
-
-## 4) Ownership and “escaping” out of a scope
-
-Nyash distinguishes “dropping a binding” from “finalizing an object”.
-
-Ownership tokens keep identity/storage alive. Object finalization is an
-explicit object-wide transition, not something inferred from scope end or last
-ownership. Calling it does not consume the caller token. The Home overlay is
-provisional here: its lifecycle D0 must decide live-handle invalidation and
-whether an alias handle may be the invoking receiver before HomeV1 activates.
-Independent Shared owners observe the same Dead identity after finalization.
-
-### Owning contexts
-
-An object may have a strong owner/root token in any of these contexts:
-- A local binding (typical case).
-- An owning field or a Shared field of another object.
-- A module/global registry entry (e.g., `env.modules`).
-- A runtime host handle / singleton registry (typical for plugins).
-
-### Escapes (ownership transfer)
-
-If one Home token is transferred into a longer-lived owning destination before
-the current scope ends, the destination's sealed Home demand keeps the
-identity alive without adding RC. If the source must remain usable under an
-independent lifetime, explicit `share source` enters/acquires the Shared lane.
-Ordinary assignment or escape does not infer owner addition. Neither case
-grants implicit authority to call user `fini()`.
-
-Common escape paths:
-- Assigning into an enclosing-scope binding (updates the owner).
-- Returning one owner to the caller (historical `outbox` is a compatibility
-  surface).
-- Forwarding into an owning field, or storing a Shared owner into a Shared
-  field.
-- Publishing into global/module registries.
-
-This rule is what keeps “scope finalization” from breaking shared references.
-
-## 4.1) What is guaranteed to run automatically
-
-Language guarantee (deterministic):
-- Only **explicit scope-exit constructs** guarantee cleanup execution for all exits (return/break/continue/error).
-- Supported scope-exit surfaces are:
-  - `cleanup { ... }` (canonical DropScope registration; parser rollout is phased)
-  - `local x ... cleanup { ... }` (canonical single-binding sugar; parser rollout is phased)
-- `fini { ... }` (Compat2025 legacy DropScope registration alias)
-- `local x ... fini { ... }` (Compat2025 legacy single-binding sugar)
-  - postfix `cleanup { ... }` (finally surface)
-
-Recommended SSOT surface:
-- Prefer `cleanup` terminology for lexical/block resource cleanup in new docs and examples.
-- Treat DropScope `fini { ... }` / `local ... fini { ... }` as compatibility aliases.
-- Keep object-level `fini()` separate from scope handlers; do not double-release the same resource.
-
-Non-guarantees:
-- “Leaving a block” does not by itself guarantee `fini()` execution for an object, because aliasing/escaping is allowed.
-- GC must not call `fini()` as part of meaning.
-- `DestroyOwned`, last-strong reclamation, and native `Drop` must not call user
-  `fini()` as part of meaning.
-
-### `cleanup` / legacy `fini` — DropScope cleanup
-
-```nyash
-{
-  local f = open(path) cleanup {
-    f.fini()
-  }
-  do_work(f)
+```hako
+fini {
+    me.database.closeBestEffort()
+    me.logger.closeBestEffort()
 }
 ```
 
-SSOT semantics:
-- `cleanup` runs exactly once on every exit path from the attached scope.
-- Multiple cleanup handlers in the same scope run in LIFO order.
-- `local ... cleanup` is declaration sugar and must target exactly one local binding.
-- Cleanup handlers execute before that scope's locals are dropped.
-- `fini` spelling is a bounded compatibility alias; new Canonical source uses
-  `cleanup` and the alias does not create an independent semantic owner.
+It may not call child `fini` directly or reorder the physical field-release
+plan. Canonical v1 adds no `release field` spelling; a future reorder facility
+requires a separate verified-Home Decision.
 
-### `cleanup` (block-postfix) — pending cleanup surface
+Owning field replacement is transactional:
 
-```nyash
-{
-  local f = open(path)
-  do_work(f)
-} cleanup {
-  f.close()
-}
+```text
+evaluate RHS once
+-> verify type/Home and destination commit
+-> install new Home once
+-> release old Home once
+-> run old identity hook only if terminal
 ```
 
-SSOT semantics:
-- The `cleanup` block runs exactly once on every exit path from the attached block.
-- `cleanup` may attach to an independently selected protected region.
-- A future postfix catch handles only `RecoverableFailure`; terminal Fault
-  bypasses catch and still drains cleanup. Handler ordering and producer/ABI
-  are pending `LANGUAGE-RECOVERABLE-FAILURE-D0`.
+RHS/preflight failure preserves the old field. Hidden `share`, early old-value
+release, and same-identity double finalization are forbidden.
 
-## 4.2) Weak references (surface model)
+## `close()` versus `fini`
 
-Weak references exist to avoid strong cycles and to model back-pointers.
+`close` is an ordinary method-name convention, not a keyword or reserved
+callable role.
 
-SSOT operations:
-- `weak <expr>` produces a `WeakRef` to the target (the target must be Alive).
-  - **Syntax**: `weak <expr>` (unary operator, Phase 285W-Syntax-0)
-  - **Invalid**: `weak(expr)` ❌ (compile error: "Use 'weak expr', not 'weak(expr)'")
-- `weakRef.weak_to_strong()` returns the target box if it is usable, otherwise `null` (none).
-  - It returns `null` if the target is **Dead** (finalized) or **Freed** (collected).
-  - Note: `null` and `void` are equivalent at runtime (SSOT: `docs/reference/language/types.md`).
+| Property | `close()` / domain method | `fini {}` |
+| --- | --- | --- |
+| invocation | explicit ordinary call | compiler/runtime terminal DropPlan |
+| timing | while a caller exists | last Home release |
+| result | may return `Result` | no result channel |
+| post-state | Box remains alive in a domain state | payload teardown continues |
+| repetition | Box-specific contract | hook exactly once |
 
-Upgrade is one linearizable runtime operation: it validates slot generation,
-requires Alive with a positive strong count, and acquires the new strong token
-before reclamation can win. Separate unguarded “check then increment” steps are
-not conforming. Finalizing, Dead, weak-only, stale, and reclaimed targets fail.
+Use an ordinary method when exact shutdown timing or a recoverable close error
+matters. The later hook is a best-effort safety net and must safely observe an
+already-closed state.
 
-WeakRef values also have an exact copy/drop discipline for the control-cell
-weak count. A backend must not implement a counted WeakRef as an ordinary
-bit-copy followed by multiple drops. The current first Ownership SSA profile
-rejects WeakRef until its co-sealed weak-token representation is activated.
+## Hook restrictions
 
-WeakRef in fields:
-- Reading a field that stores a `WeakRef` yields a `WeakRef`. It does not auto-upgrade.
+A Box `fini {}` hook has no parameters and no return type. It rejects:
 
-Recommended usage pattern:
-```nyash
-local x = w.weak_to_strong()
-if x != null {
-  ...
-}
+```text
+return / break / continue
+Result ?
+await / yield / suspension
+share me
+return/store/capture/escape of me or FinalizerLease
+resurrection
+re-entry or direct lifecycle invocation
+delegate/interface/alias exposure as an ordinary callable
 ```
 
-WeakRef equality:
-- `WeakRef` carries a stable generation-aware target token (conceptually:
-  `BoxIdentity(slot, generation)`).
-- `w1 == w2` compares tokens. This is independent of Alive/Dead/Freed.
-  - "dead==dead" is true only when both weakrefs point to the same original target token.
+Unknown backend, field/Home classification, Shared representation,
+thread-affinity, plugin, or FFI behavior rejects before Builder effects. It
+must not retry B′, SharedV1, or a native Drop fallback.
 
-### Weak Field Assignment Contract (Phase 285A1)
+## Weak references, cycles, and GC
 
-Weak fields enforce strict type requirements at compile time:
+Weak upgrade is one generation/state/owner-acquisition transaction:
 
-**Allowed assignments** (3 cases):
-1. **Explicit weak reference**: `me.parent = weak p`
-2. **WeakRef variable**: `me.parent = other.parent` (where `other.parent` is weak field)
-3. **Void**: `me.parent = Void` (clear operation; null is sugar for Void)
-
-**Forbidden assignments** (Fail-Fast compile error):
-- Direct BoxRef: `me.parent = p` where `p` is BoxRef
-- Primitives: `me.parent = 42`
-- Any non-WeakRef type without explicit `weak` conversion
-
-**Error message example**:
-```
-Cannot assign Box (NodeBox) to weak field 'Tree.parent'.
-Use `weak <expr>` to create weak reference: me.parent = weak value
+```text
+Alive + admissible profile -> acquire one supported Home/handle relation
+Finalizing/PayloadDropped/generation mismatch -> Option::None
+invalid receiver/type -> Fault
 ```
 
-**Rationale**: Explicit `weak` conversions make the semantic difference between strong and weak references visible. This prevents:
-- Accidental strong references in weak fields (reference cycles)
-- Confusion about object lifetime and ownership
-- Silent bugs from automatic conversions
+A strong Shared cycle can prevent terminal Home release and therefore prevent
+`fini`. Canonical v1 uses `weak` to break ownership back-edges. It does not
+promise a tracing collector or user-hook execution by a future cycle
+collector.
 
-**Example**:
-```nyash
-box Node {
-    weak parent
+Base C′ therefore needs no heap tracing, root scanning, GC safepoint,
+stop-the-world finalizer pass, or global finalizer registry. A future optional
+collector may reclaim otherwise unreachable storage only under a separate
+Decision and must not invent terminal user-hook semantics.
 
-    set_parent(p) {
-        // ❌ me.parent = p           // Compile error
-        // ✅ me.parent = weak p      // Explicit weak conversion
-        // ✅ me.parent = Void        // Clear operation (SSOT: Void primary)
-    }
+Cross-thread finalization is not accepted merely because Shared exists.
+Thread-affine resources stay Unique/same-thread or reject until an exact
+atomic-winner and finalizer-affinity contract lands.
 
-    copy_parent(other: Node) {
-        // ✅ me.parent = other.parent  // WeakRef → WeakRef
-    }
-}
+## Performance contract
+
+The target physical tiers are selected from verified facts:
+
+```text
+StaticUnique -> no RC/control-cell/global-finalizer work
+same-thread Shared -> selected non-atomic owner bookkeeping
+cross-thread Shared -> future atomic/affinity profile
+weak-capable identity -> generation/tombstone-capable control cell
 ```
 
-**Legacy syntax** (still supported, Phase 285A1.2):
-- `init { weak parent }` — old syntax; superseded by direct `weak parent` declaration
-- Both syntaxes behave identically and populate the same weak_fields set
-- New code should use `weak field_name` directly for clarity
+No C-speed claim is valid before `OWN-HOME-C-SPEED0-G0` measures the exact
+front and assembly. In particular, the implementation must not make every Box
+an `Arc`, retain/release ordinary handles, allocate runtime cleanup lists, or
+dispatch QMark through dynamic methods.
 
-**Visibility blocks** (Phase 285A1.3):
-- `weak` is allowed inside visibility blocks: `public { weak parent }`
+## Implementation and reference closeout
 
-**Sugar syntax** (Phase 285A1.4):
-- `public weak parent` is equivalent to `public { weak parent }`
-- `private weak parent` is equivalent to `private { weak parent }`
+Current production authority does not satisfy this page. The parked sequence
+is owned by the Home taskboard:
 
-## 5) Cycles and GC (language-level policy)
-
-### Cycles
-
-Nyash allows object graphs; strong cycles can exist unless the program avoids them.
-
-Policy:
-- Programs should use **weak** references for back-pointers / parent links to avoid strong cycles.
-- If a strong cycle exists, memory reclamation is not guaranteed (it may leak).
-  This is allowed behavior. Current implementations must be treated as
-  no-cycle-collector for language reasoning.
-
-Important: weak references themselves do not require tracing GC.
-- They require a runtime liveness mechanism (e.g., an `Rc/Weak`-style control block) so that “weak_to_strong” can succeed/fail safely.
-
-### GC modes
-
-GC is treated as an optimization/diagnostics facility, not as a semantic requirement. In practice, this means optional tracing/diagnostics and possible future cycle collection, not “basic refcount drop”.
-
-- **GC off**: reference-counted reclamation still applies for non-cyclic ownership graphs; strong cycles may leak.
-- **GC on / diagnostic mode**: the runtime may add safepoint/barrier/allocation
-  diagnostics and reachability trials. Current runtime modes do not guarantee
-  cycle detection or cycle reclamation.
-
-Invariant:
-- Whether GC is on or off must not change *program meaning*, except for observability related to resource/memory timing (which must not be relied upon for correctness).
-
-### Operational profiles (non-normative)
-
-The runtime may provide two operating profiles while keeping the same language semantics:
-- **Beginner mode**: diagnostics enabled (currently `rc+cycle`, an external
-  compatibility label; not a current cycle-collection guarantee).
-- **Expert mode**: diagnostics/hooks disabled (design relies on weak references
-  to avoid cycles).
-
-Both profiles must preserve the same program meaning. Current implementations
-may differ only in diagnostics/observability hooks; future collectors may also
-differ in reclamation timing and leak tolerance.
-
-## 6) ByRef (`RefGet/RefSet`) — borrowed slot references (non-owning)
-
-Nyash has an internal “ByRef” concept (MIR `RefGet/RefSet`) used to access and mutate fields through a **borrowed reference to a storage slot**.
-
-Intended use cases:
-- Field get/set lowering with visibility checks (public/private) and delegation (from/override).
-- Passing a “mutable reference” to runtime helpers or plugin calls without copying large values.
-
-SSOT constraints:
-- ByRef is **non-owning**: it does not keep the target alive and does not affect strong/weak counts.
-- ByRef is **non-escaping**: it must not be stored in fields/arrays/maps, returned, captured by closures, or placed into global registries.
-- ByRef is **scope-bound**: it is only valid within the dynamic extent where it was produced (typically a single statement or call lowering).
-- Using ByRef on **Dead/Freed** targets is an error (UseAfterFini / dangling ByRef).
-
-These constraints keep “箱理論” simple: ownership is strong/weak; ByRef is a temporary access mechanism only.
-
-## 7) Diagnostics (non-normative)
-
-Runtimes may provide diagnostics to help validate lifecycle rules (example: reporting remaining strong roots or non-finalized objects at process exit). These diagnostics are not part of language semantics and must be default-off.
-
-## 8) Implementation status (non-normative)
-
-This section documents current backend reality so we can detect drift as bugs.
-
-### Feature Matrix (Phase 285A0 update)
-
-| Feature | VM | LLVM | WASM |
-|---------|-----|------|------|
-| WeakRef (`weak <expr>`, `weak_to_strong()`) | ✅ | ✅ LLVM harness (Phase 285LLVM-1.4) | ❌ unsupported |
-| Leak Report (`NYASH_LEAK_LOG`) | ✅ | ⚠️ Parent process roots only (285LLVM-0) | ❌ |
-
-**LLVM Leak Report の制限** (Phase 285LLVM-0):
-- LLVM harness runnerで親プロセス（Rust VM側）のroot snapshotを報告
-- 報告内容: modules, host_handles, plugin_boxes
-- 子プロセス（native executable）内部の到達可能性は見えない（プロセス境界の制約）
-- これは設計上の制約であり、バグではない
-
-### Notes
-
-- **Block-scoped locals** are the language model (`local` ends at `}`), but
-  only Home slots carry a token to destroy. Ordinary handles do not.
-- **WeakRef** (Phase 285A0+): VM backend fully supports `weak <expr>` and `weak_to_strong()`. LLVM harness also supports this surface as of Phase 285LLVM-1.4.
-- **WASM backend** currently treats MIR `WeakNew/WeakLoad` as plain copies (weak behaves like strong). This does not satisfy the SSOT weak semantics yet (see also: `docs/guides/wasm-guide/planning/unsupported_features.md`).
-- **Leak Report** (Phase 285): `NYASH_LEAK_LOG={1|2}` prints exit-time diagnostics showing global roots still held (modules, host_handles, plugin_boxes). See `docs/reference/environment-variables.md`.
-- Conformance gaps (any backend differences from this document) must be treated as bugs and tracked explicitly; do not "paper over" differences by changing this SSOT without a decision.
-
-See also:
-- `docs/reference/language/ownership.md` (Home/handle/share source contract)
-- `docs/reference/language/variables-and-scope.md` (binding scoping and assignment resolution)
-- `docs/reference/boxes-system/memory-finalization.md` (design notes; must not contradict this SSOT)
-
-## 9) Validation recipes (non-normative)
-
-WeakRef behavior (weak_to_strong must fail safely):
-```nyash
-box SomeBox { }
-static box Main {
-  main() {
-    local x = new SomeBox()
-    local w = weak x
-    x = null
-    local y = w.weak_to_strong()
-    if y == null { print("ok: dropped") }
-  }
-}
+```text
+OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0
+-> OWN-GRAM-FINI-HOOK0
+-> OWN-FINI-HOOK-PLAN0-S0
+-> OWN-TERMINAL-HOME-DROP-PLAN0-S0
+-> OWN-TERMINAL-HOME-DROP-PLAN0-S0/U
+-> I0/U Unique local
+-> OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST
+-> OWN-HOME-STORAGE0-I0/F
+-> OWN-TERMINAL-HOME-DROP-PLAN0-S0/F
+-> I0/F owning field and birth rollback
+-> OWN-HOME-SHARE0-I0
+-> OWN-TERMINAL-HOME-DROP-PLAN0-S0/S
+-> I0/S Shared/weak terminal winner
+-> OWN-HOME-C-SPEED0-G0
+-> R0 competing-authority retirement
+-> PRODUCT-READINESS -> CUTOVER
+-> OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FINAL
 ```
 
-Cycle avoidance (use weak for back-pointers):
-```nyash
-box Node { next_weak }
-static box Main {
-  main() {
-    local a = new Node()
-    local b = new Node()
-    a.next_weak = weak b
-    b.next_weak = weak a
-    return 0
-  }
-}
-```
-
-## 10) Ownership materialization responsibility (normative)
-
-This section fixes the ownership/lifecycle contract boundary to prevent drift across MIR/VM/LLVM.
-
-### Role split (SSOT)
-
-- MIR does not own or maintain numeric reference counts.
-- Ownership-managed MIR expresses exact token operations through
-  `CopyOwned`/`DestroyOwned`; ordinary `Copy` is ownership-neutral.
-- Backends lower lifecycle intent to runtime ABI calls.
-- Runtime/Kernel is the only layer that performs retain/release count transitions and final drop.
-
-Normative implications:
-
-- Adding "refcount arithmetic" logic in MIR passes is out of contract.
-- LLVM lowering must not invent count policy; it must call runtime ABI for lifecycle operations.
-- VM interpreter lifecycle handling must be contract-equivalent to runtime ABI semantics.
-
-### Transitional behavior contract
-
-- `ReleaseStrong`/`release_strong` is a legacy alias-group lifecycle operation,
-  not the canonical per-owner counterpart of `CopyOwned`.
-- Canonical ownership uses singular `DestroyOwned` for one exact owner token.
-- `keepalive` is analysis/liveness intent and may be a no-op at execution backends.
-- Legacy symbol `ny_release_strong` is compatibility-only; preferred ABI naming is `nyrt_handle_release_h`.
-
-### RC retirement direction and timing
-
-Direction:
-- Long-term direction is reducing hard dependence on RC-specific surface behavior.
-- This does not mean immediate removal in current selfhost/bootstrap phases.
-
-Retirement gate (all required):
-
-- VM and LLVM are parity-stable under the same lifecycle semantics for representative fixtures.
-- Fast gate and milestone regression suites stay green without RC-only assumptions.
-- Weak/strong cycle behavior and explicit drop timing are pinned by fixtures and docs.
-- Decision is promoted from provisional to accepted in `20-Decisions.md` with rollback notes.
-
-Until all gates pass:
-- RC-backed lifecycle remains the production contract.
-- Application authors should not count references manually. They express only
-  the source boundary (`share`, weak, cleanup/fini); compiler/runtime products
-  own physical token/count materialization.
+After the first production C′ slice and again after final cutover,
+`LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0` is a mandatory receipt of
+the Home reference closeout. It must synchronize EBNF/registry, both parsers,
+lifecycle descriptor, VM/EXE/AOT or exact unsupported-backend rejection,
+ownership/scope/birth/memory/plugin/FFI references, examples, and migration
+guides. Direct `obj.fini()` callers and all live B′ claims must be zero before
+final completion.

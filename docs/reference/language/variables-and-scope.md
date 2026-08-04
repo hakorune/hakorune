@@ -49,8 +49,9 @@ and non-owning handle.
 - The Home binding and handle may both read and mutate the same Box
   sequentially.
 - A Home transfer/rebind/destruction cannot invalidate a handle with a later
-  reachable use. Exact `share` promotion and `fini()` interaction with live
-  handles remain provisional Home representation/lifecycle D0 questions.
+  reachable use. C′ fixes that only terminal Home release may run the
+  non-callable Box `fini {}` hook; exact Shared representation and the
+  proof/rejection of remaining live handles are still Home D0 work.
 - A destination with a sealed Home demand transfers one available Home;
   ordinary use remains a handle.
 - Independent lifetime enters the Shared lane through explicit `share`.

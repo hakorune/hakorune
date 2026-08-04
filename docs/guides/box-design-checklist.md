@@ -4,8 +4,11 @@ Use this checklist when introducing a new Box or evolving an existing one.
 
 ## Lifecycle
 - Define birth parameters and side effects (allocation, registration).
-- State machine: initial → running → closed → fini; reentrancy rules.
-- `fini()` idempotent; post-fini methods: error vs no-op.
+- Separate the Box's domain state (`open`/`closed`) from terminal Home state.
+- If needed, define a non-callable `fini {}` hook: no result, suspension,
+  receiver escape, resurrection, or direct child-fini calls.
+- Define ordinary `close()`/`shutdown()` idempotence and recoverable errors;
+  direct `obj.fini()` is not a C′ source operation.
 
 ## Ownership & Sharing
 - Who owns the resource? Is there a LeaseBox form?
@@ -38,4 +41,3 @@ Use this checklist when introducing a new Box or evolving an existing one.
 ## Errors & Types
 - Error shape (Bool/Option/Result) and consistency with ecosystem.
 - Type expectations (runtime tags vs future static types).
-

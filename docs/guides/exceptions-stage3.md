@@ -1,59 +1,54 @@
-# Stage-3 Exceptions Guide
+# Syntax-3 Handler Compatibility Guide
 
-Status: Compatibility/historical note.
+Status: Historical/compatibility implementation inventory; no current
+language-authority role.
 
-The canonical current guide is:
+Current target guide:
 
 - `docs/guides/exception-handling.md`
-- Stage0 cleanup boundary SSOT:
-  `docs/development/current/main/design/stage0-cleanup-catch-boundary-ssot.md`
+- `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
 
-## Current Boundary
+## Why this compatibility lane still exists
 
-Stage0 stabilizes deterministic `cleanup`. It does not open a full exception
-system.
+Existing Rust/Hako parser fixtures and MIR bridges may still carry:
 
 ```text
-cleanup:
-  supported deterministic finalization boundary
-
-catch:
-  parser/AST/MIR carrier for compatibility and future exception lanes
-
-throw:
-  reserved/prohibited in the source surface
-
-try:
-  legacy compatibility spelling only
+statement try
+postfix catch / cleanup
+method handler tails
+TryCatch / CatchClause
+syntax-3 environment gates
 ```
 
-New examples should use postfix cleanup/catch. Legacy `try { ... } catch ...
-cleanup ...` may still parse in compatibility profiles, but it is not the
-canonical language surface.
+These shapes preserve migration and regression evidence only. They do not
+authorize new source use, typed exception dispatch, `RecoverableFailure`, an
+exception ABI, or JoinIR `Invoke` lowering.
 
-## What Still Exists
+## Accepted C′ boundary
 
-- parser support for catch parameter shapes:
-  - `catch (Type e)`
-  - `catch (e)`
-  - `catch ()`
-- parser rejection of `finally`; use `cleanup`
-- parser rejection of user-surface `throw`
-- MIR-builder cleanup lowering, including protected-section return deferral
-- JoinIR strict fail-fast for `TryCatch`
+```text
+try / throw / catch          = rejected target
+recoverable failure          = Result<T,E>
+unchanged propagation        = exact Result-only postfix ?
+local recovery/conversion    = guard let / match
+lexical cleanup              = standalone cleanup { ... }
+Box finalization             = non-callable terminal-Home fini { ... }
+Fault                        = terminal and non-catchable
+```
 
-## Stop Lines
+Parser acceptance under `NYASH_PARSER_STAGE3`, `NYASH_BLOCK_CATCH`, or
+`NYASH_METHOD_CATCH` is implementation evidence, not a semantic profile. No
+environment variable may become language authority.
 
-- no user-surface `throw`
-- no typed catch dispatch semantics
-- no exception object model
-- no backend exception ABI or stack unwinding
-- no JoinIR strict `TryCatch` lowering
-- no silent fallback from unsupported exception routes
+## Migration stop lines
 
-## Historical Notes
+- Do not add new postfix catch/cleanup examples.
+- Do not implement typed catch dispatch or exception unwinding.
+- Do not lower an unsupported handler to a no-op or retry another profile.
+- Preserve current bridge behavior only until its atomic retirement row.
+- New code uses `Result`, `?`, `guard let`/`match`, and standalone `cleanup`.
 
-Older text described a Result-mode throw/catch bridge and backend exception
-plans. Treat that as historical design inventory. Any future exception lane
-must re-open the design with an explicit reference doc decision and fail-fast
-contracts before implementation.
+Retirement belongs to `LANGUAGE-RESULT-EXIT-C-PRIME0-R0`. Only after I0/R0 and
+backend parity may `LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` rewrite the
+implementation-backed grammar and remove this compatibility guide or redirect
+it permanently.

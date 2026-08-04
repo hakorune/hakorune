@@ -1,144 +1,82 @@
-Exception Handling — Postfix catch / cleanup (Stage‑3)
+# Failure Handling — Result, `?`, and `cleanup`
 
-Stage0 boundary
-- Stage0 stabilizes `cleanup`; it does not open a full exception system.
-- `cleanup` is the supported deterministic finalization boundary.
-- `catch` is accepted as a parser/AST/MIR carrier for compatibility and future
-  exception lanes, but Stage0 does not promise typed exception dispatch.
-- `throw` remains reserved/prohibited in Stage0 source.
-- Legacy `try { ... } catch ... cleanup ...` is compatibility spelling only.
-  New examples should use postfix cleanup/catch.
+Status: Accepted C′ target guide; production activation 0.
 
-Summary
-- Hakorune adopts a flatter, postfix-first exception style:
-  - There is no `try` statement in the language spec. Use postfix `catch` and `cleanup` instead.
-  - `catch` = reserve a handler boundary for the immediately preceding expression/call.
-  - `cleanup` = always-run finalization (formerly finally), regardless of success or failure.
-- Naming rule: `cleanup` is for lexical/block exit timing; object `fini()` is
-  the object finalizer method.
-- This matches the language’s scope unification and keeps blocks shallow and readable.
+Normative owners:
 
-Spec Clarifications (Stage‑3)
-- Acceptance gates and profiles
-  - Expression‑postfix: `NYASH_PARSER_STAGE3=1` enables `expr catch(...) {..} cleanup {..}` on calls/chains.
-  - Block‑postfix: `NYASH_BLOCK_CATCH=1` or Stage‑3 enables `{ ... } catch(...) {..} cleanup {..}` (standalone block statement)。
-  - Method‑postfix: `NYASH_METHOD_CATCH=1` or Stage‑3 enables method body postfix on the most recent method.
-- Cardinality and order
-  - Postfix (expr/block/method): at most one `catch` and at most one `cleanup` — in this order. A second `catch` after postfix is a parse error. Multiple `cleanup` are not allowed.
-  - Legacy compatibility: some builds may still accept the historical `try { ... } catch ... cleanup ...` form, but it is not part of the language spec and will be disabled by default. Prefer postfix forms.
-- Binding and chaining
-  - Postfix binds to the immediately preceding expression (the last call in a chain) or to the just‑parsed block/method body. It does not extend to the entire statement unless parentheses are used.
-  - After constructing the postfix `TryCatch`, further method chaining on that expression is not accepted.
-- Semantics and control‑flow
-  - `cleanup` (finally) always runs, regardless of success/failure of the try part.
-  - `return` inside the try part is deferred until after `cleanup` executes. This is implemented by the MIR builder as a deferred return slot/jump to the `cleanup`/exit block.
-  - `return` inside `cleanup` is not canonical and is rejected by default.
-  - `throw` inside `cleanup` is not canonical and is rejected by default.
-  - `break/continue` inside `cleanup` are not canonical. If a compatibility path
-    still accepts them, treat that as an implementation gap rather than a
-    language guarantee.
-  - Nested cleanup follows lexical unwinding order (inner cleanup runs before outer cleanup).
-  - Future exception lanes may define throw propagation through cleanup. Stage0
-    keeps `throw` reserved/prohibited and does not guarantee propagation.
-- Diagnostics
-  - Method‑postfix: duplicate postfix after a method body is a parse error: "duplicate postfix catch/cleanup after method".
-  - Block‑postfix: a standalone postfix without a preceding block is a parse error: "catch/cleanup must follow a try block or standalone block".
-  - Expression‑postfix: only one `catch` is accepted at expression level; a second `catch` triggers a parse error.
+- `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
+- `docs/reference/language/failure-outcome-relations.md`
+- `docs/reference/language/scope-exit-semantics.md`
 
-Status
-- Stage0 cleanup lane（current）
-  - Parser accepts postfix cleanup/catch carriers and legacy try compatibility.
-  - MIR builder lowers cleanup and deferred return.
-  - JoinIR strict does not lower TryCatch yet and must fail fast.
-- Legacy normalization sugar
-  - `NYASH_CATCH_NEW=1` は historical compatibility knob。
-  - 後置フォームは内部 `TryCatch` AST に変換され、既存経路で降下。
-- Parser direct acceptance（Stage‑3）
-  - パーサが式レベルの後置 `catch/cleanup` を直接受理。
-  - ゲート: `NYASH_PARSER_STAGE3=1`
-  - 糖衣正規化はそのまま併存（関数糖衣専用）。キーワード直受理と二重適用はしない設計。
+## The four rules
 
-Syntax (postfix)
-- Expression-level postfix handlers (Stage‑3):
-  - `expr catch(Type e) { /* handle */ }`
-  - `expr catch { /* handle (no variable) */ }`
-  - `expr cleanup { /* always-run */ }`
-  - Combine: `expr catch(Type e){...} cleanup{...}`
-- Method/function calls are just expressions, so postfix applies:
-  - `call(arg1, arg2) catch(Error e) { log(e) }`
-  - `obj.method(x) cleanup { obj.release() }`
-
-Precedence and chaining
-- Postfix `catch`/`cleanup` binds to the immediately preceding expression (call/chain result), not to the whole statement.
-- For long chains, we recommend parentheses to make intent explicit:
-  - `(obj.m1().m2()) catch { ... }`
-  - `f(a, b) catch { ... } cleanup { ... }`
-- Parser rule (Stage‑3): postfix attaches once at the end of a call/chain and stops further chaining on that expression.
-
-Diagram (conceptual)
+```text
+recoverable failure       = Result<T,E>
+unchanged propagation     = Result expression followed by ?
+local handling/conversion = guard let or match
+always-run lexical action = standalone cleanup { ... }
+terminal contract failure = Fault
 ```
-// before (parse)
-obj.m1().m2() catch { H } cleanup { C }
 
-// precedence (binding)
-obj.m1().[ m2()  ↖ binds to this call ] catch { H } cleanup { C }
+Canonical v1 has no source `try`, `throw`, `catch`, or
+`RecoverableFailure`. `Option<T>` represents absence and does not support `?`
+in v1.
 
-// normalization (conceptual AST)
-TryCatch {
-  try:   [ obj.m1().m2() ],
-  catch: [ (type:Any, var:None) -> H ],
-  finally: [ C ]
+## Propagate an unchanged error
+
+```hako
+load(path): Result<Data, IoError> {
+    local file = File.open(path)?
+
+    cleanup {
+        file.closeBestEffort()
+    }
+
+    local data = file.read()?
+    return Result::Ok(data)
 }
 ```
 
-Normalization (Phase 1)
-- With `NYASH_CATCH_NEW=1`, postfix sugar is transformed into legacy `TryCatch` AST:
-  - `EXPR catch(T e){B}` → `TryCatch { try_body:[EXPR], catch:[(T,e,B)], finally:None }`
-  - `EXPR cleanup {B}` → `TryCatch { try_body:[EXPR], catch:[], finally:Some(B) }`
-  - Multiple `catch` matching is future exception-lane behavior; Stage0 keeps the
-    carrier narrow and examples should use at most one catch.
-  - Combined `catch ... cleanup ...` expands to a single `TryCatch` with both blocks.
-- Lowering uses the existing builder (`cf_try_catch`) which already supports cleanup semantics.
+`expr?` is accepted only when the operand is `Result<T,E>` and the enclosing
+callable returns `Result<U,E>` with the exact same `E`. The operand runs once.
+No implicit error conversion, hidden `share`, dynamic `isOk/getValue`, or
+user-defined Try protocol is permitted.
 
-Semantics
-- Stage0 cleanup always executes for the protected section on the MIR-builder route.
-- catch is a reserved handler boundary for the immediately preceding expression.
-- cleanup is always executed regardless of success/failure (formerly finally).
-- In loops, `break/continue` in the protected section cooperate with cleanup:
-  cleanup is run before leaving the scope.
-- Return deferral: A `return` in the protected section defers until after
-  cleanup. Non-local exits from cleanup itself are not canonical.
+## Handle or convert locally
 
-Environment toggles
-- `NYASH_PARSER_STAGE3=1`: Enable Stage‑3 syntax (postfix catch/cleanup for expressions; also gates others by default)
-- `NYASH_BLOCK_CATCH=1`: Allow block‑postfix (independent of Stage‑3 if needed)
-- `NYASH_METHOD_CATCH=1`: Allow method‑postfix (independent of Stage‑3 if needed)
-- `NYASH_CLEANUP_ALLOW_RETURN=1`: legacy compatibility knob; do not use in
-  canonical examples
-- `NYASH_CLEANUP_ALLOW_THROW=1`: legacy compatibility knob; do not use in
-  canonical examples
-- `NYASH_FEATURES=no-try-compat`: reject legacy `try` compatibility spelling
-  with a freeze-style diagnostic
-
-Migration notes
-- try is deprecated: prefer postfix `catch/cleanup`.
-- Member-level handlers (computed/once/birth_once/method) keep allowing postfix `catch/cleanup` (Stage‑3), unchanged.
-- Parser acceptance of postfix at expression level will land in Phase 2; until then use the gate for normalization.
-
-Examples
+```hako
+match File.open(path) {
+    Result::Ok(file) => use(file)
+    Result::Err(error) => report(error)
+}
 ```
-// Postfix catch on a call
-do_work() catch(Error e) { env.console.log("error: " + e) }
 
-// Always-run cleanup
-open_file(path) cleanup { env.console.log("closed") }
+If the error type changes, construct the new error explicitly in a `match`.
 
-// Combined
-connect(url)
-  catch(NetworkError e) { env.console.warn(e) }
-  cleanup { env.console.log("done") }
+## Cleanup is not catch or object finalization
 
-// Stage‑3 parser gate quick smoke (direct acceptance)
-//   NYASH_PARSER_STAGE3=1 ./target/release/hakorune --backend vm \
-//     apps/tests/macro/exception/expr_postfix_direct.hako
-```
+`cleanup {}` registers one lexical exit action after execution reaches the
+statement. Registrations are LIFO. A cleanup body cannot issue `return`,
+`break`, `continue`, `?`, `await`, or `yield`.
+
+Box-member `fini {}` is different: it is a non-callable hook invoked only by
+the terminal Home DropPlan. An ordinary `close()`/`shutdown()` method may
+return `Result` when exact shutdown timing and error handling matter.
+
+## Faults
+
+`Fault` is terminal and non-catchable. During exit, the first Fault in time is
+primary; later cleanup/finalization Faults are suppressed while remaining
+teardown continues best effort.
+
+## Current implementation boundary
+
+The repository still contains syntax-3 handler syntax, TryCatch carriers,
+environment gates, and a dynamic QMark route. They are migration evidence,
+not target-language permission. Until `LANGUAGE-RESULT-EXIT-C-PRIME0-I0/R0`
+lands, unsupported C′ shapes must reject before Builder effects.
+
+After implementation and backend parity, the mandatory
+`LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` receipts update EBNF, registry, both
+parsers, reference pages, examples, and migration guides from actual landed
+behavior.

@@ -34,11 +34,10 @@ expression / statement evaluation
 ```
 
 It does not redefine the Outcome vocabulary. `Normal`, `Return`, `Break`,
-`Continue`, terminal `Fault`, and the pending `RecoverableFailure` target
-remain owned by `semantic-kernel.md` and `failure-outcome-relations.md`.
-This topic does not project `RecoverableFailure` across callable, source-entry,
-or process boundaries before `LANGUAGE-RECOVERABLE-FAILURE-D0` selects that
-ABI.
+`Continue`, and terminal `Fault` remain owned by `semantic-kernel.md` and
+`failure-outcome-relations.md`. Typed Result-only `?` creates an ordinary
+pending Return through the verified exit transaction; there is no separate
+`RecoverableFailure` callable, source-entry, or process ABI.
 
 It also does not make parser, MIR, runtime, or backend behavior normative.
 Existing code and parity fixtures are implementation evidence. Where they

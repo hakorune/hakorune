@@ -2,10 +2,17 @@
 
 最終更新: 2025-08-13
 
+Status: historical playground implementation demo. The examples below use
+legacy `init`/direct `fini()` behavior and are not accepted C′ source examples.
+C′ (`fini {}` on terminal Home, direct `obj.fini()` rejected) is production 0;
+the post-implementation lifecycle DOC0 must replace these samples when the
+playground supports it.
+
 位置づけ:
 - この playground は `projects/nyash-wasm/` にある experimental / monitor-only ブラウザ経路です。
 - product main (`llvm/exe`) や engineering/bootstrap keep (`rust-vm`) の代替ではありません。
-- デモ共有や fixture 確認に使う user-facing reference です。
+- デモ共有やlegacy fixture確認に使うimplementation referenceです。新規の
+  language designは`docs/reference/language/lifecycle.md`を参照してください。
 
 ## リンク
 - Playground: https://moe-charm.github.io/nyash/projects/nyash-wasm/nyash_playground.html

@@ -39,11 +39,14 @@ Entries
 - Notes: Golden comparison may normalize gensym names in the future to reduce brittleness.
 
 ## EXC-PFX-0004 — Postfix catch/cleanup precedence
-- Status: Stable (Stage‑3 gate for parser acceptance)
-- Summary: Postfix attaches to the immediately preceding expression (call/chain) and stops further chaining. Normalizes to a single TryCatch.
+- Status: Historical compatibility behavior; C′ retirement pending
+- Summary: Current syntax-3 parser transport attaches postfix handlers to the immediately preceding expression and normalizes to TryCatch. The accepted language target rejects postfix catch/cleanup and uses Result-only `?` plus standalone `cleanup {}`.
 - Impact: Parser/Normalizer/All backends
 - Gate: `NYASH_PARSER_STAGE3=1` (direct parsing); `NYASH_CATCH_NEW=1` (sugar normalization)
 - Tests (v2): see `tools/smokes/v2` and `src/tests/parser_expr_postfix_catch.rs` (legacy paths removed)
+- Exit criteria: `LANGUAGE-RESULT-EXIT-C-PRIME0-R0` retires the carrier and
+  `LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` replaces this inventory from landed
+  implementation evidence.
 
 ## MACRO-CAPS-0005 — Macro sandbox capabilities (io/net/env)
 - Status: Stable MVP

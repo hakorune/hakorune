@@ -391,6 +391,11 @@ if cfg!(debug_assertions) {
 
 ### fini owner（現行実装）
 
+This section records the current host/plugin implementation only. Accepted C′
+does not expose `obj.fini()` as a source call; plugin/FFI terminal-Home mapping
+must reject or remain isolated until its dedicated lifecycle ABI row and
+`LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0` land.
+
 ```rust
 impl Drop for PluginHandleInner {
     fn drop(&mut self) {
@@ -413,11 +418,15 @@ pub fn shutdown_plugins_v2() {
 ### ライフサイクルの完全性
 
 ```nyash
-// Plugin/native resources should be closed by their owner boundary.
+// C′ target: handle a fallible domain close explicitly.
 
 local file = new FileBox("test.txt")
 file.write("data")
-file.fini()  // explicit resource boundary
+match file.close() {
+    Result::Ok(_) => {}
+    Result::Err(error) => report(error)
+}
+// The terminal Home DropPlan later invokes the non-callable Box fini hook.
 ```
 
 ## 🎯 統一の利点

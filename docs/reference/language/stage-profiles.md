@@ -123,10 +123,13 @@ Stage1 support in the matrix means one of:
 | `brand Name: Type` | transport | live constructor / unwrap / mismatch checker | Stage0 must not treat brands as type-checker truth. |
 | `type Alias = Type` | transport | pending richer diagnostics | Alias metadata is preserved; broad alias equality semantics are not live. |
 | `record`, record defaults, shorthand literals, `with` update | transport for declaration/literal/update shape | live construction/read/update in the accepted shape; narrow local record helper-argument scalarization is live for same-owner helper calls | Records are identity-free aggregates. Declaration defaults are scalar construction defaults only, and omitted defaulted fields are materialized in declaration order. Constructor lookup stays in the type namespace even when a value local has the same spelling (`Name { Name }`). Record-local scalarization is compiler-local only: no runtime record object, no cross-function record ABI, no backend record route, and no ordinary-box auto-recordification. |
-| `enum`, `Type::Variant`, `Option<T>`, `Result<T,E>` | parse / transport inventory; no Stage0 special-case meaning | live narrow enum/prelude surface and diagnostics | Dot variants such as `Result.Ok(...)` are rejected for known enum variants. |
-| `guard let Type::Variant(binding) = expr else { ... }` | parser sugar only | live narrow enum guard sugar | No null sugar, `try`, `throw`, or `?` family. |
-| postfix `catch`, standalone/local/postfix `cleanup` | reject / transport only until explicit grammar-profile rows land | pending | Accepted target: source `try` and `throw` reject; catch handles only pending `RecoverableFailure`; legacy Stage-3 gates do not grant semantics. |
-| scope `fini {}` / `local ... fini` | reject / historical transport | pending Compat2025 alias | Canonical spelling is `cleanup`; object `box.fini()` is a separate lifecycle API. |
+| `enum`, `Type::Variant`, `Option<T>`, `Result<T,E>` | parse / transport inventory; no bootstrap-parser special-case meaning | live narrow enum/prelude surface and diagnostics | Dot variants such as `Result.Ok(...)` are rejected. Constructor support does not imply the pending typed Result `?` consumer. |
+| `guard let Type::Variant(binding) = expr else { ... }` | parser sugar only | live narrow enum guard sugar | Explicit Option absence handling remains here; no null/try/throw/catch family. |
+| postfix Result `?` | current legacy/dynamic parse evidence only | accepted typed target, production 0 | Exact `Result<T,E>` inside `Result<U,E>` only; Option/custom Try/implicit conversion rejected. Must feed the common exit transaction, never a direct lowerer Return. |
+| postfix `catch` / `RecoverableFailure` | transport drift / retirement pending | prohibited target | July target is superseded; ambient syntax-3 gates grant no semantics. |
+| standalone `cleanup {}` | reject/transport until exact grammar row | accepted target, production 0 | Sole lexical cleanup spelling; dedicated registration/exit products required. |
+| local/postfix `cleanup`; scope/local `fini` | historical transport / retirement pending | prohibited target | Retire before reference closeout; no compatibility fallback into canonical AST/MIR. |
+| Box-member `fini {}` | absent/inactive | accepted C′ target, production 0 | Non-callable last-Home hook. Direct `obj.fini()` and ordinary `fini(...)` methods are rejected targets. |
 | `Array<T>` and `[]` literals | type annotation and literal-shape transport | live typed-context arrays, method contract, direct element checks | `local xs = []` and unresolved generic contexts fail fast. |
 | `PackedArray<T>` | type metadata transport | guarded CorePlan facts and no-fallback contract | Source `PackedArray<Record>` rows are still narrow/metadata-first; no silent fallback to ordinary `ArrayBox`. |
 | fixed-width names `i8..u64`, `isize`, `usize` | annotation text transport and exact const metadata | exact-numeric Box field writes are verifier-proven or runtime-guarded; other annotation sites remain explicitly transitional | Dynamic field writes are checked before store. Backends that cannot preserve the contract fail preflight and do not fall back to VM. |
@@ -139,7 +142,7 @@ Stage1 support in the matrix means one of:
 | `co`, `nowait`, `await` | supported by the Rust/parser concurrency route; use only as documented by the concurrency manual | concurrency-profile feature; not a general Stage1 selfhost prerequisite | These are Future/task ownership boundaries. They do not imply worker-local allocator cache, TLS, true thread semantics, or OS thread spawn. Treat Stage1 selfhost use as profile-gated unless the active selfhost route says otherwise. |
 | `Channel<T>`, `sync box`, `context`, compatibility `task_scope` | scaffold/reference surfaces unless the concurrency manual says otherwise | design/scaffold/deferred for broad Stage1 use | `Channel<T>` queue, sync-box serialized entry, and context snapshot have reference rows, but broad Program JSON/MIR/LLVM routes remain gated by their current cards. |
 | `worker_scope`, `parallel`, raw `thread {}`, `lock<T>`, source `worker_local` | reject/deferred for language-core bootstrap use | design/reserved/deferred | `worker_scope workers=N` is design-only until safety gates land; `workers=N` is an upper-bound hint, not an exact OS thread count promise. Mimalloc needs internal worker/TLS/atomic substrate, not source-level `worker_local`. |
-| Home ownership candidate: declaration `take`, result `from`, expression `share` | reject until the Home D0 fan-out and exact shared grammar/profile rows close; former ownership lookalikes remain inactive | Home direction accepted; exact grammar provisional; production activation 0 | Ordinary use is a handle, a sealed destination demand transfers one Home, and only explicit `share` may add an owner. Composite/generic classification, Shared representation, owning storage, and CFG Home Flow precede grammar. Former `move/view/shared` target syntax is historical. |
+| Home ownership candidate: declaration `take`, result `from`, expression `share` | reject until the Home D0 fan-out and exact shared grammar/profile rows close; former ownership lookalikes remain inactive | Home/C′ direction accepted; exact grammar provisional; production activation 0 | Ordinary use is a handle, a sealed destination demand transfers one Home, only explicit `share` adds an owner, and terminal Home invokes one C′ DropPlan. Field classification, representation, ABI, and Home Flow precede grammar. |
 | `Span<T>`, `interface`, `impl`, `where`, `const fn`, `comptime`, `const assert`, `cap {}` | reject/deferred | deferred | Open a Stage1 row before using these as real source features. |
 
 ## Reserved And Legacy Surface
@@ -154,7 +157,7 @@ until
 do
 try
 throw
-?
+catch
 class
 extends
 super

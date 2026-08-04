@@ -1,6 +1,17 @@
 # 🧠 Nyash メモリ管理 & finiシステム
 
-**最終更新: 2026年8月4日 - B′/Home ownership境界同期**
+**Status: 現行実装inventory。B′ target本文はC′にsuperseded**
+
+**最終更新: 2026年8月5日 - C′ Decision境界同期（production 0）**
+
+> 現在の言語targetでは、`fini {}`は最後のHome releaseだけが起動する
+> non-callable Box hookであり、direct `obj.fini()`、ordinary `fini()` method、
+> manual child-fini cascadeはrejectする。親hookの後にverified owning fieldsを
+> 宣言逆順でreleaseし、child hookはそのreleaseがterminalの時だけ走る。
+> 以下のB′/Arc/direct-fini記述はmigration census用の現行実装・歴史メモで、
+> 新規source設計のauthorityではない。完全な実装同期は
+> `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0` とその
+> `LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0` receiptで行う。
 
 注: object lifecycle の SSOT は `docs/reference/language/lifecycle.md`、
 source Home/handle/transfer/share の SSOT は

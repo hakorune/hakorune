@@ -167,12 +167,14 @@ Current reference runtime:
   - cancel pending child futures as `scope-exit-cancelled`
   - then bounded-join that same scope
 - after child cancellation/join, lexical cleanup handlers run, then local
-  ownership tokens are destroyed; last-strong structural drop never implies
-  user object `fini()`
+  ownership tokens are destroyed. This sentence describes the current
+  scaffold only; accepted C′ later routes a terminal Home release through the
+  non-callable Box `fini {}` hook, with production activation 0 today.
 - current explicit scope-exit path now also surfaces that scope's latched `first_failure`
 - current `joinAll(timeout_ms)` path now surfaces that same latched first failure as `ResultBox::Err(first_failure_payload)`
-- explicit object `fini()` aggregation remains later-phase work; cleanup and
-  token-destruction ordering is defined by
+- terminal Home finalization integration remains later-phase work; direct
+  object `fini()` aggregation is rejected. Cleanup and token-destruction
+  ordering is defined by
   `docs/reference/language/scope-exit-semantics.md`.
 - bare `nowait` is not detached.
 - `nowait` inside explicit `co` / compatibility `task_scope` belongs to that scope.

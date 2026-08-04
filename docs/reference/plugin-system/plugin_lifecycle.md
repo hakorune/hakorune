@@ -2,6 +2,9 @@
 
 最終更新: 2026-08-04
 
+Status: C′ target boundary plus current plugin implementation inventory;
+plugin/FFI terminal-Home activation 0.
+
 ## 概要
 NyashのBoxには「ユーザー定義Box」「ビルトインBox」「プラグインBox」があります。いずれもRAII（取得した資源は所有者の寿命で解放）に従いますが、プラグインBoxは共有やシングルトン運用があるため、追加ルールがあります。
 
@@ -11,31 +14,37 @@ HomeV1文法とShared表現はまだD0で、現在のplugin source/runtimeはSha
 移行状態です。parser/resolver/Home Flow/source Lowerはproduction-activeでは
 ありません。
 
-- `fini()` は論理的な終了（use-after-fini禁止）であり、外部資源（fd/socket/native handle など）を決定的に解放するための SSOT です。
+- C′のBox-member `fini {}` はdirect-callできないterminal Home hookです。
+  外部資源を早期・fallibleに閉じる操作はordinary `close()`/`shutdown()`
+  methodとしてResultを処理します。
 - `local` のスコープを抜けると、その binding は終了します。Home/Shared
   slotならtokenを消費し、ordinary handleならowner countは変わりません。
   最後のownerなら物理的な解放が起こり得ますが、タイミングは実装依存です。
-- 共有・循環参照がありうるため、スコープ終了“だけ”に `fini()` を期待しないでください。必要な資源は `fini()` / `cleanup` / `shutdown_plugins_v2()` で明示的に閉じます。
+- Shared cycleはterminal Homeを妨げるため`weak`でback-edgeを切ります。
+  exact shutdownが必要な資源はordinary domain methodまたは現在のhost
+  `shutdown_plugins_v2()`境界で閉じ、source `obj.fini()`は使いません。
 
 補足:
 - source Home/handle/share の SSOT は
   `docs/reference/language/ownership.md`、object lifecycle/weak/`fini`/GC は
   `docs/reference/language/lifecycle.md` です。
-- verified owning/Shared fieldはtokenを保持します。子resourceをfinalizeする
-  必要がある場合は親のuser hookから明示的に`child.fini()`を呼びます。
-  stored field tokenの自動dropは子のuser finiを意味しません。
+- verified owning/Shared fieldはHome tokenを保持します。親hookの後に
+  field Homeを宣言逆順でreleaseし、そのreleaseがchildのterminal Homeなら
+  child hookが自動実行されます。親から`child.fini()`は呼びません。
 
 ## プラグインBoxの特則（シングルトン）
 - シングルトン（`nyash.toml`）
   - プラグインのBox型は `singleton = true` を宣言可能
   - ローダが起動時に `birth()` し、以後は同一ハンドルを共有して返却
-  - シャットダウン時（`shutdown_plugins_v2()` など）に一括 `fini()` されます
+  - 現行host実装ではシャットダウン時（`shutdown_plugins_v2()` など）に
+    plugin `fini` ABIを呼びます。C′のsource hookへの写像は未実装です。
 
 補足:
 - 現行互換実装には Box 値を広く共有参照として扱う経路があります。これは
-  SharedV1の移行状態であり、最終source defaultではありません。`fini()` が
-  論理的な終了（use-after-fini禁止）である点は両profileで共通です。
-- プラグインBoxも同じルールです。`fini` 後の利用はエラー（Use after fini）。
+  SharedV1の移行状態であり、最終source defaultではありません。現行
+  eager-fini/UseAfterFini挙動はC′ authorityではありません。
+- プラグインBoxのterminal Home hook/weak/affinityはdedicated ABI rowまで
+  fail-fastまたはcurrent host routeへ隔離します。
 - 長寿命が必要なケースは「シングルトン」で運用してください（個別のBoxに特例は設けない）。
 
 ### 例: `nyash.toml` 抜粋
@@ -55,15 +64,15 @@ singleton = true
 ## ベストプラクティス
 - ユーザー/ビルトインBox
   - フィールドの weak 指定（循環参照の解消）を活用
-  - 必要に応じて明示 `fini()` を呼び、高価な資源（ファイル/ソケット等）を早期解放
+  - 高価な資源の早期解放はordinary `close()`/`shutdown()`でResultを処理
 - プラグインBox
   - シングルトン化が望ましい長寿命資源（サーバ、デバイス）に `singleton = true`
   - 複数スコープで共有される可能性がある値は、スコープ終了時に自動 `fini` されないことを前提に設計
   - 終了前に `shutdown_plugins_v2()` を呼ぶと単一箇所で確実に `fini` を実行可能
 
 ## 実装参照
-- スコープ終了専用 owner としての自動 `fini` は持たない設計です。
+- 現行plugin routeはC′ terminal Home ownerをまだ持ちません。
 - プラグインローダ: `src/runtime/plugin_loader_v2.rs`（シングルトン生成・保持・シャットダウン、`PluginHandleInner::drop` / `finalize_now()` の `fini`）
 - 現行 `PluginHandleInner::drop` / `GenericPluginBox::drop` がuser `fini`
-  routeを呼ぶ挙動はB′最終契約と不一致です。plugin familyは論理finiと
-  structural instance-destroy ABIを分離するまでObjectCell cutover対象外です。
+  routeを呼ぶ挙動はC′最終契約と不一致です。plugin familyはterminal Home
+  hookとstructural instance-destroy ABIを分離するまでactivation対象外です。

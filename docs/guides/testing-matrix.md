@@ -10,9 +10,9 @@ Categories
 - Match normalization (VM/goldens)
   - match_literal_basic / literal_three_arms output smokes
   - match_guard_literal_or / type_basic_min goldens
-- Exceptions (VM)
-  - expr_postfix_catch_cleanup_output_smoke.sh — postfix direct parser
-  - loop_postfix_catch_cleanup_output_smoke.sh — combined with loops
+- Historical handler compatibility (VM; retirement witnesses, not target syntax)
+  - expr_postfix_catch_cleanup_output_smoke.sh — current postfix parser carrier
+  - loop_postfix_catch_cleanup_output_smoke.sh — current loop/handler bridge
 - LoopForm break/continue (VM)
   - loopform_continue_break_output_smoke.sh — basic continue/break
   - loop_nested_if_ctrl_output_smoke.sh — nested if inside loop

@@ -1,6 +1,9 @@
 # Option Values
 
-Status: Current reference.
+Status: Current target reference; typed Result propagation activation 0.
+
+Decision: Result-only postfix `?` accepted on 2026-08-05. Option `?` remains
+rejected in v1.
 
 `Option<T>` is the public optional-value shape for Hakorune/Nyash. `Result<T,E>`
 is the public failure-value shape. Both are built-in enum prelude surfaces as of
@@ -13,6 +16,7 @@ Design SSOT:
 - `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`
 - `docs/development/current/main/design/result-option-missing-arm-diagnostics-ssot.md`
 - `docs/development/current/main/design/result-option-payload-diagnostics-ssot.md`
+- `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
 
 ## Historical Note
 
@@ -90,8 +94,9 @@ guard let Result::Ok(value) = result else {
 }
 ```
 
-This is still part of the `guard` / `match` family. It is not `try`, `throw`,
-or `?` propagation.
+This is still part of the `guard` / `match` family. Result-only postfix `?` is
+the separate accepted unchanged-error propagation surface; it does not add
+`try`, `throw`, or catch semantics.
 
 Prelude `Option` / `Result` matches must still name every variant explicitly.
 The `_` default arm does not satisfy known-enum exhaustiveness. Missing prelude
@@ -162,5 +167,9 @@ if some v = maybe_value {
 These forms are not the canonical documentation surface. New code should prefer
 explicit `Option::Some(...)`, `Option::None`, and `match`.
 
-`?`, `try`, and exception-like propagation are not part of the canonical
-Result/Option surface.
+Typed postfix `?` is canonical only for `Result<T,E>` inside an enclosing
+`Result<U,E>` with exact `E`. Option `?`, `try`, `throw`, catch,
+implicit conversion, and custom propagation protocols are not canonical v1.
+The Result `?` production consumer remains 0 until its verified plan/exit
+transaction row lands and the mandatory reference closeout synchronizes both
+parsers and the grammar registry.

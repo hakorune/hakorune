@@ -8,6 +8,9 @@ canonical reference when it conflicts with:
 - `docs/reference/language/EBNF.md`
 - `docs/reference/language/types.md`
 - `docs/reference/language/option.md`
+- `docs/reference/language/failure-outcome-relations.md`
+- `docs/reference/language/scope-exit-semantics.md`
+- `docs/reference/language/lifecycle.md`
 - `docs/reference/language/field-visibility-and-delegation.md`
 - `docs/reference/language/low-level-capabilities.md`
 
@@ -18,7 +21,12 @@ Current high-level corrections:
 - behavior reuse uses `delegate field exposes`, not inheritance / `super`;
 - enum variants use `Type::Variant`, not `Type.Variant`;
 - `Option<T>` and `Result<T,E>` are built-in enum prelude surfaces;
-- `try`, `throw`, and `?` are not the canonical Result/Option surface.
+- source `try`, `throw`, `catch`, and `RecoverableFailure` are rejected;
+- exact Result-only postfix `?` is the accepted unchanged-propagation target,
+  while Option `?` is rejected; production activation remains 0;
+- standalone `cleanup {}` is the sole lexical cleanup target;
+- Box-member `fini {}` is a non-callable terminal Home hook and direct
+  `obj.fini()` is rejected; production activation remains 0.
 
 **Historical last update: 2025年9月18日 - Property System Revolution + Method-Level Exception Handling**
 
@@ -388,8 +396,8 @@ result = condition && other || fallback  # 利用可能だが非推奨
 
 #### **特殊演算子（historical notes）**
 ```nyash
-# ? 演算子は current canonical Result/Option surface ではない
-# current: Result::Ok(...) / Result::Err(...) + guard / match
+# Historical pre-C′ note. Current target accepts exact Result-only postfix ?
+# and uses guard/match for local handling or Option absence; production is 0.
 
 # ラムダ式
 local add = fn(x, y) { return x + y }
@@ -733,6 +741,10 @@ processData() cleanup {
 
 ### **4.5 `box.fini()` - オブジェクトファイナライザ**
 
+> Historical pre-C′ section. Current target rejects direct `box.fini()` and
+> ordinary `fini()` methods; the accepted spelling is non-callable Box-member
+> `fini {}` invoked only by terminal Home release. Production activation is 0.
+
 Boxの所有権が終了するときに呼ばれるメソッドです。
 
 ```nyash
@@ -868,10 +880,10 @@ box Person {
 }
 ```
 
-### **?演算子（historical / non-canonical）**
+### **?演算子（historical pre-C′ wording）**
 ```nyash
-# current canonical surface does not use `?`.
-# Use explicit Result<T,E> and match/guard.
+# Current target: Result<T,E> exact unchanged propagation may use postfix `?`.
+# Option `?` remains rejected; use match/guard. Production activation is 0.
 ```
 
 ### **Lambda式**

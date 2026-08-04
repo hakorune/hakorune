@@ -7,9 +7,10 @@ Axes
 - Control Flow & SSA
 - Hakorune: explicit observability (hints), PHI hygiene invariants.
   - Rust/Swift/Kotlin: SSA is internal; limited direct observability.
-- Exceptions
-- Hakorune: postfix `catch/cleanup` (scope‑first), zero‑cost lowering.
-  - Rust: Result/? idiom (no exceptions). Swift/Kotlin: try/catch/finally.
+- Failure and cleanup
+- Hakorune: `Result<T,E>`, exact Result-only postfix `?`, `guard`/`match`, and
+  standalone lexical `cleanup`; no source catch/throw in the accepted v1 target.
+  - Rust: Result/? idiom (no ordinary exceptions). Swift/Kotlin: try/catch/finally.
 - Macros
 - Hakorune: AST JSON v0, hygienic by construction, isolated child with capabilities.
   - C: text macro. Rust: macro_rules!/proc‑macros. Lisp/Julia: homoiconic AST.

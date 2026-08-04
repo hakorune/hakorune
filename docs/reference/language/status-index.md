@@ -56,20 +56,22 @@ not inherit permission from that snapshot.
 
 | Feature | Grammar status | Availability/profile | Authority / evidence | Gate/reject tag | Promotion/retirement | Current note |
 | --- | --- | --- | --- | --- | --- | --- |
-| `throw` | `status_conflict` | `prohibited` | [scope-exit](scope-exit-semantics.md), [option](option.md), EBNF; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `[freeze:contract][parser/throw_reserved]` | source/parser producers must remain zero; generated/internal shapes are fenced separately | Accepted target rejects both profiles; internal/generated shapes still require authority sync and are not source permission. |
-| statement `try` | `status_conflict` | `status_conflict` | [grammar contract](grammar-contract.md), EBNF, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `[freeze:contract][parser/try_reserved]` | target rejects both language profiles; registry/parser sync pending | Accepted target has no source `try`; current Compat parser acceptance remains implementation drift, not permission. |
-| postfix `catch` | `status_conflict` | `pending` | [semantic kernel](semantic-kernel.md), [failure/outcome relations](failure-outcome-relations.md), grammar contract; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | current ambient gates are evidence only | `RecoverableFailure` producer/ABI D0, then grammar/runtime rows | Accepted target is canonical, protects the preceding region, and never catches terminal `Fault`; physical authority sync is pending. |
-| postfix `cleanup` | `status_conflict` | `pending` | [scope-exit](scope-exit-semantics.md), EBNF, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | current Stage-3 gates are evidence only | exact grammar/profile/backend rows required | Accepted target is canonical and independent of catch/object lifecycle; no broad live claim. |
-| standalone `cleanup { ... }` | `status_conflict` | `pending` | [scope-exit](scope-exit-semantics.md), EBNF, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `index:cleanup-production-missing` | registry/parser/runtime rows required | Accepted target is canonical; physical standalone production is not yet synchronized. |
-| `local x = e cleanup { ... }` | `status_conflict` | `pending` | [scope-exit](scope-exit-semantics.md), EBNF, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `index:local-cleanup-production-missing` | registry/parser/runtime rows required | Accepted target is canonical; physical local-cleanup production is not yet synchronized. |
-| `fini { ... }` / `local ... fini` | `status_conflict` | `status_conflict` | [scope-exit](scope-exit-semantics.md), [lifecycle](lifecycle.md), grammar contract, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `index:fini-alias-authority-sync-pending` | `LANGUAGE-FINI-SCOPE-ALIAS-SUNSET-001` | Accepted target rejects Canonical and keeps a bounded Compat2025 cleanup alias; current CatchClause marker is legacy representation. |
-| `box.fini()` | `canonical` | `guarded`/`status_conflict` | [lifecycle](lifecycle.md), [scope-exit](scope-exit-semantics.md) | `index:lifecycle-owner-check` | Lifecycle owner must name the supported profile | Semantic target is distinct from scope cleanup; production support is not claimed for every backend. |
+| `throw` | `status_conflict` | `prohibited` | [Result/exit C′](../../development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md), EBNF | `[freeze:contract][parser/throw_reserved]` | source/parser producers zero; generated/internal shapes separately fenced | Rejected in both target profiles; physical retirement pending. |
+| statement `try` | `status_conflict` | `status_conflict` | [Result/exit C′](../../development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md), grammar contract, registry | `[freeze:contract][parser/try_reserved]` | reject both profiles; registry/parser sync pending | Current Compat parser acceptance is migration drift, not permission. |
+| postfix Result `?` | `status_conflict` | `pending` | [Result/exit C′](../../development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md), [option](option.md), semantic kernel | `index:typed-result-qmark-production-missing` | verified propagation/exit plan, exact consumer, legacy QMark retirement, DOC0 | Accepted only for `Result<T,E>` inside `Result<U,E>` with exact `E`; Option/custom Try/implicit conversion rejected. |
+| postfix `catch` | `status_conflict` | `prohibited` target / transport drift | [Result/exit C′](../../development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md), semantic kernel, registry | current ambient gates are evidence only | source/carrier/runtime retirement in C′ R0 | Catch and `RecoverableFailure` are rejected target surfaces; July decision is historical. |
+| postfix `cleanup` | `status_conflict` | retirement pending | [scope-exit](scope-exit-semantics.md), EBNF, registry | current syntax-3 gates are evidence only | C′ R0 | Not canonical; migrate to standalone cleanup. |
+| standalone `cleanup { ... }` | `status_conflict` | `pending` | [scope-exit](scope-exit-semantics.md), [Result/exit C′](../../development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md) | `index:cleanup-production-missing` | dedicated AST/exit plan and backend rows | Sole accepted lexical cleanup target; production not synchronized. |
+| `local x = e cleanup { ... }` | `status_conflict` | retirement pending | [scope-exit](scope-exit-semantics.md), EBNF, registry | `index:local-cleanup-retirement-pending` | C′ R0 | Not canonical; declaration sugar must not create a second registration rule. |
+| scope `fini { ... }` / `local ... fini` | `status_conflict` | retirement pending | [scope-exit](scope-exit-semantics.md), grammar contract, registry | `index:fini-alias-authority-sync-pending` | retire before Box-hook activation | Historical cleanup aliases only; not a retained Compat authority. |
+| Box-member `fini { ... }` | `topic_owned` | accepted target / production 0 | [lifecycle](lifecycle.md), [C′ lifecycle](../../development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md) | `index:cprime-fini-hook-production-missing` | Home C′ I0/R0 + DOC0 | Non-callable terminal Home hook; parent hook precedes reverse verified-owning-field release. |
+| direct `box.fini()` / `fini(...)` method | `status_conflict` | retirement/rejection pending | [lifecycle](lifecycle.md), C′ lifecycle | `index:direct-fini-retirement-pending` | caller/catalog/parser retirement in Home C′ R0 | Rejected target; `close()`/`shutdown()` remain ordinary methods. |
 | `co` / `nowait` / `await` | `topic_owned` | `guarded` concurrency profile | [concurrency semantics](../concurrency/semantics.md), stage profiles | `concurrency-profile-required` | Separate concurrency decision | Not a general Stage1/selfhost promise; no Language v1 registry row currently. |
 | `Channel<T>` | `topic_owned` | `scaffold`/`deferred` by route | [concurrency semantics](../concurrency/semantics.md), stage profiles | `channel-route-gated` | Separate concurrency decision | Reference queue surface; broad Program/MIR/LLVM use remains gated. |
 | `sync box` / `context` / `task_scope` | `topic_owned` | `scaffold`/`deferred` | [concurrency boundary](../concurrency/boundary-model.md), stage profiles | `sync-boundary-gated` | Separate concurrency decision | Do not infer parser-live or broad runtime support from reference docs. |
 | `worker_scope` / `parallel` / raw `thread` / `lock<T>` / `worker_local` | `reserved`/`topic_owned` | `prohibited`/`deferred` | [stage profiles](stage-profiles.md), concurrency docs | `concurrency-substrate-only` | New language decision required | Design/substrate surfaces; no language-core activation. |
 | Home ownership: declaration `take`, result `from`, expression `share` | `topic_owned` | provisional / prohibited until exact rows | [ownership](ownership.md), [Home taskboard](../../development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md), stage profiles | existing inactive-ownership reject boundary | taxonomy/composite/representation/storage/CFG D0, then shared grammar rows | Home direction is accepted; exact spelling and representation are not. Former `move/view/shared` target syntax is historical, production activation remains 0. |
-| `Option<T>` / `Result<T,E>` constructors | `canonical` narrow rows | `live` narrow enum/prelude profile | [option](option.md), EBNF, stage profiles | `option-result-narrow` | Expand only by explicit capability row | `?`, `try`, and `throw` are not implied by enum support. |
+| `Option<T>` / `Result<T,E>` constructors | `canonical` narrow rows | `live` narrow enum/prelude profile | [option](option.md), EBNF, stage profiles | `option-result-narrow` | Expand only by explicit capability row | Constructors are live independently; typed Result `?` remains pending and Option `?` is rejected. |
 
 ## Known conflict set
 
@@ -78,24 +80,26 @@ implementation rows remain intentionally unsynchronized:
 
 ```text
 source try rejected in both profiles versus current Compat parser row
-postfix catch RecoverableFailure target versus no canonical producer/boundary ABI
-cleanup/fini target naming versus current registry/AST encoding and Stage-3 gates
+typed Result ? target versus current dynamic/arbitrary-object QMark route
+catch/RecoverableFailure rejection versus current registry/AST/runtime transport
+single cleanup and Box fini-hook target versus current registry/AST encoding
 external source-try migration records are tool/evidence only, outside grammar
 concurrency topic rows versus Language v1 registry rows
-legacy EBNF/parser exception-shaped evidence versus the protected-region target
+legacy EBNF/parser exception-shaped evidence versus the Result-only target
 ```
 
 Resolution owner:
-[LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md).
-`LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT` synchronizes the authority prose;
-later rows own grammar/registry/parser/runtime changes. No parser, runtime,
+[LANGUAGE-RESULT-EXIT-C-PRIME0-D0](../../development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md)
+and [C′ lifecycle](../../development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md).
+Their I0/R0 rows own grammar/registry/parser/runtime changes and their mandatory
+DOC0 rows close the implementation-backed reference. No parser, runtime,
 backend, or grammar-registry implementation change is authorized by this
 index update.
 
 Legacy parser/transport evidence is not permission to degrade an unsupported
-handler to a no-op. The D1 decision is accepted; until the later grammar and
-runtime rows close, unsupported handler/backend combinations must reject before
-user-visible effects.
+handler to a no-op. The C′ Decision is accepted while physical retirement is
+pending; until its grammar and runtime rows close, unsupported
+handler/backend combinations must reject before user-visible effects.
 
 ## Historical rule
 

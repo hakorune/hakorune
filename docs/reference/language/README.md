@@ -68,13 +68,14 @@ Variables and scope
   handles, destination transfer, result relations, explicit `share`, and
   callable Home ABI. Exact target spellings remain provisional and become
   parser-live only when their D0, EBNF, and registry rows land.
-- See: [lifecycle.md](lifecycle.md) — Box object residency (strong/weak),
-  Alive/Dead/Freed, and finalization (`fini`) SSOT.
+- See: [lifecycle.md](lifecycle.md) — terminal Home finalization, weak-only
+  tombstones, non-callable Box `fini {}` hooks, and structural drop SSOT.
 - See: [constructor-birth-new-lifecycle-ssot.md](../../development/current/main/design/constructor-birth-new-lifecycle-ssot.md) — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.
-- See: [scope-exit-semantics.md](scope-exit-semantics.md) — SSOT for canonical
-  `cleanup`, Compat2025 scope-`fini` aliases, postfix protected-region/cleanup
-  ordering, and accepted Home-transfer/`share` terminology. Parser-live
-  status remains owned by EBNF/grammar rows.
+- See: [scope-exit-semantics.md](scope-exit-semantics.md) — SSOT for one
+  standalone `cleanup {}`, Result-only `?` exit ordering, terminal Home
+  release, and accepted Home-transfer/`share` terminology. Scope-`fini`,
+  catch, and postfix/local cleanup are retirement input. Parser-live status
+  remains owned by EBNF/grammar rows.
 - See: [repl.md](repl.md) — REPL mode semantics (file mode vs REPL binding rules).
   Current interactive implementation work is parked by
   [vm-active-lane-retirement-ssot.md](../../development/current/main/design/vm-active-lane-retirement-ssot.md) and
@@ -110,12 +111,14 @@ Grammar (EBNF)
   [EBNF.md](EBNF.md) “Box Members” and the
   [retirement SSOT](../../development/current/main/design/box-member-field-method-surface-ssot.md).
 
-Member protected regions and cleanup
-- The accepted target is postfix `catch`/`cleanup` on method bodies. `catch`
-  handles only pending `RecoverableFailure`, never terminal `Fault`; activation
-  remains pending the explicit grammar and outcome rows. Legacy Property and
-  syntax-3 implementation paths are evidence, not a profile owner. Stored
-  members (`name` or `name: Type`) do not support handlers.
+Failure, cleanup, and finalization
+- Recoverable failure is `Result<T,E>`; typed Result-only postfix `?` is the
+  accepted unchanged-propagation target. Option `?`, catch, and
+  `RecoverableFailure` are rejected in v1.
+- standalone `cleanup {}` is the sole lexical cleanup target. Box-member
+  `fini {}` is a non-callable terminal Home hook; direct `obj.fini()` retires.
+  Current handler-tail/TryCatch/legacy QMark paths are migration evidence, not
+  a profile owner, and production activation remains 0.
 
 Related implementation notes
 - Frontend AST schema: crates/hakorune_frontend_ast/src/

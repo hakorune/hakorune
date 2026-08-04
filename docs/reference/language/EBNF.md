@@ -1,9 +1,11 @@
 # Hakorune Grammar Reference
 
-Status: Living target grammar reference plus explicitly labeled implementation
-evidence. The exception/cleanup target below is accepted, but its registry and
-parser synchronization remains pending; parser acceptance alone is not grammar
-authority. Practical bootstrap / phase-1 support status is tracked in
+Status: Living grammar/reference snapshot plus explicitly labeled
+implementation evidence. The 2026-08-05 Result/exit and C′ lifecycle Decisions
+supersede the exception/cleanup/fini target prose and productions still present
+below. Those productions remain an unsynchronized migration inventory until
+the implementation rows and mandatory EBNF/registry/parser reference closeout;
+parser acceptance alone is not language authority. Practical bootstrap / phase-1 support status is tracked in
 `docs/reference/language/stage-profiles.md`.
 
 Selfhost tooling uses `--syntax-3` with compatibility alias `--stage3`.
@@ -14,10 +16,17 @@ Design SSOT note (Scope Exit Semantics):
 - `throw` is prohibited in surface language design.
 - parser は `throw` を常時 reject する（`[freeze:contract][parser/throw_reserved]`）。
 - source `try` is rejected in Canonical and Compat2025 language profiles.
-- postfix `catch` is the accepted protected-region spelling, pending the
-  distinct `RecoverableFailure` producer/ABI; terminal `Fault` bypasses it.
-- canonical scope spelling is `cleanup`; `fini {}` / `local ... fini {}` are
-  Compat2025 aliases only and never object finalization.
+- typed Result-only postfix `?` is the accepted unchanged-propagation target;
+  its grammar/verified consumer remains production 0.
+- source catch and `RecoverableFailure` are rejected targets.
+- standalone `cleanup {}` is the sole lexical cleanup target; local/postfix
+  cleanup and scope-position `fini` are retirement input.
+- Box-member `fini {}` is the accepted non-callable terminal Home hook; direct
+  `obj.fini()` is rejected. Its production remains 0.
+- The concrete productions below are not rewritten in this Decision-only
+  slice. `LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` and
+  `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0` must synchronize EBNF, registry, corpus,
+  and both parsers after implementation.
 - Rune declaration metadata is active on both Rust and `.hako` parsers; canonical syntax is `@rune`, optimization families (`Inline` / `Hint` / `Contract` / `Profile` / `IntrinsicCandidate`) are part of the same metadata lane, and legacy `@hint` / `@contract` / `@intrinsic_candidate` plus compat `Lowering(inline_required)` remain migration aliases. Program(JSON v0) is not widened for Rune metadata.
 - SSOT:
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
@@ -830,6 +839,8 @@ method_decl    := IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* bloc
                   ; no-value contract; omission is an unannotated result contract,
                   ; not implicit void or source-level result inference. `birth`
                   ; is a constructor hook governed by the construction SSOT.
+                  ; handler_tail is unsynchronized migration inventory and is
+                  ; rejected by the accepted C′ target.
 
 gate_member    := 'gate' build_predicate '{' member* '}' ('else' ('gate' build_predicate '{' member* '}' | '{' member* '}'))?
                   ; member-level build selection. Branches must preserve the
@@ -846,10 +857,12 @@ TYPE_REF       := ('void' | IDENT ('.' IDENT)*) ('<' TYPE_REF (',' TYPE_REF)* '>
 
 handler_tail   := ( catch_block )? ( cleanup_block )?
 catch_block    := 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block
-                ; postfix protected-region handler; RecoverableFailure only.
+                ; historical parser/transport evidence; rejected C′ target.
 cleanup_block  := 'cleanup' block
+                ; historical handler-tail cleanup evidence; canonical C′ uses
+                ; one standalone cleanup statement.
 
-; Accepted target postfix forms. Grammar/profile implementation remains pending.
+; Historical parser/transport evidence. Both postfix forms are rejected by C′.
 postfix_catch      := primary_expr 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block
 postfix_cleanup    := primary_expr 'cleanup' block
 ```
@@ -860,14 +873,16 @@ Semantics (summary)
 - weak: a stored, non-owning relation; it is not a Property kind.
 - field declaration syntax admits neither `=>` nor a block body. Computation is
   an ordinary method and therefore requires `()` at the call site.
-- method handlers are accepted target protected-region/cleanup syntax; semantic activation awaits
-  `LANGUAGE-RECOVERABLE-FAILURE-D0` and later grammar/runtime rows.
+- method handlers remain migration evidence only. C′ rejects catch and
+  handler-tail/postfix cleanup; `LANGUAGE-RESULT-EXIT-C-PRIME0-R0` retires the
+  carriers and `DOC0` rewrites this production after implementation.
 
-Target lowering boundary (no JSON v0 change)
+Current migration lowering boundary (no JSON v0 change in this docs slice)
 - stored → slot; declared type, when present, is copied into field-declaration metadata
 - methods → ordinary callable lowering and generated callable Home ABI
-- method handlers require the one ProtectedRegion/Cleanup owner; they must not
-  synthesize source `try`, generic Catch/Throw, or a backend no-op fallback.
+- legacy method handlers still use the current TryCatch bridge and must not be
+  widened. C′ I0 replaces cleanup with the verified exit owner; C′ R0 retires
+  catch and the handler carrier.
 - unsupported routes reject before protected-body effects. JSON v0 is unchanged.
 
 ### Current production compatibility grammar
@@ -932,15 +947,17 @@ environment-gated handler spellings, including Compat source `try`, ambient
 `NYASH_*` gates, and `TryCatch`-shaped transport. They are implementation
 evidence for the migration inventory only.
 
-The accepted target is instead:
+The accepted C′ target is instead:
 
 ```text
-source try / throw                  = rejected in both language profiles
-postfix catch                       = protected preceding region only
-catch target                        = RecoverableFailure only; never Fault
-canonical scope spelling            = cleanup
-scope fini                          = Compat2025 alias to cleanup
-unsupported parser/backend route    = fail before protected-body effects
+source try / throw / catch          = rejected in both language profiles
+RecoverableFailure Outcome          = rejected
+typed Result-only postfix ?         = accepted target; production 0
+canonical lexical spelling          = standalone cleanup { ... }
+handler-tail/postfix cleanup        = retirement input
+scope fini                          = retirement input, not a retained alias
+Box-member fini { ... }             = terminal-Home hook; production 0
+unsupported parser/backend route    = fail before Builder effects
 ```
 
 No environment variable is a language-semantic profile owner. A later explicit

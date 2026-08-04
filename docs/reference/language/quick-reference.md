@@ -25,14 +25,16 @@ Feature status and gates
   separate axes.
 - `throw` is prohibited and parser-rejected with a stable freeze tag. It is not
   a feature that can be enabled by a compatibility toggle.
-- source `try` is rejected in both language profiles. Postfix `catch` is the
-  accepted protected-region target but remains pending its distinct
-  `RecoverableFailure` producer/ABI; it never catches terminal `Fault`. Do not
-  infer parser/runtime availability from legacy Stage-3 gates; follow the
-  [tryless task order](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md).
-- `cleanup` / `fini` / `box.fini()` have different scope-cleanup and
-  object-finalization owners. See [scope-exit-semantics.md](scope-exit-semantics.md)
-  and [lifecycle.md](lifecycle.md).
+- source `try`, `throw`, `catch`, and `RecoverableFailure` are rejected target
+  surfaces. Typed Result-only postfix `?` is the accepted unchanged-error
+  propagation marker; Option `?` and implicit conversion are rejected. Its
+  verified production route remains 0. See the
+  [Result/exit C′ SSOT](../../development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md).
+- standalone `cleanup {}` owns lexical exit. Box-member `fini {}` is the
+  non-callable last-Home hook; direct `obj.fini()` is a retirement target.
+  `close()`/`shutdown()` are ordinary methods. See
+  [scope-exit-semantics.md](scope-exit-semantics.md) and
+  [lifecycle.md](lifecycle.md).
 - `co` / `nowait` / `await`, `Channel<T>`, and `sync box` are
   concurrency-profile surfaces, not a general Stage1/selfhost promise. See
   [the concurrency status](../concurrency/semantics.md).

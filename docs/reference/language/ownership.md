@@ -4,7 +4,8 @@ Status: Language semantics SSOT; Home direction accepted, exact HomeV1 grammar
 provisional, production activation 0
 
 Decision: accepted on 2026-08-04 as the successor to the earlier
-`move/share/view` target.
+`move/share/view` target; C′ terminal Home finalization amendment accepted on
+2026-08-05.
 
 This page is the source-language authority for ownership, ordinary aliases,
 Home transfer, and the explicit boundary that adds an independent owner.
@@ -13,7 +14,8 @@ Related authorities:
 
 - `variables-and-scope.md`: lexical bindings and nearest-binding assignment;
 - `scope-exit-semantics.md`: lexical cleanup and exit ordering;
-- `lifecycle.md`: `fini()`, Alive/Dead/Freed, weak references, and reclamation;
+- `lifecycle.md`: non-callable `fini {}` hook, terminal Home DropPlan, weak
+  references, and reclamation;
 - `../../development/current/main/design/ownership-home-model-ssot.md`:
   cross-layer compiler authority;
 - `../../development/current/main/design/box-member-field-method-surface-ssot.md`:
@@ -31,6 +33,7 @@ historical evidence only. They do not restore `move`, source `view`, source
 | Layer | Current state |
 | --- | --- |
 | Home direction and durable laws | accepted by this page |
+| C′ last-Home finalization direction | accepted target; production 0 |
 | exact HomeV1 source grammar | provisional; D0 rows open |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
 | Rust/Hako parser and AST Home carriers | inactive / absent |
@@ -376,15 +379,37 @@ temporary-lifetime-extension contract is accepted.
 ## 8. Lifecycle, weak, cleanup, and concurrency
 
 - `share` changes independent ownership.
-- `fini()` changes logical object lifecycle. It is not a transfer spelling and
-  not a promise of immediate physical free.
+- `fini {}` is a non-callable Box hook dispatched only by the terminal Home
+  DropPlan. It is not a transfer spelling or direct physical-free API.
+- ordinary handle end is owner-neutral; `take` and terminal return forward a
+  Home atomically and dispatch no hook in transit.
+- a verified owning field releases its Home during parent teardown; the child
+  hook runs only when that release is terminal. Exact field classification
+  remains `OWN-FIELD-CONTAINER-DEST-D0`.
 - `cleanup` owns lexical exit actions.
+- `close()`/`shutdown()` are optional ordinary domain methods and add no
+  language or ownership authority.
 - `weak` is a generation-aware non-owner with separate upgrade rules.
 - `share` does not imply `Send`, `Sync`, thread safety, or cross-thread use.
 - physical reclamation belongs to the selected storage/runtime/backend plan.
 
 These contracts must remain distinct even if one backend happens to implement
 several with the same pointer or counter.
+
+The accepted terminal relation is:
+
+```text
+last Home release
+-> optional parent fini hook
+-> verified owning fields in reverse declaration order
+-> native structural drop
+-> weak tombstone/reclaim
+```
+
+Direct `obj.fini()`, B′ Dead-with-live-Home, global finalizer dispatch, and
+last-strong structural drop that bypasses a declared hook are retirement
+targets. They remain implementation evidence only until the bounded C′ series
+and mandatory Home reference closeout land.
 
 ## 9. Performance contract
 

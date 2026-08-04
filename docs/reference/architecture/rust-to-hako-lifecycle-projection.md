@@ -1,6 +1,6 @@
 # Rust-to-Hako Lifecycle Projection Reference
 
-Status: Reference
+Status: C′ target reference; production Home/finalization activation 0
 Scope: How Rust ownership / borrow / move / Drop information is migrated into
 Hako lifecycle plans.
 
@@ -330,17 +330,23 @@ Conditional or Open Drop:
   init flags or Deny in v0
 ```
 
-Do not map every Rust `Drop` implementation to `box.fini()`.
+Do not map every Rust `Drop` implementation to a direct `box.fini()` call.
+Canonical C′ has no such callable surface.
 
 ```text
 scope cleanup:
   lexical release owner
 
-box.fini():
-  object-level logical finalization
+ordinary close()/release():
+  explicit, possibly fallible domain operation
+
+Box-member fini { ... }:
+  non-callable hook inside terminal Home DropPlan
 ```
 
-They are not interchangeable.
+They are not interchangeable. The converter may emit a Box hook only from a
+verified terminal-Home lifecycle plan; it may not synthesize eager B′
+finalization or manual parent-to-child hook calls.
 
 ### Arc / Rc
 

@@ -1,18 +1,16 @@
 # Scope Exit Semantics (SSOT)
 
-Status: Normative (2026-08; B′ lifecycle and Home-direction decisions applied).
+Status: Normative C′ target; grammar/runtime/Home production activation 0.
 
-Decision/availability: canonical cleanup and postfix catch are accepted target
-surfaces but remain pending their exact grammar/runtime rows. Scope `fini` is
-Compat2025-only cleanup alias; source `try` is rejected in both language
-profiles. Home tokens, destination Home demand, and explicit `share` describe
-the accepted ownership direction; exact HomeV1 grammar remains provisional,
-source ownership production remains 0, and inactive ownership spellings stay
-parser-rejected until their grammar/profile rows land.
-Unsupported ownership forms fail fast and never fall back to SharedV1.
+Decision: `LANGUAGE-RESULT-EXIT-C-PRIME0-D0` and
+`OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0` accepted on 2026-08-05. Canonical v1 has
+one standalone `cleanup {}` registration, typed Result-only postfix `?`, no
+source catch/`RecoverableFailure`, and one terminal Home lifecycle hook.
+Existing parser/registry/bridge behavior remains migration evidence until the
+implementation and mandatory reference-closeout rows land.
 
-This page defines the scope-exit lifecycle model around canonical `cleanup`,
-legacy DropScope `fini`, postfix `catch/cleanup`, and object-level `box.fini()`.
+This page defines the relation between lexical `cleanup`, the common exit
+transaction, Home release, and Box-member `fini {}`.
 Source ownership/alias rules are owned by `ownership.md`.
 Function fallthrough, explicit-return materialization, Script results, and
 entry/process-result projection are owned by
@@ -22,8 +20,8 @@ entry/process-result projection are owned by
 
 This SSOT fixes:
 
-- DropScope registration and execution order
-- protected-region and cleanup routing
+- cleanup registration and execution order
+- typed Result propagation through the common exit transaction
 - relation between scope cleanup and object finalization
 - failure policy when cleanup/finalization handlers fail
 - constructor (`birth`) partial-failure behavior
@@ -34,87 +32,79 @@ Value or Unit. It only orders cleanup around the already-selected Outcome.
 
 ## 1) Core Surfaces
 
-- Standalone `cleanup { ... }`: canonical scope-exit handler spelling for the
-  current DropScope. Parser support is phased; Canonical source must not rely
-  on any spelling until its parser/profile row lands.
-- `local x = e cleanup { ... }`: canonical declaration sugar that registers
-  cleanup at the declaration point. Parser support is phased.
-- `fini { ... }`: Compat2025-only legacy alias for a scope-exit cleanup handler.
-- `local x = e fini { ... }`: Compat2025-only legacy declaration sugar that
-  registers cleanup at the declaration point.
-- Postfix `cleanup { ... }`: always-run handler attached to a protected
-  expression/block/member handler.
-- postfix `catch (...) { ... }`: protected-region handler for pending
-  `RecoverableFailure` only; it never catches terminal `Fault`.
-- `box.fini()`: explicit object-level logical finalization. This is not a
-  scope-exit handler and is not implied by ownership ending.
+- Standalone `cleanup { ... }`: the sole canonical lexical registration. It
+  becomes active only after control reaches the statement.
+- Typed Result-only postfix `?`: may create a pending Return; it is not a
+  cleanup or exception handler.
+- Box-member `fini { ... }`: non-callable terminal Home hook owned by the C′
+  lifecycle DropPlan. It is not a scope handler.
+- `close()`/`shutdown()` and similar names: ordinary optional methods for
+  explicit, possibly fallible domain shutdown.
 
 Constraints:
 
-- `local ... cleanup` / `local ... fini` require exactly one local binding.
 - `finally` is terminology only; the surface keyword is `cleanup`.
-- `throw` is prohibited in surface language design (parser always rejects it).
+- source `try`, `throw`, `catch`, `RecoverableFailure`, local/postfix cleanup,
+  and scope-position `fini` are rejected target surfaces.
 
 Naming rule:
 
 ```text
 cleanup = when lexical/block cleanup runs
-fini()  = what an object does when finalized
+fini    = terminal Home hook inside a Box
+close   = ordinary explicit domain operation
 ```
 
 ## 2) Unified Cleanup Model
 
-Canonical `cleanup`, legacy DropScope `fini`, and postfix `cleanup` all target
-the same cleanup channel. That target does not authorize a `TryCatch` AST/MIR
-encoding, source `try`, or backend fallback.
+Standalone cleanup targets one `CleanupRegistrationV1` and one
+`VerifiedExitTransactionV1`. It does not authorize a `TryCatch` AST/MIR
+encoding, source handler tail, runtime registration list, or backend fallback.
 
 - Handlers run once per scope exit.
-- Multiple DropScope registrations in the same scope run in LIFO order.
+- Multiple registrations in the same scope run in LIFO order.
 - Cleanup handlers are not jump targets.
 
 ## 3) Exit Ordering
 
-On normal exit, `return`, `break`, `continue`, or an already-selected Outcome:
+On normal exit, Result `?`, `return`, `break`, `continue`, or Fault:
 
-1. a postfix protected region may route only `RecoverableFailure` to its
-   immediately attached catch handler; terminal `Fault` bypasses catch
-2. run scope-exit handlers (`cleanup`, including legacy `fini` aliases) for the exiting scope
-3. destroy the Home tokens held by owning local Home slots of that scope;
-   ordinary handles carry no token and add no destroy
-4. if the last strong token disappeared, run structural payload drop/reclaim;
-   this does not call user `box.fini()`
-5. propagate the resulting Outcome outward; unhandled `RecoverableFailure`
-   boundary behavior is pending `LANGUAGE-RECOVERABLE-FAILURE-D0` and may not
-   silently become Unit, `Result::Err`, or Fault
+1. evaluate the exit expression once and protect any outgoing Result/Home in a
+   pending carrier
+2. cross lexical scopes inner-to-outer; run each scope's cleanup LIFO
+3. release non-forwarded local Homes in reverse declaration order; ordinary
+   handles have no owner effect
+4. for each terminal Home release, enter the C′ lifecycle DropPlan: parent Box
+   hook first, then verified owning fields in reverse declaration order, then
+   native structural drop
+5. publish the pending Outcome once, or release an unpublished pending value
+   and publish the first Fault in time
 
-A cleanup handler that needs deterministic resource finalization must call
-`box.fini()` explicitly before its binding token is destroyed. Scope exit,
-`DestroyOwned`, last-strong reclamation, GC, and native `Drop` do not imply a
-successful user finalization.
+`take` and terminal return forward a Home atomically and do not finalize it in
+transit. A parent field release invokes a child hook only if it is the child's
+terminal Home; another Shared Home delays that hook.
 
 Lexical nesting determines inner/outer handler order.
 
-## 4) Local Cleanup Binding Rule
+## 4) Cleanup Registration Rule
 
-`local ... cleanup` and legacy `local ... fini` bind to the declaration-time
-slot.
-
-- later shadowing does not retarget an already-registered handler
-- same-scope redeclaration is fail-fast, so slot identity stays unambiguous
+A standalone cleanup body captures only declaration-time resolved bindings.
+Later shadowing does not retarget it, and same-scope redeclaration remains
+fail-fast. No local-declaration cleanup sugar creates a second binding rule.
 
 ## 5) Handler Restrictions and Failure Policy
 
 Cleanup handler restrictions (parser/verifier enforced):
 
-- forbidden: `return`, `break`, `continue`, `throw`
+- forbidden: `return`, `break`, `continue`, `?`, `throw`, `await`, `yield`, or
+  suspension
 
 If a compatibility path still accepts `break`/`continue` from a cleanup block,
 that path is not canonical and must be narrowed by a dedicated verifier row.
 
-If cleanup/finalization itself fails:
-
-1. complete remaining release steps in the current scope (best effort)
-2. then fail-fast as fatal runtime error
+If cleanup/finalization itself Faults, preserve the first Fault in time,
+complete remaining release steps best effort, record later Faults as
+suppressed diagnostics, then publish the primary terminal Fault.
 
 Object finalization runs through the lifecycle transaction defined by
 `lifecycle.md`; source/runtime routes must not call the user hook directly.
@@ -123,10 +113,12 @@ Object finalization runs through the lifecycle transaction defined by
 
 If constructor (`birth`) fails:
 
-1. do not call `box.fini()`
-2. destroy only already-initialized fields
+1. do not run the unpublished outer Box `fini` hook
+2. release only already-initialized field Homes
 3. field destruction order is reverse declaration order
-4. for legacy `from Parent.birth(...)` compatibility paths, apply the same rule
+4. a fully constructed child may run its own hook only when its release is
+   terminal
+5. for legacy `from Parent.birth(...)` compatibility paths, apply the same rule
    across the full initialized field set. New delegation code should use
    explicit field composition and `delegate field exposes`.
 
@@ -149,16 +141,15 @@ Use **ownership transfer** or **owner forwarding** as terminology.
 
 `scope-exit-semantics.md` is authoritative for:
 
-- DropScope cleanup surfaces (`cleanup`, legacy `fini` aliases, postfix `cleanup`)
+- standalone cleanup target and migration/sunset boundary for older spellings
 - exit ordering
-- protected-region/cleanup ordering (the RecoverableFailure producer and
-  boundary ABI remain owned by the later D0)
+- typed Result pending-return and cleanup ordering
 - cleanup/finalization failure policy
 - Home-transfer terminology
 
 `lifecycle.md` is authoritative for:
 
-- object states (Alive/Dead/Freed)
+- object states and terminal Home finalization
 - weak-reference semantics
 - memory policy (GC/non-GC)
 

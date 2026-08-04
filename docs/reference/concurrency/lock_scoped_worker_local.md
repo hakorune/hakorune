@@ -86,7 +86,9 @@ Rules:
 Inside a serialized `sync box` method:
 - `await` / `nowait` / `yield` / channel waits / blocking calls are forbidden (deadlock + scheduling hazards).
 - Calling another `sync box` method is forbidden until a later verifier row defines an explicit acyclic order contract.
-- Cleanup handlers and object finalizers (`fini()`) must not acquire locks (to avoid lock-order traps).
+- Cleanup handlers and C′ terminal Home `fini {}` hooks must not acquire locks
+  (to avoid lock-order traps). Ordinary `close()` methods follow their Box's
+  separately verified lock contract.
 
 Violations are **errors**, not silent fallback.
 

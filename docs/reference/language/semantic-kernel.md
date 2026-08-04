@@ -1,8 +1,8 @@
 # Hakorune Semantic Kernel v1
 
 Status: SSOT
-Decision: accepted
-Date: 2026-07-10
+Decision: accepted; Result/exit C′ amendment accepted 2026-08-05
+Date: 2026-08-05
 Scope: Canonical evaluation operations, control outcomes, cleanup precedence,
 and sugar preservation for Language v1.
 
@@ -13,6 +13,7 @@ Related:
 - `docs/reference/language/EBNF.md`
 - `docs/reference/language/scope-exit-semantics.md`
 - `docs/development/current/main/workstreams/language-v1-convergence-current.md`
+- `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
 
 ## Kernel
 
@@ -23,33 +24,32 @@ Normal(value_or_unit)
 Return(value_or_unit)
 Break
 Continue
-RecoverableFailure(reason)  ; accepted target; producer and ABI remain pending
 Fault(reason)
 ```
 
 `Fault` is an unrecoverable canonical semantic outcome. It is not absence or
 recoverable failure and no `catch` operation handles it.
 
-`RecoverableFailure` is the distinct, catchable target Outcome for a postfix
-protected region. It is not `Result::Err`, `CompatFailure`, or a legacy MIR
-`Catch` instruction. The accepted target transition is:
+`Result::Err(E)` and `Option::None` are ordinary enum values, not Outcomes.
+Typed Result-only postfix `?` may turn an `Err(E)` value into the enclosing
+callable's pending `Return(Result::Err(E))` after exact type/Home verification:
 
 ```text
-protected Normal / Return / Break / Continue -> propagate unchanged
-protected RecoverableFailure                 -> enter the postfix catch handler
-protected Fault                              -> bypass catch and remain terminal
+Result<T,E> Ok(value)  -> Normal(value)
+Result<T,E> Err(error) -> pending Return(Result::Err(error))
 ```
 
-No canonical producer, handler-result law, callable/source-entry propagation,
-or runtime/backend ABI exists yet. `LANGUAGE-RECOVERABLE-FAILURE-D0` owns those
-choices. Until it closes, a route that needs this Outcome fails before effects;
-it must not reinterpret `Result::Err` or a legacy exception carrier.
+The enclosing result must be exactly `Result<U,E>`. Option `?`, implicit error
+conversion, custom propagation protocols, source catch, and
+`RecoverableFailure` are not Canonical v1. The accepted plan/exit transaction
+has production activation 0; current dynamic QMark and legacy exception
+carriers remain migration evidence only.
 
 Function, Script, selected source-entry, physical-entry, and process-exit
 boundaries consume these Outcomes according to
 `function-exit-and-entry-result.md`. That topic does not add or redefine an
-Outcome variant and does not yet project `RecoverableFailure` across a
-callable or entry boundary.
+Outcome variant. Result propagation uses the ordinary Return boundary after the
+verified exit transaction drains cleanup and remaining local Homes.
 
 ## Evaluated Place
 
@@ -91,14 +91,14 @@ The body outcome remains pending while registered cleanup runs. Every required
 cleanup runs in its defined order.
 
 ```text
-cleanup Normal -> retain pending body outcome
-first cleanup Fault -> final Fault after remaining cleanup runs
-later cleanup Fault -> may be diagnostic metadata, never replaces the first
+cleanup with no Fault -> retain pending body outcome
+first Fault in time -> primary Fault after remaining teardown runs
+later cleanup/finalization Fault -> suppressed diagnostic
 ```
 
-Thus a cleanup Fault overrides `Normal`, `Return`, `Break`, `Continue`, or a
-body Fault. This rule preserves cleanup execution without reporting an earlier
-body outcome as the final result.
+Thus a cleanup Fault overrides a pending `Normal`, `Return`, `Break`, or
+`Continue`, but does not erase an earlier body Fault. This rule preserves the
+causal failure while still draining every required cleanup and Home release.
 
 ## Control Boundaries
 
@@ -110,8 +110,8 @@ requirement to expose a static `Never` type.
 
 ## Canonical Form and Evidence
 
-The canonical normal form is composed of Value, Place, Outcome, and Cleanup
-operations. Rust and Hako parsers remain independent implementations. Their
+The canonical normal form is composed of Value, Place, Outcome, Cleanup, and
+one verified ExitTransaction. Rust and Hako parsers remain independent implementations. Their
 conformance compares semantic witnesses such as evaluation order, evaluation
 count, Place identity, store identity, Outcome, and fail-fast point; it does
 not require identical AST rewrites.
@@ -120,7 +120,7 @@ not require identical AST rewrites.
 
 The first implementation slice is `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001`.
 It implements only evaluated-Place compound assignment and its source-order
-witnesses. It does not activate catchable Faults, type contracts, null
+witnesses. It does not activate Result propagation, cleanup, type contracts, null
 migration, ownership changes, capability verification, selfhost migration, or
 runtime/backend fallback.
 
@@ -129,13 +129,15 @@ runtime/backend fallback.
 ```text
 semantic_kernel_owner_count = 1
 current_physical_outcome_variant_count = 5
-target_outcome_variant_count = 6
+target_outcome_variant_count = 5
 evaluated_place_variant_count = 3
 canonical_fault_catchable = 0
-canonical_recoverable_failure_producer = 0
+canonical_recoverable_failure_target = 0
 canonical_catch_runtime_consumer = 0
 cleanup_always_runs = 1
 cleanup_fault_precedence = 1
+typed_result_qmark_production_consumer = 0
+verified_exit_transaction_production_consumer = 0
 guard_else_requires_no_fallthrough = 1
 ast_rewrite_canonicalization = 0
 semantic_kernel_implemented = 0

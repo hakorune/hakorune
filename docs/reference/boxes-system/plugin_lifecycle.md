@@ -4,6 +4,11 @@
 
 Status: current implementation snapshot; non-normative and transitional.
 
+Accepted C′ target: source `obj.fini()` is rejected. Box-member `fini {}` is a
+non-callable terminal Home hook; fallible early shutdown uses ordinary
+`close()`/`shutdown()`. The plugin ABI mapping remains production 0, so the
+Arc/`finalize_now`/manifest facts below are migration inventory only.
+
 Source ownership/alias/share の正本は
 `docs/reference/language/ownership.md`、object lifecycle/`fini()` の正本は
 `docs/reference/language/lifecycle.md`です。以下のArc/Drop/fini挙動は現行実装の
@@ -41,8 +46,8 @@ Source ownership/alias/share の正本は
     clone/share判断が残っています。これはSharedV1互換実装であり、source
     ownership authorityではありません。
 
-上記のoverwrite時finiとlast-Arc Drop時user finiは、accepted lifecycle contract
-ではretirement対象です。最終形ではexplicit `fini()`とstructural dropを分離し、
+上記のoverwrite時finiとlast-Arc Drop時user finiはretirement対象です。最終形は
+verified terminal Home DropPlanのnon-callable hookとstructural dropを分離し、
 runtime typeからsourceのalias/share意味を推論しません。
 
 ---
@@ -98,8 +103,8 @@ fini = { method_id = 4294967295 }
 ---
 
 ## 6. 将来拡張の方向
-- implicit scope/overwrite/last-strong user finiを撤去し、explicit `fini()`と
-  runtime structural dropを正本どおり分離する。
+- implicit scope/overwrite/last-Arc user finiとsource direct `fini()`を撤去し、
+  C′ terminal Home hookとruntime structural dropを正本どおり接続する。
 - PluginBoxV2のowner materializationを、verified Shared/host/plugin ABIと
   ObjectCell migrationへ接続する。
 - `nyash.toml` にクラス名→プラグインBox型の `overrides` を加え、ユーザー定義Boxの外部置換を許可する設計（任意）。

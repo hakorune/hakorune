@@ -44,16 +44,21 @@ typed pre-effect rejection or use a separately selected route.
 
 The table is the accepted target contract. The registry, generated parser
 projections, and both parser witnesses are still physically unsynchronized for
-the exception/cleanup rows; that drift is tracked in `status-index.md` and is
-not permission to treat a target row as live.
+the Result/exception/cleanup/finalization rows after the accepted 2026-08-05 C′
+Decision. That drift is tracked in `status-index.md` and is not permission to
+treat a target row as live. EBNF/registry/corpus mutation belongs to the
+post-implementation `LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` and Home closeout.
 
 | Spelling | Canonical | Compat2025 | Normalization |
 | --- | --- | --- | --- |
 | `guard expr else { ... }` | canonical | canonical | `GuardElse` |
 | `guard let PAT = EXPR else { ... }` | canonical | canonical | `GuardLetElse`; else requires `NoFallthrough` |
-| postfix `catch` | canonical | canonical | `PostfixCatch`; protects the preceding region and handles only pending `RecoverableFailure`, never Fault |
-| postfix `cleanup` | canonical | canonical | `PostfixCleanup` |
-| scope `fini` / `local ... fini` | rejected | compatibility_only | immediate alias to canonical cleanup; object `box.fini()` is separate lifecycle syntax |
+| postfix Result `?` | canonical target / pending sync | canonical target / pending sync | typed `Result<T,E>` inside `Result<U,E>` with exact `E`; no Option/custom Try/implicit conversion |
+| postfix `catch` | rejected target / registry retirement pending | rejected target / migration transport only | no `RecoverableFailure` language Outcome |
+| standalone `cleanup {}` | canonical target / pending sync | canonical target / pending sync | `CleanupRegistrationV1` into one verified exit transaction |
+| local/postfix `cleanup` | rejected target / registry retirement pending | rejected target / migration transport only | migrate to standalone cleanup |
+| scope `fini` / `local ... fini` | rejected target / registry retirement pending | rejected target / migration transport only | not the Box-member hook |
+| Box-member `fini {}` | canonical target / pending sync | canonical target / pending sync | non-callable terminal Home hook; direct `obj.fini()` rejected |
 | statement `try` | reserved and rejected | reserved and rejected | none; historical migration reading is outside language grammar |
 | `match` | canonical | canonical | `Match` |
 | `peek` | rejected | compatibility_only | lossless closed subset aliases to `Match` |

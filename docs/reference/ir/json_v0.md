@@ -67,8 +67,9 @@ Box members
 - After cutover, `__get_*` is an ordinary method spelling and must not recover
   Property meaning. Stale artifacts that require magic-name recovery reject.
 - Stored initializer expressions remain construction-path work in declaration
-  order. Method postfix `catch/cleanup` uses the one protected-region owner
-  when that language row is active.
+  order. Current method postfix `catch/cleanup` transport is migration
+  evidence only; C′ rejects the handler surface and replaces standalone
+  cleanup with one verified exit owner without widening Program JSON v0 here.
 - Design/task order:
   [box-member-field-method-surface-ssot.md](../../development/current/main/design/box-member-field-method-surface-ssot.md).
 
