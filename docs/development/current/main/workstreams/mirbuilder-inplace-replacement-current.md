@@ -474,16 +474,28 @@ JoinIR contract and ordered convergence map live in
 `design/joinir-loop-selfhost-recipe-pipeline-ssot.md`. Closed route-local provenance
 records below are evidence only and must not schedule another route.
 
-Current design stop:
+Current decision and execution brief:
 
 ```text
-JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0-DESIGN-STOP
-  P4-S1 singleton DirectAccum evidence is closed.
-  M10b all-route cutover is not executable because raw/reference and the
-  normalized-shadow callers do not share one source/binding semantic ingress.
-  Do not add a Script-only/raw-only resolver, name-based recovery table, or
-  compatibility adapter. The next owner decision is universal ingress,
-  typed final retained operation, or explicit Loop objective revision.
+JOINIR-LOOP-ALL-ROUTE-MEMBERSHIP-BPRIME0-D0
+  closed — universal ingress rejected. Raw public/reference NarrowV1 rejects
+  Loop before physical open; RawLegacyChildLoweringPortV1 is not a profile;
+  normalized-shadow mutation is retired and its observer is non-mutating.
+
+JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0
+  Change:
+    extend caller-zero JoinSig for one Always Loop containing one explicit If
+    with direct then-Break and else-Continue arms
+  Contract:
+    LoopJoinSigElaboratorV1 is the sole issuer; Recipe V1, Builder, physical
+    CFG/PHI, route_loop, scheduler, runtime, grammar, and diagnostics unchanged
+  Done:
+    one ordered branch row; Break/Continue edges; no Backedge/merge; negative
+    fallthrough/write/nested/Return/call/effect fixtures reject; callers remain 0
+  Stop:
+    no mixed fallthrough/binding merge, source projector, policy producer,
+    Retry/fallback, or old-edge deletion in this row; update/create
+    docs/reference/mir/loop-recipe-contract.md only after code/tests are green
 ```
 
 ## Production invariants
@@ -925,17 +937,16 @@ closed
      recursively lexical-safe body; existing FastMem lower remains owner
   -> focused semantic, direct-owner, transport, pointer, and shared guards green
 
-ordered after owner decision only
-  1. resolve `JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0-DESIGN-STOP` by choosing
-     universal semantic ingress, a typed final retained operation, or an
-     explicit Loop objective revision
-  2. if universal ingress is authorized, taskize one root-neutral producer and
-     its exact all-route source/binding coverage before any M10b code
-  3. if a typed retained operation is authorized, name its all-route consumer
-     and both normalized-shadow deletion edges before implementation
-  4. keep Program work-plan ownership below the file-size boundary; do not
-     create a Script-only/raw-only resolver or compatibility adapter
-  5. R4 consumes the live fence registry above; every item must retire, reown,
+ordered after B-prime correction
+  1. implement M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure
+  2. add the bounded LoopTrue source/policy/Recipe cohort, then LoopCond
+  3. close Generic M4 D2 before M7-S4; no mock winner or retry projection
+  4. close M7 five-family parity, M8 all-19 producers, and M9 host parity
+  5. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
+     source handoff and the active R4 Loop fence retirement
+  6. keep every source/check file below 800 lines; no universal raw ingress,
+     Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
+  7. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance
 
 R4

@@ -1,11 +1,15 @@
 # JoinIR Loop all-route premise reset — D0 consultation
 
-Status: Closed design stop — NoSafeSlice; owner decision required
+Status: Historical consultation; corrected closeout is Decision B-prime
 Date: 2026-08-04
 Current row: `JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0`
-Decision: `NoSafeSlice` — reject the current partial Loop cutover premise
-until the project selects a universal semantic ingress or a typed final
-retained operation for excluded callers.
+Decision: `B-prime` — exclude typed-unreachable raw/reference profiles, retain
+the located Loop migration fence, and reject universal semantic ingress.
+
+The question/evidence sections below preserve the premise presented to the
+consultation. They are historical input, not current caller authority. The
+corrected closeout at the end supersedes the stale `C / NoSafeSlice` answer
+that was added after B-prime and normalized-shadow retirement had landed.
 
 ## Context
 
@@ -187,41 +191,44 @@ Focused proof set:
 First executable row, or exact owner-level stop:
 ```
 
-## Closeout — 2026-08-04
+## Corrected closeout — 2026-08-04
 
-Decision: `C / NoSafeSlice`.
+Decision: `B-prime`.
 
-The all-route membership audit is closed with the following evidence:
-
-```text
-resolved Function/Lambda:
-  facts exist, but no ordinary Loop consumer publishes ordered logical inputs
-selected Script:
-  Loop is deferred before child descent; no BindingRef/exit/continuation product
-located raw invocation:
-  condition/body receipts are discarded before the sole raw JoinIR route
-shared normalized-shadow routes:
-  host variable_map and physical mutation remain active authorities
-raw/reference:
-  no source lineage or binding environment exists
-```
-
-Candidate A (universal root-neutral semantic ingress) is not a bounded
-implementation row yet: it requires a new all-caller source/binding producer,
-including raw/reference, without creating a second resolver. Candidate B has no
-typed final retained operation with an independent all-route consumer and
-sunset path; keeping raw/reference or normalized shadow as an untyped edge is
-not an accepted final-pipeline contract. Therefore M10b must not be started.
-
-The required owner-level decision is one of:
+The former `C / NoSafeSlice` closeout was a documentation regression. It
+over-counted a profile-blind helper as a raw/reference compilation profile and
+reintroduced normalized-shadow mutation after that authority had been deleted.
 
 ```text
-1. authorize and design the universal semantic ingress, or
-2. define a typed final retained Loop operation covering every excluded caller
-   and both normalized-shadow mutation entries, or
-3. explicitly park/revise the Loop final-pipeline objective.
+raw public / raw VM-reference NarrowV1:
+  owned source exists
+  Loop and LoopRange reject during body-recipe projection
+  rejection occurs before physical Builder open
+  production Loop reachability = 0
+
+RawLegacyChildLoweringPortV1:
+  generic lowering capability
+  compilation profile / source authority = no
+
+normalized-shadow mutation:
+  direct entry / suffix entry / Plan / Execute / retry / phase bridge = 0
+  retained normalized-shadow observer mutates no MIR
+
+located RawInvocation Loop:
+  exact parent / LoopCondition / LoopBodyRoot receipts exist
+  PreparedLocatedRawLoopChildEntryV1 remains the named migration fence
+  receipts are still erased before the legacy route, so M11 is not complete
 ```
 
-No Rust, grammar, IR, route, retry, fallback, raw/reference, or diagnostic
-change is authorized by this closeout. The next executable row remains unset;
-the current blocker is the owner decision above, not another Loop adapter.
+Universal raw/reference semantic ingress is therefore rejected. The active R4
+fence `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` remains the exact
+retained operation; it retires only when the same located product is consumed
+by the verified Loop plan and the source-erasing terminal reaches zero.
+
+This correction does not authorize M10b. M7 five-family closure, M8 all-19
+producer closure, M9 host parity, and Generic D2 still precede the atomic
+scheduler/Retry/old-PHI cutover. The first executable row is the caller-zero
+`JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0` logical JoinSig slice.
+
+No new resolver, raw profile, Builder path, route, retry, fallback, grammar,
+IR, runtime, or diagnostic behavior is introduced by this closeout.

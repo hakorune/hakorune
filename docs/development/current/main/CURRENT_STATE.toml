@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR all-route convergence is task-ordered; DirectAccum and the bounded resolved-source Nested Predicate are now green through the existing unpublished candidate commit/reuse barrier. Nested D0/D1 source ownership, the synthetic nested-Always witness, D2-B JoinSig closure, D2-C/D2-C1a source projection, D2-D Recipe producer/parity, D4 caller-zero topology, D5-I0-B canonical-session physicalization, M10a D2-S5 final-carrier publication, and P4-S1 singleton physical snapshot parity are landed locally; Generic debt, mixed transfer, raw ingress, and other Loop families remain parked."
+status = "Decision B-prime is restored: raw public/reference NarrowV1 rejects Loop before physical open, RawLegacyChildLoweringPortV1 is not a compilation profile, and normalized-shadow mutation is retired. M10b still waits on M7/M8/M9 and Generic D2. The active row is the caller-zero M7-S2-A LoopTrue explicit Break/Continue JoinSig closure."
 date = "2026-08-04"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "F0/F1/F2/F3 family envelope, Nested D0/D1 source ownership, M7-S0 synthetic nested-Always caller-zero evidence, D2-B bounded nested-Predicate JoinSig closure, D2-C/D2-C1a source closure, D2-D caller-zero Recipe producer/parity, D4 source handoff, D5-P0 physical input/block projection, D5-P1 resolver/effect/scope claims, D5-I0-A sealed Nested plan/probe, D5-I0-B bounded canonical-session physicalization, D5-I0-C candidate-isolation evidence, and D5-I0-D/E winner/fallback proofs are landed. The resolved Nested ingress has one canonical physical caller, zero legacy Loop references under src/mir/compiler, and green runtime no-effect evidence. Located legacy S0 caller census and S1 disconnected-session retirement are also landed; the live carrier/ledger remains. If D0-A authority/PHI caller census is closed with the resolved-trivial canonical session selected for the first explicit-else join shape. D0-B portable IfRecipe boundary and D0-B0 same-pass facts witness are documented and tested. D0-B1 fixed-shell schema, source-claim verification, structural verification, and deterministic normalization are implemented and pushed; D0-B2-A/B/C entry witness, caller-zero mapper, and reachable rejection matrix are landed. D0-B2-D retains defensive-only mapper variants as a documented sealed-facts firewall. D0-B3-A logical JoinSig, D0-B3-B one-shot physical-input seal, and D0-B3-C reusable guard/boundary gates are landed. D0-C producer/consumer design and D0-C1/D0-C2 implementation are landed; D0-D physical adoption design, D0-D3 selected-shape cutover design, selected-shape implementation, and the InlineBool selected-shell proof are landed with focused parity, candidate-isolation, line-budget, and reusable-guard gates green. The implicit-else baseline/header-to-merge and one-sided predecessor/value contract is now written as the accepted `JOINIR-IF-RECIPE-IMPLICIT-FALLTHROUGH-P0` slice; implementation is limited to its distinct artifact, JoinSig, source claims, and receipt. D3 now has a separate design stop for one direct static i64 call in one explicit-else branch assignment RHS; only D0/D1/D2 design evidence is authorized. M10a D2-S5 final-carrier publication and P4-S1 singleton physical snapshot parity are landed with reference closeout. The current M10b successor is closed as `JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0-DESIGN-STOP`: raw/reference and normalized-shadow callers do not yet share one source/binding semantic ingress, so universal ingress or a typed final retained operation must be decided before all-route cutover. This remains shape-scoped: global PHI/SSA sole-writer, implicit/nested/effect If, raw/A+/CorePlan/JoinIR, JSON-v0, and other Loop families remain separate rows. Mixed transfer, Generic debt, raw ingress, and other Loop families remain rejected or parked."
-current_execution_row = "JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0"
-current_execution_summary = "M10a D2-S5/P4-S1 are closed for the singleton resolved DirectAccum profile. The next M10b all-route premise reset is a NoSafeSlice design stop: raw/reference lacks source lineage and BindingRef state, located Loop receipts are discarded before the legacy route, and normalized-shadow mutation remains physical authority. No partial Loop implementation or compatibility adapter is authorized until universal semantic ingress, a typed final retained operation, or an explicit Loop objective revision is selected."
+current_design_stop = "B-prime caller membership is accepted and no owner-level design stop remains. The exact active boundary is M7-S2-A: one caller-zero Always Loop with a sole explicit-else If, direct then-Break, direct else-Continue, no fallthrough, and no binding merge. Recipe V1 and physical CFG/PHI remain unchanged."
+current_execution_row = "JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0"
+current_execution_summary = "Extend only LoopJoinSigElaboratorV1 for the bounded LoopTrue explicit Break/Continue shape. Emit one ordered logical branch row plus Break/Continue Loop edges and no natural Backedge or merge. Keep implicit fallthrough, branch writes, nested control, Return, calls, and effects as typed rejects. Production callers and old-edge deletion remain zero."
 current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 joinir_if_recipe_two_call_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-two-call-arms-d0-d2-execution-task-2026-08-04.md"
 joinir_if_recipe_call_implicit_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-call-branch-implicit-d0-d2-execution-task-2026-08-04.md"
@@ -17,7 +17,8 @@ ownership_home_reference_closeout_task = "OWN-HOME-REFERENCE-CLOSEOUT0-DOC0 (in 
 reference_closeout_task_set = [
   "BOX-MEMBER-PROPERTY-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/design/box-member-field-method-surface-ssot.md)",
   "OWN-HOME-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md)",
-  "JOINIR-IF-RECIPE-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/investigations/joinir-if-recipe-nested-one-level-d0-d2-execution-task-2026-08-04.md)"
+  "JOINIR-IF-RECIPE-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/investigations/joinir-if-recipe-nested-one-level-d0-d2-execution-task-2026-08-04.md)",
+  "JOINIR-LOOP-TRUE-BRANCH-EXIT-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md)"
 ]
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -451,10 +452,10 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "joinir-loop-all-route-premise-reset0-d0-consultation"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-all-route-premise-reset0-d0-consultation-2026-08-02.md"
+latest_card = "mirbuilder-inplace-replacement-current"
+latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
-latest_card_summary = """M10a D2-S5/P4-S1 are closed. The current M10b successor is the all-route premise reset design stop, closed as NoSafeSlice: raw/reference and normalized-shadow callers lack one source/binding semantic ingress, so no partial Loop cutover or compatibility adapter is authorized. The next step requires an owner decision on universal ingress, a typed final retained operation, or explicit Loop objective revision."""
+latest_card_summary = """B-prime is restored and the stale C/NoSafeSlice closeout is superseded. Universal raw/reference ingress is rejected; normalized-shadow mutation is already retired. M10b remains ordered after M7/M8/M9 and Generic D2. The current executable row is the caller-zero M7-S2-A LoopTrue explicit Break/Continue JoinSig closure, with Recipe V1 and physical CFG/PHI unchanged."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -657,7 +658,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0-DESIGN-STOP"
+current_blocker_token = "JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

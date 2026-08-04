@@ -1,6 +1,6 @@
 ---
 Status: Active task-order SSOT
-Date: 2026-08-03
+Date: 2026-08-04
 Decision: accepted — `JOINIR-LOOP-SELFHOST-RECIPE-PIPELINE0-D0`
 Scope: production Loop meaning, selfhost-portable recipe, terminal candidate lowering, and atomic retirement
 Related:
@@ -37,10 +37,10 @@ composers/CorePlan/PlanLowerer/JoinIR merge/route PHI writers. Portable
 `VerifiedLoopRecipeV1` has zero physical production consumers through M9.
 The current JoinIR/JoinModule path remains execution authority until M10; Retry is
 scheduler-internal and exhaustion freezes; it is not a portable Recipe consumer.
-M5/M6 remain caller-zero evidence; a bounded M10a resolved DirectAccum pilot is
-now active through one canonical resolved production caller. M10a does not
-switch `route_loop` or retire the old scheduler/PHI edges. M10b is the first
-all-route consumer and retires the scheduler/fallback/remaining old PHI edges.
+M5/M6 remain caller-zero evidence; the bounded M10a resolved DirectAccum pilot
+is closed through one canonical resolved production caller. M10a did not switch
+`route_loop` or retire the old scheduler/PHI edges. M10b is the first all-route
+consumer and retires the scheduler/fallback/remaining old PHI edges.
 
 ```text
 Source / projection
@@ -93,16 +93,32 @@ adapter into a typed caller-owned receipt, and the existing claim/finish/commit
 order follows. P4-S1 is green; its observer does not infer final values from
 header PHIs.
 
-### M10b successor premise — `JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0` (design stop)
+### M10b successor premise — Decision B-prime restored
 
-M10b is the first all-route consumer, but it cannot start from the singleton
-M10a proof. Raw/reference callers lack source lineage and BindingRef state;
-located raw Loop receipts are discarded before the legacy route, and the two
-normalized-shadow mutation entries remain physical authorities. The accepted
-premise-reset closeout therefore records `NoSafeSlice`: choose a universal
-root-neutral semantic ingress or a typed final retained operation covering all
-excluded callers before authorizing any M10b implementation. No partial Loop
-cutover, fallback adapter, or new resolver is allowed in this stop.
+The all-route membership premise is closed by the later B-prime evidence and
+must not be reopened as a universal-ingress problem:
+
+```text
+raw public / raw VM-reference NarrowV1
+  -> typed Loop rejection before physical Builder open
+
+RawLegacyChildLoweringPortV1
+  -> profile-blind capability, not a compilation profile
+
+normalized-shadow Loop mutation
+  -> retired; only the non-mutating observer remains
+
+located RawInvocation Loop
+  -> exact parent / condition / body receipts
+  -> active R4 source-erasing migration fence until M11
+```
+
+Therefore universal raw/reference semantic ingress is rejected. This does not
+authorize M10b: M7 five-family closure, M8 all-19 producers, M9 host parity,
+and the Generic D2 winner boundary remain mandatory. The next Lego slice is
+the caller-zero M7-S2-A logical branch-exit closure for one `loop(true)` with
+an explicit `Break` arm and `Continue` arm. It changes no Recipe wire schema,
+physical CFG/PHI, route, scheduler, runtime, grammar, or diagnostics.
 
 ## Selfhost boundary
 
@@ -596,6 +612,78 @@ Stop:
   from outer provenance or hand-built source paths. Conditional exits may not be
   collapsed to direct exits, and a missing JoinSig branch/merge vocabulary opens
   a shared design stop rather than an adapter-local workaround.
+
+#### M7-S2-A — `JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0` (selected next row)
+
+Change:
+: Extend only the caller-zero logical JoinSig owner for one root `Always` Loop
+  whose sole body item is an explicit-else `If`: the then arm directly breaks
+  the owner Loop and the else arm directly continues it. Keep the Recipe V1
+  schema unchanged. Split branch-flow logic into a child module rather than
+  growing the existing `join_sig.rs` toward the 800-line limit.
+
+Contract:
+: `LoopJoinSigElaboratorV1` is the unique issuer. One ordered logical branch
+  row retains the If item, condition, then/else arm identity, exit item, target
+  Loop, and logical payload. The owning Loop row receives Break and Continue
+  edges and no natural Backedge. Recipe tree remains connectivity authority;
+  JoinSig owns only arm/transfer/dataflow obligations. No AST, `StmtRef`,
+  `RecipeBody`, Builder, CorePlan, physical ID, PHI, Retry, or fallback enters
+  the portable subtree.
+
+  The selected logical shape is:
+
+  ```text
+  LoopJoinSigV1
+    loops
+    branches: Vec<LoopJoinBranchV1>
+
+  LoopJoinBranchV1
+    owner_loop
+    if_item
+    condition
+    then_exit: LoopJoinBranchExitV1
+    else_exit: LoopJoinBranchExitV1
+
+  LoopJoinBranchExitV1
+    exit_item
+    role: Break | Continue
+    target_loop
+    payload
+  ```
+
+  An internal `BlockFlowSummaryV1` may retain fallthrough versus ordered exits
+  while elaborating, but S2-A publishes a branch row only when both arms are
+  direct supported exits. It never mints a physical or recipe value.
+
+Done:
+: The existing `phase143_p2_loop_true_if_bc_min.hako` semantic shape elaborates
+  deterministically with one ordered branch row, Break then Continue arms,
+  no merge obligation, and no Backedge. Implicit-else fallthrough, branch
+  binding writes/merges, nested control, Return, call, and effect counterexamples
+  retain typed rejection. Producer/physical production callers and old-edge
+  deletion remain zero; focused tests, shared guards, `cargo check --lib`, and
+  touched-file line budgets are green.
+
+  The focused fixture set is exactly:
+
+  1. explicit then-Break / else-Continue produces one branch row;
+  2. implicit-else Break plus fallthrough stays `BranchMergeMismatch`;
+  3. divergent branch binding writes stay `BranchMergeMismatch`;
+  4. the phase143 shape is deterministic across fresh elaborations and its
+     legacy route/runtime oracle remains unchanged.
+
+Stop:
+: Do not widen S2-A to mixed fallthrough or binding merge. Those require a
+  later S2-B obligation product. Do not add the LoopTrue source projector or
+  policy/Recipe producer before this logical closure is green. Implementation
+  closeout must update `src/mir/loop_recipe_contract/README.md` and create or
+  update `docs/reference/mir/loop-recipe-contract.md` after code, fixtures,
+  and guards land. That reference must state the exact supported envelope,
+  ordered branch-arm obligations, caller-zero status, and non-claims. Since
+  S2-A changes no physical PHI contract, it must not claim production PHI
+  support in `phi_policy.md` or `phi_invariants.md`; update those only after a
+  later physical adoption changes their contract.
 
 ### M8 — `JOINIR-LOOP-ALL19-PORTABLE-RECIPE0-S6`
 
