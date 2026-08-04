@@ -602,12 +602,12 @@ the V0 extractor has only one rejection rule; it means this concrete overlap
 survives the existing extraction gates. Therefore an evidence-only
 disjointness claim is unavailable for this class.
 
-The next design task is
-`JOINIR-GENERIC-OVERLAP-SEMANTIC-PARITY0-D2-B2`. It remains test-only and
-must use the existing Facts -> selection boundary and fresh candidates. For
-each claimed natural overlap row (starting with `Both`, then existing nested
-loop/If/exit fixtures that actually reach both facts), record release and
-strict-mode rows:
+The bounded evidence task
+`JOINIR-GENERIC-OVERLAP-SEMANTIC-PARITY0-D2-B2` is now closed as test-only
+evidence, not semantic parity; it used the existing Facts -> selection
+boundary and fresh candidates. For each claimed natural overlap row (starting
+with `Both`, then existing nested loop/If/exit fixtures that actually reach
+both facts), record release and strict-mode rows:
 
 - the frame-derived environment/contract and raw selection;
 - independent V0 and V1 compose -> verify -> lower stages, first-effect owner,
@@ -617,7 +617,7 @@ strict-mode rows:
   result binding semantics;
 - the real legacy witness route, attempted prefix, debt receipt, and terminal.
 
-This task may close only when every claimed row has a pre-effect V0 winner
+The parent decision may close only when every claimed row has a pre-effect V0 winner
 certificate, V0 terminal semantic parity with the accepted V1 meaning, no
 V0-debt -> different-V1-winner edge, and fresh-repeat stability. Any semantic
 digest difference, natural V0 failure/debt, unmeasured grammar arm, or missing

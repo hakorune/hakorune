@@ -1,5 +1,5 @@
 ---
-Status: active; design/evidence stop for Generic V0/V1 semantic parity
+Status: closed as deterministic test-only evidence; semantic parity remains UnresolvedStop; M6-B is next
 Date: 2026-08-04
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Previous: joinir-generic-structural-grammar-census-d2-a3-s1-execution-task-2026-08-04.md
@@ -107,8 +107,32 @@ strict + planner_required:
   UnresolvedStop because this is not release/strict overlap proof
 ```
 
-The matrix is evidence only. The current card remains a design stop until a
-production-derived disjointness or semantic-equivalence proof exists.
+The matrix is evidence only. `ParityDispositionV1::UnresolvedStop` is a locked
+classification of these observations, not a policy evaluator and not a route
+winner. The digest mismatch and the legacy V0 terminal prevent a
+production-derived disjointness or semantic-equivalence proof. D2-B2 therefore
+closes as a deterministic evidence/design stop while the parent D2/M4 overlap
+decision remains unresolved and the ordered legacy scheduler remains active.
+
+## D2-B2 closeout
+
+Implementation and evidence are complete for the bounded `Both` matrix. The
+release/strict rows retain raw `[V0, V1]`, fresh direct `LowerSome` results,
+`GenericComposer` as the first effect owner, nested-carrier digest mismatch,
+and a legacy V0 terminal with no debt receipt or V1 attempt. The
+planner-required row records V0 suppression before effect and an independent
+V1 `LowerSome` result; it is a separate pre-effect gate, not overlap proof.
+Fresh repeats are identical, and all required focused gates are green:
+`generic_stage_` 11 passed (matrix 2, observer 9, accepted-plan 6).
+
+No production selector, Recipe, JoinSig, PHI, physicalizer, candidate
+publication, retry/fallback, scheduler, grammar, or IR behavior changed. The
+parent design SSOT, this task card, the MIR stage-matrix reference, the Generic
+loop README, and the current-state pointers are synchronized as part of this
+closeout. Reference-document synchronization is a completion requirement for
+the implementation, not optional cleanup. The next bounded design boundary is
+the caller-zero M6-B PHI materializer card
+`JOINIR-LOOP-CFG-JOINSIG-PHI0-D0-S4`; Generic D2 remains `UnresolvedStop`.
 
 ## Acceptance gates
 

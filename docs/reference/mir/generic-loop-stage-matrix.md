@@ -100,6 +100,10 @@ strict retain `[GenericLoopV0, GenericLoopV1]`; both direct plans reach
 at V0 with no debt receipt and no V1 attempt. Planner-required suppresses V0
 before effect and reaches V1 separately. The pure probe and final comparison
 remain `UnresolvedStop`; no winner or retry policy follows from this evidence.
+The matrix is closed as deterministic evidence;
+`ParityDispositionV1::UnresolvedStop` is a classification, not a policy
+evaluator or winner. The next bounded design boundary is caller-zero M6-B
+(`JOINIR-LOOP-CFG-JOINSIG-PHI0-D0-S4`).
 
 ## Snapshot ownership
 

@@ -86,7 +86,11 @@ Post-effect stage boundary (M4 test/reference lane):
   witness are compared through the shared frame; nested-carrier digest
   mismatch and V0 terminal success keep the semantic result unresolved.
   Planner-required V0 suppression is a separate pre-effect gate, not a winner
-  proof. No route, Recipe, JoinSig, PHI, or retry authority changes here.
+  proof. The matrix is closed as deterministic evidence;
+  `ParityDispositionV1::UnresolvedStop` is a classification, not a policy
+  evaluator. No route, Recipe, JoinSig, PHI, or retry authority changes here.
+  The next design boundary is caller-zero M6-B
+  (`JOINIR-LOOP-CFG-JOINSIG-PHI0-D0-S4`).
 
 LOOP0-P0b-T0 associated-source boundary:
 - T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under

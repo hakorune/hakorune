@@ -78,3 +78,16 @@ The later Accum vertical pilot must use canonical CFG plus one
 function-owned `BindingSsaBuilderV1` and shared `PhiTxn`; it must not call this
 observer. M10a remains the first production bridge, and M6-B stays caller-zero
 or is retired before that bridge.
+
+## Implementation and reference closeout
+
+The implementation slice must remain caller-zero and test-only until every
+gate above is green. After implementation, completion requires synchronized
+reference updates in the applicable design SSOT, this task card, the MIR/PHI
+reference pages (`docs/reference/mir/phi_invariants.md` and
+`docs/reference/mir/phi_policy.md`), the owning builder README,
+`CURRENT_STATE.toml`, and `10-Now.md`. Record the exact commands and observed counts, keep all touched
+Rust/test files below 800 lines, and state explicitly that no Generic/D2,
+route, AST, CorePlan, Retry, grammar, or IR authority changed. Reference
+document synchronization is part of the implementation acceptance criteria,
+not optional cleanup.
