@@ -1,10 +1,12 @@
 ---
-Status: Design stop — selected If shape envelope before the next adoption
+Status: Next sequence selected — private line-budget seam, then two-call arms
 Date: 2026-08-04
-Decision: keep explicit and implicit selected shapes in one physical owner, but
-  close their correspondence/receipt contract before admitting another shape
-Outcome: no implementation is authorized until the D0/D1/D2 evidence below is
-  recorded; global PHI/SSA retirement remains a later adoption program
+Decision: preserve the sole canonical If physical owner, first recover source
+  headroom without behavior change, then admit exactly one direct static i64
+  call in each explicit branch through the same owner
+Outcome: the private seam is the active BoxShape row; the two-call semantic row
+  follows only after its focused D0/D1/D2 evidence. Global PHI/SSA retirement
+  and further If shapes remain separate programs
 Related:
   - joinir-if-recipe-d0-d-physical-adoption-design-2026-08-04.md
   - ../design/phi-lifecycle-ssot.md
@@ -304,15 +306,63 @@ The evidence is intentionally limited to the whole-compile candidate boundary:
 it does not fingerprint stack-local `PhiTxn`, prove every failure stage, or
 retire any legacy writer.
 
-## D3 handoff — selected Call-valued branch
+## Selected next task sequence — 2026-08-04
 
-D2 is complete for the explicit/implicit no-call envelope. The next design
-stop is recorded separately in:
+### 1. `JOINIR-IF-CANONICAL-MATERIALIZATION-SEAM0-S0`
 
-`joinir-if-recipe-call-branch-d3-design-stop-2026-08-04.md`
+Change:
+: Move the If-only topology/outcome types and `lower_if*` materialization
+  methods from the 799-line `trivial_ssa/lowerer.rs` into one private child
+  module. Old authority: none.
 
-The selected next shape is one direct static i64 call as one explicit-else
-branch assignment RHS. It reuses the fixed If topology, JoinSig, canonical
-SSA/PHI owner, and already sealed direct-call ABI/emitter. Nested/effect/
-return/record/match/short-circuit shapes, call-valued implicit fallthrough,
-and global PHI/SSA retirement remain separate non-claims.
+Contract:
+: BoxShape only. Accepted shapes, diagnostics and their order, selected versus
+  legacy dispatch, production callers, candidate transaction, canonical CFG,
+  Binding SSA, and `PhiTxn` ownership remain unchanged. Add no public API,
+  physicalizer, route, retry, fallback, or dedicated guard.
+
+Done:
+: Parent and child remain below 800 lines with comfortable headroom. Existing
+  explicit/implicit If, direct-call, nested D2, candidate-abort/fresh-reuse,
+  cargo-check, current-pointer, and shared replacement gates are green.
+
+Stop:
+: Public field/API widening, duplicated CFG/PHI logic, changed error ordering,
+  changed caller counts, or any touched file reaching 800 returns to design.
+
+### 2. `JOINIR-IF-RECIPE-TWO-CALL-ARMS0-D0` → `...-I0-R0`
+
+Change:
+: Admit one root explicit-else If with one shared i64 merge binding and exactly
+  one direct static i64 call as each branch assignment RHS. D0 seals the exact
+  ordered source/call correspondence; D1 recounts the existing single call
+  capability/emitter/physicalizer owners; D2 proves parity and abort/reuse.
+  I0/R0 then removes this exact shape's `NotThisShape -> legacy If` edge by
+  routing it through the existing selected owner.
+
+Contract:
+: Claim order is `IfNode, Condition, ThenAssignment, ElseAssignment,
+  DirectCall(then), DirectCall(else)`. Each call is a root assignment value;
+  condition calls, call arguments containing calls, continuation calls,
+  method/dynamic calls, nested If calls, and arbitrary call cardinality remain
+  rejected. The canonical lowerer and physical receipt topology do not change.
+  Selected failure is terminal `Freeze`; fallback/retry is zero.
+
+Done:
+: Both runtime branches call their exact target, one two-input merge PHI uses
+  actual predecessor/value pairs, call capability rows and source order are
+  exact, late draft-seal abort leaves the live Builder unchanged, fresh reuse
+  succeeds, and the exact legacy fallback edge is zero. Every touched source
+  and test file remains below 800 lines.
+
+Stop:
+: Any needed edit to the canonical lowerer, missing call identity in the fixed
+  one-per-arm mapping, a second call/emission/PHI owner, name-based lookup,
+  retry, or broader effect/return/record/match/short-circuit vocabulary stops
+  the row. Extract call-claim correspondence into a small private module if
+  the 736-line mapper/adapter would otherwise approach 800.
+
+After the exact I0/R0 and bounded reference audit, do not automatically add a
+third If shape. Return to the existing Loop M4/M6 task-order SSOT and select
+its exact live critical-path row. Generic overlap remains an honest
+`UnresolvedStop`, so M10 production cutover is not authorized by this task.
