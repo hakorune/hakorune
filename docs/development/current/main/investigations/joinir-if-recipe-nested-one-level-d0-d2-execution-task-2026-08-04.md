@@ -1,5 +1,5 @@
 ---
-Status: D0 and D1 execution green; D2 adapter/parity execution authorized
+Status: Completed — D0/D1/D2 and bounded reference closeout green
 Date: 2026-08-04
 Parent: joinir-if-recipe-nested-one-level-design-stop-2026-08-04.md
 Decision: if accepted, execute only depth-one nested pure fallthrough D0,
