@@ -110,8 +110,9 @@ continuation read. The proof must cover:
   sets, and value classes;
 * interpreter/result and diagnostic parity with the existing behavior;
 * a late selected-physicalization failure that leaves the live module,
-  function, ID cursors, catalog, Binding SSA, and `PhiTxn` fingerprint
-  unchanged;
+  function, ID cursors, catalog, and Binding SSA owner fingerprint unchanged;
+  the stack-local `PhiTxn` is covered by its typed commit/drop lifecycle
+  witness, not a live Builder fingerprint;
 * a fresh compile on the same compiler succeeding after that failure.
 
 The accepted evidence is shape-scoped. It must not be used to claim that raw,
@@ -234,8 +235,10 @@ live Builder as an undo target.
 The smallest permitted D2 proof is one explicit and one implicit fixture with
 the same outer binding and continuation read:
 
-1. capture the candidate/module/function/ID-cursor/Binding-SSA/`PhiTxn`
-   fingerprint before selected lowering;
+1. capture the live candidate/module/function/ID-cursor/Binding-SSA-owner
+   fingerprint before selected lowering, and record the local `PhiTxn`
+   lifecycle as a drop/commit witness rather than pretending it is a live
+   Builder field;
 2. inject one late selected-physicalization failure after the first physical
    mutation inside the unpublished candidate;
 3. discard the candidate and prove the live compiler state is unchanged;
@@ -267,5 +270,8 @@ Each fixture must prove, in order:
 * a fresh compile on the same `MirCompiler` succeeds afterward.
 
 This slice is test-only and does not claim that every physicalizer failure is
-covered, that candidate internals need a public snapshot API, or that legacy
-If/CorePlan/JoinIR/Loop/PHI writers are retired.
+covered, that stack-local `PhiTxn`/canonical session state has a direct live
+fingerprint, that candidate internals need a public snapshot API, or that
+legacy If/CorePlan/JoinIR/Loop/PHI writers are retired. Candidate isolation is
+whole-compile replacement semantics: abort proves the live Builder was never
+mutated, while success proves a fresh candidate can be committed.
