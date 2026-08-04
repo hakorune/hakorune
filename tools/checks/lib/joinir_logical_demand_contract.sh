@@ -561,6 +561,7 @@ guard_joinir_if_recipe_contract() {
   local adapter="$root_dir/src/mir/builder/resolved_lowering/if_recipe_adapter.rs"
   local physicalizer="$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/if_recipe_physicalizer.rs"
   local lowerer="$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs"
+  local materialization="$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/lowerer/if_materialization.rs"
   local files=(
     "$contract_dir/README.md"
     "$contract_dir/mod.rs"
@@ -576,6 +577,7 @@ guard_joinir_if_recipe_contract() {
     "$adapter"
     "$physicalizer"
     "$lowerer"
+    "$materialization"
   )
   local file lines
 
@@ -609,9 +611,9 @@ guard_joinir_if_recipe_contract() {
        "$physicalizer" >/dev/null; then
     guard_fail "$tag" "selected If physicalizer must use only the named selected helper"
   fi
-  if ! rg -q 'fn lower_if_recipe_selected\(' "$lowerer" || \
-     ! rg -q 'fn lower_if_legacy_unselected\(' "$lowerer" || \
-     ! rg -q 'IfMaterializationTopologyV1::Selected' "$lowerer"; then
+  if ! rg -q 'fn lower_if_recipe_selected\(' "$materialization" || \
+     ! rg -q 'fn lower_if_legacy_unselected\(' "$materialization" || \
+     ! rg -q 'IfMaterializationTopologyV1::Selected' "$materialization"; then
     guard_fail "$tag" "If lowerer lost the selected/legacy shape-scoped helper split"
   fi
   if rg -n -U \
@@ -668,13 +670,13 @@ guard_joinir_if_recipe_contract() {
     { rg -l 'physicalize_if_recipe_v1\(' "$root_dir/src/mir" || true; } \
       | awk -v physicalizer="$physicalizer" '$0 != physicalizer && $0 !~ /_tests\.rs$/'
   )
-  if (( ${#physicalizer_callers[@]} != 1 )) || [[ "${physicalizer_callers[0]}" != "$root_dir/src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs" ]]; then
+  if (( ${#physicalizer_callers[@]} != 1 )) || [[ "${physicalizer_callers[0]}" != "$materialization" ]]; then
     guard_fail "$tag" "If physicalizer must have exactly one production caller: trivial SSA lowerer"
   fi
   local selected_helper_callers=()
   mapfile -t selected_helper_callers < <(
     { rg -l 'lower_if_recipe_selected\(' "$root_dir/src/mir" || true; } \
-      | awk -v lowerer="$lowerer" '$0 != lowerer && $0 !~ /_tests\.rs$/'
+      | awk -v materialization="$materialization" '$0 != materialization && $0 !~ /_tests\.rs$/'
   )
   if (( ${#selected_helper_callers[@]} != 1 )) || [[ "${selected_helper_callers[0]}" != "$physicalizer" ]]; then
     guard_fail "$tag" "selected If helper must have exactly one production caller: physicalizer"

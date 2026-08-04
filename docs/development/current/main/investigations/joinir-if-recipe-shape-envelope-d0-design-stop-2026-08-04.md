@@ -1,12 +1,12 @@
 ---
-Status: Next sequence selected — private line-budget seam, then two-call arms
+Status: S0 closed — two-call arms design stop is next
 Date: 2026-08-04
 Decision: preserve the sole canonical If physical owner, first recover source
   headroom without behavior change, then admit exactly one direct static i64
   call in each explicit branch through the same owner
-Outcome: the private seam is the active BoxShape row; the two-call semantic row
-  follows only after its focused D0/D1/D2 evidence. Global PHI/SSA retirement
-  and further If shapes remain separate programs
+Outcome: the private seam is closed as a behavior-neutral BoxShape refactor;
+  the two-call semantic row follows only after its focused D0/D1/D2 evidence.
+  Global PHI/SSA retirement and further If shapes remain separate programs
 Related:
   - joinir-if-recipe-d0-d-physical-adoption-design-2026-08-04.md
   - ../design/phi-lifecycle-ssot.md
@@ -305,6 +305,36 @@ bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 The evidence is intentionally limited to the whole-compile candidate boundary:
 it does not fingerprint stack-local `PhiTxn`, prove every failure stage, or
 retire any legacy writer.
+
+## S0 completion evidence — 2026-08-04
+
+`JOINIR-IF-CANONICAL-MATERIALIZATION-SEAM0-S0` is closed. The existing If-only
+topology/outcome vocabulary and `lower_if*` materialization methods now live in
+the private `trivial_ssa/lowerer/if_materialization.rs` child. The parent
+lowerer is 541 lines and the child is 275 lines; selected/legacy routing,
+physicalizer ownership, candidate isolation, diagnostics, and CFG/Binding-SSA/
+`PhiTxn` behavior are unchanged. The shared logical-demand guard was updated
+only to observe the new private owner path; no new semantic guard or public API
+was added.
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_physicalizer -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_contract -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib resolved_value_profile -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_selected -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib resolved_lowering -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_candidate_abort_d2_tests -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_candidate_discards_after_late_draft_seal_failure_and_reuses_compiler -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_selected_implicit_fallthrough_uses_header_baseline_phi_input -- --test-threads=1
+cargo check -q --lib
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+```
+
+The next task is design-only `JOINIR-IF-RECIPE-TWO-CALL-ARMS0-D0`. After any
+implementation row lands, update the applicable language/reference or compiler
+contract documents before closeout; this S0 changed no language or public
+reference surface.
 
 ## Selected next task sequence — 2026-08-04
 
