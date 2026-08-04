@@ -490,19 +490,14 @@ closed — JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0
      and Return-arm tests are green; `src/mir/loop_recipe_contract/README.md`
      and `docs/reference/mir/loop-recipe-contract.md` are synchronized.
 
-JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0
-  Change:
-    design the bounded LoopTrue source/policy/Recipe cohort that can feed the
-    now-closed caller-zero logical branch product
-  Contract:
-    source authority, route policy, Recipe issuance, and fail-fast rejection
-    must remain separate; no production route or physical consumer changes
-  Done:
-    one compact source-authority/producer contract with a fixture, gate, and
-    explicit caller-zero boundary
-  Stop:
-    do not implement the source projector, policy producer, or route switch
-    until the design boundary and non-claims are accepted
+accepted — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0
+  -> resolver-owned source projection; loop_route_policy row-brand admission;
+     dedicated profile-specific Recipe producer; all pre-effect and caller-zero
+     boundaries are fixed in the pipeline SSOT. Reference docs are mandatory
+     after S0-S2 implementation.
+next — JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0
+  -> issue AST-free LoopTrue projection and source/frame rejects only;
+     no route switch, Builder/CFG/PHI effect, retry, or fallback.
 ```
 
 ## Production invariants

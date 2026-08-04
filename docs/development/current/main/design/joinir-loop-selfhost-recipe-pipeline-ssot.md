@@ -678,28 +678,42 @@ Stop:
   support in `phi_policy.md` or `phi_invariants.md`; update those only after a
   later physical adoption changes their contract.
 
-#### M7-S3 — `JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0` (next design stop)
-
-Change:
-: Design the bounded source/policy/Recipe cohort that can feed the closed
-  M7-S2-A logical branch product. Keep the source shape exact and caller-zero
-  until its authority chain is accepted.
-
-Contract:
-: Resolve source ownership, route admission, and Recipe issuance as separate
-  products. The source view may prove only the resolved LoopTrue shape; policy
-  may select only an admitted semantic profile; Recipe issuance may consume
-  only that product and must fail fast without AST reconstruction, raw suffix
-  retry, or physical Builder effects.
-
-Done:
-: One compact design brief names source authority, non-authority, fail-fast
-  boundary, fixture/gate, and the exact production-caller/non-claims boundary.
-
-Stop:
-: Do not implement a source projector, policy producer, Recipe producer, or
-  route switch until this design boundary is accepted. LoopCond remains behind
-  the bounded LoopTrue cohort.
+#### M7-S3 — `JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0` (accepted)
+Decision: accepted after independent worker audits. The next executable row is
+`JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0`.
+Source authority:
+: Resolver-owned `VerifiedResolvedLoopSourceV1` plus one semantic source
+  traversal issues an AST-free `VerifiedLoopTrueBreakContinueProjectionV1`.
+  `PreparedLocatedRawLoopChildEntryV1` is only a transport receipt, never a
+  Recipe issuer or second source authority.
+Policy owner:
+: `loop_route_policy` consumes the sealed projection and the frozen schedule.
+  A profile brand accepts only `LoopRouteId::LoopTrueBreakContinue`; raw cursor
+  data remains opaque migration provenance and never dispatches lowering.
+Recipe issuer:
+: A dedicated `LoopTrueBreakContinueRecipeProducerV1` consumes the
+  profile-specific policy demand, emits the existing `LoopRecipeV1` envelope,
+  verifies it, and calls the existing logical JoinSig elaborator; it must not
+  reuse DirectAccum facts or mint a generic unbranded demand.
+Fail-fast envelope:
+: Reject missing/mismatched source frame, implicit else/fallthrough, nested
+  control, Return/call/effect, branch writes, duplicate/partial rows, wrong
+  policy winner, or verifier mismatch before Builder effects. `Option`, retry,
+  suffix reconstruction, fallback, AST payloads, physical IDs, CFG/PHI, and
+  route switches are forbidden.
+Execution tasks:
+: S0 source projection and source-identity/frame rejects; S1 policy admission
+  and profile-specific demand; S2 Recipe -> verifier -> JoinSig caller-zero
+  parity; S3 guards and closeout. Use the phase143 fixture plus implicit-else,
+  divergent-write, Return, wrong-frame, and wrong-winner negatives; run focused
+  tests, pointer/in-place/R4 guards, diff checks, and the <800-line budget.
+Reference closeout:
+: After S0-S2 implementation, update
+  `src/mir/loop_recipe_contract/README.md` and
+  `docs/reference/mir/loop-recipe-contract.md` with the source projection,
+  policy brand, exact envelope, caller-zero status, and non-claims. Do not
+  update `phi_policy.md` or `phi_invariants.md` unless physical adoption later
+  changes their contract. LoopCond remains behind this cohort.
 
 ### M8 — `JOINIR-LOOP-ALL19-PORTABLE-RECIPE0-S6`
 

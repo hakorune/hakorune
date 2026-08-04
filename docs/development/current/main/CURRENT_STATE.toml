@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Decision B-prime is restored and M7-S2-A is closed: raw public/reference NarrowV1 rejects Loop before physical open, RawLegacyChildLoweringPortV1 is not a compilation profile, normalized-shadow mutation is retired, and the caller-zero LoopTrue branch JoinSig product is green. M10b still waits on M7/M8/M9 and Generic D2. The next row is a design stop for the bounded LoopTrue source/policy/Recipe cohort."
+status = "Decision B-prime is restored, M7-S2-A is closed, and the M7-S3 bounded LoopTrue source/policy/Recipe design is accepted: raw public/reference NarrowV1 rejects Loop before physical open, RawLegacyChildLoweringPortV1 is not a compilation profile, normalized-shadow mutation is retired, and the caller-zero LoopTrue branch JoinSig product is green. The next executable row is source projection S0; M10b still waits on M7/M8/M9 and Generic D2."
 date = "2026-08-04"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "B-prime caller membership and M7-S2-A logical closure are accepted. The next boundary is design-only: choose the source authority, route policy, Recipe issuer, and fail-fast rejection for the same bounded LoopTrue explicit-else Break/Continue shape. No source projector or route switch may be implemented until that contract is accepted."
-current_execution_row = "JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0"
-current_execution_summary = "M7-S2-A is closed with one ordered logical branch row, Break/Continue edges, no Backedge, and focused caller-zero rejects for implicit fallthrough, divergent writes, and Return. The next row must fix the bounded LoopTrue source/policy/Recipe cohort before implementation."
+current_design_stop = "M7-S3-D0 is accepted: resolver-owned AST-free source projection, loop_route_policy row-brand admission, and a dedicated profile-specific Recipe issuer are separate owners. The next slice may implement source projection S0 only; no route switch, physical Builder effect, retry, or fallback is authorized."
+current_execution_row = "JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0"
+current_execution_summary = "M7-S2-A is closed with one ordered logical branch row, Break/Continue edges, no Backedge, and focused caller-zero rejects. M7-S3-D0 now fixes the source/policy/Recipe chain and mandatory reference closeout; S0 is source projection only, followed by policy demand and caller-zero Recipe parity."
 current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 joinir_if_recipe_two_call_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-two-call-arms-d0-d2-execution-task-2026-08-04.md"
 joinir_if_recipe_call_implicit_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-call-branch-implicit-d0-d2-execution-task-2026-08-04.md"
@@ -658,7 +658,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0"
+current_blocker_token = "JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
