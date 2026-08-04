@@ -1,5 +1,5 @@
 ---
-Status: Design stop open; implementation not authorized
+Status: Design stop accepted; D0 execution authorized
 Date: 2026-08-04
 Decision: evaluate exactly one-level nested pure fallthrough If with explicit
   outer/inner else and one shared i64 binding; keep the existing one-If V1
@@ -143,5 +143,6 @@ PHI owner, more than one recursive level, a second physicalizer, raw/name
 lookup after the recipe boundary, Option/retry/fallback, or a touched file
 over 800 lines.
 
-Implementation is blocked at this design stop until D0 membership,
-composition, and rejection evidence are accepted in the current state.
+The design stop is accepted for the bounded D0 row. D1/D2 remain gated on
+green membership/composition/rejection evidence; no broader nested shape is
+authorized.

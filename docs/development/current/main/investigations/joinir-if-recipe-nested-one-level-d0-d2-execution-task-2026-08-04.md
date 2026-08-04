@@ -1,5 +1,5 @@
 ---
-Status: Planned; gated by the nested If design stop
+Status: D0 execution authorized; D1/D2 gated on D0 green
 Date: 2026-08-04
 Parent: joinir-if-recipe-nested-one-level-design-stop-2026-08-04.md
 Decision: if accepted, execute only depth-one nested pure fallthrough D0,
