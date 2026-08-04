@@ -381,6 +381,68 @@ proves foreign-root and shadowing rejection. It does not issue a production
 capability, select a route, or close the parent D2 row. A production projector
 still requires a separate accepted implementation card.
 
+## Selected bounded task — nested `IfThen` carrier coverage
+
+Task: `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`
+
+Decision: accepted — one `cfg(test)`-only evidence shape; production remains stopped.
+
+### Change
+
+- Add one new test sibling under `route_entry/registry/` for a parsed outer
+  loop containing an inner loop, one nested `IfThen` write to the outer `j`, a
+  separate canonical inner `j` step, the outer `i` step, and a post-loop `j`
+  read. Do not add an `else`, shadowing, planner-required, or second accepted
+  source shape in this row.
+- Observe the decisive target at
+  `Body(0)/LoopBody(0)/LoopBody(0)/IfThen(0)/Target` and the post-loop read at
+  `Body(1)/Value`. A minimal `pub(super)` projection from the existing
+  accepted-plan test helper is allowed only under `cfg(test)`; no production
+  API or re-export is allowed.
+
+### Contract
+
+- The resolver-issued `BindingRefV1` for the nested write and post-loop read is
+  identical, owned by the same function/source/frame, and its declaration
+  scope is a strict ancestor of the `IfThen` write scope. The resolved forest
+  contains exactly the outer and inner loops.
+- Release and Strict each record raw `[V0, V1]`; fresh direct V0 and V1 each
+  reach `LowerSome` with first effect owner `GenericComposer`; V1 reports
+  `CompleteRecursiveCarrier(["j"])`; per-route fresh repeats are stable; and
+  the alpha-normalized V0/V1 semantic digests remain explicitly different.
+- The existing legacy witness remains V0 terminal with V1 untried and no debt
+  receipt. That mismatch is retained as evidence and is not treated as proof.
+- Existing shadowing and planner-required witnesses remain neighboring reject
+  guards. This row does not infer a winner, close parent D2, or authorize a
+  selector, policy, Recipe, JoinSig, PHI, physicalizer, Builder, MIR, backend,
+  Retry, fallback, or runtime change.
+
+### Done
+
+- `generic_d2_b4_s2_nested_if` is green under an explicit clean environment;
+  existing `generic_d2_b4_s2`, `generic_d3_bindingref`, and generic Both matrix
+  filters remain green; all touched Rust files stay below 800 lines; production
+  caller/import census remains zero; pointer and diff guards are green.
+
+```bash
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4_s2_nested_if -- --nocapture
+```
+
+- The implementation commit must also update this card, the parent Generic
+  SSOT, Generic stage-matrix reference, Generic README, resolved-semantics
+  README, `CURRENT_STATE.toml`, the current dashboard/workstream, and every
+  affected `docs/reference/**` navigation or status index. Reference closeout
+  is part of implementation completion and must not be deferred.
+
+### Stop
+
+- Return to design if the source does not naturally produce `Both`, the inner
+  canonical step cannot be observed separately, any evidence requires a
+  production seam, or a test helper would hold overlapping `ScopedTestConfig`
+  guards. A green digest difference remains evidence of unresolved semantics,
+  never a selection rule.
+
 ## Stop condition after the projector witness
 
 The projector witness does not authorize a neutral eligibility issuer or a
@@ -389,10 +451,10 @@ the nested `Both` winner/disjointness, full overlap matrix, first-effect and
 alpha-normalized candidate evidence, fresh-repeat stability, and
 no-debt-to-different-winner checks are complete. The current Generic facts
 product is still Builder-local and AST-bearing, so introducing a neutral
-snapshot owner now would create a second semantic boundary. The next allowed
-work is additional design/test-only D2-B4-S2 evidence; after D2 acceptance,
-the production order is resolved projector -> neutral snapshot/eligibility
-issuer -> private Builder adapter -> selector consumer.
+snapshot owner now would create a second semantic boundary. The selected next
+work is only `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`; after D2
+acceptance, the production order is resolved projector -> neutral
+snapshot/eligibility issuer -> private Builder adapter -> selector consumer.
 
 This card is a design consultation boundary. A green test-only matrix does
 not authorize production selection or parent D2 closeout.

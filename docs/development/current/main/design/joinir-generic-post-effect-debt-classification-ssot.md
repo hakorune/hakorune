@@ -832,6 +832,16 @@ production caller/import census remains zero. No selector, planner policy,
 Retry/fallback, Recipe/JoinSig/PHI/physicalizer, Builder, MIR, or runtime
 authority changed.
 
+The next bounded evidence row is
+`JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`, taskized in the active
+resolved-carrier handoff card. It adds exactly one parsed nested-`IfThen`
+shape: the inner loop keeps a separate canonical `j` step while the `IfThen`
+writes the same outer `j` later read after the outer loop. Release/Strict V0
+and V1 direct-stage/digest evidence is test-only. Existing shadowing and
+planner-required rows remain guards, not new accepted shapes. This row cannot
+select a winner or close parent D2, and its implementation is incomplete until
+the Generic reference and navigation documents named by the task are updated.
+
 #### Scoped D3 handoff — `JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0` (closed checkpoint)
 
 The S2 witness and its typed D3 matrix are closed as bounded test-only

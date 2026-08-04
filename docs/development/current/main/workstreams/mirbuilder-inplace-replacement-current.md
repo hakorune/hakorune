@@ -950,8 +950,8 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure is closed;
      M7-S3 S0/S1/S2 and its reference closeout are now closed with
      resolver-owned identity/frame receipts and typed caller-zero rejects
-  2. design the co-sealed resolved-carrier handoff before parent M4 D2:
-     resolver observation -> neutral eligibility -> private non-Clone wrapper -> selection receipt; six protocol cases, 1,440 matrix rows, and three resolved-projector tests are green; parent Generic D2 winner/disjointness remains unresolved, so no neutral issuer/Builder adapter/selector task is selected; no production arm/retry/route switch
+  2. run `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`: one parsed nested-IfThen carrier shape, `cfg(test)`-only; the active resolved-carrier handoff card owns its exact contract and post-implementation reference closeout;
+     parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized
   3. close M7 five-family parity, M8 all-19 producers, and M9 host parity
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement

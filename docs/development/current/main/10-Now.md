@@ -31,14 +31,14 @@ Related:
   possible
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, and the scoped D3
-  typed matrix are closed. The active stop is
-  `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-HANDOFF-D3-DESIGN0-D0`: design
-  only the co-sealed resolver/source/facts/preflight capability needed before
-  production selection. The parent Generic D2 disposition remains unresolved.
-  No Generic production Recipe, selector arm, source-to-selection handoff,
-  route, physical, Retry, or fallback change is authorized; M10b still waits
-  on M7/M8/M9 and D2. The D3 matrix is one test over four typed rows and
-  separates pre-effect BindingRef eligibility from post-effect corroboration.
+  typed matrix are closed. The selected row is
+  `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`: one parsed nested
+  `IfThen` carrier shape is authorized as `cfg(test)`-only evidence. The upper
+  production handoff stop and parent Generic D2 remain unresolved. No Generic
+  production Recipe, selector arm, source-to-selection handoff, route,
+  physical, Retry, or fallback change is authorized; M10b still waits on
+  M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`
+  for the exact test boundary and non-claims.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
