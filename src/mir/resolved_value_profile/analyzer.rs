@@ -211,6 +211,7 @@ impl<'a> AnalyzerV1<'a> {
         self.verify_if_control_coverage()?;
         self.fact_coverage.verify(self.input.function())?;
         let parts = self.draft.finish();
+        let nested_recipe_facts = self.recipe_facts.nested_candidate();
         let recipe_facts = self.recipe_facts.finish();
         let function_return = seal_function_return_v1(
             self.input.owner(),
@@ -229,6 +230,7 @@ impl<'a> AnalyzerV1<'a> {
             function_return,
             parts.coverage,
             recipe_facts,
+            nested_recipe_facts,
         ))
     }
 

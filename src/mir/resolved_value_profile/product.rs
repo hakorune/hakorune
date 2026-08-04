@@ -8,6 +8,7 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::direct_call::VerifiedTrivialDirectCallV1;
+use super::nested_recipe_facts::VerifiedNestedTrivialIfRecipeFactsV1;
 use super::recipe_facts::VerifiedTrivialIfRecipeFactsV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -264,6 +265,7 @@ pub(crate) struct VerifiedTrivialCanonicalOwnerV1 {
     function_return: Option<VerifiedTrivialFunctionReturnV1>,
     coverage: VerifiedTrivialProfileCoverageV1,
     recipe_facts: Option<VerifiedTrivialIfRecipeFactsV1>,
+    nested_recipe_facts: Option<VerifiedNestedTrivialIfRecipeFactsV1>,
     _seal: TrivialCanonicalOwnerSealV1,
 }
 
@@ -279,6 +281,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
         function_return: Option<VerifiedTrivialFunctionReturnV1>,
         coverage: VerifiedTrivialProfileCoverageV1,
         recipe_facts: Option<VerifiedTrivialIfRecipeFactsV1>,
+        nested_recipe_facts: Option<VerifiedNestedTrivialIfRecipeFactsV1>,
     ) -> Self {
         Self {
             owner,
@@ -291,6 +294,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
             function_return,
             coverage,
             recipe_facts,
+            nested_recipe_facts,
             _seal: TrivialCanonicalOwnerSealV1,
         }
     }
@@ -337,6 +341,12 @@ impl VerifiedTrivialCanonicalOwnerV1 {
 
     pub(crate) fn recipe_facts(&self) -> Option<&VerifiedTrivialIfRecipeFactsV1> {
         self.recipe_facts.as_ref()
+    }
+
+    pub(crate) fn nested_recipe_facts(
+        &self,
+    ) -> Option<&VerifiedNestedTrivialIfRecipeFactsV1> {
+        self.nested_recipe_facts.as_ref()
     }
 
     pub(crate) fn representation_at(

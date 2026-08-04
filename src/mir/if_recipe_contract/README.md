@@ -45,6 +45,28 @@ implicit-else profile only with a counterexample fixture and a separate
 design/acceptance row. Do not widen this contract to hide an unsupported
 production path.
 
+## Nested depth-one profile (D0)
+
+`nested_schema.rs`, `nested_verify.rs`, and `nested_join_sig.rs` own a
+separate, disconnected profile for exactly one outer explicit-`else` If with
+one explicit-`else` child in the outer `then` branch. The profile is
+`ResolvedTrivialExplicitElseDepthOne` and contains two deterministic node
+keys, one shared `i64` binding, portable source claims, and a composition row
+that transfers the child merge into the outer `then` edge.
+
+This profile is not a recursive extension of `IfRecipeV1`. The original
+four-block schema remains immutable and continues to reject nested structure.
+The nested profile has no production physicalizer, route selection, retry,
+Builder access, or PHI/SSA ownership. Its D0 consumer is the resolved-value
+profile mapper and focused contract tests only. A future production consumer
+must first satisfy the nested execution card's D1 owner census and D2
+candidate-abort/parity gates.
+
+Depth greater than one, implicit `else`, multiple carried bindings,
+unsupported operations, and missing transfer/continuation evidence are typed
+producer or verifier rejections. They must not be widened through the
+original one-If contract or silently sent to a retry route.
+
 ## Current non-claims
 
 - Only the named D0-C adapter consumes this artifact, logical JoinSig, and

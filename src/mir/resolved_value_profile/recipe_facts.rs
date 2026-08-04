@@ -13,6 +13,9 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::product::TrivialRepresentationV1;
+use super::nested_recipe_facts::{
+    NestedIfNodeFactsV1, VerifiedNestedTrivialIfRecipeFactsV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum TrivialRecipeBinaryOpV1 {
@@ -452,6 +455,106 @@ impl TrivialIfRecipeFactsDraftV1 {
         } else {
             self.pending_continuation = None;
         }
+    }
+
+    /// Emit the separate depth-one nested profile without widening the
+    /// fixed-shell one-If product.  The analyzer visits nested nodes in
+    /// preorder, so this observer can validate the parent/child relationship
+    /// from sealed source paths without rescanning the AST.
+    pub(super) fn nested_candidate(&self) -> Option<VerifiedNestedTrivialIfRecipeFactsV1> {
+        if self.unsupported
+            || self.direct_call_site.is_some()
+            || !self.if_stack.is_empty()
+            || !self.branches.is_empty()
+            || self.ifs.len() != 2
+        {
+            return None;
+        }
+        let outer = &self.ifs[0];
+        let inner = &self.ifs[1];
+        if !outer.explicit_else
+            || !inner.explicit_else
+            || !outer.then_assignments.is_empty()
+            || outer.else_assignments.len() != 1
+            || inner.then_assignments.len() != 1
+            || inner.else_assignments.len() != 1
+            || inner.continuation_read.is_some()
+        {
+            return None;
+        }
+        let [SourcePathSegmentV1::Body(outer_index)] = outer.statement.node().segments() else {
+            return None;
+        };
+        let [
+            SourcePathSegmentV1::Body(inner_root),
+            SourcePathSegmentV1::IfThen(_),
+        ] = inner.statement.node().segments()
+        else {
+            return None;
+        };
+        if outer_index != inner_root {
+            return None;
+        }
+        let outer_entry = outer.entry_witness?;
+        let inner_entry = inner.entry_witness?;
+        if outer_entry != inner_entry {
+            return None;
+        }
+        let continuation_read = outer.continuation_read.clone()?;
+        if !matches!(
+            continuation_read.node().segments(),
+            [SourcePathSegmentV1::Body(index), SourcePathSegmentV1::Value]
+                if index > outer_index
+        ) {
+            return None;
+        }
+        let binding = outer_entry.binding();
+        let representation = outer_entry.representation();
+        if !matches!(representation, TrivialRepresentationV1::InlineI64) {
+            return None;
+        }
+        if outer.then_body.as_ref()?.owner() != binding.owner()
+            || outer.else_body.as_ref()?.owner() != binding.owner()
+            || inner.then_body.as_ref()?.owner() != binding.owner()
+            || inner.else_body.as_ref()?.owner() != binding.owner()
+        {
+            return None;
+        }
+        if outer
+            .else_assignments
+            .iter()
+            .chain(inner.then_assignments.iter())
+            .chain(inner.else_assignments.iter())
+            .any(|assignment| {
+                assignment.binding() != binding || assignment.representation() != representation
+            })
+        {
+            return None;
+        }
+        let outer = NestedIfNodeFactsV1::new(
+            outer.statement.clone(),
+            outer.condition.clone(),
+            outer.then_body.clone()?,
+            outer.else_body.clone()?,
+            outer.then_assignments.clone(),
+            outer.else_assignments.clone(),
+            outer_entry,
+        );
+        let inner = NestedIfNodeFactsV1::new(
+            inner.statement.clone(),
+            inner.condition.clone(),
+            inner.then_body.clone()?,
+            inner.else_body.clone()?,
+            inner.then_assignments.clone(),
+            inner.else_assignments.clone(),
+            inner_entry,
+        );
+        Some(VerifiedNestedTrivialIfRecipeFactsV1::new(
+            outer,
+            inner,
+            continuation_read,
+            self.expressions.values().cloned().collect(),
+        ))
     }
 
     pub(super) fn finish(self) -> Option<VerifiedTrivialIfRecipeFactsV1> {

@@ -106,3 +106,19 @@ before effects.
 SSA-I1-T consumes an admitted profile exactly once in the dedicated trivial
 Binding-SSA lowerer. A non-admitted profile selects the whole-unit A+ route
 before Builder effects; a lowering failure never retries another route.
+
+## Nested If D0 sidecar
+
+The analyzer may seal a separate `VerifiedNestedTrivialIfRecipeFactsV1`
+sidecar when the source contains exactly one outer and one inner explicit-`else`
+If over one shared `i64` binding. The sidecar is not the old
+`VerifiedTrivialIfRecipeFactsV1`: the old one-If fixed shell remains immutable
+and continues to reject `ifs.len() != 1`.
+
+`map_nested_trivial_if_recipe_v1` consumes only this same-pass sidecar and the
+function-origin receipt. It emits a portable depth-one artifact, verifies its
+source claims and join rows, and elaborates a logical nested JoinSig in tests.
+It does not rescan AST, select routes, return `Option` as retry, touch Builder,
+or create a physical CFG/PHI owner. Production physicalization is deliberately
+outside this D0 profile and is gated by the nested execution task's D1/D2
+rows.

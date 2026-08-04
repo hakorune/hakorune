@@ -28,6 +28,25 @@ Required evidence:
   missing transfer/read, path mismatch, and multiple-binding fixtures reject
   before Builder effects.
 
+D0 implementation evidence (2026-08-04):
+
+* `nested_recipe_facts.rs` observes the two-node preorder in the same analyzer
+  pass; the existing fixed-shell `finish()` still rejects `ifs.len() != 1`.
+* `nested_schema.rs` / `nested_verify.rs` define a separate portable
+  `ResolvedTrivialExplicitElseDepthOne` artifact with eight ordered source
+  claims, deterministic node/value/binding keys, and no physical IDs.
+* `nested_recipe_mapper.rs` consumes only the sealed sidecar plus the function
+  origin, and `nested_join_sig.rs` composes the child merge into the outer
+  `then` edge. No Builder, route, retry, or production physicalizer is wired.
+* Focused tests cover accepted artifact/JoinSig composition plus depth-
+  greater-than-one, implicit-child-else, and multiple-binding rejection.
+  `RUSTFLAGS='-Awarnings' cargo test -q
+  resolved_value_profile::nested_recipe_tests --lib` is green (3/3), and the
+  existing in-place replacement guard remains green.
+
+Disposition: D0 implementation is locally green; D1 owner census and D2
+parity/candidate-abort evidence remain gated and are not claimed by this row.
+
 ## D1 — caller and owner census
 
 Prove one nested producer/mapper/composition chain and one selected physicalizer
