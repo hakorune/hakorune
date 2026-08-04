@@ -140,13 +140,19 @@ canonical Loop runtime activation remain disconnected.
 
 ## Generic nested-carrier identity boundary
 
-The accepted D2-B4-S2 design stop will consume resolver-issued `BindingRefV1`
+The closed D2-B4-S2 witness consumed resolver-issued `BindingRefV1`
 assignment/read sites for one actual nested-loop source fixture. Only an inner
 write and post-loop outer read that resolve to the same strict-ancestor binding
 under the same function/frame/source identity may issue test-only disjointness
 evidence. A shadowing local must resolve to a different binding and remain
 `UnresolvedStop`. This identity witness is not a Planner, Recipe, PHI, MIR, or
 runtime authority.
+
+The S2 identity witness is closed as test-only evidence. Scoped D3 design
+consultation is recorded in
+`docs/development/current/main/investigations/joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md`;
+only the exact resolver-issued BindingRef/source/frame class may proceed to a
+typed mismatch matrix, and no production handoff is implied.
 
 The bounded cfg(test) witness is green with:
 

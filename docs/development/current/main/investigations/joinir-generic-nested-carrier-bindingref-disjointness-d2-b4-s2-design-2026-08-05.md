@@ -1,5 +1,5 @@
 ---
-Status: execution checkpoint — test-only witness green; production decision still paused
+Status: closed checkpoint — test-only witness green; scoped D3 design stop follows
 Date: 2026-08-05
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Decision: accepted — `JOINIR-GENERIC-NESTED-CARRIER-BINDINGREF-DISJOINTNESS0-D2-B4-S2`
@@ -153,8 +153,10 @@ git diff --check
 
 The observed counts were 8, 9, 1, and successful pointer/diff checks.
 
-Reference closeout is required in the same task boundary and is tracked in the
-Generic post-effect SSOT, the Generic stage-matrix reference, the Generic loop
-README, the resolved-semantics README, `CURRENT_STATE.toml`, `10-Now.md`, and
-the MIRBuilder workstream. A green test does not authorize D3, parent Generic
-D2 resolution, production selection, or old-route retirement.
+Reference closeout for this checkpoint is recorded in the Generic post-effect
+SSOT, the Generic stage-matrix reference, the Generic loop README, the
+resolved-semantics README, `CURRENT_STATE.toml`, `10-Now.md`, and the MIRBuilder
+workstream. The next scoped D3 design stop is
+`investigations/joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md`.
+A green test does not authorize parent Generic D2 resolution, production
+selection, or old-route retirement.

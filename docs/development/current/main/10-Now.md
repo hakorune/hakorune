@@ -30,12 +30,13 @@ Related:
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
-  source-to-Recipe cohort, and Generic D2-B4-S1 are closed. The active stop is
-  D2-B4-S2: a test-only `BindingRefV1` disjointness witness must prove that an
-  inner write and post-loop outer `j` read share the same resolved binding;
-  shadowing must reject. The parent Generic D2 disposition remains unresolved.
-  No Generic production Recipe, route, physical, Retry, or fallback change is
-  authorized; M10b still waits on M7/M8/M9 and D2.
+  source-to-Recipe cohort, Generic D2-B4-S1, and the bounded D2-B4-S2
+  `BindingRefV1` witness are closed. The active stop is scoped D3
+  `JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0`: consult only on the
+  exact resolver-issued BindingRef/source/frame class and its typed mismatch
+  matrix. The parent Generic D2 disposition remains unresolved. No Generic
+  production Recipe, source-to-selection handoff, route, physical, Retry, or
+  fallback change is authorized; M10b still waits on M7/M8/M9 and D2.
   The bounded parsed-source witness is green (3 tests): planner-required V0
   suppression is typed and mode-scoped, while the positive/negative evidence
   remains resolver/source identity rather than runtime parity.

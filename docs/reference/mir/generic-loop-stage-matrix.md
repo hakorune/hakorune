@@ -168,8 +168,16 @@ shadowing row resolves the inner `local j` to a different binding and remains
 scope, and remains unresolved. V0/V1 final-value and PHI tags from the older
 S1 observer are corroborating only and are not used as BindingRef authority.
 
-This is cfg(test)-only evidence (328-line sibling, no production caller). It
+This is cfg(test)-only evidence (443-line sibling, no production caller). It
 does not claim runtime-result parity, V0/V1 precedence, a winner, a Generic
 Recipe/JoinSig/PHI/physicalizer consumer, Retry/fallback removal, or any
 Builder/MIR/backend route change. The exact source and typed suppression
-boundary are recorded in the active S2 design card.
+boundary are recorded in the closed S2 checkpoint and the active scoped D3
+design card.
+
+S2 is closed as bounded evidence. The next active stop is the scoped D3 design
+card `investigations/joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md`.
+It may consult only the exact resolver-issued BindingRef/source/frame class
+and a typed mismatch matrix; it does not authorize a production selector,
+source-to-selection handoff, Recipe/JoinSig/PHI/physicalizer caller, or
+Retry/fallback change. The parent Generic D2 disposition remains unresolved.

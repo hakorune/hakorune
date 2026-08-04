@@ -1,6 +1,6 @@
 # Generic Loop post-effect debt classification
 
-Status: active design stop — bounded D2-B4 continuation
+Status: active design stop — scoped D3 handoff; parent Generic D2 unresolved
 
 Decision: accepted — `JOINIR-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0`
 
@@ -827,10 +827,46 @@ mode-scoped facts/selector snapshot, and remains `UnresolvedStop`; it does not
 call the V0 composer. Direct-stage evidence uses the parsed condition/body and
 canonical facts, while legacy B4-S1 carrier tags are corroborating only. The
 evidence is resolver/source identity (`BindingRefV1`, loop forest/frame, and
-Generic facts), not runtime parity. The test sibling is 328 lines and the
+Generic facts), not runtime parity. The test sibling is 443 lines and the
 production caller/import census remains zero. No selector, planner policy,
 Retry/fallback, Recipe/JoinSig/PHI/physicalizer, Builder, MIR, or runtime
 authority changed.
+
+#### Scoped D3 handoff — `JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0`
+
+The S2 witness is now closed as bounded test-only evidence. The next stop is
+the scoped D3 consultation in
+`investigations/joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md`.
+It covers only the exact class whose inner write and post-loop outer read share
+one resolver-issued `BindingRefV1` under the same strict-ancestor,
+function/frame, and source identity. Its authority chain is:
+
+```text
+parsed source
+-> VerifiedResolvedFunctionV1
+-> VerifiedResolvedLoopSourceForestV1
+-> resolver-issued BindingRefV1
+-> LivePreflightFrameV1
+-> GenericLoopV1Facts
+-> fresh V1 stage/candidate observation
+```
+
+The design slice is a typed mismatch matrix over the existing positive,
+shadowing-negative, and planner-required rows. Only a natural Release/Strict
+`Both [V0,V1]` row with complete recursive carrier evidence, matching
+BindingRef/source identity, natural V1 `LowerSome + GenericComposer`, and a
+stable fresh repeat may issue a test-only candidate. All other rows remain
+`UnresolvedStop`; effectful failures never retry or fall back. AST rereads,
+names, route IDs, S1 tags, synthetic bodies, plan digests, diagnostics,
+legacy receipts, and runtime results are non-authority.
+
+No production source-to-selection handoff, selector/policy arm, Generic
+Recipe/JoinSig/PHI/physicalizer caller, Retry/fallback removal, scheduler,
+Builder, MIR, backend, or runtime change is authorized by this D3 stop. A
+production correction would first require a separate design decision for a
+co-sealed resolved-carrier capability. The parent Generic D2 disposition
+remains `UnresolvedStop` until a complete winner/disjointness matrix and
+downstream authority closeout exist.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
