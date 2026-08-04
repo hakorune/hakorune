@@ -1,5 +1,5 @@
 ---
-Status: Selected D0 task — semantic admission only
+Status: D0 landed; D1 caller/capability census is next
 Date: 2026-08-04
 Parent: joinir-if-recipe-shape-envelope-d0-design-stop-2026-08-04
 Decision: admit exactly one direct static i64 call in each explicit-else
@@ -76,6 +76,31 @@ Required contract:
 
 No production physicalizer, adapter demand, route, CFG/SSA/PHI, capability,
 transaction, fallback, retry, or runtime code may change in D0.
+
+## D0 completion evidence
+
+Implementation landed in `8987682711` (`feat(if): admit two direct call arms
+in recipe contract`) after the behavior-neutral extraction in `befb558d42`.
+The mapper now pairs the ordered Then/Else fact slots with the ordered
+profile rows exactly. The source verifier accepts claim lengths 4/5/6 and
+rejects swapped, duplicate, wrong-arm, or implicit-baseline two-call claims.
+The recipe operation remains identity-free and no physical owner changed.
+
+Focused evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib resolved_value_profile -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_contract -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib direct_call -- --test-threads=1
+cargo check -q --lib
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+```
+
+The compiler contract references were updated in
+`src/mir/if_recipe_contract/README.md` and
+`docs/development/current/main/design/joinir-if-recipe-contract-ssot.md` in
+the same implementation row. No language grammar/reference surface changed.
 
 ## 800-line structure rule
 
