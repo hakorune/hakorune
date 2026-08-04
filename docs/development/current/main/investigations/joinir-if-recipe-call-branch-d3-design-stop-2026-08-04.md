@@ -116,6 +116,33 @@ Design and test the contract without changing production behavior:
 The D0 product is a sealed operation contract plus fail-fast tests. It does
 not add a new SSA writer, call resolver, route, or production caller.
 
+## D0 design audit — current gap and closure boundary
+
+The existing direct-call product is strong enough to be reused, but it is not
+yet an If-recipe leaf:
+
+* `VerifiedTrivialDirectCallV1::seal` checks the owner, resolved static target,
+  callable header, arity, `InlineI64` result, and
+  `ConservativeBarrier` effect before Builder effects;
+* the trivial analyzer records direct-call rows and exact source coverage in
+  the same sealed profile consumed by `trivial_ssa::direct_call::emit`;
+* however, the analyzer currently calls `recipe_facts.mark_unsupported()` for
+  every `ASTNode::FunctionCall`, and `TrivialIfRecipeFactsDraftV1::finish`
+  rejects any unsupported draft. The current `IfOperationV1` also has no
+  direct-call variant.
+
+Therefore the smallest D0 implementation is not “let the existing lowerer
+notice a call.” It must add one owner-branded Call leaf to the same-pass If
+facts and a recipe-local operation/claim that references the co-sealed direct
+call row. The portable artifact must carry only recipe/source identity; target
+headers, argument rows, result representation, and effect remain in the
+co-sealed direct-call capability consumed by the existing emitter. No raw AST
+call or callable-name lookup may cross the mapper/physicalizer boundary.
+
+The current gap is a pre-effect typed stop, not a reason to broaden the shape:
+until the Call leaf is present, a Call-RHS fixture must remain `NotThisShape`
+and must not enter the selected physicalizer.
+
 ## D1 — caller and capability census
 
 Record exact production and test callers for:
@@ -128,6 +155,24 @@ Record exact production and test callers for:
 The census must distinguish production callers from fixtures and parity
 helpers. Existing direct-call ownership is evidence to reuse, not permission
 to widen the selected If route.
+
+## D1 census evidence — 2026-08-04
+
+The static caller inventory is currently:
+
+| Product/edge | Production definition/caller | Test/parity surface | Disposition |
+| --- | --- | --- | --- |
+| `VerifiedTrivialDirectCallV1::seal` | one analyzer call at `resolved_value_profile/analyzer.rs:744`; definition at `direct_call.rs:23` | `resolved_value_profile/direct_call_tests.rs` through analyzer fixtures | reuse sealed profile; no second sealer |
+| `TrivialProfileConsumptionV1::claim_direct_call` | one selected lowerer call at `trivial_ssa/lowerer.rs:399` | direct-call consumption tests | selected ledger claim; exact-once remains required |
+| `trivial_ssa::direct_call::emit` | one production caller at `trivial_ssa/lowerer.rs:405`; definition at `trivial_ssa/direct_call.rs:13` | direct-call type/materialization tests | sole selected call emitter |
+| If recipe producer/mapper | one production producer chain at `resolved_lowering/mod.rs:437` → `if_recipe_adapter.rs:213` → `recipe_mapper.rs:221` | mapper/contract tests call the mapper directly | selected If producer; currently rejects Call-RHS via facts gap |
+| If recipe physicalizer | one production caller at `trivial_ssa/if_recipe_physicalizer.rs:356` from `lowerer.rs:461` | physicalizer/receipt tests | sole selected If physicalizer |
+| JoinSig/physical input | one production artifact-to-input chain in `if_recipe_contract/physical_input.rs` | JoinSig/physical-input tests | logical/physical seal owner; no new writer |
+| raw/method/unified/JSON call paths | `builder/calls/**`, `join_ir_to_mir/call_generator.rs`, JSON-v0 bridge, and related catalog/route owners | their own focused suites | non-selected; no caller retirement in D3 |
+
+This census proves local ownership only. It does not claim that all call
+routes share the direct-call ABI, or that global call/PHI authority has been
+retired.
 
 ## D2 — parity and candidate-abort proof
 
@@ -150,6 +195,15 @@ The proof must cover, in order:
 
 Reuse the existing candidate-abort seam. Do not add a second transaction,
 rollback journal, production fault toggle, or live Builder snapshot API.
+
+## D2 status
+
+D2 is a future acceptance gate, not completed evidence. The existing abort
+tests cover the no-call explicit/implicit envelope only. A Call-RHS fixture
+cannot be added until the D0 Call leaf is implemented and its D1 exact-once
+caller ledger is green. At that point the paired call fixture must reuse the
+existing candidate fingerprint/seal-failure seam and add no new transaction
+owner.
 
 ## D3 execution boundary after design
 
