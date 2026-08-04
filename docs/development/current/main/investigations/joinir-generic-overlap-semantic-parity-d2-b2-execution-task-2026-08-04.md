@@ -86,6 +86,30 @@ V0/V1 semantic policy change = forbidden
 The planner-required suppression row is a separate pre-effect gate. It must
 not be used to claim release/strict disjointness.
 
+## Current matrix implementation evidence
+
+The test-only matrix is implemented in
+`generic_stage_observer_tests::semantic_parity_matrix`. Each row retains the
+shared frame, direct V0/V1 `GenericDirectStageEvidenceV1` entries (including
+snapshots, first-effect owner, stage, and semantic digest), the complete
+witness trace, the pure probe result, and the final `UnresolvedStop`
+classification. Fresh repeats are compared before any interpretation.
+
+Current observed rows:
+
+```text
+release / strict:
+  [V0, V1] direct routes; both LowerSome; digest differs; witness V0 success
+  with no debt and no V1 attempt; comparison = UnresolvedStop
+
+strict + planner_required:
+  [V1] direct route; LowerSome; V0 suppressed before effect; comparison still
+  UnresolvedStop because this is not release/strict overlap proof
+```
+
+The matrix is evidence only. The current card remains a design stop until a
+production-derived disjointness or semantic-equivalence proof exists.
+
 ## Acceptance gates
 
 ```text

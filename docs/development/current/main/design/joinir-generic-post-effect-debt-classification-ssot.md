@@ -535,9 +535,9 @@ the ordered scheduler authoritative. No `GenericDebt -> Blocked` rewrite,
 
 #### D2-B-E1 — overlap evidence matrix (design stop)
 
-The next bounded task is to join the three existing observations for each
-claimed `Both` row into one evidence matrix. This is an observation/oracle
-product, not a new policy owner.
+D2-B2 now joins the three existing observations for each claimed `Both` row
+into one fresh-candidate evidence matrix. Current digest mismatch and V0
+terminal success keep its comparison `UnresolvedStop`; it is not a policy owner.
 
 | column | required evidence |
 | --- | --- |

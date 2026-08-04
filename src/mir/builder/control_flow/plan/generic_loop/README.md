@@ -82,6 +82,11 @@ Post-effect stage boundary (M4 test/reference lane):
   not naturally reached. It changes no language grammar or IR semantics.
   The stage-matrix reference page and parent design SSOT are mandatory
   post-implementation closeout surfaces.
+- D2-B2 is a test-only overlap-parity stop. Fresh V0/V1 plans and the real
+  witness are compared through the shared frame; nested-carrier digest
+  mismatch and V0 terminal success keep the semantic result unresolved.
+  Planner-required V0 suppression is a separate pre-effect gate, not a winner
+  proof. No route, Recipe, JoinSig, PHI, or retry authority changes here.
 
 LOOP0-P0b-T0 associated-source boundary:
 - T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under

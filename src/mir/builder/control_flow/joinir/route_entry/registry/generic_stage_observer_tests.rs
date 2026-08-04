@@ -9,7 +9,7 @@ use super::execution_witness::{
     PostEffectRetryDebtV1, RouteAttemptOutcomeV1, RouteExecutionResultV1,
 };
 use super::generic_accepted_plan_reachability_tests::{
-    evaluate_nested_carrier_policy_probe, observe_both_direct_stage,
+    evaluate_nested_carrier_policy_probe, observe_both_direct_stage, EffectOwnerV1,
     GenericCarrierPolicyDispositionV1, GenericCarrierPolicyFrameV1, GenericDirectStageEvidenceV1,
     PlanStageV1,
 };
@@ -97,7 +97,7 @@ pub(super) struct FrameTraceV1 {
     pub(super) recipe_first_allowed: bool,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct GenericStageTraceV1 {
     pub(super) frame: FrameTraceV1,
     pub(super) raw_schedule: Vec<LoopRouteId>,
@@ -279,6 +279,136 @@ fn observe_both_evidence(mode: ObserverModeV1) -> GenericOverlapEvidenceRowV1 {
         mode,
         direct: observe_both_direct_stage(mode.strict_or_dev(), mode.planner_required()),
         witness: observe_both_fixture(mode),
+    }
+}
+
+#[cfg(test)]
+mod semantic_parity_matrix {
+    use super::*;
+    use crate::mir::builder::control_flow::plan::facts::GenericLoopCarrierObservationV1;
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum ParityDispositionV1 {
+        UnresolvedStop,
+    }
+
+    #[derive(Debug, Clone, PartialEq)]
+    struct ParityRowV1 {
+        mode: ObserverModeV1,
+        direct: Vec<GenericDirectStageEvidenceV1>,
+        witness: GenericStageTraceV1,
+        pure_probe: GenericCarrierPolicyDispositionV1,
+        disposition: ParityDispositionV1,
+    }
+
+    fn parity_row(mode: ObserverModeV1) -> ParityRowV1 {
+        let evidence = observe_both_evidence(mode);
+        let observation = evidence
+            .witness
+            .carrier_observation
+            .as_ref()
+            .expect("Both must expose the Generic carrier observation");
+        let v1_stage_accepted = evidence.direct.iter().any(|row| {
+            row.route == LoopRouteId::GenericLoopV1 && matches!(row.stage, PlanStageV1::LowerSome)
+        });
+        let pure_probe = evaluate_nested_carrier_policy_probe(
+            observation,
+            GenericCarrierPolicyFrameV1 {
+                has_overlap: evidence.witness.raw_schedule.as_slice()
+                    == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1],
+                strict_or_dev: evidence.witness.frame.strict_or_dev,
+                planner_required: evidence.witness.frame.planner_required,
+                contract_present: evidence.witness.frame.recipe_contract_present,
+                v1_stage_accepted,
+            },
+        );
+        assert!(matches!(
+            observation,
+            GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(_)
+        ));
+        ParityRowV1 {
+            mode,
+            direct: evidence.direct,
+            witness: evidence.witness,
+            pure_probe,
+            disposition: ParityDispositionV1::UnresolvedStop,
+        }
+    }
+
+    #[test]
+    fn generic_both_semantic_parity_matrix_is_fresh_and_explicit() {
+        let modes = [
+            ObserverModeV1::Release,
+            ObserverModeV1::Strict,
+            ObserverModeV1::StrictPlannerRequired,
+        ];
+        let rows = modes.map(parity_row);
+        let repeat = modes.map(parity_row);
+        assert_eq!(
+            rows, repeat,
+            "Both parity matrix drifted on fresh candidates"
+        );
+
+        for row in rows {
+            assert_eq!(row.disposition, ParityDispositionV1::UnresolvedStop);
+            assert_eq!(row.witness.generic_debts.len(), 0);
+            assert!(row.witness.frame.recipe_first_allowed);
+            assert!(row
+                .direct
+                .iter()
+                .all(|stage| { stage.first_effect_owner == EffectOwnerV1::GenericComposer }));
+            match row.mode {
+                ObserverModeV1::Release | ObserverModeV1::Strict => {
+                    assert_eq!(
+                        row.direct
+                            .iter()
+                            .map(|stage| stage.route)
+                            .collect::<Vec<_>>(),
+                        vec![LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
+                    );
+                    assert!(row
+                        .direct
+                        .iter()
+                        .all(|stage| { matches!(stage.stage, PlanStageV1::LowerSome) }));
+                    assert_eq!(row.direct.len(), 2);
+                    assert_ne!(
+                        row.direct[0].semantic_digest, row.direct[1].semantic_digest,
+                        "nested carrier digest mismatch must remain visible"
+                    );
+                    assert_eq!(
+                        row.witness
+                            .attempted
+                            .iter()
+                            .map(|attempt| attempt.route)
+                            .collect::<Vec<_>>(),
+                        vec![LoopRouteId::GenericLoopV0]
+                    );
+                    assert_eq!(
+                        row.witness.terminal,
+                        TerminalTraceV1::Succeeded(LoopRouteId::GenericLoopV0)
+                    );
+                }
+                ObserverModeV1::StrictPlannerRequired => {
+                    assert_eq!(
+                        row.direct
+                            .iter()
+                            .map(|stage| stage.route)
+                            .collect::<Vec<_>>(),
+                        vec![LoopRouteId::GenericLoopV1]
+                    );
+                    assert!(row
+                        .direct
+                        .iter()
+                        .all(|stage| { matches!(stage.stage, PlanStageV1::LowerSome) }));
+                    assert_eq!(row.witness.raw_schedule, vec![LoopRouteId::GenericLoopV1]);
+                }
+            }
+            assert_eq!(
+                row.pure_probe,
+                GenericCarrierPolicyDispositionV1::UnresolvedStop,
+                "pure probe cannot become a winner without the shared contract"
+            );
+        }
     }
 }
 

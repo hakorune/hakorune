@@ -15,6 +15,8 @@ The executable task and acceptance evidence are
 `docs/development/current/main/investigations/joinir-generic-structural-grammar-census-d2-a3-s1-execution-task-2026-08-04.md`;
 the closed ledger is
 `docs/development/current/main/investigations/joinir-generic-post-effect-debt-classification-d0-s1-execution-task-2026-08-04.md`.
+The active overlap parity task is
+`docs/development/current/main/investigations/joinir-generic-overlap-semantic-parity-d2-b2-execution-task-2026-08-04.md`.
 The machine-readable test observer is
 `src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs`.
 
@@ -88,6 +90,16 @@ nested-depth observation. It preserved the lower-`None` `ImpossibleEdge`
 invariant and changed no grammar or IR semantics. This page was synchronized
 as the required post-implementation closeout surface; deeper failure arms and
 V0/V1 winner equivalence remain parent design-stop work.
+
+## D2-B2 overlap parity evidence
+
+The test-only parity matrix joins the shared production frame, fresh direct
+V0/V1 stage rows, semantic digests, and the real witness trace. Release and
+strict retain `[GenericLoopV0, GenericLoopV1]`; both direct plans reach
+`LowerSome`, but their nested-carrier digests differ. The witness terminates
+at V0 with no debt receipt and no V1 attempt. Planner-required suppresses V0
+before effect and reaches V1 separately. The pure probe and final comparison
+remain `UnresolvedStop`; no winner or retry policy follows from this evidence.
 
 ## Snapshot ownership
 
