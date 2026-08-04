@@ -237,10 +237,9 @@ capability is `UnresolvedStop` before Builder effects; it is not represented as
 `Option<Capability>` with a silent fallback.
 
 The selector may use its own canonical registry route IDs to apply policy, but
-capability identity must never be reconstructed from route IDs or registry
-order. `LegacyFacts` is constructible only for a typed `NotApplicable` or
-`ProvenOutsideTarget` disposition. A target row with missing/invalid handoff is
-`UnresolvedStop`, not a silent legacy fallback.
+the identity rule above still applies. `LegacyFacts` is constructible only for
+a typed `NotApplicable` or `ProvenOutsideTarget` disposition. A target row
+with missing/invalid handoff is `UnresolvedStop`, not a silent legacy fallback.
 
 ## Production-free protocol matrix and acceptance
 
@@ -328,7 +327,8 @@ Acceptance for this design slice:
 ```text
 same parsed source -> one resolver forest -> one BindingRef pair -> one facts identity
 foreign LocatedStmtV1 / owner / frame / source kind -> typed reject
-AST reread after projection -> 0
+production projector AST reread after source projection -> 0
+test-only fixture AST observation -> one bounded located-root read
 Builder / registry / selector / frame callers -> 0
 source projector file and test fixture -> <800 lines each
 ```
@@ -380,6 +380,19 @@ forest, BindingRefs, source identity, and Generic facts before any effect, and
 proves foreign-root and shadowing rejection. It does not issue a production
 capability, select a route, or close the parent D2 row. A production projector
 still requires a separate accepted implementation card.
+
+## Stop condition after the projector witness
+
+The projector witness does not authorize a neutral eligibility issuer or a
+Builder packaging adapter. Parent Generic D2 remains `UnresolvedStop` until
+the nested `Both` winner/disjointness, full overlap matrix, first-effect and
+alpha-normalized candidate evidence, fresh-repeat stability, and
+no-debt-to-different-winner checks are complete. The current Generic facts
+product is still Builder-local and AST-bearing, so introducing a neutral
+snapshot owner now would create a second semantic boundary. The next allowed
+work is additional design/test-only D2-B4-S2 evidence; after D2 acceptance,
+the production order is resolved projector -> neutral snapshot/eligibility
+issuer -> private Builder adapter -> selector consumer.
 
 This card is a design consultation boundary. A green test-only matrix does
 not authorize production selection or parent D2 closeout.
