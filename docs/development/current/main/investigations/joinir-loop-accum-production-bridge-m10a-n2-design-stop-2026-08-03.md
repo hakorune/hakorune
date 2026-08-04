@@ -362,5 +362,32 @@ Implementation progress (caller-zero only):
   its production-shaped entrypoint returns an open `After` continuation while
   caller-zero wrappers retain the old finish/commit behavior. Focused
   physicalizer, DirectAccum, resolved-lowering, and binary checks are green.
-  The resolved caller, trailing-statement integration, and old-edge retirement
-  are still unimplemented and remain the next S4/S5 boundary.
+  This paragraph is historical as of the caller-zero adapter commit.
+
+## Reconciliation after the resolved caller connection (2026-08-04)
+
+The subsequent canonical-candidate connection changed the caller census. The
+resolved ingress now reaches `CanonicalDirectAccumSsaLowererV1`, which reaches
+`physicalize_direct_accum_v1_with_port` through
+`src/mir/builder/resolved_lowering/direct_accum_lowerer.rs`. The structural
+guard requires exactly one non-test physicalizer caller and marks the
+canonical-resolved-DirectAccum candidate reachable. Therefore the old S3
+statement that DirectAccum and the physicalizer have zero production callers
+is retained only as historical audit evidence, not as the current state.
+
+The current boundary is narrower than an all-route cutover:
+
+```text
+resolved DirectAccum candidate
+  -> one canonical CFG / Binding SSA / PhiTxn session
+  -> one physicalizer caller
+  -> test-only immutable physical snapshot (P4-S1)
+```
+
+`route_loop`, the legacy scheduler/registry, Retry/fallback, Generic policy,
+old Accum-edge retirement, and default/selfhost authority remain unchanged.
+P4-S1 owns the next observer/parity evidence and must not add another lowerer,
+writer, or selector. Its implementation closeout must synchronize the P4
+cards, Loop pipeline SSOT, PHI/SSA design SSOTs, MIR reference pages,
+`src/mir/builder/README.md`, and current pointer mirrors; those reference
+updates are acceptance work, not optional cleanup.

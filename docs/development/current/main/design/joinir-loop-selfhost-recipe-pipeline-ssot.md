@@ -37,9 +37,10 @@ composers/CorePlan/PlanLowerer/JoinIR merge/route PHI writers. Portable
 `VerifiedLoopRecipeV1` has zero physical production consumers through M9.
 The current JoinIR/JoinModule path remains execution authority until M10; Retry is
 scheduler-internal and exhaustion freezes; it is not a portable Recipe consumer.
-M5/M6 remain caller-zero; after M6 and the post-M6 Accum pilot, optional M10a may
-activate one proven singleton and retire its selected old edge. M10b is the
-first all-route consumer and retires the scheduler/fallback/remaining old PHI edges.
+M5/M6 remain caller-zero evidence; a bounded M10a resolved DirectAccum pilot is
+now active through one canonical resolved production caller. M10a does not
+switch `route_loop` or retire the old scheduler/PHI edges. M10b is the first
+all-route consumer and retires the scheduler/fallback/remaining old PHI edges.
 
 ```text
 Source / projection
@@ -61,6 +62,25 @@ Loop-local Builder clone, a symbolic MIR fragment, or an undo journal.
 Candidate isolation is not route qualification. Meaning must be decided before
 the first Builder effect; selected physicalization returns terminal success or
 `Freeze` and cannot advance to another route.
+
+### Bounded M10a DirectAccum pilot — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT0-M5-P4-S1`
+
+The resolved DirectAccum profile is selected by the canonical resolved ingress
+and reaches exactly one production physicalizer caller in
+`resolved_lowering/direct_accum_lowerer.rs`. That pilot borrows the existing
+function-owned Binding SSA, canonical CFG, and `PhiTxn`; it does not create a
+second writer or change `route_loop`.
+
+The active next slice is test-only physical observation. It adapts the actual
+unpublished DirectAccum candidate to the immutable alpha snapshot already used
+by the legacy observer, compares semantic CFG/operation/PHI/result meaning,
+and proves late candidate discard plus fresh-session reuse. Raw physical IDs,
+printer text, all-route parity, Retry/fallback retirement, Generic widening,
+default compile activation, grammar, and IR changes remain outside this row.
+The task card requires synchronized updates to this SSOT, the PHI/SSA design
+SSOTs, the MIR reference pages, `src/mir/builder/README.md`, and current
+pointer mirrors after implementation; reference synchronization is an
+acceptance condition, not optional cleanup.
 
 ## Selfhost boundary
 

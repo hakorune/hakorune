@@ -1,5 +1,5 @@
 ---
-Status: Design stop
+Status: Closed design boundary; P4-S1 task active
 Date: 2026-08-03
 Decision: accepted boundary — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT-DESIGN0-M5-P4`
 Scope: define the test-only physical-parity seam before the first production
@@ -161,3 +161,22 @@ caller census, and all touched-file line counts; state explicitly that no
 grammar, IR, Generic policy, Retry/fallback, or route behavior changed unless
 a separate accepted M10a cutover card authorizes it. Reference-document
 synchronization is part of implementation acceptance, not optional cleanup.
+
+## Reconciliation (2026-08-04)
+
+The M10a resolved DirectAccum pilot has now supplied the prerequisite shared
+physicalizer and one canonical resolved production caller. Earlier
+caller-zero/no-physicalizer wording in this design card is historical and no
+longer selects the current frontier. The successor implementation task is
+`JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT0-M5-P4-S1`:
+
+```text
+resolved DirectAccum candidate MIR
+  -> immutable alpha snapshot
+  -> semantic comparison with the legacy observer
+```
+
+The successor remains test-only and keeps `route_loop`, Retry/fallback,
+Generic policy, PHI/SSA ownership, grammar, and IR behavior unchanged. Its
+acceptance includes exact role/terminator validation, late candidate abort and
+fresh-session reuse, and synchronized reference-document updates.

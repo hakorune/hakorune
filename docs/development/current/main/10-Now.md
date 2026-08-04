@@ -29,9 +29,9 @@ Related:
   graph toward `mirbuilder_north_star`; cell/pack/LOC counts are not the goal
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
-- current frontier: M6-B and structural P1b evidence are closed; follow the
-  P4 physical-snapshot design card named by `latest_card_path` before
-  production changes
+- current frontier: M6-B and structural P1b evidence are closed. The bounded
+  M10a resolved DirectAccum bridge has one production physicalizer caller;
+  follow the P4-S1 test-only snapshot task named by `latest_card_path`.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
