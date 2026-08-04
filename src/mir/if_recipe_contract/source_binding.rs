@@ -95,9 +95,6 @@ impl IfRecipeSourceClaimVerifierV1 {
         }
 
         if let Some(call_claim) = binding.claims.get(4) {
-            if binding.claims[3].role != IfSourceClaimRoleV1::ElseAssignment {
-                return Err(Reject::DirectStaticCallRequiresExplicitElse);
-            }
             let call_item = match call_claim.path.steps.as_slice() {
                 [
                     IfSourcePathStepV1::BodyItem { index: found },

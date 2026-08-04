@@ -56,16 +56,17 @@ schema, or physicalizer is needed. The existing analyzer already observes an
 implicit then-only branch and the lowerer already emits a direct call in a
 then assignment RHS. The current gap is four explicit contract rejects:
 
-1. `TrivialIfRecipeFactsDraftV1::finish` rejects a direct call when
+1. `TrivialIfRecipeFactsDraftV1::finish` rejected a direct call when
    `explicit_else == false`.
-2. `recipe_mapper` rejects the same implicit direct-call profile.
-3. `IfRecipeVerifier` uses the stale
+2. `recipe_mapper` rejected the same implicit direct-call profile.
+3. `IfRecipeVerifier` used the stale
    `DirectStaticCallRequiresExplicitElse` reason.
-4. source-claim verification treats the direct-call claim as an Else-only
+4. source-claim verification treated the direct-call claim as an Else-only
    claim instead of the implicit Then-RHS claim order.
 
-The fix must replace those rejects with the narrower rule below. Do not leave
-the stale reason variant as a hidden compatibility authority.
+The D0 fix replaces those rejects with the narrower rule below. The stale
+reason variant is deleted rather than retained as a hidden compatibility
+authority.
 
 ## Accepted candidate contract (provisional until D0)
 
@@ -117,8 +118,8 @@ Required evidence:
 * explicit-else, two-call, call-in-condition, call-in-continuation,
   unsupported result, and non-direct-call variants reject before Builder
   effects;
-* the stale `DirectStaticCallRequiresExplicitElse` reason is removed or
-  replaced by a precise branch/path mismatch reason.
+* the stale `DirectStaticCallRequiresExplicitElse` reason is absent from the
+  code; branch/path mismatches use the existing typed mismatch reasons.
 
 ### `JOINIR-IF-RECIPE-CALL-BRANCH-IMPLICIT-D1-CENSUS`
 

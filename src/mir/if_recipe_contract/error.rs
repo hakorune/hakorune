@@ -37,7 +37,6 @@ pub(crate) enum IfRecipeRejectReasonV1 {
     SourceClaimOrderMismatch,
     DuplicateSourceClaimRole,
     InvalidSourcePath,
-    DirectStaticCallRequiresExplicitElse,
     DirectStaticCallCountMismatch { found: usize },
     DirectStaticCallBranchMismatch {
         then_ops: usize,

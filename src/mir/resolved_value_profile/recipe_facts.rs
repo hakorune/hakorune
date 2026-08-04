@@ -459,9 +459,6 @@ impl TrivialIfRecipeFactsDraftV1 {
             return None;
         }
         let mut if_fact = self.ifs.into_iter().next()?;
-        if self.direct_call_site.is_some() && !if_fact.explicit_else {
-            return None;
-        }
         if_fact.direct_call_site = self.direct_call_site;
         let branch_shape_ok = if if_fact.explicit_else {
             if_fact.then_assignments.len() == 1

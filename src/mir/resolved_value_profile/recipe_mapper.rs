@@ -246,8 +246,7 @@ pub(crate) fn map_trivial_if_recipe_v1(
     let explicit_else = facts.has_explicit_else();
     let else_assignment = facts.else_assignment();
     if let Some(call_site) = facts.direct_call_site() {
-        if !explicit_else
-            || profile.direct_calls().len() != 1
+        if profile.direct_calls().len() != 1
             || profile
                 .direct_calls()
                 .iter()

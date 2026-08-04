@@ -222,7 +222,7 @@ fn call_outside_explicit_branch_rhs_is_not_recipe_facts() {
 }
 
 #[test]
-fn two_calls_and_implicit_call_fallthrough_are_rejected() {
+fn two_calls_are_rejected_but_implicit_call_fallthrough_is_admitted() {
     let source = program(explicit_call_body(call(), call()));
     let (analyzed, _) = product(&source);
     assert!(analyzed.recipe_facts().is_none());
@@ -245,6 +245,35 @@ fn two_calls_and_implicit_call_fallthrough_are_rejected() {
             span: Span::unknown(),
         },
     ]);
-    let (analyzed, _) = product(&source);
-    assert!(analyzed.recipe_facts().is_none());
+    let (product, input) = product(&source);
+    let facts = product
+        .recipe_facts()
+        .expect("implicit direct-call RHS facts are admitted");
+    assert!(facts.has_implicit_else());
+    assert_eq!(facts.then_assignment_count(), 1);
+    assert_eq!(facts.else_assignment_count(), 0);
+    assert!(facts.direct_call_site().is_some());
+
+    let artifact = map_trivial_if_recipe_v1(&product, input.function())
+        .expect("implicit direct-call RHS maps to a portable artifact");
+    assert!(artifact.recipe().as_recipe().else_block.is_none());
+    assert_eq!(
+        artifact.recipe().as_recipe().else_disposition,
+        crate::mir::if_recipe_contract::IfElseDispositionV1::ImplicitFallthrough
+    );
+    assert_eq!(
+        artifact.source_binding().as_source_binding().claims.len(),
+        5
+    );
+    assert_eq!(
+        artifact.source_binding().as_source_binding().claims[3].role,
+        IfSourceClaimRoleV1::ImplicitBaseline
+    );
+    assert_eq!(
+        artifact.source_binding().as_source_binding().claims[4].role,
+        IfSourceClaimRoleV1::DirectStaticCall
+    );
+    let semantic = IfRecipeNormalizerV1::normalize_semantic(artifact.recipe()).unwrap();
+    assert!(semantic.contains("implicit"));
+    assert!(semantic.contains("direct_static_call"));
 }

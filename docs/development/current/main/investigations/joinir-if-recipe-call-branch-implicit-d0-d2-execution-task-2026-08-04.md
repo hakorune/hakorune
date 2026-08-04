@@ -1,5 +1,5 @@
 ---
-Status: D0 execution authorized; D1/D2 gated on D0 green
+Status: D0 complete; D1 execution authorized; D2 gated on D1 green
 Date: 2026-08-04
 Parent: joinir-if-recipe-call-branch-implicit-design-stop-2026-08-04.md
 Decision: if the design stop is accepted, execute only D0 facts/claims,
@@ -34,6 +34,35 @@ Add focused facts/artifact/source-claim tests for:
 * explicit else and wrong-path call rejection;
 * two calls, call-in-condition, call-in-continuation, method/dynamic call,
   and unsupported result rejection.
+
+### D0 evidence — 2026-08-04
+
+The four existing contract owners now accept the exact implicit then-RHS
+direct-call shape:
+
+```text
+facts finish                         = implicit direct-call admitted
+recipe mapper                        = implicit profile admitted
+IfRecipe/source-claim verifier       = baseline + direct-call order admitted
+stale explicit-else reject variant   = deleted
+new route/PHI/SSA/transaction owner  = 0
+```
+
+The focused facts/artifact test proves the source claim order
+`[IfNode, Condition, ThenAssignment, ImplicitBaseline, DirectStaticCall]`,
+the implicit baseline JoinSig representation, and a physical-ID-free
+semantic artifact. Existing two-call and condition-call rejection tests stay
+negative.
+
+Green gates:
+
+```text
+resolved_value_profile             = 42 passed
+if_recipe_contract                 = 10 passed
+direct_call                        = 38 passed
+if_recipe_candidate_abort_d2       = 2 passed
+cargo check --lib                  = green
+```
 
 ## D1 — caller census
 

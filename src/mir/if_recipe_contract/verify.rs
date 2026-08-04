@@ -68,9 +68,6 @@ impl IfRecipeVerifierV1 {
         let recipe = Self::verify(artifact.recipe)?;
         let source_binding = IfRecipeSourceClaimVerifierV1::verify(artifact.source_binding)?;
         let direct_ops = direct_static_call_count(recipe.as_recipe());
-        if direct_ops > 0 && disposition != IfElseDispositionV1::Explicit {
-            return Err(Reject::DirectStaticCallRequiresExplicitElse);
-        }
         let direct_claims = source_binding
             .as_source_binding()
             .claims
