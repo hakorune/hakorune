@@ -8,7 +8,7 @@ NyashのVMバックエンドとプラグインシステム（BID-FFI v1）の統
 
 > Vocabulary boundary: この実装資料の clone/share 表記はSharedV1/plugin
 > runtime snapshotです。Hakorune sourceのowner transfer/acquisition authority
-> は `docs/reference/language/ownership.md` の `move` / `share` 契約です。
+> は `docs/reference/language/ownership.md` のHome demand / `share` 契約です。
 
 ## ⚠️ **現在のVM実装の重大な問題**
 

@@ -598,7 +598,7 @@ THREAD-SAFETY-001B:
   register/unregister runtime worker threads
   expose snapshot/count for diagnostics and tests
   no GC root set yet
-  no Box move/share authorization yet
+  no Box Home-transfer/share authorization yet
 
 THREAD-SAFETY-001C:
   connect WorkerPoolScheduler workers to ThreadRegistry

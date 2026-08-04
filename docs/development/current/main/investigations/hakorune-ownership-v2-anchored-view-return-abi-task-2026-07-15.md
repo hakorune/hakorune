@@ -1,8 +1,8 @@
 ---
-Status: Accepted for parked tasking; production activation 0
+Status: Superseded historical View task; production activation 0
 Date: 2026-07-15
-Decision: Anchored View Return ABI, modified-and-adopted
-Parent taskboard: hakorune-sparse-ownership-surface-task-2026-07-15.md
+Decision: Historical Anchored View proposal; superseded by Home result relation
+Parent taskboard: hakorune-home-ownership-task-2026-08-04.md
 Current blocker: read `CURRENT_STATE.toml`; this task remains parked
 First evidence prerequisite: O2-P0b1 exact final-callee/current-signature census
 Related:
@@ -16,11 +16,15 @@ Related:
 
 # Hakorune Ownership V2 Anchored View Return ABI Task
 
+> Superseded on 2026-08-04. Anchor/provenance counterexamples remain useful,
+> but source `view` is no longer the accepted target surface. Current semantics
+> and task order live in `ownership.md` and the Home ownership taskboard.
+
 ## Authority and status
 
-This document owns the parked projection/call-result-view subtask only. It does
-not replace the sparse ownership task order, the current D-prime Binding SSA
-frontier, or the normative `docs/reference/language/ownership.md` contract.
+This document records the former projection/call-result-view subtask only. It
+owns no current row and does not replace the Home taskboard, current frontier,
+or normative `docs/reference/language/ownership.md` contract.
 
 ```text
 current executable frontier:
@@ -29,8 +33,8 @@ current executable frontier:
 evidence/selection owner:
   parent O2-P0a -> {O2-P0r, O2-P0b1} -> O2-P0c -> ABI0
 
-parked view-return task owner:
-  this document after the sparse board reaches VIEW0
+historical view-return task owner:
+  this document (must not resume)
 
 production View activation:
   0

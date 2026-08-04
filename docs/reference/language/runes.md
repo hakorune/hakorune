@@ -57,8 +57,9 @@ aliases.
 
 Source-level parameter/result ownership is defined by
 `docs/reference/language/ownership.md`. `@rune Ownership(...)` must not replace
-the callable `move`/`view`/`share` contract, and `ReturnsOwned` is foreign/core
-ABI metadata rather than the default Hakorune source-return spelling.
+the callable Home ABI or explicit `share` contract, and `ReturnsOwned` is
+foreign/core ABI metadata rather than the default Hakorune source-return
+spelling.
 
 `@rune Capability(...)` is not accepted parser surface yet. Capability facts
 currently come from metadata-only `uses ...` rows where the relevant design card
@@ -180,7 +181,7 @@ These spellings remain accepted during the migration window:
 
 `@rune Ownership(...)` retires when all low-level/foreign metadata producers
 use exact callable or boundary ABI carriers. It never substitutes for source
-`move` / `view` / `share` contracts while the compatibility row remains.
+Home demand/result/share contracts while the compatibility row remains.
 
 New code should use:
 

@@ -437,15 +437,15 @@ default MirBuilder内部交換とは別に維持し、default cutoverとして�
 BoxShape laneであり、新しいsource-language semanticsを追加するBoxCount
 laneではない。
 
-source-level Ownership/View、新文法、backend widening、およびその他の
+source-level Home ownership、新文法、backend widening、およびその他の
 未実装featureは、下記Completionがproduction graphでgreenになった後だけ
 再開する。再開時はread-only readiness inventoryから始め、
 `CURRENT_STATE.toml`が一つのfeature rowを明示選択するまでparked tokenを
 実装しない。
 
-`CondBlockView`のようなanalysis-only observation viewはsource-language
-Viewではない。既存挙動のproduction edge交換に必要なら、このlane内で
-使ってよい。
+`CondBlockView`のようなanalysis-only observation viewは、source-language
+Home handle/result relationではない。既存挙動のproduction edge交換に必要
+なら、このlane内で使ってよい。
 
 ## Finite task packs
 

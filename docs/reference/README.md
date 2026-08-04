@@ -7,7 +7,7 @@
 ### language/
 - 言語仕様（構文、型システム、Box仕様、デリゲーション）
 - 正式な言語リファレンス
-- ownership / alias / `move` / `share` の正本:
+- Home / handle / transfer / `share` の正本:
   `docs/reference/language/ownership.md`
 - bootstrap / phase-1 で使える `.hako` surface profile:
   `docs/reference/language/stage-profiles.md`

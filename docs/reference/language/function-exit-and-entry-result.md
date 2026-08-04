@@ -116,8 +116,8 @@ Callable completion consumes the final Outcome only after the cleanup law in
 `semantic-kernel.md` and `scope-exit-semantics.md` has run. A cleanup Fault may
 therefore replace a pending `Return` or `Normal` outcome.
 
-Returning an owned value is terminal owner forwarding. It does not imply a
-clone, an additional owner, or a second `move`.
+Returning an available Home is terminal Home forwarding. It does not imply a
+clone, an additional owner, or a second transfer spelling.
 
 ## `Main.main/0`
 

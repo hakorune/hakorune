@@ -97,9 +97,10 @@ CONC-GUARD-AST-CRATE0
   -> later Program JSON / MIR / Rust VM execution row
 ```
 
-`OWN-GRAM-REJECT0` is owned by the sparse ownership taskboard and precedes
-ownership grammar activation; it is not duplicated here. The cleanup rows are
-parked work and do not replace the current `CURRENT_STATE.toml` blocker.
+Home ownership grammar is owned by the Home taskboard and begins only after
+its taxonomy/representation/storage/CFG D0 convergence; it is not duplicated
+here. The cleanup rows are parked work and do not replace the current
+`CURRENT_STATE.toml` blocker.
 
 Use this order when the language-surface cleanup is prioritized before
 returning to the mimalloc lane:
@@ -185,9 +186,9 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-GRAM-SYNC0` | pending | Register the already parser-live `sync box` capsule in Language-v1 grammar SSOT and EBNF. | registry + EBNF + Rust/Hako witness | no Program JSON/MIR/runtime activation |
 | `CONC-GRAM-CO0` | pending | Register canonical `co` and compatibility `task_scope` as one exact grammar row. | registry + EBNF + Rust/Hako witness | no scheduler/runtime widening |
 | `CONC-GRAM-CONTEXT0` | pending | Register canonical `context` and compatibility `scoped` as one exact grammar row. | registry + EBNF + Rust/Hako witness | no propagation widening |
-| `CONC-SYNCBOX-VIEW-D0` | pending-design | Forbid sync-method View results and sync-field escaping Views in the first profile. | Decision + fail-fast fixtures + reference-only example label | no synchronized-view token or hidden snapshot |
+| `CONC-SYNCBOX-VIEW-D0` | pending-design / historical row name | Forbid receiver/field-anchored Home result handles from escaping synchronized entry in the first profile. | Home result-relation Decision + fail-fast fixtures + reference-only example label | no synchronized handle token or hidden snapshot |
 | `CONC-SYNCBOX-EFFECT0` | pending-design | Seal callable effects for blocking calls, nested sync calls, and lock-order-sensitive operations. | verified effect ABI + conservative rejection fixtures | parser node scan is not the final authority |
-| `CONC-SYNCBOX-TRANSFER-D0` | pending-design | Decide Move/Share/Send/Sync capability for `co`, `nowait`, and Channel transfer. | explicit transfer contract | no runtime-behavior inference |
+| `CONC-SYNCBOX-TRANSFER-D0` | pending-design | Decide Home transfer/Share/Send/Sync capability for `co`, `nowait`, and Channel transfer. | explicit transfer contract | no runtime-behavior inference |
 | `CONC-CONTEXT-001` | landed-parser-json | Add `context` surface as canonical name and quarantine `scoped` as compat. | parser/AST JSON guard + scoped compat audit | no propagation runtime yet |
 | `CONC-CONTEXT-002` | landed-code | Implement context snapshot on `nowait` child creation inside explicit `co` / compatibility `task_scope`. | `src/runtime/context_snapshot.rs` + `293x-1006-CONC-CONTEXT-002-CONTEXT-SNAPSHOT-REFERENCE.md` | implicit root is not detached propagation |
 | `CONC-WORKERLOCAL-001` | pending | Keep `worker_local` source syntax closed while allocator substrate remains internal. | no-source-worker-local guard | no mimalloc behavior change |
@@ -545,20 +546,22 @@ Program JSON, MIR, or runtime execution.
 
 ### CONC-SYNCBOX-VIEW-D0 / EFFECT0 / TRANSFER-D0
 
-Initial View safety boundary (`Decision: provisional` until D0 closes):
+Initial Home result-handle safety boundary (`Decision: provisional` until D0
+closes; row name is historical):
 
 ```text
-sync box method -> View result: reject
-sync box field -> escaping View: reject
-snapshot/Owned/Share result: requires an exact declared ABI
-synchronized-view token: later independent Decision
+sync box method -> receiver/field-anchored result handle: reject
+sync box field -> escaping handle: reject
+snapshot/independently-owned result: requires an exact declared Home ABI
+synchronized-handle token: later independent Decision
 ```
 
-A method-entry lock cannot silently anchor a View after the guard is released.
+A method-entry lock cannot silently anchor a result handle after the guard is released.
 `EFFECT0` separately replaces the current explicit `await`/`nowait` node scan
 with an exact callable-effect contract for blocking and nested sync operations.
-`TRANSFER-D0` separately decides task/channel movement; current runtime behavior
-is never permission authority. Fairness is not an open question in these rows:
+`TRANSFER-D0` separately decides Home transfer/share/Send/Sync across
+task/channel edges; current runtime behavior is never permission authority.
+Fairness is not an open question in these rows:
 the Phase-0 contract deliberately provides no fairness or starvation guarantee.
 
 ### CONC-CONTEXT-001 / 002

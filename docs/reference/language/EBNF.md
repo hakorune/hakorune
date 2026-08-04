@@ -19,24 +19,21 @@ Design SSOT note (Scope Exit Semantics):
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
 
-Ownership grammar status (2026-07-15):
+Ownership grammar status (2026-08-04):
 
-- `docs/reference/language/ownership.md` accepts contextual `move`/`share`
-  expressions, parameter `move`/`share`, and result `view`/`share` as the
-  target source contract.
-- Those productions are intentionally absent from the live EBNF below until
-  `GRAM-MOVE0`, `GRAM-SHARE0`, `GRAM-PARAM0`, and `GRAM-RESULT0` land with
-  registry rows and both parser witnesses.
-- Therefore current parsers must reject those ownership forms. They must not
-  reinterpret them through ordinary identifiers, method names, runtime tags,
-  or compatibility fallback.
-- The Rust return-type scanner now rejects exact inactive `: view T` /
-  `: share T` lookalikes with the ownership-syntax freeze tag. The parked
-  `OWN-GRAM-REJECT0-HAKO0-S0` row owns the remaining Hako parser witness, and
-  `OWN-GRAM-REJECT0-G0` closes the shared boundary before any ownership
-  grammar activation. Accidental acceptance is not supported syntax.
-- The accepted inactive grammar capsule and disambiguation laws live in
-  `ownership.md`; support status is reported by `stage-profiles.md`.
+- `docs/reference/language/ownership.md` accepts the Home direction: ordinary
+  use is a non-owning handle, a sealed destination demand transfers one Home,
+  and only explicit `share` may add an independent owner.
+- The smallest candidate surface is declaration-side `take`, contract result
+  `from`, and expression-side `share`, but its exact grammar is provisional.
+- Composite/generic classification, Shared representation, owning storage,
+  callable boundaries, and CFG Home Flow must close before grammar activation.
+- Therefore the live EBNF below intentionally contains no Home ownership
+  productions. Current parsers must reject inactive ownership spellings and
+  former `move/view/shared` lookalikes; accidental parsing is not support.
+- The parked order is
+  `docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`.
+  Support status is reported by `stage-profiles.md`.
 
 Function-exit semantic status:
 

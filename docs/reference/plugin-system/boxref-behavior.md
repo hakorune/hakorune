@@ -4,7 +4,7 @@
 
 > Vocabulary boundary: この文書の `clone_box()` / `share_box()` は
 > SharedV1/plugin runtime API 名です。Hakorune source の ownership authority
-> ではありません。source の `move` / `share` / copy-name law は
+> ではありません。source の Home demand / `share` / copy-name law は
 > `docs/reference/language/ownership.md` を正本とします。
 
 ## 1. TLV仕様（BID-1）

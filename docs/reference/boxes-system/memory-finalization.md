@@ -1,9 +1,9 @@
 # 🧠 Nyash メモリ管理 & finiシステム
 
-**最終更新: 2026年7月15日 - B′/sparse ownership境界同期**
+**最終更新: 2026年8月4日 - B′/Home ownership境界同期**
 
 注: object lifecycle の SSOT は `docs/reference/language/lifecycle.md`、
-source ownership/alias/share の SSOT は
+source Home/handle/transfer/share の SSOT は
 `docs/reference/language/ownership.md`。本書は実装設計ノートであり、
 矛盾する記述があれば両SSOTを優先する。
 

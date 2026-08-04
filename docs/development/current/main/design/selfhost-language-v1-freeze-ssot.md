@@ -161,8 +161,9 @@ v1 freeze の継続条件:
   and fixtures for every live non-metadata guarantee.
 - `LANGV1-FAILURE-OUTCOME-001` is complete with distinct Option/Result/Fault/
   Unit semantics and explicit Compat2025 null/catch policy.
-- `LANGV1-OWNERSHIP-IDENTITY-001` has an accepted field ownership/finalization
-  decision and one Box/Weak identity relation.
+- `LANGV1-OWNERSHIP-IDENTITY-001` keeps the accepted Box/Weak identity and
+  lifecycle split; Home field/container ownership, replacement, and Shared
+  representation remain gated by the 2026-08-04 Home D0 taskboard.
 - `LANGV1-CAPABILITY-EFFECT-001` verifies declared authority, observed effects,
   and Rune promises before backend Plan consumption.
 - `LANGV1-CONFORMANCE-CLOSEOUT-001` proves VM/EXE parity and zero implicit

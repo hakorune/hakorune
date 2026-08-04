@@ -1,13 +1,12 @@
 ---
-Status: Accepted parked design; no current execution authority
+Status: Superseded historical design; no current execution authority
 Date: 2026-08-04
-Decision: keep language ownership, callable View, and transient text
-  representation as separate contracts; use whole-source profiles for
-  compatibility and never retry a failed profile
+Decision: historical separation of language View, transient text, and
+  compatibility profiles; superseded for source ownership by the Home model
 Current lane: follow `CURRENT_STATE.toml`; do not reopen before the
   MirBuilder final-pipeline checkpoint
 Source semantics SSOT: `docs/reference/language/ownership.md`
-Execution owner: `hakorune-sparse-ownership-surface-task-2026-07-15.md`
+Execution owner: `hakorune-home-ownership-task-2026-08-04.md`
 Related:
   - hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md
   - ownership-view-missing-grammar-inventory-2026-07-28.md
@@ -19,10 +18,15 @@ Related:
 
 # Ownership / View / transient representation — parked design and task order
 
+> Superseded on 2026-08-04 for source ownership and task order. Its separation
+> of transient text carriers from object-world representation remains useful
+> evidence. Current source semantics and execution order live in
+> `ownership.md` and `hakorune-home-ownership-task-2026-08-04.md`.
+
 ## Executive decision
 
-The accepted target is not “make every value a Rust-style borrow”. It is a
-small capability algebra with a compatibility boundary:
+The historical target was not “make every value a Rust-style borrow”. It used
+the following capability algebra; this is evidence, not current source law:
 
 ```text
 ordinary local/parameter reuse  -> ScopedAlias / noescape alias
@@ -37,11 +41,10 @@ unknown-effect boundary. It carries no owner and performs no ownership
 bookkeeping. `move`, `share`, and `view` remain contextual syntax; they are not
 global hard keywords.
 
-The current repository already has this semantic target in
-`docs/reference/language/ownership.md` and the parked execution order in the
-sparse ownership taskboard. This card fixes the missing cross-document
-boundary so future work does not confuse target semantics, current production,
-or runtime representation.
+This was the semantic target when the card was written. It is no longer the
+target in `docs/reference/language/ownership.md`, and the sparse taskboard no
+longer owns execution order. Preserve the analysis below only as historical
+representation/profile evidence.
 
 ## Compatibility law
 

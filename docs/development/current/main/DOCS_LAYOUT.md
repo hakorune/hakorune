@@ -191,24 +191,29 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
   - B′ Shared/resource Box lifecycle constitution; separates explicit eager
     `fini`, Ownership SSA tokens, generation-tagged ObjectCell materialization,
-    and later StaticUnique/LocalRc/SharedRc strategies; source owner/alias/share
-    selection belongs to `docs/reference/language/ownership.md`
+    and later StaticUnique/LocalRc/SharedRc strategies; source
+    Home/handle/transfer/share selection belongs to
+    `docs/reference/language/ownership.md`
 - `docs/reference/language/ownership.md`
-  - normative source owner/ScopedAlias/AnchoredView/Shared contract; ordinary
-    source stays sparse and only explicit `share` enters independent lifetime
+  - normative source Home/handle/transfer/share contract; exact HomeV1 grammar
+    remains provisional and production activation is zero
+- `design/ownership-home-model-ssot.md`
+  - durable cross-layer Home authority map; separates Home/place, value
+    capability, callable ABI, Home Flow, Binding SSA, and physical storage
+- `investigations/hakorune-home-ownership-task-2026-08-04.md`
+  - parked successor taskboard; closes taxonomy/composites/representation/
+    storage/CFG design before grammar, then stages Unique, boundary, Shared,
+    performance, and retirement rows
 - `investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md`
-  - parked bounded implementation board for evidence -> grammar -> Loan Flow
-    -> first Box -> callable ABI/View -> explicit Shared; current D-prime lane
-    remains unchanged and the next selected O2 row must be a generated artifact
+  - superseded historical execution board for the former move/share/View
+    target; evidence only, never a current row selector
 - `investigations/hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md`
   - superseded detailed evidence/archive for root aliases, corpus censuses,
     fixtures, and historical alternatives; no longer an execution or source
     semantics authority
 - `investigations/hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md`
-  - parked P1 call-result-view subtask; keeps result type and ownership axes
-    separate, seals explicit receiver/parameter anchors and conservative
-    WholeObject invalidation first, and reserves field domains, temporary
-    anchors, and ViewPhi as later rows
+  - superseded historical P1 Anchored View subtask; provenance and
+    counterexamples remain evidence for Home result relations
 - `design/object-handle-box-identity-contract-ssot.md`
   - ARC-RETIRE-003 contract owner for `ObjectHandle`, `BoxIdentity`,
     generation, weak handles, root visibility, plugin instance mapping, and

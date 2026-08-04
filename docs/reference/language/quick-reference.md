@@ -8,16 +8,16 @@ Purpose
 - Keep grammar minimal; clarify rules that often cause confusion.
 
 Ownership note
-- Accepted target semantics live in `ownership.md`: ordinary locals/parameters
-  stay lightweight, `move` forwards one existing owner, and independent
-  lifetime enters through `share`.
-- `move/share` expressions and parameters plus result `view/share` are not
-  added to this current-syntax sheet until their EBNF and grammar-registry rows
-  land. Do not infer parser support from the target reference alone.
-- Do not write inactive lookalike results such as `: view T` or `: share T`;
-  the Rust parser now rejects them, while the parked
-  `OWN-GRAM-REJECT0-HAKO0-S0` row still owns the Hako parser witness before the
-  shared reject boundary closes.
+- Accepted direction lives in `ownership.md`: every independently living Box
+  is supported by a Home, ordinary locals/parameters are non-owning handles,
+  a sealed destination demand transfers one Home, and only explicit `share`
+  may add an independent owner.
+- Candidate declaration `take`, result `from`, and expression `share` forms are
+  not added to this current-syntax sheet until their semantic D0 and shared
+  EBNF/registry/parser rows close. Do not infer parser support from the target
+  reference.
+- Former `move/view/shared` target spellings are historical and remain
+  unsupported. Inactive ownership lookalikes must continue to fail fast.
 
 Feature status and gates
 - Check the [language status index](status-index.md) before treating an example
@@ -44,8 +44,9 @@ Selected current reserved keywords
 
 Selected contextual forms
 - declaration header: `uses`
-- accepted-but-inactive ownership forms: `move`, `share`, `view` (see the
-  ownership note above; these are not current reserved keywords)
+- provisional inactive Home forms: declaration `take`, result `from`, and
+  expression `share` (see the ownership note; none is a current reserved
+  keyword)
 
 Expressions and Calls
 - Function call: `f(a, b)`

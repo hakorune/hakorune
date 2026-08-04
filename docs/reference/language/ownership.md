@@ -1,606 +1,469 @@
-# Ownership and Aliasing (SSOT)
+# Ownership and Home Flow (SSOT)
 
-Status: SSOT — accepted target language contract
+Status: Language semantics SSOT; Home direction accepted, exact HomeV1 grammar
+provisional, production activation 0
 
-Decision: Explicit-move/share, owner-anchored ownership accepted on 2026-07-15
+Decision: accepted on 2026-08-04 as the successor to the earlier
+`move/share/view` target.
 
-Implementation: staged; production activation is 0 until the rows named in the
-parked taskboard close. Current SharedV1 behavior remains transitional.
-
-This page is the language authority for local aliases, ownership transfer,
-callable ownership ABI, and the boundary that enters shared ownership.
+This page is the source-language authority for ownership, ordinary aliases,
+Home transfer, and the explicit boundary that adds an independent owner.
 
 Related authorities:
 
-- `variables-and-scope.md`: lexical binding and name-resolution rules
-- `scope-exit-semantics.md`: cleanup and exit ordering
-- `lifecycle.md`: `fini()`, Alive/Dead/Freed, weak references, and reclamation
-- `../../development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md`:
-  staged implementation order
-- `../../development/current/main/investigations/ownership-view-missing-grammar-inventory-2026-07-28.md`:
-  exact parser census and compact parked task train
-- `../../development/current/main/investigations/ownership-view-performance-compatibility-design-2026-08-04.md`:
-  parked compatibility/profile and language-View versus transient-text boundary
+- `variables-and-scope.md`: lexical bindings and nearest-binding assignment;
+- `scope-exit-semantics.md`: lexical cleanup and exit ordering;
+- `lifecycle.md`: `fini()`, Alive/Dead/Freed, weak references, and reclamation;
+- `../../development/current/main/design/ownership-home-model-ssot.md`:
+  cross-layer compiler authority;
+- `../../development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`:
+  parked decision and implementation order.
 
-The grammar examples below describe the accepted target contract. They do not
-make a spelling parser-live. `EBNF.md` and the grammar registry remain the live
-syntax authorities; an unsupported ownership spelling must fail fast until its
-dedicated grammar row lands.
+The old sparse ownership, Anchored View, and grammar inventory cards remain
+historical evidence only. They do not restore `move`, source `view`, source
+`owned/shared` modes, or a second production ownership authority.
 
-### Availability matrix
+## Availability
 
 | Layer | Current state |
 | --- | --- |
-| target source semantics | accepted by this page |
-| Rust/Hako parser and AST ownership carriers | inactive / absent |
-| resolver, Loan Flow, callable ownership ABI, source lowering | inactive / absent |
-| `CopyOwned` / `DestroyOwned` MIR vocabulary and verifier | passive and implemented |
-| Rust MIR interpreter exact opcode execution | implemented semantic-test lane |
-| witnessed `llvmlite-obj` ownership lowering | implemented narrow object lane |
-| canonical source producers of ownership opcodes | 0 |
-| ordinary production `local b = a` | transitional SharedV1 behavior; not yet ScopedAlias V2 |
+| Home direction and durable laws | accepted by this page |
+| exact HomeV1 source grammar | provisional; D0 rows open |
+| Rust/Hako parser and AST Home carriers | inactive / absent |
+| resolver, Home Flow, callable Home ABI | inactive / absent |
+| canonical Builder/source producers | 0 |
+| passive Ownership SSA / ownership opcodes | existing narrow infrastructure only |
+| current ordinary Box assignment | transitional SharedV1 behavior |
 
-MIR JSON transport knowing an opcode does not mean a source parser, resolver,
-Builder, or backend may produce/execute it. Unsupported codegen lanes fail
-their ownership capability preflight rather than silently dropping the
-operation.
-
-### Accepted target grammar capsule (not parser-live)
-
-The grammar rows will activate this contextual surface one durable slice at a
-time:
-
-```ebnf
-ownership_expr := ('move' | 'share') unary_expr
-
-parameter := IDENT (':' TYPE_REF)?
-           | 'move' IDENT ':' TYPE_REF
-           | 'share' IDENT ':' TYPE_REF
-
-result_spec := ':' TYPE_REF
-             | ':' 'view' TYPE_REF view_anchor?
-             | ':' 'share' TYPE_REF
-
-view_anchor := 'from' ('me' | IDENT)
-```
-
-`move`, `share`, and `view` are contextual forms, not global hard keywords.
-Disambiguation is fixed as follows:
-
-- prefix `move/share` is an ownership expression only when it is not followed
-  by `(`; `move(...)` and `share(...)` remain ordinary calls;
-- `move: T` and `share: T` remain ordinary parameter names, while
-  `move name: T` and `share name: T` are parameter modes;
-- in a result spec, `view/share` is a mode only when followed by another type
-  reference; a type literally named `view` or `share` remains distinguishable
-  by the following delimiter;
-- the first `view` anchor admits only a receiver or parameter WholeObject root.
-  Field paths, static anchors, named domains, projections, and View PHIs are
-  later rows.
-
-The live `EBNF.md` intentionally omits these productions until the grammar
-registry, Rust parser, Hako parser, AST/schema carriers, and shared witnesses
-land together. The target grammar above is semantic design authority, not
-evidence that current source accepts it.
-
-Reject-boundary status: the Rust parser now rejects inactive spellings such as
-`: view Node` and `: share Service` with
-`[freeze:contract][parser/ownership_syntax_inactive]`. The remaining first row
-is the Hako parser witness, `OWN-GRAM-REJECT0-HAKO0-S0`, followed by the shared
-`OWN-GRAM-REJECT0-G0` closure. Until both close, do not use these lookalike
-result forms and do not treat accidental parsing as ownership syntax.
+The live `EBNF.md` and grammar registry remain syntax authority. Examples on
+this page are target examples, not evidence that a parser accepts them.
+Unsupported lookalikes must fail fast until their exact shared grammar row
+lands.
 
 ## 1. Thirty-second rule
 
-Ordinary Hakorune code keeps its lightweight spelling:
+Every independent Box lifetime is represented by a **Home token** installed
+in a **Home slot/place**.
+
+```hako
+local node = new Node()  // node receives a new Home
+local alias = node       // alias only sees node's object; no new owner
+
+inspect(node)            // ordinary handle input; node keeps its Home
+adopt(node)              // if adopt declares a Home demand, node is consumed
+adopt(share node)        // when the ABI admits a Shared Home; node remains
+```
+
+The user-facing law is:
+
+```text
+ordinary use:
+  handle; owner count does not change
+
+destination that declares a Home demand:
+  one available Home moves there
+
+share:
+  one independent owner is added; this may cost runtime bookkeeping
+```
+
+`Home` is an explanation and compiler product, not a planned source keyword.
+Hakorune does not expose Rust lifetimes, `&`, exclusive borrow types, or
+general ownership type modes in ordinary code.
+
+## 2. Home, Handle, and value capability
+
+### Home
+
+A Home slot/place can hold one Home token supporting a Box lifetime. Examples
+may include an owning local, field, container slot, global, registry slot,
+parameter destination, or return destination, but each family needs an exact
+verified destination contract.
+
+One object identity may have multiple Home tokens in the Shared lane. Object
+identity, Home token, Home slot, source handle, and runtime `ObjectHandle` are
+different concepts.
+
+An owning destination consumes at most one available Home. A Home that was
+consumed cannot be used again unless a later exact operation installs a fresh
+Home in that place.
+
+### Handle
+
+An ordinary read of a Box binding produces a non-owning handle to the object
+supported by its Home.
 
 ```hako
 local a = new Node()
 local b = a
 
-b.value = 1
-print(a.value)
+b.value = 10
+print(a.value) // 10
 ```
 
-`a` owns the object. `b` is a temporary, mutable alias anchored to `a`.
-Creating `b` does not create another owner and does not perform ownership
-runtime bookkeeping.
+`b` does not add an owner or perform RC bookkeeping. Handles are mutable and
+non-exclusive; the optimizer must assume that `a` and `b` can alias. A handle
+cannot escape beyond the Home that supports it.
 
-Only independent lifetime crosses an explicit paid boundary:
+### Value capability is separate
+
+Home is not a value type and not a runtime handle. The compiler separately
+classifies a resolved value as:
+
+```text
+Trivial
+Unique
+Shared
+Weak
+Unknown
+```
+
+This recursive classification is still a D0 for records, enums,
+`Option<T>`, `Result<T, E>`, containers, generic `T`, `Any`, and cycles.
+Unknown never defaults to Trivial, Unique, or Shared.
+
+An identity-free record may still carry an owner-bearing Box payload. “All
+records are Trivial” is not a valid rule.
+
+## 3. Accepted direction and provisional HomeV1 capsule
+
+The durable semantics are accepted. The smallest source spelling remains
+provisional until the named D0 and grammar rows close.
+
+### Declaration-side Home demand
+
+Candidate target:
 
 ```hako
-local service = make_service()
-register(share service) // register declares a `share` parameter
+adopt(take node: Node) {
+    // the body may consume node only through a separately verified destination
+}
+```
+
+Here `take` describes the destination contract. It does not instruct the
+callee to guess from runtime state. The call site is ordinary:
+
+```hako
+adopt(node)
+```
+
+If `node` owns an available compatible Home, the sealed callable ABI consumes
+it. If it is only a handle alias, compilation rejects the call and identifies
+the owner root.
+
+The destination contract is the transfer SSOT. The call site may later gain
+an opt-in explicit-transfer lint, but HomeV1 does not require duplicate
+`take` spelling at both declaration and call.
+
+### Ordinary handle parameter
+
+```hako
+inspect(node: Node) {
+    print(node.value)
+}
+```
+
+An ordinary parameter is a noescape handle. It cannot store, return, capture,
+or otherwise outlive its supporting Home unless another exact contract
+permits that boundary.
+
+Passing `share node` to a handle-only parameter is rejected as a redundant
+paid owner; use `inspect(node)`.
+
+### Result relation
+
+A result preserves the Home relation of the returned expression:
+
+```hako
+make(): Node {
+    return new Node()       // fresh Home to caller
+}
+
+getRoot(): Node {
+    return me.root          // handle supported by receiver Home
+}
+
+getIndependent(): Node {
+    return share me.root    // independent owner, when share is verified
+}
+```
+
+ClosedCallable bodies may infer a candidate result relation and verify it
+locally. A ContractBoundary must state the exact relation. The candidate
+borrowed result spelling is:
+
+```hako
+getRoot(): Node from me
+```
+
+`from` is not parser-live. Exact anchors, generics, multiple returns, and
+boundary syntax remain D0 work. The provisional boundary rule is bare `: T`
+for `HomeToCaller` (or Trivial after recursive classification) and
+`: T from anchor` for an anchored handle. A bodyless Shared result spelling is
+still unresolved and must be selected by the representation/surface D0; it is
+not inferred from a method name or implementation body.
+
+Returning an available local Home is terminal forwarding; it does not require
+`return take local`. Returning a handle whose Home dies at function exit is a
+compile error.
+
+### Independent owner
+
+`share` is the only ordinary source operation that may add another owner for
+the same identity:
+
+```hako
+registry.adopt(share service) // only when its ABI admits the Shared result
 use(service)
 ```
 
-Here `service` remains usable and the callee receives an independent Shared
-owner. The explicit `share` expression is the point where shared-lifetime
-bookkeeping is allowed.
+The exact physical operation depends on a verified representation plan. It
+may be RC/control-cell work, another Shared mechanism, or a rejected route.
+No runtime tag or observed reference count selects it.
 
-The short law is:
+`share(...)` remains an ordinary function call; contextual ownership `share`
+is only the prefix expression form selected by its grammar row.
 
-```text
-ordinary local name reuse:
-  scoped alias; no new owner
+## 4. Syntax deliberately outside HomeV1
 
-existing owner transfer:
-  explicit move; owner count unchanged
+The first program does not promise:
 
-ordinary parameter / receiver:
-  noescape alias
+- `take place_expr`;
+- `move expr`;
+- `owned T`, `view T`, or `shared T` in ordinary signatures;
+- parameter/receiver ownership modes from the former design;
+- field move-out or a moved-field empty-slot representation;
+- consuming receiver syntax;
+- multi-anchor result joins or borrowed-result PHIs;
+- field/index/projection handles stored in locals;
+- handle capture, suspension, task/channel, or cross-thread flow;
+- explicit source `region`.
 
-ordinary result / owning destination:
-  one owner is forwarded
+`take place_expr`, field take, and consuming receiver are parked together
+until a real source consumer and storage replacement contract exist. They are
+not forbidden forever.
 
-independent lifetime:
-  explicit share
-```
+An optional explicit allocation/lifetime region may be designed after a real
+arena allocation/free substrate exists. Region is not required for Home
+correctness and does not replace Home/share laws.
 
-Do not describe this as “every second reference needs `share`”. Multiple local
-names may be free aliases. `share` is required only when multiple independent
-owners or lifetimes are needed.
+## 5. Callable Home ABI
 
-## 2. Four source capabilities
-
-### Unique owner
-
-An owned rvalue, ordinary owning result, or owning destination carries one
-ownership token. Examples include `new`, a factory result, a returned owner,
-and a value removed from owning storage.
-
-When an existing binding supplies that token to another owning local, owning
-store, or consuming call, source uses the contextual `move` form:
-
-```hako
-local moved = move owner
-adopt(move moved)
-```
-
-`move` forwards one token and leaves the source binding unavailable. It does
-not create an independent owner and does not require reference-count traffic.
-Returning a local owner is an inherently consuming terminal context, so
-`return owner` does not repeat `move`.
-
-### Scoped alias
-
-For the first accepted profile, `local b = a` creates a `ScopedBoxAlias` when
-the initializer is an eligible whole-root binding.
+Every production call consumes one sealed ABI; no call site reopens a body.
+The conceptual product contains:
 
 ```text
-owner-token delta:
-  0
+receiver demand:
+  Handle | Home | SharedHome | None
 
-ownership runtime bookkeeping:
-  0
+parameter demand:
+  Handle | Home | SharedHome | Trivial
 
-mutation:
-  allowed, sequential, and non-exclusive
-
-lifetime:
-  creation through local last-use
-
-escape:
-  forbidden
+result relation:
+  Unit | Trivial | HomeToCaller | FromReceiver |
+  FromParameter(index) | SharedHomeToCaller
 ```
 
-The owner and its aliases may all read and mutate the same whole Box. They are
-not `noalias`, and the optimizer must assume that their effects overlap.
+### ClosedCallable
 
-### Anchored view
+A callable whose body and all relevant resolved facts are locally available
+may derive a candidate **result relation** and local Home Flow from its body.
+Parameter and receiver Home demands come only from the resolved declaration:
+a plain parameter is always Handle, and only an accepted explicit Home-demand
+form such as candidate `take` may consume it. Body analysis verifies that
+contract and may not invent an invisible consuming parameter. The verifier
+seals the combined ABI once. Private is a common ClosedCallable case, but
+visibility alone is not the classifier.
 
-A `view` is a non-owning call result anchored to a receiver or parameter. The
-final vocabulary reserves static roots and verified subdomains, but those are
-separate later rows. The first production profile accepts only a
-receiver/parameter WholeObject anchor. A View performs no ownership runtime
-bookkeeping and cannot outlive or invalidate its anchor.
+### ContractBoundary
 
-Callers do not guess whether a result is a view. The callable ABI declares it:
+The exact ABI must be declared or imported for:
 
-```hako
-get(): view Node {
-    return me.child
-}
+- exported or separately compiled callable;
+- interface/dynamic dispatch;
+- callback or function value crossing an opaque edge;
+- plugin/FFI/extern function;
+- unresolved generic callable;
+- any unavailable body.
 
-local child = node.get()
-```
+An exported callable with a body still has an explicit boundary contract, so
+body edits cannot silently change its public Home ABI. Compiled metadata may
+carry schema/profile/source dependency hashes for integrity; a user-managed
+lock file is not semantic authority.
 
-An ordinary, unannotated result is Owned. A method name such as `get`, `peek`,
-or `current` has no ownership meaning.
+Unknown ABI fails before Builder effects. It never becomes “probably Shared”
+and never falls back to another source profile.
 
-### View omission is a typed ownership error
+Recursive SCCs, generics, function values, and callbacks are not inferred just
+because some body text is visible. Their exact closure rule must be sealed or
+they remain a ContractBoundary/rejection.
 
-Decision: accepted target contract; production activation remains gated by
-`GRAM-RESULT0` and the Anchored View taskboard.
+## 6. Destination matrix
 
-Forgetting `view` does not silently retain the receiver field and does not
-reach runtime as a leak:
+The first verifier freezes exact source/destination behavior:
 
-```hako
-get(): Node {
-    return me.child
-}
-```
-
-The unannotated result requires Owned, while `me.child` is anchored storage.
-The ownership verifier rejects this mismatch. It is not a grammar error and it
-must not be repaired by hidden Share promotion.
-
-Required human diagnostic shape:
-
-```text
-cannot return `me.child` as Owned
-
-source is anchored to receiver `me`
-return type `Node` requires an independent owner
-
-help:
-  - use `: view Node` while the result may depend on `me`
-  - when Shared acquisition is verified, use `: share Node` and an explicit
-    Shared acquisition for independent lifetime
-  - when field move-out is verified, use `move me.child` only when ownership
-    should leave receiver storage
-```
-
-The Share alternative is emitted only when the exact field/result ABI carries
-a Shared acquisition witness; plain View never silently promotes to Shared.
-The `move` alternative is emitted only when the exact object-storage contract
-admits moving out of that field. It means that subsequent use of the moved
-storage is forbidden; this reference does not promise a particular empty-slot
-representation.
-
-The corresponding machine-readable reason is
-`owned-return-from-anchored-value`, with this ordered remediation vocabulary:
-
-```text
-change_result_to_view
-change_result_to_share_and_acquire
-move_from_storage
-```
-
-The emitted fix list is a capability-filtered subsequence. It must never offer
-Share acquisition or field move-out without the matching sealed witness.
-
-This mismatch is a hard error, not a warning. An explicit `move` already
-records user intent and receives no default warning. A future opt-in API-review
-lint may inspect verified return provenance, but method names such as `get` or
-`peek` are never warning or ownership authority.
-
-Under the target contract, omission of `view` cannot itself create an
-ownership leak. The principal specified leak hazards are strong Shared cycles
-and explicit `unsafe raw` code. Compiler/runtime defects and plugin/FFI
-ownership-contract mismatches remain separate verification concerns.
-
-### Shared owner
-
-Shared is the explicit independent-lifetime lane. `share expr` is the only
-ordinary source operation that creates another owner for the same object
-identity.
-
-`share` preserves object identity and leaves its source owner usable. The
-expression result is one additional, independently consumable Shared owner.
-The physical plan depends on the sealed representation:
-
-```text
-Unique source:
-  explicitly promote/rehome to Shared, then acquire the additional owner
-
-already-Shared source:
-  acquire one additional owner
-```
-
-This distinction belongs to a verified share-materialization plan. Lower and
-the runtime must not guess it from a tag, pointer, or observed reference count.
-
-For an owned root expression such as `share a`, the source law is exact:
-
-1. `a` must be an eligible Unique owner with no live aliases/views;
-2. `a` is rehomed as a Shared owner and remains usable;
-3. the expression result is a second, independent Shared owner.
-
-For an already-Shared root, the same expression law holds without rehome:
-the source remains usable and the result is one additional Shared owner.
-
-For a fresh rvalue such as `share make_service()`, the temporary source owner
-has no later source use, so only the resulting Shared owner remains observable.
-The optimizer may remove redundant ownership traffic, but it may not change
-these availability semantics.
-
-The first profile rejects `share` applied to a scoped-alias/view operand, a
-weak value, a trivial value, or an unsupported/unknown representation. It
-accepts both eligible Unique and already-Shared owners because `share` always
-marks the exact source site where owner count may increase.
-
-Once a value is in the Shared lane, `DestroyOwned` consumes an owner at its
-verified terminal site. A new Shared owner still requires an explicit `share`;
-ordinary assignment does not silently insert `CopyOwned`. Every production
-`CopyOwned` must be traceable to an exact `share` site or to a separately
-verified boundary operation with equally explicit ownership ABI.
-
-### Copy and clone are outside ownership syntax
-
-`value.copy()` is an ordinary call returning an Owned result. It may be the
-conventional spelling of a type-specific semantic copy, but the compiler does
-not infer fresh identity, deep-copy behavior, or `noalias` merely from the
-method name. A future verified `Copyable` protocol may provide a
-`FreshIdentityWitness`; that is a separate feature row.
-
-`clone` has no language-level ownership meaning. A user method named `clone`
-is an ordinary method. Compilers and optimizers must not interpret it as
-sharing, copying, retaining, or producing fresh identity. A style lint may
-recommend `share value` or `value.copy()`, but it is not semantic authority.
-
-## 3. Source defaults
-
-| Position | Default contract | Extra ordinary spelling |
+| Source expression | Destination | Required behavior |
 | --- | --- | --- |
-| owned rvalue (`new`, Owned call) | one owner | none |
-| `local b = a`, eligible whole root | Scoped alias | none |
-| ordinary parameter / receiver | mutable noescape alias | none |
-| existing owner -> owning local/store/call | owner forward | `move` |
-| ordinary return | Owned terminal forward | none |
-| independent owner, same identity | Shared acquire | `share` |
+| available Home | Home-demand parameter | consume once |
+| available Home | ordinary handle parameter | borrow for call only |
+| handle alias | Home-demand parameter | reject; identify root |
+| fresh Home rvalue | ordinary handle parameter | scoped temporary if verified |
+| explicit `share` | Shared-demand destination | materialize one owner by sealed plan |
+| explicit `share` | general Home-demand destination | representation/type compatibility D0 decides |
+| explicit `share` | handle-only parameter | reject redundant paid owner |
+| trivial value | ownership-changing destination | reject meaningless operation |
+| unknown/generic capability | ownership-changing destination | fail before effects |
 
-Hakorune does not require `owned`, `borrow`, or `clone` annotations. `move` and
-`share` appear only at the two operations that change owner availability:
-one-owner transfer and same-identity owner addition. Ownership mode is not
-inferred from a runtime tag or reference count; it comes from the resolved
-source site and callable ABI.
+Fields, arrays, maps, packed storage, globals, registries, weak slots, and
+replacement/empty-slot rules remain separate D0 rows. An owning field is not
+assumed merely from its Box-typed payload.
 
-Known primitive and record values keep their ordinary structural value
-semantics; reusing the same SSA value needs no owner token, and `local b = a`
-is not reclassified as a Box loan for them.
-
-An ordinary owning field/store consumes or forwards one owner. An existing
-binding therefore uses `move source`; a fresh Owned rvalue can flow directly.
-If the source binding must remain usable afterward, compilation fails and
-points to the `share` boundary. The compiler does not silently retain the
-object.
-
-Dynamic or unknown representation never chooses alias/copy/move at runtime.
-The first ownership-bearing `Any` profile rejects before Builder effects. A
-later uniform-representation row may activate source-driven aliases, but it
-cannot change the runtime-inference prohibition.
-
-## 4. Callable ownership ABI
-
-Callable declarations have a value type and an independent ownership
-contract. The semantic vocabulary is:
-
-| Position | Default | Non-default API contracts |
-| --- | --- | --- |
-| parameter / receiver | noescape alias | `move`, `share` |
-| result | Owned (or Trivial after type resolution) | `view`, `share` |
-
-- `move` parameter: the callee receives the caller's one owner. An existing
-  caller binding must use `move actual`; a fresh Owned rvalue may flow directly.
-- `share` parameter: the callee receives an independent Shared owner.
-- `view` result: the result is anchored and non-owning.
-- `share` result: the caller receives an independent Shared owner.
-
-The conversion matrix is exact:
-
-```text
-Owned binding -> move parameter:
-  call site uses `move actual`; owner is consumed after the no-live-loan check
-
-fresh Owned rvalue -> move parameter:
-  normal expression spelling; its temporary owner is forwarded
-
-Unique actual -> share parameter:
-  implicit conversion forbidden; caller supplies `share actual`
-
-Shared actual -> share parameter:
-  caller supplies `share actual` when the original owner remains available,
-  or `move actual` to transfer an existing Shared owner
-
-ScopedAlias / View actual -> share parameter:
-  reject; end the loan and share the owner root, or use a Shared-returning API
-
-Unique return in a `share` result function:
-  implicit conversion forbidden; the return expression must cross an explicit
-  `share` boundary
-
-already-Shared owned local return in a `share` result function:
-  compiler forwards the local token
-
-borrowed/field-backed Shared return in a `share` result function:
-  explicit `share source` is required to add the caller's owner
-```
-
-These modifiers are API-definition vocabulary, not line-by-line local
-annotations. Their exact contextual-keyword grammar is activated separately.
-They must not be encoded through method names or `@rune Ownership(...)`.
-
-Example target signatures:
+Ordinary local reassignment is also unresolved for HomeV1:
 
 ```hako
-inspect(node: Node)                 // noescape alias parameter
-adopt(move node: Node)              // consumes one owner
-register(share service: Service)    // receives Shared ownership
-
-make(): Node                        // Owned result
-get(): view Node                    // receiver-anchored result
-service(): share Service            // Shared result
+local b = a
+b = c
 ```
 
-Example call sites:
+The surface D0 must select handle rebinding, Home replacement, or rejection;
+runtime value kind cannot choose among them. Uninitialized/`null` locals are a
+separate row.
+
+## 7. CFG Home Flow
+
+Binding SSA owns current `BindingRef -> ValueId`. Home Flow consumes those
+identities and separately tracks Home availability.
 
 ```hako
-adopt(move owner)
-register(share service)
+if cond {
+    adopt(node)
+}
+use(node)
 ```
 
-For an instance method, an elided `view` anchor is the receiver. For a static
-function with exactly one eligible input root, it is that input. Ambiguous or
-different provenance requires an explicit anchor and otherwise fails fast.
+This is rejected because `node` is only maybe available after the join. The
+diagnostic names the consuming branch.
 
-## 5. Scoped-alias V1 boundary
+```hako
+loop(cond) {
+    adopt(node)
+}
+```
 
-The first safe profile is intentionally narrow.
+This is rejected when the consumed state reaches the backedge and a later
+iteration would reuse the missing Home.
 
-Allowed:
+The rule is not “Home transfer is forbidden in loops”. A loop-local fresh
+Home, transfer followed by terminal `break`, or exact transfer-and-replenish
+may be admitted when its dedicated CFG proof closes.
 
-- whole-root local alias
-- alias chains flattened to one owner root
-- reads and sequential mutation through owner or alias
-- stable aliases used inside `if` or `loop` when the definition dominates
-- branch-local and loop-local aliases that end locally
-- ordinary noescape calls with a sealed callable ABI
+Home Flow must not synthesize an owner PHI or repair a conflict with hidden
+sharing.
 
-Rejected in V1:
+Home transfer also has an exact temporal boundary. Argument expressions are
+prepared in source order; a later argument failure must not leave an earlier
+caller Home consumed. The transfer/failure D0 selects one commit point before
+production lowering. Callee implementations do not choose independently.
 
-- alias binding reassignment
-- field/index/projection aliases kept in a local
-- alias selected or redefined by a PHI
-- return, owning field/global/collection store, or registry escape
-- closure/Future/task/channel capture
-- crossing `await` or `yield`
-- unknown dynamic/plugin/FFI ownership ABI
-- conversion to Shared while an alias remains live
+A borrowed result rooted in a temporary, for example
+`makeTree().getRoot()`, is rejected in the first profile unless a later exact
+temporary-lifetime-extension contract is accepted.
 
-The loan ends at the alias's last reachable use. While it is live, the owner
-cannot be forwarded, rebound, destroyed, finalized, rehomed, or converted to
-Shared. A verifier uncertainty is a compile error; it never triggers hidden RC
-or a raw-pointer fallback.
+## 8. Lifecycle, weak, cleanup, and concurrency
 
-Projection views and same-anchor view PHIs are later, independently gated
-profiles. They must not be approximated by whole-root aliases.
+- `share` changes independent ownership.
+- `fini()` changes logical object lifecycle. It is not a transfer spelling and
+  not a promise of immediate physical free.
+- `cleanup` owns lexical exit actions.
+- `weak` is a generation-aware non-owner with separate upgrade rules.
+- `share` does not imply `Send`, `Sync`, thread safety, or cross-thread use.
+- physical reclamation belongs to the selected storage/runtime/backend plan.
 
-## 6. Ownership bookkeeping cost law
+These contracts must remain distinct even if one backend happens to implement
+several with the same pointer or counter.
 
-Use precise wording in diagnostics and performance claims:
+## 9. Performance contract
+
+The semantic cost law is:
 
 ```text
-ScopedAlias / AnchoredView:
-  extra ownership bookkeeping = 0
+ordinary handle:
+  owner delta = 0
 
-Unique token forward:
-  RC operations = 0
+Unique Home transfer:
+  owner delta = 0
 
-terminal Unique owner:
-  direct structural drop/free where the representation permits
-
-share boundary:
-  Shared representation/control-cell work may occur
-
-Shared owner acquisition at `share`:
-  verified RC or equivalent shared-lifetime bookkeeping may occur
-
-Shared owner terminal drop:
-  compiler-managed shared-lifetime bookkeeping may occur
+share:
+  owner delta = +1 and shared bookkeeping may occur
 ```
 
-“Zero instructions” is not the semantic claim. A pointer read, field access,
-call, destructor, allocator operation, or debug-only check may still emit
-instructions. The guaranteed property is that an alias/view does not add an
-owner and a Unique forward does not add RC traffic.
+This does not mean “zero instructions”. Field access, pointer loads, bounds
+checks, calls, destruction, and allocator work may remain.
 
-## 7. Diagnostics are part of usability
+C-like speed is achieved only when the physical Unique route proves that the
+measured hot path adds no RC, control-cell, handle-registry, or avoidable Box
+birth work. The grammar alone is not a performance claim. Representation
+selection remains downstream of semantic Home verification and must be judged
+by the repository perf/assembly method.
 
-Ownership rejection must identify the loan, conflict, next use, and useful
-repairs. For example:
+The exact Shared representation is unresolved. A nominal `shared box` and
+per-instance promotion are alternatives to be decided by
+`OWN-HOME-REPRESENTATION-D0`; neither is accepted by this page.
+
+## 10. Compatibility profile
+
+Current production remains SharedV1 while HomeV1 activation is zero.
+
+Migration laws:
+
+1. a complete source unit selects exactly one profile;
+2. HomeV1 failure never retries SharedV1;
+3. unsupported syntax, ABI, destination, representation, or backend fails
+   before Builder effects;
+4. ordinary source stays lightweight;
+5. SharedV1 retires only after implicit owner producers, cross-profile
+   bridges, fallback attempts, and source users have exact zero/parked counts.
+
+The manifest/edition spelling for profile selection remains a separate D0.
+
+## 11. Diagnostics
+
+Ownership diagnostics are part of the language contract. They identify:
+
+- the Home root;
+- where it was consumed or shared;
+- the conflicting branch/backedge/use;
+- the destination ABI;
+- only repairs supported by sealed capabilities.
+
+Examples of stable reason families:
 
 ```text
-cannot give `a` an independent lifetime: scoped alias `b` is still live
-
-alias created at: node.hako:12:15
-conflicting escape: node.hako:15:9
-next alias use:    node.hako:17:7
-
-help:
-  - move the escape after the last use of `b`
-  - narrow `b`'s scope
-  - enter the Shared lane explicitly with `share`
+home-unavailable-after-transfer
+home-maybe-consumed-after-branch
+home-consumed-on-loop-backedge
+home-demand-received-handle
+redundant-share-to-handle
+home-result-relation-conflict
+home-abi-missing-at-contract-boundary
+home-capability-unknown
 ```
 
-Reject fixtures must golden-test the stable reason and repair hints, not only
-the fact that compilation failed.
-
-A debug build may maintain a non-owning shadow-loan observer to catch verifier
-bugs. It may count active loan records and report source sites, poison retired
-storage, or quarantine reclaimed cells. It must not retain an object, delay
-reclamation, or become release-build memory-safety authority.
-
-## 8. Compiler authority split
-
-```text
-resolver / callable ABI:
-  source intent, owner root, view anchor/domain, consuming/Shared destination
-
-Loan Flow:
-  alias/view creation, use, last-use frontier, invalidation permission
-
-Binding SSA:
-  sole BindingRef -> current ValueId authority
-
-Ownership SSA:
-  owner-token creation, forwarding, copy, and consuming-use verification
-
-Lower / backend:
-  materialize the sealed contract; never rediscover it from maps, names,
-  runtime tags, or observed reference counts
-```
-
-Loan Flow is not a second reaching-value map. Scoped aliases may point to the
-same `ValueId` as their root while carrying no independent ownership token.
-
-## 9. Lifecycle, weak, concurrency, and raw boundaries
-
-- `fini()` is object lifecycle, not ownership consumption. It is forbidden
-  while a local alias/view loan remains live. Shared resource tombstones and
-  Alive/Finalizing/Dead/Freed are defined in `lifecycle.md`.
-- `weak` is a generation-aware non-owner, not a view. Weak creation/upgrade
-  keeps its existing explicit lifecycle contract.
-- `share` does not imply cross-thread safety. Cross-thread sharing requires the
-  separate synchronization capability and backend contract.
-- Arena allocation/lifetime is a separate language Decision. It may later
-  remove per-object ownership work for region-bounded graphs, but it neither
-  changes the alias/share laws here nor blocks their correctness slices.
-- Normal Box ownership has no silent raw-pointer fallback. A future unsafe raw
-  lane requires its own language Decision and is outside this contract.
-- C/plugin/host ABI terms such as borrowed/owned handles are boundary metadata;
-  they do not replace Hakorune's source callable ABI.
-
-## 10. Migration and implementation status
-
-Current production routes still include SharedV1 behavior in which ordinary
-Box aliases may materialize strong-owner copies. That is compatibility
-behavior, not this target source contract.
-
-Migration rules:
-
-1. SharedV1 and the sparse ownership profile normalize to one resolved
-   ownership product, one Binding SSA, one Ownership SSA, one MIR vocabulary,
-   and one runtime authority.
-2. A source unit is verified under exactly one selected profile. Canonical
-   failure never retries another profile.
-3. Unique-to-Shared promotion is never inferred on the sparse profile.
-4. Unsupported syntax, callable ABI, representation, or backend capability
-   fails before Builder/backend effects.
-5. SharedV1 retires only after its source units, implicit-share producers,
-   cross-profile bridges, and fallback attempts all reach zero.
-
-Until the relevant parser, resolver, Loan Flow, Ownership SSA, runtime, and
-backend rows close, this document must not be used to claim that current
-assignment behavior, Box representation, or production ownership costs have
-already changed.
+Do not reduce these to “inference failed”, and do not suggest `share` or field
+move-out unless that exact operation is legal.
 
 ## Durable laws
 
-1. Ordinary local aliases and parameters remain lightweight and non-owning.
-2. `move` forwards one existing owner without RC; return is the implicit
-   terminal form.
-3. Only explicit `share` adds a same-identity independent owner.
-4. Shared destruction is compiler-managed, but owner acquisition remains
-   source-visible as `share`.
-5. Ordinary results are Owned; free call-result aliases require a verified
-   anchored `view` ABI.
-6. No runtime tag, method name, map diff, or observed reference count decides
-   ownership.
-7. Binding SSA owns current values; Ownership SSA owns tokens; Loan Flow owns
-   temporary permissions.
-8. Uncertainty fails fast; it never becomes hidden RC, raw memory, or another
-   profile retry.
-9. `copy()` and `clone()` names are not ownership authority; verified ABI and
-   witnesses, never method spelling, decide their compiler meaning.
+1. Ownership belongs to Home/storage, not a Rust-like source reference type.
+2. Ordinary local reuse and ordinary parameters are non-owning handles.
+3. The destination's sealed Home demand is transfer authority.
+4. A terminal return may forward an available Home.
+5. Only explicit `share` adds an independent same-identity owner.
+6. Binding SSA owns values; Home Flow owns availability; Ownership SSA owns
+   physical ownership transitions.
+7. `fini`, `cleanup`, weak references, and physical free keep separate owners.
+8. Generic/opaque/unknown capability fails fast; it is never guessed.
+9. No runtime tag, method name, reference count, hidden retain, raw fallback,
+   or profile retry decides ownership.
+10. Parser support, production lowering, and C-like performance require their
+    own named gates; this source decision alone claims none of them.

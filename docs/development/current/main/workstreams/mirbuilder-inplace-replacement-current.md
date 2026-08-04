@@ -929,8 +929,8 @@ R4
   retire/reown/retain decisions
 
 after final-pipeline Complete only
-  refresh missing-feature / Ownership / View readiness inventory
-  resume Ownership taskboard
+  refresh missing-feature / Home ownership readiness inventory
+  resume the parked Home ownership taskboard at OWNERSHIP-HOME-RESUME-D0
   then select later unimplemented language features
 ```
 
@@ -952,7 +952,7 @@ New findings enter one of these packs. Do not create another pack.
 ## Parked
 
 ```text
-source-level Ownership/View and unimplemented language features until the
+source-level Home ownership and unimplemented language features until the
 repository-wide final pipeline is Complete
 .hako selfhost MirBuilder/parser migration
 unselected cleanliness work

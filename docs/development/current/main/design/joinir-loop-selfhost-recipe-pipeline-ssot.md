@@ -826,7 +826,7 @@ undo journal
 symbolic MIR fragment redesign
 route-local terminality mini-products and physicalizers
 cosmetic Direct shell unification
-language expansion, Ownership/View, performance, backend expansion
+language expansion, Home ownership, performance, backend expansion
 whole-MIR block-argument rewrite or general immutable graph IR
 ```
 

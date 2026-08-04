@@ -456,16 +456,17 @@ meaning before restricting `null` and legacy catch behavior to explicit
 
 ### LANGV1-OWNERSHIP-IDENTITY-001 field ownership and identity decision
 
-The accepted `BoxIdentity` contract remains representation-only. The 2026-07-15
-sparse ownership Decision supersedes the earlier assumption that every ordinary
-field is Shared: an owning field may receive one forwarded Unique owner, while
-only a verified Shared field carries an independent Shared token. Neither
-stored-token form may imply child user `fini()`.
+The accepted `BoxIdentity` contract remains representation-only. The 2026-08-04
+Home direction supersedes the earlier assumption that every ordinary field is
+Shared. Exact owning field, Shared field, replacement, and container rules now
+belong to `OWN-FIELD-CONTAINER-DEST-D0`; no field form may silently imply child
+user `fini()`.
 
-Accepted B′ plus sparse-ownership decision (2026-07-14/15):
+Accepted B′ plus provisional Home storage decision order (2026-07-14/2026-08-04):
 
-1. A verified owning field forwards one owner; a verified Shared field stores
-   a Shared owner. Neither implicitly cascades child `fini()`.
+1. A verified owning field may receive one Home token; a verified Shared field
+   may store an independent Shared token. Exact surface and replacement
+   semantics remain D0. Neither implicitly cascades child `fini()`.
 2. Define overwrite, parent `fini()`, alias escape, cycle, partial `birth`
    failure, and repeated-finalization behavior for every field ownership kind.
 3. Use one identity relation for strong Box values, WeakRef tokens, host

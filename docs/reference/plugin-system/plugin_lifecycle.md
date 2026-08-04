@@ -1,24 +1,24 @@
 # Plugin Lifecycle and Box RAII
 
-最終更新: 2026-07-15
+最終更新: 2026-08-04
 
 ## 概要
 NyashのBoxには「ユーザー定義Box」「ビルトインBox」「プラグインBox」があります。いずれもRAII（取得した資源は所有者の寿命で解放）に従いますが、プラグインBoxは共有やシングルトン運用があるため、追加ルールがあります。
 
 ## 共通ライフサイクル（ユーザー/ビルトイン/プラグイン）
-以下のowning/Shared/ScopedAlias/View token用語はaccepted target contractを
-説明します。現在のplugin source/runtimeはSharedV1移行状態であり、sparse
-ownershipのparser/resolver/Loan Flow/source Lowerはまだproduction-activeでは
+以下のHome/Shared/handle用語はaccepted Home directionを説明します。正確な
+HomeV1文法とShared表現はまだD0で、現在のplugin source/runtimeはSharedV1
+移行状態です。parser/resolver/Home Flow/source Lowerはproduction-activeでは
 ありません。
 
 - `fini()` は論理的な終了（use-after-fini禁止）であり、外部資源（fd/socket/native handle など）を決定的に解放するための SSOT です。
-- `local` のスコープを抜けると、その binding は終了します。owning/Shared
-  bindingならtokenを消費し、ScopedAlias/Viewならowner countは変わりません。
+- `local` のスコープを抜けると、その binding は終了します。Home/Shared
+  slotならtokenを消費し、ordinary handleならowner countは変わりません。
   最後のownerなら物理的な解放が起こり得ますが、タイミングは実装依存です。
 - 共有・循環参照がありうるため、スコープ終了“だけ”に `fini()` を期待しないでください。必要な資源は `fini()` / `cleanup` / `shutdown_plugins_v2()` で明示的に閉じます。
 
 補足:
-- source ownership/alias/share の SSOT は
+- source Home/handle/share の SSOT は
   `docs/reference/language/ownership.md`、object lifecycle/weak/`fini`/GC は
   `docs/reference/language/lifecycle.md` です。
 - verified owning/Shared fieldはtokenを保持します。子resourceをfinalizeする

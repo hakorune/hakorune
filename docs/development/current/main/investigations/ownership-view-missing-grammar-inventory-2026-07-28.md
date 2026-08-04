@@ -1,20 +1,24 @@
 ---
-Status: Accepted parked inventory; no current execution authority
+Status: Superseded historical grammar inventory; no execution authority
 Date: 2026-07-28
-Decision: Inventory the exact accepted-but-inactive Ownership/View grammar without widening the language
+Decision: Historical inventory of the former move/share/View target
 Source semantics SSOT: ../../../../reference/language/ownership.md
-Execution taskboard: hakorune-sparse-ownership-surface-task-2026-07-15.md
+Execution taskboard: hakorune-home-ownership-task-2026-08-04.md
 Current lane: follow ../CURRENT_STATE.toml
 Resume checkpoint: MIRBUILDER-INPLACE-REPLACEMENT0 final-pipeline semantic completion
-First executable row when resumed: OWN-GRAM-REJECT0-HAKO0-S0
+First executable row when resumed: none selected by this inventory
 ---
 
 # Ownership/View Missing Grammar Inventory
 
+> Superseded on 2026-08-04. Keep the parser census as evidence, but do not land
+> the grammar capsule below. Home taxonomy, representation, storage, callable
+> ABI, and CFG rows must close before the successor surface is selected.
+
 ## Outcome
 
-The accepted Ownership/View source surface is small and exact. The missing
-grammar is limited to:
+The former Ownership/View target surface was small and exact. Its historical
+grammar inventory was:
 
 ```ebnf
 ownership_expr := ('move' | 'share') unary_expr
@@ -30,14 +34,14 @@ result_spec := ':' TYPE_REF
 view_anchor := 'from' ('me' | IDENT)
 ```
 
-None of these forms is parser-live. Their target semantics are accepted by
-`docs/reference/language/ownership.md`, but production activation remains zero.
+None of these forms is parser-live or accepted HomeV1 syntax. Current target
+semantics are owned by `docs/reference/language/ownership.md`.
 
 The current MirBuilder lane does not move. This inventory is a parked resume
 map, not authority to implement grammar, Ownership SSA, View ABI, runtime, or
-backend work. After MirBuilder completion, resume begins by revalidating the
-read-only `OWNERSHIP-SPARSE-RESUME-D0` contract; it does not automatically
-select a grammar or View implementation row.
+backend work. After MirBuilder completion, only the successor
+`OWNERSHIP-HOME-RESUME-D0` row may revalidate current evidence; this inventory
+does not select a grammar or View implementation row.
 
 ## Exact current surface
 
@@ -55,7 +59,7 @@ new/birth lifecycle surface already admitted by its own profile
 `weak` belongs to weak-reference and object-lifecycle semantics. It is not a
 BorrowView spelling and must not be reused as one.
 
-### Accepted target; parser and AST carriers absent
+### Historical target; do not implement
 
 | Source form | Meaning | Task owner |
 | --- | --- | --- |

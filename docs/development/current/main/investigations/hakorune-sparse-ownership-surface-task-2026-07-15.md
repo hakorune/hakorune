@@ -1,10 +1,11 @@
 ---
-Status: Parked taskboard; no current execution authority
+Status: Superseded historical taskboard; no current execution authority
 Date: 2026-07-28
-Decision: Explicit-move/share, owner-anchored sparse ownership surface
+Decision: Historical Explicit-move/share/View proposal; superseded by Home
 Source semantics SSOT: ../../../../reference/language/ownership.md
+Current successor: hakorune-home-ownership-task-2026-08-04.md
 Current lane: follow CURRENT_STATE.toml
-First code-facing ownership row when explicitly resumed: OWN-GRAM-REJECT0-HAKO0-S0
+First code-facing ownership row: none selected by this historical board
 Integration resume checkpoint: MIRBUILDER-INPLACE-REPLACEMENT0 final-pipeline semantic completion
 Related:
   - ownership-view-missing-grammar-inventory-2026-07-28.md
@@ -18,16 +19,21 @@ Related:
 
 # Hakorune Sparse Ownership Surface Taskboard
 
+> Superseded on 2026-08-04. Preserve this file only for censuses,
+> counterexamples, and migration history. The current source authority is
+> `docs/reference/language/ownership.md`; the only parked execution order is
+> `hakorune-home-ownership-task-2026-08-04.md`. Rows below must not be resumed.
+
 ## Parking notice
 
 `MIRBUILDER-INPLACE-REPLACEMENT0` supersedes the former Stage-B-to-OWN-GRAM
-schedule. Ownership semantics and pack contents remain valid, but this board
-cannot select a current row until `CURRENT_STATE.toml` explicitly reopens it.
+schedule. The old semantic vocabulary and pack order are historical evidence,
+not pending work. Only the successor Home taskboard may select a future row.
 
 ## 0. Authority and parking law
 
-This is the bounded execution owner for the accepted ownership reference. It
-does not own source semantics and must not restate them differently.
+This was the bounded execution owner for the former ownership reference. It no
+longer owns source semantics or execution order.
 
 ```text
 source ownership semantics:
@@ -37,8 +43,8 @@ object lifecycle / fini / weak / reclamation:
   docs/reference/language/lifecycle.md
   design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
 
-implementation order:
-  this taskboard
+historical implementation order:
+  this taskboard (must not resume)
 
 historical evidence and detailed fixture inventory:
   hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md

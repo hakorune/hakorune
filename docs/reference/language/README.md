@@ -63,17 +63,17 @@ Imports and namespaces
 
 Variables and scope
 - See: [variables-and-scope.md](variables-and-scope.md) — Block-scoped locals,
-  assignment resolution, and owner/alias/weak binding guidance.
-- See: [ownership.md](ownership.md) — SSOT for ordinary scoped aliases,
-  owner forwarding, anchored `view` results, explicit `share`, and callable
-  ownership ABI. Its target spellings are phased and become parser-live only
-  when EBNF/registry rows land.
+  assignment resolution, and Home/handle/weak binding guidance.
+- See: [ownership.md](ownership.md) — SSOT for Home slots/tokens, ordinary
+  handles, destination transfer, result relations, explicit `share`, and
+  callable Home ABI. Exact target spellings remain provisional and become
+  parser-live only when their D0, EBNF, and registry rows land.
 - See: [lifecycle.md](lifecycle.md) — Box object residency (strong/weak),
   Alive/Dead/Freed, and finalization (`fini`) SSOT.
 - See: [constructor-birth-new-lifecycle-ssot.md](../../development/current/main/design/constructor-birth-new-lifecycle-ssot.md) — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.
 - See: [scope-exit-semantics.md](scope-exit-semantics.md) — SSOT for canonical
   `cleanup`, Compat2025 scope-`fini` aliases, postfix protected-region/cleanup
-  ordering, and accepted `move`/`share` transfer terminology. Parser-live
+  ordering, and accepted Home-transfer/`share` terminology. Parser-live
   status remains owned by EBNF/grammar rows.
 - See: [repl.md](repl.md) — REPL mode semantics (file mode vs REPL binding rules).
   Current interactive implementation work is parked by

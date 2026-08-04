@@ -283,11 +283,12 @@ Initial rule:
 - Calling another `sync box` method while inside a serialized `sync box` method
   should be rejected unless a later verifier row introduces an explicit,
   acyclic lock-order contract.
-- `Decision: provisional` — the first View profile rejects a `view` result from
-  a `sync box` method and any escaping View into a `sync box` field. A method
-  guard ends at return, so it cannot silently keep such a View synchronized.
-  APIs must return a snapshot, Owned result, or explicitly Shared result until
-  a separate synchronized-view token is designed.
+- `Decision: provisional` — the first Home concurrency profile rejects a
+  receiver/field-anchored result handle from a `sync box` method and any
+  escaping handle into a `sync box` field. A method guard ends at return, so it
+  cannot silently keep that handle synchronized. APIs must return a snapshot
+  or independently owned result until a separate synchronized-handle contract
+  is designed.
 
 This is stricter than exposing `lock<T>` directly, but it gives the compiler a
 clear boundary for verifier facts, effect checks, and backend lowering.

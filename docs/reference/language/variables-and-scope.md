@@ -1,6 +1,6 @@
 # Variables and Scope (Local/Block Semantics)
 
-Status: Stable lexical rules; accepted ownership projection is staged.
+Status: Stable lexical rules; Home ownership projection is staged/provisional.
 
 This document defines the variable model used by Hakorune/Nyash and clarifies how locals interact with blocks, memory, and references across VMs (Rust VM, Hakorune VM, LLVM harness).
 
@@ -14,8 +14,9 @@ For source ownership and aliasing, see
 - Scope: Block‑scoped. The variable is visible from its declaration to the end of the lexical block.
 - Redeclaration: Writing `local name = ...` inside a nested block creates a new shadowing binding. Same-scope redeclaration (`local name` twice in one lexical scope) is a compile-time error. Writing `name = ...` without `local` updates the nearest existing binding in an enclosing scope.
 - Mutability: Locals are mutable unless a narrower verified capability says
-  otherwise. The first `ScopedBoxAlias` profile keeps the alias binding itself
-  fixed while allowing mutation of the referenced Box.
+  otherwise. HomeV1 must separately decide whether reassignment of a
+  handle-bearing local is handle rebinding, Home replacement, or rejected;
+  runtime value kind may not decide it.
 - Lifetime: The variable binding ends at block end (`}`). A non-owning alias may
   end earlier at its last use. Ownership and object finalization are defined
   separately in `ownership.md` and `lifecycle.md`.
@@ -35,22 +36,26 @@ Assignment to an identifier resolves as follows:
 
 This matches intuitive block‑scoped semantics (Lua‑like), and differs from Python where inner blocks do not create a new scope (function scope), and assignment would create a local unless `nonlocal`/`global` is used.
 
-## Reference Semantics (Owner / Alias / Weak)
+## Reference Semantics (Home / Handle / Weak)
 
-The accepted target ownership profile distinguishes a binding from an owner
-token.
+The accepted Home direction distinguishes lexical binding, Home slot/token,
+and non-owning handle.
 
-- An owned rvalue such as `new Box()` creates one owner.
-- `local b = a`, when `a` is an eligible whole-root binding, creates a scoped
-  mutable alias. It does not add an owner or perform RC bookkeeping.
-- The owner and alias may both read and mutate the same Box sequentially.
-- The owner cannot be moved, rebound, finalized, destroyed, or converted to
-  Shared while the alias remains live.
-- After the alias ends, `move owner` explicitly forwards that owner to a
-  non-terminal owning destination without adding an owner.
+- An owning rvalue such as `new Box()` creates one Home token and installs it
+  in the receiving Home slot.
+- `local b = a`, when `a` is an eligible whole-root binding, creates a
+  non-owning mutable handle. It does not add or transfer a Home and performs
+  no owner bookkeeping.
+- The Home binding and handle may both read and mutate the same Box
+  sequentially.
+- A Home transfer/rebind/destruction cannot invalidate a handle with a later
+  reachable use. Exact `share` promotion and `fini()` interaction with live
+  handles remain provisional Home representation/lifecycle D0 questions.
+- A destination with a sealed Home demand transfers one available Home;
+  ordinary use remains a handle.
 - Independent lifetime enters the Shared lane through explicit `share`.
 - `weak x` creates a generation-aware non-owner governed by `lifecycle.md`; it
-  is not a scoped alias or call-result view.
+  is not an ordinary handle or Shared owner.
 
 This ownership behavior is staged and does not claim that every current
 SharedV1 production route has already changed.
@@ -64,8 +69,8 @@ local a = new Box()
   b.touch()
   a.inspect()
 }
-// b was a non-owning alias. Its scope/last-use adds no owner drop.
-// a remains the owner.
+// b was a non-owning handle. Its scope/last-use adds no owner drop.
+// a retains the Home.
 ```
 
 ## Shadowing vs. Updating
@@ -88,7 +93,7 @@ consistently across:
 - Hakorune VM/runner: same resolution rules.
 - LLVM harness/EXE: parity tests validate identical exit codes/behavior.
 
-The sparse owner/alias projection remains staged with production activation 0;
+The Home/handle projection remains staged with production activation 0;
 this paragraph does not claim backend parity for it.
 
 See also: quick/integration smokes `scope_assign_vm.sh`, `vm_llvm_scope_assign.sh`.

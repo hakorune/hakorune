@@ -20,7 +20,7 @@ Related:
 ## Decision
 
 Hakorune adopts B′ as the long-term Shared/resource Box lifecycle model.
-Source-level owner/alias/View/Shared selection is owned by
+Source-level Home/handle/result/Shared selection is owned by
 `docs/reference/language/ownership.md` and supersedes the older
 “every Box is shareable by default” wording in this document.
 
@@ -253,8 +253,8 @@ singleton/type-descriptor consumer gets a separate Decision and proof ladder.
 The first identity-bearing ObjectCell implementation is `SharedRc` only, and
 `SharedRc` uses atomic counts. `LocalRc` is the non-atomic strategy.
 `StaticUnique` means that a closed proof has shown that no independent owner
-token can be created over the object's full lifetime. ScopedAlias/View loans
-do not violate this property because they add no owner. `StaticUnique` is not a
+token can be created over the object's full lifetime. Ordinary handles do not
+violate this property because they add no owner. `StaticUnique` is not a
 source type and does not contain a dormant first-owner-copy promotion
 mechanism.
 
@@ -304,7 +304,7 @@ storage plus reclamation safety through a strong root, pin, lease, hazard,
 epoch, or equally explicit mechanism.
 
 StaticUnique proves absence of independent strong-owner duplication only. It
-does not by itself prove a stable address, absence of ScopedAlias/View loans,
+does not by itself prove a stable address, absence of live ordinary handles,
 or permission to elide a pointer lease.
 
 An `ObjectLease` pins the payload/cell for its lexical extent. Last-strong
@@ -515,7 +515,7 @@ claims adaptive performance before the SharedRc baseline is correct
 
 1. `record` remains an identity-free structural value.
 2. A normal `box` enters the Shared/ObjectCell lane only through a verified
-   explicit source/ABI boundary; local scoped aliases do not imply Shared.
+   explicit source/ABI boundary; ordinary handles do not imply Shared.
 3. Binding SSA owns current values; Ownership SSA owns token discipline.
 4. In ownership-managed MIR, `CopyOwned` alone duplicates a strong owner;
    `DestroyOwned` consumes one.

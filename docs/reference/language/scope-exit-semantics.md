@@ -1,13 +1,14 @@
 # Scope Exit Semantics (SSOT)
 
-Status: Normative (2026-07; B′ lifecycle and sparse-ownership decisions applied).
+Status: Normative (2026-08; B′ lifecycle and Home-direction decisions applied).
 
 Decision/availability: canonical cleanup and postfix catch are accepted target
 surfaces but remain pending their exact grammar/runtime rows. Scope `fini` is
 Compat2025-only cleanup alias; source `try` is rejected in both language
-profiles. Sparse owner-token, `move`, and `share` clauses describe
-the accepted target ownership contract; source ownership production remains 0
-and the spellings remain parser-inactive until their grammar/profile rows land.
+profiles. Home tokens, destination Home demand, and explicit `share` describe
+the accepted ownership direction; exact HomeV1 grammar remains provisional,
+source ownership production remains 0, and inactive ownership spellings stay
+parser-rejected until their grammar/profile rows land.
 Unsupported ownership forms fail fast and never fall back to SharedV1.
 
 This page defines the scope-exit lifecycle model around canonical `cleanup`,
@@ -78,8 +79,8 @@ On normal exit, `return`, `break`, `continue`, or an already-selected Outcome:
 1. a postfix protected region may route only `RecoverableFailure` to its
    immediately attached catch handler; terminal `Fault` bypasses catch
 2. run scope-exit handlers (`cleanup`, including legacy `fini` aliases) for the exiting scope
-3. destroy the ownership tokens held by owning local bindings of that scope;
-   scoped aliases and anchored views carry no token and add no destroy
+3. destroy the Home tokens held by owning local Home slots of that scope;
+   ordinary handles carry no token and add no destroy
 4. if the last strong token disappeared, run structural payload drop/reclaim;
    this does not call user `box.fini()`
 5. propagate the resulting Outcome outward; unhandled `RecoverableFailure`
@@ -129,15 +130,16 @@ If constructor (`birth`) fails:
    across the full initialized field set. New delegation code should use
    explicit field composition and `delegate field exposes`.
 
-## 7) Ownership Terminology (`move` / `share`)
+## 7) Home Transfer Terminology
 
 Ordinary Hakorune code does not annotate every local as owned/borrowed.
 
 Use **ownership transfer** or **owner forwarding** as terminology.
 
-- `move source` forwards one existing owner into a non-terminal owning local,
-  field/store, or consuming call without RC.
-- An ordinary Owned `return` is already terminal and does not repeat `move`.
+- A destination with a sealed Home demand transfers one available Home token
+  without adding an owner.
+- A terminal `return` may forward one available Home token without a second
+  transfer spelling.
 - `share source` is not a move synonym. It adds a same-identity independent
   owner and is the only ordinary source authority for owner acquisition.
 - Historical `outbox` remains a compatibility transfer surface until its
@@ -152,7 +154,7 @@ Use **ownership transfer** or **owner forwarding** as terminology.
 - protected-region/cleanup ordering (the RecoverableFailure producer and
   boundary ABI remain owned by the later D0)
 - cleanup/finalization failure policy
-- ownership-transfer terminology
+- Home-transfer terminology
 
 `lifecycle.md` is authoritative for:
 
@@ -162,9 +164,9 @@ Use **ownership transfer** or **owner forwarding** as terminology.
 
 `ownership.md` is authoritative for:
 
-- owner forwarding and Shared entry
-- scoped aliases and anchored views
-- parameter/result ownership ABI
+- Home/handle laws and Shared entry
+- destination Home demand and result Home relation
+- callable Home ABI
 
 `function-exit-and-entry-result.md` is authoritative for:
 

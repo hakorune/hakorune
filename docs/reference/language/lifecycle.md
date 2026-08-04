@@ -2,8 +2,8 @@
 
 Status: SSOT (language-level), with implementation status notes.
 
-Decision: B′ eager-fini tombstone semantics accepted on 2026-07-14; sparse
-source ownership boundary accepted on 2026-07-15.
+Decision: B′ eager-fini tombstone semantics accepted on 2026-07-14; Home
+ownership direction accepted on 2026-08-04.
 
 Implementation status: transitional. Current `InstanceBox`, global
 finalization tracking, plugin Drop-fini routes, and generation-0 host/weak
@@ -11,7 +11,7 @@ tables do not yet implement the full decision. Unsupported B′ profiles must
 remain unclaimed/fail-fast until their taskboard rows close.
 
 Design note:
-- Source-level owner forwarding, scoped aliases, anchored views, and explicit
+- Source-level Home transfer, ordinary handles, result relations, and explicit
   Shared entry are owned by `docs/reference/language/ownership.md` (SSOT).
 - For normative exit-order, canonical `cleanup`, Compat2025 DropScope
   aliases (`fini {}` / `local ... fini {}`), postfix protected-region/cleanup
@@ -25,7 +25,7 @@ Design note:
 This document defines the Hakorune/Nyash object lifecycle model: logical
 finalization (`fini()`), strong/weak object residency, and what is (and is not)
 guaranteed across backends. It does not decide whether a source binding is an
-owner, scoped alias, or anchored view.
+Home holder, ordinary handle, or Shared owner.
 
 Construction SSOT:
 - Source-level construction order and the `birth` direct-call policy are fixed
@@ -39,8 +39,8 @@ Construction SSOT:
 - **Box value**: an object reference (user-defined / builtin / plugin).
 - **Strong owner token**: an independently consumable owner that contributes
   to keeping the object alive.
-- **Scoped alias / anchored view**: a non-owning source capability governed by
-  `ownership.md`; it does not add a strong token.
+- **Ordinary handle**: a non-owning source capability governed by
+  `ownership.md`; it does not add a Home/strong token.
 - **Weak reference**: a non-owning reference; it does not keep the object alive and may become dead.
 - **Finalization (`fini`)**: a logical end-of-life hook. It is not “physical deallocation”.
 - **Structural drop**: runtime payload/field-token teardown needed for memory
@@ -161,8 +161,8 @@ pointer/provenance model; it is outside the normal Box lifecycle contract.
 
 - `local` is block-scoped: the binding exists from its declaration to the end of the lexical block (`{ ... }`).
 - Leaving a block ends its bindings immediately (including inner `{}` blocks).
-- Ending an owning binding consumes/forwards its token according to the sealed
-  exit plan. Ending a scoped alias/view adds no ownership destroy.
+- Ending an owning Home slot consumes/forwards its token according to the
+  sealed exit plan. Ending an ordinary handle adds no ownership destroy.
 - Consuming the last owner may or may not immediately return backing memory;
   that depends on the verified representation and remaining strong/weak roots.
 
@@ -177,11 +177,11 @@ This is the “variable lifetime” rule. Object lifetime is defined below.
   - In typical implementations this is immediate (reference-counted drop) for acyclic graphs, but the language does not require immediacy.
 - Last-strong structural drop never calls user-defined `fini()`.
 - Shared-lane assignment, parameter/result transport, and Shared owning fields
-  may preserve Box identity while carrying independent owner tokens. Ordinary
-  local aliases/parameters are not independent strong owners.
-- An existing owner forwarded into an owning destination uses `move source`.
-  If the source must remain usable with an independent lifetime, the boundary
-  uses `share source`. Ordinary assignment does not silently add an owner.
+  may preserve Box identity while carrying independent Home tokens. Ordinary
+  local handles/parameters are not independent strong owners.
+- A destination with a sealed Home demand transfers one available token. If
+  the source must remain usable with an independent lifetime, the source uses
+  explicit `share`. Ordinary assignment does not silently add an owner.
 - One object identity may have multiple independently consumable strong
   ownership tokens. Destroying each distinct token once is legal; consuming
   the same token twice is a verifier/checked-carrier error, not an idempotent
@@ -300,9 +300,10 @@ Nyash distinguishes “dropping a binding” from “finalizing an object”.
 
 Ownership tokens keep identity/storage alive. Object finalization is an
 explicit object-wide transition, not something inferred from scope end or last
-ownership. Calling it does not consume the caller token. Source Loan Flow
-forbids `fini()` while a scoped alias/view remains live; independent Shared
-owners observe the same Dead identity after finalization.
+ownership. Calling it does not consume the caller token. The Home overlay is
+provisional here: its lifecycle D0 must decide live-handle invalidation and
+whether an alias handle may be the invoking receiver before HomeV1 activates.
+Independent Shared owners observe the same Dead identity after finalization.
 
 ### Owning contexts
 
@@ -314,12 +315,12 @@ An object may have a strong owner/root token in any of these contexts:
 
 ### Escapes (ownership transfer)
 
-If one owner is forwarded into a longer-lived owning context before the
-current scope ends, `move source` forwards that token and keeps the identity
-alive without requiring RC. If the source must remain usable under an
-independent lifetime, `share source` explicitly enters/acquires the Shared
-lane. Ordinary assignment or escape does not infer either operation. Neither
-case grants implicit authority to call user `fini()`.
+If one Home token is transferred into a longer-lived owning destination before
+the current scope ends, the destination's sealed Home demand keeps the
+identity alive without adding RC. If the source must remain usable under an
+independent lifetime, explicit `share source` enters/acquires the Shared lane.
+Ordinary assignment or escape does not infer owner addition. Neither case
+grants implicit authority to call user `fini()`.
 
 Common escape paths:
 - Assigning into an enclosing-scope binding (updates the owner).
@@ -562,14 +563,14 @@ This section documents current backend reality so we can detect drift as bugs.
 ### Notes
 
 - **Block-scoped locals** are the language model (`local` ends at `}`), but
-  only owning bindings carry a token to destroy. Scoped aliases/views do not.
+  only Home slots carry a token to destroy. Ordinary handles do not.
 - **WeakRef** (Phase 285A0+): VM backend fully supports `weak <expr>` and `weak_to_strong()`. LLVM harness also supports this surface as of Phase 285LLVM-1.4.
 - **WASM backend** currently treats MIR `WeakNew/WeakLoad` as plain copies (weak behaves like strong). This does not satisfy the SSOT weak semantics yet (see also: `docs/guides/wasm-guide/planning/unsupported_features.md`).
 - **Leak Report** (Phase 285): `NYASH_LEAK_LOG={1|2}` prints exit-time diagnostics showing global roots still held (modules, host_handles, plugin_boxes). See `docs/reference/environment-variables.md`.
 - Conformance gaps (any backend differences from this document) must be treated as bugs and tracked explicitly; do not "paper over" differences by changing this SSOT without a decision.
 
 See also:
-- `docs/reference/language/ownership.md` (owner/alias/View/Shared source contract)
+- `docs/reference/language/ownership.md` (Home/handle/share source contract)
 - `docs/reference/language/variables-and-scope.md` (binding scoping and assignment resolution)
 - `docs/reference/boxes-system/memory-finalization.md` (design notes; must not contradict this SSOT)
 

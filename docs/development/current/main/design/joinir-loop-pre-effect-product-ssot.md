@@ -1828,7 +1828,7 @@ be zero across the accepted corpus and backends.
 
 Park cosmetic Direct shell unification, superficial preflight helper merging,
 composer skeleton cleanup, renewed per-route provenance loops, Generic rollback
-workarounds, Stage-B, Ownership, View, `.hako` selfhost, language, performance,
+workarounds, Stage-B, Home ownership, `.hako` selfhost, language, performance,
 and backend expansion until their named predecessor row closes.
 
 Normal S-row gates are the focused module test, full registry test,

@@ -26,8 +26,10 @@ permission gates and do not replace reference-closure checks.
 `CURRENT_STATE.toml` has returned to the MirBuilder workstream at
 `NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0`; it does not jump directly to
 Candidate A. The returned MirBuilder train closes the general Program verified
-owner and current-normal result parity, then passes the parked Ownership/View
-readiness train before any default-ingress cutover.
+owner and current-normal result parity, then passes the parked ownership
+readiness train before any default-ingress cutover. The historical
+“Ownership/View” name now resolves to the Home ownership taskboard; it does
+not restore the former source target.
 
 R2 closed resolver/relocator support for the live, global archive, and
 transitional nested-archive locations. R3 closed the exact two-file pilot.
@@ -78,7 +80,7 @@ general Program verified owner
 -> verified aggregate / DraftSeal / atomic publication
 -> current-normal result parity
 -> Candidate A technical readiness audit
--> Ownership/View Pack A-E + product readiness
+-> Home ownership D0/readiness + product readiness
 -> Candidate A final re-evaluation
 -> atomic default-ingress cutover
 ```
