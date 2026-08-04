@@ -134,6 +134,31 @@ impl CanonicalIfPhysicalDemandV1 {
 }
 
 impl CanonicalIfPhysicalCorrespondenceV1 {
+    #[cfg(test)]
+    pub(in crate::mir::builder::resolved_lowering) fn from_test_parts(
+        if_site: SourceStmtSiteV1,
+        condition: SourceExprSiteV1,
+        entry_binding: BindingRefV1,
+        representation: TrivialRepresentationV1,
+        then_assignment: SourceStmtSiteV1,
+        then_value: SourceExprSiteV1,
+        else_assignment: Option<SourceStmtSiteV1>,
+        else_value: Option<SourceExprSiteV1>,
+        continuation_read: SourceExprSiteV1,
+    ) -> Self {
+        Self {
+            if_site,
+            condition,
+            entry_binding,
+            representation,
+            then_assignment,
+            then_value,
+            else_assignment,
+            else_value,
+            continuation_read,
+        }
+    }
+
     pub(in crate::mir::builder::resolved_lowering) const fn if_site(&self) -> &SourceStmtSiteV1 {
         &self.if_site
     }

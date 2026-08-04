@@ -155,3 +155,32 @@ Do not implement D1 caller retirement or D2 candidate-fingerprint expansion in
 the same change. Those are the next bounded checks after D0 is green. Any
 failure that needs a lowerer topology change, another source family, or a
 global PHI/SSA claim reopens a design stop.
+
+## D0 completion evidence — 2026-08-04
+
+The D0 slice is complete and remains behavior-neutral:
+
+* `verify_physical_receipt` now rejects every duplicate among the complete
+  `{header, then, else, merge}` block set, not only adjacent duplicates;
+* test-only correspondence construction exercises the selected receipt
+  contract without exposing a production constructor;
+* explicit/implicit `CanonicalIfPhysicalValuesV1` cross-shape inputs are
+  rejected before receipt construction;
+* a non-adjacent physical block collision is rejected with the stable
+  `physical_blocks_overlap` contract error.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_physicalizer -- --test-threads=1  # 2 passed
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_contract -- --test-threads=1       # 10 passed
+RUSTFLAGS='-Awarnings' cargo test -q --lib resolved_value_profile -- --test-threads=1   # 37 passed
+RUSTFLAGS='-Awarnings' cargo test -q --lib if_recipe_selected -- --test-threads=1       # 3 passed
+RUSTFLAGS='-Awarnings' cargo test -q --lib resolved_lowering -- --test-threads=1        # 130 passed
+RUSTFLAGS='-Awarnings' cargo check -q --lib
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+```
+
+No new recipe profile, lowerer branch, route/retry edge, PHI writer, or
+legacy caller was added. D1 caller census is the next bounded row.

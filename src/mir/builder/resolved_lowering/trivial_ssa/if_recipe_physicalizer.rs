@@ -386,7 +386,11 @@ fn verify_physical_receipt(
                 receipt.else_block(),
                 receipt.merge(),
             ];
-            if blocks[0..].windows(2).any(|pair| pair[0] == pair[1]) {
+            if blocks
+                .iter()
+                .enumerate()
+                .any(|(index, block)| blocks[..index].contains(block))
+            {
                 return Err("[freeze:contract][if_recipe/physical_blocks_overlap]".to_string());
             }
             if !correspondence.is_explicit_else() {
@@ -537,5 +541,168 @@ fn class_for_representation(
         TrivialRepresentationV1::InlineI64 => Ok(IfValueClassV1::I64),
         TrivialRepresentationV1::InlineBool => Ok(IfValueClassV1::Bool),
         _ => Err("[freeze:contract][if_recipe/unsupported_join_representation]".to_string()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::if_recipe_contract::{
+        IfElseDispositionV1, IfJoinEdgeRoleV1, IfJoinEdgeV1, IfJoinObligationV1, IfJoinPortV1,
+        IfJoinSigV1, IfJoinValueEdgeV1, IfValueKeyV1,
+    };
+    use crate::mir::resolved_semantics::{
+        FunctionOwnerIssuerV1, SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1,
+    };
+    use hakorune_mir_core::BindingId;
+
+    fn binding() -> BindingRefV1 {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("owner issuer");
+        BindingRefV1::new(issuer.issue().expect("owner"), BindingId::new(0))
+    }
+
+    fn stmt_site(index: u32) -> SourceStmtSiteV1 {
+        SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(index),
+        ]))
+    }
+
+    fn expr_site(index: u32, role: SourcePathSegmentV1) -> SourceExprSiteV1 {
+        SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(index),
+            role,
+        ]))
+    }
+
+    fn explicit_correspondence(binding: BindingRefV1) -> CanonicalIfPhysicalCorrespondenceV1 {
+        CanonicalIfPhysicalCorrespondenceV1::from_test_parts(
+            stmt_site(1),
+            expr_site(1, SourcePathSegmentV1::IfCondition),
+            binding,
+            TrivialRepresentationV1::InlineI64,
+            stmt_site(2),
+            expr_site(2, SourcePathSegmentV1::Value),
+            Some(stmt_site(3)),
+            Some(expr_site(3, SourcePathSegmentV1::Value)),
+            expr_site(4, SourcePathSegmentV1::Value),
+        )
+    }
+
+    fn explicit_join_sig() -> IfJoinSigV1 {
+        let edge = |from, to, role| IfJoinEdgeV1 {
+            from,
+            to,
+            role,
+            value: IfJoinValueEdgeV1 {
+                value: IfValueKeyV1::new(0),
+                class: crate::mir::if_recipe_contract::IfValueClassV1::I64,
+            },
+        };
+        IfJoinSigV1 {
+            disposition: IfElseDispositionV1::Explicit,
+            ports: [
+                IfJoinPortV1::Entry,
+                IfJoinPortV1::Condition,
+                IfJoinPortV1::Then,
+                IfJoinPortV1::Else,
+                IfJoinPortV1::Continuation,
+            ],
+            edges: [
+                edge(
+                    IfJoinPortV1::Entry,
+                    IfJoinPortV1::Condition,
+                    IfJoinEdgeRoleV1::Enter,
+                ),
+                edge(
+                    IfJoinPortV1::Condition,
+                    IfJoinPortV1::Then,
+                    IfJoinEdgeRoleV1::True,
+                ),
+                edge(
+                    IfJoinPortV1::Condition,
+                    IfJoinPortV1::Else,
+                    IfJoinEdgeRoleV1::False,
+                ),
+                edge(
+                    IfJoinPortV1::Then,
+                    IfJoinPortV1::Continuation,
+                    IfJoinEdgeRoleV1::ThenTransfer,
+                ),
+                edge(
+                    IfJoinPortV1::Else,
+                    IfJoinPortV1::Continuation,
+                    IfJoinEdgeRoleV1::ElseTransfer,
+                ),
+            ],
+            join: IfJoinObligationV1 {
+                binding: crate::mir::if_recipe_contract::IfBindingKeyV1::new(0),
+                class: crate::mir::if_recipe_contract::IfValueClassV1::I64,
+                entry_value: IfValueKeyV1::new(0),
+                then_value: IfValueKeyV1::new(1),
+                else_value: IfValueKeyV1::new(2),
+            },
+        }
+    }
+
+    #[test]
+    fn receipt_rejects_non_adjacent_block_overlap() {
+        let binding = binding();
+        let correspondence = explicit_correspondence(binding);
+        let receipt = CanonicalIfPhysicalReceiptV1::explicit(
+            BasicBlockId::new(0),
+            ValueId::new(9),
+            BasicBlockId::new(1),
+            BasicBlockId::new(0),
+            BasicBlockId::new(1),
+            BasicBlockId::new(0),
+            BasicBlockId::new(3),
+            ValueId::new(10),
+            ValueId::new(11),
+            binding,
+        );
+
+        assert_eq!(
+            verify_physical_receipt(&correspondence, &explicit_join_sig(), &receipt),
+            Err("[freeze:contract][if_recipe/physical_blocks_overlap]".to_string())
+        );
+    }
+
+    #[test]
+    fn receipt_values_keep_explicit_and_implicit_topologies_typed() {
+        let explicit = CanonicalIfRecipeTopologyV1::ExplicitElse(
+            CanonicalIfRecipeExplicitElseTopologyV1::new(binding()),
+        );
+        assert!(selected_receipt(
+            explicit,
+            BasicBlockId::new(0),
+            ValueId::new(1),
+            BasicBlockId::new(2),
+            BasicBlockId::new(2),
+            BasicBlockId::new(3),
+            ValueId::new(4),
+            CanonicalIfPhysicalValuesV1::ImplicitFallthrough {
+                baseline_value: ValueId::new(5),
+            },
+        )
+        .is_err());
+
+        let implicit = CanonicalIfRecipeTopologyV1::ImplicitFallthrough(
+            CanonicalIfRecipeImplicitFallthroughTopologyV1::new(binding()),
+        );
+        assert!(selected_receipt(
+            implicit,
+            BasicBlockId::new(0),
+            ValueId::new(1),
+            BasicBlockId::new(2),
+            BasicBlockId::new(2),
+            BasicBlockId::new(3),
+            ValueId::new(4),
+            CanonicalIfPhysicalValuesV1::ExplicitElse {
+                else_block: BasicBlockId::new(5),
+                else_exit: BasicBlockId::new(5),
+                else_value: ValueId::new(6),
+            },
+        )
+        .is_err());
     }
 }
