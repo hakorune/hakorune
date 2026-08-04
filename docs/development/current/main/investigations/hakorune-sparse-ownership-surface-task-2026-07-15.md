@@ -8,6 +8,7 @@ First code-facing ownership row when explicitly resumed: OWN-GRAM-REJECT0-HAKO0-
 Integration resume checkpoint: MIRBUILDER-INPLACE-REPLACEMENT0 final-pipeline semantic completion
 Related:
   - ownership-view-missing-grammar-inventory-2026-07-28.md
+  - ownership-view-performance-compatibility-design-2026-08-04.md
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
   - hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md
   - ../design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md

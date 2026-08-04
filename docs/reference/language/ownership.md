@@ -19,6 +19,8 @@ Related authorities:
   staged implementation order
 - `../../development/current/main/investigations/ownership-view-missing-grammar-inventory-2026-07-28.md`:
   exact parser census and compact parked task train
+- `../../development/current/main/investigations/ownership-view-performance-compatibility-design-2026-08-04.md`:
+  parked compatibility/profile and language-View versus transient-text boundary
 
 The grammar examples below describe the accepted target contract. They do not
 make a spelling parser-live. `EBNF.md` and the grammar registry remain the live
