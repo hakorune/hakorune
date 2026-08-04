@@ -6,12 +6,20 @@
 #[cfg(test)]
 mod adapter;
 mod evaluate;
+mod loop_true_break_continue;
+#[cfg(test)]
+mod loop_true_break_continue_tests;
 mod policy;
 mod policy_evidence;
 mod schema;
 
 #[allow(unused_imports)]
 pub(crate) use evaluate::freeze_loop_route_schedule_v1;
+#[allow(unused_imports)]
+pub(crate) use loop_true_break_continue::{
+    issue_loop_true_break_continue_policy_demand_v1, LoopTrueBreakContinuePolicyDemandRejectV1,
+    VerifiedLoopTrueBreakContinuePolicyDemandV1, VerifiedLoopTrueBreakContinuePolicyReceiptV1,
+};
 #[allow(unused_imports)]
 pub(crate) use policy::{
     evaluate_frozen_loop_route_schedule_v1, issue_direct_accum_route_admission_v1,

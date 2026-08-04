@@ -495,9 +495,15 @@ accepted — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0
      dedicated profile-specific Recipe producer; all pre-effect and caller-zero
      boundaries are fixed in the pipeline SSOT. Reference docs are mandatory
      after S0-S2 implementation.
-next — JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0
-  -> issue AST-free LoopTrue projection and source/frame rejects only;
-     no route switch, Builder/CFG/PHI effect, retry, or fallback.
+closed — JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0
+  -> resolver-owned AST-free LoopTrue projection with exact source/frame identity
+     and typed caller-zero rejects; no route switch, Builder/CFG/PHI, retry, or fallback.
+closed — JOINIR-LOOP-TRUE-POLICY-DEMAND0-M7-S3-S1
+  -> one-consume schedule admits only canonical LoopTrue and retains receipt+projection; no raw cursor, schedule, Recipe, JoinSig, retry, or physical capability.
+next — JOINIR-LOOP-TRUE-RECIPE-JOINSIG-PARITY0-M7-S3-S2
+  -> issue the dedicated caller-zero Recipe, verify it, and elaborate JoinSig; physical Builder effects and fallback stay zero.
+required after S2 — JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3
+  -> update recipe README/reference page with landed envelope, caller-zero status, non-claims; run reference-link/grammar/current-pointer guards.
 ```
 
 ## Production invariants

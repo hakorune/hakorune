@@ -45,6 +45,20 @@ for the next Recipe stage while hiding route IDs, raw cursors, and the frozen
 schedule from physical lowerers. This remains caller-zero with respect to the
 production compiler until the resolved plan capability is added.
 
+The LoopTrue branch cohort has a separate policy-demand box:
+
+```text
+VerifiedLoopTrueBreakContinueSourceProjectionV1
+  + owned FrozenLoopRouteScheduleV1 (consumed once)
+  -> VerifiedLoopTrueBreakContinuePolicyDemandV1
+```
+
+Its private brand accepts only the canonical `LoopTrueBreakContinue` winner
+and the matching source frame. The demand retains only a policy receipt and
+the source projection; it does not retain a raw cursor, schedule, route ID,
+Recipe, JoinSig, retry, or physical capability. The implementation is
+caller-zero and exists solely as the S1 handoff to the later Recipe cohort.
+
 At M12, migration-only schedule adapters and opaque route receipts retire after
 M10/M11 cut over and remove the old physical route edges. Any retained
 source-policy rows must remain data-only inputs to the common recursive recipe.

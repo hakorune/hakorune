@@ -325,6 +325,7 @@ guard_joinir_logical_demand_contract() {
     "$loop_route_policy_dir/mod.rs" \
     "$loop_route_policy_dir/schema.rs" \
     "$loop_route_policy_dir/evaluate.rs" \
+    "$loop_route_policy_dir/loop_true_break_continue.rs" \
     "$loop_route_policy_dir/policy.rs" \
     "$loop_route_policy_dir/policy_evidence.rs" \
     "$loop_route_policy_dir/adapter.rs" \
@@ -339,7 +340,7 @@ guard_joinir_logical_demand_contract() {
       guard_fail "$tag" "file exceeds boundary: ${file#"$root_dir/"} lines=$lines"
     fi
     case "$file" in
-      "$loop_route_policy_dir/adapter.rs"|"$loop_route_policy_dir/tests.rs") ;;
+      "$loop_route_policy_dir/adapter.rs"|"$loop_route_policy_dir/tests.rs"|"$loop_route_policy_dir"/*_tests.rs) ;;
       *) loop_route_policy_production_files+=("$file") ;;
     esac
   done
