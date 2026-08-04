@@ -246,3 +246,26 @@ symbolic MIR, route retry, legacy caller deletion, global PHI/SSA adoption,
 or parity claims for raw/CorePlan/JoinIR/Loop/other If shapes. If the existing
 candidate lifecycle cannot expose this fingerprint without widening an
 owner or crossing the 800-line limit, stop and reopen the design before code.
+
+## Accepted D2 execution slice — candidate abort proof
+
+The existing candidate lifecycle is sufficient, so D2 is accepted for one
+test-only proof slice. Reuse the test-only
+`MirBuilder::loop_candidate_test_fingerprint` and the existing typed draft
+seal-failure seam. Add one implicit-fallthrough fixture beside the existing
+explicit-else fixture; do not add a production fault toggle or a second
+transaction owner.
+
+Each fixture must prove, in order:
+
+* selected `TrivialBindingSsa` preflight and the same outer binding/continuation
+  read;
+* failure after selected If lowering has already emitted the candidate's
+  physical CFG/PHI work;
+* dropping the unpublished session leaves the live Builder fingerprint,
+  current module, current function, and entry block unchanged;
+* a fresh compile on the same `MirCompiler` succeeds afterward.
+
+This slice is test-only and does not claim that every physicalizer failure is
+covered, that candidate internals need a public snapshot API, or that legacy
+If/CorePlan/JoinIR/Loop/PHI writers are retired.
