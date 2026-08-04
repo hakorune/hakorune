@@ -15,6 +15,15 @@ Operational Rules (PHI‑on)
 - `verify_allow_no_phi()` mirrors `NYASH_MIR_NO_PHI`; with PHI‑on it stays strict and fails if SSA form is missing.
 - Use `NYASH_LLVM_TRACE_PHI=1` to inspect wiring; traces now confirm the builder’s SSA layout instead of synthesizing it from edge copies.
 
+Resolved nested-If recipe boundary (D2)
+- The selected production profile is exactly one outer plus one inner
+  explicit-`else` If over one shared trivial binding and pure fallthrough.
+- Its portable Recipe/JoinSig is admitted before physical effects. The
+  existing canonical lowerer is the sole CFG/SSA/PHI physicalizer and emits
+  the two merge PHIs; no nested-specific PHI writer or retry route exists.
+- Deeper nesting, calls, effects, returns, or multiple bindings are outside
+  this profile and must not be inferred from these two-PHI rules.
+
 Fallback Mode (PHI‑off)
 - Toggle: `NYASH_MIR_NO_PHI=1` (optionally pair with `NYASH_VERIFY_ALLOW_NO_PHI=1`).
 - Behavior: MIR builders revert to edge copies per predecessor and skip PHI emission. This path is retained only for diagnosing older JSON dumps.

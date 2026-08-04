@@ -150,6 +150,22 @@ Stop:
   hide an unproved route as historical prose. This closeout does not widen
   nested depth, activate ownership/Home rules, or add a new grammar surface.
 
+Closeout evidence (2026-08-04):
+
+* `EBNF.md`, `grammar-contract.md`, and `statements.md` now distinguish
+  recursive parser syntax from the proved one-level resolved recipe profile.
+* `ast-json-v0.md` and `json_v0.md` keep nested nodes as transport data while
+  refusing to make JSON-v0 a second Recipe/JoinSig/PHI authority.
+* `phi_policy.md` and `phi_invariants.md` record the sole canonical lowerer,
+  exact two-PHI boundary, actual-predecessor rule, and inner-merge-to-outer-
+  then correspondence.
+* `current_state_pointer_guard.sh` is green. Home/property reference pages
+  remain provisional/parked and are not rewritten by this If closeout.
+
+Disposition: nested If D0/D1/D2 and its normative reference closeout are
+complete. The next If shape must return to its own design stop; this card does
+not authorize deeper nesting, effects, or Home ownership activation.
+
 ## Required gates
 
 Use the focused resolved profile, IfRecipe contract, canonical-session, and

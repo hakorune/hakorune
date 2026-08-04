@@ -20,6 +20,11 @@ Invariants
 - Self-carry handling: A PHI with self-carry is allowed only when there is
   at least one non-self incoming. At finalize, map self-carry to the most
   recent non-self source visible at the predecessor end.
+- Resolved one-level nested If: the inner merge block may be the outer
+  `then` predecessor. Each PHI input set must equal the actual CFG predecessor
+  set, and the nested profile emits exactly one PHI per merge for its shared
+  binding. This is a profile-scoped invariant, not a claim for arbitrary
+  recursive/effectful If lowering.
 
 Representative Cases
 - Nested short-circuit: `a && (b || c)` with selective assignments in nested

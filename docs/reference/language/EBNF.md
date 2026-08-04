@@ -97,6 +97,11 @@ stmt      := 'return' expr
            | loop_stmt
            | expr                         ; expression statement
 
+; Nested If syntax is recursive at the parser boundary. The selected
+; resolved one-level nested-If recipe is a narrower production profile:
+; one outer + one inner explicit-else pure fallthrough over one binding.
+; This profile note does not make deeper/effectful shapes parser errors.
+
 loop_stmt := 'loop' loop_head? block
 loop_head := loop_range_head | loop_condition_head
 loop_condition_head := '('? expr ')'?

@@ -37,8 +37,14 @@ CFG conventions (lowered by the bridge)
 - Short‑circuit Logical: create `rhs_bb`, `fall_bb`, `merge_bb` with constants on fall path.
 - All blocks end with a terminator (branch/jump/return).
 
-PHI merging（Phase‑15 終盤の方針）
-- MIR 生成層は PHI を生成しない（MIR13 運用）。If/Loop の合流は LLVM 層（llvmlite/Resolver）が PHI を合成。
+PHI merging（legacy JSON-v0 bridge）
+- These bullets describe the experimental JSON-v0 bridge and its historical
+  MIR13/edge-copy compatibility behavior. They are not the authority for the
+  resolved canonical Recipe route.
+- The resolved canonical nested-If profile emits PHIs in the existing MIR
+  canonical lowerer: one outer and one inner explicit-else merge, with the
+  inner merge predecessor/value feeding the outer then edge. No second
+  JSON/Recipe PHI owner is implied.
 - ループは既存 CFG（preheader→cond→{body|exit}; body→cond）の検出により、ヘッダ BB で搬送値の PHI を構築。
 - 将来（LoopForm= MIR18）では LoopForm 占位命令から逆 Lowering で PHI を自動化予定。
  - PHI‑off 運用（Builder 側の規約）: merge 内に copy を置かず、then/else の pred へ edge_copy のみを挿入（self‑copy は No‑Op）。use‑before‑def と重複 copy を原理的に回避する。

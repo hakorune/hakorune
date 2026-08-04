@@ -30,6 +30,9 @@ Kinds (subset for Phase 2+)
 - Continue: { kind: "Continue" }
 - Assignment: { kind: "Assignment", target: Node, value: Node }
 - If: { kind: "If", condition: Node, then: [Node], else: [Node]|null }
+  Nested `If` nodes remain inline and recursive in this transport. AST JSON v0
+  is not the authority for the resolved nested-If Recipe/JoinSig/PHI profile;
+  that profile is a separate pre-effect compiler contract.
 - FunctionDeclaration: { kind: "FunctionDeclaration", name: string, params: [string], body: [Node], static: bool, override: bool, attrs?: { runes: [RuneAttr] } }
 - Variable: { kind: "Variable", name: string }
 - Literal: { kind: "Literal", value: LiteralValue }

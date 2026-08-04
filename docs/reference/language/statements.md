@@ -22,6 +22,10 @@ Rules (minimal and predictable)
   Bare `return` has accepted target Unit semantics but is not live grammar
   until its separate registry/parser row lands.
 - `if/else` (and similar paired constructs): do not insert a semicolon between a block and a following `else`.
+- Nested `if` statements remain ordinary recursive statement syntax. The
+  current canonical resolved nested-If profile is a one-level proof boundary,
+  not a restriction on parser nesting or a promise that every deeper/effectful
+  shape uses that recipe.
 - One‑line multi‑statements are allowed with semicolons: `x = 1; y = 2; print(y)`.
 - Method chains can break across lines after a dot: `obj\n  .method()` (newline treated as whitespace).
 
