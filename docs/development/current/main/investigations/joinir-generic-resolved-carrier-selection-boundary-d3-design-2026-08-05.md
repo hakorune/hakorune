@@ -299,6 +299,7 @@ fail-fast/sunset contract are mandatory; documentation cannot be deferred.
 ```text
 S2 identity witness: 3 focused tests, test-only
 D3 typed matrix: 1 focused test over 4 rows, test-only
+handoff protocol: 5 cfg(test) tests over typed Legacy/Resolved/Reject boundaries
 production selector callers of BindingRef capability: 0
 current Both trace: [V0, V1] -> V0 success; no V1 debt attempt
 ```

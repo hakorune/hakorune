@@ -951,7 +951,7 @@ ordered after B-prime correction
      M7-S3 S0/S1/S2 and its reference closeout are now closed with
      resolver-owned identity/frame receipts and typed caller-zero rejects
   2. design the co-sealed resolved-carrier handoff before parent M4 D2:
-     resolver observation -> neutral eligibility -> private non-Clone wrapper -> selection receipt; no production arm/retry/route switch
+     resolver observation -> neutral eligibility -> private non-Clone wrapper -> selection receipt; five test-only protocol cases are green; no production arm/retry/route switch
   3. close M7 five-family parity, M8 all-19 producers, and M9 host parity
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement

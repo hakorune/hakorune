@@ -899,6 +899,10 @@ remain `UnresolvedStop` and retain the legacy execution edge; no post-effect
 retry or fallback is allowed. No V0 suppression, V1 precedence,
 Recipe/JoinSig/PHI, physicalizer, Builder, MIR, backend, or M10 cutover is
 authorized until this handoff contract and its full typed matrix are accepted.
+The design-stop protocol witness is now test-only: five `cfg(test)` cases cover
+typed Legacy/Resolved input, target-missing rejection, identity/seal mismatch,
+and pre-effect negative dispositions. This evidence does not authorize a
+production selector arm or close the parent D2 row.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
