@@ -12,6 +12,7 @@ Related:
   - ../design/phi-lifecycle-ssot.md
   - ../design/binding-ssa-first-control-lowering-ssot.md
   - ../design/recipe-first-entry-contract-ssot.md
+  - joinir-if-recipe-two-call-arms-d0-d2-execution-task-2026-08-04.md
 ---
 
 # Selected If Recipe shape envelope — D0 design stop
@@ -361,6 +362,13 @@ Stop:
   changed caller counts, or any touched file reaching 800 returns to design.
 
 ### 2. `JOINIR-IF-RECIPE-TWO-CALL-ARMS0-D0` → `...-I0-R0`
+
+Execution authority: `joinir-if-recipe-two-call-arms-d0-d2-execution-task-2026-08-04.md`.
+The D0 task first fixes per-arm facts, six-claim source order, exact
+two-row profile pairing, and the mapper's identity-free dual Call leaf. It
+also extracts the mapper's source-path helpers before semantic edits so every
+touched Rust/test file stays below 800 lines. D1/D2/I0/R0 remain gated behind
+that task's caller census, parity/abort evidence, and exact old-edge cutover.
 
 Change:
 : Admit one root explicit-else If with one shared i64 merge binding and exactly
