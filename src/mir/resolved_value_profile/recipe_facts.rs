@@ -12,10 +12,8 @@ use crate::mir::resolved_semantics::{
     BindingRefV1, SourceExprSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 
+use super::nested_recipe_facts::{NestedIfNodeFactsV1, VerifiedNestedTrivialIfRecipeFactsV1};
 use super::product::TrivialRepresentationV1;
-use super::nested_recipe_facts::{
-    NestedIfNodeFactsV1, VerifiedNestedTrivialIfRecipeFactsV1,
-};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum TrivialRecipeBinaryOpV1 {
@@ -172,7 +170,8 @@ struct IfFactDraftV1 {
     else_assignments: Vec<AssignmentFactV1>,
     continuation_read: Option<SourceExprSiteV1>,
     entry_witness: Option<IfEntryWitnessV1>,
-    direct_call_site: Option<SourceExprSiteV1>,
+    then_direct_call_site: Option<SourceExprSiteV1>,
+    else_direct_call_site: Option<SourceExprSiteV1>,
 }
 
 impl IfFactDraftV1 {
@@ -187,7 +186,8 @@ impl IfFactDraftV1 {
             else_assignments: Vec::new(),
             continuation_read: None,
             entry_witness: None,
-            direct_call_site: None,
+            then_direct_call_site: None,
+            else_direct_call_site: None,
         }
     }
 
@@ -269,7 +269,17 @@ impl VerifiedTrivialIfRecipeFactsV1 {
     }
 
     pub(crate) fn direct_call_site(&self) -> Option<&SourceExprSiteV1> {
-        self.if_fact.direct_call_site.as_ref()
+        self.if_fact
+            .then_direct_call_site
+            .as_ref()
+            .or(self.if_fact.else_direct_call_site.as_ref())
+    }
+
+    pub(crate) fn direct_call_sites(&self) -> [Option<&SourceExprSiteV1>; 2] {
+        [
+            self.if_fact.then_direct_call_site.as_ref(),
+            self.if_fact.else_direct_call_site.as_ref(),
+        ]
     }
 }
 
@@ -281,7 +291,6 @@ pub(super) struct TrivialIfRecipeFactsDraftV1 {
     branches: Vec<(usize, RecipeBranchV1)>,
     pending_continuation: Option<(usize, BindingRefV1)>,
     unsupported: bool,
-    direct_call_site: Option<SourceExprSiteV1>,
 }
 
 impl TrivialIfRecipeFactsDraftV1 {
@@ -412,13 +421,26 @@ impl TrivialIfRecipeFactsDraftV1 {
     }
 
     pub(super) fn record_direct_call(&mut self, site: SourceExprSiteV1) {
-        let is_branch_assignment_value = self.in_branch()
-            && matches!(site.node().segments().last(), Some(SourcePathSegmentV1::Value));
-        if !is_branch_assignment_value || self.direct_call_site.is_some() {
+        let Some((index, branch)) = self.branches.last().copied() else {
+            self.unsupported = true;
+            return;
+        };
+        if !matches!(
+            site.node().segments().last(),
+            Some(SourcePathSegmentV1::Value)
+        ) {
             self.unsupported = true;
             return;
         }
-        self.direct_call_site = Some(site.clone());
+        let slot = match branch {
+            RecipeBranchV1::Then => &mut self.ifs[index].then_direct_call_site,
+            RecipeBranchV1::Else => &mut self.ifs[index].else_direct_call_site,
+        };
+        if slot.is_some() {
+            self.unsupported = true;
+            return;
+        }
+        *slot = Some(site.clone());
         self.expressions.insert(
             site.clone(),
             TrivialRecipeExprFactV1::new(
@@ -463,7 +485,9 @@ impl TrivialIfRecipeFactsDraftV1 {
     /// from sealed source paths without rescanning the AST.
     pub(super) fn nested_candidate(&self) -> Option<VerifiedNestedTrivialIfRecipeFactsV1> {
         if self.unsupported
-            || self.direct_call_site.is_some()
+            || self.ifs.iter().any(|if_fact| {
+                if_fact.then_direct_call_site.is_some() || if_fact.else_direct_call_site.is_some()
+            })
             || !self.if_stack.is_empty()
             || !self.branches.is_empty()
             || self.ifs.len() != 2
@@ -485,10 +509,8 @@ impl TrivialIfRecipeFactsDraftV1 {
         let [SourcePathSegmentV1::Body(outer_index)] = outer.statement.node().segments() else {
             return None;
         };
-        let [
-            SourcePathSegmentV1::Body(inner_root),
-            SourcePathSegmentV1::IfThen(_),
-        ] = inner.statement.node().segments()
+        let [SourcePathSegmentV1::Body(inner_root), SourcePathSegmentV1::IfThen(_)] =
+            inner.statement.node().segments()
         else {
             return None;
         };
@@ -562,7 +584,6 @@ impl TrivialIfRecipeFactsDraftV1 {
             return None;
         }
         let mut if_fact = self.ifs.into_iter().next()?;
-        if_fact.direct_call_site = self.direct_call_site;
         let branch_shape_ok = if if_fact.explicit_else {
             if_fact.then_assignments.len() == 1
                 && if_fact.else_assignments.len() == 1
@@ -587,6 +608,22 @@ impl TrivialIfRecipeFactsDraftV1 {
                 return None;
             }
         } else if then.binding != entry.binding || then.representation != entry.representation {
+            return None;
+        }
+        if !if_fact.explicit_else && if_fact.else_direct_call_site.is_some() {
+            return None;
+        }
+        if if_fact
+            .then_direct_call_site
+            .as_ref()
+            .is_some_and(|site| site != then.value())
+            || if_fact.else_direct_call_site.as_ref().is_some_and(|site| {
+                if_fact
+                    .else_assignments
+                    .first()
+                    .is_none_or(|assignment| site != assignment.value())
+            })
+        {
             return None;
         }
         Some(VerifiedTrivialIfRecipeFactsV1 {

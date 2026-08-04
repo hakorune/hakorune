@@ -12,6 +12,7 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     finite_call_tests = root / "src/mir/compiler/finite_direct_call_tests.rs"
     profile_mod = root / "src/mir/resolved_value_profile/mod.rs"
     profile_analyzer = root / "src/mir/resolved_value_profile/analyzer.rs"
+    profile_source_paths = root / "src/mir/resolved_value_profile/recipe_source_paths.rs"
     profile_tests = root / "src/mir/resolved_value_profile/direct_call_tests.rs"
     inventory = root / "src/mir/compiler/callable_graph_inventory.rs"
     inventory_tests = root / "src/mir/compiler/callable_graph_inventory/tests.rs"
@@ -93,6 +94,7 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         finite_call_tests,
         profile_mod,
         profile_analyzer,
+        profile_source_paths,
         profile_tests,
         inventory,
         inventory_tests,
