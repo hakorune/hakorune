@@ -1,5 +1,5 @@
 ---
-Status: D2 landed; exact two-call legacy-edge I0/R0 is next
+Status: closed; exact two-call legacy-edge I0/R0 and reference closeout landed
 Date: 2026-08-04
 Parent: joinir-if-recipe-shape-envelope-d0-design-stop-2026-08-04
 Decision: admit exactly one direct static i64 call in each explicit-else
@@ -231,13 +231,29 @@ Reuse the existing unpublished candidate boundary. Do not add a second call
 resolver/emitter, rollback journal, fault environment variable, production
 snapshot API, or physicalizer transaction.
 
-## I0/R0 cutover boundary
+## I0/R0 cutover evidence
 
-After D0/D1/D2, remove only the exact two-call shape's
-`NotThisShape -> legacy If` edge. The selected owner and physical topology do
-not change. All other If shapes keep their existing legacy or rejected route.
-Selected failure is terminal `Freeze`; fallback, retry, and route reselection
-remain zero.
+The exact two-call facts now produce `CanonicalIfRecipePreflightV1::Selected`
+before Builder effects, so this shape no longer traverses the
+`NotThisShape -> legacy If` edge. The existing shape-scoped split in
+`trivial_ssa/lowerer/if_materialization.rs` routes selected demand through the
+named recipe physicalizer and retains `lower_if_legacy_unselected` only for
+unselected shapes. The D2 explicit two-call parity test is the acceptance
+witness for this selected route; the reusable logical-demand guard confirms
+the selected physicalizer has zero legacy-helper references.
+
+No new route, physicalizer, CFG/SSA/PHI, capability, transaction, fallback,
+retry, or reselection owner was added. Selected failure remains terminal
+`Freeze`; all other If shapes retain their existing legacy or rejected route.
+
+## Closeout and next selection
+
+D0/D1/D2/I0/R0 and the compiler-contract reference closeout are complete. The
+task is intentionally not a license to add a third If shape. The next active
+selection is the existing Loop M4 design/test-only row
+`JOINIR-LOOP-GENERIC-POST-EFFECT-DEBT-CLASSIFICATION0-D0-S0`; it requires a
+worker-backed design/caller census before taskization. Generic overlap remains
+an honest `UnresolvedStop` until that row closes.
 
 ## Stop conditions
 
