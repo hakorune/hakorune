@@ -1,14 +1,16 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-07-10
+Date: 2026-08-04
 Scope: Task-sized backlog for the minimal Hakorune language surface.
 Related:
   - docs/development/current/main/design/language-minimal-surface-ssot.md
   - docs/reference/language/ownership.md
   - docs/development/current/main/design/delegation-no-inheritance-ssot.md
+  - docs/development/current/main/design/box-member-field-method-surface-ssot.md
   - docs/development/current/main/design/stage0-stage1-feature-responsibility-split-ssot.md
   - docs/development/current/main/design/language-feature-implementation-order-ssot.md
+  - docs/reference/language/grammar-contract.md
 ---
 
 # Language Minimal Surface Task Breakdown SSOT
@@ -70,6 +72,35 @@ Stop lines:
 Retire condition:
 ```
 
+Every source-syntax implementation or retirement series must end with a
+reference closeout row after the code and behavior gates are green. The series
+is not complete when only parser/AST/lowering code has landed.
+
+```text
+<FEATURE>-REFERENCE-CLOSEOUT0-DOC0:
+  update canonical EBNF and grammar/profile status
+  update the feature reference and migration examples
+  record canonical / compatibility / rejected spellings
+  remove or mark historical every superseded reference claim
+  run reference-link, grammar-contract, and current-pointer guards
+```
+
+At minimum inspect and update the applicable subset of:
+
+```text
+docs/reference/language/EBNF.md
+docs/reference/language/grammar-contract.md
+docs/reference/language/status-index.md
+docs/reference/language/stage-profiles.md
+docs/reference/language/LANGUAGE_REFERENCE_2025.md
+docs/reference/core-language/**
+docs/reference/boxes-system/**
+grammar/language-v1-registry.toml
+```
+
+Reference docs describe the landed implementation, not the planned target.
+Do not pre-close DOC0 from a design decision alone.
+
 ## Current status summary
 
 | Area | Status | Next actionable row |
@@ -77,11 +108,12 @@ Retire condition:
 | Minimal keyword surface | docs accepted | no immediate code row |
 | Loop-only repetition | LoopRange MVP complete through carrier policy | no immediate loop row |
 | Loop cleanup / PackedArray gate | complete through `293x-310` | no immediate cleanup row |
-| No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
+| No-inheritance delegation | Rust exposes lowering exists; Hako publication, semantic-carrier erasure, normal-pipeline admission, and selfhost value proof remain open | `DELEGATE-SELFHOST-VALUE0-D0` |
 | Brand/type | brand checker complete; type alias parser capsule complete | `TYPE-002 Stage1 alias diagnostics` |
 | Record literal | with-update lowering complete | no immediate row |
-| Contracts | syntax metadata capsule complete | `CONTRACT-003 contract runtime-check insertion` |
-| Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
+| Contracts | syntax metadata capsule complete; semantic activation is parked pending retain/park decision | `LANGUAGE-CONTRACT-FAMILY-PARK0-D0` |
+| Enum transition lifecycle | metadata capsule complete; semantic activation is parked pending retain/retire decision | `LANGUAGE-TRANSITION-RETIRE0-D0` |
+| Language surface shrink | consultation backlog only; no parser/runtime implementation is authorized from the consultation itself | `LANGUAGE-SURFACE-SHRINK-CENSUS0-D0` |
 | Result/Option | guard-let narrow sugar complete | no immediate Result/Option row |
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | source backend fail-fast complete | no immediate PackedArray row |
@@ -159,6 +191,9 @@ box Child {
 | `DEL-002 Stage0 delegate syntax metadata capsule` | Complete as `293x-273`; parses `delegate field exposes { method, method as alias }` and transports metadata. | Stage0 capsule complete |
 | `DEL-003 Stage1 delegate exposes lowering` | Complete as `293x-274`; resolves typed delegate target fields, checks method existence, rejects collisions, and generates forwarding methods. | Stage1 semantics complete |
 | `DEL-004 legacy quarantine migration` | Map internal `extends` naming to delegation metadata without behavior changes; define retire path. | docs/code-shape |
+| `DELEGATE-SELFHOST-VALUE0-D0` | Run an AST-based census of exact instance-field forwarding wrappers in `lang/src`; classify static-module forwarding and wrappers with extra logic separately. Select at most one real selfhost facade for explicit-wrapper versus delegate parity. Zero candidates keeps production activation parked. | read-only design/evidence |
+| `DELEGATE-VERIFIED-EXPANSION0-I0-R0` | After D0 selects a real consumer, implement one Hako-owned `ParsedDelegateDecl -> VerifiedDelegateExpansionPlan -> ordinary methods` pass. Consume the delegate semantic carrier before normal Resolver/MirBuilder admission; retain source provenance only in a non-authoritative diagnostic sidecar. Prove explicit-wrapper parity and zero delegate-specific MIR/runtime/backend handling. | Stage1/selfhost implementation |
+| `DELEGATE-REFERENCE-CLOSEOUT0-DOC0` | After verified expansion and normal-pipeline admission are green, synchronize EBNF, grammar registry/contract, stage profiles, field/delegation reference, language reference, and historical inheritance pages with the exact landed scope. | post-implementation docs |
 | `DEL-005 interface MVP` | Define method-set contract and static conformance metadata only after delegation works. | Stage1 later |
 | `DEL-006 delegate implements Interface` | Use interface method set as the forwarding list and reject missing methods/collisions. | Stage1 later |
 | `DEL-007 generic interface metadata` | Generic arity and substitution metadata for interface signatures. | Stage1 later |
@@ -176,6 +211,10 @@ no property forwarding
 no wildcard exposes * in MVP
 no automatic collision resolution
 no Stage0 conformance checker
+no hidden share or ownership repair in expansion
+no second Home/callable ABI owner in delegate lowering
+no semantic `DelegateDecl` reaching MIR/runtime/backend after verified expansion
+no interface activation without an independently evidenced abstract method-set consumer
 ```
 
 ## Brand and type tasks
@@ -220,11 +259,13 @@ record methods/delegate/interface are not MVP
 | --- | --- | --- |
 | `CONTRACT-001 assert runtime-check sugar decision` | Decide exact `assert cond : message` runtime fail-fast lowering. | Stage1 or Stage0 trivial sugar |
 | `CONTRACT-002 contract syntax metadata capsule` | Complete as `293x-282`; parses `requires`, `ensures`, `invariant` metadata only and transports it through AST/JSON. | Stage0 capsule complete |
-| `CONTRACT-003 contract runtime-check insertion` | Insert runtime pre/post/invariant checks at defined boundaries. | Stage1 semantics |
-| `CONTRACT-004 contract verifier discharge` | Statically discharge proven checks and keep diagnostics stable. | Stage1 verifier |
+| `LANGUAGE-CONTRACT-FAMILY-PARK0-D0` | Re-decide `requires` / `ensures` / `invariant` as one family. Inventory real source users and semantic consumers; select retain-with-one-product or park-from-v1. If park is accepted, explicitly supersede `CONTRACT-002` before deletion. | design stop |
+| `CONTRACT-003 contract runtime-check insertion` | Parked behind `LANGUAGE-CONTRACT-FAMILY-PARK0-D0`; insert runtime pre/post/invariant checks only if the family is retained. | Stage1 semantics parked |
+| `CONTRACT-004 contract verifier discharge` | Parked behind `LANGUAGE-CONTRACT-FAMILY-PARK0-D0`; statically discharge proven checks only after one verified contract product exists. | Stage1 verifier parked |
 | `TRANS-001 transition metadata capsule` | Complete as `293x-283`; parses canonical `transition Enum::A -> Enum::B by method` and transports box-local lifecycle relation metadata. Legacy `Enum.A` metadata is accepted and normalized by `ENUMVAR-001`. | Stage0 capsule complete |
-| `TRANS-002 transition legality checker` | Check legal state transitions from enum values. | Stage1 semantics |
-| `TRANS-003 page lifecycle verifier pilot` | Apply transition/contract facts to allocator page lifecycle. | Stage1 verifier |
+| `LANGUAGE-TRANSITION-RETIRE0-D0` | Inventory transition syntax, carriers, and semantic consumers; decide whether ordinary methods plus derived verifier facts replace the metadata-only DSL. A retire decision must explicitly supersede `TRANS-001` before parser/AST/JSON removal. | design stop |
+| `TRANS-002 transition legality checker` | Parked behind `LANGUAGE-TRANSITION-RETIRE0-D0`; check declared transitions only if the syntax family is retained. | Stage1 semantics parked |
+| `TRANS-003 page lifecycle verifier pilot` | Parked behind the transition and contract family decisions. | Stage1 verifier parked |
 
 Stop lines:
 
@@ -233,6 +274,40 @@ no state keyword in MVP
 state values are enum values
 transition is lifecycle relation only
 no Stage0 invariant or transition checker
+```
+
+## Language v1 surface-shrink reconsideration
+
+This is a parked consultation pack. It records the 2026-08-04 proposal without
+silently superseding accepted grammar/reference SSOTs. The current JoinIR /
+MirBuilder blocker remains authoritative; none of these rows authorizes parser,
+AST, runtime, or backend edits until `CURRENT_STATE.toml` selects the language
+lane and the row's D0 closes.
+
+| Task | Scope | Required successor |
+| --- | --- | --- |
+| `LANGUAGE-SURFACE-SHRINK-CENSUS0-D0` | Build one machine-readable static census per syntax family: canonical/compat/historical status, real `.hako` sites, parser producer, AST/JSON carrier, semantic/MIR/runtime/backend consumer, existing-language replacement, migration recipe, and exact delete edge. Usage count alone is not selection authority. | Select bounded family D0 rows only; no repository-wide delete row. |
+| `BOX-MEMBER-PROPERTY-RETIRE0-*` | Reuse the accepted field/method Property retirement series in `box-member-field-method-surface-ssot.md`; do not duplicate it here. | `BOX-MEMBER-PROPERTY-REFERENCE-CLOSEOUT0-DOC0` after implementation. |
+| `DELEGATE-SELFHOST-VALUE0-D0` | Retain-versus-park evidence for narrow explicit field/method delegation, with one real selfhost facade at most. Class inheritance remains rejected. | `DELEGATE-VERIFIED-EXPANSION0-I0-R0`, then `DELEGATE-REFERENCE-CLOSEOUT0-DOC0`. |
+| `LANGUAGE-CONTRACT-FAMILY-PARK0-D0` | Decide `requires` / `ensures` / `invariant` together; do not activate one while the others remain consumer-free metadata. | A retain implementation series or a bounded retirement series, then family DOC0. |
+| `LANGUAGE-TRANSITION-RETIRE0-D0` | Decide whether `transition` has a real verifier consumer or is replaced by ordinary methods plus derived facts. | Bounded retirement or retained verifier series, then transition DOC0. |
+| `LANGUAGE-GATE-TOPLEVEL-ONLY0-D0` | Audit program-item, import, member, statement, and Rune gate forms. Prefer one pre-resolution top-level declaration-selection owner; do not infer that member/statement forms may be deleted before source and signature-parity census. | If accepted, one source-migration row, one atomic parser/carrier retirement row, then gate DOC0. |
+| `LANGUAGE-RESULT-ONLY-FAILURE0-D0` | Reconcile source `try` / `throw` / `catch` with `Result<T,E>` + `guard` + `match`, Fault, and current postfix-handler decisions. | Explicit superseding Decision before any grammar deletion, then failure DOC0. |
+| `LANGUAGE-SINGLE-CLEANUP-SURFACE0-D0` | Select exactly one lexical cleanup-registration surface and keep object `fini()` lifecycle separate. Compare postfix cleanup, scope `fini`, declaration sugar, and standalone `cleanup { ... }` semantics; do not treat spelling replacement as behavior parity. | Migration/retirement series, then cleanup DOC0. |
+| `LANGUAGE-LEGACY-SUGAR-RETIRE0-D0` | Partition `init`, `flow`, `include`, `box from`, `from` call, `override`, `peek`, `while`, scope-fini aliases, and cleanup sugars by semantic owner. | One bounded family/acceptance shape per implementation commit; no mixed mega-retirement. Each family ends in DOC0. |
+| `LANGUAGE-OUTBOX-RETIRE0-D0` | Run only after Home result relation is implemented and real outbox users have a migration mapping. | Home-gated implementation and outbox DOC0. |
+| `LANGUAGE-V1-SURFACE-REFERENCE-CLOSEOUT0-DOC0` | Final cross-family audit after all selected implementation and per-family DOC0 rows are green. Prove EBNF, registry, Rust/Hako parser witnesses, status index, stage profiles, feature references, and historical redirects agree. | `LANGV1-CONFORMANCE-CLOSEOUT-001`. |
+
+Global stop lines:
+
+```text
+do not mix Property, delegate, contracts, transition, gate, failure, cleanup,
+or legacy sugar retirement in one implementation row
+do not delete accepted syntax from a consultation result without an explicit
+superseding Decision in docs/reference/**
+do not claim reference closeout before implementation and migration gates pass
+do not promote interface / implements until a concrete abstract method-set
+consumer proves delegate/exposes insufficient
 ```
 
 ## Result, Option, and guard-let tasks
@@ -561,8 +636,21 @@ no long-term duplicate import spelling without migration plan
 
 ## Suggested language-lane order
 
-When the allocator M212/M213 lane closes or the user explicitly switches to
-language work, start here:
+When `CURRENT_STATE.toml` explicitly switches to language-surface work, the
+re-entry order is:
+
+```text
+LANGUAGE-SURFACE-SHRINK-CENSUS0-D0
+  -> exactly one selected family D0
+  -> its bounded migration / implementation / retirement rows
+  -> that family's post-implementation REFERENCE-CLOSEOUT0-DOC0
+  -> return to the census for the next family
+  -> LANGUAGE-V1-SURFACE-REFERENCE-CLOSEOUT0-DOC0
+  -> LANGV1-CONFORMANCE-CLOSEOUT-001
+```
+
+The older numbered sequence below records landed implementation chronology and
+remaining historical rows. It must not override that re-entry selector:
 
 1. `DEL-001 legacy delegation status reconcile`
 2. `LOOP-002 Stage0 LoopRange parser capsule`

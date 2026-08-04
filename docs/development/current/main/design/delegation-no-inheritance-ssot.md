@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-05-14
+Date: 2026-08-04
 Scope: Canonical behavior-reuse surface for boxes, replacing inheritance-style mental models with explicit delegation.
 Related:
   - docs/development/current/main/design/language-minimal-surface-ssot.md
@@ -249,6 +249,37 @@ automatic conflict resolution
 
 Stage0 must not own dispatch semantics, conformance checking, or generated forwarding.
 
+## Production integration clarification — 2026-08-04
+
+The accepted syntax does not by itself prove selfhost product value or final
+pipeline admission. Current Rust lowering generates ordinary methods, while
+the Hako parser remains grammar evidence and the semantic AST still retains
+delegate metadata. Before production activation:
+
+```text
+ParsedDelegateDecl
+  -> VerifiedDelegateExpansionPlan
+  -> ordinary forwarding methods
+  -> consume delegate semantic carrier
+  -> retain source provenance only in a non-authoritative diagnostic sidecar
+  -> ordinary Resolver / Home / MIR pipeline
+```
+
+The generated method uses the ordinary callable/Home analysis. Delegate
+lowering must not copy or infer a second ownership ABI, insert hidden `share`,
+repair ownership through RC, or create MIR/runtime/backend delegate handling.
+
+Run `DELEGATE-SELFHOST-VALUE0-D0` first. It must distinguish exact
+instance-field forwarding wrappers from static-module forwarding and wrappers
+with extra logic. Zero real candidates keeps production activation parked and
+does not reopen inheritance or wildcard exposure.
+
+After verified expansion is implemented and its parity/admission gates are
+green, `DELEGATE-REFERENCE-CLOSEOUT0-DOC0` must update the applicable language
+EBNF, grammar registry/contract, status index, stage profiles,
+field/delegation reference, language reference, and historical inheritance
+pages. The implementation series is incomplete until that DOC0 lands.
+
 ## Implementation order
 
 | Order | Row | Scope |
@@ -256,8 +287,10 @@ Stage0 must not own dispatch semantics, conformance checking, or generated forwa
 | D1 | `delegation-no-inheritance SSOT` | docs-only decision; inheritance surfaces are legacy quarantine |
 | D2 | `Stage0 delegate syntax metadata capsule` | parse `delegate field exposes { method, method as alias }` |
 | D3 | `Stage1 delegate exposes lowering` | method resolution, collision rejection, forwarding generation |
-| D4 | `interface MVP` | method set and static conformance metadata |
-| D5 | `delegate field implements Interface` | use interface method set as forwarding list |
+| D3a | `DELEGATE-SELFHOST-VALUE0-D0` | real wrapper census and one bounded facade parity candidate |
+| D3b | `DELEGATE-VERIFIED-EXPANSION0-I0-R0` | Hako-owned verified expansion, semantic-carrier erasure, ordinary-pipeline admission |
+| D3c | `DELEGATE-REFERENCE-CLOSEOUT0-DOC0` | post-implementation reference and grammar synchronization |
+| D4 | `interface MVP` | method set and static conformance metadata only after an abstract method-set consumer proves explicit delegation insufficient |
+| D5 | `delegate field implements Interface` | use interface method set as forwarding list after D4 |
 | D6 | `generic interface metadata` | arity and substitution metadata |
 | D7 | `where constraints` | deferred |
-

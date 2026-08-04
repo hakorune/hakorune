@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-05-14
+Date: 2026-08-04
 Scope: Durable implementation order for low-level Hakorune language features.
 Related:
   - docs/development/current/main/design/language-minimal-surface-ssot.md
@@ -59,6 +59,33 @@ Retire condition:
 
 `Retire condition` is required for every Stage0 capsule.
 
+Every source-syntax implementation or retirement series also requires a
+post-implementation `REFERENCE-CLOSEOUT0-DOC0`. Update the applicable EBNF,
+grammar registry/contract, status index, stage profiles, feature reference,
+migration examples, and historical redirects only after code and behavior
+gates are green. A parser/AST/lowering commit alone does not close a language
+surface series.
+
+### 2026-08-04 surface-shrink reassessment stop
+
+The completed metadata capsules remain historical implementation facts, but
+they do not authorize the Stage1 semantic rows below. Before resuming this
+lane, run `LANGUAGE-SURFACE-SHRINK-CENSUS0-D0` from the task breakdown and
+select exactly one family. In particular:
+
+```text
+contracts -> LANGUAGE-CONTRACT-FAMILY-PARK0-D0 before CONTRACT-003/004
+transition -> LANGUAGE-TRANSITION-RETIRE0-D0 before TRANS-002/003
+gate -> LANGUAGE-GATE-TOPLEVEL-ONLY0-D0 before member/statement expansion
+failure -> LANGUAGE-RESULT-ONLY-FAILURE0-D0 before catch changes
+cleanup -> LANGUAGE-SINGLE-CLEANUP-SURFACE0-D0 before syntax consolidation
+delegate -> DELEGATE-SELFHOST-VALUE0-D0 before selfhost production activation
+```
+
+An accepted retirement/park decision must explicitly supersede the applicable
+current `docs/reference/**` Decision before code deletion. The active JoinIR /
+MirBuilder lane is unchanged by this parked order.
+
 ## Wave A: Stage0 thin syntax and metadata capsules
 
 Wave A rows may not create new language meaning.
@@ -86,10 +113,10 @@ Wave B rows create the first useful semantic core for allocator safety and lifec
 | --- | --- | --- | --- |
 | B1 | `S1-1 brand semantic checker` | reject mixed brands such as `PageId` where `BlockId` is required; define constructor and unwrap policy | Stage1 type/verifier lane |
 | B2 | `S1-2 assert runtime-check insertion` | lower `assert cond : message` to fail-fast runtime check and expose verifier fact candidates | Stage1 contract lane |
-| B3 | `S1-3 invariant runtime-check pilot` | attach box/record invariant metadata and insert runtime checks at defined boundaries | Stage1 contract/verifier lane |
-| B4 | `S1-4 requires ensures contract lowering` | caller-side precondition and return-side postcondition lowering | Stage1 contract/verifier lane |
-| B5 | `S1-5 enum transition semantic facts` | use enum values as state values and check declared transition legality | Stage1 lifecycle lane |
-| B6 | `S1-6 page lifecycle verifier pilot` | apply state/contract facts to page lifecycle rows such as decommit, recommit, reactivate, reuse | Stage1 lifecycle lane |
+| B3 | `S1-3 invariant runtime-check pilot` | parked behind `LANGUAGE-CONTRACT-FAMILY-PARK0-D0`; attach invariant checks only if the family is retained | Stage1 contract/verifier lane parked |
+| B4 | `S1-4 requires ensures contract lowering` | parked behind `LANGUAGE-CONTRACT-FAMILY-PARK0-D0`; lower pre/postconditions only from one retained verified contract product | Stage1 contract/verifier lane parked |
+| B5 | `S1-5 enum transition semantic facts` | parked behind `LANGUAGE-TRANSITION-RETIRE0-D0`; check transition legality only if the syntax is retained | Stage1 lifecycle lane parked |
+| B6 | `S1-6 page lifecycle verifier pilot` | parked behind both contract and transition family decisions | Stage1 lifecycle lane parked |
 | B7 | `S1-7 record literal construction read lowering` | validate fields and lower construction/read without ordinary box identity | Stage1 record lane |
 | B8 | `S1-8 record with-update lowering` | lower `meta with { field: value }` as identity-free replacement | Stage1 record lane |
 | B9 | `S1-9 Result Option prelude and diagnostics` | `RESULT-001` complete as `293x-314`; follow-up diagnostics split into `RESULT-002A..D` | Stage1 enum/prelude lane |
@@ -108,7 +135,7 @@ They must not be implemented in Stage0.
 | C4 | `S1-14 uses capability checker` | check `uses osvm`, `uses atomic`, `uses rawbuf`, and backend capability gates; keep `cap` blocks deferred | Stage1 capability lane |
 | C5 | `S1-15 Span API and view no-escape decision` | start with bounded Span APIs; add scoped `view` syntax only if no-escape needs a syntax boundary | Stage1 raw-view lane |
 | C6 | `S1-16 delegation-no-inheritance closeout` | canonicalize `delegate field exposes`, quarantine `from` / `override` / internal `extends`, and reject inheritance mental models | Stage1 core-language docs lane |
-| C7 | `S1-17 delegate exposes lowering` | resolve typed delegate fields, reject collisions, generate forwarding | Stage1 delegation lane |
+| C7 | `S1-17 delegate exposes lowering` | Rust lowering is landed; selfhost production activation requires `DELEGATE-SELFHOST-VALUE0-D0`, verified expansion, semantic-carrier erasure, explicit-wrapper parity, and delegate-specific MIR/runtime/backend count zero | Stage1 delegation lane parked |
 | C8 | `S1-18 interface impl static conformance deferred` | method-set checking and static dispatch only after delegation is insufficient | Stage1 interface lane |
 | C9 | `S1-19 delegate implements Interface deferred` | use interface method set as a forwarding list after interface MVP exists | Stage1 delegation/interface lane |
 | C10 | `S1-20 module visibility semantics` | package layout, visibility, duplicate import rejection, alias rebinding rejection; include migration plan from `using` if needed | Stage1 module lane |
@@ -127,8 +154,11 @@ docs/development/current/main/design/delegation-no-inheritance-ssot.md
 | D1 | `delegation-no-inheritance SSOT` | docs-only decision: no inheritance, no `extends`, no `super`, no implicit field merge |
 | D2 | `Stage0 delegate syntax metadata capsule` | parse `delegate field exposes { method, method as alias }` and transport metadata |
 | D3 | `Stage1 delegate exposes lowering` | method existence checks, collision checks, forwarding generation |
-| D4 | `interface MVP` | method-set contract and static conformance metadata |
-| D5 | `delegate field implements Interface` | interface method set becomes forwarding list |
+| D3a | `DELEGATE-SELFHOST-VALUE0-D0` | AST census and at most one real instance-field selfhost facade comparison; zero candidates keeps activation parked |
+| D3b | `DELEGATE-VERIFIED-EXPANSION0-I0-R0` | Hako-owned verified expansion to ordinary methods, consume semantic delegate carrier before normal pipeline, retain only diagnostic provenance |
+| D3c | `DELEGATE-REFERENCE-CLOSEOUT0-DOC0` | after implementation, synchronize EBNF, registry/contract, stage profiles, field/delegation reference, language reference, and historical inheritance pages |
+| D4 | `interface MVP` | method-set contract and static conformance metadata only after an independently evidenced abstract method-set consumer proves explicit delegation insufficient |
+| D5 | `delegate field implements Interface` | interface method set becomes forwarding list after D4 exists |
 | D6 | `generic interface metadata` | generic arity and substitution metadata |
 | D7 | `where constraints` | deferred |
 
@@ -138,8 +168,8 @@ docs/development/current/main/design/delegation-no-inheritance-ssot.md
 | --- | --- | --- | --- |
 | loop-only control surface | highest | keeps repetition as one family and avoids `while` / `for` split | docs-only decision, then LoopRange parser capsule |
 | `brand` | highest | prevents allocator scalar mix-ups such as page/block/ptr/generation confusion | Stage0 metadata capsule, then Stage1 checker |
-| `assert` / `invariant` | highest | moves proof-app conditions toward verifier-readable contracts | Stage0 assert sugar only if needed, Stage1 contract semantics |
-| enum state values / `transition` | highest | makes page lifecycle visible to verifier and docs without adding `state` keyword | Stage0 transition metadata capsule, then Stage1 lifecycle facts |
+| `assert` / contract family | parked reassessment | metadata capsule exists, but a real consumer and one verified product must justify keeping `requires` / `ensures` / `invariant` in v1 | `LANGUAGE-CONTRACT-FAMILY-PARK0-D0` |
+| enum state values / `transition` | parked reassessment | transition metadata exists, but ordinary methods plus derived facts may be the smaller canonical owner | `LANGUAGE-TRANSITION-RETIRE0-D0` |
 | record literal | high | cleans metadata store construction while preserving identity-free aggregate meaning | Stage0 explicit field-shape capsule, then Stage1 lowering |
 | loop range | high | improves metadata and page scans without adding `for` keyword | Stage0 LoopRange metadata capsule, then Stage1 lowering |
 | `type` | medium | documents scalar intent without brand strength | Stage0 metadata, Stage1 diagnostics |
@@ -151,7 +181,7 @@ docs/development/current/main/design/delegation-no-inheritance-ssot.md
 | `uses` | medium | low-level effect permission and backend gates | Stage0 metadata, Stage1 policy |
 | delegation no-inheritance | medium | existing composition needs a clean canonical surface before interface work | docs first, then Stage0 metadata, then Stage1 lowering |
 | `Span<T>` / deferred `view` | later | bounded raw view instead of C pointer style | Stage1 only |
-| `gate Build...` | medium | keeps test/debug/target-only code out of production builds without C preprocessor or hot-path counters | AST-level item/import conditional first; member/statement later |
+| `gate Build...` | medium | keeps test/debug/target-only code out of production builds without C preprocessor or hot-path counters | top-level item/import owner first; member/statement forms require `LANGUAGE-GATE-TOPLEVEL-ONLY0-D0` and are not automatic follow-ons |
 | `interface` / `impl` | later | static host/substrate policy contracts only after delegation is insufficient | Stage1 only |
 | module visibility | later | package hygiene after bootstrap route is stable; `using` remains current import | Stage0 minimal header, Stage1 visibility |
 | `check report` | later | richer proof output | Stage1 proof object |
