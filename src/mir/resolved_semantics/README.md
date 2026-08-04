@@ -154,6 +154,11 @@ consultation is recorded in
 only the exact resolver-issued BindingRef/source/frame class may proceed to a
 typed mismatch matrix, and no production handoff is implied.
 
+The D3 typed matrix is closed as cfg(test)-only evidence. Production selection
+still lacks a co-sealed resolver/source/facts/preflight capability; that
+boundary is designed separately in
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`.
+
 The bounded cfg(test) witness is green with:
 
 ```bash

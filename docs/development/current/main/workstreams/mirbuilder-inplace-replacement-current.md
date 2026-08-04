@@ -950,8 +950,8 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure is closed;
      M7-S3 S0/S1/S2 and its reference closeout are now closed with
      resolver-owned identity/frame receipts and typed caller-zero rejects
-  2. consult scoped D3 BindingRefV1 design before parent M4 D2; freeze typed
-     mismatch boundary; no production handoff, mock winner, retry, or physical route switch
+  2. design the co-sealed resolved-carrier source-to-selection handoff before
+     parent M4 D2; no production selector arm, mock winner, retry, or physical route switch
   3. close M7 five-family parity, M8 all-19 producers, and M9 host parity
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement

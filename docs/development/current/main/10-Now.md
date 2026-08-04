@@ -30,16 +30,15 @@ Related:
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
-  source-to-Recipe cohort, Generic D2-B4-S1, and the bounded D2-B4-S2
-  `BindingRefV1` witness are closed. The active stop is scoped D3
-  `JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0`: consult only on the
-  exact resolver-issued BindingRef/source/frame class and its typed mismatch
-  matrix. The parent Generic D2 disposition remains unresolved. No Generic
-  production Recipe, source-to-selection handoff, route, physical, Retry, or
-  fallback change is authorized; M10b still waits on M7/M8/M9 and D2.
-  The bounded parsed-source witness is green (3 tests): planner-required V0
-  suppression is typed and mode-scoped, while the positive/negative evidence
-  remains resolver/source identity rather than runtime parity.
+  source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, and the scoped D3
+  typed matrix are closed. The active stop is
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-HANDOFF-D3-DESIGN0-D0`: design
+  only the co-sealed resolver/source/facts/preflight capability needed before
+  production selection. The parent Generic D2 disposition remains unresolved.
+  No Generic production Recipe, selector arm, source-to-selection handoff,
+  route, physical, Retry, or fallback change is authorized; M10b still waits
+  on M7/M8/M9 and D2. The D3 matrix is one test over four typed rows and
+  separates pre-effect BindingRef eligibility from post-effect corroboration.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

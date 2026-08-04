@@ -101,12 +101,16 @@ If the target winner cannot be selected before the first Builder effect, keep
 `UnresolvedStop`, leave the legacy scheduler unchanged, and record the exact
 counterexample. Do not turn a post-effect `None` into a silent V1 preference.
 
-### D3 — narrowly scoped legacy policy correction (only after D2)
+### D3 — narrowly scoped legacy policy correction (only after handoff and D2)
 
-If D2 closes with a pre-effect winner proof, add the smallest policy-only
-suppression of V0 for the proven recursive-carrier row. The handler, composer,
-PlanLowerer, PHI lifecycle, Binding SSA, Retry semantics, and production
-physicalization remain untouched.
+The former D3 policy row is not executable yet. First close the co-sealed
+resolved-carrier source-to-selection handoff in
+`joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`,
+then close parent D2 with a pre-effect winner/disjointness proof. Only after
+both gates may the smallest policy-only suppression of V0 be considered for
+the exact proven recursive-carrier row. The handler, composer, PlanLowerer,
+PHI lifecycle, Binding SSA, Retry semantics, and production physicalization
+remain untouched.
 
 Required tests:
 
@@ -142,4 +146,3 @@ Stop this lane if it requires any of the following:
 - retrying a dirty Builder candidate;
 - selecting a winner from post-effect success/failure;
 - modifying `route_loop` before the named M10a/M10b gates.
-

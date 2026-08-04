@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Decision B-prime is restored, M7-S2-A and the full M7-S3 LoopTrue source-to-Recipe cohort are closed. Generic M4 D2-B4-S1 and its bounded D2-B4-S2 BindingRef witness are closed as test-only evidence; the scoped D3 BindingRef design stop is active, while the parent Generic D2 remains unresolved and M10b still waits on M7/M8/M9."
+status = "Decision B-prime is restored, M7-S2-A and the full M7-S3 LoopTrue source-to-Recipe cohort are closed. Generic M4 D2-B4-S1, D2-B4-S2, and the scoped D3 typed matrix are closed as test-only evidence; the co-sealed resolved-carrier source-to-selection handoff design stop is active, while the parent Generic D2 remains unresolved and M10b still waits on M7/M8/M9."
 date = "2026-08-05"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "M7-S3-D0 is closed. Generic M4 D2-B4-S1 and D2-B4-S2 are closed as cfg(test)-only evidence. The active design stop is JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0 (docs/development/current/main/investigations/joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md): consult only on the exact BindingRef-proven nested-carrier class, using the resolver-issued source chain and typed mismatch dispositions. The parent Generic D2 disposition remains unresolved. No production source-to-selection handoff, selector/policy arm, Generic Recipe/JoinSig/PHI/physicalizer caller, Retry/fallback deletion, or M7-S4 route work is authorized."
-current_execution_row = "JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0"
-current_execution_summary = "M7-S2-A is closed with one ordered logical branch row, Break/Continue edges, no Backedge, and focused caller-zero rejects. M7-S3 S0/S1/S2/S3 are closed. Generic M4 D2-B4-S1 and D2-B4-S2 are closed with focused test-only certificate evidence. The scoped D3 design stop now freezes the exact resolver-issued BindingRef/source/frame chain and typed mismatch matrix; the parent D2 winner remains UnresolvedStop and no production selector, route, Recipe, JoinSig, PHI, physicalizer, Builder, MIR, or runtime authority changed."
+current_design_stop = "M7-S3-D0 is closed. Generic M4 D2-B4-S1, D2-B4-S2, and the scoped D3 typed matrix are closed as cfg(test)-only evidence. The active design stop is JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-HANDOFF-D3-DESIGN0-D0 (docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md): design one co-sealed resolver/source/facts/preflight capability before any production selector arm. The parent Generic D2 disposition remains unresolved. No production source-to-selection handoff, selector/policy arm, Generic Recipe/JoinSig/PHI/physicalizer caller, Retry/fallback deletion, or M7-S4 route work is authorized."
+current_execution_row = "JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-HANDOFF-D3-DESIGN0-D0"
+current_execution_summary = "M7-S2-A is closed with one ordered logical branch row, Break/Continue edges, no Backedge, and focused caller-zero rejects. M7-S3 S0/S1/S2/S3 are closed. Generic M4 D2-B4-S1 and D2-B4-S2 are closed; scoped D3 adds one test-only typed matrix over four rows and separates pre-effect BindingRef eligibility from post-effect V1 corroboration. The active handoff design remains unresolved; no production selector, route, Recipe, JoinSig, PHI, physicalizer, Builder, MIR, or runtime authority changed."
 current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 joinir_if_recipe_two_call_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-two-call-arms-d0-d2-execution-task-2026-08-04.md"
 joinir_if_recipe_call_implicit_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-call-branch-implicit-d0-d2-execution-task-2026-08-04.md"
@@ -467,7 +467,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
-latest_card_summary = """B-prime is restored and the stale C/NoSafeSlice closeout is superseded. Universal raw/reference ingress is rejected; normalized-shadow mutation is already retired. M7-S2-A, M7-S3 S0/S1/S2/S3, Generic D2-B4-S1, and the bounded D2-B4-S2 BindingRef witness are closed. The scoped D3 BindingRef design stop is active; the parent Generic D2 disposition remains unresolved and M10b remains ordered after M7/M8/M9."""
+latest_card_summary = """B-prime is restored and the stale C/NoSafeSlice closeout is superseded. Universal raw/reference ingress is rejected; normalized-shadow mutation is already retired. M7-S2-A, M7-S3 S0/S1/S2/S3, Generic D2-B4-S1, D2-B4-S2, and the scoped D3 typed matrix are closed. The co-sealed resolved-carrier source-to-selection handoff design stop is active; the parent Generic D2 disposition remains unresolved and M10b remains ordered after M7/M8/M9."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -670,7 +670,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0"
+current_blocker_token = "JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-HANDOFF-D3-DESIGN0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

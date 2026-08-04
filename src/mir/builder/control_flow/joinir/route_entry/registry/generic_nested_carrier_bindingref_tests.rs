@@ -57,7 +57,7 @@ function generic_both_shadowing(i, j) {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum DispositionV1 {
-    V1ForResolvedOuterCarrier,
+    TestOnlyEvidenceCandidate,
     UnresolvedStop,
 }
 
@@ -372,27 +372,78 @@ fn evaluate(
     evidence: &VerifiedGenericNestedCarrierDisjointnessV1,
     expected_same_binding: bool,
 ) -> DispositionV1 {
+    if !pre_effect_eligibility(evidence, expected_same_binding) {
+        return DispositionV1::UnresolvedStop;
+    }
+    if !post_effect_evidence_is_stable(evidence) {
+        return DispositionV1::UnresolvedStop;
+    }
+    DispositionV1::TestOnlyEvidenceCandidate
+}
+
+/// Pre-effect eligibility is resolver/facts/frame evidence only.  It must not
+/// inspect the V1 composer/lower result or infer identity from carrier labels.
+fn pre_effect_eligibility(
+    evidence: &VerifiedGenericNestedCarrierDisjointnessV1,
+    expected_same_binding: bool,
+) -> bool {
     let recursive = matches!(
         evidence.carrier_observation,
         Some(
             crate::mir::builder::control_flow::plan::facts::GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(_)
         )
     );
-    if expected_same_binding
+    expected_same_binding
         && evidence.write_binding == evidence.post_loop_read_binding
         && evidence.write_is_in_strict_ancestor
         && evidence.frame_identity_matches
         && evidence.raw_schedule.as_slice()
             == [LoopRouteId::GenericLoopV0, LoopRouteId::GenericLoopV1]
         && recursive
-        && evidence.v1_stage == Some((PlanStageV1::LowerSome, EffectOwnerV1::GenericComposer))
+}
+
+/// Post-effect evidence corroborates a pre-effect candidate.  It never feeds
+/// route selection and never turns an effectful failure into a retry/fallback.
+fn post_effect_evidence_is_stable(evidence: &VerifiedGenericNestedCarrierDisjointnessV1) -> bool {
+    evidence.v1_stage == Some((PlanStageV1::LowerSome, EffectOwnerV1::GenericComposer))
         && evidence.trace.raw_schedule == evidence.raw_schedule
         && evidence.trace.carrier_observation == evidence.carrier_observation
         && evidence.fresh_repeat_stable
-    {
-        DispositionV1::V1ForResolvedOuterCarrier
-    } else {
-        DispositionV1::UnresolvedStop
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum D3MatrixCaseV1 {
+    NaturalBothRelease,
+    NaturalBothStrict,
+    ShadowingNegative,
+    PlannerRequiredSuppression,
+}
+
+impl D3MatrixCaseV1 {
+    fn evidence(self) -> (VerifiedGenericNestedCarrierDisjointnessV1, bool) {
+        match self {
+            Self::NaturalBothRelease => (build_witness(SOURCE, ObserverModeV1::Release), true),
+            Self::NaturalBothStrict => (build_witness(SOURCE, ObserverModeV1::Strict), true),
+            Self::ShadowingNegative => (
+                build_witness(SHADOWING_SOURCE, ObserverModeV1::Strict),
+                false,
+            ),
+            Self::PlannerRequiredSuppression => (
+                build_witness(SOURCE, ObserverModeV1::StrictPlannerRequired),
+                true,
+            ),
+        }
+    }
+
+    fn expected(self) -> DispositionV1 {
+        match self {
+            Self::NaturalBothRelease | Self::NaturalBothStrict => {
+                DispositionV1::TestOnlyEvidenceCandidate
+            }
+            Self::ShadowingNegative | Self::PlannerRequiredSuppression => {
+                DispositionV1::UnresolvedStop
+            }
+        }
     }
 }
 
@@ -402,7 +453,7 @@ fn generic_d2_b4_s2_parsed_outer_binding_is_shadowing_safe() {
         let evidence = build_witness(SOURCE, mode);
         assert_eq!(
             evaluate(&evidence, true),
-            DispositionV1::V1ForResolvedOuterCarrier,
+            DispositionV1::TestOnlyEvidenceCandidate,
             "natural parsed {mode:?} Both row must issue only a test witness"
         );
         assert_eq!(
@@ -440,4 +491,21 @@ fn generic_d2_b4_s2_planner_required_remains_unresolved() {
         LegacyCarrierProjectionV1::SuppressedByPlannerRequired
     );
     assert_eq!(evaluate(&evidence, true), DispositionV1::UnresolvedStop);
+}
+
+#[test]
+fn generic_d3_bindingref_typed_mismatch_matrix_is_explicit() {
+    for case in [
+        D3MatrixCaseV1::NaturalBothRelease,
+        D3MatrixCaseV1::NaturalBothStrict,
+        D3MatrixCaseV1::ShadowingNegative,
+        D3MatrixCaseV1::PlannerRequiredSuppression,
+    ] {
+        let (evidence, expected_same_binding) = case.evidence();
+        assert_eq!(
+            evaluate(&evidence, expected_same_binding),
+            case.expected(),
+            "scoped D3 mismatch disposition for {case:?}"
+        );
+    }
 }

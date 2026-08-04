@@ -832,10 +832,10 @@ production caller/import census remains zero. No selector, planner policy,
 Retry/fallback, Recipe/JoinSig/PHI/physicalizer, Builder, MIR, or runtime
 authority changed.
 
-#### Scoped D3 handoff — `JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0`
+#### Scoped D3 handoff — `JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0` (closed checkpoint)
 
-The S2 witness is now closed as bounded test-only evidence. The next stop is
-the scoped D3 consultation in
+The S2 witness and its typed D3 matrix are closed as bounded test-only
+evidence. The scoped D3 consultation is recorded in
 `investigations/joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md`.
 It covers only the exact class whose inner write and post-loop outer read share
 one resolver-issued `BindingRefV1` under the same strict-ancestor,
@@ -854,8 +854,9 @@ parsed source
 The design slice is a typed mismatch matrix over the existing positive,
 shadowing-negative, and planner-required rows. Only a natural Release/Strict
 `Both [V0,V1]` row with complete recursive carrier evidence, matching
-BindingRef/source identity, natural V1 `LowerSome + GenericComposer`, and a
-stable fresh repeat may issue a test-only candidate. All other rows remain
+BindingRef/source identity may issue a pre-effect test-only eligibility record.
+Natural V1 `LowerSome + GenericComposer` and a stable fresh repeat are separate
+post-effect corroboration. All other rows remain
 `UnresolvedStop`; effectful failures never retry or fall back. AST rereads,
 names, route IDs, S1 tags, synthetic bodies, plan digests, diagnostics,
 legacy receipts, and runtime results are non-authority.
@@ -867,6 +868,25 @@ production correction would first require a separate design decision for a
 co-sealed resolved-carrier capability. The parent Generic D2 disposition
 remains `UnresolvedStop` until a complete winner/disjointness matrix and
 downstream authority closeout exist.
+
+#### Next boundary — co-sealed source-to-selection handoff
+
+The scoped D3 matrix is closed as test-only evidence. Production selection is
+still facts-only: `GenericLoopCarrierObservationV1` carries labels, the
+registry selector receives `CanonicalLoopFacts`, and `LivePreflightFrameV1`
+does not carry resolver-issued BindingRefs or a verified loop source forest.
+The next design stop is
+`investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`.
+
+That card designs, but does not implement, one co-sealed
+`VerifiedResolvedCarrierEligibilityV1` capability from parsed source,
+resolver BindingRefs/source forest, canonical Generic facts, and the live
+preflight frame. Only `registry/selection.rs` may later consume it. Missing,
+foreign, ambiguous, planner-suppressed, unsupported, or unstable rows remain
+`UnresolvedStop` and retain the legacy execution edge; no post-effect retry or
+fallback is allowed. No V0 suppression, V1 precedence, Recipe/JoinSig/PHI,
+physicalizer, Builder, MIR, backend, or M10 cutover is authorized until this
+handoff contract and its full typed matrix are accepted.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

@@ -1,5 +1,5 @@
 ---
-Status: active design stop — scoped D3 consultation
+Status: closed checkpoint — typed mismatch matrix green; handoff design follows
 Date: 2026-08-05
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Decision: provisional — exact BindingRef-proven nested-carrier class only
@@ -29,7 +29,7 @@ parsed source
 ```
 
 The resolver/source products and canonical facts are the only semantic inputs.
-The existing 443-line cfg(test) S2 sibling is the bounded witness surface; it
+The cfg(test) sibling is now 511 lines after adding the bounded D3 matrix; it
 does not publish a production capability.
 
 ## Non-authority
@@ -41,17 +41,21 @@ or later-parity evidence only.
 
 ## Fail-fast and dispositions
 
-Only a test-only neutral evaluator may issue a candidate when all of these are
-present before Builder mutation:
+The evaluator has two deliberately separate phases. `PreEffectEligibility`
+may issue a test-only eligibility record before Builder mutation when all of
+these are present:
 
 ```text
 Release/Strict natural Both [V0, V1]
 CompleteRecursiveCarrier
 same strict-ancestor BindingRefV1
 same function/frame/source identity
-natural V1 LowerSome + GenericComposer first effect
-fresh candidate repeat is stable
 ```
+
+`PostEffectEvidence` is a separate corroboration record. It may observe natural
+V1 `LowerSome + GenericComposer` and a stable fresh repeat, but it never feeds
+route selection and never converts an effectful failure into retry/fallback.
+The combined test-only evidence disposition is not a production winner.
 
 Every other row remains `UnresolvedStop`: planner-required `[V1]`/V0
 suppression, shadowing, foreign/missing/ambiguous BindingRef, owner/frame
@@ -73,7 +77,8 @@ No production selector/policy arm, source-to-selection handoff, Recipe,
 JoinSig, PHI, physicalizer, Retry/fallback removal, scheduler, Builder, MIR,
 backend, or runtime route is in this slice. A production correction would first
 need a separate design decision for a co-sealed resolved-carrier capability;
-V0 remains authoritative for all other rows.
+the legacy scheduler/execution path remains authority for all other rows while
+their semantic disposition stays unresolved.
 
 ## Acceptance and closeout
 
@@ -82,16 +87,24 @@ env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
   RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4_s2 -- --nocapture
 env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
   RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4 -- --nocapture
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib generic_d3_bindingref -- --nocapture
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
-The existing S2 evidence is 3/3 focused tests, with the 443-line test sibling
-and zero production callers/imports. This card closes only when the typed
-mismatch boundary and its non-claims are synchronized into the parent SSOT,
-stage-matrix reference, Generic README, resolved-semantics README, current
-pointers, and MIRBuilder workstream. A green scoped evaluator still does not
-resolve parent D2 or authorize M10a/M10b.
+The S2 evidence remains 3/3 focused tests; the scoped D3 matrix adds one
+focused test over four typed rows: natural Release, natural Strict, shadowing
+negative, and planner-required V0 suppression. The 511-line test sibling has
+zero production callers/imports. This card closes only when the typed
+mismatch boundary, pre/post-effect phase split, and non-claims are synchronized
+into the parent SSOT, stage-matrix reference, Generic README,
+resolved-semantics README, current pointers, and MIRBuilder workstream. A
+green scoped evaluator still does not resolve parent D2 or authorize M10a/M10b.
+
+The next design stop is the separate co-sealed resolved-carrier
+source-to-selection handoff card:
+`investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`.
 
 Implementation completion rule: if a later design decision authorizes a
 production slice, the task is not complete until the corresponding

@@ -115,10 +115,17 @@ carrier labels/tags are corroborating only. This remains test-only evidence;
 no Generic route, Recipe, JoinSig, PHI, physicalizer, Builder, MIR, or runtime
 authority is changed.
 
-S2 is closed. The next design stop is the scoped D3 BindingRef consultation in
-`docs/development/current/main/investigations/joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md`.
-It freezes the resolver/source/frame authority chain and typed mismatch
-dispositions only; no production selector or route handoff is allowed.
+S2 and the scoped D3 matrix are closed. The next design stop is the co-sealed
+source-to-selection handoff in
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`.
+It freezes the resolver/source/frame capability boundary; no production
+selector or route handoff is allowed.
+
+The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
+pre-effect resolver eligibility from post-effect V1 corroboration. The next
+design stop is the co-sealed source-to-selection handoff card in
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`;
+the current facts-only selector remains unchanged.
 
 LOOP0-P0b-T0 associated-source boundary:
 - T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under
