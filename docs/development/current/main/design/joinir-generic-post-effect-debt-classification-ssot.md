@@ -902,8 +902,11 @@ authorized until this handoff contract and its full typed matrix are accepted.
 The design-stop protocol witness is now test-only: six `cfg(test)` cases cover
 typed Legacy/Resolved input, target-missing rejection, identity/seal mismatch,
 pre-effect negative dispositions, and a generated 1,440-row matrix over the
-declared schedule/mode/relation/carrier/shape axes. This evidence does not
-authorize a production selector arm or close the parent D2 row.
+declared schedule/mode/relation/carrier/shape axes. A separate test-only
+resolved-projector harness adds three cases over the real resolver forest,
+BindingRefs, source identity, and Generic facts products; foreign-root and
+shadowing rejects remain pre-effect. This evidence does not authorize a
+production projector, selector arm, or close the parent D2 row.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

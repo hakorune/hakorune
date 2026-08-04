@@ -31,12 +31,33 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
   frozen, and canonical-core activation uses a separately named profile.
   The durable task order is
   `docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md`.
-- Tryless postfix-catch semantics are accepted as
-  `LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1`: source `try` and `throw` are
-  rejected in both language profiles; postfix `catch` is the protected-region
-  target for a distinct pending `RecoverableFailure`; terminal `Fault` remains
-  non-catchable. The task order and activation boundary are
-  `docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md`.
+- Language failure/exit C′ is accepted as
+  `LANGUAGE-RESULT-EXIT-C-PRIME0-D0`: recoverable failure is `Result<T,E>`,
+  unchanged propagation is typed Result-only postfix `?`, `Option ?`, source
+  `try`/`throw`/`catch`, and `RecoverableFailure` are rejected, terminal
+  `Fault` remains non-catchable, and lexical cleanup has one standalone
+  `cleanup {}` spelling. C′ lifecycle makes Box-member `fini {}` a
+  non-callable last-Home hook; `close()`/`shutdown()` remain ordinary methods.
+  Its lifecycle Decision row is
+  `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0`.
+  Both targets have production activation 0 and do not change the current
+  lane. After implementation and backend parity, the mandatory Result/cleanup
+  and Home/lifecycle DOC0 receipts must update EBNF, registry, both parsers,
+  reference pages, examples, and migration guides from landed behavior.
+  Durable owners are
+  `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
+  and
+  `docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md`.
+- AI-verifiable development North Star is accepted as
+  `AI-VERIFIABLE-DEVELOPMENT-NORTH-STAR0-D0`. Hakorune optimizes for the
+  fewest and cheapest verified iterations to correct high-performance code,
+  not grammar size or a blanket claim of replacing Rust. Canonical source,
+  one directional Facts/Recipe/Verify authority, stable machine-readable
+  diagnostics, read-only semantic queries, capability-backed repairs, exact-
+  front latency, corpus, and tooling are one product goal. This policy opens
+  no current lane and claims no query/repair API before implementation-backed
+  closeout. The durable owner is
+  `docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md`.
 - minimal MirBuilder execution path frontier review resolves the design stop to `MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001`; the older MirModule gap is already closed on current `public-main`.
 - the current selfhost roadmap now narrows the remaining work to family-by-family `HakoAdopted` decisions, Python SemanticProjector freeze, and consultation-gated ABI / syntax boundaries.
 - `stage2-mainline` への entry task pack は `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md` を正本にする。

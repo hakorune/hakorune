@@ -59,7 +59,8 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 - Compiler Pipeline（north star; 箱の責務/入口の最終形SSOT）: `docs/development/current/main/design/compiler-pipeline-ssot.md`
 - Binding-SSA-first canonical control Lowering（exact control/coverage/cleanup と function-wide Binding SSA の最終authority境界SSOT）: `docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md`
-- B′ Box lifecycle / ObjectCell / adaptive ownership（explicit eager fini、Ownership SSA token、generation identity、normal Box manual-free禁止、atomic SharedRc baseline、derived StaticUnique、family/global retirementの最終境界SSOT）: `docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
+- C′ terminal Home finalization（last Homeだけが`fini {}` hookを起動し、親hook→逆順field release→structural dropを一つのDropPlanに固定）: `docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md`
+- B′ Box lifecycle historical constitution（explicit eager fini / Dead-with-live-owner案。C′にsuperseded）: `docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
 - Box member Field / Method surface（`obj.x`=storage、`obj.x()`=behavior。computed/once/birth_once Property authorityの退役順とHome Flow前提）: `docs/development/current/main/design/box-member-field-method-surface-ssot.md`
 - Design Registry V1 sharded manifest（`INDEX.md` を薄いauthority入口へ戻す deterministic 16-shard storage / parity / atomic cutover / V0退役境界SSOT。実装は parked で CLEAN0 始動）: `docs/development/current/main/design/design-registry-v1-sharded-manifest-ssot.md`
 - Compiler Pipeline Thinning（semantic_refresh / optimizer / verifier / JoinIR の薄層化実行順SSOT）: `docs/development/current/main/design/compiler-pipeline-thinning-ssot.md`
@@ -70,7 +71,6 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - Generic Case A trim thinning（FuncScanner trim JoinIR lowering の BoxShape-only cleanup SSOT）: `docs/development/current/main/design/generic-case-a-trim-thinning-ssot.md`
 - User method policy thinning（JoinIR user-defined static method policy の BoxShape-only cleanup SSOT）: `docs/development/current/main/design/user-method-policy-thinning-ssot.md`
 - EdgeCFG Flow Fragments（Structured→CFG lowering SSOT）: `docs/development/current/main/design/edgecfg-fragments.md`
-- Catch / Cleanup / Async（設計メモ）: `docs/development/current/main/design/exception-cleanup-async.md`
 - Loop Canonicalizer（設計 SSOT）: `docs/development/current/main/design/loop-canonicalizer.md`
 - ControlTree / StepTree（構造SSOT）: `docs/development/current/main/design/control-tree.md`
 - Normalized ExprLowerer（式の一般化 SSOT）: `docs/development/current/main/design/normalized-expr-lowering.md`
@@ -81,6 +81,7 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - Condition observation（no rewrite SSOT）: `docs/development/current/main/design/condition-observation-ssot.md`
 - generic_loop_v1 acceptance by Recipe（ShapeId hint-only SSOT）: `docs/development/current/main/design/generic-loop-v1-acceptance-by-recipe-ssot.md`
 - Policy: compiler expressivity first（selfhost workaround を止める）: `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+- AI-verifiable development North Star（正しい高性能コードへの検証済み収束反復を最小化する長期方針）: `docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md`
 - Local patch prevention（同じ失敗クラス2回パッチで stop-the-line / docs-first audit）: `docs/development/current/main/design/local-patch-prevention-ssot.md`
 - Agent current-entry contract（`AGENTS.md` は local instruction entry、current-state は `CURRENT_STATE.toml` 優先）: `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
 - Policy: lego composability first（完成品キット増殖を止める）: `docs/development/current/main/design/lego-composability-policy.md`
@@ -137,6 +138,7 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 
 ## Historical Migration Ledgers
 
+- Historical Catch / Cleanup / Async proposal（failure/cleanup routeはC′にsuperseded）: `docs/development/current/main/design/exception-cleanup-async.md`
 - Historical payload-lane cleanup tracker: `docs/development/current/main/design/archive/domainplan-thinning-ssot.md`
 - Historical payload-lane residue ledger: `docs/development/current/main/design/archive/domainplan-residue-ssot.md`
 - Historical recipe-first entry migration notes: `docs/development/current/main/design/archive/recipe-first-entry-contract-history.md`
@@ -193,4 +195,5 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - PlanLowerer entry SSOT（CorePlan→MIR 入口allowlist）: `docs/development/current/main/design/plan-lowering-entry-ssot.md`
 - Builder emit facade SSOT（生emitの層境界/可視性契約）: `docs/development/current/main/design/builder-emit-facade-visibility-ssot.md`
 - Fini/Cleanup execution contract SSOT（Stage-B JSON v0 bridge 実行契約）: `docs/development/current/main/design/fini-cleanup-execution-contract-ssot.md`
-- Scope-exit cleanup canonicalization SSOT（`cleanup` = scope/block exit, `fini()` = object finalizer の表面正本）: `docs/development/current/main/design/scope-exit-surface-cleanup-canonicalization-ssot.md`
+- Result propagation / exit transaction SSOT（Result専用`?`、catchなし、standalone cleanup、共通exit owner）: `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
+- Scope-exit cleanup canonicalization SSOT（standalone `cleanup {}` = lexical exit、Box-member `fini {}` = C′ terminal hook）: `docs/development/current/main/design/scope-exit-surface-cleanup-canonicalization-ssot.md`

@@ -138,6 +138,17 @@ superseded_by = ""
 retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
+path = "ai-verifiable-development-north-star-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "compiler-expressivity-first-policy.md"
+classification_basis = "accepted cross-layer policy for minimizing verified convergence cost"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "AI-verifiable development North Star is replaced explicitly"
+
+[[documents]]
 path = "artifact-policy-ssot.md"
 role = "authority"
 owner = "INDEX.md"
@@ -359,14 +370,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "exception-cleanup-async.md"
-role = "authority"
-owner = "INDEX.md"
-precedence_parent = "INDEX.md"
-classification_basis = "README:現役の設計図（入口）"
+role = "superseded"
+owner = "language-result-propagation-and-exit-transaction-ssot.md"
+precedence_parent = "language-result-propagation-and-exit-transaction-ssot.md"
+classification_basis = "Historical catch/Invoke proposal; C′ supersedes its failure/cleanup route"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "language-result-propagation-and-exit-transaction-ssot.md"
+retire_when = "C′ failure/cleanup closeout and separate async authority no longer need this combined proposal"
 
 [[documents]]
 path = "execution-lanes-and-axis-separation-ssot.md"
@@ -3123,14 +3134,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "stage0-cleanup-catch-boundary-ssot.md"
-role = "authority"
-owner = "exception-cleanup-async.md"
-precedence_parent = "exception-cleanup-async.md"
-classification_basis = "C2-singleton-mz: Stage0 cleanup/catch boundary + JoinIR strict stop-lines"
+role = "superseded"
+owner = "language-result-propagation-and-exit-transaction-ssot.md"
+precedence_parent = "language-result-propagation-and-exit-transaction-ssot.md"
+classification_basis = "Historical Stage0 catch/postfix-cleanup bridge inventory; C′ target supersedes it"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+superseded_by = "language-result-propagation-and-exit-transaction-ssot.md"
+retire_when = "C′ R0 and DOC0 retire the legacy parser/MIR bridge and its guard vocabulary"
 
 [[documents]]
 path = "stage0-stage1-feature-responsibility-split-ssot.md"
@@ -3343,14 +3354,14 @@ retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
 path = "unwind-cleanup-effect-integration-ssot.md"
-role = "authority"
-owner = "exception-cleanup-async.md"
-precedence_parent = "exception-cleanup-async.md"
-classification_basis = "C2-singleton-mz: ExitKind::Unwind design-only integration invariants"
+role = "supporting"
+owner = "exitkind-cleanup-effect-contract-ssot.md"
+precedence_parent = "exitkind-cleanup-effect-contract-ssot.md"
+classification_basis = "Reserved future-Unwind integration observations; not a C′ recoverable-failure authority"
 sidecars = []
 supersedes = []
 superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
+retire_when = "a separate terminal-Fault/host-unwind Decision accepts or rejects the reserved ExitKind"
 
 [[documents]]
 path = "userbox-nullable-object-return-ssot.md"
@@ -5995,6 +6006,17 @@ superseded_by = ""
 retire_when = "language minimal-surface law is replaced explicitly"
 
 [[documents]]
+path = "language-result-propagation-and-exit-transaction-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "docs/reference/language/failure-outcome-relations.md"
+classification_basis = "README:Result-only propagation and verified exit transaction; accepted target with production activation 0"
+sidecars = []
+supersedes = ["exception-cleanup-async.md", "stage0-cleanup-catch-boundary-ssot.md"]
+superseded_by = ""
+retire_when = "recoverable failure, propagation, and exit transaction adopt an explicitly accepted replacement authority"
+
+[[documents]]
 path = "ring1-core-provider-scope-ssot.md"
 role = "authority"
 owner = "INDEX.md"
@@ -7477,14 +7499,25 @@ retire_when = "canonical control lowering adopts an explicitly accepted replacem
 
 [[documents]]
 path = "box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md"
+role = "superseded"
+owner = "box-lifecycle-cprime-terminal-home-finalization-ssot.md"
+precedence_parent = "box-lifecycle-cprime-terminal-home-finalization-ssot.md"
+classification_basis = "README:B′ Box lifecycle historical constitution; superseded by accepted C′ terminal-Home finalization"
+sidecars = []
+supersedes = []
+superseded_by = "box-lifecycle-cprime-terminal-home-finalization-ssot.md"
+retire_when = "C′ reference and implementation closeout no longer needs the historical B′ comparison"
+
+[[documents]]
+path = "box-lifecycle-cprime-terminal-home-finalization-ssot.md"
 role = "authority"
 owner = "INDEX.md"
 precedence_parent = "docs/reference/language/lifecycle.md"
-classification_basis = "README:現役の設計図（入口）; B′ Box lifecycle, Ownership SSA/ObjectCell boundary, and adaptive runtime strategy"
+classification_basis = "README:C′ terminal Home finalization; accepted target with production activation 0"
 sidecars = []
-supersedes = []
+supersedes = ["box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md"]
 superseded_by = ""
-retire_when = "Box lifecycle and ownership substrate adopt an explicitly accepted replacement constitution"
+retire_when = "Box lifecycle and terminal Home finalization adopt an explicitly accepted replacement constitution"
 
 [[documents]]
 path = "box-member-field-method-surface-ssot.md"

@@ -370,9 +370,16 @@ fail-fast/sunset contract are mandatory; documentation cannot be deferred.
 S2 identity witness: 3 focused tests, test-only
 D3 typed matrix: 1 focused test over 4 rows, test-only
 handoff protocol: 6 cfg(test) tests, including a generated 1,440-row typed matrix
+resolved projector: 3 cfg(test) tests over real resolver/forest/BindingRef/facts products
 production selector callers of BindingRef capability: 0
 current Both trace: [V0, V1] -> V0 success; no V1 debt attempt
 ```
+
+The resolved-projector harness is evidence only: it co-seals the resolver
+forest, BindingRefs, source identity, and Generic facts before any effect, and
+proves foreign-root and shadowing rejection. It does not issue a production
+capability, select a route, or close the parent D2 row. A production projector
+still requires a separate accepted implementation card.
 
 This card is a design consultation boundary. A green test-only matrix does
 not authorize production selection or parent D2 closeout.

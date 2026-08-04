@@ -105,6 +105,11 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     Resolve -> Observe -> Facts -> Recipe -> Verify -> Lower -> Seal ->
     Collect -> Atomic Publish。cell数やLOCではなく、この一方向graphへの
     収束をcompletionの北極星にする
+- `design/ai-verifiable-development-north-star-ssot.md`
+  - 言語・compiler・tooling横断の長期North Star。文法の短さではなく、
+    正しい高性能コードへ到達する検証済み反復の回数と費用を最小化する。
+    semantic query、machine-readable diagnostic、verified repairは実装後の
+    個別receiptなしにlive reference capabilityをclaimしない
 - `design/derived-to-native-hako-artifact-model-ssot.md`
   - Rust-derived Hako artifact migration owner; keeps Rust source as editable
     reference during derived phases, generated Hako as execution artifact, and
@@ -188,12 +193,18 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - Arc retirement parent map; keeps RC insertion, ownership substrate,
     Box object model, TypeAbiCatalog, BoxCallableRegistry, and optional GC
     recipe responsibilities separated before any Arc replacement implementation
+- `design/box-lifecycle-cprime-terminal-home-finalization-ssot.md`
+  - accepted C′ lifecycle constitution; last Home is the sole `fini {}` hook
+    authority and one DropPlan owns parent hook, reverse owning-field release,
+    structural drop, Shared/weak boundaries, and implementation-after
+    reference closeout
 - `design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
-  - B′ Shared/resource Box lifecycle constitution; separates explicit eager
-    `fini`, Ownership SSA tokens, generation-tagged ObjectCell materialization,
-    and later StaticUnique/LocalRc/SharedRc strategies; source
-    Home/handle/transfer/share selection belongs to
-    `docs/reference/language/ownership.md`
+  - superseded B′ eager-fini/Dead-with-live-owner constitution; historical
+    design provenance only, never a current row selector
+- `design/language-result-propagation-and-exit-transaction-ssot.md`
+  - accepted Result-only postfix `?`, no catch/RecoverableFailure, one
+    standalone cleanup surface, one verified exit transaction, and mandatory
+    post-implementation failure/cleanup reference closeout
 - `docs/reference/language/ownership.md`
   - normative source Home/handle/transfer/share contract; exact HomeV1 grammar
     remains provisional and production activation is zero

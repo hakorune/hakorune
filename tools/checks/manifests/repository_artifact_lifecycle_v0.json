@@ -1,22 +1,22 @@
 {
   "counts": {
     "checks": 3597,
-    "design_direct": 862,
-    "docs": 12715,
+    "design_direct": 865,
+    "docs": 12736,
     "docs_development_archive": 2791,
-    "docs_development_current": 8501,
+    "docs_development_current": 8520,
     "main_direct": 168,
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1039,
     "private": 0,
-    "src": 3903,
+    "src": 3928,
     "tools": 7214
   },
   "design_registry": {
     "authority_registry_decided": true,
     "c1_review": {
       "basis": "explicit README section evidence",
-      "row_count": 115,
+      "row_count": 116,
       "rows": [
         {
           "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
@@ -44,8 +44,13 @@
           "role": "authority"
         },
         {
-          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09; B\u2032 Box lifecycle, Ownership SSA/ObjectCell boundary, and adaptive runtime strategy",
+          "classification_basis": "README:B\u2032 Box lifecycle historical constitution; superseded by accepted C\u2032 terminal-Home finalization",
           "path": "box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md",
+          "role": "superseded"
+        },
+        {
+          "classification_basis": "README:C\u2032 terminal Home finalization; accepted target with production activation 0",
+          "path": "box-lifecycle-cprime-terminal-home-finalization-ssot.md",
           "role": "authority"
         },
         {
@@ -141,11 +146,6 @@
         {
           "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
           "path": "edgecfg-fragments.md",
-          "role": "authority"
-        },
-        {
-          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
-          "path": "exception-cleanup-async.md",
           "role": "authority"
         },
         {
@@ -291,6 +291,11 @@
         {
           "classification_basis": "README:Read First Now",
           "path": "kernel-replacement-axis-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Result-only propagation and verified exit transaction; accepted target with production activation 0",
+          "path": "language-result-propagation-and-exit-transaction-ssot.md",
           "role": "authority"
         },
         {
@@ -839,22 +844,22 @@
       "role_assignment": "none",
       "singleton_family_count": 34
     },
-    "direct_files": 862,
-    "markdown_files": 841,
+    "direct_files": 865,
+    "markdown_files": 844,
     "non_markdown_files": 21,
     "owned_sidecar_count": 119,
-    "registered_count": 667,
+    "registered_count": 670,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
-      "docs/development/current/main/CURRENT_STATE.toml": 4,
-      "docs/development/current/main/DOCS_LAYOUT.md": 62,
-      "docs/development/current/main/design/README.md": 127
+      "docs/development/current/main/CURRENT_STATE.toml": 9,
+      "docs/development/current/main/DOCS_LAYOUT.md": 65,
+      "docs/development/current/main/design/README.md": 130
     },
-    "seed_union_count": 172,
+    "seed_union_count": 175,
     "status_counts": {
       "active_like": 133,
-      "closed": 14,
+      "closed": 17,
       "other_or_missing": 694
     },
     "unregistered": [
@@ -943,7 +948,7 @@
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1394,
-    "document_count": 8501,
+    "document_count": 8520,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
       "cluster_count": 1369,
@@ -1923,18 +1928,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5256,
-    "root_count": 3813,
+    "reachable_count": 5274,
+    "root_count": 3819,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1039,
-      "current_pointer": 5,
-      "design_authority": 270,
+      "current_pointer": 4,
+      "design_authority": 269,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3174
+      "reference_src_tools": 3184
     },
-    "unreachable_count": 3245,
-    "unreachable_pending_count": 1851,
+    "unreachable_count": 3246,
+    "unreachable_pending_count": 1852,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
