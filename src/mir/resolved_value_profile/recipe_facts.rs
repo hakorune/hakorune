@@ -220,6 +220,10 @@ impl VerifiedTrivialIfRecipeFactsV1 {
         self.if_fact.explicit_else
     }
 
+    pub(crate) const fn has_implicit_else(&self) -> bool {
+        !self.if_fact.explicit_else
+    }
+
     pub(crate) fn then_assignment_count(&self) -> usize {
         self.if_fact.then_assignments.len()
     }
@@ -427,18 +431,30 @@ impl TrivialIfRecipeFactsDraftV1 {
             return None;
         }
         let if_fact = self.ifs.into_iter().next()?;
-        if !if_fact.explicit_else
-            || if_fact.then_assignments.len() != 1
-            || if_fact.else_assignments.len() != 1
+        let branch_shape_ok = if if_fact.explicit_else {
+            if_fact.then_assignments.len() == 1
+                && if_fact.else_assignments.len() == 1
+                && if_fact.else_body.is_some()
+        } else {
+            if_fact.then_assignments.len() == 1
+                && if_fact.else_assignments.is_empty()
+                && if_fact.else_body.is_none()
+        };
+        if !branch_shape_ok
             || if_fact.continuation_read.is_none()
             || if_fact.entry_witness.is_none()
         {
             return None;
         }
-        if if_fact.then_assignments[0].binding != if_fact.else_assignments[0].binding
-            || if_fact.then_assignments[0].representation
-                != if_fact.else_assignments[0].representation
-        {
+        let entry = if_fact.entry_witness?;
+        let then = &if_fact.then_assignments[0];
+        if if_fact.explicit_else {
+            if then.binding != if_fact.else_assignments[0].binding
+                || then.representation != if_fact.else_assignments[0].representation
+            {
+                return None;
+            }
+        } else if then.binding != entry.binding || then.representation != entry.representation {
             return None;
         }
         Some(VerifiedTrivialIfRecipeFactsV1 {

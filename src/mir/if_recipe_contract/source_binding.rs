@@ -25,16 +25,21 @@ impl IfRecipeSourceClaimVerifierV1 {
             });
         }
 
-        let expected = [
+        let expected_prefix = [
             IfSourceClaimRoleV1::IfNode,
             IfSourceClaimRoleV1::Condition,
             IfSourceClaimRoleV1::ThenAssignment,
-            IfSourceClaimRoleV1::ElseAssignment,
         ];
-        for (claim, role) in binding.claims.iter().zip(expected) {
+        for (claim, role) in binding.claims.iter().zip(expected_prefix) {
             if claim.role != role {
                 return Err(Reject::SourceClaimOrderMismatch);
             }
+        }
+        if !matches!(
+            binding.claims[3].role,
+            IfSourceClaimRoleV1::ElseAssignment | IfSourceClaimRoleV1::ImplicitBaseline
+        ) {
+            return Err(Reject::SourceClaimOrderMismatch);
         }
 
         let Some(IfSourcePathStepV1::BodyItem { index }) = binding.claims[0].path.steps.first()
@@ -65,6 +70,9 @@ impl IfRecipeSourceClaimVerifierV1 {
                         claim.path.steps.get(1),
                         Some(IfSourcePathStepV1::IfElseItem { .. })
                     ) && claim.path.steps.len() == 2
+                }
+                IfSourceClaimRoleV1::ImplicitBaseline => {
+                    claim.path.steps[1..] == [IfSourcePathStepV1::IfImplicitBaseline]
                 }
                 IfSourceClaimRoleV1::IfNode => false,
             };

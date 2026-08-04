@@ -40,7 +40,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowerer
 
 enum IfMaterializationTopologyV1 {
     Legacy,
-    Selected(super::if_recipe_physicalizer::CanonicalIfRecipeExplicitElseTopologyV1),
+    Selected(super::if_recipe_physicalizer::CanonicalIfRecipeTopologyV1),
 }
 
 impl IfMaterializationTopologyV1 {
@@ -472,7 +472,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     pub(super) fn lower_if_recipe_selected(
         &mut self,
         statement: &LocatedStmtV1<'source>,
-        topology: super::if_recipe_physicalizer::CanonicalIfRecipeExplicitElseTopologyV1,
+        topology: super::if_recipe_physicalizer::CanonicalIfRecipeTopologyV1,
     ) -> Result<super::if_recipe_physicalizer::CanonicalIfPhysicalReceiptV1, String> {
         match self.lower_if_materialization_core(
             statement,
@@ -521,18 +521,24 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         let header = self.current_block()?;
         let then_block = self.builder.next_block_id();
         let selected_binding = topology.selected_binding();
+        let selected_baseline = match (&topology, selected_binding) {
+            (IfMaterializationTopologyV1::Selected(topology), Some(binding))
+                if !topology.is_explicit_else() =>
+            {
+                Some(self.session.identity.read_entry(
+                    self.builder,
+                    &mut self.session.phis,
+                    header,
+                    binding,
+                )?)
+            }
+            _ => None,
+        };
         let explicit_else = match &topology {
             IfMaterializationTopologyV1::Legacy => {
                 matches!(row.else_port(), ResolvedIfElsePortV1::Explicit(_))
             }
-            IfMaterializationTopologyV1::Selected(_) => {
-                if else_body.is_none() {
-                    return Err(
-                        "[freeze:contract][if_recipe/selected_else_body_missing]".to_string()
-                    );
-                }
-                true
-            }
+            IfMaterializationTopologyV1::Selected(topology) => topology.is_explicit_else(),
         };
         let else_block = explicit_else.then(|| self.builder.next_block_id());
         let merge = self.builder.next_block_id();
@@ -638,28 +644,30 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .map_err(|error| format!("[freeze:contract][if_control/coverage] {error:?}"))?;
         let _representation_only = self.profile.claim_if_merges(statement.site())?;
         self.session.semantics.close_region(control)?;
-        if let (
-            IfMaterializationTopologyV1::Selected(topology),
-            Some(then_value),
-            Some(else_block),
-            Some(else_exit),
-            Some(else_value),
-        ) = (topology, then_value, else_block, else_exit, else_value)
+        if let (IfMaterializationTopologyV1::Selected(topology), Some(then_value)) =
+            (topology, then_value)
         {
-            return Ok(IfMaterializationOutcomeV1::Selected(
-                super::if_recipe_physicalizer::CanonicalIfPhysicalReceiptV1::new(
-                    header,
-                    condition,
-                    then_block,
-                    else_block,
-                    then_exit,
-                    else_exit,
-                    merge,
-                    then_value,
-                    else_value,
-                    topology.binding(),
-                ),
-            ));
+            let values = match (selected_baseline, else_block, else_exit, else_value) {
+                (Some(baseline_value), None, None, None) => {
+                    super::if_recipe_physicalizer::CanonicalIfPhysicalValuesV1::ImplicitFallthrough {
+                        baseline_value,
+                    }
+                }
+                (None, Some(else_block), Some(else_exit), Some(else_value)) => {
+                    super::if_recipe_physicalizer::CanonicalIfPhysicalValuesV1::ExplicitElse {
+                        else_block,
+                        else_exit,
+                        else_value,
+                    }
+                }
+                _ => {
+                    return Err("[freeze:contract][if_recipe/physical_values_shape]".to_string())
+                }
+            };
+            let receipt = super::if_recipe_physicalizer::selected_receipt(
+                topology, header, condition, then_block, then_exit, merge, then_value, values,
+            )?;
+            return Ok(IfMaterializationOutcomeV1::Selected(receipt));
         }
         Ok(IfMaterializationOutcomeV1::Legacy)
     }

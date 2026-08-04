@@ -219,7 +219,7 @@ fn typed_rejects_cover_version_keys_else_and_join() {
     implicit.recipe.else_disposition = IfElseDispositionV1::ImplicitFallthrough;
     assert_eq!(
         IfRecipeVerifierV1::verify_artifact(implicit).unwrap_err(),
-        IfRecipeRejectReasonV1::ExplicitElseRequired
+        IfRecipeRejectReasonV1::ProfileDispositionMismatch
     );
 
     let mut wrong_join = golden();
@@ -306,13 +306,40 @@ fn physical_input_consumes_and_keeps_one_artifact_joinsig_pair() {
 }
 
 #[test]
+fn implicit_fallthrough_seals_header_baseline_join_signature() {
+    let mut artifact = golden();
+    artifact.provenance.profile = IfRecipeProfileV1::ResolvedTrivialImplicitElse;
+    artifact.source_binding.claims[3] = IfSourceClaimV1 {
+        role: IfSourceClaimRoleV1::ImplicitBaseline,
+        path: path(vec![
+            IfSourcePathStepV1::BodyItem { index: 1 },
+            IfSourcePathStepV1::IfImplicitBaseline,
+        ]),
+    };
+    artifact.recipe.else_block = None;
+    artifact.recipe.continuation_block.key = IfBlockKeyV1::new(2);
+    artifact.recipe.continuation_block.items[0].key = IfItemKeyV1::new(5);
+    artifact.recipe.else_disposition = IfElseDispositionV1::ImplicitFallthrough;
+    artifact.recipe.joins[0].else_value = artifact.recipe.joins[0].entry_value;
+
+    let verified = IfRecipeVerifierV1::verify_artifact(artifact).expect("implicit verifies");
+    let sig = IfJoinSigElaboratorV1::elaborate(verified.recipe()).expect("implicit JoinSig");
+    assert_eq!(sig.as_sig().ports[3], IfJoinPortV1::Baseline);
+    assert_eq!(
+        sig.as_sig().edges[4].role,
+        IfJoinEdgeRoleV1::ImplicitBaseline
+    );
+    assert_eq!(sig.as_sig().edges[4].value.value, IfValueKeyV1::new(0));
+}
+
+#[test]
 fn verifier_rejects_before_physical_input_boundary() {
     let mut invalid = golden();
     invalid.recipe.else_disposition = IfElseDispositionV1::ImplicitFallthrough;
 
     assert_eq!(
         IfRecipeVerifierV1::verify_artifact(invalid).unwrap_err(),
-        IfRecipeRejectReasonV1::ExplicitElseRequired
+        IfRecipeRejectReasonV1::ProfileDispositionMismatch
     );
 }
 

@@ -248,7 +248,7 @@ fn same_pass_if_recipe_facts_capture_explicit_else_shape() {
 }
 
 #[test]
-fn same_pass_if_recipe_facts_decline_implicit_else_shape() {
+fn same_pass_if_recipe_facts_capture_implicit_else_baseline_shape() {
     let product = admitted(function(vec![
         local("x", Some(int(0))),
         if_(
@@ -259,7 +259,14 @@ fn same_pass_if_recipe_facts_decline_implicit_else_shape() {
         return_(Some(variable("x"))),
     ]));
 
-    assert!(product.recipe_facts().is_none());
+    let facts = product
+        .recipe_facts()
+        .expect("implicit fallthrough keeps baseline facts");
+    assert!(facts.has_implicit_else());
+    assert_eq!(facts.then_assignment_count(), 1);
+    assert_eq!(facts.else_assignment_count(), 0);
+    assert!(facts.else_body().is_none());
+    assert!(facts.entry_witness().is_some());
 }
 
 #[test]
@@ -310,7 +317,7 @@ fn same_pass_if_recipe_maps_to_verified_portable_artifact() {
 }
 
 #[test]
-fn recipe_mapper_rejects_implicit_else_before_portable_mapping() {
+fn recipe_mapper_maps_implicit_else_baseline_before_physicalization() {
     let root = function(vec![
         local("x", Some(int(0))),
         if_(
@@ -330,10 +337,24 @@ fn recipe_mapper_rejects_implicit_else_before_portable_mapping() {
         TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
     };
 
-    assert!(product.recipe_facts().is_none());
+    let verified = super::map_trivial_if_recipe_v1(&product, input.function())
+        .expect("implicit baseline maps to a dedicated artifact");
+    assert_eq!(
+        verified.provenance().profile,
+        crate::mir::if_recipe_contract::IfRecipeProfileV1::ResolvedTrivialImplicitElse
+    );
+    assert!(verified.recipe().as_recipe().else_block.is_none());
+    assert_eq!(
+        verified.recipe().as_recipe().else_disposition,
+        crate::mir::if_recipe_contract::IfElseDispositionV1::ImplicitFallthrough
+    );
+    assert_eq!(
+        verified.recipe().as_recipe().joins[0].entry_value,
+        verified.recipe().as_recipe().joins[0].else_value
+    );
     assert!(matches!(
-        super::map_trivial_if_recipe_v1(&product, input.function()),
-        Err(super::IfRecipeMapRejectV1::MissingFacts)
+        verified.source_binding().as_source_binding().claims[3].role,
+        crate::mir::if_recipe_contract::IfSourceClaimRoleV1::ImplicitBaseline
     ));
 }
 

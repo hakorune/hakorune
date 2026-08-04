@@ -51,6 +51,20 @@ impl IfRecipeVerifierV1 {
                 found: artifact.schema_version,
             });
         }
+        let disposition = artifact.recipe.else_disposition;
+        let profile_matches = matches!(
+            (artifact.provenance.profile, disposition),
+            (
+                super::schema::IfRecipeProfileV1::ResolvedTrivialExplicitElse,
+                IfElseDispositionV1::Explicit
+            ) | (
+                super::schema::IfRecipeProfileV1::ResolvedTrivialImplicitElse,
+                IfElseDispositionV1::ImplicitFallthrough
+            )
+        );
+        if !profile_matches {
+            return Err(Reject::ProfileDispositionMismatch);
+        }
         let recipe = Self::verify(artifact.recipe)?;
         let source_binding = IfRecipeSourceClaimVerifierV1::verify(artifact.source_binding)?;
         Ok(VerifiedIfRecipeArtifactV1 {
@@ -99,12 +113,6 @@ impl IfRecipeVerifierV1 {
             });
         }
 
-        if recipe.else_disposition != IfElseDispositionV1::Explicit {
-            return Err(Reject::ExplicitElseRequired);
-        }
-        let Some(else_block) = recipe.else_block.as_ref() else {
-            return Err(Reject::ExplicitElseRequired);
-        };
         let then_write = verify_branch_block(
             &recipe.then_block,
             &bindings,
@@ -113,17 +121,6 @@ impl IfRecipeVerifierV1 {
             "then",
             &mut item_cursor,
         )?;
-        let else_write = verify_branch_block(
-            else_block,
-            &bindings,
-            &values,
-            &definitions,
-            "else",
-            &mut item_cursor,
-        )?;
-        if then_write.0 != else_write.0 {
-            return Err(Reject::BranchBindingMismatch);
-        }
         let merge_binding = recipe
             .bindings
             .iter()
@@ -133,9 +130,31 @@ impl IfRecipeVerifierV1 {
         if then_write.0 != merge_binding {
             return Err(Reject::BranchBindingMismatch);
         }
-        if then_write.1 != else_write.1 {
-            return Err(Reject::JoinValueMismatch);
-        }
+        let explicit_else_write = match recipe.else_disposition {
+            IfElseDispositionV1::Explicit => {
+                let Some(else_block) = recipe.else_block.as_ref() else {
+                    return Err(Reject::ExplicitElseRequired);
+                };
+                let else_write = verify_branch_block(
+                    else_block,
+                    &bindings,
+                    &values,
+                    &definitions,
+                    "else",
+                    &mut item_cursor,
+                )?;
+                if then_write.0 != else_write.0 || then_write.1 != else_write.1 {
+                    return Err(Reject::BranchBindingMismatch);
+                }
+                Some(else_write)
+            }
+            IfElseDispositionV1::ImplicitFallthrough => {
+                if recipe.else_block.is_some() {
+                    return Err(Reject::ImplicitElseBlockPresent);
+                }
+                None
+            }
+        };
         if recipe.joins.len() != 1 {
             return Err(Reject::JoinRowCountMismatch {
                 found: recipe.joins.len(),
@@ -149,8 +168,15 @@ impl IfRecipeVerifierV1 {
         {
             return Err(Reject::JoinBindingMismatch);
         }
-        if join.then_value != then_write.2 || join.else_value != else_write.2 {
+        if join.then_value != then_write.2 {
             return Err(Reject::JoinValueMismatch);
+        }
+        if let Some(else_write) = explicit_else_write {
+            if join.else_value != else_write.2 {
+                return Err(Reject::JoinValueMismatch);
+            }
+        } else if join.else_value != join.entry_value {
+            return Err(Reject::ImplicitBaselineMismatch);
         }
 
         verify_continuation_block(
@@ -183,6 +209,10 @@ fn verify_blocks(recipe: &IfRecipeV1) -> Result<(), Reject> {
     let mut seen = BTreeSet::new();
     for (block, role, name) in blocks {
         let Some(block) = block else {
+            if name == "else" && recipe.else_disposition == IfElseDispositionV1::ImplicitFallthrough
+            {
+                continue;
+            }
             return Err(Reject::MissingBlockRole { role: name });
         };
         if block.role != role || block.key.raw() != seen.len() as u32 {
@@ -191,6 +221,11 @@ fn verify_blocks(recipe: &IfRecipeV1) -> Result<(), Reject> {
         if !seen.insert(block.key) {
             return Err(Reject::DuplicateBlock { block: block.key });
         }
+    }
+    if recipe.else_disposition == IfElseDispositionV1::ImplicitFallthrough
+        && recipe.else_block.is_some()
+    {
+        return Err(Reject::ImplicitElseBlockPresent);
     }
     Ok(())
 }

@@ -5,6 +5,7 @@ use super::ids::{IfBindingKeyV1, IfBlockKeyV1, IfValueKeyV1};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum IfRecipeRejectReasonV1 {
     UnsupportedVersion { found: u16 },
+    ProfileDispositionMismatch,
     NonCanonicalKeyOrder { domain: &'static str },
     InvalidBlockRole { block: IfBlockKeyV1 },
     DuplicateBlock { block: IfBlockKeyV1 },
@@ -19,6 +20,8 @@ pub(crate) enum IfRecipeRejectReasonV1 {
     ValueClassMismatch { value: IfValueKeyV1 },
     ConditionNotBool { value: IfValueKeyV1 },
     ExplicitElseRequired,
+    ImplicitElseBlockPresent,
+    ImplicitBaselineMismatch,
     MissingBranchWrite { branch: &'static str },
     BranchWriteCountMismatch { branch: &'static str, found: usize },
     BranchBindingMismatch,

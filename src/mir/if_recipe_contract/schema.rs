@@ -40,6 +40,7 @@ pub(crate) struct IfRecipeProvenanceV1 {
 #[serde(rename_all = "snake_case")]
 pub(crate) enum IfRecipeProfileV1 {
     ResolvedTrivialExplicitElse,
+    ResolvedTrivialImplicitElse,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -58,6 +59,7 @@ pub(crate) enum IfSourcePathStepV1 {
     IfCondition,
     IfThenItem { index: u32 },
     IfElseItem { index: u32 },
+    IfImplicitBaseline,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -73,6 +75,7 @@ pub(crate) enum IfSourceClaimRoleV1 {
     Condition,
     ThenAssignment,
     ElseAssignment,
+    ImplicitBaseline,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

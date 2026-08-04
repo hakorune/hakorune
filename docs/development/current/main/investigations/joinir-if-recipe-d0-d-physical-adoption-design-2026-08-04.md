@@ -330,3 +330,48 @@ retry/reselection.
 Recommended next slice: design-only census and one counterexample fixture for
 the implicit baseline edge, then a separate artifact/JoinSig/receipt task. Do
 not implement implicit-else in this card until that contract is written.
+
+## Accepted next slice — `JOINIR-IF-RECIPE-IMPLICIT-FALLTHROUGH-P0`
+
+Change: admit exactly one resolved-trivial If with an explicit Bool condition,
+one outer binding, one then-side write, no else body, and a continuation read;
+map it to a distinct `ImplicitFallthrough` artifact/JoinSig/physical receipt.
+The existing explicit-else artifact and physicalizer remain unchanged.
+
+Contract: the same-pass facts own the entry/baseline witness and one-sided
+write; the portable recipe owns `else_block = None` and `join.else_value =
+join.entry_value`; the logical signature owns the `header -> merge` false
+predecessor; the canonical CFG/Binding SSA/`PhiTxn` chain remains the sole
+physical writer. No AST re-decision, retry, legacy fallback, or second PHI
+owner is allowed.
+
+Done: implicit facts no longer disappear silently; mapper, verifier, source
+claims, JoinSig, and physical receipt each reject mismatched baseline,
+predecessor, value-class, or one-sided-write evidence before Builder effects.
+The counterexample proves two actual PHI inputs `[header, then_exit]` and
+preserves the legacy interpreter result.
+
+Stop: any nested/effect/return/call/record/match shape, missing baseline/read,
+more than one write, a non-`BindingRef` merge, or a need to widen the existing
+lowerer topology is a new design row. Global PHI/SSA retirement and all other
+If/Loop families remain out of scope.
+
+### Implicit-fallthrough P0 closeout (2026-08-04)
+
+The accepted slice is implemented without adding a route or retry surface.
+Same-pass facts now retain the entry baseline and one-sided write/read witness;
+the mapper emits a distinct `ImplicitFallthrough` artifact and
+`ImplicitBaseline` source claim; the verifier and JoinSig reject disposition,
+predecessor, value-class, and baseline mismatches before Builder effects. The
+selected physicalizer consumes a typed explicit/implicit values envelope, so
+shape optionality does not leak into the physical owner. The implicit receipt
+records the two real PHI inputs `[header, then_exit]` and the capability test
+checks the resulting merge has exactly those two predecessors.
+
+Acceptance: `if_recipe_contract` 10 tests, `resolved_value_profile` 37,
+`if_recipe_selected` 3, and `resolved_lowering` 128 pass with warnings denied;
+`cargo check --lib`, focused rustfmt, `current_state_pointer_guard.sh`, and
+`mirbuilder_inplace_replacement_guard.sh` are green. All touched Rust files,
+including the lowerer, remain below the 800-line boundary. The global PHI/SSA
+sole-writer claim, nested/effect If shapes, and other Loop families remain
+separate design rows.

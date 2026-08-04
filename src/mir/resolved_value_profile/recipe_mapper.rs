@@ -234,10 +234,10 @@ pub(crate) fn map_trivial_if_recipe_v1(
     let then_assignment = facts
         .then_assignment()
         .ok_or(IfRecipeMapRejectV1::MissingAssignment { branch: "then" })?;
-    let else_assignment = facts
-        .else_assignment()
-        .ok_or(IfRecipeMapRejectV1::MissingAssignment { branch: "else" })?;
-    if entry.binding() != then_assignment.binding() || entry.binding() != else_assignment.binding()
+    let explicit_else = facts.has_explicit_else();
+    let else_assignment = facts.else_assignment();
+    if entry.binding() != then_assignment.binding()
+        || else_assignment.is_some_and(|assignment| entry.binding() != assignment.binding())
     {
         return Err(IfRecipeMapRejectV1::EntryBindingMismatch);
     }
@@ -247,16 +247,20 @@ pub(crate) fn map_trivial_if_recipe_v1(
     if facts
         .then_body()
         .is_none_or(|body| body.owner() != profile.owner())
-        || facts
-            .else_body()
-            .is_none_or(|body| body.owner() != profile.owner())
+        || (explicit_else
+            && facts
+                .else_body()
+                .is_none_or(|body| body.owner() != profile.owner()))
+        || (!explicit_else && facts.else_body().is_some())
     {
         return Err(IfRecipeMapRejectV1::OwnerMismatch);
     }
     let entry_class = value_class(entry.representation())?;
     let then_class = value_class(then_assignment.representation())?;
-    let else_class = value_class(else_assignment.representation())?;
-    if entry_class != then_class || then_class != else_class {
+    let else_class = else_assignment
+        .map(|assignment| value_class(assignment.representation()))
+        .transpose()?;
+    if entry_class != then_class || else_class.is_some_and(|class| then_class != class) {
         return Err(IfRecipeMapRejectV1::EntryClassMismatch);
     }
     verify_entry_definition(profile, entry.binding(), facts.if_site())?;
@@ -291,14 +295,19 @@ pub(crate) fn map_trivial_if_recipe_v1(
         },
     );
     let mut else_items = Vec::new();
-    let else_value = state.visit(else_assignment.value(), RegionV1::Else, &mut else_items)?;
-    state.push_item(
-        &mut else_items,
-        IfOperationV1::WriteBinding {
-            binding: merge_binding,
-            value: else_value,
-        },
-    );
+    let else_value = if let Some(else_assignment) = else_assignment {
+        let value = state.visit(else_assignment.value(), RegionV1::Else, &mut else_items)?;
+        state.push_item(
+            &mut else_items,
+            IfOperationV1::WriteBinding {
+                binding: merge_binding,
+                value,
+            },
+        );
+        value
+    } else {
+        IfValueKeyV1::new(0)
+    };
     let mut continuation_items = Vec::new();
     let continuation_site = facts
         .continuation_read()
@@ -311,7 +320,12 @@ pub(crate) fn map_trivial_if_recipe_v1(
     if !continuation_is_merge_read || continuation_items.len() != 1 {
         return Err(IfRecipeMapRejectV1::ContinuationMismatch);
     }
-    let source_binding = source_binding(facts, source_function.function_origin(), root_index)?;
+    let source_binding = source_binding(
+        facts,
+        source_function.function_origin(),
+        root_index,
+        explicit_else,
+    )?;
     let recipe = crate::mir::if_recipe_contract::IfRecipeV1 {
         condition_block: IfRecipeBlockV1 {
             key: IfBlockKeyV1::new(0),
@@ -323,17 +337,21 @@ pub(crate) fn map_trivial_if_recipe_v1(
             role: IfBlockRoleV1::Then,
             items: then_items,
         },
-        else_block: Some(IfRecipeBlockV1 {
+        else_block: explicit_else.then_some(IfRecipeBlockV1 {
             key: IfBlockKeyV1::new(2),
             role: IfBlockRoleV1::Else,
             items: else_items,
         }),
         continuation_block: IfRecipeBlockV1 {
-            key: IfBlockKeyV1::new(3),
+            key: IfBlockKeyV1::new(if explicit_else { 3 } else { 2 }),
             role: IfBlockRoleV1::Continuation,
             items: continuation_items,
         },
-        else_disposition: IfElseDispositionV1::Explicit,
+        else_disposition: if explicit_else {
+            IfElseDispositionV1::Explicit
+        } else {
+            IfElseDispositionV1::ImplicitFallthrough
+        },
         condition,
         inputs: state.inputs,
         bindings: state.bindings,
@@ -351,7 +369,11 @@ pub(crate) fn map_trivial_if_recipe_v1(
     };
     let artifact = IfRecipeArtifactV1::new(
         IfRecipeProvenanceV1 {
-            profile: IfRecipeProfileV1::ResolvedTrivialExplicitElse,
+            profile: if explicit_else {
+                IfRecipeProfileV1::ResolvedTrivialExplicitElse
+            } else {
+                IfRecipeProfileV1::ResolvedTrivialImplicitElse
+            },
         },
         source_binding,
         recipe,
@@ -480,14 +502,12 @@ fn source_binding(
     facts: &VerifiedTrivialIfRecipeFactsV1,
     origin: FunctionOriginV1,
     root_index: u32,
+    explicit_else: bool,
 ) -> Result<IfRecipeSourceBindingV1, IfRecipeMapRejectV1> {
     let then_assignment = facts
         .then_assignment()
         .ok_or(IfRecipeMapRejectV1::MissingAssignment { branch: "then" })?;
-    let else_assignment = facts
-        .else_assignment()
-        .ok_or(IfRecipeMapRejectV1::MissingAssignment { branch: "else" })?;
-    let claims = vec![
+    let mut claims = vec![
         IfSourceClaimV1 {
             role: IfSourceClaimRoleV1::IfNode,
             path: if_node_path(facts.if_site(), root_index)?,
@@ -500,11 +520,21 @@ fn source_binding(
             role: IfSourceClaimRoleV1::ThenAssignment,
             path: assignment_path(then_assignment.statement(), root_index, true)?,
         },
-        IfSourceClaimV1 {
+    ];
+    if explicit_else {
+        let else_assignment = facts
+            .else_assignment()
+            .ok_or(IfRecipeMapRejectV1::MissingAssignment { branch: "else" })?;
+        claims.push(IfSourceClaimV1 {
             role: IfSourceClaimRoleV1::ElseAssignment,
             path: assignment_path(else_assignment.statement(), root_index, false)?,
-        },
-    ];
+        });
+    } else {
+        claims.push(IfSourceClaimV1 {
+            role: IfSourceClaimRoleV1::ImplicitBaseline,
+            path: implicit_baseline_path(root_index),
+        });
+    }
     Ok(IfRecipeSourceBindingV1 {
         owner: IfRecipeSourceOwnerV1::FunctionBody {
             compilation_unit_ordinal: origin.compilation_unit_ordinal(),
@@ -564,6 +594,15 @@ fn assignment_path(
                 "else_assignment"
             },
         }),
+    }
+}
+
+fn implicit_baseline_path(root: u32) -> IfSourcePathV1 {
+    IfSourcePathV1 {
+        steps: vec![
+            IfSourcePathStepV1::BodyItem { index: root },
+            IfSourcePathStepV1::IfImplicitBaseline,
+        ],
     }
 }
 

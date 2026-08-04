@@ -15,6 +15,7 @@ pub(crate) enum IfJoinPortV1 {
     Condition,
     Then,
     Else,
+    Baseline,
     Continuation,
 }
 
@@ -25,6 +26,7 @@ pub(crate) enum IfJoinEdgeRoleV1 {
     False,
     ThenTransfer,
     ElseTransfer,
+    ImplicitBaseline,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -52,6 +54,7 @@ pub(crate) struct IfJoinObligationV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct IfJoinSigV1 {
+    pub(crate) disposition: IfElseDispositionV1,
     pub(crate) ports: [IfJoinPortV1; 5],
     pub(crate) edges: [IfJoinEdgeV1; 5],
     pub(crate) join: IfJoinObligationV1,
@@ -85,7 +88,11 @@ impl IfJoinSigElaboratorV1 {
         verified: &VerifiedIfRecipeV1,
     ) -> Result<VerifiedIfJoinSigV1, IfJoinSigRejectReasonV1> {
         let recipe = verified.as_recipe();
-        if recipe.else_disposition != IfElseDispositionV1::Explicit || recipe.else_block.is_none() {
+        let disposition = recipe.else_disposition;
+        if disposition == IfElseDispositionV1::Explicit && recipe.else_block.is_none() {
+            return Err(IfJoinSigRejectReasonV1::UnsupportedElseDisposition);
+        }
+        if disposition == IfElseDispositionV1::ImplicitFallthrough && recipe.else_block.is_some() {
             return Err(IfJoinSigRejectReasonV1::UnsupportedElseDisposition);
         }
         if recipe.joins.len() != 1 {
@@ -113,6 +120,11 @@ impl IfJoinSigElaboratorV1 {
                 value: join.else_value,
             });
         }
+        if disposition == IfElseDispositionV1::ImplicitFallthrough
+            && join.else_value != join.entry_value
+        {
+            return Err(IfJoinSigRejectReasonV1::LogicalEdgeMismatch);
+        }
         if !recipe.inputs.contains(&join.entry_value) {
             return Err(IfJoinSigRejectReasonV1::MissingJoinValue {
                 value: join.entry_value,
@@ -128,50 +140,98 @@ impl IfJoinSigElaboratorV1 {
                 value: recipe.condition,
             });
         }
-        let ports = [
-            IfJoinPortV1::Entry,
-            IfJoinPortV1::Condition,
-            IfJoinPortV1::Then,
-            IfJoinPortV1::Else,
-            IfJoinPortV1::Continuation,
-        ];
-        let edges = [
-            edge(
+        let ports = match disposition {
+            IfElseDispositionV1::Explicit => [
                 IfJoinPortV1::Entry,
                 IfJoinPortV1::Condition,
-                IfJoinEdgeRoleV1::Enter,
-                join.entry_value,
-                join.class,
-            ),
-            edge(
-                IfJoinPortV1::Condition,
                 IfJoinPortV1::Then,
-                IfJoinEdgeRoleV1::True,
-                recipe.condition,
-                IfValueClassV1::Bool,
-            ),
-            edge(
-                IfJoinPortV1::Condition,
-                IfJoinPortV1::Else,
-                IfJoinEdgeRoleV1::False,
-                recipe.condition,
-                IfValueClassV1::Bool,
-            ),
-            edge(
-                IfJoinPortV1::Then,
-                IfJoinPortV1::Continuation,
-                IfJoinEdgeRoleV1::ThenTransfer,
-                join.then_value,
-                join.class,
-            ),
-            edge(
                 IfJoinPortV1::Else,
                 IfJoinPortV1::Continuation,
-                IfJoinEdgeRoleV1::ElseTransfer,
-                join.else_value,
-                join.class,
-            ),
-        ];
+            ],
+            IfElseDispositionV1::ImplicitFallthrough => [
+                IfJoinPortV1::Entry,
+                IfJoinPortV1::Condition,
+                IfJoinPortV1::Then,
+                IfJoinPortV1::Baseline,
+                IfJoinPortV1::Continuation,
+            ],
+        };
+        let edges = match disposition {
+            IfElseDispositionV1::Explicit => [
+                edge(
+                    IfJoinPortV1::Entry,
+                    IfJoinPortV1::Condition,
+                    IfJoinEdgeRoleV1::Enter,
+                    join.entry_value,
+                    join.class,
+                ),
+                edge(
+                    IfJoinPortV1::Condition,
+                    IfJoinPortV1::Then,
+                    IfJoinEdgeRoleV1::True,
+                    recipe.condition,
+                    IfValueClassV1::Bool,
+                ),
+                edge(
+                    IfJoinPortV1::Condition,
+                    IfJoinPortV1::Else,
+                    IfJoinEdgeRoleV1::False,
+                    recipe.condition,
+                    IfValueClassV1::Bool,
+                ),
+                edge(
+                    IfJoinPortV1::Then,
+                    IfJoinPortV1::Continuation,
+                    IfJoinEdgeRoleV1::ThenTransfer,
+                    join.then_value,
+                    join.class,
+                ),
+                edge(
+                    IfJoinPortV1::Else,
+                    IfJoinPortV1::Continuation,
+                    IfJoinEdgeRoleV1::ElseTransfer,
+                    join.else_value,
+                    join.class,
+                ),
+            ],
+            IfElseDispositionV1::ImplicitFallthrough => [
+                edge(
+                    IfJoinPortV1::Entry,
+                    IfJoinPortV1::Condition,
+                    IfJoinEdgeRoleV1::Enter,
+                    join.entry_value,
+                    join.class,
+                ),
+                edge(
+                    IfJoinPortV1::Condition,
+                    IfJoinPortV1::Then,
+                    IfJoinEdgeRoleV1::True,
+                    recipe.condition,
+                    IfValueClassV1::Bool,
+                ),
+                edge(
+                    IfJoinPortV1::Condition,
+                    IfJoinPortV1::Baseline,
+                    IfJoinEdgeRoleV1::False,
+                    recipe.condition,
+                    IfValueClassV1::Bool,
+                ),
+                edge(
+                    IfJoinPortV1::Then,
+                    IfJoinPortV1::Continuation,
+                    IfJoinEdgeRoleV1::ThenTransfer,
+                    join.then_value,
+                    join.class,
+                ),
+                edge(
+                    IfJoinPortV1::Baseline,
+                    IfJoinPortV1::Continuation,
+                    IfJoinEdgeRoleV1::ImplicitBaseline,
+                    join.entry_value,
+                    join.class,
+                ),
+            ],
+        };
         if edges[0].from != IfJoinPortV1::Entry
             || edges[1].role != IfJoinEdgeRoleV1::True
             || edges[2].role != IfJoinEdgeRoleV1::False
@@ -181,6 +241,7 @@ impl IfJoinSigElaboratorV1 {
             return Err(IfJoinSigRejectReasonV1::LogicalEdgeMismatch);
         }
         Ok(VerifiedIfJoinSigV1(IfJoinSigV1 {
+            disposition,
             ports,
             edges,
             join: IfJoinObligationV1 {

@@ -610,6 +610,61 @@ fn if_recipe_selected_bool_merge_preserves_bool_phi_receipt() {
 }
 
 #[test]
+fn if_recipe_selected_implicit_fallthrough_uses_header_baseline_phi_input() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        local("x", literal(0)),
+        if_stmt(bool_literal(true), vec![assignment("x", 1)], None),
+        ASTNode::Return {
+            value: Some(Box::new(variable("x"))),
+            span: Span::unknown(),
+        },
+    ]))
+    .expect("implicit If fixture resolves");
+    let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_) =
+        CanonicalLoweringPreflightV1::verify(&unit).expect("implicit If plan")
+    else {
+        panic!("implicit fallthrough If must select trivial Binding SSA")
+    };
+
+    let mut compiler = MirCompiler::with_options(false);
+    let result = compiler
+        .compile_resolved(unit.lowering_input(), Some("if-implicit-receipt.hako"))
+        .expect("selected implicit If physicalization");
+    let function = result
+        .module
+        .functions
+        .get("capability_fixture/0")
+        .expect("selected implicit If function");
+    let phi_inputs = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Phi { inputs, .. } => Some(inputs.clone()),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(phi_inputs.len(), 1);
+    assert_eq!(phi_inputs[0].len(), 2);
+    let merge = function
+        .blocks
+        .values()
+        .find(|block| {
+            block
+                .instructions
+                .iter()
+                .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
+        })
+        .expect("implicit merge block");
+    let input_blocks = phi_inputs[0]
+        .iter()
+        .map(|(block, _)| *block)
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(input_blocks, merge.predecessors);
+    assert_eq!(input_blocks.len(), 2);
+}
+
+#[test]
 fn preflight_rejects_nonfallthrough_branch_routes() {
     let return_unit = unsupported_branch(ASTNode::Return {
         value: Some(Box::new(literal(1))),

@@ -16,7 +16,8 @@ use crate::mir::resolved_semantics::{
     VerifiedResolvedFunctionV1,
 };
 use crate::mir::resolved_value_profile::{
-    map_trivial_if_recipe_v1, product::{TrivialRepresentationV1, VerifiedTrivialCanonicalOwnerV1},
+    map_trivial_if_recipe_v1,
+    product::{TrivialRepresentationV1, VerifiedTrivialCanonicalOwnerV1},
     IfRecipeMapRejectV1,
 };
 
@@ -116,8 +117,8 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalIfPhysicalCorresp
     representation: TrivialRepresentationV1,
     then_assignment: SourceStmtSiteV1,
     then_value: SourceExprSiteV1,
-    else_assignment: SourceStmtSiteV1,
-    else_value: SourceExprSiteV1,
+    else_assignment: Option<SourceStmtSiteV1>,
+    else_value: Option<SourceExprSiteV1>,
     continuation_read: SourceExprSiteV1,
 }
 
@@ -137,9 +138,7 @@ impl CanonicalIfPhysicalCorrespondenceV1 {
         &self.if_site
     }
 
-    pub(in crate::mir::builder::resolved_lowering) const fn condition(
-        &self,
-    ) -> &SourceExprSiteV1 {
+    pub(in crate::mir::builder::resolved_lowering) const fn condition(&self) -> &SourceExprSiteV1 {
         &self.condition
     }
 
@@ -159,22 +158,24 @@ impl CanonicalIfPhysicalCorrespondenceV1 {
         &self.then_assignment
     }
 
-    pub(in crate::mir::builder::resolved_lowering) const fn then_value(
-        &self,
-    ) -> &SourceExprSiteV1 {
+    pub(in crate::mir::builder::resolved_lowering) const fn then_value(&self) -> &SourceExprSiteV1 {
         &self.then_value
     }
 
-    pub(in crate::mir::builder::resolved_lowering) const fn else_assignment(
+    pub(in crate::mir::builder::resolved_lowering) fn else_assignment(
         &self,
-    ) -> &SourceStmtSiteV1 {
-        &self.else_assignment
+    ) -> Option<&SourceStmtSiteV1> {
+        self.else_assignment.as_ref()
     }
 
-    pub(in crate::mir::builder::resolved_lowering) const fn else_value(
+    pub(in crate::mir::builder::resolved_lowering) fn else_value(
         &self,
-    ) -> &SourceExprSiteV1 {
-        &self.else_value
+    ) -> Option<&SourceExprSiteV1> {
+        self.else_value.as_ref()
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) const fn is_explicit_else(&self) -> bool {
+        self.else_assignment.is_some()
     }
 
     pub(in crate::mir::builder::resolved_lowering) const fn continuation_read(
@@ -191,9 +192,8 @@ pub(in crate::mir::builder::resolved_lowering) fn produce_trivial_if_physical_in
     let Some(facts) = profile.recipe_facts() else {
         return Ok(CanonicalIfRecipePreflightV1::NotThisShape);
     };
-    let correspondence = correspondence_from_facts(facts).map_err(
-        CanonicalIfRecipeProducerRejectV1::Correspondence,
-    )?;
+    let correspondence = correspondence_from_facts(facts)
+        .map_err(CanonicalIfRecipeProducerRejectV1::Correspondence)?;
     let artifact = map_trivial_if_recipe_v1(profile, source_function)
         .map_err(CanonicalIfRecipeProducerRejectV1::Mapper)?;
     let physical_input = VerifiedIfPhysicalInputV1::from_artifact(artifact)
@@ -272,10 +272,7 @@ impl CanonicalIfRecipeAdmissionV1 {
         if site != &self.expected_site {
             return Err(CanonicalIfRecipeAdmissionRejectV1::UnexpectedIfSite);
         }
-        let state = std::mem::replace(
-            &mut self.state,
-            CanonicalIfRecipeAdmissionStateV1::Consumed,
-        );
+        let state = std::mem::replace(&mut self.state, CanonicalIfRecipeAdmissionStateV1::Consumed);
         match state {
             CanonicalIfRecipeAdmissionStateV1::Pending(demand) => Ok(demand),
             CanonicalIfRecipeAdmissionStateV1::Consumed => {
@@ -305,17 +302,18 @@ fn correspondence_from_facts(
     let then_assignment = facts
         .then_assignment()
         .ok_or(CanonicalIfRecipeCorrespondenceRejectV1::MissingThenAssignment)?;
-    let else_assignment = facts
-        .else_assignment()
-        .ok_or(CanonicalIfRecipeCorrespondenceRejectV1::MissingElseAssignment)?;
+    let else_assignment = facts.else_assignment();
     let continuation_read = facts
         .continuation_read()
         .ok_or(CanonicalIfRecipeCorrespondenceRejectV1::MissingContinuationRead)?;
-    if entry.binding() != then_assignment.binding() || entry.binding() != else_assignment.binding() {
+    if entry.binding() != then_assignment.binding()
+        || else_assignment.is_some_and(|assignment| entry.binding() != assignment.binding())
+    {
         return Err(CanonicalIfRecipeCorrespondenceRejectV1::BindingMismatch);
     }
     if entry.representation() != then_assignment.representation()
-        || entry.representation() != else_assignment.representation()
+        || else_assignment
+            .is_some_and(|assignment| entry.representation() != assignment.representation())
     {
         return Err(CanonicalIfRecipeCorrespondenceRejectV1::RepresentationMismatch);
     }
@@ -326,8 +324,8 @@ fn correspondence_from_facts(
         representation: entry.representation(),
         then_assignment: then_assignment.statement().clone(),
         then_value: then_assignment.value().clone(),
-        else_assignment: else_assignment.statement().clone(),
-        else_value: else_assignment.value().clone(),
+        else_assignment: else_assignment.map(|assignment| assignment.statement().clone()),
+        else_value: else_assignment.map(|assignment| assignment.value().clone()),
         continuation_read: continuation_read.clone(),
     })
 }
@@ -351,9 +349,7 @@ fn source_owner_matches(
 mod tests {
     use super::*;
     use crate::mir::if_recipe_contract::*;
-    use crate::mir::resolved_semantics::{
-        BindingRefV1, SourceNodeSiteV1, SourcePathSegmentV1,
-    };
+    use crate::mir::resolved_semantics::{BindingRefV1, SourceNodeSiteV1, SourcePathSegmentV1};
     use hakorune_mir_core::BindingId;
 
     fn stmt_site(index: u32) -> SourceStmtSiteV1 {
@@ -533,8 +529,9 @@ mod tests {
     }
 
     fn demand() -> CanonicalIfPhysicalDemandV1 {
-        let mut issuer = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation()
-            .expect("owner issuer");
+        let mut issuer =
+            crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation()
+                .expect("owner issuer");
         let owner = issuer.issue().expect("owner");
         let binding = BindingRefV1::new(owner, BindingId::new(0));
         let input = VerifiedIfPhysicalInputV1::from_artifact(artifact()).expect("physical input");
@@ -547,8 +544,8 @@ mod tests {
                 representation: TrivialRepresentationV1::InlineI64,
                 then_assignment: stmt_site(2),
                 then_value: expr_site(2, SourcePathSegmentV1::Value),
-                else_assignment: stmt_site(3),
-                else_value: expr_site(3, SourcePathSegmentV1::Value),
+                else_assignment: Some(stmt_site(3)),
+                else_value: Some(expr_site(3, SourcePathSegmentV1::Value)),
                 continuation_read: expr_site(4, SourcePathSegmentV1::Value),
             },
         }
