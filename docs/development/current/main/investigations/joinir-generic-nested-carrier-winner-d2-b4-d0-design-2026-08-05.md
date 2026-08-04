@@ -1,9 +1,9 @@
 ---
-Status: accepted bounded test-only execution brief
+Status: closed bounded test-only execution row
 Date: 2026-08-05
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Decision: accepted — `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-D0`
-Next implementation row: `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-S1`
+Implemented row: `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-S1`
 ---
 
 # Generic nested-carrier winner certificate — D2-B4
@@ -71,11 +71,13 @@ planner-required V0 gate  -> separate pre-effect observation
 ```
 
 The certificate is valid only if the observed recursive labels equal the V1
-outer final-value labels, the required `loop_carrier_<label>` and
-`loop_step_in_<label>` tags are present, the frame and `both` source row match,
-and a fresh repeat is stable. This is not a shadowing-safe binding identity
-claim. A legacy V0 success with no debt receipt is recorded as a semantic
-mismatch, not as certificate evidence.
+outer **carrier-projected** final-value labels (the outer final-value labels
+whose matching `loop_carrier_<label>` and `loop_step_in_<label>` tags both
+exist), those required tags are present, the frame and `both` source row match,
+and a fresh repeat is stable. The induction variable may remain in the full
+outer final-value list and is not part of this projection. This is not a
+shadowing-safe binding identity claim. A legacy V0 success with no debt receipt
+is recorded as a semantic mismatch, not as certificate evidence.
 
 ## Acceptance evidence
 
@@ -113,11 +115,12 @@ V1PreEffectWinnerCertificateCandidate (test-only DTO)
   production callers: 0
 ```
 
-**Done**: `Both` release and strict rows record exact recursive-label equality,
-required V1 carrier/step-in tags, `LowerSome`, `GenericComposer` first effect,
-frame/source-row identity, legacy prefix/receipt/terminal, and fresh-repeat
-determinism. Planner-required records raw `[V1]` separately and emits no overlap
-certificate. Negative rows remain `UnresolvedStop`.
+**Done**: `Both` release and strict rows record exact recursive-label equality
+against the carrier-projected V1 outer final values, required carrier/step-in
+tags, `LowerSome`, `GenericComposer` first effect, frame/source-row identity,
+legacy prefix/receipt/terminal, and fresh-repeat determinism. Planner-required
+records raw `[V1]` separately and emits no overlap certificate. Negative rows
+remain `UnresolvedStop`.
 
 **Stop**: do not add a Generic Recipe contract, resolved BindingRef identity,
 selector arm, scheduler/retry, Recipe/JoinSig/PHI/physicalizer caller, or
@@ -127,14 +130,20 @@ fresh, stop with `UnresolvedStop`.
 
 ## Closeout and next boundary
 
-Implementation of this design row must update the parent
+S1 is closed by the test-only sibling module
+`src/mir/builder/control_flow/joinir/route_entry/registry/generic_nested_carrier_winner_tests.rs`
+plus visibility-only projections from the existing observer modules. Focused
+evidence is five green D2-B4 tests; no production caller or policy arm changed.
+
+The implementation closeout updates the parent
 Generic SSOT, this task card, `docs/reference/mir/generic-loop-stage-matrix.md`,
 `src/mir/builder/control_flow/plan/generic_loop/README.md`,
 `CURRENT_STATE.toml`, `10-Now.md`, and the active workstream. The closeout must
 state exact commands, line budgets, and explicit non-claims. Reference updates
-are part of implementation acceptance, not deferred cleanup; the implementation
-is incomplete until the reference page and Generic README describe the landed
-test-only certificate and its non-claims.
+are part of implementation acceptance, not deferred cleanup. The reference page
+and Generic README now describe the landed test-only certificate and its
+non-claims. The parent D2 disposition remains `UnresolvedStop` because the
+legacy V0 terminal still has no debt receipt.
 
 Even a green certificate here does not authorize a production V1 selector,
 Generic Recipe, Retry removal, PHI ownership, M7-S4, M10a, or M10b. Those need

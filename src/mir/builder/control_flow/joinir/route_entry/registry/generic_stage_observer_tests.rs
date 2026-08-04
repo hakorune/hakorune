@@ -108,10 +108,10 @@ pub(super) struct GenericStageTraceV1 {
 }
 
 #[derive(Debug, PartialEq)]
-struct GenericOverlapEvidenceRowV1 {
-    mode: ObserverModeV1,
-    direct: Vec<GenericDirectStageEvidenceV1>,
-    witness: GenericStageTraceV1,
+pub(super) struct GenericOverlapEvidenceRowV1 {
+    pub(super) mode: ObserverModeV1,
+    pub(super) direct: Vec<GenericDirectStageEvidenceV1>,
+    pub(super) witness: GenericStageTraceV1,
 }
 
 fn seeded_builder() -> MirBuilder {
@@ -274,7 +274,7 @@ fn observe_effect_without_local_fixture(mode: ObserverModeV1) -> GenericStageTra
     )
 }
 
-fn observe_both_evidence(mode: ObserverModeV1) -> GenericOverlapEvidenceRowV1 {
+pub(super) fn observe_both_evidence(mode: ObserverModeV1) -> GenericOverlapEvidenceRowV1 {
     GenericOverlapEvidenceRowV1 {
         mode,
         direct: observe_both_direct_stage(mode.strict_or_dev(), mode.planner_required()),

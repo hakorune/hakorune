@@ -17,7 +17,7 @@ the closed ledger is
 `docs/development/current/main/investigations/joinir-generic-post-effect-debt-classification-d0-s1-execution-task-2026-08-04.md`.
 The closed overlap parity evidence is recorded in
 `docs/development/current/main/investigations/joinir-generic-overlap-semantic-parity-d2-b2-execution-task-2026-08-04.md`.
-The accepted bounded continuation (implementation row S1) is
+The closed bounded continuation (implementation row S1) is
 `docs/development/current/main/investigations/joinir-generic-nested-carrier-winner-d2-b4-d0-design-2026-08-05.md`.
 The machine-readable test observer is
 `src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs`.
@@ -127,6 +127,22 @@ This reference does not claim:
 * shared JoinSig/PHI/physicalizer ownership;
 * retry/fallback removal or JoinIR deletion;
 * any language grammar or source syntax change.
+
+## D2-B4-S1 certificate snapshot
+
+The test-only S1 matrix uses the existing `Both` fixture. In release and strict
+mode the frozen raw schedule is `[GenericLoopV0, GenericLoopV1]`; the recursive
+facts label is `["j"]`, the natural V1 stage is `LowerSome` with
+`GenericComposer` as its first effect owner, and a fresh repeat is stable. The
+V1 outer final-value list is `["i", "j"]`; the carrier-projected subset is
+`["j"]`, selected by the required `loop_carrier_j` and `loop_step_in_j` tags.
+The legacy witness still attempts/terminates at V0 with no debt receipt, so the
+parent D2 disposition remains `UnresolvedStop`.
+
+Planner-required is a separate row with raw schedule `[GenericLoopV1]`; it does
+not issue an overlap certificate. The certificate DTO and all five focused
+tests live under `cfg(test)`; production selection, Recipe/JoinSig/PHI,
+physicalization, Retry, and scheduler authority remain unchanged.
 
 Those claims remain blocked until the parent M4 design stop closes with a
 complete matrix, precedence/disjointness proof, and witness equivalence.

@@ -109,14 +109,14 @@ pub(super) struct ReachabilityRowV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct NestedCarrierSemanticEvidenceV1 {
-    route: LoopRouteId,
-    outer_final_value_names: Vec<String>,
-    outer_phi_tags: Vec<String>,
-    nested_final_value_names: Vec<String>,
+pub(super) struct NestedCarrierSemanticEvidenceV1 {
+    pub(super) route: LoopRouteId,
+    pub(super) outer_final_value_names: Vec<String>,
+    pub(super) outer_phi_tags: Vec<String>,
+    pub(super) nested_final_value_names: Vec<String>,
 }
 
-fn observe_generic_carrier_facts(
+pub(super) fn observe_generic_carrier_facts(
     mode: CorpusModeV1,
     name: &str,
 ) -> (GenericLoopCarrierObservationV1, Vec<LoopRouteId>) {
@@ -371,7 +371,7 @@ fn nested_loop<'a>(plans: &'a [CorePlan]) -> Option<&'a CoreLoopPlan> {
     None
 }
 
-fn nested_carrier_evidence(route: LoopRouteId) -> NestedCarrierSemanticEvidenceV1 {
+pub(super) fn nested_carrier_evidence(route: LoopRouteId) -> NestedCarrierSemanticEvidenceV1 {
     let plan = compose_both_plan(route);
     let CorePlan::Loop(outer) = plan else {
         panic!("Both Generic route must compose to an outer Loop")
