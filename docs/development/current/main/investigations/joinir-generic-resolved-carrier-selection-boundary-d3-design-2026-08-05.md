@@ -274,6 +274,75 @@ parent D2/winner-equivalence/runtime claims = 0
 Only after this protocol and the full D2 matrix are accepted may a separate
 implementation card add the neutral capability and selector input.
 
+## Next design slice — compiler-side resolved Generic projector
+
+The next task is a design/test-only source projector, not a production selector
+arm:
+
+```text
+JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0
+```
+
+Owner boundary:
+
+```text
+compiler-side resolved ingress
+  input: ResolvedFunctionLoweringInputV1 + LocatedStmtV1
+  source authority: FunctionSourceViewV1, VerifiedResolvedFunctionV1,
+                    VerifiedResolvedLoopSourceForestV1
+  neutral precedent: compiler/direct_accum_projection.rs
+  output: test-only co-sealed source observation + Generic facts identity
+```
+
+The projector must read the located source once, obtain the resolver-issued
+outer/inner forest and assignment/read `BindingRefV1`s, check strict-ancestor,
+owner/source-kind/frame identity, and seal the facts snapshot in the same
+transaction. Every mismatch is a typed pre-effect reject. It must not import
+registry policy, construct a `LivePreflightFrameV1`, select routes, touch
+`MirBuilder`, or expose an `Option<Capability>` ingress. The first slice may
+only add a `cfg(test)` harness around existing resolved compiler carriers; a
+production projector type requires a separate accepted implementation card.
+
+The source-side precedent is `ResolvedFunctionLoweringInputV1` plus
+`LocatedStmtV1`, with `compiler/direct_accum_projection.rs` as the existing
+one-lookup/one-frame model. The test DTOs should remain private and non-`Clone`:
+
+```text
+ResolvedGenericProjectionDispositionV1
+  = Accepted
+  | UnresolvedStop(TypedRejectReasonV1)
+
+ResolvedGenericProjectorInputV1
+  = source forest + outer/inner sites + BindingRefs
+  + facts snapshot + PreflightSeedV1 + InvocationSealV1
+```
+
+The reject vocabulary must cover foreign owner/source/frame, missing forest or
+binding, upvar/non-binding target, strict-ancestor mismatch, absent or
+mismatched facts, NoRecursive/Unavailable/Ambiguous carrier, and
+planner-required suppression. A target row with an invalid handoff is never
+reclassified as `Legacy`.
+
+Acceptance for this design slice:
+
+```text
+same parsed source -> one resolver forest -> one BindingRef pair -> one facts identity
+foreign LocatedStmtV1 / owner / frame / source kind -> typed reject
+AST reread after projection -> 0
+Builder / registry / selector / frame callers -> 0
+source projector file and test fixture -> <800 lines each
+```
+
+Focused acceptance commands are:
+
+```text
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4_s2 -- --nocapture
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED RUSTFLAGS='-Awarnings' cargo test --lib generic_d3_bindingref -- --nocapture
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED RUSTFLAGS='-Awarnings' cargo test --lib generic_resolved_projector -- --nocapture
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
 ## Non-authority and documentation contract
 
 The following are corroborating only:
