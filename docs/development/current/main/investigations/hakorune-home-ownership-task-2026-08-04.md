@@ -554,6 +554,56 @@ One whole-unit profile cutover. In the same series, retire selected old
 production authority and forbid HomeV1 failure -> SharedV1 retry. Keep legacy
 profile support only when explicitly selected by project/source-unit policy.
 
+## Milestone 12 — normative reference closeout
+
+### `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0`
+
+This row is mandatory after the first production Home slice and again after
+the final profile cutover. It is a documentation contract, not a grammar or
+lowering shortcut.
+
+Update the normative and derived reference surfaces from provisional/parked
+language to the exact implementation that actually landed:
+
+* `docs/reference/language/ownership.md` — Home/Handle rules, accepted
+  `take`/`share` surface, destination-side Home demand, rejected forms,
+  diagnostics, and the exact profile/fallback policy;
+* `docs/reference/language/EBNF.md` and its grammar registry — only the
+  parser-live contextual forms, with examples for ordinary handle calls and
+  explicit `share`;
+* `docs/reference/language/README.md`, variables/scope, lifecycle, cleanup,
+  and constructor/birth references — ownership, `fini()`, cleanup, `new`,
+  field initializer, `birth`, and partial-construction boundaries must point
+  to their separate owners;
+* `docs/reference/ir/json_v0.md`, callable/interface/FFI ABI references, and
+  generated support views — exact Home ABI/profile metadata, no body
+  re-inference at a boundary, and no hidden strong-owner producer;
+* active language workstream dashboards, examples, migration notes, and
+  environment-variable documentation — no stale `move/view/owned/shared`
+  target or SharedV1 retry claim remains presented as the live Home surface;
+* historical proposals and parked design cards — label them as evidence and
+  link the accepted reference page instead of silently rewriting history.
+
+The closeout must compare the reference grammar with both parser registries,
+the resolver/Home Flow verifier, callable ABI metadata, and the selected
+physical route. A mismatch that reflects real implementation behavior reopens
+the owning code row; documentation must not hide it as historical prose.
+
+Required evidence:
+
+```text
+reference grammar == parser-live grammar                 = 1
+reference Home ABI == sealed compiler product             = 1
+accepted examples compile on the selected profile        = 1
+rejected examples fail before Builder effects             = 1
+old target/fallback claims left in live reference pages   = 0
+ownership reference closeout before product completion    = 1
+```
+
+This row does not add `region`, field-take, consuming receivers, multi-anchor
+views, generic/dynamic/FFI ownership, or any other parked capability. It also
+does not make `fini()` a physical-free or transfer operation.
+
 ## Parked follow-ups
 
 - `OWN-HOME-TAKE-EXPR0-D0`: `take place_expr` for lifetime narrowing/local

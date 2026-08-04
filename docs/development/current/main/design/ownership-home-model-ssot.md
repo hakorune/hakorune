@@ -25,6 +25,12 @@ Source-language authority:
 Parked execution board:
 `../investigations/hakorune-home-ownership-task-2026-08-04.md`
 
+Reference closeout:
+`OWN-HOME-REFERENCE-CLOSEOUT0-DOC0` is mandatory after the first production
+Home slice and before Home product readiness/cutover is declared complete.
+The reference page may not claim parser-live grammar, ABI, or physical
+performance that the selected production route has not actually proved.
+
 Related lifecycle authority:
 `constructor-birth-new-lifecycle-ssot.md`
 

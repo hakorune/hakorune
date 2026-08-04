@@ -1,11 +1,12 @@
 ---
-Status: Design stop closed for D2; selected Call-valued If branch execution
-  row is open
+Status: Design stop closed; selected explicit-else Call-RHS row complete; next
+  shape handed off to the implicit-fallthrough design stop
 Date: 2026-08-04
 Decision: select one direct static i64 call as one branch assignment RHS;
   preserve the existing explicit-else topology and canonical SSA owner
-Outcome: D0/D1 design evidence is recorded and the bounded D2 execution row is
-  authorized; production completion still requires the D2 evidence card below.
+Outcome: D0/D1 design evidence and bounded D2 success/parity plus
+  candidate-abort/fresh-reuse evidence are complete. The next shape is
+  `joinir-if-recipe-call-branch-implicit-design-stop-2026-08-04.md`.
   Nested/effect/return/record/match/short-circuit shapes remain separate design
   rows.
 Related:
@@ -200,13 +201,11 @@ rollback journal, production fault toggle, or live Builder snapshot API.
 
 ## D2 status
 
-D2 is now an authorized execution row, but its evidence is not yet complete.
-The existing abort tests cover the no-call explicit/implicit envelope only.
-The bounded Call-RHS success/parity and late-abort/fresh-reuse proofs are
-specified in
-`joinir-if-recipe-call-branch-d3-d2-execution-task-2026-08-04.md`. That card
-must reuse the existing candidate fingerprint/seal-failure seam and add no new
-transaction owner.
+D2 is complete. The bounded Call-RHS success/parity and late-abort/fresh-reuse
+proofs are recorded in
+`joinir-if-recipe-call-branch-d3-d2-execution-task-2026-08-04.md` and reuse the
+existing candidate fingerprint/seal-failure seam. The next implicit-fallthrough
+shape is not included in this row; it has its own design stop and task card.
 
 ## D3 execution boundary after design
 
