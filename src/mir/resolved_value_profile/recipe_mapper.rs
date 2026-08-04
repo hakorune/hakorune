@@ -242,17 +242,19 @@ pub(crate) fn map_trivial_if_recipe_v1(
         .ok_or(IfRecipeMapRejectV1::MissingAssignment { branch: "then" })?;
     let explicit_else = facts.has_explicit_else();
     let else_assignment = facts.else_assignment();
-    if let Some(call_site) = facts.direct_call_site() {
-        if profile.direct_calls().len() != 1
-            || profile
-                .direct_calls()
-                .iter()
-                .filter(|row| row.site() == call_site)
-                .count()
-                != 1
-        {
-            return Err(IfRecipeMapRejectV1::DirectCallProfileMismatch);
-        }
+    let direct_call_sites = facts
+        .direct_call_sites()
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>();
+    if profile.direct_calls().len() != direct_call_sites.len()
+        || profile
+            .direct_calls()
+            .iter()
+            .zip(direct_call_sites.iter())
+            .any(|(row, site)| row.site() != *site)
+    {
+        return Err(IfRecipeMapRejectV1::DirectCallProfileMismatch);
     }
     if entry.binding() != then_assignment.binding()
         || else_assignment.is_some_and(|assignment| entry.binding() != assignment.binding())

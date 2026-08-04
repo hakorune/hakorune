@@ -35,8 +35,11 @@ one outer BindingRef is assigned exactly once in each branch
 both values have one admitted homogeneous class (i64/Bool)
 condition is Bool from the admitted i64-comparison profile
 the same BindingRef is read after the merge
-no nested If/Loop/BlockExpr, return/throw, short-circuit, Call, Record, Match,
-or hidden fallback/reselection
+no nested If/Loop/BlockExpr, return/throw, short-circuit, Record, Match, or
+hidden fallback/reselection. A direct static `i64` call is allowed only as the
+RHS of the single assignment in an explicit branch; the two-call extension
+requires exactly one such call in each branch and retains the same
+identity-free recipe operation.
 ```
 
 An implicit fallthrough is a later shape. It is not equivalent to an explicit

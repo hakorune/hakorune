@@ -13,7 +13,8 @@ canonical resolved lowerer.
   else, and continuation. Keys are recipe-local and deterministic.
 - `IfRecipeVerifierV1` owns structural checks: canonical keys, defined-before-
   use, value classes, one merge target, one write per branch, branch/join
-  correspondence, and the required post-merge read.
+  correspondence, direct-call operation/claim parity, and the required
+  post-merge read.
 - `IfRecipeSourceClaimVerifierV1` owns only the claim's structural path shape.
   It does not prove that the named AST/function exists or produced the recipe.
 - `IfRecipeNormalizerV1` exposes semantic-only and source-bound views. Source
@@ -40,10 +41,18 @@ recipe is not a synthetic Loop and does not reuse Loop carrier/exit ownership.
 ## Extension boundary
 
 The first profile admits only explicit-else, fallthrough-only Ifs with scalar
-`i64`/`bool` operations. Add a new operation, recursive block shape, or
-implicit-else profile only with a counterexample fixture and a separate
-design/acceptance row. Do not widen this contract to hide an unsupported
-production path.
+`i64`/`bool` operations. A direct static `i64` call is admitted only as an
+assignment RHS: zero or one call for the existing no/one-call shapes, or one
+call in each explicit branch for the two-call D0 shape. The latter emits six
+ordered source claims (`IfNode`, `Condition`, `ThenAssignment`,
+`ElseAssignment`, then-call, else-call); branch identity is carried by the
+exact source path and claim position, while the portable operation remains
+identity-free. Calls in conditions, arguments, continuations, nested shapes,
+implicit fallthrough, or any third/duplicate arm call remain rejected.
+
+Add a new operation, recursive block shape, or implicit-else profile only with
+a counterexample fixture and a separate design/acceptance row. Do not widen
+this contract to hide an unsupported production path.
 
 ## Nested depth-one profile (D0)
 

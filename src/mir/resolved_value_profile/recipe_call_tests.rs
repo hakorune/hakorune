@@ -1,11 +1,10 @@
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::compiler::VerifiedResolvedCallableProgramV1;
 use crate::mir::if_recipe_contract::{
-    IfOperationV1, IfRecipeArtifactV1, IfRecipeNormalizerV1, IfSourceClaimRoleV1,
-    IfRecipeVerifierV1, IfSourcePathStepV1,
+    IfOperationV1, IfRecipeArtifactV1, IfRecipeNormalizerV1, IfRecipeVerifierV1,
+    IfSourceClaimRoleV1, IfSourcePathStepV1,
 };
-use crate::mir::resolved_control_flow::if_control::
-    verify_resolved_function_if_control_with_direct_call_v1;
+use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_control_with_direct_call_v1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 
 use super::{
@@ -222,10 +221,63 @@ fn call_outside_explicit_branch_rhs_is_not_recipe_facts() {
 }
 
 #[test]
-fn two_calls_are_rejected_but_implicit_call_fallthrough_is_admitted() {
+fn explicit_two_call_arms_are_admitted_but_implicit_call_fallthrough_stays_admitted() {
     let source = program(explicit_call_body(call(), call()));
-    let (analyzed, _) = product(&source);
-    assert!(analyzed.recipe_facts().is_none());
+    let (explicit_product, input) = product(&source);
+    let facts = explicit_product
+        .recipe_facts()
+        .expect("explicit two-call RHS facts are admitted");
+    let [Some(then_site), Some(else_site)] = facts.direct_call_sites() else {
+        panic!("expected one direct call site per explicit branch")
+    };
+    assert_ne!(then_site, else_site);
+    assert_eq!(explicit_product.direct_calls().len(), 2);
+    assert_eq!(explicit_product.direct_calls()[0].site(), then_site);
+    assert_eq!(explicit_product.direct_calls()[1].site(), else_site);
+
+    let artifact = map_trivial_if_recipe_v1(&explicit_product, input.function())
+        .expect("explicit two-call RHS maps to a portable artifact");
+    let recipe = artifact.recipe().as_recipe();
+    assert_eq!(
+        recipe
+            .then_block
+            .items
+            .iter()
+            .filter(|item| matches!(item.operation, IfOperationV1::DirectStaticCall { .. }))
+            .count(),
+        1
+    );
+    assert_eq!(
+        recipe
+            .else_block
+            .as_ref()
+            .unwrap()
+            .items
+            .iter()
+            .filter(|item| matches!(item.operation, IfOperationV1::DirectStaticCall { .. }))
+            .count(),
+        1
+    );
+    let claims = &artifact.source_binding().as_source_binding().claims;
+    assert_eq!(claims.len(), 6);
+    assert_eq!(claims[4].role, IfSourceClaimRoleV1::DirectStaticCall);
+    assert_eq!(claims[5].role, IfSourceClaimRoleV1::DirectStaticCall);
+    assert!(matches!(
+        claims[4].path.steps.as_slice(),
+        [
+            IfSourcePathStepV1::BodyItem { .. },
+            IfSourcePathStepV1::IfThenItem { .. },
+            IfSourcePathStepV1::AssignmentValue
+        ]
+    ));
+    assert!(matches!(
+        claims[5].path.steps.as_slice(),
+        [
+            IfSourcePathStepV1::BodyItem { .. },
+            IfSourcePathStepV1::IfElseItem { .. },
+            IfSourcePathStepV1::AssignmentValue
+        ]
+    ));
 
     let source = program(vec![
         ASTNode::Local {
@@ -276,4 +328,20 @@ fn two_calls_are_rejected_but_implicit_call_fallthrough_is_admitted() {
     let semantic = IfRecipeNormalizerV1::normalize_semantic(artifact.recipe()).unwrap();
     assert!(semantic.contains("implicit"));
     assert!(semantic.contains("direct_static_call"));
+}
+
+#[test]
+fn explicit_two_call_claim_order_cannot_be_swapped() {
+    let source = program(explicit_call_body(call(), call()));
+    let (product, input) = product(&source);
+    let artifact = map_trivial_if_recipe_v1(&product, input.function()).unwrap();
+    let json = IfRecipeNormalizerV1::normalize_artifact(&artifact).unwrap();
+    let mut artifact: IfRecipeArtifactV1 = serde_json::from_str(&json).unwrap();
+    let then_path = artifact.source_binding.claims[4].path.clone();
+    artifact.source_binding.claims[4].path = artifact.source_binding.claims[5].path.clone();
+    artifact.source_binding.claims[5].path = then_path;
+    assert!(matches!(
+        IfRecipeVerifierV1::verify_artifact(artifact),
+        Err(crate::mir::if_recipe_contract::IfRecipeRejectReasonV1::SourceClaimOrderMismatch)
+    ));
 }
