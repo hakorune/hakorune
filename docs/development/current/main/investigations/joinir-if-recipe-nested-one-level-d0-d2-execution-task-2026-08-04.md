@@ -1,5 +1,5 @@
 ---
-Status: D0 and D1 execution green; D2 gated on a production-consumer design stop
+Status: D0 and D1 execution green; D2 adapter/parity execution authorized
 Date: 2026-08-04
 Parent: joinir-if-recipe-nested-one-level-design-stop-2026-08-04.md
 Decision: if accepted, execute only depth-one nested pure fallthrough D0,
@@ -74,14 +74,12 @@ D1 census evidence (2026-08-04):
 
 ## D2 — parity and candidate abort
 
-D2 is not yet executable against the new nested artifact: the current
-production compile still selects the existing canonical physical oracle for a
-nested source and does not consume `NestedIfRecipeArtifactV1`. The existing
-canonical oracle can already emit two nested PHIs and reuse the candidate
-abort seam, but that proves only physical parity, not nested-artifact
-consumption. The required design stop is
-`joinir-if-recipe-nested-production-consumer-design-stop-2026-08-04.md`; do
-not wire or claim D2 before that row is accepted.
+D2 production-consumer design is accepted in
+`joinir-if-recipe-nested-production-consumer-design-stop-2026-08-04.md`.
+Implement only the one-shot nested proof adapter described there: it consumes
+the verified artifact/JoinSig, while the existing canonical lowerer remains
+the sole CFG/SSA/PHI physicalizer. Do not manufacture child
+`CanonicalIfPhysicalDemandV1` values or add a second physicalizer.
 
 Use the exact source fixture:
 

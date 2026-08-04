@@ -1,9 +1,9 @@
 ---
-Status: Design consultation required; no production wiring authorized
+Status: Design accepted; D2 execution authorized within the bounded adapter
 Date: 2026-08-04
 Parent: joinir-if-recipe-nested-one-level-d0-d2-execution-task-2026-08-04.md
-Decision: D0 and D1 are green; choose the sole production consumer boundary
-  before opening nested parity/abort D2
+Decision: D0 and D1 are green; choose one nested proof adapter consumed by the
+  existing canonical lowerer before opening parity/abort D2
 ---
 
 # Nested If production consumer — design stop
@@ -29,7 +29,7 @@ SSA, and `PhiTxn`, but it does not consume `NestedIfRecipeArtifactV1` or
 Therefore the current nested runtime tests are physical-oracle evidence only;
 they are not Recipe-to-MIR parity evidence. D2 must not claim otherwise.
 
-## Required decision
+## Accepted decision
 
 Adopt one production boundary for the nested artifact:
 
@@ -39,10 +39,12 @@ NestedIfPhysicalAdapterV1 (one producer/adapter caller)
   -> existing CanonicalCfgSessionV1 + Binding SSA + PhiTxn
 ```
 
-The adapter may package the two node demands and their composition witness,
-but it may not emit blocks, allocate physical IDs, or write PHI inputs. The
-existing lowerer remains the only physicalizer. A new nested physicalizer,
-transaction, retry route, or detached Builder is forbidden.
+The adapter packages the two node sites, shared binding, and composition
+witness as a one-shot proof receipt. It may not emit blocks, allocate physical
+IDs, or write PHI inputs. The existing lowerer remains the only physicalizer;
+its existing recursive `CanonicalCfgSessionV1`/Binding SSA/`PhiTxn` path emits
+the nodes after the proof is admitted. A new nested physicalizer, transaction,
+retry route, or detached Builder is forbidden.
 
 The D0 sidecar is intentional: the analyzer already owns one same-pass facts
 draft and the nested product is an additional sealed slot, not a second whole
@@ -52,19 +54,22 @@ independent.
 
 ## Candidate designs
 
-### A — nested admission into the existing canonical lowerer (preferred)
+### A — nested proof admission into the existing canonical lowerer (accepted)
 
 Add a nested admission disposition that carries exactly two verified node
-demands. `CanonicalTrivialSsaLowererV1::lower_if` consumes the outer demand and
-the recursive child demand in source order. The existing
-`lower_if_materialization_core` emits both CFG nodes and reads the sealed
-composition only for correspondence checks.
+sites. `CanonicalTrivialSsaLowererV1::lower_if` consumes the outer proof and
+the recursive child proof in source order. The existing
+`lower_if_materialization_core` emits both CFG nodes and the adapter checks the
+sealed composition and physical receipt after each node. The proof is the
+route/shape authority; `if_control` and the canonical session remain the only
+physical layout/value authorities.
 
 Benefits:
 
 * one production physicalizer and one CFG/SSA/PHI owner;
 * existing candidate session and draft-seal abort are reused unchanged;
-* portable nested artifact remains the pre-effect route proof.
+* portable nested artifact remains the pre-effect route proof;
+* no fake second `IfPhysicalDemandV1` is manufactured from a child node.
 
 Required proof:
 
@@ -111,7 +116,8 @@ one continuation read.
 
 Only after A is accepted may the execution row open:
 
-1. Recipe/JoinSig admission reaches the sole canonical lowerer.
+1. Recipe/JoinSig admission reaches the sole canonical lowerer through the
+   nested proof adapter.
 2. Three outcomes match interpreter output and the sealed two-node JoinSig.
 3. MIR has exactly two relevant PHIs; the inner merge value is the outer-then
    predecessor/value input.
