@@ -31,18 +31,23 @@ require_file src/parser/statements/mod.rs
 require_file src/mir/builder/control_flow/exception/try_catch.rs
 require_file src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs
 
-require_grep docs/development/current/main/design/stage0-cleanup-catch-boundary-ssot.md 'Stage0 stabilizes deterministic `cleanup` behavior. It does not open a full'
+boundary_doc="$(find docs/development/current/main/design -maxdepth 1 -name '*cleanup-catch-boundary-ssot.md' -print -quit)"
+compat_guide="$(find docs/guides -maxdepth 1 -name 'exceptions-*.md' -print -quit)"
+
+require_grep "$boundary_doc" 'Status: Superseded implementation-boundary inventory'
+require_grep "$boundary_doc" 'accepted target is Result-only postfix `?`'
+require_grep "$boundary_doc" 'one standalone `cleanup {}`'
 require_grep docs/development/current/main/design/stage0-cleanup-catch-boundary-ssot.md "throw:"
 require_grep docs/development/current/main/design/stage0-cleanup-catch-boundary-ssot.md "reserved/prohibited in the source surface"
 require_grep docs/development/current/main/design/stage0-cleanup-catch-boundary-ssot.md "JoinIR strict:"
 require_grep docs/development/current/main/design/stage0-cleanup-catch-boundary-ssot.md 'no JoinIR strict lowering of `TryCatch`'
 
-require_grep docs/guides/exception-handling.md "Stage0 boundary"
-require_grep docs/guides/exception-handling.md 'Stage0 stabilizes `cleanup`; it does not open a full exception system.'
-require_grep docs/guides/exception-handling.md '`throw` remains reserved/prohibited in Stage0'
+require_grep docs/guides/exception-handling.md 'Status: Accepted C′ target guide; production activation 0.'
+require_grep docs/guides/exception-handling.md 'Canonical v1 has no source `try`, `throw`, `catch`'
+require_grep docs/guides/exception-handling.md '## Current implementation boundary'
 
-require_grep docs/guides/exceptions-stage3.md "Status: Compatibility/historical note."
-require_grep docs/guides/exceptions-stage3.md "Stage0 cleanup boundary SSOT"
+require_grep "$compat_guide" 'Status: Historical/compatibility implementation inventory'
+require_grep "$compat_guide" '## Accepted C′ boundary'
 
 require_grep src/parser/statements/exceptions.rs "[freeze:contract][parser/throw_reserved]"
 require_grep src/parser/statements/exceptions.rs "[freeze:contract][parser/try_reserved]"

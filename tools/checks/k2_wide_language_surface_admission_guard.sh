@@ -18,7 +18,8 @@ require_text "$ssot" "Small surface, strong semantics"
 require_text "$ssot" "Surface admission checklist"
 require_text "$ssot" "Fold-first rule"
 require_text "$ssot" 'while` / `for` / `repeat` / `until` / `do'
-require_text "$ssot" 'try` / `throw` / `?'
+require_text "$ssot" 'try` / `throw` / `catch'
+require_text "$ssot" 'unchanged `Result<T,E>` propagation'
 require_text "$ssot" 'Vec<T>` / `List<T>` / canonical `T[]'
 require_text "$ssot" "Reserved protocol surface"
 require_text "$taskboard" "Feature admission policy"
