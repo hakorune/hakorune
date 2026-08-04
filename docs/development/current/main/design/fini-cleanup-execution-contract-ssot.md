@@ -1,23 +1,28 @@
-Status: SSOT
+Status: Transitional bridge SSOT; sunset owned by LANGUAGE-RESULT-EXIT-C-PRIME0-R0
 Scope: Stage-B JSON v0 bridge execution contract for canonical `cleanup`,
 legacy `fini {}` / `local ... fini {}`, and postfix `cleanup`.
 Related:
 - `docs/reference/language/scope-exit-semantics.md`
 - `docs/reference/language/lifecycle.md`
+- `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
 - `src/runner/json_v0_bridge/lowering/scope_exit.rs`
 - `src/runner/json_v0_bridge/lowering/expr/block_expr.rs`
 
 # Cleanup/Fini Execution Contract SSOT
 
-Purpose: fix one compiler-side contract for DropScope-related execution so
-parser/runtime/selfhost can share one fail-fast boundary.
+Purpose: document the current bridge truth until the accepted C′ family
+replaces it with `CleanupRegistrationV1` and `VerifiedExitTransactionV1`.
+Nothing in this file selects new canonical surface.
 
-Naming decision:
-- `cleanup` is the canonical scope/block-exit surface.
-- `fini {}` / `local ... fini {}` are legacy DropScope aliases until a parser
-  compatibility row changes them.
-- object `fini()` remains the object lifecycle finalizer and is not lowered as
-  a DropScope handler.
+Target naming decision:
+- standalone `cleanup {}` is the only canonical scope/block-exit surface;
+- local/postfix cleanup and scope-position `fini {}` are retirement input;
+- Box-member `fini {}` is a non-callable terminal-Home hook and is never
+  lowered as a DropScope handler;
+- direct `obj.fini()` is rejected by the accepted C′ target.
+
+The `FiniReg -> Try(finally)` facts below describe the current bridge only.
+They must be removed, not rebranded as the final cleanup representation.
 
 ## 1) Boundary and ownership
 
@@ -64,8 +69,11 @@ Rules:
 ## 5) Catch/Cleanup sequencing boundary
 
 - Postfix `cleanup` is represented as `Try.finally` in JSON v0 shape.
-- Execution order remains `catch -> cleanup -> outer scope fini/drop` per language SSOT.
-- Bridge must preserve this order and must not rewrite to an alternate control structure.
+- The current bridge preserves its historical `catch -> cleanup -> outer
+  scope fini/drop` sequence until atomic retirement.
+- This sequence is implementation evidence, not current language semantics.
+  C′ has no catch and gives standalone cleanup plus terminal Home release to
+  `VerifiedExitTransactionV1` and the lifecycle DropPlan.
 
 ## 6) Change policy
 

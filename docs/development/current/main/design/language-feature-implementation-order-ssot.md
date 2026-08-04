@@ -66,6 +66,15 @@ migration examples, and historical redirects only after code and behavior
 gates are green. A parser/AST/lowering commit alone does not close a language
 surface series.
 
+For the accepted Result/exit and C′ lifecycle families, the required
+implementation-after receipts are explicit:
+
+```text
+LANGUAGE-FAILURE-REFERENCE-CLOSEOUT0-DOC0
+LANGUAGE-CLEANUP-REFERENCE-CLOSEOUT0-DOC0
+LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0
+```
+
 ### 2026-08-04 surface-shrink reassessment stop
 
 The completed metadata capsules remain historical implementation facts, but
@@ -77,8 +86,13 @@ select exactly one family. In particular:
 contracts -> LANGUAGE-CONTRACT-FAMILY-PARK0-D0 before CONTRACT-003/004
 transition -> LANGUAGE-TRANSITION-RETIRE0-D0 before TRANS-002/003
 gate -> LANGUAGE-GATE-TOPLEVEL-ONLY0-D0 before member/statement expansion
-failure -> LANGUAGE-RESULT-ONLY-FAILURE0-D0 before catch changes
-cleanup -> LANGUAGE-SINGLE-CLEANUP-SURFACE0-D0 before syntax consolidation
+failure + cleanup -> LANGUAGE-RESULT-EXIT-C-PRIME0-D0 accepted;
+  use P0/Trivial-I0/R0/Unique-field-HOME0-I0/Shared-`HOME0-I0/S`/DOC0,
+  never the superseded catch queue
+lifecycle -> OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0 accepted;
+  retire scope-fini, then use OWN-GRAM-FINI-HOOK0 and
+  OWN-FINI-HOOK-PLAN0-S0 before the Home I0 slices and mandatory
+  Home/lifecycle DOC0 receipts
 delegate -> DELEGATE-SELFHOST-VALUE0-D0 before selfhost production activation
 ```
 

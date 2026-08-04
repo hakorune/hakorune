@@ -6,6 +6,8 @@ Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
   - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
+  - docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md
+  - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
   - docs/reference/language/EBNF.md
   - docs/reference/language/types.md
   - docs/reference/language/lifecycle.md
@@ -228,15 +230,11 @@ FUNCTION-EXIT-F1-RETURN0-S0
   row keeps production caller=0 and reuses the closed Raw VM-reference kernel.
   See [normal-file-vm0-frontdoor-forge-task-2026-07-26.md](../investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md).
 
--> LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 (accepted; short preemption)
-  source try/throw are rejected in both language profiles; postfix catch is
-  the canonical protected-region target; Fault remains non-catchable; the
-  distinct RecoverableFailure producer/ABI remains a later D0.
-  See [language-tryless-postfix-catch-task-order-2026-07-26.md](../investigations/language-tryless-postfix-catch-task-order-2026-07-26.md).
-
--> LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT (closed 2026-07-26; docs-only)
-  synchronize the accepted target while registry/parser/AST/MIR/runtime/
-  backend behavior remains unchanged, then resume Forge0.
+-> LANGUAGE-RESULT-EXIT-C-PRIME0-D0 (accepted target; production 0)
+  Result-only `?`, no catch, standalone cleanup, one exit owner. Parked exact
+  order: `P0 -> I0 (Trivial) -> R0 -> I0/U + I0/F -> HOME0-I0
+  (Unique/field) -> I0/S -> HOME0-I0/S (Shared) -> DOC0`. See
+  [Result/exit C′](../design/language-result-propagation-and-exit-transaction-ssot.md).
 
 -> NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 (closed; production caller=0)
   -> FORGE-CONTRACT0
@@ -382,8 +380,8 @@ failure vocabulary:
   2026-07-10 null migration baseline = 764 .hako files under lang/src + apps
 
 ownership:
-  B′ now selects ordinary shared-strong fields with no implicit child fini;
-  production/runtime convergence remains pending
+  C′ selects terminal Home `fini {}` with direct `obj.fini()` rejected;
+  exact owning-field classification and production remain pending
 
 capabilities:
   EffectSummary is metadata-only; CapabilityPlan starts verified=false;
@@ -495,8 +493,10 @@ Deliverables:
    support, positive fixtures, and negative fixtures.
 2. Classify every spelling as `canonical`, `compatibility_only`, `reserved`,
    or `rejected`.
-3. Seed guard/guard-let, match/peek, postfix catch/cleanup/try, delegation/from,
-   loops, weak, records, and current literal surfaces.
+3. Seed the then-current registry evidence for guard/guard-let, match/peek,
+   postfix catch/cleanup/try, delegation/from, loops, weak, records, and
+   current literal surfaces. Later superseding Decisions may classify those
+   rows as retirement input; seeding is not target-language acceptance.
 4. Generate EBNF tables, support matrix, keyword policy, and fixture index from
    the registry. Do not generate parser implementations.
 5. Define `Canonical` default and explicit `Compat2025`; compatibility aliases
@@ -718,40 +718,38 @@ migration; it is not a grammar typo cleanup.
 
 ### 4. LANGV1-FAILURE-OUTCOME-001
 
-Status: active design decision as 3504 after Type Guarantee closeout.
+Status: C′ target accepted 2026-08-05; implementation remains parked.
 
 Target vocabulary:
 
 ```text
 Option::None = ordinary value absence
 Result::Err  = recoverable failure returned as a value
+Result expr? = exact unchanged Err propagation into enclosing Result
+Option ?     = rejected; absence stays guard/match-visible
 Fault        = violated language/runtime contract
 Normal(Unit) = successful computation with no useful result
 null         = Compat2025 migration surface only
+catch / RecoverableFailure = rejected target
 ```
 
 Deliverables:
 
-1. Define `void` as the Unit spelling/value and keep it distinct from
-   NoFallthrough and Fault.
-2. Define Fault categories, propagation, top-level diagnostics, and cleanup
-   execution. Fault must not convert implicitly to Result.
-3. Make canonical recoverable failure use Result. Restrict catch to an explicit
-   finite FFI/compat boundary or reject it in Canonical mode.
-4. Inventory every live `null` use by meaning: optional absence, no-result,
-   parser sentinel, foreign null, or compatibility.
-5. Migrate by meaning to Option, Result, Unit, or explicit FFI carrier. Do not
-   globally replace text.
-6. Keep `null` available only under explicit `Compat2025` after migration.
-7. Explicitly classify and migrate `local x` default initialization,
-   `WeakRef.weak_to_strong()` failure, `NullBox`, `VoidBox`, `MissingBox`, and
-   dropped-WeakRef observations. No runtime representation may silently define
-   the source absence relation.
-8. Change the `literal_null` registry profile only after Canonical source and
-   API fixtures no longer rely on it. Canonical rejection must not retry the
-   compatibility profile.
-9. Publish one VM/EXE matrix for Unit, Option::None, Result::Err, Fault,
-   foreign null, and Compat2025 null, including cleanup precedence.
+1. Keep Unit, Option absence, Result error, NoFallthrough, and Fault distinct;
+   Fault never converts implicitly to Result.
+2. Seal Result `?` only for exact `Result<T,E>` -> `Result<U,E>`; reject
+   conversion, custom Try, Option `?`, catch, and RecoverableFailure.
+3. Census every current `?` token/AST site, migrate or reject C-style ternary
+   `cond ? a : b`, and prove the postfix grammar has no unresolved collision.
+4. Classify and migrate `null`, uninitialized locals, Weak upgrade, Null/Void/
+   Missing boxes, and FFI observations by meaning; no global text rewrite or
+   Canonical-to-Compat retry.
+5. Publish the VM/EXE value/Outcome/cleanup matrix, including first-Fault
+   chronology, suppressed teardown Faults, and remaining-release witnesses.
+6. Use only `P0 -> I0 -> R0 -> HOME0-I0 (Unique/field) -> HOME0-I0/S
+   (Shared) -> DOC0`; each Home cell waits for its named DropPlan/finalization.
+   `DOC0` updates grammar, both parsers' reference witnesses, references,
+   examples, diagnostics, and backends only after the physical gates are green.
 
 Acceptance:
 
@@ -762,6 +760,14 @@ unit_fault_nofallthrough_distinct = 1
 canonical_null_surface = 0
 compat2025_null_surface = 1
 catchable_fault_set_closed = 1
+recoverable_failure_owner = Result
+result_qmark_error_relation = exact
+option_qmark_surface = 0
+recoverable_failure_outcome = 0
+canonical_cleanup_surface_count = 1
+ternary_qmark_unresolved_collision_count = 0
+first_fault_primary_chronology = 1
+remaining_teardown_after_fault = best_effort_verified
 local_default_absence_owner_count = 1
 weak_upgrade_absence_owner_count = 1
 ```
@@ -871,56 +877,48 @@ Next: `LANGV1-OWNERSHIP-IDENTITY-001`.
 
 ### 5. LANGV1-OWNERSHIP-IDENTITY-001
 
-Status: B′ decision accepted 2026-07-14; implementation/fixtures remain queued.
+Status: C′ target accepted 2026-08-05; implementation/fixtures remain queued.
 
 Decision owner:
-`docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
+`docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md`
 
 Target laws:
 
 ```text
 record = immutable identity-free value; with creates a new value
-box = shared identity handle; assignment/param/return share identity
-weak = non-owning BoxIdentity handle
-ordinary field = shared strong
-weak field = non-owning
-owned field = reserved until exclusive lifecycle authority is enforceable
-fini = explicit eager payload teardown; receiver token is not consumed
-last strong / DestroyOwned / native Drop = structural drop only, user fini 0
+ordinary Box use = non-owning handle
+verified Home destination = one transferred Home
+share = the sole ordinary owner-add operation
+weak = generation-aware non-owner
+fini { } = non-callable terminal Home hook
+direct obj.fini() = rejected
+terminal DropPlan = hook -> reverse owning-field release -> structural drop
+close()/shutdown() = ordinary optional domain methods
 ```
 
 Deliverables:
 
-1. Define record copy/update/equality and reject identity/lifecycle operations
-   on records.
-2. Define Box assignment, call, return, equality, hash, Dead observation, and
-   no-implicit-clone rules.
-3. Remove implicit cascade `fini()` through ordinary shared strong fields.
-   Parent cleanup explicitly finalizes resources it owns.
-4. Keep a future `owned` category reserved; do not add syntax until transfer,
-   alias, overwrite, cycle, and partial-birth rules are enforceable.
-5. Project BoxRef, WeakRef, host handles, plugin mapping, equality, and hash to
-   one generation-aware `BoxIdentity(ObjectHandle, generation)` relation.
-6. Add VM/runtime and EXE fixtures for aliases, weak upgrade, Dead/Freed tokens,
-   generation mismatch, repeated fini, and parent/child finalization.
-7. Replace prose-only escape rules with one closed ownership-operation
-   vocabulary covering local bind/share, assignment, argument/return/outbox,
-   strong-field publication, weak acquisition/upgrade, explicit fini, and
-   runtime reclamation. Each operation names whether identity is shared,
-   authority transfers, or no ownership change occurs.
-8. Verifier/runtime/backend consume the same operation relation. They must not
-   infer ownership transfer from variable names, field strength, reference
-   counts, or cleanup placement independently.
+1. Keep records identity/lifecycle-free; reuse the Home board for taxonomy,
+   destination, ABI, Flow, replacement, birth, representation, and diagnostics.
+2. Parent hook precedes reverse verified-owning-field release; child hook needs
+   terminal child Home. User code cannot call child `fini` or reorder release.
+3. Keep field classification in `OWN-FIELD-CONTAINER-DEST-D0`; project every
+   host/weak/plugin identity through one generation-aware `BoxIdentity`.
+4. Activate Unique, field, and Shared/weak cells separately; retire B′, run the
+   C-speed gate, then execute Home reference closeout twice as specified.
 
 Acceptance:
 
 ```text
 record_box_semantic_law_count = 2
-ordinary_field_ownership = shared_strong
-ordinary_field_implicit_cascade_fini = 0
+field_ownership_classification_owner_count = 1
+terminal_home_finalization_owner_count = 1
+direct_fini_call_surface = 0
+parent_hook_before_field_release = 1
+verified_owning_field_release_order = reverse_declaration
+child_hook_requires_terminal_home = 1
 box_identity_relation_count = 1
 weak_identity_relation_count = 1
-owned_surface_enabled = 0
 ownership_operation_relation_count = 1
 prose_only_escape_authority = 0
 ```

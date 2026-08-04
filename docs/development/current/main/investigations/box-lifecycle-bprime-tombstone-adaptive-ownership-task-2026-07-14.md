@@ -1,7 +1,7 @@
 ---
-Status: Parked dependency branch — taskized through final adaptive form
+Status: Superseded historical taskboard — no task-selection authority
 Date: 2026-07-14
-Decision: B′ — eager-fini tombstone plus derived adaptive ownership
+Decision: B′ superseded by C′ terminal Home finalization on 2026-08-05
 Current activation: 0
 Does not replace current blocker: CURRENT_STATE.toml D-prime next-row selection
 Related:
@@ -14,6 +14,11 @@ Related:
 ---
 
 # B′ Tombstone / ObjectCell / Adaptive Ownership Taskboard
+
+> Historical notice: do not resume rows from this board. The accepted owner is
+> `hakorune-home-ownership-task-2026-08-04.md`, headed by
+> `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0` and the C′ lifecycle SSOT. The
+> detailed B′ rows remain provenance and migration-census evidence only.
 
 Scope correction (2026-07-15): this board implements the explicit Shared,
 resource, weak, and ObjectCell lanes selected by `ownership.md`. It no longer

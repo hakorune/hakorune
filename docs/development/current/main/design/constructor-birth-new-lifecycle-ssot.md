@@ -325,16 +325,21 @@ new Box(named_args...)
 
 ## `fini` boundary
 
-`fini()` is the usable-lifetime exit / cleanup hook. It is not the inverse of
-`birth` in the sense of physical memory deallocation.
+`fini {}` is the optional non-callable terminal Home hook selected by C′. Like
+`birth`, it is compiler-owned rather than an ordinary receiver call; unlike
+`birth`, it runs only for a fully constructed object whose last Home is being
+released. It is not a direct physical-free API.
 
 Relationship:
 
 ```text
-new -> field initializers -> birth -> usable methods -> fini
+new -> field initializers -> birth -> usable methods
+-> terminal Home release -> fini hook -> reverse field release -> structural drop
 ```
 
-`fini()` must remain idempotent and fail-fast after logical finalization, as
+Direct `obj.fini()` and `fini()` method declarations are rejected targets.
+Failed unpublished outer construction never runs the outer hook; already
+complete child Homes are released and may finalize only when terminal, as
 defined by `docs/reference/language/lifecycle.md`.
 
 ## Stage ownership

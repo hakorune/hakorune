@@ -2,11 +2,12 @@
 
 Status: Parked design/execution board; no current execution authority
 
-Date: 2026-08-04
+Date: 2026-08-05
 
 Decision state:
 
 - Home model direction: accepted;
+- C′ last-Home finalization target: accepted; production activation 0;
 - exact HomeV1 grammar and physical Shared representation: provisional/D0;
 - production activation: 0;
 - resume checkpoint: `MIRBUILDER-INPLACE-REPLACEMENT0` final-pipeline
@@ -18,6 +19,10 @@ Authorities:
 - source semantics: `docs/reference/language/ownership.md`
 - cross-layer boundary:
   `docs/development/current/main/design/ownership-home-model-ssot.md`
+- terminal finalization:
+  `docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md`
+- failure/exit transaction:
+  `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
 - language workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 
@@ -39,6 +44,7 @@ Deliver a small source model:
 ordinary use        -> non-owning handle
 Home-demand edge    -> one Home is transferred
 share expression    -> one independent owner is added
+terminal Home end   -> one C′ fini/field/native DropPlan
 ```
 
 while retaining precise compiler products, fail-fast boundaries, and a
@@ -67,16 +73,17 @@ RESUME
      -> CALLABLE ABI
      -> TRANSFER/FAILURE TIMING
      -> BIRTH/CONSTRUCTION
-     -> SHARE/FINI/CLEANUP
+     -> RESULT/EXIT D0
+     -> LAST-HOME FINALIZATION C′ D0
   -> SURFACE DECISION
   -> PASSIVE RELATION + ABI + BOUNDARY
   -> STRAIGHT HOME FLOW
   -> CFG HOME FLOW + DIAGNOSTICS
   -> GRAMMAR CARRIERS
-  -> UNIQUE CLOSED-CALL PROTOTYPE
+  -> UNIQUE CLOSED-CALL + LOCAL TERMINAL-FINALIZATION PROTOTYPE
   -> STORAGE DESTINATION ADOPTION
   -> CONTRACT BOUNDARIES
-  -> SHARE MATERIALIZATION
+  -> SHARE MATERIALIZATION + SHARED TERMINAL WINNER
   -> C-SPEED PHYSICAL GATE
   -> PROFILE CUTOVER / RETIREMENT
 ```
@@ -115,7 +122,14 @@ Read-only bounded census of:
 - field/array/map/global/registry storage;
 - generic/`Any`/record/enum/Option/Result occurrences;
 - function values, interface/dynamic calls, plugin/FFI boundaries;
-- places where current code implicitly adds or drops a strong owner.
+- places where current code implicitly adds or drops a strong owner;
+- existing `fini` declarations classified as ordinary method, scope-cleanup
+  alias, runtime/plugin hook, or generated/native adapter;
+- direct receiver `obj.fini()` calls and callable-catalog/delegate/interface
+  exposure;
+- manual parent-to-child `fini` cascades and their intended order;
+- last-owner/Arc/Drop/global-finalizer/plugin/native routes that currently
+  dispatch or bypass user finalization.
 
 Use static search first, then one case and a small sample before any complete
 corpus pass. This is evidence, not syntax authority.
@@ -134,6 +148,7 @@ and an explicit `unknown/unresolved` bucket:
 | `OWN-HOME-TAKE-EXPR0-D0` | local Home rename, explicit rebinding, or lifetime-narrowing sites that cannot use an existing destination; ordinary `local x = y` aliases are excluded |
 | `OWN-HOME-FIELD-TAKE0-D0` | field/container reads that remove or replace an owner-bearing Home; ordinary field reads and stores are excluded |
 | `OWN-HOME-BIRTH-D0` | `new` sites by target, birth hook declarations/parameters, declaration initializers and explicit override stores, and fallible construction paths after a prior Home store |
+| `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0` | `fini` declarations/calls/catalog exposure, manual child cascades, last-owner drop and plugin/native routes, each with one migration disposition: ordinary fallible `close`/domain method, non-callable automatic hook, structural-only drop, or delete/reject |
 
 The census must state `0` when a row has no corpus consumer. A raw `rg`
 count such as every `new` token is an inventory hint only; it cannot by itself
@@ -229,18 +244,44 @@ uninitialized/`null` locals separately.
 
 Field move-out remains parked unless this row names a separate exact witness.
 
-### `OWN-SHARE-FINI-CLEANUP-D0`
+### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0`
 
-Keep three responsibilities distinct:
+Decision: accepted by
+`box-lifecycle-cprime-terminal-home-finalization-ssot.md`; implementation stays
+parked. This row replaces the former `OWN-SHARE-FINI-CLEANUP-D0` question and
+must not retain B′ as a parallel authority.
 
-- `share`: independent owner acquisition;
-- `fini()`: logical object lifecycle termination;
-- `cleanup`: lexical exit action.
+Fix one responsibility split:
 
-Define share eligibility, live-handle invalidation, weak interaction, and
-error precedence. Decide whether `fini()` requires a Home-capable receiver,
-whether the invoking handle is permitted, and how Dead is observed through all
-remaining Shared owners. No hidden share and no physical-free claim.
+```text
+share = explicit independent Home acquisition
+cleanup = standalone lexical exit registration
+fini { } = non-callable terminal Home hook
+close()/shutdown() = ordinary domain methods
+```
+
+Seal the local/field/return/take/share/weak/birth matrix, parent-hook-before-
+field-release ordering, reverse declaration-order owning-field release,
+terminal-child-only hook dispatch, field replacement transaction, exactly-once
+Shared winner, cycle non-guarantee, finalizer non-escape/no-suspension rules,
+and pre-effect rejection for cross-thread/plugin/FFI families without an exact
+contract.
+
+Dependencies:
+
+```text
+LANGUAGE-RESULT-EXIT-C-PRIME0-D0
+OWN-HOME-TAXONOMY-D0
+OWN-COMPOSITE-TRIVIAL-D0
+OWN-HOME-REPRESENTATION-D0
+OWN-FIELD-CONTAINER-DEST-D0
+OWN-HOME-TRANSFER-FAILURE-D0
+OWN-HOME-BIRTH-D0
+```
+
+Done only when terminal Home release has one proposed DropPlan authority,
+direct `obj.fini()` and B′ Dead-with-live-Home are rejected targets, and no
+ordinary handle or runtime refcount observation can dispatch the hook.
 
 ### `OWN-HOME-CALLABLE-ABI-D0`
 
@@ -305,9 +346,10 @@ Close the Home behavior of the complete construction transaction:
   phase, decide which already-installed Home tokens are cleaned, how the
   partially constructed `me` is retired, and how no-leak/no-double-cleanup is
   proven;
-- direct receiver `birth(...)` remains forbidden, and `fini()` remains the
-  logical usable-lifetime hook rather than a physical-free or construction
-  rollback spelling.
+- direct receiver `birth(...)` remains forbidden; failed unpublished outer
+  construction never invokes the outer C′ `fini` hook. Already-complete child
+  Homes are released in reverse installation order and may invoke their own
+  hook only when that release is terminal.
 
 The existing constructor SSOT fixes the successful order as
 `new -> declaration initializers -> birth -> optional explicit overrides ->
@@ -446,6 +488,60 @@ adopt(share service)
 `share(...)` remains an ordinary call. Parser transport is not permission to
 materialize a Shared owner.
 
+### `OWN-GRAM-FINI-HOOK0`
+
+After `LANGUAGE-RESULT-EXIT-C-PRIME0-R0` has retired scope-position `fini`,
+land one unambiguous Box-member carrier:
+
+```hako
+box Resource {
+    fini {
+        me.closeBestEffort()
+    }
+}
+```
+
+The same bounded row updates the grammar registry/corpus, Rust parser, Hako
+parser, AST/schema, formatter, resolver lifecycle-declaration catalog, and
+shared parse witness. The lifecycle declaration is deliberately absent from
+the ordinary callable catalog. Resolution produces a typed
+`LifecycleHookDeclId`, not a method-name exception; member-call resolution
+rejects that declaration kind before dynamic fallback and before Builder
+effects. Unknown calls may not retry a runtime method table. Negative
+witnesses also reject parameters/result annotations, ordinary `fini() {}` declarations,
+alias/delegate/interface exposure, and scope-position `fini`.
+
+### `OWN-FINI-HOOK-PLAN0-S0`
+
+Seal one passive `VerifiedFinalizerHookPlanV1` before lifecycle effects. It
+proves the exact hook body, FinalizerLease non-escape, no resurrection/re-entry,
+no `return`/`break`/`continue`/`?`/suspension, no `share me`, exact field/native
+capability, and the terminal DropPlan receipt. Unknown plugin/FFI/thread
+affinity rejects before Builder effects. Builder caller count stays zero in
+this row.
+
+### `OWN-TERMINAL-HOME-DROP-PLAN0-S0`
+
+Seal one passive `VerifiedTerminalHomeDropPlanV1` as the sole lifecycle
+product. It contains:
+
+```text
+verified terminal-transition strategy (StaticUnique or admitted Shared)
+optional VerifiedFinalizerHookPlanV1
+verified owning/weak field release descriptor and reverse order
+native structural-drop capability
+weak tombstone/reclaim disposition
+first-Fault and suppressed-teardown receipt
+```
+
+The plan is not a hook-only product. `I0/U`, `I0/F`, and `I0/S` consume this
+same schema and never re-infer hook presence, field order, native capability,
+or terminal strategy. Unknown representation, plugin/FFI, or thread affinity
+freezes before Builder effects. The schema row is followed by exact
+`OWN-TERMINAL-HOME-DROP-PLAN0-S0/U`, `/F`, and `/S` plan receipts after each
+profile's facts exist; these are sealed instances of the same product, not
+three policy owners. Physical consumer count remains zero in the schema row.
+
 Each grammar acceptance is one BoxCount row with one fixture, shared grammar
 gate, and one commit. Do not mix grammar activation with lowering.
 
@@ -488,9 +584,65 @@ physical witness:
 5. global/registry storage;
 6. weak storage/upgrade in its separate lifecycle row.
 
+The first child cell is named `OWN-HOME-STORAGE0-I0/L`. It activates only
+local Home initialization, forwarding, and terminal destruction; completion
+of `/L` does not claim field/container/global storage. The first owning-field
+cell is `OWN-HOME-STORAGE0-I0/F` and owns only one exact field store/replace
+shape.
+
 Do not generalize one field proof into every container. Field move-out and
 consuming receiver remain parked unless their own D0 and storage receipts
 land.
+
+### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/U`
+
+This cell starts only after all of the following are green:
+
+```text
+OWN-HOME-FLOW-CFG0-S0
+OWN-HOME-CLOSED-CALL0-I0
+OWN-HOME-STORAGE0-I0/L
+OWN-TERMINAL-HOME-DROP-PLAN0-S0/U
+```
+
+It activates one owning-local terminal release by consuming the sealed
+`VerifiedTerminalHomeDropPlanV1` unchanged. The physical witness must prove:
+
+- ordinary handles, `take`, terminal return, and non-terminal Home release
+  dispatch no hook;
+- declared hook plus terminal Home release dispatches the hook exactly once;
+- no declared hook dispatches zero user hooks while structural teardown still
+  completes;
+- local cleanup runs before the terminal release;
+- the FinalizerLease cannot escape or resurrect the object;
+- a body/cleanup/hook Fault chronology witness preserves the first Fault,
+  suppresses later teardown Faults, and still releases remaining local/native
+  payload best effort;
+- the Unique route performs no RC, control-cell, or global-finalizer work;
+- unsupported storage, Shared, backend, plugin, and FFI routes reject before
+  effects without fallback.
+
+### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/F`
+
+After `OWN-HOME-STORAGE0-I0/L`, `OWN-HOME-STORAGE0-I0/F`, and the `/F` terminal
+DropPlan product are green, activate one field replacement and parent teardown
+profile. It consumes `VerifiedTerminalHomeDropPlanV1` without re-inferring
+hook presence, release order, or native capability:
+
+```text
+RHS evaluate/preflight
+-> commit new field Home
+-> release old field Home
+-> old hook only if terminal
+
+parent hook
+-> verified owning fields in reverse declaration order
+-> native payload drop
+```
+
+Include partial `birth` rollback: the unpublished outer hook is zero while
+already-complete child Home releases may finalize terminal children. Manual
+parent-to-child `fini` calls and field-order re-inference are zero.
 
 ## Milestone 8 — contract boundaries
 
@@ -517,7 +669,21 @@ Only after `OWN-HOME-REPRESENTATION-D0`:
 - preserve source identity and source availability;
 - reject weak/trivial/handle/unknown operands;
 - prove no implicit owner producer;
-- prove fini/cleanup remain separate.
+- prove cleanup and terminal lifecycle remain separate owners.
+
+### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/S`
+
+After Shared materialization and `OWN-TERMINAL-HOME-DROP-PLAN0-S0/S` is
+sealed, activate one exact same-thread Shared terminal winner and weak fence.
+It consumes `VerifiedTerminalHomeDropPlanV1` without re-inferring field/native
+or hook policy:
+
+- non-last Home release dispatches no hook;
+- exactly one zero-owner winner enters Finalizing;
+- weak upgrade/new lease fails once Finalizing starts;
+- hook, reverse field release, native drop, and weak tombstone publish once;
+- cross-thread affinity, cycles, plugin, and FFI remain rejected or explicitly
+  outside the admitted profile.
 
 ## Milestone 10 — C-speed physical proof
 
@@ -535,6 +701,24 @@ For a selected exact front:
 Grammar completion is not a performance gate.
 
 ## Milestone 11 — readiness and retirement
+
+### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-R0`
+
+After the admitted Unique/field/Shared profiles and C-speed gate are green,
+retire the selected competing authorities:
+
+```text
+direct obj.fini() source/callable owner = 0
+ordinary fini(...) declaration = 0
+B′ Dead-with-live-Home state = 0
+manual parent -> child fini cascade = 0
+global Box finalizer authority = 0
+terminal structural drop bypassing a declared hook = 0
+canonical B′ fallback/retry = 0
+```
+
+Plugin/FFI routes either migrate in a separate bounded series or reject before
+effects; a host Drop route may not silently stand in for verified Home.
 
 ### `OWNERSHIP-HOME-PRODUCT-READINESS-D0`
 
@@ -558,9 +742,33 @@ profile support only when explicitly selected by project/source-unit policy.
 
 ### `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0`
 
-This row is mandatory after the first production Home slice and again after
-the final profile cutover. It is a documentation contract, not a grammar or
-lowering shortcut.
+This parent row has two mandatory execution cells. It is a documentation
+contract, not a grammar or lowering shortcut:
+
+```text
+OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/U
+-> OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST
+-> OWN-HOME-STORAGE0-I0/F
+-> OWN-TERMINAL-HOME-DROP-PLAN0-S0/F
+-> OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/F
+-> OWN-HOME-SHARE0-I0
+-> OWN-TERMINAL-HOME-DROP-PLAN0-S0/S
+-> OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/S
+-> OWN-HOME-C-SPEED0-G0
+-> OWN-LAST-HOME-FINALIZATION-C-PRIME0-R0
+-> OWNERSHIP-HOME-PRODUCT-READINESS-D0
+-> OWNERSHIP-HOME-CUTOVER0-I0-R0
+-> OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FINAL
+```
+
+`/FIRST` reports only the exact first production slice and must not claim
+field/Shared/default-profile support. `/FINAL` reconciles the final cutover and
+is the only cell that marks the parent DOC0 complete.
+
+Both cells include the named receipt
+`LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0` with
+`slice = first | final`; the Home closeout cannot be marked complete without
+both lifecycle/reference proofs.
 
 Update the normative and derived reference surfaces from provisional/parked
 language to the exact implementation that actually landed:
@@ -572,9 +780,15 @@ language to the exact implementation that actually landed:
   parser-live contextual forms, with examples for ordinary handle calls and
   explicit `share`;
 * `docs/reference/language/README.md`, variables/scope, lifecycle, cleanup,
-  and constructor/birth references — ownership, `fini()`, cleanup, `new`,
-  field initializer, `birth`, and partial-construction boundaries must point
-  to their separate owners;
+  and constructor/birth references — ownership, Box-member `fini {}` as a
+  terminal hook, direct-`fini` rejection, ordinary `close()` methods,
+  standalone cleanup, `new`, field initializer, `birth`, and
+  partial-construction boundaries must point to their separate owners;
+* `docs/reference/boxes-system/memory-finalization.md`,
+  `docs/reference/architecture/rust-to-hako-lifecycle-projection.md`, both
+  plugin lifecycle references, and VM plugin integration — replace B′/direct
+  fini/manual child cascades with the exact implemented C′ and plugin/FFI
+  capability boundary;
 * `docs/reference/ir/json_v0.md`, callable/interface/FFI ABI references, and
   generated support views — exact Home ABI/profile metadata, no body
   re-inference at a boundary, and no hidden strong-owner producer;
@@ -584,25 +798,53 @@ language to the exact implementation that actually landed:
 * historical proposals and parked design cards — label them as evidence and
   link the accepted reference page instead of silently rewriting history.
 
-The closeout must compare the reference grammar with both parser registries,
-the resolver/Home Flow verifier, callable ABI metadata, and the selected
-physical route. A mismatch that reflects real implementation behavior reopens
-the owning code row; documentation must not hide it as historical prose.
+C′ closeout evidence is mandatory after the first C′ production slice and
+again after final cutover. The two cells are time-bounded and must not borrow
+future-slice evidence.
+
+`OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST` requires exactly:
+
+```text
+fini hook grammar == Rust parser == Hako parser == lifecycle descriptor = 1
+direct obj.fini() accepted examples                                 = 0
+Unique local terminal hook dispatch exactly once                     = 1
+close/shutdown reserved language syntax                              = 0
+first-slice B′ live reference claim                                  = 0
+field/Shared/default-profile support claimed by FIRST                 = 0
+```
+
+`OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FINAL` requires every `/FIRST` item plus:
+
+```text
+parent hook before reverse verified-owning-field release             = 1
+Shared non-last hook dispatch                                        = 0
+Shared terminal hook dispatch exactly once                           = 1
+final cutover/reference parity                                       = 1
+B′ live reference claim across all live reference pages              = 0
+```
+
+Each closeout must compare the reference grammar with both parser registries,
+the resolver/Home Flow verifier, callable ABI metadata, and only the physical
+route selected at that slice. A mismatch that reflects real implementation
+behavior reopens the owning code row; documentation must not hide it as
+historical prose.
 
 Required evidence:
 
 ```text
-reference grammar == parser-live grammar                 = 1
-reference Home ABI == sealed compiler product             = 1
-accepted examples compile on the selected profile        = 1
-rejected examples fail before Builder effects             = 1
-old target/fallback claims left in live reference pages   = 0
-ownership reference closeout before product completion    = 1
+reference grammar == parser-live grammar for this slice             = 1
+reference Home ABI == sealed compiler product for this slice        = 1
+accepted examples compile on this slice's selected profile          = 1
+rejected examples fail before Builder effects                       = 1
+old claims within this slice's live reference surface               = 0
+implementation-backed reference closeout before final completion    = 1
+docs-only premature or future-slice reference claim                 = 0
 ```
 
 This row does not add `region`, field-take, consuming receivers, multi-anchor
 views, generic/dynamic/FFI ownership, or any other parked capability. It also
-does not make `fini()` a physical-free or transfer operation.
+does not make the `fini` hook a direct-call, physical-free, or transfer
+operation.
 
 ## Parked follow-ups
 

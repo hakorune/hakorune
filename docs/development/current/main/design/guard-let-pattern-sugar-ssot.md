@@ -14,8 +14,10 @@ Related:
 
 ## Decision
 
-`guard let` is accepted as narrow enum-variant early-exit sugar. It does not add
-`try`, `throw`, `?`, broad pattern binding, or new exception semantics.
+`guard let` is accepted as narrow enum-variant early-exit sugar. This row does
+not implement typed Result `?`, `try`, `throw`, catch, broad pattern binding,
+or exception semantics. Result-only postfix `?` is owned independently by the
+Result/exit C′ SSOT; Option absence remains explicit here or in `match`.
 
 Canonical MVP:
 

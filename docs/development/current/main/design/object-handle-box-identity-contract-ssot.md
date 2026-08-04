@@ -1,11 +1,12 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-06-14
+Date: 2026-08-05
 Scope: ObjectHandle / BoxIdentity contract for ARC-RETIRE-003.
 Related:
   - docs/development/current/main/design/arc-retirement-and-ownership-substrate-ssot.md
   - docs/development/current/main/workstreams/arc-retirement-current.md
+  - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
   - docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
   - src/runtime/object_identity.rs
 ---
@@ -98,24 +99,22 @@ FiniOwner (current compatibility route/provenance metadata):
   Host
 ```
 
-B′ correction:
+C′ lifecycle correction:
 
 ```text
-logical transition / once / ordering owner:
-  ObjectCell FinalizeObject transaction
-
-structural drop owner:
-  ObjectCell/runtime drop glue
+terminal transition / hook / ordering owner:
+  one verified terminal Home DropPlan
 
 FiniOwner:
   current route/provenance inventory only
-  must not authorize user fini from last strong or native Drop
+  must migrate to the terminal Home plan or be retired
   rename/demotion waits for exact caller inventory and family cutover
 ```
 
-`FiniOwner::ObjectDrop` is therefore not a normative claim that object drop
-calls user `fini()`. Current implementations that do so are legacy migration
-rows in the B′ taskboard.
+`FiniOwner::ObjectDrop` and direct `FinalizeObject` are therefore not normative
+C′ authorities. Current routes remain migration evidence; only a verified
+terminal Home release may dispatch the non-callable Box hook, and native Rust
+Drop may not infer that relation on its own.
 
 ## Plugin Mapping
 

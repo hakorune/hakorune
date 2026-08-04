@@ -522,7 +522,7 @@ box
 stored field initializer
 birth
 cleanup
-object fini()
+Box fini { } terminal hook
 weak
 Result / Option
 local-first unpublished object
@@ -738,7 +738,7 @@ do not add Rust lifetime syntax to Hako
 do not let the Rust adapter choose Hako representation policy
 do not use raw rustc MIR/THIR dump as stable handoff schema
 do not erase Drop without positive TrivialMemory fact
-do not map every Drop impl to box.fini()
+do not map every Drop impl to a Box fini hook
 do not collapse Copy, Clone, Share, Borrow, and Move into assignment
 do not model resource or identity moves as ordinary box aliasing
 do not return or store a naked borrowed alias without an owner-carrying view
@@ -746,7 +746,7 @@ do not map interior mutability to ordinary &mut-style direct access
 do not classify Array/Map/OrderedMap as identity-free record values
 do not infer publication or escape legality from type/helper names
 do not turn unknown lifecycle facts into ordinary box fallback
-do not generate both scope cleanup and object fini for the same release owner
+do not generate both scope cleanup and terminal Box hook authority for the same release owner
 do not mix panic=abort and unwind semantics in one profile
 do not auto-project Pin, MaybeUninit, ManuallyDrop, union, raw pointer,
 repr(C), repr(packed), inline asm, or layout-observing code

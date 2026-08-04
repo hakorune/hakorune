@@ -1,6 +1,7 @@
 ---
-Status: SSOT
+Status: Superseded implementation-boundary inventory; no target-language authority
 Date: 2026-05-21
+Superseded-by: language-result-propagation-and-exit-transaction-ssot.md
 Scope: Stage0 cleanup/catch boundary, parser acceptance, MIR-builder cleanup lowering, and JoinIR strict stop lines.
 Related:
   - docs/guides/exception-handling.md
@@ -13,12 +14,17 @@ Related:
 
 # Stage0 Cleanup/Catch Boundary
 
+> C′ notice (2026-08-05): the accepted target is Result-only postfix `?`, no
+> source catch/`RecoverableFailure`, and one standalone `cleanup {}`. The
+> parser/MIR facts below are retained only to census and retire the current
+> bridge under `LANGUAGE-RESULT-EXIT-C-PRIME0-R0`; they may not select new work.
+
 ## Decision
 
 Stage0 stabilizes deterministic `cleanup` behavior. It does not open a full
 exception system.
 
-Canonical Stage0 wording:
+Historical bootstrap wording (not the current target):
 
 ```text
 cleanup:
@@ -72,10 +78,10 @@ The following remain closed until a future accepted phase opens them:
 ## Compatibility Notes
 
 Legacy `try` exists to keep old fixtures readable while they are migrated.
-New docs and examples should prefer postfix cleanup:
+New docs and examples must use standalone cleanup:
 
 ```hako
-work() cleanup {
+cleanup {
     release()
 }
 ```
@@ -92,5 +98,6 @@ The guard for this SSOT is:
 bash tools/checks/k2_wide_stage0_cleanup_catch_boundary_guard.sh
 ```
 
-It fixes the docs vocabulary, parser freeze tags, and JoinIR strict hints so
-Stage0 cleanup cannot drift into an undocumented exception lane.
+Until C′ R0 replaces this bridge, it checks legacy parser freeze tags and
+JoinIR strict hints. Passing it does not promote catch or postfix cleanup to
+the target language.

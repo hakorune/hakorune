@@ -146,12 +146,13 @@ Owner-family expansion may proceed independently of Loop/exit expansion when
 its closed grammar does not widen. A source unit still cuts over all-or-
 nothing; parent canonical / child legacy is never permitted.
 
-B′ is the accepted later runtime constitution: explicit `fini()` is an eager
-tombstone transaction, while `DestroyOwned`/last strong perform structural
-drop and never user fini. Its ObjectCell, weak/generation, family rollout,
-adaptive RC, plugin split, backend parity, and global Arc retirement order are
-owned by the related B′ taskboard. This does not change SSA-RC-L0 or make B′ a
-prerequisite for passive Ownership SSA analysis/verifier rows.
+C′ is the accepted later lifecycle target: Box-member `fini {}` is a
+non-callable hook in the terminal Home DropPlan, while direct `obj.fini()` and
+B′ Dead-with-live-Home are rejected. Its Home Flow, Unique/Shared terminal
+winner, weak/generation, plugin split, backend parity, and reference closeout
+are owned by the Home taskboard and C′ lifecycle SSOT. This does not change
+SSA-RC-L0 or make lifecycle activation a prerequisite for passive Ownership
+SSA analysis/verifier rows.
 
 ## Normative design reference
 

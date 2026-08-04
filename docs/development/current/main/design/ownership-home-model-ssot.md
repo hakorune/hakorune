@@ -8,6 +8,8 @@ Decision:
   a Rust-like source type;
 - accepted: ordinary source uses a non-owning handle and only an explicit
   `share` operation may add an independent owner;
+- accepted: C′ terminal Home release is the sole user-`fini` authority;
+  `fini {}` is a non-callable Box hook and direct `obj.fini()` is rejected;
 - provisional: the smallest HomeV1 source capsule is declaration-side
   `take` parameters, contract-boundary `T from owner`, and expression-side
   `share`;
@@ -28,11 +30,16 @@ Parked execution board:
 Reference closeout:
 `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0` is mandatory after the first production
 Home slice and before Home product readiness/cutover is declared complete.
+It includes C′ lifecycle grammar, terminal-release, field-order, direct-call
+retirement, and implementation-witness synchronization.
 The reference page may not claim parser-live grammar, ABI, or physical
 performance that the selected production route has not actually proved.
 
 Related lifecycle authority:
 `constructor-birth-new-lifecycle-ssot.md`
+
+Terminal finalization authority:
+`box-lifecycle-cprime-terminal-home-finalization-ssot.md`
 
 Box member source prerequisite:
 `box-member-field-method-surface-ssot.md`
@@ -95,7 +102,8 @@ explicit resolved Home-demand declaration says otherwise. A constructing
 `me` is unpublished; it cannot escape through storage, return, callback, or
 `share` before publication. The exact cleanup/no-double-finalization rule for
 field or birth failure is intentionally delegated to
-`OWN-HOME-BIRTH-D0`; it is not implied by `fini()`.
+`OWN-HOME-BIRTH-D0`; an unpublished outer object does not run the C′ `fini`
+hook merely because construction rollback begins.
 
 `new` and `share` therefore have different authority: `new` creates the first
 Home candidate for a fresh identity, while `share` adds an independent owner
@@ -241,12 +249,41 @@ These laws are durable even while the exact grammar remains provisional:
    owner.
 6. No hidden retain, promotion, raw fallback, or profile retry repairs a
    failed Home proof.
-7. `fini()` is logical lifecycle termination, not physical free and not an
-   ownership-transfer spelling.
+7. `fini {}` is an optional non-callable hook in the one terminal Home
+   DropPlan. It is not a transfer spelling, direct method, or physical-free
+   API.
 8. `weak` remains a generation-aware non-owner and is not a normal handle or
    Shared owner.
 9. Home transfer has one sealed commit point after argument preparation; a
    failed preparation does not leave a caller Home half-consumed.
+10. Terminal parent finalization runs the parent hook before releasing verified
+    owning fields in reverse declaration order. A child hook runs only if that
+    field release is the child's terminal Home release.
+
+## Terminal Home finalization boundary
+
+C′ explicitly supersedes the earlier B′ separation between eager
+`FinalizeObject` and ownership destruction:
+
+```text
+ordinary handle end = no owner effect
+take/call/return = atomic Home forward; fini 0 during transfer
+share = one explicit independent Home acquisition
+terminal Home release = hook -> reverse field release -> structural drop
+```
+
+The exit transaction owns lexical cleanup and local Home release requests. The
+object lifecycle descriptor owns hook dispatch and field/native teardown.
+Neither may reconstruct the other's order from runtime counts or AST shape.
+
+`close()`/`shutdown()` are ordinary optional domain methods for explicit,
+possibly fallible early shutdown. They are not language keywords and never
+become an alternate Home or finalization authority.
+
+The exact classification of a plain Box field as owning, handle-only, weak, or
+rejected remains `OWN-FIELD-CONTAINER-DEST-D0`. C′ applies to a field only after
+that field has a verified owning Home relation; it does not silently classify
+every current Box field as owning.
 
 ## Provisional HomeV1 surface
 
@@ -321,6 +358,12 @@ specific provenance.
 - Do not infer public/opaque ABI from a body.
 - Do not infer ownership from method names, runtime tags, reference counts, or
   a backend layout.
+- Do not activate Box-member `fini {}` before scope-position `fini {}` aliases
+  are retired or context-separated by the accepted grammar row.
+- Do not dispatch user `fini` from direct receiver calls, global finalizer
+  registries, generic Rust Drop, or an unverified plugin/FFI root.
+- Do not activate cross-thread terminal finalization before an exact affinity
+  and atomic-winner contract exists.
 - Do not merge Binding SSA and Home Flow authority.
 - Do not implement rollback or hidden RC as a verifier fallback.
 - Do not claim C-like speed before the physical Unique route is measured.
@@ -336,5 +379,7 @@ HomeV1 is product-ready only when:
 - ownership-changing destinations have exact witnesses;
 - unsupported generic/storage/ABI cases fail before Builder effects;
 - Unique and Shared physical plans are explicit and backend-capability checked;
+- one terminal DropPlan owns hook dispatch, reverse field release, and
+  structural drop without a B′ fallback;
 - the old SharedV1/`move-view` authority and all profile retry edges have a
   counted retirement plan.

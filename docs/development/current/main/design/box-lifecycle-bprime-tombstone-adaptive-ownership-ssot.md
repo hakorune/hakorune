@@ -1,10 +1,11 @@
 ---
-Status: SSOT
-Decision: accepted-for-tasking — B′ eager-fini tombstone with adaptive ownership
+Status: Superseded historical constitution; no current task-selection authority
+Decision: B′ superseded on 2026-08-05 by C′ terminal Home finalization
 Date: 2026-07-14
 Scope: Shared/resource Box lifecycle, Ownership SSA materialization,
   ObjectCell, weak identity, Arc retirement, and adaptive runtime ownership.
 Related:
+  - box-lifecycle-cprime-terminal-home-finalization-ssot.md
   - ../../../../reference/language/ownership.md
   - ../../../../reference/language/lifecycle.md
   - ../../../../reference/language/scope-exit-semantics.md
@@ -17,9 +18,15 @@ Related:
 
 # B′ Box Lifecycle / Ownership Constitution
 
+> Historical notice: B′ is retained as design provenance only. The accepted
+> target is [C′ terminal Home finalization](box-lifecycle-cprime-terminal-home-finalization-ssot.md):
+> `fini {}` is a non-callable last-Home hook, direct `obj.fini()` is rejected,
+> and one terminal DropPlan owns hook dispatch, reverse field release, and
+> structural drop. Nothing below may select new implementation work.
+
 ## Decision
 
-Hakorune adopts B′ as the long-term Shared/resource Box lifecycle model.
+Historically, Hakorune selected B′ as the Shared/resource Box lifecycle model.
 Source-level Home/handle/result/Shared selection is owned by
 `docs/reference/language/ownership.md` and supersedes the older
 “every Box is shareable by default” wording in this document.

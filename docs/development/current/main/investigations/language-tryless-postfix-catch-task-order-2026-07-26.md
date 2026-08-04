@@ -1,7 +1,8 @@
 ---
-Status: Accepted decision and task order
+Status: Superseded historical decision and task order
 Date: 2026-07-26
-Decision: LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1
+Decision: LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 superseded on 2026-08-05
+Superseded-by: LANGUAGE-RESULT-EXIT-C-PRIME0-D0
 Supersedes: LANGUAGE-DOCS-TRY-CATCH-D1 unresolved consultation
 Authority-prose closeout: LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT closed 2026-07-26; implementation authority remains parked
 Scope: remove source `try`, give postfix `catch` one protected-region owner, and keep terminal Fault non-catchable
@@ -16,6 +17,7 @@ sunset_row: LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT closed the D1 conflict-scaff
 retire_when: accepted target matrix synchronized without claiming parser/runtime/backend activation (closed 2026-07-26)
 budget_repayment_evidence: current-state pointer guard + existing docs/status and grammar/profile guards
 Related:
+  - docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md
   - docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md
   - docs/reference/language/status-index.md
   - docs/reference/language/semantic-kernel.md
@@ -30,6 +32,13 @@ Resume-after-closeout:
 ---
 
 # Tryless postfix catch task order
+
+> Historical notice: this protected-region target is no longer executable
+> authority. The accepted v1 target is Result-only recoverable failure,
+> typed postfix `?` for unchanged propagation, no source catch or
+> `RecoverableFailure` Outcome, and one standalone `cleanup {}` surface. See
+> `language-result-propagation-and-exit-transaction-ssot.md`. The queue below
+> remains provenance for migration census and old-edge retirement only.
 
 ## Correction being sealed
 

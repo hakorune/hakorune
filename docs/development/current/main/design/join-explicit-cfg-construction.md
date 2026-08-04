@@ -7,7 +7,8 @@ Related:
 - Investigation (Phase 256): `docs/development/current/main/investigations/phase-256-joinir-contract-questions.md`
 - Structured→CFG lowering SSOT（Frag/ExitKind）: `docs/development/current/main/design/edgecfg-fragments.md`
 - Decisions: `docs/development/current/main/20-Decisions.md`
-- Future features (catch/cleanup, cleanup/defer, async): `docs/development/current/main/design/exception-cleanup-async.md`
+- Accepted Result/cleanup exit target: `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
+- Historical catch/Invoke plus deferred async proposal: `docs/development/current/main/design/exception-cleanup-async.md`
 
 ## Goal（最終形）
 

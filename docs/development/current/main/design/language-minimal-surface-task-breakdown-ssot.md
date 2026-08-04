@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-08-04
+Date: 2026-08-05
 Scope: Task-sized backlog for the minimal Hakorune language surface.
 Related:
   - docs/development/current/main/design/language-minimal-surface-ssot.md
@@ -10,6 +10,8 @@ Related:
   - docs/development/current/main/design/box-member-field-method-surface-ssot.md
   - docs/development/current/main/design/stage0-stage1-feature-responsibility-split-ssot.md
   - docs/development/current/main/design/language-feature-implementation-order-ssot.md
+  - docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md
+  - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
   - docs/reference/language/grammar-contract.md
 ---
 
@@ -292,8 +294,13 @@ lane and the row's D0 closes.
 | `LANGUAGE-CONTRACT-FAMILY-PARK0-D0` | Decide `requires` / `ensures` / `invariant` together; do not activate one while the others remain consumer-free metadata. | A retain implementation series or a bounded retirement series, then family DOC0. |
 | `LANGUAGE-TRANSITION-RETIRE0-D0` | Decide whether `transition` has a real verifier consumer or is replaced by ordinary methods plus derived facts. | Bounded retirement or retained verifier series, then transition DOC0. |
 | `LANGUAGE-GATE-TOPLEVEL-ONLY0-D0` | Audit program-item, import, member, statement, and Rune gate forms. Prefer one pre-resolution top-level declaration-selection owner; do not infer that member/statement forms may be deleted before source and signature-parity census. | If accepted, one source-migration row, one atomic parser/carrier retirement row, then gate DOC0. |
-| `LANGUAGE-RESULT-ONLY-FAILURE0-D0` | Reconcile source `try` / `throw` / `catch` with `Result<T,E>` + `guard` + `match`, Fault, and current postfix-handler decisions. | Explicit superseding Decision before any grammar deletion, then failure DOC0. |
-| `LANGUAGE-SINGLE-CLEANUP-SURFACE0-D0` | Select exactly one lexical cleanup-registration surface and keep object `fini()` lifecycle separate. Compare postfix cleanup, scope `fini`, declaration sugar, and standalone `cleanup { ... }` semantics; do not treat spelling replacement as behavior parity. | Migration/retirement series, then cleanup DOC0. |
+| `LANGUAGE-RESULT-EXIT-C-PRIME0-D0` | Accepted 2026-08-05. Recoverable failure is `Result<T,E>`; unchanged propagation is exact Result-only postfix `?`; Option `?`, source `try`/`throw`/`catch`, and `RecoverableFailure` are rejected; Fault is terminal; standalone `cleanup {}` is the sole lexical registration. This closes the earlier `LANGUAGE-RESULT-ONLY-FAILURE0-D0` and `LANGUAGE-SINGLE-CLEANUP-SURFACE0-D0` questions without activating code. | `P0` -> Trivial `I0` -> `R0` -> Unique/field `HOME0-I0` -> Shared `HOME0-I0/S` -> mandatory `DOC0`. |
+| `LANGUAGE-RESULT-EXIT-C-PRIME0-P0` | Read-only census of every current `?`/ternary, try/throw/catch/RecoverableFailure, handler/TryCatch carrier, cleanup spelling, scope-fini alias, environment gate, retry, fixture, and source caller across parser through backend/docs. | Every authority receives keep/migrate/delete/reject disposition; unknown blocks I0/R0. |
+| `LANGUAGE-RESULT-EXIT-C-PRIME0-I0` | Split cleanup from TryCatch, seal one verified exit transaction and one typed Result propagation plan, then activate one exact Trivial-only Result consumer with backend capability/fail-fast. | Exactly-once evaluation, exact `E`, protected Trivial pending carrier, LIFO cleanup, first-Fault/suppressed-cleanup-Fault chronology, no dynamic QMark/direct Return, no unresolved ternary collision; Home-bearing routes reject before effects. |
+| `LANGUAGE-RESULT-EXIT-C-PRIME0-R0` | Retire dynamic/arbitrary QMark, ternary `? :` producer/ambiguity after explicit `if`/`match` migration, try/throw/catch/RecoverableFailure, TryCatch/CatchClause cleanup encoding, local/postfix cleanup, scope-fini aliases, ambient gates, and compatibility retry. | Old producer/consumer counts zero before closeout. |
+| `LANGUAGE-RESULT-EXIT-C-PRIME0-HOME0-I0` | After Home relation/ABI/CFG Flow, terminal DropPlan, and Unique/field finalization slices, activate only Unique Home Result payloads/errors, pending carriers, local release, verified owning-field teardown, lifecycle handoff, and fini-Fault chronology. | Unique payload/error Home exactly once, no hidden share, pending value destroyed on Fault, first Fault primary, remaining local/field/native teardown best effort; every Shared Home route rejects before effects. |
+| `LANGUAGE-RESULT-EXIT-C-PRIME0-HOME0-I0/S` | After `HOME0-I0`, `OWN-HOME-SHARE0-I0`, `OWN-TERMINAL-HOME-DROP-PLAN0-S0/S`, and `OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/S`, activate Shared Home Result payload/error propagation and release in the same exit transaction. | Shared non-last release dispatches no hook; terminal winner dispatches exactly once; no fallback or re-inferred owner policy. |
+| `LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` | Implementation-after reference closeout; never close from this docs-only Decision. | Runs only after P0/I0/R0/HOME0-I0/HOME0-I0/S and backend parity; EBNF/registry/corpus, Rust/Hako parser witnesses, status/support/topic references, examples, redirects, and diagnostics agree with landed behavior. |
 | `LANGUAGE-LEGACY-SUGAR-RETIRE0-D0` | Partition `init`, `flow`, `include`, `box from`, `from` call, `override`, `peek`, `while`, scope-fini aliases, and cleanup sugars by semantic owner. | One bounded family/acceptance shape per implementation commit; no mixed mega-retirement. Each family ends in DOC0. |
 | `LANGUAGE-OUTBOX-RETIRE0-D0` | Run only after Home result relation is implemented and real outbox users have a migration mapping. | Home-gated implementation and outbox DOC0. |
 | `LANGUAGE-V1-SURFACE-REFERENCE-CLOSEOUT0-DOC0` | Final cross-family audit after all selected implementation and per-family DOC0 rows are green. Prove EBNF, registry, Rust/Hako parser witnesses, status index, stage profiles, feature references, and historical redirects agree. | `LANGV1-CONFORMANCE-CLOSEOUT-001`. |
@@ -305,7 +312,8 @@ do not mix Property, delegate, contracts, transition, gate, failure, cleanup,
 or legacy sugar retirement in one implementation row
 do not delete accepted syntax from a consultation result without an explicit
 superseding Decision in docs/reference/**
-do not claim reference closeout before implementation and migration gates pass
+do not claim any RESULT-EXIT or Home reference closeout before implementation,
+migration, and backend parity gates pass
 do not promote interface / implements until a concrete abstract method-set
 consumer proves delegate/exposes insufficient
 ```
@@ -325,7 +333,9 @@ Stop lines:
 
 ```text
 no null sugar
-no try/throw family
+no try/throw/catch family
+Result-only postfix ?; exact E and no custom Try protocol
+Option ? rejected in v1
 no Stage0 Result/Option special-case
 ```
 
@@ -526,24 +536,27 @@ metadata_hint_spelled_as_type_annotation = 0
 Define `Option::None` as value absence, `Result::Err` as recoverable failure,
 `Fault` as non-implicit contract/runtime failure, and `Normal(Unit)` as a
 successful no-result computation. Classify and migrate live `null` sites by
-meaning before restricting `null` and legacy catch behavior to explicit
-`Compat2025`.
+meaning before restricting `null` to explicit `Compat2025`. Source catch and
+`RecoverableFailure` retire rather than becoming a compatibility failure
+authority.
 
 ### LANGV1-OWNERSHIP-IDENTITY-001 field ownership and identity decision
 
 The accepted `BoxIdentity` contract remains representation-only. The 2026-08-04
 Home direction supersedes the earlier assumption that every ordinary field is
 Shared. Exact owning field, Shared field, replacement, and container rules now
-belong to `OWN-FIELD-CONTAINER-DEST-D0`; no field form may silently imply child
-user `fini()`.
+belong to `OWN-FIELD-CONTAINER-DEST-D0`; only a verified owning field releases
+a child Home during parent teardown.
 
-Accepted B′ plus provisional Home storage decision order (2026-07-14/2026-08-04):
+Accepted C′ plus provisional Home storage decision order (2026-08-05):
 
 1. A verified owning field may receive one Home token; a verified Shared field
    may store an independent Shared token. Exact surface and replacement
-   semantics remain D0. Neither implicitly cascades child `fini()`.
-2. Define overwrite, parent `fini()`, alias escape, cycle, partial `birth`
-   failure, and repeated-finalization behavior for every field ownership kind.
+   semantics remain D0. A field release invokes the child hook only when it is
+   the child's terminal Home release.
+2. Define overwrite, parent `fini {}` hook, alias escape, cycle, partial
+   `birth` failure, and exactly-once finalization for every field ownership
+   kind.
 3. Use one identity relation for strong Box values, WeakRef tokens, host
    handles, Dead objects, and future reused slots. `BoxIdentity(handle,
    generation)` is the durable contract; current `Arc::ptr_eq` is only the
@@ -558,20 +571,23 @@ Accepted v1 law:
 ```text
 ordinary owning field = one forwarded owner
 Shared field = independent Shared owner
-implicit cascade fini through either field kind = forbidden
-DestroyOwned / last strong / native Drop invokes user fini = forbidden
-explicit fini consumes receiver token = 0
+parent hook runs before verified owning-field releases = 1
+verified owning fields release in reverse declaration order = 1
+child hook dispatch requires child terminal Home = 1
+direct obj.fini() and ordinary fini(...) method = forbidden
+terminal DropPlan user-hook authority count = 1
+take/return Home forward invokes fini = 0
 normal Box manual physical free/reclaim surface = forbidden
 StaticUnique / LocalRc / SharedRc source visibility = 0
-derived StaticUnique terminal reclaim uses DestroyOwned, not a new consume op
+StaticUnique terminal reclaim uses the sealed C′ DropPlan
 ```
 
 A future source-exclusive capability or raw-memory facility must reopen a
 separate language Decision. It is not an implementation detail of
-LANGV1-OWNERSHIP-IDENTITY-001 and is not a dependency of B′ closeout.
+LANGV1-OWNERSHIP-IDENTITY-001 and is not a dependency of C′ closeout.
 
 Runtime/Ownership SSA implementation order is taskized in:
-`docs/development/current/main/investigations/box-lifecycle-bprime-tombstone-adaptive-ownership-task-2026-07-14.md`.
+`docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`.
 
 Acceptance:
 

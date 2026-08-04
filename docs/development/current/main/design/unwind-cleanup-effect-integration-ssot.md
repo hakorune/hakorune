@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Supporting future-Unwind reservation; not a recoverable-failure authority
 Scope: ExitKind::Unwind integration (design-only; no behavior change)
 Related:
 - docs/development/current/main/design/exitkind-unwind-reservation-ssot.md
@@ -9,6 +9,12 @@ Related:
 ---
 
 # Unwind / Cleanup / Effect Integration (SSOT)
+
+C′ boundary (2026-08-05): recoverable failure is `Result<T,E>` and creates no
+exception-Unwind lane. `ExitKind::Unwind` below is a reserved future control
+edge for terminal Fault/host-unwind investigation only. It may not reintroduce
+source catch/throw, `RecoverableFailure`, or an `Invoke` ABI without a new
+Decision.
 
 目的: ExitKind::Unwind を導入しても cleanup/effect/FlowBox の契約が揺れないよう、設計上の不変条件を固定する。
 

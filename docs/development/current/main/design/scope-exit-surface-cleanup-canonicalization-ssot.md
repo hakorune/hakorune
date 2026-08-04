@@ -1,12 +1,14 @@
 ---
 Status: SSOT
-Decision: accepted
-Date: 2026-05-10
+Decision: accepted C′ single-surface cleanup target
+Date: 2026-08-05
 Scope: scope-exit surface naming, cleanup/fini boundary, and phased parser/lowering rollout.
 Related:
   - docs/reference/language/scope-exit-semantics.md
   - docs/reference/language/lifecycle.md
   - docs/development/current/main/design/fini-cleanup-execution-contract-ssot.md
+  - docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md
+  - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
   - docs/reference/concurrency/lock_scoped_worker_local.md
   - docs/reference/concurrency/semantics.md
 ---
@@ -15,88 +17,104 @@ Related:
 
 ## Decision
 
-The canonical public concept for lexical/block exit handlers is `cleanup`.
+The sole canonical public registration for a lexical/block exit action is a
+standalone `cleanup { ... }` statement.
 
-Object lifecycle keeps `fini()` as the object finalizer method.
+Object lifecycle uses Box-member `fini { ... }` as a non-callable terminal
+Home hook. `close()`/`shutdown()` and similar names are ordinary methods, not
+language syntax.
 
 ```text
 cleanup:
   lexical/block exit timing
   always-run handler
-  LIFO through DropScope where multiple handlers apply
+  LIFO where multiple registrations apply
 
-fini():
-  object lifecycle hook
-  Alive -> Dead transition
-  idempotent resource finalizer
+fini { ... }:
+  Box-member terminal Home hook
+  invoked only by the C′ terminal DropPlan
+  no direct receiver call and no Result channel
+
+close()/shutdown():
+  ordinary domain method
+  explicit timing and optional Result
 ```
 
-The internal model does not change:
+The target internal model is:
 
 ```text
-cleanup / legacy scope fini surface
-  -> DropScope handler registration
-  -> finally-style execution channel
+standalone cleanup
+  -> CleanupRegistrationV1
+  -> VerifiedExitTransactionV1
 
-object fini()
-  -> object lifecycle finalizer call
+terminal Home release
+  -> lifecycle DropPlan
+  -> Box fini hook, reverse field release, structural drop
 ```
+
+The current `FiniReg -> Try(finally)` bridge remains transitional evidence
+until the implementation row replaces it. It is not target authority.
 
 ## Rationale
 
-The old surface has two meanings for `fini`:
+The old surface overloaded `fini` and multiplied cleanup spellings:
 
 - `fini { ... }` / `local ... fini { ... }`: scope-exit handler.
-- `box.fini()`: object finalizer.
+- `box.fini()`: direct object finalizer call.
+- standalone, local, and postfix `cleanup`: overlapping registrations.
 
 This is mechanically workable, but it is harder to teach and easier to
 misread. The canonical naming rule is now:
 
 ```text
-cleanup says when cleanup runs.
-fini() says what the object does when finalized.
+cleanup says when a lexical action runs.
+fini says what a Box does at terminal Home release.
+close says that ordinary code requests a domain transition now.
 ```
 
 Example target surface:
 
 ```hako
-local f = open(path) cleanup {
-  f.fini()
-}
+local transaction = beginTransaction()?
 
-{
-  work()
-} catch e {
-  log(e)
-} cleanup {
-  release()
+cleanup {
+  transaction.rollbackUnlessCommitted()
 }
 
 box File {
-  fini() {
-    me.close()
+  close(): Result<void, IoError> {
+    ...
+  }
+
+  fini {
+    me.closeBestEffort()
   }
 }
 ```
 
 ## Compatibility
 
-Existing live DropScope syntax remains a compatibility alias until a parser and
-bridge row explicitly retires or rewrites it:
+Existing DropScope/handler shapes are migration input only until their parser,
+bridge, and source callers retire:
 
 ```hako
 fini { ... }
 local x = expr fini { ... }
+local x = expr cleanup { ... }
+expr cleanup { ... }
+body catch { ... } cleanup { ... }
 ```
 
 Compatibility rules:
 
-- Do not remove `fini { ... }` in this docs-only card.
-- Do not silently rewrite `box.fini()` to `cleanup`.
-- New docs and examples should prefer `cleanup` terminology for scope/block
-  exit handlers.
-- Reference docs must call `fini { ... }` a legacy DropScope alias, not the
-  canonical spelling.
+- Do not change parser/runtime behavior in this docs-only Decision.
+- Do not silently rewrite direct `obj.fini()` to `cleanup` or `close()`;
+  migration classifies intent first.
+- Canonical scope cleanup count is one: standalone `cleanup { ... }`.
+- Scope-position `fini { ... }` retires before Box-member `fini { ... }`
+  activates, so context never has two live meanings.
+- Historical migration transport must not enter canonical AST/MIR/runtime
+  through fallback or profile retry.
 
 ## Handler Restrictions
 
@@ -107,6 +125,8 @@ Canonical restrictions:
 - `return` is forbidden inside cleanup handlers.
 - `break` is forbidden inside cleanup handlers.
 - `continue` is forbidden inside cleanup handlers.
+- `?` is forbidden because cleanup has no recoverable outward result channel.
+- `await`, `yield`, and suspension are forbidden.
 - `throw` is reserved/rejected by the current surface and must not become a
   cleanup escape hatch.
 
@@ -157,29 +177,40 @@ Do not use `cleanup` to blur these boundaries:
 Canonical ordering for explicit `task_scope` exit is:
 
 ```text
-1. child failure/cancel handling owned by the task scope
-2. bounded join for owned children
-3. lexical cleanup handlers for the exiting scope
-4. local binding ownership-token destruction
-5. last-strong structural drop if reached; user object fini() is not implied
-6. failure/cancellation propagation
+1. protect the pending value/Outcome once
+2. child failure/cancel handling owned by the task scope
+3. bounded join for owned children
+4. lexical cleanup handlers for the exiting scope
+5. release non-forwarded local Homes in reverse declaration order
+6. if a release is terminal, enter the C′ lifecycle DropPlan; its Box hook
+   runs before reverse field release
+7. failure/cancellation or the protected pending outcome is published once
 ```
 
-The task scope owns child futures. DropScope owns lexical cleanup. The explicit
-FinalizeObject transaction owns user `fini()`, and runtime ownership-token
-destruction owns structural drop. These owners must not be merged.
+The task scope owns child futures. `VerifiedExitTransactionV1` owns lexical
+cleanup and local Home release ordering. The lifecycle DropPlan owns terminal
+Box hook and field/native teardown. Neither owner re-infers the other's plan.
 
 ## Implementation Order
 
-This card is docs-only. Implementation must be split:
+This card is docs-only. Implementation belongs to the accepted family:
 
-1. parser vocabulary row for `cleanup { ... }` and `local ... cleanup { ... }`
-   if those surfaces are not already live in the target frontend.
-2. JSON/MIR lowering row that maps canonical cleanup syntax to the existing
-   DropScope/finally channel.
-3. verifier/diagnostic row for cleanup non-local-exit rejection.
-4. compatibility row deciding whether `fini { ... }` remains accepted forever
-   or becomes a warning/deprecated alias.
+```text
+LANGUAGE-RESULT-EXIT-C-PRIME0-I0
+  cleanup-specific AST/registration product
+  VerifiedExitTransactionV1
+  typed Result propagation consumer
+  exact backend capability/fail-fast
 
-Each row needs its own fixture/gate and must not change object `fini()`
-semantics.
+LANGUAGE-RESULT-EXIT-C-PRIME0-R0
+  TryCatch/CatchClause cleanup encoding = 0
+  local/postfix cleanup sugar = 0
+  scope fini alias = 0
+  ambient handler gates and fallback = 0
+
+LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0
+  mandatory implementation-backed reference/grammar/parser closeout
+```
+
+Box finalization implementation is a separate Home family. The shared exit
+contract connects them only through a verified Home release request.

@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted-for-tasking
-Date: 2026-06-14
+Date: 2026-08-05
 Scope: Arc retirement / ownership substrate boundary. This is a design
 side-lane and does not change the active exact-AOT optimization lane.
 Related:
@@ -14,8 +14,8 @@ Related:
   - docs/development/current/main/design/box-object-model-replacement-map-ssot.md
   - docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
   - docs/development/current/main/workstreams/arc-retirement-current.md
-  - docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
-  - docs/development/current/main/investigations/box-lifecycle-bprime-tombstone-adaptive-ownership-task-2026-07-14.md
+  - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
+  - docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md
 ---
 
 # Arc Retirement And Ownership Substrate (SSOT)
@@ -286,25 +286,26 @@ do not reopen startup optimization from Arc retirement evidence
 do not alter active exact-AOT optimization fronts
 ```
 
-## B′ identity-bearing continuation
+## C′ identity-bearing continuation
 
 ARC-RETIRE-006..018 proved a narrow Arc-free stable-text handle family. That
 family has no Box identity/fini/weak lifecycle and therefore is not the
 identity-bearing ObjectCell completion.
 
-The accepted continuation is B′:
+The accepted continuation is C′:
 
 ```text
-correctness-first ObjectCell strategy = atomic SharedRc
-explicit fini = eager payload teardown to Dead
-last strong / DestroyOwned = structural drop only
+semantic authority = verified Home + one terminal DropPlan
+fini = non-callable last-Home hook
+direct FinalizeObject / Dead-with-live-Home = 0
+StaticUnique = no RC/control-cell/global-finalizer work when proved
+same-thread Shared / cross-thread Shared = separately selected physical plans
 identity = slot + generation
 owner/root token != identity
-StaticUnique / LocalRc = later derived optimizations
 normal Box manual physical-free surface = none
 ```
 
-Detailed order and family/global retirement gates live in the B′ taskboard.
+Detailed order and family/global retirement gates live in the Home taskboard.
 It does not reopen or invalidate the closed stable-text family claim.
 
 ## Task Ladder

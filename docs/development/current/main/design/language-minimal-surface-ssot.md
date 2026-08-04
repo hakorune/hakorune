@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-05-14
+Date: 2026-08-05
 Scope: Minimal canonical Hakorune language surface for low-level and selfhost work.
 Related:
   - docs/development/current/main/design/delegation-no-inheritance-ssot.md
@@ -9,6 +9,8 @@ Related:
   - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
   - docs/development/current/main/design/stage0-stage1-feature-responsibility-split-ssot.md
   - docs/development/current/main/design/language-feature-implementation-order-ssot.md
+  - docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md
+  - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
   - docs/reference/boxes-system/delegation-system.md
   - docs/reference/core-language/override-delegation-syntax.md
   - docs/reference/language/using.md
@@ -50,7 +52,13 @@ concrete composition:
   delegate field exposes method list
 
 cleanup:
-  fini
+  standalone cleanup
+
+unchanged recoverable-failure propagation:
+  Result-only postfix ?
+
+terminal object hook:
+  box-member fini
 
 capability:
   uses first
@@ -186,7 +194,9 @@ When a feature request appears, fold it into the existing family first.
 | Requested family | Canonical fold |
 | --- | --- |
 | `while` / `for` / `repeat` / `until` / `do` | `loop` header shapes |
-| `try` / `throw` / `?` | `Result<T,E>` + `guard` + `match` |
+| `try` / `throw` / `catch` | `Result<T,E>` + `guard` + `match` |
+| unchanged `Result<T,E>` propagation | typed postfix `?`; exact error type, no implicit conversion |
+| `Option<T>` absence propagation | `guard let` + `match`; Option `?` is not v1 |
 | `class` / `extends` / `super` | `box` + `delegate`; protocol later only if needed |
 | `struct` / `data` / `valuebox` | `record` |
 | `Vec<T>` / `List<T>` / canonical `T[]` | `Array<T>` |
@@ -210,7 +220,10 @@ large surface.
 | branch | `if`, `guard`, `match` |
 | control exit | `break`, `continue`, `return` |
 | local binding | `local` |
-| scope cleanup | `fini` |
+| scope cleanup | standalone `cleanup { ... }` |
+| recoverable failure | `Result<T,E>` |
+| unchanged error propagation | Result-only postfix `?` |
+| terminal object finalization | Box-member `fini { ... }` hook |
 | proof list | `check` |
 | contract | `assert`, `invariant`, `requires`, `ensures` |
 | lifecycle relation | `transition` |
@@ -250,6 +263,7 @@ var
 unsafe
 try
 throw
+catch
 state
 cap block syntax
 all

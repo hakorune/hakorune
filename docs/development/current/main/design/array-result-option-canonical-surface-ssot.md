@@ -1,12 +1,14 @@
 ---
 Status: SSOT
-Date: 2026-05-14
+Decision: Result-only postfix propagation accepted; Option propagation remains explicit
+Date: 2026-08-05
 Scope: Canonical surface for `Array<T>`, `PackedArray<T>`, `Result<T,E>`, `Option<T>`, and enum variants.
 Related:
   - docs/reference/language/EBNF.md
   - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
   - docs/development/current/main/design/generic-arity-checker-ssot.md
   - docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md
+  - docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md
 ---
 
 # Array / Result / Option Canonical Surface SSOT
@@ -33,10 +35,12 @@ Enum variant:
 Control:
   guard
   match
+  Result-only postfix ?
 ```
 
 Do not add parallel vocabulary such as `Vec<T>`, `List<T>`, `try`, `throw`, or
-`?` for this surface.
+`catch`. Result-only postfix `?` is the single accepted unchanged-propagation
+operator; it does not create an exception family.
 
 ## Array
 
@@ -140,12 +144,17 @@ enum Result<T, E> {
 }
 ```
 
-No new exception-like family:
+No new exception-like family or generic propagation protocol:
 
 ```text
 no try
 no throw
-no ?
+no catch
+Result ? only
+Option ? rejected in v1
+exact enclosing error type E
+no implicit error conversion
+no user-defined Try/residual protocol
 no nullable Result
 ```
 

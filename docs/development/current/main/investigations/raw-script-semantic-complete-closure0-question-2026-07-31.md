@@ -109,20 +109,18 @@ source-only admissionを整えただけです。ScriptをFunctionとして扱え
 ## Hakoruneの構文補正（必須）
 
 Hakoruneにはsource `try` 文とsource `throw` 文はありません。
-正規の対象は、保護対象のscope / expression / member bodyの後ろに付く
-postfix構文です。
-
-```text
-protected region
-  catch (...) { ... }
-  cleanup { ... }
-```
+2026-08-05 C′ correction: the July postfix handler premise below is
+superseded. Recoverable failure is `Result<T,E>` and exact unchanged
+propagation uses Result-only postfix `?`; source catch/`RecoverableFailure` is
+not a target. The old block remains useful only as `TryCatch` carrier census.
 
 ```text
 source try        = rejected
 source throw      = rejected
-postfix catch     = canonical target, RecoverableFailure laneは別D0
-postfix cleanup   = canonical target, cleanup laneは別owner
+postfix catch     = rejected target; retirement input
+postfix cleanup   = rejected target; retirement input
+standalone cleanup = sole lexical registration target
+Result expr?      = exact unchanged propagation target; production 0
 ASTNode::TryCatch = internal/legacy normalized carrier only
 ```
 

@@ -116,7 +116,7 @@ Local（ValueId/ABI/materializationを主張する場合）
 Me
 Lambda
 Assignment
-If / Loop / QMark / Match / Tryless postfix catch/cleanup
+If / Loop / current QMark / Match / legacy TryCatch cleanup carriers
 Call / MethodCall / FieldAccess / New / Array
 Box runtime demand
 ```

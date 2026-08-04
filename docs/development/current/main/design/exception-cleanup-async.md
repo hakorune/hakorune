@@ -1,7 +1,8 @@
 # Catch / Cleanup / Async — Join-Explicit CFG extensions
 
-Status: Draft（design SSOT candidate）  
+Status: Superseded historical proposal; async-only observations remain supporting evidence
 Last updated: 2025-12-20
+Superseded-by: `language-result-propagation-and-exit-transaction-ssot.md` for failure/cleanup
 
 Related:
 - North star: `docs/development/current/main/design/join-explicit-cfg-construction.md`
@@ -9,6 +10,10 @@ Related:
 - Pre-selfhost async stabilization (VM+LLVM; existing `nowait/await`): `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 
 Note (pre-selfhost):
+- The accepted C′ language target has no source catch/throw/`RecoverableFailure`
+  and does not add `Invoke` for recoverable errors. Result `?` and standalone
+  cleanup use one verified exit transaction. Catch/throw/Invoke sections below
+  are historical alternatives and cannot select implementation work.
 - This document is the **long-term** design: `await` should not remain as a CFG vocabulary after AsyncLowerBox (state-machine lowering).
 - Today, Nyash already has surface `nowait/await` and MIR `FutureNew/FutureSet/Await` in the pipeline; pre-selfhost work focuses on making VM+LLVM behavior consistent first.
 - Do not use this doc as a reason to introduce ad-hoc async behavior; follow the pre-selfhost SSOT for Phase‑0 semantics.

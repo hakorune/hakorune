@@ -6,13 +6,14 @@ Phase: 280 (Composition SSOT Positioning)
 
 Related:
 - North star（CFG/ABI）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
-- Catch/Cleanup/Async: `docs/development/current/main/design/exception-cleanup-async.md`
+- Result/cleanup exit transaction: `docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md`
+- Historical catch/Invoke and deferred async notes: `docs/development/current/main/design/exception-cleanup-async.md`
 
 ## 目的（なぜ必要？）
 
 EdgeCFG（block-parameterized CFG / edge-args SSOT）が固まると、次に残る “泥沼” はここだけになる:
 
-- **構造化制御（if/loop + catch/cleanup）→ CFG** の lowering で起きる **exit 配線問題**
+- **構造化制御（if/loop + Result伝播/cleanup）→ CFG** の lowering で起きる **exit 配線問題**
 - 「番号ラベルで推測分岐」が増殖しやすい領域（legacy numbered route labels は長期的に traceability-only へ縮退したい）
 
 この文書は「番号ラベル列挙」を設計の中心にしないために、Structured→CFG の lowering を

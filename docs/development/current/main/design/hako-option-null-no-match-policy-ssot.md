@@ -200,7 +200,8 @@ Future sugar, if accepted, must be dual-front:
 - `some expr`
 - `none`
 - `if some v = expr { ... } else { ... }`
-- `?` propagation only after function return-shape policy is fixed
+- Option `?` is rejected in v1; typed Result-only `?` is owned by the
+  independent Result/exit C′ contract
 
 ## Implementation Order
 
@@ -254,7 +255,8 @@ Allowed later, docs-first:
 
 Deferred:
 
-- `?` propagation
+- Option `?` propagation (requires a future language Decision; not a pending
+  v1 implementation row)
 
 ### O5. Optional compatibility facade only after semantics are fixed
 

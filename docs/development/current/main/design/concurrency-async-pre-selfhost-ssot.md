@@ -9,7 +9,7 @@ Related:
 - Historical/provisional state-model notes (`lock` / `scoped` / `worker_local`): `docs/reference/concurrency/lock_scoped_worker_local.md`
 - Thread substrate / benchmark claim boundary:
   `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
-- Long-term note (deferred): `docs/development/current/main/design/exception-cleanup-async.md`（state-machine lowering）
+- Long-term async-only note (deferred): `docs/development/current/main/design/exception-cleanup-async.md`（state-machine lowering部分のみ。catch/Invoke failure routeはC′にsuperseded）
 - Current lowering: `src/mir/builder/stmts/async_stmt.rs`
 - LLVM harness runner: `tools/run_llvm_harness.sh`
 
