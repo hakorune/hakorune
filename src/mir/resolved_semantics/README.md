@@ -167,12 +167,12 @@ function/source/frame, and private facts-only identity; cross-invocation facts
 mismatch rejects before effects. Seed/invocation seal, neutral facts issuance,
 and production selection remain later boundaries.
 The source-backed bridge, planner-suppression row, and Index/Ambiguous row are
-closed as cfg(test)-only evidence. The Index/Ambiguous row uses the parsed S2A
-topology with plain `items[j] = i` and co-seals resolver `IndexWrite`, facts
-`Ambiguous("assignment target")`, source/forest/frame identity, actual mode,
-and raw `[V0,V1]` into a private non-`Clone` negative witness. Neutral
-eligibility issuance and production selection remain stopped; execution is
-back at the parent D2 design boundary.
+closed as cfg(test)-only evidence. The next bounded row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`: co-seal actual
+natural-Both resolver/source/frame, BindingRef, facts, mode, and raw evidence
+into a private non-`Clone` test witness with typed mismatch rejects. This is
+not the production neutral eligibility issuer; production selection remains
+stopped. Compound/Unavailable remains a later source-matrix row.
 
 The bounded cfg(test) witness is green with:
 

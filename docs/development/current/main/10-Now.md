@@ -42,9 +42,10 @@ Related:
   V0 suppression. `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`
   is now closed as cfg(test)-only evidence: parsed nested IndexWrite plus
   facts Ambiguous, actual Release/Strict raw `[V0,V1]`, and typed unresolved
-  pre-effect disposition. Execution has returned to the parent
-  `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-BOUNDARY-D3-DESIGN0-D0` design
-  stop. No
+  pre-effect disposition. The selected bounded row is
+  `JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`: a
+  cfg(test)-only source-backed natural-Both eligibility witness paired with
+  typed mismatch negatives. No
   Generic production Recipe, selector arm, source-to-selection handoff, route,
   physical, Retry, or fallback change is authorized; M10b still waits on
   M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`

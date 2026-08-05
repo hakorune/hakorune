@@ -206,8 +206,11 @@ closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite
 `Ambiguous("assignment target")`, exact source/forest/frame identity, actual
 Release/Strict mode, and raw `[GenericLoopV0, GenericLoopV1]`. The typed result
 is pre-effect `UnresolvedStop(IndexWriteAmbiguousCarrier)`; no eligibility
-issuer or selector arm is implied. The current boundary returns to the parent
-source-to-selection design stop.
+issuer or selector arm is implied. The next bounded row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`, a cfg(test)-only
+source-backed natural-Both eligibility witness with typed mismatch rejects.
+It does not close the production handoff; Compound/Unavailable remains a later
+source-matrix row.
 
 The scoped D3 matrix is now also green as one cfg(test) test over four typed
 rows: natural Release, natural Strict, shadowing negative, and planner-required

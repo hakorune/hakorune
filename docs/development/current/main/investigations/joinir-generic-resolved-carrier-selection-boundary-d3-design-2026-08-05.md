@@ -561,6 +561,65 @@ handoff remain stopped after this source-backed axis is closed.
   `RecipeFirstSelectionInputV1`, V0 suppression arm, V1 precedence, and parent
   D2 closeout remain separate later rows.
 
+## Selected bounded task — source-backed eligibility protocol
+
+Task: `JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`
+
+Decision: accepted as one cfg(test)-only source-to-eligibility protocol row.
+It does not add the future neutral production issuer, selector input, or
+capability type; the parent source-to-selection design stop remains open.
+
+### Change
+
+- Reuse the existing parsed S2A natural-Both source projector under one real
+  Release/Strict invocation scope and seal a private, non-`Clone` test witness
+  that carries the actual resolver forest/source/frame, BindingRefs, facts
+  observation, mode/preflight flags, and raw `[V0, V1]` together.
+- Issue a test-only eligibility disposition only for exact
+  `CompleteRecursiveCarrier`, matching source/owner/frame identity, natural
+  Both, and non-planner mode. Pair the existing D2-S2 `IndexWrite` /
+  `Ambiguous("assignment target")` observation as a typed negative, without
+  reinterpreting it as a source-backed eligibility candidate.
+- Keep the existing synthetic matrix as policy-axis evidence. It may supply
+  typed negative cases for shadowing, planner, NoRecursive, Unavailable,
+  foreign/mismatch, and unstable seals, but those cases must not be reported as
+  source-resolver evidence.
+
+### Contract
+
+- The only positive result is private
+  `Eligible(CompleteRecursiveCarrier)` for the exact natural-Both source
+  witness. All other rows are typed pre-effect
+  `UnresolvedStop(EligibilityProtocolMismatch)`; none may become Legacy,
+  ProvenOutsideTarget, a winner, or a selector decision.
+- The witness consumes actual resolver-issued `BindingRefV1`/forest and actual
+  `GenericLoopCarrierObservationV1` once. No AST/name reread, synthetic source
+  identity, second facts authority, or caller-supplied booleans are allowed.
+- No neutral production issuer, `VerifiedResolvedCarrierEligibilityV1`,
+  `RecipeFirstSelectionInputV1`, selector/router/Builder/MIR/Recipe/JoinSig/
+  PHI/physicalizer caller, Retry, fallback, or M7/M10 route work is allowed.
+
+### Done
+
+- Focused tests prove one actual Release/Strict positive, the D2-S2
+  IndexWrite/Ambiguous negative, typed source/owner/frame/BindingRef rejects,
+  planner/shadowing/missing-capability pre-effect rejects, and fresh-repeat
+  stability. The synthetic matrix remains separate and green.
+- Implementation closeout must update this card, current pointers, Generic and
+  resolved-semantics READMEs, the stage-matrix reference, workstream, affected
+  reference indexes, and artifact inventory in the same commit. Future
+  production capability implementation must update the language reference
+  documents again after its own implementation closeout.
+
+### Stop
+
+- Return to design if one invocation cannot provide the full source/facts/frame
+  seal, if the positive path needs AST reconstruction or a second source shape,
+  if IndexWrite/Ambiguous is accidentally accepted, if synthetic IDs leak into
+  the source witness, or if any production import/effect appears. No full D2
+  matrix, V0/V1 precedence, winner equivalence, neutral issuer, selector, or
+  runtime claim is closed by this row.
+
 ## Closed bounded task — nested `IfThen` carrier coverage
 
 Task: `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`

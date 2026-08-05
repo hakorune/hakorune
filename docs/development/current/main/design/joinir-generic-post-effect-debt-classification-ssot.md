@@ -956,8 +956,11 @@ closed as cfg(test)-only evidence: the parsed nested `items[j] = i` source
 proves resolver `IndexWrite` and facts `Ambiguous("assignment target")`, with
 exact source/forest/frame identity, actual Release/Strict raw `[V0,V1]`, and
 typed `UnresolvedStop(IndexWriteAmbiguousCarrier)`. No production issuer,
-adapter, selector, or parent-D2 closeout is implied; execution is back at the
-parent design boundary.
+adapter, selector, or parent-D2 closeout is implied. The next bounded row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`: a cfg(test)-only
+source-backed natural-Both eligibility witness with typed mismatch rejects.
+Compound/Unavailable remains a separate later source-matrix row, and the
+parent source-to-selection design boundary remains open.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
