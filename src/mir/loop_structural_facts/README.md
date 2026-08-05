@@ -159,7 +159,7 @@ resolver-issued AST-free candidate proof plus one-shot source/BindingRef lease
 may cross the future handoff. D4-S4-S0 is closed as `NoSafeSlice`.
 D4-S4-S0-D0 fixes the future move-only source lease, AST-free shape/candidate,
 policy observation, and Generic demand chain. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1
-is now closed as the typed shape contract. The next gated slice is a separate
-resolver-owned role-level source-lease witness; this layer remains caller-zero
-and may not re-resolve
-roles or issue a selector input.
+is now closed as the typed shape contract. The bounded cfg(test)-only
+source-lease witness is closed; this layer remains caller-zero. The next shape
+issuer may consume its lease but must not re-resolve roles or issue a selector
+input.

@@ -688,6 +688,11 @@ GEN-TYPE-SUBSTITUTION0-S0
 -> GEN-INLINE0-I0
 ```
 
+`GEN-HOME-ABI0-S0` waits for `OWN-HOME-ABI0-S0` and the generic
+contract-boundary decision; monomorphization waits for a sealed concrete Home
+ABI. These dependencies are separate from the current resolver SourceLease /
+semantic-shape witness and must not be collapsed into one generic route.
+
 Current generic parsing/arity evidence is not type substitution,
 monomorphization, or a concrete MIR instance. No dictionary or erased-generic
 fallback is introduced by this chain. A generic `Inline(required)` contract is

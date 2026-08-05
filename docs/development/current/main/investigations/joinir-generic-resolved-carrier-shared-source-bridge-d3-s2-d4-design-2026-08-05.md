@@ -937,15 +937,16 @@ or planner-unsealed evidence.
 
 The required counterexample is two structurally identical Generic loops (or
 two resolver sessions) with distinct source sites/`BindingRef`s, including a
-shadowing relation. Pairing one loop's lease with the other's forest/frame or
-role must reject before effects; a marker-only selector must not be able to
-choose either loop.
+shadowing relation. The lease issuer derives forest and per-member frames from
+one `VerifiedResolvedFunctionV1`; callers cannot supply a foreign forest/frame
+to mix, and a marker-only selector must not choose either loop.
 
 D4-S4-S0-D0 is accepted only as this design contract. The future cfg(test)
 witness may start after a real resolver-issued shape and a selector callsite
 produce `Selected(Generic)`; otherwise it closes as `NoSafeSlice` again. Any
-implementation commit must update `docs/reference/**`, current mirrors, and
-support READMEs in the same commit.
+implementation commit updates exact references/current mirrors/support READMEs
+in the same commit; no relevant `docs/reference/**` contract applies to this
+cfg(test)-only cell.
 
 ## D4-S4-S0 semantic-shape schema design closeout
 
@@ -967,27 +968,33 @@ ancestry. The shape owns only the five proofs above. Neither product may carry
 AST, source-unit lifetime, strings/labels, route IDs, `RecipeBody`, Builder,
 MIR/PHI, `ValueId`, or legacy demand.
 
-The next task is a separate `cfg(test)` resolver-owned
-`GenericSourceLease` witness: one atomic non-`Clone` product with exact
-role/site/scope/ancestry claims, AST/source-unit lifetime-free after issuance.
-Reject foreign session, shadow/upvar/capture, missing/duplicate roles, and
-site/forest/frame mismatch before publication. Do not rename/re-export the
-shared-window module or re-resolve roles by name. Only then may shape,
-candidate, selector, and demand witnesses proceed.
+The source-lease witness is closed as cfg(test)-only and bounded to the exact
+two-role nested-carrier profile (`NestedWrite` + `PostLoopRead`). It accepts
+owner-branded `OwnedExprSiteV1` ingress and emits a non-`Clone`,
+AST/source-unit-lifetime-free value with resolver-derived `BindingRef`, scope,
+and ancestry. Forest/frames are reissued and co-sealed from one function, so
+external mixing is unrepresentable. Five tests cover positive, foreign
+identity/role brands, shadowing, duplicate/unknown/placement, and forest
+mismatch; upvar/capture branches await a later fixture.
 
-## D4-S4-S0 source-lease witness gate
+## D4-S4-S0 source-lease witness closeout
 
-The next implementation/test-only slice is
-`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S0`.
-It must issue one resolver-owned, non-`Clone` `GenericSourceLease` with exact
-role/site/scope/ancestry claims and no AST/source-unit lifetime after
-issuance. Foreign sessions, shadow/upvar/capture, missing/duplicate roles,
-and site/forest/frame mismatch reject before publication. The witness must
-not rename or re-export `shared_loop_source_window.rs`, re-resolve roles by
-name, or create shape/selector/demand/Recipe/Builder/MIR products.
+`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S0` is
+closed as a five-test, `cfg(test)`-only witness. It does not publish a
+production caller, selector, demand, Recipe/key, Builder/MIR effect, retry, or
+fallback, and it does not rename or re-export `shared_loop_source_window.rs`.
 
+## D4-S4-S0 semantic-shape witness gate
+
+The next task is a separate AST-free shape issuer. It must consume the
+move-only lease, borrow resolver source only during issuance, and emit the D1
+`CarrierProof`/`ConditionProof`/`StepProof`/`BodyEffectProof`/`Coverage-Exit`
+product without re-resolving roles by name. Because the current lease is a
+bounded two-role witness, any additional condition/step/body-effect role
+claims require a new D0 before implementation. No selector winner, demand,
+Recipe/key, Builder/MIR effect, retry, or fallback is allowed.
 ## Current next action
 
-Execute the source-lease witness. If the resolver cannot atomically issue role
-claims without a second AST/name authority, keep that slice at `NoSafeSlice`;
-do not fabricate `Selected(Generic)` or adapt the legacy demand.
+Execute the shape witness only after its issuer/role set is designed. If the
+bounded lease needs a second AST/name authority, close it as `NoSafeSlice`;
+never fabricate `Selected(Generic)` or adapt legacy demand.

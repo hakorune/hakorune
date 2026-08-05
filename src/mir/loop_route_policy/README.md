@@ -111,5 +111,6 @@ closed as `NoSafeSlice`: no selected callsite or resolver Generic candidate
 envelope exists. D4-S4-S0-D0 closes the future move-only lease -> shape ->
 observation -> selector -> demand chain; this policy module only moves opaque
 capabilities and never issues keys. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now
-closed as the typed shape contract. The next row is the resolver-owned
-role-level source-lease witness, before selector or demand activation.
+closed as the typed shape contract, and the bounded cfg(test)-only
+source-lease witness is closed. The next row is the AST-free shape witness;
+selector and demand remain gated.

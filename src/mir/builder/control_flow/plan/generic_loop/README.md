@@ -247,6 +247,7 @@ any producer witness. D4-S4-S0 is now closed as `NoSafeSlice`; no selected
 callsite or candidate envelope exists. D4-S4-S0-D0 closes the future
 move-only source lease -> AST-free shape/candidate -> observation -> selector
 -> demand chain, with this Builder planner remaining outside it.
-GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 closes the typed shape contract. The next
-frontier is a resolver-owned role-level source-lease witness; no synthetic winner, demand, or production
-caller is allowed before those gates are green.
+GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 closes the typed shape contract. The bounded
+cfg(test)-only source-lease witness is now closed. The next frontier is an
+AST-free shape issuer consuming that lease; no synthetic winner, demand, or
+production caller is allowed before the shape gate is green.

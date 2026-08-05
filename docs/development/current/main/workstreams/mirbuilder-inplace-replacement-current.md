@@ -477,16 +477,18 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S0
-  follows the closed GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 docs-only gate. Add one
-  separate cfg(test) resolver-owned, non-Clone GenericSourceLease with exact
-  role/site/scope/ancestry claims and AST/source-unit lifetime-free output.
-  Reject foreign session, shadow/upvar/capture, missing/duplicate roles, and
-  site/forest/frame mismatch before publication. Do not rename/re-export the
-  shared-window module or re-resolve roles by name. Shape -> candidate ->
-  selector -> demand remains later; no synthetic winner, Recipe/key,
-  Builder/MIR, retry, fallback, or old-edge deletion. Every implementation
-  commit updates exact references/current support docs in the same commit.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S0
+  -> cfg(test)-only bounded two-role lease. The resolver reissues the exact
+     forest and per-member frames from one function product; owner-branded
+     role sites yield BindingRef, site scope, and ancestry. Five focused tests
+     are green. No AST/source lifetime, selector/demand/Recipe, Builder/MIR,
+     retry, fallback, or production caller was added. External frame mixing is
+     structurally impossible; the internal frame co-seal check is diagnostic.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-WITNESS0-D4-S4-S1
+  -> consume the move-only lease and emit the D1 AST-free proof schema. Any
+     role-set extension is a separate D0. Every implementation commit updates
+     exact references/current support docs in the same commit; no relevant
+     docs/reference contract exists for this cfg(test)-only cell.
 ```
 
 ## Production invariants

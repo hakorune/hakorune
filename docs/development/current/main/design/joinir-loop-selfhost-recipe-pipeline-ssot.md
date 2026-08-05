@@ -235,17 +235,24 @@ resolver source projector
 ```
 
 `GENERIC-SEMANTIC-SHAPE-SCHEMA-D1` is now closed as a worker-reviewed
-docs-only contract. The next gated slice is the resolver-owned source lease.
+docs-only contract. The resolver-owned source-lease witness is also closed as
+cfg(test)-only, bounded to exactly two forest members and one each of
+`NestedWrite`/`PostLoopRead`. The issuer derives forest and per-member frames
+from one `VerifiedResolvedFunctionV1`; external frame mixing is therefore
+unrepresentable, while an internal frame/site co-seal check remains.
 The D1 boundary is one typed
 schema table for `CarrierProof`, `ConditionProof`, `StepProof`,
 `BodyEffectProof`, and `Coverage/Exit`, with resolver-lease fields separated
 from shape-issuer fields. The schema excludes AST, string labels, route IDs,
-Builder/MIR/PHI, and legacy demand. Only after that design closes may a
-dedicated test-only lease own exact role/site/scope/ancestry claims without
-AST or source-unit lifetime; it must reject foreign/shadow/upvar/capture and
-site/forest/frame mismatch. `Selected(Generic)`, demand, Recipe/key, retry,
-and fallback remain untouched; if role claims cannot be issued atomically, the
-lease slice is `NoSafeSlice` and shape must not re-resolve by name.
+Builder/MIR/PHI, and legacy demand. The lease owns exact role/site/scope/
+ancestry claims without AST or source-unit lifetime. Five focused tests cover
+positive issuance, foreign identity/role brands, shadowing,
+duplicate/unknown/placement, and forest mismatch; broader upvar/capture
+fixtures and role sets are later extensions. `Selected(Generic)`, demand,
+Recipe/key, retry, and fallback remain untouched. The next gated slice is a
+one-shot branded handoff to the shape issuer: consume the move-only lease,
+borrow resolver source only during proof issuance, and never re-resolve roles
+by name.
 
 The D1 product boundary is:
 

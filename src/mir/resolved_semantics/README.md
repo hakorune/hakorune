@@ -565,6 +565,9 @@ Generic labels/facts cannot be re-resolved into Recipe. D4-S4-S0 is closed as
 fixes this resolver as the sole source-lease/BindingRef issuer, with the
 future shape projector consuming that brand and returning AST-free proof.
 GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now closed as a docs-only typed
-Carrier/Condition/Step/BodyEffect/Coverage-Exit contract. The next step is a
-separate cfg(test)-only resolver-owned Generic source-lease witness; this
-resolver remains caller-zero until role claims can be sealed atomically.
+Carrier/Condition/Step/BodyEffect/Coverage-Exit contract. The source-lease
+witness is also closed as cfg(test)-only: a bounded exact-two nested-carrier
+lease with five focused tests, resolver-derived forest/frames, and
+owner-branded role claims. The next step is the AST-free shape witness; this
+resolver remains production-caller-zero and the shape issuer must consume the
+lease without re-resolving roles.

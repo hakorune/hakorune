@@ -96,16 +96,18 @@ Related:
   production caller. D4-S4-D0 is also closed as a worker-reviewed design:
   current SelectedFamilyV1 lacks provenance and current Generic facts are
   AST/Builder-derived, so a new resolver-issued AST-free semantic demand and
-  one-shot source lease are required. D4-S4-S0 is now closed as NoSafeSlice:
+  one-shot source lease are required. D4-S4-S0 is now closed as a bounded
+  cfg(test)-only two-role lease witness:
   no real Selected(Generic), resolver AST-free candidate envelope, one-shot
   BindingRef lease, or Generic demand exists. D4-S4-S0-D0 is now closed as a
   worker-reviewed design: resolver SourceLease, AST-free shape/candidate
   envelope, policy observation, selector, Generic demand, Recipe producer, and
   Binding SSA have separate issuers. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now
   closed as a typed Carrier/Condition/Step/BodyEffect/Coverage-Exit schema.
-  The immediate next frontier is the resolver-owned role-level source-lease
-  witness; shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and
-  fallback remain gated.
+  The immediate next frontier is the AST-free semantic-shape witness; it must
+  consume that move-only lease through one branded handoff. Shape,
+  Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback remain
+  gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
