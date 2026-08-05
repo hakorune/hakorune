@@ -224,3 +224,11 @@ Release/Strict/planner-required. This README remains a Generic facts/recipe
 boundary: the census does not add a planner selector, Recipe/key, Builder/MIR
 caller, retry, fallback, or canonical policy. D4-S3-D0 is the next docs-only
 decision for the neutral observation set and `mir::loop_route_policy` owner.
+
+D4-S3-D0 is now closed as design-only. This Generic facts/planner boundary
+does not become the future family selector: its raw V0/V1 carrier and schedule
+remain legacy-labelled observations. The future resolver-branded observation
+set is separate, and its family-level selector must reject incomplete or
+ambiguous evidence rather than use a legacy suffix/fallback. D4-S3-S0 is a
+private witness only; no Generic Recipe, Builder/MIR caller, or retry removal
+is authorized.

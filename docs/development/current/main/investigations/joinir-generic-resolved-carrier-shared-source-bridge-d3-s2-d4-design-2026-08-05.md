@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0 closed; D4-S2-R1 accepted; D4-S3-D0 selected
+Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0 closed; D4-S3-S0 selected
 Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -609,9 +609,9 @@ Generic-loop support docs, this card, `CURRENT_STATE.toml`, current mirrors,
 and the workstream. The focused census test is green; changed source/check
 files remain below 800 lines and the workstream remains below 1000.
 
-## D4-S3-D0 design-only next stop
+## D4-S3-D0 design target (now closed)
 
-The next row is
+The former next row was
 `JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTION-AUTHORITY0-D4-S3-D0`.
 It must decide the neutral observation-set schema and the sole
 `mir::loop_route_policy` selection authority from the measured rows. It may
@@ -619,9 +619,80 @@ not treat legacy schedules or current preflight order as canonical, and it
 does not authorize production migration. Any later implementation must update
 affected reference documentation in the same commit.
 
+## D4-S3-D0 design closeout
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTION-AUTHORITY0-D4-S3-D0`
+is closed as a docs-only authority decision after the worker audits. The
+existing `src/mir/loop_route_policy` API remains the M3 legacy 19-route
+schedule/evidence adapter: route IDs, canonical raw order, cursors, and its
+left-to-right evaluator are migration provenance, not semantic family policy.
+The existing resolved DirectAccum and NestedPredicate lanes remain live
+family-specific production paths; only the Generic resolved-carrier path is
+caller-zero here. No global raw-route retirement is implied.
+
+### Future neutral observation-set contract
+
+The next canonical product is named
+`VerifiedLoopFamilyObservationSetV1`. It is one resolver-owned non-`Clone`
+source receipt/window plus:
+
+```text
+exact Release/Strict/planner-required mode snapshot
+coverage seal
+Box<[LoopFamilyObservationV1]>
+```
+
+Each row carries a semantic family tag (`NestedPredicate`, `DirectAccum`, or
+future Generic family; never a route ID) and one typed pre-effect disposition:
+`Candidate`, `Declined`, `Blocked`, or `Unresolved`. The set retains the
+receipt-issued owner/origin/source-kind/site/forest/frame relation instead of
+four independently constructible coordinates. It contains no AST, raw
+schedule/cursor, Recipe/key, Builder/MIR/ValueId/PHI, retry, or fallback.
+
+The sole future selector is a new family-level entrypoint in
+`mir::loop_route_policy`, named `CanonicalLoopFamilySelectionV1` for the
+design. It consumes the sealed set exactly once and returns only
+`Selected`, `NoCandidate`, typed `Rejected`, or typed `Unresolved`.
+`NoCandidate` is legal only when a sealed whole-unit proof says that no Loop
+family envelope exists. Missing/foreign/ambiguous owner or frame, incomplete
+coverage, planner-required suppression without a typed row, and source/
+BindingRef mismatch remain rejection/unresolved; they are never absence or a
+legacy fallback. `A+`/Trivial stay in a separate whole-unit selection stage.
+
+D4-S3 does not define NestedPredicate-versus-DirectAccum precedence,
+Generic V0/V1 winner/disjointness, or a Recipe handoff. The six D4-S2 rows
+prove only mode-stable legacy observations and schedule/family divergence;
+they do not prove overlap policy. The selected-family Recipe producer remains
+the sole `LoopBindingKeyV1` owner, `CanonicalFirstFamilyPlanV1` remains
+post-selection, and Binding SSA remains the sole physical ValueId/PHI owner.
+
+### Ordered task ladder
+
+```text
+D4-S3-S0  OBSERVATION-SET0
+  private cfg(test) resolver-branded observation-set witness; no selector
+D4-S3-S1  MATRIX-CLOSE0
+  source-backed V0/V1/Neither + mode/reject matrix; no winner
+D4-S3-S2  SELECTOR-PURE0
+  pure family selector test consumer; no production caller
+D4-S4-D0  GENERIC-RECIPE-HANDOFF0
+  design Generic producer/key/effect relation before raw cutover
+D4-S4-I0-R0  GENERIC-PRODUCTION-CUTOVER0
+  one family caller and same-commit retirement of only migrated raw edges
+```
+
+The selected next task is
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-OBSERVATION-SET0-D4-S3-S0`.
+Its implementation commit must update affected `docs/reference/**`, this
+card, `CURRENT_STATE.toml`, and current support docs. It must stop if the
+receipt is not unique, if a legacy route/cursor becomes policy input, or if
+the set reaches a selector, Recipe, Builder/MIR, retry/fallback, or production
+caller.
+
 
 # Current next action
 
-Stop with D4-S2-S0 closed and D4-S3-D0 selected. Do not implement a selector
-or production migration. The next action is design-only authority selection;
-any later implementation requires same-commit reference/current-doc updates.
+Stop with D4-S3-D0 closed and D4-S3-S0 selected. Do not implement a selector
+or production migration in this design turn. The next action is the private
+resolver-branded observation-set witness; later implementation requires
+same-commit reference/current-doc updates.

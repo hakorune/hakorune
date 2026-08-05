@@ -477,15 +477,15 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-LEGACY-SAME-SOURCE-CENSUS0-D4-S2-S0
-  is closed as a private cfg(test) six-row retirement census after D4-S2-R1
-  corrected the authority order to source observations -> loop_route_policy
-  -> selected-family Recipe -> verify/plan -> lower. Rows record one
-  resolver-owned owner/site/frame plus legacy-labelled raw/preflight values;
-  no winner, policy input, Recipe/key, export, production caller, retry,
-  fallback, or old-edge deletion was added. The same commit updates affected
-  references/current docs. Next is design-only
-  JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTION-AUTHORITY0-D4-S3-D0.
+JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-OBSERVATION-SET0-D4-S3-S0
+  is selected after D4-S3-D0 fixed the future authority: one resolver-branded
+  non-Clone observation set -> new family selector in loop_route_policy ->
+  selected-family Recipe -> verify/plan -> lower. Existing DirectAccum and
+  NestedPredicate resolved lanes stay live; Generic remains caller-zero.
+  S0 is private cfg(test) transport only: no legacy route/cursor policy,
+  selector, Recipe/key, export, production caller, retry, fallback, or old-edge
+  deletion. Its implementation must update affected references/current docs in
+  the same commit.
 ```
 
 ## Production invariants

@@ -296,6 +296,26 @@ retry/fallback, and does not retire an old edge. D4-S3-D0 is the next
 docs-only decision for the neutral observation-set and
 `mir::loop_route_policy` authority.
 
+### D4-S3-D0 canonical selection authority (closed design)
+
+The future canonical product is a resolver-branded, non-`Clone`
+`VerifiedLoopFamilyObservationSetV1`: one source receipt/window, one exact
+mode snapshot, one coverage seal, and family-tagged rows with typed
+`Candidate|Declined|Blocked|Unresolved` dispositions. Semantic family tags
+are not route IDs. The set contains no AST, raw schedule/cursor, Recipe/key,
+Builder/MIR/ValueId/PHI, retry, or fallback.
+
+A new family-level `CanonicalLoopFamilySelectionV1` in
+`mir::loop_route_policy` is the future sole selector and consumes the set once,
+returning `Selected|NoCandidate|Rejected|Unresolved`. `NoCandidate` requires a
+sealed whole-unit proof that no Loop family envelope exists; missing or
+foreign identity, incomplete coverage, planner-unspecified suppression, and
+BindingRef/frame mismatch remain typed rejection/unresolved. A+/Trivial stay
+outside this Loop-family set. The existing 19-route evaluator and the live
+DirectAccum/NestedPredicate resolved lanes are preserved as migration/live
+owners; Generic selection remains caller-zero. D4-S3-S0 is the next private
+observation-set witness, not a selector or production cutover.
+
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is
 closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite

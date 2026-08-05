@@ -538,3 +538,13 @@ rows are retirement inventory only: this resolver remains the sole source
 identity authority, and no selector, Recipe/key, Builder/MIR caller, or route
 policy is issued here. D4-S3-D0 is a docs-only decision for the neutral
 observation set and `mir::loop_route_policy` authority.
+
+D4-S3 closes that design boundary. The future
+`VerifiedLoopFamilyObservationSetV1` must retain the resolver-issued receipt
+itself (owner brand plus origin/source-kind/site/forest/frame), not expose
+independently constructible coordinates. It also carries one exact mode
+snapshot, a coverage seal, and family-tagged typed dispositions. This resolver
+remains the source/identity issuer; it does not select a family or issue a
+Recipe key. The next D4-S3-S0 witness is private and test-only, and the live
+DirectAccum/NestedPredicate resolved lanes remain separate from the
+caller-zero Generic selector path.

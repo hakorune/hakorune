@@ -81,11 +81,13 @@ Related:
   views from one non-Clone canonical source receipt, with seven focused tests
   and no production caller. D4-S1 DirectAccum and D4-S2-S0 are also closed:
   the latter freezes six legacy-labelled same-source rows (two fixtures ×
-  three modes) with zero production caller. The current stop is now the
-  docs-only D4-S3-D0 selection-authority design. It must define the neutral
-  observation set and `mir::loop_route_policy` owner without promoting legacy
-  schedule/preflight order; selector, Recipe, PHI, Builder/MIR, retry,
-  fallback, runtime, and production authority remain NoSafeSlice.
+  three modes). D4-S3-D0 is closed as the docs-only authority decision: a new
+  resolver-branded observation set feeds a future family selector in
+  `mir::loop_route_policy`; legacy schedule/cursor order is not policy.
+  DirectAccum/NestedPredicate resolved lanes remain live, while Generic stays
+  caller-zero. The next row is private cfg(test) D4-S3-S0; no selector,
+  Recipe, PHI, Builder/MIR, retry, fallback, runtime, or Generic production
+  authority changes are authorized.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
