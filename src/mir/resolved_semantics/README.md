@@ -236,6 +236,13 @@ debt-to-different-winner requires a real producer receipt, and Home-bearing
 evidence is a separate design. No selector, issuer, Recipe, PHI, Builder, MIR,
 retry, fallback, or runtime caller is authorized by this README entry.
 
+The first selected child is the narrower cfg(test)-only
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`.
+It consumes existing resolver forest/frame and exact `BindingRefV1`
+role/ancestry relations into a private witness. It does not create the Generic
+snapshot, assign `LoopBindingKeyV1`, or issue a seed/opaque selection input;
+those remain follow-up design boundaries.
+
 The bounded cfg(test) witness is green with:
 
 ```bash

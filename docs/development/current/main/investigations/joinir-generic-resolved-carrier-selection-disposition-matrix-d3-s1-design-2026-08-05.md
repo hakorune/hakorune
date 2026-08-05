@@ -219,6 +219,14 @@ allowed only after this relation is sealed; Home semantics remain a separate
 design. Natural V0 debt followed by a different V1 winner still requires an
 actual producer receipt; synthetic debt is not evidence.
 
+The first child selected under D3-S2 is
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`,
+recorded in
+`joinir-generic-resolved-carrier-provenance-observation-d3-s2-s0-task-2026-08-05.md`.
+It is a private cfg(test)-only observation of resolver forest/frame and exact
+`BindingRefV1` role/strict-ancestor relations. It does not assign Generic
+logical keys or publish a neutral snapshot; those remain a follow-up design.
+
 ## Prohibited changes
 
 This design card does not authorize a neutral issuer, `InvocationSealV1`,

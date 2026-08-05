@@ -1108,6 +1108,13 @@ V0 suppression. `LoopRouteContext` remains a loop-fragment owner and does not
 lower post-loop Return/ABI/Home semantics. Scalar Return projection, natural
 debt evidence, and Home-bearing evidence are separate deferred rows.
 
+The first selected D3-S2 child is the cfg(test)-only
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`.
+It observes resolver-issued forest/frame and exact `BindingRefV1` relations
+through the compiler-side projector only. It does not issue a Generic
+snapshot, logical key, seed, opaque input, selector, or production caller;
+those remain later design boundaries.
+
 ### M4-D4 — handoff and close (`...-D0-S4`)
 
 Seal a disposition for every D0 row, decide V0/V1 precedence, and make the

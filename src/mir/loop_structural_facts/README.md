@@ -72,6 +72,14 @@ legacy scheduler, mutate a Builder, or become a PHI/SSA writer. Production
 physical ownership remains `CanonicalCfgSessionV1` + function-owned
 `BindingSsaBuilderV1` + `PhiTxn`.
 
+The selected D3-S2-S0 child is a cfg(test)-only resolver observation task:
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`.
+It may observe forest/frame and exact `BindingRefV1` role/ancestry relations
+through the compiler-side projector, but it must not add a Generic snapshot,
+logical-key issuer, seed/opaque input, selector, or Builder caller. The
+existing DirectAccum `selected_demand` and its hard-coded recipe keys remain
+separate owners; Generic key assignment requires a later design.
+
 M3-B and the selected-demand issuer are intentionally caller-zero. Production
 wiring belongs to a later card at the located source carrier before Loop syntax
 is decomposed.

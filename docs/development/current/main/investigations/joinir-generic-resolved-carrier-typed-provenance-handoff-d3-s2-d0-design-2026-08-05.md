@@ -97,8 +97,17 @@ the no-debt/different-winner check; synthetic debt is evaluator-only.
 
 ## First implementation slice after this design
 
-Only after this card is accepted and the typed products are implemented may a
-bounded neutral issuer be considered:
+The first bounded child is deliberately narrower than the final handoff
+products. It is the cfg(test)-only observation task
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`.
+It consumes the existing resolver-issued forest/frame and exact
+`BindingRefV1` source relations into a private non-Clone witness. It does not
+publish a production snapshot, assign a Generic `LoopBindingKeyV1`, or issue
+an opaque selection input. Those three authorities remain separate design
+work because Generic key assignment and seed ownership are not yet defined.
+
+Only after this observation child and a follow-up design seal may a bounded
+neutral issuer be considered:
 
 ```text
 resolver observation -> AST-free neutral snapshot -> private Builder adapter

@@ -309,6 +309,14 @@ scalar Return projection, natural debt-to-different-winner evidence, and Home
 semantics remain deferred; label/ValueId inference and synthetic debt remain
 non-authoritative.
 
+The first selected child is the cfg(test)-only
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`,
+recorded in
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-provenance-observation-d3-s2-s0-task-2026-08-05.md`.
+It observes resolver forest/frame and exact `BindingRefV1` role/ancestry only;
+Generic snapshot/key issuer, seed/opaque input, selector, Builder/MIR, and
+Return/Home/debt meaning remain unimplemented.
+
 ## D2-B4-S2A nested `IfThen` carrier evidence
 
 The bounded S2A row is closed as one parsed, `cfg(test)`-only carrier witness.

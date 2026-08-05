@@ -954,3 +954,13 @@ fresh-repeat stability, and the no-debt/different-winner boundary are proven,
 the disposition remains `UnresolvedStop(WinnerCorrectnessUnavailable)`, the
 old scheduler remains authority, and no neutral issuer, selector, Recipe,
 PHI, Builder, MIR, Retry, fallback, or route cutover is authorized.
+
+The first bounded implementation child under D3-S2 is
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`,
+recorded in
+`joinir-generic-resolved-carrier-provenance-observation-d3-s2-s0-task-2026-08-05.md`.
+It is cfg(test)-only and observes resolver-issued forest/frame plus exact
+`BindingRefV1` role/ancestry relations through the existing compiler-side
+projector. It deliberately does not create a production neutral snapshot,
+Generic `LoopBindingKeyV1` issuer, seed, opaque input, selector, or Builder
+caller; any need for those returns to this D3-S2 design stop.

@@ -477,26 +477,21 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0
-  current design stop — D3-S1-S2 cfg(test)-only source bridge is closed;
-  production selection remains stopped.
-  The next design must define resolver-owned BindingRef provenance,
-  AST-free GenericCarrierFactsSnapshotV1, a typed LoopBindingKeyV1 relation,
-  and one non-Clone opaque handoff before any implementation child.
-  S2's name/PHI/ValueId projections are corroboration only; full scalar
-  Return parity, natural debt-to-different-winner evidence, and Home meaning
-  remain deferred. Result stays
-  Observed + UnresolvedStop(WinnerCorrectnessUnavailable).
-  Task card:
+JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0
+  current bounded child under the accepted D3-S2 design boundary;
+  cfg(test)-only resolver observation, production selection remains stopped.
+  Consume the parsed natural-Both source through the existing compiler-side
+  projector, resolver-issued forest/frame, and exact BindingRefV1 relations.
+  The private non-Clone witness records source/forest/frame identity,
+  outer-to-inner parent, write/read sites, and strict ancestry only.
+  GenericCarrierFactsSnapshotV1, LoopBindingKey issuer, InvocationSeal,
+  opaque input, selector/Recipe/PHI/Builder/MIR/VM, Return/Home/debt remain
+  unimplemented and unclaimed. Task card:
   docs/development/current/main/investigations/
-  joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
-  Reject before Builder effects on missing/foreign/ambiguous provenance,
-  source/forest/frame mismatch, AST or physical-ValueId leakage, missing
-  seal/seed, incomplete matrix, or unobserved winner/result/Home/PHI parity.
-  No issuer/selector/Recipe/PHI/Builder/MIR/VM/retry/fallback caller is
-  authorized. The active card remains the only execution owner; historical
-  rows stay evidence and do not reopen route work. Any failed assertion
-  returns to this D3-S2 design boundary.
+  joinir-generic-resolved-carrier-provenance-observation-d3-s2-s0-task-2026-08-05.md
+  Reject missing/foreign/ambiguous BindingRef, owner/forest/frame mismatch,
+  duplicate roles, AST/label/ValueId leakage before any Builder effect.
+  Any need for logical key assignment or snapshot pairing returns to D3-S2.
   No fallback or retry is permitted.
   Keep touched source and tests below 800 lines.
   Keep this workstream at exactly 1000 lines.
@@ -948,7 +943,7 @@ ordered after B-prime correction
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only;
      reference closeout is recorded. Parent D2 stays unresolved and no
      production issuer/adapter/selector/route switch is authorized.
-  3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, and D3-S1-S2 are cfg(test)-only closed. D3-S2 is the accepted typed-provenance handoff design stop; it adds no production issuer/selector/route authority
+  3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, and D3-S1-S2 are cfg(test)-only closed. D3-S2 is the accepted typed-provenance handoff design stop, and S0 is the selected resolver-observation child; it adds no production issuer/selector/route authority
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement
   5. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
@@ -998,3 +993,8 @@ Scalar Return projection remains deferred cfg(test) evidence.
 Natural debt-to-different-winner evidence remains unobserved.
 Home-bearing Generic evidence remains a separate design.
 Reference closeout follows every future implementation.
+S0 observation artifact is none.
+S0 logical-key assignment remains deferred.
+S0 neutral snapshot issuer remains deferred.
+S0 production caller census remains zero.
+S0 failure returns to D3-S2 design.
