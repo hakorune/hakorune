@@ -477,14 +477,16 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-SCHEMA-D1-D4-S4-S0
-  is the next design-only gate. Fix one typed Carrier/Condition/Step/
-  BodyEffect/Coverage-Exit schema and separate resolver-lease fields from
-  shape-issuer fields; AST, labels, routes, Builder/MIR/PHI, and legacy demand
-  are forbidden. Then add the separate cfg(test) resolver-owned lease witness,
-  followed only by shape -> candidate -> selector -> demand. No synthetic
-  winner, Recipe/key, retry, fallback, or old-edge deletion. Every later
-  implementation updates references/current support docs in the same commit.
+JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S0
+  follows the closed GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 docs-only gate. Add one
+  separate cfg(test) resolver-owned, non-Clone GenericSourceLease with exact
+  role/site/scope/ancestry claims and AST/source-unit lifetime-free output.
+  Reject foreign session, shadow/upvar/capture, missing/duplicate roles, and
+  site/forest/frame mismatch before publication. Do not rename/re-export the
+  shared-window module or re-resolve roles by name. Shape -> candidate ->
+  selector -> demand remains later; no synthetic winner, Recipe/key,
+  Builder/MIR, retry, fallback, or old-edge deletion. Every implementation
+  commit updates exact references/current support docs in the same commit.
 ```
 
 ## Production invariants

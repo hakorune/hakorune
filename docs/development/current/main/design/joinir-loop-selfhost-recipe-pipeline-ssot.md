@@ -234,7 +234,9 @@ resolver source projector
   -> Generic Recipe producer
 ```
 
-The next design gate is `GENERIC-SEMANTIC-SHAPE-SCHEMA-D1`: fix one typed
+`GENERIC-SEMANTIC-SHAPE-SCHEMA-D1` is now closed as a worker-reviewed
+docs-only contract. The next gated slice is the resolver-owned source lease.
+The D1 boundary is one typed
 schema table for `CarrierProof`, `ConditionProof`, `StepProof`,
 `BodyEffectProof`, and `Coverage/Exit`, with resolver-lease fields separated
 from shape-issuer fields. The schema excludes AST, string labels, route IDs,
@@ -244,6 +246,26 @@ AST or source-unit lifetime; it must reject foreign/shadow/upvar/capture and
 site/forest/frame mismatch. `Selected(Generic)`, demand, Recipe/key, retry,
 and fallback remain untouched; if role claims cannot be issued atomically, the
 lease slice is `NoSafeSlice` and shape must not re-resolve by name.
+
+The D1 product boundary is:
+
+```text
+resolver lease:
+  owner/origin/source-kind/root+loop sites/forest/frame
+  + non-Clone role claims (site, BindingRef, scope, ancestry)
+
+shape issuer:
+  CarrierProof
+  ConditionProof (comparator/operand/bound/placement)
+  StepProof (operator/target/delta/placement)
+  BodyEffectProof (ordered typed effects/exits)
+  Coverage/Exit (complete window/forest and opaque-transfer checks)
+```
+
+The two products are AST/source-lifetime-free after issuance and contain no
+string labels, route IDs, `RecipeBody`, Builder/MIR/PHI, `ValueId`, or legacy
+demand. A later candidate envelope consumes them atomically; it must not split
+or re-pair their coordinates.
 
 The resolver owns the opaque source lease, exact sites/forest/frame, and
 role-level `BindingRef` claims. The shape issuer may borrow AST only while

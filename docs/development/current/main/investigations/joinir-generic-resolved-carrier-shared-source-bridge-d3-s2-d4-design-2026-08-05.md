@@ -947,15 +947,27 @@ produce `Selected(Generic)`; otherwise it closes as `NoSafeSlice` again. Any
 implementation commit must update `docs/reference/**`, current mirrors, and
 support READMEs in the same commit.
 
-## D4-S4-S0 semantic-shape schema design gate
+## D4-S4-S0 semantic-shape schema design closeout
 
-The next design-only slice is `GENERIC-SEMANTIC-SHAPE-SCHEMA-D1`. It fixes one
-typed schema table and ownership boundary before any witness: `CarrierProof`,
-`ConditionProof`, `StepProof`, `BodyEffectProof`, and `Coverage/Exit`, with
-resolver lease fields separated from shape-issuer fields. The product must
-exclude AST, string labels, route IDs, Builder/MIR/PHI, and legacy demand.
+`GENERIC-SEMANTIC-SHAPE-SCHEMA-D1` is closed as a worker-reviewed docs-only
+contract. The resolver lease is the only source/BindingRef issuer; the shape
+issuer only proves semantics from a borrowed source view.
 
-After this schema closes, add a separate `cfg(test)` resolver-owned
+| proof | typed contents | issuer |
+| --- | --- | --- |
+| `CarrierProof` | role-keyed binding/site relation and carrier transfer relation | shape issuer, using lease roles |
+| `ConditionProof` | exact condition site, comparator enum, operand roles, bound/literal proof, placement | shape issuer |
+| `StepProof` | exact step site, operator enum, target role, delta/operand proof, placement | shape issuer |
+| `BodyEffectProof` | ordered typed writes/reads/calls and exit-role effects; no raw body AST | shape issuer |
+| `Coverage/Exit` | complete forest/window membership, break/continue/return coverage, opaque/transfer checks | resolver coverage + shape issuer seal |
+
+The lease owns owner/origin/source-kind/root+loop sites, forest/frame, and a
+non-`Clone` role-claim set containing exact site, `BindingRef`, scope, and
+ancestry. The shape owns only the five proofs above. Neither product may carry
+AST, source-unit lifetime, strings/labels, route IDs, `RecipeBody`, Builder,
+MIR/PHI, `ValueId`, or legacy demand.
+
+The next task is a separate `cfg(test)` resolver-owned
 `GenericSourceLease` witness: one atomic non-`Clone` product with exact
 role/site/scope/ancestry claims, AST/source-unit lifetime-free after issuance.
 Reject foreign session, shadow/upvar/capture, missing/duplicate roles, and
@@ -963,8 +975,19 @@ site/forest/frame mismatch before publication. Do not rename/re-export the
 shared-window module or re-resolve roles by name. Only then may shape,
 candidate, selector, and demand witnesses proceed.
 
+## D4-S4-S0 source-lease witness gate
+
+The next implementation/test-only slice is
+`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S0`.
+It must issue one resolver-owned, non-`Clone` `GenericSourceLease` with exact
+role/site/scope/ancestry claims and no AST/source-unit lifetime after
+issuance. Foreign sessions, shadow/upvar/capture, missing/duplicate roles,
+and site/forest/frame mismatch reject before publication. The witness must
+not rename or re-export `shared_loop_source_window.rs`, re-resolve roles by
+name, or create shape/selector/demand/Recipe/Builder/MIR products.
+
 ## Current next action
 
-Close the schema design gate first. If the resolver cannot atomically issue
-role claims without a second AST/name authority, keep the later lease slice at
-`NoSafeSlice`; do not fabricate `Selected(Generic)` or adapt the legacy demand.
+Execute the source-lease witness. If the resolver cannot atomically issue role
+claims without a second AST/name authority, keep that slice at `NoSafeSlice`;
+do not fabricate `Selected(Generic)` or adapt the legacy demand.

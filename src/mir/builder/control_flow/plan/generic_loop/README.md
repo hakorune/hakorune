@@ -246,7 +246,7 @@ AST-free Generic demand and real Selected(Generic) proof are required before
 any producer witness. D4-S4-S0 is now closed as `NoSafeSlice`; no selected
 callsite or candidate envelope exists. D4-S4-S0-D0 closes the future
 move-only source lease -> AST-free shape/candidate -> observation -> selector
--> demand chain, with this Builder planner remaining outside it. The next
-frontier is the typed shape-schema design, followed by a resolver-owned
-role-level source-lease witness; no synthetic winner, demand, or production
+-> demand chain, with this Builder planner remaining outside it.
+GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 closes the typed shape contract. The next
+frontier is a resolver-owned role-level source-lease witness; no synthetic winner, demand, or production
 caller is allowed before those gates are green.
