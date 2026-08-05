@@ -272,15 +272,18 @@ for the one-member out-of-target shape. It does not establish a winner,
 eligibility, Legacy, selector, Recipe, PHI, Builder, MIR, Retry, fallback, or
 production handoff.
 
-The next frontier is the docs-only design child
+The accepted docs-only design child is
 `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`.
 It must partition source-backed rows into
 `ResolvedCandidate`, `LegacyPreserveExistingSchedule`, `UnresolvedStop`,
 `NoStandaloneRow`, and `NotYetObserved`, then define the winner/disjointness
 proof for natural recursive Both. The current recursive Both row remains
-`UnresolvedStop(WinnerEquivalenceUnavailable)`; route labels, digests, and
-legacy receipts are corroboration only. No selector or neutral handoff is
-authorized by this reference entry.
+`UnresolvedStop(WinnerCorrectnessUnavailable)`; route labels, digests, and
+legacy receipts are corroboration only. Its selected cfg(test)-only child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`, which
+must co-seal V0=false, V1=true, `has_body_local=false`, actual frame flags, and
+raw `[V1]`. No selector or neutral handoff is authorized by this reference
+entry.
 
 ## D2-B4-S2A nested `IfThen` carrier evidence
 

@@ -880,7 +880,7 @@ It is a docs-only design stop. It partitions every source-backed row into
 `NoStandaloneRow`, or `NotYetObserved`, and fixes the two-stage
 pre-effect-qualification/post-effect-corroboration protocol for the natural
 recursive Both candidate. The current typed result remains
-`UnresolvedStop(WinnerEquivalenceUnavailable)`; V1 winner, V0 suppression,
+`UnresolvedStop(WinnerCorrectnessUnavailable)`; V1 winner, V0 suppression,
 neutral issuer, selector, or production handoff is not authorized.
 
 The child also corrects the handoff pseudotype: the future opaque wrapper
@@ -888,3 +888,13 @@ contains `GenericCarrierFactsSnapshotV1`, not AST-bearing
 `CanonicalLoopFacts`. A later cfg(test)-only V1-only local row is merely a
 possible coverage child after this design is accepted; no source-shape test or
 production edit is authorized before then.
+
+D3-S1 is now accepted as a design-only policy boundary. Its selected child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`,
+with task card
+`joinir-generic-resolved-carrier-source-matrix-v1only-local-d3-s1-s1-task-2026-08-05.md`.
+The child may add one parsed cfg(test) witness only after it preserves the
+two-column evidence/selection partition, co-seals `V0 facts=false`,
+`V1 facts=true`, lexical body-local presence separately from the router's
+dedicated `has_body_local=false` flag, actual frame flags, and raw `[V1]`.
+Production handoff remains stopped.

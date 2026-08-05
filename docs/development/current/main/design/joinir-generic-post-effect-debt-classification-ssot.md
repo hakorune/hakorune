@@ -1034,15 +1034,17 @@ It owns the exclusive disposition partition
 the existing natural recursive Both row. `CompleteNoRecursiveCarrier` is not
 `ProvenOutsideTarget` or Legacy. Until the two-stage source qualification and
 post-effect corroboration are proven, the recursive Both disposition remains
-typed `UnresolvedStop(WinnerEquivalenceUnavailable)` and the old scheduler is
+typed `UnresolvedStop(WinnerCorrectnessUnavailable)` and the old scheduler is
 the only execution authority.
 
-This D3-S1 card is design-only. It also fixes the future handoff vocabulary:
+This D3-S1 card is accepted as a design-only policy boundary. It also fixes the future handoff vocabulary:
 the opaque selection wrapper may carry an AST-free
 `GenericCarrierFactsSnapshotV1`, never an independently pairable
-`CanonicalLoopFacts`. A parsed V1-only local row is a possible later
-cfg(test)-only coverage child, not an authorization for a selector, neutral
-issuer, Recipe/JoinSig/PHI, Builder/MIR, or production cutover.
+`CanonicalLoopFacts`. The selected cfg(test)-only child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`; it
+must co-seal V0=false, V1=true, `has_body_local=false`, actual frame flags, and
+raw `[V1]`. This does not authorize a selector, neutral issuer,
+Recipe/JoinSig/PHI, Builder/MIR, or production cutover.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

@@ -2,7 +2,7 @@
 Status: active design stop — disposition matrix and winner/disjointness
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md
-Decision: provisional — docs-only taskization; no production or cfg(test) child yet
+Decision: accepted — design-only; the next cfg(test) child is separately tasked
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`
 ---
 
@@ -19,22 +19,31 @@ production handoff is introduced.
 
 ## Decision boundary
 
-Every source-backed observation must end in exactly one typed disposition:
+Every source-backed observation records two independent columns. Evidence
+status describes whether the source row is present; selection disposition
+describes what the current policy may do with it.
+
+Evidence status is exactly one of:
+
+```text
+NoStandaloneRow
+NotYetObserved
+Observed
+```
+
+Selection disposition is exactly one of:
 
 ```text
 ResolvedCandidate
 LegacyPreserveExistingSchedule
 UnresolvedStop
-NoStandaloneRow
-NotYetObserved
 ```
 
 `CompleteNoRecursiveCarrier` is a facts observation, not
 `ProvenOutsideTarget`, `Legacy`, or eligibility. A target row with a missing,
 foreign, unstable, or mismatched handoff is `UnresolvedStop`; it must never be
-silently converted to the old legacy schedule. `NoStandaloneRow` is reserved
-for a source view that reaches the boundary but has no canonical facts/raw
-schedule. `NotYetObserved` is a design inventory state, not a runtime result.
+silently converted to the old legacy schedule. `NoStandaloneRow` and
+`NotYetObserved` are evidence statuses, not runtime selection results.
 
 The only provisional candidate class is the existing natural nested `Both`
 shape:
@@ -48,11 +57,12 @@ Release or Strict, planner off
 raw schedule [GenericLoopV0, GenericLoopV1]
 ```
 
-Its current disposition remains
-`UnresolvedStop(WinnerEquivalenceUnavailable)`. The distinct direct V0/V1
-semantic digests, `LowerSome` stages, and first-effect observations are
-post-effect corroboration only; they do not select V1, suppress V0, or prove
-semantic equivalence.
+Its qualification column is `ResolvedCandidate`, but its final selection
+disposition remains `UnresolvedStop(WinnerCorrectnessUnavailable)`. V0 and V1
+are intentionally different candidates, so their distinct direct semantic
+digests are not an equivalence proof. `LowerSome` stages and first-effect
+observations are post-effect corroboration only; they do not select V1 or
+suppress V0.
 
 ## Authority map
 
@@ -87,13 +97,13 @@ legacy receipts, diagnostic labels, runtime/VM results, synthetic fixtures
 Source-backed rows already closed as test-only evidence:
 
 ```text
-Both + CompleteRecursive       natural nested If/Loop, D3-S0/S2A
-Both + CompleteNoRecursive    flat Assignment, D2-S5-S1
-Both + Unavailable             nested CompoundAssignment, D2-S3
-Both + Ambiguous               nested IndexWrite, D2-S2
-planner-required Both          same natural source, raw [V1], D2-S1
-shadowing / foreign / repeat   typed identity rejects
-facts absent / raw []          top-level Compound, D2-S4
+  Both + CompleteRecursive       natural nested If/Loop, D3-S0/S2A
+  Both + CompleteNoRecursive    flat Assignment, D2-S5-S1
+  Both + Unavailable             nested CompoundAssignment, D2-S3
+  Both + Ambiguous               nested IndexWrite, D2-S2
+  planner-required Both          same natural source, raw [V1], D2-S1
+  shadowing / foreign / repeat   typed identity rejects
+  facts absent / raw []          top-level Compound, D2-S4
 ```
 
 The following remain inventory states and must not be fabricated from the
@@ -119,28 +129,32 @@ claim until a resolved source view proves that shape.
 
 ## Winner/disjointness protocol
 
-The future winner predicate is deliberately two-stage:
+The future correctness predicate is deliberately two-stage:
 
 1. **Pre-effect qualification**: exact source/forest/frame identity, same
    strict-ancestor BindingRef, `CompleteRecursiveCarrier`, natural Both, and
    mode/seed seal all pass before Builder effects.
 2. **Post-effect corroboration**: direct V0 and V1 candidates are isolated in
    fresh builders, both reach their recorded stage, first-effect ownership is
-   stable, alpha-normalized semantic candidates are compared, and repeat
-   observations are stable.
+   stable, the V1 candidate's source BindingRef/PHI/final-value relation is
+   fixed, V0 is proven disjoint from that carrier, and repeat observations are
+   stable.
 
-The alpha-normalized comparison must include result/Home/PHI/debt meaning, not
-only route labels or raw ValueIds. A legacy V0 terminal/no-debt receipt is
-corroboration, not winner authority. Until exact target equality, candidate
-isolation, fresh-repeat stability, alpha-normalized equivalence, and the
-no-debt/different-winner check are all proven, the typed disposition remains
-`UnresolvedStop(WinnerEquivalenceUnavailable)` and the old scheduler remains
+The proof must include result/Home/PHI/final-value meaning, not only route
+labels or raw ValueIds. A legacy V0 terminal/no-debt receipt is corroboration,
+not winner authority. Until the V1 source relation, V0 disjointness, candidate
+isolation, fresh-repeat stability, and no-debt/different-winner check are all
+proven, the typed disposition remains
+`UnresolvedStop(WinnerCorrectnessUnavailable)` and the old scheduler remains
 execution authority.
 
 ## Allowed next child after this decision
 
-Only after this card is accepted may one separate cfg(test)-only child be
-selected. The smallest coverage child is the parsed V1-only local shape:
+The separately selected cfg(test)-only child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`.
+Its task card is
+`joinir-generic-resolved-carrier-source-matrix-v1only-local-d3-s1-s1-task-2026-08-05.md`.
+Its smallest coverage shape is the parsed V1-only local form:
 
 ```hako
 function generic_v1_only_local(i) {
@@ -152,13 +166,17 @@ function generic_v1_only_local(i) {
 }
 ```
 
-That child, if selected, must prove `[Loop, Return]`, loop body
-`[Local, Assignment]`, one resolver forest root, the same write/read
-`BindingRefV1`, exact `CompleteNoRecursiveCarrier`, and actual Release/Strict
-raw `[GenericLoopV1]`. Its result is typed
+The child must co-seal `V0 facts = false`, `V1 facts = true`, actual
+`has_body_local = false`, actual Release/Strict preflight flags, one resolver
+forest root, the same write/read `BindingRefV1`, exact
+`CompleteNoRecursiveCarrier`, and raw `[GenericLoopV1]`. It must prove
+`[Loop, Return]` and loop body `[Local, Assignment]`. Its result is typed
 `UnresolvedStop(V1OnlyNonRecursive)`, never eligibility or Legacy. Facts
 absence, raw `[]`, Both, simple-while, shape drift, or identity drift returns
-to this design stop. This paragraph authorizes no implementation by itself.
+to this design stop. The task card, not this design paragraph, authorizes the
+test implementation. The router's `has_body_local` flag denotes the separate
+`LoopBreakBodyLocalFacts` TrimSeg/DigitPos break-guard family, not the presence
+of an ordinary `Local` statement; this row must preserve that distinction.
 
 ## Prohibited changes
 
@@ -179,5 +197,6 @@ with focused evidence, caller census, fail-fast boundaries, artifact manifest,
 and all touched source/check files below 800 lines. The workstream remains
 exactly 1000 lines.
 
-Until acceptance is recorded, the only valid action is further design review;
-production implementation and additional source-shape tests are stopped.
+The design is accepted only as a policy boundary. The child task is still
+cfg(test)-only and must update the reference documents after implementation in
+the same closeout commit. Production implementation remains stopped.

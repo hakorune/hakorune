@@ -68,13 +68,12 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- Current execution is the docs-only
-  `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`.
-  It fixes the exclusive source-row disposition partition, the
-  winner/disjointness proof boundary, and the future AST-free
-  `GenericCarrierFactsSnapshotV1` handoff vocabulary. No new source-shape
-  test or production selector/issuer is authorized before this design is
-  accepted.
+- D3-S1 is accepted as a design-only policy boundary. Current execution is
+  the cfg(test)-only
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`.
+  It must co-seal V0 facts=false, V1 facts=true, `has_body_local=false`,
+  actual frame flags, and raw `[V1]` for one parsed local shape. No
+  production selector/issuer or handoff is authorized.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
