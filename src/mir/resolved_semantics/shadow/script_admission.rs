@@ -1,8 +1,8 @@
 //! Script-only positive receipt admission for the shared shadow traversal.
 
 use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::resolved_semantics::source_site::SourceExprSiteV1;
+use crate::mir::resolved_semantics::ExprChildRoleV1;
 
 use super::product::ShadowResolveErrorV0;
 use super::resolver::ShadowResolverV0;

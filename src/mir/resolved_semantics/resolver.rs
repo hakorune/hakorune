@@ -126,8 +126,7 @@ impl FunctionSemanticResolverSessionV1 {
             record_schemas,
             enum_variants,
             enum_matches,
-        )
-        {
+        ) {
             Ok(draft) => draft,
             Err(error) if error.is_script_source_deferral() => {
                 return Ok(ResolveScriptOutcomeV1::Deferred)

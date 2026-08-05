@@ -293,9 +293,9 @@ fn nested_loop_source_forest_keeps_siblings_under_root_and_deep_parent_links() {
     assert_eq!(forest.members()[2].source().site(), &second);
     assert_eq!(forest.members()[2].parent_index(), Some(0));
 
-    let deep = resolve(&function(vec![loop_stmt(vec![loop_stmt(vec![loop_stmt(
-        Vec::new(),
-    )])])]));
+    let deep = resolve(&function(vec![loop_stmt(vec![loop_stmt(vec![
+        loop_stmt(Vec::new()),
+    ])])]));
     let deep_forest = deep
         .resolved_loop_source_forest(&root)
         .expect("deep nesting remains source-owned");

@@ -491,7 +491,6 @@ mod source_forest_tests {
             Ok(())
         );
     }
-
 }
 
 pub(super) fn build_verified_loop_region_index_v1(

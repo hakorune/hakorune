@@ -23,7 +23,9 @@ pub(super) fn dispatch_resolved_script_root_statement<'ast, 'schema>(
         ScriptRootResolvedDemandV1::QMarkPropagation(_) => {
             resolve_qmark_propagation(resolver, statement, path)
         }
-        ScriptRootResolvedDemandV1::MatchControl(_) => resolve_match_control(resolver, statement, path),
+        ScriptRootResolvedDemandV1::MatchControl(_) => {
+            resolve_match_control(resolver, statement, path)
+        }
         ScriptRootResolvedDemandV1::IfControl(_) => {
             let ASTNode::If {
                 condition,

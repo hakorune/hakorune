@@ -28,19 +28,26 @@ pub(crate) fn admit_direct_enum_match_v1(
     arms: &[EnumMatchArm],
     else_expr: Option<&ASTNode>,
 ) -> Option<EnumMatchAdmissionV1> {
-    if !type_parameters.is_empty() || else_expr.is_some() || arms.is_empty() || arms.len() != variants.len() {
+    if !type_parameters.is_empty()
+        || else_expr.is_some()
+        || arms.is_empty()
+        || arms.len() != variants.len()
+    {
         return None;
     }
     let observed = arms
         .iter()
         .map(|arm| {
-            let variant = variants.iter().position(|variant| variant.name == arm.variant_name)?;
+            let variant = variants
+                .iter()
+                .position(|variant| variant.name == arm.variant_name)?;
             Some((variant, arm))
         })
         .collect::<Option<Vec<_>>>()?;
-    if observed.iter().any(|(index, _)| {
-        observed.iter().filter(|(other, _)| other == index).count() != 1
-    }) {
+    if observed
+        .iter()
+        .any(|(index, _)| observed.iter().filter(|(other, _)| other == index).count() != 1)
+    {
         return None;
     }
 
@@ -59,7 +66,13 @@ pub(crate) fn admit_direct_enum_match_v1(
             (&arm.binding_name, &arm.body),
             (Some(binding), ASTNode::Variable { name, .. }) if binding == name
         ) || (arm.binding_name.is_none()
-            && matches!(arm.body, ASTNode::Literal { value: LiteralValue::Null, .. }))
+            && matches!(
+                arm.body,
+                ASTNode::Literal {
+                    value: LiteralValue::Null,
+                    ..
+                }
+            ))
     });
     if all_projection_or_null && projections.len() == 1 {
         let (arm_index, (variant_index, arm)) = projections[0];
@@ -81,13 +94,19 @@ pub(crate) fn admit_direct_enum_match_v1(
             if arm.binding_name.is_some() {
                 return None;
             }
-            let ASTNode::Literal { value: LiteralValue::Bool(value), .. } = &arm.body else {
+            let ASTNode::Literal {
+                value: LiteralValue::Bool(value),
+                ..
+            } = &arm.body
+            else {
                 return None;
             };
             Some((u32::try_from(*variant_index).ok()?, *value))
         })
         .collect::<Option<Vec<_>>>()?;
-    Some(EnumMatchAdmissionV1::BoolSelect { specs: specs.into() })
+    Some(EnumMatchAdmissionV1::BoolSelect {
+        specs: specs.into(),
+    })
 }
 
 /// Source-only positive proof supplied by Program declaration facts.

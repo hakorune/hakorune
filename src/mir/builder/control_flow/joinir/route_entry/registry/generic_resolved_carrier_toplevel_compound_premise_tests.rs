@@ -106,7 +106,8 @@ struct CompoundPremiseObservationV1 {
 }
 
 fn parse_unit(source: &str) -> Result<VerifiedResolvedSourceUnitV1, CompoundPremiseRejectV1> {
-    let root = NyashParser::parse_from_string(source).map_err(|_| CompoundPremiseRejectV1::Parse)?;
+    let root =
+        NyashParser::parse_from_string(source).map_err(|_| CompoundPremiseRejectV1::Parse)?;
     let ASTNode::Program { statements, .. } = root else {
         return Err(CompoundPremiseRejectV1::Parse);
     };
@@ -249,14 +250,10 @@ fn classify(observation: &CompoundPremiseObservationV1) -> CompoundPremiseDispos
     match &observation.carrier {
         CompoundPremiseCarrierV1::Observed(
             GenericLoopCarrierObservationV1::CompleteNoRecursiveCarrier,
-        ) => {
-            CompoundPremiseDispositionV1::CompleteNoRecursive
-        }
-        CompoundPremiseCarrierV1::Observed(GenericLoopCarrierObservationV1::Unavailable(reason))
-            if reason == "CompoundAssignment" =>
-        {
-            CompoundPremiseDispositionV1::UnavailableCompound
-        }
+        ) => CompoundPremiseDispositionV1::CompleteNoRecursive,
+        CompoundPremiseCarrierV1::Observed(GenericLoopCarrierObservationV1::Unavailable(
+            reason,
+        )) if reason == "CompoundAssignment" => CompoundPremiseDispositionV1::UnavailableCompound,
         CompoundPremiseCarrierV1::Observed(GenericLoopCarrierObservationV1::Ambiguous(_)) => {
             CompoundPremiseDispositionV1::Ambiguous
         }
@@ -267,18 +264,27 @@ fn classify(observation: &CompoundPremiseObservationV1) -> CompoundPremiseDispos
 #[test]
 fn top_level_compound_preserves_observed_facts_before_effects() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    for mode in [CompoundPremiseModeV1::Release, CompoundPremiseModeV1::Strict] {
+    for mode in [
+        CompoundPremiseModeV1::Release,
+        CompoundPremiseModeV1::Strict,
+    ] {
         let observation = observe_in_mode(mode).expect("parsed top-level compound witness");
         assert_eq!(observation.function_origin.function_ordinal(), 0);
         assert_eq!(
             observation.source_kind,
             SemanticOwnerSourceKindV1::DeclaredFunction
         );
-        assert_eq!(observation.function_owner, observation.write_binding.owner());
+        assert_eq!(
+            observation.function_owner,
+            observation.write_binding.owner()
+        );
         assert_eq!(observation.function_owner, observation.read_binding.owner());
         assert_eq!(observation.write_binding, observation.read_binding);
         assert!(!observation.planner_required);
-        assert_eq!(observation.strict_or_dev, mode == CompoundPremiseModeV1::Strict);
+        assert_eq!(
+            observation.strict_or_dev,
+            mode == CompoundPremiseModeV1::Strict
+        );
         assert!(observation.raw_schedule.is_empty());
         assert_eq!(
             classify(&observation),
@@ -290,15 +296,24 @@ fn top_level_compound_preserves_observed_facts_before_effects() {
 #[test]
 fn top_level_compound_repeat_keeps_identity_shape_and_schedule() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    for mode in [CompoundPremiseModeV1::Release, CompoundPremiseModeV1::Strict] {
+    for mode in [
+        CompoundPremiseModeV1::Release,
+        CompoundPremiseModeV1::Strict,
+    ] {
         let first = observe_in_mode(mode).expect("first parsed top-level compound witness");
         let second = observe_in_mode(mode).expect("second parsed top-level compound witness");
-        assert_eq!(first.forest_binding.members(), second.forest_binding.members());
+        assert_eq!(
+            first.forest_binding.members(),
+            second.forest_binding.members()
+        );
         assert_ne!(first.function_owner, second.function_owner);
         assert_eq!(first.function_origin, second.function_origin);
         assert_eq!(first.source_kind, second.source_kind);
         assert_eq!(first.frame_key, second.frame_key);
-        assert_eq!(first.write_binding.binding(), second.write_binding.binding());
+        assert_eq!(
+            first.write_binding.binding(),
+            second.write_binding.binding()
+        );
         assert_eq!(first.read_binding.binding(), second.read_binding.binding());
         assert_eq!(first.carrier, second.carrier);
         assert_eq!(first.strict_or_dev, second.strict_or_dev);

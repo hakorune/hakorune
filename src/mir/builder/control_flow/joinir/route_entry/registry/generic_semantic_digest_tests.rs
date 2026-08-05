@@ -485,7 +485,10 @@ mod tests {
         let mapped = ids.edge(&edge);
         assert_eq!(mapped.from, BasicBlockId::new(0));
         assert_eq!(mapped.target, Some(BasicBlockId::new(1)));
-        assert_eq!(mapped.kind, ExitKind::Break(crate::mir::control_form::LoopId(0)));
+        assert_eq!(
+            mapped.kind,
+            ExitKind::Break(crate::mir::control_form::LoopId(0))
+        );
         assert_eq!(mapped.args.values, vec![ValueId::new(0)]);
 
         let effect = NormalizedEffectV1::LocalContractWrite {

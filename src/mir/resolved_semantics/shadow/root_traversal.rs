@@ -7,7 +7,8 @@
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::function_view::{FunctionBodyOriginV1, ReceiverPolicyV1};
 use crate::mir::resolved_semantics::{
-    EnumMatchDemandV1, EnumVariantDemandV1, RecordSchemaDemandV1, ScriptSyntaxViewV1, SourcePathSegmentV1,
+    EnumMatchDemandV1, EnumVariantDemandV1, RecordSchemaDemandV1, ScriptSyntaxViewV1,
+    SourcePathSegmentV1,
 };
 use crate::mir::resolved_semantics::{FunctionSyntaxViewV1, SemanticOwnerRootProfileV1};
 
