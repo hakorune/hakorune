@@ -96,3 +96,12 @@ this module as nine private source-backed fixture/mode matrix sets with typed
 NoStandaloneRow/planner-freeze/reject separation; neither row calls or
 implements the future selector. The next private row is the pure selector
 consumer, and the existing legacy schedule/evidence APIs remain unchanged.
+
+D4-S3-S2 is now closed as a separate `#[cfg(test)]` neutral consumer in
+`family_selection.rs`. It defines only typed `Selected`, `NoCandidate`,
+`Rejected`, and `Unresolved` outcomes. The S1 adapter passes window-complete
+Generic evidence without AST, route IDs, cursors, schedules, or legacy policy
+rows; all nine current inputs remain `Unresolved`. The whole-unit proof needed
+for `NoCandidate` has no constructor in this slice. Production selector,
+Recipe/key, Builder/MIR, retry/fallback, and Generic caller remain zero. The
+next frontier is the D4-S4-D0 Generic Recipe handoff design.

@@ -356,6 +356,27 @@ fallback, runtime, or production Generic caller.
 The next row is the private pure selector consumer
 (`...CANONICAL-SELECTOR-PURE0-D4-S3-S2`).
 
+### D4-S3-S2 pure selector (closed)
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTOR-PURE0-D4-S3-S2` is
+closed as a private `#[cfg(test)]` neutral consumer in
+`src/mir/loop_route_policy/family_selection.rs`, separate from the legacy
+19-route evaluator. The registry adapter passes only a neutral window-complete
+Generic evidence row. It does not pass AST, LoopRouteContext, fixture labels,
+owner coordinates, route IDs, raw schedules/cursors, or legacy policy
+evidence.
+
+The outcome vocabulary is typed `Selected`, `NoCandidate`, `Rejected`, and
+`Unresolved`, but the current S1 input cannot construct the first two: a
+window-complete seal is not a whole-unit no-Loop proof. All nine source/mode
+rows therefore remain `Unresolved`, preserving overlap, V1-only,
+NoStandaloneRow, and planner-mode-unsealed reasons. Foreign/non-Loop source
+window rejects remain before the selector. No Recipe/key, LoopBindingKeyV1,
+Builder/MIR, retry/fallback, runtime, or production Generic caller is added.
+
+The next row is the design-only Generic Recipe handoff
+(`...GENERIC-RECIPE-HANDOFF0-D4-S4-D0`).
+
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is
 closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite

@@ -6,6 +6,8 @@
 #[cfg(test)]
 mod adapter;
 mod evaluate;
+#[cfg(test)]
+mod family_selection;
 mod loop_true_break_continue;
 #[cfg(test)]
 mod loop_true_break_continue_tests;
@@ -15,6 +17,12 @@ mod schema;
 
 #[allow(unused_imports)]
 pub(crate) use evaluate::freeze_loop_route_schedule_v1;
+#[cfg(test)]
+pub(crate) use family_selection::{
+    select_canonical_family_for_test, CanonicalFamilySelectionOutcomeV1,
+    CanonicalFamilySelectorInputV1, FamilySelectionRejectV1, FamilySelectionUnresolvedV1,
+    GenericFamilyEvidenceV1,
+};
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue::{
     issue_loop_true_break_continue_policy_demand_v1, LoopTrueBreakContinuePolicyDemandRejectV1,

@@ -238,5 +238,7 @@ observation sets. D4-S3-S1 is also closed outside this planner as nine private
 source-backed fixture/mode matrix sets. It keeps `NoStandaloneRow`, planner
 freeze, V0Only, and parsed Neither distinct; all family rows remain unresolved
 and carry no winner, Recipe/key, Builder/MIR effect, retry, fallback, or
-production caller. The next pure selector row remains test-only and must not
-turn this planner into the family selector.
+production caller. D4-S3-S2 is now closed outside this planner as a separate
+test-only neutral selector; all nine rows remain unresolved and this planner
+does not become the family selector. The next frontier is the design-only
+Generic Recipe handoff.

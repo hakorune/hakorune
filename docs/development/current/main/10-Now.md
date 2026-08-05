@@ -93,7 +93,11 @@ Related:
   NoStandaloneRow and planner-freeze separation, and typed foreign/non-Loop
   rejects. The next row is private cfg(test) D4-S3-S2 pure selector; no
   production selector, Recipe, PHI, Builder/MIR, retry, fallback, runtime,
-  or Generic production authority changes are authorized.
+  or Generic production authority changes are authorized. D4-S3-S2 is now
+  closed as a private neutral selector consumer: all nine S1 rows remain
+  typed Unresolved, with no Selected/NoCandidate, Recipe/key, or production
+  caller. The next frontier is the D4-S4-D0 design-only Generic Recipe
+  handoff.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

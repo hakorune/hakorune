@@ -556,4 +556,6 @@ view. D4-S3-S1 is also closed outside this resolver as nine private
 source-backed fixture/mode matrix sets. It preserves NoStandaloneRow,
 planner-freeze, V0Only, and parsed Neither as distinct typed evidence and
 does not add resolver exports, independent coordinates, a family selector, or
-a production caller. The next row is the private pure selector consumer.
+a production caller. D4-S3-S2 is now closed as a separate test-only neutral
+selector; it consumes no resolver coordinates or legacy policy fields. The
+next row is the design-only Generic Recipe handoff.

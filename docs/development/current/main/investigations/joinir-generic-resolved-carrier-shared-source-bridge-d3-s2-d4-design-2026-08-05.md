@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0/D4-S3-S1 closed; D4-S3-S2 selected
+Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0/D4-S3-S1/D4-S3-S2 closed; D4-S4-D0 selected
 Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -738,11 +738,38 @@ in the same commit.
 The selected next task is
 `JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTOR-PURE0-D4-S3-S2`.
 
+## D4-S3-S2 pure selector closeout
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTOR-PURE0-D4-S3-S2` is
+closed as a private `#[cfg(test)]` neutral consumer. The new
+`loop_route_policy/family_selection.rs` is separate from the legacy
+19-route evaluator and exposes only test-owned typed vocabulary:
+`Selected`, `NoCandidate`, `Rejected`, and `Unresolved`. The S1 registry
+adapter passes only a window-complete Generic evidence row; it does not pass
+AST, LoopRouteContext, fixture labels, owner coordinates, route IDs, raw
+schedules/cursors, or legacy policy evidence.
+
+The selector keeps `WindowComplete` distinct from the future
+`WholeUnitNoLoopEnvelope` proof. Therefore all nine S1 source/mode rows remain
+`Unresolved`: overlap, V1-only, NoStandaloneRow, and planner-mode-unsealed
+evidence each retain their own typed reason. No `Selected` or `NoCandidate`
+is manufactured, and foreign/non-Loop source-window rejects remain before
+the selector rather than collapsing into `Neither`. No Recipe/key,
+LoopBindingKeyV1, Builder/MIR, retry/fallback, runtime, or production caller
+was added. The focused S2 selector test is green, all changed source/check
+files remain below 800 lines, and this implementation commit updates the
+reference matrix, current state/mirrors, support READMEs, and this card in
+the same commit.
+
+The selected next task is
+`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-RECIPE-HANDOFF0-D4-S4-D0`.
+
 # Current next action
 
-Proceed only to a pure private selector test consumer over the sealed S1
-matrix. It may define typed `Selected`/`NoCandidate`/`Rejected`/`Unresolved`
-outcomes and prove that no legacy schedule or source label becomes policy.
-Do not add a production caller, Recipe/key handoff, Builder/MIR effect,
-retry/fallback, runtime behavior, or old-edge deletion. Any selector row that
-requires those claims returns to design first.
+Proceed only to the D4-S4-D0 design stop for a Generic Recipe handoff. Define
+how a future `Selected(Generic)` observation would become a Generic-specific
+Recipe/effect relation while preserving resolver-branded source/window and
+BindingRef provenance. The Recipe producer alone may issue
+`LoopBindingKeyV1`; no selector-owned key, PHI/ValueId, Builder/MIR,
+retry/fallback, runtime behavior, or production caller is authorized. Any
+handoff proposal that needs those claims returns to worker design review.

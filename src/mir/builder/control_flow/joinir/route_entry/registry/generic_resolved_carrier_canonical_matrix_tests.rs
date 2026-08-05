@@ -9,6 +9,10 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::try_build_loop_facts;
 use crate::mir::compiler::located::LocatedStmtV1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+use crate::mir::loop_route_policy::{
+    select_canonical_family_for_test, CanonicalFamilySelectionOutcomeV1,
+    CanonicalFamilySelectorInputV1, GenericFamilyEvidenceV1,
+};
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, SemanticOwnerSourceKindV1,
     SourceStmtSiteV1,
@@ -154,6 +158,16 @@ struct MatrixCellV1 {
     disposition: MatrixDispositionV1,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct MatrixWindowCoverageSealV1;
+
+impl MatrixWindowCoverageSealV1 {
+    fn seal(cells: &[MatrixCellV1]) -> Self {
+        assert_eq!(cells.len(), 4, "one cell per Generic presence arm");
+        Self
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct MatrixObservationV1 {
     fixture: MatrixFixtureV1,
@@ -164,7 +178,44 @@ struct MatrixObservationV1 {
     v1_present: bool,
     carrier:
         Option<crate::mir::builder::control_flow::plan::facts::GenericLoopCarrierObservationV1>,
+    coverage: MatrixWindowCoverageSealV1,
     cells: Box<[MatrixCellV1]>,
+}
+
+impl MatrixObservationV1 {
+    fn into_selector_input(self) -> CanonicalFamilySelectorInputV1 {
+        let Self {
+            mode,
+            status,
+            v0_present,
+            v1_present,
+            coverage,
+            ..
+        } = self;
+        let _window_seal = coverage;
+        let generic = match status {
+            MatrixFactsStatusV1::NoStandaloneRow => GenericFamilyEvidenceV1::NoStandaloneRow,
+            MatrixFactsStatusV1::Frozen(_) => GenericFamilyEvidenceV1::PlannerModeUnsealed,
+            MatrixFactsStatusV1::Available
+                if matches!(mode, MatrixModeV1::StrictPlannerRequired)
+                    && !v0_present
+                    && v1_present =>
+            {
+                GenericFamilyEvidenceV1::PlannerModeUnsealed
+            }
+            MatrixFactsStatusV1::Available => match (v0_present, v1_present) {
+                (true, false) => GenericFamilyEvidenceV1::V0Only,
+                (false, true) => GenericFamilyEvidenceV1::V1Only,
+                (true, true) => GenericFamilyEvidenceV1::Both,
+                (false, false) => GenericFamilyEvidenceV1::Neither,
+            },
+        };
+        CanonicalFamilySelectorInputV1::window(generic)
+    }
+
+    fn select_for_test(self) -> CanonicalFamilySelectionOutcomeV1 {
+        select_canonical_family_for_test(self.into_selector_input())
+    }
 }
 
 #[derive(Debug)]
@@ -244,7 +295,9 @@ impl<'a> MatrixObservationSetV1<'a> {
                 },
                 presence,
             })
-            .collect();
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+            let coverage = MatrixWindowCoverageSealV1::seal(&cells);
             MatrixObservationV1 {
                 fixture,
                 mode,
@@ -253,6 +306,7 @@ impl<'a> MatrixObservationSetV1<'a> {
                 v0_present,
                 v1_present,
                 carrier,
+                coverage,
                 cells,
             }
         })
@@ -384,6 +438,79 @@ fn d4_s3_s1_seals_source_backed_presence_matrix_without_selection() {
                 assert_eq!(observation.status, MatrixFactsStatusV1::NoStandaloneRow);
                 assert_eq!(actual.disposition, MatrixDispositionV1::NoStandaloneRow);
                 assert!(observation.carrier.is_none());
+            }
+        }
+    }
+}
+
+#[test]
+fn d4_s3_s2_pure_selector_keeps_all_source_rows_unresolved() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let modes = [
+        MatrixModeV1::Release,
+        MatrixModeV1::Strict,
+        MatrixModeV1::StrictPlannerRequired,
+    ];
+    for fixture in MatrixFixtureV1::ALL {
+        for mode in modes {
+            let _config = mode.config();
+            let unit = parse_unit(fixture.source());
+            let loop_stmt = body_stmt(&unit, 0);
+            let observation = MatrixObservationSetV1::issue(fixture, mode, &unit, &loop_stmt)
+                .expect("resolver-owned source window")
+                .observe();
+            let outcome = observation.clone().select_for_test();
+            assert!(matches!(
+                outcome,
+                CanonicalFamilySelectionOutcomeV1::Unresolved(_)
+            ));
+            match (fixture, mode, observation.status) {
+                (MatrixFixtureV1::Both, MatrixModeV1::StrictPlannerRequired, _)
+                | (_, MatrixModeV1::StrictPlannerRequired, MatrixFactsStatusV1::Frozen(_)) => {
+                    assert!(matches!(
+                        outcome,
+                        CanonicalFamilySelectionOutcomeV1::Unresolved(
+                            crate::mir::loop_route_policy::FamilySelectionUnresolvedV1::PlannerModeUnsealed
+                        )
+                    ), "outcome={outcome:?}");
+                }
+                (MatrixFixtureV1::Both, _, _) => assert!(matches!(
+                    outcome,
+                    CanonicalFamilySelectionOutcomeV1::Unresolved(
+                        crate::mir::loop_route_policy::FamilySelectionUnresolvedV1::GenericOverlap
+                    )
+                )),
+                (MatrixFixtureV1::V1Only, MatrixModeV1::StrictPlannerRequired, _) => {
+                    assert!(matches!(
+                        outcome,
+                        CanonicalFamilySelectionOutcomeV1::Unresolved(
+                            crate::mir::loop_route_policy::FamilySelectionUnresolvedV1::PlannerModeUnsealed
+                        )
+                    ), "outcome={outcome:?}");
+                }
+                (MatrixFixtureV1::V1Only, _, _) => assert!(matches!(
+                    outcome,
+                    CanonicalFamilySelectionOutcomeV1::Unresolved(
+                        crate::mir::loop_route_policy::FamilySelectionUnresolvedV1::GenericV1Only
+                    )
+                )),
+                (MatrixFixtureV1::NoStandalone, _, MatrixFactsStatusV1::NoStandaloneRow) => {
+                    assert!(matches!(
+                        outcome,
+                        CanonicalFamilySelectionOutcomeV1::Unresolved(
+                            crate::mir::loop_route_policy::FamilySelectionUnresolvedV1::NoStandaloneRow
+                        )
+                    ));
+                }
+                (MatrixFixtureV1::NoStandalone, _, MatrixFactsStatusV1::Frozen(_)) => {
+                    assert!(matches!(
+                        outcome,
+                        CanonicalFamilySelectionOutcomeV1::Unresolved(
+                            crate::mir::loop_route_policy::FamilySelectionUnresolvedV1::PlannerModeUnsealed
+                        )
+                    ));
+                }
+                _ => unreachable!("matrix status/mode combination is sealed above"),
             }
         }
     }
