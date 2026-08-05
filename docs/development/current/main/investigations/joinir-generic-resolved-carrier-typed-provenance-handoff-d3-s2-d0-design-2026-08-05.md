@@ -134,12 +134,18 @@ frame from session B without the current S0 checks rejecting it. The S0 result
 is still useful as same-product observation evidence, but it is not an
 owner-branded cross-invocation capability.
 
-The next candidate is therefore a design-gated premise repair, not a Generic
-snapshot or key implementation:
+The selected next child is therefore a design-gated premise repair, not a
+Generic snapshot or key implementation:
 
 ```text
 JOINIR-GENERIC-RESOLVED-CARRIER-CROSS-SESSION-BRAND-AUDIT0-D3-S2-S1
 ```
+
+Its execution brief is
+`joinir-generic-resolved-carrier-cross-session-brand-audit-d3-s2-s1-task-2026-08-05.md`.
+The worker premise audit accepted this as a cfg(test)-only slice: it may
+repair the handoff witness and adversarially verify cross-session rejection,
+but it may not connect a production issuer or selector.
 
 Recommended shape (to avoid changing existing DirectAccum repeat semantics):
 

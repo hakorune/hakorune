@@ -477,25 +477,19 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0
-  current design stop — D3-S2-S0 cfg(test)-only observation is closed, but its
-  forest/frame coordinates are not yet an owner-branded cross-session token.
-  The audit found that equal FunctionOrigin/site coordinates from two resolver
-  sessions can be mixed; the current witness must not be promoted unchanged.
-  Next candidate is the design-gated
-  JOINIR-GENERIC-RESOLVED-CARRIER-CROSS-SESSION-BRAND-AUDIT0-D3-S2-S1:
-  co-seal a resolver issuer/owner brand with Generic forest/frame/BindingRef
-  provenance, while preserving the ownerless structural frame for DirectAccum.
-  GenericCarrierFactsSnapshotV1, Generic LoopBindingKey issuer, InvocationSeal,
-  opaque input, selector/Recipe/PHI/Builder/MIR/VM, Return/Home/debt remain
-  unimplemented and unclaimed.
+JOINIR-GENERIC-RESOLVED-CARRIER-CROSS-SESSION-BRAND-AUDIT0-D3-S2-S1
+  selected cfg(test)-only premise repair. A private non-Clone handoff brand
+  must be issued by the same resolver session as forest/frame/BindingRef
+  evidence and reject forest_A + roles_B + frame_B for equal-origin fresh
+  sessions. The ownerless structural frame used by DirectAccum remains
+  unchanged. No GenericCarrierFactsSnapshotV1, LoopBindingKey, InvocationSeal,
+  opaque input, selector/Recipe/PHI/Builder/MIR/VM route, Return/Home/debt
+  meaning, fallback/retry, or production caller is authorized.
   Task card:
   docs/development/current/main/investigations/joinir-generic-resolved-carrier-
-  typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
-  Only after the brand premise is accepted may a passive resolver provenance
-  product be selected. No fallback/retry; keep source/check files below 800
-  lines and this workstream at exactly 1000 lines.
-  The candidate remains unselected until the design consultation resumes.
+  cross-session-brand-audit-d3-s2-s1-task-2026-08-05.md
+  A focused adversarial witness, existing S0 parity, pointer guard, and
+  <800-line source/check guard must be green before D3-S2-S2 is considered.
 ```
 
 ## Production invariants
