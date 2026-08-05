@@ -491,9 +491,12 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-WITNESS0-D4-S4
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-EXTENSION0-D4-S4-S2-D1
   -> worker-reviewed design: V1 remains immutable; an atomic V2 wrapper starts
      with inner-loop Condition+Step roles, while BodyEffect/Coverage stay later.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0
-  -> design/census the resolver-owned issuer; no role-name scan or selector,
-     demand, Recipe, Builder/MIR, retry, or fallback is allowed.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0
+  -> worker API/source census proves direct V2 issuance is NoSafeSlice:
+     resolver lacks exact site inventory and parent-role topology.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-RESOLVED-SOURCE-SITE-INVENTORY0-D4-S4-S2-D0
+  -> design the neutral resolver topology before any Generic role catalog; no
+     AST/name scan, selector, demand, Recipe, Builder/MIR, retry, or fallback.
 ```
 
 ## Production invariants
@@ -527,7 +530,6 @@ not copy those rows; source-anchor evidence does not claim runtime parity.
 `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` is closed. Test-only
 `LegacyChildDraftAdmissionV1` fixtures remain; nested-method production now
 uses `PreparedNestedBoxMethodSourceV1` and direct legacy-symbol completion.
-
 ## Other live compatibility contract
 
 ```text

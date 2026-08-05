@@ -284,14 +284,52 @@ The D4-S4-S2-D1 design closeout keeps `VerifiedGenericSourceLeaseV1`
 immutable. Future role claims are carried by an atomic, versioned
 `GenericShapeSourceLeaseV2`; its first bounded ingress is an inner-loop
 Condition+Step role catalog. BodyEffect and Coverage/Exit require separate D0
-contracts. The next task is
-`...SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0`: census and specify the
-resolver-owned issuer, exact site/BindingRef maps, and forest/frame co-seal.
-No implementation may scan or re-resolve roles by name. A cfg(test) V2 witness
-is allowed only after that issuer exists; a later shape-proof cell may then
-consume the catalog. Existing test-only provenance, current Generic facts,
-normalized labels, legacy selected demand, and historical synthetic receipts
-remain non-authoritative and cannot be adapted by name.
+contracts.
+
+### D4-S4-S2-D0 resolver issuer boundary
+
+Worker API/source census closes the direct V2 witness as `NoSafeSlice`.
+`GenericSourceRoleSiteV1` is caller-selected test ingress, and
+`VerifiedResolvedFunctionV1` currently seals bindings, assignment targets,
+calls, exits, scopes, and loop forest/frame—but not an exact inventory of all
+statement/expression sites or their parent child roles. Path synthesis could
+therefore publish a non-existent `LoopCondition/Rhs` as if it were exact.
+
+The required neutral prerequisite is a resolver-owned product, proposed as
+`VerifiedResolvedSourceSiteInventoryV1` (name remains subject to the topology
+D0). It is recorded during the existing shadow traversal and co-sealed into
+the resolved-function product; it stores only owner/origin/source-kind brands,
+exact statement/expression membership, and parent `ExprChildRoleV1` /
+`BodyChildRoleV1` topology. It stores no AST, names, node kinds, operators,
+literals, route IDs, or MIR identities. Existing resolver variable/assignment
+maps remain the sole `BindingRef` authority.
+
+The task order is therefore:
+
+```text
+RESOLVED-SOURCE-SITE-INVENTORY0-D0
+  -> design topology, ownership, completeness, and typed rejects
+RESOLVED-SOURCE-SITE-INVENTORY0-S0
+  -> resolver traversal recording + seal witness; no Generic consumer
+D4-S4-S2-S0
+  -> V2 consumes the sealed inventory and S1 carrier handoff
+D4-S4-S3
+  -> condition/step semantic shape proofs
+```
+
+For the later V2 issuer, no caller role list is accepted. The issuer derives
+and verifies only this inner-loop profile: condition=`loop/LoopCondition`,
+induction=`condition/Lhs`, bound=`condition/Rhs`; step target comes from the
+carrier's nested-write site, its parent assignment supplies `Value`, and the
+value's `Lhs` read plus `Rhs` delta are checked against the same `BindingRef`.
+Comparator/operator/literal/delta interpretation and BodyEffect/Coverage remain
+shape-owned. Missing inventory, foreign identity, wrong placement, non-direct
+inner-body target, upvar/capture, missing binding, scope/ancestry mismatch, or
+carrier-binding mismatch reject before publication. No AST/name scan,
+selector, demand, Recipe, Builder/MIR, retry, fallback, or production caller
+may be added in these cells. Existing test-only provenance, current Generic
+facts, normalized labels, legacy selected demand, and historical synthetic
+receipts remain non-authoritative and cannot be adapted by name.
 
 ## Structural owners
 

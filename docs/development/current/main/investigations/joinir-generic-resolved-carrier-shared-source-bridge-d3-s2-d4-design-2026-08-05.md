@@ -980,21 +980,21 @@ S0 closes the five-test cfg(test)-only source lease; S1 closes the three-test `V
 Recipe/Builder/MIR, retry, fallback, or shared-window rename is added.
 ## D4-S4-S2-D1 semantic-shape extension design closeout
 
-Worker D1 closes the docs-only boundary: V1 stays immutable; future claims use an atomic `GenericShapeSourceLeaseV2` wrapper. First profile: inner-loop Condition+Step role catalog; BodyEffect/Coverage remain separate D0/cells.
-Resolver owns exact sites/maps/forest/frame brands; shape owns operator/literal/effect proofs; role lists are never re-resolved by name.
+Worker D1 closes the docs-only boundary: V1 stays immutable; future claims use an atomic `GenericShapeSourceLeaseV2` wrapper. First profile: inner-loop Condition+Step role catalog; BodyEffect/Coverage remain separate D0/cells. Resolver owns exact sites/maps/forest/frame brands; shape owns operator/literal/effect proofs; role lists are never re-resolved by name.
 Next: `...SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0` specifies the resolver
 issuer/census only; a cfg(test) V2 witness follows only if it exists.
 Selector/demand/Recipe/Builder/MIR/retry/fallback remain forbidden. Every
 implementation cell updates current/support/reference docs in the same commit;
 this cfg(test)-only design cell has no public `docs/reference` row.
 
-## D4-S4-S2-D0 resolver role-issuer design task
+## D4-S4-S2-D0 resolver role-issuer design closeout
 
-Specify the resolver-only issuer/census for exact Condition+Step sites, BindingRef maps, inner-loop forest/frame co-seal, and typed rejects. No AST/name scan,
-shape proof, selector, demand, Recipe, Builder/MIR, retry,
-fallback, or production caller is allowed.
+Worker API census closes this as `NoSafeSlice`: caller-selected test data is the current role ingress, and the sealed resolver lacks exact expression membership/parent-role topology for Condition/Step sites.
+D0 fixes the neutral prerequisite: resolver traversal must seal a
+`ResolvedSourceRoleTopologyV1` with owner/origin, exact statement/expression site membership, parent `ExprChildRoleV1`/`BodyChildRoleV1`, and loop/body anchors; existing BindingRef maps remain resolver authority.
+## D4-S4-S2-D0 neutral role-topology design task
 
-## D4-S4-S2-S0 role-catalog witness (future)
-
-Implement only a cfg(test) V2 catalog after D0 finds a real issuer; update
-current/support/reference docs in that same implementation commit.
+Next task: design/seal that topology during resolver traversal, then allow a
+cfg(test) `GenericShapeSourceLeaseV2` Condition+Step catalog to consume it.
+No AST/name scan, shape proof, selector, demand, Recipe, Builder/MIR, retry,
+fallback, or production caller is allowed; implementation cells update current/support/reference docs in the same commit.
