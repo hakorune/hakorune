@@ -953,7 +953,7 @@ ordered after B-prime correction
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only;
      reference closeout is recorded. Parent D2 stays unresolved and no
      production issuer/adapter/selector/route switch is authorized.
-  3. close `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1`; keep `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2` at design stop after the V0-only premise audit rejected raw `[V0]`, then close M7 five-family parity, M8 all-19 producers, and M9 host parity
+  3. close `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1`; execute `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1` as one cfg(test)-only actual Strict+planner-required mode-co-seal on the existing S2A source, retaining typed unresolved `[V1]` evidence and no production handoff, then close M7 five-family parity, M8 all-19 producers, and M9 host parity
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement
   5. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction

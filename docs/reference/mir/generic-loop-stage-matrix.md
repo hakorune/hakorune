@@ -190,8 +190,12 @@ Release/Strict natural Both, and rejects a cross-invocation pairing before
 selection. It adds no neutral issuer or production selector. The next design
 the proposed V0-only/CompleteNoRecursive subrow was rejected by premise audit:
 the actual parsed additive facts path yields raw `[V0, V1]`, not a natural
-V0-only witness. No `ProvenOutsideTarget` receipt is issued from the synthetic
-label; the source-backed matrix remains at design stop.
+V0-only witness. The next bounded row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1`:
+the existing parsed S2A source runs under actual Strict+planner-required mode,
+co-sealing its resolver/facts/frame/mode evidence, and must prove raw `[V1]`
+with typed `UnresolvedStop(PlannerRequiredV0Suppression)`. No Legacy,
+eligibility, winner, or production selector is implied.
 
 The scoped D3 matrix is now also green as one cfg(test) test over four typed
 rows: natural Release, natural Strict, shadowing negative, and planner-required

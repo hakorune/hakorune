@@ -944,15 +944,13 @@ schedule and frame flags beside the resolver/source/facts witness; Release and
 Strict source-backed protocol tests prove natural `[V0, V1]`, while a second
 parsed invocation is rejected as typed `FactsIdentityMismatch`. The bridge has
 no neutral issuer, production selector/router arm, Builder/MIR caller, Recipe,
-PHI, Retry, or fallback. The next design stop is
-The proposed
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1`
-was rejected by premise audit: the actual parsed additive facts path yields raw
-`[GenericLoopV0, GenericLoopV1]`, while the existing stage matrix records no
-natural V0-only witness. No `ProvenOutsideTarget` Legacy receipt may be issued
-from the synthetic `V0Only` label. D2 is back at design stop until actual mode
-co-sealing or constructible source partitions are re-audited; the full matrix,
-neutral issuer, and parent D2 remain unresolved.
+PHI, Retry, or fallback. The next bounded row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1`:
+co-seal the same parsed S2A source with actual Strict+planner-required mode,
+prove raw `[V1]` and V0 pre-effect suppression, and retain typed
+`UnresolvedStop(PlannerRequiredV0Suppression)`. The row must not issue
+eligibility, Legacy, winner, neutral issuer, or production selection; the
+V0-only premise remains rejected and the parent D2 remains unresolved.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

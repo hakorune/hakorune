@@ -455,40 +455,48 @@ capability.
   source shape. Parent D2, full source-backed matrix, neutral issuer, and
   production selector remain `UnresolvedStop`.
 
-## Premise audit — V0-only non-recursive row is not currently admissible
+## Selected bounded task — source-backed planner suppression
 
-The candidate
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1`
-was rejected before implementation. The current source-backed facts authority
-does not provide the assumed natural V0-only witness: the parsed additive
-candidate reaches raw `[GenericLoopV0, GenericLoopV1]`, and the existing stage
-matrix records the V0-only class as `NotYetObserved`/`UnresolvedStop` rather
-than proving `[GenericLoopV0]`. A new fixture or a policy filter would be a
-second semantic authority, so it is prohibited.
+Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1`
 
-### Evidence and boundary
+Decision: accepted as one cfg(test)-only mode-co-seal row. It repairs the D1
+evidence boundary without selecting a winner or creating a production owner.
 
-- Resolver/source forest, BindingRefs, and the actual `try_build_outcome` /
-  `select_recipe_first_routes` result are authoritative.
-- The raw route vector is `[GenericLoopV0, GenericLoopV1]` for the natural
-  additive candidate; labels, the synthetic matrix's `V0Only` enum, and a
-  desired Legacy disposition are not evidence.
-- Therefore `Legacy(ProvenOutsideTarget)` cannot be issued. The row must remain
-  typed `UnresolvedStop`; no source-backed non-target receipt was created.
+### Change
 
-### Remaining design candidates
+- Reuse only the parsed `NESTED_IF_SOURCE` S2A shape and run resolver forest,
+  BindingRefs, facts, frame, actual mode, and raw selection under one real
+  `Strict + planner-required` configuration scope.
+- Co-seal the actual mode/preflight observation with the same source/facts
+  identity receipt; do not pass a caller-supplied boolean or reread a second
+  environment scope.
 
-1. Repair the D1 mode co-seal and observe the existing S2A target under actual
-   Strict+planner-required configuration, retaining typed unresolved status if
-   the source schedule changes to `[V1]`.
-2. Re-audit the complete facts classifier for a naturally constructible
-   non-target row before selecting another Legacy boundary.
-3. Keep Unavailable, Ambiguous, frame mismatch, and unsupported shapes as
-   separate rows; do not combine them with this failed premise.
+### Contract
 
-No executable row is selected at this stop. Parent D2, neutral issuer,
-production selector, Recipe/JoinSig/PHI, Builder/MIR/backend, Retry, and
-fallback changes remain prohibited.
+- The authoritative result is raw `[GenericLoopV1]`, with V0 facts suppressed
+  before selection and a typed `UnresolvedStop(PlannerRequiredV0Suppression)`.
+- The row issues no eligibility, Legacy, winner, neutral issuer, selector,
+  Recipe/JoinSig/PHI, Builder/MIR/backend, Retry, or fallback product.
+- Release/Strict natural-Both evidence must not be re-paired with this
+  planner-required receipt; a mode or invocation mismatch is a pre-effect
+  reject.
+
+### Done
+
+- A focused source-backed test proves the same parsed S2A forest/BindingRefs,
+  complete recursive carrier, actual Strict+planner-required mode, raw `[V1]`,
+  V0 pre-effect suppression, typed unresolved disposition, and fresh-repeat
+  stability. Existing D1/S2A/D3 filters, pointer/artifact guards, and the
+  below-800-line source/check budget remain green; production caller count
+  stays zero.
+
+### Stop
+
+- Return to design if raw is not exactly `[V1]`, V0 facts remain, the recursive
+  carrier or identity seal is incomplete, mode is synthetic/split, a second
+  source shape or production API is needed, or any Builder effect occurs.
+  V0-only, Unavailable, Ambiguous, NoRecursive, and full parent D2 remain
+  separate unresolved rows.
 
 ## Closed bounded task — nested `IfThen` carrier coverage
 

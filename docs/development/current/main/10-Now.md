@@ -35,8 +35,10 @@ Related:
   evidence. The cfg(test)-only
   `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1` source-backed handoff
   bridge is closed. The proposed V0-only D2 subrow was rejected by premise
-  audit because actual raw facts produce `[V0,V1]`; no executable D2 subrow is
-  selected. No Generic production Recipe, selector arm, source-to-selection handoff, route,
+  audit because actual raw facts produce `[V0,V1]`. The selected bounded row is
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1`:
+  actual Strict+planner-required mode co-seal on the existing S2A source, typed
+  unresolved only. No Generic production Recipe, selector arm, source-to-selection handoff, route,
   physical, Retry, or fallback change is authorized; M10b still waits on
   M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`
   for the exact test boundary and non-claims.
