@@ -953,7 +953,7 @@ ordered after B-prime correction
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only;
      reference closeout is recorded. Parent D2 stays unresolved and no
      production issuer/adapter/selector/route switch is authorized.
-  3. D1, D2-S1, D2-S2, D3-S0, and Compound/Unavailable D2-S3 are closed as cfg(test)-only source evidence; D3-S0 seals natural-Both eligibility and D2-S3 seals nested += → exact Unavailable with measured [V0,V1], typed pre-effect unresolved only, and no production issuer/selector/route. Next is the result-open top-level Compound premise audit D2-S4; classify the parsed facts arm before any NoRecursive source row. Return to the parent D3 design stop
+  3. D1, D2-S1, D2-S2, D3-S0, Compound/Unavailable D2-S3, and top-level Compound D2-S4 are closed as cfg(test)-only source evidence; D2-S4 observes parsed resolver/source/frame/BindingRef identity but no facts product and raw schedule [], yielding typed NoStandaloneRow. No production issuer/selector/route or NoRecursive source claim follows. Return to the parent D3 design stop
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement
   5. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction

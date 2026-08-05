@@ -978,7 +978,7 @@ Legacy, winner, V0 suppression, or production handoff. The collector's
 top-level non-nested behavior and all production selection remain separate
 design boundaries; return to the parent source-to-selection stop.
 
-The next bounded premise is
+The selected bounded premise was
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-TOPLEVEL-COMPOUND-PREMISE0-D2-S4`,
 with its task card at
 `docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-matrix-toplevel-compound-premise-d2-s4-task-2026-08-05.md`.
@@ -987,10 +987,14 @@ non-nested fall-through must be classified from one parsed source witness
 before a `CompleteNoRecursiveCarrier` source row is selected. The result is
 open: exact `CompleteNoRecursiveCarrier`, exact `Unavailable`, an
 `Ambiguous` facts result, or typed `NoStandaloneRow` are all admissible
-observations. This remains cfg(test)-only pre-effect evidence; no selector,
-eligibility issuer, Legacy/winner policy, production handoff, Recipe, PHI,
-MIR, Retry, or fallback change is allowed. Reference docs and current mirrors
-must be updated in the same implementation closeout commit.
+observations. Its implementation now records typed `NoStandaloneRow`: the
+parsed resolver/BindingRef/source/frame witness is present, but the facts
+product is absent and Release/Strict both measure raw schedule `[]`. This is
+pre-effect evidence only; it does not select `CompleteNoRecursiveCarrier`,
+`Unavailable`, V0-only, Legacy/winner policy, eligibility, production
+handoff, Recipe, PHI, MIR, Retry, or fallback. Reference docs and current
+mirrors were updated in the same implementation closeout commit. A separate
+parsed `Both/NoRecursive` row remains a new design decision.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

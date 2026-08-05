@@ -118,3 +118,31 @@ Only after this premise is classified may a separate parsed
 `Both/NoRecursive` source row be selected. Neither row authorizes V0-only
 winner claims, Legacy packaging, precedence, production handoff, Recipe,
 PHI, MIR, Retry deletion, or fallback removal.
+
+## Implementation closeout — 2026-08-05
+
+The cfg(test)-only sibling
+`generic_resolved_carrier_toplevel_compound_premise_tests.rs` now records one
+real parsed top-level compound witness. The resolver produces one loop member,
+the compound target and post-loop read share the same function-owned
+`BindingRefV1`, and the source/frame/owner identity remains stable across
+Release and Strict and across fresh repeats.
+
+The observed facts result is **typed `NoStandaloneRow`**: the current facts
+product is absent for this top-level compound shape, and the measured raw
+schedule is `[]` in both modes. The test does not reinterpret this as
+`CompleteNoRecursiveCarrier`, `Unavailable`, or a V0-only result. No facts
+label, eligibility, Legacy, winner, selector, Builder, MIR, Recipe, PHI,
+Retry, fallback, or production handoff was added.
+
+Focused evidence is green:
+
+```bash
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib top_level_compound -- --nocapture
+```
+
+The implementation closeout also updates the parent D3 card, Generic SSOT,
+Generic stage-matrix reference, both Generic READMEs, current mirrors, and
+the artifact manifest in this same commit. The next parsed `Both/NoRecursive`
+row is a separate design decision; this result does not authorize it.

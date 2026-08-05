@@ -234,16 +234,18 @@ schedule is `[V0,V1]`; the only result is typed pre-effect
 eligibility, Legacy, winner/precedence, and production handoff remain outside
 this row; execution returns to the parent D3 design stop.
 
-The next selected premise is
+The selected premise was
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-TOPLEVEL-COMPOUND-PREMISE0-D2-S4`.
 It is not a policy row: one parsed top-level `CompoundAssignment` must first
 be observed through resolver/source/frame identity and the facts extractor.
-The result remains open between exact `CompleteNoRecursiveCarrier`,
-`Unavailable`, `Ambiguous`, and typed `NoStandaloneRow`. The task is
-cfg(test)-only and does not authorize collector widening, selection,
-eligibility, Legacy/winner policy, Recipe, PHI, Builder, MIR, Retry, fallback,
-or production handoff. Its implementation closeout must update this reference
-page and the linked current/design documents in the same commit.
+The result space was open between exact `CompleteNoRecursiveCarrier`,
+`Unavailable`, `Ambiguous`, and typed `NoStandaloneRow`. The implementation
+observed typed `NoStandaloneRow`: the parsed resolver/BindingRef/source/frame
+witness is present, but no facts product is emitted and Release/Strict both
+measure raw schedule `[]`. This is cfg(test)-only evidence and does not
+authorize collector widening, selection, eligibility, Legacy/winner policy,
+Recipe, PHI, Builder, MIR, Retry, fallback, or production handoff. The linked
+task, current mirrors, and this reference page were closed together.
 
 ## D2-B4-S2A nested `IfThen` carrier evidence
 

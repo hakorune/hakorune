@@ -180,13 +180,14 @@ actual resolver/source/frame/BindingRef/facts evidence and preserves exact
 `UnresolvedStop(CompoundUnavailableCarrier)`. Its raw Release/Strict schedule
 is now measured as `[V0,V1]`; parent D3 production selection remains stopped.
 
-The next source-premise task is
+The selected source-premise task was
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-TOPLEVEL-COMPOUND-PREMISE0-D2-S4`.
 It is a parsed, cfg(test)-only observation of the top-level compound path. The
-resolver/source/frame witness and exact facts result must be co-sealed before
-any non-recursive source row is considered. No neutral issuer, selector,
-production handoff, Recipe, PHI, or MIR authority is added; reference and
-current mirrors close in the same implementation commit.
+resolver/source/frame witness is co-sealed, but the current facts product is
+absent and Release/Strict both measure raw schedule `[]`; the typed result is
+`NoStandaloneRow`. No non-recursive source row, neutral issuer, selector,
+production handoff, Recipe, PHI, or MIR authority is added. Reference and
+current mirrors closed in the same implementation commit.
 
 The bounded cfg(test) witness is green with:
 

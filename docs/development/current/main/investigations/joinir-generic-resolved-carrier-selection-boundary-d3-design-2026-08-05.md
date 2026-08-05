@@ -794,9 +794,9 @@ snapshot/eligibility issuer -> private Builder adapter -> selector consumer.
 This card is a design consultation boundary. A green test-only matrix does
 not authorize production selection or parent D2 closeout.
 
-## Next bounded premise — top-level CompoundAssignment (`D2-S4`)
+## Closed bounded premise — top-level CompoundAssignment (`D2-S4`)
 
-The next task is
+The selected task was
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-TOPLEVEL-COMPOUND-PREMISE0-D2-S4`,
 recorded in
 `joinir-generic-resolved-carrier-source-matrix-toplevel-compound-premise-d2-s4-task-2026-08-05.md`.
@@ -805,7 +805,7 @@ The collector currently gives nested `CompoundAssignment` an explicit
 through the non-nested path. This producer asymmetry must be observed before
 selecting a source-backed `CompleteNoRecursiveCarrier` row.
 
-The task is cfg(test)-only and result-open: it records the actual parsed AST,
+The task was cfg(test)-only and result-open: it records the actual parsed AST,
 resolver forest/BindingRef, source/frame identity, facts label, Release/Strict
 raw schedule, and fresh-repeat stability. The outcome may be exact
 `CompleteNoRecursiveCarrier`, `Unavailable("CompoundAssignment")`,
@@ -813,8 +813,17 @@ raw schedule, and fresh-repeat stability. The outcome may be exact
 collector widening, neutral issuer, selector, Legacy/winner policy, Builder,
 MIR, Recipe, PHI, Retry, fallback, or production handoff is authorized.
 
-The task card requires implementation-time updates to this card, the Generic
-SSOT, the Generic stage-matrix reference, both Generic READMEs, current
-mirrors, affected reference indexes, and the artifact manifest in the same
-closeout commit. After this premise is classified, a separate parsed
-`Both/NoRecursive` row may be reconsidered at the parent design stop.
+The implementation observed typed `NoStandaloneRow`: parser/resolver source
+identity and the one-member forest are present, but the current facts product
+is absent and the measured Release/Strict raw schedule is `[]`. Fresh repeats
+keep the source/frame/binding shape and schedule stable while using a distinct
+invocation owner. The row therefore does not claim
+`CompleteNoRecursiveCarrier`, `Unavailable`, V0-only, Legacy, winner,
+eligibility, or precedence. It adds no collector widening, neutral issuer,
+selector, Builder, MIR, Recipe, PHI, Retry, fallback, or production handoff.
+
+The implementation closeout updated this card, the Generic SSOT, the Generic
+stage-matrix reference, both Generic READMEs, current mirrors, and the
+artifact manifest in the same commit. A separate parsed `Both/NoRecursive`
+row may be reconsidered at the parent design stop; top-level Compound remains
+an explicit `NoStandaloneRow` boundary for the current facts owner.
