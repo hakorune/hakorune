@@ -1,9 +1,9 @@
-Status: design brief ready; implementation stopped at policy boundary
+Status: Option 3 accepted; D4-WITNESS0 selected and implementation not started
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-DESIGN0-D3-S2-D4`
-Decision: provisional Option 3 recommended; no shared classifier or production selection
+Decision: accepted Option 3; first executable slice is cfg(test)-only source-window witness
 
 # Design consultation stop
 
@@ -18,10 +18,10 @@ This row decides whether a common source bridge is warranted and, if so, which
 existing owner should provide it. It is a design task only; no source or
 production selection implementation is authorized yet.
 
-The worker premise audit is complete. The design is now sufficiently bounded
-to task the next review, but it is not an implementation approval. Exact family
-disjointness, winner precedence, and any production caller remain closed until
-this bridge design is explicitly accepted.
+The worker premise audit is complete and the user accepted Option 3 for
+taskization. This accepts only the source-window ownership design and selects
+the bounded `D4-WITNESS0` execution contract below. Exact family disjointness,
+winner precedence, and every production caller remain closed.
 
 # Worker design brief
 
@@ -142,11 +142,11 @@ resolver owners and source roots differ, so fragment/name pairing is invalid.
 
 ```text
 D4-DESIGN-ACCEPT0
-  accept/reject the Option 3 bridge and its sole owner/receipt contract
+  closed: Option 3 and its sole owner/receipt contract are accepted
 
 D4-WITNESS0 (cfg(test)-only)
   issue one non-Clone resolver-owned window; lend paired raw/resolved views;
-  exercise positive identity and every typed reject above; production caller=0
+  exercise the bounded observed matrix below; production caller=0
 
 D4-CANONICAL-ROUTE-MIGRATION0 (future, design-gated)
   migrate one canonical source route to the bridge; no family winner yet
@@ -161,9 +161,162 @@ D4-REFERENCE-CLOSEOUT0 (same commit as any future implementation)
   gates; record exact reject boundary and remove stale design wording
 ```
 
-The first executable slice, if D4-DESIGN-ACCEPT0 is accepted, is only the
+The first executable slice after the accepted D4-DESIGN-ACCEPT0 is only the
 `cfg(test)` witness. It must not add a production import, a shared family
 classifier, a selector, a Recipe/key issuer, or a Builder/MIR caller.
+
+# Selected execution task: D4-WITNESS0
+
+Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-WITNESS0-D3-S2-D4-S0`
+
+## Structural placement
+
+Create exactly one new source/check file:
+
+```text
+src/mir/shared_loop_source_window.rs
+```
+
+Register it privately from `src/mir/mod.rs` with only:
+
+```rust
+#[cfg(test)]
+mod shared_loop_source_window;
+```
+
+Do not place it under `resolved_semantics`: that layer currently has no
+dependency on `compiler`, while the canonical source unit is owned there, so
+the placement would create a reverse dependency. Do not place it under
+`compiler`: that would make the compiler product look like the neutral bridge
+owner and `src/mir/compiler/mod.rs` is already near the 800-line boundary.
+The private MIR-root test seam may borrow both layers without adding a
+production dependency or facade export.
+
+The new file targets 180-300 lines and must remain below 800. Add no new shell
+guard and no new investigation file. This existing card is the task receipt.
+
+## Sole receipt API
+
+The implementation shape is:
+
+```text
+VerifiedResolvedSourceUnitV1
+  + exact LocatedStmtV1 for one Loop
+  -> issue_shared_loop_source_window_v1(...)
+  -> VerifiedSharedLoopSourceWindowV1<'a>       // non-Clone, non-Copy
+  -> with_views(self, |raw_view, resolved_view| ...)
+```
+
+The receipt borrows the canonical source unit, owns the non-Clone resolved
+loop forest, and retains resolver-issued owner/origin/source-kind/site/frame.
+The raw view borrows the original `Loop` condition and body from the exact
+located statement; it does not clone, flatten, rewrite, or reconstruct AST.
+The resolved view carries the same branded owner/site/frame and forest.
+
+`with_views` consumes the sole receipt and lends both views in one closure.
+There are no public/test constructors for either view, no two independently
+constructible receipts, no `Clone`/`Copy`, and no root facade re-export.
+
+Reuse the existing canonical owners and navigation only:
+
+```text
+VerifiedResolvedSourceUnitV1::resolve_function
+ResolvedFunctionLoweringInputV1 / root function input
+FunctionSourceViewV1::{root_body,body_stmt}
+LocatedStmtV1
+VerifiedResolvedFunctionV1::{resolved_loop_source,
+  resolved_loop_source_forest}
+VerifiedResolvedLoopSourceV1::frame_key
+```
+
+Do not call `try_build_loop_facts`, `CanonicalLoweringPreflightV1`, registry
+selection, or any Generic/NestedPredicate/DirectAccum/A+ classifier in this
+slice. Those consumers belong to later route migration/family-boundary work.
+
+## Executed witness matrix
+
+The first slice must execute and assert only these rows:
+
+```text
+positive canonical nested source:
+  reuse crate::mir::compiler::nested_function_for_p3_test()
+  root body item 1 is the exact outer Loop; item 0 is the non-Loop negative
+  DeclaredFunction owner/origin/source-kind
+  exact root body + exact outer Loop site
+  resolver forest root and frame match
+  raw/resolved views report the same branded owner/site/frame
+  raw view borrows the original condition/body
+
+foreign source unit / located statement:
+  reject before view publication
+
+non-Loop located statement:
+  reject before view publication
+
+same-shape source from a second resolver invocation:
+  distinct owner/source identity; no name/AST/coordinate pairing
+
+forest empty/root/site or frame mismatch when representable through existing
+typed test ingress:
+  typed reject before view publication
+```
+
+Use one reject enum owned by the witness and preserve the nearest existing
+resolver/navigation reason. Suggested stable categories are `ForeignOwner`,
+`NotLoop`, `SourceNavigation`, `SourceLookup`, `SourceForest`, `ForestEmpty`,
+`ForestRootMismatch`, `FrameMismatch`, and `UnsupportedSourceKind`. Do not add
+generic catch-all or map a reject into another family.
+
+## Explicitly deferred matrix
+
+The following are recorded as `Deferred` or `NoStandaloneRow`, not claimed as
+executed coverage in D4-WITNESS0:
+
+```text
+external duplicate/overlapping windows (constructor is intentionally absent)
+ScopeBox flatten lineage
+raw name -> BindingRef projection and shadowing policy
+Lambda/upvar/capture/escape windows
+synthetic, transferred, or opaque subtrees
+raw Generic facts/schedule and resolved family classification
+exact disjointness, precedence, selector, Recipe/key, Binding SSA/ValueId/PHI
+Builder, MIR, Return, ABI, Home, debt, retry, fallback, runtime
+```
+
+Existing resolver/source guards may be cited as supporting evidence, but they
+do not become D4 witness coverage until the witness itself consumes the
+corresponding canonical input.
+
+## Acceptance and gates
+
+```text
+RUSTFLAGS='-Awarnings' cargo test --lib shared_loop_source_window -- --nocapture
+cargo build --lib
+RUSTFLAGS='-Awarnings' cargo test --lib generic_d3_s2_p -- --nocapture
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Static caller census must show bridge names only in the new file and the
+private `#[cfg(test)]` module declaration. Production import/caller/export is
+zero. `src/mir/compiler/mod.rs` stays below 800 lines, every changed/new
+source/check file stays below 800, and the active workstream stays below 1000.
+
+The implementation/test commit must update, in the same commit:
+
+```text
+this D4 receipt and CURRENT_STATE.toml
+docs/reference/mir/generic-loop-stage-matrix.md
+src/mir/resolved_semantics/README.md
+src/mir/loop_structural_facts/README.md
+src/mir/builder/control_flow/plan/generic_loop/README.md
+the active workstream by compact replacement, not append
+docs/reference/mir/metadata-facts-ssot.md only if its source/facts contract changes
+```
+
+The closeout must distinguish every `ObservedReject`, `Deferred`, and
+`NoStandaloneRow`; it must not say that D4 proves classifier disjointness or
+authorizes production migration.
 
 # Source authority
 
@@ -213,7 +366,7 @@ caller can consume one non-`Clone` receipt without loose pairing. If no
 candidate satisfies those conditions, retain NoSafeSlice and do not add a
 fourth census.
 
-# Forbidden until design acceptance
+# Forbidden beyond D4-WITNESS0
 
 ```text
 shared Generic/NestedPredicate/DirectAccum/A+ classifier
@@ -239,7 +392,7 @@ caller, or source AST reconstruction
 
 # Current next action
 
-Worker premise audit is complete and the design brief above is ready. Exact
-disjointness is not proven. Read this card with the parent D3 design and P3
-census, then stop at `D4-DESIGN-ACCEPT0`; do not begin `D4-WITNESS0` until the
-bridge owner, one-receipt API, and typed reject boundary are accepted.
+Implement only `D4-WITNESS0` from this card. Exact disjointness remains
+unproven. Stop after the cfg(test)-only witness, focused gates, caller-zero
+census, and same-commit reference/current-doc closeout. A production route
+migration requires a new accepted boundary after that stop.

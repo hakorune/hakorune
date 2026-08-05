@@ -76,11 +76,11 @@ Related:
   mismatch rows; P2 consumes that sealed witness and adds only a mode-neutral
   disposition; P3 retains raw Generic mode/carrier/schedule rows separately
   from resolved family/rejection rows. Only the Recipe producer may later
-  issue `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. D4 is now a
-  design stop for a possible common resolver/raw source bridge. The worker
-  brief recommends Option 3: one resolver-owned non-Clone source window lends
-  paired raw/resolved views, with typed owner/site/frame rejects; Option 2 is
-  rejected and Option 1 remains the safe non-claim fallback. Exact
+  issue `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. D4 Option 3
+  is accepted and D4-WITNESS0 is selected: one private MIR-root cfg(test)
+  module will lend paired raw/resolved views from one non-Clone canonical
+  source receipt. Facts, preflight, classifiers, and production callers are
+  excluded from this first slice. Exact
   disjointness and production authority remain NoSafeSlice. Scalar
   Return/outer-PHI and natural debt-to-different-winner remain NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,

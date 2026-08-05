@@ -477,14 +477,12 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-DESIGN0-D3-S2-D4
-  is at a design consultation stop with a worker-ready provisional brief.
-  P3 remains closed as independent raw/resolved observations only. Option 3
-  is recommended: one resolver-owned non-Clone source window lends paired
-  raw/resolved views; Option 2 is rejected and Option 1 is the safe
-  non-claim fallback. Accept D4-DESIGN-ACCEPT0 before the cfg(test)-only
-  witness; no shared classifier, selector, Recipe, Builder/MIR, or
-  production caller is authorized. The active card is:
+JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-WITNESS0-D3-S2-D4-S0
+  is selected after Option 3 acceptance. Add one private MIR-root cfg(test)
+  module and one non-Clone receipt that lends paired raw/resolved source
+  views from the same canonical owner/site/frame. Do not run facts,
+  preflight, registry, classifier, selector, Recipe, Builder/MIR, or any
+  production caller. The active card and exact reject/deferred matrix are:
   docs/development/current/main/investigations/joinir-generic-resolved-
   carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md
 ```
