@@ -77,10 +77,10 @@ Related:
   disposition; P3 retains raw Generic mode/carrier/schedule rows separately
   from resolved family/rejection rows. Only the Recipe producer may later
   issue `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. D4-WITNESS0
-  is now closed: one private MIR-root cfg(test) module lends paired
-  raw/resolved views from one non-Clone canonical source receipt, with four
-  focused positive/reject tests and no production caller. The next row is the
-  design-only DirectAccum canonical-route migration at the existing resolved
+  is closed: one private MIR-root cfg(test) module lends paired raw/resolved
+  views from one non-Clone canonical source receipt, with four focused tests
+  and no production caller. D4-S1 DirectAccum route design is accepted; the
+  selected next row is cfg(test)-only D4-S1-S0 at the existing resolved
   preflight seam. Exact disjointness, classifier/selector policy, Recipe,
   PHI, Builder/MIR, Return/Home/debt, retry, fallback, runtime, and production
   authority remain NoSafeSlice. Scalar Return/outer-PHI and natural

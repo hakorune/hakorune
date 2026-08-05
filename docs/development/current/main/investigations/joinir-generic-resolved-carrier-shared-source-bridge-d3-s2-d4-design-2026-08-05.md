@@ -408,29 +408,65 @@ facts, and Generic-loop README boundaries. The bridge remains transport-only;
 facts, preflight, selector, Recipe, Builder/MIR, retry/fallback, runtime, and
 production authority remain closed.
 
-# Next design-only task: DirectAccum canonical route
+# D4-S1 DirectAccum route design closeout
 
-The next safe row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-DESIGN0-D4-S1`.
-It is design/test-only and must first decide the route matrix, not edit
-production code. The recommended first consumer is the existing resolved
-DirectAccum source probe at the `CanonicalLoweringPreflightV1::verify` seam.
-The resolver-owned `VerifiedResolvedSourceUnitV1` / `FunctionSourceViewV1`,
-loop forest, source kind, owner, and frame remain the sole identity authority;
-the D4 receipt is only a borrowed transport view. The route must preserve one
-DirectAccum ingress, keep NestedPredicate-before-DirectAccum precedence, and
-leave Generic/A+ and the raw `LoopRouteContext` edge untouched.
+The worker audit accepts the route boundary and selects the next test-only
+task:
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-DESIGN0-D4-S1`
+is closed as design, and
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-WITNESS0-D4-S1-S0`
+is selected.
 
-The design card must specify exact DirectAccum envelope membership, the adapter
-seam, old-edge retirement, typed pre-effect rejects, and the counterexample
-where `NotCandidate` is ordinary fallback rather than Generic retry. No
-selector, Generic classifier, Registry, Recipe, Binding SSA/PHI, Builder/MIR,
-runtime, or production caller is authorized by this row. Any later migration
-commit must update `docs/reference/**` and all affected current support pages
-in that same commit.
+The exact admission envelope is the existing
+`probe_direct_accum_source_unit_v1` path inside
+`CanonicalLoweringPreflightV1::verify`, after the unchanged
+NestedPredicate probe:
+
+```text
+root static non-main FunctionDeclaration
+forest owner_count = 1, no upvars/override
+empty params, param_decls, uses, contracts, attrs, and return type
+root body exactly [Local, Loop]
+Local has two type-less integer-zero initializers
+exact loop site is body[1] and owner-matched
+loop body/condition/update/step/binding/frame/disjointness/completion
+  satisfy the existing DirectAccum plan contract
+```
+
+`NotCandidate` is ordinary fallback only for a non-function root, a root body
+whose length is not two, or a body whose first two statements are not
+`Local/Loop`. Once that envelope is present, every header/local/loop/body,
+source/frame, policy, prefix, demand, Recipe, completion, or effect-plan
+failure is a typed terminal pre-effect reject. It never retries Generic, A+,
+the registry, or a legacy AST route.
+
+The sole authority remains
+`VerifiedResolvedSourceUnitV1 -> ResolvedFunctionLoweringInputV1 /
+FunctionSourceViewV1 -> resolved_loop_source/forest/frame`, while
+`issue_direct_accum_plan_v1` remains the sole DirectAccum plan owner. The D4
+receipt is transport only. The migration must retain exactly one ingress:
+resolved unit -> DirectAccum probe -> DirectAccum plan ->
+`CanonicalFirstFamilyPlanV1::Loop(DirectAccum)`. The raw
+`LoopRouteContext -> try_build_loop_facts -> registry` edge is not retired by
+this task.
+
+## Selected D4-S1-S0 task
+
+The cfg(test)-only witness may consume the existing DirectAccum fixture and
+canonical unit/located loop, lend the D4 paired views from one receipt, and
+assert that the exact DirectAccum envelope accepts while foreign/non-loop and
+shape-negative rows reject before effects. It must not import the bridge into
+production preflight or add a Generic/family classifier, selector,
+Recipe/key, Builder/MIR caller, or route retirement. Production migration is
+`NoSafeSlice` until a later family-boundary/selector decision resolves the
+remaining Generic/NestedPredicate/DirectAccum/A+ overlap.
+
+Any implementation/test commit must update affected `docs/reference/**` and
+current support pages in the same commit, and keep changed source/check files
+below 800 lines and the workstream below 1000.
 
 # Current next action
 
-Stop at the design boundary above. Do not begin production route migration
-until the DirectAccum route matrix is accepted. Exact family disjointness and
-cross-family selection remain `NoSafeSlice`.
+Implement only the cfg(test)-only D4-S1-S0 witness. Stop before production
+route migration; exact family disjointness and cross-family selection remain
+`NoSafeSlice`.
