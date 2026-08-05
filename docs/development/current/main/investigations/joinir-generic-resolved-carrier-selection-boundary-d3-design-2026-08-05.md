@@ -455,14 +455,51 @@ capability.
   source shape. Parent D2, full source-backed matrix, neutral issuer, and
   production selector remain `UnresolvedStop`.
 
-## Next design stop — full source-backed matrix
+## Selected next bounded task — source-backed V0-only non-recursive row
 
-The bridge is closed, but it does not close the parent Generic D2 row. The next
-decision is `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2`: decide
-the remaining source-backed disposition/shape/mode matrix and its disjointness
-before any neutral issuer or production selector is considered. Planner-required,
-NoRecursive, Unavailable, Ambiguous, and additional source shapes stay outside
-the closed D1 evidence until that design is accepted.
+Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1`
+
+Decision: accepted as the first D2 source-backed matrix row. It closes the
+typed non-target/Legacy boundary before planner and unsupported-carrier rows;
+neutral issuer and production selection remain prohibited.
+
+### Change
+
+- Add one parsed simple-loop source shape with a one-member resolved loop
+  forest, no recursive carrier, and a post-loop read of the loop variable.
+- Observe the same-invocation resolver/source/facts/frame products for Release
+  and Strict and issue only a private non-`Clone` test receipt describing
+  `ProvenOutsideTarget`; do not create a resolved capability or re-pair D1's
+  nested-loop receipt.
+
+### Contract
+
+- Source authority is `VerifiedResolvedFunctionV1`/`FunctionSourceViewV1`, the
+  one-member resolved forest, resolver-issued BindingRefs, and the actual
+  canonical facts/raw schedule. The accepted schedule is exactly
+  `[GenericLoopV0]` with `CompleteNoRecursiveCarrier`.
+- The typed result is `Legacy(ProvenOutsideTarget)` only for this proven
+  non-target row. Missing facts, identity/frame mismatch, planner-required,
+  V1/Neither, another carrier disposition, or a different schedule is a
+  pre-effect `UnresolvedStop`, never a Legacy fallback. No placeholder
+  BindingRef, AST/name reconstruction, neutral issuer, selector, Recipe,
+  Builder/MIR/backend, Retry, or fallback change is allowed.
+
+### Done
+
+- Release/Strict focused source-backed tests prove the one-member forest,
+  `CompleteNoRecursiveCarrier`, exact `[V0]`, fresh-repeat stability, and the
+  typed non-target receipt. Existing D1/B4/D3 filters and pointer/diff/artifact
+  guards remain green; production caller/import census stays zero; touched
+  Rust/check files remain below 800 lines.
+
+### Stop
+
+- Return to design if the simple source does not naturally produce V0-only,
+  the carrier is not proven NoRecursive, or any second source shape, neutral
+  facts type, production import, or policy change is needed. Unavailable,
+  Ambiguous, planner-required, and all other shapes remain later rows; parent
+  D2, full matrix, neutral issuer, and production selector remain unresolved.
 
 ## Closed bounded task — nested `IfThen` carrier coverage
 

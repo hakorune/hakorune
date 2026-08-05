@@ -945,8 +945,12 @@ Strict source-backed protocol tests prove natural `[V0, V1]`, while a second
 parsed invocation is rejected as typed `FactsIdentityMismatch`. The bridge has
 no neutral issuer, production selector/router arm, Builder/MIR caller, Recipe,
 PHI, Retry, or fallback. The next design stop is
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2`; the full
-source-backed matrix and parent D2 remain unresolved.
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1` is
+the selected next bounded row: a parsed one-member simple loop must prove
+`CompleteNoRecursiveCarrier`, actual raw `[GenericLoopV0]`, and typed
+`ProvenOutsideTarget` for Release/Strict. Unavailable, Ambiguous,
+planner-required, and other shapes remain separate rows; the full source-backed
+matrix and parent D2 remain unresolved.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

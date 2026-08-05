@@ -34,8 +34,9 @@ Related:
   matrix, S2A, and the resolved projector coverage row are closed as test-only
   evidence. The cfg(test)-only
   `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1` source-backed handoff
-  bridge is closed. The next design stop is
-  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2`. No Generic production Recipe, selector arm, source-to-selection handoff, route,
+  bridge is closed. The selected bounded row is
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1`.
+  No Generic production Recipe, selector arm, source-to-selection handoff, route,
   physical, Retry, or fallback change is authorized; M10b still waits on
   M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`
   for the exact test boundary and non-claims.

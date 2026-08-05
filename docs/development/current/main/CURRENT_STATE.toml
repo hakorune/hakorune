@@ -5,9 +5,9 @@ status = "Decision B-prime is restored, M7-S2-A and the full M7-S3 LoopTrue sour
 date = "2026-08-05"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "The upper production stop remains the co-sealed source-to-selection boundary in docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md. The source-backed JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1 is closed as cfg(test)-only evidence. The next design row is JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2; no neutral issuer, Builder adapter, source-to-selection handoff, selector/policy arm, Generic Recipe/JoinSig/PHI/physicalizer caller, Retry/fallback deletion, or M7-S4 route work is authorized."
-current_execution_row = "JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2"
-current_execution_summary = "D1 closeout: one parsed S2A natural-Both projector receipt now feeds a private non-Clone handoff witness retaining actual facts/raw schedule/frame flags; Release/Strict positive and cross-invocation typed reject tests pass. No production code or authority was added; parent Generic D2, full source-backed matrix, neutral issuer, and production selector remain UnresolvedStop."
+current_design_stop = "The upper production stop remains the co-sealed source-to-selection boundary in docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md. D1 is closed as cfg(test)-only evidence. The selected bounded execution row is JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1: source-backed V0-only/CompleteNoRecursive ProvenOutsideTarget for Release/Strict; no neutral issuer, Builder adapter, source-to-selection handoff, selector/policy arm, Generic Recipe/JoinSig/PHI/physicalizer caller, Retry/fallback deletion, or M7-S4 route work is authorized."
+current_execution_row = "JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1"
+current_execution_summary = "Taskized D2-S1: one parsed simple-loop source shape must retain a one-member resolver forest, actual facts/raw schedule [GenericLoopV0], and CompleteNoRecursiveCarrier for Release/Strict, then issue only a private test-only ProvenOutsideTarget receipt. Parent Generic D2, planner/unsupported rows, neutral issuer, and production selector remain UnresolvedStop."
 current_execution_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md"
 joinir_if_recipe_two_call_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-two-call-arms-d0-d2-execution-task-2026-08-04.md"
 joinir_if_recipe_call_implicit_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-call-branch-implicit-d0-d2-execution-task-2026-08-04.md"
@@ -467,7 +467,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
-latest_card_summary = """B-prime is restored and the stale C/NoSafeSlice closeout is superseded. Universal raw/reference ingress is rejected; normalized-shadow mutation is already retired. M7-S2-A, M7-S3 S0/S1/S2/S3, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed matrix, JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A, JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0, and JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1 are closed as test-only evidence. JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2 is the next design stop; production handoff and parent Generic D2 remain stopped, and M10b remains ordered after M7/M8/M9."""
+latest_card_summary = """B-prime is restored and the stale C/NoSafeSlice closeout is superseded. Universal raw/reference ingress is rejected; normalized-shadow mutation is already retired. M7-S2-A, M7-S3 S0/S1/S2/S3, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed matrix, JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A, JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0, and JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1 are closed as test-only evidence. JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1 is the selected bounded row; production handoff and parent Generic D2 remain stopped, and M10b remains ordered after M7/M8/M9."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -670,7 +670,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2"
+current_blocker_token = "JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

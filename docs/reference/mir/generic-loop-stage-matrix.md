@@ -188,8 +188,10 @@ The cfg(test)-only source-backed handoff bridge
 parsed S2A projector receipt to actual facts/raw schedule/frame flags for
 Release/Strict natural Both, and rejects a cross-invocation pairing before
 selection. It adds no neutral issuer or production selector. The next design
-stop is `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2`; the full
-source-backed matrix remains unresolved.
+selected row is `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1`.
+It will prove a parsed one-member V0-only/CompleteNoRecursive source row and
+typed `ProvenOutsideTarget` for Release/Strict. The full source-backed matrix
+remains unresolved.
 
 The scoped D3 matrix is now also green as one cfg(test) test over four typed
 rows: natural Release, natural Strict, shadowing negative, and planner-required
