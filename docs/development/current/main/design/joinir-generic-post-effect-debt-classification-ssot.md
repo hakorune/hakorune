@@ -996,6 +996,18 @@ handoff, Recipe, PHI, MIR, Retry, or fallback. Reference docs and current
 mirrors were updated in the same implementation closeout commit. A separate
 parsed `Both/NoRecursive` row remains a new design decision.
 
+That design decision is now tracked as
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-NORECURSIVE-DISPOSITION0-D2-S5-D0`
+in
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-matrix-norecursive-disposition-d2-s5-d0-design-2026-08-05.md`.
+The source row is not yet authorized: the design must separate flat
+Assignment, simple-while, local/effect V1-only, and facts-absent shapes, then
+fix the one-loop projector boundary and disposition. The provisional flat
+candidate maps exact `CompleteNoRecursiveCarrier` to typed
+`UnresolvedStop(NonRecursiveOutOfTarget)`; facts absence or empty schedule is
+typed `NoStandaloneRow`. No production selector, eligibility, Legacy/winner,
+Recipe, PHI, Builder, MIR, Retry, fallback, or handoff change is allowed.
+
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:

@@ -189,6 +189,13 @@ absent and Release/Strict both measure raw schedule `[]`; the typed result is
 production handoff, Recipe, PHI, or MIR authority is added. Reference and
 current mirrors closed in the same implementation commit.
 
+The next design stop is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-NORECURSIVE-DISPOSITION0-D2-S5-D0`.
+It is docs-only until the parsed one-loop source shape, resolver identity,
+facts disposition, and raw-schedule owner are fixed. The existing recursive
+two-member projector must not be reused implicitly; no production capability
+or selector is introduced.
+
 The bounded cfg(test) witness is green with:
 
 ```bash

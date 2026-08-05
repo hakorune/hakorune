@@ -62,6 +62,13 @@ Related:
   Unavailable, V0-only, selector, eligibility, production handoff, Recipe,
   PHI, Builder, MIR, Retry, or fallback claim follows. A separate parsed
   Both/NoRecursive row requires a new design decision.
+- next design child:
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-NORECURSIVE-DISPOSITION0-D2-S5-D0`.
+  Fix one parsed flat Assignment shape, its one-loop projector boundary, and
+  the disposition of `CompleteNoRecursiveCarrier` before adding a source row.
+  This is docs-only; simple-while, local/effect V1-only, facts-absent,
+  selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry, fallback,
+  and production handoff remain out of scope.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

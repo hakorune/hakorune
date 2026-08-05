@@ -827,3 +827,25 @@ stage-matrix reference, both Generic READMEs, current mirrors, and the
 artifact manifest in the same commit. A separate parsed `Both/NoRecursive`
 row may be reconsidered at the parent design stop; top-level Compound remains
 an explicit `NoStandaloneRow` boundary for the current facts owner.
+
+## Next design child — NoRecursive disposition (`D2-S5-D0`)
+
+The next boundary is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-NORECURSIVE-DISPOSITION0-D2-S5-D0`,
+recorded in
+`joinir-generic-resolved-carrier-source-matrix-norecursive-disposition-d2-s5-d0-design-2026-08-05.md`.
+Workers found that parsed `CompleteNoRecursiveCarrier` is not one downstream
+meaning: dedicated simple-while, local/effect V1-only, and unsupported/facts-
+absent shapes can share or resemble the label. The existing D3 projector is
+also a two-member recursive shape and cannot be silently reused for a
+one-member source.
+
+This is docs-only design work. It fixes one flat Assignment candidate,
+disposition, one-loop projector boundary, and the measured raw-schedule owner
+before any cfg(test) source row. The provisional candidate is
+`loop(j + m < n) { j = j + 1 }` with a post-loop `j` read; the provisional
+disposition is typed `UnresolvedStop(NonRecursiveOutOfTarget)` when exact
+`CompleteNoRecursiveCarrier` is observed. Facts absence or empty raw schedule
+is typed `NoStandaloneRow`. Simple-while, local/effect, CompoundAssignment,
+eligibility, Legacy, winner, selector, neutral issuer, Builder, MIR, Recipe,
+PHI, Retry, fallback, and production handoff remain outside the task.
