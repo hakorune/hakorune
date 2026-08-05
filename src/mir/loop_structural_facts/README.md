@@ -123,6 +123,15 @@ protected by the D4-S2 family-boundary design stop.
 D4-S1-S0 is closed as cfg(test)-only evidence outside this module. The witness
 reuses the D4 resolver-owned source receipt and the existing DirectAccum probe;
 it does not widen `LoopFacts`, issue a selector input, or add a Recipe/key
-consumer. The active D4-S2 stop must first define the single owner map and
-full raw/resolved disposition matrix before this neutral layer can receive any
-canonical family product.
+consumer. The accepted D4-S2 owner map is now followed by the D4-S3 docs-only
+selection-authority stop; this neutral layer remains caller-zero until that
+stop defines the observation set before any canonical family product arrives.
+
+D4-S2-S0 is closed as a sibling private `#[cfg(test)]` six-row legacy census.
+It lends raw and resolved observations from one resolver-owned receipt per
+fixture/mode row, but does not widen this neutral layer or publish a reusable
+Generic observation product. The measured raw carrier/schedule and existing
+preflight family remain `legacy_*` retirement inventory; no selector, Recipe,
+key, Builder/MIR caller, retry, or fallback is implied. D4-S3-D0 must decide
+the future observation-set schema and `mir::loop_route_policy` owner before
+this layer gains a canonical family consumer.

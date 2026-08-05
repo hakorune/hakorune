@@ -206,11 +206,21 @@ LOOP0-P0b-T0 associated-source boundary:
 The shared source-window witness is closed as a private `#[cfg(test)]`
 transport product. It is not a Generic-loop planner input and does not
 authorize this plan family, a selector, Recipe, Builder/MIR caller, retry,
-fallback, or runtime route. The next row is the design-only
-`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-BOUNDARY-DESIGN0-D4-S2` after the
-DirectAccum S0 witness closeout. The existing raw Generic route remains
-unchanged until the owner map and policy matrix are accepted.
+fallback, or runtime route. D4-S2 family-boundary authority is accepted, and
+the existing raw Generic route remains unchanged until a future selector
+decision and atomic cutover.
 
 D4-S1-S0 covers exact DirectAccum admission, foreign/non-loop source-window
 rejects, and a shape-negative terminal probe reject. It remains test-only and
 does not make this Generic-loop planner a selector or production consumer.
+
+D4-S2-S0 is now closed outside this planner as a private six-row legacy
+same-source census. The rows consume one resolver-owned receipt per fixture /
+mode pair and retain only `legacy_*` facts, carrier, raw schedule, and existing
+resolved-preflight observations: nested-predicate is
+`CompleteRecursive(["j", "sum"])` with `[NestedLoopMinimal, GenericLoopV1]`,
+while direct-accum is `CompleteNoRecursive` with `[AccumConstLoop]`, across
+Release/Strict/planner-required. This README remains a Generic facts/recipe
+boundary: the census does not add a planner selector, Recipe/key, Builder/MIR
+caller, retry, fallback, or canonical policy. D4-S3-D0 is the next docs-only
+decision for the neutral observation set and `mir::loop_route_policy` owner.

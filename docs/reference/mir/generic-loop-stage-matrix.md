@@ -276,6 +276,26 @@ NestedPredicate/DirectAccum/A+/canonical-reject columns independent. No old
 edge is retired here; later cutover requires one selector, duplicate caller
 zero, same-commit old-edge deletion, and retry/fallback zero.
 
+### D4-S2-S0 legacy same-source census (closed)
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-LEGACY-SAME-SOURCE-CENSUS0-D4-S2-S0` is a
+private `#[cfg(test)]` retirement inventory, not canonical policy evidence. It
+consumes one resolver-owned non-`Clone` source receipt for each of six rows:
+`nested-predicate` and `direct-accum` × `Release`, `Strict`, and
+`StrictPlannerRequired`. Each row retains resolver owner/site/frame plus
+`legacy_*` raw facts status, V0/V1 presence, carrier, raw schedule, and the
+existing resolved preflight family.
+
+The measured rows are exact and mode-stable: nested-predicate is
+`CompleteRecursive(["j", "sum"])` with legacy
+`[NestedLoopMinimal, GenericLoopV1]` and resolved `NestedPredicate`; direct-
+accum is `CompleteNoRecursive` with `[AccumConstLoop]` and resolved
+`DirectAccum`. All six rows are `Available`, V0 absent, and V1 present. The
+census does not issue a selector, winner, Recipe/key, Builder/MIR effect, or
+retry/fallback, and does not retire an old edge. D4-S3-D0 is the next
+docs-only decision for the neutral observation-set and
+`mir::loop_route_policy` authority.
+
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is
 closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite

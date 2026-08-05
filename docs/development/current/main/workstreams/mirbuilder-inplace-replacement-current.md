@@ -478,16 +478,14 @@ Current decision and execution brief:
 
 ```text
 JOINIR-GENERIC-RESOLVED-CARRIER-LEGACY-SAME-SOURCE-CENSUS0-D4-S2-S0
-  is selected after D4-S2-R1 corrected the authority order to source
-  observations -> loop_route_policy -> Recipe -> verify/plan -> lower.
-  builder registry selection is legacy retirement inventory, not the future
-  canonical selector. S0 may add only a private cfg(test) 2-fixture x 3-mode
-  same-source report with legacy-labelled raw schedule/preflight observations.
-  It issues no winner, policy input, Recipe/key, export, production caller,
-  retry, fallback, or old-edge deletion. Implementation updates affected
-  references and current docs in the same commit. The exact task is in:
-  docs/development/current/main/investigations/joinir-generic-resolved-
-  carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md
+  is closed as a private cfg(test) six-row retirement census after D4-S2-R1
+  corrected the authority order to source observations -> loop_route_policy
+  -> selected-family Recipe -> verify/plan -> lower. Rows record one
+  resolver-owned owner/site/frame plus legacy-labelled raw/preflight values;
+  no winner, policy input, Recipe/key, export, production caller, retry,
+  fallback, or old-edge deletion was added. The same commit updates affected
+  references/current docs. Next is design-only
+  JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTION-AUTHORITY0-D4-S3-D0.
 ```
 
 ## Production invariants

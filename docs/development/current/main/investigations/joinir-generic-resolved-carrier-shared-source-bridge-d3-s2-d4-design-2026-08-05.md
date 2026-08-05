@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0 closed; D4-S2-R1 accepted; D4-S2-S0 selected
+Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0 closed; D4-S2-R1 accepted; D4-S3-D0 selected
 Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -584,16 +584,44 @@ Stop:
   canonical policy evidence, reaches Recipe/Builder, or cannot keep both views
   tied to one resolver-owned receipt.
 
-## Ordered follow-up
+## D4-S2-S0 closeout
 
-After S0, use its measured rows in the docs-only
+`JOINIR-GENERIC-RESOLVED-CARRIER-LEGACY-SAME-SOURCE-CENSUS0-D4-S2-S0` is
+closed as a private `#[cfg(test)]` six-row retirement census. One
+resolver-owned non-`Clone` receipt is consumed for each fixture/mode row:
+`nested-predicate` and `direct-accum` × `Release`, `Strict`, and
+`StrictPlannerRequired`. Every row records the resolver owner/site/frame and
+only `legacy_*` raw facts status, V0/V1 presence, carrier summary, raw
+schedule, and the existing resolved preflight family.
+
+The exact measured values are stable across modes: nested-predicate is
+`CompleteRecursive(["j", "sum"])` with legacy schedule
+`[NestedLoopMinimal, GenericLoopV1]`; direct-accum is
+`CompleteNoRecursive` with `[AccumConstLoop]`; all six rows are facts
+`Available`, V0 absent, V1 present, and resolve respectively to
+`NestedPredicate`/`DirectAccum`. The test also freezes the mode order and
+owner/site/frame correspondence. This is retirement inventory only: no
+selector, policy product, Recipe/key, Builder/MIR caller, retry, fallback, or
+old-edge deletion was added.
+
+The implementation commit updates the reference matrix, resolver/facts/
+Generic-loop support docs, this card, `CURRENT_STATE.toml`, current mirrors,
+and the workstream. The focused census test is green; changed source/check
+files remain below 800 lines and the workstream remains below 1000.
+
+## D4-S3-D0 design-only next stop
+
+The next row is
 `JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTION-AUTHORITY0-D4-S3-D0`.
-That row decides the neutral observation-set schema and policy outcomes; it
-does not inherit current Nested-before-Direct or raw-registry ordering as truth.
+It must decide the neutral observation-set schema and the sole
+`mir::loop_route_policy` selection authority from the measured rows. It may
+not treat legacy schedules or current preflight order as canonical, and it
+does not authorize production migration. Any later implementation must update
+affected reference documentation in the same commit.
+
 
 # Current next action
 
-Stop with D4-S2-R1 documented and D4-S2-S0 selected. Do not implement a
-selector or production migration. The next implementation is only the private
-six-row legacy same-source census, with same-commit reference/current-doc
-updates required after implementation.
+Stop with D4-S2-S0 closed and D4-S3-D0 selected. Do not implement a selector
+or production migration. The next action is design-only authority selection;
+any later implementation requires same-commit reference/current-doc updates.

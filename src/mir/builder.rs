@@ -367,6 +367,94 @@ pub(crate) fn loop_route_effective_winner_for_test(
 }
 
 #[cfg(test)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum LegacyGenericCarrierSummaryV1 {
+    CompleteNoRecursive,
+    CompleteRecursive(Box<[String]>),
+    Unavailable(String),
+    Ambiguous(String),
+}
+
+#[cfg(test)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LegacyGenericFactsStatusV1 {
+    Available,
+    Absent,
+    Frozen(&'static str),
+}
+
+#[cfg(test)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct LegacyGenericLoopObservationV1 {
+    pub(crate) status: LegacyGenericFactsStatusV1,
+    pub(crate) v0_present: bool,
+    pub(crate) v1_present: bool,
+    pub(crate) carrier: Option<LegacyGenericCarrierSummaryV1>,
+    pub(crate) raw_schedule: Box<[crate::mir::loop_recipe_contract::route_id::LoopRouteId]>,
+}
+
+/// Test-only adapter at the legacy facts owner. It exposes a value summary so
+/// sibling test seams never name private LoopFacts or canonicalize a winner.
+#[cfg(test)]
+pub(crate) fn observe_legacy_generic_loop_for_test(
+    condition: &crate::ast::ASTNode,
+    body: &[crate::ast::ASTNode],
+) -> LegacyGenericLoopObservationV1 {
+    let facts = match control_flow::plan::facts::try_build_loop_facts(condition, body) {
+        Ok(Some(facts)) => facts,
+        Ok(None) => {
+            return LegacyGenericLoopObservationV1 {
+                status: LegacyGenericFactsStatusV1::Absent,
+                v0_present: false,
+                v1_present: false,
+                carrier: None,
+                raw_schedule: Box::new([]),
+            }
+        }
+        Err(freeze) => {
+            return LegacyGenericLoopObservationV1 {
+                status: LegacyGenericFactsStatusV1::Frozen(freeze.tag),
+                v0_present: false,
+                v1_present: false,
+                carrier: None,
+                raw_schedule: Box::new([]),
+            }
+        }
+    };
+    let v0_present = facts.generic_loop_v0().is_some();
+    let carrier = facts.generic_loop_v1().map(|facts| {
+        use control_flow::plan::facts::GenericLoopCarrierObservationV1;
+
+        match &facts.carrier_observation {
+            GenericLoopCarrierObservationV1::CompleteNoRecursiveCarrier => {
+                LegacyGenericCarrierSummaryV1::CompleteNoRecursive
+            }
+            GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(bindings) => {
+                LegacyGenericCarrierSummaryV1::CompleteRecursive(bindings.clone().into_boxed_slice())
+            }
+            GenericLoopCarrierObservationV1::Unavailable(reason) => {
+                LegacyGenericCarrierSummaryV1::Unavailable(reason.clone())
+            }
+            GenericLoopCarrierObservationV1::Ambiguous(reason) => {
+                LegacyGenericCarrierSummaryV1::Ambiguous(reason.clone())
+            }
+        }
+    });
+    let v1_present = carrier.is_some();
+    let canonical = control_flow::lower::normalize::canonicalize_loop_facts(facts);
+    let selection = control_flow::joinir::route_entry::registry::select_recipe_first_routes(
+        Some(&canonical),
+    );
+    LegacyGenericLoopObservationV1 {
+        status: LegacyGenericFactsStatusV1::Available,
+        v0_present,
+        v1_present,
+        carrier,
+        raw_schedule: selection.raw_execution_routes().to_vec().into_boxed_slice(),
+    }
+}
+
+#[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {
     control_flow::reset_loop_physical_effect_probe();
 }

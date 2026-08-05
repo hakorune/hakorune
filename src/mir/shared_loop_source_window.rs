@@ -47,6 +47,7 @@ pub(crate) struct VerifiedSharedLoopSourceWindowV1<'a> {
 pub(crate) struct SharedRawLoopViewV1<'a> {
     owner: FunctionOwnerIdV1,
     loop_site: SourceStmtSiteV1,
+    frame: LoopExecutionFrameKeyV1,
     condition: &'a ASTNode,
     body: &'a [ASTNode],
 }
@@ -58,6 +59,10 @@ impl<'a> SharedRawLoopViewV1<'a> {
 
     pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
         &self.loop_site
+    }
+
+    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
+        &self.frame
     }
 
     pub(crate) const fn condition(&self) -> &'a ASTNode {
@@ -132,6 +137,7 @@ impl<'a> VerifiedSharedLoopSourceWindowV1<'a> {
             SharedRawLoopViewV1 {
                 owner,
                 loop_site: loop_site.clone(),
+                frame: frame.clone(),
                 condition,
                 body,
             },
@@ -229,10 +235,65 @@ fn map_forest_reject(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::compiler::capability::{
+        CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1, CanonicalLoweringPreflightV1,
+    };
     use crate::mir::compiler::direct_accum_capability::DirectAccumSourceUnitProbeV1;
     use crate::mir::compiler::nested_function_for_p3_test;
     use crate::mir::compiler::CanonicalLoweringErrorV1;
     use crate::mir::compiler::{direct_accum_capability, direct_accum_projection};
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum LegacySameSourceModeV1 {
+        Release,
+        Strict,
+        StrictPlannerRequired,
+    }
+
+    impl LegacySameSourceModeV1 {
+        fn config(self) -> crate::test_support::ScopedTestConfig {
+            crate::test_support::ScopedTestConfig::apply(&[
+                (
+                    "HAKO_JOINIR_STRICT",
+                    if matches!(self, Self::Release) {
+                        None
+                    } else {
+                        Some("1")
+                    },
+                ),
+                (
+                    "HAKO_JOINIR_PLANNER_REQUIRED",
+                    if matches!(self, Self::StrictPlannerRequired) {
+                        Some("1")
+                    } else {
+                        None
+                    },
+                ),
+                ("NYASH_JOINIR_STRICT", None),
+            ])
+        }
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum LegacyResolvedFamilyV1 {
+        NestedPredicate,
+        DirectAccum,
+    }
+
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    struct LegacySameSourceRowV1 {
+        fixture_label: &'static str,
+        mode: LegacySameSourceModeV1,
+        owner: FunctionOwnerIdV1,
+        site: SourceStmtSiteV1,
+        frame: LoopExecutionFrameKeyV1,
+        legacy_raw_status: crate::mir::builder::LegacyGenericFactsStatusV1,
+        legacy_v0_present: bool,
+        legacy_v1_present: bool,
+        legacy_carrier: Option<crate::mir::builder::LegacyGenericCarrierSummaryV1>,
+        legacy_raw_schedule: Box<[crate::mir::loop_recipe_contract::route_id::LoopRouteId]>,
+        legacy_resolved_family: LegacyResolvedFamilyV1,
+    }
 
     fn unit() -> VerifiedResolvedSourceUnitV1 {
         VerifiedResolvedSourceUnitV1::resolve_function(nested_function_for_p3_test())
@@ -256,6 +317,144 @@ mod tests {
             .source()
             .body_stmt(&body, index)
             .expect("body statement")
+    }
+
+    fn legacy_same_source_row(
+        fixture_label: &'static str,
+        tree: ASTNode,
+        mode: LegacySameSourceModeV1,
+    ) -> LegacySameSourceRowV1 {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let _config = mode.config();
+        let source_unit = VerifiedResolvedSourceUnitV1::resolve_function(tree)
+            .expect("same-source census fixture resolves");
+        let loop_stmt = body_stmt(&source_unit, 1);
+        let receipt = issue_shared_loop_source_window_v1(&source_unit, &loop_stmt)
+            .expect("same-source census loop window");
+        receipt.with_views(|raw, resolved| {
+            assert_eq!(raw.owner(), resolved.owner());
+            assert_eq!(raw.site(), resolved.site());
+            assert!(raw.frame().matches(resolved.frame()));
+            let legacy = crate::mir::builder::observe_legacy_generic_loop_for_test(
+                raw.condition(),
+                raw.body(),
+            );
+            let legacy_resolved_family =
+                match CanonicalLoweringPreflightV1::verify(resolved.source_unit()) {
+                    Ok(CanonicalFirstFamilyPlanV1::Loop(
+                        CanonicalLoopFamilyPlanV1::NestedPredicate(_),
+                    )) => LegacyResolvedFamilyV1::NestedPredicate,
+                    Ok(CanonicalFirstFamilyPlanV1::Loop(
+                        CanonicalLoopFamilyPlanV1::DirectAccum(_),
+                    )) => LegacyResolvedFamilyV1::DirectAccum,
+                    Ok(_) | Err(_) => panic!("bounded Loop fixture must resolve to a Loop family"),
+                };
+            LegacySameSourceRowV1 {
+                fixture_label,
+                mode,
+                owner: raw.owner(),
+                site: raw.site().clone(),
+                frame: raw.frame().clone(),
+                legacy_raw_status: legacy.status,
+                legacy_v0_present: legacy.v0_present,
+                legacy_v1_present: legacy.v1_present,
+                legacy_carrier: legacy.carrier,
+                legacy_raw_schedule: legacy.raw_schedule,
+                legacy_resolved_family,
+            }
+        })
+    }
+
+    fn legacy_same_source_census() -> Box<[LegacySameSourceRowV1]> {
+        [
+            LegacySameSourceModeV1::Release,
+            LegacySameSourceModeV1::Strict,
+            LegacySameSourceModeV1::StrictPlannerRequired,
+        ]
+        .into_iter()
+        .flat_map(|mode| {
+            [
+                ("nested-predicate", nested_function_for_p3_test()),
+                (
+                    "direct-accum",
+                    direct_accum_projection::direct_accum_function_for_test(),
+                ),
+            ]
+            .into_iter()
+            .map(move |(fixture_label, tree)| legacy_same_source_row(fixture_label, tree, mode))
+        })
+        .collect::<Vec<_>>()
+        .into_boxed_slice()
+    }
+
+    #[test]
+    fn d4_s2_s0_records_six_legacy_same_source_rows() {
+        let rows = legacy_same_source_census();
+        assert_eq!(rows.len(), 6);
+        assert_eq!(
+            rows.iter().map(|row| row.mode).collect::<Vec<_>>(),
+            vec![
+                LegacySameSourceModeV1::Release,
+                LegacySameSourceModeV1::Release,
+                LegacySameSourceModeV1::Strict,
+                LegacySameSourceModeV1::Strict,
+                LegacySameSourceModeV1::StrictPlannerRequired,
+                LegacySameSourceModeV1::StrictPlannerRequired,
+            ]
+        );
+        for (index, row) in rows.iter().enumerate() {
+            assert_eq!(row.owner.slot(), 0);
+            assert_eq!(row.site.node(), rows[0].site.node());
+            assert!(row.frame.matches(&rows[0].frame));
+            assert_eq!(
+                row.legacy_raw_status,
+                crate::mir::builder::LegacyGenericFactsStatusV1::Available
+            );
+            assert!(!row.legacy_v0_present);
+            assert!(row.legacy_v1_present);
+            match index {
+                0 | 2 | 4 => {
+                    assert_eq!(row.fixture_label, "nested-predicate");
+                    assert_eq!(
+                        row.legacy_resolved_family,
+                        LegacyResolvedFamilyV1::NestedPredicate
+                    );
+                    assert_eq!(
+                        row.legacy_carrier,
+                        Some(
+                            crate::mir::builder::LegacyGenericCarrierSummaryV1::CompleteRecursive(
+                                vec!["j".to_owned(), "sum".to_owned()].into_boxed_slice(),
+                            )
+                        ),
+                    );
+                    assert_eq!(
+                        row.legacy_raw_schedule.as_ref(),
+                        [
+                            crate::mir::loop_recipe_contract::route_id::LoopRouteId::NestedLoopMinimal,
+                            crate::mir::loop_recipe_contract::route_id::LoopRouteId::GenericLoopV1,
+                        ],
+                    );
+                }
+                1 | 3 | 5 => {
+                    assert_eq!(row.fixture_label, "direct-accum");
+                    assert_eq!(
+                        row.legacy_resolved_family,
+                        LegacyResolvedFamilyV1::DirectAccum
+                    );
+                    assert_eq!(
+                        row.legacy_carrier,
+                        Some(
+                            crate::mir::builder::LegacyGenericCarrierSummaryV1::CompleteNoRecursive
+                        ),
+                    );
+                    assert_eq!(
+                        row.legacy_raw_schedule.as_ref(),
+                        [crate::mir::loop_recipe_contract::route_id::LoopRouteId::AccumConstLoop],
+                    );
+                }
+                _ => unreachable!("six-row census index"),
+            }
+        }
     }
 
     #[test]

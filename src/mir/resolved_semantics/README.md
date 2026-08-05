@@ -524,7 +524,17 @@ DirectAccum source-unit probe through one D4 paired-view receipt and proves
 exact admission plus foreign/non-loop and shape-negative typed rejects before
 effects. No production preflight import or second source identity was added.
 
-The current D4-S2 design stop is the family-boundary owner map and disposition
-matrix. This module remains the source-identity authority only; it must not
-select Generic/NestedPredicate/DirectAccum/A+, issue a Recipe key, or retire
-the raw Generic/resolved preflight edges.
+The accepted D4-S2 family-boundary owner map leaves this module as the
+source-identity authority only; it must not select
+Generic/NestedPredicate/DirectAccum/A+, issue a Recipe key, or retire the raw
+Generic/resolved preflight edges. D4-S3 is the next docs-only
+selection-authority stop.
+
+D4-S2-S0 is now closed as a private six-row legacy same-source census outside
+this module. Each row consumes one resolver-owned non-`Clone` source receipt
+and records owner/site/frame together with `legacy_*` raw facts and existing
+preflight observations for the two bounded fixtures across three modes. The
+rows are retirement inventory only: this resolver remains the sole source
+identity authority, and no selector, Recipe/key, Builder/MIR caller, or route
+policy is issued here. D4-S3-D0 is a docs-only decision for the neutral
+observation set and `mir::loop_route_policy` authority.

@@ -79,16 +79,13 @@ Related:
   issue `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. D4-WITNESS0
   is closed: one private MIR-root cfg(test) module lends paired raw/resolved
   views from one non-Clone canonical source receipt, with seven focused tests
-  and no production caller. D4-S1 DirectAccum route design and its S0 witness
-  are closed. The current stop is docs-only D4-S2 family-boundary design:
-  freeze one owner map, one complete raw Generic/resolved-family disposition
-  matrix, typed rejects, and atomic retirement conditions before any selector
-  or cutover. The owner map now keeps resolver identity, neutral facts,
-  Recipe-key issuance, canonical plan sealing, and registry policy separate.
-  Exact disjointness, classifier/selector policy, Recipe, PHI,
-  Builder/MIR, Return/Home/debt, retry, fallback, runtime, and production
-  authority remain NoSafeSlice. Scalar Return/outer-PHI and natural
-  debt-to-different-winner remain NoSafeSlice.
+  and no production caller. D4-S1 DirectAccum and D4-S2-S0 are also closed:
+  the latter freezes six legacy-labelled same-source rows (two fixtures ×
+  three modes) with zero production caller. The current stop is now the
+  docs-only D4-S3-D0 selection-authority design. It must define the neutral
+  observation set and `mir::loop_route_policy` owner without promoting legacy
+  schedule/preflight order; selector, Recipe, PHI, Builder/MIR, retry,
+  fallback, runtime, and production authority remain NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

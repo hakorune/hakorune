@@ -47,7 +47,7 @@ pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
 #[cfg(test)]
-mod shared_loop_source_window;
+pub(crate) mod shared_loop_source_window;
 pub mod edge_args;
 pub(crate) mod raw_finalization_contract;
 pub(crate) mod raw_physical_drain;
