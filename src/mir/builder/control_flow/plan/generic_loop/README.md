@@ -116,12 +116,13 @@ no Generic route, Recipe, JoinSig, PHI, physicalizer, Builder, MIR, or runtime
 authority is changed.
 
 S2, the scoped D3 matrix, the source-backed bridge, the planner-suppression
-row, and the Index/Ambiguous row are closed as cfg(test)-only tests. The next
-bounded row is `JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`:
-co-seal actual natural-Both resolver/facts/frame evidence into a private
-non-`Clone` eligibility witness and retain typed mismatch negatives. The
-Index/Ambiguous row remains a negative source witness; Compound/Unavailable
-is a later source-matrix row. No production selector, neutral issuer, or route
+row, the Index/Ambiguous row, and
+`JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0` are closed as
+cfg(test)-only tests. D3-S0 co-seals actual natural-Both resolver/facts/frame
+evidence into a private non-`Clone` eligibility witness and retains typed
+mismatch negatives. The Index/Ambiguous row remains a negative source witness;
+Compound/Unavailable is a later source-matrix row. Execution is back at the
+parent D3 design stop; no production selector, neutral issuer, or route
 handoff is allowed.
 
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates

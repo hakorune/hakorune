@@ -35,17 +35,18 @@ Related:
   evidence. The cfg(test)-only
   `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1` source-backed handoff
   bridge is closed. The proposed V0-only D2 subrow was rejected by premise
-  audit because actual raw facts produce `[V0,V1]`. The selected bounded row is
+  audit because actual raw facts produce `[V0,V1]`. The bounded
   `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1`
-  is closed as cfg(test)-only evidence: actual Strict+planner-required mode
+  row is closed as cfg(test)-only evidence: actual Strict+planner-required mode
   co-seals the existing S2A source and yields typed unresolved raw `[V1]` after
   V0 suppression. `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`
   is now closed as cfg(test)-only evidence: parsed nested IndexWrite plus
   facts Ambiguous, actual Release/Strict raw `[V0,V1]`, and typed unresolved
-  pre-effect disposition. The selected bounded row is
-  `JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`: a
-  cfg(test)-only source-backed natural-Both eligibility witness paired with
-  typed mismatch negatives. No
+  pre-effect disposition. `JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`
+  is now closed as cfg(test)-only source-backed natural-Both eligibility with
+  typed mismatch negatives. Execution has returned to the parent
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-BOUNDARY-D3-DESIGN0-D0` design
+  stop. Compound/Unavailable remains a later source-matrix row. No
   Generic production Recipe, selector arm, source-to-selection handoff, route,
   physical, Retry, or fallback change is authorized; M10b still waits on
   M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`

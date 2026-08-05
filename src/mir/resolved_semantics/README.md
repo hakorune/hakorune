@@ -166,13 +166,14 @@ cfg(test)-only tests. Its parsed S2A nested-`IfThen` positive uses
 function/source/frame, and private facts-only identity; cross-invocation facts
 mismatch rejects before effects. Seed/invocation seal, neutral facts issuance,
 and production selection remain later boundaries.
-The source-backed bridge, planner-suppression row, and Index/Ambiguous row are
-closed as cfg(test)-only evidence. The next bounded row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`: co-seal actual
-natural-Both resolver/source/frame, BindingRef, facts, mode, and raw evidence
-into a private non-`Clone` test witness with typed mismatch rejects. This is
-not the production neutral eligibility issuer; production selection remains
-stopped. Compound/Unavailable remains a later source-matrix row.
+The source-backed bridge, planner-suppression row, Index/Ambiguous row, and
+`JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0` are closed as
+cfg(test)-only evidence. D3-S0 co-seals actual natural-Both
+resolver/source/frame, BindingRef, facts, mode, and raw evidence into a
+private non-`Clone` test witness with typed planner/shadowing/missing/
+cross-invocation rejects. It is not the production neutral eligibility issuer;
+production selection remains stopped. Compound/Unavailable remains a later
+source-matrix row and the parent D3 design stop is current.
 
 The bounded cfg(test) witness is green with:
 

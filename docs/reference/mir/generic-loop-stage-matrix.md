@@ -187,10 +187,10 @@ The cfg(test)-only source-backed handoff bridge
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1` is closed. It connects one
 parsed S2A projector receipt to actual facts/raw schedule/frame flags for
 Release/Strict natural Both, and rejects a cross-invocation pairing before
-selection. It adds no neutral issuer or production selector. The next design
-the proposed V0-only/CompleteNoRecursive subrow was rejected by premise audit:
+selection. It adds no neutral issuer or production selector. The proposed
+V0-only/CompleteNoRecursive subrow was rejected by premise audit:
 the actual parsed additive facts path yields raw `[V0, V1]`, not a natural
-V0-only witness. The next bounded row is
+V0-only witness. The planner-suppression row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1` is
 closed as cfg(test)-only evidence: the existing parsed S2A source runs under
 actual Strict+planner-required mode, co-seals resolver/facts/frame/mode
@@ -206,11 +206,14 @@ closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite
 `Ambiguous("assignment target")`, exact source/forest/frame identity, actual
 Release/Strict mode, and raw `[GenericLoopV0, GenericLoopV1]`. The typed result
 is pre-effect `UnresolvedStop(IndexWriteAmbiguousCarrier)`; no eligibility
-issuer or selector arm is implied. The next bounded row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`, a cfg(test)-only
-source-backed natural-Both eligibility witness with typed mismatch rejects.
-It does not close the production handoff; Compound/Unavailable remains a later
-source-matrix row.
+issuer or selector arm is implied. The bounded
+`JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0` row is also
+closed as cfg(test)-only evidence: actual Release/Strict natural-Both
+`CompleteRecursiveCarrier` is the only test-only eligible result, while
+planner, shadowing, missing-capability, and cross-invocation mismatches remain
+typed unresolved. It does not close the production handoff;
+Compound/Unavailable remains a later source-matrix row and the parent D3
+design stop is current.
 
 The scoped D3 matrix is now also green as one cfg(test) test over four typed
 rows: natural Release, natural Strict, shadowing negative, and planner-required

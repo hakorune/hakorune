@@ -561,13 +561,14 @@ handoff remain stopped after this source-backed axis is closed.
   `RecipeFirstSelectionInputV1`, V0 suppression arm, V1 precedence, and parent
   D2 closeout remain separate later rows.
 
-## Selected bounded task — source-backed eligibility protocol
+## Closed bounded task — source-backed eligibility protocol
 
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-ELIGIBILITY-PROTOCOL0-D3-S0`
 
-Decision: accepted as one cfg(test)-only source-to-eligibility protocol row.
-It does not add the future neutral production issuer, selector input, or
-capability type; the parent source-to-selection design stop remains open.
+Decision: accepted and implemented as one cfg(test)-only source-to-eligibility
+protocol row. It does not add the future neutral production issuer, selector
+input, or capability type; the parent source-to-selection design stop remains
+open.
 
 ### Change
 
@@ -601,11 +602,12 @@ capability type; the parent source-to-selection design stop remains open.
 
 ### Done
 
-- Focused tests prove one actual Release/Strict positive, the D2-S2
-  IndexWrite/Ambiguous negative, typed source/owner/frame/BindingRef rejects,
-  planner/shadowing/missing-capability pre-effect rejects, and fresh-repeat
-  stability. The synthetic matrix remains separate and green.
-- Implementation closeout must update this card, current pointers, Generic and
+- Four focused tests prove actual Release/Strict natural-Both positive
+  eligibility, the D2-S2 IndexWrite/Ambiguous negative, planner/shadowing/
+  missing-capability pre-effect rejects, cross-invocation facts-identity
+  rejection, and fresh-repeat stability. The synthetic matrix remains
+  separate and green; adjacent projector tests retain owner/frame guards.
+- Implementation closeout updates this card, current pointers, Generic and
   resolved-semantics READMEs, the stage-matrix reference, workstream, affected
   reference indexes, and artifact inventory in the same commit. Future
   production capability implementation must update the language reference
