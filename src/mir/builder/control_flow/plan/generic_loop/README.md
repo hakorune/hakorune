@@ -247,5 +247,6 @@ any producer witness. D4-S4-S0 is now closed as `NoSafeSlice`; no selected
 callsite or candidate envelope exists. D4-S4-S0-D0 closes the future
 move-only source lease -> AST-free shape/candidate -> observation -> selector
 -> demand chain, with this Builder planner remaining outside it. The next
-frontier is the gated demand witness; no synthetic winner or production caller
-is allowed.
+frontier is the typed shape-schema design, followed by a resolver-owned
+role-level source-lease witness; no synthetic winner, demand, or production
+caller is allowed before those gates are green.

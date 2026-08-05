@@ -947,9 +947,24 @@ produce `Selected(Generic)`; otherwise it closes as `NoSafeSlice` again. Any
 implementation commit must update `docs/reference/**`, current mirrors, and
 support READMEs in the same commit.
 
+## D4-S4-S0 semantic-shape schema design gate
+
+The next design-only slice is `GENERIC-SEMANTIC-SHAPE-SCHEMA-D1`. It fixes one
+typed schema table and ownership boundary before any witness: `CarrierProof`,
+`ConditionProof`, `StepProof`, `BodyEffectProof`, and `Coverage/Exit`, with
+resolver lease fields separated from shape-issuer fields. The product must
+exclude AST, string labels, route IDs, Builder/MIR/PHI, and legacy demand.
+
+After this schema closes, add a separate `cfg(test)` resolver-owned
+`GenericSourceLease` witness: one atomic non-`Clone` product with exact
+role/site/scope/ancestry claims, AST/source-unit lifetime-free after issuance.
+Reject foreign session, shadow/upvar/capture, missing/duplicate roles, and
+site/forest/frame mismatch before publication. Do not rename/re-export the
+shared-window module or re-resolve roles by name. Only then may shape,
+candidate, selector, and demand witnesses proceed.
+
 ## Current next action
 
-Return to the gated D4-S4-S0 semantic-demand witness only after the resolver
-shape issuer and positive candidate proof exist. Do not add a synthetic
-selector constructor, a legacy-demand adapter, a Recipe producer, key
-allocation, Builder/MIR/PHI effect, retry, or fallback before that gate.
+Close the schema design gate first. If the resolver cannot atomically issue
+role claims without a second AST/name authority, keep the later lease slice at
+`NoSafeSlice`; do not fabricate `Selected(Generic)` or adapt the legacy demand.

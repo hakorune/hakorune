@@ -101,8 +101,10 @@ Related:
   BindingRef lease, or Generic demand exists. D4-S4-S0-D0 is now closed as a
   worker-reviewed design: resolver SourceLease, AST-free shape/candidate
   envelope, policy observation, selector, Generic demand, Recipe producer, and
-  Binding SSA have separate issuers. The next frontier is gated witness1; it
-  requires real Selected(Generic) evidence and otherwise remains NoSafeSlice.
+  Binding SSA have separate issuers. The immediate next frontier is the
+  typed semantic-shape schema design, followed by the resolver-owned
+  role-level source-lease witness; shape, Selected(Generic), demand, Recipe,
+  Builder/MIR, retry, and fallback remain gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

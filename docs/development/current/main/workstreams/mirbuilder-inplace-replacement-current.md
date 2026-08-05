@@ -477,15 +477,14 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-DEMAND-WITNESS1-D4-S4-S0
-  follows the closed D4-S4-S0-D0 design. The move-only chain is fixed:
-  resolver SourceLease -> AST-free Generic shape/candidate envelope -> policy
-  observation -> selector -> Generic demand. Issuers are separated for source
-  identity/BindingRef, shape proofs, mode/coverage, Recipe keys/effect relation,
-  and Binding SSA. This witness is gated on real Selected(Generic) evidence;
-  otherwise NoSafeSlice again. No production caller, Builder/MIR, retry,
-  fallback, or old-edge deletion. Later implementation updates references and
-  current docs in the same commit.
+JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-SCHEMA-D1-D4-S4-S0
+  is the next design-only gate. Fix one typed Carrier/Condition/Step/
+  BodyEffect/Coverage-Exit schema and separate resolver-lease fields from
+  shape-issuer fields; AST, labels, routes, Builder/MIR/PHI, and legacy demand
+  are forbidden. Then add the separate cfg(test) resolver-owned lease witness,
+  followed only by shape -> candidate -> selector -> demand. No synthetic
+  winner, Recipe/key, retry, fallback, or old-edge deletion. Every later
+  implementation updates references/current support docs in the same commit.
 ```
 
 ## Production invariants

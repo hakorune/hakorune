@@ -234,6 +234,17 @@ resolver source projector
   -> Generic Recipe producer
 ```
 
+The next design gate is `GENERIC-SEMANTIC-SHAPE-SCHEMA-D1`: fix one typed
+schema table for `CarrierProof`, `ConditionProof`, `StepProof`,
+`BodyEffectProof`, and `Coverage/Exit`, with resolver-lease fields separated
+from shape-issuer fields. The schema excludes AST, string labels, route IDs,
+Builder/MIR/PHI, and legacy demand. Only after that design closes may a
+dedicated test-only lease own exact role/site/scope/ancestry claims without
+AST or source-unit lifetime; it must reject foreign/shadow/upvar/capture and
+site/forest/frame mismatch. `Selected(Generic)`, demand, Recipe/key, retry,
+and fallback remain untouched; if role claims cannot be issued atomically, the
+lease slice is `NoSafeSlice` and shape must not re-resolve by name.
+
 The resolver owns the opaque source lease, exact sites/forest/frame, and
 role-level `BindingRef` claims. The shape issuer may borrow AST only while
 producing bounded typed carrier/condition/step/body-effect/coverage proofs;

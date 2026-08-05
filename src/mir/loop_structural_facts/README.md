@@ -158,5 +158,7 @@ that current Generic facts and P2 labels cannot become Recipe demand; only a
 resolver-issued AST-free candidate proof plus one-shot source/BindingRef lease
 may cross the future handoff. D4-S4-S0 is closed as `NoSafeSlice`.
 D4-S4-S0-D0 fixes the future move-only source lease, AST-free shape/candidate,
-policy observation, and Generic demand chain; this layer may issue shape proofs
-only under that resolver brand and remains caller-zero until the gated witness.
+policy observation, and Generic demand chain. The next gated slice is the
+typed shape-schema design, then a separate resolver-owned role-level
+source-lease witness; this layer remains caller-zero and may not re-resolve
+roles or issue a selector input.
