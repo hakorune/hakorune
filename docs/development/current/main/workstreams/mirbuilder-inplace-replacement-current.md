@@ -948,15 +948,15 @@ closed
 
 ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure is closed;
-     M7-S3 S0/S1/S2 and its reference closeout are now closed with
-     resolver-owned identity/frame receipts and typed caller-zero rejects
-  2. run `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`: one parsed nested-IfThen carrier shape, `cfg(test)`-only; the active resolved-carrier handoff card owns its exact contract and post-implementation reference closeout;
-     parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized
-  3. close M7 five-family parity, M8 all-19 producers, and M9 host parity
+     M7-S3 S0/S1/S2 and its reference closeout are closed with resolver-owned
+     identity/frame receipts and typed caller-zero rejects
+  2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only;
+     reference closeout is recorded. Parent D2 stays unresolved and no
+     production issuer/adapter/selector/route switch is authorized.
+  3. return to the co-sealed source-to-selection design stop, then close M7 five-family parity, M8 all-19 producers, and M9 host parity
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement
-  5. keep every source/check file below 800 lines; no universal raw ingress,
-     Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
+  5. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   6. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance
 

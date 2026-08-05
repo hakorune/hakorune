@@ -127,6 +127,18 @@ design stop is the co-sealed source-to-selection handoff card in
 `docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`;
 the current facts-only selector remains unchanged.
 
+The nested-`IfThen` carrier coverage row is now closed as test-only evidence:
+`generic_d2_b4_s2_nested_if` parses one outer/inner loop source, keeps the
+canonical inner `j` step separate, and resolves the nested write plus post-loop
+read to the same resolver-issued `BindingRefV1`. Release/Strict raw schedules
+remain `[V0, V1]`; fresh direct V0/V1 observations reach `LowerSome` with
+`GenericComposer` as first effect owner and stable distinct semantic digests.
+The V1 witness records `CompleteRecursiveCarrier(["j"])`; the legacy witness
+still terminates at V0. This row adds no production route, selector, Recipe,
+PHI, Builder, MIR, Retry, fallback, or runtime authority and does not close
+parent Generic D2. The next blocker is the co-sealed source-to-selection
+design stop named above.
+
 LOOP0-P0b-T0 associated-source boundary:
 - T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under
   Refactor Series Mode.

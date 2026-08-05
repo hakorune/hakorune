@@ -832,15 +832,26 @@ production caller/import census remains zero. No selector, planner policy,
 Retry/fallback, Recipe/JoinSig/PHI/physicalizer, Builder, MIR, or runtime
 authority changed.
 
-The next bounded evidence row is
+The bounded evidence row
 `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`, taskized in the active
 resolved-carrier handoff card. It adds exactly one parsed nested-`IfThen`
 shape: the inner loop keeps a separate canonical `j` step while the `IfThen`
 writes the same outer `j` later read after the outer loop. Release/Strict V0
 and V1 direct-stage/digest evidence is test-only. Existing shadowing and
 planner-required rows remain guards, not new accepted shapes. This row cannot
-select a winner or close parent D2, and its implementation is incomplete until
-the Generic reference and navigation documents named by the task are updated.
+select a winner or close parent D2.
+
+The S2A implementation is closed in the same implementation commit as its
+reference closeout. The parsed nested-`IfThen` sibling is 292 lines; the
+test-only helper projection leaves its accepted-plan file at 796 lines. Under
+clean Release/Strict configuration it records raw `[V0, V1]`, fresh direct
+`LowerSome` V0/V1 rows with `GenericComposer` first-effect ownership and
+distinct stable digests, and a `CompleteRecursiveCarrier(["j"])` V1 witness.
+Resolver-issued BindingRef/source/frame/forest identity is asserted and the
+production caller/import census is zero. This remains corroborating evidence:
+no Generic selector, Recipe, PHI, Builder, MIR, Retry, fallback, or runtime
+authority changed. Adjacent D2/D3 filters and pointer/diff/line guards remain
+green; the upper co-sealed source-to-selection design stop is the next blocker.
 
 #### Scoped D3 handoff — `JOINIR-GENERIC-NESTED-CARRIER-D3-BINDINGREF-DESIGN0-D0` (closed checkpoint)
 

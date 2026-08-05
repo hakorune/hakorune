@@ -172,6 +172,16 @@ unavailable row; the V0 composer is not called without V0 facts. Synthetic
 legacy carrier labels/tags are corroboration only. The row remains a design
 stop and does not authorize a production caller or route policy.
 
+The follow-up nested-`IfThen` carrier row is also closed as `cfg(test)`-only
+evidence. One parsed source keeps a separate inner canonical `j` step while a
+nested write and post-loop read resolve to the same strict-ancestor
+`BindingRefV1`; the sealed loop forest contains exactly the outer and inner
+loops and preserves function/source/frame identity. Release/Strict direct
+observations are fresh and stable (`[V0, V1]`, `LowerSome`, distinct semantic
+digests), while the legacy witness remains a V0 terminal. This does not issue
+a neutral capability or change Planner, Registry, Builder, MIR, or runtime
+authority; parent Generic D2 and the co-sealed handoff remain unresolved.
+
 ## B0-L3b-I1a exact lowering roots
 
 The verified product owns one seal-derived ID-only lowering-root carrier. It

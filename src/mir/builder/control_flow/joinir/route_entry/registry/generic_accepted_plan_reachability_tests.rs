@@ -300,9 +300,13 @@ fn observe_row(
     }
 }
 
-pub(super) fn observe_fixture(mode: CorpusModeV1, name: &str) -> Vec<ReachabilityRowV1> {
-    let (condition, body) = fixture(name);
-    let ctx = LoopRouteContext::new(&condition, &body, "generic_reachability/0", false, false);
+pub(super) fn observe_source_under_current_config(
+    mode: CorpusModeV1,
+    condition: ASTNode,
+    body: Vec<ASTNode>,
+    function_name: &str,
+) -> Vec<ReachabilityRowV1> {
+    let ctx = LoopRouteContext::new(&condition, &body, function_name, false, false);
     let outcome = match try_build_outcome(&ctx) {
         Ok(outcome) => outcome,
         Err(_error) => return Vec::new(),
@@ -322,6 +326,11 @@ pub(super) fn observe_fixture(mode: CorpusModeV1, name: &str) -> Vec<Reachabilit
         })
         .map(|route| observe_row(mode, route, facts, &ctx))
         .collect()
+}
+
+pub(super) fn observe_fixture(mode: CorpusModeV1, name: &str) -> Vec<ReachabilityRowV1> {
+    let (condition, body) = fixture(name);
+    observe_source_under_current_config(mode, condition, body, "generic_reachability/0")
 }
 
 fn compose_both_plan(route: LoopRouteId) -> CorePlan {

@@ -220,6 +220,8 @@ mod generic_nested_carrier_winner_tests;
 #[cfg(test)]
 mod generic_nested_carrier_bindingref_tests;
 #[cfg(test)]
+mod generic_nested_if_carrier_evidence_tests;
+#[cfg(test)]
 mod generic_resolved_carrier_handoff_protocol_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_projector_tests;

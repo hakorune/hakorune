@@ -17,6 +17,9 @@ Primary implementation pointers:
   reason/proof vocabulary SSOT
 - `docs/reference/mir/generic-loop-stage-matrix.md` — inspection-only Generic
   Loop V0/V1 stage/disposition evidence
+- The matrix also records the closed D2-B4-S2A parsed nested-`IfThen`
+  BindingRef carrier witness; it remains test-only and is not a production
+  route or Recipe authority.
 
 注意: Debug/Safepointはビルドモードでの降格用メタ命令であり、コア命令数には数えない。
 注意: KeepAlive/ReleaseStrong は lifecycle conformance のための命令（weak/hidden-root 対策）であり、Core-14/15 の最小コア数には数えない（ただし backend が実行する “実命令” である）。

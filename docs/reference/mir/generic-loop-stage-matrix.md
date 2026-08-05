@@ -189,3 +189,20 @@ post-effect V1 corroboration. The next design stop is the separate co-sealed
 source-to-selection handoff card
 `investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`;
 no production selector change is implied.
+
+## D2-B4-S2A nested `IfThen` carrier evidence
+
+The bounded S2A row is closed as one parsed, `cfg(test)`-only carrier witness.
+The source has an outer loop, an inner loop, a nested `IfThen` write to `j`, a
+separate canonical inner `j` step, and a post-loop `j` read. Resolver-issued
+`BindingRefV1` identity, strict ancestry, source/frame identity, and the exact
+two-member loop forest are asserted. Release/Strict raw schedules remain
+`[GenericLoopV0, GenericLoopV1]`; fresh direct V0/V1 stages are `LowerSome`
+with `GenericComposer` as first effect owner and stable distinct digests. The
+V1 witness records `CompleteRecursiveCarrier(["j"])`; the legacy witness still
+terminates at V0 without a debt attempt.
+
+This is inspection-only evidence. It does not select a winner or add a Generic
+Recipe, JoinSig, PHI, physicalizer, Builder, MIR, backend, Retry, fallback, or
+runtime consumer. Parent Generic D2 and the co-sealed source-to-selection
+handoff remain unresolved; the current facts-only selector is unchanged.

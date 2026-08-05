@@ -22,6 +22,11 @@ Generic Loop V0/V1 post-effect stage evidence is documented separately in
 `docs/reference/mir/generic-loop-stage-matrix.md`; that page is inspection-only
 and does not select a production route.
 
+The closed D2-B4-S2A nested-`IfThen` carrier row is part of that inspection
+surface. Its resolver-issued BindingRef/source/frame evidence is corroborating
+metadata only; it does not promote Generic facts into a selector, Recipe,
+physicalizer, Builder, MIR, or runtime consumer.
+
 ## Metadata Classes
 
 `metadata` is not one semantic bucket. Rows must belong to one of these classes

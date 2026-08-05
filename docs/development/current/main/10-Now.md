@@ -30,14 +30,13 @@ Related:
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
-  source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, and the scoped D3
-  typed matrix are closed. The selected row is
-  `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`: one parsed nested
-  `IfThen` carrier shape is authorized as `cfg(test)`-only evidence. The upper
-  production handoff stop and parent Generic D2 remain unresolved. No Generic
-  production Recipe, selector arm, source-to-selection handoff, route,
-  physical, Retry, or fallback change is authorized; M10b still waits on
-  M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`
+  source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
+  matrix, and S2A are closed as test-only evidence. The active blocker is the
+  co-sealed source-to-selection design stop; parent Generic D2 remains
+  unresolved. No Generic production Recipe, selector arm, source-to-selection
+  handoff, route, physical, Retry, or fallback change is authorized; M10b
+  still waits on M7/M8/M9 and D2. Read `current_execution_summary` and
+  `current_design_stop`
   for the exact test boundary and non-claims.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work

@@ -381,11 +381,12 @@ proves foreign-root and shadowing rejection. It does not issue a production
 capability, select a route, or close the parent D2 row. A production projector
 still requires a separate accepted implementation card.
 
-## Selected bounded task — nested `IfThen` carrier coverage
+## Closed bounded task — nested `IfThen` carrier coverage
 
 Task: `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`
 
-Decision: accepted — one `cfg(test)`-only evidence shape; production remains stopped.
+Decision: accepted and implemented — one `cfg(test)`-only evidence shape;
+production remains stopped.
 
 ### Change
 
@@ -435,6 +436,22 @@ env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
   affected `docs/reference/**` navigation or status index. Reference closeout
   is part of implementation completion and must not be deferred.
 
+### Implementation closeout — 2026-08-05
+
+The implementation commit adds the 292-line sibling
+`generic_nested_if_carrier_evidence_tests.rs`, a test-only source helper in the
+796-line accepted-plan file, and one `cfg(test)` module registration. The
+parsed fixture keeps the inner canonical `j` step separate from the nested
+`IfThen` write. Release/Strict raw schedules are `[V0, V1]`; direct V0/V1
+rows are fresh `LowerSome` observations owned first by `GenericComposer`, with
+stable distinct digests. Resolver-issued BindingRefs, source/frame identity,
+strict ancestry, the two-member loop forest, `CompleteRecursiveCarrier(["j"])`,
+and the V0 terminal witness are all asserted. Production caller/import census
+is zero; no selector, Recipe, PHI, Builder, MIR, Retry, fallback, or runtime
+authority moved. The focused command above and the adjacent D2/D3 filters are
+green under a clean environment; pointer, artifact, diff, and line-budget
+guards are part of the same closeout.
+
 ### Stop
 
 - Return to design if the source does not naturally produce `Both`, the inner
@@ -451,9 +468,9 @@ the nested `Both` winner/disjointness, full overlap matrix, first-effect and
 alpha-normalized candidate evidence, fresh-repeat stability, and
 no-debt-to-different-winner checks are complete. The current Generic facts
 product is still Builder-local and AST-bearing, so introducing a neutral
-snapshot owner now would create a second semantic boundary. The selected next
-work is only `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`; after D2
-acceptance, the production order is resolved projector -> neutral
+snapshot owner now would create a second semantic boundary. S2A is now closed
+as bounded evidence; the next work remains the upper co-sealed source-to-
+selection design stop. After D2 acceptance, the production order is resolved projector -> neutral
 snapshot/eligibility issuer -> private Builder adapter -> selector consumer.
 
 This card is a design consultation boundary. A green test-only matrix does
