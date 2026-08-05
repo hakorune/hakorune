@@ -229,6 +229,24 @@ disjointness proof. The only cross-authority result is
 `UnresolvedStop(FamilyOverlap)`; no shared classifier, winner, selector,
 Recipe, BindingKey, Builder, MIR, or production caller is added.
 
+## D4 shared source-window witness and next route stop
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-WITNESS0-D3-S2-D4-S0`
+is closed as a private `#[cfg(test)]` transport witness in
+`src/mir/shared_loop_source_window.rs`. One non-`Clone` resolver-owned receipt
+lends paired raw/resolved views through a consuming `with_views` call. Four
+focused tests cover the canonical nested-loop row plus foreign-owner,
+non-loop, and equal-shape distinct-session rejects. This proves source
+owner/site/frame/forest identity only; it does not prove family disjointness or
+authorize a classifier, selector, Recipe, Builder/MIR, or production caller.
+
+The next design-only row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-DESIGN0-D4-S1`.
+It must keep the resolver/source unit as the sole identity authority and decide
+whether the existing DirectAccum preflight probe is the first consumer. The
+raw Generic edge, NestedPredicate precedence, A+ fallback, and retry/fallback
+boundaries remain unchanged until that route matrix is accepted.
+
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is
 closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite

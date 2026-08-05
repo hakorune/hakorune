@@ -502,3 +502,19 @@ used inside canonical resolution. It is converted and discarded before seal;
 it never enters Planner or Lower and is not semantic identity. Unsupported
 syntax returns a typed resolver error and never retries an old resolver. There
 is no test-only unverified publication bypass.
+
+## D4 shared source-window witness
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-WITNESS0-D3-S2-D4-S0`
+is closed as a private `#[cfg(test)]` transport seam in
+`src/mir/shared_loop_source_window.rs`. One non-`Clone` resolver-owned receipt
+lends paired raw/resolved loop views through a consuming `with_views` call.
+Typed rejects cover foreign owner, non-loop source, source navigation/forest/
+frame mismatch, and unsupported source kind before any effect. The witness
+does not create a second resolver identity or a facts, classifier, selector,
+Recipe, Builder/MIR, or production caller.
+
+The next design-only boundary targets the existing resolved DirectAccum probe
+at the `CanonicalLoweringPreflightV1::verify` seam. Resolver-owned
+`FunctionSourceViewV1`/forest/frame remains the sole identity authority; one
+DirectAccum ingress and existing NestedPredicate precedence must be preserved.

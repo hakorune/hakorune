@@ -76,13 +76,15 @@ Related:
   mismatch rows; P2 consumes that sealed witness and adds only a mode-neutral
   disposition; P3 retains raw Generic mode/carrier/schedule rows separately
   from resolved family/rejection rows. Only the Recipe producer may later
-  issue `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. D4 Option 3
-  is accepted and D4-WITNESS0 is selected: one private MIR-root cfg(test)
-  module will lend paired raw/resolved views from one non-Clone canonical
-  source receipt. Facts, preflight, classifiers, and production callers are
-  excluded from this first slice. Exact
-  disjointness and production authority remain NoSafeSlice. Scalar
-  Return/outer-PHI and natural debt-to-different-winner remain NoSafeSlice.
+  issue `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. D4-WITNESS0
+  is now closed: one private MIR-root cfg(test) module lends paired
+  raw/resolved views from one non-Clone canonical source receipt, with four
+  focused positive/reject tests and no production caller. The next row is the
+  design-only DirectAccum canonical-route migration at the existing resolved
+  preflight seam. Exact disjointness, classifier/selector policy, Recipe,
+  PHI, Builder/MIR, Return/Home/debt, retry, fallback, runtime, and production
+  authority remain NoSafeSlice. Scalar Return/outer-PHI and natural
+  debt-to-different-winner remain NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

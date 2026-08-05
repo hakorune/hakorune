@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0 selected and implementation not started
+Status: Option 3 accepted; D4-WITNESS0 closed; next route migration is design-only
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -390,9 +390,47 @@ caller, or source AST reconstruction
   `docs/reference/**` and current support pages in the same commit.
 - Source/check files and the workstream remain below 800/1000 lines.
 
+# D4-WITNESS0 closeout
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-WITNESS0-D3-S2-D4-S0`
+is closed as a private `#[cfg(test)]` witness in
+`src/mir/shared_loop_source_window.rs`. The MIR root declares the module, and
+the module owns one non-`Clone` receipt whose consuming `with_views` call lends
+paired raw/resolved views. Four focused tests cover the nested-loop positive,
+foreign owner, non-loop, and equal-shape distinct-session rejects. The focused
+bridge suite, P3 regression suite, and `cargo build --lib` are green; no
+production import/caller/export was added and no classifier disjointness is
+claimed. The new source stays below 800 lines and the compiler/workstream
+limits remain green.
+
+The same implementation commit updates the reference matrix and the resolved,
+facts, and Generic-loop README boundaries. The bridge remains transport-only;
+facts, preflight, selector, Recipe, Builder/MIR, retry/fallback, runtime, and
+production authority remain closed.
+
+# Next design-only task: DirectAccum canonical route
+
+The next safe row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-DESIGN0-D4-S1`.
+It is design/test-only and must first decide the route matrix, not edit
+production code. The recommended first consumer is the existing resolved
+DirectAccum source probe at the `CanonicalLoweringPreflightV1::verify` seam.
+The resolver-owned `VerifiedResolvedSourceUnitV1` / `FunctionSourceViewV1`,
+loop forest, source kind, owner, and frame remain the sole identity authority;
+the D4 receipt is only a borrowed transport view. The route must preserve one
+DirectAccum ingress, keep NestedPredicate-before-DirectAccum precedence, and
+leave Generic/A+ and the raw `LoopRouteContext` edge untouched.
+
+The design card must specify exact DirectAccum envelope membership, the adapter
+seam, old-edge retirement, typed pre-effect rejects, and the counterexample
+where `NotCandidate` is ordinary fallback rather than Generic retry. No
+selector, Generic classifier, Registry, Recipe, Binding SSA/PHI, Builder/MIR,
+runtime, or production caller is authorized by this row. Any later migration
+commit must update `docs/reference/**` and all affected current support pages
+in that same commit.
+
 # Current next action
 
-Implement only `D4-WITNESS0` from this card. Exact disjointness remains
-unproven. Stop after the cfg(test)-only witness, focused gates, caller-zero
-census, and same-commit reference/current-doc closeout. A production route
-migration requires a new accepted boundary after that stop.
+Stop at the design boundary above. Do not begin production route migration
+until the DirectAccum route matrix is accepted. Exact family disjointness and
+cross-family selection remain `NoSafeSlice`.

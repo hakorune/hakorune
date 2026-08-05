@@ -200,3 +200,13 @@ LOOP0-P0b-T0 associated-source boundary:
 - The located path never reads environment/body policy, `facts.body`,
   `body_no_exit`, or `matches_loop_increment`, and never rebuilds a recipe or
   pairs source through AST equality, spans, names, ValueIds, or side maps.
+
+## D4-WITNESS0 closeout
+
+The shared source-window witness is closed as a private `#[cfg(test)]`
+transport product. It is not a Generic-loop planner input and does not
+authorize this plan family, a selector, Recipe, Builder/MIR caller, retry,
+fallback, or runtime route. The next row is the design-only
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-DESIGN0-D4-S1`;
+the existing raw Generic route remains unchanged until that policy boundary
+is accepted.

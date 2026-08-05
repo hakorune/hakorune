@@ -477,12 +477,14 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-WITNESS0-D3-S2-D4-S0
-  is selected after Option 3 acceptance. Add one private MIR-root cfg(test)
-  module and one non-Clone receipt that lends paired raw/resolved source
-  views from the same canonical owner/site/frame. Do not run facts,
-  preflight, registry, classifier, selector, Recipe, Builder/MIR, or any
-  production caller. The active card and exact reject/deferred matrix are:
+JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-DESIGN0-D4-S1
+  is current after D4-WITNESS0 closeout. The landed private MIR-root
+  cfg(test)-only module lends paired raw/resolved source views from one
+  non-Clone canonical receipt and has no production caller. The next task is
+  design/test-only: choose the existing resolved DirectAccum preflight seam,
+  exact envelope, old-edge retirement, and typed reject boundary. Do not run
+  facts, Generic/Family classifiers, selector, Recipe, Builder/MIR, or any
+  production caller. The active card and exact matrix are:
   docs/development/current/main/investigations/joinir-generic-resolved-
   carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md
 ```
