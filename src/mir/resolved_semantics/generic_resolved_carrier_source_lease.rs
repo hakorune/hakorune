@@ -14,6 +14,9 @@ use super::{
     VerifiedResolvedLoopSourceForestV1,
 };
 
+#[cfg(test)]
+mod carrier_proof_witness;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericSourceRoleKindV1 {
     NestedWrite,
@@ -398,7 +401,7 @@ fn strict_ancestor_chain(
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use crate::ast::ASTNode;
     use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -407,7 +410,7 @@ mod tests {
     use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
     use crate::parser::NyashParser;
 
-    const SOURCE: &str = r#"
+    pub(crate) const SOURCE: &str = r#"
 function generic_both(i, j) {
     loop(i < 3) {
         loop(j < 3) {
@@ -443,12 +446,12 @@ function generic_both_shadowing(i, j) {
             .expect("lease fixture function")
     }
 
-    fn unit(source: &str) -> VerifiedResolvedSourceUnitV1 {
+    pub(crate) fn unit(source: &str) -> VerifiedResolvedSourceUnitV1 {
         VerifiedResolvedSourceUnitV1::resolve_function(parse_function(source))
             .expect("lease fixture resolves")
     }
 
-    fn input_and_root(
+    pub(crate) fn input_and_root(
         unit: &VerifiedResolvedSourceUnitV1,
     ) -> (ResolvedFunctionLoweringInputV1<'_>, LocatedStmtV1<'_>) {
         let input = unit.root_function_input().expect("root input");
@@ -457,7 +460,7 @@ function generic_both_shadowing(i, j) {
         (input, root)
     }
 
-    fn sites(
+    pub(crate) fn sites(
         input: ResolvedFunctionLoweringInputV1<'_>,
         root: &LocatedStmtV1<'_>,
     ) -> (
@@ -504,7 +507,7 @@ function generic_both_shadowing(i, j) {
         )
     }
 
-    fn positive_lease(
+    pub(crate) fn positive_lease(
         input: ResolvedFunctionLoweringInputV1<'_>,
         root: &LocatedStmtV1<'_>,
     ) -> GenericSourceLeaseV1 {

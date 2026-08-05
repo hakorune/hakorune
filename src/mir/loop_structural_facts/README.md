@@ -160,6 +160,6 @@ may cross the future handoff. D4-S4-S0 is closed as `NoSafeSlice`.
 D4-S4-S0-D0 fixes the future move-only source lease, AST-free shape/candidate,
 policy observation, and Generic demand chain. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1
 is now closed as the typed shape contract. The bounded cfg(test)-only
-source-lease witness is closed; this layer remains caller-zero. The next shape
-issuer may consume its lease but must not re-resolve roles or issue a selector
-input.
+source-lease witness is closed; this layer remains caller-zero. CarrierProof is
+also closed as a separate test-only consumer. Full role extension is a design
+stop and may not re-resolve roles or issue a selector input.

@@ -104,10 +104,11 @@ Related:
   envelope, policy observation, selector, Generic demand, Recipe producer, and
   Binding SSA have separate issuers. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now
   closed as a typed Carrier/Condition/Step/BodyEffect/Coverage-Exit schema.
-  The immediate next frontier is the AST-free semantic-shape witness; it must
-  consume that move-only lease through one branded handoff. Shape,
-  Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback remain
-  gated.
+  The bounded CarrierProof witness is now closed: same-BindingRef
+  NestedWrite -> PostLoopRead proof, lease-brand retention, and no source
+  lifetime. The immediate next frontier is a design-only role-extension stop;
+  full shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and
+  fallback remain gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

@@ -240,19 +240,16 @@ cfg(test)-only, bounded to exactly two forest members and one each of
 `NestedWrite`/`PostLoopRead`. The issuer derives forest and per-member frames
 from one `VerifiedResolvedFunctionV1`; external frame mixing is therefore
 unrepresentable, while an internal frame/site co-seal check remains.
-The D1 boundary is one typed
-schema table for `CarrierProof`, `ConditionProof`, `StepProof`,
-`BodyEffectProof`, and `Coverage/Exit`, with resolver-lease fields separated
-from shape-issuer fields. The schema excludes AST, string labels, route IDs,
-Builder/MIR/PHI, and legacy demand. The lease owns exact role/site/scope/
-ancestry claims without AST or source-unit lifetime. Five focused tests cover
-positive issuance, foreign identity/role brands, shadowing,
-duplicate/unknown/placement, and forest mismatch; broader upvar/capture
-fixtures and role sets are later extensions. `Selected(Generic)`, demand,
-Recipe/key, retry, and fallback remain untouched. The next gated slice is a
-one-shot branded handoff to the shape issuer: consume the move-only lease,
-borrow resolver source only during proof issuance, and never re-resolve roles
-by name.
+The D1 boundary remains one typed schema table for `CarrierProof`,
+`ConditionProof`, `StepProof`, `BodyEffectProof`, and `Coverage/Exit`, with
+resolver-lease fields separated from shape-issuer fields. S1 is now closed as
+only `VerifiedGenericCarrierProofV1`: it consumes the move-only lease, proves
+the `NestedWrite -> PostLoopRead` same-`BindingRef` relation, and retains the
+lease brand in an AST/source-lifetime-free handoff. It performs no AST borrow
+because the lease already sealed the resolver maps. Condition/step/body-effect/
+coverage role ingress is the next design-only D0; `Selected(Generic)`, demand,
+Recipe/key, retry, and fallback remain untouched and roles are never
+re-resolved by name.
 
 The D1 product boundary is:
 

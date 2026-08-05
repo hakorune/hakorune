@@ -484,11 +484,13 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S
      are green. No AST/source lifetime, selector/demand/Recipe, Builder/MIR,
      retry, fallback, or production caller was added. External frame mixing is
      structurally impossible; the internal frame co-seal check is diagnostic.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-WITNESS0-D4-S4-S1
-  -> consume the move-only lease and emit the D1 AST-free proof schema. Any
-     role-set extension is a separate D0. Every implementation commit updates
-     exact references/current support docs in the same commit; no relevant
-     docs/reference contract exists for this cfg(test)-only cell.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-WITNESS0-D4-S4-S1
+  -> cfg(test)-only CarrierProof: same-BindingRef NestedWrite -> PostLoopRead
+     relation, lease brand retained, source lifetime absent, three focused
+     tests green. No full shape/candidate/selector/demand/Recipe/Builder/MIR.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-EXTENSION0-D4-S4-S2
+  -> design-only role-ingress decision for condition/step/body-effect/coverage;
+     implementation and reference/support receipts wait for that D0.
 ```
 
 ## Production invariants

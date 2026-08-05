@@ -984,17 +984,17 @@ closed as a five-test, `cfg(test)`-only witness. It does not publish a
 production caller, selector, demand, Recipe/key, Builder/MIR effect, retry, or
 fallback, and it does not rename or re-export `shared_loop_source_window.rs`.
 
-## D4-S4-S0 semantic-shape witness gate
+## D4-S4-S1 bounded carrier-proof closeout
 
-The next task is a separate AST-free shape issuer. It must consume the
-move-only lease, borrow resolver source only during issuance, and emit the D1
-`CarrierProof`/`ConditionProof`/`StepProof`/`BodyEffectProof`/`Coverage-Exit`
-product without re-resolving roles by name. Because the current lease is a
-bounded two-role witness, any additional condition/step/body-effect role
-claims require a new D0 before implementation. No selector winner, demand,
-Recipe/key, Builder/MIR effect, retry, or fallback is allowed.
-## Current next action
+`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-WITNESS0-D4-S4-S1` is
+closed as a cfg(test)-only `VerifiedGenericCarrierProofV1`: three focused tests
+prove the same-BindingRef transfer, lease-brand retention, source-lifetime-free
+return, and typed mismatch rejection. It performs no AST re-resolution and
+publishes no full shape, candidate, selector, demand, Recipe/key, Builder/MIR,
+retry, or fallback.
+## D4-S4-S2 semantic-shape extension design stop
 
-Execute the shape witness only after its issuer/role set is designed. If the
-bounded lease needs a second AST/name authority, close it as `NoSafeSlice`;
-never fabricate `Selected(Generic)` or adapt legacy demand.
+The next task is design-only: decide the additional condition/step/body-effect/
+coverage role ingress needed to extend the bounded lease. Keep CarrierProof as
+the sole current proof; implementation requires a new D0, exact resolver-owned
+roles, and the same reference/current-support update receipt.

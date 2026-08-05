@@ -568,6 +568,8 @@ GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now closed as a docs-only typed
 Carrier/Condition/Step/BodyEffect/Coverage-Exit contract. The source-lease
 witness is also closed as cfg(test)-only: a bounded exact-two nested-carrier
 lease with five focused tests, resolver-derived forest/frames, and
-owner-branded role claims. The next step is the AST-free shape witness; this
-resolver remains production-caller-zero and the shape issuer must consume the
-lease without re-resolving roles.
+owner-branded role claims. The bounded `CarrierProof` witness is now closed:
+it proves only the NestedWrite -> PostLoopRead same-`BindingRef` relation and
+retains the lease brand. Full shape role ingress is a separate design stop;
+this resolver remains production-caller-zero and no role may be re-resolved by
+name.
