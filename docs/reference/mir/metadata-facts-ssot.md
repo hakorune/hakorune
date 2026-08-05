@@ -659,7 +659,11 @@ Current request mapping:
 Soft inline is accepted only for one-block same-module `Callee::Global` bodies
 with no nested call/control and a narrow pure instruction vocabulary. Failed
 soft inline keeps the original call. Required inline verifier acceptance is
-live-narrow, but backend-required lowering remains reserved.
+live-narrow, and verified required plans may be consumed by the current narrow
+MIR transform. Owner-branded whole-product callsite membership, residual
+admitted-Call count zero, bounded post-inline simplification, and default
+automatic leaf planning remain production 0. Their implementation commits
+must update this schema/status reference immediately.
 
 ## EffectPlan / CapabilityPlan Metadata
 

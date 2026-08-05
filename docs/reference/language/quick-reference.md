@@ -16,6 +16,9 @@ Ownership note
   not added to this current-syntax sheet until their semantic D0 and shared
   EBNF/registry/parser rows close. Do not infer parser support from the target
   reference.
+- Contextual statement `release root` is the accepted early whole-root Home-end
+  target, but remains absent from current syntax until `OWN-GRAM-RELEASE0`
+  lands. Ordinary `release(value)` has no Home authority and `drop` is no alias.
 - Former `move/view/shared` target spellings are historical and remain
   unsupported. Inactive ownership lookalikes must continue to fail fast.
 
@@ -152,6 +155,9 @@ Declaration metadata
   - `@rune Inline(avoid)` — avoid soft inline.
   - `@rune Inline(required)` — fail-fast required inline; the MIR verifier must
     accept the supported required leaf shape before the optimizer consumes it.
+- No rune is the normal policy. Default automatic leaf inline is a parked
+  target and will add no `Inline(auto)` syntax. Module-wide residual-Call-zero
+  proof for `required` is also parked behind its named callsite-plan row.
 - `@rune Hint(hot)` / `@rune Hint(cold)` remain advisory tuning metadata.
 - Compat spellings such as `@hint(inline)` and
   `@rune Lowering(inline_required)` are accepted during migration but are not

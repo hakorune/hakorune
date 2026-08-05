@@ -1,13 +1,17 @@
 ---
 Status: SSOT
-Decision: accepted boundary, implementation rows reserved
-Date: 2026-05-08
+Decision: accepted boundary; C-speed completion order accepted, widening parked
+Date: 2026-08-05
 Scope: inline metadata, MIR InlinePlan ownership, verifier gates, and backend responsibility boundaries.
 Related:
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
   - docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md
   - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
   - docs/development/current/main/design/rune-v1-metadata-unification-ssot.md
+  - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
+  - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
+  - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
+  - docs/development/current/main/design/current-optimization-mechanisms-ssot.md
   - docs/reference/mir/hints.md
   - docs/reference/runtime/substrate-capabilities.md
 ---
@@ -31,6 +35,29 @@ source rune metadata
 
 The backend is a consumer of already-decided shapes. It is not the inline
 planner.
+
+The C-speed amendment keeps the same source surface and adds no `Inline(auto)`
+or callsite syntax:
+
+```text
+no rune          = future compiler-owned automatic profitability decision
+Inline(prefer)   = advisory bias toward inline
+Inline(avoid)    = advisory bias toward keep-call
+Inline(required) = fail-fast elimination contract for every admitted exact
+                   direct callsite in the current compilation product
+```
+
+`required` does not require deletion of an exported/address-taken callee body;
+it requires residual admitted direct Call count zero. Indirect, unresolved,
+cross-product, recursive, or otherwise unsealable callsites reject the strict
+row before transform. The current implementation verifies narrow callee shape
+and consumes selected calls, but module-wide residual-call proof remains a
+named parked task below.
+
+Explicit Home release is not an inline use case. Contextual `release root`
+resolves to `VerifiedExplicitHomeReleasePlanV1` and the sole owner-ending
+operation without an ordinary/generic wrapper Call, InlinePlan, or DCE
+dependency.
 
 ## Vocabulary Split
 
@@ -92,8 +119,7 @@ M11c-required-verify live surface:
 -> fail-fast diagnostics on unsupported shapes
 ```
 
-The pure required leaf row accepts the same narrow body shape used by
-M11c-soft-leaf:
+The live advisory pure leaf row accepts:
 
 ```text
 one entry block
@@ -105,10 +131,11 @@ no dynamic dispatch
 no recursive cycle
 ```
 
-The receiver-fieldset required leaf row has a separate small budget:
+The live required leaf row, including its admitted single-base receiver-field
+shape, uses the current implementation budget:
 
 ```text
-instruction_count <= 12
+instruction_count <= 16
 ```
 
 `Hint(inline)` is not `Inline(required)`.
@@ -221,7 +248,8 @@ Canonical semantics:
 Inline(prefer): optimizer hint, unsupported shapes keep_call
 Inline(avoid): optimizer anti-hint, keep_call
 Inline(required): required inline contract (not a stronger hint)
-Contract(no_alloc/no_safepoint): required preconditions for Inline(required)
+Contract(no_alloc/no_safepoint): independent obligations for rows that cannot
+                                infer them from an admitted narrow shape
 backend: consume verified MIR InlinePlan / already-inlined MIR only
 ```
 
@@ -362,6 +390,11 @@ TypeOp
 Return
 ```
 
+Unannotated functions are not automatically inlined by this live-narrow row.
+Default automatic leaf planning is an accepted C-speed target with production
+activation 0; it must consume exact callsite facts and a bounded cost model,
+not silently treat every small function as `prefer`.
+
 `Hint(noinline)` / `request=avoid` wins over any soft inline attempt. This row
 does not add required-inline semantics and does not make backends read
 `inline_plans`.
@@ -386,8 +419,10 @@ M11c-required-vocab live schema:
 ```
 
 `verified=false` remains valid for rejected or unverified shapes.
-`M11c-required-verify` sets `verified=true` only after required contracts and
-leaf-inline shape checks pass. This still does not authorize backend-local
+`M11c-required-verify` sets `verified=true` only after the leaf-inline shape
+and any explicitly listed `plan.requires` obligations pass. Current canonical
+`Inline(required)` plans carry `requires=[]`; accepted narrow shapes infer
+`no_alloc` / `no_safepoint`. This still does not authorize backend-local
 inlining.
 
 ## Inline Kinds
@@ -460,6 +495,39 @@ Minimum required checks:
   or provided by a future row's explicit verifier-backed contract
 - capability access stays within the row's allowed modules
 
+After `INLINE-REQUIRED-RESIDUAL-CALL0-I0`, verification also requires:
+
+- one owner-branded set of admitted exact direct callsites;
+- every member rewritten exactly once or rejected before publication;
+- residual admitted direct `Call` count zero after the selected transform and
+  post-inline cleanup;
+- no retry through a backend inliner, LTO, symbol-name rule, or compatibility
+  path.
+
+This is a target contract, not a claim about the current narrow verifier.
+
+## Post-inline simplification boundary
+
+The current optimizer runs canonical simplification and memory cleanup before
+the late leaf-inline pass. Therefore inline-created `Copy`, constant
+expressions, dead temporaries, and newly trivial CFG are not presently closed
+by a MIR-owned post-inline cleanup wave.
+
+The accepted future boundary is:
+
+```text
+InlinePlan transform
+-> bounded PostInlineSimplifyPlanV1
+-> selected canonical SimplifyCFG / constant / CSE / DCE consumers
+-> required residual-call verifier
+-> backend
+```
+
+The exact pass subset and iteration bound belong to
+`INLINE-POST-SIMPLIFY0-D0`. An unbounded fixed point, backend-only cleanup,
+effectful-instruction deletion, or changing program meaning to satisfy
+`required` is forbidden.
+
 ## Backend Boundary
 
 Allowed backend behavior:
@@ -512,13 +580,12 @@ M11c-required-vocab:
 
 M11c-contract-repeat:
   allow distinct Contract(...) runes on the same declaration.
-  Live-narrow. This is parser metadata shape only and exists so
-  Contract(no_alloc) + Contract(no_safepoint) can both be present before
-  required-inline verification.
+  Live-narrow. This is parser metadata shape only; explicit obligations remain
+  available for later rows whose effects cannot be inferred from shape.
 
 M11c-required-verify:
-  required inline verifier connection to no_alloc/no_safepoint and call graph
-  checks.
+  required inline verifier connection to narrow shape inference, any explicit
+  plan requirements, and call graph checks.
   Live-narrow. Sets verified=true only for accepted leaf required-inline plans;
   backend use remains disabled.
 
@@ -549,6 +616,117 @@ M13:
 This order keeps static table data, inline planning, pointer proof, and
 allocator proof separated.
 
+## C-speed boundary beyond inline
+
+Inline owns only an ordinary callable boundary. It is necessary on some hot
+paths, but it is not the whole C-speed contract. A broader speed claim must
+also consume receipts from the independent owners for:
+
+```text
+exact value representation and ABI
+exact direct/static dispatch without dynamic name lookup
+StaticUnique Home paths with RC/control-cell work zero
+allocator and raw-memory capability plans
+loop/vectorization, bounds, alias, and memory-access plans
+exact-front assembly/instruction evidence plus meso/whole contradiction gates
+```
+
+Those receipts stay in their existing SSOTs; InlinePlan must not absorb their
+policy. `INLINE-C-SPEED0-G0` proves only the selected call-boundary contribution
+and must not promote that result into a whole-language C-speed claim.
+
+## C-speed completion task order
+
+These rows are parked and do not move the current MirBuilder/Generic design
+stop. They execute in this order when the optimization lane is explicitly
+selected:
+
+```text
+INLINE-CURRENT-AUTHORITY-CLOSEOUT0-D0
+-> INLINE-REQUIRED-CALLSITE-PLAN0-S0
+-> INLINE-POST-SIMPLIFY0-D0
+-> INLINE-POST-SIMPLIFY0-I0
+-> INLINE-REQUIRED-RESIDUAL-CALL0-I0
+-> INLINE-AUTO-LEAF-COST0-D0
+-> INLINE-AUTO-LEAF0-I0
+-> INLINE-C-SPEED0-G0
+-> INLINE-REFERENCE-CLOSEOUT0-DOC0
+```
+
+`INLINE-CURRENT-AUTHORITY-CLOSEOUT0-D0` seals current truth before widening:
+advisory pure-leaf budget 8, required-leaf budget 16, supported instruction
+vocabulary, shape-inferred `no_alloc`/`no_safepoint`, compatibility aliases,
+and the exact distinction between verifier acceptance and residual-call proof.
+
+`INLINE-REQUIRED-CALLSITE-PLAN0-S0` publishes a caller-zero
+`VerifiedRequiredInlineCallsitePlanV1` from exact callable identity, current
+compilation-product membership, call graph/SCC facts, arity/receiver ABI, and
+source provenance. It owns no transform.
+
+`INLINE-POST-SIMPLIFY0-D0/I0` selects and then activates one bounded cleanup
+wave after inline. `INLINE-REQUIRED-RESIDUAL-CALL0-I0` then consumes the sealed
+callsite plan, requires every admitted site to have been rewritten exactly
+once, and fails publication if any admitted direct Call remains after that
+cleanup. It does not require callee symbol deletion and does not ask a backend
+to repair a miss.
+
+`INLINE-AUTO-LEAF-COST0-D0` fixes the static cost/code-size model and
+`prefer`/`avoid` bias. `INLINE-AUTO-LEAF0-I0` admits only exact same-product
+leaf callsites first; source annotation count may remain zero.
+
+`INLINE-C-SPEED0-G0` uses exact/meso/whole fronts, assembly, instruction count,
+and contradiction guards. A smaller MIR or erased Call without measured owner
+improvement is not enough for a C-speed claim.
+
+Generic inline is a separate later dependency chain:
+
+```text
+GEN-TYPE-SUBSTITUTION0-S0
+-> GEN-INSTANCE-KEY0-S0
+-> GEN-HOME-ABI0-S0
+-> GEN-MONOMORPHIZE0-I0
+-> GEN-INLINE0-I0
+```
+
+Current generic parsing/arity evidence is not type substitution,
+monomorphization, or a concrete MIR instance. No dictionary or erased-generic
+fallback is introduced by this chain. A generic `Inline(required)` contract is
+checked per sealed concrete instance.
+
+Multi-block/Home-aware inline remains conditional:
+
+```text
+exact direct call + ABI keeper
+-> perf/asm still selects the call boundary as owner
+-> INLINE-STRUCTURED-EVIDENCE0-D0
+-> optional INLINE-STRUCTURED0-S0/I0
+```
+
+Until that evidence exists, multi-block hot core methods use
+`HotCoreMethodSummaryV0` / `DirectExactHotCoreCallPlanV0`; the leaf verifier is
+not widened into a universal CFG/Home inliner.
+
+## Implementation-coupled reference updates
+
+Every `I0` above updates the exact live reference surface and examples in the
+same commit. `INLINE-REFERENCE-CLOSEOUT0-DOC0` audits the already-synchronized
+state; it is not permission to defer documentation. At minimum each relevant
+cell checks:
+
+```text
+docs/reference/language/runes.md
+docs/reference/language/quick-reference.md
+docs/reference/mir/hints.md
+docs/reference/mir/metadata-facts-ssot.md
+docs/reference/runtime/substrate-capabilities.md
+docs/development/current/main/design/current-optimization-mechanisms-ssot.md
+source/parser/MIR support matrix and migration notes
+```
+
+The receipt records current budgets and vocabulary, default-auto activation,
+required admitted/residual counts, pass order, backend consumer boundary,
+unsupported callsite diagnostics, and exact generic/structured non-claims.
+
 ## Diagnostics
 
 Stable diagnostics for future rows:
@@ -572,3 +750,6 @@ Stable diagnostics for future rows:
 - no backend-active use of `Hint(inline)` before MIR InlinePlan exists
 - no backend-active required inline before a later lowering row consumes the
   verified MIR fact
+- no release-to-inline dependency or generic release wrapper
+- no automatic inline claim before `INLINE-AUTO-LEAF0-I0`
+- no structured/multi-block/Home-aware claim without its evidence-gated row

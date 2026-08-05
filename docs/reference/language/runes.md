@@ -76,15 +76,30 @@ Use `Inline(...)` for inline policy:
 @rune Inline(required)  // fail fast unless verifier accepts the required shape
 ```
 
-`Inline(required)` is not just an optimization hint. It records:
+No rune means normal compiler policy. A future default automatic leaf inliner
+is accepted with production activation 0; no `Inline(auto)` spelling is added.
+`prefer` and `avoid` bias that policy, while `required` is the strict family.
+
+`Inline(required)` is not just an optimization hint. It records a fail-fast
+request and is checked against a narrow leaf-inline verifier shape:
 
 ```text
 request=required
 fallback=fail_fast
 ```
 
-and a narrow leaf-inline verifier shape. For supported small leaf bodies, the
-verifier may infer `no_alloc` / `no_safepoint` from the MIR shape instead of
+Current verification proves only the supported narrow callee shape. The parked
+C-speed completion rows add an owner-branded exact callsite plan, run bounded
+post-inline simplification after expansion, and then reject publication if an
+admitted direct `Call` remains. Exported callee body presence is separate from
+residual direct-call count.
+
+Each implementation row must update this reference and the MIR/reference
+support matrix in the same commit; `INLINE-REFERENCE-CLOSEOUT0-DOC0` is a final
+parity audit, not deferred documentation work.
+
+For supported small leaf bodies, the verifier may infer `no_alloc` /
+`no_safepoint` from the MIR shape instead of
 requiring source-visible `Contract(...)` rows. If verification fails, the
 compiler must fail fast instead of silently keeping the call.
 

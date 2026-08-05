@@ -59,7 +59,7 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 - Compiler Pipeline（north star; 箱の責務/入口の最終形SSOT）: `docs/development/current/main/design/compiler-pipeline-ssot.md`
 - Binding-SSA-first canonical control Lowering（exact control/coverage/cleanup と function-wide Binding SSA の最終authority境界SSOT）: `docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md`
-- C′ terminal Home finalization（`release(value)`はwhole-root Homeを一個早期終了、last Homeだけが`fini {}` hookを起動し、親hook→逆順field release→structural dropを一つのDropPlanに固定。`drop` aliasなし）: `docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md`
+- C′ terminal Home finalization（contextual statement `release root`はwhole-root Homeを一個早期終了、last Homeだけが`fini {}` hookを起動し、親hook→逆順field release→structural dropを一つのDropPlanに固定。ordinary-call Home authority / `drop` aliasなし）: `docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md`
 - B′ Box lifecycle historical constitution（explicit eager fini / Dead-with-live-owner案。C′にsuperseded）: `docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
 - Box member Field / Method surface（`obj.x`=storage、`obj.x()`=behavior。computed/once/birth_once Property authorityの退役順とHome Flow前提）: `docs/development/current/main/design/box-member-field-method-surface-ssot.md`
 - Design Registry V1 sharded manifest（`INDEX.md` を薄いauthority入口へ戻す deterministic 16-shard storage / parity / atomic cutover / V0退役境界SSOT。実装は parked で CLEAN0 始動）: `docs/development/current/main/design/design-registry-v1-sharded-manifest-ssot.md`
@@ -111,7 +111,7 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - Mimalloc capability taskboard（C風unsafeではなく capability module + `@rune Contract` verifier で進める実装順SSOT）: `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
 - Mimalloc `.hako` port implementation plan（upstream mimalloc v3.3.2 解析から `.hako` / `hako_alloc` へ移す順序SSOT）: `docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`
 - Static const table syntax（M11b の source static table / MIR static_data_plans / parser rollout 順序SSOT）: `docs/development/current/main/design/static-const-table-syntax-ssot.md`
-- InlinePlan（`@rune Inline(prefer|avoid|required)` から MIR InlinePlan / verifier / backend reader 境界へ流す inline 設計SSOT）: `docs/development/current/main/design/inline-plan-ssot.md`
+- InlinePlan（`@rune Inline(prefer|avoid|required)` の唯一surface、現行leaf 8/required 16、post-inline簡約→residual-Call検証→default auto→generic/実測structuredのC-speed task orderと実装同時reference更新契約）: `docs/development/current/main/design/inline-plan-ssot.md`
 - Rune Profile / Effect / Capability Plan（`@rune Profile(...)` は糖衣、MIR Plan/Verifier が真実という新機能順序SSOT）: `docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md`
 - Stage2 AOT/native thin path（current native perf/mainline の thin-owner design note）: `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
 - Value repr and ABI manifest（current value classes / ownership / manifest row truth）: `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`

@@ -8,8 +8,9 @@
 > non-callable Box hookであり、direct `obj.fini()`、ordinary `fini()` method、
 > manual child-fini cascadeはrejectする。親hookの後にverified owning fieldsを
 > 宣言逆順でreleaseし、child hookはそのreleaseがterminalの時だけ走る。
-> Canonical sourceの早期終了はordinary core Call `release(root)`だけで、
-> verified whole-root Homeを一個手放す。`drop(root)` alias、field release、
+> Canonical sourceの早期終了はcontextual statement `release root`だけで、
+> verified whole-root Homeを一個手放す。ordinary-call Home authority、
+> `drop root` / `drop(value)` alias、field release、
 > generic/composite releaseはこのtargetに含めない。
 > 以下のB′/Arc/direct-fini記述はmigration census用の現行実装・歴史メモで、
 > 新規source設計のauthorityではない。完全な実装同期は

@@ -4,8 +4,8 @@ Status: Language semantics SSOT; Home direction accepted, exact HomeV1 grammar
 provisional, production activation 0
 
 Decision: accepted on 2026-08-04 as the successor to the earlier
-`move/share/view` target; C′ terminal Home finalization and explicit whole-root
-`release(value)` amendments accepted on 2026-08-05.
+`move/share/view` target; C′ terminal Home finalization and contextual
+whole-root `release root` amendments accepted on 2026-08-05.
 
 This page is the source-language authority for ownership, ordinary aliases,
 Home transfer, and the explicit boundary that adds an independent owner.
@@ -34,7 +34,7 @@ historical evidence only. They do not restore `move`, source `view`, source
 | --- | --- |
 | Home direction and durable laws | accepted by this page |
 | C′ last-Home finalization direction | accepted target; production 0 |
-| explicit `release(value)` direction | accepted whole-root target; production 0 |
+| explicit `release root` direction | accepted whole-root target; production 0 |
 | generic/composite release | provisional; exact capability D0 open |
 | exact HomeV1 source grammar | provisional; D0 rows open |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
@@ -61,7 +61,7 @@ local alias = node       // alias only sees node's object; no new owner
 inspect(node)            // ordinary handle input; node keeps its Home
 adopt(node)              // if adopt declares a Home demand, node is consumed
 adopt(share node)        // when the ABI admits a Shared Home; node remains
-release(node)            // end node's verified whole-root Home now
+release node             // end node's verified whole-root Home now
 ```
 
 The user-facing law is:
@@ -239,10 +239,12 @@ is only the prefix expression form selected by its grammar row.
 
 ### Explicit early Home release
 
-`release(value)` is the sole accepted early-end spelling. It is an ordinary
-Call resolved to one canonical core/prelude callable identity; it is not a
-keyword, special AST/MIR operation, method-name convention, or direct `fini`
-call. `drop(value)` is not an alias.
+`release root` is the sole accepted early-end spelling. It is a statement-only
+contextual keyword with one identifier root and a dedicated source carrier;
+resolution and a sealed Home Flow plan own its meaning. It is not a generic
+wrapper, method-name convention, direct `fini` call, or backend name match.
+Ordinary `release(value)` and `obj.release()` remain ordinary calls. `drop`
+forms are not aliases.
 
 The first profile accepts only a verified whole-root owning local or owning
 parameter containing exactly one available Home. Release consumes that root at
@@ -250,13 +252,12 @@ the source point. Every handle supported by the released root becomes
 unavailable, even when a different Shared Home keeps the identity alive; Home
 Flow never silently re-roots a handle.
 
-The resolved identity, sealed Home ABI, and body/effect proof must together
-show synchronous release without store or forward before normal return. A
-body-opaque core implementation needs the equivalent sealed
-`VerifiedExplicitHomeReleasePlanV1`. The generic spelling
-`release<T>(take value: T): void`, owner-bearing composites, fields,
-projections, containers, `me`, and unknown capability remain provisional or
-rejected until their separate decisions close.
+The parsed carrier, resolved root, and `VerifiedExplicitHomeReleasePlanV1`
+must together show synchronous release at the source position. Owner-bearing
+composites, fields, projections, containers, `me`, trivial roots, and unknown
+capability remain provisional or rejected until their separate decisions
+close. Generic classification does not turn this statement into a generic
+function.
 
 ## 4. Syntax deliberately outside HomeV1
 
@@ -272,7 +273,7 @@ The first program does not promise:
 - field/index/projection handles stored in locals;
 - handle capture, suspension, task/channel, or cross-thread flow;
 - explicit source `region`;
-- `drop(value)` as a compatibility alias;
+- `drop root` / `drop(value)` as a compatibility alias;
 
 `take place_expr`, field take, and consuming receiver are parked together
 until a real source consumer and storage replacement contract exist. They are
@@ -346,8 +347,8 @@ The first verifier freezes exact source/destination behavior:
 | explicit `share` | Shared-demand destination | materialize one owner by sealed plan |
 | explicit `share` | general Home-demand destination | representation/type compatibility D0 decides |
 | explicit `share` | handle-only parameter | reject redundant paid owner |
-| whole-root Home | canonical `release(root)` | consume now; terminal enters C′ DropPlan |
-| handle alias | canonical `release(alias)` | reject; identify supporting root |
+| whole-root Home | canonical `release root` | consume now; terminal enters C′ DropPlan |
+| handle alias | canonical `release alias` | reject; identify supporting root |
 | trivial value | ownership-changing destination | reject meaningless operation |
 | unknown/generic capability | ownership-changing destination | fail before effects |
 
@@ -409,7 +410,7 @@ temporary-lifetime-extension contract is accepted.
 ## 8. Lifecycle, weak, cleanup, and concurrency
 
 - `share` changes independent ownership.
-- `release(root)` ends one verified Home at its source point; a Shared
+- `release root` ends one verified Home at its source point; a Shared
   non-terminal release dispatches no hook.
 - `fini {}` is a non-callable Box hook dispatched only by the terminal Home
   DropPlan. It is not a transfer spelling or direct physical-free API.
@@ -533,6 +534,6 @@ move-out unless that exact operation is legal.
    or profile retry decides ownership.
 10. Parser support, production lowering, and C-like performance require their
     own named gates; this source decision alone claims none of them.
-11. `release(value)` is the sole explicit early Home-end spelling. It has no
-    Result, `drop` alias, field/projection form, hidden handle re-rooting, or
-    parser/MirBuilder name magic.
+11. `release root` is the sole explicit early Home-end spelling. It has no
+    Result, ordinary/generic wrapper Call, `drop` alias, field/projection form,
+    hidden handle re-rooting, or MirBuilder/backend name magic.

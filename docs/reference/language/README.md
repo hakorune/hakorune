@@ -66,7 +66,7 @@ Variables and scope
   assignment resolution, and Home/handle/weak binding guidance.
 - See: [ownership.md](ownership.md) — SSOT for Home slots/tokens, ordinary
   handles, destination transfer, result relations, explicit `share`, canonical
-  whole-root `release(value)`, and callable Home ABI. Generic/composite release
+  whole-root statement `release root`, and callable Home ABI. Generic/composite release
   remains provisional; accepted target spellings become
   parser-live only when their D0, EBNF, and registry rows land.
 - See: [lifecycle.md](lifecycle.md) — terminal Home finalization, weak-only
@@ -118,8 +118,8 @@ Failure, cleanup, and finalization
   `RecoverableFailure` are rejected in v1.
 - standalone `cleanup {}` is the sole lexical cleanup target. Box-member
   `fini {}` is a non-callable terminal Home hook; direct `obj.fini()` retires.
-  `release(value)` is the sole early whole-root Home-end target; `drop(value)`
-  is not an alias.
+  `release root` is the sole early whole-root Home-end target; ordinary
+  `release(value)` has no Home authority and `drop` is not an alias.
   Current handler-tail/TryCatch/legacy QMark paths are migration evidence, not
   a profile owner, and production activation remains 0.
 

@@ -40,9 +40,10 @@ helper 境界コストが支配するワークロードに対して、特別処�
   into MIR-owned InlinePlan metadata, and only the M11c-soft-leaf MIR optimizer
   row may consume advisory inline preference for narrow same-module leaf calls
 - `Inline(required)` is preserved into MIR-owned InlinePlan metadata as
-  `request=required`; M11c-required-verify now sets `verified=true` only for
-  required plans with `Contract(no_alloc)`, `Contract(no_safepoint)`, and the
-  narrow leaf-inline shape; backend use is still disabled
+  `request=required`; M11c-required-verify now sets `verified=true` only for an
+  accepted narrow leaf-inline shape plus any explicit `plan.requires` values.
+  Current canonical plans use `requires=[]` and infer `no_alloc` /
+  `no_safepoint` from admitted shape; backend policy use is still disabled
 - `hako.intrin` bit-count substrate rows are live separately from
   `IntrinsicCandidate`; they do not activate registry consistency or backend
   optimization use
@@ -124,10 +125,8 @@ Strict required inline flow:
 
 ```text
 @rune Inline(required)
-@rune Contract(no_alloc)
-@rune Contract(no_safepoint)
 -> MIR InlinePlan request=required
--> verifier checks required contracts and narrow leaf-inline shape
+-> verifier checks narrow leaf-inline shape and any explicit plan requirements
 -> fail-fast if not accepted in strict required-inline lanes
 ```
 

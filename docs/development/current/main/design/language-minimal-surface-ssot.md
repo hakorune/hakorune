@@ -179,7 +179,7 @@ When a new request appears, classify it before adding syntax.
 | General / mixed / public array semantics | `Array` |
 | Build/test/target conditional | `gate`; not a fast-path selector |
 | Fast route requirement | `RequiredFastPathRegion` / `FastPathPlan`; `direct {}` remains parked |
-| Small receiver-local leaf call elimination | `@rune Inline(required)` |
+| Small leaf call elimination | compiler default auto plan; `@rune Inline(required)` only for a fail-fast zero-boundary contract |
 | Multi-block hot method boundary | `HotCoreMethodSummaryV0` / `DirectExactHotCoreCallPlanV0`, not `Inline(required)` |
 | Copy/materialization cleanup | Route-aware plan with `before_route == after_route` proof |
 | Native/raw memory | Opaque `NativePtr` plus future region/view/proof layers; no pointer operators |

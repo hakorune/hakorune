@@ -70,6 +70,12 @@ Current live verifier row:
     The verifier accepts only supported required leaf shapes and may infer
     `no_alloc` / `no_safepoint` from that shape. Explicit contracts remain
     available but are not required for the small receiver-fieldset leaf row.
+- Current budgets are 8 MIR instructions for the advisory pure-leaf row and 16
+  for the verified required leaf row, including its admitted single-base
+  receiver-field shape.
+- Unannotated automatic leaf inline is an accepted future target, not current
+  behavior. It adds no `Inline(auto)` spelling: the compiler will own the
+  bounded cost decision after `INLINE-AUTO-LEAF0-I0`.
 - Mixed-base publication helpers are not a supported required leaf shape. A
   helper that reads a foreign object field and publishes either the scalar
   snapshot or the foreign handle must first be summarized as an effect shape.
@@ -119,8 +125,32 @@ Substrate-only required inline flow:
 -> accepted plans carry verified=true
 ```
 
+Current `verified=true` proves the narrow callee shape. The stronger target is
+ordered as `INLINE-REQUIRED-CALLSITE-PLAN0-S0`, bounded post-inline cleanup,
+then `INLINE-REQUIRED-RESIDUAL-CALL0-I0`. It seals every admitted exact direct
+callsite and requires residual admitted `Call` count zero. This stronger
+module-wide claim is production 0.
+
+The post-inline cleanup target is likewise parked:
+
+```text
+inline transform
+-> bounded PostInlineSimplifyPlanV1
+-> selected SimplifyCFG / constant / CSE / DCE consumers
+-> required residual-call verification
+```
+
+Every implementation cell updates this page, `language/runes.md`,
+`language/quick-reference.md`, `mir/metadata-facts-ssot.md`, runtime substrate
+support tables, and exact examples in the same commit. The later
+`INLINE-REFERENCE-CLOSEOUT0-DOC0` audits those updates rather than deferring
+them.
+
 Backends and `.inc` readers must not discover inline policy from function names,
 box names, or allocator-specific symbols.
+
+Contextual Home statement `release root` never enters this flow. It has no
+ordinary/generic wrapper Call and no InlinePlan dependency.
 
 ## Mixed-Base Helper Reopen Path
 

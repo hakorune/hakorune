@@ -888,7 +888,7 @@ Target laws:
 record = immutable identity-free value; with creates a new value
 ordinary Box use = non-owning handle
 verified Home destination = one transferred Home
-share = sole owner-add; release(root) = sole early Home-end; drop alias = 0
+share = sole owner-add; release root = sole early Home-end; drop alias = 0
 weak = generation-aware non-owner
 fini { } = non-callable terminal Home hook
 direct obj.fini() = rejected

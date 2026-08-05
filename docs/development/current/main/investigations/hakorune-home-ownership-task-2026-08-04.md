@@ -8,8 +8,9 @@ Decision state:
 
 - Home model direction: accepted;
 - C′ last-Home finalization target: accepted; production activation 0;
-- explicit early Home release: `release(value)` accepted for one verified
-  whole-root Home; `drop(value)` alias rejected; production activation 0;
+- explicit early Home release: contextual statement `release root` accepted
+  for one verified whole-root Home; ordinary/generic `release(value)` has no
+  Home authority, `drop` alias rejected, production activation 0;
 - exact HomeV1 grammar and physical Shared representation: provisional/D0;
 - generic/composite `release<T>` realization: provisional/D0;
 - production activation: 0;
@@ -47,7 +48,7 @@ Deliver a small source model:
 ordinary use        -> non-owning handle
 Home-demand edge    -> one Home is transferred
 share expression    -> one independent owner is added
-release(root)        -> one verified whole-root Home ends now
+release root         -> one verified whole-root Home ends now
 terminal Home end   -> one C′ fini/field/native DropPlan
 ```
 
@@ -290,27 +291,27 @@ Done only when terminal Home release has one proposed DropPlan authority,
 direct `obj.fini()` and B′ Dead-with-live-Home are rejected targets, and no
 ordinary handle or runtime refcount observation can dispatch the hook.
 
-### `OWN-EXPLICIT-HOME-RELEASE0-D0`
+### `OWN-EXPLICIT-HOME-RELEASE-STMT0-D0`
 
 Decision: accepted semantic target; implementation remains parked.
 
-**Change**: select `release(value)` as the sole explicit early Home-end
-spelling. It is an ordinary resolved core/prelude Call. `drop(value)`, a
-release keyword/statement, direct `obj.fini()`, and name-based compiler magic
-remain rejected.
+**Change**: supersede the earlier ordinary-call spelling and select contextual
+statement `release root` as the sole explicit early Home-end spelling.
+Ordinary/generic `release(value)`, `drop root`, `drop(value)`, direct
+`obj.fini()`, and identifier-based compiler magic have no Home authority.
 
 **Contract**: the first profile accepts only a verified whole-root owning local
 or owning parameter with exactly one available Home. It consumes that root at
 the source point, invalidates dependent handles without hidden re-rooting, and
 enters the existing C′ DropPlan only when the release is terminal. It has no
-Result channel; `close()`/`shutdown()` remain ordinary domain methods. The
-source-generic signature and composite/field/projection/container release are
-not claimed.
+Result channel; `close()`/`shutdown()` remain ordinary domain methods. Trivial
+roots reject rather than silently no-op. Generic/composite capability and
+field/projection/container release are not claimed.
 
 **Done**: the exact Unique/Shared non-terminal/terminal matrix, cleanup-capture
-conflict, Fault chronology, diagnostics, resolved core identity, sealed Home
-ABI, synchronous-release body/effect proof, and post-implementation reference
-receipts are named without adding parser, Builder, runtime, or backend callers.
+conflict, Fault chronology, diagnostics, contextual grammar carrier, resolved
+root, sealed Home Flow plan, and post-implementation reference receipts are
+named without adding production parser, Builder, runtime, or backend callers.
 
 **Stop**: return to design if the implementation needs generic capability
 guessing, more than one Home, field move-out, consuming receiver, cleanup/hook
@@ -406,7 +407,7 @@ source grammar and hard rejects, including:
 - caller-side transfer omission versus optional lint;
 - local reassignment and terminal return rules;
 - parked `take` expression/field/receiver forms;
-- ordinary core `release(value)` with no special grammar production;
+- contextual statement `release root` with one identifier root;
 - contextual-keyword disambiguation.
 
 Only this row may promote candidate spellings into accepted target grammar.
@@ -483,19 +484,19 @@ Golden-test typed diagnostics for branch/backedge availability, boundary ABI,
 destination mismatch, redundant share, unknown capability, and result-origin
 conflict. Every hint is filtered by an actual capability witness.
 
-### `OWN-EXPLICIT-HOME-RELEASE0-S0`
-
-After ABI, straight/CFG Flow, diagnostics, and terminal DropPlan schema are
-sealed, produce one caller-zero `VerifiedExplicitHomeReleasePlanV1`. It binds
-the canonical resolved core callable identity, exact whole-root place,
-available Home, sealed Home-demand ABI, synchronous terminal-consume
-body/effect receipt, cleanup-capture exclusion, and C′ terminal disposition.
-It never derives authority from the source name and publishes no Builder/MIR,
-runtime, backend, generic, field, or Shared physical capability.
-
 ## Milestone 5 — grammar carriers, still production-zero
 
 Grammar begins only after Milestones 2–4 are closed.
+
+Within the release/finalization subfamily, the exact order is:
+
+```text
+OWN-GRAM-RELEASE0
+-> OWN-GRAM-FINI-HOOK0
+-> OWN-FINI-HOOK-PLAN0-S0
+-> OWN-TERMINAL-HOME-DROP-PLAN0-S0
+-> OWN-EXPLICIT-HOME-RELEASE0-S0
+```
 
 ### `OWN-GRAM-HOME-PARAM0`
 
@@ -532,6 +533,23 @@ adopt(share service)
 `share(...)` remains an ordinary call. Parser transport is not permission to
 materialize a Shared owner.
 
+### `OWN-GRAM-RELEASE0`
+
+Accepted contextual statement target:
+
+```hako
+release file
+```
+
+Land the registry, Rust parser, Hako parser, dedicated AST/schema carrier,
+formatter, exact-source receipt, and positive/negative grammar guard together.
+V1 accepts one identifier root only. `release(value)`, `obj.release()`, and a
+binding named `release` remain ordinary source forms; parser acceptance grants
+no Home consume authority before `VerifiedExplicitHomeReleasePlanV1`. The same
+implementation commit updates EBNF, ownership, lifecycle, and quick-reference
+pages, plus the language status index and stage-profile matrix, to the exact
+parser-live surface.
+
 ### `OWN-GRAM-FINI-HOOK0`
 
 After `LANGUAGE-RESULT-EXIT-C-PRIME0-R0` has retired scope-position `fini`,
@@ -560,7 +578,8 @@ alias/delegate/interface exposure, and scope-position `fini`.
 Seal one passive `VerifiedFinalizerHookPlanV1` before lifecycle effects. It
 proves the exact hook body, FinalizerLease non-escape, no resurrection/re-entry,
 no `return`/`break`/`continue`/`?`/suspension, no `share me`, exact field/native
-capability, and the terminal DropPlan receipt. Unknown plugin/FFI/thread
+capability, and one exact hook descriptor for later DropPlan composition. It
+does not require or dispatch a TerminalHomeDropPlan. Unknown plugin/FFI/thread
 affinity rejects before Builder effects. Builder caller count stays zero in
 this row.
 
@@ -585,6 +604,17 @@ freezes before Builder effects. The schema row is followed by exact
 `OWN-TERMINAL-HOME-DROP-PLAN0-S0/U`, `/F`, and `/S` plan receipts after each
 profile's facts exist; these are sealed instances of the same product, not
 three policy owners. Physical consumer count remains zero in the schema row.
+
+### `OWN-EXPLICIT-HOME-RELEASE0-S0`
+
+After ABI, straight/CFG Flow, diagnostics, terminal DropPlan schema, and
+`OWN-GRAM-RELEASE0` are sealed, produce one caller-zero
+`VerifiedExplicitHomeReleasePlanV1`. It binds the parsed release carrier, exact
+resolved whole-root place, available Home, path-sensitive consume,
+dependent-handle invalidation, cleanup-capture exclusion, and C′ terminal
+disposition. It never derives authority from the identifier spelling and
+publishes no Builder/MIR, runtime, backend, generic, field, or Shared physical
+capability.
 
 Each grammar acceptance is one BoxCount row with one fixture, shared grammar
 gate, and one commit. Do not mix grammar activation with lowering.
@@ -669,7 +699,7 @@ It activates one owning-local terminal release by consuming the sealed
 ### `OWN-EXPLICIT-HOME-RELEASE0-I0/U`
 
 After the Unique local, closed-call, DropPlan `/U`, and passive release plan
-are green, activate one exact owning-local `release(root)` route. The same
+are green, activate one exact owning-local `release root` route. The same
 implementation commit updates the exact reference pages and examples. Prove
 source-point synchronous release, dependent-handle invalidation, no cleanup
 capture, terminal hook exactly once, `drop` alias zero, RC/control-cell zero,
@@ -758,7 +788,7 @@ For a selected exact front:
 - prove Unique alias/call/return adds no RC, control-cell, handle-registry, or
   Box birth work;
 - compare exact-front instructions and whole-program behavior;
-- include the admitted Unique `release(root)` front and prove it adds no
+- include the admitted Unique `release root` front and prove it adds no
   generic dispatch, runtime lookup, RC, or global finalizer registry;
 - keep only evidence-backed representation changes.
 
@@ -835,10 +865,11 @@ Both cells include the named receipt
 `LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0` with
 `slice = first | final`; the Home closeout cannot be marked complete without
 both lifecycle/reference proofs. They also include
-`OWN-EXPLICIT-HOME-RELEASE-REFERENCE-CLOSEOUT0-DOC0` with the same slice. A
-release implementation cell must update its exact live reference surface in
-the same commit; FIRST/FINAL are audits, not permission to leave references
-stale between implementation and closeout.
+`OWN-EXPLICIT-HOME-RELEASE-REFERENCE-CLOSEOUT0-DOC0` with the same slice.
+Every grammar, passive-plan, implementation, and retirement cell updates its
+exact live reference/support status and examples in the same commit;
+FIRST/FINAL are audits, not permission to leave references stale between
+implementation and closeout.
 
 Update the normative and derived reference surfaces from provisional/parked
 language to the exact implementation that actually landed:
@@ -846,14 +877,13 @@ language to the exact implementation that actually landed:
 * `docs/reference/language/ownership.md` — Home/Handle rules, accepted
   `take`/`share`/`release` surface, destination-side Home demand, rejected
   forms, diagnostics, and the exact profile/fallback policy;
-* `docs/reference/language/EBNF.md` and its grammar registry — only the
-  parser-live contextual forms, with examples for ordinary handle calls and
-  explicit `share`; `release` remains an ordinary Call with zero special
-  grammar rows;
+* `docs/reference/language/EBNF.md` and its grammar registry — the exact
+  parser-live contextual `release root` statement, with contrasting examples
+  showing that `release(value)` and `obj.release()` remain ordinary calls;
 * `docs/reference/language/README.md`, variables/scope, lifecycle, cleanup,
   and constructor/birth references — ownership, Box-member `fini {}` as a
   terminal hook, direct-`fini` rejection, ordinary `close()` methods,
-  canonical `release(root)`, zero `drop` alias, standalone cleanup, `new`,
+  canonical `release root`, zero `drop` alias, standalone cleanup, `new`,
   field initializer, `birth`, and
   partial-construction boundaries must point to their separate owners;
 * `docs/reference/boxes-system/memory-finalization.md`,
@@ -861,10 +891,10 @@ language to the exact implementation that actually landed:
   plugin lifecycle references, and VM plugin integration — replace B′/direct
   fini/manual child cascades with the exact implemented C′ and plugin/FFI
   capability boundary;
-* `docs/reference/ir/json_v0.md`, core/prelude callable catalog,
+* `docs/reference/ir/json_v0.md`, ownership/exit MIR references,
   callable/interface/FFI ABI references, and generated support views — exact
-  Home ABI/profile metadata, one resolved release identity, no body
-  re-inference at a boundary, and no hidden strong-owner producer;
+  Home ABI/profile metadata, one resolved release plan, no body re-inference
+  at a boundary, and no hidden strong-owner producer;
 * active language workstream dashboards, examples, migration notes, and
   environment-variable documentation — no stale `move/view/owned/shared`
   target or SharedV1 retry claim remains presented as the live Home surface;
@@ -882,9 +912,11 @@ fini hook grammar == Rust parser == Hako parser == lifecycle descriptor = 1
 direct obj.fini() accepted examples                                 = 0
 Unique local terminal hook dispatch exactly once                     = 1
 close/shutdown reserved language syntax                              = 0
-release special grammar/AST/MIR-name authority                       = 0
-resolved core release identity and sealed plan for admitted slice    = 1
-drop(value) accepted alias                                            = 0
+release contextual grammar/parser/AST parity                         = 1
+release identifier/MIR-name authority                                = 0
+resolved whole-root release plan for admitted slice                  = 1
+ordinary/generic release wrapper Call as Home authority              = 0
+drop root / drop(value) accepted alias                               = 0
 generic/composite release support claimed by FIRST                    = 0
 first-slice B′ live reference claim                                  = 0
 field/Shared/default-profile support claimed by FIRST                 = 0

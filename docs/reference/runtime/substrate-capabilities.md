@@ -752,7 +752,10 @@ inline, M11c-required-vocab is live for preserving canonical
 `Inline(required)` and compat `Lowering(inline_required)` as MIR
 `request=required` metadata, and M11c-required-verify is live for
 verifier-backed required inline acceptance.
-Backend-required inline use remains future.
+The MIR optimizer consumes verified required plans for its admitted narrow
+same-product leaf sites before backend emission. Backend-local policy use,
+post-inline cleanup, module-wide residual-Call proof, and default automatic
+leaf planning remain future.
 
 Inline is required for allocator-grade fast paths, but it is not a backend
 keyword and not a `.inc` responsibility.
@@ -787,6 +790,12 @@ leaf-inline shape pass. Supported small leaf bodies may infer `no_alloc` /
 `no_safepoint` from MIR shape; explicit contracts are reserved for rows that
 need additional source-visible obligations. Backends must not infer required
 inline from this row or from symbol names.
+
+The parked completion order is exact-callsite plan -> bounded post-inline
+simplification -> required residual-Call verification -> default automatic
+leaf cost/transform -> perf/asm gate. Each implementation cell updates this
+support table and its language/MIR references in the same commit; final
+closeout only audits parity.
 
 ## Effect / Capability Planning
 

@@ -3,7 +3,8 @@
 Status: Normative C′ target; production activation 0.
 
 Decision: `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0` and
-`OWN-EXPLICIT-HOME-RELEASE0-D0` accepted on 2026-08-05.
+`OWN-EXPLICIT-HOME-RELEASE-STMT0-D0` accepted on 2026-08-05; the latter
+supersedes the earlier ordinary-call release spelling.
 C′ explicitly supersedes B′ eager `obj.fini()` / Dead-with-live-Home
 semantics.
 
@@ -28,7 +29,7 @@ Related authorities:
 
 ```text
 birth(args) = new-only construction hook
-release(value) = release one verified whole-root Home now
+release root = release one verified whole-root Home now
 fini { ... } = last-Home-only finalization hook
 close()/shutdown()/commit()/abort() = ordinary domain methods
 cleanup { ... } = lexical exit action
@@ -58,12 +59,14 @@ box File {
 The hook is optional. A Box without one still receives field/native structural
 teardown when its last Home ends.
 
-`release(value)` is an ordinary resolved core/prelude Call, not a keyword,
-special AST/MIR node, or alias for direct `fini`. The first profile accepts only
-an owning local or owning parameter with one exact whole-root Home. A
+`release root` is a statement-only contextual keyword with a dedicated source
+carrier. Resolution and a sealed Home Flow plan, not the token spelling, own
+its meaning. The first profile accepts only an owning local or owning parameter
+with one exact whole-root Home. Ordinary/generic `release(value)` calls remain
+ordinary calls. A
 non-terminal Shared release runs no hook; a terminal release enters the same
 sole C′ DropPlan. Dependent handles become unusable and are never silently
-re-rooted. `drop(value)` is not a compatibility spelling.
+re-rooted. `drop root` and `drop(value)` are not compatibility spellings.
 
 ## Terms
 
@@ -76,7 +79,7 @@ re-rooted. `drop(value)` is not a compatibility spelling.
 - **weak token**: generation-aware non-owner that does not delay finalization.
 - **terminal Home release**: the release that leaves no remaining Home for the
   identity.
-- **explicit Home release**: source `release(root)` ending one available Home
+- **explicit Home release**: source `release root` ending one available Home
   at that source point; it may or may not be terminal.
 - **FinalizerLease**: non-escapable privileged access used only while the C′
   DropPlan runs.
@@ -164,7 +167,7 @@ Faults as suppressed diagnostics, and publish the primary terminal Fault.
 | `take` / Home-demand call | atomically forward one Home | never in transit |
 | terminal return | forward Home to protected result carrier | never in transit |
 | explicit `share` | add one independent Home | never on acquisition |
-| explicit `release(root)` | remove one verified root Home now | only if terminal |
+| explicit `release root` | remove one verified root Home now | only if terminal |
 | Shared non-last release | remove one Home | never |
 | Shared terminal release | remove last Home | exactly one winner runs plan |
 | weak-token drop | weak bookkeeping only | never for target |
@@ -234,9 +237,9 @@ Use an ordinary method when exact shutdown timing or a recoverable close error
 matters. The later hook is a best-effort safety net and must safely observe an
 already-closed state.
 
-`release(root)` is the separate ownership operation: it consumes one Home and
+`release root` is the separate ownership operation: it consumes one Home and
 has no Result channel. A common fallible sequence is `file.close()?` followed
-by `release(file)`. If `close()?` propagates an error first, the ordinary exit
+by `release file`. If `close()?` propagates an error first, the ordinary exit
 transaction still releases the surviving file Home at scope exit.
 
 ## Hook restrictions
@@ -292,8 +295,8 @@ StaticUnique -> no RC/control-cell/global-finalizer work
 same-thread Shared -> selected non-atomic owner bookkeeping
 cross-thread Shared -> future atomic/affinity profile
 weak-capable identity -> generation/tombstone-capable control cell
-release(Unique root) -> direct verified Home end; RC/control-cell work 0
-release(Shared root) -> one selected owner decrement and terminal branch
+release root [Unique] -> direct verified Home end; RC/control-cell work 0
+release root [Shared] -> one selected owner decrement and terminal branch
 ```
 
 No C-speed claim is valid before `OWN-HOME-C-SPEED0-G0` measures the exact
@@ -308,10 +311,11 @@ is owned by the Home taskboard:
 
 ```text
 OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0
--> OWN-EXPLICIT-HOME-RELEASE0-S0
+-> OWN-GRAM-RELEASE0
 -> OWN-GRAM-FINI-HOOK0
 -> OWN-FINI-HOOK-PLAN0-S0
 -> OWN-TERMINAL-HOME-DROP-PLAN0-S0
+-> OWN-EXPLICIT-HOME-RELEASE0-S0
 -> OWN-TERMINAL-HOME-DROP-PLAN0-S0/U
 -> I0/U Unique local
 -> OWN-EXPLICIT-HOME-RELEASE0-I0/U
@@ -333,10 +337,11 @@ After the first production C′ slice and again after final cutover,
 `LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0` is a mandatory receipt of
 the Home reference closeout. The sibling
 `OWN-EXPLICIT-HOME-RELEASE-REFERENCE-CLOSEOUT0-DOC0` receipt is mandatory for
-the same FIRST/FINAL slices. Each release implementation commit updates its
-exact live references immediately; the later closeout audits parity. They must
-synchronize EBNF/registry, both parsers, lifecycle descriptor, VM/EXE/AOT or
-exact unsupported-backend rejection, ownership/scope/birth/memory/plugin/FFI
-references, examples, and migration guides. Direct `obj.fini()` callers,
-accepted `drop(value)` aliases, and all live B′ claims must be zero before
-final completion.
+the same FIRST/FINAL slices. Every Home grammar, passive-plan, implementation,
+and retirement cell updates its exact live references immediately; the later
+closeout audits parity. They must synchronize EBNF/registry, both parsers,
+lifecycle descriptor, VM/EXE/AOT or exact unsupported-backend rejection,
+ownership/scope/birth/memory/plugin/FFI references, examples, and migration
+guides. Direct `obj.fini()` callers,
+ordinary-call Home authority, accepted `drop` aliases, and all live B′ claims
+must be zero before final completion.

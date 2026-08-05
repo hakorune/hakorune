@@ -49,7 +49,7 @@ and non-owning handle.
 - The Home binding and handle may both read and mutate the same Box
   sequentially.
 - A Home transfer/rebind/release cannot leave a dependent handle with a later
-  reachable use. `release(root)` explicitly consumes one verified whole-root
+  reachable use. `release root` explicitly consumes one verified whole-root
   Home and invalidates its dependent handles without silently re-rooting them.
   C′ fixes that only terminal Home release may run the non-callable Box
   `fini {}` hook; exact Shared representation and the proof/rejection of

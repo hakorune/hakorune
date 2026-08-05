@@ -340,7 +340,7 @@ scope cleanup:
 ordinary close()/shutdown()/detach():
   explicit, possibly fallible domain operation
 
-canonical release(root):
+canonical release root:
   end one verified whole-root Home now; terminal only enters C′ DropPlan
 
 Box-member fini { ... }:
@@ -349,8 +349,9 @@ Box-member fini { ... }:
 
 They are not interchangeable. The converter may emit a Box hook only from a
 verified terminal-Home lifecycle plan; it may not synthesize eager B′
-finalization or manual parent-to-child hook calls. `drop(root)` is not a source
-alias, and generic/composite/field release remains outside the first profile.
+finalization or manual parent-to-child hook calls. Ordinary `release(value)`
+has no Home authority, `drop` is not a source alias, and generic/composite/
+field release remains outside the first profile.
 
 ### Arc / Rc
 
