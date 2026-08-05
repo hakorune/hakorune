@@ -8,6 +8,16 @@ Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`
 
 # Generic resolved-carrier disposition matrix
 
+## D3-S2-D1 authority correction
+
+This card remains the disposition-policy history, but D3-S2-D1 supersedes its
+future handoff sketch. Resolver and neutral facts never issue
+`LoopBindingKeyV1`; the sole issuer is the Recipe producer. Separate preflight
+seed and invocation-seal products are rejected targets. The eventual selector
+consumes one non-`Clone` canonical plan that co-seals facts, eligibility,
+Recipe-owned key relation, and route-affecting inputs. P0/P1 must establish
+source-site totality before a neutral facts issuer is admitted.
+
 ## Purpose
 
 The parent D3 handoff has enough source-backed observations to show that the

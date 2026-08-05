@@ -13,6 +13,10 @@ Loop lowering.
 - `LoopRecipeV1` owns one closed recursive control algebra represented on the
   wire as ordered arenas with recipe-local keys. It contains no source or route
   authority.
+- `LoopBindingKeyV1` is issued only by the Recipe producer. Resolver/neutral
+  facts and Binding SSA must not mint it. The producer co-seals each key with
+  its source-backed `BindingRefV1` relation before a canonical plan can be
+  verified.
 - The semantic Loop node is the single long-term loop shape: `Always` is a
   degenerate predicate, and a loop with no explicit `break`/`continue`/`return`
   is the same frame with fewer exit rows. Nested loops recurse through the

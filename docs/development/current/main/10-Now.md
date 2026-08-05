@@ -68,17 +68,13 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- D3-S1 is closed as the prior policy boundary. D3-S2-S0, D3-S2-S1, the
-  bounded D3-S2-S2 cfg(test)-only passive provenance product, and the D3-S2-S3
-  repeat audit are closed. S2 publishes one co-sealed opaque product; S3
-  consumes two complete products as one non-Clone pair and observes structural
-  equality, distinct resolver brands, and raw frame-coordinate collision. The
-  focused provenance suite is 12/12. No Generic snapshot/key/seed, selector,
-  Builder/MIR/Recipe/PHI, Return/Home/debt, DirectAccum frame, or production
-  authority moved; the frontier returns to the D3-S2 design stop. A worker
-  audit found NoSafeSlice for scalar Return/outer-PHI, natural
-  debt-to-different-winner, and Generic snapshot/key/seed because their sole
-  owners or natural fixtures are not yet sealed.
+- D3-S2-D1 closes the authority realignment docs-only after the S0-S3
+  cfg(test)-only evidence. Resolver owns source projection; only the Recipe
+  producer issues recipe-local `LoopBindingKeyV1`; Binding SSA owns physical
+  ValueId/PHI. Independent seed/seal and four-field selector inputs are
+  superseded by one future non-Clone canonical plan. The selected row is P0
+  source-site totality census. It adds no production authority. Scalar
+  Return/outer-PHI and natural debt-to-different-winner remain NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

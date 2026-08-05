@@ -227,8 +227,18 @@ actual legacy trace remains V0 terminal/no-debt, planner-required remains
 
 The typed provenance handoff design
 `JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`
-remains the authority for the upper source-to-selection boundary. Its first
-two observation children are closed as cfg(test)-only evidence, and the
+remains the authority for the upper source-to-selection boundary. D3-S2-D1
+realigns that authority before production work: resolver output owns only
+source identity/projection; neutral facts may exist only after the P0/P1
+source-site totality boundary; and the Recipe producer is the sole issuer of
+recipe-local `LoopBindingKeyV1` values and their `BindingRefV1` relation.
+Binding SSA remains the sole physical `BindingRefV1 -> ValueId/PHI` owner and
+does not mint Recipe keys. Independent preflight-seed, invocation-seal, and
+four-field selection-input authorities are rejected; a later selector may
+consume only one verified non-`Clone` canonical plan. The selected next row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-SITE-TOTALITY-CENSUS0-D3-S2-P0`.
+
+The first two observation children are closed as cfg(test)-only evidence, and the
 bounded passive product
 `JOINIR-GENERIC-RESOLVED-CARRIER-PROVENANCE-PRODUCT0-D3-S2-S2` is now closed
 as cfg(test)-only evidence. `LoopRouteContext` remains a loop-fragment owner;
@@ -238,12 +248,13 @@ evidence remain separate design rows. No selector, Generic snapshot/key/seed,
 opaque input, Recipe, PHI, Builder, MIR, retry, fallback, or runtime caller is
 authorized by this product.
 
-The selected D3-S2-S3 repeat audit remains cfg(test)-only. It consumes two
+The selected D3-S2-S3 repeat audit remains cfg(test)-only historical evidence. It consumes two
 complete S2 products as one non-`Clone` pair, observes repeated source
 topology/roles and distinct resolver brands, and records equal raw frame
 coordinates without treating them as identity. Mismatches reject before
-effects. It adds no Generic key/seed, selector, DirectAccum frame, Builder,
-MIR, or production authority; the parent D3-S2 design stop remains active.
+effects. It adds no Generic key, selector, DirectAccum frame, Builder, MIR, or
+production authority and does not authorize the superseded independent
+seed/seal model.
 
 The passive product consumes one resolver-issued owner/forest/frame/role
 handoff as a single non-`Clone` value and publishes one opaque AST-free source

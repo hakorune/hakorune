@@ -16,6 +16,9 @@ Forbidden inputs and decisions:
 - If/Loop/exit policy and effect/carrier discovery;
 - CFG repair or predecessor recomputation;
 - type/representation inference from an incomplete PHI.
+- Recipe policy or `LoopBindingKeyV1` issuance. Binding SSA consumes resolved
+  `BindingRefV1` identities and owns only their physical `ValueId`/PHI
+  realization.
 
 `read` defines a provisional PHI before recursive predecessor reads. `seal`
 completes open-block PHIs from the exact witness. Any PHI failure attempts all

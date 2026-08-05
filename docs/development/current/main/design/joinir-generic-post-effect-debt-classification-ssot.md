@@ -890,36 +890,27 @@ co-sealed resolved-carrier capability. The parent Generic D2 disposition
 remains `UnresolvedStop` until a complete winner/disjointness matrix and
 downstream authority closeout exist.
 
-#### Next boundary — co-sealed source-to-selection handoff
+#### D3-S2-D1 authority realignment — accepted
 
 The scoped D3 matrix is closed as test-only evidence. Production selection is
 still facts-only: `GenericLoopCarrierObservationV1` carries labels, the
 registry selector receives `CanonicalLoopFacts`, and `LivePreflightFrameV1`
 does not carry resolver-issued BindingRefs or a verified loop source forest.
-The next design stop is
+The current design authority is
 `investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`.
 
-That card designs, but does not implement, one co-sealed
-`VerifiedResolvedCarrierEligibilityV1` capability from parsed source,
-resolver BindingRefs/source forest, and a neutral facts identity. Mode,
-execution flags, and the unfiltered schedule belong to a separate
-`PreflightSeedV1`; they are not carrier identity. Because `CanonicalLoopFacts`
-is AST-bearing and source-blind, the resolved
-`RecipeFirstSelectionInputV1` variant must consume a private non-`Clone`
-`VerifiedResolvedCarrierSelectionInputV1` wrapper containing facts,
-eligibility, seed, and `InvocationSealV1`. Facts and capability must never be
-passed as independently pairable values. The closed input has typed
-`Legacy` (only `NotApplicable`/`ProvenOutsideTarget`) and `Resolved` variants;
-target rows with a missing or invalid handoff are `UnresolvedStop`, never an
-optional-field legacy fallback. The resolver first issues a typed observation,
-the neutral facts boundary issues eligibility, and only
-`registry/selection.rs` consumes the wrapper. Final selection precedes
-`LivePreflightFrameV1` issuance, so the handoff has no selection/frame cycle.
-Missing, foreign, ambiguous, planner-suppressed, unsupported, or unstable rows
-remain `UnresolvedStop` and retain the legacy execution edge; no post-effect
-retry or fallback is allowed. No V0 suppression, V1 precedence,
+That card now rejects the earlier separate seed/seal and four-field input
+sketch. Resolver owns source sites, forest, brand, and `BindingRefV1` roles.
+Neutral facts may issue AST-free eligibility only after P0/P1 totality.
+`LoopBindingKeyV1` is Recipe-local identity and the Recipe producer is its sole
+issuer; Binding SSA owns only physical `BindingRefV1 -> ValueId/PHI` reaching
+definitions. One future non-`Clone` canonical plan co-seals facts,
+eligibility, Recipe/key relation, and route-affecting inputs, and the selector
+consumes only that plan. Missing, foreign, ambiguous, planner-suppressed,
+unsupported, or unstable rows remain `UnresolvedStop`; no post-effect retry or
+fallback is allowed. No V0 suppression, V1 precedence,
 Recipe/JoinSig/PHI, physicalizer, Builder, MIR, backend, or M10 cutover is
-authorized until this handoff contract and its full typed matrix are accepted.
+authorized by D1 or the selected P0 source-site census.
 The design-stop protocol witness is now test-only: six `cfg(test)` cases cover
 typed Legacy/Resolved input, target-missing rejection, identity/seal mismatch,
 pre-effect negative dispositions, and a generated 1,440-row matrix over the

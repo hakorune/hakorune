@@ -1,13 +1,44 @@
 ---
-Status: active design stop — co-sealed source-to-selection handoff
+Status: active design stop — D3-S2-D1 authority map accepted; P0 selected
 Date: 2026-08-05
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Predecessor: joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md
-Decision: provisional — no production selector change until handoff seals
+Decision: accepted authority realignment; no production selector change
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-BOUNDARY-D3-DESIGN0-D0`
 ---
 
 # Generic resolved-carrier source-to-selection boundary
+
+## Current authority correction — D3-S2-D1
+
+The worker-adjudicated D3-S2-D1 decision supersedes the earlier pseudotypes in
+this card wherever they conflict. Those older protocol sketches remain
+historical test evidence only.
+
+```text
+resolver
+  -> source sites / forest / owner brand / BindingRefV1 roles
+neutral structural facts (only after P0/P1)
+  -> AST-free eligibility; no Recipe key or schedule
+Recipe producer
+  -> sole LoopBindingKeyV1 issuer
+  -> Recipe + JoinSig + BindingRef-to-Recipe-key relation
+one non-Clone canonical plan
+  -> facts + eligibility + Recipe + route-affecting inputs
+selector
+  -> consumes only the canonical plan
+```
+
+`PreflightSeedV1`, `InvocationSealV1`, and the four-field
+`VerifiedResolvedCarrierSelectionInputV1` are rejected as separate production
+authorities. The canonical plan's linear ownership is the invocation seal.
+Binding SSA remains the physical `BindingRefV1 -> ValueId/PHI` owner and never
+issues Recipe keys. `LivePreflightFrameV1` and the current registry remain
+legacy transport/parity owners until the later atomic cutover.
+
+The selected next row is the static P0 source-site totality census named in
+the D3-S2 card. It adds no issuer, selector, Builder/MIR/PHI, Return/Home/debt,
+fallback, retry, or production caller.
 
 ## Boundary
 
@@ -21,10 +52,10 @@ This card designs the missing co-sealed handoff. It does not implement V0
 suppression, V1 precedence, Recipe/JoinSig/PHI production, Retry/fallback
 removal, or a route/Builder/MIR/backend cutover.
 
-## Required co-sealed capability
+## Historical pre-D1 capability sketch (superseded)
 
-The future production handoff must be one sealed value created from the same
-source invocation:
+The following sketch motivated the closed protocol tests but no longer defines
+the future production types. D3-S2-D1 above is authoritative:
 
 ```text
 parsed source
@@ -248,7 +279,7 @@ the identity rule above still applies. `LegacyFacts` is constructible only for
 a typed `NotApplicable` or `ProvenOutsideTarget` disposition. A target row
 with missing/invalid handoff is `UnresolvedStop`, not a silent legacy fallback.
 
-## Production-free protocol matrix and acceptance
+## Historical production-free protocol matrix and acceptance
 
 Before any production type or selector arm is added, a `cfg(test)` protocol
 matrix must exercise the sealed handoff without Builder mutation:
@@ -266,10 +297,12 @@ nested wrapper / duplicate write / Index / Program / CompoundAssignment
 typed non-target `NotApplicable` and `ProvenOutsideTarget` legacy rows
 ```
 
-Every reject is typed, pre-effect, and `UnresolvedStop` (or an explicitly
+Every reject remains useful test evidence, typed and pre-effect, but the
+separate seal/seed shape below is superseded. Each failure is `UnresolvedStop` (or an explicitly
 terminal freeze target); no retry or fallback is allowed. The matrix must prove
-that one `InvocationSealV1` binds source, facts, seed, and frame, and that a
-mismatched seal rejects. Its acceptance receipt includes:
+that cross-invocation pairing rejects. A future implementation proves that
+through the single canonical plan, not a standalone `InvocationSealV1`. Its
+acceptance receipt includes:
 
 ```text
 proposed capability production caller/import census = 0
@@ -381,8 +414,8 @@ closed with the S2A coverage receipt below.
 ### Contract
 
 - The projector owns source/resolver observation only. `CanonicalLoopFacts`
-  remains Builder-local and AST-bearing; `PreflightSeedV1` and
-  `InvocationSealV1` belong to the later router/adapter boundary, and carrier
+  remains Builder-local and AST-bearing. D3-S2-D1 supersedes the former
+  separate `PreflightSeedV1`/`InvocationSealV1` route; carrier
   policy (`NoRecursive`/`Unavailable`/`Ambiguous`/planner suppression) belongs
   to the neutral facts/selector owners.
 - Every mismatch rejects before Builder effects. No registry policy,

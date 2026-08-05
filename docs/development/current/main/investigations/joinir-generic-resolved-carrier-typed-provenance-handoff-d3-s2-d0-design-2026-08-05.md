@@ -1,8 +1,8 @@
-Status: accepted design stop; D3-S2-S2 child closed cfg(test)-only
+Status: accepted authority realignment; D1 closed docs-only; P0 selected
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md
 Supersedes: the next-row ambiguity after D3-S1-S2
-Decision: accepted for design consultation only
+Decision: accepted D1 authority map; production remains closed
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`
 ParentCurrentCard: `docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md`
 Exception: this compact design card is allowed because D3-S1-S2 closed the prior bounded child and the current frontier changed to a typed handoff boundary; it does not authorize production code.
@@ -24,15 +24,24 @@ parsed source
 -> one FunctionSemanticResolverSessionV1
 -> VerifiedResolvedFunctionV1
 -> resolver-issued loop forest + exact BindingRefV1 relations
--> AST-free GenericCarrierFactsSnapshotV1
--> one sealed preflight/selection input
--> private Builder adapter (only after this design is accepted)
+-> P0 source-site totality census
+-> P1 existing source-projector/bridge closeout
+-> P2 AST-free neutral carrier facts
+-> P3 family disjointness
+-> one Generic Recipe producer
+     -> Recipe-owned LoopBindingKeyV1 + BindingRef relation
+-> one non-Clone canonical plan
+-> policy selector
+-> canonical resolved lowerer after a separate I0
 ```
 
 The resolver owns source sites, strict-ancestor relations, and `BindingRefV1`.
 The current Builder-local facts extractor remains observation-only. A neutral
-issuer may publish an AST-free snapshot, but it may not mint source identity,
-retain `CanonicalLoopFacts`, or infer provenance from names/ValueIds.
+facts issuer may be considered only after P0/P1; it may not mint source
+identity, retain `CanonicalLoopFacts`, infer provenance from names/ValueIds,
+or issue Recipe keys. `LoopBindingKeyV1` is Recipe-local identity and its sole
+issuer is the Recipe producer. Binding SSA owns only physical
+`BindingRefV1 -> ValueId/PHI` reaching definitions.
 
 ## Candidate products to specify before implementation
 
@@ -40,18 +49,18 @@ retain `CanonicalLoopFacts`, or infer provenance from names/ValueIds.
    function/forest identity, exact source sites, strict-ancestor relation, and
    the relevant `BindingRefV1` identities. No diagnostic names, route IDs,
    physical `ValueId`, or AST clone is allowed.
-2. `GenericCarrierFactsSnapshotV1`: neutral, AST-free facts and mode-neutral
-   carrier classification. Its owner is the neutral `mir::loop_structural_facts`
-   layer, not the selector or Builder.
-3. `LoopBindingKeyV1` relation: a typed, one-way projection from resolver
-   `BindingRefV1` to a logical loop binding key. The Builder-owned Binding SSA
-   and physical `ValueId`/PHI relation are downstream products; labels cannot
-   stand in for this relation.
-4. `InvocationSealV1` / preflight seed: non-`Clone`, one-request identity that
-   prevents independently pairing facts, capability, route order, or stale
-   Builder state.
-5. `VerifiedResolvedCarrierSelectionInputV1`: opaque, non-forgeable,
-   non-`Clone` wrapper consumed as one unit by a future selector/adapter.
+2. `VerifiedGenericResolvedCarrierFactsV1`: neutral, AST-free facts and
+   mode-neutral carrier classification after P0/P1. Its owner is the neutral
+   `mir::loop_structural_facts` layer; it contains no Recipe key or policy.
+3. `VerifiedGenericRecipeProductV1`: one Recipe producer co-seals Recipe,
+   JoinSig, source-effect claims, and the sole `BindingRefV1 ->
+   LoopBindingKeyV1` relation while issuing Recipe-local keys.
+4. `VerifiedResolvedCarrierCanonicalPlanV1`: one opaque, non-forgeable,
+   non-`Clone` value that co-seals facts, eligibility, Recipe product, and all
+   route-affecting inputs. Its linear ownership is the invocation seal; there
+   is no independent `PreflightSeedV1` or `InvocationSealV1` product.
+5. A future selector consumes only that canonical plan. It does not accept a
+   four-field bundle or independently pairable facts/capability/seed values.
 
 `LoopRouteContext` remains a fragment owner only: it observes the loop
 condition/body and produces CorePlan/ValueId facts. Its `fn_body` is a capture
@@ -64,9 +73,9 @@ Before any Builder effect, return typed `UnresolvedStop` for:
 
 ```text
 missing / foreign / ambiguous BindingRef
-source, forest, or frame mismatch
+source, forest, frame, or canonical-plan brand mismatch
 AST-bearing or ValueId-bearing neutral snapshot
-missing or mismatched InvocationSeal/preflight seed
+missing or mismatched facts/eligibility/Recipe-key relation
 planner-required V0 suppression without a typed policy receipt
 Unavailable / Ambiguous / NoRecursive / unstable facts
 incomplete source matrix or winner/result/Home/PHI parity
@@ -100,19 +109,20 @@ the no-debt/different-winner check; synthetic debt is evaluator-only.
 The first bounded child is deliberately narrower than the final handoff
 products. It is the cfg(test)-only observation task
 `JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`.
-It consumes the existing resolver-issued forest/frame and exact
+It consumed the existing resolver-issued forest/frame and exact
 `BindingRefV1` source relations into a private non-Clone witness. It does not
 publish a production snapshot, assign a Generic `LoopBindingKeyV1`, or issue
-an opaque selection input. Those three authorities remain separate design
-work because Generic key assignment and seed ownership are not yet defined.
+an opaque selection input. The old statement that key and seed remain separate
+design authorities is historical; D1 fixes Recipe as the sole key issuer and
+folds invocation pairing into the future canonical plan.
 
-This observation child is now closed: four focused tests pass, production
+This observation child is closed: four focused tests pass, production
 caller/import is zero, and no artifact was produced. The D3-S2 design stop
 remains open for the neutral snapshot, branded logical-key relation, and
 opaque selection-input ownership.
 
-Only after this observation child and a follow-up design seal may a bounded
-neutral issuer be considered:
+The former direct-chain sketch below is superseded by D1 and retained only as
+history:
 
 ```text
 resolver observation -> AST-free neutral snapshot -> private Builder adapter
@@ -164,6 +174,69 @@ add an issuer, input/output product, reject enum, Builder/MIR/Recipe/PHI,
 Return/ABI/Home/debt meaning, Generic key/seed/selector, fallback, retry, or
 production caller. This is a NoSafeSlice disposition, not permission to infer
 one of those semantics from existing labels or `ValueId`s.
+
+## D1 authority realignment — accepted
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-AUTHORITY-REALIGNMENT0-D3-S2-D1`
+supersedes the earlier D3-S2-D0 draft in these exact respects:
+
+```text
+resolver/neutral BindingRef -> LoopBindingKey projection = rejected
+LoopBindingKeyV1 issuer                              = Recipe producer only
+independent PreflightSeedV1                         = rejected target
+independent InvocationSealV1                        = rejected target
+four-field selection input                         = rejected target
+one linear invocation owner                        = non-Clone canonical plan
+neutral snapshot issuer before P0/P1               = 0
+```
+
+Resolver remains the sole source-site/forest/brand/`BindingRefV1` authority.
+Neutral structural facts may classify only source-backed rows after P0/P1.
+Policy remains in the selector. Binding SSA remains the sole physical
+`BindingRefV1 -> ValueId/PHI` owner and does not mint Recipe keys. Return
+coverage/emission remain with the existing completion, return statement, and
+draft-finalizer owners. `LoopRouteContext` remains fragment-only.
+
+## Ordered D3-S2 task ladder
+
+```text
+D3-S2-P0  SOURCE-SITE-TOTALITY-CENSUS0
+  -> all Generic facts fields/producer arms classified against source sites
+
+D3-S2-P1  SOURCE-PROJECTION0
+  -> close/rebundle existing projector/bridge evidence; no new source issuer
+
+D3-S2-P2  FACTS-SNAPSHOT0
+  -> neutral non-Clone AST-free facts; no Recipe key/selector
+
+D3-S2-P3  DISJOINTNESS0
+  -> exact Generic/NestedPredicate/DirectAccum/A+ partition
+
+D3-S2-S4  RECIPE-BINDING0
+  -> Recipe producer issues keys and co-seals BindingRef relation
+
+D3-S2-S5  CANONICAL-PLAN0
+  -> one non-Clone plan owns facts/eligibility/Recipe/route inputs
+
+D3-S2-I0  SELECTION-CUTOVER0
+  -> selector consumes only the plan; exact natural-Both class; no fallback
+
+D3-S2-R0  LEGACY-RETIRE0
+  -> parity/caller census/reference closeout and selected old-edge deletion
+```
+
+The selected immediate execution row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-SITE-TOTALITY-CENSUS0-D3-S2-P0`.
+Its task card is
+`joinir-generic-resolved-carrier-source-site-totality-census-d3-s2-p0-task-2026-08-05.md`.
+
+The scalar Return/outer-PHI authority map is a D1-dependent docs-only sidecar,
+`JOINIR-GENERIC-RESOLVED-CARRIER-SCALAR-RETURN-AUTHORITY-MAP-DESIGN0-S4-D0`.
+Its later fixture/projection rows require D1 plus P0 and a natural typed
+full-function fixture. Natural debt-to-different-winner remains NoSafeSlice
+until one unpublished candidate naturally produces V0 typed debt followed by
+V1 success on the same witness. Synthetic DTO or fresh-builder substitution
+does not qualify.
 
 No selector arm, production caller, Recipe/JoinSig/PHI/physicalizer, MIR/VM
 route, Retry deletion, fallback deletion, or scheduler cutover is authorized
@@ -280,10 +353,12 @@ commit, with focused evidence, caller census, artifact manifest, fail-fast
 boundary, and every touched source/check file below 800 lines.
 
 ```text
-typed provenance owner = 1
-neutral snapshot owner = 1
-selector/issuer caller  = 0 until a later I0
-label/ValueId inference = 0
-synthetic debt witness  = 0
-production cutover      = 0
+typed provenance owner                    = 1
+neutral snapshot owner before P0/P1      = 0
+LoopBindingKey issuer                    = Recipe producer only
+independent seed / InvocationSeal target = 0
+selector/issuer caller                    = 0 until a later I0
+label/ValueId inference                   = 0
+synthetic debt witness                    = 0
+production cutover                        = 0
 ```

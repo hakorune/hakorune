@@ -477,19 +477,15 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0
-  is the current design stop after the closed D3-S2-S3 cfg(test)-only repeat
-  audit. S3 consumed two complete non-Clone S2 products as one pair and
-  observed source topology/role equality, distinct resolver brands, and raw
-  frame-coordinate collision; its focused suite is 12/12. No DirectAccum
-  frame, Generic snapshot/key/seed/selector, Builder/MIR/Recipe/PHI,
-  Return/Home/debt, fallback/retry, or production authority moved. Worker
-  audit disposition: NoSafeSlice for scalar Return/outer-PHI, natural
-  debt-to-different-winner, and Generic snapshot/key/seed; sole owners or
-  natural fixtures are not sealed. The closed execution card is
-  docs/development/current/main/investigations/joinir-generic-resolved-carrier-
-  provenance-repeat-audit-d3-s2-s3-task-2026-08-05.md; the parent design card
-  remains the sole selector for the next D3-S2 row.
+JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-SITE-TOTALITY-CENSUS0-D3-S2-P0
+  is selected after D3-S2-D1 authority realignment closed docs-only. Resolver
+  owns source projection; the Recipe producer alone issues LoopBindingKeyV1;
+  Binding SSA alone owns physical ValueId/PHI. Independent seed/seal and the
+  four-field selector input are superseded by one future canonical plan. P0
+  inventories exact source-site/owner support only; it adds no production
+  caller or semantics. Return/outer-PHI and natural debt remain NoSafeSlice.
+  Task: docs/development/current/main/investigations/joinir-generic-resolved-
+  carrier-source-site-totality-census-d3-s2-p0-task-2026-08-05.md
 ```
 
 ## Production invariants
