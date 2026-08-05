@@ -39,13 +39,16 @@ Related:
   `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1`
   is closed as cfg(test)-only evidence: actual Strict+planner-required mode
   co-seals the existing S2A source and yields typed unresolved raw `[V1]` after
-  V0 suppression. The selected next row is
-  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`:
-  parsed nested IndexWrite plus facts Ambiguous evidence, cfg(test)-only. No
+  V0 suppression. `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`
+  is now closed as cfg(test)-only evidence: parsed nested IndexWrite plus
+  facts Ambiguous, actual Release/Strict raw `[V0,V1]`, and typed unresolved
+  pre-effect disposition. Execution has returned to the parent
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-BOUNDARY-D3-DESIGN0-D0` design
+  stop. No
   Generic production Recipe, selector arm, source-to-selection handoff, route,
   physical, Retry, or fallback change is authorized; M10b still waits on
   M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`
-  for the exact test boundary and non-claims.
+  for the exact boundary and non-claims.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

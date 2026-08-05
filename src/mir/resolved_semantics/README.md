@@ -166,13 +166,13 @@ cfg(test)-only tests. Its parsed S2A nested-`IfThen` positive uses
 function/source/frame, and private facts-only identity; cross-invocation facts
 mismatch rejects before effects. Seed/invocation seal, neutral facts issuance,
 and production selection remain later boundaries.
-The source-backed bridge and planner-suppression row are closed as cfg(test)-only
-evidence. The next bounded row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`: the
-parsed S2A topology with plain `items[j] = i` must co-seal resolver
-`IndexWrite`, facts `Ambiguous("assignment target")`, source/forest/frame
-identity, actual mode, and raw schedule into a private non-`Clone` negative
-witness. Neutral eligibility issuance and production selection remain stopped.
+The source-backed bridge, planner-suppression row, and Index/Ambiguous row are
+closed as cfg(test)-only evidence. The Index/Ambiguous row uses the parsed S2A
+topology with plain `items[j] = i` and co-seals resolver `IndexWrite`, facts
+`Ambiguous("assignment target")`, source/forest/frame identity, actual mode,
+and raw `[V0,V1]` into a private non-`Clone` negative witness. Neutral
+eligibility issuance and production selection remain stopped; execution is
+back at the parent D2 design boundary.
 
 The bounded cfg(test) witness is green with:
 

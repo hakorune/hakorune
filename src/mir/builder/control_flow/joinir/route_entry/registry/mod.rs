@@ -224,6 +224,8 @@ mod generic_nested_if_carrier_evidence_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_handoff_protocol_tests;
 #[cfg(test)]
+mod generic_resolved_carrier_index_ambiguous_tests;
+#[cfg(test)]
 mod generic_resolved_carrier_planner_suppression_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_projector_tests;

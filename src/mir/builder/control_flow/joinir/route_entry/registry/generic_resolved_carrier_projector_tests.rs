@@ -273,12 +273,12 @@ fn parse_function(source: &str) -> ASTNode {
         .expect("projector fixture must contain a function")
 }
 
-fn unit(source: &str) -> VerifiedResolvedSourceUnitV1 {
+pub(super) fn unit(source: &str) -> VerifiedResolvedSourceUnitV1 {
     VerifiedResolvedSourceUnitV1::resolve_function(parse_function(source))
         .expect("projector fixture resolves")
 }
 
-fn input_and_root(
+pub(super) fn input_and_root(
     unit: &VerifiedResolvedSourceUnitV1,
 ) -> (ResolvedFunctionLoweringInputV1<'_>, LocatedStmtV1<'_>) {
     let input = unit.root_function_input().expect("root function input");

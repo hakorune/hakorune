@@ -115,14 +115,14 @@ carrier labels/tags are corroborating only. This remains test-only evidence;
 no Generic route, Recipe, JoinSig, PHI, physicalizer, Builder, MIR, or runtime
 authority is changed.
 
-S2, the scoped D3 matrix, the source-backed bridge, and the planner-suppression
-row are closed as cfg(test)-only tests. The next bounded row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`: reuse
-the parsed S2A outer/inner `IfThen` topology with plain `items[j] = i`, and
-co-seal resolver `IndexWrite`, facts `Ambiguous("assignment target")`, exact
-source/forest/frame identity, actual Release/Strict mode, and observed raw
-schedule. The result is typed pre-effect `UnresolvedStop`; no production
-selector, neutral issuer, or route handoff is allowed.
+S2, the scoped D3 matrix, the source-backed bridge, the planner-suppression
+row, and the Index/Ambiguous row are closed as cfg(test)-only tests. The
+Index/Ambiguous row reuses the parsed S2A outer/inner `IfThen` topology with
+plain `items[j] = i`, and co-seals resolver `IndexWrite`, facts
+`Ambiguous("assignment target")`, exact source/forest/frame identity, actual
+Release/Strict mode, and raw `[V0,V1]`. Its result is typed pre-effect
+`UnresolvedStop`; no production selector, neutral issuer, or route handoff is
+allowed. Execution has returned to the parent D2 design stop.
 
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
 pre-effect resolver eligibility from post-effect V1 corroboration. The next

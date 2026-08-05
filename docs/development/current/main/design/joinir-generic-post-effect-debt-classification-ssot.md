@@ -950,12 +950,14 @@ the same parsed S2A source suppresses V0 before selection, proves raw `[V1]`,
 and retains typed `UnresolvedStop(PlannerRequiredV0Suppression)` with repeat
 stability. Neither row has a neutral issuer, production selector/router arm,
 Builder/MIR caller, Recipe, PHI, Retry, or fallback. Parent D2 remains the
-source-to-selection design stop. Before any eligibility protocol, the selected
-next row is `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`:
-a parsed nested `items[j] = i` source must prove resolver `IndexWrite` and
-facts `Ambiguous("assignment target")` as a typed pre-effect unresolved
-negative. No production issuer, adapter, selector, or parent-D2 closeout is
-implied.
+source-to-selection design stop. The follow-on
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is now
+closed as cfg(test)-only evidence: the parsed nested `items[j] = i` source
+proves resolver `IndexWrite` and facts `Ambiguous("assignment target")`, with
+exact source/forest/frame identity, actual Release/Strict raw `[V0,V1]`, and
+typed `UnresolvedStop(IndexWriteAmbiguousCarrier)`. No production issuer,
+adapter, selector, or parent-D2 closeout is implied; execution is back at the
+parent design boundary.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

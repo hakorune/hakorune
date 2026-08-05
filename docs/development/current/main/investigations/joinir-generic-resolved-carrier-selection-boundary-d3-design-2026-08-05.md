@@ -4,6 +4,7 @@ Date: 2026-08-05
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Predecessor: joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md
 Decision: provisional — no production selector change until handoff seals
+Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-BOUNDARY-D3-DESIGN0-D0`
 ---
 
 # Generic resolved-carrier source-to-selection boundary
@@ -505,13 +506,13 @@ production owner.
   V0-only, Unavailable, Ambiguous, NoRecursive, and full parent D2 remain
   separate unresolved rows.
 
-## Selected bounded task — source-backed Index/Ambiguous matrix row
+## Closed bounded task — source-backed Index/Ambiguous matrix row
 
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`
 
-Decision: accepted as one cfg(test)-only negative matrix row after independent
-worker adjudication. Eligibility issuance and production handoff remain
-stopped until this missing source-backed axis is closed.
+Decision: accepted and implemented as one cfg(test)-only negative matrix row
+after independent worker adjudication. Eligibility issuance and production
+handoff remain stopped after this source-backed axis is closed.
 
 ### Change
 
@@ -538,12 +539,18 @@ stopped until this missing source-backed axis is closed.
 ### Done
 
 - Focused tests prove the parsed fixture's two-member forest, exact nested
-  `IndexWrite`, exact `Ambiguous` carrier fact, same source/frame identity,
-  actual Release/Strict raw schedule, fresh-repeat stability, and typed
-  pre-effect unresolved disposition. The taskization commit updates this card,
-  current pointers, Generic/resolved-semantics READMEs, stage-matrix reference,
-  and the workstream; implementation closeout must update them again with
-  measured evidence and reference status.
+  `IndexWrite`, exact `Ambiguous("assignment target")` carrier fact, same
+  source/frame identity, actual Release/Strict raw schedule
+  `[GenericLoopV0, GenericLoopV1]`, fresh-repeat stability, and typed
+  pre-effect unresolved disposition. The focused `generic_resolved_carrier_`
+  suite is green (19 tests, including the three new Index/Ambiguous tests).
+- The implementation remains cfg(test)-only: no production resolver/facts
+  widening, neutral issuer, eligibility/selector arm, Builder/MIR caller,
+  Recipe/JoinSig/PHI/physicalizer, Retry, or fallback was added. The updated
+  Generic/resolved-semantics READMEs, stage-matrix reference, workstream,
+  current pointers, and this reference design card record the measured result
+  in the same implementation commit; future implementation of the language
+  path must update the reference documents again at its own closeout.
 
 ### Stop
 
