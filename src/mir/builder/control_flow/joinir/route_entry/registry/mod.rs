@@ -244,6 +244,8 @@ mod generic_resolved_carrier_projector_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_provenance_observation_tests;
 #[cfg(test)]
+mod generic_resolved_carrier_provenance_product_tests;
+#[cfg(test)]
 mod generic_selection_matrix_tests;
 #[cfg(test)]
 mod generic_semantic_digest_tests;

@@ -1,4 +1,4 @@
-Status: accepted design stop — no implementation
+Status: accepted design stop; D3-S2-S2 child closed cfg(test)-only
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md
 Supersedes: the next-row ambiguity after D3-S1-S2
@@ -217,6 +217,11 @@ resolved-semantics README remains the owner/issuer boundary, and the execution
 must add a cfg(test)-only positive/mixed/negative matrix before any later
 design row is opened. Generic snapshot/key/seed, opaque selection input, and
 every production caller remain closed.
+
+The S2 child is now closed as cfg(test)-only evidence. Its private factory
+consumes one co-sealed resolver handoff, rejects the typed mismatch matrix
+before effects, and publishes no production capability or selector input.
+The frontier returns to this design stop for the next ownership decision.
 
 ## Acceptance
 

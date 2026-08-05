@@ -1,5 +1,5 @@
 ---
-Status: selected cfg(test)-only execution brief; production remains closed
+Status: closed cfg(test)-only evidence; production remains closed
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-PROVENANCE-PRODUCT0-D3-S2-S2`
@@ -31,15 +31,20 @@ registry selection, labels, and route IDs never issue or own it.
 
 ## Done
 
-- Focused positive, mixed-session, and typed-negative provenance tests are
-  green; production caller/import and artifact remain zero/none.
+- Added the private non-`Clone` `resolved_semantics` handoff/product boundary
+  and a five-row focused positive/mixed/typed-negative matrix; all ten legacy
+  S0/S1 plus S2 tests pass. Production caller/import and artifact remain
+  zero/none.
+- The only product constructor consumes one co-sealed handoff. Fixture-only
+  `for_test(...)` ingress cannot become a production issuer; no detachable
+  parts accessor or `Clone` implementation exists.
 - `GenericCarrierFactsSnapshotV1`, `LoopBindingKeyV1`, `InvocationSeal`,
   preflight seed, selector/eligibility/winner, Recipe/JoinSig/PHI, Return/ABI/
   Home/debt, MIR/VM, and runtime routes remain unclaimed.
-- Update the D3-S2 design card, resolved-semantics README, `CURRENT_STATE.toml`,
-  10-Now, and workstream in the same implementation commit. Keep every
-  touched source/check file below 800 lines and run the focused provenance
-  suite, pointer guard, diff check, and line guard.
+- Updated the D3-S2 design card, resolved-semantics README, `CURRENT_STATE.toml`,
+  10-Now, workstream, and this task card in the implementation commit. Every
+  touched source/check file remains below 800 lines; focused suite, pointer
+  guard, diff check, and line guard are required receipts.
 
 ## Stop
 

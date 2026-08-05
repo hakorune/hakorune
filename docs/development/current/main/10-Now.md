@@ -68,13 +68,13 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- D3-S1 is closed as the prior policy boundary. D3-S2-S0 and the selected
-  D3-S2-S1 cfg(test)-only cross-session brand audit are closed. D3-S2-S2 is
-  now the selected bounded passive product: one private non-Clone
-  `resolved_semantics` factory consumes one co-sealed handoff and rejects
-  typed owner/forest/frame/role mismatches before effects. No Generic
-  snapshot/key/seed, selector, Builder/MIR/Recipe/PHI, Return/Home/debt, or
-  production caller is claimed.
+- D3-S1 is closed as the prior policy boundary. D3-S2-S0, D3-S2-S1, and the
+  bounded D3-S2-S2 cfg(test)-only passive provenance product are closed.
+  S2 consumes one co-sealed handoff in a private non-Clone
+  `resolved_semantics` factory and rejects typed owner/forest/frame/role
+  mismatches before effects. No Generic snapshot/key/seed, selector,
+  Builder/MIR/Recipe/PHI, Return/Home/debt, or production caller is claimed;
+  the frontier returns to the D3-S2 design stop.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

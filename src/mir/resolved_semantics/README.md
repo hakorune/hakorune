@@ -225,23 +225,26 @@ there is no typed BindingRef-to-ValueId provenance or full-return parity. The
 actual legacy trace remains V0 terminal/no-debt, planner-required remains
 `[V1]` unresolved, and production selection/issuer authority remains zero.
 
-The current frontier is the docs-only typed provenance handoff design
-`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`.
-It must define one resolver-owned `BindingRefV1` observation, an AST-free
-`GenericCarrierFactsSnapshotV1`, a typed logical binding relation, and one
-non-Clone opaque handoff before implementation. `LoopRouteContext` remains a
-loop-fragment owner; it does not lower post-loop Return/ABI/Home semantics.
-Scalar full-function Return projection is deferred cfg(test) evidence, natural
-debt-to-different-winner requires a real producer receipt, and Home-bearing
-evidence is a separate design. No selector, issuer, Recipe, PHI, Builder, MIR,
-retry, fallback, or runtime caller is authorized by this README entry.
+The typed provenance handoff design
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`
+remains the authority for the upper source-to-selection boundary. Its first
+two observation children are closed as cfg(test)-only evidence, and the
+bounded passive product
+`JOINIR-GENERIC-RESOLVED-CARRIER-PROVENANCE-PRODUCT0-D3-S2-S2` is now closed
+as cfg(test)-only evidence. `LoopRouteContext` remains a loop-fragment owner;
+it does not lower post-loop Return/ABI/Home semantics. Scalar full-function
+Return projection, natural debt-to-different-winner, and Home-bearing
+evidence remain separate design rows. No selector, Generic snapshot/key/seed,
+opaque input, Recipe, PHI, Builder, MIR, retry, fallback, or runtime caller is
+authorized by this product.
 
-The first selected child is the narrower cfg(test)-only
-`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`.
-It consumes existing resolver forest/frame and exact `BindingRefV1`
-role/ancestry relations into a private witness. It does not create the Generic
-snapshot, assign `LoopBindingKeyV1`, or issue a seed/opaque selection input;
-those remain follow-up design boundaries.
+The passive product consumes one resolver-issued owner/forest/frame/role
+handoff as a single non-`Clone` value and publishes one opaque AST-free source
+witness. It rejects mixed owner brands, foreign/unequal bindings, duplicate or
+unsupported roles, incomplete forest shape, source/frame mismatch, and wrong
+strict-ancestor shape before any Builder effect. DirectAccum's ownerless
+structural frame remains unchanged. The factory is test-only; its
+`for_test(...)` constructors are fixture ingress, not semantic issuers.
 
 The observation child is now closed as cfg(test)-only evidence. It records
 only resolver-owned forest/frame and exact `BindingRefV1` role/ancestry facts;
