@@ -989,12 +989,12 @@ this cfg(test)-only design cell has no public `docs/reference` row.
 
 ## D4-S4-S2-D0 resolver role-issuer design closeout
 
-Worker API census closes this as `NoSafeSlice`: caller-selected test data is the current role ingress, and the sealed resolver lacks exact expression membership/parent-role topology for Condition/Step sites.
-D0 fixes the neutral prerequisite: resolver traversal must seal a
-`ResolvedSourceRoleTopologyV1` with owner/origin, exact statement/expression site membership, parent `ExprChildRoleV1`/`BodyChildRoleV1`, and loop/body anchors; existing BindingRef maps remain resolver authority.
-## D4-S4-S2-D0 neutral role-topology design task
+Worker API census closes direct V2 issuance as `NoSafeSlice`: current role ingress is caller-selected test data and exact site membership is not sealed.
+D0 selects the neutral prerequisite `VerifiedResolvedSourceSiteInventoryV1`:
+separate statement/expression membership with owner/origin/source-kind brand and point lookup only; no AST, names, node kinds, roles, operators, literals, or
+parent-role map. `SourcePathSegmentV1` remains the sole topology authority:
+parent membership plus canonical child-path extension proves role placement.
+## D4-S4-S2-S0 source-site inventory implementation task
 
-Next task: design/seal that topology during resolver traversal, then allow a
-cfg(test) `GenericShapeSourceLeaseV2` Condition+Step catalog to consume it.
-No AST/name scan, shape proof, selector, demand, Recipe, Builder/MIR, retry,
-fallback, or production caller is allowed; implementation cells update current/support/reference docs in the same commit.
+Next task: record/seal the inventory during resolver traversal, then let V2 consume it. No AST/name scan, shape proof, selector, demand, Recipe, Builder/MIR,
+retry, fallback, or production caller; implementation updates current/support/reference docs in the same commit.

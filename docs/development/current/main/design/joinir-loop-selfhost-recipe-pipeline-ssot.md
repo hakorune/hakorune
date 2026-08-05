@@ -295,20 +295,22 @@ calls, exits, scopes, and loop forest/frame—but not an exact inventory of all
 statement/expression sites or their parent child roles. Path synthesis could
 therefore publish a non-existent `LoopCondition/Rhs` as if it were exact.
 
-The required neutral prerequisite is a resolver-owned product, proposed as
-`VerifiedResolvedSourceSiteInventoryV1` (name remains subject to the topology
-D0). It is recorded during the existing shadow traversal and co-sealed into
-the resolved-function product; it stores only owner/origin/source-kind brands,
-exact statement/expression membership, and parent `ExprChildRoleV1` /
-`BodyChildRoleV1` topology. It stores no AST, names, node kinds, operators,
-literals, route IDs, or MIR identities. Existing resolver variable/assignment
-maps remain the sole `BindingRef` authority.
+The required neutral prerequisite is a resolver-owned
+`VerifiedResolvedSourceSiteInventoryV1`. It is recorded during the existing
+shadow traversal and co-sealed into the resolved-function product; it stores
+only owner/origin/source-kind brands, separate exact statement/expression
+membership, and point lookup. It stores no AST, names, node kinds, roles,
+operators, literals, route IDs, or MIR identities. `SourcePathSegmentV1` is
+the sole topology authority: an inventoried parent plus an inventoried child at
+the canonical appended segment proves placement without a second parent-role
+map. Existing resolver variable/assignment maps remain the sole `BindingRef`
+authority.
 
 The task order is therefore:
 
 ```text
 RESOLVED-SOURCE-SITE-INVENTORY0-D0
-  -> design topology, ownership, completeness, and typed rejects
+  -> design inventory ownership, completeness, and typed rejects
 RESOLVED-SOURCE-SITE-INVENTORY0-S0
   -> resolver traversal recording + seal witness; no Generic consumer
 D4-S4-S2-S0

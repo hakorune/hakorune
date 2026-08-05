@@ -494,9 +494,9 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-EXTENSION0-D4-
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0
   -> worker API/source census proves direct V2 issuance is NoSafeSlice:
      resolver lacks exact site inventory and parent-role topology.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-RESOLVED-SOURCE-SITE-INVENTORY0-D4-S4-S2-D0
-  -> design the neutral resolver topology before any Generic role catalog; no
-     AST/name scan, selector, demand, Recipe, Builder/MIR, retry, or fallback.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-RESOLVED-SOURCE-SITE-INVENTORY0-D4-S4-S2-S0
+  -> record/seal separate statement/expression site membership during resolver traversal; no parent-role map, AST/name scan, selector, demand, Recipe,
+     Builder/MIR, retry, or fallback.
 ```
 
 ## Production invariants
