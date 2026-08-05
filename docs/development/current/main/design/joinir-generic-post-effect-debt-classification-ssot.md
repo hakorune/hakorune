@@ -910,7 +910,7 @@ consumes only that plan. Missing, foreign, ambiguous, planner-suppressed,
 unsupported, or unstable rows remain `UnresolvedStop`; no post-effect retry or
 fallback is allowed. No V0 suppression, V1 precedence,
 Recipe/JoinSig/PHI, physicalizer, Builder, MIR, backend, or M10 cutover is
-authorized by D1 or the selected P0 source-site census.
+authorized by D1 or the selected P0/P1 source-site projection closeout.
 The design-stop protocol witness is now test-only: six `cfg(test)` cases cover
 typed Legacy/Resolved input, target-missing rejection, identity/seal mismatch,
 pre-effect negative dispositions, and a generated 1,440-row matrix over the

@@ -235,8 +235,9 @@ recipe-local `LoopBindingKeyV1` values and their `BindingRefV1` relation.
 Binding SSA remains the sole physical `BindingRefV1 -> ValueId/PHI` owner and
 does not mint Recipe keys. Independent preflight-seed, invocation-seal, and
 four-field selection-input authorities are rejected; a later selector may
-consume only one verified non-`Clone` canonical plan. The selected next row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-SITE-TOTALITY-CENSUS0-D3-S2-P0`.
+consume only one verified non-`Clone` canonical plan. P0 is closed by its
+machine-readable facts/producer-arm matrix. The selected next row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-PROJECTION0-D3-S2-P1`.
 
 The first two observation children are closed as cfg(test)-only evidence, and the
 bounded passive product

@@ -1,5 +1,5 @@
 ---
-Status: active design stop — D3-S2-D1 authority map accepted; P0 selected
+Status: active design stop — D3-S2-D1 authority map accepted; P0 closed; P1 selected
 Date: 2026-08-05
 Parent: ../design/joinir-generic-post-effect-debt-classification-ssot.md
 Predecessor: joinir-generic-nested-carrier-d3-bindingref-design-2026-08-05.md
@@ -36,9 +36,11 @@ Binding SSA remains the physical `BindingRefV1 -> ValueId/PHI` owner and never
 issues Recipe keys. `LivePreflightFrameV1` and the current registry remain
 legacy transport/parity owners until the later atomic cutover.
 
-The selected next row is the static P0 source-site totality census named in
-the D3-S2 card. It adds no issuer, selector, Builder/MIR/PHI, Return/Home/debt,
-fallback, retry, or production caller.
+P0 source-site totality census is closed by its machine-readable matrix. The
+selected next row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-PROJECTION0-D3-S2-P1`; it adds no
+issuer, selector, Builder/MIR/PHI, Return/Home/debt, fallback, retry, or
+production caller.
 
 ## Boundary
 

@@ -1,4 +1,4 @@
-Status: selected static census; production remains closed
+Status: closed static census; production remains closed
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-SITE-TOTALITY-CENSUS0-D3-S2-P0`
@@ -39,3 +39,17 @@ pairing, name/label/`ValueId` inference, a resolver/neutral Recipe key, a
 second schedule owner, synthetic debt, fallback/retry, or any production
 caller. The follow-up P1 must reuse and close existing projector/source-bridge
 evidence; it may not introduce a new resolver or neutral source issuer.
+
+# Result
+
+The machine-readable matrix is
+`joinir-generic-resolved-carrier-source-site-totality-census-d3-s2-p0-matrix-2026-08-05.tsv`.
+It covers every current V0/V1 facts field, extraction product, observation
+arm, producer arm, aggregate slot, and downstream physical carrier boundary.
+All current Generic facts fields are AST-bearing, name-only, or derived; none
+is a canonical source-site/owner/`BindingRefV1` product. Existing resolver
+forest/frame/role witnesses are source-site-backed test evidence only and are
+reused by P1. The census found no reason to mint a second source issuer.
+
+P0 is complete. The selected next row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-PROJECTION0-D3-S2-P1`.

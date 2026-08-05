@@ -1,0 +1,59 @@
+kind	item	evidence	classification	source_site	owner_brand	binding_ref	strict_ancestor	overlap	decision
+role	GenericLoopCarrierRoleV1::NumericProgression	facts_types.rs:10-18; v0.rs:100-106	derived semantic enum	0	0	0	0	Generic/DirectAccum/A+ partition unresolved	retain as observation only
+role	GenericLoopCarrierRoleV1::BodyManagedState	facts_types.rs:10-18; v1.rs:289-315	derived semantic enum	0	0	0	0	Generic/DirectAccum/A+ partition unresolved	retain as observation only
+step	NumericProgression.placement	facts_types.rs:20-31; v1.rs:318-369	derived StepPlacement/index	0	0	0	0	physical step owner is downstream	Recipe producer must revalidate later
+step	NumericProgression.canonical_body_len	facts_types.rs:25-29; v1.rs:369	derived scalar	0	0	0	0	no source totality	never source identity
+step	BodyManagedState	facts_types.rs:25-31; v1.rs:289-315	derived step disposition	0	0	0	0	body-managed policy overlap unresolved	no key/plan authority
+observation	CompleteNoRecursiveCarrier	facts_types.rs:46-56; collection.rs:36-40	derived structural observation	0	0	0	0	Natural V0/V1 overlap remains unresolved	pre-effect evidence only
+observation	CompleteRecursiveCarrier(Vec<String>)	facts_types.rs:51-55; collection.rs:40-42	name-only carrier labels	0	0	0	0	NestedPredicate/DirectAccum/A+ overlap unresolved	labels cannot become provenance
+observation	Unavailable(String)	facts_types.rs:51-55; collection.rs:43-45	name-only reject reason	0	0	0	0	unsupported containers are explicit stops	typed reject only
+observation	Ambiguous(String)	facts_types.rs:51-55; collection.rs:45-47	name-only reject reason	0	0	0	0	ambiguous assignment/index rows remain stops	typed reject only
+v0_field	carrier_role	facts_types.rs:58-66; v0.rs:100-106	derived semantic enum	0	0	0	0	V0 is legacy observation, not winner	no neutral promotion
+v0_field	loop_var	facts_types.rs:60-65; v0.rs:49-52	name-only candidate	0	0	0	0	candidate identity is not BindingRef	must be projected from resolver
+v0_field	condition	facts_types.rs:60-65; v0.rs:102-105	AST-bearing expression	0	0	0	0	condition source span is not canonical site	retain only in legacy facts
+v0_field	loop_increment	facts_types.rs:60-65; v0.rs:50-52,104	AST-bearing expression	0	0	0	0	step canon has no source owner	retain only in legacy facts
+v0_field	body	facts_types.rs:60-65; v0.rs:30,105	AST-bearing RecipeBody	0	0	0	0	body copy is not source forest	P1 must reuse source projector
+v1_field	carrier_role	facts_types.rs:68-80; v1.rs:205-216	derived semantic enum	0	0	0	0	winner/disjointness not proven	no selector input
+v1_field	loop_var	facts_types.rs:70-75; v1.rs:96-110,205-210	name-only candidate	0	0	0	0	candidate identity is not BindingRef	must be projected from resolver
+v1_field	condition	facts_types.rs:70-75; v1.rs:86-93,208	AST-bearing expression	0	0	0	0	condition source span is not canonical site	no neutral snapshot
+v1_field	loop_increment	facts_types.rs:70-75; v1.rs:110-145,209	AST-bearing expression	0	0	0	0	step canon has no source owner	no neutral snapshot
+v1_field	body	facts_types.rs:70-75; v1.rs:151-160,210	AST-bearing RecipeBody	0	0	0	0	flat body copy is not source forest	no neutral snapshot
+v1_field	carrier_observation	facts_types.rs:76; v1.rs:211; collection.rs:36-47	derived structural + String labels	0	0	0	0	NestedPredicate/DirectAccum/A+ overlap unresolved	observation only
+v1_field	body_lowering_policy	facts_types.rs:77; v1.rs:76-82,151-177	derived policy/environment	0	0	0	0	policy is not source identity	selector/policy owner later
+v1_field	body_exit_allowed	facts_types.rs:78; v1.rs:161-171	AST-bearing recipe product	0	0	0	0	recipe coverage is downstream	no source authority
+v1_field	body_no_exit	facts_types.rs:79; v1.rs:173-178	AST-bearing recipe product	0	0	0	0	recipe coverage is downstream	no source authority
+product	GenericLoopV1ExtractionV1.facts	facts_types.rs:82-108; v1.rs:205-216	private co-sealed legacy product	0	0	0	0	co-sealing prevents loose pairing only	not canonical plan
+product	GenericLoopV1ExtractionV1.step	facts_types.rs:82-108; v1.rs:216	private co-sealed derived product	0	0	0	0	no source/owner relation	Recipe producer later
+producer_arm	V0 planner_required -> None	v0.rs:31-38	policy gate	0	0	0	0	planner suppression is not source proof	retain typed stop
+producer_arm	V0 unsupported canonical condition -> None	v0.rs:40-47	derived reject	0	0	0	0	condition has no source owner	retain typed stop
+producer_arm	V0 candidate loop vars from condition	v0.rs:48-49	name-only candidate list	0	0	0	0	candidate identity is not BindingRef	project from resolver later
+producer_arm	V0 missing increment -> skip	v0.rs:50-54	derived reject	0	0	0	0	no source totality	retain typed stop
+producer_arm	V0 placement reject/None -> reject or skip	v0.rs:56-63	derived reject	0	0	0	0	step policy is not source identity	retain typed stop
+producer_arm	V0 planner control-flow-after-step -> skip	v0.rs:65-69	derived policy reject	0	0	0	0	planner mode is not source identity	retain typed stop
+producer_arm	V0 step validator false -> skip	v0.rs:71-83	derived shape reject	0	0	0	0	validator has no source owner	retain typed stop
+producer_arm	V0 non-loop write -> skip	v0.rs:85-87	derived structural reject	0	0	0	0	write classification is not BindingRef	retain typed stop
+producer_arm	V0 V1-shape guard -> skip	v0.rs:89-93	derived overlap guard	0	0	0	0	V0/V1 overlap unresolved	no winner claim
+producer_arm	V0 body V1 guard -> skip	v0.rs:95-98	derived overlap guard	0	0	0	0	V0/V1 overlap unresolved	no winner claim
+producer_arm	V0 canon candidate -> NumericProgression	v0.rs:40-106	AST/name-derived success	0	0	0	0	V0 terminal/debt semantics unresolved	legacy observation only
+producer_arm	V0 empty matches -> None	v0.rs:109-115	derived reject	0	0	0	0	no source totality	retain typed stop
+producer_arm	V0 multiple candidates -> AmbiguousLoopVarCandidates	v0.rs:118-128	derived reject	0	0	0	0	no source-backed ambiguity card	typed reject only
+producer_arm	V1 NumericProgression	v1.rs:110-216	AST/name/recipe-derived success	0	0	0	0	natural V0/V1 winner unresolved	no selector arm
+producer_arm	V1 BodyManagedState	v1.rs:289-315,355-369	AST/name-derived success	0	0	0	0	body-managed semantics unresolved	no selector arm
+producer_arm	V1 unsupported canonical condition -> None	v1.rs:86-93	derived reject	0	0	0	0	condition has no source owner	retain typed stop
+producer_arm	V1 candidate fallback body scanner	v1.rs:96-103	name-only candidate list	0	0	0	0	candidate identity is not BindingRef	project from resolver later
+producer_arm	V1 step outcomes NoIncrement/PlacementNone/ControlFlowAfterStep/StepInvalid/AbortNone/Freeze	v1.rs:111-145,281-379	derived reject/abort	0	0	0	0	no source owner	typed stop only
+producer_arm	V1 shape detection	v1.rs:147-150	derived shape observation	0	0	0	0	shape overlap unresolved	no selector arm
+producer_arm	V1 recipe body full-vs-filtered branch	v1.rs:151-168	AST-bearing recipe derivation	0	0	0	0	recipe coverage is downstream	no source authority
+producer_arm	V1 planner recipe-unbuildable -> reject	v1.rs:169-172	derived policy reject	0	0	0	0	planner state is not source identity	typed stop only
+producer_arm	V1 no-exit recipe and policy downgrade	v1.rs:173-178	AST-bearing/derived policy	0	0	0	0	shared recipe vocabulary	no neutral promotion
+producer_arm	V1 V0 guard -> reject	v1.rs:179-184	derived overlap guard	0	0	0	0	V0/V1 overlap unresolved	no winner claim
+producer_arm	V1 planner trace	v1.rs:186-203	diagnostic side effect	0	0	0	0	trace is not semantic authority	no product
+producer_arm	V1 carrier observation arms	collection.rs:36-47	derived structural observation	0	0	0	0	unsupported/ambiguous rows are stops	no route selection
+producer_arm	V1 empty matches -> None	v1.rs:219-256	derived reject	0	0	0	0	no source totality	retain typed stop
+producer_arm	V1 multiple matches -> ambiguous reject	v1.rs:258-268	derived reject	0	0	0	0	candidate names are not source identity	typed stop only
+producer_arm	try_extract_generic_loop_v1_facts	v1.rs:273-278	compatibility facade	0	0	0	0	raw facts caller remains legacy	no new authority
+aggregate	LoopFacts.generic_loop_v0 / generic_loop_v1	plan/facts/loop_types.rs:34-47	container slots only	0	0	0	0	aggregate has no source relation	do not snapshot aggregate
+aggregate	CanonicalLoopFacts wrapper	lower/normalize/canonicalize.rs:10-19	derived wrapper	0	0	0	0	moves LoopFacts only	no source authority
+physical_boundary	GenericLoopV1CarrierState and carrier_infos	features/generic_loop_body/carriers.rs:12-21,40-76	physical ValueId/PHI state	0	0	0	0	Binding SSA/PHI owner is separate	P0 excludes physical promotion
+physical_boundary	PreparedGenericLoopCarrierRepresentationV1	generic_loop/carrier_representation.rs:23-25,43-53	derived Builder/MIR representation	0	0	0	0	A+/physical route overlap	P0 excludes physical promotion
+source_witness	resolver forest/frame/BindingRef test products	D3-S2-S0/S1/S2/S3 cards and cfg(test) bridge tests	source-site-backed test evidence	1	test-only brand	1	1	candidate projector/bridge only	reuse in P1; no new issuer

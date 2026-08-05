@@ -1,4 +1,4 @@
-Status: accepted authority realignment; D1 closed docs-only; P0 selected
+Status: accepted authority realignment; D1/P0 closed docs-static-only; P1 selected
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md
 Supersedes: the next-row ambiguity after D3-S1-S2
@@ -225,10 +225,12 @@ D3-S2-R0  LEGACY-RETIRE0
   -> parity/caller census/reference closeout and selected old-edge deletion
 ```
 
-The selected immediate execution row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-SITE-TOTALITY-CENSUS0-D3-S2-P0`.
-Its task card is
-`joinir-generic-resolved-carrier-source-site-totality-census-d3-s2-p0-task-2026-08-05.md`.
+P0 is closed by the static matrix
+`joinir-generic-resolved-carrier-source-site-totality-census-d3-s2-p0-matrix-2026-08-05.tsv`.
+It proves that current Generic facts fields are AST/name/derived products, not
+canonical source-site/owner/`BindingRefV1` facts. The selected execution row is
+now `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-PROJECTION0-D3-S2-P1`, whose task
+card reuses the existing projector/source-bridge evidence.
 
 The scalar Return/outer-PHI authority map is a D1-dependent docs-only sidecar,
 `JOINIR-GENERIC-RESOLVED-CARRIER-SCALAR-RETURN-AUTHORITY-MAP-DESIGN0-S4-D0`.

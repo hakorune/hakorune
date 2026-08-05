@@ -68,13 +68,13 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- D3-S2-D1 closes the authority realignment docs-only after the S0-S3
-  cfg(test)-only evidence. Resolver owns source projection; only the Recipe
-  producer issues recipe-local `LoopBindingKeyV1`; Binding SSA owns physical
-  ValueId/PHI. Independent seed/seal and four-field selector inputs are
-  superseded by one future non-Clone canonical plan. The selected row is P0
-  source-site totality census. It adds no production authority. Scalar
-  Return/outer-PHI and natural debt-to-different-winner remain NoSafeSlice.
+- D3-S2-D1 and P0 source-site totality census are closed docs/static-only.
+  The matrix proves current Generic facts are AST/name/derived products, not
+  canonical source-site/owner/BindingRef facts. P1 source projection is now
+  selected to reuse existing resolver/projector/bridge evidence. Only the
+  Recipe producer may later issue `LoopBindingKeyV1`; Binding SSA owns physical
+  ValueId/PHI. No production authority moved. Scalar Return/outer-PHI and
+  natural debt-to-different-winner remain NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
