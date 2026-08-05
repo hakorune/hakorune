@@ -68,14 +68,13 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- D3-S1 remains the accepted policy boundary. Its V1-only Local child is
-  closed, and the selected current row is the cfg(test)-only
-  `JOINIR-GENERIC-RESOLVED-CARRIER-CANDIDATE-STAGE-SOURCE-BRIDGE0-D3-S1-S2-D0`.
-  It must co-seal parsed natural-Both resolver facts with fresh V0/V1 plan
-  projections; label-backed BindingRef/final/PHI matches are corroboration,
-  not typed provenance. The result remains
+- D3-S1 remains the accepted policy boundary. Its V1-only Local child and
+  selected S2 cfg(test)-only candidate-stage source bridge are closed. S2
+  co-seals parsed natural-Both resolver facts with fresh V0/V1 plan
+  projections, but label-backed BindingRef/final/PHI matches are corroboration,
+  not typed provenance; full-return parity is unclaimed. The result remains
   `Observed + UnresolvedStop(WinnerCorrectnessUnavailable)`; no production
-  selector/issuer, full-return parity, or handoff is authorized.
+  selector/issuer or handoff is authorized.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

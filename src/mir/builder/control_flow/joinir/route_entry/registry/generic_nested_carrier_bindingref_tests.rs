@@ -30,7 +30,7 @@ use crate::mir::resolved_semantics::{
 use crate::mir::MirType;
 use crate::parser::NyashParser;
 
-const SOURCE: &str = r#"
+pub(super) const SOURCE: &str = r#"
 function generic_both(i, j) {
     loop(i < 3) {
         loop(j < 3) {
@@ -88,7 +88,7 @@ struct VerifiedGenericNestedCarrierDisjointnessV1 {
     legacy_carrier_projection: LegacyCarrierProjectionV1,
 }
 
-fn parse_function(source: &str) -> ASTNode {
+pub(super) fn parse_function(source: &str) -> ASTNode {
     let root = NyashParser::parse_from_string(source).expect("nested carrier source parses");
     let ASTNode::Program { statements, .. } = root else {
         panic!("nested carrier source must parse to Program")
@@ -112,18 +112,18 @@ fn outer_loop_parts(function: &ASTNode) -> (&ASTNode, &[ASTNode]) {
     (condition.as_ref(), body.as_slice())
 }
 
-fn outer_loop_site() -> SourceStmtSiteV1 {
+pub(super) fn outer_loop_site() -> SourceStmtSiteV1 {
     stmt(&[SourcePathSegmentV1::Body(0)])
 }
 
-fn inner_loop_site() -> SourceStmtSiteV1 {
+pub(super) fn inner_loop_site() -> SourceStmtSiteV1 {
     stmt(&[
         SourcePathSegmentV1::Body(0),
         SourcePathSegmentV1::LoopBody(0),
     ])
 }
 
-fn write_site(shadowing: bool) -> SourceExprSiteV1 {
+pub(super) fn write_site(shadowing: bool) -> SourceExprSiteV1 {
     expr(&[
         SourcePathSegmentV1::Body(0),
         SourcePathSegmentV1::LoopBody(0),
@@ -132,7 +132,7 @@ fn write_site(shadowing: bool) -> SourceExprSiteV1 {
     ])
 }
 
-fn post_loop_read_site() -> SourceExprSiteV1 {
+pub(super) fn post_loop_read_site() -> SourceExprSiteV1 {
     expr(&[SourcePathSegmentV1::Body(1), SourcePathSegmentV1::Value])
 }
 
@@ -164,7 +164,10 @@ fn strict_ancestor_binding(
     false
 }
 
-fn resolved_binding(product: &VerifiedResolvedFunctionV1, site: &SourceExprSiteV1) -> BindingRefV1 {
+pub(super) fn resolved_binding(
+    product: &VerifiedResolvedFunctionV1,
+    site: &SourceExprSiteV1,
+) -> BindingRefV1 {
     let Some(ResolvedAssignmentTargetV1::BindingRebind(binding)) = product.assignment_target(site)
     else {
         panic!("nested carrier assignment must resolve to BindingRebind")
@@ -172,7 +175,10 @@ fn resolved_binding(product: &VerifiedResolvedFunctionV1, site: &SourceExprSiteV
     *binding
 }
 
-fn read_binding(product: &VerifiedResolvedFunctionV1, site: &SourceExprSiteV1) -> BindingRefV1 {
+pub(super) fn read_binding(
+    product: &VerifiedResolvedFunctionV1,
+    site: &SourceExprSiteV1,
+) -> BindingRefV1 {
     let Some(ResolvedLexicalRefV1::Local(binding)) = product.variable_ref(site) else {
         panic!("post-loop j read must resolve to Local")
     };

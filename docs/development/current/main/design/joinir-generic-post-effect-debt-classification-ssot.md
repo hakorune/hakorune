@@ -1048,6 +1048,18 @@ co-seals V0=false, V1=true, `CompleteNoRecursiveCarrier`,
 with typed `UnresolvedStop(V1OnlyNonRecursive)`. This does not authorize a selector, neutral issuer,
 Recipe/JoinSig/PHI, Builder/MIR, or production cutover.
 
+The selected D3-S1-S2 source bridge is now closed as cfg(test)-only evidence.
+It uses the same parsed natural-Both source for resolver forest/BindingRef
+obligations and fresh V0/V1 candidate plans. Release/Strict retain raw
+`[V0,V1]`, direct `LowerSome`, and `GenericComposer`; route order and fresh
+snapshots are stable, and repeated resolver owners are distinct. The V0 outer
+plan lacks `j` while the nested plan retains it; V1 exposes outer `j` with
+carrier/step PHI labels. These are label-backed plan projections, not typed
+BindingRef provenance, and the loop context does not lower the full post-loop
+return. Planner-required remains `[V1]` and unresolved; the actual legacy
+witness remains V0 terminal/no-debt. No winner, issuer, selector, Recipe,
+PHI, Builder, MIR, retry, fallback, or runtime authority changed.
+
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:

@@ -899,16 +899,29 @@ dedicated `has_body_local=false` flag, actual frame flags, no recipe contract,
 and raw `[V1]`. Its typed result is `Observed` plus
 `UnresolvedStop(V1OnlyNonRecursive)`. Production handoff remains stopped.
 
-The next bounded child is
+The bounded child was
 `JOINIR-GENERIC-RESOLVED-CARRIER-CANDIDATE-STAGE-SOURCE-BRIDGE0-D3-S1-S2-D0`,
 with task card
 `joinir-generic-resolved-carrier-candidate-stage-source-bridge-d3-s1-s2-task-2026-08-05.md`.
 It is a cfg(test)-only source bridge: the parsed natural-Both source,
-resolver forest/BindingRef, and fresh V0/V1 plan projections must be observed
-in one witness. Existing plan projections use synthetic `both_body()` while
-the parsed observer does not expose plan semantic fields, so those pieces are
-not yet co-sealed. A `diagnostic_name()`/final/PHI label match is corroboration
-only; no typed BindingRef-to-ValueId provenance or full-function post-loop
-return parity may be invented. The result remains
+resolver forest/BindingRef, and fresh V0/V1 plan projections are co-sealed in
+one witness. Existing synthetic `both_body()` evidence remains non-authority;
+the parsed observer and actual plan rows meet only as a label-backed
+projection. A `diagnostic_name()`/final/PHI label match is corroboration only;
+no typed BindingRef-to-ValueId provenance or full-function post-loop return
+parity may be invented. The result remains
 `Observed + UnresolvedStop(WinnerCorrectnessUnavailable)`, and production
 selection stays stopped.
+
+The S2 source bridge is now closed as cfg(test)-only evidence. Its parsed
+natural-Both witness co-seals resolver forest/BindingRef obligations with
+fresh V0/V1 plan projections, Release/Strict raw `[V0,V1]`, direct
+`LowerSome`/`GenericComposer`, forward/reverse snapshot stability, and
+distinct resolver owners. V0's outer `j` projection is absent while the
+nested projection retains it; V1 records outer `j`, `loop_carrier_j`, and
+`loop_step_in_j`, with plan-local final/PHI agreement checked as corroboration
+only. Planner-required remains raw `[V1]` and typed unresolved. The actual
+legacy witness is V0 terminal/no-debt; the synthetic DTO debt/V1-terminal
+negative remains unresolved. This does not add typed BindingRef provenance,
+full post-loop return parity, winner correctness, or any production
+issuer/selector/Recipe/PHI/Builder/MIR caller.

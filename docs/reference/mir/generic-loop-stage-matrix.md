@@ -286,6 +286,18 @@ closed with V0=false, V1=true, `CompleteNoRecursiveCarrier`,
 its typed result is `UnresolvedStop(V1OnlyNonRecursive)`. No selector or
 neutral handoff is authorized by this reference entry.
 
+The D3-S1-S2 candidate-stage source bridge is closed as cfg(test)-only
+inspection evidence. It reuses the parsed natural-Both source for resolver
+forest/BindingRef facts and fresh V0/V1 candidate plans. Release/Strict retain
+raw `[V0,V1]`, direct `LowerSome`/`GenericComposer`, order-independent
+snapshots, and distinct resolver owners. V0 lacks outer `j` while nested V0
+retains it; V1 records outer `j` with `loop_carrier_j` and `loop_step_in_j`.
+These are label-backed plan projections, not typed BindingRef provenance, and
+the direct loop context does not lower the full post-loop return. Planner-
+required remains `[V1]` and unresolved; the actual legacy trace is V0
+terminal/no-debt. No winner, selector, issuer, Recipe, PHI, Builder, MIR,
+retry, fallback, or runtime authority is added.
+
 ## D2-B4-S2A nested `IfThen` carrier evidence
 
 The bounded S2A row is closed as one parsed, `cfg(test)`-only carrier witness.

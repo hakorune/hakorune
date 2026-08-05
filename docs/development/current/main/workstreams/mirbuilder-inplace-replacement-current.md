@@ -477,30 +477,30 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-CANDIDATE-STAGE-SOURCE-BRIDGE0-D3-S1-S2-D0
-  selected — cfg(test)-only source bridge; production selection remains stopped.
+JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0
+  current design stop — D3-S1-S2 cfg(test)-only source bridge is closed;
+  production selection remains stopped.
   Use the same parsed natural-Both source for resolver forest/BindingRef facts
-  and fresh V0/V1 candidate plans. Observe actual outer/nested final/PHI
+  and fresh V0/V1 candidate plans. The closed S2 witness observed outer/nested final/PHI
   projections, direct LowerSome/GenericComposer stages, equal pre-snapshots,
   reverse-order stability, and distinct repeat owners. A name/PHI projection
   is corroboration only; typed BindingRef provenance and full post-loop return
   parity are not claimed. Result stays
   Observed + UnresolvedStop(WinnerCorrectnessUnavailable).
-  Stop on synthetic source, projection mismatch, missing typed provenance,
-  full-return lowering, raw/stage drift, natural V0-only/Neither, or any
-  production issuer/selector/Recipe/PHI/Builder/MIR/VM/retry/fallback caller.
+  S2 closeout is complete; any future row stops on synthetic source,
+  projection mismatch, missing typed provenance, full-return lowering,
+  raw/stage drift, natural V0-only/Neither, or any production
+  issuer/selector/Recipe/PHI/Builder/MIR/VM/retry/fallback caller.
   Task card:
   docs/development/current/main/investigations/
   joinir-generic-resolved-carrier-candidate-stage-source-bridge-d3-s1-s2-task-2026-08-05.md
-  Required assertions: Release/Strict raw [V0,V1]; planner-required [V1]
-  remains unresolved; V0 outer j absent; V1 outer j and carrier/step PHI
-  labels present; nested V0 j remains observable; legacy V0 is terminal with
-  no debt. Fresh route order [V0,V1] and [V1,V0] must agree.
-  The implementation commit must close focused evidence, generic suite,
-  pointer/artifact guards, caller census, and reference indexes together.
-  Reference documentation is updated after implementation, never inferred
-  from this design-only selection. The active card remains the only execution
-  owner; historical rows stay evidence and do not reopen route work.
+  Closed assertions: Release/Strict raw [V0,V1]; planner-required [V1]
+  remains typed unresolved; V0 outer j absent; V1 outer j and carrier/step
+  PHI labels present; nested V0 j remains observable; legacy V0 is terminal
+  with no debt; fresh route order [V0,V1] and [V1,V0] agree. The same
+  implementation closeout updated reference docs, current mirrors, caller
+  census, and pointer/artifact evidence. The active card remains the only
+  execution owner; historical rows stay evidence and do not reopen route work.
   Any failed assertion returns to the D3-S1 design boundary.
   No fallback or retry is permitted.
   Keep touched source and tests below 800 lines.

@@ -186,14 +186,15 @@ Release/Strict frame flags, `has_body_local=false`, no recipe contract, and raw
 `UnresolvedStop(V1OnlyNonRecursive)`. No eligibility, Legacy, winner, selector,
 or production handoff was added.
 
-The next selected child is
+The selected child was
 `JOINIR-GENERIC-RESOLVED-CARRIER-CANDIDATE-STAGE-SOURCE-BRIDGE0-D3-S1-S2-D0`,
 recorded in
 `joinir-generic-resolved-carrier-candidate-stage-source-bridge-d3-s1-s2-task-2026-08-05.md`.
-It is the smallest cfg(test)-only bridge that co-seals the parsed natural-Both
-source/resolver obligation with fresh V0/V1 plan projections. Existing
-synthetic plan evidence and parsed observer rows remain separate until this
-child closes. Its result must remain `Observed +
+It is now closed as the smallest cfg(test)-only bridge that co-seals the
+parsed natural-Both source/resolver obligation with fresh V0/V1 plan
+projections. Existing synthetic plan evidence remains non-authoritative; the
+parsed observer and actual plan rows are co-sealed only as a label-backed
+projection. Its result remains `Observed +
 UnresolvedStop(WinnerCorrectnessUnavailable)`; no typed BindingRef-to-plan
 provenance, full-return parity, or production selection is authorized.
 
@@ -217,5 +218,7 @@ and all touched source/check files below 800 lines. The workstream remains
 exactly 1000 lines.
 
 The design remains a policy boundary. The selected child and its reference
-closeout are complete; production implementation, neutral issuer, selector,
-and parent Generic D2 handoff remain stopped.
+closeout are complete; the parent design, Generic post-effect/stage references,
+resolved-semantics README, current mirrors, and active workstream were updated
+in the implementation closeout. Production implementation, neutral issuer,
+selector, and parent Generic D2 handoff remain stopped.

@@ -33,6 +33,13 @@ inspection surface. It records V0=false, V1=true, exact
 `has_body_local=false` frame boundary; it does not authorize a production
 selector or handoff.
 
+The D3-S1-S2 parsed candidate-stage bridge is likewise inspection-only. It
+co-seals resolver forest/BindingRef identity with fresh V0/V1 plan projections,
+but its final/PHI name match is corroboration rather than typed provenance.
+Release/Strict observe raw `[V0,V1]`; planner-required observes `[V1]` and
+remains unresolved. No winner, selector, issuer, Recipe, PHI, Builder, MIR,
+or runtime behavior is changed.
+
 ## Metadata Classes
 
 `metadata` is not one semantic bucket. Rows must belong to one of these classes

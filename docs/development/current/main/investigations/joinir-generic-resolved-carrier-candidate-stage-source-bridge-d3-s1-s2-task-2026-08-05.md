@@ -1,9 +1,9 @@
 ---
-Status: selected implementation brief — cfg(test)-only
+Status: closed implementation brief — cfg(test)-only
 Date: 2026-08-05
 Exception: durable source-backed candidate-stage bridge after the D3-S1 design stop
 ParentCurrentCard: docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md
-Decision: accepted bounded test row; production selection remains stopped
+Decision: closed bounded evidence row; production selection remains stopped
 Task: JOINIR-GENERIC-RESOLVED-CARRIER-CANDIDATE-STAGE-SOURCE-BRIDGE0-D3-S1-S2-D0
 ---
 
@@ -49,3 +49,18 @@ synthetic AST is used, the projection mismatches, a typed BindingRef-to-plan
 provenance is required, full-function return lowering is attempted, natural
 V0-only/Neither appears, raw/stage identity drifts, or any production caller
 is introduced. Do not widen the API or claim winner correctness.
+
+## Closeout
+
+The source-backed sibling is closed as `Observed` plus
+`UnresolvedStop(WinnerCorrectnessUnavailable)`. Release/Strict parsed natural
+Both produced raw `[V0,V1]`, direct `LowerSome`/`GenericComposer`, stable
+forward/reverse fresh-candidate snapshots, distinct resolver owners, V0 outer
+carrier absence, V1 outer `j` plus carrier/step PHI projection, and actual
+legacy V0 terminal/no-debt. Planner-required retained raw `[V1]` and its typed
+unresolved policy disposition. The evaluator-only DTO negative (synthetic
+debt plus V1 terminal) also remains unresolved. Parent D3 design and reference
+documents were updated in the implementation closeout; no production caller
+or selector authority changed. This cfg(test)-only row emits no generated
+artifact; the artifact inventory is intentionally unchanged and the current
+pointer guard remains green.

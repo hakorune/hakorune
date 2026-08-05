@@ -215,6 +215,16 @@ cfg(test)-only evidence: it co-seals V0=false, V1=true,
 recipe contract, and raw `[V1]`, with typed
 `UnresolvedStop(V1OnlyNonRecursive)`.
 
+The D3-S1-S2 candidate-stage source bridge is also closed as cfg(test)-only
+evidence. It co-seals the parsed natural-Both resolver forest/BindingRef
+obligation with fresh V0/V1 plan projections and proves Release/Strict raw
+`[V0,V1]`, direct `LowerSome`/`GenericComposer`, stable route-order snapshots,
+distinct resolver owners, V0 outer-carrier absence, and V1 outer `j` plus
+carrier/step PHI labels. The projection is name-backed corroboration only;
+there is no typed BindingRef-to-ValueId provenance or full-return parity. The
+actual legacy trace remains V0 terminal/no-debt, planner-required remains
+`[V1]` unresolved, and production selection/issuer authority remains zero.
+
 The bounded cfg(test) witness is green with:
 
 ```bash
