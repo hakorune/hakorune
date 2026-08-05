@@ -455,51 +455,40 @@ capability.
   source shape. Parent D2, full source-backed matrix, neutral issuer, and
   production selector remain `UnresolvedStop`.
 
-## Selected next bounded task — source-backed V0-only non-recursive row
+## Premise audit — V0-only non-recursive row is not currently admissible
 
-Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1`
+The candidate
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V0ONLY-NORECURSIVE0-D2-S1`
+was rejected before implementation. The current source-backed facts authority
+does not provide the assumed natural V0-only witness: the parsed additive
+candidate reaches raw `[GenericLoopV0, GenericLoopV1]`, and the existing stage
+matrix records the V0-only class as `NotYetObserved`/`UnresolvedStop` rather
+than proving `[GenericLoopV0]`. A new fixture or a policy filter would be a
+second semantic authority, so it is prohibited.
 
-Decision: accepted as the first D2 source-backed matrix row. It closes the
-typed non-target/Legacy boundary before planner and unsupported-carrier rows;
-neutral issuer and production selection remain prohibited.
+### Evidence and boundary
 
-### Change
+- Resolver/source forest, BindingRefs, and the actual `try_build_outcome` /
+  `select_recipe_first_routes` result are authoritative.
+- The raw route vector is `[GenericLoopV0, GenericLoopV1]` for the natural
+  additive candidate; labels, the synthetic matrix's `V0Only` enum, and a
+  desired Legacy disposition are not evidence.
+- Therefore `Legacy(ProvenOutsideTarget)` cannot be issued. The row must remain
+  typed `UnresolvedStop`; no source-backed non-target receipt was created.
 
-- Add one parsed simple-loop source shape with a one-member resolved loop
-  forest, no recursive carrier, and a post-loop read of the loop variable.
-- Observe the same-invocation resolver/source/facts/frame products for Release
-  and Strict and issue only a private non-`Clone` test receipt describing
-  `ProvenOutsideTarget`; do not create a resolved capability or re-pair D1's
-  nested-loop receipt.
+### Remaining design candidates
 
-### Contract
+1. Repair the D1 mode co-seal and observe the existing S2A target under actual
+   Strict+planner-required configuration, retaining typed unresolved status if
+   the source schedule changes to `[V1]`.
+2. Re-audit the complete facts classifier for a naturally constructible
+   non-target row before selecting another Legacy boundary.
+3. Keep Unavailable, Ambiguous, frame mismatch, and unsupported shapes as
+   separate rows; do not combine them with this failed premise.
 
-- Source authority is `VerifiedResolvedFunctionV1`/`FunctionSourceViewV1`, the
-  one-member resolved forest, resolver-issued BindingRefs, and the actual
-  canonical facts/raw schedule. The accepted schedule is exactly
-  `[GenericLoopV0]` with `CompleteNoRecursiveCarrier`.
-- The typed result is `Legacy(ProvenOutsideTarget)` only for this proven
-  non-target row. Missing facts, identity/frame mismatch, planner-required,
-  V1/Neither, another carrier disposition, or a different schedule is a
-  pre-effect `UnresolvedStop`, never a Legacy fallback. No placeholder
-  BindingRef, AST/name reconstruction, neutral issuer, selector, Recipe,
-  Builder/MIR/backend, Retry, or fallback change is allowed.
-
-### Done
-
-- Release/Strict focused source-backed tests prove the one-member forest,
-  `CompleteNoRecursiveCarrier`, exact `[V0]`, fresh-repeat stability, and the
-  typed non-target receipt. Existing D1/B4/D3 filters and pointer/diff/artifact
-  guards remain green; production caller/import census stays zero; touched
-  Rust/check files remain below 800 lines.
-
-### Stop
-
-- Return to design if the simple source does not naturally produce V0-only,
-  the carrier is not proven NoRecursive, or any second source shape, neutral
-  facts type, production import, or policy change is needed. Unavailable,
-  Ambiguous, planner-required, and all other shapes remain later rows; parent
-  D2, full matrix, neutral issuer, and production selector remain unresolved.
+No executable row is selected at this stop. Parent D2, neutral issuer,
+production selector, Recipe/JoinSig/PHI, Builder/MIR/backend, Retry, and
+fallback changes remain prohibited.
 
 ## Closed bounded task — nested `IfThen` carrier coverage
 
