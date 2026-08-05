@@ -477,19 +477,18 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-CROSS-SESSION-BRAND-AUDIT0-D3-S2-S1
-  selected cfg(test)-only premise repair. A private non-Clone handoff brand
-  must be issued by the same resolver session as forest/frame/BindingRef
-  evidence and reject forest_A + roles_B + frame_B for equal-origin fresh
-  sessions. The ownerless structural frame used by DirectAccum remains
-  unchanged. No GenericCarrierFactsSnapshotV1, LoopBindingKey, InvocationSeal,
-  opaque input, selector/Recipe/PHI/Builder/MIR/VM route, Return/Home/debt
-  meaning, fallback/retry, or production caller is authorized.
-  Task card:
+JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0
+  current design stop after the closed cfg(test)-only D3-S2-S1 brand audit.
+  The private witness now rejects forest_A + roles_B + frame_B for equal-origin
+  fresh sessions, while DirectAccum's ownerless structural frame is unchanged.
+  The next decision is whether to select a passive resolver provenance product;
+  no GenericCarrierFactsSnapshotV1, LoopBindingKey, InvocationSeal, opaque
+  input, selector/Recipe/PHI/Builder/MIR/VM route, Return/Home/debt meaning,
+  fallback/retry, or production caller is authorized.
+  Closed task card:
   docs/development/current/main/investigations/joinir-generic-resolved-carrier-
   cross-session-brand-audit-d3-s2-s1-task-2026-08-05.md
-  A focused adversarial witness, existing S0 parity, pointer guard, and
-  <800-line source/check guard must be green before D3-S2-S2 is considered.
+  The D3-S2 design card remains the sole selector for any D3-S2-S2 row.
 ```
 
 ## Production invariants

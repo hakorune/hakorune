@@ -21,6 +21,29 @@ enum ProvenanceRoleV1 {
     PostLoopRead,
 }
 
+/// D3-S2-S1 handoff-only brand. The structural forest/frame remain the
+/// ownerless products used by DirectAccum; these wrappers keep their issuer
+/// owner attached while a future Generic handoff is still test-only.
+#[derive(Debug, PartialEq, Eq)]
+struct BrandedForestV1 {
+    owner: FunctionOwnerIdV1,
+    forest: VerifiedResolvedLoopSourceForestV1,
+}
+
+impl BrandedForestV1 {
+    fn members(
+        &self,
+    ) -> &[crate::mir::resolved_semantics::VerifiedResolvedLoopSourceForestMemberV1] {
+        self.forest.members()
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct BrandedFrameV1 {
+    owner: FunctionOwnerIdV1,
+    frame_key: LoopExecutionFrameKeyV1,
+}
+
 #[derive(Debug, PartialEq, Eq)]
 struct ProvenanceRoleClaimV1 {
     role: ProvenanceRoleV1,
@@ -36,8 +59,8 @@ struct ResolvedCarrierObservationV1 {
     source_kind: SemanticOwnerSourceKindV1,
     outer_site: SourceStmtSiteV1,
     inner_site: SourceStmtSiteV1,
-    forest: VerifiedResolvedLoopSourceForestV1,
-    frame_key: LoopExecutionFrameKeyV1,
+    forest: BrandedForestV1,
+    frame_key: BrandedFrameV1,
     roles: [ProvenanceRoleClaimV1; 2],
     _seal: ObservationSealV1,
 }
@@ -53,6 +76,7 @@ enum ObservationRejectV1 {
     ForeignBindingOwner,
     DuplicateRole,
     BindingRelation,
+    OwnerBrandMismatch,
 }
 
 struct CandidateInputV1 {
@@ -61,8 +85,8 @@ struct CandidateInputV1 {
     source_kind: SemanticOwnerSourceKindV1,
     outer_site: SourceStmtSiteV1,
     inner_site: SourceStmtSiteV1,
-    forest: VerifiedResolvedLoopSourceForestV1,
-    frame_key: LoopExecutionFrameKeyV1,
+    forest: BrandedForestV1,
+    frame_key: BrandedFrameV1,
     roles: [ProvenanceRoleClaimV1; 2],
 }
 
@@ -105,14 +129,15 @@ fn candidate_input(source: &str, root: SourceStmtSiteV1) -> CandidateInputV1 {
         .resolved_loop_source(&root)
         .expect("sealed loop source")
         .frame_key();
+    let owner = product.owner();
     CandidateInputV1 {
-        owner: product.owner(),
+        owner,
         function_origin: product.function_origin(),
         source_kind: product.source_kind(),
         outer_site: outer,
         inner_site: inner,
-        forest,
-        frame_key,
+        forest: BrandedForestV1 { owner, forest },
+        frame_key: BrandedFrameV1 { owner, frame_key },
         roles: [
             ProvenanceRoleClaimV1 {
                 role: ProvenanceRoleV1::NestedWrite,
@@ -144,6 +169,12 @@ fn issue_observation(
     if input.roles[0].binding != input.roles[1].binding || !input.roles[0].strict_ancestor {
         return Err(ObservationRejectV1::BindingRelation);
     }
+    if input.forest.owner != input.owner
+        || input.frame_key.owner != input.owner
+        || input.forest.owner != input.frame_key.owner
+    {
+        return Err(ObservationRejectV1::OwnerBrandMismatch);
+    }
     let members = input.forest.members();
     if members.len() != 2
         || members[0].parent_index().is_some()
@@ -162,7 +193,11 @@ fn issue_observation(
     ) {
         return Err(ObservationRejectV1::ForestIdentity);
     }
-    if !members[0].source().frame_key().matches(&input.frame_key) {
+    if !members[0]
+        .source()
+        .frame_key()
+        .matches(&input.frame_key.frame_key)
+    {
         return Err(ObservationRejectV1::FrameMismatch);
     }
     Ok(ResolvedCarrierObservationV1 {
@@ -192,7 +227,7 @@ fn generic_d3_s2_s0_natural_source_seals_typed_observation() {
     assert!(observation.forest.members()[0]
         .source()
         .frame_key()
-        .matches(&observation.frame_key));
+        .matches(&observation.frame_key.frame_key));
 }
 
 #[test]
@@ -226,9 +261,26 @@ fn generic_d3_s2_s0_forest_and_frame_mismatches_reject() {
     );
 
     let mut frame_mismatch = candidate_input(SOURCE, outer_loop_site());
-    frame_mismatch.frame_key = candidate_input(SOURCE, inner_loop_site()).frame_key;
+    frame_mismatch.frame_key.frame_key = frame_mismatch.forest.members()[1].source().frame_key();
     assert_eq!(
         issue_observation(frame_mismatch),
         Err(ObservationRejectV1::FrameMismatch)
+    );
+}
+
+#[test]
+fn generic_d3_s2_s1_cross_session_brand_rejects_mixed_handoff() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let mut session_a = candidate_input(SOURCE, outer_loop_site());
+    let session_b = candidate_input(SOURCE, outer_loop_site());
+
+    // Coordinates are intentionally equal. Only the resolver-issued owner
+    // brand distinguishes the two fresh sessions.
+    session_a.owner = session_b.owner;
+    session_a.frame_key = session_b.frame_key;
+    session_a.roles = session_b.roles;
+    assert_eq!(
+        issue_observation(session_a),
+        Err(ObservationRejectV1::OwnerBrandMismatch)
     );
 }

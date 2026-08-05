@@ -1,5 +1,5 @@
 ---
-Status: selected cfg(test)-only execution brief; production remains closed
+Status: closed cfg(test)-only execution brief; production remains closed
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-CROSS-SESSION-BRAND-AUDIT0-D3-S2-S1`
@@ -52,3 +52,13 @@ Return to the D3-S2 design stop if the brand cannot be co-sealed without
 changing DirectAccum frame semantics, minting a second BindingRef/source
 authority, exposing AST/ValueId data, or requiring production selector policy.
 Do not add fallback, retry, `Option<Capability>`, or a global route change.
+
+## Closeout
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-CROSS-SESSION-BRAND-AUDIT0-D3-S2-S1` closes
+with one private test-only forest/frame brand wrapper and one adversarial
+cross-session witness. The focused provenance suite is 5/5 green; the
+implementation adds no production caller, import, artifact, selector arm,
+or DirectAccum frame change. Exact current-state, workstream, and D3-S2
+design pointers are updated in the implementation commit. No public language
+or reference contract changed, so no `docs/reference/**` surface is claimed.

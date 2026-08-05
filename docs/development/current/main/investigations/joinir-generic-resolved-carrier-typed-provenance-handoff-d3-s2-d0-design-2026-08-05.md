@@ -147,6 +147,14 @@ The worker premise audit accepted this as a cfg(test)-only slice: it may
 repair the handoff witness and adversarially verify cross-session rejection,
 but it may not connect a production issuer or selector.
 
+The S1 child is now closed. Its five focused provenance tests pass, including
+the adversarial `forest_A + roles_B + frame_B` witness. The private wrappers
+attach the resolver owner to the handoff-only forest/frame pair while leaving
+the ownerless structural frame and all DirectAccum consumers unchanged. The
+implementation has no production caller/import or artifact. The next row is
+not selected here; a new design seal is required before a passive provenance
+product may be opened.
+
 Recommended shape (to avoid changing existing DirectAccum repeat semantics):
 
 ```text
