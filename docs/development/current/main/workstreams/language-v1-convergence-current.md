@@ -888,7 +888,7 @@ Target laws:
 record = immutable identity-free value; with creates a new value
 ordinary Box use = non-owning handle
 verified Home destination = one transferred Home
-share = the sole ordinary owner-add operation
+share = sole owner-add; release(root) = sole early Home-end; drop alias = 0
 weak = generation-aware non-owner
 fini { } = non-callable terminal Home hook
 direct obj.fini() = rejected
@@ -905,7 +905,8 @@ Deliverables:
 3. Keep field classification in `OWN-FIELD-CONTAINER-DEST-D0`; project every
    host/weak/plugin identity through one generation-aware `BoxIdentity`.
 4. Activate Unique, field, and Shared/weak cells separately; retire B′, run the
-   C-speed gate, then execute Home reference closeout twice as specified.
+   C-speed gate, update exact references in each implementation commit, then
+   execute fini/release Home reference closeout twice as specified.
 
 Acceptance:
 
@@ -920,6 +921,8 @@ child_hook_requires_terminal_home = 1
 box_identity_relation_count = 1
 weak_identity_relation_count = 1
 ownership_operation_relation_count = 1
+explicit_home_release_spelling_count = 1
+drop_alias_surface_count = 0
 prose_only_escape_authority = 0
 ```
 

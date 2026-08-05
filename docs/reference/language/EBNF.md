@@ -23,6 +23,10 @@ Design SSOT note (Scope Exit Semantics):
   cleanup and scope-position `fini` are retirement input.
 - Box-member `fini {}` is the accepted non-callable terminal Home hook; direct
   `obj.fini()` is rejected. Its production remains 0.
+- `release(value)` is the accepted explicit whole-root Home-end target. It uses
+  the existing ordinary Call grammar and a resolved core callable identity;
+  there is no release keyword/statement, special AST/MIR production, or
+  `drop(value)` alias. Production semantic activation remains 0.
 - The concrete productions below are not rewritten in this Decision-only
   slice. `LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` and
   `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0` must synchronize EBNF, registry, corpus,
@@ -38,7 +42,12 @@ Ownership grammar status (2026-08-04):
   use is a non-owning handle, a sealed destination demand transfers one Home,
   and only explicit `share` may add an independent owner.
 - The smallest candidate surface is declaration-side `take`, contract result
-  `from`, and expression-side `share`, but its exact grammar is provisional.
+  `from`, expression-side `share`, and ordinary-Call `release(value)`, but its
+  exact Home semantics remain production 0.
+- The first release profile is whole-root owning local/parameter only. Generic
+  `release<T>`, composites, fields, projections, containers, and unknown
+  capability remain provisional or rejected; no parser acceptance may widen
+  them.
 - Composite/generic classification, Shared representation, owning storage,
   callable boundaries, and CFG Home Flow must close before grammar activation.
 - Therefore the live EBNF below intentionally contains no Home ownership

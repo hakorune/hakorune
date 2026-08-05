@@ -4,8 +4,8 @@ Status: Language semantics SSOT; Home direction accepted, exact HomeV1 grammar
 provisional, production activation 0
 
 Decision: accepted on 2026-08-04 as the successor to the earlier
-`move/share/view` target; C′ terminal Home finalization amendment accepted on
-2026-08-05.
+`move/share/view` target; C′ terminal Home finalization and explicit whole-root
+`release(value)` amendments accepted on 2026-08-05.
 
 This page is the source-language authority for ownership, ordinary aliases,
 Home transfer, and the explicit boundary that adds an independent owner.
@@ -34,6 +34,8 @@ historical evidence only. They do not restore `move`, source `view`, source
 | --- | --- |
 | Home direction and durable laws | accepted by this page |
 | C′ last-Home finalization direction | accepted target; production 0 |
+| explicit `release(value)` direction | accepted whole-root target; production 0 |
+| generic/composite release | provisional; exact capability D0 open |
 | exact HomeV1 source grammar | provisional; D0 rows open |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
 | Rust/Hako parser and AST Home carriers | inactive / absent |
@@ -59,6 +61,7 @@ local alias = node       // alias only sees node's object; no new owner
 inspect(node)            // ordinary handle input; node keeps its Home
 adopt(node)              // if adopt declares a Home demand, node is consumed
 adopt(share node)        // when the ABI admits a Shared Home; node remains
+release(node)            // end node's verified whole-root Home now
 ```
 
 The user-facing law is:
@@ -72,6 +75,9 @@ destination that declares a Home demand:
 
 share:
   one independent owner is added; this may cost runtime bookkeeping
+
+release:
+  one available whole-root Home is consumed now; fini runs only if terminal
 ```
 
 `Home` is an explanation and compiler product, not a planned source keyword.
@@ -231,6 +237,27 @@ No runtime tag or observed reference count selects it.
 `share(...)` remains an ordinary function call; contextual ownership `share`
 is only the prefix expression form selected by its grammar row.
 
+### Explicit early Home release
+
+`release(value)` is the sole accepted early-end spelling. It is an ordinary
+Call resolved to one canonical core/prelude callable identity; it is not a
+keyword, special AST/MIR operation, method-name convention, or direct `fini`
+call. `drop(value)` is not an alias.
+
+The first profile accepts only a verified whole-root owning local or owning
+parameter containing exactly one available Home. Release consumes that root at
+the source point. Every handle supported by the released root becomes
+unavailable, even when a different Shared Home keeps the identity alive; Home
+Flow never silently re-roots a handle.
+
+The resolved identity, sealed Home ABI, and body/effect proof must together
+show synchronous release without store or forward before normal return. A
+body-opaque core implementation needs the equivalent sealed
+`VerifiedExplicitHomeReleasePlanV1`. The generic spelling
+`release<T>(take value: T): void`, owner-bearing composites, fields,
+projections, containers, `me`, and unknown capability remain provisional or
+rejected until their separate decisions close.
+
 ## 4. Syntax deliberately outside HomeV1
 
 The first program does not promise:
@@ -244,7 +271,8 @@ The first program does not promise:
 - multi-anchor result joins or borrowed-result PHIs;
 - field/index/projection handles stored in locals;
 - handle capture, suspension, task/channel, or cross-thread flow;
-- explicit source `region`.
+- explicit source `region`;
+- `drop(value)` as a compatibility alias;
 
 `take place_expr`, field take, and consuming receiver are parked together
 until a real source consumer and storage replacement contract exist. They are
@@ -318,6 +346,8 @@ The first verifier freezes exact source/destination behavior:
 | explicit `share` | Shared-demand destination | materialize one owner by sealed plan |
 | explicit `share` | general Home-demand destination | representation/type compatibility D0 decides |
 | explicit `share` | handle-only parameter | reject redundant paid owner |
+| whole-root Home | canonical `release(root)` | consume now; terminal enters C′ DropPlan |
+| handle alias | canonical `release(alias)` | reject; identify supporting root |
 | trivial value | ownership-changing destination | reject meaningless operation |
 | unknown/generic capability | ownership-changing destination | fail before effects |
 
@@ -379,6 +409,8 @@ temporary-lifetime-extension contract is accepted.
 ## 8. Lifecycle, weak, cleanup, and concurrency
 
 - `share` changes independent ownership.
+- `release(root)` ends one verified Home at its source point; a Shared
+  non-terminal release dispatches no hook.
 - `fini {}` is a non-callable Box hook dispatched only by the terminal Home
   DropPlan. It is not a transfer spelling or direct physical-free API.
 - ordinary handle end is owner-neutral; `take` and terminal return forward a
@@ -424,6 +456,9 @@ Unique Home transfer:
 
 share:
   owner delta = +1 and shared bookkeeping may occur
+
+release:
+  owner delta = -1; Unique needs no owner counter, Shared uses its selected lane
 ```
 
 This does not mean “zero instructions”. Field access, pointer loads, bounds
@@ -476,6 +511,8 @@ redundant-share-to-handle
 home-result-relation-conflict
 home-abi-missing-at-contract-boundary
 home-capability-unknown
+home-release-received-handle
+home-release-conflicts-with-cleanup-capture
 ```
 
 Do not reduce these to “inference failed”, and do not suggest `share` or field
@@ -496,3 +533,6 @@ move-out unless that exact operation is legal.
    or profile retry decides ownership.
 10. Parser support, production lowering, and C-like performance require their
     own named gates; this source decision alone claims none of them.
+11. `release(value)` is the sole explicit early Home-end spelling. It has no
+    Result, `drop` alias, field/projection form, hidden handle re-rooting, or
+    parser/MirBuilder name magic.

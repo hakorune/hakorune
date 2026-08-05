@@ -8,6 +8,8 @@ Decision:
   a Rust-like source type;
 - accepted: ordinary source uses a non-owning handle and only an explicit
   `share` operation may add an independent owner;
+- accepted: `release(value)` is the sole explicit early-end spelling for one
+  verified whole-root Home; `drop(value)` is not an alias;
 - accepted: C′ terminal Home release is the sole user-`fini` authority;
   `fini {}` is a non-callable Box hook and direct `obj.fini()` is rejected;
 - provisional: the smallest HomeV1 source capsule is declaration-side
@@ -80,6 +82,9 @@ HomeValue
 
 share
   the only ordinary source operation that may add an independent owner
+
+release
+  the ordinary resolved core operation that ends one verified whole-root Home
 ```
 
 ### `new` and `birth` Home boundary
@@ -259,6 +264,9 @@ These laws are durable even while the exact grammar remains provisional:
 10. Terminal parent finalization runs the parent hook before releasing verified
     owning fields in reverse declaration order. A child hook runs only if that
     field release is the child's terminal Home release.
+11. `release(root)` consumes one exact available whole-root Home at its source
+    point. It never force-finalizes a Shared identity or silently re-roots
+    dependent handles.
 
 ## Terminal Home finalization boundary
 
@@ -269,6 +277,7 @@ C′ explicitly supersedes the earlier B′ separation between eager
 ordinary handle end = no owner effect
 take/call/return = atomic Home forward; fini 0 during transfer
 share = one explicit independent Home acquisition
+release(root) = one explicit whole-root Home end; hook only if terminal
 terminal Home release = hook -> reverse field release -> structural drop
 ```
 
@@ -294,7 +303,15 @@ adopt(take node: Node)       // declaration owns a Home demand
 getRoot(): Node from me      // opaque result relation, when required
 adopt(node)                  // destination consumes node's Home
 adopt(share node)            // if the ABI admits Shared; node remains
+release(node)                // end one verified whole-root Home now
 ```
+
+`release(value)` is an ordinary Call bound to one canonical core callable
+identity. It adds no keyword, AST kind, MIR name match, or `drop` alias. The
+first profile accepts only an owning local or owning parameter with exactly one
+Home. The source-generic spelling, owner-bearing composites, fields,
+projections, containers, and unknown capability remain rejected until their
+separate classifiers and Home Flow receipts close.
 
 The following remain parked and are not silently promised:
 
@@ -324,6 +341,8 @@ The first verifier must distinguish at least:
 | explicit `share` | handle-only parameter | reject redundant paid owner |
 | explicit `share` | eligible Shared-demand destination | acquire/materialize by sealed plan |
 | explicit `share` | general Home-demand destination | representation/type D0 decides compatibility |
+| whole-root Home | canonical `release(root)` | consume now; terminal enters the sole C′ DropPlan |
+| handle alias | canonical `release(alias)` | reject and identify supporting root |
 | trivial value | ownership operation | reject as meaningless |
 | unknown/generic representation | any ownership-changing edge | fail before Builder effects |
 
@@ -345,7 +364,9 @@ Stable reason families include:
 - `redundant-share-to-handle`;
 - `home-result-relation-conflict`;
 - `home-abi-missing-at-contract-boundary`;
-- `home-capability-unknown`.
+- `home-capability-unknown`;
+- `home-release-received-handle`;
+- `home-release-conflicts-with-cleanup-capture`.
 
 Do not emit a generic “ownership inference failed” when the verifier has more
 specific provenance.
@@ -358,6 +379,8 @@ specific provenance.
 - Do not infer public/opaque ABI from a body.
 - Do not infer ownership from method names, runtime tags, reference counts, or
   a backend layout.
+- Do not recognize `release` or `drop` by parser/MirBuilder string matching;
+  only the resolved core identity plus sealed ABI/effect/Flow plan is authority.
 - Do not activate Box-member `fini {}` before scope-position `fini {}` aliases
   are retired or context-separated by the accepted grammar row.
 - Do not dispatch user `fini` from direct receiver calls, global finalizer
@@ -378,6 +401,8 @@ HomeV1 is product-ready only when:
 - Home Flow is CFG-complete for the admitted grammar;
 - ownership-changing destinations have exact witnesses;
 - unsupported generic/storage/ABI cases fail before Builder effects;
+- one admitted `release` source consumes one exact root Home synchronously,
+  while `drop` alias, dependent-handle re-rooting, and generic guessing stay zero;
 - Unique and Shared physical plans are explicit and backend-capability checked;
 - one terminal DropPlan owns hook dispatch, reverse field release, and
   structural drop without a B′ fallback;

@@ -3,9 +3,11 @@
 Status: Normative C′ target; grammar/runtime/Home production activation 0.
 
 Decision: `LANGUAGE-RESULT-EXIT-C-PRIME0-D0` and
-`OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0` accepted on 2026-08-05. Canonical v1 has
-one standalone `cleanup {}` registration, typed Result-only postfix `?`, no
-source catch/`RecoverableFailure`, and one terminal Home lifecycle hook.
+`OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0` and
+`OWN-EXPLICIT-HOME-RELEASE0-D0` accepted on 2026-08-05. Canonical v1 has one
+standalone `cleanup {}` registration, typed Result-only postfix `?`, no source
+catch/`RecoverableFailure`, one explicit whole-root Home release operation,
+and one terminal Home lifecycle hook.
 Existing parser/registry/bridge behavior remains migration evidence until the
 implementation and mandatory reference-closeout rows land.
 
@@ -40,6 +42,8 @@ Value or Unit. It only orders cleanup around the already-selected Outcome.
   lifecycle DropPlan. It is not a scope handler.
 - `close()`/`shutdown()` and similar names: ordinary optional methods for
   explicit, possibly fallible domain shutdown.
+- `release(root)`: ordinary resolved core Call that synchronously ends one
+  verified whole-root Home at that source point; it has no Result channel.
 
 Constraints:
 
@@ -53,6 +57,7 @@ Naming rule:
 cleanup = when lexical/block cleanup runs
 fini    = terminal Home hook inside a Box
 close   = ordinary explicit domain operation
+release = explicit early end of one whole-root Home
 ```
 
 ## 2) Unified Cleanup Model
@@ -84,6 +89,11 @@ On normal exit, Result `?`, `return`, `break`, `continue`, or Fault:
 transit. A parent field release invokes a child hook only if it is the child's
 terminal Home; another Shared Home delays that hook.
 
+An explicit `release(root)` runs synchronously at its source position and
+removes that root from the later scope-exit release set. If it is terminal, it
+enters the same C′ DropPlan immediately. The exit transaction must never
+release the root twice.
+
 Lexical nesting determines inner/outer handler order.
 
 ## 4) Cleanup Registration Rule
@@ -98,6 +108,9 @@ Cleanup handler restrictions (parser/verifier enforced):
 
 - forbidden: `return`, `break`, `continue`, `?`, `throw`, `await`, `yield`, or
   suspension
+- first profile: Home-demand/consume calls are forbidden inside cleanup, and
+  an earlier `release(root)` is rejected when an already-registered cleanup
+  will later read that root or a dependent handle
 
 If a compatibility path still accepts `break`/`continue` from a cleanup block,
 that path is not canonical and must be narrowed by a dedicated verifier row.

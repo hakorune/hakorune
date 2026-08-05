@@ -1,7 +1,7 @@
 ---
 Status: Durable lifecycle design SSOT; accepted target, production activation 0
-Decision: OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0 accepted on 2026-08-05
-Scope: terminal Home finalization, Box fini hook, field release, Shared boundary, and C-speed stop lines.
+Decision: OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0 and OWN-EXPLICIT-HOME-RELEASE0-D0 accepted on 2026-08-05
+Scope: terminal Home finalization, explicit early Home release, Box fini hook, field release, Shared boundary, and C-speed stop lines.
 Supersedes: box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
 Related:
   - docs/reference/language/lifecycle.md
@@ -22,6 +22,7 @@ user hook inside the one terminal Home DropPlan.
 
 ```text
 birth(args) = new-only construction hook
+release(value) = release one verified whole-root Home at this source point
 fini { ... } = last-Home-only finalization hook
 close()/shutdown()/commit()/abort() = ordinary domain methods
 cleanup { ... } = lexical exit action
@@ -36,6 +37,8 @@ delegate/interface/alias exposure of fini
 explicit FinalizeObject source authority
 Dead-with-live-Home as a normal lifecycle state
 last-strong structural drop that bypasses a declared fini hook
+drop(value) as a second source spelling
+release by parser/MirBuilder name matching
 ```
 
 This is an explicit constitutional supersession of B′. B′ remains historical
@@ -62,6 +65,13 @@ box File {
         }
     }
 }
+
+work(path): Result<void, IoError> {
+    local file = open(path)?
+    file.close()?
+    release(file)
+    return Result::Ok(void)
+}
 ```
 
 `close` is not a keyword or privileged callable role. It is an ordinary method
@@ -69,6 +79,42 @@ used when the program needs an exact shutdown time or a `Result` that a caller
 can handle. A Box may instead name that method `shutdown`, `disconnect`,
 `commit`, or omit it entirely. A later automatic `fini` must safely observe the
 already-closed domain state.
+
+## Explicit early Home release
+
+`release(value)` is the accepted source spelling for ending one available Home
+before its lexical scope ends. It does not force the object identity Dead and
+does not directly invoke `fini`:
+
+```text
+release one verified Home
+-> Shared non-terminal: hook 0
+-> terminal: enter the same sole C′ TerminalHomeDropPlan
+```
+
+The source surface is an ordinary resolved core/prelude call, not a keyword,
+statement, special AST node, or MIR name exception. Authority is the resolved
+core callable identity plus its sealed Home ABI and an exact body/effect proof
+that the consumed Home is neither stored nor forwarded and is synchronously
+released before normal return. A body-opaque/intrinsic implementation must
+seal the equivalent `VerifiedExplicitHomeReleasePlanV1`; the string
+`"release"` is never authority.
+
+The first profile admits only a verified whole-root owning local or owning
+parameter with exactly one available Home. It rejects ordinary handles, `me`,
+fields, indexes/projections, container slots, owner-bearing composites, and
+unknown/generic capability before effects. The conceptual generic spelling
+`release<T>(take value: T): void` remains provisional until generic and
+composite Home classification close; `ExactHomeRoot` is a compiler capability,
+not a source interface.
+
+Releasing a root consumes it and invalidates every handle supported by that
+root. Another Shared Home may keep the identity alive, but no handle is
+silently re-rooted to it. A registered cleanup that will later read the root or
+one of those handles makes an earlier `release(root)` invalid in the first
+profile. `release` has no Result channel; a terminal hook Fault follows the
+ordinary terminal-Fault chronology. Recoverable shutdown remains an ordinary
+`close()`/`shutdown()` method.
 
 ## Sole terminal authority
 
@@ -101,6 +147,7 @@ transition. Runtime refcount observations never invent source ownership.
 | `take` / Home-demand call | forward one Home atomically | never during transfer |
 | terminal `return` | forward one Home to result carrier | never during transfer |
 | explicit `share` | add one independent Home | never on acquisition |
+| explicit `release(root)` | release one verified root Home now | only if terminal |
 | owning field replacement | commit new Home, then release old | old identity only if terminal |
 | parent teardown | release fields in reverse declaration order | child only if child becomes terminal |
 | weak-token drop | drop weak token | never for target |
@@ -152,6 +199,7 @@ share me
 return/store/capture/escape of me or FinalizerLease
 resurrection and re-entry
 direct lifecycle invocation
+Home-demand/consume calls from the hook in the first profile
 ```
 
 A hook Fault does not roll finalization back. The first Fault in time remains
@@ -201,12 +249,15 @@ cells:
 
 ```text
 OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0   # this accepted Decision
+-> OWN-EXPLICIT-HOME-RELEASE0-D0          # accepted early one-Home release Decision
 -> OWN-GRAM-FINI-HOOK0                    # production-zero source carrier
 -> OWN-FINI-HOOK-PLAN0-S0                 # passive non-callable verifier plan
 -> OWN-TERMINAL-HOME-DROP-PLAN0-S0        # sole whole-object DropPlan
+-> OWN-EXPLICIT-HOME-RELEASE0-S0          # passive core identity/ABI/effect/Flow plan
 -> OWN-HOME-CLOSED-CALL0-I0 + OWN-HOME-STORAGE0-I0/L
 -> OWN-TERMINAL-HOME-DROP-PLAN0-S0/U
 -> OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/U  # Unique local terminal release
+-> OWN-EXPLICIT-HOME-RELEASE0-I0/U        # one exact Unique whole-root release
 -> OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST   # first-slice reference receipt
 -> OWN-HOME-STORAGE0-I0/F
 -> OWN-TERMINAL-HOME-DROP-PLAN0-S0/F
@@ -214,6 +265,7 @@ OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0   # this accepted Decision
 -> OWN-HOME-SHARE0-I0
 -> OWN-TERMINAL-HOME-DROP-PLAN0-S0/S
 -> OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/S  # Shared/weak terminal winner
+-> OWN-EXPLICIT-HOME-RELEASE0-I0/S        # Shared non-last/terminal release parity
 -> OWN-HOME-C-SPEED0-G0
 -> OWN-LAST-HOME-FINALIZATION-C-PRIME0-R0
 -> OWNERSHIP-HOME-PRODUCT-READINESS-D0
@@ -239,17 +291,23 @@ as a fallback.
 the exact first production profile. It proves grammar/parser/lifecycle-
 descriptor parity, direct-`obj.fini()` rejection, exactly one Unique-local
 terminal hook dispatch, ordinary-method status for `close`/`shutdown`, and no
-B′ claim inside that first slice. It must not claim field, Shared, or default-
-profile support.
+B′ claim inside that first slice. When the Unique `release` cell lands, the
+same implementation commit must also synchronize the exact reference surface;
+the FIRST receipt proves ordinary-Call parsing, one resolved core identity,
+one sealed release plan, whole-root/alias diagnostics, `drop` alias count zero,
+and no generic/composite/Shared claim. It must not claim field, Shared, or
+default-profile support.
 
 `.../FINAL` runs after final cutover, repeats every `/FIRST` proof, and adds
 parent-hook-before-reverse-field-release, zero Shared non-last hook dispatch,
 exactly one Shared terminal-winner dispatch, final cutover/reference parity,
-and zero B′ claims across all live reference pages. Only `/FINAL` closes the
-parent DOC0 row. Both cells must update at least:
+exact Shared `release` parity, and zero B′/`drop`-alias claims across all live
+reference pages. Only `/FINAL` closes the parent DOC0 row. Both cells must
+update at least:
 
 ```text
 required receipt: LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0
+required receipt: OWN-EXPLICIT-HOME-RELEASE-REFERENCE-CLOSEOUT0-DOC0
 ```
 
 ```text
@@ -258,6 +316,7 @@ docs/reference/language/ownership.md
 docs/reference/language/scope-exit-semantics.md
 docs/reference/language/EBNF.md
 grammar/language-v1-registry.toml
+core/prelude callable catalog and Home ABI reference
 constructor/birth reference
 docs/reference/boxes-system/memory-finalization.md
 docs/reference/architecture/rust-to-hako-lifecycle-projection.md
@@ -280,4 +339,6 @@ docs-only target cannot satisfy either cell.
 - no cross-thread finalizer policy;
 - no user-selectable field-release order in v1;
 - no automatic finalization claim for ordinary handles;
+- no field/projection/container/composite or unknown-generic `release` in v1;
+- no `drop(value)` compatibility alias or source grammar production;
 - no current-lane change.

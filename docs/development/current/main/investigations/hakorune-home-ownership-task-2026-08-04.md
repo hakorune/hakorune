@@ -8,7 +8,10 @@ Decision state:
 
 - Home model direction: accepted;
 - C′ last-Home finalization target: accepted; production activation 0;
+- explicit early Home release: `release(value)` accepted for one verified
+  whole-root Home; `drop(value)` alias rejected; production activation 0;
 - exact HomeV1 grammar and physical Shared representation: provisional/D0;
+- generic/composite `release<T>` realization: provisional/D0;
 - production activation: 0;
 - resume checkpoint: `MIRBUILDER-INPLACE-REPLACEMENT0` final-pipeline
   completion;
@@ -44,6 +47,7 @@ Deliver a small source model:
 ordinary use        -> non-owning handle
 Home-demand edge    -> one Home is transferred
 share expression    -> one independent owner is added
+release(root)        -> one verified whole-root Home ends now
 terminal Home end   -> one C′ fini/field/native DropPlan
 ```
 
@@ -57,6 +61,7 @@ measured C-speed physical path.
 - hidden retain/release or profile fallback;
 - source-level arena/region allocation;
 - general field move-out, consuming receiver, or alias PHI;
+- general generic/composite/field/projection explicit release;
 - all generics, dynamic dispatch, FFI, or concurrency in the first production
   slice;
 - a nominal `shared box` decision before its representation D0.
@@ -75,10 +80,12 @@ RESUME
      -> BIRTH/CONSTRUCTION
      -> RESULT/EXIT D0
      -> LAST-HOME FINALIZATION C′ D0
+     -> EXPLICIT WHOLE-ROOT HOME RELEASE D0
   -> SURFACE DECISION
   -> PASSIVE RELATION + ABI + BOUNDARY
   -> STRAIGHT HOME FLOW
   -> CFG HOME FLOW + DIAGNOSTICS
+  -> PASSIVE EXPLICIT-RELEASE PLAN
   -> GRAMMAR CARRIERS
   -> UNIQUE CLOSED-CALL + LOCAL TERMINAL-FINALIZATION PROTOTYPE
   -> STORAGE DESTINATION ADOPTION
@@ -283,6 +290,32 @@ Done only when terminal Home release has one proposed DropPlan authority,
 direct `obj.fini()` and B′ Dead-with-live-Home are rejected targets, and no
 ordinary handle or runtime refcount observation can dispatch the hook.
 
+### `OWN-EXPLICIT-HOME-RELEASE0-D0`
+
+Decision: accepted semantic target; implementation remains parked.
+
+**Change**: select `release(value)` as the sole explicit early Home-end
+spelling. It is an ordinary resolved core/prelude Call. `drop(value)`, a
+release keyword/statement, direct `obj.fini()`, and name-based compiler magic
+remain rejected.
+
+**Contract**: the first profile accepts only a verified whole-root owning local
+or owning parameter with exactly one available Home. It consumes that root at
+the source point, invalidates dependent handles without hidden re-rooting, and
+enters the existing C′ DropPlan only when the release is terminal. It has no
+Result channel; `close()`/`shutdown()` remain ordinary domain methods. The
+source-generic signature and composite/field/projection/container release are
+not claimed.
+
+**Done**: the exact Unique/Shared non-terminal/terminal matrix, cleanup-capture
+conflict, Fault chronology, diagnostics, resolved core identity, sealed Home
+ABI, synchronous-release body/effect proof, and post-implementation reference
+receipts are named without adding parser, Builder, runtime, or backend callers.
+
+**Stop**: return to design if the implementation needs generic capability
+guessing, more than one Home, field move-out, consuming receiver, cleanup/hook
+Home consumption, cross-thread affinity, a `drop` alias, or fallback.
+
 ### `OWN-HOME-CALLABLE-ABI-D0`
 
 Fix before schema/grammar:
@@ -373,6 +406,7 @@ source grammar and hard rejects, including:
 - caller-side transfer omission versus optional lint;
 - local reassignment and terminal return rules;
 - parked `take` expression/field/receiver forms;
+- ordinary core `release(value)` with no special grammar production;
 - contextual-keyword disambiguation.
 
 Only this row may promote candidate spellings into accepted target grammar.
@@ -448,6 +482,16 @@ Freeze argument/destination behavior:
 Golden-test typed diagnostics for branch/backedge availability, boundary ABI,
 destination mismatch, redundant share, unknown capability, and result-origin
 conflict. Every hint is filtered by an actual capability witness.
+
+### `OWN-EXPLICIT-HOME-RELEASE0-S0`
+
+After ABI, straight/CFG Flow, diagnostics, and terminal DropPlan schema are
+sealed, produce one caller-zero `VerifiedExplicitHomeReleasePlanV1`. It binds
+the canonical resolved core callable identity, exact whole-root place,
+available Home, sealed Home-demand ABI, synchronous terminal-consume
+body/effect receipt, cleanup-capture exclusion, and C′ terminal disposition.
+It never derives authority from the source name and publishes no Builder/MIR,
+runtime, backend, generic, field, or Shared physical capability.
 
 ## Milestone 5 — grammar carriers, still production-zero
 
@@ -622,6 +666,16 @@ It activates one owning-local terminal release by consuming the sealed
 - unsupported storage, Shared, backend, plugin, and FFI routes reject before
   effects without fallback.
 
+### `OWN-EXPLICIT-HOME-RELEASE0-I0/U`
+
+After the Unique local, closed-call, DropPlan `/U`, and passive release plan
+are green, activate one exact owning-local `release(root)` route. The same
+implementation commit updates the exact reference pages and examples. Prove
+source-point synchronous release, dependent-handle invalidation, no cleanup
+capture, terminal hook exactly once, `drop` alias zero, RC/control-cell zero,
+and no retry/fallback. Owning parameter, generic, composite, field, projection,
+container, Shared, plugin, and FFI cases remain rejected.
+
 ### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/F`
 
 After `OWN-HOME-STORAGE0-I0/L`, `OWN-HOME-STORAGE0-I0/F`, and the `/F` terminal
@@ -685,6 +739,14 @@ or hook policy:
 - cross-thread affinity, cycles, plugin, and FFI remain rejected or explicitly
   outside the admitted profile.
 
+### `OWN-EXPLICIT-HOME-RELEASE0-I0/S`
+
+After same-thread Shared acquisition and the terminal winner are green, extend
+the same release plan to one exact Shared Home. Prove non-last release runs no
+hook, the last release enters the same DropPlan exactly once, aliases are never
+silently re-rooted, and the implementation/reference commit claims no
+cross-thread, cycle, generic, composite, field, plugin, or FFI support.
+
 ## Milestone 10 — C-speed physical proof
 
 ### `OWN-HOME-C-SPEED0-G0`
@@ -696,6 +758,8 @@ For a selected exact front:
 - prove Unique alias/call/return adds no RC, control-cell, handle-registry, or
   Box birth work;
 - compare exact-front instructions and whole-program behavior;
+- include the admitted Unique `release(root)` front and prove it adds no
+  generic dispatch, runtime lookup, RC, or global finalizer registry;
 - keep only evidence-backed representation changes.
 
 Grammar completion is not a performance gate.
@@ -747,6 +811,7 @@ contract, not a grammar or lowering shortcut:
 
 ```text
 OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/U
+-> OWN-EXPLICIT-HOME-RELEASE0-I0/U
 -> OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST
 -> OWN-HOME-STORAGE0-I0/F
 -> OWN-TERMINAL-HOME-DROP-PLAN0-S0/F
@@ -754,6 +819,7 @@ OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/U
 -> OWN-HOME-SHARE0-I0
 -> OWN-TERMINAL-HOME-DROP-PLAN0-S0/S
 -> OWN-LAST-HOME-FINALIZATION-C-PRIME0-I0/S
+-> OWN-EXPLICIT-HOME-RELEASE0-I0/S
 -> OWN-HOME-C-SPEED0-G0
 -> OWN-LAST-HOME-FINALIZATION-C-PRIME0-R0
 -> OWNERSHIP-HOME-PRODUCT-READINESS-D0
@@ -768,29 +834,36 @@ is the only cell that marks the parent DOC0 complete.
 Both cells include the named receipt
 `LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0` with
 `slice = first | final`; the Home closeout cannot be marked complete without
-both lifecycle/reference proofs.
+both lifecycle/reference proofs. They also include
+`OWN-EXPLICIT-HOME-RELEASE-REFERENCE-CLOSEOUT0-DOC0` with the same slice. A
+release implementation cell must update its exact live reference surface in
+the same commit; FIRST/FINAL are audits, not permission to leave references
+stale between implementation and closeout.
 
 Update the normative and derived reference surfaces from provisional/parked
 language to the exact implementation that actually landed:
 
 * `docs/reference/language/ownership.md` — Home/Handle rules, accepted
-  `take`/`share` surface, destination-side Home demand, rejected forms,
-  diagnostics, and the exact profile/fallback policy;
+  `take`/`share`/`release` surface, destination-side Home demand, rejected
+  forms, diagnostics, and the exact profile/fallback policy;
 * `docs/reference/language/EBNF.md` and its grammar registry — only the
   parser-live contextual forms, with examples for ordinary handle calls and
-  explicit `share`;
+  explicit `share`; `release` remains an ordinary Call with zero special
+  grammar rows;
 * `docs/reference/language/README.md`, variables/scope, lifecycle, cleanup,
   and constructor/birth references — ownership, Box-member `fini {}` as a
   terminal hook, direct-`fini` rejection, ordinary `close()` methods,
-  standalone cleanup, `new`, field initializer, `birth`, and
+  canonical `release(root)`, zero `drop` alias, standalone cleanup, `new`,
+  field initializer, `birth`, and
   partial-construction boundaries must point to their separate owners;
 * `docs/reference/boxes-system/memory-finalization.md`,
   `docs/reference/architecture/rust-to-hako-lifecycle-projection.md`, both
   plugin lifecycle references, and VM plugin integration — replace B′/direct
   fini/manual child cascades with the exact implemented C′ and plugin/FFI
   capability boundary;
-* `docs/reference/ir/json_v0.md`, callable/interface/FFI ABI references, and
-  generated support views — exact Home ABI/profile metadata, no body
+* `docs/reference/ir/json_v0.md`, core/prelude callable catalog,
+  callable/interface/FFI ABI references, and generated support views — exact
+  Home ABI/profile metadata, one resolved release identity, no body
   re-inference at a boundary, and no hidden strong-owner producer;
 * active language workstream dashboards, examples, migration notes, and
   environment-variable documentation — no stale `move/view/owned/shared`
@@ -809,6 +882,10 @@ fini hook grammar == Rust parser == Hako parser == lifecycle descriptor = 1
 direct obj.fini() accepted examples                                 = 0
 Unique local terminal hook dispatch exactly once                     = 1
 close/shutdown reserved language syntax                              = 0
+release special grammar/AST/MIR-name authority                       = 0
+resolved core release identity and sealed plan for admitted slice    = 1
+drop(value) accepted alias                                            = 0
+generic/composite release support claimed by FIRST                    = 0
 first-slice B′ live reference claim                                  = 0
 field/Shared/default-profile support claimed by FIRST                 = 0
 ```
@@ -819,6 +896,7 @@ field/Shared/default-profile support claimed by FIRST                 = 0
 parent hook before reverse verified-owning-field release             = 1
 Shared non-last hook dispatch                                        = 0
 Shared terminal hook dispatch exactly once                           = 1
+Shared release non-last/terminal parity                              = 1
 final cutover/reference parity                                       = 1
 B′ live reference claim across all live reference pages              = 0
 ```
@@ -852,6 +930,8 @@ operation.
   renaming, with a real corpus consumer;
 - `OWN-HOME-FIELD-TAKE0-D0`: field extraction, empty slot, replacement;
 - `OWN-HOME-CONSUMING-RECEIVER0-D0`;
+- `OWN-EXPLICIT-HOME-RELEASE-GENERIC0-D0`: generic/composite release after
+  exact Home-bundle classification and a real consumer;
 - `OWN-HOME-MULTI-ANCHOR0-D0` and result PHIs;
 - capture, `await`/`yield`, task/channel, and cross-thread flow;
 - explicit `region` after a real arena allocation/free substrate exists;

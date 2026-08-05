@@ -48,10 +48,12 @@ and non-owning handle.
   no owner bookkeeping.
 - The Home binding and handle may both read and mutate the same Box
   sequentially.
-- A Home transfer/rebind/destruction cannot invalidate a handle with a later
-  reachable use. C′ fixes that only terminal Home release may run the
-  non-callable Box `fini {}` hook; exact Shared representation and the
-  proof/rejection of remaining live handles are still Home D0 work.
+- A Home transfer/rebind/release cannot leave a dependent handle with a later
+  reachable use. `release(root)` explicitly consumes one verified whole-root
+  Home and invalidates its dependent handles without silently re-rooting them.
+  C′ fixes that only terminal Home release may run the non-callable Box
+  `fini {}` hook; exact Shared representation and the proof/rejection of
+  remaining live handles are still Home D0 work.
 - A destination with a sealed Home demand transfers one available Home;
   ordinary use remains a handle.
 - Independent lifetime enters the Shared lane through explicit `share`.

@@ -8,13 +8,17 @@
 > non-callable Box hookであり、direct `obj.fini()`、ordinary `fini()` method、
 > manual child-fini cascadeはrejectする。親hookの後にverified owning fieldsを
 > 宣言逆順でreleaseし、child hookはそのreleaseがterminalの時だけ走る。
+> Canonical sourceの早期終了はordinary core Call `release(root)`だけで、
+> verified whole-root Homeを一個手放す。`drop(root)` alias、field release、
+> generic/composite releaseはこのtargetに含めない。
 > 以下のB′/Arc/direct-fini記述はmigration census用の現行実装・歴史メモで、
 > 新規source設計のauthorityではない。完全な実装同期は
 > `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0` とその
-> `LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0` receiptで行う。
+> `LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0` /
+> `OWN-EXPLICIT-HOME-RELEASE-REFERENCE-CLOSEOUT0-DOC0` receiptsで行う。
 
 注: object lifecycle の SSOT は `docs/reference/language/lifecycle.md`、
-source Home/handle/transfer/share の SSOT は
+source Home/handle/transfer/share/release の SSOT は
 `docs/reference/language/ownership.md`。本書は実装設計ノートであり、
 矛盾する記述があれば両SSOTを優先する。
 

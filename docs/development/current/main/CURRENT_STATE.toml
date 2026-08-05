@@ -21,13 +21,14 @@ joinir_if_recipe_two_call_execution_task = "docs/development/current/main/invest
 joinir_if_recipe_call_implicit_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-call-branch-implicit-d0-d2-execution-task-2026-08-04.md"
 joinir_if_recipe_nested_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-nested-one-level-d0-d2-execution-task-2026-08-04.md"
 joinir_if_recipe_nested_consumer_design_stop = "docs/development/current/main/investigations/joinir-if-recipe-nested-production-consumer-design-stop-2026-08-04.md"
-ownership_home_reference_closeout_task = "OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST after I0/U; /FINAL after cutover (parent closes only at /FINAL)"
+ownership_home_reference_closeout_task = "OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST after fini/release I0/U; /FINAL after cutover (parent closes only at /FINAL)"
 reference_closeout_task_set = [
   "BOX-MEMBER-PROPERTY-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/design/box-member-field-method-surface-ssot.md)",
   "LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0 (mandatory only after P0, I0, R0, HOME0-I0, HOME0-I0/S, and backend parity)",
   "LANGUAGE-FAILURE-REFERENCE-CLOSEOUT0-DOC0 (required receipt of LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0)",
   "LANGUAGE-CLEANUP-REFERENCE-CLOSEOUT0-DOC0 (required receipt of LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0)",
   "LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0 (required receipt at both Home DOC0/FIRST and /FINAL)",
+  "OWN-EXPLICIT-HOME-RELEASE-REFERENCE-CLOSEOUT0-DOC0 (required receipt at both Home DOC0/FIRST and /FINAL; implementation commits update exact references immediately)",
   "OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST and /FINAL (parent completes only after /FINAL)",
   "AI-DEVLOOP-REFERENCE-CLOSEOUT0-DOC0 (mandatory only after selected diagnostic/query/repair/tooling products land)",
   "JOINIR-IF-RECIPE-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/investigations/joinir-if-recipe-nested-one-level-d0-d2-execution-task-2026-08-04.md)",
@@ -48,8 +49,11 @@ failure is Result<T,E>, exact unchanged propagation uses Result-only postfix
 ?, source try/throw/catch and RecoverableFailure are rejected, Fault remains
 terminal, and standalone cleanup is the sole lexical registration target.
 OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0 separately selects non-callable
-last-Home Box fini. Both families remain production 0; their census, passive
-plan, Trivial/Home implementation, retirement, and mandatory two-point
+last-Home Box fini. OWN-EXPLICIT-HOME-RELEASE0-D0 selects ordinary-core
+release(value) for one verified whole-root Home, rejects a drop(value) alias,
+and keeps generic/composite release provisional. Both families remain
+production 0; their census, passive plan, Trivial/Home implementation,
+retirement, implementation-coupled reference sync, and mandatory two-point
 post-implementation DOC0 rows are parked and do not move this lane.
 NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 has closed its typed no-import front door,
 Raw-terminal correspondence, Script matrix, and Main/function boundary
