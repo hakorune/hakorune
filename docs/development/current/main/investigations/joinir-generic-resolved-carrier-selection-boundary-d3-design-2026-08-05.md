@@ -388,6 +388,60 @@ cross-invocation mismatch rejection. It does not issue a production
 capability, select a route, or close the parent D2 row. The upper
 source-to-selection handoff remains the active design stop.
 
+## Selected next bounded task — source-backed handoff bridge
+
+Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1`
+
+Decision: accepted as a `cfg(test)`-only bridge; neutral issuer and production
+selection remain prohibited. The existing projector receipt is source-backed,
+but the handoff protocol matrix is still synthetic, so this slice closes that
+boundary without adding a production capability.
+
+### Change
+
+- Add one private, non-`Clone`, AST-free test DTO bridge from the existing
+  projector receipt to the handoff protocol. It must move, not re-derive, the
+  same parsed invocation's resolver forest/source sites, BindingRefs,
+  function/source/frame identity, facts identity, actual `try_build_outcome`
+  facts observation, base raw schedule, and frame-affecting flags.
+- Exercise exactly the existing S2A natural-Both source shape in Release and
+  Strict. Keep the protocol's synthetic matrix and typed mismatch guards as
+  neighboring evidence; `NoRecursive`/`Unavailable`/`Ambiguous` and other
+  source shapes remain separate rows.
+
+### Contract
+
+- `VerifiedResolvedSourceUnitV1`/`FunctionSourceViewV1`, the resolver forest,
+  BindingRefs, and the same invocation's canonical facts are the only source
+  authorities. Carrier labels, route IDs, digests, legacy receipts, and
+  runtime results are corroboration only.
+- A cross-invocation facts/seed/frame pairing rejects before effects as typed
+  `UnresolvedStop`; it must not become a `Legacy` fallback. Planner-required
+  and other execution-mode axes are separate rows because this projector
+  evidence fixes the current non-planner facts path. No neutral issuer,
+  `Option<Capability>`, selector/router
+  arm, `LivePreflightFrameV1`, Recipe/JoinSig/PHI, Builder/MIR/backend, Retry,
+  fallback, or parent-D2 winner claim may be added.
+
+### Done
+
+- A focused source-backed bridge test proves Release/Strict `[V0, V1]` from
+  the parsed S2A fixture and same-invocation co-seal; a foreign frame or
+  cross-invocation pairing mismatch is a typed pre-effect reject. Production
+  caller/import census remains zero.
+- All touched Rust/check files stay below 800 lines. Pointer, diff, artifact,
+  and line-budget guards plus the existing projector/protocol filters are
+  green. Closeout updates this card, the parent Generic SSOT, Generic and
+  resolved-semantics READMEs, stage-matrix reference, current pointers, and
+  the workstream in one implementation commit.
+
+### Stop
+
+- Return to design if the bridge needs a neutral facts type, a second facts or
+  seed authority, AST/name reconstruction, a production import, or a second
+  source shape. Parent D2, full source-backed matrix, neutral issuer, and
+  production selector remain `UnresolvedStop`.
+
 ## Closed bounded task — nested `IfThen` carrier coverage
 
 Task: `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`

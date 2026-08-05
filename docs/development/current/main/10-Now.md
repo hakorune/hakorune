@@ -32,8 +32,9 @@ Related:
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only
-  evidence. The current stop is the upper co-sealed source-to-selection
-  handoff. No Generic production Recipe, selector arm, source-to-selection handoff, route,
+  evidence. The next row is the cfg(test)-only
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1` source-backed handoff
+  bridge. No Generic production Recipe, selector arm, source-to-selection handoff, route,
   physical, Retry, or fallback change is authorized; M10b still waits on
   M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`
   for the exact test boundary and non-claims.

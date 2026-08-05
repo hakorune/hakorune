@@ -183,6 +183,10 @@ resolver/source/frame/facts-only co-seal, and typed cross-invocation mismatch.
 It does not authorize a production selector, Recipe/JoinSig/PHI/physicalizer
 caller, or Retry/fallback change. The parent Generic D2 disposition remains
 unresolved.
+The next bounded row is the cfg(test)-only source-backed handoff bridge
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1`; it connects one parsed
+S2A projector receipt to actual facts/raw schedule/frame flags without adding a
+neutral issuer or production selector.
 
 The scoped D3 matrix is now also green as one cfg(test) test over four typed
 rows: natural Release, natural Strict, shadowing negative, and planner-required

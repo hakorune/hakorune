@@ -938,6 +938,13 @@ facts-only identity without retaining `CanonicalLoopFacts`. The projector does
 not own `PreflightSeedV1`/`InvocationSealV1` or carrier policy; those stay with
 the later router/neutral-facts/selector boundaries. Parent D2 and all
 production handoff/selection/Recipe/PHI/MIR claims remain `UnresolvedStop`.
+The next bounded row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1`: a cfg(test)-only bridge
+must move the same parsed projector receipt, actual canonical facts/raw
+schedule, and frame flags into one private non-Clone handoff witness for
+Release/Strict natural Both. It must not add a neutral issuer, production
+selector, router/frame arm, Builder/MIR caller, or Legacy fallback; the full
+source-backed matrix and parent D2 remain unresolved.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

@@ -166,6 +166,11 @@ cfg(test)-only tests. Its parsed S2A nested-`IfThen` positive uses
 function/source/frame, and private facts-only identity; cross-invocation facts
 mismatch rejects before effects. Seed/invocation seal, neutral facts issuance,
 and production selection remain later boundaries.
+The next bounded row is the cfg(test)-only source-backed handoff bridge
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1`: same-invocation projector
+receipt, actual facts/raw schedule, and frame flags must move into one private
+non-`Clone` witness for Release/Strict natural Both. Neutral facts issuance and
+production selection remain stopped.
 
 The bounded cfg(test) witness is green with:
 
