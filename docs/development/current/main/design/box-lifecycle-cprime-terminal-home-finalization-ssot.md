@@ -289,6 +289,13 @@ Flow, grammar carrier, and passive hook-plan products are sealed. Scope-fini
 retirement precedes the Box-member carrier. Plugin/FFI lifecycle is a separate
 bounded series.
 
+`OWN-HOME-C-SPEED0-G0` is an evidence gate, not an inline hint. It covers both
+the explicit `release root` front and the ordinary scope-end terminal path:
+Unique paths must show no generic wrapper call, RC/control-cell work, or
+global-finalizer dispatch, while scope-end automatic `fini` and reverse field
+teardown require a focused assembly/performance witness. Shared accounting is
+measured separately and cannot be used to claim the Unique path is zero-cost.
+
 `R0` removes direct `obj.fini()` callability, callable-catalog exposure, the
 B′ Dead-with-live-Home state, manual parent-to-child fini cascades, global
 finalizer authority, and any route where terminal structural drop bypasses a
@@ -334,14 +341,21 @@ docs/reference/language/EBNF.md
 grammar/language-v1-registry.toml
 constructor/birth reference
 docs/reference/boxes-system/memory-finalization.md
+docs/reference/boxes-system/README.md
 docs/reference/architecture/rust-to-hako-lifecycle-projection.md
 delegate/interface callable reference
 docs/reference/plugin-system/plugin_lifecycle.md
 docs/reference/boxes-system/plugin_lifecycle.md
 docs/reference/plugin-system/vm-plugin-integration.md
+docs/reference/plugin-system/plugin-system.md (deprecated historical stale-claim audit)
 plugin/FFI lifecycle ABI reference
 examples and migration guide
 ```
+
+The closeout must also inventory historical/deprecated pages that still use
+callable `fini()` or Arc-only lifecycle wording (including the Box-system
+README and deprecated plugin-system proposal). They may remain historical, but
+no live reference index may present those claims as the C′ language contract.
 
 Evidence is evaluated against only the production slice available at that
 cell. A future field or Shared witness cannot be credited to `/FIRST`, and a

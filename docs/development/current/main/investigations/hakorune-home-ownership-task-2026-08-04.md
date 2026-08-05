@@ -797,6 +797,10 @@ For a selected exact front:
 - compare exact-front instructions and whole-program behavior;
 - include the admitted Unique `release root` front and prove it adds no
   generic dispatch, runtime lookup, RC, or global finalizer registry;
+- include the ordinary scope-end terminal path and prove automatic `fini` plus
+  reverse owning-field teardown through a focused assembly/performance witness;
+- keep Shared owner accounting as a separate measured profile and never credit
+  it as a Unique zero-cost result;
 - keep only evidence-backed representation changes.
 
 Grammar completion is not a performance gate.
@@ -894,10 +898,15 @@ language to the exact implementation that actually landed:
   field initializer, `birth`, and
   partial-construction boundaries must point to their separate owners;
 * `docs/reference/boxes-system/memory-finalization.md`,
+  `docs/reference/boxes-system/README.md`,
   `docs/reference/architecture/rust-to-hako-lifecycle-projection.md`, both
   plugin lifecycle references, and VM plugin integration — replace B′/direct
   fini/manual child cascades with the exact implemented C′ and plugin/FFI
   capability boundary;
+* deprecated `docs/reference/plugin-system/plugin-system.md` and any other
+  historical Box/plugin page carrying callable `fini()` or Arc-only lifecycle
+  wording — retain historical status where appropriate, but remove stale live
+  claims from indexes and closeout views;
 * `docs/reference/ir/json_v0.md`, ownership/exit MIR references,
   callable/interface/FFI ABI references, and generated support views — exact
   Home ABI/profile metadata, one resolved release plan, no body re-inference
