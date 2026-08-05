@@ -1,9 +1,9 @@
-Status: selected bounded design/test-only census; exact disjointness remains NoSafeSlice
+Status: closed bounded test-only census; exact disjointness remains NoSafeSlice
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-facts-snapshot-d3-s2-p2-task-2026-08-05.md
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-OVERLAP-CENSUS0-D3-S2-P3`
-Decision: selected bounded evidence only; no exact partition, selector, or production caller
+Decision: accepted bounded evidence only; no exact partition, selector, or production caller
 
 # Purpose
 
@@ -98,3 +98,30 @@ design stop can decide whether a future source bridge is worth opening. It
 does not authorize Generic selection or lowerer work. Until a shared branded
 source authority exists, exact family disjointness and production selection
 remain NoSafeSlice.
+
+# Done
+
+The cfg(test)-only witness is
+`src/mir/builder/control_flow/joinir/route_entry/registry/generic_resolved_carrier_family_overlap_census_tests.rs`.
+It records three raw Generic mode rows independently (Release, Strict, and
+Strict+planner-required), retaining V0/V1 presence, the recursive carrier,
+and raw schedule. Release/Strict record `ObservedOverlap` with
+`[GenericLoopV0, GenericLoopV1]`; planner-required records the typed
+suppression shape with `[GenericLoopV1]`. The resolved column independently
+records NestedPredicate, DirectAccum, A+, and an explicit canonical reject
+fixture. The two columns have no pairing key or source/owner/frame bridge;
+their only cross-authority report is
+`UnresolvedStop(FamilyOverlap)` when both observations are present.
+
+Acceptance command:
+
+```bash
+RUSTFLAGS='-Awarnings' cargo test --lib generic_d3_s2_p3 -- --nocapture
+```
+
+Result: 2 passed, 0 failed. No Generic facts type, selector, Recipe,
+BindingKey, Builder, MIR, PHI, Home, retry, fallback, or production caller
+changed. The affected `docs/reference/**` and current support pages were
+updated in the same implementation/test landing commit. The next step is a
+new parent design consultation for a shared source bridge; exact disjointness
+must not be implemented from this census.

@@ -68,17 +68,18 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- D3-S2-D1, P0 source-site totality, P1 source projection, and P2 neutral
-  facts are closed docs/static/test-only. P0 proves current Generic facts are
-  AST/name/derived products; P1 packages existing resolver/projector/bridge
-  evidence in one machine-readable source-site/owner/BindingRef/strict-
-  ancestor witness with typed pre-effect mismatch rows; P2 consumes that
-  sealed witness and adds only a mode-neutral disposition. Only the Recipe
-  producer may later issue `LoopBindingKeyV1`; Binding SSA owns physical
-  ValueId/PHI. P3 is selected only for an independent raw-versus-resolved
-  family-overlap census; no production authority moved and exact disjointness
-  remains NoSafeSlice. Scalar Return/outer-PHI and natural
-  debt-to-different-winner remain NoSafeSlice.
+- D3-S2-D1, P0 source-site totality, P1 source projection, P2 neutral facts,
+  and P3 independent family-overlap census are closed docs/static/test-only.
+  P0 proves current Generic facts are AST/name/derived products; P1 packages
+  existing resolver/projector/bridge evidence in one machine-readable
+  source-site/owner/BindingRef/strict-ancestor witness with typed pre-effect
+  mismatch rows; P2 consumes that sealed witness and adds only a mode-neutral
+  disposition; P3 retains raw Generic mode/carrier/schedule rows separately
+  from resolved family/rejection rows. Only the Recipe producer may later
+  issue `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. D4 is now a
+  design stop for a possible common resolver/raw source bridge; exact
+  disjointness and production authority remain NoSafeSlice. Scalar
+  Return/outer-PHI and natural debt-to-different-winner remain NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

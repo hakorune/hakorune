@@ -1,4 +1,4 @@
-Status: accepted authority realignment; D1/P0/P1/P2 closed docs-static-only; P3 selected
+Status: accepted authority realignment; D1/P0/P1/P2/P3 closed docs-static-only; next bridge design stopped
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md
 Supersedes: the next-row ambiguity after D3-S1-S2
@@ -358,13 +358,17 @@ handoff. The existing nested-overlapping-DirectAccum test proves precedence
 over an overlapping envelope, not disjointness, and A+ is a post-trivial
 fallback profile whose whole-unit verifier rejects loop statements.
 
-The selected next row is therefore the bounded independent-column census
+The selected row was therefore the bounded independent-column census
 `JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-OVERLAP-CENSUS0-D3-S2-P3`. It may
 record `ObservedOverlap` / `UnresolvedStop(FamilyOverlap)` and the other
 typed observation dispositions, keyed by fixture label only for reporting.
 It may not co-seal raw and resolved observations, mint a shared classifier,
 select a winner, or add a production caller. Exact disjointness remains a
-design stop until a separately accepted source bridge exists.
+design stop until a separately accepted source bridge exists. P3 is now
+closed with independent raw mode/carrier/schedule rows and resolved family
+rows; the only cross-authority report is `UnresolvedStop(FamilyOverlap)`.
+The next step is a fresh parent design consultation for that source bridge,
+not implementation from the census.
 
 ## Acceptance
 

@@ -478,7 +478,7 @@ Current decision and execution brief:
 
 ```text
 JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-OVERLAP-CENSUS0-D3-S2-P3
-  is selected after D3-S2-D1, P0, P1, and P2 closed docs/test-only. P0
+  is now closed after D3-S2-D1, P0, P1, and P2 closed docs/test-only. P0
   classifies every current Generic V0/V1 field/producer arm; P1 packages the
   existing resolver/projector/bridge evidence in one source-site/owner/
   BindingRef/strict-ancestor witness; P2 consumes that witness and adds only
@@ -487,8 +487,10 @@ JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-OVERLAP-CENSUS0-D3-S2-P3
   resolved NestedPredicate/DirectAccum/A+ observations in independent
   columns only. Exact disjointness is NoSafeSlice because no common
   source/owner/frame brand exists; no co-sealed classifier or production
-  authority is allowed. Return/outer-PHI and natural debt remain NoSafeSlice.
-  Task: docs/development/current/main/investigations/joinir-generic-resolved-
+  authority is allowed. The next step is a fresh parent design consultation
+  for a common resolver/raw source bridge; exact disjointness, Return/
+  outer-PHI, and natural debt remain NoSafeSlice. The closed task is:
+  docs/development/current/main/investigations/joinir-generic-resolved-
   carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
 ```
 

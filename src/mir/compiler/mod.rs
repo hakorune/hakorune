@@ -62,6 +62,8 @@ pub(in crate::mir) mod nested_predicate_effect_plan;
 #[cfg(test)]
 mod nested_predicate_producer_tests;
 #[cfg(test)]
+pub(crate) use nested_predicate_producer_tests::nested_function as nested_function_for_p3_test;
+#[cfg(test)]
 mod nested_predicate_topology_tests;
 #[cfg(test)]
 mod nested_predicate_physical_input_tests;
