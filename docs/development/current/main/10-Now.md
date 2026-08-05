@@ -69,14 +69,12 @@ Related:
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
 - D3-S1 is closed as the prior policy boundary. D3-S2-S0 and the selected
-  D3-S2-S1 cfg(test)-only cross-session brand audit are closed. S1 adds one
-  private non-Clone forest/frame brand witness and rejects equal-origin
-  `forest_A + roles_B + frame_B` mixing; DirectAccum's ownerless structural
-  frame remains unchanged. Production caller/import and artifact are zero/none;
-  Generic snapshot/key issuer, InvocationSeal/opaque input, full Return/PHI,
-  natural debt, Home, and production selector/issuer remain unimplemented and
-  unclaimed. The blocker returns to the D3-S2 design card for the next passive
-  provenance product decision.
+  D3-S2-S1 cfg(test)-only cross-session brand audit are closed. D3-S2-S2 is
+  now the selected bounded passive product: one private non-Clone
+  `resolved_semantics` factory consumes one co-sealed handoff and rejects
+  typed owner/forest/frame/role mismatches before effects. No Generic
+  snapshot/key/seed, selector, Builder/MIR/Recipe/PHI, Return/Home/debt, or
+  production caller is claimed.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

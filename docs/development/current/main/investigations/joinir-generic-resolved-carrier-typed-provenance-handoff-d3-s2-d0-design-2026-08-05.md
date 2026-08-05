@@ -185,6 +185,39 @@ Return/ABI/Home/debt semantics, or production caller. If the brand cannot be
 sealed without introducing one of those owners, execution returns to this
 design stop.
 
+## S2 candidate contract — design only
+
+The smallest next product is a private, non-`Clone` AST-free provenance
+product owned by the neutral `mir::resolved_semantics` boundary. Its producer
+consumes one S1-branded handoff as a single value; it does not accept loose
+forest, frame, role, or facts references:
+
+```text
+S1 branded handoff
+  -> ResolvedCarrierProvenanceProductV1
+```
+
+The product may retain only the resolver-owned function/source kind, outer and
+inner source sites, parent membership, exact `BindingRefV1` role rows and
+strict-ancestor relation, and the S1 owner/frame brand. It must not retain AST,
+`CanonicalLoopFacts`, labels, route IDs, plan digests, `ValueId`, `BasicBlockId`,
+PHI, Return/ABI/Home/debt facts, mode/seed flags, or Generic logical keys.
+The product has no public constructor or detachable `parts()` accessor; a
+future consumer must consume it as one sealed value.
+
+The product issuer rejects before any Builder effect when the handoff is
+missing, foreign, ambiguous, mixed-brand, duplicate-role, incomplete forest,
+shadowed/foreign `BindingRefV1`, or frame/source identity is inconsistent.
+No typed `Option<Capability>`, legacy fallback, retry, or selector policy may
+represent these failures.
+
+This candidate is now selected as the bounded execution row
+`JOINIR-GENERIC-RESOLVED-CARRIER-PROVENANCE-PRODUCT0-D3-S2-S2`. The existing
+resolved-semantics README remains the owner/issuer boundary, and the execution
+must add a cfg(test)-only positive/mixed/negative matrix before any later
+design row is opened. Generic snapshot/key/seed, opaque selection input, and
+every production caller remain closed.
+
 ## Acceptance
 
 Design acceptance requires the parent D3 card, D3-S1 disposition matrix,

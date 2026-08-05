@@ -477,18 +477,15 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0
-  current design stop after the closed cfg(test)-only D3-S2-S1 brand audit.
-  The private witness now rejects forest_A + roles_B + frame_B for equal-origin
-  fresh sessions, while DirectAccum's ownerless structural frame is unchanged.
-  The next decision is whether to select a passive resolver provenance product;
-  no GenericCarrierFactsSnapshotV1, LoopBindingKey, InvocationSeal, opaque
-  input, selector/Recipe/PHI/Builder/MIR/VM route, Return/Home/debt meaning,
-  fallback/retry, or production caller is authorized.
-  Closed task card:
+JOINIR-GENERIC-RESOLVED-CARRIER-PROVENANCE-PRODUCT0-D3-S2-S2
+  is the selected cfg(test)-only passive product after the closed D3-S2-S1
+  brand audit. A private non-Clone resolved_semantics factory consumes one
+  co-sealed owner/forest/frame/role handoff and publishes one AST-free source
+  witness. It must not change DirectAccum frame semantics or mint Generic
+  snapshot/key/seed/selector authority. The execution card is
   docs/development/current/main/investigations/joinir-generic-resolved-carrier-
-  cross-session-brand-audit-d3-s2-s1-task-2026-08-05.md
-  The D3-S2 design card remains the sole selector for any D3-S2-S2 row.
+  provenance-product-d3-s2-s2-task-2026-08-05.md; the parent design card
+  remains the authority for stop conditions and rejects.
 ```
 
 ## Production invariants
