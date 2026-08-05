@@ -274,13 +274,13 @@ parent D2/winner-equivalence/runtime claims = 0
 Only after this protocol and the full D2 matrix are accepted may a separate
 implementation card add the neutral capability and selector input.
 
-## Selected bounded task — Compound/Unavailable source matrix
+## Closed bounded task — Compound/Unavailable source matrix
 
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`
 
-Decision: selected after independent source/classifier/contract audits. This
-is one cfg(test)-only source row; it does not reopen the D1 bridge or promote
-the D3 eligibility witness into a production issuer.
+Decision: accepted and implemented after independent source/classifier/contract
+audits. This is one cfg(test)-only source row; it does not reopen the D1 bridge
+or promote the D3 eligibility witness into a production issuer.
 
 ### Change
 
@@ -321,9 +321,32 @@ SSOT, stage-matrix reference, Generic/resolved-semantics READMEs,
 indexes, and the artifact manifest in the same commit, with every touched
 source/check file below 800 lines.
 
+### Done
+
+- The parsed fixture uses scoped `NYASH_SYNTAX_SUGAR_LEVEL=basic`, keeps the
+  accepted outer/inner-loop plus nested-`IfThen` topology, and proves the
+  exact `ASTNode::CompoundAssignment { operator: Add }` path. Resolver output
+  is `BindingRebind` for the same local as the post-loop read; the two-member
+  forest, `DeclaredFunction` source kind, owner/frame identity, strict ancestry,
+  and local BindingRef slots are co-sealed in one private non-`Clone` witness.
+- Actual Release and Strict observations both produce facts
+  `Unavailable("CompoundAssignment")` and raw schedule `[V0, V1]`. Fresh
+  invocations keep source origin/frame/path, local slots, carrier reason, raw
+  schedule, and typed disposition stable while issuing a fresh owner identity.
+  The only disposition is pre-effect
+  `UnresolvedStop(CompoundUnavailableCarrier)`.
+- The focused D2-S3 tests are 2/2 green and the adjacent
+  `generic_resolved_carrier_` suite is 25/25 green. The new test sibling is
+  345 lines; only a `cfg(test)` registry module was added. No eligibility,
+  Legacy, winner, V0 suppression, selector, neutral issuer, Builder/MIR,
+  Recipe/JoinSig/PHI, Retry, fallback, or parent-D2 authority moved. The
+  implementation closeout updates all referenced current/reference docs and
+  the artifact manifest in this same commit; future production capability
+  changes must update the language/reference documents again.
+
 ### Stop
 
-After the row is green, return to this parent design stop. If the parser cannot
+After this row, return to this parent design stop. If the parser cannot
 produce the nested source, facts do not emit the exact label, the schedule or
 identity is unstable, or any production effect appears, close the row as
 unresolved and do not invent a new source authority.

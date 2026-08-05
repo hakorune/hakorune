@@ -226,6 +226,8 @@ mod generic_resolved_carrier_handoff_protocol_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_eligibility_protocol_tests;
 #[cfg(test)]
+mod generic_resolved_carrier_compound_unavailable_tests;
+#[cfg(test)]
 mod generic_resolved_carrier_index_ambiguous_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_planner_suppression_tests;

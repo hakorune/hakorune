@@ -212,8 +212,8 @@ closed as cfg(test)-only evidence: actual Release/Strict natural-Both
 `CompleteRecursiveCarrier` is the only test-only eligible result, while
 planner, shadowing, missing-capability, and cross-invocation mismatches remain
 typed unresolved. It does not close the production handoff;
-Compound/Unavailable remains a later source-matrix row and the parent D3
-design stop is current.
+Compound/Unavailable D2-S3 is now closed as the adjacent source-matrix row and
+the parent D3 design stop remains current.
 
 The scoped D3 matrix is now also green as one cfg(test) test over four typed
 rows: natural Release, natural Strict, shadowing negative, and planner-required
@@ -223,15 +223,16 @@ the source-to-selection handoff card remains the design authority
 `investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`;
 no production selector change is implied.
 
-The next selected source row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`.
-It is limited to a parsed nested `CompoundAssignment` under scoped basic
-sugar, actual resolver/source/frame/BindingRef evidence, and the facts-owned
-`Unavailable("CompoundAssignment")` disposition. Release/Strict raw schedule
-is measured, not assumed, and the only allowed result is typed pre-effect
+The bounded source row
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`
+is closed as cfg(test)-only evidence. It uses a parsed nested
+`CompoundAssignment` under scoped basic sugar, actual resolver/source/frame/
+BindingRef evidence, and the facts-owned
+`Unavailable("CompoundAssignment")` disposition. Release/Strict measured raw
+schedule is `[V0,V1]`; the only result is typed pre-effect
 `UnresolvedStop(CompoundUnavailableCarrier)`. Top-level compound behavior,
 eligibility, Legacy, winner/precedence, and production handoff remain outside
-this row.
+this row; execution returns to the parent D3 design stop.
 
 ## D2-B4-S2A nested `IfThen` carrier evidence
 

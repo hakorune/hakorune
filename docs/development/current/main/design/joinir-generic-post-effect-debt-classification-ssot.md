@@ -962,20 +962,21 @@ as cfg(test)-only source-backed natural-Both eligibility with typed mismatch
 rejects. Actual Release/Strict `CompleteRecursiveCarrier` is the
 only test-only eligible result; planner, shadowing, missing-capability, and
 cross-invocation mismatches remain typed pre-effect unresolved. No neutral
-issuer, selector, or production handoff was added. Compound/Unavailable remains
-a separate later source-matrix row, and the parent source-to-selection design
-boundary remains open.
+issuer, selector, or production handoff was added. Compound/Unavailable D2-S3
+is closed as the adjacent source-matrix row, and the parent source-to-selection
+design boundary remains open.
 
-The next bounded source-matrix task is selected as
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`.
-It must parse one nested `CompoundAssignment` under a scoped basic-sugar
-environment, co-seal the actual resolver forest/BindingRef/source/frame and
-facts observation, and prove exact `Unavailable("CompoundAssignment")` with
-the measured Release/Strict raw schedule. Its only result is a typed
-pre-effect `UnresolvedStop(CompoundUnavailableCarrier)`; it may not create
-eligibility, Legacy, a winner, V0 suppression, or any production handoff.
-The collector's top-level non-nested behavior and all production selection
-remain separate design boundaries.
+The bounded source-matrix task
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`
+is now closed as cfg(test)-only source evidence. It parses one nested
+`CompoundAssignment` under a scoped basic-sugar environment, co-seals the
+actual resolver forest/BindingRef/source/frame and facts observation, and
+proves exact `Unavailable("CompoundAssignment")` with Release/Strict raw
+schedule `[V0,V1]`. Its only result is typed pre-effect
+`UnresolvedStop(CompoundUnavailableCarrier)`; it creates no eligibility,
+Legacy, winner, V0 suppression, or production handoff. The collector's
+top-level non-nested behavior and all production selection remain separate
+design boundaries; return to the parent source-to-selection stop.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

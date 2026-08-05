@@ -46,10 +46,11 @@ Related:
   is now closed as cfg(test)-only source-backed natural-Both eligibility with
   typed mismatch negatives. Execution has returned to the parent
   `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-BOUNDARY-D3-DESIGN0-D0` design
-  stop. The next selected bounded row is
+  stop. The bounded Compound/Unavailable row is now closed as
   `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`:
-  parsed nested CompoundAssignment, exact facts Unavailable, and typed
-  pre-effect unresolved evidence only. No
+  parsed nested CompoundAssignment, exact facts Unavailable, measured
+  `[V0,V1]`, and typed pre-effect unresolved evidence only. Execution returns
+  to the parent design stop. No
   Generic production Recipe, selector arm, source-to-selection handoff, route,
   physical, Retry, or fallback change is authorized; M10b still waits on
   M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`
