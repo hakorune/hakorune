@@ -15,9 +15,9 @@ use crate::mir::loop_structural_facts::{
     bind_resolved_loop_source_forest_v1, VerifiedLoopSourceForestBindingV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingRefV1, FunctionOriginV1, LoopExecutionFrameKeyV1, ResolvedAssignmentTargetV1,
-    ResolvedLexicalRefV1, SemanticOwnerSourceKindV1, SourceExprSiteV1, SourceNodeSiteV1,
-    SourcePathSegmentV1, SourceStmtSiteV1,
+    BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, FunctionOriginV1, FunctionOwnerIdV1,
+    LoopExecutionFrameKeyV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
+    SemanticOwnerSourceKindV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::parser::NyashParser;
 
@@ -46,6 +46,21 @@ function generic_both_shadowing(i, j) {
 }
 "#;
 
+const NESTED_IF_SOURCE: &str = r#"
+function generic_both_nested_if(i, j) {
+    loop(i < 3) {
+        loop(j < 3) {
+            if i < 2 {
+                j = j + 1
+            }
+            j = j + 1
+        }
+        i = i + 1
+    }
+    return j
+}
+"#;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ProjectorRejectV1 {
     ForeignOwner,
@@ -59,17 +74,49 @@ enum ProjectorRejectV1 {
     StrictAncestorMismatch,
     BindingMismatch,
     UnsupportedCarrier,
+    FactsIdentityMismatch,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct ProjectorFactsIdentityV1 {
+    loop_var: String,
+    recursive_carriers: Vec<String>,
+}
+
+impl ProjectorFactsIdentityV1 {
+    fn from_facts(facts: &CanonicalLoopFacts) -> Option<Self> {
+        let generic = facts.facts.generic_loop_v1()?;
+        let crate::mir::builder::control_flow::plan::facts::GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(carriers) = &generic.carrier_observation else {
+            return None;
+        };
+        Some(Self {
+            loop_var: generic.loop_var.clone(),
+            recursive_carriers: carriers.clone(),
+        })
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct ProjectorFactsObservationV1 {
+    function_owner: FunctionOwnerIdV1,
+    function_origin: FunctionOriginV1,
+    source_kind: SemanticOwnerSourceKindV1,
+    loop_site: SourceStmtSiteV1,
+    frame_key: LoopExecutionFrameKeyV1,
+    identity: ProjectorFactsIdentityV1,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 struct ProjectorSealV1 {
     function_origin: FunctionOriginV1,
+    function_owner: FunctionOwnerIdV1,
     source_kind: SemanticOwnerSourceKindV1,
     outer_site: SourceStmtSiteV1,
     inner_site: SourceStmtSiteV1,
     write_binding: BindingRefV1,
     read_binding: BindingRefV1,
     frame_key: LoopExecutionFrameKeyV1,
+    facts_observation: ProjectorFactsObservationV1,
 }
 
 /// Private, non-Clone output. The facts and source capability are only
@@ -77,15 +124,36 @@ struct ProjectorSealV1 {
 #[derive(Debug)]
 struct ResolvedGenericProjectorReceiptV1 {
     forest_binding: VerifiedLoopSourceForestBindingV1,
-    facts: CanonicalLoopFacts,
     seal: ProjectorSealV1,
 }
 
 impl ResolvedGenericProjectorReceiptV1 {
     fn identity_is_stable(&self) -> bool {
+        let forest_owner = self.forest_binding.owner();
         self.seal.source_kind == SemanticOwnerSourceKindV1::DeclaredFunction
+            && self.seal.function_owner == self.seal.facts_observation.function_owner
             && self.seal.write_binding == self.seal.read_binding
-            && self.seal.frame_key.matches(&self.seal.frame_key)
+            && forest_owner
+                == crate::mir::loop_recipe_contract::LoopRecipeSourceOwnerV1::FunctionBody {
+                    compilation_unit_ordinal: self.seal.function_origin.compilation_unit_ordinal(),
+                    function_ordinal: self.seal.function_origin.function_ordinal(),
+                }
+            && self.seal.outer_site != self.seal.inner_site
+            && self.seal.facts_observation.function_origin == self.seal.function_origin
+            && self.seal.facts_observation.source_kind == self.seal.source_kind
+            && self.seal.facts_observation.loop_site == self.seal.outer_site
+            && self
+                .seal
+                .facts_observation
+                .frame_key
+                .matches(&self.seal.frame_key)
+            && !self.seal.facts_observation.identity.loop_var.is_empty()
+            && !self
+                .seal
+                .facts_observation
+                .identity
+                .recursive_carriers
+                .is_empty()
             && self
                 .forest_binding
                 .members()
@@ -93,6 +161,22 @@ impl ResolvedGenericProjectorReceiptV1 {
                 .map(|member| member.parent_index().is_none())
                 .unwrap_or(false)
     }
+}
+
+fn verify_facts_pair(
+    expected: &ProjectorFactsObservationV1,
+    observed: &ProjectorFactsObservationV1,
+) -> Result<(), ProjectorRejectV1> {
+    if expected.function_owner != observed.function_owner
+        || expected.function_origin != observed.function_origin
+        || expected.source_kind != observed.source_kind
+        || expected.loop_site != observed.loop_site
+        || !expected.frame_key.matches(&observed.frame_key)
+        || expected.identity != observed.identity
+    {
+        return Err(ProjectorRejectV1::FactsIdentityMismatch);
+    }
+    Ok(())
 }
 
 fn parse_function(source: &str) -> ASTNode {
@@ -123,21 +207,62 @@ fn input_and_root(
     (input, root)
 }
 
-fn expr_site(segments: &[SourcePathSegmentV1]) -> SourceExprSiteV1 {
-    SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(segments.to_vec()))
+struct ProjectorSitesV1 {
+    write: SourceExprSiteV1,
+    read: SourceExprSiteV1,
 }
 
-fn write_site(shadowing: bool) -> SourceExprSiteV1 {
-    expr_site(&[
-        SourcePathSegmentV1::Body(0),
-        SourcePathSegmentV1::LoopBody(0),
-        SourcePathSegmentV1::LoopBody(if shadowing { 1 } else { 0 }),
-        SourcePathSegmentV1::Target,
-    ])
-}
-
-fn read_site() -> SourceExprSiteV1 {
-    expr_site(&[SourcePathSegmentV1::Body(1), SourcePathSegmentV1::Value])
+fn projector_sites(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    root: &LocatedStmtV1<'_>,
+) -> Result<ProjectorSitesV1, ProjectorRejectV1> {
+    let source = input.source();
+    let outer_body = source
+        .child_body_from_stmt(root, BodyChildRoleV1::LoopBody)
+        .map_err(|_| ProjectorRejectV1::SourceNavigation)?;
+    let inner = source
+        .body_stmt(&outer_body, 0)
+        .map_err(|_| ProjectorRejectV1::SourceNavigation)?;
+    let inner_body = source
+        .child_body_from_stmt(&inner, BodyChildRoleV1::LoopBody)
+        .map_err(|_| ProjectorRejectV1::SourceNavigation)?;
+    let write_stmt = match inner_body.statements().first() {
+        Some(ASTNode::If { .. }) => {
+            let if_stmt = source
+                .body_stmt(&inner_body, 0)
+                .map_err(|_| ProjectorRejectV1::SourceNavigation)?;
+            let then_body = source
+                .child_body_from_stmt(&if_stmt, BodyChildRoleV1::IfThen)
+                .map_err(|_| ProjectorRejectV1::SourceNavigation)?;
+            source
+                .body_stmt(&then_body, 0)
+                .map_err(|_| ProjectorRejectV1::SourceNavigation)?
+        }
+        Some(ASTNode::Local { .. }) => source
+            .body_stmt(&inner_body, 1)
+            .map_err(|_| ProjectorRejectV1::SourceNavigation)?,
+        Some(ASTNode::Assignment { .. }) => source
+            .body_stmt(&inner_body, 0)
+            .map_err(|_| ProjectorRejectV1::SourceNavigation)?,
+        _ => return Err(ProjectorRejectV1::SourceNavigation),
+    };
+    let write = source
+        .child_expr_from_stmt(&write_stmt, ExprChildRoleV1::AssignmentTarget)
+        .map_err(|_| ProjectorRejectV1::SourceNavigation)?
+        .site()
+        .clone();
+    let function_body = source
+        .root_body()
+        .map_err(|_| ProjectorRejectV1::SourceNavigation)?;
+    let return_stmt = source
+        .body_stmt(&function_body, 1)
+        .map_err(|_| ProjectorRejectV1::SourceNavigation)?;
+    let read = source
+        .child_expr_from_stmt(&return_stmt, ExprChildRoleV1::ReturnValue)
+        .map_err(|_| ProjectorRejectV1::SourceNavigation)?
+        .site()
+        .clone();
+    Ok(ProjectorSitesV1 { write, read })
 }
 
 fn strict_ancestor(
@@ -200,16 +325,9 @@ fn issue_projector(
     .map_err(|_| ProjectorRejectV1::FactsAbsent)?
     .facts
     .ok_or(ProjectorRejectV1::FactsAbsent)?;
-    let shadowing = body
-        .first()
-        .and_then(|statement| match statement {
-            ASTNode::Loop { body, .. } => body.first(),
-            _ => None,
-        })
-        .map(|statement| matches!(statement, ASTNode::Local { .. }))
-        .unwrap_or(false);
-    let write = write_site(shadowing);
-    let read = read_site();
+    let sites = projector_sites(input, root)?;
+    let write = sites.write;
+    let read = sites.read;
     let write_binding = match function.assignment_target(&write) {
         Some(ResolvedAssignmentTargetV1::BindingRebind(binding)) => *binding,
         Some(_) => return Err(ProjectorRejectV1::NonBindingTarget),
@@ -229,30 +347,30 @@ fn issue_projector(
     if write_binding != read_binding {
         return Err(ProjectorRejectV1::BindingMismatch);
     }
-    let recursive = facts
-        .facts
-        .generic_loop_v1()
-        .map(|facts| {
-            matches!(
-                facts.carrier_observation,
-                crate::mir::builder::control_flow::plan::facts::GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(_)
-            )
-        })
-        .unwrap_or(false);
-    if !recursive {
-        return Err(ProjectorRejectV1::UnsupportedCarrier);
-    }
+    let facts_identity = ProjectorFactsIdentityV1::from_facts(&facts)
+        .ok_or(ProjectorRejectV1::UnsupportedCarrier)?;
+    let function_origin = function.function_origin();
+    let function_owner = function.owner();
+    let source_kind = function.source_kind();
     Ok(ResolvedGenericProjectorReceiptV1 {
         forest_binding,
-        facts,
         seal: ProjectorSealV1 {
-            function_origin: function.function_origin(),
-            source_kind: function.source_kind(),
-            outer_site,
+            function_origin,
+            function_owner,
+            source_kind,
+            outer_site: outer_site.clone(),
             inner_site,
             write_binding,
             read_binding,
-            frame_key,
+            frame_key: frame_key.clone(),
+            facts_observation: ProjectorFactsObservationV1 {
+                function_owner,
+                function_origin,
+                source_kind,
+                loop_site: outer_site.clone(),
+                frame_key,
+                identity: facts_identity,
+            },
         },
     })
 }
@@ -264,17 +382,12 @@ fn generic_resolved_projector_co_seals_forest_bindings_and_facts() {
     let receipt = issue_projector(input, &root).expect("positive projector witness");
     assert_eq!(receipt.forest_binding.members().len(), 2);
     assert!(receipt.identity_is_stable());
-    assert!(receipt
-        .facts
-        .facts
-        .generic_loop_v1()
-        .map(|facts| {
-            matches!(
-                facts.carrier_observation,
-                crate::mir::builder::control_flow::plan::facts::GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(_)
-            )
-        })
-        .unwrap_or(false));
+    assert!(!receipt
+        .seal
+        .facts_observation
+        .identity
+        .recursive_carriers
+        .is_empty());
 }
 
 #[test]
@@ -296,5 +409,49 @@ fn generic_resolved_projector_rejects_foreign_located_root() {
     assert!(matches!(
         issue_projector(input, &foreign_root),
         Err(ProjectorRejectV1::ForeignOwner)
+    ));
+}
+
+#[test]
+fn generic_resolved_projector_co_seals_parsed_nested_if() {
+    let unit = unit(NESTED_IF_SOURCE);
+    let (input, root) = input_and_root(&unit);
+    let receipt = issue_projector(input, &root).expect("nested If projector witness");
+    assert_eq!(receipt.forest_binding.members().len(), 2);
+    assert_eq!(receipt.seal.facts_observation.identity.loop_var, "i");
+    assert!(receipt
+        .seal
+        .facts_observation
+        .identity
+        .recursive_carriers
+        .iter()
+        .any(|carrier| carrier == "j"));
+    assert!(receipt.identity_is_stable());
+}
+
+#[test]
+fn generic_resolved_projector_keeps_facts_identity_private_to_receipt() {
+    let first = unit(SOURCE);
+    let second = unit(NESTED_IF_SOURCE);
+    let (first_input, first_root) = input_and_root(&first);
+    let (second_input, second_root) = input_and_root(&second);
+    let first_receipt = issue_projector(first_input, &first_root).expect("first witness");
+    let second_receipt = issue_projector(second_input, &second_root).expect("second witness");
+    assert_eq!(
+        first_receipt.seal.facts_observation.identity,
+        second_receipt.seal.facts_observation.identity,
+        "same carrier facts may share a shape"
+    );
+    assert_ne!(
+        first_receipt.seal.facts_observation.function_owner,
+        second_receipt.seal.facts_observation.function_owner,
+        "facts observations remain invocation-owner sealed"
+    );
+    assert!(matches!(
+        verify_facts_pair(
+            &first_receipt.seal.facts_observation,
+            &second_receipt.seal.facts_observation,
+        ),
+        Err(ProjectorRejectV1::FactsIdentityMismatch)
     ));
 }

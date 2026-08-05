@@ -115,13 +115,14 @@ carrier labels/tags are corroborating only. This remains test-only evidence;
 no Generic route, Recipe, JoinSig, PHI, physicalizer, Builder, MIR, or runtime
 authority is changed.
 
-S2 and the scoped D3 matrix are closed. The selected next test-only row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0`, owned by the co-sealed
-source-to-selection handoff card in
+S2 and the scoped D3 matrix are closed. The bounded projector row is also
+closed as five cfg(test)-only tests; the upper design stop remains the
+co-sealed source-to-selection handoff card in
 `docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`.
-It extends the partial projector baseline with one parsed S2A nested-`IfThen`
-source and freezes resolver/source/frame identity as test-only evidence; no
-production selector or route handoff is allowed.
+The parsed S2A nested-`IfThen` path uses `FunctionSourceViewV1` and co-seals
+resolver forest/BindingRef/source/frame plus private facts-only identity; a
+cross-invocation mismatch rejects before effects. No production selector or
+route handoff is allowed.
 
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
 pre-effect resolver eligibility from post-effect V1 corroboration. The next

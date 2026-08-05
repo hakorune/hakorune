@@ -273,13 +273,13 @@ parent D2/winner-equivalence/runtime claims = 0
 Only after this protocol and the full D2 matrix are accepted may a separate
 implementation card add the neutral capability and selector input.
 
-## Selected bounded task — resolved Generic projector coverage
+## Closed bounded task — resolved Generic projector coverage
 
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0`
 
-Decision: accepted as a `cfg(test)`-only continuation; production handoff
-remains stopped. The existing three-test projector is a partial baseline, not
-an acceptance receipt.
+Decision: accepted and implemented as a `cfg(test)`-only continuation;
+production handoff remains stopped. The original three-test projector is now
+closed with the S2A coverage receipt below.
 
 ### Change
 
@@ -324,6 +324,30 @@ an acceptance receipt.
   neutral issuer, Builder adapter, and production selector remain
   `UnresolvedStop` after this row.
 
+### Implementation closeout — 2026-08-05
+
+The implementation commit extends the existing projector sibling to 457 lines
+and five focused tests. The positive path parses the nested S2A `IfThen`
+fixture and navigates outer loop -> inner loop -> `IfThen` -> assignment target
+and post-loop return through `FunctionSourceViewV1`; no hand-built positive
+source path is used. The private non-`Clone` receipt co-seals the two-member
+resolver forest, exact source sites, resolver-issued `BindingRefV1` pair,
+function owner/origin/source-kind/frame identity, and a facts-only identity
+observation without retaining `CanonicalLoopFacts`.
+
+The focused filter is green:
+
+```text
+generic_resolved_projector: 5 passed
+```
+
+The existing shadowing and foreign-owner rejects remain green, and a fresh
+cross-invocation facts observation is rejected as the typed
+`FactsIdentityMismatch` witness. Production caller/import census remains zero;
+no neutral issuer, router seed/invocation seal, selector, Recipe/JoinSig/PHI,
+Builder/MIR/backend, Retry, fallback, or runtime authority changed. The source
+file is 457 lines (<800).
+
 ## Non-authority and documentation contract
 
 The following are corroborating only:
@@ -351,17 +375,18 @@ fail-fast/sunset contract are mandatory; documentation cannot be deferred.
 S2 identity witness: 3 focused tests, test-only
 D3 typed matrix: 1 focused test over 4 rows, test-only
 handoff protocol: 6 cfg(test) tests, including a generated 1,440-row typed matrix
-resolved projector baseline: 3 cfg(test) tests; D0 S2A co-seal coverage remains open
+resolved projector closeout: 5 cfg(test) tests; parsed S2A source-view and
+facts/source/frame co-seal are closed as test-only evidence
 production selector callers of BindingRef capability: 0
 current Both trace: [V0, V1] -> V0 success; no V1 debt attempt
 ```
 
-The resolved-projector harness is evidence only: its current baseline proves
-resolver forest, BindingRefs, source identity, and Generic facts observation
-before any effect, with foreign-root and shadowing rejection. It does not yet
-co-seal a facts identity with the source/frame witness, issue a production
-capability, select a route, or close the parent D2 row. A production projector
-still requires a separate accepted implementation card.
+The resolved-projector harness is evidence only: the closed receipt proves
+resolver forest, BindingRefs, source identity, frame identity, and a private
+facts observation before any effect, with foreign-root, shadowing, and
+cross-invocation mismatch rejection. It does not issue a production
+capability, select a route, or close the parent D2 row. The upper
+source-to-selection handoff remains the active design stop.
 
 ## Closed bounded task — nested `IfThen` carrier coverage
 
