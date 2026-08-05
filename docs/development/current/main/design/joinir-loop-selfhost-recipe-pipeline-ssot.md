@@ -280,10 +280,18 @@ capability, the Recipe producer alone issues recipe keys/effect relations, and
 Binding SSA alone owns physical `ValueId`/`PHI`. All products are move-only;
 `BindingRef` identity copies do not make role capabilities clonable.
 
-The next witness remains gated on a real resolver-issued shape and positive
-`Selected(Generic)` callsite. Existing test-only provenance, current Generic
-facts, normalized labels, legacy selected demand, and historical synthetic
-receipts remain non-authoritative and cannot be adapted by name.
+The D4-S4-S2-D1 design closeout keeps `VerifiedGenericSourceLeaseV1`
+immutable. Future role claims are carried by an atomic, versioned
+`GenericShapeSourceLeaseV2`; its first bounded ingress is an inner-loop
+Condition+Step role catalog. BodyEffect and Coverage/Exit require separate D0
+contracts. The next task is
+`...SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0`: census and specify the
+resolver-owned issuer, exact site/BindingRef maps, and forest/frame co-seal.
+No implementation may scan or re-resolve roles by name. A cfg(test) V2 witness
+is allowed only after that issuer exists; a later shape-proof cell may then
+consume the catalog. Existing test-only provenance, current Generic facts,
+normalized labels, legacy selected demand, and historical synthetic receipts
+remain non-authoritative and cannot be adapted by name.
 
 ## Structural owners
 

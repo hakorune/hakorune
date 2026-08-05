@@ -488,9 +488,12 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-WITNESS0-D4-S4
   -> cfg(test)-only CarrierProof: same-BindingRef NestedWrite -> PostLoopRead
      relation, lease brand retained, source lifetime absent, three focused
      tests green. No full shape/candidate/selector/demand/Recipe/Builder/MIR.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-EXTENSION0-D4-S4-S2
-  -> design-only role-ingress decision for condition/step/body-effect/coverage;
-     implementation and reference/support receipts wait for that D0.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-EXTENSION0-D4-S4-S2-D1
+  -> worker-reviewed design: V1 remains immutable; an atomic V2 wrapper starts
+     with inner-loop Condition+Step roles, while BodyEffect/Coverage stay later.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0
+  -> design/census the resolver-owned issuer; no role-name scan or selector,
+     demand, Recipe, Builder/MIR, retry, or fallback is allowed.
 ```
 
 ## Production invariants

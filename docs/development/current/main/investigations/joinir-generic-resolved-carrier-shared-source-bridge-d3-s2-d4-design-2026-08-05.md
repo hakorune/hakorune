@@ -968,33 +968,33 @@ ancestry. The shape owns only the five proofs above. Neither product may carry
 AST, source-unit lifetime, strings/labels, route IDs, `RecipeBody`, Builder,
 MIR/PHI, `ValueId`, or legacy demand.
 
-The source-lease witness is closed as cfg(test)-only and bounded to the exact
-two-role nested-carrier profile (`NestedWrite` + `PostLoopRead`). It accepts
-owner-branded `OwnedExprSiteV1` ingress and emits a non-`Clone`,
-AST/source-unit-lifetime-free value with resolver-derived `BindingRef`, scope,
-and ancestry. Forest/frames are reissued and co-sealed from one function, so
-external mixing is unrepresentable. Five tests cover positive, foreign
-identity/role brands, shadowing, duplicate/unknown/placement, and forest
-mismatch; upvar/capture branches await a later fixture.
+The source-lease witness is cfg(test)-only, exact-two-role (`NestedWrite` +
+`PostLoopRead`), owner-branded, non-`Clone`, and AST/source-lifetime-free.
+Forest/frames are reissued from one function and co-sealed; five tests cover
+positive, foreign, shadow, duplicate/placement, and forest-mismatch cases;
+upvar/capture awaits a later fixture.
 
-## D4-S4-S0 source-lease witness closeout
+## D4-S4-S0/S1 witness closeout
 
-`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S0` is
-closed as a five-test, `cfg(test)`-only witness. It does not publish a
-production caller, selector, demand, Recipe/key, Builder/MIR effect, retry, or
-fallback, and it does not rename or re-export `shared_loop_source_window.rs`.
+S0 closes the five-test cfg(test)-only source lease; S1 closes the three-test `VerifiedGenericCarrierProofV1` handoff (same BindingRef, brand retention, lifetime-free output, typed mismatch). No production caller, selector/demand,
+Recipe/Builder/MIR, retry, fallback, or shared-window rename is added.
+## D4-S4-S2-D1 semantic-shape extension design closeout
 
-## D4-S4-S1 bounded carrier-proof closeout
+Worker D1 closes the docs-only boundary: V1 stays immutable; future claims use an atomic `GenericShapeSourceLeaseV2` wrapper. First profile: inner-loop Condition+Step role catalog; BodyEffect/Coverage remain separate D0/cells.
+Resolver owns exact sites/maps/forest/frame brands; shape owns operator/literal/effect proofs; role lists are never re-resolved by name.
+Next: `...SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0` specifies the resolver
+issuer/census only; a cfg(test) V2 witness follows only if it exists.
+Selector/demand/Recipe/Builder/MIR/retry/fallback remain forbidden. Every
+implementation cell updates current/support/reference docs in the same commit;
+this cfg(test)-only design cell has no public `docs/reference` row.
 
-`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-WITNESS0-D4-S4-S1` is
-closed as a cfg(test)-only `VerifiedGenericCarrierProofV1`: three focused tests
-prove the same-BindingRef transfer, lease-brand retention, source-lifetime-free
-return, and typed mismatch rejection. It performs no AST re-resolution and
-publishes no full shape, candidate, selector, demand, Recipe/key, Builder/MIR,
-retry, or fallback.
-## D4-S4-S2 semantic-shape extension design stop
+## D4-S4-S2-D0 resolver role-issuer design task
 
-The next task is design-only: decide the additional condition/step/body-effect/
-coverage role ingress needed to extend the bounded lease. Keep CarrierProof as
-the sole current proof; implementation requires a new D0, exact resolver-owned
-roles, and the same reference/current-support update receipt.
+Specify the resolver-only issuer/census for exact Condition+Step sites, BindingRef maps, inner-loop forest/frame co-seal, and typed rejects. No AST/name scan,
+shape proof, selector, demand, Recipe, Builder/MIR, retry,
+fallback, or production caller is allowed.
+
+## D4-S4-S2-S0 role-catalog witness (future)
+
+Implement only a cfg(test) V2 catalog after D0 finds a real issuer; update
+current/support/reference docs in that same implementation commit.

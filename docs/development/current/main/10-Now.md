@@ -106,9 +106,11 @@ Related:
   closed as a typed Carrier/Condition/Step/BodyEffect/Coverage-Exit schema.
   The bounded CarrierProof witness is now closed: same-BindingRef
   NestedWrite -> PostLoopRead proof, lease-brand retention, and no source
-  lifetime. The immediate next frontier is a design-only role-extension stop;
-  full shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and
-  fallback remain gated.
+  lifetime. D4-S4-S2-D1 closes the worker-reviewed design boundary: V1 stays
+  immutable and a versioned V2 wrapper begins with inner-loop Condition+Step
+  roles; BodyEffect/Coverage remain separate D0 cells. The next task is
+  resolver role-issuer design/census; full shape, Selected(Generic), demand,
+  Recipe, Builder/MIR, retry, and fallback remain gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
