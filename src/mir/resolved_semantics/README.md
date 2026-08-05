@@ -172,8 +172,13 @@ cfg(test)-only evidence. D3-S0 co-seals actual natural-Both
 resolver/source/frame, BindingRef, facts, mode, and raw evidence into a
 private non-`Clone` test witness with typed planner/shadowing/missing/
 cross-invocation rejects. It is not the production neutral eligibility issuer;
-production selection remains stopped. Compound/Unavailable remains a later
-source-matrix row and the parent D3 design stop is current.
+production selection remains stopped. The next selected source-matrix row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`:
+one parsed nested `CompoundAssignment` under scoped basic sugar must co-seal
+actual resolver/source/frame/BindingRef/facts evidence and preserve exact
+`Unavailable("CompoundAssignment")` as typed pre-effect
+`UnresolvedStop(CompoundUnavailableCarrier)`. Its raw Release/Strict schedule
+is measured, not guessed; parent D3 production selection remains stopped.
 
 The bounded cfg(test) witness is green with:
 

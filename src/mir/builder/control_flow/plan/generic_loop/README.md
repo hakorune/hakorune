@@ -121,9 +121,14 @@ row, the Index/Ambiguous row, and
 cfg(test)-only tests. D3-S0 co-seals actual natural-Both resolver/facts/frame
 evidence into a private non-`Clone` eligibility witness and retains typed
 mismatch negatives. The Index/Ambiguous row remains a negative source witness;
-Compound/Unavailable is a later source-matrix row. Execution is back at the
-parent D3 design stop; no production selector, neutral issuer, or route
-handoff is allowed.
+the next selected row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`.
+It is cfg(test)-only: parse nested `CompoundAssignment` under scoped basic
+sugar, co-seal actual resolver/source/frame/BindingRef/facts evidence, and
+retain exact `Unavailable("CompoundAssignment")` as typed pre-effect
+`UnresolvedStop(CompoundUnavailableCarrier)`. Raw Release/Strict schedule is
+measured rather than assumed. Execution remains at the parent D3 design stop;
+no production selector, neutral issuer, or route handoff is allowed.
 
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
 pre-effect resolver eligibility from post-effect V1 corroboration. The next

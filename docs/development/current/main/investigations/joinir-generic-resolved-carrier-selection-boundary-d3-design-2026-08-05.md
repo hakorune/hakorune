@@ -274,6 +274,60 @@ parent D2/winner-equivalence/runtime claims = 0
 Only after this protocol and the full D2 matrix are accepted may a separate
 implementation card add the neutral capability and selector input.
 
+## Selected bounded task — Compound/Unavailable source matrix
+
+Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`
+
+Decision: selected after independent source/classifier/contract audits. This
+is one cfg(test)-only source row; it does not reopen the D1 bridge or promote
+the D3 eligibility witness into a production issuer.
+
+### Change
+
+- Parse one nested `CompoundAssignment` fixture with a scoped
+  `NYASH_SYNTAX_SUGAR_LEVEL=basic` environment. Keep the accepted S2A
+  outer/inner-loop topology and place the compound write inside the nested
+  region, because the carrier collector's `CompoundAssignment` arm is
+  `nested`-only.
+- Co-seal the actual parsed source path, resolver forest/target/BindingRef,
+  source/owner/frame identity, actual Release/Strict mode, and the facts
+  observation from `try_build_outcome` in one private non-`Clone` test witness.
+- Observe exact facts
+  `Unavailable("CompoundAssignment")` and record the raw route schedule from
+  the same invocation. Do not assume `[V0, V1]`; a different schedule is
+  evidence and must remain typed rather than repaired.
+
+### Contract
+
+- The resolver target may be `BindingRebind`, but that does not make the
+  carrier eligible: the facts collector owns the `Unavailable` disposition.
+- The only disposition produced by this row is pre-effect typed
+  `UnresolvedStop(CompoundUnavailableCarrier)`. It must not become
+  `CompleteRecursive`, eligibility, `Legacy`, a winner, or V0 suppression.
+- Sugar parsing, source navigation, forest/BindingRef identity, facts label,
+  mode/raw repeat, and nested ownership are fail-fast premises. If any premise
+  is absent or unstable, stop and record the typed rejection; do not widen the
+  extractor or selector.
+
+### Non-claims and closeout
+
+This task adds no neutral issuer, `InvocationSealV1`, selector/router arm,
+Builder/MIR/Recipe/JoinSig/PHI/backend caller, Retry/fallback deletion, or
+parent-D2/winner-equivalence claim. Top-level compound behavior is not folded
+into this row; the collector's silent non-nested path is a separate design
+question. The implementation closeout must update this card, the Generic
+SSOT, stage-matrix reference, Generic/resolved-semantics READMEs,
+`CURRENT_STATE.toml`, current dashboard/workstream, affected reference
+indexes, and the artifact manifest in the same commit, with every touched
+source/check file below 800 lines.
+
+### Stop
+
+After the row is green, return to this parent design stop. If the parser cannot
+produce the nested source, facts do not emit the exact label, the schedule or
+identity is unstable, or any production effect appears, close the row as
+unresolved and do not invent a new source authority.
+
 ## Closed bounded task — resolved Generic projector coverage
 
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0`

@@ -966,6 +966,17 @@ issuer, selector, or production handoff was added. Compound/Unavailable remains
 a separate later source-matrix row, and the parent source-to-selection design
 boundary remains open.
 
+The next bounded source-matrix task is selected as
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`.
+It must parse one nested `CompoundAssignment` under a scoped basic-sugar
+environment, co-seal the actual resolver forest/BindingRef/source/frame and
+facts observation, and prove exact `Unavailable("CompoundAssignment")` with
+the measured Release/Strict raw schedule. Its only result is a typed
+pre-effect `UnresolvedStop(CompoundUnavailableCarrier)`; it may not create
+eligibility, Legacy, a winner, V0 suppression, or any production handoff.
+The collector's top-level non-nested behavior and all production selection
+remain separate design boundaries.
+
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:

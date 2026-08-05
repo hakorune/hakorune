@@ -223,6 +223,16 @@ the source-to-selection handoff card remains the design authority
 `investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`;
 no production selector change is implied.
 
+The next selected source row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-COMPOUND-UNAVAILABLE0-D2-S3`.
+It is limited to a parsed nested `CompoundAssignment` under scoped basic
+sugar, actual resolver/source/frame/BindingRef evidence, and the facts-owned
+`Unavailable("CompoundAssignment")` disposition. Release/Strict raw schedule
+is measured, not assumed, and the only allowed result is typed pre-effect
+`UnresolvedStop(CompoundUnavailableCarrier)`. Top-level compound behavior,
+eligibility, Legacy, winner/precedence, and production handoff remain outside
+this row.
+
 ## D2-B4-S2A nested `IfThen` carrier evidence
 
 The bounded S2A row is closed as one parsed, `cfg(test)`-only carrier witness.
