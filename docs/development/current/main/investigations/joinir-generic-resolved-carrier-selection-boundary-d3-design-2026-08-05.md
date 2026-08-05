@@ -68,12 +68,18 @@ invocation seal together:
 
 ```text
 VerifiedResolvedCarrierSelectionInputV1 {
-  facts: CanonicalLoopFacts
+  facts_snapshot: GenericCarrierFactsSnapshotV1
   eligibility: VerifiedResolvedCarrierEligibilityV1
   seed: PreflightSeedV1
   invocation: InvocationSealV1
 }
 ```
+
+`CanonicalLoopFacts` remains a Builder-local AST-bearing product and is not a
+field of the neutral selection wrapper. A later Builder adapter may consume
+the AST-bearing facts and emit the AST-free `GenericCarrierFactsSnapshotV1`
+only after the same invocation seal is verified; the selector never receives
+an independently pairable `CanonicalLoopFacts` reference.
 
 The wrapper has no public constructor or `parts()` accessor. Selection consumes
 it and returns a `VerifiedRouteSelectionReceiptV1` that retains the invocation
@@ -457,6 +463,7 @@ resolved projector closeout: 5 cfg(test) tests; parsed S2A source-view and
 facts/source/frame co-seal are closed as test-only evidence
 production selector callers of BindingRef capability: 0
 current Both trace: [V0, V1] -> V0 success; no V1 debt attempt
+next design child: `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`
 ```
 
 The resolved-projector harness is evidence only: the closed receipt proves
@@ -861,3 +868,23 @@ typed `UnresolvedStop(NonRecursiveOutOfTarget)`. No eligibility, Legacy,
 winner, selector, Recipe, PHI, Builder, MIR, Retry, fallback, or production
 handoff moved. The parent D3 design stop remains open for the remaining matrix
 and winner/disjointness work.
+
+## Selected docs-only child — disposition matrix and winner/disjointness
+
+The next child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`,
+recorded in
+`joinir-generic-resolved-carrier-selection-disposition-matrix-d3-s1-design-2026-08-05.md`.
+It is a docs-only design stop. It partitions every source-backed row into
+`ResolvedCandidate`, `LegacyPreserveExistingSchedule`, `UnresolvedStop`,
+`NoStandaloneRow`, or `NotYetObserved`, and fixes the two-stage
+pre-effect-qualification/post-effect-corroboration protocol for the natural
+recursive Both candidate. The current typed result remains
+`UnresolvedStop(WinnerEquivalenceUnavailable)`; V1 winner, V0 suppression,
+neutral issuer, selector, or production handoff is not authorized.
+
+The child also corrects the handoff pseudotype: the future opaque wrapper
+contains `GenericCarrierFactsSnapshotV1`, not AST-bearing
+`CanonicalLoopFacts`. A later cfg(test)-only V1-only local row is merely a
+possible coverage child after this design is accepted; no source-shape test or
+production edit is authorized before then.

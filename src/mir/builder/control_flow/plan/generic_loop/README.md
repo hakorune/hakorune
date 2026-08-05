@@ -158,6 +158,13 @@ The S1 source witness is closed as cfg(test)-only: exact flat Assignment facts
 typed `UnresolvedStop(NonRecursiveOutOfTarget)`. The one-member shape is not
 the recursive eligibility capability and adds no production route.
 
+The next boundary is docs-only D3-S1
+`JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`.
+It owns the exclusive source-row disposition partition and the
+winner/disjointness proof for natural recursive Both. Until it closes, a
+V1-only local witness remains only a possible future cfg(test) coverage row;
+no facts snapshot issuer, selector arm, or production handoff may be added.
+
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
 pre-effect resolver eligibility from post-effect V1 corroboration. The next
 design stop is the co-sealed source-to-selection handoff card in

@@ -1026,6 +1026,24 @@ This does not create eligibility, Legacy, winner, selector, Recipe, PHI,
 Builder, MIR, Retry, fallback, or production handoff authority. The parent D3
 design stop remains open.
 
+The next Generic frontier is the docs-only design child
+`JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`.
+It owns the exclusive disposition partition
+`ResolvedCandidate` / `LegacyPreserveExistingSchedule` / `UnresolvedStop` /
+`NoStandaloneRow` / `NotYetObserved`, plus the winner/disjointness proof for
+the existing natural recursive Both row. `CompleteNoRecursiveCarrier` is not
+`ProvenOutsideTarget` or Legacy. Until the two-stage source qualification and
+post-effect corroboration are proven, the recursive Both disposition remains
+typed `UnresolvedStop(WinnerEquivalenceUnavailable)` and the old scheduler is
+the only execution authority.
+
+This D3-S1 card is design-only. It also fixes the future handoff vocabulary:
+the opaque selection wrapper may carry an AST-free
+`GenericCarrierFactsSnapshotV1`, never an independently pairable
+`CanonicalLoopFacts`. A parsed V1-only local row is a possible later
+cfg(test)-only coverage child, not an authorization for a selector, neutral
+issuer, Recipe/JoinSig/PHI, Builder/MIR, or production cutover.
+
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:

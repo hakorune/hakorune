@@ -68,6 +68,13 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
+- Current execution is the docs-only
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`.
+  It fixes the exclusive source-row disposition partition, the
+  winner/disjointness proof boundary, and the future AST-free
+  `GenericCarrierFactsSnapshotV1` handoff vocabulary. No new source-shape
+  test or production selector/issuer is authorized before this design is
+  accepted.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

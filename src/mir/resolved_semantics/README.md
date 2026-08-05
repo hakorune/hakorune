@@ -204,6 +204,13 @@ schedule are retained as provenance, while the one-member shape remains
 out-of-target for recursive eligibility; no neutral capability or selector
 consumer was added.
 
+The current design frontier is the docs-only D3-S1 disposition matrix
+`JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`.
+It keeps resolver/source/frame identity separate from the future AST-free
+`GenericCarrierFactsSnapshotV1` handoff and leaves natural recursive Both as
+typed `UnresolvedStop(WinnerEquivalenceUnavailable)` until disjointness is
+proven.
+
 The bounded cfg(test) witness is green with:
 
 ```bash
