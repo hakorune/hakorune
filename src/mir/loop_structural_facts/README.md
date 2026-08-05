@@ -83,6 +83,9 @@ separate owners; Generic key assignment requires a later design.
 That child is closed with four focused tests and no production import/caller.
 The witness is private to the registry test module; this neutral module still
 does not own a Generic snapshot, logical-key issuer, seed, or selection input.
+Its coordinate-only forest/frame evidence is not an owner-branded cross-session
+capability; a dedicated brand audit must close that premise before this layer
+can consume a shared Generic provenance product.
 
 M3-B and the selected-demand issuer are intentionally caller-zero. Production
 wiring belongs to a later card at the located source carrier before Loop syntax

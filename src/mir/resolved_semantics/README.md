@@ -247,6 +247,10 @@ The observation child is now closed as cfg(test)-only evidence. It records
 only resolver-owned forest/frame and exact `BindingRefV1` role/ancestry facts;
 the production resolver and neutral modules gained no Generic policy or
 caller. Four focused tests cover natural success and typed mismatch rejects.
+The forest/frame coordinates are not yet an owner-branded cross-session
+capability: equal `FunctionOriginV1`/site coordinates from fresh resolver
+sessions can still be mixed. A brand audit must precede any shared provenance
+product or snapshot issuer.
 
 The bounded cfg(test) witness is green with:
 

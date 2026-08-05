@@ -478,24 +478,24 @@ Current decision and execution brief:
 
 ```text
 JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0
-  current design stop — D3-S2-S0 cfg(test)-only resolver observation is closed;
-  production selection remains stopped.
-  The closed 234-line witness consumes parsed natural-Both source through the
-  existing compiler-side projector, resolver-issued forest/frame, and exact
-  BindingRefV1 relations. It records source/forest/frame identity,
-  outer-to-inner parent, write/read sites, and strict ancestry, with typed
-  shadowing/foreign/forest/frame rejects. GenericCarrierFactsSnapshotV1,
-  LoopBindingKey issuer, InvocationSeal, opaque input, selector/Recipe/PHI/
-  Builder/MIR/VM, Return/Home/debt remain unimplemented and unclaimed.
+  current design stop — D3-S2-S0 cfg(test)-only observation is closed, but its
+  forest/frame coordinates are not yet an owner-branded cross-session token.
+  The audit found that equal FunctionOrigin/site coordinates from two resolver
+  sessions can be mixed; the current witness must not be promoted unchanged.
+  Next candidate is the design-gated
+  JOINIR-GENERIC-RESOLVED-CARRIER-CROSS-SESSION-BRAND-AUDIT0-D3-S2-S1:
+  co-seal a resolver issuer/owner brand with Generic forest/frame/BindingRef
+  provenance, while preserving the ownerless structural frame for DirectAccum.
+  GenericCarrierFactsSnapshotV1, Generic LoopBindingKey issuer, InvocationSeal,
+  opaque input, selector/Recipe/PHI/Builder/MIR/VM, Return/Home/debt remain
+  unimplemented and unclaimed.
   Task card:
-  docs/development/current/main/investigations/
-  joinir-generic-resolved-carrier-provenance-observation-d3-s2-s0-task-2026-08-05.md
-  The closeout updated loop structural facts, resolved semantics, Generic
-  reference, current mirrors, caller census, and artifact evidence. Any need
-  for logical key assignment or snapshot pairing returns to D3-S2.
-  No fallback or retry is permitted.
-  Keep touched source and tests below 800 lines.
-  Keep this workstream at exactly 1000 lines.
+  docs/development/current/main/investigations/joinir-generic-resolved-carrier-
+  typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
+  Only after the brand premise is accepted may a passive resolver provenance
+  product be selected. No fallback/retry; keep source/check files below 800
+  lines and this workstream at exactly 1000 lines.
+  The candidate remains unselected until the design consultation resumes.
 ```
 
 ## Production invariants

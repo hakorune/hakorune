@@ -122,6 +122,55 @@ No selector arm, production caller, Recipe/JoinSig/PHI/physicalizer, MIR/VM
 route, Retry deletion, fallback deletion, or scheduler cutover is authorized
 by this card. Caller census must be zero before any later production switch.
 
+## Consultation result: owner-brand premise must be repaired first
+
+The independent premise audit found a gap in the current S0 witness. The
+existing `VerifiedResolvedLoopSourceV1`, forest, and
+`LoopExecutionFrameKeyV1` carry `FunctionOriginV1`/source coordinates, but not
+the resolver-issued `FunctionOwnerIdV1` or an invocation/compilation brand.
+Two resolver sessions can therefore have the same coordinate and equal
+ownerless frame shape. A forest from session A can be paired with roles and a
+frame from session B without the current S0 checks rejecting it. The S0 result
+is still useful as same-product observation evidence, but it is not an
+owner-branded cross-invocation capability.
+
+The next candidate is therefore a design-gated premise repair, not a Generic
+snapshot or key implementation:
+
+```text
+JOINIR-GENERIC-RESOLVED-CARRIER-CROSS-SESSION-BRAND-AUDIT0-D3-S2-S1
+```
+
+Recommended shape (to avoid changing existing DirectAccum repeat semantics):
+
+```text
+existing structural LoopExecutionFrameKeyV1
++ non-Clone resolver-issued owner/issuer brand
+-> Generic handoff-only branded source/frame capability
+```
+
+The brand must co-seal forest root, frame, and every `BindingRefV1` role. A
+mandatory adversarial witness is `forest_A + roles_B + frame_B` for two fresh
+sessions resolving the same source; it must reject with an owner-brand or
+invocation mismatch. `LoopRecipeSourceOwnerV1`, `LoopRecipeSourceBindingV1`,
+`NormalizedBindingKeyV1`, route IDs, names, AST paths, and physical `ValueId`
+are not brands and remain non-authoritative for this boundary.
+
+Only after that premise is accepted may the following passive product be
+selected inside this same D3-S2 card:
+
+```text
+JOINIR-GENERIC-RESOLVED-CARRIER-PROVENANCE-PRODUCT0-D3-S2-S2
+```
+
+It would move the S0 observation into a source-only, private non-Clone
+`resolved_semantics` product. It would still publish no
+`GenericCarrierFactsSnapshotV1`, `LoopBindingKeyV1`, preflight seed,
+`InvocationSeal`, opaque selection input, selector, Builder/MIR/Recipe/PHI,
+Return/ABI/Home/debt semantics, or production caller. If the brand cannot be
+sealed without introducing one of those owners, execution returns to this
+design stop.
+
 ## Acceptance
 
 Design acceptance requires the parent D3 card, D3-S1 disposition matrix,

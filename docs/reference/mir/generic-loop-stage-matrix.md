@@ -322,7 +322,10 @@ tests seal natural resolver forest/frame plus exact `BindingRefV1` role and
 ancestry, and reject shadowing, foreign owner, forest-shape, and frame
 mismatch. Production caller/import is zero and artifact is none. Generic
 snapshot/key/seed ownership and winner/Return/PHI/Home/debt semantics remain
-the D3-S2 design stop.
+the D3-S2 design stop. A premise audit additionally found that the current
+forest/frame coordinates omit a resolver owner/invocation brand, so equal
+origin/site coordinates from two sessions can be mixed; this witness is not a
+production capability until the cross-session brand audit is accepted.
 
 ## D2-B4-S2A nested `IfThen` carrier evidence
 

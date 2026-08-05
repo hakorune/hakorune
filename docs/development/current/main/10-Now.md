@@ -70,12 +70,14 @@ Related:
   design stop for the remaining matrix and winner/disjointness work.
 - D3-S1 is closed as the prior policy boundary. D3-S2 remains the accepted
   typed-provenance design boundary, and its cfg(test)-only S0 observation child
-  is closed. The witness consumes existing resolver forest/frame and exact
-  BindingRef relations, with typed shadowing/foreign/forest/frame rejects;
-  production caller/import and artifact are zero/none. Generic snapshot/key
-  issuer, InvocationSeal/opaque input, full Return/PHI, natural debt, Home,
-  and production selector/issuer remain unimplemented and unclaimed. The
-  next row must return to the D3-S2 design card.
+  is closed as same-product coordinate evidence. An independent audit found
+  that the current resolver forest/frame omits an owner/invocation brand, so
+  equal-origin cross-session forest/role/frame mixing is not yet rejected. The
+  next candidate is a design-gated cross-session brand audit before any
+  provenance product. Production caller/import and artifact are zero/none;
+  Generic snapshot/key issuer, InvocationSeal/opaque input, full Return/PHI,
+  natural debt, Home, and production selector/issuer remain unimplemented and
+  unclaimed. The blocker remains the D3-S2 design card.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

@@ -971,4 +971,8 @@ strict ancestry; shadowing, foreign owner, forest-shape, and frame mismatch
 reject before any Builder effect. The four focused tests pass, the production
 caller/import census is zero, and `artifact = none`. This evidence does not
 create a Generic snapshot/key issuer or close winner, Return/PHI, Home, or
-debt correctness; the current row returns to the D3-S2 design stop.
+debt correctness; the current row returns to the D3-S2 design stop. A later
+premise audit found that the forest/frame coordinates do not carry a resolver
+owner/invocation brand, so equal-origin cross-session forest/role/frame mixing
+is still possible. The cross-session brand audit must precede any provenance
+product or neutral snapshot and is now the next design candidate.
