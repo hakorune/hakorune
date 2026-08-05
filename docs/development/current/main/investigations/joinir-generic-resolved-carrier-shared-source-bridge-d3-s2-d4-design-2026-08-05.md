@@ -1,5 +1,5 @@
-Status: Option 3 accepted; D4-WITNESS0 closed; next route migration is design-only
-Date: 2026-08-05
+Status: Option 3 accepted; D4-WITNESS0 and D4-S1-S0 closed; D4-S2 design stop current
+Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-DESIGN0-D3-S2-D4`
@@ -465,8 +465,48 @@ Any implementation/test commit must update affected `docs/reference/**` and
 current support pages in the same commit, and keep changed source/check files
 below 800 lines and the workstream below 1000.
 
+# D4-S1-S0 closeout
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-WITNESS0-D4-S1-S0`
+is closed as a test-only witness. It adds three focused tests to the private
+D4 module: exact DirectAccum acceptance through the existing source-unit
+probe, foreign/non-loop receipt rejects, and a one-body-statement shape that
+passes source identity but is rejected by the existing DirectAccum probe before
+any Builder effect. Together with the four D4-WITNESS0 tests, the bridge suite
+has seven green tests. The implementation does not import the bridge into
+production preflight and adds no classifier, selector, Recipe/key, Builder/MIR
+caller, retry, fallback, or route retirement.
+
+The same implementation commit updates the MIR reference matrix, resolved and
+facts README boundaries, Generic-loop README, this card, and current support
+pages. Changed source remains below 800 lines and the workstream remains below
+1000 lines.
+
+# D4-S2 family-boundary design stop
+
+The next row is the docs-only design task
+`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-BOUNDARY-DESIGN0-D4-S2` (canonical alias
+`D4-FAMILY-BOUNDARY0`). No additional semantic/test-only witness is safe: it
+would mint selector policy without a complete matrix and Recipe/key owner.
+
+The design must freeze one owner map and one disposition/reject matrix for raw
+Generic V0/V1 versus resolved NestedPredicate/DirectAccum/A+, including
+Release/Strict/planner-required, carrier completeness, shadowing, owner/frame
+mismatch, nested-wrapper, duplicate-write, Index, Program, and
+CompoundAssignment rows. Natural Both remains
+`UnresolvedStop(FamilyOverlap/WinnerCorrectnessUnavailable)`; planner-required
+V0 suppression remains a typed unresolved row. Resolver source identity remains
+sole authority, a future neutral facts issuer may not issue Recipe keys, and
+only the registry/selection owner may later consume one canonical plan. The
+raw Generic and resolved preflight edges stay intact until an atomic cutover.
+
+No selector inference, Generic/Nested/A+ retry, AST/name/route-ID pairing,
+post-effect retry, or silent fallback is allowed. Production migration is
+`NoSafeSlice` until this design is accepted.
+
 # Current next action
 
-Implement only the cfg(test)-only D4-S1-S0 witness. Stop before production
-route migration; exact family disjointness and cross-family selection remain
-`NoSafeSlice`.
+Stop at the D4-S2 design boundary. Do not add another semantic witness or begin
+production route migration until the owner map, full matrix, typed reject and
+retirement contract are accepted. Any future implementation commit must update
+affected `docs/reference/**` and current support pages in that same commit.

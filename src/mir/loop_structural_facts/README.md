@@ -116,6 +116,13 @@ resolver-owned receipt and proves only owner/site/frame/forest identity plus
 typed pre-effect rejects. It does not modify `LoopFacts`, issue a Generic
 snapshot or `LoopBindingKeyV1`, select a family, or call Builder/MIR.
 
-The next task is design-only DirectAccum canonical-route migration. This
-module remains caller-zero until the existing resolved preflight seam and
-Recipe/physical ownership are accepted by a separate route matrix.
+D4-S1 route design is accepted, but this module remains caller-zero. The
+existing resolved preflight seam and Recipe/physical ownership are still
+protected by the D4-S2 family-boundary design stop.
+
+D4-S1-S0 is closed as cfg(test)-only evidence outside this module. The witness
+reuses the D4 resolver-owned source receipt and the existing DirectAccum probe;
+it does not widen `LoopFacts`, issue a selector input, or add a Recipe/key
+consumer. The active D4-S2 stop must first define the single owner map and
+full raw/resolved disposition matrix before this neutral layer can receive any
+canonical family product.

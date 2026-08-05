@@ -477,15 +477,14 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-WITNESS0-D4-S1-S0
-  is current after D4-WITNESS0 closeout and D4-S1 route-design acceptance.
-  The landed private MIR-root cfg(test)-only module lends paired raw/resolved
-  source views from one non-Clone canonical receipt and has no production
-  caller. Add only the cfg(test)-only DirectAccum witness: exact existing
-  Local/Loop envelope acceptance plus foreign/non-loop/shape-negative typed
-  rejects before effects. Do not run facts, Generic/Family classifiers,
-  selector, Recipe, Builder/MIR, or any production caller. The active card and
-  exact matrix are:
+JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-BOUNDARY-DESIGN0-D4-S2
+  is current after D4-WITNESS0 and D4-S1-S0 closeout. The private MIR-root
+  cfg(test)-only module now has seven green paired-view/DirectAccum witness
+  tests and no production caller. The current task is docs-only: freeze one
+  owner map, the full raw Generic/resolved-family disposition matrix, typed
+  reject/fallback rules, and atomic retirement conditions. Do not add another
+  semantic witness, selector, Recipe, Builder/MIR caller, or production route.
+  The active card and exact matrix are:
   docs/development/current/main/investigations/joinir-generic-resolved-
   carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md
 ```

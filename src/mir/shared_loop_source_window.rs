@@ -229,11 +229,21 @@ fn map_forest_reject(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::compiler::direct_accum_capability::DirectAccumSourceUnitProbeV1;
     use crate::mir::compiler::nested_function_for_p3_test;
+    use crate::mir::compiler::CanonicalLoweringErrorV1;
+    use crate::mir::compiler::{direct_accum_capability, direct_accum_projection};
 
     fn unit() -> VerifiedResolvedSourceUnitV1 {
         VerifiedResolvedSourceUnitV1::resolve_function(nested_function_for_p3_test())
             .expect("nested source unit resolves")
+    }
+
+    fn direct_accum_unit() -> VerifiedResolvedSourceUnitV1 {
+        VerifiedResolvedSourceUnitV1::resolve_function(
+            direct_accum_projection::direct_accum_function_for_test(),
+        )
+        .expect("DirectAccum source unit resolves")
     }
 
     fn body_stmt<'a>(
@@ -313,6 +323,83 @@ mod tests {
                 assert_ne!(left_raw.owner(), right_raw.owner());
                 assert_eq!(left_raw.site(), right_raw.site());
             });
+        });
+    }
+
+    #[test]
+    fn d4_s1_witness_accepts_existing_direct_accum_probe() {
+        let source_unit = direct_accum_unit();
+        let loop_stmt = body_stmt(&source_unit, 1);
+        let receipt = issue_shared_loop_source_window_v1(&source_unit, &loop_stmt)
+            .expect("DirectAccum source window");
+
+        receipt.with_views(|raw, resolved| {
+            assert_eq!(raw.body().len(), 2);
+            assert_eq!(raw.owner(), resolved.owner());
+            assert_eq!(raw.site(), resolved.site());
+
+            let canonical_input = resolved
+                .source_unit()
+                .root_function_input()
+                .expect("canonical DirectAccum input");
+            let canonical_body = canonical_input
+                .source()
+                .root_body()
+                .expect("canonical DirectAccum body");
+            let canonical_loop = canonical_input
+                .source()
+                .body_stmt(&canonical_body, 1)
+                .expect("canonical DirectAccum loop");
+            assert_eq!(canonical_loop.site(), resolved.site());
+
+            let probe =
+                direct_accum_capability::probe_direct_accum_source_unit_v1(resolved.source_unit())
+                    .expect("exact DirectAccum envelope must be admitted");
+            assert!(matches!(probe, DirectAccumSourceUnitProbeV1::Candidate(_)));
+        });
+    }
+
+    #[test]
+    fn d4_s1_witness_rejects_direct_accum_foreign_and_non_loop_rows() {
+        let source_unit = direct_accum_unit();
+        let foreign_unit = direct_accum_unit();
+        let foreign_loop = body_stmt(&foreign_unit, 1);
+        assert!(matches!(
+            issue_shared_loop_source_window_v1(&source_unit, &foreign_loop),
+            Err(SharedLoopSourceWindowRejectV1::ForeignOwner)
+        ));
+
+        let local = body_stmt(&source_unit, 0);
+        assert!(matches!(
+            issue_shared_loop_source_window_v1(&source_unit, &local),
+            Err(SharedLoopSourceWindowRejectV1::NotLoop)
+        ));
+    }
+
+    #[test]
+    fn d4_s1_witness_keeps_direct_accum_shape_reject_pre_effect() {
+        let mut tree = direct_accum_projection::direct_accum_function_for_test();
+        let ASTNode::FunctionDeclaration { body, .. } = &mut tree else {
+            unreachable!("DirectAccum fixture is a function");
+        };
+        let ASTNode::Loop { body, .. } = &mut body[1] else {
+            unreachable!("DirectAccum fixture has a root loop");
+        };
+        body.pop();
+
+        let source_unit = VerifiedResolvedSourceUnitV1::resolve_function(tree)
+            .expect("shape-negative DirectAccum source unit resolves");
+        let loop_stmt = body_stmt(&source_unit, 1);
+        let receipt = issue_shared_loop_source_window_v1(&source_unit, &loop_stmt)
+            .expect("source window identity remains valid for shape-negative row");
+
+        receipt.with_views(|raw, resolved| {
+            assert_eq!(raw.body().len(), 1);
+            assert_eq!(raw.site(), resolved.site());
+            assert!(matches!(
+                direct_accum_capability::probe_direct_accum_source_unit_v1(resolved.source_unit()),
+                Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape { .. })
+            ));
         });
     }
 }

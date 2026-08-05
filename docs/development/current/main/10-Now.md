@@ -78,11 +78,13 @@ Related:
   from resolved family/rejection rows. Only the Recipe producer may later
   issue `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. D4-WITNESS0
   is closed: one private MIR-root cfg(test) module lends paired raw/resolved
-  views from one non-Clone canonical source receipt, with four focused tests
-  and no production caller. D4-S1 DirectAccum route design is accepted; the
-  selected next row is cfg(test)-only D4-S1-S0 at the existing resolved
-  preflight seam. Exact disjointness, classifier/selector policy, Recipe,
-  PHI, Builder/MIR, Return/Home/debt, retry, fallback, runtime, and production
+  views from one non-Clone canonical source receipt, with seven focused tests
+  and no production caller. D4-S1 DirectAccum route design and its S0 witness
+  are closed. The current stop is docs-only D4-S2 family-boundary design:
+  freeze one owner map, one complete raw Generic/resolved-family disposition
+  matrix, typed rejects, and atomic retirement conditions before any selector
+  or cutover. Exact disjointness, classifier/selector policy, Recipe, PHI,
+  Builder/MIR, Return/Home/debt, retry, fallback, runtime, and production
   authority remain NoSafeSlice. Scalar Return/outer-PHI and natural
   debt-to-different-winner remain NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,

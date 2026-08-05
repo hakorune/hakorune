@@ -518,3 +518,13 @@ The next design-only boundary targets the existing resolved DirectAccum probe
 at the `CanonicalLoweringPreflightV1::verify` seam. Resolver-owned
 `FunctionSourceViewV1`/forest/frame remains the sole identity authority; one
 DirectAccum ingress and existing NestedPredicate precedence must be preserved.
+
+D4-S1-S0 is now closed as cfg(test)-only evidence. It reuses the existing
+DirectAccum source-unit probe through one D4 paired-view receipt and proves
+exact admission plus foreign/non-loop and shape-negative typed rejects before
+effects. No production preflight import or second source identity was added.
+
+The current D4-S2 design stop is the family-boundary owner map and disposition
+matrix. This module remains the source-identity authority only; it must not
+select Generic/NestedPredicate/DirectAccum/A+, issue a Recipe key, or retire
+the raw Generic/resolved preflight edges.

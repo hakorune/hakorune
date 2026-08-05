@@ -240,12 +240,28 @@ non-loop, and equal-shape distinct-session rejects. This proves source
 owner/site/frame/forest identity only; it does not prove family disjointness or
 authorize a classifier, selector, Recipe, Builder/MIR, or production caller.
 
-The next design-only row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-DESIGN0-D4-S1`.
-It must keep the resolver/source unit as the sole identity authority and decide
-whether the existing DirectAccum preflight probe is the first consumer. The
-raw Generic edge, NestedPredicate precedence, A+ fallback, and retry/fallback
-boundaries remain unchanged until that route matrix is accepted.
+The D4-S1 DirectAccum route design is accepted: the resolver/source unit stays
+the sole identity authority and the existing DirectAccum preflight probe is
+the first test-only consumer. The raw Generic edge, NestedPredicate
+precedence, A+ fallback, and retry/fallback boundaries remain unchanged.
+
+### D4-S1 witness closeout and D4-S2 boundary stop
+
+The D4-S1-S0 witness is closed as cfg(test)-only. It consumes the D4 paired
+source views, confirms the exact existing DirectAccum source-unit probe admits
+the canonical Local/Loop envelope, and records foreign/non-loop receipt
+rejects plus a loop-body-shape terminal reject before Builder effects. It adds
+no production caller or family selector.
+
+The next active row is the docs-only
+`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-BOUNDARY-DESIGN0-D4-S2`. It must freeze
+one owner map and one complete disposition matrix for raw Generic V0/V1 and
+resolved NestedPredicate/DirectAccum/A+ observations across modes, carrier
+completeness, shadowing, owner/frame mismatch, and the listed unsupported
+shapes. Natural Both remains `UnresolvedStop(FamilyOverlap /
+WinnerCorrectnessUnavailable)`; planner-required V0 suppression remains typed
+unresolved. No selector, retry, fallback, or edge retirement is authorized
+until that design is accepted.
 
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is

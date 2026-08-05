@@ -207,6 +207,10 @@ The shared source-window witness is closed as a private `#[cfg(test)]`
 transport product. It is not a Generic-loop planner input and does not
 authorize this plan family, a selector, Recipe, Builder/MIR caller, retry,
 fallback, or runtime route. The next row is the design-only
-`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-ROUTE-MIGRATION-DIRECT-ACCUM-DESIGN0-D4-S1`;
-the existing raw Generic route remains unchanged until that policy boundary
-is accepted.
+`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-BOUNDARY-DESIGN0-D4-S2` after the
+DirectAccum S0 witness closeout. The existing raw Generic route remains
+unchanged until the owner map and policy matrix are accepted.
+
+D4-S1-S0 covers exact DirectAccum admission, foreign/non-loop source-window
+rejects, and a shape-negative terminal probe reject. It remains test-only and
+does not make this Generic-loop planner a selector or production consumer.
