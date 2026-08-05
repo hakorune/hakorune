@@ -996,7 +996,7 @@ handoff, Recipe, PHI, MIR, Retry, or fallback. Reference docs and current
 mirrors were updated in the same implementation closeout commit. A separate
 parsed `Both/NoRecursive` row remains a new design decision.
 
-That design decision is now tracked as
+That design decision is now accepted for one cfg(test)-only child:
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-NORECURSIVE-DISPOSITION0-D2-S5-D0`
 in
 `docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-matrix-norecursive-disposition-d2-s5-d0-design-2026-08-05.md`.
@@ -1007,6 +1007,15 @@ candidate maps exact `CompleteNoRecursiveCarrier` to typed
 `UnresolvedStop(NonRecursiveOutOfTarget)`; facts absence or empty schedule is
 typed `NoStandaloneRow`. No production selector, eligibility, Legacy/winner,
 Recipe, PHI, Builder, MIR, Retry, fallback, or handoff change is allowed.
+
+The implementation child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-BOTH-NORECURSIVE0-D2-S5-S1`,
+with task card
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-matrix-both-norecursive-d2-s5-s1-task-2026-08-05.md`.
+Its exact one-loop source navigation, fresh-repeat seal, and disposition table
+are fixed by D2-S5-D0. Only exact `CompleteNoRecursiveCarrier` plus measured
+`[V0,V1]` may produce the test-only `UnresolvedStop(NonRecursiveOutOfTarget)`
+candidate; all other outcomes return to design.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 

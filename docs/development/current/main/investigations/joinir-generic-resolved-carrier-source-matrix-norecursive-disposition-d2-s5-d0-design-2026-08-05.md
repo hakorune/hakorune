@@ -3,7 +3,7 @@ Status: active design stop — source-shape and disposition boundary
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-source-matrix-toplevel-compound-premise-d2-s4-task-2026-08-05.md
-Decision: provisional — no cfg(test) NoRecursive row until this boundary is sealed
+Decision: accepted — cfg(test) child only; production handoff remains parked
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-NORECURSIVE-DISPOSITION0-D2-S5-D0`
 ---
 
@@ -119,10 +119,52 @@ Retry deletion, fallback removal, runtime changes, or production handoff
 
 ## Implementation gate after design seal
 
-Only after this card is accepted may one sibling `cfg(test)` source witness be
-added. It must co-seal source/forest/BindingRef/frame/facts/mode/raw schedule
-in a private non-`Clone` receipt, use one shape and one commit, keep all source
-and check files below 800 lines, and update the parent card, Generic SSOT,
+The design is now sealed for one implementation child:
+
+```text
+JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-BOTH-NORECURSIVE0-D2-S5-S1
+```
+
+The exact source navigation is part of the contract:
+
+```text
+function body = [Loop, Return]
+root Loop body = [Assignment]
+condition = j + m < n
+assignment = j = j + 1
+assignment target = j
+assignment RHS = j + 1
+return value = j
+loop forest = exactly one root, no children
+```
+
+Nested statements, `If`, `Local`, `ScopeBox`, additional body statements,
+another target, a compound assignment, a different operator, or a different
+condition/return shape is a typed reject. The write/read `BindingRefV1`s must
+share one function owner, source kind, frame key, and function-scope strict
+ancestor relation.
+
+The private non-`Clone` receipt must seal the same-invocation source/forest/
+BindingRef/frame/facts/mode/raw evidence. A fresh repeat must receive a
+distinct `FunctionOwnerId` while preserving `FunctionOrigin`, source kind,
+loop-site/frame key, BindingRef slot shape, facts identity, and raw schedule.
+Mode flags are read from the returned `LivePreflightFrameV1` environment, not
+reconstructed from caller config or route labels.
+
+The disposition table is fixed:
+
+| observed facts / raw schedule | disposition |
+| --- | --- |
+| exact `CompleteNoRecursiveCarrier` + exact `[V0,V1]` in Release/Strict | `UnresolvedStop(NonRecursiveOutOfTarget)` candidate |
+| facts absent or raw `[]` | typed `NoStandaloneRow` |
+| `[LoopSimpleWhile,V0]`, `[V1]`, or any other schedule/carrier | typed premise reject; return to this design stop |
+
+`NonRecursiveOutOfTarget` means only that the one-loop shape is outside the
+current recursive-carrier eligibility capability. It does **not** mean
+`ProvenOutsideTarget`, `Legacy`, a winner, or a selector decline.
+
+The S1 child must use one shape and one commit, keep all source and check files
+below 800 lines, and update the parent card, Generic SSOT,
 `docs/reference/mir/generic-loop-stage-matrix.md`, both Generic READMEs,
 current mirrors, and the artifact manifest in the same closeout commit.
 

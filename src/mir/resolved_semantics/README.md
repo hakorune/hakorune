@@ -189,12 +189,15 @@ absent and Release/Strict both measure raw schedule `[]`; the typed result is
 production handoff, Recipe, PHI, or MIR authority is added. Reference and
 current mirrors closed in the same implementation commit.
 
-The next design stop is
+The design stop is now sealed for one implementation child:
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-NORECURSIVE-DISPOSITION0-D2-S5-D0`.
 It is docs-only until the parsed one-loop source shape, resolver identity,
 facts disposition, and raw-schedule owner are fixed. The existing recursive
 two-member projector must not be reused implicitly; no production capability
-or selector is introduced.
+or selector is introduced. The child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-BOTH-NORECURSIVE0-D2-S5-S1`;
+it consumes only the exact parsed one-loop shape and returns to the design
+stop on any facts, schedule, mode, or identity mismatch.
 
 The bounded cfg(test) witness is green with:
 

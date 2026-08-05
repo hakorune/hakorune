@@ -141,13 +141,17 @@ Legacy/winner, Recipe, PHI, Builder, MIR, Retry, fallback, or production
 handoff is allowed; the Generic reference page and current mirrors were
 updated in the same closeout commit.
 
-The next step is the docs-only design child
+The accepted implementation child follows the design child
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-NORECURSIVE-DISPOSITION0-D2-S5-D0`.
 It must choose one parsed flat Assignment shape, distinguish it from
 simple-while/V1-only/facts-absent shapes, and define the one-loop projector
 boundary before a cfg(test) source row is added. Exact
 `CompleteNoRecursiveCarrier` is provisionally an out-of-target unresolved
-disposition; absent facts or empty raw schedule is `NoStandaloneRow`.
+disposition; absent facts or empty raw schedule is `NoStandaloneRow`. The
+implementation child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-BOTH-NORECURSIVE0-D2-S5-S1`.
+It remains cfg(test)-only and must return to D2-S5-D0 on shape, facts, mode,
+schedule, or identity drift.
 
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
 pre-effect resolver eligibility from post-effect V1 corroboration. The next

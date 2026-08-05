@@ -953,7 +953,7 @@ ordered after B-prime correction
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only;
      reference closeout is recorded. Parent D2 stays unresolved and no
      production issuer/adapter/selector/route switch is authorized.
-  3. D1, D2-S1, D2-S2, D3-S0, Compound/Unavailable D2-S3, and top-level Compound D2-S4 are closed as cfg(test)-only source evidence; D2-S4 observes parsed resolver/source/frame/BindingRef identity but no facts product and raw schedule [], yielding typed NoStandaloneRow. The next docs-only child is D2-S5-D0 for flat Assignment source-shape/disposition and one-loop projector ownership; no production issuer/selector/route or NoRecursive source claim follows
+  3. D1, D2-S1, D2-S2, D3-S0, D2-S3, and D2-S4 are cfg(test)-only closed. D2-S5-D0 is accepted; S1 is the one flat Assignment child. Exact CompleteNoRecursive + [V0,V1] is typed NonRecursiveOutOfTarget; other outcomes return to design. No production issuer/selector/route or winner claim follows
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement
   5. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction

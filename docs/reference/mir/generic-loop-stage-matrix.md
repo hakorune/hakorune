@@ -247,7 +247,7 @@ authorize collector widening, selection, eligibility, Legacy/winner policy,
 Recipe, PHI, Builder, MIR, Retry, fallback, or production handoff. The linked
 task, current mirrors, and this reference page were closed together.
 
-The next design child is
+The accepted implementation child is
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-NORECURSIVE-DISPOSITION0-D2-S5-D0`.
 It is a docs-only boundary for choosing one parsed flat Assignment shape and
 its disposition. `CompleteNoRecursiveCarrier` is an observation label, not a
@@ -256,6 +256,14 @@ winner or eligibility proof; the provisional one-member result is typed
 schedule is `NoStandaloneRow`. Simple-while, local/effect V1-only,
 CompoundAssignment, selector, Legacy, Recipe, PHI, Builder, MIR, Retry,
 fallback, and production handoff remain separate.
+
+The implementation child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-BOTH-NORECURSIVE0-D2-S5-S1`.
+It may add exactly one parsed flat Assignment witness. Exact
+`CompleteNoRecursiveCarrier` plus measured `[V0,V1]` maps only to typed
+`UnresolvedStop(NonRecursiveOutOfTarget)`; facts absence, empty raw schedule,
+simple-route/V1-only schedules, shape drift, and identity drift return to the
+D2-S5-D0 design stop.
 
 ## D2-B4-S2A nested `IfThen` carrier evidence
 
