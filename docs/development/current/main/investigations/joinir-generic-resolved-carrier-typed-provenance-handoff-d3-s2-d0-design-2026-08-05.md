@@ -1,4 +1,4 @@
-Status: accepted authority realignment; D1/P0/P1 closed docs-static-only; P2 selected
+Status: accepted authority realignment; D1/P0/P1/P2 closed docs-static-only; P3 selected
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md
 Supersedes: the next-row ambiguity after D3-S1-S2
@@ -346,6 +346,25 @@ The S2 child is now closed as cfg(test)-only evidence. Its private factory
 consumes one co-sealed resolver handoff, rejects the typed mismatch matrix
 before effects, and publishes no production capability or selector input.
 The frontier returns to this design stop for the next ownership decision.
+
+## P3 family-overlap boundary
+
+The P3 premise audit rejects an exact shared
+`Generic/NestedPredicate/DirectAccum/A+` disjointness classifier at the
+current boundary. Generic is produced from raw `LoopRouteContext` registry
+observations, while the other families are resolved by ordered probes in
+`CanonicalLoweringPreflightV1`; there is no common branded source/owner/frame
+handoff. The existing nested-overlapping-DirectAccum test proves precedence
+over an overlapping envelope, not disjointness, and A+ is a post-trivial
+fallback profile whose whole-unit verifier rejects loop statements.
+
+The selected next row is therefore the bounded independent-column census
+`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-OVERLAP-CENSUS0-D3-S2-P3`. It may
+record `ObservedOverlap` / `UnresolvedStop(FamilyOverlap)` and the other
+typed observation dispositions, keyed by fixture label only for reporting.
+It may not co-seal raw and resolved observations, mint a shared classifier,
+select a winner, or add a production caller. Exact disjointness remains a
+design stop until a separately accepted source bridge exists.
 
 ## Acceptance
 

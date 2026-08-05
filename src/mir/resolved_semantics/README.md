@@ -261,6 +261,16 @@ does not re-validate or re-issue P1 source authority, and it does not modify
 debt, retry, fallback, or runtime ownership. No production caller is
 authorized.
 
+The next D3-S2-P3 row is a bounded independent-column family-overlap census,
+not an exact disjointness product:
+`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-OVERLAP-CENSUS0-D3-S2-P3`. Raw
+Generic observations and resolved NestedPredicate/DirectAccum/A+ preflight
+observations have no common owner/frame/source brand, so fixture labels are
+reporting-only and may not co-seal them. The row may record typed
+`ObservedOverlap`/`UnresolvedStop(FamilyOverlap)` dispositions, but it adds no
+shared classifier, winner, selector, Recipe, BindingKey, Builder, MIR, or
+production caller.
+
 The selected D3-S2-S3 repeat audit remains cfg(test)-only historical evidence. It consumes two
 complete S2 products as one non-`Clone` pair, observes repeated source
 topology/roles and distinct resolver brands, and records equal raw frame

@@ -95,6 +95,13 @@ The D3-S2-P2 Generic snapshot is a separate `cfg(test)` sibling module,
 production caller. P1 typed rejects remain the sole source/owner/frame gate;
 the snapshot does not re-validate or re-issue them.
 
+The next D3-S2-P3 row is not a shared facts classifier. The bounded
+`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-OVERLAP-CENSUS0-D3-S2-P3` census keeps
+raw Generic and resolved family observations in independent columns because
+this module has no common source/owner/frame brand for them. It may report
+typed overlap or unresolved-stop dispositions only; no winner, selector,
+Recipe, BindingKey, Builder, MIR, or production caller is authorized.
+
 M3-B and the selected-demand issuer are intentionally caller-zero. Production
 wiring belongs to a later card at the located source carrier before Loop syntax
 is decomposed.

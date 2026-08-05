@@ -218,6 +218,15 @@ Recipe, Builder, MIR, PHI, Home, debt, retry, fallback, or runtime ownership;
 P1 typed rejects remain the sole source/owner/frame gate. No production caller
 is authorized.
 
+The next P3 row is the bounded independent-column family-overlap census
+`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-OVERLAP-CENSUS0-D3-S2-P3`. It records
+raw Generic and resolved NestedPredicate/DirectAccum/A+ evidence separately;
+fixture labels are reporting-only because no common source/owner/frame brand
+exists. Existing overlap is precedence evidence, not an exact disjointness
+proof. The row may record `ObservedOverlap` or
+`UnresolvedStop(FamilyOverlap)`, but it does not mint a shared classifier,
+winner, selector, Recipe, BindingKey, Builder, MIR, or production caller.
+
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is
 closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite
