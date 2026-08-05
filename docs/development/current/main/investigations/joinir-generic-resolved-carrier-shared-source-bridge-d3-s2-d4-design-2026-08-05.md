@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0/D4-S3-S1/D4-S3-S2/D4-S4-D0 closed; D4-S4-S0 design-gated
+Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0/D4-S3-S1/D4-S3-S2/D4-S4-D0/D4-S4-S0 closed; D4-S4-S0 NoSafeSlice; D4-S4-S0-D0 selected
 Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -842,10 +842,36 @@ D4-S4-C0  GENERIC-LEGACY-CLEANUP0
   post-cutover census and retirement only after parity evidence
 ```
 
+## D4-S4-S0 NoSafeSlice closeout
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-DEMAND-WITNESS0-D4-S4-S0`
+is closed as a docs/static audit with disposition `NoSafeSlice`; no source
+witness or production code was added. The evidence is authoritative:
+
+| gate | result | reason |
+| --- | --- | --- |
+| real `Selected(Generic)` issuer/callsite | fail | selector has only the marker type; all nine S1 rows remain `Unresolved` |
+| resolver AST-free Generic candidate envelope | fail | source bridge transports identity/forest/window, not Generic V0/V1 eligibility/roles |
+| one-shot source + `BindingRef` lease | fail | no Generic capability carries the required role provenance |
+| Generic-specific Recipe demand | fail | only legacy `VerifiedSelectedLoopRecipeDemandV1` exists and requires a 19-route winner |
+| forbidden leakage | pass | no new import/caller reaches AST facts, `LoopRouteContext`, Recipe/key, Builder/MIR, retry, or fallback |
+
+The current `GenericLoopV0Facts`/`GenericLoopV1Facts` contain `ASTNode`,
+`RecipeBody`, and Builder policies. The P2 snapshot is only a fixed
+`NestedWriteWithPostLoopRead` observation. The resolver provenance witness is
+test-only and does not issue a Generic carrier/eligibility envelope or expose a
+role-level lease. The historical handoff protocol and synthetic test receipts
+are not acceptable substitutes. Therefore S0 must not add a fake
+`Selected(Generic)`, wrap/re-resolve facts by name, or reuse the legacy demand.
+
 ## Current next action
 
-Proceed only to `D4-S4-S0` as a design-gated witness review. Do not fabricate
-`Selected(Generic)` from the nine unresolved S1 rows, do not add a synthetic
-selector constructor, and do not enter production implementation. Any source
-shape or candidate proof that cannot be issued by the resolver returns to
-NoSafeSlice/worker design before code changes.
+Proceed to the new design stop
+`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-DESIGN0-D4-S4-S0-D0`.
+Define the minimum resolver-issued AST-free Generic semantic shape: candidate
+envelope, carrier/step/body effect roles, exact source sites, mode/coverage,
+forest/frame, and `BindingRef` provenance. Each field must have a named issuer;
+missing authority remains NoSafeSlice. Do not implement a witness, Recipe
+producer, key allocation, Builder/MIR caller, retry, or fallback until that
+design closes. Any future implementation commit updates `docs/reference/**`,
+current mirrors, and support READMEs in the same commit.

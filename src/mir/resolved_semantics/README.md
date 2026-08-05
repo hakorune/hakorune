@@ -560,5 +560,6 @@ a production caller. D4-S3-S2 is now closed as a separate test-only neutral
 selector; it consumes no resolver coordinates or legacy policy fields.
 D4-S4-D0 fixes the next boundary: a future Generic selected capability must
 retain a resolver source lease and role-level BindingRefs, while current
-Generic labels/facts cannot be re-resolved into Recipe. D4-S4-S0 is
-design-gated and remains caller-zero.
+Generic labels/facts cannot be re-resolved into Recipe. D4-S4-S0 is closed as
+`NoSafeSlice`; no selected callsite or Generic demand exists. The next design
+stop is D4-S4-S0-D0 semantic-shape design and this resolver remains caller-zero.

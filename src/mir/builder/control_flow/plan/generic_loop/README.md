@@ -243,5 +243,7 @@ test-only neutral selector; all nine rows remain unresolved and this planner
 does not become the family selector. D4-S4-D0 further rejects current
 GenericLoop facts/RecipeBody as portable Recipe inputs: a resolver-issued
 AST-free Generic demand and real Selected(Generic) proof are required before
-any producer witness. The next frontier is design-gated D4-S4-S0; no
-synthetic winner or production caller is allowed.
+any producer witness. D4-S4-S0 is now closed as `NoSafeSlice`; no selected
+callsite or candidate envelope exists. The next frontier is design-only
+D4-S4-S0-D0 semantic-shape design; no synthetic winner or production caller
+is allowed.

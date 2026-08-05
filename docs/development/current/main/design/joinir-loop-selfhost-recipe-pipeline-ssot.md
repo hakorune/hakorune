@@ -203,6 +203,24 @@ terminal: no legacy-route re-selection, retry, suffix, fallback, or alias to
 DirectAccum/NestedPredicate. If no real sealed `Selected(Generic)` exists, the
 next witness is `NoSafeSlice`; it must not fabricate a winner.
 
+### D4-S4-S0 audit disposition
+
+The first Generic semantic-demand witness is `NoSafeSlice`. There is no
+`Selected(Generic)` issuer or callsite, no resolver-issued Generic
+candidate-envelope, no one-shot role-level `BindingRef` lease, and no
+`VerifiedGenericRecipeDemandV1`. The current Generic facts contain AST/Builder
+recipes, while the resolver source-window/provenance witnesses are test-only
+identity transport without Generic carrier/eligibility. The legacy selected
+demand and historical synthetic handoff receipts are explicitly excluded.
+
+The next design stop is
+`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-DESIGN0-D4-S4-S0-D0`.
+It must define the minimum AST-free candidate/shape product, exact sites,
+mode/coverage, forest/frame, carrier/step/body effect roles, and
+`BindingRef` provenance, with one named issuer per field. Until that closes,
+no selector winner, Recipe/key, Builder/MIR/PHI, retry, fallback, or production
+caller may be added.
+
 ## Structural owners
 
 | Owner | Owns | Must not own |

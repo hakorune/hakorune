@@ -96,8 +96,11 @@ Related:
   production caller. D4-S4-D0 is also closed as a worker-reviewed design:
   current SelectedFamilyV1 lacks provenance and current Generic facts are
   AST/Builder-derived, so a new resolver-issued AST-free semantic demand and
-  one-shot source lease are required. The next frontier is design-gated
-  D4-S4-S0; if no real Selected(Generic) exists, stop NoSafeSlice.
+  one-shot source lease are required. D4-S4-S0 is now closed as NoSafeSlice:
+  no real Selected(Generic), resolver AST-free candidate envelope, one-shot
+  BindingRef lease, or Generic demand exists. The next frontier is the
+  design-only semantic-shape stop D4-S4-S0-D0; no synthetic winner or
+  production caller is allowed.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

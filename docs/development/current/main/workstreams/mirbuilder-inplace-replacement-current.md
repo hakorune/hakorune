@@ -477,12 +477,11 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-DEMAND-WITNESS0-D4-S4-S0
-  follows the closed D4-S4-D0 design. Current SelectedFamilyV1 is a marker
-  without provenance and current Generic facts are AST/Builder-derived; do not
-  feed either to Recipe. This row is design-gated: only a real resolver-issued
-  Selected(Generic) candidate may produce one AST-free demand/source lease.
-  If no candidate or semantic source shape exists, record NoSafeSlice and stop.
+JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-DESIGN0-D4-S4-S0-D0
+  follows the closed D4-S4-S0 NoSafeSlice audit. No real Selected(Generic),
+  resolver AST-free Generic candidate envelope, one-shot BindingRef lease, or
+  Generic demand exists. Design the minimum semantic shape and name every
+  field issuer; do not fabricate a winner or import AST/Builder/legacy demand.
   Recipe producer remains the sole LoopBindingKeyV1/effect-relation owner; no
   production caller, Builder/MIR, retry, fallback, or old-edge deletion.
   Any later implementation commit updates affected references/current docs in
