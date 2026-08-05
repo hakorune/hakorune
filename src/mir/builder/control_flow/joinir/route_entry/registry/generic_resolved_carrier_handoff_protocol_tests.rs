@@ -5,6 +5,11 @@
 //! freezes the facts/capability pairing boundary before a production owner is
 //! authorized by the handoff design card.
 
+use super::generic_resolved_carrier_projector_tests::{
+    issue_projector_handoff_for_test, ProjectorHandoffObservationV1, ProjectorRejectV1,
+    NESTED_IF_SOURCE, SOURCE,
+};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum TestRouteV1 {
     V0,
@@ -119,6 +124,21 @@ enum TestSelectionInputV1 {
     Resolved(TestResolvedCarrierSelectionInputV1),
 }
 
+/// Source-backed bridge input. The actual resolver/projector witness is kept
+/// beside the synthetic protocol policy; no typed source identity is cast into
+/// the policy's test-only integer fields.
+#[derive(Debug)]
+struct TestSourceBackedSelectionInputV1 {
+    projector: ProjectorHandoffObservationV1,
+    policy: TestSelectionInputV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TestSourceBackedBridgeErrorV1 {
+    Projector(ProjectorRejectV1),
+    Handoff(TestHandoffErrorV1),
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum TestHandoffErrorV1 {
     UnresolvedStop,
@@ -202,6 +222,33 @@ fn select(input: TestSelectionInputV1) -> Result<TestSelectionReceiptV1, TestHan
             })
         }
     }
+}
+
+fn source_backed_input(
+    strict_or_dev: bool,
+) -> Result<TestSourceBackedSelectionInputV1, TestSourceBackedBridgeErrorV1> {
+    let projector = issue_projector_handoff_for_test(NESTED_IF_SOURCE)
+        .map_err(TestSourceBackedBridgeErrorV1::Projector)?;
+    if !projector.is_natural_both() {
+        return Err(TestSourceBackedBridgeErrorV1::Handoff(
+            TestHandoffErrorV1::UnresolvedStop,
+        ));
+    }
+    Ok(TestSourceBackedSelectionInputV1 {
+        projector,
+        policy: natural_input(strict_or_dev),
+    })
+}
+
+fn select_source_backed(
+    input: TestSourceBackedSelectionInputV1,
+) -> Result<TestSelectionReceiptV1, TestSourceBackedBridgeErrorV1> {
+    if !input.projector.is_natural_both() {
+        return Err(TestSourceBackedBridgeErrorV1::Handoff(
+            TestHandoffErrorV1::UnresolvedStop,
+        ));
+    }
+    select(input.policy).map_err(TestSourceBackedBridgeErrorV1::Handoff)
 }
 
 fn natural_input(strict_or_dev: bool) -> TestSelectionInputV1 {
@@ -294,6 +341,40 @@ fn generic_handoff_protocol_accepts_natural_both_in_release_and_strict() {
         assert_eq!(receipt.v0_attempts, 0);
         assert_eq!(receipt.strict_or_dev, strict_or_dev);
     }
+}
+
+#[test]
+fn generic_handoff_source_bridge_accepts_release_and_strict() {
+    for strict_or_dev in [false, true] {
+        let input = source_backed_input(strict_or_dev).expect("source-backed projector bridge");
+        assert_eq!(
+            input.projector.raw_schedule(),
+            [
+                super::route_id::LoopRouteId::GenericLoopV0,
+                super::route_id::LoopRouteId::GenericLoopV1,
+            ]
+        );
+        assert_eq!(input.projector.source_forest_len(), 2);
+        assert_eq!(input.projector.frame_flags(), (false, false));
+        let receipt = select_source_backed(input).expect("source-backed selection");
+        assert_eq!(receipt.selected, TestRouteV1::V1);
+        assert_eq!(
+            receipt.base_schedule,
+            vec![TestRouteV1::V0, TestRouteV1::V1]
+        );
+        assert_eq!(receipt.v0_attempts, 0);
+        assert_eq!(receipt.strict_or_dev, strict_or_dev);
+    }
+}
+
+#[test]
+fn generic_handoff_source_bridge_rejects_cross_invocation_before_selection() {
+    let first = issue_projector_handoff_for_test(SOURCE).expect("first source witness");
+    let second = issue_projector_handoff_for_test(NESTED_IF_SOURCE).expect("second source witness");
+    assert!(matches!(
+        first.co_sealed_with(&second),
+        Err(ProjectorRejectV1::FactsIdentityMismatch)
+    ));
 }
 
 #[test]

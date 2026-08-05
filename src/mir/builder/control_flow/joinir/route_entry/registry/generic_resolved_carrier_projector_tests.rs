@@ -21,7 +21,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::parser::NyashParser;
 
-const SOURCE: &str = r#"
+pub(super) const SOURCE: &str = r#"
 function generic_both(i, j) {
     loop(i < 3) {
         loop(j < 3) {
@@ -46,7 +46,7 @@ function generic_both_shadowing(i, j) {
 }
 "#;
 
-const NESTED_IF_SOURCE: &str = r#"
+pub(super) const NESTED_IF_SOURCE: &str = r#"
 function generic_both_nested_if(i, j) {
     loop(i < 3) {
         loop(j < 3) {
@@ -62,7 +62,7 @@ function generic_both_nested_if(i, j) {
 "#;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ProjectorRejectV1 {
+pub(super) enum ProjectorRejectV1 {
     ForeignOwner,
     SourceLookup,
     ForestShape,
@@ -125,6 +125,9 @@ struct ProjectorSealV1 {
 struct ResolvedGenericProjectorReceiptV1 {
     forest_binding: VerifiedLoopSourceForestBindingV1,
     seal: ProjectorSealV1,
+    raw_schedule: Box<[super::route_id::LoopRouteId]>,
+    frame_debug: bool,
+    frame_in_static_box: bool,
 }
 
 impl ResolvedGenericProjectorReceiptV1 {
@@ -161,6 +164,54 @@ impl ResolvedGenericProjectorReceiptV1 {
                 .map(|member| member.parent_index().is_none())
                 .unwrap_or(false)
     }
+}
+
+/// Test-only source-backed handoff witness. It keeps the resolver-issued
+/// receipt private and exposes only immutable observations to the sibling
+/// protocol test. It is intentionally not Clone and never enters production.
+#[derive(Debug)]
+pub(super) struct ProjectorHandoffObservationV1 {
+    receipt: ResolvedGenericProjectorReceiptV1,
+}
+
+impl ProjectorHandoffObservationV1 {
+    pub(super) fn raw_schedule(&self) -> &[super::route_id::LoopRouteId] {
+        &self.receipt.raw_schedule
+    }
+
+    pub(super) fn frame_flags(&self) -> (bool, bool) {
+        (self.receipt.frame_debug, self.receipt.frame_in_static_box)
+    }
+
+    pub(super) fn source_forest_len(&self) -> usize {
+        self.receipt.forest_binding.members().len()
+    }
+
+    pub(super) fn co_sealed_with(&self, other: &Self) -> Result<(), ProjectorRejectV1> {
+        verify_facts_pair(
+            &self.receipt.seal.facts_observation,
+            &other.receipt.seal.facts_observation,
+        )
+    }
+
+    pub(super) fn is_natural_both(&self) -> bool {
+        self.receipt.identity_is_stable()
+            && self.receipt.raw_schedule.as_ref()
+                == [
+                    super::route_id::LoopRouteId::GenericLoopV0,
+                    super::route_id::LoopRouteId::GenericLoopV1,
+                ]
+    }
+}
+
+pub(super) fn issue_projector_handoff_for_test(
+    source: &str,
+) -> Result<ProjectorHandoffObservationV1, ProjectorRejectV1> {
+    let unit = unit(source);
+    let (input, root) = input_and_root(&unit);
+    Ok(ProjectorHandoffObservationV1 {
+        receipt: issue_projector(input, &root)?,
+    })
 }
 
 fn verify_facts_pair(
@@ -325,6 +376,10 @@ fn issue_projector(
     .map_err(|_| ProjectorRejectV1::FactsAbsent)?
     .facts
     .ok_or(ProjectorRejectV1::FactsAbsent)?;
+    let raw_schedule = super::select_recipe_first_routes(Some(&facts))
+        .raw_execution_routes()
+        .to_vec()
+        .into_boxed_slice();
     let sites = projector_sites(input, root)?;
     let write = sites.write;
     let read = sites.read;
@@ -372,6 +427,9 @@ fn issue_projector(
                 identity: facts_identity,
             },
         },
+        raw_schedule,
+        frame_debug: false,
+        frame_in_static_box: false,
     })
 }
 
