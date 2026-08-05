@@ -210,6 +210,14 @@ add a production caller. The selected next row is the neutral AST-free facts
 snapshot design/test task
 `JOINIR-GENERIC-RESOLVED-CARRIER-FACTS-SNAPSHOT0-D3-S2-P2`.
 
+The D3-S2 P2 neutral facts snapshot is now closed as cfg(test)-only evidence.
+It consumes exactly one sealed P1 resolver provenance product and adds only
+the mode-neutral `NestedWriteWithPostLoopRead` disposition. It does not modify
+`LoopFacts`, `LoopStructuralFactsPayloadV1`, Generic V0/V1 facts, selector,
+Recipe, Builder, MIR, PHI, Home, debt, retry, fallback, or runtime ownership;
+P1 typed rejects remain the sole source/owner/frame gate. No production caller
+is authorized.
+
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is
 closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite

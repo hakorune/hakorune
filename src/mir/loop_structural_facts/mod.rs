@@ -4,6 +4,8 @@
 
 mod direct_accum_effect_plan;
 mod direct_accum_exclusivity;
+#[cfg(test)]
+mod generic_resolved_carrier_facts_snapshot;
 mod resolved_source_adapter;
 mod selected_demand;
 mod types;
@@ -25,6 +27,11 @@ pub(crate) use direct_accum_effect_plan::{
 pub(crate) use direct_accum_exclusivity::{
     issue_direct_accum_disjointness_v1, DirectAccumDisjointnessRejectV1,
     VerifiedDirectAccumDisjointnessV1,
+};
+#[cfg(test)]
+pub(crate) use generic_resolved_carrier_facts_snapshot::{
+    issue_generic_resolved_carrier_facts_v1, ResolvedCarrierDispositionV1,
+    VerifiedGenericResolvedCarrierFactsV1,
 };
 #[allow(unused_imports)]
 pub(crate) use selected_demand::{

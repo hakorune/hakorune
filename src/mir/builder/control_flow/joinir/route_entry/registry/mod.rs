@@ -242,6 +242,8 @@ mod generic_resolved_carrier_provenance_observation_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_provenance_product_tests;
 #[cfg(test)]
+mod generic_resolved_carrier_facts_snapshot_tests;
+#[cfg(test)]
 mod generic_resolved_carrier_toplevel_compound_premise_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_v1only_local_tests;

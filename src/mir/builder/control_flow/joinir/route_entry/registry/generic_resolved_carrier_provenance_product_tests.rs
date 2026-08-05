@@ -15,7 +15,7 @@ use crate::mir::resolved_semantics::generic_resolved_carrier_provenance::{
 };
 use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
 
-fn handoff(source: &str) -> ResolvedCarrierHandoffV1 {
+pub(super) fn handoff(source: &str) -> ResolvedCarrierHandoffV1 {
     handoff_in(source, 0)
 }
 

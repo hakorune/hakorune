@@ -253,6 +253,14 @@ evidence remain separate design rows. No selector, Generic snapshot/key/seed,
 opaque input, Recipe, PHI, Builder, MIR, retry, fallback, or runtime caller is
 authorized by this product.
 
+The D3-S2-P2 neutral facts snapshot is now closed as a separate cfg(test)-only
+sibling. It consumes exactly one sealed `VerifiedResolvedCarrierProvenanceV1`
+and adds only the mode-neutral `NestedWriteWithPostLoopRead` disposition. It
+does not re-validate or re-issue P1 source authority, and it does not modify
+`LoopFacts`, Generic V0/V1 facts, selector, Recipe, Builder, MIR, PHI, Home,
+debt, retry, fallback, or runtime ownership. No production caller is
+authorized.
+
 The selected D3-S2-S3 repeat audit remains cfg(test)-only historical evidence. It consumes two
 complete S2 products as one non-`Clone` pair, observes repeated source
 topology/roles and distinct resolver brands, and records equal raw frame

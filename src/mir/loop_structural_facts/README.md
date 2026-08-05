@@ -87,6 +87,14 @@ Its coordinate-only forest/frame evidence is not an owner-branded cross-session
 capability; a dedicated brand audit must close that premise before this layer
 can consume a shared Generic provenance product.
 
+The D3-S2-P2 Generic snapshot is a separate `cfg(test)` sibling module,
+`generic_resolved_carrier_facts_snapshot.rs`. It consumes one sealed P1
+`VerifiedResolvedCarrierProvenanceV1` and adds only the mode-neutral
+`NestedWriteWithPostLoopRead` disposition. It intentionally does not modify
+`LoopFacts`, `LoopStructuralFactsPayloadV1`, Generic V0/V1 facts, or any
+production caller. P1 typed rejects remain the sole source/owner/frame gate;
+the snapshot does not re-validate or re-issue them.
+
 M3-B and the selected-demand issuer are intentionally caller-zero. Production
 wiring belongs to a later card at the located source carrier before Loop syntax
 is decomposed.
