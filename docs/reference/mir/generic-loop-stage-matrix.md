@@ -175,18 +175,19 @@ Builder/MIR/backend route change. The exact source and typed suppression
 boundary are recorded in the closed S2/D3 checkpoints and the active handoff
 design card.
 
-S2 and scoped D3 are closed as bounded evidence. The next active stop is the
-co-sealed source-to-selection handoff card
+S2 and scoped D3 are closed as bounded evidence. The next active row is the
+test-only projector coverage task in the co-sealed source-to-selection handoff card
 `investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`.
-It does not authorize a production selector, Recipe/JoinSig/PHI/physicalizer
-caller, or Retry/fallback change. The parent Generic D2 disposition remains
-unresolved.
+It extends the partial projector baseline with one parsed S2A nested-`IfThen`
+source and does not authorize a production selector, Recipe/JoinSig/PHI/
+physicalizer caller, or Retry/fallback change. The parent Generic D2
+disposition remains unresolved.
 
 The scoped D3 matrix is now also green as one cfg(test) test over four typed
 rows: natural Release, natural Strict, shadowing negative, and planner-required
 V0 suppression. Its evaluator separates pre-effect BindingRef eligibility from
-post-effect V1 corroboration. The next design stop is the separate co-sealed
-source-to-selection handoff card
+post-effect V1 corroboration. The projector coverage row is still test-only;
+the source-to-selection handoff card remains the design authority
 `investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`;
 no production selector change is implied.
 

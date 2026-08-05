@@ -273,75 +273,56 @@ parent D2/winner-equivalence/runtime claims = 0
 Only after this protocol and the full D2 matrix are accepted may a separate
 implementation card add the neutral capability and selector input.
 
-## Next design slice — compiler-side resolved Generic projector
+## Selected bounded task — resolved Generic projector coverage
 
-The next task is a design/test-only source projector, not a production selector
-arm:
+Task: `JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0`
 
-```text
-JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0
-```
+Decision: accepted as a `cfg(test)`-only continuation; production handoff
+remains stopped. The existing three-test projector is a partial baseline, not
+an acceptance receipt.
 
-Owner boundary:
+### Change
 
-```text
-compiler-side resolved ingress
-  input: ResolvedFunctionLoweringInputV1 + LocatedStmtV1
-  source authority: FunctionSourceViewV1, VerifiedResolvedFunctionV1,
-                    VerifiedResolvedLoopSourceForestV1
-  neutral precedent: compiler/direct_accum_projection.rs
-  output: test-only co-sealed source observation + Generic facts identity
-```
+- Extend the existing projector test sibling with exactly one parsed
+  nested-`IfThen` source shape from S2A. Navigate through the existing
+  `ResolvedFunctionLoweringInputV1`/`FunctionSourceViewV1` path and co-seal the
+  resolver-issued outer/inner forest, exact source sites, `BindingRefV1` pair,
+  function/source-kind/frame identity, and a test-only facts identity receipt
+  in one private non-`Clone` witness. This does not create the future neutral
+  facts issuer.
+- Add only the smallest typed negative witnesses for foreign frame/source-kind
+  or facts mismatch that the same source-view boundary can construct. Keep the
+  existing positive, shadowing, and foreign-owner tests as neighboring guards.
 
-The projector must read the located source once, obtain the resolver-issued
-outer/inner forest and assignment/read `BindingRefV1`s, check strict-ancestor,
-owner/source-kind/frame identity, and seal the facts snapshot in the same
-transaction. Every mismatch is a typed pre-effect reject. It must not import
-registry policy, construct a `LivePreflightFrameV1`, select routes, touch
-`MirBuilder`, or expose an `Option<Capability>` ingress. The first slice may
-only add a `cfg(test)` harness around existing resolved compiler carriers; a
-production projector type requires a separate accepted implementation card.
+### Contract
 
-The source-side precedent is `ResolvedFunctionLoweringInputV1` plus
-`LocatedStmtV1`, with `compiler/direct_accum_projection.rs` as the existing
-one-lookup/one-frame model. The test DTOs should remain private and non-`Clone`:
+- The projector owns source/resolver observation only. `CanonicalLoopFacts`
+  remains Builder-local and AST-bearing; `PreflightSeedV1` and
+  `InvocationSealV1` belong to the later router/adapter boundary, and carrier
+  policy (`NoRecursive`/`Unavailable`/`Ambiguous`/planner suppression) belongs
+  to the neutral facts/selector owners.
+- Every mismatch rejects before Builder effects. No registry policy,
+  `LivePreflightFrameV1`, selector, `Option<Capability>`, Recipe/JoinSig/PHI,
+  Builder/MIR/backend, Retry, fallback, or runtime caller may be added.
 
-```text
-ResolvedGenericProjectionDispositionV1
-  = Accepted
-  | UnresolvedStop(TypedRejectReasonV1)
+### Done
 
-ResolvedGenericProjectorInputV1
-  = source forest + outer/inner sites + BindingRefs
-  + facts snapshot + PreflightSeedV1 + InvocationSealV1
-```
+- The focused `generic_resolved_projector` filter must prove one parsed S2A
+  nested-`IfThen` positive and typed identity rejects; all projector/test
+  files must remain below 800 lines and production caller/import census must
+  remain zero.
+- Pointer, diff, artifact, and line-budget guards remain green. The active
+  card, parent Generic SSOT, Generic README, resolved-semantics README,
+  stage-matrix reference, current pointers, and affected reference indexes are
+  updated in the implementation closeout commit.
 
-The reject vocabulary must cover foreign owner/source/frame, missing forest or
-binding, upvar/non-binding target, strict-ancestor mismatch, absent or
-mismatched facts, NoRecursive/Unavailable/Ambiguous carrier, and
-planner-required suppression. A target row with an invalid handoff is never
-reclassified as `Legacy`.
+### Stop
 
-Acceptance for this design slice:
-
-```text
-same parsed source -> one resolver forest -> one BindingRef pair -> one facts identity
-foreign LocatedStmtV1 / owner / frame / source kind -> typed reject
-production projector AST reread after source projection -> 0
-test-only fixture AST observation -> one bounded located-root read
-Builder / registry / selector / frame callers -> 0
-source projector file and test fixture -> <800 lines each
-```
-
-Focused acceptance commands are:
-
-```text
-env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED RUSTFLAGS='-Awarnings' cargo test --lib generic_d2_b4_s2 -- --nocapture
-env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED RUSTFLAGS='-Awarnings' cargo test --lib generic_d3_bindingref -- --nocapture
-env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED RUSTFLAGS='-Awarnings' cargo test --lib generic_resolved_projector -- --nocapture
-bash tools/checks/current_state_pointer_guard.sh
-git diff --check
-```
+- Return to design if the source-view path cannot prove one invocation's
+  source/forest/BindingRef/frame relation, if facts identity requires a second
+  semantic authority, or if any production seam is needed. Parent Generic D2,
+  neutral issuer, Builder adapter, and production selector remain
+  `UnresolvedStop` after this row.
 
 ## Non-authority and documentation contract
 
@@ -370,14 +351,15 @@ fail-fast/sunset contract are mandatory; documentation cannot be deferred.
 S2 identity witness: 3 focused tests, test-only
 D3 typed matrix: 1 focused test over 4 rows, test-only
 handoff protocol: 6 cfg(test) tests, including a generated 1,440-row typed matrix
-resolved projector: 3 cfg(test) tests over real resolver/forest/BindingRef/facts products
+resolved projector baseline: 3 cfg(test) tests; D0 S2A co-seal coverage remains open
 production selector callers of BindingRef capability: 0
 current Both trace: [V0, V1] -> V0 success; no V1 debt attempt
 ```
 
-The resolved-projector harness is evidence only: it co-seals the resolver
-forest, BindingRefs, source identity, and Generic facts before any effect, and
-proves foreign-root and shadowing rejection. It does not issue a production
+The resolved-projector harness is evidence only: its current baseline proves
+resolver forest, BindingRefs, source identity, and Generic facts observation
+before any effect, with foreign-root and shadowing rejection. It does not yet
+co-seal a facts identity with the source/frame witness, issue a production
 capability, select a route, or close the parent D2 row. A production projector
 still requires a separate accepted implementation card.
 

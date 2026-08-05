@@ -159,6 +159,12 @@ still lacks a co-sealed resolver/source/facts/preflight capability; that
 boundary is designed separately in
 `docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`.
 
+The current next row is the test-only
+`JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0`. Its existing
+three-test projector is only a partial baseline; the row adds one parsed S2A
+nested-`IfThen` source and a private identity witness. Seed/invocation seal,
+neutral facts issuance, and production selection remain later boundaries.
+
 The bounded cfg(test) witness is green with:
 
 ```bash

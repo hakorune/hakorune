@@ -924,10 +924,20 @@ The design-stop protocol witness is now test-only: six `cfg(test)` cases cover
 typed Legacy/Resolved input, target-missing rejection, identity/seal mismatch,
 pre-effect negative dispositions, and a generated 1,440-row matrix over the
 declared schedule/mode/relation/carrier/shape axes. A separate test-only
-resolved-projector harness adds three cases over the real resolver forest,
-BindingRefs, source identity, and Generic facts products; foreign-root and
-shadowing rejects remain pre-effect. This evidence does not authorize a
+resolved-projector baseline adds three cases over the real resolver forest,
+BindingRefs, source identity, and Generic facts observation; foreign-root and
+shadowing rejects remain pre-effect. Its facts identity is not yet co-sealed
+with the source/frame witness, so this evidence does not authorize a
 production projector, selector arm, or close the parent D2 row.
+
+The next bounded row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-PROJECTOR-DESIGN0-D0`: extend that existing
+test-only projector with one parsed S2A nested-`IfThen` source and a private
+non-`Clone` receipt for resolver forest/source sites, BindingRefs,
+function/source/frame identity, and test-only facts identity. The projector
+does not own `PreflightSeedV1`/`InvocationSealV1` or carrier policy; those stay
+with the later router/neutral-facts/selector boundaries. Parent D2 and all
+production handoff/selection/Recipe/PHI/MIR claims remain `UnresolvedStop`.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
