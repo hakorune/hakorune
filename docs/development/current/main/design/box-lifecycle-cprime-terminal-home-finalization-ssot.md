@@ -38,8 +38,15 @@ explicit FinalizeObject source authority
 Dead-with-live-Home as a normal lifecycle state
 last-strong structural drop that bypasses a declared fini hook
 drop root / drop(value) as a second source spelling
+unbox root as a Home spelling
 release by parser/MirBuilder identifier matching
 ```
+
+`release` is contextual at statement head, not a globally reserved lexer
+token. Existing `release(value)`, `obj.release()`, declarations/bindings named
+`release`, and `Build.release` remain ordinary syntax. `unbox` retains its
+existing representation-extraction meaning; a Shared non-terminal Home
+release neither unboxes nor destroys the Box identity.
 
 This is an explicit constitutional supersession of B′. B′ remains historical
 evidence and must point here rather than being silently rewritten.
@@ -99,7 +106,8 @@ source carrier, not semantic authority. Resolution, Home Flow, and
 consume before any owner-ending effect. Parser/MirBuilder identifier matching,
 an ordinary or generic wrapper Call, and backend special casing are forbidden.
 Existing `release(value)` functions and `obj.release()` methods remain ordinary
-callables and never acquire Home meaning from their spelling.
+callables and never acquire Home meaning from their spelling. The grammar row
+must prove these disambiguations and zero `unbox root` Home production.
 
 The first profile admits only a verified whole-root owning local or owning
 parameter with exactly one available Home. It rejects ordinary handles, `me`,

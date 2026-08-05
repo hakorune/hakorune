@@ -54,10 +54,11 @@ failure is Result<T,E>, exact unchanged propagation uses Result-only postfix
 ?, source try/throw/catch and RecoverableFailure are rejected, Fault remains
 terminal, and standalone cleanup is the sole lexical registration target.
 OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0 separately selects non-callable
-last-Home Box fini. OWN-EXPLICIT-HOME-RELEASE-STMT0-D0 selects contextual
-statement release root for one verified whole-root Home, rejects ordinary-call
-Home authority and every drop alias, and keeps generic/composite release
-provisional. The Inline C-speed family keeps Inline(prefer|avoid|required) as
+last-Home Box fini. OWN-EXPLICIT-HOME-RELEASE-STMT0-D0 selects contextual,
+not globally reserved, statement release root for one verified whole-root
+Home; ordinary-call Home authority and every drop/unbox alias are rejected,
+while generic/composite support under the same statement remains provisional.
+The Inline C-speed family keeps Inline(prefer|avoid|required) as
 the sole annotation surface and parks post-inline simplification,
 residual-call verification, default automatic leaf planning, generic
 instances, and any

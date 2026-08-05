@@ -12,7 +12,8 @@ Decision state:
   for one verified whole-root Home; ordinary/generic `release(value)` has no
   Home authority, `drop` alias rejected, production activation 0;
 - exact HomeV1 grammar and physical Shared representation: provisional/D0;
-- generic/composite `release<T>` realization: provisional/D0;
+- generic/composite whole-root support under the same `release root` statement:
+  provisional/D0; no generic wrapper callable;
 - production activation: 0;
 - resume checkpoint: `MIRBUILDER-INPLACE-REPLACEMENT0` final-pipeline
   completion;
@@ -86,8 +87,8 @@ RESUME
   -> PASSIVE RELATION + ABI + BOUNDARY
   -> STRAIGHT HOME FLOW
   -> CFG HOME FLOW + DIAGNOSTICS
-  -> PASSIVE EXPLICIT-RELEASE PLAN
   -> GRAMMAR CARRIERS
+  -> PASSIVE EXPLICIT-RELEASE PLAN
   -> UNIQUE CLOSED-CALL + LOCAL TERMINAL-FINALIZATION PROTOTYPE
   -> STORAGE DESTINATION ADOPTION
   -> CONTRACT BOUNDARIES
@@ -410,7 +411,8 @@ source grammar and hard rejects, including:
 - contextual statement `release root` with one identifier root;
 - contextual-keyword disambiguation.
 
-Only this row may promote candidate spellings into accepted target grammar.
+This row converges the remaining candidate spellings. It carries the already
+accepted `release root` spelling unchanged and cannot reopen or replace it.
 
 ## Milestone 3 — passive compiler products
 
@@ -543,6 +545,11 @@ release file
 
 Land the registry, Rust parser, Hako parser, dedicated AST/schema carrier,
 formatter, exact-source receipt, and positive/negative grammar guard together.
+The guard proves `release root` is contextual, not a globally reserved token:
+`release(value)`, `obj.release()`, a callable/binding named `release`, and
+`Build.release` remain ordinary, while `unbox root` has zero Home production.
+The same implementation commit updates exact `docs/reference/**` support and
+examples; later FIRST/FINAL closeout rows are audits, not deferred updates.
 V1 accepts one identifier root only. `release(value)`, `obj.release()`, and a
 binding named `release` remain ordinary source forms; parser acceptance grants
 no Home consume authority before `VerifiedExplicitHomeReleasePlanV1`. The same
@@ -962,8 +969,9 @@ operation.
   renaming, with a real corpus consumer;
 - `OWN-HOME-FIELD-TAKE0-D0`: field extraction, empty slot, replacement;
 - `OWN-HOME-CONSUMING-RECEIVER0-D0`;
-- `OWN-EXPLICIT-HOME-RELEASE-GENERIC0-D0`: generic/composite release after
-  exact Home-bundle classification and a real consumer;
+- `OWN-EXPLICIT-HOME-RELEASE-COMPOSITE-ROOT0-D0`: generic/composite whole-root
+  support under the same statement after exact Home-bundle classification and
+  a real consumer; no `release<T>` wrapper callable;
 - `OWN-HOME-MULTI-ANCHOR0-D0` and result PHIs;
 - capture, `await`/`yield`, task/channel, and cross-thread flow;
 - explicit `region` after a real arena allocation/free substrate exists;

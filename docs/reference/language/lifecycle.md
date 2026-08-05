@@ -67,6 +67,10 @@ ordinary calls. A
 non-terminal Shared release runs no hook; a terminal release enters the same
 sole C′ DropPlan. Dependent handles become unusable and are never silently
 re-rooted. `drop root` and `drop(value)` are not compatibility spellings.
+`unbox root` is also rejected: `unbox` remains representation extraction, and
+a Shared non-terminal release leaves the Box identity alive. `release` is
+contextual, so callables/bindings named `release` and `Build.release` remain
+ordinary syntax.
 
 ## Terms
 

@@ -27,7 +27,9 @@ Design SSOT note (Scope Exit Semantics):
   statement-only contextual-keyword production with one identifier root and a
   dedicated source carrier; semantic authority remains in resolution/Home
   Flow, not parser or MIR name matching. `release(value)` stays an ordinary
-  Call and `drop` has no alias production. Production activation remains 0.
+  Call; bindings/callables named `release` and `Build.release` remain legal.
+  `release` is not a globally reserved lexer token. `drop` and `unbox` have no
+  Home alias production. Production activation remains 0.
 - The concrete productions below are not rewritten in this Decision-only
   slice. `LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` and
   `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0` must synchronize EBNF, registry, corpus,
@@ -45,9 +47,10 @@ Ownership grammar status (2026-08-04):
 - The smallest candidate surface is declaration-side `take`, contract result
   `from`, expression-side `share`, and contextual statement `release root`, but its
   exact Home semantics remain production 0.
-- The first release profile is whole-root owning local/parameter only. Generic
-  `release<T>`, composites, fields, projections, containers, and unknown
-  capability remain provisional or rejected; no parser acceptance may widen
+- The first release profile is whole-root owning local/parameter only.
+  Generic/composite whole-root support under the same statement, fields,
+  projections, containers, and unknown capability remain provisional or
+  rejected; no parser acceptance may add a generic wrapper callable or widen
   them.
 - Composite/generic classification, Shared representation, owning storage,
   callable boundaries, and CFG Home Flow must close before grammar activation.

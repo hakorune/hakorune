@@ -244,7 +244,9 @@ contextual keyword with one identifier root and a dedicated source carrier;
 resolution and a sealed Home Flow plan own its meaning. It is not a generic
 wrapper, method-name convention, direct `fini` call, or backend name match.
 Ordinary `release(value)` and `obj.release()` remain ordinary calls. `drop`
-forms are not aliases.
+and `unbox` forms are not aliases. The lexer does not globally reserve
+`release`; declarations/bindings named `release` and `Build.release` remain
+ordinary syntax.
 
 The first profile accepts only a verified whole-root owning local or owning
 parameter containing exactly one available Home. Release consumes that root at
