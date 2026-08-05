@@ -91,6 +91,8 @@ cutover remain closed.
 
 D4-S3-S0 is now closed as a private witness outside this policy module. The
 test-only set owns one resolver receipt, a mode snapshot, a loop-window
-coverage seal, and unresolved family rows; it does not call or implement the
-future selector. D4-S3-S1 is the next private source-backed matrix row, and
-the existing legacy schedule/evidence APIs remain unchanged.
+coverage seal, and unresolved family rows. D4-S3-S1 is also closed outside
+this module as nine private source-backed fixture/mode matrix sets with typed
+NoStandaloneRow/planner-freeze/reject separation; neither row calls or
+implements the future selector. The next private row is the pure selector
+consumer, and the existing legacy schedule/evidence APIs remain unchanged.

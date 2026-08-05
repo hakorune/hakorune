@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0 closed; D4-S3-S1 selected
+Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0/D4-S3-S1 closed; D4-S3-S2 selected
 Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -706,9 +706,43 @@ Generic route.
 The selected next task is
 `JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-MATRIX-CLOSE0-D4-S3-S1`.
 
+## D4-S3-S1 canonical matrix closeout
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-MATRIX-CLOSE0-D4-S3-S1` is closed
+as a private `#[cfg(test)]` registry witness in
+`generic_resolved_carrier_canonical_matrix_tests.rs`. It issues one
+resolver-branded non-`Clone` source-window receipt for each of three parsed
+fixtures (`Both`, `V1Only`, and the existing `NoStandaloneRow`) under
+`Release`, `Strict`, and `StrictPlannerRequired`: nine mode/fixture sets.
+Each set consumes the receipt exactly once and records owner/origin/
+source-kind/site/frame identity, facts status, V0/V1 presence, carrier
+provenance, and four explicit cells (`V0Only`, `V1Only`, `Both`, `Neither`).
+
+The matrix keeps `NoStandaloneRow` distinct from a real `Neither` Generic
+presence. `V0Only` and a parsed `Neither` source remain `NotYetObserved`; no
+synthetic source row is admitted. Under planner-required mode the natural
+`Both` fixture observes the typed mode snapshot as V1-only after V0
+suppression, but the witness deliberately records this as unresolved
+mode-local evidence rather than inferring an intrinsic winner or suppression
+policy. A planner-required facts freeze remains fully `NotYetObserved`.
+
+Foreign-owner and non-Loop statements remain typed receipt rejects and are
+never collapsed into `Neither`. The implementation calls the facts owner
+directly; legacy schedule selection, family selector/winner/precedence,
+Recipe/key, Builder/MIR, retry/fallback, runtime, and production Generic
+caller remain zero. The focused matrix/reject tests are green, changed source
+stays below 800 lines, and the implementation commit updates this card,
+`CURRENT_STATE.toml`, current mirrors, support docs, and `docs/reference/**`
+in the same commit.
+
+The selected next task is
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTOR-PURE0-D4-S3-S2`.
+
 # Current next action
 
-Proceed only to the private source-backed V0/V1/Neither plus mode/reject
-matrix. Do not implement a selector, winner/precedence rule, Recipe handoff,
-Builder/MIR effect, retry/fallback, or production migration. Any matrix row
-that requires such a claim returns to design first.
+Proceed only to a pure private selector test consumer over the sealed S1
+matrix. It may define typed `Selected`/`NoCandidate`/`Rejected`/`Unresolved`
+outcomes and prove that no legacy schedule or source label becomes policy.
+Do not add a production caller, Recipe/key handoff, Builder/MIR effect,
+retry/fallback, runtime behavior, or old-edge deletion. Any selector row that
+requires those claims returns to design first.

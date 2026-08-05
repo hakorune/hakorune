@@ -85,12 +85,15 @@ Related:
   resolver-branded observation set feeds a future family selector in
   `mir::loop_route_policy`; legacy schedule/cursor order is not policy.
   DirectAccum/NestedPredicate resolved lanes remain live, while Generic stays
-  caller-zero. D4-S3-S0 is now closed as a private cfg(test) witness: six
+  caller-zero. D4-S3-S0 is closed as a private cfg(test) witness: six
   resolver-branded sets (two fixtures × three modes), each with one receipt,
-  mode snapshot, loop-window coverage seal, and unresolved family rows. The
-  next row is private cfg(test) D4-S3-S1 matrix close; no selector, Recipe,
-  PHI, Builder/MIR, retry, fallback, runtime, or Generic production authority
-  changes are authorized.
+  mode snapshot, loop-window coverage seal, and unresolved family rows.
+  D4-S3-S1 is also closed as a private cfg(test) matrix: nine source-backed
+  fixture/mode sets with explicit V0Only/V1Only/Both/Neither cells,
+  NoStandaloneRow and planner-freeze separation, and typed foreign/non-Loop
+  rejects. The next row is private cfg(test) D4-S3-S2 pure selector; no
+  production selector, Recipe, PHI, Builder/MIR, retry, fallback, runtime,
+  or Generic production authority changes are authorized.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

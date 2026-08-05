@@ -148,6 +148,8 @@ the separate whole-unit stage.
 
 D4-S3-S0 is closed without widening this facts boundary. Its six private
 sets retain only a resolver receipt, exact mode snapshot, loop-window coverage
-seal, and unresolved family-tag rows; no Generic facts, schedule policy, or
-Recipe input is issued here. D4-S3-S1 may add only the source-backed
-V0/V1/Neither and mode/reject matrix.
+seal, and unresolved family-tag rows. D4-S3-S1 is also closed outside this
+facts layer: nine private source-backed fixture/mode sets record V0Only,
+V1Only, Both, and Neither cells while preserving NoStandaloneRow and planner
+freeze as separate typed evidence. No schedule policy, selector, or Recipe
+input is issued here. D4-S3-S2 is the next pure selector consumer.

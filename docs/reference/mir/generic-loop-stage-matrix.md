@@ -331,8 +331,30 @@ The focused test covers two existing fixtures across three modes (six sets)
 and checks owner/origin/source-kind/site/frame correspondence through the
 consuming paired-view seam. No route ID, raw schedule/cursor, AST, Recipe/key,
 Builder/MIR/ValueId/PHI, retry/fallback, selector, or production caller is
-introduced. The next row is the private source-backed V0/V1/Neither and
-mode/reject matrix (`...CANONICAL-MATRIX-CLOSE0-D4-S3-S1`).
+introduced.
+
+### D4-S3-S1 canonical matrix (closed)
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-MATRIX-CLOSE0-D4-S3-S1` is closed
+as a private registry witness. It issues one resolver-branded non-`Clone`
+source-window receipt for three parsed fixtures (`Both`, `V1Only`, and the
+existing `NoStandaloneRow`) across `Release`, `Strict`, and
+`StrictPlannerRequired`: nine sets. Each set consumes its receipt once and
+records resolver identity, facts status, V0/V1 presence, carrier provenance,
+and four explicit presence cells (`V0Only`, `V1Only`, `Both`, `Neither`).
+
+`NoStandaloneRow` is never collapsed into a real `Neither` Generic presence;
+`V0Only` and a parsed `Neither` source remain `NotYetObserved`. The natural
+`Both` fixture is V0/V1 in Release/Strict and observes mode-local V1-only under
+planner-required V0 suppression; this is unresolved evidence, not intrinsic
+winner or suppression policy. A planner-required facts freeze leaves all
+cells unobserved. Foreign-owner and non-Loop inputs remain typed rejects.
+The witness calls the facts owner directly and introduces no legacy schedule
+selection, selector/winner/precedence, Recipe/key, Builder/MIR, retry,
+fallback, runtime, or production Generic caller.
+
+The next row is the private pure selector consumer
+(`...CANONICAL-SELECTOR-PURE0-D4-S3-S2`).
 
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is

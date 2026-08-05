@@ -552,6 +552,8 @@ caller-zero Generic selector path.
 D4-S3-S0 is closed as a private `cfg(test)` witness in the MIR source-window
 seam. It consumes one resolver-issued non-`Clone` receipt per set and checks
 the owner/origin/source-kind/site/frame relation through one consuming paired
-view. The witness does not add resolver exports, independent coordinates, a
-family selector, or a production caller. The next row is the private
-source-backed V0/V1/Neither matrix.
+view. D4-S3-S1 is also closed outside this resolver as nine private
+source-backed fixture/mode matrix sets. It preserves NoStandaloneRow,
+planner-freeze, V0Only, and parsed Neither as distinct typed evidence and
+does not add resolver exports, independent coordinates, a family selector, or
+a production caller. The next row is the private pure selector consumer.

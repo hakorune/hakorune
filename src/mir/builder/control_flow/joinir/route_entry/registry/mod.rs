@@ -224,6 +224,8 @@ mod generic_nested_if_carrier_evidence_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_both_norecursive_tests;
 #[cfg(test)]
+mod generic_resolved_carrier_canonical_matrix_tests;
+#[cfg(test)]
 mod generic_resolved_carrier_candidate_stage_source_bridge_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_compound_unavailable_tests;

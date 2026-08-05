@@ -477,14 +477,15 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-MATRIX-CLOSE0-D4-S3-S1
-  is selected after the private D4-S3-S0 witness closed. S0 owns one
-  resolver-branded non-Clone receipt per set, a private mode snapshot, a
-  loop-window coverage seal, and three unresolved family rows across two
-  fixtures × three modes. It adds no selector, Recipe/key, export, production
-  caller, retry, fallback, or old-edge deletion. S1 may add only the private
-  source-backed V0/V1/Neither and mode/reject matrix; implementation commits
-  must update affected references/current docs in the same commit.
+JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTOR-PURE0-D4-S3-S2
+  is selected after the private D4-S3-S1 matrix witness closed. S1 owns nine
+  resolver-branded non-Clone receipt sets (three parsed fixtures × three
+  modes), explicit V0Only/V1Only/Both/Neither cells, and separate
+  NoStandaloneRow/planner-freeze/reject evidence. It adds no selector,
+  Recipe/key, export, production caller, retry, fallback, or old-edge deletion.
+  S2 may add only a private pure selector consumer over this sealed matrix;
+  implementation commits must update affected references/current docs in the
+  same commit.
 ```
 
 ## Production invariants
