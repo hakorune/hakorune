@@ -477,16 +477,16 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-RECIPE-HANDOFF0-D4-S4-D0
-  is selected after the private D4-S3-S2 selector witness closed. S1 owns nine
-  resolver-branded non-Clone receipt sets (three parsed fixtures × three
-  modes), explicit V0Only/V1Only/Both/Neither cells, and separate
-  NoStandaloneRow/planner-freeze/reject evidence. S2 adds only a test-only
-  neutral family selector; every current row remains unresolved. D4-S4-D0 is
-  design-only: define the future Generic Recipe/effect handoff while keeping
-  the Recipe producer as the sole LoopBindingKeyV1 issuer, with no production
-  caller, retry, fallback, or old-edge deletion. Any implementation commit
-  must update affected references/current docs in the same commit.
+JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-DEMAND-WITNESS0-D4-S4-S0
+  follows the closed D4-S4-D0 design. Current SelectedFamilyV1 is a marker
+  without provenance and current Generic facts are AST/Builder-derived; do not
+  feed either to Recipe. This row is design-gated: only a real resolver-issued
+  Selected(Generic) candidate may produce one AST-free demand/source lease.
+  If no candidate or semantic source shape exists, record NoSafeSlice and stop.
+  Recipe producer remains the sole LoopBindingKeyV1/effect-relation owner; no
+  production caller, Builder/MIR, retry, fallback, or old-edge deletion.
+  Any later implementation commit updates affected references/current docs in
+  the same commit.
 ```
 
 ## Production invariants

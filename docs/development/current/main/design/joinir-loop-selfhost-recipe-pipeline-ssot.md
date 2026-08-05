@@ -165,6 +165,44 @@ physicalization lane becomes active. The Rust pipeline may remain afterward as
 an explicit Stage0/bootstrap reference; it must never become an automatic
 fallback from the `.hako` path.
 
+## Generic Recipe handoff boundary (D4-S4-D0)
+
+The Generic family has a stricter handoff than the current legacy facts route.
+The S2 selector result is a marker-only test outcome and carries no source or
+`BindingRef` provenance. Current `GenericLoopV0/V1Facts`, `RecipeBody`, and the
+P2 label snapshot are AST/Builder-derived; they are not portable Recipe input.
+Before a Generic winner can exist, the resolver must issue an AST-free,
+source-branded candidate envelope and a one-shot non-`Clone` source/window lease
+containing exact mode/coverage and role-level `BindingRef` claims. Window
+`V1Only`/`Both`, `Neither`, `NoStandaloneRow`, overlap, or planner-unsealed
+evidence cannot manufacture `Selected(Generic)`.
+
+The future flow is:
+
+```text
+resolver source/window lease
+  -> AST-free Generic semantic shape + candidate proof
+  -> sealed family observation
+  -> family selector: Selected(Generic)
+  -> Generic-specific Recipe demand
+  -> Generic Recipe producer
+  -> VerifiedLoopRecipe + JoinSig + BindingRef/key effect relation
+  -> Recipe/source verification
+```
+
+The Generic demand is distinct from the legacy
+`VerifiedSelectedLoopRecipeDemandV1`, which requires a 19-route policy winner.
+The dedicated Generic Recipe producer is the sole issuer of contiguous
+`LoopBindingKeyV1` and the internal relation from each key to its exact
+resolver `BindingRef`/role/site. The portable source-path claim and that
+semantic relation are separate capabilities. Binding SSA alone later maps
+`BindingRef` to physical `ValueId`/`PHI`; the producer never does. Missing or
+foreign owner/site/forest/frame, mode/coverage, carrier/role, or effect
+relation rejects before key allocation. Recipe/JoinSig/effect failure is
+terminal: no legacy-route re-selection, retry, suffix, fallback, or alias to
+DirectAccum/NestedPredicate. If no real sealed `Selected(Generic)` exists, the
+next witness is `NoSafeSlice`; it must not fabricate a winner.
+
 ## Structural owners
 
 | Owner | Owns | Must not own |

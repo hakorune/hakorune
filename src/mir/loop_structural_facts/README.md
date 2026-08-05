@@ -153,5 +153,7 @@ facts layer: nine private source-backed fixture/mode sets record V0Only,
 V1Only, Both, and Neither cells while preserving NoStandaloneRow and planner
 freeze as separate typed evidence. No schedule policy, selector, or Recipe
 input is issued here. D4-S3-S2 is now closed as a separate test-only neutral
-selector consumer; it does not widen this facts boundary. D4-S4-D0 is the next
-design-only Generic Recipe handoff.
+selector consumer; it does not widen this facts boundary. D4-S4-D0 records
+that current Generic facts and P2 labels cannot become Recipe demand; only a
+resolver-issued AST-free candidate proof plus one-shot source/BindingRef lease
+may cross the future handoff. D4-S4-S0 is design-gated and remains caller-zero.

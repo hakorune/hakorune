@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0/D4-S3-S1/D4-S3-S2 closed; D4-S4-D0 selected
+Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0/D4-S3-S1/D4-S3-S2/D4-S4-D0 closed; D4-S4-S0 design-gated
 Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -764,12 +764,88 @@ the same commit.
 The selected next task is
 `JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-RECIPE-HANDOFF0-D4-S4-D0`.
 
-# Current next action
+# D4-S4-D0 Generic Recipe handoff design closeout
 
-Proceed only to the D4-S4-D0 design stop for a Generic Recipe handoff. Define
-how a future `Selected(Generic)` observation would become a Generic-specific
-Recipe/effect relation while preserving resolver-branded source/window and
-BindingRef provenance. The Recipe producer alone may issue
-`LoopBindingKeyV1`; no selector-owned key, PHI/ValueId, Builder/MIR,
-retry/fallback, runtime behavior, or production caller is authorized. Any
-handoff proposal that needs those claims returns to worker design review.
+`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-RECIPE-HANDOFF0-D4-S4-D0` is closed as
+a worker-reviewed design stop. The current S2 `SelectedFamilyV1` is only a
+test marker and does not retain source/window/`BindingRef` provenance; it cannot
+feed a Recipe producer. `V1Only`/`Both` window evidence is also insufficient for
+`Selected(Generic)`. A future selector must require a resolver-branded,
+source-backed candidate-envelope proof and return a one-shot selected
+capability that retains the consumed source lease/window, exact mode/coverage,
+and resolver-issued role `BindingRef`s.
+
+The future handoff is:
+
+```text
+resolver source/window receipt (consume once)
+  -> AST-free Generic source shape + candidate-envelope proof
+  -> sealed family observation set
+  -> CanonicalLoopFamilySelection (Selected(Generic))
+  -> Generic-specific recipe demand (consume once)
+  -> Generic Recipe producer
+  -> VerifiedLoopRecipe + JoinSig + BindingRef/key effect relation
+  -> Recipe/source-binding verification
+  -> future Generic plan/lower
+```
+
+The Generic demand is a new family-specific capability (provisional name:
+`VerifiedGenericRecipeDemandV1`). It must not reuse
+`VerifiedSelectedLoopRecipeDemandV1`, which is branded by the legacy 19-route
+policy winner. It carries no AST, `LoopRouteContext`, route ID, schedule,
+cursor, fixture label, `ValueId`, `PHI`, Builder/MIR state, retry, or fallback.
+Current `GenericLoopV0/V1Facts`, `RecipeBody`, and the P2 label snapshot are
+AST/Builder-derived and are rejected as handoff inputs; do not wrap, clone, or
+re-resolve them by name.
+
+The dedicated Generic Recipe producer is the sole issuer of contiguous
+recipe-local `LoopBindingKeyV1`s. It atomically emits a non-Clone verified
+product plus a separate internal relation that maps each issued key to the
+exact resolver `BindingRef`/role/site. The portable Recipe source-path claim
+and this semantic BindingRef relation remain separate capabilities. Binding
+SSA alone later maps BindingRefs to physical `ValueId`/`PHI`; the producer
+never does. Missing/foreign/ambiguous owner, site, forest, frame, mode,
+coverage, role, carrier, or effect relation rejects before key allocation.
+Recipe/JoinSig/effect verification failure is terminal: no retry, V0/V1
+re-selection, A+/Trivial alias, legacy route reconstruction, or fallback.
+
+`NoCandidate` remains legal only for a sealed whole-unit no-Loop proof.
+`NoStandaloneRow`, window `Neither`, overlap, planner-unsealed evidence, and
+missing provenance remain typed unresolved/rejected states. Generic must not
+be disguised as DirectAccum, NestedPredicate, or the current
+`CanonicalLoopFamilyPlanV1` variants.
+
+## Ordered D4-S4 task ladder
+
+```text
+D4-S4-D0  GENERIC-RECIPE-HANDOFF0
+  closed: authority, demand boundary, reject matrix, and no-claim fence
+
+D4-S4-S0  GENERIC-SEMANTIC-DEMAND-WITNESS0 (design-gated)
+  only after a real sealed Selected(Generic) candidate exists; produce one
+  cfg(test)-only AST-free demand/source-lease witness; if no candidate or no
+  resolver-issued Generic source shape exists, record NoSafeSlice and stop;
+  any implementation commit updates docs/reference/**, current mirrors, and
+  support READMEs in the same commit
+
+D4-S4-S1  GENERIC-RECIPE-PRODUCER-WITNESS0 (design-gated)
+  consume one demand, issue keys only inside the producer, and witness the
+  atomic Recipe/JoinSig/effect relation with reject-before-key and no partial
+  publication; production caller remains zero; implementation updates exact
+  reference docs in the same commit
+
+D4-S4-I0-R0  GENERIC-PRODUCTION-CUTOVER0 (separate design gate)
+  one selector -> demand -> producer -> verify -> Generic plan caller; retire
+  only migrated raw edges in the same commit, with no retry/fallback
+
+D4-S4-C0  GENERIC-LEGACY-CLEANUP0
+  post-cutover census and retirement only after parity evidence
+```
+
+## Current next action
+
+Proceed only to `D4-S4-S0` as a design-gated witness review. Do not fabricate
+`Selected(Generic)` from the nine unresolved S1 rows, do not add a synthetic
+selector constructor, and do not enter production implementation. Any source
+shape or candidate proof that cannot be issued by the resolver returns to
+NoSafeSlice/worker design before code changes.

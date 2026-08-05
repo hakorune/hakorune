@@ -50,6 +50,29 @@ and strict modes. It is recorded in the matrix; it is not silently converted
 to a Generic pre-effect decline. The pure nested-carrier policy probe may still
 return `UnresolvedStop` when that contract receipt is absent.
 
+## D4-S4 Generic Recipe handoff boundary
+
+D4-S4-D0 is closed as a design-only authority decision. The current
+`SelectedFamilyV1` is a marker without source/window/`BindingRef` provenance,
+and the current Generic V0/V1 facts plus P2 snapshot are AST/Builder-derived;
+none is a portable Recipe input. A future `Selected(Generic)` must retain one
+resolver-issued source lease/window, exact mode/coverage, a sealed Generic
+candidate envelope, and role-level `BindingRef` provenance. Window `V1Only`,
+`Both`, `Neither`, `NoStandaloneRow`, or planner-unsealed evidence cannot issue
+that selection.
+
+The future Generic-specific demand must be distinct from the legacy
+`VerifiedSelectedLoopRecipeDemandV1`. Only the dedicated Generic Recipe
+producer may issue `LoopBindingKeyV1` and seal the internal
+`BindingRef`/recipe-key/source-role effect relation. Binding SSA remains the
+sole `BindingRef` -> `ValueId`/`PHI` owner. Recipe/effect failure is terminal;
+legacy route reconstruction, retry, fallback, and Generic-as-DirectAccum or
+NestedPredicate aliases are forbidden. The next task is design-gated D4-S4-S0;
+without a real resolver-issued `Selected(Generic)` proof, it records
+`NoSafeSlice` and does not fabricate a witness or production caller. Any later
+implementation cell must update this reference, the active/current mirrors,
+and affected support READMEs in the same commit.
+
 ## Stage and disposition contract
 
 The matrix records these stage arms separately:

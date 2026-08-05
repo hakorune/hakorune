@@ -91,13 +91,13 @@ Related:
   D4-S3-S1 is also closed as a private cfg(test) matrix: nine source-backed
   fixture/mode sets with explicit V0Only/V1Only/Both/Neither cells,
   NoStandaloneRow and planner-freeze separation, and typed foreign/non-Loop
-  rejects. The next row is private cfg(test) D4-S3-S2 pure selector; no
-  production selector, Recipe, PHI, Builder/MIR, retry, fallback, runtime,
-  or Generic production authority changes are authorized. D4-S3-S2 is now
-  closed as a private neutral selector consumer: all nine S1 rows remain
-  typed Unresolved, with no Selected/NoCandidate, Recipe/key, or production
-  caller. The next frontier is the D4-S4-D0 design-only Generic Recipe
-  handoff.
+  rejects. D4-S3-S2 is closed as a private neutral selector consumer: all nine
+  S1 rows remain typed Unresolved, with no Selected/NoCandidate, Recipe/key, or
+  production caller. D4-S4-D0 is also closed as a worker-reviewed design:
+  current SelectedFamilyV1 lacks provenance and current Generic facts are
+  AST/Builder-derived, so a new resolver-issued AST-free semantic demand and
+  one-shot source lease are required. The next frontier is design-gated
+  D4-S4-S0; if no real Selected(Generic) exists, stop NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

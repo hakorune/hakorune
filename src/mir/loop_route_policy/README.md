@@ -103,5 +103,8 @@ D4-S3-S2 is now closed as a separate `#[cfg(test)]` neutral consumer in
 Generic evidence without AST, route IDs, cursors, schedules, or legacy policy
 rows; all nine current inputs remain `Unresolved`. The whole-unit proof needed
 for `NoCandidate` has no constructor in this slice. Production selector,
-Recipe/key, Builder/MIR, retry/fallback, and Generic caller remain zero. The
-next frontier is the D4-S4-D0 Generic Recipe handoff design.
+Recipe/key, Builder/MIR, retry/fallback, and Generic caller remain zero.
+D4-S4-D0 now records that a future `Selected(Generic)` must retain a real
+resolver source lease, candidate proof, and `BindingRef` roles; this selector
+must not feed a Recipe from its current marker-only outcome. The next row is
+design-gated D4-S4-S0, with NoSafeSlice if no real selected proof exists.

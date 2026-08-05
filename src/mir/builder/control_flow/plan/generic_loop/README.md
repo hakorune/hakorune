@@ -240,5 +240,8 @@ freeze, V0Only, and parsed Neither distinct; all family rows remain unresolved
 and carry no winner, Recipe/key, Builder/MIR effect, retry, fallback, or
 production caller. D4-S3-S2 is now closed outside this planner as a separate
 test-only neutral selector; all nine rows remain unresolved and this planner
-does not become the family selector. The next frontier is the design-only
-Generic Recipe handoff.
+does not become the family selector. D4-S4-D0 further rejects current
+GenericLoop facts/RecipeBody as portable Recipe inputs: a resolver-issued
+AST-free Generic demand and real Selected(Generic) proof are required before
+any producer witness. The next frontier is design-gated D4-S4-S0; no
+synthetic winner or production caller is allowed.
