@@ -477,21 +477,16 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-OVERLAP-CENSUS0-D3-S2-P3
-  is now closed after D3-S2-D1, P0, P1, and P2 closed docs/test-only. P0
-  classifies every current Generic V0/V1 field/producer arm; P1 packages the
-  existing resolver/projector/bridge evidence in one source-site/owner/
-  BindingRef/strict-ancestor witness; P2 consumes that witness and adds only
-  a mode-neutral disposition. Recipe producer alone issues LoopBindingKeyV1;
-  Binding SSA alone owns physical ValueId/PHI. P3 records raw Generic and
-  resolved NestedPredicate/DirectAccum/A+ observations in independent
-  columns only. Exact disjointness is NoSafeSlice because no common
-  source/owner/frame brand exists; no co-sealed classifier or production
-  authority is allowed. The next step is a fresh parent design consultation
-  for a common resolver/raw source bridge; exact disjointness, Return/
-  outer-PHI, and natural debt remain NoSafeSlice. The closed task is:
+JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-DESIGN0-D3-S2-D4
+  is at a design consultation stop with a worker-ready provisional brief.
+  P3 remains closed as independent raw/resolved observations only. Option 3
+  is recommended: one resolver-owned non-Clone source window lends paired
+  raw/resolved views; Option 2 is rejected and Option 1 is the safe
+  non-claim fallback. Accept D4-DESIGN-ACCEPT0 before the cfg(test)-only
+  witness; no shared classifier, selector, Recipe, Builder/MIR, or
+  production caller is authorized. The active card is:
   docs/development/current/main/investigations/joinir-generic-resolved-
-  carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
+  carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md
 ```
 
 ## Production invariants

@@ -77,7 +77,10 @@ Related:
   disposition; P3 retains raw Generic mode/carrier/schedule rows separately
   from resolved family/rejection rows. Only the Recipe producer may later
   issue `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. D4 is now a
-  design stop for a possible common resolver/raw source bridge; exact
+  design stop for a possible common resolver/raw source bridge. The worker
+  brief recommends Option 3: one resolver-owned non-Clone source window lends
+  paired raw/resolved views, with typed owner/site/frame rejects; Option 2 is
+  rejected and Option 1 remains the safe non-claim fallback. Exact
   disjointness and production authority remain NoSafeSlice. Scalar
   Return/outer-PHI and natural debt-to-different-winner remain NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
