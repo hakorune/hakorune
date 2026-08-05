@@ -188,9 +188,9 @@ The cfg(test)-only source-backed handoff bridge
 parsed S2A projector receipt to actual facts/raw schedule/frame flags for
 Release/Strict natural Both, and rejects a cross-invocation pairing before
 selection. It adds no neutral issuer or production selector. The proposed
-V0-only/CompleteNoRecursive subrow was rejected by premise audit:
-the actual parsed additive facts path yields raw `[V0, V1]`, not a natural
-V0-only witness. The planner-suppression row
+V0-only/CompleteNoRecursive subrow was rejected by premise audit because the
+existing additive matrix is synthetic and does not establish a parsed source
+row; no natural V0-only witness is proven. The planner-suppression row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1` is
 closed as cfg(test)-only evidence: the existing parsed S2A source runs under
 actual Strict+planner-required mode, co-seals resolver/facts/frame/mode
@@ -233,6 +233,17 @@ schedule is `[V0,V1]`; the only result is typed pre-effect
 `UnresolvedStop(CompoundUnavailableCarrier)`. Top-level compound behavior,
 eligibility, Legacy, winner/precedence, and production handoff remain outside
 this row; execution returns to the parent D3 design stop.
+
+The next selected premise is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-TOPLEVEL-COMPOUND-PREMISE0-D2-S4`.
+It is not a policy row: one parsed top-level `CompoundAssignment` must first
+be observed through resolver/source/frame identity and the facts extractor.
+The result remains open between exact `CompleteNoRecursiveCarrier`,
+`Unavailable`, `Ambiguous`, and typed `NoStandaloneRow`. The task is
+cfg(test)-only and does not authorize collector widening, selection,
+eligibility, Legacy/winner policy, Recipe, PHI, Builder, MIR, Retry, fallback,
+or production handoff. Its implementation closeout must update this reference
+page and the linked current/design documents in the same commit.
 
 ## D2-B4-S2A nested `IfThen` carrier evidence
 

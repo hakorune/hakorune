@@ -793,3 +793,28 @@ snapshot/eligibility issuer -> private Builder adapter -> selector consumer.
 
 This card is a design consultation boundary. A green test-only matrix does
 not authorize production selection or parent D2 closeout.
+
+## Next bounded premise — top-level CompoundAssignment (`D2-S4`)
+
+The next task is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-TOPLEVEL-COMPOUND-PREMISE0-D2-S4`,
+recorded in
+`joinir-generic-resolved-carrier-source-matrix-toplevel-compound-premise-d2-s4-task-2026-08-05.md`.
+The collector currently gives nested `CompoundAssignment` an explicit
+`Unavailable("CompoundAssignment")` arm while a top-level compound can fall
+through the non-nested path. This producer asymmetry must be observed before
+selecting a source-backed `CompleteNoRecursiveCarrier` row.
+
+The task is cfg(test)-only and result-open: it records the actual parsed AST,
+resolver forest/BindingRef, source/frame identity, facts label, Release/Strict
+raw schedule, and fresh-repeat stability. The outcome may be exact
+`CompleteNoRecursiveCarrier`, `Unavailable("CompoundAssignment")`,
+`Ambiguous(...)`, or typed `NoStandaloneRow`; no outcome is preselected. No
+collector widening, neutral issuer, selector, Legacy/winner policy, Builder,
+MIR, Recipe, PHI, Retry, fallback, or production handoff is authorized.
+
+The task card requires implementation-time updates to this card, the Generic
+SSOT, the Generic stage-matrix reference, both Generic READMEs, current
+mirrors, affected reference indexes, and the artifact manifest in the same
+closeout commit. After this premise is classified, a separate parsed
+`Both/NoRecursive` row may be reconsidered at the parent design stop.

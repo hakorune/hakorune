@@ -130,6 +130,16 @@ pre-effect `UnresolvedStop(CompoundUnavailableCarrier)`. Release/Strict raw
 schedule is measured `[V0,V1]`. Execution returns to the parent D3 design
 stop; no production selector, neutral issuer, or route handoff is allowed.
 
+The next bounded premise is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-TOPLEVEL-COMPOUND-PREMISE0-D2-S4`.
+It must observe a parsed top-level `CompoundAssignment` through the existing
+resolver and facts owners before any `CompleteNoRecursiveCarrier` source row
+is selected. The result is open and must be recorded as the exact facts arm or
+typed `NoStandaloneRow`; no collector widening, selector, Legacy/winner,
+Recipe, PHI, Builder, MIR, Retry, fallback, or production handoff is allowed.
+The implementation closeout includes the Generic reference page and current
+mirrors in the same commit.
+
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
 pre-effect resolver eligibility from post-effect V1 corroboration. The next
 design stop is the co-sealed source-to-selection handoff card in

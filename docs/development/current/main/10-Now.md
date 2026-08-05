@@ -55,6 +55,14 @@ Related:
   physical, Retry, or fallback change is authorized; M10b still waits on
   M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`
   for the exact boundary and non-claims.
+- next bounded premise: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-
+  TOPLEVEL-COMPOUND-PREMISE0-D2-S4`. This is a cfg(test)-only, result-open
+  observation of parsed top-level `CompoundAssignment` through resolver and
+  facts owners. Classify the actual arm before selecting a source-backed
+  `CompleteNoRecursiveCarrier` row. No collector widening, selector,
+  eligibility, production handoff, Recipe, PHI, Builder, MIR, Retry, or
+  fallback change is authorized. Implementation must close the linked
+  `docs/reference/**` status and navigation updates in the same commit.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

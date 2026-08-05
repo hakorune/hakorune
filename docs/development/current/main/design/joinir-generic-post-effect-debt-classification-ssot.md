@@ -978,6 +978,20 @@ Legacy, winner, V0 suppression, or production handoff. The collector's
 top-level non-nested behavior and all production selection remain separate
 design boundaries; return to the parent source-to-selection stop.
 
+The next bounded premise is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-TOPLEVEL-COMPOUND-PREMISE0-D2-S4`,
+with its task card at
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-matrix-toplevel-compound-premise-d2-s4-task-2026-08-05.md`.
+The nested `Unavailable("CompoundAssignment")` arm and the top-level
+non-nested fall-through must be classified from one parsed source witness
+before a `CompleteNoRecursiveCarrier` source row is selected. The result is
+open: exact `CompleteNoRecursiveCarrier`, exact `Unavailable`, an
+`Ambiguous` facts result, or typed `NoStandaloneRow` are all admissible
+observations. This remains cfg(test)-only pre-effect evidence; no selector,
+eligibility issuer, Legacy/winner policy, production handoff, Recipe, PHI,
+MIR, Retry, or fallback change is allowed. Reference docs and current mirrors
+must be updated in the same implementation closeout commit.
+
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:
