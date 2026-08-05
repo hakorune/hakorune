@@ -477,34 +477,34 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-LOOP-ALL-ROUTE-MEMBERSHIP-BPRIME0-D0
-  closed — universal ingress rejected. Raw public/reference NarrowV1 rejects
-  Loop before physical open; RawLegacyChildLoweringPortV1 is not a profile;
-  normalized-shadow mutation is retired and its observer is non-mutating.
-
-closed — JOINIR-LOOP-TRUE-BRANCH-EXIT-CLOSURE0-M7-S2-A-S0
-  -> `LoopJoinSigV1.branches` now records the exact direct then-Break /
-     else-Continue pair; the owning Loop receives Break/Continue edges and no
-     Backedge. Recipe V1, physical CFG/PHI, routes, callers, and old edges are
-     unchanged. Focused positive, determinism, implicit-else, divergent-write,
-     and Return-arm tests are green; `src/mir/loop_recipe_contract/README.md`
-     and `docs/reference/mir/loop-recipe-contract.md` are synchronized.
-
-closed — JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0 and
-  `JOINIR-GENERIC-NESTED-CARRIER-WINNER0-D2-B4-S1`; M7 S0/S1/S2/S3 are closed.
-  The cfg(test) matrix keeps Release/Strict Both as a candidate and
-  planner-required separate; Parent Generic D2 remains unresolved. D2-B4-S2
-  parsed-source BindingRef witness is green (3 tests), with typed V0 suppression;
-  no policy/cutover, legacy-tag authority, selector, Recipe/JoinSig/PHI, Builder/MIR route, Retry/fallback retirement, or runtime-parity claim.
-closed — JOINIR-LOOP-TRUE-SOURCE-PROJECTION0-M7-S3-S0
-  -> resolver-owned AST-free LoopTrue projection with exact source/frame identity
-     and typed caller-zero rejects; no route switch, Builder/CFG/PHI, retry, or fallback.
-closed — JOINIR-LOOP-TRUE-POLICY-DEMAND0-M7-S3-S1
-  -> one-consume schedule admits only canonical LoopTrue and retains receipt+projection; no raw cursor, schedule, Recipe, JoinSig, retry, or physical capability.
-closed — JOINIR-LOOP-TRUE-RECIPE-JOINSIG-PARITY0-M7-S3-S2
-  -> caller-zero producer emits, verifies, and elaborates the fixed source-bound Recipe; physical Builder effects and fallback remain zero.
-closed — JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3
-  -> README/reference page records the landed envelope, caller-zero status, non-claims, and green focused/pointer/in-place/R4 guards.
+JOINIR-GENERIC-RESOLVED-CARRIER-CANDIDATE-STAGE-SOURCE-BRIDGE0-D3-S1-S2-D0
+  selected — cfg(test)-only source bridge; production selection remains stopped.
+  Use the same parsed natural-Both source for resolver forest/BindingRef facts
+  and fresh V0/V1 candidate plans. Observe actual outer/nested final/PHI
+  projections, direct LowerSome/GenericComposer stages, equal pre-snapshots,
+  reverse-order stability, and distinct repeat owners. A name/PHI projection
+  is corroboration only; typed BindingRef provenance and full post-loop return
+  parity are not claimed. Result stays
+  Observed + UnresolvedStop(WinnerCorrectnessUnavailable).
+  Stop on synthetic source, projection mismatch, missing typed provenance,
+  full-return lowering, raw/stage drift, natural V0-only/Neither, or any
+  production issuer/selector/Recipe/PHI/Builder/MIR/VM/retry/fallback caller.
+  Task card:
+  docs/development/current/main/investigations/
+  joinir-generic-resolved-carrier-candidate-stage-source-bridge-d3-s1-s2-task-2026-08-05.md
+  Required assertions: Release/Strict raw [V0,V1]; planner-required [V1]
+  remains unresolved; V0 outer j absent; V1 outer j and carrier/step PHI
+  labels present; nested V0 j remains observable; legacy V0 is terminal with
+  no debt. Fresh route order [V0,V1] and [V1,V0] must agree.
+  The implementation commit must close focused evidence, generic suite,
+  pointer/artifact guards, caller census, and reference indexes together.
+  Reference documentation is updated after implementation, never inferred
+  from this design-only selection. The active card remains the only execution
+  owner; historical rows stay evidence and do not reopen route work.
+  Any failed assertion returns to the D3-S1 design boundary.
+  No fallback or retry is permitted.
+  Keep touched source and tests below 800 lines.
+  Keep this workstream at exactly 1000 lines.
 ```
 
 ## Production invariants

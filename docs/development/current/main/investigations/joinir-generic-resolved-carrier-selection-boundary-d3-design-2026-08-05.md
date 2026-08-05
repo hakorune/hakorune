@@ -898,3 +898,17 @@ two-column evidence/selection partition and co-seals `V0 facts=false`,
 dedicated `has_body_local=false` flag, actual frame flags, no recipe contract,
 and raw `[V1]`. Its typed result is `Observed` plus
 `UnresolvedStop(V1OnlyNonRecursive)`. Production handoff remains stopped.
+
+The next bounded child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANDIDATE-STAGE-SOURCE-BRIDGE0-D3-S1-S2-D0`,
+with task card
+`joinir-generic-resolved-carrier-candidate-stage-source-bridge-d3-s1-s2-task-2026-08-05.md`.
+It is a cfg(test)-only source bridge: the parsed natural-Both source,
+resolver forest/BindingRef, and fresh V0/V1 plan projections must be observed
+in one witness. Existing plan projections use synthetic `both_body()` while
+the parsed observer does not expose plan semantic fields, so those pieces are
+not yet co-sealed. A `diagnostic_name()`/final/PHI label match is corroboration
+only; no typed BindingRef-to-ValueId provenance or full-function post-loop
+return parity may be invented. The result remains
+`Observed + UnresolvedStop(WinnerCorrectnessUnavailable)`, and production
+selection stays stopped.

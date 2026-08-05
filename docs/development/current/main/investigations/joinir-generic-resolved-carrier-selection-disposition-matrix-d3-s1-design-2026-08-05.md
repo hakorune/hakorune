@@ -186,6 +186,17 @@ Release/Strict frame flags, `has_body_local=false`, no recipe contract, and raw
 `UnresolvedStop(V1OnlyNonRecursive)`. No eligibility, Legacy, winner, selector,
 or production handoff was added.
 
+The next selected child is
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANDIDATE-STAGE-SOURCE-BRIDGE0-D3-S1-S2-D0`,
+recorded in
+`joinir-generic-resolved-carrier-candidate-stage-source-bridge-d3-s1-s2-task-2026-08-05.md`.
+It is the smallest cfg(test)-only bridge that co-seals the parsed natural-Both
+source/resolver obligation with fresh V0/V1 plan projections. Existing
+synthetic plan evidence and parsed observer rows remain separate until this
+child closes. Its result must remain `Observed +
+UnresolvedStop(WinnerCorrectnessUnavailable)`; no typed BindingRef-to-plan
+provenance, full-return parity, or production selection is authorized.
+
 ## Prohibited changes
 
 This design card does not authorize a neutral issuer, `InvocationSealV1`,
