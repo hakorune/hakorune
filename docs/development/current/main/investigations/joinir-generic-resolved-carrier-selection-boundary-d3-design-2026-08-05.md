@@ -885,16 +885,16 @@ neutral issuer, selector, or production handoff is not authorized.
 
 The child also corrects the handoff pseudotype: the future opaque wrapper
 contains `GenericCarrierFactsSnapshotV1`, not AST-bearing
-`CanonicalLoopFacts`. A later cfg(test)-only V1-only local row is merely a
-possible coverage child after this design is accepted; no source-shape test or
-production edit is authorized before then.
+`CanonicalLoopFacts`. The selected V1-only Local row is now closed as
+cfg(test)-only evidence; no production edit or handoff is authorized.
 
 D3-S1 is now accepted as a design-only policy boundary. Its selected child is
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`,
 with task card
 `joinir-generic-resolved-carrier-source-matrix-v1only-local-d3-s1-s1-task-2026-08-05.md`.
-The child may add one parsed cfg(test) witness only after it preserves the
-two-column evidence/selection partition, co-seals `V0 facts=false`,
+The child is closed as one parsed cfg(test) witness. It preserves the
+two-column evidence/selection partition and co-seals `V0 facts=false`,
 `V1 facts=true`, lexical body-local presence separately from the router's
-dedicated `has_body_local=false` flag, actual frame flags, and raw `[V1]`.
-Production handoff remains stopped.
+dedicated `has_body_local=false` flag, actual frame flags, no recipe contract,
+and raw `[V1]`. Its typed result is `Observed` plus
+`UnresolvedStop(V1OnlyNonRecursive)`. Production handoff remains stopped.

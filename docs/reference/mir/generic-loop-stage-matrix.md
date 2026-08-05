@@ -280,10 +280,11 @@ It must partition source-backed rows into
 proof for natural recursive Both. The current recursive Both row remains
 `UnresolvedStop(WinnerCorrectnessUnavailable)`; route labels, digests, and
 legacy receipts are corroboration only. Its selected cfg(test)-only child is
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`, which
-must co-seal V0=false, V1=true, `has_body_local=false`, actual frame flags, and
-raw `[V1]`. No selector or neutral handoff is authorized by this reference
-entry.
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`, now
+closed with V0=false, V1=true, `CompleteNoRecursiveCarrier`,
+`has_body_local=false`, actual frame flags, no recipe contract, and raw `[V1]`;
+its typed result is `UnresolvedStop(V1OnlyNonRecursive)`. No selector or
+neutral handoff is authorized by this reference entry.
 
 ## D2-B4-S2A nested `IfThen` carrier evidence
 

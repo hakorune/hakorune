@@ -1,8 +1,8 @@
 ---
-Status: active design stop — disposition matrix and winner/disjointness
+Status: accepted design boundary — disposition matrix and winner/disjointness
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md
-Decision: accepted — design-only; the next cfg(test) child is separately tasked
+Decision: accepted — design-only; V1-only Local child closed as cfg(test) evidence
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`
 ---
 
@@ -99,6 +99,7 @@ Source-backed rows already closed as test-only evidence:
 ```text
   Both + CompleteRecursive       natural nested If/Loop, D3-S0/S2A
   Both + CompleteNoRecursive    flat Assignment, D2-S5-S1
+  V1-only + CompleteNoRecursive parsed lexical Local, D3-S1-S1
   Both + Unavailable             nested CompoundAssignment, D2-S3
   Both + Ambiguous               nested IndexWrite, D2-S2
   planner-required Both          same natural source, raw [V1], D2-S1
@@ -111,7 +112,7 @@ synthetic matrix:
 
 ```text
 natural V0-only                NotYetObserved
-parsed natural V1-only         NotYetObserved
+  parsed natural V1-only         Observed; selection remains UnresolvedStop
 typed Neither                  NoStandaloneRow or NotYetObserved per source
 Program / nested wrapper       NotYetObserved unless a source view proves it
 duplicate-write variants      NotYetObserved
@@ -178,6 +179,13 @@ test implementation. The router's `has_body_local` flag denotes the separate
 `LoopBreakBodyLocalFacts` TrimSeg/DigitPos break-guard family, not the presence
 of an ordinary `Local` statement; this row must preserve that distinction.
 
+The child is now closed as cfg(test)-only evidence. The parsed source produced
+`V0 facts=false`, `V1 facts=true`, `CompleteNoRecursiveCarrier`, actual
+Release/Strict frame flags, `has_body_local=false`, no recipe contract, and raw
+`[GenericLoopV1]`. Its typed result is `Observed` plus
+`UnresolvedStop(V1OnlyNonRecursive)`. No eligibility, Legacy, winner, selector,
+or production handoff was added.
+
 ## Prohibited changes
 
 This design card does not authorize a neutral issuer, `InvocationSealV1`,
@@ -197,6 +205,6 @@ with focused evidence, caller census, fail-fast boundaries, artifact manifest,
 and all touched source/check files below 800 lines. The workstream remains
 exactly 1000 lines.
 
-The design is accepted only as a policy boundary. The child task is still
-cfg(test)-only and must update the reference documents after implementation in
-the same closeout commit. Production implementation remains stopped.
+The design remains a policy boundary. The selected child and its reference
+closeout are complete; production implementation, neutral issuer, selector,
+and parent Generic D2 handoff remain stopped.

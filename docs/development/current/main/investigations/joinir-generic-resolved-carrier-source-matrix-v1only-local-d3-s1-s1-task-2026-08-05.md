@@ -1,8 +1,8 @@
 ---
-Status: selected cfg(test)-only source witness; production remains stopped
+Status: closed — cfg(test)-only source witness; production remains stopped
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-selection-disposition-matrix-d3-s1-design-2026-08-05.md
-Decision: accepted child task — one parsed V1-only local shape
+Decision: accepted child evidence — one parsed V1-only local shape
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`
 ---
 
@@ -85,6 +85,13 @@ drift, mode drift, or identity drift must be a typed premise reject or
 `NoStandaloneRow` and return to the D3-S1 design card. Do not force a V1-only
 label from a missing facts product.
 
+Observed result: the exact parsed source produces V0 facts=false, V1
+facts=true, `CompleteNoRecursiveCarrier`, actual Release/Strict frame flags,
+`has_body_local=false`, no recipe contract, and raw `[GenericLoopV1]`. Fresh
+repeats preserve the source/frame/BindingRef/facts identity shape while issuing
+distinct function owners. The lexical `tmp` local is proven independently from
+the dedicated router flag.
+
 ## Non-authority and implementation boundary
 
 Carrier strings, route IDs, registry order, plan digests, legacy receipts,
@@ -109,7 +116,7 @@ bash tools/checks/current_state_pointer_guard.sh
 python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict
 ```
 
-The implementation closeout must update this task, the D3-S1 design card,
+The implementation closeout updated this task, the D3-S1 design card,
 parent D3 handoff, Generic post-effect SSOT, stage-matrix reference, Generic
 and resolved-semantics READMEs, `CURRENT_STATE.toml`, `10-Now.md`, the active
 workstream, affected reference indexes, and the artifact manifest in the same
@@ -118,7 +125,7 @@ workstream remains exactly 1000 lines.
 
 ## Stop
 
-If the parser/resolver cannot produce the exact `[Loop, Return]` /
+The witness is closed. If a future change cannot preserve the exact `[Loop, Return]` /
 `[Local, Assignment]` shape, if V0 facts are present, if raw is not exactly
 `[GenericLoopV1]`, if `has_body_local` is not co-sealed as `false`, or if any production
 effect appears, stop with the typed premise result and return to D3-S1. Do

@@ -162,11 +162,12 @@ The accepted D3-S1 policy boundary is
 `JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0`.
 It owns the two-column evidence/selection partition and the
 winner/correctness/disjointness proof for natural recursive Both. Its selected
-cfg(test)-only child is
+cfg(test)-only child is now closed as evidence:
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`, which
-must co-seal V0=false, V1=true, `has_body_local=false`, actual frame flags, and
-raw `[V1]`; no facts snapshot issuer, selector arm, or production handoff may
-be added.
+co-seals V0=false, V1=true, `CompleteNoRecursiveCarrier`,
+`has_body_local=false`, actual frame flags, no recipe contract, and raw `[V1]`,
+with typed `UnresolvedStop(V1OnlyNonRecursive)`; no facts snapshot issuer,
+selector arm, or production handoff may be added.
 
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
 pre-effect resolver eligibility from post-effect V1 corroboration. The next

@@ -27,6 +27,12 @@ surface. Its resolver-issued BindingRef/source/frame evidence is corroborating
 metadata only; it does not promote Generic facts into a selector, Recipe,
 physicalizer, Builder, MIR, or runtime consumer.
 
+The D3-S1-S1 parsed V1-only lexical-`Local` row is also closed on this
+inspection surface. It records V0=false, V1=true, exact
+`CompleteNoRecursiveCarrier`, raw `[GenericLoopV1]`, and the dedicated
+`has_body_local=false` frame boundary; it does not authorize a production
+selector or handoff.
+
 ## Metadata Classes
 
 `metadata` is not one semantic bucket. Rows must belong to one of these classes

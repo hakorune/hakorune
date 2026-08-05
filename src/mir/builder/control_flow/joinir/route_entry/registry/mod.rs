@@ -232,6 +232,8 @@ mod generic_resolved_carrier_toplevel_compound_premise_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_both_norecursive_tests;
 #[cfg(test)]
+mod generic_resolved_carrier_v1only_local_tests;
+#[cfg(test)]
 mod generic_resolved_carrier_index_ambiguous_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_planner_suppression_tests;

@@ -20,6 +20,9 @@ Primary implementation pointers:
 - The matrix also records the closed D2-B4-S2A parsed nested-`IfThen`
   BindingRef carrier witness; it remains test-only and is not a production
   route or Recipe authority.
+- The matrix also records the closed D3-S1-S1 parsed V1-only lexical-`Local`
+  witness; its `has_body_local=false` frame flag is the separate
+  LoopBreakBodyLocalFacts boundary, and it remains test-only.
 
 注意: Debug/Safepointはビルドモードでの降格用メタ命令であり、コア命令数には数えない。
 注意: KeepAlive/ReleaseStrong は lifecycle conformance のための命令（weak/hidden-root 対策）であり、Core-14/15 の最小コア数には数えない（ただし backend が実行する “実命令” である）。

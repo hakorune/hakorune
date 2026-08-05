@@ -209,9 +209,11 @@ The accepted D3-S1 disposition matrix
 It keeps resolver/source/frame identity separate from the future AST-free
 `GenericCarrierFactsSnapshotV1` handoff and leaves natural recursive Both as
 typed `UnresolvedStop(WinnerCorrectnessUnavailable)` until correctness and
-disjointness are proven. The selected V1-only local child must remain
-cfg(test)-only and co-seal V0=false, V1=true, `has_body_local=false`, actual
-frame flags, and raw `[V1]`.
+disjointness are proven. The selected V1-only local child is closed as
+cfg(test)-only evidence: it co-seals V0=false, V1=true,
+`CompleteNoRecursiveCarrier`, `has_body_local=false`, actual frame flags, no
+recipe contract, and raw `[V1]`, with typed
+`UnresolvedStop(V1OnlyNonRecursive)`.
 
 The bounded cfg(test) witness is green with:
 

@@ -68,12 +68,13 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- D3-S1 is accepted as a design-only policy boundary. Current execution is
-  the cfg(test)-only
-  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`.
-  It must co-seal V0 facts=false, V1 facts=true, `has_body_local=false`,
-  actual frame flags, and raw `[V1]` for one parsed local shape. No
-  production selector/issuer or handoff is authorized.
+- D3-S1 remains the accepted design-only policy boundary. Its cfg(test)-only
+  child `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-V1ONLY-LOCAL0-D3-S1-S1`
+  is closed with V0 facts=false, V1 facts=true,
+  `CompleteNoRecursiveCarrier`, `has_body_local=false`, actual frame flags,
+  no recipe contract, and raw `[V1]`, yielding typed
+  `UnresolvedStop(V1OnlyNonRecursive)`. No production selector/issuer or
+  handoff is authorized.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
