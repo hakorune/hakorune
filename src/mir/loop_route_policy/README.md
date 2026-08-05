@@ -85,5 +85,12 @@ and return `Selected`, `NoCandidate`, `Rejected`, or `Unresolved`. It must not
 inspect AST/LoopRouteContext/route IDs, reuse raw cursors, invoke Builder or
 Recipe production, or retry/fallback. `NoCandidate` requires a sealed proof of
 no Loop-family envelope; missing/foreign/incomplete/mismatched observations
-remain typed rejection/unresolved. D4-S3-S0 is the private observation-set
-witness; selector implementation and Generic production cutover remain closed.
+remain typed rejection/unresolved. D4-S3-S0 is closed as a private
+observation-set witness; selector implementation and Generic production
+cutover remain closed.
+
+D4-S3-S0 is now closed as a private witness outside this policy module. The
+test-only set owns one resolver receipt, a mode snapshot, a loop-window
+coverage seal, and unresolved family rows; it does not call or implement the
+future selector. D4-S3-S1 is the next private source-backed matrix row, and
+the existing legacy schedule/evidence APIs remain unchanged.

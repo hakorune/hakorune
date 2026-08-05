@@ -545,6 +545,13 @@ itself (owner brand plus origin/source-kind/site/forest/frame), not expose
 independently constructible coordinates. It also carries one exact mode
 snapshot, a coverage seal, and family-tagged typed dispositions. This resolver
 remains the source/identity issuer; it does not select a family or issue a
-Recipe key. The next D4-S3-S0 witness is private and test-only, and the live
+Recipe key. The D4-S3-S0 witness is private and test-only, and the live
 DirectAccum/NestedPredicate resolved lanes remain separate from the
 caller-zero Generic selector path.
+
+D4-S3-S0 is closed as a private `cfg(test)` witness in the MIR source-window
+seam. It consumes one resolver-issued non-`Clone` receipt per set and checks
+the owner/origin/source-kind/site/frame relation through one consuming paired
+view. The witness does not add resolver exports, independent coordinates, a
+family selector, or a production caller. The next row is the private
+source-backed V0/V1/Neither matrix.

@@ -280,6 +280,144 @@ mod tests {
         DirectAccum,
     }
 
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum TestLoopObservationModeV1 {
+        Release,
+        Strict,
+        StrictPlannerRequired,
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    #[allow(dead_code)]
+    enum TestLoopFamilyTagV1 {
+        NestedPredicate,
+        DirectAccum,
+        Generic,
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    #[allow(dead_code)]
+    enum TestLoopFamilyDispositionV1 {
+        Candidate,
+        Declined,
+        Blocked,
+        Unresolved,
+    }
+
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    struct TestLoopSourceIdentityV1 {
+        owner: FunctionOwnerIdV1,
+        function_origin: FunctionOriginV1,
+        source_kind: SemanticOwnerSourceKindV1,
+        site: SourceStmtSiteV1,
+        frame: LoopExecutionFrameKeyV1,
+    }
+
+    impl TestLoopSourceIdentityV1 {
+        fn from_receipt(receipt: &VerifiedSharedLoopSourceWindowV1<'_>) -> Self {
+            Self {
+                owner: receipt.owner,
+                function_origin: receipt.function_origin,
+                source_kind: receipt.source_kind,
+                site: receipt.loop_site.clone(),
+                frame: receipt.frame.clone(),
+            }
+        }
+
+        fn assert_matches(
+            &self,
+            raw: &SharedRawLoopViewV1<'_>,
+            resolved: &SharedResolvedLoopViewV1<'_>,
+        ) {
+            assert_eq!(self.owner, raw.owner());
+            assert_eq!(self.owner, resolved.owner());
+            assert_eq!(&self.site, raw.site());
+            assert_eq!(&self.site, resolved.site());
+            assert!(self.frame.matches(raw.frame()));
+            assert!(self.frame.matches(resolved.frame()));
+            assert_eq!(self.function_origin, resolved.function_origin());
+            assert_eq!(self.source_kind, resolved.source_kind());
+        }
+    }
+
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    struct TestLoopFamilyObservationV1 {
+        family: TestLoopFamilyTagV1,
+        disposition: TestLoopFamilyDispositionV1,
+        identity: TestLoopSourceIdentityV1,
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    struct TestLoopWindowCoverageSealV1;
+
+    impl TestLoopWindowCoverageSealV1 {
+        fn seal(rows: &[TestLoopFamilyObservationV1]) -> Self {
+            assert_eq!(rows.len(), 3, "one row per known Loop family tag");
+            Self
+        }
+    }
+
+    /// Private S0 witness only. This is deliberately not the future production
+    /// selector product: it owns one receipt, records mode/coverage, and keeps
+    /// all family dispositions unresolved without choosing a winner.
+    #[derive(Debug)]
+    struct TestLoopFamilyObservationSetV1<'a> {
+        receipt: VerifiedSharedLoopSourceWindowV1<'a>,
+        mode: TestLoopObservationModeV1,
+        coverage: TestLoopWindowCoverageSealV1,
+        rows: Box<[TestLoopFamilyObservationV1]>,
+    }
+
+    impl<'a> TestLoopFamilyObservationSetV1<'a> {
+        fn issue(
+            source_unit: &'a VerifiedResolvedSourceUnitV1,
+            loop_stmt: &LocatedStmtV1<'a>,
+            mode: TestLoopObservationModeV1,
+        ) -> Result<Self, SharedLoopSourceWindowRejectV1> {
+            let receipt = issue_shared_loop_source_window_v1(source_unit, loop_stmt)?;
+            let identity = TestLoopSourceIdentityV1::from_receipt(&receipt);
+            let rows = [
+                TestLoopFamilyTagV1::NestedPredicate,
+                TestLoopFamilyTagV1::DirectAccum,
+                TestLoopFamilyTagV1::Generic,
+            ]
+            .into_iter()
+            .map(|family| TestLoopFamilyObservationV1 {
+                family,
+                disposition: TestLoopFamilyDispositionV1::Unresolved,
+                identity: identity.clone(),
+            })
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+            let coverage = TestLoopWindowCoverageSealV1::seal(&rows);
+            Ok(Self {
+                receipt,
+                mode,
+                coverage,
+                rows,
+            })
+        }
+
+        fn with_views<R>(
+            self,
+            f: impl FnOnce(
+                SharedRawLoopViewV1<'a>,
+                SharedResolvedLoopViewV1<'a>,
+                TestLoopObservationModeV1,
+                TestLoopWindowCoverageSealV1,
+                &[TestLoopFamilyObservationV1],
+            ) -> R,
+        ) -> R {
+            let Self {
+                receipt,
+                mode,
+                coverage,
+                rows,
+            } = self;
+            receipt.with_views(|raw, resolved| f(raw, resolved, mode, coverage, &rows))
+        }
+    }
+
     #[derive(Debug, Clone, PartialEq, Eq)]
     struct LegacySameSourceRowV1 {
         fixture_label: &'static str,
@@ -454,6 +592,56 @@ mod tests {
                 }
                 _ => unreachable!("six-row census index"),
             }
+        }
+    }
+
+    fn assert_d4_s3_s0_set(tree: ASTNode, mode: TestLoopObservationModeV1) {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source_unit = VerifiedResolvedSourceUnitV1::resolve_function(tree)
+            .expect("observation-set fixture resolves");
+        let loop_stmt = body_stmt(&source_unit, 1);
+        let set = TestLoopFamilyObservationSetV1::issue(&source_unit, &loop_stmt, mode)
+            .expect("resolver-branded observation set");
+        set.with_views(|raw, resolved, observed_mode, coverage, rows| {
+            assert_eq!(observed_mode, mode);
+            assert_eq!(coverage, TestLoopWindowCoverageSealV1);
+            assert_eq!(raw.owner(), resolved.owner());
+            assert_eq!(raw.site(), resolved.site());
+            assert!(raw.frame().matches(resolved.frame()));
+            assert_eq!(
+                resolved.source_kind(),
+                SemanticOwnerSourceKindV1::DeclaredFunction
+            );
+            assert_eq!(
+                rows.iter().map(|row| row.family).collect::<Vec<_>>(),
+                vec![
+                    TestLoopFamilyTagV1::NestedPredicate,
+                    TestLoopFamilyTagV1::DirectAccum,
+                    TestLoopFamilyTagV1::Generic,
+                ]
+            );
+            assert!(rows
+                .iter()
+                .all(|row| { row.disposition == TestLoopFamilyDispositionV1::Unresolved }));
+            for row in rows {
+                row.identity.assert_matches(&raw, &resolved);
+            }
+        });
+    }
+
+    #[test]
+    fn d4_s3_s0_seals_six_unresolved_family_observation_sets() {
+        let modes = [
+            TestLoopObservationModeV1::Release,
+            TestLoopObservationModeV1::Strict,
+            TestLoopObservationModeV1::StrictPlannerRequired,
+        ];
+        for mode in modes {
+            assert_d4_s3_s0_set(nested_function_for_p3_test(), mode);
+            assert_d4_s3_s0_set(
+                direct_accum_projection::direct_accum_function_for_test(),
+                mode,
+            );
         }
     }
 

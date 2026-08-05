@@ -477,15 +477,14 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-OBSERVATION-SET0-D4-S3-S0
-  is selected after D4-S3-D0 fixed the future authority: one resolver-branded
-  non-Clone observation set -> new family selector in loop_route_policy ->
-  selected-family Recipe -> verify/plan -> lower. Existing DirectAccum and
-  NestedPredicate resolved lanes stay live; Generic remains caller-zero.
-  S0 is private cfg(test) transport only: no legacy route/cursor policy,
-  selector, Recipe/key, export, production caller, retry, fallback, or old-edge
-  deletion. Its implementation must update affected references/current docs in
-  the same commit.
+JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-MATRIX-CLOSE0-D4-S3-S1
+  is selected after the private D4-S3-S0 witness closed. S0 owns one
+  resolver-branded non-Clone receipt per set, a private mode snapshot, a
+  loop-window coverage seal, and three unresolved family rows across two
+  fixtures × three modes. It adds no selector, Recipe/key, export, production
+  caller, retry, fallback, or old-edge deletion. S1 may add only the private
+  source-backed V0/V1/Neither and mode/reject matrix; implementation commits
+  must update affected references/current docs in the same commit.
 ```
 
 ## Production invariants

@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0 closed; D4-S3-S0 selected
+Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0 closed; D4-S3-S1 selected
 Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -681,18 +681,34 @@ D4-S4-I0-R0  GENERIC-PRODUCTION-CUTOVER0
   one family caller and same-commit retirement of only migrated raw edges
 ```
 
-The selected next task is
-`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-OBSERVATION-SET0-D4-S3-S0`.
-Its implementation commit must update affected `docs/reference/**`, this
-card, `CURRENT_STATE.toml`, and current support docs. It must stop if the
-receipt is not unique, if a legacy route/cursor becomes policy input, or if
-the set reaches a selector, Recipe, Builder/MIR, retry/fallback, or production
-caller.
+## D4-S3-S0 observation-set witness closeout
 
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-OBSERVATION-SET0-D4-S3-S0` is
+closed as a private `cfg(test)` witness in
+`src/mir/shared_loop_source_window.rs`. `TestLoopFamilyObservationSetV1`
+owns exactly one non-`Clone` resolver receipt, one private mode snapshot, a
+loop-window-only coverage seal, and three semantic family rows. The rows use
+typed dispositions but remain `Unresolved` for NestedPredicate, DirectAccum,
+and Generic; no winner, precedence, or `NoCandidate` policy is inferred.
+
+The focused test seals six sets (two existing fixtures × Release/Strict/
+StrictPlannerRequired), checks that every row retains the receipt-issued
+owner/origin/source-kind/site/frame relation, and consumes paired raw/resolved
+views exactly once. The witness has no route ID, schedule/cursor, AST field,
+Recipe/key, Builder/MIR/ValueId/PHI, retry/fallback, selector, or production
+caller. The changed source remains below 800 lines.
+
+The implementation commit updates the MIR reference matrix, this card,
+`CURRENT_STATE.toml`, current mirrors, and resolver/facts/Generic-loop support
+docs. It does not activate `CanonicalLoopFamilySelectionV1` or any production
+Generic route.
+
+The selected next task is
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-MATRIX-CLOSE0-D4-S3-S1`.
 
 # Current next action
 
-Stop with D4-S3-D0 closed and D4-S3-S0 selected. Do not implement a selector
-or production migration in this design turn. The next action is the private
-resolver-branded observation-set witness; later implementation requires
-same-commit reference/current-doc updates.
+Proceed only to the private source-backed V0/V1/Neither plus mode/reject
+matrix. Do not implement a selector, winner/precedence rule, Recipe handoff,
+Builder/MIR effect, retry/fallback, or production migration. Any matrix row
+that requires such a claim returns to design first.

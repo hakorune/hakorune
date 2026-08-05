@@ -292,9 +292,9 @@ The measured rows are exact and mode-stable: nested-predicate is
 accum is `CompleteNoRecursive` with `[AccumConstLoop]` and resolved
 `DirectAccum`. All six rows are `Available`, V0 absent, and V1 present. The
 census does not issue a selector, winner, Recipe/key, Builder/MIR effect, or
-retry/fallback, and does not retire an old edge. D4-S3-D0 is the next
-docs-only decision for the neutral observation-set and
-`mir::loop_route_policy` authority.
+retry/fallback, and does not retire an old edge. D4-S3-D0 is now closed as the
+docs-only authority decision; D4-S3-S0 is the closed private observation-set
+witness and D4-S3-S1 is the next matrix-only row.
 
 ### D4-S3-D0 canonical selection authority (closed design)
 
@@ -313,8 +313,26 @@ foreign identity, incomplete coverage, planner-unspecified suppression, and
 BindingRef/frame mismatch remain typed rejection/unresolved. A+/Trivial stay
 outside this Loop-family set. The existing 19-route evaluator and the live
 DirectAccum/NestedPredicate resolved lanes are preserved as migration/live
-owners; Generic selection remains caller-zero. D4-S3-S0 is the next private
+owners; Generic selection remains caller-zero. D4-S3-S0 is a closed private
 observation-set witness, not a selector or production cutover.
+
+### D4-S3-S0 observation-set witness (closed)
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-OBSERVATION-SET0-D4-S3-S0` is
+closed as a private `cfg(test)` witness in
+`src/mir/shared_loop_source_window.rs`. Each
+`TestLoopFamilyObservationSetV1` owns one non-`Clone` resolver receipt, one
+private Release/Strict/planner-required mode snapshot, one loop-window-only
+coverage seal, and three semantic family rows. All rows are typed
+`Unresolved`; this proves the transport shape without selecting a winner,
+precedence, or `NoCandidate` result.
+
+The focused test covers two existing fixtures across three modes (six sets)
+and checks owner/origin/source-kind/site/frame correspondence through the
+consuming paired-view seam. No route ID, raw schedule/cursor, AST, Recipe/key,
+Builder/MIR/ValueId/PHI, retry/fallback, selector, or production caller is
+introduced. The next row is the private source-backed V0/V1/Neither and
+mode/reject matrix (`...CANONICAL-MATRIX-CLOSE0-D4-S3-S1`).
 
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is

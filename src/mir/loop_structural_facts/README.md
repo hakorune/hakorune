@@ -132,15 +132,22 @@ It lends raw and resolved observations from one resolver-owned receipt per
 fixture/mode row, but does not widen this neutral layer or publish a reusable
 Generic observation product. The measured raw carrier/schedule and existing
 preflight family remain `legacy_*` retirement inventory; no selector, Recipe,
-key, Builder/MIR caller, retry, or fallback is implied. D4-S3-D0 must decide
-the future observation-set schema and `mir::loop_route_policy` owner before
-this layer gains a canonical family consumer.
+key, Builder/MIR caller, retry, or fallback is implied. D4-S3-D0 is closed and
+the private D4-S3-S0 witness now owns the observation-set transport; this layer
+must wait for D4-S3-S1 and a later design before gaining a canonical family
+consumer.
 
 D4-S3-D0 now closes that schema decision without activating this layer. The
 future `VerifiedLoopFamilyObservationSetV1` is one resolver-branded,
 non-`Clone` source receipt/window plus exact mode and coverage seals and
 family-tagged `Candidate|Declined|Blocked|Unresolved` rows. It must not contain
 route IDs, raw cursors, AST, Recipe/key, Builder/MIR/ValueId/PHI, or retry and
-fallback state. D4-S3-S0 is the next private witness; only a later
+fallback state. D4-S3-S0 is now a closed private witness; only a later
 family-level selector may consume the sealed set, while A+/Trivial remain in
 the separate whole-unit stage.
+
+D4-S3-S0 is closed without widening this facts boundary. Its six private
+sets retain only a resolver receipt, exact mode snapshot, loop-window coverage
+seal, and unresolved family-tag rows; no Generic facts, schedule policy, or
+Recipe input is issued here. D4-S3-S1 may add only the source-backed
+V0/V1/Neither and mode/reject matrix.
