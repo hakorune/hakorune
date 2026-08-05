@@ -317,6 +317,13 @@ It observes resolver forest/frame and exact `BindingRefV1` role/ancestry only;
 Generic snapshot/key issuer, seed/opaque input, selector, Builder/MIR, and
 Return/Home/debt meaning remain unimplemented.
 
+That observation child is closed as cfg(test)-only evidence: four focused
+tests seal natural resolver forest/frame plus exact `BindingRefV1` role and
+ancestry, and reject shadowing, foreign owner, forest-shape, and frame
+mismatch. Production caller/import is zero and artifact is none. Generic
+snapshot/key/seed ownership and winner/Return/PHI/Home/debt semantics remain
+the D3-S2 design stop.
+
 ## D2-B4-S2A nested `IfThen` carrier evidence
 
 The bounded S2A row is closed as one parsed, `cfg(test)`-only carrier witness.

@@ -42,7 +42,7 @@ function generic_both(i, j) {
 }
 "#;
 
-const SHADOWING_SOURCE: &str = r#"
+pub(super) const SHADOWING_SOURCE: &str = r#"
 function generic_both_shadowing(i, j) {
     loop(i < 3) {
         loop(j < 3) {

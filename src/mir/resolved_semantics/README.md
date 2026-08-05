@@ -243,6 +243,11 @@ role/ancestry relations into a private witness. It does not create the Generic
 snapshot, assign `LoopBindingKeyV1`, or issue a seed/opaque selection input;
 those remain follow-up design boundaries.
 
+The observation child is now closed as cfg(test)-only evidence. It records
+only resolver-owned forest/frame and exact `BindingRefV1` role/ancestry facts;
+the production resolver and neutral modules gained no Generic policy or
+caller. Four focused tests cover natural success and typed mismatch rejects.
+
 The bounded cfg(test) witness is green with:
 
 ```bash

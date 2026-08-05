@@ -227,6 +227,14 @@ It is a private cfg(test)-only observation of resolver forest/frame and exact
 `BindingRefV1` role/strict-ancestor relations. It does not assign Generic
 logical keys or publish a neutral snapshot; those remain a follow-up design.
 
+The S0 observation child is now closed as cfg(test)-only evidence. Its private
+witness consumes the parsed resolver forest/frame and exact `BindingRefV1`
+role/strict-ancestor relations, with natural success plus shadowing, foreign
+owner, forest-shape, and frame mismatch rejects. Production caller/import is
+zero and artifact is none. It does not establish Generic key assignment,
+neutral snapshot ownership, opaque seed pairing, or any winner/Return/Home/debt
+semantic claim; execution returns to the D3-S2 design stop.
+
 ## Prohibited changes
 
 This design card does not authorize a neutral issuer, `InvocationSealV1`,

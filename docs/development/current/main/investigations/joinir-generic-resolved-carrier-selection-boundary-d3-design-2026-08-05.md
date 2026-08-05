@@ -964,3 +964,11 @@ It is cfg(test)-only and observes resolver-issued forest/frame plus exact
 projector. It deliberately does not create a production neutral snapshot,
 Generic `LoopBindingKeyV1` issuer, seed, opaque input, selector, or Builder
 caller; any need for those returns to this D3-S2 design stop.
+
+The S0 observation child is now closed. Its natural source witness records the
+resolver-owned forest/frame, outer-to-inner parent, exact write/read sites, and
+strict ancestry; shadowing, foreign owner, forest-shape, and frame mismatch
+reject before any Builder effect. The four focused tests pass, the production
+caller/import census is zero, and `artifact = none`. This evidence does not
+create a Generic snapshot/key issuer or close winner, Return/PHI, Home, or
+debt correctness; the current row returns to the D3-S2 design stop.

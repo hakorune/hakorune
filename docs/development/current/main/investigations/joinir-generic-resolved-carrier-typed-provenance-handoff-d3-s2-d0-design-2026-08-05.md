@@ -106,6 +106,11 @@ publish a production snapshot, assign a Generic `LoopBindingKeyV1`, or issue
 an opaque selection input. Those three authorities remain separate design
 work because Generic key assignment and seed ownership are not yet defined.
 
+This observation child is now closed: four focused tests pass, production
+caller/import is zero, and no artifact was produced. The D3-S2 design stop
+remains open for the neutral snapshot, branded logical-key relation, and
+opaque selection-input ownership.
+
 Only after this observation child and a follow-up design seal may a bounded
 neutral issuer be considered:
 

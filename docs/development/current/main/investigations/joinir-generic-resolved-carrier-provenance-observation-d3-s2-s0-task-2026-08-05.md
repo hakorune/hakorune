@@ -1,4 +1,4 @@
-Status: selected implementation task — cfg(test)-only
+Status: closed — cfg(test)-only observation
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`
@@ -66,3 +66,14 @@ preserve all D3-S2 non-claims. No production cutover is permitted.
 If implementing the witness requires a Generic logical-key assignment,
 neutral snapshot issuer, seed pairing, opaque input, full Return/Home/debt
 proof, or a production caller, stop and return to the D3-S2 design card.
+
+## Closeout
+
+Implemented in the same closeout commit as the reference updates. The new
+234-line test-only witness uses the existing parsed source, resolver forest,
+frame key, and exact `BindingRefV1` lookup. Four focused tests cover natural
+success plus shadowing, foreign owner, forest-shape, and frame mismatch
+rejection. No production artifact was generated (`artifact = none`), and the
+production caller/import census remains zero. Generic snapshot/key/seed,
+opaque input, selector, Return/PHI/Home/debt, and scheduler cutover remain
+unclaimed.

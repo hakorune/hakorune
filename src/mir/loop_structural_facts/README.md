@@ -80,6 +80,10 @@ logical-key issuer, seed/opaque input, selector, or Builder caller. The
 existing DirectAccum `selected_demand` and its hard-coded recipe keys remain
 separate owners; Generic key assignment requires a later design.
 
+That child is closed with four focused tests and no production import/caller.
+The witness is private to the registry test module; this neutral module still
+does not own a Generic snapshot, logical-key issuer, seed, or selection input.
+
 M3-B and the selected-demand issuer are intentionally caller-zero. Production
 wiring belongs to a later card at the located source carrier before Loop syntax
 is decomposed.

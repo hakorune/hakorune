@@ -69,14 +69,13 @@ Related:
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
 - D3-S1 is closed as the prior policy boundary. D3-S2 remains the accepted
-  typed-provenance design boundary, and its selected child is the cfg(test)-only
-  `JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-OBSERVATION0-D3-S2-S0`,
-  recorded in
-  `joinir-generic-resolved-carrier-provenance-observation-d3-s2-s0-task-2026-08-05.md`.
-  The child consumes existing resolver forest/frame and exact BindingRef
-  relations into a private witness only. Generic snapshot/key issuer,
-  InvocationSeal/opaque input, full Return/PHI, natural debt, Home, and
-  production selector/issuer remain unimplemented and unclaimed.
+  typed-provenance design boundary, and its cfg(test)-only S0 observation child
+  is closed. The witness consumes existing resolver forest/frame and exact
+  BindingRef relations, with typed shadowing/foreign/forest/frame rejects;
+  production caller/import and artifact are zero/none. Generic snapshot/key
+  issuer, InvocationSeal/opaque input, full Return/PHI, natural debt, Home,
+  and production selector/issuer remain unimplemented and unclaimed. The
+  next row must return to the D3-S2 design card.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

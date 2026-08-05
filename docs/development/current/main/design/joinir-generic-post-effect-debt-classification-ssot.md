@@ -1115,6 +1115,11 @@ through the compiler-side projector only. It does not issue a Generic
 snapshot, logical key, seed, opaque input, selector, or production caller;
 those remain later design boundaries.
 
+The observation child is closed as cfg(test)-only evidence with no production
+caller or artifact. It proves resolver forest/frame and exact `BindingRefV1`
+role/ancestry identity plus typed mismatch rejection only; it does not alter
+the post-effect schedule or close any winner/debt/Return/PHI/Home condition.
+
 ### M4-D4 — handoff and close (`...-D0-S4`)
 
 Seal a disposition for every D0 row, decide V0/V1 precedence, and make the
