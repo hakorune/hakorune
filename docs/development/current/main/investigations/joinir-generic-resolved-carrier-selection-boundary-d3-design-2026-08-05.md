@@ -925,3 +925,32 @@ legacy witness is V0 terminal/no-debt; the synthetic DTO debt/V1-terminal
 negative remains unresolved. This does not add typed BindingRef provenance,
 full post-loop return parity, winner correctness, or any production
 issuer/selector/Recipe/PHI/Builder/MIR caller.
+
+## Next design stop — typed provenance handoff (`D3-S2`)
+
+The next frontier is the docs-only card
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`,
+recorded in
+`joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md`.
+S2 supplied enough evidence to reject another label-backed witness, but not
+enough to select V1 or suppress V0. This card must first define one typed
+source-to-plan relation, an AST-free neutral snapshot, and a non-Clone opaque
+selection input. It must also define the pre-effect reject matrix and owner
+order before any implementation child is selected.
+
+The following remain separate deferred rows after that design:
+
+```text
+scalar full-function Return/PHI projection (cfg(test) only, if the existing
+  return owner can observe a parsed source without a production seam)
+natural V0 post-effect debt -> different V1 winner (requires a real producer;
+  synthetic debt/failure injection is forbidden)
+Home-bearing result/finalization meaning (separate Home design; current
+  Generic carrier evidence is scalar-only)
+```
+
+Until the typed provenance relation, V0 disjointness, candidate isolation,
+fresh-repeat stability, and the no-debt/different-winner boundary are proven,
+the disposition remains `UnresolvedStop(WinnerCorrectnessUnavailable)`, the
+old scheduler remains authority, and no neutral issuer, selector, Recipe,
+PHI, Builder, MIR, Retry, fallback, or route cutover is authorized.

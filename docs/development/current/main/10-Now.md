@@ -68,13 +68,18 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- D3-S1 remains the accepted policy boundary. Its V1-only Local child and
-  selected S2 cfg(test)-only candidate-stage source bridge are closed. S2
-  co-seals parsed natural-Both resolver facts with fresh V0/V1 plan
+- D3-S1 is closed as the prior policy boundary. The current accepted design
+  stop is `JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`,
+  recorded in
+  `joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md`.
+  S2 co-seals parsed natural-Both resolver facts with fresh V0/V1 plan
   projections, but label-backed BindingRef/final/PHI matches are corroboration,
-  not typed provenance; full-return parity is unclaimed. The result remains
-  `Observed + UnresolvedStop(WinnerCorrectnessUnavailable)`; no production
-  selector/issuer or handoff is authorized.
+  not typed provenance. The D3-S2 card must define resolver-owned provenance,
+  AST-free neutral facts, a logical loop-binding relation, and a non-Clone
+  opaque handoff before any implementation child. Full scalar Return/PHI
+  parity, natural debt-to-different-winner evidence, and Home semantics remain
+  deferred; the result remains `Observed + UnresolvedStop(WinnerCorrectnessUnavailable)`.
+  No production selector/issuer or handoff is authorized.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

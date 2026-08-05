@@ -1092,6 +1092,22 @@ This row is the only M5 work permitted while D2-B is open. Generic Recipe
 consumption, Retry deletion, canonical CFG/Binding-SSA physicalization, and
 all production cutover remain prohibited; this evidence does not bypass M4.
 
+### D3-S2 — typed provenance handoff design stop
+
+The next frontier is the docs-only card
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`.
+The D3-S1-S2 bridge is closed as corroboration only: names, route labels,
+plan-local `ValueId`, and PHI labels do not establish source provenance. Before
+any selection handoff, specify one resolver-owned `BindingRefV1` observation,
+an AST-free `GenericCarrierFactsSnapshotV1`, a typed logical binding relation,
+and one non-Clone opaque invocation input. Missing/foreign/ambiguous identity,
+source/forest/frame mismatch, incomplete winner/result/Home/PHI parity, or an
+unobserved natural debt-to-different-winner edge remains typed
+`UnresolvedStop`; it must not become Legacy, retry, fallback, V1 precedence, or
+V0 suppression. `LoopRouteContext` remains a loop-fragment owner and does not
+lower post-loop Return/ABI/Home semantics. Scalar Return projection, natural
+debt evidence, and Home-bearing evidence are separate deferred rows.
+
 ### M4-D4 — handoff and close (`...-D0-S4`)
 
 Seal a disposition for every D0 row, decide V0/V1 precedence, and make the

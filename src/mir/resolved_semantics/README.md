@@ -225,6 +225,17 @@ there is no typed BindingRef-to-ValueId provenance or full-return parity. The
 actual legacy trace remains V0 terminal/no-debt, planner-required remains
 `[V1]` unresolved, and production selection/issuer authority remains zero.
 
+The current frontier is the docs-only typed provenance handoff design
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`.
+It must define one resolver-owned `BindingRefV1` observation, an AST-free
+`GenericCarrierFactsSnapshotV1`, a typed logical binding relation, and one
+non-Clone opaque handoff before implementation. `LoopRouteContext` remains a
+loop-fragment owner; it does not lower post-loop Return/ABI/Home semantics.
+Scalar full-function Return projection is deferred cfg(test) evidence, natural
+debt-to-different-winner requires a real producer receipt, and Home-bearing
+evidence is a separate design. No selector, issuer, Recipe, PHI, Builder, MIR,
+retry, fallback, or runtime caller is authorized by this README entry.
+
 The bounded cfg(test) witness is green with:
 
 ```bash

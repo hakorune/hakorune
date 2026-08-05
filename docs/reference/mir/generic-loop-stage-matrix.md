@@ -298,6 +298,17 @@ required remains `[V1]` and unresolved; the actual legacy trace is V0
 terminal/no-debt. No winner, selector, issuer, Recipe, PHI, Builder, MIR,
 retry, fallback, or runtime authority is added.
 
+The next accepted design stop is
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`,
+recorded in
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md`.
+It is docs-only: resolver-owned `BindingRefV1` provenance, an AST-free neutral
+facts snapshot, a logical loop-binding relation, and one non-Clone opaque
+handoff must be specified before any issuer/selector implementation. Full
+scalar Return projection, natural debt-to-different-winner evidence, and Home
+semantics remain deferred; label/ValueId inference and synthetic debt remain
+non-authoritative.
+
 ## D2-B4-S2A nested `IfThen` carrier evidence
 
 The bounded S2A row is closed as one parsed, `cfg(test)`-only carrier witness.

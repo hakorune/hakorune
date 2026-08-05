@@ -198,6 +198,27 @@ projection. Its result remains `Observed +
 UnresolvedStop(WinnerCorrectnessUnavailable)`; no typed BindingRef-to-plan
 provenance, full-return parity, or production selection is authorized.
 
+## Next design child — typed provenance handoff (`D3-S2-D0`)
+
+The next child is the docs-only design card
+`JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0`,
+recorded in
+`joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md`.
+It is selected before any scalar Return projection because S2's plan-local
+names and `ValueId`/PHI labels cannot establish a source-to-plan relation.
+The card fixes the resolver-owned `BindingRefV1` observation, the neutral
+AST-free `GenericCarrierFactsSnapshotV1`, the logical `LoopBindingKeyV1`
+projection, and the non-Clone opaque selection input as separate owners.
+
+Its reject boundary is pre-effect and typed: missing/foreign/ambiguous
+provenance, source/forest/frame mismatch, AST or physical-ValueId leakage,
+missing seal/seed, incomplete matrix, or unobserved winner/result/Home/PHI
+parity remains `UnresolvedStop`, never Legacy fallback, retry, V1 precedence,
+or V0 suppression. A later cfg(test)-only scalar full-function Return row is
+allowed only after this relation is sealed; Home semantics remain a separate
+design. Natural V0 debt followed by a different V1 winner still requires an
+actual producer receipt; synthetic debt is not evidence.
+
 ## Prohibited changes
 
 This design card does not authorize a neutral issuer, `InvocationSealV1`,

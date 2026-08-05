@@ -477,31 +477,26 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-SELECTION-DISPOSITION-MATRIX0-D3-S1-D0
+JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0
   current design stop — D3-S1-S2 cfg(test)-only source bridge is closed;
   production selection remains stopped.
-  Use the same parsed natural-Both source for resolver forest/BindingRef facts
-  and fresh V0/V1 candidate plans. The closed S2 witness observed outer/nested final/PHI
-  projections, direct LowerSome/GenericComposer stages, equal pre-snapshots,
-  reverse-order stability, and distinct repeat owners. A name/PHI projection
-  is corroboration only; typed BindingRef provenance and full post-loop return
-  parity are not claimed. Result stays
+  The next design must define resolver-owned BindingRef provenance,
+  AST-free GenericCarrierFactsSnapshotV1, a typed LoopBindingKeyV1 relation,
+  and one non-Clone opaque handoff before any implementation child.
+  S2's name/PHI/ValueId projections are corroboration only; full scalar
+  Return parity, natural debt-to-different-winner evidence, and Home meaning
+  remain deferred. Result stays
   Observed + UnresolvedStop(WinnerCorrectnessUnavailable).
-  S2 closeout is complete; any future row stops on synthetic source,
-  projection mismatch, missing typed provenance, full-return lowering,
-  raw/stage drift, natural V0-only/Neither, or any production
-  issuer/selector/Recipe/PHI/Builder/MIR/VM/retry/fallback caller.
   Task card:
   docs/development/current/main/investigations/
-  joinir-generic-resolved-carrier-candidate-stage-source-bridge-d3-s1-s2-task-2026-08-05.md
-  Closed assertions: Release/Strict raw [V0,V1]; planner-required [V1]
-  remains typed unresolved; V0 outer j absent; V1 outer j and carrier/step
-  PHI labels present; nested V0 j remains observable; legacy V0 is terminal
-  with no debt; fresh route order [V0,V1] and [V1,V0] agree. The same
-  implementation closeout updated reference docs, current mirrors, caller
-  census, and pointer/artifact evidence. The active card remains the only
-  execution owner; historical rows stay evidence and do not reopen route work.
-  Any failed assertion returns to the D3-S1 design boundary.
+  joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
+  Reject before Builder effects on missing/foreign/ambiguous provenance,
+  source/forest/frame mismatch, AST or physical-ValueId leakage, missing
+  seal/seed, incomplete matrix, or unobserved winner/result/Home/PHI parity.
+  No issuer/selector/Recipe/PHI/Builder/MIR/VM/retry/fallback caller is
+  authorized. The active card remains the only execution owner; historical
+  rows stay evidence and do not reopen route work. Any failed assertion
+  returns to this D3-S2 design boundary.
   No fallback or retry is permitted.
   Keep touched source and tests below 800 lines.
   Keep this workstream at exactly 1000 lines.
@@ -953,7 +948,7 @@ ordered after B-prime correction
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only;
      reference closeout is recorded. Parent D2 stays unresolved and no
      production issuer/adapter/selector/route switch is authorized.
-  3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, and D3-S1-S1 are cfg(test)-only closed. D3-S1 remains the accepted two-column disposition/winner-correctness design boundary; the V1-only Local+step child records typed UnresolvedStop(V1OnlyNonRecursive) and adds no production issuer/selector/route authority
+  3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, and D3-S1-S2 are cfg(test)-only closed. D3-S2 is the accepted typed-provenance handoff design stop; it adds no production issuer/selector/route authority
   4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
      source handoff and the active R4 Loop fence retirement
   5. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
@@ -998,3 +993,8 @@ default Raw/Canonical cutover before final conformance
 
 New per-row guards are forbidden. Normal gates and detailed assertions belong
 to the active source/tests and existing shared guards.
+Typed provenance design is docs-only until accepted.
+Scalar Return projection remains deferred cfg(test) evidence.
+Natural debt-to-different-winner evidence remains unobserved.
+Home-bearing Generic evidence remains a separate design.
+Reference closeout follows every future implementation.
