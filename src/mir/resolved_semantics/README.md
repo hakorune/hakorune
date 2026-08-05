@@ -236,8 +236,12 @@ Binding SSA remains the sole physical `BindingRefV1 -> ValueId/PHI` owner and
 does not mint Recipe keys. Independent preflight-seed, invocation-seal, and
 four-field selection-input authorities are rejected; a later selector may
 consume only one verified non-`Clone` canonical plan. P0 is closed by its
-machine-readable facts/producer-arm matrix. The selected next row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-PROJECTION0-D3-S2-P1`.
+machine-readable facts/producer-arm matrix. P1 is also closed by the
+machine-readable source-projection witness
+`joinir-generic-resolved-carrier-source-projection-d3-s2-p1-matrix-2026-08-05.tsv`.
+The next row is the test-only neutral AST-free facts snapshot
+`JOINIR-GENERIC-RESOLVED-CARRIER-FACTS-SNAPSHOT0-D3-S2-P2`; no production
+caller is authorized.
 
 The first two observation children are closed as cfg(test)-only evidence, and the
 bounded passive product

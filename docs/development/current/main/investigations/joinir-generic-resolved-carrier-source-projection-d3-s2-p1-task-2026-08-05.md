@@ -1,9 +1,9 @@
-Status: selected next row; docs/test-only source projection closeout
+Status: closed docs/test-only source projection closeout
 Date: 2026-08-05
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-source-site-totality-census-d3-s2-p0-task-2026-08-05.md
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-PROJECTION0-D3-S2-P1`
-Decision: selected; production remains closed
+Decision: accepted as a packaging closeout; production remains closed
 
 # Change
 
@@ -38,6 +38,22 @@ outer-PHI, debt, Home, Recipe, MIR, runtime, retry, or fallback meaning moves.
 - The same implementation/test commit updates the affected `docs/reference/**`
   and current support pages; production caller remains zero.
 - Source/check files remain below 800 lines.
+
+# Done
+
+The existing non-`Clone` resolver provenance product and projector/source
+bridge are the sole evidence owners. The machine-readable witness
+`joinir-generic-resolved-carrier-source-projection-d3-s2-p1-matrix-2026-08-05.tsv`
+records the admitted natural/nested-If role rows with exact source paths,
+resolver owner brand, `BindingRefV1` relation, and strict-ancestor result. It
+also records the foreign-owner, mixed-session, shadowing, incomplete-forest,
+duplicate/unsupported-role, frame, and foreign-root typed rejects; all are
+pre-effect observations. No Generic facts, selector, Recipe, PHI, Builder,
+MIR, Return/Home/debt, retry, fallback, or production caller moved.
+
+The reference surface now points to the witness and preserves its
+inspection-only status. The selected next row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-FACTS-SNAPSHOT0-D3-S2-P2`.
 
 # Stop
 

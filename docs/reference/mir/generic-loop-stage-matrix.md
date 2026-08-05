@@ -199,6 +199,17 @@ evidence, and proves raw `[V1]` with typed
 or production selector is implied; the parent source-to-selection boundary
 remains a design stop.
 
+The D3-S2 P1 source-projection packaging is also closed as inspection-only.
+The existing non-`Clone` resolver provenance product and projector/source
+bridge remain the sole evidence owners. The machine-readable witness is
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-projection-d3-s2-p1-matrix-2026-08-05.tsv`;
+it records exact source paths, resolver owner brands, `BindingRefV1` role
+relations, strict-ancestor results, and typed pre-effect mismatch reasons.
+This does not promote Generic facts, select a route, issue a Recipe key, or
+add a production caller. The selected next row is the neutral AST-free facts
+snapshot design/test task
+`JOINIR-GENERIC-RESOLVED-CARRIER-FACTS-SNAPSHOT0-D3-S2-P2`.
+
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is
 closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite

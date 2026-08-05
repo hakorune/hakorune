@@ -477,15 +477,16 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-PROJECTION0-D3-S2-P1
-  is selected after D3-S2-D1 and the P0 static source-site census closed
-  docs-only. The matrix proves Generic facts are AST/name/derived products;
-  existing resolver/projector/bridge evidence is the only source-backed test
-  witness. Recipe producer alone issues LoopBindingKeyV1; Binding SSA alone
-  owns physical ValueId/PHI. P1 adds no production authority. Return/outer-PHI
-  and natural debt remain NoSafeSlice.
+JOINIR-GENERIC-RESOLVED-CARRIER-FACTS-SNAPSHOT0-D3-S2-P2
+  is selected after D3-S2-D1, P0, and P1 closed docs/test-only. P0 classifies
+  every current Generic V0/V1 field/producer arm; P1 packages the existing
+  resolver/projector/bridge evidence in one source-site/owner/BindingRef/
+  strict-ancestor witness. Recipe producer alone issues LoopBindingKeyV1;
+  Binding SSA alone owns physical ValueId/PHI. P2 remains neutral AST-free
+  facts only; no production authority. Return/outer-PHI and natural debt
+  remain NoSafeSlice.
   Task: docs/development/current/main/investigations/joinir-generic-resolved-
-  carrier-source-projection-d3-s2-p1-task-2026-08-05.md
+  carrier-facts-snapshot-d3-s2-p2-task-2026-08-05.md
 ```
 
 ## Production invariants

@@ -68,13 +68,15 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- D3-S2-D1 and P0 source-site totality census are closed docs/static-only.
-  The matrix proves current Generic facts are AST/name/derived products, not
-  canonical source-site/owner/BindingRef facts. P1 source projection is now
-  selected to reuse existing resolver/projector/bridge evidence. Only the
-  Recipe producer may later issue `LoopBindingKeyV1`; Binding SSA owns physical
-  ValueId/PHI. No production authority moved. Scalar Return/outer-PHI and
-  natural debt-to-different-winner remain NoSafeSlice.
+- D3-S2-D1, P0 source-site totality, and P1 source projection are closed
+  docs/static-only. P0 proves current Generic facts are AST/name/derived
+  products; P1 packages existing resolver/projector/bridge evidence in one
+  machine-readable source-site/owner/BindingRef/strict-ancestor witness with
+  typed pre-effect mismatch rows. Only the Recipe producer may later issue
+  `LoopBindingKeyV1`; Binding SSA owns physical ValueId/PHI. P2 is selected for
+  one neutral AST-free non-Clone facts snapshot; no production authority moved.
+  Scalar Return/outer-PHI and natural debt-to-different-winner remain
+  NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
