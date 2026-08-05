@@ -483,11 +483,13 @@ JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0
   observed source topology/role equality, distinct resolver brands, and raw
   frame-coordinate collision; its focused suite is 12/12. No DirectAccum
   frame, Generic snapshot/key/seed/selector, Builder/MIR/Recipe/PHI,
-  Return/Home/debt, fallback/retry, or production authority moved. The closed
-  execution card is
+  Return/Home/debt, fallback/retry, or production authority moved. Worker
+  audit disposition: NoSafeSlice for scalar Return/outer-PHI, natural
+  debt-to-different-winner, and Generic snapshot/key/seed; sole owners or
+  natural fixtures are not sealed. The closed execution card is
   docs/development/current/main/investigations/joinir-generic-resolved-carrier-
   provenance-repeat-audit-d3-s2-s3-task-2026-08-05.md; the parent design card
-  is again the sole selector for the next D3-S2 row.
+  remains the sole selector for the next D3-S2 row.
 ```
 
 ## Production invariants

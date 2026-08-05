@@ -75,7 +75,10 @@ Related:
   equality, distinct resolver brands, and raw frame-coordinate collision. The
   focused provenance suite is 12/12. No Generic snapshot/key/seed, selector,
   Builder/MIR/Recipe/PHI, Return/Home/debt, DirectAccum frame, or production
-  authority moved; the frontier returns to the D3-S2 design stop.
+  authority moved; the frontier returns to the D3-S2 design stop. A worker
+  audit found NoSafeSlice for scalar Return/outer-PHI, natural
+  debt-to-different-winner, and Generic snapshot/key/seed because their sole
+  owners or natural fixtures are not yet sealed.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

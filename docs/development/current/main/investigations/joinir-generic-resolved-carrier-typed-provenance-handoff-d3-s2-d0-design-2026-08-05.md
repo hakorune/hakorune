@@ -148,6 +148,23 @@ The focused provenance suite is green at 12/12 and the row remains
 components, or any production/Generic selection meaning, stop and reopen this
 design card; the current frontier returns here.
 
+## Post-S3 next-row audit — NoSafeSlice
+
+The worker premise audit checked the three plausible next rows and selected no
+new execution row. Scalar full-function Return projection lacks a sealed
+Return/outer-PHI sole owner and fresh isolated V0/V1 fixture. Natural
+post-effect debt followed by a different winner lacks a real source-backed
+debt receipt; synthetic mutation is forbidden. Generic snapshot,
+`LoopBindingKey`, preflight seed, and `InvocationSeal` still lack sole-owner
+contracts. Therefore the current S3 product remains the last evidence and the
+frontier stays at this design stop.
+
+Until a new design seal names the missing owner and natural fixture, do not
+add an issuer, input/output product, reject enum, Builder/MIR/Recipe/PHI,
+Return/ABI/Home/debt meaning, Generic key/seed/selector, fallback, retry, or
+production caller. This is a NoSafeSlice disposition, not permission to infer
+one of those semantics from existing labels or `ValueId`s.
+
 No selector arm, production caller, Recipe/JoinSig/PHI/physicalizer, MIR/VM
 route, Retry deletion, fallback deletion, or scheduler cutover is authorized
 by this card. Caller census must be zero before any later production switch.
