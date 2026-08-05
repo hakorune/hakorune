@@ -108,4 +108,6 @@ D4-S4-D0 records that a future `Selected(Generic)` must retain a real
 resolver source lease, candidate proof, and `BindingRef` roles; this selector
 must not feed a Recipe from its current marker-only outcome. D4-S4-S0 is now
 closed as `NoSafeSlice`: no selected callsite or resolver Generic candidate
-envelope exists. The next row is design-only D4-S4-S0-D0 semantic-shape design.
+envelope exists. D4-S4-S0-D0 closes the future move-only lease -> shape ->
+observation -> selector -> demand chain; this policy module only moves opaque
+capabilities and never issues keys. The next row is the gated demand witness.

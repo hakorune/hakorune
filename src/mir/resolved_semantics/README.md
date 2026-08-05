@@ -561,5 +561,7 @@ selector; it consumes no resolver coordinates or legacy policy fields.
 D4-S4-D0 fixes the next boundary: a future Generic selected capability must
 retain a resolver source lease and role-level BindingRefs, while current
 Generic labels/facts cannot be re-resolved into Recipe. D4-S4-S0 is closed as
-`NoSafeSlice`; no selected callsite or Generic demand exists. The next design
-stop is D4-S4-S0-D0 semantic-shape design and this resolver remains caller-zero.
+`NoSafeSlice`; no selected callsite or Generic demand exists. D4-S4-S0-D0
+fixes this resolver as the sole source-lease/BindingRef issuer, with the
+future shape projector consuming that brand and returning AST-free proof. The
+next step is the gated witness and this resolver remains caller-zero.

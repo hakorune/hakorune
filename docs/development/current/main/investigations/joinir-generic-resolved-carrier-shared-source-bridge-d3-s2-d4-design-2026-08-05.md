@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0/D4-S3-S1/D4-S3-S2/D4-S4-D0/D4-S4-S0 closed; D4-S4-S0 NoSafeSlice; D4-S4-S0-D0 selected
+Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0/D4-S2-S0/D4-S3-D0/D4-S3-S0/D4-S3-S1/D4-S3-S2/D4-S4-D0/D4-S4-S0/D4-S4-S0-D0 closed; D4-S4-S0-D0 selected
 Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -864,14 +864,92 @@ role-level lease. The historical handoff protocol and synthetic test receipts
 are not acceptable substitutes. Therefore S0 must not add a fake
 `Selected(Generic)`, wrap/re-resolve facts by name, or reuse the legacy demand.
 
+## D4-S4-S0-D0 semantic-shape design closeout
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-DESIGN0-D4-S4-S0-D0`
+is closed as a docs-only worker decision. The minimum future product is a
+move-only capability chain; no type or constructor is implemented in this row:
+
+```text
+resolver source projector
+  -> VerifiedGenericSourceLeaseV1
+  -> GenericSemanticShapeIssuerV1
+  -> VerifiedGenericCandidateEnvelopeV1
+  -> VerifiedGenericFamilyObservationV1 (mode + coverage)
+  -> SelectedGenericFamilyV1
+  -> VerifiedGenericRecipeDemandV1
+  -> Generic Recipe producer
+```
+
+### Issuer map
+
+| product / field | sole issuer | contract |
+| --- | --- | --- |
+| owner, origin, source-kind, root/loop sites, forest, frame | resolver source projector | one opaque non-`Clone` `SourceLease`; no loose coordinate constructor |
+| role claims and `BindingRef` identity/scope/ancestry | resolver source projection | exact site + resolver-issued `BindingRef`; role set is non-`Clone`, not re-resolved by name |
+| carrier, condition/step, body-effect, and semantic coverage proofs | new `GenericSemanticShapeIssuerV1` | AST may be borrowed only while issuing; output is typed/AST-free and never wraps `GenericLoopV0/V1Facts` or `RecipeBody` |
+| candidate envelope seal | shape issuer consuming the resolver lease | preserves the lease brand and shape atomically; no independent source identity |
+| mode snapshot and whole-unit/window coverage context | neutral observation/policy owner | co-sealed once; `MatrixModeV1`, route IDs, schedules, cursors, and planner flags are not source shape |
+| family outcome | family selector | moves an opaque candidate; never reconstructs, keys, or revalidates by name |
+| `LoopBindingKeyV1` and key↔`BindingRef` effect relation | Generic Recipe producer | sole key issuer; atomic verified product only |
+| physical `ValueId`/`PHI` | Binding SSA | later physical owner; absent from every handoff product |
+
+`VerifiedGenericSourceLeaseV1` may borrow `VerifiedResolvedSourceUnitV1`,
+`FunctionSourceViewV1`, and `LocatedStmtV1` only during issuance. The returned
+capability owns no AST, source-unit reference, or lifetime-carrying view. The
+existing test-only provenance and shared-window products are evidence and
+cannot become this production issuer by renaming or re-exporting.
+
+### Shape and state contract
+
+The candidate shape is bounded typed proof, not a string label or expression
+AST. It contains exact condition/step/body source sites, typed carrier and
+step-placement proof, typed body-effect/exit roles, and complete forest/window
+coverage. Normalized bindings/uses/assignments may be inputs, but their current
+graph lacks comparator/literal/step/body-effect detail; a resolver-owned
+projector must add those facts or return `Unresolved`.
+
+```text
+Unsealed
+  -> SourceLease (resolver brand)
+  -> CandidateEnvelope (shape + lease, consumed once)
+  -> FamilyObservation (mode/coverage co-sealed)
+  -> SelectedGenericFamily (selector move only)
+  -> GenericRecipeDemand (demand move only)
+```
+
+Every lease, role set, envelope, observation, selected capability, and demand
+is non-`Clone`/non-`Copy`; `BindingRefV1` may remain a copied identity inside a
+sealed role entry. No stage may split and later re-pair forest/frame/site/role
+parts, clone the source, or re-resolve names.
+
+### Reject and readiness matrix
+
+Reject before candidate publication or key allocation on mixed owner/session,
+foreign `BindingRef`, site/forest/frame mismatch, skipped/duplicate/unknown
+role, shadowing/upvar/capture escape, incomplete condition/step/body effect,
+opaque/transferred/synthetic subtree, unsupported operator/placement, stale
+lease, mode/coverage mismatch, or missing whole-unit proof. These are typed
+`Rejected`/`Unresolved`; they are never retry, fallback, alias, or
+`NoCandidate`. `NoCandidate` is legal only from a sealed whole-unit no-Loop
+envelope, never from window `Neither`, `NoStandaloneRow`, `V1Only`, overlap,
+or planner-unsealed evidence.
+
+The required counterexample is two structurally identical Generic loops (or
+two resolver sessions) with distinct source sites/`BindingRef`s, including a
+shadowing relation. Pairing one loop's lease with the other's forest/frame or
+role must reject before effects; a marker-only selector must not be able to
+choose either loop.
+
+D4-S4-S0-D0 is accepted only as this design contract. The future cfg(test)
+witness may start after a real resolver-issued shape and a selector callsite
+produce `Selected(Generic)`; otherwise it closes as `NoSafeSlice` again. Any
+implementation commit must update `docs/reference/**`, current mirrors, and
+support READMEs in the same commit.
+
 ## Current next action
 
-Proceed to the new design stop
-`JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-DESIGN0-D4-S4-S0-D0`.
-Define the minimum resolver-issued AST-free Generic semantic shape: candidate
-envelope, carrier/step/body effect roles, exact source sites, mode/coverage,
-forest/frame, and `BindingRef` provenance. Each field must have a named issuer;
-missing authority remains NoSafeSlice. Do not implement a witness, Recipe
-producer, key allocation, Builder/MIR caller, retry, or fallback until that
-design closes. Any future implementation commit updates `docs/reference/**`,
-current mirrors, and support READMEs in the same commit.
+Return to the gated D4-S4-S0 semantic-demand witness only after the resolver
+shape issuer and positive candidate proof exist. Do not add a synthetic
+selector constructor, a legacy-demand adapter, a Recipe producer, key
+allocation, Builder/MIR/PHI effect, retry, or fallback before that gate.

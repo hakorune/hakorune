@@ -477,15 +477,15 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-DESIGN0-D4-S4-S0-D0
-  follows the closed D4-S4-S0 NoSafeSlice audit. No real Selected(Generic),
-  resolver AST-free Generic candidate envelope, one-shot BindingRef lease, or
-  Generic demand exists. Design the minimum semantic shape and name every
-  field issuer; do not fabricate a winner or import AST/Builder/legacy demand.
-  Recipe producer remains the sole LoopBindingKeyV1/effect-relation owner; no
-  production caller, Builder/MIR, retry, fallback, or old-edge deletion.
-  Any later implementation commit updates affected references/current docs in
-  the same commit.
+JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-DEMAND-WITNESS1-D4-S4-S0
+  follows the closed D4-S4-S0-D0 design. The move-only chain is fixed:
+  resolver SourceLease -> AST-free Generic shape/candidate envelope -> policy
+  observation -> selector -> Generic demand. Issuers are separated for source
+  identity/BindingRef, shape proofs, mode/coverage, Recipe keys/effect relation,
+  and Binding SSA. This witness is gated on real Selected(Generic) evidence;
+  otherwise NoSafeSlice again. No production caller, Builder/MIR, retry,
+  fallback, or old-edge deletion. Later implementation updates references and
+  current docs in the same commit.
 ```
 
 ## Production invariants

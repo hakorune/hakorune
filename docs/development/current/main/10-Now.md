@@ -98,9 +98,11 @@ Related:
   AST/Builder-derived, so a new resolver-issued AST-free semantic demand and
   one-shot source lease are required. D4-S4-S0 is now closed as NoSafeSlice:
   no real Selected(Generic), resolver AST-free candidate envelope, one-shot
-  BindingRef lease, or Generic demand exists. The next frontier is the
-  design-only semantic-shape stop D4-S4-S0-D0; no synthetic winner or
-  production caller is allowed.
+  BindingRef lease, or Generic demand exists. D4-S4-S0-D0 is now closed as a
+  worker-reviewed design: resolver SourceLease, AST-free shape/candidate
+  envelope, policy observation, selector, Generic demand, Recipe producer, and
+  Binding SSA have separate issuers. The next frontier is gated witness1; it
+  requires real Selected(Generic) evidence and otherwise remains NoSafeSlice.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

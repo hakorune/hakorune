@@ -221,6 +221,33 @@ mode/coverage, forest/frame, carrier/step/body effect roles, and
 no selector winner, Recipe/key, Builder/MIR/PHI, retry, fallback, or production
 caller may be added.
 
+That design stop is now closed. The selected product chain is:
+
+```text
+resolver source projector
+  -> VerifiedGenericSourceLeaseV1
+  -> GenericSemanticShapeIssuerV1
+  -> VerifiedGenericCandidateEnvelopeV1
+  -> VerifiedGenericFamilyObservationV1 (mode + coverage)
+  -> SelectedGenericFamilyV1
+  -> VerifiedGenericRecipeDemandV1
+  -> Generic Recipe producer
+```
+
+The resolver owns the opaque source lease, exact sites/forest/frame, and
+role-level `BindingRef` claims. The shape issuer may borrow AST only while
+producing bounded typed carrier/condition/step/body-effect/coverage proofs;
+the output contains no AST, `RecipeBody`, or source-unit lifetime. Policy owns
+the co-sealed mode/coverage context, the selector only moves the opaque
+capability, the Recipe producer alone issues recipe keys/effect relations, and
+Binding SSA alone owns physical `ValueId`/`PHI`. All products are move-only;
+`BindingRef` identity copies do not make role capabilities clonable.
+
+The next witness remains gated on a real resolver-issued shape and positive
+`Selected(Generic)` callsite. Existing test-only provenance, current Generic
+facts, normalized labels, legacy selected demand, and historical synthetic
+receipts remain non-authoritative and cannot be adapted by name.
+
 ## Structural owners
 
 | Owner | Owns | Must not own |
