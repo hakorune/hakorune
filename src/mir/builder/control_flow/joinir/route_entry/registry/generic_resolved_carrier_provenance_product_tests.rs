@@ -9,14 +9,20 @@ use super::generic_nested_carrier_bindingref_tests::{
     resolved_binding, write_site, SHADOWING_SOURCE, SOURCE,
 };
 use crate::mir::resolved_semantics::generic_resolved_carrier_provenance::{
-    issue_resolved_carrier_provenance_v1, BrandedResolvedForestV1, BrandedResolvedFrameV1,
-    ProvenanceRejectV1, ResolvedCarrierHandoffV1, ResolvedCarrierRoleKindV1, ResolvedCarrierRoleV1,
+    issue_provenance_repeat_audit_v1, issue_resolved_carrier_provenance_v1,
+    BrandedResolvedForestV1, BrandedResolvedFrameV1, ProvenanceRejectV1, ProvenanceRepeatInputV1,
+    ResolvedCarrierHandoffV1, ResolvedCarrierRoleKindV1, ResolvedCarrierRoleV1,
 };
 use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
 
 fn handoff(source: &str) -> ResolvedCarrierHandoffV1 {
+    handoff_in(source, 0)
+}
+
+fn handoff_in(source: &str, compilation_unit_ordinal: u32) -> ResolvedCarrierHandoffV1 {
     let function = parse_function(source);
-    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver session");
+    let mut resolver =
+        FunctionSemanticResolverSessionV1::new(compilation_unit_ordinal).expect("resolver session");
     let product = resolver
         .resolve(FunctionSyntaxViewV1::from_ast(&function).expect("function view"))
         .expect("source resolves");
@@ -239,5 +245,35 @@ fn generic_d3_s2_s2_unknown_role_rejects_before_effects() {
     assert_eq!(
         issue_resolved_carrier_provenance_v1(invalid),
         Err(ProvenanceRejectV1::UnsupportedRole)
+    );
+}
+
+#[test]
+fn generic_d3_s2_s3_fresh_products_repeat_without_identity_alias() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let left = issue_resolved_carrier_provenance_v1(handoff(SOURCE)).expect("session A product");
+    let right = issue_resolved_carrier_provenance_v1(handoff(SOURCE)).expect("session B product");
+    let observation =
+        issue_provenance_repeat_audit_v1(ProvenanceRepeatInputV1::for_test(left, right))
+            .expect("fresh products have repeatable source structure");
+    assert!(observation.source_topology_equal());
+    assert!(observation.outer_inner_sites_equal());
+    assert!(observation.roles_equal());
+    assert!(observation.strict_ancestor_equal());
+    assert!(observation.owner_brands_distinct());
+    assert!(observation.raw_frame_coordinates_equal());
+}
+
+#[test]
+fn generic_d3_s2_s3_function_origin_mismatch_rejects_before_effects() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let left =
+        issue_resolved_carrier_provenance_v1(handoff_in(SOURCE, 0)).expect("session A product");
+    let right =
+        issue_resolved_carrier_provenance_v1(handoff_in(SOURCE, 1)).expect("session B product");
+    assert_eq!(
+        issue_provenance_repeat_audit_v1(ProvenanceRepeatInputV1::for_test(left, right)),
+        Err(crate::mir::resolved_semantics::generic_resolved_carrier_provenance::
+            ProvenanceRepeatRejectV1::FunctionOriginMismatch)
     );
 }

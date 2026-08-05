@@ -146,6 +146,79 @@ pub(crate) struct VerifiedResolvedCarrierProvenanceV1 {
 #[derive(Debug, PartialEq, Eq)]
 struct ProvenanceSealV1;
 
+/// One pair of complete S2 products.  The repeat observer accepts this pair
+/// as a single unit so no downstream caller can re-pair its private parts.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct ProvenanceRepeatInputV1 {
+    left: VerifiedResolvedCarrierProvenanceV1,
+    right: VerifiedResolvedCarrierProvenanceV1,
+}
+
+impl ProvenanceRepeatInputV1 {
+    #[cfg(test)]
+    pub(crate) fn for_test(
+        left: VerifiedResolvedCarrierProvenanceV1,
+        right: VerifiedResolvedCarrierProvenanceV1,
+    ) -> Self {
+        Self { left, right }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ProvenanceRepeatRejectV1 {
+    ReusedOrEqualOwnerBrand,
+    FunctionOriginMismatch,
+    SourceKindMismatch,
+    OuterInnerSiteMismatch,
+    ForestTopologyMismatch,
+    RoleKindOrSiteMismatch,
+    BindingRelationMismatch,
+    StrictAncestorMismatch,
+    FrameCoordinateMismatch,
+    MissingOrDetachedProduct,
+    MixedOrForeignOwnerBrand,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct ProvenanceRepeatObservationV1 {
+    source_topology_equal: bool,
+    outer_inner_sites_equal: bool,
+    roles_equal: bool,
+    strict_ancestor_equal: bool,
+    owner_brands_distinct: bool,
+    raw_frame_coordinates_equal: bool,
+    _seal: ProvenanceRepeatSealV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct ProvenanceRepeatSealV1;
+
+impl ProvenanceRepeatObservationV1 {
+    pub(crate) const fn source_topology_equal(&self) -> bool {
+        self.source_topology_equal
+    }
+
+    pub(crate) const fn outer_inner_sites_equal(&self) -> bool {
+        self.outer_inner_sites_equal
+    }
+
+    pub(crate) const fn roles_equal(&self) -> bool {
+        self.roles_equal
+    }
+
+    pub(crate) const fn strict_ancestor_equal(&self) -> bool {
+        self.strict_ancestor_equal
+    }
+
+    pub(crate) const fn owner_brands_distinct(&self) -> bool {
+        self.owner_brands_distinct
+    }
+
+    pub(crate) const fn raw_frame_coordinates_equal(&self) -> bool {
+        self.raw_frame_coordinates_equal
+    }
+}
+
 impl VerifiedResolvedCarrierProvenanceV1 {
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
@@ -194,6 +267,61 @@ pub(crate) fn issue_resolved_carrier_provenance_v1(
         frame,
         roles,
         _seal: ProvenanceSealV1,
+    })
+}
+
+/// Observe one repeat across fresh resolver products.  This is deliberately a
+/// passive sink: it consumes complete products, performs no source scan, and
+/// never creates Generic selection or Builder state.
+pub(crate) fn issue_provenance_repeat_audit_v1(
+    input: ProvenanceRepeatInputV1,
+) -> Result<ProvenanceRepeatObservationV1, ProvenanceRepeatRejectV1> {
+    let ProvenanceRepeatInputV1 { left, right } = input;
+    if left.owner == right.owner {
+        return Err(ProvenanceRepeatRejectV1::ReusedOrEqualOwnerBrand);
+    }
+    if left.function_origin != right.function_origin {
+        return Err(ProvenanceRepeatRejectV1::FunctionOriginMismatch);
+    }
+    if left.source_kind != right.source_kind {
+        return Err(ProvenanceRepeatRejectV1::SourceKindMismatch);
+    }
+    if left.outer_site != right.outer_site || left.inner_site != right.inner_site {
+        return Err(ProvenanceRepeatRejectV1::OuterInnerSiteMismatch);
+    }
+    if left.forest.forest != right.forest.forest {
+        return Err(ProvenanceRepeatRejectV1::ForestTopologyMismatch);
+    }
+    if left.forest.owner != left.owner
+        || right.forest.owner != right.owner
+        || left.frame.owner != left.owner
+        || right.frame.owner != right.owner
+    {
+        return Err(ProvenanceRepeatRejectV1::MixedOrForeignOwnerBrand);
+    }
+    for (left_role, right_role) in left.roles.iter().zip(right.roles.iter()) {
+        if left_role.kind != right_role.kind || left_role.site != right_role.site {
+            return Err(ProvenanceRepeatRejectV1::RoleKindOrSiteMismatch);
+        }
+        if left_role.binding.binding() != right_role.binding.binding() {
+            return Err(ProvenanceRepeatRejectV1::BindingRelationMismatch);
+        }
+        if left_role.strict_ancestor != right_role.strict_ancestor {
+            return Err(ProvenanceRepeatRejectV1::StrictAncestorMismatch);
+        }
+    }
+    let raw_frame_coordinates_equal = left.frame.frame == right.frame.frame;
+    if !raw_frame_coordinates_equal {
+        return Err(ProvenanceRepeatRejectV1::FrameCoordinateMismatch);
+    }
+    Ok(ProvenanceRepeatObservationV1 {
+        source_topology_equal: true,
+        outer_inner_sites_equal: true,
+        roles_equal: true,
+        strict_ancestor_equal: true,
+        owner_brands_distinct: true,
+        raw_frame_coordinates_equal,
+        _seal: ProvenanceRepeatSealV1,
     })
 }
 

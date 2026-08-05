@@ -238,6 +238,13 @@ evidence remain separate design rows. No selector, Generic snapshot/key/seed,
 opaque input, Recipe, PHI, Builder, MIR, retry, fallback, or runtime caller is
 authorized by this product.
 
+The selected D3-S2-S3 repeat audit remains cfg(test)-only. It consumes two
+complete S2 products as one non-`Clone` pair, observes repeated source
+topology/roles and distinct resolver brands, and records equal raw frame
+coordinates without treating them as identity. Mismatches reject before
+effects. It adds no Generic key/seed, selector, DirectAccum frame, Builder,
+MIR, or production authority; the parent D3-S2 design stop remains active.
+
 The passive product consumes one resolver-issued owner/forest/frame/role
 handoff as a single non-`Clone` value and publishes one opaque AST-free source
 witness. It rejects mixed owner brands, foreign/unequal bindings, duplicate or

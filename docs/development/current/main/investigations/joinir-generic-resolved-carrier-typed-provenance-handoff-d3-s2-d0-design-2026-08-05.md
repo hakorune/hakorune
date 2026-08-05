@@ -118,9 +118,9 @@ neutral issuer be considered:
 resolver observation -> AST-free neutral snapshot -> private Builder adapter
 ```
 
-## S3 repeat-audit selection — design sealed
+## S3 repeat-audit — closed cfg(test)-only
 
-The next bounded child is selected as
+The bounded child was selected as
 `JOINIR-GENERIC-RESOLVED-CARRIER-PROVENANCE-REPEAT-AUDIT0-D3-S2-S3`.
 It is a `cfg(test)`-only observer over one private, non-`Clone` pair of
 complete D3-S2-S2 provenance products from fresh resolver sessions A and B.
@@ -143,8 +143,10 @@ distinct brands are a positive observation, not a reject.
 
 The execution receipt is
 `joinir-generic-resolved-carrier-provenance-repeat-audit-d3-s2-s3-task-2026-08-05.md`.
-If the implementation needs a second issuer, loose components, or any
-production/Generic selection meaning, stop and reopen this design card.
+The focused provenance suite is green at 12/12 and the row remains
+`cfg(test)`-only. If a future implementation needs a second issuer, loose
+components, or any production/Generic selection meaning, stop and reopen this
+design card; the current frontier returns here.
 
 No selector arm, production caller, Recipe/JoinSig/PHI/physicalizer, MIR/VM
 route, Retry deletion, fallback deletion, or scheduler cutover is authorized

@@ -68,16 +68,14 @@ Related:
   no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
   fallback, or production handoff moved. Execution returns to the parent D3
   design stop for the remaining matrix and winner/disjointness work.
-- D3-S1 is closed as the prior policy boundary. D3-S2-S0, D3-S2-S1, and the
-  bounded D3-S2-S2 cfg(test)-only passive provenance product are closed.
-  S2 consumes one co-sealed handoff in a private non-Clone
-  `resolved_semantics` factory and rejects typed owner/forest/frame/role
-  mismatches before effects. The selected D3-S2-S3 repeat audit consumes two
-  complete S2 products as one non-Clone pair and observes structural equality,
-  distinct resolver brands, and raw frame-coordinate collision. It adds no
-  Generic snapshot/key/seed, selector, Builder/MIR/Recipe/PHI,
-  Return/Home/debt, DirectAccum frame, or production authority; after the
-  audit the frontier returns to the D3-S2 design stop.
+- D3-S1 is closed as the prior policy boundary. D3-S2-S0, D3-S2-S1, the
+  bounded D3-S2-S2 cfg(test)-only passive provenance product, and the D3-S2-S3
+  repeat audit are closed. S2 publishes one co-sealed opaque product; S3
+  consumes two complete products as one non-Clone pair and observes structural
+  equality, distinct resolver brands, and raw frame-coordinate collision. The
+  focused provenance suite is 12/12. No Generic snapshot/key/seed, selector,
+  Builder/MIR/Recipe/PHI, Return/Home/debt, DirectAccum frame, or production
+  authority moved; the frontier returns to the D3-S2 design stop.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
