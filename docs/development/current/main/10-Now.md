@@ -72,9 +72,12 @@ Related:
   bounded D3-S2-S2 cfg(test)-only passive provenance product are closed.
   S2 consumes one co-sealed handoff in a private non-Clone
   `resolved_semantics` factory and rejects typed owner/forest/frame/role
-  mismatches before effects. No Generic snapshot/key/seed, selector,
-  Builder/MIR/Recipe/PHI, Return/Home/debt, or production caller is claimed;
-  the frontier returns to the D3-S2 design stop.
+  mismatches before effects. The selected D3-S2-S3 repeat audit consumes two
+  complete S2 products as one non-Clone pair and observes structural equality,
+  distinct resolver brands, and raw frame-coordinate collision. It adds no
+  Generic snapshot/key/seed, selector, Builder/MIR/Recipe/PHI,
+  Return/Home/debt, DirectAccum frame, or production authority; after the
+  audit the frontier returns to the D3-S2 design stop.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

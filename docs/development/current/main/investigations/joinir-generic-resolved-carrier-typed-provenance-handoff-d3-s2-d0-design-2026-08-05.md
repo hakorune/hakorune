@@ -118,6 +118,34 @@ neutral issuer be considered:
 resolver observation -> AST-free neutral snapshot -> private Builder adapter
 ```
 
+## S3 repeat-audit selection — design sealed
+
+The next bounded child is selected as
+`JOINIR-GENERIC-RESOLVED-CARRIER-PROVENANCE-REPEAT-AUDIT0-D3-S2-S3`.
+It is a `cfg(test)`-only observer over one private, non-`Clone` pair of
+complete D3-S2-S2 provenance products from fresh resolver sessions A and B.
+The pair is the sole input; loose forest/frame/role/AST/facts arguments are
+not accepted.
+
+The observer records only source-topology and outer/inner-site equality, typed
+role and strict-ancestor equality, distinct resolver brands, and the fact that
+raw frame coordinates may compare equal without establishing identity. The
+resolver-issued brand remains the sole owner/issuer. `DirectAccum` frame
+semantics remain unchanged, and no Generic snapshot/key/seed, selector,
+eligibility, winner, `InvocationSeal`, Builder/MIR/Recipe/PHI, Return/Home/debt,
+or production authority is introduced.
+
+Typed mismatches reject before effects with no fallback or retry: reused/equal
+brands, function/source mismatch, site/topology mismatch, role or binding
+mismatch, strict-ancestor mismatch, frame-coordinate mismatch, missing or
+detached products, and mixed/foreign brands. Equal raw frame coordinates with
+distinct brands are a positive observation, not a reject.
+
+The execution receipt is
+`joinir-generic-resolved-carrier-provenance-repeat-audit-d3-s2-s3-task-2026-08-05.md`.
+If the implementation needs a second issuer, loose components, or any
+production/Generic selection meaning, stop and reopen this design card.
+
 No selector arm, production caller, Recipe/JoinSig/PHI/physicalizer, MIR/VM
 route, Retry deletion, fallback deletion, or scheduler cutover is authorized
 by this card. Caller census must be zero before any later production switch.

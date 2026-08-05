@@ -477,17 +477,15 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-TYPED-PROVENANCE-HANDOFF-DESIGN0-D3-S2-D0
-  remains the design stop after the closed cfg(test)-only D3-S2-S2 passive
-  product. S2 consumed one co-sealed owner/forest/frame/role handoff in a
-  private non-Clone resolved_semantics factory and rejected typed mismatches
-  before effects; DirectAccum's ownerless structural frame is unchanged. No
-  Generic snapshot/key/seed/selector, Builder/MIR/Recipe/PHI, Return/Home/
-  debt meaning, fallback/retry, or production caller is authorized. The
-  closed execution card is
+JOINIR-GENERIC-RESOLVED-CARRIER-PROVENANCE-REPEAT-AUDIT0-D3-S2-S3
+  is the selected cfg(test)-only repeat audit after closed S2. It consumes
+  two complete non-Clone S2 products as one pair, observes source topology and
+  role equality, distinct resolver brands, and raw frame-coordinate collision.
+  It must not change DirectAccum's ownerless structural frame or mint Generic
+  snapshot/key/seed/selector authority. The execution card is
   docs/development/current/main/investigations/joinir-generic-resolved-carrier-
-  provenance-product-d3-s2-s2-task-2026-08-05.md; the parent design card is
-  again the sole selector for the next D3-S2 row.
+  provenance-repeat-audit-d3-s2-s3-task-2026-08-05.md; the parent design card
+  remains the authority for stop conditions and rejects.
 ```
 
 ## Production invariants
