@@ -83,7 +83,9 @@ Related:
   are closed. The current stop is docs-only D4-S2 family-boundary design:
   freeze one owner map, one complete raw Generic/resolved-family disposition
   matrix, typed rejects, and atomic retirement conditions before any selector
-  or cutover. Exact disjointness, classifier/selector policy, Recipe, PHI,
+  or cutover. The owner map now keeps resolver identity, neutral facts,
+  Recipe-key issuance, canonical plan sealing, and registry policy separate.
+  Exact disjointness, classifier/selector policy, Recipe, PHI,
   Builder/MIR, Return/Home/debt, retry, fallback, runtime, and production
   authority remain NoSafeSlice. Scalar Return/outer-PHI and natural
   debt-to-different-winner remain NoSafeSlice.

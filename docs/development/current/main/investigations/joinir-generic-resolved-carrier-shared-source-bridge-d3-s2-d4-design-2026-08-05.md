@@ -500,6 +500,70 @@ sole authority, a future neutral facts issuer may not issue Recipe keys, and
 only the registry/selection owner may later consume one canonical plan. The
 raw Generic and resolved preflight edges stay intact until an atomic cutover.
 
+## D4-S2 owner map
+
+```text
+FunctionSemanticResolverSessionV1 /
+VerifiedResolvedSourceUnitV1 / resolver views
+  = sole source owner: owner, origin, source kind, exact sites, forest, frame,
+    and BindingRef identity
+
+mir::loop_structural_facts issuer
+  = future neutral AST-free facts/eligibility only; no route ID, schedule,
+    Recipe key, BindingKey, ValueId, or PHI
+
+Recipe producer
+  = sole LoopBindingKeyV1 issuer and Recipe/JoinSig/source-effect relation owner
+
+one non-Clone canonical plan
+  = sole co-sealed facts + eligibility + Recipe + route-affecting invocation
+    input; loose seed/seal/four-field bundles are rejected
+
+registry/selection.rs
+  = sole future policy consumer of that canonical plan
+router
+  = execution seed/frame transport only
+Generic composer / Builder / MIR / resolved preflight profiles
+  = never winner selectors
+```
+
+## D4-S2 disposition matrix
+
+The matrix is a report/decision input, not a selector implementation:
+
+```text
+raw carrier: V0-only | V1-only | Both | Neither
+mode: Release | Strict | planner-required
+carrier disposition: CompleteRecursive | CompleteNoRecursive | Unavailable | Ambiguous
+source relation: exact | shadowing | foreign/mixed owner-frame | missing/unstable
+shape: exact carrier | nested-wrapper | duplicate-write | Index | Program |
+       CompoundAssignment
+resolved column: NestedPredicate | DirectAccum | A+ | canonical reject
+```
+
+Fixture names, source coordinates, route IDs, and equal-shape labels are report
+joins only; they are never semantic keys. A+ remains a whole-function
+non-loop fallback after trivial non-admission, not Loop-family precedence.
+
+## D4-S2 typed boundary and retirement contract
+
+Missing/foreign/ambiguous source brand, site/forest/frame/BindingRef mismatch,
+AST or ValueId leakage, incomplete facts/eligibility/Recipe relation,
+unsupported shape, planner-required suppression without sealed policy, and
+unresolved overlap produce typed `UnresolvedStop`, `NoStandaloneRow`,
+`NotYetObserved`, or `CanonicalRejected` as applicable. There is no selector
+inference, target-row legacy fallback, Generic/Nested/A+ retry, post-effect
+retry, AST/name/route reconstruction, or silent fallback. Existing
+`NotCandidate` remains only the current resolved preflight behavior for
+unrelated shapes; exact candidate failures are terminal.
+
+D4-S2 deletes no old edge. A later atomic cutover must prove exactly one
+production canonical selector/plan consumer, duplicate family classifier/caller
+zero, retirement of raw Generic and resolved preflight legacy ingress in the
+same commit, retry/fallback zero, and same-commit reference/current-doc
+updates. Nested-before-DirectAccum remains observed precedence only until a
+future disjointness policy is accepted.
+
 No selector inference, Generic/Nested/A+ retry, AST/name/route-ID pairing,
 post-effect retry, or silent fallback is allowed. Production migration is
 `NoSafeSlice` until this design is accepted.

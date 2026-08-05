@@ -482,8 +482,10 @@ JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-BOUNDARY-DESIGN0-D4-S2
   cfg(test)-only module now has seven green paired-view/DirectAccum witness
   tests and no production caller. The current task is docs-only: freeze one
   owner map, the full raw Generic/resolved-family disposition matrix, typed
-  reject/fallback rules, and atomic retirement conditions. Do not add another
-  semantic witness, selector, Recipe, Builder/MIR caller, or production route.
+  reject/fallback rules, and atomic retirement conditions. Resolver identity,
+  neutral facts, Recipe-key issuance, canonical plan sealing, and registry
+  policy remain separate owners. Do not add another semantic witness,
+  selector, Recipe, Builder/MIR caller, or production route.
   The active card and exact matrix are:
   docs/development/current/main/investigations/joinir-generic-resolved-
   carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md

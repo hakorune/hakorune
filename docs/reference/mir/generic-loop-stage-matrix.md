@@ -263,6 +263,19 @@ WinnerCorrectnessUnavailable)`; planner-required V0 suppression remains typed
 unresolved. No selector, retry, fallback, or edge retirement is authorized
 until that design is accepted.
 
+D4-S2 owner map and boundary are now frozen as docs-only policy: resolver owns
+source identity; neutral `loop_structural_facts` may own only AST-free
+facts/eligibility; the Recipe producer alone issues `LoopBindingKeyV1`; one
+non-`Clone` canonical plan co-seals route-affecting inputs; and
+`registry/selection.rs` alone may consume that plan for policy. Its matrix is
+`V0-only|V1-only|Both|Neither` × `Release|Strict|planner-required` ×
+`CompleteRecursive|CompleteNoRecursive|Unavailable|Ambiguous` × source relation
+(`exact|shadowing|foreign/mixed|missing`) × shape (`exact|nested-wrapper|
+duplicate-write|Index|Program|CompoundAssignment`), with resolved
+NestedPredicate/DirectAccum/A+/canonical-reject columns independent. No old
+edge is retired here; later cutover requires one selector, duplicate caller
+zero, same-commit old-edge deletion, and retry/fallback zero.
+
 The bounded row
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2` is
 closed as cfg(test)-only evidence. One parsed S2A-shaped nested IndexWrite
