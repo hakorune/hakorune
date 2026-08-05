@@ -1,4 +1,4 @@
-Status: Option 3 accepted; D4-WITNESS0 and D4-S1-S0 closed; D4-S2 design stop current
+Status: Option 3 accepted; D4-WITNESS0/D4-S1-S0 closed; D4-S2-R1 accepted; D4-S2-S0 selected
 Date: 2026-08-06
 Parent: joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md
 Predecessor: joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md
@@ -482,95 +482,118 @@ facts README boundaries, Generic-loop README, this card, and current support
 pages. Changed source remains below 800 lines and the workstream remains below
 1000 lines.
 
-# D4-S2 family-boundary design stop
+# D4-S2 family-boundary design closeout
 
-The next row is the docs-only design task
-`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-BOUNDARY-DESIGN0-D4-S2` (canonical alias
-`D4-FAMILY-BOUNDARY0`). No additional semantic/test-only witness is safe: it
-would mint selector policy without a complete matrix and Recipe/key owner.
+`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-BOUNDARY-DESIGN0-D4-S2` is accepted,
+with the worker-audited correction
+`JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-AUTHORITY-CORRECTION0-D4-S2-R1`.
+The earlier wording placed policy after a Recipe-bearing canonical plan and
+named builder `registry/selection.rs` as its future consumer. That order is
+rejected: selection must precede Recipe production, and the builder registry is
+legacy schedule/compatibility authority to retire rather than promote.
 
-The design must freeze one owner map and one disposition/reject matrix for raw
-Generic V0/V1 versus resolved NestedPredicate/DirectAccum/A+, including
-Release/Strict/planner-required, carrier completeness, shadowing, owner/frame
-mismatch, nested-wrapper, duplicate-write, Index, Program, and
-CompoundAssignment rows. Natural Both remains
-`UnresolvedStop(FamilyOverlap/WinnerCorrectnessUnavailable)`; planner-required
-V0 suppression remains a typed unresolved row. Resolver source identity remains
-sole authority, a future neutral facts issuer may not issue Recipe keys, and
-only the registry/selection owner may later consume one canonical plan. The
-raw Generic and resolved preflight edges stay intact until an atomic cutover.
+## Corrected authority pipeline
 
-## D4-S2 owner map
+```text
+resolver-owned shared source identity
+  -> neutral AST-free family observations
+  -> mir::loop_route_policy selection
+  -> selected family Recipe producer
+  -> Recipe verify / JoinSig seal
+  -> CanonicalLoopFamilyPlanV1 / CanonicalFirstFamilyPlanV1
+  -> lower
+```
+
+The durable owner map is:
 
 ```text
 FunctionSemanticResolverSessionV1 /
 VerifiedResolvedSourceUnitV1 / resolver views
-  = sole source owner: owner, origin, source kind, exact sites, forest, frame,
-    and BindingRef identity
+  = sole owner of function/source identity, exact sites, forest, frame,
+    BindingRef relations, and the non-Clone shared source window
 
-mir::loop_structural_facts issuer
-  = future neutral AST-free facts/eligibility only; no route ID, schedule,
-    Recipe key, BindingKey, ValueId, or PHI
+future VerifiedLoopFamilyObservationSetV1
+  = one resolver-branded, non-Clone candidate/disposition set plus exact
+    Release/Strict/planner-required snapshot; no Recipe/key, raw schedule,
+    winner, precedence, Builder, ValueId, or PHI
 
-Recipe producer
-  = sole LoopBindingKeyV1 issuer and Recipe/JoinSig/source-effect relation owner
+future CanonicalLoopFamilySelectionV1 in mir::loop_route_policy
+  = sole policy owner; consumes the observation set exactly once and yields
+    Selected | NoCandidate | typed Rejected/Unresolved
 
-one non-Clone canonical plan
-  = sole co-sealed facts + eligibility + Recipe + route-affecting invocation
-    input; loose seed/seal/four-field bundles are rejected
+selected family Recipe producer
+  = sole LoopBindingKeyV1 and Recipe/JoinSig/source-effect relation issuer
 
-registry/selection.rs
-  = sole future policy consumer of that canonical plan
-router
-  = execution seed/frame transport only
-Generic composer / Builder / MIR / resolved preflight profiles
-  = never winner selectors
+CanonicalFirstFamilyPlanV1
+  = whole-function post-selection lowering envelope; it never selects a winner
+
+builder registry/selection.rs and router
+  = current legacy raw schedule/execution transport only; never canonical
+    source identity, family policy, Recipe, or plan authority
+
+Binding SSA / PHI
+  = sole physical BindingRef -> ValueId/merge authority after verified plan
 ```
 
-## D4-S2 disposition matrix
+`NoCandidate` is valid only when a sealed observation proves that no Loop
+family envelope exists. Only that result may continue to Trivial/A+ whole-unit
+selection. Missing/foreign/ambiguous identity, site/forest/frame mismatch,
+planner-required suppression without sealed policy, and raw/raw or
+raw/resolved overlap remain typed pre-effect `Rejected/Unresolved`; they are
+never absence. Once a family is selected, Recipe/verify/lower failure is
+terminal: retry, re-selection, post-effect fallback, AST/name/route-ID
+reconstruction, and hidden precedence are forbidden.
 
-The matrix is a report/decision input, not a selector implementation:
+The future atomic production cutover must name one production selection
+consumer and delete, in the same commit, the migrated portions of sequential
+Nested-before-Direct preflight selection, raw `select_recipe_first_routes`,
+schedule retry, Generic post-effect retry, and duplicate probe selectors.
+Until that cutover, all existing production edges remain intact.
 
-```text
-raw carrier: V0-only | V1-only | Both | Neither
-mode: Release | Strict | planner-required
-carrier disposition: CompleteRecursive | CompleteNoRecursive | Unavailable | Ambiguous
-source relation: exact | shadowing | foreign/mixed owner-frame | missing/unstable
-shape: exact carrier | nested-wrapper | duplicate-write | Index | Program |
-       CompoundAssignment
-resolved column: NestedPredicate | DirectAccum | A+ | canonical reject
-```
+## Selected D4-S2-S0 task
 
-Fixture names, source coordinates, route IDs, and equal-shape labels are report
-joins only; they are never semantic keys. A+ remains a whole-function
-non-loop fallback after trivial non-admission, not Loop-family precedence.
+Token:
+`JOINIR-GENERIC-RESOLVED-CARRIER-LEGACY-SAME-SOURCE-CENSUS0-D4-S2-S0`
 
-## D4-S2 typed boundary and retirement contract
+Change:
+  Extend only the private `cfg(test)` shared-source-window seam with one
+  non-exported report. Consume one paired receipt for DirectAccum and one for
+  NestedPredicate under Release, Strict, and planner-required: six rows total.
+  Record same owner/site/frame plus exact existing raw V0/V1 carrier and
+  schedule observations and existing resolved-preflight result. Name every
+  current-route field `legacy_*`; old authority deleted = none.
 
-Missing/foreign/ambiguous source brand, site/forest/frame/BindingRef mismatch,
-AST or ValueId leakage, incomplete facts/eligibility/Recipe relation,
-unsupported shape, planner-required suppression without sealed policy, and
-unresolved overlap produce typed `UnresolvedStop`, `NoStandaloneRow`,
-`NotYetObserved`, or `CanonicalRejected` as applicable. There is no selector
-inference, target-row legacy fallback, Generic/Nested/A+ retry, post-effect
-retry, AST/name/route reconstruction, or silent fallback. Existing
-`NotCandidate` remains only the current resolved preflight behavior for
-unrelated shapes; exact candidate failures are terminal.
+Contract:
+  This is retirement inventory, not canonical evidence. It creates no
+  reusable observation API, eligibility, winner, precedence, policy input,
+  Recipe/key, production caller/export, Builder effect, retry, or fallback.
+  A+/Trivial/canonical-reject and shadowing/Index/Program/CompoundAssignment/
+  duplicate-write remain outside this bounded Loop-pair census.
 
-D4-S2 deletes no old edge. A later atomic cutover must prove exactly one
-production canonical selector/plan consumer, duplicate family classifier/caller
-zero, retirement of raw Generic and resolved preflight legacy ingress in the
-same commit, retry/fallback zero, and same-commit reference/current-doc
-updates. Nested-before-DirectAccum remains observed precedence only until a
-future disjointness policy is accepted.
+Done:
+  The six exact measured rows are frozen by focused tests; foreign/non-Loop
+  receipt rejects stay terminal; production caller count and old-edge deletion
+  remain zero. The implementation commit updates affected
+  `docs/reference/**`, resolver/facts/Generic-loop support docs, this card, and
+  `CURRENT_STATE.toml` in the same commit. All changed source/check files stay
+  below 800 lines and the rolling workstream stays below 1000 lines.
 
-No selector inference, Generic/Nested/A+ retry, AST/name/route-ID pairing,
-post-effect retry, or silent fallback is allowed. Production migration is
-`NoSafeSlice` until this design is accepted.
+Stop:
+  Return to design before editing production if the census needs a public
+  product, merges the two rows into a winner, treats a legacy schedule as
+  canonical policy evidence, reaches Recipe/Builder, or cannot keep both views
+  tied to one resolver-owned receipt.
+
+## Ordered follow-up
+
+After S0, use its measured rows in the docs-only
+`JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-SELECTION-AUTHORITY0-D4-S3-D0`.
+That row decides the neutral observation-set schema and policy outcomes; it
+does not inherit current Nested-before-Direct or raw-registry ordering as truth.
 
 # Current next action
 
-Stop at the D4-S2 design boundary. Do not add another semantic witness or begin
-production route migration until the owner map, full matrix, typed reject and
-retirement contract are accepted. Any future implementation commit must update
-affected `docs/reference/**` and current support pages in that same commit.
+Stop with D4-S2-R1 documented and D4-S2-S0 selected. Do not implement a
+selector or production migration. The next implementation is only the private
+six-row legacy same-source census, with same-commit reference/current-doc
+updates required after implementation.

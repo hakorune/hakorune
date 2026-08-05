@@ -477,16 +477,15 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 
 ```text
-JOINIR-GENERIC-RESOLVED-CARRIER-FAMILY-BOUNDARY-DESIGN0-D4-S2
-  is current after D4-WITNESS0 and D4-S1-S0 closeout. The private MIR-root
-  cfg(test)-only module now has seven green paired-view/DirectAccum witness
-  tests and no production caller. The current task is docs-only: freeze one
-  owner map, the full raw Generic/resolved-family disposition matrix, typed
-  reject/fallback rules, and atomic retirement conditions. Resolver identity,
-  neutral facts, Recipe-key issuance, canonical plan sealing, and registry
-  policy remain separate owners. Do not add another semantic witness,
-  selector, Recipe, Builder/MIR caller, or production route.
-  The active card and exact matrix are:
+JOINIR-GENERIC-RESOLVED-CARRIER-LEGACY-SAME-SOURCE-CENSUS0-D4-S2-S0
+  is selected after D4-S2-R1 corrected the authority order to source
+  observations -> loop_route_policy -> Recipe -> verify/plan -> lower.
+  builder registry selection is legacy retirement inventory, not the future
+  canonical selector. S0 may add only a private cfg(test) 2-fixture x 3-mode
+  same-source report with legacy-labelled raw schedule/preflight observations.
+  It issues no winner, policy input, Recipe/key, export, production caller,
+  retry, fallback, or old-edge deletion. Implementation updates affected
+  references and current docs in the same commit. The exact task is in:
   docs/development/current/main/investigations/joinir-generic-resolved-
   carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md
 ```
