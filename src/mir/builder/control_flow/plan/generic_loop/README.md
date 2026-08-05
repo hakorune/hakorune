@@ -115,16 +115,14 @@ carrier labels/tags are corroborating only. This remains test-only evidence;
 no Generic route, Recipe, JoinSig, PHI, physicalizer, Builder, MIR, or runtime
 authority is changed.
 
-S2 and the scoped D3 matrix are closed. The bounded projector row is also
-closed as five cfg(test)-only tests. The next bounded row is the source-backed
-handoff bridge
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1`; the upper design stop
-remains the co-sealed source-to-selection handoff card in
-`docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-boundary-d3-design-2026-08-05.md`.
-The bridge will keep the parsed S2A nested-`IfThen` path using
-`FunctionSourceViewV1` and co-seal resolver forest/BindingRef/source/frame plus
-private facts-only identity; a cross-invocation mismatch must reject before
-effects. No production selector or route handoff is allowed.
+S2, the scoped D3 matrix, the source-backed bridge, and the planner-suppression
+row are closed as cfg(test)-only tests. The next bounded row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`: reuse
+the parsed S2A outer/inner `IfThen` topology with plain `items[j] = i`, and
+co-seal resolver `IndexWrite`, facts `Ambiguous("assignment target")`, exact
+source/forest/frame identity, actual Release/Strict mode, and observed raw
+schedule. The result is typed pre-effect `UnresolvedStop`; no production
+selector, neutral issuer, or route handoff is allowed.
 
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
 pre-effect resolver eligibility from post-effect V1 corroboration. The next

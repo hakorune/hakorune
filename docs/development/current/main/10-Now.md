@@ -39,8 +39,9 @@ Related:
   `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1`
   is closed as cfg(test)-only evidence: actual Strict+planner-required mode
   co-seals the existing S2A source and yields typed unresolved raw `[V1]` after
-  V0 suppression. The current blocker is back at the parent
-  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-DESIGN0-D2` design stop. No
+  V0 suppression. The selected next row is
+  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`:
+  parsed nested IndexWrite plus facts Ambiguous evidence, cfg(test)-only. No
   Generic production Recipe, selector arm, source-to-selection handoff, route,
   physical, Retry, or fallback change is authorized; M10b still waits on
   M7/M8/M9 and D2. Read `current_execution_summary` and `current_design_stop`

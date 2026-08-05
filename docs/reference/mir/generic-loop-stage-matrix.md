@@ -199,6 +199,14 @@ evidence, and proves raw `[V1]` with typed
 or production selector is implied; the parent source-to-selection boundary
 remains a design stop.
 
+The selected next row is
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`: one
+parsed S2A-shaped nested IndexWrite (`items[j] = i`) must co-seal resolver
+`IndexWrite`, facts `Ambiguous("assignment target")`, exact source/forest/frame
+identity, actual Release/Strict mode, and observed raw schedule. The typed
+result is pre-effect `UnresolvedStop`; no eligibility issuer or selector arm
+is implied.
+
 The scoped D3 matrix is now also green as one cfg(test) test over four typed
 rows: natural Release, natural Strict, shadowing negative, and planner-required
 V0 suppression. Its evaluator separates pre-effect BindingRef eligibility from

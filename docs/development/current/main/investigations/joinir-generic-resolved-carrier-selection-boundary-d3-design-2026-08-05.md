@@ -505,6 +505,55 @@ production owner.
   V0-only, Unavailable, Ambiguous, NoRecursive, and full parent D2 remain
   separate unresolved rows.
 
+## Selected bounded task — source-backed Index/Ambiguous matrix row
+
+Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-INDEX-AMBIGUOUS0-D2-S2`
+
+Decision: accepted as one cfg(test)-only negative matrix row after independent
+worker adjudication. Eligibility issuance and production handoff remain
+stopped until this missing source-backed axis is closed.
+
+### Change
+
+- Reuse the parsed S2A outer/inner-loop plus `IfThen` topology and change only
+  the decisive nested write to plain `items[j] = i`, with `items` a function
+  parameter. Keep the inner `j` step, outer `i` step, and post-loop read.
+- Co-seal the resolver's `ResolvedAssignmentTargetV1::IndexWrite`, Generic
+  facts' `Ambiguous("assignment target")`, exact forest/source/frame identity,
+  actual Release/Strict mode, raw schedule, and fresh-repeat result in one
+  private non-`Clone` test witness. The positive BindingRebind projector may
+  reject this row as `NonBindingTarget`; do not force it through the positive
+  eligibility path.
+
+### Contract
+
+- The typed result is `UnresolvedStop(IndexWriteAmbiguousCarrier)`; it is a
+  natural negative matrix row, not `ProvenOutsideTarget`, Legacy, a winner, or
+  a V0/V1 precedence claim. Release/Strict should retain raw `[V0, V1]` if the
+  existing facts route is unchanged.
+- No AST reconstruction, second resolver/seed, `loop_structural_facts`
+  production widening, selector/Builder import, Retry/fallback, or production
+  eligibility/adapter/Recipe/JoinSig/PHI/MIR authority is allowed.
+
+### Done
+
+- Focused tests prove the parsed fixture's two-member forest, exact nested
+  `IndexWrite`, exact `Ambiguous` carrier fact, same source/frame identity,
+  actual Release/Strict raw schedule, fresh-repeat stability, and typed
+  pre-effect unresolved disposition. The taskization commit updates this card,
+  current pointers, Generic/resolved-semantics READMEs, stage-matrix reference,
+  and the workstream; implementation closeout must update them again with
+  measured evidence and reference status.
+
+### Stop
+
+- Return to design if the parser/resolver cannot construct `IndexWrite`, facts
+  do not produce exact `Ambiguous("assignment target")`, the forest or mode is
+  unstable, another source shape or production API is needed, or any Builder
+  effect occurs. Eligibility protocol, neutral snapshot/issuer, sealed
+  `RecipeFirstSelectionInputV1`, V0 suppression arm, V1 precedence, and parent
+  D2 closeout remain separate later rows.
+
 ## Closed bounded task — nested `IfThen` carrier coverage
 
 Task: `JOINIR-GENERIC-NESTED-IF-CARRIER-COVERAGE0-D2-B4-S2A`
