@@ -265,6 +265,13 @@ It may add exactly one parsed flat Assignment witness. Exact
 simple-route/V1-only schedules, shape drift, and identity drift return to the
 D2-S5-D0 design stop.
 
+The S1 witness is now closed as cfg(test)-only evidence. It observes exact
+`CompleteNoRecursiveCarrier` with Release/Strict raw `[GenericLoopV0,
+GenericLoopV1]` and maps only to typed `UnresolvedStop(NonRecursiveOutOfTarget)`
+for the one-member out-of-target shape. It does not establish a winner,
+eligibility, Legacy, selector, Recipe, PHI, Builder, MIR, Retry, fallback, or
+production handoff.
+
 ## D2-B4-S2A nested `IfThen` carrier evidence
 
 The bounded S2A row is closed as one parsed, `cfg(test)`-only carrier witness.

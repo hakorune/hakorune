@@ -62,14 +62,12 @@ Related:
   Unavailable, V0-only, selector, eligibility, production handoff, Recipe,
   PHI, Builder, MIR, Retry, or fallback claim follows. A separate parsed
   Both/NoRecursive row requires a new design decision.
-- accepted implementation child:
-  `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-BOTH-NORECURSIVE0-D2-S5-S1`.
-  It covers exactly one parsed flat Assignment shape after the D2-S5-D0
-  disposition design. Exact CompleteNoRecursive plus measured `[V0,V1]`
-  remains test-only `UnresolvedStop(NonRecursiveOutOfTarget)`; facts absent,
-  empty raw schedule, simple-route/V1-only shape, or identity drift returns to
-  design. No selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
-  fallback, or production handoff is authorized.
+- D2-S5-S1 is closed as cfg(test)-only evidence for one parsed flat
+  Assignment shape. Exact `CompleteNoRecursiveCarrier` plus Release/Strict
+  raw `[V0,V1]` maps only to typed `UnresolvedStop(NonRecursiveOutOfTarget)`;
+  no selector, eligibility, Legacy, Recipe, PHI, Builder, MIR, Retry,
+  fallback, or production handoff moved. Execution returns to the parent D3
+  design stop for the remaining matrix and winner/disjointness work.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

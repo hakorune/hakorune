@@ -72,3 +72,32 @@ READMEs, `CURRENT_STATE.toml`, `10-Now.md`, the active workstream, and the
 artifact manifest. Focused and adjacent generic-resolved-carrier tests plus
 pointer/artifact/line guards are required. All touched source/check files stay
 below 800 lines.
+
+## Implementation closeout — 2026-08-05
+
+The sibling cfg(test) module
+`generic_resolved_carrier_both_norecursive_tests.rs` implements the exact
+source contract. It verifies the parsed function body `[Loop, Return]`, loop
+body `[Assignment]`, `j + m < n`, `j = j + 1`, and post-loop `j` sites before
+resolving the one-member forest.
+
+Release and Strict, with planner-required disabled, both observe exact
+`CompleteNoRecursiveCarrier` and measured raw schedule
+`[GenericLoopV0, GenericLoopV1]`. The same-owner write/read BindingRefs,
+source kind, frame key, function origin, and facts identity are co-sealed. A
+fresh repeat gets a distinct `FunctionOwnerId` while preserving the semantic
+shape and schedule. The typed disposition is
+`UnresolvedStop(NonRecursiveOutOfTarget)`; it is not ProvenOutsideTarget,
+Legacy, a winner, or an eligibility capability.
+
+Focused evidence is green:
+
+```bash
+env -u HAKO_JOINIR_STRICT -u HAKO_JOINIR_PLANNER_REQUIRED \
+  RUSTFLAGS='-Awarnings' cargo test --lib flat_norecursive -- --nocapture
+```
+
+The implementation closeout updates the D2-S5-D0 design card, parent D3
+design, Generic SSOT, stage-matrix reference, both Generic READMEs, current
+mirrors, and artifact manifest in this same commit. No production caller or
+selector/eligibility authority moved.

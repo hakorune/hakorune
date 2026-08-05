@@ -199,6 +199,11 @@ or selector is introduced. The child is
 it consumes only the exact parsed one-loop shape and returns to the design
 stop on any facts, schedule, mode, or identity mismatch.
 
+S1 is closed as a test-only one-loop source witness. Its exact facts and raw
+schedule are retained as provenance, while the one-member shape remains
+out-of-target for recursive eligibility; no neutral capability or selector
+consumer was added.
+
 The bounded cfg(test) witness is green with:
 
 ```bash

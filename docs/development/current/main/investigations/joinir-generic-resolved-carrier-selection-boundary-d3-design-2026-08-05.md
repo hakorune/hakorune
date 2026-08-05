@@ -852,3 +852,12 @@ disposition is typed `UnresolvedStop(NonRecursiveOutOfTarget)` when exact
 is typed `NoStandaloneRow`. Simple-while, local/effect, CompoundAssignment,
 eligibility, Legacy, winner, selector, neutral issuer, Builder, MIR, Recipe,
 PHI, Retry, fallback, and production handoff remain outside the task.
+
+S1 is now closed as cfg(test)-only evidence. The exact parsed flat shape
+produces one loop member, exact `CompleteNoRecursiveCarrier`, and measured
+Release/Strict raw `[V0,V1]`; fresh repeats preserve origin/source/frame/
+BindingRef/facts shape with a distinct function owner. Its only disposition is
+typed `UnresolvedStop(NonRecursiveOutOfTarget)`. No eligibility, Legacy,
+winner, selector, Recipe, PHI, Builder, MIR, Retry, fallback, or production
+handoff moved. The parent D3 design stop remains open for the remaining matrix
+and winner/disjointness work.

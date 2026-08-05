@@ -153,6 +153,11 @@ implementation child is
 It remains cfg(test)-only and must return to D2-S5-D0 on shape, facts, mode,
 schedule, or identity drift.
 
+The S1 source witness is closed as cfg(test)-only: exact flat Assignment facts
+`CompleteNoRecursiveCarrier` and measured Release/Strict `[V0,V1]` yield only
+typed `UnresolvedStop(NonRecursiveOutOfTarget)`. The one-member shape is not
+the recursive eligibility capability and adds no production route.
+
 The scoped D3 matrix is one cfg(test) test over four typed rows. It separates
 pre-effect resolver eligibility from post-effect V1 corroboration. The next
 design stop is the co-sealed source-to-selection handoff card in

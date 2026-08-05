@@ -170,3 +170,15 @@ current mirrors, and the artifact manifest in the same closeout commit.
 
 The next implementation task must return to this design stop on any premise
 drift. No production code or selector policy is permitted from this card.
+
+## S1 implementation closeout
+
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-BOTH-NORECURSIVE0-D2-S5-S1`
+is closed as the single cfg(test)-only child. The exact flat source shape
+produced one resolver loop member, exact `CompleteNoRecursiveCarrier`, and
+Release/Strict raw `[GenericLoopV0, GenericLoopV1]`; fresh repeats preserved
+the source/frame/BindingRef/facts shape with a distinct function owner. The
+only disposition is typed `UnresolvedStop(NonRecursiveOutOfTarget)`. No
+eligibility, Legacy, winner, selector, Recipe, PHI, Builder, MIR, Retry,
+fallback, or production handoff was added. The parent D3 design stop remains
+open for the remaining matrix and winner/disjointness work.

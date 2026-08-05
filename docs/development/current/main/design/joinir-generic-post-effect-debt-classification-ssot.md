@@ -1017,6 +1017,15 @@ are fixed by D2-S5-D0. Only exact `CompleteNoRecursiveCarrier` plus measured
 `[V0,V1]` may produce the test-only `UnresolvedStop(NonRecursiveOutOfTarget)`
 candidate; all other outcomes return to design.
 
+S1 is closed as cfg(test)-only evidence. The parsed flat Assignment source
+co-seals one-member forest/source/frame identity, same-owner write/read
+BindingRefs, exact `CompleteNoRecursiveCarrier`, and Release/Strict raw
+`[GenericLoopV0, GenericLoopV1]`; fresh repeats are stable with a distinct
+function owner. The only result is typed `UnresolvedStop(NonRecursiveOutOfTarget)`.
+This does not create eligibility, Legacy, winner, selector, Recipe, PHI,
+Builder, MIR, Retry, fallback, or production handoff authority. The parent D3
+design stop remains open.
+
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
 Change:
