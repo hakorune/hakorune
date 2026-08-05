@@ -5,6 +5,7 @@
 //! runtime caller; production projector activation is a later design step.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::joinir::route_entry::router::test_issue_live_preflight_frame;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::single_planner::try_build_outcome;
@@ -126,8 +127,12 @@ struct ResolvedGenericProjectorReceiptV1 {
     forest_binding: VerifiedLoopSourceForestBindingV1,
     seal: ProjectorSealV1,
     raw_schedule: Box<[super::route_id::LoopRouteId]>,
-    frame_debug: bool,
-    frame_in_static_box: bool,
+    mode_strict_or_dev: bool,
+    mode_planner_required: bool,
+    frame_recipe_first_allowed: bool,
+    frame_contract_present: bool,
+    v0_facts_present: bool,
+    v1_facts_present: bool,
 }
 
 impl ResolvedGenericProjectorReceiptV1 {
@@ -179,8 +184,35 @@ impl ProjectorHandoffObservationV1 {
         &self.receipt.raw_schedule
     }
 
-    pub(super) fn frame_flags(&self) -> (bool, bool) {
-        (self.receipt.frame_debug, self.receipt.frame_in_static_box)
+    pub(super) fn mode_flags(&self) -> (bool, bool) {
+        (
+            self.receipt.mode_strict_or_dev,
+            self.receipt.mode_planner_required,
+        )
+    }
+
+    pub(super) fn preflight_flags(&self) -> (bool, bool) {
+        (
+            self.receipt.frame_recipe_first_allowed,
+            self.receipt.frame_contract_present,
+        )
+    }
+
+    pub(super) fn facts_flags(&self) -> (bool, bool) {
+        (self.receipt.v0_facts_present, self.receipt.v1_facts_present)
+    }
+
+    pub(super) fn source_identity_is_stable(&self) -> bool {
+        self.receipt.identity_is_stable()
+    }
+
+    pub(super) fn recursive_carrier_count(&self) -> usize {
+        self.receipt
+            .seal
+            .facts_observation
+            .identity
+            .recursive_carriers
+            .len()
     }
 
     pub(super) fn source_forest_len(&self) -> usize {
@@ -366,20 +398,19 @@ fn issue_projector(
     else {
         return Err(ProjectorRejectV1::SourceNavigation);
     };
-    let facts = try_build_outcome(&LoopRouteContext::new(
-        condition,
-        body,
-        "generic_projector/0",
-        false,
-        false,
-    ))
-    .map_err(|_| ProjectorRejectV1::FactsAbsent)?
-    .facts
-    .ok_or(ProjectorRejectV1::FactsAbsent)?;
-    let raw_schedule = super::select_recipe_first_routes(Some(&facts))
-        .raw_execution_routes()
-        .to_vec()
-        .into_boxed_slice();
+    let ctx = LoopRouteContext::new(condition, body, "generic_projector/0", false, false);
+    let outcome = try_build_outcome(&ctx).map_err(|_| ProjectorRejectV1::FactsAbsent)?;
+    let facts = outcome
+        .facts
+        .as_ref()
+        .ok_or(ProjectorRejectV1::FactsAbsent)?;
+    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled();
+    let planner_required = crate::config::env::joinir_dev::planner_required_enabled();
+    let frame = test_issue_live_preflight_frame(&ctx, &outcome, strict_or_dev, planner_required);
+    let frame_env = frame.test_env();
+    let raw_schedule = frame.test_raw_schedule().to_vec().into_boxed_slice();
+    let v0_facts_present = facts.facts.generic_loop_v0().is_some();
+    let v1_facts_present = facts.facts.generic_loop_v1().is_some();
     let sites = projector_sites(input, root)?;
     let write = sites.write;
     let read = sites.read;
@@ -428,8 +459,12 @@ fn issue_projector(
             },
         },
         raw_schedule,
-        frame_debug: false,
-        frame_in_static_box: false,
+        mode_strict_or_dev: frame_env.strict_or_dev,
+        mode_planner_required: frame_env.planner_required,
+        frame_recipe_first_allowed: frame.test_recipe_first_allowed(),
+        frame_contract_present: frame.test_recipe_contract_present(),
+        v0_facts_present,
+        v1_facts_present,
     })
 }
 

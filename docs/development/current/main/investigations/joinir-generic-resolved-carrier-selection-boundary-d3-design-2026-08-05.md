@@ -434,8 +434,9 @@ capability.
   invocation is rejected as typed `FactsIdentityMismatch` before selection.
 - The bridge remains test-only and AST-free: no neutral issuer, production
   selector/router arm, Builder/MIR/backend caller, Recipe/JoinSig/PHI, retry,
-  fallback, or parent-D2 winner claim was added. Touched Rust files are 515 and
-  590 lines; the focused projector (5) and protocol (8) filters pass.
+  fallback, or parent-D2 winner claim was added. At D1 closeout the focused
+  projector/protocol files were 515/590 lines; the focused projector (5) and
+  protocol (8) filters passed.
 
 ### Done
 
@@ -455,12 +456,13 @@ capability.
   source shape. Parent D2, full source-backed matrix, neutral issuer, and
   production selector remain `UnresolvedStop`.
 
-## Selected bounded task — source-backed planner suppression
+## Closed bounded task — source-backed planner suppression
 
 Task: `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1`
 
-Decision: accepted as one cfg(test)-only mode-co-seal row. It repairs the D1
-evidence boundary without selecting a winner or creating a production owner.
+Decision: accepted and implemented as one cfg(test)-only mode-co-seal row. It
+repairs the D1 evidence boundary without selecting a winner or creating a
+production owner.
 
 ### Change
 
@@ -489,6 +491,11 @@ evidence boundary without selecting a winner or creating a production owner.
   stability. Existing D1/S2A/D3 filters, pointer/artifact guards, and the
   below-800-line source/check budget remain green; production caller count
   stays zero.
+- Closeout: this implementation commit records the projector/protocol
+  observation update and the new planner-suppression sibling. Focused generic
+  projector/protocol (16), nested-carrier (1), S2A mode-boundary (1), and
+  stage-matrix (1) tests pass. The parent Generic D2 source-to-selection
+  boundary remains the next design stop.
 
 ### Stop
 

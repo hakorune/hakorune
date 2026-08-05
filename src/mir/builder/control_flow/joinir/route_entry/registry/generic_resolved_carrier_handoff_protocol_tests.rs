@@ -227,6 +227,14 @@ fn select(input: TestSelectionInputV1) -> Result<TestSelectionReceiptV1, TestHan
 fn source_backed_input(
     strict_or_dev: bool,
 ) -> Result<TestSourceBackedSelectionInputV1, TestSourceBackedBridgeErrorV1> {
+    let _config = crate::test_support::ScopedTestConfig::apply(&[
+        (
+            "HAKO_JOINIR_STRICT",
+            if strict_or_dev { Some("1") } else { None },
+        ),
+        ("HAKO_JOINIR_PLANNER_REQUIRED", None),
+        ("NYASH_JOINIR_STRICT", None),
+    ]);
     let projector = issue_projector_handoff_for_test(NESTED_IF_SOURCE)
         .map_err(TestSourceBackedBridgeErrorV1::Projector)?;
     if !projector.is_natural_both() {
@@ -355,7 +363,7 @@ fn generic_handoff_source_bridge_accepts_release_and_strict() {
             ]
         );
         assert_eq!(input.projector.source_forest_len(), 2);
-        assert_eq!(input.projector.frame_flags(), (false, false));
+        assert_eq!(input.projector.mode_flags(), (strict_or_dev, false));
         let receipt = select_source_backed(input).expect("source-backed selection");
         assert_eq!(receipt.selected, TestRouteV1::V1);
         assert_eq!(

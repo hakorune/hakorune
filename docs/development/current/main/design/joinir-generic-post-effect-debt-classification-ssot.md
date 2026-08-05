@@ -940,17 +940,17 @@ the later router/neutral-facts/selector boundaries. Parent D2 and all
 production handoff/selection/Recipe/PHI/MIR claims remain `UnresolvedStop`.
 `JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-BRIDGE0-D1` is now closed as a
 cfg(test)-only bridge. The parsed S2A projector receipt retains actual raw
-schedule and frame flags beside the resolver/source/facts witness; Release and
-Strict source-backed protocol tests prove natural `[V0, V1]`, while a second
-parsed invocation is rejected as typed `FactsIdentityMismatch`. The bridge has
-no neutral issuer, production selector/router arm, Builder/MIR caller, Recipe,
-PHI, Retry, or fallback. The next bounded row is
-`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1`:
-co-seal the same parsed S2A source with actual Strict+planner-required mode,
-prove raw `[V1]` and V0 pre-effect suppression, and retain typed
-`UnresolvedStop(PlannerRequiredV0Suppression)`. The row must not issue
-eligibility, Legacy, winner, neutral issuer, or production selection; the
-V0-only premise remains rejected and the parent D2 remains unresolved.
+schedule and mode/preflight flags beside the resolver/source/facts witness;
+Release and Strict source-backed protocol tests prove natural `[V0, V1]`,
+while a second parsed invocation is rejected as typed `FactsIdentityMismatch`.
+The follow-on
+`JOINIR-GENERIC-RESOLVED-CARRIER-SOURCE-MATRIX-PLANNER-SUPPRESSION0-D2-S1` is
+also closed as cfg(test)-only evidence: actual Strict+planner-required mode on
+the same parsed S2A source suppresses V0 before selection, proves raw `[V1]`,
+and retains typed `UnresolvedStop(PlannerRequiredV0Suppression)` with repeat
+stability. Neither row has a neutral issuer, production selector/router arm,
+Builder/MIR caller, Recipe, PHI, Retry, or fallback. Parent D2 remains the
+source-to-selection design stop.
 
 #### `JOINIR-LOOP-ACCUM-PORTABLE-RECIPE0-D0` — design/test-only pilot
 
