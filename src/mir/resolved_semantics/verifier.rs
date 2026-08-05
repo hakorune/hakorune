@@ -30,6 +30,7 @@ use super::source_site::{
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ResolvedFunctionVerificationErrorV1 {
+    SourceSiteInventory(super::ResolvedSourceSiteInventoryVerificationErrorV1),
     DirectCall(super::ResolvedDirectCallVerificationErrorV1),
     IfRegion(ResolvedIfRegionVerificationErrorV1),
     LoopRegion(ResolvedLoopRegionVerificationErrorV1),

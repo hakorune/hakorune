@@ -28,6 +28,7 @@ use super::shadow::{
     ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowScopeIdV0, ShadowScopeKindV0,
 };
 use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
+use super::source_site_inventory::ResolvedSourceSiteInventoryDraftV1;
 use super::{EnumVariantDemandV1, RecordSchemaDemandV1};
 use super::{
     ResolvedFunctionVerificationErrorV1, VerifiedResolvedFunctionV1, VerifiedResolvedScriptV1,
@@ -79,6 +80,7 @@ pub(super) struct AncestorBindingV1 {
 
 struct CanonicalizedDraftV1 {
     data: ResolvedFunctionDataV1,
+    source_sites: ResolvedSourceSiteInventoryDraftV1,
     binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
     scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
     ordered_capture_demands: Box<[OrderedCaptureDemandV1]>,
@@ -177,6 +179,7 @@ impl FunctionSemanticResolverSessionV1 {
         let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), None)?;
         let product = VerifiedResolvedScriptV1::from_canonical_data(
             canonical.data,
+            canonical.source_sites,
             record_literal_demands,
             enum_variant_demands,
             enum_match_demands,
@@ -253,7 +256,7 @@ impl FunctionSemanticResolverSessionV1 {
         let product = ResolvedFunctionDraftV1 {
             data: canonical.data,
         }
-        .seal()
+        .seal_with_source_sites(canonical.source_sites)
         .map_err(ResolveFunctionErrorV1::Verification)?;
         Ok(SealedOwnerConstructionV1 {
             product,
@@ -508,12 +511,20 @@ fn canonicalize_draft(
         direct_call_targets,
         resolved_exits,
     };
+    let mut source_sites = ResolvedSourceSiteInventoryDraftV1::default();
+    for site in draft.statement_sites {
+        source_sites.record_statement(site);
+    }
+    for site in draft.expression_sites {
+        source_sites.record_expression(site);
+    }
     let binding_refs = binding_ids
         .into_iter()
         .map(|(shadow, binding)| (shadow, BindingRefV1::new(owner, binding)))
         .collect();
     Ok(CanonicalizedDraftV1 {
         data,
+        source_sites,
         binding_refs,
         scope_ids,
         ordered_capture_demands,

@@ -312,9 +312,10 @@ The task order is therefore:
 RESOLVED-SOURCE-SITE-INVENTORY0-D0
   -> design inventory ownership, completeness, and typed rejects
 RESOLVED-SOURCE-SITE-INVENTORY0-S0
-  -> resolver traversal recording + seal witness; no Generic consumer
-D4-S4-S2-S0
-  -> V2 consumes the sealed inventory and S1 carrier handoff
+  -> closed: resolver traversal records/seals branded membership; focused
+     inventory/generic tests green; no Generic consumer or public reference row
+D4-S4-S2-S1
+  -> cfg(test)-only V2 Condition+Step role issuer consumes the sealed inventory
 D4-S4-S3
   -> condition/step semantic shape proofs
 ```

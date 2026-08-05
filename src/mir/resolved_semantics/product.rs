@@ -20,6 +20,10 @@ use super::source_site::{
     FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
     SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
 };
+use super::source_site_inventory::{
+    seal_source_site_inventory_v1, ResolvedSourceSiteInventoryDraftV1,
+    VerifiedResolvedSourceSiteInventoryV1,
+};
 use super::verifier::{verify_resolved_function, ResolvedFunctionVerificationErrorV1};
 
 #[derive(Debug)]
@@ -49,6 +53,7 @@ pub(crate) struct ResolvedFunctionDraftV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedResolvedOwnerCoreV1 {
     data: ResolvedFunctionDataV1,
+    source_sites: VerifiedResolvedSourceSiteInventoryV1,
     normalized: NormalizedResolvedFunctionGraphV1,
     lowering_roots: ResolvedFunctionLoweringRootsV1,
     pub(crate) if_regions: ResolvedIfRegionIndexV1,
@@ -112,22 +117,36 @@ pub(crate) enum ResolvedScopeRegionLookupErrorV1 {
 }
 
 impl ResolvedFunctionDraftV1 {
+    #[cfg(test)]
     pub(crate) fn seal(
         self,
     ) -> Result<VerifiedResolvedFunctionV1, ResolvedFunctionVerificationErrorV1> {
+        let source_sites =
+            ResolvedSourceSiteInventoryDraftV1::covering_existing_indexes(&self.data);
+        self.seal_with_source_sites(source_sites)
+    }
+
+    pub(crate) fn seal_with_source_sites(
+        self,
+        source_sites: ResolvedSourceSiteInventoryDraftV1,
+    ) -> Result<VerifiedResolvedFunctionV1, ResolvedFunctionVerificationErrorV1> {
         Ok(VerifiedResolvedFunctionV1 {
-            core: seal_owner_core(self.data)?,
+            core: seal_owner_core(self.data, source_sites)?,
         })
     }
 }
 
 fn seal_owner_core(
     data: ResolvedFunctionDataV1,
+    source_sites: ResolvedSourceSiteInventoryDraftV1,
 ) -> Result<VerifiedResolvedOwnerCoreV1, ResolvedFunctionVerificationErrorV1> {
+    let source_sites = seal_source_site_inventory_v1(source_sites, &data)
+        .map_err(ResolvedFunctionVerificationErrorV1::SourceSiteInventory)?;
     let derived = verify_resolved_function(&data)?;
     let normalized = build_normalized_graph(&data);
     Ok(VerifiedResolvedOwnerCoreV1 {
         data,
+        source_sites,
         normalized,
         lowering_roots: derived.lowering_roots,
         if_regions: derived.if_regions,
@@ -150,6 +169,10 @@ impl VerifiedResolvedFunctionV1 {
 
     pub const fn source_kind(&self) -> super::SemanticOwnerSourceKindV1 {
         self.core.data.root_profile.source_kind()
+    }
+
+    pub const fn source_site_inventory(&self) -> &VerifiedResolvedSourceSiteInventoryV1 {
+        &self.core.source_sites
     }
 
     pub(crate) const fn root_profile(&self) -> SemanticOwnerRootProfileV1 {
@@ -352,6 +375,7 @@ impl VerifiedResolvedFunctionV1 {
 impl VerifiedResolvedScriptV1 {
     pub(crate) fn from_canonical_data(
         data: ResolvedFunctionDataV1,
+        source_sites: ResolvedSourceSiteInventoryDraftV1,
         record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
         enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
         enum_match_demands: BTreeSet<SourceExprSiteV1>,
@@ -359,7 +383,7 @@ impl VerifiedResolvedScriptV1 {
         match_control_sites: BTreeSet<SourceExprSiteV1>,
     ) -> Result<Self, ResolvedFunctionVerificationErrorV1> {
         Ok(Self {
-            core: seal_owner_core(data)?,
+            core: seal_owner_core(data, source_sites)?,
             record_literal_demands,
             enum_variant_demands,
             enum_match_demands,

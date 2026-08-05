@@ -74,6 +74,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 site: path.stmt(),
             });
         }
+        self.record_statement_site(path.stmt());
         match statement {
             ASTNode::Local {
                 variables,

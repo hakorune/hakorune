@@ -359,10 +359,14 @@ AST resolver producer and no Planner or Lower connection; those are later
 authority-cutover slices.
 
 Because the canonical AST is intentionally not stored here, SA2 cannot prove
-that a caller omitted no syntax site. Canonical-AST site totality becomes
-checkable only when the SA3 resolver co-constructs the closed indexes. SA2
-claims referential integrity of supplied indexes, not syntax-independent
-omniscience.
+that a caller omitted no syntax site. The neutral S0 source-site inventory now
+co-seals exact statement/expression membership from the existing resolver
+traversal, brands owner/origin/source-kind, and exposes point lookup only;
+`SourcePathSegmentV1` remains the sole topology authority. Existing semantic
+indexes are checked against that inventory. This is an internal resolver
+product with no Planner/Lower/MIR connection and no public language-reference
+surface. Canonical-AST site totality remains distinct from this membership
+check.
 
 ## SA3 transport boundary
 

@@ -13,6 +13,7 @@ use super::source_site::{
     FunctionOriginV1, OwnedExprSiteV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
     SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
+use super::source_site_inventory::ResolvedSourceSiteInventoryDraftV1;
 use super::VerifiedResolvedFunctionV1;
 
 fn owner() -> FunctionOwnerIdV1 {
@@ -24,6 +25,21 @@ fn owner() -> FunctionOwnerIdV1 {
 
 fn seal(data: ResolvedFunctionDataV1) -> VerifiedResolvedFunctionV1 {
     ResolvedFunctionDraftV1 { data }.seal().unwrap()
+}
+
+#[test]
+fn seal_rejects_existing_indexes_missing_from_source_site_inventory() {
+    let data = sample_data(owner(), BindingId::new(0));
+    let error = ResolvedFunctionDraftV1 { data }
+        .seal_with_source_sites(ResolvedSourceSiteInventoryDraftV1::default())
+        .unwrap_err();
+
+    assert!(matches!(
+        error,
+        super::ResolvedFunctionVerificationErrorV1::SourceSiteInventory(
+            super::ResolvedSourceSiteInventoryVerificationErrorV1::MissingIndexedStatement(_)
+        )
+    ));
 }
 
 fn node(segments: Vec<SourcePathSegmentV1>) -> SourceNodeSiteV1 {

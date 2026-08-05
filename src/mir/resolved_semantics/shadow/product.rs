@@ -260,6 +260,8 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) ancestor_capture_events: Box<[ShadowAncestorCaptureEventV0]>,
     pub(crate) direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
+    pub(crate) statement_sites: BTreeSet<SourceStmtSiteV1>,
+    pub(crate) expression_sites: BTreeSet<SourceExprSiteV1>,
     pub(crate) record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
     pub(crate) enum_variant_demands:
         BTreeMap<SourceExprSiteV1, crate::mir::resolved_semantics::EnumVariantAdmissionV1>,

@@ -18,6 +18,7 @@ pub(super) fn dispatch_resolved_script_root_statement<'ast, 'schema>(
     path: &ShadowSourcePathV0,
     demand: ScriptRootResolvedDemandV1,
 ) -> Result<(), ShadowResolveErrorV0> {
+    resolver.record_statement_site(path.stmt());
     match demand {
         ScriptRootResolvedDemandV1::LexicalCore => resolver.resolve_stmt(statement, path),
         ScriptRootResolvedDemandV1::QMarkPropagation(_) => {
@@ -60,6 +61,7 @@ fn resolve_qmark_propagation<'ast, 'schema>(
             site: path.stmt(),
         });
     };
+    resolver.record_expression_site(path.expr());
     resolver.admit_qmark_propagation(path.expr())?;
     resolver.resolve_expr(
         expression,
@@ -84,6 +86,7 @@ fn resolve_match_control<'ast, 'schema>(
             site: path.stmt(),
         });
     };
+    resolver.record_expression_site(path.expr());
     resolver.admit_match_control(path.expr())?;
     resolver.resolve_expr(
         scrutinee,

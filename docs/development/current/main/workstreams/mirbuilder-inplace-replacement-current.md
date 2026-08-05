@@ -494,9 +494,10 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-EXTENSION0-D4-
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0
   -> worker API/source census proves direct V2 issuance is NoSafeSlice:
      resolver lacks exact site inventory and parent-role topology.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-RESOLVED-SOURCE-SITE-INVENTORY0-D4-S4-S2-S0
-  -> record/seal separate statement/expression site membership during resolver traversal; no parent-role map, AST/name scan, selector, demand, Recipe,
-     Builder/MIR, retry, or fallback.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-RESOLVED-SOURCE-SITE-INVENTORY0-D4-S4-S2-S0
+  -> resolver traversal records/seals branded statement/expression membership; focused inventory/generic tests green; no downstream consumer or public reference row.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-S1
+  -> cfg(test)-only V2 Condition+Step issuer; no parent map, AST/name scan, selector/demand/Recipe/Builder/MIR, retry, fallback, or production caller.
 ```
 
 ## Production invariants
@@ -994,7 +995,6 @@ Scalar Return projection remains deferred cfg(test) evidence.
 Natural debt-to-different-winner evidence remains unobserved.
 Home-bearing Generic evidence remains a separate design.
 Reference closeout follows every future implementation.
-S0 observation artifact is none.
-S0 logical-key assignment remains deferred.
+S0 observation artifact is none; logical-key assignment remains deferred.
 S0 neutral snapshot issuer remains deferred.
 S0 production caller census remains zero; failure returns to D3-S2 design.

@@ -975,26 +975,26 @@ positive, foreign, shadow, duplicate/placement, and forest-mismatch cases;
 upvar/capture awaits a later fixture.
 
 ## D4-S4-S0/S1 witness closeout
+S0/S1 close the cfg(test)-only lease and CarrierProof handoff; no production
+caller, selector/demand, Recipe/Builder/MIR, retry, fallback, or rename.
 
-S0 closes the five-test cfg(test)-only source lease; S1 closes the three-test `VerifiedGenericCarrierProofV1` handoff (same BindingRef, brand retention, lifetime-free output, typed mismatch). No production caller, selector/demand,
-Recipe/Builder/MIR, retry, fallback, or shared-window rename is added.
 ## D4-S4-S2-D1 semantic-shape extension design closeout
-
-Worker D1 closes the docs-only boundary: V1 stays immutable; future claims use an atomic `GenericShapeSourceLeaseV2` wrapper. First profile: inner-loop Condition+Step role catalog; BodyEffect/Coverage remain separate D0/cells. Resolver owns exact sites/maps/forest/frame brands; shape owns operator/literal/effect proofs; role lists are never re-resolved by name.
-Next: `...SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0` specifies the resolver
-issuer/census only; a cfg(test) V2 witness follows only if it exists.
-Selector/demand/Recipe/Builder/MIR/retry/fallback remain forbidden. Every
-implementation cell updates current/support/reference docs in the same commit;
-this cfg(test)-only design cell has no public `docs/reference` row.
+V1 remains immutable; V2 begins with inner-loop Condition+Step. Resolver owns
+sites/forest/frame brands, shape owns operator/effect proofs, and no public
+`docs/reference` row or downstream consumer is allowed here.
 
 ## D4-S4-S2-D0 resolver role-issuer design closeout
+Direct V2 issuance is `NoSafeSlice`; D0 selects branded statement/expression
+point inventory, with `SourcePathSegmentV1` as sole topology authority and no
+AST/name/role/operator/literal or parent-role map.
 
-Worker API census closes direct V2 issuance as `NoSafeSlice`: current role ingress is caller-selected test data and exact site membership is not sealed.
-D0 selects the neutral prerequisite `VerifiedResolvedSourceSiteInventoryV1`:
-separate statement/expression membership with owner/origin/source-kind brand and point lookup only; no AST, names, node kinds, roles, operators, literals, or
-parent-role map. `SourcePathSegmentV1` remains the sole topology authority:
-parent membership plus canonical child-path extension proves role placement.
-## D4-S4-S2-S0 source-site inventory implementation task
+## D4-S4-S2-S0 source-site inventory implementation closeout
+Accepted: one resolver traversal records membership; seal brands owner/origin/
+source-kind, exposes point lookup, and checks indexed sites. Focused inventory
+and generic tests are green; no downstream consumer or public reference row.
 
-Next task: record/seal the inventory during resolver traversal, then let V2 consume it. No AST/name scan, shape proof, selector, demand, Recipe, Builder/MIR,
-retry, fallback, or production caller; implementation updates current/support/reference docs in the same commit.
+## D4-S4-S2-S1 resolver role-issuer witness task
+Next: cfg(test)-only V2 Condition+Step issuer consumes the sealed inventory and
+path topology, rejecting missing/foreign/misplaced sites. No parent map, AST/name
+scan, shape proof, selector/demand/Recipe/Builder/MIR, retry, fallback, or
+production caller; sync current/support/reference decision atomically.

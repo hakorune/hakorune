@@ -41,6 +41,7 @@ mod shadow;
 mod source_path_policy;
 mod source_projection;
 mod source_site;
+mod source_site_inventory;
 mod verifier;
 
 pub(crate) use callable_catalog::{
@@ -158,6 +159,9 @@ pub use source_site::{
     FunctionOriginV1, OwnedExprSiteV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
     SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
+pub use source_site_inventory::{
+    ResolvedSourceSiteInventoryVerificationErrorV1, VerifiedResolvedSourceSiteInventoryV1,
+};
 pub use verifier::ResolvedFunctionVerificationErrorV1;
 
 #[cfg(test)]
@@ -186,5 +190,7 @@ mod owner_forest_tests;
 mod resolver_tests;
 #[cfg(test)]
 mod source_projection_tests;
+#[cfg(test)]
+mod source_site_inventory_tests;
 #[cfg(test)]
 mod tests;

@@ -62,6 +62,8 @@ pub(super) struct ShadowResolverV0<'ast, 'schema> {
     ancestor_capture_events: Vec<ShadowAncestorCaptureEventV0>,
     direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
     resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
+    statement_sites: BTreeSet<SourceStmtSiteV1>,
+    expression_sites: BTreeSet<SourceExprSiteV1>,
     lambda_mode: ShadowLambdaModeV0,
     lambdas: Vec<ShadowLambdaSyntaxV0<'ast>>,
     ancestor_names: BTreeSet<Box<str>>,
@@ -369,6 +371,8 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             ancestor_capture_events: Vec::new(),
             direct_calls: BTreeMap::new(),
             resolved_exits: BTreeMap::new(),
+            statement_sites: BTreeSet::new(),
+            expression_sites: BTreeSet::new(),
             lambda_mode,
             lambdas: Vec::new(),
             ancestor_names,
@@ -407,6 +411,8 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 ancestor_capture_events: self.ancestor_capture_events.into_boxed_slice(),
                 direct_calls: self.direct_calls,
                 resolved_exits: self.resolved_exits,
+                statement_sites: self.statement_sites,
+                expression_sites: self.expression_sites,
                 record_literal_demands: self.record_literal_demands,
                 enum_variant_demands: self.enum_variant_demands,
                 enum_match_demands: self.enum_match_demands,
@@ -481,6 +487,14 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
 
     pub(super) fn current_scope(&self) -> ShadowScopeIdV0 {
         self.scope_stack.last().expect("function scope exists").id
+    }
+
+    pub(super) fn record_statement_site(&mut self, site: SourceStmtSiteV1) {
+        self.statement_sites.insert(site);
+    }
+
+    pub(super) fn record_expression_site(&mut self, site: SourceExprSiteV1) {
+        self.expression_sites.insert(site);
     }
 
     pub(super) fn current_region(&self) -> ShadowRegionIdV0 {

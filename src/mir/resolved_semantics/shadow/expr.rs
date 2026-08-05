@@ -33,6 +33,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 site: path.expr(),
             });
         }
+        self.record_expression_site(path.expr());
         match expr {
             ASTNode::Literal { .. } => Ok(()),
             ASTNode::Variable { name, .. } => self.resolve_named_use(name, path),
@@ -239,6 +240,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         let target_site = path.expr();
+        self.record_expression_site(target_site.clone());
         let resolved = match target {
             ASTNode::Variable { name, .. } => {
                 let Some(binding) = self.lookup(name) else {
@@ -315,6 +317,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         if matches!(object, ASTNode::Me { .. })
             && self.receiver_policy() == ReceiverPolicyV1::StaticCurrentOwner
         {
+            self.record_expression_site(receiver_path.expr());
             if self.observes_all_method_calls() {
                 self.record_method_call_observation(
                     call_site,

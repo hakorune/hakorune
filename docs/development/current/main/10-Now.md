@@ -107,13 +107,13 @@ Related:
   The bounded CarrierProof witness is now closed: same-BindingRef
   NestedWrite -> PostLoopRead proof, lease-brand retention, and no source
   lifetime. D4-S4-S2-D1 closes the worker-reviewed design boundary: V1 stays
-  immutable and a versioned V2 wrapper begins with inner-loop Condition+Step
-  roles; BodyEffect/Coverage remain separate D0 cells. Worker census closes
-  direct role issuance as NoSafeSlice because exact site inventory/parent-role
-  topology is absent. The next task is inventory-only resolver traversal
-  recording/seal; `SourcePathSegmentV1` remains topology authority and no
-  parent-role map is added. Full shape, Selected(Generic), demand, Recipe,
-  Builder/MIR, retry, and fallback remain gated.
+  immutable and V2 begins with inner-loop Condition+Step roles; BodyEffect/
+  Coverage remain separate D0 cells. D4-S4-S2-D0 closes direct issuance as
+  NoSafeSlice and selects the neutral inventory prerequisite. Inventory S0 is
+  now closed: resolver traversal co-seals branded statement/expression point
+  membership, with `SourcePathSegmentV1` as topology authority. The next task
+  is cfg(test)-only V2 role issuance; full shape, Selected(Generic), demand,
+  Recipe, Builder/MIR, retry, and fallback remain gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
