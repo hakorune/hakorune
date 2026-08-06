@@ -991,4 +991,10 @@ Worker review fixed a one-consume API: policy accepts only sealed `VerifiedGener
 ## D4-S4-S3-S1-S2-S1-S1 numeric-policy projection witness closeout
 The cfg(test)-only policy witness preserves substrate provenance/target/map and rejects duplicate or foreign roles; unknown/symbolic/unsupported/non-progressing shapes stay unresolved. Current/workstream/pipeline/README and reference mirror sync are complete; `docs/reference/**` closes only at activation.
 ## D4-S4-S3-S1-S2-S2-D0 policy-to-selector handoff design stop
-Next worker task: define a separate handoff where policy remains generic classification and selector alone owns route admission/winner. No source-role re-resolution, demand, Recipe/key, Builder/MIR, retry, fallback, or production caller is allowed before that design is reviewed.
+Worker design task: insert a separate candidate handoff between policy and
+selector. `issue_generic_numeric_selector_candidate_v1` consumes only a Ready
+policy by value and exposes an opaque target/profile/coverage view plus sealed
+comparison/progression; it must not expose substrate/receipt/BindingRef access.
+Policy Unresolved/Rejected never reaches selector; handoff gaps are Unresolved, foreign/forged seal or profile contradictions are Rejected; selector alone
+owns numeric-route admission, ambiguity, and winner; existing D4-S3 family selector remains separate. No source re-resolution, demand,
+Recipe/key, Builder/MIR, retry, fallback, or production caller before review.

@@ -597,7 +597,8 @@ bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns
   `NumericTarget`; S1-S2-S1-S1 now closes the policy witness with role-bearing
   Condition-Rhs/Step-Rhs operands. Policy consumes the sealed projection once
   and owns progression semantics only. The next design stop is S1-S2-S2-D0:
-  define the policy-to-selector handoff without connecting a selector. Every
+  define an opaque policy-to-selector candidate handoff without exposing the
+  substrate/receipt to selector or connecting a selector. Every
   implementation commit updates current state, workstream, pipeline SSOT, and
   this README; production activation later requires the corresponding
   `docs/reference/**` closeout.
