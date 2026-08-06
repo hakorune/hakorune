@@ -17,6 +17,9 @@ mod family_selection;
 mod family_selector;
 #[cfg(test)]
 mod family_selector_tests;
+
+#[cfg(test)]
+pub(crate) use family_selector_tests::generic_selection_for_test;
 mod generic_g0;
 mod generic_g0_observation;
 #[cfg(test)]

@@ -517,8 +517,10 @@ guard_joinir_loop_compile_candidate_scope() {
     rg -n -F "$required" "$source_adapter" >/dev/null || \
       guard_fail "$tag" "Nested source-binding adapter anchor missing: $required"
   done
+  # Generic G0 S4 is a test-only Recipe producer and is the second explicit
+  # caller-zero consumer of the shared forest-binding adapter.
   if rg -n -F 'bind_resolved_loop_source_forest_v1(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /loop_structural_facts\/resolved_source_adapter\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
+      | awk -F: '$1 !~ /loop_structural_facts\/resolved_source_adapter\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /loop_recipe_contract\/generic_g0\/producer\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested source-binding adapter escaped its caller-zero boundary"

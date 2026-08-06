@@ -63,9 +63,11 @@ against candidate evidence and the borrowed handoff brand, then retains one
 move-only demand with the typed source bundle, post-loop tail read,
 profile/mode/coverage, and an opaque role proof. It does not select another
 family, issue Recipe/JoinSig/Core/After keys, call Builder/MIR, retry, fallback,
-or open a production caller. The worker-reviewed S4 design is now closed; the
-next boundary is the caller-zero S4 Recipe producer
-`GENERIC-G0-RECIPE-S4-I0-R0`.
+or open a production caller. The worker-reviewed S4 design and caller-zero
+Recipe producer `GENERIC-G0-RECIPE-S4-I0-R0` are now closed. The producer lives
+under `loop_recipe_contract::generic_g0`; this policy module does not issue
+Recipe keys or aggregate products. The next ordered boundary is the legacy
+corpus universe P0, while production selection remains closed.
 
 S4 consumes this demand once and is the sole Generic Recipe/effect/provenance
 producer. It must call common Recipe/JoinSig/Core owners rather than re-create

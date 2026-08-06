@@ -179,10 +179,20 @@ source/effect matrix, with typed rejects for stale/foreign/duplicate/missing
 relations and wrong After/ABI pairing. No production caller, physicalizer,
 retry/fallback, or legacy deletion is opened by this design row.
 
-The next ordered boundary is `GENERIC-G0-RECIPE-S4-I0-R0`, a deterministic
-caller-zero producer witness. Its implementation commit must update this
-reference receipt, the Generic source-to-portable Recipe SSOT, affected module
-READMEs, and current mirrors together.
+## Generic G0 Recipe S4 implementation receipt
+
+`GENERIC-G0-RECIPE-S4-I0-R0` landed on 2026-08-07 as a disconnected,
+`cfg(test)` caller-zero producer. It consumes one
+`VerifiedGenericRecipeDemandG0`, binds the resolved source forest once, emits
+the deterministic G0 key map, and delegates Recipe verification, JoinSig,
+source-bound Core, and After binding to their common owners. The product seals
+the exact three carrier rows, ten source/effect relations, moved post-loop
+read, `L0.After/b1`, owner/frame, and `ExactTrivialReturnAbiV1`.
+
+The focused Generic suite is green (42 tests). The producer has no Builder/MIR,
+physical, completion, retry/fallback, or production authority. The next
+ordered boundary is `GENERIC-LEGACY-CORPUS-UNIVERSE-P0`; production selection
+and legacy deletion remain closed.
 
 ## DirectAccum S1 observation receipt
 

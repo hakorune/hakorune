@@ -2,8 +2,8 @@ use super::family_admission_tests::{all_declined, candidate_fixture, fixture, Fi
 use super::{
     assemble_loop_family_admission_window_v1, select_canonical_loop_family_v1,
     CanonicalLoopFamilySelectionOutcomeV1, CanonicalLoopFamilySelectionReasonV1,
-    GenericG0FamilyObservationV1, GenericG0ObservationContextV1, LoopCondFamilyObservationV1,
-    LoopCondObservationContextV1, LoopFamilyAdmissionAssemblyOutcomeV1,
+    CanonicalLoopFamilySelectionV1, GenericG0FamilyObservationV1, GenericG0ObservationContextV1,
+    LoopCondFamilyObservationV1, LoopCondObservationContextV1, LoopFamilyAdmissionAssemblyOutcomeV1,
     LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1, LoopFamilyObservationRowV1,
     LoopFamilyTagV1, LoopTrueFamilyObservationV1, LoopTrueObservationContextV1,
     NestedPredicateFamilyObservationV1, NestedPredicateObservationContextV1,
@@ -241,6 +241,23 @@ function generic_g0(i: i64, j: i64): i64 {
     )
     .into_admission_row();
     (lease, identity, row)
+}
+
+/// Shared caller-zero Generic selection for downstream Recipe tests.  The
+/// source projector and five-row admission window remain owned by this test
+/// module; no production selector caller is introduced.
+pub(crate) fn generic_selection_for_test() -> CanonicalLoopFamilySelectionV1 {
+    let (lease, identity, candidate) = generic_candidate_fixture();
+    let mut rows = all_declined(&identity).into_vec();
+    rows[0] = candidate;
+    let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
+        LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
+        _ => panic!("generic candidate window must be ready"),
+    };
+    match select_canonical_loop_family_v1(window) {
+        CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => selection,
+        _ => panic!("generic candidate must be selected"),
+    }
 }
 
 fn assert_selected(

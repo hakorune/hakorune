@@ -514,8 +514,7 @@ closed — LOOP-JOINSIG-MODULE-SPLIT-R0 -> flat JoinSig module retired into thin
 closed — LOOP-RECIPE-PRODUCER-ID-S0 -> portable wire now carries `producer_id: LoopRecipeProducerIdV1`; old `producer_route` is rejected, three current producers/fixtures migrated, test-only legacy route parity receipt added, schema/producers remain route-free, focused 59 tests and shared guard green; selector/registry/production caller unchanged.
 closed — LOOP-JOINSIG-NESTED-SHADOW-S0 -> visible payload projection now walks target-to-root ancestry, keeps the nearest carrier per Recipe-local binding, emits binding-key order, and isolates siblings; verifier owns unknown/duplicate carrier rejects; 64 focused tests, shared guard, pointer guard, and reference/README sync are green; no After, PHI, Generic, selector, producer, or production change.
 closed — LOOP-RECIPE-SOURCE-BOUND-CORE-S0 -> caller-zero core now co-seals verified Recipe/JoinSig/source claim with exact BindingRef/effect relations and typed loop-carrier anchors; 73 focused contract tests, shared guard, pointer guard, and reference/README sync are green; no Generic key, Builder/MIR, physical, or production change.
-closed — loop-family receipts and Generic S3/S4-D0 design are closed; current
-row is S4-I0-R0 caller-zero Recipe producer; production/physical/legacy remain closed.
+closed — loop-family receipts and Generic S3/S4-D0 design are closed; S4-I0-R0 caller-zero Recipe producer landed with 42 focused Generic tests and synced Recipe/reference/README receipts. Current row is GENERIC-LEGACY-CORPUS-UNIVERSE-P0; production/physical/retry/legacy remain closed.
 ```
 ## Production invariants
 ```text

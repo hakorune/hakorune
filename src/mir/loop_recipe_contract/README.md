@@ -45,6 +45,19 @@ Loop lowering.
   non-`Clone` validation capability. Its wire DTO remains intentionally
   `Clone`; neither type is source authority.
 
+## Generic G0 S4 producer
+
+`generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one
+`VerifiedGenericRecipeDemandG0`, binds the resolved source forest exactly once,
+and emits one deterministic `GenericG0` Recipe artifact plus the common
+source-bound Core and Generic After envelope. The exact portable mapping is
+the SSOT in `docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md`:
+two bindings, two nested loops, fifteen values, three carrier rows, and ten
+source/effect relations. This subtree is `cfg(test)` only until a later,
+explicit production-caller row; it has no Builder/MIR, physical, completion,
+retry/fallback, or legacy-deletion authority. The implementation receipt is
+in `docs/reference/mir/generic-loop-stage-matrix.md`.
+
 ## JoinSig module map
 
 The `join_sig/` directory is the single logical JoinSig owner. Its facade keeps
