@@ -246,6 +246,34 @@ impl VerifiedLoopFamilyAdmissionWindowV1 {
     pub(crate) const fn coverage(&self) -> LoopFamilyAdmissionCoverageV1 {
         self.coverage
     }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedLoopFamilyWindowLeaseV1,
+        VerifiedLoopFamilyAdmissionRowsV1,
+        LoopFamilyAdmissionModeV1,
+        LoopFamilyAdmissionCoverageV1,
+    ) {
+        (self.lease, self.rows, self.mode, self.coverage)
+    }
+
+    #[cfg(test)]
+    // This constructor is only for selector-cardinality tests. Production
+    // callers must obtain the brand from `assemble_loop_family_admission_window_v1`.
+    pub(crate) fn from_parts_for_test(
+        lease: VerifiedLoopFamilyWindowLeaseV1,
+        rows: VerifiedLoopFamilyAdmissionRowsV1,
+        mode: LoopFamilyAdmissionModeV1,
+        coverage: LoopFamilyAdmissionCoverageV1,
+    ) -> Self {
+        Self {
+            lease,
+            rows,
+            mode,
+            coverage,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -276,6 +304,43 @@ impl VerifiedLoopFamilyAdmissionRowsV1 {
 
     pub(crate) fn generic_g0(&self) -> &GenericG0FamilyObservationV1 {
         &self.generic_g0
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        DirectAccumFamilyObservationV1,
+        NestedPredicateFamilyObservationV1,
+        LoopTrueFamilyObservationV1,
+        LoopCondFamilyObservationV1,
+        GenericG0FamilyObservationV1,
+    ) {
+        (
+            self.direct_accum,
+            self.nested_predicate,
+            self.loop_true,
+            self.loop_cond,
+            self.generic_g0,
+        )
+    }
+
+    #[cfg(test)]
+    // This constructor is only for selector-cardinality tests. It deliberately
+    // does not replace the assembler's identity/mode/coverage validation.
+    pub(crate) fn from_parts_for_test(
+        direct_accum: DirectAccumFamilyObservationV1,
+        nested_predicate: NestedPredicateFamilyObservationV1,
+        loop_true: LoopTrueFamilyObservationV1,
+        loop_cond: LoopCondFamilyObservationV1,
+        generic_g0: GenericG0FamilyObservationV1,
+    ) -> Self {
+        Self {
+            direct_accum,
+            nested_predicate,
+            loop_true,
+            loop_cond,
+            generic_g0,
+        }
     }
 }
 

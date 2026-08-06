@@ -1,5 +1,5 @@
 ---
-Status: Closed worker-reviewed design / implementation taskized
+Status: Closed worker-reviewed design / caller-zero implementation
 Date: 2026-08-06
 Decision: LOOP-FAMILY-SELECTOR-S2-DESIGN
 Authority: docs/development/current/main/design/loop-family-observation-policy-ssot.md
@@ -81,3 +81,13 @@ handles Candidate/Declined overlap. `NoCandidate` remains outside S2. The
 implementation task is
 `loop-family-selector-s2-implementation-task-2026-08-06.md`; production
 selection and legacy deletion remain closed until later activation gates.
+
+## Implementation closeout
+
+The caller-zero implementation is landed in `family_selector.rs` with three
+focused tests and the shared selector/caller-zero guard. The selector consumes
+only `Ready(window)` and preserves lease/row evidence on `Selected`,
+`Rejected(Overlap)`, and `Unresolved(OutOfWindow)`. The implementation commit
+also synchronizes the loop SSOT, reference matrix, module README, workstream,
+and current mirrors. Recipe handoff, physical/production activation, and
+legacy retirement remain closed.

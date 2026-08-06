@@ -21,6 +21,7 @@ guard_loop_family_observation_one() {
   local policy="$root_dir/src/mir/loop_route_policy/${stem}_observation.rs"
   local tests="$root_dir/src/mir/loop_route_policy/${stem}_observation_tests.rs"
   local admission_tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
+  local selector_tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
 
   guard_require_files "$tag" "$structural_source" "$structural_observation" \
     "$compiler_projection" "$compiler_adapter" "$policy" "$tests"
@@ -61,16 +62,16 @@ guard_loop_family_observation_one() {
   done
 
   if rg -l -F "${policy_fn}(" "$source_root" |
-    awk -v p="$policy" -v t="$tests" -v at="$admission_tests" \
+    awk -v p="$policy" -v t="$tests" -v at="$admission_tests" -v st="$selector_tests" \
       -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
-      '$0 != p && $0 != t && $0 != at && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "$family policy observer acquired a production caller"
   fi
   if rg -l -F "${adapter_fn}(" "$source_root" |
-    awk -v a="$compiler_adapter" -v t="$tests" \
-      '$0 != a && $0 != t && $0 != "" { found=1 } END { exit found }'; then
+    awk -v a="$compiler_adapter" -v t="$tests" -v st="$selector_tests" \
+      '$0 != a && $0 != t && $0 != st && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "$family source adapter escaped caller-zero boundary"
@@ -78,7 +79,8 @@ guard_loop_family_observation_one() {
   for constructor in "${family}SourceIdentityV1::new(" "Verified${family}SourceAttemptV1::new("; do
     if rg -l -F "$constructor" "$source_root" |
       awk -v a="$compiler_adapter" -v t="$tests" -v at="$admission_tests" \
-        '$0 != a && $0 != t && $0 != at && $0 != "" { found=1 } END { exit found }'; then
+        -v st="$selector_tests" \
+        '$0 != a && $0 != t && $0 != at && $0 != st && $0 != "" { found=1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "$family sealed constructor escaped source/test boundary: $constructor"
@@ -109,6 +111,7 @@ guard_generic_g0_observation_contract() {
   local policy="$root_dir/src/mir/loop_route_policy/generic_g0_observation.rs"
   local policy_tests="$root_dir/src/mir/loop_route_policy/generic_g0_observation_tests.rs"
   local admission_tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
+  local selector_tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
 
   guard_require_files "$tag" "$structural_source" "$structural_observation" \
     "$compiler_projection" "$compiler_adapter" "$compiler_tests" "$policy" "$policy_tests"
@@ -149,16 +152,16 @@ guard_generic_g0_observation_contract() {
   done
 
   if rg -l -F 'issue_generic_g0_family_observation_v1(' "$source_root" |
-    awk -v p="$policy" -v t="$policy_tests" -v at="$admission_tests" \
+    awk -v p="$policy" -v t="$policy_tests" -v at="$admission_tests" -v st="$selector_tests" \
       -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
-      '$0 != p && $0 != t && $0 != at && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Generic G0 policy observer acquired a production caller"
   fi
   if rg -l -F 'issue_generic_g0_source_attempt_for_test(' "$source_root" |
-    awk -v a="$compiler_adapter" -v ct="$compiler_tests" -v pt="$policy_tests" \
-      '$0 != a && $0 != ct && $0 != pt && $0 != "" { found=1 } END { exit found }'; then
+    awk -v a="$compiler_adapter" -v ct="$compiler_tests" -v pt="$policy_tests" -v st="$selector_tests" \
+      '$0 != a && $0 != ct && $0 != pt && $0 != st && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Generic G0 source adapter escaped caller-zero boundary"
@@ -166,8 +169,8 @@ guard_generic_g0_observation_contract() {
   for constructor in 'GenericG0SourceIdentityV1::new(' 'VerifiedGenericG0SourceAttemptV1::new('; do
     if rg -l -F "$constructor" "$source_root" |
       awk -v a="$compiler_adapter" -v ct="$compiler_tests" -v pt="$policy_tests" \
-        -v at="$admission_tests" \
-        '$0 != a && $0 != ct && $0 != pt && $0 != at && $0 != "" { found=1 } END { exit found }'; then
+        -v at="$admission_tests" -v st="$selector_tests" \
+        '$0 != a && $0 != ct && $0 != pt && $0 != at && $0 != st && $0 != "" { found=1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "Generic G0 sealed constructor escaped source/test boundary: $constructor"
@@ -229,6 +232,7 @@ guard_loop_family_window_lease_contract() {
   local lease="$root_dir/src/mir/resolved_semantics/loop_family_window.rs"
   local source="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local tests="$root_dir/src/mir/resolved_semantics/loop_family_window_tests.rs"
+  local selector_tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
 
   guard_require_files "$tag" "$lease" "$source" "$tests"
   for file in "$lease" "$source" "$tests"; do
@@ -259,8 +263,8 @@ guard_loop_family_window_lease_contract() {
     guard_fail "$tag" "window lease focused test count drift"
   local assembler_tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
   if rg -l -F 'issue_loop_family_window_lease_v1(' "$root_dir/src/mir" |
-    awk -v l="$lease" -v t="$tests" -v at="$assembler_tests" \
-      '$0 != l && $0 != t && $0 != at && $0 != "" { found=1 } END { exit found }'; then
+    awk -v l="$lease" -v t="$tests" -v at="$assembler_tests" -v st="$selector_tests" \
+      '$0 != l && $0 != t && $0 != at && $0 != st && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "window lease acquired a production caller"
@@ -273,6 +277,7 @@ guard_loop_family_admission_contract() {
   local assembler="$root_dir/src/mir/loop_route_policy/family_admission.rs"
   local tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
   local mod_file="$root_dir/src/mir/loop_route_policy/mod.rs"
+  local selector_tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
 
   guard_require_files "$tag" "$assembler" "$tests"
   for file in "$assembler" "$tests"; do
@@ -309,19 +314,63 @@ guard_loop_family_admission_contract() {
   done
 
   if rg -l -F 'assemble_loop_family_admission_window_v1(' "$root_dir/src/mir" |
-    awk -v a="$assembler" -v t="$tests" -v m="$mod_file" \
-      '$0 != a && $0 != t && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+    awk -v a="$assembler" -v t="$tests" -v m="$mod_file" -v st="$selector_tests" \
+      '$0 != a && $0 != t && $0 != m && $0 != st && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "common admission acquired a production caller"
   fi
   if rg -l -F 'into_admission_row(' "$root_dir/src/mir/loop_route_policy" |
-    awk -v a="$assembler" -v t="$tests" -v m="$mod_file" \
-      '$0 != a && $0 != t && $0 != m && \
+    awk -v a="$assembler" -v t="$tests" -v m="$mod_file" -v st="$selector_tests" \
+      '$0 != a && $0 != t && $0 != m && $0 != st && \
        $0 !~ /(direct_accum|nested_predicate|loop_true_break_continue|loop_cond_break_continue|generic_g0)_observation\.rs$/ && \
        $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "family row projection escaped the admission boundary"
   fi
+}
+
+guard_loop_family_selector_contract() {
+  local root_dir="$1"
+  local tag="$2"
+  local selector="$root_dir/src/mir/loop_route_policy/family_selector.rs"
+  local tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
+  local assembler="$root_dir/src/mir/loop_route_policy/family_admission.rs"
+
+  guard_require_files "$tag" "$selector" "$tests" "$assembler"
+  for file in "$selector" "$tests"; do
+    local lines
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    (( lines < 800 )) || guard_fail "$tag" "family selector file exceeds boundary: $file"
+  done
+  [[ "$(rg -o -F '#[test]' "$tests" | wc -l | tr -d '[:space:]')" == "3" ]] ||
+    guard_fail "$tag" "family selector focused test count drift"
+
+  for required in CanonicalLoopFamilyCandidateV1 CanonicalLoopFamilySelectionOutcomeV1 \
+    CanonicalLoopFamilySelectionReasonV1 select_canonical_loop_family_v1 \
+    'Selected(' 'Rejected(' 'Unresolved(' 'Overlap' 'OutOfWindow'; do
+    rg -n -F "$required" "$selector" >/dev/null ||
+      guard_fail "$tag" "family selector anchor missing: $required"
+  done
+  for forbidden in ASTNode VerifiedResolvedSourceUnitV1 FunctionSourceViewV1 \
+    LoopRouteId FrozenLoopRouteScheduleV1 family_selection policy.rs \
+    'crate::mir::builder' 'loop_structural_facts' 'issue_.*source_attempt_for_test' \
+    NoCandidate retry fallback RuntimeDataBox; do
+    if rg -n -F "$forbidden" "$selector" >/dev/null; then
+      guard_fail "$tag" "family selector crossed forbidden authority: $forbidden"
+    fi
+  done
+  if rg -l -F 'select_canonical_loop_family_v1(' "$root_dir/src/mir" |
+    awk -v s="$selector" -v t="$tests" \
+      '$0 != s && $0 != t && $0 != "" { found=1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "family selector acquired a production caller"
+  fi
+  if rg -n -F 'assemble_loop_family_admission_window_v1(' "$selector" >/dev/null; then
+    guard_fail "$tag" "family selector must consume Ready windows, not assemble them"
+  fi
+  rg -n -F 'window.into_parts()' "$selector" >/dev/null ||
+    guard_fail "$tag" "family selector must consume its window by value"
 }

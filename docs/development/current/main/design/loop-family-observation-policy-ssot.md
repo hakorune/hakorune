@@ -450,7 +450,8 @@ lease and all five Ready rows, but only carry `Overlap` or `OutOfWindow`.
 The observation prerequisites are landed in a shallow ordered ladder inside
 the linked D0 task: LoopCond observation, Generic row normalization, row
 context retention R0, and resolver window lease issuer S0. The next bounded
-cell is the common assembler; selector promotion is a separate later task.
+cell was the common assembler; selector promotion remained a separate task
+until the implementation receipt below.
 Shared guard changes must use reusable helpers because the existing
 logical-demand guard is already near the 800-line boundary.
 
@@ -567,3 +568,30 @@ here. Twelve adapter tests, seven policy tests, `cargo check --lib`, and the
 shared caller-zero/line guard are green. Selector, common admission assembly,
 Recipe/JoinSig, Builder/MIR, physical lowering, retry/fallback, production
 callers, and legacy retirement remain closed.
+
+## Selector S2 caller-zero implementation receipt (2026-08-06)
+
+`LOOP-FAMILY-SELECTOR-S2-IMPLEMENTATION` is closed for its bounded
+caller-zero cell. `family_selector.rs` consumes only an assembler
+`Ready(window)` by value and moves the five typed rows without clone,
+relookup, or reconstruction. Its complete output algebra is:
+
+```text
+1 Candidate + 4 Declined -> Selected
+2+ Candidates            -> Rejected(Overlap)
+5 Declined               -> Unresolved(OutOfWindow)
+```
+
+Assembler `Rejected`/`Unresolved` evidence remains terminal before this
+boundary, and `NoCandidate` remains an M8 whole-unit proof. The selector keeps
+the source lease and common mode/coverage on success; both failure products
+keep the lease and every row. Focused tests cover all five candidates,
+overlap, and retained five-row `OutOfWindow` evidence. The selector guard and
+the shared caller-zero guards are green, with every touched source/test file
+below 800 lines.
+
+This receipt does not open Recipe/JoinSig, Builder/MIR, physical lowering,
+production selection, retry removal, or legacy deletion. The next design
+boundary is the source-to-Recipe handoff, which must be independently
+taskized before implementation. The implementation commit synchronizes the
+reference matrix, module README, workstream, and current mirrors as required.

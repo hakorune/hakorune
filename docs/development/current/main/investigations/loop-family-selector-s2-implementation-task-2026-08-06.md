@@ -1,5 +1,5 @@
 ---
-Status: Taskized / implementation authorized for this bounded cell only
+Status: Closed caller-zero implementation / next handoff taskized separately
 Date: 2026-08-06
 Decision: LOOP-FAMILY-SELECTOR-S2-IMPLEMENTATION
 Design receipt: loop-family-selector-s2-design-task-2026-08-06.md
@@ -108,3 +108,14 @@ This cell closes only when the new selector is caller-zero, under 800 lines per
 source/test file, has no legacy selector import, and its typed outcomes are
 verified. Production selection remains a later activation requiring Recipe
 handoff, physical/parity proof, legacy caller-zero census, and the M10b switch.
+
+## Implementation receipt
+
+Closed on 2026-08-06. `family_selector.rs` and its focused tests now provide
+the five-family `Candidate|Declined` selector boundary. The shared selector
+guard, current-state guard, focused tests, cargo check, and diff check are
+green; all touched source/test files remain below 800 lines. The same commit
+updates the loop policy SSOT, reference matrix, module README, workstream, and
+current mirrors. No Recipe/JoinSig, Builder/MIR, physical, production, retry,
+fallback, or legacy deletion caller was opened. The next row is the separate
+source-to-Recipe handoff design.

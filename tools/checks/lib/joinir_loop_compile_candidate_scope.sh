@@ -49,6 +49,8 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_observation_policy="$root_dir/src/mir/loop_route_policy/nested_predicate_observation.rs"
   local nested_observation_tests="$root_dir/src/mir/loop_route_policy/nested_predicate_observation_tests.rs"
   local family_admission_tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
+  local family_selector_source="$root_dir/src/mir/loop_route_policy/family_selector.rs"
+  local family_selector_tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
   local join_sig_dir="$root_dir/src/mir/loop_recipe_contract/join_sig"
   local join_sig_facade="$join_sig_dir/mod.rs"
   local join_sig_model="$join_sig_dir/model.rs"
@@ -256,8 +258,9 @@ guard_joinir_loop_compile_candidate_scope() {
       awk -F: -v policy="$direct_accum_observation_policy" \
         -v tests="$direct_accum_observation_tests" \
         -v admission_tests="$family_admission_tests" \
+        -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
         -v policy_mod="$generic_g0_policy_mod" \
-        '$1 != policy && $1 != tests && $1 != admission_tests && $1 != policy_mod && $1 != "" { found = 1 } END { exit found }'; then
+        '$1 != policy && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != policy_mod && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "DirectAccum S1 observer caller escaped caller-zero boundary: $direct_ref"
@@ -268,7 +271,8 @@ guard_joinir_loop_compile_candidate_scope() {
       awk -F: -v adapter="$direct_accum_observation_adapter" \
         -v tests="$direct_accum_observation_tests" \
         -v admission_tests="$family_admission_tests" \
-        '$1 != adapter && $1 != tests && $1 != admission_tests && $1 != "" { found = 1 } END { exit found }'; then
+        -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
+        '$1 != adapter && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "DirectAccum S1 source adapter escaped test-only caller boundary: $direct_ref"
@@ -281,7 +285,8 @@ guard_joinir_loop_compile_candidate_scope() {
       awk -F: -v adapter="$direct_accum_observation_adapter" \
         -v tests="$direct_accum_observation_tests" \
         -v admission_tests="$family_admission_tests" \
-        '$1 != adapter && $1 != tests && $1 != admission_tests && $1 != "" { found = 1 } END { exit found }'; then
+        -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
+        '$1 != adapter && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "DirectAccum S1 sealed constructor escaped source/test boundary: $direct_ref"
@@ -311,8 +316,9 @@ guard_joinir_loop_compile_candidate_scope() {
     if rg -n -F "$nested_ref" "$root_dir/src" --glob '*.rs' |
       awk -F: -v policy="$nested_observation_policy" -v tests="$nested_observation_tests" \
         -v admission_tests="$family_admission_tests" \
+        -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
         -v policy_mod="$root_dir/src/mir/loop_route_policy/mod.rs" \
-        '$1 != policy && $1 != tests && $1 != admission_tests && $1 != policy_mod && $1 != "" { found = 1 } END { exit found }'; then
+        '$1 != policy && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != policy_mod && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "Nested S1 policy observer escaped caller-zero boundary: $nested_ref"
@@ -320,7 +326,8 @@ guard_joinir_loop_compile_candidate_scope() {
   done
   if rg -n -F 'issue_nested_predicate_source_attempt_for_test(' "$root_dir/src" --glob '*.rs' |
     awk -F: -v adapter="$nested_observation_adapter" -v tests="$nested_observation_tests" \
-      '$1 != adapter && $1 != tests && $1 != "" { found = 1 } END { exit found }'; then
+      -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
+      '$1 != adapter && $1 != tests && $1 != selector_source && $1 != selector_tests && $1 != "" { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested S1 source adapter escaped caller-zero boundary"

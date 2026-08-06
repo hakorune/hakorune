@@ -228,3 +228,30 @@ capabilities and never issues keys. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now
 closed as the typed shape contract, and the bounded cfg(test)-only
 source-lease/CarrierProof witnesses are closed. The next row is design-only
 shape role extension; selector and demand remain gated.
+
+## Family selector S2 implementation receipt (2026-08-06)
+
+`family_selector.rs` is now the caller-zero consumer of the assembler's
+`Ready(window)` product. It consumes the window by value exactly once and
+returns only the fixed algebra:
+
+```text
+1 Candidate + 4 Declined -> Selected
+2+ Candidates            -> Rejected(Overlap)
+5 Declined               -> Unresolved(OutOfWindow)
+```
+
+The selected product retains the resolver lease, common mode/coverage, family
+tag, and typed candidate. Failure products retain the consumed lease and all
+five rows. The selector contains no source lookup, AST/resolver issuer,
+route/schedule access, Recipe/JoinSig, Builder/MIR, retry, fallback, or
+production call. The historical `family_selection.rs` marker remains
+test-only and is not promoted.
+
+Three focused selector tests cover all five candidate variants, retained
+`OutOfWindow` evidence, and overlap retention. The shared selector guard checks
+the caller-zero boundary and the <800-line source/test limit. This is a
+caller-zero semantic product only; Recipe handoff, physicalization, production
+cutover, and legacy deletion remain separate rows. The implementation commit
+updates this README, the loop SSOT, reference matrix, workstream, and current
+mirrors together as the required post-implementation reference receipt.

@@ -20,6 +20,7 @@ guard_joinir_logical_demand_contract() {
   local nested_observation_adapter="$root_dir/src/mir/compiler/nested_predicate_observation.rs"
   local nested_observation_policy="$root_dir/src/mir/loop_route_policy/nested_predicate_observation.rs"
   local nested_observation_tests="$root_dir/src/mir/loop_route_policy/nested_predicate_observation_tests.rs"
+  local family_selector_tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
   local loop_true_source_projection="$root_dir/src/mir/compiler/loop_true_break_continue_projection.rs"
   local loop_true_observation_adapter="$root_dir/src/mir/compiler/loop_true_break_continue_observation.rs"
   local loop_cond_source_projection="$root_dir/src/mir/compiler/loop_cond_break_continue_projection.rs"
@@ -261,8 +262,9 @@ guard_joinir_logical_demand_contract() {
   if rg -l -F 'issue_nested_predicate_family_observation_v1(' "$root_dir/src/mir" |
     awk -v p="$nested_observation_policy" -v t="$nested_observation_tests" \
       -v at="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs" \
+      -v st="$family_selector_tests" \
       -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
-      '$0 != p && $0 != t && $0 != at && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested S1 policy observer acquired a production caller"

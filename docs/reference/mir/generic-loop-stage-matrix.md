@@ -791,3 +791,27 @@ This is inspection-only evidence. It does not select a winner or add a Generic
 Recipe, JoinSig, PHI, physicalizer, Builder, MIR, backend, Retry, fallback, or
 runtime consumer. Parent Generic D2 and the co-sealed source-to-selection
 handoff remain unresolved; the current facts-only selector is unchanged.
+
+## Selector S2 caller-zero implementation receipt (2026-08-06)
+
+The canonical selector consumer is now landed in
+`src/mir/loop_route_policy/family_selector.rs`, while production selection
+remains closed. Its only input is the common assembler's `Ready(window)`
+product, consumed once; non-Ready assembler outcomes never reach it. The
+selector implements exactly:
+
+```text
+1 Candidate + 4 Declined -> Selected
+2+ Candidates            -> Rejected(Overlap)
+5 Declined               -> Unresolved(OutOfWindow)
+```
+
+Selected and failure products retain the resolver lease and the appropriate
+typed row evidence. `NoCandidate` is not introduced here and still requires
+the M8 whole-unit proof. The three focused tests cover every typed family
+candidate, overlap retention, and five-row `OutOfWindow` retention. The
+selector has no AST/source lookup, route/schedule, Recipe/JoinSig, Builder/MIR,
+retry/fallback, or production caller. The historical `family_selection.rs`
+marker remains test-only. This matrix entry is the required same-commit
+post-implementation reference receipt; Recipe handoff, physical parity,
+production cutover, and legacy retirement remain later gates.

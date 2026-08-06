@@ -14,6 +14,9 @@ mod family_admission;
 mod family_admission_tests;
 #[cfg(test)]
 mod family_selection;
+mod family_selector;
+#[cfg(test)]
+mod family_selector_tests;
 mod generic_g0;
 mod generic_g0_observation;
 #[cfg(test)]
@@ -58,6 +61,11 @@ pub(crate) use family_selection::{
     select_canonical_family_for_test, CanonicalFamilySelectionOutcomeV1,
     CanonicalFamilySelectorInputV1, FamilySelectionRejectV1, FamilySelectionUnresolvedV1,
     GenericFamilyEvidenceV1,
+};
+pub(crate) use family_selector::{
+    select_canonical_loop_family_v1, CanonicalLoopFamilyCandidateV1,
+    CanonicalLoopFamilySelectionReasonV1, CanonicalLoopFamilySelectionFailureV1,
+    CanonicalLoopFamilySelectionOutcomeV1, CanonicalLoopFamilySelectionV1,
 };
 #[allow(unused_imports)]
 pub(crate) use generic_g0::{

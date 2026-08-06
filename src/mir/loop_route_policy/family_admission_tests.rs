@@ -1,12 +1,11 @@
 use super::{
-    assemble_loop_family_admission_window_v1, DirectAccumFamilyObservationV1,
-    issue_direct_accum_family_observation_v1, issue_generic_g0_family_observation_v1,
-    issue_loop_cond_family_observation_v1, issue_loop_true_family_observation_v1,
-    issue_nested_predicate_family_observation_v1, DirectAccumObservationContextV1,
-    GenericG0ObservationContextV1, LoopCondObservationContextV1, LoopTrueObservationContextV1,
-    NestedPredicateObservationContextV1, LoopFamilyAdmissionAssemblyOutcomeV1,
-    LoopFamilyAdmissionIssueV1, LoopFamilyAdmissionModeV1, LoopFamilyObservationRowV1,
-    LoopFamilyTagV1,
+    assemble_loop_family_admission_window_v1, issue_direct_accum_family_observation_v1,
+    issue_generic_g0_family_observation_v1, issue_loop_cond_family_observation_v1,
+    issue_loop_true_family_observation_v1, issue_nested_predicate_family_observation_v1,
+    DirectAccumFamilyObservationV1, DirectAccumObservationContextV1, GenericG0ObservationContextV1,
+    LoopCondObservationContextV1, LoopFamilyAdmissionAssemblyOutcomeV1, LoopFamilyAdmissionIssueV1,
+    LoopFamilyAdmissionModeV1, LoopFamilyObservationRowV1, LoopFamilyTagV1,
+    LoopTrueObservationContextV1, NestedPredicateObservationContextV1,
 };
 use crate::mir::compiler::direct_accum_observation::issue_direct_accum_source_attempt_for_test;
 use crate::mir::compiler::direct_accum_projection::direct_accum_function_for_test;
@@ -14,18 +13,16 @@ use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::{
     DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
     DirectAccumSourceAttemptOutcomeV1, DirectAccumSourceDeclineV1, DirectAccumSourceIdentityV1,
-    GenericG0ObservationCoverageV1, GenericG0ObservationModeV1,
-    GenericG0SourceAttemptOutcomeV1, GenericG0SourceDeclineV1, GenericG0SourceIdentityV1,
-    LoopCondObservationCoverageV1, LoopCondObservationModeV1,
-    LoopCondSourceAttemptOutcomeV1, LoopCondSourceDeclineV1, LoopCondSourceIdentityV1,
-    LoopTrueObservationCoverageV1, LoopTrueObservationModeV1,
+    GenericG0ObservationCoverageV1, GenericG0ObservationModeV1, GenericG0SourceAttemptOutcomeV1,
+    GenericG0SourceDeclineV1, GenericG0SourceIdentityV1, LoopCondObservationCoverageV1,
+    LoopCondObservationModeV1, LoopCondSourceAttemptOutcomeV1, LoopCondSourceDeclineV1,
+    LoopCondSourceIdentityV1, LoopTrueObservationCoverageV1, LoopTrueObservationModeV1,
     LoopTrueSourceAttemptOutcomeV1, LoopTrueSourceDeclineV1, LoopTrueSourceIdentityV1,
-    NestedPredicateObservationCoverageV1,
-    NestedPredicateObservationModeV1, NestedPredicateSourceAttemptOutcomeV1,
-    NestedPredicateSourceDeclineV1, NestedPredicateSourceIdentityV1,
-    VerifiedDirectAccumSourceAttemptV1, VerifiedGenericG0SourceAttemptV1,
-    VerifiedLoopCondSourceAttemptV1, VerifiedLoopTrueSourceAttemptV1,
-    VerifiedNestedPredicateSourceAttemptV1,
+    NestedPredicateObservationCoverageV1, NestedPredicateObservationModeV1,
+    NestedPredicateSourceAttemptOutcomeV1, NestedPredicateSourceDeclineV1,
+    NestedPredicateSourceIdentityV1, VerifiedDirectAccumSourceAttemptV1,
+    VerifiedGenericG0SourceAttemptV1, VerifiedLoopCondSourceAttemptV1,
+    VerifiedLoopTrueSourceAttemptV1, VerifiedNestedPredicateSourceAttemptV1,
 };
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, FunctionOwnerIssuerV1, LoopExecutionFrameKeyV1,
@@ -33,15 +30,15 @@ use crate::mir::resolved_semantics::{
 };
 
 #[derive(Clone)]
-struct FixtureIdentity {
-    owner: FunctionOwnerIdV1,
-    origin: FunctionOriginV1,
-    source_kind: SemanticOwnerSourceKindV1,
-    site: SourceStmtSiteV1,
-    frame: LoopExecutionFrameKeyV1,
+pub(crate) struct FixtureIdentity {
+    pub(crate) owner: FunctionOwnerIdV1,
+    pub(crate) origin: FunctionOriginV1,
+    pub(crate) source_kind: SemanticOwnerSourceKindV1,
+    pub(crate) site: SourceStmtSiteV1,
+    pub(crate) frame: LoopExecutionFrameKeyV1,
 }
 
-fn fixture() -> (VerifiedLoopFamilyWindowLeaseV1, FixtureIdentity) {
+pub(crate) fn fixture() -> (VerifiedLoopFamilyWindowLeaseV1, FixtureIdentity) {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(direct_accum_function_for_test())
         .expect("fixture resolves");
     let input = unit.root_function_input().expect("root input");
@@ -61,7 +58,7 @@ fn fixture() -> (VerifiedLoopFamilyWindowLeaseV1, FixtureIdentity) {
     (lease, identity)
 }
 
-fn candidate_fixture() -> (
+pub(crate) fn candidate_fixture() -> (
     VerifiedLoopFamilyWindowLeaseV1,
     FixtureIdentity,
     LoopFamilyObservationRowV1,
@@ -115,7 +112,9 @@ fn direct_declined(
     mode: Option<DirectAccumObservationModeV1>,
 ) -> LoopFamilyObservationRowV1 {
     let attempt = VerifiedDirectAccumSourceAttemptV1::new(
-        DirectAccumSourceAttemptOutcomeV1::Declined(DirectAccumSourceDeclineV1::NotDirectAccumShape),
+        DirectAccumSourceAttemptOutcomeV1::Declined(
+            DirectAccumSourceDeclineV1::NotDirectAccumShape,
+        ),
         DirectAccumSourceIdentityV1::new(
             observed.owner,
             observed.origin,
@@ -234,11 +233,15 @@ fn generic_declined(identity: &FixtureIdentity) -> LoopFamilyObservationRowV1 {
     issue_generic_g0_family_observation_v1(attempt, context).into_admission_row()
 }
 
-fn all_declined(identity: &FixtureIdentity) -> Box<[LoopFamilyObservationRowV1]> {
+pub(crate) fn all_declined(identity: &FixtureIdentity) -> Box<[LoopFamilyObservationRowV1]> {
     vec![
         generic_declined(identity),
         loop_cond_declined(identity),
-        direct_declined(identity, identity, Some(DirectAccumObservationModeV1::Release)),
+        direct_declined(
+            identity,
+            identity,
+            Some(DirectAccumObservationModeV1::Release),
+        ),
         nested_declined(identity),
         loop_true_declined(identity),
     ]
@@ -253,7 +256,10 @@ fn exact_five_rows_are_canonicalized_without_candidate_counting() {
         panic!("five complete declined rows must form a ready window")
     };
     assert_eq!(window.mode(), LoopFamilyAdmissionModeV1::Release);
-    assert_eq!(window.coverage(), super::LoopFamilyAdmissionCoverageV1::Complete);
+    assert_eq!(
+        window.coverage(),
+        super::LoopFamilyAdmissionCoverageV1::Complete
+    );
     assert!(matches!(
         window.rows().direct_accum(),
         DirectAccumFamilyObservationV1::Declined { .. }

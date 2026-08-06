@@ -181,8 +181,9 @@ The resolver lease prerequisite is now landed caller-zero as
 `LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0`: one exact
 `VerifiedResolvedLoopSourceV1` lookup produces a non-`Clone`/
 non-`Copy` `VerifiedLoopFamilyWindowLeaseV1` retaining only source identity
-and owner brand. The next bounded row is the route-policy common assembler;
-selector, Recipe, Builder/MIR, and production remain closed.
+and owner brand. The common assembler and Ready-only selector are now landed
+caller-zero evidence; Recipe handoff, Builder/MIR, and production remain
+closed at the next demand-design boundary.
 
 ## Source products
 
