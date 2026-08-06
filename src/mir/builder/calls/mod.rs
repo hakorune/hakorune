@@ -68,6 +68,7 @@ pub mod materializer;
 pub mod member_route; // Member call route plan + emit handoff
 mod method_call_descent;
 mod method_call_terminal;
+mod static_result_publication;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, CatalogHelperChildV1,
     MethodCallArgumentDescentV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,

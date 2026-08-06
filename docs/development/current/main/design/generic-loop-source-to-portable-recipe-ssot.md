@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3 I0/R0 and S4 design are closed caller-zero; S4 producer implementation is next; production activation remains 0`
+Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0 are closed caller-zero; whole-source activation I1-D0 is current; production activation remains 0`
 
-Current row: `GENERIC-G0-RECIPE-S4-I0-R0`
+Current row: `GENERIC-RAW-STRUCTURED-STATIC-CALL-RESULT-PUBLICATION-I1-D0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -21,6 +21,14 @@ projection borrowed from that lease and never performs a second resolver
 lookup. The worker-reviewed S4 Recipe/JoinSig/Core/After ownership boundary
 was accepted on 2026-08-07. The next cell is one deterministic caller-zero
 Recipe producer; production activation remains closed.
+
+The raw structured carrier audit and static-call result publication I0/R0 are
+also closed caller-zero. Source selection is keyed by sealed
+`(Cataloged caller, SourceExprSite)` proof, while
+`CompletedUnifiedValueCallEmissionV1` owns the final `ValueId`. The current
+I1-D0 stop designs whole-source activation and route-transaction rollback
+authority before wiring `RawInvocationChildPortV1`, GenericLoop, or
+production route selection.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.

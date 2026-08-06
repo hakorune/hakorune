@@ -1,6 +1,6 @@
 # Generic raw structured current-owner static-call result publication D0
 
-Status: `design stop opened 2026-08-07; implementation is not authorized`
+Status: `design closed 2026-08-07; caller-zero I0 is authorized`
 
 Parent boundary:
 
@@ -112,6 +112,29 @@ The route-attempt transaction risk is adjacent but separate: current candidate
 composition snapshots `variable_map` without snapshotting `type_ctx` or the
 physical stream.  It must not be repaired by this row's type publication; it
 gets its own bounded audit before production cutover.
+
+## D0 closeout
+
+The source transport is a locator only.  It may expose the exact current
+source context, but it is not a result-type authority and it must not carry a
+callable-result catalog into the raw port.  Exact publication selection is
+owned by a sealed whole-source product keyed by the pair
+`(Cataloged caller, SourceExprSite)`.  `TopLevel`, `Main`, unlocated, and
+nested compatibility roots are not selected by this row.
+
+The physical `CompletedUnifiedValueCallEmissionV1` is the sole success
+receipt.  Publication cannot be issued from source proof alone, an ordinary
+`ValueId`, a header lookup, an alternate route, or a method-name match.  One
+new publication owner consumes the non-Clone receipt exactly once and writes
+the verified result type to `type_ctx` only after the physical Call succeeds.
+The local materializer remains transport-only and GenericLoop remains
+verifier-only.
+
+This closes the design stop without opening production.  The next row is a
+caller-zero, Builder-free publication product plus focused receipt tests.
+Production `RawInvocationChildPort` wiring, GenericLoop changes, route
+promotion, retry/fallback, and legacy deletion remain explicitly out of
+scope until a later I1 activation decision.
 
 ## Minimum I0 after this D0
 

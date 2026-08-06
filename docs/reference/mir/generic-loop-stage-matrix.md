@@ -963,3 +963,22 @@ post-implementation reference receipt. D4-S4-S0 remains a NoSafeSlice audit;
 the next shallow gate is `GENERIC-SELECTION-OPEN-D0` for a real resolver-issued
 candidate envelope. Recipe handoff, physical parity, production cutover, and
 legacy retirement remain later gates.
+
+## Static-call result publication I0/R0 receipt (2026-08-07)
+
+`GENERIC-RAW-STRUCTURED-STATIC-CALL-RESULT-PUBLICATION-I0-R0` is landed as a
+disconnected, caller-zero publication witness. An exact source demand is
+sealed by `(Cataloged caller, SourceExprSite)` and carries no AST, `ValueId`,
+or type authority. A successful physical
+`CompletedUnifiedValueCallEmissionV1` is the sole source of the final
+destination; a single-use publication consumer writes `MirType::Integer`
+only after that receipt is available. Duplicate publication, failed physical
+emission, foreign source/site, name lookup, and fallback are rejected.
+
+The focused source and Builder tests are green. This row does not wire
+`RawInvocationChildPortV1`, GenericLoop, production selection, retry/fallback,
+or legacy deletion. The canonical VM probe still reports
+`MissingTransientType { init: ValueId(3) }` because the new bridge is
+intentionally disconnected; this is a pre-production evidence boundary, not
+a production support claim. The next gate is the whole-source activation
+design, including route transaction and rollback authority.

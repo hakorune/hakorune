@@ -516,7 +516,12 @@ closed — LOOP-JOINSIG-NESTED-SHADOW-S0 -> visible payload projection now walks
 closed — LOOP-RECIPE-SOURCE-BOUND-CORE-S0 -> caller-zero core now co-seals verified Recipe/JoinSig/source claim with exact BindingRef/effect relations and typed loop-carrier anchors; 73 focused contract tests, shared guard, pointer guard, and reference/README sync are green; no Generic key, Builder/MIR, physical, or production change.
 closed — loop-family receipts and Generic S3/S4-D0 design are closed; S4-I0-R0 caller-zero Recipe producer landed with 42 focused Generic tests and synced Recipe/reference/README receipts.
 closed — GENERIC-LEGACY-CORPUS-UNIVERSE-P0 and GENERIC-LEGACY-OBSERVATION-FRONT-G0 landed; S0-D0/I0, S1-D0/I0, and S2-D0/I0 are closed: raw structured-child failures preserve the primary error, FieldAccess and MethodCall consume their exact receipts, and immutable receipts expose the next source boundary.
-closed — GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0/I0 -> rootless nested body sites canonicalized; Program stays rootful; release probe reaches GenericLoop carrier boundary. Carrier D0 audited the exact local initializer; next stop is GENERIC-RAW-STRUCTURED-STATIC-CALL-RESULT-PUBLICATION-D0. No Generic production/physical/retry/delete authority.
+closed — GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0/I0 and carrier-representation D0 -> rootless nested body sites canonicalized; Program stays rootful; release probe reaches GenericLoop carrier boundary.
+  Static-call result publication D0 and caller-zero I0/R0 are closed: source
+  transport is locator-only, sealed `(Cataloged caller, SourceExprSite)` selects
+  proof, and `CompletedUnifiedValueCallEmissionV1` is the sole success receipt.
+  Current design stop is `GENERIC-RAW-STRUCTURED-STATIC-CALL-RESULT-PUBLICATION-I1-D0`
+  for whole-source activation/rollback authority; production remains closed.
 ```
 ## Production invariants
 ```text
