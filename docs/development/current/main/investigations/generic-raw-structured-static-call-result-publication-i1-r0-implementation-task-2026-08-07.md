@@ -50,6 +50,34 @@ post-effect retry/debt continuation for this selected activation.
 The fresh strict VM receipt and any broader Generic production caller switch
 are still pending and remain outside this bounded commit.
 
+## Fresh strict probe receipt (2026-08-07)
+
+After rebuilding `target/debug/hakorune`, the canonical strict probe was run
+with:
+
+```text
+HAKO_ROOT=. HAKO_BIN=target/debug/hakorune \
+NYASH_ROOT=. NYASH_BIN=target/debug/hakorune \
+bash tools/smokes/v2/profiles/integration/joinir/generic_loop_continue_strict_shadow_vm.sh
+```
+
+It still exits `1` at the existing GenericLoop boundary:
+
+```text
+[plan/freeze:contract] generic_loop_v1 skeleton failed:
+GenericLoop carrier representation failed:
+MissingTransientType { init: ValueId(3) }
+```
+
+The output reaches the generic-loop planner/shadow tags, but does not prove
+the canonical `StringHelpers.int_to_str/1` source site or its
+`CompletedUnifiedValueCallEmissionV1` receipt. Therefore this is a fresh
+negative receipt for the current bounded slice, not a production support
+claim. The next executable row is a dedicated fixture/entry that actually
+lowers `StringHelpers.int_to_str/1` at `Body(0).Initializer(0)` and proves
+the source handoff, physical destination, and publication before
+GenericLoop verification.
+
 ## Stop
 
 Return to design if the selected source cannot be sealed before effects, if a

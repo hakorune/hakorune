@@ -1008,3 +1008,13 @@ source/check files remain below the 800-line boundary. This is a bounded
 terminal consumer only: GenericLoop remains verifier-only, Generic production
 selection and legacy retirement remain closed, and a fresh strict VM receipt
 is still required before any broader caller cutover.
+
+The fresh post-rebuild strict probe was re-run with
+`generic_loop_continue_strict_shadow_vm.sh` against `target/debug/hakorune`.
+It still exits `1` at
+`MissingTransientType { init: ValueId(3) }` after reaching the generic-loop
+planner/shadow tags. The probe does not reach the canonical
+`StringHelpers.int_to_str/1` source-site handoff, so it is recorded as a
+negative receipt rather than a production-support claim. A dedicated
+cataloged fixture is still required before Generic production selection or
+physical cutover can open.
