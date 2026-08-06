@@ -69,10 +69,12 @@ producer may issue `LoopBindingKeyV1` and seal the internal
 `BindingRef`/recipe-key/source-role effect relation. Binding SSA remains the
 sole `BindingRef` -> `ValueId`/`PHI` owner. Recipe/effect failure is terminal;
 legacy route reconstruction, retry, fallback, and Generic-as-DirectAccum or
-NestedPredicate aliases are forbidden. The next task is design-gated D4-S4-S0;
-without a real resolver-issued `Selected(Generic)` proof, it records
-`NoSafeSlice` and does not fabricate a witness or production caller. D4-S4-S0-D0
-now fixes the move-only chain and issuer map:
+NestedPredicate aliases are forbidden. The following paragraph is retained as
+historical handoff context: D4-S4-D0 through D4-S4-S3-S0 subsequently closed
+as design/test-only evidence, without a public semantic row or production
+caller. The current blocker is the D4-S4-S3-D1 policy/type/overflow/
+monotonicity design stop in `CURRENT_STATE.toml`; no `Selected(Generic)` or
+Recipe claim is implied here.
 
 ```text
 resolver SourceLease -> AST-free Generic shape/candidate envelope
@@ -80,10 +82,10 @@ resolver SourceLease -> AST-free Generic shape/candidate envelope
   -> Recipe producer (sole key/effect owner) -> Binding SSA (sole PHI owner)
 ```
 
-The next witness is gated on a real resolver-issued shape and
-`Selected(Generic)` callsite; otherwise it remains `NoSafeSlice`. Any later
-implementation cell must update this reference, the active/current mirrors,
-and affected support READMEs in the same commit.
+Any later implementation cell must update this reference, the active/current
+mirrors, and affected support READMEs in the same commit. A cfg(test)-only
+numeric/policy witness still does not create a public reference row; only a
+public semantic contract or production consumer may do so.
 
 ## Stage and disposition contract
 
