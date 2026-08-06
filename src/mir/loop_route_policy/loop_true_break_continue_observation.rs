@@ -51,9 +51,49 @@ impl LoopTrueObservationContextV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub(crate) struct LoopTrueObservationEvidenceV1 {
+    expected: LoopTrueObservationContextV1,
+    observed_identity: LoopTrueSourceIdentityV1,
+    observed_mode: Option<LoopTrueObservationModeV1>,
+    observed_coverage: LoopTrueObservationCoverageV1,
+}
+
+impl LoopTrueObservationEvidenceV1 {
+    fn new(
+        expected: LoopTrueObservationContextV1,
+        observed_identity: LoopTrueSourceIdentityV1,
+        observed_mode: Option<LoopTrueObservationModeV1>,
+        observed_coverage: LoopTrueObservationCoverageV1,
+    ) -> Self {
+        Self {
+            expected,
+            observed_identity,
+            observed_mode,
+            observed_coverage,
+        }
+    }
+
+    pub(crate) const fn expected(&self) -> &LoopTrueObservationContextV1 {
+        &self.expected
+    }
+
+    pub(crate) const fn observed_identity(&self) -> &LoopTrueSourceIdentityV1 {
+        &self.observed_identity
+    }
+
+    pub(crate) const fn observed_mode(&self) -> Option<LoopTrueObservationModeV1> {
+        self.observed_mode
+    }
+
+    pub(crate) const fn observed_coverage(&self) -> LoopTrueObservationCoverageV1 {
+        self.observed_coverage
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopTrueFamilyCandidateV1 {
     observation: VerifiedLoopTrueBreakContinueSourceProjectionV1,
-    context: LoopTrueObservationContextV1,
+    evidence: LoopTrueObservationEvidenceV1,
 }
 
 impl VerifiedLoopTrueFamilyCandidateV1 {
@@ -62,7 +102,11 @@ impl VerifiedLoopTrueFamilyCandidateV1 {
     }
 
     pub(crate) const fn context(&self) -> &LoopTrueObservationContextV1 {
-        &self.context
+        self.evidence.expected()
+    }
+
+    pub(crate) const fn evidence(&self) -> &LoopTrueObservationEvidenceV1 {
+        &self.evidence
     }
 }
 
@@ -91,80 +135,126 @@ pub(crate) enum LoopTrueObservationRejectV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum LoopTrueFamilyObservationV1 {
     Candidate(VerifiedLoopTrueFamilyCandidateV1),
-    Declined(LoopTrueObservationDeclineV1),
-    Unresolved(LoopTrueObservationUnresolvedV1),
-    Rejected(LoopTrueObservationRejectV1),
+    Declined {
+        reason: LoopTrueObservationDeclineV1,
+        evidence: LoopTrueObservationEvidenceV1,
+    },
+    Unresolved {
+        reason: LoopTrueObservationUnresolvedV1,
+        evidence: LoopTrueObservationEvidenceV1,
+    },
+    Rejected {
+        reason: LoopTrueObservationRejectV1,
+        evidence: LoopTrueObservationEvidenceV1,
+    },
+}
+
+impl LoopTrueFamilyObservationV1 {
+    pub(crate) const fn evidence(&self) -> &LoopTrueObservationEvidenceV1 {
+        match self {
+            Self::Candidate(candidate) => candidate.evidence(),
+            Self::Declined { evidence, .. }
+            | Self::Unresolved { evidence, .. }
+            | Self::Rejected { evidence, .. } => evidence,
+        }
+    }
 }
 
 pub(crate) fn issue_loop_true_family_observation_v1(
     attempt: VerifiedLoopTrueSourceAttemptV1,
     context: LoopTrueObservationContextV1,
 ) -> LoopTrueFamilyObservationV1 {
-    let attempt_mode = attempt.mode();
-    let attempt_coverage = attempt.coverage();
-    let attempt_identity = attempt.identity();
+    let (outcome, identity, mode, coverage) = attempt.into_parts();
+    let evidence = LoopTrueObservationEvidenceV1::new(context, identity, mode, coverage);
+    let attempt_mode = evidence.observed_mode();
+    let attempt_coverage = evidence.observed_coverage();
+    let attempt_identity = evidence.observed_identity();
+    let context = evidence.expected();
     let context_identity = context.identity();
 
     if attempt_identity.owner() != context_identity.owner() {
-        return LoopTrueFamilyObservationV1::Rejected(LoopTrueObservationRejectV1::ForeignContext);
+        return rejected(LoopTrueObservationRejectV1::ForeignContext, evidence);
     }
     if attempt_identity.function_origin() != context_identity.function_origin()
         || attempt_identity.source_kind() != context_identity.source_kind()
         || attempt_identity.site() != context_identity.site()
     {
-        return LoopTrueFamilyObservationV1::Rejected(
+        return rejected(
             LoopTrueObservationRejectV1::SourceIdentityMismatch,
+            evidence,
         );
     }
     if !attempt_identity.frame().matches(context_identity.frame()) {
-        return LoopTrueFamilyObservationV1::Rejected(LoopTrueObservationRejectV1::FrameMismatch);
+        return rejected(LoopTrueObservationRejectV1::FrameMismatch, evidence);
     }
     if attempt_mode.is_none() || context.mode().is_none() {
-        return LoopTrueFamilyObservationV1::Unresolved(
-            LoopTrueObservationUnresolvedV1::ModeUnsealed,
-        );
+        return unresolved(LoopTrueObservationUnresolvedV1::ModeUnsealed, evidence);
     }
     if attempt_mode != context.mode() {
-        return LoopTrueFamilyObservationV1::Rejected(LoopTrueObservationRejectV1::ModeMismatch);
+        return rejected(LoopTrueObservationRejectV1::ModeMismatch, evidence);
     }
     if attempt_coverage == LoopTrueObservationCoverageV1::Incomplete
         || context.coverage() == LoopTrueObservationCoverageV1::Incomplete
     {
-        return LoopTrueFamilyObservationV1::Unresolved(
+        return unresolved(
             LoopTrueObservationUnresolvedV1::IncompleteCoverage,
+            evidence,
         );
     }
 
-    let (outcome, identity, _, _) = attempt.into_parts();
     match outcome {
         LoopTrueSourceAttemptOutcomeV1::Candidate(observation) => {
-            if observation.owner() != identity.owner()
-                || !observation.root_frame_key().matches(identity.frame())
+            if observation.owner() != attempt_identity.owner()
+                || !observation
+                    .root_frame_key()
+                    .matches(attempt_identity.frame())
                 || !observation.matches_source_identity(
-                    identity.function_origin(),
-                    identity.source_kind(),
-                    identity.site(),
+                    attempt_identity.function_origin(),
+                    attempt_identity.source_kind(),
+                    attempt_identity.site(),
                 )
             {
-                return LoopTrueFamilyObservationV1::Rejected(
+                return rejected(
                     LoopTrueObservationRejectV1::CandidateIdentityMismatch,
+                    evidence,
                 );
             }
             LoopTrueFamilyObservationV1::Candidate(VerifiedLoopTrueFamilyCandidateV1 {
                 observation,
-                context,
+                evidence,
             })
         }
         LoopTrueSourceAttemptOutcomeV1::Declined(reason) => {
-            LoopTrueFamilyObservationV1::Declined(source_decline(reason))
+            declined(source_decline(reason), evidence)
         }
         LoopTrueSourceAttemptOutcomeV1::Unresolved(reason) => {
-            LoopTrueFamilyObservationV1::Unresolved(source_unresolved(reason))
+            unresolved(source_unresolved(reason), evidence)
         }
         LoopTrueSourceAttemptOutcomeV1::Rejected(reason) => {
-            LoopTrueFamilyObservationV1::Rejected(source_reject(reason))
+            rejected(source_reject(reason), evidence)
         }
     }
+}
+
+fn declined(
+    reason: LoopTrueObservationDeclineV1,
+    evidence: LoopTrueObservationEvidenceV1,
+) -> LoopTrueFamilyObservationV1 {
+    LoopTrueFamilyObservationV1::Declined { reason, evidence }
+}
+
+fn unresolved(
+    reason: LoopTrueObservationUnresolvedV1,
+    evidence: LoopTrueObservationEvidenceV1,
+) -> LoopTrueFamilyObservationV1 {
+    LoopTrueFamilyObservationV1::Unresolved { reason, evidence }
+}
+
+fn rejected(
+    reason: LoopTrueObservationRejectV1,
+    evidence: LoopTrueObservationEvidenceV1,
+) -> LoopTrueFamilyObservationV1 {
+    LoopTrueFamilyObservationV1::Rejected { reason, evidence }
 }
 
 fn source_decline(reason: LoopTrueSourceDeclineV1) -> LoopTrueObservationDeclineV1 {

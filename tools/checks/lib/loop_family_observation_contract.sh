@@ -169,3 +169,51 @@ guard_generic_g0_observation_contract() {
     fi
   done
 }
+
+guard_loop_family_row_context_retention_contract() {
+  local root_dir="$1"
+  local tag="$2"
+  local policy_root="$root_dir/src/mir/loop_route_policy"
+  local policies=(
+    "$policy_root/direct_accum_observation.rs"
+    "$policy_root/nested_predicate_observation.rs"
+    "$policy_root/loop_true_break_continue_observation.rs"
+    "$policy_root/loop_cond_break_continue_observation.rs"
+    "$policy_root/generic_g0_observation.rs"
+  )
+  local tests=(
+    "$policy_root/direct_accum_observation_tests.rs"
+    "$policy_root/nested_predicate_observation_tests.rs"
+    "$policy_root/loop_true_break_continue_observation_tests.rs"
+    "$policy_root/loop_cond_break_continue_observation_tests.rs"
+    "$policy_root/generic_g0_observation_tests.rs"
+  )
+
+  guard_require_files "$tag" "${policies[@]}" "${tests[@]}"
+  for file in "${policies[@]}" "${tests[@]}"; do
+    local lines
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    (( lines < 800 )) || guard_fail "$tag" "row-context observer/test exceeds boundary: $file"
+  done
+
+  for policy in "${policies[@]}"; do
+    rg -q 'ObservationEvidenceV1' "$policy" ||
+      guard_fail "$tag" "row-context evidence envelope missing: $policy"
+    rg -q 'expected:|observed_identity:|observed_mode:|observed_coverage:' "$policy" ||
+      guard_fail "$tag" "row-context evidence fields missing: $policy"
+    rg -q 'let \(outcome, identity, mode, coverage\) = attempt\.into_parts\(\);' "$policy" ||
+      guard_fail "$tag" "attempt must be decomposed exactly once before early returns: $policy"
+    rg -q 'FamilyObservationV1 \{' "$policy" ||
+      guard_fail "$tag" "family dispositions must be evidence-bearing struct variants: $policy"
+    rg -q 'fn evidence\(&self\)' "$policy" ||
+      guard_fail "$tag" "family evidence accessor missing: $policy"
+    if rg -n 'FamilyObservationV1::(Declined|Unresolved|Rejected)\(' "$policy" >/dev/null; then
+      guard_fail "$tag" "bare reason-only family disposition remains: $policy"
+    fi
+  done
+
+  for test in "${tests[@]}"; do
+    rg -q 'evidence\(\)' "$test" ||
+      guard_fail "$tag" "focused row-context evidence assertion missing: $test"
+  done
+}

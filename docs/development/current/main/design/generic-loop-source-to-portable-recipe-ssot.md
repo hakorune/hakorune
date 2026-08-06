@@ -2,7 +2,7 @@
 
 Status: `accepted and taskized; production activation remains 0`
 
-Current row: `GENERIC-G0-ADMISSION-SET-S1`
+Current row: `LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -765,6 +765,10 @@ LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1
 LOOP-FAMILY-LOOPCOND-OBSERVATION-S1
   four non-Generic semantic rows; typed disposition only, no Recipe or winner
 
+FAMILY-ROW-CONTEXT-RETENTION-R0
+  prerequisite BoxShape refactor; every Candidate/Declined/Unresolved/Rejected
+  row retains expected and observed identity/mode/coverage evidence
+
 GENERIC-G0-ADMISSION-SET-S1
   complete move-only five-row window; no winner authority
 
@@ -874,7 +878,8 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `LOOP-FAMILY-NESTED-OBSERVATION-S1` | exact nested source projection + shared owner/window -> typed NestedPredicate disposition | G0 and non-nested shapes decline; exact bounded nested shape is a candidate | no physical Nested plan or route ID |
 | `LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1` | exact LoopTrue source projection + shared owner/window -> typed LoopTrue disposition | explicit branch candidate and shape/coverage declines/rejects fixed | no frozen-schedule admission or Recipe demand |
 | `LOOP-FAMILY-LOOPCOND-OBSERVATION-S1` | shared source window + exact conditional-exit observer -> typed LoopCond disposition | missing issuer is eliminated; exact candidate/decline/unresolved/reject matrix fixed before S2 | no `JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D` Recipe producer, physicalizer, or route selection |
-| `GENERIC-G0-ADMISSION-SET-S1` | five owner-branded dispositions -> non-Clone `VerifiedGenericAdmissionWindowV1` | complete/missing/duplicate/foreign/mode cases fixed | no whole-unit NoCandidate, route order, cursor, winner, Recipe, or fallback |
+| `FAMILY-ROW-CONTEXT-RETENTION-R0` | five family observer dispositions -> evidence-retaining typed variants | landed: every Candidate/Declined/Unresolved/Rejected variant retains expected/observed identity, mode, and coverage; 89 focused observation tests, shared guard, and reference sync green; behavior and acceptance shape unchanged | no selector, Recipe, Builder/MIR, production caller, retry/fallback, or legacy deletion |
+| `GENERIC-G0-ADMISSION-SET-S1` | five owner-branded dispositions -> non-Clone `VerifiedLoopFamilyAdmissionWindowV1` | complete/missing/duplicate/foreign/mode cases fixed after row evidence retention | no whole-unit NoCandidate, route order, cursor, winner, Recipe, or fallback |
 | `GENERIC-G0-SELECTOR-S2` | complete admission window -> Selected(Generic) / Unresolved / Rejected | one Generic plus four Declined selects its move-only candidate; overlap rejects; five Declined is OutOfDomain/Unresolved; legacy schedule imports zero | semantic caller remains zero; no whole-unit NoCandidate, demand, Recipe, or production switch |
 | `GENERIC-G0-DEMAND-S3` | `Selected(Generic(candidate))` -> `VerifiedGenericRecipeDemandG0` | selected capability consumed once; role/site/BindingRef lease exact; by-name repair zero | no Recipe key, ValueId, or PHI |
 | `GENERIC-G0-RECIPE-S4` | S3 + common S0 services -> exact Recipe/relations/core/After/product | deterministic golden, three carrier rows, child-entry read, C1/C2, tail relation, and legacy provenance rejects | no physical MIR or production caller |

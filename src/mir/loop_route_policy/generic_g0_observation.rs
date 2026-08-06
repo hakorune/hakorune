@@ -57,9 +57,49 @@ impl GenericG0ObservationContextV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub(crate) struct GenericG0ObservationEvidenceV1 {
+    expected: GenericG0ObservationContextV1,
+    observed_identity: GenericG0SourceIdentityV1,
+    observed_mode: Option<GenericG0ObservationModeV1>,
+    observed_coverage: GenericG0ObservationCoverageV1,
+}
+
+impl GenericG0ObservationEvidenceV1 {
+    fn new(
+        expected: GenericG0ObservationContextV1,
+        observed_identity: GenericG0SourceIdentityV1,
+        observed_mode: Option<GenericG0ObservationModeV1>,
+        observed_coverage: GenericG0ObservationCoverageV1,
+    ) -> Self {
+        Self {
+            expected,
+            observed_identity,
+            observed_mode,
+            observed_coverage,
+        }
+    }
+
+    pub(crate) const fn expected(&self) -> &GenericG0ObservationContextV1 {
+        &self.expected
+    }
+
+    pub(crate) const fn observed_identity(&self) -> &GenericG0SourceIdentityV1 {
+        &self.observed_identity
+    }
+
+    pub(crate) const fn observed_mode(&self) -> Option<GenericG0ObservationModeV1> {
+        self.observed_mode
+    }
+
+    pub(crate) const fn observed_coverage(&self) -> GenericG0ObservationCoverageV1 {
+        self.observed_coverage
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedGenericG0FamilyCandidateV1 {
     observation: VerifiedGenericFamilyObservationG0,
-    context: GenericG0ObservationContextV1,
+    evidence: GenericG0ObservationEvidenceV1,
 }
 
 impl VerifiedGenericG0FamilyCandidateV1 {
@@ -68,7 +108,11 @@ impl VerifiedGenericG0FamilyCandidateV1 {
     }
 
     pub(crate) const fn context(&self) -> &GenericG0ObservationContextV1 {
-        &self.context
+        self.evidence.expected()
+    }
+
+    pub(crate) const fn evidence(&self) -> &GenericG0ObservationEvidenceV1 {
+        &self.evidence
     }
 }
 
@@ -99,103 +143,141 @@ pub(crate) enum GenericG0ObservationRejectV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum GenericG0FamilyObservationV1 {
     Candidate(VerifiedGenericG0FamilyCandidateV1),
-    Declined(GenericG0ObservationDeclineV1),
-    Unresolved(GenericG0ObservationUnresolvedV1),
-    Rejected(GenericG0ObservationRejectV1),
+    Declined {
+        reason: GenericG0ObservationDeclineV1,
+        evidence: GenericG0ObservationEvidenceV1,
+    },
+    Unresolved {
+        reason: GenericG0ObservationUnresolvedV1,
+        evidence: GenericG0ObservationEvidenceV1,
+    },
+    Rejected {
+        reason: GenericG0ObservationRejectV1,
+        evidence: GenericG0ObservationEvidenceV1,
+    },
+}
+
+impl GenericG0FamilyObservationV1 {
+    pub(crate) const fn evidence(&self) -> &GenericG0ObservationEvidenceV1 {
+        match self {
+            Self::Candidate(candidate) => candidate.evidence(),
+            Self::Declined { evidence, .. }
+            | Self::Unresolved { evidence, .. }
+            | Self::Rejected { evidence, .. } => evidence,
+        }
+    }
 }
 
 pub(crate) fn issue_generic_g0_family_observation_v1(
     attempt: VerifiedGenericG0SourceAttemptV1,
     context: GenericG0ObservationContextV1,
 ) -> GenericG0FamilyObservationV1 {
-    let attempt_identity = attempt.identity();
+    let (outcome, identity, mode, coverage) = attempt.into_parts();
+    let evidence = GenericG0ObservationEvidenceV1::new(context, identity, mode, coverage);
+    let attempt_identity = evidence.observed_identity();
+    let context = evidence.expected();
+    let attempt_mode = evidence.observed_mode();
+    let attempt_coverage = evidence.observed_coverage();
     let context_identity = context.identity();
     if attempt_identity.owner() != context_identity.owner() {
-        return GenericG0FamilyObservationV1::Rejected(
-            GenericG0ObservationRejectV1::ForeignContext,
-        );
+        return rejected(GenericG0ObservationRejectV1::ForeignContext, evidence);
     }
     if attempt_identity.function_origin() != context_identity.function_origin()
         || attempt_identity.source_kind() != context_identity.source_kind()
         || attempt_identity.site() != context_identity.site()
     {
-        return GenericG0FamilyObservationV1::Rejected(
+        return rejected(
             GenericG0ObservationRejectV1::SourceIdentityMismatch,
+            evidence,
         );
     }
     if !attempt_identity.frame().matches(context_identity.frame()) {
-        return GenericG0FamilyObservationV1::Rejected(GenericG0ObservationRejectV1::FrameMismatch);
+        return rejected(GenericG0ObservationRejectV1::FrameMismatch, evidence);
     }
-    if attempt.mode().is_none() || context.mode().is_none() {
-        return GenericG0FamilyObservationV1::Unresolved(
-            GenericG0ObservationUnresolvedV1::ModeUnsealed,
-        );
+    if attempt_mode.is_none() || context.mode().is_none() {
+        return unresolved(GenericG0ObservationUnresolvedV1::ModeUnsealed, evidence);
     }
-    if attempt.mode() != context.mode() {
-        return GenericG0FamilyObservationV1::Rejected(GenericG0ObservationRejectV1::ModeMismatch);
+    if attempt_mode != context.mode() {
+        return rejected(GenericG0ObservationRejectV1::ModeMismatch, evidence);
     }
-    if attempt.coverage() == GenericG0ObservationCoverageV1::Incomplete
+    if attempt_coverage == GenericG0ObservationCoverageV1::Incomplete
         || context.coverage() == GenericG0ObservationCoverageV1::Incomplete
     {
-        return GenericG0FamilyObservationV1::Unresolved(
+        return unresolved(
             GenericG0ObservationUnresolvedV1::IncompleteCoverage,
+            evidence,
         );
     }
 
-    let (outcome, identity, mode, coverage) = attempt.into_parts();
-    let Some(mode) = mode else {
-        return GenericG0FamilyObservationV1::Unresolved(
-            GenericG0ObservationUnresolvedV1::ModeUnsealed,
-        );
+    let Some(mode) = attempt_mode else {
+        return unresolved(GenericG0ObservationUnresolvedV1::ModeUnsealed, evidence);
     };
     match outcome {
         GenericG0SourceAttemptOutcomeV1::Candidate(bundle) => {
             let structural = bundle.source().structural();
-            if structural.owner() != identity.owner()
-                || structural.origin() != identity.function_origin()
-                || structural.source_kind() != identity.source_kind()
-                || structural.root_loop() != identity.site()
-                || !structural.root_frame().matches(identity.frame())
+            if structural.owner() != attempt_identity.owner()
+                || structural.origin() != attempt_identity.function_origin()
+                || structural.source_kind() != attempt_identity.source_kind()
+                || structural.root_loop() != attempt_identity.site()
+                || !structural.root_frame().matches(attempt_identity.frame())
             {
-                return GenericG0FamilyObservationV1::Rejected(
+                return rejected(
                     GenericG0ObservationRejectV1::CandidateIdentityMismatch,
+                    evidence,
                 );
             }
             let policy_context = GenericG0PolicyContextV1::from_observation(
-                identity.owner(),
+                attempt_identity.owner(),
                 GenericG0PolicyProfileV1::G0,
                 policy_mode(mode),
-                policy_coverage(coverage),
+                policy_coverage(attempt_coverage),
             );
             match issue_generic_g0_candidate_v1(bundle, policy_context) {
                 GenericG0PolicyOutcomeV1::Candidate(observation) => {
                     GenericG0FamilyObservationV1::Candidate(VerifiedGenericG0FamilyCandidateV1 {
                         observation,
-                        context,
+                        evidence,
                     })
                 }
                 GenericG0PolicyOutcomeV1::Unresolved(reason) => {
-                    GenericG0FamilyObservationV1::Unresolved(
-                        GenericG0ObservationUnresolvedV1::Policy(reason),
-                    )
+                    unresolved(GenericG0ObservationUnresolvedV1::Policy(reason), evidence)
                 }
                 GenericG0PolicyOutcomeV1::Rejected(reason) => {
-                    GenericG0FamilyObservationV1::Rejected(GenericG0ObservationRejectV1::Policy(
-                        reason,
-                    ))
+                    rejected(GenericG0ObservationRejectV1::Policy(reason), evidence)
                 }
             }
         }
         GenericG0SourceAttemptOutcomeV1::Declined(reason) => {
-            GenericG0FamilyObservationV1::Declined(source_decline(reason))
+            declined(source_decline(reason), evidence)
         }
         GenericG0SourceAttemptOutcomeV1::Unresolved(reason) => {
-            GenericG0FamilyObservationV1::Unresolved(source_unresolved(reason))
+            unresolved(source_unresolved(reason), evidence)
         }
         GenericG0SourceAttemptOutcomeV1::Rejected(reason) => {
-            GenericG0FamilyObservationV1::Rejected(source_reject(reason))
+            rejected(source_reject(reason), evidence)
         }
     }
+}
+
+fn declined(
+    reason: GenericG0ObservationDeclineV1,
+    evidence: GenericG0ObservationEvidenceV1,
+) -> GenericG0FamilyObservationV1 {
+    GenericG0FamilyObservationV1::Declined { reason, evidence }
+}
+
+fn unresolved(
+    reason: GenericG0ObservationUnresolvedV1,
+    evidence: GenericG0ObservationEvidenceV1,
+) -> GenericG0FamilyObservationV1 {
+    GenericG0FamilyObservationV1::Unresolved { reason, evidence }
+}
+
+fn rejected(
+    reason: GenericG0ObservationRejectV1,
+    evidence: GenericG0ObservationEvidenceV1,
+) -> GenericG0FamilyObservationV1 {
+    GenericG0FamilyObservationV1::Rejected { reason, evidence }
 }
 
 fn policy_mode(mode: GenericG0ObservationModeV1) -> GenericG0PolicyModeV1 {

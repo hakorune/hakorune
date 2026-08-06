@@ -78,14 +78,19 @@ fn canonical_candidate_is_normalized_in_all_modes() {
         GenericG0ObservationModeV1::StrictPlannerRequired,
     ] {
         let attempt = attempt(TYPED, Some(mode), GenericG0ObservationCoverageV1::Complete);
-        assert!(matches!(
-            observe(
-                attempt,
-                Some(mode),
-                GenericG0ObservationCoverageV1::Complete
-            ),
-            GenericG0FamilyObservationV1::Candidate(_)
-        ));
+        let observation = observe(
+            attempt,
+            Some(mode),
+            GenericG0ObservationCoverageV1::Complete,
+        );
+        let GenericG0FamilyObservationV1::Candidate(candidate) = observation else {
+            panic!("exact Generic G0 must be a candidate")
+        };
+        assert_eq!(candidate.evidence().observed_mode(), Some(mode));
+        assert_eq!(
+            candidate.evidence().observed_coverage(),
+            GenericG0ObservationCoverageV1::Complete
+        );
     }
 }
 
@@ -103,7 +108,10 @@ fn known_shape_is_declined_without_policy_fallback() {
             Some(GenericG0ObservationModeV1::Release),
             GenericG0ObservationCoverageV1::Complete,
         ),
-        GenericG0FamilyObservationV1::Declined(_)
+        GenericG0FamilyObservationV1::Declined {
+            reason: _,
+            evidence: _
+        }
     ));
 }
 
@@ -121,7 +129,10 @@ fn unsupported_policy_shape_stays_unresolved() {
             Some(GenericG0ObservationModeV1::Release),
             GenericG0ObservationCoverageV1::Complete,
         ),
-        GenericG0FamilyObservationV1::Unresolved(GenericG0ObservationUnresolvedV1::Policy(_))
+        GenericG0FamilyObservationV1::Unresolved {
+            reason: GenericG0ObservationUnresolvedV1::Policy(_),
+            evidence: _,
+        }
     ));
 }
 
@@ -139,7 +150,10 @@ fn direction_conflict_stays_rejected() {
             Some(GenericG0ObservationModeV1::Release),
             GenericG0ObservationCoverageV1::Complete,
         ),
-        GenericG0FamilyObservationV1::Rejected(GenericG0ObservationRejectV1::Policy(_))
+        GenericG0FamilyObservationV1::Rejected {
+            reason: GenericG0ObservationRejectV1::Policy(_),
+            evidence: _,
+        }
     ));
 }
 
@@ -150,15 +164,18 @@ fn incomplete_coverage_is_unresolved_before_policy() {
         Some(GenericG0ObservationModeV1::Release),
         GenericG0ObservationCoverageV1::Complete,
     );
+    let observation = observe(
+        attempt,
+        Some(GenericG0ObservationModeV1::Release),
+        GenericG0ObservationCoverageV1::Incomplete,
+    );
+    let GenericG0FamilyObservationV1::Unresolved { reason, evidence } = observation else {
+        panic!("incomplete coverage must remain unresolved")
+    };
+    assert_eq!(reason, GenericG0ObservationUnresolvedV1::IncompleteCoverage);
     assert_eq!(
-        observe(
-            attempt,
-            Some(GenericG0ObservationModeV1::Release),
-            GenericG0ObservationCoverageV1::Incomplete,
-        ),
-        GenericG0FamilyObservationV1::Unresolved(
-            GenericG0ObservationUnresolvedV1::IncompleteCoverage
-        )
+        evidence.expected().coverage(),
+        GenericG0ObservationCoverageV1::Incomplete
     );
 }
 
@@ -169,21 +186,33 @@ fn mode_mismatch_is_rejected_before_policy() {
         Some(GenericG0ObservationModeV1::Release),
         GenericG0ObservationCoverageV1::Complete,
     );
+    let observation = observe(
+        attempt,
+        Some(GenericG0ObservationModeV1::Strict),
+        GenericG0ObservationCoverageV1::Complete,
+    );
+    let GenericG0FamilyObservationV1::Rejected { reason, evidence } = observation else {
+        panic!("mode mismatch must be rejected")
+    };
+    assert_eq!(reason, GenericG0ObservationRejectV1::ModeMismatch);
     assert_eq!(
-        observe(
-            attempt,
-            Some(GenericG0ObservationModeV1::Strict),
-            GenericG0ObservationCoverageV1::Complete,
-        ),
-        GenericG0FamilyObservationV1::Rejected(GenericG0ObservationRejectV1::ModeMismatch)
+        evidence.observed_mode(),
+        Some(GenericG0ObservationModeV1::Release)
+    );
+    assert_eq!(
+        evidence.expected().mode(),
+        Some(GenericG0ObservationModeV1::Strict)
     );
 }
 
 #[test]
 fn unsealed_mode_is_unresolved() {
     let attempt = attempt(TYPED, None, GenericG0ObservationCoverageV1::Complete);
-    assert_eq!(
-        observe(attempt, None, GenericG0ObservationCoverageV1::Complete,),
-        GenericG0FamilyObservationV1::Unresolved(GenericG0ObservationUnresolvedV1::ModeUnsealed)
-    );
+    let observation = observe(attempt, None, GenericG0ObservationCoverageV1::Complete);
+    let GenericG0FamilyObservationV1::Unresolved { reason, evidence } = observation else {
+        panic!("unsealed mode must remain unresolved")
+    };
+    assert_eq!(reason, GenericG0ObservationUnresolvedV1::ModeUnsealed);
+    assert_eq!(evidence.observed_mode(), None);
+    assert_eq!(evidence.expected().mode(), None);
 }

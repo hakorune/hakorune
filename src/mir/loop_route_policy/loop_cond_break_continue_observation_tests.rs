@@ -76,6 +76,11 @@ fn exact_loop_cond_projection_is_candidate_in_all_sealed_modes() {
             panic!("exact LoopCond projection must be a candidate")
         };
         assert_eq!(candidate.context().mode(), Some(mode));
+        assert_eq!(candidate.evidence().observed_mode(), Some(mode));
+        assert_eq!(
+            candidate.evidence().observed_coverage(),
+            LoopCondObservationCoverageV1::Complete
+        );
         assert_eq!(
             candidate.observation().root_frame_key(),
             candidate.context().identity().frame()
@@ -100,11 +105,17 @@ fn known_loop_true_overlap_declines_without_route_fallback() {
         Some(LoopCondObservationModeV1::Release),
         LoopCondObservationCoverageV1::Complete,
     );
+    let observation = issue_loop_cond_family_observation_v1(attempt, context);
+    let LoopCondFamilyObservationV1::Declined { reason, evidence } = observation else {
+        panic!("known overlap must decline")
+    };
     assert_eq!(
-        issue_loop_cond_family_observation_v1(attempt, context),
-        LoopCondFamilyObservationV1::Declined(
-            LoopCondObservationDeclineV1::NotLoopCondBreakContinueShape
-        )
+        reason,
+        LoopCondObservationDeclineV1::NotLoopCondBreakContinueShape
+    );
+    assert_eq!(
+        evidence.observed_mode(),
+        Some(LoopCondObservationModeV1::Release)
     );
 }
 
@@ -117,11 +128,14 @@ fn incomplete_window_is_unresolved_before_shape_disposition() {
         Some(LoopCondObservationModeV1::Release),
         LoopCondObservationCoverageV1::Incomplete,
     );
+    let observation = issue_loop_cond_family_observation_v1(attempt, context);
+    let LoopCondFamilyObservationV1::Unresolved { reason, evidence } = observation else {
+        panic!("incomplete window must remain unresolved")
+    };
+    assert_eq!(reason, LoopCondObservationUnresolvedV1::IncompleteCoverage);
     assert_eq!(
-        issue_loop_cond_family_observation_v1(attempt, context),
-        LoopCondFamilyObservationV1::Unresolved(
-            LoopCondObservationUnresolvedV1::IncompleteCoverage
-        )
+        evidence.expected().coverage(),
+        LoopCondObservationCoverageV1::Incomplete
     );
 }
 
@@ -134,10 +148,12 @@ fn unsealed_mode_is_unresolved_without_policy_guess() {
         None,
         LoopCondObservationCoverageV1::Complete,
     );
-    assert_eq!(
-        issue_loop_cond_family_observation_v1(attempt, context),
-        LoopCondFamilyObservationV1::Unresolved(LoopCondObservationUnresolvedV1::ModeUnsealed)
-    );
+    let observation = issue_loop_cond_family_observation_v1(attempt, context);
+    let LoopCondFamilyObservationV1::Unresolved { reason, evidence } = observation else {
+        panic!("unsealed mode must remain unresolved")
+    };
+    assert_eq!(reason, LoopCondObservationUnresolvedV1::ModeUnsealed);
+    assert_eq!(evidence.observed_mode(), None);
 }
 
 #[test]
@@ -149,9 +165,18 @@ fn mode_mismatch_is_rejected_before_candidate_issue() {
         Some(LoopCondObservationModeV1::Strict),
         LoopCondObservationCoverageV1::Complete,
     );
+    let observation = issue_loop_cond_family_observation_v1(attempt, context);
+    let LoopCondFamilyObservationV1::Rejected { reason, evidence } = observation else {
+        panic!("mode mismatch must be rejected")
+    };
+    assert_eq!(reason, LoopCondObservationRejectV1::ModeMismatch);
     assert_eq!(
-        issue_loop_cond_family_observation_v1(attempt, context),
-        LoopCondFamilyObservationV1::Rejected(LoopCondObservationRejectV1::ModeMismatch)
+        evidence.observed_mode(),
+        Some(LoopCondObservationModeV1::Release)
+    );
+    assert_eq!(
+        evidence.expected().mode(),
+        Some(LoopCondObservationModeV1::Strict)
     );
 }
 
@@ -177,9 +202,14 @@ fn foreign_context_is_rejected_before_shape_policy() {
     );
     let foreign_context =
         LoopCondObservationContextV1::for_test(identity, context.mode(), context.coverage());
-    assert_eq!(
-        issue_loop_cond_family_observation_v1(attempt, foreign_context),
-        LoopCondFamilyObservationV1::Rejected(LoopCondObservationRejectV1::ForeignContext)
+    let observation = issue_loop_cond_family_observation_v1(attempt, foreign_context);
+    let LoopCondFamilyObservationV1::Rejected { reason, evidence } = observation else {
+        panic!("foreign context must be rejected")
+    };
+    assert_eq!(reason, LoopCondObservationRejectV1::ForeignContext);
+    assert_ne!(
+        evidence.observed_identity().owner(),
+        evidence.expected().identity().owner()
     );
 }
 
@@ -199,11 +229,17 @@ fn source_lookup_remains_unresolved() {
         mode,
         coverage,
     );
+    let observation = issue_loop_cond_family_observation_v1(attempt, context);
+    let LoopCondFamilyObservationV1::Unresolved { reason, evidence } = observation else {
+        panic!("source lookup must remain unresolved")
+    };
     assert_eq!(
-        issue_loop_cond_family_observation_v1(attempt, context),
-        LoopCondFamilyObservationV1::Unresolved(LoopCondObservationUnresolvedV1::Source(
-            LoopCondSourceUnresolvedV1::SourceLookup,
-        ))
+        reason,
+        LoopCondObservationUnresolvedV1::Source(LoopCondSourceUnresolvedV1::SourceLookup)
+    );
+    assert_eq!(
+        evidence.observed_coverage(),
+        LoopCondObservationCoverageV1::Complete
     );
 }
 
@@ -230,11 +266,17 @@ fn candidate_identity_is_rechecked_after_context_seal() {
         context.mode(),
         context.coverage(),
     );
+    let observation = issue_loop_cond_family_observation_v1(attempt, context);
+    let LoopCondFamilyObservationV1::Rejected { reason, evidence } = observation else {
+        panic!("candidate identity mismatch must be rejected")
+    };
     assert_eq!(
-        issue_loop_cond_family_observation_v1(attempt, context),
-        LoopCondFamilyObservationV1::Rejected(
-            LoopCondObservationRejectV1::CandidateIdentityMismatch
-        )
+        reason,
+        LoopCondObservationRejectV1::CandidateIdentityMismatch
+    );
+    assert_eq!(
+        evidence.observed_mode(),
+        Some(LoopCondObservationModeV1::Release)
     );
 }
 
@@ -258,10 +300,16 @@ fn exit_target_conflict_is_rejected() {
         mode,
         coverage,
     );
+    let observation = issue_loop_cond_family_observation_v1(attempt, context);
+    let LoopCondFamilyObservationV1::Rejected { reason, evidence } = observation else {
+        panic!("exit target conflict must be rejected")
+    };
     assert_eq!(
-        issue_loop_cond_family_observation_v1(attempt, context),
-        LoopCondFamilyObservationV1::Rejected(LoopCondObservationRejectV1::Source(
-            LoopCondSourceRejectV1::ExitTargetMismatch,
-        ))
+        reason,
+        LoopCondObservationRejectV1::Source(LoopCondSourceRejectV1::ExitTargetMismatch)
+    );
+    assert_eq!(
+        evidence.observed_coverage(),
+        LoopCondObservationCoverageV1::Complete
     );
 }

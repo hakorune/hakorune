@@ -51,9 +51,49 @@ impl NestedPredicateObservationContextV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub(crate) struct NestedPredicateObservationEvidenceV1 {
+    expected: NestedPredicateObservationContextV1,
+    observed_identity: NestedPredicateSourceIdentityV1,
+    observed_mode: Option<NestedPredicateObservationModeV1>,
+    observed_coverage: NestedPredicateObservationCoverageV1,
+}
+
+impl NestedPredicateObservationEvidenceV1 {
+    fn new(
+        expected: NestedPredicateObservationContextV1,
+        observed_identity: NestedPredicateSourceIdentityV1,
+        observed_mode: Option<NestedPredicateObservationModeV1>,
+        observed_coverage: NestedPredicateObservationCoverageV1,
+    ) -> Self {
+        Self {
+            expected,
+            observed_identity,
+            observed_mode,
+            observed_coverage,
+        }
+    }
+
+    pub(crate) const fn expected(&self) -> &NestedPredicateObservationContextV1 {
+        &self.expected
+    }
+
+    pub(crate) const fn observed_identity(&self) -> &NestedPredicateSourceIdentityV1 {
+        &self.observed_identity
+    }
+
+    pub(crate) const fn observed_mode(&self) -> Option<NestedPredicateObservationModeV1> {
+        self.observed_mode
+    }
+
+    pub(crate) const fn observed_coverage(&self) -> NestedPredicateObservationCoverageV1 {
+        self.observed_coverage
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedNestedPredicateFamilyCandidateV1 {
     observation: VerifiedNestedLoopSourceProjectionV1,
-    context: NestedPredicateObservationContextV1,
+    evidence: NestedPredicateObservationEvidenceV1,
 }
 
 impl VerifiedNestedPredicateFamilyCandidateV1 {
@@ -62,7 +102,11 @@ impl VerifiedNestedPredicateFamilyCandidateV1 {
     }
 
     pub(crate) const fn context(&self) -> &NestedPredicateObservationContextV1 {
-        &self.context
+        self.evidence.expected()
+    }
+
+    pub(crate) const fn evidence(&self) -> &NestedPredicateObservationEvidenceV1 {
+        &self.evidence
     }
 }
 
@@ -91,84 +135,130 @@ pub(crate) enum NestedPredicateObservationRejectV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum NestedPredicateFamilyObservationV1 {
     Candidate(VerifiedNestedPredicateFamilyCandidateV1),
-    Declined(NestedPredicateObservationDeclineV1),
-    Unresolved(NestedPredicateObservationUnresolvedV1),
-    Rejected(NestedPredicateObservationRejectV1),
+    Declined {
+        reason: NestedPredicateObservationDeclineV1,
+        evidence: NestedPredicateObservationEvidenceV1,
+    },
+    Unresolved {
+        reason: NestedPredicateObservationUnresolvedV1,
+        evidence: NestedPredicateObservationEvidenceV1,
+    },
+    Rejected {
+        reason: NestedPredicateObservationRejectV1,
+        evidence: NestedPredicateObservationEvidenceV1,
+    },
+}
+
+impl NestedPredicateFamilyObservationV1 {
+    pub(crate) const fn evidence(&self) -> &NestedPredicateObservationEvidenceV1 {
+        match self {
+            Self::Candidate(candidate) => candidate.evidence(),
+            Self::Declined { evidence, .. }
+            | Self::Unresolved { evidence, .. }
+            | Self::Rejected { evidence, .. } => evidence,
+        }
+    }
 }
 
 pub(crate) fn issue_nested_predicate_family_observation_v1(
     attempt: VerifiedNestedPredicateSourceAttemptV1,
     context: NestedPredicateObservationContextV1,
 ) -> NestedPredicateFamilyObservationV1 {
-    let attempt_mode = attempt.mode();
-    let attempt_coverage = attempt.coverage();
-    let attempt_identity = attempt.identity();
+    let (outcome, identity, mode, coverage) = attempt.into_parts();
+    let evidence = NestedPredicateObservationEvidenceV1::new(context, identity, mode, coverage);
+    let attempt_mode = evidence.observed_mode();
+    let attempt_coverage = evidence.observed_coverage();
+    let attempt_identity = evidence.observed_identity();
+    let context = evidence.expected();
     let context_identity = context.identity();
 
     if attempt_identity.owner() != context_identity.owner() {
-        return NestedPredicateFamilyObservationV1::Rejected(
-            NestedPredicateObservationRejectV1::ForeignContext,
-        );
+        return rejected(NestedPredicateObservationRejectV1::ForeignContext, evidence);
     }
     if attempt_identity.function_origin() != context_identity.function_origin()
         || attempt_identity.source_kind() != context_identity.source_kind()
         || attempt_identity.site() != context_identity.site()
     {
-        return NestedPredicateFamilyObservationV1::Rejected(
+        return rejected(
             NestedPredicateObservationRejectV1::SourceIdentityMismatch,
+            evidence,
         );
     }
     if !attempt_identity.frame().matches(context_identity.frame()) {
-        return NestedPredicateFamilyObservationV1::Rejected(
-            NestedPredicateObservationRejectV1::FrameMismatch,
-        );
+        return rejected(NestedPredicateObservationRejectV1::FrameMismatch, evidence);
     }
     if attempt_mode.is_none() || context.mode().is_none() {
-        return NestedPredicateFamilyObservationV1::Unresolved(
+        return unresolved(
             NestedPredicateObservationUnresolvedV1::ModeUnsealed,
+            evidence,
         );
     }
     if attempt_mode != context.mode() {
-        return NestedPredicateFamilyObservationV1::Rejected(
-            NestedPredicateObservationRejectV1::ModeMismatch,
-        );
+        return rejected(NestedPredicateObservationRejectV1::ModeMismatch, evidence);
     }
     if attempt_coverage == NestedPredicateObservationCoverageV1::Incomplete
         || context.coverage() == NestedPredicateObservationCoverageV1::Incomplete
     {
-        return NestedPredicateFamilyObservationV1::Unresolved(
+        return unresolved(
             NestedPredicateObservationUnresolvedV1::IncompleteCoverage,
+            evidence,
         );
     }
 
-    let (outcome, identity, _, _) = attempt.into_parts();
     match outcome {
         NestedPredicateSourceAttemptOutcomeV1::Candidate(observation) => {
-            if observation.owner() != identity.owner()
-                || !observation.root_frame_key().matches(identity.frame())
-                || !observation.matches_source_identity(identity.function_origin(), identity.site())
+            if observation.owner() != attempt_identity.owner()
+                || !observation
+                    .root_frame_key()
+                    .matches(attempt_identity.frame())
+                || !observation.matches_source_identity(
+                    attempt_identity.function_origin(),
+                    attempt_identity.site(),
+                )
             {
-                return NestedPredicateFamilyObservationV1::Rejected(
+                return rejected(
                     NestedPredicateObservationRejectV1::CandidateIdentityMismatch,
+                    evidence,
                 );
             }
             NestedPredicateFamilyObservationV1::Candidate(
                 VerifiedNestedPredicateFamilyCandidateV1 {
                     observation,
-                    context,
+                    evidence,
                 },
             )
         }
         NestedPredicateSourceAttemptOutcomeV1::Declined(reason) => {
-            NestedPredicateFamilyObservationV1::Declined(source_decline(reason))
+            declined(source_decline(reason), evidence)
         }
         NestedPredicateSourceAttemptOutcomeV1::Unresolved(reason) => {
-            NestedPredicateFamilyObservationV1::Unresolved(source_unresolved(reason))
+            unresolved(source_unresolved(reason), evidence)
         }
         NestedPredicateSourceAttemptOutcomeV1::Rejected(reason) => {
-            NestedPredicateFamilyObservationV1::Rejected(source_reject(reason))
+            rejected(source_reject(reason), evidence)
         }
     }
+}
+
+fn declined(
+    reason: NestedPredicateObservationDeclineV1,
+    evidence: NestedPredicateObservationEvidenceV1,
+) -> NestedPredicateFamilyObservationV1 {
+    NestedPredicateFamilyObservationV1::Declined { reason, evidence }
+}
+
+fn unresolved(
+    reason: NestedPredicateObservationUnresolvedV1,
+    evidence: NestedPredicateObservationEvidenceV1,
+) -> NestedPredicateFamilyObservationV1 {
+    NestedPredicateFamilyObservationV1::Unresolved { reason, evidence }
+}
+
+fn rejected(
+    reason: NestedPredicateObservationRejectV1,
+    evidence: NestedPredicateObservationEvidenceV1,
+) -> NestedPredicateFamilyObservationV1 {
+    NestedPredicateFamilyObservationV1::Rejected { reason, evidence }
 }
 
 fn source_decline(reason: NestedPredicateSourceDeclineV1) -> NestedPredicateObservationDeclineV1 {

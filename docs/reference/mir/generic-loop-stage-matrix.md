@@ -118,7 +118,7 @@ unresolved; foreign or conflicting facts reject. Ambiguous `ForestShape` and
 `BindingLookup` evidence remains conservative `Unresolved` until a separate
 resolver-side split. No admission assembler, selector, Recipe/JoinSig,
 Builder/MIR, physical lowering, retry/fallback, production caller, or legacy
-retirement is claimed. The next ordered cell is the common admission assembler.
+retirement is claimed. The next ordered cell is FAMILY-ROW-CONTEXT-RETENTION-R0.
 
 ## DirectAccum S1 observation receipt
 
@@ -181,10 +181,9 @@ The canonical window has exactly five semantic rows:
 resolver-issued AST-free window identity brand is co-sealed with one typed
 `Candidate|Declined|Unresolved|Rejected` row per tag; legacy `Blocked` remains
 schedule vocabulary only. The assembler validates identity/mode/coverage but
-does not select. LoopCond S1 is now a caller-zero AST-free bounded observer;
-Generic still needs a normalization adapter with a real Declined arm. The
-ordered next cells are Generic normalization and the common assembler;
-selector promotion and production remain closed.
+does not select. LoopCond S1, Generic normalization, and
+FAMILY-ROW-CONTEXT-RETENTION-R0 are now landed caller-zero rows. The common
+assembler is the next cell; selector promotion and production remain closed.
 
 ## LoopCond S1 implementation receipt
 
@@ -198,6 +197,16 @@ preserve the C/D/U/R matrix. Nine policy tests, five projection tests, and the
 shared family observer guard are green. The legacy LoopCond variants remain
 migration-only; no selector, Recipe/Builder/MIR, retry/fallback, production
 caller, or legacy deletion is open.
+
+## Family row context-retention R0 receipt
+
+`FAMILY-ROW-CONTEXT-RETENTION-R0` is landed as a behavior-neutral, caller-zero
+BoxShape refactor. DirectAccum, NestedPredicate, LoopTrue, LoopCond, and
+Generic G0 now retain expected/observed identity, mode, and coverage evidence
+on all four dispositions, with typed reasons/payloads preserved. The focused
+observation suite has 89 passing tests and the shared guard is green. This
+receipt does not open the assembler, selector, Recipe, Builder/MIR, production
+caller, or legacy retirement; the common assembler is next.
 
 ## Current source-to-selection evidence
 

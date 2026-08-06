@@ -224,3 +224,12 @@ resolver facts are `Unresolved`; foreign, binding, and exit conflicts are
 Recipe/JoinSig/BindingKey, or call Builder/MIR. The finite task and required
 post-implementation reference update are recorded in
 `docs/development/current/main/investigations/loop-family-looptrue-observation-s1-design-task-2026-08-06.md`.
+
+## Family row context-retention R0
+
+The five route-policy observer variants now retain their expected and observed
+identity/mode/coverage evidence on every `Candidate`, `Declined`,
+`Unresolved`, and `Rejected` row. This is a neutral transport-preservation
+boundary only; it does not issue a common admission window, selector, Recipe,
+Builder/MIR product, retry, fallback, or production caller. The common
+admission assembler is the next owner.

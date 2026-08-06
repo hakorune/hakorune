@@ -133,8 +133,10 @@ Related:
   adapter, seven focused tests, and a green shared guard. LoopCond S1 is now a
   landed caller-zero observer with a green shared family guard. Generic
   G0 row normalization is now landed caller-zero with 12 adapter tests, 7
-  policy tests, and a green shared guard; the next exact row is
-  GENERIC-G0-ADMISSION-SET-S1. The finite shallow order and atomic
+  policy tests, and a green shared guard. A design audit found that D/U/R
+  variants drop row metadata, so the next exact row is
+  FAMILY-ROW-CONTEXT-RETENTION-R0 is landed; the common assembler is next. The
+  finite shallow order and atomic
   legacy-retirement boundary live in the dedicated Generic SSOT. Production and
   public reference activation remain zero.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,

@@ -79,6 +79,11 @@ does not call a selector, Recipe, Builder, MIR, retry, fallback, or production
 route. Its 12 focused tests are part of the row guard; ambiguous source lookup
 and binding evidence remains unresolved rather than being guessed.
 
+The five family observers now consume their source attempts exactly once and
+retain typed expected/observed identity, mode, and coverage evidence on every
+C/D/U/R disposition. This R0 evidence-preservation change is caller-zero and
+does not open the common admission assembler or any production lowering.
+
 ## NestedPredicate S1 source observation
 
 `nested_predicate_observation.rs` is a `#![cfg(test)]` adapter from the

@@ -119,10 +119,21 @@ caller-zero. Its required semantic tags are `DirectAccum`, `NestedPredicate`,
 issued AST-free window identity brand is co-sealed with one typed
 `Candidate|Declined|Unresolved|Rejected` row per tag; legacy `Blocked` belongs
 only to the schedule evaluator. The assembler checks identity/mode/coverage
-and does not select. LoopCond S1 now supplies its own bounded C/D/U/R observer;
-Generic still requires an explicit source-attempt normalization adapter. The
-next ordered cells are Generic normalization and then the common assembler;
-selector promotion remains separate.
+and does not select. LoopCond S1 and Generic normalization now supply bounded
+C/D/U/R observers. FAMILY-ROW-CONTEXT-RETENTION-R0 is also landed: every
+family disposition keeps expected/observed identity, mode, and coverage
+evidence. The next ordered cell is the common assembler; selector promotion
+remains separate.
+
+## Family row context-retention R0 receipt
+
+The five caller-zero observer enums now use typed evidence-bearing variants for
+`Candidate`, `Declined`, `Unresolved`, and `Rejected`. Each observer consumes
+its source attempt exactly once before validation; no clone, relookup, AST, or
+legacy schedule authority is introduced. The 89-test observation suite and
+shared row-context guard are green, and all observer files remain below 800
+lines. The common admission assembler is the next owner; this module still
+has no selector, Recipe, Builder/MIR, production, retry, or deletion caller.
 
 ## LoopCond S1 implementation receipt
 

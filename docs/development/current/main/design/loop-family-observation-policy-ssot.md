@@ -390,13 +390,25 @@ capabilities, the resolver must issue an explicit family-scoped fan-out or
 equivalent branded capability; the assembler may not clone/relookup source or
 use the AST-bearing shared test window witness as production authority.
 
+`FAMILY-ROW-CONTEXT-RETENTION-R0` is landed before assembler opening. All five
+observer enums now retain a typed non-Clone evidence envelope on `Candidate`,
+`Declined`, `Unresolved`, and `Rejected`; it contains both expected and
+observed identity/mode/coverage. The source attempt is decomposed exactly once
+before validation, so a mismatch retains both sides. The later typed-envelope
+to common-row projection must remain lossless, with one owner for
+family-specific to common mode/coverage conversion. An assembler failure must
+retain consumed rows/lease evidence rather than return a bare reason.
+
 Each row is normalized to exactly one of `Candidate`, `Declined`,
 `Unresolved`, or `Rejected`, with family tag and typed provenance retained.
 `Blocked` belongs only to the legacy schedule/policy vocabulary. Generic G0
 requires a source-attempt normalization layer because its current policy lacks
 `Declined` and its context lacks common origin/source-kind/site/frame identity.
-LoopCond has no observer yet; its missing row is
-`Unresolved(MissingFamilyObservation::LoopCond)`, never a synthetic Declined.
+LoopCond and Generic row normalization, plus the R0 evidence-retention
+refactor, are now landed caller-zero products; the common assembler must
+consume their evidence-retaining row envelopes. A
+missing row is an assembler `Unresolved(MissingFamilyObservation)`, never a
+synthetic `Declined`.
 
 The window assembler validates exact five-tag coverage, duplicate/missing rows,
 owner/origin/source-kind/site/frame equality, mode equality, and coverage. It
@@ -486,8 +498,19 @@ post-implementation reference-document receipt.
 
 No selector, common assembler, Generic normalization, Recipe/JoinSig,
 Builder/MIR, physical route, retry/fallback, production caller, or legacy
-LoopCond deletion is implied. The next bounded cell is Generic G0 row
-normalization.
+LoopCond deletion is implied. The next bounded cell is the common five-family
+admission assembler.
+
+## Family row context-retention R0 implementation receipt
+
+`FAMILY-ROW-CONTEXT-RETENTION-R0` is landed as a behavior-neutral BoxShape
+refactor. The five typed observer modules retain expected and observed
+identity/mode/coverage evidence on every disposition, expose one outer
+`evidence()` accessor, and preserve typed reason/payload ownership. The
+focused observation suite reports 89 passing tests; the shared caller-zero
+guard rejects bare reason-only constructors and all changed files remain below
+800 lines. No selector, Recipe, Builder/MIR, production caller, retry, or
+legacy deletion was opened. The common admission assembler is the next owner.
 
 ## Generic G0 row-normalization S1 implementation receipt
 

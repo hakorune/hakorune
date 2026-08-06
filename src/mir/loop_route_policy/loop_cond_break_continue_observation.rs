@@ -51,9 +51,49 @@ impl LoopCondObservationContextV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub(crate) struct LoopCondObservationEvidenceV1 {
+    expected: LoopCondObservationContextV1,
+    observed_identity: LoopCondSourceIdentityV1,
+    observed_mode: Option<LoopCondObservationModeV1>,
+    observed_coverage: LoopCondObservationCoverageV1,
+}
+
+impl LoopCondObservationEvidenceV1 {
+    fn new(
+        expected: LoopCondObservationContextV1,
+        observed_identity: LoopCondSourceIdentityV1,
+        observed_mode: Option<LoopCondObservationModeV1>,
+        observed_coverage: LoopCondObservationCoverageV1,
+    ) -> Self {
+        Self {
+            expected,
+            observed_identity,
+            observed_mode,
+            observed_coverage,
+        }
+    }
+
+    pub(crate) const fn expected(&self) -> &LoopCondObservationContextV1 {
+        &self.expected
+    }
+
+    pub(crate) const fn observed_identity(&self) -> &LoopCondSourceIdentityV1 {
+        &self.observed_identity
+    }
+
+    pub(crate) const fn observed_mode(&self) -> Option<LoopCondObservationModeV1> {
+        self.observed_mode
+    }
+
+    pub(crate) const fn observed_coverage(&self) -> LoopCondObservationCoverageV1 {
+        self.observed_coverage
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopCondFamilyCandidateV1 {
     observation: VerifiedLoopCondBreakContinueSourceProjectionV1,
-    context: LoopCondObservationContextV1,
+    evidence: LoopCondObservationEvidenceV1,
 }
 
 impl VerifiedLoopCondFamilyCandidateV1 {
@@ -62,7 +102,11 @@ impl VerifiedLoopCondFamilyCandidateV1 {
     }
 
     pub(crate) const fn context(&self) -> &LoopCondObservationContextV1 {
-        &self.context
+        self.evidence.expected()
+    }
+
+    pub(crate) const fn evidence(&self) -> &LoopCondObservationEvidenceV1 {
+        &self.evidence
     }
 }
 
@@ -91,80 +135,126 @@ pub(crate) enum LoopCondObservationRejectV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum LoopCondFamilyObservationV1 {
     Candidate(VerifiedLoopCondFamilyCandidateV1),
-    Declined(LoopCondObservationDeclineV1),
-    Unresolved(LoopCondObservationUnresolvedV1),
-    Rejected(LoopCondObservationRejectV1),
+    Declined {
+        reason: LoopCondObservationDeclineV1,
+        evidence: LoopCondObservationEvidenceV1,
+    },
+    Unresolved {
+        reason: LoopCondObservationUnresolvedV1,
+        evidence: LoopCondObservationEvidenceV1,
+    },
+    Rejected {
+        reason: LoopCondObservationRejectV1,
+        evidence: LoopCondObservationEvidenceV1,
+    },
+}
+
+impl LoopCondFamilyObservationV1 {
+    pub(crate) const fn evidence(&self) -> &LoopCondObservationEvidenceV1 {
+        match self {
+            Self::Candidate(candidate) => candidate.evidence(),
+            Self::Declined { evidence, .. }
+            | Self::Unresolved { evidence, .. }
+            | Self::Rejected { evidence, .. } => evidence,
+        }
+    }
 }
 
 pub(crate) fn issue_loop_cond_family_observation_v1(
     attempt: VerifiedLoopCondSourceAttemptV1,
     context: LoopCondObservationContextV1,
 ) -> LoopCondFamilyObservationV1 {
-    let attempt_mode = attempt.mode();
-    let attempt_coverage = attempt.coverage();
-    let attempt_identity = attempt.identity();
+    let (outcome, identity, mode, coverage) = attempt.into_parts();
+    let evidence = LoopCondObservationEvidenceV1::new(context, identity, mode, coverage);
+    let attempt_mode = evidence.observed_mode();
+    let attempt_coverage = evidence.observed_coverage();
+    let attempt_identity = evidence.observed_identity();
+    let context = evidence.expected();
     let context_identity = context.identity();
 
     if attempt_identity.owner() != context_identity.owner() {
-        return LoopCondFamilyObservationV1::Rejected(LoopCondObservationRejectV1::ForeignContext);
+        return rejected(LoopCondObservationRejectV1::ForeignContext, evidence);
     }
     if attempt_identity.function_origin() != context_identity.function_origin()
         || attempt_identity.source_kind() != context_identity.source_kind()
         || attempt_identity.site() != context_identity.site()
     {
-        return LoopCondFamilyObservationV1::Rejected(
+        return rejected(
             LoopCondObservationRejectV1::SourceIdentityMismatch,
+            evidence,
         );
     }
     if !attempt_identity.frame().matches(context_identity.frame()) {
-        return LoopCondFamilyObservationV1::Rejected(LoopCondObservationRejectV1::FrameMismatch);
+        return rejected(LoopCondObservationRejectV1::FrameMismatch, evidence);
     }
     if attempt_mode.is_none() || context.mode().is_none() {
-        return LoopCondFamilyObservationV1::Unresolved(
-            LoopCondObservationUnresolvedV1::ModeUnsealed,
-        );
+        return unresolved(LoopCondObservationUnresolvedV1::ModeUnsealed, evidence);
     }
     if attempt_mode != context.mode() {
-        return LoopCondFamilyObservationV1::Rejected(LoopCondObservationRejectV1::ModeMismatch);
+        return rejected(LoopCondObservationRejectV1::ModeMismatch, evidence);
     }
     if attempt_coverage == LoopCondObservationCoverageV1::Incomplete
         || context.coverage() == LoopCondObservationCoverageV1::Incomplete
     {
-        return LoopCondFamilyObservationV1::Unresolved(
+        return unresolved(
             LoopCondObservationUnresolvedV1::IncompleteCoverage,
+            evidence,
         );
     }
 
-    let (outcome, identity, _, _) = attempt.into_parts();
     match outcome {
         LoopCondSourceAttemptOutcomeV1::Candidate(observation) => {
-            if observation.owner() != identity.owner()
-                || !observation.root_frame_key().matches(identity.frame())
+            if observation.owner() != attempt_identity.owner()
+                || !observation
+                    .root_frame_key()
+                    .matches(attempt_identity.frame())
                 || !observation.matches_source_identity(
-                    identity.function_origin(),
-                    identity.source_kind(),
-                    identity.site(),
+                    attempt_identity.function_origin(),
+                    attempt_identity.source_kind(),
+                    attempt_identity.site(),
                 )
             {
-                return LoopCondFamilyObservationV1::Rejected(
+                return rejected(
                     LoopCondObservationRejectV1::CandidateIdentityMismatch,
+                    evidence,
                 );
             }
             LoopCondFamilyObservationV1::Candidate(VerifiedLoopCondFamilyCandidateV1 {
                 observation,
-                context,
+                evidence,
             })
         }
         LoopCondSourceAttemptOutcomeV1::Declined(reason) => {
-            LoopCondFamilyObservationV1::Declined(source_decline(reason))
+            declined(source_decline(reason), evidence)
         }
         LoopCondSourceAttemptOutcomeV1::Unresolved(reason) => {
-            LoopCondFamilyObservationV1::Unresolved(source_unresolved(reason))
+            unresolved(source_unresolved(reason), evidence)
         }
         LoopCondSourceAttemptOutcomeV1::Rejected(reason) => {
-            LoopCondFamilyObservationV1::Rejected(source_reject(reason))
+            rejected(source_reject(reason), evidence)
         }
     }
+}
+
+fn declined(
+    reason: LoopCondObservationDeclineV1,
+    evidence: LoopCondObservationEvidenceV1,
+) -> LoopCondFamilyObservationV1 {
+    LoopCondFamilyObservationV1::Declined { reason, evidence }
+}
+
+fn unresolved(
+    reason: LoopCondObservationUnresolvedV1,
+    evidence: LoopCondObservationEvidenceV1,
+) -> LoopCondFamilyObservationV1 {
+    LoopCondFamilyObservationV1::Unresolved { reason, evidence }
+}
+
+fn rejected(
+    reason: LoopCondObservationRejectV1,
+    evidence: LoopCondObservationEvidenceV1,
+) -> LoopCondFamilyObservationV1 {
+    LoopCondFamilyObservationV1::Rejected { reason, evidence }
 }
 
 fn source_decline(reason: LoopCondSourceDeclineV1) -> LoopCondObservationDeclineV1 {

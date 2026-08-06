@@ -68,6 +68,11 @@ fn exact_direct_accum_is_candidate_in_all_sealed_modes() {
             panic!("exact DirectAccum must be a candidate")
         };
         assert_eq!(candidate.context().mode(), Some(mode));
+        assert_eq!(candidate.evidence().observed_mode(), Some(mode));
+        assert_eq!(
+            candidate.evidence().observed_coverage(),
+            DirectAccumObservationCoverageV1::Complete
+        );
         assert_eq!(
             candidate.observation().frame_key(),
             candidate.context().identity().frame().clone()
@@ -95,11 +100,18 @@ fn known_non_direct_shape_declines_without_family_fallback() {
         Some(DirectAccumObservationModeV1::Release),
         DirectAccumObservationCoverageV1::Complete,
     );
+    let observation = issue_direct_accum_family_observation_v1(attempt, context);
+    let DirectAccumFamilyObservationV1::Declined { reason, evidence } = observation else {
+        panic!("known non-DirectAccum shape must decline")
+    };
+    assert_eq!(reason, DirectAccumObservationDeclineV1::NotDirectAccumShape);
     assert_eq!(
-        issue_direct_accum_family_observation_v1(attempt, context),
-        DirectAccumFamilyObservationV1::Declined(
-            DirectAccumObservationDeclineV1::NotDirectAccumShape
-        )
+        evidence.observed_mode(),
+        Some(DirectAccumObservationModeV1::Release)
+    );
+    assert_eq!(
+        evidence.observed_coverage(),
+        DirectAccumObservationCoverageV1::Complete
     );
 }
 
@@ -112,11 +124,17 @@ fn incomplete_window_is_unresolved_before_shape_disposition() {
         Some(DirectAccumObservationModeV1::Release),
         DirectAccumObservationCoverageV1::Incomplete,
     );
+    let observation = issue_direct_accum_family_observation_v1(attempt, context);
+    let DirectAccumFamilyObservationV1::Unresolved { reason, evidence } = observation else {
+        panic!("incomplete window must remain unresolved")
+    };
     assert_eq!(
-        issue_direct_accum_family_observation_v1(attempt, context),
-        DirectAccumFamilyObservationV1::Unresolved(
-            DirectAccumObservationUnresolvedV1::IncompleteCoverage
-        )
+        reason,
+        DirectAccumObservationUnresolvedV1::IncompleteCoverage
+    );
+    assert_eq!(
+        evidence.expected().coverage(),
+        DirectAccumObservationCoverageV1::Incomplete
     );
 }
 
@@ -129,12 +147,13 @@ fn unsealed_mode_is_unresolved_without_policy_guess() {
         None,
         DirectAccumObservationCoverageV1::Complete,
     );
-    assert_eq!(
-        issue_direct_accum_family_observation_v1(attempt, context),
-        DirectAccumFamilyObservationV1::Unresolved(
-            DirectAccumObservationUnresolvedV1::ModeUnsealed
-        )
-    );
+    let observation = issue_direct_accum_family_observation_v1(attempt, context);
+    let DirectAccumFamilyObservationV1::Unresolved { reason, evidence } = observation else {
+        panic!("unsealed mode must remain unresolved")
+    };
+    assert_eq!(reason, DirectAccumObservationUnresolvedV1::ModeUnsealed);
+    assert_eq!(evidence.observed_mode(), None);
+    assert_eq!(evidence.expected().mode(), None);
 }
 
 #[test]
@@ -146,9 +165,18 @@ fn mode_mismatch_is_rejected_before_candidate_issue() {
         Some(DirectAccumObservationModeV1::Strict),
         DirectAccumObservationCoverageV1::Complete,
     );
+    let observation = issue_direct_accum_family_observation_v1(attempt, context);
+    let DirectAccumFamilyObservationV1::Rejected { reason, evidence } = observation else {
+        panic!("mode mismatch must be rejected")
+    };
+    assert_eq!(reason, DirectAccumObservationRejectV1::ModeMismatch);
     assert_eq!(
-        issue_direct_accum_family_observation_v1(attempt, context),
-        DirectAccumFamilyObservationV1::Rejected(DirectAccumObservationRejectV1::ModeMismatch)
+        evidence.observed_mode(),
+        Some(DirectAccumObservationModeV1::Release)
+    );
+    assert_eq!(
+        evidence.expected().mode(),
+        Some(DirectAccumObservationModeV1::Strict)
     );
 }
 
@@ -174,9 +202,14 @@ fn foreign_owner_is_rejected_before_shape_policy() {
     );
     let foreign_context =
         DirectAccumObservationContextV1::for_test(identity, context.mode(), context.coverage());
-    assert_eq!(
-        issue_direct_accum_family_observation_v1(attempt, foreign_context),
-        DirectAccumFamilyObservationV1::Rejected(DirectAccumObservationRejectV1::ForeignContext)
+    let observation = issue_direct_accum_family_observation_v1(attempt, foreign_context);
+    let DirectAccumFamilyObservationV1::Rejected { reason, evidence } = observation else {
+        panic!("foreign owner must be rejected")
+    };
+    assert_eq!(reason, DirectAccumObservationRejectV1::ForeignContext);
+    assert_ne!(
+        evidence.observed_identity().owner(),
+        evidence.expected().identity().owner()
     );
 }
 
@@ -205,6 +238,9 @@ fn source_reject_is_typed_without_legacy_route_import() {
     );
     assert!(matches!(
         issue_direct_accum_family_observation_v1(attempt, context),
-        DirectAccumFamilyObservationV1::Rejected(DirectAccumObservationRejectV1::Source(_))
+        DirectAccumFamilyObservationV1::Rejected {
+            reason: DirectAccumObservationRejectV1::Source(_),
+            evidence: _
+        }
     ));
 }

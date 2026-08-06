@@ -1,5 +1,5 @@
 ---
-Status: Closed worker-reviewed design / LoopCond S1 landed / Generic normalization next
+Status: Closed worker-reviewed design / R0 landed / common assembler next
 Date: 2026-08-06
 Decision: LOOP-FAMILY-COMMON-ADMISSION-WINDOW-D0
 Authority: docs/development/current/main/design/loop-family-observation-policy-ssot.md
@@ -26,13 +26,13 @@ Unresolved
 Rejected
 ```
 
-The common window is incomplete, not complete, while LoopCond has no neutral
-observer. The assembler must retain
-`Unresolved(MissingFamilyObservation::LoopCond)`; it may not synthesize a
-LoopCond `Declined` row or promote a four-row pilot to the canonical G0
-window. Generic also needs a source-attempt normalization layer because its
-current policy outcome has no explicit `Declined` arm and its context lacks the
-common origin/source-kind/site/frame identity.
+The common window is incomplete, not complete, while a required family row is
+unavailable. The assembler must retain
+`Unresolved(MissingFamilyObservation)`; it may not synthesize a `Declined` row
+or promote a partial pilot to the canonical window. Generic normalization and
+`FAMILY-ROW-CONTEXT-RETENTION-R0` are landed caller-zero products. R0 preserves
+expected/observed metadata on every family disposition, so the common
+assembler may now open.
 
 The source lease is a resolver-issued, AST-free, non-Clone window identity
 brand. It is distinct from each family candidate capability. The assembler
@@ -84,7 +84,10 @@ A  LOOP-FAMILY-LOOPCOND-OBSERVATION-D0/S1
    caller-zero observer/fixture; landed with 9 policy + 5 projection tests
 B  GENERIC-G0-ROW-NORMALIZATION-S1
    one source-attempt adapter supplying common identity and explicit Declined
-C  LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1
+C  FAMILY-ROW-CONTEXT-RETENTION-R0
+   all five observer dispositions retain expected/observed identity, mode,
+   coverage, and typed reason/payload without clone or relookup; landed
+D  LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1
    resolver window brand, exact five-tag co-seal, row retention, no selection
 ```
 
@@ -127,9 +130,11 @@ projection tests are green. The implementation commit updated the exact
 reference documents, current mirrors, and workstream; post-implementation
 reference synchronization is recorded in that same commit.
 
-Cell A is now closed as a worker-reviewed design and implementation slice. Cell B cannot infer Declined from a missing Generic
-row. Cell C cannot claim a complete window until A and B are closed. Selector
-promotion is a separate S2 task. Shared guards must be extended through
+Cell A is now closed as a worker-reviewed design and implementation slice. Cell
+B and Cell C are also closed. R0 retains the expected/observed evidence on all
+four dispositions and its shared guard rejects bare reason-only constructors.
+Cell D is now the next bounded implementation row; selector promotion is a
+separate S2 task. Shared guards must be extended through
 reusable helpers, not by copying another large block into the 780-line
 logical-demand guard.
 
@@ -143,10 +148,25 @@ one exact LoopTrue candidate, typed declines/unresolved rows for the other
 families, and `LoopCond = Unresolved(MissingFamilyObservation)`. It proves the
 window is not selector-ready without inventing a winner.
 
+## Cell C — row-context retention prerequisite
+
+`FAMILY-ROW-CONTEXT-RETENTION-R0` was a BoxShape refactor, not a new accepted
+source shape. Each of the five `FamilyObservationV1` enums must retain a typed
+non-Clone evidence envelope on `Candidate`, `Declined`, `Unresolved`, and
+`Rejected`. The envelope keeps expected and observed identity/mode/coverage;
+the source attempt is decomposed exactly once before early-return validation so
+foreign, mode-mismatch, incomplete, and candidate-policy errors retain both
+sides of the evidence. The later typed-envelope-to-common-row projection must
+be lossless and use one owner for family-specific to common mode/coverage
+conversion. A shared guard rejects bare reason-only constructors, and focused
+tests cover non-Candidate mismatch retention. The implementation landed with
+89 focused observation tests, the shared guard, and synchronized reference
+documents/current mirrors. The next open cell is the common assembler.
+
 ## Stop lines
 
 Do not implement or edit the legacy 19-route evaluator, `family_selection.rs`,
 Recipe/JoinSig/BindingKey, Builder/MIR, physical route IDs, retry/fallback, or
 production callers from this task. A worker-reviewed decision, a source-to-
-neutral disposition matrix, and one bounded acceptance fixture are now recorded
-in the design SSOT. The S1 task is the only next implementation scope.
+neutral disposition matrix, and the landed row-context receipt are recorded in
+the design SSOT. The common assembler is the only next implementation scope.
