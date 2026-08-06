@@ -418,3 +418,51 @@ assembler. Selector promotion is a separate later task. Shared guard changes
 must use a reusable helper because the existing logical-demand guard is already
 near the 800-line boundary; the LoopTrue-specific guard is temporary evidence
 and retires when the common reusable proof covers its contract.
+
+## LoopCond observation S1 design closeout
+
+Worker review closed `LOOP-FAMILY-LOOPCOND-OBSERVATION-D0` as a design stop.
+The legacy `LoopCondBreakContinueFacts`/`Recipe` family is broad and
+environment-gated; it remains migration-only and is not a source authority for
+the new row. It must not be copied into the neutral boundary.
+
+The first caller-zero observation slice is deliberately one bounded shape:
+
+```text
+loop(non-true supported condition) {
+  if (supported condition) {
+    break
+  } else {
+    continue
+  }
+}
+```
+
+The source projection may claim only the resolver-sealed loop/condition/branch
+sites, direct exit roles and targets, owner/function-origin/source-kind/site/
+frame identity, and complete source-window coverage. It does not claim boolean
+operator policy, effect admissibility, carrier/update semantics, return paths,
+nested loops, program containers, or physical lowering.
+
+The neutral mapping is fixed:
+
+| Source/context condition | LoopCond disposition |
+| --- | --- |
+| complete, sealed mode, matching identity/frame, exact bounded shape and matching loop exit targets | `Candidate` |
+| complete lookup with a known root-true or known non-LoopCond shape, wrong body/branch arity or unsupported bounded syntax | `Declined(NotLoopCondBreakContinueShape)` |
+| incomplete/unsealed coverage or mode, missing/opaque source navigation/region/binding/exit fact, or an unclassified legacy-like variant | `Unresolved` |
+| foreign owner/origin/kind/site/frame, exit-target mismatch, conflicting/duplicate resolver evidence, or context mismatch | `Rejected` |
+
+The observer is AST-free, move-only, and caller-zero. Its test adapter may
+translate compiler projection errors, but policy must not import compiler error
+enums. It must not import Builder/MIR/ValueId/PHI, Recipe/JoinSig/BindingKey,
+route IDs, schedules/cursors, environment gates, retry/fallback, or the
+production selector. Existing LoopCond planner/VM fixtures remain historical
+evidence and are not S1 acceptance gates.
+
+The next implementation slice is therefore finite: add one resolver-backed
+LoopCond projection, one neutral attempt/observer, the focused C/D/U/R tests,
+and one shared caller-zero guard extension. The same implementation commit
+must update the reference matrix, observation SSOT, module READMEs, current
+pointer/workstream, and record the post-implementation reference-document
+synchronization. Broader LoopCond variants remain a later M8 cohort.

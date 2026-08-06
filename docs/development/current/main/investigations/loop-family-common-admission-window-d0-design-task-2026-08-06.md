@@ -1,5 +1,5 @@
 ---
-Status: Closed worker-reviewed design / next S1 task
+Status: Closed worker-reviewed design / LoopCond S1 implementation next
 Date: 2026-08-06
 Decision: LOOP-FAMILY-COMMON-ADMISSION-WINDOW-D0
 Authority: docs/development/current/main/design/loop-family-observation-policy-ssot.md
@@ -88,15 +88,46 @@ C  LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1
    resolver window brand, exact five-tag co-seal, row retention, no selection
 ```
 
-### Cell A — LoopCond observation design
+### Cell A — LoopCond observation design (closed)
 
-This is the current design blocker. Before implementation, fix the sole source
-authority, exact bounded shape, neutral disposition mapping, identity/frame
-contract, and one caller-zero acceptance fixture for LoopCond. Worker review is
-required before the observer is taskized as an implementation slice.
+Worker review fixed the sole source authority, exact bounded shape, neutral
+disposition mapping, identity/frame contract, and caller-zero acceptance
+boundary. The implementation slice is now taskized; no production selection is
+opened by this closeout.
 
-Cell A is the current blocker and must receive its own worker design audit
-before implementation. Cell B cannot infer Declined from a missing Generic
+The first accepted source shape is exactly:
+
+```text
+loop(non-true supported condition) {
+  if (supported condition) {
+    break
+  } else {
+    continue
+  }
+}
+```
+
+The AST-free projection carries only resolver-sealed loop/condition/branch
+sites, direct exit roles/targets, owner/function-origin/source-kind/site/frame,
+and source-window coverage. It does not import or preserve legacy
+`LoopCondBreakAcceptKind`, `LoopCondBreakContinueFacts`, recipes, route IDs, or
+planner/environment policy.
+
+The C/D/U/R matrix is fixed: exact complete matching shape is `Candidate`;
+known root-true/non-shape/body/branch mismatch is `Declined`; missing or
+unsealed source/region/binding/exit evidence, incomplete coverage, and
+unclassified legacy-like variants are `Unresolved`; foreign identity/frame,
+exit-target conflict, duplicate/conflicting resolver evidence, and context
+mismatch are `Rejected`. A missing broader variant must never be synthesized as
+`Declined` merely to complete the common five-row window.
+
+The next implementation task is one resolver-backed projection, one neutral
+attempt/observer, focused C/D/U/R tests, and one reusable shared guard
+extension. The implementation commit must update exact reference documents and
+record that post-implementation reference synchronization happened in the same
+commit.
+
+Cell A is now closed as a worker-reviewed design stop. Cell B cannot infer Declined from a missing Generic
 row. Cell C cannot claim a complete window until A and B are closed. Selector
 promotion is a separate S2 task. Shared guards must be extended through
 reusable helpers, not by copying another large block into the 780-line

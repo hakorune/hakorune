@@ -130,8 +130,9 @@ Related:
   Less/positive-Add Candidate/Unresolved/Rejected observation with neutral
   operator facts. DirectAccum S1 is now closed as a caller-zero AST-free
   Candidate/Declined/Unresolved/Rejected observer with a test-only source
-  adapter, seven focused tests, and a green shared guard. The next exact row is
-  LOOP-FAMILY-NESTED-OBSERVATION-S1. The finite shallow order and atomic
+  adapter, seven focused tests, and a green shared guard. LoopCond observation
+  design is now worker-reviewed and closed; the next exact row is
+  LOOP-FAMILY-LOOPCOND-OBSERVATION-S1. The finite shallow order and atomic
   legacy-retirement boundary live in the dedicated Generic SSOT. Production and
   public reference activation remain zero.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
