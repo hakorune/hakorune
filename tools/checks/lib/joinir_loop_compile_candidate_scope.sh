@@ -41,6 +41,11 @@ guard_joinir_loop_compile_candidate_scope() {
   local direct_accum_observation_adapter="$root_dir/src/mir/compiler/direct_accum_observation.rs"
   local direct_accum_observation_policy="$root_dir/src/mir/loop_route_policy/direct_accum_observation.rs"
   local direct_accum_observation_tests="$root_dir/src/mir/loop_route_policy/direct_accum_observation_tests.rs"
+  local nested_source_dto="$root_dir/src/mir/loop_structural_facts/nested_predicate_source.rs"
+  local nested_observation_source="$root_dir/src/mir/loop_structural_facts/nested_predicate_observation.rs"
+  local nested_observation_adapter="$root_dir/src/mir/compiler/nested_predicate_observation.rs"
+  local nested_observation_policy="$root_dir/src/mir/loop_route_policy/nested_predicate_observation.rs"
+  local nested_observation_tests="$root_dir/src/mir/loop_route_policy/nested_predicate_observation_tests.rs"
   local join_sig_dir="$root_dir/src/mir/loop_recipe_contract/join_sig"
   local join_sig_facade="$join_sig_dir/mod.rs"
   local join_sig_model="$join_sig_dir/model.rs"
@@ -71,6 +76,8 @@ guard_joinir_loop_compile_candidate_scope() {
     "$generic_g0_policy" "$generic_g0_policy_tests" "$generic_g0_policy_mod" "$generic_g0_structural" \
     "$direct_accum_observation_source" "$direct_accum_observation_adapter" \
     "$direct_accum_observation_policy" "$direct_accum_observation_tests" \
+    "$nested_source_dto" "$nested_observation_source" "$nested_observation_adapter" \
+    "$nested_observation_policy" "$nested_observation_tests" \
     "$join_sig_facade" "$join_sig_model" "$join_sig_port" \
     "$join_sig_visibility" "$join_sig_flow" \
     "$nested_source_projection" "$nested_recipe_producer" \
@@ -201,6 +208,13 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "DirectAccum S1 observation file exceeds boundary: ${direct_file#"$root_dir/"} lines=$direct_lines"
     fi
   done
+  for nested_file in "$nested_source_dto" "$nested_observation_source" \
+    "$nested_observation_adapter" "$nested_observation_policy" "$nested_observation_tests"; do
+    nested_lines="$(wc -l < "$nested_file" | tr -d '[:space:]')"
+    if (( nested_lines >= 800 )); then
+      guard_fail "$tag" "Nested S1 observation file exceeds boundary: ${nested_file#"$root_dir/"} lines=$nested_lines"
+    fi
+  done
   for forbidden in ASTNode MirBuilder ValueId BasicBlockId LoopRouteId Retry \
     'crate::mir::builder' 'loop_recipe_contract' 'route_loop(' \
     'try_cf_loop_joinir(' 'VerifiedLoopPolicyWinnerV1'; do
@@ -266,6 +280,43 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "DirectAccum S1 sealed constructor escaped source/test boundary: $direct_ref"
     fi
   done
+  for forbidden in ASTNode MirBuilder ValueId BasicBlockId LoopRouteId Retry \
+    'crate::mir::builder' 'loop_recipe_contract' 'route_loop(' 'try_cf_loop_joinir(' \
+    'VerifiedLoopPolicyWinnerV1'; do
+    if rg -n -F "$forbidden" "$nested_source_dto" "$nested_observation_source" \
+      "$nested_observation_policy" >/dev/null; then
+      guard_fail "$tag" "Nested S1 observation crossed forbidden authority: $forbidden"
+    fi
+  done
+  for required in VerifiedNestedLoopSourceProjectionV1 VerifiedNestedPredicateSourceAttemptV1 \
+    NestedPredicateSourceAttemptOutcomeV1 NestedPredicateObservationContextV1 \
+    VerifiedNestedPredicateFamilyCandidateV1 'issue_nested_predicate_family_observation_v1('; do
+    rg -n -F "$required" "$nested_source_dto" "$nested_observation_source" \
+      "$nested_observation_policy" >/dev/null ||
+      guard_fail "$tag" "Nested S1 observation anchor missing: $required"
+  done
+  [[ "$(rg -o -F '#[test]' "$nested_observation_tests" | wc -l | tr -d '[:space:]')" == "7" ]] ||
+    guard_fail "$tag" "Nested S1 focused test count drift"
+  rg -n -F '#![cfg(test)]' "$nested_observation_adapter" >/dev/null ||
+    guard_fail "$tag" "Nested S1 compiler adapter must remain test-only"
+  for nested_ref in 'issue_nested_predicate_family_observation_v1(' \
+    'VerifiedNestedPredicateFamilyCandidateV1'; do
+    if rg -n -F "$nested_ref" "$root_dir/src" --glob '*.rs' |
+      awk -F: -v policy="$nested_observation_policy" -v tests="$nested_observation_tests" \
+        -v policy_mod="$root_dir/src/mir/loop_route_policy/mod.rs" \
+        '$1 != policy && $1 != tests && $1 != policy_mod && $1 != "" { found = 1 } END { exit found }'; then
+      :
+    else
+      guard_fail "$tag" "Nested S1 policy observer escaped caller-zero boundary: $nested_ref"
+    fi
+  done
+  if rg -n -F 'issue_nested_predicate_source_attempt_for_test(' "$root_dir/src" --glob '*.rs' |
+    awk -F: -v adapter="$nested_observation_adapter" -v tests="$nested_observation_tests" \
+      '$1 != adapter && $1 != tests && $1 != "" { found = 1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "Nested S1 source adapter escaped caller-zero boundary"
+  fi
 
   for forbidden in \
     'compiler.builder.try_cf_loop_joinir' \

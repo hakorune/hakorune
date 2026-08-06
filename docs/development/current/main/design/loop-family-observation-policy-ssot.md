@@ -254,3 +254,19 @@ The design stop is complete; implementation may begin only from the bounded
 slice above. Its completion still requires a focused guard, reference update,
 and explicit caller-zero evidence; no selection or production claim is
 implied by this design closeout.
+
+## NestedPredicate S1 implementation receipt
+
+`LOOP-FAMILY-NESTED-OBSERVATION-S1` is now landed as a caller-zero,
+AST-free source observation. The existing projector preserves
+`ResolvedLoopSourceForestRejectV1` provenance instead of collapsing lookup and
+invariant failures into `ForestShape`; the test-only compiler adapter maps
+those typed errors into the neutral disposition matrix. The pure policy
+observer consumes one sealed source attempt and one identity/mode/coverage
+context and issues only `Candidate`, `Declined`, `Unresolved`, or `Rejected`.
+
+Seven policy tests and eight projection tests are green, including missing
+forest-root provenance. The shared recursive authority/line/caller-zero guard
+is green. This receipt does not open selection, Recipe/JoinSig/BindingKey,
+Builder/MIR/physicalization, retry/fallback, a production caller, or legacy
+retirement; the next design boundary is the LoopTrue observation row.

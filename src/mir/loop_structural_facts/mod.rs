@@ -9,6 +9,8 @@ mod direct_accum_observation;
 pub(crate) mod generic_g0;
 #[cfg(test)]
 mod generic_resolved_carrier_facts_snapshot;
+mod nested_predicate_observation;
+mod nested_predicate_source;
 mod resolved_source_adapter;
 mod selected_demand;
 mod types;
@@ -16,8 +18,8 @@ mod types;
 #[allow(unused_imports)]
 pub(crate) use resolved_source_adapter::{
     bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1, LoopRootSourceBindingRejectV1,
-    LoopSourceForestBindingRejectV1, VerifiedLoopSourceForestBindingMemberV1,
-    VerifiedLoopSourceForestBindingV1, VerifiedLoopRootSourceV1,
+    LoopSourceForestBindingRejectV1, VerifiedLoopRootSourceV1,
+    VerifiedLoopSourceForestBindingMemberV1, VerifiedLoopSourceForestBindingV1,
 };
 
 #[cfg(test)]
@@ -40,6 +42,18 @@ pub(crate) use direct_accum_observation::{
 pub(crate) use generic_resolved_carrier_facts_snapshot::{
     issue_generic_resolved_carrier_facts_v1, ResolvedCarrierDispositionV1,
     VerifiedGenericResolvedCarrierFactsV1,
+};
+pub(crate) use nested_predicate_observation::{
+    NestedPredicateObservationCoverageV1, NestedPredicateObservationModeV1,
+    NestedPredicateSourceAttemptOutcomeV1, NestedPredicateSourceDeclineV1,
+    NestedPredicateSourceIdentityV1, NestedPredicateSourceRejectV1,
+    NestedPredicateSourceUnresolvedV1, VerifiedNestedPredicateSourceAttemptV1,
+};
+pub(crate) use nested_predicate_source::{
+    NestedBindingEvidenceV1, NestedChildBodyRoleV1, NestedObservedRecurrenceOwnerV1,
+    NestedPredicateConditionEvidenceV1, NestedPredicateUpdateEvidenceV1, NestedRootBodyRoleV1,
+    NestedRootInitializerEvidenceV1, VerifiedNestedLoopSourceProjectionV1,
+    VerifiedNestedLoopSourceShapeV1,
 };
 #[allow(unused_imports)]
 pub(crate) use selected_demand::{

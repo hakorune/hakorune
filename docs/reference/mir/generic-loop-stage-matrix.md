@@ -123,16 +123,17 @@ caller is introduced. The next row is
 
 The design stop for `LOOP-FAMILY-NESTED-OBSERVATION-S1` is closed in
 `docs/development/current/main/design/loop-family-observation-policy-ssot.md`.
-The future caller-zero implementation will adapt only the existing
-`issue_nested_predicate_source_projection_v1` product into a neutral
-AST-free `Candidate`/`Declined`/`Unresolved`/`Rejected` observation. Its
-Candidate means exact bounded source projection, not Recipe or physical
-admission. Forest lookup failures and resolved-forest invariant conflicts must
-remain distinct: missing/opaque source is `Unresolved`, while a known
-non-Nested shape declines and a malformed/foreign forest rejects. Producer-only
+The caller-zero implementation is now landed. It adapts only the existing
+`issue_nested_predicate_source_projection_v1` product into a neutral AST-free
+`Candidate`/`Declined`/`Unresolved`/`Rejected` observation. Its Candidate means
+exact bounded source projection, not Recipe or physical admission. Forest
+lookup failures and resolved-forest invariant conflicts remain distinct:
+missing/opaque source is `Unresolved`, while a known non-Nested shape declines
+and a malformed/foreign forest rejects. Producer-only
 initializer/recurrence checks remain later and are not duplicated in the
-observer. No selector, Recipe/JoinSig, Builder/MIR, retry/fallback, route ID,
-or production caller is authorized by this design row.
+observer. Seven policy tests, eight projection tests, and the shared recursive
+guard are green. No selector, Recipe/JoinSig, Builder/MIR, retry/fallback,
+route ID, or production caller is authorized by this design row.
 
 ## Current source-to-selection evidence
 

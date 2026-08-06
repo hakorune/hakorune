@@ -56,6 +56,11 @@ Direct Accum is caller-zero evidence. Nested source-bound is not claimed until
 the resolver forest is consumed by the caller-zero D1 adapter and its recipe
 correspondence is verified.
 
+The NestedPredicate S1 source DTO and neutral observation transport now live in
+this module. They retain resolver-owned forest/shape provenance only; they do
+not issue Recipe keys, select a family, or enter Builder/MIR. The compiler
+adapter is test-only and the policy observer owns the disposition matrix.
+
 The Direct Accum S0 projection keeps the AST-bearing observation in
 `mir/compiler/direct_accum_projection.rs`. That adapter navigates only through
 `FunctionSourceViewV1` and the shared child-role vocabulary, then issues the

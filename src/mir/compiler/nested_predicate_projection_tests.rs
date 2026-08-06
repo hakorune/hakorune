@@ -203,6 +203,21 @@ fn nested_projection_rejects_foreign_located_loop_before_forest_issue() {
 }
 
 #[test]
+fn nested_projection_preserves_missing_forest_root() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function()).unwrap();
+    let input = unit.root_function_input().expect("root function input");
+    let body = input.source().root_body().expect("function body");
+    let local = input.source().body_stmt(&body, 0).expect("root local");
+    let site = local.site().clone();
+    assert_eq!(
+        issue_nested_predicate_source_projection_v1(input, &local),
+        Err(NestedPredicateProjectionRejectV1::ForestLookup(
+            crate::mir::resolved_semantics::ResolvedLoopSourceForestRejectV1::MissingRoot(site)
+        ))
+    );
+}
+
+#[test]
 fn nested_projection_rejects_extra_child_statement() {
     let mut tree = nested_function();
     let ASTNode::FunctionDeclaration { body, .. } = &mut tree else {

@@ -17,6 +17,9 @@ mod generic_g0_tests;
 mod loop_true_break_continue;
 #[cfg(test)]
 mod loop_true_break_continue_tests;
+mod nested_predicate_observation;
+#[cfg(test)]
+mod nested_predicate_observation_tests;
 mod policy;
 mod policy_evidence;
 mod schema;
@@ -46,6 +49,13 @@ pub(crate) use generic_g0::{
 pub(crate) use loop_true_break_continue::{
     issue_loop_true_break_continue_policy_demand_v1, LoopTrueBreakContinuePolicyDemandRejectV1,
     VerifiedLoopTrueBreakContinuePolicyDemandV1, VerifiedLoopTrueBreakContinuePolicyReceiptV1,
+};
+#[allow(unused_imports)]
+pub(crate) use nested_predicate_observation::{
+    issue_nested_predicate_family_observation_v1, NestedPredicateFamilyObservationV1,
+    NestedPredicateObservationContextV1, NestedPredicateObservationDeclineV1,
+    NestedPredicateObservationRejectV1, NestedPredicateObservationUnresolvedV1,
+    VerifiedNestedPredicateFamilyCandidateV1,
 };
 #[allow(unused_imports)]
 pub(crate) use policy::{

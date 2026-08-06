@@ -70,13 +70,19 @@ context, then emits exactly one of `Candidate`, `Declined`, `Unresolved`, or
 known non-Direct shapes decline, incomplete or unsealed windows remain
 unresolved, and foreign identity/binding/frame conflicts reject.
 
+`nested_predicate_observation.rs` is now the landed caller-zero NestedPredicate
+observation boundary. It consumes one neutral source attempt plus one sealed
+identity/mode/coverage context and emits only `Candidate`, `Declined`,
+`Unresolved`, or `Rejected`. It has seven focused policy tests and no selector,
+Recipe/JoinSig, Builder/MIR, retry/fallback, or production caller. The next
+design boundary is LoopTrue.
+
 This observer is intentionally separate from `policy.rs`, `family_selection.rs`,
 and the legacy schedule. It does not read AST or `LoopRouteId`, issue a winner,
 Recipe/JoinSig/BindingKey, call Builder/MIR, retry/fallback, or open a
 production caller. The seven focused tests and shared recursive guard fix this
-boundary. The NestedPredicate S1 design is now closed in the family-observation
-SSOT; its next implementation remains caller-zero and selection remains closed
-until the common admission-window row.
+boundary. The NestedPredicate S1 implementation is landed in its dedicated
+observer; selection remains closed until the common admission-window row.
 
 The LoopTrue branch cohort has a separate policy-demand box:
 

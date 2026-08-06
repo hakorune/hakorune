@@ -7,20 +7,26 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::loop_structural_facts::{
     bind_resolved_loop_source_forest_v1, LoopSourceForestBindingRejectV1,
-    VerifiedLoopSourceForestBindingV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, FunctionOriginV1, LoopExecutionFrameKeyV1,
-    ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, ScopeId, ScopeKindV1, SourceBindingSiteV1,
-    SourceExprSiteV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
+    BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, ResolvedAssignmentTargetV1,
+    ResolvedLexicalRefV1, ResolvedLoopSourceForestRejectV1, ScopeId, ScopeKindV1,
+    SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
-use super::located::{LocatedExprV1, LocatedStmtV1};
+use super::located::LocatedStmtV1;
+pub(crate) use crate::mir::loop_structural_facts::{
+    NestedBindingEvidenceV1, NestedChildBodyRoleV1, NestedObservedRecurrenceOwnerV1,
+    NestedPredicateConditionEvidenceV1, NestedPredicateUpdateEvidenceV1, NestedRootBodyRoleV1,
+    NestedRootInitializerEvidenceV1, VerifiedNestedLoopSourceProjectionV1,
+    VerifiedNestedLoopSourceShapeV1,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum NestedPredicateProjectionRejectV1 {
     ForeignOwner,
+    ForestLookup(ResolvedLoopSourceForestRejectV1),
     Forest(LoopSourceForestBindingRejectV1),
     ForestShape,
     SourceNavigation,
@@ -38,109 +44,6 @@ pub(crate) enum NestedPredicateProjectionRejectV1 {
     ConstantShape,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum NestedObservedRecurrenceOwnerV1 {
-    Root,
-    Child,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct NestedBindingEvidenceV1 {
-    pub(crate) binding: BindingRefV1,
-    pub(crate) lexical_scope: ScopeId,
-    pub(crate) recurrence_owner: NestedObservedRecurrenceOwnerV1,
-    pub(crate) parent_visible: bool,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct NestedPredicateConditionEvidenceV1 {
-    pub(crate) site: SourceExprSiteV1,
-    pub(crate) lhs_site: SourceExprSiteV1,
-    pub(crate) binding: BindingRefV1,
-    pub(crate) bound: i64,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct NestedPredicateUpdateEvidenceV1 {
-    pub(crate) statement_site: SourceStmtSiteV1,
-    pub(crate) target_site: SourceExprSiteV1,
-    pub(crate) value_site: SourceExprSiteV1,
-    pub(crate) lhs_site: SourceExprSiteV1,
-    pub(crate) binding: BindingRefV1,
-    pub(crate) delta: i64,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct NestedRootInitializerEvidenceV1 {
-    pub(crate) statement_site: SourceStmtSiteV1,
-    pub(crate) value_site: SourceExprSiteV1,
-    pub(crate) binding: BindingRefV1,
-    pub(crate) value: i64,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum NestedRootBodyRoleV1 {
-    LocalJ,
-    InitializeJ,
-    ChildLoop,
-    IncrementRoot,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum NestedChildBodyRoleV1 {
-    IncrementAncestor,
-    IncrementChild,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedNestedLoopSourceShapeV1 {
-    pub(crate) function_origin: FunctionOriginV1,
-    pub(crate) root_site: SourceStmtSiteV1,
-    pub(crate) child_site: SourceStmtSiteV1,
-    pub(crate) child_declaration_site: SourceBindingSiteV1,
-    pub(crate) root_condition: NestedPredicateConditionEvidenceV1,
-    pub(crate) child_condition: NestedPredicateConditionEvidenceV1,
-    pub(crate) root_initializers: [NestedRootInitializerEvidenceV1; 2],
-    pub(crate) initialize_child: NestedPredicateUpdateEvidenceV1,
-    pub(crate) increment_root: NestedPredicateUpdateEvidenceV1,
-    pub(crate) increment_ancestor: NestedPredicateUpdateEvidenceV1,
-    pub(crate) increment_child: NestedPredicateUpdateEvidenceV1,
-    pub(crate) bindings: [NestedBindingEvidenceV1; 3],
-    pub(crate) root_body_roles: [NestedRootBodyRoleV1; 4],
-    pub(crate) child_body_roles: [NestedChildBodyRoleV1; 2],
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedNestedLoopSourceProjectionV1 {
-    forest_binding: VerifiedLoopSourceForestBindingV1,
-    shape: VerifiedNestedLoopSourceShapeV1,
-    root_frame_key: LoopExecutionFrameKeyV1,
-}
-
-impl VerifiedNestedLoopSourceProjectionV1 {
-    pub(crate) fn forest_binding(&self) -> &VerifiedLoopSourceForestBindingV1 {
-        &self.forest_binding
-    }
-
-    pub(crate) fn shape(&self) -> &VerifiedNestedLoopSourceShapeV1 {
-        &self.shape
-    }
-
-    pub(crate) const fn root_frame_key(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.root_frame_key
-    }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        VerifiedLoopSourceForestBindingV1,
-        VerifiedNestedLoopSourceShapeV1,
-        LoopExecutionFrameKeyV1,
-    ) {
-        (self.forest_binding, self.shape, self.root_frame_key)
-    }
-}
-
 pub(crate) fn issue_nested_predicate_source_projection_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     root_loop: &LocatedStmtV1<'_>,
@@ -152,7 +55,7 @@ pub(crate) fn issue_nested_predicate_source_projection_v1(
     let source = input.source();
     let forest = function
         .resolved_loop_source_forest(root_loop.site())
-        .map_err(|_| NestedPredicateProjectionRejectV1::ForestShape)?;
+        .map_err(NestedPredicateProjectionRejectV1::ForestLookup)?;
     if forest.members().len() != 2
         || forest.members()[0].parent_index().is_some()
         || forest.members()[1].parent_index() != Some(0)
@@ -354,9 +257,8 @@ fn observe_root_initializer(
 ) -> Result<NestedRootInitializerEvidenceV1, NestedPredicateProjectionRejectV1> {
     let value = source
         .child_expr_from_stmt(statement, ExprChildRoleV1::LocalInitializer(ordinal))
-        .map_err(|_| NestedPredicateProjectionRejectV1::RootInitializerShape)?;
-    let binding = declaration_binding(function, statement.site(), ordinal)
-        .map_err(|_| NestedPredicateProjectionRejectV1::RootInitializerBindingMismatch)?;
+        .map_err(|_| NestedPredicateProjectionRejectV1::SourceNavigation)?;
+    let binding = declaration_binding(function, statement.site(), ordinal)?;
     Ok(NestedRootInitializerEvidenceV1 {
         statement_site: statement.site().clone(),
         value_site: value.site().clone(),

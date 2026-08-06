@@ -38,49 +38,51 @@ pub(in crate::mir) mod direct_accum_profile;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_projection;
 #[allow(dead_code)]
-pub(in crate::mir) mod generic_g0_projection;
-#[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_projection;
+#[allow(dead_code)]
 pub(in crate::mir) mod located;
+#[allow(dead_code)]
+pub(in crate::mir) mod loop_true_break_continue_projection;
 mod lowering_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
 pub(in crate::mir) mod module_postprocess_stages;
 mod module_session;
 #[allow(dead_code)]
-pub(in crate::mir) mod nested_predicate_projection;
+pub(in crate::mir) mod nested_predicate_effect_plan;
+#[cfg(test)]
+pub(crate) mod nested_predicate_observation;
+#[allow(dead_code)]
+pub(in crate::mir) mod nested_predicate_physical_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_producer;
+#[cfg(test)]
+mod nested_predicate_producer_tests;
+#[allow(dead_code)]
+pub(in crate::mir) mod nested_predicate_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_source_handoff;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_topology;
-#[allow(dead_code)]
-pub(in crate::mir) mod loop_true_break_continue_projection;
-#[allow(dead_code)]
-pub(in crate::mir) mod nested_predicate_physical_input;
-#[allow(dead_code)]
-pub(in crate::mir) mod nested_predicate_effect_plan;
-#[cfg(test)]
-mod nested_predicate_producer_tests;
 #[cfg(test)]
 pub(crate) use nested_predicate_producer_tests::nested_function as nested_function_for_p3_test;
-#[cfg(test)]
-mod nested_predicate_topology_tests;
-#[cfg(test)]
-mod nested_predicate_physical_input_tests;
-#[cfg(test)]
-mod nested_predicate_projection_tests;
 #[cfg(test)]
 mod loop_true_break_continue_projection_tests;
 #[cfg(test)]
 mod nested_predicate_effect_plan_tests;
+#[cfg(test)]
+mod nested_predicate_physical_input_tests;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_profile;
 #[cfg(test)]
 mod nested_predicate_profile_tests;
+#[cfg(test)]
+mod nested_predicate_projection_tests;
+#[cfg(test)]
+mod nested_predicate_topology_tests;
 mod normal_default_pipeline;
 #[allow(dead_code)]
 pub(crate) mod normal_source_plan;

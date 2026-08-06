@@ -70,6 +70,16 @@ progression remain the S1 policy row. No numeric wrapper Call, AST rewrite,
 retry, Recipe, Builder/MIR effect, or production caller is introduced; the
 policy handoff remains caller-zero.
 
+## NestedPredicate S1 source observation
+
+`nested_predicate_observation.rs` is a `#![cfg(test)]` adapter from the
+resolver/source-owned NestedPredicate projector to a neutral AST-free source
+attempt. Forest lookup and invariant errors remain lossless at this boundary.
+The policy observer is caller-zero and does not issue selection, Recipe/JoinSig,
+Builder/MIR, retry/fallback, or production routing. Seven policy tests and
+eight projection tests cover the bounded S1 matrix; LoopTrue is the next design
+boundary.
+
 ## DirectAccum S1 source observation
 
 `direct_accum_observation.rs` is a test-only adapter from the existing
