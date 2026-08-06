@@ -158,8 +158,31 @@ The positive natural nested G0 fixture and selected-other-family negative are
 green. The demand has no AST/source-view lifetime, Recipe key, JoinSig, Core,
 After, `LoopBindingKeyV1`, `ValueId`, PHI, Builder/MIR, physical, retry,
 fallback, production caller, or legacy-retirement authority. The exact next
-boundary is the S4 Recipe/JoinSig/Core/After design stop; public activation
-remains zero.
+boundary is the worker-reviewed S4 Recipe/JoinSig/Core/After producer; public
+activation remains zero.
+
+## Generic G0 Recipe S4 design receipt
+
+`GENERIC-G0-RECIPE-S4-D0` is closed on 2026-08-07 after independent worker
+review. One Generic producer consumes `VerifiedGenericRecipeDemandG0` once and
+owns the deterministic dense Recipe key map, `GenericG0` provenance, exact
+source/effect relations, and the final `VerifiedGenericRecipeProductG0`.
+Common Recipe verification, JoinSig elaboration, the single
+`require_after_binding` call, and source-bound Core co-sealing remain their
+respective common owners; S4 does not reimplement them.
+
+The After envelope owns `L0.After/b1`, the moved post-loop read, owner/frame
+relation, and `ExactTrivialReturnAbiV1`. P0 owns executable completion and
+DraftSeal; S4 does not add a function tail or physical Return writer. The S4
+implementation must prove the three carrier rows and the exact ten-row
+source/effect matrix, with typed rejects for stale/foreign/duplicate/missing
+relations and wrong After/ABI pairing. No production caller, physicalizer,
+retry/fallback, or legacy deletion is opened by this design row.
+
+The next ordered boundary is `GENERIC-G0-RECIPE-S4-I0-R0`, a deterministic
+caller-zero producer witness. Its implementation commit must update this
+reference receipt, the Generic source-to-portable Recipe SSOT, affected module
+READMEs, and current mirrors together.
 
 ## DirectAccum S1 observation receipt
 

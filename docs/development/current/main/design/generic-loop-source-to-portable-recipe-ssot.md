@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3 I0/R0 is closed caller-zero; S4 design is the next stop; production activation remains 0`
+Status: `Generic G0 demand S3 I0/R0 and S4 design are closed caller-zero; S4 producer implementation is next; production activation remains 0`
 
-Current row: `GENERIC-G0-RECIPE-S4-D0`
+Current row: `GENERIC-G0-RECIPE-S4-I0-R0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -18,12 +18,17 @@ The accepted S3 design and its caller-zero implementation close the
 Selected(Generic) -> Demand boundary. The common selector owns the one
 canonical window lease; the Generic handoff keeps only a private brand
 projection borrowed from that lease and never performs a second resolver
-lookup. The next design stop is the S4 Recipe/JoinSig/Core/After ownership
-boundary; no S4 implementation is authorized until that design is reviewed
-and accepted.
+lookup. The worker-reviewed S4 Recipe/JoinSig/Core/After ownership boundary
+was accepted on 2026-08-07. The next cell is one deterministic caller-zero
+Recipe producer; production activation remains closed.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.
+
+The current S4 implementation contract is
+`docs/development/current/main/investigations/generic-g0-recipe-s4-i0-r0-implementation-task-2026-08-07.md`;
+its accepted design is
+`docs/development/current/main/investigations/generic-g0-recipe-s4-design-task-2026-08-07.md`.
 
 The closed I0/R0 cell is recorded in
 `docs/development/current/main/investigations/generic-selection-open-d0-candidate-envelope-task-2026-08-06.md`.
@@ -432,6 +437,37 @@ it does not copy role rows, issue `LoopBindingKeyV1`, or add a second numeric
 target. S3 only seals source roles/BindingRefs and provenance. S4 remains the
 sole Recipe-key, relation, JoinSig/Core/After, and aggregate producer.
 
+### S4 Recipe producer ownership (accepted 2026-08-07)
+
+The worker-reviewed S4 decision is recorded in
+`investigations/generic-g0-recipe-s4-design-task-2026-08-07.md`. One producer
+consumes `VerifiedGenericRecipeDemandG0` once and executes the sole sequence:
+
+```text
+Demand -> deterministic LoopRecipeV1 + relations
+  -> common Recipe/source verification
+  -> common JoinSig -> require_after_binding once
+  -> common source-bound Core
+  -> Generic After/tail/ABI envelope
+```
+
+S4 issues `GenericG0` provenance and private dense Recipe keys. It uses the
+sole resolved-source forest binding adapter and never reissues source lookup,
+reads AST/source names, or reconstructs a legacy route. The exact ten-row
+source/effect relation matrix and three carrier rows are Generic producer
+authority; common verifiers remain role-agnostic.
+
+`VerifiedGenericAfterEffectG0` owns `L0.After/b1`, the moved post-loop read, and
+the exact `ExactTrivialReturnAbiV1` with its owner/frame relation. It does not
+own executable function completion or a Return writer; P0 owns
+completion/DraftSeal. The outer S4 product retains `core`, `after`, and target,
+with the ABI exposed through `after` rather than duplicated.
+
+S4 rejects stale/foreign/duplicate/missing relations, wrong anchors, wrong
+After binding, and ABI mismatches before Builder effects. It never emits
+`NoCandidate`, retry, fallback, or a legacy demand. No S4 code may open
+production, physical, completion, or legacy-deletion authority.
+
 ## Exact portable G0 mapping
 
 Recipe-local dense identities are deterministic:
@@ -644,14 +680,16 @@ VerifiedGenericAfterEffectG0 {
   recipe binding b1
   VerifiedLoopAfterBindingV1(L0.After, b1)
   existing ExactTrivialReturnAbiV1 source expectation
-  existing executable return/completion contract
+  owner/frame and no-trailing-source relation
   no-trailing-source coverage receipt
 }
 ```
 
-The physicalizer reads the `L0.After/b1` Binding SSA value and hands it to the
-existing explicit-return completion path. DraftSeal remains the only physical
-Return writer. `LoopRecipeV1` is not widened with a function tail.
+The physicalizer later reads the `L0.After/b1` Binding SSA value and hands it
+to the existing explicit-return completion path. P0 owns the executable
+completion/DraftSeal capability; S4 only seals the logical tail and exact ABI.
+DraftSeal remains the only physical Return writer. `LoopRecipeV1` is not
+widened with a function tail.
 
 ## Outcome algebra
 
@@ -858,11 +896,13 @@ GENERIC-G0-DEMAND-S3-I0-R0
   proof; no production caller or Recipe key
 
 GENERIC-G0-RECIPE-S4-D0
-  next design stop; sole Generic Recipe-key issuer and exact
-  Recipe/JoinSig/core/effect/tail ownership must be reviewed before code
+  closed 2026-08-07 after worker review; sole Generic Recipe-key issuer and
+  exact Recipe/JoinSig/Core/effect/After/tail ownership fixed; P0 owns
+  executable completion/DraftSeal
 
 GENERIC-G0-RECIPE-S4-I0-R0
-  after S4 D0, deterministic caller-zero Recipe producer
+  current row; deterministic caller-zero Recipe producer, exact golden and
+  ten-row relation matrix; no production caller
 
 GENERIC-LEGACY-CORPUS-UNIVERSE-P0
   normalize active fast/selfhost/smoke/fixture cohorts without guessing the route
@@ -965,7 +1005,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `GENERIC-G0-ADMISSION-SET-S1` | five owner-branded dispositions -> non-Clone `VerifiedLoopFamilyAdmissionWindowV1` | complete/missing/duplicate/foreign/mode cases fixed after row evidence retention | no whole-unit NoCandidate, route order, cursor, winner, Recipe, or fallback |
 | `GENERIC-G0-SELECTOR-S2` | Ready five-row window -> Selected(Generic) / Rejected(Overlap) / Unresolved(OutOfWindow) | one Generic plus four Declined selects its move-only candidate; two or more candidates reject with all evidence; five Declined is OutOfWindow; legacy schedule imports zero | semantic caller remains zero; assembler failures never enter S2; no whole-unit NoCandidate, demand, Recipe, or production switch |
 | `GENERIC-G0-DEMAND-S3` | `Selected(Generic(candidate))` -> `VerifiedGenericRecipeDemandG0` | selected capability consumed once; role/site/BindingRef lease exact; by-name repair zero | no Recipe key, ValueId, or PHI |
-| `GENERIC-G0-RECIPE-S4` | S3 + common S0 services -> exact Recipe/relations/core/After/product | deterministic golden, three carrier rows, child-entry read, C1/C2, tail relation, and legacy provenance rejects | no physical MIR or production caller |
+| `GENERIC-G0-RECIPE-S4` | S3 + common S0 services -> exact Recipe/relations/core/After/product | D0 accepted 2026-08-07; I0/R0 must prove deterministic golden, three carrier rows, child-entry read, C1/C2, ten-row relation matrix, tail/ABI relation, and legacy provenance rejects | no physical MIR, executable completion, or production caller |
 
 ### Physical proof without production
 

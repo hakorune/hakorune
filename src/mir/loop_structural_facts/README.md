@@ -37,8 +37,11 @@ The S3 demand witness is now closed caller-zero in
 `loop_recipe_contract::generic_g0_demand`. It consumes the selected Generic
 product once, keeps the canonical lease plus the borrowed brand, typed source
 bundle, post-loop tail read, and an opaque role proof, and does not copy or
-reconstruct role/BindingRef rows. The next design stop is
-`GENERIC-G0-RECIPE-S4-D0`; Recipe/JoinSig/Core/After ownership remains closed.
+reconstruct role/BindingRef rows. The worker-reviewed S4 design is closed; the
+next caller-zero producer is `GENERIC-G0-RECIPE-S4-I0-R0`. S4 consumes this
+demand once and owns only Generic key/effect/provenance assembly while common
+Recipe/JoinSig/Core owners remain separate. P0 owns executable
+completion/DraftSeal.
 
 `generic_g0_observation.rs` owns the neutral S1 source-attempt transport. It
 stores only the existing typed candidate or C/D/U/R source outcome together

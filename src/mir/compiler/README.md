@@ -102,8 +102,19 @@ and retains one canonical window lease, the borrowed handoff brand, the typed
 source/numeric/return bundle, the post-loop return read, profile/mode/coverage,
 and an opaque exact-role proof. Candidate evidence is checked against the
 selector lease before the product is sealed. It does not issue Recipe keys or
-touch Builder/MIR; the next boundary is the reviewed S4 design stop
-`GENERIC-G0-RECIPE-S4-D0`.
+touch Builder/MIR; the next boundary is the caller-zero S4 Recipe producer
+`GENERIC-G0-RECIPE-S4-I0-R0`.
+
+## Generic G0 Recipe S4 (design accepted)
+
+S4 has one caller-zero Generic producer. It consumes the S3 demand once,
+creates the private deterministic Recipe/key map, and delegates common Recipe
+verification, JoinSig, After capability, and source-bound Core sealing to
+their existing owners. The Generic producer alone issues `GenericG0`
+provenance and the exact source/effect relation matrix. The After envelope
+owns the logical tail and exact return ABI; P0 owns executable completion and
+DraftSeal. No Builder/MIR, physical, retry/fallback, or production caller is
+opened by this design.
 
 The five family observers now consume their source attempts exactly once and
 retain typed expected/observed identity, mode, and coverage evidence on every

@@ -63,7 +63,15 @@ against candidate evidence and the borrowed handoff brand, then retains one
 move-only demand with the typed source bundle, post-loop tail read,
 profile/mode/coverage, and an opaque role proof. It does not select another
 family, issue Recipe/JoinSig/Core/After keys, call Builder/MIR, retry, fallback,
-or open a production caller. The next boundary is the S4 design stop.
+or open a production caller. The worker-reviewed S4 design is now closed; the
+next boundary is the caller-zero S4 Recipe producer
+`GENERIC-G0-RECIPE-S4-I0-R0`.
+
+S4 consumes this demand once and is the sole Generic Recipe/effect/provenance
+producer. It must call common Recipe/JoinSig/Core owners rather than re-create
+their products. Its After envelope owns the logical tail and exact return ABI;
+P0 owns executable completion/DraftSeal. This policy module does not gain a
+Recipe or physical authority.
 
 The migration fixture adapter is test-only. Its M3-F parity submodule may invoke
 the legacy execution witness as an oracle, but it has no production caller; the

@@ -31,13 +31,13 @@ Related:
   possible
 - current loop frontier: common admission assembler S1 and the caller-zero
   selector S2 are landed. The shallow `GENERIC-SELECTION-OPEN-D0` gate is
-  closed through its I0/R0 resolver-branded candidate envelope. The next
-  policy handoff design and its single I0/R0 caller-zero implementation are
-  closed. `GENERIC-G0-DEMAND-S3-D0/I0-R0` is now closed: the selector owns one
-  canonical window lease, the handoff borrows only a private brand, and the
-  demand retains exact source roles without Recipe keys. The current blocker
-  is the `GENERIC-G0-RECIPE-S4-D0` design stop; no S4 implementation,
-  production selection, physical cutover, or legacy removal is open.
+  closed through its I0/R0 resolver-branded candidate envelope. The policy
+  handoff and `GENERIC-G0-DEMAND-S3-D0/I0-R0` are closed: the selector owns
+  one canonical window lease, the handoff borrows only a private brand, and
+  the demand retains exact source roles without Recipe keys. The worker-
+  reviewed `GENERIC-G0-RECIPE-S4-D0` design is also closed. The current row is
+  `GENERIC-G0-RECIPE-S4-I0-R0`, a caller-zero deterministic Recipe producer;
+  production selection, physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only
