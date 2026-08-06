@@ -12,9 +12,10 @@ mod visibility;
 pub(crate) use flow::LoopJoinSigElaboratorV1;
 pub(crate) use model::{
     LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1,
-    LoopJoinPayloadV1, LoopJoinPortV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1,
-    VerifiedLoopJoinSigV1,
+    LoopJoinPayloadV1, LoopJoinPortBindingV1, LoopJoinPortV1, LoopJoinSigRejectReasonV1,
+    LoopJoinSigV1, VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
 };
 
 pub(super) use flow::Flow;
+pub(super) use port::port_bindings;
 pub(super) use visibility::visible_payloads;

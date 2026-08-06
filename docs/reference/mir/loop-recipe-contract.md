@@ -47,6 +47,17 @@ the source-bound core row. This is common JoinSig behavior with no Generic,
 After, PHI, physical-ID, selector, schema, producer, or production-caller
 change. Focused evidence is in `join_sig_nested_shadow_tests.rs`.
 
+Reference receipt — `LOOP-JOINSIG-AFTER-BINDING-S0` (2026-08-06): JoinSig now
+publishes deterministic `LoopJoinPortBindingV1` rows for every logical
+`Header`/`After` port. All incoming edges for one port must have the same
+duplicate-free binding set and consistent classes; edge values are not part of
+the identity. `VerifiedLoopJoinSigV1::require_after_binding` is the sole issuer
+of an opaque, non-`Clone` `VerifiedLoopAfterBindingV1`. No incoming After edge
+is valid but yields no capability. Wrong owner/binding, expected-class
+mismatch, duplicate payload, incoming-set mismatch, and class mismatch are
+typed rejects. No source `BindingRef`, Return, PHI, physical ID, Generic
+selection, schema, producer, or production-caller authority is added.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local
@@ -128,6 +139,19 @@ The resulting vector contains no duplicate binding. A sibling's carrier is not
 visible, and the JoinSig layer does not inspect source names or manufacture
 physical `ValueId`/PHI identities. Structural owner errors are rejected before
 the projection owner runs.
+
+### Header/After identity
+
+The logical identity table is ordered by `(loop_key, port, binding)`:
+
+```text
+LoopJoinPortBindingV1(loop_key, Header|After, binding, class)
+```
+
+The table names only the binding identity and class. A later physical owner
+may map it to Binding SSA and PHI, but this contract never chooses a value or
+creates a physical identity. A later source-bound/Generic product requests the
+opaque After capability for its exact loop and binding.
 
 ## Rejection boundary
 

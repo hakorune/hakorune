@@ -28,6 +28,36 @@ pub(crate) struct LoopJoinPayloadV1 {
     pub(crate) class: super::super::schema::LoopValueClassV1,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct LoopJoinPortBindingV1 {
+    pub(crate) loop_key: LoopNodeKeyV1,
+    pub(crate) port: LoopJoinPortV1,
+    pub(crate) binding: LoopBindingKeyV1,
+    pub(crate) class: super::super::schema::LoopValueClassV1,
+}
+
+/// A verified logical identity at a loop's After port.
+///
+/// This is deliberately not Clone: later consumers must request and consume
+/// the exact logical port capability rather than reconstructing it from a
+/// source name, payload value, or physical ID.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedLoopAfterBindingV1(LoopJoinPortBindingV1);
+
+impl VerifiedLoopAfterBindingV1 {
+    pub(crate) fn loop_key(&self) -> LoopNodeKeyV1 {
+        self.0.loop_key
+    }
+
+    pub(crate) fn binding(&self) -> LoopBindingKeyV1 {
+        self.0.binding
+    }
+
+    pub(crate) fn class(&self) -> super::super::schema::LoopValueClassV1 {
+        self.0.class
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LoopJoinEdgeV1 {
     pub(crate) from: LoopJoinPortV1,
@@ -48,6 +78,7 @@ pub(crate) struct LoopJoinLoopV1 {
 pub(crate) struct LoopJoinSigV1 {
     pub(crate) loops: Vec<LoopJoinLoopV1>,
     pub(crate) branches: Vec<LoopJoinBranchV1>,
+    pub(crate) port_bindings: Vec<LoopJoinPortBindingV1>,
 }
 
 /// Caller-zero logical evidence for the bounded LoopTrue branch shape.
@@ -83,6 +114,32 @@ impl VerifiedLoopJoinSigV1 {
     pub(crate) fn as_sig(&self) -> &LoopJoinSigV1 {
         &self.0
     }
+
+    pub(crate) fn require_after_binding(
+        &self,
+        loop_key: LoopNodeKeyV1,
+        binding: LoopBindingKeyV1,
+        class: super::super::schema::LoopValueClassV1,
+    ) -> Result<VerifiedLoopAfterBindingV1, LoopJoinSigRejectReasonV1> {
+        let Some(row) = self.0.port_bindings.iter().find(|row| {
+            row.loop_key == loop_key && row.port == LoopJoinPortV1::After && row.binding == binding
+        }) else {
+            return Err(LoopJoinSigRejectReasonV1::AfterBindingUnavailable { loop_key, binding });
+        };
+        if row.class != class {
+            return Err(LoopJoinSigRejectReasonV1::AfterBindingClassMismatch {
+                loop_key,
+                port: LoopJoinPortV1::After,
+                binding,
+            });
+        }
+        Ok(VerifiedLoopAfterBindingV1(LoopJoinPortBindingV1 {
+            loop_key,
+            port: LoopJoinPortV1::After,
+            binding,
+            class,
+        }))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -108,5 +165,28 @@ pub(crate) enum LoopJoinSigRejectReasonV1 {
     },
     UnsupportedNestedPredicate {
         loop_key: LoopNodeKeyV1,
+    },
+    DuplicatePortBinding {
+        loop_key: LoopNodeKeyV1,
+        port: LoopJoinPortV1,
+        binding: LoopBindingKeyV1,
+    },
+    PortBindingSetMismatch {
+        loop_key: LoopNodeKeyV1,
+        port: LoopJoinPortV1,
+    },
+    PortBindingClassMismatch {
+        loop_key: LoopNodeKeyV1,
+        port: LoopJoinPortV1,
+        binding: LoopBindingKeyV1,
+    },
+    AfterBindingUnavailable {
+        loop_key: LoopNodeKeyV1,
+        binding: LoopBindingKeyV1,
+    },
+    AfterBindingClassMismatch {
+        loop_key: LoopNodeKeyV1,
+        port: LoopJoinPortV1,
+        binding: LoopBindingKeyV1,
     },
 }

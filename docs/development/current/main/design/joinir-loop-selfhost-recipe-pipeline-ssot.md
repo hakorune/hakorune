@@ -374,9 +374,9 @@ GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0
      but three recurrence carriers `(L0,i)`, `(L0,j)`, `(L1,j)`, and a derived
      child-entry read immediately before L1. JoinSig now proves the common
      nested-carrier shadow/visibility rule, and route-independent
-     `producer_id: LoopRecipeProducerIdV1` provenance is closed. Logical
-     Header/After binding identity and the source-bound relation
-     schema/verifier remain before the Generic Recipe producer; only S4 issues
+     `producer_id: LoopRecipeProducerIdV1` provenance and common logical
+     Header/After binding identity are closed. The source-bound relation
+     schema/verifier remains before the Generic Recipe producer; only S4 issues
      real G0 keys/relations.
      Legacy `LoopRouteId` parity stays in an external migration receipt. The post-loop
      `return j` remains a separate completion envelope consuming a common

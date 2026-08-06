@@ -41,9 +41,9 @@ implemented, the common portable layer must gain:
 
 ```text
 1. nested carrier shadow
-2. logical Header/After binding identity
+2. logical Header/After binding identity (closed by `LOOP-JOINSIG-AFTER-BINDING-S0`)
 3. source-bound verified core product
-4. producer provenance independent of legacy route IDs
+4. producer provenance independent of legacy route IDs (closed by `LOOP-RECIPE-PRODUCER-ID-S0`)
 ```
 
 The post-loop `return j` stays outside `LoopRecipeV1`. `LoopExit::Return`
@@ -429,7 +429,6 @@ projection:
   read the winning binding's current value from the supplied map
   emit one row per binding in binding-key order
 ```
-
 An ancestor carrier is therefore shadowed by the nearest descendant carrier
 with the same Recipe-local binding key. Three or more nested duplicates obey
 the same nearest-wins rule. Sibling carriers are outside the target lineage
@@ -443,7 +442,6 @@ The minimum positive/negative evidence is C1/C2 same-binding recurrence,
 three-level nearest-wins, sibling isolation, and verifier rejection of an
 unknown owner. This row changes no schema, producer, flow, selector, After,
 PHI, Generic, or physical owner.
-
 ### Logical port binding and After capability
 
 Incoming edge payload values remain Recipe operation values. A header PHI or
@@ -461,17 +459,24 @@ LoopJoinPortBindingV1 {
   class
 }
 ```
-
-and issues:
+and issues a general, non-`Clone` capability on request:
 
 ```text
 VerifiedLoopAfterBindingV1 {
-  root_loop: L0
-  binding: b1
-  class: I64
-  logical source: L0.After/b1
+  loop_key
+  binding
+  class
+  logical source: loop_key.After/binding
 }
 ```
+`LoopJoinSigV1.port_bindings` is sorted by `(loop_key, port, binding)` and is
+derived from every incoming Header/After edge. Each incoming edge must carry
+the same duplicate-free binding set for its port, with consistent classes;
+payload values are intentionally ignored. A loop with no incoming After edge is
+valid but has no After capability. The sole issuer is
+`VerifiedLoopJoinSigV1::require_after_binding`; unknown owner/binding and an
+expected-class mismatch are typed rejects. The capability contains no source
+name, `BindingRef`, physical ID, PHI, or Return information.
 
 The physicalizer maps that logical identity through the sole Binding SSA. The
 Generic layer consumes the capability; it does not reinterpret JoinSig.
@@ -690,7 +695,9 @@ LOOP-JOINSIG-NESTED-SHADOW-S0
   fixed; no After/PHI/Generic/selector/production caller
 
 LOOP-JOINSIG-AFTER-BINDING-S0
-  logical Header/After binding identity and VerifiedLoopAfterBinding
+  closed 2026-08-06; `LoopJoinSigV1.port_bindings` is a deterministic logical
+  Header/After identity product and opaque non-Clone `require_after_binding`
+  capability; no physical or Generic consumer
 
 LOOP-RECIPE-SOURCE-BOUND-CORE-S0
   common core/relation schema and verifier only; no Generic key instance
@@ -799,7 +806,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `LOOP-JOINSIG-MODULE-SPLIT-R0` | current `join_sig/mod.rs` facade -> model/visibility/port/flow child modules | existing Recipe/JoinSig goldens byte-for-byte stable; all commits build; no acceptance delta | no nested-shadow or After feature in this series |
 | `LOOP-RECIPE-PRODUCER-ID-S0` | current portable producers -> `LoopRecipeProducerIdV1` | `producer_id` wire field; old `producer_route` rejected; current producers/fixtures migrate; route parity is an external test-only receipt | no selector, registry, route-order, or production-caller change |
 | `LOOP-JOINSIG-NESTED-SHADOW-S0` | verified carriers + ancestry -> one visible payload per binding | landed: C1/C2 same-binding, three-level nearest-wins, sibling isolation, and verifier-owned unknown/duplicate negatives; 64 focused tests and shared/pointer guards green | no PHI, After, or Generic special case |
-| `LOOP-JOINSIG-AFTER-BINDING-S0` | verified edges/carriers -> `LoopJoinPortBindingV1` + `VerifiedLoopAfterBindingV1` | Header/After and owner/class/availability boundaries are exact | no physical ValueId/PHI or function Return |
+| `LOOP-JOINSIG-AFTER-BINDING-S0` | verified edges/carriers -> `LoopJoinPortBindingV1` + `VerifiedLoopAfterBindingV1` | landed: all incoming Header/After edge sets/classes are checked, root/child capabilities and unavailable/wrong owner/binding/class/set/duplicate negatives are covered; 69 focused tests and shared/pointer guards green | no physical ValueId/PHI or function Return |
 | `LOOP-RECIPE-SOURCE-BOUND-CORE-S0` | Recipe + JoinSig + opaque source claim + relations -> `VerifiedLoopCoreProductV1` | caller-zero positive plus foreign/duplicate/uncovered/derived-role negatives | no real Generic keys, Builder, or physical IDs |
 
 ### Policy, selection, and G0 production

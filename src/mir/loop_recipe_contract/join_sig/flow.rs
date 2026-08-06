@@ -12,7 +12,7 @@ use super::model::{
     LoopJoinBranchV1, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1, LoopJoinPayloadV1,
     LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopJoinSigV1,
 };
-use super::port::loop_exit_edge;
+use super::port::{loop_exit_edge, port_bindings};
 use super::visibility::{
     block_item, has_only_operations, payloads, seed_carriers, visible_payloads,
 };
@@ -47,9 +47,11 @@ impl LoopJoinSigElaboratorV1 {
         )?;
         rows.sort_by_key(|row| row.key);
         branches.sort_by_key(|branch| (branch.owner_loop, branch.if_item));
+        let port_bindings = port_bindings(&rows)?;
         Ok(VerifiedLoopJoinSigV1::from_sig(LoopJoinSigV1 {
             loops: rows,
             branches,
+            port_bindings,
         }))
     }
 }

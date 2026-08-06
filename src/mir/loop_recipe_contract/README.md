@@ -75,6 +75,21 @@ to every nested Recipe and has no Generic, source-name, After, PHI, physical-ID,
 or selector special case. The focused contract tests live in
 `join_sig_nested_shadow_tests.rs`.
 
+### Header/After binding identity
+
+After all loop rows are elaborated, `join_sig/port.rs` compares every incoming
+edge for `Header` and `After`. Each port must have the same duplicate-free
+binding set on all of its incoming edges, with one consistent value class per
+binding. The resulting `LoopJoinPortBindingV1` rows are sorted by
+`(loop_key, port, binding)` and deliberately omit edge values.
+
+`VerifiedLoopJoinSigV1::require_after_binding` is the sole issuer of the
+opaque, non-`Clone` `VerifiedLoopAfterBindingV1` capability. A loop without an
+incoming `After` edge is valid but cannot issue that capability. Wrong
+owner/binding, expected-class mismatch, duplicate payload, set mismatch, and
+class mismatch are typed rejects; source `BindingRef`, PHI, `ValueId`, Return,
+Generic selection, and physical lowering remain outside this product.
+
 This row is a behavior-neutral structural split. The verified JoinSig wrapper
 is constructed only by the elaborator; callers continue to use the facade.
 
@@ -85,9 +100,9 @@ The proposed G0 target is documented in
 It exposes a common-contract gap, not a Generic exception: one source binding
 may be a carrier of both an ancestor and a child Loop. Before the Generic
 producer exists, JoinSig must shadow visible carrier payloads by binding with
-the innermost owner winning, and must expose logical Header/After binding
-identities. The source-bound verified core must also retain the opaque source
-claim plus exact Recipe-key/`BindingRef`/effect relations.
+the innermost owner winning; the common logical Header/After identity product
+is now closed. The source-bound verified core must still retain the opaque
+source claim plus exact Recipe-key/`BindingRef`/effect relations.
 
 `LoopRecipeProvenanceV1` now carries `producer_id: LoopRecipeProducerIdV1`.
 The old `producer_route` JSON key is rejected; schema V1 has no compatibility

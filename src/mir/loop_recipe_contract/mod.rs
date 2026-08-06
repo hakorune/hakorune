@@ -39,6 +39,10 @@ mod producer_id_migration_tests;
 mod join_sig_nested_shadow_tests;
 
 #[cfg(test)]
+#[path = "join_sig_after_binding_tests.rs"]
+mod join_sig_after_binding_tests;
+
+#[cfg(test)]
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
 
 #[cfg(test)]
@@ -61,8 +65,8 @@ pub(crate) use ids::{
 #[allow(unused_imports)]
 pub(crate) use join_sig::{
     LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1,
-    LoopJoinPayloadV1, LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
-    LoopJoinSigV1, VerifiedLoopJoinSigV1,
+    LoopJoinPayloadV1, LoopJoinPortBindingV1, LoopJoinPortV1, LoopJoinSigElaboratorV1,
+    LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue_producer::{
