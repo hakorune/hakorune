@@ -104,6 +104,22 @@ the innermost owner winning; the common logical Header/After identity product
 is now closed. The source-bound verified core must still retain the opaque
 source claim plus exact Recipe-key/`BindingRef`/effect relations.
 
+### Source-bound core S0
+
+`source_bound_core.rs` is the common caller-zero co-seal boundary. It consumes
+an already verified Recipe artifact, an already verified JoinSig, one resolver
+`FunctionOwnerIdV1`, and unsealed binding/effect relation DTOs. Its sole issuer
+checks exact Recipe-key coverage, one-to-one source `BindingRefV1` ownership and
+value class, source-only declaration provenance, typed effect roles, and the
+JoinSig/Recipe pair before returning one move-only `VerifiedLoopCoreProductV1`.
+
+`DerivedCarrierEntry` is anchored by a typed loop statement path plus the
+Recipe-local `LoopCarrierKeyV1`; labels, fabricated expression sites, and
+source-name lookup are not accepted. The product exposes no AST, selector,
+Generic key issuance, Builder/MIR, physical identity, retry, or production
+caller. Real Generic relation instances remain the sole responsibility of the
+future S4 producer.
+
 `LoopRecipeProvenanceV1` now carries `producer_id: LoopRecipeProducerIdV1`.
 The old `producer_route` JSON key is rejected; schema V1 has no compatibility
 alias because this contract is still caller-zero and pre-production. The

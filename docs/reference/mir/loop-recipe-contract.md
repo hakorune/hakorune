@@ -58,6 +58,18 @@ mismatch, duplicate payload, incoming-set mismatch, and class mismatch are
 typed rejects. No source `BindingRef`, Return, PHI, physical ID, Generic
 selection, schema, producer, or production-caller authority is added.
 
+Reference receipt — `LOOP-RECIPE-SOURCE-BOUND-CORE-S0` (2026-08-06): the
+caller-zero source-bound core now co-seals one already verified Recipe artifact,
+one verified JoinSig, an opaque structural source claim, and resolver-issued
+binding/effect relations into move-only `VerifiedLoopCoreProductV1`. The issuer
+owns exact Recipe-key coverage, one-to-one source `BindingRefV1` owner/class
+checks, source-only declaration provenance, typed read/write/derived roles,
+typed loop-statement plus Recipe-carrier anchors, and Recipe/JoinSig pairing.
+Foreign, duplicate, uncovered, synthetic, wrong-class, wrong-role, and wrong
+carrier relations reject before publication. This row adds no Generic key
+issuance, selector, AST inspection, Builder/MIR, physical ID, retry, or
+production caller. Real Generic relation instances remain an S4 responsibility.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local

@@ -120,4 +120,45 @@ pub(crate) enum LoopRecipeRejectReasonV1 {
     ValueClassMismatch {
         key: LoopValueKeyV1,
     },
+    SourceBoundBindingCoverageMismatch {
+        expected: usize,
+        found: usize,
+    },
+    SourceBoundDuplicateRecipeBinding {
+        key: LoopBindingKeyV1,
+    },
+    SourceBoundUnknownRecipeBinding {
+        key: LoopBindingKeyV1,
+    },
+    SourceBoundForeignBinding {
+        key: LoopBindingKeyV1,
+    },
+    SourceBoundDuplicateSourceBinding {
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+    },
+    SourceBoundBindingClassMismatch {
+        key: LoopBindingKeyV1,
+    },
+    SourceBoundSyntheticDeclaration {
+        key: LoopBindingKeyV1,
+    },
+    SourceBoundDuplicateEffect {
+        key: LoopBindingKeyV1,
+    },
+    SourceBoundEffectRoleMismatch {
+        key: LoopBindingKeyV1,
+    },
+    SourceBoundEffectClassMismatch {
+        key: LoopBindingKeyV1,
+    },
+    SourceBoundForeignEffectAnchor {
+        key: LoopBindingKeyV1,
+    },
+    SourceBoundDerivedCarrierMismatch {
+        carrier: LoopCarrierKeyV1,
+    },
+    SourceBoundDerivedAnchorEmpty {
+        carrier: LoopCarrierKeyV1,
+    },
+    SourceBoundJoinSigMismatch,
 }

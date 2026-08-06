@@ -490,17 +490,17 @@ VerifiedLoopRecipeBindingRelationV1
   Recipe binding key <-> exact source BindingRef/value class/declaration role
 
 VerifiedLoopBindingEffectRelationV1
-  Recipe item/derived role <-> Recipe binding/source BindingRef/source site
+  Recipe role <-> source BindingRef/class and typed source anchor
+  anchor = Expr(OwnedExprSiteV1) | DerivedCarrierEntry(owner_loop, carrier, stmt)
 
 VerifiedLoopCoreProductV1
-  verified Recipe + JoinSig + opaque source claim + both relations
+  verified Recipe + JoinSig + opaque source claim + both relation sets
 ```
 
-`DerivedCarrierEntry` is an explicit effect role for `v5`. Labels and source
-names are diagnostic only; they are never mapping authority. The common S0 row
-adds only schema/verifier vocabulary and caller-zero synthetic validation. The
-real G0 keys and relation instances are issued exactly once by the Generic
-producer in S4.
+S0 fixes `DerivedCarrierEntry` as a typed child-loop statement plus Recipe carrier
+key; it never fabricates an expression site or uses a label. The issuer
+checks one-to-one coverage, owner/class/carrier/value relations, and duplicate/
+foreign/uncovered rows before one move-only product; real G0 keys/relations are still issued exactly once by the Generic producer in S4.
 
 ### Producer provenance
 
@@ -807,7 +807,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `LOOP-RECIPE-PRODUCER-ID-S0` | current portable producers -> `LoopRecipeProducerIdV1` | `producer_id` wire field; old `producer_route` rejected; current producers/fixtures migrate; route parity is an external test-only receipt | no selector, registry, route-order, or production-caller change |
 | `LOOP-JOINSIG-NESTED-SHADOW-S0` | verified carriers + ancestry -> one visible payload per binding | landed: C1/C2 same-binding, three-level nearest-wins, sibling isolation, and verifier-owned unknown/duplicate negatives; 64 focused tests and shared/pointer guards green | no PHI, After, or Generic special case |
 | `LOOP-JOINSIG-AFTER-BINDING-S0` | verified edges/carriers -> `LoopJoinPortBindingV1` + `VerifiedLoopAfterBindingV1` | landed: all incoming Header/After edge sets/classes are checked, root/child capabilities and unavailable/wrong owner/binding/class/set/duplicate negatives are covered; 69 focused tests and shared/pointer guards green | no physical ValueId/PHI or function Return |
-| `LOOP-RECIPE-SOURCE-BOUND-CORE-S0` | Recipe + JoinSig + opaque source claim + relations -> `VerifiedLoopCoreProductV1` | caller-zero positive plus foreign/duplicate/uncovered/derived-role negatives | no real Generic keys, Builder, or physical IDs |
+| `LOOP-RECIPE-SOURCE-BOUND-CORE-S0` | Recipe + JoinSig + opaque source claim + relations -> `VerifiedLoopCoreProductV1` | landed: caller-zero positive plus foreign/duplicate/uncovered/synthetic/wrong-class/derived-anchor negatives; focused 73/73 contract tests and shared checks green | no real Generic keys, Builder, or physical IDs |
 
 ### Policy, selection, and G0 production
 

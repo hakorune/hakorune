@@ -12,6 +12,7 @@ mod producer_id;
 pub(crate) mod route_id;
 mod schema;
 mod source_binding;
+mod source_bound_core;
 mod verify;
 
 #[cfg(test)]
@@ -41,6 +42,10 @@ mod join_sig_nested_shadow_tests;
 #[cfg(test)]
 #[path = "join_sig_after_binding_tests.rs"]
 mod join_sig_after_binding_tests;
+
+#[cfg(test)]
+#[path = "source_bound_core_tests.rs"]
+mod source_bound_core_tests;
 
 #[cfg(test)]
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
@@ -87,6 +92,12 @@ pub(crate) use schema::{
     LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1,
     LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeValueV1, LoopSourcePathStepV1,
     LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
+};
+#[allow(unused_imports)]
+pub(crate) use source_bound_core::{
+    LoopBindingEffectAnchorV1, LoopBindingEffectRelationV1, LoopBindingEffectRoleV1,
+    LoopRecipeBindingRelationV1, VerifiedLoopBindingEffectRelationV1, VerifiedLoopCoreProductV1,
+    VerifiedLoopRecipeBindingRelationV1,
 };
 #[allow(unused_imports)]
 pub(crate) use verify::{

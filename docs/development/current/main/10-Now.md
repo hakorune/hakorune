@@ -124,12 +124,12 @@ Related:
   stop is GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0: G0 has explicit `: i64`,
   contextual plain literals, three recurrence carriers for `i/j`, and a
   separate post-loop completion envelope. Common nested shadow, logical
-  Header/After binding, source-bound Recipe core schema/verifier, and
-  route-independent producer provenance must close before the Generic
-  producer; only S4 issues real G0 keys/relations. The finite
-  shallow order and atomic legacy-retirement boundary live in the dedicated
-  Generic SSOT. Implementation remains paused for consultation; production and
-  public reference activation remain zero.
+  Header/After binding, source-bound Recipe core co-seal, and route-independent
+  producer provenance are closed before the Generic producer; only S4 issues
+  real G0 keys/relations. The next exact row is GENERIC-G0-CANDIDATE-S1. The
+  finite shallow order and atomic legacy-retirement boundary live in the
+  dedicated Generic SSOT. Production and public reference activation remain
+  zero.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

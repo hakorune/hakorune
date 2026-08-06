@@ -59,6 +59,15 @@ impl VerifiedLoopRecipeArtifactV1 {
     pub(super) fn into_recipe(self) -> VerifiedLoopRecipeV1 {
         self.recipe
     }
+
+    pub(super) fn into_source_bound_parts(
+        self,
+    ) -> (
+        StructurallyVerifiedLoopRecipeSourceClaimV1,
+        VerifiedLoopRecipeV1,
+    ) {
+        (self.source_binding, self.recipe)
+    }
 }
 
 pub(crate) struct LoopRecipeVerifierV1;
