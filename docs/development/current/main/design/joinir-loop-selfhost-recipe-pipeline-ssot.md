@@ -369,7 +369,7 @@ D4-EVIDENCE-EXIT0
      matrices are closed without a production caller; no more D4 suffixes are
      authorized unless a new design stop supersedes this gate.
 GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0
-  -> proposed consultation stop. The canonical G0 has explicit `: i64`, plain
+  -> accepted and taskized. The canonical G0 has explicit `: i64`, plain
      literals typed only through exact BindingRef context, two source bindings
      but three recurrence carriers `(L0,i)`, `(L0,j)`, `(L1,j)`, and a derived
      child-entry read immediately before L1. Current JoinSig cannot yet prove
@@ -379,9 +379,15 @@ GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0
      producer; only S4 issues real G0 keys/relations. The post-loop
      `return j` remains a separate completion envelope consuming a common
      `VerifiedLoopAfterBinding`; it is never encoded as an inner Loop exit.
-     See `design/generic-loop-source-to-portable-recipe-ssot.md` for the sole
-     mapping, finite shallow task order, and legacy deletion boundary. No code
-     row is authorized until the consultation stop is accepted.
+     G0 selection has a closed five-row overlap/admission window; the rows are
+     migration profiles, not five semantic Loop kinds, and whole-unit
+     NoCandidate remains closed until `JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G`.
+     Current `family_selection.rs` is
+     only a test marker and S2 promotes that boundary rather than reusing the
+     legacy 19-route evaluator. See
+     `design/generic-loop-source-to-portable-recipe-ssot.md` for the sole
+     mapping, finite shallow task order, module homes, checked legacy manifest,
+     and deletion boundary. The next code row is `GENERIC-G0-STRUCTURE-S0A`.
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives
@@ -401,7 +407,7 @@ production caller may be added in these cells.
 | Owner | Owns | Must not own |
 | --- | --- | --- |
 | `LoopStructuralFactsV1` | source/control observations and stable provenance | route policy, MIR IDs, emission |
-| `LoopRoutePolicyV1` | one ordered winner or typed rejection | Builder probes, physical execution, retry |
+| `CanonicalLoopFamilySelectionV1` | G0 admission at S2; complete all-route selection only after `JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G` | raw route order/cursors, Builder probes, physical execution, retry |
 | `LoopRecipeArtifactV1` | owned provenance plus one recursive `LoopRecipeV1` | route/family dispatch, AST reconstruction, physical IDs |
 | `LoopRecipeV1` | condition, recursive body/control items, carriers, exits | legacy family, policy selection, physical IDs |
 | `LoopRecipeVerifierV1` | recipe shape, definitions, carrier/exit preconditions | logical edge elaboration, repair, fallback |
@@ -954,13 +960,28 @@ Change:
 : Migrate the remaining 14 routes as bounded adapter cohorts: LoopV0
   recurrence, LoopV0 exits/joins, LoopV0 scans, LoopCond exits, and Generic
   V0. Add only missing source observation or portable vocabulary. Each route is
-  one producer data row/golden for the same recursive recipe, not a new
-  verifier, CFG, PHI, or physicalizer authority.
+  one producer data row/golden plus one typed source-policy observation for the
+  same recursive recipe, not a new selector, verifier, CFG, PHI, or
+  physicalizer authority.
+
+Ordered rows:
+: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A` ->
+  `JOINIR-LOOP-M8-LOOPV0-EXITS-JOINS-S6B` ->
+  `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C` ->
+  `JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D` ->
+  `JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E` ->
+  `JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G`. Each producer cohort is one
+  implementation-coupled commit. S6G is an implementation-coupled closeout:
+  it seals `VerifiedLoopAllRouteObservationSetV1` plus the whole-unit coverage
+  proof into the same `CanonicalLoopFamilySelectionV1` introduced at S2 and
+  opens its `NoCandidate` result. It does not create a second selector and its
+  production caller remains zero.
 
 Contract:
 : 19/19 routes have typed pre-effect decline or verified recipe. Legacy winner
   equivalence includes first-None-then-later-success. Selected physicalization
-  has no `Option`, suffix, retry, or fallback.
+  has no `Option`, suffix, retry, or fallback. Raw route IDs/cursors remain
+  migration evidence and cannot select through the all-route input.
 
 Done:
 : Accepted corpus produces verified recipes and parity MIR. Unverified direct
@@ -978,6 +999,11 @@ Stop:
 Change:
 : Implement the same StructuralFacts/RoutePolicy/Recipe/JoinSig producer in
   `.hako` over the existing Program/AST JSON boundary.
+
+Ordered rows:
+: `SELFHOST-LOOP-PORTABLE-WIRE-S7A` -> five stable
+  `SELFHOST-LOOP-M8*-PARITY-S7B1..S7B5` producer rows ->
+  `SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G`. Each cohort remains one commit.
 
 Contract:
 : Rust and `.hako` share the data contract and verifier expectations, not host
@@ -997,6 +1023,11 @@ Stop:
   compatibility providers elsewhere in the canonical builder.
 
 ### M10b — `JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0` (final; optional M10a bridge is separate)
+
+Entry row:
+: `GENERIC-M10B-DELETION-MANIFEST-S0` freezes the exact current symbols and
+  caller counts immediately before cutover. The atomic commit uses that checked
+  manifest; names copied from historical docs are never deletion authority.
 
 Change:
 : Switch `route_loop` to frozen source -> StructuralFacts -> one policy winner
@@ -1050,6 +1081,13 @@ Stop:
 : Keep an uncovered entry under a named owner rather than hiding it in fallback.
 
 ### M12 — `JOINIR-LOOP-LEGACY-FAMILY-ADAPTER-RETIRE0-R2`
+
+Ordered rows:
+: `JOINIR-LOOP-LEGACY-DISPOSITION-R2A` ->
+  `JOINIR-LOOP-DUPLICATE-FACADE-RETIRE-R2B` ->
+  `JOINIR-LOOP-MUTATION-DISPATCH-RETIRE-R2C` ->
+  `JOINIR-LOOP-SOLE-AUTHORITY-CLOSEOUT-R2G`. This is one 2-5 commit retirement
+  series; every commit remains buildable.
 
 Change:
 : After M10/M11 remove old physical edges, classify each `11/1/1/4/2`

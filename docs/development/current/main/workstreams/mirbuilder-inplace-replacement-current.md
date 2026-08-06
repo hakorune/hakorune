@@ -506,8 +506,8 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S
   -> worker-reviewed two-stage boundary: substrate owns exact type/range/overflow; policy owns progression; Ready/Unresolved/Rejected is fixed.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S0 -> cfg(test)-only substrate projection from receipt plus explicit NumericTarget; six boundaries green, no policy/selector/demand/Recipe/Builder/MIR.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S1-S1 -> cfg(test)-only policy witness; seven tests green; role-bearing operands and no selector/demand/Recipe/Builder/MIR.
-next — GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0 -> worker-reviewed consultation proposal: explicit `: i64`, contextual literals, three-carrier recurrence, common nested shadow/After/source-core/provenance prerequisites, and legacy retirement boundary are fixed for review.
-  -> after user acceptance follow only the shallow order in `design/generic-loop-source-to-portable-recipe-ssot.md`; selection stays semantic-only through S2 and production stays zero until atomic M10b-I0-R0.
+closed — GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0 / GENERIC-G0-ADMISSION-WINDOW-D0 -> accepted mapping, closed five-row overlap window (not semantic Loop kinds), sole G0 selector boundary, common physical owner, checked legacy manifest, and atomic cutover/deletion contract.
+next — GENERIC-G0-STRUCTURE-S0A -> natural-source exact shape/order/BindingRef/coverage only; `selection_open=false`, AST/type/policy/Recipe/Builder/MIR/production authority zero; follow only the shallow executable rows in the Generic SSOT.
 ```
 ## Production invariants
 
