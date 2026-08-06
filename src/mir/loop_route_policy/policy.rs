@@ -11,8 +11,7 @@ use super::policy_evidence::{
 use super::schema::{
     FrozenLoopRouteObservationV1, FrozenLoopRouteScheduleRejectV1, FrozenLoopRouteScheduleV1,
     LoopGlobalEntryDispositionV1, LoopModeReleaseSnapshotV1, LoopReleaseAdmissionObservationV1,
-    LoopRouteSourceDispositionV1, LoopRouteSuppressionDispositionV1,
-    CANONICAL_LOOP_ROUTE_ORDER_V1,
+    LoopRouteSourceDispositionV1, LoopRouteSuppressionDispositionV1, CANONICAL_LOOP_ROUTE_ORDER_V1,
 };
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_structural_facts::VerifiedDirectAccumSingletonObservationV1;
@@ -116,7 +115,10 @@ impl VerifiedLoopPolicyWinnerV1 {
 impl VerifiedDirectAccumRouteAdmissionV1 {
     pub(crate) fn into_parts(
         self,
-    ) -> (VerifiedLoopPolicyWinnerV1, VerifiedDirectAccumPolicyReceiptV1) {
+    ) -> (
+        VerifiedLoopPolicyWinnerV1,
+        VerifiedDirectAccumPolicyReceiptV1,
+    ) {
         (self.winner, self.receipt)
     }
 

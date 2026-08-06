@@ -314,12 +314,10 @@ mod tests {
         assert_eq!(shape.step.delta, 1);
         assert_eq!(shape.update.binding, shape.accumulator);
         assert_eq!(shape.step.binding, shape.induction);
-        assert!(
-            facts
-                .direct_accum_disjointness()
-                .expect("source-side exclusivity proof")
-                .grammar_is_terminal()
-        );
+        assert!(facts
+            .direct_accum_disjointness()
+            .expect("source-side exclusivity proof")
+            .grammar_is_terminal());
 
         let source = input
             .function()
@@ -328,18 +326,15 @@ mod tests {
         let observation = facts
             .into_direct_accum_singleton_observation_v1(source)
             .expect("DirectAccum singleton observation must seal");
-        let handoff = crate::mir::loop_route_policy::issue_direct_accum_route_admission_v1(
-            observation,
-        )
-        .expect("singleton policy admission must seal");
+        let handoff =
+            crate::mir::loop_route_policy::issue_direct_accum_route_admission_v1(observation)
+                .expect("singleton policy admission must seal");
         let (admission, observation) = handoff.into_parts();
         let winner = admission.into_policy_winner();
         assert_eq!(winner.raw_cursor_for_test(), 10);
         let (facts, source) = observation.into_parts();
         crate::mir::loop_structural_facts::issue_selected_loop_recipe_demand_v1(
-            winner,
-            facts,
-            source,
+            winner, facts, source,
         )
         .expect("Direct Accum facts/source/winner frame must seal");
     }

@@ -14,10 +14,10 @@ use super::{
     VerifiedResolvedLoopSourceForestV1,
 };
 
-#[path = "generic_resolved_carrier_source_lease/carrier_proof_witness.rs"]
-mod carrier_proof_witness;
 #[path = "generic_resolved_carrier_source_lease/candidate_envelope_witness.rs"]
 mod candidate_envelope_witness;
+#[path = "generic_resolved_carrier_source_lease/carrier_proof_witness.rs"]
+mod carrier_proof_witness;
 #[path = "generic_resolved_carrier_source_lease/numeric_policy_projection_v6.rs"]
 mod numeric_policy_projection_v6;
 #[path = "generic_resolved_carrier_source_lease/numeric_source_receipt_v4.rs"]

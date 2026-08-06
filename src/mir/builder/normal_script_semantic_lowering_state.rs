@@ -77,7 +77,8 @@ impl ScriptSemanticLoweringState {
         &self,
         site: &SourceNodeSiteV1,
     ) -> Option<u32> {
-        self.projection().record_literal_explicit_field_count_at(site)
+        self.projection()
+            .record_literal_explicit_field_count_at(site)
     }
 
     pub(super) fn enum_variant_demand(

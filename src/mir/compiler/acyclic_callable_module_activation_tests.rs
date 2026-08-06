@@ -383,8 +383,14 @@ fn one_call_rhs_implicit_fallthrough_preserves_call_phi_and_baseline() {
         .collect::<std::collections::BTreeSet<_>>();
     assert_eq!(input_blocks, predecessors);
 
-    assert_eq!(execute(&result, "branch_call_rhs_implicit", 1), VMValue::Integer(2));
-    assert_eq!(execute(&result, "branch_call_rhs_implicit", -1), VMValue::Integer(-1));
+    assert_eq!(
+        execute(&result, "branch_call_rhs_implicit", 1),
+        VMValue::Integer(2)
+    );
+    assert_eq!(
+        execute(&result, "branch_call_rhs_implicit", -1),
+        VMValue::Integer(-1)
+    );
 }
 
 #[test]

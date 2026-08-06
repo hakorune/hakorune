@@ -9,9 +9,7 @@ use super::super::physical_digest_test_support::{
     observe_mir, AlphaFinalBindingWitnessV1, AlphaFunctionResultWitnessV1,
     AlphaPhysicalMirDigestV1, MirRoleWitnessV1,
 };
-use super::super::semantic_digest_test_support::{
-    semantic_digest, AlphaPhysicalMirDigestV2,
-};
+use super::super::semantic_digest_test_support::{semantic_digest, AlphaPhysicalMirDigestV2};
 use super::{
     emitter_tests, CanonicalLoopSsaStateV1, LoopBindingKeyV1, LoopOperationV1, LoopValueKeyV1,
     PhysicalRoleV1, VerifiedLoopOperationScheduleV1,

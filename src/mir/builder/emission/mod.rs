@@ -9,11 +9,11 @@
 
 pub mod branch;
 pub mod compare;
-pub(in crate::mir::builder) mod loop_operation;
 pub(super) mod compare_type;
 pub mod constant;
 pub(crate) mod constant_type;
 pub(crate) mod copy_emitter;
+pub(in crate::mir::builder) mod loop_operation;
 pub(in crate::mir::builder) mod phi; // Phase 272 P0.2 Refactoring
 pub(in crate::mir) mod phi_lifecycle; // PHI lifecycle SSOT
 #[cfg(test)]

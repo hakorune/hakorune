@@ -125,8 +125,7 @@ fn script_partition_keeps_static_boxes_out_of_deferred_work() {
     let ASTNode::Program { statements, .. } = NyashParser::parse_from_string(
         "static box Helpers { value() { return 1 } }\nfunction helper() { return 2 }\nprint(3)",
     )
-    .expect("parsed Script partition fixture")
-    else {
+    .expect("parsed Script partition fixture") else {
         panic!("expected Program root")
     };
     let plan = selected_plan(statements, false);
@@ -138,7 +137,10 @@ fn script_partition_keeps_static_boxes_out_of_deferred_work() {
     assert!(
         matches!(parts.runtime.statement_at(0), ASTNode::BoxDeclaration { name, .. } if name == "Helpers")
     );
-    assert!(matches!(parts.runtime.statement_at(1), ASTNode::Print { .. }));
+    assert!(matches!(
+        parts.runtime.statement_at(1),
+        ASTNode::Print { .. }
+    ));
     let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
         panic!("expected selected Script runtime work")
     };
@@ -268,10 +270,12 @@ fn selected_script_window_keeps_callable_transfer_at_its_original_ordinal() {
         .script_root_admission
         .expect("selected Script admission");
     assert!(matches!(
-        admission.window().entry_at(1).expect("function entry").semantic(),
-        ScriptRootSemanticDispositionV1::Transferred(
-            ScriptTransferredBoundaryV1::TopLevelCallable
-        )
+        admission
+            .window()
+            .entry_at(1)
+            .expect("function entry")
+            .semantic(),
+        ScriptRootSemanticDispositionV1::Transferred(ScriptTransferredBoundaryV1::TopLevelCallable)
     ));
     let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
         panic!("expected selected Script runtime work")

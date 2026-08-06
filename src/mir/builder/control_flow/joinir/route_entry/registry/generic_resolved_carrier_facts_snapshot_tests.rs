@@ -8,8 +8,7 @@ use super::generic_resolved_carrier_provenance_product_tests::handoff;
 use crate::mir::loop_structural_facts::{
     issue_generic_resolved_carrier_facts_v1, ResolvedCarrierDispositionV1,
 };
-use crate::mir::resolved_semantics::generic_resolved_carrier_provenance::
-    issue_resolved_carrier_provenance_v1;
+use crate::mir::resolved_semantics::generic_resolved_carrier_provenance::issue_resolved_carrier_provenance_v1;
 
 #[test]
 fn generic_d3_s2_p2_snapshot_consumes_one_p1_product() {
@@ -27,5 +26,8 @@ fn generic_d3_s2_p2_snapshot_preserves_p1_reject_boundary() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let result = issue_resolved_carrier_provenance_v1(handoff(SHADOWING_SOURCE))
         .map(issue_generic_resolved_carrier_facts_v1);
-    assert!(result.is_err(), "shadowing must reject before snapshot issue");
+    assert!(
+        result.is_err(),
+        "shadowing must reject before snapshot issue"
+    );
 }

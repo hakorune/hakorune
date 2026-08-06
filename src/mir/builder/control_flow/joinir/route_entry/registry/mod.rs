@@ -224,13 +224,17 @@ mod generic_nested_if_carrier_evidence_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_both_norecursive_tests;
 #[cfg(test)]
-mod generic_resolved_carrier_canonical_matrix_tests;
-#[cfg(test)]
 mod generic_resolved_carrier_candidate_stage_source_bridge_tests;
+#[cfg(test)]
+mod generic_resolved_carrier_canonical_matrix_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_compound_unavailable_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_eligibility_protocol_tests;
+#[cfg(test)]
+mod generic_resolved_carrier_facts_snapshot_tests;
+#[cfg(test)]
+mod generic_resolved_carrier_family_overlap_census_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_handoff_protocol_tests;
 #[cfg(test)]
@@ -243,10 +247,6 @@ mod generic_resolved_carrier_projector_tests;
 mod generic_resolved_carrier_provenance_observation_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_provenance_product_tests;
-#[cfg(test)]
-mod generic_resolved_carrier_facts_snapshot_tests;
-#[cfg(test)]
-mod generic_resolved_carrier_family_overlap_census_tests;
 #[cfg(test)]
 mod generic_resolved_carrier_toplevel_compound_premise_tests;
 #[cfg(test)]

@@ -25,8 +25,8 @@ use super::calls::{
     lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,
     PreparedRawFromCallV1, PreparedRawFunctionPreflightV1, RawLegacyMethodCallInputV1,
 };
-use super::enum_variant_source_demand::EnumVariantSourceDemandPortV1;
 use super::enum_match_source_demand::EnumMatchSourceDemandPortV1;
+use super::enum_variant_source_demand::EnumVariantSourceDemandPortV1;
 use super::exprs_enum_match::{PreparedRawEnumMatchV1, PreparedRawEnumVariantHeaderV1};
 use super::fields::PreparedRawFieldReadV1;
 use super::indexing::PreparedRawIndexReadV1;
@@ -232,8 +232,8 @@ impl super::MirBuilder {
             ASTNode::Me { .. } => super::stmts::variable_stmt::build_me_expression(self),
 
             node @ ASTNode::MethodCall { .. } => {
-                let receiver_source = port
-                    .prepare_expression_child_source_v1(&node, ExprChildRoleV1::Receiver)?;
+                let receiver_source =
+                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::Receiver)?;
                 let m = MethodCallExpr::try_from(node.clone())
                     .expect("ASTNode::MethodCall must convert");
                 let input = RawLegacyMethodCallInputV1::with_receiver_source(
@@ -435,7 +435,8 @@ impl super::MirBuilder {
                 }
                 let source = source.expect("receipt-backed EnumMatch prepared its source");
                 let mut scoped = RawStructuredChildScopePortV1::new(port, vec![source], Vec::new());
-                let value = self.lower_prepared_raw_enum_match_with_port_v1(&mut scoped, prepared)?;
+                let value =
+                    self.lower_prepared_raw_enum_match_with_port_v1(&mut scoped, prepared)?;
                 scoped.complete_exact_demands_v1()?;
                 Ok(value)
             }
@@ -497,21 +498,15 @@ impl super::MirBuilder {
                 ref field,
                 ..
             } => {
-                let prepared = PreparedRawFieldReadV1::prepare(
-                    self,
-                    object.as_ref().clone(),
-                    field.clone(),
-                );
+                let prepared =
+                    PreparedRawFieldReadV1::prepare(self, object.as_ref().clone(), field.clone());
                 if !prepared.requires_receiver_source_v1() {
                     return port.lower_prepared_field_read_v1(self, prepared);
                 }
                 let receiver_source =
                     port.prepare_expression_child_source_v1(node, ExprChildRoleV1::Receiver)?;
-                let mut scoped = RawStructuredChildScopePortV1::new(
-                    port,
-                    vec![receiver_source],
-                    Vec::new(),
-                );
+                let mut scoped =
+                    RawStructuredChildScopePortV1::new(port, vec![receiver_source], Vec::new());
                 let result = scoped.lower_prepared_field_read_v1(self, prepared);
                 scoped.complete_after_result_v1(result)
             }

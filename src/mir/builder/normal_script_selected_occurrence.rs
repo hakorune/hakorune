@@ -46,7 +46,10 @@ impl SelectedScriptProgramOccurrenceV1 {
     }
 
     pub(super) const fn transfers_top_level_callable(self) -> bool {
-        matches!(self.transfer, SelectedScriptProgramTransferV1::TopLevelCallable)
+        matches!(
+            self.transfer,
+            SelectedScriptProgramTransferV1::TopLevelCallable
+        )
     }
 }
 

@@ -10,11 +10,11 @@ use crate::mir::resolved_semantics::{
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
 
-#[cfg(test)]
-use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_deferred_residual_registry::{
     PreparedScriptDeferredResidualRegistryV1, ScriptDeferredResidualRegistryBuilderV1,
 };
+#[cfg(test)]
+use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
 use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 
@@ -66,11 +66,8 @@ impl ScriptRootDemandWindowBuilderV1 {
         statement: &ASTNode,
         occurrence: SelectedScriptProgramOccurrenceV1,
     ) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
-        let decision = ScriptRootSemanticDecisionV1::decide(
-            self.entries.len(),
-            statement,
-            occurrence,
-        )?;
+        let decision =
+            ScriptRootSemanticDecisionV1::decide(self.entries.len(), statement, occurrence)?;
         self.deferred_residuals
             .record(occurrence.source_statement_index(), statement, decision);
         self.record_decision(occurrence.source_statement_index(), decision)

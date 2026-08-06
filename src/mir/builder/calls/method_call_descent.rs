@@ -11,10 +11,10 @@ use crate::mir::{MirBuilder, ValueId};
 use super::super::me_call_header_observation::{
     MeCallHeaderObservationPortV1, MeCallParameterObservationV1, MethodCallLoweringPortV1,
 };
+use super::super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, drive_legacy_statement_v1, RawAstChildLoweringPortV1,
 };
-use super::super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::call_argument_descent::{
     drive_call_arguments_v1, lower_call_argument_v1, CallArgumentDescentPortV1,
 };

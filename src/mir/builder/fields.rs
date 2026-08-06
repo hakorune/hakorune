@@ -658,11 +658,7 @@ mod tests {
         );
         assert!(prepared.requires_receiver_source_v1());
 
-        let prepared = PreparedRawFieldReadV1::prepare(
-            &builder,
-            var("pair"),
-            "value".to_string(),
-        );
+        let prepared = PreparedRawFieldReadV1::prepare(&builder, var("pair"), "value".to_string());
         assert!(!prepared.requires_receiver_source_v1());
     }
 

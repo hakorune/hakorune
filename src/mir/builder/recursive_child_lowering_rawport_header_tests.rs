@@ -151,11 +151,7 @@ fn headerport_birth_presence_matches_legacy_newbox_branch() {
             port.with_source_transport_v1(
                 RawInvocationSourceTransportV1::root((), RawInvocationRootLineageV1::ScriptRoot),
                 |port, ()| {
-                    drive_legacy_expression_v1(
-                        builder,
-                        port,
-                        new_expr("Prefix", vec![int(7)]),
-                    )
+                    drive_legacy_expression_v1(builder, port, new_expr("Prefix", vec![int(7)]))
                 },
             )
         });

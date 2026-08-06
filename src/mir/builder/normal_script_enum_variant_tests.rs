@@ -143,11 +143,7 @@ fn ordinary_from_call_stays_deferred() {
         facts.with_enum_variant_demand_view(|variants| {
             facts.with_enum_match_demand_view(|matches| {
                 resolver.resolve_script_with_declaration_views(
-                    view,
-                    &window,
-                    records,
-                    variants,
-                    matches,
+                    view, &window, records, variants, matches,
                 )
             })
         })

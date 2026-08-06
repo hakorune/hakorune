@@ -66,7 +66,8 @@ fn direct_enum_match_seals_only_its_scrutinee_receipt() {
             })
         })
     });
-    let ResolveScriptOutcomeV1::Complete(product) = outcome.expect("direct EnumMatch resolve") else {
+    let ResolveScriptOutcomeV1::Complete(product) = outcome.expect("direct EnumMatch resolve")
+    else {
         panic!("direct EnumMatch must complete");
     };
     let sealed = super::VerifiedScriptSemanticSourceV1::seal(&prepared, product, &window)
@@ -99,6 +100,9 @@ fn direct_enum_match_selected_pipeline_matches_legacy() {
         )
         .expect("selected direct EnumMatch");
     let printer = MirPrinter::new();
-    assert_eq!(printer.print_module(&normal.module), printer.print_module(&legacy.module));
+    assert_eq!(
+        printer.print_module(&normal.module),
+        printer.print_module(&legacy.module)
+    );
     assert_eq!(normal.verification_result, legacy.verification_result);
 }

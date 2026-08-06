@@ -8,10 +8,10 @@
 use super::generic_selection_matrix_tests::{both_body, progression_condition};
 use super::route_id::LoopRouteId;
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
-use crate::mir::builder::control_flow::plan::facts::{
-    GenericLoopCarrierObservationV1, try_build_loop_facts,
-};
 use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
+use crate::mir::builder::control_flow::plan::facts::{
+    try_build_loop_facts, GenericLoopCarrierObservationV1,
+};
 use crate::mir::compiler::capability::{
     CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1, CanonicalLoweringPreflightV1,
 };
@@ -111,8 +111,8 @@ fn observe_raw_generic(mode: CensusModeV1) -> RawGenericObservationRowV1 {
     let _config = mode.config();
     let condition = progression_condition();
     let body = both_body();
-    let Some(facts) = try_build_loop_facts(&condition, &body)
-        .expect("P3 raw Generic census must not freeze")
+    let Some(facts) =
+        try_build_loop_facts(&condition, &body).expect("P3 raw Generic census must not freeze")
     else {
         return RawGenericObservationRowV1 {
             fixture_label: "generic-natural-both",
@@ -273,9 +273,9 @@ fn generic_d3_s2_p3_census_keeps_raw_and_resolved_columns_independent() {
     assert!(census.raw_generic.iter().all(|row| {
         row.v1_present
             && row.carrier
-                == Some(GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(vec![
-                    "j".into(),
-                ]))
+                == Some(GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(
+                    vec!["j".into()],
+                ))
     }));
     assert!(census.raw_generic[..2].iter().all(|row| {
         row.v0_present && row.disposition == RawGenericDispositionV1::ObservedOverlap

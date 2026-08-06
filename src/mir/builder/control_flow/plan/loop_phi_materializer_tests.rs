@@ -200,7 +200,9 @@ fn direct_map_input(sig: &VerifiedLoopJoinSigV1) -> LoopLogicalToPhysicalMapInpu
     }
 }
 
-pub(crate) fn direct_materializer_input(sig: &VerifiedLoopJoinSigV1) -> VerifiedLoopLogicalToPhysicalMapV1 {
+pub(crate) fn direct_materializer_input(
+    sig: &VerifiedLoopJoinSigV1,
+) -> VerifiedLoopLogicalToPhysicalMapV1 {
     VerifiedLoopLogicalToPhysicalMapV1::try_new(sig, direct_map_input(sig)).expect("direct map")
 }
 

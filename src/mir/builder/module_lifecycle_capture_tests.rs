@@ -72,7 +72,6 @@ impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
         )
     }
 
-
     fn lower_instance_box_method(
         &mut self,
         builder: &mut MirBuilder,

@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
+use super::super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::super::recursive_child_lowering::{
     drive_raw_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
@@ -9,7 +10,6 @@ use super::method_call_descent::{
     lower_method_call_argument_v1, lower_method_call_arguments_v1, lower_method_call_receiver_v1,
     MethodCallDescentPortV1, MethodCallSyntaxViewV1, RawLegacyMethodCallInputV1,
 };
-use super::super::raw_structured_child_scope::PreparedRawChildSourceV1;
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {

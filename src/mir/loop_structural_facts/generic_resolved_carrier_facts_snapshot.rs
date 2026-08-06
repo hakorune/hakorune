@@ -4,8 +4,7 @@
 //! mode-neutral structural disposition. It deliberately does not connect to
 //! `LoopFacts`, Generic V0/V1 facts, policy, Recipe, Builder, or MIR.
 
-use crate::mir::resolved_semantics::generic_resolved_carrier_provenance::
-    VerifiedResolvedCarrierProvenanceV1;
+use crate::mir::resolved_semantics::generic_resolved_carrier_provenance::VerifiedResolvedCarrierProvenanceV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ResolvedCarrierDispositionV1 {
@@ -39,5 +38,4 @@ impl VerifiedGenericResolvedCarrierFactsV1 {
     pub(crate) const fn disposition(&self) -> ResolvedCarrierDispositionV1 {
         self.disposition
     }
-
 }

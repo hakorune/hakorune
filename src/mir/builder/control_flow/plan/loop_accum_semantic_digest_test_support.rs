@@ -71,7 +71,10 @@ fn canonical_cfg(digest: &AlphaPhysicalMirDigestV1) -> Result<Box<[String]>, Str
     }
     observed.sort();
     observed.dedup();
-    let mut expected = required.iter().map(|edge| (*edge).to_owned()).collect::<Vec<_>>();
+    let mut expected = required
+        .iter()
+        .map(|edge| (*edge).to_owned())
+        .collect::<Vec<_>>();
     expected.sort();
     if observed != expected {
         return Err(format!(
@@ -112,10 +115,7 @@ fn semantic_rows(
             carriers.push("header-carrier:sum=[entry:sum,backedge:sum]".to_owned());
             continue;
         }
-        if !(row.contains(":const:")
-            || row.contains(":bin:")
-            || row.contains(":compare:"))
-        {
+        if !(row.contains(":const:") || row.contains(":bin:") || row.contains(":compare:")) {
             return Err(format!("unknown DirectAccum semantic/auxiliary row: {row}"));
         }
         operations.push(row.clone());
@@ -166,11 +166,13 @@ pub(crate) fn semantic_digest(
         .map(|row| (*row).to_owned())
         .collect::<Vec<_>>();
     results.sort();
-    if results != [
-        "final:i:carrier:i:Integer".to_owned(),
-        "final:sum:carrier:sum:Integer".to_owned(),
-        "result:unit:Void".to_owned(),
-    ] {
+    if results
+        != [
+            "final:i:carrier:i:Integer".to_owned(),
+            "final:sum:carrier:sum:Integer".to_owned(),
+            "result:unit:Void".to_owned(),
+        ]
+    {
         return Err(format!("DirectAccum final-result mismatch: {results:?}"));
     }
     Ok(AlphaPhysicalMirDigestV2 {

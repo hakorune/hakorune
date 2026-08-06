@@ -376,7 +376,10 @@ pub(in crate::mir::builder) fn materialize_loop_phis(
 #[cfg(test)]
 pub(in crate::mir::builder) struct LoopPhiMaterializationHandleV1 {
     txn: Option<PhiTxn>,
-    pending: Vec<(PendingPhiV1, crate::mir::builder::emission::phi_lifecycle::PhiToken)>,
+    pending: Vec<(
+        PendingPhiV1,
+        crate::mir::builder::emission::phi_lifecycle::PhiToken,
+    )>,
 }
 
 #[cfg(test)]
@@ -391,15 +394,11 @@ impl LoopPhiMaterializationHandleV1 {
         let mut txn = PhiTxn::begin(MATERIALIZER_TAG);
         let mut rows = Vec::with_capacity(pending.len());
         for row in pending {
-            let token = match txn.define_provisional_phi(
-                builder,
-                row.block,
-                row.dst,
-                MATERIALIZER_TAG,
-            ) {
-                Ok(token) => token,
-                Err(error) => return Err(transaction_error(builder, txn, error)),
-            };
+            let token =
+                match txn.define_provisional_phi(builder, row.block, row.dst, MATERIALIZER_TAG) {
+                    Ok(token) => token,
+                    Err(error) => return Err(transaction_error(builder, txn, error)),
+                };
             rows.push((row, token));
         }
         Ok(Self {
@@ -409,10 +408,7 @@ impl LoopPhiMaterializationHandleV1 {
     }
 
     pub(in crate::mir::builder) fn destination_values(&self) -> Vec<ValueId> {
-        self.pending
-            .iter()
-            .map(|(row, _)| row.dst)
-            .collect()
+        self.pending.iter().map(|(row, _)| row.dst).collect()
     }
 
     pub(in crate::mir::builder) fn finalize(
@@ -425,7 +421,9 @@ impl LoopPhiMaterializationHandleV1 {
             .expect("LoopPhiMaterializationHandleV1 transaction already consumed");
         let mut sites = Vec::with_capacity(self.pending.len());
         for (row, token) in self.pending {
-            if let Err(error) = txn.patch_phi_inputs(builder, token, row.inputs.clone(), MATERIALIZER_TAG) {
+            if let Err(error) =
+                txn.patch_phi_inputs(builder, token, row.inputs.clone(), MATERIALIZER_TAG)
+            {
                 return Err(transaction_error(builder, txn, error));
             }
             sites.push(LoopPhiSiteReceiptV1 {

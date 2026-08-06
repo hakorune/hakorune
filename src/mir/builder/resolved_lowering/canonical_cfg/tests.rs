@@ -314,7 +314,9 @@ fn named_return_owner_is_checked_and_updates_terminator_truth() {
     session.emit_return(&mut function, block(0), None).unwrap();
     assert!(function.get_block(block(0)).unwrap().is_terminated());
     assert_eq!(
-        session.emit_return(&mut function, block(0), None).unwrap_err(),
+        session
+            .emit_return(&mut function, block(0), None)
+            .unwrap_err(),
         CanonicalCfgErrorV1::SourceAlreadyTerminated { source: block(0) }
     );
 }

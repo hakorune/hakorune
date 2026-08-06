@@ -64,11 +64,7 @@ impl MirCompiler {
         input: ResolvedModuleLoweringInputV1<'_>,
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-        compile_direct_accum_source_bound_with_prepared_failure_for_test(
-            self,
-            input,
-            source_file,
-        )
+        compile_direct_accum_source_bound_with_prepared_failure_for_test(self, input, source_file)
     }
 
     #[cfg(test)]

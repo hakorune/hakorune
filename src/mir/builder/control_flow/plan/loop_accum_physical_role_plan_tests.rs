@@ -8,9 +8,11 @@
 
 use super::*;
 use crate::mir::builder::control_flow::plan::loop_phi_materializer::LoopPhiMaterializationHandleV1;
-use crate::mir::builder::control_flow::plan::loop_phi_materializer_test_support::{bb, standard5_builder};
+use crate::mir::builder::control_flow::plan::loop_phi_materializer_test_support::{
+    bb, standard5_builder,
+};
 use crate::mir::loop_recipe_contract::{
-    LoopJoinEdgeRoleV1, LoopItemKeyV1, LoopJoinSigElaboratorV1, LoopOperationV1,
+    LoopItemKeyV1, LoopJoinEdgeRoleV1, LoopJoinSigElaboratorV1, LoopOperationV1,
     LoopRecipeArtifactV1, LoopRecipeItemV1, LoopRecipeVerifierV1, VerifiedLoopJoinSigV1,
 };
 use crate::mir::{BasicBlockId, MirType, ValueId};
@@ -68,9 +70,15 @@ fn direct_role_plan(
         .iter()
         .map(|edge| {
             let roles = match edge.role {
-                LoopJoinEdgeRoleV1::Enter => vec![PhysicalBlockRoleV1::Preheader, PhysicalBlockRoleV1::Header],
-                LoopJoinEdgeRoleV1::PredicateTrue => vec![PhysicalBlockRoleV1::Header, PhysicalBlockRoleV1::Body],
-                LoopJoinEdgeRoleV1::PredicateFalse => vec![PhysicalBlockRoleV1::Header, PhysicalBlockRoleV1::After],
+                LoopJoinEdgeRoleV1::Enter => {
+                    vec![PhysicalBlockRoleV1::Preheader, PhysicalBlockRoleV1::Header]
+                }
+                LoopJoinEdgeRoleV1::PredicateTrue => {
+                    vec![PhysicalBlockRoleV1::Header, PhysicalBlockRoleV1::Body]
+                }
+                LoopJoinEdgeRoleV1::PredicateFalse => {
+                    vec![PhysicalBlockRoleV1::Header, PhysicalBlockRoleV1::After]
+                }
                 LoopJoinEdgeRoleV1::Backedge => vec![
                     PhysicalBlockRoleV1::Body,
                     PhysicalBlockRoleV1::Step,
@@ -94,7 +102,10 @@ fn direct_role_plan(
     ] {
         let block = super::block(recipe, block_key);
         for item_key in &block.items {
-            if matches!(super::item(recipe, *item_key), LoopRecipeItemV1::Operation { .. }) {
+            if matches!(
+                super::item(recipe, *item_key),
+                LoopRecipeItemV1::Operation { .. }
+            ) {
                 operation_keys.push(*item_key);
             }
         }
@@ -123,26 +134,27 @@ impl PhysicalAllocationV1 {
         .map(|role| (role, builder.next_block_id()))
         .collect();
         let recipe = artifact.recipe();
-        let operation_results = plan
-            .operation_keys
-            .iter()
-            .filter_map(|item_key| match super::item(recipe, *item_key) {
-                LoopRecipeItemV1::Operation { operation } => match operation {
-                    LoopOperationV1::ReadBinding { .. } | LoopOperationV1::WriteBinding { .. } => None,
-                    LoopOperationV1::ConstI64 { result, .. }
-                    | LoopOperationV1::BinaryI64 { result, .. }
-                    | LoopOperationV1::CompareI64 { result, .. } => {
-                        let ty = if matches!(operation, LoopOperationV1::CompareI64 { .. }) {
-                            MirType::Bool
-                        } else {
-                            MirType::Integer
-                        };
-                        Some((*item_key, builder.alloc_typed(ty)))
-                    }
-                },
-                _ => None,
-            })
-            .collect();
+        let operation_results =
+            plan.operation_keys
+                .iter()
+                .filter_map(|item_key| match super::item(recipe, *item_key) {
+                    LoopRecipeItemV1::Operation { operation } => match operation {
+                        LoopOperationV1::ReadBinding { .. }
+                        | LoopOperationV1::WriteBinding { .. } => None,
+                        LoopOperationV1::ConstI64 { result, .. }
+                        | LoopOperationV1::BinaryI64 { result, .. }
+                        | LoopOperationV1::CompareI64 { result, .. } => {
+                            let ty = if matches!(operation, LoopOperationV1::CompareI64 { .. }) {
+                                MirType::Bool
+                            } else {
+                                MirType::Integer
+                            };
+                            Some((*item_key, builder.alloc_typed(ty)))
+                        }
+                    },
+                    _ => None,
+                })
+                .collect();
         Self {
             blocks,
             operation_results,
@@ -153,7 +165,8 @@ impl PhysicalAllocationV1 {
 #[test]
 fn direct_role_plan_is_builder_free_and_standard5_explicit() {
     let artifact = direct_verified_recipe();
-    let verified = LoopRecipeVerifierV1::verify(artifact.recipe().clone()).expect("verified recipe");
+    let verified =
+        LoopRecipeVerifierV1::verify(artifact.recipe().clone()).expect("verified recipe");
     let sig = LoopJoinSigElaboratorV1::elaborate(&verified).expect("verified JoinSig");
     let plan = direct_role_plan(&sig, &artifact);
     assert_eq!(plan.paths.len(), 4);
@@ -172,7 +185,8 @@ fn direct_role_plan_is_builder_free_and_standard5_explicit() {
 #[test]
 fn direct_candidate_reservation_is_alpha_stable_and_does_not_emit() {
     let artifact = direct_verified_recipe();
-    let verified = LoopRecipeVerifierV1::verify(artifact.recipe().clone()).expect("verified recipe");
+    let verified =
+        LoopRecipeVerifierV1::verify(artifact.recipe().clone()).expect("verified recipe");
     let sig = LoopJoinSigElaboratorV1::elaborate(&verified).expect("verified JoinSig");
     let plan = direct_role_plan(&sig, &artifact);
     let mut left = crate::mir::builder::MirBuilder::new();
@@ -181,7 +195,10 @@ fn direct_candidate_reservation_is_alpha_stable_and_does_not_emit() {
     right.enter_function_for_test("p1s0/right".to_owned());
     let left_alloc = PhysicalAllocationV1::reserve(&mut left, &plan, &artifact);
     let right_alloc = PhysicalAllocationV1::reserve(&mut right, &plan, &artifact);
-    assert_eq!(left_alloc.blocks.keys().collect::<Vec<_>>(), right_alloc.blocks.keys().collect::<Vec<_>>());
+    assert_eq!(
+        left_alloc.blocks.keys().collect::<Vec<_>>(),
+        right_alloc.blocks.keys().collect::<Vec<_>>()
+    );
     assert_eq!(left_alloc.operation_results.len(), 6);
     assert!(left
         .function_state

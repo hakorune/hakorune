@@ -1,8 +1,8 @@
 //! Pure, consuming adapter from sealed Loop source identity to portable source.
 
 use crate::mir::loop_recipe_contract::{
-    LoopNodeKeyV1, LoopNodeSourceBindingV1, LoopRecipeSourceBindingV1,
-    LoopRecipeSourceOwnerV1, LoopSourcePathStepV1, LoopSourcePathV1, VerifiedLoopRecipeV1,
+    LoopNodeKeyV1, LoopNodeSourceBindingV1, LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1,
+    LoopSourcePathStepV1, LoopSourcePathV1, VerifiedLoopRecipeV1,
 };
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, SemanticOwnerSourceKindV1, SourcePathSegmentV1,
@@ -114,10 +114,9 @@ impl VerifiedLoopSourceForestBindingV1 {
         let expected = recipe.as_recipe().loops.len();
         let found = self.members.len();
         if expected != found {
-            return Err(LoopSourceForestBindingRejectV1::RecipeLoopCoverageMismatch {
-                expected,
-                found,
-            });
+            return Err(
+                LoopSourceForestBindingRejectV1::RecipeLoopCoverageMismatch { expected, found },
+            );
         }
 
         for (index, member) in self.members.iter().enumerate() {
@@ -221,10 +220,7 @@ pub(crate) fn bind_resolved_loop_source_forest_v1(
                 reason,
             }
         })?;
-        projected.push(VerifiedLoopSourceForestBindingMemberV1 {
-            path,
-            parent_index,
-        });
+        projected.push(VerifiedLoopSourceForestBindingMemberV1 { path, parent_index });
     }
 
     Ok(VerifiedLoopSourceForestBindingV1 {
@@ -314,9 +310,7 @@ fn is_body_root(segment: &SourcePathSegmentV1) -> bool {
 }
 
 #[cfg(test)]
-pub(crate) fn projection_for_test(
-    parents: &[Option<u32>],
-) -> VerifiedLoopSourceForestBindingV1 {
+pub(crate) fn projection_for_test(parents: &[Option<u32>]) -> VerifiedLoopSourceForestBindingV1 {
     VerifiedLoopSourceForestBindingV1 {
         owner: LoopRecipeSourceOwnerV1::function_body(0, 0),
         members: parents

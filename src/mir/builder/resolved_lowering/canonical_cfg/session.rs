@@ -71,14 +71,12 @@ impl CanonicalCfgSessionV1 {
         builder: &mut MirBuilder,
         block: BasicBlockId,
     ) -> Result<(), CanonicalCfgErrorV1> {
-        let function = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or(CanonicalCfgErrorV1::MissingBlock {
+        let function = builder.function_state.current_function.as_ref().ok_or(
+            CanonicalCfgErrorV1::MissingBlock {
                 block,
                 role: CanonicalCfgBlockRoleV1::Source,
-            })?;
+            },
+        )?;
         if function.get_block(block).is_none() {
             return Err(CanonicalCfgErrorV1::MissingBlock {
                 block,

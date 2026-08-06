@@ -14,9 +14,9 @@ use crate::mir::resolved_semantics::{
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
 };
 
+use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_root_demand_window::ScriptRootDemandWindowBuildErrorV1;
 use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
-use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 
 /// One source-shape decision, consumable only by ordinal storage.
 #[derive(Clone, Copy, Debug)]
@@ -201,9 +201,9 @@ fn validate_source_boundary(
         ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IfControl(_)) => {
             matches!(statement, ASTNode::If { .. })
         }
-        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::QMarkPropagation(
-            _,
-        )) => matches!(statement, ASTNode::QMarkPropagate { .. }),
+        ScriptRootSemanticDispositionV1::Resolved(
+            ScriptRootResolvedDemandV1::QMarkPropagation(_),
+        ) => matches!(statement, ASTNode::QMarkPropagate { .. }),
         ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::MatchControl(_)) => {
             matches!(statement, ASTNode::MatchExpr { .. })
         }
@@ -216,7 +216,9 @@ fn validate_source_boundary(
         ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IndexWrite(_)) => {
             is_index_write_assignment(statement)
         }
-        ScriptRootSemanticDispositionV1::Transparent(ScriptTransparentBoundaryV1::UsingDirective) => {
+        ScriptRootSemanticDispositionV1::Transparent(
+            ScriptTransparentBoundaryV1::UsingDirective,
+        ) => {
             matches!(statement, ASTNode::UsingStatement { .. })
         }
         ScriptRootSemanticDispositionV1::Transferred(
@@ -233,9 +235,11 @@ fn validate_source_boundary(
         ) => is_program_record_declaration(statement),
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
-        ) => super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(
-            statement,
-        ),
+        ) => {
+            super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(
+                statement,
+            )
+        }
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
         ) => matches!(statement, ASTNode::Me { .. }),
@@ -291,8 +295,7 @@ mod tests {
     #[test]
     fn ordinary_index_write_issues_one_typed_root_receipt() {
         let ASTNode::Program { statements, .. } =
-            NyashParser::parse_from_string("local xs = [1]\nxs[0] = 2")
-                .expect("IndexWrite source")
+            NyashParser::parse_from_string("local xs = [1]\nxs[0] = 2").expect("IndexWrite source")
         else {
             unreachable!("parser returns Program");
         };
