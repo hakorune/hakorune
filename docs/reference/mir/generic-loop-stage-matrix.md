@@ -11,6 +11,8 @@ PHI owner, scheduler, or backend lowering specification.
 
 The design authority is
 `docs/development/current/main/design/joinir-generic-post-effect-debt-classification-ssot.md`.
+The DirectAccum S1 observation boundary is specified by
+`docs/development/current/main/design/loop-family-observation-policy-ssot.md`.
 The executable task and acceptance evidence are
 `docs/development/current/main/investigations/joinir-generic-structural-grammar-census-d2-a3-s1-execution-task-2026-08-04.md`;
 the closed ledger is
@@ -95,7 +97,27 @@ and `Add`/`Subtract` syntax facts; S1 owns the admission matrix and does not
 recheck S0A BindingRef relations. Seven policy tests plus the existing Generic
 projection tests are green. S1 does not select a winner, issue Recipe keys,
 touch Builder/MIR, retry/fallback, or open a production caller; the next row is
-the four competing-profile observations.
+`LOOP-FAMILY-DIRECT-OBSERVATION-S1`.
+
+## DirectAccum S1 observation receipt
+
+`LOOP-FAMILY-DIRECT-OBSERVATION-S1` is now landed as a caller-zero,
+AST-free family observation. The test-only compiler adapter
+`src/mir/compiler/direct_accum_observation.rs` translates the existing
+DirectAccum projector's typed source errors into neutral source-attempt
+reasons. `src/mir/loop_route_policy/direct_accum_observation.rs` consumes that
+attempt together with one sealed owner/source/frame/mode/coverage context and
+issues only `Candidate`, `Declined`, `Unresolved`, or `Rejected`.
+
+The exact matrix is fixed: complete canonical Less plus two positive Add
+assignments is a Candidate in Release, Strict, and StrictPlannerRequired;
+known non-Direct shapes decline; incomplete or unsealed source windows are
+Unresolved; and foreign identity, frame/source-kind, upvar/non-binding target,
+or BindingRef conflicts are Rejected. The seven focused tests and shared
+recursive guard are green. No legacy schedule/cursor/winner, selector,
+Recipe/JoinSig/BindingKey, Builder/MIR/PHI, retry/fallback, or production
+caller is introduced. The next row is
+`LOOP-FAMILY-NESTED-OBSERVATION-S1`; this page remains inspection-only.
 
 ## Current source-to-selection evidence
 

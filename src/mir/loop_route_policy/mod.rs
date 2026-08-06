@@ -5,6 +5,9 @@
 
 #[cfg(test)]
 mod adapter;
+mod direct_accum_observation;
+#[cfg(test)]
+mod direct_accum_observation_tests;
 mod evaluate;
 #[cfg(test)]
 mod family_selection;
@@ -18,6 +21,13 @@ mod policy;
 mod policy_evidence;
 mod schema;
 
+#[allow(unused_imports)]
+pub(crate) use direct_accum_observation::{
+    issue_direct_accum_family_observation_v1, DirectAccumFamilyObservationV1,
+    DirectAccumObservationContextV1, DirectAccumObservationDeclineV1,
+    DirectAccumObservationRejectV1, DirectAccumObservationUnresolvedV1,
+    VerifiedDirectAccumFamilyCandidateV1,
+};
 #[allow(unused_imports)]
 pub(crate) use evaluate::freeze_loop_route_schedule_v1;
 #[cfg(test)]

@@ -43,7 +43,7 @@ The migration fixture adapter is test-only. Its M3-F parity submodule may invoke
 the legacy execution witness as an oracle, but it has no production caller; the
 production facade `freeze_loop_route_schedule_v1` remains caller-zero.
 
-The DirectAccum pilot adds one narrower production-shaped handoff:
+The legacy DirectAccum pilot retains one narrower migration/live handoff:
 
 ```text
 VerifiedDirectAccumSingletonObservationV1
@@ -59,6 +59,23 @@ for the next Recipe stage while hiding route IDs, raw cursors, and the frozen
 schedule from physical lowerers. The handoff is profile-specific and must not
 be mistaken for the future family selector; its resolved DirectAccum production
 lane is a separate live owner.
+
+## DirectAccum S1 family observation
+
+`direct_accum_observation.rs` is the caller-zero observation boundary for
+`LOOP-FAMILY-DIRECT-OBSERVATION-S1`. It consumes one AST-free
+`VerifiedDirectAccumSourceAttemptV1` and one owner/source/frame/mode/coverage
+context, then emits exactly one of `Candidate`, `Declined`, `Unresolved`, or
+`Rejected`. The three sealed modes share the same exact DirectAccum candidate;
+known non-Direct shapes decline, incomplete or unsealed windows remain
+unresolved, and foreign identity/binding/frame conflicts reject.
+
+This observer is intentionally separate from `policy.rs`, `family_selection.rs`,
+and the legacy schedule. It does not read AST or `LoopRouteId`, issue a winner,
+Recipe/JoinSig/BindingKey, call Builder/MIR, retry/fallback, or open a
+production caller. The seven focused tests and shared recursive guard fix this
+boundary. The next row is `LOOP-FAMILY-NESTED-OBSERVATION-S1`; selection remains
+closed until the common admission-window design is accepted.
 
 The LoopTrue branch cohort has a separate policy-demand box:
 

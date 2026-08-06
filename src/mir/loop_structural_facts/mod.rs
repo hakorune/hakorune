@@ -4,6 +4,7 @@
 
 mod direct_accum_effect_plan;
 mod direct_accum_exclusivity;
+mod direct_accum_observation;
 #[allow(dead_code)]
 pub(crate) mod generic_g0;
 #[cfg(test)]
@@ -29,6 +30,11 @@ pub(crate) use direct_accum_effect_plan::{
 pub(crate) use direct_accum_exclusivity::{
     issue_direct_accum_disjointness_v1, DirectAccumDisjointnessRejectV1,
     VerifiedDirectAccumDisjointnessV1,
+};
+pub(crate) use direct_accum_observation::{
+    DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
+    DirectAccumSourceAttemptOutcomeV1, DirectAccumSourceDeclineV1, DirectAccumSourceIdentityV1,
+    DirectAccumSourceRejectV1, DirectAccumSourceUnresolvedV1, VerifiedDirectAccumSourceAttemptV1,
 };
 #[cfg(test)]
 pub(crate) use generic_resolved_carrier_facts_snapshot::{

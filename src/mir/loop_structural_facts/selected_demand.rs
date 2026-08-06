@@ -170,8 +170,26 @@ impl VerifiedLoopStructuralFactsV1 {
 }
 
 impl VerifiedDirectAccumSingletonObservationV1 {
+    pub(crate) fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.facts
+            .direct_accum_shape()
+            .expect("DirectAccum singleton retains its structural shape")
+            .condition_binding
+            .owner()
+    }
+
     pub(crate) fn frame_key(&self) -> LoopExecutionFrameKeyV1 {
         self.source.frame_key()
+    }
+
+    pub(crate) fn matches_source_identity(
+        &self,
+        function_origin: crate::mir::resolved_semantics::FunctionOriginV1,
+        owner_source_kind: crate::mir::resolved_semantics::SemanticOwnerSourceKindV1,
+        site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    ) -> bool {
+        self.source
+            .matches_identity(function_origin, owner_source_kind, site)
     }
 
     pub(crate) fn into_parts(

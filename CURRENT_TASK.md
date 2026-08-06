@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-07-28
+Date: 2026-08-06
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart

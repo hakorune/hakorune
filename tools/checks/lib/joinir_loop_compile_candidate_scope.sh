@@ -37,6 +37,10 @@ guard_joinir_loop_compile_candidate_scope() {
   local generic_g0_policy_tests="$root_dir/src/mir/loop_route_policy/generic_g0_tests.rs"
   local generic_g0_policy_mod="$root_dir/src/mir/loop_route_policy/mod.rs"
   local generic_g0_structural="$root_dir/src/mir/loop_structural_facts/generic_g0/mod.rs"
+  local direct_accum_observation_source="$root_dir/src/mir/loop_structural_facts/direct_accum_observation.rs"
+  local direct_accum_observation_adapter="$root_dir/src/mir/compiler/direct_accum_observation.rs"
+  local direct_accum_observation_policy="$root_dir/src/mir/loop_route_policy/direct_accum_observation.rs"
+  local direct_accum_observation_tests="$root_dir/src/mir/loop_route_policy/direct_accum_observation_tests.rs"
   local join_sig_dir="$root_dir/src/mir/loop_recipe_contract/join_sig"
   local join_sig_facade="$join_sig_dir/mod.rs"
   local join_sig_model="$join_sig_dir/model.rs"
@@ -65,6 +69,8 @@ guard_joinir_loop_compile_candidate_scope() {
     "$generic_g0_source_type" "$generic_g0_numeric" "$generic_g0_numeric_tests" \
     "$generic_g0_numeric_adapter" "$generic_g0_numeric_projection_tests" \
     "$generic_g0_policy" "$generic_g0_policy_tests" "$generic_g0_policy_mod" "$generic_g0_structural" \
+    "$direct_accum_observation_source" "$direct_accum_observation_adapter" \
+    "$direct_accum_observation_policy" "$direct_accum_observation_tests" \
     "$join_sig_facade" "$join_sig_model" "$join_sig_port" \
     "$join_sig_visibility" "$join_sig_flow" \
     "$nested_source_projection" "$nested_recipe_producer" \
@@ -181,6 +187,83 @@ guard_joinir_loop_compile_candidate_scope() {
       :
     else
       guard_fail "$tag" "Generic G0 policy caller escaped caller-zero boundary: $policy_ref"
+    fi
+  done
+
+  for direct_file in \
+    "$direct_accum_observation_source" \
+    "$direct_accum_observation_adapter" \
+    "$direct_accum_observation_policy" \
+    "$direct_accum_observation_tests"; do
+    local direct_lines
+    direct_lines="$(wc -l < "$direct_file" | tr -d '[:space:]')"
+    if (( direct_lines >= 800 )); then
+      guard_fail "$tag" "DirectAccum S1 observation file exceeds boundary: ${direct_file#"$root_dir/"} lines=$direct_lines"
+    fi
+  done
+  for forbidden in ASTNode MirBuilder ValueId BasicBlockId LoopRouteId Retry \
+    'crate::mir::builder' 'loop_recipe_contract' 'route_loop(' \
+    'try_cf_loop_joinir(' 'VerifiedLoopPolicyWinnerV1'; do
+    if rg -n -F "$forbidden" "$direct_accum_observation_source" "$direct_accum_observation_policy" >/dev/null; then
+      guard_fail "$tag" "DirectAccum S1 observation crossed forbidden authority: $forbidden"
+    fi
+  done
+  for required in \
+    'DirectAccumSourceAttemptOutcomeV1' \
+    'DirectAccumSourceIdentityV1' \
+    'DirectAccumObservationCoverageV1' \
+    'VerifiedDirectAccumSourceAttemptV1'; do
+    rg -n -F "$required" "$direct_accum_observation_source" >/dev/null || \
+      guard_fail "$tag" "DirectAccum S1 neutral source-attempt anchor missing: $required"
+  done
+  for required in \
+    'DirectAccumFamilyObservationV1' \
+    'issue_direct_accum_family_observation_v1(' \
+    'DirectAccumObservationContextV1' \
+    'DirectAccumObservationDeclineV1' \
+    'DirectAccumObservationUnresolvedV1' \
+    'DirectAccumObservationRejectV1'; do
+    rg -n -F "$required" "$direct_accum_observation_policy" >/dev/null || \
+      guard_fail "$tag" "DirectAccum S1 policy observer anchor missing: $required"
+  done
+  if [[ "$(rg -o -F '#[test]' "$direct_accum_observation_tests" | wc -l | tr -d '[:space:]')" != "7" ]]; then
+    guard_fail "$tag" "DirectAccum S1 focused test count drift"
+  fi
+  rg -n -F '#![cfg(test)]' "$direct_accum_observation_adapter" >/dev/null || \
+    guard_fail "$tag" "DirectAccum S1 compiler adapter must remain test-only"
+  for direct_ref in \
+    'issue_direct_accum_family_observation_v1(' \
+    'VerifiedDirectAccumFamilyCandidateV1'; do
+    if rg -n -F "$direct_ref" "$root_dir/src" --glob '*.rs' |
+      awk -F: -v policy="$direct_accum_observation_policy" \
+        -v tests="$direct_accum_observation_tests" \
+        -v policy_mod="$generic_g0_policy_mod" \
+        '$1 != policy && $1 != tests && $1 != policy_mod && $1 != "" { found = 1 } END { exit found }'; then
+      :
+    else
+      guard_fail "$tag" "DirectAccum S1 observer caller escaped caller-zero boundary: $direct_ref"
+    fi
+  done
+  for direct_ref in 'issue_direct_accum_source_attempt_for_test('; do
+    if rg -n -F "$direct_ref" "$root_dir/src" --glob '*.rs' |
+      awk -F: -v adapter="$direct_accum_observation_adapter" \
+        -v tests="$direct_accum_observation_tests" \
+        '$1 != adapter && $1 != tests && $1 != "" { found = 1 } END { exit found }'; then
+      :
+    else
+      guard_fail "$tag" "DirectAccum S1 source adapter escaped test-only caller boundary: $direct_ref"
+    fi
+  done
+  for direct_ref in \
+    'DirectAccumSourceIdentityV1::new(' \
+    'VerifiedDirectAccumSourceAttemptV1::new('; do
+    if rg -n -F "$direct_ref" "$root_dir/src" --glob '*.rs' |
+      awk -F: -v adapter="$direct_accum_observation_adapter" \
+        -v tests="$direct_accum_observation_tests" \
+        '$1 != adapter && $1 != tests && $1 != "" { found = 1 } END { exit found }'; then
+      :
+    else
+      guard_fail "$tag" "DirectAccum S1 sealed constructor escaped source/test boundary: $direct_ref"
     fi
   done
 

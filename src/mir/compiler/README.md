@@ -70,6 +70,16 @@ progression remain the S1 policy row. No numeric wrapper Call, AST rewrite,
 retry, Recipe, Builder/MIR effect, or production caller is introduced; the
 policy handoff remains caller-zero.
 
+## DirectAccum S1 source observation
+
+`direct_accum_observation.rs` is a test-only adapter from the existing
+resolver/source-owned DirectAccum projector to the neutral
+`VerifiedDirectAccumSourceAttemptV1` transport. It maps compiler projection
+rejects to typed Declined/Unresolved/Rejected reasons and is not compiled into
+the production compiler path. The policy observer consumes only this
+AST-free attempt; it does not receive AST, Builder/MIR state, route IDs,
+Recipes, retry/fallback authority, or a production caller.
+
 ## B0-L2b source projection boundary
 
 `VerifiedSourceProjectionV1` is sealed beside the canonical syntax and owner
