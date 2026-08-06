@@ -1,0 +1,46 @@
+{
+  "schema": "generic-callable-semantic-loop-handoff-s0-v1",
+  "decision": "accepted",
+  "status": "pre-effect source envelope only",
+  "source": {
+    "callable": "StringHelpers.int_to_str/1",
+    "loop_site": ["Body", 2],
+    "condition_site": ["Body", 2, "LoopCondition"],
+    "body_site": ["Body", 2, "LoopBodyRoot"]
+  },
+  "roles": [
+    {
+      "site": ["Body", 2, "LoopCondition", "Lhs"],
+      "role": "ConditionRead"
+    },
+    {
+      "site": ["Body", 2, "LoopBody", 0, "Value", "Lhs"],
+      "role": "BodyRead"
+    },
+    {
+      "site": ["Body", 2, "LoopBody", 0, "Target"],
+      "role": "BodyRebind"
+    }
+  ],
+  "counts": {
+    "variable_reads": 2,
+    "assignments": 1
+  },
+  "profile": "one-condition-read-one-body-read-one-body-rebind",
+  "claims": {
+    "ast_free_schedule": true,
+    "single_use_pre_effect_consumption": true,
+    "source_projector_final_authority": false,
+    "portable_recipe_projection": false,
+    "value_id_consumption": false,
+    "phi_publication": false,
+    "production_selection": false,
+    "legacy_retirement": false
+  },
+  "focused_tests": [
+    "mir::builder::normal_callable_loop_handoff::tests::seals_exact_condition_body_and_assignment_roles",
+    "mir::builder::normal_callable_loop_handoff::tests::rejects_foreign_duplicate_and_nested_receipts",
+    "mir::builder::raw_loop_child_entry::tests::located_entry_carries_callable_handoff_before_route_effects",
+    "mir::builder::normal_callable_semantic_source::tests::callable_loop_handoff_issues_exact_resolver_sites_before_lowering"
+  ]
+}

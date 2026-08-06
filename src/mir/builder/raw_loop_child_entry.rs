@@ -11,6 +11,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::{MirBuilder, ValueId};
 
+use super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 
 /// Exact child-entry result for one raw Loop syntax surface.
@@ -37,12 +38,14 @@ pub(in crate::mir::builder) struct PreparedLocatedRawLoopChildEntryV1<'source> {
     condition: ASTNode,
     body: Vec<ASTNode>,
     disposition: RawLoopChildEntryDispositionV1,
+    callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
 }
 
 impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
     pub(in crate::mir::builder) fn prepare(
         parent_source: &'source RawInvocationSourceContextV1,
         loop_node: ASTNode,
+        callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
     ) -> Result<Self, String> {
         if !matches!(&parent_source, RawInvocationSourceContextV1::Located { .. }) {
             return Err(
@@ -70,6 +73,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             condition: *condition,
             body,
             disposition,
+            callable_handoff,
         })
     }
 
@@ -84,8 +88,23 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             condition,
             body,
             disposition,
+            callable_handoff,
         } = self;
-        let _located_receipts = (parent_source, condition_source, body_source);
+        let _pre_effect_receipt = callable_handoff
+            .map(|handoff| {
+                handoff.consume_pre_effect(
+                    parent_source.site().ok_or_else(|| {
+                        "[freeze:contract][raw-loop-child-entry/missing-parent-site]".to_owned()
+                    })?,
+                    condition_source.site().ok_or_else(|| {
+                        "[freeze:contract][raw-loop-child-entry/missing-condition-site]".to_owned()
+                    })?,
+                    body_source.site().ok_or_else(|| {
+                        "[freeze:contract][raw-loop-child-entry/missing-body-site]".to_owned()
+                    })?,
+                )
+            })
+            .transpose()?;
 
         match disposition {
             RawLoopChildEntryDispositionV1::NoChildFunctionEntry => {
@@ -163,10 +182,17 @@ mod tests {
         RawLoopChildEntryDispositionV1,
     };
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
+    use crate::mir::builder::normal_callable_loop_handoff::{
+        CallableLoopBindingReceiptV1, CallableLoopBindingRoleV1,
+        VerifiedCallableSemanticLoopBindingScheduleV1,
+    };
     use crate::mir::builder::raw_invocation_source_transport::{
         RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawUnlocatedPortalV1,
     };
-    use crate::mir::resolved_semantics::{SourceBodyKindV1, SourcePathSegmentV1, SourcePathV1};
+    use crate::mir::resolved_semantics::{
+        FunctionOwnerIssuerV1, SourceBodyKindV1, SourcePathSegmentV1, SourcePathV1,
+    };
+    use hakorune_mir_core::BindingId;
 
     fn span() -> Span {
         Span::unknown()
@@ -220,6 +246,49 @@ mod tests {
             site: SourcePathV1::root_body(3).node(),
             body_kind: None,
         }
+    }
+
+    fn callable_handoff(
+        loop_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> super::VerifiedCallableSemanticLoopBindingScheduleV1 {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = issuer.issue().unwrap();
+        let binding = crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(0));
+        let condition = SourcePathV1::from_node(loop_site)
+            .child(SourcePathSegmentV1::LoopCondition)
+            .child(SourcePathSegmentV1::Lhs)
+            .node();
+        let body_read = SourcePathV1::from_node(loop_site)
+            .child(SourcePathSegmentV1::LoopBody(0))
+            .child(SourcePathSegmentV1::Value)
+            .child(SourcePathSegmentV1::Lhs)
+            .node();
+        let target = SourcePathV1::from_node(loop_site)
+            .child(SourcePathSegmentV1::LoopBody(0))
+            .child(SourcePathSegmentV1::Target)
+            .node();
+        VerifiedCallableSemanticLoopBindingScheduleV1::seal(
+            owner,
+            loop_site.clone(),
+            vec![
+                CallableLoopBindingReceiptV1::new(
+                    condition,
+                    binding,
+                    CallableLoopBindingRoleV1::ConditionRead,
+                ),
+                CallableLoopBindingReceiptV1::new(
+                    body_read,
+                    binding,
+                    CallableLoopBindingRoleV1::BodyRead,
+                ),
+                CallableLoopBindingReceiptV1::new(
+                    target,
+                    binding,
+                    CallableLoopBindingRoleV1::BodyRebind,
+                ),
+            ],
+        )
+        .unwrap()
     }
 
     #[test]
@@ -293,6 +362,7 @@ mod tests {
         let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
             &source,
             loop_node(vec![ASTNode::Break { span: span() }]),
+            None,
         )
         .expect("located Loop entry");
 
@@ -321,10 +391,25 @@ mod tests {
     }
 
     #[test]
+    fn located_entry_carries_callable_handoff_before_route_effects() {
+        let source = located_loop_source();
+        let loop_site = source.site().unwrap().clone();
+        let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
+            &source,
+            loop_node(vec![ASTNode::Break { span: span() }]),
+            Some(callable_handoff(&loop_site)),
+        )
+        .expect("located Loop entry with callable handoff");
+
+        assert!(prepared.callable_handoff.is_some());
+    }
+
+    #[test]
     fn unlocated_entry_is_rejected_before_child_classification() {
         let error = PreparedLocatedRawLoopChildEntryV1::prepare(
             &RawInvocationSourceContextV1::UnlocatedCompatibility(RawUnlocatedPortalV1::CallObject),
             loop_node(vec![box_declaration()]),
+            None,
         )
         .err()
         .expect("unlocated Loop must fail");

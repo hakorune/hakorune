@@ -53,14 +53,14 @@ Related:
   the fresh release probe reaches the GenericLoop carrier transient-type
   boundary. The carrier audit, static-call publication D0, and its
   caller-zero I0/R0 receipt, the worker-reviewed I1/D0 rollback-owner design,
-  and the source-bound static-call handoff implementation are closed. A new
-  upper-level audit found that the live raw Loop path discards condition/body
-  receipts before Generic composition, so callable semantic
-  variable/assignment consumption is incomplete. The current row is therefore
-  `GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-DESIGN-STOP`: first seal an AST-free,
-  single-use BindingRef schedule and pass it into the Generic source-to-Recipe
-  normalizer; `PlanLowerer` must not read the callable ledger. Production
-  selection, physical cutover, and legacy removal remain closed.
+  and the source-bound static-call handoff implementation are closed. The
+  callable Loop handoff D0 design is now closed as well. The current row is
+  `GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-S0`: issue one AST-free,
+  single-use BindingRef pre-effect envelope from the source bridge and verify
+  the admitted condition/body/rebind profile before legacy Generic composition.
+  S0 does not claim portable Recipe/JoinSig projection, let `PlanLowerer` read
+  the callable ledger, consume physical ValueIds, or reopen production
+  selection. Physical cutover and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

@@ -15,6 +15,7 @@ use crate::mir::ValueId;
 /// only projects that identity onto the `ValueId`s allocated by existing Lower.
 #[derive(Debug)]
 pub(super) struct CallableSemanticLoweringState {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     receiver: Option<BindingRefV1>,
     parameters: Box<[BindingRefV1]>,
     locals: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
@@ -140,6 +141,7 @@ impl CallableSemanticLoweringState {
         }
 
         Ok(Self {
+            owner: owner_id,
             receiver,
             parameters,
             locals,
@@ -153,6 +155,16 @@ impl CallableSemanticLoweringState {
             consumed_assignments: BTreeSet::new(),
             consumed_direct_lambdas: BTreeSet::new(),
         })
+    }
+
+    pub(super) fn loop_binding_source_projection(
+        &self,
+    ) -> super::normal_callable_loop_handoff::CallableLoopSourceProjectionV1<'_> {
+        super::normal_callable_loop_handoff::CallableLoopSourceProjectionV1::new(
+            self.owner,
+            &self.variables,
+            &self.assignments,
+        )
     }
 
     pub(super) fn install_entry_values(

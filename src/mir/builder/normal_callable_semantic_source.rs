@@ -226,7 +226,7 @@ mod tests {
         SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
         VerifiedSameModuleCallableDeclarationCatalogV1,
     };
-    use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+    use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, SourcePathV1};
     use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
     use crate::parser::NyashParser;
 
@@ -321,6 +321,82 @@ mod tests {
             source.loan(key).unwrap();
         }
         assert_eq!(source.keys().count(), 3);
+    }
+
+    #[test]
+    fn callable_loop_handoff_issues_exact_resolver_sites_before_lowering() {
+        let program = NyashParser::parse_from_string(
+            r#"
+                static box StringHelpers {
+                    int_to_str(n) {
+                        local value = me.to_i64(n)
+                        local i = 0
+                        loop(i < 1) { i = i + 1 }
+                        return value
+                    }
+                    to_i64(x) { return x + 1 }
+                }
+            "#,
+        )
+        .expect("callable loop source");
+        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program)
+            .expect("callable catalog");
+        let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
+        let NormalCallableSemanticAdmissionV1::Complete(source) =
+            VerifiedNormalCallableSemanticSourceV1::seal(
+                &program,
+                catalog.selected_source_inventory(),
+                false,
+                &mut resolver,
+            )
+            .unwrap()
+        else {
+            panic!("callable semantic source deferred")
+        };
+        let key = source
+            .keys()
+            .find(|key| {
+                matches!(
+                    key,
+                    SelectedNormalCallableKeyV1::Cataloged(key)
+                        if key.owner() == "StringHelpers" && key.name() == "int_to_str"
+                )
+            })
+            .expect("loop callable key")
+            .clone();
+        let (_, state) = source.loan(&key).unwrap().into_parts();
+        let schedule = state
+            .loop_binding_source_projection()
+            .project(SourcePathV1::root_body(2).node())
+            .expect("loop schedule");
+        assert_eq!(schedule.receipts().len(), 3);
+        assert_eq!(
+            schedule
+                .receipts()
+                .iter()
+                .filter(|receipt| {
+                    matches!(
+                        receipt.role(),
+                        super::super::normal_callable_loop_handoff::CallableLoopBindingRoleV1::ConditionRead
+                            | super::super::normal_callable_loop_handoff::CallableLoopBindingRoleV1::BodyRead
+                    )
+                })
+                .count(),
+            2
+        );
+        assert_eq!(
+            schedule
+                .receipts()
+                .iter()
+                .filter(|receipt| {
+                    matches!(
+                        receipt.role(),
+                        super::super::normal_callable_loop_handoff::CallableLoopBindingRoleV1::BodyRebind
+                    )
+                })
+                .count(),
+            1
+        );
     }
 
     #[test]

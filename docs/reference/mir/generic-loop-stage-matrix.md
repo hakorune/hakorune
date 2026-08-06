@@ -1018,3 +1018,34 @@ planner/shadow tags. The probe does not reach the canonical
 negative receipt rather than a production-support claim. A dedicated
 cataloged fixture is still required before Generic production selection or
 physical cutover can open.
+
+## Callable-semantic Loop handoff S0 receipt (2026-08-07)
+
+`GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-S0` is now the active pre-effect
+boundary. The selected `StringHelpers.int_to_str/1` source is projected
+through a source-only migration bridge into one move-only,
+AST-free `VerifiedCallableSemanticLoopBindingScheduleV1`. Its focused
+receipt contains the one admitted condition-read, body-read, and assignment
+rebind profile (two variable reads total):
+
+```text
+Body(2).LoopCondition.Lhs          -> ConditionRead
+Body(2).LoopBody(0).Value.Lhs      -> BodyRead
+Body(2).LoopBody(0).Target         -> BodyRebind
+```
+
+The located raw Loop entry consumes this schedule at the pre-effect boundary
+and verifies owner, exact role coverage, duplicate-free sites, and the
+non-nested profile before calling the existing Generic route. Foreign,
+duplicate, partial, nested, and role-mismatched source products reject before
+Builder effects. The immutable receipt is
+`docs/development/current/main/design/fixtures/generic-callable-semantic-loop-handoff-s0-v1.json`.
+
+This row does **not** claim a portable Recipe/JoinSig projector, consume
+callable ledger `ValueId`s, publish PHI, select a production Generic winner,
+or retire the legacy route. The current `CallableSemanticLoweringState`
+source view and ValueId map remain migration bridges only; BindingSSA is
+reserved as the later physical owner. The next row is
+`GENERIC-CALLABLE-SEMANTIC-LOOP-PHYSICAL-S1`, followed by a fresh strict
+receipt before production selection, cutover, retry/fallback retirement, or
+legacy deletion.

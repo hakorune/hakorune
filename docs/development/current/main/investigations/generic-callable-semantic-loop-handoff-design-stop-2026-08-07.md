@@ -207,12 +207,16 @@ Loop source/BindingRef contract.  Neither row may infer the other's facts.
 1. `GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-D0` — close the exact schedule
    schema and source/Recipe relation matrix (this document).
 2. `GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-S0` — issue one non-Clone
-   handoff and project it into an AST-free Recipe before route composition;
-   add positive and foreign, duplicate, missing, and incomplete negatives.
-3. `GENERIC-CALLABLE-SEMANTIC-LOOP-PHYSICAL-S1` — let the canonical
-   physicalizer consume the verified schedule through one materializer
-   transaction and prove ledger `4/4` variables, `1/1` assignment, and
-   successful callable finish without a second ValueId owner.
+   source handoff envelope and verify the selected role profile before the
+   legacy route. This is a pre-effect evidence row only; it does **not** yet
+   claim the portable Recipe/JoinSig mapping or physical ledger consumption.
+   Add positive and foreign, duplicate, missing, incomplete, and unsupported
+   profile negatives.
+3. `GENERIC-CALLABLE-SEMANTIC-LOOP-PHYSICAL-S1` — first close the
+   source-to-Recipe/JoinSig relation, then let the canonical physicalizer
+   consume the verified schedule through one materializer transaction and
+   prove ledger `4/4` variables, `1/1` assignment, and successful callable
+   finish without a second ValueId owner.
 4. `GENERIC-CALLABLE-SEMANTIC-LOOP-PORT-S2` — remove the selected callable
    dependency on the name-only Builder `LoopPlanExpressionPortV1`; keep that
    port compatibility-only and co-seal the Recipe relation with Binding SSA.

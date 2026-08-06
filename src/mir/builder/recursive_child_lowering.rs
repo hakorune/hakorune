@@ -17,6 +17,7 @@ use super::me_call_header_observation::{
 use super::module_lowering_invocation::{
     LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
 };
+use super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1;
 use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
@@ -352,6 +353,27 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         self.module_port.with_headers(observe)
     }
 
+    pub(in crate::mir::builder) fn issue_callable_loop_binding_schedule_v1(
+        &self,
+    ) -> Result<Option<VerifiedCallableSemanticLoopBindingScheduleV1>, String> {
+        let Some(ledger) = self.callable_ledger.as_ref() else {
+            return Ok(None);
+        };
+        let loop_site = self
+            .active_source
+            .as_ref()
+            .and_then(RawInvocationSourceContextV1::site)
+            .cloned()
+            .ok_or_else(|| {
+                "[freeze:contract][callable-loop-handoff/missing-loop-source]".to_owned()
+            })?;
+        let state = ledger.borrow();
+        state
+            .loop_binding_source_projection()
+            .project(loop_site)
+            .map(Some)
+    }
+
     /// Capture one raw static child while the same invocation port remains
     /// available to every recursive body descendant.  The header loan starts
     /// only after body descent has returned.
@@ -682,7 +704,8 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
         let source = self.active_source.as_ref().ok_or_else(|| {
             "[freeze:contract][raw-loop-child-entry/missing-located-source]".to_owned()
         })?;
-        PreparedLocatedRawLoopChildEntryV1::prepare(source, loop_node)?
+        let callable_handoff = self.issue_callable_loop_binding_schedule_v1()?;
+        PreparedLocatedRawLoopChildEntryV1::prepare(source, loop_node, callable_handoff)?
             .lower_with_existing_route_v1(builder)
     }
 }
