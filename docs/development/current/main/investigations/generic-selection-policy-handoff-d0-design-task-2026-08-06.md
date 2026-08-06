@@ -1,6 +1,6 @@
 # GENERIC-SELECTION-POLICY-HANDOFF-D0
 
-Status: design stop; production caller remains `0`.
+Status: design accepted; implementation remains caller-zero and separately taskized.
 
 ## Decision target
 
@@ -47,6 +47,28 @@ view lacks a source-unit brand, and its Coverage-Exit proof does not yet bind
 the exact return expression to the lease role. Those are explicit design
 requirements, not implementation guesses.
 
+## Worker-reviewed decision
+
+The sole issuer is the existing compiler-side Generic G0 source projector,
+because it is the only owner that can read the exact
+`ResolvedFunctionLoweringInputV1` and issue the structural, source-type,
+numeric, and return-ABI products together. The product name is fixed to
+`VerifiedGenericG0PolicyHandoffV1`; do not add a separate
+`GENERIC-SELECTION-CANDIDATE-HANDOFF-D0` row or a wrapper around the old
+candidate envelope.
+
+The handoff must mint one opaque `GenericG0SourceBrandV1` containing the
+source-unit/function, origin, source kind, root site, and frame identity. It
+also seals every role `BindingRef` and the exact post-loop return-expression
+relation internally. Caller-supplied sites, names, or a second AST read are
+not accepted. The current `FunctionSyntaxViewV1`-based envelope cannot be
+promoted because it lacks this brand; it remains a test witness only.
+
+The policy owner may attach mode/profile/coverage metadata, but it consumes
+the handoff by value and must retain/move the complete proof into the
+candidate observation. It may not re-resolve roles or discard the brand
+before the existing observation → Ready assembler → selector chain.
+
 ## Acceptance before implementation
 
 - worker review confirms one co-seal issuer and one-shot move API;
@@ -54,9 +76,13 @@ requirements, not implementation guesses.
 - foreign identical-AST, shadow/role mismatch, and return-binding mismatch
   counterexamples are rejected before policy publication;
 - policy consumes the sealed handoff once and does not re-resolve source;
+- the handoff survives into the Generic candidate observation without a
+  second source product or a bare-bundle downgrade;
 - production selector, demand, Recipe, Builder, MIR, and legacy callers stay
   at zero;
 - when a future implementation cell is opened, its same commit must update
   `docs/reference/**`, exact design mirrors, taskboard/current pointers, and
   module READMEs.
 
+The implementation cell is
+`docs/development/current/main/investigations/generic-selection-policy-handoff-i0-r0-implementation-task-2026-08-06.md`.

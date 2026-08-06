@@ -79,6 +79,18 @@ does not call a selector, Recipe, Builder, MIR, retry, fallback, or production
 route. Its 12 focused tests are part of the row guard; ambiguous source lookup
 and binding evidence remains unresolved rather than being guessed.
 
+## Generic G0 policy handoff I0/R0 (taskized, not yet implemented)
+
+The next bounded cell is the sole source-projector co-seal
+`VerifiedGenericG0PolicyHandoffV1`. It must retain the resolver/source brand,
+typed S0C bundle, exact role `BindingRef`s, body-effect/coverage proof, and
+post-loop return relation as one AST-free move-only product. The existing
+test-only candidate envelope is evidence only and must not be wrapped or
+paired with S0C after the fact. Policy may add mode/profile/coverage metadata;
+observation, Ready assembly, and selector remain separate caller-zero owners.
+No production caller, demand, Recipe, Builder/MIR, retry, fallback, or
+legacy retirement is opened by this row.
+
 The five family observers now consume their source attempts exactly once and
 retain typed expected/observed identity, mode, and coverage evidence on every
 C/D/U/R disposition. This R0 evidence-preservation change is caller-zero and

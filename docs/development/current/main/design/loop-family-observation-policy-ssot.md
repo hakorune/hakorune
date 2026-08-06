@@ -594,8 +594,11 @@ This receipt does not open Recipe/JoinSig, Builder/MIR, physical lowering,
 production selection, retry removal, or legacy deletion. D4-S4-S0 remains a
 NoSafeSlice audit. The bounded
 `GENERIC-SELECTION-OPEN-D0-I0-R0` candidate-envelope witness is closed.
-The next shallow design boundary is
-`GENERIC-SELECTION-POLICY-HANDOFF-D0`, recorded in
+The next shallow design boundary
+`GENERIC-SELECTION-POLICY-HANDOFF-D0` is design-accepted; its design brief is
+recorded in
 `docs/development/current/main/investigations/generic-selection-policy-handoff-d0-design-task-2026-08-06.md`.
-Any later implementation commit synchronizes `docs/reference/**`, the
+The implementation task is
+`docs/development/current/main/investigations/generic-selection-policy-handoff-i0-r0-implementation-task-2026-08-06.md`.
+Any implementation commit synchronizes `docs/reference/**`, the
 reference matrix, module README, workstream, and current mirrors together.

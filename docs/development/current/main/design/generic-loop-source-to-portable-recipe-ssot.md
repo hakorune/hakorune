@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `accepted; candidate-envelope I0/R0 is closed; policy handoff design is next; production activation remains 0`
+Status: `policy handoff design accepted; implementation I0/R0 is next; production activation remains 0`
 
-Current row: `GENERIC-SELECTION-POLICY-HANDOFF-D0`
+Current row: `GENERIC-SELECTION-POLICY-HANDOFF-I0-R0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -11,8 +11,8 @@ G0 admission window were accepted on 2026-08-06. The row-normalization and
 caller-zero selector receipts are closed; the existing
 `GENERIC-SELECTION-OPEN-D0` design gate is accepted and its bounded
 `GENERIC-SELECTION-OPEN-D0-I0-R0` candidate-envelope witness is closed. The
-next shallow boundary is `GENERIC-SELECTION-POLICY-HANDOFF-D0`; no new D4
-suffix is authorized.
+policy handoff design is accepted and its bounded I0/R0 implementation is
+next; no new D4 suffix is authorized.
 
 The closed I0/R0 cell is recorded in
 `docs/development/current/main/investigations/generic-selection-open-d0-candidate-envelope-task-2026-08-06.md`.
@@ -20,9 +20,11 @@ It may issue only a caller-zero, `cfg(test)`-only
 `VerifiedGenericCandidateEnvelopeV1` from the resolver lease plus typed
 Condition/Step/BodyEffect/Coverage-Exit proofs for the natural nested G0
 fixture. It must not call the five-row selector, issue a policy winner, open
-Generic demand/Recipe, or touch Builder/MIR. The next design task is
+Generic demand/Recipe, or touch Builder/MIR. The accepted design task is
 `docs/development/current/main/investigations/generic-selection-policy-handoff-d0-design-task-2026-08-06.md`.
-Any later implementation commit must refresh the exact `docs/reference/**`
+Its implementation cell is
+`docs/development/current/main/investigations/generic-selection-policy-handoff-i0-r0-implementation-task-2026-08-06.md`.
+The implementation commit must refresh the exact `docs/reference/**`
 row, loop/reference documentation, and current mirrors in the same commit.
 
 ## Decision

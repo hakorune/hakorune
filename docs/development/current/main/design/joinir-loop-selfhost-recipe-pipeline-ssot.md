@@ -359,11 +359,8 @@ D4-S4-S3-S1-S2-S1-S1
      symbolic/unsupported/non-progressing Unresolved, direction/role rejects,
      and source/provenance retention.
 D4-S4-S3-S1-S2-S2-D0
-  -> next design stop: define a separate policy-to-selector candidate adapter.
-     It must expose only sealed comparison/progression plus opaque target/profile
-     coverage; selector alone owns route admission/winner. No policy/source
-     re-resolution, numeric receipt access, demand, Recipe/key, Builder/MIR,
-     retry, fallback, or production caller before worker review.
+  -> superseded by the single shallow `GENERIC-SELECTION-POLICY-HANDOFF-D0`
+     design boundary; do not create a deeper D4 suffix or a separate adapter.
 D4-EVIDENCE-EXIT0
   -> deep D4 evidence exit: all current substrate/policy receipts and negative
      matrices are closed without a production caller; no more D4 suffixes are
@@ -392,8 +389,8 @@ GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0
      mapping, finite shallow task order, module homes, checked legacy manifest,
      and deletion boundary. S0A/S0B/S0C and the caller-zero Generic candidate
      S1 are now landed; `LOOP-FAMILY-DIRECT-OBSERVATION-S1` is also landed as
-     a caller-zero source/policy observation; the next code row is
-     `LOOP-FAMILY-NESTED-OBSERVATION-S1`.
+     a caller-zero source/policy observation; the current code row is the
+     caller-zero `GENERIC-SELECTION-POLICY-HANDOFF-I0-R0` implementation.
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives
