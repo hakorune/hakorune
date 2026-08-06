@@ -232,8 +232,16 @@ impl super::MirBuilder {
             ASTNode::Me { .. } => super::stmts::variable_stmt::build_me_expression(self),
 
             node @ ASTNode::MethodCall { .. } => {
-                let m = MethodCallExpr::try_from(node).expect("ASTNode::MethodCall must convert");
-                let input = RawLegacyMethodCallInputV1::new(*m.object, m.method, m.arguments);
+                let receiver_source = port
+                    .prepare_expression_child_source_v1(&node, ExprChildRoleV1::Receiver)?;
+                let m = MethodCallExpr::try_from(node.clone())
+                    .expect("ASTNode::MethodCall must convert");
+                let input = RawLegacyMethodCallInputV1::with_receiver_source(
+                    *m.object,
+                    m.method,
+                    m.arguments,
+                    receiver_source,
+                );
                 self.build_method_call_from_input_v1(port, &input)
             }
 

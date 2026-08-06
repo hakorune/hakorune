@@ -516,7 +516,12 @@ closed — LOOP-JOINSIG-NESTED-SHADOW-S0 -> visible payload projection now walks
 closed — LOOP-RECIPE-SOURCE-BOUND-CORE-S0 -> caller-zero core now co-seals verified Recipe/JoinSig/source claim with exact BindingRef/effect relations and typed loop-carrier anchors; 73 focused contract tests, shared guard, pointer guard, and reference/README sync are green; no Generic key, Builder/MIR, physical, or production change.
 closed — loop-family receipts and Generic S3/S4-D0 design are closed; S4-I0-R0 caller-zero Recipe producer landed with 42 focused Generic tests and synced Recipe/reference/README receipts.
 closed — GENERIC-LEGACY-CORPUS-UNIVERSE-P0 and GENERIC-LEGACY-OBSERVATION-FRONT-G0 landed; S0-D0 and S0-I0 are closed: BinaryOp exact-demand completion validates only on success, preserves the first child error, and has a fresh primary-error receipt.
-S1-D0/I0 are closed: resolver variable admission was already complete, Dynamic FieldAccess now consumes the existing Receiver receipt, and the immutable S1 receipt exposes the next MethodCall receiver boundary. Current design stop is GENERIC-RAW-STRUCTURED-METHOD-RECEIVER-RECEIPT-S2-D0; no Generic route/production/physical/retry/delete authority.
+S1-D0/I0 are closed: FieldAccess consumes its Receiver receipt. S2-D0/I0 are
+closed: raw MethodCall receiver descent consumes its prepared receipt without
+changing arguments/routes; the S2 receipt exposes the rootful-body versus
+rootless-item mismatch. Current design stop is
+GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0; no Generic
+route/production/physical/retry/delete authority.
 ```
 ## Production invariants
 ```text
@@ -955,15 +960,10 @@ closed
   -> focused semantic, direct-owner, transport, pointer, and shared guards green
 
 ordered after B-prime correction
-  1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure is closed;
-     M7-S3 S0/S1/S2 and its reference closeout are closed with resolver-owned
-     identity/frame receipts and typed caller-zero rejects
-  2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only;
-     reference closeout is recorded. Parent D2 stays unresolved and no
-     production issuer/adapter/selector/route switch is authorized.
-  3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed. D3-S2 remains the accepted typed-provenance handoff design stop; it adds no production issuer/selector/route authority
-  4. close Generic G0 source/common-Recipe/selection/physical/parity rows, then
-     perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
+  1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
+  2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
+  3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
+  4. close Generic G0 source/common-Recipe/selection/physical/parity rows, then perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   6. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance

@@ -231,8 +231,15 @@ stable diagnostic source, and observation-only claims.
 The S0-I0 transactional completion repair and S1-I0 Dynamic FieldAccess
 receiver receipt transport are also closed. The immutable S1 receipt is
 `docs/development/current/main/design/fixtures/generic-raw-structured-field-receiver-receipt-s1-i0-v1.json`;
-it exposes the next MethodCall receiver receipt boundary. The current design
-stop is `GENERIC-RAW-STRUCTURED-METHOD-RECEIVER-RECEIPT-S2-D0`; no Loop
+it exposed the next MethodCall receiver receipt boundary. S2-D0/I0 is also
+closed: `RawLegacyMethodCallInputV1` carries an optional prepared Receiver
+receipt and only the raw receiver descent consumes it. The immutable S2
+receipt is
+`docs/development/current/main/design/fixtures/generic-raw-structured-method-receiver-receipt-s2-i0-v1.json`.
+Its probe reaches the next body-item source-path mismatch, where raw lowering
+retains `IfThenBody` but the resolver's canonical item site is rootless. The
+current design stop is
+`GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0`; no Loop
 production or Generic route claim is opened.
 
 This is evidence about the shared raw structured-child owner only. No Generic

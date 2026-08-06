@@ -9,6 +9,7 @@ use super::method_call_descent::{
     lower_method_call_argument_v1, lower_method_call_arguments_v1, lower_method_call_receiver_v1,
     MethodCallDescentPortV1, MethodCallSyntaxViewV1, RawLegacyMethodCallInputV1,
 };
+use super::super::raw_structured_child_scope::PreparedRawChildSourceV1;
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -50,6 +51,19 @@ fn raw_method_input_exposes_one_borrowed_syntax_view() {
     assert_eq!(view.method(), "substring");
     assert_eq!(view.arguments().len(), 2);
     assert_eq!(port.call_arguments_input(&input).unwrap().len(), 2);
+}
+
+#[test]
+fn raw_method_input_receiver_source_hook_is_optional() {
+    let input = RawLegacyMethodCallInputV1::with_receiver_source(
+        variable("text"),
+        "stringify".to_string(),
+        Vec::new(),
+        PreparedRawChildSourceV1::Preserve,
+    );
+    let mut port = RawLegacyChildLoweringPortV1;
+    let observed = port.with_receiver_expression_source_v1(&input, |_port| 7);
+    assert_eq!(observed, 7);
 }
 
 #[test]

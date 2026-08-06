@@ -45,9 +45,11 @@ Related:
   error. Worker audit corrected the next boundary: resolver variable
   admission is already complete, while the raw Dynamic FieldAccess read was
   missing the existing `Receiver` source receipt. S1-I0 is implemented and
-  verified; its immutable receipt now exposes the next MethodCall receiver
-  boundary. The current design stop is
-  `GENERIC-RAW-STRUCTURED-METHOD-RECEIVER-RECEIPT-S2-D0`.
+  verified; its immutable receipt exposed the MethodCall receiver boundary.
+  S2-D0/I0 is now closed: the MethodCall receiver receipt is transported only
+  through the raw receiver descent, and its immutable receipt exposes the
+  next body-item source-path boundary. The current design stop is
+  `GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0`.
   Production selection, physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed

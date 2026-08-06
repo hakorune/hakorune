@@ -14,6 +14,7 @@ use super::super::me_call_header_observation::{
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, drive_legacy_statement_v1, RawAstChildLoweringPortV1,
 };
+use super::super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::call_argument_descent::{
     drive_call_arguments_v1, lower_call_argument_v1, CallArgumentDescentPortV1,
 };
@@ -70,6 +71,14 @@ pub(in crate::mir::builder) trait MethodCallDescentPortV1:
         input: &Self::MethodCallInput,
     ) -> Result<Self::ExpressionInput, String>;
 
+    fn with_receiver_expression_source_v1<R>(
+        &mut self,
+        _input: &Self::MethodCallInput,
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> R {
+        execute(self)
+    }
+
     fn call_arguments_input<'input>(
         &self,
         input: &'input Self::MethodCallInput,
@@ -106,7 +115,9 @@ where
     Port: MethodCallDescentPortV1,
 {
     let receiver = port.receiver_expression_input(input)?;
-    drive_legacy_expression_v1(builder, port, receiver)
+    port.with_receiver_expression_source_v1(input, |port| {
+        drive_legacy_expression_v1(builder, port, receiver)
+    })
 }
 
 pub(in crate::mir::builder) fn lower_method_call_arguments_v1<Port>(
@@ -199,6 +210,7 @@ pub(in crate::mir::builder) struct RawLegacyMethodCallInputV1 {
     receiver: ASTNode,
     method: String,
     arguments: Vec<ASTNode>,
+    receiver_source: Option<PreparedRawChildSourceV1>,
 }
 
 #[allow(dead_code)]
@@ -212,6 +224,21 @@ impl RawLegacyMethodCallInputV1 {
             receiver,
             method,
             arguments,
+            receiver_source: None,
+        }
+    }
+
+    pub(in crate::mir::builder) fn with_receiver_source(
+        receiver: ASTNode,
+        method: String,
+        arguments: Vec<ASTNode>,
+        receiver_source: PreparedRawChildSourceV1,
+    ) -> Self {
+        Self {
+            receiver,
+            method,
+            arguments,
+            receiver_source: Some(receiver_source),
         }
     }
 }
@@ -238,6 +265,17 @@ where
         input: &Self::MethodCallInput,
     ) -> Result<Self::ExpressionInput, String> {
         Ok(input.receiver.clone())
+    }
+
+    fn with_receiver_expression_source_v1<R>(
+        &mut self,
+        input: &Self::MethodCallInput,
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> R {
+        match input.receiver_source.clone() {
+            Some(source) => self.with_prepared_child_source_v1(source, execute),
+            None => execute(self),
+        }
     }
 
     fn call_arguments_input<'input>(

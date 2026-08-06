@@ -1,0 +1,50 @@
+{
+  "schema_version": "generic-raw-structured-method-receiver-receipt-s2-i0-v1",
+  "kind": "GenericRawStructuredMethodReceiverReceiptS2I0ReceiptV1",
+  "row": "GENERIC-RAW-STRUCTURED-METHOD-RECEIVER-RECEIPT-S2-I0",
+  "case_id": "generic_loop_continue_strict_shadow_vm",
+  "canonical_case_id": "generic_loop_continue_strict_shadow_vm",
+  "invocation_fixture": "apps/tests/phase29ca_generic_loop_continue_min.hako",
+  "mode": "strict-shadow",
+  "profile": "vm",
+  "invocation_profile_id": "vm-strict-planner-direct-v1",
+  "working_directory": ".",
+  "command_argv": [
+    "env",
+    "HAKO_ROOT=.",
+    "HAKO_BIN=target/release/hakorune",
+    "NYASH_ROOT=.",
+    "NYASH_BIN=target/release/hakorune",
+    "NYASH_DISABLE_PLUGINS=1",
+    "HAKO_JOINIR_STRICT=1",
+    "HAKO_JOINIR_PLANNER_REQUIRED=1",
+    "target/release/hakorune",
+    "--backend",
+    "vm",
+    "apps/tests/phase29ca_generic_loop_continue_min.hako"
+  ],
+  "timeout_seconds": 10,
+  "front_state": "failed-before-loop-next-body-item-source-boundary",
+  "exit_code": 1,
+  "primary_front_evidence": {
+    "kind": "diagnostic",
+    "token": "[freeze:contract][callable-semantic-lowering/missing-variable-site]",
+    "source": "src/mir/builder/raw_invocation_source_transport.rs::body_item_site",
+    "site": "[Body(1), IfThenBody, IfThen(0), Value, Receiver]"
+  },
+  "previous_boundary_closed": "GENERIC-RAW-STRUCTURED-METHOD-RECEIVER-RECEIPT-S2-I0",
+  "pre_loop_owner": "src/mir/builder/raw_invocation_source_transport.rs::body_item_site",
+  "failure_phase": "StringifyOperator.apply/1 Body(1)/IfThenBody IfThen(0) MethodCall receiver source demand before Loop lowering",
+  "stdout_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_digest": "0ba8f474ba76f2f33525a70738527f5b86e664fe1371d63a0d2299d3ab0d0602",
+  "claims": [
+    "loop-not-reached",
+    "method-receiver-receipt-transport-verified",
+    "resolver-variable-ref-present",
+    "raw-body-item-root-mismatch-exposed",
+    "route-unobserved",
+    "disposition-unclassified",
+    "production-unchanged"
+  ],
+  "next_design_boundary": "Canonicalize located body item sites without changing root receipts; keep Program rootful and do not open Generic Recipe/Loop production."
+}
