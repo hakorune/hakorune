@@ -252,8 +252,10 @@ Three focused selector tests cover all five candidate variants, retained
 `OutOfWindow` evidence, and overlap retention. The shared selector guard checks
 the caller-zero boundary and the <800-line source/test limit. This is a
 caller-zero semantic product only; the next shallow gate is the existing
-`GENERIC-SELECTION-OPEN-D0` candidate-envelope design. Recipe handoff,
-physicalization, production cutover, and legacy deletion remain separate rows.
+`GENERIC-SELECTION-OPEN-D0` candidate-envelope design is accepted and its
+`GENERIC-SELECTION-OPEN-D0-I0-R0` caller-zero witness is taskized. Recipe
+handoff, physicalization, production cutover, and legacy deletion remain
+separate rows.
 The implementation commit updates this README, the loop SSOT, reference
 matrix, workstream, and current mirrors together as the required
 post-implementation reference receipt.

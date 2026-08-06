@@ -592,8 +592,9 @@ below 800 lines.
 
 This receipt does not open Recipe/JoinSig, Builder/MIR, physical lowering,
 production selection, retry removal, or legacy deletion. D4-S4-S0 remains a
-NoSafeSlice audit; the next design boundary is the existing
-`GENERIC-SELECTION-OPEN-D0` gate for a real resolver-issued candidate
-envelope, which must be independently taskized before implementation. The
-implementation commit synchronizes the reference matrix, module README,
+NoSafeSlice audit. The existing `GENERIC-SELECTION-OPEN-D0` gate is now
+accepted/taskized; its bounded `GENERIC-SELECTION-OPEN-D0-I0-R0` cell issues
+one resolver-branded candidate envelope only. The implementation task is
+`docs/development/current/main/investigations/generic-selection-open-d0-candidate-envelope-task-2026-08-06.md`.
+The implementation commit synchronizes the reference matrix, module README,
 workstream, and current mirrors as required.
