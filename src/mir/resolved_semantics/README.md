@@ -587,13 +587,12 @@ consensus: `numeric_substrate` owns exact type/range, a future resolver source
 bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns
   progression policy. D4-S4-S3-S1-D0 is closed as NoSafeSlice: TypedInteger and
   resolver parameter types are not co-sealed. D4-S4-S3-S1-S0 is closed as a
-  cfg(test)-only exact source-unit receipt/map witness; the next S1-S1 design
-  co-seals it with TypedInteger facts. The accepted task issues one non-`Clone`
-  receipt from the two sealed products, checks owner/origin/source-kind and
-  every shape BindingRef against the parameter map, and leaves numeric
-  classification/range/overflow/progression to later policy owners. Its
-  cfg(test) witness covers typed/untyped/unknown transport and foreign/outside-
-  map rejects; no selector, demand, Recipe, Builder/MIR caller, retry, fallback,
-  or public semantic row is allowed. The implementation commit updates current
-  state, workstream, pipeline SSOT, and this README; production activation later
-  requires the corresponding `docs/reference/**` closeout.
+  cfg(test)-only exact source-unit receipt/map witness. S1-S1 is now closed by
+  the non-`Clone` co-sealed receipt witness: it checks owner/origin/source-kind
+  and BindingRef coverage while leaving numeric classification/range/overflow/
+  progression to later policy owners. Six focused tests are green; no selector,
+  demand, Recipe, Builder/MIR caller, retry, fallback, or public semantic row
+  was added. The next stop is S1-S2-D0 numeric-policy adapter design. Every
+  implementation commit updates current state, workstream, pipeline SSOT, and
+  this README; production activation later requires the corresponding
+  `docs/reference/**` closeout.

@@ -966,34 +966,35 @@ The source-lease witness is cfg(test)-only, exact-two-role, owner-branded,
 non-`Clone`, and AST/source-lifetime-free; five focused tests are green.
 ## D4-S4-S0/S1 through S1-S0 closeout
 The cfg(test)-only lease, semantic-shape, inventory, syntax-fact, and
-owner-branded parameter-map witnesses are closed. Resolver/source projection
-owns identity/provenance; facts preserve source spelling; numeric policy owns
-type/range/overflow/progression. No selector, demand, Recipe, Builder/MIR,
-retry, fallback, production caller, or public reference row was added.
+owner-branded parameter-map witnesses are closed. No selector, demand, Recipe,
+Builder/MIR, retry, fallback, production caller, or public reference row was added.
 
-## D4-S4-S3-S1-S1 co-sealed numeric source receipt design
-Decision: accept a new cfg(test)-only, non-`Clone`,
-`VerifiedGenericNumericSourceReceiptV1`. Its issuer consumes exactly two
-sealed move-only products: `GenericConditionStepSyntaxFactsV3` and
-`VerifiedExplicitParameterTypeMapV1`; it accepts no raw AST, syntax view,
-`VerifiedFunction`, string owner, or caller-supplied `BindingRef` array.
+## D4-S4-S3-S1-S1 co-sealed numeric source receipt closeout
+The worker-reviewed `VerifiedGenericNumericSourceReceiptV1` is implemented as
+cfg(test)-only, non-`Clone`, AST-free transport. It consumes only the sealed
+syntax-fact product plus owner-branded parameter map, verifies
+owner/origin/source-kind and BindingRef coverage, and leaves numeric policy to
+later owners. Six focused tests pass, including typed/untyped transport,
+foreign provenance, map coverage, and source-unit/AST lifetime drop.
 
-The receipt stores the two products and a seal only. It checks matching
-owner/origin/source-kind and proves every condition/step binding operand is an
-explicit parameter-map row before publication. Unknown/untagged type spelling
-and typed-literal facts remain transport-ready; numeric classification,
-width/range/overflow, sign/zero-delta, and progression semantics stay in
-`numeric_substrate`/`loop_route_policy`.
+Next design stop: `D4-S4-S3-S1-S2-D0`. Decide the smallest numeric-policy
+adapter for type/range/overflow disposition; do not add a selector, Recipe,
+Builder/MIR caller, retry, fallback, or public semantic row before that stop.
 
-Reject before publication on foreign provenance, missing map row, binding
-outside the parameter map, or owner/origin/source-kind mismatch. Later policy reports
-unresolved proof as `Unresolved` and proven incompatibility as typed
-`Rejected`; no fallback or `NoCandidate` is invented.
+## D4-S4-S3-S1-S2-D0 numeric-policy adapter design stop
+Worker review accepts a two-stage future boundary. A cfg(test)-only substrate
+projection consumes the co-sealed receipt plus sealed target context and owns
+exact numeric type/width/sign/range/overflow classification. A separate policy
+adapter consumes that projection once and owns operator/progression semantics;
+it does not reclassify types or carry route IDs, raw cursors, selector/winner,
+Recipe, Builder, or MIR state.
 
-Minimal task order: add the isolated cfg(test) sibling and issuer; add focused
-tests for typed/untyped retention, unknown-type transport, foreign owner,
-outside-map binding, and receipt use after source-unit drop; then run targeted
-resolved-semantics gates. Same commit must sync current state, workstream,
-pipeline SSOT, and support README. Because this is transport-only, add no
-`docs/reference/**` semantic row; production activation must update the
-language/MIR references in its own closeout commit.
+The disposition vocabulary is `Ready`, `Unresolved`, or `Rejected`. Provenance,
+missing/duplicate map rows, contradictory typed literals, and proven range
+violations reject before classification. Missing/unknown/nonnumeric annotation
+or unresolved target remains `Unresolved`; no fallback or `NoCandidate` is
+invented. Minimum witness: typed i64 ready, untyped symbolic unresolved,
+unknown/nonnumeric unresolved, typed u8 range reject, foreign/missing-row reject,
+and source-unit drop. No implementation caller or public row is allowed before
+this witness closes; implementation must sync current/workstream/pipeline/README
+and production activation must later update `docs/reference/**`.

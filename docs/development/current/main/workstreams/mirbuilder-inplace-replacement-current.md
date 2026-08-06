@@ -500,13 +500,13 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D0/S
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-D0
   -> NoSafeSlice: typed literals and resolver parameter types were not co-sealed.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S0
-  -> cfg(test)-only exact source-unit receipt/map witness green; next S1-S1 design; no selector/demand/Recipe/Builder/MIR.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S1
-  -> worker-reviewed non-Clone receipt co-seals syntax facts plus owner map,
-     checks provenance/shape rows, and leaves numeric policy to later owners;
-     cfg(test) witness covers typed/unknown transport and foreign/outside-map
-     rejects. No public row; implementation syncs current/pipeline/README and
-     the post-activation reference closeout task.
+  -> cfg(test)-only exact source-unit receipt/map witness green; no selector/demand/Recipe/Builder/MIR.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S1
+  -> cfg(test)-only non-Clone co-sealed receipt; six tests cover typed/untyped transport, provenance, map coverage, and source-unit/AST drop.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-D0
+  -> worker-reviewed two-stage boundary: substrate owns exact type/range/
+     overflow; policy owns progression. Ready/Unresolved/Rejected and six
+     boundaries are design-only; no selector/demand/Recipe/Builder/MIR/public row.
 ```
 ## Production invariants
 

@@ -82,6 +82,19 @@ pub(crate) struct ExplicitParameterTypeRowV1 {
 }
 
 impl ExplicitParameterTypeRowV1 {
+    #[cfg(test)]
+    pub(in crate::mir::resolved_semantics) fn from_test_parts(
+        index: u32,
+        binding: BindingRefV1,
+        declared_type_name: Option<&str>,
+    ) -> Self {
+        Self {
+            index,
+            binding,
+            declared_type_name: declared_type_name.map(Into::into),
+        }
+    }
+
     pub(crate) const fn index(&self) -> u32 {
         self.index
     }
@@ -106,6 +119,21 @@ pub(crate) struct VerifiedExplicitParameterTypeMapV1 {
 }
 
 impl VerifiedExplicitParameterTypeMapV1 {
+    #[cfg(test)]
+    pub(in crate::mir::resolved_semantics) fn from_test_parts(
+        owner: super::FunctionOwnerIdV1,
+        function_origin: FunctionOriginV1,
+        source_kind: SemanticOwnerSourceKindV1,
+        rows: Box<[ExplicitParameterTypeRowV1]>,
+    ) -> Self {
+        Self {
+            owner,
+            function_origin,
+            source_kind,
+            rows,
+        }
+    }
+
     pub(crate) const fn owner(&self) -> super::FunctionOwnerIdV1 {
         self.owner
     }
