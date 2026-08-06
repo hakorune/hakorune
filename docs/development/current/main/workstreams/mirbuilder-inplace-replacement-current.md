@@ -454,9 +454,8 @@ closed — SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2
 
 closed — SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0
   -> Complete now consumes its verified source once, moves the co-sealed
-  projection into the request ledger, and deletes copied receipt maps and
-  staged install APIs; source transport and admission are unchanged.
-
+     projection into the request ledger, and deletes copied receipt maps and
+     staged install APIs; source transport and admission are unchanged.
 closed — SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3
   -> witness `issue -> new` is now one private semantic decision; operational
   classification and invariant re-projection remain separate owners.
@@ -488,25 +487,26 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-WITNESS0-D4-S4
      relation, lease brand retained, source lifetime absent, three focused
      tests green. No full shape/candidate/selector/demand/Recipe/Builder/MIR.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-EXTENSION0-D4-S4-S2-D1
-  -> worker-reviewed design: V1 remains immutable; an atomic V2 wrapper starts
-     with inner-loop Condition+Step roles, while BodyEffect/Coverage stay later.
+  -> V1 immutable; V2 starts with inner-loop Condition+Step; later proofs stay separate.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0
-  -> worker API/source census proves direct V2 issuance is NoSafeSlice:
-     resolver lacks exact site inventory and parent-role topology.
+  -> direct V2 issuance is NoSafeSlice until resolver site inventory/topology exists.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-RESOLVED-SOURCE-SITE-INVENTORY0-D4-S4-S2-S0
   -> resolver traversal records/seals branded statement/expression membership; focused inventory/generic tests green; no downstream consumer or public reference row.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-S1
   -> cfg(test)-only V2 Condition+Step issuer; five tests green; no downstream consumer or public reference row.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D0
-  -> worker split: resolver/source-view publishes AST-free syntax facts; policy owns operator/type/overflow/monotonicity; no public reference row.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S0
-  -> cfg(test)-only AST-free syntax facts; six focused tests; no public row or downstream caller.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D1
-  -> worker consensus fixed numeric_substrate/source-bridge/loop_route_policy owners; no public row or caller.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D0/S0/D1
+  -> resolver/source-view owns AST-free facts; policy owns operator/type/overflow/
+     monotonicity; six focused cfg(test) tests, no public row/caller.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-D0
-  -> NoSafeSlice: typed literals and resolver parameter types are not co-sealed; no public row or caller.
+  -> NoSafeSlice: typed literals and resolver parameter types were not co-sealed.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S0
-  -> cfg(test)-only exact source-unit receipt/map witness green; next D4-S4-S3-S1-S1 co-seal design; no selector/demand/Recipe/Builder/MIR.
+  -> cfg(test)-only exact source-unit receipt/map witness green; next S1-S1 design; no selector/demand/Recipe/Builder/MIR.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S1
+  -> worker-reviewed non-Clone receipt co-seals syntax facts plus owner map,
+     checks provenance/shape rows, and leaves numeric policy to later owners;
+     cfg(test) witness covers typed/unknown transport and foreign/outside-map
+     rejects. No public row; implementation syncs current/pipeline/README and
+     the post-activation reference closeout task.
 ```
 ## Production invariants
 

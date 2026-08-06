@@ -333,8 +333,13 @@ D4-S4-S3-S1-S0
   -> closed: cfg(test)-only exact source-unit receipt/map witness; no selector/
      demand/Recipe/MIR
 D4-S4-S3-S1-S1
-  -> next design: co-seal TypedInteger syntax facts with the owner-branded map
-     into one move-only numeric source receipt; no policy/selector/Recipe/MIR
+  -> next design: issue one non-Clone receipt from the typed syntax-fact
+     product plus owner-branded parameter map. Verify owner/origin/source-kind
+     and every shape BindingRef row before publication; keep numeric
+     classification/range/overflow/progression in later policy owners. Minimal
+     witness is cfg(test)-only; no selector/demand/Recipe/Builder/MIR, caller,
+     retry/fallback, or public semantic row. Implementation must update current
+     state, workstream, support README, and the post-activation reference task.
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

@@ -964,36 +964,36 @@ RecipeBody, Builder, MIR/PHI, ValueId, or legacy demand.
 
 The source-lease witness is cfg(test)-only, exact-two-role, owner-branded,
 non-`Clone`, and AST/source-lifetime-free; five focused tests are green.
-## D4-S4-S0/S1 witness closeout
-S0/S1 close cfg(test)-only lease/CarrierProof handoff; no production caller,
-selector/demand, Recipe/Builder/MIR, retry, fallback, or rename.
-## D4-S4-S2-D1 semantic-shape extension design closeout
-V1 immutable; V2 begins with inner-loop Condition+Step. Resolver owns brands;
-shape owns later proofs; no public reference row.
-## D4-S4-S2-D0 resolver role-issuer design closeout
-Direct V2 issuance was `NoSafeSlice`; D0 selects branded point inventory and
-`SourcePathSegmentV1` topology; no AST/name/role/parent map.
-## D4-S4-S2-S0 source-site inventory implementation closeout
-Traversal records/seals owner/origin/source-kind membership and indexed lookup;
-tests green; no downstream/public row.
-## D4-S4-S2-S1 resolver role-issuer witness closeout
-cfg(test)-only V2 retains the V1 handoff, consumes inventory/topology, and
-rejects foreign/missing/misplaced/upvar/binding-mismatch sites; five tests pass.
-## D4-S4-S3-D0 condition-step semantic-shape design closeout
-Worker review fixes one authority split: resolver/source-view and
-`source_projection` borrow syntax and publish an owner-branded, AST-free
-syntax-fact snapshot; the V2/V3 witness consumes it by value and never imports
-AST/source views, scans names, or re-resolves topology. Resolver owns
-BindingRef/scope/ancestry/placement/inventory. Facts copy only as-written
-`BinaryOperator`, exact Lhs/Rhs sites, literal kind/value, and statement kind;
-normalization, coercion, overflow, monotonicity, delta-sign, and family policy
-remain outside this issuer. Missing/non-binary/non-literal/grouped/compound or
-foreign/mismatched/unordered input is typed `Unresolved`/reject before
-publication, never retry/fallback/`NoCandidate`.
-## D4-S4-S3-S0 — closed: cfg(test)-only V2 syntax facts; six focused tests; no selector/demand/Recipe/Builder/MIR, caller, or public row.
-## D4-S4-S3-D1 — closed: worker consensus assigns numeric_substrate exact type/range, a resolver source bridge provenance, and loop_route_policy progression semantics.
-## D4-S4-S3-S1-D0 — closed as NoSafeSlice: typed literals and resolver parameter types are not co-sealed.
-## D4-S4-S3-S1-S0 parameter-map witness closeout
-TypedInteger preservation and the exact source-unit receipt witness are green; move-only rows retain as-written `Option<Box<str>>` with BindingRef/kind/origin checks.
+## D4-S4-S0/S1 through S1-S0 closeout
+The cfg(test)-only lease, semantic-shape, inventory, syntax-fact, and
+owner-branded parameter-map witnesses are closed. Resolver/source projection
+owns identity/provenance; facts preserve source spelling; numeric policy owns
+type/range/overflow/progression. No selector, demand, Recipe, Builder/MIR,
+retry, fallback, production caller, or public reference row was added.
+
 ## D4-S4-S3-S1-S1 co-sealed numeric source receipt design
-Next: co-seal typed literal facts plus the owner-branded map into one receipt; no numeric policy, selector/demand/Recipe/MIR, or production caller.
+Decision: accept a new cfg(test)-only, non-`Clone`,
+`VerifiedGenericNumericSourceReceiptV1`. Its issuer consumes exactly two
+sealed move-only products: `GenericConditionStepSyntaxFactsV3` and
+`VerifiedExplicitParameterTypeMapV1`; it accepts no raw AST, syntax view,
+`VerifiedFunction`, string owner, or caller-supplied `BindingRef` array.
+
+The receipt stores the two products and a seal only. It checks matching
+owner/origin/source-kind and proves every condition/step binding operand is an
+explicit parameter-map row before publication. Unknown/untagged type spelling
+and typed-literal facts remain transport-ready; numeric classification,
+width/range/overflow, sign/zero-delta, and progression semantics stay in
+`numeric_substrate`/`loop_route_policy`.
+
+Reject before publication on foreign provenance, missing map row, binding
+outside the parameter map, or owner/origin/source-kind mismatch. Later policy reports
+unresolved proof as `Unresolved` and proven incompatibility as typed
+`Rejected`; no fallback or `NoCandidate` is invented.
+
+Minimal task order: add the isolated cfg(test) sibling and issuer; add focused
+tests for typed/untyped retention, unknown-type transport, foreign owner,
+outside-map binding, and receipt use after source-unit drop; then run targeted
+resolved-semantics gates. Same commit must sync current state, workstream,
+pipeline SSOT, and support README. Because this is transport-only, add no
+`docs/reference/**` semantic row; production activation must update the
+language/MIR references in its own closeout commit.

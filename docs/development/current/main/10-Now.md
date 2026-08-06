@@ -117,9 +117,10 @@ Related:
   monotonicity. D4-S4-S3-S0 is closed with six cfg(test)-only syntax-fact
   witnesses and no public reference row. D4-S4-S3-D1 and S1-D0 are closed;
   S1-S0 is closed with its cfg(test)-only source-unit receipt/map witness; the
-  next S1-S1 design co-seals it with TypedInteger facts. Full
+  next S1-S1 design co-seals it with TypedInteger facts into one move-only
+  receipt, checking owner/provenance and shape BindingRef membership. Full
   shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback
-  remain gated.
+  remain gated; no public reference row is added until production activation.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
