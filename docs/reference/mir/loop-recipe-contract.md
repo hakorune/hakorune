@@ -35,6 +35,18 @@ profile mappings and marks legacy Generic V0/V1 as `legacy_only`. No selector,
 registry, route-order, verifier dispatch, physicalizer dispatch, or production
 caller changed.
 
+Reference receipt — `LOOP-JOINSIG-NESTED-SHADOW-S0` (2026-08-06): visible
+carrier projection now walks the verified Recipe parent chain from the target
+loop toward the root, keeps the first `LoopBindingKeyV1` for each binding, and
+emits one payload row per binding in binding-key order. The nearest recurrence
+carrier therefore shadows an ancestor carrier; three or more nested duplicates
+follow the same rule. Sibling carriers are isolated by ancestry. Unknown loop
+owners and same-owner duplicate carriers remain `LoopRecipeVerifierV1`
+rejects, while source owner/frame/`BindingRefV1` negatives remain deferred to
+the source-bound core row. This is common JoinSig behavior with no Generic,
+After, PHI, physical-ID, selector, schema, producer, or production-caller
+change. Focused evidence is in `join_sig_nested_shadow_tests.rs`.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local
@@ -99,6 +111,23 @@ The branch row is ordered by owner and If item. The Loop row receives the two
 logical Body edges (`Break` to `After`, `Continue` to `Header`) and receives no
 natural `Backedge` for this shape. Payloads are the already-visible logical
 carrier rows; no hidden ownership operation is inserted.
+
+### Visible carrier payloads
+
+For a target loop, the logical visible payload snapshot is defined by the
+Recipe ancestry alone:
+
+```text
+target -> parent -> ... -> root
+  first carrier for each binding wins
+  current binding value is projected
+  output rows are sorted by binding key
+```
+
+The resulting vector contains no duplicate binding. A sibling's carrier is not
+visible, and the JoinSig layer does not inspect source names or manufacture
+physical `ValueId`/PHI identities. Structural owner errors are rejected before
+the projection owner runs.
 
 ## Rejection boundary
 

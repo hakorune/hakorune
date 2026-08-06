@@ -60,6 +60,21 @@ responsibilities without adding a semantic route:
 | `join_sig/flow.rs` | the sole logical elaborator and recursive dataflow owner | no Builder, physical lowering, retry, or publication |
 | `join_sig_branch.rs` | existing direct branch-row helper | no second exit-edge owner |
 
+### Nested carrier shadow
+
+`visible_payloads` projects one target loop's visible carriers from the
+verified Recipe parent chain. It walks from the target toward the root and
+keeps the first `LoopBindingKeyV1` it sees, so the innermost recurrence carrier
+shadows an ancestor carrier. It then emits exactly one row per binding in
+binding-key order, using the current logical binding-to-value map.
+
+Sibling carriers are outside the target lineage and remain invisible. Unknown
+loop owners and duplicate carriers are rejected by `LoopRecipeVerifierV1`
+before this projection; JoinSig does not reclassify them. The rule is common
+to every nested Recipe and has no Generic, source-name, After, PHI, physical-ID,
+or selector special case. The focused contract tests live in
+`join_sig_nested_shadow_tests.rs`.
+
 This row is a behavior-neutral structural split. The verified JoinSig wrapper
 is constructed only by the elaborator; callers continue to use the facade.
 

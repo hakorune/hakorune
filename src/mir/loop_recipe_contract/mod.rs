@@ -35,6 +35,10 @@ mod loop_true_break_continue_producer_tests;
 mod producer_id_migration_tests;
 
 #[cfg(test)]
+#[path = "join_sig_nested_shadow_tests.rs"]
+mod join_sig_nested_shadow_tests;
+
+#[cfg(test)]
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
 
 #[cfg(test)]

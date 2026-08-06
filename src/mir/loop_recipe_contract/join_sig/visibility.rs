@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{btree_map::Entry, BTreeMap, BTreeSet};
 
 use super::super::ids::{LoopBlockKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
 use super::super::schema::{LoopRecipeItemV1, LoopRecipeV1};
@@ -50,38 +50,37 @@ pub(in crate::mir::loop_recipe_contract) fn visible_payloads(
     key: LoopNodeKeyV1,
     bindings: &BTreeMap<super::super::ids::LoopBindingKeyV1, LoopValueKeyV1>,
 ) -> Result<Vec<LoopJoinPayloadV1>, LoopJoinSigRejectReasonV1> {
-    let mut lineage = Vec::new();
+    let mut visible = BTreeMap::new();
     let mut cursor = Some(key);
-    while let Some(loop_key) = cursor {
-        lineage.push(loop_key);
-        cursor = recipe
-            .loops
-            .get(loop_key.raw() as usize)
-            .and_then(|node| node.parent);
-    }
-    lineage.reverse();
-    lineage
-        .into_iter()
-        .flat_map(|owner| {
-            recipe
-                .carriers
-                .iter()
-                .filter(move |carrier| carrier.owner_loop == owner)
-        })
-        .map(|carrier| {
+    while let Some(owner) = cursor {
+        for carrier in recipe
+            .carriers
+            .iter()
+            .filter(|carrier| carrier.owner_loop == owner)
+        {
+            // Walk from the target toward the root: the first carrier is the
+            // innermost one, so an ancestor with the same binding is hidden.
+            let Entry::Vacant(slot) = visible.entry(carrier.binding) else {
+                continue;
+            };
             let value = bindings.get(&carrier.binding).copied().ok_or(
                 LoopJoinSigRejectReasonV1::MissingCarrierClosure {
                     loop_key: carrier.owner_loop,
                     binding: carrier.binding,
                 },
             )?;
-            Ok(LoopJoinPayloadV1 {
+            slot.insert(LoopJoinPayloadV1 {
                 binding: carrier.binding,
                 value,
                 class: carrier.class,
-            })
-        })
-        .collect()
+            });
+        }
+        cursor = recipe
+            .loops
+            .get(owner.raw() as usize)
+            .and_then(|node| node.parent);
+    }
+    Ok(visible.into_values().collect())
 }
 
 pub(super) fn block_item(

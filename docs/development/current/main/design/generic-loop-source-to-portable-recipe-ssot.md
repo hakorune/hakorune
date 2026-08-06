@@ -412,6 +412,38 @@ after shadowing, rows are ordered by binding key
 
 This is a common JoinSig rule, never a `GenericG0` name check.
 
+The S0 projection contract is now closed as follows:
+
+```text
+input:
+  VerifiedLoopRecipeV1
+  target LoopNodeKeyV1
+  current logical binding -> value map
+
+authority:
+  Recipe parent chain only; visible_payloads is the sole projection owner
+
+projection:
+  walk target -> root (innermost first)
+  first carrier for each LoopBindingKeyV1 wins
+  read the winning binding's current value from the supplied map
+  emit one row per binding in binding-key order
+```
+
+An ancestor carrier is therefore shadowed by the nearest descendant carrier
+with the same Recipe-local binding key. Three or more nested duplicates obey
+the same nearest-wins rule. Sibling carriers are outside the target lineage
+and are not visible; this is isolation, not an error. Same-owner duplicate
+carriers and foreign/unknown loop owners remain structural Recipe verifier
+errors and are not reclassified by JoinSig. `LoopBindingKeyV1` is the only
+deduplication key; source `BindingRefV1`, ancestry/frame facts, physical IDs,
+PHI, and After are outside this row.
+
+The minimum positive/negative evidence is C1/C2 same-binding recurrence,
+three-level nearest-wins, sibling isolation, and verifier rejection of an
+unknown owner. This row changes no schema, producer, flow, selector, After,
+PHI, Generic, or physical owner.
+
 ### Logical port binding and After capability
 
 Incoming edge payload values remain Recipe operation values. A header PHI or
@@ -653,7 +685,9 @@ LOOP-RECIPE-PRODUCER-ID-S0
   portable producer provenance separated from legacy LoopRouteId
 
 LOOP-JOINSIG-NESTED-SHADOW-S0
-  one visible payload per binding; innermost recurrence carrier wins
+  closed 2026-08-06; one visible payload per binding; innermost recurrence
+  carrier wins; sibling isolation and verifier-owned structural rejects are
+  fixed; no After/PHI/Generic/selector/production caller
 
 LOOP-JOINSIG-AFTER-BINDING-S0
   logical Header/After binding identity and VerifiedLoopAfterBinding
@@ -764,7 +798,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` | S0B bundle + explicit target -> one `VerifiedGenericTypedSourceBundleG0` containing one `VerifiedGenericNumericFactLeaseG0` | natural plain contextual literals prove exact i64 representation/range and return ABI; typed suffixes are out-of-profile Rejected; neutral opaque/range boundaries preserve Unresolved/Rejected | do not duplicate numeric substrate, import compiler types downward, retry a consumed bundle, or retag test AST |
 | `LOOP-JOINSIG-MODULE-SPLIT-R0` | current `join_sig/mod.rs` facade -> model/visibility/port/flow child modules | existing Recipe/JoinSig goldens byte-for-byte stable; all commits build; no acceptance delta | no nested-shadow or After feature in this series |
 | `LOOP-RECIPE-PRODUCER-ID-S0` | current portable producers -> `LoopRecipeProducerIdV1` | `producer_id` wire field; old `producer_route` rejected; current producers/fixtures migrate; route parity is an external test-only receipt | no selector, registry, route-order, or production-caller change |
-| `LOOP-JOINSIG-NESTED-SHADOW-S0` | verified carriers + ancestry -> one visible payload per binding | C1/C2 same-binding, ancestor duplicate, sibling and foreign negatives; innermost wins in binding-key order | no PHI, After, or Generic special case |
+| `LOOP-JOINSIG-NESTED-SHADOW-S0` | verified carriers + ancestry -> one visible payload per binding | landed: C1/C2 same-binding, three-level nearest-wins, sibling isolation, and verifier-owned unknown/duplicate negatives; 64 focused tests and shared/pointer guards green | no PHI, After, or Generic special case |
 | `LOOP-JOINSIG-AFTER-BINDING-S0` | verified edges/carriers -> `LoopJoinPortBindingV1` + `VerifiedLoopAfterBindingV1` | Header/After and owner/class/availability boundaries are exact | no physical ValueId/PHI or function Return |
 | `LOOP-RECIPE-SOURCE-BOUND-CORE-S0` | Recipe + JoinSig + opaque source claim + relations -> `VerifiedLoopCoreProductV1` | caller-zero positive plus foreign/duplicate/uncovered/derived-role negatives | no real Generic keys, Builder, or physical IDs |
 

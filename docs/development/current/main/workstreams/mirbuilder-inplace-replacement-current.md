@@ -512,7 +512,7 @@ closed — GENERIC-G0-SOURCE-TYPE-S0B -> callable-header projector and sole AST-
 closed — GENERIC-G0-NUMERIC-REPRESENTATION-S0C -> adapter consumes S0B once and seals a neutral exact target/range lease while retaining source + return ABI; plain contextual literals pass, typed suffixes reject, opaque/range boundaries are typed; caller-zero/recursive guard, focused tests, cargo check, and pointer guard green; policy/selection/Recipe/Builder/MIR/production remain zero. next — LOOP-JOINSIG-MODULE-SPLIT-R0.
 closed — LOOP-JOINSIG-MODULE-SPLIT-R0 -> flat JoinSig module retired into thin facade + model/port/visibility/flow children; direct exit-edge owner is unique, verified wrapper construction remains private, Recipe/JoinSig tests, README/reference sync, and shared recursive guard are green; no acceptance delta or new caller.
 closed — LOOP-RECIPE-PRODUCER-ID-S0 -> portable wire now carries `producer_id: LoopRecipeProducerIdV1`; old `producer_route` is rejected, three current producers/fixtures migrated, test-only legacy route parity receipt added, schema/producers remain route-free, focused 59 tests and shared guard green; selector/registry/production caller unchanged.
-next — LOOP-JOINSIG-NESTED-SHADOW-S0.
+closed — LOOP-JOINSIG-NESTED-SHADOW-S0 -> visible payload projection now walks target-to-root ancestry, keeps the nearest carrier per Recipe-local binding, emits binding-key order, and isolates siblings; verifier owns unknown/duplicate carrier rejects; 64 focused tests, shared guard, pointer guard, and reference/README sync are green; no After, PHI, Generic, selector, producer, or production change. next — LOOP-JOINSIG-AFTER-BINDING-S0.
 ```
 ## Production invariants
 ```text
