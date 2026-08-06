@@ -1,0 +1,51 @@
+{
+  "schema_version": "generic-raw-structured-body-item-source-canonicalization-s3-i0-v1",
+  "kind": "GenericRawStructuredBodyItemSourceCanonicalizationS3I0ReceiptV1",
+  "row": "GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-I0",
+  "case_id": "generic_loop_continue_strict_shadow_vm",
+  "canonical_case_id": "generic_loop_continue_strict_shadow_vm",
+  "invocation_fixture": "apps/tests/phase29ca_generic_loop_continue_min.hako",
+  "mode": "strict-shadow",
+  "profile": "vm",
+  "invocation_profile_id": "vm-strict-planner-direct-v1",
+  "working_directory": ".",
+  "command_argv": [
+    "env",
+    "HAKO_ROOT=.",
+    "HAKO_BIN=target/release/hakorune",
+    "NYASH_ROOT=.",
+    "NYASH_BIN=target/release/hakorune",
+    "NYASH_DISABLE_PLUGINS=1",
+    "HAKO_JOINIR_STRICT=1",
+    "HAKO_JOINIR_PLANNER_REQUIRED=1",
+    "target/release/hakorune",
+    "--backend",
+    "vm",
+    "apps/tests/phase29ca_generic_loop_continue_min.hako"
+  ],
+  "timeout_seconds": 10,
+  "front_state": "reached-loop-generic-carrier-transient-type-boundary",
+  "exit_code": 1,
+  "primary_front_evidence": {
+    "kind": "diagnostic",
+    "token": "[plan/freeze:contract] generic_loop_v1 skeleton failed",
+    "source": "src/mir/builder/control_flow/plan/generic_loop/carrier_representation.rs::prepare_generic_loop_carrier_representation_v1",
+    "detail": "MissingTransientType { init: ValueId(3) }"
+  },
+  "previous_boundary_closed": "GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0",
+  "pre_loop_owner": "src/mir/builder/control_flow/plan/generic_loop/carrier_representation.rs::prepare_generic_loop_carrier_representation_v1",
+  "failure_phase": "generic_loop_v1 skeleton carrier representation before loop block allocation",
+  "stdout_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_digest": "f7f0d817e0dd6d9fe319f71642949a6e20946f65d56823ac6044c51eb7dfb7aa",
+  "claims": [
+    "loop-entry-reached",
+    "body-item-root-canonicalization-verified",
+    "program-root-preserved",
+    "generic-carrier-transient-type-boundary-exposed",
+    "route-selected-only-for-diagnostic",
+    "production-unchanged",
+    "physical-cutover-closed",
+    "retry-fallback-closed"
+  ],
+  "next_design_boundary": "Design the single lowering-time transient-type owner for the GenericLoop carrier; do not infer in the skeleton, add a source workaround, or open production cutover."
+}

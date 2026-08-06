@@ -240,7 +240,18 @@ Its probe reaches the next body-item source-path mismatch, where raw lowering
 retains `IfThenBody` but the resolver's canonical item site is rootless. The
 current design stop is
 `GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0`; no Loop
-production or Generic route claim is opened.
+production or Generic route claim is opened. S3-D0/I0 is now closed: the
+dedicated raw item-site policy strips only the accepted nested rootless
+body-kind roots (`Scope`, `TaskScope`, `FastMem`, `IfThen`, `IfElse`, `Loop`,
+and `BlockExprPrelude`); `Program` remains rootful, and `Function` remains
+direct `Body(index)`. The immutable S3 receipt is
+`docs/development/current/main/design/fixtures/generic-raw-structured-body-item-source-canonicalization-s3-i0-v1.json`.
+The fresh release probe now reaches `generic_loop_v1` carrier representation
+and fails with `MissingTransientType { init: ValueId(3) }`. The current design
+stop is
+`GENERIC-RAW-STRUCTURED-GENERIC-LOOP-CARRIER-REPRESENTATION-D0`; no Generic
+production or physical cutover claim is opened. The next design task is
+`docs/development/current/main/investigations/generic-raw-structured-generic-loop-carrier-representation-d0-task-2026-08-07.md`.
 
 This is evidence about the shared raw structured-child owner only. No Generic
 route, Recipe, physical, disposition, production, retry, or legacy deletion

@@ -1,6 +1,6 @@
 # Generic raw structured body-item source canonicalization S3
 
-Status: `design accepted after worker audit 2026-08-07; implementation row is GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-I0`
+Status: `closed 2026-08-07; implementation row GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-I0`
 
 Parent receipt:
 
@@ -88,3 +88,39 @@ primary-error advancement; it does not open the Loop production caller.
   updated in the implementation closeout commit;
 - the reference documentation update is repeated after the implementation
   cutover, not deferred to a later cleanup.
+
+## Implementation closeout
+
+S3-I0 is closed. The rootless item-kind policy now lives in the dedicated
+`src/mir/builder/raw_invocation_source_item_site.rs` owner. It strips only
+`Scope`, `TaskScope`, `FastMem`, `IfThen`, `IfElse`, `Loop`, and
+`BlockExprPrelude` body roots; `Program` remains explicitly rootful and
+`Function` remains direct `Body(index)`. `child_body(...)` still returns the
+rootful region receipt, while `body_statement(...)` emits the canonical item
+site. No resolver schema, variable admission, selector, Recipe, physical
+lowering, retry, or fallback path changed.
+
+Focused evidence:
+
+```text
+cargo test raw_invocation_source_item_site --lib  # 3 passed
+cargo test raw_invocation_source_transport --lib  # 13 passed
+cargo test method_call_descent --lib              # 5 passed
+```
+
+The fresh release probe exits at the next real boundary instead of the S2
+path mismatch:
+
+```text
+[plan/freeze:contract] generic_loop_v1 skeleton failed:
+GenericLoop carrier representation failed:
+MissingTransientType { init: ValueId(3) }
+```
+
+The immutable S3 receipt is
+`docs/development/current/main/design/fixtures/generic-raw-structured-body-item-source-canonicalization-s3-i0-v1.json`.
+The next design stop is
+`GENERIC-RAW-STRUCTURED-GENERIC-LOOP-CARRIER-REPRESENTATION-D0`; Loop
+production selection, physical cutover, legacy retirement, and retry/fallback
+remain closed. The reference documentation update is part of this closeout
+and must be repeated again in the implementation/cutover commit.

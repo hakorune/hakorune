@@ -1,5 +1,6 @@
 use super::*;
 use crate::ast::{LiteralValue, Span};
+use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {

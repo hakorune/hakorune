@@ -515,13 +515,8 @@ closed — LOOP-RECIPE-PRODUCER-ID-S0 -> portable wire now carries `producer_id:
 closed — LOOP-JOINSIG-NESTED-SHADOW-S0 -> visible payload projection now walks target-to-root ancestry, keeps the nearest carrier per Recipe-local binding, emits binding-key order, and isolates siblings; verifier owns unknown/duplicate carrier rejects; 64 focused tests, shared guard, pointer guard, and reference/README sync are green; no After, PHI, Generic, selector, producer, or production change.
 closed — LOOP-RECIPE-SOURCE-BOUND-CORE-S0 -> caller-zero core now co-seals verified Recipe/JoinSig/source claim with exact BindingRef/effect relations and typed loop-carrier anchors; 73 focused contract tests, shared guard, pointer guard, and reference/README sync are green; no Generic key, Builder/MIR, physical, or production change.
 closed — loop-family receipts and Generic S3/S4-D0 design are closed; S4-I0-R0 caller-zero Recipe producer landed with 42 focused Generic tests and synced Recipe/reference/README receipts.
-closed — GENERIC-LEGACY-CORPUS-UNIVERSE-P0 and GENERIC-LEGACY-OBSERVATION-FRONT-G0 landed; S0-D0 and S0-I0 are closed: BinaryOp exact-demand completion validates only on success, preserves the first child error, and has a fresh primary-error receipt.
-S1-D0/I0 are closed: FieldAccess consumes its Receiver receipt. S2-D0/I0 are
-closed: raw MethodCall receiver descent consumes its prepared receipt without
-changing arguments/routes; the S2 receipt exposes the rootful-body versus
-rootless-item mismatch. Current design stop is
-GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0; no Generic
-route/production/physical/retry/delete authority.
+closed — GENERIC-LEGACY-CORPUS-UNIVERSE-P0 and GENERIC-LEGACY-OBSERVATION-FRONT-G0 landed; S0-D0/I0, S1-D0/I0, and S2-D0/I0 are closed: raw structured-child failures preserve the primary error, FieldAccess and MethodCall consume their exact receipts, and immutable receipts expose the next source boundary.
+closed — GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0/I0 -> dedicated rootless item-site policy preserves rootful child_body receipts, strips only the accepted nested body-kind roots, keeps Program rootful, and advances the release probe into GenericLoop carrier representation. Reference/fixture closeout is landed; current design stop is GENERIC-RAW-STRUCTURED-GENERIC-LOOP-CARRIER-REPRESENTATION-D0. No Generic production/physical/retry/delete authority.
 ```
 ## Production invariants
 ```text

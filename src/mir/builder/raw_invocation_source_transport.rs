@@ -13,7 +13,7 @@ use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBloc
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, SourceBodyKindV1, SourceNodeSiteV1,
-    SourcePathSegmentV1, SourcePathV1,
+    SourcePathV1,
 };
 use crate::mir::ValueId;
 
@@ -22,6 +22,7 @@ use super::normal_callable_semantic_source::VerifiedNormalCallableSemanticLoanV1
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::raw_invocation_source_item_site::body_item_site;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
@@ -412,32 +413,6 @@ impl RawInvocationSourceContextV1 {
         })
     }
 }
-fn body_item_site(
-    kind: SourceBodyKindV1,
-    site: &SourceNodeSiteV1,
-    index: usize,
-) -> SourceNodeSiteV1 {
-    if kind == SourceBodyKindV1::Function && site.segments() == [SourcePathSegmentV1::FunctionBody]
-    {
-        return SourcePathV1::root_body(index).node();
-    }
-    let body_root = match kind {
-        SourceBodyKindV1::FastMem => Some(SourcePathSegmentV1::FastMemBodyRoot),
-        SourceBodyKindV1::Scope => Some(SourcePathSegmentV1::ScopeBodyRoot),
-        SourceBodyKindV1::TaskScope => Some(SourcePathSegmentV1::TaskScopeBodyRoot),
-        _ => None,
-    };
-    if site.segments().last() == body_root.as_ref() {
-        let mut segments = site.segments().to_vec();
-        let _ = segments.pop();
-        segments.push(kind.item_segment(index as u32));
-        return SourceNodeSiteV1::from_segments(segments);
-    }
-    SourcePathV1::from_node(site)
-        .child(kind.item_segment(index as u32))
-        .node()
-}
-
 fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
     match statement {
         ASTNode::Break { .. }
