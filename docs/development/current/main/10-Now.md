@@ -112,9 +112,11 @@ Related:
   NoSafeSlice and selects the neutral inventory prerequisite. Inventory S0 and
   V2 role issuance are now closed: resolver traversal co-seals branded point
   membership, and the move-only catalog validates Condition+Step topology.
-  The next task is the D4-S4-S3-D0 shape-proof design stop; full shape,
-  Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback remain
-  gated.
+  D4-S4-S3-D0 is now closed by worker authority split: resolver/source-view
+  publishes AST-free syntax facts and policy owns operator/type/overflow/
+  monotonicity. Next is cfg(test)-only D4-S4-S3-S0 syntax-fact witness; full
+  shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback
+  remain gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

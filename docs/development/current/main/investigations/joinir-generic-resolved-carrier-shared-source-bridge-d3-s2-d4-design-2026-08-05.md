@@ -954,43 +954,47 @@ cfg(test)-only cell.
 contract. The resolver lease is the only source/BindingRef issuer; the shape
 issuer only proves semantics from a borrowed source view.
 
-| proof | typed contents | issuer |
-| --- | --- | --- |
-| `CarrierProof` | role-keyed binding/site relation and carrier transfer relation | shape issuer, using lease roles |
-| `ConditionProof` | exact condition site, comparator enum, operand roles, bound/literal proof, placement | shape issuer |
-| `StepProof` | exact step site, operator enum, target role, delta/operand proof, placement | shape issuer |
-| `BodyEffectProof` | ordered typed writes/reads/calls and exit-role effects; no raw body AST | shape issuer |
-| `Coverage/Exit` | complete forest/window membership, break/continue/return coverage, opaque/transfer checks | resolver coverage + shape issuer seal |
+The five proof families are Carrier, Condition, Step, BodyEffect, and
+Coverage/Exit; each is typed, AST-free, and separately sealed by its named
+resolver/shape owner.
 
-The lease owns owner/origin/source-kind/root+loop sites, forest/frame, and a
-non-`Clone` role-claim set containing exact site, `BindingRef`, scope, and
-ancestry. The shape owns only the five proofs above. Neither product may carry
-AST, source-unit lifetime, strings/labels, route IDs, `RecipeBody`, Builder,
-MIR/PHI, `ValueId`, or legacy demand.
+The lease owns brands/sites/forest/frame and role claims; shape owns only those
+proofs. Neither product carries AST/source lifetime, strings, route IDs,
+RecipeBody, Builder, MIR/PHI, ValueId, or legacy demand.
 
-The source-lease witness is cfg(test)-only, exact-two-role (`NestedWrite` +
-`PostLoopRead`), owner-branded, non-`Clone`, and AST/source-lifetime-free.
-Forest/frames are reissued from one function and co-sealed; five tests cover
-positive, foreign, shadow, duplicate/placement, and forest-mismatch cases;
-upvar/capture awaits a later fixture.
-
+The source-lease witness is cfg(test)-only, exact-two-role, owner-branded,
+non-`Clone`, and AST/source-lifetime-free; five focused tests are green.
 ## D4-S4-S0/S1 witness closeout
-S0/S1 close the cfg(test)-only lease and CarrierProof handoff; no production
-caller, selector/demand, Recipe/Builder/MIR, retry, fallback, or rename.
+S0/S1 close cfg(test)-only lease/CarrierProof handoff; no production caller,
+selector/demand, Recipe/Builder/MIR, retry, fallback, or rename.
 ## D4-S4-S2-D1 semantic-shape extension design closeout
-V1 remains immutable; V2 begins with inner-loop Condition+Step. Resolver owns
-sites/forest/frame brands; shape owns operator/effect proofs; no public reference row.
+V1 immutable; V2 begins with inner-loop Condition+Step. Resolver owns brands;
+shape owns later proofs; no public reference row.
 ## D4-S4-S2-D0 resolver role-issuer design closeout
-Direct V2 issuance is `NoSafeSlice`; D0 selects branded point inventory with
-`SourcePathSegmentV1` as sole topology authority; no AST/name/role/parent map.
+Direct V2 issuance was `NoSafeSlice`; D0 selects branded point inventory and
+`SourcePathSegmentV1` topology; no AST/name/role/parent map.
 ## D4-S4-S2-S0 source-site inventory implementation closeout
-Accepted: traversal records membership; seal brands owner/origin/source-kind,
-point lookup, and indexed-site checks. Tests green; no downstream/public row.
+Traversal records/seals owner/origin/source-kind membership and indexed lookup;
+tests green; no downstream/public row.
 ## D4-S4-S2-S1 resolver role-issuer witness closeout
-Accepted cfg(test)-only V2 Condition+Step catalog retains the V1 handoff,
-consumes inventory/path topology, and rejects foreign/missing/misplaced/upvar/
-binding-mismatch sites. Five tests pass; no downstream/public row.
-## D4-S4-S3-D0 condition-step semantic-shape design stop
-Next: worker-review comparator/operator/literal/delta proof semantics. Keep V2
-immutable; no AST/name/parent map, selector/demand/Recipe/Builder/MIR, retry,
-fallback, or production caller until that design is fixed.
+cfg(test)-only V2 retains the V1 handoff, consumes inventory/topology, and
+rejects foreign/missing/misplaced/upvar/binding-mismatch sites; five tests pass.
+## D4-S4-S3-D0 condition-step semantic-shape design closeout
+Worker review fixes one authority split: resolver/source-view and
+`source_projection` borrow syntax and publish an owner-branded, AST-free
+syntax-fact snapshot; the V2/V3 witness consumes it by value and never imports
+AST/source views, scans names, or re-resolves topology. Resolver owns
+BindingRef/scope/ancestry/placement/inventory. Facts copy only as-written
+`BinaryOperator`, exact Lhs/Rhs sites, literal kind/value, and statement kind;
+normalization, coercion, overflow, monotonicity, delta-sign, and family policy
+remain outside this issuer. Missing/non-binary/non-literal/grouped/compound or
+foreign/mismatched/unordered input is typed `Unresolved`/reject before
+publication, never retry/fallback/`NoCandidate`.
+## D4-S4-S3-S0 condition-step syntax-fact witness task
+Next: cfg(test)-only V2-consuming witness -> move-only AST-free facts. Matrix:
+canonical `Less`/integer-bound/`Add`/integer-delta/same Local BindingRef plus
+comparator, symbolic-bound, symbolic-delta, grouped/compound-assignment, and
+pre-loop/post-order counterexamples. No selector/demand/Recipe/key,
+Builder/MIR, retry, fallback, runtime, or production caller. No public
+`docs/reference/**` row; implementation must sync current/workstream/card/
+pipeline/support README and explicitly record that absence.

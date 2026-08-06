@@ -19,8 +19,10 @@ The closed overlap parity evidence is recorded in
 `docs/development/current/main/investigations/joinir-generic-overlap-semantic-parity-d2-b2-execution-task-2026-08-04.md`.
 The closed bounded continuation (implementation row S1) is
 `docs/development/current/main/investigations/joinir-generic-nested-carrier-winner-d2-b4-d0-design-2026-08-05.md`.
-The next accepted design stop is
-`docs/development/current/main/investigations/joinir-generic-nested-carrier-bindingref-disjointness-d2-b4-s2-design-2026-08-05.md`.
+The former “next accepted design stop” pointer to D2-B4-S2 is historical and
+superseded. Current Generic source-bridge work is tracked by
+`docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md`;
+this inspection-only matrix does not become its selector or Recipe authority.
 The machine-readable test observer is
 `src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs`.
 

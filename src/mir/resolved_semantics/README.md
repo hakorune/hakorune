@@ -577,6 +577,9 @@ it proves only the NestedWrite -> PostLoopRead same-`BindingRef` relation and
 retains the lease brand. D4-S4-S2-S1 adds a cfg(test)-only
 `GenericShapeSourceLeaseV2` that consumes this handoff, derives only inner-loop
 Condition+Step paths, validates local BindingRef relations, and retains no
-AST/source lifetime. Operator/literal/delta, BodyEffect/Coverage, selector,
-Recipe, and MIR semantics remain outside this resolver at the D4-S4-S3 design
-stop; production caller remains zero and no role is re-resolved by name.
+AST/source lifetime. D4-S4-S3-D0 now fixes the split: resolver/source-view
+publishes AST-free as-written operator/literal facts, while policy owns type,
+overflow, monotonicity, and accepted-family decisions. The next
+cfg(test)-only S0 witness remains outside selector, Recipe, and MIR; production
+caller remains zero and no role is re-resolved by name. No public reference row
+applies to this internal witness.

@@ -318,7 +318,10 @@ D4-S4-S2-S1
   -> closed: cfg(test)-only V2 Condition+Step role issuer consumes the sealed
      inventory/path topology; five focused tests; no public reference row
 D4-S4-S3-D0
-  -> worker design stop for comparator/operator/literal/delta proof semantics
+  -> closed: worker authority split; resolver/source-view publishes AST-free
+     syntax facts, while policy owns operator/type/overflow/monotonicity
+D4-S4-S3-S0
+  -> next: cfg(test)-only V2-consuming syntax-fact witness; no public row
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives
@@ -326,14 +329,12 @@ and verifies only this inner-loop profile: condition=`loop/LoopCondition`,
 induction=`condition/Lhs`, bound=`condition/Rhs`; step target comes from the
 carrier's nested-write site, its parent assignment supplies `Value`, and the
 value's `Lhs` read plus `Rhs` delta are checked against the same `BindingRef`.
-Comparator/operator/literal/delta interpretation and BodyEffect/Coverage remain
-shape-owned. Missing inventory, foreign identity, wrong placement, non-direct
-inner-body target, upvar/capture, missing binding, scope/ancestry mismatch, or
-carrier-binding mismatch reject before publication. No AST/name scan,
-selector, demand, Recipe, Builder/MIR, retry, fallback, or production caller
-may be added in these cells. Existing test-only provenance, current Generic
-facts, normalized labels, legacy selected demand, and historical synthetic
-receipts remain non-authoritative and cannot be adapted by name.
+Syntax facts copy as-written operators/literals and remain AST-free; accepted
+operator/type/overflow/monotonicity and temporal coverage are separate policy/
+coverage owners. Missing inventory, foreign identity, wrong placement,
+upvar/capture, binding mismatch, or unproven order reject before publication.
+No AST/name scan, selector, demand, Recipe, Builder/MIR, retry, fallback, or
+production caller may be added in these cells.
 
 ## Structural owners
 

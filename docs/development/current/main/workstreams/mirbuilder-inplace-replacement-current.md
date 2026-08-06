@@ -475,7 +475,6 @@ JoinIR contract and ordered convergence map live in
 records below are evidence only and must not schedule another route.
 
 Current decision and execution brief:
-
 ```text
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S0
   -> cfg(test)-only bounded two-role lease. The resolver reissues the exact
@@ -498,10 +497,11 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-RESOLVED-SOURCE-SITE-INVENTORY0-D4-S4
   -> resolver traversal records/seals branded statement/expression membership; focused inventory/generic tests green; no downstream consumer or public reference row.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-S1
   -> cfg(test)-only V2 Condition+Step issuer; five tests green; no downstream consumer or public reference row.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D0
-  -> worker design stop for comparator/operator/literal/delta proof; no AST/name/parent map, selector/demand/Recipe/Builder/MIR, retry, fallback, or production caller.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D0
+  -> worker split: resolver/source-view publishes AST-free syntax facts; policy owns operator/type/overflow/monotonicity; no public reference row.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S0
+  -> cfg(test)-only V2-consuming syntax-fact witness; no selector/demand/Recipe/Builder/MIR, retry, fallback, or production caller.
 ```
-
 ## Production invariants
 
 ```text
