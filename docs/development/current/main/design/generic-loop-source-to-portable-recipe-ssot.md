@@ -152,6 +152,27 @@ rows do not prove `NoCandidate`, which stays sealed until
 source spelling, and `ReturnExitContract` owns executable returns. Neither is
 duplicated inside Generic or inferred from its tail.
 
+## Common admission D0 reconciliation
+
+The five-row window above is now explicitly shared with the landed DirectAccum,
+NestedPredicate, and LoopTrue caller-zero observations. It is not a four-row
+pilot: `LoopCondBreakContinue` is a required row and remains
+`Unresolved(MissingFamilyObservation::LoopCond)` until its neutral observer is
+landed. Generic G0 also requires a source-attempt normalization boundary that
+adds explicit `Declined(NotGenericG0Shape)` for known non-G0 source shapes and
+projects owner/origin/source-kind/site/frame identity into the common row. Its
+policy's unsupported/opaque evidence stays `Unresolved`, and contradictions
+stay `Rejected`.
+
+The common assembler and the later selector are separate owners. The assembler
+co-seals a resolver-issued AST-free window identity brand with exactly one
+typed row per semantic family and never reads AST, resolver source, route IDs,
+or legacy schedules. `Blocked` remains legacy policy vocabulary; the common row
+algebra is only `Candidate|Declined|Unresolved|Rejected`. A selector-ready
+window is one Candidate plus four Declined rows; overlap rejects, unresolved
+evidence blocks selection, and whole-unit `NoCandidate` remains an M8 all19
+proof rather than a five-row result.
+
 ## Source products
 
 The structural witness is AST-free after issuance and proves exactly:

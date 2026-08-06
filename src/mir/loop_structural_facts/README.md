@@ -160,10 +160,12 @@ the private D4-S3-S0 witness now owns the observation-set transport; this layer
 must wait for D4-S3-S1 and a later design before gaining a canonical family
 consumer.
 
-D4-S3-D0 now closes that schema decision without activating this layer. The
-future `VerifiedLoopFamilyObservationSetV1` is one resolver-branded,
-non-`Clone` source receipt/window plus exact mode and coverage seals and
-family-tagged `Candidate|Declined|Blocked|Unresolved` rows. It must not contain
+D4-S3-D0 is historical schema evidence; the canonical common product is now
+`VerifiedLoopFamilyAdmissionWindowV1`. It is one resolver-branded, non-`Clone`
+source window plus exact mode/coverage seals and family-tagged
+`Candidate|Declined|Unresolved|Rejected` rows. Legacy `Blocked` and the old
+`VerifiedLoopFamilyObservationSetV1` witness name stay historical and must not
+become a second authority. The canonical product must not contain
 route IDs, raw cursors, AST, Recipe/key, Builder/MIR/ValueId/PHI, or retry and
 fallback state. D4-S3-S0 is now a closed private witness; only a later
 family-level selector may consume the sealed set, while A+/Trivial remain in

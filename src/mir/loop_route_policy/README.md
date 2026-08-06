@@ -98,6 +98,19 @@ selection/admission design.
 The current LoopTrue branch cohort below is a separate legacy policy-demand
 owner and remains migration-only until common selection and physical cutover.
 
+## Common admission D0 design receipt
+
+The canonical five-row admission window is now worker-reviewed but remains
+caller-zero. Its required semantic tags are `DirectAccum`, `NestedPredicate`,
+`LoopTrueBreakContinue`, `LoopCondBreakContinue`, and `GenericG0`. A resolver-
+issued AST-free window identity brand is co-sealed with one typed
+`Candidate|Declined|Unresolved|Rejected` row per tag; legacy `Blocked` belongs
+only to the schedule evaluator. The assembler checks identity/mode/coverage
+and does not select. LoopCond is currently an unresolved missing row and
+Generic requires an explicit source-attempt normalization adapter. The next
+ordered cells are LoopCond design/observation, Generic normalization, and then
+the common assembler; selector promotion remains separate.
+
 The LoopTrue branch cohort has a separate policy-demand box:
 
 ```text

@@ -359,3 +359,62 @@ demand, `family_selection.rs`, Recipe/JoinSig/BindingKey, Builder/MIR/ValueId/
 PHI, physical lowering, retry/fallback, or a production caller. The old
 LoopTrue policy/Recipe/Builder route remains migration-only until a later
 common selector and physical cutover prove zero non-historical callers.
+
+## Common family admission D0 worker-reviewed design stop
+
+`LOOP-FAMILY-COMMON-ADMISSION-WINDOW-D0` reconciles the existing Generic
+five-row contract with the landed DirectAccum, NestedPredicate, and LoopTrue
+caller-zero observations. The required semantic tags are exactly:
+
+```text
+DirectAccum
+NestedPredicate
+LoopTrueBreakContinue
+LoopCondBreakContinue
+GenericG0
+```
+
+The common boundary has two products and two owners:
+
+```text
+resolver-issued AST-free WindowIdentityLease
+  + exactly five family-tagged rows
+  -> VerifiedLoopFamilyAdmissionWindowV1  (completeness/co-seal only)
+  -> CanonicalLoopFamilySelectionV1       (sole future winner owner)
+```
+
+The window lease is a non-Clone identity brand issued once at the resolver
+source seam. It contains no AST, names, route IDs, cursors, schedules, Recipe
+data, or physical IDs. Because family projectors consume non-Clone source
+capabilities, the resolver must issue an explicit family-scoped fan-out or
+equivalent branded capability; the assembler may not clone/relookup source or
+use the AST-bearing shared test window witness as production authority.
+
+Each row is normalized to exactly one of `Candidate`, `Declined`,
+`Unresolved`, or `Rejected`, with family tag and typed provenance retained.
+`Blocked` belongs only to the legacy schedule/policy vocabulary. Generic G0
+requires a source-attempt normalization layer because its current policy lacks
+`Declined` and its context lacks common origin/source-kind/site/frame identity.
+LoopCond has no observer yet; its missing row is
+`Unresolved(MissingFamilyObservation::LoopCond)`, never a synthetic Declined.
+
+The window assembler validates exact five-tag coverage, duplicate/missing rows,
+owner/origin/source-kind/site/frame equality, mode equality, and coverage. It
+does not count candidates or select. The later selector consumes one sealed
+window exactly once and applies only this algebra:
+
+```text
+one Candidate + four Declined -> Selected
+two or more Candidates        -> Rejected(Overlap)
+any Rejected                  -> Rejected, retaining all row evidence
+no Rejected + any Unresolved  -> Unresolved
+five Declined                 -> Unresolved(OutOfWindow)
+NoCandidate                   -> forbidden until M8 all19 proof
+```
+
+The next work is a shallow ordered ladder inside the linked D0 task: first
+LoopCond design/observation, then Generic row normalization, then the common
+assembler. Selector promotion is a separate later task. Shared guard changes
+must use a reusable helper because the existing logical-demand guard is already
+near the 800-line boundary; the LoopTrue-specific guard is temporary evidence
+and retires when the common reusable proof covers its contract.

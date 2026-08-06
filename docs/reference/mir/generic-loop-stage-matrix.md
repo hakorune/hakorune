@@ -152,6 +152,19 @@ No selector, Recipe/JoinSig, Builder/MIR, physical route, retry/fallback,
 production caller, or legacy deletion is open; the next boundary is common
 five-family selection/admission design.
 
+## Common admission D0 worker-reviewed design receipt
+
+The canonical window has exactly five semantic rows:
+`DirectAccum`, `NestedPredicate`, `LoopTrueBreakContinue`,
+`LoopCondBreakContinue`, and `GenericG0`. It is not a four-row pilot. A
+resolver-issued AST-free window identity brand is co-sealed with one typed
+`Candidate|Declined|Unresolved|Rejected` row per tag; legacy `Blocked` remains
+schedule vocabulary only. The assembler validates identity/mode/coverage but
+does not select. LoopCond is currently an explicit unresolved missing row and
+Generic still needs a normalization adapter with a real Declined arm. The
+ordered next cells are LoopCond design/observation, Generic normalization, and
+the common assembler; selector promotion and production remain closed.
+
 ## Current source-to-selection evidence
 
 | fixture class | source witness | current generic schedule | status |
@@ -457,10 +470,12 @@ witness and D4-S3-S1 is the next matrix-only row.
 
 ### D4-S3-D0 canonical selection authority (closed design)
 
-The future canonical product is a resolver-branded, non-`Clone`
-`VerifiedLoopFamilyObservationSetV1`: one source receipt/window, one exact
+The future canonical product is the resolver-branded, non-`Clone`
+`VerifiedLoopFamilyAdmissionWindowV1`: one source receipt/window, one exact
 mode snapshot, one coverage seal, and family-tagged rows with typed
-`Candidate|Declined|Blocked|Unresolved` dispositions. Semantic family tags
+`Candidate|Declined|Unresolved|Rejected` dispositions. Legacy `Blocked` and
+the old `VerifiedLoopFamilyObservationSetV1` witness name are historical only;
+they are outside this common row algebra. Semantic family tags
 are not route IDs. The set contains no AST, raw schedule/cursor, Recipe/key,
 Builder/MIR/ValueId/PHI, retry, or fallback.
 
