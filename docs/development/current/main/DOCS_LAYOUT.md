@@ -310,8 +310,9 @@ Rule:
   lane / blocker / restart order / phase status / durable policy changes.
 - `phases/README.md` is an index, not a full chronology.
 - archive historical docs per area:
-  - `docs/development/current/main/design/archive/`
-  - `docs/development/current/main/phases/archive/`
+  - `docs/development/current/main/design/archive/` for historical design
+  - `docs/development/archive/phases/<phase>/` for new historical phase moves
+  - `docs/development/current/main/phases/archive/` is transitional only
 - when physically moving a doc, keep a short stub at the old path with:
   - `Status: Historical`
   - `Moved to: ...`
@@ -507,5 +508,7 @@ Moved to: docs/development/archive/phases/phase-131/131-03-llvm-lowering-invento
 - `05-Restart-Quick-Resume.md` は restart 手順と読む順だけに徹し、landed chronicle は抱え込まない。
 - `15-Workstream-Map.md` は rough order の one-screen mirror に徹し、phase detail は抱え込まない。
 - `phases/README.md` は current / guardrail / recent landed の index に徹し、repo-wide landed ledger を再掲しない。
-- historical phase fronts are archived under `docs/development/current/main/phases/archive/`.
+- new historical phase fronts are archived under
+  `docs/development/archive/phases/<phase>/`; the current/main archive root is
+  transitional compatibility only.
 - current active phase fronts are linked from `CURRENT_TASK.md` and `15-Workstream-Map.md`.

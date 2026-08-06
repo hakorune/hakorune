@@ -60,7 +60,7 @@ Keep each kind of truth in one durable home:
 | check/guard entrypoints | `docs/tools/check-scripts-index.md` and the owning reusable guard |
 | repository commands and procedures | the owning tool/module README, `docs/tools/check-scripts-index.md`, or the active card |
 | landed implementation detail | source/tests and git history |
-| superseded or historical material | `docs/development/current/main/design/archive/**`, `docs/development/current/main/phases/archive/**`, `docs/archive/**`, or the owning retirement SSOT |
+| superseded or historical material | `docs/development/current/main/design/archive/**`, `docs/development/archive/phases/**`, `docs/archive/**`, or the owning retirement SSOT |
 | local personality and always-on routing rules | `AGENTS.md` only |
 
 When an instruction grows beyond a short routing rule, move its durable
@@ -258,6 +258,15 @@ history belongs there, not beside always-on instructions.
 The root file should remain a compact policy router. When an old operational
 section is removed, do not copy its prose into another current mirror merely
 for traceability.
+
+Archive destination correction:
+
+- New historical phase moves use `docs/development/archive/phases/<phase>/`.
+- `docs/development/current/main/phases/archive/**` is a transitional
+  compatibility root only; do not add new archive content there.
+- Historical design material may use
+  `docs/development/current/main/design/archive/**` until a narrower retirement
+  owner supersedes it.
 
 The following local sections are specifically retired from current guidance:
 
