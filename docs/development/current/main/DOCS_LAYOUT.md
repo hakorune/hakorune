@@ -15,7 +15,7 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `AGENTS.md`
   - root AI/developer instruction entry
   - current-first pointer only; not a current lane ledger
-  - historical sections inside it are subordinate to `CURRENT_STATE.toml`
+  - do not embed historical command tables or fixed phase roadmaps; keep only compact pointers to tracked archive/reference docs
   - tracked contract:
     `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
 - `CURRENT_TASK.md`

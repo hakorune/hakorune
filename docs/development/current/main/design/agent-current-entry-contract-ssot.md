@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-28
+Date: 2026-08-06
 Scope: `AGENTS.md` の current-first 読み順と historical section の扱い。
 Related:
   - AGENTS.md
@@ -33,6 +33,7 @@ Read current-state documents first:
 4. `docs/development/current/main/10-Now.md`
 5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 6. `docs/development/current/main/DOCS_LAYOUT.md`
+7. `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
 
 Then read `AGENTS.md` for personality, always-on engineering rules, and
 stop-the-line policy.
@@ -183,8 +184,14 @@ card explicitly reopens them:
 - old fixed selfhost gate examples
 - old PyVM dev helper environment setup
 
-They may remain in the local file for traceability, but new work must not take
-them as current direction.
+Do not retain or re-add their command tables, fixed priorities, environment
+recipes, or short-term roadmaps in the local current-entry file. Keep one
+compact historical pointer to the tracked archive/retirement/reference docs;
+history belongs there, not beside always-on instructions.
+
+The root file should remain a compact policy router. When an old operational
+section is removed, do not copy its prose into another current mirror merely
+for traceability.
 
 ## Current Guard/Proof Entry
 
@@ -209,6 +216,12 @@ tools/checks/lib/manifest_runner.py
 
 These pilots are local-run/index-listed unless a later card explicitly promotes
 them into `dev_gate.sh` or allocator-wide.
+
+Test-only Rust authority witnesses must have a physical test boundary such as
+`*_tests.rs` (or an equivalent dedicated test directory). Do not rely only on
+an enclosing `#[cfg(test)]` when file-level authority guards classify source
+producers and callers. Keep the logical module path stable with `#[path]` when
+needed, and update current/reference path claims in the same change.
 
 ## Update Policy
 
