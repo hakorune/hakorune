@@ -586,7 +586,7 @@ no role is re-resolved by name. D4-S4-S3-D1 is closed by worker authority
 consensus: `numeric_substrate` owns exact type/range, a future resolver source
 bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns
   progression policy. D4-S4-S3-S1-D0 is closed as NoSafeSlice: TypedInteger and
-  resolver parameter types are not co-sealed. The TypedInteger-preservation
-  sub-slice of D4-S4-S3-S1-S0 is now closed as cfg(test)-only; its remaining
-  step is the paired parameter type map. No public reference row applies to this
-  internal witness.
+  resolver parameter types are not co-sealed. D4-S4-S3-S1-S0 design is closed:
+  one exact source-unit receipt issues a move-only owner-branded parameter map;
+  the next cfg(test)-only witness remains outside public semantic consumers. No
+  public reference row applies to this internal witness.

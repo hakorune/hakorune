@@ -506,7 +506,7 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D1
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-D0
   -> NoSafeSlice: typed literals and resolver parameter types are not co-sealed; no public row or caller.
 next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S0
-  -> TypedInteger-preservation sub-slice closed cfg(test)-only; next paired parameter type map; no selector/demand/Recipe/Builder/MIR.
+  -> design closed: exact source-unit receipt -> move-only owner-branded parameter map; next cfg(test) witness; no selector/demand/Recipe/Builder/MIR.
 ```
 ## Production invariants
 

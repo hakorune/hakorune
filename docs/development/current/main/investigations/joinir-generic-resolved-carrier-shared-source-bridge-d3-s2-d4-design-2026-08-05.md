@@ -993,7 +993,8 @@ publication, never retry/fallback/`NoCandidate`.
 ## D4-S4-S3-S0 — closed: cfg(test)-only V2 syntax facts; six focused tests; no selector/demand/Recipe/Builder/MIR, caller, or public row.
 ## D4-S4-S3-D1 — closed: worker consensus assigns numeric_substrate exact type/range, a resolver source bridge provenance, and loop_route_policy progression semantics.
 ## D4-S4-S3-S1-D0 — closed as NoSafeSlice: typed literals and resolver parameter types are not co-sealed.
-## D4-S4-S3-S1-S0 typed numeric receipt witness
-TypedInteger as-written is now preserved in the cfg(test)-only AST-free fact;
-the remaining step is to co-seal an owner-branded explicit-parameter type map.
-No selector/demand/Recipe/Builder/MIR is authorized.
+## D4-S4-S3-S1-S0 parameter-map design closeout
+TypedInteger preservation is closed cfg(test)-only; one exact source-unit receipt defines paired CallableFunctionSyntaxViewV1 + verified owner, move-only rows with
+as-written `Option<Box<str>>`, and resolver BindingRef/kind/origin checks; no
+fallback/inference/selector/demand/Recipe/MIR; next is cfg(test) witness with
+production type/caller zero.
