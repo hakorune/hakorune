@@ -60,7 +60,7 @@ Keep each kind of truth in one durable home:
 | check/guard entrypoints | `docs/tools/check-scripts-index.md` and the owning reusable guard |
 | repository commands and procedures | the owning tool/module README, `docs/tools/check-scripts-index.md`, or the active card |
 | landed implementation detail | source/tests and git history |
-| superseded or historical material | `docs/archive/**` or the owning retirement SSOT |
+| superseded or historical material | `docs/development/current/main/design/archive/**`, `docs/development/current/main/phases/archive/**`, `docs/archive/**`, or the owning retirement SSOT |
 | local personality and always-on routing rules | `AGENTS.md` only |
 
 When an instruction grows beyond a short routing rule, move its durable
