@@ -30,15 +30,15 @@ Legacy fallback/retry、完成Program形ごとのvariant列挙は作らない。
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
 diffs and proof transcripts; this card keeps the live task and boundaries.
 
-## Callable single-loop source ledger S1
+## Callable single-loop source ledger and SyntaxFacts S1
 
-`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1` is closed caller-zero:
-`CallableSemanticSourceLedgerView` exposes typed rows and resolver-issued Loop
-membership/frame identity. No AST/ValueId copy, Loop policy, Recipe, physical,
-or Builder/MIR caller was added; focused tests are green. The D0 authority is
-closed; the current execution row is caller-zero `RESOLVER-SYNTAX-FACTS-S1`.
-Its syntax observer must publish nine rows plus one prefix boundary before
-MAP-S1; Recipe, physical, production, retry/fallback, and deletion stay closed.
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1` and `RESOLVER-SYNTAX-FACTS-S1`
+are closed caller-zero. The resolver ledger exposes
+typed source rows and one Loop membership product carrying source/frame/Scope/Region;
+`VerifiedSourceSyntaxFactsV1` adds exactly nine neutral syntax rows plus one prefix boundary.
+Unknown root statements reject explicitly. No AST/ValueId copy, Loop policy, Recipe,
+physical, or Builder/MIR caller was added; focused tests are green. The next execution row is `MAP-S1`. After MAP-S1, stop once at
+`RECIPE-COSEAL-D0`; physical, production, retry/fallback, and deletion stay closed.
 
 ## Root-neutral semantic foundation
 

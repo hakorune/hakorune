@@ -16,8 +16,8 @@ use super::source_site::{
 };
 use super::{
     FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedLoopRegionLookupErrorV1,
-    SemanticOwnerSourceKindV1, VerifiedResolvedFunctionV1, VerifiedResolvedLoopSourceV1,
-    VerifiedResolvedSourceSiteInventoryV1,
+    ResolvedScopeRegionPairV1, SemanticOwnerSourceKindV1, VerifiedResolvedFunctionV1,
+    VerifiedResolvedLoopSourceV1, VerifiedResolvedSourceSiteInventoryV1,
 };
 
 /// The source families intentionally exposed by the first callable ledger.
@@ -82,6 +82,7 @@ pub(crate) enum CallableSourceLedgerRejectV1 {
 pub(crate) struct VerifiedCallableLoopMembershipV1 {
     source: VerifiedResolvedLoopSourceV1,
     frame: LoopExecutionFrameKeyV1,
+    scope_region: ResolvedScopeRegionPairV1,
 }
 
 impl VerifiedCallableLoopMembershipV1 {
@@ -93,8 +94,18 @@ impl VerifiedCallableLoopMembershipV1 {
         &self.frame
     }
 
-    pub(crate) fn into_parts(self) -> (VerifiedResolvedLoopSourceV1, LoopExecutionFrameKeyV1) {
-        (self.source, self.frame)
+    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
+        self.scope_region
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedResolvedLoopSourceV1,
+        LoopExecutionFrameKeyV1,
+        ResolvedScopeRegionPairV1,
+    ) {
+        (self.source, self.frame, self.scope_region)
     }
 }
 
@@ -213,9 +224,13 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         &self,
         site: &SourceStmtSiteV1,
     ) -> Result<VerifiedCallableLoopMembershipV1, ResolvedLoopRegionLookupErrorV1> {
-        let source = self.function.resolved_loop_source(site)?;
+        let (source, scope_region) = self.function.resolved_loop_source_context(site)?;
         let frame = source.frame_key();
-        Ok(VerifiedCallableLoopMembershipV1 { source, frame })
+        Ok(VerifiedCallableLoopMembershipV1 {
+            source,
+            frame,
+            scope_region,
+        })
     }
 }
 

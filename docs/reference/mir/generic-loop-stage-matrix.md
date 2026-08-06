@@ -1124,3 +1124,26 @@ callable declaration/reference/assignment/exit coverage is sealed by the
 resolver-to-MAP join and outer canonical plan, not by the syntax observer.
 After `SyntaxFacts-S1`, execution goes directly to `MAP-S1`; no row-specific
 D0 suffixes or Recipe/physical/production/legacy work are opened by this stop.
+
+## Resolver SyntaxFacts-S1 implementation receipt (2026-08-07)
+
+`RESOLVER-SYNTAX-FACTS-S1` is closed as caller-zero evidence. The compiler-side
+observer publishes a sealed `VerifiedSourceSyntaxFactsV1` containing exactly
+nine syntax rows plus one separate prefix boundary. Its vocabulary is limited
+to neutral as-written operator, literal, initializer, call-boundary, and
+return-expression shapes; resolver identity, BindingRef, direct-call, exit,
+frame, and Scope/Region facts remain separate join inputs.
+
+The resolver loop membership handoff now preserves source/frame/Scope/Region
+as one move-preserving product. Unknown root-body statements are explicit
+rejects, so the observer cannot silently skip an unclassified statement.
+Focused caller-zero tests cover exact rows, source-lifetime independence,
+foreign context, Scope/Region retention, unknown statements, and a
+non-literal condition RHS. There is no MAP, Recipe, ValueId, CFG, PHI,
+Builder, production, retry/fallback, or legacy-retirement caller.
+
+The next execution row is `MAP-S1`. Once MAP-S1 is green, work stops for one
+`RECIPE-COSEAL-D0` design decision covering common Recipe/JoinSig,
+operation-source/effect relation, After/Tail envelope, and co-sealed
+Scope/Region/frame. This stage row is evidence-only and does not authorize
+physicalization or production selection.

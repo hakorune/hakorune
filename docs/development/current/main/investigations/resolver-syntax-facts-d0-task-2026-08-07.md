@@ -1,6 +1,6 @@
 # Resolver syntax-facts authority D0
 
-Status: `Decision stop; MAP-S1 is NoSafeSlice until this authority is sealed`
+Status: `closed; SyntaxFacts-S1 caller-zero implementation is sealed`
 
 Parent: `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`
 
@@ -56,14 +56,15 @@ Recipe, Verify, Lower, or physical code.
   duplicate/foreign site, prefix mismatch, non-terminal/opaque tail, and
   whole-callable coverage failure.
 - The reference entry, current pointer, MAP-S1 task, and workstream are
-  synchronized. Implementation is still caller-zero and docs must be updated
-  in the same commit as the later code.
+  synchronized. SyntaxFacts-S1 is caller-zero and its implementation/reference
+  closeout is recorded in the implementation task and matching reference row.
 
 ## Stop
 
 Return to design if the observer must become a second semantic resolver, if
 AST or names cross the observation boundary, if resolver identity is rebuilt
-from paths, or if the product requires Recipe/ValueId/CFG/PHI policy. Until
-this row is closed, MAP-S1, RECIPE-S2, PHYS-S3, production cutover, and legacy
-retirement remain closed. After this D0, do not add row-specific D0 suffixes:
-the next implementation row is `SyntaxFacts-S1`, then `MAP-S1` directly.
+from paths, or if the product requires Recipe/ValueId/CFG/PHI policy. This D0
+is closed; `MAP-S1` is the next execution row. Once MAP-S1 is green, open one
+`RECIPE-COSEAL-D0` design stop. Do not add row-specific D0 suffixes; physical
+cutover, production selection, retry/fallback retirement, and legacy deletion
+remain closed.

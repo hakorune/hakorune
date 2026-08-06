@@ -44,6 +44,8 @@ pub(in crate::mir) mod function_input;
 pub(in crate::mir) mod generic_g0_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod located;
+#[cfg(test)]
+pub(crate) mod callable_single_loop_syntax_facts;
 #[cfg(test)] pub(crate) mod loop_cond_break_continue_observation; #[cfg(test)] pub(crate) mod generic_g0_observation;
 #[allow(dead_code)] pub(in crate::mir) mod loop_cond_break_continue_projection;
 #[cfg(test)] pub(crate) mod loop_true_break_continue_observation;

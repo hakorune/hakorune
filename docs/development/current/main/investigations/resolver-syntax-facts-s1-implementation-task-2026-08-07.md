@@ -1,6 +1,6 @@
 # Resolver syntax facts S1 implementation
 
-Status: `caller-zero implementation; production route remains closed`
+Status: `closed; caller-zero SyntaxFacts product; production route remains closed`
 
 Parent: `RESOLVER-SYNTAX-FACTS-D0`
 
@@ -74,5 +74,26 @@ them from names or AST.
 ## Next
 
 After this row is green, reopen `MAP-S1` directly. Do not add another D0
-suffix. `RECIPE-S2`, physicalization, production selection, retry/fallback
-retirement, and legacy corpus deletion remain closed.
+suffix. The implementation closed the focused caller-zero row; `MAP-S1` is
+now the next execution row. After MAP-S1 is green, open one
+`RECIPE-COSEAL-D0` design stop for the common Recipe/JoinSig/effect/After/Tail
+and Scope/Region/frame co-seal. Physicalization, production selection,
+retry/fallback retirement, and legacy corpus deletion remain closed.
+
+## Closeout
+
+- Result: `VerifiedSourceSyntaxFactsV1` is sealed with nine syntax rows plus
+  one prefix boundary; the product owns neutral as-written shapes only.
+- Authority repair: resolver loop membership now carries source, frame, and
+  Scope/Region as one move-preserving product; no `into_parts` path drops the
+  Scope/Region brand.
+- Reject repair: unknown root-body statements are explicit rejects; the
+  observer never silently skips an unclassified statement.
+- Focused evidence: six tests cover exact rows, source lifetime independence,
+  foreign context, unknown statements, non-literal condition RHS, and
+  Scope/Region retention.
+- Non-claims: no MAP/Recipe/ValueId/CFG/PHI/Builder/production caller was
+  added.
+- Reference sync: the matching `docs/reference/**` stage row is updated in
+  the same implementation commit; future MAP/Recipe implementation commits
+  must update their reference row in the same commit as well.

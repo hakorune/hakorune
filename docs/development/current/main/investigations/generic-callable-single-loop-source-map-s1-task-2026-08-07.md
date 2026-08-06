@@ -1,6 +1,6 @@
 # Callable single-loop source map S1
 
-Status: `NoSafeSlice: resolver syntax-facts authority required before implementation`
+Status: `ready; caller-zero MAP-S1 implementation; production route remains closed`
 
 Parent: `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`
 
@@ -51,9 +51,10 @@ resolver facts and a sanctioned `VerifiedSourceSyntaxFactsV1` product joined
 by owner-branded typed sites. The map remains AST-free and compiler-side; the
 syntax observer is not a Recipe or physical owner.
 
-The dependency sequence is intentionally finite: implement the caller-zero
-`SyntaxFacts-S1` product after `RESOLVER-SYNTAX-FACTS-D0`, then reopen this
-`MAP-S1` row directly. No row-specific D0 suffixes are authorized.
+The dependency sequence is intentionally finite: the caller-zero
+`SyntaxFacts-S1` product is now sealed after `RESOLVER-SYNTAX-FACTS-D0`, so
+this `MAP-S1` row is the next implementation boundary. No row-specific D0
+suffixes are authorized.
 
 ## Acceptance
 
@@ -74,5 +75,8 @@ The dependency sequence is intentionally finite: implement the caller-zero
 
 Return to design if the syntax-facts owner is not sealed, if any operator/RHS/
 step/literal/prefix/tail row remains opaque, or if a Recipe/ValueId/CFG/PHI
-decision is needed. `RECIPE-S2` and `PHYS-S3` remain closed until this row is
-reopened after `RESOLVER-SYNTAX-FACTS-D0`.
+decision is needed. When this row is green, stop at one
+`RECIPE-COSEAL-D0` design decision for the common Recipe/JoinSig/effect/
+After/Tail and Scope/Region/frame co-seal. Physicalization, production
+selection, retry/fallback retirement, and legacy deletion remain closed until
+that design stop is accepted.

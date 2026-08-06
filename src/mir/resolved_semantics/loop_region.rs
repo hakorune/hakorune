@@ -212,6 +212,25 @@ impl ResolvedLoopRegionIndexV1 {
 }
 
 impl VerifiedResolvedFunctionV1 {
+    /// Issues one resolver-owned Loop source token and its sealed lexical
+    /// Scope/Region pair. This is the only combined context entry point for
+    /// downstream source observers.
+    pub(crate) fn resolved_loop_source_context(
+        &self,
+        site: &SourceStmtSiteV1,
+    ) -> Result<
+        (VerifiedResolvedLoopSourceV1, ResolvedScopeRegionPairV1),
+        ResolvedLoopRegionLookupErrorV1,
+    > {
+        let bundle = self.loop_region_bundle(site)?;
+        let source = VerifiedResolvedLoopSourceV1 {
+            function_origin: self.function_origin(),
+            owner_source_kind: self.source_kind(),
+            site: site.clone(),
+        };
+        Ok((source, bundle.loop_pair()))
+    }
+
     /// Looks up `site` relative to this product's function owner.
     pub(crate) fn loop_region_bundle(
         &self,

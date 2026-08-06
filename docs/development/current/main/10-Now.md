@@ -60,18 +60,15 @@ Related:
   not prove Recipe/JoinSig projection or physical consumption. The selected
   callable fixture is a single-loop profile and is intentionally separate from
   the nested Generic G0 Recipe producer. `GENERIC-CALLABLE-SINGLE-LOOP-
-  SOURCE-LEDGER-S1` is now closed as caller-zero evidence: the resolver
-  publishes one immutable typed source view, explicit row-family queries, and
-  resolver-issued Loop membership/frame identity. The API audit found that
-  operator/RHS/initializer/prefix/tail syntax facts are not resolver products,
-  so MAP-S1 is `NoSafeSlice`. The current design stop is
-  `RESOLVER-SYNTAX-FACTS-D0`: seal one AST-free syntax observer and its
-  resolver-issued Scope/Region join. The D0 is accepted; the active execution
-  row is caller-zero `SyntaxFacts-S1`, documented in the implementation task.
-  It must publish exactly nine syntax rows plus one prefix boundary, with no
-  AST lifetime or semantic policy leakage. MAP-S1 opens only after its focused
-  gates are green. Physicalization, production selection, strict receipt,
-  retry/fallback retirement, and legacy deletion remain closed.
+  SOURCE-LEDGER-S1` and resolver `SyntaxFacts-S1` are now closed as
+  caller-zero evidence. The resolver publishes one immutable typed source view
+  and one Loop membership product carrying source/frame/Scope/Region; the
+  syntax observer publishes exactly nine neutral syntax rows plus one prefix
+  boundary and rejects unknown root statements. The active execution row is
+  caller-zero `MAP-S1`, documented in its implementation task. After MAP-S1 is
+  green, stop once for `RECIPE-COSEAL-D0`; physicalization, production
+  selection, strict receipt, retry/fallback retirement, and legacy deletion
+  remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only
