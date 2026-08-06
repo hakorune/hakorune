@@ -33,7 +33,9 @@ Related:
   selector S2 are landed. The shallow `GENERIC-SELECTION-OPEN-D0` gate is
   closed through its I0/R0 resolver-branded candidate envelope. The next
   policy handoff design and its single I0/R0 caller-zero implementation are
-  closed. The current next boundary is Generic demand/Recipe handoff. Production
+  closed. `GENERIC-G0-DEMAND-S3-D0` is accepted and the current row is its
+  caller-zero `GENERIC-G0-DEMAND-S3-I0-R0` implementation: one canonical window
+  lease, consuming selector APIs, and exact source-role retention. Production
   selection, Recipe handoff,
   physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

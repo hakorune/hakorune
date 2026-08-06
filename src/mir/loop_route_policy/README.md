@@ -257,9 +257,13 @@ the caller-zero boundary and the <800-line source/test limit. This is a
 caller-zero semantic product only. The bounded
 `GENERIC-SELECTION-OPEN-D0-I0-R0` candidate-envelope witness is closed; the
 `GENERIC-SELECTION-POLICY-HANDOFF-D0` design and its single I0/R0 caller-zero
-implementation are closed. The next boundary is Generic demand/Recipe
-handoff. Physicalization, production cutover, and legacy deletion remain
-separate rows.
+implementation are closed. The current accepted boundary is
+`GENERIC-G0-DEMAND-S3-D0` (see
+`docs/development/current/main/investigations/generic-g0-demand-s3-design-task-2026-08-07.md`):
+the selector owns one canonical window lease, the Generic handoff borrows only
+an opaque brand projection, and Demand consumes the selected Generic product
+once while retaining exact source roles. Physicalization, production cutover,
+and legacy deletion remain separate rows.
 The implementation commit updates this README, the loop SSOT, reference
 matrix, workstream, and current mirrors together as the required
 post-implementation reference receipt.

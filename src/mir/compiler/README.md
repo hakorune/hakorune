@@ -93,7 +93,8 @@ the fact.
 Focused G0 observation/policy tests and the shared caller-zero guard are
 green. This row still has no production caller, demand, Recipe, Builder/MIR,
 retry, fallback, or legacy-retirement claim. The next ordered boundary is the
-design/implementation of `GENERIC-G0-DEMAND-S3`.
+accepted design stop `GENERIC-G0-DEMAND-S3-D0`; its implementation row is
+`GENERIC-G0-DEMAND-S3-I0-R0`.
 
 The five family observers now consume their source attempts exactly once and
 retain typed expected/observed identity, mode, and coverage evidence on every

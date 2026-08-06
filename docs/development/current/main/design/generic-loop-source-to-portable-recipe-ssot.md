@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `policy handoff I0/R0 is landed caller-zero; production activation remains 0`
+Status: `Generic G0 demand design D0 is accepted; production activation remains 0`
 
-Current row: `GENERIC-G0-DEMAND-S3`
+Current row: `GENERIC-G0-DEMAND-S3-I0-R0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -13,6 +13,17 @@ caller-zero selector receipts are closed; the existing
 `GENERIC-SELECTION-OPEN-D0-I0-R0` candidate-envelope witness is closed. The
 policy handoff design and its bounded I0/R0 implementation are closed as
 caller-zero evidence; no new D4 suffix is authorized.
+
+The next design stop is recorded in
+`docs/development/current/main/investigations/generic-g0-demand-s3-design-task-2026-08-07.md`.
+It closes the Selected(Generic) -> Demand boundary before implementation. The
+common selector owns the one canonical window lease; the Generic handoff only
+keeps a private brand projection borrowed from that lease and never performs a
+second resolver lookup. `GENERIC-G0-DEMAND-S3-I0-R0` remains the next
+caller-zero implementation row after this design stop.
+
+The implementation contract is
+`docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.
 
 The closed I0/R0 cell is recorded in
 `docs/development/current/main/investigations/generic-selection-open-d0-candidate-envelope-task-2026-08-06.md`.
@@ -406,6 +417,20 @@ S0A structure lease
 No stage clones, reconstructs, or reissues an earlier lease. In particular,
 S4 never recovers source/type/numeric authority from names, Recipe keys, or
 test fixtures.
+
+### Selected(Generic) -> Demand lease rule
+
+The selector's `VerifiedLoopFamilyWindowLeaseV1` is the sole canonical
+source-window owner. A Generic policy handoff may borrow that lease to mint an
+opaque private brand, but it must not issue or retain another resolver lease.
+Demand consumes the selected lease exactly once and co-seals the borrowed
+brand against it. Tuple-only equality, a second resolver lookup, hidden
+re-rooting, and silently dropping either lease are rejected design paths.
+
+Demand carries the existing typed source bundle and post-loop read by value;
+it does not copy role rows, issue `LoopBindingKeyV1`, or add a second numeric
+target. S3 only seals source roles/BindingRefs and provenance. S4 remains the
+sole Recipe-key, relation, JoinSig/Core/After, and aggregate producer.
 
 ## Exact portable G0 mapping
 
@@ -822,11 +847,17 @@ GENERIC-SELECTION-POLICY-HANDOFF-I0-R0
   no production caller, demand, Recipe, Builder/MIR, retry, fallback, or
   legacy deletion
 
-GENERIC-G0-DEMAND-S3
-  role/site/BindingRef demand only; no Recipe key issuance
+GENERIC-G0-DEMAND-S3-D0
+  accepted design stop: one canonical selector lease, borrowed handoff brand,
+  consuming move-out APIs, exact role/site/BindingRef retention, and typed
+  Reject/Unresolved outcomes; no Recipe key issuance
+
+GENERIC-G0-DEMAND-S3-I0-R0
+  cfg(test)-only caller-zero consuming witness; no production caller
 
 GENERIC-G0-RECIPE-S4
-  sole key issuer; exact Recipe/JoinSig/core/effect/tail product
+  after S3 I0/R0, one design stop then sole key issuer; exact
+  Recipe/JoinSig/core/effect/tail product
 
 GENERIC-LEGACY-CORPUS-UNIVERSE-P0
   normalize active fast/selfhost/smoke/fixture cohorts without guessing the route

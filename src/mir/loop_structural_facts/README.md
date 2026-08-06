@@ -32,6 +32,11 @@ cfg(test)-only source lease witness and is not a second production authority.
 The handoff implementation is caller-zero and does not open demand, Recipe,
 Builder/MIR, retry, fallback, or legacy deletion.
 
+The next design stop is `GENERIC-G0-DEMAND-S3-D0`. The common selector's
+window lease is the sole canonical source-window owner; a Generic handoff may
+retain only a private brand projection borrowed from that lease. Demand must
+not receive a second resolver lease or reconstruct role/BindingRef rows.
+
 `generic_g0_observation.rs` owns the neutral S1 source-attempt transport. It
 stores only the existing typed candidate or C/D/U/R source outcome together
 with owner/origin/source-kind/site/frame identity, mode, and coverage. It does
