@@ -330,8 +330,9 @@ D4-S4-S3-S1-D0
   -> closed: NoSafeSlice design stop; typed literals and resolver parameter
      types are not co-sealed, so no source-type proof is claimed
 D4-S4-S3-S1-S0
-  -> next: cfg(test)-only receipt witness; preserve TypedInteger, then design
-     paired owner-branded parameter type map; no selector/demand/Recipe/MIR
+  -> TypedInteger-preservation sub-slice closed cfg(test)-only; next design
+     step is the paired owner-branded parameter type map; no selector/demand/
+     Recipe/MIR
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

@@ -35,10 +35,14 @@ pub(crate) enum GenericUnsupportedOperandV3 {
     OtherExpression,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum GenericOperandSyntaxFactV3 {
     Binding(BindingRefV1),
     IntegerLiteral(i64),
+    TypedIntegerLiteral {
+        value: i64,
+        declared_type_name: Box<str>,
+    },
     Unsupported(GenericUnsupportedOperandV3),
 }
 
@@ -63,8 +67,8 @@ impl GenericConditionSyntaxFactV3 {
         self.lhs
     }
 
-    pub(crate) const fn rhs(&self) -> GenericOperandSyntaxFactV3 {
-        self.rhs
+    pub(crate) fn rhs(&self) -> &GenericOperandSyntaxFactV3 {
+        &self.rhs
     }
 }
 
@@ -99,8 +103,8 @@ impl GenericStepSyntaxFactV3 {
         self.lhs
     }
 
-    pub(crate) const fn rhs(&self) -> GenericOperandSyntaxFactV3 {
-        self.rhs
+    pub(crate) fn rhs(&self) -> &GenericOperandSyntaxFactV3 {
+        &self.rhs
     }
 }
 
@@ -272,6 +276,13 @@ fn operand_fact(
         },
         ASTNode::Literal { value, .. } => match value {
             LiteralValue::Integer(value) => Ok(GenericOperandSyntaxFactV3::IntegerLiteral(*value)),
+            LiteralValue::TypedInteger {
+                value,
+                declared_type_name,
+            } => Ok(GenericOperandSyntaxFactV3::TypedIntegerLiteral {
+                value: *value,
+                declared_type_name: declared_type_name.as_str().into(),
+            }),
             _ => Ok(GenericOperandSyntaxFactV3::Unsupported(
                 GenericUnsupportedOperandV3::NonIntegerLiteral,
             )),
@@ -357,8 +368,67 @@ mod tests {
         }
     }
 
+    fn replace_integer_literals_with_typed(node: &mut ASTNode, remaining: &mut usize) {
+        match node {
+            ASTNode::FunctionDeclaration { body, .. } => {
+                for statement in body {
+                    replace_integer_literals_with_typed(statement, remaining);
+                }
+            }
+            ASTNode::Loop {
+                condition, body, ..
+            } => {
+                replace_integer_literals_with_typed(condition, remaining);
+                for statement in body {
+                    replace_integer_literals_with_typed(statement, remaining);
+                }
+            }
+            ASTNode::Assignment { target, value, .. } => {
+                replace_integer_literals_with_typed(target, remaining);
+                replace_integer_literals_with_typed(value, remaining);
+            }
+            ASTNode::BinaryOp { left, right, .. } => {
+                replace_integer_literals_with_typed(left, remaining);
+                replace_integer_literals_with_typed(right, remaining);
+            }
+            ASTNode::Return { value, .. } => {
+                if let Some(value) = value {
+                    replace_integer_literals_with_typed(value, remaining);
+                }
+            }
+            ASTNode::Literal { value, .. } => {
+                if *remaining == 0 {
+                    return;
+                }
+                let LiteralValue::Integer(actual) = value else {
+                    return;
+                };
+                *value = LiteralValue::TypedInteger {
+                    value: *actual,
+                    declared_type_name: "i64".to_owned(),
+                };
+                *remaining -= 1;
+            }
+            _ => {}
+        }
+    }
+
     fn issue(source: &str) -> GenericConditionStepSyntaxFactsV3 {
         let syntax_ast = function_ast(source);
+        let syntax = FunctionSyntaxViewV1::from_ast(&syntax_ast).expect("function view");
+        let unit = lease_tests::unit(source);
+        let (input, root) = lease_tests::input_and_root(&unit);
+        let function = input.function();
+        let lease = lease_tests::positive_lease(input, &root);
+        let handoff = issue_carrier_proof_v1(lease).expect("carrier proof");
+        let v2 = issue_generic_shape_source_lease_v2(function, handoff).expect("v2 roles");
+        issue_condition_step_syntax_facts_v3(function, syntax, v2).expect("syntax facts")
+    }
+
+    fn issue_with_syntax_ast(
+        source: &str,
+        syntax_ast: ASTNode,
+    ) -> GenericConditionStepSyntaxFactsV3 {
         let syntax = FunctionSyntaxViewV1::from_ast(&syntax_ast).expect("function view");
         let unit = lease_tests::unit(source);
         let (input, root) = lease_tests::input_and_root(&unit);
@@ -411,12 +481,12 @@ function generic_symbolic(i, j, bound, delta) {
         assert_eq!(facts.condition().operator(), &BinaryOperator::Less);
         assert_eq!(
             facts.condition().rhs(),
-            GenericOperandSyntaxFactV3::IntegerLiteral(3)
+            &GenericOperandSyntaxFactV3::IntegerLiteral(3)
         );
         assert_eq!(facts.step().operator(), &BinaryOperator::Add);
         assert_eq!(
             facts.step().rhs(),
-            GenericOperandSyntaxFactV3::IntegerLiteral(1)
+            &GenericOperandSyntaxFactV3::IntegerLiteral(1)
         );
         assert_eq!(facts.condition().lhs(), facts.step().lhs());
     }
@@ -438,6 +508,30 @@ function generic_symbolic(i, j, bound, delta) {
         assert!(matches!(
             facts.step().rhs(),
             GenericOperandSyntaxFactV3::Binding(_)
+        ));
+    }
+
+    #[test]
+    fn preserves_typed_integer_spelling_without_numeric_policy() {
+        let mut syntax_ast = function_ast(CANONICAL);
+        let mut remaining = 4;
+        replace_integer_literals_with_typed(&mut syntax_ast, &mut remaining);
+        assert_eq!(remaining, 0);
+
+        let facts = issue_with_syntax_ast(CANONICAL, syntax_ast);
+        assert!(matches!(
+            facts.condition().rhs(),
+            GenericOperandSyntaxFactV3::TypedIntegerLiteral {
+                value: 3,
+                declared_type_name,
+            } if declared_type_name.as_ref() == "i64"
+        ));
+        assert!(matches!(
+            facts.step().rhs(),
+            GenericOperandSyntaxFactV3::TypedIntegerLiteral {
+                value: 1,
+                declared_type_name,
+            } if declared_type_name.as_ref() == "i64"
         ));
     }
 

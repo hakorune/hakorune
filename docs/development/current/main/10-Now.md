@@ -116,8 +116,8 @@ Related:
   publishes AST-free syntax facts and policy owns operator/type/overflow/
   monotonicity. D4-S4-S3-S0 is closed with six cfg(test)-only syntax-fact
   witnesses and no public reference row. D4-S4-S3-D1 and S1-D0 are closed;
-  next is D4-S4-S3-S1-S0, a cfg(test)-only receipt witness that first preserves
-  TypedInteger and then designs a paired branded parameter type map. Full
+  the TypedInteger-preservation sub-slice of S1-S0 is now closed; its remaining
+  cfg(test)-only step designs a paired branded parameter type map. Full
   shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback
   remain gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,

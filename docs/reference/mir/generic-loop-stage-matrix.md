@@ -73,7 +73,7 @@ NestedPredicate aliases are forbidden. The following paragraph is retained as
 historical handoff context: D4-S4-D0 through D4-S4-S3-S0 subsequently closed
 as design/test-only evidence, without a public semantic row or production
 caller. D4-S4-S3-D1 has since closed its authority split. The current blocker
-is the D4-S4-S3-S1-D0 typed numeric source-bridge design stop in
+is the D4-S4-S3-S1-S0 typed numeric receipt witness in
 `CURRENT_STATE.toml`; no `Selected(Generic)` or Recipe claim is implied here.
 
 ```text
