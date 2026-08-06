@@ -1,6 +1,6 @@
 # Generic raw structured GenericLoop carrier representation D0
 
-Status: `design stop opened 2026-08-07; implementation is not authorized`
+Status: `design closed 2026-08-07; implementation was not authorized in this row`
 
 Parent receipt:
 
@@ -75,7 +75,7 @@ successful initializer emission
   -> publish variable_map["v"] = final_local
 ```
 
-The source path is therefore a local-initializer site (`Body(0).Value` for the
+The source path is therefore a local-initializer site (`Body(0).Initializer(0)` for the
 `int_to_str/1` declaration), not a GenericLoop-derived type site.  The
 lowering-time consumer is already correct and remains verifier-only:
 
@@ -111,17 +111,22 @@ once, then the existing GenericLoop verifier consumes the resulting
 The candidate I0 slice is consequently narrowed to:
 
 ```text
-exact StringHelpers.int_to_str/1 Body(0).Value source contract
+exact StringHelpers.int_to_str/1 Body(0).Initializer(0) source contract
   + exact result producer for me.to_i64(n)
   + final ValueId(3) successful-emission receipt
   -> one Integer type publication
 ```
 
 It must not open Generic production, physical cutover, legacy retirement,
-retry/fallback, or a general unannotated-call inference framework.  Whether
-the source contract is an existing callable-result product or a new narrow
-static-current-owner bridge is the remaining D0 decision; implementation is
-still unauthorized until that choice is sealed with a focused negative proof.
+retry/fallback, or a general unannotated-call inference framework.  The exact
+owner decision is now handed to the separate static-call publication D0:
+
+```text
+docs/development/current/main/investigations/
+generic-raw-structured-static-call-result-publication-d0-task-2026-08-07.md
+```
+
+The carrier consumer and local materializer remain unchanged by this closeout.
 
 ## Minimum implementation slice after D0
 

@@ -51,8 +51,8 @@ Related:
   next body-item source-path boundary. S3-D0/I0 is now closed: nested body
   item sites are canonicalized without changing rootful body receipts, and
   the fresh release probe reaches the GenericLoop carrier transient-type
-  boundary. The current design stop is
-  `GENERIC-RAW-STRUCTURED-GENERIC-LOOP-CARRIER-REPRESENTATION-D0`.
+  boundary. The carrier audit is closed; the current design stop is
+  `GENERIC-RAW-STRUCTURED-STATIC-CALL-RESULT-PUBLICATION-D0`.
   Production selection, physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed

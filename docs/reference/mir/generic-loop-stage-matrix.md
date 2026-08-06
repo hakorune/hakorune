@@ -249,8 +249,9 @@ The fresh release probe now reaches `generic_loop_v1` carrier representation
 and fails with `MissingTransientType { init: ValueId(3) }`. The current design
 stop is
 `GENERIC-RAW-STRUCTURED-GENERIC-LOOP-CARRIER-REPRESENTATION-D0`; no Generic
-production or physical cutover claim is opened. The next design task is
-`docs/development/current/main/investigations/generic-raw-structured-generic-loop-carrier-representation-d0-task-2026-08-07.md`.
+production or physical cutover claim is opened. That carrier audit is closed;
+the next design task is
+`docs/development/current/main/investigations/generic-raw-structured-static-call-result-publication-d0-task-2026-08-07.md`.
 
 This is evidence about the shared raw structured-child owner only. No Generic
 route, Recipe, physical, disposition, production, retry, or legacy deletion
