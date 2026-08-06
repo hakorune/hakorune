@@ -1049,8 +1049,11 @@ reserved as the later physical owner. The selected callable fixture is a
 single-loop source profile and is not the nested two-loop `generic_g0`
 profile; direct projection between them is rejected. The current design stop
 is `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-D0`: close the explicit
-source-to-common-Recipe/JoinSig/effect map, including operator/bound, step,
-carrier, target/value pairing, After, and tail disposition, or return
-`NoSafeSlice`. The later physical proof and production selection remain
+resolver-owned typed source ledger first, then the source-to-common-
+Recipe/JoinSig/effect map, including operator/bound, step, carrier,
+target/value pairing, Loop scope, After, and tail disposition, or return
+`NoSafeSlice`. The existing S0 three-role schedule is a subset claim only;
+it does not close direct-call, exit, upvar, field/index, lambda, or other
+callable rows. The later physical proof and production selection remain
 closed, and every implementation cutover must update this reference entry in
 the same commit as its code.

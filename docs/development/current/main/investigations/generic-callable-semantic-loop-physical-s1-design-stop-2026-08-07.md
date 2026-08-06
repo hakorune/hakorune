@@ -23,6 +23,13 @@ single loop (`StringHelpers.int_to_str/1`); the existing Generic G0 Recipe
 producer is a different nested two-loop `i64` profile. Directly mapping one to
 the other would be an implementation guess and is rejected.
 
+The S0 projector is also still a lowering-state migration bridge. It receives
+flattened `SourceNodeSiteV1` maps, does not retain typed expression/statement
+membership, does not co-seal a resolver Loop region/frame, and does not cover
+upvar/field/index/call/exit rows. Its three receipts therefore cannot close
+the whole callable ledger. A path that merely has the right suffix is not
+source authority.
+
 ## Decision
 
 The next slice is one shallow design row:
@@ -35,6 +42,15 @@ The callable profile is a separate source profile that must project into the
 common `LoopRecipeV1` vocabulary. It must not widen or relabel the existing
 `generic_g0` nested profile, and it must not create a Generic-specific
 physicalizer or SSA/PHI owner.
+
+Before the mapping is implemented, the same S1 design must close the
+resolver-owned source view. The view is immutable, owner/frame branded, and
+borrowed from the existing `VerifiedSemanticOwnerForestV1`/resolved-function
+product; it adds no AST or `ValueId` authority. It must retain typed source
+rows and dispositions for declarations, lexical refs, assignment targets,
+direct calls, exits, lambdas, and unsupported/opaque rows. Loop policy remains
+in the compiler projector. The three S0 loop receipts are one subset claim,
+not whole-callable completion.
 
 The design must close this immutable mapping before code is written:
 
@@ -56,6 +72,7 @@ the selected profile without inventing a second authority, the result is
 
 ```text
 resolver/source inventory + one-shot source lease
+  -> callable source ledger view (typed rows + Loop region/frame membership)
   -> callable source projection and role map
   -> existing LoopRecipeV1 / VerifiedLoopCoreProductV1 / JoinSig
   -> RecipeVerifier
@@ -69,6 +86,11 @@ ValueId maps remain migration bridges only. They cannot be the S1 source
 authority, a Recipe field, or a second physical ledger. `RawInvocationChildPort`
 must not discard a receipt and then claim physical consumption; the discarded
 S0 receipt remains evidence only until the real handoff is implemented.
+
+The physical path also has one additional obligation: the canonical semantic
+stack must consume the Loop scope/region pair and the caller must own the
+post-loop tail/return completion. `VerifiedGenericAfterEffectG0` is nested-G0
+specific and cannot be reused for the callable single-loop profile.
 
 ## Required negative boundary
 
@@ -88,8 +110,10 @@ ValueId/PHI, or post-effect ledger repair.
 ## Shallow execution ladder
 
 ```text
-S1-D0   close this source->Recipe map and NoSafeSlice boundary
-S1-MAP  implement AST-free Recipe/JoinSig/effect product + immutable negatives
+S1-D0   close resolver ledger, typed Loop membership, source->Recipe map,
+        Loop scope, After/tail, and NoSafeSlice boundaries
+S1-MAP  implement caller-zero source ledger/projector plus AST-free
+        Recipe/JoinSig/effect product + immutable negatives
 S1-PHYS prove canonical physicalizer, After/tail, completion, fresh-session,
         exactly-once ledger consumption, DraftSeal (production caller = 0)
 S2-CUT  named production caller = 1, selected old callers = 0, strict/backend

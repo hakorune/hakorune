@@ -36,12 +36,15 @@ The callable handoff S0 is now closed as pre-effect evidence only. Its selected
 `StringHelpers.int_to_str/1` fixture is a single-loop profile with three loop
 roles, while `generic_g0` is the separate nested two-loop `i64` profile. S0
 must not be projected into the G0 Recipe by shape similarity. The active design
-stop is `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-D0`: close an explicit,
-AST-free source-to-common-Recipe/JoinSig/effect map (including condition
-operator/bound, step, carrier, assignment target/value, After, and tail
-disposition) or return `NoSafeSlice`. Reuse the common Recipe/physicalizer
-owners; do not add a Generic-specific SSA/PHI owner. Production selection,
-physical cutover, retry/fallback retirement, and legacy deletion remain closed.
+stop is `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-D0`: first close the
+resolver-owned typed callable source ledger, then an explicit AST-free
+source-to-common-Recipe/JoinSig/effect map (including condition operator/bound,
+step, carrier, assignment target/value, Loop scope, After, and tail
+disposition) or return `NoSafeSlice`. The S0 three-role schedule is a subset
+claim only and does not close the whole callable ledger. Reuse the common
+Recipe/physicalizer owners; do not add a Generic-specific SSA/PHI owner.
+Production selection, physical cutover, retry/fallback retirement, and legacy
+deletion remain closed.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.
