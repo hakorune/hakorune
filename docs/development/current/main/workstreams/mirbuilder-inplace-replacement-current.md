@@ -30,15 +30,15 @@ Legacy fallback/retry、完成Program形ごとのvariant列挙は作らない。
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
 diffs and proof transcripts; this card keeps the live task and boundaries.
 
-## Callable single-loop source ledger and SyntaxFacts S1
+## Callable single-loop source ledger, SyntaxFacts, and MAP S1
 
-`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1` and `RESOLVER-SYNTAX-FACTS-S1`
-are closed caller-zero. The resolver ledger exposes
-typed source rows and one Loop membership product carrying source/frame/Scope/Region;
-`VerifiedSourceSyntaxFactsV1` adds exactly nine neutral syntax rows plus one prefix boundary.
-Unknown root statements reject explicitly. No AST/ValueId copy, Loop policy, Recipe,
-physical, or Builder/MIR caller was added; focused tests are green. The next execution row is `MAP-S1`. After MAP-S1, stop once at
-`RECIPE-COSEAL-D0`; physical, production, retry/fallback, and deletion stay closed.
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1`, `RESOLVER-SYNTAX-FACTS-S1`,
+and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. The
+resolver ledger owns source/frame/Scope/Region; SyntaxFacts owns nine neutral rows plus prefix; MAP co-seals BindingRef/assignment/terminal-return evidence and the selected `0`/`1`/`Less`/`Add` policy. The MethodCall prefix remains an
+outer-callable boundary when no canonical target exists. No AST/ValueId, Recipe,
+physical, or Builder/MIR caller was added. The next and only design stop is
+shallow `RECIPE-COSEAL-D0`; physical, production, retry/fallback, and deletion
+stay closed.
 
 ## Root-neutral semantic foundation
 

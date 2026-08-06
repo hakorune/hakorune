@@ -1147,3 +1147,44 @@ The next execution row is `MAP-S1`. Once MAP-S1 is green, work stops for one
 operation-source/effect relation, After/Tail envelope, and co-sealed
 Scope/Region/frame. This stage row is evidence-only and does not authorize
 physicalization or production selection.
+
+## Callable source-map MAP-S1 implementation receipt (2026-08-07)
+
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` is closed as a caller-zero,
+`cfg(test)` source-map product. `callable_single_loop_source_map.rs` joins the
+resolver-owned `CallableSemanticSourceLedgerView` with the sealed
+`VerifiedSourceSyntaxFactsV1` product and publishes
+`VerifiedCallableSingleLoopSourceMapV1`.
+
+The product has exactly nine loop/tail rows plus a separate prefix boundary:
+
+```text
+InitialCarrier
+ConditionRead / ConditionBound / ConditionOperator
+StepRead / StepDelta / StepOperator / StepWrite
+TailReturnRead
+PrefixBoundary
+```
+
+The map retains typed source sites and neutral syntax payloads. Resolver
+`BindingRefV1`, assignment target, and terminal-return evidence are joined
+exactly; condition/step/read/write rows share the initial loop carrier
+binding, while the tail is an exact lexical read of the selected prefix
+result binding. Resolver-issued loop source/frame/Scope/Region are reissued
+and fully compared with the syntax context. The prefix optionally retains an
+applicable direct-call receipt; the selected MethodCall remains an outer
+callable boundary because the resolver has no canonical callable target for
+that method call.
+
+The selected MAP policy is fixed to initial `0`, bound/delta `1`, `Less`, and
+`Add`; typed/other literals and operators reject before any Builder effect.
+Four focused tests cover positive sealing, source lifetime independence,
+foreign owner, and an out-of-profile literal. The map contains no AST,
+Recipe/JoinSig, ValueId, CFG, PHI, Builder, physicalizer, production route,
+retry, fallback, or legacy-retirement authority. The source file remains
+under the 800-line lane limit.
+
+The next and only design stop is `RECIPE-COSEAL-D0`, which must co-seal the
+common Recipe/JoinSig/operation-source/effect/After/Tail and Scope/Region/frame
+owners before any physical or production work opens. Reference documentation
+must be updated again in the same commit as that implementation.

@@ -591,7 +591,7 @@ fn binary_operator_shape(operator: &BinaryOperator) -> SyntaxBinaryOperatorV1 {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use crate::ast::{DeclarationAttrs, Span};
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
@@ -686,7 +686,7 @@ mod tests {
         }
     }
 
-    fn unit(
+    pub(crate) fn unit(
         extra_root_statement: Option<ASTNode>,
         condition_rhs: ASTNode,
     ) -> VerifiedResolvedSourceUnitV1 {
@@ -697,7 +697,7 @@ mod tests {
         .expect("syntax facts fixture resolves")
     }
 
-    fn input_loop_and_context(
+    pub(crate) fn input_loop_and_context(
         unit: &VerifiedResolvedSourceUnitV1,
     ) -> (
         ResolvedFunctionLoweringInputV1<'_>,

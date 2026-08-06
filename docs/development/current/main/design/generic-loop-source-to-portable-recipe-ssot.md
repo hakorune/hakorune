@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0, callable handoff S0, callable source ledger S1, and resolver SyntaxFacts-S1 are closed caller-zero; MAP-S1 is the next execution row; Recipe/physical/production activation remains 0`
+Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0, callable handoff S0, callable source ledger S1, resolver SyntaxFacts-S1, and caller-zero MAP-S1 are closed; RECIPE-COSEAL-D0 is the next design stop; Recipe/physical/production activation remains 0`
 
-Current row: `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1`
+Current row: `RECIPE-COSEAL-D0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -35,23 +35,26 @@ current design stop is the compact source-bound handoff before wiring
 The callable handoff S0 is now closed as pre-effect evidence only. Its selected
 `StringHelpers.int_to_str/1` fixture is a single-loop profile with three loop
 roles, while `generic_g0` is the separate nested two-loop `i64` profile. S0
-must not be projected into the G0 Recipe by shape similarity. The ledger S1
-and resolver SyntaxFacts-S1 are now closed caller-zero products. SyntaxFacts
-owns neutral as-written shape only; resolver loop membership preserves
-source/frame/Scope/Region as one product, and unknown root-body statements are
-explicit rejects. MAP-S1 is the next execution row; do not add row-specific D0
-suffixes. After MAP-S1 is green, stop once for `RECIPE-COSEAL-D0` to fix the
-common Recipe/JoinSig/effect/After/Tail and Scope/Region/frame co-seal. Reuse
+must not be projected into the G0 Recipe by shape similarity. The ledger S1,
+resolver SyntaxFacts-S1, and caller-zero MAP-S1 are now closed products.
+SyntaxFacts owns neutral as-written shape only; resolver loop membership
+preserves source/frame/Scope/Region as one product, and unknown root-body
+statements are explicit rejects. MAP-S1 co-seals the nine syntax rows plus
+prefix boundary with resolver BindingRef/assignment/exit evidence and fixes
+the selected `0`/`1`/`Less`/`Add` profile policy. The next row is one shallow
+`RECIPE-COSEAL-D0` design stop; do not add row-specific D0 suffixes. Reuse
 the common Recipe/physicalizer owners; do not add a Generic-specific SSA/PHI
 owner. Production selection, physical cutover, retry/fallback retirement, and
 legacy deletion remain closed.
 
-`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1` and
-`RESOLVER-SYNTAX-FACTS-S1` are now closed as caller-zero evidence. The
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1`,
+`RESOLVER-SYNTAX-FACTS-S1`, and
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are now closed as caller-zero
+evidence. The
 resolver-owned typed source view and the AST-free syntax product retain exact
 source roles without copying ValueIds, inferring frames from raw paths, or
-moving Loop policy into the resolver. MAP-S1 is now the next row. Once it is
-green, open one `RECIPE-COSEAL-D0`; do not reopen the old deep D4 ladder.
+moving Loop policy into the resolver. Open one `RECIPE-COSEAL-D0`; do not
+reopen the old deep D4 ladder.
 Recipe/JoinSig, physicalizer, production selection, retry/fallback retirement,
 and legacy deletion remain closed.
 
@@ -60,8 +63,8 @@ The S1 implementation contract is
 The mapping design contract is
 `docs/development/current/main/investigations/generic-callable-single-loop-source-recipe-map-d0-task-2026-08-07.md`.
 
-The current syntax-facts design stop is
-`docs/development/current/main/investigations/resolver-syntax-facts-d0-task-2026-08-07.md`.
+The current design stop is
+`docs/development/current/main/investigations/generic-callable-loop-recipe-coseal-d0-task-2026-08-07.md`.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.
@@ -81,7 +84,7 @@ row, not a callable-specific effect owner. The full S0 callable (prefix,
 declarations, loop, and tail) must be consumed by one outer canonical plan;
 Loop-only completion is `NoSafeSlice`.
 
-The next planned row is the caller-zero `MAP-S1` source map, recorded in
+The closed caller-zero `MAP-S1` source map is recorded in
 `docs/development/current/main/investigations/generic-callable-single-loop-source-map-s1-task-2026-08-07.md`.
 Its design fixture is
 `docs/development/current/main/design/fixtures/generic-callable-single-loop-source-map-d0-v1.json`.

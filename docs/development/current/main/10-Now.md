@@ -60,13 +60,15 @@ Related:
   not prove Recipe/JoinSig projection or physical consumption. The selected
   callable fixture is a single-loop profile and is intentionally separate from
   the nested Generic G0 Recipe producer. `GENERIC-CALLABLE-SINGLE-LOOP-
-  SOURCE-LEDGER-S1` and resolver `SyntaxFacts-S1` are now closed as
+  SOURCE-LEDGER-S1`, resolver `SyntaxFacts-S1`, and caller-zero `MAP-S1` are now closed as
   caller-zero evidence. The resolver publishes one immutable typed source view
   and one Loop membership product carrying source/frame/Scope/Region; the
   syntax observer publishes exactly nine neutral syntax rows plus one prefix
-  boundary and rejects unknown root statements. The active execution row is
-  caller-zero `MAP-S1`, documented in its implementation task. After MAP-S1 is
-  green, stop once for `RECIPE-COSEAL-D0`; physicalization, production
+  boundary and rejects unknown root statements. Caller-zero `MAP-S1` co-seals
+  the nine syntax rows plus prefix boundary with
+  resolver BindingRef/assignment/exit and Loop source/frame/Scope/Region
+  evidence. The next design stop is one shallow `RECIPE-COSEAL-D0`;
+  physicalization, production
   selection, strict receipt, retry/fallback retirement, and legacy deletion
   remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
