@@ -1047,13 +1047,35 @@ or retire the legacy route. The current `CallableSemanticLoweringState`
 source view and ValueId map remain migration bridges only; BindingSSA is
 reserved as the later physical owner. The selected callable fixture is a
 single-loop source profile and is not the nested two-loop `generic_g0`
-profile; direct projection between them is rejected. The current design stop
-is `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-D0`: close the explicit
-resolver-owned typed source ledger first, then the source-to-common-
-Recipe/JoinSig/effect map, including operator/bound, step, carrier,
-target/value pairing, Loop scope, After, and tail disposition, or return
-`NoSafeSlice`. The existing S0 three-role schedule is a subset claim only;
+profile; direct projection between them is rejected. S1 is now closed as
+caller-zero evidence. The current design stop is
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`: close the
+source-to-common-Recipe/JoinSig/effect map, including operator/bound, step,
+carrier, target/value pairing, Loop scope, After, and tail disposition, or
+return `NoSafeSlice`. The existing S0 three-role schedule is a subset claim only;
 it does not close direct-call, exit, upvar, field/index, lambda, or other
 callable rows. The later physical proof and production selection remain
 closed, and every implementation cutover must update this reference entry in
 the same commit as its code.
+
+## Callable source ledger S1 receipt (2026-08-07)
+
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1` is now closed as caller-zero
+resolver evidence. `CallableSemanticSourceLedgerView` borrows the sealed
+callable forest and keeps typed queries for declaration, lexical-reference,
+assignment-target, direct-call, exit, lambda/capture, and Loop-membership rows.
+`VerifiedCallableLoopMembershipV1` pairs the resolver-issued Loop source token
+with its derived `LoopExecutionFrameKeyV1`; no raw path can mint either value.
+
+Four focused resolver tests cover positive typed rows and identity, exact and
+missing Loop lookup, the existing capture boundary, and foreign-owner
+rejection. The view has no AST, copied ValueId map, Loop policy, Recipe
+producer, physicalizer, Builder/MIR caller, retry/fallback, or production
+selection. Scope consumption, operation/effect correspondence, After/tail,
+completion, and legacy retirement remain closed.
+
+The next authority is the design stop
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`, recorded in
+`generic-callable-single-loop-source-recipe-map-d0-task-2026-08-07.md`. It must
+seal every source-to-common-Recipe/effect/After/tail row before a mapping
+implementation is opened.

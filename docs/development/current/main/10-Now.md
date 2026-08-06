@@ -59,13 +59,15 @@ Related:
   for the admitted condition/body/rebind profile; its located-entry test does
   not prove Recipe/JoinSig projection or physical consumption. The selected
   callable fixture is a single-loop profile and is intentionally separate from
-  the nested Generic G0 Recipe producer. The current row is the design stop
-  `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-D0`: first seal a resolver-owned
-  typed source ledger (not the lowering-state map), then the explicit
-  source-to-common-Recipe/effect map, Loop scope, After/tail disposition, and
-  canonical physical owner. Do not reopen production selection or legacy
-  deletion until the ledger/map, fresh physical proof, completion/DraftSeal,
-  strict receipt, and old-caller zero conditions are green.
+  the nested Generic G0 Recipe producer. `GENERIC-CALLABLE-SINGLE-LOOP-
+  SOURCE-LEDGER-S1` is now closed as caller-zero evidence: the resolver
+  publishes one immutable typed source view, explicit row-family queries, and
+  resolver-issued Loop membership/frame identity. The current blocker is the
+  shallow design stop `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`.
+  It must seal the source-to-common-Recipe/effect map, Loop scope,
+  After/tail disposition, and completion relation before any implementation
+  row opens. Physicalization, production selection, strict receipt,
+  retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

@@ -30,6 +30,16 @@ Legacy fallback/retry、完成Program形ごとのvariant列挙は作らない。
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
 diffs and proof transcripts; this card keeps the live task and boundaries.
 
+## Callable single-loop source ledger S1
+
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1` is closed caller-zero:
+`CallableSemanticSourceLedgerView` exposes typed rows and resolver-issued Loop
+membership/frame identity. No AST/ValueId copy, Loop policy, Recipe, physical,
+or Builder/MIR caller was added; focused tests are green. The next blocker is
+`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0` in the linked investigation
+task. It must seal operation/effect, carrier, scope, After, and tail mapping;
+production selection, cutover, retry/fallback retirement, and deletion stay closed.
+
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script
@@ -977,17 +987,8 @@ after final-pipeline Complete only
   then select later unimplemented language features
 ```
 ## Fixed packs
-```text
-REPLACEMENT-LEDGER0  production owner / detached asset accountability
-DESCENT-SPINE0       body / statement / expression / argument descent
-FUNCTION-STATE0      function facts / PHI / finalization state
-CALL-OBJECT0         calls / new / fields / index / collections / lambda
-CONTROL0             If / Loop / Match / QMark / cleanup / async
-FUNCTION-LIFECYCLE0  draft / collector / function finalize
-MODULE-LIFECYCLE0    declaration / catalog / module transaction
-COMPILER-RESIDUE0    compiler ingress / old selectors / proof routes
-```
-New findings enter one of these packs. Do not create another pack.
+
+Findings stay in the existing eight packs; do not create another pack.
 ## Parked
 ```text
 source-level Home ownership and unimplemented language features until the

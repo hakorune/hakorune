@@ -13,6 +13,7 @@ mod callable_header_source_unit;
 mod callable_header_view;
 mod callable_index;
 mod callable_module_header_view;
+mod callable_source_ledger;
 mod callable_symbol;
 mod direct_call;
 mod direct_call_verifier;
@@ -70,6 +71,10 @@ pub(crate) use callable_index::{
 pub(crate) use callable_module_header_view::{
     CallableModuleHeaderSyntaxErrorV1, CallableModuleHeaderSyntaxViewV1,
     LocatedCallableHeaderSyntaxViewV1, SourceCallableDeclarationSiteV1,
+};
+pub(crate) use callable_source_ledger::{
+    CallableSemanticSourceLedgerView, CallableSourceLedgerRejectV1, CallableSourceRowDispositionV1,
+    CallableSourceRowFamilyV1, VerifiedCallableLoopMembershipV1,
 };
 pub(crate) use callable_symbol::CanonicalCallableSymbolV1;
 pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
@@ -179,6 +184,8 @@ mod callable_catalog_candidate_tests;
 mod callable_catalog_tests;
 #[cfg(test)]
 mod callable_header_source_unit_tests;
+#[cfg(test)]
+mod callable_source_ledger_tests;
 #[cfg(test)]
 mod explicit_parameter_type_map;
 #[cfg(test)]
