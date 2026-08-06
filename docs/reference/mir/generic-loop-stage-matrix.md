@@ -547,6 +547,22 @@ DirectAccum/NestedPredicate resolved lanes are preserved as migration/live
 owners; Generic selection remains caller-zero. D4-S3-S0 is a closed private
 observation-set witness, not a selector or production cutover.
 
+### Common admission assembler S1 (landed)
+
+`LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1` is the caller-zero route-policy
+assembler for the canonical `VerifiedLoopFamilyAdmissionWindowV1`. It consumes
+one resolver-issued identity lease plus an arbitrary-order move-only vector of
+the five typed family rows, validates exact tag coverage and co-sealed
+identity/mode/coverage, and canonicalizes only after all checks pass. Failure
+evidence retains the lease, every row, and typed issues with `Rejected` taking
+precedence over `Unresolved`.
+
+Candidate payloads are opaque to this assembler: it neither counts candidates
+nor rejects semantic overlap or `OutOfWindow`; those remain selector-only. The
+six focused tests and shared caller-zero/line guard are green. No Recipe,
+Builder/MIR, production caller, retry/fallback, or legacy retirement is
+claimed; selector design/consumer is the next bounded cell.
+
 ### D4-S3-S0 observation-set witness (closed)
 
 `JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-OBSERVATION-SET0-D4-S3-S0` is

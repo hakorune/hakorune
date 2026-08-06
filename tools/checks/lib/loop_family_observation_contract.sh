@@ -20,6 +20,7 @@ guard_loop_family_observation_one() {
   local compiler_adapter="$root_dir/src/mir/compiler/${stem}_observation.rs"
   local policy="$root_dir/src/mir/loop_route_policy/${stem}_observation.rs"
   local tests="$root_dir/src/mir/loop_route_policy/${stem}_observation_tests.rs"
+  local admission_tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
 
   guard_require_files "$tag" "$structural_source" "$structural_observation" \
     "$compiler_projection" "$compiler_adapter" "$policy" "$tests"
@@ -60,8 +61,9 @@ guard_loop_family_observation_one() {
   done
 
   if rg -l -F "${policy_fn}(" "$source_root" |
-    awk -v p="$policy" -v t="$tests" -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
-      '$0 != p && $0 != t && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+    awk -v p="$policy" -v t="$tests" -v at="$admission_tests" \
+      -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
+      '$0 != p && $0 != t && $0 != at && $0 != m && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "$family policy observer acquired a production caller"
@@ -75,8 +77,8 @@ guard_loop_family_observation_one() {
   fi
   for constructor in "${family}SourceIdentityV1::new(" "Verified${family}SourceAttemptV1::new("; do
     if rg -l -F "$constructor" "$source_root" |
-      awk -v a="$compiler_adapter" -v t="$tests" \
-        '$0 != a && $0 != t && $0 != "" { found=1 } END { exit found }'; then
+      awk -v a="$compiler_adapter" -v t="$tests" -v at="$admission_tests" \
+        '$0 != a && $0 != t && $0 != at && $0 != "" { found=1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "$family sealed constructor escaped source/test boundary: $constructor"
@@ -106,6 +108,7 @@ guard_generic_g0_observation_contract() {
   local compiler_tests="$root_dir/src/mir/compiler/generic_g0_observation_tests.rs"
   local policy="$root_dir/src/mir/loop_route_policy/generic_g0_observation.rs"
   local policy_tests="$root_dir/src/mir/loop_route_policy/generic_g0_observation_tests.rs"
+  local admission_tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
 
   guard_require_files "$tag" "$structural_source" "$structural_observation" \
     "$compiler_projection" "$compiler_adapter" "$compiler_tests" "$policy" "$policy_tests"
@@ -146,8 +149,9 @@ guard_generic_g0_observation_contract() {
   done
 
   if rg -l -F 'issue_generic_g0_family_observation_v1(' "$source_root" |
-    awk -v p="$policy" -v t="$policy_tests" -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
-      '$0 != p && $0 != t && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+    awk -v p="$policy" -v t="$policy_tests" -v at="$admission_tests" \
+      -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
+      '$0 != p && $0 != t && $0 != at && $0 != m && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Generic G0 policy observer acquired a production caller"
@@ -162,7 +166,8 @@ guard_generic_g0_observation_contract() {
   for constructor in 'GenericG0SourceIdentityV1::new(' 'VerifiedGenericG0SourceAttemptV1::new('; do
     if rg -l -F "$constructor" "$source_root" |
       awk -v a="$compiler_adapter" -v ct="$compiler_tests" -v pt="$policy_tests" \
-        '$0 != a && $0 != ct && $0 != pt && $0 != "" { found=1 } END { exit found }'; then
+        -v at="$admission_tests" \
+        '$0 != a && $0 != ct && $0 != pt && $0 != at && $0 != "" { found=1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "Generic G0 sealed constructor escaped source/test boundary: $constructor"
@@ -252,10 +257,71 @@ guard_loop_family_window_lease_contract() {
   done
   [[ "$(rg -o -F '#[test]' "$tests" | wc -l | tr -d '[:space:]')" == "3" ]] ||
     guard_fail "$tag" "window lease focused test count drift"
+  local assembler_tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
   if rg -l -F 'issue_loop_family_window_lease_v1(' "$root_dir/src/mir" |
-    awk -v l="$lease" -v t="$tests" '$0 != l && $0 != t && $0 != "" { found=1 } END { exit found }'; then
+    awk -v l="$lease" -v t="$tests" -v at="$assembler_tests" \
+      '$0 != l && $0 != t && $0 != at && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "window lease acquired a production caller"
+  fi
+}
+
+guard_loop_family_admission_contract() {
+  local root_dir="$1"
+  local tag="$2"
+  local assembler="$root_dir/src/mir/loop_route_policy/family_admission.rs"
+  local tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
+  local mod_file="$root_dir/src/mir/loop_route_policy/mod.rs"
+
+  guard_require_files "$tag" "$assembler" "$tests"
+  for file in "$assembler" "$tests"; do
+    local lines
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    (( lines < 800 )) || guard_fail "$tag" "common admission file exceeds boundary: $file"
+  done
+  [[ "$(rg -o -F '#[test]' "$tests" | wc -l | tr -d '[:space:]')" == "6" ]] ||
+    guard_fail "$tag" "common admission focused test count drift"
+
+  for required in LoopFamilyObservationRowV1 VerifiedLoopFamilyAdmissionWindowV1 \
+    VerifiedLoopFamilyAdmissionRowsV1 LoopFamilyAdmissionFailureEvidenceV1 \
+    LoopFamilyAdmissionIssueV1 'lease:' 'rows:' 'issues:'; do
+    rg -n -F "$required" "$assembler" >/dev/null ||
+      guard_fail "$tag" "common admission anchor missing: $required"
+  done
+  for required in DirectAccum NestedPredicate LoopTrue LoopCond GenericG0; do
+    rg -n -F "$required" "$assembler" >/dev/null ||
+      guard_fail "$tag" "common admission family row missing: $required"
+  done
+  for forbidden in ASTNode MirBuilder ValueId BasicBlockId LoopRouteId \
+    FrozenLoopRouteScheduleV1 loop_recipe_contract family_selection policy.rs \
+    'candidate_count' CandidateCount Overlap OutOfWindow Retry fallback; do
+    if rg -n -F "$forbidden" "$assembler" >/dev/null; then
+      guard_fail "$tag" "common admission crossed selector/lowering authority: $forbidden"
+    fi
+  done
+  if rg -n -e 'issue_(direct_accum|nested_predicate|loop_true|loop_cond|generic_g0)_family_observation_v1|issue_loop_family_window_lease_v1' "$assembler" >/dev/null; then
+    guard_fail "$tag" "common admission must consume sealed rows/lease, not reissue them"
+  fi
+  for required in 'Rejected' 'Unresolved' 'Ready'; do
+    rg -n -F "$required" "$assembler" >/dev/null ||
+      guard_fail "$tag" "common admission disposition missing: $required"
+  done
+
+  if rg -l -F 'assemble_loop_family_admission_window_v1(' "$root_dir/src/mir" |
+    awk -v a="$assembler" -v t="$tests" -v m="$mod_file" \
+      '$0 != a && $0 != t && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "common admission acquired a production caller"
+  fi
+  if rg -l -F 'into_admission_row(' "$root_dir/src/mir/loop_route_policy" |
+    awk -v a="$assembler" -v t="$tests" -v m="$mod_file" \
+      '$0 != a && $0 != t && $0 != m && \
+       $0 !~ /(direct_accum|nested_predicate|loop_true_break_continue|loop_cond_break_continue|generic_g0)_observation\.rs$/ && \
+       $0 != "" { found=1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "family row projection escaped the admission boundary"
   fi
 }

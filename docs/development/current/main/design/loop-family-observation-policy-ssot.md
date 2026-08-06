@@ -165,9 +165,10 @@ checks are explicit later non-claims, not hidden S1 facts.
 
 The five-row admission window remains the only cross-family authority. A
 known G0-shaped or otherwise non-Nested source declines naturally when the
-exact Nested projection does not match. If a future source can satisfy more
-than one exact row, the common assembler owns duplicate/overlap rejection;
-the Nested observer never invents precedence or suppresses another family.
+exact Nested projection does not match. The common assembler owns duplicate
+family-tag/input-row rejection; the later selector owns semantic candidate
+overlap rejection. The Nested observer never invents precedence or suppresses
+another family.
 
 ### Authority map
 

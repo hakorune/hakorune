@@ -158,6 +158,12 @@ impl LoopTrueFamilyObservationV1 {
             | Self::Rejected { evidence, .. } => evidence,
         }
     }
+
+    pub(crate) fn into_admission_row(
+        self,
+    ) -> super::family_admission::LoopFamilyObservationRowV1 {
+        super::family_admission::LoopFamilyObservationRowV1::LoopTrue(self)
+    }
 }
 
 pub(crate) fn issue_loop_true_family_observation_v1(

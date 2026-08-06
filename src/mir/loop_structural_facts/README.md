@@ -187,9 +187,11 @@ consumer.
 D4-S3-D0 is historical schema evidence; the canonical common product is now
 `VerifiedLoopFamilyAdmissionWindowV1`, owned by the route-policy admission
 assembler rather than this facts layer. The resolver-owned prerequisite
-`VerifiedLoopFamilyWindowLeaseV1` is now landed as caller-zero S0. It is one
-resolver-branded, non-`Clone` source window plus exact mode/coverage seals and family-tagged
-`Candidate|Declined|Unresolved|Rejected` rows. Legacy `Blocked` and the old
+`VerifiedLoopFamilyWindowLeaseV1` is now landed as caller-zero S0. The lease is
+identity-only: it carries the resolver brand and source origin/kind/site/frame,
+but no mode, coverage, or row data. The route-policy assembler later co-seals
+those row-derived facts into `VerifiedLoopFamilyAdmissionWindowV1`, whose rows
+are `Candidate|Declined|Unresolved|Rejected`. Legacy `Blocked` and the old
 `VerifiedLoopFamilyObservationSetV1` witness name stay historical and must not
 become a second authority. The canonical product must not contain
 route IDs, raw cursors, AST, Recipe/key, Builder/MIR/ValueId/PHI, or retry and
@@ -235,4 +237,6 @@ identity/mode/coverage evidence on every `Candidate`, `Declined`,
 boundary only; it does not issue a common admission window, selector, Recipe,
 Builder/MIR product, retry, fallback, or production caller. The resolver
 window lease S0 is landed; the route-policy common admission assembler is the
-next owner.
+next owner. The assembler S1 is now landed in `loop_route_policy` and consumes
+the lease plus five row envelopes; this facts layer remains identity/source
+evidence only and does not own selector, Recipe, Builder, or MIR products.

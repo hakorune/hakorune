@@ -715,7 +715,7 @@ if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
   guard_fail "$TAG" "Match owned input must have one consuming production owner"
 fi
 if rg -n -P '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" >/dev/null; then guard_fail "$TAG" "owned compound expression dispatcher clone returned"; fi
-guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_if_recipe_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_loop_family_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_g0_observation_contract "$ROOT_DIR" "$TAG"; guard_loop_family_row_context_retention_contract "$ROOT_DIR" "$TAG"; guard_loop_family_window_lease_contract "$ROOT_DIR" "$TAG"
+guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_if_recipe_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_loop_family_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_g0_observation_contract "$ROOT_DIR" "$TAG"; guard_loop_family_row_context_retention_contract "$ROOT_DIR" "$TAG"; guard_loop_family_window_lease_contract "$ROOT_DIR" "$TAG"; guard_loop_family_admission_contract "$ROOT_DIR" "$TAG"
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \

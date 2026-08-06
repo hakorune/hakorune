@@ -126,6 +126,24 @@ evidence. The resolver-owned `LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0` source-brand
 prerequisite is now landed in `resolved_semantics`; the next ordered cell for
 this module is the common assembler. Selector promotion remains separate.
 
+## Common admission assembler S1 receipt
+
+`LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1` is landed in
+`family_admission.rs` as the sole cross-family admission owner. It consumes
+one resolver-issued, non-`Clone` `VerifiedLoopFamilyWindowLeaseV1` and an
+arbitrary-order move-only row vector, then co-seals exactly five typed family
+rows with one common mode and complete coverage. Success stores fixed
+DirectAccum, NestedPredicate, LoopTrueBreakContinue, LoopCondBreakContinue,
+and GenericG0 fields; failure stores the lease, every input row, and typed
+issues.
+
+The assembler validates identity/frame, duplicate/missing tags, mode, coverage,
+and row C/D/U/R status only. Rejected evidence dominates unresolved evidence.
+It does not reissue source, count candidates, reject semantic overlap, handle
+`OutOfWindow`, select a winner, or call Recipe/Builder/MIR. Six focused tests
+and the shared caller-zero/line guard are green. The next owner is the pure
+selector; production and legacy cutover remain closed.
+
 ## Family row context-retention R0 receipt
 
 The five caller-zero observer enums now use typed evidence-bearing variants for
@@ -173,9 +191,9 @@ family selector. The resolved DirectAccum and NestedPredicate lanes already
 have live family-specific handoffs, so this module is not globally
 caller-zero; the Generic resolved-carrier selector remains caller-zero.
 
-The next product is a separate resolver-branded, non-`Clone`
-`VerifiedLoopFamilyObservationSetV1` containing one source receipt/window, an
-exact mode snapshot, a coverage seal, and family-tagged typed dispositions.
+The next product is the separate resolver-branded, non-`Clone`
+`VerifiedLoopFamilyAdmissionWindowV1` containing one identity-only source
+lease, five canonical family rows, and assembler-owned mode/coverage seals.
 A separate `CanonicalLoopFamilySelectionV1` entrypoint will consume it once
 and return `Selected`, `NoCandidate`, `Rejected`, or `Unresolved`. It must not
 inspect AST/LoopRouteContext/route IDs, reuse raw cursors, invoke Builder or

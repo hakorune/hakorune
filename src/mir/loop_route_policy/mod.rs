@@ -9,6 +9,9 @@ mod direct_accum_observation;
 #[cfg(test)]
 mod direct_accum_observation_tests;
 mod evaluate;
+mod family_admission;
+#[cfg(test)]
+mod family_admission_tests;
 #[cfg(test)]
 mod family_selection;
 mod generic_g0;
@@ -42,6 +45,14 @@ pub(crate) use direct_accum_observation::{
 };
 #[allow(unused_imports)]
 pub(crate) use evaluate::freeze_loop_route_schedule_v1;
+pub(crate) use family_admission::{
+    assemble_loop_family_admission_window_v1, LoopFamilyAdmissionAssemblyOutcomeV1,
+    LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionFailureEvidenceV1,
+    LoopFamilyAdmissionIssueV1, LoopFamilyAdmissionModeV1,
+    VerifiedLoopFamilyAdmissionRowsV1, VerifiedLoopFamilyAdmissionWindowV1,
+    LoopFamilyObservationRowV1,
+    LoopFamilyTagV1,
+};
 #[cfg(test)]
 pub(crate) use family_selection::{
     select_canonical_family_for_test, CanonicalFamilySelectionOutcomeV1,

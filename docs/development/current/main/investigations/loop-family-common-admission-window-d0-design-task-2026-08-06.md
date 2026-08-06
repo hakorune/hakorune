@@ -1,5 +1,5 @@
 ---
-Status: Closed worker-reviewed design / R0 + lease S0 landed / common assembler next
+Status: Closed worker-reviewed design / common assembler S1 landed / selector next
 Date: 2026-08-06
 Decision: LOOP-FAMILY-COMMON-ADMISSION-WINDOW-D0
 Authority: docs/development/current/main/design/loop-family-observation-policy-ssot.md
@@ -182,9 +182,36 @@ issuer tests and the shared in-place guard are green; no family fan-out,
 assembler, selector, Recipe, Builder/MIR, or production caller was opened.
 The next bounded row is the common assembler.
 
+## Cell D — common admission assembler S1 (landed)
+
+`LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1` is now landed as a caller-zero
+route-policy product in `src/mir/loop_route_policy/family_admission.rs`.
+`assemble_loop_family_admission_window_v1` consumes one resolver-issued
+`VerifiedLoopFamilyWindowLeaseV1` and an arbitrary-order move-only
+`Box<[LoopFamilyObservationRowV1]>`. It validates exact five-tag coverage,
+duplicate/missing rows, lease-vs-expected/observed identity and frame, common
+mode, complete coverage, and row disposition without reissuing or relooking
+up source evidence.
+
+Success canonicalizes into fixed DirectAccum, NestedPredicate,
+LoopTrueBreakContinue, LoopCondBreakContinue, and GenericG0 fields. Failure
+outcomes retain the consumed lease, every input row, and typed issues; any
+rejection dominates unresolved evidence, while unsealed/incomplete evidence
+stays unresolved. Candidate payloads remain opaque and are not counted, so
+semantic overlap and `OutOfWindow` remain selector-only.
+
+Six focused assembler tests cover exact canonicalization, one-candidate
+acceptance, missing rows, duplicate tags, foreign identity, and unsealed mode.
+The shared guard now
+protects the assembler/test boundary and extends the lease/observer caller
+allowlists. Reference READMEs, the stage matrix, current mirrors, and this
+task receipt were updated in the same implementation commit. Selector
+promotion, Recipe/Builder/MIR production, physical cutover, and legacy
+retirement remain closed; the next bounded cell is selector design/consumer.
+
 ## Stop lines
 
-Do not implement or edit the legacy 19-route evaluator, `family_selection.rs`,
+Do not implement or edit the legacy 19-route evaluator,
 Recipe/JoinSig/BindingKey, Builder/MIR, physical route IDs, retry/fallback, or
 production callers from this task. A worker-reviewed decision, a source-to-
 neutral disposition matrix, the landed row-context receipt, and the S0 lease

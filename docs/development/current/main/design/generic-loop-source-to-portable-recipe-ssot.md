@@ -74,7 +74,7 @@ VerifiedResolvedFunctionV1
   -> VerifiedGenericSourceTypeInventoryG0
   -> VerifiedGenericNumericRepresentationProjectionG0
   -> loop_route_policy::generic_g0 policy observation
-  -> complete five-row VerifiedGenericAdmissionWindowV1
+  -> complete five-row VerifiedLoopFamilyAdmissionWindowV1
   -> CanonicalLoopFamilySelectionV1 sole semantic family selector
   -> SelectedGenericCandidateG0
   -> VerifiedGenericRecipeDemandG0

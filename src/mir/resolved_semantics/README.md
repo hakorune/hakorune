@@ -558,13 +558,13 @@ identity authority, and no selector, Recipe/key, Builder/MIR caller, or route
 policy is issued here. D4-S3-D0 is a docs-only decision for the neutral
 observation set and `mir::loop_route_policy` authority.
 
-D4-S3 closes that design boundary. The future
-`VerifiedLoopFamilyObservationSetV1` must retain the resolver-issued receipt
-itself (owner brand plus origin/source-kind/site/forest/frame), not expose
-independently constructible coordinates. It also carries one exact mode
-snapshot, a coverage seal, and family-tagged typed dispositions. This resolver
-remains the source/identity issuer; it does not select a family or issue a
-Recipe key. The D4-S3-S0 witness is private and test-only, and the live
+D4-S3 closes that design boundary. The canonical
+`VerifiedLoopFamilyAdmissionWindowV1` must retain the resolver-issued lease
+itself (owner brand plus origin/source-kind/site/frame), not expose
+independently constructible coordinates. The route-policy assembler co-seals
+one common mode, complete coverage, and five family-tagged typed dispositions.
+This resolver remains the source/identity issuer; it does not select a family
+or issue a Recipe key. The D4-S3-S0 witness is private and test-only, and the live
 DirectAccum/NestedPredicate resolved lanes remain separate from the
 caller-zero Generic selector path.
 
@@ -636,3 +636,9 @@ MIR data. Missing source lookup remains a typed issue. The common admission
 assembler is the next consumer; family fan-out, selector, production caller,
 and legacy retirement remain closed. The S0 implementation and focused lease
 tests update the exact reference documents in the same commit.
+
+The common admission assembler is now landed separately in
+`loop_route_policy::family_admission`. It consumes this identity-only lease by
+value and co-seals mode/coverage from the five policy rows; the resolver does
+not issue rows, select a family, or relookup the source. Selector, Recipe,
+Builder/MIR production, physical cutover, and legacy retirement remain closed.

@@ -260,8 +260,9 @@ guard_joinir_logical_demand_contract() {
   fi
   if rg -l -F 'issue_nested_predicate_family_observation_v1(' "$root_dir/src/mir" |
     awk -v p="$nested_observation_policy" -v t="$nested_observation_tests" \
+      -v at="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs" \
       -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
-      '$0 != p && $0 != t && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+      '$0 != p && $0 != t && $0 != at && $0 != m && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested S1 policy observer acquired a production caller"
