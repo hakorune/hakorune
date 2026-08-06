@@ -54,6 +54,75 @@ against the actual source site and final remapped destination before any new
 implementation row is opened. This is a BoxShape/authority decision, not a
 request to widen `carrier_representation.rs`.
 
+## Audit evidence (2026-08-07)
+
+The current failing function is `StringHelpers.int_to_str/1`.  Its first body
+item is the natural source site:
+
+```hako
+local v = me.to_i64(n)
+```
+
+The canonical probe's lowering trace observes `loop_var = "v"` and the
+carrier boundary receives `init = ValueId(3)`.  The local materialization
+owner is `src/mir/builder/stmts/variable_stmt.rs`:
+
+```text
+successful initializer emission
+  -> allocate final local ValueId
+  -> emit Copy(final_local, initializer)
+  -> metadata::propagate(initializer, final_local)
+  -> publish variable_map["v"] = final_local
+```
+
+The source path is therefore a local-initializer site (`Body(0).Value` for the
+`int_to_str/1` declaration), not a GenericLoop-derived type site.  The
+lowering-time consumer is already correct and remains verifier-only:
+
+```text
+variable_map["v"] -> ValueId(3)
+ValueId(3) -> type_ctx.get_type(...)
+Missing -> typed freeze
+```
+
+The missing fact is upstream.  `me.to_i64(n)` currently lowers through the
+ordinary lowered-global call terminal, while `StringHelpers.to_i64/1` has no
+source return annotation.  The later route-value publication policy knows an
+exact `StringHelpers.to_i64/1` result shape, but final-module metadata is not a
+valid lowering-time authority for this boundary.  The existing static callable
+result catalog also intentionally records this as a design boundary until an
+exact source target/call-site contract is selected.
+
+### D0 consequence
+
+Do not add a default Integer, loop-source inference, GenericLoop backfill,
+route retry, or a name-based branch.  The next design row must decide one
+lowering-time source contract for the exact `me.to_i64(n)` site and one
+success-only publication receipt for the final local destination.  The local
+materializer may consume that receipt after `Copy`/`propagate`; it must not
+invent a type independently.
+
+The rollback boundary is the existing function-local lowering transaction:
+failed initializer/call emission publishes neither the final local type fact
+nor the GenericLoop carrier receipt.  A successful path may publish exactly
+once, then the existing GenericLoop verifier consumes the resulting
+`type_ctx` entry.
+
+The candidate I0 slice is consequently narrowed to:
+
+```text
+exact StringHelpers.int_to_str/1 Body(0).Value source contract
+  + exact result producer for me.to_i64(n)
+  + final ValueId(3) successful-emission receipt
+  -> one Integer type publication
+```
+
+It must not open Generic production, physical cutover, legacy retirement,
+retry/fallback, or a general unannotated-call inference framework.  Whether
+the source contract is an existing callable-result product or a new narrow
+static-current-owner bridge is the remaining D0 decision; implementation is
+still unauthorized until that choice is sealed with a focused negative proof.
+
 ## Minimum implementation slice after D0
 
 Only after an independent premise audit closes this D0 may a shallow I0 be

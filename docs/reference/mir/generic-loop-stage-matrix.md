@@ -237,10 +237,9 @@ receipt and only the raw receiver descent consumes it. The immutable S2
 receipt is
 `docs/development/current/main/design/fixtures/generic-raw-structured-method-receiver-receipt-s2-i0-v1.json`.
 Its probe reaches the next body-item source-path mismatch, where raw lowering
-retains `IfThenBody` but the resolver's canonical item site is rootless. The
-current design stop is
-`GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0`; no Loop
-production or Generic route claim is opened. S3-D0/I0 is now closed: the
+retains `IfThenBody` but the resolver's canonical item site is rootless. This
+was the previous design stop; no Loop production or Generic route claim was
+opened. S3-D0/I0 is now closed: the
 dedicated raw item-site policy strips only the accepted nested rootless
 body-kind roots (`Scope`, `TaskScope`, `FastMem`, `IfThen`, `IfElse`, `Loop`,
 and `BlockExprPrelude`); `Program` remains rootful, and `Function` remains
