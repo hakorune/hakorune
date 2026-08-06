@@ -28,6 +28,42 @@ pub(crate) enum GenericNumericSubstrateRejectV1 {
     TypedLiteralOutOfRange,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum GenericNumericOperandRoleV1 {
+    ConditionRhs,
+    StepRhs,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum GenericNumericOperandValueV1 {
+    Binding(BindingRefV1),
+    TypedInteger(ExactNumericConstValue),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct GenericNumericOperandProjectionV1 {
+    role: GenericNumericOperandRoleV1,
+    value: GenericNumericOperandValueV1,
+}
+
+impl GenericNumericOperandProjectionV1 {
+    pub(crate) const fn role(&self) -> GenericNumericOperandRoleV1 {
+        self.role
+    }
+
+    pub(crate) fn value(&self) -> &GenericNumericOperandValueV1 {
+        &self.value
+    }
+
+    #[cfg(test)]
+    pub(crate) fn from_test_parts(
+        role: GenericNumericOperandRoleV1,
+        value: GenericNumericOperandValueV1,
+    ) -> Self {
+        Self { role, value }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub(crate) struct GenericNumericParameterProjectionV1 {
     index: u32,
@@ -54,7 +90,7 @@ pub(crate) struct VerifiedGenericNumericSubstrateProjectionV1 {
     receipt: VerifiedGenericNumericSourceReceiptV1,
     target: NumericTarget,
     parameter_types: Box<[GenericNumericParameterProjectionV1]>,
-    typed_literals: Box<[ExactNumericConstValue]>,
+    operands: Box<[GenericNumericOperandProjectionV1]>,
     _seal: GenericNumericSubstrateProjectionSealV1,
 }
 
@@ -74,8 +110,41 @@ impl VerifiedGenericNumericSubstrateProjectionV1 {
         &self.parameter_types
     }
 
-    pub(crate) fn typed_literals(&self) -> &[ExactNumericConstValue] {
-        &self.typed_literals
+    pub(crate) fn operands(&self) -> &[GenericNumericOperandProjectionV1] {
+        &self.operands
+    }
+
+    #[cfg(test)]
+    pub(crate) fn into_test_parts(
+        self,
+    ) -> (
+        VerifiedGenericNumericSourceReceiptV1,
+        NumericTarget,
+        Box<[GenericNumericParameterProjectionV1]>,
+        Box<[GenericNumericOperandProjectionV1]>,
+    ) {
+        (
+            self.receipt,
+            self.target,
+            self.parameter_types,
+            self.operands,
+        )
+    }
+
+    #[cfg(test)]
+    pub(crate) fn from_test_parts(
+        receipt: VerifiedGenericNumericSourceReceiptV1,
+        target: NumericTarget,
+        parameter_types: Box<[GenericNumericParameterProjectionV1]>,
+        operands: Box<[GenericNumericOperandProjectionV1]>,
+    ) -> Self {
+        Self {
+            receipt,
+            target,
+            parameter_types,
+            operands,
+            _seal: GenericNumericSubstrateProjectionSealV1,
+        }
     }
 }
 
@@ -105,10 +174,8 @@ pub(crate) fn issue_generic_numeric_substrate_projection_v1(
             return GenericNumericSubstrateOutcomeV1::Rejected { receipt, reason }
         }
     };
-    let mut typed_literals = Vec::new();
-    if let Err(failure) =
-        collect_typed_literals(&receipt, &parameter_types, target, &mut typed_literals)
-    {
+    let mut operands = Vec::new();
+    if let Err(failure) = collect_operands(&receipt, &parameter_types, target, &mut operands) {
         return match failure {
             SubstrateProjectionFailure::Unresolved(reason) => {
                 GenericNumericSubstrateOutcomeV1::Unresolved { receipt, reason }
@@ -123,7 +190,7 @@ pub(crate) fn issue_generic_numeric_substrate_projection_v1(
         receipt,
         target,
         parameter_types: parameter_types.into_boxed_slice(),
-        typed_literals: typed_literals.into_boxed_slice(),
+        operands: operands.into_boxed_slice(),
         _seal: GenericNumericSubstrateProjectionSealV1,
     })
 }
@@ -182,14 +249,20 @@ fn project_parameters(
     Ok(projected)
 }
 
-fn collect_typed_literals(
+fn collect_operands(
     receipt: &VerifiedGenericNumericSourceReceiptV1,
     parameter_types: &[GenericNumericParameterProjectionV1],
     target: NumericTarget,
-    typed_literals: &mut Vec<ExactNumericConstValue>,
+    operands: &mut Vec<GenericNumericOperandProjectionV1>,
 ) -> Result<(), SubstrateProjectionFailure> {
     let facts = receipt.facts();
-    for operand in [facts.condition().rhs(), facts.step().rhs()] {
+    for (role, operand) in [
+        (
+            GenericNumericOperandRoleV1::ConditionRhs,
+            facts.condition().rhs(),
+        ),
+        (GenericNumericOperandRoleV1::StepRhs, facts.step().rhs()),
+    ] {
         match operand {
             super::shape_syntax_facts_v3::GenericOperandSyntaxFactV3::Binding(binding) => {
                 if !parameter_types.iter().any(|row| row.binding() == *binding) {
@@ -197,6 +270,10 @@ fn collect_typed_literals(
                         GenericNumericSubstrateRejectV1::MissingParameterBinding,
                     ));
                 }
+                operands.push(GenericNumericOperandProjectionV1 {
+                    role,
+                    value: GenericNumericOperandValueV1::Binding(*binding),
+                });
             }
             super::shape_syntax_facts_v3::GenericOperandSyntaxFactV3::IntegerLiteral(_) => {
                 return Err(SubstrateProjectionFailure::Unresolved(
@@ -220,7 +297,10 @@ fn collect_typed_literals(
                             GenericNumericSubstrateRejectV1::TypedLiteralOutOfRange,
                         )
                     })?;
-                typed_literals.push(literal);
+                operands.push(GenericNumericOperandProjectionV1 {
+                    role,
+                    value: GenericNumericOperandValueV1::TypedInteger(literal),
+                });
             }
             super::shape_syntax_facts_v3::GenericOperandSyntaxFactV3::Unsupported(_) => {
                 return Err(SubstrateProjectionFailure::Unresolved(
@@ -405,7 +485,15 @@ function generic_u8(i: u8, j: u8) {
             panic!("typed i64 fixture must be ready")
         };
         assert_eq!(projection.parameter_types().len(), 2);
-        assert_eq!(projection.typed_literals().len(), 2);
+        assert_eq!(projection.operands().len(), 2);
+        assert_eq!(
+            projection.operands()[0].role(),
+            GenericNumericOperandRoleV1::ConditionRhs
+        );
+        assert_eq!(
+            projection.operands()[1].role(),
+            GenericNumericOperandRoleV1::StepRhs
+        );
         assert_eq!(projection.target(), NumericTarget::host());
     }
 

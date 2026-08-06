@@ -39,6 +39,54 @@ impl VerifiedGenericNumericSourceReceiptV1 {
     }
 }
 
+#[cfg(test)]
+pub(crate) fn test_function_ast(source: &str) -> crate::ast::ASTNode {
+    use crate::ast::ASTNode;
+    use crate::parser::NyashParser;
+
+    let root = NyashParser::parse_from_string(source).expect("receipt fixture parses");
+    let ASTNode::Program { statements, .. } = root else {
+        panic!("receipt fixture must be a Program")
+    };
+    statements
+        .into_iter()
+        .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
+        .expect("receipt fixture function")
+}
+
+#[cfg(test)]
+pub(crate) fn test_receipt_from_ast(
+    source: &str,
+    syntax_ast: crate::ast::ASTNode,
+) -> VerifiedGenericNumericSourceReceiptV1 {
+    use crate::mir::resolved_semantics::explicit_parameter_type_map::{
+        issue_explicit_parameter_type_map_v1, VerifiedExplicitParameterSourceReceiptV1,
+    };
+    use crate::mir::resolved_semantics::generic_resolved_carrier_source_lease::{
+        carrier_proof_witness::issue_carrier_proof_v1,
+        shape_source_lease_v2::issue_generic_shape_source_lease_v2,
+        shape_syntax_facts_v3::issue_condition_step_syntax_facts_v3, tests as lease_tests,
+    };
+    use crate::mir::resolved_semantics::FunctionSyntaxViewV1;
+
+    let syntax = FunctionSyntaxViewV1::from_ast(&syntax_ast).expect("function view");
+    let unit = lease_tests::unit(source);
+    let input = unit.root_function_input().expect("root input");
+    let body = input.source().root_body().expect("function body");
+    let root = input.source().body_stmt(&body, 0).expect("outer loop");
+    let function = input.function();
+    let lease = lease_tests::positive_lease(input, &root);
+    let handoff = issue_carrier_proof_v1(lease).expect("carrier proof");
+    let v2 = issue_generic_shape_source_lease_v2(function, handoff).expect("shape lease");
+    let facts = issue_condition_step_syntax_facts_v3(function, syntax, v2)
+        .expect("condition/step syntax facts");
+    let source_receipt = VerifiedExplicitParameterSourceReceiptV1::from_source_unit(&unit)
+        .expect("parameter source receipt");
+    let parameter_types =
+        issue_explicit_parameter_type_map_v1(source_receipt).expect("parameter type map");
+    issue_generic_numeric_source_receipt_v1(facts, parameter_types).expect("numeric receipt")
+}
+
 pub(crate) fn issue_generic_numeric_source_receipt_v1(
     facts: GenericConditionStepSyntaxFactsV3,
     parameter_types: VerifiedExplicitParameterTypeMapV1,

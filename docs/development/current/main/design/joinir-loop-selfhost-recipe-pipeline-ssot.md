@@ -350,13 +350,17 @@ D4-S4-S3-S1-S2-S0
      Unresolved; typed range failures are Rejected; exact rows are Ready. Six
      focused tests are green; no policy/selector/demand/Recipe/Builder/MIR.
 D4-S4-S3-S1-S2-S1-D0
-  -> next design stop: a cfg(test)-only policy adapter consumes the sealed
-     substrate projection exactly once and owns admitted comparison/update
-     operators and progression semantics. Condition/step operand roles must be
-     explicit; role gaps/duplicates/foreign bindings reject, while unknown
-     operators or symbolic/non-progressing steps remain Unresolved. No
-     reclassification, target re-resolution, selector, demand, Recipe,
-     Builder/MIR, retry, fallback, or public row.
+  -> closed: cfg(test)-only policy consumes the sealed substrate projection
+     exactly once, keeps Condition-Rhs/Step-Rhs roles explicit, and owns only
+     admitted comparison/update progression. Seven focused tests are green;
+     no reclassification, selector, demand, Recipe, Builder/MIR, retry,
+     fallback, or public row.
+D4-S4-S3-S1-S2-S2-D0
+  -> next design stop: define the policy-to-selector handoff as a separate
+     adapter. Policy output remains generic semantic classification; selector
+     owns route admission/winner only and must not re-resolve source roles or
+     numeric facts. No demand, Recipe/key, Builder/MIR, retry, fallback, or
+     production caller is allowed before that boundary is worker-reviewed.
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

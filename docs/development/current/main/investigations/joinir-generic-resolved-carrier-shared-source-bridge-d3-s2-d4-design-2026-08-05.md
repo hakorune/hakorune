@@ -986,15 +986,9 @@ The cfg(test)-only non-`Clone` projection consumes the receipt plus explicit
 `Rejected`, exact target rows are `Ready`, and six focused tests are green.
 No policy/progression, selector, demand, Recipe, Builder/MIR, retry, fallback,
 or public semantic row was added.
-## D4-S4-S3-S1-S2-S1-D0 numeric-policy projection design stop
-Worker review fixes a one-consume API: policy accepts only sealed
-`VerifiedGenericNumericSubstrateProjectionV1` by value and returns a move-only
-`Ready | Unresolved | Rejected` product. It owns only admitted comparison/update
-operators and progression direction/strictness; it must not reclassify type,
-range, or overflow, and must not accept a second target. Condition-Rhs and
-Step-Rhs operand roles must be explicit in the substrate view; missing,
-duplicate, or foreign roles reject, while unknown/symbolic/non-progressing
-steps remain `Unresolved`. No selector/demand/Recipe/Builder/MIR, retry,
-fallback, `NoCandidate`, or public row. Next: docs/worker approval, then one
-cfg(test)-only module, focused fixtures, and same-commit current/docs sync;
-`docs/reference/**` closes only at production activation.
+## D4-S4-S3-S1-S2-S1-D0 numeric-policy projection design closeout
+Worker review fixed a one-consume API: policy accepts only sealed `VerifiedGenericNumericSubstrateProjectionV1` by value with role-bearing Condition-Rhs/Step-Rhs operands, returns move-only `Ready | Unresolved | Rejected`, and owns admitted progression only; seven tests are green with no selector, demand, Recipe, Builder/MIR caller, or public row.
+## D4-S4-S3-S1-S2-S1-S1 numeric-policy projection witness closeout
+The cfg(test)-only policy witness preserves substrate provenance/target/map and rejects duplicate or foreign roles; unknown/symbolic/unsupported/non-progressing shapes stay unresolved. Current/workstream/pipeline/README and reference mirror sync are complete; `docs/reference/**` closes only at activation.
+## D4-S4-S3-S1-S2-S2-D0 policy-to-selector handoff design stop
+Next worker task: define a separate handoff where policy remains generic classification and selector alone owns route admission/winner. No source-role re-resolution, demand, Recipe/key, Builder/MIR, retry, fallback, or production caller is allowed before that design is reviewed.

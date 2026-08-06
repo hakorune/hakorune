@@ -17,6 +17,8 @@ use super::{
 #[cfg(test)]
 mod carrier_proof_witness;
 #[cfg(test)]
+mod numeric_policy_projection_v6;
+#[cfg(test)]
 mod numeric_source_receipt_v4;
 #[cfg(test)]
 mod numeric_substrate_projection_v5;
