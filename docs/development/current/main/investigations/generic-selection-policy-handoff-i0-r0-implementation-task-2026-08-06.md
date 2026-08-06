@@ -1,11 +1,11 @@
 # GENERIC-SELECTION-POLICY-HANDOFF-I0-R0
 
-Status: taskized caller-zero implementation; production selection remains
+Status: landed caller-zero implementation; production selection remains
 closed.
 
 ## Objective
 
-Implement one cfg(test)-only, move-only
+Implemented one cfg(test)-only, move-only
 `VerifiedGenericG0PolicyHandoffV1` from the natural typed G0 source projector.
 The handoff must co-seal the resolver/source brand, existing typed G0 bundle,
 candidate shape/body-effect/coverage proof, numeric target, and exact
@@ -43,11 +43,12 @@ Recipe/JoinSig, Builder/MIR, or delete legacy routes.
 
 ## Acceptance evidence
 
-Add focused positive/negative tests for the natural typed G0 fixture and the
-counterexamples above. Keep every touched source/check file below 800 lines,
-use the existing shared loop-family guard, and keep production caller census
-at zero. Run the focused lease/G0 suite, `cargo check --lib --features
-plugins`, current-state guard, shared MirBuilder guard, and `git diff --check`.
+The natural typed G0 observation/policy suite exercises the positive handoff
+and the existing foreign/shape/type/coverage negatives before policy
+publication. Every touched source/check file remains below 800 lines; the
+existing shared loop-family guard is the only guard. The focused lease/G0
+suite and `cargo check --lib --features plugins` are green, as are the
+current-state guard, shared MirBuilder guard, and `git diff --check`.
 
 The same implementation commit must update the exact `docs/reference/**`
 rows (without activating public language claims), Generic/loop SSOTs,
@@ -58,6 +59,11 @@ and push only the intended files; preserve unrelated worktree changes.
 
 No policy/selector production promotion, Generic demand, portable Recipe,
 JoinSig/Builder/MIR integration, backend parity, retry/fallback removal, or
-legacy deletion. Those require later atomic rows after the handoff proof is
-accepted.
+legacy deletion. Those remain later atomic rows after the handoff proof.
 
+## Reference receipt
+
+The implementation commit updates the exact
+`docs/reference/mir/generic-loop-stage-matrix.md` receipt together with the
+Generic/loop SSOTs, module READMEs, workstream, `CURRENT_STATE.toml`, and
+current mirrors. Public language/reference activation remains zero.

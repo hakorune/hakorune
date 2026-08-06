@@ -167,9 +167,7 @@ impl GenericG0FamilyObservationV1 {
         }
     }
 
-    pub(crate) fn into_admission_row(
-        self,
-    ) -> super::family_admission::LoopFamilyObservationRowV1 {
+    pub(crate) fn into_admission_row(self) -> super::family_admission::LoopFamilyObservationRowV1 {
         super::family_admission::LoopFamilyObservationRowV1::GenericG0(self)
     }
 }
@@ -220,7 +218,7 @@ pub(crate) fn issue_generic_g0_family_observation_v1(
     };
     match outcome {
         GenericG0SourceAttemptOutcomeV1::Candidate(bundle) => {
-            let structural = bundle.source().structural();
+            let structural = bundle.bundle().source().structural();
             if structural.owner() != attempt_identity.owner()
                 || structural.origin() != attempt_identity.function_origin()
                 || structural.source_kind() != attempt_identity.source_kind()

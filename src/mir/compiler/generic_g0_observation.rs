@@ -7,8 +7,10 @@
 #![cfg(test)]
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
+use super::generic_g0_projection::handoff::{
+    issue_generic_g0_policy_handoff_v1, GenericG0PolicyHandoffIssueV1,
+};
 use super::generic_g0_projection::{
-    issue_generic_g0_source_type_bundle_v1, issue_generic_g0_typed_source_bundle_v1,
     GenericG0NumericProjectionRejectV1, GenericG0ProjectionRejectV1,
     GenericG0SourceTypeProjectionRejectV1,
 };
@@ -49,15 +51,53 @@ pub(crate) fn issue_generic_g0_source_attempt_for_test<'source>(
     } else if !source_identity_matches {
         GenericG0SourceAttemptOutcomeV1::Rejected(GenericG0SourceRejectV1::SourceIdentityMismatch)
     } else {
-        match issue_generic_g0_source_type_bundle_v1(input) {
-            Ok(bundle) => match issue_generic_g0_typed_source_bundle_v1(bundle, target) {
-                Ok(bundle) => GenericG0SourceAttemptOutcomeV1::Candidate(bundle),
-                Err(reject) => map_numeric_reject(reject),
-            },
-            Err(reject) => map_source_reject(reject),
+        match issue_generic_g0_policy_handoff_v1(input, target) {
+            Ok(handoff) => GenericG0SourceAttemptOutcomeV1::Candidate(handoff),
+            Err(issue) => map_handoff_issue(issue),
         }
     };
     VerifiedGenericG0SourceAttemptV1::new(outcome, identity, mode, coverage)
+}
+
+fn map_handoff_issue(issue: GenericG0PolicyHandoffIssueV1) -> GenericG0SourceAttemptOutcomeV1 {
+    match issue {
+        GenericG0PolicyHandoffIssueV1::Source(reject) => map_source_reject(reject),
+        GenericG0PolicyHandoffIssueV1::Numeric(reject) => map_numeric_reject(reject),
+        GenericG0PolicyHandoffIssueV1::Window | GenericG0PolicyHandoffIssueV1::ReturnMissing => {
+            GenericG0SourceAttemptOutcomeV1::Unresolved(
+                GenericG0SourceUnresolvedV1::SourceNavigation,
+            )
+        }
+        GenericG0PolicyHandoffIssueV1::ReturnOriginMismatch
+        | GenericG0PolicyHandoffIssueV1::Seal(_) => {
+            GenericG0SourceAttemptOutcomeV1::Rejected(GenericG0SourceRejectV1::StructuralConflict)
+        }
+    }
+}
+
+fn map_numeric_reject(
+    reject: GenericG0NumericProjectionRejectV1,
+) -> GenericG0SourceAttemptOutcomeV1 {
+    match reject {
+        GenericG0NumericProjectionRejectV1::ParameterShape
+        | GenericG0NumericProjectionRejectV1::LiteralShape => {
+            GenericG0SourceAttemptOutcomeV1::Unresolved(GenericG0SourceUnresolvedV1::MissingFact)
+        }
+        GenericG0NumericProjectionRejectV1::NonIntegerLiteral { .. }
+        | GenericG0NumericProjectionRejectV1::ReturnAbi => {
+            GenericG0SourceAttemptOutcomeV1::Rejected(GenericG0SourceRejectV1::TypeConflict)
+        }
+        GenericG0NumericProjectionRejectV1::Numeric(issue) => match issue {
+            crate::mir::numeric_substrate::generic_g0::GenericG0NumericIssueV1::Unresolved(_) => {
+                GenericG0SourceAttemptOutcomeV1::Unresolved(
+                    GenericG0SourceUnresolvedV1::NumericUnavailable,
+                )
+            }
+            crate::mir::numeric_substrate::generic_g0::GenericG0NumericIssueV1::Rejected(_) => {
+                GenericG0SourceAttemptOutcomeV1::Rejected(GenericG0SourceRejectV1::NumericConflict)
+            }
+        },
+    }
 }
 
 fn map_source_reject(
@@ -154,30 +194,5 @@ fn map_source_type_issue(issue: GenericG0SourceTypeIssueV1) -> GenericG0SourceAt
             };
             GenericG0SourceAttemptOutcomeV1::Rejected(reason)
         }
-    }
-}
-
-fn map_numeric_reject(
-    reject: GenericG0NumericProjectionRejectV1,
-) -> GenericG0SourceAttemptOutcomeV1 {
-    match reject {
-        GenericG0NumericProjectionRejectV1::ParameterShape
-        | GenericG0NumericProjectionRejectV1::LiteralShape => {
-            GenericG0SourceAttemptOutcomeV1::Unresolved(GenericG0SourceUnresolvedV1::MissingFact)
-        }
-        GenericG0NumericProjectionRejectV1::NonIntegerLiteral { .. }
-        | GenericG0NumericProjectionRejectV1::ReturnAbi => {
-            GenericG0SourceAttemptOutcomeV1::Rejected(GenericG0SourceRejectV1::TypeConflict)
-        }
-        GenericG0NumericProjectionRejectV1::Numeric(issue) => match issue {
-            crate::mir::numeric_substrate::generic_g0::GenericG0NumericIssueV1::Unresolved(_) => {
-                GenericG0SourceAttemptOutcomeV1::Unresolved(
-                    GenericG0SourceUnresolvedV1::NumericUnavailable,
-                )
-            }
-            crate::mir::numeric_substrate::generic_g0::GenericG0NumericIssueV1::Rejected(_) => {
-                GenericG0SourceAttemptOutcomeV1::Rejected(GenericG0SourceRejectV1::NumericConflict)
-            }
-        },
     }
 }

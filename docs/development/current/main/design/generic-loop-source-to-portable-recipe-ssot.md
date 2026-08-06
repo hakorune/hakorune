@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `policy handoff design accepted; implementation I0/R0 is next; production activation remains 0`
+Status: `policy handoff I0/R0 is landed caller-zero; production activation remains 0`
 
-Current row: `GENERIC-SELECTION-POLICY-HANDOFF-I0-R0`
+Current row: `GENERIC-G0-DEMAND-S3`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -11,8 +11,8 @@ G0 admission window were accepted on 2026-08-06. The row-normalization and
 caller-zero selector receipts are closed; the existing
 `GENERIC-SELECTION-OPEN-D0` design gate is accepted and its bounded
 `GENERIC-SELECTION-OPEN-D0-I0-R0` candidate-envelope witness is closed. The
-policy handoff design is accepted and its bounded I0/R0 implementation is
-next; no new D4 suffix is authorized.
+policy handoff design and its bounded I0/R0 implementation are closed as
+caller-zero evidence; no new D4 suffix is authorized.
 
 The closed I0/R0 cell is recorded in
 `docs/development/current/main/investigations/generic-selection-open-d0-candidate-envelope-task-2026-08-06.md`.
@@ -810,6 +810,17 @@ GENERIC-SELECTION-OPEN-D0-I0-R0
   envelope tests, 42 source-lease tests, and the shared guard are green
   no policy winner, selector call, demand, Recipe, Builder/MIR, production,
   retry, fallback, or public reference activation
+
+GENERIC-SELECTION-POLICY-HANDOFF-D0
+  design accepted; the source projector is the sole co-seal issuer for the
+  resolver brand/window, typed G0 bundle, exact role/return relations, and
+  target; no candidate-envelope wrapping or source re-pairing
+
+GENERIC-SELECTION-POLICY-HANDOFF-I0-R0
+  closed caller-zero; policy consumes and retains one move-only
+  `VerifiedGenericG0PolicyHandoffV1`; focused G0 suite and shared guard green;
+  no production caller, demand, Recipe, Builder/MIR, retry, fallback, or
+  legacy deletion
 
 GENERIC-G0-DEMAND-S3
   role/site/BindingRef demand only; no Recipe key issuance

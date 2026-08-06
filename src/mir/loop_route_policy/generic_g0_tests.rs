@@ -4,10 +4,7 @@ use super::{
     GenericG0PolicyRejectV1, GenericG0PolicyUnresolvedV1,
 };
 use crate::ast::ASTNode;
-use crate::mir::compiler::generic_g0_projection::{
-    issue_generic_g0_source_type_bundle_v1, issue_generic_g0_typed_source_bundle_v1,
-    VerifiedGenericTypedSourceBundleG0,
-};
+use crate::mir::compiler::generic_g0_projection::handoff::issue_generic_g0_policy_handoff_v1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::numeric_substrate::generic_g0::GenericG0NumericLiteralRoleV1;
 use crate::mir::numeric_substrate::NumericTarget;
@@ -37,20 +34,19 @@ fn parse_function(source: &str) -> ASTNode {
         .expect("fixture function")
 }
 
-fn typed_bundle(
+fn typed_handoff(
     source: &str,
 ) -> (
-    VerifiedGenericTypedSourceBundleG0,
+    crate::mir::loop_structural_facts::generic_g0::VerifiedGenericG0PolicyHandoffV1,
     crate::mir::resolved_semantics::FunctionOwnerIdV1,
 ) {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(parse_function(source))
         .expect("resolve fixture");
     let input = unit.root_function_input().expect("root input");
     let owner = input.owner();
-    let source_bundle = issue_generic_g0_source_type_bundle_v1(input).expect("S0B source bundle");
-    let typed = issue_generic_g0_typed_source_bundle_v1(source_bundle, NumericTarget::host())
-        .expect("S0C typed bundle");
-    (typed, owner)
+    let handoff = issue_generic_g0_policy_handoff_v1(input, NumericTarget::host())
+        .expect("G0 policy handoff");
+    (handoff, owner)
 }
 
 fn context(
@@ -67,7 +63,7 @@ fn context(
 
 #[test]
 fn positive_less_add_observation_is_move_only_and_typed() {
-    let (bundle, owner) = typed_bundle(TYPED);
+    let (bundle, owner) = typed_handoff(TYPED);
     let outcome =
         issue_generic_g0_candidate_v1(bundle, context(owner, GenericG0CoverageV1::Complete));
     let GenericG0PolicyOutcomeV1::Candidate(observation) = outcome else {
@@ -85,7 +81,7 @@ fn positive_less_add_observation_is_move_only_and_typed() {
 #[test]
 fn unsupported_comparison_is_unresolved_without_policy_fallback() {
     let source = TYPED.replace("i < 3", "i <= 3").replace("j < 3", "j <= 3");
-    let (bundle, owner) = typed_bundle(&source);
+    let (bundle, owner) = typed_handoff(&source);
     assert_eq!(
         issue_generic_g0_candidate_v1(bundle, context(owner, GenericG0CoverageV1::Complete)),
         GenericG0PolicyOutcomeV1::Unresolved(GenericG0PolicyUnresolvedV1::UnsupportedComparison)
@@ -95,7 +91,7 @@ fn unsupported_comparison_is_unresolved_without_policy_fallback() {
 #[test]
 fn unsupported_update_is_unresolved_without_synthetic_add() {
     let source = TYPED.replace("j = j + 1", "j = j * 2");
-    let (bundle, owner) = typed_bundle(&source);
+    let (bundle, owner) = typed_handoff(&source);
     assert_eq!(
         issue_generic_g0_candidate_v1(bundle, context(owner, GenericG0CoverageV1::Complete)),
         GenericG0PolicyOutcomeV1::Unresolved(GenericG0PolicyUnresolvedV1::UnsupportedUpdate)
@@ -107,7 +103,7 @@ fn non_progressing_step_is_unresolved_with_exact_role() {
     let source = TYPED
         .replace("j = j + 1", "j = j + 0")
         .replace("i = i + 1", "i = i + 0");
-    let (bundle, owner) = typed_bundle(&source);
+    let (bundle, owner) = typed_handoff(&source);
     assert_eq!(
         issue_generic_g0_candidate_v1(bundle, context(owner, GenericG0CoverageV1::Complete)),
         GenericG0PolicyOutcomeV1::Unresolved(GenericG0PolicyUnresolvedV1::NonProgressingStep {
@@ -119,7 +115,7 @@ fn non_progressing_step_is_unresolved_with_exact_role() {
 #[test]
 fn opposite_direction_is_rejected_without_rewriting() {
     let source = TYPED.replace("i < 3", "i > 3").replace("j < 3", "j > 3");
-    let (bundle, owner) = typed_bundle(&source);
+    let (bundle, owner) = typed_handoff(&source);
     assert_eq!(
         issue_generic_g0_candidate_v1(bundle, context(owner, GenericG0CoverageV1::Complete)),
         GenericG0PolicyOutcomeV1::Rejected(GenericG0PolicyRejectV1::DirectionMismatch)
@@ -128,7 +124,7 @@ fn opposite_direction_is_rejected_without_rewriting() {
 
 #[test]
 fn foreign_context_is_rejected_before_operator_policy() {
-    let (bundle, _) = typed_bundle(TYPED);
+    let (bundle, _) = typed_handoff(TYPED);
     let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("owner issuer");
     let foreign_owner = issuer.issue().expect("foreign owner");
     assert_eq!(
@@ -142,7 +138,7 @@ fn foreign_context_is_rejected_before_operator_policy() {
 
 #[test]
 fn incomplete_coverage_is_unresolved_before_candidate_issue() {
-    let (bundle, owner) = typed_bundle(TYPED);
+    let (bundle, owner) = typed_handoff(TYPED);
     assert_eq!(
         issue_generic_g0_candidate_v1(bundle, context(owner, GenericG0CoverageV1::Incomplete)),
         GenericG0PolicyOutcomeV1::Unresolved(GenericG0PolicyUnresolvedV1::IncompleteCoverage)

@@ -6,7 +6,8 @@
 //! issue Recipe keys, inspect AST, touch Builder/MIR, retry, or fallback.
 
 use crate::mir::loop_structural_facts::generic_g0::{
-    GenericG0ConditionOperatorV1, GenericG0UpdateOperatorV1, VerifiedGenericTypedSourceBundleG0,
+    GenericG0ConditionOperatorV1, GenericG0UpdateOperatorV1, VerifiedGenericG0PolicyHandoffV1,
+    VerifiedGenericTypedSourceBundleG0,
 };
 use crate::mir::numeric_substrate::generic_g0::GenericG0NumericLiteralRoleV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -88,23 +89,25 @@ impl GenericG0PolicyContextV1 {
 /// observation so later rows cannot reconstruct source facts by name.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedGenericFamilyObservationG0 {
-    bundle: VerifiedGenericTypedSourceBundleG0,
+    handoff: VerifiedGenericG0PolicyHandoffV1,
     context: GenericG0PolicyContextV1,
 }
 
 impl VerifiedGenericFamilyObservationG0 {
     pub(crate) fn bundle(&self) -> &VerifiedGenericTypedSourceBundleG0 {
-        &self.bundle
+        self.handoff.bundle()
+    }
+
+    pub(crate) fn handoff(&self) -> &VerifiedGenericG0PolicyHandoffV1 {
+        &self.handoff
     }
 
     pub(crate) const fn context(&self) -> GenericG0PolicyContextV1 {
         self.context
     }
 
-    pub(crate) fn into_parts(
-        self,
-    ) -> (VerifiedGenericTypedSourceBundleG0, GenericG0PolicyContextV1) {
-        (self.bundle, self.context)
+    pub(crate) fn into_parts(self) -> (VerifiedGenericG0PolicyHandoffV1, GenericG0PolicyContextV1) {
+        (self.handoff, self.context)
     }
 }
 
@@ -131,9 +134,10 @@ pub(crate) enum GenericG0PolicyOutcomeV1 {
 }
 
 pub(crate) fn issue_generic_g0_candidate_v1(
-    bundle: VerifiedGenericTypedSourceBundleG0,
+    handoff: VerifiedGenericG0PolicyHandoffV1,
     context: GenericG0PolicyContextV1,
 ) -> GenericG0PolicyOutcomeV1 {
+    let bundle = handoff.bundle();
     if bundle.source().structural().owner() != context.owner() {
         return GenericG0PolicyOutcomeV1::Rejected(GenericG0PolicyRejectV1::ForeignContext);
     }
@@ -189,7 +193,7 @@ pub(crate) fn issue_generic_g0_candidate_v1(
         }
     }
 
-    GenericG0PolicyOutcomeV1::Candidate(VerifiedGenericFamilyObservationG0 { bundle, context })
+    GenericG0PolicyOutcomeV1::Candidate(VerifiedGenericFamilyObservationG0 { handoff, context })
 }
 
 fn unsupported_condition(operator: GenericG0ConditionOperatorV1) -> bool {

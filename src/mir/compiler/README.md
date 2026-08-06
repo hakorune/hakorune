@@ -79,17 +79,21 @@ does not call a selector, Recipe, Builder, MIR, retry, fallback, or production
 route. Its 12 focused tests are part of the row guard; ambiguous source lookup
 and binding evidence remains unresolved rather than being guessed.
 
-## Generic G0 policy handoff I0/R0 (taskized, not yet implemented)
+## Generic G0 policy handoff I0/R0 (caller-zero implementation)
 
-The next bounded cell is the sole source-projector co-seal
-`VerifiedGenericG0PolicyHandoffV1`. It must retain the resolver/source brand,
-typed S0C bundle, exact role `BindingRef`s, body-effect/coverage proof, and
-post-loop return relation as one AST-free move-only product. The existing
-test-only candidate envelope is evidence only and must not be wrapped or
-paired with S0C after the fact. Policy may add mode/profile/coverage metadata;
-observation, Ready assembly, and selector remain separate caller-zero owners.
-No production caller, demand, Recipe, Builder/MIR, retry, fallback, or
-legacy retirement is opened by this row.
+The compiler-side `generic_g0_projection::handoff` test adapter now issues the
+sole source-projector co-seal `VerifiedGenericG0PolicyHandoffV1`. It retains
+the opaque resolver/source brand, typed S0C bundle, exact role `BindingRef`s,
+numeric target, and post-loop return relation as one AST-free move-only
+product. Policy consumes and retains that product by value; it does not
+downgrade to a bare bundle or reread source. The former candidate-envelope
+witness remains cfg(test)-only evidence and is not wrapped or paired after
+the fact.
+
+Focused G0 observation/policy tests and the shared caller-zero guard are
+green. This row still has no production caller, demand, Recipe, Builder/MIR,
+retry, fallback, or legacy-retirement claim. The next ordered boundary is the
+design/implementation of `GENERIC-G0-DEMAND-S3`.
 
 The five family observers now consume their source attempts exactly once and
 retain typed expected/observed identity, mode, and coverage evidence on every

@@ -22,6 +22,16 @@ them, but policy and later source observers consume the neutral products
 without importing compiler aggregate types. This behavior-neutral owner move
 does not open Generic selection, Recipe, Builder/MIR, or production callers.
 
+The source-to-policy boundary is the move-only
+`VerifiedGenericG0PolicyHandoffV1`. The compiler-side projector co-seals the
+resolver window brand, the typed S0C bundle, exact role/return `BindingRef`
+relations, target, and post-loop completion relation. This module owns the
+neutral handoff product; policy consumes it by value and retains it in the
+candidate observation. The older candidate-envelope witness remains a
+cfg(test)-only source lease witness and is not a second production authority.
+The handoff implementation is caller-zero and does not open demand, Recipe,
+Builder/MIR, retry, fallback, or legacy deletion.
+
 `generic_g0_observation.rs` owns the neutral S1 source-attempt transport. It
 stores only the existing typed candidate or C/D/U/R source outcome together
 with owner/origin/source-kind/site/frame identity, mode, and coverage. It does

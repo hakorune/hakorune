@@ -106,6 +106,7 @@ guard_generic_g0_observation_contract() {
   local structural_source="$source_root/loop_structural_facts/generic_g0/mod.rs"
   local structural_observation="$source_root/loop_structural_facts/generic_g0_observation.rs"
   local compiler_projection="$root_dir/src/mir/compiler/generic_g0_projection/mod.rs"
+  local compiler_handoff="$root_dir/src/mir/compiler/generic_g0_projection/handoff.rs"
   local compiler_adapter="$root_dir/src/mir/compiler/generic_g0_observation.rs"
   local compiler_tests="$root_dir/src/mir/compiler/generic_g0_observation_tests.rs"
   local policy="$root_dir/src/mir/loop_route_policy/generic_g0_observation.rs"
@@ -114,9 +115,10 @@ guard_generic_g0_observation_contract() {
   local selector_tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
 
   guard_require_files "$tag" "$structural_source" "$structural_observation" \
-    "$compiler_projection" "$compiler_adapter" "$compiler_tests" "$policy" "$policy_tests"
+    "$compiler_projection" "$compiler_handoff" "$compiler_adapter" "$compiler_tests" \
+    "$policy" "$policy_tests"
   for file in "$structural_source" "$structural_observation" "$compiler_projection" \
-    "$compiler_adapter" "$compiler_tests" "$policy" "$policy_tests"; do
+    "$compiler_handoff" "$compiler_adapter" "$compiler_tests" "$policy" "$policy_tests"; do
     local lines
     lines="$(wc -l < "$file" | tr -d '[:space:]')"
     (( lines < 800 )) || guard_fail "$tag" "Generic G0 observer file exceeds boundary: $file"
@@ -124,6 +126,9 @@ guard_generic_g0_observation_contract() {
 
   rg -q '^#!\[cfg\(test\)\]' "$compiler_adapter" ||
     guard_fail "$tag" "Generic G0 compiler adapter must remain cfg(test)-only"
+  rg -n -F '#[cfg(test)]' "$compiler_projection" >/dev/null &&
+    rg -n -F 'pub(crate) mod handoff;' "$compiler_projection" >/dev/null ||
+    guard_fail "$tag" "Generic G0 handoff must remain a cfg(test)-only module"
   [[ "$(rg -o -F '#[test]' "$compiler_tests" | wc -l | tr -d '[:space:]')" == "5" ]] ||
     guard_fail "$tag" "Generic G0 compiler observation test count drift"
   [[ "$(rg -o -F '#[test]' "$policy_tests" | wc -l | tr -d '[:space:]')" == "7" ]] ||
@@ -150,6 +155,26 @@ guard_generic_g0_observation_contract() {
     rg -n -F "$required" "$policy" >/dev/null ||
       guard_fail "$tag" "Generic G0 policy observer anchor missing: $required"
   done
+  for required in VerifiedGenericG0PolicyHandoffV1 GenericG0SourceBrandV1 \
+    VerifiedGenericG0PostLoopReadV1 issue_generic_g0_policy_handoff_v1; do
+    rg -n -F "$required" "$structural_source" "$compiler_handoff" "$policy" >/dev/null ||
+      guard_fail "$tag" "Generic G0 policy handoff anchor missing: $required"
+  done
+  for forbidden in ASTNode FunctionSyntaxViewV1 MirBuilder ValueId BasicBlockId \
+    loop_recipe_contract RecipeBody LoopRecipeV1 Retry fallback NoCandidate \
+    'crate::mir::builder'; do
+    if rg -n -F "$forbidden" "$compiler_handoff" "$structural_source" >/dev/null; then
+      guard_fail "$tag" "Generic G0 policy handoff crossed forbidden authority: $forbidden"
+    fi
+  done
+  if rg -l -F 'issue_generic_g0_policy_handoff_v1(' "$source_root" |
+    awk -v h="$compiler_handoff" -v a="$compiler_adapter" -v pt="$policy_tests" \
+      -v gt="$root_dir/src/mir/loop_route_policy/generic_g0_tests.rs" \
+      '$0 != h && $0 != a && $0 != pt && $0 != gt && $0 != "" { found=1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "Generic G0 policy handoff acquired a production caller"
+  fi
 
   if rg -l -F 'issue_generic_g0_family_observation_v1(' "$source_root" |
     awk -v p="$policy" -v t="$policy_tests" -v at="$admission_tests" -v st="$selector_tests" \
@@ -233,6 +258,7 @@ guard_loop_family_window_lease_contract() {
   local source="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local tests="$root_dir/src/mir/resolved_semantics/loop_family_window_tests.rs"
   local selector_tests="$root_dir/src/mir/loop_route_policy/family_selector_tests.rs"
+  local generic_handoff="$root_dir/src/mir/compiler/generic_g0_projection/handoff.rs"
 
   guard_require_files "$tag" "$lease" "$source" "$tests"
   for file in "$lease" "$source" "$tests"; do
@@ -264,7 +290,8 @@ guard_loop_family_window_lease_contract() {
   local assembler_tests="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs"
   if rg -l -F 'issue_loop_family_window_lease_v1(' "$root_dir/src/mir" |
     awk -v l="$lease" -v t="$tests" -v at="$assembler_tests" -v st="$selector_tests" \
-      '$0 != l && $0 != t && $0 != at && $0 != st && $0 != "" { found=1 } END { exit found }'; then
+      -v gh="$generic_handoff" \
+      '$0 != l && $0 != t && $0 != at && $0 != st && $0 != gh && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "window lease acquired a production caller"

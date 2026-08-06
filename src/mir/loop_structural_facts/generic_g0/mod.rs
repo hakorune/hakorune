@@ -8,10 +8,12 @@ use std::collections::BTreeSet;
 
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::numeric_substrate::generic_g0::VerifiedGenericNumericFactLeaseG0;
+use crate::mir::numeric_substrate::NumericTarget;
 use crate::mir::resolved_semantics::generic_g0::VerifiedGenericSourceTypeInventoryG0;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOriginV1, LoopExecutionFrameKeyV1, SemanticOwnerSourceKindV1,
-    SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1, VerifiedResolvedLoopSourceForestV1,
+    SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1, VerifiedLoopFamilyWindowLeaseV1,
+    VerifiedResolvedLoopSourceForestV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -411,6 +413,192 @@ impl VerifiedGenericTypedSourceBundleG0 {
         ExactTrivialReturnAbiV1,
     ) {
         (self.source, self.numeric, self.return_abi)
+    }
+}
+
+/// Opaque resolver/source brand retained by the Generic policy handoff.
+///
+/// The brand is minted from the resolver-owned common-window lease.  It is
+/// intentionally not reconstructible from names or loose source coordinates.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct GenericG0SourceBrandV1 {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    origin: FunctionOriginV1,
+    source_kind: SemanticOwnerSourceKindV1,
+    root_site: SourceStmtSiteV1,
+    frame: LoopExecutionFrameKeyV1,
+    _seal: GenericG0SourceBrandSealV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct GenericG0SourceBrandSealV1;
+
+impl GenericG0SourceBrandV1 {
+    pub(crate) fn from_window_lease(lease: &VerifiedLoopFamilyWindowLeaseV1) -> Self {
+        Self {
+            owner: lease.owner(),
+            origin: lease.function_origin(),
+            source_kind: lease.source_kind(),
+            root_site: lease.site().clone(),
+            frame: lease.frame(),
+            _seal: GenericG0SourceBrandSealV1,
+        }
+    }
+
+    pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(crate) const fn origin(&self) -> FunctionOriginV1 {
+        self.origin
+    }
+
+    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
+        self.source_kind
+    }
+
+    pub(crate) fn root_site(&self) -> &SourceStmtSiteV1 {
+        &self.root_site
+    }
+
+    pub(crate) fn frame(&self) -> LoopExecutionFrameKeyV1 {
+        self.frame.clone()
+    }
+}
+
+/// Exact completion relation for the function-tail `return` after the root
+/// loop.  This is separate from loop exits and keeps the post-loop read's
+/// resolver `BindingRef` alive for later policy/Recipe consumers.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedGenericG0PostLoopReadV1 {
+    statement: SourceStmtSiteV1,
+    value: SourceExprSiteV1,
+    binding: BindingRefV1,
+    _seal: GenericG0PostLoopReadSealV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct GenericG0PostLoopReadSealV1;
+
+impl VerifiedGenericG0PostLoopReadV1 {
+    pub(crate) fn new(
+        statement: SourceStmtSiteV1,
+        value: SourceExprSiteV1,
+        binding: BindingRefV1,
+    ) -> Self {
+        Self {
+            statement,
+            value,
+            binding,
+            _seal: GenericG0PostLoopReadSealV1,
+        }
+    }
+
+    pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
+        &self.statement
+    }
+
+    pub(crate) fn value(&self) -> &SourceExprSiteV1 {
+        &self.value
+    }
+
+    pub(crate) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum GenericG0PolicyHandoffSealRejectV1 {
+    BrandMismatch,
+    WindowSiteMismatch,
+    RootFrameMismatch,
+    BundleOwnerMismatch,
+    TargetMismatch,
+    ReturnBindingMismatch,
+    ReturnSiteMismatch,
+}
+
+/// The one AST-free, move-only source-to-policy capability for Generic G0.
+///
+/// The compiler-side projector co-seals every field. Policy consumes this
+/// product by value; it must not downgrade it to a bare typed bundle.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedGenericG0PolicyHandoffV1 {
+    brand: GenericG0SourceBrandV1,
+    window_lease: VerifiedLoopFamilyWindowLeaseV1,
+    bundle: VerifiedGenericTypedSourceBundleG0,
+    post_loop_read: VerifiedGenericG0PostLoopReadV1,
+    target: NumericTarget,
+    _seal: GenericG0PolicyHandoffSealV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct GenericG0PolicyHandoffSealV1;
+
+impl VerifiedGenericG0PolicyHandoffV1 {
+    pub(crate) fn seal(
+        window_lease: VerifiedLoopFamilyWindowLeaseV1,
+        bundle: VerifiedGenericTypedSourceBundleG0,
+        post_loop_read: VerifiedGenericG0PostLoopReadV1,
+        target: NumericTarget,
+    ) -> Result<Self, GenericG0PolicyHandoffSealRejectV1> {
+        let structural = bundle.source().structural();
+        let brand = GenericG0SourceBrandV1::from_window_lease(&window_lease);
+        if brand.owner() != structural.owner()
+            || brand.origin() != structural.origin()
+            || brand.source_kind() != structural.source_kind()
+        {
+            return Err(GenericG0PolicyHandoffSealRejectV1::BrandMismatch);
+        }
+        if window_lease.site() != structural.root_loop()
+            || brand.root_site() != structural.root_loop()
+        {
+            return Err(GenericG0PolicyHandoffSealRejectV1::WindowSiteMismatch);
+        }
+        if !window_lease.frame().matches(structural.root_frame())
+            || !brand.frame().matches(structural.root_frame())
+        {
+            return Err(GenericG0PolicyHandoffSealRejectV1::RootFrameMismatch);
+        }
+        if post_loop_read.statement() != &structural.tail().statement
+            || post_loop_read.value() != &structural.tail().value
+        {
+            return Err(GenericG0PolicyHandoffSealRejectV1::ReturnSiteMismatch);
+        }
+        if post_loop_read.binding() != structural.tail().binding {
+            return Err(GenericG0PolicyHandoffSealRejectV1::ReturnBindingMismatch);
+        }
+        if bundle.numeric().target() != target {
+            return Err(GenericG0PolicyHandoffSealRejectV1::TargetMismatch);
+        }
+        Ok(Self {
+            brand,
+            window_lease,
+            bundle,
+            post_loop_read,
+            target,
+            _seal: GenericG0PolicyHandoffSealV1,
+        })
+    }
+
+    pub(crate) fn brand(&self) -> &GenericG0SourceBrandV1 {
+        &self.brand
+    }
+
+    pub(crate) fn window_lease(&self) -> &VerifiedLoopFamilyWindowLeaseV1 {
+        &self.window_lease
+    }
+
+    pub(crate) fn bundle(&self) -> &VerifiedGenericTypedSourceBundleG0 {
+        &self.bundle
+    }
+
+    pub(crate) fn post_loop_read(&self) -> &VerifiedGenericG0PostLoopReadV1 {
+        &self.post_loop_read
+    }
+
+    pub(crate) const fn target(&self) -> NumericTarget {
+        self.target
     }
 }
 

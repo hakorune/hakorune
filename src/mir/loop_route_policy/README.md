@@ -32,15 +32,17 @@ M3-E audit and emits only Qualified, Blocked, or Exhausted.
 
 `generic_g0.rs` is a separate AST-free policy issuer for the bounded Generic
 G0 profile. It consumes one sealed
-`VerifiedGenericTypedSourceBundleG0` plus a sealed owner/profile/mode/coverage
+`VerifiedGenericG0PolicyHandoffV1` plus a sealed owner/profile/mode/coverage
 context and emits one move-only `Candidate`, typed `Unresolved`, or typed
-`Rejected` disposition. Only `Less` conditions and positive `Add` steps are
-admitted. It does not repeat S0A BindingRef checks, select a family winner,
-issue Recipe keys, call Builder/MIR, retry, or fallback. Its production caller
-is intentionally zero until the later admission-window/selector rows.
-The S0C bundle is owned by `loop_structural_facts::generic_g0`; this policy
-module consumes the neutral capability rather than a compiler projection
-aggregate.
+`Rejected` disposition. The handoff retains the S0C bundle, resolver/source
+brand, exact role relations, target, and post-loop return relation; policy
+does not downgrade it to a bare bundle or reread source. Only `Less`
+conditions and positive `Add` steps are admitted. It does not repeat S0A
+BindingRef checks, select a family winner, issue Recipe keys, call Builder/MIR,
+retry, or fallback. Its production caller is intentionally zero until the
+later demand/Recipe and cutover rows. The S0C bundle remains owned by
+`loop_structural_facts::generic_g0`; this policy module consumes the neutral
+handoff capability rather than a compiler projection aggregate.
 
 `generic_g0_observation.rs` is the caller-zero S1 row-normalization observer.
 It consumes one neutral source attempt plus one owner/origin/source-kind/site/
@@ -254,10 +256,10 @@ Three focused selector tests cover all five candidate variants, retained
 the caller-zero boundary and the <800-line source/test limit. This is a
 caller-zero semantic product only. The bounded
 `GENERIC-SELECTION-OPEN-D0-I0-R0` candidate-envelope witness is closed; the
-`GENERIC-SELECTION-POLICY-HANDOFF-D0` design is accepted and its single I0/R0
-caller-zero implementation is next. Recipe handoff,
-physicalization, production cutover, and legacy deletion remain separate
-rows.
+`GENERIC-SELECTION-POLICY-HANDOFF-D0` design and its single I0/R0 caller-zero
+implementation are closed. The next boundary is Generic demand/Recipe
+handoff. Physicalization, production cutover, and legacy deletion remain
+separate rows.
 The implementation commit updates this README, the loop SSOT, reference
 matrix, workstream, and current mirrors together as the required
 post-implementation reference receipt.

@@ -120,6 +120,27 @@ resolver-side split. No admission assembler, selector, Recipe/JoinSig,
 Builder/MIR, physical lowering, retry/fallback, production caller, or legacy
 retirement is claimed. The next ordered cell is FAMILY-ROW-CONTEXT-RETENTION-R0.
 
+## Generic G0 policy-handoff I0/R0 implementation receipt
+
+`GENERIC-SELECTION-POLICY-HANDOFF-I0-R0` is landed as a disconnected,
+caller-zero source-to-policy witness. The test-only compiler projector
+`generic_g0_projection::handoff` is the sole issuer of one move-only
+`VerifiedGenericG0PolicyHandoffV1`. It co-seals the resolver/source brand and
+window lease, the existing typed S0C bundle, its exact role `BindingRef`
+relations, the numeric target, and the exact post-loop return-expression
+relation. The product retains no AST or `FunctionSyntaxViewV1`, and policy
+consumes it by value without downgrading to a bare bundle or re-pairing source
+facts by owner/site/name.
+
+The old `VerifiedGenericCandidateEnvelopeV1` remains a cfg(test)-only source
+lease witness; it is not wrapped, promoted, or used as a second policy
+authority. Existing Generic observation, Ready assembly, and selector tests
+remain unchanged and no production caller is opened. The shared loop-family
+guard and focused G0 suite are green. This receipt claims no demand, Recipe,
+JoinSig, Builder/MIR, physical, backend, retry/fallback, public language, or
+legacy-retirement support. The next ordered boundary is the design and
+implementation of `GENERIC-G0-DEMAND-S3`.
+
 ## DirectAccum S1 observation receipt
 
 `LOOP-FAMILY-DIRECT-OBSERVATION-S1` is now landed as a caller-zero,

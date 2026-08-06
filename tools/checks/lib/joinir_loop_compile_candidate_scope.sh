@@ -25,6 +25,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
   local generic_g0_projection="$root_dir/src/mir/compiler/generic_g0_projection/mod.rs"
+  local generic_g0_handoff="$root_dir/src/mir/compiler/generic_g0_projection/handoff.rs"
   local generic_g0_projection_tests="$root_dir/src/mir/compiler/generic_g0_projection_tests.rs"
   local generic_g0_source_type_dir="$root_dir/src/mir/resolved_semantics/generic_g0"
   local generic_g0_source_type="$generic_g0_source_type_dir/mod.rs"
@@ -75,7 +76,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
-    "$source_adapter" "$generic_g0_projection" "$generic_g0_projection_tests" \
+    "$source_adapter" "$generic_g0_projection" "$generic_g0_handoff" "$generic_g0_projection_tests" \
     "$generic_g0_source_type" "$generic_g0_numeric" "$generic_g0_numeric_tests" \
     "$generic_g0_numeric_adapter" "$generic_g0_numeric_projection_tests" \
     "$generic_g0_policy" "$generic_g0_policy_tests" "$generic_g0_policy_mod" "$generic_g0_structural" \
@@ -399,12 +400,13 @@ guard_joinir_loop_compile_candidate_scope() {
     if rg -n -F "$source_type_ref" "$root_dir/src" --glob '*.rs' \
             | awk -F: -v issuer="$generic_g0_source_type" \
             -v projection="$generic_g0_projection" \
+            -v handoff="$generic_g0_handoff" \
             -v tests="$generic_g0_projection_tests" \
             -v observation_adapter="$root_dir/src/mir/compiler/generic_g0_observation.rs" \
             -v observation_tests="$root_dir/src/mir/compiler/generic_g0_observation_tests.rs" \
             -v numeric_tests="$generic_g0_numeric_projection_tests" \
             -v policy_tests="$generic_g0_policy_tests" \
-            '$1 != issuer && $1 != projection && $1 != tests && $1 != observation_adapter && $1 != observation_tests && $1 != numeric_tests && $1 != policy_tests && $1 != "" { found = 1 } END { exit found }'; then
+            '$1 != issuer && $1 != projection && $1 != handoff && $1 != tests && $1 != observation_adapter && $1 != observation_tests && $1 != numeric_tests && $1 != policy_tests && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "Generic G0 source-type issuer escaped its caller-zero boundary: $source_type_ref"
@@ -449,6 +451,7 @@ guard_joinir_loop_compile_candidate_scope() {
       if rg -n -F "$numeric_ref" "$root_dir/src" --glob '*.rs' \
           | awk -F: -v issuer="$generic_g0_numeric" \
               -v adapter="$generic_g0_numeric_adapter" \
+              -v handoff="$generic_g0_handoff" \
               -v tests="$generic_g0_numeric_tests" \
               -v projection_tests="$generic_g0_numeric_projection_tests" \
               '$1 != issuer && $1 != adapter && $1 != tests && $1 != projection_tests && $1 != "" { found = 1 } END { exit found }'; then
@@ -459,11 +462,12 @@ guard_joinir_loop_compile_candidate_scope() {
     else
       if rg -n -F "$numeric_ref" "$root_dir/src" --glob '*.rs' \
           | awk -F: -v adapter="$generic_g0_numeric_adapter" \
+              -v handoff="$generic_g0_handoff" \
               -v observation_adapter="$root_dir/src/mir/compiler/generic_g0_observation.rs" \
               -v tests="$generic_g0_numeric_projection_tests" \
               -v policy_tests="$generic_g0_policy_tests" \
               -v observation_tests="$root_dir/src/mir/compiler/generic_g0_observation_tests.rs" \
-              '$1 != adapter && $1 != observation_adapter && $1 != tests && $1 != policy_tests && $1 != observation_tests && $1 != "" { found = 1 } END { exit found }'; then
+              '$1 != adapter && $1 != handoff && $1 != observation_adapter && $1 != tests && $1 != policy_tests && $1 != observation_tests && $1 != "" { found = 1 } END { exit found }'; then
         :
       else
         guard_fail "$tag" "Generic G0 numeric adapter escaped caller-zero boundary: $numeric_ref"

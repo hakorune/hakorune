@@ -32,8 +32,9 @@ Related:
 - current loop frontier: common admission assembler S1 and the caller-zero
   selector S2 are landed. The shallow `GENERIC-SELECTION-OPEN-D0` gate is
   closed through its I0/R0 resolver-branded candidate envelope. The next
-  policy handoff design is accepted; its single I0/R0 caller-zero
-  implementation is next. Production selection, Recipe handoff,
+  policy handoff design and its single I0/R0 caller-zero implementation are
+  closed. The current next boundary is Generic demand/Recipe handoff. Production
+  selection, Recipe handoff,
   physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed

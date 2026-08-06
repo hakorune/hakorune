@@ -5,7 +5,7 @@
 //! identity, mode, and coverage; it does not inspect AST, policy, Recipe,
 //! Builder, MIR, route schedules, retry, or fallback.
 
-use super::generic_g0::VerifiedGenericTypedSourceBundleG0;
+use super::generic_g0::VerifiedGenericG0PolicyHandoffV1;
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, SemanticOwnerSourceKindV1,
     SourceStmtSiteV1,
@@ -50,7 +50,7 @@ pub(crate) enum GenericG0SourceRejectV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum GenericG0SourceAttemptOutcomeV1 {
-    Candidate(VerifiedGenericTypedSourceBundleG0),
+    Candidate(VerifiedGenericG0PolicyHandoffV1),
     Declined(GenericG0SourceDeclineV1),
     Unresolved(GenericG0SourceUnresolvedV1),
     Rejected(GenericG0SourceRejectV1),
