@@ -139,6 +139,10 @@ impl PreparedRawFieldReadV1 {
         };
         Self { route }
     }
+
+    pub(in crate::mir::builder) fn requires_receiver_source_v1(&self) -> bool {
+        matches!(self.route, PreparedRawFieldReadRouteV1::Dynamic { .. })
+    }
 }
 
 impl super::MirBuilder {
@@ -642,6 +646,24 @@ mod tests {
             "record-update"
         );
         assert_eq!(prepared_route(&builder, var("ordinary")), "dynamic");
+    }
+
+    #[test]
+    fn dynamic_field_read_requires_receiver_source() {
+        let builder = builder_with_pair_record("field_read_receiver/0");
+        let prepared = PreparedRawFieldReadV1::prepare(
+            &builder,
+            field(var("value"), "field"),
+            "field".to_string(),
+        );
+        assert!(prepared.requires_receiver_source_v1());
+
+        let prepared = PreparedRawFieldReadV1::prepare(
+            &builder,
+            var("pair"),
+            "value".to_string(),
+        );
+        assert!(!prepared.requires_receiver_source_v1());
     }
 
     #[test]

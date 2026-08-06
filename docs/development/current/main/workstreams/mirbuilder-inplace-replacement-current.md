@@ -515,7 +515,8 @@ closed — LOOP-RECIPE-PRODUCER-ID-S0 -> portable wire now carries `producer_id:
 closed — LOOP-JOINSIG-NESTED-SHADOW-S0 -> visible payload projection now walks target-to-root ancestry, keeps the nearest carrier per Recipe-local binding, emits binding-key order, and isolates siblings; verifier owns unknown/duplicate carrier rejects; 64 focused tests, shared guard, pointer guard, and reference/README sync are green; no After, PHI, Generic, selector, producer, or production change.
 closed — LOOP-RECIPE-SOURCE-BOUND-CORE-S0 -> caller-zero core now co-seals verified Recipe/JoinSig/source claim with exact BindingRef/effect relations and typed loop-carrier anchors; 73 focused contract tests, shared guard, pointer guard, and reference/README sync are green; no Generic key, Builder/MIR, physical, or production change.
 closed — loop-family receipts and Generic S3/S4-D0 design are closed; S4-I0-R0 caller-zero Recipe producer landed with 42 focused Generic tests and synced Recipe/reference/README receipts.
-closed — GENERIC-LEGACY-CORPUS-UNIVERSE-P0 and GENERIC-LEGACY-OBSERVATION-FRONT-G0 landed; S0-D0 and S0-I0 are closed: BinaryOp exact-demand completion validates only on success, preserves the first child error, and has a fresh primary-error receipt. Current design row GENERIC-RAW-STRUCTURED-DEMANDS-ADMISSION-S1-D0; no Generic route/production/physical/retry/delete authority.
+closed — GENERIC-LEGACY-CORPUS-UNIVERSE-P0 and GENERIC-LEGACY-OBSERVATION-FRONT-G0 landed; S0-D0 and S0-I0 are closed: BinaryOp exact-demand completion validates only on success, preserves the first child error, and has a fresh primary-error receipt.
+S1-D0/I0 are closed: resolver variable admission was already complete, Dynamic FieldAccess now consumes the existing Receiver receipt, and the immutable S1 receipt exposes the next MethodCall receiver boundary. Current design stop is GENERIC-RAW-STRUCTURED-METHOD-RECEIVER-RECEIPT-S2-D0; no Generic route/production/physical/retry/delete authority.
 ```
 ## Production invariants
 ```text
@@ -976,7 +977,6 @@ after final-pipeline Complete only
   resume the parked Home ownership taskboard at OWNERSHIP-HOME-RESUME-D0
   then select later unimplemented language features
 ```
-
 ## Fixed packs
 ```text
 REPLACEMENT-LEDGER0  production owner / detached asset accountability

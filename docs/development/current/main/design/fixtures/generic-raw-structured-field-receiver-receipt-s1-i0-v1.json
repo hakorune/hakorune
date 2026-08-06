@@ -1,0 +1,49 @@
+{
+  "schema_version": "generic-raw-structured-field-receiver-receipt-s1-i0-v1",
+  "kind": "GenericRawStructuredFieldReceiverReceiptS1I0ReceiptV1",
+  "row": "GENERIC-RAW-STRUCTURED-FIELD-RECEIVER-RECEIPT-S1-I0",
+  "case_id": "generic_loop_continue_strict_shadow_vm",
+  "canonical_case_id": "generic_loop_continue_strict_shadow_vm",
+  "invocation_fixture": "apps/tests/phase29ca_generic_loop_continue_min.hako",
+  "mode": "strict-shadow",
+  "profile": "vm",
+  "invocation_profile_id": "vm-strict-planner-direct-v1",
+  "working_directory": ".",
+  "command_argv": [
+    "env",
+    "HAKO_ROOT=.",
+    "HAKO_BIN=target/release/hakorune",
+    "NYASH_ROOT=.",
+    "NYASH_BIN=target/release/hakorune",
+    "NYASH_DISABLE_PLUGINS=1",
+    "HAKO_JOINIR_STRICT=1",
+    "HAKO_JOINIR_PLANNER_REQUIRED=1",
+    "target/release/hakorune",
+    "--backend",
+    "vm",
+    "apps/tests/phase29ca_generic_loop_continue_min.hako"
+  ],
+  "timeout_seconds": 10,
+  "front_state": "failed-before-loop-next-method-call-receiver-boundary",
+  "exit_code": 1,
+  "primary_front_evidence": {
+    "kind": "diagnostic",
+    "token": "[freeze:contract][callable-semantic-lowering/missing-variable-site]",
+    "source": "src/mir/builder/calls/method_call_descent.rs::lower_method_call_receiver_v1",
+    "site": "[Body(1), IfThenBody, IfThen(0), Value]"
+  },
+  "previous_boundary_closed": "GENERIC-RAW-STRUCTURED-FIELD-RECEIVER-RECEIPT-S1-I0",
+  "pre_loop_owner": "src/mir/builder/calls/method_call_descent.rs::lower_method_call_receiver_v1",
+  "failure_phase": "StringifyOperator.apply/1 Body(1)/IfThenBody IfThen(0) MethodCall receiver source demand before Loop lowering",
+  "stdout_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_digest": "0fd4bfe5cb978832b143b9a682dfae010c5b7602a1fab18d6d4aec0905f1ab7b",
+  "claims": [
+    "loop-not-reached",
+    "field-receiver-receipt-transport-verified",
+    "primary-error-preserved",
+    "route-unobserved",
+    "disposition-unclassified",
+    "production-unchanged"
+  ],
+  "next_design_boundary": "MethodCall receiver descent must transport ExprChildRoleV1::Receiver; keep separate from FieldAccess S1 and do not open Generic Recipe/Loop production."
+}

@@ -228,6 +228,13 @@ The immutable receipt is
 its shared guard verifies exact P0 identity/profile, direct fixture invocation,
 stable diagnostic source, and observation-only claims.
 
+The S0-I0 transactional completion repair and S1-I0 Dynamic FieldAccess
+receiver receipt transport are also closed. The immutable S1 receipt is
+`docs/development/current/main/design/fixtures/generic-raw-structured-field-receiver-receipt-s1-i0-v1.json`;
+it exposes the next MethodCall receiver receipt boundary. The current design
+stop is `GENERIC-RAW-STRUCTURED-METHOD-RECEIVER-RECEIPT-S2-D0`; no Loop
+production or Generic route claim is opened.
+
 This is evidence about the shared raw structured-child owner only. No Generic
 route, Recipe, physical, disposition, production, retry, or legacy deletion
 claim is opened. S0-D0 and S0-I0 are now closed: exact-demand completion is
@@ -235,8 +242,11 @@ transactional and preserves the first child error. The fresh I0 receipt is
 `docs/development/current/main/design/fixtures/generic-raw-structured-demands-repair-s0-i0-v1.json`;
 it records the primary
 `[freeze:contract][callable-semantic-lowering/missing-variable-site]` and the
-absence of the old masking diagnostic. Resolver variable admission is a
-separate design row, `GENERIC-RAW-STRUCTURED-DEMANDS-ADMISSION-S1-D0`.
+absence of the old masking diagnostic. Worker audit corrected the next owner:
+resolver variable admission is already complete, while the Dynamic
+FieldAccess read must transport the existing `Receiver` source receipt. The
+current implementation row is
+`GENERIC-RAW-STRUCTURED-FIELD-RECEIVER-RECEIPT-S1-I0`.
 
 ## DirectAccum S1 observation receipt
 

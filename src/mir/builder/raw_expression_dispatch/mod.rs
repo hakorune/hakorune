@@ -42,8 +42,8 @@ use super::raw_lambda_capture_lifecycle::RawLambdaCaptureDemandPortV1;
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
-    RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1,
-    RecursiveChildLoweringPortV1,
+    RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1,
+    RawLoopChildEntryPortV1, RecursiveChildLoweringPortV1,
 };
 use super::stmts::{
     drive_variable_assignment_v1, LocalStatementDescentPortV1, RawLegacyLocalInputV1,
@@ -88,6 +88,27 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + RawLambdaCaptureDemandPortV1
     + QMarkPropagationSourceDemandPortV1
 {
+}
+
+trait RawPreparedFieldReadLoweringPortV1: RawAstChildLoweringPortV1 {
+    fn lower_prepared_field_read_v1(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        prepared: PreparedRawFieldReadV1,
+    ) -> Result<ValueId, String>;
+}
+
+impl<Port> RawPreparedFieldReadLoweringPortV1 for Port
+where
+    Port: RawAstChildLoweringPortV1,
+{
+    fn lower_prepared_field_read_v1(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        prepared: PreparedRawFieldReadV1,
+    ) -> Result<ValueId, String> {
+        builder.lower_prepared_raw_field_read_with_port_v1(self, prepared)
+    }
 }
 
 impl<Port> RawExpressionDispatchPortV1 for Port where
@@ -463,9 +484,28 @@ impl super::MirBuilder {
                 }
             }
 
-            ASTNode::FieldAccess { object, field, .. } => {
-                let prepared = PreparedRawFieldReadV1::prepare(self, *object, field);
-                self.lower_prepared_raw_field_read_with_port_v1(port, prepared)
+            ref node @ ASTNode::FieldAccess {
+                ref object,
+                ref field,
+                ..
+            } => {
+                let prepared = PreparedRawFieldReadV1::prepare(
+                    self,
+                    object.as_ref().clone(),
+                    field.clone(),
+                );
+                if !prepared.requires_receiver_source_v1() {
+                    return port.lower_prepared_field_read_v1(self, prepared);
+                }
+                let receiver_source =
+                    port.prepare_expression_child_source_v1(node, ExprChildRoleV1::Receiver)?;
+                let mut scoped = RawStructuredChildScopePortV1::new(
+                    port,
+                    vec![receiver_source],
+                    Vec::new(),
+                );
+                let result = scoped.lower_prepared_field_read_v1(self, prepared);
+                scoped.complete_after_result_v1(result)
             }
 
             ASTNode::New {

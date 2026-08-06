@@ -42,9 +42,12 @@ Related:
   design is accepted and `GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-I0` is
   implemented and verified: the fresh receipt preserves the primary
   callable-semantic error instead of masking it with an unconsumed-demand
-  error. The current design row is
-  `GENERIC-RAW-STRUCTURED-DEMANDS-ADMISSION-S1-D0`; no implementation is
-  authorized until resolver variable-site admission is designed.
+  error. Worker audit corrected the next boundary: resolver variable
+  admission is already complete, while the raw Dynamic FieldAccess read was
+  missing the existing `Receiver` source receipt. S1-I0 is implemented and
+  verified; its immutable receipt now exposes the next MethodCall receiver
+  boundary. The current design stop is
+  `GENERIC-RAW-STRUCTURED-METHOD-RECEIVER-RECEIPT-S2-D0`.
   Production selection, physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
