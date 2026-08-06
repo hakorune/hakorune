@@ -5,6 +5,7 @@ Related:
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
 - `docs/development/current/main/design/planfrag-freeze-taxonomy.md`
 - `docs/development/current/main/design/archive/domainplan-thinning-ssot.md`
+- `docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md`
 
 # Recipe-first Entry Contract (SSOT)
 
@@ -25,6 +26,72 @@ AST
   → Verifier (fail-fast: `[freeze:contract]`)
   → Lower (VerifiedRecipe only)
   → MIR
+
+## Semantic mapping completion gate (SSOT)
+
+Recipe-first means more than creating a type named `Recipe`. Before any
+source-to-Recipe or Recipe-to-physical implementation row begins, one design
+owner must close this complete mapping:
+
+```text
+exact natural source grammar and site inventory
+  -> AST-free neutral facts
+  -> exact portable Recipe rows/keys and derived glue
+  -> logical carrier/edge/merge and function-tail/completion relation
+  -> typed Ready / Unresolved / Rejected / NoCandidate boundary
+  -> one verified physical input
+  -> one physical owner and one external commit
+```
+
+If two products use the word `Recipe`, their layer and authority must be named
+explicitly. An AST-bearing Builder recipe, compatibility transport, or lowering
+oracle is not evidence for an AST-free portable Recipe. The conversion between
+the layers must be specified row by row or the old layer must remain legacy;
+similar names and passing tests do not establish correspondence.
+
+The mapping is complete only when all of the following are fixed before code:
+
+1. Every admitted source site belongs exactly once to a fact/Recipe/effect row;
+   uncovered, duplicate, foreign, and opaque sites have typed outcomes.
+2. Derived Recipe glue is named as derived and never presented as a synthetic
+   source statement or AST rewrite.
+3. Parameter, literal, result, carrier, merge, exit, cleanup, and tail authority
+   is assigned once. A loop fragment must not silently absorb or drop a
+   function tail.
+4. The current target schema can express the exact recurrence, merge, and
+   completion semantics. If it cannot, this is a BoxShape prerequisite, not a
+   request for another route-specific patch.
+5. Selector, Recipe-key issuer, physical ValueId/PHI owner, and commit owner are
+   each singular and named.
+6. One natural-source positive fixture, the negative boundary, and deterministic
+   normalized output are known. Tests witness this decision; they never discover
+   it by AST mutation, fixture distortion, retry, or implementation guesswork.
+7. Existing accepted legacy inputs have a cutover disposition. Before old
+   authority is deleted, each is implemented by the new path or rejected by an
+   accepted language/profile Decision; “future support” cannot hide a
+   compatibility regression.
+
+The stop signal is simple:
+
+```text
+implementation asks “what should this source map to?”
+or target schema cannot represent the required value/merge/tail
+or a test must rewrite source evidence to make the plan type-check
+  -> stop implementation
+  -> classify BoxShape
+  -> repair the mapping/schema SSOT
+  -> obtain one independent premise review
+  -> resume only from a shallow named row
+```
+
+Do not answer this stop by adding deeper task suffixes, another evidence-only
+adapter, or a fallback. Evidence produced during a wrong-premise attempt may be
+retained as a fixture or counterexample, but it does not authorize the next
+implementation row.
+
+The Generic G0 design linked above is the current worked example: its source
+mapping exposed missing nested-carrier shadow and logical After-binding
+capabilities before production work resumed.
 
 ## Entry priority (SSOT)
 

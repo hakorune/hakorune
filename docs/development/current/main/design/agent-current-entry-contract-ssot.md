@@ -104,6 +104,23 @@ If a user-scoped Codex goal explicitly says to stop at design consultation, the
 goal should be considered complete at this stop point after the brief is ready
 and the worktree is clean.
 
+### Source-to-Recipe implementation gate
+
+For any row crossing source, Facts, Recipe, verifier, or physical completion,
+the design-stop brief must also satisfy the semantic mapping completion gate in
+`recipe-first-entry-contract-ssot.md`. In particular, name every product layer
+that is called “Recipe”, prove that the final portable schema can represent the
+exact carrier/merge/tail semantics, and identify the sole selector, key issuer,
+physical identity owner, and commit owner.
+
+If that correspondence is still being discovered through tests or code, the
+row is not an implementation row. Return to BoxShape/design, keep production
+callers at zero, and do not deepen the task suffix. AST retagging, synthetic
+source evidence, passing compatibility fixtures, or an old Builder recipe do
+not substitute for a natural-source-to-portable mapping. A planned legacy
+cutover must also classify every currently accepted input before deleting the
+old authority.
+
 ### Premise-reset circuit breaker
 
 Three consecutive `NoSafeSlice` / `NoStandaloneRow` outcomes for the same
