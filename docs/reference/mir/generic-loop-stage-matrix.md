@@ -213,6 +213,28 @@ opened. The manifest contains zero edge records by design; the edge columns
 are sealed for the later dependency row. The next ordered boundary is
 `GENERIC-LEGACY-OBSERVATION-FRONT-G0`.
 
+## Generic legacy observation-front G0 receipt
+
+`GENERIC-LEGACY-OBSERVATION-FRONT-G0` is closed on 2026-08-07 with a named
+pre-Loop failure rather than a manufactured green result. The fixed direct VM
+invocation of canonical case
+`generic_loop_continue_strict_shadow_vm` exits `1` at
+`RawStructuredChildScopePortV1::complete_exact_demands_v1` with
+`[freeze:contract][raw-structured/unconsumed-demands] expressions=1 bodies=0`.
+The first owner is the `BinaryOp` arm of
+`raw_expression_dispatch/mod.rs::build_expression_impl_with_port_v1` while
+lowering the prelude `StringifyOperator.apply/1` `Body(1)/IfCondition`
+expression `value.stringify != null`.
+The immutable receipt is
+`docs/development/current/main/design/fixtures/generic-legacy-observation-front-g0-v1.json`;
+its shared guard verifies exact P0 identity/profile, direct fixture invocation,
+stable diagnostic source, and observation-only claims.
+
+This is evidence about the shared raw structured-child owner only. No Generic
+route, Recipe, physical, disposition, production, retry, or legacy deletion
+claim is opened. The next ordered design row is
+`GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-D0`.
+
 ## DirectAccum S1 observation receipt
 
 `LOOP-FAMILY-DIRECT-OBSERVATION-S1` is now landed as a caller-zero,

@@ -37,9 +37,10 @@ Related:
   the demand retains exact source roles without Recipe keys. The worker-
   reviewed `GENERIC-G0-RECIPE-S4-D0` design is also closed. The caller-zero
   deterministic Recipe producer and the checked 389-case
-  `GENERIC-LEGACY-CORPUS-UNIVERSE-P0` inventory are landed; the current row is
-  `GENERIC-LEGACY-OBSERVATION-FRONT-G0`. Production selection, physical
-  cutover, and legacy removal remain closed.
+  `GENERIC-LEGACY-CORPUS-UNIVERSE-P0` inventory are landed. The direct G0
+  probe is closed as a named pre-Loop raw-structured BinaryOp failure; the
+  current design row is `GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-D0`.
+  Production selection, physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

@@ -8,7 +8,9 @@ select a runtime route, and it does not turn fixture names into semantic facts.
 from __future__ import annotations
 
 import csv
+import json
 import pathlib
+import re
 import sys
 from dataclasses import dataclass
 
@@ -50,6 +52,8 @@ CASE_MODES = {"fast-gate", "selfhost-subset", "fixture-inventory", "release-adop
 CASE_DECISION = "P0-INVENTORY-ONLY"
 CASE_RETENTION = "GENERIC-LEGACY-CORPUS-UNIVERSE-P0"
 UNKNOWN = "unknown"
+FRONT_STATES = {"loop-reached", "failed-before-loop", "timeout", "spawn-error"}
+FRONT_CLAIMS = {"loop-not-reached", "route-unobserved", "disposition-unclassified", "production-unchanged"}
 
 
 class ManifestError(ValueError):
@@ -261,12 +265,88 @@ def validate_manifest(manifest: pathlib.Path, repo_root: pathlib.Path) -> list[R
     return records
 
 
+def validate_front_receipt(receipt: pathlib.Path, manifest: pathlib.Path, repo_root: pathlib.Path) -> None:
+    try:
+        value = json.loads(receipt.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        raise ManifestError(f"{receipt}: invalid JSON: {error}") from error
+    required = {
+        "schema_version", "kind", "row", "case_id", "canonical_case_id",
+        "canonical_fixture", "invocation_fixture", "mode", "profile", "invocation_profile_id", "working_directory",
+        "command_argv", "timeout_seconds", "front_state", "exit_code",
+        "first_front_evidence", "pre_loop_owner", "failure_phase",
+        "stdout_digest", "stderr_digest", "claims", "next_repair_row",
+    }
+    if set(value) != required:
+        raise ManifestError(f"{receipt}: receipt field set drift")
+    if value["schema_version"] != "generic-legacy-observation-front-v1" or value["kind"] != "GenericLegacyObservationFrontReceiptV1":
+        raise ManifestError(f"{receipt}: receipt identity drift")
+    if value["row"] != "GENERIC-LEGACY-OBSERVATION-FRONT-G0":
+        raise ManifestError(f"{receipt}: wrong observation row")
+    records = validate_manifest(manifest, repo_root)
+    case = next((record for record in records if record.values["record_kind"] == "case" and record.values["id"] == value["case_id"]), None)
+    if case is None or case.values["alias_of"] != SENTINEL:
+        raise ManifestError(f"{receipt}: case_id must resolve to a canonical manifest case")
+    for field in ("canonical_fixture", "mode", "profile"):
+        if value[field] != case.values[field]:
+            raise ManifestError(f"{receipt}: {field} does not match the manifest case")
+    if value["canonical_case_id"] != value["case_id"]:
+        raise ManifestError(f"{receipt}: canonical_case_id must equal the non-alias case")
+    if value["invocation_profile_id"] != "vm-strict-planner-direct-v1":
+        raise ManifestError(f"{receipt}: invocation profile is not the fixed direct VM profile")
+    argv = value["command_argv"]
+    if not isinstance(argv, list) or not argv or any(not isinstance(item, str) or not item for item in argv):
+        raise ManifestError(f"{receipt}: command_argv must be a non-empty string list")
+    invocation_fixture = pathlib.Path(value["invocation_fixture"])
+    if any(item.endswith(".sh") for item in argv) or value["invocation_fixture"] not in argv:
+        raise ManifestError(f"{receipt}: command must directly invoke the recorded fixture, not a smoke wrapper")
+    if not (repo_root / invocation_fixture).is_file():
+        raise ManifestError(f"{receipt}: invocation fixture is missing")
+    executable = next((item for item in argv if item.startswith("target/") and item.endswith("/hakorune")), None)
+    if executable is None or not (repo_root / executable).is_file():
+        raise ManifestError(f"{receipt}: direct Hakorune executable is missing")
+    if value["working_directory"] != "." or value["timeout_seconds"] != 10:
+        raise ManifestError(f"{receipt}: front invocation profile drift")
+    state = value["front_state"]
+    if state not in FRONT_STATES:
+        raise ManifestError(f"{receipt}: unknown front state {state!r}")
+    evidence = value["first_front_evidence"]
+    if not isinstance(evidence, dict) or set(evidence) != {"kind", "token", "source"}:
+        raise ManifestError(f"{receipt}: first front evidence shape drift")
+    if state == "failed-before-loop":
+        if value["exit_code"] != 1 or value["pre_loop_owner"] != "src/mir/builder/raw_expression_dispatch/mod.rs::build_expression_impl_with_port_v1(BinaryOp)":
+            raise ManifestError(f"{receipt}: failed-before-loop receipt must retain the observed owner and exit")
+        if evidence["token"] != "[freeze:contract][raw-structured/unconsumed-demands]":
+            raise ManifestError(f"{receipt}: diagnostic token drift")
+        if evidence["source"] != "src/mir/builder/raw_structured_child_scope.rs:108":
+            raise ManifestError(f"{receipt}: diagnostic source drift")
+        if value["next_repair_row"] != "GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-D0":
+            raise ManifestError(f"{receipt}: missing actual-owner repair row")
+    elif state == "loop-reached":
+        if value["exit_code"] != 0 or value["pre_loop_owner"] != SENTINEL:
+            raise ManifestError(f"{receipt}: loop-reached receipt cannot retain a pre-loop owner")
+    elif state == "timeout":
+        if value["exit_code"] != 124:
+            raise ManifestError(f"{receipt}: timeout receipt must use exit 124")
+    else:
+        if value["pre_loop_owner"] == SENTINEL:
+            raise ManifestError(f"{receipt}: spawn-error must retain an owner")
+    if set(value["claims"]) != FRONT_CLAIMS:
+        raise ManifestError(f"{receipt}: claim set must stay observation-only")
+    digest_pattern = re.compile(r"^[0-9a-f]{64}$")
+    for field in ("stdout_digest", "stderr_digest"):
+        if not isinstance(value[field], str) or not digest_pattern.fullmatch(value[field]):
+            raise ManifestError(f"{receipt}: {field} must be a sha256 digest")
+
+
 def main(argv: list[str]) -> int:
-    if len(argv) != 3:
-        print(f"usage: {argv[0]} MANIFEST REPO_ROOT", file=sys.stderr)
+    if len(argv) not in {3, 4}:
+        print(f"usage: {argv[0]} MANIFEST REPO_ROOT [OBSERVATION_RECEIPT]", file=sys.stderr)
         return 2
     try:
         records = validate_manifest(pathlib.Path(argv[1]), pathlib.Path(argv[2]))
+        if len(argv) == 4:
+            validate_front_receipt(pathlib.Path(argv[3]), pathlib.Path(argv[1]), pathlib.Path(argv[2]))
     except (OSError, ManifestError) as error:
         print(f"[generic-legacy-corpus] FAIL: {error}", file=sys.stderr)
         return 1

@@ -1,6 +1,6 @@
 # Generic legacy observation front G0
 
-Status: `next implementation row; P0 corpus universe landed 2026-08-07`
+Status: `landed 2026-08-07; front failed before Loop at a shared owner; next repair row is GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-D0`
 
 Parent SSOT: `../design/generic-loop-source-to-portable-recipe-ssot.md`.
 
@@ -41,6 +41,27 @@ disposition and does not authorize a workaround.
   active workstream, task pointer, and related README; the final production
   implementation row must update its reference documentation again in the
   same commit.
+
+## Landed receipt
+
+The fixed direct VM invocation for canonical case
+`generic_loop_continue_strict_shadow_vm` was run serially with the sealed
+`vm-strict-planner-direct-v1` invocation profile against its recorded fixture
+`apps/tests/phase29ca_generic_loop_continue_min.hako`. It exited `1` before
+Loop reached and emitted
+`[freeze:contract][raw-structured/unconsumed-demands] expressions=1 bodies=0`
+from `src/mir/builder/raw_structured_child_scope.rs:108`. The actual source
+owner is the `BinaryOp` arm of
+`src/mir/builder/raw_expression_dispatch/mod.rs::build_expression_impl_with_port_v1`
+for the prelude `StringifyOperator.apply/1` `Body(1)/IfCondition` demand. The
+first failing expression is `value.stringify != null`, not the final return
+and not a user local initializer.
+The receipt is
+`../design/fixtures/generic-legacy-observation-front-g0-v1.json`; its guard
+resolves the exact non-alias P0 case and rejects smoke-wrapper/fallback route
+claims. This closes G0 as a named pre-Loop failure only. The owner is opened
+separately as `GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-D0`; no Generic route,
+Recipe, physical, disposition, or production claim was made.
 
 ## Non-goals
 

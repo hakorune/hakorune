@@ -1,0 +1,46 @@
+{
+  "schema_version": "generic-legacy-observation-front-v1",
+  "kind": "GenericLegacyObservationFrontReceiptV1",
+  "row": "GENERIC-LEGACY-OBSERVATION-FRONT-G0",
+  "case_id": "generic_loop_continue_strict_shadow_vm",
+  "canonical_case_id": "generic_loop_continue_strict_shadow_vm",
+  "canonical_fixture": "tools/smokes/v2/profiles/integration/joinir/generic_loop_continue_strict_shadow_vm.sh",
+  "invocation_fixture": "apps/tests/phase29ca_generic_loop_continue_min.hako",
+  "mode": "strict-shadow",
+  "profile": "vm",
+  "invocation_profile_id": "vm-strict-planner-direct-v1",
+  "working_directory": ".",
+  "command_argv": [
+    "env",
+    "HAKO_ROOT=.",
+    "HAKO_BIN=target/release/hakorune",
+    "NYASH_ROOT=.",
+    "NYASH_BIN=target/release/hakorune",
+    "NYASH_DISABLE_PLUGINS=1",
+    "HAKO_JOINIR_STRICT=1",
+    "HAKO_JOINIR_PLANNER_REQUIRED=1",
+    "target/release/hakorune",
+    "--backend",
+    "vm",
+    "apps/tests/phase29ca_generic_loop_continue_min.hako"
+  ],
+  "timeout_seconds": 10,
+  "front_state": "failed-before-loop",
+  "exit_code": 1,
+  "first_front_evidence": {
+    "kind": "diagnostic",
+    "token": "[freeze:contract][raw-structured/unconsumed-demands]",
+    "source": "src/mir/builder/raw_structured_child_scope.rs:108"
+  },
+  "pre_loop_owner": "src/mir/builder/raw_expression_dispatch/mod.rs::build_expression_impl_with_port_v1(BinaryOp)",
+  "failure_phase": "StringifyOperator.apply/1 Body(1)/IfCondition BinaryOp source demand before Loop lowering",
+  "stdout_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_digest": "a77c6fb38b190c99a175340f3c7279bd197d80e49f5a36baaf57a981ed4c7162",
+  "claims": [
+    "loop-not-reached",
+    "route-unobserved",
+    "disposition-unclassified",
+    "production-unchanged"
+  ],
+  "next_repair_row": "GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-D0"
+}

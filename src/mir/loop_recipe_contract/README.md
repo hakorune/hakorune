@@ -68,6 +68,13 @@ interpret fixture names, or open a production Recipe caller from that manifest.
 The next observation-front task is tracked in
 `docs/development/current/main/investigations/generic-legacy-observation-front-g0-task-2026-08-07.md`.
 
+The G0 receipt is separate from this portable contract:
+`docs/development/current/main/design/fixtures/generic-legacy-observation-front-g0-v1.json`.
+It records one direct VM invocation only. The current receipt is a named
+pre-Loop failure in the `raw_expression_dispatch/mod.rs` BinaryOp arm while
+lowering the prelude `StringifyOperator.apply/1` second `if` condition; it does not
+open a Generic route, Recipe caller, Builder/MIR path, or disposition.
+
 ## JoinSig module map
 
 The `join_sig/` directory is the single logical JoinSig owner. Its facade keeps

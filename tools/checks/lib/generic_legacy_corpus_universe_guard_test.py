@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import sys
 import tempfile
 import unittest
@@ -15,6 +16,7 @@ import generic_legacy_corpus_universe_guard as guard
 
 ROOT = Path(__file__).resolve().parents[3]
 MANIFEST = ROOT / "docs/development/current/main/design/fixtures/generic-loop-legacy-disposition-v1.tsv"
+RECEIPT = ROOT / "docs/development/current/main/design/fixtures/generic-legacy-observation-front-g0-v1.json"
 
 
 class GenericLegacyCorpusGuardTest(unittest.TestCase):
@@ -34,6 +36,24 @@ class GenericLegacyCorpusGuardTest(unittest.TestCase):
         records = guard.validate_manifest(MANIFEST, ROOT)
         self.assertEqual(sum(item.values["record_kind"] == "case" for item in records), 389)
         self.assertEqual(sum(item.values["alias_of"] != "-" for item in records if item.values["record_kind"] == "case"), 4)
+
+    def test_front_receipt_is_a_named_pre_loop_failure(self):
+        guard.validate_front_receipt(RECEIPT, MANIFEST, ROOT)
+
+    def test_front_receipt_rejects_smoke_wrapper_command(self):
+        value = json.loads(RECEIPT.read_text())
+        value["command_argv"][-1] = value["canonical_fixture"]
+        stream = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
+        path = Path(stream.name)
+        try:
+            stream.write(json.dumps(value))
+            stream.close()
+            with self.assertRaises(guard.ManifestError):
+                guard.validate_front_receipt(path, MANIFEST, ROOT)
+        finally:
+            if not stream.file.closed:
+                stream.close()
+            path.unlink()
 
     def test_duplicate_source_provenance_rejects(self):
         def mutate(rows):

@@ -6,6 +6,7 @@ source "$ROOT_DIR/tools/checks/lib/joinir_logical_demand_contract.sh"; source "$
 MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-inplace-replacement-v1.tsv"
 GENERIC_LEGACY_MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/generic-loop-legacy-disposition-v1.tsv"
 GENERIC_LEGACY_GUARD="$ROOT_DIR/tools/checks/lib/generic_legacy_corpus_universe_guard.py"
+GENERIC_FRONT_RECEIPT="$ROOT_DIR/docs/development/current/main/design/fixtures/generic-legacy-observation-front-g0-v1.json"
 CALLER_MANIFEST="$ROOT_DIR/tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json"
 STRUCTURAL_RATCHET="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-structural-ratchet.tsv"
 LOWERING="$ROOT_DIR/src/mir/builder/calls/lowering.rs"
@@ -71,6 +72,7 @@ guard_require_files \
   "$MANIFEST" \
   "$GENERIC_LEGACY_MANIFEST" \
   "$GENERIC_LEGACY_GUARD" \
+  "$GENERIC_FRONT_RECEIPT" \
   "$CALLER_MANIFEST" \
   "$STRUCTURAL_RATCHET" \
   "$LOWERING" \
@@ -719,7 +721,7 @@ if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
   guard_fail "$TAG" "Match owned input must have one consuming production owner"
 fi
 if rg -n -P '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" >/dev/null; then guard_fail "$TAG" "owned compound expression dispatcher clone returned"; fi
-python3 "$GENERIC_LEGACY_GUARD" "$GENERIC_LEGACY_MANIFEST" "$ROOT_DIR" || guard_fail "$TAG" "Generic legacy corpus universe manifest failed"
+python3 "$GENERIC_LEGACY_GUARD" "$GENERIC_LEGACY_MANIFEST" "$ROOT_DIR" "$GENERIC_FRONT_RECEIPT" || guard_fail "$TAG" "Generic legacy corpus/front receipt failed"
 guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_if_recipe_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_loop_family_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_g0_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_candidate_envelope_contract "$ROOT_DIR" "$TAG"; guard_loop_family_row_context_retention_contract "$ROOT_DIR" "$TAG"; guard_loop_family_window_lease_contract "$ROOT_DIR" "$TAG"; guard_loop_family_admission_contract "$ROOT_DIR" "$TAG"; guard_loop_family_selector_contract "$ROOT_DIR" "$TAG"
 for file in \
   "$LOWERING" \
