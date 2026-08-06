@@ -119,6 +119,21 @@ Recipe/JoinSig/BindingKey, Builder/MIR/PHI, retry/fallback, or production
 caller is introduced. The next row is
 `LOOP-FAMILY-NESTED-OBSERVATION-S1`; this page remains inspection-only.
 
+## NestedPredicate S1 design boundary
+
+The design stop for `LOOP-FAMILY-NESTED-OBSERVATION-S1` is closed in
+`docs/development/current/main/design/loop-family-observation-policy-ssot.md`.
+The future caller-zero implementation will adapt only the existing
+`issue_nested_predicate_source_projection_v1` product into a neutral
+AST-free `Candidate`/`Declined`/`Unresolved`/`Rejected` observation. Its
+Candidate means exact bounded source projection, not Recipe or physical
+admission. Forest lookup failures and resolved-forest invariant conflicts must
+remain distinct: missing/opaque source is `Unresolved`, while a known
+non-Nested shape declines and a malformed/foreign forest rejects. Producer-only
+initializer/recurrence checks remain later and are not duplicated in the
+observer. No selector, Recipe/JoinSig, Builder/MIR, retry/fallback, route ID,
+or production caller is authorized by this design row.
+
 ## Current source-to-selection evidence
 
 | fixture class | source witness | current generic schedule | status |

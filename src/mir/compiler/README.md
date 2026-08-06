@@ -80,6 +80,14 @@ the production compiler path. The policy observer consumes only this
 AST-free attempt; it does not receive AST, Builder/MIR state, route IDs,
 Recipes, retry/fallback authority, or a production caller.
 
+The next NestedPredicate row is design-closed but not implemented here yet.
+Its source authority remains
+`nested_predicate_projection.rs::issue_nested_predicate_source_projection_v1`.
+The future adapter must preserve forest lookup/invariant error distinctions and
+must not call `nested_predicate_profile.rs`, the Nested Recipe producer, or any
+Builder/MIR/route selector. Producer-only initializer and recurrence semantics
+remain later claims; the S1 Candidate is source projection evidence only.
+
 ## B0-L2b source projection boundary
 
 `VerifiedSourceProjectionV1` is sealed beside the canonical syntax and owner
