@@ -271,7 +271,7 @@ Recipe, BindingKey, Builder, MIR, or production caller is added.
 
 `JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-WITNESS0-D3-S2-D4-S0`
 is closed as a private `#[cfg(test)]` transport witness in
-`src/mir/shared_loop_source_window.rs`. One non-`Clone` resolver-owned receipt
+`src/mir/shared_loop_source_window_tests.rs`. One non-`Clone` resolver-owned receipt
 lends paired raw/resolved views through a consuming `with_views` call. Four
 focused tests cover the canonical nested-loop row plus foreign-owner,
 non-loop, and equal-shape distinct-session rejects. This proves source
@@ -358,7 +358,7 @@ observation-set witness, not a selector or production cutover.
 
 `JOINIR-GENERIC-RESOLVED-CARRIER-CANONICAL-OBSERVATION-SET0-D4-S3-S0` is
 closed as a private `cfg(test)` witness in
-`src/mir/shared_loop_source_window.rs`. Each
+`src/mir/shared_loop_source_window_tests.rs`. Each
 `TestLoopFamilyObservationSetV1` owns one non-`Clone` resolver receipt, one
 private Release/Strict/planner-required mode snapshot, one loop-window-only
 coverage seal, and three semantic family rows. All rows are typed

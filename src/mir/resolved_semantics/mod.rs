@@ -179,6 +179,7 @@ mod function_root_tests;
 #[cfg(test)]
 pub(crate) mod generic_resolved_carrier_provenance;
 #[cfg(test)]
+#[path = "generic_resolved_carrier_source_lease_tests.rs"]
 pub(crate) mod generic_resolved_carrier_source_lease;
 #[cfg(test)]
 mod if_region_tests;

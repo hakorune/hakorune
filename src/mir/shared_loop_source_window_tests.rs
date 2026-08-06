@@ -1,4 +1,4 @@
-//! Test-only bridge witness for one canonical Loop source window.
+//! Test-only bridge witnesses for canonical Loop source windows.
 //!
 //! This seam is intentionally owned by `mir`, below the compiler products and
 //! resolver products it borrows. It proves only that one canonical source unit

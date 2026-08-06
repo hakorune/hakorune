@@ -17,6 +17,7 @@ guard_joinir_logical_demand_contract() {
   local loop_true_source_projection="$root_dir/src/mir/compiler/loop_true_break_continue_projection.rs"
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
+  local generic_resolved_test_prefix="$route_registry_dir/generic_resolved_carrier_"
   local loop_phi_materializer="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer.rs"
   local loop_phi_materializer_tests="$root_dir/src/mir/builder/control_flow/plan/loop_phi_materializer_tests.rs"
   local loop_accum_semantic_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_semantic_parity_tests.rs"
@@ -291,7 +292,8 @@ guard_joinir_logical_demand_contract() {
           -v producer_tests="$loop_recipe_producer_tests" \
           -v nested_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs" \
           -v nested_producer_tests="$root_dir/src/mir/compiler/nested_predicate_producer_tests.rs" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests'
+          -v generic_test_prefix="$generic_resolved_test_prefix" \
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"

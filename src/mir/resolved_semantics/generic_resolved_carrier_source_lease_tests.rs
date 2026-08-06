@@ -14,17 +14,17 @@ use super::{
     VerifiedResolvedLoopSourceForestV1,
 };
 
-#[cfg(test)]
+#[path = "generic_resolved_carrier_source_lease/carrier_proof_witness.rs"]
 mod carrier_proof_witness;
-#[cfg(test)]
+#[path = "generic_resolved_carrier_source_lease/numeric_policy_projection_v6.rs"]
 mod numeric_policy_projection_v6;
-#[cfg(test)]
+#[path = "generic_resolved_carrier_source_lease/numeric_source_receipt_v4.rs"]
 mod numeric_source_receipt_v4;
-#[cfg(test)]
+#[path = "generic_resolved_carrier_source_lease/numeric_substrate_projection_v5.rs"]
 mod numeric_substrate_projection_v5;
-#[cfg(test)]
+#[path = "generic_resolved_carrier_source_lease/shape_source_lease_v2.rs"]
 mod shape_source_lease_v2;
-#[cfg(test)]
+#[path = "generic_resolved_carrier_source_lease/shape_syntax_facts_v3.rs"]
 mod shape_syntax_facts_v3;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

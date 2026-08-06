@@ -511,7 +511,7 @@ is no test-only unverified publication bypass.
 
 `JOINIR-GENERIC-RESOLVED-CARRIER-SHARED-SOURCE-BRIDGE-WITNESS0-D3-S2-D4-S0`
 is closed as a private `#[cfg(test)]` transport seam in
-`src/mir/shared_loop_source_window.rs`. One non-`Clone` resolver-owned receipt
+`src/mir/shared_loop_source_window_tests.rs`. One non-`Clone` resolver-owned receipt
 lends paired raw/resolved loop views through a consuming `with_views` call.
 Typed rejects cover foreign owner, non-loop source, source navigation/forest/
 frame mismatch, and unsupported source kind before any effect. The witness
