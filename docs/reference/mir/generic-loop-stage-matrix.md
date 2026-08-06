@@ -64,7 +64,8 @@ guard covers the recursive semantic directory, source/test line cap, and
 caller-zero issuer boundary. S0B does not infer types, retag literals, choose
 numeric representation, issue policy/Recipe keys, or enter Builder/MIR/
 production; S0C and the owner refactor are now landed; Generic row
-normalization and the remaining competing-profile observations are next.
+normalization is now landed caller-zero and the remaining competing-profile
+observations are next.
 
 ## S0C implementation receipt
 
@@ -82,7 +83,7 @@ Unresolved/Rejected evidence. Focused natural and substrate tests plus the
 shared caller-zero/recursive line guard are green. S0C does not prove
 positivity, recurrence progression, candidate selection, Recipe, physical
 lowering, or production support; the landed S1 policy observation consumes
-this sealed product, and Generic row normalization is next.
+this sealed product, and Generic row normalization is now landed caller-zero.
 
 ## S1 candidate-policy implementation receipt
 
@@ -100,6 +101,24 @@ recheck S0A BindingRef relations. Seven policy tests plus the existing Generic
 projection tests are green. S1 does not select a winner, issue Recipe keys,
 touch Builder/MIR, retry/fallback, or open a production caller; the next row is
 `LOOP-FAMILY-DIRECT-OBSERVATION-S1`.
+
+## Generic G0 row-normalization S1 implementation receipt
+
+`GENERIC-G0-ROW-NORMALIZATION-S1` is landed as a disconnected, caller-zero
+source-to-observation bridge. The `cfg(test)` compiler adapter consumes the
+existing S0A/S0B/S0C products once with an explicit numeric target and maps
+typed source outcomes into a neutral C/D/U/R attempt. The route observer
+rechecks owner/origin/source-kind/site/frame identity, mode, coverage, and the
+candidate's structural identity before invoking the existing Generic policy
+issuer. Twelve adapter tests and seven policy tests are green, together with
+the shared caller-zero/line guard and `cargo check --lib`.
+
+Known non-G0 syntax declines; missing or opaque source/type/numeric facts stay
+unresolved; foreign or conflicting facts reject. Ambiguous `ForestShape` and
+`BindingLookup` evidence remains conservative `Unresolved` until a separate
+resolver-side split. No admission assembler, selector, Recipe/JoinSig,
+Builder/MIR, physical lowering, retry/fallback, production caller, or legacy
+retirement is claimed. The next ordered cell is the common admission assembler.
 
 ## DirectAccum S1 observation receipt
 

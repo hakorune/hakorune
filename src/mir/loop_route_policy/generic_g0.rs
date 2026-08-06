@@ -42,8 +42,7 @@ pub(crate) struct GenericG0PolicyContextV1 {
 struct GenericG0PolicyContextSealV1;
 
 impl GenericG0PolicyContextV1 {
-    #[cfg(test)]
-    pub(crate) const fn for_test(
+    pub(crate) const fn from_observation(
         owner: FunctionOwnerIdV1,
         profile: GenericG0PolicyProfileV1,
         mode: GenericG0PolicyModeV1,
@@ -56,6 +55,16 @@ impl GenericG0PolicyContextV1 {
             coverage,
             _seal: GenericG0PolicyContextSealV1,
         }
+    }
+
+    #[cfg(test)]
+    pub(crate) const fn for_test(
+        owner: FunctionOwnerIdV1,
+        profile: GenericG0PolicyProfileV1,
+        mode: GenericG0PolicyModeV1,
+        coverage: GenericG0CoverageV1,
+    ) -> Self {
+        Self::from_observation(owner, profile, mode, coverage)
     }
 
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {

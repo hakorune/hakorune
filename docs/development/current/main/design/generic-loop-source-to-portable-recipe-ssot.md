@@ -2,13 +2,14 @@
 
 Status: `accepted and taskized; production activation remains 0`
 
-Current row: `GENERIC-G0-ROW-NORMALIZATION-S1`
+Current row: `GENERIC-G0-ADMISSION-SET-S1`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
 production or language-support claim. The consultation result and the closed
-G0 admission window were accepted on 2026-08-06. Implementation may
-resume only at the first row in the finite order below.
+G0 admission window were accepted on 2026-08-06. The row-normalization receipt
+is closed; implementation may resume only at the first open row in the finite
+order below.
 
 ## Decision
 
@@ -753,6 +754,11 @@ GENERIC-G0-CANDIDATE-S1
   closed; neutral operator facts feed one sealed Less/positive-Add
   Candidate/Unresolved/Rejected observation; 28 tests green; no selector/caller
 
+GENERIC-G0-ROW-NORMALIZATION-S1
+  closed 2026-08-06; one resolver/source-attempt adapter and one neutral
+  C/D/U/R observer carry full owner/origin/kind/site/frame identity, mode, and
+  coverage; no selector/caller
+
 LOOP-FAMILY-DIRECT-OBSERVATION-S1
 LOOP-FAMILY-NESTED-OBSERVATION-S1
 LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1
@@ -863,6 +869,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | Row | Sole input -> output | Done | Stop / non-claim |
 | --- | --- | --- | --- |
 | `GENERIC-G0-CANDIDATE-S1` | S0C typed lease + mode/profile/coverage -> `VerifiedGenericFamilyObservationG0` | landed: exact Less/positive Add is Candidate; unsupported/symbolic is Unresolved; contradictory role/direction is Rejected; 28 focused tests green | Generic policy may not select a winner or issue Recipe keys |
+| `GENERIC-G0-ROW-NORMALIZATION-S1` | existing S0A/S0B/S0C outcomes + explicit target -> neutral source attempt, then C/D/U/R family observation | landed: compiler adapter is `cfg(test)` caller-zero; neutral structural-facts transport and route observer preserve owner/origin/kind/site/frame, mode, coverage, and candidate identity; 12 adapter tests + 7 policy tests green; shared guards green | no selector, admission assembler, Recipe, Builder/MIR, production caller, retry/fallback, or legacy deletion; ambiguous ForestShape/BindingLookup remain conservative Unresolved |
 | `LOOP-FAMILY-DIRECT-OBSERVATION-S1` | DirectAccum structural observation + shared owner/window -> typed DirectAccum disposition | landed caller-zero source adapter + neutral observer; exact candidate/decline/unresolved/reject and foreign/mode boundaries fixed; seven focused tests and shared guard green | no legacy schedule receipt, winner, selector, Recipe, Builder/MIR, retry/fallback, or production caller |
 | `LOOP-FAMILY-NESTED-OBSERVATION-S1` | exact nested source projection + shared owner/window -> typed NestedPredicate disposition | G0 and non-nested shapes decline; exact bounded nested shape is a candidate | no physical Nested plan or route ID |
 | `LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1` | exact LoopTrue source projection + shared owner/window -> typed LoopTrue disposition | explicit branch candidate and shape/coverage declines/rejects fixed | no frozen-schedule admission or Recipe demand |

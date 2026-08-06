@@ -12,6 +12,9 @@ mod evaluate;
 #[cfg(test)]
 mod family_selection;
 mod generic_g0;
+mod generic_g0_observation;
+#[cfg(test)]
+mod generic_g0_observation_tests;
 #[cfg(test)]
 mod generic_g0_tests;
 mod loop_cond_break_continue_observation;
@@ -50,6 +53,12 @@ pub(crate) use generic_g0::{
     issue_generic_g0_candidate_v1, GenericG0CoverageV1, GenericG0PolicyContextV1,
     GenericG0PolicyModeV1, GenericG0PolicyOutcomeV1, GenericG0PolicyProfileV1,
     GenericG0PolicyRejectV1, GenericG0PolicyUnresolvedV1, VerifiedGenericFamilyObservationG0,
+};
+#[allow(unused_imports)]
+pub(crate) use generic_g0_observation::{
+    issue_generic_g0_family_observation_v1, GenericG0FamilyObservationV1,
+    GenericG0ObservationContextV1, GenericG0ObservationDeclineV1, GenericG0ObservationRejectV1,
+    GenericG0ObservationUnresolvedV1, VerifiedGenericG0FamilyCandidateV1,
 };
 pub(crate) use loop_cond_break_continue_observation::{
     issue_loop_cond_family_observation_v1, LoopCondFamilyObservationV1,

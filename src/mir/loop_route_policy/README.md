@@ -42,6 +42,16 @@ The S0C bundle is owned by `loop_structural_facts::generic_g0`; this policy
 module consumes the neutral capability rather than a compiler projection
 aggregate.
 
+`generic_g0_observation.rs` is the caller-zero S1 row-normalization observer.
+It consumes one neutral source attempt plus one owner/origin/source-kind/site/
+frame, mode, and coverage context, rechecks candidate identity, and emits only
+`Candidate`, `Declined`, `Unresolved`, or `Rejected` before calling the existing
+Generic policy issuer. The compiler adapter is `cfg(test)`-only and requires an
+explicit numeric target. Twelve adapter tests and seven policy tests are green;
+ambiguous `ForestShape`/`BindingLookup` evidence remains conservative
+`Unresolved` until a resolver-side split. There is no admission assembler,
+selector, Recipe/JoinSig, Builder/MIR, retry/fallback, or production caller.
+
 The migration fixture adapter is test-only. Its M3-F parity submodule may invoke
 the legacy execution witness as an oracle, but it has no production caller; the
 production facade `freeze_loop_route_schedule_v1` remains caller-zero.

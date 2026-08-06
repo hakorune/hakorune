@@ -72,6 +72,13 @@ progression remain the S1 policy row. No numeric wrapper Call, AST rewrite,
 retry, Recipe, Builder/MIR effect, or production caller is introduced; the
 policy handoff remains caller-zero.
 
+The test-only `generic_g0_observation.rs` adapter is the S1 source-attempt
+normalization boundary. It consumes S0A/S0B/S0C exactly once with an explicit
+`NumericTarget`, maps typed projector errors to neutral C/D/U/R outcomes, and
+does not call a selector, Recipe, Builder, MIR, retry, fallback, or production
+route. Its 12 focused tests are part of the row guard; ambiguous source lookup
+and binding evidence remains unresolved rather than being guessed.
+
 ## NestedPredicate S1 source observation
 
 `nested_predicate_observation.rs` is a `#![cfg(test)]` adapter from the

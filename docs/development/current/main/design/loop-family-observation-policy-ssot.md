@@ -488,3 +488,24 @@ No selector, common assembler, Generic normalization, Recipe/JoinSig,
 Builder/MIR, physical route, retry/fallback, production caller, or legacy
 LoopCond deletion is implied. The next bounded cell is Generic G0 row
 normalization.
+
+## Generic G0 row-normalization S1 implementation receipt
+
+`GENERIC-G0-ROW-NORMALIZATION-S1` is landed caller-zero. The test-only
+compiler adapter consumes the existing S0A/S0B/S0C products exactly once and
+maps their typed errors into a neutral source-attempt algebra. The neutral
+structural-facts transport carries owner, origin, source kind, root loop site,
+execution frame, mode, and coverage; the route observer rechecks that identity
+and maps the source attempt into exactly `Candidate`, `Declined`, `Unresolved`,
+or `Rejected` before calling the existing Generic policy issuer.
+
+The adapter requires an explicit `NumericTarget`; no target is inferred from
+the source or global environment. Known non-G0 syntax is `Declined`, missing
+or opaque source/type/numeric facts are `Unresolved`, and foreign/conflicting
+identity or typed facts are `Rejected`. The current S0B/S0C `ForestShape` and
+`BindingLookup` ambiguity is deliberately preserved as conservative
+`Unresolved`; a resolver-side distinction is a later bounded row, not guessed
+here. Twelve adapter tests, seven policy tests, `cargo check --lib`, and the
+shared caller-zero/line guard are green. Selector, common admission assembly,
+Recipe/JoinSig, Builder/MIR, physical lowering, retry/fallback, production
+callers, and legacy retirement remain closed.

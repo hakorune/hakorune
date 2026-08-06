@@ -44,7 +44,7 @@ pub(in crate::mir) mod function_input;
 pub(in crate::mir) mod generic_g0_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod located;
-#[cfg(test)] pub(crate) mod loop_cond_break_continue_observation;
+#[cfg(test)] pub(crate) mod loop_cond_break_continue_observation; #[cfg(test)] pub(crate) mod generic_g0_observation;
 #[allow(dead_code)] pub(in crate::mir) mod loop_cond_break_continue_projection;
 #[cfg(test)] pub(crate) mod loop_true_break_continue_observation;
 #[allow(dead_code)] pub(in crate::mir) mod loop_true_break_continue_projection;
@@ -189,8 +189,7 @@ mod capability_tests;
 mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
-#[cfg(test)]
-mod generic_g0_numeric_projection_tests;
+#[cfg(test)] mod generic_g0_numeric_projection_tests; #[cfg(test)] mod generic_g0_observation_tests;
 #[cfg(test)]
 mod generic_g0_projection_tests;
 #[cfg(test)]

@@ -22,6 +22,14 @@ them, but policy and later source observers consume the neutral products
 without importing compiler aggregate types. This behavior-neutral owner move
 does not open Generic selection, Recipe, Builder/MIR, or production callers.
 
+`generic_g0_observation.rs` owns the neutral S1 source-attempt transport. It
+stores only the existing typed candidate or C/D/U/R source outcome together
+with owner/origin/source-kind/site/frame identity, mode, and coverage. It does
+not inspect AST or issue policy, Recipe, Builder, MIR, retry, fallback, or
+production decisions. The compiler adapter is test-only; ambiguous
+`ForestShape`/`BindingLookup` evidence stays unresolved until a separate
+resolver-side distinction is designed.
+
 Authority flows in one direction:
 
 ```text

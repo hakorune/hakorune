@@ -31,7 +31,9 @@ mod numeric;
 pub(crate) use crate::mir::loop_structural_facts::generic_g0::{
     VerifiedGenericSourceBundleG0, VerifiedGenericTypedSourceBundleG0,
 };
-pub(crate) use numeric::issue_generic_g0_typed_source_bundle_v1;
+pub(crate) use numeric::{
+    issue_generic_g0_typed_source_bundle_v1, GenericG0NumericProjectionRejectV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericG0ProjectionRejectV1 {

@@ -7,6 +7,7 @@ mod direct_accum_exclusivity;
 mod direct_accum_observation;
 #[allow(dead_code)]
 pub(crate) mod generic_g0;
+mod generic_g0_observation;
 #[cfg(test)]
 mod generic_resolved_carrier_facts_snapshot;
 mod loop_cond_break_continue_observation;
@@ -41,6 +42,11 @@ pub(crate) use direct_accum_observation::{
     DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
     DirectAccumSourceAttemptOutcomeV1, DirectAccumSourceDeclineV1, DirectAccumSourceIdentityV1,
     DirectAccumSourceRejectV1, DirectAccumSourceUnresolvedV1, VerifiedDirectAccumSourceAttemptV1,
+};
+pub(crate) use generic_g0_observation::{
+    GenericG0ObservationCoverageV1, GenericG0ObservationModeV1, GenericG0SourceAttemptOutcomeV1,
+    GenericG0SourceDeclineV1, GenericG0SourceIdentityV1, GenericG0SourceRejectV1,
+    GenericG0SourceUnresolvedV1, VerifiedGenericG0SourceAttemptV1,
 };
 #[cfg(test)]
 pub(crate) use generic_resolved_carrier_facts_snapshot::{
