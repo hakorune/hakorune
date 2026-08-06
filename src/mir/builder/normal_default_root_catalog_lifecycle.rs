@@ -22,8 +22,14 @@ use super::{
     CallableMainMaterializationPolicyV1, MirModule, ModuleBuilderInvocationSessionV1,
     NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
 };
+use crate::mir::callable_result_representation::{
+    VerifiedSameModuleCallableResultCatalogV1, VerifiedStaticCallResultPublicationOwnerV1,
+};
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveScriptForestOutcomeV1, ScriptSyntaxViewV1,
+};
+use crate::mir::source_call_target::{
+    VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -164,6 +170,12 @@ impl ModuleBuilderInvocationSessionV1 {
         RejectedNormalDefaultRootCatalogLifecycleV1,
     > {
         let brand = self.brand();
+        let import_rows = self
+            .config()
+            .using_import_boxes()
+            .iter()
+            .map(|(alias, owner)| (alias.clone(), owner.clone()))
+            .collect::<Vec<_>>();
         let result = {
             let builder = self.builder_mut();
             (|| {
@@ -272,6 +284,48 @@ impl ModuleBuilderInvocationSessionV1 {
                             error.to_string().into(),
                         )
                     })?;
+                let declarations =
+                    builder
+                        .comp_ctx
+                        .callable_declaration_catalog()
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                                format!("[mir/static-result-owner/catalog] {error}").into(),
+                            )
+                        })?;
+                let imports = VerifiedStaticImportAliasViewV1::seal(declarations, import_rows)
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                            format!("[mir/static-result-owner/imports] {error:?}").into(),
+                        )
+                    })?;
+                let inventory =
+                    VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                                format!("[mir/static-result-owner/targets] {error:?}").into(),
+                            )
+                        })?;
+                let results = VerifiedSameModuleCallableResultCatalogV1::verify(
+                    declarations,
+                    inventory.targets(),
+                )
+                .map_err(|error| {
+                    NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                        format!("[mir/static-result-owner/results] {error:?}").into(),
+                    )
+                })?;
+                let static_result_publication_owner =
+                    VerifiedStaticCallResultPublicationOwnerV1::issue(
+                        declarations,
+                        inventory.targets(),
+                        &results,
+                    )
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                            format!("[mir/static-result-owner/issue] {error:?}").into(),
+                        )
+                    })?;
                 let result_value = builder
                     .lower_normal_default_program_root_after_catalog_install_v1(
                         work,
@@ -286,6 +340,7 @@ impl ModuleBuilderInvocationSessionV1 {
                             Some(source) => NormalScriptRootLoweringMode::Complete(source),
                             None => NormalScriptRootLoweringMode::Deferred,
                         },
+                        static_result_publication_owner,
                     )
                     .map_err(|error| {
                         NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())
@@ -403,5 +458,36 @@ mod tests {
             rejected._source.ast,
             crate::ast::ASTNode::Program { .. }
         ));
+    }
+
+    #[test]
+    fn source_bound_static_result_owner_reaches_the_raw_terminal() {
+        crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+            let source = NyashParser::parse_from_string(
+                r#"
+                static box StringHelpers {
+                    int_to_str(n) {
+                        local value = me.to_i64("x")
+                        return value
+                    }
+                    to_i64(x) { return x + 1 }
+                }
+                "#,
+            )
+            .expect("source-bound static fixture");
+            let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
+            let completed = session()
+                .complete_normal_default_program_root_catalog_lifecycle(
+                    source,
+                    CallableMainMaterializationPolicyV1::Omitted,
+                    NormalRuntimeInputSnapshotV1::empty(),
+                )
+                .expect("source-bound static row must lower");
+            let (_, module) = completed.into_parts();
+            assert!(module
+                .functions
+                .iter()
+                .any(|(_, function)| function.signature.name == "StringHelpers.int_to_str/1"));
+        });
     }
 }

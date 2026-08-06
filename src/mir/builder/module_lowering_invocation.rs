@@ -222,6 +222,20 @@ impl ModuleLoweringPortV1<'_> {
         observe(&headers)
     }
 
+    pub(in crate::mir::builder) fn take_static_result_publication_handoff(
+        &mut self,
+        declarations: &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
+        caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        target: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    ) -> Result<
+        Option<crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1>,
+        crate::mir::callable_result_representation::StaticCallResultPublicationOwnerTakeErrorV1,
+    > {
+        self.collector
+            .take_static_result_publication_handoff(declarations, caller, site, target)
+    }
+
     pub(in crate::mir::builder) fn prepare_draft_admission(
         &mut self,
         key: FunctionDraftKeyV1,

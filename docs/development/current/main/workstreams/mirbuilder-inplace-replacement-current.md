@@ -522,9 +522,8 @@ closed — GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0/I0 and
   proof, and `CompletedUnifiedValueCallEmissionV1` is the sole success receipt.
   I1/D0 and source-bound handoff design are closed; the candidate remains the
   sole rollback owner. Current row:
-  `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-ISSUER-S0` (AST-free handoff
-  before CatalogInstall + one neutral activation-source seam). Production
-  remains closed until the named caller switch.
+  `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-ISSUER-S0` (candidate CatalogInstall + AST-free handoff + raw terminal consumption) is wired with focused tests green. Generic production selection remains closed
+  until the named caller switch and fresh strict receipt.
 ```
 ## Production invariants
 ```text

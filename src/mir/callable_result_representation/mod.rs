@@ -20,6 +20,7 @@ mod loop_claim_schedule;
 mod requirements;
 mod solver;
 mod static_call_result_publication;
+mod static_call_result_publication_owner;
 mod static_exact_i64_requirement;
 
 pub(crate) use body_proof_issue::{
@@ -34,8 +35,11 @@ pub(crate) use disposition::{
 pub(crate) use error::CallableResultCatalogErrorV1;
 pub(crate) use solver::VerifiedSameModuleCallableResultCatalogV1;
 pub(crate) use static_call_result_publication::{
-    VerifiedStaticCallResultPublicationDemandV1,
-    VerifiedStaticCallResultPublicationHandoffV1,
+    VerifiedStaticCallResultPublicationDemandV1, VerifiedStaticCallResultPublicationHandoffV1,
+};
+pub(crate) use static_call_result_publication_owner::{
+    StaticCallResultPublicationOwnerErrorV1, StaticCallResultPublicationOwnerTakeErrorV1,
+    VerifiedStaticCallResultPublicationOwnerV1,
 };
 #[allow(unused_imports)]
 pub(crate) use static_exact_i64_requirement::{

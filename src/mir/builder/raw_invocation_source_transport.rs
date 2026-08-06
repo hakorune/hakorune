@@ -9,11 +9,10 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::ast::ASTNode;
-use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, SourceBodyKindV1, SourceNodeSiteV1,
-    SourcePathV1,
+    SourcePathSegmentV1, SourcePathV1,
 };
 use crate::mir::ValueId;
 
@@ -312,6 +311,19 @@ impl RawInvocationSourceContextV1 {
         }
     }
 
+    fn child_call_argument(&self, index: usize) -> Self {
+        match self {
+            Self::Located { root, site, .. } => Self::Located {
+                root: root.clone(),
+                site: SourcePathV1::from_node(site)
+                    .child(SourcePathSegmentV1::Argument(index as u32))
+                    .node(),
+                body_kind: None,
+            },
+            Self::UnlocatedCompatibility(reason) => Self::UnlocatedCompatibility(*reason),
+        }
+    }
+
     pub(in crate::mir::builder) fn child_expression(
         &self,
         parent: &ASTNode,
@@ -559,6 +571,24 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn try_emit_source_bound_static_call_result_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        owner: &str,
+        method: &str,
+        checked_source_arity: u32,
+        arguments: &[ValueId],
+    ) -> Result<Option<ValueId>, String> {
+        super::raw_static_result_publication::try_emit_source_bound_static_call_result_v1(
+            self,
+            builder,
+            owner,
+            method,
+            checked_source_arity,
+            arguments,
+        )
+    }
+
     fn cleanup_exit_policy_v1(&self) -> super::control_flow::cleanup::CleanupExitPolicyV1 {
         self.cleanup_exit_policy
     }
@@ -569,7 +599,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         input: Self::BodyInput,
     ) -> Result<ValueId, String> {
         match self.current_source_context_v1() {
-            Some(context) => drive_located_invocation_body_v1(builder, self, input, context),
+            Some(context) => super::raw_invocation_body::drive_located_invocation_body_v1(
+                builder, self, input, context,
+            ),
             None => Err("[freeze:contract][raw-invocation/missing-root-body-receipt]".to_owned()),
         }
     }
@@ -717,55 +749,20 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
             }
         }
     }
-}
 
-pub(in crate::mir::builder) fn drive_located_invocation_body_v1<Port>(
-    builder: &mut MirBuilder,
-    port: &mut Port,
-    statements: Vec<ASTNode>,
-    context: RawInvocationSourceContextV1,
-) -> Result<ValueId, String>
-where
-    Port: RawSourceTransportPortV1 + super::raw_expression_dispatch::RawExpressionDispatchPortV1,
-{
-    let mut body = LocatedInvocationBlockPortV1 {
-        statements: statements.into_iter(),
-        source: context,
-        child: port,
-    };
-    drive_legacy_block_v1(builder, &mut body)
-}
-
-struct LocatedInvocationBlockPortV1<'port, Port> {
-    statements: std::vec::IntoIter<ASTNode>,
-    source: RawInvocationSourceContextV1,
-    child: &'port mut Port,
-}
-
-impl<Port> LegacyBlockDescentPortV1 for LocatedInvocationBlockPortV1<'_, Port>
-where
-    Port: RawSourceTransportPortV1
-        + super::raw_expression_dispatch::RawExpressionDispatchPortV1
-        + RecursiveChildLoweringPortV1<StatementInput = ASTNode>,
-{
-    fn len(&self) -> usize {
-        self.statements.len()
-    }
-
-    fn lower_statement(
+    fn with_call_argument_source_v1<R>(
         &mut self,
-        builder: &mut MirBuilder,
         index: usize,
-    ) -> Result<ValueId, String> {
-        let statement = self
-            .statements
-            .next()
-            .expect("block driver index stays within the owned source iterator");
-        let transport = self.source.body_statement(statement, index);
-        self.child
-            .with_source_transport_v1(transport, |child, statement| {
-                child.lower_statement(builder, statement)
-            })
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> R {
+        let source = self
+            .active_source
+            .as_ref()
+            .map(|source| source.child_call_argument(index));
+        let parent = source.and_then(|source| self.active_source.replace(source));
+        let result = execute(self);
+        self.active_source = parent;
+        result
     }
 }
 

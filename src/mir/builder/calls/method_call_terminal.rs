@@ -118,6 +118,15 @@ where
         checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
+        if let Some(value) = self.try_emit_source_bound_static_call_result_v1(
+            builder,
+            owner,
+            method,
+            checked_source_arity,
+            &arguments,
+        )? {
+            return Ok(value);
+        }
         self.with_function_headers(|lookup| {
             emit_global_value_terminal_with_lookup_v1(
                 builder,
@@ -139,6 +148,15 @@ where
         checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
+        if let Some(value) = self.try_emit_source_bound_static_call_result_v1(
+            builder,
+            owner,
+            method,
+            checked_source_arity,
+            &arguments,
+        )? {
+            return Ok(value);
+        }
         self.with_function_headers(|lookup| {
             let (value, target) = emit_global_value_terminal_with_lookup_v1(
                 builder,
@@ -343,7 +361,7 @@ fn emit_global_value_terminal_with_lookup_v1(
 /// accepts only the existing generic physical Call terminal, so rewrites,
 /// BoxCall, legacy compatibility, a missing destination, and failed emission
 /// cannot produce a receipt.
-pub(super) fn emit_static_global_value_terminal_with_receipt_v1<Port>(
+pub(in crate::mir::builder) fn emit_static_global_value_terminal_with_receipt_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     owner: &str,

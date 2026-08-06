@@ -19,6 +19,7 @@ mod normal_collector_drain_lifecycle;
 mod raw_drain;
 mod receipt;
 mod root_batch;
+mod static_result_publication_owner;
 
 pub(in crate::mir::builder) use drain::{
     CanonicalCollectorDrainErrorV1, CanonicalCollectorReceiptViewV1,
@@ -265,9 +266,9 @@ pub(in crate::mir::builder) struct ModuleDraftCollectorV1 {
     drafts: BTreeMap<FunctionDraftKeyV1, CollectedFunctionDraftV1>,
     key_by_symbol: BTreeMap<String, FunctionDraftKeyV1>,
     receipt_brand: Option<ModuleInvocationBrandV1>,
+    static_result_publication_owner: Option<crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1>,
     _seal: ModuleDraftCollectorSealV1,
 }
-
 #[derive(Debug, Default)]
 struct ModuleDraftCollectorSealV1;
 

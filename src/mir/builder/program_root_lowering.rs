@@ -29,6 +29,7 @@ use super::raw_invocation_source_transport::{
 };
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{MirBuilder, NormalEntryMaterializationSourceReceiptV1, ValueId};
+use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 
 /// Scoped candidate context for one deferred non-Main static Box.
 ///
@@ -132,6 +133,7 @@ impl MirBuilder {
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         callable_mode: NormalCallableSemanticSourceMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
+        static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
             work,
@@ -143,6 +145,7 @@ impl MirBuilder {
             declaration_facts,
             callable_mode,
             script_mode,
+            static_result_publication_owner,
         )
     }
 
@@ -157,8 +160,10 @@ impl MirBuilder {
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         callable_mode: NormalCallableSemanticSourceMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
+        static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
+        collector.install_static_result_publication_owner(static_result_publication_owner)?;
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
             let mut port = RawInvocationChildPortV1::new_with_cleanup_exit_policy(

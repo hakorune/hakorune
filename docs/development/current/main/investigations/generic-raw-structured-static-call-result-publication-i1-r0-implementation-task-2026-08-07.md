@@ -1,6 +1,6 @@
 # Generic raw structured static-call result publication I1/R0
 
-Status: `issuer slice active after design close 2026-08-07; production caller remains closed`
+Status: `bounded issuer/terminal wiring implemented 2026-08-07; strict receipt gate pending`
 
 The implementation row opens with the bounded issuer slice from the closed
 source-bound handoff design.  See:
@@ -9,10 +9,11 @@ source-bound handoff design.  See:
 
 ## Current slice: `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-ISSUER-S0`
 
-Issue one AST-free, non-`Clone`, single-use handoff after CatalogSeal and
-before CatalogInstall.  Add the neutral activation-source seam required by
-the existing located schedule/ledger/batch products.  Do not switch the
-production caller in this slice; that remains the next atomic row.
+Issue one AST-free, non-`Clone`, single-use handoff after CatalogInstall and
+before callable lowering.  Consume it at the raw static-call terminal using
+the exact located caller/site and the physical receipt.  This bounded
+normal-lifecycle terminal consumer is now wired; GenericLoop selection and
+the broader production caller remain closed.
 
 Parent design:
 
@@ -37,17 +38,17 @@ post-effect retry/debt continuation for this selected activation.
   failure returns terminal `Freeze`; the candidate is discarded by the outer
   session.
 
-## Done
+## Done so far
 
-- Exact success and failure fixtures prove no partial Call/type/cleanup state
-  escapes a discarded candidate.
-- Focused publication and route-terminal tests pass; source/check files remain
-  below 800 lines.
-- Fresh strict VM probe crosses `MissingTransientType` and preserves the exact
-  caller/site/target/destination relation.
-- `CURRENT_STATE.toml`, the active workstream, and
-  `docs/reference/mir/generic-loop-stage-matrix.md` are updated in this same
-  implementation commit.
+- The move-only owner issues the exact source/site row once and rejects
+  foreign/duplicate consumption.
+- Focused publication and lifecycle/raw-terminal tests pass; source/check
+  files remain below 800 lines.
+- Call-argument source scoping now preserves the exact BindingRef site while
+  the terminal consumes the handoff.
+
+The fresh strict VM receipt and any broader Generic production caller switch
+are still pending and remain outside this bounded commit.
 
 ## Stop
 

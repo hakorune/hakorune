@@ -52,8 +52,10 @@ where
     let mut values = Vec::with_capacity(port.argument_count(input));
     for index in 0..port.argument_count(input) {
         preflight_record_value_argument(builder, port, input, index)?;
-        let expression_input = port.argument_expression_input(input, index)?;
-        let value = drive_legacy_expression_v1(builder, port, expression_input)?;
+        let value = port.with_call_argument_source_v1(index, |port| {
+            let expression_input = port.argument_expression_input(input, index)?;
+            drive_legacy_expression_v1(builder, port, expression_input)
+        })?;
         observe_undefined_argument_value(builder, port, input, index, value);
         values.push(value);
     }
@@ -74,8 +76,10 @@ pub(in crate::mir::builder) fn lower_call_argument_v1<Port>(
 where
     Port: CallArgumentDescentPortV1,
 {
-    let expression_input = port.argument_expression_input(input, index)?;
-    drive_legacy_expression_v1(builder, port, expression_input)
+    port.with_call_argument_source_v1(index, |port| {
+        let expression_input = port.argument_expression_input(input, index)?;
+        drive_legacy_expression_v1(builder, port, expression_input)
+    })
 }
 
 fn validate_argument_inputs<Port>(port: &Port, input: &Port::ArgumentsInput) -> Result<(), String>

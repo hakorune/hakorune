@@ -991,3 +991,20 @@ claim/receipt path is test-only. The next boundary is therefore the compact
 source-bound handoff design stop in
 `generic-static-call-publication-source-bound-handoff-design-stop-2026-08-07.md`.
 No by-name selector or direct located-path wiring is authorized.
+
+## Source-bound static-call result publication I1/R0 bounded receipt (2026-08-07)
+
+The bounded source-bound issuer is now wired in the normal module candidate
+lifecycle. After candidate `CatalogInstall`, one move-only owner issues the
+exact `(Cataloged caller, SourceExprSite, target)` handoff and lends it to the
+raw static-call terminal. The terminal consumes the handoff once, emits the
+existing `CompletedUnifiedValueCallEmissionV1` receipt, and publishes the
+result through that receipt; no AST reread, name-based selector, retry, or
+fallback is introduced. Call-argument descent also transports the exact
+`Argument(i)` source path so the callable BindingRef ledger remains aligned.
+
+The focused owner, lifecycle, and raw-terminal tests are green and all new
+source/check files remain below the 800-line boundary. This is a bounded
+terminal consumer only: GenericLoop remains verifier-only, Generic production
+selection and legacy retirement remain closed, and a fresh strict VM receipt
+is still required before any broader caller cutover.

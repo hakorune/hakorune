@@ -64,6 +64,21 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         input: Self::ExpressionInput,
     ) -> Result<ValueId, String>;
 
+    /// Optional source-bound static-call terminal.  The default keeps all
+    /// compatibility/test ports on the ordinary terminal; the live raw
+    /// invocation overrides this only after exact source identity and target
+    /// proof have been sealed.
+    fn try_emit_source_bound_static_call_result_v1(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _owner: &str,
+        _method: &str,
+        _checked_source_arity: u32,
+        _arguments: &[ValueId],
+    ) -> Result<Option<ValueId>, String> {
+        Ok(None)
+    }
+
     /// Isolated test-only ports deny cleanup exits unless they explicitly
     /// provide an operation policy. Production ports must override this.
     fn cleanup_exit_policy_v1(&self) -> CleanupExitPolicyV1 {
@@ -94,6 +109,14 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     fn with_prepared_child_source_v1<R>(
         &mut self,
         _source: PreparedRawChildSourceV1,
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> R {
+        execute(self)
+    }
+
+    fn with_call_argument_source_v1<R>(
+        &mut self,
+        _index: usize,
         execute: impl FnOnce(&mut Self) -> R,
     ) -> R {
         execute(self)

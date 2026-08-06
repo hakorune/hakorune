@@ -55,7 +55,7 @@ advance the legacy retry schedule.
 
 ## Accepted source-bound handoff
 
-The smallest production issuer is the pre-install window in
+The smallest production issuer is the candidate-install window in
 `ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle`:
 
 ```text
@@ -83,10 +83,10 @@ The handoff is lent from the lifecycle stack into one callable lowering scope:
 
 ```text
 source-bound handoff
-  -> callable activation loan
   -> RawInvocationChildPortV1
-  -> exact located loop handoff
-  -> existing claim/receipt/publication products
+  -> raw static-call terminal
+  -> physical receipt/publication
+  -> existing GenericLoop verifier
 ```
 
 The raw port receives only the branded handoff/claim loan.  It must not store a
@@ -96,39 +96,35 @@ route-local snapshot.  The first admitted row is exactly
 `StringHelpers.to_i64/1`; all other callers/sites are typed `Unselected` or
 `Rejected` until a separate source row is designed.
 
-The existing located claim family currently names
-`VerifiedCallableResultActivationPlanV1`, so it cannot be wired to the new
-handoff by a cast or an I1-only duplicate claim type.  The next implementation
-slice first introduces one neutral, branded activation-source seam for the
-existing schedule/ledger/batch contracts.  The old owned plan and the new
-source-bound handoff are two issuers of that same claim family; neither issuer
-is copied, cloned, or selected by route name.  Located loop verification then
-consumes the neutral source seam, while the physical receipt/publication port
-stays unchanged.  A second static-publication-only claim family is rejected as
-duplicated authority.
+The admitted source row is before the loop (`Body(0).Initializer(0)`), so this
+I1 does not open the disconnected located-loop claim family at all.  The
+existing `VerifiedCallableResultActivationPlanV1` and its schedule/ledger
+remain test-only evidence.  A later loop-body result row would require its own
+source-bound design; it may not be smuggled in through this raw terminal hook.
 
 The outer `ModuleBuilderInvocationSessionV1` / `CanonicalModuleLoweringSessionV1`
 remains the only rollback and publication owner.  A physical effect or
 publication failure after handoff selection is terminal `Freeze` and drops
 the whole candidate; it never returns `PostEffectRetryDebt` or advances the
 legacy route schedule.  Successful callable completion must finish the
-caller ledger before the candidate is admitted, and successful module commit
-publishes the module and the handoff-owned activation state together.
+source-bound owner before the candidate is admitted, and successful module
+commit publishes the module and the handoff-owned activation state together.
 
 ## Design questions — resolved
 
-1. The lifecycle pre-install window issues the handoff after CatalogSeal and
-   before CatalogInstall; the outer candidate owns its lifetime.
-2. A stack-borrowed callable loan carries the branded caller/site claim into
-   one raw loop lowering scope; the Builder remains uninvolved in source
-   authority.
+1. The lifecycle candidate window installs the sealed catalog first, then
+   issues the handoff from borrowed proof views; the outer candidate owns its
+   lifetime.
+2. A stack-borrowed source-bound owner is consulted by the raw static-call
+   terminal before the loop; the Builder remains uninvolved in source
+   authority and GenericLoop stays verifier-only.
 3. `ModuleBuilderInvocationSessionV1` / `CanonicalModuleLoweringSessionV1`
    consume the handoff at the same atomic candidate boundary.
 4. The natural fixture is the exact
    `StringHelpers.int_to_str/1` `Body(0).Initializer(0)` ->
    `StringHelpers.to_i64/1` row; selection is proof-driven, never by name.
-5. Existing claim consumers are generalized through one neutral activation
-   source seam; no second I1-only claim family is introduced.
+5. Located loop claim consumers remain disconnected; no second I1-only loop
+   claim family or generic activation-source seam is introduced.
 
 The design answers these with existing typed products plus one narrow
 source-bound owner.  GenericLoop backfill, route-local snapshots, name-based
@@ -141,3 +137,9 @@ must include the production caller switch, receipt/publication tests, a fresh
 strict VM probe crossing `MissingTransientType`, current/reference/workstream
 mirrors, and the exact reference-document update.  Until then production
 Generic support remains `0`.
+
+The bounded issuer/terminal slice now has a normal-lifecycle consumer after
+`CatalogInstall`, with focused owner, lifecycle, and raw-terminal tests green.
+This does not count as GenericLoop selection or broad Generic production
+support: the fresh strict VM receipt and the named Generic caller switch are
+still required before that claim opens.

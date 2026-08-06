@@ -55,9 +55,9 @@ Related:
   caller-zero I0/R0 receipt, the worker-reviewed I1/D0 rollback-owner design,
   and the source-bound handoff design are closed. The current row is the
   bounded `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-ISSUER-S0`: issue the
-  AST-free handoff between CatalogSeal and CatalogInstall, then add the
-  neutral activation-source seam. Production selection, physical cutover, and
-  legacy removal remain closed.
+  AST-free handoff after CatalogInstall and before callable lowering, then
+  consume it at the raw static-call terminal. Focused tests are green;
+  production selection, physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

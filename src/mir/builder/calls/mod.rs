@@ -68,12 +68,13 @@ pub mod materializer;
 pub mod member_route; // Member call route plan + emit handoff
 mod method_call_descent;
 mod method_call_terminal;
-mod static_result_publication;
+pub(in crate::mir::builder) mod static_result_publication;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, CatalogHelperChildV1,
     MethodCallArgumentDescentV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
     RawLegacyMethodCallInputV1,
 };
+pub(in crate::mir::builder) use method_call_terminal::emit_static_global_value_terminal_with_receipt_v1;
 pub(in crate::mir::builder) use method_call_terminal::MethodCallValueTerminalPortV1;
 pub(in crate::mir::builder) use method_call_terminal::{
     emit_env_value_terminal_raw_v1, emit_global_value_terminal_raw_v1,

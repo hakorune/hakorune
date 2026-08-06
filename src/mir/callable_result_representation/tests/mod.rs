@@ -10,5 +10,6 @@ mod located_legacy;
 mod loop_claim_batch;
 mod normalized_snapshot;
 mod source_proof;
+mod static_call_result_publication_owner;
 mod static_exact_i64_requirement;
 mod support;
