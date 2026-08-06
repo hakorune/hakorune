@@ -507,7 +507,7 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S0 -> cfg(test)-only substrate projection from receipt plus explicit NumericTarget; six boundaries green, no policy/selector/demand/Recipe/Builder/MIR.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S1-S1 -> cfg(test)-only policy witness; seven tests green; role-bearing operands and no selector/demand/Recipe/Builder/MIR.
 closed — GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0 / GENERIC-G0-ADMISSION-WINDOW-D0 -> accepted mapping, closed five-row overlap window (not semantic Loop kinds), sole G0 selector boundary, common physical owner, checked legacy manifest, and atomic cutover/deletion contract.
-next — GENERIC-G0-STRUCTURE-S0A -> natural-source exact shape/order/BindingRef/coverage only; `selection_open=false`, AST/type/policy/Recipe/Builder/MIR/production authority zero; follow only the shallow executable rows in the Generic SSOT.
+closed — GENERIC-G0-STRUCTURE-S0A -> natural-source projector and sole AST-free structural issuer landed; exact shape/order/BindingRef/owner-source-frame/coverage positives and negatives, AST mutation zero, focused tests and shared caller-zero guard green; selection/type/policy/Recipe/Builder/MIR/production authority remain zero. next — GENERIC-G0-SOURCE-TYPE-S0B.
 ```
 ## Production invariants
 

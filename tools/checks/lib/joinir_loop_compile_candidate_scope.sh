@@ -24,6 +24,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local external_commit="$root_dir/src/mir/compiler/external_commit.rs"
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
+  local generic_g0_projection="$root_dir/src/mir/compiler/generic_g0_projection/mod.rs"
   local nested_source_projection="$root_dir/src/mir/compiler/nested_predicate_projection.rs"
   local nested_recipe_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs"
   local nested_source_handoff="$root_dir/src/mir/compiler/nested_predicate_source_handoff.rs"
@@ -41,7 +42,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
-    "$source_adapter" "$nested_source_projection" "$nested_recipe_producer" \
+    "$source_adapter" "$generic_g0_projection" "$nested_source_projection" "$nested_recipe_producer" \
     "$nested_source_handoff" "$nested_topology" "$nested_topology_tests" \
     "$nested_physical_input" "$nested_physical_input_tests" \
     "$nested_effect_plan" "$nested_effect_plan_tests" "$nested_effect_adapter_tests" \
@@ -148,7 +149,8 @@ guard_joinir_loop_compile_candidate_scope() {
       guard_fail "$tag" "Nested source-forest anchor missing: $required"
   done
   if rg -n -F 'resolved_loop_source_forest(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
+      | awk -F: -v generic_g0_projection="$generic_g0_projection" \
+          '$1 != generic_g0_projection && $1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested source forest escaped its caller-zero resolver boundary"

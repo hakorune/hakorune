@@ -1,7 +1,7 @@
 # Generic Loop V0/V1 Stage Matrix
 
 Status: inspection-only reference
-Date: 2026-08-05
+Date: 2026-08-06
 
 This page documents the current test-only evidence boundary for Generic Loop
 V0/V1 post-effect debt. It is not a production route policy, Recipe contract,
@@ -30,6 +30,18 @@ Production selection remains the ordered registry in
 `src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs` and
 `predicates.rs`. The `loop_route_policy` subtree is test-only evidence and is
 not a Generic winner oracle.
+
+## S0A implementation receipt
+
+`GENERIC-G0-STRUCTURE-S0A` is now landed as a disconnected, caller-zero
+structural witness. `src/mir/compiler/generic_g0_projection/mod.rs` performs
+the exact natural-source navigation; `src/mir/loop_structural_facts/generic_g0/mod.rs`
+issues the move-only AST-free product. The row verifies nested body order,
+resolver `BindingRefV1` relations, owner/source/frame identity, and complete
+duplicate-free coverage. Focused positive/negative tests and the shared
+MirBuilder replacement guard are green. No type/numeric policy, candidate,
+selector, Recipe, Builder/MIR, retry/fallback, or production support claim is
+made; `GENERIC-G0-SOURCE-TYPE-S0B` is the next row.
 
 ## Current source-to-selection evidence
 

@@ -4,6 +4,8 @@
 
 mod direct_accum_effect_plan;
 mod direct_accum_exclusivity;
+#[allow(dead_code)]
+pub(crate) mod generic_g0;
 #[cfg(test)]
 mod generic_resolved_carrier_facts_snapshot;
 mod resolved_source_adapter;

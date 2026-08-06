@@ -2,7 +2,7 @@
 
 Status: `accepted and taskized; production activation remains 0`
 
-Current row: `GENERIC-G0-STRUCTURE-S0A`
+Current row: `GENERIC-G0-SOURCE-TYPE-S0B`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -178,6 +178,18 @@ coverage. It makes no numeric ABI, candidate, selector, Recipe, or production
 claim. S0A proves the literal sites and roles only; it does not prove their
 sign, value, range, or positivity. S0C seals numeric facts and S1 owns the
 positive-Add/Less admission decision.
+
+S0A implementation receipt (2026-08-06): the natural-source projector at
+`src/mir/compiler/generic_g0_projection/mod.rs` now issues one AST-free
+observation into the sole structural issuer at
+`src/mir/loop_structural_facts/generic_g0/mod.rs`. The sealed product is
+move-only, checks exact body schedules, resolver-issued `BindingRefV1`
+relations, owner/source/frame identity, and duplicate-free coverage. Focused
+tests cover the canonical shape, AST immutability, reordered/extra/missing
+schedule, wrong-binding, and foreign-frame rejects. The implementation has no
+Recipe, policy, selector, Builder, MIR, retry, fallback, or production caller;
+the shared caller-zero guard explicitly owns this projector boundary. S0B is
+the next authorized row.
 
 The resolver/source bridge then issues one move-only product:
 
@@ -503,10 +515,10 @@ GENERIC-G0-ADMISSION-WINDOW-D0
   closed here; five overlap rows, exact issuer/disposition contract, no NoCandidate
 
 GENERIC-G0-STRUCTURE-S0A
-  natural-source structural/coverage witness only; selection_open=false
+  closed; natural-source structural/coverage witness landed; selection_open=false
 
 GENERIC-G0-SOURCE-TYPE-S0B
-  owner-branded parameter/result/literal/context inventory; no target policy
+  next; owner-branded parameter/result/literal/context inventory; no target policy
 
 GENERIC-G0-NUMERIC-REPRESENTATION-S0C
   numeric_substrate seals representation/range plus existing return expectation
@@ -624,7 +636,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 
 | Row | Sole input -> output | Done | Stop / non-claim |
 | --- | --- | --- | --- |
-| `GENERIC-G0-STRUCTURE-S0A` | natural `ResolvedFunctionLoweringInputV1` -> move-only `VerifiedGenericStructuralFactsG0` | exact positive plus reordered/extra/missing/wrong-binding/foreign-frame negatives; full source coverage; AST mutation zero | no type, numeric, policy, candidate, selector, Recipe, or production claim |
+| `GENERIC-G0-STRUCTURE-S0A` | natural `ResolvedFunctionLoweringInputV1` -> move-only `VerifiedGenericStructuralFactsG0` | landed: exact positive plus reordered/extra/missing/wrong-binding/foreign-frame negatives; full source coverage; AST mutation zero; focused test and shared guard green | no type, numeric, policy, candidate, selector, Recipe, or production claim |
 | `GENERIC-G0-SOURCE-TYPE-S0B` | S0A + callable source/header views -> inventory wrapped with S0A as `VerifiedGenericSourceBundleG0` | exact parameter/result/literal/context sites; missing/non-i64/foreign/coverage rejects | no literal representation, progression, or executable-return authority |
 | `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` | S0B bundle + exact target -> `VerifiedGenericTypedSourceBundleG0` with representation projection + one typed lease | natural unsuffixed literal positives; missing context is Unresolved; range/type contradiction is Rejected | do not duplicate numeric substrate or retag test AST |
 | `LOOP-JOINSIG-MODULE-SPLIT-R0` | current `join_sig.rs` -> thin facade + model/visibility/port/flow modules | existing Recipe/JoinSig goldens byte-for-byte stable; all commits build; no acceptance delta | no nested-shadow or After feature in this series |

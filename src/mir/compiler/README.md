@@ -23,6 +23,18 @@ Exact child-site navigation belongs to B0-L2b. Function transaction cleanup
 belongs to B0-L2c. BindingId adoption and production semantic activation belong
 to atomic SA3-B.
 
+## Generic G0 S0A source projector
+
+`generic_g0_projection/` is the only AST-bearing source projector for the
+Generic G0 S0A row. It consumes one natural `ResolvedFunctionLoweringInputV1`,
+uses `FunctionSourceViewV1` and resolver-issued `BindingRefV1` lookup, and
+passes an AST-free observation to
+`loop_structural_facts::generic_g0::VerifiedGenericStructuralFactsG0`.
+It owns no type/numeric/policy decision, Recipe, Builder/MIR effect, retry,
+fallback, or production caller. The shared MirBuilder caller-zero guard is the
+contract for this boundary; S0B adds source-type inventory only after S0A is
+sealed.
+
 ## B0-L2b source projection boundary
 
 `VerifiedSourceProjectionV1` is sealed beside the canonical syntax and owner

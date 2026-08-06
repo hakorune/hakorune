@@ -1,5 +1,17 @@
 # Loop Structural Facts
 
+## Generic G0 S0A
+
+`generic_g0/` is the sole issuer of `VerifiedGenericStructuralFactsG0`.
+The compiler-side `generic_g0_projection` module is the only AST-bearing
+projector for this row; it navigates a natural `ResolvedFunctionLoweringInputV1`
+and passes an AST-free observation here. S0A seals only exact nested-loop
+shape/order, resolver-issued `BindingRefV1` relations, owner/source/frame
+identity, and duplicate-free source coverage. It does not own numeric/type
+policy, candidate selection, Recipe keys, Builder/MIR effects, retry, fallback,
+or production routing. The product is move-only and remains caller-zero until
+the later Generic rows explicitly open their handoff.
+
 This module is the neutral, Builder-free boundary from sealed resolved Loop
 identity to the portable Loop recipe source binding.
 

@@ -36,6 +36,8 @@ pub(in crate::mir) mod direct_accum_profile;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_projection;
 #[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_projection;
+#[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]
@@ -180,6 +182,8 @@ mod capability_tests;
 mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
+#[cfg(test)]
+mod generic_g0_projection_tests;
 #[cfg(test)]
 mod if_recipe_candidate_abort_d2_tests;
 #[cfg(test)]
