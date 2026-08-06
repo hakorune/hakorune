@@ -52,6 +52,7 @@ Keep each kind of truth in one durable home:
 | source-language contract | `docs/reference/**` (with an explicit `Decision:`) |
 | investigation and bounded census | `investigations/` |
 | check/guard entrypoints | `docs/tools/check-scripts-index.md` and the owning reusable guard |
+| repository commands and procedures | the owning tool/module README, `docs/tools/check-scripts-index.md`, or the active card |
 | landed implementation detail | source/tests and git history |
 | superseded or historical material | `docs/archive/**` or the owning retirement SSOT |
 | local personality and always-on routing rules | `AGENTS.md` only |
@@ -60,6 +61,12 @@ When an instruction grows beyond a short routing rule, move its durable
 content to the matching tracked home above and leave a pointer in
 `AGENTS.md`. Do not copy the same rule into `CURRENT_TASK.md`, a workstream,
 and a phase log merely for visibility.
+
+Repository-wide build, smoke, backend, or environment command tables do not
+belong in the root instruction router. Keep the executable command at its
+own tool README or active card, and keep the check index as the single human
+entrypoint. This prevents a historical command from looking current merely
+because it was copied into `AGENTS.md`.
 
 When the active lane is MirBuilder in-place replacement, read the
 `mirbuilder_north_star` path from `CURRENT_STATE.toml` before selecting a cell.
