@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0 are closed caller-zero; I1/D0 is accepted but its I1/R0 caller audit returned to the source-bound handoff design stop; production activation remains 0`
+Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0, and callable handoff S0 are closed caller-zero; callable single-loop source-to-Recipe mapping is at a design stop; production activation remains 0`
 
-Current row: `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-HANDOFF-DESIGN-STOP`
+Current row: `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-D0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -31,6 +31,17 @@ that `RawInvocationChildPortV1` discards located source receipts before
 `route_generic_loop_v1`; the located claim/receipt path is test-only. The
 current design stop is the compact source-bound handoff before wiring
 `RawInvocationChildPortV1`, GenericLoop, or production route selection.
+
+The callable handoff S0 is now closed as pre-effect evidence only. Its selected
+`StringHelpers.int_to_str/1` fixture is a single-loop profile with three loop
+roles, while `generic_g0` is the separate nested two-loop `i64` profile. S0
+must not be projected into the G0 Recipe by shape similarity. The active design
+stop is `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-D0`: close an explicit,
+AST-free source-to-common-Recipe/JoinSig/effect map (including condition
+operator/bound, step, carrier, assignment target/value, After, and tail
+disposition) or return `NoSafeSlice`. Reuse the common Recipe/physicalizer
+owners; do not add a Generic-specific SSA/PHI owner. Production selection,
+physical cutover, retry/fallback retirement, and legacy deletion remain closed.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.

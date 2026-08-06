@@ -1021,7 +1021,7 @@ physical cutover can open.
 
 ## Callable-semantic Loop handoff S0 receipt (2026-08-07)
 
-`GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-S0` is now the active pre-effect
+`GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-S0` is now closed as a pre-effect
 boundary. The selected `StringHelpers.int_to_str/1` source is projected
 through a source-only migration bridge into one move-only,
 AST-free `VerifiedCallableSemanticLoopBindingScheduleV1`. Its focused
@@ -1045,7 +1045,12 @@ This row does **not** claim a portable Recipe/JoinSig projector, consume
 callable ledger `ValueId`s, publish PHI, select a production Generic winner,
 or retire the legacy route. The current `CallableSemanticLoweringState`
 source view and ValueId map remain migration bridges only; BindingSSA is
-reserved as the later physical owner. The next row is
-`GENERIC-CALLABLE-SEMANTIC-LOOP-PHYSICAL-S1`, followed by a fresh strict
-receipt before production selection, cutover, retry/fallback retirement, or
-legacy deletion.
+reserved as the later physical owner. The selected callable fixture is a
+single-loop source profile and is not the nested two-loop `generic_g0`
+profile; direct projection between them is rejected. The current design stop
+is `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-D0`: close the explicit
+source-to-common-Recipe/JoinSig/effect map, including operator/bound, step,
+carrier, target/value pairing, After, and tail disposition, or return
+`NoSafeSlice`. The later physical proof and production selection remain
+closed, and every implementation cutover must update this reference entry in
+the same commit as its code.
