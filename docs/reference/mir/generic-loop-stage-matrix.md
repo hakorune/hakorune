@@ -1184,7 +1184,28 @@ Recipe/JoinSig, ValueId, CFG, PHI, Builder, physicalizer, production route,
 retry, fallback, or legacy-retirement authority. The source file remains
 under the 800-line lane limit.
 
-The next and only design stop is `RECIPE-COSEAL-D0`, which must co-seal the
-common Recipe/JoinSig/operation-source/effect/After/Tail and Scope/Region/frame
-owners before any physical or production work opens. Reference documentation
-must be updated again in the same commit as that implementation.
+`RECIPE-COSEAL-D0` is now accepted as a shallow common design. It names the
+move-only `VerifiedLoopRecipeCoSealV1` boundary: existing verified Core plus
+profile-neutral operation-source, input-source, semantic-context, and
+After/Tail capabilities. The selected callable profile maps
+`InitialCarrier` to a carrier plus explicit preheader input relation;
+condition/step rows to common Read/Const/Compare/Add/Write operations;
+`PrefixBoundary` to an outer callable-prelude receipt; and
+`TailReturnRead` to a terminal After/Tail envelope that is deliberately
+separate from the loop-carrier After binding. The nested Generic G0 S4
+`VerifiedGenericAfterEffectG0` remains G0-only and is not a common callable
+owner.
+
+The resolver/MAP owns source sites, BindingRef, owner/origin/source-kind,
+frame, and Scope/Region. The common Recipe producer alone issues logical
+keys; JoinSig elaborates logical ports; CanonicalSsaFunctionSession remains the
+sole ValueId/CFG/PHI owner; completion/DraftSeal remains the sole terminal
+owner. Every source row is consumed once by `(typed site, role, target kind)`.
+Missing, duplicate, foreign, unconsumed, cross-owner, or second-owner
+evidence is `NoSafeSlice` before physical effects. No production selection,
+physicalizer, retry/fallback retirement, or legacy deletion is opened.
+
+The next row is one bounded caller-zero co-seal implementation. Its commit
+must update this reference page and `docs/reference/mir/loop-recipe-contract.md`
+in the same commit; implementation completion does not imply production
+activation.

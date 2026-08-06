@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0, callable handoff S0, callable source ledger S1, resolver SyntaxFacts-S1, and caller-zero MAP-S1 are closed; RECIPE-COSEAL-D0 is the next design stop; Recipe/physical/production activation remains 0`
+Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff S0, callable source ledger S1, resolver SyntaxFacts-S1, caller-zero MAP-S1, and the shallow callable RECIPE-COSEAL-D0 design are closed; RECIPE-COSEAL-I0-R0 is the next bounded caller-zero implementation; physical/production activation remains 0`
 
-Current row: `RECIPE-COSEAL-D0`
+Current row: `RECIPE-COSEAL-I0-R0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -19,8 +19,12 @@ Selected(Generic) -> Demand boundary. The common selector owns the one
 canonical window lease; the Generic handoff keeps only a private brand
 projection borrowed from that lease and never performs a second resolver
 lookup. The worker-reviewed S4 Recipe/JoinSig/Core/After ownership boundary
-was accepted on 2026-08-07. The next cell is one deterministic caller-zero
-Recipe producer; production activation remains closed.
+was accepted and implemented on 2026-08-07 **for nested Generic G0 only**.
+That G0 product is a closed caller-zero historical profile; it does not close
+the common callable `RECIPE-COSEAL-D0` boundary and its profile-specific
+After/ABI envelope must not be reused for the callable profile. The current
+callable row is therefore the one shallow co-seal design/implementation
+boundary below; production activation remains closed.
 
 The raw structured carrier audit and static-call result publication I0/R0 are
 also closed caller-zero. Source selection is keyed by sealed
@@ -41,11 +45,12 @@ SyntaxFacts owns neutral as-written shape only; resolver loop membership
 preserves source/frame/Scope/Region as one product, and unknown root-body
 statements are explicit rejects. MAP-S1 co-seals the nine syntax rows plus
 prefix boundary with resolver BindingRef/assignment/exit evidence and fixes
-the selected `0`/`1`/`Less`/`Add` profile policy. The next row is one shallow
-`RECIPE-COSEAL-D0` design stop; do not add row-specific D0 suffixes. Reuse
-the common Recipe/physicalizer owners; do not add a Generic-specific SSA/PHI
-owner. Production selection, physical cutover, retry/fallback retirement, and
-legacy deletion remain closed.
+the selected `0`/`1`/`Less`/`Add` profile policy. The shallow common
+`RECIPE-COSEAL-D0` design is accepted; the next row is its bounded caller-zero
+`RECIPE-COSEAL-I0-R0` implementation. Do not add row-specific D0 suffixes.
+Reuse the common Recipe/physicalizer owners; do not add a Generic-specific
+SSA/PHI owner. Production selection, physical cutover, retry/fallback
+retirement, and legacy deletion remain closed.
 
 `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1`,
 `RESOLVER-SYNTAX-FACTS-S1`, and
@@ -53,18 +58,21 @@ legacy deletion remain closed.
 evidence. The
 resolver-owned typed source view and the AST-free syntax product retain exact
 source roles without copying ValueIds, inferring frames from raw paths, or
-moving Loop policy into the resolver. Open one `RECIPE-COSEAL-D0`; do not
-reopen the old deep D4 ladder.
-Recipe/JoinSig, physicalizer, production selection, retry/fallback retirement,
-and legacy deletion remain closed.
+moving Loop policy into the resolver. The common co-seal design is closed;
+implement only the named `RECIPE-COSEAL-I0-R0` slice and do not reopen the old
+deep D4 ladder. Recipe/JoinSig, physicalizer, production selection,
+retry/fallback retirement, and legacy deletion remain common/closed owners.
 
 The S1 implementation contract is
 `docs/development/current/main/investigations/generic-callable-single-loop-source-ledger-s1-task-2026-08-07.md`.
 The mapping design contract is
 `docs/development/current/main/investigations/generic-callable-single-loop-source-recipe-map-d0-task-2026-08-07.md`.
 
-The current design stop is
+The accepted design stop is
 `docs/development/current/main/investigations/generic-callable-loop-recipe-coseal-d0-task-2026-08-07.md`.
+
+The next bounded implementation contract is
+`docs/development/current/main/investigations/generic-callable-loop-recipe-coseal-i0-r0-implementation-task-2026-08-07.md`.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.
@@ -91,12 +99,12 @@ Its design fixture is
 The D0 design, Recipe/JoinSig co-seal, common physical input, production
 cutover, profile retirement, and corpus deletion remain separate owners.
 
-The current S4 implementation contract is
+The current nested Generic G0 S4 implementation contract is
 `docs/development/current/main/investigations/generic-g0-recipe-s4-i0-r0-implementation-task-2026-08-07.md`;
 its accepted design is
 `docs/development/current/main/investigations/generic-g0-recipe-s4-design-task-2026-08-07.md`.
 
-The closed I0/R0 cell is recorded in
+The closed nested Generic G0 I0/R0 cell is recorded in
 `docs/development/current/main/investigations/generic-selection-open-d0-candidate-envelope-task-2026-08-06.md`.
 It may issue only a caller-zero, `cfg(test)`-only
 `VerifiedGenericCandidateEnvelopeV1` from the resolver lease plus typed
@@ -503,9 +511,9 @@ it does not copy role rows, issue `LoopBindingKeyV1`, or add a second numeric
 target. S3 only seals source roles/BindingRefs and provenance. S4 remains the
 sole Recipe-key, relation, JoinSig/Core/After, and aggregate producer.
 
-### S4 Recipe producer ownership (accepted 2026-08-07)
+### Nested Generic G0 S4 Recipe producer ownership (accepted 2026-08-07)
 
-The worker-reviewed S4 decision is recorded in
+The worker-reviewed **nested Generic G0-only** S4 decision is recorded in
 `investigations/generic-g0-recipe-s4-design-task-2026-08-07.md`. One producer
 consumes `VerifiedGenericRecipeDemandG0` once and executes the sole sequence:
 
@@ -533,6 +541,13 @@ S4 rejects stale/foreign/duplicate/missing relations, wrong anchors, wrong
 After binding, and ABI mismatches before Builder effects. It never emits
 `NoCandidate`, retry, fallback, or a legacy demand. No S4 code may open
 production, physical, completion, or legacy-deletion authority.
+
+This closed S4 product is not the common callable co-seal. Its
+`VerifiedGenericAfterEffectG0` and exact-trivial ABI are profile-specific and
+must not be reused by `StringHelpers.int_to_str/1`. The callable profile is
+governed by the separate shallow `RECIPE-COSEAL-D0` design, which keeps the
+common Core owner and adds only profile-neutral operation-source, input-source,
+semantic-context, and After/Tail capabilities.
 
 ## Exact portable G0 mapping
 

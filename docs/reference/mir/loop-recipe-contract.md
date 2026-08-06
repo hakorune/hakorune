@@ -70,6 +70,57 @@ carrier relations reject before publication. This row adds no Generic key
 issuance, selector, AST inspection, Builder/MIR, physical ID, retry, or
 production caller. Real Generic relation instances remain an S4 responsibility.
 
+## Callable single-loop co-seal design (2026-08-07)
+
+Decision: accepted design — `RECIPE-COSEAL-D0`.
+
+This is a caller-zero design boundary for the selected
+`StringHelpers.int_to_str/1` profile. It does not activate a Recipe producer,
+physical route, or production selection. The existing nested Generic G0 S4
+producer remains a separate, closed caller-zero profile; its
+`VerifiedGenericAfterEffectG0` and exact-trivial ABI are not a common callable
+After authority.
+
+The callable path reuses the common chain:
+
+```text
+MAP-S1 source map
+  -> common LoopRecipe/JoinSig/Core
+  -> operation-source + input-source relations
+  -> profile-neutral After/Tail envelope
+  -> CanonicalSsaFunctionSessionV2 (later sole ValueId/CFG/PHI owner)
+  -> VerifiedFunctionCompletionV1 / DraftSeal (later sole terminal owner)
+```
+
+The bounded logical mapping is:
+
+| Source role | Portable product | Boundary |
+| --- | --- | --- |
+| `InitialCarrier` | `LoopRecipeCarrier(entry_value)` + `InputSourceRelation` | Preserve the `i = 0` preheader source; do not hide it as a loop-body constant. |
+| `ConditionRead` / `StepRead` | `ReadBinding` operations | Exact operation/item/value/source-site relation; same carrier binding. |
+| `ConditionBound` / `StepDelta` | `ConstI64(1)` values | Exact admitted literal only. |
+| `ConditionOperator` | `CompareI64(Less)` | Logical compare result only. |
+| `StepOperator` | `BinaryI64(Add)` | Logical arithmetic result only. |
+| `StepWrite` | one `WriteBinding` | Exact target/lhs rebind; no second carrier. |
+| `PrefixBoundary` | outer callable-prelude receipt | Optional direct target is preserved; absence is explicit and not repaired by name. |
+| `TailReturnRead` | `AfterTailEnvelope` | The tail reads prefix `value`, not the loop-carrier After binding. |
+| loop source/frame | `SemanticContext` | Resolver/MAP retain owner/origin/source-kind, frame, Scope/Region. |
+
+The common design names the move-only aggregate
+`VerifiedLoopRecipeCoSealV1`: existing verified Core plus the typed
+operation-source, input-source, semantic-context, and After/Tail capabilities.
+It must not create a second Core, JoinSig, BindingSSA, PHI, or completion owner.
+Every source row is consumed exactly once by `(site, role, target-kind)`; missing,
+duplicate, foreign, unconsumed, cross-owner, or second-owner evidence rejects
+before any physical effect. If a future profile cannot satisfy this common
+shape, it is `NoSafeSlice`, not an invitation to add a callable-specific
+physicalizer.
+
+The implementation row must update this reference page and
+`docs/reference/mir/generic-loop-stage-matrix.md` in the same commit. Until
+fresh-session, atomic rollback, backend parity, and caller-zero gates close,
+this section remains a design receipt rather than a production claim.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local

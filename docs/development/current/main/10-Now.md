@@ -67,10 +67,13 @@ Related:
   boundary and rejects unknown root statements. Caller-zero `MAP-S1` co-seals
   the nine syntax rows plus prefix boundary with
   resolver BindingRef/assignment/exit and Loop source/frame/Scope/Region
-  evidence. The next design stop is one shallow `RECIPE-COSEAL-D0`;
-  physicalization, production
-  selection, strict receipt, retry/fallback retirement, and legacy deletion
-  remain closed.
+  evidence. The shallow `RECIPE-COSEAL-D0` common design is now accepted:
+  existing Core remains the common owner, while operation/input source
+  relations, semantic-context, and After/Tail are co-sealed without a
+  callable-specific Recipe/SSA/PHI owner. The current execution row is the
+  bounded caller-zero `RECIPE-COSEAL-I0-R0` implementation; physicalization,
+  production selection, strict receipt, retry/fallback retirement, and legacy
+  deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only
