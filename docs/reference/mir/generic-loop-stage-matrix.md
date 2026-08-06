@@ -537,15 +537,17 @@ are not route IDs. The set contains no AST, raw schedule/cursor, Recipe/key,
 Builder/MIR/ValueId/PHI, retry, or fallback.
 
 A new family-level `CanonicalLoopFamilySelectionV1` in
-`mir::loop_route_policy` is the future sole selector and consumes the set once,
-returning `Selected|NoCandidate|Rejected|Unresolved`. `NoCandidate` requires a
-sealed whole-unit proof that no Loop family envelope exists; missing or
-foreign identity, incomplete coverage, planner-unspecified suppression, and
-BindingRef/frame mismatch remain typed rejection/unresolved. A+/Trivial stay
-outside this Loop-family set. The existing 19-route evaluator and the live
-DirectAccum/NestedPredicate resolved lanes are preserved as migration/live
-owners; Generic selection remains caller-zero. D4-S3-S0 is a closed private
-observation-set witness, not a selector or production cutover.
+`mir::loop_route_policy` is the future sole selector and consumes only the
+assembler's `Ready(window)` once. Its S2 outcomes are
+`Selected|Rejected(Overlap)|Unresolved(OutOfWindow)` over exactly five
+`Candidate|Declined` rows. `NoCandidate` requires a sealed whole-unit proof
+and is not an S2 outcome; missing or foreign identity, incomplete coverage,
+planner-unspecified suppression, and BindingRef/frame mismatch are assembler
+failures that never reach S2. A+/Trivial stay outside this Loop-family set.
+The existing 19-route evaluator and the live DirectAccum/NestedPredicate
+resolved lanes are preserved as migration/live owners; Generic selection
+remains caller-zero. D4-S3-S0 is a closed private observation-set witness,
+not a selector or production cutover.
 
 ### Common admission assembler S1 (landed)
 
@@ -558,10 +560,31 @@ evidence retains the lease, every row, and typed issues with `Rejected` taking
 precedence over `Unresolved`.
 
 Candidate payloads are opaque to this assembler: it neither counts candidates
-nor rejects semantic overlap or `OutOfWindow`; those remain selector-only. The
-six focused tests and shared caller-zero/line guard are green. No Recipe,
-Builder/MIR, production caller, retry/fallback, or legacy retirement is
-claimed; selector design/consumer is the next bounded cell.
+nor rejects semantic overlap or `OutOfWindow`; those remain selector-only. A
+non-Ready assembler result is terminal for this boundary and is not passed to
+the selector. The six focused tests and shared caller-zero/line guard are
+green. No Recipe, Builder/MIR, production caller, retry/fallback, or legacy
+retirement is claimed; selector design/consumer is the next bounded cell.
+
+### Selector S2 design correction (2026-08-06)
+
+The selector design is deliberately narrower than the row algebra carried by
+the assembler. `CanonicalLoopFamilySelectionV1` will consume only
+`Ready(window)` once, so its five rows are exactly `Candidate|Declined`:
+
+```text
+1 Candidate + 4 Declined -> Selected
+2+ Candidates            -> Rejected(Overlap)
+5 Declined               -> Unresolved(OutOfWindow)
+```
+
+Missing/duplicate tags, identity/frame, mode/coverage, and row-level
+`Rejected|Unresolved` are assembler outcomes and never reach S2. `NoCandidate`
+is not an S2 result; it requires a separate whole-unit no-loop-envelope proof.
+The implementation belongs in a new `family_selector.rs`; the historical
+Generic marker in `family_selection.rs` is not promoted. S2 remains
+caller-zero and must not issue Recipe/JoinSig, Builder/MIR, physical, retry,
+fallback, or production effects.
 
 ### D4-S3-S0 observation-set witness (closed)
 

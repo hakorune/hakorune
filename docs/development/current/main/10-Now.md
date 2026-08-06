@@ -29,6 +29,11 @@ Related:
   graph toward `mirbuilder_north_star`; cell/pack/LOC counts are not the goal
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
+- current loop frontier: common admission assembler S1 is landed. Selector S2
+  is design-only: it will consume only a Ready five-row window (Candidate /
+  Declined), while assembler Rejected/Unresolved evidence stops before it.
+  Production selection, Recipe handoff, physical cutover, and legacy removal
+  remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

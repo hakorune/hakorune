@@ -16,45 +16,58 @@ caller, physical cutover, or legacy retirement.
 
 ## Accepted input
 
-The selector consumes the admission window exactly once. The window already
-owns the resolver-issued identity lease, fixed five family rows, common mode,
-and complete coverage. The selector must not re-resolve source, inspect AST,
-read route IDs/schedules/cursors, or infer family precedence.
+The selector consumes only `Ready(window)` from the assembler, exactly once.
+Therefore its input is already a fixed five-row product whose rows are only
+`Candidate` or `Declined`; row-level `Rejected`/`Unresolved`, missing or
+duplicate tags, identity/mode/coverage mismatches, and their evidence stop in
+the assembler and never reach the selector. The window owns the resolver-
+issued identity lease, fixed five family rows, common mode, and complete
+coverage. The selector must not re-resolve source, inspect AST, read route
+IDs/schedules/cursors, or infer family precedence.
 
 ## Fixed disposition algebra
 
 ```text
 one Candidate + four Declined -> Selected(candidate)
 two or more Candidates        -> Rejected(Overlap)
-any row Rejected               -> Rejected(row evidence)
-no Rejected + any Unresolved   -> Unresolved(row evidence)
 five Declined                  -> Unresolved(OutOfWindow)
-NoCandidate                    -> forbidden until a sealed whole-unit proof
+NoCandidate                    -> not an S2 outcome; requires a separate
+                                  whole-unit proof product (M8)
 ```
 
 Candidate payloads and the resolver lease remain opaque, move-only capabilities
 of the selected product. The selector may count candidate dispositions and
-apply semantic overlap; the assembler may not. `NoCandidate` is not a synonym
-for five family declines because the common window covers one loop-family
-envelope, not the whole program.
+apply semantic overlap; the assembler may not. `OutOfWindow` is the sealed
+five-row negative result for this window. It is not `NoCandidate`, because the
+common window covers one loop-family envelope, not the whole program.
 
 ## Output boundary
 
 The future `CanonicalLoopFamilySelectionV1` must retain the selected family
 tag, its typed candidate payload, the source lease, and the sealed mode. A
-rejection/unresolved result must retain the consumed window evidence. It must
-not issue `LoopBindingKeyV1`, Recipe/JoinSig, ValueId/PHI, Builder/MIR, or
-runtime effects. A later demand/Recipe card owns those products.
+selector rejection/unresolved result must retain the consumed window's lease,
+all five rows, and the typed reason (`Overlap` or `OutOfWindow`). There is no
+row-rejected selector arm because the assembler owns that boundary. The
+selector must not issue `LoopBindingKeyV1`, Recipe/JoinSig, ValueId/PHI,
+Builder/MIR, or runtime effects. A later demand/Recipe card owns those
+products.
 
 ## Acceptance evidence required before implementation
 
 - one focused consumer test for one candidate plus four declines;
 - two-candidate overlap rejection with both payloads retained;
-- row-rejected dominance over unresolved evidence;
+- assembler-focused evidence that non-Ready rows never enter the selector;
 - five-declined `OutOfWindow` distinction;
 - move-only one-shot window consumption and no source relookup;
 - caller-zero/line guard with selector-only ownership;
 - same-commit reference-document update and post-implementation receipt.
+
+The implementation belongs in a new `family_selector.rs` and focused test
+module. The old `family_selection.rs` Generic marker remains historical
+test-only evidence; it is not promoted or used as the canonical selector.
+Selector S2 must remain below 800 lines, keep production callers at zero, and
+not import AST, resolver issuers, structural-facts producers, route policy,
+Recipe/JoinSig, Builder/MIR, retry, or fallback.
 
 Until those design points are accepted and taskized, the current goal stops at
 this consultation boundary. Production selection and legacy deletion remain

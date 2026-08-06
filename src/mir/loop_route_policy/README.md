@@ -194,12 +194,13 @@ caller-zero; the Generic resolved-carrier selector remains caller-zero.
 The next product is the separate resolver-branded, non-`Clone`
 `VerifiedLoopFamilyAdmissionWindowV1` containing one identity-only source
 lease, five canonical family rows, and assembler-owned mode/coverage seals.
-A separate `CanonicalLoopFamilySelectionV1` entrypoint will consume it once
-and return `Selected`, `NoCandidate`, `Rejected`, or `Unresolved`. It must not
-inspect AST/LoopRouteContext/route IDs, reuse raw cursors, invoke Builder or
-Recipe production, or retry/fallback. `NoCandidate` requires a sealed proof of
-no Loop-family envelope; missing/foreign/incomplete/mismatched observations
-remain typed rejection/unresolved. D4-S3-S0 is closed as a private
+A separate `CanonicalLoopFamilySelectionV1` entrypoint will consume only an
+assembler `Ready(window)` once and return `Selected`, `Rejected(Overlap)`, or
+`Unresolved(OutOfWindow)`. It must not inspect AST/LoopRouteContext/route IDs,
+reuse raw cursors, invoke Builder or Recipe production, or retry/fallback.
+Missing/foreign/incomplete/mismatched observations are assembler failures and
+never enter the selector. `NoCandidate` requires a separate sealed whole-unit
+proof and is not an S2 outcome. D4-S3-S0 is closed as a private
 observation-set witness; selector implementation and Generic production
 cutover remain closed.
 
@@ -211,13 +212,12 @@ NoStandaloneRow/planner-freeze/reject separation; neither row calls or
 implements the future selector. The next private row is the pure selector
 consumer, and the existing legacy schedule/evidence APIs remain unchanged.
 
-D4-S3-S2 is now closed as a separate `#[cfg(test)]` neutral consumer in
-`family_selection.rs`. It defines only typed `Selected`, `NoCandidate`,
-`Rejected`, and `Unresolved` outcomes. The S1 adapter passes window-complete
-Generic evidence without AST, route IDs, cursors, schedules, or legacy policy
-rows; all nine current inputs remain `Unresolved`. The whole-unit proof needed
-for `NoCandidate` has no constructor in this slice. Production selector,
-Recipe/key, Builder/MIR, retry/fallback, and Generic caller remain zero.
+D4-S3-S2 remains a historical `#[cfg(test)]` marker in
+`family_selection.rs`; it is not the canonical selector and is not promoted.
+The next implementation adds a separate `family_selector.rs` consuming only
+the common assembler's Ready window. Production selector, Recipe/key,
+Builder/MIR, retry/fallback, and Generic caller remain zero until that new
+consumer is independently verified.
 D4-S4-D0 records that a future `Selected(Generic)` must retain a real
 resolver source lease, candidate proof, and `BindingRef` roles; this selector
 must not feed a Recipe from its current marker-only outcome. D4-S4-S0 is now

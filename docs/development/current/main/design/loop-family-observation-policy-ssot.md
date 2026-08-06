@@ -428,23 +428,24 @@ owner/origin/source-kind/site/frame equality, mode equality, and coverage. It
 consumes all rows and either seals an arbitrary-order exact five-row product or
 returns an evidence-bearing unresolved/rejected outcome retaining the lease
 and every consumed row. It never counts candidates or selects. The later
-selector consumes one sealed window exactly once and applies only this
+selector consumes only the assembler's `Ready(window)` product exactly once;
+non-Ready assembler outcomes never reach it. It applies only this
 algebra:
 
 ```text
 one Candidate + four Declined -> Selected
 two or more Candidates        -> Rejected(Overlap) [selector only]
-any Rejected                  -> Rejected, retaining all row evidence
-no Rejected + any Unresolved  -> Unresolved
 five Declined                 -> Unresolved(OutOfWindow) [selector only]
-NoCandidate                   -> forbidden until M8 all19 proof
+NoCandidate                   -> not an S2 outcome; M8 whole-unit proof only
 ```
 
 For the assembler itself, Candidate rows are opaque typed payloads: one or
 more Candidates (including two or more) plus Declined rows is `Ready`; overlap
 and `OutOfWindow` are selector responsibilities. A row-level Rejected or any
 unsealed/incomplete row evidence produces the corresponding top-level
-Rejected/Unresolved result with all rows and the lease retained.
+Rejected/Unresolved result with all rows and the lease retained; it is not
+passed to the selector. The selector's failure products retain the consumed
+lease and all five Ready rows, but only carry `Overlap` or `OutOfWindow`.
 
 The observation prerequisites are landed in a shallow ordered ladder inside
 the linked D0 task: LoopCond observation, Generic row normalization, row
