@@ -45,6 +45,24 @@ Loop lowering.
   non-`Clone` validation capability. Its wire DTO remains intentionally
   `Clone`; neither type is source authority.
 
+## JoinSig module map
+
+The `join_sig/` directory is the single logical JoinSig owner. Its facade keeps
+the historical `join_sig::*` API stable while the child modules split
+responsibilities without adding a semantic route:
+
+| Module | Responsibility | Non-authority |
+| --- | --- | --- |
+| `join_sig/mod.rs` | module declarations and compatibility re-exports | no construction or elaboration policy |
+| `join_sig/model.rs` | logical ports, edges, payloads, branch rows, rejection algebra, opaque verified wrapper | no raw constructor outside the facade/issuer boundary |
+| `join_sig/port.rs` | logical exit-to-port edge projection | no physical CFG/PHI or MIR IDs |
+| `join_sig/visibility.rs` | carrier seeding and visible payload projection | no source/AST inspection or route choice |
+| `join_sig/flow.rs` | the sole logical elaborator and recursive dataflow owner | no Builder, physical lowering, retry, or publication |
+| `join_sig_branch.rs` | existing direct branch-row helper | no second exit-edge owner |
+
+This row is a behavior-neutral structural split. The verified JoinSig wrapper
+is constructed only by the elaborator; callers continue to use the facade.
+
 ## Current Generic design stop
 
 The proposed G0 target is documented in

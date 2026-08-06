@@ -41,7 +41,8 @@ CFG topology.
 
 Anchors:
 
-- `src/mir/loop_recipe_contract/join_sig.rs` emits the logical backedge.
+- `src/mir/loop_recipe_contract/join_sig/mod.rs` exposes the logical JoinSig
+  facade; `join_sig/flow.rs` emits the logical backedge.
 - `src/mir/builder/control_flow/plan/features/coreloop_frame.rs` defines the
   Standard5 `step_bb` and header PHI inputs.
 - `src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs` wires

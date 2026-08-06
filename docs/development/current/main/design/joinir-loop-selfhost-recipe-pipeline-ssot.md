@@ -858,8 +858,9 @@ Change:
 : Extend only the caller-zero logical JoinSig owner for one root `Always` Loop
   whose sole body item is an explicit-else `If`: the then arm directly breaks
   the owner Loop and the else arm directly continues it. Keep the Recipe V1
-  schema unchanged. Split branch-flow logic into a child module rather than
-  growing the existing `join_sig.rs` toward the 800-line limit.
+  schema unchanged. Keep the `join_sig/mod.rs` facade thin and split the
+  branch/dataflow responsibilities into its child modules rather than growing
+  the JoinSig subtree toward the 800-line limit.
 
 Contract:
 : `LoopJoinSigElaboratorV1` is the unique issuer. One ordered logical branch

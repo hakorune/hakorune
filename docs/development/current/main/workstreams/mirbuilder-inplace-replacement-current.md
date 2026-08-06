@@ -510,6 +510,7 @@ closed — GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0 / GENERIC-G0-ADMISSION-WINDOW-D0
 closed — GENERIC-G0-STRUCTURE-S0A -> natural-source projector and sole AST-free structural issuer landed; exact shape/order/BindingRef/owner-source-frame/coverage positives and negatives, AST mutation zero, focused tests and shared caller-zero guard green; selection/type/policy/Recipe/Builder/MIR/production authority remain zero.
 closed — GENERIC-G0-SOURCE-TYPE-S0B -> callable-header projector and sole AST-free source-type issuer landed; exact owner-branded parameter/result/literal/context inventory, explicit i64 and missing/non-i64 negatives, move-only S0A bundle, recursive line/caller-zero guard green; target/numeric/policy/Recipe/Builder/MIR/production authority remain zero.
 closed — GENERIC-G0-NUMERIC-REPRESENTATION-S0C -> adapter consumes S0B once and seals a neutral exact target/range lease while retaining source + return ABI; plain contextual literals pass, typed suffixes reject, opaque/range boundaries are typed; caller-zero/recursive guard, focused tests, cargo check, and pointer guard green; policy/selection/Recipe/Builder/MIR/production remain zero. next — LOOP-JOINSIG-MODULE-SPLIT-R0.
+closed — LOOP-JOINSIG-MODULE-SPLIT-R0 -> flat JoinSig module retired into thin facade + model/port/visibility/flow children; direct exit-edge owner is unique, verified wrapper construction remains private, Recipe/JoinSig tests, README/reference sync, and shared recursive guard are green; no acceptance delta or new caller. next — LOOP-RECIPE-PRODUCER-ID-S0.
 ```
 ## Production invariants
 ```text
@@ -986,7 +987,6 @@ COMPILER-RESIDUE0    compiler ingress / old selectors / proof routes
 ```
 
 New findings enter one of these packs. Do not create another pack.
-
 ## Parked
 
 ```text

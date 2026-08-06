@@ -12,6 +12,16 @@ Primary design authority:
 Executable authority:
 `src/mir/loop_recipe_contract/`
 
+Reference receipt — `LOOP-JOINSIG-MODULE-SPLIT-R0` (2026-08-06): the former
+flat `join_sig.rs` is retired. `join_sig/mod.rs` remains the stable facade;
+`join_sig/model.rs`, `join_sig/port.rs`, `join_sig/visibility.rs`, and
+`join_sig/flow.rs` own the logical model, port projection, visible payloads,
+and recursive dataflow/elaborator respectively. The existing
+`join_sig_branch.rs` keeps direct branch-row helpers, while exit-edge
+projection has one owner in `join_sig/port.rs`. This is a behavior-neutral
+module split: the public-in-crate API and Recipe/JoinSig goldens are unchanged,
+and no selector, physical lowering, or production caller is added.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local

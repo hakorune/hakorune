@@ -6,7 +6,7 @@ Related:
   - docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md
   - docs/development/current/main/design/phi-lifecycle-ssot.md
   - docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md
-  - src/mir/loop_recipe_contract/join_sig.rs
+  - src/mir/loop_recipe_contract/join_sig/mod.rs
 ---
 
 # M6-B Loop PHI Materializer Design Stop

@@ -120,12 +120,12 @@ guard_joinir_logical_demand_contract() {
     guard_fail "$tag" "candidate observer acquired publication or legacy production authority"
   fi
   local portable_recipe_files=()
-  mapfile -t portable_recipe_files < <(find "$portable_recipe_dir" -maxdepth 1 -name '*.rs' -type f | sort)
+  mapfile -t portable_recipe_files < <(find "$portable_recipe_dir" -type f -name '*.rs' | sort)
   guard_require_files "$tag" \
     "$portable_recipe_dir/README.md" \
     "$portable_recipe_dir/schema.rs" \
     "$portable_recipe_dir/verify.rs" \
-    "$portable_recipe_dir/join_sig.rs" \
+    "$portable_recipe_dir/join_sig/mod.rs" \
     "$portable_recipe_dir/normalize.rs"
   if (( ${#portable_recipe_files[@]} == 0 )); then
     guard_fail "$tag" "portable Loop recipe subtree has no Rust contract files"

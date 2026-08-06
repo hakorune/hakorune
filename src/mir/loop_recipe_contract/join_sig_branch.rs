@@ -3,7 +3,7 @@
 use super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
 use super::join_sig::{
     visible_payloads, Flow, LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1,
-    LoopJoinEdgeV1, LoopJoinPayloadV1, LoopJoinPortV1, LoopJoinSigRejectReasonV1,
+    LoopJoinPayloadV1, LoopJoinSigRejectReasonV1,
 };
 use super::schema::{LoopExitKindV1, LoopRecipeItemV1, LoopRecipeV1};
 
@@ -91,27 +91,6 @@ fn exit_role(exit: LoopExitKindV1) -> LoopJoinEdgeRoleV1 {
     match exit {
         LoopExitKindV1::Break { .. } => LoopJoinEdgeRoleV1::Break,
         LoopExitKindV1::Continue { .. } => LoopJoinEdgeRoleV1::Continue,
-        LoopExitKindV1::Return { .. } => unreachable!("direct branch rows reject Return"),
-    }
-}
-
-pub(super) fn loop_exit_edge(
-    exit: LoopExitKindV1,
-    payload: Vec<LoopJoinPayloadV1>,
-) -> LoopJoinEdgeV1 {
-    match exit {
-        LoopExitKindV1::Break { .. } => LoopJoinEdgeV1 {
-            from: LoopJoinPortV1::Body,
-            to: LoopJoinPortV1::After,
-            role: LoopJoinEdgeRoleV1::Break,
-            payload,
-        },
-        LoopExitKindV1::Continue { .. } => LoopJoinEdgeV1 {
-            from: LoopJoinPortV1::Body,
-            to: LoopJoinPortV1::Header,
-            role: LoopJoinEdgeRoleV1::Continue,
-            payload,
-        },
         LoopExitKindV1::Return { .. } => unreachable!("direct branch rows reject Return"),
     }
 }

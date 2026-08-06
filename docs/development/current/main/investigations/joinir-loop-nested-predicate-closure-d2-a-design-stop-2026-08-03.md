@@ -25,7 +25,7 @@ Loop/outer-step statements; `If` and explicit exits are different families.
 
 The portable schema can already encode a nested `Predicate` condition, but
 `LoopJoinSigElaboratorV1` intentionally rejects every non-root predicate at
-`join_sig.rs` (`UnsupportedNestedPredicate`).  Removing that guard alone is
+`join_sig/flow.rs` (`UnsupportedNestedPredicate`). Removing that guard alone is
 not a proof: the logical contract must explicitly close child false-path
 completion, inherited ancestor carrier payloads, child `j` carrier updates,
 the ancestor `sum` update crossing the child, and parent-body continuation.

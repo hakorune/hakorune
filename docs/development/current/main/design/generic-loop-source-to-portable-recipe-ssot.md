@@ -740,7 +740,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `GENERIC-G0-STRUCTURE-S0A` | natural `ResolvedFunctionLoweringInputV1` -> move-only `VerifiedGenericStructuralFactsG0` | landed: exact positive plus reordered/extra/missing/wrong-binding/foreign-frame negatives; full source coverage; AST mutation zero; focused test and shared guard green | no type, numeric, policy, candidate, selector, Recipe, or production claim |
 | `GENERIC-G0-SOURCE-TYPE-S0B` | S0A + callable source/header views -> inventory wrapped with S0A as `VerifiedGenericSourceBundleG0` | exact parameter/result/literal/context sites; missing/non-i64/foreign/coverage rejects | no literal representation, progression, or executable-return authority |
 | `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` | S0B bundle + explicit target -> one `VerifiedGenericTypedSourceBundleG0` containing one `VerifiedGenericNumericFactLeaseG0` | natural plain contextual literals prove exact i64 representation/range and return ABI; typed suffixes are out-of-profile Rejected; neutral opaque/range boundaries preserve Unresolved/Rejected | do not duplicate numeric substrate, import compiler types downward, retry a consumed bundle, or retag test AST |
-| `LOOP-JOINSIG-MODULE-SPLIT-R0` | current `join_sig.rs` -> thin facade + model/visibility/port/flow modules | existing Recipe/JoinSig goldens byte-for-byte stable; all commits build; no acceptance delta | no nested-shadow or After feature in this series |
+| `LOOP-JOINSIG-MODULE-SPLIT-R0` | current `join_sig/mod.rs` facade -> model/visibility/port/flow child modules | existing Recipe/JoinSig goldens byte-for-byte stable; all commits build; no acceptance delta | no nested-shadow or After feature in this series |
 | `LOOP-RECIPE-PRODUCER-ID-S0` | current portable producers -> `LoopRecipeProducerIdV1` | portable schema imports `LoopRouteId` zero; current producers and normalized fixtures migrate; route parity moves to an external migration receipt | no selector or registry retirement |
 | `LOOP-JOINSIG-NESTED-SHADOW-S0` | verified carriers + ancestry -> one visible payload per binding | C1/C2 same-binding, ancestor duplicate, sibling and foreign negatives; innermost wins in binding-key order | no PHI, After, or Generic special case |
 | `LOOP-JOINSIG-AFTER-BINDING-S0` | verified edges/carriers -> `LoopJoinPortBindingV1` + `VerifiedLoopAfterBindingV1` | Header/After and owner/class/availability boundaries are exact | no physical ValueId/PHI or function Return |
@@ -825,10 +825,10 @@ src/mir/builder/resolved_lowering/loop_recipe/
 ```
 
 Do not productionize or extend the old cfg(test) Generic carrier witnesses.
-Do not append new authority to `join_sig.rs` (currently 731 lines), `verify.rs`
-(716), or `loop_accum_physicalizer.rs` (792). Production files target 150-450
-lines, orchestration/verifier files stay below 600 where practical, and every
-source/check file remains at most 799 lines. Tests live beside their owner in
+Do not append new authority to the thin `join_sig/mod.rs` facade, `verify.rs`
+(716), or `loop_accum_physicalizer.rs` (792). The JoinSig child modules own
+model, port, visibility, and flow responsibilities separately; every source
+and check file remains at most 799 lines. Tests live beside their owner in
 separate files. No new per-row shell guard is created; extend the shared
 MirBuilder replacement manifest/guard.
 

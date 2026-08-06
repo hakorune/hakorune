@@ -170,7 +170,7 @@ Verifier errors stop before physical input. The guard/test slice proves only
   expose no raw mutable inner constructor;
 - artifact+signature pairing is consuming and same-product; no independent
   pair constructor is public;
-- `join_sig.rs` and `physical_input.rs` contain no `MirBuilder`, `ValueId`,
+- `join_sig/` and `physical_input.rs` contain no `MirBuilder`, `ValueId`,
   `BasicBlockId`, `CanonicalCfgSession`, `PhiTxn`, AST, route/retry, or
   `Option` dependencies;
 - production Recipe caller count remains zero;

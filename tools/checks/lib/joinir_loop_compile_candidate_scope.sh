@@ -33,6 +33,13 @@ guard_joinir_loop_compile_candidate_scope() {
   local generic_g0_numeric_tests="$generic_g0_numeric_dir/tests.rs"
   local generic_g0_numeric_adapter="$root_dir/src/mir/compiler/generic_g0_projection/numeric.rs"
   local generic_g0_numeric_projection_tests="$root_dir/src/mir/compiler/generic_g0_numeric_projection_tests.rs"
+  local join_sig_dir="$root_dir/src/mir/loop_recipe_contract/join_sig"
+  local join_sig_facade="$join_sig_dir/mod.rs"
+  local join_sig_model="$join_sig_dir/model.rs"
+  local join_sig_port="$join_sig_dir/port.rs"
+  local join_sig_visibility="$join_sig_dir/visibility.rs"
+  local join_sig_flow="$join_sig_dir/flow.rs"
+  local legacy_join_sig="$root_dir/src/mir/loop_recipe_contract/join_sig.rs"
   local nested_source_projection="$root_dir/src/mir/compiler/nested_predicate_projection.rs"
   local nested_recipe_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs"
   local nested_source_handoff="$root_dir/src/mir/compiler/nested_predicate_source_handoff.rs"
@@ -53,6 +60,8 @@ guard_joinir_loop_compile_candidate_scope() {
     "$source_adapter" "$generic_g0_projection" "$generic_g0_projection_tests" \
     "$generic_g0_source_type" "$generic_g0_numeric" "$generic_g0_numeric_tests" \
     "$generic_g0_numeric_adapter" "$generic_g0_numeric_projection_tests" \
+    "$join_sig_facade" "$join_sig_model" "$join_sig_port" \
+    "$join_sig_visibility" "$join_sig_flow" \
     "$nested_source_projection" "$nested_recipe_producer" \
     "$nested_source_handoff" "$nested_topology" "$nested_topology_tests" \
     "$nested_physical_input" "$nested_physical_input_tests" \
@@ -255,6 +264,33 @@ guard_joinir_loop_compile_candidate_scope() {
         guard_fail "$tag" "Generic G0 numeric adapter escaped caller-zero boundary: $numeric_ref"
       fi
     fi
+  done
+  if [[ -e "$legacy_join_sig" ]]; then
+    guard_fail "$tag" "JoinSig legacy flat module returned: ${legacy_join_sig#"$root_dir/"}"
+  fi
+  if [[ ! -d "$join_sig_dir" ]]; then
+    guard_fail "$tag" "JoinSig split directory is missing"
+  fi
+  while IFS= read -r join_sig_file; do
+    local join_sig_lines
+    join_sig_lines="$(wc -l < "$join_sig_file" | tr -d '[:space:]')"
+    if (( join_sig_lines >= 800 )); then
+      guard_fail "$tag" "JoinSig module exceeds boundary: ${join_sig_file#"$root_dir/"} lines=$join_sig_lines"
+    fi
+    for forbidden in 'ASTNode' 'MirBuilder' 'CorePlan' 'ValueId' \
+      'BasicBlockId' 'Retry' 'LoopRouteId'
+    do
+      if rg -n -F "$forbidden" "$join_sig_file" >/dev/null; then
+        guard_fail "$tag" "JoinSig module imported physical/source authority: ${join_sig_file#"$root_dir/"} symbol=$forbidden"
+      fi
+    done
+  done < <(find "$join_sig_dir" -type f -name '*.rs' -print | sort)
+  for required in \
+    'mod model;' 'mod port;' 'mod visibility;' 'mod flow;' \
+    'pub(crate) use model::' 'pub(crate) use flow::LoopJoinSigElaboratorV1'
+  do
+    rg -n -F "$required" "$join_sig_facade" >/dev/null || \
+      guard_fail "$tag" "JoinSig facade anchor missing: $required"
   done
   for forbidden in 'ASTNode' 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry'
   do
