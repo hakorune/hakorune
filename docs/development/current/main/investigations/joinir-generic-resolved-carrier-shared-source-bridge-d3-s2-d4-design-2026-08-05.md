@@ -990,11 +990,8 @@ normalization, coercion, overflow, monotonicity, delta-sign, and family policy
 remain outside this issuer. Missing/non-binary/non-literal/grouped/compound or
 foreign/mismatched/unordered input is typed `Unresolved`/reject before
 publication, never retry/fallback/`NoCandidate`.
-## D4-S4-S3-S0 condition-step syntax-fact witness task
-Closed: cfg(test)-only V2-consuming witness emits move-only AST-free facts; six
-focused tests cover canonical/noncanonical/symbolic/grouped/pre-order cases; no
-selector/demand/Recipe/key/Builder/MIR, caller, or public `docs/reference/**` row.
-## D4-S4-S3-D1 policy/type/overflow/monotonicity design closeout
-Closed by worker consensus: `numeric_substrate` owns exact type/range, a future resolver bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns progression semantics; no public row or caller.
-## D4-S4-S3-S1 typed numeric source bridge design stop
-NoSafeSlice until as-written `TypedInteger` preservation and an owner-branded explicit-parameter type map are co-sealed; then policy -> progression/overflow/temporal -> candidate envelope, with no selector/Recipe/MIR.
+## D4-S4-S3-S0 — closed: cfg(test)-only V2 syntax facts; six focused tests; no selector/demand/Recipe/Builder/MIR, caller, or public row.
+## D4-S4-S3-D1 — closed: worker consensus assigns numeric_substrate exact type/range, a resolver source bridge provenance, and loop_route_policy progression semantics.
+## D4-S4-S3-S1-D0 — closed as NoSafeSlice: typed literals and resolver parameter types are not co-sealed.
+## D4-S4-S3-S1-S0 typed numeric receipt witness
+Next: preserve TypedInteger as-written, then co-seal an owner-branded explicit-parameter type map; no selector/demand/Recipe/Builder/MIR.

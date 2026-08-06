@@ -503,8 +503,10 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S0
   -> cfg(test)-only AST-free syntax facts; six focused tests; no public row or downstream caller.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D1
   -> worker consensus fixed numeric_substrate/source-bridge/loop_route_policy owners; no public row or caller.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-D0
-  -> NoSafeSlice design stop: preserve TypedInteger and brand explicit parameter type map; no selector/demand/Recipe/Builder/MIR.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-D0
+  -> NoSafeSlice: typed literals and resolver parameter types are not co-sealed; no public row or caller.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S0
+  -> cfg(test)-only receipt witness: preserve TypedInteger, then paired parameter type map; no selector/demand/Recipe/Builder/MIR.
 ```
 ## Production invariants
 
@@ -994,7 +996,5 @@ new language semantics
 default Raw/Canonical cutover before final conformance
 ```
 
-New per-row guards are forbidden. Normal gates and detailed assertions belong
-to the active source/tests and existing shared guards.
-Typed provenance design is docs-only until accepted; Scalar Return projection remains deferred cfg(test) evidence; natural debt-to-different-winner and Home-bearing Generic evidence remain separate designs.
-Reference closeout follows every future implementation.
+New per-row guards are forbidden; normal gates and detailed assertions belong to the active source/tests and existing shared guards.
+Typed provenance design is docs-only until accepted; Scalar Return projection remains deferred cfg(test) evidence; natural debt-to-different-winner and Home-bearing Generic evidence remain separate designs; reference closeout follows every future implementation.
