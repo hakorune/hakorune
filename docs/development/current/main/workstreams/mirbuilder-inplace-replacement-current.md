@@ -35,10 +35,10 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1` is closed caller-zero:
 `CallableSemanticSourceLedgerView` exposes typed rows and resolver-issued Loop
 membership/frame identity. No AST/ValueId copy, Loop policy, Recipe, physical,
-or Builder/MIR caller was added; focused tests are green. The current blocker is
-`RESOLVER-SYNTAX-FACTS-D0`; the resolver API lacks operator/RHS/initializer/
-prefix/tail syntax facts. The syntax observer must be sealed before MAP-S1;
-Recipe, physical, production, retry/fallback, and deletion stay closed.
+or Builder/MIR caller was added; focused tests are green. The D0 authority is
+closed; the current execution row is caller-zero `RESOLVER-SYNTAX-FACTS-S1`.
+Its syntax observer must publish nine rows plus one prefix boundary before
+MAP-S1; Recipe, physical, production, retry/fallback, and deletion stay closed.
 
 ## Root-neutral semantic foundation
 

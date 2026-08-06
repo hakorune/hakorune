@@ -66,10 +66,12 @@ Related:
   operator/RHS/initializer/prefix/tail syntax facts are not resolver products,
   so MAP-S1 is `NoSafeSlice`. The current design stop is
   `RESOLVER-SYNTAX-FACTS-D0`: seal one AST-free syntax observer and its
-  resolver-issued Scope/Region join, then go directly to SyntaxFacts-S1 and
-  MAP-S1 without adding row-specific D0 suffixes. Physicalization, production
-  selection, strict receipt, retry/fallback retirement, and legacy deletion
-  remain closed.
+  resolver-issued Scope/Region join. The D0 is accepted; the active execution
+  row is caller-zero `SyntaxFacts-S1`, documented in the implementation task.
+  It must publish exactly nine syntax rows plus one prefix boundary, with no
+  AST lifetime or semantic policy leakage. MAP-S1 opens only after its focused
+  gates are green. Physicalization, production selection, strict receipt,
+  retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only
