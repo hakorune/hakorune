@@ -1,6 +1,6 @@
 # Generic raw structured static-call result publication I1/R0
 
-Status: `bounded issuer/terminal wiring implemented 2026-08-07; strict receipt gate pending`
+Status: `bounded static-call issuer/terminal wiring implemented 2026-08-07; callable-semantic Loop handoff is the current design stop`
 
 The implementation row opens with the bounded issuer slice from the closed
 source-bound handoff design.  See:
@@ -93,3 +93,36 @@ production owner.  `compose_located_generic_loop_v1` and
 `CorePlanEffectEmissionPortV1::Claimed` are test-only.  Do not add a by-name
 selector or directly wire that disconnected path; the next row is the compact
 source-bound handoff design above.
+
+## Design-stop correction (2026-08-07)
+
+The focused prelude-free callable fixture made the next boundary precise:
+
+```text
+callable semantic ledger:
+  locals      = 2/2
+  variables   = 2/4
+  assignments = 0/1
+```
+
+The missing sites are the Loop condition LHS, Loop body value LHS, and Loop
+body assignment target.  `RawInvocationChildPortV1::lower_loop` hands the
+condition/body to the existing Generic pipeline, which uses a name-only
+`RawLoopPlanExpressionPortV1` and loses those source sites before physical
+lowering.  This is a callable-semantic Loop handoff design boundary, not a
+static-call publication or GenericLoop type-inference fix.
+
+The active implementation row is therefore superseded by the design stop:
+
+```text
+GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-DESIGN-STOP
+```
+
+See:
+
+`docs/development/current/main/investigations/generic-callable-semantic-loop-handoff-design-stop-2026-08-07.md`
+
+No implementation may make `PlanLowerer` read the callable ledger, repair
+counts after effects, scan AST by name, or add retry/fallback.  The next
+implementation must first issue a single-use AST-free
+`VerifiedCallableSemanticLoopBindingScheduleV1` before Generic composition.

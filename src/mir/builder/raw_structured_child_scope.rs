@@ -11,11 +11,13 @@ use crate::mir::{MirBuilder, ValueId};
 
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 
-use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::enum_match_source_demand::EnumMatchSourceDemandPortV1;
+use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
-use super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::recursive_child_lowering::{
+    RawFunctionHeaderLookupPortV1, RecursiveChildLoweringPortV1,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum PreparedRawChildSourceV1 {
@@ -142,6 +144,23 @@ where
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn try_emit_source_bound_static_call_result_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        owner: &str,
+        method: &str,
+        checked_source_arity: u32,
+        arguments: &[ValueId],
+    ) -> Result<Option<ValueId>, String> {
+        self.child.try_emit_source_bound_static_call_result_v1(
+            builder,
+            owner,
+            method,
+            checked_source_arity,
+            arguments,
+        )
+    }
+
     fn lower_body(
         &mut self,
         builder: &mut MirBuilder,
@@ -193,6 +212,20 @@ where
                 })
             }
         }
+    }
+}
+
+impl<Port> RawFunctionHeaderLookupPortV1 for RawStructuredChildScopePortV1<'_, Port>
+where
+    Port: RawFunctionHeaderLookupPortV1,
+{
+    fn with_function_headers<R>(
+        &mut self,
+        observe: impl for<'headers> FnOnce(
+            Option<&'headers dyn super::function_signature_lookup::FunctionSignatureLookupV1>,
+        ) -> R,
+    ) -> R {
+        self.child.with_function_headers(observe)
     }
 }
 
