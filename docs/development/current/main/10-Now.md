@@ -115,10 +115,11 @@ Related:
   D4-S4-S3-D0 is now closed by worker authority split: resolver/source-view
   publishes AST-free syntax facts and policy owns operator/type/overflow/
   monotonicity. D4-S4-S3-S0 is closed with six cfg(test)-only syntax-fact
-  witnesses and no public reference row. Next is the worker-reviewed
-  D4-S4-S3-D1 policy/type/overflow/monotonicity design stop; full shape,
-  Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback remain
-  gated.
+  witnesses and no public reference row. D4-S4-S3-D1 is now closed by worker
+  authority consensus. Next is D4-S4-S3-S1-D0: typed numeric source-bridge
+  design, currently NoSafeSlice until TypedInteger preservation and a branded
+  explicit-parameter type map exist; full shape, Selected(Generic), demand,
+  Recipe, Builder/MIR, retry, and fallback remain gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

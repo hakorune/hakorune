@@ -582,6 +582,9 @@ publishes AST-free as-written operator/literal facts, while policy owns type,
 overflow, monotonicity, and accepted-family decisions. D4-S4-S3-S0 is closed
 as a cfg(test)-only V2-consuming witness with six focused tests; the product
 remains outside selector, Recipe, and MIR, production caller remains zero, and
-no role is re-resolved by name. The next row is the worker-reviewed
-D4-S4-S3-D1 policy/type/overflow/monotonicity design stop. No public reference
-row applies to this internal witness.
+no role is re-resolved by name. D4-S4-S3-D1 is closed by worker authority
+consensus: `numeric_substrate` owns exact type/range, a future resolver source
+bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns
+progression policy. The next row is D4-S4-S3-S1-D0, a NoSafeSlice design stop
+for TypedInteger preservation and a branded explicit-parameter type map. No
+public reference row applies to this internal witness.

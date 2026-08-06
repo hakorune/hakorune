@@ -324,8 +324,11 @@ D4-S4-S3-S0
   -> closed: cfg(test)-only V2-consuming witness copies as-written syntax
      facts into a move-only AST-free product; six focused tests; no public row
 D4-S4-S3-D1
-  -> next: worker-reviewed policy/type/overflow/monotonicity design stop; no
-     selector, demand, Recipe/key, Builder/MIR, retry, fallback, or caller
+  -> closed: worker consensus assigns numeric_substrate exact type/range,
+     resolver source bridge provenance, and loop_route_policy progression policy
+D4-S4-S3-S1-D0
+  -> next: NoSafeSlice design stop for typed-literal preservation and branded
+     explicit-parameter type map; no selector/demand/Recipe/key/Builder/MIR
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

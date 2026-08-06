@@ -501,8 +501,10 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D0
   -> worker split: resolver/source-view publishes AST-free syntax facts; policy owns operator/type/overflow/monotonicity; no public reference row.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S0
   -> cfg(test)-only AST-free syntax facts; six focused tests; no public row or downstream caller.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D1
-  -> worker policy/type/overflow/monotonicity design stop; no selector/demand/Recipe/Builder/MIR.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D1
+  -> worker consensus fixed numeric_substrate/source-bridge/loop_route_policy owners; no public row or caller.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-D0
+  -> NoSafeSlice design stop: preserve TypedInteger and brand explicit parameter type map; no selector/demand/Recipe/Builder/MIR.
 ```
 ## Production invariants
 
@@ -994,7 +996,5 @@ default Raw/Canonical cutover before final conformance
 
 New per-row guards are forbidden. Normal gates and detailed assertions belong
 to the active source/tests and existing shared guards.
-Typed provenance design is docs-only until accepted; Scalar Return projection remains deferred cfg(test) evidence.
-Natural debt-to-different-winner evidence remains unobserved; Home-bearing
-Generic evidence remains a separate design.
+Typed provenance design is docs-only until accepted; Scalar Return projection remains deferred cfg(test) evidence; natural debt-to-different-winner and Home-bearing Generic evidence remain separate designs.
 Reference closeout follows every future implementation.
