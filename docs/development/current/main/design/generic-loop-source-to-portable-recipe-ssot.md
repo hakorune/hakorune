@@ -477,6 +477,28 @@ LoopRecipeProducerIdV1::GenericG0
 It is not a family-selection authority. A canonical G0 product must never
 claim `GenericLoopV0` or `GenericLoopV1` provenance.
 
+`LOOP-RECIPE-PRODUCER-ID-S0` fixes the V1 wire correction:
+
+```text
+LoopRecipeProvenanceV1
+  producer_id: LoopRecipeProducerIdV1
+```
+
+The JSON key is `producer_id`; the old `producer_route` key is rejected by the
+V1 loader. The enum's current producer identities are
+`DirectAccumV1`, `LoopTrueBreakContinueV1`, and `NestedPredicateV1`, with
+`GenericG0` reserved for the later canonical Generic producer. The V1 schema
+version does not gain a compatibility alias because this subtree is still
+caller-zero and pre-production.
+
+`LoopRouteId` remains the legacy scheduler/policy/registry selection identity.
+It must not be imported by the portable schema or current portable producers.
+Route parity is an external, test-only migration receipt mapping the three
+landed producer profiles to their legacy route IDs; legacy Generic V0/V1 rows
+map to no portable producer. No selector, registry, route order, or production
+caller changes are part of this row, and no verifier/normalizer/physicalizer
+may dispatch on `LoopRecipeProducerIdV1`.
+
 ## Function tail
 
 The Generic wrapper adds:
@@ -741,7 +763,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `GENERIC-G0-SOURCE-TYPE-S0B` | S0A + callable source/header views -> inventory wrapped with S0A as `VerifiedGenericSourceBundleG0` | exact parameter/result/literal/context sites; missing/non-i64/foreign/coverage rejects | no literal representation, progression, or executable-return authority |
 | `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` | S0B bundle + explicit target -> one `VerifiedGenericTypedSourceBundleG0` containing one `VerifiedGenericNumericFactLeaseG0` | natural plain contextual literals prove exact i64 representation/range and return ABI; typed suffixes are out-of-profile Rejected; neutral opaque/range boundaries preserve Unresolved/Rejected | do not duplicate numeric substrate, import compiler types downward, retry a consumed bundle, or retag test AST |
 | `LOOP-JOINSIG-MODULE-SPLIT-R0` | current `join_sig/mod.rs` facade -> model/visibility/port/flow child modules | existing Recipe/JoinSig goldens byte-for-byte stable; all commits build; no acceptance delta | no nested-shadow or After feature in this series |
-| `LOOP-RECIPE-PRODUCER-ID-S0` | current portable producers -> `LoopRecipeProducerIdV1` | portable schema imports `LoopRouteId` zero; current producers and normalized fixtures migrate; route parity moves to an external migration receipt | no selector or registry retirement |
+| `LOOP-RECIPE-PRODUCER-ID-S0` | current portable producers -> `LoopRecipeProducerIdV1` | `producer_id` wire field; old `producer_route` rejected; current producers/fixtures migrate; route parity is an external test-only receipt | no selector, registry, route-order, or production-caller change |
 | `LOOP-JOINSIG-NESTED-SHADOW-S0` | verified carriers + ancestry -> one visible payload per binding | C1/C2 same-binding, ancestor duplicate, sibling and foreign negatives; innermost wins in binding-key order | no PHI, After, or Generic special case |
 | `LOOP-JOINSIG-AFTER-BINDING-S0` | verified edges/carriers -> `LoopJoinPortBindingV1` + `VerifiedLoopAfterBindingV1` | Header/After and owner/class/availability boundaries are exact | no physical ValueId/PHI or function Return |
 | `LOOP-RECIPE-SOURCE-BOUND-CORE-S0` | Recipe + JoinSig + opaque source claim + relations -> `VerifiedLoopCoreProductV1` | caller-zero positive plus foreign/duplicate/uncovered/derived-role negatives | no real Generic keys, Builder, or physical IDs |

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "provenance": { "producer_route": "nested_loop_minimal" },
+  "provenance": { "producer_id": "nested_predicate_v1" },
   "source_binding": {
     "owner": { "kind": "function_body", "compilation_unit_ordinal": 0, "function_ordinal": 0 },
     "loops": [

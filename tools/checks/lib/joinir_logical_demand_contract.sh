@@ -6,6 +6,7 @@ guard_joinir_logical_demand_contract() {
   local tag="$2"
   local route_id="$root_dir/src/mir/loop_recipe_contract/route_id.rs"
   local portable_recipe_dir="$root_dir/src/mir/loop_recipe_contract"
+  local producer_id="$portable_recipe_dir/producer_id.rs"
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
   local direct_accum_recipe_producer="$portable_recipe_dir/direct_accum_producer.rs"
   # The compiler-owned DirectAccum profile is the sole disconnected issuer of
@@ -124,6 +125,7 @@ guard_joinir_logical_demand_contract() {
   guard_require_files "$tag" \
     "$portable_recipe_dir/README.md" \
     "$portable_recipe_dir/schema.rs" \
+    "$producer_id" \
     "$portable_recipe_dir/verify.rs" \
     "$portable_recipe_dir/join_sig/mod.rs" \
     "$portable_recipe_dir/normalize.rs"
@@ -156,6 +158,25 @@ guard_joinir_logical_demand_contract() {
   if rg -n -w 'LoopRouteId|producer_route' \
     "$portable_recipe_dir/verify.rs" "$portable_recipe_dir/normalize.rs" >/dev/null; then
     guard_fail "$tag" "portable semantic verifier/normalizer acquired route provenance authority"
+  fi
+  if rg -n -w 'LoopRouteId|producer_route' \
+    "$portable_recipe_dir/schema.rs" \
+    "$portable_recipe_dir/direct_accum_producer.rs" \
+    "$portable_recipe_dir/loop_true_break_continue_producer.rs" \
+    "$nested_predicate_producer" >/dev/null; then
+    guard_fail "$tag" "portable schema/producer imported legacy LoopRouteId provenance"
+  fi
+  if ! rg -n -F 'producer_id: LoopRecipeProducerIdV1' "$portable_recipe_dir/schema.rs" >/dev/null || \
+     ! rg -n -F 'LoopRecipeProducerIdV1::DirectAccumV1' "$portable_recipe_dir/direct_accum_producer.rs" >/dev/null || \
+     ! rg -n -F 'LoopRecipeProducerIdV1::LoopTrueBreakContinueV1' "$portable_recipe_dir/loop_true_break_continue_producer.rs" >/dev/null || \
+     ! rg -n -F 'LoopRecipeProducerIdV1::NestedPredicateV1' "$nested_predicate_producer" >/dev/null; then
+    guard_fail "$tag" "portable producer ID issuer anchors drifted"
+  fi
+  local legacy_wire_refs
+  legacy_wire_refs="$({ rg -n -w 'producer_route' \
+    "$portable_recipe_dir/fixtures" --glob '*.json' || true; } | wc -l | tr -d '[:space:]')"
+  if [[ "$legacy_wire_refs" != "0" ]]; then
+    guard_fail "$tag" "portable fixtures still carry legacy producer_route wire"
   fi
   local join_sig_external_files=()
   mapfile -t join_sig_external_files < <(

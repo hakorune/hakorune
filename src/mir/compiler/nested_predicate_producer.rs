@@ -4,14 +4,13 @@
 //! semantic products. Syntax, route selection, and physical ownership stay
 //! outside this boundary.
 
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_recipe_contract::{
     verify_source_bound_recipe_v1, LoopBinaryI64OpV1, LoopBindingKeyV1, LoopBlockKeyV1,
     LoopCarrierKeyV1, LoopCompareI64OpV1, LoopConditionV1, LoopItemKeyV1, LoopJoinSigElaboratorV1,
     LoopJoinSigRejectReasonV1, LoopNodeKeyV1, LoopRecipeArtifactV1, LoopRecipeBindingV1,
     LoopRecipeBlockV1, LoopRecipeCarrierV1, LoopRecipeItemRowV1, LoopRecipeItemV1,
-    LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopRecipeV1, LoopRecipeValueV1,
-    LoopValueClassV1, LoopValueKeyV1,
+    LoopRecipeProducerIdV1, LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopRecipeV1,
+    LoopRecipeValueV1, LoopValueClassV1, LoopValueKeyV1,
 };
 use crate::mir::loop_structural_facts::LoopSourceForestBindingRejectV1;
 
@@ -81,12 +80,9 @@ pub(crate) fn produce_nested_predicate_recipe_v1(
 ) -> Result<VerifiedNestedPredicateRecipeProductV1, NestedPredicateRecipeProducerRejectV1> {
     let (forest_binding, shape, root_frame_key) = projection.into_parts();
     validate_shape(&shape)?;
-    let source_handoff = VerifiedNestedPhysicalSourceHandoffV1::issue(
-        &forest_binding,
-        shape,
-        root_frame_key,
-    )
-    .map_err(NestedPredicateRecipeProducerRejectV1::SourceHandoff)?;
+    let source_handoff =
+        VerifiedNestedPhysicalSourceHandoffV1::issue(&forest_binding, shape, root_frame_key)
+            .map_err(NestedPredicateRecipeProducerRejectV1::SourceHandoff)?;
     let shape = source_handoff.shape();
     let recipe = nested_recipe(&shape);
     let verified_for_source =
@@ -96,9 +92,7 @@ pub(crate) fn produce_nested_predicate_recipe_v1(
         .into_source_binding(&verified_for_source)
         .map_err(NestedPredicateRecipeProducerRejectV1::SourceBinding)?;
     let artifact = LoopRecipeArtifactV1::new(
-        LoopRecipeProvenanceV1 {
-            producer_route: LoopRouteId::NestedLoopMinimal,
-        },
+        LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::NestedPredicateV1),
         source_binding,
         recipe,
     );

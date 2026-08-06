@@ -11,8 +11,9 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_recipe_contract::{
     LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopRecipeArtifactV1,
-    LoopRecipeNormalizerV1, LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopRecipeV1,
-    LoopRecipeVerifierV1, VerifiedLoopJoinSigV1, VerifiedLoopRecipeV1,
+    LoopRecipeNormalizerV1, LoopRecipeProducerIdV1, LoopRecipeProvenanceV1,
+    LoopRecipeRejectReasonV1, LoopRecipeV1, LoopRecipeVerifierV1, VerifiedLoopJoinSigV1,
+    VerifiedLoopRecipeV1,
 };
 use crate::mir::loop_structural_facts::bind_resolved_loop_source_forest_v1;
 use crate::mir::resolved_semantics::{
@@ -200,9 +201,7 @@ fn nested_always_witness_binds_source_without_production_caller() {
         .into_source_binding(product.recipe())
         .expect("source/recipe correspondence");
     let artifact = LoopRecipeArtifactV1::new(
-        LoopRecipeProvenanceV1 {
-            producer_route: product.diagnostic_route(),
-        },
+        LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::NestedPredicateV1),
         source_binding,
         raw_recipe.clone(),
     );

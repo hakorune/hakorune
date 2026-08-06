@@ -8,6 +8,7 @@ mod join_sig_branch;
 mod loop_true_break_continue_producer;
 mod normalize;
 mod physical_input;
+mod producer_id;
 pub(crate) mod route_id;
 mod schema;
 mod source_binding;
@@ -28,6 +29,10 @@ mod join_sig_branch_tests;
 #[cfg(test)]
 #[path = "loop_true_break_continue_producer_tests.rs"]
 mod loop_true_break_continue_producer_tests;
+
+#[cfg(test)]
+#[path = "producer_id_migration_tests.rs"]
+mod producer_id_migration_tests;
 
 #[cfg(test)]
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
@@ -64,6 +69,8 @@ pub(crate) use loop_true_break_continue_producer::{
 pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
 #[allow(unused_imports)]
 pub(crate) use physical_input::VerifiedLoopPhysicalInputV1;
+#[allow(unused_imports)]
+pub(crate) use producer_id::LoopRecipeProducerIdV1;
 #[allow(unused_imports)]
 pub(crate) use schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,

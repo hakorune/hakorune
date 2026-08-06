@@ -6,7 +6,7 @@ use super::ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
     LoopNodeKeyV1, LoopValueKeyV1,
 };
-use super::route_id::LoopRouteId;
+use super::producer_id::LoopRecipeProducerIdV1;
 
 pub(crate) const LOOP_RECIPE_SCHEMA_VERSION_V1: u16 = 1;
 
@@ -43,7 +43,13 @@ impl LoopRecipeArtifactV1 {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct LoopRecipeProvenanceV1 {
-    pub(crate) producer_route: LoopRouteId,
+    pub(crate) producer_id: LoopRecipeProducerIdV1,
+}
+
+impl LoopRecipeProvenanceV1 {
+    pub(crate) const fn new(producer_id: LoopRecipeProducerIdV1) -> Self {
+        Self { producer_id }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

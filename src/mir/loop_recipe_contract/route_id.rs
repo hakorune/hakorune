@@ -1,7 +1,8 @@
-//! Stable producer identity shared by the legacy registry and portable artifact.
+//! Stable legacy scheduler identity.
 //!
-//! This identity is provenance only. Semantic recipe verification and lowering
-//! must not dispatch on it.
+//! This identity remains owned by route policy/registry. Portable Recipe
+//! provenance uses `LoopRecipeProducerIdV1` instead; no portable schema or
+//! producer imports this legacy selection identity.
 
 use serde::{Deserialize, Serialize};
 

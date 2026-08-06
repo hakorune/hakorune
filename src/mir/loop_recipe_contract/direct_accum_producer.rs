@@ -14,7 +14,7 @@ use super::ids::{
     LoopValueKeyV1,
 };
 use super::join_sig::{LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, VerifiedLoopJoinSigV1};
-use super::route_id::LoopRouteId;
+use super::producer_id::LoopRecipeProducerIdV1;
 use super::schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopOperationV1, LoopRecipeArtifactV1,
     LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1, LoopRecipeItemRowV1,
@@ -68,9 +68,7 @@ pub(crate) fn produce_direct_accum_recipe_v1(
         .map_err(DirectAccumRecipeProducerRejectV1::Recipe)?;
     let source_binding = source_root.into_root_claim(&verified_for_source);
     let artifact = LoopRecipeArtifactV1::new(
-        LoopRecipeProvenanceV1 {
-            producer_route: LoopRouteId::AccumConstLoop,
-        },
+        LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::DirectAccumV1),
         source_binding,
         recipe,
     );

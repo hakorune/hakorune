@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "provenance": {
-    "producer_route": "accum_const_loop"
+    "producer_id": "direct_accum_v1"
   },
   "source_binding": {
     "owner": {

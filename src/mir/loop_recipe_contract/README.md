@@ -6,7 +6,7 @@ Loop lowering.
 ## Authority
 
 - `LoopRecipeArtifactV1` owns schema version, a required source wire claim,
-  producer route receipt, and one `LoopRecipeV1`.
+  `LoopRecipeProducerIdV1` receipt, and one `LoopRecipeV1`.
 - The source wire claim names one declared-function body by compilation-unit
   and function ordinals, then maps the ordered Loop arena exactly 1:1 to unique
   typed paths.
@@ -74,11 +74,16 @@ the innermost owner winning, and must expose logical Header/After binding
 identities. The source-bound verified core must also retain the opaque source
 claim plus exact Recipe-key/`BindingRef`/effect relations.
 
-The current `producer_route: LoopRouteId` is implementation state, not the
-final portable authority. A later caller-zero correction separates diagnostic
-producer identity from legacy route selection. Until those common rows close,
-there is no Generic Recipe producer or production consumer, and a post-loop
-function tail must not be inserted into `LoopRecipeV1`.
+`LoopRecipeProvenanceV1` now carries `producer_id: LoopRecipeProducerIdV1`.
+The old `producer_route` JSON key is rejected; schema V1 has no compatibility
+alias because this contract is still caller-zero and pre-production. The
+legacy scheduler/policy/registry keeps `LoopRouteId`, while a test-only
+`LegacyRouteParityReceiptV1` records the three current profile mappings and
+the legacy-only Generic V0/V1 rows. The portable schema and producers import
+no `LoopRouteId`, and no selector, registry, verifier, normalizer, or
+physicalizer dispatches on producer ID. There is still no Generic Recipe
+producer or production consumer, and a post-loop function tail must not be
+inserted into `LoopRecipeV1`.
 
 ## LoopTrue S2 producer
 

@@ -5,7 +5,7 @@ use super::ids::{
 };
 use super::join_sig::{LoopJoinEdgeRoleV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1};
 use super::normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
-use super::route_id::LoopRouteId;
+use super::producer_id::LoopRecipeProducerIdV1;
 use super::schema::{
     LoopExitKindV1, LoopRecipeArtifactV1, LoopRecipeBlockV1, LoopRecipeExitV1, LoopRecipeItemRowV1,
     LoopRecipeItemV1, LoopRecipeSourceOwnerV1, LoopSourcePathStepV1, LoopValueClassV1,
@@ -149,7 +149,8 @@ fn accum_nested_golden_roundtrips_and_normalizes() {
 fn semantic_normalization_is_independent_of_route_provenance() {
     let original = golden();
     let mut alternate = original.clone();
-    alternate.provenance.producer_route = LoopRouteId::GenericLoopV1;
+    alternate.provenance =
+        super::schema::LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::GenericG0);
 
     let left = LoopRecipeVerifierV1::verify_artifact(original).expect("left verifies");
     let right = LoopRecipeVerifierV1::verify_artifact(alternate).expect("right verifies");
@@ -183,7 +184,8 @@ fn semantic_normalization_is_independent_of_source_binding() {
 fn source_bound_normalization_excludes_route_and_includes_source() {
     let original = golden();
     let mut alternate_route = original.clone();
-    alternate_route.provenance.producer_route = LoopRouteId::GenericLoopV1;
+    alternate_route.provenance =
+        super::schema::LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::GenericG0);
     let mut alternate_source = original.clone();
     alternate_source.source_binding.owner = LoopRecipeSourceOwnerV1::function_body(0, 7);
 
@@ -201,6 +203,23 @@ fn source_bound_normalization_excludes_route_and_includes_source() {
 
     assert_eq!(original_json, route_json);
     assert_ne!(original_json, source_json);
+}
+
+#[test]
+fn legacy_producer_route_wire_is_not_a_v1_alias() {
+    let mut value: serde_json::Value =
+        serde_json::from_str(ACCUM_NESTED_GOLDEN).expect("golden value");
+    let provenance = value["provenance"]
+        .as_object_mut()
+        .expect("provenance object");
+    let producer_id = provenance.remove("producer_id").expect("producer id field");
+    provenance.insert("producer_route".to_owned(), producer_id);
+    let json = serde_json::to_string(&value).expect("legacy fixture encodes");
+
+    assert!(matches!(
+        LoopRecipeNormalizerV1::decode_and_verify(&json),
+        Err(LoopRecipeDecodeErrorV1::Json(_))
+    ));
 }
 
 #[test]

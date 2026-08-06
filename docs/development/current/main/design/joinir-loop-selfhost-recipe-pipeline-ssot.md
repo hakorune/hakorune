@@ -375,8 +375,9 @@ GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0
      child-entry read immediately before L1. Current JoinSig cannot yet prove
      this exact recurrence: common nested-carrier shadow, logical Header/After
      binding identity, source-bound relation schema/verifier, and
-     route-independent producer provenance precede the Generic Recipe
-     producer; only S4 issues real G0 keys/relations. The post-loop
+     route-independent `producer_id: LoopRecipeProducerIdV1` provenance
+     precedes the Generic Recipe producer; only S4 issues real G0 keys/relations.
+     Legacy `LoopRouteId` parity stays in an external migration receipt. The post-loop
      `return j` remains a separate completion envelope consuming a common
      `VerifiedLoopAfterBinding`; it is never encoded as an inner Loop exit.
      G0 selection has a closed five-row overlap/admission window; the rows are

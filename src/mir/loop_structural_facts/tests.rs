@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_recipe_contract::{
     verify_artifact_for_test, LoopNodeSourceBindingV1, LoopRecipeArtifactV1,
-    LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1, LoopRecipeV1,
-    LoopRecipeVerifierV1, LoopSourcePathStepV1, LoopSourcePathV1, VerifiedLoopRecipeV1,
+    LoopRecipeProducerIdV1, LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1,
+    LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeVerifierV1, LoopSourcePathStepV1,
+    LoopSourcePathV1, VerifiedLoopRecipeV1,
 };
 use crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame;
 use crate::mir::resolved_semantics::{
@@ -15,9 +15,9 @@ use crate::mir::resolved_semantics::{
 
 use super::{
     bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1,
-    issue_selected_loop_recipe_demand_v1, verified_loop_structural_facts_for_test_with_frame,
-    DirectAccumSingletonObservationRejectV1, LoopRootSourceBindingRejectV1,
-    LoopSourceForestBindingRejectV1, SelectedLoopDemandRejectV1, projection_for_test,
+    issue_selected_loop_recipe_demand_v1, projection_for_test,
+    verified_loop_structural_facts_for_test_with_frame, DirectAccumSingletonObservationRejectV1,
+    LoopRootSourceBindingRejectV1, LoopSourceForestBindingRejectV1, SelectedLoopDemandRejectV1,
 };
 
 fn int(value: i64) -> ASTNode {
@@ -234,9 +234,7 @@ fn resolved_adapter_to_structurally_verified_artifact_is_end_to_end_green() {
     .unwrap();
     let source_binding = local_source.into_root_claim(&recipe);
     let artifact = LoopRecipeArtifactV1::new(
-        LoopRecipeProvenanceV1 {
-            producer_route: LoopRouteId::LoopSimpleWhile,
-        },
+        LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::GenericG0),
         source_binding,
         root_recipe(),
     );
@@ -291,11 +289,7 @@ fn nested_loop_preserves_loop_body_root_and_item_identity() {
 
 #[test]
 fn nested_source_forest_projects_to_verified_artifact_binding() {
-    let tree = function(vec![
-        int(0),
-        int(1),
-        loop_stmt(vec![loop_stmt(Vec::new())]),
-    ]);
+    let tree = function(vec![int(0), int(1), loop_stmt(vec![loop_stmt(Vec::new())])]);
     let product = resolve_function(&tree);
     let root = stmt(vec![SourcePathSegmentV1::Body(2)]);
     let artifact = nested_artifact();
@@ -327,9 +321,7 @@ fn nested_source_forest_projects_to_verified_artifact_binding() {
         .into_source_binding(&recipe)
         .expect("recipe/source parent correspondence");
     let rebound = LoopRecipeArtifactV1::new(
-        LoopRecipeProvenanceV1 {
-            producer_route: LoopRouteId::AccumConstLoop,
-        },
+        LoopRecipeProvenanceV1::new(LoopRecipeProducerIdV1::DirectAccumV1),
         source_binding,
         artifact.recipe().clone(),
     );
@@ -370,10 +362,12 @@ fn nested_source_binding_rejects_recipe_coverage_mismatch() {
 
     assert_eq!(
         projection.into_source_binding(&recipe),
-        Err(LoopSourceForestBindingRejectV1::RecipeLoopCoverageMismatch {
-            expected: 2,
-            found: 1,
-        })
+        Err(
+            LoopSourceForestBindingRejectV1::RecipeLoopCoverageMismatch {
+                expected: 2,
+                found: 1,
+            }
+        )
     );
 }
 

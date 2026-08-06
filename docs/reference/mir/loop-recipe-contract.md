@@ -1,6 +1,7 @@
 # Portable Loop Recipe Contract
 
-Decision: accepted — `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`.
+Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
+`JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 
 Status: caller-zero logical reference. This page documents the portable
 Recipe/JoinSig contract and the landed LoopTrue S2 producer; it does not
@@ -21,6 +22,18 @@ and recursive dataflow/elaborator respectively. The existing
 projection has one owner in `join_sig/port.rs`. This is a behavior-neutral
 module split: the public-in-crate API and Recipe/JoinSig goldens are unchanged,
 and no selector, physical lowering, or production caller is added.
+
+Reference receipt — `LOOP-RECIPE-PRODUCER-ID-S0` (2026-08-06): portable
+provenance now uses `producer_id: LoopRecipeProducerIdV1`; the old
+`producer_route` wire key is rejected instead of being accepted as a V1 alias.
+The current portable profiles use `direct_accum_v1`,
+`loop_true_break_continue_v1`, and `nested_predicate_v1`; `generic_g0` is
+reserved for the later canonical Generic producer. `LoopRouteId` remains a
+legacy scheduler/policy/registry identity and is not imported by the portable
+schema or producers. Test-only `LegacyRouteParityReceiptV1` records the three
+profile mappings and marks legacy Generic V0/V1 as `legacy_only`. No selector,
+registry, route-order, verifier dispatch, physicalizer dispatch, or production
+caller changed.
 
 ## Contract boundary
 
