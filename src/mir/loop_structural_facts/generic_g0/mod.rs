@@ -6,6 +6,9 @@
 
 use std::collections::BTreeSet;
 
+use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
+use crate::mir::numeric_substrate::generic_g0::VerifiedGenericNumericFactLeaseG0;
+use crate::mir::resolved_semantics::generic_g0::VerifiedGenericSourceTypeInventoryG0;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOriginV1, LoopExecutionFrameKeyV1, SemanticOwnerSourceKindV1,
     SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1, VerifiedResolvedLoopSourceForestV1,
@@ -323,6 +326,92 @@ pub(crate) fn issue_generic_g0_structural_facts_v1(
         coverage: observation.coverage,
         root_frame,
     })
+}
+
+/// Cumulative move-only source lease for S0B.
+///
+/// The bundle belongs to the neutral structural-facts boundary so policy and
+/// later source observers do not depend on compiler projection modules.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedGenericSourceBundleG0 {
+    structural: VerifiedGenericStructuralFactsG0,
+    source_types: VerifiedGenericSourceTypeInventoryG0,
+}
+
+impl VerifiedGenericSourceBundleG0 {
+    pub(crate) fn new(
+        structural: VerifiedGenericStructuralFactsG0,
+        source_types: VerifiedGenericSourceTypeInventoryG0,
+    ) -> Self {
+        Self {
+            structural,
+            source_types,
+        }
+    }
+
+    pub(crate) fn structural(&self) -> &VerifiedGenericStructuralFactsG0 {
+        &self.structural
+    }
+
+    pub(crate) fn source_types(&self) -> &VerifiedGenericSourceTypeInventoryG0 {
+        &self.source_types
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedGenericStructuralFactsG0,
+        VerifiedGenericSourceTypeInventoryG0,
+    ) {
+        (self.structural, self.source_types)
+    }
+}
+
+/// S0C's cumulative move-only source/type/numeric/return capability.
+///
+/// The compiler projector issues this product, but it cannot own or
+/// reconstruct it after the boundary. Consumers move the exact lease onward.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedGenericTypedSourceBundleG0 {
+    source: VerifiedGenericSourceBundleG0,
+    numeric: VerifiedGenericNumericFactLeaseG0,
+    return_abi: ExactTrivialReturnAbiV1,
+}
+
+impl VerifiedGenericTypedSourceBundleG0 {
+    pub(crate) fn new(
+        source: VerifiedGenericSourceBundleG0,
+        numeric: VerifiedGenericNumericFactLeaseG0,
+        return_abi: ExactTrivialReturnAbiV1,
+    ) -> Self {
+        Self {
+            source,
+            numeric,
+            return_abi,
+        }
+    }
+
+    pub(crate) fn source(&self) -> &VerifiedGenericSourceBundleG0 {
+        &self.source
+    }
+
+    pub(crate) fn numeric(&self) -> &VerifiedGenericNumericFactLeaseG0 {
+        &self.numeric
+    }
+
+    pub(crate) const fn return_abi(&self) -> ExactTrivialReturnAbiV1 {
+        self.return_abi
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedGenericSourceBundleG0,
+        VerifiedGenericNumericFactLeaseG0,
+        ExactTrivialReturnAbiV1,
+    ) {
+        (self.source, self.numeric, self.return_abi)
+    }
 }
 
 fn expected_coverage(observation: &GenericG0StructuralObservationV1) -> BTreeSet<SourceNodeSiteV1> {

@@ -54,22 +54,24 @@ sites plus the four S0A literal role/context rows. The sole AST-free issuer in
 `src/mir/resolved_semantics/generic_g0/` validates parameter binding origin,
 raw type spelling, annotation presence, literal cardinality, and owner
 relations, then moves the result with S0A into
-`VerifiedGenericSourceBundleG0`.
+`loop_structural_facts::generic_g0::VerifiedGenericSourceBundleG0`. The
+compiler projector issues this move-only product but does not own a second
+aggregate wrapper.
 
 Focused natural-source tests cover explicit `i64` headers, missing parameter
 and result annotations, and a known non-`i64` parameter. The shared replacement
 guard covers the recursive semantic directory, source/test line cap, and
 caller-zero issuer boundary. S0B does not infer types, retag literals, choose
 numeric representation, issue policy/Recipe keys, or enter Builder/MIR/
-production; S0C and S1 are now landed; the four competing-profile observations
-are next.
+production; S0C and the owner refactor are now landed; Generic row
+normalization and the remaining competing-profile observations are next.
 
 ## S0C implementation receipt
 
 `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` is now landed as a disconnected,
 caller-zero numeric representation witness. The compiler adapter consumes the
 move-only S0B bundle once, maps its four role rows to an AST-free scalar view,
-and retains the original source bundle while adding one
+and retains the original neutral source bundle while adding one
 `VerifiedGenericNumericFactLeaseG0` plus the existing exact `i64` return ABI.
 The sole numeric issuer is `src/mir/numeric_substrate/generic_g0/`; it owns
 target/signed-width/range classification and imports no compiler, resolver,
@@ -80,7 +82,7 @@ Unresolved/Rejected evidence. Focused natural and substrate tests plus the
 shared caller-zero/recursive line guard are green. S0C does not prove
 positivity, recurrence progression, candidate selection, Recipe, physical
 lowering, or production support; the landed S1 policy observation consumes
-this sealed product, and the four competing-profile observations are next.
+this sealed product, and Generic row normalization is next.
 
 ## S1 candidate-policy implementation receipt
 

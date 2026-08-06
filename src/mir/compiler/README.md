@@ -44,7 +44,9 @@ parameter `BindingRefV1` rows, raw declared type spelling, and the four S0A
 literal role/context sites. The AST-free issuer lives only in
 `resolved_semantics/generic_g0/`; the compiler projection is the sole place
 that opens the source AST. It emits `VerifiedGenericSourceBundleG0` by moving
-the already-sealed S0A product together with the S0B inventory.
+the already-sealed S0A product together with the S0B inventory. The bundle's
+move-only owner is `loop_structural_facts::generic_g0`; this compiler module
+does not retain a second aggregate authority.
 
 Missing annotations are `Unresolved`; known non-`i64`, foreign, duplicate, or
 non-integer source shapes are rejected. S0B does not infer a return type,

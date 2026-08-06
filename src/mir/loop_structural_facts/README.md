@@ -15,6 +15,13 @@ the later Generic rows explicitly open their handoff.
 This module is the neutral, Builder-free boundary from sealed resolved Loop
 identity to the portable Loop recipe source binding.
 
+The Generic G0 S0B/S0C cumulative products
+(`VerifiedGenericSourceBundleG0` and `VerifiedGenericTypedSourceBundleG0`)
+are owned here as move-only capabilities. Compiler projection modules issue
+them, but policy and later source observers consume the neutral products
+without importing compiler aggregate types. This behavior-neutral owner move
+does not open Generic selection, Recipe, Builder/MIR, or production callers.
+
 Authority flows in one direction:
 
 ```text

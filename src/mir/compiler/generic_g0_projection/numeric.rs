@@ -5,6 +5,9 @@
 //! lease; no source row is reconstructed or cloned.
 
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
+use crate::mir::loop_structural_facts::generic_g0::{
+    VerifiedGenericSourceBundleG0, VerifiedGenericTypedSourceBundleG0,
+};
 use crate::mir::numeric_substrate::generic_g0::{
     issue_generic_g0_numeric_fact_lease_v1, GenericG0NumericIssueV1,
     GenericG0NumericLiteralInputV1, GenericG0NumericLiteralRoleV1,
@@ -15,39 +18,6 @@ use crate::mir::numeric_substrate::NumericTarget;
 use crate::mir::resolved_semantics::generic_g0::{
     GenericG0LiteralRoleV1, GenericG0LiteralSyntaxV1,
 };
-
-use super::VerifiedGenericSourceBundleG0;
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedGenericTypedSourceBundleG0 {
-    source: VerifiedGenericSourceBundleG0,
-    numeric: VerifiedGenericNumericFactLeaseG0,
-    return_abi: ExactTrivialReturnAbiV1,
-}
-
-impl VerifiedGenericTypedSourceBundleG0 {
-    pub(crate) fn source(&self) -> &VerifiedGenericSourceBundleG0 {
-        &self.source
-    }
-
-    pub(crate) fn numeric(&self) -> &VerifiedGenericNumericFactLeaseG0 {
-        &self.numeric
-    }
-
-    pub(crate) const fn return_abi(&self) -> ExactTrivialReturnAbiV1 {
-        self.return_abi
-    }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        VerifiedGenericSourceBundleG0,
-        VerifiedGenericNumericFactLeaseG0,
-        ExactTrivialReturnAbiV1,
-    ) {
-        (self.source, self.numeric, self.return_abi)
-    }
-}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum GenericG0NumericProjectionRejectV1 {
@@ -73,11 +43,9 @@ pub(crate) fn issue_generic_g0_typed_source_bundle_v1(
     let view = neutral_numeric_view(&bundle, target)?;
     let numeric = issue_generic_g0_numeric_fact_lease_v1(view)
         .map_err(GenericG0NumericProjectionRejectV1::Numeric)?;
-    Ok(VerifiedGenericTypedSourceBundleG0 {
-        source: bundle,
-        numeric,
-        return_abi,
-    })
+    Ok(VerifiedGenericTypedSourceBundleG0::new(
+        bundle, numeric, return_abi,
+    ))
 }
 
 fn neutral_numeric_view<'a>(

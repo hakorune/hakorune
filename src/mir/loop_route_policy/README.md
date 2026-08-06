@@ -38,6 +38,9 @@ context and emits one move-only `Candidate`, typed `Unresolved`, or typed
 admitted. It does not repeat S0A BindingRef checks, select a family winner,
 issue Recipe keys, call Builder/MIR, retry, or fallback. Its production caller
 is intentionally zero until the later admission-window/selector rows.
+The S0C bundle is owned by `loop_structural_facts::generic_g0`; this policy
+module consumes the neutral capability rather than a compiler projection
+aggregate.
 
 The migration fixture adapter is test-only. Its M3-F parity submodule may invoke
 the legacy execution witness as an oracle, but it has no production caller; the

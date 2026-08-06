@@ -28,9 +28,10 @@ use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::LocatedStmtV1;
 
 mod numeric;
-pub(crate) use numeric::{
-    issue_generic_g0_typed_source_bundle_v1, VerifiedGenericTypedSourceBundleG0,
+pub(crate) use crate::mir::loop_structural_facts::generic_g0::{
+    VerifiedGenericSourceBundleG0, VerifiedGenericTypedSourceBundleG0,
 };
+pub(crate) use numeric::issue_generic_g0_typed_source_bundle_v1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericG0ProjectionRejectV1 {
@@ -59,33 +60,6 @@ pub(crate) enum GenericG0SourceTypeProjectionRejectV1 {
     StructuralRelation,
 }
 
-/// Cumulative move-only source lease for S0B. S0C consumes this value; it may
-/// not reconstruct either component from a name or source path.
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedGenericSourceBundleG0 {
-    structural: VerifiedGenericStructuralFactsG0,
-    source_types: VerifiedGenericSourceTypeInventoryG0,
-}
-
-impl VerifiedGenericSourceBundleG0 {
-    pub(crate) fn structural(&self) -> &VerifiedGenericStructuralFactsG0 {
-        &self.structural
-    }
-
-    pub(crate) fn source_types(&self) -> &VerifiedGenericSourceTypeInventoryG0 {
-        &self.source_types
-    }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        VerifiedGenericStructuralFactsG0,
-        VerifiedGenericSourceTypeInventoryG0,
-    ) {
-        (self.structural, self.source_types)
-    }
-}
-
 pub(crate) fn issue_generic_g0_source_type_bundle_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
 ) -> Result<VerifiedGenericSourceBundleG0, GenericG0SourceTypeProjectionRejectV1> {
@@ -97,10 +71,7 @@ pub(crate) fn issue_generic_g0_source_type_bundle_v1(
     if !matches_structural_relations(&structural, &source_types) {
         return Err(GenericG0SourceTypeProjectionRejectV1::StructuralRelation);
     }
-    Ok(VerifiedGenericSourceBundleG0 {
-        structural,
-        source_types,
-    })
+    Ok(VerifiedGenericSourceBundleG0::new(structural, source_types))
 }
 
 pub(crate) fn issue_generic_g0_structural_facts_v1(

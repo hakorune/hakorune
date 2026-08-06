@@ -2,7 +2,7 @@
 
 Status: `accepted and taskized; production activation remains 0`
 
-Current row: `GENERIC-G0-CANDIDATE-S1`
+Current row: `GENERIC-G0-ROW-NORMALIZATION-S1`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -282,11 +282,12 @@ VerifiedGenericStructuralFactsG0
   -> VerifiedGenericSourceBundleG0
 ```
 
-The aggregate wrapper may live in the compiler projection module, but there is
-only one S0B inventory issuer. No `Clone`, name-based reconstruction, retry,
-reissue, synthetic AST retagging, Recipe, selector, Builder, MIR, or production
-caller is permitted. A declined outcome may move a sealed diagnostic lease to
-the caller, but it cannot be retried through a second authority.
+The aggregate wrapper is owned by the neutral structural-facts module while
+the compiler projection is only its issuer. There is only one S0B inventory
+issuer. No `Clone`, name-based reconstruction, retry, reissue, synthetic AST
+retagging, Recipe, selector, Builder, MIR, or production caller is permitted.
+A declined outcome may move a sealed diagnostic lease to the caller, but it
+cannot be retried through a second authority.
 
 ### S0C numeric representation contract (accepted 2026-08-06)
 
@@ -328,6 +329,13 @@ by retagging or implicit conversion. S0B owns missing/opaque source context,
 so a natural S0C input cannot manufacture a missing-context row. The neutral
 issuer may still report `Unresolved` for an opaque context/target in isolated
 substrate boundary tests; those tests are not natural-source evidence.
+
+S0C neutral-owner receipt (2026-08-06): the cumulative
+`VerifiedGenericSourceBundleG0` and `VerifiedGenericTypedSourceBundleG0`
+products now live in `loop_structural_facts::generic_g0`. Compiler projection
+files only issue these products, and policy consumes the neutral capability.
+This behavior-neutral Refactor Series changes no accepted shape, caller,
+selector, Recipe, Builder, MIR, or production authority.
 
 S0C proves representation, exact target, range, and result ABI only. Zero,
 positivity, `Less`, and positive `Add` progression remain S1 policy. Unknown
@@ -717,6 +725,11 @@ GENERIC-G0-SOURCE-TYPE-S0B
 GENERIC-G0-NUMERIC-REPRESENTATION-S0C
   compiler adapter + neutral numeric_substrate issuer seal one typed S0C lease; public aggregate remains one move-only S0B+numeric product
 
+LOOP-GENERIC-SOURCE-BUNDLE-OWNER-R0
+  closed 2026-08-06 as a behavior-neutral Refactor Series; the move-only
+  S0B/S0C aggregate owner is neutral structural facts and compiler projection
+  remains issuer-only
+
 LOOP-JOINSIG-MODULE-SPLIT-R0
   behavior-neutral Refactor Series before adding nested logical authority
 
@@ -838,6 +851,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `GENERIC-G0-STRUCTURE-S0A` | natural `ResolvedFunctionLoweringInputV1` -> move-only `VerifiedGenericStructuralFactsG0` | landed: exact positive plus reordered/extra/missing/wrong-binding/foreign-frame negatives; full source coverage; AST mutation zero; focused test and shared guard green | no type, numeric, policy, candidate, selector, Recipe, or production claim |
 | `GENERIC-G0-SOURCE-TYPE-S0B` | S0A + callable source/header views -> inventory wrapped with S0A as `VerifiedGenericSourceBundleG0` | exact parameter/result/literal/context sites; missing/non-i64/foreign/coverage rejects | no literal representation, progression, or executable-return authority |
 | `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` | S0B bundle + explicit target -> one `VerifiedGenericTypedSourceBundleG0` containing one `VerifiedGenericNumericFactLeaseG0` | natural plain contextual literals prove exact i64 representation/range and return ABI; typed suffixes are out-of-profile Rejected; neutral opaque/range boundaries preserve Unresolved/Rejected | do not duplicate numeric substrate, import compiler types downward, retry a consumed bundle, or retag test AST |
+| `LOOP-GENERIC-SOURCE-BUNDLE-OWNER-R0` | compiler S0B/S0C issuer -> neutral structural-facts move-only aggregate owner | landed behavior-neutral relocation; Generic tests, cargo check, pointer/line guards green | no accepted-shape, policy, selector, Recipe, Builder/MIR, or production change |
 | `LOOP-JOINSIG-MODULE-SPLIT-R0` | current `join_sig/mod.rs` facade -> model/visibility/port/flow child modules | existing Recipe/JoinSig goldens byte-for-byte stable; all commits build; no acceptance delta | no nested-shadow or After feature in this series |
 | `LOOP-RECIPE-PRODUCER-ID-S0` | current portable producers -> `LoopRecipeProducerIdV1` | `producer_id` wire field; old `producer_route` rejected; current producers/fixtures migrate; route parity is an external test-only receipt | no selector, registry, route-order, or production-caller change |
 | `LOOP-JOINSIG-NESTED-SHADOW-S0` | verified carriers + ancestry -> one visible payload per binding | landed: C1/C2 same-binding, three-level nearest-wins, sibling isolation, and verifier-owned unknown/duplicate negatives; 64 focused tests and shared/pointer guards green | no PHI, After, or Generic special case |
@@ -889,11 +903,12 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 
 ```text
 src/mir/compiler/generic_g0_projection/
-  thin source navigation plus move-only S0A/S0B/S0C aggregate wrappers;
-  no structure/type/numeric/policy decision
+  thin source navigation and S0A/S0B/S0C issuing adapters;
+  no aggregate ownership, structure/type/numeric/policy decision
 
 src/mir/loop_structural_facts/generic_g0/
-  sole S0A structure verifier/issuer; structural product only
+  sole S0A structure verifier/issuer and move-only S0B/S0C aggregate owner;
+  no source navigation or policy decision
 
 src/mir/resolved_semantics/generic_g0/
   sole S0B source-type verifier/issuer; header/literal/context inventory only

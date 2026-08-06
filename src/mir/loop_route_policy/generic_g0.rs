@@ -5,9 +5,8 @@
 //! observation or a typed terminal disposition. It does not select a family,
 //! issue Recipe keys, inspect AST, touch Builder/MIR, retry, or fallback.
 
-use crate::mir::compiler::generic_g0_projection::VerifiedGenericTypedSourceBundleG0;
 use crate::mir::loop_structural_facts::generic_g0::{
-    GenericG0ConditionOperatorV1, GenericG0UpdateOperatorV1,
+    GenericG0ConditionOperatorV1, GenericG0UpdateOperatorV1, VerifiedGenericTypedSourceBundleG0,
 };
 use crate::mir::numeric_substrate::generic_g0::GenericG0NumericLiteralRoleV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
