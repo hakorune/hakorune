@@ -31,8 +31,8 @@ Related:
   possible
 - current loop frontier: common admission assembler S1 and the caller-zero
   selector S2 are landed. The shallow `GENERIC-SELECTION-OPEN-D0` gate is
-  accepted/taskized; its I0/R0 cell issues one resolver-branded candidate
-  envelope from the natural G0 fixture. Production selection, Recipe handoff,
+  closed through its I0/R0 resolver-branded candidate envelope. The next
+  boundary is `GENERIC-SELECTION-POLICY-HANDOFF-D0`. Production selection, Recipe handoff,
   physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
@@ -103,8 +103,9 @@ Related:
   AST/Builder-derived, so a new resolver-issued AST-free semantic demand and
   one-shot source lease are required. D4-S4-S0 remains closed as a bounded
   NoSafeSlice audit after the cfg(test)-only two-role lease witness:
-  no real Selected(Generic), resolver AST-free candidate envelope, one-shot
-  BindingRef lease, or Generic demand exists. D4-S4-S0-D0 is now closed as a
+  no real Selected(Generic), Generic demand, or one-shot selected policy
+  capability exists; the resolver AST-free candidate envelope and one-shot
+  BindingRef lease witness are now closed. D4-S4-S0-D0 is now closed as a
   worker-reviewed design: resolver SourceLease, AST-free shape/candidate
   envelope, policy observation, selector, Generic demand, Recipe producer, and
   Binding SSA have separate issuers. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now
@@ -146,9 +147,10 @@ Related:
   its caller-zero implementation are now closed: `family_selector.rs` covers
   five typed candidates, `Overlap`, and `OutOfWindow` with retained lease/row
   evidence. The finite shallow order and atomic legacy-retirement boundary
-  live in the dedicated Generic SSOT. The next boundary is the existing
-  `GENERIC-SELECTION-OPEN-D0` shallow design gate for a real resolver-issued
-  candidate envelope; production and public reference activation remain zero.
+  live in the dedicated Generic SSOT. The shallow
+  `GENERIC-SELECTION-OPEN-D0-I0-R0` candidate-envelope witness is now closed;
+  the next boundary is policy/selector handoff. Production and public
+  reference activation remain zero.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

@@ -374,3 +374,40 @@ guard_loop_family_selector_contract() {
   rg -n -F 'window.into_parts()' "$selector" >/dev/null ||
     guard_fail "$tag" "family selector must consume its window by value"
 }
+
+guard_generic_candidate_envelope_contract() {
+  local root_dir="$1"
+  local tag="$2"
+  local parent="$root_dir/src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tests.rs"
+  local candidate="$root_dir/src/mir/resolved_semantics/generic_resolved_carrier_source_lease/candidate_envelope_witness.rs"
+
+  guard_require_files "$tag" "$parent" "$candidate"
+  for file in "$parent" "$candidate"; do
+    local lines
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    (( lines < 800 )) || guard_fail "$tag" "Generic candidate envelope file exceeds boundary: $file"
+  done
+  rg -n -F 'mod candidate_envelope_witness;' "$parent" >/dev/null ||
+    guard_fail "$tag" "candidate envelope module is not mounted from the test-only lease"
+  [[ "$(rg -o -F '#[test]' "$candidate" | wc -l | tr -d '[:space:]')" == "3" ]] ||
+    guard_fail "$tag" "candidate envelope focused test count drift"
+  for required in VerifiedGenericCandidateEnvelopeV1 VerifiedGenericBodyEffectProofV1 \
+    VerifiedGenericCoverageExitProofV1 issue_generic_candidate_envelope_v1 \
+    GenericBodyEffectKindV1 GenericCoverageExitKindV1; do
+    rg -n -F "$required" "$candidate" >/dev/null ||
+      guard_fail "$tag" "candidate envelope anchor missing: $required"
+  done
+  for forbidden in loop_route_policy family_selector generic_g0 loop_recipe_contract \
+    RecipeBody LoopRecipeV1 JoinSig BindingKey MirBuilder ValueId BasicBlockId \
+    LoopRouteId Retry fallback NoCandidate 'crate::mir::builder'; do
+    if rg -n -F "$forbidden" "$candidate" >/dev/null; then
+      guard_fail "$tag" "candidate envelope crossed forbidden authority: $forbidden"
+    fi
+  done
+  if rg -l -F 'issue_generic_candidate_envelope_v1(' "$root_dir/src/mir" |
+    awk -v c="$candidate" '$0 != c && $0 != "" { found=1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "candidate envelope acquired a production caller"
+  fi
+}

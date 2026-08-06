@@ -16,6 +16,8 @@ use super::{
 
 #[path = "generic_resolved_carrier_source_lease/carrier_proof_witness.rs"]
 mod carrier_proof_witness;
+#[path = "generic_resolved_carrier_source_lease/candidate_envelope_witness.rs"]
+mod candidate_envelope_witness;
 #[path = "generic_resolved_carrier_source_lease/numeric_policy_projection_v6.rs"]
 mod numeric_policy_projection_v6;
 #[path = "generic_resolved_carrier_source_lease/numeric_source_receipt_v4.rs"]
@@ -445,7 +447,7 @@ function generic_both_shadowing(i, j) {
 }
 "#;
 
-    fn parse_function(source: &str) -> ASTNode {
+    pub(crate) fn parse_function(source: &str) -> ASTNode {
         let root = NyashParser::parse_from_string(source).expect("lease fixture parses");
         let ASTNode::Program { statements, .. } = root else {
             panic!("lease fixture must be a Program")

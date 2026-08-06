@@ -580,7 +580,8 @@ selector; it consumes no resolver coordinates or legacy policy fields.
 D4-S4-D0 fixes the next boundary: a future Generic selected capability must
 retain a resolver source lease and role-level BindingRefs, while current
 Generic labels/facts cannot be re-resolved into Recipe. D4-S4-S0 is closed as
-`NoSafeSlice`; no selected callsite or Generic demand exists. D4-S4-S0-D0
+`NoSafeSlice`; the shallow cfg(test)-only candidate-envelope witness now
+exists, but no selected callsite or Generic demand exists. D4-S4-S0-D0
 fixes this resolver as the sole source-lease/BindingRef issuer, with the
 future shape projector consuming that brand and returning AST-free proof.
 GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now closed as a docs-only typed

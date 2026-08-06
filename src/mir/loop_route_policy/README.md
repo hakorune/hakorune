@@ -221,8 +221,9 @@ consumer is independently verified.
 D4-S4-D0 records that a future `Selected(Generic)` must retain a real
 resolver source lease, candidate proof, and `BindingRef` roles; this selector
 must not feed a Recipe from its current marker-only outcome. D4-S4-S0 is now
-closed as `NoSafeSlice`: no selected callsite or resolver Generic candidate
-envelope exists. D4-S4-S0-D0 closes the future move-only lease -> shape ->
+closed as `NoSafeSlice`: the shallow cfg(test)-only Generic candidate envelope
+exists, but no selected callsite or Generic demand exists. D4-S4-S0-D0 closes
+the future move-only lease -> shape ->
 observation -> selector -> demand chain; this policy module only moves opaque
 capabilities and never issues keys. GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 is now
 closed as the typed shape contract, and the bounded cfg(test)-only
@@ -251,11 +252,11 @@ test-only and is not promoted.
 Three focused selector tests cover all five candidate variants, retained
 `OutOfWindow` evidence, and overlap retention. The shared selector guard checks
 the caller-zero boundary and the <800-line source/test limit. This is a
-caller-zero semantic product only; the next shallow gate is the existing
-`GENERIC-SELECTION-OPEN-D0` candidate-envelope design is accepted and its
-`GENERIC-SELECTION-OPEN-D0-I0-R0` caller-zero witness is taskized. Recipe
-handoff, physicalization, production cutover, and legacy deletion remain
-separate rows.
+caller-zero semantic product only. The bounded
+`GENERIC-SELECTION-OPEN-D0-I0-R0` candidate-envelope witness is closed; the
+next shallow gate is `GENERIC-SELECTION-POLICY-HANDOFF-D0`. Recipe handoff,
+physicalization, production cutover, and legacy deletion remain separate
+rows.
 The implementation commit updates this README, the loop SSOT, reference
 matrix, workstream, and current mirrors together as the required
 post-implementation reference receipt.

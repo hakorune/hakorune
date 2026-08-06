@@ -243,8 +243,9 @@ test-only neutral selector; all nine rows remain unresolved and this planner
 does not become the family selector. D4-S4-D0 further rejects current
 GenericLoop facts/RecipeBody as portable Recipe inputs: a resolver-issued
 AST-free Generic demand and real Selected(Generic) proof are required before
-any producer witness. D4-S4-S0 is now closed as `NoSafeSlice`; no selected
-callsite or candidate envelope exists. D4-S4-S0-D0 closes the future
+any producer witness. D4-S4-S0 is now closed as `NoSafeSlice`; the shallow
+cfg(test)-only candidate envelope exists, but no selected callsite or Generic
+demand exists. D4-S4-S0-D0 closes the future
 move-only source lease -> AST-free shape/candidate -> observation -> selector
 -> demand chain, with this Builder planner remaining outside it.
 GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 closes the typed shape contract. The bounded

@@ -994,6 +994,6 @@ The cfg(test)-only policy witness preserves substrate provenance/target/map and 
 Worker review fixes a separate candidate handoff; policy Unresolved/Rejected never reaches selector, and the existing D4-S3 family selector stays separate.
 ## D4-EVIDENCE-EXIT0 deep numeric evidence exit
 All current receipts/negative matrices are closed with production caller zero; no more D4 suffixes unless a new design stop supersedes this gate.
-## GENERIC-SELECTION-OPEN-D0 shallow promotion design stop
-Worker audit: retain D4-S4-S0 as `NoSafeSlice`; no deeper D4 suffix. Existing gate may add only a cfg(test) candidate-envelope witness with real resolver carrier/condition/step/body-effect/coverage/exit proof and exact lease/BindingRefs.
-One natural fixture is required; no production/demand/Recipe/Builder/MIR, AST/name re-resolution, retry/fallback, or `NoCandidate` is allowed.
+## GENERIC-SELECTION-OPEN-D0-I0-R0 closeout
+The cfg(test)-only resolver-branded candidate envelope is closed with three focused tests and no production/selector/demand/Recipe/Builder/MIR caller; D4-S4-S0 remains `NoSafeSlice`.
+The next shallow design boundary is `GENERIC-SELECTION-POLICY-HANDOFF-D0`; require one co-sealed typed G0 handoff, foreign/role/return-binding negatives, and no AST re-read or receipt pairing.
