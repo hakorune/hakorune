@@ -20,6 +20,7 @@ mod enum_match_demand;
 mod enum_variant_demand;
 mod function_root;
 mod function_view;
+pub(crate) mod generic_g0;
 mod ids;
 mod if_region;
 mod loop_region;
@@ -156,8 +157,8 @@ pub(in crate::mir) use source_projection::{
 };
 pub(crate) use source_site::SourcePathV1;
 pub use source_site::{
-    FunctionOriginV1, OwnedExprSiteV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    FunctionOriginV1, OwnedExprSiteV1, OwnedHeaderSiteV1, ResolvedExitSiteV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceHeaderSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 pub use source_site_inventory::{
     ResolvedSourceSiteInventoryVerificationErrorV1, VerifiedResolvedSourceSiteInventoryV1,

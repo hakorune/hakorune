@@ -18,6 +18,21 @@ only `ShadowResolvedFunctionV0` for tests and deterministic inspection. It
 cannot populate the canonical draft, allocate `BindingId`, plan control flow,
 or lower MIR.
 
+## Generic G0 S0B source-type inventory
+
+`generic_g0/` is the sole AST-free issuer for the Generic G0 S0B source-type
+inventory. The compiler projector supplies one natural-source observation;
+this module verifies and seals owner-branded header sites, parameter binding
+identity, raw parameter/result spelling, and the four literal role/context
+rows. It never opens AST, resolves names, infers a missing return annotation,
+chooses numeric policy, or emits Recipe/Builder/MIR data.
+
+The move-only `VerifiedGenericSourceTypeInventoryG0` is consumed exactly once
+by the compiler-side `VerifiedGenericSourceBundleG0`. Missing type annotations
+remain `Unresolved`; known non-`i64`, foreign, duplicate, and non-integer
+shapes are rejected. The S0B semantic directory is recursively line-guarded
+and remains caller-zero until a later authorized row.
+
 ## OF0/UP0 owner-forest boundary
 
 `VerifiedSemanticOwnerForestV1` is the first cross-owner authority. One

@@ -218,6 +218,38 @@ pub struct OwnedExprSiteV1 {
     site: SourceExprSiteV1,
 }
 
+/// Exact declaration-header provenance relative to one function root.
+///
+/// Header annotations are not body-relative expression sites. Keeping them in
+/// a separate vocabulary prevents a return annotation from being fabricated
+/// as a body path or confused with a Program declaration ordinal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum SourceHeaderSiteV1 {
+    Parameter { index: u32 },
+    ReturnAnnotation,
+}
+
+/// Header provenance branded by the semantic owner whose declaration owns it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OwnedHeaderSiteV1 {
+    owner: FunctionOwnerIdV1,
+    site: SourceHeaderSiteV1,
+}
+
+impl OwnedHeaderSiteV1 {
+    pub(crate) const fn new(owner: FunctionOwnerIdV1, site: SourceHeaderSiteV1) -> Self {
+        Self { owner, site }
+    }
+
+    pub const fn owner(self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub const fn site(self) -> SourceHeaderSiteV1 {
+        self.site
+    }
+}
+
 impl OwnedExprSiteV1 {
     pub(crate) const fn new(owner: FunctionOwnerIdV1, site: SourceExprSiteV1) -> Self {
         Self { owner, site }

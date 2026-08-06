@@ -35,6 +35,22 @@ fallback, or production caller. The shared MirBuilder caller-zero guard is the
 contract for this boundary; S0B adds source-type inventory only after S0A is
 sealed.
 
+## Generic G0 S0B source-type projector
+
+S0B extends the same disconnected projector with one callable-header view.
+It preserves owner-branded parameter/return annotation sites, resolver-issued
+parameter `BindingRefV1` rows, raw declared type spelling, and the four S0A
+literal role/context sites. The AST-free issuer lives only in
+`resolved_semantics/generic_g0/`; the compiler projection is the sole place
+that opens the source AST. It emits `VerifiedGenericSourceBundleG0` by moving
+the already-sealed S0A product together with the S0B inventory.
+
+Missing annotations are `Unresolved`; known non-`i64`, foreign, duplicate, or
+non-integer source shapes are rejected. S0B does not infer a return type,
+retag literals, choose numeric representation, issue Recipe keys, or enter
+Builder/MIR/production. The shared replacement guard checks the recursive
+semantic directory, source/test line cap, and caller-zero boundary.
+
 ## B0-L2b source projection boundary
 
 `VerifiedSourceProjectionV1` is sealed beside the canonical syntax and owner

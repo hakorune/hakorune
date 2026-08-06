@@ -25,6 +25,9 @@ guard_joinir_loop_compile_candidate_scope() {
   local loop_region="$root_dir/src/mir/resolved_semantics/loop_region.rs"
   local source_adapter="$root_dir/src/mir/loop_structural_facts/resolved_source_adapter.rs"
   local generic_g0_projection="$root_dir/src/mir/compiler/generic_g0_projection/mod.rs"
+  local generic_g0_projection_tests="$root_dir/src/mir/compiler/generic_g0_projection_tests.rs"
+  local generic_g0_source_type_dir="$root_dir/src/mir/resolved_semantics/generic_g0"
+  local generic_g0_source_type="$generic_g0_source_type_dir/mod.rs"
   local nested_source_projection="$root_dir/src/mir/compiler/nested_predicate_projection.rs"
   local nested_recipe_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs"
   local nested_source_handoff="$root_dir/src/mir/compiler/nested_predicate_source_handoff.rs"
@@ -42,7 +45,8 @@ guard_joinir_loop_compile_candidate_scope() {
     "$canonical" "$canonical_dispatch" "$canonical_input" "$m1_test" \
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
-    "$source_adapter" "$generic_g0_projection" "$nested_source_projection" "$nested_recipe_producer" \
+    "$source_adapter" "$generic_g0_projection" "$generic_g0_projection_tests" \
+    "$generic_g0_source_type" "$nested_source_projection" "$nested_recipe_producer" \
     "$nested_source_handoff" "$nested_topology" "$nested_topology_tests" \
     "$nested_physical_input" "$nested_physical_input_tests" \
     "$nested_effect_plan" "$nested_effect_plan_tests" "$nested_effect_adapter_tests" \
@@ -155,6 +159,45 @@ guard_joinir_loop_compile_candidate_scope() {
   else
     guard_fail "$tag" "Nested source forest escaped its caller-zero resolver boundary"
   fi
+
+  if [[ ! -d "$generic_g0_source_type_dir" ]]; then
+    guard_fail "$tag" "Generic G0 source-type semantic directory is missing"
+  fi
+  while IFS= read -r semantic_file; do
+    local semantic_lines
+    semantic_lines="$(wc -l < "$semantic_file" | tr -d '[:space:]')"
+    if (( semantic_lines >= 800 )); then
+      guard_fail "$tag" "Generic G0 source-type semantic file exceeds boundary: ${semantic_file#"$root_dir/"} lines=$semantic_lines"
+    fi
+    for forbidden in 'ASTNode' 'FunctionSourceViewV1' 'Located' 'MirBuilder' \
+      'ValueId' 'BasicBlockId' 'Recipe' 'Retry' 'LoopRouteId'
+    do
+      if rg -n -F "$forbidden" "$semantic_file" >/dev/null; then
+        guard_fail "$tag" "Generic G0 source-type issuer imported forbidden authority: ${semantic_file#"$root_dir/"} symbol=$forbidden"
+      fi
+    done
+  done < <(find "$generic_g0_source_type_dir" -type f -name '*.rs' -print | sort)
+  for source_type_ref in \
+    'issue_generic_g0_source_type_inventory_v1(' \
+    'issue_generic_g0_source_type_bundle_v1('
+  do
+    if rg -n -F "$source_type_ref" "$root_dir/src" --glob '*.rs' \
+        | awk -F: -v issuer="$generic_g0_source_type" \
+            -v projection="$generic_g0_projection" \
+            -v tests="$generic_g0_projection_tests" \
+            '$1 != issuer && $1 != projection && $1 != tests && $1 != "" { found = 1 } END { exit found }'; then
+      :
+    else
+      guard_fail "$tag" "Generic G0 source-type issuer escaped its caller-zero boundary: $source_type_ref"
+    fi
+  done
+  for generic_file in "$generic_g0_projection" "$generic_g0_projection_tests"; do
+    local generic_lines
+    generic_lines="$(wc -l < "$generic_file" | tr -d '[:space:]')"
+    if (( generic_lines >= 800 )); then
+      guard_fail "$tag" "Generic G0 projection file exceeds boundary: ${generic_file#"$root_dir/"} lines=$generic_lines"
+    fi
+  done
   for forbidden in 'ASTNode' 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry'
   do
     if rg -n -F "$forbidden" "$loop_region" >/dev/null; then

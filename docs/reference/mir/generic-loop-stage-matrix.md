@@ -43,6 +43,24 @@ MirBuilder replacement guard are green. No type/numeric policy, candidate,
 selector, Recipe, Builder/MIR, retry/fallback, or production support claim is
 made; `GENERIC-G0-SOURCE-TYPE-S0B` is the next row.
 
+## S0B implementation receipt
+
+`GENERIC-G0-SOURCE-TYPE-S0B` is now landed as a disconnected, caller-zero
+source-type witness. The compiler projector derives one callable header view
+from the natural function root and emits exact owner-branded parameter/result
+sites plus the four S0A literal role/context rows. The sole AST-free issuer in
+`src/mir/resolved_semantics/generic_g0/` validates parameter binding origin,
+raw type spelling, annotation presence, literal cardinality, and owner
+relations, then moves the result with S0A into
+`VerifiedGenericSourceBundleG0`.
+
+Focused natural-source tests cover explicit `i64` headers, missing parameter
+and result annotations, and a known non-`i64` parameter. The shared replacement
+guard covers the recursive semantic directory, source/test line cap, and
+caller-zero issuer boundary. S0B does not infer types, retag literals, choose
+numeric representation, issue policy/Recipe keys, or enter Builder/MIR/
+production; `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` is the next row.
+
 ## Current source-to-selection evidence
 
 | fixture class | source witness | current generic schedule | status |

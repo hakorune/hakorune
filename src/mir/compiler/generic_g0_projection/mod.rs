@@ -5,15 +5,22 @@
 //! `VerifiedResolvedFunctionV1`, and hands an AST-free observation to the
 //! structural-facts issuer. It never chooses a family or creates Recipe data.
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, LiteralValue, ParamDecl};
 use crate::mir::loop_structural_facts::generic_g0::{
     issue_generic_g0_structural_facts_v1 as issue_structural_facts_product_v1,
     GenericG0ConditionSitesV1, GenericG0StructuralObservationV1, GenericG0StructuralRejectV1,
     GenericG0TailSitesV1, GenericG0UpdateSitesV1, VerifiedGenericStructuralFactsG0,
 };
 use crate::mir::resolved_semantics::{
-    BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, ResolvedAssignmentTargetV1,
-    ResolvedLexicalRefV1, SourceExprSiteV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
+    generic_g0::{
+        binding_origin_is_parameter, issue_generic_g0_source_type_inventory_v1,
+        GenericG0LiteralRoleV1, GenericG0LiteralSyntaxV1, GenericG0LiteralTypeRowV1,
+        GenericG0ParameterTypeRowV1, GenericG0ResultTypeRowV1, GenericG0SourceTypeIssueV1,
+        GenericG0SourceTypeObservationV1, VerifiedGenericSourceTypeInventoryG0,
+    },
+    BindingRefV1, BodyChildRoleV1, CallableHeaderSyntaxViewV1, ExprChildRoleV1, OwnedExprSiteV1,
+    ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceHeaderSiteV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
@@ -33,6 +40,61 @@ pub(crate) enum GenericG0ProjectionRejectV1 {
     BindingLookup,
     ForestShape,
     Structural(GenericG0StructuralRejectV1),
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum GenericG0SourceTypeProjectionRejectV1 {
+    Structural(GenericG0ProjectionRejectV1),
+    HeaderShape,
+    ParameterShape,
+    BindingLookup { index: u32 },
+    SourceNavigation,
+    Type(GenericG0SourceTypeIssueV1),
+    StructuralRelation,
+}
+
+/// Cumulative move-only source lease for S0B. S0C consumes this value; it may
+/// not reconstruct either component from a name or source path.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedGenericSourceBundleG0 {
+    structural: VerifiedGenericStructuralFactsG0,
+    source_types: VerifiedGenericSourceTypeInventoryG0,
+}
+
+impl VerifiedGenericSourceBundleG0 {
+    pub(crate) fn structural(&self) -> &VerifiedGenericStructuralFactsG0 {
+        &self.structural
+    }
+
+    pub(crate) fn source_types(&self) -> &VerifiedGenericSourceTypeInventoryG0 {
+        &self.source_types
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedGenericStructuralFactsG0,
+        VerifiedGenericSourceTypeInventoryG0,
+    ) {
+        (self.structural, self.source_types)
+    }
+}
+
+pub(crate) fn issue_generic_g0_source_type_bundle_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+) -> Result<VerifiedGenericSourceBundleG0, GenericG0SourceTypeProjectionRejectV1> {
+    let structural = issue_generic_g0_structural_facts_v1(input)
+        .map_err(GenericG0SourceTypeProjectionRejectV1::Structural)?;
+    let observation = project_source_type_observation(input, &structural)?;
+    let source_types = issue_generic_g0_source_type_inventory_v1(observation)
+        .map_err(GenericG0SourceTypeProjectionRejectV1::Type)?;
+    if !matches_structural_relations(&structural, &source_types) {
+        return Err(GenericG0SourceTypeProjectionRejectV1::StructuralRelation);
+    }
+    Ok(VerifiedGenericSourceBundleG0 {
+        structural,
+        source_types,
+    })
 }
 
 pub(crate) fn issue_generic_g0_structural_facts_v1(
@@ -285,4 +347,202 @@ fn coverage_sites(
         sites.push(site.node().clone());
     }
     sites.into_boxed_slice()
+}
+
+fn project_source_type_observation(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    structural: &VerifiedGenericStructuralFactsG0,
+) -> Result<GenericG0SourceTypeObservationV1, GenericG0SourceTypeProjectionRejectV1> {
+    let source = input.source();
+    let function = input.function();
+    let header = CallableHeaderSyntaxViewV1::from_function_ast(source.root())
+        .ok_or(GenericG0SourceTypeProjectionRejectV1::HeaderShape)?;
+    let parameter_decls = ParamDecl::with_name_fallback(header.param_decls(), header.params());
+    if parameter_decls.len() != header.params().len() {
+        return Err(GenericG0SourceTypeProjectionRejectV1::ParameterShape);
+    }
+
+    let mut parameters = Vec::with_capacity(parameter_decls.len());
+    for (index, declaration) in parameter_decls.iter().enumerate() {
+        let index = index as u32;
+        if declaration.name != header.params()[index as usize] {
+            return Err(GenericG0SourceTypeProjectionRejectV1::ParameterShape);
+        }
+        let binding_site = SourceBindingSiteV1::Parameter { index };
+        let binding = function
+            .declaration_binding(&binding_site)
+            .ok_or(GenericG0SourceTypeProjectionRejectV1::BindingLookup { index })?;
+        let record = function
+            .binding(binding)
+            .ok_or(GenericG0SourceTypeProjectionRejectV1::BindingLookup { index })?;
+        if !binding_origin_is_parameter(record.origin(), record.kind(), index) {
+            return Err(GenericG0SourceTypeProjectionRejectV1::BindingLookup { index });
+        }
+        parameters.push(GenericG0ParameterTypeRowV1 {
+            index,
+            header: crate::mir::resolved_semantics::OwnedHeaderSiteV1::new(
+                input.owner(),
+                SourceHeaderSiteV1::Parameter { index },
+            ),
+            binding,
+            binding_kind: record.kind(),
+            binding_origin: record.origin().clone(),
+            declared_type_name: declaration.declared_type_name.as_deref().map(Into::into),
+        });
+    }
+
+    let result = GenericG0ResultTypeRowV1 {
+        header: crate::mir::resolved_semantics::OwnedHeaderSiteV1::new(
+            input.owner(),
+            SourceHeaderSiteV1::ReturnAnnotation,
+        ),
+        declared_type_name: header.return_type_name().map(Into::into),
+    };
+
+    let literals = [
+        (
+            GenericG0LiteralRoleV1::OuterConditionRhs,
+            &structural.outer_condition().rhs,
+            &structural.outer_condition().condition,
+            structural.outer_condition().binding,
+        ),
+        (
+            GenericG0LiteralRoleV1::InnerConditionRhs,
+            &structural.inner_condition().rhs,
+            &structural.inner_condition().condition,
+            structural.inner_condition().binding,
+        ),
+        (
+            GenericG0LiteralRoleV1::OuterUpdateRhs,
+            &structural.outer_update().rhs,
+            &structural.outer_update().value,
+            structural.outer_update().binding,
+        ),
+        (
+            GenericG0LiteralRoleV1::InnerUpdateRhs,
+            &structural.inner_update().rhs,
+            &structural.inner_update().value,
+            structural.inner_update().binding,
+        ),
+    ]
+    .into_iter()
+    .map(|(role, site, context, binding)| {
+        project_literal_type_row(source, input.owner(), role, site, context, binding)
+    })
+    .collect::<Result<Vec<_>, _>>()?
+    .into_boxed_slice();
+
+    Ok(GenericG0SourceTypeObservationV1 {
+        owner: input.owner(),
+        origin: function.function_origin(),
+        source_kind: function.source_kind(),
+        parameters: parameters.into_boxed_slice(),
+        result,
+        literals,
+    })
+}
+
+fn project_literal_type_row(
+    source: crate::mir::compiler::source_view::FunctionSourceViewV1<'_>,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    role: GenericG0LiteralRoleV1,
+    site: &SourceExprSiteV1,
+    context: &SourceExprSiteV1,
+    binding: BindingRefV1,
+) -> Result<GenericG0LiteralTypeRowV1, GenericG0SourceTypeProjectionRejectV1> {
+    let owned_site = OwnedExprSiteV1::new(owner, site.clone());
+    let owned_context = OwnedExprSiteV1::new(owner, context.clone());
+    let expr = source
+        .expr_at(&owned_site)
+        .map_err(|_| GenericG0SourceTypeProjectionRejectV1::SourceNavigation)?;
+    let syntax = match expr.node() {
+        ASTNode::Literal { value, .. } => match value {
+            LiteralValue::Integer(value) => GenericG0LiteralSyntaxV1::PlainInteger(*value),
+            LiteralValue::TypedInteger {
+                value,
+                declared_type_name,
+            } => GenericG0LiteralSyntaxV1::TypedInteger {
+                value: *value,
+                declared_type_name: declared_type_name.clone().into_boxed_str(),
+            },
+            LiteralValue::String(_) => GenericG0LiteralSyntaxV1::Other(
+                crate::mir::resolved_semantics::generic_g0::GenericG0LiteralKindV1::String,
+            ),
+            LiteralValue::Float(_) => GenericG0LiteralSyntaxV1::Other(
+                crate::mir::resolved_semantics::generic_g0::GenericG0LiteralKindV1::Float,
+            ),
+            LiteralValue::Bool(_) => GenericG0LiteralSyntaxV1::Other(
+                crate::mir::resolved_semantics::generic_g0::GenericG0LiteralKindV1::Bool,
+            ),
+            LiteralValue::Null => GenericG0LiteralSyntaxV1::Other(
+                crate::mir::resolved_semantics::generic_g0::GenericG0LiteralKindV1::Null,
+            ),
+            LiteralValue::Void => GenericG0LiteralSyntaxV1::Other(
+                crate::mir::resolved_semantics::generic_g0::GenericG0LiteralKindV1::Void,
+            ),
+        },
+        _ => GenericG0LiteralSyntaxV1::Other(
+            crate::mir::resolved_semantics::generic_g0::GenericG0LiteralKindV1::NonLiteral,
+        ),
+    };
+    Ok(GenericG0LiteralTypeRowV1 {
+        role,
+        site: owned_site,
+        context: owned_context,
+        binding,
+        syntax,
+    })
+}
+
+fn matches_structural_relations(
+    structural: &VerifiedGenericStructuralFactsG0,
+    source_types: &VerifiedGenericSourceTypeInventoryG0,
+) -> bool {
+    if source_types.owner() != structural.owner()
+        || source_types.origin() != structural.origin()
+        || source_types.source_kind() != structural.source_kind()
+    {
+        return false;
+    }
+    let parameters = source_types.parameters();
+    if parameters.len() != 2
+        || parameters[0].binding != structural.outer_condition().binding
+        || parameters[1].binding != structural.inner_condition().binding
+    {
+        return false;
+    }
+    let expected = [
+        (
+            GenericG0LiteralRoleV1::OuterConditionRhs,
+            &structural.outer_condition().rhs,
+            &structural.outer_condition().condition,
+            structural.outer_condition().binding,
+        ),
+        (
+            GenericG0LiteralRoleV1::InnerConditionRhs,
+            &structural.inner_condition().rhs,
+            &structural.inner_condition().condition,
+            structural.inner_condition().binding,
+        ),
+        (
+            GenericG0LiteralRoleV1::OuterUpdateRhs,
+            &structural.outer_update().rhs,
+            &structural.outer_update().value,
+            structural.outer_update().binding,
+        ),
+        (
+            GenericG0LiteralRoleV1::InnerUpdateRhs,
+            &structural.inner_update().rhs,
+            &structural.inner_update().value,
+            structural.inner_update().binding,
+        ),
+    ];
+    source_types.literals().iter().all(|row| {
+        expected.iter().any(|(role, site, context, binding)| {
+            row.role == *role
+                && row.site.site() == *site
+                && row.context.site() == *context
+                && row.binding == *binding
+        })
+    })
 }

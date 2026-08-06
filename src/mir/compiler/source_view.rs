@@ -90,6 +90,23 @@ impl<'a> FunctionSourceViewV1<'a> {
         self.owner_root
     }
 
+    /// Re-open one exact owner-branded expression site without searching the
+    /// AST or creating a second source-navigation policy.
+    pub(crate) fn expr_at(
+        self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<LocatedExprV1<'a>, SourceNavigationErrorV1> {
+        self.require_owner(site.owner())?;
+        let site = site.site().clone();
+        let node = self.project_node(site.node())?;
+        Ok(LocatedExprV1::new(
+            self.owner,
+            site,
+            node,
+            SourceViewSealV1::new(),
+        ))
+    }
+
     /// Borrow the declaration's source return annotation without opening a
     /// second syntax-navigation path. The completion verifier is the sole
     /// consumer of this source fact for the F1 function-exit contract.

@@ -2,7 +2,7 @@
 
 Status: `accepted and taskized; production activation remains 0`
 
-Current row: `GENERIC-G0-SOURCE-TYPE-S0B`
+Current row: `GENERIC-G0-NUMERIC-REPRESENTATION-S0C`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -189,19 +189,87 @@ tests cover the canonical shape, AST immutability, reordered/extra/missing
 schedule, wrong-binding, and foreign-frame rejects. The implementation has no
 Recipe, policy, selector, Builder, MIR, retry, fallback, or production caller;
 the shared caller-zero guard explicitly owns this projector boundary. S0B is
-the next authorized row.
+now the landed source-type witness; S0C is the next authorized row.
 
 The resolver/source bridge then issues one move-only product:
 
 ```text
 VerifiedGenericSourceTypeInventoryG0 {
   owner / origin / source-kind
-  exact parameter declaration sites and BindingRefs
-  exact return annotation site and source spelling
+  exact parameter OwnedHeaderSite rows and BindingRefs
+  exact return OwnedHeaderSite and raw source spelling
   exact literal OwnedExprSite rows
-  literal role and contextual BindingRef
+  literal role, as-written syntax, and contextual BindingRef
 }
 ```
+
+### S0B source-type contract (accepted 2026-08-06)
+
+S0B has one natural-source projector and one AST-free issuer. The projector
+opens `FunctionSourceViewV1::root()` once, derives the paired callable header
+view from that same declaration, and emits an observation. The issuer in
+`resolved_semantics/generic_g0/` verifies and seals the inventory; it never
+opens AST or re-resolves a binding by name. `SourceCallableDeclarationSiteV1`
+is not a substitute because body-only function input has no Program ordinal.
+
+The common source provenance vocabulary gains an owner-branded header site:
+
+```text
+SourceHeaderSiteV1:
+  Parameter(index)
+  ReturnAnnotation
+
+OwnedHeaderSiteV1:
+  owner + SourceHeaderSiteV1
+```
+
+Each parameter row preserves index, owned header site, resolver `BindingRef`,
+and raw declared type spelling. The result row preserves the owned return
+annotation site, presence, and raw spelling. Parameter count/index/header
+cardinality, `BindingKind`/`BindingOrigin`, owner/origin/source-kind/frame, and
+the loop-binding-to-parameter relation are all checked before sealing.
+
+Literal rows are the four S0A role sites exactly once (outer/inner condition
+RHS and outer/inner update RHS). They retain `OwnedExprSiteV1`, the role, the
+condition/update context site, the contextual `BindingRef`, and as-written
+syntax (`PlainInteger`, `TypedInteger`, or `Other`). S0B does not convert a
+literal to `MirType`, decide sign/range/overflow, prove progression, or call
+`numeric_substrate`; those decisions belong to S0C and policy. S0B also does
+not infer a missing result annotation from `return j`.
+
+Disposition is explicit: missing/unknown/opaque parameter or result typing is
+`Unresolved`; a known non-`i64` parameter/result spelling, foreign or duplicate
+site, non-parameter loop binding, context mismatch, or known non-integer
+literal shape is `Rejected`. Typed integer suffixes are retained as-written for
+S0C rather than rejected or retagged in S0B. The positive fixture is a natural
+source declaration with two explicit `i64` parameters and an explicit `i64`
+result; the existing unannotated S0A fixture remains a missing-annotation
+negative and is not promoted to S0B positive evidence.
+
+S0B implementation receipt (2026-08-06): the compiler-side projector now
+derives one callable-header view from the natural function root and the sole
+AST-free issuer at `src/mir/resolved_semantics/generic_g0/` validates and seals
+the inventory. The move-only `VerifiedGenericSourceBundleG0` retains the
+already-sealed S0A product and adds exact parameter/result/literal rows.
+Focused tests cover the natural typed positive, missing parameter/result
+annotations, and a known non-`i64` parameter. The shared replacement guard
+recursively checks the semantic issuer directory, line cap, and caller-zero
+boundary. No target/numeric/policy/Recipe/Builder/MIR/production authority was
+introduced.
+
+The cumulative lease is move-only:
+
+```text
+VerifiedGenericStructuralFactsG0
+  + VerifiedGenericSourceTypeInventoryG0
+  -> VerifiedGenericSourceBundleG0
+```
+
+The aggregate wrapper may live in the compiler projection module, but there is
+only one S0B inventory issuer. No `Clone`, name-based reconstruction, retry,
+reissue, synthetic AST retagging, Recipe, selector, Builder, MIR, or production
+caller is permitted. A declined outcome may move a sealed diagnostic lease to
+the caller, but it cannot be retried through a second authority.
 
 `numeric_substrate` consumes it exactly once with the target profile and
 issues:
@@ -518,7 +586,7 @@ GENERIC-G0-STRUCTURE-S0A
   closed; natural-source structural/coverage witness landed; selection_open=false
 
 GENERIC-G0-SOURCE-TYPE-S0B
-  next; owner-branded parameter/result/literal/context inventory; no target policy
+  closed; owner-branded parameter/result/literal/context inventory landed in a move-only S0A bundle; no target policy
 
 GENERIC-G0-NUMERIC-REPRESENTATION-S0C
   numeric_substrate seals representation/range plus existing return expectation
@@ -690,14 +758,16 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 
 ```text
 src/mir/compiler/generic_g0_projection/
-  thin source navigation plus move-only S0A/S0B/S0C aggregate wrappers;
+  thin source navigation plus move-only S0A/S0B/S0C aggregate wrappers
+  (including VerifiedGenericSourceBundleG0);
   no structure/type/numeric/policy decision
 
 src/mir/loop_structural_facts/generic_g0/
   sole S0A structure verifier/issuer; VerifiedGenericStructuralFactsG0 only
 
 src/mir/resolved_semantics/generic_g0/
-  sole S0B source-type verifier/issuer; owner/site/BindingRef inventory only
+  sole S0B source-type verifier/issuer; owner/header/literal/context inventory
+  only; no S0A aggregate re-issuer
 
 src/mir/numeric_substrate/generic_g0/
   sole S0C representation/range/overflow verifier/issuer; typed lease only

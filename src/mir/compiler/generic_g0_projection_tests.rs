@@ -1,6 +1,7 @@
 use crate::ast::ASTNode;
 use crate::mir::compiler::generic_g0_projection::{
-    issue_generic_g0_structural_facts_v1, GenericG0ProjectionRejectV1,
+    issue_generic_g0_source_type_bundle_v1, issue_generic_g0_structural_facts_v1,
+    GenericG0ProjectionRejectV1, GenericG0SourceTypeProjectionRejectV1,
 };
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::generic_g0::{
@@ -11,6 +12,18 @@ use crate::parser::NyashParser;
 
 const CANONICAL: &str = r#"
 function generic_g0(i, j) {
+    loop(i < 3) {
+        loop(j < 3) {
+            j = j + 1
+        }
+        i = i + 1
+    }
+    return j
+}
+"#;
+
+const TYPED: &str = r#"
+function generic_g0(i: i64, j: i64): i64 {
     loop(i < 3) {
         loop(j < 3) {
             j = j + 1
@@ -167,4 +180,77 @@ fn foreign_root_frame_rejects_at_structural_issuer() {
         issue_structural_facts_v1(observation),
         Err(GenericG0StructuralRejectV1::ForestIdentity)
     );
+}
+
+#[test]
+fn source_type_bundle_keeps_exact_header_and_literal_inventory() {
+    let (_, unit) = resolved_input(TYPED);
+    let bundle =
+        issue_generic_g0_source_type_bundle_v1(unit.root_function_input().expect("root input"))
+            .expect("typed natural source inventory");
+    assert_eq!(bundle.source_types().parameters().len(), 2);
+    assert_eq!(
+        bundle.source_types().parameters()[0].header.site(),
+        crate::mir::resolved_semantics::SourceHeaderSiteV1::Parameter { index: 0 }
+    );
+    assert_eq!(
+        bundle.source_types().parameters()[0]
+            .declared_type_name
+            .as_deref(),
+        Some("i64")
+    );
+    assert_eq!(
+        bundle.source_types().result().declared_type_name.as_deref(),
+        Some("i64")
+    );
+    assert_eq!(bundle.source_types().literals().len(), 4);
+}
+
+#[test]
+fn unannotated_s0a_fixture_is_not_s0b_positive() {
+    let (_, unit) = resolved_input(CANONICAL);
+    assert_eq!(
+        issue_generic_g0_source_type_bundle_v1(
+            unit.root_function_input().expect("root input"),
+        ),
+        Err(GenericG0SourceTypeProjectionRejectV1::Type(
+            crate::mir::resolved_semantics::generic_g0::GenericG0SourceTypeIssueV1::Unresolved(
+                crate::mir::resolved_semantics::generic_g0::GenericG0SourceTypeUnresolvedV1::MissingParameterAnnotation {
+                    index: 0,
+                },
+            ),
+        ))
+    );
+}
+
+#[test]
+fn explicit_non_i64_parameter_is_rejected() {
+    let source = TYPED.replace("i: i64", "i: String");
+    let (_, unit) = resolved_input(&source);
+    assert!(matches!(
+        issue_generic_g0_source_type_bundle_v1(
+            unit.root_function_input().expect("root input"),
+        ),
+        Err(GenericG0SourceTypeProjectionRejectV1::Type(
+            crate::mir::resolved_semantics::generic_g0::GenericG0SourceTypeIssueV1::Rejected(
+                crate::mir::resolved_semantics::generic_g0::GenericG0SourceTypeRejectV1::ParameterNotI64 { .. }
+            )
+        ))
+    ));
+}
+
+#[test]
+fn missing_return_annotation_is_unresolved_not_inferred() {
+    let source = TYPED.replace(") : i64", ")").replace("): i64", ")");
+    let (_, unit) = resolved_input(&source);
+    assert!(matches!(
+        issue_generic_g0_source_type_bundle_v1(
+            unit.root_function_input().expect("root input"),
+        ),
+        Err(GenericG0SourceTypeProjectionRejectV1::Type(
+            crate::mir::resolved_semantics::generic_g0::GenericG0SourceTypeIssueV1::Unresolved(
+                crate::mir::resolved_semantics::generic_g0::GenericG0SourceTypeUnresolvedV1::MissingReturnAnnotation
+            )
+        ))
+    ));
 }
