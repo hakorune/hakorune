@@ -330,9 +330,11 @@ D4-S4-S3-S1-D0
   -> closed: NoSafeSlice design stop; typed literals and resolver parameter
      types are not co-sealed, so no source-type proof is claimed
 D4-S4-S3-S1-S0
-  -> design closed: one exact source-unit receipt issues a move-only
-     owner-branded explicit-parameter map; next cfg(test) witness only; no
-     selector/demand/Recipe/MIR
+  -> closed: cfg(test)-only exact source-unit receipt/map witness; no selector/
+     demand/Recipe/MIR
+D4-S4-S3-S1-S1
+  -> next design: co-seal TypedInteger syntax facts with the owner-branded map
+     into one move-only numeric source receipt; no policy/selector/Recipe/MIR
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

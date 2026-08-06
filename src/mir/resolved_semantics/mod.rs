@@ -173,6 +173,8 @@ mod callable_catalog_tests;
 #[cfg(test)]
 mod callable_header_source_unit_tests;
 #[cfg(test)]
+mod explicit_parameter_type_map;
+#[cfg(test)]
 mod function_root_tests;
 #[cfg(test)]
 pub(crate) mod generic_resolved_carrier_provenance;

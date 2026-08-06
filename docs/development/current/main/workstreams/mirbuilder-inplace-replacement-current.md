@@ -505,8 +505,8 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D1
   -> worker consensus fixed numeric_substrate/source-bridge/loop_route_policy owners; no public row or caller.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-D0
   -> NoSafeSlice: typed literals and resolver parameter types are not co-sealed; no public row or caller.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S0
-  -> design closed: exact source-unit receipt -> move-only owner-branded parameter map; next cfg(test) witness; no selector/demand/Recipe/Builder/MIR.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S0
+  -> cfg(test)-only exact source-unit receipt/map witness green; next D4-S4-S3-S1-S1 co-seal design; no selector/demand/Recipe/Builder/MIR.
 ```
 ## Production invariants
 
