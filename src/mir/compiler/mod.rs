@@ -46,6 +46,7 @@ pub(in crate::mir) mod generic_g0_projection;
 pub(in crate::mir) mod located;
 #[allow(dead_code)]
 pub(in crate::mir) mod loop_true_break_continue_projection;
+#[cfg(test)] pub(crate) mod loop_true_break_continue_observation;
 mod lowering_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
@@ -71,6 +72,8 @@ pub(in crate::mir) mod nested_predicate_topology;
 pub(crate) use nested_predicate_producer_tests::nested_function as nested_function_for_p3_test;
 #[cfg(test)]
 mod loop_true_break_continue_projection_tests;
+#[cfg(test)]
+pub(crate) use loop_true_break_continue_projection_tests::positive_function as loop_true_function_for_test;
 #[cfg(test)]
 mod nested_predicate_effect_plan_tests;
 #[cfg(test)]

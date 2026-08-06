@@ -5,6 +5,8 @@
 mod direct_accum_effect_plan;
 mod direct_accum_exclusivity;
 mod direct_accum_observation;
+mod loop_true_break_continue_observation;
+mod loop_true_break_continue_source;
 #[allow(dead_code)]
 pub(crate) mod generic_g0;
 #[cfg(test)]
@@ -37,6 +39,15 @@ pub(crate) use direct_accum_observation::{
     DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
     DirectAccumSourceAttemptOutcomeV1, DirectAccumSourceDeclineV1, DirectAccumSourceIdentityV1,
     DirectAccumSourceRejectV1, DirectAccumSourceUnresolvedV1, VerifiedDirectAccumSourceAttemptV1,
+};
+pub(crate) use loop_true_break_continue_observation::{
+    map_loop_true_source_binding_reject, LoopTrueObservationCoverageV1, LoopTrueObservationModeV1,
+    LoopTrueSourceAttemptOutcomeV1, LoopTrueSourceDeclineV1, LoopTrueSourceIdentityV1,
+    LoopTrueSourceRejectV1, LoopTrueSourceUnresolvedV1, VerifiedLoopTrueSourceAttemptV1,
+};
+pub(crate) use loop_true_break_continue_source::{
+    VerifiedLoopTrueBreakContinueSourceProjectionV1,
+    VerifiedLoopTrueBreakContinueSourceShapeV1,
 };
 #[cfg(test)]
 pub(crate) use generic_resolved_carrier_facts_snapshot::{

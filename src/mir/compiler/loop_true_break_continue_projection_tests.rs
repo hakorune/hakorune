@@ -72,7 +72,7 @@ fn loop_true_function(
     }
 }
 
-fn positive_function() -> ASTNode {
+pub(crate) fn positive_function() -> ASTNode {
     loop_true_function(
         boolean(true),
         branch_condition(BinaryOperator::Equal),

@@ -135,21 +135,22 @@ observer. Seven policy tests, eight projection tests, and the shared recursive
 guard are green. No selector, Recipe/JoinSig, Builder/MIR, retry/fallback,
 route ID, or production caller is authorized by this design row.
 
-## LoopTrue S1 design boundary
+## LoopTrue S1 implementation receipt
 
-`LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1` is a caller-zero design stop. The sole
-source authority remains
-`compiler/loop_true_break_continue_projection.rs`; the future neutral adapter
-and policy observer are specified in
-`docs/development/current/main/design/loop-family-observation-policy-ssot.md`
-and the linked investigation task. Candidate means only an exact bounded
-`loop(true)` plus explicit Break/Continue source projection. Known shape
-mismatches decline, missing or incomplete resolver evidence remains unresolved,
-and foreign/binding/exit conflicts reject. The legacy FrozenLoopRouteSchedule
-policy demand is not an S1 input. No selector, Recipe/JoinSig, Builder/MIR,
-physical route, retry/fallback, production caller, or legacy deletion is open.
-The implementation commit must update this reference receipt together with the
-source/structural-facts/policy docs and current pointers.
+`LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1` is landed as a caller-zero, AST-free
+source observation. The sole source authority remains
+`compiler/loop_true_break_continue_projection.rs`; its projection now exposes
+the complete owner/origin/kind/site/frame identity. A test-only adapter maps
+typed source outcomes into the neutral attempt DTO, and the pure policy
+observer rechecks identity, mode, and coverage before issuing only Candidate,
+Declined, Unresolved, or Rejected. Candidate still means only the exact bounded
+`loop(true)` plus explicit Break/Continue source projection.
+
+Nine policy tests, eight projection tests, and the shared recursive guard are
+green. The legacy FrozenLoopRouteSchedule policy demand remains outside S1.
+No selector, Recipe/JoinSig, Builder/MIR, physical route, retry/fallback,
+production caller, or legacy deletion is open; the next boundary is common
+five-family selection/admission design.
 
 ## Current source-to-selection evidence
 

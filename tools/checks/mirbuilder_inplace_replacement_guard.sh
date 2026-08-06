@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="mirbuilder-inplace-replacement-guard"; source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
-source "$ROOT_DIR/tools/checks/lib/joinir_logical_demand_contract.sh"; source "$ROOT_DIR/tools/checks/lib/joinir_loop_compile_candidate_scope.sh"
+source "$ROOT_DIR/tools/checks/lib/joinir_logical_demand_contract.sh"; source "$ROOT_DIR/tools/checks/lib/joinir_loop_compile_candidate_scope.sh"; source "$ROOT_DIR/tools/checks/lib/looptrue_observation_contract.sh"
 MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-inplace-replacement-v1.tsv"
 CALLER_MANIFEST="$ROOT_DIR/tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json"
 STRUCTURAL_RATCHET="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-structural-ratchet.tsv"
@@ -715,7 +715,7 @@ if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
   guard_fail "$TAG" "Match owned input must have one consuming production owner"
 fi
 if rg -n -P '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" >/dev/null; then guard_fail "$TAG" "owned compound expression dispatcher clone returned"; fi
-guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_if_recipe_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"
+guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_if_recipe_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_looptrue_observation_contract "$ROOT_DIR" "$TAG"
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \

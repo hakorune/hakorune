@@ -90,18 +90,17 @@ the production compiler path. The policy observer consumes only this
 AST-free attempt; it does not receive AST, Builder/MIR state, route IDs,
 Recipes, retry/fallback authority, or a production caller.
 
-## LoopTrue S1 design boundary
+## LoopTrue S1 implementation receipt
 
 `loop_true_break_continue_projection.rs` remains the sole syntax observer for
-the bounded `loop(true)` plus explicit `break`/`continue` shape. The next
-caller-zero slice is specified in
-`docs/development/current/main/investigations/loop-family-looptrue-observation-s1-design-task-2026-08-06.md`:
-the source projection must expose an AST-free owner/origin/kind/site/frame
-identity, then a `#![cfg(test)]` adapter maps typed source outcomes into a
-neutral observation. The adapter must preserve lookup/navigation/missing-fact
-distinctions and must not import the legacy schedule policy. No selector,
-Recipe/JoinSig, Builder/MIR, physical route, retry/fallback, or production
-caller is authorized by this design stop.
+the bounded `loop(true)` plus explicit `break`/`continue` shape. The landed
+`#![cfg(test)]` adapter maps typed source outcomes into the neutral structural
+facts DTO and preserves lookup/navigation/missing-fact distinctions. The pure
+policy observer owns the identity/mode/coverage recheck; it does not import the
+legacy schedule policy. Nine policy tests and eight projection tests cover this
+caller-zero boundary. No selector, Recipe/JoinSig, Builder/MIR, physical
+route, retry/fallback, or production caller is authorized; the next boundary
+is common five-family selection/admission design.
 
 NestedPredicate S1 is already landed as a caller-zero source observation. Its
 source authority remains

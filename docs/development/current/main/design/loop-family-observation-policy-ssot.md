@@ -236,6 +236,23 @@ The next implementation row is finite and shallow:
 5. Update the exact reference receipt, module README, current pointer, and
    workstream in the same implementation commit.
 
+### LoopTrue S1 implementation receipt
+
+The finite caller-zero slice is landed. The source projection now exposes the
+AST-free identity `owner + function origin + source kind + loop site + frame`;
+the neutral source-attempt/identity/mode/coverage DTO lives under
+`loop_structural_facts`; and the `#![cfg(test)]` compiler adapter preserves the
+typed projection disposition without exporting compiler enums to policy. The
+pure `loop_route_policy` observer rechecks identity, frame, mode, and coverage
+before issuing only `Candidate`, `Declined`, `Unresolved`, or `Rejected`.
+
+Nine focused policy tests and eight projection tests are green, and the shared
+recursive authority/line/caller-zero guard is green. The implementation commit
+updates the exact reference matrix, compiler/structural-facts/policy READMEs,
+current pointer, and workstream in the same commit. Selector, Recipe/JoinSig,
+Builder/MIR, physical lowering, retry/fallback, production callers, and legacy
+retirement remain closed.
+
 ### Stop lines
 
 Nested S1 must not:

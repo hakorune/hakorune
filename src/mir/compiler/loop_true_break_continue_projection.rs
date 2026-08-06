@@ -6,12 +6,15 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::loop_structural_facts::{
-    bind_resolved_loop_root_v1, LoopRootSourceBindingRejectV1, VerifiedLoopRootSourceV1,
+    bind_resolved_loop_root_v1, LoopRootSourceBindingRejectV1,
+};
+pub(crate) use crate::mir::loop_structural_facts::{
+    VerifiedLoopTrueBreakContinueSourceProjectionV1, VerifiedLoopTrueBreakContinueSourceShapeV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, LoopExecutionFrameKeyV1,
-    ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitSiteV1, ResolvedLexicalRefV1,
-    SourceExprSiteV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1, VerifiedResolvedLoopSourceV1,
+    BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, ResolvedControlTransferV1,
+    ResolvedExitOriginV1, ResolvedExitSiteV1, ResolvedLexicalRefV1, SourceExprSiteV1,
+    SourceStmtSiteV1, VerifiedResolvedFunctionV1, VerifiedResolvedLoopSourceV1,
 };
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
@@ -34,51 +37,6 @@ pub(crate) enum LoopTrueBreakContinueProjectionRejectV1 {
     ConstantShape,
     ExitResolution,
     ExitTargetMismatch,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedLoopTrueBreakContinueSourceShapeV1 {
-    pub(crate) loop_site: SourceStmtSiteV1,
-    pub(crate) loop_condition_site: SourceExprSiteV1,
-    pub(crate) branch_site: SourceStmtSiteV1,
-    pub(crate) branch_condition_site: SourceExprSiteV1,
-    pub(crate) branch_condition_lhs_site: SourceExprSiteV1,
-    pub(crate) branch_condition_rhs_site: SourceExprSiteV1,
-    pub(crate) branch_condition_binding: BindingRefV1,
-    pub(crate) branch_condition_bound: i64,
-    pub(crate) then_exit_site: SourceStmtSiteV1,
-    pub(crate) else_exit_site: SourceStmtSiteV1,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedLoopTrueBreakContinueSourceProjectionV1 {
-    source_binding: VerifiedLoopRootSourceV1,
-    shape: VerifiedLoopTrueBreakContinueSourceShapeV1,
-    root_frame_key: LoopExecutionFrameKeyV1,
-}
-
-impl VerifiedLoopTrueBreakContinueSourceProjectionV1 {
-    pub(crate) fn source_binding(&self) -> &VerifiedLoopRootSourceV1 {
-        &self.source_binding
-    }
-
-    pub(crate) fn shape(&self) -> &VerifiedLoopTrueBreakContinueSourceShapeV1 {
-        &self.shape
-    }
-
-    pub(crate) const fn root_frame_key(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.root_frame_key
-    }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        VerifiedLoopRootSourceV1,
-        VerifiedLoopTrueBreakContinueSourceShapeV1,
-        LoopExecutionFrameKeyV1,
-    ) {
-        (self.source_binding, self.shape, self.root_frame_key)
-    }
 }
 
 pub(crate) fn issue_loop_true_break_continue_source_projection_v1(
@@ -193,9 +151,9 @@ pub(crate) fn issue_loop_true_break_continue_source_projection_v1(
 
     let source_binding = bind_resolved_loop_root_v1(resolved_source)
         .map_err(LoopTrueBreakContinueProjectionRejectV1::SourceBinding)?;
-    Ok(VerifiedLoopTrueBreakContinueSourceProjectionV1 {
+    Ok(VerifiedLoopTrueBreakContinueSourceProjectionV1::new(
         source_binding,
-        shape: VerifiedLoopTrueBreakContinueSourceShapeV1 {
+        VerifiedLoopTrueBreakContinueSourceShapeV1 {
             loop_site: loop_stmt.site().clone(),
             loop_condition_site: loop_condition.site().clone(),
             branch_site: branch.site().clone(),
@@ -207,8 +165,10 @@ pub(crate) fn issue_loop_true_break_continue_source_projection_v1(
             then_exit_site: then_exit.site().clone(),
             else_exit_site: else_exit.site().clone(),
         },
+        function.function_origin(),
+        function.source_kind(),
         root_frame_key,
-    })
+    ))
 }
 
 fn verify_source_identity(

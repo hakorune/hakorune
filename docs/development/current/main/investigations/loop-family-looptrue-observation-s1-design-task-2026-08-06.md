@@ -1,5 +1,5 @@
 ---
-Status: Design stop / caller-zero
+Status: Closed implementation receipt / caller-zero
 Date: 2026-08-06
 Decision: LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1
 Authority: docs/development/current/main/design/loop-family-observation-policy-ssot.md
@@ -11,8 +11,9 @@ Authority: docs/development/current/main/design/loop-family-observation-policy-s
 
 Define the bounded source-to-neutral-observation boundary for the LoopTrue
 `loop(true)` plus explicit `break`/`continue` branch shape. This task is a
-design product only. It must not open selector, Recipe, Builder/MIR, physical,
-retry, fallback, production, or legacy-retirement work.
+design product only. Its bounded implementation slice is now landed. It must
+not open selector, Recipe, Builder/MIR, physical, retry, fallback, production,
+or legacy-retirement work.
 
 ## Sole source authority
 
@@ -100,6 +101,22 @@ never a decline because unseen source can change the result.
    commit. The implementation commit must state that the reference documents
    were updated; no later documentation debt is allowed.
 
+## Implementation receipt
+
+The bounded S1 slice is landed. The source projection now carries the complete
+AST-free identity (`owner + function origin + source kind + loop site + frame`)
+and preserves the original three-part `into_parts` compatibility view. A
+`#![cfg(test)]` compiler adapter maps typed projection outcomes into the
+neutral source-attempt DTO without exporting compiler rejection enums. The
+policy observer is pure and consumes only that DTO plus a separately sealed
+identity/mode/coverage context.
+
+Nine focused policy tests and eight projection tests are green. The shared
+recursive authority/line/caller-zero guard is green. The implementation commit
+also updates the design SSOT, reference matrix, compiler/structural-facts/
+policy READMEs, current pointer, and workstream; there is no deferred reference
+documentation debt for this slice.
+
 ## Stop lines and completion
 
 This design does not authorize `family_selection.rs`, the legacy policy
@@ -108,4 +125,5 @@ Builder/MIR/ValueId/PHI, physical lowering, retry/fallback, a production
 caller, or deletion of the old LoopTrue route. The design row is complete when
 the source identity contract, disposition table, finite implementation slice,
 and caller-zero/non-claims are recorded in the design SSOT and current
-pointer. Then stop at the next common family-selection design boundary.
+pointer. This row is now complete; stop at the next common family-selection/
+admission-window design boundary.
