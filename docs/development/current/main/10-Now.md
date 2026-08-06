@@ -120,13 +120,16 @@ Related:
   S1-S1 is now closed by the cfg(test)-only move-only co-sealed receipt and six
   focused tests. S1-S2-D0 fixed the two-stage policy boundary, S1-S2-S0 closed
   the substrate projection, and S1-S2-S1-S1 closed the one-consume policy
-  witness. The deep D4 evidence exit is now closed. The current design stop is
-  GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0: freeze the nested G0 source grammar,
-  the complete source→Facts→LoopRecipeV1 mapping, the separate post-loop tail
-  envelope, and typed reject/unresolved outcomes before production selection.
-  Full shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and
-  fallback remain gated; no public reference row is added until production
-  activation.
+  witness. The deep D4 evidence exit is closed. The worker-reviewed current
+  stop is GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0: G0 has explicit `: i64`,
+  contextual plain literals, three recurrence carriers for `i/j`, and a
+  separate post-loop completion envelope. Common nested shadow, logical
+  Header/After binding, source-bound Recipe core schema/verifier, and
+  route-independent producer provenance must close before the Generic
+  producer; only S4 issues real G0 keys/relations. The finite
+  shallow order and atomic legacy-retirement boundary live in the dedicated
+  Generic SSOT. Implementation remains paused for consultation; production and
+  public reference activation remain zero.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

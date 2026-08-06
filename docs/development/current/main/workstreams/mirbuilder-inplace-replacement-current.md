@@ -506,7 +506,8 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S
   -> worker-reviewed two-stage boundary: substrate owns exact type/range/overflow; policy owns progression; Ready/Unresolved/Rejected is fixed.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S0 -> cfg(test)-only substrate projection from receipt plus explicit NumericTarget; six boundaries green, no policy/selector/demand/Recipe/Builder/MIR.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S1-S1 -> cfg(test)-only policy witness; seven tests green; role-bearing operands and no selector/demand/Recipe/Builder/MIR.
-next — GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0 -> freeze nested G0, RecipeBody→LoopRecipeV1 mapping, tail envelope, and typed rejects before selector/demand/Recipe/Builder/MIR; see `design/generic-loop-source-to-portable-recipe-ssot.md`.
+next — GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0 -> worker-reviewed consultation proposal: explicit `: i64`, contextual literals, three-carrier recurrence, common nested shadow/After/source-core/provenance prerequisites, and legacy retirement boundary are fixed for review.
+  -> after user acceptance follow only the shallow order in `design/generic-loop-source-to-portable-recipe-ssot.md`; selection stays semantic-only through S2 and production stays zero until atomic M10b-I0-R0.
 ```
 ## Production invariants
 
@@ -954,8 +955,8 @@ ordered after B-prime correction
      reference closeout is recorded. Parent D2 stays unresolved and no
      production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed. D3-S2 remains the accepted typed-provenance handoff design stop; it adds no production issuer/selector/route authority
-  4. perform M10b atomic scheduler/Retry/old-PHI cutover, then M11 located
-     source handoff and the active R4 Loop fence retirement
+  4. close Generic G0 source/common-Recipe/selection/physical/parity rows, then
+     perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   6. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance
@@ -996,5 +997,4 @@ new language semantics
 default Raw/Canonical cutover before final conformance
 ```
 
-New per-row guards are forbidden; normal gates and detailed assertions belong to the active source/tests and existing shared guards.
-Typed provenance design is docs-only until accepted; Scalar Return projection remains deferred cfg(test) evidence; natural debt-to-different-winner and Home-bearing Generic evidence remain separate designs; reference closeout follows every future implementation.
+New per-row guards are forbidden; assertions belong to active tests/shared guards. Typed provenance and Home-bearing Generic remain design-only; every future implementation carries reference closeout.

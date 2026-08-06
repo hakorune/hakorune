@@ -45,6 +45,23 @@ Loop lowering.
   non-`Clone` validation capability. Its wire DTO remains intentionally
   `Clone`; neither type is source authority.
 
+## Current Generic design stop
+
+The proposed G0 target is documented in
+`docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md`.
+It exposes a common-contract gap, not a Generic exception: one source binding
+may be a carrier of both an ancestor and a child Loop. Before the Generic
+producer exists, JoinSig must shadow visible carrier payloads by binding with
+the innermost owner winning, and must expose logical Header/After binding
+identities. The source-bound verified core must also retain the opaque source
+claim plus exact Recipe-key/`BindingRef`/effect relations.
+
+The current `producer_route: LoopRouteId` is implementation state, not the
+final portable authority. A later caller-zero correction separates diagnostic
+producer identity from legacy route selection. Until those common rows close,
+there is no Generic Recipe producer or production consumer, and a post-loop
+function tail must not be inserted into `LoopRecipeV1`.
+
 ## LoopTrue S2 producer
 
 `produce_loop_true_break_continue_recipe_v1` is the caller-zero S2 producer

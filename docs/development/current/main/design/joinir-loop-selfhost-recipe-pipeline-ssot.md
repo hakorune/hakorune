@@ -369,14 +369,19 @@ D4-EVIDENCE-EXIT0
      matrices are closed without a production caller; no more D4 suffixes are
      authorized unless a new design stop supersedes this gate.
 GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0
-  -> source→Facts→portable-Recipe design stop. The canonical profile is the
-     existing nested two-loop G0 (L0 outer, L1 inner) with typed i64 Less/+step
-     conditions, ordered body effects, exact BindingRefs, and a separate
-     verified post-loop `return j` envelope. See
-     `design/generic-loop-source-to-portable-recipe-ssot.md` for the complete
-     mapping table and typed reject/unresolved boundary. Tests may witness only
-     these rows; they must not discover the mapping. No selector/demand/Recipe
-     caller or production selection is authorized until this D0 closes.
+  -> proposed consultation stop. The canonical G0 has explicit `: i64`, plain
+     literals typed only through exact BindingRef context, two source bindings
+     but three recurrence carriers `(L0,i)`, `(L0,j)`, `(L1,j)`, and a derived
+     child-entry read immediately before L1. Current JoinSig cannot yet prove
+     this exact recurrence: common nested-carrier shadow, logical Header/After
+     binding identity, source-bound relation schema/verifier, and
+     route-independent producer provenance precede the Generic Recipe
+     producer; only S4 issues real G0 keys/relations. The post-loop
+     `return j` remains a separate completion envelope consuming a common
+     `VerifiedLoopAfterBinding`; it is never encoded as an inner Loop exit.
+     See `design/generic-loop-source-to-portable-recipe-ssot.md` for the sole
+     mapping, finite shallow task order, and legacy deletion boundary. No code
+     row is authorized until the consultation stop is accepted.
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives
@@ -998,10 +1003,15 @@ Change:
   -> verified recipe -> one candidate physicalizer.
 
 Delete in the same commit:
-: Ordered `RouteFn` retry scheduler, `RouteAttemptOutcomeV1::Retry`,
-  `from_retry_option`, private legacy continuation, Generic error-to-None,
-  selected old JoinIR caller/physical edges and new-subtree AST reconstruction
-  facades.
+: The exact current symbols frozen in a checked deletion manifest immediately
+  before cutover: the ordered retry scheduler, Generic post-effect retry debt,
+  private continuation/error-to-None edges, Generic V0/V1 registry
+  handler/predicate edges, nested Generic `.ok()`/retry edges, selected old
+  JoinIR caller/physical edges, and new-subtree AST reconstruction facades.
+  Generic-only dead files may be physically removed in the immediately
+  following caller-zero R1, but no old mutating or re-selection authority may
+  survive this atomic cutover. Historical symbol names are not deletion
+  authority.
 
 Contract:
 : Meaning once, physical allocation once, external commit once. Failure is
@@ -1018,7 +1028,10 @@ Done:
 
 Stop:
 : Retry/fallback, source redecision, unverified lower, partial publish,
-  diagnostics drift, or backend mismatch blocks cutover.
+  diagnostics drift, backend mismatch, or an unclassified legacy Generic
+  fixture blocks cutover. Every currently accepted fixture must already have
+  an implemented portable owner or an accepted explicit typed reject. A future
+  profile may retain only evidence that current production does not accept.
 
 ### M11 — `RAW-LOCATED-LOOP-PORTABLE-HANDOFF0-R1`
 
