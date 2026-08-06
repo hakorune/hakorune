@@ -46,6 +46,84 @@ impl VerifiedStaticCallResultPublicationDemandV1 {
     }
 }
 
+/// Owned, source-bound activation handoff for one exact static result row.
+///
+/// This is deliberately smaller than the disconnected activation plan: the
+/// declaration/target/result proofs are borrowed only while issuing it, and
+/// no AST, Builder, ValueId, or catalog clone crosses the handoff boundary.
+/// The caller scope owns its lifetime and consumes it at most once.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedStaticCallResultPublicationHandoffV1 {
+    catalog_identity: usize,
+    demand: VerifiedStaticCallResultPublicationDemandV1,
+    required_i64_arguments: Box<[u32]>,
+}
+
+impl VerifiedStaticCallResultPublicationHandoffV1 {
+    pub(crate) fn from_exact_i64_requirement(
+        requirement: VerifiedStaticExactI64RequirementV1<'_, '_>,
+    ) -> Self {
+        let catalog_identity = requirement.catalog_identity();
+        let required_i64_arguments = requirement
+            .required_i64_arguments()
+            .to_vec()
+            .into_boxed_slice();
+        let demand =
+            VerifiedStaticCallResultPublicationDemandV1::from_exact_i64_requirement(requirement);
+        Self {
+            catalog_identity,
+            demand,
+            required_i64_arguments,
+        }
+    }
+
+    pub(crate) const fn catalog_identity(&self) -> usize {
+        self.catalog_identity
+    }
+
+    pub(crate) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        self.demand.caller()
+    }
+
+    pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
+        self.demand.site()
+    }
+
+    pub(crate) const fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        self.demand.target()
+    }
+
+    pub(crate) fn required_i64_arguments(&self) -> &[u32] {
+        &self.required_i64_arguments
+    }
+
+    pub(crate) fn is_branded_by(
+        &self,
+        declarations: &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) -> bool {
+        self.catalog_identity == declarations as *const _ as usize
+    }
+
+    pub(crate) fn consume(self) -> (VerifiedStaticCallResultPublicationDemandV1, Box<[u32]>) {
+        (self.demand, self.required_i64_arguments)
+    }
+}
+
+#[cfg(test)]
+impl VerifiedStaticCallResultPublicationHandoffV1 {
+    fn from_test_parts(
+        catalog_identity: usize,
+        demand: VerifiedStaticCallResultPublicationDemandV1,
+        required_i64_arguments: &[u32],
+    ) -> Self {
+        Self {
+            catalog_identity,
+            demand,
+            required_i64_arguments: required_i64_arguments.to_vec().into_boxed_slice(),
+        }
+    }
+}
+
 #[cfg(test)]
 impl VerifiedStaticCallResultPublicationDemandV1 {
     pub(crate) fn from_test_parts(
@@ -89,5 +167,34 @@ mod tests {
         assert_eq!(demand.caller(), &caller);
         assert_eq!(demand.site(), &site);
         assert_eq!(demand.target(), &target);
+    }
+
+    #[test]
+    fn handoff_is_owned_and_single_use_by_move() {
+        let caller = key("StringHelpers", "int_to_str", 1);
+        let target = key("StringHelpers", "to_i64", 1);
+        let site = SourceExprSiteV1::from_node(
+            crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::Initializer(0),
+            ]),
+        );
+        let handoff = VerifiedStaticCallResultPublicationHandoffV1::from_test_parts(
+            17,
+            VerifiedStaticCallResultPublicationDemandV1::from_test_parts(
+                caller.clone(),
+                site.clone(),
+                target.clone(),
+            ),
+            &[0, 2],
+        );
+        assert_eq!(handoff.catalog_identity(), 17);
+        assert_eq!(handoff.caller(), &caller);
+        assert_eq!(handoff.site(), &site);
+        assert_eq!(handoff.target(), &target);
+        assert_eq!(handoff.required_i64_arguments(), &[0, 2]);
+        let (demand, ordinals) = handoff.consume();
+        assert_eq!(demand.caller(), &caller);
+        assert_eq!(ordinals.as_ref(), &[0, 2]);
     }
 }

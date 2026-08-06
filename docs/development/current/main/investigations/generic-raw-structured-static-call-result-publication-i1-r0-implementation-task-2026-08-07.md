@@ -1,11 +1,18 @@
 # Generic raw structured static-call result publication I1/R0
 
-Status: `paused at design stop 2026-08-07; production caller is absent`
+Status: `issuer slice active after design close 2026-08-07; production caller remains closed`
 
-The implementation row cannot begin until the source-bound handoff design is
-closed.  See:
+The implementation row opens with the bounded issuer slice from the closed
+source-bound handoff design.  See:
 
 - `generic-static-call-publication-source-bound-handoff-design-stop-2026-08-07.md`
+
+## Current slice: `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-ISSUER-S0`
+
+Issue one AST-free, non-`Clone`, single-use handoff after CatalogSeal and
+before CatalogInstall.  Add the neutral activation-source seam required by
+the existing located schedule/ledger/batch products.  Do not switch the
+production caller in this slice; that remains the next atomic row.
 
 Parent design:
 

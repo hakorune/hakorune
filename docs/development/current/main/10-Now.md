@@ -52,11 +52,12 @@ Related:
   item sites are canonicalized without changing rootful body receipts, and
   the fresh release probe reaches the GenericLoop carrier transient-type
   boundary. The carrier audit, static-call publication D0, and its
-  caller-zero I0/R0 receipt and the worker-reviewed I1/D0 rollback-owner
-  design are closed. The I1/R0 caller audit found that the live raw loop
-  path discards source receipts before Generic lowering, so the current row is
-  the compact `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-HANDOFF-DESIGN-STOP`.
-  Production selection, physical cutover, and legacy removal remain closed.
+  caller-zero I0/R0 receipt, the worker-reviewed I1/D0 rollback-owner design,
+  and the source-bound handoff design are closed. The current row is the
+  bounded `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-ISSUER-S0`: issue the
+  AST-free handoff between CatalogSeal and CatalogInstall, then add the
+  neutral activation-source seam. Production selection, physical cutover, and
+  legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

@@ -520,7 +520,11 @@ closed — GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0/I0 and
   Static-call result publication D0 and caller-zero I0/R0 are closed: source
   transport is locator-only, sealed `(Cataloged caller, SourceExprSite)` selects
   proof, and `CompletedUnifiedValueCallEmissionV1` is the sole success receipt.
-  I1/D0 is closed and the existing module candidate remains the sole rollback owner. The I1/R0 caller audit found no production handoff, so the current row is `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-HANDOFF-DESIGN-STOP`; production remains closed.
+  I1/D0 and source-bound handoff design are closed; the candidate remains the
+  sole rollback owner. Current row:
+  `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-ISSUER-S0` (AST-free handoff
+  before CatalogInstall + one neutral activation-source seam). Production
+  remains closed until the named caller switch.
 ```
 ## Production invariants
 ```text
@@ -843,19 +847,16 @@ closed
      Deferred. Assignment is safe only for prior-Local Variable targets:
      the shared forest already owns exact BindingRebind facts, while the
      existing raw lower retains operational completion.
-
   RAW-SCRIPT-ROOT-RETURN-EXIT-ADMISSION0-I0-R0
   -> only final-ordinal root `Return` receives a typed exit demand. The shared
      traversal preserves existing ReturnValue/ExplicitReturn facts and the
      existing value/void terminal owns all lowering. Non-final and nested
      Return stay Deferred, so no suffix reachability owner is introduced; the
      selected final-Return `Deferred -> bare script_root()` edge is zero.
-
   RAW-SCRIPT-POST-IF-CAPABILITY-CENSUS0-D0
   -> CheckExpr and its safe recursive closure are already Complete through
      the shared lexical traversal and existing source-demand owner; no new
      receipt or I0 exists. Final-root Return is the next bounded live edge.
-
   RAW-SCRIPT-IF-CONTROL-ADMISSION0-I0-R0
   -> exact `DirectIfStatement + ASTNode::If` work-plan receipts issue one
      typed root-control demand. The shared Script traversal resolves that

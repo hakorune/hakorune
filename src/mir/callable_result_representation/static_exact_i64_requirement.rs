@@ -68,6 +68,10 @@ impl<'result, 'catalog> VerifiedStaticExactI64RequirementV1<'result, 'catalog> {
         std::ptr::eq(self.declarations, declarations)
     }
 
+    pub(crate) fn catalog_identity(&self) -> usize {
+        self.declarations as *const _ as usize
+    }
+
     #[cfg(test)]
     pub(crate) fn with_required_i64_arguments_for_test<'override_result>(
         self,
