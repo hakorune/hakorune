@@ -966,35 +966,35 @@ The source-lease witness is cfg(test)-only, exact-two-role, owner-branded,
 non-`Clone`, and AST/source-lifetime-free; five focused tests are green.
 ## D4-S4-S0/S1 through S1-S0 closeout
 The cfg(test)-only lease, semantic-shape, inventory, syntax-fact, and
-owner-branded parameter-map witnesses are closed. No selector, demand, Recipe,
-Builder/MIR, retry, fallback, production caller, or public reference row was added.
+owner-branded parameter-map witnesses are closed; no downstream caller/public row.
 
 ## D4-S4-S3-S1-S1 co-sealed numeric source receipt closeout
-The worker-reviewed `VerifiedGenericNumericSourceReceiptV1` is implemented as
-cfg(test)-only, non-`Clone`, AST-free transport. It consumes only the sealed
-syntax-fact product plus owner-branded parameter map, verifies
-owner/origin/source-kind and BindingRef coverage, and leaves numeric policy to
-later owners. Six focused tests pass, including typed/untyped transport,
-foreign provenance, map coverage, and source-unit/AST lifetime drop.
-
-Next design stop: `D4-S4-S3-S1-S2-D0`. Decide the smallest numeric-policy
-adapter for type/range/overflow disposition; do not add a selector, Recipe,
-Builder/MIR caller, retry, fallback, or public semantic row before that stop.
-
+The worker-reviewed receipt is cfg(test)-only, non-`Clone`, AST-free transport
+over syntax facts plus the owner-branded map; provenance/BindingRef coverage and
+six focused transport/drop tests are green.
 ## D4-S4-S3-S1-S2-D0 numeric-policy adapter design stop
-Worker review accepts a two-stage future boundary. A cfg(test)-only substrate
-projection consumes the co-sealed receipt plus sealed target context and owns
-exact numeric type/width/sign/range/overflow classification. A separate policy
-adapter consumes that projection once and owns operator/progression semantics;
-it does not reclassify types or carry route IDs, raw cursors, selector/winner,
-Recipe, Builder, or MIR state.
-
-The disposition vocabulary is `Ready`, `Unresolved`, or `Rejected`. Provenance,
-missing/duplicate map rows, contradictory typed literals, and proven range
-violations reject before classification. Missing/unknown/nonnumeric annotation
-or unresolved target remains `Unresolved`; no fallback or `NoCandidate` is
-invented. Minimum witness: typed i64 ready, untyped symbolic unresolved,
-unknown/nonnumeric unresolved, typed u8 range reject, foreign/missing-row reject,
-and source-unit drop. No implementation caller or public row is allowed before
-this witness closes; implementation must sync current/workstream/pipeline/README
-and production activation must later update `docs/reference/**`.
+The two-stage boundary is fixed: substrate owns exact numeric type/width/sign/
+range/overflow; a later policy adapter consumes that projection once and owns
+operator/progression semantics. `Ready | Unresolved | Rejected` is the only
+disposition; no route IDs, cursor, selector/winner, Recipe, Builder, or MIR.
+Missing/unknown/nonnumeric annotation and unresolved target are `Unresolved`;
+provenance/map/range contradictions reject. The six-boundary witness is closed;
+no policy caller or public row exists.
+## D4-S4-S3-S1-S2-S0 numeric-substrate projection closeout
+The cfg(test)-only non-`Clone` projection consumes the receipt plus explicit
+`NumericTarget`; missing/unknown stays `Unresolved`, typed range failure is
+`Rejected`, exact target rows are `Ready`, and six focused tests are green.
+No policy/progression, selector, demand, Recipe, Builder/MIR, retry, fallback,
+or public semantic row was added.
+## D4-S4-S3-S1-S2-S1-D0 numeric-policy projection design stop
+Worker review fixes a one-consume API: policy accepts only sealed
+`VerifiedGenericNumericSubstrateProjectionV1` by value and returns a move-only
+`Ready | Unresolved | Rejected` product. It owns only admitted comparison/update
+operators and progression direction/strictness; it must not reclassify type,
+range, or overflow, and must not accept a second target. Condition-Rhs and
+Step-Rhs operand roles must be explicit in the substrate view; missing,
+duplicate, or foreign roles reject, while unknown/symbolic/non-progressing
+steps remain `Unresolved`. No selector/demand/Recipe/Builder/MIR, retry,
+fallback, `NoCandidate`, or public row. Next: docs/worker approval, then one
+cfg(test)-only module, focused fixtures, and same-commit current/docs sync;
+`docs/reference/**` closes only at production activation.

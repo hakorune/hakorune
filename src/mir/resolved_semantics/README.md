@@ -592,7 +592,11 @@ bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns
   and BindingRef coverage while leaving numeric classification/range/overflow/
   progression to later policy owners. Six focused tests are green; no selector,
   demand, Recipe, Builder/MIR caller, retry, fallback, or public semantic row
-  was added. The next stop is S1-S2-D0 numeric-policy adapter design. Every
-  implementation commit updates current state, workstream, pipeline SSOT, and
-  this README; production activation later requires the corresponding
-  `docs/reference/**` closeout.
+  was added. S1-S2-D0 fixed the two-stage boundary; S1-S2-S0 is closed by the
+  cfg(test)-only substrate projection from this receipt plus explicit
+  `NumericTarget`, with missing/unknown types unresolved and range failures
+  rejected. The next design stop is S1-S2-S1-D0: policy consumes that sealed
+  projection once, with explicit condition/step operand roles, and owns only
+  progression semantics. Every implementation commit updates current state,
+  workstream, pipeline SSOT, and this README; production activation later
+  requires the corresponding `docs/reference/**` closeout.

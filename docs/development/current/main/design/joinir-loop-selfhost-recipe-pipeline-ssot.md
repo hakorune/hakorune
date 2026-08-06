@@ -344,6 +344,19 @@ D4-S4-S3-S1-S2-D0
      Rejected. Minimum six-boundary witness precedes any selector/demand/
      Recipe/Builder/MIR caller. Implementation updates current state, workstream,
      support README, and later `docs/reference/**` at production activation.
+D4-S4-S3-S1-S2-S0
+  -> closed: cfg(test)-only substrate projection consumes the co-sealed receipt
+     plus explicit NumericTarget. Missing/unknown annotations remain
+     Unresolved; typed range failures are Rejected; exact rows are Ready. Six
+     focused tests are green; no policy/selector/demand/Recipe/Builder/MIR.
+D4-S4-S3-S1-S2-S1-D0
+  -> next design stop: a cfg(test)-only policy adapter consumes the sealed
+     substrate projection exactly once and owns admitted comparison/update
+     operators and progression semantics. Condition/step operand roles must be
+     explicit; role gaps/duplicates/foreign bindings reject, while unknown
+     operators or symbolic/non-progressing steps remain Unresolved. No
+     reclassification, target re-resolution, selector, demand, Recipe,
+     Builder/MIR, retry, fallback, or public row.
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

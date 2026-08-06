@@ -118,7 +118,9 @@ Related:
   witnesses and no public reference row. D4-S4-S3-D1 and S1-D0 are closed;
   S1-S0 is closed with its cfg(test)-only source-unit receipt/map witness; the
   S1-S1 is now closed by the cfg(test)-only move-only co-sealed receipt and six
-  focused tests. The next stop is S1-S2-D0 numeric-policy adapter design.
+  focused tests. S1-S2-D0 fixed the two-stage policy boundary and S1-S2-S0 is
+  closed with six projection tests. The current stop is S1-S2-S1-D0: design a
+  one-consume policy adapter with explicit condition/step operand roles.
   Full shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and
   fallback remain gated; no public reference row is added until production
   activation.

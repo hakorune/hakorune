@@ -72,9 +72,10 @@ legacy route reconstruction, retry, fallback, and Generic-as-DirectAccum or
 NestedPredicate aliases are forbidden. The following paragraph is retained as
 historical handoff context: D4-S4-D0 through D4-S4-S3-S0 subsequently closed
 as design/test-only evidence, without a public semantic row or production
-caller. D4-S4-S3-D1 has since closed its authority split. The current blocker
-is the D4-S4-S3-S1-S1 co-sealed numeric source receipt design in
-`CURRENT_STATE.toml`; no `Selected(Generic)` or Recipe claim is implied here.
+caller. D4-S4-S3-D1 and S1-S1 have since closed their authority boundaries.
+The current blocker is the D4-S4-S3-S1-S2-S1-D0 cfg(test)-only numeric policy
+adapter design in `CURRENT_STATE.toml`; the substrate projection is closed.
+No `Selected(Generic)` or Recipe claim is implied here.
 
 ```text
 resolver SourceLease -> AST-free Generic shape/candidate envelope

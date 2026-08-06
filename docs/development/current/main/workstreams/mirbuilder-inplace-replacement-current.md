@@ -501,12 +501,12 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-D
   -> NoSafeSlice: typed literals and resolver parameter types were not co-sealed.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S0
   -> cfg(test)-only exact source-unit receipt/map witness green; no selector/demand/Recipe/Builder/MIR.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S1
-  -> cfg(test)-only non-Clone co-sealed receipt; six tests cover typed/untyped transport, provenance, map coverage, and source-unit/AST drop.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-D0
-  -> worker-reviewed two-stage boundary: substrate owns exact type/range/
-     overflow; policy owns progression. Ready/Unresolved/Rejected and six
-     boundaries are design-only; no selector/demand/Recipe/Builder/MIR/public row.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S1 -> cfg(test)-only non-Clone co-sealed receipt; six tests cover typed/untyped transport, provenance, map coverage, and source-unit/AST drop.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-D0
+  -> worker-reviewed two-stage boundary: substrate owns exact type/range/overflow; policy owns progression; Ready/Unresolved/Rejected is fixed.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S0 -> cfg(test)-only substrate projection from receipt plus explicit NumericTarget; six boundaries green, no policy/selector/demand/Recipe/Builder/MIR.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S1-D0
+  -> worker-reviewed policy design stop: consume sealed substrate once; explicit roles; operator/progression only; no selector/demand/Recipe/Builder/MIR/fallback.
 ```
 ## Production invariants
 
