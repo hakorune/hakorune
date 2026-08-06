@@ -4,6 +4,8 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="mirbuilder-inplace-replacement-guard"; source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 source "$ROOT_DIR/tools/checks/lib/joinir_logical_demand_contract.sh"; source "$ROOT_DIR/tools/checks/lib/joinir_loop_compile_candidate_scope.sh"; source "$ROOT_DIR/tools/checks/lib/loop_family_observation_contract.sh"
 MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-inplace-replacement-v1.tsv"
+GENERIC_LEGACY_MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/generic-loop-legacy-disposition-v1.tsv"
+GENERIC_LEGACY_GUARD="$ROOT_DIR/tools/checks/lib/generic_legacy_corpus_universe_guard.py"
 CALLER_MANIFEST="$ROOT_DIR/tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json"
 STRUCTURAL_RATCHET="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-structural-ratchet.tsv"
 LOWERING="$ROOT_DIR/src/mir/builder/calls/lowering.rs"
@@ -63,10 +65,12 @@ guard_exact_counts() {
     fi
   done
 }
-for command in awk find rg sed wc xargs; do guard_require_command "$TAG" "$command"; done
+for command in awk find python3 rg sed wc xargs; do guard_require_command "$TAG" "$command"; done
 guard_require_files \
   "$TAG" \
   "$MANIFEST" \
+  "$GENERIC_LEGACY_MANIFEST" \
+  "$GENERIC_LEGACY_GUARD" \
   "$CALLER_MANIFEST" \
   "$STRUCTURAL_RATCHET" \
   "$LOWERING" \
@@ -715,6 +719,7 @@ if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
   guard_fail "$TAG" "Match owned input must have one consuming production owner"
 fi
 if rg -n -P '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" >/dev/null; then guard_fail "$TAG" "owned compound expression dispatcher clone returned"; fi
+python3 "$GENERIC_LEGACY_GUARD" "$GENERIC_LEGACY_MANIFEST" "$ROOT_DIR" || guard_fail "$TAG" "Generic legacy corpus universe manifest failed"
 guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_if_recipe_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_loop_family_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_g0_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_candidate_envelope_contract "$ROOT_DIR" "$TAG"; guard_loop_family_row_context_retention_contract "$ROOT_DIR" "$TAG"; guard_loop_family_window_lease_contract "$ROOT_DIR" "$TAG"; guard_loop_family_admission_contract "$ROOT_DIR" "$TAG"; guard_loop_family_selector_contract "$ROOT_DIR" "$TAG"
 for file in \
   "$LOWERING" \
@@ -773,7 +778,8 @@ for file in \
   "$RECORD_HELPER_TESTS" \
   "$METHOD_CALL_GUARD" \
   "$RECORD_HELPER_GUARD" \
-  "$ROOT_DIR/tools/checks/mirbuilder_inplace_replacement_guard.sh"
+  "$ROOT_DIR/tools/checks/mirbuilder_inplace_replacement_guard.sh" \
+  "$GENERIC_LEGACY_GUARD"
 do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then

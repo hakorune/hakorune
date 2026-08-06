@@ -1092,6 +1092,25 @@ symbol, current role, production/test caller counts, first effect, cutover
 action, retire row, and replacement owner. Nonapplicable columns use one
 documented sentinel rather than an empty-field convention.
 
+The exact 25-column union header is fixed here (the manifest is an evidence
+fixture, not a second semantic authority):
+
+```text
+record_kind  id  canonical_fixture  corpus  mode  profile  alias_of
+observation_state  current_acceptance  observed_route  nested_bypass
+source_surface  disposition  target_owner  decision  parity_gate
+retention_row  symbol  current_role  production_callers  test_callers
+first_effect  cutover_action  retire_row  replacement_owner
+```
+
+`id` is a source-traceability identity only; it is never a route, owner, or
+disposition fact. P0 admits case records only and therefore has zero edge
+records; the edge columns and sentinel policy are nevertheless sealed now so
+the later dependency row cannot introduce a second parser. The checked
+inventory covers every non-comment row in the active phase29bq fast gate and
+the planner-required selfhost subset, plus the four Generic smoke scripts,
+their four compatibility aliases, and all Generic-named fixture files.
+
 Allowed case dispositions are only:
 
 ```text

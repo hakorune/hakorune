@@ -35,9 +35,11 @@ Related:
   handoff and `GENERIC-G0-DEMAND-S3-D0/I0-R0` are closed: the selector owns
   one canonical window lease, the handoff borrows only a private brand, and
   the demand retains exact source roles without Recipe keys. The worker-
-  reviewed `GENERIC-G0-RECIPE-S4-D0` design is also closed. The current row is
-  `GENERIC-G0-RECIPE-S4-I0-R0`, a caller-zero deterministic Recipe producer;
-  production selection, physical cutover, and legacy removal remain closed.
+  reviewed `GENERIC-G0-RECIPE-S4-D0` design is also closed. The caller-zero
+  deterministic Recipe producer and the checked 389-case
+  `GENERIC-LEGACY-CORPUS-UNIVERSE-P0` inventory are landed; the current row is
+  `GENERIC-LEGACY-OBSERVATION-FRONT-G0`. Production selection, physical
+  cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

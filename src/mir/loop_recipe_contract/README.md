@@ -58,6 +58,16 @@ explicit production-caller row; it has no Builder/MIR, physical, completion,
 retry/fallback, or legacy-deletion authority. The implementation receipt is
 in `docs/reference/mir/generic-loop-stage-matrix.md`.
 
+## Generic legacy corpus inventory
+
+The pre-production legacy inventory is intentionally outside this portable
+contract. `generic-loop-legacy-disposition-v1.tsv` is a checked, 25-column
+case/edge union consumed only by the shared replacement guard; its 389 P0 case
+records are unobserved future evidence. This directory must not select a route,
+interpret fixture names, or open a production Recipe caller from that manifest.
+The next observation-front task is tracked in
+`docs/development/current/main/investigations/generic-legacy-observation-front-g0-task-2026-08-07.md`.
+
 ## JoinSig module map
 
 The `join_sig/` directory is the single logical JoinSig owner. Its facade keeps

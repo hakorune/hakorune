@@ -1,6 +1,6 @@
 # Generic legacy corpus universe P0
 
-Status: `next implementation row; S4 caller-zero Recipe producer landed 2026-08-07`
+Status: `landed 2026-08-07; next row is GENERIC-LEGACY-OBSERVATION-FRONT-G0`
 
 Parent SSOT: `../design/generic-loop-source-to-portable-recipe-ssot.md`.
 
@@ -40,6 +40,20 @@ physical lowering, retry/fallback, or deletion machinery.
   receipt in the same commit;
 - focused corpus tests, the relevant manifest guard, pointer guard, and
   `git diff --check` are green before commit/push.
+
+## Landed receipt
+
+The checked manifest now contains 389 case records: 179 normalized
+phase29bq rows, 198 planner-required selfhost rows, four Generic fixture-
+inventory records, four canonical Generic smoke scripts, and four explicit
+compatibility aliases. The exact 25-column union header, source line/profile
+parity, canonical fixture existence, alias target contract, sentinel policy,
+and inventory-only no-route boundary are validated by
+`tools/checks/lib/generic_legacy_corpus_universe_guard.py`, focused tests, and
+the shared `mirbuilder_inplace_replacement_guard.sh`. All cases remain
+`unobserved`/`unknown`/`nonproduction-future-evidence`; edge records are zero
+until the later dependency row. The next task is
+`generic-legacy-observation-front-g0-task-2026-08-07.md`.
 
 ## Non-goals
 

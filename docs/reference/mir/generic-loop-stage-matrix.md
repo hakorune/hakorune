@@ -194,6 +194,25 @@ physical, completion, retry/fallback, or production authority. The next
 ordered boundary is `GENERIC-LEGACY-CORPUS-UNIVERSE-P0`; production selection
 and legacy deletion remain closed.
 
+## Generic legacy corpus universe P0 receipt
+
+`GENERIC-LEGACY-CORPUS-UNIVERSE-P0` is landed on 2026-08-07 as a checked,
+inventory-only universe. The 25-column union manifest
+`docs/development/current/main/design/fixtures/generic-loop-legacy-disposition-v1.tsv`
+normalizes 179 active phase29bq rows, 198 planner-required selfhost rows, four
+Generic fixture-inventory records, four canonical Generic smoke scripts, and four
+compatibility script aliases. Source line provenance, mode/profile identity,
+canonical fixture paths, and alias targets are checked by
+`tools/checks/lib/generic_legacy_corpus_universe_guard.py` and the shared
+MirBuilder replacement guard.
+
+All 389 case records remain `unobserved`/`unknown` with
+`nonproduction-future-evidence`; no runtime route, disposition, Recipe,
+Builder/MIR, physical, retry/fallback, production caller, or deletion claim is
+opened. The manifest contains zero edge records by design; the edge columns
+are sealed for the later dependency row. The next ordered boundary is
+`GENERIC-LEGACY-OBSERVATION-FRONT-G0`.
+
 ## DirectAccum S1 observation receipt
 
 `LOOP-FAMILY-DIRECT-OBSERVATION-S1` is now landed as a caller-zero,
