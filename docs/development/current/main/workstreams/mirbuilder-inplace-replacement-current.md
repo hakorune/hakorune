@@ -496,8 +496,10 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D
      resolver lacks exact site inventory and parent-role topology.
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-RESOLVED-SOURCE-SITE-INVENTORY0-D4-S4-S2-S0
   -> resolver traversal records/seals branded statement/expression membership; focused inventory/generic tests green; no downstream consumer or public reference row.
-next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-S1
-  -> cfg(test)-only V2 Condition+Step issuer; no parent map, AST/name scan, selector/demand/Recipe/Builder/MIR, retry, fallback, or production caller.
+closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-S1
+  -> cfg(test)-only V2 Condition+Step issuer; five tests green; no downstream consumer or public reference row.
+next — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D0
+  -> worker design stop for comparator/operator/literal/delta proof; no AST/name/parent map, selector/demand/Recipe/Builder/MIR, retry, fallback, or production caller.
 ```
 
 ## Production invariants
@@ -990,11 +992,9 @@ default Raw/Canonical cutover before final conformance
 
 New per-row guards are forbidden. Normal gates and detailed assertions belong
 to the active source/tests and existing shared guards.
-Typed provenance design is docs-only until accepted.
-Scalar Return projection remains deferred cfg(test) evidence.
+Typed provenance design is docs-only until accepted; Scalar Return projection remains deferred cfg(test) evidence.
 Natural debt-to-different-winner evidence remains unobserved.
 Home-bearing Generic evidence remains a separate design.
 Reference closeout follows every future implementation.
 S0 observation artifact is none; logical-key assignment remains deferred.
-S0 neutral snapshot issuer remains deferred.
-S0 production caller census remains zero; failure returns to D3-S2 design.
+S0 neutral snapshot issuer remains deferred; production caller census is zero, and failure returns to D3-S2 design.

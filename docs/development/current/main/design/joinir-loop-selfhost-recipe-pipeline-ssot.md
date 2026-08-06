@@ -315,9 +315,10 @@ RESOLVED-SOURCE-SITE-INVENTORY0-S0
   -> closed: resolver traversal records/seals branded membership; focused
      inventory/generic tests green; no Generic consumer or public reference row
 D4-S4-S2-S1
-  -> cfg(test)-only V2 Condition+Step role issuer consumes the sealed inventory
-D4-S4-S3
-  -> condition/step semantic shape proofs
+  -> closed: cfg(test)-only V2 Condition+Step role issuer consumes the sealed
+     inventory/path topology; five focused tests; no public reference row
+D4-S4-S3-D0
+  -> worker design stop for comparator/operator/literal/delta proof semantics
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

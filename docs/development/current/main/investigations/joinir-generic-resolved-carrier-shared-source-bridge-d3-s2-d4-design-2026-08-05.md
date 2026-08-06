@@ -977,24 +977,20 @@ upvar/capture awaits a later fixture.
 ## D4-S4-S0/S1 witness closeout
 S0/S1 close the cfg(test)-only lease and CarrierProof handoff; no production
 caller, selector/demand, Recipe/Builder/MIR, retry, fallback, or rename.
-
 ## D4-S4-S2-D1 semantic-shape extension design closeout
 V1 remains immutable; V2 begins with inner-loop Condition+Step. Resolver owns
-sites/forest/frame brands, shape owns operator/effect proofs, and no public
-`docs/reference` row or downstream consumer is allowed here.
-
+sites/forest/frame brands; shape owns operator/effect proofs; no public reference row.
 ## D4-S4-S2-D0 resolver role-issuer design closeout
-Direct V2 issuance is `NoSafeSlice`; D0 selects branded statement/expression
-point inventory, with `SourcePathSegmentV1` as sole topology authority and no
-AST/name/role/operator/literal or parent-role map.
-
+Direct V2 issuance is `NoSafeSlice`; D0 selects branded point inventory with
+`SourcePathSegmentV1` as sole topology authority; no AST/name/role/parent map.
 ## D4-S4-S2-S0 source-site inventory implementation closeout
-Accepted: one resolver traversal records membership; seal brands owner/origin/
-source-kind, exposes point lookup, and checks indexed sites. Focused inventory
-and generic tests are green; no downstream consumer or public reference row.
-
-## D4-S4-S2-S1 resolver role-issuer witness task
-Next: cfg(test)-only V2 Condition+Step issuer consumes the sealed inventory and
-path topology, rejecting missing/foreign/misplaced sites. No parent map, AST/name
-scan, shape proof, selector/demand/Recipe/Builder/MIR, retry, fallback, or
-production caller; sync current/support/reference decision atomically.
+Accepted: traversal records membership; seal brands owner/origin/source-kind,
+point lookup, and indexed-site checks. Tests green; no downstream/public row.
+## D4-S4-S2-S1 resolver role-issuer witness closeout
+Accepted cfg(test)-only V2 Condition+Step catalog retains the V1 handoff,
+consumes inventory/path topology, and rejects foreign/missing/misplaced/upvar/
+binding-mismatch sites. Five tests pass; no downstream/public row.
+## D4-S4-S3-D0 condition-step semantic-shape design stop
+Next: worker-review comparator/operator/literal/delta proof semantics. Keep V2
+immutable; no AST/name/parent map, selector/demand/Recipe/Builder/MIR, retry,
+fallback, or production caller until that design is fixed.

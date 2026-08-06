@@ -109,11 +109,12 @@ Related:
   lifetime. D4-S4-S2-D1 closes the worker-reviewed design boundary: V1 stays
   immutable and V2 begins with inner-loop Condition+Step roles; BodyEffect/
   Coverage remain separate D0 cells. D4-S4-S2-D0 closes direct issuance as
-  NoSafeSlice and selects the neutral inventory prerequisite. Inventory S0 is
-  now closed: resolver traversal co-seals branded statement/expression point
-  membership, with `SourcePathSegmentV1` as topology authority. The next task
-  is cfg(test)-only V2 role issuance; full shape, Selected(Generic), demand,
-  Recipe, Builder/MIR, retry, and fallback remain gated.
+  NoSafeSlice and selects the neutral inventory prerequisite. Inventory S0 and
+  V2 role issuance are now closed: resolver traversal co-seals branded point
+  membership, and the move-only catalog validates Condition+Step topology.
+  The next task is the D4-S4-S3-D0 shape-proof design stop; full shape,
+  Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback remain
+  gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

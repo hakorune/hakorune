@@ -574,6 +574,9 @@ witness is also closed as cfg(test)-only: a bounded exact-two nested-carrier
 lease with five focused tests, resolver-derived forest/frames, and
 owner-branded role claims. The bounded `CarrierProof` witness is now closed:
 it proves only the NestedWrite -> PostLoopRead same-`BindingRef` relation and
-retains the lease brand. Full shape role ingress is a separate design stop;
-this resolver remains production-caller-zero and no role may be re-resolved by
-name.
+retains the lease brand. D4-S4-S2-S1 adds a cfg(test)-only
+`GenericShapeSourceLeaseV2` that consumes this handoff, derives only inner-loop
+Condition+Step paths, validates local BindingRef relations, and retains no
+AST/source lifetime. Operator/literal/delta, BodyEffect/Coverage, selector,
+Recipe, and MIR semantics remain outside this resolver at the D4-S4-S3 design
+stop; production caller remains zero and no role is re-resolved by name.
