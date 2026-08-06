@@ -1,6 +1,6 @@
 # Generic raw structured static-call result publication I1 D0
 
-Status: `design stop after caller-zero I0/R0; production activation remains 0`
+Status: `design accepted 2026-08-07; implementation remains closed until I1/R0`
 
 Parent evidence:
 
@@ -8,15 +8,13 @@ Parent evidence:
 - `generic-raw-structured-static-call-result-publication-i0-r0-implementation-task-2026-08-07.md`
 - `docs/reference/mir/generic-loop-stage-matrix.md`
 
-## Goal
+## Decision
 
-Design one whole-source activation path for the natural
-`StringHelpers.int_to_str/1` static-call result publication boundary.  The
-activation must connect the already landed source demand and the
-`CompletedUnifiedValueCallEmissionV1` receipt to the current-owner terminal,
-then let the existing local materializer transport the published type to the
-GenericLoop verifier.  This row is a design product only; it does not open a
-production caller until every owner and rollback boundary is sealed.
+Use the existing module candidate session as the sole rollback owner.  Do not
+add a route-local snapshot transaction.  Seal the canonical source/site and
+one current-owner static terminal before physical effects; after effects,
+failure is terminal `Freeze` and the outer candidate is discarded.  The
+registry must not advance through `PostEffectRetryDebt` for this activation.
 
 ## Required authority split
 
@@ -38,27 +36,30 @@ state, or inferred type.  The physical receipt remains the only destination
 authority.  No method-name, owner-name, route-string, final metadata, or
 runtime-value selector is allowed.
 
-## Mandatory route-transaction audit
+## Contract
 
-Before activation, the candidate composition/attempt transaction must name one
-rollback owner for all mutable state it can touch:
+The exact source demand is `(Cataloged StringHelpers.int_to_str/1,
+Body(0).Initializer(0), target StringHelpers.to_i64/1)`.  The current-owner
+static terminal alone emits the physical Call and returns
+`CompletedUnifiedValueCallEmissionV1`; its destination is the only `ValueId`
+authority.  Publication consumes that receipt once and writes `Integer` to
+`type_ctx`.  The local materializer transports Copy/metadata only, and
+GenericLoop verifies only.
 
-- `variable_map` / Binding SSA state;
-- `type_ctx` and publication receipts;
-- physical instruction stream / block state;
-- pending cleanup or error state, if the route reaches it.
+`ModuleBuilderInvocationSessionV1`/`CanonicalModuleLoweringSessionV1` owns
+rollback of variable/binding state, every `TypeContext` lane, physical blocks
+and cursors, cleanup/SSA scratch, and core IDs.  The existing
+`with_saved_variable_map_typed` helper is not a rollback owner and must not be
+used as one for activation.
 
-Snapshotting only `variable_map` is not sufficient.  A failed attempt must
-leave no Call, type fact, or local publication behind.  The audit may choose a
-smaller staged transaction, but it must not add a retry or alternate route.
-
-## Activation boundary
+## Fail-fast boundary
 
 Admit exactly one canonical source site first.  Success requires a fresh
 strict VM probe to pass the previous `MissingTransientType` boundary and to
-show the same destination/type relation in the post-call local path.  Foreign
-site, missing catalog, alternate route, failed physical Call, duplicate
-publication, and rollback residue remain typed rejects.
+show the same caller/site/target/destination/type relation in the post-call
+local path.  Foreign site/root, missing catalog, another terminal, alternate
+route, failed physical Call, duplicate publication, post-effect debt, and
+rollback residue are typed reject or terminal-freeze outcomes.
 
 Out of scope:
 
@@ -68,12 +69,16 @@ Out of scope:
 - retry/fallback or compatibility-route promotion;
 - legacy deletion, backend widening, or generic monomorphization.
 
-## Completion evidence
+## Implementation gate
 
-- one sealed activation plan with explicit source/terminal/rollback owners;
-- success and rollback fixtures plus focused tests;
-- fresh canonical strict VM receipt;
-- current-state and Generic reference mirrors updated in the same
-  implementation commit;
-- no production caller is counted until the receipt and guard prove the
-  complete path.
+- one I1/R0 implementation switches the canonical caller and removes its
+  post-effect retry edge;
+- success and failed-candidate fixtures prove the outer session is discarded;
+- focused publication/terminal tests and a fresh strict VM receipt pass;
+- current-state, workstream, and Generic reference mirrors are updated in the
+  same implementation commit;
+- no production caller is counted before the complete receipt and guard pass.
+
+The design stop is closed; no broader Generic inference, nested required
+argument, GenericLoop backfill, retry/fallback, legacy deletion, backend
+widening, or monomorphization is implied.

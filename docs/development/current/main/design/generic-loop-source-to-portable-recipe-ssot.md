@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0 are closed caller-zero; whole-source activation I1-D0 is current; production activation remains 0`
+Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0 are closed caller-zero; I1/D0 is accepted but its I1/R0 caller audit returned to the source-bound handoff design stop; production activation remains 0`
 
-Current row: `GENERIC-RAW-STRUCTURED-STATIC-CALL-RESULT-PUBLICATION-I1-D0`
+Current row: `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-HANDOFF-DESIGN-STOP`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -25,10 +25,12 @@ Recipe producer; production activation remains closed.
 The raw structured carrier audit and static-call result publication I0/R0 are
 also closed caller-zero. Source selection is keyed by sealed
 `(Cataloged caller, SourceExprSite)` proof, while
-`CompletedUnifiedValueCallEmissionV1` owns the final `ValueId`. The current
-I1-D0 stop designs whole-source activation and route-transaction rollback
-authority before wiring `RawInvocationChildPortV1`, GenericLoop, or
-production route selection.
+`CompletedUnifiedValueCallEmissionV1` owns the final `ValueId`. I1/D0 accepts
+the outer module candidate as rollback owner, but the I1/R0 caller audit found
+that `RawInvocationChildPortV1` discards located source receipts before
+`route_generic_loop_v1`; the located claim/receipt path is test-only. The
+current design stop is the compact source-bound handoff before wiring
+`RawInvocationChildPortV1`, GenericLoop, or production route selection.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.

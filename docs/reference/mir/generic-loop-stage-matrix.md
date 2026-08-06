@@ -980,5 +980,14 @@ The focused source and Builder tests are green. This row does not wire
 or legacy deletion. The canonical VM probe still reports
 `MissingTransientType { init: ValueId(3) }` because the new bridge is
 intentionally disconnected; this is a pre-production evidence boundary, not
-a production support claim. The next gate is the whole-source activation
-design, including route transaction and rollback authority.
+a production support claim. I1/D0 is now accepted: the existing outer module
+candidate is the sole rollback owner, and the bounded I1/R0 activation must
+turn post-effect failure into terminal Freeze rather than retry debt. The next
+gate is the one-caller implementation; no production support claim exists
+until its receipt and fresh strict probe pass. The subsequent I1/R0 caller
+audit found no production owner: `RawInvocationChildPortV1` discards the
+located source receipts before `route_generic_loop_v1`, while the located
+claim/receipt path is test-only. The next boundary is therefore the compact
+source-bound handoff design stop in
+`generic-static-call-publication-source-bound-handoff-design-stop-2026-08-07.md`.
+No by-name selector or direct located-path wiring is authorized.

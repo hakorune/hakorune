@@ -520,8 +520,7 @@ closed — GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0/I0 and
   Static-call result publication D0 and caller-zero I0/R0 are closed: source
   transport is locator-only, sealed `(Cataloged caller, SourceExprSite)` selects
   proof, and `CompletedUnifiedValueCallEmissionV1` is the sole success receipt.
-  Current design stop is `GENERIC-RAW-STRUCTURED-STATIC-CALL-RESULT-PUBLICATION-I1-D0`
-  for whole-source activation/rollback authority; production remains closed.
+  I1/D0 is closed and the existing module candidate remains the sole rollback owner. The I1/R0 caller audit found no production handoff, so the current row is `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-HANDOFF-DESIGN-STOP`; production remains closed.
 ```
 ## Production invariants
 ```text
