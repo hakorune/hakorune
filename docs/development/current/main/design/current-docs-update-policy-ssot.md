@@ -66,6 +66,12 @@ Per-card mandatory docs updates are limited to:
 2. the active card
 3. code/test docs only when the card changes their contract
 
+Changes to the ignored root `AGENTS.md` router are policy-level changes, not
+per-card mirror work. When the router is reorganized, update
+`agent-current-entry-contract-ssot.md` in the same slice and keep the local
+file limited to short routing rules; durable procedure and design prose stays
+in its owning tracked document.
+
 Do not update `CURRENT_TASK.md`, `05-Restart-Quick-Resume.md`, `10-Now.md`,
 `AGENTS.md`, phase README, taskboards, or ledgers for every landed card.
 

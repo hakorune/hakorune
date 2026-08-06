@@ -23,6 +23,12 @@ docs.
 This SSOT fixes how agents should read that local file without reviving old
 phase-specific guidance.
 
+The local router is intentionally compact. It keeps personality, the
+current-first read order, short big-picture/design-stop reminders, and links to
+owning SSOTs. Long structural rules, command tables, phase roadmaps, and
+historical toolchain notes are not copied back into `AGENTS.md`; they remain in
+the tracked documents named below.
+
 ## Decision
 
 Read current-state documents first:
