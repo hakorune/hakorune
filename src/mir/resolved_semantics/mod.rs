@@ -23,6 +23,9 @@ mod function_view;
 pub(crate) mod generic_g0;
 mod ids;
 mod if_region;
+mod loop_family_window;
+#[cfg(test)]
+mod loop_family_window_tests;
 mod loop_region;
 mod normalized;
 mod normalized_callable_catalog;
@@ -84,6 +87,9 @@ pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub use if_region::ResolvedIfRegionVerificationErrorV1;
 pub(crate) use if_region::{ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1};
+pub(crate) use loop_family_window::{
+    LoopFamilyWindowLeaseIssueV1, VerifiedLoopFamilyWindowLeaseV1,
+};
 #[cfg(test)]
 pub(crate) use loop_region::loop_execution_frame_key_for_test;
 pub use loop_region::ResolvedLoopRegionVerificationErrorV1;

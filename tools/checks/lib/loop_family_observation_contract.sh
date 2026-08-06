@@ -217,3 +217,45 @@ guard_loop_family_row_context_retention_contract() {
       guard_fail "$tag" "focused row-context evidence assertion missing: $test"
   done
 }
+
+guard_loop_family_window_lease_contract() {
+  local root_dir="$1"
+  local tag="$2"
+  local lease="$root_dir/src/mir/resolved_semantics/loop_family_window.rs"
+  local source="$root_dir/src/mir/resolved_semantics/loop_region.rs"
+  local tests="$root_dir/src/mir/resolved_semantics/loop_family_window_tests.rs"
+
+  guard_require_files "$tag" "$lease" "$source" "$tests"
+  for file in "$lease" "$source" "$tests"; do
+    local lines
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    (( lines < 800 )) || guard_fail "$tag" "window lease file exceeds boundary: $file"
+  done
+
+  rg -q 'struct VerifiedLoopFamilyWindowLeaseV1' "$lease" ||
+    guard_fail "$tag" "resolver window lease product missing"
+  rg -q 'VerifiedResolvedLoopSourceV1' "$lease" ||
+    guard_fail "$tag" "window lease must retain resolver source token"
+  if rg -n '#\[derive\([^]]*\b(Clone|Copy)\b' "$lease" >/dev/null; then
+    guard_fail "$tag" "window lease must remain non-Clone/non-Copy"
+  fi
+  rg -q 'issue_loop_family_window_lease_v1' "$lease" ||
+    guard_fail "$tag" "resolver-only window lease issuer missing"
+  rg -q 'resolved_loop_source\(site\)' "$lease" ||
+    guard_fail "$tag" "window lease must issue from exact resolver lookup"
+  for forbidden in VerifiedResolvedSourceUnitV1 shared_loop_source_window_tests \
+    'crate::ast' 'crate::mir::builder' loop_recipe_contract LoopRouteId \
+    FrozenLoopRouteScheduleV1; do
+    if rg -n -F "$forbidden" "$lease" >/dev/null; then
+      guard_fail "$tag" "window lease crossed forbidden authority: $forbidden"
+    fi
+  done
+  [[ "$(rg -o -F '#[test]' "$tests" | wc -l | tr -d '[:space:]')" == "3" ]] ||
+    guard_fail "$tag" "window lease focused test count drift"
+  if rg -l -F 'issue_loop_family_window_lease_v1(' "$root_dir/src/mir" |
+    awk -v l="$lease" -v t="$tests" '$0 != l && $0 != t && $0 != "" { found=1 } END { exit found }'; then
+    :
+  else
+    guard_fail "$tag" "window lease acquired a production caller"
+  fi
+}

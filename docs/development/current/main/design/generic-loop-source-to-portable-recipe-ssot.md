@@ -165,14 +165,24 @@ projects owner/origin/source-kind/site/frame identity into the common row. Its
 policy's unsupported/opaque evidence stays `Unresolved`, and contradictions
 stay `Rejected`.
 
-The common assembler and the later selector are separate owners. The assembler
-co-seals a resolver-issued AST-free window identity brand with exactly one
-typed row per semantic family and never reads AST, resolver source, route IDs,
-or legacy schedules. `Blocked` remains legacy policy vocabulary; the common row
-algebra is only `Candidate|Declined|Unresolved|Rejected`. A selector-ready
-window is one Candidate plus four Declined rows; overlap rejects, unresolved
-evidence blocks selection, and whole-unit `NoCandidate` remains an M8 all19
-proof rather than a five-row result.
+The common assembler and the later selector are separate owners. Before the
+assembler opens, the resolver must issue the non-`Clone`
+`VerifiedLoopFamilyWindowLeaseV1` source identity brand from one exact
+`VerifiedResolvedLoopSourceV1` lookup; the lease issuer is the current S0
+row. The assembler then co-seals that lease with exactly one typed row per
+semantic family and never reads AST, resolver source, route IDs, or legacy
+schedules. `Blocked` remains legacy policy vocabulary; the common row algebra
+is only `Candidate|Declined|Unresolved|Rejected`. A selector-ready window is
+one Candidate plus four Declined rows; overlap rejects, unresolved evidence
+blocks selection, and whole-unit `NoCandidate` remains an M8 all19 proof
+rather than a five-row result.
+
+The resolver lease prerequisite is now landed caller-zero as
+`LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0`: one exact
+`VerifiedResolvedLoopSourceV1` lookup produces a non-`Clone`/
+non-`Copy` `VerifiedLoopFamilyWindowLeaseV1` retaining only source identity
+and owner brand. The next bounded row is the route-policy common assembler;
+selector, Recipe, Builder/MIR, and production remain closed.
 
 ## Source products
 

@@ -1,5 +1,5 @@
 ---
-Status: Closed worker-reviewed design / R0 landed / common assembler next
+Status: Closed worker-reviewed design / R0 + lease S0 landed / common assembler next
 Date: 2026-08-06
 Decision: LOOP-FAMILY-COMMON-ADMISSION-WINDOW-D0
 Authority: docs/development/current/main/design/loop-family-observation-policy-ssot.md
@@ -29,10 +29,11 @@ Rejected
 The common window is incomplete, not complete, while a required family row is
 unavailable. The assembler must retain
 `Unresolved(MissingFamilyObservation)`; it may not synthesize a `Declined` row
-or promote a partial pilot to the canonical window. Generic normalization and
-`FAMILY-ROW-CONTEXT-RETENTION-R0` are landed caller-zero products. R0 preserves
-expected/observed metadata on every family disposition, so the common
-assembler may now open.
+or promote a partial pilot to the canonical window. Generic normalization,
+`FAMILY-ROW-CONTEXT-RETENTION-R0`, and the resolver
+`LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0` are landed caller-zero products. R0
+preserves expected/observed metadata on every family disposition and S0 now
+supplies the non-`Clone` source brand, so the common assembler may open.
 
 The source lease is a resolver-issued, AST-free, non-Clone window identity
 brand. It is distinct from each family candidate capability. The assembler
@@ -58,24 +59,27 @@ family name. `Unresolved` and `Rejected` provenance must remain distinct.
 
 ## Closed decision
 
-1. Exactly one `Candidate` plus four exact `Declined` rows is the only
-   selector-ready input and yields `Selected(family candidate)`.
-2. Two or more candidates yield `Rejected(Overlap)`; family priority, route
-   order, cursor, or retry is forbidden.
-3. Any `Rejected` yields top-level `Rejected` while retaining every row,
+1. The resolver-owned lease issuer is a separate caller-zero prerequisite;
+   the assembler may consume only its non-`Clone` lease, never loose identity
+   coordinates.
+2. Exactly one `Candidate` plus four exact `Declined` rows is selector-ready
+   and yields `Selected(family candidate)` only in the later selector.
+3. Two or more candidates yield `Rejected(Overlap)` only in that selector;
+   family priority, route order, cursor, or retry is forbidden everywhere.
+4. Any `Rejected` yields top-level `Rejected` while retaining every row,
    including unresolved provenance. With no rejection, any `Unresolved` yields
-   `Unresolved`; five `Declined` rows remain `Unresolved(OutOfWindow)` rather
-   than whole-unit `NoCandidate`.
-4. Missing/duplicate family tags, foreign identity/frame, mode mismatch, and
+   `Unresolved`; five `Declined` rows remain `Unresolved(OutOfWindow)` only in
+   the selector rather than whole-unit `NoCandidate`.
+5. Missing/duplicate family tags, foreign identity/frame, mode mismatch, and
    contradictory row provenance reject; incomplete/unsealed coverage remains
    unresolved. `Blocked` is legacy schedule vocabulary, not a common-row
    disposition.
-5. The common products remain caller-zero and import no AST, Builder/MIR,
+6. The common products remain caller-zero and import no AST, Builder/MIR,
    Recipe/JoinSig/BindingKey, route ID, schedule/cursor, retry, or fallback.
 
 ## Ordered finite ladder
 
-The next work is intentionally a shallow three-cell ladder inside this task;
+The next work is intentionally a shallow four-cell ladder inside this task;
 the cells are separate acceptance shapes and commits:
 
 ```text
@@ -87,8 +91,12 @@ B  GENERIC-G0-ROW-NORMALIZATION-S1
 C  FAMILY-ROW-CONTEXT-RETENTION-R0
    all five observer dispositions retain expected/observed identity, mode,
    coverage, and typed reason/payload without clone or relookup; landed
+S0 LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0
+   resolver-only exact source lookup -> non-Clone window identity lease;
+   landed as a separate caller-zero source-brand product
 D  LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1
-   resolver window brand, exact five-tag co-seal, row retention, no selection
+   consume the S0 lease plus arbitrary-order five typed rows; co-seal only,
+   retain all evidence on unresolved/rejected outcomes; selector remains closed
 ```
 
 ### Cell A — LoopCond observation design and S1 (landed)
@@ -163,10 +171,22 @@ tests cover non-Candidate mismatch retention. The implementation landed with
 89 focused observation tests, the shared guard, and synchronized reference
 documents/current mirrors. The next open cell is the common assembler.
 
+## Cell S0 — resolver window lease issuer
+
+`LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0` is landed as a separate caller-zero
+source-brand product. `VerifiedResolvedFunctionV1` consumes one exact
+`VerifiedResolvedLoopSourceV1` lookup and issues a non-`Clone`/
+non-`Copy` `VerifiedLoopFamilyWindowLeaseV1` retaining only owner and the
+resolver source token. Mode and coverage remain policy-row evidence. Focused
+issuer tests and the shared in-place guard are green; no family fan-out,
+assembler, selector, Recipe, Builder/MIR, or production caller was opened.
+The next bounded row is the common assembler.
+
 ## Stop lines
 
 Do not implement or edit the legacy 19-route evaluator, `family_selection.rs`,
 Recipe/JoinSig/BindingKey, Builder/MIR, physical route IDs, retry/fallback, or
 production callers from this task. A worker-reviewed decision, a source-to-
-neutral disposition matrix, and the landed row-context receipt are recorded in
-the design SSOT. The common assembler is the only next implementation scope.
+neutral disposition matrix, the landed row-context receipt, and the S0 lease
+issuer receipt are recorded in the design SSOT. The common assembler is the
+only next implementation scope.

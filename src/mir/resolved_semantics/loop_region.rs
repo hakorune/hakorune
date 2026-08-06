@@ -170,6 +170,14 @@ impl VerifiedResolvedLoopSourceV1 {
         &self.site
     }
 
+    pub(crate) const fn function_origin(&self) -> FunctionOriginV1 {
+        self.function_origin
+    }
+
+    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
+        self.owner_source_kind
+    }
+
     pub(crate) fn frame_key(&self) -> LoopExecutionFrameKeyV1 {
         LoopExecutionFrameKeyV1::from_source(self)
     }

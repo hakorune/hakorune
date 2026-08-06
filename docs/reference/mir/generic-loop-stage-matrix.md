@@ -182,8 +182,22 @@ resolver-issued AST-free window identity brand is co-sealed with one typed
 `Candidate|Declined|Unresolved|Rejected` row per tag; legacy `Blocked` remains
 schedule vocabulary only. The assembler validates identity/mode/coverage but
 does not select. LoopCond S1, Generic normalization, and
-FAMILY-ROW-CONTEXT-RETENTION-R0 are now landed caller-zero rows. The common
-assembler is the next cell; selector promotion and production remain closed.
+FAMILY-ROW-CONTEXT-RETENTION-R0 are now landed caller-zero rows. The
+resolver-owned `LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0` source-brand prerequisite
+is also landed; the common assembler is the next cell, while selector
+promotion and production remain closed.
+
+## Window lease issuer S0 receipt
+
+`LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0` is landed as a caller-zero resolver
+source-brand product. `VerifiedResolvedFunctionV1` issues one non-`Clone`/
+non-`Copy` `VerifiedLoopFamilyWindowLeaseV1` from an exact
+`VerifiedResolvedLoopSourceV1` lookup. The lease keeps only owner and the
+resolver-branded origin/source-kind/site/frame token; it contains no AST,
+forest, policy mode/coverage, route, Recipe, Builder, or MIR data. Three
+focused issuer tests and the in-place replacement guard are green. The route-
+policy common assembler is the next separate cell; selector and production
+remain closed.
 
 ## LoopCond S1 implementation receipt
 

@@ -122,8 +122,9 @@ only to the schedule evaluator. The assembler checks identity/mode/coverage
 and does not select. LoopCond S1 and Generic normalization now supply bounded
 C/D/U/R observers. FAMILY-ROW-CONTEXT-RETENTION-R0 is also landed: every
 family disposition keeps expected/observed identity, mode, and coverage
-evidence. The next ordered cell is the common assembler; selector promotion
-remains separate.
+evidence. The resolver-owned `LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0` source-brand
+prerequisite is now landed in `resolved_semantics`; the next ordered cell for
+this module is the common assembler. Selector promotion remains separate.
 
 ## Family row context-retention R0 receipt
 

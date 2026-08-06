@@ -623,3 +623,16 @@ bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns
   `docs/reference/**` closeout. The gate is reached
   only after handoff and pure-selector witnesses prove one opaque candidate and
   exactly-one route; until then production selection remains zero.
+
+## Loop-family window lease issuer S0
+
+`LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0` is landed as a caller-zero resolver
+source-brand prerequisite. `VerifiedResolvedFunctionV1` issues one
+non-`Clone`/non-`Copy` `VerifiedLoopFamilyWindowLeaseV1` only from an exact
+`VerifiedResolvedLoopSourceV1` lookup. The lease retains the resolver source
+token and owner brand, and exposes only origin/source-kind/site/frame identity;
+it contains no AST, forest, policy mode/coverage, route, Recipe, Builder, or
+MIR data. Missing source lookup remains a typed issue. The common admission
+assembler is the next consumer; family fan-out, selector, production caller,
+and legacy retirement remain closed. The S0 implementation and focused lease
+tests update the exact reference documents in the same commit.

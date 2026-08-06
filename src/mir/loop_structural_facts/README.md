@@ -185,8 +185,10 @@ must wait for D4-S3-S1 and a later design before gaining a canonical family
 consumer.
 
 D4-S3-D0 is historical schema evidence; the canonical common product is now
-`VerifiedLoopFamilyAdmissionWindowV1`. It is one resolver-branded, non-`Clone`
-source window plus exact mode/coverage seals and family-tagged
+`VerifiedLoopFamilyAdmissionWindowV1`, owned by the route-policy admission
+assembler rather than this facts layer. The resolver-owned prerequisite
+`VerifiedLoopFamilyWindowLeaseV1` is now landed as caller-zero S0. It is one
+resolver-branded, non-`Clone` source window plus exact mode/coverage seals and family-tagged
 `Candidate|Declined|Unresolved|Rejected` rows. Legacy `Blocked` and the old
 `VerifiedLoopFamilyObservationSetV1` witness name stay historical and must not
 become a second authority. The canonical product must not contain
@@ -231,5 +233,6 @@ The five route-policy observer variants now retain their expected and observed
 identity/mode/coverage evidence on every `Candidate`, `Declined`,
 `Unresolved`, and `Rejected` row. This is a neutral transport-preservation
 boundary only; it does not issue a common admission window, selector, Recipe,
-Builder/MIR product, retry, fallback, or production caller. The common
-admission assembler is the next owner.
+Builder/MIR product, retry, fallback, or production caller. The resolver
+window lease S0 is landed; the route-policy common admission assembler is the
+next owner.

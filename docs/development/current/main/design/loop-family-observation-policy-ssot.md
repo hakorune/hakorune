@@ -374,7 +374,8 @@ LoopCondBreakContinue
 GenericG0
 ```
 
-The common boundary has two products and two owners:
+The common boundary has two products and two owners, preceded by one resolver
+source-brand prerequisite:
 
 ```text
 resolver-issued AST-free WindowIdentityLease
@@ -382,6 +383,17 @@ resolver-issued AST-free WindowIdentityLease
   -> VerifiedLoopFamilyAdmissionWindowV1  (completeness/co-seal only)
   -> CanonicalLoopFamilySelectionV1       (sole future winner owner)
 ```
+
+The resolver lease issuer is a separate caller-zero S0 product. The only
+issuer is `VerifiedResolvedFunctionV1`, which consumes one exact
+`VerifiedResolvedLoopSourceV1` lookup and wraps that non-`Clone` source token
+in `VerifiedLoopFamilyWindowLeaseV1`. The lease owns only the function owner
+and the resolver-branded source identity/frame; mode and coverage remain
+policy-row evidence. The assembler never constructs a lease from loose
+coordinates, clones/relooks up a source token, or imports the test-only
+AST-bearing shared-window witness. S0 is recorded in
+`loop-family-window-lease-issuer-s0-task-2026-08-06.md`; family projector
+fan-out remains a later explicit resolver seam.
 
 The window lease is a non-Clone identity brand issued once at the resolver
 source seam. It contains no AST, names, route IDs, cursors, schedules, Recipe
@@ -412,24 +424,33 @@ synthetic `Declined`.
 
 The window assembler validates exact five-tag coverage, duplicate/missing rows,
 owner/origin/source-kind/site/frame equality, mode equality, and coverage. It
-does not count candidates or select. The later selector consumes one sealed
-window exactly once and applies only this algebra:
+consumes all rows and either seals an arbitrary-order exact five-row product or
+returns an evidence-bearing unresolved/rejected outcome retaining the lease
+and every consumed row. It never counts candidates or selects. The later
+selector consumes one sealed window exactly once and applies only this
+algebra:
 
 ```text
 one Candidate + four Declined -> Selected
-two or more Candidates        -> Rejected(Overlap)
+two or more Candidates        -> Rejected(Overlap) [selector only]
 any Rejected                  -> Rejected, retaining all row evidence
 no Rejected + any Unresolved  -> Unresolved
-five Declined                 -> Unresolved(OutOfWindow)
+five Declined                 -> Unresolved(OutOfWindow) [selector only]
 NoCandidate                   -> forbidden until M8 all19 proof
 ```
 
-The next work is a shallow ordered ladder inside the linked D0 task: first
-LoopCond design/observation, then Generic row normalization, then the common
-assembler. Selector promotion is a separate later task. Shared guard changes
-must use a reusable helper because the existing logical-demand guard is already
-near the 800-line boundary; the LoopTrue-specific guard is temporary evidence
-and retires when the common reusable proof covers its contract.
+For the assembler itself, Candidate rows are opaque typed payloads: one or
+more Candidates (including two or more) plus Declined rows is `Ready`; overlap
+and `OutOfWindow` are selector responsibilities. A row-level Rejected or any
+unsealed/incomplete row evidence produces the corresponding top-level
+Rejected/Unresolved result with all rows and the lease retained.
+
+The observation prerequisites are landed in a shallow ordered ladder inside
+the linked D0 task: LoopCond observation, Generic row normalization, row
+context retention R0, and resolver window lease issuer S0. The next bounded
+cell is the common assembler; selector promotion is a separate later task.
+Shared guard changes must use reusable helpers because the existing
+logical-demand guard is already near the 800-line boundary.
 
 ## LoopCond observation S1 design closeout
 
@@ -511,6 +532,18 @@ focused observation suite reports 89 passing tests; the shared caller-zero
 guard rejects bare reason-only constructors and all changed files remain below
 800 lines. No selector, Recipe, Builder/MIR, production caller, retry, or
 legacy deletion was opened. The common admission assembler is the next owner.
+
+## Window lease issuer S0 implementation receipt
+
+`LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0` is landed as a separate caller-zero
+resolver source-brand product. `VerifiedResolvedFunctionV1` issues one
+non-`Clone`/non-`Copy` `VerifiedLoopFamilyWindowLeaseV1` only from an exact
+`VerifiedResolvedLoopSourceV1` lookup. The lease retains the resolver source
+token and owner brand and exposes only origin/source-kind/site/frame identity;
+mode and coverage remain policy-row evidence. The focused lease suite has
+three passing tests, the shared in-place guard is green, and the lease has no
+AST, forest, route, Recipe, Builder, MIR, selector, retry, or production
+authority. The common admission assembler is the next owner.
 
 ## Generic G0 row-normalization S1 implementation receipt
 
