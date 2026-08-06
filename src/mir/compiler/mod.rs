@@ -183,6 +183,8 @@ mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
 #[cfg(test)]
+mod generic_g0_numeric_projection_tests;
+#[cfg(test)]
 mod generic_g0_projection_tests;
 #[cfg(test)]
 mod if_recipe_candidate_abort_d2_tests;

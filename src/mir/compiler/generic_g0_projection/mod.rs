@@ -26,6 +26,12 @@ use crate::mir::resolved_semantics::{
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::LocatedStmtV1;
 
+mod numeric;
+pub(crate) use numeric::{
+    issue_generic_g0_typed_source_bundle_v1, GenericG0NumericProjectionRejectV1,
+    VerifiedGenericTypedSourceBundleG0,
+};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericG0ProjectionRejectV1 {
     ForeignOwner,

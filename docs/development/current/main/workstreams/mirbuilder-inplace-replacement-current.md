@@ -508,10 +508,10 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S
 closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S1-S1 -> cfg(test)-only policy witness; seven tests green; role-bearing operands and no selector/demand/Recipe/Builder/MIR.
 closed — GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0 / GENERIC-G0-ADMISSION-WINDOW-D0 -> accepted mapping, closed five-row overlap window (not semantic Loop kinds), sole G0 selector boundary, common physical owner, checked legacy manifest, and atomic cutover/deletion contract.
 closed — GENERIC-G0-STRUCTURE-S0A -> natural-source projector and sole AST-free structural issuer landed; exact shape/order/BindingRef/owner-source-frame/coverage positives and negatives, AST mutation zero, focused tests and shared caller-zero guard green; selection/type/policy/Recipe/Builder/MIR/production authority remain zero.
-closed — GENERIC-G0-SOURCE-TYPE-S0B -> callable-header projector and sole AST-free source-type issuer landed; exact owner-branded parameter/result/literal/context inventory, explicit i64 and missing/non-i64 negatives, move-only S0A bundle, recursive line/caller-zero guard green; target/numeric/policy/Recipe/Builder/MIR/production authority remain zero. next — GENERIC-G0-NUMERIC-REPRESENTATION-S0C.
+closed — GENERIC-G0-SOURCE-TYPE-S0B -> callable-header projector and sole AST-free source-type issuer landed; exact owner-branded parameter/result/literal/context inventory, explicit i64 and missing/non-i64 negatives, move-only S0A bundle, recursive line/caller-zero guard green; target/numeric/policy/Recipe/Builder/MIR/production authority remain zero.
+closed — GENERIC-G0-NUMERIC-REPRESENTATION-S0C -> adapter consumes S0B once and seals a neutral exact target/range lease while retaining source + return ABI; plain contextual literals pass, typed suffixes reject, opaque/range boundaries are typed; caller-zero/recursive guard, focused tests, cargo check, and pointer guard green; policy/selection/Recipe/Builder/MIR/production remain zero. next — LOOP-JOINSIG-MODULE-SPLIT-R0.
 ```
 ## Production invariants
-
 ```text
 named production caller required       = yes
 same-commit selected old-edge deletion = yes

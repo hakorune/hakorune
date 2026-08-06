@@ -51,6 +51,23 @@ retag literals, choose numeric representation, issue Recipe keys, or enter
 Builder/MIR/production. The shared replacement guard checks the recursive
 semantic directory, source/test line cap, and caller-zero boundary.
 
+## Generic G0 S0C numeric representation
+
+S0C keeps `VerifiedGenericSourceBundleG0` as the single move-only source
+product. The compiler-side `generic_g0_projection/numeric.rs` adapter builds an
+AST-free scalar view and calls the sole issuer in
+`numeric_substrate/generic_g0/`; the lower layer never imports compiler or
+resolver products. The result is one `VerifiedGenericTypedSourceBundleG0`
+containing the unchanged S0B bundle, one `VerifiedGenericNumericFactLeaseG0`,
+and the existing `ExactTrivialReturnAbiV1` receipt.
+
+Natural G0 accepts only plain contextual integer literals. Typed suffixes are
+retained by S0B but rejected as out-of-profile by S0C; missing source context
+is an S0B structural disposition, not a synthetic S0C fixture. The numeric
+issuer owns exact target/range classification only; positivity and recurrence
+progression remain the later policy row. No numeric wrapper Call, AST rewrite,
+retry, Recipe, Builder/MIR effect, or production caller is introduced.
+
 ## B0-L2b source projection boundary
 
 `VerifiedSourceProjectionV1` is sealed beside the canonical syntax and owner

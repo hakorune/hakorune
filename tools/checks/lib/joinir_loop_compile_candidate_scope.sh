@@ -28,6 +28,11 @@ guard_joinir_loop_compile_candidate_scope() {
   local generic_g0_projection_tests="$root_dir/src/mir/compiler/generic_g0_projection_tests.rs"
   local generic_g0_source_type_dir="$root_dir/src/mir/resolved_semantics/generic_g0"
   local generic_g0_source_type="$generic_g0_source_type_dir/mod.rs"
+  local generic_g0_numeric_dir="$root_dir/src/mir/numeric_substrate/generic_g0"
+  local generic_g0_numeric="$generic_g0_numeric_dir/mod.rs"
+  local generic_g0_numeric_tests="$generic_g0_numeric_dir/tests.rs"
+  local generic_g0_numeric_adapter="$root_dir/src/mir/compiler/generic_g0_projection/numeric.rs"
+  local generic_g0_numeric_projection_tests="$root_dir/src/mir/compiler/generic_g0_numeric_projection_tests.rs"
   local nested_source_projection="$root_dir/src/mir/compiler/nested_predicate_projection.rs"
   local nested_recipe_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs"
   local nested_source_handoff="$root_dir/src/mir/compiler/nested_predicate_source_handoff.rs"
@@ -46,7 +51,9 @@ guard_joinir_loop_compile_candidate_scope() {
     "$direct_accum_cutover" "$hardening_test" "$external_commit" \
     "$capability" "$first_family_plan" "$source_bound_plan" "$loop_region" \
     "$source_adapter" "$generic_g0_projection" "$generic_g0_projection_tests" \
-    "$generic_g0_source_type" "$nested_source_projection" "$nested_recipe_producer" \
+    "$generic_g0_source_type" "$generic_g0_numeric" "$generic_g0_numeric_tests" \
+    "$generic_g0_numeric_adapter" "$generic_g0_numeric_projection_tests" \
+    "$nested_source_projection" "$nested_recipe_producer" \
     "$nested_source_handoff" "$nested_topology" "$nested_topology_tests" \
     "$nested_physical_input" "$nested_physical_input_tests" \
     "$nested_effect_plan" "$nested_effect_plan_tests" "$nested_effect_adapter_tests" \
@@ -182,10 +189,11 @@ guard_joinir_loop_compile_candidate_scope() {
     'issue_generic_g0_source_type_bundle_v1('
   do
     if rg -n -F "$source_type_ref" "$root_dir/src" --glob '*.rs' \
-        | awk -F: -v issuer="$generic_g0_source_type" \
+            | awk -F: -v issuer="$generic_g0_source_type" \
             -v projection="$generic_g0_projection" \
             -v tests="$generic_g0_projection_tests" \
-            '$1 != issuer && $1 != projection && $1 != tests && $1 != "" { found = 1 } END { exit found }'; then
+            -v numeric_tests="$generic_g0_numeric_projection_tests" \
+            '$1 != issuer && $1 != projection && $1 != tests && $1 != numeric_tests && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "Generic G0 source-type issuer escaped its caller-zero boundary: $source_type_ref"
@@ -196,6 +204,56 @@ guard_joinir_loop_compile_candidate_scope() {
     generic_lines="$(wc -l < "$generic_file" | tr -d '[:space:]')"
     if (( generic_lines >= 800 )); then
       guard_fail "$tag" "Generic G0 projection file exceeds boundary: ${generic_file#"$root_dir/"} lines=$generic_lines"
+    fi
+  done
+  if [[ ! -d "$generic_g0_numeric_dir" ]]; then
+    guard_fail "$tag" "Generic G0 numeric semantic directory is missing"
+  fi
+  while IFS= read -r numeric_file; do
+    local numeric_lines
+    numeric_lines="$(wc -l < "$numeric_file" | tr -d '[:space:]')"
+    if (( numeric_lines >= 800 )); then
+      guard_fail "$tag" "Generic G0 numeric file exceeds boundary: ${numeric_file#"$root_dir/"} lines=$numeric_lines"
+    fi
+    for forbidden in 'ASTNode' 'FunctionSourceView' 'Compiler' 'Builder' \
+      'Recipe' 'MirBuilder' 'ValueId' 'BasicBlockId' 'LoopRouteId' 'Box::leak' 'Retry'
+    do
+      if rg -n -F "$forbidden" "$numeric_file" >/dev/null; then
+        guard_fail "$tag" "Generic G0 numeric issuer imported forbidden authority: ${numeric_file#"$root_dir/"} symbol=$forbidden"
+      fi
+    done
+  done < <(find "$generic_g0_numeric_dir" -type f -name '*.rs' -print | sort)
+  for numeric_file in "$generic_g0_numeric_adapter" "$generic_g0_numeric_projection_tests"; do
+    local numeric_adapter_lines
+    numeric_adapter_lines="$(wc -l < "$numeric_file" | tr -d '[:space:]')"
+    if (( numeric_adapter_lines >= 800 )); then
+      guard_fail "$tag" "Generic G0 numeric adapter/test exceeds boundary: ${numeric_file#"$root_dir/"} lines=$numeric_adapter_lines"
+    fi
+  done
+  for numeric_ref in \
+    'issue_generic_g0_numeric_fact_lease_v1(' \
+    'issue_generic_g0_typed_source_bundle_v1('
+  do
+    if [[ "$numeric_ref" == issue_generic_g0_numeric_fact_lease_v1* ]]; then
+      if rg -n -F "$numeric_ref" "$root_dir/src" --glob '*.rs' \
+          | awk -F: -v issuer="$generic_g0_numeric" \
+              -v adapter="$generic_g0_numeric_adapter" \
+              -v tests="$generic_g0_numeric_tests" \
+              -v projection_tests="$generic_g0_numeric_projection_tests" \
+              '$1 != issuer && $1 != adapter && $1 != tests && $1 != projection_tests && $1 != "" { found = 1 } END { exit found }'; then
+        :
+      else
+        guard_fail "$tag" "Generic G0 numeric issuer escaped caller-zero boundary: $numeric_ref"
+      fi
+    else
+      if rg -n -F "$numeric_ref" "$root_dir/src" --glob '*.rs' \
+          | awk -F: -v adapter="$generic_g0_numeric_adapter" \
+              -v tests="$generic_g0_numeric_projection_tests" \
+              '$1 != adapter && $1 != tests && $1 != "" { found = 1 } END { exit found }'; then
+        :
+      else
+        guard_fail "$tag" "Generic G0 numeric adapter escaped caller-zero boundary: $numeric_ref"
+      fi
     fi
   done
   for forbidden in 'ASTNode' 'MirBuilder' 'LoopRouteId' 'ValueId' 'BasicBlockId' 'Retry'

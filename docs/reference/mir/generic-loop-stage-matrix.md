@@ -59,7 +59,25 @@ and result annotations, and a known non-`i64` parameter. The shared replacement
 guard covers the recursive semantic directory, source/test line cap, and
 caller-zero issuer boundary. S0B does not infer types, retag literals, choose
 numeric representation, issue policy/Recipe keys, or enter Builder/MIR/
-production; `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` is the next row.
+production; S0C is now landed and `LOOP-JOINSIG-MODULE-SPLIT-R0` is the next
+row.
+
+## S0C implementation receipt
+
+`GENERIC-G0-NUMERIC-REPRESENTATION-S0C` is now landed as a disconnected,
+caller-zero numeric representation witness. The compiler adapter consumes the
+move-only S0B bundle once, maps its four role rows to an AST-free scalar view,
+and retains the original source bundle while adding one
+`VerifiedGenericNumericFactLeaseG0` plus the existing exact `i64` return ABI.
+The sole numeric issuer is `src/mir/numeric_substrate/generic_g0/`; it owns
+target/signed-width/range classification and imports no compiler, resolver,
+Recipe, Builder, or MIR authority. Natural plain contextual literals are
+accepted; typed suffixes are a known out-of-profile rejection, while neutral
+opaque context/target and out-of-range boundaries remain typed
+Unresolved/Rejected evidence. Focused natural and substrate tests plus the
+shared caller-zero/recursive line guard are green. S0C does not prove
+positivity, recurrence progression, candidate selection, Recipe, physical
+lowering, or production support; `LOOP-JOINSIG-MODULE-SPLIT-R0` is next.
 
 ## Current source-to-selection evidence
 

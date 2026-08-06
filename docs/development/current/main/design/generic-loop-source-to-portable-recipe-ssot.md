@@ -2,7 +2,7 @@
 
 Status: `accepted and taskized; production activation remains 0`
 
-Current row: `GENERIC-G0-NUMERIC-REPRESENTATION-S0C`
+Current row: `LOOP-JOINSIG-MODULE-SPLIT-R0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -188,8 +188,9 @@ relations, owner/source/frame identity, and duplicate-free coverage. Focused
 tests cover the canonical shape, AST immutability, reordered/extra/missing
 schedule, wrong-binding, and foreign-frame rejects. The implementation has no
 Recipe, policy, selector, Builder, MIR, retry, fallback, or production caller;
-the shared caller-zero guard explicitly owns this projector boundary. S0B is
-now the landed source-type witness; S0C is the next authorized row.
+the shared caller-zero guard explicitly owns this projector boundary. S0B and
+S0C are now landed witnesses; `LOOP-JOINSIG-MODULE-SPLIT-R0` is the next
+authorized row.
 
 The resolver/source bridge then issues one move-only product:
 
@@ -271,20 +272,52 @@ reissue, synthetic AST retagging, Recipe, selector, Builder, MIR, or production
 caller is permitted. A declined outcome may move a sealed diagnostic lease to
 the caller, but it cannot be retried through a second authority.
 
-`numeric_substrate` consumes it exactly once with the target profile and
-issues:
+### S0C numeric representation contract (accepted 2026-08-06)
+
+S0C has one public cumulative product and one lower-level numeric lease. The
+compiler-side adapter is the only owner allowed to read the S0B source bundle
+and it consumes that bundle by value exactly once:
 
 ```text
-VerifiedGenericNumericRepresentationProjectionG0 {
-  exact parameter and literal representation/range rows with source provenance
-  return_expectation: existing ExactTrivialReturnAbiV1
-}
-
-VerifiedGenericTypedNumericFactLeaseG0
+VerifiedGenericSourceBundleG0
+  -> borrowed GenericG0NumericSourceViewV1
+  -> numeric_substrate::generic_g0 issuer
+  -> VerifiedGenericNumericFactLeaseG0
+  -> VerifiedGenericTypedSourceBundleG0 {
+       source: original S0B bundle,
+       numeric: numeric lease,
+     }
 ```
 
-The policy layer consumes only the typed lease. It never sees AST, invents a
-candidate, or allocates Recipe keys.
+`GenericG0NumericSourceViewV1` is an AST-free scalar DTO. It carries only
+parameter index/type spelling, the four role ordinals, literal value, optional
+typed suffix, contextual parameter index, and an explicit `NumericTarget`.
+It does not import `BindingRef`, `FunctionSourceView`, compiler/projection
+types, Recipe, Builder, MIR, or policy. Source provenance stays in the
+retained S0B bundle; the numeric rows are keyed by the stable role/index
+ordinals rather than by names.
+
+The numeric issuer owns exact signedness/width/range/overflow classification
+and returns only `Ready`, `Unresolved`, or `Rejected`. `Ready` is the only
+outcome that can issue the numeric lease. An `Unresolved` or `Rejected`
+outcome may move a sealed diagnostic lease, but it cannot return or retry the
+consumed S0B bundle through another authority. The adapter uses the existing
+`ExactTrivialReturnAbiV1` classifier for the result expectation; it does not
+duplicate return spelling policy.
+
+Natural G0 accepts plain contextual integer literals only. Every
+`TypedInteger` suffix, including an explicit `i64` suffix, is a known
+Language-v1-out-of-profile `Rejected` disposition at S0C; it is never accepted
+by retagging or implicit conversion. S0B owns missing/opaque source context,
+so a natural S0C input cannot manufacture a missing-context row. The neutral
+issuer may still report `Unresolved` for an opaque context/target in isolated
+substrate boundary tests; those tests are not natural-source evidence.
+
+S0C proves representation, exact target, range, and result ABI only. Zero,
+positivity, `Less`, and positive `Add` progression remain S1 policy. Unknown
+targets are not replaced with `NumericTarget::host()`; they remain unresolved
+at the neutral boundary. The policy layer consumes only the typed lease. It
+never sees AST, invents a candidate, or allocates Recipe keys.
 
 The capability chain is move-only and cumulative:
 
@@ -468,15 +501,15 @@ Return writer. `LoopRecipeV1` is not widened with a function tail.
 
 ```text
 Ready
-  every required source, type, range, policy, coverage, and provenance fact is sealed
+  every required source, type, range, target, coverage, and provenance fact is sealed
 
 Unresolved
   required information is absent or opaque: missing/unknown type annotation,
-  missing approved literal context, unknown target, or unavailable capability
+  opaque neutral literal context, unknown target, or unavailable capability
 
 Rejected
-  known contradiction: foreign identity/site, non-i64 result, mismatch,
-  out-of-range/non-positive literal, malformed shape, duplicate winner,
+  known contradiction: foreign identity/site, known type/range mismatch,
+  typed suffix outside the G0 profile, malformed shape, duplicate winner,
   unavailable After binding, or uncovered source/effect
 
 NoCandidate
@@ -589,7 +622,7 @@ GENERIC-G0-SOURCE-TYPE-S0B
   closed; owner-branded parameter/result/literal/context inventory landed in a move-only S0A bundle; no target policy
 
 GENERIC-G0-NUMERIC-REPRESENTATION-S0C
-  numeric_substrate seals representation/range plus existing return expectation
+  compiler adapter + neutral numeric_substrate issuer seal one typed S0C lease; public aggregate remains one move-only S0B+numeric product
 
 LOOP-JOINSIG-MODULE-SPLIT-R0
   behavior-neutral Refactor Series before adding nested logical authority
@@ -706,7 +739,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | --- | --- | --- | --- |
 | `GENERIC-G0-STRUCTURE-S0A` | natural `ResolvedFunctionLoweringInputV1` -> move-only `VerifiedGenericStructuralFactsG0` | landed: exact positive plus reordered/extra/missing/wrong-binding/foreign-frame negatives; full source coverage; AST mutation zero; focused test and shared guard green | no type, numeric, policy, candidate, selector, Recipe, or production claim |
 | `GENERIC-G0-SOURCE-TYPE-S0B` | S0A + callable source/header views -> inventory wrapped with S0A as `VerifiedGenericSourceBundleG0` | exact parameter/result/literal/context sites; missing/non-i64/foreign/coverage rejects | no literal representation, progression, or executable-return authority |
-| `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` | S0B bundle + exact target -> `VerifiedGenericTypedSourceBundleG0` with representation projection + one typed lease | natural unsuffixed literal positives; missing context is Unresolved; range/type contradiction is Rejected | do not duplicate numeric substrate or retag test AST |
+| `GENERIC-G0-NUMERIC-REPRESENTATION-S0C` | S0B bundle + explicit target -> one `VerifiedGenericTypedSourceBundleG0` containing one `VerifiedGenericNumericFactLeaseG0` | natural plain contextual literals prove exact i64 representation/range and return ABI; typed suffixes are out-of-profile Rejected; neutral opaque/range boundaries preserve Unresolved/Rejected | do not duplicate numeric substrate, import compiler types downward, retry a consumed bundle, or retag test AST |
 | `LOOP-JOINSIG-MODULE-SPLIT-R0` | current `join_sig.rs` -> thin facade + model/visibility/port/flow modules | existing Recipe/JoinSig goldens byte-for-byte stable; all commits build; no acceptance delta | no nested-shadow or After feature in this series |
 | `LOOP-RECIPE-PRODUCER-ID-S0` | current portable producers -> `LoopRecipeProducerIdV1` | portable schema imports `LoopRouteId` zero; current producers and normalized fixtures migrate; route parity moves to an external migration receipt | no selector or registry retirement |
 | `LOOP-JOINSIG-NESTED-SHADOW-S0` | verified carriers + ancestry -> one visible payload per binding | C1/C2 same-binding, ancestor duplicate, sibling and foreign negatives; innermost wins in binding-key order | no PHI, After, or Generic special case |

@@ -26,7 +26,9 @@ navigation order must stay narrow and explicit.
 - `lowerers/`: lowering helpers that are not part of the builder core.
 - `numeric_substrate.rs`: fixed-width and pointer-sized numeric type-name
   vocabulary, target pointer-width resolution, and target-resolved numeric kind
-  metadata. It does not add exact-width runtime semantics by itself.
+  metadata. Its `numeric_substrate/generic_g0/` child is the caller-zero,
+  AST-free exact representation/range issuer for Generic G0 S0C; it does not
+  add exact-width runtime semantics by itself.
 - `raw_layout.rs`: fixed raw-layout vocabulary for substrate metadata. It does
   not add `.hako struct` syntax or backend-active native layout by itself.
 - `optimizer_passes/`, `passes/`: MIR pass implementations. Docs-first only for now.
