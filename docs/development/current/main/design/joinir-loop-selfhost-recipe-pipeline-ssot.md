@@ -368,13 +368,15 @@ D4-EVIDENCE-EXIT0
   -> deep D4 evidence exit: all current substrate/policy receipts and negative
      matrices are closed without a production caller; no more D4 suffixes are
      authorized unless a new design stop supersedes this gate.
-GENERIC-SELECTION-OPEN-D0
-  -> shallow promotion design: a real resolver-issued Generic candidate envelope
-     (carrier/condition/step/body-effect/coverage/exit, exact lease/BindingRefs)
-     and a natural fixture must precede the handoff/pure-selector witnesses.
-     Ready policy crosses one opaque candidate; a sealed route table yields
-     exactly one winner; zero/multiple/incomplete remain typed outcomes. No
-     retry/fallback/NoCandidate; only this gate may authorize production selection.
+GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0
+  -> source→Facts→portable-Recipe design stop. The canonical profile is the
+     existing nested two-loop G0 (L0 outer, L1 inner) with typed i64 Less/+step
+     conditions, ordered body effects, exact BindingRefs, and a separate
+     verified post-loop `return j` envelope. See
+     `design/generic-loop-source-to-portable-recipe-ssot.md` for the complete
+     mapping table and typed reject/unresolved boundary. Tests may witness only
+     these rows; they must not discover the mapping. No selector/demand/Recipe
+     caller or production selection is authorized until this D0 closes.
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

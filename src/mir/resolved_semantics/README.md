@@ -596,11 +596,13 @@ bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns
   cfg(test)-only substrate projection from this receipt plus explicit
   `NumericTarget`; S1-S2-S1-S1 now closes the policy witness with role-bearing
   Condition-Rhs/Step-Rhs operands. Policy consumes the sealed projection once
-  and owns progression semantics only. The next design stop is
-  `GENERIC-SELECTION-OPEN-D0`: define the shallow promotion gate with a real
-  resolver-issued Generic envelope and natural fixture, then an opaque
-  policy-to-selector candidate handoff without exposing substrate/receipt to
-  selector, followed by a pure selector witness. Every
+  and owns progression semantics only. The current design stop is
+  `GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0`: freeze the nested G0 source grammar,
+  the complete source→Facts→portable `LoopRecipeV1` mapping, the separate
+  post-loop tail envelope, and typed reject/unresolved outcomes before any
+  selector or Recipe implementation. See
+  `docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md`.
+  Every
   implementation commit updates current state, workstream, pipeline SSOT, and
   this README; production activation later requires the corresponding
   `docs/reference/**` closeout. The gate is reached
