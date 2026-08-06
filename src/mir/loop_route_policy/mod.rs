@@ -14,12 +14,15 @@ mod family_selection;
 mod generic_g0;
 #[cfg(test)]
 mod generic_g0_tests;
-mod loop_true_break_continue;
+mod loop_cond_break_continue_observation;
 #[cfg(test)]
-mod loop_true_break_continue_tests;
+mod loop_cond_break_continue_observation_tests;
+mod loop_true_break_continue;
 mod loop_true_break_continue_observation;
 #[cfg(test)]
 mod loop_true_break_continue_observation_tests;
+#[cfg(test)]
+mod loop_true_break_continue_tests;
 mod nested_predicate_observation;
 #[cfg(test)]
 mod nested_predicate_observation_tests;
@@ -48,6 +51,11 @@ pub(crate) use generic_g0::{
     GenericG0PolicyModeV1, GenericG0PolicyOutcomeV1, GenericG0PolicyProfileV1,
     GenericG0PolicyRejectV1, GenericG0PolicyUnresolvedV1, VerifiedGenericFamilyObservationG0,
 };
+pub(crate) use loop_cond_break_continue_observation::{
+    issue_loop_cond_family_observation_v1, LoopCondFamilyObservationV1,
+    LoopCondObservationContextV1, LoopCondObservationDeclineV1, LoopCondObservationRejectV1,
+    LoopCondObservationUnresolvedV1, VerifiedLoopCondFamilyCandidateV1,
+};
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue::{
     issue_loop_true_break_continue_policy_demand_v1, LoopTrueBreakContinuePolicyDemandRejectV1,
@@ -55,9 +63,8 @@ pub(crate) use loop_true_break_continue::{
 };
 pub(crate) use loop_true_break_continue_observation::{
     issue_loop_true_family_observation_v1, LoopTrueFamilyObservationV1,
-    LoopTrueObservationContextV1, LoopTrueObservationDeclineV1,
-    LoopTrueObservationRejectV1, LoopTrueObservationUnresolvedV1,
-    VerifiedLoopTrueFamilyCandidateV1,
+    LoopTrueObservationContextV1, LoopTrueObservationDeclineV1, LoopTrueObservationRejectV1,
+    LoopTrueObservationUnresolvedV1, VerifiedLoopTrueFamilyCandidateV1,
 };
 #[allow(unused_imports)]
 pub(crate) use nested_predicate_observation::{

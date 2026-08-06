@@ -5,12 +5,14 @@
 mod direct_accum_effect_plan;
 mod direct_accum_exclusivity;
 mod direct_accum_observation;
-mod loop_true_break_continue_observation;
-mod loop_true_break_continue_source;
 #[allow(dead_code)]
 pub(crate) mod generic_g0;
 #[cfg(test)]
 mod generic_resolved_carrier_facts_snapshot;
+mod loop_cond_break_continue_observation;
+mod loop_cond_break_continue_source;
+mod loop_true_break_continue_observation;
+mod loop_true_break_continue_source;
 mod nested_predicate_observation;
 mod nested_predicate_source;
 mod resolved_source_adapter;
@@ -40,19 +42,26 @@ pub(crate) use direct_accum_observation::{
     DirectAccumSourceAttemptOutcomeV1, DirectAccumSourceDeclineV1, DirectAccumSourceIdentityV1,
     DirectAccumSourceRejectV1, DirectAccumSourceUnresolvedV1, VerifiedDirectAccumSourceAttemptV1,
 };
+#[cfg(test)]
+pub(crate) use generic_resolved_carrier_facts_snapshot::{
+    issue_generic_resolved_carrier_facts_v1, ResolvedCarrierDispositionV1,
+    VerifiedGenericResolvedCarrierFactsV1,
+};
+pub(crate) use loop_cond_break_continue_observation::{
+    LoopCondObservationCoverageV1, LoopCondObservationModeV1, LoopCondSourceAttemptOutcomeV1,
+    LoopCondSourceDeclineV1, LoopCondSourceIdentityV1, LoopCondSourceRejectV1,
+    LoopCondSourceUnresolvedV1, VerifiedLoopCondSourceAttemptV1,
+};
+pub(crate) use loop_cond_break_continue_source::{
+    VerifiedLoopCondBreakContinueSourceProjectionV1, VerifiedLoopCondBreakContinueSourceShapeV1,
+};
 pub(crate) use loop_true_break_continue_observation::{
     map_loop_true_source_binding_reject, LoopTrueObservationCoverageV1, LoopTrueObservationModeV1,
     LoopTrueSourceAttemptOutcomeV1, LoopTrueSourceDeclineV1, LoopTrueSourceIdentityV1,
     LoopTrueSourceRejectV1, LoopTrueSourceUnresolvedV1, VerifiedLoopTrueSourceAttemptV1,
 };
 pub(crate) use loop_true_break_continue_source::{
-    VerifiedLoopTrueBreakContinueSourceProjectionV1,
-    VerifiedLoopTrueBreakContinueSourceShapeV1,
-};
-#[cfg(test)]
-pub(crate) use generic_resolved_carrier_facts_snapshot::{
-    issue_generic_resolved_carrier_facts_v1, ResolvedCarrierDispositionV1,
-    VerifiedGenericResolvedCarrierFactsV1,
+    VerifiedLoopTrueBreakContinueSourceProjectionV1, VerifiedLoopTrueBreakContinueSourceShapeV1,
 };
 pub(crate) use nested_predicate_observation::{
     NestedPredicateObservationCoverageV1, NestedPredicateObservationModeV1,

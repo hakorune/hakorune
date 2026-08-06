@@ -22,6 +22,8 @@ guard_joinir_logical_demand_contract() {
   local nested_observation_tests="$root_dir/src/mir/loop_route_policy/nested_predicate_observation_tests.rs"
   local loop_true_source_projection="$root_dir/src/mir/compiler/loop_true_break_continue_projection.rs"
   local loop_true_observation_adapter="$root_dir/src/mir/compiler/loop_true_break_continue_observation.rs"
+  local loop_cond_source_projection="$root_dir/src/mir/compiler/loop_cond_break_continue_projection.rs"
+  local loop_cond_observation_adapter="$root_dir/src/mir/compiler/loop_cond_break_continue_observation.rs"
   local loop_route_policy_dir="$root_dir/src/mir/loop_route_policy"
   local route_registry_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry"
   local generic_resolved_test_prefix="$route_registry_dir/generic_resolved_carrier_"
@@ -85,7 +87,8 @@ guard_joinir_logical_demand_contract() {
     "$loop_accum_digest_support" "$loop_accum_semantic_digest_support" \
     "$loop_physical_edge_path" "$direct_accum_issuer" "$direct_accum_capability" \
     "$direct_accum_projection" "$direct_accum_observation_adapter" \
-    "$loop_true_source_projection" "$loop_true_observation_adapter" "$nested_observation_source" \
+    "$loop_true_source_projection" "$loop_true_observation_adapter" \
+    "$loop_cond_source_projection" "$loop_cond_observation_adapter" "$nested_observation_source" \
     "$nested_observation_adapter" "$nested_observation_policy" "$nested_observation_tests"
   if ! rg -q '^#!\[cfg\(test\)\]' "$loop_accum_physical_tests"; then
     guard_fail "$tag" "physical parity observer must remain cfg(test)-only"
@@ -264,10 +267,11 @@ guard_joinir_logical_demand_contract() {
   if rg -l -F 'VerifiedResolvedLoopSourceV1' "$root_dir/src/mir" |
     awk -v a="$direct_accum_observation_adapter" -v n="$nested_observation_adapter" \
       -v p="$direct_accum_projection" -v l="$loop_true_source_projection" \
-      -v t="$loop_true_observation_adapter" \
+      -v t="$loop_true_observation_adapter" -v c="$loop_cond_source_projection" \
+      -v d="$loop_cond_observation_adapter" \
       -v s="$root_dir/src/mir/loop_structural_facts/" \
       -v r="$root_dir/src/mir/resolved_semantics/" \
-      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && index($0,s) != 1 && index($0,r) != 1 { found=1 } END { exit found }'; then
+      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && $0 != c && $0 != d && index($0,s) != 1 && index($0,r) != 1 { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
@@ -378,7 +382,9 @@ guard_joinir_logical_demand_contract() {
           -v nested_observation_adapter="$nested_observation_adapter" \
           -v loop_true_projection="$loop_true_source_projection" \
           -v loop_true_observation_adapter="$loop_true_observation_adapter" \
-          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter'
+          -v loop_cond_projection="$loop_cond_source_projection" \
+          -v loop_cond_observation_adapter="$loop_cond_observation_adapter" \
+          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter && $0 != loop_cond_projection && $0 != loop_cond_observation_adapter'
   )
   if (( ${#external_resolved_source_files[@]} != 0 )); then
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"

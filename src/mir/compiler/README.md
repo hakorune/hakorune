@@ -108,6 +108,18 @@ source authority remains
 the adapter preserves forest lookup/invariant error distinctions and the policy
 observer remains separate from the Nested Recipe producer and route selector.
 
+## LoopCond S1 implementation receipt
+
+`loop_cond_break_continue_projection.rs` is the sole syntax observer for the
+bounded non-true loop with one explicit-else Break/Continue branch. It carries
+only resolver-owned sites, typed exit origin/target evidence, and the sealed
+owner/origin/kind/site/frame identity; it does not claim condition type/effect,
+carrier/update, return, nested-loop, or physical semantics. The compiler
+adapter is `#![cfg(test)]` and maps source outcomes into the neutral
+Candidate/Declined/Unresolved/Rejected transport. Nine policy tests and five
+projection tests are green. Selector, Recipe, Builder/MIR, retry/fallback, and
+production callers remain closed.
+
 ## B0-L2b source projection boundary
 
 `VerifiedSourceProjectionV1` is sealed beside the canonical syntax and owner

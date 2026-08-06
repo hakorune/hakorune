@@ -106,10 +106,19 @@ caller-zero. Its required semantic tags are `DirectAccum`, `NestedPredicate`,
 issued AST-free window identity brand is co-sealed with one typed
 `Candidate|Declined|Unresolved|Rejected` row per tag; legacy `Blocked` belongs
 only to the schedule evaluator. The assembler checks identity/mode/coverage
-and does not select. LoopCond is currently an unresolved missing row and
-Generic requires an explicit source-attempt normalization adapter. The next
-ordered cells are LoopCond design/observation, Generic normalization, and then
-the common assembler; selector promotion remains separate.
+and does not select. LoopCond S1 now supplies its own bounded C/D/U/R observer;
+Generic still requires an explicit source-attempt normalization adapter. The
+next ordered cells are Generic normalization and then the common assembler;
+selector promotion remains separate.
+
+## LoopCond S1 implementation receipt
+
+`loop_cond_break_continue_observation.rs` consumes only the AST-free source
+attempt and sealed owner/origin/kind/site/frame, mode, and coverage context. It
+emits exactly `Candidate`, `Declined`, `Unresolved`, or `Rejected`; nine policy
+tests and five projection tests are green. The legacy LoopCond schedule,
+Recipe/JoinSig, Builder/MIR, retry/fallback, and production caller remain
+outside this observer.
 
 The LoopTrue branch cohort has a separate policy-demand box:
 

@@ -160,10 +160,23 @@ The canonical window has exactly five semantic rows:
 resolver-issued AST-free window identity brand is co-sealed with one typed
 `Candidate|Declined|Unresolved|Rejected` row per tag; legacy `Blocked` remains
 schedule vocabulary only. The assembler validates identity/mode/coverage but
-does not select. LoopCond is currently an explicit unresolved missing row and
+does not select. LoopCond S1 is now a caller-zero AST-free bounded observer;
 Generic still needs a normalization adapter with a real Declined arm. The
-ordered next cells are LoopCond design/observation, Generic normalization, and
-the common assembler; selector promotion and production remain closed.
+ordered next cells are Generic normalization and the common assembler;
+selector promotion and production remain closed.
+
+## LoopCond S1 implementation receipt
+
+`LOOP-FAMILY-LOOPCOND-OBSERVATION-S1` is landed as a caller-zero source
+observation for exactly one non-true loop with one explicit-else direct
+Break/Continue branch. The projection retains resolver-owned sites, typed
+direct-exit origin/target evidence, and owner/origin/kind/site/frame identity;
+it does not claim condition type/effect, carrier/update, return, nested-loop,
+Recipe, or physical semantics. The test-only adapter and pure policy observer
+preserve the C/D/U/R matrix. Nine policy tests, five projection tests, and the
+shared family observer guard are green. The legacy LoopCond variants remain
+migration-only; no selector, Recipe/Builder/MIR, retry/fallback, production
+caller, or legacy deletion is open.
 
 ## Current source-to-selection evidence
 

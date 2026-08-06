@@ -67,6 +67,15 @@ attempt/identity/mode/coverage DTO remains compiler-free. Nine policy tests and
 eight projection tests are green; selection, Recipe, Builder/MIR, retry,
 fallback, and production callers remain closed.
 
+LoopCond S1 now follows the same caller-zero boundary for one bounded
+non-true-loop/explicit-else Break/Continue shape. Its AST-free projection
+retains only resolver-owned sites, typed direct-exit origin/target evidence,
+and owner/origin/kind/site/frame identity; it does not retain BindingRef,
+Recipe binding, condition-type/effect, carrier/update, return, nested-loop, or
+physical claims. The neutral transport is compiler-free, with nine policy tests
+and five projection tests green. The legacy LoopCond facts/Recipe variants
+remain migration-only and selection is still closed.
+
 The Direct Accum S0 projection keeps the AST-bearing observation in
 `mir/compiler/direct_accum_projection.rs`. That adapter navigates only through
 `FunctionSourceViewV1` and the shared child-role vocabulary, then issues the

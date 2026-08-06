@@ -466,3 +466,25 @@ and one shared caller-zero guard extension. The same implementation commit
 must update the reference matrix, observation SSOT, module READMEs, current
 pointer/workstream, and record the post-implementation reference-document
 synchronization. Broader LoopCond variants remain a later M8 cohort.
+
+## LoopCond S1 implementation receipt
+
+The bounded LoopCond observer is landed caller-zero. Its compiler projector
+uses `FunctionSourceViewV1` plus the resolver-issued loop source token, then
+emits only resolver-owned sites and typed direct-exit origin/target evidence.
+The neutral source attempt and route-policy observer recheck owner/origin/
+source-kind/site/frame identity, mode, and coverage before issuing exactly
+`Candidate`, `Declined`, `Unresolved`, or `Rejected`.
+
+The acceptance evidence is nine policy tests, five projection tests, and the
+shared parameterized family-observer guard. The guard replaces the temporary
+LoopTrue-only helper and covers both LoopTrue and LoopCond without extending
+the near-800-line logical-demand guard. The implementation commit also synced
+this SSOT, the stage matrix, compiler/structural-facts/route-policy READMEs,
+current mirrors, and the workstream in the same commit; that is the required
+post-implementation reference-document receipt.
+
+No selector, common assembler, Generic normalization, Recipe/JoinSig,
+Builder/MIR, physical route, retry/fallback, production caller, or legacy
+LoopCond deletion is implied. The next bounded cell is Generic G0 row
+normalization.

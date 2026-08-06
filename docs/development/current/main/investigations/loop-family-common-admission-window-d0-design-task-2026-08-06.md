@@ -1,5 +1,5 @@
 ---
-Status: Closed worker-reviewed design / LoopCond S1 implementation next
+Status: Closed worker-reviewed design / LoopCond S1 landed / Generic normalization next
 Date: 2026-08-06
 Decision: LOOP-FAMILY-COMMON-ADMISSION-WINDOW-D0
 Authority: docs/development/current/main/design/loop-family-observation-policy-ssot.md
@@ -79,16 +79,16 @@ The next work is intentionally a shallow three-cell ladder inside this task;
 the cells are separate acceptance shapes and commits:
 
 ```text
-A  LOOP-FAMILY-LOOPCOND-OBSERVATION-D0
+A  LOOP-FAMILY-LOOPCOND-OBSERVATION-D0/S1
    worker-reviewed source authority and bounded neutral row design, then one
-   caller-zero observer/fixture
+   caller-zero observer/fixture; landed with 9 policy + 5 projection tests
 B  GENERIC-G0-ROW-NORMALIZATION-S1
    one source-attempt adapter supplying common identity and explicit Declined
 C  LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1
    resolver window brand, exact five-tag co-seal, row retention, no selection
 ```
 
-### Cell A — LoopCond observation design (closed)
+### Cell A — LoopCond observation design and S1 (landed)
 
 Worker review fixed the sole source authority, exact bounded shape, neutral
 disposition mapping, identity/frame contract, and caller-zero acceptance
@@ -121,13 +121,13 @@ exit-target conflict, duplicate/conflicting resolver evidence, and context
 mismatch are `Rejected`. A missing broader variant must never be synthesized as
 `Declined` merely to complete the common five-row window.
 
-The next implementation task is one resolver-backed projection, one neutral
-attempt/observer, focused C/D/U/R tests, and one reusable shared guard
-extension. The implementation commit must update exact reference documents and
-record that post-implementation reference synchronization happened in the same
-commit.
+The resolver-backed projection, neutral attempt/observer, focused C/D/U/R tests,
+and reusable shared guard extension are landed. Nine policy tests and five
+projection tests are green. The implementation commit updated the exact
+reference documents, current mirrors, and workstream; post-implementation
+reference synchronization is recorded in that same commit.
 
-Cell A is now closed as a worker-reviewed design stop. Cell B cannot infer Declined from a missing Generic
+Cell A is now closed as a worker-reviewed design and implementation slice. Cell B cannot infer Declined from a missing Generic
 row. Cell C cannot claim a complete window until A and B are closed. Selector
 promotion is a separate S2 task. Shared guards must be extended through
 reusable helpers, not by copying another large block into the 780-line
