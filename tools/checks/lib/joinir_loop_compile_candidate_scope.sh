@@ -33,6 +33,10 @@ guard_joinir_loop_compile_candidate_scope() {
   local generic_g0_numeric_tests="$generic_g0_numeric_dir/tests.rs"
   local generic_g0_numeric_adapter="$root_dir/src/mir/compiler/generic_g0_projection/numeric.rs"
   local generic_g0_numeric_projection_tests="$root_dir/src/mir/compiler/generic_g0_numeric_projection_tests.rs"
+  local generic_g0_policy="$root_dir/src/mir/loop_route_policy/generic_g0.rs"
+  local generic_g0_policy_tests="$root_dir/src/mir/loop_route_policy/generic_g0_tests.rs"
+  local generic_g0_policy_mod="$root_dir/src/mir/loop_route_policy/mod.rs"
+  local generic_g0_structural="$root_dir/src/mir/loop_structural_facts/generic_g0/mod.rs"
   local join_sig_dir="$root_dir/src/mir/loop_recipe_contract/join_sig"
   local join_sig_facade="$join_sig_dir/mod.rs"
   local join_sig_model="$join_sig_dir/model.rs"
@@ -60,6 +64,7 @@ guard_joinir_loop_compile_candidate_scope() {
     "$source_adapter" "$generic_g0_projection" "$generic_g0_projection_tests" \
     "$generic_g0_source_type" "$generic_g0_numeric" "$generic_g0_numeric_tests" \
     "$generic_g0_numeric_adapter" "$generic_g0_numeric_projection_tests" \
+    "$generic_g0_policy" "$generic_g0_policy_tests" "$generic_g0_policy_mod" "$generic_g0_structural" \
     "$join_sig_facade" "$join_sig_model" "$join_sig_port" \
     "$join_sig_visibility" "$join_sig_flow" \
     "$nested_source_projection" "$nested_recipe_producer" \
@@ -133,6 +138,51 @@ guard_joinir_loop_compile_candidate_scope() {
     local count="$(rg -o -F "$pattern" "$file" | wc -l | tr -d '[:space:]')"
     [[ "$count" == "$expected" ]] || guard_fail "$tag" "candidate scope anchor drift: $pattern count=$count expected=$expected"
   done
+  for generic_policy_file in "$generic_g0_policy" "$generic_g0_policy_tests"; do
+    local policy_lines
+    policy_lines="$(wc -l < "$generic_policy_file" | tr -d '[:space:]')"
+    if (( policy_lines >= 800 )); then
+      guard_fail "$tag" "Generic G0 policy file exceeds boundary: ${generic_policy_file#"$root_dir/"} lines=$policy_lines"
+    fi
+  done
+  for forbidden in ASTNode MirBuilder ValueId BasicBlockId LoopRouteId Retry \
+    'crate::mir::builder' 'loop_recipe_contract'; do
+    if rg -n -F "$forbidden" "$generic_g0_policy" >/dev/null; then
+      guard_fail "$tag" "Generic G0 policy imported forbidden authority: $forbidden"
+    fi
+  done
+  for required in \
+    'VerifiedGenericTypedSourceBundleG0' \
+    'VerifiedGenericFamilyObservationG0' \
+    'GenericG0PolicyOutcomeV1' \
+    'GenericG0PolicyContextV1' \
+    'unsupported_condition'
+  do
+    rg -n -F "$required" "$generic_g0_policy" >/dev/null || \
+      guard_fail "$tag" "Generic G0 policy anchor missing: $required"
+  done
+  if [[ "$(rg -o -F '#[test]' "$generic_g0_policy_tests" | wc -l | tr -d '[:space:]')" != "7" ]]; then
+    guard_fail "$tag" "Generic G0 policy focused test count drift"
+  fi
+  for required in \
+    'GenericG0ConditionOperatorV1' \
+    'GenericG0UpdateOperatorV1' \
+    'operator: condition_operator' \
+    'operator: update_operator'
+  do
+    rg -n -F "$required" "$generic_g0_structural" "$generic_g0_projection" >/dev/null || \
+      guard_fail "$tag" "Generic G0 neutral operator-fact anchor missing: $required"
+  done
+  for policy_ref in 'issue_generic_g0_candidate_v1(' 'VerifiedGenericFamilyObservationG0'; do
+    if rg -n -F "$policy_ref" "$root_dir/src" --glob '*.rs' |
+      awk -F: -v issuer="$generic_g0_policy" -v tests="$generic_g0_policy_tests" \
+        -v policy_mod="$generic_g0_policy_mod" \
+        '$1 != issuer && $1 != tests && $1 != policy_mod && $1 != "" { found = 1 } END { exit found }'; then
+      :
+    else
+      guard_fail "$tag" "Generic G0 policy caller escaped caller-zero boundary: $policy_ref"
+    fi
+  done
 
   for forbidden in \
     'compiler.builder.try_cf_loop_joinir' \
@@ -202,7 +252,8 @@ guard_joinir_loop_compile_candidate_scope() {
             -v projection="$generic_g0_projection" \
             -v tests="$generic_g0_projection_tests" \
             -v numeric_tests="$generic_g0_numeric_projection_tests" \
-            '$1 != issuer && $1 != projection && $1 != tests && $1 != numeric_tests && $1 != "" { found = 1 } END { exit found }'; then
+            -v policy_tests="$generic_g0_policy_tests" \
+            '$1 != issuer && $1 != projection && $1 != tests && $1 != numeric_tests && $1 != policy_tests && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "Generic G0 source-type issuer escaped its caller-zero boundary: $source_type_ref"
@@ -258,7 +309,8 @@ guard_joinir_loop_compile_candidate_scope() {
       if rg -n -F "$numeric_ref" "$root_dir/src" --glob '*.rs' \
           | awk -F: -v adapter="$generic_g0_numeric_adapter" \
               -v tests="$generic_g0_numeric_projection_tests" \
-              '$1 != adapter && $1 != tests && $1 != "" { found = 1 } END { exit found }'; then
+              -v policy_tests="$generic_g0_policy_tests" \
+              '$1 != adapter && $1 != tests && $1 != policy_tests && $1 != "" { found = 1 } END { exit found }'; then
         :
       else
         guard_fail "$tag" "Generic G0 numeric adapter escaped caller-zero boundary: $numeric_ref"

@@ -6,7 +6,8 @@ use crate::mir::compiler::generic_g0_projection::{
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::generic_g0::{
     issue_generic_g0_structural_facts_v1 as issue_structural_facts_v1,
-    GenericG0StructuralObservationV1, GenericG0StructuralRejectV1,
+    GenericG0ConditionOperatorV1, GenericG0StructuralObservationV1, GenericG0StructuralRejectV1,
+    GenericG0UpdateOperatorV1,
 };
 use crate::parser::NyashParser;
 
@@ -76,6 +77,45 @@ fn canonical_source_emits_move_only_structural_facts() {
     assert_eq!(facts.inner_condition().binding, facts.tail().binding);
     assert_eq!(facts.forest().members().len(), 2);
     assert_eq!(facts.coverage().len(), 20);
+    assert_eq!(
+        facts.outer_condition().operator,
+        GenericG0ConditionOperatorV1::Less
+    );
+    assert_eq!(
+        facts.inner_condition().operator,
+        GenericG0ConditionOperatorV1::Less
+    );
+    assert_eq!(
+        facts.outer_update().operator,
+        GenericG0UpdateOperatorV1::Add
+    );
+    assert_eq!(
+        facts.inner_update().operator,
+        GenericG0UpdateOperatorV1::Add
+    );
+}
+
+#[test]
+fn structural_facts_retain_non_g0_operators_without_policy_decision() {
+    let less_equal = CANONICAL
+        .replace("i < 3", "i <= 3")
+        .replace("j < 3", "j <= 3");
+    let less_equal_facts = facts(&less_equal).expect("shape remains structurally valid");
+    assert_eq!(
+        less_equal_facts.outer_condition().operator,
+        GenericG0ConditionOperatorV1::LessEqual
+    );
+    assert_eq!(
+        less_equal_facts.inner_condition().operator,
+        GenericG0ConditionOperatorV1::LessEqual
+    );
+
+    let multiply = CANONICAL.replace("j = j + 1", "j = j * 2");
+    let multiply_facts = facts(&multiply).expect("shape remains structurally valid");
+    assert_eq!(
+        multiply_facts.inner_update().operator,
+        GenericG0UpdateOperatorV1::Other
+    );
 }
 
 #[test]

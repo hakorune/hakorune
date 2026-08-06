@@ -509,11 +509,12 @@ closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S
 closed — GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0 / GENERIC-G0-ADMISSION-WINDOW-D0 -> accepted mapping, closed five-row overlap window (not semantic Loop kinds), sole G0 selector boundary, common physical owner, checked legacy manifest, and atomic cutover/deletion contract.
 closed — GENERIC-G0-STRUCTURE-S0A -> natural-source projector and sole AST-free structural issuer landed; exact shape/order/BindingRef/owner-source-frame/coverage positives and negatives, AST mutation zero, focused tests and shared caller-zero guard green; selection/type/policy/Recipe/Builder/MIR/production authority remain zero.
 closed — GENERIC-G0-SOURCE-TYPE-S0B -> callable-header projector and sole AST-free source-type issuer landed; exact owner-branded parameter/result/literal/context inventory, explicit i64 and missing/non-i64 negatives, move-only S0A bundle, recursive line/caller-zero guard green; target/numeric/policy/Recipe/Builder/MIR/production authority remain zero.
-closed — GENERIC-G0-NUMERIC-REPRESENTATION-S0C -> adapter consumes S0B once and seals a neutral exact target/range lease while retaining source + return ABI; plain contextual literals pass, typed suffixes reject, opaque/range boundaries are typed; caller-zero/recursive guard, focused tests, cargo check, and pointer guard green; policy/selection/Recipe/Builder/MIR/production remain zero. next — LOOP-JOINSIG-MODULE-SPLIT-R0.
+closed — GENERIC-G0-NUMERIC-REPRESENTATION-S0C -> adapter consumes S0B once and seals a neutral exact target/range lease while retaining source + return ABI; plain contextual literals pass, typed suffixes reject, opaque/range boundaries are typed; caller-zero/recursive guard, focused tests, cargo check, and pointer guard green; policy/selection/Recipe/Builder/MIR/production remain zero.
 closed — LOOP-JOINSIG-MODULE-SPLIT-R0 -> flat JoinSig module retired into thin facade + model/port/visibility/flow children; direct exit-edge owner is unique, verified wrapper construction remains private, Recipe/JoinSig tests, README/reference sync, and shared recursive guard are green; no acceptance delta or new caller.
 closed — LOOP-RECIPE-PRODUCER-ID-S0 -> portable wire now carries `producer_id: LoopRecipeProducerIdV1`; old `producer_route` is rejected, three current producers/fixtures migrated, test-only legacy route parity receipt added, schema/producers remain route-free, focused 59 tests and shared guard green; selector/registry/production caller unchanged.
 closed — LOOP-JOINSIG-NESTED-SHADOW-S0 -> visible payload projection now walks target-to-root ancestry, keeps the nearest carrier per Recipe-local binding, emits binding-key order, and isolates siblings; verifier owns unknown/duplicate carrier rejects; 64 focused tests, shared guard, pointer guard, and reference/README sync are green; no After, PHI, Generic, selector, producer, or production change.
-closed — LOOP-RECIPE-SOURCE-BOUND-CORE-S0 -> caller-zero core now co-seals verified Recipe/JoinSig/source claim with exact BindingRef/effect relations and typed loop-carrier anchors; 73 focused contract tests, shared guard, pointer guard, and reference/README sync are green; no Generic key, Builder/MIR, physical, or production change. next — GENERIC-G0-CANDIDATE-S1.
+closed — LOOP-RECIPE-SOURCE-BOUND-CORE-S0 -> caller-zero core now co-seals verified Recipe/JoinSig/source claim with exact BindingRef/effect relations and typed loop-carrier anchors; 73 focused contract tests, shared guard, pointer guard, and reference/README sync are green; no Generic key, Builder/MIR, physical, or production change.
+closed — GENERIC-G0-CANDIDATE-S1 -> S0A neutral operator facts plus sealed S0C owner/profile/mode/coverage policy observation; Less + positive Add is the sole Candidate, unsupported shapes are Unresolved, direction/context failures are Rejected; 28 focused Generic tests, shared/pointer guards, and reference/README sync are green; selector, Recipe, Builder/MIR, retry/fallback, and production caller remain zero. next — LOOP-FAMILY-DIRECT-OBSERVATION-S1.
 ```
 ## Production invariants
 ```text
@@ -986,7 +987,6 @@ FUNCTION-LIFECYCLE0  draft / collector / function finalize
 MODULE-LIFECYCLE0    declaration / catalog / module transaction
 COMPILER-RESIDUE0    compiler ingress / old selectors / proof routes
 ```
-
 New findings enter one of these packs. Do not create another pack.
 ## Parked
 ```text

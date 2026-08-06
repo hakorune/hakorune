@@ -30,10 +30,11 @@ Generic G0 S0A row. It consumes one natural `ResolvedFunctionLoweringInputV1`,
 uses `FunctionSourceViewV1` and resolver-issued `BindingRefV1` lookup, and
 passes an AST-free observation to
 `loop_structural_facts::generic_g0::VerifiedGenericStructuralFactsG0`.
-It owns no type/numeric/policy decision, Recipe, Builder/MIR effect, retry,
-fallback, or production caller. The shared MirBuilder caller-zero guard is the
-contract for this boundary; S0B adds source-type inventory only after S0A is
-sealed.
+It also retains neutral condition/update operator syntax facts for the later
+policy issuer, but owns no type/numeric/policy decision, Recipe, Builder/MIR
+effect, retry, fallback, or production caller. The shared MirBuilder
+caller-zero guard is the contract for this boundary; S0B adds source-type
+inventory only after S0A is sealed.
 
 ## Generic G0 S0B source-type projector
 
@@ -65,8 +66,9 @@ Natural G0 accepts only plain contextual integer literals. Typed suffixes are
 retained by S0B but rejected as out-of-profile by S0C; missing source context
 is an S0B structural disposition, not a synthetic S0C fixture. The numeric
 issuer owns exact target/range classification only; positivity and recurrence
-progression remain the later policy row. No numeric wrapper Call, AST rewrite,
-retry, Recipe, Builder/MIR effect, or production caller is introduced.
+progression remain the S1 policy row. No numeric wrapper Call, AST rewrite,
+retry, Recipe, Builder/MIR effect, or production caller is introduced; the
+policy handoff remains caller-zero.
 
 ## B0-L2b source projection boundary
 

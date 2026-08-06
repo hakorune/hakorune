@@ -2,7 +2,7 @@
 
 Status: `accepted and taskized; production activation remains 0`
 
-Current row: `LOOP-JOINSIG-MODULE-SPLIT-R0`
+Current row: `GENERIC-G0-CANDIDATE-S1`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -118,10 +118,9 @@ source reconstruction, ordered retry, or fallback.
 | module visibility | atomic module transaction |
 
 The legacy 19-route evaluator in `loop_route_policy::policy` is migration
-evidence, not this selector. At D0 there is no production canonical family
-selector: `family_selection.rs` is test-only and cannot issue a real Selected
-capability. S2 promotes that one boundary; it does not add a Generic-only
-selector or teach the legacy raw-cursor evaluator a second selection policy.
+evidence, not this selector. `family_selection.rs` is test-only at D0 and
+cannot issue Selected; S2 promotes that boundary without adding a second
+Generic-only or raw-cursor selection policy.
 
 ## Closed G0 admission window
 
@@ -137,25 +136,21 @@ profiles; the five rows are the complete G0 admission window:
 | LoopCondBreakContinue | `family_selection::loop_cond` source/policy observer | S1 adds the missing semantic observation before selection; `JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D` later adds its Recipe cohort |
 | Generic | `loop_route_policy::generic_g0` from the sealed G0 typed lease | Ready candidate or a typed Declined/Unresolved/Rejected disposition |
 
-Each source unit in this window yields exactly one typed disposition per row:
-`Candidate`, `Declined`, `Unresolved`, or `Rejected`. The observation-set
-assembler owns completeness, owner/frame/mode equality, and duplicate-row
-rejection. The selector alone owns Generic admission. It may issue
-`Selected(Generic)` only for one exact Generic candidate plus four exact
-Declined competitors. An overlap rejects; missing/unresolved rows remain
+Each source unit yields one typed disposition per row: `Candidate`, `Declined`,
+`Unresolved`, or `Rejected`. The observation-set assembler owns completeness,
+owner/frame/mode equality, and duplicate rejection; the selector owns Generic
+admission and may issue `Selected(Generic)` only for one candidate plus four
+exact Declined competitors. Overlap rejects; missing/unresolved rows remain
 Unresolved.
 
-These rows are not five semantic Loop kinds and not five Recipe variants. They
-are migration/profile observations projected into one G0 overlap check; the
-portable meaning remains the single recursive Recipe algebra. Five Declined
-rows do not prove whole-unit `NoCandidate`. That constructor remains sealed
-until `JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G` closes the complete all-route source-policy universe and its
-whole-unit coverage proof.
+These rows are migration/profile observations, not five Loop kinds or Recipe
+variants; portable meaning remains one recursive Recipe algebra. Five Declined
+rows do not prove `NoCandidate`, which stays sealed until
+`JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G` closes all-route coverage.
 
-`FunctionSyntaxViewV1` remains body-only. `ExactTrivialReturnAbiV1` remains the
-exact source-spelling expectation owner. `ReturnExitContract` remains the
-ordinary executable return authority. Neither is duplicated inside Generic or
-inferred from its tail.
+`FunctionSyntaxViewV1` remains body-only; `ExactTrivialReturnAbiV1` owns exact
+source spelling, and `ReturnExitContract` owns executable returns. Neither is
+duplicated inside Generic or inferred from its tail.
 
 ## Source products
 
@@ -165,10 +160,10 @@ The structural witness is AST-free after issuance and proves exactly:
 function body       = [L0, Return(j)]
 outer body          = [L1, update(i)]
 inner body          = [update(j)]
-L0 condition        = i < integer-literal expression site
-L1 condition        = j < integer-literal expression site
-outer step          = i = i + integer-literal expression site
-inner step          = j = j + integer-literal expression site
+L0/L1 conditions     = i/j < integer-literal expression sites
+condition operator  = neutral syntax fact (policy-owned admission later)
+outer/inner steps   = i/j = i/j + integer-literal expression sites
+update operator     = neutral syntax fact (policy-owned admission later)
 tail                = one terminal return of exact BindingRef(j)
 coverage            = every relevant source site exactly once
 ```
@@ -186,11 +181,11 @@ observation into the sole structural issuer at
 move-only, checks exact body schedules, resolver-issued `BindingRefV1`
 relations, owner/source/frame identity, and duplicate-free coverage. Focused
 tests cover the canonical shape, AST immutability, reordered/extra/missing
-schedule, wrong-binding, and foreign-frame rejects. The implementation has no
-Recipe, policy, selector, Builder, MIR, retry, fallback, or production caller;
+schedules, wrong-binding, and foreign-frame rejects. It also preserves
+neutral condition/update operator facts without deciding policy. The implementation
+has no Recipe, policy, selector, Builder, MIR, retry, fallback, or production caller;
 the shared caller-zero guard explicitly owns this projector boundary. S0B and
-S0C are now landed witnesses; `LOOP-JOINSIG-MODULE-SPLIT-R0` is the next
-authorized row.
+S0C are now landed witnesses; S1 is the current authorized policy row.
 
 The resolver/source bridge then issues one move-only product:
 
@@ -318,6 +313,26 @@ positivity, `Less`, and positive `Add` progression remain S1 policy. Unknown
 targets are not replaced with `NumericTarget::host()`; they remain unresolved
 at the neutral boundary. The policy layer consumes only the typed lease. It
 never sees AST, invents a candidate, or allocates Recipe keys.
+
+### S1 policy disposition matrix (accepted 2026-08-06)
+
+S1 consumes only `VerifiedGenericTypedSourceBundleG0` plus a sealed
+owner/profile/mode/coverage context. Its complete bounded decision is:
+
+```text
+Less + Add + both RHS > 0        -> Candidate
+Less + Add + RHS == 0            -> Unresolved(NonProgressingStep)
+Less + Add + RHS < 0 or Subtract -> Rejected(DirectionMismatch)
+Less + Other update               -> Unresolved(UnsupportedUpdate)
+LessEqual/Equal/NotEqual/Other    -> Unresolved(UnsupportedComparison)
+Greater/GreaterEqual              -> Rejected(DirectionMismatch)
+incomplete coverage               -> Unresolved(IncompleteCoverage)
+foreign owner context             -> Rejected(ForeignContext)
+```
+
+Missing numeric roles are defensive `Rejected(MissingLiteralRole)`; S0C seals
+natural role cardinality. S1 does not repeat S0A BindingRef checks, select a
+winner, issue Recipe keys, or inspect AST.
 
 The capability chain is move-only and cumulative:
 
@@ -632,7 +647,7 @@ G0 must not silently retire the legacy route's broader calls, print, if,
 locals, exits, or effect surfaces.
 
 M10b switches one named production caller to the verified portable product and
-in the same commit removes every selected old mutating authority:
+in the same commit removes selected old mutating authorities:
 
 ```text
 Generic V0/V1 registry handlers and predicates
@@ -644,23 +659,21 @@ nested Generic `.ok()`/retry edges
 old Generic selector rows used by that caller
 ```
 
-M10b disconnects only direct mutation/reselection reached through the located
-or nested adoption paths. It preserves the shared located source/provenance
-handoff needed by M11. M11 later feeds that transport into the portable source
-path and retires the source-erasing handoff/R4 fence; these are not the same
-edge cohort.
+M10b disconnects only direct mutation/reselection reached through located or
+nested adoption paths and preserves the shared source/provenance handoff for
+M11. M11 later retires the source-erasing handoff/R4 fence; these are separate
+edge cohorts.
 
-After caller-zero proof, `GENERIC-LEGACY-DEAD-CODE-R1` physically removes the
-dead Generic-only facts, extractors, composers, adapters, old-authority-only
-assertions, and files. Portable parity fixtures, counterexamples, and the
-retirement manifest remain as canonical evidence.
-The shared `RecipeBody`/`RecipeBlock`, non-Generic routes, and common 19-route
-policy remain until their own M11/M12 closeout.
+After caller-zero proof, `GENERIC-LEGACY-DEAD-CODE-R1` removes dead
+Generic-only facts, extractors, composers, adapters, assertions, and files;
+portable parity fixtures, counterexamples, and the retirement manifest remain.
+Shared `RecipeBody`/`RecipeBlock`, non-Generic routes, and common policy remain
+until their own M11/M12 closeout.
 
 The separate `src/mir/join_ir/lowering/**` authority and
-`NYASH_JOINIR_LOWER_GENERIC` are outside Generic R1. They require caller-zero
-evidence in M11/M12 or a named JoinModule retirement row; that row also updates
-`docs/reference/environment-variables.md`.
+`NYASH_JOINIR_LOWER_GENERIC` are outside Generic R1 and require caller-zero
+evidence in M11/M12 or a named JoinModule retirement row, including the
+environment reference update.
 
 The existing shared MirBuilder replacement manifest/guard is extended for the
 caller-zero proof; no new per-row guard script is created.
@@ -703,7 +716,8 @@ LOOP-RECIPE-SOURCE-BOUND-CORE-S0
   common core/relation schema and verifier only; no Generic key instance
 
 GENERIC-G0-CANDIDATE-S1
-  Generic policy owns Less/positive-Add admission and one opaque observation
+  closed; neutral operator facts feed one sealed Less/positive-Add
+  Candidate/Unresolved/Rejected observation; 28 tests green; no selector/caller
 
 LOOP-FAMILY-DIRECT-OBSERVATION-S1
 LOOP-FAMILY-NESTED-OBSERVATION-S1
@@ -813,7 +827,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 
 | Row | Sole input -> output | Done | Stop / non-claim |
 | --- | --- | --- | --- |
-| `GENERIC-G0-CANDIDATE-S1` | S0C typed lease + mode/profile/coverage -> `VerifiedGenericFamilyObservationG0` | exact Less/positive Add is Candidate; unsupported/symbolic is Unresolved; contradictory role/direction is Rejected | Generic policy may not select a winner or issue Recipe keys |
+| `GENERIC-G0-CANDIDATE-S1` | S0C typed lease + mode/profile/coverage -> `VerifiedGenericFamilyObservationG0` | landed: exact Less/positive Add is Candidate; unsupported/symbolic is Unresolved; contradictory role/direction is Rejected; 28 focused tests green | Generic policy may not select a winner or issue Recipe keys |
 | `LOOP-FAMILY-DIRECT-OBSERVATION-S1` | DirectAccum structural observation + shared owner/window -> typed DirectAccum disposition | exact candidate/decline/unresolved/reject and foreign/mode boundaries fixed | no legacy schedule receipt, winner, or Recipe |
 | `LOOP-FAMILY-NESTED-OBSERVATION-S1` | exact nested source projection + shared owner/window -> typed NestedPredicate disposition | G0 and non-nested shapes decline; exact bounded nested shape is a candidate | no physical Nested plan or route ID |
 | `LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1` | exact LoopTrue source projection + shared owner/window -> typed LoopTrue disposition | explicit branch candidate and shape/coverage declines/rejects fixed | no frozen-schedule admission or Recipe demand |
@@ -854,25 +868,23 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 
 ```text
 src/mir/compiler/generic_g0_projection/
-  thin source navigation plus move-only S0A/S0B/S0C aggregate wrappers
-  (including VerifiedGenericSourceBundleG0);
+  thin source navigation plus move-only S0A/S0B/S0C aggregate wrappers;
   no structure/type/numeric/policy decision
 
 src/mir/loop_structural_facts/generic_g0/
-  sole S0A structure verifier/issuer; VerifiedGenericStructuralFactsG0 only
+  sole S0A structure verifier/issuer; structural product only
 
 src/mir/resolved_semantics/generic_g0/
-  sole S0B source-type verifier/issuer; owner/header/literal/context inventory
-  only; no S0A aggregate re-issuer
+  sole S0B source-type verifier/issuer; header/literal/context inventory only
 
 src/mir/numeric_substrate/generic_g0/
-  sole S0C representation/range/overflow verifier/issuer; typed lease only
+  sole S0C representation/range/overflow verifier/issuer; typed lease
 
 src/mir/loop_route_policy/generic_g0/
-  Less/positive-Add policy and move-only Generic candidate observation
+  Less/positive-Add policy and move-only Generic observation
 
 src/mir/loop_route_policy/family_selection/
-  four competing profile rows, Generic row, G0 admission window, sole G0 selector
+  competing profile rows, G0 admission window, sole G0 selector
 
 src/mir/loop_recipe_contract/join_sig/
   model, visible payload, logical port binding, flow
@@ -881,7 +893,7 @@ src/mir/loop_recipe_contract/
   binding/effect relation, source-bound core verifier/product, producer ID
 
 src/mir/loop_recipe_contract/generic_g0/
-  selected-demand boundary, sole dense-key issuer, relations, After, aggregate, physical input
+  selected-demand boundary, dense-key issuer, relations, After, aggregate, physical input
 
 src/mir/builder/resolved_lowering/loop_recipe/
   topology, binding port, operation, recursive control, tail handoff, orchestration
@@ -939,49 +951,37 @@ selection or disposition fact.
 
 ## Gate profile
 
-Ordinary rows run the owning focused tests first, then `git diff --check`,
-`current_state_pointer_guard.sh`, the shared MirBuilder replacement guard, and
-the relevant `generic_g0` / `loop_recipe_contract` library filters. P0 physical
-rows and S6G/S7G/M10b/M11/R2G closeouts additionally run release build and
-`dev_gate.sh quick`. The milestone closeouts add all19, phase29bq,
-selfhost-parity, backend-parity, fault-injection, and fresh-reuse gates named by
-their row. Repository-wide runtime census stays serial and starts with one
-case, then a small sample, then the displayed full count.
+Ordinary rows run focused tests, `git diff --check`, the pointer guard, shared
+replacement guard, and relevant library filters. P0/S6G/S7G/M10b/M11/R2G also
+run release/quick gates; milestone closeouts add the row-named parity and
+fresh-reuse gates. Runtime census is serial: one case, small sample, then full
+count.
 
 ## Required evidence
 
-The positive minimum includes exact normalized G0 Recipe, C1/C2 same-binding
-recurrence, duplicate-free child payload, child header PHI, root backedge
-carrying post-child `j`, `VerifiedLoopAfterBinding(b1)`, and a tail that uses
-the After value rather than an input/body temporary.
+The positive minimum includes exact normalized G0 Recipe, C1/C2 recurrence,
+duplicate-free child payload, child PHI, post-child `j` backedge,
+`VerifiedLoopAfterBinding(b1)`, and a tail using After rather than a temporary.
 
-Negative evidence includes missing root/child carriers, missing/early child
-entry, duplicate payload, foreign owner/frame/BindingRef, shadowed same-name
-different binding, missing/nonterminal/wrong tail, unavailable After binding,
-wrong class, wrong body order, non-positive/range-invalid literals, incomplete
-coverage, and legacy V0/V1 provenance on a G0 product.
+Negative evidence includes missing/early child entry, duplicate/shadowed
+payload, foreign owner/frame/BindingRef, wrong tail/class/order,
+non-positive/range-invalid literals, incomplete coverage, and legacy provenance.
 
 Each implementation commit updates `CURRENT_STATE.toml`, this SSOT, the active
-workstream, and its owning README. Every S0A/S0B/S0C/S1/S2/S3/S4 landing also
-updates `docs/reference/mir/generic-loop-stage-matrix.md` with its exact
-caller-zero state and non-claims. A portable Recipe/JoinSig/core contract row
-updates `docs/reference/mir/loop-recipe-contract.md` in the same commit even
-while its production caller is zero.
+workstream, README, and `docs/reference/mir/generic-loop-stage-matrix.md` with
+caller-zero state/non-claims. Portable Recipe/JoinSig/core rows also update
+`docs/reference/mir/loop-recipe-contract.md` in the same commit.
 
-Physical preflight, common-owner refactor, recursive physicalizer, and
-completion rows update the loop Recipe reference and the exact applicable
-`phi_policy.md` / `phi_invariants.md` caller-zero or behavior-neutral boundary
-in their implementation commits; they must not wait for M10b to document what
-has actually landed.
+Physical preflight, owner refactor, physicalizer, and completion rows update
+the loop Recipe and applicable phi references in their own commits; they do not
+wait for M10b.
 
-M10b updates the implemented default behavior in those references plus
-`docs/reference/mir/phi_policy.md`, `docs/reference/mir/phi_invariants.md`, and
-any affected diagnostic/environment reference in the same atomic commit. R1,
-M11, and M12 remove stale legacy claims in their own implementation commits.
+M10b updates implemented default behavior plus `docs/reference/mir/phi_policy.md`,
+`docs/reference/mir/phi_invariants.md`, and
+any affected diagnostic/environment reference in the same atomic commit; R1/M11/M12 remove stale legacy claims in their own commits.
 The final closeout audits grammar, diagnostics, default behavior, backend
 parity, and legacy caller zero. Reference text never claims implementation
 before its code row lands.
-
 ## Stop lines
 
 ```text

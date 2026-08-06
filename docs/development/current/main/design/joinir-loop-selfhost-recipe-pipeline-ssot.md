@@ -390,7 +390,8 @@ GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0
      legacy 19-route evaluator. See
      `design/generic-loop-source-to-portable-recipe-ssot.md` for the sole
      mapping, finite shallow task order, module homes, checked legacy manifest,
-     and deletion boundary. The next code row is `GENERIC-G0-STRUCTURE-S0A`.
+     and deletion boundary. S0A/S0B/S0C and the caller-zero Generic candidate
+     S1 are now landed; the next code row is `LOOP-FAMILY-DIRECT-OBSERVATION-S1`.
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

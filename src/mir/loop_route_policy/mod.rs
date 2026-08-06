@@ -8,6 +8,9 @@ mod adapter;
 mod evaluate;
 #[cfg(test)]
 mod family_selection;
+mod generic_g0;
+#[cfg(test)]
+mod generic_g0_tests;
 mod loop_true_break_continue;
 #[cfg(test)]
 mod loop_true_break_continue_tests;
@@ -22,6 +25,12 @@ pub(crate) use family_selection::{
     select_canonical_family_for_test, CanonicalFamilySelectionOutcomeV1,
     CanonicalFamilySelectorInputV1, FamilySelectionRejectV1, FamilySelectionUnresolvedV1,
     GenericFamilyEvidenceV1,
+};
+#[allow(unused_imports)]
+pub(crate) use generic_g0::{
+    issue_generic_g0_candidate_v1, GenericG0CoverageV1, GenericG0PolicyContextV1,
+    GenericG0PolicyModeV1, GenericG0PolicyOutcomeV1, GenericG0PolicyProfileV1,
+    GenericG0PolicyRejectV1, GenericG0PolicyUnresolvedV1, VerifiedGenericFamilyObservationG0,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue::{

@@ -11,22 +11,54 @@ use crate::mir::resolved_semantics::{
     SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1, VerifiedResolvedLoopSourceForestV1,
 };
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub(crate) enum GenericG0ConditionOperatorV1 {
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
+    Equal,
+    NotEqual,
+    Other,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub(crate) enum GenericG0UpdateOperatorV1 {
+    Add,
+    Subtract,
+    Other,
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct GenericG0ConditionSitesV1 {
+    pub(crate) operator: GenericG0ConditionOperatorV1,
     pub(crate) condition: SourceExprSiteV1,
     pub(crate) lhs: SourceExprSiteV1,
     pub(crate) rhs: SourceExprSiteV1,
     pub(crate) binding: BindingRefV1,
 }
 
+impl GenericG0ConditionSitesV1 {
+    pub(crate) const fn operator(&self) -> GenericG0ConditionOperatorV1 {
+        self.operator
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct GenericG0UpdateSitesV1 {
+    pub(crate) operator: GenericG0UpdateOperatorV1,
     pub(crate) statement: SourceStmtSiteV1,
     pub(crate) target: SourceExprSiteV1,
     pub(crate) value: SourceExprSiteV1,
     pub(crate) lhs: SourceExprSiteV1,
     pub(crate) rhs: SourceExprSiteV1,
     pub(crate) binding: BindingRefV1,
+}
+
+impl GenericG0UpdateSitesV1 {
+    pub(crate) const fn operator(&self) -> GenericG0UpdateOperatorV1 {
+        self.operator
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]

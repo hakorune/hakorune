@@ -126,7 +126,9 @@ Related:
   separate post-loop completion envelope. Common nested shadow, logical
   Header/After binding, source-bound Recipe core co-seal, and route-independent
   producer provenance are closed before the Generic producer; only S4 issues
-  real G0 keys/relations. The next exact row is GENERIC-G0-CANDIDATE-S1. The
+  real G0 keys/relations. Generic candidate S1 is now closed as a caller-zero
+  Less/positive-Add Candidate/Unresolved/Rejected observation with neutral
+  operator facts. The next exact row is LOOP-FAMILY-DIRECT-OBSERVATION-S1. The
   finite shallow order and atomic legacy-retirement boundary live in the
   dedicated Generic SSOT. Production and public reference activation remain
   zero.

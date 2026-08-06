@@ -8,8 +8,9 @@
 use crate::ast::{ASTNode, LiteralValue, ParamDecl};
 use crate::mir::loop_structural_facts::generic_g0::{
     issue_generic_g0_structural_facts_v1 as issue_structural_facts_product_v1,
-    GenericG0ConditionSitesV1, GenericG0StructuralObservationV1, GenericG0StructuralRejectV1,
-    GenericG0TailSitesV1, GenericG0UpdateSitesV1, VerifiedGenericStructuralFactsG0,
+    GenericG0ConditionOperatorV1, GenericG0ConditionSitesV1, GenericG0StructuralObservationV1,
+    GenericG0StructuralRejectV1, GenericG0TailSitesV1, GenericG0UpdateOperatorV1,
+    GenericG0UpdateSitesV1, VerifiedGenericStructuralFactsG0,
 };
 use crate::mir::resolved_semantics::{
     generic_g0::{
@@ -28,8 +29,7 @@ use super::located::LocatedStmtV1;
 
 mod numeric;
 pub(crate) use numeric::{
-    issue_generic_g0_typed_source_bundle_v1, GenericG0NumericProjectionRejectV1,
-    VerifiedGenericTypedSourceBundleG0,
+    issue_generic_g0_typed_source_bundle_v1, VerifiedGenericTypedSourceBundleG0,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -232,6 +232,7 @@ fn observe_condition(
         .child_expr_from_expr(&condition, ExprChildRoleV1::BinaryRight)
         .map_err(|_| GenericG0ProjectionRejectV1::SourceNavigation)?;
     Ok(GenericG0ConditionSitesV1 {
+        operator: condition_operator(condition.node()),
         condition: condition.site().clone(),
         lhs: lhs.site().clone(),
         rhs: rhs.site().clone(),
@@ -267,6 +268,7 @@ fn observe_update(
         .child_expr_from_expr(&value, ExprChildRoleV1::BinaryRight)
         .map_err(|_| GenericG0ProjectionRejectV1::SourceNavigation)?;
     Ok(GenericG0UpdateSitesV1 {
+        operator: update_operator(value.node()),
         statement: statement.site().clone(),
         target: target.site().clone(),
         value: value.site().clone(),
@@ -274,6 +276,32 @@ fn observe_update(
         rhs: rhs.site().clone(),
         binding,
     })
+}
+
+fn condition_operator(node: &ASTNode) -> GenericG0ConditionOperatorV1 {
+    let ASTNode::BinaryOp { operator, .. } = node else {
+        return GenericG0ConditionOperatorV1::Other;
+    };
+    match operator {
+        crate::ast::BinaryOperator::Less => GenericG0ConditionOperatorV1::Less,
+        crate::ast::BinaryOperator::LessEqual => GenericG0ConditionOperatorV1::LessEqual,
+        crate::ast::BinaryOperator::Greater => GenericG0ConditionOperatorV1::Greater,
+        crate::ast::BinaryOperator::GreaterEqual => GenericG0ConditionOperatorV1::GreaterEqual,
+        crate::ast::BinaryOperator::Equal => GenericG0ConditionOperatorV1::Equal,
+        crate::ast::BinaryOperator::NotEqual => GenericG0ConditionOperatorV1::NotEqual,
+        _ => GenericG0ConditionOperatorV1::Other,
+    }
+}
+
+fn update_operator(node: &ASTNode) -> GenericG0UpdateOperatorV1 {
+    let ASTNode::BinaryOp { operator, .. } = node else {
+        return GenericG0UpdateOperatorV1::Other;
+    };
+    match operator {
+        crate::ast::BinaryOperator::Add => GenericG0UpdateOperatorV1::Add,
+        crate::ast::BinaryOperator::Subtract => GenericG0UpdateOperatorV1::Subtract,
+        _ => GenericG0UpdateOperatorV1::Other,
+    }
 }
 
 fn observe_tail(

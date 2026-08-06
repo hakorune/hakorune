@@ -28,8 +28,8 @@ The machine-readable test observer is
 
 Production selection remains the ordered registry in
 `src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs` and
-`predicates.rs`. The `loop_route_policy` subtree is test-only evidence and is
-not a Generic winner oracle.
+`predicates.rs`. The `loop_route_policy::generic_g0` subtree now owns a
+caller-zero AST-free observation only; it is not a Generic winner oracle.
 
 ## S0A implementation receipt
 
@@ -59,8 +59,8 @@ and result annotations, and a known non-`i64` parameter. The shared replacement
 guard covers the recursive semantic directory, source/test line cap, and
 caller-zero issuer boundary. S0B does not infer types, retag literals, choose
 numeric representation, issue policy/Recipe keys, or enter Builder/MIR/
-production; S0C is now landed and `LOOP-JOINSIG-MODULE-SPLIT-R0` is the next
-row.
+production; S0C and S1 are now landed; the four competing-profile observations
+are next.
 
 ## S0C implementation receipt
 
@@ -77,7 +77,25 @@ opaque context/target and out-of-range boundaries remain typed
 Unresolved/Rejected evidence. Focused natural and substrate tests plus the
 shared caller-zero/recursive line guard are green. S0C does not prove
 positivity, recurrence progression, candidate selection, Recipe, physical
-lowering, or production support; `LOOP-JOINSIG-MODULE-SPLIT-R0` is next.
+lowering, or production support; the landed S1 policy observation consumes
+this sealed product, and the four competing-profile observations are next.
+
+## S1 candidate-policy implementation receipt
+
+`GENERIC-G0-CANDIDATE-S1` is now landed as a caller-zero, AST-free policy
+observation. `src/mir/loop_route_policy/generic_g0.rs` consumes the sealed S0C
+typed bundle and a sealed owner/profile/mode/coverage context exactly once.
+Both `Less` conditions plus both positive `Add` steps produce one move-only
+`VerifiedGenericFamilyObservationG0`. Unsupported comparison/update syntax or
+non-progressing steps are `Unresolved`; contradictory direction or foreign
+context is `Rejected`. Missing roles remain defensive typed rejects.
+
+The source projector now carries neutral `Less`/`LessEqual`/`Greater`-family
+and `Add`/`Subtract` syntax facts; S1 owns the admission matrix and does not
+recheck S0A BindingRef relations. Seven policy tests plus the existing Generic
+projection tests are green. S1 does not select a winner, issue Recipe keys,
+touch Builder/MIR, retry/fallback, or open a production caller; the next row is
+the four competing-profile observations.
 
 ## Current source-to-selection evidence
 

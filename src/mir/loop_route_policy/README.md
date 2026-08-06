@@ -28,6 +28,17 @@ mutation, composition, lowering, or physical ID allocation. `evaluate.rs`
 performs structural validation and row sealing; `policy.rs` performs the pure
 M3-E audit and emits only Qualified, Blocked, or Exhausted.
 
+## Generic G0 S1 observation
+
+`generic_g0.rs` is a separate AST-free policy issuer for the bounded Generic
+G0 profile. It consumes one sealed
+`VerifiedGenericTypedSourceBundleG0` plus a sealed owner/profile/mode/coverage
+context and emits one move-only `Candidate`, typed `Unresolved`, or typed
+`Rejected` disposition. Only `Less` conditions and positive `Add` steps are
+admitted. It does not repeat S0A BindingRef checks, select a family winner,
+issue Recipe keys, call Builder/MIR, retry, or fallback. Its production caller
+is intentionally zero until the later admission-window/selector rows.
+
 The migration fixture adapter is test-only. Its M3-F parity submodule may invoke
 the legacy execution witness as an oracle, but it has no production caller; the
 production facade `freeze_loop_route_schedule_v1` remains caller-zero.
