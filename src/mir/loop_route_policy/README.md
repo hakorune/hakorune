@@ -84,6 +84,23 @@ production caller. The seven focused tests and shared recursive guard fix this
 boundary. The NestedPredicate S1 implementation is landed in its dedicated
 observer; selection remains closed until the common admission-window row.
 
+## LoopTrue S1 design boundary
+
+The next LoopTrue row is a separate caller-zero observer, not a continuation of
+the legacy schedule demand below. Its source attempt will be issued by a
+test-only compiler adapter from
+`loop_true_break_continue_projection.rs`; this policy layer will consume only
+the AST-free attempt plus a sealed owner/origin/kind/site/frame, mode, and
+coverage context. It will issue `Candidate`, `Declined`, `Unresolved`, or
+`Rejected` and nothing else. Source lookup/navigation/missing-fact errors stay
+unresolved; known shape mismatches decline; identity, binding, and exit-target
+conflicts reject. The source projection must expose the full identity before a
+candidate is sealed. The finite task is
+`docs/development/current/main/investigations/loop-family-looptrue-observation-s1-design-task-2026-08-06.md`.
+
+The current LoopTrue branch cohort below is a separate legacy policy-demand
+owner and remains migration-only until common selection and physical cutover.
+
 The LoopTrue branch cohort has a separate policy-demand box:
 
 ```text

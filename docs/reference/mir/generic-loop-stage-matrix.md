@@ -135,6 +135,22 @@ observer. Seven policy tests, eight projection tests, and the shared recursive
 guard are green. No selector, Recipe/JoinSig, Builder/MIR, retry/fallback,
 route ID, or production caller is authorized by this design row.
 
+## LoopTrue S1 design boundary
+
+`LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1` is a caller-zero design stop. The sole
+source authority remains
+`compiler/loop_true_break_continue_projection.rs`; the future neutral adapter
+and policy observer are specified in
+`docs/development/current/main/design/loop-family-observation-policy-ssot.md`
+and the linked investigation task. Candidate means only an exact bounded
+`loop(true)` plus explicit Break/Continue source projection. Known shape
+mismatches decline, missing or incomplete resolver evidence remains unresolved,
+and foreign/binding/exit conflicts reject. The legacy FrozenLoopRouteSchedule
+policy demand is not an S1 input. No selector, Recipe/JoinSig, Builder/MIR,
+physical route, retry/fallback, production caller, or legacy deletion is open.
+The implementation commit must update this reference receipt together with the
+source/structural-facts/policy docs and current pointers.
+
 ## Current source-to-selection evidence
 
 | fixture class | source witness | current generic schedule | status |

@@ -270,3 +270,75 @@ forest-root provenance. The shared recursive authority/line/caller-zero guard
 is green. This receipt does not open selection, Recipe/JoinSig/BindingKey,
 Builder/MIR/physicalization, retry/fallback, a production caller, or legacy
 retirement; the next design boundary is the LoopTrue observation row.
+
+## LoopTrue S1 design stop
+
+`LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1` is a worker-reviewed, caller-zero
+design boundary. The executable task is
+`docs/development/current/main/investigations/loop-family-looptrue-observation-s1-design-task-2026-08-06.md`.
+
+### Decision
+
+The sole syntax authority is
+`compiler/loop_true_break_continue_projection.rs::issue_loop_true_break_continue_source_projection_v1`.
+It observes the natural `FunctionSourceViewV1`, resolver-issued loop source,
+BindingRef, region, and exit products once and returns an AST-free, move-only
+projection. The existing `loop_route_policy/loop_true_break_continue.rs`
+schedule/cursor/winner demand is a separate migration owner; it is forbidden
+as an S1 input.
+
+S1 adds a neutral source-attempt transport under `loop_structural_facts` and a
+pure observer under `loop_route_policy`. The policy receives one attempt and
+one separately sealed identity/mode/coverage context and emits only
+`Candidate`, `Declined`, `Unresolved`, or `Rejected`. Candidate means exact
+bounded source projection, not policy admission, Recipe readiness, or a
+physical route.
+
+The candidate identity contract is:
+
+```text
+owner + function origin + source kind + loop site + execution frame
+```
+
+The source projection must expose this identity through an AST-free accessor or
+product before the observer can seal a candidate. An adapter-only precheck is
+not the durable identity contract.
+
+### Disposition matrix
+
+| Source/context condition | S1 result |
+| --- | --- |
+| complete coverage, sealed mode, matching identity/frame, exact `loop(true)` + one explicit-else If + direct Break/Continue + Equal(local BindingRef, integer) + resolver exit targets | `Candidate` |
+| known syntactic non-shape: root condition/body/branch arity, branch/else shape, non-Equal condition, or non-integer bound | `Declined(NotLoopTrueBreakContinueShape)` |
+| incomplete/unsealed mode or coverage, source navigation/lookup failure, missing binding, missing exit fact | `Unresolved` |
+| foreign identity/frame, mode mismatch, upvar, exit-target mismatch, source-binding owner/structural conflict, candidate/context mismatch | `Rejected` |
+
+`ExitResolution` is a missing resolver fact and remains `Unresolved`; an
+`ExitTargetMismatch` is a structural conflict and is `Rejected`. Root source
+binding errors retain their typed owner/structural provenance. No source
+distinction may be collapsed into a permissive decline. Release, Strict, and
+StrictPlannerRequired are snapshots only; they do not select, suppress, retry,
+or fallback.
+
+### Finite implementation slice
+
+1. Extend the source projection with the AST-free identity accessor/product and
+   preserve source/lookup distinctions at the adapter boundary.
+2. Add the neutral source-attempt/identity/mode/coverage DTO and a `#![cfg(test)]`
+   compiler adapter; do not export compiler rejection enums to policy.
+3. Add one pure policy observer and focused positive, three-mode, decline,
+   incomplete/unsealed, identity/frame/mode, missing-fact, binding, and exit
+   conflict tests.
+4. Extend the existing shared recursive authority/line/caller-zero guard; no
+   row-specific shell guard.
+5. Update the exact reference receipt, module READMEs, current pointer, and
+   workstream in the same implementation commit. That commit must explicitly
+   record reference-document synchronization.
+
+### Stop lines
+
+S1 must not import `LoopRouteId`, frozen schedules/cursors, legacy policy
+demand, `family_selection.rs`, Recipe/JoinSig/BindingKey, Builder/MIR/ValueId/
+PHI, physical lowering, retry/fallback, or a production caller. The old
+LoopTrue policy/Recipe/Builder route remains migration-only until a later
+common selector and physical cutover prove zero non-historical callers.

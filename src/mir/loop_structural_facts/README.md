@@ -180,3 +180,15 @@ is now closed as the typed shape contract. The bounded cfg(test)-only
 source-lease witness is closed; this layer remains caller-zero. CarrierProof is
 also closed as a separate test-only consumer. Full role extension is a design
 stop and may not re-resolve roles or issue a selector input.
+
+## LoopTrue S1 design boundary
+
+The next neutral source-attempt DTO is specified by
+`LOOP-FAMILY-LOOPTRUE-OBSERVATION-S1`. It will carry only the resolver/source
+projection, owner/origin/kind/site/frame identity, exact mode snapshot, and
+coverage seal. Known non-LoopTrue syntax is `Declined`; incomplete or missing
+resolver facts are `Unresolved`; foreign, binding, and exit conflicts are
+`Rejected`. This layer must not import the legacy schedule policy, issue a
+Recipe/JoinSig/BindingKey, or call Builder/MIR. The finite task and required
+post-implementation reference update are recorded in
+`docs/development/current/main/investigations/loop-family-looptrue-observation-s1-design-task-2026-08-06.md`.

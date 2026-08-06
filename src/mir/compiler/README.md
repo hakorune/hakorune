@@ -90,13 +90,24 @@ the production compiler path. The policy observer consumes only this
 AST-free attempt; it does not receive AST, Builder/MIR state, route IDs,
 Recipes, retry/fallback authority, or a production caller.
 
-The next NestedPredicate row is design-closed but not implemented here yet.
-Its source authority remains
-`nested_predicate_projection.rs::issue_nested_predicate_source_projection_v1`.
-The future adapter must preserve forest lookup/invariant error distinctions and
-must not call `nested_predicate_profile.rs`, the Nested Recipe producer, or any
-Builder/MIR/route selector. Producer-only initializer and recurrence semantics
-remain later claims; the S1 Candidate is source projection evidence only.
+## LoopTrue S1 design boundary
+
+`loop_true_break_continue_projection.rs` remains the sole syntax observer for
+the bounded `loop(true)` plus explicit `break`/`continue` shape. The next
+caller-zero slice is specified in
+`docs/development/current/main/investigations/loop-family-looptrue-observation-s1-design-task-2026-08-06.md`:
+the source projection must expose an AST-free owner/origin/kind/site/frame
+identity, then a `#![cfg(test)]` adapter maps typed source outcomes into a
+neutral observation. The adapter must preserve lookup/navigation/missing-fact
+distinctions and must not import the legacy schedule policy. No selector,
+Recipe/JoinSig, Builder/MIR, physical route, retry/fallback, or production
+caller is authorized by this design stop.
+
+NestedPredicate S1 is already landed as a caller-zero source observation. Its
+source authority remains
+`nested_predicate_projection.rs::issue_nested_predicate_source_projection_v1`;
+the adapter preserves forest lookup/invariant error distinctions and the policy
+observer remains separate from the Nested Recipe producer and route selector.
 
 ## B0-L2b source projection boundary
 
