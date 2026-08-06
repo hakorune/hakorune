@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0, callable handoff S0, and callable source ledger S1 are closed caller-zero; source-to-Recipe mapping is the next design stop; Recipe/physical/production activation remains 0`
+Status: `Generic G0 demand S3, S4, raw structured carrier/result publication I0/R0, callable handoff S0, and callable source ledger S1 are closed caller-zero; MAP-S1 is NoSafeSlice pending resolver syntax-facts authority; Recipe/physical/production activation remains 0`
 
-Current row: `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`
+Current row: `RESOLVER-SYNTAX-FACTS-D0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -36,12 +36,13 @@ The callable handoff S0 is now closed as pre-effect evidence only. Its selected
 `StringHelpers.int_to_str/1` fixture is a single-loop profile with three loop
 roles, while `generic_g0` is the separate nested two-loop `i64` profile. S0
 must not be projected into the G0 Recipe by shape similarity. The ledger S1
-evidence is now closed; the active design stop is
-`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`. It must close an explicit
-AST-free source-to-common-Recipe/JoinSig/effect map (including condition
-operator/bound, step, carrier, assignment target/value, Loop scope, After,
-and tail disposition) or return `NoSafeSlice`. The S0 three-role schedule is a
-subset claim only and does not close the whole callable ledger. Reuse the
+evidence is now closed. The resolver API audit found that operator/RHS/
+initializer/prefix/tail syntax facts are not resolver products, so MAP-S1 is
+`NoSafeSlice` and the active design stop is `RESOLVER-SYNTAX-FACTS-D0`. Seal
+one AST-free syntax observer and its resolver-issued Scope/Region join before
+reopening MAP-S1. The S0 three-role schedule is a subset claim only and does
+not close the whole callable ledger. After the caller-zero SyntaxFacts-S1
+product, go directly to MAP-S1; do not add row-specific D0 suffixes. Reuse the
 common Recipe/physicalizer owners; do not add a Generic-specific SSA/PHI
 owner. Production selection, physical cutover, retry/fallback retirement, and
 legacy deletion remain closed.
@@ -51,16 +52,23 @@ evidence. It publishes only an immutable resolver-owned typed source view and
 exact resolver-backed Loop membership/frame identity. The view retains typed
 expression versus statement rows and explicit family queries; it does not copy
 ValueIds, infer frames from raw paths, or move Loop policy into the resolver.
-The next design stop is
-`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`, which must seal the
-row-by-row operation, carrier, effect, scope, After, and tail correspondence
-before any mapping implementation. Physicalizer, production selection,
-retry/fallback retirement, and legacy deletion remain closed.
+The resolver API audit found a real authority gap: operator/RHS literal,
+initializer, prefix-call, and terminal-tail syntax facts are not resolver
+products. Therefore MAP-S1 is `NoSafeSlice` and the current design stop is
+`RESOLVER-SYNTAX-FACTS-D0`, recorded in the dedicated task below. The syntax
+observer owns only as-written shape facts; resolver identity/BindingRef/
+Scope/Region/exit facts remain separate. After SyntaxFacts-S1, the next row is
+MAP-S1 directly; no row-specific D0 suffixes are authorized. Recipe/JoinSig,
+physicalizer, production selection, retry/fallback retirement, and legacy
+deletion remain closed.
 
 The S1 implementation contract is
 `docs/development/current/main/investigations/generic-callable-single-loop-source-ledger-s1-task-2026-08-07.md`.
 The mapping design contract is
 `docs/development/current/main/investigations/generic-callable-single-loop-source-recipe-map-d0-task-2026-08-07.md`.
+
+The current syntax-facts design stop is
+`docs/development/current/main/investigations/resolver-syntax-facts-d0-task-2026-08-07.md`.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.

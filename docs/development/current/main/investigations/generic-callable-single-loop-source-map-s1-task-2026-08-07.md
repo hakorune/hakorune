@@ -1,8 +1,10 @@
 # Callable single-loop source map S1
 
-Status: `planned after GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0; implementation not opened`
+Status: `NoSafeSlice: resolver syntax-facts authority required before implementation`
 
 Parent: `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`
+
+Dependency: `RESOLVER-SYNTAX-FACTS-D0`
 
 ## Change
 
@@ -12,6 +14,20 @@ resolver-owned callable ledger and exposes exact source roles for the initial
 carrier, condition read/bound/operator, step read/delta/operator, assignment
 target/value, prefix boundary, and terminal tail. It does not publish a
 portable Recipe, allocate `ValueId`/PHI/CFG, or call a Builder route.
+
+## MAP-S1 API audit (2026-08-07)
+
+The existing resolver ledger safely provides owner/origin/source-kind, typed
+source inventory, variable reads, assignment targets, direct-call identity,
+exit identity, Loop frame, and Loop region topology. It does not provide the
+operator, RHS literal, initializer value, prefix-call-to-binding relation, or
+terminal-tail shape required by the D0 table. Filling those rows from AST,
+`variable_map`, path suffixes, or a second resolver is forbidden.
+
+This row is therefore closed as `NoSafeSlice` until a separate syntax-facts
+design chooses the authority and seal for those facts. A partial map containing
+only condition/body reads would not prove the selected profile and must not be
+promoted.
 
 ## Contract
 
@@ -30,6 +46,15 @@ portable Recipe, allocate `ValueId`/PHI/CFG, or call a Builder route.
   decline before any Builder effect. No retry, fallback, reselect, or legacy
   route repair is allowed.
 
+After the dependency is accepted, the map input will be the intersection of
+resolver facts and a sanctioned `VerifiedSourceSyntaxFactsV1` product joined
+by owner-branded typed sites. The map remains AST-free and compiler-side; the
+syntax observer is not a Recipe or physical owner.
+
+The dependency sequence is intentionally finite: implement the caller-zero
+`SyntaxFacts-S1` product after `RESOLVER-SYNTAX-FACTS-D0`, then reopen this
+`MAP-S1` row directly. No row-specific D0 suffixes are authorized.
+
 ## Acceptance
 
 - Positive fixture matches the immutable D0 design fixture and seals every
@@ -37,15 +62,17 @@ portable Recipe, allocate `ValueId`/PHI/CFG, or call a Builder route.
 - Negative fixtures cover missing/duplicate/foreign owner or frame,
   wrong Scope/Region, unsupported operator/type/literal, binding mismatch,
   second/nested loop, missing initial carrier/prefix, and non-terminal tail.
-- The map proves whole-callable declaration/reference/assignment/exit
-  coverage is available to the outer canonical plan; it does not claim that
-  the Loop-only physicalizer can finish the function.
+- The map joins the syntax obligations to the ledger and proves that
+  whole-callable declaration/reference/assignment/exit coverage is available
+  to the outer canonical plan; the syntax observer alone does not own that
+  proof, and the map does not claim that a Loop-only physicalizer can finish
+  the function.
 - Focused tests are caller-zero and the reference/current/workstream docs are
   updated in the same commit as the implementation.
 
 ## Stop
 
-Return to design if the resolver cannot issue exact operator/RHS/step/literal
-rows or Scope/Region identity, if the prefix/tail boundary is not representable,
-or if a Recipe/ValueId/CFG/PHI decision is needed. Those belong to
-`RECIPE-S2` and `PHYS-S3`, not this row.
+Return to design if the syntax-facts owner is not sealed, if any operator/RHS/
+step/literal/prefix/tail row remains opaque, or if a Recipe/ValueId/CFG/PHI
+decision is needed. `RECIPE-S2` and `PHYS-S3` remain closed until this row is
+reopened after `RESOLVER-SYNTAX-FACTS-D0`.

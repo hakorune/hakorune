@@ -1048,15 +1048,14 @@ source view and ValueId map remain migration bridges only; BindingSSA is
 reserved as the later physical owner. The selected callable fixture is a
 single-loop source profile and is not the nested two-loop `generic_g0`
 profile; direct projection between them is rejected. S1 is now closed as
-caller-zero evidence. The current design stop is
-`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`: close the
-source-to-common-Recipe/JoinSig/effect map, including operator/bound, step,
-carrier, target/value pairing, Loop scope, After, and tail disposition, or
-return `NoSafeSlice`. The existing S0 three-role schedule is a subset claim only;
-it does not close direct-call, exit, upvar, field/index, lambda, or other
-callable rows. The later physical proof and production selection remain
-closed, and every implementation cutover must update this reference entry in
-the same commit as its code.
+caller-zero evidence. The resolver syntax-facts audit found a real authority
+gap, so the current design stop is `RESOLVER-SYNTAX-FACTS-D0`: operator/RHS
+literal, initializer, prefix-call, and terminal-tail syntax facts must be
+sealed by one AST-free observer before MAP-S1 can open. The existing S0
+three-role schedule is a subset claim only; it does not close direct-call,
+exit, upvar, field/index, lambda, or other callable rows. The later physical
+proof and production selection remain closed, and every implementation
+cutover must update this reference entry in the same commit as its code.
 
 ## Callable source ledger S1 receipt (2026-08-07)
 
@@ -1075,10 +1074,10 @@ selection. Scope consumption, operation/effect correspondence, After/tail,
 completion, and legacy retirement remain closed.
 
 The next authority is the design stop
-`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`, recorded in
-`generic-callable-single-loop-source-recipe-map-d0-task-2026-08-07.md`. It must
-seal every source-to-common-Recipe/effect/After/tail row before a mapping
-implementation is opened.
+`RESOLVER-SYNTAX-FACTS-D0`, recorded in
+`resolver-syntax-facts-d0-task-2026-08-07.md`. The resolver API does not own
+operator/RHS literal, initializer, prefix-call, or terminal-tail syntax facts;
+MAP-S1 is therefore `NoSafeSlice` until one AST-free syntax observer is sealed.
 
 ## Callable source-to-Recipe map D0 worker review (2026-08-07)
 
@@ -1103,7 +1102,25 @@ Current schema gaps are kept explicit: the common operation/source relation
 must carry Recipe item/value keys and literal/operator anchors; the initial
 carrier needs a separate source-to-input projection; and the existing nested
 `VerifiedGenericAfterEffectG0` cannot be reused for this callable profile.
-The next implementation candidate is caller-zero `MAP-S1`, documented in
-`generic-callable-single-loop-source-map-s1-task-2026-08-07.md` with immutable
-fixture `generic-callable-single-loop-source-map-d0-v1.json`. Recipe/JoinSig,
-physicalization, production selection, and legacy retirement remain closed.
+The next implementation candidate after the syntax observer is caller-zero
+`MAP-S1`, documented in `generic-callable-single-loop-source-map-s1-task-2026-08-07.md`
+with immutable fixture `generic-callable-single-loop-source-map-d0-v1.json`.
+Recipe/JoinSig, physicalization, production selection, and legacy retirement
+remain closed.
+
+## Resolver syntax-facts D0 stop (2026-08-07)
+
+The syntax observer owns only as-written shape: operator kind, literal shape,
+initializer shape, call-boundary shape, and return-expression shape. Resolver
+remains the authority for owner/origin/source-kind, BindingRef, Loop
+frame, Scope/Region, direct-call receipt, and exit identity. Type/range/
+overflow/monotonicity policy belongs to the numeric substrate/route policy;
+the observer does not resolve call targets or rebuild BindingRefs.
+
+The count is fixed as **9 syntax rows plus one separate prefix boundary**:
+initial carrier (1), condition Lhs/Rhs/operator (3), step
+Lhs/Rhs/operator/assignment target (4), and terminal tail shape (1). Whole-
+callable declaration/reference/assignment/exit coverage is sealed by the
+resolver-to-MAP join and outer canonical plan, not by the syntax observer.
+After `SyntaxFacts-S1`, execution goes directly to `MAP-S1`; no row-specific
+D0 suffixes or Recipe/physical/production/legacy work are opened by this stop.

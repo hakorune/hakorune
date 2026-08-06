@@ -61,6 +61,14 @@ operation/value also carries one exact source anchor. Synthetic carrier and
 JoinSig glue must be named as derived products, never presented as source
 rows.
 
+The upper-level review corrected the row count before implementation: the
+syntax observer has **9 syntax rows plus one separate prefix boundary**. The
+9 are initial carrier (1), condition Lhs/Rhs/operator (3), step
+Lhs/Rhs/operator/assignment target (4), and terminal tail shape (1). The
+prefix call-to-binding boundary is the separate tenth whole-callable envelope;
+whole-callable declaration/reference/assignment/exit coverage is proven by the
+MAP-S1 join and outer plan, not by the syntax observer alone.
+
 | source row | logical target | co-sealed evidence / disposition |
 | --- | --- | --- |
 | callable owner/origin/source-kind | common owner brand | every Recipe/Core/After row must match; foreign rejects |
@@ -112,6 +120,7 @@ coverage, a second resolver/SSA/PHI owner, or any post-effect retry/fallback.
 ### Implementation ladder after D0
 
 ```text
+SYNTAX-S1 caller-zero VerifiedSourceSyntaxFactsV1 (AST-free shape only)
 MAP-S1   caller-zero resolver/source map (no Recipe/ValueId/CFG effects)
 RECIPE-S2 common Recipe + JoinSig + operation/effect + After/Tail co-seal
 PHYS-S3  common physical input + canonical session/scope + completion
@@ -119,6 +128,11 @@ CUT-S4   named caller, strict/fresh/atomic/backend parity
 RETIRE-R1 selected profile old caller/route/composer = 0
 CORPUS-R2 all accepted profile dispositions complete, then legacy deletion
 ```
+
+The syntax-facts design/implementation dependency is
+`resolver-syntax-facts-d0-task-2026-08-07.md`; after its caller-zero product
+lands, go directly to the MAP-S1 task below. Do not create row-specific D0
+suffixes.
 
 The MAP-S1 task is
 `generic-callable-single-loop-source-map-s1-task-2026-08-07.md`; its immutable

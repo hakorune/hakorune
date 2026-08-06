@@ -62,15 +62,14 @@ Related:
   the nested Generic G0 Recipe producer. `GENERIC-CALLABLE-SINGLE-LOOP-
   SOURCE-LEDGER-S1` is now closed as caller-zero evidence: the resolver
   publishes one immutable typed source view, explicit row-family queries, and
-  resolver-issued Loop membership/frame identity. The current blocker is the
-  shallow design stop `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`.
-  Worker review has now fixed the shallow D0 envelope: source coverage is
-  `(typed site, role, target-kind)`; the selected profile is the one-loop
-  `StringHelpers.int_to_str/1` shape with explicit prefix and terminal-tail
-  boundaries. Its next planned caller-zero row is `MAP-S1`, but no
-  implementation is opened until the D0 consultation is accepted. Physicalization,
-  production selection, strict receipt, retry/fallback retirement, and legacy
-  deletion remain closed.
+  resolver-issued Loop membership/frame identity. The API audit found that
+  operator/RHS/initializer/prefix/tail syntax facts are not resolver products,
+  so MAP-S1 is `NoSafeSlice`. The current design stop is
+  `RESOLVER-SYNTAX-FACTS-D0`: seal one AST-free syntax observer and its
+  resolver-issued Scope/Region join, then go directly to SyntaxFacts-S1 and
+  MAP-S1 without adding row-specific D0 suffixes. Physicalization, production
+  selection, strict receipt, retry/fallback retirement, and legacy deletion
+  remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only
