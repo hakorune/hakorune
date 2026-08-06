@@ -33,12 +33,12 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 ## Callable single-loop source ledger, SyntaxFacts, and MAP S1
 
 `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1`, `RESOLVER-SYNTAX-FACTS-S1`,
-and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. The
-resolver ledger owns source/frame/Scope/Region; SyntaxFacts owns nine neutral rows plus prefix; MAP co-seals BindingRef/assignment/terminal-return evidence and the selected `0`/`1`/`Less`/`Add` policy. The MethodCall prefix remains an
-outer-callable boundary when no canonical target exists. The shallow
-`RECIPE-COSEAL-D0` common design is accepted; the next row is bounded
-caller-zero `RECIPE-COSEAL-I0-R0`, with no physical, production, retry/fallback,
-or deletion authority.
+and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. MAP
+co-seals the resolver source/frame/Scope/Region and the selected
+`0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
+not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
+`RECIPE-COSEAL-D0` is accepted and caller-zero `RECIPE-COSEAL-I0-R0` is next,
+with no callable-specific Loop kind, physical, production, retry, or deletion.
 
 ## Root-neutral semantic foundation
 

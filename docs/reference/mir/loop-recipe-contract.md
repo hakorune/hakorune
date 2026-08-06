@@ -13,6 +13,25 @@ Primary design authority:
 Executable authority:
 `src/mir/loop_recipe_contract/`
 
+## Count and shape invariant
+
+The legacy scheduler currently exposes 19 ingress rows. That number is a
+migration-coverage count, not a portable Recipe-kind count. Every accepted
+row must normalize into the same recursive `LoopRecipeV1` algebra:
+
+```text
+LoopNode(condition = Always | Predicate)
+Item = Operation | If | Loop | Exit
+```
+
+Nested loops use the same `Loop` item recursively. `break`, `continue`, and
+in-loop `return` use the common `Exit` item. While/true/conditional-loop,
+scan/accum, and Generic labels remain source-policy or legacy-adapter
+identities. `IfPhiJoin` names a shared If/join obligation, not another Loop
+kind. M7 establishes the shared algebra and representative adapter cohorts;
+M8 closes the remaining legacy-ingress coverage. Neither milestone may add a
+route-specific verifier, CFG/PHI owner, or physicalizer.
+
 Reference receipt — `LOOP-JOINSIG-MODULE-SPLIT-R0` (2026-08-06): the former
 flat `join_sig.rs` is retired. `join_sig/mod.rs` remains the stable facade;
 `join_sig/model.rs`, `join_sig/port.rs`, `join_sig/visibility.rs`, and
@@ -114,7 +133,8 @@ Every source row is consumed exactly once by `(site, role, target-kind)`; missin
 duplicate, foreign, unconsumed, cross-owner, or second-owner evidence rejects
 before any physical effect. If a future profile cannot satisfy this common
 shape, it is `NoSafeSlice`, not an invitation to add a callable-specific
-physicalizer.
+Recipe kind or physicalizer. The callable row is one more instance of the
+single recursive algebra; it is not a twentieth Recipe variant.
 
 The implementation row must update this reference page and
 `docs/reference/mir/generic-loop-stage-matrix.md` in the same commit. Until

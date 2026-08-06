@@ -23,6 +23,10 @@ Loop lowering.
   same `LoopRecipeItemV1::Loop` node; they are not a second semantic family.
   `LoopV0`, `LoopTrue`, and `LoopCond` names belong to current producers or
   legacy physical adapters, not to the portable semantic SSOT.
+- The legacy count of 19 is an ingress/coverage count only. All accepted rows
+  normalize into this same recursive algebra; they must not create 19 Recipe
+  variants, completed-source-pattern enums, verifier branches, or
+  physicalizers. M7/M8 are adapter-coverage migrations, not Recipe-kind growth.
 - External/pre-loop values are named explicitly by `inputs`; every other value
   has exactly one operation result.
 - A carrier entry must be available before its owning Loop is entered. The

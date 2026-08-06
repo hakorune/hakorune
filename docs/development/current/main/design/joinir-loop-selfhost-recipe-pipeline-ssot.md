@@ -21,6 +21,29 @@ Related:
 Choose the clean final architecture rather than the shortest wrapper around the
 19 legacy physical routes.
 
+### Route-count invariant
+
+The number `19` belongs only to the legacy scheduler's ingress/coverage matrix.
+It is not the number of portable Recipe variants, semantic Loop kinds, or
+physicalizers. The canonical target has one recursive semantic algebra:
+
+```text
+19 legacy ingress rows
+  -> typed source/family observation and one policy winner
+  -> one recursive LoopRecipeV1 algebra
+       LoopNode(condition = Always | Predicate)
+       Item = Operation | If | Loop | Exit
+  -> one verifier / JoinSig elaborator / physicalizer chain
+```
+
+`LoopSimpleWhile`, `LoopTrue*`, `LoopCond*`, scan/accum labels, and
+`GenericLoopV0/V1` are migration/admission identities. `NestedLoopMinimal`
+recurses through the same `Loop` item, while `break`/`continue`/`return` use
+the common `Exit` item. `IfPhiJoin` contributes shared If/join obligations; it
+is not a Loop Recipe kind. M7 and M8 therefore close adapter coverage into
+this one algebra. They must not grow a parallel enum of completed source
+patterns.
+
 ## SSOT role disambiguation
 
 The authority split is:
@@ -961,7 +984,7 @@ Reference closeout task (`JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`, closed
 ### M8 — `JOINIR-LOOP-ALL19-PORTABLE-RECIPE0-S6`
 
 Change:
-: Migrate the remaining 14 routes as bounded adapter cohorts: LoopV0
+: Close the remaining 14 legacy-ingress rows as bounded adapter cohorts: LoopV0
   recurrence, LoopV0 exits/joins, LoopV0 scans, LoopCond exits, and Generic
   V0. Add only missing source observation or portable vocabulary. Each route is
   one producer data row/golden plus one typed source-policy observation for the
@@ -982,13 +1005,15 @@ Ordered rows:
   production caller remains zero.
 
 Contract:
-: 19/19 routes have typed pre-effect decline or verified recipe. Legacy winner
+: 19/19 legacy ingress rows have typed pre-effect decline or one verified
+  instance of the common recipe algebra. Legacy winner
   equivalence includes first-None-then-later-success. Selected physicalization
   has no `Option`, suffix, retry, or fallback. Raw route IDs/cursors remain
   migration evidence and cannot select through the all-route input.
 
 Done:
-: Accepted corpus produces verified recipes and parity MIR. Unverified direct
+: Every accepted legacy-ingress fixture produces a verified common Recipe and
+  parity MIR. The canonical semantic Loop kind count remains one. Unverified direct
   lower, cloned-AST recipe reconstruction, post-effect continuation, and
   duplicate CFG/PHI authorities are zero in the new subtree. The M10 deletion
   manifest covers every old route callback, composer, Retry/continuation, and
@@ -1152,7 +1177,8 @@ Contract:
   delegate, or call a host bridge.
 
 Done:
-: All 19 positive recipes and the shared missing/duplicate role, undefined
+: All 19 positive legacy-ingress fixtures map into the same recursive Recipe
+  algebra, and the shared missing/duplicate role, undefined
   carrier, missing edge, and arity/type counterexamples match Rust verifier
   codes and structured fields. Count-only PortSig is not accepted as JoinSig.
 
@@ -1195,7 +1221,8 @@ Contract:
   retry, fallback, delegate, or route-selection capability.
 
 Done:
-: All 19 have deterministic normalized recipe and MIR JSON parity, verifier/VM
+: All 19 legacy-ingress fixtures have deterministic normalized Recipe and MIR
+  JSON parity, verifier/VM
   result parity, PHI/type/result parity, and no partial artifact on injected
   late failure. Covered direct Loop templates, recipe rematch, and route-local
   emitters have zero callers in the new subtree.
@@ -1239,7 +1266,8 @@ Contract:
 
 Done:
 : Default selfhost Loop selection/meaning/verifier/physicalizer authority count
-  is one; retry/fallback/hostbridge/dual dispatch are zero; all 19, full identity,
+  is one; retry/fallback/hostbridge/dual dispatch are zero; all 19 legacy-ingress
+  matrix rows, full identity,
   selfhost corpus, representative backend, quick/release, and old-caller census
   are green.
 

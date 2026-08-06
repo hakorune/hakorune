@@ -4,6 +4,12 @@ Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R
 
 Current row: `RECIPE-COSEAL-I0-R0`
 
+Count/shape invariant: the legacy count of 19 names scheduler ingress and
+coverage rows only. M7/M8 map those rows into one recursive `LoopRecipeV1`
+algebra; they do not create 19 Recipe variants. The current callable row is
+another source-to-common-algebra mapping and must not introduce a
+callable-specific or twentieth semantic Loop kind.
+
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
 production or language-support claim. The consultation result and the closed

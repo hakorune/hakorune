@@ -23,6 +23,19 @@ module. Keep each touched Rust source file below 800 lines. Do not modify the
 Builder, MIR, canonical CFG/SSA, physical input, production selector, or
 legacy route.
 
+Count/shape invariant:
+
+```text
+19 legacy route labels = ingress coverage only
+selected callable row  = one instance of the existing recursive LoopRecipeV1
+new Recipe/Loop kind   = 0
+new verifier/physicalizer branch = 0
+```
+
+Do not encode `LoopSimpleWhile`, this callable profile, or any completed source
+shape as a portable Recipe variant. The implementation maps the admitted
+source roles to the existing `LoopNode + Operation/If/Loop/Exit` algebra.
+
 Preferred physical split (only if the existing facades cannot stay below the
 line cap):
 
@@ -114,7 +127,9 @@ reselection, or Builder effect is allowed.
 - the same implementation commit updates
   `docs/reference/mir/loop-recipe-contract.md`,
   `docs/reference/mir/generic-loop-stage-matrix.md`, the current task/card,
-  and any immutable fixture/guard receipt required by the row.
+  and any immutable fixture/guard receipt required by the row. The reference
+  closeout must record the landed relation schema and tests while preserving
+  the invariant that 19 means legacy-ingress coverage, not Recipe kinds.
 
 After this row closes, stop before physicalization and open a separate design
 boundary for common physical demand/fresh-session/atomic rollback. Recipe
