@@ -1,4 +1,8 @@
-//! Catalog of NYASH environment variables (AGENTS.md 287)
+//! Catalog of NYASH environment variables.
+//!
+//! The environment-variable contract is owned by
+//! `docs/reference/environment-variables.md`; `AGENTS.md` is only the local
+//! routing entry and must not be used as a section-number reference.
 //!
 //! Provides runtime enumeration of all environment variables used by Hakorune.
 //! Used for diagnostics, documentation, and CI validation.

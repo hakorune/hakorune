@@ -83,7 +83,8 @@ Related docs:
 
 **禁止 / 抑制:**
 - 新しい Box 種類（IntArrayCore / MatI64 / StringBuilder 等）の**本体ロジック**を Rust 側に増やさない（型安全な intrinsic のみに留める）。
-- 新しい最適化ロジック・言語ルール・Box メソッド実装を Rust に追加しない（AGENTS.md 5.2 Rust Minimal Policy に準拠）。
+- 新しい最適化ロジック・言語ルール・Box メソッド実装を Rust に追加しない（現行のRust境界:
+  `AGENTS.md` の router から参照する `docs/development/current/main/design/selfhost-coreplan-unblocking-policy.md` に準拠）。
 
 ### Ring1（Hakorune / Nyash ― System サブセット）
 

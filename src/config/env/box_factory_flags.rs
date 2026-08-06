@@ -1,7 +1,8 @@
 //! Box Factory environment variable configuration
 //!
 //! Phase 286B: Consolidates NYASH_BOX_FACTORY_* and NYASH_PLUGIN_* flags
-//! Prevents direct std::env::{var,set_var,remove_var} access (AGENTS.md 5.3)
+//! Direct environment access is kept in `src/config/env`; see
+//! `docs/reference/environment-variables.md` for the durable contract.
 
 use crate::box_factory::FactoryPolicy;
 pub use hakorune_box_core::PluginExecMode;

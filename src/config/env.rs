@@ -74,7 +74,7 @@
 //! ## 参照
 //!
 //! - SSOT ドキュメント: `docs/reference/environment-variables.md`
-//! - AGENTS.md 5.3: 環境変数スパロー防止ポリシー
+//! - `docs/reference/environment-variables.md`: environment-variable SSOT
 //!
 //! # Modular Organization
 //!

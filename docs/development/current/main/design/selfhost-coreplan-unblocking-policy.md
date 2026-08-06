@@ -36,7 +36,8 @@ Scope: Selfhost bringup / hako_check
 ## Hard rules
 
 - `NYASH_DISABLE_PLUGINS=1` の解析/検証導線は維持する（決定性と依存縮小のため）
-- by-name/文字列一致での暫定ディスパッチは禁止（AGENTS.md 5.1）
+- by-name/文字列一致での暫定ディスパッチは禁止（恒久ルール:
+  `docs/development/current/main/design/compiler-expressivity-first-policy.md`）
 - strict/dev では `flowbox/freeze` に収束させて可視化し、release は既定挙動/ログを変えない
 
 ## Acceptance (selfhost gate)

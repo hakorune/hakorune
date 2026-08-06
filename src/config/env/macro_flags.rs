@@ -1,7 +1,8 @@
 //! Macro system environment variable configuration
 //!
 //! Phase 286A: Consolidates NYASH_MACRO_* and NYASH_TEST_* flags
-//! Prevents direct std::env::var access throughout the codebase (AGENTS.md 5.3)
+//! Direct environment access is kept in `src/config/env`; see
+//! `docs/reference/environment-variables.md` for the durable contract.
 
 /// NYASH Macro paths (comma-separated)
 pub fn macro_paths() -> Option<String> {
