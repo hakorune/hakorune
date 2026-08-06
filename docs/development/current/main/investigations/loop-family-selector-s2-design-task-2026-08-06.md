@@ -1,5 +1,5 @@
 ---
-Status: Design stop / implementation not authorized
+Status: Closed worker-reviewed design / implementation taskized
 Date: 2026-08-06
 Decision: LOOP-FAMILY-SELECTOR-S2-DESIGN
 Authority: docs/development/current/main/design/loop-family-observation-policy-ssot.md
@@ -72,3 +72,12 @@ Recipe/JoinSig, Builder/MIR, retry, or fallback.
 Until those design points are accepted and taskized, the current goal stops at
 this consultation boundary. Production selection and legacy deletion remain
 closed.
+
+## Design closeout
+
+Independent worker reviews confirmed the boundary: the assembler owns every
+row-level failure, while a new selector consumes only `Ready(window)` and
+handles Candidate/Declined overlap. `NoCandidate` remains outside S2. The
+implementation task is
+`loop-family-selector-s2-implementation-task-2026-08-06.md`; production
+selection and legacy deletion remain closed until later activation gates.

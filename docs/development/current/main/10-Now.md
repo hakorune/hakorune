@@ -142,9 +142,11 @@ Related:
   variants drop row metadata, so the next exact row is
   FAMILY-ROW-CONTEXT-RETENTION-R0, resolver-owned
   LOOP-FAMILY-WINDOW-LEASE-ISSUER-S0, and the common five-family admission
-  assembler S1 are landed. The next boundary is the selector design stop. The finite shallow order and atomic
-  legacy-retirement boundary live in the dedicated Generic SSOT. Production and
-  public reference activation remain zero.
+  assembler S1 are landed. The worker-reviewed Ready-only selector design is
+  also accepted; the current bounded row is its new selector consumer. The
+  finite shallow order and atomic legacy-retirement boundary live in the
+  dedicated Generic SSOT. Production and public reference activation remain
+  zero.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 
