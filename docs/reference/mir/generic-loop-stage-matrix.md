@@ -73,8 +73,8 @@ NestedPredicate aliases are forbidden. The following paragraph is retained as
 historical handoff context: D4-S4-D0 through D4-S4-S3-S0 subsequently closed
 as design/test-only evidence, without a public semantic row or production
 caller. D4-S4-S3-D1 and S1-S1 have since closed their authority boundaries.
-The current blocker is the D4-S4-S3-S1-S2-S2-D0 policy-to-selector handoff
-design in `CURRENT_STATE.toml`; substrate and policy witnesses are closed.
+The current blocker is the shallow `GENERIC-SELECTION-OPEN-D0` promotion gate
+design in `CURRENT_STATE.toml`; deep D4 substrate/policy evidence is closed.
 No `Selected(Generic)` or Recipe claim is implied here.
 
 ```text

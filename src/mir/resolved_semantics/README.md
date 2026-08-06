@@ -596,9 +596,13 @@ bridge owns BindingRef-to-annotation provenance, and `loop_route_policy` owns
   cfg(test)-only substrate projection from this receipt plus explicit
   `NumericTarget`; S1-S2-S1-S1 now closes the policy witness with role-bearing
   Condition-Rhs/Step-Rhs operands. Policy consumes the sealed projection once
-  and owns progression semantics only. The next design stop is S1-S2-S2-D0:
-  define an opaque policy-to-selector candidate handoff without exposing the
-  substrate/receipt to selector or connecting a selector. Every
+  and owns progression semantics only. The next design stop is
+  `GENERIC-SELECTION-OPEN-D0`: define the shallow promotion gate with a real
+  resolver-issued Generic envelope and natural fixture, then an opaque
+  policy-to-selector candidate handoff without exposing substrate/receipt to
+  selector, followed by a pure selector witness. Every
   implementation commit updates current state, workstream, pipeline SSOT, and
   this README; production activation later requires the corresponding
-  `docs/reference/**` closeout.
+  `docs/reference/**` closeout. The gate is reached
+  only after handoff and pure-selector witnesses prove one opaque candidate and
+  exactly-one route; until then production selection remains zero.

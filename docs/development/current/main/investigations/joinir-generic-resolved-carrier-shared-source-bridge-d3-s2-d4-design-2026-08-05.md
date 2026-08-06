@@ -990,11 +990,11 @@ or public semantic row was added.
 Worker review fixed a one-consume API: policy accepts only sealed `VerifiedGenericNumericSubstrateProjectionV1` by value with role-bearing Condition-Rhs/Step-Rhs operands, returns move-only `Ready | Unresolved | Rejected`, and owns admitted progression only; seven tests are green with no selector, demand, Recipe, Builder/MIR caller, or public row.
 ## D4-S4-S3-S1-S2-S1-S1 numeric-policy projection witness closeout
 The cfg(test)-only policy witness preserves substrate provenance/target/map and rejects duplicate or foreign roles; unknown/symbolic/unsupported/non-progressing shapes stay unresolved. Current/workstream/pipeline/README and reference mirror sync are complete; `docs/reference/**` closes only at activation.
-## D4-S4-S3-S1-S2-S2-D0 policy-to-selector handoff design stop
-Worker design task: insert a separate candidate handoff between policy and
-selector. `issue_generic_numeric_selector_candidate_v1` consumes only a Ready
-policy by value and exposes an opaque target/profile/coverage view plus sealed
-comparison/progression; it must not expose substrate/receipt/BindingRef access.
-Policy Unresolved/Rejected never reaches selector; handoff gaps are Unresolved, foreign/forged seal or profile contradictions are Rejected; selector alone
-owns numeric-route admission, ambiguity, and winner; existing D4-S3 family selector remains separate. No source re-resolution, demand,
-Recipe/key, Builder/MIR, retry, fallback, or production caller before review.
+## D4-S4-S3-S1-S2-S2-D0 handoff design closeout
+Worker review fixes a separate candidate handoff; policy Unresolved/Rejected never reaches selector, and the existing D4-S3 family selector stays separate.
+## D4-EVIDENCE-EXIT0 deep numeric evidence exit
+All current receipts/negative matrices are closed with production caller zero; no more D4 suffixes unless a new design stop supersedes this gate.
+## GENERIC-SELECTION-OPEN-D0 shallow promotion design stop
+Open gate requires a real resolver-issued Generic candidate envelope (carrier/condition/step/body-effect/coverage/exit, exact lease/BindingRefs) plus a natural fixture.
+Then one opaque policy candidate and a pure selector witness must prove exactly-one route; numeric policy/selector alone cannot open Generic production.
+Selector owns admission/winner; no AST/name/receipt re-resolution, retry/fallback/NoCandidate, demand, Recipe, Builder/MIR, or production caller before this gate.

@@ -120,8 +120,9 @@ Related:
   S1-S1 is now closed by the cfg(test)-only move-only co-sealed receipt and six
   focused tests. S1-S2-D0 fixed the two-stage policy boundary, S1-S2-S0 closed
   the substrate projection, and S1-S2-S1-S1 closed the one-consume policy
-  witness. The current stop is S1-S2-S2-D0: design the policy-to-selector
-  handoff without connecting a selector or Recipe.
+  witness. The deep D4 evidence exit is now closed. The current shallow stop is
+  GENERIC-SELECTION-OPEN-D0: define the only promotion gate before production
+  selection, with no selector/Recipe connection yet.
   Full shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and
   fallback remain gated; no public reference row is added until production
   activation.

@@ -364,6 +364,17 @@ D4-S4-S3-S1-S2-S2-D0
      coverage; selector alone owns route admission/winner. No policy/source
      re-resolution, numeric receipt access, demand, Recipe/key, Builder/MIR,
      retry, fallback, or production caller before worker review.
+D4-EVIDENCE-EXIT0
+  -> deep D4 evidence exit: all current substrate/policy receipts and negative
+     matrices are closed without a production caller; no more D4 suffixes are
+     authorized unless a new design stop supersedes this gate.
+GENERIC-SELECTION-OPEN-D0
+  -> shallow promotion design: a real resolver-issued Generic candidate envelope
+     (carrier/condition/step/body-effect/coverage/exit, exact lease/BindingRefs)
+     and a natural fixture must precede the handoff/pure-selector witnesses.
+     Ready policy crosses one opaque candidate; a sealed route table yields
+     exactly one winner; zero/multiple/incomplete remain typed outcomes. No
+     retry/fallback/NoCandidate; only this gate may authorize production selection.
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives
