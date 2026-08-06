@@ -997,5 +997,4 @@ only when code/schema lands. It should eventually check:
 - no HomeV1 -> SharedV1 fallback;
 - no hidden strong-owner producer outside explicit `share`/boundary witnesses;
 - exact production caller counts for selected physicalizers.
-
 Until then, use the current-state pointer guard and document-only checks.
