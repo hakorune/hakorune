@@ -66,6 +66,36 @@ When the active lane is MirBuilder in-place replacement, read the
 The replacement method and current row are subordinate to that final
 production-authority goal.
 
+## Big-picture-first contract
+
+The local `AGENTS.md` may carry a short `Big-Picture First` reminder, but the
+durable rule is here: a passing test or a small accepted row is not the goal by
+itself. Before implementation, identify the complete authority chain:
+
+```text
+natural source
+  -> exact semantic membership
+  -> AST-free Facts
+  -> portable product / Recipe
+  -> Verifier
+  -> sole physical owner
+  -> one publication/commit boundary
+  -> legacy authority retirement
+```
+
+If the mapping between two adjacent products is still being discovered in
+code or tests, return to a design stop. Do not deepen the task suffix, add a
+compatibility adapter, or treat a local green result as a production claim.
+The active row must name its finish line, production switch point, deletion or
+retirement boundary, and explicit non-claims. Keep the execution sequence a
+finite shallow ladder; repeated sub-suffixes are evidence that the premise or
+schema needs correction, not a progress metric.
+
+The source-to-Recipe correspondence gate is detailed in
+`recipe-first-entry-contract-ssot.md`, and the final authority chain is owned
+by `mirbuilder-final-pipeline-ssot.md`. The root instruction file should point
+to those documents rather than duplicate their design prose.
+
 For optimization work, the durable toolbox entry is:
 
 ```text
