@@ -38,8 +38,13 @@ Related:
   reviewed `GENERIC-G0-RECIPE-S4-D0` design is also closed. The caller-zero
   deterministic Recipe producer and the checked 389-case
   `GENERIC-LEGACY-CORPUS-UNIVERSE-P0` inventory are landed. The direct G0
-  probe is closed as a named pre-Loop raw-structured BinaryOp failure; the
-  current design row is `GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-D0`.
+  probe is closed as a named pre-Loop raw-structured BinaryOp failure. The
+  design is accepted and `GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-I0` is
+  implemented and verified: the fresh receipt preserves the primary
+  callable-semantic error instead of masking it with an unconsumed-demand
+  error. The current design row is
+  `GENERIC-RAW-STRUCTURED-DEMANDS-ADMISSION-S1-D0`; no implementation is
+  authorized until resolver variable-site admission is designed.
   Production selection, physical cutover, and legacy removal remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed

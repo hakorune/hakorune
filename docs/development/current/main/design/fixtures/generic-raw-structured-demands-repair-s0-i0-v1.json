@@ -1,0 +1,48 @@
+{
+  "schema_version": "generic-raw-structured-demands-repair-s0-i0-v1",
+  "kind": "GenericRawStructuredDemandsRepairS0I0ReceiptV1",
+  "row": "GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-I0",
+  "case_id": "generic_loop_continue_strict_shadow_vm",
+  "canonical_case_id": "generic_loop_continue_strict_shadow_vm",
+  "invocation_fixture": "apps/tests/phase29ca_generic_loop_continue_min.hako",
+  "mode": "strict-shadow",
+  "profile": "vm",
+  "invocation_profile_id": "vm-strict-planner-direct-v1",
+  "working_directory": ".",
+  "command_argv": [
+    "env",
+    "HAKO_ROOT=.",
+    "HAKO_BIN=target/release/hakorune",
+    "NYASH_ROOT=.",
+    "NYASH_BIN=target/release/hakorune",
+    "NYASH_DISABLE_PLUGINS=1",
+    "HAKO_JOINIR_STRICT=1",
+    "HAKO_JOINIR_PLANNER_REQUIRED=1",
+    "target/release/hakorune",
+    "--backend",
+    "vm",
+    "apps/tests/phase29ca_generic_loop_continue_min.hako"
+  ],
+  "timeout_seconds": 10,
+  "front_state": "failed-before-loop-primary-error-exposed",
+  "exit_code": 1,
+  "primary_front_evidence": {
+    "kind": "diagnostic",
+    "token": "[freeze:contract][callable-semantic-lowering/missing-variable-site]",
+    "source": "src/mir/builder/raw_expression_dispatch/mod.rs::build_expression_impl_with_port_v1(BinaryOp)",
+    "site": "[Body(1), IfCondition, Lhs]"
+  },
+  "masked_diagnostic_absent": "[freeze:contract][raw-structured/unconsumed-demands]",
+  "pre_loop_owner": "src/mir/builder/raw_expression_dispatch/mod.rs::build_expression_impl_with_port_v1(BinaryOp)",
+  "failure_phase": "StringifyOperator.apply/1 Body(1)/IfCondition BinaryOp source demand before Loop lowering",
+  "stdout_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_digest": "f5e2d16d7f26d15a1e4a4750319eee50983689f38a51eb93063abef6d64fb146",
+  "claims": [
+    "loop-not-reached",
+    "primary-error-preserved",
+    "route-unobserved",
+    "disposition-unclassified",
+    "production-unchanged"
+  ],
+  "next_design_boundary": "resolver variable admission/materialization is a separate future BoxCount row; not opened by S0-I0"
+}

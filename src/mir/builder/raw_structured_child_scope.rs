@@ -112,6 +112,22 @@ impl<'port, Port> RawStructuredChildScopePortV1<'port, Port> {
         }
         Ok(())
     }
+
+    /// Preserve a child-lowering rejection before checking exact-demand
+    /// completion. A failed child may legitimately leave later siblings
+    /// unconsumed; reporting that remainder would mask the primary error.
+    pub(in crate::mir::builder) fn complete_after_result_v1<T>(
+        self,
+        result: Result<T, String>,
+    ) -> Result<T, String> {
+        match result {
+            Ok(value) => {
+                self.complete_exact_demands_v1()?;
+                Ok(value)
+            }
+            Err(error) => Err(error),
+        }
+    }
 }
 
 impl<Port> RecursiveChildLoweringPortV1 for RawStructuredChildScopePortV1<'_, Port>
@@ -234,5 +250,21 @@ mod tests {
             error,
             "[freeze:contract][raw-structured/unconsumed-demands] expressions=0 bodies=1"
         );
+    }
+
+    #[test]
+    fn failed_child_error_is_not_masked_by_later_expression_demand() {
+        let mut child = ();
+        let error = RawStructuredChildScopePortV1::new(
+            &mut child,
+            vec![
+                PreparedRawChildSourceV1::Preserve,
+                PreparedRawChildSourceV1::Preserve,
+            ],
+            Vec::new(),
+        )
+        .complete_after_result_v1::<()>(Err("[primary-child-error]".to_owned()))
+        .unwrap_err();
+        assert_eq!(error, "[primary-child-error]");
     }
 }

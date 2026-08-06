@@ -1,6 +1,6 @@
 # Generic legacy observation front G0
 
-Status: `landed 2026-08-07; front failed before Loop at a shared owner; next repair row is GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-D0`
+Status: `landed 2026-08-07; front failed before Loop at a shared owner; S0-D0 design accepted; next implementation row is GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-I0`
 
 Parent SSOT: `../design/generic-loop-source-to-portable-recipe-ssot.md`.
 
@@ -60,8 +60,13 @@ The receipt is
 `../design/fixtures/generic-legacy-observation-front-g0-v1.json`; its guard
 resolves the exact non-alias P0 case and rejects smoke-wrapper/fallback route
 claims. This closes G0 as a named pre-Loop failure only. The owner is opened
-separately as `GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-D0`; no Generic route,
-Recipe, physical, disposition, or production claim was made.
+separately as `GENERIC-RAW-STRUCTURED-DEMANDS-REPAIR-S0-I0`; that repair is
+now verified by the fresh I0 receipt
+`../design/fixtures/generic-raw-structured-demands-repair-s0-i0-v1.json`,
+which preserves the primary callable-semantic error. No Generic route,
+Recipe, physical, disposition, or production claim was made. The next
+boundary is the separate design row
+`GENERIC-RAW-STRUCTURED-DEMANDS-ADMISSION-S1-D0`.
 
 ## Non-goals
 

@@ -167,8 +167,7 @@ impl super::MirBuilder {
                         drive_ordinary_binary_expression_v1(self, &mut scoped, &input)
                     }
                 };
-                scoped.complete_exact_demands_v1()?;
-                result
+                scoped.complete_after_result_v1(result)
             }
 
             node @ ASTNode::CheckExpr { .. } => {
