@@ -9,6 +9,8 @@ use super::{
     NestedPredicateFamilyObservationV1, NestedPredicateObservationContextV1,
 };
 use crate::ast::ASTNode;
+use crate::mir::compiler::generic_g0_observation::
+    issue_generic_g0_source_attempt_with_window_for_test;
 use crate::mir::compiler::loop_cond_break_continue_observation::issue_loop_cond_source_attempt_for_test;
 use crate::mir::compiler::loop_true_break_continue_observation::issue_loop_true_source_attempt_for_test;
 use crate::mir::compiler::nested_predicate_observation::issue_nested_predicate_source_attempt_for_test;
@@ -220,15 +222,15 @@ function generic_g0(i: i64, j: i64): i64 {
         identity.site.clone(),
         identity.frame.clone(),
     );
-    let attempt =
-        crate::mir::compiler::generic_g0_observation::issue_generic_g0_source_attempt_for_test(
-            input,
-            loop_stmt,
-            source,
-            crate::mir::numeric_substrate::NumericTarget::host(),
-            Some(crate::mir::loop_structural_facts::GenericG0ObservationModeV1::Release),
-            crate::mir::loop_structural_facts::GenericG0ObservationCoverageV1::Complete,
-        );
+    let attempt = issue_generic_g0_source_attempt_with_window_for_test(
+        input,
+        loop_stmt,
+        source,
+        &lease,
+        crate::mir::numeric_substrate::NumericTarget::host(),
+        Some(crate::mir::loop_structural_facts::GenericG0ObservationModeV1::Release),
+        crate::mir::loop_structural_facts::GenericG0ObservationCoverageV1::Complete,
+    );
     let row = super::issue_generic_g0_family_observation_v1(
         attempt,
         GenericG0ObservationContextV1::for_test(
@@ -393,4 +395,60 @@ fn overlap_rejects_without_dropping_the_consumed_window() {
         }
         _ => panic!("two candidates must reject as overlap"),
     }
+}
+
+#[test]
+fn selected_generic_window_is_consumed_into_one_demand_lease() {
+    let (lease, identity, generic) = generic_candidate_fixture();
+    let mut rows = all_declined(&identity).into_vec();
+    rows[0] = generic;
+    let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
+        LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
+        _ => panic!("one Generic candidate plus four declines must be ready"),
+    };
+    let selection = match select_canonical_loop_family_v1(window) {
+        CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => selection,
+        _ => panic!("one Generic candidate must be selected"),
+    };
+    let demand = crate::mir::loop_recipe_contract::issue_generic_g0_recipe_demand_v1(selection)
+        .expect("selected Generic candidate must produce the caller-zero demand");
+    let (demand_lease, brand, bundle, post_loop_read, profile, mode, coverage, _role_lease) =
+        demand.into_parts();
+    assert_eq!(demand_lease.owner(), identity.owner);
+    assert_eq!(demand_lease.site(), &identity.site);
+    assert!(brand.matches_window(&demand_lease));
+    assert_eq!(profile, super::GenericG0PolicyProfileV1::G0);
+    assert_eq!(mode, LoopFamilyAdmissionModeV1::Release);
+    assert_eq!(coverage, LoopFamilyAdmissionCoverageV1::Complete);
+    assert_eq!(
+        bundle.source().structural().root_loop(),
+        demand_lease.site()
+    );
+    assert_eq!(
+        post_loop_read.binding(),
+        bundle.source().structural().tail().binding
+    );
+}
+
+#[test]
+fn demand_rejects_a_selected_non_generic_family() {
+    let (lease, identity, direct) = candidate_fixture();
+    let mut rows = all_declined(&identity).into_vec();
+    rows[2] = direct;
+    let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
+        LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
+        _ => panic!("one DirectAccum candidate plus four declines must be ready"),
+    };
+    let selection = match select_canonical_loop_family_v1(window) {
+        CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => selection,
+        _ => panic!("one DirectAccum candidate must be selected"),
+    };
+    assert_eq!(
+        crate::mir::loop_recipe_contract::issue_generic_g0_recipe_demand_v1(selection),
+        Err(
+            crate::mir::loop_recipe_contract::GenericG0RecipeDemandIssueV1::SelectedOtherFamily(
+                LoopFamilyTagV1::DirectAccum,
+            )
+        )
+    );
 }

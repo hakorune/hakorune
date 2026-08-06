@@ -1,6 +1,6 @@
 # GENERIC-G0-DEMAND-S3-I0-R0
 
-Status: next implementation row; caller-zero only.
+Status: closed 2026-08-07; caller-zero only.
 Date: 2026-08-07
 Design authority: `generic-g0-demand-s3-design-task-2026-08-07.md`
 
@@ -65,3 +65,21 @@ The implementation commit must update the exact `docs/reference/**` receipt,
 Generic/Loop SSOTs, module READMEs, workstream, `CURRENT_STATE.toml`, and
 current mirrors in the same commit. Public language activation remains zero.
 Keep source/check files below 800 lines and this task below 1000 lines.
+
+## Closeout receipt
+
+The natural nested G0 fixture now passes the complete caller-zero chain:
+
+```text
+resolver -> policy handoff -> five-row Ready -> Selected(Generic) -> Demand
+```
+
+`VerifiedGenericRecipeDemandG0` consumes the selected variant by value and
+retains one canonical selector lease, the borrowed handoff brand, the typed
+source/numeric/return bundle, the post-loop return read, profile/mode/coverage,
+and an opaque role proof. A selected non-Generic family is rejected. No
+Recipe/JoinSig/Core/After key, Builder/MIR, production caller, retry,
+fallback, or legacy deletion was opened. The exact reference receipt and all
+current mirrors were updated in the implementation commit. The next row is
+`GENERIC-G0-RECIPE-S4-D0`, a design stop requiring independent review before
+implementation.

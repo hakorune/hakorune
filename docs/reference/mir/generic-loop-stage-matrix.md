@@ -1,7 +1,7 @@
 # Generic Loop V0/V1 Stage Matrix
 
 Status: inspection-only reference
-Date: 2026-08-06
+Date: 2026-08-07
 
 This page documents the current test-only evidence boundary for Generic Loop
 V0/V1 post-effect debt. It is not a production route policy, Recipe contract,
@@ -125,12 +125,13 @@ retirement is claimed. The next ordered cell is FAMILY-ROW-CONTEXT-RETENTION-R0.
 `GENERIC-SELECTION-POLICY-HANDOFF-I0-R0` is landed as a disconnected,
 caller-zero source-to-policy witness. The test-only compiler projector
 `generic_g0_projection::handoff` is the sole issuer of one move-only
-`VerifiedGenericG0PolicyHandoffV1`. It co-seals the resolver/source brand and
-window lease, the existing typed S0C bundle, its exact role `BindingRef`
-relations, the numeric target, and the exact post-loop return-expression
-relation. The product retains no AST or `FunctionSyntaxViewV1`, and policy
-consumes it by value without downgrading to a bare bundle or re-pairing source
-facts by owner/site/name.
+`VerifiedGenericG0PolicyHandoffV1`. It co-seals a private resolver/source brand
+borrowed from the selector's canonical window lease, the existing typed S0C
+bundle, its exact role `BindingRef` relations, the numeric target, and the
+exact post-loop return-expression relation. The handoff does not retain a
+second window lease. The product retains no AST or `FunctionSyntaxViewV1`, and
+policy consumes it by value without downgrading to a bare bundle or re-pairing
+source facts by owner/site/name.
 
 The old `VerifiedGenericCandidateEnvelopeV1` remains a cfg(test)-only source
 lease witness; it is not wrapped, promoted, or used as a second policy
@@ -138,8 +139,27 @@ authority. Existing Generic observation, Ready assembly, and selector tests
 remain unchanged and no production caller is opened. The shared loop-family
 guard and focused G0 suite are green. This receipt claims no demand, Recipe,
 JoinSig, Builder/MIR, physical, backend, retry/fallback, public language, or
-legacy-retirement support. The next ordered boundary is the design and
-implementation of `GENERIC-G0-DEMAND-S3`.
+legacy-retirement support. The next ordered boundary is the accepted
+`GENERIC-G0-DEMAND-S3` design.
+
+## Generic G0 demand S3 I0/R0 implementation receipt
+
+`GENERIC-G0-DEMAND-S3-I0-R0` is landed as a disconnected, `cfg(test)`
+caller-zero consuming witness. The Ready/Selected(Generic) path moves one
+canonical `VerifiedLoopFamilyWindowLeaseV1` into
+`VerifiedGenericRecipeDemandG0`; the Generic handoff contributes only its
+private borrowed brand, typed S0C bundle, post-loop return read, and exact
+role/provenance relations. Candidate evidence and policy profile/mode/
+coverage are checked against the canonical selector window, while a sealed
+zero-sized role lease proves the existing condition/update/tail relations
+without copying source rows or issuing Recipe keys.
+
+The positive natural nested G0 fixture and selected-other-family negative are
+green. The demand has no AST/source-view lifetime, Recipe key, JoinSig, Core,
+After, `LoopBindingKeyV1`, `ValueId`, PHI, Builder/MIR, physical, retry,
+fallback, production caller, or legacy-retirement authority. The exact next
+boundary is the S4 Recipe/JoinSig/Core/After design stop; public activation
+remains zero.
 
 ## DirectAccum S1 observation receipt
 

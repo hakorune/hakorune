@@ -371,7 +371,7 @@ guard_loop_family_selector_contract() {
     lines="$(wc -l < "$file" | tr -d '[:space:]')"
     (( lines < 800 )) || guard_fail "$tag" "family selector file exceeds boundary: $file"
   done
-  [[ "$(rg -o -F '#[test]' "$tests" | wc -l | tr -d '[:space:]')" == "3" ]] ||
+  [[ "$(rg -o -F '#[test]' "$tests" | wc -l | tr -d '[:space:]')" == "5" ]] ||
     guard_fail "$tag" "family selector focused test count drift"
 
   for required in CanonicalLoopFamilyCandidateV1 CanonicalLoopFamilySelectionOutcomeV1 \

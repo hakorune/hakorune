@@ -83,18 +83,27 @@ and binding evidence remains unresolved rather than being guessed.
 
 The compiler-side `generic_g0_projection::handoff` test adapter now issues the
 sole source-projector co-seal `VerifiedGenericG0PolicyHandoffV1`. It retains
-the opaque resolver/source brand, typed S0C bundle, exact role `BindingRef`s,
-numeric target, and post-loop return relation as one AST-free move-only
-product. Policy consumes and retains that product by value; it does not
-downgrade to a bare bundle or reread source. The former candidate-envelope
-witness remains cfg(test)-only evidence and is not wrapped or paired after
-the fact.
+an opaque resolver/source brand borrowed from the canonical selector window,
+the typed S0C bundle, exact role `BindingRef`s, numeric target, and post-loop
+return relation as one AST-free move-only product. The handoff does not retain
+a second window lease. Policy consumes and retains that product by value; it
+does not downgrade to a bare bundle or reread source. The former
+candidate-envelope witness remains cfg(test)-only evidence and is not wrapped
+or paired after the fact.
 
 Focused G0 observation/policy tests and the shared caller-zero guard are
 green. This row still has no production caller, demand, Recipe, Builder/MIR,
-retry, fallback, or legacy-retirement claim. The next ordered boundary is the
-accepted design stop `GENERIC-G0-DEMAND-S3-D0`; its implementation row is
-`GENERIC-G0-DEMAND-S3-I0-R0`.
+retry, fallback, or legacy-retirement claim.
+
+## Generic G0 demand S3 I0/R0 (caller-zero implementation)
+
+The test-only selector-to-demand issuer consumes `Selected(Generic)` by value
+and retains one canonical window lease, the borrowed handoff brand, the typed
+source/numeric/return bundle, the post-loop return read, profile/mode/coverage,
+and an opaque exact-role proof. Candidate evidence is checked against the
+selector lease before the product is sealed. It does not issue Recipe keys or
+touch Builder/MIR; the next boundary is the reviewed S4 design stop
+`GENERIC-G0-RECIPE-S4-D0`.
 
 The five family observers now consume their source attempts exactly once and
 retain typed expected/observed identity, mode, and coverage evidence on every

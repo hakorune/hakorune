@@ -464,6 +464,14 @@ impl GenericG0SourceBrandV1 {
     pub(crate) fn frame(&self) -> LoopExecutionFrameKeyV1 {
         self.frame.clone()
     }
+
+    pub(crate) fn matches_window(&self, lease: &VerifiedLoopFamilyWindowLeaseV1) -> bool {
+        self.owner == lease.owner()
+            && self.origin == lease.function_origin()
+            && self.source_kind == lease.source_kind()
+            && self.root_site == *lease.site()
+            && self.frame.matches(&lease.frame())
+    }
 }
 
 /// Exact completion relation for the function-tail `return` after the root
@@ -525,7 +533,6 @@ pub(crate) enum GenericG0PolicyHandoffSealRejectV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedGenericG0PolicyHandoffV1 {
     brand: GenericG0SourceBrandV1,
-    window_lease: VerifiedLoopFamilyWindowLeaseV1,
     bundle: VerifiedGenericTypedSourceBundleG0,
     post_loop_read: VerifiedGenericG0PostLoopReadV1,
     target: NumericTarget,
@@ -537,7 +544,7 @@ struct GenericG0PolicyHandoffSealV1;
 
 impl VerifiedGenericG0PolicyHandoffV1 {
     pub(crate) fn seal(
-        window_lease: VerifiedLoopFamilyWindowLeaseV1,
+        window_lease: &VerifiedLoopFamilyWindowLeaseV1,
         bundle: VerifiedGenericTypedSourceBundleG0,
         post_loop_read: VerifiedGenericG0PostLoopReadV1,
         target: NumericTarget,
@@ -573,7 +580,6 @@ impl VerifiedGenericG0PolicyHandoffV1 {
         }
         Ok(Self {
             brand,
-            window_lease,
             bundle,
             post_loop_read,
             target,
@@ -583,10 +589,6 @@ impl VerifiedGenericG0PolicyHandoffV1 {
 
     pub(crate) fn brand(&self) -> &GenericG0SourceBrandV1 {
         &self.brand
-    }
-
-    pub(crate) fn window_lease(&self) -> &VerifiedLoopFamilyWindowLeaseV1 {
-        &self.window_lease
     }
 
     pub(crate) fn bundle(&self) -> &VerifiedGenericTypedSourceBundleG0 {
@@ -599,6 +601,17 @@ impl VerifiedGenericG0PolicyHandoffV1 {
 
     pub(crate) const fn target(&self) -> NumericTarget {
         self.target
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        GenericG0SourceBrandV1,
+        VerifiedGenericTypedSourceBundleG0,
+        VerifiedGenericG0PostLoopReadV1,
+        NumericTarget,
+    ) {
+        (self.brand, self.bundle, self.post_loop_read, self.target)
     }
 }
 

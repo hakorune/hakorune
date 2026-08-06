@@ -23,19 +23,22 @@ without importing compiler aggregate types. This behavior-neutral owner move
 does not open Generic selection, Recipe, Builder/MIR, or production callers.
 
 The source-to-policy boundary is the move-only
-`VerifiedGenericG0PolicyHandoffV1`. The compiler-side projector co-seals the
-resolver window brand, the typed S0C bundle, exact role/return `BindingRef`
-relations, target, and post-loop completion relation. This module owns the
-neutral handoff product; policy consumes it by value and retains it in the
-candidate observation. The older candidate-envelope witness remains a
-cfg(test)-only source lease witness and is not a second production authority.
-The handoff implementation is caller-zero and does not open demand, Recipe,
-Builder/MIR, retry, fallback, or legacy deletion.
+`VerifiedGenericG0PolicyHandoffV1`. The compiler-side projector co-seals a
+private resolver/source brand borrowed from the canonical selector window, the
+typed S0C bundle, exact role/return `BindingRef` relations, target, and
+post-loop completion relation. This module owns the neutral handoff product;
+policy consumes it by value and retains it in the candidate observation. The
+handoff does not retain a second window lease. The older candidate-envelope
+witness remains a cfg(test)-only source lease witness and is not a second
+production authority. The handoff implementation is caller-zero and does not
+open demand, Recipe, Builder/MIR, retry, fallback, or legacy deletion.
 
-The next design stop is `GENERIC-G0-DEMAND-S3-D0`. The common selector's
-window lease is the sole canonical source-window owner; a Generic handoff may
-retain only a private brand projection borrowed from that lease. Demand must
-not receive a second resolver lease or reconstruct role/BindingRef rows.
+The S3 demand witness is now closed caller-zero in
+`loop_recipe_contract::generic_g0_demand`. It consumes the selected Generic
+product once, keeps the canonical lease plus the borrowed brand, typed source
+bundle, post-loop tail read, and an opaque role proof, and does not copy or
+reconstruct role/BindingRef rows. The next design stop is
+`GENERIC-G0-RECIPE-S4-D0`; Recipe/JoinSig/Core/After ownership remains closed.
 
 `generic_g0_observation.rs` owns the neutral S1 source-attempt transport. It
 stores only the existing typed candidate or C/D/U/R source outcome together

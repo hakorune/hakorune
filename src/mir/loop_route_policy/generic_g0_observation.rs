@@ -114,6 +114,15 @@ impl VerifiedGenericG0FamilyCandidateV1 {
     pub(crate) const fn evidence(&self) -> &GenericG0ObservationEvidenceV1 {
         &self.evidence
     }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedGenericFamilyObservationG0,
+        GenericG0ObservationEvidenceV1,
+    ) {
+        (self.observation, self.evidence)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

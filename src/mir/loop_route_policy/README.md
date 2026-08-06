@@ -34,9 +34,10 @@ M3-E audit and emits only Qualified, Blocked, or Exhausted.
 G0 profile. It consumes one sealed
 `VerifiedGenericG0PolicyHandoffV1` plus a sealed owner/profile/mode/coverage
 context and emits one move-only `Candidate`, typed `Unresolved`, or typed
-`Rejected` disposition. The handoff retains the S0C bundle, resolver/source
-brand, exact role relations, target, and post-loop return relation; policy
-does not downgrade it to a bare bundle or reread source. Only `Less`
+`Rejected` disposition. The handoff retains the S0C bundle, a resolver/source
+brand borrowed from the canonical selector window, exact role relations,
+target, and post-loop return relation; it does not retain a second window
+lease. Policy does not downgrade it to a bare bundle or reread source. Only `Less`
 conditions and positive `Add` steps are admitted. It does not repeat S0A
 BindingRef checks, select a family winner, issue Recipe keys, call Builder/MIR,
 retry, or fallback. Its production caller is intentionally zero until the
@@ -53,6 +54,16 @@ explicit numeric target. Twelve adapter tests and seven policy tests are green;
 ambiguous `ForestShape`/`BindingLookup` evidence remains conservative
 `Unresolved` until a resolver-side split. There is no admission assembler,
 selector, Recipe/JoinSig, Builder/MIR, retry/fallback, or production caller.
+
+## Generic G0 demand S3 I0/R0
+
+The test-only `loop_recipe_contract::generic_g0_demand` seam consumes the
+canonical `Selected(Generic)` product once. It validates the selected lease
+against candidate evidence and the borrowed handoff brand, then retains one
+move-only demand with the typed source bundle, post-loop tail read,
+profile/mode/coverage, and an opaque role proof. It does not select another
+family, issue Recipe/JoinSig/Core/After keys, call Builder/MIR, retry, fallback,
+or open a production caller. The next boundary is the S4 design stop.
 
 The migration fixture adapter is test-only. Its M3-F parity submodule may invoke
 the legacy execution witness as an oracle, but it has no production caller; the

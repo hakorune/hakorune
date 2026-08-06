@@ -8,7 +8,8 @@
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::generic_g0_projection::handoff::{
-    issue_generic_g0_policy_handoff_v1, GenericG0PolicyHandoffIssueV1,
+    issue_generic_g0_policy_handoff_with_window_v1, issue_generic_g0_window_for_test,
+    GenericG0PolicyHandoffIssueV1,
 };
 use super::generic_g0_projection::{
     GenericG0NumericProjectionRejectV1, GenericG0ProjectionRejectV1,
@@ -23,13 +24,53 @@ use crate::mir::loop_structural_facts::{
 use crate::mir::numeric_substrate::NumericTarget;
 use crate::mir::resolved_semantics::{
     generic_g0::{GenericG0SourceTypeIssueV1, GenericG0SourceTypeRejectV1},
-    VerifiedResolvedLoopSourceV1,
+    VerifiedLoopFamilyWindowLeaseV1, VerifiedResolvedLoopSourceV1,
 };
 
 pub(crate) fn issue_generic_g0_source_attempt_for_test<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
     source: VerifiedResolvedLoopSourceV1,
+    target: NumericTarget,
+    mode: Option<GenericG0ObservationModeV1>,
+    coverage: GenericG0ObservationCoverageV1,
+) -> VerifiedGenericG0SourceAttemptV1 {
+    let window_lease = match issue_generic_g0_window_for_test(input, loop_stmt.site()) {
+        Some(lease) => lease,
+        None => {
+            let identity = GenericG0SourceIdentityV1::new(
+                input.owner(),
+                input.function().function_origin(),
+                input.function().source_kind(),
+                loop_stmt.site().clone(),
+                source.frame_key(),
+            );
+            return VerifiedGenericG0SourceAttemptV1::new(
+                GenericG0SourceAttemptOutcomeV1::Unresolved(
+                    GenericG0SourceUnresolvedV1::SourceNavigation,
+                ),
+                identity,
+                mode,
+                coverage,
+            );
+        }
+    };
+    issue_generic_g0_source_attempt_with_window_for_test(
+        input,
+        loop_stmt,
+        source,
+        &window_lease,
+        target,
+        mode,
+        coverage,
+    )
+}
+
+pub(crate) fn issue_generic_g0_source_attempt_with_window_for_test<'source>(
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    loop_stmt: LocatedStmtV1<'source>,
+    source: VerifiedResolvedLoopSourceV1,
+    window_lease: &VerifiedLoopFamilyWindowLeaseV1,
     target: NumericTarget,
     mode: Option<GenericG0ObservationModeV1>,
     coverage: GenericG0ObservationCoverageV1,
@@ -51,7 +92,7 @@ pub(crate) fn issue_generic_g0_source_attempt_for_test<'source>(
     } else if !source_identity_matches {
         GenericG0SourceAttemptOutcomeV1::Rejected(GenericG0SourceRejectV1::SourceIdentityMismatch)
     } else {
-        match issue_generic_g0_policy_handoff_v1(input, target) {
+        match issue_generic_g0_policy_handoff_with_window_v1(input, window_lease, target) {
             Ok(handoff) => GenericG0SourceAttemptOutcomeV1::Candidate(handoff),
             Err(issue) => map_handoff_issue(issue),
         }

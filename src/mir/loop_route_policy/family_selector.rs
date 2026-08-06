@@ -44,6 +44,15 @@ impl CanonicalLoopFamilyCandidateV1 {
             Self::GenericG0(_) => LoopFamilyTagV1::GenericG0,
         }
     }
+
+    pub(crate) fn into_generic_g0(
+        self,
+    ) -> Result<VerifiedGenericG0FamilyCandidateV1, CanonicalLoopFamilyCandidateV1> {
+        match self {
+            Self::GenericG0(candidate) => Ok(candidate),
+            other => Err(other),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -75,6 +84,17 @@ impl CanonicalLoopFamilySelectionV1 {
 
     pub(crate) const fn candidate(&self) -> &CanonicalLoopFamilyCandidateV1 {
         &self.candidate
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedLoopFamilyWindowLeaseV1,
+        LoopFamilyAdmissionModeV1,
+        LoopFamilyAdmissionCoverageV1,
+        CanonicalLoopFamilyCandidateV1,
+    ) {
+        (self.lease, self.mode, self.coverage, self.candidate)
     }
 }
 

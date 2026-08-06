@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand design D0 is accepted; production activation remains 0`
+Status: `Generic G0 demand S3 I0/R0 is closed caller-zero; S4 design is the next stop; production activation remains 0`
 
-Current row: `GENERIC-G0-DEMAND-S3-I0-R0`
+Current row: `GENERIC-G0-RECIPE-S4-D0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -14,13 +14,13 @@ caller-zero selector receipts are closed; the existing
 policy handoff design and its bounded I0/R0 implementation are closed as
 caller-zero evidence; no new D4 suffix is authorized.
 
-The next design stop is recorded in
-`docs/development/current/main/investigations/generic-g0-demand-s3-design-task-2026-08-07.md`.
-It closes the Selected(Generic) -> Demand boundary before implementation. The
-common selector owns the one canonical window lease; the Generic handoff only
-keeps a private brand projection borrowed from that lease and never performs a
-second resolver lookup. `GENERIC-G0-DEMAND-S3-I0-R0` remains the next
-caller-zero implementation row after this design stop.
+The accepted S3 design and its caller-zero implementation close the
+Selected(Generic) -> Demand boundary. The common selector owns the one
+canonical window lease; the Generic handoff keeps only a private brand
+projection borrowed from that lease and never performs a second resolver
+lookup. The next design stop is the S4 Recipe/JoinSig/Core/After ownership
+boundary; no S4 implementation is authorized until that design is reviewed
+and accepted.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.
@@ -853,11 +853,16 @@ GENERIC-G0-DEMAND-S3-D0
   Reject/Unresolved outcomes; no Recipe key issuance
 
 GENERIC-G0-DEMAND-S3-I0-R0
-  cfg(test)-only caller-zero consuming witness; no production caller
+  closed 2026-08-07; cfg(test)-only consuming witness owns one canonical lease,
+  borrowed handoff brand, typed source bundle, post-loop read, and exact role
+  proof; no production caller or Recipe key
 
-GENERIC-G0-RECIPE-S4
-  after S3 I0/R0, one design stop then sole key issuer; exact
-  Recipe/JoinSig/core/effect/tail product
+GENERIC-G0-RECIPE-S4-D0
+  next design stop; sole Generic Recipe-key issuer and exact
+  Recipe/JoinSig/core/effect/tail ownership must be reviewed before code
+
+GENERIC-G0-RECIPE-S4-I0-R0
+  after S4 D0, deterministic caller-zero Recipe producer
 
 GENERIC-LEGACY-CORPUS-UNIVERSE-P0
   normalize active fast/selfhost/smoke/fixture cohorts without guessing the route
