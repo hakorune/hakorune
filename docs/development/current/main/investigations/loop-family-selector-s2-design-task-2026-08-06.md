@@ -89,5 +89,6 @@ focused tests and the shared selector/caller-zero guard. The selector consumes
 only `Ready(window)` and preserves lease/row evidence on `Selected`,
 `Rejected(Overlap)`, and `Unresolved(OutOfWindow)`. The implementation commit
 also synchronizes the loop SSOT, reference matrix, module README, workstream,
-and current mirrors. Recipe handoff, physical/production activation, and
-legacy retirement remain closed.
+and current mirrors. The next shallow gate is the existing
+`GENERIC-SELECTION-OPEN-D0` candidate-envelope design; Recipe handoff,
+physical/production activation, and legacy retirement remain closed.

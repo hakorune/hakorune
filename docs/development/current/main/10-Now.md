@@ -101,8 +101,8 @@ Related:
   production caller. D4-S4-D0 is also closed as a worker-reviewed design:
   current SelectedFamilyV1 lacks provenance and current Generic facts are
   AST/Builder-derived, so a new resolver-issued AST-free semantic demand and
-  one-shot source lease are required. D4-S4-S0 is now closed as a bounded
-  cfg(test)-only two-role lease witness:
+  one-shot source lease are required. D4-S4-S0 remains closed as a bounded
+  NoSafeSlice audit after the cfg(test)-only two-role lease witness:
   no real Selected(Generic), resolver AST-free candidate envelope, one-shot
   BindingRef lease, or Generic demand exists. D4-S4-S0-D0 is now closed as a
   worker-reviewed design: resolver SourceLease, AST-free shape/candidate
@@ -146,8 +146,9 @@ Related:
   its caller-zero implementation are now closed: `family_selector.rs` covers
   five typed candidates, `Overlap`, and `OutOfWindow` with retained lease/row
   evidence. The finite shallow order and atomic legacy-retirement boundary
-  live in the dedicated Generic SSOT. The next boundary is source-to-Recipe
-  handoff design; production and public reference activation remain zero.
+  live in the dedicated Generic SSOT. The next boundary is the existing
+  `GENERIC-SELECTION-OPEN-D0` shallow design gate for a real resolver-issued
+  candidate envelope; production and public reference activation remain zero.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

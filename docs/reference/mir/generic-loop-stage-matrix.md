@@ -813,5 +813,7 @@ candidate, overlap retention, and five-row `OutOfWindow` retention. The
 selector has no AST/source lookup, route/schedule, Recipe/JoinSig, Builder/MIR,
 retry/fallback, or production caller. The historical `family_selection.rs`
 marker remains test-only. This matrix entry is the required same-commit
-post-implementation reference receipt; Recipe handoff, physical parity,
-production cutover, and legacy retirement remain later gates.
+post-implementation reference receipt. D4-S4-S0 remains a NoSafeSlice audit;
+the next shallow gate is `GENERIC-SELECTION-OPEN-D0` for a real resolver-issued
+candidate envelope. Recipe handoff, physical parity, production cutover, and
+legacy retirement remain later gates.

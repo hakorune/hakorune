@@ -591,7 +591,9 @@ the shared caller-zero guards are green, with every touched source/test file
 below 800 lines.
 
 This receipt does not open Recipe/JoinSig, Builder/MIR, physical lowering,
-production selection, retry removal, or legacy deletion. The next design
-boundary is the source-to-Recipe handoff, which must be independently
-taskized before implementation. The implementation commit synchronizes the
-reference matrix, module README, workstream, and current mirrors as required.
+production selection, retry removal, or legacy deletion. D4-S4-S0 remains a
+NoSafeSlice audit; the next design boundary is the existing
+`GENERIC-SELECTION-OPEN-D0` gate for a real resolver-issued candidate
+envelope, which must be independently taskized before implementation. The
+implementation commit synchronizes the reference matrix, module README,
+workstream, and current mirrors as required.

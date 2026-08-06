@@ -995,6 +995,5 @@ Worker review fixes a separate candidate handoff; policy Unresolved/Rejected nev
 ## D4-EVIDENCE-EXIT0 deep numeric evidence exit
 All current receipts/negative matrices are closed with production caller zero; no more D4 suffixes unless a new design stop supersedes this gate.
 ## GENERIC-SELECTION-OPEN-D0 shallow promotion design stop
-Open gate requires a real resolver-issued Generic candidate envelope (carrier/condition/step/body-effect/coverage/exit, exact lease/BindingRefs) plus a natural fixture.
-Then one opaque policy candidate and a pure selector witness must prove exactly-one route; numeric policy/selector alone cannot open Generic production.
-Selector owns admission/winner; no AST/name/receipt re-resolution, retry/fallback/NoCandidate, demand, Recipe, Builder/MIR, or production caller before this gate.
+Worker audit: retain D4-S4-S0 as `NoSafeSlice`; no deeper D4 suffix. Existing gate may add only a cfg(test) candidate-envelope witness with real resolver carrier/condition/step/body-effect/coverage/exit proof and exact lease/BindingRefs.
+One natural fixture is required; no production/demand/Recipe/Builder/MIR, AST/name re-resolution, retry/fallback, or `NoCandidate` is allowed.

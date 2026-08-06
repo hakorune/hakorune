@@ -2,14 +2,15 @@
 
 Status: `accepted and taskized; production activation remains 0`
 
-Current row: `LOOP-FAMILY-COMMON-ADMISSION-ASSEMBLER-S1`
+Current row: `GENERIC-SELECTION-OPEN-D0`
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
 production or language-support claim. The consultation result and the closed
-G0 admission window were accepted on 2026-08-06. The row-normalization receipt
-is closed; implementation may resume only at the first open row in the finite
-order below.
+G0 admission window were accepted on 2026-08-06. The row-normalization and
+caller-zero selector receipts are closed; implementation may resume only after
+the existing `GENERIC-SELECTION-OPEN-D0` design gate closes the real
+resolver-issued candidate-envelope boundary. No new D4 suffix is authorized.
 
 ## Decision
 
