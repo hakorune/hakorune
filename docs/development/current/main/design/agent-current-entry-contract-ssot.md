@@ -38,6 +38,29 @@ Read current-state documents first:
 Then read `AGENTS.md` for personality, always-on engineering rules, and
 stop-the-line policy.
 
+## Document placement contract
+
+`AGENTS.md` is a local router, not a second taskboard or design registry.
+Keep each kind of truth in one durable home:
+
+| Truth | Durable home |
+| --- | --- |
+| current lane, blocker, latest card | `CURRENT_STATE.toml` |
+| restart pointer and one-screen status | `CURRENT_TASK.md`, `05-Restart-Quick-Resume.md`, `10-Now.md` |
+| active multi-day execution brief | `workstreams/*.md` |
+| reusable compiler/language policy | `design/*-ssot.md` |
+| source-language contract | `docs/reference/**` (with an explicit `Decision:`) |
+| investigation and bounded census | `investigations/` |
+| check/guard entrypoints | `docs/tools/check-scripts-index.md` and the owning reusable guard |
+| landed implementation detail | source/tests and git history |
+| superseded or historical material | `docs/archive/**` or the owning retirement SSOT |
+| local personality and always-on routing rules | `AGENTS.md` only |
+
+When an instruction grows beyond a short routing rule, move its durable
+content to the matching tracked home above and leave a pointer in
+`AGENTS.md`. Do not copy the same rule into `CURRENT_TASK.md`, a workstream,
+and a phase log merely for visibility.
+
 When the active lane is MirBuilder in-place replacement, read the
 `mirbuilder_north_star` path from `CURRENT_STATE.toml` before selecting a cell.
 The replacement method and current row are subordinate to that final
@@ -192,6 +215,20 @@ history belongs there, not beside always-on instructions.
 The root file should remain a compact policy router. When an old operational
 section is removed, do not copy its prose into another current mirror merely
 for traceability.
+
+The following local sections are specifically retired from current guidance:
+
+- fixed Phase-21.5 perf command ladders;
+- Phase-26-H JoinIR roadmap prose;
+- generic Codex async/concurrency recipes;
+- per-card feature-addition or box-count essays that duplicate the current
+  docs-update, recipe-first, or compiler-expressivity SSOTs.
+
+Their replacement pointers are the current perf-owner SSOT, JoinIR
+architecture/recipe SSOT, the active card's requested tools, and the
+docs-layout/update policy respectively. A command may remain in a tool's own
+README or an active card when it is still an executable acceptance criterion;
+it must not be copied back into the root instruction router.
 
 ## Current Guard/Proof Entry
 
