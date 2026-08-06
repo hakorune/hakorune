@@ -64,10 +64,13 @@ Related:
   publishes one immutable typed source view, explicit row-family queries, and
   resolver-issued Loop membership/frame identity. The current blocker is the
   shallow design stop `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`.
-  It must seal the source-to-common-Recipe/effect map, Loop scope,
-  After/tail disposition, and completion relation before any implementation
-  row opens. Physicalization, production selection, strict receipt,
-  retry/fallback retirement, and legacy deletion remain closed.
+  Worker review has now fixed the shallow D0 envelope: source coverage is
+  `(typed site, role, target-kind)`; the selected profile is the one-loop
+  `StringHelpers.int_to_str/1` shape with explicit prefix and terminal-tail
+  boundaries. Its next planned caller-zero row is `MAP-S1`, but no
+  implementation is opened until the D0 consultation is accepted. Physicalization,
+  production selection, strict receipt, retry/fallback retirement, and legacy
+  deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

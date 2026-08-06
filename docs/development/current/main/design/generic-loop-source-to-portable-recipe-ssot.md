@@ -65,6 +65,28 @@ The mapping design contract is
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.
 
+The worker-reviewed `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-RECIPE-MAP-D0`
+design is intentionally one shallow row. It fixes the selected
+`StringHelpers.int_to_str/1` profile (`Body(2)` `loop(i < 1) { i = i + 1 }`,
+prefix `value` boundary, and terminal `return value`) and the complete
+condition/step/carrier/effect/After/tail correspondence without opening a
+Recipe producer or physicalizer. Source coverage is keyed by typed
+`(site, role, target-kind)` because one expression can expand to multiple
+logical operations. The resolver-issued owner/origin/source-kind/frame and
+Scope/Region pair are co-sealed; raw path, name, ordinal, AST, and the legacy
+lowering-state map are not authorities. `LoopBindingEffectRelationV1` remains
+the BindingSSA claim; a common operation/source relation is the later Recipe
+row, not a callable-specific effect owner. The full S0 callable (prefix,
+declarations, loop, and tail) must be consumed by one outer canonical plan;
+Loop-only completion is `NoSafeSlice`.
+
+The next planned row is the caller-zero `MAP-S1` source map, recorded in
+`docs/development/current/main/investigations/generic-callable-single-loop-source-map-s1-task-2026-08-07.md`.
+Its design fixture is
+`docs/development/current/main/design/fixtures/generic-callable-single-loop-source-map-d0-v1.json`.
+The D0 design, Recipe/JoinSig co-seal, common physical input, production
+cutover, profile retirement, and corpus deletion remain separate owners.
+
 The current S4 implementation contract is
 `docs/development/current/main/investigations/generic-g0-recipe-s4-i0-r0-implementation-task-2026-08-07.md`;
 its accepted design is

@@ -1079,3 +1079,31 @@ The next authority is the design stop
 `generic-callable-single-loop-source-recipe-map-d0-task-2026-08-07.md`. It must
 seal every source-to-common-Recipe/effect/After/tail row before a mapping
 implementation is opened.
+
+## Callable source-to-Recipe map D0 worker review (2026-08-07)
+
+The D0 review keeps one shallow design row and fixes four outputs: the
+single-loop profile envelope, the row-by-row source correspondence, common
+owner/physical-input boundaries, and the implementation/`NoSafeSlice` gates.
+The selected profile is `StringHelpers.int_to_str/1` with `Body(2)`
+`loop(i < 1) { i = i + 1 }`, a prefix `value` boundary outside the Loop
+Recipe, and terminal `return value` at `Body(3)`. It is not the nested
+`generic_g0` profile.
+
+The logical preview is `L0/K0` with `V0` initial, condition
+`Read + ConstI64 + CompareLess`, step `Read + ConstI64 + Add + Write`, and
+carrier `C0=(L0,K0,V0)`. The source map uses
+`(typed_source_site, source_role, target_kind)` coverage because one source
+expression can produce multiple operations. Resolver owner/origin/source-kind,
+Loop frame, and Scope/Region are co-sealed; path/name/ordinal/AST and the
+lowering-state map are not authorities. Prefix/tail and whole-callable
+coverage belong to the outer plan; Loop-only completion is `NoSafeSlice`.
+
+Current schema gaps are kept explicit: the common operation/source relation
+must carry Recipe item/value keys and literal/operator anchors; the initial
+carrier needs a separate source-to-input projection; and the existing nested
+`VerifiedGenericAfterEffectG0` cannot be reused for this callable profile.
+The next implementation candidate is caller-zero `MAP-S1`, documented in
+`generic-callable-single-loop-source-map-s1-task-2026-08-07.md` with immutable
+fixture `generic-callable-single-loop-source-map-d0-v1.json`. Recipe/JoinSig,
+physicalization, production selection, and legacy retirement remain closed.

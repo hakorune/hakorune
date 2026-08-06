@@ -1,0 +1,46 @@
+{
+  "schema": "generic-callable-single-loop-source-map-d0-v1",
+  "decision": "worker-reviewed design fixture",
+  "status": "design-only; no Recipe or physical caller",
+  "profile": {
+    "callable": "StringHelpers.int_to_str/1",
+    "receiver_policy": "StaticCurrentOwner/Absent",
+    "loop_site": ["Body", 2],
+    "tail_site": ["Body", 3, "Value"],
+    "loop_shape": "loop(i < 1) { i = i + 1 }"
+  },
+  "prefix_boundary": {
+    "site": ["Body", 0, "Initializer"],
+    "binding": "value",
+    "disposition": "outer_callable_plan_only"
+  },
+  "logical_recipe_preview": {
+    "loop": "L0",
+    "binding": "K0=i:i64",
+    "values": ["V0=initial", "V1=condition_read", "V2=bound", "V3=less", "V4=step_read", "V5=delta", "V6=add"],
+    "operations": [
+      "I0 Read(K0)->V1",
+      "I1 ConstI64(1)->V2",
+      "I2 CompareLess(V1,V2)->V3",
+      "I3 Read(K0)->V4",
+      "I4 ConstI64(1)->V5",
+      "I5 Add(V4,V5)->V6",
+      "I6 Write(K0,V6)"
+    ],
+    "carrier": "C0=(L0,K0,V0)",
+    "authority": "design preview only; producer issues keys later"
+  },
+  "source_rows": [
+    {"site": ["Body", 1, "Initializer"], "role": "InitialCarrier", "target": "K0/V0/C0"},
+    {"site": ["Body", 2, "LoopCondition", "Lhs"], "role": "ConditionRead", "target": "I0/V1"},
+    {"site": ["Body", 2, "LoopCondition", "Rhs"], "role": "ConditionBoundLiteral", "target": "I1/V2"},
+    {"site": ["Body", 2, "LoopCondition"], "role": "ConditionCompare", "target": "I2/V3"},
+    {"site": ["Body", 2, "LoopBody", 0, "Value", "Lhs"], "role": "StepRead", "target": "I3/V4"},
+    {"site": ["Body", 2, "LoopBody", 0, "Value", "Rhs"], "role": "StepDeltaLiteral", "target": "I4/V5"},
+    {"site": ["Body", 2, "LoopBody", 0, "Value"], "role": "StepArithmetic", "target": "I5/V6"},
+    {"site": ["Body", 2, "LoopBody", 0, "Target"], "role": "StepWrite", "target": "I6/K0"},
+    {"site": ["Body", 3, "Value"], "role": "TailReturnRead", "target": "After/Tail"}
+  ],
+  "brands": ["FunctionOwner", "FunctionOrigin", "SourceKind", "LoopFrame", "ScopeRegion"],
+  "non_claims": ["Recipe production", "JoinSig production", "ValueId", "PHI", "CFG", "DraftSeal", "production selection", "legacy retirement"]
+}

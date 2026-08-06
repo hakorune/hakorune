@@ -23,6 +23,7 @@ generic_callable_semantic_loop_handoff_s0_task = "docs/development/current/main/
 generic_callable_single_loop_source_recipe_design_stop_task = "docs/development/current/main/investigations/generic-callable-semantic-loop-physical-s1-design-stop-2026-08-07.md"
 generic_callable_single_loop_source_ledger_task = "docs/development/current/main/investigations/generic-callable-single-loop-source-ledger-s1-task-2026-08-07.md"
 generic_callable_single_loop_source_recipe_map_design_task = "docs/development/current/main/investigations/generic-callable-single-loop-source-recipe-map-d0-task-2026-08-07.md"
+generic_callable_single_loop_source_map_s1_task = "docs/development/current/main/investigations/generic-callable-single-loop-source-map-s1-task-2026-08-07.md"
 family_row_context_retention_task = "docs/development/current/main/investigations/loop-family-row-context-retention-r0-task-2026-08-06.md"
 loop_family_window_lease_issuer_task = "docs/development/current/main/investigations/loop-family-window-lease-issuer-s0-task-2026-08-06.md"
 loop_family_common_admission_window_task = "docs/development/current/main/investigations/loop-family-common-admission-window-d0-design-task-2026-08-06.md"
