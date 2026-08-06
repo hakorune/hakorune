@@ -991,10 +991,10 @@ remain outside this issuer. Missing/non-binary/non-literal/grouped/compound or
 foreign/mismatched/unordered input is typed `Unresolved`/reject before
 publication, never retry/fallback/`NoCandidate`.
 ## D4-S4-S3-S0 condition-step syntax-fact witness task
-Next: cfg(test)-only V2-consuming witness -> move-only AST-free facts. Matrix:
-canonical `Less`/integer-bound/`Add`/integer-delta/same Local BindingRef plus
-comparator, symbolic-bound, symbolic-delta, grouped/compound-assignment, and
-pre-loop/post-order counterexamples. No selector/demand/Recipe/key,
-Builder/MIR, retry, fallback, runtime, or production caller. No public
-`docs/reference/**` row; implementation must sync current/workstream/card/
-pipeline/support README and explicitly record that absence.
+Closed: cfg(test)-only V2-consuming witness emits move-only AST-free facts;
+six focused tests cover canonical/noncanonical/symbolic/grouped/pre-order cases.
+No selector/demand/Recipe/key/Builder/MIR or production caller; no public
+`docs/reference/**` row.
+## D4-S4-S3-D1 policy/type/overflow/monotonicity design stop
+Worker review fixes policy ownership, numeric/literal receipts, accepted pairs, overflow/monotonicity/temporal statuses; S0 stays as-written; no selector/demand/Recipe/key/Builder/MIR or production caller until this closes.
+Order after D1: typed numeric receipt design -> cfg(test)-only policy witness -> progression/overflow witness -> candidate envelope; each returns to design on missing proof.

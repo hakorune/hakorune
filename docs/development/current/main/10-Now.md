@@ -114,9 +114,11 @@ Related:
   membership, and the move-only catalog validates Condition+Step topology.
   D4-S4-S3-D0 is now closed by worker authority split: resolver/source-view
   publishes AST-free syntax facts and policy owns operator/type/overflow/
-  monotonicity. Next is cfg(test)-only D4-S4-S3-S0 syntax-fact witness; full
-  shape, Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback
-  remain gated.
+  monotonicity. D4-S4-S3-S0 is closed with six cfg(test)-only syntax-fact
+  witnesses and no public reference row. Next is the worker-reviewed
+  D4-S4-S3-D1 policy/type/overflow/monotonicity design stop; full shape,
+  Selected(Generic), demand, Recipe, Builder/MIR, retry, and fallback remain
+  gated.
 - parked: Stage-B special activation, Ownership, Language v1 expansion,
   selfhost migration, cleanliness, and unrelated backend work
 

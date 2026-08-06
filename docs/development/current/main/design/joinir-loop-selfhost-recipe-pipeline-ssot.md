@@ -321,7 +321,11 @@ D4-S4-S3-D0
   -> closed: worker authority split; resolver/source-view publishes AST-free
      syntax facts, while policy owns operator/type/overflow/monotonicity
 D4-S4-S3-S0
-  -> next: cfg(test)-only V2-consuming syntax-fact witness; no public row
+  -> closed: cfg(test)-only V2-consuming witness copies as-written syntax
+     facts into a move-only AST-free product; six focused tests; no public row
+D4-S4-S3-D1
+  -> next: worker-reviewed policy/type/overflow/monotonicity design stop; no
+     selector, demand, Recipe/key, Builder/MIR, retry, fallback, or caller
 ```
 
 For the later V2 issuer, no caller role list is accepted. The issuer derives

@@ -579,7 +579,9 @@ retains the lease brand. D4-S4-S2-S1 adds a cfg(test)-only
 Condition+Step paths, validates local BindingRef relations, and retains no
 AST/source lifetime. D4-S4-S3-D0 now fixes the split: resolver/source-view
 publishes AST-free as-written operator/literal facts, while policy owns type,
-overflow, monotonicity, and accepted-family decisions. The next
-cfg(test)-only S0 witness remains outside selector, Recipe, and MIR; production
-caller remains zero and no role is re-resolved by name. No public reference row
-applies to this internal witness.
+overflow, monotonicity, and accepted-family decisions. D4-S4-S3-S0 is closed
+as a cfg(test)-only V2-consuming witness with six focused tests; the product
+remains outside selector, Recipe, and MIR, production caller remains zero, and
+no role is re-resolved by name. The next row is the worker-reviewed
+D4-S4-S3-D1 policy/type/overflow/monotonicity design stop. No public reference
+row applies to this internal witness.
