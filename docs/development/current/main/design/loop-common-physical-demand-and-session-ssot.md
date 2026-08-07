@@ -29,9 +29,9 @@ Admission D0 are closed as `NoSafeSlice`. The source/facts bridge D0 is
 accepted without a new semantic Bridge owner: the existing resolver ledger
 plus neutral SyntaxFacts/SourceMap are the target production boundary. The
 source/facts issuer S0 is now closed with bounded negatives, exact parity, and
-caller-zero/current receipt audit. The next boundary is the design-only
-`CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-D0`; no named production caller
-switch is open.
+caller-zero/current receipt audit. Logical issuer D0 is accepted; the next
+boundary is bounded `CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-S0`. No named
+production caller switch is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -703,8 +703,8 @@ The resolver seam is
 production scope; their bounded entry uses resolver `only_loop_site()` plus
 branded `stmt_at`, and the SourceFacts -> SourceMap parity receipt preserves
 resolver identity. They still have no production caller or physical consumer.
-Recipe/Prepared issuance remains closed; the next stop is the design-only
-logical Recipe/JoinSig/After owner mapping. A by-name adapter, fixture copying,
+Recipe/Prepared issuance remains closed; the next stop is the bounded logical
+Recipe/JoinSig/After issuer implementation. A by-name adapter, fixture copying,
 selector, retry, fallback, Generic G0 substitution, or legacy deletion is not
 authorized by this census.
 

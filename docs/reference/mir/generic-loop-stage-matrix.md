@@ -1489,3 +1489,13 @@ MethodCall remains a typed `MissingPreludeTarget` negative.
 Physicalization, Builder/session effects, selector, retry/fallback,
 publication, and production selection remain closed. The next step is a
 design-only common physicalizer/session boundary review.
+
+## Callable logical issuer D0/S0 boundary (2026-08-08)
+
+The callable source/facts issuer S0 is closed with exact resolver identity
+parity and bounded negative coverage. The accepted next logical issuer D0
+reuses the canonical Recipe verifier, JoinSig elaborator, After binding, and
+source-bound Core co-seal for the seven-operation mapping. This is a logical
+source product only: `callable_recipe()` remains a test fixture, producer
+provenance is diagnostics-only, and Prepared/physical/selector/production
+caller/Generic G0/retry/fallback/legacy behavior remain closed.

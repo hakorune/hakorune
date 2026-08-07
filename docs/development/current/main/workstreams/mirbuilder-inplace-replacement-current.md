@@ -56,8 +56,7 @@ Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical S
 `CALLABLE-LOOP-PRODUCTION-EDGE-D0`/`ADMISSION-D0` are `NoSafeSlice`.
 `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` is accepted without a
 new Bridge owner: resolver ledger plus neutral SyntaxFacts/SourceMap are the
-target. S0-A source navigation is green and S0-B compiles the neutral
-SyntaxFacts/SourceMap issuers in production scope while keeping fixture
+target. S0-A source navigation is green and S0-B compiles neutral SyntaxFacts/SourceMap issuers in production scope while keeping fixture
 constructors and mutation helpers test-only. S0-C connects the issuer entry,
 exact resolver parity, and the bounded negative matrix; caller-zero/current
 receipt audit is green. Recipe/Prepared issuance, selection, Generic G0, retry/fallback, and legacy retirement remain closed.
@@ -536,14 +535,15 @@ Done:
   negative matrix and exact SourceFacts/SourceMap resolver-identity parity are
   green. S0-B keeps neutral issuers production-scoped while fixture
   constructors and mutation helpers remain test-only; caller-zero/current
-  receipt audit is green. S0 is closed; the next stop is logical Recipe/
-  JoinSig/After issuer design only.
+  receipt audit is green. S0 is closed and Logical Issuer D0 is accepted with
+  exact source-role mapping and existing-owner reuse. The next bounded row is
+  logical issuer S0 only.
 
 Stop:
   Recipe/Prepared physicalization, physical Loop emission, I0 caller switch,
   profile selector, fallback/retry, Generic G0 parity, collector or module
-  publication, and legacy deletion remain closed until S0 and later Recipe
-  admission are accepted. Implementation requires source README,
+  publication, and legacy deletion remain closed until logical issuer S0 and
+  later Recipe admission are accepted. Implementation requires source README,
   `docs/reference/**`, diagnostics, migration note, guards, and current
   pointers in the same commit.
 ```

@@ -23,15 +23,16 @@ Exact child-site navigation belongs to B0-L2b. Function transaction cleanup
 belongs to B0-L2c. BindingId adoption and production semantic activation belong
 to atomic SA3-B.
 
-## Callable single-loop Recipe co-seal (caller-zero)
+## Callable single-loop logical issuer (S0)
 
-`callable_single_loop_recipe_coseal.rs` is a `cfg(test)` implementation of the
-closed `RECIPE-COSEAL-I0-R0` row. It consumes the resolver/MAP product exactly
-once and delegates Recipe verification, JoinSig, and source-bound Core sealing
-to their existing owners. The common result is
+The accepted `CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-D0` fixes the next
+bounded promotion. The production logical issuer consumes the resolver/MAP
+product exactly once and delegates Recipe verification, JoinSig, After
+binding, and source-bound Core sealing to their existing owners. The common result is
 `VerifiedLoopRecipeCoSealV1`; callable Prelude and Tail remain disjoint sibling
-contracts. `callable_single_loop_recipe_shape.rs` contains only the fixed
-logical Recipe fixture so each source file stays below the 800-line lane cap.
+contracts. The former `callable_single_loop_recipe_coseal.rs` and
+`callable_single_loop_recipe_shape.rs` remain fixture/provenance references
+until the S0 implementation replaces them without promoting fixture builders.
 
 This boundary owns no AST rematch, Builder/MIR/ValueId/BasicBlockId, ABI,
 Completion, physicalizer, selector, retry, fallback, or production route. The

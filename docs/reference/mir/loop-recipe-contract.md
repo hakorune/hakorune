@@ -203,6 +203,24 @@ later Recipe/JoinSig parity row.
 atomic rollback, backend parity, and physical caller-zero gates belong to later
 physicalization rows; this source/facts receipt does not claim them.
 
+## Callable logical issuer D0
+
+Decision: accepted design —
+`CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-D0` (2026-08-08).
+
+The next bounded implementation may promote the existing caller-zero mapping
+only. It must reuse `LoopRecipeVerifierV1`, `LoopJoinSigElaboratorV1`,
+`VerifiedLoopJoinSigV1::require_after_binding`, and the source-bound Core
+co-seal. The seven source roles map to the canonical recipe items
+`I0..I6`/values `V0..V6` exactly as recorded in the D0 design task; source
+roles are consumed once and `CallableSingleLoopV1` is diagnostics-only
+provenance. `callable_recipe()` and `issue_*_for_test` remain fixtures.
+
+This row does not authorize Prepared/ABI/Completion physicalization, CFG/SSA/
+PHI/Builder/MIR, selector/admission, a production caller switch, Generic G0,
+retry/fallback, legacy retirement, runtime/backend behavior, or user-facing
+diagnostic mapping.
+
 ## Callable single-loop co-seal implementation receipt (2026-08-07)
 
 `RECIPE-COSEAL-I0-R0` is now closed as caller-zero evidence. The test-only

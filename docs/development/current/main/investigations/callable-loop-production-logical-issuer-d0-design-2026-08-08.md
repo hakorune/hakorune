@@ -1,7 +1,9 @@
 # Callable Loop Production Logical Issuer D0
 
-Status: design stop after closed `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`.
-Decision: design only; no production Recipe/JoinSig issuer is activated here.
+Status: accepted design stop after closed
+`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`.
+Decision: existing-owner reuse; the next implementation is a bounded logical
+issuer only. No physical or production caller activation is included.
 
 ## Objective
 
@@ -43,6 +45,52 @@ allowed only as a move-only transport receipt with no semantic truth.
    production issuer must use resolver-backed relations and existing
    canonical verifiers.
 
+## Exact callable mapping
+
+The following table is the complete S0 logical mapping. Recipe keys are
+canonical semantic keys, not source ordinals; source roles are consumed once.
+
+| Source role | Recipe placement | Logical operation/value | Relation/effect |
+|---|---|---|---|
+| `InitialCarrier` | input `V0`, carrier `C0`, binding `B0` | declared `i64` carrier entry | one `DerivedCarrierEntry` at Loop site |
+| `ConditionBound` | condition item `I0` | `ConstI64(V2, 1)` | operation source site |
+| `ConditionRead` | condition item `I1` | `ReadBinding(B0 -> V1)` | `SourceRead(0)` |
+| `ConditionOperator` | condition item `I2` | `CompareI64(Less, V1, V2 -> V3)` | operation source site |
+| `StepRead` | body item `I3` | `ReadBinding(B0 -> V4)` | `SourceRead(1)` |
+| `StepDelta` | body item `I4` | `ConstI64(V5, 1)` | operation source site |
+| `StepOperator` | body item `I5` | `BinaryI64(Add, V4, V5 -> V6)` | operation source site |
+| `StepWrite` | body item `I6` | `WriteBinding(B0, V6)` | `SourceWrite(0)` |
+
+The canonical recipe has one root Loop, condition block `[I0,I1,I2]`, body
+block `[I3,I4,I5,I6]`, predicate `V3`, carrier `C0/B0 -> V0`, seven operation
+items, and no explicit exits. `LoopJoinSigElaboratorV1` must elaborate the
+verified Recipe and `require_after_binding(root, B0, I64)` must issue the sole
+After capability. The callable prefix and terminal Tail both use their own
+resolver binding, which must not be fused with the Loop After binding.
+
+## Production promotion boundary
+
+The production entry belongs to the existing logical compiler boundary, not a
+new physicalizer:
+
+```text
+VerifiedCallableSingleLoopSourceMapV1 (move)
+  -> callable source-to-Recipe relation DTO
+  -> LoopRecipeVerifierV1
+  -> LoopJoinSigElaboratorV1
+  -> require_after_binding
+  -> issue_source_bound_core_v1
+  -> VerifiedCallableSingleLoopLogicalProductV1 (move)
+```
+
+The source map remains the only source identity input. The implementation may
+add a production wrapper around `issue_source_bound_core_v1` that first
+verifies the artifact; it must not expose private verifier state or call the
+test-only `issue_source_bound_core_for_test`. The static `callable_recipe()`
+fixture and test-only mutation constructors stay in tests. The
+`CallableSingleLoopV1` producer id may be retained as diagnostics-only
+provenance and must never select, schedule, or dispatch a route.
+
 ## Non-claims
 
 ```text
@@ -66,6 +114,11 @@ fixture builders remain test-only
 Builder/session/caller-zero audit remains green
 docs/reference and current task pointers are updated before implementation
 ```
+
+The logical issuer's positive result is a move-only source-bound product. It
+does not contain AST, names, route IDs, ValueIds, BasicBlockIds, CFG, PHI,
+Completion, ABI, or physical policy. All failures are typed before opening a
+function session; external user-facing diagnostic mapping remains deferred.
 
 ## Stop line
 
