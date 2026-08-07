@@ -8,10 +8,15 @@ use super::topology::{
     LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1, LoopPhysicalServicesV1, ReadyLoopEntryV1,
 };
 use crate::mir::builder::emission::constant;
-use crate::mir::loop_recipe_contract::{
-    LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopOperationV1, LoopValueKeyV1,
+use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+use crate::mir::builder::resolved_lowering::canonical_ssa::{
+    CanonicalBindingReadReceiptV1, ResolvedSsaIdentityStateV2,
 };
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::loop_recipe_contract::{
+    LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopOperationV1, LoopValueClassV1,
+    LoopValueKeyV1, PreparedLoopReadBindingRowV1,
+};
+use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, SourceExprSiteV1};
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -46,6 +51,50 @@ impl PreparedLoopOperationEmissionV1 {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum LoopReadEntryRequirementV1 {
+    PreheaderSeed,
+    CanonicalLive,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct PreparedLoopReadBindingEmissionV1 {
+    owner: FunctionOwnerIdV1,
+    item: LoopItemKeyV1,
+    binding: crate::mir::loop_recipe_contract::LoopBindingKeyV1,
+    result: LoopValueKeyV1,
+    source_binding: BindingRefV1,
+    source_site: SourceExprSiteV1,
+    logical_block: LoopBlockKeyV1,
+    expected_loop: LoopNodeKeyV1,
+    expected_role: LoopPhysicalBlockRoleV1,
+    entry_requirement: LoopReadEntryRequirementV1,
+    class: LoopValueClassV1,
+}
+
+impl PreparedLoopReadBindingEmissionV1 {
+    pub(super) fn from_row_for_test(
+        owner: FunctionOwnerIdV1,
+        row: &PreparedLoopReadBindingRowV1,
+        expected_role: LoopPhysicalBlockRoleV1,
+        entry_requirement: LoopReadEntryRequirementV1,
+    ) -> Self {
+        Self {
+            owner,
+            item: row.item(),
+            binding: row.binding(),
+            result: row.result(),
+            source_binding: row.source_binding(),
+            source_site: row.source_site().clone(),
+            logical_block: row.block(),
+            expected_loop: row.owner_loop(),
+            expected_role,
+            entry_requirement,
+            class: row.class(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum LoopOperationEmissionRejectV1 {
     EntryOwnerMismatch,
@@ -69,6 +118,16 @@ pub(super) enum LoopOperationEmissionRejectV1 {
     TargetBlockTerminated(BasicBlockId),
     UnsupportedOperation,
     Emission(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum LoopReadBindingEmissionRejectV1 {
+    PreClaim(LoopOperationEmissionRejectV1),
+    EntryBindingMissing(BindingRefV1),
+    SourceBindingMismatch,
+    CanonicalRead(String),
+    CanonicalReceiptMismatch,
+    ResultTypeMismatch,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -99,6 +158,68 @@ impl LoopOperationEmissionReceiptV1 {
 
     pub(super) const fn physical_value(self) -> ValueId {
         self.physical_value
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct ReadBindingEmissionReceiptV1 {
+    owner: FunctionOwnerIdV1,
+    item: LoopItemKeyV1,
+    binding: BindingRefV1,
+    result: LoopValueKeyV1,
+    logical_block: LoopBlockKeyV1,
+    physical_block: BasicBlockId,
+    physical_value: ValueId,
+}
+
+impl ReadBindingEmissionReceiptV1 {
+    pub(super) const fn owner(self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+    pub(super) const fn item(self) -> LoopItemKeyV1 {
+        self.item
+    }
+    pub(super) const fn binding(self) -> BindingRefV1 {
+        self.binding
+    }
+    pub(super) const fn result(self) -> LoopValueKeyV1 {
+        self.result
+    }
+    pub(super) const fn logical_block(self) -> LoopBlockKeyV1 {
+        self.logical_block
+    }
+    pub(super) const fn physical_block(self) -> BasicBlockId {
+        self.physical_block
+    }
+    pub(super) const fn physical_value(self) -> ValueId {
+        self.physical_value
+    }
+}
+
+pub(super) struct CanonicalBindingReadServicesV1<'a, 'source> {
+    pub(super) builder: &'a mut crate::mir::builder::MirBuilder,
+    pub(super) identity: &'a mut ResolvedSsaIdentityStateV2<'source>,
+    pub(super) phis: &'a mut PhiTxn,
+}
+
+impl<'a, 'source> CanonicalBindingReadServicesV1<'a, 'source> {
+    fn claim_and_read(
+        &mut self,
+        site: &SourceExprSiteV1,
+        binding: BindingRefV1,
+        block: BasicBlockId,
+    ) -> Result<CanonicalBindingReadReceiptV1, String> {
+        self.identity.claim_variable_use_binding(site, binding)?;
+        self.identity
+            .read_entry_receipt(self.builder, self.phis, block, binding)
+    }
+}
+
+fn expected_mir_type(class: LoopValueClassV1) -> MirType {
+    match class {
+        LoopValueClassV1::I64 => MirType::Integer,
+        LoopValueClassV1::Bool => MirType::Bool,
+        LoopValueClassV1::Unit => MirType::Void,
     }
 }
 
@@ -179,5 +300,109 @@ pub(super) fn emit_prepared_operation_v1(
         result,
         physical_block: by_role,
         physical_value,
+    })
+}
+
+/// Emit one Expr/SourceRead leaf after all source/effect/placement checks.
+/// After the canonical claim starts, every error is terminal to the caller's
+/// unpublished function session; this leaf never owns that discard.
+pub(super) fn emit_prepared_read_binding_v1(
+    prepared: &PreparedLoopReadBindingEmissionV1,
+    entry: &ReadyLoopEntryV1,
+    block_receipt: &LoopPhysicalBlockReceiptV1,
+    services: &mut CanonicalBindingReadServicesV1<'_, '_>,
+) -> Result<ReadBindingEmissionReceiptV1, LoopReadBindingEmissionRejectV1> {
+    let preclaim = |error| LoopReadBindingEmissionRejectV1::PreClaim(error);
+    if entry.owner() != prepared.owner {
+        return Err(preclaim(LoopOperationEmissionRejectV1::EntryOwnerMismatch));
+    }
+    if block_receipt.owner() != prepared.owner {
+        return Err(preclaim(
+            LoopOperationEmissionRejectV1::ReceiptOwnerMismatch,
+        ));
+    }
+    if block_receipt.preheader() != entry.preheader() {
+        return Err(preclaim(LoopOperationEmissionRejectV1::PreheaderMismatch));
+    }
+    let function = services
+        .builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| preclaim(LoopOperationEmissionRejectV1::TargetFunctionMissing))?;
+    if function.get_block(entry.preheader()).is_none() {
+        return Err(preclaim(LoopOperationEmissionRejectV1::PreheaderMissing(
+            entry.preheader(),
+        )));
+    }
+    let by_role = block_receipt
+        .lookup(prepared.expected_loop, prepared.expected_role)
+        .ok_or_else(|| {
+            preclaim(LoopOperationEmissionRejectV1::PlacementMissing {
+                loop_key: prepared.expected_loop,
+                role: prepared.expected_role,
+            })
+        })?;
+    let by_logical = block_receipt
+        .lookup_logical(prepared.expected_loop, prepared.logical_block)
+        .ok_or_else(|| {
+            preclaim(LoopOperationEmissionRejectV1::LogicalPlacementMissing {
+                loop_key: prepared.expected_loop,
+                block: prepared.logical_block,
+            })
+        })?;
+    if by_role != by_logical {
+        return Err(preclaim(LoopOperationEmissionRejectV1::PlacementMismatch {
+            by_role,
+            by_logical_block: by_logical,
+        }));
+    }
+    let target = function
+        .get_block(by_role)
+        .ok_or_else(|| preclaim(LoopOperationEmissionRejectV1::TargetBlockMissing(by_role)))?;
+    if target.terminator.is_some() {
+        return Err(preclaim(
+            LoopOperationEmissionRejectV1::TargetBlockTerminated(by_role),
+        ));
+    }
+    if prepared.source_binding.owner() != prepared.owner {
+        return Err(LoopReadBindingEmissionRejectV1::SourceBindingMismatch);
+    }
+    if matches!(
+        prepared.entry_requirement,
+        LoopReadEntryRequirementV1::PreheaderSeed
+    ) && !entry.contains_binding(prepared.source_binding)
+    {
+        return Err(LoopReadBindingEmissionRejectV1::EntryBindingMissing(
+            prepared.source_binding,
+        ));
+    }
+
+    let canonical = services
+        .claim_and_read(&prepared.source_site, prepared.source_binding, by_role)
+        .map_err(LoopReadBindingEmissionRejectV1::CanonicalRead)?;
+    if canonical.owner() != prepared.owner
+        || canonical.binding() != prepared.source_binding
+        || canonical.physical_block() != by_role
+    {
+        return Err(LoopReadBindingEmissionRejectV1::CanonicalReceiptMismatch);
+    }
+    if services
+        .builder
+        .function_state
+        .type_ctx
+        .get_type(canonical.physical_value())
+        != Some(&expected_mir_type(prepared.class))
+    {
+        return Err(LoopReadBindingEmissionRejectV1::ResultTypeMismatch);
+    }
+    Ok(ReadBindingEmissionReceiptV1 {
+        owner: prepared.owner,
+        item: prepared.item,
+        binding: prepared.source_binding,
+        result: prepared.result,
+        logical_block: prepared.logical_block,
+        physical_block: by_role,
+        physical_value: canonical.physical_value(),
     })
 }

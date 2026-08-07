@@ -131,10 +131,20 @@ session repeat. It does not consume or partially extract a full Callable/G0
 demand, and it opens no continuation, SSA/PHI, Return/DraftSeal, selector,
 fallback, production, or legacy-deletion authority.
 
-The next boundary is the design-only
-`LOOP-RECIPE-OPERATION-EMITTER-READ-DESIGN0-D0` card. It must fix the
-source/effect anchor and canonical BindingSSA read receipt before any
-ReadBinding Builder mutation; it does not alter the full-demand contract.
+## ReadBinding leaf-emitter I0 (2026-08-07)
+
+The bounded `LOOP-RECIPE-OPERATION-EMITTER-READ-I0` implementation is closed
+as a private test-only leaf. The complete prepared program projects all
+`Expr`/`SourceRead` rows with exact operation/effect/source/placement checks;
+`DerivedCarrierEntry` remains a typed `CarrierSeedUnavailable` reject. The
+leaf claims the source through the canonical BindingSSA/PHI seam and returns
+distinct logical/physical placement receipts with explicit `PreheaderSeed`
+and `CanonicalLive` entry requirements. No single-operation demand extraction
+was added.
+
+The production replacement row remains open: full operation integration,
+carrier seeds, continuation/Tail, Return/DraftSeal, selector, retry/fallback
+retirement, and legacy deletion are still closed.
 
 ## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
 

@@ -7,5 +7,5 @@
 mod identity;
 mod session;
 
-pub(super) use identity::ResolvedSsaIdentityStateV2;
+pub(super) use identity::{CanonicalBindingReadReceiptV1, ResolvedSsaIdentityStateV2};
 pub(super) use session::{finish_profile_close, CanonicalSsaFunctionSessionV2};

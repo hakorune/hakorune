@@ -89,12 +89,17 @@ neither profile counts nor source order. Reviewed Decision B separates full
 demand/preflight from leaf emission. The Builder-free complete operation
 demand, topology module split, and the private logical-to-physical block
 receipt are now closed. The private
-`LOOP-RECIPE-OPERATION-EMITTER-CONST-S0` prepared ConstI64 leaf canary is also
-closed: it binds one exact physical block, emits through the canonical Const
-and type-fact owner, rejects owner/placement mismatch before emission, and
-proves whole-session discard plus fresh-session repeat. Full operation
-physicalization and production activation remain closed; the next operation
-kind requires its own design/implementation row.
+`LOOP-RECIPE-OPERATION-EMITTER-CONST-S0` and the bounded
+`LOOP-RECIPE-OPERATION-EMITTER-READ-I0` leaf canaries are closed. ReadBinding
+projects the complete prepared program, claims the exact source through the
+canonical BindingSSA/PHI owner, validates explicit entry requirements, and
+returns distinct logical/physical receipts. Pre-claim rejects are typed;
+claim/read/type/receipt failures terminate the unpublished function session as
+one discard transaction. No single-operation demand extraction was added.
+Full operation physicalization, production activation, carrier seeds,
+continuation/Tail, Return/DraftSeal, selector, retry/fallback retirement, and
+legacy deletion remain closed until a named production caller switch is
+authorized.
 
 ## Full operation demand P0
 

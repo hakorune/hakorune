@@ -1,11 +1,13 @@
-//! Caller-zero common Loop topology physicalizer facade.
+//! Caller-zero common Loop physicalizer facade.
 //!
-//! This directory is a behavior-neutral BoxShape split. `topology` owns the
-//! existing recursive block skeleton and `tests` owns its focused evidence.
-//! Operation demand, leaf emission, and production activation remain outside
-//! this row.
+//! `topology` owns the recursive block skeleton, `operation_emitter` owns the
+//! private Const/Read leaf seams, and each focused test module owns its own
+//! evidence. Full physicalization and production activation remain closed.
 
 mod operation_emitter;
+#[cfg(test)]
+#[path = "read_emitter_tests.rs"]
+mod read_emitter_tests;
 mod tests;
 mod topology;
 

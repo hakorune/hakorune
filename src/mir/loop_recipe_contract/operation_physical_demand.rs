@@ -10,8 +10,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::continuation::VerifiedLoopContinuationContractV1;
 use super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1};
 use super::operation_effect::VerifiedLoopOperationEffectProductV1;
-use super::schema::LoopRecipeItemV1;
+use super::schema::{LoopOperationV1, LoopRecipeItemV1};
 use super::semantic_context::VerifiedLoopSemanticContextV1;
+use super::source_bound_core::{LoopBindingEffectAnchorV1, LoopBindingEffectRoleV1};
+use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum LoopOperationPhysicalDemandRejectV1 {
@@ -25,6 +27,11 @@ pub(crate) enum LoopOperationPhysicalDemandRejectV1 {
     DuplicateSchedule { item: LoopItemKeyV1 },
     EvidencePlacementMismatch { item: LoopItemKeyV1 },
     IncompleteSchedule { expected: usize, found: usize },
+    ReadBindingEvidenceMissing { item: LoopItemKeyV1 },
+    ReadBindingSourceMissing { item: LoopItemKeyV1 },
+    ReadBindingSourceShape { item: LoopItemKeyV1 },
+    ReadBindingEffectMissing { item: LoopItemKeyV1 },
+    CarrierSeedUnavailable { item: LoopItemKeyV1 },
 }
 
 /// Complete Builder-free Loop input. The index is only an item-to-evidence
@@ -60,6 +67,45 @@ impl PreparedLoopOperationScheduleRowV1 {
 
     pub(crate) const fn owner_loop(self) -> LoopNodeKeyV1 {
         self.owner_loop
+    }
+}
+
+/// Full-program ReadBinding projection. This is derived only from a complete
+/// prepared program; it is not a single-operation extraction API.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct PreparedLoopReadBindingRowV1 {
+    schedule: PreparedLoopOperationScheduleRowV1,
+    binding: super::ids::LoopBindingKeyV1,
+    result: super::ids::LoopValueKeyV1,
+    source_binding: BindingRefV1,
+    source_site: SourceExprSiteV1,
+    class: super::schema::LoopValueClassV1,
+}
+
+impl PreparedLoopReadBindingRowV1 {
+    pub(crate) const fn item(&self) -> LoopItemKeyV1 {
+        self.schedule.item
+    }
+    pub(crate) const fn block(&self) -> LoopBlockKeyV1 {
+        self.schedule.block
+    }
+    pub(crate) const fn owner_loop(&self) -> LoopNodeKeyV1 {
+        self.schedule.owner_loop
+    }
+    pub(crate) const fn binding(&self) -> super::ids::LoopBindingKeyV1 {
+        self.binding
+    }
+    pub(crate) const fn result(&self) -> super::ids::LoopValueKeyV1 {
+        self.result
+    }
+    pub(crate) const fn source_binding(&self) -> BindingRefV1 {
+        self.source_binding
+    }
+    pub(crate) fn source_site(&self) -> &SourceExprSiteV1 {
+        &self.source_site
+    }
+    pub(crate) const fn class(&self) -> super::schema::LoopValueClassV1 {
+        self.class
     }
 }
 
@@ -203,6 +249,102 @@ impl PreparedLoopOperationProgramV1 {
 
     pub(crate) const fn coverage(&self) -> LoopOperationCoverageReceiptV1 {
         self.coverage
+    }
+
+    /// Project every ReadBinding row from the complete prepared program.
+    /// There is deliberately no first/select/take operation API.
+    pub(crate) fn read_binding_rows(
+        &self,
+    ) -> Result<Box<[PreparedLoopReadBindingRowV1]>, LoopOperationPhysicalDemandRejectV1> {
+        let recipe = self.demand.operation_effect.core().recipe().as_recipe();
+        let mut rows = Vec::new();
+        for schedule in self.schedule.iter().copied() {
+            let item = recipe
+                .items
+                .iter()
+                .find(|row| row.key == schedule.item)
+                .map(|row| &row.item);
+            let Some(LoopRecipeItemV1::Operation { operation }) = item else {
+                continue;
+            };
+            let LoopOperationV1::ReadBinding { binding, result } = *operation else {
+                continue;
+            };
+            let evidence = self
+                .demand
+                .operation_effect
+                .evidence()
+                .iter()
+                .find(|evidence| evidence.item() == schedule.item)
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::ReadBindingEvidenceMissing {
+                        item: schedule.item,
+                    },
+                )?;
+            let source_binding = evidence.source_binding().ok_or(
+                LoopOperationPhysicalDemandRejectV1::ReadBindingSourceMissing {
+                    item: schedule.item,
+                },
+            )?;
+            let LoopBindingEffectAnchorV1::Expr(owned_site) = evidence.anchor() else {
+                return Err(
+                    LoopOperationPhysicalDemandRejectV1::CarrierSeedUnavailable {
+                        item: schedule.item,
+                    },
+                );
+            };
+            let source_site = owned_site.site().clone();
+            let effect = self
+                .demand
+                .operation_effect
+                .core()
+                .effect_relations()
+                .iter()
+                .find(|effect| {
+                    effect.recipe_binding() == binding
+                        && effect.source_binding() == source_binding
+                        && effect.anchor() == evidence.anchor()
+                        && matches!(effect.role(), LoopBindingEffectRoleV1::SourceRead { .. })
+                })
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::ReadBindingEffectMissing {
+                        item: schedule.item,
+                    },
+                )?;
+            if effect.class()
+                != recipe
+                    .bindings
+                    .iter()
+                    .find(|row| row.key == binding)
+                    .map(|row| row.class)
+                    .unwrap_or(super::schema::LoopValueClassV1::Unit)
+            {
+                return Err(
+                    LoopOperationPhysicalDemandRejectV1::ReadBindingSourceShape {
+                        item: schedule.item,
+                    },
+                );
+            }
+            let class = recipe
+                .values
+                .iter()
+                .find(|value| value.key == result)
+                .map(|value| value.class)
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::ReadBindingSourceShape {
+                        item: schedule.item,
+                    },
+                )?;
+            rows.push(PreparedLoopReadBindingRowV1 {
+                schedule,
+                binding,
+                result,
+                source_binding,
+                source_site,
+                class,
+            });
+        }
+        Ok(rows.into_boxed_slice())
     }
 }
 

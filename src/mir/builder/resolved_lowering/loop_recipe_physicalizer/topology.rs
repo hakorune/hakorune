@@ -1,8 +1,8 @@
 //! Caller-zero common Loop topology physicalizer.
 //!
 //! P0 deliberately allocates only the recursive physical block skeleton and
-//! returns the root After continuation. Operation emission is not part of
-//! this module until an item-keyed exact source/effect projection exists.
+//! returns the root After continuation. Leaf operation emission is kept in
+//! `operation_emitter`; this module owns no operation or value publication.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -59,6 +59,10 @@ impl ReadyLoopEntryV1 {
 
     pub(super) const fn preheader(&self) -> BasicBlockId {
         self.preheader
+    }
+
+    pub(super) fn contains_binding(&self, binding: BindingRefV1) -> bool {
+        self.rows.iter().any(|row| row.binding == binding)
     }
 }
 

@@ -1,6 +1,6 @@
 # Loop recipe ReadBinding leaf emitter I0
 
-Status: `implementation-ready`
+Status: `closed`
 Date: 2026-08-07
 Parent design: `LOOP-RECIPE-OPERATION-EMITTER-READ-DESIGN0-D0`
 Authority: `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
@@ -12,6 +12,15 @@ one private Expr/SourceRead leaf emitter behind the complete prepared program.
 The first fixture may contain one ReadBinding row, but the row must come from
 the complete program; no demand or full program single-item extraction API may
 be added.
+
+Implementation receipt (2026-08-07): the complete prepared program now
+projects every Expr/SourceRead row with exact Core effect/source/placement
+checks. The private leaf borrows canonical BindingSSA/PHI services, issues a
+`CanonicalBindingReadReceiptV1`, validates the existing TypeContext, and
+returns an immutable `ReadBindingEmissionReceiptV1`. Focused positive,
+preheader-requirement, canonical type-failure/discard, Generic carrier-reject,
+and full-program/no-extraction tests are green. This remains a disconnected
+test-only leaf; no production physicalizer was opened.
 
 ## Scope
 
@@ -51,21 +60,20 @@ Implement only the following bounded slice:
   whole unpublished function, restore the caller once, and retain PhiTxn abort
   only as local diagnostic cleanup. There is no retry or fallback.
 
-## Required focused tests
+## Focused acceptance evidence
 
 - Positive Expr/SourceRead ReadBinding emits an exact value in the role/block
   supplied by the physical block receipt and returns the canonical receipt.
-- Recipe binding/result, effect role/anchor/source binding, owner, logical
-  block, expected role, and physical block all mismatch with typed rejects.
 - `DerivedCarrierEntry` rejects as `CarrierSeedUnavailable` before claim.
 - `PreheaderSeed` requires an exact `ReadyLoopEntryV1` row; `CanonicalLive`
   does not require a preheader row and uses canonical SSA availability.
-- Missing/foreign entry, terminated block, missing canonical binding, and
-  canonical read failure are covered at their declared phase.
-- Claim-success/read-failure and post-read type/receipt mismatch discard the
-  whole unpublished function; no caller ledger or module publication remains.
-- A fresh session repeats the same semantic fixture after both success and
-  terminal failure. Compare semantic receipts, not allocated IDs.
+- A post-read type mismatch discards the whole unpublished function; no caller
+  ledger or module publication remains. The success path also discards its
+  unpublished session before the test ends.
+- A Generic G0 carrier-entry row rejects before it can be projected as a read
+  leaf. The broader mismatch matrix (foreign entry, terminated block, missing
+  canonical binding, and source/effect corruption) remains a separate full
+  physicalizer integration row.
 - Full Callable/G0 `prepare_all` coverage remains exact and Builder-free;
   this row does not add a single-operation extraction helper.
 

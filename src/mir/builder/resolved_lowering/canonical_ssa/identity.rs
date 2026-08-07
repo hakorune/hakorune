@@ -5,13 +5,41 @@ use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV
 use crate::mir::builder::ssa::binding::{BindingSsaBuilderV1, MirBindingSsaAdapterV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
-    VerifiedResolvedFunctionV1,
+    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ResolvedExitSiteV1, SourceBindingSiteV1,
+    SourceExprSiteV1, VerifiedResolvedFunctionV1,
 };
 use crate::mir::{BasicBlockId, ValueId};
 
 use super::super::identity::ledger::ResolvedIdentityLedgerV2;
 use super::super::semantic_stack::ResolvedScopeRetirementV1;
+
+/// Canonical result of a source-bound binding read. The receipt is issued by
+/// the identity/SSA owner; leaf emitters may only transport its value.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder::resolved_lowering) struct CanonicalBindingReadReceiptV1 {
+    owner: FunctionOwnerIdV1,
+    binding: BindingRefV1,
+    physical_block: BasicBlockId,
+    physical_value: ValueId,
+}
+
+impl CanonicalBindingReadReceiptV1 {
+    pub(in crate::mir::builder::resolved_lowering) const fn owner(self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) const fn binding(self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) const fn physical_block(self) -> BasicBlockId {
+        self.physical_block
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) const fn physical_value(self) -> ValueId {
+        self.physical_value
+    }
+}
 
 /// Exact source identity plus the sole reaching-value authority for canonical
 /// function profiles.
@@ -127,6 +155,24 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         self.ssa
             .read(&mut adapter, binding, block)
             .map_err(|error| error.to_string())
+    }
+
+    /// Read an exact source-bound entry and issue the canonical immutable
+    /// receipt used by the private Loop leaf emitter.
+    pub(in crate::mir::builder::resolved_lowering) fn read_entry_receipt(
+        &mut self,
+        builder: &mut MirBuilder,
+        phis: &mut PhiTxn,
+        block: BasicBlockId,
+        binding: BindingRefV1,
+    ) -> Result<CanonicalBindingReadReceiptV1, String> {
+        let value = self.read_entry(builder, phis, block, binding)?;
+        Ok(CanonicalBindingReadReceiptV1 {
+            owner: binding.owner(),
+            binding,
+            physical_block: block,
+            physical_value: value,
+        })
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn resolve_assignment_binding(

@@ -7,6 +7,7 @@
 
 #![cfg(test)]
 
+use super::lowering_input::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_recipe_contract::{
     LoopBindingEffectAnchorV1, LoopBindingEffectRoleV1, LoopBlockKeyV1,
     LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1, LoopOperationV1, LoopRecipeItemV1,
@@ -53,6 +54,19 @@ pub(crate) fn callable_operation_demand_parts_for_test() -> (
     VerifiedLoopContinuationContractV1,
 ) {
     tests::issue().into_operation_demand_parts()
+}
+
+#[cfg(test)]
+pub(crate) struct CallableOperationFixtureV1 {
+    pub(crate) unit: VerifiedResolvedSourceUnitV1,
+    pub(crate) product: VerifiedCallableOperationEffectProductV1,
+}
+
+#[cfg(test)]
+pub(crate) fn callable_operation_fixture_for_test() -> CallableOperationFixtureV1 {
+    let unit = tests::unit_for_fixture();
+    let product = tests::issue_for_unit(&unit);
+    CallableOperationFixtureV1 { unit, product }
 }
 
 impl VerifiedCallableOperationEffectProductV1 {
@@ -313,8 +327,13 @@ mod tests {
         }
     }
 
-    pub(super) fn issue() -> VerifiedCallableOperationEffectProductV1 {
-        let unit = unit(None, integer(1));
+    pub(super) fn unit_for_fixture() -> VerifiedResolvedSourceUnitV1 {
+        unit(None, integer(1))
+    }
+
+    pub(super) fn issue_for_unit(
+        unit: &VerifiedResolvedSourceUnitV1,
+    ) -> VerifiedCallableOperationEffectProductV1 {
         let (input, loop_stmt, context) = input_loop_and_context(&unit);
         let syntax = issue_callable_single_loop_syntax_facts_v1(input, loop_stmt, context).unwrap();
         let ledger = input
@@ -324,6 +343,11 @@ mod tests {
         let map = issue_callable_single_loop_source_map_v1(&ledger, syntax).unwrap();
         let recipe = issue_callable_single_loop_recipe_v1(&ledger, map).unwrap();
         issue_callable_operation_effect_v1(recipe).unwrap()
+    }
+
+    pub(super) fn issue() -> VerifiedCallableOperationEffectProductV1 {
+        let unit = unit_for_fixture();
+        issue_for_unit(&unit)
     }
 
     #[test]

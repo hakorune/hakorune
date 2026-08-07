@@ -364,6 +364,30 @@ physicalization, continuation, BindingSSA/PHI, Return, Completion, DraftSeal,
 production selection, retry/fallback, or legacy deletion. The next operation
 kind must be opened as a separate design/implementation row.
 
+## ReadBinding leaf-emitter I0 receipt (2026-08-07)
+
+`LOOP-RECIPE-OPERATION-EMITTER-READ-I0` is closed as a bounded, private
+test-only leaf receipt. The complete `PreparedLoopOperationProgramV1` now
+projects every `ReadBinding` row and checks the Recipe operation, source
+`Expr(OwnedExprSiteV1)`, `SourceRead` effect relation, binding, owner, and
+logical placement together. `DerivedCarrierEntry` is rejected as
+`CarrierSeedUnavailable`; no single-operation demand extraction exists.
+
+The leaf borrows the canonical BindingSSA/PHI owners through
+`CanonicalBindingReadServicesV1`, claims the exact source site, and receives
+one `CanonicalBindingReadReceiptV1`. Its immutable
+`ReadBindingEmissionReceiptV1` keeps logical and physical blocks distinct.
+Entry requirements are explicit: `PreheaderSeed` requires an exact entry row,
+while `CanonicalLive` uses canonical SSA availability. Pre-claim rejects are
+typed; claim/read/type/receipt failures are terminal to the unpublished
+function session and must be discarded as one transaction.
+
+This receipt opens no other operation, carrier seed, full Loop physicalizer,
+continuation/Tail, Return/Completion, DraftSeal, selector, retry/fallback,
+production route, legacy deletion, or performance claim. The production
+replacement row remains open until a named caller switch and old-edge
+retirement are landed.
+
 ## Full operation demand P0 receipt (2026-08-07)
 
 The Builder-free demand and `prepare_all` are now landed. Callable's seven

@@ -104,6 +104,23 @@ foreign-owner, wrong-placement, and pure-operation binding-evidence rejects.
 This is still a caller-zero contract cell: no Builder/MIR, selector, retry,
 fallback, Return, DraftSeal, or production route is opened.
 
+### ReadBinding leaf-emitter I0
+
+The complete prepared operation program now projects all `ReadBinding` rows
+without exposing a first/select/filter extraction API. Each row retains the
+Recipe operation, `Expr(OwnedExprSiteV1)` source, `SourceRead` effect anchor,
+binding, owner, class, and logical placement. `DerivedCarrierEntry` is not a
+read leaf and is rejected as an unavailable carrier seed. This contract layer
+remains Builder-free; canonical BindingSSA/PHI claims and physical value
+receipts belong only to the private lowering leaf.
+
+The bounded leaf uses an explicit `PreheaderSeed` or `CanonicalLive` entry
+requirement and returns immutable logical/physical placement evidence. Typed
+validation happens before claim; any claim/read/type/receipt failure is a
+terminal unpublished-function failure owned by the outer session transaction.
+The production replacement row, other operations, carrier seeds, full Loop
+physicalization, and legacy route retirement remain closed.
+
 The callable adapter row is now closed separately. It consumes the callable
 source relations once, checks the transient operation view against the sealed
 Recipe, derives Core placement/effect evidence, and issues this neutral
