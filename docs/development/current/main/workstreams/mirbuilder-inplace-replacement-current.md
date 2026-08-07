@@ -496,9 +496,10 @@ current:
   LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
 
 Change:
-  caller-zero common recursive physicalizer consumes one move-only
+  caller-zero common recursive topology physicalizer consumes one move-only
   VerifiedLoopPhysicalDemandV1 and one private ReadyLoopEntryV1 receipt,
-  then opens the logical Loop After continuation.
+  then opens the logical Loop After continuation without emitting operation
+  MIR.
 
 Contract:
   only AST-free demand, entry receipt, and borrowed CanonicalSsaFunctionSessionV2
@@ -507,12 +508,15 @@ Contract:
   remain outside this row. A late failure discards the fresh unpublished session.
 
 Done:
-  focused canary proves recursive child/After construction, exact receipt
-  consumption, typed foreign/missing rejection, and zero production callers.
-  The implementation commit updates exact MIR reference pages, the owning
-  README, and this compact receipt together; source/check files stay below 800.
+  focused canary proves recursive child/After topology construction, exact
+  receipt consumption, typed foreign/missing rejection, and zero production
+  callers. Operation lowering is an explicit typed NoSafeSlice until a later
+  neutral effect-plan design. The implementation commit updates exact MIR
+  reference pages, the owning README, and this compact receipt together;
+  source/check files stay below 800.
 
 Stop:
+  operation emission without a LoopItemKey + exact source-anchor effect plan,
   Return/DraftSeal/publication, production selection, G0 relabeling, a new
   Recipe kind, profile physicalizer, retry/fallback, or legacy deletion.
 ```

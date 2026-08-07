@@ -15,8 +15,8 @@ the canonical V2 function lowerers now enter one typed finish terminal before
 DraftSeal. The portable Recipe/JoinSig algebra and its caller-zero status are
 unchanged; this receipt adds no physicalizer or production Loop authority.
 The bounded prepare-design correction is closed. The current boundary is
-caller-zero `LOOP-PHYSICAL-PREPARE-P0`; physical/production activation remains
-closed.
+caller-zero topology/After-only `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`;
+operation emission and physical/production activation remain closed.
 
 Executable authority:
 `src/mir/loop_recipe_contract/`
@@ -229,6 +229,19 @@ The focused prepare suite verifies the positive ordinal, owner, and ABI
 receipt. No Builder/MIR effect, selector, retry, fallback, or production
 selection is opened by this row. The next bounded row is
 `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`.
+
+## Recursive physicalizer P0 scope (2026-08-07)
+
+The current row is a caller-zero topology/After probe. It consumes the
+move-only `VerifiedLoopPhysicalDemandV1` and one session-local
+`ReadyLoopEntryV1`, borrows the existing canonical session services, and may
+construct only the recursive logical child/header/body/step/After topology.
+It does not physically emit `ReadBinding`, `WriteBinding`, constants,
+comparisons, or arithmetic. Those operations remain typed `NoSafeSlice` until
+the later `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` design boundary issues a
+neutral item-keyed, exact-source-anchor effect projection. Name, ordinal, or
+profile-based matching is forbidden. No Return, DraftSeal, publication,
+selector, retry, fallback, or legacy deletion is opened by this row.
 
 ## Callable source-shape split receipt (2026-08-07)
 

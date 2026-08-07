@@ -38,6 +38,18 @@ Production selection remains the ordered registry in
 `predicates.rs`. The `loop_route_policy::generic_g0` subtree now owns a
 caller-zero AST-free observation only; it is not a Generic winner oracle.
 
+## Current common physicalizer boundary
+
+The active Loop row is caller-zero topology/After-only
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`. It may consume the shared move-only
+demand and session-local entry receipt to construct recursive logical
+child/header/body/step/After topology, but it does not emit operation MIR.
+`ReadBinding`, `WriteBinding`, constants, comparisons, and arithmetic remain
+typed `NoSafeSlice` until the later item-keyed exact source/effect design.
+Generic G0 remains a separate caller-zero profile and is not relabeled as the
+callable physicalizer. No selector, retry/fallback, production caller, or
+legacy deletion is implied.
+
 ## S0A implementation receipt
 
 `GENERIC-G0-STRUCTURE-S0A` is now landed as a disconnected, caller-zero
@@ -1236,8 +1248,9 @@ Tail/Loop-After fusion rejection. No Builder/MIR/physical IDs, ABI/Completion,
 physicalizer, selector, retry, fallback, production selection, or legacy
 deletion was opened. The typed function-finish terminal and its bounded
 prepare-design correction are now closed for the three V2 session lowerers.
-The current boundary is caller-zero `LOOP-PHYSICAL-PREPARE-P0`; physical /
-production activation remains closed.
+The current boundary is caller-zero topology/After-only
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`; operation emission and physical /
+production activation remain closed.
 
 ## Callable physical prepare P0 receipt (2026-08-07)
 

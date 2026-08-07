@@ -64,6 +64,13 @@ the canonical finish guard, and the current-state pointer guard are green;
 physical Loop lowering and production selection remain closed at the next
 design stop.
 
+The next common Loop physicalizer slice is intentionally topology-only:
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` may consume the move-only demand and
+session-local entry receipt to open a recursive Loop After continuation, but
+it must not emit operation MIR until an item-keyed exact source/effect plan is
+designed. The existing DirectAccum binding port remains profile-specific and
+must not be reused as the common port; no second CFG/SSA/PHI owner is allowed.
+
 ## Caller-zero Loop physical prepare
 
 `src/mir/compiler/loop_physical_prepare.rs` is a test-only pre-effect contract

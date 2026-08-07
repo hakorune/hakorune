@@ -82,6 +82,12 @@ retry, fallback, or production caller. The next bounded row is
 Its four-block execution brief is kept in the active workstream card and the
 common physical-demand SSOT; do not open a production caller from this README.
 
+The current physicalizer row is topology/After-only. Operation lowering is
+not implied by the word physicalizer: without a neutral `LoopItemKey` plus
+exact source-anchor effect projection, operation emission is typed
+`NoSafeSlice`. That projection is a later design boundary, not an alternate
+profile route or a reason to reopen the old scheduler.
+
 ## Generic G0 S0A source projector
 
 `generic_g0_projection/` is the only AST-bearing source projector for the
