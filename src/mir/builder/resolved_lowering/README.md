@@ -60,9 +60,10 @@ Implementation receipt (`6bf3dd6b35`, 2026-08-07): the three V2 lowerers now
 use the consuming terminal, including the previously missing DirectAccum CFG
 finish. The one non-V2 constructor remains an explicit, non-growing
 compatibility debt. The focused session, resolved-lowering, and draft tests,
-the canonical finish guard, and the current-state pointer guard are green;
-physical Loop lowering and production selection remain closed at the next
-design-only operation physicalizer stop.
+the canonical finish guard, and the current-state pointer guard are green.
+The caller-zero Loop physicalization/DraftSeal canary is closed; production
+selection remains closed at the next docs-only
+`CALLABLE-LOOP-PRODUCTION-EDGE-D0` stop.
 
 The caller-zero topology slice is now landed as test-only evidence behind the
 `loop_recipe_physicalizer/` directory facade. It consumes one move-only common boundary and
@@ -76,8 +77,8 @@ rejects incomplete entry without allocating blocks.
 This is not a production physicalizer or selector. It emits no operation MIR,
 Return, DraftSeal, publication, retry, fallback, or legacy deletion. The
 DirectAccum binding port remains profile-specific and must not be reused as
-the common port; no second CFG/SSA/PHI owner is allowed. The current row is
-the passive `LOOP-RECIPE-OPERATION-EFFECT-S0` product: it issues an item-keyed
+the common port; no second CFG/SSA/PHI owner is allowed. The historical
+passive `LOOP-RECIPE-OPERATION-EFFECT-S0` product issues an item-keyed
 exact source/effect ledger before operation emission is opened. The product is
 test-only, moves the verified Core once, and emits no operation MIR, Return,
 DraftSeal, selector, retry, fallback, or production route. The callable
@@ -97,9 +98,9 @@ returns distinct logical/physical receipts. Pre-claim rejects are typed;
 claim/read/type/receipt failures terminate the unpublished function session as
 one discard transaction. No single-operation demand extraction was added.
 Full operation physicalization, production activation, carrier seeds,
-continuation/Tail, Return/DraftSeal, selector, retry/fallback retirement, and
-legacy deletion remain closed until a named production caller switch is
-authorized.
+selector, retry/fallback retirement, and legacy deletion remain closed until a
+named production caller switch is authorized. Continuation, Tail, and the
+bounded caller-zero DraftSeal seam are landed but remain test-only.
 
 The current bounded preparation slice adds a private Prepared-product
 move-only handoff, complete WriteBinding projection, typed pure leaf bridges
@@ -112,17 +113,22 @@ exact resolver-backed argument bindings are read through canonical identity,
 the external Prelude result is emitted through the shared direct-call emitter,
 and the Loop initializer is materialized from its exact source site into a
 separate `ReadyLoopEntryV1` binding/value. The Prelude result local is not the
-Loop input and is never used as an implicit entry value. Tail-only lowering is
-blocked while the topology After receipt is open; `CALLABLE-LOOP-AFTER-CLOSURE-P0`
-and `CALLABLE-LOOP-TAIL-COMPLETION-P0` are now bounded caller-zero seams. The
+Loop input and is never used as an implicit entry value. The
+`CALLABLE-LOOP-AFTER-CLOSURE-P0` and `CALLABLE-LOOP-TAIL-COMPLETION-P0` rows
+are now bounded caller-zero seams. The
 latter reads the exact Tail binding through canonical identity, validates the
-declared trivial ABI, and claims Completion/return coverage once. The sealed
+declared trivial ABI, claims `tail.value_site()` before the non-claiming
+`read_entry_receipt`, and claims Completion/return coverage once. The sealed
 After receipt moves a non-Clone profile-close receipt proving the exact
 callable `7 = Pure4 + Read2 + Write1` coverage, Bool condition, owner,
 terminal block, and After predecessor. The later finish step must consume it
-through a non-no-op `finish_profile_close` closure. The common physicalizer
-still stops before Tail, ABI, Completion, Return, and DraftSeal;
-`finish_for_draft_seal`/DraftSeal integration remain later bounded work.
+through a non-no-op `finish_profile_close` closure. The bounded DraftSeal
+canary consumes that evidence through the typed finish terminal and existing
+DraftSeal prepare/commit, producing one `CompletedFunctionDraftV1` without
+collector/module publication. The common physicalizer still stops before
+Tail, ABI, Completion, Return, and DraftSeal; the outer callable canary owns
+that handoff. Production selection and legacy retirement remain later bounded
+work.
 
 The bounded `CALLABLE-LOOP-AFTER-CLOSURE-P0` slice is now landed as a
 caller-zero continuation proof. It uses the real Prelude receipt, emits the
@@ -130,9 +136,9 @@ complete seven-operation Callable schedule (`Pure=4`, `Read=2`, `Write=1`),
 then emits the fixed preheader/header/body/step/After edges and seals CFG and
 BindingSSA in backedge-safe order. An unsealed `Unknown` PHI is typed only by
 the verified Recipe value class; concrete or missing type facts reject as
-`ResultTypeMismatch`. The test explicitly discards the unpublished session;
-Tail, Completion, DraftSeal, production selection, retry, and legacy deletion
-remain closed.
+`ResultTypeMismatch`. The success canary commits the draft and restores the
+caller; rejection paths continue to discard the unpublished session.
+Production selection, retry, and legacy deletion remain closed.
 
 ## Full operation demand P0
 

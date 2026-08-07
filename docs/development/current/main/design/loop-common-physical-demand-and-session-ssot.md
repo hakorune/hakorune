@@ -10,8 +10,8 @@ separates full-demand preflight from leaf emission; the Builder-free
 `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` and the behavior-neutral
 physicalizer module split, physical block receipt, private ConstI64
 leaf-emitter canary, and bounded ReadBinding I0 are closed. The current row is
-the caller-zero callable Tail/Completion boundary; operation production
-activation remains 0. The bounded After-closure canary is green: the real
+the caller-zero callable DraftSeal boundary; operation production activation
+remains 0. The bounded After-closure canary is green: the real
 Prelude receipt feeds the complete seven-operation Callable dispatch, fixed
 CFG edges, and canonical CFG/identity sealing. The Tail handoff now reads the
 exact binding through canonical identity, validates the existing trivial ABI,
@@ -20,7 +20,13 @@ moves a non-Clone callable profile-close receipt proving exact
 `7 = Pure4 + Read2 + Write1` coverage, the Bool condition, owner, terminal
 block, and After predecessor. Finish must consume that receipt through a
 non-no-op `finish_profile_close` closure. DraftSeal, production selection,
-retry/fallback, and legacy retirement remain closed.
+retry/fallback, and legacy retirement remain closed. The bounded
+`CALLABLE-LOOP-DRAFT-SEAL-P0` canary now consumes the profile-close receipt
+through the existing typed finish terminal, then uses DraftSeal
+prepare/commit to produce one unpublished `CompletedFunctionDraftV1`; no
+collector or module publication is performed. The next boundary is the
+docs-only `CALLABLE-LOOP-PRODUCTION-EDGE-D0` census; no named production
+caller switch is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md

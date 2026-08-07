@@ -33,7 +33,12 @@ coverage once. The After receipt forwards a non-Clone profile-close receipt
 for the sealed After predecessor and exact callable coverage (`7 = Pure4 +
 Read2 + Write1`, including the Bool condition); later finish must consume it
 through a non-no-op closure. Finish/DraftSeal, production selection,
-retry/fallback, and legacy retirement remain closed.
+retry/fallback, and legacy retirement remain closed. The bounded DraftSeal
+success canary consumes that receipt through the typed function-finish
+terminal and existing DraftSeal prepare/commit, producing one unpublished
+`CompletedFunctionDraftV1` without collector or module publication. The next
+boundary is the docs-only named production-edge census; no production switch
+or selector is active.
 
 Executable authority:
 `src/mir/loop_recipe_contract/`

@@ -112,16 +112,19 @@ Related:
   read through canonical identity, the declared ABI and Completion are
   claimed once, and a move-only profile-close receipt preserves the sealed
   After witness plus exact `7=Pure4+Read2+Write1` coverage with Bool
-  condition. The next authorized row is `CALLABLE-LOOP-DRAFT-SEAL-P0`:
+  condition. `CALLABLE-LOOP-DRAFT-SEAL-P0` is now green: the profile-close
+  receipt reaches the typed finish terminal and existing DraftSeal
+  prepare/commit, producing one caller-zero `CompletedFunctionDraftV1` without
+  collector publication. The next authorized row is the docs-only
+  `CALLABLE-LOOP-PRODUCTION-EDGE-D0` census:
   (Prepared move handoff, complete Write projection, pure
   Const/Binary/Compare leaves, bounded five-family dispatch, full
   Recipe-order prepare, and typed value ledger) is green; exact per-row
   target receipts are batch-validated before the first leaf effect and
   failure-phase separation is now landed; complete
   physical `emit_all`,
-  exact Tail handoff, then fresh-session `finish_for_draft_seal` -> DraftSeal
-  integration before claiming the full caller-zero Prelude -> Loop -> sealed
-  After -> distinct Tail canary. Prelude materialization
+  exact Tail handoff and fresh-session `finish_for_draft_seal` -> DraftSeal
+  integration are now closed for the canary. Prelude materialization
   remains closed as a caller-zero receipt: the external Prelude result and the
   distinct Loop initializer are published through canonical identity into
   separate bindings. The complete

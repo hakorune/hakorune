@@ -95,6 +95,10 @@ pub(super) fn consume_callable_tail_completion_v1(
         });
     }
 
+    session
+        .identity
+        .claim_variable_use_binding(tail.value_site(), tail.binding())
+        .map_err(CallableTailCompletionRejectV1::Identity)?;
     let receipt = session
         .identity
         .read_entry_receipt(builder, &mut session.phis, after, tail.binding())

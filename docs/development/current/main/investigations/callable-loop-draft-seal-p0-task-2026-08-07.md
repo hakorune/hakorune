@@ -1,6 +1,7 @@
 # Callable Loop DraftSeal P0
 
-Status: planned successor after bounded Tail/Completion closeout.
+Status: closed caller-zero typed finish and DraftSeal prepare/commit;
+successor is `CALLABLE-LOOP-PRODUCTION-EDGE-D0`.
 
 Decision: connect the existing callable profile-close evidence to the sole
 typed function finish terminal and the existing DraftSeal transaction. This
@@ -27,6 +28,21 @@ The profile-close receipt is the only input that closes the callable profile
 ledger. It proves the sealed After predecessor, owner, terminal block, Bool
 condition, and exact callable operation coverage (`7 = Pure4 + Read2 +
 Write1`). A no-op `|| Ok(())` closure is forbidden.
+
+## Landed implementation evidence (2026-08-07)
+
+The caller-zero canary now consumes the profile-close receipt through the
+existing validating `finish_profile_close` closure, uses the canonical session
+CFG/semantic/identity/PHI/binding/Completion finish terminal, opens the
+existing DraftSeal owner, prepares the detached plan, and commits one
+`CompletedFunctionDraftV1`. No separate CFG session is used; the canonical
+session remains the sole CFG/SSA/PHI owner. The committed draft restores the
+caller context, and a fresh session can be opened afterward.
+Focused evidence is green: the integrated callable canary is `1/1`, the
+physicalizer suite is `20/20`, `cargo check --tests`, the current-state pointer
+guard, and the in-place replacement guard all pass. The Tail source-use claim
+is issued before the intentionally non-claiming `read_entry_receipt`, so the
+canonical identity ledger closes at `4/4` uses.
 
 ## Required acceptance
 

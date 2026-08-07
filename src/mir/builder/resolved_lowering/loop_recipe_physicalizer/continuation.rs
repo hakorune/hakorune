@@ -282,6 +282,7 @@ mod tests {
     use super::super::operation_dispatcher::LoopOperationDispatchReceiptV1;
     use super::super::tail_completion::consume_callable_tail_completion_v1;
     use super::*;
+    use crate::mir::builder::resolved_lowering::canonical_ssa::finish_profile_close;
     use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
     use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
         physicalize_topology_for_operation_demand_v1, prepare_loop_operation_dispatch_v1,
@@ -304,7 +305,26 @@ mod tests {
     };
     use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
     use crate::mir::resolved_control_flow::verify_function_completion_v1;
-    use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
+    use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIssuerV1};
+
+    #[test]
+    fn callable_profile_close_rejects_owner_and_terminal_mismatch() {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("issuer");
+        let owner = issuer.issue().expect("owner");
+        let foreign = issuer.issue().expect("foreign owner");
+        let receipt = || ReadyCallableLoopProfileCloseV1 {
+            owner,
+            terminal_block: BasicBlockId::new(4),
+            after_predecessors: vec![BasicBlockId::new(3)].into_boxed_slice(),
+            operation_count: 7,
+            pure_count: 4,
+            read_count: 2,
+            write_count: 1,
+            condition_key: LoopValueKeyV1::new(0),
+        };
+        assert!(receipt().finish(foreign, BasicBlockId::new(4)).is_err());
+        assert!(receipt().finish(owner, BasicBlockId::new(5)).is_err());
+    }
 
     #[test]
     fn callable_after_closes_only_after_completed_operation_dispatch() {
@@ -453,10 +473,11 @@ mod tests {
         };
         let entry_for_topology = make_entry();
         let entry_for_dispatch = make_entry();
-        let mut cfg = CanonicalCfgSessionV1::new();
         let open = {
-            let mut services =
-                LoopPhysicalServicesV1::new(outer.builder_view_mut_for_lowering(), &mut cfg);
+            let mut services = LoopPhysicalServicesV1::new(
+                outer.builder_view_mut_for_lowering(),
+                &mut session.cfg,
+            );
             physicalize_topology_for_operation_demand_v1(&demand, entry_for_topology, &mut services)
                 .expect("open topology")
         };
@@ -500,7 +521,7 @@ mod tests {
             completed,
             condition,
             outer.builder_view_mut_for_lowering(),
-            &mut cfg,
+            &mut session.cfg,
             &mut session.identity,
             &mut session.phis,
         )
@@ -548,15 +569,26 @@ mod tests {
         );
         assert!(second_claim.is_err(), "Completion must be one-shot");
         let terminal_block = terminal_receipt.block();
-        terminal_receipt
-            .into_profile_close()
-            .finish(owner, terminal_block)
-            .expect("profile close evidence");
-        let injected_late_failure: Result<(), &str> = Err("after Tail/Completion");
-        assert!(injected_late_failure.is_err());
-        outer.discard_unpublished();
+        let profile_close = terminal_receipt.into_profile_close();
+        let canonical_close = finish_profile_close(owner, terminal_block, || {
+            profile_close.finish(owner, terminal_block)
+        })
+        .expect("profile close evidence");
+        let ready_draft = session
+            .finish_for_draft_seal(outer.builder_view_mut_for_lowering(), canonical_close)
+            .expect("typed function finish");
+        let open_draft = ready_draft.open(outer);
+        let prepared = match open_draft.prepare() {
+            Ok(prepared) => prepared,
+            Err(rejected) => {
+                rejected.discard();
+                panic!("DraftSeal prepare");
+            }
+        };
+        let completed_draft = prepared.commit();
+        let _draft = completed_draft.into_draft();
         assert_eq!(builder.next_value_id().0, 0);
-        let fresh = builder.open_resolved_function_draft_seal_session_v1("callable_tail/0");
+        let fresh = builder.open_resolved_function_draft_seal_session_v1("callable_draft_seal/0");
         fresh.discard_unpublished();
     }
 }
