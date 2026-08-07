@@ -1436,3 +1436,29 @@ fallback/retry retirement, publication, and legacy deletion remain closed.
 The earlier matrix rows that described `CarrierSeedUnavailable` as the final
 DerivedCarrier boundary are historical for this cell and are superseded by
 this receipt; expression-anchor reads keep their original contract.
+
+### Generic G0 I1 caller-zero receipt (2026-08-08; Decision: accepted)
+
+`LOOP-CALLER-ZERO-PARITY-G0-I1-R0` is closed as a profile wrapper around the
+same common physical services. The exact resolver-issued G0 ingress moves once
+into the full common operation program and the separate G0 Tail. The canary
+opens a fresh unpublished function session, publishes the resolver-declared
+receiver and two parameters through canonical identity, allocates five R1
+segments plus root After, and dispatches the fifteen prepared rows exactly
+once. The structural nested Loop item remains a control/layout row rather
+than a fabricated operation.
+
+The carrier row uses the profile-neutral `CarrierSeed` emitter and canonical
+`read_entry_receipt`; an unsealed PHI value is typed only through the existing
+`ensure_provisional_value_class` contract. Each Predicate transfer consumes
+its own completed Bool receipt, so root and child conditions have distinct
+physical values and source segments. The G0 `L0.After/b1` Tail read is
+canonical, exact I64 Completion is claimed once, and
+`finish_for_draft_seal`/DraftSeal reaches one unpublished completed draft.
+
+The late duplicate fixture fails after earlier emission, discards the whole
+unpublished session, and a fresh session reproduces the same semantic receipt.
+No G0-specific CFG/SSA/PHI owner, production selector, caller switch,
+retry/fallback, collector publication, backend/performance claim, M8/M9
+coverage, or M10b/M11/M12 retirement is opened. The next row is the
+design-only top-down audit `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`.

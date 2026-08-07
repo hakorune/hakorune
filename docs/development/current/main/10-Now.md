@@ -164,8 +164,13 @@ Related:
   operation. `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` is now closed: the neutral
   After receipt is profile-free, each transfer owns its Bool receipt, and the
   carrier seed uses canonical identity. The next bounded row is
-  `LOOP-CALLER-ZERO-PARITY-G0-I1-R0`; physical G0 production selection,
-  retry/fallback retirement, and legacy deletion remain closed.
+  `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` is now closed: the common canary
+  dispatches all fifteen G0 rows, uses distinct root/child Bool receipts and
+  canonical carrier/Tail reads, reaches typed finish/DraftSeal, and proves
+  whole-session discard followed by fresh replay. Physical G0 production
+  selection, M8/M9 closure, retry/fallback retirement, and legacy deletion
+  remain closed. The next row is the design-only
+  `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0` top-down audit.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

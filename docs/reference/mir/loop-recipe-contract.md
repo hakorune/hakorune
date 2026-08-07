@@ -959,3 +959,30 @@ fallback/retry retirement, publication, or legacy deletion is claimed.
 This section is an implementation receipt only. The next row is
 `LOOP-CALLER-ZERO-PARITY-G0-I1-R0`; the reference must be updated again after
 that canary and again at production cutover.
+
+## Generic G0 I1 implementation receipt (2026-08-08; Decision: accepted)
+
+`LOOP-CALLER-ZERO-PARITY-G0-I1-R0` closes the bounded common-physical canary
+for Generic G0. The test-only ingress moves the exact resolver-backed input,
+the complete fifteen-operation prepared program, the G0 tail capability, and
+the numeric target into one fresh function session. The canary publishes the
+receiver and explicit parameters through canonical identity (including the
+non-static `me` receiver), allocates exactly five R1 segment blocks plus a
+distinct root After, and dispatches all fifteen rows exactly once through the
+common operation dispatcher.
+
+The receipt proves one derived-carrier seed with canonical provisional typing,
+two distinct Bool predicate values at distinct physical placements, recursive
+After predecessor count one, an exact I64 G0 Tail/Completion contract, and the
+existing `finish_for_draft_seal`/DraftSeal path. A late duplicate publication
+fails after the physical emission boundary, discards the whole unpublished
+function session, and a fresh session reproduces the same shape-neutral
+receipt. ValueId/BasicBlockId allocation numbers are deliberately not part of
+the parity receipt.
+
+This is a caller-zero physical canary only. It does not claim M8/M9 coverage,
+production selection, M10b/M11/M12 cutover, retry/fallback deletion, module
+publication policy, backend parity, or broad legacy retirement. The next row
+is the design-only `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`; no M8/M9
+implementation opens before that top-down source-to-Recipe audit. The
+reference must be updated again after production cutover.

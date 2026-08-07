@@ -6,9 +6,10 @@
 
 use super::operation_emitter::CanonicalBindingReadServicesV1;
 use super::operation_target::VerifiedLoopOperationTargetBlockV1;
+use super::operation_type::ensure_provisional_value_class;
 use crate::mir::loop_recipe_contract::PreparedLoopDerivedCarrierSeedRowV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
-use crate::mir::{BasicBlockId, MirType, ValueId};
+use crate::mir::{BasicBlockId, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct PreparedLoopDerivedCarrierSeedEmissionV1 {
@@ -124,20 +125,15 @@ pub(super) fn emit_prepared_carrier_seed_at_target_v1(
     {
         return Err(LoopDerivedCarrierSeedEmissionRejectV1::CanonicalReceiptMismatch);
     }
-    let expected = match prepared.class {
-        crate::mir::loop_recipe_contract::LoopValueClassV1::I64 => MirType::Integer,
-        crate::mir::loop_recipe_contract::LoopValueClassV1::Bool => MirType::Bool,
-        _ => return Err(LoopDerivedCarrierSeedEmissionRejectV1::ResultTypeMismatch),
-    };
-    if services
-        .builder
-        .function_state
-        .type_ctx
-        .get_type(canonical.physical_value())
-        != Some(&expected)
-    {
+    if !matches!(
+        prepared.class,
+        crate::mir::loop_recipe_contract::LoopValueClassV1::I64
+            | crate::mir::loop_recipe_contract::LoopValueClassV1::Bool
+    ) {
         return Err(LoopDerivedCarrierSeedEmissionRejectV1::ResultTypeMismatch);
     }
+    ensure_provisional_value_class(services.builder, canonical.physical_value(), prepared.class)
+        .map_err(|_| LoopDerivedCarrierSeedEmissionRejectV1::ResultTypeMismatch)?;
     Ok(DerivedCarrierSeedEmissionReceiptV1 {
         owner: prepared.owner,
         item: prepared.item,

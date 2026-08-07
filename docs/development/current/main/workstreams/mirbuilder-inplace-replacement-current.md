@@ -521,8 +521,8 @@ accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
 closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 accepted historical correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
   LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1, LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2,
-  LOOP-COMMON-RECURSIVE-AFTER-R3-I0, and LOOP-COMMON-PREDICATE-CARRIER-I0-R0.
-  Worker-reviewed D1 is implemented; current execution: LOOP-CALLER-ZERO-PARITY-G0-I1-R0
+  LOOP-COMMON-RECURSIVE-AFTER-R3-I0, LOOP-COMMON-PREDICATE-CARRIER-I0-R0, and LOOP-CALLER-ZERO-PARITY-G0-I1-R0.
+  Worker-reviewed G0 I1 is implemented; current execution is the design-only LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0.
 Change:
   correct R3 before implementation: R2 is only an adapter over old
   Header/Body/Step/After blocks; R3 must own exact segment allocation and
@@ -547,11 +547,11 @@ Done:
   CFG/identity/PhiTxn, and reaches the existing Tail/Completion/DraftSeal path.
   Common I0 removes the single-condition assumption and emits item-3
   DerivedCarrierEntry through canonical identity; Callable profile counts stay
-  outer-owned. Focused tests are green and touched source stays below 800 lines.
+  outer-owned. G0 I1 then proves canonical receiver/parameter identity, five segment blocks plus a distinct root After, all fifteen operations, carrier/predicate separation, exact I64 Tail, DraftSeal finish, late discard, and shape-neutral fresh-session replay; focused tests are green and touched source
+  stays below 800 lines.
 Stop:
-  Do not perform production selection, switch a production caller, or delete
-  broad legacy until G0 I1 caller-zero closes. Every row updates the exact
-  reference and README; final reference update is required after cutover.
+  Do not perform M8/M9 implementation, production selection, switch a production caller, or delete broad legacy from this receipt. The next row is the design-only G0 post-I1 top-down audit. Every row updates the exact reference and README;
+  final reference update is required after cutover.
 ```
 ## Production invariants
 ```text

@@ -142,6 +142,10 @@ impl LoopPhysicalSegmentBlockReceiptV1 {
         &self.rows
     }
 
+    pub(super) fn contains_physical_block(&self, block: BasicBlockId) -> bool {
+        self.rows.iter().any(|row| row.physical_block == block)
+    }
+
     pub(super) fn lookup(&self, segment: LoopPhysicalSegmentKeyV1) -> Option<BasicBlockId> {
         self.rows
             .iter()

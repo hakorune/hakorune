@@ -8,6 +8,8 @@
 mod callable_canary;
 #[cfg(test)]
 mod callable_production_canary_tests;
+#[cfg(test)]
+mod generic_production_canary_tests;
 mod carrier_emitter;
 mod operation_dispatcher;
 mod operation_emitter;

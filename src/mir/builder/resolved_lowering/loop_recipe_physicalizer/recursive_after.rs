@@ -97,6 +97,10 @@ impl ReadyLoopAfterContinuationV1 {
         self.root_after
     }
 
+    pub(super) const fn predecessor_count(&self) -> usize {
+        self.predecessors.len()
+    }
+
     pub(super) fn into_profile_close(
         self,
         counts: (usize, usize, usize, usize),

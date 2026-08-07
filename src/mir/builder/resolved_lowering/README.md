@@ -285,3 +285,27 @@ an expression site, re-resolves a name, or creates a G0-specific SSA owner.
 The focused Callable suite is 25/25 and the source files touched by this row
 remain below 800 lines. The next row is the test-only G0 I1 canary; production
 selection, retry/fallback retirement, and legacy deletion remain closed.
+
+## Generic G0 I1 caller-zero canary (2026-08-08)
+
+`LOOP-CALLER-ZERO-PARITY-G0-I1-R0` is closed as a `cfg(test)` profile
+harness. The exact compiler-side G0 ingress is split once into the complete
+common operation program and the profile-specific Tail. The harness honors
+the resolver's instance receiver contract, publishes receiver/parameters
+through canonical identity, allocates the five R1 segments plus root After,
+and dispatches all fifteen rows exactly once. Item 3 uses the common
+`CarrierSeed` emitter and canonical `read_entry_receipt`; item 4 is structural
+nested control and emits no operation.
+
+Each Predicate transfer consumes its own completed Bool receipt, so root and
+child conditions cannot silently share one value. The G0 post-loop `b1` Tail
+read is canonical, exact I64 Completion is claimed once, and the existing
+`finish_for_draft_seal`/DraftSeal path is reached. A late duplicate after
+earlier emission discards the whole unpublished session, and a fresh session
+replays the same semantic shape. The carrier leaf uses the shared provisional
+type publication contract for unsealed PHI values; it owns no type, SSA, CFG,
+Tail, selector, retry, fallback, collector, or publication authority.
+
+This is caller-zero evidence only. M8/M9, production selection, M10b/M11/M12,
+and broad legacy retirement remain closed. The next row is the design-only
+top-down audit `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`.

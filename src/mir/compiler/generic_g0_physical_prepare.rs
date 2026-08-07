@@ -130,6 +130,23 @@ impl<'a> PreparedGenericG0LoopIngressV1<'a> {
     pub(crate) const fn target(&self) -> crate::mir::numeric_substrate::NumericTarget {
         self.target
     }
+
+    /// Move the already-prepared G0 capabilities into the physical canary.
+    ///
+    /// The split is deliberately one-shot: the canary receives the exact
+    /// resolver input, full common operation program, and profile-specific
+    /// tail without rebuilding any source view or selecting an operation.
+    #[cfg(test)]
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedGenericG0FunctionLoweringInputV1<'a>,
+        PreparedLoopOperationProgramV1,
+        VerifiedGenericG0TailCapabilityV1,
+        crate::mir::numeric_substrate::NumericTarget,
+    ) {
+        (self.input, self.program, self.tail, self.target)
+    }
 }
 
 pub(crate) fn issue_generic_g0_loop_ingress_v1<'a>(
