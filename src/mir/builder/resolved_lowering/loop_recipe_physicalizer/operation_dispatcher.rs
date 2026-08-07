@@ -121,11 +121,26 @@ impl PreparedLoopOperationDispatchPlanV1 {
         &self.rows
     }
 
+    pub(super) fn validate_targets(
+        &self,
+        builder: &MirBuilder,
+    ) -> Result<(), LoopOperationDispatchPhysicalFailureV1> {
+        self.targets
+            .iter()
+            .copied()
+            .try_for_each(|target| {
+                target
+                    .validate_function(builder)
+                    .map_err(LoopOperationDispatchPhysicalFailureV1::Target)
+            })
+    }
+
     pub(super) fn emit_all<'source>(
         self,
         state: &mut LoopOperationValueLedgerV1,
         services: &mut LoopOperationDispatchServicesV1<'_, 'source>,
     ) -> Result<CompletedLoopOperationDispatchV1, LoopOperationDispatchPhysicalFailureV1> {
+        self.validate_targets(services.builder)?;
         let Self {
             program,
             entry,
@@ -134,13 +149,14 @@ impl PreparedLoopOperationDispatchPlanV1 {
             targets,
         } = self;
         let operation_count = program.coverage().operation_count();
+        // Validate every physical target before the first leaf can mutate MIR.
+        // Later target failures must not become a partial-emission surprise;
+        // the outer unpublished function session remains the sole discard
+        // boundary after this read-only phase.
         let mut receipts = Vec::with_capacity(rows.len());
         for (row, target) in rows.iter().zip(targets.iter()) {
             let row = row.clone();
             let target = *target;
-            target
-                .validate_function(services.builder)
-                .map_err(LoopOperationDispatchPhysicalFailureV1::Target)?;
             let receipt =
                 emit_prepared_operation_family_at_target_v1(row, target, state, &entry, services)
                     .map_err(|reject| match reject {

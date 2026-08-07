@@ -1,4 +1,5 @@
 use super::*;
+use super::operation_target::LoopOperationTargetRejectV1;
 
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
@@ -398,6 +399,47 @@ fn full_dispatch_prepare_covers_callable_recipe_order_without_builder_effect() {
         })
         .collect::<Vec<_>>();
     assert_eq!(before, after);
+}
+
+#[test]
+fn full_dispatch_validates_all_targets_before_leaf_effect() {
+    let fixture = callable_operation_fixture_for_test();
+    let unit = fixture.unit;
+    let input = unit.root_function_input().expect("root input");
+    let owner = input.function().owner();
+    let (effect, context, continuation) = fixture.product.into_operation_demand_parts();
+    let demand = crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1::issue(
+        context,
+        effect,
+        continuation,
+    )
+    .expect("demand");
+    let program = demand.prepare_all().expect("program");
+
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("operation_dispatcher/target_batch".to_string());
+    let (entry, blocks) = receipt(&mut builder, owner);
+    let plan = prepare_loop_operation_dispatch_v1(program, entry, blocks)
+        .expect("full dispatch preflight");
+
+    builder
+        .function_state
+        .current_function
+        .as_mut()
+        .expect("function")
+        .get_block_mut(BasicBlockId::new(1))
+        .expect("header block")
+        .set_terminator(crate::mir::MirInstruction::Return { value: None });
+
+    let error = plan
+        .validate_targets(&builder)
+        .expect_err("terminated target must reject before emission");
+    assert_eq!(
+        error,
+        LoopOperationDispatchPhysicalFailureV1::Target(
+            LoopOperationTargetRejectV1::TargetBlockTerminated(BasicBlockId::new(1)),
+        )
+    );
 }
 
 #[test]

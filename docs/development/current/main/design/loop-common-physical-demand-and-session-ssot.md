@@ -1098,8 +1098,9 @@ owner. A focused test proves the Const -> Binary -> Compare chain. A bounded
 row-level dispatcher and full Recipe-order Builder-free prepare now join
 Read/Const/Compare/Binary/Write leaf services with an opaque typed value
 ledger. The physical operation boundary now issues one exact
-logical-to-physical target receipt per row and separates target/pre-claim
-physical failure from semantic preflight. The next mechanical boundary is
+logical-to-physical target receipt per row, validates all target blocks before
+the first leaf effect, and separates target/pre-claim physical failure from
+semantic preflight. The next mechanical boundary is
 exact Prelude materialization, Tail-to-ValueId/completion claim, and fresh
 session/DraftSeal integration. Until those are landed, full callable physicalization,
 production selection, Generic G0 parity, retry/fallback retirement, and

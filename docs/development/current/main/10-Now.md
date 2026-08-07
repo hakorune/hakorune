@@ -109,7 +109,8 @@ Related:
   (Prepared move handoff, complete Write projection, pure
   Const/Binary/Compare leaves, bounded five-family dispatch, full
   Recipe-order prepare, and typed value ledger) is green; exact per-row
-  target receipts and failure-phase separation are now landed; complete
+  target receipts are batch-validated before the first leaf effect and
+  failure-phase separation is now landed; complete
   physical `emit_all`,
   exact Prelude/Tail handoff, and fresh-session
   `finish_for_draft_seal` -> DraftSeal integration before claiming the full

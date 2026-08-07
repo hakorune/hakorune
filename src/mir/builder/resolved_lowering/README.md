@@ -103,7 +103,8 @@ authorized.
 
 The current bounded preparation slice adds a private Prepared-product
 move-only handoff, complete WriteBinding projection, typed pure leaf bridges
-for Const/Binary/Compare, exact logical-to-physical operation target receipts,
+for Const/Binary/Compare, exact logical-to-physical operation target receipts
+(all validated before the first leaf effect),
 and phase-separated physical dispatch errors. The focused fixture proves a
 Const -> Binary -> Compare chain without introducing a second CFG/SSA/PHI
 owner. Full `emit_all` completion and the callable Prelude -> Loop -> Tail

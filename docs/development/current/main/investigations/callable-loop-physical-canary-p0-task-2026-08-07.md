@@ -68,6 +68,10 @@ Every operation is preflighted before Builder effects and emitted exactly once
 through the common private leaf emitters and canonical CFG/BindingSSA/PhiTxn
 services. Unsupported shapes return typed `NoSafeSlice` before physical
 effects; they never fall back to the legacy scheduler.
+All issued logical-to-physical target receipts are also validated against the
+fresh function's block table and termination state in one read-only batch
+before the first operation instruction is emitted. A later target failure is
+therefore not allowed to become a partial schedule.
 
 ## Required ownership boundaries
 
@@ -135,7 +139,8 @@ Operation:
   one full Recipe-order prepare plus a bounded row dispatcher over
   Read/Const/Compare/Binary/Write; unsupported forms reject before canonical
   claims; leaf emitters remain private. `emit_all` now issues one exact target
-  receipt per row and separates target/physical failures, but a complete
+  receipt per row, validates all target blocks before the first leaf effect,
+  and separates target/physical failures, but a complete
   callable schedule has not yet been emitted through Prelude/Tail/DraftSeal.
 
 Tail:
