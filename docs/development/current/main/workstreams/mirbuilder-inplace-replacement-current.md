@@ -47,8 +47,10 @@ The common physicalizer/session design stop is closed with a resolver-backed
 variable-only i64 Prelude argument receipt contract. The caller-zero
 `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` and the test-only
 `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` topology/After canary are closed;
-current row is the design-only `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`.
-Physical/production and retirement remain closed.
+`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` is now accepted and its ownership,
+coverage, Core move, and P0 boundary ordering are fixed. Current row is the
+caller-zero passive `LOOP-RECIPE-OPERATION-EFFECT-S0`. Physical/production and
+retirement remain closed.
 After this shallow sequence, final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`. The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
 ## Root-neutral semantic foundation
 
@@ -496,22 +498,22 @@ closed prerequisites:
 
 closed:
   LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
-
-current:
   LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0
 
+current:
+  LOOP-RECIPE-OPERATION-EFFECT-S0
+
 Change:
-  design one neutral, move-only item-keyed source/effect projection before
-  operation MIR emission. The product must preserve exact source anchors,
-  LoopItemKey, resolver BindingRef, value/operand identity, and owner/loop/block
-  provenance for nested loops.
+  implement one caller-zero passive, move-only item-keyed source/effect
+  product after the accepted D0 design. It moves the co-sealed Core exactly
+  once, carries profile-issued exact source evidence, and exposes typed views
+  without copying Recipe operations, operands, BindingRef, or effect rows.
 
 Contract:
   no source/name/order guessing, copied or reverified Recipe truth, second
-  operation owner, production selector, retry, fallback, Return, DraftSeal,
-  publication, or legacy deletion. This is a design stop; implementation is
-  limited to the later passive product and focused negative fixtures after
-  acceptance.
+  operation owner, P0 boundary reuse after anchor drop, operation MIR,
+  production selector, retry, fallback, Return, DraftSeal, publication, or
+  legacy deletion. Generic G0 and callable adapters remain later rows.
 
 Done:
   caller-zero topology canary consumes a move-only common boundary and one
@@ -524,7 +526,8 @@ Done:
 Stop:
   operation MIR, a new Recipe kind, profile physicalizer, copied source truth,
   name/ordinal matching, Return/DraftSeal/publication, selector, fallback,
-  retry, or legacy deletion before the effect-plan design is accepted.
+  retry, or legacy deletion in S0. A failed focused gate returns to the S0
+  owner/contract boundary; it does not open a workaround route.
 ```
 ## Production invariants
 ```text
