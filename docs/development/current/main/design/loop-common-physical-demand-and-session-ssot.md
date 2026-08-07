@@ -2,10 +2,10 @@
 Status: SSOT
 Date: 2026-08-07
 Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
-Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` closed for the three V2
-session lowerers; bounded `RECIPE-COSEAL-I0-R0` is closed; the next
-caller-zero `LOOP-PHYSICAL-PREPARE-P0` is the current execution row; physical
-Loop activation remains 0
+Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
+P0, and bounded `LOOP-PHYSICAL-PREPARE-P0` are closed; the current
+execution row is the design-only `LOOP-COMMON-PHYSICALIZER-DESIGN0` stop;
+physical Loop activation remains 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -184,6 +184,11 @@ verified; it refers to those logical keys and may be rebuilt only inside the
 same prepare operation. The physicalizer consumes the demand as one product,
 not Recipe plus a second public topology truth.
 
+The physicalizer boundary is move-only. Prepare must issue a private consuming
+operation for `VerifiedLoopPhysicalDemandV1`; borrowing, cloning, a second
+co-seal, or MIR reconstruction is invalid. This prevents logical demand from
+being silently reused after it crosses into physical lowering.
+
 The callable prepared product relates the non-Loop obligations:
 
 - exact prelude caller/site/target/result contract when a prelude result is
@@ -194,8 +199,13 @@ The callable prepared product relates the non-Loop obligations:
 - exact supported return ABI capability;
 - the matching `VerifiedFunctionCompletionV1`.
 
-The prelude contract contains no `ValueId`. The outer callable lowerer consumes
-the prepared product, opens the exact function session, moves Completion into
+The prelude contract contains no `ValueId`. Its current source shape also does
+not prove argument bindings: arity is not an argument materialization receipt.
+Before the physical canary opens, the outer lowerer must use an existing
+resolver-issued argument product, or a separate typed argument receipt, for
+each required `BindingRef`. AST reread, name lookup, and arity-only
+reconstruction at this boundary are forbidden. The lowerer then consumes the
+prepared product, opens the exact function session, moves Completion into
 `CanonicalSsaFunctionSessionV2::new` exactly once, and retains Prelude/Tail/ABI
 evidence only. It emits the prelude through the existing call owner,
 immediately binds its physical result inside the same session, then issues one
@@ -361,10 +371,12 @@ VerifiedLoopPhysicalDemandV1
 + borrowed canonical CFG / Binding SSA / PhiTxn services
 ```
 
-`ReadyLoopEntryV1` owns no source or callable semantics. It proves only the
-temporal fact that the exact logical input keys required by the demand are
-already installed in this function session. It is non-Clone, cannot cross a
-session, and is consumed once by the physicalizer.
+`ReadyLoopEntryV1` owns no source or callable semantics. It proves the
+temporal fact that the exact logical input keys required by the demand, and
+their resolver-issued BindingRef-to-entry materialization, are already
+installed in this function session. It is non-Clone, cannot cross a session,
+and is consumed once by the physicalizer. A receipt containing only arity or a
+source-site label is insufficient.
 
 ## Fresh session and atomic failure law
 

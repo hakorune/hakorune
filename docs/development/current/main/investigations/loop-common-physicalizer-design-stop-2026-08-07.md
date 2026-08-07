@@ -1,6 +1,6 @@
 # Common Loop Physicalizer Design Stop
 
-Status: `active; design-only stop after callable ABI/Prepared evidence`
+Status: `active; design-only stop after worker audit; two boundary contracts remain to be fixed`
 Date: 2026-08-07
 Parent: `LOOP-PHYSICAL-PREPARE-STATIC-CALL-FIXTURE-D0`
 Authority:
@@ -36,6 +36,21 @@ Prepared profile product
 - the physicalizer has one recursive Loop algebra and no profile-name or
   legacy-route dispatch.
 
+The worker audit adds two mandatory pre-canary locks:
+
+- `VerifiedLoopPhysicalDemandV1` must cross the boundary through a consuming,
+  move-only API. Borrowing, cloning, a second co-seal, or MIR reconstruction
+  is rejected.
+- Prelude/input materialization must use an existing resolver-issued argument
+  product, or a separate typed argument receipt that records each required
+  `BindingRef`. The current arity-only `SourceCallBoundaryShapeV1` is not
+  enough; AST reread, name lookup, and arity-only reconstruction are forbidden.
+
+The private `ReadyLoopEntryV1` receipt therefore proves both facts: all exact
+logical entry keys are installed in the fresh session, and each required
+`BindingRef` has its verified entry materialization. It remains session-local,
+non-Clone, and single-use.
+
 ## Explicit non-goals
 
 ```text
@@ -51,3 +66,21 @@ Only after the design questions and the exact pre-effect/effect boundary are
 recorded may one bounded physicalizer canary task open. If the boundary is
 not mechanically enforceable, stop and revise the design; do not probe by
 adding another route or fixture.
+
+The next canary, once this stop is closed, is intentionally small:
+
+```text
+resolver-backed static fixture (i64, one loop)
+  -> move Prepared product
+  -> fresh unpublished function session
+  -> exact entry materialization + ReadyLoopEntry
+  -> common recursive physicalizer
+  -> outer Tail/Completion claim
+  -> finish_for_draft_seal
+  -> DraftSeal prepare/commit
+```
+
+It remains caller-zero. G0, production selection, retry/fallback retirement,
+and legacy deletion are later rows. Physical failure must discard the whole
+unpublished session and restore the caller once; same-session repair/retry is
+not a canary success criterion.
