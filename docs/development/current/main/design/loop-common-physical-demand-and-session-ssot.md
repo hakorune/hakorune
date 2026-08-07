@@ -9,9 +9,9 @@ Callable/G0 adapters, and cross-profile parity are closed. Decision B now
 separates full-demand preflight from leaf emission; the Builder-free
 `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` and the behavior-neutral
 physicalizer module split, physical block receipt, private ConstI64
-leaf-emitter canary, and bounded ReadBinding I0 are closed. The current row is
-the caller-zero callable DraftSeal boundary; operation production activation
-remains 0. The bounded After-closure canary is green: the real
+leaf-emitter canary, bounded ReadBinding I0, callable full physical P0, and
+G0 exact-ingress I0 are closed. The current row is the G0 fresh-session
+physical-canary design stop; operation production activation remains 0. The bounded After-closure canary is green: the real
 Prelude receipt feeds the complete seven-operation Callable dispatch, fixed
 CFG edges, and canonical CFG/identity sealing. The Tail handoff now reads the
 exact binding through canonical identity, validates the existing trivial ABI,
@@ -36,9 +36,9 @@ test-only parity wrapper. The next boundary is the design-only
 caller-zero products are closed. The active design stop is
 `LOOP-CALLER-ZERO-PARITY-G0-D0` is accepted. Its exact resolver-issued
 G0 source/input/entry capability is carried by a thin compiler-side composite
-ingress; neutral S4 remains the sole Recipe/effect/After owner. The active row
-is Builder-free `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`, which must issue that
-composite and prove fifteen-row `prepare_all` before any physical G0 canary.
+ingress; neutral S4 remains the sole Recipe/effect/After owner. I0 is closed
+as Builder-free exact ingress plus fifteen-row `prepare_all`; the active design
+stop is `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for the fresh-session G0 canary.
 No named production caller switch or physical implementation is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
@@ -822,7 +822,8 @@ skip the After closure or reopen a Tail-only route.
 | 9 | `CALLABLE-LOOP-TAIL-COMPLETION-P0` | consume sealed After, read exact Tail binding, `mark_return`, and claim completion once | closed caller-zero; no selector, retry, or fallback |
 | 10 | `CALLABLE-LOOP-DRAFT-SEAL-P0` | consume profile close, call only `finish_for_draft_seal`, then DraftSeal prepare/commit | closed caller-zero; production selection and legacy deletion remain closed |
 | 11 | `LOOP-CALLER-ZERO-PARITY-G0-D0` | accepted design: compiler-side exact-input composite ingress, neutral S4 owner, common physicalizer, distinct G0 After/Tail | no source reconstruction, physical emission, or production selection |
-| 12 | `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact G0 ingress -> common fifteen-row `prepare_all` with Builder effect zero | no physical emission, Completion/DraftSeal, selector, retry/fallback, or legacy deletion |
+| 12 | `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact G0 ingress -> common fifteen-row `prepare_all` with Builder effect zero | closed 2026-08-08; no physical emission, Completion/DraftSeal, selector, retry/fallback, or legacy deletion |
+| 13 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` | fresh-session G0 entry/topology/operation/tail/finish canary design | design stop; no implementation, production selector, retry/fallback, or legacy deletion |
 | 13 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
 | 14 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 14 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
@@ -1005,8 +1006,8 @@ Callable has seven item rows and Generic G0 has fifteen, but parity compares
 neither counts nor source order. The full-demand P0, behavior-neutral module
 split, canonical physical block receipt, private ConstI64 leaf-emitter canary,
 bounded ReadBinding I0, and the caller-zero full callable physical canary are
-closed. G0 D0 is accepted and the active next row is the Builder-free
-`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` exact-input composite/`prepare_all` gate;
+closed. G0 D0/I0 are accepted/closed and the active next row is the design-only
+`LOOP-CALLER-ZERO-PARITY-G0-I1-D0` fresh-session canary gate;
 production selection, Generic G0 physical parity, M8/M9 coverage, and
 retirement remain separate gates.
 
@@ -1252,3 +1253,19 @@ DraftSeal, and unpublished-function discard. The focused positive and late
 duplicate/discard/fresh-reuse tests are green. G0 D0 is accepted; the next
 authorized row is the Builder-free
 `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` exact-input composite gate.
+
+### Generic G0 exact-ingress I0 closeout (2026-08-08)
+
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` now has a compiler-side `cfg(test)` ingress
+at `src/mir/compiler/generic_g0_physical_prepare.rs`. It pairs the exact
+resolver-issued `ResolvedFunctionLoweringInputV1` with the existing neutral
+S4 product, validates source/owner/frame/forest/entry/tail relations, splits
+`VerifiedGenericAfterEffectG0` once into the neutral continuation and the
+distinct `VerifiedGenericG0TailCapabilityV1`, then issues the common demand
+and `prepare_all` for all fifteen G0 Recipe items. The schedule is checked by
+Recipe membership rather than Callable/G0 count or evidence order. Focused
+positive, missing-input, foreign-input, and tail-separation tests are green;
+existing demand/producer tests retain duplicate/missing-evidence coverage.
+This remains Builder/MIR/physicalizer/selector/Retry/publication-free; later
+negative expansion must use typed sealed-product rejection, not tampering or
+reconstruction.

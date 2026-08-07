@@ -1,6 +1,6 @@
 # LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 
-Status: `Implementation open; prerequisite API correction first`
+Status: `Implemented bounded Builder-free ingress; I0 closeout receipt`
 Date: `2026-08-08`
 Parent: `docs/development/current/main/investigations/loop-caller-zero-parity-g0-design-2026-08-08.md`
 North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
@@ -94,3 +94,20 @@ production caller/selector, module collector, retry/fallback, M8/M9 parity,
 or legacy deletion. If exact resolver input/entry capability cannot be paired
 without reconstruction, stop with `NoSafeSlice` and update this task/SSOT
 instead of adding a workaround.
+
+## I0 implementation receipt (2026-08-08)
+
+`src/mir/compiler/generic_g0_physical_prepare.rs` now provides the
+`cfg(test)`-only compiler-side ingress. It pairs the exact resolver-issued
+`ResolvedFunctionLoweringInputV1` with the existing S4 product, validates the
+owner/source/frame/forest/entry/tail relations, consumes the G0 After once into
+neutral continuation plus `VerifiedGenericG0TailCapabilityV1`, and calls the
+common demand's `prepare_all` for all fifteen Recipe items. The positive and
+missing/foreign-input negatives are green; the existing demand/producer suites
+continue to cover duplicate/missing evidence. No Builder, MIR, physical ID,
+selector, fallback, retry, or publication path is opened. Item membership is
+asserted as a set, not by Callable/G0 count or evidence-vector order.
+
+This closes only the bounded I0 ingress/preflight slice. Wrong-frame/scope/
+entry/After/ABI mutation fixtures remain a later negative-expansion obligation;
+sealed products are not weakened with test-only tampering constructors.

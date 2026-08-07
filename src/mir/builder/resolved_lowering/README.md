@@ -157,9 +157,22 @@ function, and reruns the same semantic fixture in a fresh session. The
 focused P0 tests are green and the canary file remains below 800 lines. The
 G0 parity design is accepted: a compiler-side composite pairs exact resolver
 input with neutral S4, while `L0.After/b1` is split into neutral continuation
-and a distinct tail capability. The next bounded
-row is Builder-free `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`; physical G0 emission,
-selector, module collector, retry/fallback, and legacy retirement remain
+and a distinct tail capability. The Builder-free
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` ingress is now closed; the next bounded
+design stop is `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for the fresh-session
+canary. Physical G0 emission, selector, module collector, retry/fallback, and
+legacy retirement remain closed.
+
+## Generic G0 exact-ingress I0 receipt (2026-08-08)
+
+`src/mir/compiler/generic_g0_physical_prepare.rs` is the bounded `cfg(test)`
+compiler-side ingress for `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`. It pairs the
+exact resolver input with neutral S4, validates source/owner/frame/forest/
+entry/tail provenance, preserves G0's post-loop read and I64 ABI in
+`VerifiedGenericG0TailCapabilityV1`, and proves all fifteen Recipe members
+through common `prepare_all` with no Builder effect. It does not own AST,
+resolver, CFG/SSA/PHI, physical IDs, Completion, DraftSeal, selector,
+fallback/retry, or publication. Physical G0 and production cutover remain
 closed.
 
 ## Full operation demand P0

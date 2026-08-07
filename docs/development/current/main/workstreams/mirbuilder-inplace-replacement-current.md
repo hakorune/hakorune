@@ -520,25 +520,30 @@ closed:
   CALLABLE-LOOP-PHYSICAL-CANARY-P0
 accepted design:
   LOOP-CALLER-ZERO-PARITY-G0-D0
-current:
+closed:
   LOOP-CALLER-ZERO-PARITY-G0-I0-R0
+current design:
+  LOOP-CALLER-ZERO-PARITY-G0-I1-D0
 Change:
-  issue a compiler-side exact-input composite from the resolver input and
-  neutral G0 S4 product, then prove common fifteen-row prepare_all with no
-  Builder effect. This remains caller-zero; the raw host and selector stay
-  untouched.
+  define the fresh-session G0 physical canary that consumes the closed I0
+  ingress without opening a G0 physicalizer or production caller.
 Contract:
-  split G0 After into neutral continuation + tail capability, then pair exact
-  input/ledger/entry receipt with neutral S4 once and call common prepare_all. No AST/name
-  re-walk, second resolver/owner, physical ID, selector, retry, fallback,
-  publication, or legacy deletion.
+  I0 now splits G0 After into neutral continuation + tail capability, pairs
+  exact input/ledger/entry receipt with neutral S4 once, and calls common
+  prepare_all for all fifteen Recipe members. I1 must specify exact fresh
+  session/entry/topology/tail/finish receipts. No AST/name re-walk, second
+  resolver/owner, physical ID, selector, retry, fallback, publication, or
+  legacy deletion.
 Done:
-  P0 caller-zero physical canary is closed. G0 D0 is accepted; I0 is now the
-  only open row and must remain Builder-free. Exact capability absence is
-  typed NoSafeSlice rather than reconstructed.
+  P0 caller-zero physical canary and G0 I0 exact Builder-free ingress are
+  closed. Positive, missing-input, foreign-input, and tail-separation tests
+  are green; existing demand/producer tests retain duplicate/missing-evidence
+  coverage. Exact capability absence is typed NoSafeSlice rather than
+  reconstructed.
 Stop:
   Physical G0 emission, production selection, caller switch, fallback/retry,
-  collector/publication, and legacy deletion remain closed. Every implementation row requires source README,
+  collector/publication, and legacy deletion remain closed. Every
+  implementation row requires source README,
   `docs/reference/**`, diagnostics, migration note, guards, and current
   pointers in the same commit.
 ```

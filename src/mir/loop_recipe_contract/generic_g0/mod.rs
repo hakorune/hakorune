@@ -10,6 +10,8 @@ mod producer;
 mod recipe;
 mod relations;
 
+pub(crate) use after::VerifiedGenericG0TailCapabilityV1;
+
 #[cfg(test)]
 #[path = "producer_tests.rs"]
 mod producer_tests;

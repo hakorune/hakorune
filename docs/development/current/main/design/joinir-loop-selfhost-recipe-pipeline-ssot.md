@@ -442,12 +442,23 @@ production caller may be added in these cells.
 The callable full physical canary is now closed caller-zero. The next G0
 parity boundary is split cleanly: `LOOP-CALLER-ZERO-PARITY-G0-D0` accepts a
 compiler-side composite of the exact resolver input plus the neutral S4
-product, and `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` may only split G0 After into
-neutral continuation plus distinct tail capability, issue that composite, and
-prove common fifteen-row `prepare_all` with Builder effect zero. The S4
+product. `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` is now closed after splitting G0
+After into neutral continuation plus distinct tail capability, issuing that
+composite, and proving common fifteen-row `prepare_all` with Builder effect
+zero. The S4
 Recipe/effect/After owner remains neutral; no AST reconstruction, second
 resolver, profile relabel, physical emission, selector, retry, fallback, or
 production caller is opened.
+
+The bounded I0 ingress is now landed in
+`src/mir/compiler/generic_g0_physical_prepare.rs` and remains `cfg(test)`.
+It validates the exact resolver/source/forest/entry/tail relation, preserves
+G0's post-loop read and I64 ABI in a distinct tail capability, and proves the
+full fifteen-item common preflight. Positive, missing-input, foreign-input,
+and After/Tail separation tests are green; physical G0 and production
+cutover remain later rows.
+The next design-only boundary is
+`LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for a fresh unpublished session.
 
 ## Structural owners
 

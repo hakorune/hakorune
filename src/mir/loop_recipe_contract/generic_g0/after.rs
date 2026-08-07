@@ -25,6 +25,36 @@ pub(crate) struct VerifiedGenericAfterEffectG0 {
     frame: LoopExecutionFrameKeyV1,
 }
 
+/// Profile-specific tail capability retained when the Generic After port is
+/// handed to the common Loop demand.  The common physicalizer must never see
+/// this value as a Callable tail or silently drop it while constructing the
+/// neutral continuation.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedGenericG0TailCapabilityV1 {
+    post_loop_read: VerifiedGenericG0PostLoopReadV1,
+    return_abi: ExactTrivialReturnAbiV1,
+    owner: FunctionOwnerIdV1,
+    frame: LoopExecutionFrameKeyV1,
+}
+
+impl VerifiedGenericG0TailCapabilityV1 {
+    pub(crate) fn post_loop_read(&self) -> &VerifiedGenericG0PostLoopReadV1 {
+        &self.post_loop_read
+    }
+
+    pub(crate) const fn return_abi(&self) -> ExactTrivialReturnAbiV1 {
+        self.return_abi
+    }
+
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
+        &self.frame
+    }
+}
+
 impl VerifiedGenericAfterEffectG0 {
     pub(crate) fn after_binding(&self) -> &VerifiedLoopAfterBindingV1 {
         &self.after_binding
@@ -48,6 +78,32 @@ impl VerifiedGenericAfterEffectG0 {
 
     pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
         &self.frame
+    }
+
+    /// Consume the profile After exactly once while preserving the neutral
+    /// continuation and the G0-specific tail as separate capabilities.
+    pub(crate) fn into_physical_parts(
+        self,
+    ) -> (
+        VerifiedLoopAfterBindingV1,
+        VerifiedGenericG0TailCapabilityV1,
+    ) {
+        let Self {
+            after_binding,
+            post_loop_read,
+            return_abi,
+            owner,
+            frame,
+        } = self;
+        (
+            after_binding,
+            VerifiedGenericG0TailCapabilityV1 {
+                post_loop_read,
+                return_abi,
+                owner,
+                frame,
+            },
+        )
     }
 }
 

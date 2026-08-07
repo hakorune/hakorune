@@ -1,6 +1,6 @@
 # LOOP-CALLER-ZERO-PARITY-G0-D0
 
-Status: `Accepted; I0 implementation opened`
+Status: `Accepted; I0 closed; I1 design stop opened`
 Date: `2026-08-08`
 Parent: `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
 North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
@@ -139,11 +139,11 @@ G0 Recipe/effect/After owner. If any exact field is absent, duplicated,
 foreign, stale, or inferred, I0 returns typed `NoSafeSlice` and does not
 re-resolve or reconstruct source.
 
-Therefore D0 is accepted and the next bounded row is
-`LOOP-CALLER-ZERO-PARITY-G0-I0-R0`. The I0 row is Builder-free and may only
-issue this composite plus full common-demand preflight. Physical root/child
-emission, G0 After-to-tail read, Completion, DraftSeal, production selection,
-retry/fallback, and legacy deletion remain closed.
+Therefore D0 is accepted. I0 is now closed as the bounded Builder-free
+composite/full-demand preflight receipt. The next bounded row is the design
+stop `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for a fresh-session physical canary.
+Physical root/child emission, G0 After-to-tail read, Completion, DraftSeal,
+production selection, retry/fallback, and legacy deletion remain closed.
 
 One required pre-I0 correction is also frozen: the existing
 `into_operation_demand_parts()` path must not be used for G0 physical work,

@@ -183,6 +183,16 @@ fn generic_candidate_fixture() -> (
     FixtureIdentity,
     LoopFamilyObservationRowV1,
 ) {
+    let (_, lease, identity, row) = generic_candidate_fixture_with_unit();
+    (lease, identity, row)
+}
+
+fn generic_candidate_fixture_with_unit() -> (
+    VerifiedResolvedSourceUnitV1,
+    VerifiedLoopFamilyWindowLeaseV1,
+    FixtureIdentity,
+    LoopFamilyObservationRowV1,
+) {
     let source = r#"
 function generic_g0(i: i64, j: i64): i64 {
     loop(i < 3) {
@@ -240,14 +250,25 @@ function generic_g0(i: i64, j: i64): i64 {
         ),
     )
     .into_admission_row();
-    (lease, identity, row)
+    (unit, lease, identity, row)
 }
 
 /// Shared caller-zero Generic selection for downstream Recipe tests.  The
 /// source projector and five-row admission window remain owned by this test
 /// module; no production selector caller is introduced.
 pub(crate) fn generic_selection_for_test() -> CanonicalLoopFamilySelectionV1 {
-    let (lease, identity, candidate) = generic_candidate_fixture();
+    let (_, selection) = generic_source_unit_and_selection_for_test();
+    selection
+}
+
+/// Keep the resolver unit beside the selected candidate for compiler-side
+/// ingress tests.  The selection owns only AST-free evidence; the returned
+/// unit is the exact resolver view that issued that evidence.
+pub(crate) fn generic_source_unit_and_selection_for_test() -> (
+    VerifiedResolvedSourceUnitV1,
+    CanonicalLoopFamilySelectionV1,
+) {
+    let (unit, lease, identity, candidate) = generic_candidate_fixture_with_unit();
     let mut rows = all_declined(&identity).into_vec();
     rows[0] = candidate;
     let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
@@ -255,7 +276,7 @@ pub(crate) fn generic_selection_for_test() -> CanonicalLoopFamilySelectionV1 {
         _ => panic!("generic candidate window must be ready"),
     };
     match select_canonical_loop_family_v1(window) {
-        CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => selection,
+        CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => (unit, selection),
         _ => panic!("generic candidate must be selected"),
     }
 }

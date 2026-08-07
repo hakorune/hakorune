@@ -1533,9 +1533,10 @@ a fresh session.
 This is not Generic G0 parity, family selection, production activation,
 module publication, retry/fallback retirement, or legacy deletion. G0 D0 is
 now accepted: a compiler-side exact-input composite pairs the resolver input
-with neutral S4 while keeping the G0 Tail contract distinct. The active row is
-Builder-free `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`, limited to exact ingress and
-full fifteen-row `prepare_all`.
+with neutral S4 while keeping the G0 Tail contract distinct. The Builder-free
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` ingress is now closed after exact ingress
+and full fifteen-row `prepare_all`; the active next design stop is
+`LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for the fresh-session canary.
 
 ## Generic G0 parity D0/I0 boundary (2026-08-08)
 
@@ -1547,3 +1548,16 @@ owner/origin/kind/site/frame/scope, forest, both G0 entry bindings, and
 inferred capabilities reject as `NoSafeSlice`; no second resolver, AST clone,
 count/order parity, or row relabeling is allowed. Physical G0 emission and all
 production/legacy cutover remain closed.
+
+## Generic G0 exact-ingress I0 implementation receipt (2026-08-08)
+
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` is now a bounded `cfg(test)` compiler-side
+receipt. `generic_g0_physical_prepare.rs` pairs the exact resolver input with
+neutral S4, validates source/owner/frame/forest/entry/tail provenance, splits
+G0 After into neutral continuation plus
+`VerifiedGenericG0TailCapabilityV1`, and proves all fifteen Recipe members
+through common `prepare_all` with zero Builder effect. Positive,
+missing-input, foreign-input, and tail-separation tests are green; existing
+demand/producer tests retain duplicate/missing-evidence coverage. No physical
+G0 emission, Completion/DraftSeal, selector, retry/fallback, or legacy
+retirement is claimed.

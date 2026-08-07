@@ -23,7 +23,10 @@ use super::super::super::loop_recipe_contract::verify::LoopRecipeVerifierV1;
 use super::super::super::loop_recipe_contract::{
     VerifiedLoopContinuationContractV1, VerifiedLoopSemanticContextV1,
 };
-use super::after::{issue_after, GenericG0AfterRejectV1, VerifiedGenericAfterEffectG0};
+use super::after::{
+    issue_after, GenericG0AfterRejectV1, VerifiedGenericAfterEffectG0,
+    VerifiedGenericG0TailCapabilityV1,
+};
 use super::operation_effect::issue_generic_g0_operation_effect_v1;
 use super::recipe::{generic_g0_recipe, GenericG0RecipeShapeRejectV1};
 use super::relations::{build_relations, GenericG0RelationRejectV1};
@@ -108,6 +111,33 @@ impl VerifiedGenericRecipeProductG0 {
             after.into_after_binding(),
         );
         (operation_effect, context, continuation)
+    }
+
+    /// Test-only physical ingress split.  Unlike the legacy topology helper,
+    /// this preserves the G0 tail while moving only the neutral After binding
+    /// into the common continuation demand.
+    #[cfg(test)]
+    pub(crate) fn into_physical_parts_for_test(
+        self,
+    ) -> (
+        super::super::operation_effect::VerifiedLoopOperationEffectProductV1,
+        VerifiedLoopSemanticContextV1,
+        VerifiedLoopContinuationContractV1,
+        VerifiedGenericG0TailCapabilityV1,
+        NumericTarget,
+    ) {
+        let Self {
+            operation_effect,
+            after,
+            context,
+            target,
+        } = self;
+        let (after_binding, tail) = after.into_physical_parts();
+        let continuation = VerifiedLoopContinuationContractV1::from_after(
+            operation_effect.core().owner(),
+            after_binding,
+        );
+        (operation_effect, context, continuation, tail, target)
     }
 }
 

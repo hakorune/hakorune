@@ -46,6 +46,7 @@ pub(in crate::mir) mod direct_accum_projection;
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
 #[cfg(test)] pub(crate) mod generic_g0_observation;
+#[cfg(test)] pub(crate) mod generic_g0_physical_prepare;
 #[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_projection;
 #[allow(dead_code)]

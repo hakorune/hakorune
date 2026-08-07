@@ -1069,9 +1069,13 @@ CALLABLE-LOOP-PHYSICAL-CANARY-P0
   exact prelude + Loop + distinct Tail through one fresh unpublished session;
   finish CFG/SSA/PHI/completion and DraftSeal as caller-zero proof
 
+LOOP-CALLER-ZERO-PARITY-G0-I1-D0
+  design the fresh unpublished-session G0 entry/topology/operation/tail/finish
+  canary over the closed I0 ingress; no implementation yet
+
 LOOP-CALLER-ZERO-PARITY-G0-I1-R0
   prove callable Tail and Generic G0 After remain distinct profile adapters over
-  the same common physical owner after I0 exact-input ingress closes
+  the same common physical owner after the I1 design receipts close
 
 JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A
 JOINIR-LOOP-M8-LOOPV0-EXITS-JOINS-S6B
@@ -1163,7 +1167,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0` | existing prepare architecture -> bounded callable/G0 capability correction | brand/header/prelude/terminal/lifetime boundaries and NoSafeSlice rejects are fixed in one SSOT | no code, Builder, physicalizer, selector, or caller |
 | `LOOP-PHYSICAL-PREPARE-P0` | caller-zero common co-seal + callable Prelude/Tail + existing ABI/Completion -> `PreparedCallableLoopPhysicalizationV1` | private index only; execution compatibility is the sole new relational truth; Completion moves once into session | no universal Callable plan, physicalizer, or production caller; not I0 |
 | `LOOP-CALLER-ZERO-PARITY-G0-D0` | existing neutral G0 S4 product + exact compiler resolver input -> accepted thin composite ingress design | S4 remains the sole Recipe/effect/After owner; `L0.After/b1` stays distinct; reconstruction is `NoSafeSlice` | no code, physicalizer, selector, or production caller |
-| `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact compiler input/entry capability + neutral S4 product -> `PreparedGenericG0LoopPhysicalizationV1` + common fifteen-row `prepare_all` | Builder-free exact ingress; no duplicated source truth; no count/order parity assumption | no G0 physicalizer, callable Tail reuse, Completion, DraftSeal, or production caller |
+| `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact compiler input/entry capability + neutral S4 product -> bounded `PreparedGenericG0LoopIngressV1` + common fifteen-row `prepare_all` | landed 2026-08-08: Builder-free exact ingress, distinct G0 tail capability, no duplicated source truth, no count/order parity assumption; positive/missing/foreign/tail tests green | no G0 physicalizer, callable Tail reuse, Completion, DraftSeal, or production caller |
 | `LOOP-PHYSICALIZER-COMMON-OWNER-R0` | current 792-line Accum owner -> common small services + thin Accum adapter | existing Accum MIR/fault/reuse/caller counts unchanged; each commit buildable | do not add recursive Generic acceptance in the refactor series |
 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | verified physical demand + private `ReadyLoopEntryV1` + canonical CFG/Binding SSA/PhiTxn -> open continuation | child PHI, post-child outer backedge, shadow, late-failure discard, fresh reuse | no Return, publication, production caller, route-local SSA, or fallback |
 | `CALLABLE-LOOP-PHYSICAL-CANARY-P0` | common demand -> exact prelude/Loop/distinct Tail in one fresh unpublished function -> existing completion/DraftSeal | whole-function CFG finish, late failure discard, live-caller invariance, fresh reuse | caller-zero only; no production selector/caller, retry, fallback, or module publication |
@@ -1343,3 +1347,16 @@ production caller before M10b                               = 0
 silent legacy feature retirement                            = 0
 public reference support claim before activation            = 0
 ```
+
+## G0 exact-ingress I0 implementation receipt (2026-08-08)
+
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` is now implemented as a bounded,
+`cfg(test)`-only compiler ingress. The exact resolver input is paired with
+the existing neutral S4 product; G0 After is consumed once into the common
+continuation and a distinct `VerifiedGenericG0TailCapabilityV1`; and the
+common `VerifiedLoopOperationPhysicalDemandV1::prepare_all` proves all
+fifteen Recipe members without Builder effect. Item membership is compared as
+a set, never against Callable count or evidence order. Missing and foreign
+input negatives, tail separation, and the existing duplicate/missing demand
+guards are green. Physical G0 emission, Completion/DraftSeal, selector,
+fallback/retry, and legacy retirement remain closed.

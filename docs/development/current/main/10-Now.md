@@ -145,10 +145,12 @@ Related:
   families -> sealed After -> Tail/Completion -> finish/DraftSeal, with a
   late-failure whole-session discard and fresh-session rerun. The G0 parity D0
   is now accepted: exact resolver input is paired with the neutral S4 product
-  by a compiler-side composite ingress. The active row is Builder-free
-  `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`, which must first split G0 After/Tail
-  and then prove fifteen-row `prepare_all`; physical G0 emission, production selection, named caller
-  switch, retry/fallback retirement, and legacy deletion remain closed.
+  by a compiler-side composite ingress. G0 I0 is closed: the ingress splits
+  G0 After/Tail and proves fifteen-row `prepare_all` without Builder effect.
+  The active design stop is `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for the fresh
+  session/entry/topology/tail canary; physical G0 emission, production
+  selection, named caller switch, retry/fallback retirement, and legacy
+  deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

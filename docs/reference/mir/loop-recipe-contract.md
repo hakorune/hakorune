@@ -779,8 +779,10 @@ unpublished function, and reruns the same semantic fixture in a fresh
 session. The bridge adds no resolver owner, AST clone, selector, retry,
 fallback, Generic G0 parity, module publication, or legacy authority. G0 D0 is
 now accepted: exact resolver input is paired with neutral S4 by a compiler-side
-composite ingress, and the active next row is Builder-free
-`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` for fifteen-row `prepare_all`.
+composite ingress. The Builder-free
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` fifteen-row `prepare_all` receipt is now
+closed; the active next design stop is
+`LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for a fresh-session canary.
 
 ## Generic G0 parity D0/I0 boundary (2026-08-08)
 
@@ -792,7 +794,21 @@ two G0 input bindings, and `L0.After/b1` before Builder effect. Missing,
 foreign, stale, duplicate, or inferred capability is typed `NoSafeSlice`; no
 re-resolve, AST clone, or profile relabel is permitted.
 
-`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` may only issue this composite and prove the
-full fifteen-row common `prepare_all`. Physical root/child emission, G0
-After-to-tail read, Completion, DraftSeal, selector, retry/fallback, and
-legacy deletion remain closed.
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` issued this composite and proved the full
+fifteen-row common `prepare_all` without Builder effect. Physical root/child
+emission, G0 After-to-tail read, Completion, DraftSeal, selector, retry/
+fallback, and legacy deletion remain closed; the next design stop is
+`LOOP-CALLER-ZERO-PARITY-G0-I1-D0`.
+
+## Generic G0 exact-ingress I0 receipt (2026-08-08)
+
+The bounded `cfg(test)` ingress now pairs the exact resolver-issued
+`ResolvedFunctionLoweringInputV1` with neutral S4, validates the source/
+owner/frame/forest/entry/tail relation, and consumes G0 After once into the
+common continuation plus `VerifiedGenericG0TailCapabilityV1`. Common
+`VerifiedLoopOperationPhysicalDemandV1::prepare_all` proves the complete
+fifteen-item Recipe membership without Builder effect. Positive,
+missing-input, foreign-input, and tail-separation tests are green, with
+duplicate/missing evidence covered by the existing demand/producer suite.
+No physical G0 emission, Completion/DraftSeal, selector, retry/fallback, or
+legacy deletion is claimed.

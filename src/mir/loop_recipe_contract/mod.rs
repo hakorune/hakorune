@@ -70,7 +70,8 @@ pub(crate) use generic_g0_demand::{
 #[allow(unused_imports)]
 pub(crate) use generic_g0::{
     generic_operation_demand_parts_for_test, produce_generic_g0_recipe_v1,
-    GenericG0RecipeProducerRejectV1, VerifiedGenericRecipeProductG0,
+    GenericG0RecipeProducerRejectV1, VerifiedGenericG0TailCapabilityV1,
+    VerifiedGenericRecipeProductG0,
 };
 
 #[cfg(test)]
