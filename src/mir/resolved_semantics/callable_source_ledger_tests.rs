@@ -152,6 +152,58 @@ fn ledger_loop_membership_is_issued_by_the_sealed_index() {
 }
 
 #[test]
+fn ledger_only_loop_site_requires_exactly_one_resolver_member() {
+    let one_loop = function(vec![ASTNode::Loop {
+        condition: Box::new(literal(1)),
+        body: Vec::new(),
+        span: Span::unknown(),
+    }]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&one_loop).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    let membership = view.only_loop_site().unwrap();
+    assert_eq!(membership.source().site(), &stmt(0));
+
+    let no_loop = function(vec![local("x", literal(1))]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&no_loop).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    assert_eq!(
+        view.only_loop_site(),
+        Err(ResolvedLoopRegionLookupErrorV1::NoUniqueLoopSite { actual: 0 })
+    );
+
+    let two_loops = function(vec![
+        ASTNode::Loop {
+            condition: Box::new(literal(1)),
+            body: Vec::new(),
+            span: Span::unknown(),
+        },
+        ASTNode::Loop {
+            condition: Box::new(literal(1)),
+            body: Vec::new(),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&two_loops).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    assert_eq!(
+        view.only_loop_site(),
+        Err(ResolvedLoopRegionLookupErrorV1::NoUniqueLoopSite { actual: 2 })
+    );
+}
+
+#[test]
 fn ledger_keeps_lambda_capture_at_the_existing_forest_boundary() {
     let tree = function(vec![
         local("outer", literal(1)),

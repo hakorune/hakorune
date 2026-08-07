@@ -31,6 +31,7 @@ impl ResolvedLoopRegionBundleV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolvedLoopRegionLookupErrorV1 {
     MissingExactBundle(SourceStmtSiteV1),
+    NoUniqueLoopSite { actual: usize },
 }
 
 /// Owner-branded source identity for one Loop admitted by the sealed index.
@@ -212,6 +213,24 @@ impl ResolvedLoopRegionIndexV1 {
 }
 
 impl VerifiedResolvedFunctionV1 {
+    /// Issues the sole Loop site only when the sealed index proves exactly one.
+    /// Cardinality failure is a typed source/facts rejection; callers may not
+    /// recover a route-local ordinal or choose one member from a larger set.
+    pub(crate) fn only_loop_site(
+        &self,
+    ) -> Result<SourceStmtSiteV1, ResolvedLoopRegionLookupErrorV1> {
+        let mut sites = self.core.loop_regions.sites();
+        let Some(site) = sites.next() else {
+            return Err(ResolvedLoopRegionLookupErrorV1::NoUniqueLoopSite { actual: 0 });
+        };
+        if sites.next().is_some() {
+            return Err(ResolvedLoopRegionLookupErrorV1::NoUniqueLoopSite {
+                actual: self.core.loop_regions.len(),
+            });
+        }
+        Ok(site.clone())
+    }
+
     /// Issues one resolver-owned Loop source token and its sealed lexical
     /// Scope/Region pair. This is the only combined context entry point for
     /// downstream source observers.

@@ -261,6 +261,14 @@ B0-L2b landed source views as disconnected transport. SA3-B now has exactly
 one production consumer under `builder/resolved_lowering/`; Planner suffix
 transport remains disconnected.
 
+The callable source-facts issuer uses two exact seams only: resolver
+`CallableSemanticSourceLedgerView::only_loop_site()` proves one and only one
+Loop membership (zero or multiple sites are typed rejects), and
+`FunctionSourceViewV1::stmt_at(site)` reopens only a statement present in the
+sealed owner source-site inventory. Neither seam accepts route ordinals, names,
+raw AST path recovery, or source scans as identity. This S0 slice adds no
+Recipe, Builder, physicalizer, selector, retry, or production caller edge.
+
 Forbidden identity sources are AST pointer, Span, name, traversal order,
 producer path, and ProgramV0 reconstruction.
 

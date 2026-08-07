@@ -125,8 +125,10 @@ Related:
   `CallableSemanticSourceLedgerView::only_loop_site()` supplies the exact
   single Loop site (zero/multiple sites are typed `NoSafeSlice`), and
   owner-branded `FunctionSourceViewV1::stmt_at(site)` supplies exact source
-  navigation. The row promotes neutral SyntaxFacts/SourceMap issuers with
-  Builder-effect-zero construction. Recipe/Prepared production issuance,
+  navigation; this resolver/navigation slice is now green with typed
+  cardinality/inventory rejects. The remaining S0 work promotes neutral
+  SyntaxFacts/SourceMap issuers with Builder-effect-zero construction.
+  Recipe/Prepared production issuance,
   physical selection, named caller switch, Generic G0, retry/fallback
   retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

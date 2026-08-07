@@ -2,7 +2,7 @@ use std::num::NonZeroU32;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourcePathSegmentV1,
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourcePathSegmentV1, SourcePathV1,
 };
 
 use super::located::{ConsumedSourceRangeV1, LocatedBodySuffixV1, SourceBodyKindV1};
@@ -184,6 +184,27 @@ fn navigator_rejects_wrong_roles_and_out_of_bounds_sites() {
     assert!(matches!(
         view.body_suffix(body, 99),
         Err(SourceNavigationErrorV1::SuffixStartOutOfBounds { .. })
+    ));
+}
+
+#[test]
+fn stmt_at_reopens_only_resolver_inventory_sites() {
+    let unit = verified_source_unit_for_test(fixture_function());
+    let owner = unit.forest().roots()[0];
+    let view = unit.function_source_view(owner).unwrap();
+
+    let site = SourcePathV1::root_body(1).stmt();
+    let located = view.stmt_at(&site).unwrap();
+    assert_eq!(located.site(), &site);
+    assert!(matches!(located.node(), ASTNode::Assignment { .. }));
+
+    let synthetic = SourcePathV1::root_body(99).stmt();
+    assert!(matches!(
+        view.stmt_at(&synthetic),
+        Err(SourceNavigationErrorV1::InvalidSite {
+            reason: "statement_not_in_resolver_inventory",
+            ..
+        })
     ));
 }
 

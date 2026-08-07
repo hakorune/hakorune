@@ -220,6 +220,20 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
     }
 
     /// Issue exact Loop membership and frame identity from the sealed index.
+    pub(crate) fn only_loop_site(
+        &self,
+    ) -> Result<VerifiedCallableLoopMembershipV1, ResolvedLoopRegionLookupErrorV1> {
+        let site = self.function.only_loop_site()?;
+        let (source, scope_region) = self.function.resolved_loop_source_context(&site)?;
+        let frame = source.frame_key();
+        Ok(VerifiedCallableLoopMembershipV1 {
+            source,
+            frame,
+            scope_region,
+        })
+    }
+
+    /// Issue exact Loop membership and frame identity from the sealed index.
     pub(crate) fn resolved_loop_source(
         &self,
         site: &SourceStmtSiteV1,

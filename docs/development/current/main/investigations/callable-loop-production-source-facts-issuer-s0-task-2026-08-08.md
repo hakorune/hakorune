@@ -3,6 +3,12 @@
 Status: implementation task after the accepted
 `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` design.
 
+Implementation receipt (first S0 slice, 2026-08-08): resolver
+`CallableSemanticSourceLedgerView::only_loop_site()` and owner-branded
+`FunctionSourceViewV1::stmt_at(site)` are now sealed with positive and
+zero/multiple/inventory-negative tests. Neutral SyntaxFacts/SourceMap
+production promotion remains the next S0 slice.
+
 ## Objective
 
 Move only the neutral callable single-loop SyntaxFacts/source-shape/SourceMap

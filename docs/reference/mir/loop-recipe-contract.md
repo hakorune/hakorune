@@ -172,6 +172,29 @@ shape, it is `NoSafeSlice`, not an invitation to add a callable-specific
 Recipe kind or physicalizer. The callable row is one more instance of the
 single recursive algebra; it is not a twentieth Recipe variant.
 
+## Callable source/facts issuer S0
+
+Decision: accepted implementation slice —
+`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0` (2026-08-08).
+
+The production source/facts boundary has one resolver site issuer and one
+owner-branded navigation seam:
+
+```text
+CallableSemanticSourceLedgerView::only_loop_site()
+  -> exactly one resolver-sealed Loop membership
+  -> zero or multiple memberships = typed rejection
+
+FunctionSourceViewV1::stmt_at(site)
+  -> exact statement only when present in the sealed owner inventory
+```
+
+This slice is source/facts transport only. It does not activate Recipe,
+JoinSig, Prepared physicalization, Builder/MIR emission, a selector, retry,
+fallback, Generic G0 substitution, or a production caller switch. Source
+observation may inspect verified `root_body()` contents for totality, but raw
+AST/path/name/ordinal reconstruction is not a source authority.
+
 `VerifiedLoopAfterTailEnvelopeV1` is not part of the contract. The
 implementation row must update this reference page and
 `docs/reference/mir/generic-loop-stage-matrix.md` in the same commit. Until
