@@ -4,6 +4,12 @@
 //! private operation leaf seams, and each focused test module owns its own
 //! evidence. Full physicalization and production activation remain closed.
 
+#[cfg(test)]
+mod callable_canary;
+#[cfg(test)]
+mod callable_production_canary_tests;
+#[cfg(test)]
+mod continuation;
 mod operation_dispatcher;
 mod operation_emitter;
 #[cfg(test)]
@@ -13,16 +19,10 @@ mod operation_ledger;
 mod operation_target;
 mod operation_type;
 #[cfg(test)]
-mod continuation;
-#[cfg(test)]
-mod tail_completion;
-#[cfg(test)]
 #[path = "read_emitter_tests.rs"]
 mod read_emitter_tests;
 #[cfg(test)]
-mod callable_canary;
-#[cfg(test)]
-mod callable_production_canary_tests;
+mod tail_completion;
 mod tests;
 mod topology;
 

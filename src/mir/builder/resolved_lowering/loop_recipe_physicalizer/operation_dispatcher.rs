@@ -133,14 +133,11 @@ impl PreparedLoopOperationDispatchPlanV1 {
         &self,
         builder: &MirBuilder,
     ) -> Result<(), LoopOperationDispatchPhysicalFailureV1> {
-        self.targets
-            .iter()
-            .copied()
-            .try_for_each(|target| {
-                target
-                    .validate_function(builder)
-                    .map_err(LoopOperationDispatchPhysicalFailureV1::Target)
-            })
+        self.targets.iter().copied().try_for_each(|target| {
+            target
+                .validate_function(builder)
+                .map_err(LoopOperationDispatchPhysicalFailureV1::Target)
+        })
     }
 
     pub(super) fn emit_all<'source>(

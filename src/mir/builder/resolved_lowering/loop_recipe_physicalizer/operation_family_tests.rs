@@ -1,5 +1,5 @@
-use super::*;
 use super::operation_target::LoopOperationTargetRejectV1;
+use super::*;
 
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
