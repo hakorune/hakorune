@@ -581,11 +581,12 @@ The target order is:
 ```
 
 The current production resolved DirectAccum lowerer is a parity oracle, not the
-final common owner. Its `CanonicalDirectAccumSsaLowererV1::lower` path lacks a
-whole-function `CanonicalCfgSessionV1::finish` call; the test-only caller-zero
-finish path already has one. The production omission must not be copied into
-the common path. Existing non-V2 direct construction is frozen compatibility
-debt: the first R0 adds no caller there, and final retirement makes
+final common owner. The earlier census found a missing whole-function
+`CanonicalCfgSessionV1::finish` call; the typed
+`CanonicalSsaFunctionSessionV2::finish_for_draft_seal` terminal now owns that
+finish for the V2 path. The omission must not be copied into a future common
+path. Existing non-V2 direct construction is frozen compatibility debt: the
+first R0 adds no caller there, and final retirement makes
 `ReadyFunctionDraftSealV1::new` unavailable to every production lowerer. Tests
 may then use only an explicit test factory. For every migrated V2 path the
 invariant is:
@@ -661,6 +662,33 @@ source/README/reference/current-entry update in the same implementation commit
 This audit lock is deliberately narrower than a universal function-finalizer
 redesign. It does not migrate the non-V2 lowerer, add a semantic owner, change
 accepted profiles, or open physical Loop lowering.
+
+### Callable production-edge census (2026-08-08)
+
+The new callable physical products remain test-only:
+
+```text
+loop_physical_prepare.rs
+callable_loop_physical_canary.rs
+loop_recipe_physicalizer/callable_canary.rs
+```
+
+No production caller currently supplies
+`PreparedCallableLoopPhysicalizationV1 -> profile-close -> Completion ->
+DraftSeal`. The nearest production host is
+`NormalCallableSemanticLoanPortV1::lower_normal_top_level_function`, whose
+loop child edge still enters
+`RawInvocationChildPortV1::lower_loop ->
+PreparedLocatedRawLoopChildEntryV1::lower_with_existing_route_v1 ->
+lower_loop_or_freeze_v1`. Its current output is a legacy pending function
+session and `LegacyReplaceWholePair`, not `CompletedFunctionDraftV1`.
+
+Therefore `CALLABLE-LOOP-PRODUCTION-EDGE-D0` closes as `NoSafeSlice`. The next
+authorized row is the design-only
+`CALLABLE-LOOP-PRODUCTION-ADMISSION-D0`, which must name the production
+ingress and function-session/discard owner before any I0 switch. A by-name
+adapter, selector, retry, fallback, Generic G0 substitution, or legacy
+deletion is not authorized by this census.
 
 ## Typed rejection boundary
 

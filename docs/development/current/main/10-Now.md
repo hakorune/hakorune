@@ -115,8 +115,11 @@ Related:
   condition. `CALLABLE-LOOP-DRAFT-SEAL-P0` is now green: the profile-close
   receipt reaches the typed finish terminal and existing DraftSeal
   prepare/commit, producing one caller-zero `CompletedFunctionDraftV1` without
-  collector publication. The next authorized row is the docs-only
-  `CALLABLE-LOOP-PRODUCTION-EDGE-D0` census:
+  collector publication. `CALLABLE-LOOP-PRODUCTION-EDGE-D0` is closed as
+  `NoSafeSlice`: the new callable physical products are cfg(test)-only, and
+  the nearest production raw/legacy host lacks Prelude/Tail/ABI/Completion/
+  DraftSeal receipts. The next authorized row is the docs-only
+  `CALLABLE-LOOP-PRODUCTION-ADMISSION-D0` design:
   (Prepared move handoff, complete Write projection, pure
   Const/Binary/Compare leaves, bounded five-family dispatch, full
   Recipe-order prepare, and typed value ledger) is green; exact per-row
