@@ -277,8 +277,12 @@ expression, unknown site, foreign binding, and unsupported ABI are typed
 `NoSafeSlice`. No new resolver or semantic owner is introduced.
 
 The outer lowerer consumes this list once, reads each BindingRef through the
-canonical session identity, and materializes the prelude result before issuing
-one private `ReadyLoopEntryV1`. AST reread, name lookup, and arity-only
+canonical session identity, and materializes the external Prelude result. The
+Loop input initializer is a separate exact source-site obligation: it is
+resolved through the existing source view, emitted as the entry value, and
+published under the co-sealed Loop input BindingRef. The Prelude result local
+and Loop input binding must never be conflated. Only then does the adapter
+issue one private `ReadyLoopEntryV1`. AST reread, name lookup, and arity-only
 reconstruction are forbidden. It then opens the exact function session, moves
 Completion into `CanonicalSsaFunctionSessionV2::new` exactly once, and retains
 Prelude/Tail/ABI evidence only. The future full operation physicalizer consumes

@@ -14,6 +14,8 @@ mod operation_target;
 #[cfg(test)]
 #[path = "read_emitter_tests.rs"]
 mod read_emitter_tests;
+#[cfg(test)]
+mod callable_canary;
 mod tests;
 mod topology;
 

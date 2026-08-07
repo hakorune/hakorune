@@ -31,6 +31,14 @@ impl ReadyLoopEntryRowV1 {
             value,
         }
     }
+
+    pub(super) const fn value(self) -> ValueId {
+        self.value
+    }
+
+    pub(super) const fn binding(self) -> BindingRefV1 {
+        self.binding
+    }
 }
 
 #[derive(Debug)]

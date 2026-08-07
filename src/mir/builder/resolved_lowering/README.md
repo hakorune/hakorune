@@ -107,9 +107,14 @@ for Const/Binary/Compare, exact logical-to-physical operation target receipts
 (all validated before the first leaf effect),
 and phase-separated physical dispatch errors. The focused fixture proves a
 Const -> Binary -> Compare chain without introducing a second CFG/SSA/PHI
-owner. Full `emit_all` completion and the callable Prelude -> Loop -> Tail
-canary are not yet claimed; those adapters, `finish_for_draft_seal`, and
-DraftSeal integration remain the next implementation boundary.
+owner. The callable Prelude adapter is now landed as caller-zero evidence:
+exact resolver-backed argument bindings are read through canonical identity,
+the external Prelude result is emitted through the shared direct-call emitter,
+and the Loop initializer is materialized from its exact source site into a
+separate `ReadyLoopEntryV1` binding/value. The Prelude result local is not the
+Loop input and is never used as an implicit entry value. Full `emit_all`
+completion, callable Tail-to-ValueId, `finish_for_draft_seal`, and DraftSeal
+integration remain the next implementation boundary.
 
 ## Full operation demand P0
 

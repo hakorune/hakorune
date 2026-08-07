@@ -34,7 +34,13 @@ projection, typed Const/Binary/Compare leaf bridges, private row-level
 five-family dispatch, full Recipe-order Builder-free prepare, an opaque typed
 value ledger, exact logical-to-physical target receipts, and distinct
 pre-effect/post-claim failure types compile and have focused evidence. The
-remaining adapters are still part of this row;
+exact Prelude adapter is also landed as caller-zero evidence: resolver-issued
+parameter/argument bindings are read through canonical identity, the external
+Prelude result is emitted through the resolver-backed static-call helper, and
+the Loop input initializer is materialized from its exact source site and
+published separately. The Prelude result binding and the Loop input binding
+are intentionally distinct; neither is inferred from the other. Tail,
+Completion, and DraftSeal adapters remain part of this row;
 they must not infer names, re-resolve source, clone Completion, or create a
 second CFG/SSA/PHI owner. If an adapter cannot be expressed against the
 existing canonical owners, stop and record a design correction before adding
@@ -110,7 +116,9 @@ labels. Loop continuation and callable Tail remain distinct contracts.
 3. Open one fresh unpublished function session and move Completion exactly
    once into the V2 session.
 4. Materialize the explicit Prelude and issue `ReadyLoopEntryV1`, including
-   the exact zero-input case when applicable.
+   the exact zero-input case when applicable. The receipt contains the Loop
+   input binding/value; the Prelude result local remains a separate canonical
+   declaration.
 5. Allocate and receipt the logical-to-physical Loop blocks through the
    canonical CFG session.
 6. Bind the complete operation schedule to those blocks and emit all supported
@@ -133,7 +141,8 @@ Prepared product:
 
 Prelude:
   exact prepared callable capability + existing direct-call/profile owners
-  -> physical result + ReadyLoopEntryV1; no name lookup
+  -> physical result + separate Loop-input initializer + ReadyLoopEntryV1;
+  no name lookup or binding conflation
 
 Operation:
   one full Recipe-order prepare plus a bounded row dispatcher over

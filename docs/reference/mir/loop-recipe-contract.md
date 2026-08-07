@@ -231,6 +231,33 @@ receipt. No Builder/MIR effect, selector, retry, fallback, or production
 selection is opened by this row. The next bounded row is
 `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`.
 
+## Callable Prelude materialization receipt P0 (2026-08-07)
+
+The first caller-zero physical Prelude adapter is now landed as a test-only
+receipt. It consumes the prepared resolver-backed Prelude capability and
+publishes all values through the existing canonical session owners:
+
+```text
+resolver parameter/argument BindingRef rows
+  -> canonical identity reads
+  -> resolver-issued static call header
+  -> Prelude result ValueId + result-local declaration
+
+co-sealed Loop input initializer source site
+  -> exact source-view literal
+  -> entry ValueId + Loop input declaration
+  -> ReadyLoopEntryV1
+```
+
+The Prelude result binding and the Loop input binding are distinct resolver
+bindings. The adapter rejects missing or mismatched input declarations and
+unsupported initializer shapes; it does not infer one binding from the other,
+search the AST by name, or pass the Prelude result as the Loop entry value.
+The focused canary emits exactly one static call and one entry initializer,
+then discards the unpublished function session. Tail, Completion,
+`finish_for_draft_seal`, DraftSeal, operation `emit_all`, and production
+selection remain closed.
+
 ## Recursive physicalizer P0 scope (2026-08-07)
 
 This closed historical row is a caller-zero topology/After probe. It consumes

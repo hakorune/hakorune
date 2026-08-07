@@ -157,10 +157,13 @@ Const -> Binary -> Compare fixture and source-bound Write projection tests.
 This remains preparation evidence, not full physicalization. The common
 full Recipe-order prepare plus bounded Read/Const/Compare/Binary/Write dispatch
 seam now issues one exact logical-to-physical target receipt per row and
-separates semantic preflight from post-claim physical failure. Exact Prelude
-receipt, Tail-to-ValueId/completion claim, fresh callable session, and DraftSeal
-path remain open. Generic G0 parity, production selection, retry/fallback, and
-legacy deletion remain closed.
+separates semantic preflight from post-claim physical failure. The exact
+Prelude receipt is now landed: the resolver-backed Prelude result and the
+distinct Loop initializer are published separately into one session-local
+`ReadyLoopEntryV1`; the two bindings are never conflated. Tail-to-ValueId/
+completion claim, fresh callable session completion, and DraftSeal path remain
+open. Generic G0 parity, production selection, retry/fallback, and legacy
+deletion remain closed.
 
 ## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
 
