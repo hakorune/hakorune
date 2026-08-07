@@ -883,6 +883,51 @@ canary are closed. The current row is the design-only ReadBinding leaf
 boundary; it claims no full operation physicalization, callable physical
 completion, production selection, M8/M9 coverage, or retirement.
 
+### ReadBinding leaf D0 correction (2026-08-07; Decision: revise)
+
+The broad B boundary remains accepted, but worker review found that the
+ReadBinding leaf is not implementation-ready yet. D0 must close these
+contracts before any Builder mutation is permitted:
+
+- Project the row exactly once from a complete
+  `PreparedLoopOperationProgramV1`. Its Recipe `binding`/`result`, verified
+  effect row (`source_binding`, `anchor`, `role`), owner, and logical
+  placement must agree. AST, name, ordinal, and ad-hoc full-demand
+  re-extraction are forbidden.
+- Admit only `LoopBindingEffectAnchorV1::Expr`. A `DerivedCarrierEntry`
+  (including Generic G0 item 3) is rejected as typed
+  `CarrierSeedUnavailable` and belongs to a later carrier-seed row.
+- The raw `ValueId` from `ResolvedSsaIdentityStateV2::read_entry` must not
+  become the public leaf receipt directly. A thin canonical seam must issue
+  `CanonicalBindingReadReceiptV1 { owner, binding, physical_block,
+  physical_value }` after canonical BindingSSA/PHI verification.
+- Placement comes only from the sole `LoopPhysicalBlockReceiptV1` and the
+  orchestrator's logical Loop/Block/role. `current_block` and ordinal
+  inference are not authorities. All checks happen before the canonical
+  read/PHI operation.
+- The logical result key is alias publication only. The leaf returns one
+  immutable receipt `{ owner, item, binding, result, block, value }`; the
+  outer operation ledger owns publication. No second ValueId, BindingSSA map,
+  PHI owner, Return, Completion, or DraftSeal is introduced.
+- Identity and `PhiTxn` are borrowed through one explicit canonical read
+  service bundle. The physicalizer does not become a second session or owner.
+- Pre-effect rejects are typed `NoSafeSlice`. A post-read type/receipt
+  mismatch is a late terminal: discard the whole unpublished function,
+  retain only local Phi cleanup diagnostics, and never retry or fallback.
+
+The required reject matrix is: operation-not-ReadBinding; missing or
+mismatched source anchor/binding; Core effect/role mismatch;
+`CarrierSeedUnavailable`; owner, logical, or physical placement mismatch;
+missing entry binding; canonical BindingRead failure; result-type mismatch;
+terminated block; and late emission failure.
+
+This D0 row claims no full-demand extraction API, AST reread, second
+CFG/SSA/PHI/catalog owner, derived/G0 carrier bridge, other operation kinds,
+return/seal/module publication, selector, retry/fallback, legacy retirement,
+or performance result. It is a design stop only; the next implementation card
+must be opened separately and must update reference documentation in the same
+commit as code and focused tests.
+
 ## Implementation and documentation obligation
 
 Every implementation row above must update its exact live references in the

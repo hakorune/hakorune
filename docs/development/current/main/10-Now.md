@@ -104,7 +104,10 @@ Related:
   physical block receipt, and the private ConstI64 leaf-emitter canary are now
   closed. The current execution boundary is the design-only
   `LOOP-RECIPE-OPERATION-EMITTER-READ-DESIGN0-D0`; no ReadBinding mutation or
-  production activation is open. Physical completion, selection,
+  production activation is open. Worker review is `REVISE`: Expr-only source
+  projection, canonical read receipt, sole placement authority, alias-only
+  result publication, and typed pre-effect/late-discard boundaries must be
+  fixed first. Physical completion, selection,
   retry/fallback retirement, and legacy deletion remain closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
