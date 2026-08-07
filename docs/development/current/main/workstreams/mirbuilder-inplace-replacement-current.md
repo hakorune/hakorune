@@ -519,26 +519,27 @@ closed:
   CALLABLE-LOOP-PHYSICAL-CANARY-P0
 accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
 closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
-accepted correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0
-current execution:
-  LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1
+accepted correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
+  LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1; current execution: LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2
 Change:
-  derive a private Builder-free segment/resume layout from the complete
-  Recipe/JoinSig; add no G0 physicalizer or semantic owner.
+  bind the closed private R1 segment/resume layout to canonical blocks and
+  migrate Callable placement; no G0 physicalizer or semantic owner.
 Contract:
-  Recipe/JoinSig remain the sole logical authority. A mechanically derived
-  layout splits a logical block around nested control, covers every admitted
-  item exactly once, and records child-After -> parent-resume placement.
-  Unsupported If/Exit rejects before Builder effect. No AST/name re-walk,
-  second Recipe/CFG/SSA/PHI owner, selector, or fallback.
+  Recipe/JoinSig remain the sole logical authority. R1 derives recursive
+  preorder, exact item coverage, and child-After -> parent-resume placement
+  with Builder effect zero. R2 may allocate blocks and bind rows, but may not
+  reinterpret Recipe, create a second CFG/SSA/PHI owner, or open G0, selector,
+  or fallback behavior.
 Done:
-  P0 caller-zero physical canary and G0 I0 exact Builder-free ingress are
-  closed. Top-down review proved that G0 B1 contains pre-child, nested-child,
-  and post-child items and cannot use the old logical-block-to-one-physical-
-  block execution mapping. The finite order is R1 layout, R2 segment block
-  cutover, R3 neutral recursive After, then G0 I1-R0.
+  P0 caller-zero physical canary, G0 I0 exact Builder-free ingress, and R1 layout
+  are closed. R1 derives the complete Callable/G0 operation order from
+  verified recursive Recipe traversal and records G0's five segments:
+  root condition, root pre-child, child condition, child body, root resume.
+  Focused layout tests are green and the source module remains below 800 lines;
+  the finite order is R2 segment block cutover, R3 neutral recursive After,
+  then G0 I1-R0.
 Stop:
-  R1 has Builder effect zero. Segment block allocation, recursive edge
+  R2 must remain a bounded physical placement cutover. Recursive edge
   emission, physical G0, production selection, caller switch, fallback/retry,
   collector/publication, and legacy deletion remain closed. Every
   implementation row requires source README,

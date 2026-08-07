@@ -460,10 +460,22 @@ cutover remain later rows.
 Top-down review accepted `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` only after a
 common prerequisite. Generic G0 places pre-child, nested-child, and post-child
 items in one logical block, so the current logical-block-to-one-physical-block
-mapping cannot preserve Recipe order. The next row is the Builder-free
-`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`, mechanically derived from
-Recipe/JoinSig. Segment block cutover, neutral recursive After, and the fresh
+mapping cannot preserve Recipe order. The Builder-free
+`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` is now closed: its private layout is
+mechanically derived from Recipe/JoinSig, proves recursive operation order,
+and splits parent pre-child/resume segments. The current next row is
+`LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2`; neutral recursive After and the fresh
 G0 session remain separate later rows.
+
+## Recursive segment plan R1 receipt (2026-08-08)
+
+`PreparedLoopOperationProgramV1::prepare_physical_layout` consumes the whole
+prepared program and produces `PreparedLoopPhysicalLayoutV1`. It owns no
+semantic truth: Recipe/JoinSig remain the sole authorities. The Callable and
+Generic G0 fixtures prove exact recursive operation order, item coverage, and
+G0's five derived segments (`B0`, `B1` pre-child, `B2`, `B3`, `B1` resume)
+without Builder/MIR effect. R2 alone may bind these segments to canonical
+physical blocks; no G0 physical, selector, fallback, or legacy claim is made.
 
 ## Structural owners
 

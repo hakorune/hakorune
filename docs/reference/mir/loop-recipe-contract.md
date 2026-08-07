@@ -782,10 +782,12 @@ now accepted: exact resolver input is paired with neutral S4 by a compiler-side
 composite ingress. The Builder-free
 `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` fifteen-row `prepare_all` receipt is now
 closed. Top-down I1 review fixes the next physical contract: nested control
-may split one logical block into pre-child and parent-resume segments. The
-active row is the Builder-free `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`.
-Recipe/JoinSig remain the sole logical authority; the private layout records
-only mechanically derived order, item placement, and nested After -> resume.
+may split one logical block into pre-child and parent-resume segments. R1 is
+now closed as the Builder-free
+`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` receipt. The current follow-up is
+segment-aware canonical block cutover R2. Recipe/JoinSig remain the sole
+logical authority; the private layout records only mechanically derived order,
+item placement, and nested After -> resume.
 
 ## Generic G0 parity D0/I0 boundary (2026-08-08)
 
@@ -815,3 +817,25 @@ missing-input, foreign-input, and tail-separation tests are green, with
 duplicate/missing evidence covered by the existing demand/producer suite.
 No physical G0 emission, Completion/DraftSeal, selector, retry/fallback, or
 legacy deletion is claimed.
+
+## Recursive segment plan R1 receipt (2026-08-08)
+
+`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` is implemented as a Builder-free
+derived contract. Common `prepare_all` follows verified recursive Recipe
+preorder; it does not flatten logical blocks or expose a first/select/filter
+operation API. `PreparedLoopPhysicalLayoutV1` consumes the complete prepared
+program and records exact operation placement plus nested child-entry and
+parent-resume segments. Recipe/JoinSig remain the only logical authorities.
+
+The closeout fixtures prove:
+
+```text
+Callable: seven operation rows in Recipe preorder
+Generic G0: [0,1,2,3,5,6,7,8,9,10,11,12,13,14,15]
+Generic G0: 16 items / 15 operations / 5 derived segments
+```
+
+This receipt creates no physical IDs, CFG/SSA/PHI mutation, function session,
+After writer, Tail/Completion path, selector, retry/fallback, or production
+caller. Segment-aware canonical block cutover is the next R2 task; physical
+G0 and legacy retirement remain closed.

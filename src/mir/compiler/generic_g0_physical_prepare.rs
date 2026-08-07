@@ -10,7 +10,7 @@
 
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::loop_recipe_contract::{
-    produce_generic_g0_recipe_v1, LoopBindingEffectAnchorV1, LoopBindingKeyV1, LoopItemKeyV1,
+    produce_generic_g0_recipe_v1, LoopBindingEffectAnchorV1, LoopBindingKeyV1,
     LoopOperationPhysicalDemandRejectV1, LoopValueClassV1, PreparedLoopOperationProgramV1,
     VerifiedGenericG0TailCapabilityV1, VerifiedGenericRecipeProductG0,
     VerifiedLoopOperationPhysicalDemandV1,
@@ -397,13 +397,12 @@ mod tests {
             issue_generic_g0_loop_ingress_v1(Some(input), product).expect("exact G0 ingress");
         assert_eq!(prepared.input().entries().len(), 2);
         assert_eq!(prepared.program().coverage().operation_count(), 15);
-        let mut items = prepared
+        let items = prepared
             .program()
             .schedule()
             .iter()
             .map(|row| row.item().raw())
             .collect::<Vec<_>>();
-        items.sort_unstable();
         assert_eq!(
             items,
             vec![0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]

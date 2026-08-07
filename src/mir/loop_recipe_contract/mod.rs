@@ -11,6 +11,7 @@ mod normalize;
 mod operation_effect;
 mod operation_physical_demand;
 mod physical_input;
+mod physical_layout;
 mod producer_id;
 pub(crate) mod route_id;
 mod schema;
@@ -140,6 +141,12 @@ pub(crate) use operation_physical_demand::{
 };
 #[allow(unused_imports)]
 pub(crate) use physical_input::{VerifiedLoopPhysicalBoundaryV1, VerifiedLoopPhysicalInputV1};
+#[allow(unused_imports)]
+pub(crate) use physical_layout::{
+    LoopPhysicalLayoutCoverageReceiptV1, LoopPhysicalLayoutRejectV1, LoopPhysicalSegmentKeyV1,
+    LoopPhysicalTargetV1, LoopPhysicalTransferV1, PreparedLoopControlSegmentV1,
+    PreparedLoopPhysicalLayoutV1,
+};
 #[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
 #[allow(unused_imports)]

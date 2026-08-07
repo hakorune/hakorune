@@ -158,12 +158,13 @@ focused P0 tests are green and the canary file remains below 800 lines. The
 G0 parity design is accepted: a compiler-side composite pairs exact resolver
 input with neutral S4, while `L0.After/b1` is split into neutral continuation
 and a distinct tail capability. The Builder-free
-`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` ingress is now closed. I1 top-down review
-found a common prerequisite: one logical Recipe block may contain operations
-before and after a nested Loop. The active row is the private Builder-free
-`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`; Recipe/JoinSig remain the sole
-logical authority. Segment-aware blocks, recursive After, physical G0,
-selector, collector, retry/fallback, and legacy retirement remain closed.
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` ingress and common
+`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` layout are now closed. R1 derives
+recursive Recipe preorder and parent-resume segments without Builder effect;
+the active row is the bounded `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2`, which
+may bind those segments to canonical physical blocks for Callable parity.
+Recursive After, physical G0, selector, collector, retry/fallback, and legacy
+retirement remain closed.
 
 ## Generic G0 exact-ingress I0 receipt (2026-08-08)
 

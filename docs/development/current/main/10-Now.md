@@ -148,11 +148,13 @@ Related:
   by a compiler-side composite ingress. G0 I0 is closed: the ingress splits
   G0 After/Tail and proves fifteen-row `prepare_all` without Builder effect.
   Top-down I1 review found that nested control splits one logical block around
-  the child Loop. The active row is the Builder-free
-  `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`; Recipe/JoinSig remain the sole
-  logical authority. Segment-aware CFG, recursive After, physical G0,
-  production selection, retry/fallback retirement, and legacy deletion remain
-  closed.
+  the child Loop. The Builder-free
+  `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` is now closed: recursive Recipe
+  preorder and exact parent-resume segments are derived without Builder
+  effect. The active row is
+  `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2`; Recipe/JoinSig remain the sole
+  logical authority. Recursive After, physical G0, production selection,
+  retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

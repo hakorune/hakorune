@@ -1074,12 +1074,14 @@ LOOP-CALLER-ZERO-PARITY-G0-I1-D0
   Recipe-derived recursive segment/resume layout
 
 LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1
-  Builder-free exact item coverage/order and nested After -> parent resume;
-  Recipe/JoinSig remain the sole logical authority
+  CLOSED 2026-08-08: Builder-free exact item coverage/order and nested After
+  -> parent resume; Recipe/JoinSig remain the sole logical authority. The
+  derived layout has no Builder/MIR effect.
 
 LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2
-  segment-aware canonical block allocation and operation placement; migrate
-  Callable parity and delete the selected logical-block-only execution lookup
+  CURRENT: segment-aware canonical block allocation and operation placement;
+  migrate Callable parity and delete the selected logical-block-only lookup.
+  Task: `investigations/loop-common-segment-block-cutover-r2-task-2026-08-08.md`
 
 LOOP-COMMON-RECURSIVE-AFTER-R3
   neutral recursive edge writer/After receipt; keep profile Tail and coverage

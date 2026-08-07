@@ -41,6 +41,8 @@ ingress; neutral S4 remains the sole Recipe/effect/After owner. I0 is closed
 as Builder-free exact ingress plus fifteen-row `prepare_all`. The accepted I1
 design now requires `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`, segment-aware
 block cutover R2, and neutral recursive After R3 before G0 physical I1-R0.
+R1 is now closed as a Builder-free derived layout; R2 is the current bounded
+physical cutover.
 No named production caller switch or G0 physical implementation is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
@@ -846,8 +848,8 @@ skip the After closure or reopen a Tail-only route.
 | 11 | `LOOP-CALLER-ZERO-PARITY-G0-D0` | accepted design: compiler-side exact-input composite ingress, neutral S4 owner, common physicalizer, distinct G0 After/Tail | no source reconstruction, physical emission, or production selection |
 | 12 | `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact G0 ingress -> common fifteen-row `prepare_all` with Builder effect zero | closed 2026-08-08; no physical emission, Completion/DraftSeal, selector, retry/fallback, or legacy deletion |
 | 13 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` | top-down counterexample fixes segment/resume as a common prerequisite | accepted design; direct G0 implementation superseded |
-| 14 | `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` | Builder-free Recipe-derived segment/resume layout plus exact order/coverage | no Builder effect or new accepted structural family |
-| 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | segment-aware block allocation/operation placement; Callable parity | BoxShape-only; delete selected logical-block-only execution lookup |
+| 14 | `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` | Builder-free Recipe-derived segment/resume layout plus exact order/coverage | **closed 2026-08-08**; no Builder effect or new accepted structural family |
+| 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | segment-aware block allocation/operation placement; Callable parity | **current**; BoxShape-only; delete selected logical-block-only execution lookup |
 | 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3` | neutral recursive edge writer and After receipt; Callable profile coverage stays outside | no G0 Tail/Completion or production caller |
 | 17 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, derived carrier, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | caller-zero only; no G0-specific physicalizer |
 | 18 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
@@ -1032,9 +1034,9 @@ Callable has seven item rows and Generic G0 has fifteen, but parity compares
 neither counts nor source order. The full-demand P0, behavior-neutral module
 split, canonical physical block receipt, private ConstI64 leaf-emitter canary,
 bounded ReadBinding I0, and the caller-zero full callable physical canary are
-closed. G0 D0/I0 are accepted/closed. Top-down I1 review selected
-`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` as the active next row; it has Builder
-effect zero. Segment block cutover, recursive After, G0 physical parity,
+closed. G0 D0/I0 are accepted/closed. R1 is now closed with Builder effect
+zero; `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is the active next row. Segment
+block cutover, recursive After, G0 physical parity,
 production selection, M8/M9 coverage, and retirement remain separate gates.
 
 ### ReadBinding leaf D0 correction (2026-08-07; Decision: accepted and landed)
@@ -1237,10 +1239,9 @@ canonical Const/type-fact emission, typed pre-emission rejects, and
 whole-session discard/fresh-session repeat. Full operation emission,
 operation production activation, callable physical completion, production
 selection, retry/fallback retirement, and legacy deletion remain closed. The
-logical callable issuer S0 is closed without a production caller; the next
-row is the prepared-ingress design stop. The next operation kind must be
-opened by a separate design row; no single-item extraction API may be added to
-the full demand.
+logical callable issuer S0 is closed without a production caller. R1 is now
+closed by the receipt below; the next row is the bounded R2 segment/block
+cutover. No single-item extraction API may be added to the full demand.
 
 ### Callable physical-canary preparation slice (2026-08-07)
 
@@ -1295,3 +1296,28 @@ existing demand/producer tests retain duplicate/missing-evidence coverage.
 This remains Builder/MIR/physicalizer/selector/Retry/publication-free; later
 negative expansion must use typed sealed-product rejection, not tampering or
 reconstruction.
+
+### Recursive segment plan R1 closeout (2026-08-08)
+
+`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` is closed as a Builder-free derived
+product. `VerifiedLoopOperationPhysicalDemandV1::prepare_all` now traverses
+the verified recursive Recipe preorder instead of flattening logical blocks.
+`PreparedLoopPhysicalLayoutV1` consumes the complete prepared program and
+records only mechanically derived segments, operation placement, and nested
+After-to-parent-resume targets. It creates no `ValueId`, `BasicBlockId`, CFG,
+SSA, PHI, function session, selector, retry, fallback, or legacy authority.
+
+The exact fixtures are green:
+
+```text
+Callable: seven operation rows in Recipe preorder
+Generic G0: [0,1,2,3,5,6,7,8,9,10,11,12,13,14,15]
+Generic G0 segments: root B0, root B1-pre, child B2, child B3, root B1-resume
+coverage: 16 items / 15 operations / 5 segments
+```
+
+R2 may bind these private segments to canonical physical blocks. Until its
+closeout, physical block allocation/placement, recursive After emission, G0
+physical parity, production selection, retry/fallback retirement, and legacy
+deletion remain closed. The R2 task is
+`investigations/loop-common-segment-block-cutover-r2-task-2026-08-08.md`.

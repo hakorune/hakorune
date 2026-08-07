@@ -149,6 +149,21 @@ the sole Recipe-order/coverage owner. This is still Builder-free; physical
 session opening, ABI/Completion handoff, selector, Generic G0 parity, and
 legacy retirement remain later rows.
 
+## Recursive segment plan R1
+
+`PreparedLoopOperationProgramV1::prepare_physical_layout` is the closed R1
+Builder-free boundary. It consumes the complete Recipe-order program and
+derives `PreparedLoopPhysicalLayoutV1`; it never selects one operation or
+reinterprets source. The layout records exact item coverage, segment-local
+operation order, and nested child-entry -> parent-resume transfers. For the
+G0 counterexample, root B1 is split into pre-child and resume segments, so the
+derived order is `[0,1,2,3,5,6,7,8,9,10,11,12,13,14,15]` with five segments.
+
+R1 remains contract-only: no Builder/MIR IDs, CFG/SSA/PHI mutation, physical
+After writer, G0 emission, selector, retry/fallback, or legacy route is
+opened. R2 is the next segment-aware canonical block cutover and must update
+this README and `docs/reference/**` in the same implementation commit.
+
 The neutral `VerifiedLoopSemanticContextV1` and
 `VerifiedLoopContinuationContractV1` wrappers are transport-only. Callable and
 Generic G0 move existing resolver/JoinSig evidence into them exactly once; no
