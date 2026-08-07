@@ -24,9 +24,12 @@ retry/fallback, and legacy retirement remain closed. The bounded
 `CALLABLE-LOOP-DRAFT-SEAL-P0` canary now consumes the profile-close receipt
 through the existing typed finish terminal, then uses DraftSeal
 prepare/commit to produce one unpublished `CompletedFunctionDraftV1`; no
-collector or module publication is performed. The next boundary is the
-docs-only `CALLABLE-LOOP-PRODUCTION-EDGE-D0` census; no named production
-caller switch is open.
+collector or module publication is performed. The production-edge census and
+Admission D0 are both closed as `NoSafeSlice`: the production host is named,
+but the resolver/source/facts-to-AST-free callable Loop relation bridge is not
+yet a production issuer. The next boundary is the docs-only
+`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0`; no named production caller
+switch is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -683,12 +686,46 @@ PreparedLocatedRawLoopChildEntryV1::lower_with_existing_route_v1 ->
 lower_loop_or_freeze_v1`. Its current output is a legacy pending function
 session and `LegacyReplaceWholePair`, not `CompletedFunctionDraftV1`.
 
-Therefore `CALLABLE-LOOP-PRODUCTION-EDGE-D0` closes as `NoSafeSlice`. The next
-authorized row is the design-only
-`CALLABLE-LOOP-PRODUCTION-ADMISSION-D0`, which must name the production
-ingress and function-session/discard owner before any I0 switch. A by-name
-adapter, selector, retry, fallback, Generic G0 substitution, or legacy
-deletion is not authorized by this census.
+Therefore `CALLABLE-LOOP-PRODUCTION-EDGE-D0` closes as `NoSafeSlice`. The
+Admission D0 then confirmed that `NormalCallableSemanticLoanPortV1` is only a
+production host/outer orchestrator: `VerifiedNormalCallableSemanticSourceV1`
+and `VerifiedNormalCallableSemanticLoanV1` do not issue the required
+AST-free Loop Recipe/source-facts relation, and the current Recipe/source-map
+issuers remain `cfg(test)`-only. The next authorized row is the design-only
+`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0`, which owns that missing
+resolver/source/facts correspondence and must return typed `NoSafeSlice` when
+its evidence is incomplete. A by-name adapter, test-fixture promotion,
+selector, retry, fallback, Generic G0 substitution, or legacy deletion is not
+authorized by this census.
+
+### Production admission contract (design-only)
+
+The future production chain is fixed, but not implemented:
+
+```text
+NormalCallableSemanticLoanPortV1
+  -> production source/facts bridge
+  -> PreparedCallableLoopPhysicalizationV1
+  -> fresh CanonicalFunctionLoweringSessionV1
+  -> CanonicalSsaFunctionSessionV2 (Completion moves once)
+  -> Prelude / common Loop / After / Tail
+  -> finish_for_draft_seal
+  -> DraftSeal prepare/commit
+```
+
+The bridge may consume only resolver-backed source/facts/forest/projection and
+callable lineage products. It must not re-walk AST, recover names from route
+labels, infer Recipe keys from MIR, or remove `cfg(test)` from a fixture issuer.
+Its output is one move-only, owner/brand/frame-branded AST-free relation; it
+does not own ABI, Completion, physical IDs, CFG/SSA/PHI, DraftSeal, collector,
+or module publication. Until this bridge is accepted, the production ingress
+returns typed `NoSafeSlice` before opening a function session.
+
+The sole unpublished-function/discard owner remains
+`CanonicalFunctionLoweringSessionV1::discard_unpublished`. Adapter failure is
+pre-effect rejection; every later failure discards the whole unpublished
+function and restores the caller once. Phi rollback is auxiliary cleanup, and
+same-session repair/retry/fallback is forbidden.
 
 ## Typed rejection boundary
 

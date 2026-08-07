@@ -9,7 +9,6 @@ North star:
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
-
 # MirBuilder In-Place Replacement Workstream
 
 ## Goal
@@ -54,7 +53,8 @@ reviewed Decision B separates one complete move-only demand/preflight from the
 private leaf emitter and forbids extracting a single operation from the full
 product. `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` is now landed as a Builder-free full-demand receipt: neutral resolver context and After continuation move exactly once, Generic G0 Scope/Region comes from the window lease, and Callable/G0 `prepare_all` covers seven/fifteen rows. Block mapping, operation emission, physical/production activation, and retirement remain closed.
 Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical SSA receipt, exact placement, entry/no-extraction evidence). The first bounded `CALLABLE-LOOP-PHYSICAL-CANARY-P0` preparation slice is green: Prepared move handoff, complete Write projection, and explicit-block Const/Binary/Compare leaf bridges.
-Caller-zero Prelude, After, Tail/Completion, DraftSeal are closed. `CALLABLE-LOOP-PRODUCTION-EDGE-D0` is NoSafeSlice: callable products are cfg(test)-only and the raw/legacy host lacks receipts. Next is docs-only `CALLABLE-LOOP-PRODUCTION-ADMISSION-D0`; selection, Generic G0, retry/fallback, and legacy retirement remain closed.
+Caller-zero Prelude, After, Tail/Completion, DraftSeal are closed.
+`CALLABLE-LOOP-PRODUCTION-EDGE-D0`/`ADMISSION-D0` are `NoSafeSlice`: the host is named, but the production source/facts bridge and Prepared issuer are absent; current issuers remain cfg(test)-only. Next is docs-only `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0`; selection, Generic G0, retry/fallback, and legacy retirement remain closed.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
@@ -507,35 +507,36 @@ closed:
   LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
 
 current:
-  LOOP-RECIPE-OPERATION-EFFECT-CROSS-PROFILE-PARITY-S0
+  CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0
 
 Change:
-  compare the callable and Generic G0 adapters through the one neutral
-  operation/effect contract. Keep profile item sets, carrier/Tail/After
-  ownership, and source anchors distinct; keep this caller-zero and passive.
+  design the missing production bridge from resolver/source/facts authority
+  to one AST-free, owner/brand/frame-branded callable Loop relation. The
+  named `NormalCallableSemanticLoanPortV1` remains host/outer orchestration
+  only; no Prepared production issuer is claimed until this bridge exists.
 
 Contract:
-  no source/name/order guessing, copied or reverified Recipe truth, second
-  operation owner, profile relabel, operation MIR, production selector, retry,
-  fallback, Return, DraftSeal, publication, or legacy deletion.
+  consume only sealed resolver/source/facts/lineage products; no AST/name
+  re-walk, route-label inference, test-fixture promotion, second semantic
+  owner, physical ID, Builder/session effect, selector, retry, fallback,
+  Generic G0 substitution, Return, DraftSeal, publication, or legacy deletion.
+  Incomplete or foreign evidence returns typed `NoSafeSlice` before opening a
+  function session.
 
 Done:
-  Callable adapter S0 consumes the callable co-seal once, proves transient
-  operation views against Recipe items, derives exact placement/effect
-  evidence, and issues the neutral product without a second Core. Generic G0
-  S0 now issues all 15 explicit anchors before source facts are dropped,
-  including the child-entry carrier relation for item 3. The neutral product
-  accepts the profile ledger without a copied Core or effect catalog; no
-  production caller or operation MIR exists. Exact references, README,
-  CURRENT_STATE, and the task receipt were updated in the ledger commit;
-  source/check files remain below 800.
+  Admission D0 is closed as `NoSafeSlice`: the production host and sole
+  function discard owner are named, but no production Loop Recipe/source-map
+  issuer exists; current issuers remain cfg(test)-only. The next bridge row
+  must provide a total source-to-relation correspondence, owner/brand/frame
+  receipts, missing/duplicate/foreign rejects, and caller-zero evidence.
 
 Stop:
-  operation MIR, a new Recipe kind, profile
-  physicalizer, copied source truth, name/ordinal matching, source-fact drop
-  before ledger issuance, Return/DraftSeal/publication, selector, fallback,
-  retry, or legacy deletion in the Generic row. A failed focused gate returns
-  to the G0 source/evidence boundary; it does not open a workaround route.
+  Prepared production physicalization, physical Loop emission, I0 caller
+  switch, profile selector, fallback/retry, Generic G0 parity, collector or
+  module publication, and legacy deletion remain closed until the bridge is
+  accepted. Implementation later requires source README, `docs/reference/**`,
+  diagnostics, migration note, guards, and current pointers in the same
+  commit.
 ```
 ## Production invariants
 ```text
@@ -977,8 +978,7 @@ ordered after B-prime correction
   4. land the caller-zero operation canary, then Generic G0 physical/parity rows, and only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
-  7. R4 consumes the live fence registry above; every item must retire, reown,
-     or be explicitly retained before final conformance
+  7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance
 
 R4
   MIRBUILDER-R4-FINAL-CONFORMANCE0-C0 after all active rows above have exact

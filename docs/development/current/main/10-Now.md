@@ -119,7 +119,12 @@ Related:
   `NoSafeSlice`: the new callable physical products are cfg(test)-only, and
   the nearest production raw/legacy host lacks Prelude/Tail/ABI/Completion/
   DraftSeal receipts. The next authorized row is the docs-only
-  `CALLABLE-LOOP-PRODUCTION-ADMISSION-D0` design:
+  `CALLABLE-LOOP-PRODUCTION-ADMISSION-D0` is closed as `NoSafeSlice`: the
+  production host is named, but `VerifiedNormalCallableSemanticSourceV1` /
+  `LoanV1` do not issue a production AST-free Loop Recipe/source-facts
+  relation and the existing issuers remain `cfg(test)`-only. The next
+  authorized row is the docs-only
+  `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` design:
   (Prepared move handoff, complete Write projection, pure
   Const/Binary/Compare leaves, bounded five-family dispatch, full
   Recipe-order prepare, and typed value ledger) is green; exact per-row
@@ -132,7 +137,8 @@ Related:
   distinct Loop initializer are published through canonical identity into
   separate bindings. The complete
   Read/Const/Compare/Binary/Write operation matrix remains the target.
-  Production selection, named caller switch, carrier seeds, retry/fallback
+  Production source/facts bridge, Prepared production issuer, production
+  selection, named caller switch, carrier seeds, retry/fallback
   retirement, and legacy deletion remain closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
