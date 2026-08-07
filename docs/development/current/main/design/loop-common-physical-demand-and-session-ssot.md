@@ -32,8 +32,11 @@ source/facts issuer S0 and bounded logical issuer D0/S0 are now closed with
 bounded negatives, exact parity, and caller-zero/current receipt audit. The
 profile Recipe shape is production-owned while the old shape helper remains a
 test-only parity wrapper. The next boundary is the design-only
-`CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0`; no named production caller
-switch or physical implementation is open.
+`CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0` is accepted. The next bounded
+row is `CALLABLE-LOOP-PRODUCTION-SOURCE-LOAN-EXPANSION-S0`, which issues only
+the common exact source receipt; index/header remains an optional
+profile-specific companion. No named production caller switch or physical
+implementation is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -144,6 +147,7 @@ rediscover them from AST, source names, route labels, or existing MIR.
 | `ResolvedFunctionLoweringInputV1` is an existing exact read-only source/function/forest/header view | prepared outer product may retain it; common Loop demand must not receive it |
 | `NormalCallableSemanticLoanPortV1` currently forwards a raw body after consuming a loan, while `VerifiedNormalCallableSemanticLoanV1::into_parts()` retains only lineage + request-local lowering state | a source-loan expansion receipt must be issued before I0; AST re-walk, name lookup, and synthetic catalog/header pairing are `NoSafeSlice` |
 | `CompilationContext::callable_declaration_catalog()` is installed before normal lowering | the catalog is an existing borrowed authority, not an automatic source/forest pairing; owner/frame/scope/index/header identity must be checked once |
+| `loop_physical_prepare.rs::VerifiedCallableFunctionLoweringInputV1` is `cfg(test)` and static-header-profile-specific | it remains a canary witness; removing `cfg(test)` is not a production ingress design, and normal callables must not be forced through that header profile |
 | `VerifiedCallableSingleLoopSourceMapV1` carries source roles, BindingRefs, loop context, and resolved exit evidence only | current co-seal cannot issue ABI or Completion authority |
 | `PhiTxn::abort_on_err` sees only still-pending provisional PHIs | whole-session discard, not PHI rollback, owns atomicity |
 

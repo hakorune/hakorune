@@ -517,28 +517,25 @@ closed:
   LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
 
 current:
-  CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0
+  CALLABLE-LOOP-PRODUCTION-SOURCE-LOAN-EXPANSION-S0
 
 Change:
-  define one move-only prepared ingress plus one exact source-loan expansion
-  receipt; the normal callable loan remains host-only until it pairs ledger,
-  ResolvedFunctionLoweringInput, and callable index/header without AST re-walk
-  or a second owner.
+  issue one move-only exact source-loan receipt from existing owners; preserve
+  the raw host and keep index/header as optional profile companions.
 
 Contract:
-  consume only sealed resolver/source/facts/Recipe products; no AST/name
-  re-walk, second semantic owner, physical ID, Builder/session effect,
-  selector, retry, fallback, or legacy deletion. Missing/foreign receipts
-  return typed `NoSafeSlice` before a function session opens.
+  retain only resolver ledger + exact ResolvedFunctionLoweringInput and owner/
+  source/function/forest/projection identity; no AST/name re-walk, second
+  owner, physical ID, Builder/session effect, selector, retry, fallback, or
+  legacy deletion. Missing/foreign receipts return `NoSafeSlice`.
 
 Done:
-  Source/facts bridge and Logical Issuer D0/S0 are closed with resolver
-  ledger/navigation, typed rejects, exact source-role mapping, and existing
-  owner reuse. The audit records that the current loan drops forest/projection
-  in `into_parts()`, so no physical implementation is authorized yet.
+  Prepared-ingress D0 is accepted. The current loan's forest/projection loss
+  is the bounded S0 target; the static-header helper remains test-only and no
+  physical implementation is authorized.
 
 Stop:
-  Recipe/Prepared physicalization, physical Loop emission, I0 caller switch,
+  Prepared physicalization, physical Loop emission, I0 caller switch,
   profile selector, fallback/retry, Generic G0 parity, collector or module
   publication, and legacy deletion remain closed until logical issuer S0 and
   later Recipe admission are accepted. Implementation requires source README,

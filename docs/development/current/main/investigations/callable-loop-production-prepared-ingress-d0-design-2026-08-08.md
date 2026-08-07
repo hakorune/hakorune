@@ -1,7 +1,8 @@
 # Callable Loop Production Prepared Ingress D0
 
-Status: design stop opened after the accepted logical issuer S0
-(2026-08-08). No physical implementation is authorized by this card.
+Status: `accepted` design stop after the source-loan audit
+(2026-08-08). The next bounded row is source-loan expansion only; no
+Prepared physicalization or physical implementation is authorized by this card.
 
 ## Purpose
 
@@ -16,7 +17,7 @@ NormalCallableSemanticLoanPortV1
   -> existing-owner ingress receipt
        CallableSemanticSourceLedgerView
        ResolvedFunctionLoweringInputV1
-       VerifiedCallableIndexV1 / VerifiedCallableHeaderV1
+       optional profile-specific callable index/header
        owner / frame / scope brand
   -> source/facts logical issuer S0
   -> VerifiedCallableSingleLoopRecipeProductV1
@@ -29,10 +30,11 @@ The Prepared product may prove only execution compatibility; it must not
 re-own Recipe, JoinSig, After, Tail, ABI, Completion, or publication meaning.
 
 The ingress receipt is a transport view over those existing owners, not a new
-semantic owner. It must be issued once from the exact selected source loan and
-the already-installed callable catalog. It may retain shared borrows of the
-forest/projection/index/header only while the prepared request is alive; it may
-not copy AST, rebuild a forest, resolve by name, or synthesize a header.
+semantic owner. It must be issued once from the exact selected source loan.
+The installed callable catalog may be borrowed only by a profile that requires
+the optional index/header companion. The receipt may retain shared borrows of
+the forest/projection/index/header only while the prepared request is alive;
+it may not copy AST, rebuild a forest, resolve by name, or synthesize a header.
 
 ## Repository audit: implementation is not open yet
 
@@ -50,15 +52,17 @@ NormalCallableSemanticLoanPortV1
 the raw lineage and request-local `CallableSemanticLoweringState`; its forest,
 source projection, and exact function view are not retained there. The
 installed `CompilationContext` catalog is an existing authority and may be
-borrowed, but it is not an automatic pairing mechanism. Therefore the first
-implementation slice must add or expose one exact source-loan expansion
-receipt before any physicalizer code is enabled. Removing `cfg(test)` from the
-existing prepared types is not sufficient.
+borrowed only by a profile requiring that companion; it is not an automatic
+pairing mechanism. Therefore the first implementation slice must add or
+expose one exact source-loan expansion receipt before any physicalizer code is
+enabled. Removing `cfg(test)` from the existing prepared types is not
+sufficient.
 
-For the selected top-level callable, the adapter must also prove an exact
-catalog/index/header correspondence. If the selected source key cannot be
-paired without name/arity re-resolution or AST re-walk, the result is typed
-`NoSafeSlice` and the physical row remains parked.
+For a profile that requires an index/header companion, the adapter must prove
+an exact catalog/index/header correspondence. A common source receipt does
+not require that optional companion. If a requiring profile cannot pair it
+without name/arity re-resolution or AST re-walk, the result is typed
+`NoSafeSlice` and that profile remains parked.
 
 The bounded candidate is:
 
@@ -67,12 +71,22 @@ existing source loan + installed catalog
   -> one private move-only ingress receipt
        exact ledger view
        exact ResolvedFunctionLoweringInputV1
-       exact callable index/header (when the profile requires them)
+       optional exact callable index/header (only when the profile requires it)
        one owner/frame/scope identity
 ```
 
 This receipt is an adapter over existing source/facts/catalog owners. It is
 not a `CallablePlan`, universal semantic product, or second resolver.
+
+The existing `src/mir/compiler/loop_physical_prepare.rs` helper
+`VerifiedCallableFunctionLoweringInputV1` is `cfg(test)` and is coupled to the
+static fixture's `VerifiedCallableIndexV1`/`VerifiedCallableHeaderV1` profile.
+It is evidence for the canary's identity checks, not the production normal
+callable ingress authority. The first production receipt must therefore not
+be obtained by simply removing `cfg(test)` or by forcing every normal callable
+through a static-call header. The exact resolved function input is the common
+source receipt; index/header or target ABI receipts are added only at the
+profile boundary that actually requires them.
 
 ## Receipts to fix before implementation
 
@@ -119,9 +133,9 @@ moves to an implementation row.
 
 ```text
 1. source-loan expansion receipt
-   expose the exact ledger view, source/function input, and callable
-   index/header from existing owners; prove owner/frame/scope identity;
-   preserve the raw host path unchanged.
+   expose the exact ledger view and source/function input from existing
+   owners; prove owner/frame/scope identity. Add index/header only as an
+   optional companion for a profile that requires it; preserve the raw host.
 
 2. prepared ingress assembler
    consume the existing logical product and disjoint Prelude/Tail/ABI/
@@ -147,7 +161,9 @@ moves to an implementation row.
 ```text
 one ingress owner and one receipt table
 current host limitation and missing source-loan expansion are explicit
-exact source/forest/projection/catalog identity is proven before I0
+exact source/forest/projection identity is proven before I0
+optional index/header identity is proven only for a requiring profile
+test-only static-header helper is not promoted as the normal host ingress
 logical product is consumed exactly once
 common physicalizer boundary remains profile-blind
 fresh-session/discard owner is explicit
