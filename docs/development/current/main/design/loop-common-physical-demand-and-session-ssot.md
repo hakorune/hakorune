@@ -727,6 +727,41 @@ arithmetic have been physically emitted. Those operations need an AST-free,
 item-keyed source/effect projection so repeated ordinals in nested loops
 cannot be guessed or matched by name.
 
+### Operation/effect design boundary
+
+The next design row is deliberately a relation product, not a new operation
+owner:
+
+```text
+Recipe:
+  sole logical owner of LoopItemKey -> LoopOperationV1 and operand values
+
+profile source adapter:
+  sole issuer of exact source anchor / BindingRef evidence
+
+VerifiedLoopOperationEffectProductV1:
+  move-only { co-sealed Core, item-keyed source evidence ledger }
+  evidence row = item + exact anchor + optional Core BindingRef view
+               + checked block/loop provenance
+  no copied LoopOperationV1, no ordinal lookup, no second Recipe
+```
+
+The existing `VerifiedLoopBindingEffectRelationV1` remains a separate
+binding-level read/write/carrier product. The callable test producer's
+item/site/operation relation is evidence for the adapter, not the common
+authority. Generic G0 must retain or issue its item-keyed source evidence at
+the producer boundary before structural source facts are consumed; it may
+not reconstruct anchors from source preorder after Core issuance.
+
+`DerivedCarrierEntry` remains outside the operation/effect rows
+because it has no `LoopRecipeItemV1::Operation` row; if a profile needs its
+anchor as an input witness, it remains explicitly typed as a carrier witness.
+Duplicate item keys, foreign or missing anchors, wrong block/loop membership,
+and repeated-ordinal ambiguity are typed `NoSafeSlice`. No operation MIR is
+opened by this design row. The product must be issued before the P0
+topology-only `into_physical_boundary` path, which intentionally drops source
+anchors; P0 cannot be reused as the operation-D0 source.
+
 `LOOP-PHYSICAL-PREPARE-P0`, the static-call fixture/profile, and
 `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed caller-zero prerequisites. The
 current design-only row is
