@@ -3,10 +3,10 @@ Status: SSOT
 Date: 2026-08-07
 Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
-P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, and the common-boundary design stop
-are closed; the current execution row is the caller-zero
-`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` prerequisite; physical Loop activation
-remains 0
+P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop, and
+caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed; the next execution
+row is the bounded `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` prerequisite;
+physical Loop activation remains 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md

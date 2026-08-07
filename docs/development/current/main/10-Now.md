@@ -86,8 +86,9 @@ Related:
   foreign compilation brands reject before a map product, and the static
   fixture derives a declaration-backed Prepared ABI. The common physicalizer
   design stop is closed with a resolver-backed variable-only i64 Prelude
-  argument receipt contract. The current execution row is
-  `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`; physical lowering remains closed.
+  argument receipt contract. The caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`
+  is closed; the current execution row is
+  `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`; physical lowering remains closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

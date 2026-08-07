@@ -59,8 +59,26 @@ The prepare entry derives the caller result ABI from the completion
 declaration and exact callable header, derives the callee result ABI from the
 resolver-issued target header, and seals one `PreparedCallableLoopPhysicalizationV1`
 for the `FreeStatic` fixture. The old externally supplied ABI argument is gone;
-the MethodCall remains a typed `MissingPreludeTarget` negative. The next stop
-is design-only common physicalizer/session review.
+the MethodCall remains a typed `MissingPreludeTarget` negative. The common
+physicalizer/session design stop is now closed; its Prelude argument receipt
+prerequisite is recorded below.
+
+## Callable Prelude argument receipt P0 (caller-zero)
+
+`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` is closed as a pre-effect source-to-boundary
+receipt. `callable_single_loop_prelude_arguments.rs` issues one move-only,
+AST-free `VerifiedCallablePreludeArgumentListV1` from the resolver-backed
+`FreeStatic` call site. The first profile admits only direct local parameter
+variables with exact `i64` representation; literals, nested expressions,
+upvars, foreign bindings, arity mismatches, and unsupported ABI shapes remain
+typed `NoSafeSlice` dispositions. The prepared Prelude owns the list exactly
+once and exposes it only to the future outer materializer; the common Loop
+physicalizer will receive only the resulting private entry receipt.
+
+The focused prepare suite checks ordinal, binding owner, and ABI. This row does
+not reread AST by name, open Builder/MIR/physical lowering, or add a selector,
+retry, fallback, or production caller. The next bounded row is
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`.
 
 ## Generic G0 S0A source projector
 

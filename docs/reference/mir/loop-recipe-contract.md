@@ -208,6 +208,28 @@ claim. G0 must reuse the same terminal compatibility relation later, and the
 physical selector remains closed until the common physicalization and parity
 rows are complete.
 
+## Callable Prelude argument receipt P0 (2026-08-07)
+
+Decision: accepted as caller-zero pre-effect evidence.
+
+The callable Prelude boundary now owns one move-only,
+AST-free `VerifiedCallablePreludeArgumentListV1`. Its rows preserve the exact
+argument ordinal, source site, resolver-issued `BindingRefV1`, and the first
+profile's exact `i64` representation. The issuer accepts only direct local
+parameter variables in the genuine resolver-backed `FreeStatic` fixture.
+Literals, nested expressions, upvars, foreign bindings, arity mismatches, and
+unsupported ABI shapes remain typed `NoSafeSlice` outcomes; no name lookup or
+arity-only reconstruction is permitted.
+
+The prepared Prelude owns and transfers this list exactly once. The future
+outer materializer may consume it to install canonical session entry bindings
+and issue a private `ReadyLoopEntryV1`; the common recursive physicalizer never
+receives the argument list, AST, Tail, ABI, Completion, or source input view.
+The focused prepare suite verifies the positive ordinal, owner, and ABI
+receipt. No Builder/MIR effect, selector, retry, fallback, or production
+selection is opened by this row. The next bounded row is
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`.
+
 ## Callable source-shape split receipt (2026-08-07)
 
 `CALLABLE-SOURCE-SHAPE-THIN0` is closed as a behavior-neutral BoxShape slice.

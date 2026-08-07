@@ -22,6 +22,9 @@ use super::callable_single_loop_recipe_coseal::{
     VerifiedCallablePreludeV1, VerifiedCallableSingleLoopRecipeProductV1, VerifiedCallableTailV1,
     VerifiedLoopRecipeCoSealV1,
 };
+use super::callable_single_loop_prelude_arguments::{
+    PreludeArgumentRejectV1, VerifiedCallablePreludeArgumentListV1,
+};
 use super::callable_single_loop_source_shapes::SourceReceiverShapeV1;
 use super::function_input::ResolvedFunctionLoweringInputV1;
 
@@ -47,6 +50,7 @@ pub(crate) enum LoopPhysicalPrepareRejectReasonV1 {
     TerminalAbiMismatch,
     DeclaredResultAbiUnsupported,
     DeclaredResultAbiMismatch,
+    PreludeArgument(PreludeArgumentRejectV1),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -148,7 +152,7 @@ impl VerifiedLoopPhysicalDemandV1 {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedCallablePreludeCapabilityV1 {
     owner: FunctionOwnerIdV1,
     site: crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -157,6 +161,7 @@ pub(crate) struct VerifiedCallablePreludeCapabilityV1 {
     receiver: SourceReceiverShapeV1,
     arity: u32,
     result_abi: ExactTrivialReturnAbiV1,
+    arguments: VerifiedCallablePreludeArgumentListV1,
 }
 
 impl VerifiedCallablePreludeCapabilityV1 {
@@ -193,6 +198,12 @@ impl VerifiedCallablePreludeCapabilityV1 {
                 .ok_or_else(|| {
                     no_safe_slice(LoopPhysicalPrepareRejectReasonV1::PreludeResultAbiUnsupported)
                 })?;
+        let arguments =
+            VerifiedCallablePreludeArgumentListV1::issue(branded.input(), prelude, header).map_err(
+                |reason| {
+                    no_safe_slice(LoopPhysicalPrepareRejectReasonV1::PreludeArgument(reason))
+                },
+            )?;
         Ok(Self {
             owner: prelude.owner(),
             site: prelude.site().clone(),
@@ -201,6 +212,7 @@ impl VerifiedCallablePreludeCapabilityV1 {
             receiver: prelude.call().receiver(),
             arity: prelude.call().argument_count(),
             result_abi,
+            arguments,
         })
     }
 
@@ -226,6 +238,10 @@ impl VerifiedCallablePreludeCapabilityV1 {
 
     pub(crate) const fn result_abi(&self) -> ExactTrivialReturnAbiV1 {
         self.result_abi
+    }
+
+    pub(crate) fn arguments(&self) -> &VerifiedCallablePreludeArgumentListV1 {
+        &self.arguments
     }
 
     #[allow(dead_code)]
@@ -468,7 +484,8 @@ mod tests {
     use crate::mir::resolved_control_flow::verify_function_completion_v1;
     use crate::mir::resolved_semantics::{
         CallableCatalogSealOutcomeV1, CallableSemanticSourceLedgerView, CanonicalCallableKeyV1,
-        VerifiedCallableHeaderSourceUnitV1, VerifiedOwnerFreeCallableCatalogSourceUnitV1,
+        ExprChildRoleV1, OwnedExprSiteV1, VerifiedCallableHeaderSourceUnitV1,
+        VerifiedOwnerFreeCallableCatalogSourceUnitV1,
     };
 
     fn variable(name: &str) -> ASTNode {
@@ -733,6 +750,18 @@ mod tests {
             prepared.prelude().result_abi(),
             ExactTrivialReturnAbiV1::I64
         );
+        let arguments = prepared.prelude().arguments().rows();
+        assert_eq!(arguments.len(), 1);
+        assert_eq!(arguments[0].ordinal(), 0);
+        assert_eq!(arguments[0].abi(), ExactTrivialReturnAbiV1::I64);
+        assert_eq!(arguments[0].binding().owner(), input.owner());
+        let call_site = OwnedExprSiteV1::new(input.owner(), prepared.prelude().site().clone());
+        let call = input.source().expr_at(&call_site).expect("prepared call site");
+        let argument = input
+            .source()
+            .child_expr_from_expr(&call, ExprChildRoleV1::CallArgument(0))
+            .expect("prepared argument site");
+        assert_eq!(arguments[0].site(), argument.site());
         assert_eq!(prepared.terminal().abi(), ExactTrivialReturnAbiV1::I64);
         assert_eq!(
             prepared

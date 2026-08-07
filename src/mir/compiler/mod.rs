@@ -18,7 +18,7 @@ pub(in crate::mir) mod acyclic_callable_module_plan;
 pub(in crate::mir) mod callable_graph_inventory;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_scc_partition;
-#[cfg(test)] pub(crate) mod callable_single_loop_syntax_facts; #[cfg(test)] pub(crate) mod callable_single_loop_source_shapes; #[cfg(test)] pub(crate) mod callable_single_loop_source_map; #[cfg(test)] pub(crate) mod callable_single_loop_recipe_coseal; #[cfg(test)] #[path = "callable_single_loop_recipe_coseal_tests.rs"] mod callable_single_loop_recipe_coseal_tests; #[cfg(test)] #[path = "callable_single_loop_static_fixture_tests.rs"] mod callable_single_loop_static_fixture_tests;
+#[cfg(test)] pub(crate) mod callable_single_loop_syntax_facts; #[cfg(test)] pub(crate) mod callable_single_loop_source_shapes; #[cfg(test)] pub(crate) mod callable_single_loop_source_map; #[cfg(test)] pub(crate) mod callable_single_loop_recipe_coseal; #[cfg(test)] pub(crate) mod callable_single_loop_prelude_arguments; #[cfg(test)] #[path = "callable_single_loop_recipe_coseal_tests.rs"] mod callable_single_loop_recipe_coseal_tests; #[cfg(test)] #[path = "callable_single_loop_static_fixture_tests.rs"] mod callable_single_loop_static_fixture_tests;
 #[allow(dead_code)]
 pub(crate) mod canonical_core_dispatch;
 #[allow(dead_code)]
