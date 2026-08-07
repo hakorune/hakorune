@@ -32,11 +32,12 @@ source/facts issuer S0 and bounded logical issuer D0/S0 are now closed with
 bounded negatives, exact parity, and caller-zero/current receipt audit. The
 profile Recipe shape is production-owned while the old shape helper remains a
 test-only parity wrapper. The next boundary is the design-only
-`CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0` is accepted. The next bounded
-row is `CALLABLE-LOOP-PRODUCTION-SOURCE-LOAN-EXPANSION-S0`, which issues only
-the common exact source receipt; index/header remains an optional
-profile-specific companion. No named production caller switch or physical
-implementation is open.
+`CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0` is accepted and its S1/S2
+caller-zero products are closed. The active design stop is
+`LOOP-CALLER-ZERO-PARITY-G0-D0`, which must freeze exact resolver-issued G0
+source/input/entry capability, the distinct `L0.After/b1` After/Tail boundary,
+and the common physicalizer contract before any G0 implementation opens. No
+named production caller switch or physical implementation is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -815,9 +816,9 @@ skip the After closure or reopen a Tail-only route.
 | 5 | `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` | resolver-issued variable-only i64 argument rows -> one move-only Prelude product | caller-zero; no Builder physicalizer or selector |
 | 6 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | closed test-only inner demand + `ReadyLoopEntryV1` + borrowed V2 services -> topology/After continuation | no production caller; operation MIR remains `NoSafeSlice` |
 | 7 | `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` | one neutral `LoopItemKey` + exact source-anchor effect projection before operation emission | closed preparation; no production caller |
-| 8 | `CALLABLE-LOOP-AFTER-CLOSURE-P0` | complete fixed callable operation schedule, issue CFG edges, seal CFG/identity, and mint one `ReadyLoopAfterContinuationV1` | open After is not Tail-readable; no Tail/Completion/DraftSeal |
-| 9 | `CALLABLE-LOOP-TAIL-COMPLETION-P0` | consume sealed After, read exact Tail binding, `mark_return`, and claim completion once | no DraftSeal, selector, retry, or fallback |
-| 10 | `CALLABLE-LOOP-DRAFT-SEAL-P0` | consume profile close, call only `finish_for_draft_seal`, then DraftSeal prepare/commit | caller-zero only; production selection and legacy deletion remain closed |
+| 8 | `CALLABLE-LOOP-AFTER-CLOSURE-P0` | complete fixed callable operation schedule, issue CFG edges, seal CFG/identity, and mint one `ReadyLoopAfterContinuationV1` | closed caller-zero; no production selection |
+| 9 | `CALLABLE-LOOP-TAIL-COMPLETION-P0` | consume sealed After, read exact Tail binding, `mark_return`, and claim completion once | closed caller-zero; no selector, retry, or fallback |
+| 10 | `CALLABLE-LOOP-DRAFT-SEAL-P0` | consume profile close, call only `finish_for_draft_seal`, then DraftSeal prepare/commit | closed caller-zero; production selection and legacy deletion remain closed |
 | 11 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
 | 12 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
 | 13 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
@@ -1000,10 +1001,10 @@ cross-profile parity receipt and reviewed Decision-B closeout are closed.
 Callable has seven item rows and Generic G0 has fifteen, but parity compares
 neither counts nor source order. The full-demand P0, behavior-neutral module
 split, canonical physical block receipt, private ConstI64 leaf-emitter canary,
-and bounded ReadBinding I0 are closed. The current row is
-`CALLABLE-LOOP-PHYSICAL-CANARY-P0`: it is the first caller-zero full callable
-integration and claims no production selection, Generic G0 parity, M8/M9
-coverage, or retirement.
+bounded ReadBinding I0, and the caller-zero full callable physical canary are
+closed. The next authorized row is `LOOP-CALLER-ZERO-PARITY-G0`; production
+selection, Generic G0 parity, M8/M9 coverage, and retirement remain separate
+gates.
 
 ### ReadBinding leaf D0 correction (2026-08-07; Decision: accepted and landed)
 
@@ -1228,9 +1229,21 @@ Read/Const/Compare/Binary/Write leaf services with an opaque typed value
 ledger. The physical operation boundary now issues one exact
 logical-to-physical target receipt per row, validates all target blocks before
 the first leaf effect, and separates target/pre-claim physical failure from
-semantic preflight. The next mechanical boundary is
-canonical continuation closure (`CALLABLE-LOOP-AFTER-CLOSURE-P0`). Tail-to-ValueId
-is blocked until a sealed After receipt exists; after that, completion claim and
-fresh session/DraftSeal integration proceed as separate slices. Until those are landed, full callable physicalization,
-production selection, Generic G0 parity, retry/fallback retirement, and
-legacy deletion stay closed.
+semantic preflight. The caller-zero full physical canary is now closed:
+the exact resolved-module input/ledger enters S2 once, then reaches Prelude,
+topology, all five operation families, sealed After, Tail/Completion,
+`finish_for_draft_seal`, and DraftSeal prepare/commit. Its late-failure test
+discards the whole unpublished function and reruns the same semantic fixture
+in a fresh session. Production selection, Generic G0 parity, retry/fallback
+retirement, module publication, and legacy deletion stay closed.
+
+### Callable full physical canary closeout (2026-08-08)
+
+`CALLABLE-LOOP-PHYSICAL-CANARY-P0` is a caller-zero-only integration receipt.
+The test-only source bridge borrows the exact existing resolver ledger from
+`ResolvedFunctionLoweringInputV1`; it does not resolve a second owner or clone
+the source AST. The complete seven-row Recipe schedule is consumed once and
+the existing owners remain sole authorities for CFG/SSA/PHI, completion,
+DraftSeal, and unpublished-function discard. The focused positive and late
+duplicate/discard/fresh-reuse tests are green; the next authorized row is
+`LOOP-CALLER-ZERO-PARITY-G0`.

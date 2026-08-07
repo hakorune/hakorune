@@ -21,6 +21,8 @@ mod tail_completion;
 mod read_emitter_tests;
 #[cfg(test)]
 mod callable_canary;
+#[cfg(test)]
+mod callable_production_canary_tests;
 mod tests;
 mod topology;
 

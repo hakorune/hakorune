@@ -757,6 +757,25 @@ This receipt creates no `ValueId`, `BasicBlockId`, CFG/SSA/PHI state, function
 session, ABI/Completion claim, selector, retry, fallback, publication, or
 legacy behavior. There is no first/select/filter operation extraction API, and
 the existing test wrapper remains `cfg(test)`; production exposes only the
-one-shot adapter parts required by the assembler. The next bounded row is the
-caller-zero full physical canary, which must prove fresh-session discard and
-reuse before any production switch.
+one-shot adapter parts required by the assembler. The caller-zero full
+physical canary was the next bounded row and is now closed by the receipt
+below; fresh-session discard and reuse remain required before any production
+switch.
+
+## Callable full physical canary closeout (2026-08-08)
+
+`CALLABLE-LOOP-PHYSICAL-CANARY-P0` is closed as caller-zero evidence. The
+test-only bridge starts from the exact resolved callable-module input and its
+existing resolver ledger, then consumes the S2 full-demand product exactly
+once. The complete seven-row Recipe-order schedule reaches the existing
+Prelude/`ReadyLoopEntryV1`, canonical topology and block receipts, the common
+Read/Const/Compare/Binary/Write dispatcher, a sealed Loop After continuation,
+the distinct callable Tail/Completion handoff, `finish_for_draft_seal`, and
+DraftSeal prepare/commit.
+
+The failure witness pre-seeds the Recipe-derived Compare result key, emits
+earlier rows, observes typed `ValueAlreadyPublished`, discards the complete
+unpublished function, and reruns the same semantic fixture in a fresh
+session. The bridge adds no resolver owner, AST clone, selector, retry,
+fallback, Generic G0 parity, module publication, or legacy authority. The
+next authorized design stop is `LOOP-CALLER-ZERO-PARITY-G0`.

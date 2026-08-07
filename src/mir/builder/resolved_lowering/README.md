@@ -125,10 +125,11 @@ terminal block, and After predecessor. The later finish step must consume it
 through a non-no-op `finish_profile_close` closure. The bounded DraftSeal
 canary consumes that evidence through the typed finish terminal and existing
 DraftSeal prepare/commit, producing one `CompletedFunctionDraftV1` without
-collector/module publication. The common physicalizer still stops before
-Tail, ABI, Completion, Return, and DraftSeal; the outer callable canary owns
-that handoff. Production selection and legacy retirement remain later bounded
-work.
+collector/module publication. The common physicalizer deliberately stops
+before Tail, ABI, Completion, Return, and DraftSeal; the caller-zero profile
+adapter owns that handoff. This separation is now exercised end-to-end by the
+closeout receipt below. Production selection and legacy retirement remain
+later bounded work.
 
 The bounded `CALLABLE-LOOP-AFTER-CLOSURE-P0` slice is now landed as a
 caller-zero continuation proof. It uses the real Prelude receipt, emits the
@@ -139,6 +140,24 @@ the verified Recipe value class; concrete or missing type facts reject as
 `ResultTypeMismatch`. The success canary commits the draft and restores the
 caller; rejection paths continue to discard the unpublished session.
 Production selection, retry, and legacy deletion remain closed.
+
+### Callable full physical canary closeout (2026-08-08)
+
+`CALLABLE-LOOP-PHYSICAL-CANARY-P0` is now closed as caller-zero evidence. The
+test-only bridge starts from the exact resolved-module input and its existing
+resolver ledger, so S2 full-demand preparation, Prelude, topology, all five
+operation families, sealed After, Tail/Completion, the sole
+`finish_for_draft_seal` terminal, and DraftSeal prepare/commit all use one
+owner-branded request. It does not re-resolve, clone source, or create a
+second CFG/SSA/PHI owner.
+
+The late-failure canary seeds a Recipe-derived Compare result key, observes a
+typed duplicate after earlier emission, discards the complete unpublished
+function, and reruns the same semantic fixture in a fresh session. The
+focused P0 tests are green and the canary file remains below 800 lines. This
+does not activate a production caller, Generic G0 parity, selector, module
+collector, retry/fallback, or legacy retirement; the next authorized design
+stop is `LOOP-CALLER-ZERO-PARITY-G0`.
 
 ## Full operation demand P0
 

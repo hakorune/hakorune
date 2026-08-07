@@ -1515,6 +1515,22 @@ The profile wrapper retains only source/input/Prelude/Tail transport. The
 common program remains the sole owner of operation/effect coverage, semantic
 context, and Loop continuation. No Builder/MIR/physical identity,
 ABI/Completion, selector, Generic G0 parity, retry/fallback, publication, or
-legacy behavior is opened. The next bounded row is the caller-zero full
-physical canary; it must prove fresh-session discard/reuse before production
-selection.
+legacy behavior is opened. The caller-zero full physical canary was the next
+bounded row and is now closed by the receipt below; fresh-session
+discard/reuse remain required before production selection.
+
+## Callable full physical canary closeout (2026-08-08)
+
+`CALLABLE-LOOP-PHYSICAL-CANARY-P0` is closed as a cfg(test)-only,
+caller-zero integration receipt. The exact resolved-module input and existing
+resolver ledger feed the S2 full-demand product once; the complete seven-row
+Recipe schedule then passes through Prelude, topology, all five operation
+families, sealed After, callable Tail/Completion, `finish_for_draft_seal`,
+and DraftSeal prepare/commit. A late duplicate result is discarded at the
+whole unpublished-function boundary and the same semantic fixture succeeds in
+a fresh session.
+
+This is not Generic G0 parity, family selection, production activation,
+module publication, retry/fallback retirement, or legacy deletion. The next
+authorized design stop is `LOOP-CALLER-ZERO-PARITY-G0`, which must use the same
+common inner physicalizer while keeping the G0 Tail contract distinct.

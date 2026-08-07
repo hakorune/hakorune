@@ -81,7 +81,7 @@ pub(in crate::mir::builder) enum PreparedCallableLoopIngressRejectV1 {
     LogicalScopeRegionMismatch,
 }
 
-impl VerifiedNormalCallableSourceIngressReceiptV1<'_> {
+impl<'source> VerifiedNormalCallableSourceIngressReceiptV1<'source> {
     pub(in crate::mir::builder) const fn input(&self) -> ResolvedFunctionLoweringInputV1<'_> {
         self.input
     }
@@ -92,6 +92,20 @@ impl VerifiedNormalCallableSourceIngressReceiptV1<'_> {
 
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.input.owner()
+    }
+
+    /// Test-only bridge for an already resolved callable-module input.  The
+    /// physical canary must use the exact input/index/header owner pair; this
+    /// helper does not resolve source or issue a second semantic owner.
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn from_resolved_input_for_test(
+        input: ResolvedFunctionLoweringInputV1<'source>,
+    ) -> Result<Self, String> {
+        let ledger = input
+            .forest()
+            .callable_source_ledger(input.owner())
+            .map_err(|error| format!("callable source ledger: {error:?}"))?;
+        Ok(Self { input, ledger })
     }
 }
 
@@ -321,6 +335,14 @@ impl<'source> PreparedCallableLoopIngressV1<'source> {
         VerifiedCallableSingleLoopRecipeProductV1,
     ) {
         (self.source, self.logical)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn from_source_for_test(
+        source: VerifiedNormalCallableSourceIngressReceiptV1<'source>,
+        logical: VerifiedCallableSingleLoopRecipeProductV1,
+    ) -> Self {
+        Self { source, logical }
     }
 }
 

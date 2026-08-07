@@ -1,18 +1,17 @@
 # CALLABLE-LOOP-PHYSICAL-CANARY-P0
 
-Status: `Target/failure-phase slice landed; full callable canary still open; caller-zero only`
-Date: `2026-08-07`
+Status: `Closed as caller-zero canary; production selection remains closed`
+Date: `2026-08-08`
 Parent: `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
 North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
 
 ## Decision
 
-The bounded ConstI64 S0 and ReadBinding I0 leaves are landed. The current
-operation boundary now also has an exact per-row target receipt and a
-phase-separated `emit_all` path. The remaining implementation is the first
-full callable physicalization canary. Its immediate prerequisite is a sealed
-Loop After continuation; the current open After receipt cannot be read by
-Tail:
+The bounded ConstI64 S0 and ReadBinding I0 leaves are landed. The operation
+boundary also has an exact per-row target receipt and a phase-separated
+`emit_all` path. The first full callable physicalization canary is now closed.
+Its sealed Loop After continuation, callable Tail, Completion, and DraftSeal
+handoff are recorded in the closeout receipt below:
 
 ```text
 PreparedCallableLoopPhysicalizationV1
@@ -28,26 +27,48 @@ PreparedCallableLoopPhysicalizationV1
 This row is a caller-zero integration proof. It does not select a production
 caller, change the selector, publish a module, or retire a legacy route.
 
-Before full physical emission, the row must close four mechanical API gaps
-without adding a semantic owner: a consuming Prepared-product handoff, an
-exact Prelude materialization receipt, one common five-family operation
-dispatcher, and an exact Tail-to-ValueId handoff. The bounded preparation
-slice is landed: the consuming Prepared handoff, complete WriteBinding
-projection, typed Const/Binary/Compare leaf bridges, private row-level
-five-family dispatch, full Recipe-order Builder-free prepare, an opaque typed
-value ledger, exact logical-to-physical target receipts, and distinct
-pre-effect/post-claim failure types compile and have focused evidence. The
-exact Prelude adapter is also landed as caller-zero evidence: resolver-issued
-parameter/argument bindings are read through canonical identity, the external
-Prelude result is emitted through the resolver-backed static-call helper, and
-the Loop input initializer is materialized from its exact source site and
-published separately. The Prelude result binding and the Loop input binding
-are intentionally distinct; neither is inferred from the other. Tail,
-Completion, and DraftSeal adapters remain part of this row;
-they must not infer names, re-resolve source, clone Completion, or create a
-second CFG/SSA/PHI owner. If an adapter cannot be expressed against the
-existing canonical owners, stop and record a design correction before adding
-physical code.
+## Closeout receipt (2026-08-08)
+
+The full caller-zero canary is now green. The new test-only harness consumes
+the exact resolved-module input/index/header and constructs the S2 source
+receipt from that same owner-branded forest/ledger; it does not run a second
+resolver or compare unrelated owner identities. The S2 full-demand product is
+then consumed once through:
+
+```text
+exact input/ledger
+ -> S2 full demand (seven Recipe-order rows)
+ -> Prelude/ReadyLoopEntry
+ -> topology/block receipts
+ -> Read/Const/Compare/Binary/Write dispatch
+ -> sealed Loop After
+ -> callable Tail + Completion
+ -> finish_for_draft_seal
+ -> DraftSeal prepare/commit
+```
+
+The negative canary seeds one resolver-derived Compare result key, observes the
+typed `ValueAlreadyPublished` after earlier instructions have emitted, calls
+`discard_unpublished`, and verifies that a fresh request reruns the same
+semantic fixture successfully. The positive and negative paths both keep the
+caller-zero boundary; no production caller, selector, retry, fallback, module
+collector publication, Generic G0 parity, or legacy deletion is opened.
+
+Focused evidence: the two P0 tests pass, the canary source is 457 lines, and
+the existing physicalizer suite remains green. The test-only
+`from_resolved_input_for_test` bridge is transport only: it borrows the exact
+existing resolver ledger and creates no semantic owner.
+
+The four mechanical gaps are now closed without adding a semantic owner: a
+consuming Prepared-product handoff, an exact Prelude materialization receipt,
+one common five-family operation dispatcher, and an exact Tail-to-ValueId
+handoff. The exact Prelude adapter consumes resolver-issued parameter/argument
+bindings through canonical identity, and the Loop input initializer is
+materialized from its exact source site. Tail, Completion, and DraftSeal use
+the same owner-branded request; they do not infer names, re-resolve source,
+clone Completion, or create a second CFG/SSA/PHI owner. Future G0 parity must
+use its own exact source/input capability and distinct After/Tail contract;
+that is the next design stop, not part of this row.
 
 ## Sole claim
 
