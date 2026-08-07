@@ -52,9 +52,12 @@ adapter S0, Generic G0 anchor S0, and cross-profile parity S0 are closed. The
 reviewed Decision B separates one complete move-only demand/preflight from the
 private leaf emitter and forbids extracting a single operation from the full
 product. `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` is now landed as a Builder-free full-demand receipt: neutral resolver context and After continuation move exactly once, Generic G0 Scope/Region comes from the window lease, and Callable/G0 `prepare_all` covers seven/fifteen rows. Block mapping, operation emission, physical/production activation, and retirement remain closed.
-Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical SSA receipt, exact placement, entry/no-extraction evidence). The first bounded `CALLABLE-LOOP-PHYSICAL-CANARY-P0` preparation slice is green: Prepared move handoff, complete Write projection, and explicit-block Const/Binary/Compare leaf bridges.
-Caller-zero Prelude, After, Tail/Completion, DraftSeal are closed.
-`CALLABLE-LOOP-PRODUCTION-EDGE-D0`/`ADMISSION-D0` are `NoSafeSlice`: the host is named, but the production source/facts bridge and Prepared issuer are absent; current issuers remain cfg(test)-only. Next is docs-only `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0`; selection, Generic G0, retry/fallback, and legacy retirement remain closed.
+Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical SSA receipt, exact placement, entry/no-extraction evidence). The first bounded `CALLABLE-LOOP-PHYSICAL-CANARY-P0` preparation slice is green: Prepared move handoff, complete Write projection, and explicit-block Const/Binary/Compare leaf bridges. Caller-zero Prelude, After, Tail/Completion, DraftSeal are closed.
+`CALLABLE-LOOP-PRODUCTION-EDGE-D0`/`ADMISSION-D0` are `NoSafeSlice`. The
+`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` design is accepted without a
+new Bridge owner: resolver ledger plus neutral SyntaxFacts/SourceMap are the
+target. Next is `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`;
+Recipe/Prepared issuance, selection, Generic G0, retry/fallback, and legacy retirement remain closed.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
@@ -507,36 +510,33 @@ closed:
   LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
 
 current:
-  CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0
+  CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0
 
 Change:
-  design the missing production bridge from resolver/source/facts authority
-  to one AST-free, owner/brand/frame-branded callable Loop relation. The
-  named `NormalCallableSemanticLoanPortV1` remains host/outer orchestration
-  only; no Prepared production issuer is claimed until this bridge exists.
+  split the neutral SyntaxFacts/source-shape/SourceMap issuers from test
+  fixtures, using the resolver ledger and exact source navigation. The named
+  `NormalCallableSemanticLoanPortV1` remains host/outer orchestration only.
 
 Contract:
   consume only sealed resolver/source/facts/lineage products; no AST/name
   re-walk, route-label inference, test-fixture promotion, second semantic
   owner, physical ID, Builder/session effect, selector, retry, fallback,
-  Generic G0 substitution, Return, DraftSeal, publication, or legacy deletion.
-  Incomplete or foreign evidence returns typed `NoSafeSlice` before opening a
-  function session.
+  Recipe/Prepared issuance, or legacy deletion; incomplete or foreign
+  evidence returns typed `NoSafeSlice` before opening a function session.
 
 Done:
-  Admission D0 is closed as `NoSafeSlice`: the production host and sole
-  function discard owner are named, but no production Loop Recipe/source-map
-  issuer exists; current issuers remain cfg(test)-only. The next bridge row
-  must provide a total source-to-relation correspondence, owner/brand/frame
-  receipts, missing/duplicate/foreign rejects, and caller-zero evidence.
+  Bridge D0 is accepted: no new semantic Bridge owner; the resolver ledger,
+  neutral SyntaxFacts, and SourceMap are the target. S0 must provide the
+  resolver-owned site issuer, owner-branded navigation, production issuers,
+  source-to-ledger parity, typed rejects, and caller-zero evidence.
 
 Stop:
-  Prepared production physicalization, physical Loop emission, I0 caller
-  switch, profile selector, fallback/retry, Generic G0 parity, collector or
-  module publication, and legacy deletion remain closed until the bridge is
-  accepted. Implementation later requires source README, `docs/reference/**`,
-  diagnostics, migration note, guards, and current pointers in the same
-  commit.
+  Recipe/Prepared physicalization, physical Loop emission, I0 caller switch,
+  profile selector, fallback/retry, Generic G0 parity, collector or module
+  publication, and legacy deletion remain closed until S0 and later Recipe
+  admission are accepted. Implementation requires source README,
+  `docs/reference/**`, diagnostics, migration note, guards, and current
+  pointers in the same commit.
 ```
 ## Production invariants
 ```text

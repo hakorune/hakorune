@@ -118,30 +118,17 @@ Related:
   collector publication. `CALLABLE-LOOP-PRODUCTION-EDGE-D0` is closed as
   `NoSafeSlice`: the new callable physical products are cfg(test)-only, and
   the nearest production raw/legacy host lacks Prelude/Tail/ABI/Completion/
-  DraftSeal receipts. The next authorized row is the docs-only
-  `CALLABLE-LOOP-PRODUCTION-ADMISSION-D0` is closed as `NoSafeSlice`: the
-  production host is named, but `VerifiedNormalCallableSemanticSourceV1` /
-  `LoanV1` do not issue a production AST-free Loop Recipe/source-facts
-  relation and the existing issuers remain `cfg(test)`-only. The next
-  authorized row is the docs-only
-  `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` design:
-  (Prepared move handoff, complete Write projection, pure
-  Const/Binary/Compare leaves, bounded five-family dispatch, full
-  Recipe-order prepare, and typed value ledger) is green; exact per-row
-  target receipts are batch-validated before the first leaf effect and
-  failure-phase separation is now landed; complete
-  physical `emit_all`,
-  exact Tail handoff and fresh-session `finish_for_draft_seal` -> DraftSeal
-  integration are now closed for the canary. Prelude materialization
-  remains closed as a caller-zero receipt: the external Prelude result and the
-  distinct Loop initializer are published through canonical identity into
-  separate bindings. The complete
-  Read/Const/Compare/Binary/Write operation matrix remains the target.
-  Production source/facts bridge, Prepared production issuer, production
-  selection, named caller switch, carrier seeds, retry/fallback
+  DraftSeal receipts. `CALLABLE-LOOP-PRODUCTION-ADMISSION-D0` and the
+  `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` design are closed; the
+  latter is accepted without a new Bridge owner. The next authorized row is
+  `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`: resolver
+  `CallableSemanticSourceLedgerView::only_loop_site()` supplies the exact
+  single Loop site (zero/multiple sites are typed `NoSafeSlice`), and
+  owner-branded `FunctionSourceViewV1::stmt_at(site)` supplies exact source
+  navigation. The row promotes neutral SyntaxFacts/SourceMap issuers with
+  Builder-effect-zero construction. Recipe/Prepared production issuance,
+  physical selection, named caller switch, Generic G0, retry/fallback
   retirement, and legacy deletion remain closed.
-  Declaration-derived ABI, physicalization, production selection,
-  retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

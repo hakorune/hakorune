@@ -25,11 +25,11 @@ retry/fallback, and legacy retirement remain closed. The bounded
 through the existing typed finish terminal, then uses DraftSeal
 prepare/commit to produce one unpublished `CompletedFunctionDraftV1`; no
 collector or module publication is performed. The production-edge census and
-Admission D0 are both closed as `NoSafeSlice`: the production host is named,
-but the resolver/source/facts-to-AST-free callable Loop relation bridge is not
-yet a production issuer. The next boundary is the docs-only
-`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0`; no named production caller
-switch is open.
+Admission D0 are closed as `NoSafeSlice`. The source/facts bridge D0 is
+accepted without a new semantic Bridge owner: the existing resolver ledger
+plus neutral SyntaxFacts/SourceMap are the target production boundary. The
+next boundary is `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`; no named
+production caller switch is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -687,16 +687,17 @@ lower_loop_or_freeze_v1`. Its current output is a legacy pending function
 session and `LegacyReplaceWholePair`, not `CompletedFunctionDraftV1`.
 
 Therefore `CALLABLE-LOOP-PRODUCTION-EDGE-D0` closes as `NoSafeSlice`. The
-Admission D0 then confirmed that `NormalCallableSemanticLoanPortV1` is only a
-production host/outer orchestrator: `VerifiedNormalCallableSemanticSourceV1`
-and `VerifiedNormalCallableSemanticLoanV1` do not issue the required
-AST-free Loop Recipe/source-facts relation, and the current Recipe/source-map
-issuers remain `cfg(test)`-only. The next authorized row is the design-only
-`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0`, which owns that missing
-resolver/source/facts correspondence and must return typed `NoSafeSlice` when
-its evidence is incomplete. A by-name adapter, test-fixture promotion,
-selector, retry, fallback, Generic G0 substitution, or legacy deletion is not
-authorized by this census.
+Admission D0 confirmed that `NormalCallableSemanticLoanPortV1` is only a
+production host/outer orchestrator. The accepted source/facts bridge design
+does not add a semantic owner: `CallableSemanticSourceLedgerView` remains the
+resolver source authority, while neutral SyntaxFacts and SourceMap are split
+from test fixtures and promoted in
+`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`. The resolver seam is
+`CallableSemanticSourceLedgerView::only_loop_site()` and the observer seam is
+`FunctionSourceViewV1::stmt_at(site)`; zero/multiple sites are typed
+`NoSafeSlice`. The current issuers remain `cfg(test)` until that row lands. A
+by-name adapter, fixture copying, selector, retry, fallback, Generic G0
+substitution, or legacy deletion is not authorized by this census.
 
 ### Production admission contract (design-only)
 
@@ -713,13 +714,15 @@ NormalCallableSemanticLoanPortV1
   -> DraftSeal prepare/commit
 ```
 
-The bridge may consume only resolver-backed source/facts/forest/projection and
-callable lineage products. It must not re-walk AST, recover names from route
-labels, infer Recipe keys from MIR, or remove `cfg(test)` from a fixture issuer.
-Its output is one move-only, owner/brand/frame-branded AST-free relation; it
-does not own ABI, Completion, physical IDs, CFG/SSA/PHI, DraftSeal, collector,
-or module publication. Until this bridge is accepted, the production ingress
-returns typed `NoSafeSlice` before opening a function session.
+The source-facts step must promote the existing neutral
+`VerifiedSourceSyntaxFactsV1` and `VerifiedCallableSingleLoopSourceMapV1`;
+it must not create a new aggregate Bridge owner. It may consume only
+resolver-backed source/facts/forest/projection and callable lineage products.
+It must not re-walk AST, recover names from route labels, infer Recipe keys
+from MIR, or remove `cfg(test)` from a fixture issuer. The SourceMap does not
+own Recipe/JoinSig, ABI, Completion, physical IDs, CFG/SSA/PHI, DraftSeal,
+collector, or module publication. Until S0 is accepted, the production
+ingress returns typed `NoSafeSlice` before opening a function session.
 
 The sole unpublished-function/discard owner remains
 `CanonicalFunctionLoweringSessionV1::discard_unpublished`. Adapter failure is
