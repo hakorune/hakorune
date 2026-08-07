@@ -8,9 +8,10 @@ caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`, passive operation/effect S0,
 Callable/G0 adapters, and cross-profile parity are closed. Decision B now
 separates full-demand preflight from leaf emission; the Builder-free
 `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` and the behavior-neutral
-physicalizer module split, physical block receipt, and private ConstI64
-leaf-emitter canary are closed. The current row is the design-only ReadBinding
-leaf boundary; operation production activation remains 0
+physicalizer module split, physical block receipt, private ConstI64
+leaf-emitter canary, and bounded ReadBinding I0 are closed. The current row is
+the caller-zero full callable physical canary; operation production activation
+remains 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -867,7 +868,8 @@ admitted by ReadBinding D0**: the row is rejected as
 `CarrierSeedUnavailable` and belongs to a later carrier-seed row. That later
 row must assert parent-block placement and issue a child-entry carrier-seed
 receipt through canonical BindingSSA; it must never relabel the operation or
-infer placement from the anchor. The first leaf canary is ConstI64 only.
+infer placement from the anchor. The bounded leaf canaries are ConstI64 and
+ReadBinding only; they do not constitute full Loop physicalization.
 
 Duplicate item keys, foreign or missing anchors, wrong block/loop membership,
 and repeated-ordinal ambiguity are typed `NoSafeSlice`. No operation MIR is
@@ -880,16 +882,17 @@ source anchors; P0 cannot be reused as the operation source.
 cross-profile parity receipt and reviewed Decision-B closeout are closed.
 Callable has seven item rows and Generic G0 has fifteen, but parity compares
 neither counts nor source order. The full-demand P0, behavior-neutral module
-split, canonical physical block receipt, and private ConstI64 leaf-emitter
-canary are closed. The current row is the design-only ReadBinding leaf
-boundary; it claims no full operation physicalization, callable physical
-completion, production selection, M8/M9 coverage, or retirement.
+split, canonical physical block receipt, private ConstI64 leaf-emitter canary,
+and bounded ReadBinding I0 are closed. The current row is
+`CALLABLE-LOOP-PHYSICAL-CANARY-P0`: it is the first caller-zero full callable
+integration and claims no production selection, Generic G0 parity, M8/M9
+coverage, or retirement.
 
-### ReadBinding leaf D0 correction (2026-08-07; Decision: revise)
+### ReadBinding leaf D0 correction (2026-08-07; Decision: accepted and landed)
 
-The broad B boundary remains accepted, but worker review found that the
-ReadBinding leaf is not implementation-ready yet. D0 must close these
-contracts before any Builder mutation is permitted:
+The broad B boundary remains accepted. Worker review closed the following
+contracts, and the bounded ReadBinding I0 implementation landed with focused
+tests. These constraints remain normative for the leaf:
 
 - Project the row exactly once from a complete
   `PreparedLoopOperationProgramV1`. Its Recipe `binding`/`result`, verified
@@ -923,11 +926,12 @@ mismatched source anchor/binding; Core effect/role mismatch;
 missing entry binding; canonical BindingRead failure; result-type mismatch;
 terminated block; and late emission failure.
 
-This D0 row claims no full-demand extraction API, AST reread, second
+This D0/I0 boundary claims no full-demand extraction API, AST reread, second
 CFG/SSA/PHI/catalog owner, derived/G0 carrier bridge, other operation kinds,
 return/seal/module publication, selector, retry/fallback, legacy retirement,
-or performance result. It is a design stop only; the next implementation card
-must be opened separately and must update reference documentation in the same
+or performance result. The bounded implementation is landed; the separate
+`CALLABLE-LOOP-PHYSICAL-CANARY-P0` card is now the only authorized next
+implementation row and must update reference documentation in the same
 commit as code and focused tests.
 
 #### ReadBinding source/effect mapping matrix

@@ -1,0 +1,163 @@
+# CALLABLE-LOOP-PHYSICAL-CANARY-P0
+
+Status: `Ready for implementation; caller-zero only`
+Date: `2026-08-07`
+Parent: `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
+North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
+
+## Decision
+
+The bounded ConstI64 S0 and ReadBinding I0 leaves are landed. The next
+implementation row is the first full callable physicalization canary:
+
+```text
+PreparedCallableLoopPhysicalizationV1
+  -> fresh CanonicalFunctionLoweringSessionV1
+  -> explicit Prelude/entry receipt
+  -> complete callable Loop operation program
+  -> distinct callable Tail
+  -> CanonicalSsaFunctionSessionV2::finish_for_draft_seal
+  -> DraftSeal prepare/commit
+```
+
+This row is a caller-zero integration proof. It does not select a production
+caller, change the selector, publish a module, or retire a legacy route.
+
+## Sole claim
+
+One complete resolver-backed callable fixture can consume one prepared callable
+physicalization product exactly once and reach the existing function terminal
+and DraftSeal owners on a fresh unpublished session. The common physicalizer
+owns only portable Loop operations; the outer callable adapter owns Prelude,
+Tail, return ABI, Completion, and DraftSeal handoff.
+
+## Required operation coverage
+
+The real callable fixture must be consumed as a complete program. The canary
+must cover its complete operation matrix, not extract a single row from the
+full demand:
+
+```text
+ReadBinding
+ConstI64
+CompareI64
+BinaryI64
+WriteBinding
+```
+
+The operation schedule comes from `LoopRecipeV1` structure. Evidence-vector
+order, operation names, and profile labels are not execution-order authority.
+Every operation is preflighted before Builder effects and emitted exactly once
+through the common private leaf emitters and canonical CFG/BindingSSA/PhiTxn
+services. Unsupported shapes return typed `NoSafeSlice` before physical
+effects; they never fall back to the legacy scheduler.
+
+## Required ownership boundaries
+
+```text
+PreparedCallableLoopPhysicalizationV1
+  owns the one-time compatibility relation
+
+VerifiedLoopOperationPhysicalDemandV1
+  owns complete operation/effect coverage and common continuation
+
+common Loop physicalizer
+  owns portable operation physicalization only
+
+outer callable lowerer
+  owns Prelude, callable Tail, exact return ABI, and Completion claim
+
+CanonicalSsaFunctionSessionV2
+  owns CFG/SSA/PHI/completion finish through one terminal
+
+CanonicalFunctionLoweringSessionV1
+  owns unpublished-function discard and caller restoration
+
+DraftSeal / ModuleDraftCollector
+  remain the sole function/module publication owners
+```
+
+The physicalizer must not inspect AST, resolve names, infer Tail from a
+BindingRef, create a second SSA/CFG/PHI owner, or use profile-specific route
+labels. Loop continuation and callable Tail remain distinct contracts.
+
+## Execution stages
+
+1. Prepare and seal the complete callable product with zero Builder effect.
+2. Open one fresh unpublished function session and move Completion exactly
+   once into the V2 session.
+3. Materialize the explicit Prelude and issue `ReadyLoopEntryV1`, including
+   the exact zero-input case when applicable.
+4. Allocate and receipt the logical-to-physical Loop blocks through the
+   canonical CFG session.
+5. Bind the complete operation schedule to those blocks and emit all supported
+   operations through the common physicalizer.
+6. Open the Loop continuation, materialize the callable Tail, and claim the
+   exact completion operand through existing owners.
+7. Close the function only through `finish_for_draft_seal`, then pass the
+   ready draft through the existing DraftSeal prepare/commit path.
+8. Exercise both success and post-emission failure. Every failure discards
+   the complete unpublished session and restores the caller exactly once.
+9. Reopen a fresh session and repeat the same semantic fixture; compare
+   operation/placement/shape receipts, not incidental ValueId or block IDs.
+
+## Acceptance evidence
+
+Required focused evidence:
+
+```text
+complete Callable demand/preflight has no extraction API
+all five operation families are covered by one complete schedule
+Prelude/entry owner and block receipts are exact
+Read/Const/Compare/Binary/Write are emitted once each
+Loop continuation and callable Tail remain disjoint
+Completion is moved and consumed exactly once
+finish_for_draft_seal is the only ReadyFunctionDraftSeal issuer
+DraftSeal receives a complete unpublished function
+pre-effect rejection leaves Builder/session state untouched
+post-emission failure discards the whole session
+caller context is restored once
+fresh-session reuse produces equivalent semantic receipts
+production caller count remains zero
+legacy/fallback/retry edge count remains unchanged at zero activation
+```
+
+The implementation commit must update the exact reference entries and owning
+README in the same commit:
+
+```text
+docs/reference/mir/loop-recipe-contract.md
+docs/reference/mir/generic-loop-stage-matrix.md
+src/mir/builder/resolved_lowering/README.md
+docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md
+```
+
+It must also update `CURRENT_STATE.toml`, `10-Now.md`, and the active
+workstream receipt. No implementation is complete while those pointers or
+reference claims are stale.
+
+## Gates
+
+At minimum, run the focused tests for the complete callable canary, `cargo
+check -q`, rustfmt check on touched Rust files, `git diff --check`,
+`bash tools/checks/current_state_pointer_guard.sh`,
+`bash tools/checks/mirbuilder_inplace_replacement_guard.sh`, and the touched
+file `<800`-line check. A failed fast gate stops the row; do not add a new
+fixture or fallback to make the gate green.
+
+## Explicit non-claims
+
+```text
+Generic G0 physical parity = 0
+production selector/switch = 0
+module publication beyond the canary draft = 0
+retry/fallback/reselection = 0
+legacy scheduler/route deletion = 0
+M8/M9 all-route coverage = 0
+backend performance or C-speed parity = 0
+```
+
+The next authorized row after this canary is
+`LOOP-CALLER-ZERO-PARITY-G0`. Production selection is a separate design stop;
+named caller replacement and selected old-edge retirement happen only after
+that gate and the existing in-place replacement law are satisfied.

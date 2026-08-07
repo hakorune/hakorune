@@ -53,7 +53,8 @@ adapter S0, Generic G0 anchor S0, and cross-profile parity S0 are closed. The
 reviewed Decision B separates one complete move-only demand/preflight from the
 private leaf emitter and forbids extracting a single operation from the full
 product. `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` is now landed as a Builder-free full-demand receipt: neutral resolver context and After continuation move exactly once, Generic G0 Scope/Region comes from the window lease, and Callable/G0 `prepare_all` covers seven/fifteen rows. Block mapping, operation emission, physical/production activation, and retirement remain closed.
-Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical SSA receipt, exact placement, entry/no-extraction evidence). Production-row close still awaits named caller switch, old-edge/fallback retirement, and full physicalization/Tail/Return/DraftSeal; final order follows `mirbuilder-final-pipeline-ssot.md`.
+Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical SSA receipt, exact placement, entry/no-extraction evidence). The next authorized row is `CALLABLE-LOOP-PHYSICAL-CANARY-P0`: caller-zero full callable Prelude -> Loop -> distinct Tail -> `finish_for_draft_seal` -> DraftSeal on a fresh unpublished session, covering the complete Read/Const/Compare/Binary/Write operation matrix.
+Production selection, named caller switch, old-edge/fallback retirement, and legacy deletion remain closed; final order follows `mirbuilder-final-pipeline-ssot.md`.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse

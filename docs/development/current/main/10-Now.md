@@ -104,12 +104,12 @@ Related:
   physical block receipt, and the private ConstI64 leaf-emitter canary are now
   closed. The bounded ReadBinding I0 leaf is also landed: complete-program
   projection, canonical BindingSSA/PHI receipt, explicit entry requirements,
-  and logical/physical placement evidence are green. The production
-  replacement row remains `LOOP-RECIPE-OPERATION-EMITTER-READ-I0` until a
-  named caller switch and old-edge retirement are landed; carrier seeds, full
-  physicalization, and production activation remain closed. Physical
-  completion, selection, retry/fallback retirement, and legacy deletion remain
-  closed.
+  and logical/physical placement evidence are green. The next authorized row
+  is `CALLABLE-LOOP-PHYSICAL-CANARY-P0`: caller-zero full callable
+  Prelude -> Loop -> distinct Tail -> `finish_for_draft_seal` -> DraftSeal,
+  covering the complete Read/Const/Compare/Binary/Write operation matrix.
+  Production selection, named caller switch, carrier seeds, retry/fallback
+  retirement, and legacy deletion remain closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
