@@ -56,6 +56,14 @@ it is not part of the V2 finish migration. Focused guards must keep V2 direct
 the repository's 800-line boundary. Every implementation slice updates this
 README, the owning reference, and current-entry mirrors in the same commit.
 
+Implementation receipt (`6bf3dd6b35`, 2026-08-07): the three V2 lowerers now
+use the consuming terminal, including the previously missing DirectAccum CFG
+finish. The one non-V2 constructor remains an explicit, non-growing
+compatibility debt. The focused session, resolved-lowering, and draft tests,
+the canonical finish guard, and the current-state pointer guard are green;
+physical Loop lowering and production selection remain closed at the next
+design stop.
+
 ## Disconnected canonical CFG prerequisite
 
 `canonical_cfg/` owns the SSA-C1 edge/seal substrate. It emits a terminator and

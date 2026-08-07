@@ -603,7 +603,7 @@ of nested design suffixes unless a code audit proves one named missing owner.
 | 9 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 10 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
-### Current implementation task: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
+### Closed implementation receipt: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
 
 ```text
 Change:
@@ -631,7 +631,7 @@ Stop:
   or same-session repair/retry returns to design
 ```
 
-### Parked following task: `LOOP-PHYSICAL-PREPARE-I0-R0`
+### Current design stop: `LOOP-PHYSICAL-PREPARE-I0-R0`
 
 ```text
 Change:
@@ -685,8 +685,9 @@ implementation receipt exists.
 
 ## Current execution boundary
 
-The architecture and the `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` consultation
-are closed. Its implementation is active only within the three-V2-caller,
-typed-receipt, and no-reinference contract above. The bounded caller-zero
-`RECIPE-COSEAL-I0-R0` implementation is closed; physical Loop lowering and
-production selection remain closed until this R0 acceptance pack lands.
+The architecture and the `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` implementation
+are closed for the three V2 callers under the typed-receipt and no-reinference
+contract above. The bounded caller-zero `RECIPE-COSEAL-I0-R0` implementation is
+also closed. The next boundary is the `LOOP-PHYSICAL-PREPARE-I0-R0` design
+stop; physical Loop lowering, production selection, retry/fallback retirement,
+and legacy deletion remain closed until that design is accepted.
