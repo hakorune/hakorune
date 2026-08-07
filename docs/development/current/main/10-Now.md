@@ -154,11 +154,13 @@ Related:
   effect. `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is also closed as an adapter:
   Callable operation placement consumes an owner-branded exact segment receipt,
   but the receipt still maps onto the old Header/Body/Step/After topology.
-  Worker audit accepted the corrected R3 boundary and the active row is now
-  `LOOP-COMMON-RECURSIVE-AFTER-R3-I0`: R3 must allocate one block per R1
-  segment plus root After, retain entry/layout/completed dispatch, and retire
-  the fixed Step/edge caller. Physical G0, production selection, retry/fallback
-  retirement, and legacy deletion remain closed.
+  R3-I0 is now closed for the selected Callable caller-zero canary: it allocates
+  one block per R1 segment plus root After (no Step), retains
+  entry/layout/completed dispatch, preflights and emits every entry/transfer
+  once through canonical CFG/identity/PhiTxn, and retires the fixed Step/edge
+  caller. The next design stop is
+  `LOOP-CALLER-ZERO-PARITY-G0-I1-D0`. Physical G0, production selection,
+  retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

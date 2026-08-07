@@ -18,8 +18,10 @@ The bounded prepare-design correction, Callable full physical canary, and G0
 Builder-free exact ingress are closed. The private Recipe-derived
 segment/resume plan and Callable segment-block adapter are closed. A worker
 premise audit found that R2 maps onto the old fixed Header/Body/Step/After
-topology rather than allocating one block per R1 segment, so the current
-boundary is an R3 design correction before physical implementation. G0
+topology rather than allocating one block per R1 segment. The selected
+Callable path now has the R3-I0 implementation receipt below: exact R1
+segment allocation, neutral recursive After sealing, and the existing
+Tail/Completion/DraftSeal handoff are live in the caller-zero canary. G0
 physical and production activation remain closed.
 
 Implementation receipt — `CALLABLE-LOOP-AFTER-CLOSURE-P0` (2026-08-07): the
@@ -862,10 +864,11 @@ This is a bounded adapter cutover only. The current topology adapter rejects
 segment aliasing rather than sharing a block; it is not the R1 segment
 allocator. Generic G0 physical emission, recursive After, Tail/Completion
 changes, selector, retry/fallback retirement, collector/publication, and
-legacy deletion remain closed while the R3 design correction is recorded in
-`investigations/loop-common-recursive-after-r3-task-2026-08-08.md`.
+legacy deletion remain closed. The R3-I0 implementation receipt below replaces
+this adapter on the selected Callable path; the investigation records both
+the correction and its closeout.
 
-## Recursive After R3 design correction (2026-08-08; Decision: revise)
+## Recursive After R3-I0 implementation receipt (2026-08-08; Decision: accepted)
 
 The R2 receipt cannot be the input to a neutral recursive edge writer: it maps
 R1 segments onto the old fixed `Header/Body/Step/After` topology, while R1's
@@ -873,7 +876,8 @@ verified transfers are segment-based. A new writer on that adapter would leave
 the synthetic `Step` outside the transfer graph and would retain the old fixed
 edge authority.
 
-The corrected R3 boundary is:
+The corrected R3 boundary is now implemented for the selected Callable
+caller-zero canary:
 
 ```text
 PreparedLoopPhysicalLayoutV1 + ReadyLoopEntryV1
@@ -884,11 +888,23 @@ PreparedLoopPhysicalLayoutV1 + ReadyLoopEntryV1
   -> one neutral ReadyLoopAfterContinuationV1
 ```
 
-`PreparedLoopPhysicalLayoutV1` must expose an explicit sealed entry segment;
-position zero is not an authority. Predicate conditions come from the exact
-completed operation receipt. Callable keeps its `Pure=4 + Read=2 + Write=1`
-check in a thin wrapper while Tail/Completion semantics remain unchanged.
-G0 may receive Builder-free transfer preflight only; G0 physical allocation,
-operation emission, selector, fallback/retry, publication, and legacy deletion
-remain closed until later rows. The fixed Callable close helper and the R2
-topology adapter are retirement targets of the same R3 implementation series.
+`PreparedLoopPhysicalLayoutV1` now exposes an explicit sealed entry segment;
+position zero is not an authority. `segment_allocator` allocates exactly one
+block per R1 segment plus one root After block and does not allocate a Step
+block. `CompletedLoopSegmentProgramV1` retains the layout, entry, segment
+receipt, completed operation receipts, and value ledger so the recursive After
+stage does not reconstruct or re-resolve them. Predicate conditions come from
+the completed operation receipt. The R3 closure preflights the entry edge and
+every R1 Jump/Predicate/OpenNestedLoop transfer, emits each once through the
+canonical CFG/identity/PhiTxn owners, seals the segment blocks and root After,
+then returns one neutral `ReadyLoopAfterContinuationV1`. Callable keeps its
+`Pure=4 + Read=2 + Write=1` check in a thin wrapper while Tail/Completion and
+DraftSeal semantics remain unchanged.
+
+The selected canary asserts exact segment coverage and a distinct root After,
+and covers the late duplicate failure, whole unpublished-session discard, and
+fresh-session rerun. The former fixed Callable close helper and
+`from_callable_layout` adapter are removed from the selected path. G0 receives
+no physical allocation or operation emission; production selection,
+retry/fallback retirement, collector/publication changes, and broad legacy
+deletion remain closed.

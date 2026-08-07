@@ -8,8 +8,6 @@
 mod callable_canary;
 #[cfg(test)]
 mod callable_production_canary_tests;
-#[cfg(test)]
-mod continuation;
 mod operation_dispatcher;
 mod operation_emitter;
 #[cfg(test)]
@@ -21,6 +19,8 @@ mod operation_type;
 #[cfg(test)]
 #[path = "read_emitter_tests.rs"]
 mod read_emitter_tests;
+mod recursive_after;
+mod segment_allocator;
 mod segment_dispatcher;
 mod segment_topology;
 #[cfg(test)]

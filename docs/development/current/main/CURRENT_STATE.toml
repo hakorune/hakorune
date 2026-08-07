@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "B-prime through G0 exact Builder-free I0 ingress, the common Builder-free recursive segment plan R1, and Callable segment-block cutover R2 are closed. Worker premise audit found that R2 is an adapter over the old Header/Body/Step/After topology, not a true segment allocator; R3 is now a design correction stop before implementation. G0 physical emission, production selection, retry/fallback retirement, and legacy deletion remain closed."
+status = "B-prime through G0 exact Builder-free I0 ingress, the common Builder-free recursive segment plan R1, Callable segment-block cutover R2, and Callable recursive After R3-I0 are closed. R3-I0 now allocates exact R1 segments plus root After, retains the completed program, and seals the neutral After through canonical CFG/identity/PhiTxn. G0 physical emission, production selection, retry/fallback retirement, and legacy deletion remain closed."
 date = "2026-08-08"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "LOOP-COMMON-RECURSIVE-AFTER-R3-DESIGN-STOP is cleared: worker premise audit accepted the corrected boundary. R3-I0 now owns exact one-block-per-R1-segment plus root After allocation, explicit entry_segment, completed-program retention, full transfer preflight, and fixed-edge retirement; implementation must still stop before G0 physical allocation or production selection."
-current_execution_row = "LOOP-COMMON-RECURSIVE-AFTER-R3-I0"
-current_blocker_token = "LOOP-COMMON-RECURSIVE-AFTER-R3-I0: replace the old fixed topology with exact R1 segment allocation, retain completed dispatch, emit/seal every entry and transfer once, and keep G0 physical allocation closed"
+current_design_stop = "LOOP-COMMON-RECURSIVE-AFTER-R3-I0 is closed. The next design stop is LOOP-CALLER-ZERO-PARITY-G0-I1-D0: define the exact Builder-free G0 transfer/physical boundary from the completed common segment product before any G0 allocation or production selection."
+current_execution_row = "LOOP-CALLER-ZERO-PARITY-G0-I1-D0"
+current_blocker_token = "LOOP-CALLER-ZERO-PARITY-G0-I1-D0: review the exact G0 physical canary boundary; no G0 allocation, production selection, retry/fallback retirement, or legacy deletion until the design is sealed"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -39,6 +39,7 @@ loop_operation_emitter_const_task = "docs/development/current/main/investigation
 callable_loop_physical_canary_task = "docs/development/current/main/investigations/callable-loop-physical-canary-p0-task-2026-08-07.md"
 loop_caller_zero_parity_g0_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-design-2026-08-08.md"
 loop_caller_zero_parity_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
+loop_caller_zero_parity_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
 loop_operation_emitter_read_design_task = "docs/development/current/main/investigations/loop-recipe-operation-emitter-read-design0-d0-task-2026-08-07.md"
 loop_operation_emitter_read_i0_task = "docs/development/current/main/investigations/loop-recipe-operation-emitter-read-i0-implementation-task-2026-08-07.md"
 loop_common_physical_demand_and_session_design = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
@@ -129,7 +130,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "R1 and R2 are closed. Worker audit found R2 is only an adapter over old Header/Body/Step/After blocks; the corrected R3 boundary is accepted. R3-I0 now implements exact one-block-per-R1-segment plus root After allocation, explicit entry_segment, completed-program retention, complete transfer preflight, and fixed-edge retirement. G0 physical allocation and production selection remain closed."
+current_execution_summary = "R1, R2, and R3-I0 are closed. R3-I0 allocates one block per R1 segment plus root After, retains explicit entry/layout/completed dispatch, preflights and emits every entry/transfer once through canonical CFG/identity/PhiTxn, and reaches the existing Callable Tail/Completion/DraftSeal path. The next design stop is G0 I1; G0 physical allocation and production selection remain closed."
 current_execution_design = "docs/development/current/main/investigations/loop-common-recursive-after-r3-task-2026-08-08.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -610,7 +611,7 @@ latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "B-prime and prior Recipe/physicalizer evidence are closed. G0 D0/I0, R1 recursive segment layout, and R2 Callable segment-block adaptation are closed. Worker audit accepted the corrected R3 boundary: R3-I0 now owns one block per R1 segment plus root After, explicit entry_segment, completed-program retention, complete transfer preflight, and fixed-edge retirement. No G0 physical activation, collector publication, production caller switch, retry/fallback retirement, or legacy deletion is open."
+latest_card_summary = "B-prime and prior Recipe/physicalizer evidence are closed. G0 D0/I0, R1 recursive segment layout, R2 adapter cutover, and R3-I0 Callable recursive After are closed. R3-I0 owns exact one-block-per-R1-segment plus root After allocation, explicit entry_segment, completed-program retention, complete transfer preflight, and fixed-edge retirement. The next design stop is G0 I1; no G0 physical activation, collector publication, production caller switch, retry/fallback retirement, or legacy deletion is open."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

@@ -339,7 +339,7 @@ impl<'a> LoopPhysicalServicesV1<'a> {
         Self { builder, cfg }
     }
 
-    fn allocate_block(&mut self) -> Result<BasicBlockId, LoopPhysicalizerRejectV1> {
+    pub(super) fn allocate_block(&mut self) -> Result<BasicBlockId, LoopPhysicalizerRejectV1> {
         let block = self.builder.next_block_id();
         let function = self
             .builder

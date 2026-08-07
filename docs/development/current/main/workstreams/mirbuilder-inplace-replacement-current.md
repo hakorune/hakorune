@@ -520,8 +520,9 @@ closed:
 accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
 closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 accepted correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
-  LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1 and LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2 are
-  closed; current execution: LOOP-COMMON-RECURSIVE-AFTER-R3-I0
+  LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1, LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2,
+  and LOOP-COMMON-RECURSIVE-AFTER-R3-I0 are closed; current execution:
+  LOOP-CALLER-ZERO-PARITY-G0-I1-D0
 Change:
   correct R3 before implementation: R2 is only an adapter over old
   Header/Body/Step/After blocks; R3 must own exact segment allocation and
@@ -532,19 +533,23 @@ Contract:
   retain layout/segment receipt/completed operations, preflight every R1
   transfer, and use only the existing CFG/identity/PhiTxn owners.
 Done:
-  P0 caller-zero physical canary, G0 I0 exact Builder-free ingress, and R1 layout
-  are closed. R1 derives the complete Callable/G0 operation order from
+  P0 caller-zero physical canary, G0 I0 exact Builder-free ingress, R1 layout,
+  and R3-I0 Callable recursive After are closed. R1 derives the complete
+  Callable/G0 operation order from
   verified recursive Recipe traversal and records G0's five segments:
   root condition, root pre-child, child condition, child body, root resume.
   Focused layout tests are green and the source module remains below 800 lines.
   R2 issues an owner-branded adapter receipt and routes the selected Callable
   canary through exact segment placement, proving seven-row parity plus
-  missing/foreign/duplicate negatives; worker audit corrected the boundary and authorized R3-I0.
+  missing/foreign/duplicate negatives. R3-I0 then allocates one block per R1
+  segment plus root After (no Step), retains the completed segment program,
+  preflights and emits every entry/transfer once through canonical
+  CFG/identity/PhiTxn, and reaches the existing Tail/Completion/DraftSeal path.
 Stop:
   Do not allocate or emit physical G0, perform production selection, switch a
-  production caller, or delete broad legacy until R3-I0 closes. Physical G0,
-  production selection, caller switch, fallback/retry, collector/publication,
-  and legacy deletion remain closed. Every implementation row requires source README,
+  production caller, or delete broad legacy until G0 I1 design is sealed.
+  Physical G0, production selection, caller switch, fallback/retry,
+  collector/publication, and legacy deletion remain closed. Every implementation row requires source README,
   `docs/reference/**`, diagnostics, migration note, guards, and current
   pointers in the same commit.
 ```
@@ -826,7 +831,6 @@ closed
   -> Accepts Weak Unary only. The existing UnaryOperand receipt and WeakRef
      emission owner provide a complete source/operation boundary. ScopeBox and
      Using were already closed; broad BlockExpr remains NoSafeSlice.
-
   RAW-SCRIPT-POST-ARRAY-LITERAL-CAPABILITY-CENSUS0-D0
   -> BlockExpr has exact source receipts and a shared lexical traversal, but
      its proposed outer-Variable closure cannot preserve production parity:
@@ -840,14 +844,12 @@ closed
      existing array owner remains the only allocation, type, and publication
      owner. Map and Record remain Deferred. The selected ArrayLiteral
      `Deferred -> bare script_root()` edge is zero.
-
   RAW-SCRIPT-POST-BINDING-REBIND-CAPABILITY-CENSUS0-D0
   -> Accepts ArrayLiteral only. Its semantic traversal already exists; the
      live missing edge was exact ArrayElement source handoff into the existing
      raw array owner. Broad BlockExpr is not selected: nested Local changes
      existing legacy failure behavior. QMark, Loop, Map, Record, Lambda, and
      Box remain separate families.
-
   RAW-SCRIPT-ROOT-BINDING-REBIND-ADMISSION0-I0-R0
   -> only prior-Local Variable-target Assignment/CompoundAssignment receives
      a typed BindingRebind demand. The shared forest supplies the exact target
@@ -855,7 +857,6 @@ closed
      owner; its returned ValueId updates the Script ledger only on success.
      Field/Index, grouped/nested assignment, and upvar stay Deferred. The
      selected Variable-target `Deferred -> bare script_root()` edge is zero.
-
   RAW-SCRIPT-POST-RETURN-CAPABILITY-CENSUS0-D0
   -> Accepts only the BindingRebind Mutation slice. QMark owns an
      expression-site conditional Return plus runtime calls and needs a
@@ -882,7 +883,6 @@ closed
      `If -> Deferred -> bare script_root()` edge is zero; retry/fallback is
      zero. Root-profile sequence containment now preserves the distinct
      Function/Lambda compact paths and the Script ProgramBody-rooted path.
-
   SEMANTIC-SOURCE-CONTAINER-PROFILE0-S0
   -> Sequence containment now derives direct body membership from
      `SemanticOwnerRootProfileV1`; ProgramBodyRoot -> ProgramBody(n) is valid
@@ -979,7 +979,7 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
-  4. after closed G0 I0, complete common segment R1/block R2/recursive-After R3, then G0 I1 and M8/M9; only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
+  4. after closed G0 I0, complete common segment R1/block R2/recursive-After R3, then review and implement G0 I1 and M8/M9; only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance

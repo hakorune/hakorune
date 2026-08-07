@@ -42,10 +42,11 @@ as Builder-free exact ingress plus fifteen-row `prepare_all`. The accepted I1
 design now requires `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`, segment-aware
 block cutover R2, and neutral recursive After R3 before G0 physical I1-R0.
 R1 is now closed as a Builder-free derived layout. R2 is closed only as an
-adapter over the old fixed topology; it is not the segment allocator. Worker
-audit moved the current frontier to an R3 design correction before physical
-implementation. No named production caller switch or G0 physical implementation
-is open.
+adapter over the old fixed topology; it is not the segment allocator. R3-I0 is
+now closed for the selected Callable caller-zero canary: exact segment
+allocation, the retained completed program, neutral recursive After, and
+fixed-edge retirement are implemented. No named production caller switch or
+G0 physical implementation is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -852,7 +853,7 @@ skip the After closure or reopen a Tail-only route.
 | 13 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` | top-down counterexample fixes segment/resume as a common prerequisite | accepted design; direct G0 implementation superseded |
 | 14 | `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` | Builder-free Recipe-derived segment/resume layout plus exact order/coverage | **closed 2026-08-08**; no Builder effect or new accepted structural family |
 | 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | exact segment-to-old-topology adapter and operation placement; Callable parity | **closed 2026-08-08**; not a segment allocator; no G0 physical |
-| 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3` | design correction: exact segment allocator, retained completed program, complete transfer preflight, neutral After handoff | **design stop**; fixed Step/edge authority must retire before implementation |
+| 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3-I0` | exact segment allocator, retained completed program, complete transfer preflight, neutral After handoff | **closed 2026-08-08** for Callable caller-zero; G0 physical and production selection remain closed |
 | 17 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, derived carrier, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | caller-zero only; no G0-specific physicalizer |
 | 18 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
 | 19 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
@@ -1039,9 +1040,9 @@ neither counts nor source order. The full-demand P0, behavior-neutral module
 split, canonical physical block receipt, private ConstI64 leaf-emitter canary,
 bounded ReadBinding I0, and the caller-zero full callable physical canary are
 closed. G0 D0/I0 are accepted/closed. R1 is now closed with Builder effect
-zero; `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is now closed by the Callable
-segment receipt canary. Neutral recursive After R3 is the active next row.
-Recursive After, G0 physical parity,
+zero; `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` and
+`LOOP-COMMON-RECURSIVE-AFTER-R3-I0` are now closed by the Callable segment and
+neutral After canaries. G0 physical parity,
 production selection, M8/M9 coverage, and retirement remain separate gates.
 
 ### ReadBinding leaf D0 correction (2026-08-07; Decision: accepted and landed)
@@ -1347,15 +1348,15 @@ foreign-owner, missing-segment, duplicate-block, late-failure discard, and
 fresh-session reuse. No G0 physical emission, selector, fallback, retry,
 collector/publication, or legacy retirement is claimed.
 
-The next task is the design-correction stop in
-`investigations/loop-common-recursive-after-r3-task-2026-08-08.md`.
+The implementation receipt is recorded below; the next task is the bounded G0
+parity design row, not production selection.
 
-### R3 design correction (2026-08-08; Decision: revise before implementation)
+### R3-I0 implementation receipt (2026-08-08; Decision: accepted)
 
 R2 is an adapter over the old fixed topology, not the physical allocator for
 the R1 segment graph. A neutral edge writer cannot consume it safely because
 R1 transfers do not use the synthetic Step block. The corrected physical
-boundary is:
+boundary is implemented for the selected Callable caller-zero canary:
 
 ```text
 PreparedLoopPhysicalLayoutV1 + ReadyLoopEntryV1
@@ -1367,10 +1368,16 @@ PreparedLoopPhysicalLayoutV1 + ReadyLoopEntryV1
   -> neutral ReadyLoopAfterContinuationV1
 ```
 
-The layout must carry an explicit sealed `entry_segment`; ordinal zero is not
-an entry authority. Predicate values are resolved from the completed operation
-receipt. Callable's seven-row coverage stays in its thin profile wrapper;
-Tail/Completion meaning is unchanged. G0 can receive Builder-free transfer
-preflight only. The fixed Callable closure and R2 topology adapter retire in
-the R3 series, while selector, fallback/retry, publication, and broad legacy
-retirement remain later boundaries.
+The layout carries an explicit sealed `entry_segment`; ordinal zero is not an
+entry authority. `segment_allocator` allocates exactly one block per R1
+segment plus one root After and no synthetic Step. The completed segment
+program retains layout, entry, segment receipt, completed operation receipts,
+and the value ledger. R3 preflights the entry edge and every R1
+Jump/Predicate/OpenNestedLoop transfer, emits each once through canonical
+CFG/identity/PhiTxn, seals all segment blocks plus root After, and returns one
+neutral `ReadyLoopAfterContinuationV1`. Callable's seven-row coverage stays in
+its thin profile wrapper; Tail/Completion meaning is unchanged. The old fixed
+Callable close helper and `from_callable_layout` adapter are removed from the
+selected path. G0 receives no physical allocation or operation emission, and
+selector, fallback/retry, publication, and broad legacy retirement remain
+later boundaries.

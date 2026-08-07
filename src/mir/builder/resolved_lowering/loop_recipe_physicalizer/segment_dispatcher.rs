@@ -28,16 +28,26 @@ use std::collections::{BTreeMap, BTreeSet};
 pub(super) struct PreparedLoopSegmentOperationDispatchPlanV1 {
     layout: PreparedLoopPhysicalLayoutV1,
     entry: ReadyLoopEntryV1,
+    segment_receipt: LoopPhysicalSegmentBlockReceiptV1,
     rows: Box<[PreparedLoopOperationDispatchV1]>,
     targets: Box<[VerifiedLoopOperationTargetBlockV1]>,
+}
+
+#[derive(Debug)]
+pub(super) struct CompletedLoopSegmentProgramV1 {
+    pub(super) layout: PreparedLoopPhysicalLayoutV1,
+    pub(super) entry: ReadyLoopEntryV1,
+    pub(super) segment_receipt: LoopPhysicalSegmentBlockReceiptV1,
+    pub(super) dispatch: CompletedLoopOperationDispatchV1,
+    pub(super) values: LoopOperationValueLedgerV1,
 }
 
 impl PreparedLoopSegmentOperationDispatchPlanV1 {
     pub(super) fn emit_all<'source>(
         self,
-        state: &mut LoopOperationValueLedgerV1,
+        mut state: LoopOperationValueLedgerV1,
         services: &mut LoopOperationDispatchServicesV1<'_, 'source>,
-    ) -> Result<CompletedLoopOperationDispatchV1, LoopOperationDispatchPhysicalFailureV1> {
+    ) -> Result<CompletedLoopSegmentProgramV1, LoopOperationDispatchPhysicalFailureV1> {
         self.targets.iter().copied().try_for_each(|target| {
             target
                 .validate_function(services.builder)
@@ -46,6 +56,7 @@ impl PreparedLoopSegmentOperationDispatchPlanV1 {
         let Self {
             layout,
             entry,
+            segment_receipt,
             rows,
             targets,
         } = self;
@@ -55,7 +66,7 @@ impl PreparedLoopSegmentOperationDispatchPlanV1 {
             let receipt = emit_prepared_operation_family_at_target_v1(
                 row.clone(),
                 *target,
-                state,
+                &mut state,
                 &entry,
                 services,
             )
@@ -70,9 +81,15 @@ impl PreparedLoopSegmentOperationDispatchPlanV1 {
                 },
             );
         }
-        Ok(CompletedLoopOperationDispatchV1 {
-            operation_count,
-            receipts: receipts.into_boxed_slice(),
+        Ok(CompletedLoopSegmentProgramV1 {
+            layout,
+            entry,
+            segment_receipt,
+            dispatch: CompletedLoopOperationDispatchV1 {
+                operation_count,
+                receipts: receipts.into_boxed_slice(),
+            },
+            values: state,
         })
     }
 }
@@ -238,6 +255,7 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
     Ok(PreparedLoopSegmentOperationDispatchPlanV1 {
         layout,
         entry,
+        segment_receipt,
         rows: rows.into_boxed_slice(),
         targets,
     })

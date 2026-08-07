@@ -152,7 +152,7 @@ impl PreparedLoopOperationDispatchPlanV1 {
         let Self {
             program,
             entry,
-            block_receipt,
+            block_receipt: _,
             rows,
             targets,
         } = self;

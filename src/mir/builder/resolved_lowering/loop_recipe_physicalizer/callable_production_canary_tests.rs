@@ -10,9 +10,9 @@
 #![cfg(test)]
 
 use super::callable_canary::materialize_callable_prelude_v1;
-use super::continuation::close_callable_loop_after_v1;
+use super::recursive_after::prepare_recursive_after_v1;
+use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
-use super::segment_topology::LoopPhysicalSegmentBlockReceiptV1;
 use super::tail_completion::consume_callable_tail_completion_v1;
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::builder::normal_callable_semantic_source::{
@@ -22,8 +22,7 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalSsaFunctionSessionV2,
 };
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
-    physicalize_topology_for_operation_demand_v1, LoopOperationDispatchServicesV1,
-    LoopOperationValueLedgerV1, LoopPhysicalServicesV1,
+    LoopOperationDispatchServicesV1, LoopOperationValueLedgerV1, LoopPhysicalServicesV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
@@ -309,39 +308,34 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
             )],
         )
     };
-    let open = {
+    let segment_receipt = {
         let mut services =
             LoopPhysicalServicesV1::new(outer.builder_view_mut_for_lowering(), &mut session.cfg);
-        physicalize_topology_for_operation_demand_v1(
-            physical_layout.program().demand(),
-            make_entry(),
-            &mut services,
-        )
-        .map_err(|error| format!("topology: {error:?}"))?
+        allocate_for_layout(&physical_layout, &make_entry(), &mut services)
+            .map_err(|error| format!("segment allocator: {error:?}"))?
     };
-    let (condition_item, condition_key) = physical_layout
+    if segment_receipt.rows().len() != physical_layout.coverage().segment_count() {
+        drop(session);
+        outer.discard_unpublished();
+        return Err("segment allocator emitted an incomplete R1 receipt".into());
+    }
+    let condition_key = physical_layout
         .program()
         .operation_rows()
         .iter()
         .find_map(|row| match row.operation() {
-            LoopOperationV1::CompareI64 { result, .. } => Some((row.item(), result)),
+            LoopOperationV1::CompareI64 { result, .. } => Some(result),
             _ => None,
         })
         .ok_or_else(|| "condition operation missing".to_owned())?;
-    let segment_receipt = LoopPhysicalSegmentBlockReceiptV1::from_callable_layout(
-        &physical_layout,
-        open.block_receipt(),
-    )
-    .map_err(|error| format!("segment receipt: {error:?}"))?;
-    let condition_segment = physical_layout
-        .segments()
-        .iter()
-        .find(|segment| segment.operations().contains(&condition_item))
-        .map(|segment| segment.key())
-        .ok_or_else(|| "condition segment missing".to_owned())?;
     let condition_block = segment_receipt
-        .lookup(condition_segment)
+        .lookup(physical_layout.entry_segment())
         .ok_or_else(|| "condition physical block missing".to_owned())?;
+    if segment_receipt.root_after() == condition_block {
+        drop(session);
+        outer.discard_unpublished();
+        return Err("root After aliased the entry segment".into());
+    }
     let plan =
         prepare_loop_segment_operation_dispatch_v1(physical_layout, make_entry(), segment_receipt)
             .map_err(|error| format!("dispatch preflight: {error:?}"))?;
@@ -366,7 +360,7 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
             &mut session.identity,
             &mut session.phis,
         );
-        plan.emit_all(&mut values, &mut services)
+        plan.emit_all(values, &mut services)
     };
     if seed_duplicate_condition {
         let error = match completed {
@@ -397,19 +391,16 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         return Err("late_failure_discarded".into());
     }
     let completed = completed.map_err(|error| format!("operation dispatch: {error:?}"))?;
-    let condition = values
-        .receipt(condition_key)
-        .ok_or_else(|| "condition receipt missing".to_owned())?;
-    let ready = close_callable_loop_after_v1(
-        open,
-        completed,
-        condition,
-        outer.builder_view_mut_for_lowering(),
-        &mut session.cfg,
-        &mut session.identity,
-        &mut session.phis,
-    )
-    .map_err(|error| format!("After: {error:?}"))?;
+    let prepared_after = prepare_recursive_after_v1(completed, outer.builder_view())
+        .map_err(|error| format!("After preflight: {error:?}"))?;
+    let ready = prepared_after
+        .emit_and_seal(
+            outer.builder_view_mut_for_lowering(),
+            &mut session.cfg,
+            &mut session.identity,
+            &mut session.phis,
+        )
+        .map_err(|error| format!("After: {error:?}"))?;
     let terminal_receipt = consume_callable_tail_completion_v1(
         ready,
         &tail,

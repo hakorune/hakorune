@@ -54,10 +54,11 @@ activation remain closed.
 
 ## Current common physicalizer boundary
 
-`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed as a caller-zero,
-test-only topology/After canary. It consumes the shared move-only demand and
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is historical caller-zero evidence for
+the old topology/After canary. It consumed the shared move-only demand and
 session-local entry receipt to construct recursive logical
-child/header/body/step/After topology, but it does not emit operation MIR.
+child/header/body/step/After topology, but it is not the current physical
+boundary.
 The passive `LOOP-RECIPE-OPERATION-EFFECT-S0` product and both profile
 adapters are caller-zero evidence. The neutral contract defines an item-keyed
 exact source/effect ledger for `ReadBinding`, `WriteBinding`, constants,
@@ -66,8 +67,13 @@ remains a separate profile and is not relabeled as the callable physicalizer.
 Cross-profile callable/G0 evidence parity is now closed as a diagnostic-only
 receipt. Reviewed Decision B also closes: complete demand/preflight and private
 leaf emission are separate proofs. No selector, retry/fallback, production
-caller, or legacy deletion is implied. The next boundary is Builder-free
-`LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`.
+caller, or legacy deletion is implied. R3-I0 now closes the selected Callable
+caller-zero recursive After boundary: one physical block per R1 segment plus
+one root After (no Step), retained completed segment program, exact
+entry/transfer preflight, and canonical CFG/identity/PhiTxn sealing. The
+existing Tail/Completion/DraftSeal path remains the owner of the thin Callable
+wrapper. G0 physical allocation and production selection remain closed. The
+next design boundary is `LOOP-CALLER-ZERO-PARITY-G0-I1-D0`.
 
 The P0 test canary is now landed: `VerifiedLoopPhysicalBoundaryV1` and the
 private `ReadyLoopEntryV1` are consumed by one recursive topology probe, which
@@ -77,13 +83,12 @@ are checked before allocation. Operation MIR is still closed until the
 item-keyed product is consumed; this remains disconnected evidence and does
 not activate Generic G0 or any production route.
 
-The callable After-closure canary is now also landed as a separate
-caller-zero boundary. It uses the real Prelude receipt and complete seven-row
-Callable dispatch (`Pure=4`, `Read=2`, `Write=1`) before emitting the fixed CFG
-edges and sealing CFG/identity. A provisional unsealed PHI may be typed only
-by its verified Recipe class; concrete or missing type facts reject as
-`ResultTypeMismatch`. This does not activate Generic G0, Tail, Completion,
-DraftSeal, selector, retry/fallback, or legacy retirement.
+The earlier callable After-closure canary remains a historical caller-zero
+receipt for the fixed-edge shape. The selected R3-I0 canary supersedes that
+shape with exact R1 segment allocation and neutral recursive After sealing.
+Callable still uses the real Prelude receipt and complete seven-row dispatch
+(`Pure=4`, `Read=2`, `Write=1`); this does not activate Generic G0,
+selector, retry/fallback, or legacy retirement.
 
 ## Operation/effect product S0 receipt (2026-08-07)
 

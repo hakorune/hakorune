@@ -126,6 +126,7 @@ pub(crate) enum LoopPhysicalLayoutRejectV1 {
 #[derive(Debug)]
 pub(crate) struct PreparedLoopPhysicalLayoutV1 {
     program: PreparedLoopOperationProgramV1,
+    entry_segment: LoopPhysicalSegmentKeyV1,
     segments: Box<[PreparedLoopControlSegmentV1]>,
     coverage: LoopPhysicalLayoutCoverageReceiptV1,
 }
@@ -140,10 +141,12 @@ impl PreparedLoopPhysicalLayoutV1 {
             .core()
             .recipe()
             .as_recipe();
-        let (segments, visited_items, operation_items) = {
+        let (entry_segment, segments, visited_items, operation_items) = {
             let mut builder = LayoutBuilder::new(recipe);
+            let entry_segment = builder.entry_key(recipe.root_loop)?;
             builder.build_loop(recipe.root_loop, LoopPhysicalTargetV1::OpenRootAfter)?;
-            builder.finish()?
+            let (segments, visited_items, operation_items) = builder.finish()?;
+            (entry_segment, segments, visited_items, operation_items)
         };
         let schedule = program
             .schedule()
@@ -175,6 +178,7 @@ impl PreparedLoopPhysicalLayoutV1 {
                 segment_count: segments.len(),
             },
             program,
+            entry_segment,
             segments: segments.into_boxed_slice(),
         })
     }
@@ -185,6 +189,10 @@ impl PreparedLoopPhysicalLayoutV1 {
 
     pub(crate) fn segments(&self) -> &[PreparedLoopControlSegmentV1] {
         &self.segments
+    }
+
+    pub(crate) const fn entry_segment(&self) -> LoopPhysicalSegmentKeyV1 {
+        self.entry_segment
     }
 
     pub(crate) const fn coverage(&self) -> LoopPhysicalLayoutCoverageReceiptV1 {
@@ -396,6 +404,7 @@ mod tests {
         assert_eq!(layout.coverage().item_count(), 7);
         assert_eq!(layout.coverage().operation_count(), 7);
         assert_eq!(layout.coverage().segment_count(), 2);
+        assert_eq!(layout.entry_segment(), layout.segments()[0].key());
         assert_eq!(
             layout.segments()[0].operations(),
             [
@@ -424,6 +433,7 @@ mod tests {
         assert_eq!(layout.coverage().item_count(), 16);
         assert_eq!(layout.coverage().operation_count(), 15);
         assert_eq!(layout.coverage().segment_count(), 5);
+        assert_eq!(layout.entry_segment(), layout.segments()[0].key());
         assert_eq!(layout.segments()[0].key(), root_condition);
         assert_eq!(layout.segments()[1].key(), root_before_child);
         assert_eq!(layout.segments()[2].key(), child_condition);

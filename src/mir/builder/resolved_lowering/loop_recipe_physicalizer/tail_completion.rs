@@ -5,8 +5,8 @@
 //! binding through canonical identity, validates the declared trivial ABI,
 //! and consumes the existing Completion/return ledgers once.
 
-use super::continuation::{ReadyCallableLoopProfileCloseV1, ReadyLoopAfterContinuationV1};
 use super::operation_type::ensure_provisional_value_class;
+use super::recursive_after::{ReadyCallableLoopProfileCloseV1, ReadyLoopAfterContinuationV1};
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::callable_single_loop_recipe_coseal::VerifiedCallableTailV1;

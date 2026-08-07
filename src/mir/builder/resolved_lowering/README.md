@@ -65,14 +65,12 @@ The caller-zero Loop physicalization/DraftSeal canary is closed; production
 selection remains closed at the next docs-only
 `CALLABLE-LOOP-PRODUCTION-EDGE-D0` stop.
 
-The caller-zero topology slice is now landed as test-only evidence behind the
-`loop_recipe_physicalizer/` directory facade. It consumes one move-only common boundary and
-one session-local `ReadyLoopEntryV1`, borrows the existing canonical CFG
-service, and allocates only recursive header/body/step/After blocks. Owner,
-entry coverage, binding ownership, parent topology, and preheader placement
-are checked before allocation; an unknown parent never falls back to the root
-preheader. The focused canary proves a nested Generic G0 topology and
-rejects incomplete entry without allocating blocks.
+The caller-zero topology slice is landed as historical test-only evidence
+behind the `loop_recipe_physicalizer/` directory facade. It consumed one
+move-only common boundary and one session-local `ReadyLoopEntryV1`, borrowed
+the existing canonical CFG service, and allocated the old recursive
+header/body/step/After blocks. That P0 topology shape is not the current R3
+Callable physical boundary.
 
 This is not a production physicalizer or selector. It emits no operation MIR,
 Return, DraftSeal, publication, retry, fallback, or legacy deletion. The
@@ -161,10 +159,12 @@ and a distinct tail capability. The Builder-free
 `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` ingress and common
 `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` layout are now closed. R1 derives
 recursive Recipe preorder and parent-resume segments without Builder effect;
-the active row is the bounded `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2`, which
-may bind those segments to canonical physical blocks for Callable parity.
-Recursive After, physical G0, selector, collector, retry/fallback, and legacy
-retirement remain closed.
+R2 is closed as an adapter receipt only. R3-I0 now allocates one block per R1
+segment plus one root After (no Step), retains the complete segment program,
+preflights and emits every entry/transfer once through canonical
+CFG/identity/PhiTxn, and returns the neutral After continuation used by the
+existing Tail/Completion/DraftSeal path. Physical G0, selector, collector,
+retry/fallback, and legacy retirement remain closed.
 
 ## Generic G0 exact-ingress I0 receipt (2026-08-08)
 
@@ -248,9 +248,25 @@ Callable canary preserves seven-row parity (`Pure=4`, `Read=2`, `Write=1`),
 and its late failure still discards the unpublished function as one transaction
 before a fresh-session rerun. No new CFG/SSA/PHI owner, G0 physical route,
 recursive After writer, selector, fallback/retry, publication, or legacy path
-was introduced. Worker audit found that a neutral R3 writer cannot safely sit
-on this adapter because the old Step block remains outside the R1 transfer
-graph. The current boundary is the design correction in
-`LOOP-COMMON-RECURSIVE-AFTER-R3`: R3 must allocate one block per R1 segment
-plus root After, retain the completed layout/dispatch product, preflight every
-transfer, and retire the fixed Step/edge caller before implementation.
+was introduced. The old Step block remains outside the R1 transfer graph, so
+this adapter is historical and no longer feeds the selected Callable canary.
+
+## Callable recursive After R3-I0
+
+`LOOP-COMMON-RECURSIVE-AFTER-R3-I0` is closed for the selected caller-zero
+Callable canary. `segment_allocator` is the only R3 allocation entry: it
+allocates exactly one physical block per R1 segment and one root After block.
+`PreparedLoopPhysicalLayoutV1` carries an explicit sealed `entry_segment`, and
+`CompletedLoopSegmentProgramV1` retains layout, entry, segment receipt,
+completed operation receipts, and the value ledger. The recursive After module
+preflights the entry edge and each R1 Jump/Predicate/OpenNestedLoop transfer,
+emits them exactly once through canonical CFG/identity/PhiTxn, seals every
+segment and root After block, and returns one neutral
+`ReadyLoopAfterContinuationV1`.
+
+The Callable wrapper alone checks `7 = Pure4 + Read2 + Write1`; Tail,
+Completion, and DraftSeal remain their existing owners. The focused canary
+asserts exact segment coverage, a distinct root After, late-failure whole
+session discard, and fresh-session reuse. No G0 physical allocation,
+production selection, retry/fallback retirement, publication change, or broad
+legacy deletion is claimed.

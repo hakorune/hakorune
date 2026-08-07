@@ -1,15 +1,13 @@
-//! Exact segment-to-block receipt for the R2 Callable canary.
+//! Exact segment-to-block receipt for the R3 recursive physicalizer.
 //!
-//! The R1 layout is the only logical authority.  This module adapts the
-//! already allocated canonical topology blocks into an exact segment receipt;
-//! operation placement consumes the receipt by segment key and never looks
-//! up a logical block again.  The adapter intentionally rejects two segments
-//! sharing one block until the recursive physical allocator is opened.
+//! The R1 layout is the only logical authority. Operation placement consumes
+//! this receipt by segment key and never looks up a logical block again. The
+//! receipt also retains the explicit entry segment and root After block.
 
 use std::collections::BTreeSet;
 
-use super::topology::{LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1};
-use crate::mir::loop_recipe_contract::{LoopPhysicalSegmentKeyV1, PreparedLoopPhysicalLayoutV1};
+use super::topology::LoopPhysicalBlockRoleV1;
+use crate::mir::loop_recipe_contract::LoopPhysicalSegmentKeyV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::BasicBlockId;
 
@@ -36,17 +34,19 @@ impl LoopPhysicalSegmentBlockRowV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum LoopPhysicalSegmentBlockReceiptRejectV1 {
+    EmptySegments,
     ForeignSegment(LoopPhysicalSegmentKeyV1),
     DuplicateSegment(LoopPhysicalSegmentKeyV1),
     DuplicatePhysicalBlock(BasicBlockId),
     MissingSegment(LoopPhysicalSegmentKeyV1),
-    MissingLogicalPlacement(LoopPhysicalSegmentKeyV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct LoopPhysicalSegmentBlockReceiptV1 {
     owner: FunctionOwnerIdV1,
     preheader: BasicBlockId,
+    entry_segment: LoopPhysicalSegmentKeyV1,
+    root_after: BasicBlockId,
     rows: Box<[LoopPhysicalSegmentBlockRowV1]>,
 }
 
@@ -57,7 +57,34 @@ impl LoopPhysicalSegmentBlockReceiptV1 {
         expected_segments: &[LoopPhysicalSegmentKeyV1],
         rows: Vec<LoopPhysicalSegmentBlockRowV1>,
     ) -> Result<Self, LoopPhysicalSegmentBlockReceiptRejectV1> {
+        let entry_segment = expected_segments
+            .first()
+            .copied()
+            .ok_or(LoopPhysicalSegmentBlockReceiptRejectV1::EmptySegments)?;
+        Self::issue_with_boundary(
+            owner,
+            preheader,
+            entry_segment,
+            preheader,
+            expected_segments,
+            rows,
+        )
+    }
+
+    pub(super) fn issue_with_boundary(
+        owner: FunctionOwnerIdV1,
+        preheader: BasicBlockId,
+        entry_segment: LoopPhysicalSegmentKeyV1,
+        root_after: BasicBlockId,
+        expected_segments: &[LoopPhysicalSegmentKeyV1],
+        rows: Vec<LoopPhysicalSegmentBlockRowV1>,
+    ) -> Result<Self, LoopPhysicalSegmentBlockReceiptRejectV1> {
         let expected = expected_segments.iter().copied().collect::<BTreeSet<_>>();
+        if !expected.contains(&entry_segment) {
+            return Err(LoopPhysicalSegmentBlockReceiptRejectV1::MissingSegment(
+                entry_segment,
+            ));
+        }
         let mut segments = BTreeSet::new();
         let mut physical_blocks = BTreeSet::new();
         for row in &rows {
@@ -89,42 +116,10 @@ impl LoopPhysicalSegmentBlockReceiptV1 {
         Ok(Self {
             owner,
             preheader,
+            entry_segment,
+            root_after,
             rows: rows.into_boxed_slice(),
         })
-    }
-
-    /// Adapt the current Callable topology.  The role lookup is confined to
-    /// this one physical boundary; operation emission uses the resulting
-    /// segment receipt only.
-    pub(super) fn from_callable_layout(
-        layout: &PreparedLoopPhysicalLayoutV1,
-        block_receipt: &LoopPhysicalBlockReceiptV1,
-    ) -> Result<Self, LoopPhysicalSegmentBlockReceiptRejectV1> {
-        let mut rows = Vec::with_capacity(layout.segments().len());
-        for segment in layout.segments().iter().map(|row| row.key()) {
-            let role = block_receipt
-                .role_for_logical(segment.loop_key(), segment.block())
-                .ok_or(LoopPhysicalSegmentBlockReceiptRejectV1::MissingLogicalPlacement(segment))?;
-            let physical_block = block_receipt
-                .lookup(segment.loop_key(), role)
-                .ok_or(LoopPhysicalSegmentBlockReceiptRejectV1::MissingLogicalPlacement(segment))?;
-            rows.push(LoopPhysicalSegmentBlockRowV1::new(
-                segment,
-                role,
-                physical_block,
-            ));
-        }
-        let expected = layout
-            .segments()
-            .iter()
-            .map(|row| row.key())
-            .collect::<Vec<_>>();
-        Self::issue(
-            block_receipt.owner(),
-            block_receipt.preheader(),
-            &expected,
-            rows,
-        )
     }
 
     pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
@@ -133,6 +128,14 @@ impl LoopPhysicalSegmentBlockReceiptV1 {
 
     pub(super) const fn preheader(&self) -> BasicBlockId {
         self.preheader
+    }
+
+    pub(super) const fn entry_segment(&self) -> LoopPhysicalSegmentKeyV1 {
+        self.entry_segment
+    }
+
+    pub(super) const fn root_after(&self) -> BasicBlockId {
+        self.root_after
     }
 
     pub(super) fn rows(&self) -> &[LoopPhysicalSegmentBlockRowV1] {
