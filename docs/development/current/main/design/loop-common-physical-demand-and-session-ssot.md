@@ -861,8 +861,10 @@ transaction, or retry owner. A post-emission failure poisons the unpublished
 function and uses whole-session discard; local Phi rollback is diagnostic
 cleanup only.
 
-Generic item 3 remains a normal parent-body `ReadBinding`. Its source anchor is
-the child-entry `DerivedCarrierEntry` for carrier 2. The later full G0 program
+Generic item 3 remains a normal parent-body `ReadBinding`, but its source
+anchor is the child-entry `DerivedCarrierEntry` for carrier 2. It is **not
+admitted by ReadBinding D0**: the row is rejected as
+`CarrierSeedUnavailable` and belongs to a later carrier-seed row. That later
 row must assert parent-block placement and issue a child-entry carrier-seed
 receipt through canonical BindingSSA; it must never relabel the operation or
 infer placement from the anchor. The first leaf canary is ConstI64 only.
@@ -927,6 +929,110 @@ return/seal/module publication, selector, retry/fallback, legacy retirement,
 or performance result. It is a design stop only; the next implementation card
 must be opened separately and must update reference documentation in the same
 commit as code and focused tests.
+
+#### ReadBinding source/effect mapping matrix
+
+The following table is the complete D0 mapping. The full prepared program is
+the only projection input; a one-row test fixture is allowed because the
+complete program itself contains one ReadBinding row, not because a single
+operation is extracted from a demand.
+
+| Recipe operation | Evidence item | Core effect / anchor | D0 admission | Canonical read | Result publication owner |
+| --- | --- | --- | --- | --- | --- |
+| `ReadBinding { binding: LoopBindingKeyV1, result: LoopValueKeyV1 }` | same `LoopItemKeyV1` | `SourceRead { ordinal }`, `source_binding: BindingRefV1`, `Expr(OwnedExprSiteV1)` | admit only when all keys, owner, block, and role match | claim exact `SourceExprSiteV1` for `BindingRefV1`, then issue `CanonicalBindingReadReceiptV1` | outer operation ledger maps `LoopValueKeyV1` to the immutable leaf receipt |
+| same operation | same item | `DerivedCarrierEntry` anchor | reject `CarrierSeedUnavailable`; no claim/read | none | none; later carrier-seed row owns it |
+| any non-`ReadBinding` operation | same item | any effect row | reject `OperationNotReadBinding` | none | none |
+
+The canonical receipt has exact field types and one issuer:
+
+```text
+CanonicalBindingReadReceiptV1 {
+  owner: FunctionOwnerIdV1,
+  binding: BindingRefV1,
+  physical_block: BasicBlockId,
+  physical_value: ValueId,
+}
+```
+
+Only `CanonicalSsaFunctionSessionV2`'s borrowed read service may issue it.
+The order is fixed: validate the prepared row and physical placement; claim
+the exact `SourceExprSiteV1` with `claim_variable_use_binding`; call the
+canonical `read_entry_receipt`; validate owner, block, and physical type;
+then return the receipt. A raw `ValueId` from `read_entry` is never a leaf
+receipt and cannot be fabricated or rewrapped by the physicalizer.
+
+The leaf receipt uses distinct logical and physical names:
+
+```text
+ReadBindingEmissionReceiptV1 {
+  owner: FunctionOwnerIdV1,
+  item: LoopItemKeyV1,
+  binding: BindingRefV1,
+  result: LoopValueKeyV1,
+  logical_block: LoopBlockKeyV1,
+  physical_block: BasicBlockId,
+  physical_value: ValueId,
+}
+```
+
+`result` is an alias key only. The Recipe's `LoopValueClassV1` for `result`
+and the binding/effect class are the logical type authority; the canonical
+BindingSSA type fact is the physical observation and must match the class-to-
+`MirType` mapping before the receipt is returned. The outer operation ledger,
+not the leaf, publishes the result mapping. No second SSA/PHI/value map is
+created.
+
+#### Entry, placement, service, and failure contracts
+
+`ReadyLoopEntryV1` is a **preheader seed receipt**, not a complete map of all
+live bindings. The private ReadBinding projection carries an explicit
+`entry_requirement: LoopReadEntryRequirementV1` with exactly two cases:
+`PreheaderSeed` or `CanonicalLive`. The full-program orchestrator issues this
+field from the existing Recipe input set and source-binding relations, then
+checks `PreheaderSeed` against `ReadyLoopEntryV1`; the leaf never infers the
+case. Body/step bindings use canonical SSA availability at their exact
+physical block; absence from the preheader rows is not itself an error. A
+required preheader seed missing from `ReadyLoopEntryV1` is the typed
+pre-effect reject `EntryBindingMissing`.
+
+The orchestrator supplies `expected_role: LoopPhysicalBlockRoleV1` together
+with `LoopBlockKeyV1`; the sole placement authority is
+`LoopPhysicalBlockReceiptV1`. The leaf never derives a role from
+`current_block`, an ordinal, or source-anchor shape. The logical block and
+expected role must resolve to the same `BasicBlockId` before claim/read.
+
+The canonical borrowed bundle is the only physicalizer service boundary:
+
+```text
+CanonicalBindingReadServicesV1<'a> {
+  builder: &'a mut MirBuilder,
+  identity: &'a mut ResolvedSsaIdentityStateV2,
+  phis: &'a mut PhiTxn,
+}
+```
+
+It is created by the fresh canonical function session, borrowed for one
+read, and never stores a second CFG/SSA/PHI owner. CFG placement is borrowed
+separately from the sole `LoopPhysicalBlockReceiptV1`; simultaneous borrows
+are sequenced so the receipt is fully validated before the canonical read.
+There is no new type-fact owner or `TypeFactContext`: physical type
+validation reads the existing `TypeContext` at
+`MirBuilder::function_state.type_ctx`, and any publish/idempotence decision
+uses the existing `TypeFactDecisionV1`/
+`PreparedTypeFactPublicationV1` seam. The service bundle therefore borrows
+only the canonical Builder/identity/Phi owners named above.
+
+Phase ownership is fixed as follows:
+
+| Phase | Allowed failure | Owner/action |
+| --- | --- | --- |
+| prepared-row/source/effect/entry/placement validation before claim | typed `NoSafeSlice` | no Builder/claim/PHI effect |
+| canonical validation before the atomic claim/read service starts | typed `NoSafeSlice` | no claim/PHI effect |
+| claim succeeds or canonical read starts, then any read/type/receipt error | terminal `Freeze` | whole unpublished function discard; caller restore once; PhiTxn abort is diagnostic only |
+| post-read type/receipt/result mismatch or injected late failure | terminal `Freeze` | whole unpublished function discard; caller restore once; no retry/fallback |
+
+This phase split is part of D0 acceptance and must be represented by focused
+negative tests in the later implementation row.
 
 ## Implementation and documentation obligation
 

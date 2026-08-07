@@ -72,7 +72,19 @@ can be opened:
 
 Acceptance for this design row is the source/effect mapping matrix, the typed
 reject matrix, the canonical receipt ownership rule, and explicit non-claims
-in the common physical-demand SSOT. No Rust Builder mutation is part of D0.
+in the common physical-demand SSOT. The matrix must name
+`LoopBindingKeyV1`/`BindingRefV1`/`LoopValueKeyV1`, admit only `Expr`+
+`SourceRead`, and mark `DerivedCarrierEntry` as `CarrierSeedUnavailable`.
+It must also fix `ReadyLoopEntryV1` as preheader-seed-only, require an
+orchestrator-supplied `expected_role`, define the canonical read-service
+borrow and `CanonicalBindingReadReceiptV1` issuer/order. Type validation must
+use the existing `TypeContext` and `TypeFactDecisionV1` seams; no invented
+`TypeFactContext` or second type-fact owner is allowed. The private projection
+must also carry `LoopReadEntryRequirementV1::{PreheaderSeed,CanonicalLive}`.
+Finally, separate typed pre-effect `NoSafeSlice` from the atomic claim/read
+boundary: once the claim succeeds or canonical read starts, every failure is
+terminal whole-session discard (local Phi abort is diagnostic only). No Rust
+Builder mutation is part of D0.
 
 ## Stop boundary
 

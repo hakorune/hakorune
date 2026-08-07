@@ -102,12 +102,10 @@ Related:
   separates complete demand/preflight from private leaf emission. The
   Builder-free full-demand P0, the topology module split, the canonical
   physical block receipt, and the private ConstI64 leaf-emitter canary are now
-  closed. The current execution boundary is the design-only
-  `LOOP-RECIPE-OPERATION-EMITTER-READ-DESIGN0-D0`; no ReadBinding mutation or
-  production activation is open. Worker review is `REVISE`: Expr-only source
-  projection, canonical read receipt, sole placement authority, alias-only
-  result publication, and typed pre-effect/late-discard boundaries must be
-  fixed first. Physical completion, selection,
+  closed. The ReadBinding D0 design is accepted and the current execution row
+  is `LOOP-RECIPE-OPERATION-EMITTER-READ-I0`. Only the private Expr/SourceRead
+  leaf is open; carrier seeds, full physicalization, and production activation
+  remain closed. Physical completion, selection,
   retry/fallback retirement, and legacy deletion remain closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
