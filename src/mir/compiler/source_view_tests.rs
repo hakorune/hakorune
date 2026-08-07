@@ -2,7 +2,8 @@ use std::num::NonZeroU32;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourcePathSegmentV1, SourcePathV1,
+    CallableSemanticSourceLedgerView, FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1,
+    SourcePathSegmentV1,
 };
 
 use super::located::{ConsumedSourceRangeV1, LocatedBodySuffixV1, SourceBodyKindV1};
@@ -70,6 +71,26 @@ fn fixture_function() -> ASTNode {
             assignment("x", outer),
             local("f", lambda),
         ],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    }
+}
+
+fn loop_fixture_function() -> ASTNode {
+    ASTNode::FunctionDeclaration {
+        name: "loop_fixture".into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![ASTNode::Loop {
+            condition: Box::new(literal(1)),
+            body: Vec::new(),
+            span: Span::unknown(),
+        }],
         uses: Vec::new(),
         contracts: Vec::new(),
         is_static: true,
@@ -189,20 +210,30 @@ fn navigator_rejects_wrong_roles_and_out_of_bounds_sites() {
 
 #[test]
 fn stmt_at_reopens_only_resolver_inventory_sites() {
-    let unit = verified_source_unit_for_test(fixture_function());
+    let unit = verified_source_unit_for_test(loop_fixture_function());
     let owner = unit.forest().roots()[0];
     let view = unit.function_source_view(owner).unwrap();
 
-    let site = SourcePathV1::root_body(1).stmt();
-    let located = view.stmt_at(&site).unwrap();
+    let membership = CallableSemanticSourceLedgerView::from_forest(unit.forest(), owner)
+        .unwrap()
+        .only_loop_site()
+        .unwrap();
+    let site = membership.source().site().clone();
+    let located = view.stmt_at(&membership).unwrap();
     assert_eq!(located.site(), &site);
-    assert!(matches!(located.node(), ASTNode::Assignment { .. }));
+    assert!(matches!(located.node(), ASTNode::Loop { .. }));
 
-    let synthetic = SourcePathV1::root_body(99).stmt();
+    let foreign_unit = verified_source_unit_for_test(loop_fixture_function());
+    let foreign_owner = foreign_unit.forest().roots()[0];
+    let foreign_membership =
+        CallableSemanticSourceLedgerView::from_forest(foreign_unit.forest(), foreign_owner)
+            .unwrap()
+            .only_loop_site()
+            .unwrap();
     assert!(matches!(
-        view.stmt_at(&synthetic),
+        view.stmt_at(&foreign_membership),
         Err(SourceNavigationErrorV1::InvalidSite {
-            reason: "statement_not_in_resolver_inventory",
+            reason: "loop_source_foreign_owner",
             ..
         })
     ));

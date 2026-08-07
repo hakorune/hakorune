@@ -57,7 +57,7 @@ resolver-sealed Loop membership when cardinality is exactly one and returns
 typed `NoSafeSlice` for zero or multiple sites. It never mints a
 `SourceStmtSiteV1`, chooses a route-local ordinal, or exposes a raw iterator.
 The observer navigates source only through the owner-branded
-`FunctionSourceViewV1::stmt_at(site)` seam. If either exact seam is missing,
+`FunctionSourceViewV1::stmt_at(membership)` seam. If either exact seam is missing,
 the row stops with typed `NoSafeSlice` rather than adding a route-local
 adapter.
 
@@ -181,7 +181,7 @@ The next row is
 
 1. split neutral SyntaxFacts/source-shape/map issuers from test fixtures;
 2. use `CallableSemanticSourceLedgerView::only_loop_site()` for exact
-   single-site cardinality and `FunctionSourceViewV1::stmt_at(site)` for
+   single-site cardinality and `FunctionSourceViewV1::stmt_at(membership)` for
    owner-branded source navigation;
 3. expose the existing source ledger and exact `ResolvedFunctionLoweringInput`
    to the observer without AST/name re-walk;

@@ -528,7 +528,7 @@ Done:
   Bridge D0 is accepted: no new semantic Bridge owner; the resolver ledger,
   neutral SyntaxFacts, and SourceMap are the target. S0 must provide the
   resolver-owned site issuer, owner-branded navigation, production issuers,
-  source-to-ledger parity, typed rejects, and caller-zero evidence. First API slice is green: `only_loop_site()` and `stmt_at(site)` have positive/cardinality/inventory-negative tests; neutral issuer promotion remains.
+  source-to-ledger parity, typed rejects, and caller-zero evidence. First API slice is green: `only_loop_site()` and `stmt_at(membership)` have positive/cardinality/inventory-negative tests; neutral issuer promotion remains.
 
 Stop:
   Recipe/Prepared physicalization, physical Loop emission, I0 caller switch,

@@ -185,7 +185,7 @@ CallableSemanticSourceLedgerView::only_loop_site()
   -> exactly one resolver-sealed Loop membership
   -> zero or multiple memberships = typed rejection
 
-FunctionSourceViewV1::stmt_at(site)
+FunctionSourceViewV1::stmt_at(membership)
   -> exact statement only when present in the sealed owner inventory
 ```
 

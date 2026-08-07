@@ -6,7 +6,8 @@ use crate::ast::ASTNode;
 pub(crate) use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, OwnedExprSiteV1, SourceBodyKindV1, SourceExprSiteV1, SourceNodeSiteV1,
-    SourcePathV1, SourceStmtSiteV1, VerifiedSemanticOwnerForestV1,
+    SourcePathV1, SourceStmtSiteV1, VerifiedCallableLoopMembershipV1,
+    VerifiedSemanticOwnerForestV1,
 };
 
 use super::located::{
@@ -157,13 +158,33 @@ impl<'a> FunctionSourceViewV1<'a> {
         Ok(LocatedStmtV1::new(self.owner, site, node, seal))
     }
 
-    /// Re-open one resolver-issued statement site without scanning or
-    /// reconstructing a body ordinal. The source view validates membership in
+    /// Re-open one resolver-issued Loop statement without scanning or
+    /// reconstructing a body ordinal. The membership token carries the
+    /// resolver identity/frame brand; the source view validates that brand and
     /// the sealed owner inventory before projecting the exact node.
     pub(crate) fn stmt_at(
         self,
-        site: &SourceStmtSiteV1,
+        membership: &VerifiedCallableLoopMembershipV1,
     ) -> Result<LocatedStmtV1<'a>, SourceNavigationErrorV1> {
+        let source = membership.source();
+        let Some(function) = self.forest.owner(self.owner) else {
+            return Err(SourceNavigationErrorV1::UnknownOwner(self.owner));
+        };
+        if membership.scope_region().scope().owner() != self.owner
+            || membership.scope_region().region().owner() != self.owner
+            || !source.matches_identity(
+                function.function_origin(),
+                function.source_kind(),
+                source.site(),
+            )
+        {
+            return Err(SourceNavigationErrorV1::InvalidSite {
+                owner: self.owner,
+                site: source.site().node().clone(),
+                reason: "loop_source_foreign_owner",
+            });
+        }
+        let site = source.site();
         if !self
             .forest
             .owner(self.owner)

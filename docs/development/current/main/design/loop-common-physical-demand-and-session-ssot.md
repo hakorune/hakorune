@@ -694,7 +694,7 @@ resolver source authority, while neutral SyntaxFacts and SourceMap are split
 from test fixtures and promoted in
 `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`. The resolver seam is
 `CallableSemanticSourceLedgerView::only_loop_site()` and the observer seam is
-`FunctionSourceViewV1::stmt_at(site)`; zero/multiple sites are typed
+`FunctionSourceViewV1::stmt_at(membership)`; zero/multiple sites are typed
 `NoSafeSlice`. The current issuers remain `cfg(test)` until that row lands. A
 by-name adapter, fixture copying, selector, retry, fallback, Generic G0
 substitution, or legacy deletion is not authorized by this census.

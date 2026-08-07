@@ -124,7 +124,7 @@ Related:
   `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`: resolver
   `CallableSemanticSourceLedgerView::only_loop_site()` supplies the exact
   single Loop site (zero/multiple sites are typed `NoSafeSlice`), and
-  owner-branded `FunctionSourceViewV1::stmt_at(site)` supplies exact source
+  owner-branded `FunctionSourceViewV1::stmt_at(membership)` supplies exact source
   navigation; this resolver/navigation slice is now green with typed
   cardinality/inventory rejects. The remaining S0 work promotes neutral
   SyntaxFacts/SourceMap issuers with Builder-effect-zero construction.
