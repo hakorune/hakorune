@@ -337,8 +337,9 @@ green (8 operation/effect tests and 43 Generic G0 tests).
 No operation MIR, physicalizer, selector, retry/fallback, publication, or
 legacy deletion is opened by this receipt. Reviewed Decision B fixes one
 private move-only `VerifiedLoopOperationPhysicalDemandV1` as the complete
-full-program input: it bundles operation/effect evidence, common continuation,
-and a key-only private index and exposes no single-operation extraction API.
+full-program input: it bundles the moved resolver semantic context,
+operation/effect evidence, common continuation, and a key-only private index
+and exposes no single-operation extraction API.
 The next implementation row is Builder-free `prepare_all`; Const leaf emission
 and the Generic item-3 bridge remain later rows.
 

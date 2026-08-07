@@ -1,6 +1,6 @@
 # Loop operation physical demand P0
 
-Status: `IMPLEMENTATION-READY`
+Status: `DESIGN-REVISE`
 Date: 2026-08-07
 Parent: `LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP / Decision B`
 Authority:
@@ -14,6 +14,7 @@ not the Const leaf-emitter canary.
 
 ```text
 VerifiedLoopOperationEffectProductV1
++ VerifiedLoopSemanticContextV1
 + VerifiedLoopContinuationContractV1
   -> VerifiedLoopOperationPhysicalDemandV1
   -> prepare_all
@@ -30,6 +31,7 @@ The exact Rust field layout remains private, but the semantic shape is fixed:
 
 ```text
 VerifiedLoopOperationPhysicalDemandV1 {
+  context: moved neutral semantic context
   operation_effect: moved full exact-coverage product
   continuation: moved neutral Loop continuation
   index: private key-only lookup cache
@@ -49,7 +51,7 @@ JoinSig, source/effect, CFG, SSA, or PHI truth.
 `prepare_all` verifies before any Builder effect:
 
 ```text
-owner/frame/Scope/Region identity
+context owner/origin/source-kind/loop-site/frame/Scope/Region identity
 every Recipe operation is present exactly once
 every operation kind and value class is supported by the declared schedule
 every operand relation is exact
@@ -61,6 +63,31 @@ schedule count equals complete Recipe operation count
 
 The schedule is derived from Recipe Loop/Block/Item structure. Evidence-vector
 or item-key sort order is not execution authority.
+
+## Pre-implementation correction
+
+The earlier two-field sketch was incomplete. The common demand must move the
+already verified semantic context as well as the operation/effect product and
+the logical After continuation. Otherwise `prepare_all` would have no exact
+source for the required frame and Scope/Region checks and would be forced to
+re-catalog or guess them.
+
+Before implementation starts, close these two mechanical issuer changes:
+
+1. Move the existing test-only `VerifiedLoopSemanticContextV1` wrapper into
+   the neutral `loop_recipe_contract` layer. This is a transport move of the
+   resolver-issued owner/origin/source-kind/loop-site/frame/Scope/Region
+   evidence, not a new semantic owner.
+2. Move the existing test-only `VerifiedLoopContinuationContractV1` wrapper
+   into the same neutral layer. Callable and Generic G0 must consume their
+   existing After capability exactly once; they must not reissue or clone it.
+   The Generic G0 window lease must retain the resolver-issued Scope/Region
+   pair so its adapter can issue the same context shape.
+
+The P0 implementation may begin only after those issuers are represented in
+the neutral product boundary. If either profile cannot supply the exact
+context, return typed `NoSafeSlice`; do not fabricate a context or weaken the
+contract silently.
 
 ## Required tests
 

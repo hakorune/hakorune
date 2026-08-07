@@ -149,18 +149,23 @@ The full-program preflight consumes this private move-only product:
 
 ```text
 VerifiedLoopOperationPhysicalDemandV1 {
+  context: VerifiedLoopSemanticContextV1,
   operation_effect: VerifiedLoopOperationEffectProductV1,
   continuation: VerifiedLoopContinuationContractV1,
   index: private LoopOperationPhysicalIndexV1,
 }
 ```
 
-The operation/effect product owns the moved Core and item-keyed source/effect
+The context owns only the resolver-issued semantic identity relation
+(owner/origin/source-kind/loop-site/frame/Scope/Region); it is moved from the
+existing source authority and is not re-derived from Recipe keys. The
+operation/effect product owns the moved Core and item-keyed source/effect
 ledger. The continuation owns only the logical Loop After capability. Callable
-and Generic G0 adapters issue the common continuation by exact move from their
-separate Tail/After profiles; they do not share source types, compare counts,
-or pass two independent arguments to the physicalizer. The index is a private
-key-only lookup aid and never a second semantic or physical truth. The existing
+and Generic G0 adapters issue the common context and continuation by exact move
+from their existing resolver/source products; they do not share source types,
+compare counts, or pass two independent arguments to the physicalizer. The
+index is a private key-only lookup aid and never a second semantic or physical
+truth. The existing
 `VerifiedLoopPhysicalBoundaryV1` remains topology-only and is invalid for the
 operation program because it drops source anchors.
 
@@ -221,6 +226,7 @@ split back out of the co-seal. The prepare never borrows, clones, or re-catalogs
 the co-seal. The inner receives, without duplication:
 
 - verified Recipe/Core and JoinSig;
+- the moved resolver-issued semantic context (including Scope/Region);
 - semantic owner/origin/source-kind, loop source and execution frame;
 - Scope/Region relation;
 - exact operation-source and input-source relations;
@@ -280,6 +286,12 @@ The Generic G0 prepared product wraps one instance of the same complete
 operation-demand type but retains its existing `L0.After/b1` boundary
 capability. It neither
 reuses the callable prefix `value` Tail nor creates a G0 physicalizer.
+
+The Generic G0 window lease is the source authority for its Scope/Region pair.
+The lease therefore retains the pair alongside its existing owner/source/frame
+brand, and the G0 product moves that context into the common demand. If a
+profile cannot provide this exact pair, the demand is a typed `NoSafeSlice`; no
+synthetic region or route-local context is permitted.
 
 The G0 adapter must consume the existing S4 product into a common co-seal view
 by a disjoint move of its already verified Core/relations/After evidence. If
