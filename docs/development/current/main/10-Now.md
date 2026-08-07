@@ -75,11 +75,13 @@ Related:
   `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` is closed for the three V2 session
   lowerers through the sole typed terminal. The non-V2 direct constructor
   remains named compatibility debt. The current design stop is
-  `LOOP-PHYSICAL-PREPARE-STATIC-CALL-FIXTURE-D0`: the existing MethodCall is a
-  typed negative, and the next bounded decision is an exact resolver-backed
-  FreeStatic fixture with explicit call kind, same-brand target relation, and
-  declaration-derived ABI. Physicalization, production selection,
-  retry/fallback retirement, and legacy deletion remain closed.
+  `LOOP-PHYSICAL-PREPARE-STATIC-CALL-FIXTURE-D0` is accepted. The current
+  execution row is `CALLABLE-SOURCE-SHAPE-THIN0`: first split neutral call
+  shapes and embedded tests under the 800-line limit, then add the exact
+  resolver-backed FreeStatic fixture. The existing MethodCall remains a typed
+  negative; same-brand target relation and declaration-derived ABI are
+  required. Physicalization, production selection, retry/fallback retirement,
+  and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only
