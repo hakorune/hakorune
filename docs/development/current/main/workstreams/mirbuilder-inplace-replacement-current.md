@@ -38,7 +38,7 @@ co-seals the resolver source/frame/Scope/Region and the selected
 `0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
 not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
 `RECIPE-COSEAL-I0-R0` and `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` are closed; Loop continuation/Tail remain separate, and the one non-V2 `ReadyFunctionDraftSealV1::new` caller remains named compatibility debt.
-Static-call fixture design is accepted; active boundary `CALLABLE-SOURCE-SHAPE-THIN0` is a behavior-neutral split before the genuine FreeStatic positive; MethodCall remains a typed negative and physical/production/retirement remain closed.
+Static-call fixture design is accepted; `CALLABLE-SOURCE-SHAPE-THIN0` is closed as a neutral Method/FreeStatic shape/test split below 800 lines. Next is `CALLABLE-STATIC-PREFIX-S0` for the exact resolver-backed FreeStatic fixture; MethodCall remains a typed negative and physical/production/retirement remain closed.
 After this shallow sequence, final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
 ## Root-neutral semantic foundation

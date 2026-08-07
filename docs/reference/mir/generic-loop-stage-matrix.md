@@ -1256,3 +1256,17 @@ Prepared/ABI witness. A genuine positive requires a separately verified
 static-call source profile with an exact receiver/target relation. No target
 injection, name lookup, AST rematch, physical ID, selector, retry, fallback, or
 production caller is allowed in this row.
+
+## Callable source-shape split receipt (2026-08-07)
+
+`CALLABLE-SOURCE-SHAPE-THIN0` is closed as a caller-zero, behavior-neutral
+BoxShape refactor. Neutral call/literal/operator shapes are isolated from the
+syntax observer, and the observer/source-map tests are isolated in sibling
+test-only modules. `Method` and `FreeStatic` are explicit source-shape kinds;
+`FreeStatic` has no resolver target until the next exact fixture row. The
+existing MethodCall fixture remains a natural typed negative.
+
+No Generic/Loop Recipe, selector, physicalizer, Builder/MIR, retry, fallback,
+publication, or production claim follows from this split. The next row is
+`CALLABLE-STATIC-PREFIX-S0`; same-brand different-owner target validation and
+declaration-derived ABI remain later prepare contracts.

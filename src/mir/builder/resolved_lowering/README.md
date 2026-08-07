@@ -81,6 +81,13 @@ receiver, target, arity, and result ABI must come from one exact catalog/header
 relation. No name lookup, AST rematch, physical ID, Builder effect, selector,
 retry, fallback, or production caller is opened by this row.
 
+The bounded shape slice now owns neutral `Method`/`FreeStatic` call vocabulary
+in `callable_single_loop_source_shapes.rs`; the existing MethodCall remains a
+typed negative. Embedded syntax/source-map tests are isolated in sibling
+test-only modules so the observer, source map, and physical-prepare files stay
+below the 800-line limit. The next row may observe only the exact resolver
+catalog-backed FreeStatic fixture.
+
 ## Disconnected canonical CFG prerequisite
 
 `canonical_cfg/` owns the SSA-C1 edge/seal substrate. It emits a terminator and

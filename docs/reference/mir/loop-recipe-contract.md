@@ -208,6 +208,22 @@ claim. G0 must reuse the same terminal compatibility relation later, and the
 physical selector remains closed until the common physicalization and parity
 rows are complete.
 
+## Callable source-shape split receipt (2026-08-07)
+
+`CALLABLE-SOURCE-SHAPE-THIN0` is closed as a behavior-neutral BoxShape slice.
+The observer's neutral syntax vocabulary now lives in the small test-only
+`callable_single_loop_source_shapes.rs` module, while syntax-observer and
+source-map tests live in sibling files. `SourceCallKindV1::Method` and
+`SourceCallKindV1::FreeStatic` are explicit shape labels; neither label is a
+resolver target or a proof of a callable ABI. The existing `helper.to_i64(n)`
+MethodCall remains the typed `MissingPreludeTarget` negative.
+
+This split changes no resolver, Recipe, JoinSig, physical, Builder, selector,
+retry, fallback, publication, or production behavior. The next bounded row is
+`CALLABLE-STATIC-PREFIX-S0`, which may add only the exact resolver-backed
+`FreeStatic` fixture and its observer evidence. Same-compilation different-owner
+target validation and declaration-derived ABI remain later P0 boundaries.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local

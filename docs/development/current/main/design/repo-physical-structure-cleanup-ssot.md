@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted-for-final-convergence-tasking; implementation remains parked behind the active Loop cutover
-Date: 2026-03-22
+Date: 2026-08-07
 Scope: repo の物理構造を docs/設計の責務分離に追いつかせるための BoxShape cleanup 順序を固定する。即時の `src/mir` crate split や broad rename は扱わない。
 Related:
   - CURRENT_TASK.md
@@ -369,11 +369,13 @@ in their named owner SSOTs.
    -> crate-boundary recheck
 
 4. native .hako authority migration
+   -> MIR-AUTHORITY-ROLE-MANIFEST0-D0
    -> Rust/.hako/compat role manifest -> existing selfhost
       inventory/parity/contract-cutover order
    -> parser handoff after MirBuilder
 
 5. physical debt retirement
+   -> MIR-LEGACY-JOINMODULE-DISPOSITION0-D0
    -> Rust semantic residue, compat/bootstrap keeps, and old facade edges
       retire only from exact caller/reference evidence
 
@@ -387,6 +389,33 @@ docs-topology BoxShape series. They may run only after explicit lane selection
 and may not insert work ahead of step 1. Their target is compact live pointers
 and eventually strict/zero-unregistered registry state, not a second compiler
 architecture.
+
+### Parked final-convergence task cells
+
+These cells are owned by this SSOT and remain parked until the integrated order
+reaches them. They are named here so the terminal audit cannot silently assume
+that role ownership or the legacy JoinModule disposition is already complete.
+
+#### `MIR-AUTHORITY-ROLE-MANIFEST0-D0`
+
+Create one machine-readable manifest for the final authority-role census over
+`src/**`, `lang/**`, and explicitly named compatibility/bootstrap/tooling roots.
+Each record classifies `meaning`, `substrate`, `host/backend`, `oracle`, or
+explicit `quarantine`, and records exclusions and the no-default-fallback
+rule. This is classification only: no source route, resolver, lowering, or
+runtime behavior changes. The row is complete only when every in-scope root
+has one role, unnamed middle ownership is zero, the role manifest is linked by
+the final audit, and README/current-entry/guard-index updates are synchronized.
+
+#### `MIR-LEGACY-JOINMODULE-DISPOSITION0-D0`
+
+Produce the single Legacy JoinModule disposition receipt required by the final
+audit. Every legacy JoinModule producer/consumer is classified as `retain`,
+`quarantine`, or `retire`, with one owner, exact caller/reference evidence,
+default-fallback status, and a removal condition. The row may not delete or
+activate a route; it only blocks the final audit from treating this boundary
+as implicit. Its receipt, owner README, exact reference delta (or
+`reference_delta = 0`), guard index, and current mirror update together.
 
 ## Non-Goals
 

@@ -39,6 +39,14 @@ exact Tail statement site is carried by the source-map target; it is not
 reconstructed from a name or ordinal. Physical preparation and production
 selection remain closed until a later explicit row.
 
+The bounded `CALLABLE-SOURCE-SHAPE-THIN0` split keeps neutral syntax shapes in
+`callable_single_loop_source_shapes.rs` and keeps observer/source-map tests in
+test-only sibling files. `SourceCallKindV1` distinguishes `Method` from the
+future resolver-backed `FreeStatic` fixture; it is syntax evidence only and
+does not issue a target, ABI, Recipe key, or physical capability. The focused
+shape/source-map suites remain caller-zero and all touched files stay below
+the 800-line source limit.
+
 ## Generic G0 S0A source projector
 
 `generic_g0_projection/` is the only AST-bearing source projector for the

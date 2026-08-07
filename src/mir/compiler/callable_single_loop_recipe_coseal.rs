@@ -25,7 +25,7 @@ use crate::mir::resolved_semantics::{
 use super::callable_single_loop_source_map::{
     CallableSourceMapRoleV1, CallableSourceMapRowV1, VerifiedCallableSingleLoopSourceMapV1,
 };
-use super::callable_single_loop_syntax_facts::{
+use super::callable_single_loop_source_shapes::{
     SourceCallBoundaryShapeV1, SourceLiteralShapeV1, SyntaxBinaryOperatorV1,
 };
 use crate::mir::resolved_semantics::CallableSemanticSourceLedgerView;

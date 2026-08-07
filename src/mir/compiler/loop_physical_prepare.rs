@@ -22,7 +22,7 @@ use super::callable_single_loop_recipe_coseal::{
     VerifiedCallablePreludeV1, VerifiedCallableSingleLoopRecipeProductV1, VerifiedCallableTailV1,
     VerifiedLoopRecipeCoSealV1,
 };
-use super::callable_single_loop_syntax_facts::SourceReceiverShapeV1;
+use super::callable_single_loop_source_shapes::SourceReceiverShapeV1;
 use super::function_input::ResolvedFunctionLoweringInputV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -432,11 +432,10 @@ mod tests {
     use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
     use crate::mir::compiler::callable_single_loop_recipe_coseal::issue_callable_single_loop_recipe_v1;
     use crate::mir::compiler::callable_single_loop_source_map::issue_callable_single_loop_source_map_v1;
+    use crate::mir::compiler::callable_single_loop_source_shapes::SourceReceiverShapeV1;
+    use crate::mir::compiler::callable_single_loop_syntax_facts::issue_callable_single_loop_syntax_facts_v1;
     use crate::mir::compiler::callable_single_loop_syntax_facts::tests::{
         input_loop_and_context, unit,
-    };
-    use crate::mir::compiler::callable_single_loop_syntax_facts::{
-        issue_callable_single_loop_syntax_facts_v1, SourceReceiverShapeV1,
     };
     use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
     use crate::mir::resolved_control_flow::verify_function_completion_v1;
