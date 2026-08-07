@@ -1095,9 +1095,10 @@ Private leaf bridges cover `ConstI64`, `BinaryI64`, and `CompareI64` through
 the existing Builder/type emitters. Their schedule-local value map is only a
 temporary `LoopValueKey -> ValueId` transport; it is not a second SSA or PHI
 owner. A focused test proves the Const -> Binary -> Compare chain. A bounded
-row-level dispatcher now joins Read/Const/Compare/Binary/Write leaf services;
-the next mechanical boundary remains one Recipe-order prepare/emit-all
-dispatcher, exact Prelude
+row-level dispatcher and full Recipe-order Builder-free prepare now join
+Read/Const/Compare/Binary/Write leaf services with an opaque typed value
+ledger; the next mechanical boundary is physical target receipts and
+`emit_all`, exact Prelude
 materialization, Tail-to-ValueId/completion claim, and fresh session/DraftSeal
 integration. Until those are landed, full callable physicalization,
 production selection, Generic G0 parity, retry/fallback retirement, and

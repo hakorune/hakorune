@@ -28,9 +28,10 @@ without adding a semantic owner: a consuming Prepared-product handoff, an
 exact Prelude materialization receipt, one common five-family operation
 dispatcher, and an exact Tail-to-ValueId handoff. The first bounded
 preparation slice is landed: the consuming Prepared handoff, complete
-WriteBinding projection, typed Const/Binary/Compare leaf bridges, and a
-private row-level five-family dispatcher seam compile and have focused
-evidence. The remaining adapters are still part of this row;
+WriteBinding projection, typed Const/Binary/Compare leaf bridges, private
+row-level five-family dispatch, full Recipe-order Builder-free prepare, and
+an opaque typed value ledger compile and have focused evidence. The remaining
+adapters are still part of this row;
 they must not infer names, re-resolve source, clone Completion, or create a
 second CFG/SSA/PHI owner. If an adapter cannot be expressed against the
 existing canonical owners, stop and record a design correction before adding
@@ -128,9 +129,10 @@ Prelude:
   -> physical result + ReadyLoopEntryV1; no name lookup
 
 Operation:
-  one bounded row dispatcher over Read/Const/Compare/Binary/Write; unsupported
-  forms reject before canonical claims; leaf emitters remain private. A full
-  Recipe-order prepare/emit-all dispatcher is still open.
+  one full Recipe-order prepare plus a bounded row dispatcher over
+  Read/Const/Compare/Binary/Write; unsupported forms reject before canonical
+  claims; leaf emitters remain private. Physical `emit_all` target receipts
+  and failure-phase separation are still open.
 
 Tail:
   exact prepared binding + canonical identity read

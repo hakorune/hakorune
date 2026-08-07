@@ -3,22 +3,27 @@
 //! This module only joins the three existing leaf service boundaries:
 //! pure operations, canonical BindingSSA reads, and canonical assignments.
 //! It owns no Recipe, full schedule, CFG, SSA, PHI, Completion, or
-//! publication state. The complete Recipe-order `prepare/emit_all` wrapper
-//! remains a later caller-zero seam.
+//! publication state. Recipe-order prepare is Builder-free; physical target
+//! validation and `emit_all` remain the only execution boundary here.
 
 use super::operation_emitter::{
     emit_prepared_pure_operation_v1, emit_prepared_read_binding_v1, emit_prepared_write_binding_v1,
     CanonicalBindingReadServicesV1, LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1,
-    LoopOperationServicesV1, LoopOperationValueStateV1, LoopReadBindingEmissionRejectV1,
+    LoopOperationServicesV1, LoopReadBindingEmissionRejectV1, LoopReadEntryRequirementV1,
     LoopWriteBindingEmissionRejectV1, PreparedLoopOperationEmissionV1,
     PreparedLoopReadBindingEmissionV1, PreparedLoopWriteBindingEmissionV1,
     ReadBindingEmissionReceiptV1, WriteBindingEmissionReceiptV1,
 };
+use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
 use super::topology::{LoopPhysicalBlockReceiptV1, ReadyLoopEntryV1};
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
-use crate::mir::loop_recipe_contract::LoopValueKeyV1;
+use crate::mir::loop_recipe_contract::{
+    LoopOperationPhysicalDemandRejectV1, LoopOperationV1, LoopValueKeyV1,
+    PreparedLoopOperationProgramV1,
+};
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum PreparedLoopOperationDispatchV1 {
@@ -40,6 +45,276 @@ pub(super) enum LoopOperationDispatchRejectV1 {
     Read(LoopReadBindingEmissionRejectV1),
     Write(LoopWriteBindingEmissionRejectV1),
     ValueAlreadyPublished(LoopValueKeyV1),
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) enum LoopOperationDispatchPreflightRejectV1 {
+    EntryOwnerMismatch,
+    ReceiptOwnerMismatch,
+    PreheaderMismatch,
+    LogicalPlacementMissing {
+        item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+    },
+    ReadProjectionMissing {
+        item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+    },
+    WriteProjectionMissing {
+        item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+    },
+    DuplicateProducedValue(LoopValueKeyV1),
+    MissingOperand {
+        item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+        value: LoopValueKeyV1,
+    },
+    ScheduleCountMismatch {
+        expected: usize,
+        found: usize,
+    },
+    Demand(LoopOperationPhysicalDemandRejectV1),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum LoopOperationDispatchPhysicalFailureV1 {
+    Pure(LoopOperationEmissionRejectV1),
+    Read(LoopReadBindingEmissionRejectV1),
+    Write(LoopWriteBindingEmissionRejectV1),
+    ValueAlreadyPublished(LoopValueKeyV1),
+    ReceiptCountMismatch { expected: usize, found: usize },
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedLoopOperationDispatchPlanV1 {
+    program: PreparedLoopOperationProgramV1,
+    entry: ReadyLoopEntryV1,
+    block_receipt: LoopPhysicalBlockReceiptV1,
+    rows: Box<[PreparedLoopOperationDispatchV1]>,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct CompletedLoopOperationDispatchV1 {
+    operation_count: usize,
+    receipts: Box<[LoopOperationDispatchReceiptV1]>,
+}
+
+impl CompletedLoopOperationDispatchV1 {
+    pub(super) const fn operation_count(&self) -> usize {
+        self.operation_count
+    }
+
+    pub(super) fn receipts(&self) -> &[LoopOperationDispatchReceiptV1] {
+        &self.receipts
+    }
+}
+
+impl PreparedLoopOperationDispatchPlanV1 {
+    pub(super) fn operation_count(&self) -> usize {
+        self.program.coverage().operation_count()
+    }
+
+    pub(super) fn rows(&self) -> &[PreparedLoopOperationDispatchV1] {
+        &self.rows
+    }
+
+    pub(super) fn emit_all<'source>(
+        self,
+        state: &mut LoopOperationValueLedgerV1,
+        services: &mut LoopOperationDispatchServicesV1<'_, 'source>,
+    ) -> Result<CompletedLoopOperationDispatchV1, LoopOperationDispatchPhysicalFailureV1> {
+        let Self {
+            program,
+            entry,
+            block_receipt,
+            rows,
+        } = self;
+        let operation_count = program.coverage().operation_count();
+        let mut receipts = Vec::with_capacity(rows.len());
+        for row in rows {
+            let receipt =
+                emit_prepared_operation_family_v1(row, state, &entry, &block_receipt, services)
+                    .map_err(|reject| match reject {
+                        LoopOperationDispatchRejectV1::Pure(error) => {
+                            LoopOperationDispatchPhysicalFailureV1::Pure(error)
+                        }
+                        LoopOperationDispatchRejectV1::Read(error) => {
+                            LoopOperationDispatchPhysicalFailureV1::Read(error)
+                        }
+                        LoopOperationDispatchRejectV1::Write(error) => {
+                            LoopOperationDispatchPhysicalFailureV1::Write(error)
+                        }
+                        LoopOperationDispatchRejectV1::ValueAlreadyPublished(key) => {
+                            LoopOperationDispatchPhysicalFailureV1::ValueAlreadyPublished(key)
+                        }
+                    })?;
+            receipts.push(receipt);
+        }
+        if receipts.len() != operation_count {
+            return Err(
+                LoopOperationDispatchPhysicalFailureV1::ReceiptCountMismatch {
+                    expected: operation_count,
+                    found: receipts.len(),
+                },
+            );
+        }
+        Ok(CompletedLoopOperationDispatchV1 {
+            operation_count,
+            receipts: receipts.into_boxed_slice(),
+        })
+    }
+}
+
+/// Prepare the complete Recipe-order operation schedule without Builder
+/// effects. All producers and operands are checked before `emit_all` can
+/// borrow canonical physical services.
+pub(super) fn prepare_loop_operation_dispatch_v1(
+    program: PreparedLoopOperationProgramV1,
+    entry: ReadyLoopEntryV1,
+    block_receipt: LoopPhysicalBlockReceiptV1,
+) -> Result<PreparedLoopOperationDispatchPlanV1, LoopOperationDispatchPreflightRejectV1> {
+    let owner = program.demand().context().owner();
+    if entry.owner() != owner {
+        return Err(LoopOperationDispatchPreflightRejectV1::EntryOwnerMismatch);
+    }
+    if block_receipt.owner() != owner {
+        return Err(LoopOperationDispatchPreflightRejectV1::ReceiptOwnerMismatch);
+    }
+    if block_receipt.preheader() != entry.preheader() {
+        return Err(LoopOperationDispatchPreflightRejectV1::PreheaderMismatch);
+    }
+
+    let read_rows_source = program
+        .read_binding_rows()
+        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
+    let read_rows = IntoIterator::into_iter(read_rows_source)
+        .map(|row| (row.item(), row))
+        .collect::<BTreeMap<_, _>>();
+    let write_rows_source = program
+        .write_binding_rows()
+        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
+    let write_rows = IntoIterator::into_iter(write_rows_source)
+        .map(|row| (row.item(), row))
+        .collect::<BTreeMap<_, _>>();
+    let operation_rows = program.operation_rows();
+    let mut produced = BTreeSet::new();
+    let mut available = BTreeSet::new();
+    let mut rows = Vec::with_capacity(operation_rows.len());
+
+    for row in operation_rows.iter().copied() {
+        let role = block_receipt
+            .role_for_logical(row.owner_loop(), row.block())
+            .ok_or(
+                LoopOperationDispatchPreflightRejectV1::LogicalPlacementMissing {
+                    item: row.item(),
+                },
+            )?;
+        let prepared = match row.operation() {
+            LoopOperationV1::ReadBinding { result, .. } => {
+                if !produced.insert(result) {
+                    return Err(
+                        LoopOperationDispatchPreflightRejectV1::DuplicateProducedValue(result),
+                    );
+                }
+                let source = read_rows.get(&row.item()).ok_or(
+                    LoopOperationDispatchPreflightRejectV1::ReadProjectionMissing {
+                        item: row.item(),
+                    },
+                )?;
+                available.insert(result);
+                PreparedLoopOperationDispatchV1::Read(PreparedLoopReadBindingEmissionV1::from_row(
+                    owner,
+                    source,
+                    role,
+                    LoopReadEntryRequirementV1::CanonicalLive,
+                ))
+            }
+            LoopOperationV1::ConstI64 { result, .. } => {
+                if !produced.insert(result) {
+                    return Err(
+                        LoopOperationDispatchPreflightRejectV1::DuplicateProducedValue(result),
+                    );
+                }
+                available.insert(result);
+                PreparedLoopOperationDispatchV1::Pure(
+                    PreparedLoopOperationEmissionV1::from_operation(
+                        owner,
+                        row.item(),
+                        row.operation(),
+                        row.owner_loop(),
+                        row.block(),
+                        role,
+                    ),
+                )
+            }
+            LoopOperationV1::BinaryI64 {
+                left,
+                right,
+                result,
+                ..
+            }
+            | LoopOperationV1::CompareI64 {
+                left,
+                right,
+                result,
+                ..
+            } => {
+                for value in [left, right] {
+                    if !available.contains(&value) {
+                        return Err(LoopOperationDispatchPreflightRejectV1::MissingOperand {
+                            item: row.item(),
+                            value,
+                        });
+                    }
+                }
+                if !produced.insert(result) {
+                    return Err(
+                        LoopOperationDispatchPreflightRejectV1::DuplicateProducedValue(result),
+                    );
+                }
+                available.insert(result);
+                PreparedLoopOperationDispatchV1::Pure(
+                    PreparedLoopOperationEmissionV1::from_operation(
+                        owner,
+                        row.item(),
+                        row.operation(),
+                        row.owner_loop(),
+                        row.block(),
+                        role,
+                    ),
+                )
+            }
+            LoopOperationV1::WriteBinding { value, .. } => {
+                if !available.contains(&value) {
+                    return Err(LoopOperationDispatchPreflightRejectV1::MissingOperand {
+                        item: row.item(),
+                        value,
+                    });
+                }
+                let source = write_rows.get(&row.item()).ok_or(
+                    LoopOperationDispatchPreflightRejectV1::WriteProjectionMissing {
+                        item: row.item(),
+                    },
+                )?;
+                PreparedLoopOperationDispatchV1::Write(
+                    PreparedLoopWriteBindingEmissionV1::from_row(owner, source, role),
+                )
+            }
+        };
+        rows.push(prepared);
+    }
+
+    if rows.len() != program.coverage().operation_count() {
+        return Err(
+            LoopOperationDispatchPreflightRejectV1::ScheduleCountMismatch {
+                expected: program.coverage().operation_count(),
+                found: rows.len(),
+            },
+        );
+    }
+    Ok(PreparedLoopOperationDispatchPlanV1 {
+        program,
+        entry,
+        block_receipt,
+        rows: rows.into_boxed_slice(),
+    })
 }
 
 /// Borrowed canonical services for one complete operation schedule.
@@ -68,7 +343,7 @@ impl<'a, 'source> LoopOperationDispatchServicesV1<'a, 'source> {
 
 pub(super) fn emit_prepared_operation_family_v1<'source>(
     prepared: PreparedLoopOperationDispatchV1,
-    state: &mut LoopOperationValueStateV1,
+    state: &mut LoopOperationValueLedgerV1,
     entry: &ReadyLoopEntryV1,
     block_receipt: &LoopPhysicalBlockReceiptV1,
     services: &mut LoopOperationDispatchServicesV1<'_, 'source>,
@@ -95,7 +370,14 @@ pub(super) fn emit_prepared_operation_family_v1<'source>(
                 emit_prepared_read_binding_v1(&prepared, entry, block_receipt, &mut identity)
                     .map_err(LoopOperationDispatchRejectV1::Read)?;
             state
-                .insert(receipt.result(), receipt.physical_value())
+                .publish(LoopOperationValueReceiptV1::new(
+                    receipt.owner(),
+                    receipt.result(),
+                    prepared.class(),
+                    receipt.item(),
+                    receipt.physical_block(),
+                    receipt.physical_value(),
+                ))
                 .map_err(|_| {
                     LoopOperationDispatchRejectV1::ValueAlreadyPublished(receipt.result())
                 })?;

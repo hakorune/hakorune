@@ -60,6 +60,34 @@ pub(crate) struct PreparedLoopOperationScheduleRowV1 {
     owner_loop: LoopNodeKeyV1,
 }
 
+/// Full Recipe-order operation view derived from a prepared program.
+///
+/// This is intentionally a complete projection: callers cannot ask for one
+/// item by key and thereby bypass whole-program coverage.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct PreparedLoopOperationRowV1 {
+    schedule: PreparedLoopOperationScheduleRowV1,
+    operation: LoopOperationV1,
+}
+
+impl PreparedLoopOperationRowV1 {
+    pub(crate) const fn item(self) -> LoopItemKeyV1 {
+        self.schedule.item
+    }
+
+    pub(crate) const fn block(self) -> LoopBlockKeyV1 {
+        self.schedule.block
+    }
+
+    pub(crate) const fn owner_loop(self) -> LoopNodeKeyV1 {
+        self.schedule.owner_loop
+    }
+
+    pub(crate) const fn operation(self) -> LoopOperationV1 {
+        self.operation
+    }
+}
+
 impl PreparedLoopOperationScheduleRowV1 {
     pub(crate) const fn item(self) -> LoopItemKeyV1 {
         self.item
@@ -292,6 +320,31 @@ impl PreparedLoopOperationProgramV1 {
 
     pub(crate) const fn coverage(&self) -> LoopOperationCoverageReceiptV1 {
         self.coverage
+    }
+
+    /// Project every operation in Recipe order. This is the only operation
+    /// schedule view; no single-item selector is exposed.
+    pub(crate) fn operation_rows(&self) -> Box<[PreparedLoopOperationRowV1]> {
+        let recipe = self.demand.operation_effect.core().recipe().as_recipe();
+        self.schedule
+            .iter()
+            .copied()
+            .map(|schedule| {
+                let operation = recipe
+                    .items
+                    .iter()
+                    .find(|row| row.key == schedule.item)
+                    .and_then(|row| match row.item {
+                        LoopRecipeItemV1::Operation { operation } => Some(operation),
+                        _ => None,
+                    })
+                    .expect("prepared schedule contains only operation items");
+                PreparedLoopOperationRowV1 {
+                    schedule,
+                    operation,
+                }
+            })
+            .collect()
     }
 
     /// Project every ReadBinding row from the complete prepared program.

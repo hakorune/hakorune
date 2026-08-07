@@ -228,6 +228,17 @@ impl LoopPhysicalBlockReceiptV1 {
             .map(|row| row.physical_block)
     }
 
+    pub(super) fn role_for_logical(
+        &self,
+        loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+        block: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
+    ) -> Option<LoopPhysicalBlockRoleV1> {
+        self.rows
+            .iter()
+            .find(|row| row.loop_key == loop_key && row.logical_block == Some(block))
+            .map(|row| row.role)
+    }
+
     pub(super) fn loop_count(&self) -> usize {
         self.rows
             .iter()

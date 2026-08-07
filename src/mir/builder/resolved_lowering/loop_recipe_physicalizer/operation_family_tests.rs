@@ -76,7 +76,7 @@ fn pure_operation_dispatcher_emits_const_binary_and_compare() {
     builder.enter_function_for_test("operation_family/0".to_string());
     let (entry, blocks) = receipt(&mut builder, owner);
     let mut services = LoopOperationServicesV1::new(&mut builder);
-    let mut state = LoopOperationValueStateV1::default();
+    let mut state = LoopOperationValueLedgerV1::default();
     let make = |item, operation| {
         PreparedLoopOperationEmissionV1::from_operation_for_canary(
             owner,
@@ -238,7 +238,7 @@ fn common_dispatcher_publishes_read_before_binary_and_write() {
         .set_type(ValueId::new(20), MirType::Integer);
     let mut phis = PhiTxn::begin("operation_dispatcher/read_write");
     let mut services = LoopOperationDispatchServicesV1::new(&mut builder, &mut identity, &mut phis);
-    let mut state = LoopOperationValueStateV1::default();
+    let mut state = LoopOperationValueLedgerV1::default();
 
     emit_prepared_operation_family_v1(
         PreparedLoopOperationDispatchV1::Read(
@@ -314,4 +314,117 @@ fn common_dispatcher_publishes_read_before_binary_and_write() {
     )
     .expect("step write");
     assert!(matches!(receipt, LoopOperationDispatchReceiptV1::Write(_)));
+}
+
+#[test]
+fn full_dispatch_prepare_covers_callable_recipe_order_without_builder_effect() {
+    let fixture = callable_operation_fixture_for_test();
+    let unit = fixture.unit;
+    let input = unit.root_function_input().expect("root input");
+    let owner = input.function().owner();
+    let (effect, context, continuation) = fixture.product.into_operation_demand_parts();
+    let demand = crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1::issue(
+        context,
+        effect,
+        continuation,
+    )
+    .expect("demand");
+    let program = demand.prepare_all().expect("program");
+
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("operation_dispatcher/full_prepare".to_string());
+    let (entry, blocks) = receipt(&mut builder, owner);
+    let before = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("function")
+        .block_ids()
+        .into_iter()
+        .map(|id| {
+            let block = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("function")
+                .get_block(id)
+                .expect("block");
+            (id, block.instructions.len(), block.terminator.is_some())
+        })
+        .collect::<Vec<_>>();
+
+    let plan = prepare_loop_operation_dispatch_v1(program, entry, blocks)
+        .expect("full dispatch preflight");
+    assert_eq!(plan.operation_count(), 7);
+    assert_eq!(plan.rows().len(), 7);
+    assert_eq!(
+        plan.rows()
+            .iter()
+            .filter(|row| matches!(row, PreparedLoopOperationDispatchV1::Read(_)))
+            .count(),
+        2
+    );
+    assert_eq!(
+        plan.rows()
+            .iter()
+            .filter(|row| matches!(row, PreparedLoopOperationDispatchV1::Pure(_)))
+            .count(),
+        4
+    );
+    assert_eq!(
+        plan.rows()
+            .iter()
+            .filter(|row| matches!(row, PreparedLoopOperationDispatchV1::Write(_)))
+            .count(),
+        1
+    );
+
+    let after = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("function")
+        .block_ids()
+        .into_iter()
+        .map(|id| {
+            let block = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("function")
+                .get_block(id)
+                .expect("block");
+            (id, block.instructions.len(), block.terminator.is_some())
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(before, after);
+}
+
+#[test]
+fn operation_value_ledger_rejects_duplicate_without_overwrite() {
+    let owner = FunctionOwnerIssuerV1::new_for_compilation()
+        .expect("issuer")
+        .issue()
+        .expect("owner");
+    let key = LoopValueKeyV1::new(9);
+    let first = LoopOperationValueReceiptV1::new(
+        owner,
+        key,
+        crate::mir::loop_recipe_contract::LoopValueClassV1::I64,
+        LoopItemKeyV1::new(1),
+        BasicBlockId::new(2),
+        ValueId::new(20),
+    );
+    let second = LoopOperationValueReceiptV1::new(
+        owner,
+        key,
+        crate::mir::loop_recipe_contract::LoopValueClassV1::I64,
+        LoopItemKeyV1::new(2),
+        BasicBlockId::new(3),
+        ValueId::new(30),
+    );
+    let mut ledger = LoopOperationValueLedgerV1::default();
+    ledger.publish(first).expect("first publish");
+    assert!(ledger.publish(second).is_err());
+    assert_eq!(ledger.receipt(key), Some(first));
 }

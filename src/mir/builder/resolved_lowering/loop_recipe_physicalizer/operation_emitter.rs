@@ -4,8 +4,7 @@
 //! receipt. It delegates Const emission and type publication to the existing
 //! Builder owner; it does not own Recipe, CFG, SSA, PHI, or function lifecycle.
 
-use std::collections::BTreeMap;
-
+use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
 use super::topology::{
     LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1, LoopPhysicalServicesV1, ReadyLoopEntryV1,
 };
@@ -55,7 +54,7 @@ impl PreparedLoopOperationEmissionV1 {
         }
     }
 
-    pub(super) const fn from_operation_for_canary(
+    pub(super) const fn from_operation(
         owner: FunctionOwnerIdV1,
         item: LoopItemKeyV1,
         operation: LoopOperationV1,
@@ -72,31 +71,24 @@ impl PreparedLoopOperationEmissionV1 {
             expected_role,
         }
     }
-}
 
-#[derive(Debug, Default)]
-pub(super) struct LoopOperationValueStateV1 {
-    values: BTreeMap<LoopValueKeyV1, ValueId>,
-}
-
-impl LoopOperationValueStateV1 {
-    pub(super) fn insert(
-        &mut self,
-        key: LoopValueKeyV1,
-        value: ValueId,
-    ) -> Result<(), LoopOperationEmissionRejectV1> {
-        if self.values.insert(key, value).is_some() {
-            return Err(LoopOperationEmissionRejectV1::ValueAlreadyPublished(key));
-        }
-        Ok(())
-    }
-
-    pub(super) fn get(&self, key: LoopValueKeyV1) -> Option<ValueId> {
-        self.values.get(&key).copied()
-    }
-
-    pub(super) fn contains(&self, key: LoopValueKeyV1) -> bool {
-        self.values.contains_key(&key)
+    #[cfg(test)]
+    pub(super) const fn from_operation_for_canary(
+        owner: FunctionOwnerIdV1,
+        item: LoopItemKeyV1,
+        operation: LoopOperationV1,
+        expected_loop: LoopNodeKeyV1,
+        expected_block: LoopBlockKeyV1,
+        expected_role: LoopPhysicalBlockRoleV1,
+    ) -> Self {
+        Self::from_operation(
+            owner,
+            item,
+            operation,
+            expected_loop,
+            expected_block,
+            expected_role,
+        )
     }
 }
 
@@ -122,7 +114,7 @@ pub(super) struct PreparedLoopReadBindingEmissionV1 {
 }
 
 impl PreparedLoopReadBindingEmissionV1 {
-    pub(super) fn from_row_for_test(
+    pub(super) fn from_row(
         owner: FunctionOwnerIdV1,
         row: &PreparedLoopReadBindingRowV1,
         expected_role: LoopPhysicalBlockRoleV1,
@@ -143,8 +135,22 @@ impl PreparedLoopReadBindingEmissionV1 {
         }
     }
 
+    #[cfg(test)]
+    pub(super) fn from_row_for_test(
+        owner: FunctionOwnerIdV1,
+        row: &PreparedLoopReadBindingRowV1,
+        expected_role: LoopPhysicalBlockRoleV1,
+        entry_requirement: LoopReadEntryRequirementV1,
+    ) -> Self {
+        Self::from_row(owner, row, expected_role, entry_requirement)
+    }
+
     pub(super) const fn result(&self) -> LoopValueKeyV1 {
         self.result
+    }
+
+    pub(super) const fn class(&self) -> LoopValueClassV1 {
+        self.class
     }
 }
 
@@ -309,7 +315,7 @@ pub(super) fn emit_prepared_operation_v1(
     block_receipt: &LoopPhysicalBlockReceiptV1,
     services: &mut LoopPhysicalServicesV1<'_>,
 ) -> Result<LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1> {
-    let mut state = LoopOperationValueStateV1::default();
+    let mut state = LoopOperationValueLedgerV1::default();
     let mut operation_services = LoopOperationServicesV1::new(services.builder);
     emit_prepared_pure_operation_v1(
         prepared,
@@ -326,7 +332,7 @@ pub(super) fn emit_prepared_operation_v1(
 /// state.
 pub(super) fn emit_prepared_pure_operation_v1(
     prepared: PreparedLoopOperationEmissionV1,
-    state: &mut LoopOperationValueStateV1,
+    state: &mut LoopOperationValueLedgerV1,
     entry: &ReadyLoopEntryV1,
     block_receipt: &LoopPhysicalBlockReceiptV1,
     services: &mut LoopOperationServicesV1<'_>,
@@ -435,9 +441,9 @@ pub(super) fn emit_prepared_pure_operation_v1(
             return Err(LoopOperationEmissionRejectV1::UnsupportedOperation)
         }
     };
-    let expected = match prepared.operation {
-        LoopOperationV1::CompareI64 { .. } => MirType::Bool,
-        _ => MirType::Integer,
+    let (expected, class) = match prepared.operation {
+        LoopOperationV1::CompareI64 { .. } => (MirType::Bool, LoopValueClassV1::Bool),
+        _ => (MirType::Integer, LoopValueClassV1::I64),
     };
     if services
         .builder
@@ -450,7 +456,16 @@ pub(super) fn emit_prepared_pure_operation_v1(
             "[freeze:contract][loop_operation/result_type]".to_string(),
         ));
     }
-    state.insert(result, physical_value)?;
+    state
+        .publish(LoopOperationValueReceiptV1::new(
+            prepared.owner,
+            result,
+            class,
+            prepared.item,
+            by_role,
+            physical_value,
+        ))
+        .map_err(|error| LoopOperationEmissionRejectV1::ValueAlreadyPublished(error.0))?;
     Ok(LoopOperationEmissionReceiptV1 {
         owner: prepared.owner,
         item: prepared.item,
@@ -579,7 +594,7 @@ pub(super) struct PreparedLoopWriteBindingEmissionV1 {
 }
 
 impl PreparedLoopWriteBindingEmissionV1 {
-    pub(super) fn from_row_for_test(
+    pub(super) fn from_row(
         owner: FunctionOwnerIdV1,
         row: &PreparedLoopWriteBindingRowV1,
         expected_role: LoopPhysicalBlockRoleV1,
@@ -596,6 +611,15 @@ impl PreparedLoopWriteBindingEmissionV1 {
             expected_role,
             class: row.class(),
         }
+    }
+
+    #[cfg(test)]
+    pub(super) fn from_row_for_test(
+        owner: FunctionOwnerIdV1,
+        row: &PreparedLoopWriteBindingRowV1,
+        expected_role: LoopPhysicalBlockRoleV1,
+    ) -> Self {
+        Self::from_row(owner, row, expected_role)
     }
 }
 
@@ -644,7 +668,7 @@ impl WriteBindingEmissionReceiptV1 {
 /// the sole assignment authority.
 pub(super) fn emit_prepared_write_binding_v1(
     prepared: &PreparedLoopWriteBindingEmissionV1,
-    state: &LoopOperationValueStateV1,
+    state: &LoopOperationValueLedgerV1,
     entry: &ReadyLoopEntryV1,
     block_receipt: &LoopPhysicalBlockReceiptV1,
     services: &mut CanonicalBindingReadServicesV1<'_, '_>,

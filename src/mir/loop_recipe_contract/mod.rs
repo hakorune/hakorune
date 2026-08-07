@@ -133,7 +133,7 @@ pub(crate) use operation_effect::{
 #[allow(unused_imports)]
 pub(crate) use operation_physical_demand::{
     LoopOperationCoverageReceiptV1, LoopOperationPhysicalDemandRejectV1,
-    PreparedLoopOperationProgramV1, PreparedLoopOperationScheduleRowV1,
+    PreparedLoopOperationProgramV1, PreparedLoopOperationRowV1, PreparedLoopOperationScheduleRowV1,
     PreparedLoopReadBindingRowV1, PreparedLoopWriteBindingRowV1,
     VerifiedLoopOperationPhysicalDemandV1,
 };

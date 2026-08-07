@@ -107,8 +107,9 @@ Related:
   and logical/physical placement evidence are green. The next authorized row
   is `CALLABLE-LOOP-PHYSICAL-CANARY-P0`: the first bounded preparation slice
   (Prepared move handoff, complete Write projection, pure
-  Const/Binary/Compare leaves, and a bounded row-level five-family dispatcher)
-  is green; complete the Recipe-order prepare/emit-all dispatcher, exact Prelude/Tail handoff, and fresh-session
+  Const/Binary/Compare leaves, bounded five-family dispatch, full
+  Recipe-order prepare, and typed value ledger) is green; complete physical
+  `emit_all` target receipts, exact Prelude/Tail handoff, and fresh-session
   `finish_for_draft_seal` -> DraftSeal integration before claiming the full
   caller-zero Prelude -> Loop -> distinct Tail canary. The complete
   Read/Const/Compare/Binary/Write operation matrix remains the target.

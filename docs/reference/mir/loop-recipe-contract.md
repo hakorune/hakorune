@@ -619,9 +619,10 @@ DraftSeal remain owned by their existing sessions. A focused fixture proves
 the pure Const -> Binary -> Compare chain and the full WriteBinding projection
 proves source/effect/placement retention.
 
-This receipt is not the full callable physicalizer. A private bounded dispatcher
-now joins one prepared row across all five operation families; the full
-Recipe-order dispatcher, exact Prelude materialization, Tail-to-ValueId
+This receipt is not the full callable physicalizer. The Builder-free demand
+now prepares the complete Recipe-order schedule, and a private dispatcher
+joins prepared rows across all five operation families with an opaque typed
+value ledger. Physical target receipts, exact Prelude materialization, Tail-to-ValueId
 handoff, fresh function session, `finish_for_draft_seal`, and DraftSeal
 integration remain the next bounded implementation work. No production caller,
 selector, retry/fallback, Generic G0 parity, module publication, or legacy
