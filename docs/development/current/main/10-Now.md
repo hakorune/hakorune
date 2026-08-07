@@ -158,8 +158,11 @@ Related:
   one block per R1 segment plus root After (no Step), retains
   entry/layout/completed dispatch, preflights and emits every entry/transfer
   once through canonical CFG/identity/PhiTxn, and retires the fixed Step/edge
-  caller. The next design stop is
-  `LOOP-CALLER-ZERO-PARITY-G0-I1-D0`. Physical G0, production selection,
+  caller. Worker review sealed `LOOP-CALLER-ZERO-PARITY-G0-I1-D1` and found
+  exactly two common contracts still missing: one completed condition receipt
+  per Predicate transfer, and a profile-neutral `DerivedCarrierEntry`
+  operation. The next bounded row is
+  `LOOP-COMMON-PREDICATE-CARRIER-I0-R0`; physical G0, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed

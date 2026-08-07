@@ -1,6 +1,6 @@
 # LOOP-CALLER-ZERO-PARITY-G0-I1-D0
 
-Status: `Accepted after top-down review; direct G0 I1 is superseded by a common recursive segment prerequisite`
+Status: `Superseded by D1 after R3-I0 close; retained as historical design receipt`
 Date: `2026-08-08`
 Parent: `docs/development/current/main/investigations/loop-caller-zero-parity-g0-design-2026-08-08.md`
 North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
@@ -8,8 +8,10 @@ North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot
 ## Decision
 
 The exact G0 ingress -> fresh session -> common physicalizer -> distinct G0
-Tail -> canonical finish direction remains accepted. Direct I1 implementation
-does not open yet.
+Tail -> canonical finish direction remains accepted. The original segment
+prerequisite is now closed by R1/R2/R3-I0. The two remaining common contract
+gaps and the bounded implementation split are owned by the D1 design receipt:
+`loop-caller-zero-parity-g0-i1-design-d1-2026-08-08.md`.
 
 The common physical path must first learn one missing neutral concept:
 
@@ -162,8 +164,9 @@ audit is not a substitute for implementation-coupled updates.
 
 ## Stop lines
 
-Until R1-R3 close, G0 physical emission is not authorized. This design does
-not activate a selector/caller, M8/M9/all-19 coverage, backend parity, module
-publication, retry/fallback retirement, or legacy deletion. It adds no public
-Recipe, CFG, SSA, or PHI owner; no AST reread, by-name inference, partial
-fallback, or same-session retry is allowed.
+This historical D0 receipt no longer schedules work. D1 must close the
+per-transfer Predicate-value and `DerivedCarrierEntry` common contracts before
+the G0 I1 canary opens. No selector/caller, M8/M9/all-19 coverage, backend
+parity, module publication, retry/fallback retirement, or legacy deletion is
+activated. No public Recipe, CFG, SSA, or PHI owner is added; no AST reread,
+by-name inference, partial fallback, or same-session retry is allowed.

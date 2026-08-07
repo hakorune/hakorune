@@ -38,15 +38,13 @@ accepted and its S1/S2 caller-zero products are closed.
 `LOOP-CALLER-ZERO-PARITY-G0-D0` is also accepted. Its exact resolver-issued
 G0 source/input/entry capability is carried by a thin compiler-side composite
 ingress; neutral S4 remains the sole Recipe/effect/After owner. I0 is closed
-as Builder-free exact ingress plus fifteen-row `prepare_all`. The accepted I1
-design now requires `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`, segment-aware
-block cutover R2, and neutral recursive After R3 before G0 physical I1-R0.
-R1 is now closed as a Builder-free derived layout. R2 is closed only as an
-adapter over the old fixed topology; it is not the segment allocator. R3-I0 is
-now closed for the selected Callable caller-zero canary: exact segment
-allocation, the retained completed program, neutral recursive After, and
-fixed-edge retirement are implemented. No named production caller switch or
-G0 physical implementation is open.
+as Builder-free exact ingress plus fifteen-row `prepare_all`. R1 is closed as
+a Builder-free derived layout, R2 as a Callable adapter, and R3-I0 as the
+selected Callable exact-segment/neutral-After canary. The post-R3 D1 review
+now owns the only two remaining common contracts: per-transfer Predicate
+value receipts and a profile-neutral `DerivedCarrierEntry` operation. They
+must land before the bounded G0 I1 canary; no named production caller switch
+or G0 physical implementation is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -850,14 +848,16 @@ skip the After closure or reopen a Tail-only route.
 | 10 | `CALLABLE-LOOP-DRAFT-SEAL-P0` | consume profile close, call only `finish_for_draft_seal`, then DraftSeal prepare/commit | closed caller-zero; production selection and legacy deletion remain closed |
 | 11 | `LOOP-CALLER-ZERO-PARITY-G0-D0` | accepted design: compiler-side exact-input composite ingress, neutral S4 owner, common physicalizer, distinct G0 After/Tail | no source reconstruction, physical emission, or production selection |
 | 12 | `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact G0 ingress -> common fifteen-row `prepare_all` with Builder effect zero | closed 2026-08-08; no physical emission, Completion/DraftSeal, selector, retry/fallback, or legacy deletion |
-| 13 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` | top-down counterexample fixes segment/resume as a common prerequisite | accepted design; direct G0 implementation superseded |
+| 13 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` | top-down counterexample fixes segment/resume as a common prerequisite | superseded historical design; R1/R2/R3-I0 closed |
 | 14 | `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` | Builder-free Recipe-derived segment/resume layout plus exact order/coverage | **closed 2026-08-08**; no Builder effect or new accepted structural family |
 | 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | exact segment-to-old-topology adapter and operation placement; Callable parity | **closed 2026-08-08**; not a segment allocator; no G0 physical |
 | 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3-I0` | exact segment allocator, retained completed program, complete transfer preflight, neutral After handoff | **closed 2026-08-08** for Callable caller-zero; G0 physical and production selection remain closed |
-| 17 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, derived carrier, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | caller-zero only; no G0-specific physicalizer |
-| 18 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
-| 19 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
-| 20 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
+| 17 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D1` | per-transfer Predicate receipts, neutral After boundary, and common DerivedCarrierEntry emitter contract | **accepted design 2026-08-08**; implementation is split into the common I0 row below and G0 I1 |
+| 18 | `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` | common per-transfer Predicate values plus profile-neutral DerivedCarrierEntry emission | next implementation row; no G0 allocation or production selection |
+| 19 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, five segments + root After, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | caller-zero only; no G0-specific physicalizer |
+| 20 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
+| 21 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
+| 22 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Closed implementation receipt: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
 
@@ -1348,8 +1348,9 @@ foreign-owner, missing-segment, duplicate-block, late-failure discard, and
 fresh-session reuse. No G0 physical emission, selector, fallback, retry,
 collector/publication, or legacy retirement is claimed.
 
-The implementation receipt is recorded below; the next task is the bounded G0
-parity design row, not production selection.
+The implementation receipt is recorded below; R3-I0 is closed. The next task
+is the bounded D1 common Predicate/carrier contract row, not production
+selection.
 
 ### R3-I0 implementation receipt (2026-08-08; Decision: accepted)
 
@@ -1381,3 +1382,34 @@ Callable close helper and `from_callable_layout` adapter are removed from the
 selected path. G0 receives no physical allocation or operation emission, and
 selector, fallback/retry, publication, and broad legacy retirement remain
 later boundaries.
+
+### G0 I1 D1 review closeout (2026-08-08; Decision: accepted)
+
+The post-R3 worker audit found two common contracts that must be implemented
+before G0 I1. The current Callable recursive writer cannot use the first
+Predicate value for every transfer: `LoopPhysicalTransferV1::Predicate` must
+resolve its own completed Bool value and physical source segment. The neutral
+After receipt therefore carries only common owner/root/predecessor and
+coverage facts; Callable's `7 = Pure4 + Read2 + Write1` remains profile-local.
+
+The G0 child-carrier row is a `ReadBinding` with a `DerivedCarrierEntry`
+anchor, not an expression anchor. The common operation family must add a
+profile-neutral prepared carrier-seed variant which delegates to canonical
+identity `read_entry_receipt`. It must not fabricate an expression site or
+introduce a G0-specific dispatcher/SSA owner.
+
+The next two commits are intentionally separated:
+
+```text
+LOOP-COMMON-PREDICATE-CARRIER-I0-R0
+  common contracts + Callable regression; no G0 allocation
+
+LOOP-CALLER-ZERO-PARITY-G0-I1-R0
+  exact ingress, 5 segments + root After, 15 rows, per-Predicate values,
+  G0 Tail/Completion/DraftSeal, whole-session discard/fresh rerun
+```
+
+Both remain cfg(test) caller-zero evidence. Production selection, M8/M9,
+M10b/M11/M12, retry/fallback retirement, collector publication, and broad
+legacy deletion remain closed. Each implementation commit updates the exact
+reference page, README, tests/guards, current pointers, and workstream.

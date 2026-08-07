@@ -478,7 +478,10 @@ test-only leaf receipt. The complete `PreparedLoopOperationProgramV1` now
 projects every `ReadBinding` row and checks the Recipe operation, source
 `Expr(OwnedExprSiteV1)`, `SourceRead` effect relation, binding, owner, and
 logical placement together. `DerivedCarrierEntry` is rejected as
-`CarrierSeedUnavailable`; no single-operation demand extraction exists.
+`CarrierSeedUnavailable`; no single-operation demand extraction exists. This
+is the closed ReadBinding D0 boundary. The current D1 design authorizes a
+profile-neutral carrier-seed variant; it does not reopen this row or add a
+Generic-specific physicalizer.
 
 The leaf borrows the canonical BindingSSA/PHI owners through
 `CanonicalBindingReadServicesV1`, claims the exact source site, and receives
@@ -807,8 +810,31 @@ re-resolve, AST clone, or profile relabel is permitted.
 `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` issued this composite and proved the full
 fifteen-row common `prepare_all` without Builder effect. Physical root/child
 emission, G0 After-to-tail read, Completion, DraftSeal, selector, retry/
-fallback, and legacy deletion remain closed. Segment layout R1, segment-aware
-block cutover R2, and neutral recursive After R3 must close before G0 I1-R0.
+fallback, and legacy deletion remain closed. R1, R2, and Callable R3-I0 are
+now closed. The next common row is the D1 per-transfer-Predicate/carrier-seed
+contract; only after it may G0 I1-R0 open.
+
+## Generic G0 I1 D1 boundary (2026-08-08)
+
+The worker-reviewed D1 design fixes two common, not Generic-specific,
+contracts before the caller-zero G0 canary:
+
+```text
+Predicate transfer
+  -> its own completed Bool ValueId receipt
+
+DerivedCarrierEntry
+  -> prepared carrier-seed operation
+  -> canonical identity.read_entry_receipt
+```
+
+The neutral After receipt has no single condition key and no Callable
+operation-count proof. G0 I1 remains a cfg(test) canary with two parameter
+entries, five R1 segments plus root After, fifteen exact Recipe rows (item 3
+carrier seed; item 4 structural nested Loop), distinct G0 `b1` Tail/Completion,
+typed finish/DraftSeal, whole-session discard, and fresh-session rerun. No
+production selection, M8/M9, M10b/M11/M12, fallback/retry, or broad legacy
+retirement is claimed.
 
 ## Generic G0 exact-ingress I0 receipt (2026-08-08)
 

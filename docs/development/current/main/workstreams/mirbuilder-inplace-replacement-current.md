@@ -519,10 +519,10 @@ closed:
   CALLABLE-LOOP-PHYSICAL-CANARY-P0
 accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
 closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
-accepted correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
+accepted historical correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
   LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1, LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2,
-  and LOOP-COMMON-RECURSIVE-AFTER-R3-I0 are closed; current execution:
-  LOOP-CALLER-ZERO-PARITY-G0-I1-D0
+  and LOOP-COMMON-RECURSIVE-AFTER-R3-I0 are closed. Worker-reviewed D1 is accepted;
+  current execution: LOOP-COMMON-PREDICATE-CARRIER-I0-R0
 Change:
   correct R3 before implementation: R2 is only an adapter over old
   Header/Body/Step/After blocks; R3 must own exact segment allocation and
@@ -547,7 +547,7 @@ Done:
   CFG/identity/PhiTxn, and reaches the existing Tail/Completion/DraftSeal path.
 Stop:
   Do not allocate or emit physical G0, perform production selection, switch a
-  production caller, or delete broad legacy until G0 I1 design is sealed.
+  production caller, or delete broad legacy until the common D1 contracts and G0 I1 caller-zero are closed.
   Physical G0, production selection, caller switch, fallback/retry,
   collector/publication, and legacy deletion remain closed. Every implementation row requires source README,
   `docs/reference/**`, diagnostics, migration note, guards, and current
@@ -979,7 +979,7 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
-  4. after closed G0 I0, complete common segment R1/block R2/recursive-After R3, then review and implement G0 I1 and M8/M9; only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
+  4. after closed G0 I0, complete common segment R1/block R2/recursive-After R3, then land the common Predicate/carrier I0, implement G0 I1 and M8/M9; only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance
