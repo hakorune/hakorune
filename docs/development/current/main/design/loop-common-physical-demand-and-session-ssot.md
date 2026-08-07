@@ -730,8 +730,8 @@ cannot be guessed or matched by name.
 ### Operation/effect design boundary
 
 The operation/effect relation product and both profile adapters are now
-closed caller-zero cells. They remain one relation product, not a new
-operation owner:
+closed caller-zero cells, and cross-profile parity is closed as a diagnostic
+receipt. They remain one relation product, not a new operation owner:
 
 ```text
 Recipe:
@@ -771,6 +771,32 @@ existing owners. The nested Generic G0 item 3 is the explicit exception: its
 match that anchor exactly. Item 4, C0/C1 carriers, and Generic tail reads stay
 outside the operation product.
 
+### Operation physicalizer design stop
+
+The next boundary is design-only:
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`. The physicalizer must
+consume one move-only private demand that bundles the operation/effect product
+with one common Loop continuation capability; it must not receive the Core
+product and After capability as unrelated arguments. A private transient index
+is allowed, but it is not semantic truth.
+
+The physicalizer may borrow only the existing canonical CFG, BindingSSA, and
+PhiTxn services plus a session-local single-use `ReadyLoopEntryV1`. It does
+not receive AST/name/profile/route/Tail/ABI/Completion authority and creates
+no second CFG, SSA, PHI, or retry owner. All owner/frame/Scope/Region,
+operation/value support, placement, entry/preheader, continuation, and carrier
+checks happen before Builder mutation. A post-emission failure poisons the
+unpublished function and uses whole-session discard; local Phi rollback is
+diagnostic cleanup only.
+
+Generic item 3 remains a normal parent-body `ReadBinding`. Its source anchor is
+the child-entry `DerivedCarrierEntry` for carrier 2. The physicalizer must
+assert parent-block placement and issue a child-entry carrier-seed receipt
+through canonical BindingSSA; it must never relabel the operation or infer
+placement from the anchor. Const/Read canary, Binary/Compare, then this nested
+carrier bridge are the only candidate slices, all caller-zero and test-only.
+No operation MIR or Builder implementation opens until this stop is accepted.
+
 Duplicate item keys, foreign or missing anchors, wrong block/loop membership,
 and repeated-ordinal ambiguity are typed `NoSafeSlice`. No operation MIR is
 opened by these passive rows. Each profile product must be issued before the
@@ -779,8 +805,10 @@ source anchors; P0 cannot be reused as the operation source.
 
 `LOOP-PHYSICAL-PREPARE-P0`, the static-call fixture/profile, and
 `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed caller-zero prerequisites. The
-current implementation-ready row is
-`docs/development/current/main/investigations/loop-recipe-operation-effect-cross-profile-parity-s0-task-2026-08-07.md`;
+cross-profile parity receipt is also closed: Callable has seven item rows and
+Generic G0 has fifteen, but parity compares neither counts nor source order.
+The next design-only row is
+`docs/development/current/main/investigations/loop-recipe-operation-physicalizer-design-stop-2026-08-07.md`;
 it does not claim callable physical completion, production selection, M8/M9
 coverage, or retirement.
 
@@ -816,8 +844,9 @@ The architecture, `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, bounded
 `RECIPE-COSEAL-I0-R0`, callable static-prefix prepare, and Prelude argument
 receipt are closed under the typed-receipt and no-reinference contract above.
 The topology/After canary `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed.
-The operation/effect plan, passive product, Callable adapter, and Generic G0
-15-row anchor ledger are closed. The current boundary is
-`LOOP-RECIPE-OPERATION-EFFECT-CROSS-PROFILE-PARITY-S0`; operation emission,
-callable physical completion, production selection, retry/fallback retirement,
-and legacy deletion remain closed.
+The operation/effect plan, passive product, Callable adapter, Generic G0
+15-row anchor ledger, and cross-profile parity receipt are closed. The current
+boundary is the design-only
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`; operation emission, callable
+physical completion, production selection, retry/fallback retirement, and
+legacy deletion remain closed.

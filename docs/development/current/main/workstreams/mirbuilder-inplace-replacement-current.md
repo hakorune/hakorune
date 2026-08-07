@@ -48,8 +48,10 @@ variable-only i64 Prelude argument receipt contract. The caller-zero
 `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` and the test-only
 `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` topology/After canary are closed;
 `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` is now accepted and its ownership,
-coverage, Core move, and P0 boundary ordering are fixed. Current row is the
-caller-zero passive `LOOP-RECIPE-OPERATION-EFFECT-S0`. Physical/production and
+coverage, Core move, and P0 boundary ordering are fixed. Passive S0, Callable
+adapter S0, Generic G0 anchor S0, and cross-profile parity S0 are closed. The
+current row is the design-only
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`; physical/production and
 retirement remain closed.
 After this shallow sequence, final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`. The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
 ## Root-neutral semantic foundation
@@ -971,7 +973,7 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
-  4. close Generic G0 source/common-Recipe/selection/physical/parity rows, then perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
+  4. close the operation physicalizer design, then the caller-zero operation canary, Generic G0 physical/parity rows, and only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   7. R4 consumes the live fence registry above; every item must retire, reown,
@@ -986,8 +988,7 @@ after final-pipeline Complete only
   resume the parked Home ownership taskboard at OWNERSHIP-HOME-RESUME-D0
   then select later unimplemented language features
 ```
-## Fixed packs
-Findings stay in the existing eight packs; do not create another pack.
+## Fixed packs — existing eight packs only
 ## Parked
 ```text
 source-level Home ownership and unimplemented language features until the

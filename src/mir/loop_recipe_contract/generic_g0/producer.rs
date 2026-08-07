@@ -73,6 +73,13 @@ impl VerifiedGenericRecipeProductG0 {
         let (core, _) = self.operation_effect.into_parts();
         VerifiedLoopPhysicalBoundaryV1::from_parts(core, self.after.into_after_binding())
     }
+
+    #[cfg(test)]
+    pub(crate) fn into_operation_effect(
+        self,
+    ) -> super::super::operation_effect::VerifiedLoopOperationEffectProductV1 {
+        self.operation_effect
+    }
 }
 
 pub(crate) fn produce_generic_g0_recipe_v1(

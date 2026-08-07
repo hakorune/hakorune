@@ -96,9 +96,12 @@ Related:
   callable operation equality, placement/effect matching, coverage, reject
   rules, and the pre-physical-boundary issuance point are fixed and tested.
   The Generic G0 15-row item-to-anchor ledger is now closed, including the
-  child-entry carrier row. The current execution row is cross-profile
-  callable/G0 evidence parity; operation emission and physical completion
-  remain closed.
+  child-entry carrier row. Cross-profile callable/G0 parity is now closed as a
+  diagnostic-only receipt: Callable has seven rows and Generic G0 has fifteen,
+  but parity compares neither counts nor source order. The current execution
+  row is the design-only
+  `LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`; operation emission and
+  physical completion remain closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

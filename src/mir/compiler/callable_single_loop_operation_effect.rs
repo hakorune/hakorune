@@ -41,6 +41,11 @@ pub(crate) struct VerifiedCallableOperationEffectProductV1 {
     tail: VerifiedCallableTailV1,
 }
 
+#[cfg(test)]
+pub(crate) fn callable_operation_effect_for_test() -> VerifiedLoopOperationEffectProductV1 {
+    tests::issue().into_operation_effect()
+}
+
 impl VerifiedCallableOperationEffectProductV1 {
     pub(crate) fn operation_effect(&self) -> &VerifiedLoopOperationEffectProductV1 {
         &self.operation_effect
@@ -64,6 +69,11 @@ impl VerifiedCallableOperationEffectProductV1 {
 
     pub(crate) fn tail(&self) -> &VerifiedCallableTailV1 {
         &self.tail
+    }
+
+    #[cfg(test)]
+    pub(crate) fn into_operation_effect(self) -> VerifiedLoopOperationEffectProductV1 {
+        self.operation_effect
     }
 }
 
@@ -275,7 +285,7 @@ mod tests {
         }
     }
 
-    fn issue() -> VerifiedCallableOperationEffectProductV1 {
+    pub(super) fn issue() -> VerifiedCallableOperationEffectProductV1 {
         let unit = unit(None, integer(1));
         let (input, loop_stmt, context) = input_loop_and_context(&unit);
         let syntax = issue_callable_single_loop_syntax_facts_v1(input, loop_stmt, context).unwrap();

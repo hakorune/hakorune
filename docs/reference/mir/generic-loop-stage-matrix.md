@@ -49,8 +49,10 @@ adapters are caller-zero evidence. The neutral contract defines an item-keyed
 exact source/effect ledger for `ReadBinding`, `WriteBinding`, constants,
 comparisons, and arithmetic, but it does not emit operation MIR. Generic G0
 remains a separate profile and is not relabeled as the callable physicalizer.
-The current row is cross-profile callable/G0 evidence parity. No selector,
-retry/fallback, production caller, or legacy deletion is implied.
+Cross-profile callable/G0 evidence parity is now closed as a diagnostic-only
+receipt. No selector, retry/fallback, production caller, or legacy deletion is
+implied. The next boundary is the design-only
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`.
 
 The P0 test canary is now landed: `VerifiedLoopPhysicalBoundaryV1` and the
 private `ReadyLoopEntryV1` are consumed by one recursive topology probe, which
@@ -87,9 +89,12 @@ No Builder/MIR, selector, retry/fallback, production caller, or legacy
 deletion is opened. The Generic G0 anchor row is now also closed: its producer
 issues the exact 15 item keys before source facts are dropped, with item 3 as
 the existing child-entry `DerivedCarrierEntry` for carrier 2. Item 4, C0/C1
-carriers, and Generic tail reads remain outside this product. The current next
-row is cross-profile callable/G0 evidence parity; operation physicalization
-remains closed.
+carriers, and Generic tail reads remain outside this product. Cross-profile
+parity is now closed as a diagnostic-only receipt: Callable has seven item rows
+and Generic G0 has fifteen, but the receipt compares neither counts nor source
+order. Both products use the same item-keyed neutral schema, owner/source
+provenance, Recipe placement, Core effect matching, and common typed rejection
+family. Operation physicalization remains closed.
 
 ## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
 
@@ -101,6 +106,17 @@ binding effects. Duplicate, missing, foreign-owner, and wrong-placement
 rejection coverage remains green. This receipt opens no operation MIR, parity
 selection, physicalizer, retry/fallback, production caller, or legacy
 deletion.
+
+## Cross-profile operation/effect parity receipt (2026-08-07)
+
+`LOOP-RECIPE-OPERATION-EFFECT-CROSS-PROFILE-PARITY-S0` is closed as
+caller-zero diagnostic evidence. The common verifier, not the parity receipt,
+owns duplicate, missing, foreign, wrong-placement, and pure-binding rejection.
+The receipt does not relabel or select profile items and does not fuse
+Tail/After. The next design-only row is
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`, which must freeze a single
+move-only operation physical demand, borrowed session owners, preflight versus
+whole-session discard, and the item-3 parent-placement/child-carrier bridge.
 
 ## S0A implementation receipt
 

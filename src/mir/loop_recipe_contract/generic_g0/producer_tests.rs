@@ -4,6 +4,15 @@ use crate::mir::loop_recipe_contract::generic_g0_demand::issue_generic_g0_recipe
 use crate::mir::loop_recipe_contract::{LoopBindingEffectAnchorV1, LoopItemKeyV1};
 use crate::mir::loop_route_policy::generic_selection_for_test;
 
+pub(crate) fn generic_operation_effect_for_test(
+) -> super::super::operation_effect::VerifiedLoopOperationEffectProductV1 {
+    produce_generic_g0_recipe_v1(
+        issue_generic_g0_recipe_demand_v1(generic_selection_for_test()).expect("generic demand"),
+    )
+    .expect("generic product")
+    .into_operation_effect()
+}
+
 #[test]
 fn generic_g0_recipe_producer_seals_one_complete_product() {
     let selection = generic_selection_for_test();

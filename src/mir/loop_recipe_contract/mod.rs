@@ -79,6 +79,15 @@ mod tests;
 #[path = "operation_effect_tests.rs"]
 mod operation_effect_tests;
 
+#[cfg(test)]
+mod operation_effect_parity;
+
+#[cfg(test)]
+pub(crate) use operation_effect_parity::{
+    issue_operation_effect_parity_receipt_v1, LoopOperationEffectParityReceiptV1,
+    LoopOperationEffectParityRejectV1, LoopOperationEffectParitySideV1,
+};
+
 // M2 is intentionally disconnected. Keep one stable facade for later producers
 // without turning caller-zero exports into warning noise.
 #[allow(unused_imports)]

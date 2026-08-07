@@ -95,6 +95,11 @@ impl VerifiedLoopOperationSourceEvidenceV1 {
     pub(crate) const fn source_binding(&self) -> Option<BindingRefV1> {
         self.0.source_binding
     }
+
+    #[cfg(test)]
+    pub(crate) fn into_unverified_for_test(self) -> LoopOperationSourceEvidenceV1 {
+        self.0
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

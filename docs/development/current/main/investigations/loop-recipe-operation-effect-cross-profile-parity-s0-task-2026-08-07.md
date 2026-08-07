@@ -1,6 +1,6 @@
 # Cross-profile Loop operation/effect parity S0
 
-Status: `IMPLEMENTATION-READY`
+Status: `CLOSED`
 Date: 2026-08-07
 Parent: `LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0`
 Authority:
@@ -55,6 +55,36 @@ Add one positive parity fixture and typed negative coverage for foreign owner,
 missing/duplicate evidence, wrong placement, and an invalid profile-specific
 relabel. Keep all touched source/test files below 800 lines.
 
+## Implementation receipt (2026-08-07)
+
+Closed as caller-zero, passive parity evidence. The new diagnostic-only
+`LoopOperationEffectParityReceiptV1` validates both profile products through
+the same neutral `VerifiedLoopOperationEffectProductV1` contract:
+
+```text
+Callable: 7 item-keyed rows
+Generic G0: 15 item-keyed rows
+Generic item 3: DerivedCarrierEntry(child carrier 2)
+```
+
+The receipt checks non-empty ordered unique evidence and owner-branded source
+anchors/bindings. The existing common product verifier remains the authority
+for exact Recipe operation equality, placement, effect matching, and the
+duplicate/missing/foreign/wrong-placement/pure-binding rejection family. The
+profile-relabel negative confirms that item 3 cannot be relabeled as item 4.
+
+The focused `operation_effect` suite passes 8 tests and the focused
+`generic_g0` suite passes 43 tests. No profile count comparison, source-order
+comparison, Tail/After fusion, operation MIR, ValueId/BasicBlockId/PHI,
+physicalizer, selector, retry/fallback, publication, or legacy deletion was
+opened. The receipt is diagnostic evidence only and is not a new semantic
+owner.
+
+The next row is the design-only
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`: fix the common physicalizer
+input/owner/failure contract and the Generic item-3 carrier bridge before any
+physical operation canary.
+
 ## Stop line
 
 This row remains caller-zero and passive. Do not emit operation MIR, allocate
@@ -62,6 +92,13 @@ ValueId/BasicBlockId/PHI, open a physicalizer, select a production route,
 retry/fallback, or delete legacy callers. If the two products cannot be
 compared without copying Recipe/effect truth, return to the neutral product
 boundary and record `NoSafeSlice`.
+
+After this closeout, the next design stop must keep the same restrictions until
+its explicit canary contract is accepted. The physicalizer may consume the
+move-only operation/effect product, a session-local single-use `ReadyLoopEntryV1`,
+and borrowed canonical CFG/BindingSSA/PhiTxn services only; it must not receive
+AST/name/route/profile/Tail/ABI/Completion authority or create a second CFG,
+SSA, PHI, or retry owner.
 
 ## Same-commit documentation obligation
 

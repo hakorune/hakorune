@@ -308,21 +308,32 @@ DraftSeal, publication, or production authority. The Generic G0 anchor row is
 also closed: its producer issues the explicit 15-row item-to-anchor ledger
 before source facts leave the producer boundary, with item 3 as the existing
 child-entry `DerivedCarrierEntry` for carrier 2. Item 4, C0/C1 carriers, and
-Generic tail reads remain outside the operation product. The current next row
-is cross-profile callable/G0 evidence parity.
+Generic tail reads remain outside the operation product. Cross-profile parity
+is now closed as a diagnostic-only receipt; operation physicalization remains
+the next design-only boundary.
 
-## Cross-profile operation/effect parity boundary (2026-08-07)
+## Cross-profile operation/effect parity receipt (2026-08-07)
 
-The next caller-zero row compares the callable and Generic G0 adapters only
-through `VerifiedLoopOperationEffectProductV1`. It checks one schema, one
-item-keyed coverage rule, one owner/source provenance rule, one Recipe-derived
-placement rule, one Core effect matching rule, and one typed rejection family.
-It does not compare profile item counts or source preorder: callable has seven
-items, Generic G0 has fifteen, and Generic item 3 is a profile-specific
-`DerivedCarrierEntry`. Prelude/Tail and After/tail reads remain separate.
+`LOOP-RECIPE-OPERATION-EFFECT-CROSS-PROFILE-PARITY-S0` is closed as caller-zero
+diagnostic evidence. Both profile adapters issue the same neutral
+`VerifiedLoopOperationEffectProductV1`; the parity receipt validates the
+shared schema and owner-branded evidence without comparing profile item counts
+or source order. Callable has seven rows, Generic G0 has fifteen, and Generic
+item 3 remains the profile-specific `DerivedCarrierEntry` for child carrier 2.
+Prelude/Tail and After/tail reads remain separate.
+
+The existing common product verifier remains the sole authority for exact
+Recipe operation equality, item placement, Core effect matching, and the
+duplicate/missing/foreign/wrong-placement/pure-binding rejection family. The
+parity receipt adds no second operation/effect catalog and does not select by
+count, ordinal, profile label, or source preorder. Focused parity evidence is
+green (8 operation/effect tests and 43 Generic G0 tests).
 
 No operation MIR, physicalizer, selector, retry/fallback, publication, or
-legacy deletion is opened by this boundary.
+legacy deletion is opened by this receipt. The next design-only boundary is
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`, which must first bind the
+move-only physical demand, borrowed session services, Stage-A/Stage-B failure
+contract, and Generic item-3 parent-placement/child-carrier seed bridge.
 
 ## Callable source-shape split receipt (2026-08-07)
 
