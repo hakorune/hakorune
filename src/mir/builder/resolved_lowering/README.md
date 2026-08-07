@@ -64,6 +64,23 @@ the canonical finish guard, and the current-state pointer guard are green;
 physical Loop lowering and production selection remain closed at the next
 design stop.
 
+## Caller-zero Loop physical prepare
+
+`src/mir/compiler/loop_physical_prepare.rs` is a test-only pre-effect contract
+boundary for `LOOP-PHYSICAL-PREPARE-P0`. It brands the exact resolved callable
+input, derives a prelude target/result capability from the existing callable
+index/header, and seals one Tail/ABI/Completion compatibility relation before
+any Builder session opens. The moved `VerifiedLoopPhysicalDemandV1` owns the
+co-sealed logical product; the retained resolved input remains a borrowed view.
+
+The current `helper.to_i64(n)` MethodCall fixture intentionally has no
+resolver-issued direct callable target and therefore rejects with typed
+`NoSafeSlice::MissingPreludeTarget`. A test-only positive source substitution
+or a new static-call fixture must never be treated as production resolution;
+receiver, target, arity, and result ABI must come from one exact catalog/header
+relation. No name lookup, AST rematch, physical ID, Builder effect, selector,
+retry, fallback, or production caller is opened by this row.
+
 ## Disconnected canonical CFG prerequisite
 
 `canonical_cfg/` owns the SSA-C1 edge/seal substrate. It emits a terminator and

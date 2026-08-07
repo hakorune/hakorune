@@ -176,6 +176,38 @@ Tail/Loop-After fusion rejection. The source files remain below the 800-line
 lane limit. Physical preparation, function-terminal completion, production
 selection, and legacy deletion remain closed.
 
+## Caller-zero physical prepare boundary (P0)
+
+`LOOP-PHYSICAL-PREPARE-P0` adds only typed, pre-effect contracts in the
+test-only `loop_physical_prepare` module. The boundary is:
+
+```text
+exact resolved input + callable index/header
+  -> callable input brand
+  -> LoopRecipeCoSeal move-only demand
+  -> prelude target/receiver/arity/result capability
+  -> Tail/ABI/Completion compatibility receipt
+  -> PreparedCallableLoopPhysicalizationV1
+```
+
+The prepared input borrows the resolved source view; the Loop demand and
+compatibility receipts own only AST-free sealed products. Completion is moved
+into the prepared product exactly once. No Builder, CFG, PHI, ValueId,
+physicalizer, selector, publication, retry, or fallback is involved.
+
+The existing callable fixture uses `helper.to_i64(n)` as a MethodCall. Its
+resolver source ledger consequently leaves `direct_callable` absent, and the
+prepare boundary must reject it as `NoSafeSlice::MissingPreludeTarget`. This
+negative is intentional: injecting a free-static catalog target into that
+MethodCall would not prove source resolution. A positive Prepared fixture
+requires a separately verified static-call source profile with an exact
+receiver/target relation; it is not silently fabricated in P0.
+
+This section is a caller-zero implementation receipt, not a production Loop
+claim. G0 must reuse the same terminal compatibility relation later, and the
+physical selector remains closed until the common physicalization and parity
+rows are complete.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local

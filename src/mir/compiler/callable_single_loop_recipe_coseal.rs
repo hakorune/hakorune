@@ -254,6 +254,20 @@ impl VerifiedCallableSingleLoopRecipeProductV1 {
     pub(crate) fn tail(&self) -> &VerifiedCallableTailV1 {
         &self.tail
     }
+
+    /// Consume the caller-zero product at the next explicit boundary.
+    ///
+    /// Keeping this move-only is important: a later physical prepare step
+    /// must not be able to retain a second co-seal, prelude, or tail owner.
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedLoopRecipeCoSealV1,
+        VerifiedCallablePreludeV1,
+        VerifiedCallableTailV1,
+    ) {
+        (self.co_seal, self.prelude, self.tail)
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]

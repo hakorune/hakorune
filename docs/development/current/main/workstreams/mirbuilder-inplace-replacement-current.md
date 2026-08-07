@@ -37,10 +37,10 @@ and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. MAP
 co-seals the resolver source/frame/Scope/Region and the selected
 `0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
 not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
-`RECIPE-COSEAL-I0-R0` is closed; Loop continuation/Tail remain separate. `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` and its bounded prepare-design correction are closed for the three existing V2 session lowerers; keep the one non-V2 `ReadyFunctionDraftSealV1::new` caller as named non-growing compatibility debt. The current active boundary is caller-zero `LOOP-PHYSICAL-PREPARE-P0`; physical/production/retirement stay closed.
-Final finish line (not an additional active lane) follows
-`mirbuilder-final-pipeline-ssot.md`: typed finish -> prepare-design correction -> caller-zero prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 ->
-`REPO-FINAL-CONVERGENCE-AUDIT0-G0`. The repository cleanup SSOT owns pipeline/root/context/authority convergence, registry/current-pointer cleanup, temporary-surface disposition, and D4/S-series archive; it opens only after Loop cutover, with README/reference/guard/current-mirror updates in every implementation commit.
+`RECIPE-COSEAL-I0-R0` and `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` are closed; Loop continuation/Tail remain separate, and the one non-V2 `ReadyFunctionDraftSealV1::new` caller remains named compatibility debt.
+The active boundary is caller-zero `LOOP-PHYSICAL-PREPARE-P0`; typed pre-effect contracts are landed, but the current MethodCall fixture has no genuine direct target/ABI positive, so physical/production/retirement remain closed.
+Final finish order is owned by `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
+The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse

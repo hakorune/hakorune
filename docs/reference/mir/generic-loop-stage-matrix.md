@@ -1238,3 +1238,21 @@ deletion was opened. The typed function-finish terminal and its bounded
 prepare-design correction are now closed for the three V2 session lowerers.
 The current boundary is caller-zero `LOOP-PHYSICAL-PREPARE-P0`; physical /
 production activation remains closed.
+
+## Callable physical prepare P0 receipt (2026-08-07)
+
+The first caller-zero prepare slice is landed in the test-only
+`loop_physical_prepare` module. It brands the exact resolved callable input,
+moves the common co-seal into `VerifiedLoopPhysicalDemandV1`, and defines the
+typed prelude and Tail/ABI/Completion relation boundaries without opening a
+Builder session. Focused tests cover exact catalog branding, source-view
+lifetime independence, and the existing MethodCall fixture's typed
+`NoSafeSlice::MissingPreludeTarget` result.
+
+This is partial P0 evidence, not a positive physical or production claim. The
+fixture's `helper.to_i64(n)` source has no resolver-issued direct callable and
+the existing return declaration is unannotated; it cannot prove a positive
+Prepared/ABI witness. A genuine positive requires a separately verified
+static-call source profile with an exact receiver/target relation. No target
+injection, name lookup, AST rematch, physical ID, selector, retry, fallback, or
+production caller is allowed in this row.

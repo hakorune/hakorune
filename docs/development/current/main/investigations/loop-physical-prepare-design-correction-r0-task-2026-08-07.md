@@ -101,6 +101,40 @@ The correction must not add a universal CallablePlan, second selector,
 physical ID, Builder capability, AST rematch, name lookup, retry, fallback,
 publication, or production caller.
 
+## P0 implementation progress (caller-zero, not closeout)
+
+The first bounded slice now exists in test-only
+`src/mir/compiler/loop_physical_prepare.rs`:
+
+```text
+VerifiedCallableFunctionLoweringInputV1
+VerifiedLoopPhysicalDemandV1
+VerifiedCallablePreludeCapabilityV1
+VerifiedCallableTerminalCompatibilityV1
+PreparedCallableLoopPhysicalizationV1
+```
+
+It has no session/Builder effect and the focused contracts cover exact input
+branding, owned co-seal lifetime, and the current MethodCall fixture's typed
+`MissingPreludeTarget` reject. This is deliberately **partial P0 progress**.
+The existing fixture has no resolver-issued direct callable target and its
+return declaration is unannotated, so it cannot be used as a positive
+Prepared/ABI witness. Do not inject a free-static target or treat receiver
+`Other` as proof of a static call. A positive prelude/terminal witness requires
+a separately verified static-call fixture/profile, which is a bounded source
+authority decision before it is added. P0 remains open until the proof matrix
+has a genuine positive plus the required foreign/arity/result/site/value and
+consumption negatives.
+
+Focused evidence for this partial slice is:
+
+```text
+cargo test --lib loop_physical_prepare
+```
+
+This is a caller-zero contract test, not a physical or production activation
+gate.
+
 ## Pre-effect rejection boundary
 
 Reject before session effects on:

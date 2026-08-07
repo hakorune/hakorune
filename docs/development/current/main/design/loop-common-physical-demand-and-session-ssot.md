@@ -684,6 +684,15 @@ Stop:
   physical emission, or production selection is NoSafeSlice
 ```
 
+P0 progress is currently partial: the move-only demand, callable input brand,
+and pre-effect reject boundary are landed with focused tests. The natural
+`helper.to_i64(n)` MethodCall fixture has no resolver-issued direct callable,
+and its return declaration is unannotated, so it is intentionally a typed
+negative rather than a positive Prepared/ABI witness. The next P0 slice must
+bring a separately verified static-call fixture/profile (or close the row as
+`NoSafeSlice` by decision); it must not inject a free-static target into the
+MethodCall fixture or infer receiver/target pairing by name.
+
 The physical canary does not complete M8, M9, production activation, or legacy
 retirement. `Recipe complete`, `physical canary complete`, `production
 selected`, and `legacy retired` remain four distinct claims.
