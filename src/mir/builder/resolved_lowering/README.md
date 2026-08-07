@@ -85,9 +85,10 @@ adapter is now closed as a separate source-evidence receipt. The Generic G0
 anchor ledger is also closed: its 15 item keys are issued before source facts
 are dropped, with item 3 matching the child-entry carrier relation.
 Cross-profile parity is also closed as a diagnostic-only receipt; it compares
-neither profile counts nor source order. The next design-only row is
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`. Physical operation lowering
-remains closed.
+neither profile counts nor source order. The worker-reviewed physicalizer
+design stop is closed. Its next row is the caller-zero ConstI64/ReadBinding
+canary consuming one private move-only operation physical demand; physical
+operation lowering remains test-only and production activation remains closed.
 
 ## Caller-zero Loop physical prepare
 

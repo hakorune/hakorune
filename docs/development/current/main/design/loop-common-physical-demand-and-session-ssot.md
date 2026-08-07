@@ -3,13 +3,12 @@ Status: SSOT
 Date: 2026-08-07
 Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
-P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop, and
-caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed; the current
-execution row is the topology/After-only
-`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed as a test-only topology
-canary; the current row is the design-only
-`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`; operation emission and physical Loop
-activation remain 0
+P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop,
+caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`, passive operation/effect S0,
+Callable/G0 adapters, and cross-profile parity are closed; the current row is
+the implementation-ready caller-zero
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`; production operation
+activation remains 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -45,7 +44,11 @@ resolver / source map
 ```
 
 The common `VerifiedLoopPhysicalDemandV1` is move-only, AST-free, and
-physical-ID-free. Each thin prepared product is move-only and physical-ID-free;
+physical-ID-free. The operation physicalizer uses a separate private,
+move-only `VerifiedLoopOperationPhysicalDemandV1` that bundles the
+Core-bearing operation/effect product with one common continuation capability;
+the two are never passed as independent physicalizer arguments. Each thin
+prepared product is move-only and physical-ID-free;
 its sole source-backed field is the existing exact
 `ResolvedFunctionLoweringInputV1`, retained for session opening and the outer
 profile lowerer. No prepare/physicalizer policy may inspect or rematch its AST.
@@ -133,6 +136,27 @@ Tail must never be fused and then split again.
 ## Product boundary
 
 ### Common product
+
+### Operation physical demand
+
+The first operation canary consumes this private move-only product:
+
+```text
+VerifiedLoopOperationPhysicalDemandV1 {
+  operation_effect: VerifiedLoopOperationEffectProductV1,
+  continuation: VerifiedLoopContinuationContractV1,
+  index: private LoopOperationPhysicalIndexV1,
+}
+```
+
+The operation/effect product owns the moved Core and item-keyed source/effect
+ledger. The continuation owns only the logical Loop After capability. Callable
+and Generic G0 adapters issue the common continuation by exact move from their
+separate Tail/After profiles; they do not share source types, compare counts,
+or pass two independent arguments to the physicalizer. The index is a private
+key-only lookup aid and never a second semantic or physical truth. The existing
+`VerifiedLoopPhysicalBoundaryV1` remains topology-only and is invalid for the
+operation canary because it drops source anchors.
 
 The accepted conceptual shape has two layers:
 
@@ -713,8 +737,8 @@ Done:
   owning README, and the compact current-row receipt were updated together.
 
 Stop:
-  operation emission without the next design-only
-  `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`, missing logical relation,
+  operation emission without the accepted operation physicalizer design and
+  canary task, missing logical relation,
   copied/reverified source truth, a new Recipe kind, profile-specific
   physicalizer, public topology, Return/DraftSeal/publication, selector,
   fallback, retry, or legacy deletion returns to design.
@@ -805,10 +829,10 @@ source anchors; P0 cannot be reused as the operation source.
 
 `LOOP-PHYSICAL-PREPARE-P0`, the static-call fixture/profile, and
 `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed caller-zero prerequisites. The
-cross-profile parity receipt is also closed: Callable has seven item rows and
-Generic G0 has fifteen, but parity compares neither counts nor source order.
-The next design-only row is
-`docs/development/current/main/investigations/loop-recipe-operation-physicalizer-design-stop-2026-08-07.md`;
+cross-profile parity receipt and worker-reviewed operation physicalizer design
+stop are closed. Callable has seven item rows and Generic G0 has fifteen, but
+parity compares neither counts nor source order. The next row is the caller-zero
+`docs/development/current/main/investigations/loop-recipe-operation-physicalizer-canary-s0-task-2026-08-07.md`;
 it does not claim callable physical completion, production selection, M8/M9
 coverage, or retirement.
 
@@ -845,8 +869,8 @@ The architecture, `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, bounded
 receipt are closed under the typed-receipt and no-reinference contract above.
 The topology/After canary `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed.
 The operation/effect plan, passive product, Callable adapter, Generic G0
-15-row anchor ledger, and cross-profile parity receipt are closed. The current
-boundary is the design-only
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`; operation emission, callable
-physical completion, production selection, retry/fallback retirement, and
-legacy deletion remain closed.
+15-row anchor ledger, cross-profile parity receipt, and worker-reviewed
+physicalizer design stop are closed. The current boundary is the caller-zero
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`; operation production
+activation, callable physical completion, production selection, retry/fallback
+retirement, and legacy deletion remain closed.

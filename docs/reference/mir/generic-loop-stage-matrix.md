@@ -50,9 +50,10 @@ exact source/effect ledger for `ReadBinding`, `WriteBinding`, constants,
 comparisons, and arithmetic, but it does not emit operation MIR. Generic G0
 remains a separate profile and is not relabeled as the callable physicalizer.
 Cross-profile callable/G0 evidence parity is now closed as a diagnostic-only
-receipt. No selector, retry/fallback, production caller, or legacy deletion is
-implied. The next boundary is the design-only
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`.
+receipt. The worker-reviewed operation physicalizer design stop is also
+closed. No selector, retry/fallback, production caller, or legacy deletion is
+implied. The next boundary is the caller-zero
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`.
 
 The P0 test canary is now landed: `VerifiedLoopPhysicalBoundaryV1` and the
 private `ReadyLoopEntryV1` are consumed by one recursive topology probe, which
@@ -113,10 +114,11 @@ deletion.
 caller-zero diagnostic evidence. The common verifier, not the parity receipt,
 owns duplicate, missing, foreign, wrong-placement, and pure-binding rejection.
 The receipt does not relabel or select profile items and does not fuse
-Tail/After. The next design-only row is
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`, which must freeze a single
-move-only operation physical demand, borrowed session owners, preflight versus
-whole-session discard, and the item-3 parent-placement/child-carrier bridge.
+Tail/After. The worker-reviewed physicalizer design stop is closed with one
+private move-only operation physical demand, borrowed session owners,
+preflight versus whole-session discard, and the item-3 parent-placement/
+child-carrier bridge. The next implementation row is the caller-zero
+ConstI64/ReadBinding canary.
 
 ## S0A implementation receipt
 

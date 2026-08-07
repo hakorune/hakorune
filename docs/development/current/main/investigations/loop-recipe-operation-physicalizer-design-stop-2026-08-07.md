@@ -1,6 +1,6 @@
 # Loop operation physicalizer design stop
 
-Status: `DESIGN-STOP`
+Status: `CLOSED; accepted after worker review`
 Date: 2026-08-07
 Parent: `LOOP-RECIPE-OPERATION-EFFECT-CROSS-PROFILE-PARITY-S0`
 Authority:
@@ -16,6 +16,32 @@ failure discard, and Generic item-3 carrier bridge.
 The next implementation may be a caller-zero, test-only one-operation canary
 only after this card is accepted. No production selection or legacy retirement
 opens here.
+
+## Decision
+
+Use one private move-only demand product rather than passing the Core-bearing
+operation product and continuation as separate physicalizer arguments:
+
+```text
+VerifiedLoopOperationPhysicalDemandV1 {
+    operation_effect: VerifiedLoopOperationEffectProductV1,
+    continuation: VerifiedLoopContinuationContractV1,
+    index: private LoopOperationPhysicalIndexV1,
+}
+```
+
+The exact Rust field layout remains private. The product is issued once by
+each profile adapter after projecting its continuation into the common
+`VerifiedLoopContinuationContractV1`; Callable and Generic G0 do not share a
+Tail/After source type. `operation_effect` owns the moved Core and its
+item-keyed source/effect ledger. `continuation` owns only the logical Loop
+After capability. The private index is a key-only lookup aid and is not a
+second Recipe, effect, CFG, SSA, or PHI truth.
+
+`VerifiedLoopPhysicalBoundaryV1` is not a valid input for this operation
+physicalizer because it intentionally drops source anchors. The existing
+topology-only canary may retain that boundary as a closed historical receipt;
+the operation canary must consume the new bundled demand instead.
 
 ## Source authority
 
@@ -151,6 +177,20 @@ same-commit documentation list
 ```
 
 Until then, do not edit Builder lowering or emit physical operation MIR.
+
+## Design closeout receipt (2026-08-07)
+
+Worker review accepted the boundary. The canonical input is the private
+move-only `VerifiedLoopOperationPhysicalDemandV1` bundling the Core-bearing
+operation/effect product, one common continuation capability, and a private
+key-only index. The first implementation task is
+`LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`; it is limited to one
+caller-zero ConstI64/ReadBinding emission and the fresh-session failure
+receipt. Binary/Compare and the Generic item-3 carrier bridge remain later
+sub-slices of the same physicalizer family.
+
+No Builder mutation, physical MIR, production route, selector, retry/fallback,
+or legacy deletion is claimed by this design closeout.
 
 ## Same-commit documentation obligation
 

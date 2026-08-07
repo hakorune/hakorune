@@ -309,8 +309,9 @@ also closed: its producer issues the explicit 15-row item-to-anchor ledger
 before source facts leave the producer boundary, with item 3 as the existing
 child-entry `DerivedCarrierEntry` for carrier 2. Item 4, C0/C1 carriers, and
 Generic tail reads remain outside the operation product. Cross-profile parity
-is now closed as a diagnostic-only receipt; operation physicalization remains
-the next design-only boundary.
+and the worker-reviewed operation physicalizer design stop are closed as
+caller-zero boundaries; the next implementation is the ConstI64/ReadBinding
+canary.
 
 ## Cross-profile operation/effect parity receipt (2026-08-07)
 
@@ -330,10 +331,12 @@ count, ordinal, profile label, or source preorder. Focused parity evidence is
 green (8 operation/effect tests and 43 Generic G0 tests).
 
 No operation MIR, physicalizer, selector, retry/fallback, publication, or
-legacy deletion is opened by this receipt. The next design-only boundary is
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`, which must first bind the
-move-only physical demand, borrowed session services, Stage-A/Stage-B failure
-contract, and Generic item-3 parent-placement/child-carrier seed bridge.
+legacy deletion is opened by this receipt. The worker-reviewed design stop is
+closed with one private move-only
+`VerifiedLoopOperationPhysicalDemandV1` bundling operation/effect evidence,
+common continuation, and a key-only private index. The next implementation
+row is the caller-zero ConstI64/ReadBinding canary; it must keep the Generic
+item-3 bridge later.
 
 ## Callable source-shape split receipt (2026-08-07)
 
