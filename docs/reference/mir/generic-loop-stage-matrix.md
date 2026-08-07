@@ -44,11 +44,11 @@ caller-zero AST-free observation only; it is not a Generic winner oracle.
 test-only topology/After canary. It consumes the shared move-only demand and
 session-local entry receipt to construct recursive logical
 child/header/body/step/After topology, but it does not emit operation MIR.
-The current row is the design-only
-`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`. `ReadBinding`, `WriteBinding`,
-constants, comparisons, and arithmetic remain typed `NoSafeSlice` until that
-row defines an item-keyed exact source/effect product. Generic G0 remains a
-separate caller-zero profile and is not relabeled as the callable
+The current row is the caller-zero passive
+`LOOP-RECIPE-OPERATION-EFFECT-S0` product. It defines an item-keyed exact
+source/effect ledger for `ReadBinding`, `WriteBinding`, constants,
+comparisons, and arithmetic, but it does not emit operation MIR. Generic G0
+remains a separate caller-zero profile and is not relabeled as the callable
 physicalizer. No selector, retry/fallback, production caller, or legacy
 deletion is implied.
 
@@ -57,8 +57,24 @@ private `ReadyLoopEntryV1` are consumed by one recursive topology probe, which
 allocates child/root header-body-step-After blocks and returns one After
 receipt. Owner, exact input coverage, parent topology, and preheader placement
 are checked before allocation. Operation MIR is still closed until the
-item-keyed exact source/effect design; this remains disconnected evidence and
-does not activate Generic G0 or any production route.
+item-keyed product is consumed; this remains disconnected evidence and does
+not activate Generic G0 or any production route.
+
+## Operation/effect product S0 receipt (2026-08-07)
+
+`LOOP-RECIPE-OPERATION-EFFECT-S0` is now landed as a passive, AST-free
+caller-zero product. The non-`Clone` product moves the verified Core once and
+checks one profile-issued source-evidence row for each of the 19 nested
+fixture operation items. Binding operations must match the Core's exact
+source-read/source-write relation and class; pure operations reject fabricated
+binding evidence. Duplicate, missing, foreign-owner, wrong-placement, and
+invalid-source cases are typed rejects.
+
+The product has no Builder/MIR, operation physicalizer, Return, DraftSeal,
+selector, retry/fallback, production caller, or legacy-deletion authority.
+Callable adaptation is the next bounded row; Generic G0 must later issue its
+explicit anchor ledger before source facts are dropped, followed only then by
+cross-profile parity and physical operation emission.
 
 ## S0A implementation receipt
 

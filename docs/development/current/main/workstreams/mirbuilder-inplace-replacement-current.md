@@ -499,35 +499,38 @@ closed prerequisites:
 closed:
   LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
   LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0
-
-current:
   LOOP-RECIPE-OPERATION-EFFECT-S0
 
+current:
+  LOOP-RECIPE-OPERATION-EFFECT-CALLABLE-ADAPTER-S0
+
 Change:
-  implement one caller-zero passive, move-only item-keyed source/effect
-  product after the accepted D0 design. It moves the co-sealed Core exactly
-  once, carries profile-issued exact source evidence, and exposes typed views
-  without copying Recipe operations, operands, BindingRef, or effect rows.
+  adapt the existing callable source-ledger rows into the neutral
+  item-keyed operation/effect evidence product. Consume only exact
+  resolver-issued source identity; do not open Generic G0, physical MIR, or
+  production selection.
 
 Contract:
   no source/name/order guessing, copied or reverified Recipe truth, second
-  operation owner, P0 boundary reuse after anchor drop, operation MIR,
-  production selector, retry, fallback, Return, DraftSeal, publication, or
-  legacy deletion. Generic G0 and callable adapters remain later rows.
+  operation owner, P0 boundary reuse after anchor drop, Generic G0 relabel,
+  operation MIR, production selector, retry, fallback, Return, DraftSeal,
+  publication, or legacy deletion.
 
 Done:
-  caller-zero topology canary consumes a move-only common boundary and one
-  ReadyLoopEntryV1, validates exact entry/parent/preheader ownership before
-  allocation, and returns recursive child/root After receipts. It emits no
-  operation MIR and has no production caller. Exact MIR references, README,
-  and this receipt were updated in the implementation commit; source/check
-  files remain below 800.
+  caller-zero passive S0 moves the sealed Core exactly once, verifies one
+  source-evidence row per nested Recipe operation, checks exact placement and
+  Core read/write effects, and rejects fabricated pure-operation bindings.
+  Focused positive/negative tests are green; no production caller or
+  operation MIR exists. Exact MIR references, README, CURRENT_STATE, and
+  this receipt were updated in the implementation commit; source/check files
+  remain below 800.
 
 Stop:
-  operation MIR, a new Recipe kind, profile physicalizer, copied source truth,
-  name/ordinal matching, Return/DraftSeal/publication, selector, fallback,
-  retry, or legacy deletion in S0. A failed focused gate returns to the S0
-  owner/contract boundary; it does not open a workaround route.
+  Generic G0 parity, operation MIR, a new Recipe kind, profile physicalizer,
+  copied source truth, name/ordinal matching, Return/DraftSeal/publication,
+  selector, fallback, retry, or legacy deletion in the adapter row. A failed
+  focused gate returns to the callable source/evidence boundary; it does not
+  open a workaround route.
 ```
 ## Production invariants
 ```text

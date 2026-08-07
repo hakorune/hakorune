@@ -58,6 +58,15 @@ pub(crate) enum LoopBindingEffectAnchorV1 {
     },
 }
 
+impl LoopBindingEffectAnchorV1 {
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
+        match self {
+            Self::Expr(site) => site.owner(),
+            Self::DerivedCarrierEntry { owner, .. } => *owner,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) enum LoopBindingEffectRoleV1 {
     SourceRead { ordinal: u32 },
@@ -125,6 +134,17 @@ impl VerifiedLoopBindingEffectRelationV1 {
 
     pub(crate) fn source_binding(&self) -> BindingRefV1 {
         self.0.source_binding
+    }
+
+    /// Read-only view used by the operation/effect join. The effect relation
+    /// remains the sole owner of this anchor; callers must not copy it into a
+    /// second effect catalog.
+    pub(crate) fn anchor(&self) -> &LoopBindingEffectAnchorV1 {
+        &self.0.anchor
+    }
+
+    pub(crate) fn class(&self) -> LoopValueClassV1 {
+        self.0.class
     }
 }
 

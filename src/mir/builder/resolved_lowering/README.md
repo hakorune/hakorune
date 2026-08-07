@@ -76,9 +76,13 @@ rejects incomplete entry without allocating blocks.
 This is not a production physicalizer or selector. It emits no operation MIR,
 Return, DraftSeal, publication, retry, fallback, or legacy deletion. The
 DirectAccum binding port remains profile-specific and must not be reused as
-the common port; no second CFG/SSA/PHI owner is allowed. The next row is the
-design-only `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`, which must issue an
-item-keyed exact source/effect product before operation emission is opened.
+the common port; no second CFG/SSA/PHI owner is allowed. The current row is
+the passive `LOOP-RECIPE-OPERATION-EFFECT-S0` product: it issues an item-keyed
+exact source/effect ledger before operation emission is opened. The product is
+test-only, moves the verified Core once, and emits no operation MIR, Return,
+DraftSeal, selector, retry, fallback, or production route. Callable adapter,
+Generic G0 anchor ledger, parity, and physical operation lowering remain
+separate later rows.
 
 ## Caller-zero Loop physical prepare
 

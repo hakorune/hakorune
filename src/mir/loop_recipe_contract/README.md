@@ -83,10 +83,27 @@ The bounded P0 canary adds a neutral move-only
 `VerifiedLoopPhysicalBoundaryV1` projection for the existing Core and logical
 After capability. It is consumed only by the test-only topology physicalizer;
 it does not create a Recipe/JoinSig/CFG/SSA/PHI owner or expose callable
-Tail/ABI/Completion. The next operation row must first define an item-keyed,
-exact source/effect product because current effect ordinals alone are
-ambiguous across nested loops. No operation MIR or production caller is
-claimed here.
+Tail/ABI/Completion. The current operation row is the passive
+`LOOP-RECIPE-OPERATION-EFFECT-S0` product. It uses item-keyed source evidence
+and exact Core effect relations because effect ordinals alone are ambiguous
+across nested loops. The product emits no operation MIR or production caller.
+
+### Operation/effect product S0
+
+`VerifiedLoopOperationEffectProductV1` is the sole passive owner for the
+operation/effect join after D0. It moves `VerifiedLoopCoreProductV1` exactly
+once and stores only profile-issued item/anchor evidence. Recipe operation
+kind, operands, binding relations, and effect relations are read through the
+moved Core; no parallel catalog is allowed. Every Recipe `Operation` item is
+covered exactly once, with exact block/loop placement and owner-branded source
+anchors. `ReadBinding`/`WriteBinding` require the matching Core relation;
+pure operations reject fabricated binding evidence.
+
+The focused nested fixture covers 19 operation items plus duplicate, missing,
+foreign-owner, wrong-placement, and pure-operation binding-evidence rejects.
+This is still a caller-zero contract cell: no Builder/MIR, selector, retry,
+fallback, Return, DraftSeal, or production route is opened. Callable adapter,
+Generic G0 anchor ledger, parity, and physicalization are separate later rows.
 
 ## Generic legacy corpus inventory
 

@@ -7,6 +7,7 @@ mod join_sig;
 mod join_sig_branch;
 mod loop_true_break_continue_producer;
 mod normalize;
+mod operation_effect;
 mod physical_input;
 mod producer_id;
 pub(crate) mod route_id;
@@ -74,6 +75,10 @@ pub(crate) use source_bound_core::issue_source_bound_core_for_test;
 #[cfg(test)]
 mod tests;
 
+#[cfg(test)]
+#[path = "operation_effect_tests.rs"]
+mod operation_effect_tests;
+
 // M2 is intentionally disconnected. Keep one stable facade for later producers
 // without turning caller-zero exports into warning noise.
 #[allow(unused_imports)]
@@ -101,6 +106,11 @@ pub(crate) use loop_true_break_continue_producer::{
 };
 #[allow(unused_imports)]
 pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
+#[allow(unused_imports)]
+pub(crate) use operation_effect::{
+    LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1,
+    VerifiedLoopOperationEffectProductV1, VerifiedLoopOperationSourceEvidenceV1,
+};
 #[allow(unused_imports)]
 pub(crate) use physical_input::{VerifiedLoopPhysicalBoundaryV1, VerifiedLoopPhysicalInputV1};
 #[allow(unused_imports)]

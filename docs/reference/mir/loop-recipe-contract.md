@@ -261,8 +261,34 @@ and root After continuations, child preheader placement is preserved, and an
 incomplete entry is rejected without allocating blocks. The module is
 `cfg(test)` and has no production caller, selector, MIR operation emission,
 Return, DraftSeal, publication, retry, fallback, or legacy deletion. The
-operation boundary remains the design-only
-`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` row below.
+operation boundary is now the passive
+`LOOP-RECIPE-OPERATION-EFFECT-S0` product below; physical operation emission
+remains closed.
+
+## Operation/effect product S0 (2026-08-07)
+
+`LOOP-RECIPE-OPERATION-EFFECT-S0` is closed as a caller-zero, passive
+item-keyed verifier. `VerifiedLoopOperationEffectProductV1` moves one sealed
+`VerifiedLoopCoreProductV1` exactly once and owns only the profile-issued
+source-evidence ledger. Recipe operations, operands, `BindingRefV1`, and
+binding-effect rows remain views into the moved Core; a second operation or
+effect catalog is not created.
+
+The verifier requires one evidence row for every Recipe `Operation` item,
+exact Recipe block/loop placement, owner-branded source anchors, and exact
+`SourceRead`/`SourceWrite` Core relations for binding operations. Pure
+constant, binary, and comparison operations reject fabricated binding
+evidence. Duplicate, missing, foreign, wrong-owner, wrong-placement, invalid
+source-loop, missing-effect, role-mismatch, and class-mismatch cases reject
+before any physical effect. Tail/After reads and structural carrier rows stay
+outside this product by contract.
+
+Focused tests cover nested positive coverage (19 operation items), duplicate
+and missing evidence, foreign owner, wrong placement, and fabricated binding
+evidence on a pure operation. This row emits no operation MIR, ValueId,
+BasicBlockId, Return, DraftSeal, selector, retry, fallback, or production
+route. The next row is the separate Callable source-evidence adapter; Generic
+G0 anchor-ledger parity and operation physicalization remain closed.
 
 ## Callable source-shape split receipt (2026-08-07)
 

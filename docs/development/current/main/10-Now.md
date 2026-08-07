@@ -91,11 +91,12 @@ Related:
   `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` topology/After canary is also
   closed: it validates exact entry and parent/preheader topology before
   allocation and emits no operation MIR. `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`
-  is accepted: Core ownership, exact item-keyed source evidence, coverage,
-  reject rules, and the pre-physical-boundary issuance point are fixed. The
-  current execution row is the caller-zero passive
-  `LOOP-RECIPE-OPERATION-EFFECT-S0`; operation emission and physical
-  completion remain closed.
+  is accepted and its passive `LOOP-RECIPE-OPERATION-EFFECT-S0` product is
+  closed: Core ownership, exact item-keyed source evidence, coverage, reject
+  rules, and the pre-physical-boundary issuance point are fixed and tested.
+  The current execution row is the separate callable operation/effect
+  source-evidence adapter; Generic G0 parity, operation emission, and
+  physical completion remain closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
