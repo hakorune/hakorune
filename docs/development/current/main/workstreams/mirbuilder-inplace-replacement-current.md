@@ -45,8 +45,10 @@ proves FreeStatic, same-brand different-owner mapping, foreign-brand rejection,
 and declaration-derived Prepared ABI, while MethodCall remains typed negative.
 The common physicalizer/session design stop is closed with a resolver-backed
 variable-only i64 Prelude argument receipt contract. The caller-zero
-`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` is closed; current row is
-`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`; physical/production and retirement remain closed.
+`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` and the test-only
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` topology/After canary are closed;
+current row is the design-only `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`.
+Physical/production and retirement remain closed.
 After this shallow sequence, final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`. The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
 ## Root-neutral semantic foundation
 
