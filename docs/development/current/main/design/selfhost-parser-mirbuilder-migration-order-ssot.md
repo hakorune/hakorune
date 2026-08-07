@@ -233,7 +233,10 @@ current truth では `Hint` / `Contract` / `IntrinsicCandidate` も canonical `@
 
 結論:
 
-- final active grammar では **Rust parser / `.hako` parser の両方が必要**。
+- parity/cutover windowでは **Rust parser / `.hako` parser の両方が必要**。
+- final edit/semantic authorityはnative `.hako` parserへ一本化する。Rust
+  parserはexact parityとcaller-zeroを経て、明示されたbootstrap/oracle/compat
+  keepだけを残す。二つのactive grammar authorityを最終形にしない。
 - canonical docs surface は `@rune` に統一する。
 - compat window 中は `NYASH_FEATURES=rune` / `NYASH_FEATURES=opt-annotations` の両方が unified metadata parser path を有効にしてよい。
 - first backend-active slice は引き続き narrow で、optimization metadata は parse/noop keep、Rune v0 ABI metadata consumer は `ny-llvmc` selected-entry narrow slice に限定する。
@@ -259,6 +262,8 @@ current truth では `Hint` / `Contract` / `IntrinsicCandidate` も canonical `@
 
 禁止:
 
-- `.hako` parser だけ、または Rust parser だけで metadata grammar を active にすること。
+- authority cutover前のparity/cutover windowで、`.hako` parserだけ、または
+  Rust parserだけでmetadata grammarをactiveにすること。final native
+  `.hako` cutover後のRust oracle/compat縮退を禁止する規則ではない。
 - parser parity 前に runtime/backend workaround を足して metadata 不在を吸収すること。
 - `llvmlite` parity を Rune metadata lane の unblock 条件にすること。

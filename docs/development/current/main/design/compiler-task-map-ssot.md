@@ -4,7 +4,7 @@ Scope: Task ordering map (compiler cleanliness / recipe-first)
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/30-Backlog.md
-- docs/development/current/main/design/compiler-pipeline-ssot.md
+- docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 - docs/development/current/main/design/condprofile-migration-plan-ssot.md
 - docs/development/current/main/design/valueflow-blockparams-ssot.md
 - docs/development/current/main/design/copy-emission-ssot.md

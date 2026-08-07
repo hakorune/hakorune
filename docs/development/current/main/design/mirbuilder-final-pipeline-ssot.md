@@ -2,7 +2,7 @@
 Status: SSOT
 Date: 2026-07-28
 Decision: MIRBUILDER-FINAL-PIPELINE-v1
-Scope: MirBuilderと直前・直後の境界を含む最終production authority
+Scope: canonical source ingressからatomic MIR publicationまでの唯一のglobal pipeline-order authority。Parser grammar、language semantics、Backend loweringの詳細は隣接ownerへ委譲する。
 Related:
   - docs/development/current/main/design/recipe-first-entry-contract-ssot.md
   - docs/development/current/main/design/recipe-tree-and-parts-ssot.md
@@ -17,6 +17,12 @@ Related:
 # MirBuilder Final Pipeline
 
 ## Decision
+
+この文書は、canonical source ingressからatomic MIR publicationまでの
+**唯一のglobal pipeline-order authority**である。Parser grammar／source AST
+schema／language semanticsと、published `MirModule`を受け取る各Backendの
+lowering詳細は隣接ownerが持つ。この文書はその詳細を吸収せず、受渡し境界と
+authorityの向きだけを固定する。
 
 MirBuilder再構築の最終目標は、replacement cell数、pack消化、Rust LOC、または
 ファイル数ではない。
@@ -58,6 +64,36 @@ Resolve
 -> Collect
 -> Atomic Publish
 ```
+
+人間向けの七段projectionは次で固定する。これは上のnormative chainを
+並べ替える第二pipelineではない。
+
+```text
+1. Frontend
+   Source -> AST -> Resolve
+
+2. Semantic Observation
+   Resolve -> Observe -> Facts
+
+3. Verified Recipe
+   Recipe -> Verify
+
+4. Function Lowering Session
+   Lower -> function-local finish
+
+5. DraftSeal
+   Ready -> prepare -> infallible commit
+
+6. Module Transaction
+   Completed drafts -> Collect -> Atomic Publish
+
+7. Backend Boundary
+   published MirModule -> VM / AOT / LLVM / other selected backend
+```
+
+`Verify`をRecipeより前へ移したり、Backendをsource semanticsのrepair ownerに
+したりしない。七段projectionで省略された内部edgeのauthorityは、常に上の
+normative chainが優先する。
 
 `MIRBUILDER-INPLACE-REPLACEMENT0`は、この最終形へ現在のproduction
 MirBuilderを移す方法である。replacement cellやstructural measurementsは

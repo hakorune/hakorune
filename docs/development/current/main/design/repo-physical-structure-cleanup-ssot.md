@@ -34,6 +34,23 @@ Current reading:
 - 物理構造がまだ追いついていない
 - まず必要なのは crate split ではなく、入口と衛生の整理
 
+Audit refresh on 2026-08-07 (`42ec69ab84`, local `rg` census):
+
+```text
+src/mir/**/*.rs                         = 2508
+src/mir/builder/**/*.rs                 = 1205
+lang/src/compiler/**/*.hako             = 476
+src/mir Rust files containing cfg(test) = 745
+Rust parser / Hako parser files         = 81 / 40
+design Markdown recursive / direct      = 859 / 847
+src/mir/mod.rs module declarations      = 198
+```
+
+These counts prove repository-topology pressure, not semantic ownership.
+`cfg(test)` presence does not make a file legacy, and seed/pilot names do not
+authorize deletion. The root-module namespace gap and its post-cutover rows are
+owned by `mir-root-facade-contract-ssot.md`.
+
 ## Reading Rule
 
 This wave is **BoxShape cleanup**.
@@ -114,6 +131,37 @@ Move out:
 - long historical residue
 - parked lane lore
 - completed detail logs
+
+`CURRENT_STATE.toml` is part of the same current-entry boundary. The current
+file is 830 lines with 266 top-level assignments even though its header calls
+for compact live pointers. Do not hand-delete keys: consumers may still depend
+on historical names.
+
+Parked order:
+
+```text
+CURRENT-STATE-CONSUMER-CENSUS0-P0
+  -> classify every key and every code/guard/docs reader
+
+CURRENT-STATE-LIVE-SCHEMA0-D0
+  -> fix the minimal live schema and the non-authoritative history destination
+
+CURRENT-STATE-LIVE-CUTOVER0-I0-R0
+  -> migrate consumers first, then atomically remove historical keys
+```
+
+The candidate floor for the final live file is current row/owner/design/task,
+next blocker, latest card, and explicitly parked-family pointers. The exact
+key set is owned only by `CURRENT-STATE-LIVE-SCHEMA0-D0` after consumer census.
+There is no second writable current-state authority. Pointer guards and all
+consumers must be green before the old keys are removed.
+
+Design-root cleanup stays on its existing H3/V1 lane. Current registry truth is
+`mode = warning`, `unregistered_baseline = 77`. The sharded V1 migration is
+behavior-neutral and must preserve that baseline; it does not earn a strict
+claim. After V1 cutover, H3 classification drains the unregistered set to zero,
+and only then may lifecycle enforcement select strict mode. Do not create a
+second registry or a competing cleanup task family here.
 
 Archive policy:
 
@@ -242,6 +290,14 @@ Rule:
 - entry modules and README first
 - physical split later
 
+Current activation rule:
+
+- finish the active Loop Recipe production selection and old
+  scheduler/retry/PHI-edge retirement first;
+- then execute the bounded root-module rows in
+  `mir-root-facade-contract-ssot.md`;
+- do not copy the proposed conceptual categories into a bulk folder move.
+
 ### P4. `src/mir` physical clustering
 
 Goal:
@@ -290,6 +346,40 @@ Current naming slice:
 - `phase-29cs` owns the actual kernel/plugin naming cleanup lane
 - MIR substrate packages are now named `hakorune-mir-core` and `hakorune-mir-defs`
 - future MIR crate candidates use the `hakorune-mir-*` naming family
+
+## Integrated convergence order (2026-08-07)
+
+This is a routing order, not a second task ledger. Exact row contracts remain
+in their named owner SSOTs.
+
+```text
+0. pipeline-order authority unification
+   -> docs/registry correction landed; old note remains supporting only
+
+1. active Loop authority convergence
+   -> RECIPE-COSEAL -> common physical path -> M8/M9 -> M10b -> M11/M12
+
+2. MIR root topology control
+   -> MIR-TOPOLOGY-REBASE0-P0 -> MIR-ROOT-MODULE-SURFACE0-G0
+
+3. bounded physical cleanup
+   -> one root visibility family -> one temporary-surface selection
+   -> context owner census/decomposition -> crate-boundary recheck
+
+4. native .hako authority migration
+   -> existing selfhost inventory/parity/contract-cutover order
+   -> parser handoff after MirBuilder
+
+5. physical debt retirement
+   -> Rust semantic residue, compat/bootstrap keeps, and old facade edges
+      retire only from exact caller/reference evidence
+```
+
+`CURRENT_STATE` slimming and Design Registry V1/H3 classification are separate
+docs-topology BoxShape series. They may run only after explicit lane selection
+and may not insert work ahead of step 1. Their target is compact live pointers
+and eventually strict/zero-unregistered registry state, not a second compiler
+architecture.
 
 ## Non-Goals
 

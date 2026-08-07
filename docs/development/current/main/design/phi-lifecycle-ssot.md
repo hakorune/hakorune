@@ -2,7 +2,7 @@
 Status: SSOT
 Scope: MIR builder における PHI の “予約→定義→入力確定” ライフサイクルの SSOT。責務混線（Reserve-only PHI dst の露出）を構造で防ぐ。
 Related:
-- docs/development/current/main/design/compiler-pipeline-ssot.md
+- docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 - docs/development/current/main/design/phi-input-strategy-ssot.md
 - docs/development/current/main/design/ai-handoff-and-debug-contract.md
 - src/mir/ssot/cf_common.rs
@@ -80,7 +80,7 @@ transaction が Err で中断し、provisional PHI が残留した場合は、st
 
 ## 現状の PHI の居場所（JoinIR との関係）
 
-- JoinIR は “計画（spec）” を返すのが役割で、PHI 命令そのものを emit する層ではない（`compiler-pipeline-ssot.md` 参照）。
+- JoinIR は “計画（spec）” を返すのが役割で、PHI 命令そのものを emit する層ではない（`mirbuilder-final-pipeline-ssot.md` 参照）。
 - 今回の問題は **MIR builder（plan lowerer）内の PHI ライフサイクル**の話で、JoinIR が “なんとかする” 類の問題ではない。
   - JoinIR が正しくても、「PHI dst を先に公開した」瞬間に `def dominates use` が破れる。
 

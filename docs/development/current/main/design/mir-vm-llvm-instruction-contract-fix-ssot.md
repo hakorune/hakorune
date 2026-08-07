@@ -15,7 +15,7 @@ Related:
 - src/runner/modes/llvm/fallback_executor.rs
 - docs/development/current/main/design/mir-instruction-diet-ledger-ssot.md
 - docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md
-- docs/development/current/main/design/compiler-pipeline-ssot.md
+- docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 ---
 
 # MIR VM/LLVM Instruction Contract Fix (SSOT)

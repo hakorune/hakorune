@@ -4,7 +4,7 @@ Scope: Phase 29bq 以降の「コンパイラーきれいきれい大作戦」�
 Related:
 - docs/development/current/main/design/compiler-expressivity-first-policy.md
 - docs/development/current/main/design/coreplan-skeleton-feature-model.md
-- docs/development/current/main/design/compiler-pipeline-ssot.md
+- docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 - docs/development/current/main/design/type-system-policy-ssot.md
 - docs/development/current/main/design/lego-composability-policy.md
 - docs/development/current/main/design/joinir-design-map.md

@@ -101,10 +101,13 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     responsibility-by-responsibility caller switch, immediate selected old-path
     deletion, post-cutover parity, and no detached replacement pipeline
 - `design/mirbuilder-final-pipeline-ssot.md`
-  - MirBuilderの最終production authority:
+  - canonical source ingressからatomic MIR publicationまでの唯一のglobal
+    pipeline-order authority:
     Resolve -> Observe -> Facts -> Recipe -> Verify -> Lower -> Seal ->
     Collect -> Atomic Publish。cell数やLOCではなく、この一方向graphへの
     収束をcompletionの北極星にする
+  - `design/compiler-pipeline-ssot.md` は旧BoxShape責務のhistorical
+    supporting noteであり、pipeline順序の第二正本ではない
 - `design/ai-verifiable-development-north-star-ssot.md`
   - 言語・compiler・tooling横断の長期North Star。文法の短さではなく、
     正しい高性能コードへ到達する検証済み反復の回数と費用を最小化する。

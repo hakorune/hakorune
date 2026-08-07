@@ -4,7 +4,7 @@ Decision: accepted
 Date: 2026-06-13
 Scope: compiler pipeline thinning tasks after MIR-CLEAN-018.
 Related:
-  - docs/development/current/main/design/compiler-pipeline-ssot.md
+  - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
   - docs/development/current/main/design/mir-cleanup-policy-ssot.md
   - docs/development/current/main/design/current-optimization-mechanisms-ssot.md
   - docs/development/current/main/design/joinir-observation-layer-ssot.md

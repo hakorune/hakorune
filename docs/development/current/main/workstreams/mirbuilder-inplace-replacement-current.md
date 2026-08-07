@@ -993,8 +993,8 @@ Findings stay in the existing eight packs; do not create another pack.
 ```text
 source-level Home ownership and unimplemented language features until the
 repository-wide final pipeline is Complete
-.hako selfhost MirBuilder/parser migration
-unselected cleanliness work
+.hako selfhost MirBuilder/parser migration (current/target scope is fixed in its owning SSOT)
+post-Loop MIR root-module/current-state/design-registry cleanup (owning SSOT task order only)
 new language semantics
 default Raw/Canonical cutover before final conformance
 ```

@@ -184,6 +184,35 @@ It is not a split target for the current P5 step.
 2. Keep each subtree README focused on the public surface, current blockers, and rejected boundaries.
 3. Use this doc as the crate-boundary inventory before any crate move.
 
+## Context decomposition before further packaging
+
+The remaining `scope_context.rs` / `compilation_context.rs` blockers are owner
+problems, not crate-layout problems. Names such as `SourceCatalog`,
+`CallableCatalog`, `TypeEnvironment`, and `CompilationOptions` are useful
+candidate responsibilities, but they are not accepted types until a source and
+consumer census proves the exact seams.
+
+Parked order after the active Loop production cutover and root-module census:
+
+```text
+MIR-CONTEXT-OWNER-CENSUS0-P0
+  -> enumerate every state field, writer, reader, lifetime, and publication owner
+
+MIR-CONTEXT-SEAM0-D0
+  -> select exact lexical-function and source/catalog/type/options boundaries
+
+MIR-CONTEXT-DECOMPOSE0-R0
+  -> move one owner seam at a time; accepted behavior and public entry unchanged
+
+MIR-CRATE-BOUNDARY-RECHECK0-P0
+  -> reconsider packaging only after the mixed mutable context is gone
+```
+
+Each implementation row updates `src/mir/builder/README.md`, the affected
+subtree README, and any exact `docs/reference/**` contract whose observable
+MIR or wire surface changes. Pure owner-preserving movement records
+`reference_delta = 0`; it must not churn language references.
+
 ## Acceptance
 
 - `src/mir/README.md` links back to this doc.

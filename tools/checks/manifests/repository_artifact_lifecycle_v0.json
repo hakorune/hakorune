@@ -16,7 +16,7 @@
     "authority_registry_decided": true,
     "c1_review": {
       "basis": "explicit README section evidence",
-      "row_count": 116,
+      "row_count": 115,
       "rows": [
         {
           "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
@@ -76,11 +76,6 @@
         {
           "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
           "path": "compiler-expressivity-first-policy.md",
-          "role": "authority"
-        },
-        {
-          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
-          "path": "compiler-pipeline-ssot.md",
           "role": "authority"
         },
         {
@@ -858,14 +853,14 @@
     "seed_reference_counts": {
       "AGENTS.md": 11,
       "docs/development/current/main/CURRENT_STATE.toml": 11,
-      "docs/development/current/main/DOCS_LAYOUT.md": 66,
-      "docs/development/current/main/design/README.md": 131
+      "docs/development/current/main/DOCS_LAYOUT.md": 67,
+      "docs/development/current/main/design/README.md": 132
     },
     "seed_union_count": 176,
     "status_counts": {
       "active_like": 133,
-      "closed": 18,
-      "other_or_missing": 696
+      "closed": 19,
+      "other_or_missing": 695
     },
     "unregistered": [
       "allocator-hook-activation-proof-v0.toml",
@@ -1935,12 +1930,12 @@
       }
     ],
     "reachable_count": 5328,
-    "root_count": 3831,
+    "root_count": 3830,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1039,
       "current_pointer": 4,
-      "design_authority": 271,
+      "design_authority": 270,
       "fixed_current_entry": 4,
       "reference_src_tools": 3195
     },

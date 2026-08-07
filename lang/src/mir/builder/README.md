@@ -52,7 +52,11 @@ Interface (stable)
   - `builder_config` and `delegate_finalize` now also centralize env/program-json text coercion through owner-local `_coerce_text_compat(...)`, so route/config owners no longer repeat raw `"" + x` on their remaining compat seams
   - current phase reading treats this file as a near-thin-floor route-sequencing owner; further local extraction is no longer the default next move unless a brand-new exact disappearing leaf appears
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
-  - Source-entry shim only; current stage1 authority no longer depends on this route.
+  - The outer source-MIR authority route currently uses this source handoff.
+    `MirBuilderSourceCompatBox` owns the transitional handoff
+    mechanics, not route authority. This is not the final independent source
+    or grammar authority; exact route status is owned by the selfhost structure
+    and bootstrap-route SSOTs.
   - source-entry compat now lives in `MirBuilderSourceCompatBox`; `MirBuilderBox` keeps the Program(JSON) route sequencing, while the compat box owns source-entry coercion / source->Program(JSON) check / Program(JSON)->MIR handoff.
   - source-entry Program(JSON) generation is source-only: non-null `opts` fail fast locally, and the raw leaf calls `BuildBox.emit_program_json_v0(source, null)` directly so the canonical MIR callsite can bind to the Stage1 Program(JSON) extern route.
 

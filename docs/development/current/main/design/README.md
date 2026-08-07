@@ -57,7 +57,8 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - JoinIR の地図（navigation SSOT）: `docs/development/current/main/design/joinir-design-map.md`
 - JoinIR 拡張の固定順序（dual-route 契約 SSOT）: `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
 - Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
-- Compiler Pipeline（north star; 箱の責務/入口の最終形SSOT）: `docs/development/current/main/design/compiler-pipeline-ssot.md`
+- Compiler Pipeline（唯一のglobal pipeline-order north star; canonical source ingress→atomic MIR publication）: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
+  - historical BoxShape note: `docs/development/current/main/design/compiler-pipeline-ssot.md`
 - Binding-SSA-first canonical control Lowering（exact control/coverage/cleanup と function-wide Binding SSA の最終authority境界SSOT）: `docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md`
 - C′ terminal Home finalization（contextual statement `release root`はwhole-root Homeを一個早期終了、last Homeだけが`fini {}` hookを起動し、親hook→逆順field release→structural dropを一つのDropPlanに固定。global予約ではなく、ordinary-call Home authority / `drop` / `unbox` aliasなし）: `docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md`
 - B′ Box lifecycle historical constitution（explicit eager fini / Dead-with-live-owner案。C′にsuperseded）: `docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`

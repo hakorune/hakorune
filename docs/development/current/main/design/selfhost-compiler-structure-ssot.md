@@ -59,6 +59,79 @@ The key rule is:
 - except for OS/kernel/substrate boundaries and explicit compat/bootstrap keeps,
   implementation should move to `.hako`
 
+## Current truth versus end-state projection (2026-08-07)
+
+The target above is accepted, but it is not a claim about today's production
+graph.
+
+```text
+current:
+  Rust MirBuilder replacement lane = selected production work
+  native .hako MirBuilder/parser migration = parked
+  generated .hako artifact = execution artifact until HakoAdopted
+
+target projection:
+  native .hako = parser, resolution, source-aware Facts/Recipe/Verify/Lower,
+                 compiler orchestration, plugin meaning
+  Rust         = canonical MIR representation/transport substrate, explicitly
+                 retained schema-preserving validators or MIR-to-MIR passes,
+                 oracle/bootstrap keeps, host/runtime/backend/ABI
+  compat       = named quarantine with a retire condition
+```
+
+The shorthand “`.hako` owns stages 1–4; Rust owns only the backend” is therefore
+too strong. It is an end-state direction, not current authority, and it omits
+durable Rust candidates such as canonical MIR contracts and MIR-to-MIR passes.
+Rust keep surfaces do not regain source-language or MIR-dialect selection
+policy; `.hako` remains the target meaning authority.
+
+The final physical owner of function-session finish and DraftSeal is not fixed
+by this document. They are Rust-owned in the current implementation. Moving or
+retaining them permanently requires a separate boundary D0; no migration task
+may infer that decision from the seven-stage pipeline projection.
+
+One semantic family has one selected authority. Rust oracle parity, a generated
+artifact, or a runnable compat bridge never becomes a second edit/meaning
+authority merely because it executes successfully.
+
+## Parked resumption order after current Loop cutover
+
+Do not insert this migration ahead of the current Rust Loop production
+selection and legacy scheduler/retry/PHI-edge retirement.
+
+```text
+SELFHOST-AUTHORITY-SCOPE-SYNC0-D0
+  -> keep current/target wording and parser/source-entry docs exact
+
+existing Rust builder-intelligence inventory
+  -> classify .hako authority target / Rust oracle keep /
+     canonical MIR-backend asset
+
+canonical MIR oracle parity lock
+  -> compare output contracts, not helper names
+
+authority migration by contract
+  -> Fact -> Recipe/plan -> symbolic command
+
+ID allocation / executor preflight
+  -> prove the exact future cutover boundary; Rust remains the sole physical
+     allocator/executor until a later explicit cutover
+
+native .hako family mainline selection / authority cutover
+  -> one selected route, no hidden Rust fallback after the explicit cutover
+
+parser handoff
+  -> only after MirBuilder authority migration
+
+Rust semantic-residue retirement
+  -> one family at a time; explicit oracle/bootstrap/compat keeps remain named
+```
+
+Every implementation row updates the affected `.hako`/Rust owner README and
+the exact `docs/reference/**` contract in the same commit when observable
+compiler or wire semantics change. A purely structural row records
+`reference_delta = 0` and why; it does not perform ceremonial reference churn.
+
 ## Reading Order
 
 restart / handoff では次の順に読む。

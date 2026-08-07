@@ -2,7 +2,7 @@
 Status: SSOT
 Scope: `MirBuilder` の生emit API（`emit_instruction` / `emit_extern_call*`）の可視性と層境界
 Related:
-- docs/development/current/main/design/compiler-pipeline-ssot.md
+- docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 - docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md
 - src/mir/builder/builder_emit.rs
 - tools/checks/no_cross_layer_builder_emit.sh

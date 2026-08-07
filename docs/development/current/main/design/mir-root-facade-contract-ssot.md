@@ -1,9 +1,11 @@
 ---
 Status: SSOT
 Date: 2026-07-13
+Decision: accepted — root symbol facade is guarded; public module namespace convergence is parked until Loop production cutover
 Scope: MIR root facade export contract.
 Related:
   - src/mir/mod.rs
+  - src/mir/README.md
   - tools/checks/mir_root_facade_guard.sh
   - tools/checks/mir_root_facade_allowlist.txt
   - tools/checks/mir_root_import_hygiene_guard.sh
@@ -11,6 +13,9 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-537-mir-root-facade-contract-card.md
   - docs/development/current/main/phases/phase-296x/archive/296x-976-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-PLAN-SURFACE-001.md
   - docs/development/current/main/investigations/mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
+  - docs/development/current/main/design/mir-cleanup-policy-ssot.md
+  - docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md
+  - docs/reference/mir/metadata-facts-ssot.md
 ---
 
 # MIR Root Facade Contract
@@ -164,3 +169,146 @@ and exact selected caller identity without exporting that provenance
 vocabulary. The candidate session, current-normal result contract, and
 sunset-bound general-module compatibility owner remain private to
 `mir::compiler::normal_default_pipeline`.
+
+## Public module namespace audit (2026-08-07)
+
+Local `rg`/parser census at `42ec69ab84` records:
+
+```text
+src/mir/mod.rs lines                 = 391
+module declarations                 = 198
+  pub mod                           = 131
+  pub(crate) mod                    = 62
+  private mod                       = 5
+guarded root pub-use symbols        = 128
+
+module-name token inventory (non-exclusive):
+  plan                              = 50
+  seed                              = 12
+  pilot                             = 4
+  raw                               = 5
+  compat                            = 1
+  legacy                            = 0
+```
+
+The existing facade guard verifies the 128 `pub use` symbols exactly. It does
+not classify or ratchet `pub mod`, so the root public module namespace is a
+separate, currently unguarded navigation surface.
+
+This census does **not** prove that tests, seeds, pilots, or compat modules are
+production semantic authorities. `#[cfg(test)]` placement and filename tokens
+are inventory evidence only. In particular, raw/compat modules in this census
+are crate-internal, and seed retirement remains row-specific under
+`docs/reference/mir/metadata-facts-ssot.md`.
+
+The conceptual labels `core / contracts / analysis / recipe / lowering /
+passes / verification / compiler / compat` may guide navigation. They are not
+permission for a nine-folder bulk move, and they must not collapse the existing
+`Plan / Route / SeedRoute / Fact / Contract` distinctions in `src/mir/README.md`.
+
+## Parked post-Loop task order
+
+The current `RECIPE-COSEAL-I0-R0` row and its production Loop cutover/retirement
+chain remain ahead of this BoxShape cleanup. Do not move old Loop authorities
+that the cutover will delete.
+
+### `MIR-TOPOLOGY-REBASE0-P0`
+
+Change:
+  Reproduce the local file/module/export census and emit one machine-readable
+  root-module inventory. Delete or move nothing.
+
+Contract:
+  Classify declarations by visibility, owner family, active caller class, and
+  lifecycle (`durable / temporary / bootstrap-compat / internal /
+  retire-candidate`). A name is never deletion authority.
+
+Done:
+  Every declaration in the rebase snapshot has one owner and one lifecycle
+  class; `pub use` and `pub mod` are reported separately. The report is
+  evidence, not the lasting surface authority.
+
+Stop:
+  Any unresolved owner, generated declaration, or active production caller
+  returns the row to classification. No folder design begins here.
+
+### `MIR-ROOT-MODULE-SURFACE0-G0`
+
+Change:
+  Extend the existing root-facade guard family with a manifest-backed
+  no-unreviewed-growth check for public module declarations.
+
+Contract:
+  Preserve module visibility and behavior. The guard owns surface drift only,
+  never semantic acceptance or retirement policy. Its checked manifest is the
+  sole root public-module surface authority after this row.
+
+Done:
+  Root symbol exports and public module declarations each have one stable,
+  index-listed guard entry; current inventory is reproduced exactly.
+
+Stop:
+  Do not add another per-row shell guard or infer keep/retire from a suffix.
+
+### `MIR-ROOT-INTERNAL-HELPER-PRIVATIZE0-R0`
+
+Change:
+  Select one classified semantic family and privateize only that family's
+  module visibility behind its existing owner facade. Delete the old public
+  edge atomically after repository caller-zero proof.
+
+Contract:
+  BoxShape-only; no accepted source/MIR shape, route selection, optimizer
+  behavior, backend behavior, or physical clustering change. Broad `src/mir`
+  movement is forbidden. Repository caller-zero does not prove unknown external
+  caller-zero; every formerly public module needs an explicit API disposition.
+
+Done:
+  Focused tests and root guards are green. The implementation commit updates
+  the target module README, this facade contract, and the exact
+  `docs/reference/**` owner when its public MIR contract changes; otherwise it
+  records `reference_delta = 0` with the reason.
+
+Stop:
+  More than one owner family, a required compatibility re-export without a
+  retire condition, unknown downstream compatibility without an accepted
+  breaking disposition, or an acceptance delta requires a new bounded decision.
+
+### `MIR-TEMPORARY-SURFACE-NEXT0-P0`
+
+Change:
+  Select exactly one seed/pilot row whose reference retirement condition and
+  production caller-zero evidence make it eligible for a dedicated decision.
+  Change no source or visibility.
+
+Contract:
+  No filename-based batch deletion. Seed/pilot rows remain independent until
+  their exact metadata/reference contracts prove otherwise. This P0 does not
+  choose promote/quarantine/retire inside an implementation row.
+
+Done:
+  One row-specific D0/R1 is issued with its caller inventory, public API
+  disposition, replacement owner, exact reference update, and atomic delete or
+  keep boundary.
+
+Stop:
+  No eligible singleton, a live backend consumer, missing parity fixture, or
+  ambiguous replacement leaves every row classified and unmodified.
+
+### `MIR-ROOT-TOPOLOGY-CLOSEOUT0-G0`
+
+Change:
+  Re-run module/export/temporary-surface inventories after the bounded family
+  series and close only the proven delta.
+
+Contract:
+  A smaller number is evidence, not the goal. One owner per semantic truth and
+  one discoverable entry per durable family are the completion criteria.
+
+Done:
+  `src/mir/README.md`, owner READMEs, root facade contract, exact reference
+  ledgers, and reusable guards agree; no old facade survives without an explicit
+  compatibility owner and retire condition.
+
+Stop:
+  Crate split and broad rename remain separate decisions.
