@@ -517,30 +517,32 @@ closed:
   LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
 
 current:
-  CALLABLE-LOOP-PRODUCTION-SOURCE-LOAN-EXPANSION-S0
+  CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-S1
 
 Change:
-  issue one move-only exact source-loan receipt from existing owners; preserve
-  the raw host and keep index/header as optional profile companions.
+  assemble one move-only prepared ingress from the closed source-loan receipt
+  and existing callable logical products; preserve the raw host and keep
+  index/header as optional profile companions.
 
 Contract:
-  retain only resolver ledger + exact ResolvedFunctionLoweringInput and owner/
-  source/function/forest/projection identity; no AST/name re-walk, second
-  owner, physical ID, Builder/session effect, selector, retry, fallback, or
-  legacy deletion. Missing/foreign receipts return `NoSafeSlice`.
+  retain exact source, function, forest/projection, Recipe, JoinSig, and After
+  owners with identity checks before Builder effect; no AST/name re-walk,
+  second owner, physical ID, Builder/session effect, selector, retry, fallback,
+  or legacy deletion. Missing/foreign receipts return `NoSafeSlice`.
 
 Done:
-  Prepared-ingress D0 is accepted. The current loan's forest/projection loss
-  is the bounded S0 target; the static-header helper remains test-only and no
-  physical implementation is authorized.
+  Prepared-ingress D0 and source-loan expansion S0 are closed. The source
+  receipt is non-Clone/move-only, uses separate program/row lifetimes, and the
+  raw host still consumes its old pair. The static-header helper remains
+  test-only and no physical implementation is authorized.
 
 Stop:
-  Prepared physicalization, physical Loop emission, I0 caller switch,
-  profile selector, fallback/retry, Generic G0 parity, collector or module
-  publication, and legacy deletion remain closed until logical issuer S0 and
-  later Recipe admission are accepted. Implementation requires source README,
-  `docs/reference/**`, diagnostics, migration note, guards, and current
-  pointers in the same commit.
+  Physicalization, physical Loop emission, I0 caller switch, profile
+  selector, fallback/retry, Generic G0 parity, collector or module
+  publication, and legacy deletion remain closed until this exact prepared
+  ingress is sealed. Implementation requires source README, `docs/reference/**`
+  only if a reference claim changes, diagnostics, migration note, guards, and
+  current pointers in the same commit.
 ```
 ## Production invariants
 ```text

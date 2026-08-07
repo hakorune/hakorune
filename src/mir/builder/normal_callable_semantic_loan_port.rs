@@ -23,9 +23,9 @@ use super::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
 };
 
-pub(super) struct NormalCallableSemanticLoanPortV1<'loan, 'port, 'collector> {
+pub(super) struct NormalCallableSemanticLoanPortV1<'loan, 'source, 'port, 'collector> {
     inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
-    source: &'loan VerifiedNormalCallableSemanticSourceV1<'loan>,
+    source: &'loan VerifiedNormalCallableSemanticSourceV1<'source>,
     consumption: CallableLoanConsumptionV1,
 }
 
@@ -60,10 +60,12 @@ impl CallableLoanConsumptionV1 {
     }
 }
 
-impl<'loan, 'port, 'collector> NormalCallableSemanticLoanPortV1<'loan, 'port, 'collector> {
+impl<'loan, 'source, 'port, 'collector>
+    NormalCallableSemanticLoanPortV1<'loan, 'source, 'port, 'collector>
+{
     pub(super) fn new(
         inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
-        source: &'loan VerifiedNormalCallableSemanticSourceV1<'loan>,
+        source: &'loan VerifiedNormalCallableSemanticSourceV1<'source>,
     ) -> Self {
         Self {
             inner,
@@ -75,7 +77,7 @@ impl<'loan, 'port, 'collector> NormalCallableSemanticLoanPortV1<'loan, 'port, 'c
     fn consume(
         &mut self,
         key: SelectedNormalCallableKeyV1,
-    ) -> Result<VerifiedNormalCallableSemanticLoanV1<'loan>, String> {
+    ) -> Result<VerifiedNormalCallableSemanticLoanV1<'source, 'loan>, String> {
         let loan = self.source.loan(&key)?;
         self.consumption.consume(key)?;
         Ok(loan)
@@ -87,7 +89,7 @@ impl<'loan, 'port, 'collector> NormalCallableSemanticLoanPortV1<'loan, 'port, 'c
 
     fn with_callable_source_scope<R>(
         &mut self,
-        loan: VerifiedNormalCallableSemanticLoanV1<'loan>,
+        loan: VerifiedNormalCallableSemanticLoanV1<'source, 'loan>,
         execute: impl FnOnce(
             &mut RawInvocationChildPortV1<'port, 'collector>,
             super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
@@ -119,7 +121,7 @@ impl<'loan, 'port, 'collector> NormalCallableSemanticLoanPortV1<'loan, 'port, 'c
 #[path = "normal_callable_semantic_loan_port_tests.rs"]
 mod tests;
 
-impl RecursiveChildLoweringPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_> {
+impl RecursiveChildLoweringPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, '_> {
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
@@ -196,7 +198,7 @@ impl RecursiveChildLoweringPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '
     }
 }
 
-impl RawBoxMethodChildPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_> {
+impl RawBoxMethodChildPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, '_> {
     fn lower_static_main_box(
         &mut self,
         builder: &mut MirBuilder,
@@ -215,7 +217,7 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_> {
     }
 }
 
-impl RootCallableCapturePortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_> {
+impl RootCallableCapturePortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, '_> {
     #[allow(clippy::too_many_arguments)]
     fn lower_normal_instance_constructor(
         &mut self,

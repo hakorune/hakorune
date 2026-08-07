@@ -1,10 +1,12 @@
 //! Atomic semantic source authority for one selected callable batch.
 
 use crate::ast::ASTNode;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ResolveSelectedCallableForestsOutcomeV1, VerifiedSemanticOwnerForestV1,
+    CallableSemanticSourceLedgerView, FunctionOwnerIdV1, FunctionSemanticResolverSessionV1,
+    FunctionSyntaxViewV1, ReceiverPolicyV1, ResolveSelectedCallableForestsOutcomeV1,
+    VerifiedSemanticOwnerForestV1,
 };
 
 use super::callable_declaration_catalog::{
@@ -26,10 +28,37 @@ pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticSourceV1<'sourc
     rows: Box<[VerifiedNormalCallableSemanticSourceRowV1]>,
 }
 
-pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticLoanV1<'source> {
+pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
     lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
     _function: &'source ASTNode,
     lowering_state: super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
+    source_ingress: VerifiedNormalCallableSourceIngressReceiptV1<'loan>,
+}
+
+/// Exact source-only ingress carried by an already-issued callable loan.
+///
+/// This is a transport receipt over the resolver forest/projection owners. It
+/// is intentionally not a Recipe, Prepared physicalization, or Builder state;
+/// the future ingress may consume it once, while the current raw host simply
+/// drops it after preserving its existing behavior.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct VerifiedNormalCallableSourceIngressReceiptV1<'source> {
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    ledger: CallableSemanticSourceLedgerView<'source>,
+}
+
+impl VerifiedNormalCallableSourceIngressReceiptV1<'_> {
+    pub(in crate::mir::builder) const fn input(&self) -> ResolvedFunctionLoweringInputV1<'_> {
+        self.input
+    }
+
+    pub(in crate::mir::builder) const fn ledger(&self) -> &CallableSemanticSourceLedgerView<'_> {
+        &self.ledger
+    }
+
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.input.owner()
+    }
 }
 
 #[derive(Debug)]
@@ -96,10 +125,10 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         }))
     }
 
-    pub(in crate::mir::builder) fn loan(
-        &self,
+    pub(in crate::mir::builder) fn loan<'loan>(
+        &'loan self,
         key: &SelectedNormalCallableKeyV1,
-    ) -> Result<VerifiedNormalCallableSemanticLoanV1<'source>, String> {
+    ) -> Result<VerifiedNormalCallableSemanticLoanV1<'source, 'loan>, String> {
         let row = self
             .rows
             .iter()
@@ -123,6 +152,19 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         }
         let lowering_state =
             super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_forest(&row.forest)?;
+        let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+            function,
+            &row.forest,
+            &row.projection,
+        )
+        .map_err(|error| format!("[freeze:contract][mir/callable-semantic/input] {error:?}"))?;
+        let ledger = row.forest.callable_source_ledger(*root).map_err(|error| {
+            format!("[freeze:contract][mir/callable-semantic/ledger] {error:?}")
+        })?;
+        if input.owner() != ledger.owner() || !std::ptr::eq(input.forest(), &row.forest) {
+            return Err("[freeze:contract][mir/callable-semantic/input-owner]".to_owned());
+        }
+        let source_ingress = VerifiedNormalCallableSourceIngressReceiptV1 { input, ledger };
         let lineage = match &row.key {
             SelectedNormalCallableKeyV1::TopLevel(key) => {
                 super::raw_invocation_source_transport::RawInvocationRootLineageV1::TopLevel(
@@ -139,6 +181,7 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
             lineage,
             _function: function,
             lowering_state,
+            source_ingress,
         })
     }
 
@@ -149,7 +192,11 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
     }
 }
 
-impl VerifiedNormalCallableSemanticLoanV1<'_> {
+impl<'source, 'loan> VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
+    pub(super) fn into_source_ingress(self) -> VerifiedNormalCallableSourceIngressReceiptV1<'loan> {
+        self.source_ingress
+    }
+
     pub(super) fn into_parts(
         self,
     ) -> (
@@ -364,6 +411,15 @@ mod tests {
             })
             .expect("loop callable key")
             .clone();
+        let ingress = source.loan(&key).unwrap().into_source_ingress();
+        assert_eq!(ingress.owner(), ingress.input().owner());
+        assert_eq!(ingress.owner(), ingress.input().source().owner());
+        assert_eq!(ingress.owner(), ingress.ledger().owner());
+        assert!(ingress.input().callable_index().is_none());
+        assert!(ingress.input().callable_header().is_none());
+
+        // The source rows remain reusable: issuing a fresh loan creates a
+        // fresh receipt without rewalking or mutating the resolver forest.
         let (_, state) = source.loan(&key).unwrap().into_parts();
         let schedule = state
             .loop_binding_source_projection()

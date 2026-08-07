@@ -106,7 +106,7 @@ pub(in crate::mir::builder) enum RawInvocationSourceTransportV1<T> {
 impl<T> RawInvocationSourceTransportV1<T> {
     pub(in crate::mir::builder) fn callable_semantic_root(
         node: T,
-        loan: &VerifiedNormalCallableSemanticLoanV1<'_>,
+        loan: &VerifiedNormalCallableSemanticLoanV1<'_, '_>,
     ) -> Self {
         Self::Located(LocatedRawNodeV1::new(
             node,

@@ -79,7 +79,7 @@ impl VerifiedResolvedCallableModuleV1 {
 }
 
 impl<'a> ResolvedFunctionLoweringInputV1<'a> {
-    pub(super) fn from_exact_parts_without_callable(
+    pub(in crate::mir) fn from_exact_parts_without_callable(
         syntax_root: &'a crate::ast::ASTNode,
         forest: &'a VerifiedSemanticOwnerForestV1,
         projection: &'a VerifiedSourceProjectionV1,

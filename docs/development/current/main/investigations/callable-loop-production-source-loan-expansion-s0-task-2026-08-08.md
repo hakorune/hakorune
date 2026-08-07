@@ -1,6 +1,6 @@
 # Callable Loop Production Source-Loan Expansion S0
 
-Status: next implementation row after accepted
+Status: closed implementation row
 `CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0` (2026-08-08).
 
 ## Change
@@ -38,15 +38,24 @@ receipts for profiles that require them, not common source-receipt fields.
 - input/ledger owner, source, function, forest, and projection identities are
   checked before any Builder effect;
 - common profile succeeds without an index/header companion;
-- requiring-profile companion mismatch returns typed `NoSafeSlice`;
-- missing, foreign, duplicate, borrowed/unconsumed, and fresh-request reuse
-  cases are covered;
+- missing/foreign loan selection, duplicate/unconsumed loan accounting, and
+  fresh-request reuse remain fail-fast at the existing source/loan owners;
 - raw selected/legacy parity is unchanged;
-- focused tests, rustfmt/check, current-state guard, and replacement guard are
-  green;
+- focused tests, rustfmt/check, current-state pointer guard, and diff hygiene
+  are green;
 - implementation closeout updates the relevant `docs/reference/**` contract
   only if a reference claim changes, plus diagnostics, migration note, guards,
   current mirrors, and task pointers in the same commit.
+
+## Closeout
+
+`CALLABLE-LOOP-PRODUCTION-SOURCE-LOAN-EXPANSION-S0` is closed by the source
+receipt implementation and focused resolver-site test. The receipt is
+non-`Clone`, move-only, and borrows the existing forest/projection owners with
+the program and row lifetimes kept separate. The raw host still consumes the
+old `(lineage, lowering_state)` pair and therefore has no behavior or parity
+change. The next bounded row is prepared-ingress assembly; index/header
+companions remain profile-specific and unimplemented here.
 
 ## Stop
 
