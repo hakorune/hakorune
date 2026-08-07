@@ -54,7 +54,7 @@ reviewed Decision B separates one complete move-only demand/preflight from the
 private leaf emitter and forbids extracting a single operation from the full
 product. `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` is now landed as a Builder-free full-demand receipt: neutral resolver context and After continuation move exactly once, Generic G0 Scope/Region comes from the window lease, and Callable/G0 `prepare_all` covers seven/fifteen rows. Block mapping, operation emission, physical/production activation, and retirement remain closed.
 Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical SSA receipt, exact placement, entry/no-extraction evidence). The first bounded `CALLABLE-LOOP-PHYSICAL-CANARY-P0` preparation slice is green: Prepared move handoff, complete Write projection, and explicit-block Const/Binary/Compare leaf bridges.
-Next caller-zero work is physical `emit_all` target receipts and failure-phase separation (Recipe-order prepare and the bounded five-family seam are green), then exact Prelude/Tail-to-ValueId handoff and fresh-session `finish_for_draft_seal` -> DraftSeal integration; production selection, old-edge/fallback retirement, and legacy deletion remain closed.
+Next caller-zero work is exact Prelude/Tail-to-ValueId handoff and fresh-session `finish_for_draft_seal` -> DraftSeal integration. The physical dispatcher now issues per-row target receipts and separates semantic preflight from post-claim failure; production selection, old-edge/fallback retirement, and legacy deletion remain closed.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse

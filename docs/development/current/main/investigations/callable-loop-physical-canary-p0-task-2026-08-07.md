@@ -1,14 +1,16 @@
 # CALLABLE-LOOP-PHYSICAL-CANARY-P0
 
-Status: `Preparation slice landed; full callable canary still open; caller-zero only`
+Status: `Target/failure-phase slice landed; full callable canary still open; caller-zero only`
 Date: `2026-08-07`
 Parent: `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
 North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
 
 ## Decision
 
-The bounded ConstI64 S0 and ReadBinding I0 leaves are landed. The next
-implementation row is the first full callable physicalization canary:
+The bounded ConstI64 S0 and ReadBinding I0 leaves are landed. The current
+operation boundary now also has an exact per-row target receipt and a
+phase-separated `emit_all` path. The remaining implementation is the first
+full callable physicalization canary:
 
 ```text
 PreparedCallableLoopPhysicalizationV1
@@ -26,12 +28,13 @@ caller, change the selector, publish a module, or retire a legacy route.
 Before full physical emission, the row must close four mechanical API gaps
 without adding a semantic owner: a consuming Prepared-product handoff, an
 exact Prelude materialization receipt, one common five-family operation
-dispatcher, and an exact Tail-to-ValueId handoff. The first bounded
-preparation slice is landed: the consuming Prepared handoff, complete
-WriteBinding projection, typed Const/Binary/Compare leaf bridges, private
-row-level five-family dispatch, full Recipe-order Builder-free prepare, and
-an opaque typed value ledger compile and have focused evidence. The remaining
-adapters are still part of this row;
+dispatcher, and an exact Tail-to-ValueId handoff. The bounded preparation
+slice is landed: the consuming Prepared handoff, complete WriteBinding
+projection, typed Const/Binary/Compare leaf bridges, private row-level
+five-family dispatch, full Recipe-order Builder-free prepare, an opaque typed
+value ledger, exact logical-to-physical target receipts, and distinct
+pre-effect/post-claim failure types compile and have focused evidence. The
+remaining adapters are still part of this row;
 they must not infer names, re-resolve source, clone Completion, or create a
 second CFG/SSA/PHI owner. If an adapter cannot be expressed against the
 existing canonical owners, stop and record a design correction before adding
@@ -131,8 +134,9 @@ Prelude:
 Operation:
   one full Recipe-order prepare plus a bounded row dispatcher over
   Read/Const/Compare/Binary/Write; unsupported forms reject before canonical
-  claims; leaf emitters remain private. Physical `emit_all` target receipts
-  and failure-phase separation are still open.
+  claims; leaf emitters remain private. `emit_all` now issues one exact target
+  receipt per row and separates target/physical failures, but a complete
+  callable schedule has not yet been emitted through Prelude/Tail/DraftSeal.
 
 Tail:
   exact prepared binding + canonical identity read

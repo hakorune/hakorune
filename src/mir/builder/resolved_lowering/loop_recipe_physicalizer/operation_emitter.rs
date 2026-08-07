@@ -5,6 +5,7 @@
 //! Builder owner; it does not own Recipe, CFG, SSA, PHI, or function lifecycle.
 
 use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
+use super::operation_target::{LoopOperationTargetRejectV1, VerifiedLoopOperationTargetBlockV1};
 use super::topology::{
     LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1, LoopPhysicalServicesV1, ReadyLoopEntryV1,
 };
@@ -90,6 +91,26 @@ impl PreparedLoopOperationEmissionV1 {
             expected_role,
         )
     }
+
+    pub(super) const fn owner(self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(super) const fn item(self) -> LoopItemKeyV1 {
+        self.item
+    }
+
+    pub(super) const fn expected_loop(self) -> LoopNodeKeyV1 {
+        self.expected_loop
+    }
+
+    pub(super) const fn expected_block(self) -> LoopBlockKeyV1 {
+        self.expected_block
+    }
+
+    pub(super) const fn expected_role(self) -> LoopPhysicalBlockRoleV1 {
+        self.expected_role
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -151,6 +172,26 @@ impl PreparedLoopReadBindingEmissionV1 {
 
     pub(super) const fn class(&self) -> LoopValueClassV1 {
         self.class
+    }
+
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(super) const fn item(&self) -> LoopItemKeyV1 {
+        self.item
+    }
+
+    pub(super) const fn logical_block(&self) -> LoopBlockKeyV1 {
+        self.logical_block
+    }
+
+    pub(super) const fn expected_loop(&self) -> LoopNodeKeyV1 {
+        self.expected_loop
+    }
+
+    pub(super) const fn expected_role(&self) -> LoopPhysicalBlockRoleV1 {
+        self.expected_role
     }
 }
 
@@ -263,10 +304,6 @@ pub(super) struct CanonicalBindingReadServicesV1<'a, 'source> {
     pub(super) phis: &'a mut PhiTxn,
 }
 
-/// Borrowed Builder/type emission services for one pure operation.
-///
-/// CFG allocation belongs to `LoopPhysicalServicesV1`; operation emission
-/// receives an already-issued physical block receipt and needs no CFG owner.
 pub(super) struct LoopOperationServicesV1<'a> {
     pub(super) builder: &'a mut MirBuilder,
 }
@@ -326,10 +363,111 @@ pub(super) fn emit_prepared_operation_v1(
     )
 }
 
-/// Emit one prepared pure operation.  Read/Write operations use their own
-/// canonical identity adapters; this function only handles Const/Binary/
-/// Compare and publishes the resulting value into the caller-owned schedule
-/// state.
+fn map_target_reject(error: LoopOperationTargetRejectV1) -> LoopOperationEmissionRejectV1 {
+    match error {
+        LoopOperationTargetRejectV1::EntryOwnerMismatch => {
+            LoopOperationEmissionRejectV1::EntryOwnerMismatch
+        }
+        LoopOperationTargetRejectV1::ReceiptOwnerMismatch => {
+            LoopOperationEmissionRejectV1::ReceiptOwnerMismatch
+        }
+        LoopOperationTargetRejectV1::PreheaderMismatch => {
+            LoopOperationEmissionRejectV1::PreheaderMismatch
+        }
+        LoopOperationTargetRejectV1::PlacementMissing { loop_key, role } => {
+            LoopOperationEmissionRejectV1::PlacementMissing { loop_key, role }
+        }
+        LoopOperationTargetRejectV1::LogicalPlacementMissing { loop_key, block } => {
+            LoopOperationEmissionRejectV1::LogicalPlacementMissing { loop_key, block }
+        }
+        LoopOperationTargetRejectV1::PlacementMismatch {
+            by_role,
+            by_logical_block,
+        } => LoopOperationEmissionRejectV1::PlacementMismatch {
+            by_role,
+            by_logical_block,
+        },
+        LoopOperationTargetRejectV1::TargetFunctionMissing => {
+            LoopOperationEmissionRejectV1::TargetFunctionMissing
+        }
+        LoopOperationTargetRejectV1::PreheaderMissing(block) => {
+            LoopOperationEmissionRejectV1::PreheaderMissing(block)
+        }
+        LoopOperationTargetRejectV1::TargetBlockMissing(block) => {
+            LoopOperationEmissionRejectV1::TargetBlockMissing(block)
+        }
+        LoopOperationTargetRejectV1::TargetBlockTerminated(block) => {
+            LoopOperationEmissionRejectV1::TargetBlockTerminated(block)
+        }
+    }
+}
+
+fn issue_target_for_pure(
+    prepared: PreparedLoopOperationEmissionV1,
+    entry: &ReadyLoopEntryV1,
+    block_receipt: &LoopPhysicalBlockReceiptV1,
+    builder: &MirBuilder,
+) -> Result<VerifiedLoopOperationTargetBlockV1, LoopOperationEmissionRejectV1> {
+    let target = VerifiedLoopOperationTargetBlockV1::issue(
+        prepared.owner(),
+        prepared.item(),
+        prepared.expected_loop(),
+        prepared.expected_block(),
+        prepared.expected_role(),
+        entry,
+        block_receipt,
+    )
+    .map_err(map_target_reject)?;
+    target
+        .validate_function(builder)
+        .map_err(map_target_reject)?;
+    Ok(target)
+}
+
+fn issue_target_for_read(
+    prepared: &PreparedLoopReadBindingEmissionV1,
+    entry: &ReadyLoopEntryV1,
+    block_receipt: &LoopPhysicalBlockReceiptV1,
+    builder: &MirBuilder,
+) -> Result<VerifiedLoopOperationTargetBlockV1, LoopReadBindingEmissionRejectV1> {
+    let target = VerifiedLoopOperationTargetBlockV1::issue(
+        prepared.owner(),
+        prepared.item(),
+        prepared.expected_loop(),
+        prepared.logical_block(),
+        prepared.expected_role(),
+        entry,
+        block_receipt,
+    )
+    .map_err(|error| LoopReadBindingEmissionRejectV1::PreClaim(map_target_reject(error)))?;
+    target
+        .validate_function(builder)
+        .map_err(|error| LoopReadBindingEmissionRejectV1::PreClaim(map_target_reject(error)))?;
+    Ok(target)
+}
+
+fn issue_target_for_write(
+    prepared: &PreparedLoopWriteBindingEmissionV1,
+    entry: &ReadyLoopEntryV1,
+    block_receipt: &LoopPhysicalBlockReceiptV1,
+    builder: &MirBuilder,
+) -> Result<VerifiedLoopOperationTargetBlockV1, LoopWriteBindingEmissionRejectV1> {
+    let target = VerifiedLoopOperationTargetBlockV1::issue(
+        prepared.owner(),
+        prepared.item(),
+        prepared.expected_loop(),
+        prepared.logical_block(),
+        prepared.expected_role(),
+        entry,
+        block_receipt,
+    )
+    .map_err(|error| LoopWriteBindingEmissionRejectV1::PreClaim(map_target_reject(error)))?;
+    target
+        .validate_function(builder)
+        .map_err(|error| LoopWriteBindingEmissionRejectV1::PreClaim(map_target_reject(error)))?;
+    Ok(target)
+}
+
 pub(super) fn emit_prepared_pure_operation_v1(
     prepared: PreparedLoopOperationEmissionV1,
     state: &mut LoopOperationValueLedgerV1,
@@ -337,54 +475,17 @@ pub(super) fn emit_prepared_pure_operation_v1(
     block_receipt: &LoopPhysicalBlockReceiptV1,
     services: &mut LoopOperationServicesV1<'_>,
 ) -> Result<LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1> {
-    if entry.owner() != prepared.owner {
-        return Err(LoopOperationEmissionRejectV1::EntryOwnerMismatch);
-    }
-    if block_receipt.owner() != prepared.owner {
-        return Err(LoopOperationEmissionRejectV1::ReceiptOwnerMismatch);
-    }
-    if block_receipt.preheader() != entry.preheader() {
-        return Err(LoopOperationEmissionRejectV1::PreheaderMismatch);
-    }
+    let target = issue_target_for_pure(prepared, entry, block_receipt, services.builder)?;
+    emit_prepared_pure_operation_at_target_v1(prepared, target, state, services)
+}
 
-    let function = services
-        .builder
-        .function_state
-        .current_function
-        .as_ref()
-        .ok_or(LoopOperationEmissionRejectV1::TargetFunctionMissing)?;
-    if function.get_block(entry.preheader()).is_none() {
-        return Err(LoopOperationEmissionRejectV1::PreheaderMissing(
-            entry.preheader(),
-        ));
-    }
-
-    let by_role = block_receipt
-        .lookup(prepared.expected_loop, prepared.expected_role)
-        .ok_or(LoopOperationEmissionRejectV1::PlacementMissing {
-            loop_key: prepared.expected_loop,
-            role: prepared.expected_role,
-        })?;
-    let by_logical = block_receipt
-        .lookup_logical(prepared.expected_loop, prepared.expected_block)
-        .ok_or(LoopOperationEmissionRejectV1::LogicalPlacementMissing {
-            loop_key: prepared.expected_loop,
-            block: prepared.expected_block,
-        })?;
-    if by_role != by_logical {
-        return Err(LoopOperationEmissionRejectV1::PlacementMismatch {
-            by_role,
-            by_logical_block: by_logical,
-        });
-    }
-    let target = function
-        .get_block(by_role)
-        .ok_or(LoopOperationEmissionRejectV1::TargetBlockMissing(by_role))?;
-    if target.terminator.is_some() {
-        return Err(LoopOperationEmissionRejectV1::TargetBlockTerminated(
-            by_role,
-        ));
-    }
+pub(super) fn emit_prepared_pure_operation_at_target_v1(
+    prepared: PreparedLoopOperationEmissionV1,
+    target: VerifiedLoopOperationTargetBlockV1,
+    state: &mut LoopOperationValueLedgerV1,
+    services: &mut LoopOperationServicesV1<'_>,
+) -> Result<LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1> {
+    let by_role = target.physical_block();
 
     let (result, physical_value) = match prepared.operation {
         LoopOperationV1::ConstI64 { result, value } => {
@@ -484,59 +585,17 @@ pub(super) fn emit_prepared_read_binding_v1(
     block_receipt: &LoopPhysicalBlockReceiptV1,
     services: &mut CanonicalBindingReadServicesV1<'_, '_>,
 ) -> Result<ReadBindingEmissionReceiptV1, LoopReadBindingEmissionRejectV1> {
-    let preclaim = |error| LoopReadBindingEmissionRejectV1::PreClaim(error);
-    if entry.owner() != prepared.owner {
-        return Err(preclaim(LoopOperationEmissionRejectV1::EntryOwnerMismatch));
-    }
-    if block_receipt.owner() != prepared.owner {
-        return Err(preclaim(
-            LoopOperationEmissionRejectV1::ReceiptOwnerMismatch,
-        ));
-    }
-    if block_receipt.preheader() != entry.preheader() {
-        return Err(preclaim(LoopOperationEmissionRejectV1::PreheaderMismatch));
-    }
-    let function = services
-        .builder
-        .function_state
-        .current_function
-        .as_ref()
-        .ok_or_else(|| preclaim(LoopOperationEmissionRejectV1::TargetFunctionMissing))?;
-    if function.get_block(entry.preheader()).is_none() {
-        return Err(preclaim(LoopOperationEmissionRejectV1::PreheaderMissing(
-            entry.preheader(),
-        )));
-    }
-    let by_role = block_receipt
-        .lookup(prepared.expected_loop, prepared.expected_role)
-        .ok_or_else(|| {
-            preclaim(LoopOperationEmissionRejectV1::PlacementMissing {
-                loop_key: prepared.expected_loop,
-                role: prepared.expected_role,
-            })
-        })?;
-    let by_logical = block_receipt
-        .lookup_logical(prepared.expected_loop, prepared.logical_block)
-        .ok_or_else(|| {
-            preclaim(LoopOperationEmissionRejectV1::LogicalPlacementMissing {
-                loop_key: prepared.expected_loop,
-                block: prepared.logical_block,
-            })
-        })?;
-    if by_role != by_logical {
-        return Err(preclaim(LoopOperationEmissionRejectV1::PlacementMismatch {
-            by_role,
-            by_logical_block: by_logical,
-        }));
-    }
-    let target = function
-        .get_block(by_role)
-        .ok_or_else(|| preclaim(LoopOperationEmissionRejectV1::TargetBlockMissing(by_role)))?;
-    if target.terminator.is_some() {
-        return Err(preclaim(
-            LoopOperationEmissionRejectV1::TargetBlockTerminated(by_role),
-        ));
-    }
+    let target = issue_target_for_read(prepared, entry, block_receipt, services.builder)?;
+    emit_prepared_read_binding_at_target_v1(prepared, target, entry, services)
+}
+
+pub(super) fn emit_prepared_read_binding_at_target_v1(
+    prepared: &PreparedLoopReadBindingEmissionV1,
+    target: VerifiedLoopOperationTargetBlockV1,
+    entry: &ReadyLoopEntryV1,
+    services: &mut CanonicalBindingReadServicesV1<'_, '_>,
+) -> Result<ReadBindingEmissionReceiptV1, LoopReadBindingEmissionRejectV1> {
+    let by_role = target.physical_block();
     if prepared.source_binding.owner() != prepared.owner {
         return Err(LoopReadBindingEmissionRejectV1::SourceBindingMismatch);
     }
@@ -621,6 +680,26 @@ impl PreparedLoopWriteBindingEmissionV1 {
     ) -> Self {
         Self::from_row(owner, row, expected_role)
     }
+
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(super) const fn item(&self) -> LoopItemKeyV1 {
+        self.item
+    }
+
+    pub(super) const fn logical_block(&self) -> LoopBlockKeyV1 {
+        self.logical_block
+    }
+
+    pub(super) const fn expected_loop(&self) -> LoopNodeKeyV1 {
+        self.expected_loop
+    }
+
+    pub(super) const fn expected_role(&self) -> LoopPhysicalBlockRoleV1 {
+        self.expected_role
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -673,62 +752,20 @@ pub(super) fn emit_prepared_write_binding_v1(
     block_receipt: &LoopPhysicalBlockReceiptV1,
     services: &mut CanonicalBindingReadServicesV1<'_, '_>,
 ) -> Result<WriteBindingEmissionReceiptV1, LoopWriteBindingEmissionRejectV1> {
-    let preclaim = |error| LoopWriteBindingEmissionRejectV1::PreClaim(error);
-    if entry.owner() != prepared.owner {
-        return Err(preclaim(LoopOperationEmissionRejectV1::EntryOwnerMismatch));
-    }
-    if block_receipt.owner() != prepared.owner {
-        return Err(preclaim(
-            LoopOperationEmissionRejectV1::ReceiptOwnerMismatch,
-        ));
-    }
-    if block_receipt.preheader() != entry.preheader() {
-        return Err(preclaim(LoopOperationEmissionRejectV1::PreheaderMismatch));
-    }
+    let target = issue_target_for_write(prepared, entry, block_receipt, services.builder)?;
+    emit_prepared_write_binding_at_target_v1(prepared, target, state, services)
+}
+
+pub(super) fn emit_prepared_write_binding_at_target_v1(
+    prepared: &PreparedLoopWriteBindingEmissionV1,
+    target: VerifiedLoopOperationTargetBlockV1,
+    state: &LoopOperationValueLedgerV1,
+    services: &mut CanonicalBindingReadServicesV1<'_, '_>,
+) -> Result<WriteBindingEmissionReceiptV1, LoopWriteBindingEmissionRejectV1> {
     if prepared.source_binding.owner() != prepared.owner {
         return Err(LoopWriteBindingEmissionRejectV1::SourceBindingMismatch);
     }
-    let function = services
-        .builder
-        .function_state
-        .current_function
-        .as_ref()
-        .ok_or_else(|| preclaim(LoopOperationEmissionRejectV1::TargetFunctionMissing))?;
-    if function.get_block(entry.preheader()).is_none() {
-        return Err(preclaim(LoopOperationEmissionRejectV1::PreheaderMissing(
-            entry.preheader(),
-        )));
-    }
-    let by_role = block_receipt
-        .lookup(prepared.expected_loop, prepared.expected_role)
-        .ok_or_else(|| {
-            preclaim(LoopOperationEmissionRejectV1::PlacementMissing {
-                loop_key: prepared.expected_loop,
-                role: prepared.expected_role,
-            })
-        })?;
-    let by_logical = block_receipt
-        .lookup_logical(prepared.expected_loop, prepared.logical_block)
-        .ok_or_else(|| {
-            preclaim(LoopOperationEmissionRejectV1::LogicalPlacementMissing {
-                loop_key: prepared.expected_loop,
-                block: prepared.logical_block,
-            })
-        })?;
-    if by_role != by_logical {
-        return Err(preclaim(LoopOperationEmissionRejectV1::PlacementMismatch {
-            by_role,
-            by_logical_block: by_logical,
-        }));
-    }
-    let target = function
-        .get_block(by_role)
-        .ok_or_else(|| preclaim(LoopOperationEmissionRejectV1::TargetBlockMissing(by_role)))?;
-    if target.terminator.is_some() {
-        return Err(preclaim(
-            LoopOperationEmissionRejectV1::TargetBlockTerminated(by_role),
-        ));
-    }
+    let by_role = target.physical_block();
     let physical_value =
         state
             .get(prepared.value)

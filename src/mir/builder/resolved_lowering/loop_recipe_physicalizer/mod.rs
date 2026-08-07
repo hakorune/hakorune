@@ -10,6 +10,7 @@ mod operation_emitter;
 #[path = "operation_family_tests.rs"]
 mod operation_family_tests;
 mod operation_ledger;
+mod operation_target;
 #[cfg(test)]
 #[path = "read_emitter_tests.rs"]
 mod read_emitter_tests;

@@ -108,8 +108,10 @@ Related:
   is `CALLABLE-LOOP-PHYSICAL-CANARY-P0`: the first bounded preparation slice
   (Prepared move handoff, complete Write projection, pure
   Const/Binary/Compare leaves, bounded five-family dispatch, full
-  Recipe-order prepare, and typed value ledger) is green; complete physical
-  `emit_all` target receipts, exact Prelude/Tail handoff, and fresh-session
+  Recipe-order prepare, and typed value ledger) is green; exact per-row
+  target receipts and failure-phase separation are now landed; complete
+  physical `emit_all`,
+  exact Prelude/Tail handoff, and fresh-session
   `finish_for_draft_seal` -> DraftSeal integration before claiming the full
   caller-zero Prelude -> Loop -> distinct Tail canary. The complete
   Read/Const/Compare/Binary/Write operation matrix remains the target.

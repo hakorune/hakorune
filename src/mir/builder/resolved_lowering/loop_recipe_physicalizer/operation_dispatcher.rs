@@ -7,7 +7,9 @@
 //! validation and `emit_all` remain the only execution boundary here.
 
 use super::operation_emitter::{
-    emit_prepared_pure_operation_v1, emit_prepared_read_binding_v1, emit_prepared_write_binding_v1,
+    emit_prepared_pure_operation_at_target_v1, emit_prepared_pure_operation_v1,
+    emit_prepared_read_binding_at_target_v1, emit_prepared_read_binding_v1,
+    emit_prepared_write_binding_at_target_v1, emit_prepared_write_binding_v1,
     CanonicalBindingReadServicesV1, LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1,
     LoopOperationServicesV1, LoopReadBindingEmissionRejectV1, LoopReadEntryRequirementV1,
     LoopWriteBindingEmissionRejectV1, PreparedLoopOperationEmissionV1,
@@ -15,6 +17,7 @@ use super::operation_emitter::{
     ReadBindingEmissionReceiptV1, WriteBindingEmissionReceiptV1,
 };
 use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
+use super::operation_target::{LoopOperationTargetRejectV1, VerifiedLoopOperationTargetBlockV1};
 use super::topology::{LoopPhysicalBlockReceiptV1, ReadyLoopEntryV1};
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
@@ -49,6 +52,7 @@ pub(super) enum LoopOperationDispatchRejectV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum LoopOperationDispatchPreflightRejectV1 {
+    Target(LoopOperationTargetRejectV1),
     EntryOwnerMismatch,
     ReceiptOwnerMismatch,
     PreheaderMismatch,
@@ -75,6 +79,7 @@ pub(super) enum LoopOperationDispatchPreflightRejectV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum LoopOperationDispatchPhysicalFailureV1 {
+    Target(LoopOperationTargetRejectV1),
     Pure(LoopOperationEmissionRejectV1),
     Read(LoopReadBindingEmissionRejectV1),
     Write(LoopWriteBindingEmissionRejectV1),
@@ -88,6 +93,7 @@ pub(super) struct PreparedLoopOperationDispatchPlanV1 {
     entry: ReadyLoopEntryV1,
     block_receipt: LoopPhysicalBlockReceiptV1,
     rows: Box<[PreparedLoopOperationDispatchV1]>,
+    targets: Box<[VerifiedLoopOperationTargetBlockV1]>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -125,26 +131,32 @@ impl PreparedLoopOperationDispatchPlanV1 {
             entry,
             block_receipt,
             rows,
+            targets,
         } = self;
         let operation_count = program.coverage().operation_count();
         let mut receipts = Vec::with_capacity(rows.len());
-        for row in rows {
+        for (row, target) in rows.iter().zip(targets.iter()) {
+            let row = row.clone();
+            let target = *target;
+            target
+                .validate_function(services.builder)
+                .map_err(LoopOperationDispatchPhysicalFailureV1::Target)?;
             let receipt =
-                emit_prepared_operation_family_v1(row, state, &entry, &block_receipt, services)
+                emit_prepared_operation_family_at_target_v1(row, target, state, &entry, services)
                     .map_err(|reject| match reject {
-                        LoopOperationDispatchRejectV1::Pure(error) => {
-                            LoopOperationDispatchPhysicalFailureV1::Pure(error)
-                        }
-                        LoopOperationDispatchRejectV1::Read(error) => {
-                            LoopOperationDispatchPhysicalFailureV1::Read(error)
-                        }
-                        LoopOperationDispatchRejectV1::Write(error) => {
-                            LoopOperationDispatchPhysicalFailureV1::Write(error)
-                        }
-                        LoopOperationDispatchRejectV1::ValueAlreadyPublished(key) => {
-                            LoopOperationDispatchPhysicalFailureV1::ValueAlreadyPublished(key)
-                        }
-                    })?;
+                    LoopOperationDispatchRejectV1::Pure(error) => {
+                        LoopOperationDispatchPhysicalFailureV1::Pure(error)
+                    }
+                    LoopOperationDispatchRejectV1::Read(error) => {
+                        LoopOperationDispatchPhysicalFailureV1::Read(error)
+                    }
+                    LoopOperationDispatchRejectV1::Write(error) => {
+                        LoopOperationDispatchPhysicalFailureV1::Write(error)
+                    }
+                    LoopOperationDispatchRejectV1::ValueAlreadyPublished(key) => {
+                        LoopOperationDispatchPhysicalFailureV1::ValueAlreadyPublished(key)
+                    }
+                })?;
             receipts.push(receipt);
         }
         if receipts.len() != operation_count {
@@ -309,11 +321,17 @@ pub(super) fn prepare_loop_operation_dispatch_v1(
             },
         );
     }
+    let targets = rows
+        .iter()
+        .map(|row| issue_target_for_row(row, &entry, &block_receipt))
+        .collect::<Result<Box<[_]>, _>>()
+        .map_err(LoopOperationDispatchPreflightRejectV1::Target)?;
     Ok(PreparedLoopOperationDispatchPlanV1 {
         program,
         entry,
         block_receipt,
         rows: rows.into_boxed_slice(),
+        targets,
     })
 }
 
@@ -337,6 +355,103 @@ impl<'a, 'source> LoopOperationDispatchServicesV1<'a, 'source> {
             builder,
             identity,
             phis,
+        }
+    }
+}
+
+fn issue_target_for_row(
+    row: &PreparedLoopOperationDispatchV1,
+    entry: &ReadyLoopEntryV1,
+    block_receipt: &LoopPhysicalBlockReceiptV1,
+) -> Result<VerifiedLoopOperationTargetBlockV1, LoopOperationTargetRejectV1> {
+    match row {
+        PreparedLoopOperationDispatchV1::Pure(prepared) => {
+            VerifiedLoopOperationTargetBlockV1::issue(
+                prepared.owner(),
+                prepared.item(),
+                prepared.expected_loop(),
+                prepared.expected_block(),
+                prepared.expected_role(),
+                entry,
+                block_receipt,
+            )
+        }
+        PreparedLoopOperationDispatchV1::Read(prepared) => {
+            VerifiedLoopOperationTargetBlockV1::issue(
+                prepared.owner(),
+                prepared.item(),
+                prepared.expected_loop(),
+                prepared.logical_block(),
+                prepared.expected_role(),
+                entry,
+                block_receipt,
+            )
+        }
+        PreparedLoopOperationDispatchV1::Write(prepared) => {
+            VerifiedLoopOperationTargetBlockV1::issue(
+                prepared.owner(),
+                prepared.item(),
+                prepared.expected_loop(),
+                prepared.logical_block(),
+                prepared.expected_role(),
+                entry,
+                block_receipt,
+            )
+        }
+    }
+}
+
+fn emit_prepared_operation_family_at_target_v1<'source>(
+    prepared: PreparedLoopOperationDispatchV1,
+    target: VerifiedLoopOperationTargetBlockV1,
+    state: &mut LoopOperationValueLedgerV1,
+    entry: &ReadyLoopEntryV1,
+    services: &mut LoopOperationDispatchServicesV1<'_, 'source>,
+) -> Result<LoopOperationDispatchReceiptV1, LoopOperationDispatchRejectV1> {
+    match prepared {
+        PreparedLoopOperationDispatchV1::Pure(prepared) => {
+            let mut pure = LoopOperationServicesV1::new(services.builder);
+            emit_prepared_pure_operation_at_target_v1(prepared, target, state, &mut pure)
+                .map(LoopOperationDispatchReceiptV1::Pure)
+                .map_err(LoopOperationDispatchRejectV1::Pure)
+        }
+        PreparedLoopOperationDispatchV1::Read(prepared) => {
+            if state.contains(prepared.result()) {
+                return Err(LoopOperationDispatchRejectV1::ValueAlreadyPublished(
+                    prepared.result(),
+                ));
+            }
+            let mut identity = CanonicalBindingReadServicesV1 {
+                builder: services.builder,
+                identity: services.identity,
+                phis: services.phis,
+            };
+            let receipt =
+                emit_prepared_read_binding_at_target_v1(&prepared, target, entry, &mut identity)
+                    .map_err(LoopOperationDispatchRejectV1::Read)?;
+            state
+                .publish(LoopOperationValueReceiptV1::new(
+                    receipt.owner(),
+                    receipt.result(),
+                    prepared.class(),
+                    receipt.item(),
+                    receipt.physical_block(),
+                    receipt.physical_value(),
+                ))
+                .map_err(|_| {
+                    LoopOperationDispatchRejectV1::ValueAlreadyPublished(receipt.result())
+                })?;
+            Ok(LoopOperationDispatchReceiptV1::Read(receipt))
+        }
+        PreparedLoopOperationDispatchV1::Write(prepared) => {
+            let mut identity = CanonicalBindingReadServicesV1 {
+                builder: services.builder,
+                identity: services.identity,
+                phis: services.phis,
+            };
+            emit_prepared_write_binding_at_target_v1(&prepared, target, state, &mut identity)
+                .map(LoopOperationDispatchReceiptV1::Write)
+                .map_err(LoopOperationDispatchRejectV1::Write)
         }
     }
 }
