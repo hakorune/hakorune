@@ -680,56 +680,44 @@ lifetime       = owned AST-free demand/receipts separate from borrowed input
 Missing/foreign header, target, arity, result ABI, owner, tail site/binding,
 Completion site/value-kind, G0 source brand, duplicate receipt, or any physical
 authority is a pre-effect typed `NoSafeSlice`. The detailed task and its
-acceptance matrix are the only correction checklist; after it closes, the next
-row is caller-zero `LOOP-PHYSICAL-PREPARE-P0`, not an I0.
+acceptance matrix were the correction checklist; that row is closed and the
+current execution row is the caller-zero recursive physicalizer below.
 
-The correction is closed by the task receipt; the current execution row is
-caller-zero `LOOP-PHYSICAL-PREPARE-P0`.
+The static-call fixture and Prelude argument receipt close the remaining
+positive prepared-input prerequisites without opening a production caller.
 
-### Current caller-zero implementation: `LOOP-PHYSICAL-PREPARE-P0`
+### Current execution brief: `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`
 
 ```text
 Change:
-  consume common co-seal + separate callable Prelude/Tail + existing exact
-  ABI/Completion once and issue PreparedCallableLoopPhysicalizationV1 as caller-zero proof
+  add one caller-zero common recursive physicalizer boundary that consumes
+  VerifiedLoopPhysicalDemandV1 exactly once together with the private,
+  single-use ReadyLoopEntryV1 receipt and opens one Loop After continuation.
 
 Contract:
-  execution compatibility is the only new relational truth;
-  LoopPhysicalIndexV1 remains private; Completion moves into the fresh V2
-  session exactly once; no Builder/MIR/physical IDs
+  the physicalizer sees only the AST-free demand, ReadyLoopEntryV1, and
+  borrowed CanonicalSsaFunctionSessionV2 services. It does not see callable
+  Tail/ABI/Completion, profile names, legacy route labels, source AST/name
+  lookup, or a second Recipe/CFG/SSA/PHI owner. Late failure discards the
+  unpublished fresh session; retry and same-session repair are forbidden.
 
 Done:
-  owner/site/BindingRef/frame/ABI/Completion mismatches reject before session
-  effects; success survives source-view drop and is non-Clone/caller-zero;
-  exact reference and task status update in the same implementation commit
+  a focused caller-zero canary proves recursive child/After construction,
+  exact entry receipt consumption, ownership/foreign-demand rejection, and
+  no duplicate physicalizer or production caller. The implementation commit
+  updates the exact MIR references and owning README together with the
+  compact current-row receipt; source/check files remain below 800 lines.
 
 Stop:
-  copied/reverified source truth, public topology, generic fallback,
-  physical emission, or production selection is NoSafeSlice
+  missing logical relation, copied/reverified source truth, a new Recipe kind,
+  profile-specific physicalizer, public topology, Return/DraftSeal/publication,
+  selector, fallback, retry, or legacy deletion returns to design.
 ```
 
-P0 progress is currently partial: the move-only demand, callable input brand,
-and pre-effect reject boundary are landed with focused tests. The natural
-`helper.to_i64(n)` MethodCall fixture has no resolver-issued direct callable,
-and its return declaration is unannotated, so it is intentionally a typed
-negative rather than a positive Prepared/ABI witness. The next P0 slice must
-bring a separately verified static-call fixture/profile (or close the row as
-`NoSafeSlice` by decision); it must not inject a free-static target into the
-MethodCall fixture or infer receiver/target pairing by name.
-
-The accepted successor design is tracked by
-`loop-physical-prepare-static-call-fixture-design-2026-08-07.md`. It uses a
-separate `FreeStatic` source fixture, an explicit neutral call-kind shape, and
-the existing resolver ledger/index as target authority. A static callee may
-have a different owner slot when its compilation brand matches the caller;
-only a foreign compilation brand is rejected. Caller/callee ABI is derived
-from exact header/result declarations and Completion, never injected as a bare
-`I64`. The shape extraction stays a small BoxShape split so every touched
-source/check file remains below 800 lines.
-
-The physical canary does not complete M8, M9, production activation, or legacy
-retirement. `Recipe complete`, `physical canary complete`, `production
-selected`, and `legacy retired` remain four distinct claims.
+`LOOP-PHYSICAL-PREPARE-P0`, the static-call fixture/profile, and
+`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed caller-zero prerequisites. This
+row is the first bounded physicalizer slice; it does not claim callable
+physical completion, production selection, M8/M9 coverage, or retirement.
 
 ## Implementation and documentation obligation
 
@@ -759,9 +747,10 @@ implementation receipt exists.
 
 ## Current execution boundary
 
-The architecture and the `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` implementation
-are closed for the three V2 callers under the typed-receipt and no-reinference
-contract above. The bounded caller-zero `RECIPE-COSEAL-I0-R0` implementation is
-also closed. The current boundary is caller-zero `LOOP-PHYSICAL-PREPARE-P0`;
-physical Loop lowering, production selection, retry/fallback retirement, and
-legacy deletion remain closed.
+The architecture, `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, bounded
+`RECIPE-COSEAL-I0-R0`, callable static-prefix prepare, and Prelude argument
+receipt are closed under the typed-receipt and no-reinference contract above.
+The current boundary is caller-zero
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`; callable physical completion,
+production selection, retry/fallback retirement, and legacy deletion remain
+closed.

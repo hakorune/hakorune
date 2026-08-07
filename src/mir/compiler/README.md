@@ -79,6 +79,8 @@ The focused prepare suite checks ordinal, binding owner, and ABI. This row does
 not reread AST by name, open Builder/MIR/physical lowering, or add a selector,
 retry, fallback, or production caller. The next bounded row is
 `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`.
+Its four-block execution brief is kept in the active workstream card and the
+common physical-demand SSOT; do not open a production caller from this README.
 
 ## Generic G0 S0A source projector
 

@@ -485,55 +485,36 @@ records below are evidence only and must not schedule another route.
 
 Current decision and execution brief:
 ```text
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SOURCE-LEASE-WITNESS0-D4-S4-S0
-  -> cfg(test)-only bounded two-role lease. The resolver reissues the exact
-     forest and per-member frames from one function product; owner-branded
-     role sites yield BindingRef, site scope, and ancestry. Five focused tests
-     are green. No AST/source lifetime, selector/demand/Recipe, Builder/MIR,
-     retry, fallback, or production caller was added. External frame mixing is
-     structurally impossible; the internal frame co-seal check is diagnostic.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-WITNESS0-D4-S4-S1
-  -> cfg(test)-only CarrierProof: same-BindingRef NestedWrite -> PostLoopRead
-     relation, lease brand retained, source lifetime absent, three focused
-     tests green. No full shape/candidate/selector/demand/Recipe/Builder/MIR.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-EXTENSION0-D4-S4-S2-D1
-  -> V1 immutable; V2 starts with inner-loop Condition+Step; later proofs stay separate.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-D0
-  -> direct V2 issuance is NoSafeSlice until resolver site inventory/topology exists.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-RESOLVED-SOURCE-SITE-INVENTORY0-D4-S4-S2-S0
-  -> resolver traversal records/seals branded statement/expression membership; focused inventory/generic tests green; no downstream consumer or public reference row.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-ROLE-ISSUER0-D4-S4-S2-S1
-  -> cfg(test)-only V2 Condition+Step issuer; five tests green; no downstream consumer or public reference row.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-D0/S0/D1
-  -> resolver/source-view owns AST-free facts; policy owns operator/type/overflow/
-     monotonicity; six focused cfg(test) tests, no public row/caller.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-D0
-  -> NoSafeSlice: typed literals and resolver parameter types were not co-sealed.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S0
-  -> cfg(test)-only exact source-unit receipt/map witness green; no selector/demand/Recipe/Builder/MIR.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S1 -> cfg(test)-only non-Clone co-sealed receipt; six tests cover typed/untyped transport, provenance, map coverage, and source-unit/AST drop.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-D0
-  -> worker-reviewed two-stage boundary: substrate owns exact type/range/overflow; policy owns progression; Ready/Unresolved/Rejected is fixed.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S0 -> cfg(test)-only substrate projection from receipt plus explicit NumericTarget; six boundaries green, no policy/selector/demand/Recipe/Builder/MIR.
-closed — JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE0-D4-S4-S3-S1-S2-S1-S1 -> cfg(test)-only policy witness; seven tests green; role-bearing operands and no selector/demand/Recipe/Builder/MIR.
-closed — GENERIC-SOURCE-TO-PORTABLE-RECIPE-D0 / GENERIC-G0-ADMISSION-WINDOW-D0 -> accepted mapping, closed five-row overlap window (not semantic Loop kinds), sole G0 selector boundary, common physical owner, checked legacy manifest, and atomic cutover/deletion contract.
-closed — GENERIC-G0-STRUCTURE-S0A -> natural-source projector and sole AST-free structural issuer landed; exact shape/order/BindingRef/owner-source-frame/coverage positives and negatives, AST mutation zero, focused tests and shared caller-zero guard green; selection/type/policy/Recipe/Builder/MIR/production authority remain zero.
-closed — GENERIC-G0-SOURCE-TYPE-S0B -> callable-header projector and sole AST-free source-type issuer landed; exact owner-branded parameter/result/literal/context inventory, explicit i64 and missing/non-i64 negatives, move-only S0A bundle, recursive line/caller-zero guard green; target/numeric/policy/Recipe/Builder/MIR/production authority remain zero.
-closed — GENERIC-G0-NUMERIC-REPRESENTATION-S0C -> adapter consumes S0B once and seals a neutral exact target/range lease while retaining source + return ABI; plain contextual literals pass, typed suffixes reject, opaque/range boundaries are typed; caller-zero/recursive guard, focused tests, cargo check, and pointer guard green; policy/selection/Recipe/Builder/MIR/production remain zero.
-closed — LOOP-JOINSIG-MODULE-SPLIT-R0 -> flat JoinSig module retired into thin facade + model/port/visibility/flow children; direct exit-edge owner is unique, verified wrapper construction remains private, Recipe/JoinSig tests, README/reference sync, and shared recursive guard are green; no acceptance delta or new caller.
-closed — LOOP-RECIPE-PRODUCER-ID-S0 -> portable wire now carries `producer_id: LoopRecipeProducerIdV1`; old `producer_route` is rejected, three current producers/fixtures migrated, test-only legacy route parity receipt added, schema/producers remain route-free, focused 59 tests and shared guard green; selector/registry/production caller unchanged.
-closed — LOOP-JOINSIG-NESTED-SHADOW-S0 -> visible payload projection now walks target-to-root ancestry, keeps the nearest carrier per Recipe-local binding, emits binding-key order, and isolates siblings; verifier owns unknown/duplicate carrier rejects; 64 focused tests, shared guard, pointer guard, and reference/README sync are green; no After, PHI, Generic, selector, producer, or production change.
-closed — LOOP-RECIPE-SOURCE-BOUND-CORE-S0 -> caller-zero core now co-seals verified Recipe/JoinSig/source claim with exact BindingRef/effect relations and typed loop-carrier anchors; 73 focused contract tests, shared guard, pointer guard, and reference/README sync are green; no Generic key, Builder/MIR, physical, or production change.
-closed — loop-family receipts and Generic S3/S4-D0 design are closed; S4-I0-R0 caller-zero Recipe producer landed with 42 focused Generic tests and synced Recipe/reference/README receipts.
-closed — GENERIC-LEGACY-CORPUS-UNIVERSE-P0 and GENERIC-LEGACY-OBSERVATION-FRONT-G0 landed; S0-D0/I0, S1-D0/I0, and S2-D0/I0 are closed: raw structured-child failures preserve the primary error, FieldAccess and MethodCall consume their exact receipts, and immutable receipts expose the next source boundary.
-closed — GENERIC-RAW-STRUCTURED-BODY-ITEM-SOURCE-CANONICALIZATION-S3-D0/I0 and carrier-representation D0 -> rootless nested body sites canonicalized; Program stays rootful; release probe reaches GenericLoop carrier boundary.
-  Static-call result publication D0 and caller-zero I0/R0 are closed: source
-  transport is locator-only, sealed `(Cataloged caller, SourceExprSite)` selects
-  proof, and `CompletedUnifiedValueCallEmissionV1` is the sole success receipt.
-  I1/D0 and source-bound handoff design are closed; the candidate remains the
-  sole rollback owner. Current row:
-  `GENERIC-STATIC-CALL-PUBLICATION-SOURCE-BOUND-ISSUER-S0` (candidate CatalogInstall + AST-free handoff + raw terminal consumption) is wired with focused tests green. Generic production selection remains closed
-  until the named caller switch and fresh strict receipt.
+closed prerequisites:
+  RECIPE-COSEAL-I0-R0
+  CANONICAL-FUNCTION-FINISH-TERMINAL-R0
+  LOOP-PHYSICAL-PREPARE-P0
+  CALLABLE-STATIC-PREFIX-P0
+  LOOP-PRELUDE-ARGUMENT-RECEIPT-P0
+
+current:
+  LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
+
+Change:
+  caller-zero common recursive physicalizer consumes one move-only
+  VerifiedLoopPhysicalDemandV1 and one private ReadyLoopEntryV1 receipt,
+  then opens the logical Loop After continuation.
+
+Contract:
+  only AST-free demand, entry receipt, and borrowed CanonicalSsaFunctionSessionV2
+  services cross the common boundary. Tail/ABI/Completion, profile labels,
+  AST/name lookup, second Recipe/SSA/PHI owners, selector, retry, and fallback
+  remain outside this row. A late failure discards the fresh unpublished session.
+
+Done:
+  focused canary proves recursive child/After construction, exact receipt
+  consumption, typed foreign/missing rejection, and zero production callers.
+  The implementation commit updates exact MIR reference pages, the owning
+  README, and this compact receipt together; source/check files stay below 800.
+
+Stop:
+  Return/DraftSeal/publication, production selection, G0 relabeling, a new
+  Recipe kind, profile physicalizer, retry/fallback, or legacy deletion.
 ```
 ## Production invariants
 ```text
