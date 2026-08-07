@@ -343,6 +343,15 @@ and exposes no single-operation extraction API.
 The next implementation row is Builder-free `prepare_all`; Const leaf emission
 and the Generic item-3 bridge remain later rows.
 
+## Full operation demand P0 receipt (2026-08-07)
+
+The Builder-free demand and `prepare_all` are now landed. Callable's seven
+operation rows and Generic G0's fifteen rows are scheduled from Recipe
+Loop/Block/Item structure with zero Builder/MIR effect. The neutral context and
+continuation wrappers move existing resolver/JoinSig evidence exactly once.
+This receipt does not open physical block mapping, operation emission,
+function completion, selection, fallback retirement, or legacy deletion.
+
 ## Callable source-shape split receipt (2026-08-07)
 
 `CALLABLE-SOURCE-SHAPE-THIN0` is closed as a behavior-neutral BoxShape slice.

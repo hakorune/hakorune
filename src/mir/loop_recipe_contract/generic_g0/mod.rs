@@ -15,7 +15,9 @@ mod relations;
 mod producer_tests;
 
 #[cfg(test)]
-pub(crate) use producer_tests::generic_operation_effect_for_test;
+pub(crate) use producer_tests::{
+    generic_operation_demand_parts_for_test, generic_operation_effect_for_test,
+};
 
 pub(crate) use producer::{
     produce_generic_g0_recipe_v1, GenericG0RecipeProducerRejectV1, VerifiedGenericRecipeProductG0,

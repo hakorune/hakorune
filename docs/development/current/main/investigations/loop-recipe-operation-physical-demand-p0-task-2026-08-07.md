@@ -1,6 +1,6 @@
 # Loop operation physical demand P0
 
-Status: `DESIGN-REVISE`
+Status: `landed Builder-free full-demand/preflight 2026-08-07; physical emission remains closed`
 Date: 2026-08-07
 Parent: `LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP / Decision B`
 Authority:
@@ -64,7 +64,7 @@ schedule count equals complete Recipe operation count
 The schedule is derived from Recipe Loop/Block/Item structure. Evidence-vector
 or item-key sort order is not execution authority.
 
-## Pre-implementation correction
+## Context/continuation issuer correction
 
 The earlier two-field sketch was incomplete. The common demand must move the
 already verified semantic context as well as the operation/effect product and
@@ -72,7 +72,7 @@ the logical After continuation. Otherwise `prepare_all` would have no exact
 source for the required frame and Scope/Region checks and would be forced to
 re-catalog or guess them.
 
-Before implementation starts, close these two mechanical issuer changes:
+The implementation closes these two mechanical issuer changes:
 
 1. Move the existing test-only `VerifiedLoopSemanticContextV1` wrapper into
    the neutral `loop_recipe_contract` layer. This is a transport move of the
@@ -84,10 +84,9 @@ Before implementation starts, close these two mechanical issuer changes:
    The Generic G0 window lease must retain the resolver-issued Scope/Region
    pair so its adapter can issue the same context shape.
 
-The P0 implementation may begin only after those issuers are represented in
-the neutral product boundary. If either profile cannot supply the exact
-context, return typed `NoSafeSlice`; do not fabricate a context or weaken the
-contract silently.
+The issuer correction is now represented in the neutral product boundary.
+If either profile cannot supply the exact context, return typed `NoSafeSlice`;
+do not fabricate a context or weaken the contract silently.
 
 ## Required tests
 
@@ -118,13 +117,17 @@ Every touched source/test file stays below 800 lines.
 
 ## Done
 
-- [ ] Add the private move-only full demand.
-- [ ] Add `prepare_all` and the complete Recipe-derived schedule/coverage
+- [x] Add the private move-only full demand.
+- [x] Move the neutral context and continuation issuers without cloning or
+      reissuing resolver/JoinSig evidence.
+- [x] Add `prepare_all` and the complete Recipe-derived schedule/coverage
       receipt.
-- [ ] Add Callable seven-row and Generic G0 fifteen-row positive tests.
-- [ ] Add the typed full-preflight reject matrix.
-- [ ] Prove Builder/MIR effect and single-operation extraction APIs are zero.
-- [ ] Update code README, references, current pointers, and workstream in the
+- [x] Add Callable seven-row and Generic G0 fifteen-row positive tests.
+- [x] Add the typed context/continuation full-preflight reject coverage; the
+      operation-effect product owns its earlier duplicate/missing/foreign/
+      placement/value rejection matrix.
+- [x] Prove Builder/MIR effect and single-operation extraction APIs are zero.
+- [x] Update code README, references, current pointers, and workstream in the
       same implementation commit.
 
 Focused gates:
@@ -164,6 +167,7 @@ The implementation commit must update:
 docs/reference/mir/loop-recipe-contract.md
 docs/reference/mir/generic-loop-stage-matrix.md
 docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md
+docs/development/current/main/investigations/loop-recipe-operation-physicalizer-design-stop-2026-08-07.md
 src/mir/loop_recipe_contract/README.md
 src/mir/builder/resolved_lowering/README.md
 docs/development/current/main/CURRENT_STATE.toml

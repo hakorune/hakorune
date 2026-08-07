@@ -8,7 +8,9 @@
 use super::loop_region::{ResolvedLoopRegionLookupErrorV1, VerifiedResolvedLoopSourceV1};
 use super::source_site::SourceStmtSiteV1;
 use super::VerifiedResolvedFunctionV1;
-use super::{FunctionOriginV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1};
+use super::{
+    FunctionOriginV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedScopeRegionPairV1,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum LoopFamilyWindowLeaseIssueV1 {
@@ -24,6 +26,7 @@ pub(crate) enum LoopFamilyWindowLeaseIssueV1 {
 pub(crate) struct VerifiedLoopFamilyWindowLeaseV1 {
     owner: FunctionOwnerIdV1,
     source: VerifiedResolvedLoopSourceV1,
+    scope_region: ResolvedScopeRegionPairV1,
     _seal: VerifiedLoopFamilyWindowLeaseSealV1,
 }
 
@@ -42,9 +45,14 @@ impl VerifiedResolvedFunctionV1 {
         let source = self
             .resolved_loop_source(site)
             .map_err(LoopFamilyWindowLeaseIssueV1::Source)?;
+        let scope_region = self
+            .loop_region_bundle(site)
+            .map_err(LoopFamilyWindowLeaseIssueV1::Source)?
+            .loop_pair();
         Ok(VerifiedLoopFamilyWindowLeaseV1 {
             owner: self.owner(),
             source,
+            scope_region,
             _seal: VerifiedLoopFamilyWindowLeaseSealV1,
         })
     }
@@ -69,5 +77,9 @@ impl VerifiedLoopFamilyWindowLeaseV1 {
 
     pub(crate) fn frame(&self) -> LoopExecutionFrameKeyV1 {
         self.source.frame_key()
+    }
+
+    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
+        self.scope_region
     }
 }

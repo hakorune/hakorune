@@ -97,6 +97,21 @@ order. Both products use the same item-keyed neutral schema, owner/source
 provenance, Recipe placement, Core effect matching, and common typed rejection
 family. Operation physicalization remains closed.
 
+## Full operation demand P0 receipt (2026-08-07)
+
+`LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` is implemented as a Builder-free
+full-program preflight. The common move-only demand carries the resolver
+semantic context, complete item-keyed operation/effect product, and one
+logical After continuation. `prepare_all` derives Recipe order and prepares
+all seven Callable rows and all fifteen Generic G0 rows with zero MIR/Builder
+effect. Context/continuation issuers are neutral transport wrappers; they do
+not reissue or clone source/JoinSig evidence.
+
+This receipt opens no physical block mapping, operation instruction emission,
+function session, Return/Completion/DraftSeal, selector, retry/fallback, or
+legacy deletion. The next row remains the behavior-neutral physicalizer module
+split, followed by the later physical block and leaf-emitter proofs.
+
 ## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
 
 `LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0` is closed as a caller-zero

@@ -10,15 +10,15 @@
 use crate::mir::loop_recipe_contract::{
     LoopBindingEffectAnchorV1, LoopBindingEffectRoleV1, LoopBlockKeyV1,
     LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1, LoopOperationV1, LoopRecipeItemV1,
-    VerifiedLoopOperationEffectProductV1,
+    VerifiedLoopContinuationContractV1, VerifiedLoopOperationEffectProductV1,
+    VerifiedLoopSemanticContextV1,
 };
 use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
 
 use super::callable_single_loop_recipe_coseal::{
     LoopRecipeOperationViewV1, VerifiedCallablePreludeV1,
-    VerifiedCallableSingleLoopRecipeProductV1, VerifiedCallableTailV1,
-    VerifiedLoopContinuationContractV1, VerifiedLoopInputRelationV1,
-    VerifiedLoopOperationSourceRelationV1, VerifiedLoopSemanticContextV1,
+    VerifiedCallableSingleLoopRecipeProductV1, VerifiedCallableTailV1, VerifiedLoopInputRelationV1,
+    VerifiedLoopOperationSourceRelationV1,
 };
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopNodeKeyV1};
 
@@ -44,6 +44,15 @@ pub(crate) struct VerifiedCallableOperationEffectProductV1 {
 #[cfg(test)]
 pub(crate) fn callable_operation_effect_for_test() -> VerifiedLoopOperationEffectProductV1 {
     tests::issue().into_operation_effect()
+}
+
+#[cfg(test)]
+pub(crate) fn callable_operation_demand_parts_for_test() -> (
+    VerifiedLoopOperationEffectProductV1,
+    VerifiedLoopSemanticContextV1,
+    VerifiedLoopContinuationContractV1,
+) {
+    tests::issue().into_operation_demand_parts()
 }
 
 impl VerifiedCallableOperationEffectProductV1 {
@@ -74,6 +83,25 @@ impl VerifiedCallableOperationEffectProductV1 {
     #[cfg(test)]
     pub(crate) fn into_operation_effect(self) -> VerifiedLoopOperationEffectProductV1 {
         self.operation_effect
+    }
+
+    #[cfg(test)]
+    pub(crate) fn into_operation_demand_parts(
+        self,
+    ) -> (
+        VerifiedLoopOperationEffectProductV1,
+        VerifiedLoopSemanticContextV1,
+        VerifiedLoopContinuationContractV1,
+    ) {
+        let Self {
+            operation_effect,
+            context,
+            continuation,
+            input: _,
+            prelude: _,
+            tail: _,
+        } = self;
+        (operation_effect, context, continuation)
     }
 }
 

@@ -20,6 +20,9 @@ use super::super::super::loop_recipe_contract::source_bound_core::{
     issue_source_bound_core_v1, VerifiedLoopCoreProductV1,
 };
 use super::super::super::loop_recipe_contract::verify::LoopRecipeVerifierV1;
+use super::super::super::loop_recipe_contract::{
+    VerifiedLoopContinuationContractV1, VerifiedLoopSemanticContextV1,
+};
 use super::after::{issue_after, GenericG0AfterRejectV1, VerifiedGenericAfterEffectG0};
 use super::operation_effect::issue_generic_g0_operation_effect_v1;
 use super::recipe::{generic_g0_recipe, GenericG0RecipeShapeRejectV1};
@@ -47,6 +50,7 @@ pub(crate) enum GenericG0RecipeProducerRejectV1 {
 pub(crate) struct VerifiedGenericRecipeProductG0 {
     operation_effect: super::super::operation_effect::VerifiedLoopOperationEffectProductV1,
     after: VerifiedGenericAfterEffectG0,
+    context: VerifiedLoopSemanticContextV1,
     target: NumericTarget,
 }
 
@@ -65,6 +69,10 @@ impl VerifiedGenericRecipeProductG0 {
         &self.after
     }
 
+    pub(crate) fn context(&self) -> &VerifiedLoopSemanticContextV1 {
+        &self.context
+    }
+
     pub(crate) const fn target(&self) -> NumericTarget {
         self.target
     }
@@ -79,6 +87,27 @@ impl VerifiedGenericRecipeProductG0 {
         self,
     ) -> super::super::operation_effect::VerifiedLoopOperationEffectProductV1 {
         self.operation_effect
+    }
+
+    #[cfg(test)]
+    pub(crate) fn into_operation_demand_parts(
+        self,
+    ) -> (
+        super::super::operation_effect::VerifiedLoopOperationEffectProductV1,
+        VerifiedLoopSemanticContextV1,
+        VerifiedLoopContinuationContractV1,
+    ) {
+        let Self {
+            operation_effect,
+            after,
+            context,
+            target: _,
+        } = self;
+        let continuation = VerifiedLoopContinuationContractV1::from_after(
+            operation_effect.core().owner(),
+            after.into_after_binding(),
+        );
+        (operation_effect, context, continuation)
     }
 }
 
@@ -96,6 +125,14 @@ pub(crate) fn produce_generic_g0_recipe_v1(
         _role_lease,
     ) = demand.into_parts();
     verify_brand(&window_lease, &source_brand)?;
+    let context = VerifiedLoopSemanticContextV1::from_parts(
+        source_brand.owner(),
+        source_brand.origin(),
+        source_brand.source_kind(),
+        source_brand.root_site().clone(),
+        source_brand.frame(),
+        window_lease.scope_region(),
+    );
 
     let (source_bundle, numeric, return_abi) = typed_bundle.into_parts();
     let (structural, source_types) = source_bundle.into_parts();
@@ -207,6 +244,7 @@ pub(crate) fn produce_generic_g0_recipe_v1(
     Ok(VerifiedGenericRecipeProductG0 {
         operation_effect,
         after,
+        context,
         target: numeric.target(),
     })
 }

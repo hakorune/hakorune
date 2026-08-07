@@ -1,5 +1,6 @@
 //! Neutral selfhost-portable recursive Loop recipe contract.
 
+mod continuation;
 mod direct_accum_producer;
 mod error;
 mod ids;
@@ -8,10 +9,12 @@ mod join_sig_branch;
 mod loop_true_break_continue_producer;
 mod normalize;
 mod operation_effect;
+mod operation_physical_demand;
 mod physical_input;
 mod producer_id;
 pub(crate) mod route_id;
 mod schema;
+mod semantic_context;
 mod source_binding;
 mod source_bound_core;
 mod verify;
@@ -66,7 +69,8 @@ pub(crate) use generic_g0_demand::{
 #[cfg(test)]
 #[allow(unused_imports)]
 pub(crate) use generic_g0::{
-    produce_generic_g0_recipe_v1, GenericG0RecipeProducerRejectV1, VerifiedGenericRecipeProductG0,
+    generic_operation_demand_parts_for_test, produce_generic_g0_recipe_v1,
+    GenericG0RecipeProducerRejectV1, VerifiedGenericRecipeProductG0,
 };
 
 #[cfg(test)]
@@ -83,6 +87,10 @@ mod operation_effect_tests;
 mod operation_effect_parity;
 
 #[cfg(test)]
+#[path = "operation_physical_demand_tests.rs"]
+mod operation_physical_demand_tests;
+
+#[cfg(test)]
 pub(crate) use operation_effect_parity::{
     issue_operation_effect_parity_receipt_v1, LoopOperationEffectParityReceiptV1,
     LoopOperationEffectParityRejectV1, LoopOperationEffectParitySideV1,
@@ -90,6 +98,8 @@ pub(crate) use operation_effect_parity::{
 
 // M2 is intentionally disconnected. Keep one stable facade for later producers
 // without turning caller-zero exports into warning noise.
+#[allow(unused_imports)]
+pub(crate) use continuation::VerifiedLoopContinuationContractV1;
 #[allow(unused_imports)]
 pub(crate) use direct_accum_producer::{
     produce_direct_accum_recipe_v1, DirectAccumRecipeProducerRejectV1,
@@ -121,6 +131,12 @@ pub(crate) use operation_effect::{
     VerifiedLoopOperationEffectProductV1, VerifiedLoopOperationSourceEvidenceV1,
 };
 #[allow(unused_imports)]
+pub(crate) use operation_physical_demand::{
+    LoopOperationCoverageReceiptV1, LoopOperationPhysicalDemandRejectV1,
+    PreparedLoopOperationProgramV1, PreparedLoopOperationScheduleRowV1,
+    VerifiedLoopOperationPhysicalDemandV1,
+};
+#[allow(unused_imports)]
 pub(crate) use physical_input::{VerifiedLoopPhysicalBoundaryV1, VerifiedLoopPhysicalInputV1};
 #[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
@@ -133,6 +149,8 @@ pub(crate) use schema::{
     LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeValueV1, LoopSourcePathStepV1,
     LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
 };
+#[allow(unused_imports)]
+pub(crate) use semantic_context::VerifiedLoopSemanticContextV1;
 #[allow(unused_imports)]
 pub(crate) use source_bound_core::{
     LoopBindingEffectAnchorV1, LoopBindingEffectRelationV1, LoopBindingEffectRoleV1,

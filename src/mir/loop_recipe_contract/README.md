@@ -117,10 +117,17 @@ Cross-profile parity is closed as a diagnostic-only receipt. Callable has seven
 rows and Generic G0 has fifteen, but the receipt compares neither counts nor
 source order; the common verifier owns the shared reject family. Reviewed
 Decision B closes with one complete private move-only
-`VerifiedLoopOperationPhysicalDemandV1` bundling operation/effect evidence,
-common continuation, and a key-only private index. It exposes no first/select/
-filter operation API. The next row is Builder-free full-demand `prepare_all`;
-leaf emission and production operation activation remain closed.
+`VerifiedLoopOperationPhysicalDemandV1` bundling the moved resolver semantic
+context, operation/effect evidence, common continuation, and a key-only private
+index. Its `prepare_all` implementation derives the complete Recipe-order
+schedule for Callable's seven rows and Generic G0's fifteen rows with zero
+Builder/MIR effect. It exposes no first/select/filter operation API. Leaf
+emission and production operation activation remain closed.
+
+The neutral `VerifiedLoopSemanticContextV1` and
+`VerifiedLoopContinuationContractV1` wrappers are transport-only. Callable and
+Generic G0 move existing resolver/JoinSig evidence into them exactly once; no
+After reissue, clone, source-name lookup, or route-local context is allowed.
 
 ## Generic legacy corpus inventory
 

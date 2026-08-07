@@ -90,6 +90,16 @@ demand/preflight from leaf emission. The next row is the Builder-free complete
 operation demand; topology module split, physical block mapping, Const leaf
 emission, and production activation remain closed.
 
+## Full operation demand P0
+
+The Builder-free `VerifiedLoopOperationPhysicalDemandV1` now consumes the
+resolver semantic context, complete operation/effect ledger, and one logical
+After continuation as a move-only product. `prepare_all` derives Recipe
+Loop/Block/Item order and proves complete seven-row Callable and fifteen-row
+Generic G0 coverage before any Builder effect. The resolved-lowering layer is
+not imported by this product; physical block allocation, leaf operation
+emission, session opening, and DraftSeal remain later boundaries.
+
 ## Caller-zero Loop physical prepare
 
 `src/mir/compiler/loop_physical_prepare.rs` is a test-only pre-effect contract

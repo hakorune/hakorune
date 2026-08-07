@@ -12,14 +12,13 @@ use crate::mir::loop_recipe_contract::{
     LoopBindingEffectRoleV1, LoopBindingKeyV1, LoopCarrierKeyV1, LoopItemKeyV1,
     LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopNodeKeyV1, LoopRecipeArtifactV1,
     LoopRecipeBindingRelationV1, LoopRecipeProducerIdV1, LoopRecipeProvenanceV1,
-    LoopRecipeRejectReasonV1, LoopValueClassV1, LoopValueKeyV1, VerifiedLoopAfterBindingV1,
-    VerifiedLoopCoreProductV1, VerifiedLoopPhysicalBoundaryV1,
+    LoopRecipeRejectReasonV1, LoopValueClassV1, LoopValueKeyV1, VerifiedLoopContinuationContractV1,
+    VerifiedLoopCoreProductV1, VerifiedLoopPhysicalBoundaryV1, VerifiedLoopSemanticContextV1,
 };
 use crate::mir::loop_structural_facts::bind_resolved_loop_root_v1;
 use crate::mir::resolved_semantics::{
-    BindingOriginV1, BindingRefV1, FunctionOriginV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1,
-    ResolvedCallableRefV1, ResolvedScopeRegionPairV1, SemanticOwnerSourceKindV1,
-    SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+    BindingOriginV1, BindingRefV1, FunctionOwnerIdV1, ResolvedCallableRefV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceStmtSiteV1,
 };
 
 use super::callable_single_loop_source_map::{
@@ -124,60 +123,6 @@ impl VerifiedLoopOperationSourceRelationV1 {
     }
     pub(crate) const fn operation(&self) -> LoopRecipeOperationViewV1 {
         self.operation
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedLoopSemanticContextV1 {
-    owner: FunctionOwnerIdV1,
-    origin: FunctionOriginV1,
-    source_kind: SemanticOwnerSourceKindV1,
-    loop_site: SourceStmtSiteV1,
-    frame: LoopExecutionFrameKeyV1,
-    scope_region: ResolvedScopeRegionPairV1,
-}
-
-impl VerifiedLoopSemanticContextV1 {
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(crate) const fn origin(&self) -> FunctionOriginV1 {
-        self.origin
-    }
-    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source_kind
-    }
-    pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
-        &self.loop_site
-    }
-    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.frame
-    }
-    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
-        self.scope_region
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedLoopContinuationContractV1 {
-    owner: FunctionOwnerIdV1,
-    loop_key: LoopNodeKeyV1,
-    after: VerifiedLoopAfterBindingV1,
-}
-
-impl VerifiedLoopContinuationContractV1 {
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(crate) const fn loop_key(&self) -> LoopNodeKeyV1 {
-        self.loop_key
-    }
-    pub(crate) fn after(&self) -> &VerifiedLoopAfterBindingV1 {
-        &self.after
-    }
-
-    pub(crate) fn into_after(self) -> VerifiedLoopAfterBindingV1 {
-        self.after
     }
 }
 
@@ -362,14 +307,14 @@ pub(crate) fn issue_callable_single_loop_recipe_v1(
     let (owner, origin, source_kind, loop_source, frame, scope_region, rows, prefix_row) =
         map.into_parts();
     let loop_site = loop_source.site().clone();
-    let context = VerifiedLoopSemanticContextV1 {
+    let context = VerifiedLoopSemanticContextV1::from_parts(
         owner,
         origin,
         source_kind,
         loop_site,
         frame,
         scope_region,
-    };
+    );
     let prelude = decode_prelude(owner, prefix_row)?;
     let mut by_role = std::collections::BTreeMap::new();
     for row in rows.into_vec() {
@@ -488,11 +433,7 @@ pub(crate) fn issue_callable_single_loop_recipe_v1(
     )?;
     let core = issue_source_bound_core_for_test(artifact, join_sig, owner, bindings, effects)
         .map_err(CallableRecipeCoSealRejectV1::Recipe)?;
-    let continuation = VerifiedLoopContinuationContractV1 {
-        owner,
-        loop_key: LoopNodeKeyV1::new(0),
-        after,
-    };
+    let continuation = VerifiedLoopContinuationContractV1::from_after(owner, after);
     Ok(VerifiedCallableSingleLoopRecipeProductV1 {
         co_seal: VerifiedLoopRecipeCoSealV1 {
             core,

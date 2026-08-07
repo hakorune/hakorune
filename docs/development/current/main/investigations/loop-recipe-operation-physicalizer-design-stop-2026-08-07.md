@@ -48,13 +48,16 @@ The private, move-only full-program input is:
 
 ```text
 VerifiedLoopOperationPhysicalDemandV1 {
+  context: VerifiedLoopSemanticContextV1,
   operation_effect: VerifiedLoopOperationEffectProductV1,
   continuation: VerifiedLoopContinuationContractV1,
   index: private LoopOperationPhysicalIndexV1,
 }
 ```
 
-Its only whole-program transition is conceptually:
+The context and continuation are neutral move-only transport wrappers around
+resolver/JoinSig-issued evidence; they do not reissue or clone authority. Its
+only whole-program transition is conceptually:
 
 ```text
 prepare_all(self)
