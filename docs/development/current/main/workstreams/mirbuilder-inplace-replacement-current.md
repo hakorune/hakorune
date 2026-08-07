@@ -38,8 +38,8 @@ co-seals the resolver source/frame/Scope/Region and the selected
 `0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
 not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
 `RECIPE-COSEAL-I0-R0` and `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` are closed; Loop continuation/Tail remain separate, and the one non-V2 `ReadyFunctionDraftSealV1::new` caller remains named compatibility debt.
-The active boundary is caller-zero `LOOP-PHYSICAL-PREPARE-P0`; typed pre-effect contracts are landed, but the current MethodCall fixture has no genuine direct target/ABI positive, so physical/production/retirement remain closed.
-Final finish order is owned by `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
+The active boundary is design-stop `LOOP-PHYSICAL-PREPARE-STATIC-CALL-FIXTURE-D0`; the existing MethodCall remains a typed negative, and physical/production/retirement remain closed.
+After this bounded fixture decision, P0 continues with a genuine resolver-backed FreeStatic positive; final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
 ## Root-neutral semantic foundation
 

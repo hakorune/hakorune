@@ -693,6 +693,16 @@ bring a separately verified static-call fixture/profile (or close the row as
 `NoSafeSlice` by decision); it must not inject a free-static target into the
 MethodCall fixture or infer receiver/target pairing by name.
 
+The accepted successor design is tracked by
+`loop-physical-prepare-static-call-fixture-design-2026-08-07.md`. It uses a
+separate `FreeStatic` source fixture, an explicit neutral call-kind shape, and
+the existing resolver ledger/index as target authority. A static callee may
+have a different owner slot when its compilation brand matches the caller;
+only a foreign compilation brand is rejected. Caller/callee ABI is derived
+from exact header/result declarations and Completion, never injected as a bare
+`I64`. The shape extraction stays a small BoxShape split so every touched
+source/check file remains below 800 lines.
+
 The physical canary does not complete M8, M9, production activation, or legacy
 retirement. `Recipe complete`, `physical canary complete`, `production
 selected`, and `legacy retired` remain four distinct claims.

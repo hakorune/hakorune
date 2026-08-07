@@ -126,6 +126,12 @@ authority decision before it is added. P0 remains open until the proof matrix
 has a genuine positive plus the required foreign/arity/result/site/value and
 consumption negatives.
 
+That bounded decision is now fixed in
+`loop-physical-prepare-static-call-fixture-design-2026-08-07.md`; the current
+pointer stops at that design row before P0 continuation. It corrects the
+same-owner assumption, makes `FreeStatic` explicit, and derives ABI from
+sealed header/result/Completion evidence.
+
 Focused evidence for this partial slice is:
 
 ```text
