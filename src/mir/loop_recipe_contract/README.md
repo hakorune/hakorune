@@ -51,15 +51,18 @@ Loop lowering.
 
 ## Current M8 design stop
 
-G0 I1 is a closed caller-zero physical canary. The next row is the accepted
+G0 I1 is a closed caller-zero physical canary. The next row is the revised
 design-only `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` mapping from one exact
-resolver-owned recurrence source shape through neutral Facts to the existing
-Recipe/Core products. Legacy `LoopRouteId` labels remain migration evidence;
-they are not Recipe kinds, and a natural `LoopSimpleWhile` fixture must not be
-relabeled without a typed source-policy receipt. No S6A producer, Builder/MIR,
-selector, physicalizer, M9 parity, production route, retry/fallback, or legacy
-deletion is open. The implementation commit must update this README and
-`docs/reference/**` together.
+resolver-owned variable-update recurrence source shape through neutral Facts
+to the existing Recipe/Core products. The audited natural
+`loop_simple_while_inline_explicit_step_min.hako` fixture is Declined by the
+current SimpleWhile and DirectAccum Facts owners (`acc = acc + i` is neither
+step-only nor constant-update); it is a negative boundary, not a producer
+fixture. Legacy `LoopRouteId` labels remain migration evidence and are not
+Recipe kinds. No S6A producer, Builder/MIR, selector, physicalizer, M9 parity,
+production route, retry/fallback, or legacy deletion is open. The
+implementation commit must update this README and `docs/reference/**`
+together.
 
 ## Generic G0 S4 producer
 

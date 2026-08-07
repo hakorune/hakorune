@@ -51,13 +51,16 @@ Decision: accepted — the next bounded row is
 `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`.
 
 This is a design-only source-to-Facts-to-Recipe mapping prerequisite. The
-first M8 cohort must freeze one natural recurrence source shape, its exact
-resolver-owned owner/site/frame evidence, neutral structural Facts, typed
-`Candidate|Declined|Unresolved|Rejected` disposition, and the existing
-`LoopRecipeV1`/`VerifiedLoopCoreProductV1` output before implementation opens.
-The likely natural fixture is
-`apps/tests/loop_simple_while_inline_explicit_step_min.hako`, but fixture names
-and `LoopRouteId` labels are evidence only; no route-name alias is authority.
+first M8 cohort must freeze one natural variable-update recurrence source
+shape, its exact resolver-owned owner/site/frame evidence, neutral structural
+Facts, typed `Candidate|Declined|Unresolved|Rejected` disposition, and the
+existing `LoopRecipeV1`/`VerifiedLoopCoreProductV1` output before
+implementation opens. The audited natural fixture
+`apps/tests/loop_simple_while_inline_explicit_step_min.hako` is a negative
+boundary for the current owners: `LoopSimpleWhileFacts` declines its
+non-step-only body and `DirectAccumFacts` declines its non-constant accumulator
+update. Its `LoopSimpleWhile` label is migration evidence only; no route-name
+alias or DirectAccum reuse is authority.
 
 The all-19 labels remain compatibility ingress identities. M8 S6A must not add
 a Recipe kind, a second selector, a route-local physicalizer, an AST-bearing
@@ -67,6 +70,16 @@ production selection, M10b cutover, retry/fallback retirement, and M11/M12
 legacy deletion remain closed until M8 S6G and the separate production design.
 The task receipt is
 `docs/development/current/main/investigations/joinir-loop-m8-loopv0-recurrence-s6a-d0-task-2026-08-08.md`.
+
+The audited S6A target is one resolver-owned `Main.main` loop with
+`acc = acc + i` and `i = i + 1`. It is not admitted by the current
+`LoopSimpleWhileFacts`, `DirectAccumFacts`, or Generic G0 owners. The design
+target is nevertheless expressible by the existing neutral algebra as one
+predicate loop with two bindings and eleven operations; a new observer/Facts
+contract must prove its exact source/frame/site and eight source/effect anchors
+(two carrier entries plus six reads/writes) before a producer can issue the
+existing Recipe/Core products. The fixture and planner label remain negative
+classification evidence until then.
 
 ## SSOT role disambiguation
 

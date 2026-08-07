@@ -990,18 +990,23 @@ must be updated again after that implementation and after production cutover.
 
 ## M8 S6A design-only decision (2026-08-08)
 
-The post-G0 I1 audit is now closed as a shallow design decision:
-`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` is the next row. It must first fix
-one natural recurrence source membership, resolver-owned source/frame/site
-evidence, neutral Facts, typed disposition, and an existing
-`LoopRecipeV1`/`VerifiedLoopCoreProductV1` golden. The likely fixture is
-`apps/tests/loop_simple_while_inline_explicit_step_min.hako`; its fixture name
-and any legacy `LoopRouteId` are not semantic authority.
+The post-G0 I1 audit remains a shallow design decision:
+`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` is the next row, but its source
+cohort is not yet sealed. The inspected
+`apps/tests/loop_simple_while_inline_explicit_step_min.hako` fixture has
+`acc = acc + i` followed by `i = i + 1`; current `LoopSimpleWhileFacts` and
+`DirectAccumFacts` both Decline it, and it is not Generic G0. Its fast-gate
+`LoopSimpleWhile` label is migration evidence only. S6A must instead freeze a
+resolver-owned observer/Facts contract for this variable-update recurrence and
+the existing neutral `LoopRecipeV1`/`VerifiedLoopCoreProductV1` golden: two
+bindings and eleven operations. No route relabel or DirectAccum reuse is
+allowed.
 
 No S6A producer is claimed by this design receipt. No new Recipe kind,
 selector, physicalizer, Builder/MIR owner, M9 parity, production selection,
-retry/fallback retirement, or legacy deletion is open. If exact membership is
-not provable, the typed result is `Unresolved`/`NoSafeSlice`. After the S6A
-implementation lands, this reference and the module README must be updated in
-that same implementation commit; a final reference update is required again
-at production cutover.
+retry/fallback retirement, or legacy deletion is open. Until the observer and
+mapping are proven, the typed result is `Declined` for the current owners or
+`Unresolved`/`NoSafeSlice` for the new cohort. After the S6A implementation
+lands, this reference and the module README must be updated in that same
+implementation commit; a final reference update is required again at
+production cutover.
