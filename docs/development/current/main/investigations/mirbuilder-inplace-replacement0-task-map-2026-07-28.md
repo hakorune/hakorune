@@ -13,7 +13,9 @@ Final convergence pointer (serial, after Loop retirement):
 Closed design-stop correction:
   - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
 Current execution row:
-  - caller-zero `LOOP-PHYSICAL-PREPARE-P0` in the common physical-demand SSOT
+  - caller-zero `LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`
+Current execution task:
+  - docs/development/current/main/investigations/loop-recipe-operation-physicalizer-canary-s0-task-2026-08-07.md
 Supersedes scheduling authority of:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
   - OWN-GRAM-REJECT0-HAKO0-S0
@@ -55,6 +57,33 @@ I0 = actual production switch
 R0 = selected old path deletion
 P0 = parity after that switch
 ```
+
+## Active Loop physicalization order
+
+This is the compact order for the current Loop frontier. It is subordinate to
+`CURRENT_STATE.toml`; it exists so the task map cannot silently fall back to
+the retired prepare-only row.
+
+```text
+1. LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0
+   one caller-zero ConstI64 or ReadBinding emission
+2. next typed-operation design/selection
+   choose one exact operation slice; no profile-specific physicalizer
+3. typed-operation canaries
+   one operation per slice, with fresh-session discard on failure
+4. Generic G0 adapter/parity
+   exact operation demand adaptation; no shape relabeling
+5. production operation physicalizer selection
+   one selector, no retry/fallback/reselection
+6. M8/M9 all-ingress Recipe coverage
+7. M10b activation, then M11/M12 legacy retirement
+8. REPO-FINAL-CONVERGENCE-AUDIT0-G0
+```
+
+The current canary does not claim Return, Completion, DraftSeal, publication,
+backend performance, production selection, retry/fallback removal, or legacy
+deletion. Each later item requires its own task receipt and same-commit
+reference/README/current-mirror updates.
 
 ## First executable replacement
 
