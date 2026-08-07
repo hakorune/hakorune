@@ -1,6 +1,6 @@
 # Loop recipe ConstI64 leaf-emitter canary S0
 
-Status: `implementation-ready`
+Status: `landed`
 Date: 2026-08-07
 Parent: `LOOP-RECIPE-PHYSICAL-BLOCK-RECEIPT-P0 / Decision B`
 Authority: `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
@@ -41,20 +41,25 @@ emitter has no retry/fallback branch.
 
 ## Done
 
-- [ ] Add the private prepared Const payload and one leaf emitter under the
+- [x] Add the private prepared Const payload and one leaf emitter under the
       physicalizer directory; keep every touched source/test file below 800
       lines.
-- [ ] Validate owner, preheader, Loop, logical Block, role, and destination
+- [x] Validate owner, preheader, Loop, logical Block, role, and destination
       function membership before emission.
-- [ ] Prove one `ConstValue::Integer` instruction appears in the exact target
+- [x] Prove one `ConstValue::Integer` instruction appears in the exact target
       block, with an exact `i64` type fact and one result receipt.
-- [ ] Add negative placement/owner/preheader tests with zero instruction
+- [x] Add negative placement/owner/preheader tests with zero instruction
       emission on pre-emission rejection.
-- [ ] Add a harness-only post-emission failure, whole-session discard, and
+- [x] Add a harness-only post-emission failure, whole-session discard, and
       fresh-session repeat proof without a production test branch.
-- [ ] Update current state, workstream, design/reference README, and this card
+- [x] Update current state, workstream, design/reference README, and this card
       in the implementation commit. After implementation, update the relevant
       reference documentation with the landed contract and non-claims.
+
+Implementation receipt: focused tests, lib check, source guards, and the
+reference/current documentation update are landed in the implementation
+commit for this row. The next operation kind is intentionally not selected by
+this canary.
 
 Focused gates:
 

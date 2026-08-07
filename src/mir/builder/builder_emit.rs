@@ -4,6 +4,25 @@ use crate::mir::diagnostics::{caller_string, mir_dump_value, FreezeContract};
 use crate::mir::BasicBlock;
 
 impl MirBuilder {
+    /// Emit one instruction into an explicitly selected existing block.
+    ///
+    /// The target is part of the caller's verified placement contract; it is
+    /// not inferred from the ambient insertion point. The ordinary emitter is
+    /// reused so canonical metadata, predecessor updates, and type/SSA checks
+    /// remain owned by one Builder path. The previous insertion point is
+    /// restored even when the emission returns an error.
+    pub(in crate::mir::builder) fn emit_instruction_at(
+        &mut self,
+        block_id: BasicBlockId,
+        instruction: MirInstruction,
+    ) -> Result<(), String> {
+        let previous = self.function_state.current_block;
+        self.function_state.current_block = Some(block_id);
+        let result = self.emit_instruction(instruction);
+        self.function_state.current_block = previous;
+        result
+    }
+
     /// Emit an instruction to the current basic block
     #[track_caller]
     pub(in crate::mir::builder) fn emit_instruction(

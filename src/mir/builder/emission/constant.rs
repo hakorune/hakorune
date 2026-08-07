@@ -4,18 +4,42 @@
 //! when inside a function context to ensure proper SSA verification.
 
 use crate::mir::builder::MirBuilder;
-use crate::mir::{ConstValue, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, ConstValue, MirInstruction, ValueId};
 
 use super::constant_type::PreparedCanonicalConstTypeV1;
 
-fn emit_exact_const(b: &mut MirBuilder, value: ConstValue) -> Result<ValueId, String> {
+fn emit_exact_const_at(
+    b: &mut MirBuilder,
+    target: Option<BasicBlockId>,
+    value: ConstValue,
+) -> Result<ValueId, String> {
     let dst = b.next_value_id();
     let prepared =
         PreparedCanonicalConstTypeV1::prepare(&value, b.function_state.type_ctx.get_type(dst))
             .map_err(|error| error.to_string())?;
-    b.emit_instruction(MirInstruction::Const { dst, value })?;
+    let instruction = MirInstruction::Const { dst, value };
+    match target {
+        Some(block) => b.emit_instruction_at(block, instruction)?,
+        None => b.emit_instruction(instruction)?,
+    }
     prepared.commit(dst, &mut b.function_state.type_ctx);
     Ok(dst)
+}
+
+fn emit_exact_const(b: &mut MirBuilder, value: ConstValue) -> Result<ValueId, String> {
+    emit_exact_const_at(b, None, value)
+}
+
+/// Emit an integer constant into one verified physical block.
+///
+/// The caller owns target-block validation; this helper only preserves the
+/// canonical Const type-fact and Builder emission path.
+pub(in crate::mir) fn emit_integer_at(
+    b: &mut MirBuilder,
+    block: BasicBlockId,
+    val: i64,
+) -> Result<ValueId, String> {
+    emit_exact_const_at(b, Some(block), ConstValue::Integer(val))
 }
 
 #[inline]

@@ -343,8 +343,26 @@ operation/effect evidence, common continuation, and a key-only private index
 and exposes no single-operation extraction API.
 The Builder-free `prepare_all` and behavior-neutral physicalizer module split
 rows are now closed. The next implementation row is the canonical physical
-block receipt; Const leaf emission and the Generic item-3 bridge remain later
-rows.
+block receipt; the Const leaf-emitter row is now closed, and the Generic item-3
+bridge remains a later row.
+
+## ConstI64 leaf-emitter S0 receipt (2026-08-07)
+
+`LOOP-RECIPE-OPERATION-EMITTER-CONST-S0` is now closed as a private,
+test-only leaf-emitter canary. A prepared `ConstI64` operation is checked
+against the exact owner, preheader, logical Loop/Block, physical role, and
+un-terminated destination block in `LoopPhysicalBlockReceiptV1`. The emitter
+delegates to the existing canonical Builder Const/type-fact path and returns
+one physical `ValueId` receipt; it does not infer placement from
+`current_block`.
+
+Focused evidence proves exact one-instruction placement, typed owner/placement
+rejects before emission, a harness-only post-emission failure with whole
+unpublished-session discard, and semantic repeat in a fresh session. This row
+does not extract one item from a full demand and does not open full Loop
+physicalization, continuation, BindingSSA/PHI, Return, Completion, DraftSeal,
+production selection, retry/fallback, or legacy deletion. The next operation
+kind must be opened as a separate design/implementation row.
 
 ## Full operation demand P0 receipt (2026-08-07)
 

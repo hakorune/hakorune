@@ -5,7 +5,9 @@
 //! Operation demand, leaf emission, and production activation remain outside
 //! this row.
 
+mod operation_emitter;
 mod tests;
 mod topology;
 
+pub(super) use operation_emitter::*;
 pub(super) use topology::*;

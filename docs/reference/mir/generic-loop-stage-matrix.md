@@ -120,6 +120,22 @@ The topology canary issues one private logical Loop/role to physical
 Generic G0 operation demand remain untouched; the receipt adds no operation
 shape, emitter, session, selector, fallback, or legacy authority.
 
+## ConstI64 leaf-emitter S0 (2026-08-07)
+
+The private prepared ConstI64 emitter is now closed as a disconnected canary.
+It binds one prepared operation to the canonical physical block receipt,
+emits exactly one typed `Const` instruction through the existing Builder
+owner, rejects foreign/mismatched placement before emission, and proves
+whole-session discard after a harness-only late failure followed by fresh
+session repeat. It does not consume or partially extract a full Callable/G0
+demand, and it opens no continuation, SSA/PHI, Return/DraftSeal, selector,
+fallback, production, or legacy-deletion authority.
+
+The next boundary is the design-only
+`LOOP-RECIPE-OPERATION-EMITTER-READ-DESIGN0-D0` card. It must fix the
+source/effect anchor and canonical BindingSSA read receipt before any
+ReadBinding Builder mutation; it does not alter the full-demand contract.
+
 ## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
 
 `LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0` is closed as a caller-zero

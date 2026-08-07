@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, RECIPE-COSEAL-D0-r1, bounded RECIPE-COSEAL-I0-R0 caller-zero implementation, CANONICAL-FUNCTION-FINISH-TERMINAL-R0 for the three V2 session lowerers, and LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0 are closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted; caller-zero LOOP-PHYSICAL-PREPARE-P0 is current; physical/production activation remains 0`
+Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, RECIPE-COSEAL-D0-r1, bounded RECIPE-COSEAL-I0-R0 caller-zero implementation, CANONICAL-FUNCTION-FINISH-TERMINAL-R0 for the three V2 session lowerers, LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0, Builder-free full-demand/preflight P0, topology split/receipt P0, and ConstI64 leaf-emitter S0 are closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted; physical/production activation remains 0`
 
-Current row: `LOOP-PHYSICAL-PREPARE-P0` (caller-zero pre-effect implementation; no physical/production effects authorized)
+Current row: ConstI64 leaf-emitter S0 is closed; the next operation kind requires a separate design row (no physical/production effects authorized)
 
 Correction task: `docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md`
 
@@ -1167,7 +1167,8 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` | complete Callable/G0 operation/effect products + neutral continuation -> full move-only demand -> `prepare_all` | seven- and fifteen-row complete semantic preflight, Recipe-derived schedule, exact coverage, Builder effect zero | closed; no physical block, leaf emitter, function session, Return/DraftSeal/publication/selector/retry/fallback/legacy deletion |
 | `LOOP-RECIPE-PHYSICALIZER-MODULE-SPLIT-R0` | flat topology canary -> `loop_recipe_physicalizer/{mod,topology,tests}.rs` facade | behavior unchanged; old flat file deleted; no new operation shape or physical owner | closed; physical block receipt, leaf emission, selector, retry/fallback, production, and legacy deletion remain closed |
 | `LOOP-RECIPE-PHYSICAL-BLOCK-RECEIPT-P0` | canonical topology allocation -> private logical Loop/Block/role to physical `BasicBlockId` receipt | exact owner/preheader/role lookup; no duplicate placement owner; topology behavior unchanged | closed; no leaf emission, session, selector, retry/fallback, production, or legacy deletion |
-| `LOOP-RECIPE-OPERATION-EMITTER-CONST-S0` | private prepared ConstI64 + zero-input entry + exact physical-block receipt -> one leaf emission | exact placement, success/failure whole-session discard, fresh-session semantic repeat, all touched files under 800 lines | current row; no full Recipe physicalization, continuation, Return/DraftSeal/publication/selector/retry/fallback/legacy deletion |
+| `LOOP-RECIPE-OPERATION-EMITTER-CONST-S0` | private prepared ConstI64 + zero-input entry + exact physical-block receipt -> one leaf emission | exact placement, success/failure whole-session discard, fresh-session semantic repeat, all touched files under 800 lines | closed; no full Recipe physicalization, continuation, Return/DraftSeal/publication/selector/retry/fallback/legacy deletion |
+| `LOOP-RECIPE-OPERATION-EMITTER-READ-DESIGN0-D0` | design-only ReadBinding leaf boundary | exact source/effect anchor, canonical BindingSSA read receipt, result publication, and failure boundary are fixed before Builder mutation | current design stop; no implementation, full-demand extraction, production selection, retry/fallback, or legacy deletion |
 
 ### Coverage, cutover, and retirement
 

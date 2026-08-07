@@ -52,6 +52,14 @@ impl ReadyLoopEntryV1 {
             rows: rows.into_boxed_slice(),
         }
     }
+
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(super) const fn preheader(&self) -> BasicBlockId {
+        self.preheader
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
