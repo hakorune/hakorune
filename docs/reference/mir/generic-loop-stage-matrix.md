@@ -44,13 +44,13 @@ caller-zero AST-free observation only; it is not a Generic winner oracle.
 test-only topology/After canary. It consumes the shared move-only demand and
 session-local entry receipt to construct recursive logical
 child/header/body/step/After topology, but it does not emit operation MIR.
-The current row is the caller-zero passive
-`LOOP-RECIPE-OPERATION-EFFECT-S0` product. It defines an item-keyed exact
-source/effect ledger for `ReadBinding`, `WriteBinding`, constants,
+The passive `LOOP-RECIPE-OPERATION-EFFECT-S0` product and both profile
+adapters are caller-zero evidence. The neutral contract defines an item-keyed
+exact source/effect ledger for `ReadBinding`, `WriteBinding`, constants,
 comparisons, and arithmetic, but it does not emit operation MIR. Generic G0
-remains a separate caller-zero profile and is not relabeled as the callable
-physicalizer. No selector, retry/fallback, production caller, or legacy
-deletion is implied.
+remains a separate profile and is not relabeled as the callable physicalizer.
+The current row is cross-profile callable/G0 evidence parity. No selector,
+retry/fallback, production caller, or legacy deletion is implied.
 
 The P0 test canary is now landed: `VerifiedLoopPhysicalBoundaryV1` and the
 private `ReadyLoopEntryV1` are consumed by one recursive topology probe, which
@@ -84,9 +84,23 @@ input, semantic context, and continuation remain in one thin profile wrapper;
 no operation/effect/Recipe truth is copied.
 
 No Builder/MIR, selector, retry/fallback, production caller, or legacy
-deletion is opened. The current next row is the explicit Generic G0
-item-to-anchor ledger, followed by cross-profile parity and only then
-operation physicalization.
+deletion is opened. The Generic G0 anchor row is now also closed: its producer
+issues the exact 15 item keys before source facts are dropped, with item 3 as
+the existing child-entry `DerivedCarrierEntry` for carrier 2. Item 4, C0/C1
+carriers, and Generic tail reads remain outside this product. The current next
+row is cross-profile callable/G0 evidence parity; operation physicalization
+remains closed.
+
+## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
+
+`LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0` is closed as a caller-zero
+passive adapter. The exact item keys are
+`0,1,2,3,5,6,7,8,9,10,11,12,13,14,15`; the neutral verifier confirms
+Recipe-derived block/loop placement, owner/source provenance, and exact Core
+binding effects. Duplicate, missing, foreign-owner, and wrong-placement
+rejection coverage remains green. This receipt opens no operation MIR, parity
+selection, physicalizer, retry/fallback, production caller, or legacy
+deletion.
 
 ## S0A implementation receipt
 

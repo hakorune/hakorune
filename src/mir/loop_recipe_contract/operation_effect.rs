@@ -290,7 +290,14 @@ fn require_binding(
         return Err(LoopOperationEffectRejectV1::OperandClassMismatch { item });
     }
     let role_matches = if expected_read {
-        matches!(row.role(), LoopBindingEffectRoleV1::SourceRead { .. })
+        match evidence.anchor() {
+            LoopBindingEffectAnchorV1::DerivedCarrierEntry { .. } => {
+                matches!(row.role(), LoopBindingEffectRoleV1::DerivedCarrierEntry)
+            }
+            LoopBindingEffectAnchorV1::Expr(_) => {
+                matches!(row.role(), LoopBindingEffectRoleV1::SourceRead { .. })
+            }
+        }
     } else {
         matches!(row.role(), LoopBindingEffectRoleV1::SourceWrite { .. })
     };

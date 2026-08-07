@@ -5,6 +5,7 @@
 //! JoinSig elaboration, and source-bound Core remain shared owners.
 
 mod after;
+mod operation_effect;
 mod producer;
 mod recipe;
 mod relations;

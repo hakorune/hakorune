@@ -729,8 +729,9 @@ cannot be guessed or matched by name.
 
 ### Operation/effect design boundary
 
-The next design row is deliberately a relation product, not a new operation
-owner:
+The operation/effect relation product and both profile adapters are now
+closed caller-zero cells. They remain one relation product, not a new
+operation owner:
 
 ```text
 Recipe:
@@ -763,22 +764,23 @@ Coverage is by Recipe operation item, not by every Core effect row. Each
 `LoopRecipeItemV1::Operation` has one exact source-evidence row;
 `ReadBinding`/`WriteBinding` rows may additionally reference their sealed Core
 effect row, while literal/compare/binary rows need no binding-effect row.
-Structural carrier rows and callable Tail/After reads remain with their
-existing owners, and their explicit non-consumption is not a silent drop.
+Most structural carrier rows and callable Tail/After reads remain with their
+existing owners. The nested Generic G0 item 3 is the explicit exception: its
+`ReadBinding` operation uses the existing child-entry
+`DerivedCarrierEntry` anchor for carrier 2, and the Core effect relation must
+match that anchor exactly. Item 4, C0/C1 carriers, and Generic tail reads stay
+outside the operation product.
 
-`DerivedCarrierEntry` remains outside the operation/effect rows
-because it has no `LoopRecipeItemV1::Operation` row; if a profile needs its
-anchor as an input witness, it remains explicitly typed as a carrier witness.
 Duplicate item keys, foreign or missing anchors, wrong block/loop membership,
 and repeated-ordinal ambiguity are typed `NoSafeSlice`. No operation MIR is
-opened by this design row. The product must be issued before the P0
-topology-only `into_physical_boundary` path, which intentionally drops source
-anchors; P0 cannot be reused as the operation-D0 source.
+opened by these passive rows. Each profile product must be issued before the
+P0 topology-only `into_physical_boundary` path, which intentionally drops
+source anchors; P0 cannot be reused as the operation source.
 
 `LOOP-PHYSICAL-PREPARE-P0`, the static-call fixture/profile, and
 `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed caller-zero prerequisites. The
-current design-only row is
-`docs/development/current/main/investigations/loop-recipe-operation-effect-plan-d0-task-2026-08-07.md`;
+current implementation-ready row is
+`docs/development/current/main/investigations/loop-recipe-operation-effect-cross-profile-parity-s0-task-2026-08-07.md`;
 it does not claim callable physical completion, production selection, M8/M9
 coverage, or retirement.
 
@@ -814,7 +816,8 @@ The architecture, `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, bounded
 `RECIPE-COSEAL-I0-R0`, callable static-prefix prepare, and Prelude argument
 receipt are closed under the typed-receipt and no-reinference contract above.
 The topology/After canary `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed.
-The current boundary is the design-only
-`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`; operation emission requires its
-item-keyed source/effect product, and callable physical completion, production
-selection, retry/fallback retirement, and legacy deletion remain closed.
+The operation/effect plan, passive product, Callable adapter, and Generic G0
+15-row anchor ledger are closed. The current boundary is
+`LOOP-RECIPE-OPERATION-EFFECT-CROSS-PROFILE-PARITY-S0`; operation emission,
+callable physical completion, production selection, retry/fallback retirement,
+and legacy deletion remain closed.

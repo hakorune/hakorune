@@ -81,9 +81,11 @@ the passive `LOOP-RECIPE-OPERATION-EFFECT-S0` product: it issues an item-keyed
 exact source/effect ledger before operation emission is opened. The product is
 test-only, moves the verified Core once, and emits no operation MIR, Return,
 DraftSeal, selector, retry, fallback, or production route. The callable
-adapter is now closed as a separate source-evidence receipt; its next row is
-the Generic G0 anchor ledger. Cross-profile parity and physical operation
-lowering remain closed.
+ adapter is now closed as a separate source-evidence receipt. The Generic G0
+ anchor ledger is also closed: its 15 item keys are issued before source facts
+ are dropped, with item 3 matching the child-entry carrier relation. The next
+ row is cross-profile callable/G0 evidence parity. Cross-profile parity and
+ physical operation lowering remain closed.
 
 ## Caller-zero Loop physical prepare
 

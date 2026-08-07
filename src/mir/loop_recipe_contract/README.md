@@ -108,8 +108,11 @@ The callable adapter row is now closed separately. It consumes the callable
 source relations once, checks the transient operation view against the sealed
 Recipe, derives Core placement/effect evidence, and issues this neutral
 product while retaining Prelude/Tail/context in a thin profile wrapper. The
-next row is the explicit Generic G0 anchor ledger; parity and physicalization
-remain closed.
+Generic G0 anchor row is now also closed. The producer issues the explicit
+15-row item-to-anchor ledger before source facts leave its boundary; item 3 is
+the existing child-entry `DerivedCarrierEntry` for carrier 2. Item 4, C0/C1
+carriers, and Generic tail reads remain outside this product. The next row is
+cross-profile callable/G0 evidence parity; physicalization remains closed.
 
 ## Generic legacy corpus inventory
 

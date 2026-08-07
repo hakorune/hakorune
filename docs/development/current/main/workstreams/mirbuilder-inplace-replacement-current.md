@@ -501,32 +501,34 @@ closed:
   LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0
   LOOP-RECIPE-OPERATION-EFFECT-S0
   LOOP-RECIPE-OPERATION-EFFECT-CALLABLE-ADAPTER-S0
-
-current:
   LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
 
+current:
+  LOOP-RECIPE-OPERATION-EFFECT-CROSS-PROFILE-PARITY-S0
+
 Change:
-  issue the explicit Generic G0 item-to-anchor ledger before source facts are
-  dropped, then adapt it to the neutral operation/effect product. Keep this
-  caller-zero and passive; do not open parity, physical MIR, or production.
+  compare the callable and Generic G0 adapters through the one neutral
+  operation/effect contract. Keep profile item sets, carrier/Tail/After
+  ownership, and source anchors distinct; keep this caller-zero and passive.
 
 Contract:
   no source/name/order guessing, copied or reverified Recipe truth, second
-  operation owner, source facts dropped before ledger issuance, Generic G0
-  relabel, cross-profile parity, operation MIR, production selector, retry,
+  operation owner, profile relabel, operation MIR, production selector, retry,
   fallback, Return, DraftSeal, publication, or legacy deletion.
 
 Done:
   Callable adapter S0 consumes the callable co-seal once, proves transient
   operation views against Recipe items, derives exact placement/effect
-  evidence, and issues the neutral product without a second Core. The next
-  Generic ledger must issue the 15 explicit anchor rows before source facts
-  are dropped; no production caller or operation MIR exists. Exact MIR
-  references, README, CURRENT_STATE, and this receipt were updated in the
-  adapter commit; source/check files remain below 800.
+  evidence, and issues the neutral product without a second Core. Generic G0
+  S0 now issues all 15 explicit anchors before source facts are dropped,
+  including the child-entry carrier relation for item 3. The neutral product
+  accepts the profile ledger without a copied Core or effect catalog; no
+  production caller or operation MIR exists. Exact references, README,
+  CURRENT_STATE, and the task receipt were updated in the ledger commit;
+  source/check files remain below 800.
 
 Stop:
-  cross-profile parity, operation MIR, a new Recipe kind, profile
+  operation MIR, a new Recipe kind, profile
   physicalizer, copied source truth, name/ordinal matching, source-fact drop
   before ledger issuance, Return/DraftSeal/publication, selector, fallback,
   retry, or legacy deletion in the Generic row. A failed focused gate returns

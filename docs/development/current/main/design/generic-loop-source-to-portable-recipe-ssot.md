@@ -1010,6 +1010,20 @@ GENERIC-G0-RECIPE-S4-I0-R0
   closed 2026-08-07; deterministic caller-zero Recipe producer, exact golden
   and ten-row relation matrix; no production caller
 
+LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
+  closed 2026-08-07; the Generic producer issues the explicit 15-row
+  item-to-anchor ledger before structural source facts leave its boundary and
+  adapts it to the neutral operation/effect product. Item 3 is the existing
+  child-entry `DerivedCarrierEntry` for carrier 2; item 4, C0/C1 carriers, and
+  Generic tail reads remain outside the operation product. No operation MIR,
+  parity, physicalizer, selector, retry/fallback, or legacy deletion.
+
+LOOP-RECIPE-OPERATION-EFFECT-CROSS-PROFILE-PARITY-S0
+  implementation-ready; compare only the shared neutral operation/effect
+  contract between callable and Generic G0. Profile item counts, source
+  preorder, carrier/Tail/After ownership, and profile-specific anchors remain
+  distinct.
+
 GENERIC-LEGACY-CORPUS-UNIVERSE-P0
   normalize active fast/selfhost/smoke/fixture cohorts without guessing the route
 
@@ -1130,6 +1144,7 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `GENERIC-G0-SELECTOR-S2` | Ready five-row window -> Selected(Generic) / Rejected(Overlap) / Unresolved(OutOfWindow) | one Generic plus four Declined selects its move-only candidate; two or more candidates reject with all evidence; five Declined is OutOfWindow; legacy schedule imports zero | semantic caller remains zero; assembler failures never enter S2; no whole-unit NoCandidate, demand, Recipe, or production switch |
 | `GENERIC-G0-DEMAND-S3` | `Selected(Generic(candidate))` -> `VerifiedGenericRecipeDemandG0` | selected capability consumed once; role/site/BindingRef lease exact; by-name repair zero | no Recipe key, ValueId, or PHI |
 | `GENERIC-G0-RECIPE-S4` | S3 + common S0 services -> exact Recipe/relations/core/After/product | D0 accepted and I0/R0 landed 2026-08-07: deterministic golden, three carrier rows, child-entry read, C1/C2, ten-row relation matrix, tail/ABI relation, and common typed rejects are green | no physical MIR, executable completion, or production caller |
+| `LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0` | Generic G0 S4 product + resolver-backed source sites -> explicit 15-row item/anchor ledger -> neutral operation/effect product | landed 2026-08-07: item keys `0,1,2,3,5,6,7,8,9,10,11,12,13,14,15`; item 3 matches child-entry `DerivedCarrierEntry` carrier 2; common duplicate/missing/foreign/wrong-placement rejects are green | no cross-profile parity, operation MIR, physicalizer, selector, retry/fallback, or production caller |
 
 ### Physical proof without production
 

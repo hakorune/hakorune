@@ -1,6 +1,7 @@
 use super::producer::produce_generic_g0_recipe_v1;
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::loop_recipe_contract::generic_g0_demand::issue_generic_g0_recipe_demand_v1;
+use crate::mir::loop_recipe_contract::{LoopBindingEffectAnchorV1, LoopItemKeyV1};
 use crate::mir::loop_route_policy::generic_selection_for_test;
 
 #[test]
@@ -16,6 +17,28 @@ fn generic_g0_recipe_producer_seals_one_complete_product() {
     assert_eq!(recipe.values.len(), 15);
     assert_eq!(product.core().binding_relations().len(), 2);
     assert_eq!(product.core().effect_relations().len(), 10);
+    assert_eq!(product.operation_effect().evidence().len(), 15);
+    let items = product
+        .operation_effect()
+        .evidence()
+        .iter()
+        .map(|row| row.item().raw())
+        .collect::<Vec<_>>();
+    assert_eq!(
+        items,
+        vec![0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    );
+    let child_entry = product
+        .operation_effect()
+        .evidence()
+        .iter()
+        .find(|row| row.item() == LoopItemKeyV1::new(3))
+        .expect("G0 child-entry operation");
+    assert!(matches!(
+        child_entry.anchor(),
+        LoopBindingEffectAnchorV1::DerivedCarrierEntry { carrier, .. }
+            if carrier.raw() == 2
+    ));
     assert_eq!(product.after().after_binding().loop_key().raw(), 0);
     assert_eq!(product.after().after_binding().binding().raw(), 1);
     assert_eq!(product.after().return_abi(), ExactTrivialReturnAbiV1::I64);

@@ -21,6 +21,7 @@ use super::super::super::loop_recipe_contract::source_bound_core::{
 };
 use super::super::super::loop_recipe_contract::verify::LoopRecipeVerifierV1;
 use super::after::{issue_after, GenericG0AfterRejectV1, VerifiedGenericAfterEffectG0};
+use super::operation_effect::issue_generic_g0_operation_effect_v1;
 use super::recipe::{generic_g0_recipe, GenericG0RecipeShapeRejectV1};
 use super::relations::{build_relations, GenericG0RelationRejectV1};
 
@@ -39,18 +40,25 @@ pub(crate) enum GenericG0RecipeProducerRejectV1 {
     Relations(GenericG0RelationRejectV1),
     Core(LoopRecipeRejectReasonV1),
     After(GenericG0AfterRejectV1),
+    OperationEffect(super::super::operation_effect::LoopOperationEffectRejectV1),
 }
 
 #[derive(Debug)]
 pub(crate) struct VerifiedGenericRecipeProductG0 {
-    core: VerifiedLoopCoreProductV1,
+    operation_effect: super::super::operation_effect::VerifiedLoopOperationEffectProductV1,
     after: VerifiedGenericAfterEffectG0,
     target: NumericTarget,
 }
 
 impl VerifiedGenericRecipeProductG0 {
     pub(crate) fn core(&self) -> &VerifiedLoopCoreProductV1 {
-        &self.core
+        self.operation_effect.core()
+    }
+
+    pub(crate) fn operation_effect(
+        &self,
+    ) -> &super::super::operation_effect::VerifiedLoopOperationEffectProductV1 {
+        &self.operation_effect
     }
 
     pub(crate) fn after(&self) -> &VerifiedGenericAfterEffectG0 {
@@ -62,7 +70,8 @@ impl VerifiedGenericRecipeProductG0 {
     }
 
     pub(crate) fn into_physical_boundary(self) -> VerifiedLoopPhysicalBoundaryV1 {
-        VerifiedLoopPhysicalBoundaryV1::from_parts(self.core, self.after.into_after_binding())
+        let (core, _) = self.operation_effect.into_parts();
+        VerifiedLoopPhysicalBoundaryV1::from_parts(core, self.after.into_after_binding())
     }
 }
 
@@ -97,7 +106,7 @@ pub(crate) fn produce_generic_g0_recipe_v1(
         root_body,
         child_body,
         root_loop,
-        _child_loop,
+        child_loop,
         outer_condition,
         inner_condition,
         outer_update,
@@ -167,6 +176,18 @@ pub(crate) fn produce_generic_g0_recipe_v1(
     .map_err(GenericG0RecipeProducerRejectV1::Relations)?;
     let core = issue_source_bound_core_v1(verified_artifact, join_sig, owner, bindings, effects)
         .map_err(GenericG0RecipeProducerRejectV1::Core)?;
+    let operation_effect = issue_generic_g0_operation_effect_v1(
+        core,
+        &root_loop,
+        &child_loop,
+        child_anchor,
+        &outer_condition,
+        &inner_condition,
+        &outer_update,
+        &inner_update,
+        &tail,
+    )
+    .map_err(GenericG0RecipeProducerRejectV1::OperationEffect)?;
     let after = issue_after(
         after_binding,
         post_loop_read,
@@ -177,7 +198,7 @@ pub(crate) fn produce_generic_g0_recipe_v1(
     )
     .map_err(GenericG0RecipeProducerRejectV1::After)?;
     Ok(VerifiedGenericRecipeProductG0 {
-        core,
+        operation_effect,
         after,
         target: numeric.target(),
     })

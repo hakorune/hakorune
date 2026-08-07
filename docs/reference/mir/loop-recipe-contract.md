@@ -288,8 +288,9 @@ and missing evidence, foreign owner, wrong placement, and fabricated binding
 evidence on a pure operation. This row emits no operation MIR, ValueId,
 BasicBlockId, Return, DraftSeal, selector, retry, fallback, or production
 route. The Callable source-evidence adapter is now a separate closed receipt;
-the current next row is the Generic G0 anchor ledger. Cross-profile parity and
-operation physicalization remain closed.
+the Callable source-evidence adapter and Generic G0 anchor ledger are separate
+closed receipts; cross-profile parity is now the current next row and
+operation physicalization remains closed.
 
 ## Callable operation/effect adapter S0 (2026-08-07)
 
@@ -303,8 +304,25 @@ Tail, input, semantic context, and continuation in one profile wrapper.
 
 No operation view, operand, binding relation, effect catalog, or second Core
 is copied. The adapter has no Builder/MIR, selector, retry, fallback, Return,
-DraftSeal, publication, or production authority. The next row is the explicit
-Generic G0 item-to-anchor ledger, followed by cross-profile evidence parity.
+DraftSeal, publication, or production authority. The Generic G0 anchor row is
+also closed: its producer issues the explicit 15-row item-to-anchor ledger
+before source facts leave the producer boundary, with item 3 as the existing
+child-entry `DerivedCarrierEntry` for carrier 2. Item 4, C0/C1 carriers, and
+Generic tail reads remain outside the operation product. The current next row
+is cross-profile callable/G0 evidence parity.
+
+## Cross-profile operation/effect parity boundary (2026-08-07)
+
+The next caller-zero row compares the callable and Generic G0 adapters only
+through `VerifiedLoopOperationEffectProductV1`. It checks one schema, one
+item-keyed coverage rule, one owner/source provenance rule, one Recipe-derived
+placement rule, one Core effect matching rule, and one typed rejection family.
+It does not compare profile item counts or source preorder: callable has seven
+items, Generic G0 has fifteen, and Generic item 3 is a profile-specific
+`DerivedCarrierEntry`. Prelude/Tail and After/tail reads remain separate.
+
+No operation MIR, physicalizer, selector, retry/fallback, publication, or
+legacy deletion is opened by this boundary.
 
 ## Callable source-shape split receipt (2026-08-07)
 

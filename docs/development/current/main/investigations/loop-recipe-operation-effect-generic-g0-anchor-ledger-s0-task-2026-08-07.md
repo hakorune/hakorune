@@ -1,6 +1,6 @@
 # Generic G0 operation/effect anchor ledger S0
 
-Status: `IMPLEMENTATION-READY`
+Status: `CLOSED`
 Date: 2026-08-07
 Parent: `LOOP-RECIPE-OPERATION-EFFECT-CALLABLE-ADAPTER-S0`
 Authority:
@@ -100,3 +100,22 @@ separate receipts.
 The next row after this ledger is cross-profile callable/G0 evidence parity.
 Only after parity is sealed may the operation physicalizer be designed or
 implemented.
+
+## Implementation receipt (2026-08-07)
+
+The caller-zero Generic G0 producer now issues the exact 15-row ledger before
+its structural source facts leave the producer boundary. Item 3 is represented
+as the existing child-loop `DerivedCarrierEntry` (carrier 2), while item 4,
+C0/C1 carriers, and the Generic tail read remain outside this operation
+product. The ledger is adapted directly into the neutral
+`VerifiedLoopOperationEffectProductV1`; Recipe item placement and Core effect
+relations remain the only semantic authorities.
+
+The focused Generic G0 suite (42 tests) and operation/effect suite (6 tests)
+are green. The neutral product's duplicate, missing, foreign-owner, and
+wrong-placement rejects remain covered. No Builder/MIR, parity, selector,
+retry/fallback, or legacy-deletion authority opened.
+
+The next implementation-ready row is the cross-profile callable/G0 evidence
+parity task. Its reference updates are required in the same commit as its
+implementation.
