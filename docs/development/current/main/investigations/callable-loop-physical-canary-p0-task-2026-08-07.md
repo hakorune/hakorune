@@ -10,13 +10,16 @@ North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot
 The bounded ConstI64 S0 and ReadBinding I0 leaves are landed. The current
 operation boundary now also has an exact per-row target receipt and a
 phase-separated `emit_all` path. The remaining implementation is the first
-full callable physicalization canary:
+full callable physicalization canary. Its immediate prerequisite is a sealed
+Loop After continuation; the current open After receipt cannot be read by
+Tail:
 
 ```text
 PreparedCallableLoopPhysicalizationV1
   -> fresh CanonicalFunctionLoweringSessionV1
   -> explicit Prelude/entry receipt
   -> complete callable Loop operation program
+  -> sealed Loop After continuation
   -> distinct callable Tail
   -> CanonicalSsaFunctionSessionV2::finish_for_draft_seal
   -> DraftSeal prepare/commit
@@ -108,6 +111,12 @@ The physicalizer must not inspect AST, resolve names, infer Tail from a
 BindingRef, create a second SSA/CFG/PHI owner, or use profile-specific route
 labels. Loop continuation and callable Tail remain distinct contracts.
 
+Tail-only lowering is an explicit `NoSafeSlice` at this row boundary. The
+current topology receipt is open allocation evidence, not a Tail-readable
+After. `CALLABLE-LOOP-AFTER-CLOSURE-P0` must close the fixed callable CFG and
+identity state first; only its one-shot `ReadyLoopAfterContinuationV1` may be
+consumed by the later Tail adapter.
+
 ## Execution stages
 
 1. Close the bounded API gaps above with private/test-only adapters and
@@ -123,8 +132,10 @@ labels. Loop continuation and callable Tail remain distinct contracts.
    canonical CFG session.
 6. Bind the complete operation schedule to those blocks and emit all supported
    operations through the common physicalizer.
-7. Open the Loop continuation, materialize the callable Tail, and claim the
-   exact completion operand through existing owners.
+7. First complete `CALLABLE-LOOP-AFTER-CLOSURE-P0`: emit the fixed CFG edges,
+   seal CFG and identity, and issue one `ReadyLoopAfterContinuationV1`. An
+   open topology receipt is not Tail-readable. Then materialize the callable
+   Tail and claim the exact completion operand through existing owners.
 8. Close the function only through `finish_for_draft_seal`, then pass the
    ready draft through the existing DraftSeal prepare/commit path.
 9. Exercise both success and post-emission failure. Every failure discards

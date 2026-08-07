@@ -112,9 +112,9 @@ Related:
   target receipts are batch-validated before the first leaf effect and
   failure-phase separation is now landed; complete
   physical `emit_all`,
-  exact Tail handoff, and fresh-session
+  sealed After continuation closure before exact Tail handoff, then fresh-session
   `finish_for_draft_seal` -> DraftSeal integration before claiming the full
-  caller-zero Prelude -> Loop -> distinct Tail canary. Prelude materialization
+  caller-zero Prelude -> Loop -> sealed After -> distinct Tail canary. Prelude materialization
   is now closed as a caller-zero receipt: the external Prelude result and the
   distinct Loop initializer are published through canonical identity into
   separate bindings. The complete

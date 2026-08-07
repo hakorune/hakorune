@@ -438,10 +438,14 @@ Logical keys map to physical owners as follows:
 | `LoopItemKey` + owning block + value keys | common recursive physicalizer |
 | JoinSig port/edge role | canonical CFG allocation and sealing |
 | carrier obligation | canonical identity plus the one PHI transaction |
-| Loop After capability | open continuation result only |
+| Loop After capability | open allocation result first; sealed `ReadyLoopAfterContinuationV1` before any Tail read |
 | terminal Tail capability | outer callable lowerer and completion consumer |
 
-The physicalizer returns an open After/continuation receipt. It must not write
+The topology physicalizer initially returns an open After/continuation receipt.
+That receipt is not readable by Tail. A callable profile must first consume it,
+issue the verified CFG edges, seal CFG and identity for every loop block, and
+mint one session-local `ReadyLoopAfterContinuationV1`. Only that sealed receipt
+may be passed to the outer Tail handoff. The physicalizer must not write
 `Return`, take the function, publish a draft, or close the module.
 
 ### Session-local entry receipt
@@ -547,17 +551,18 @@ The target order is:
 ```text
 1. materialize verified callable prelude and Recipe inputs
 2. physicalize the recursive Loop, leaving After open
-3. materialize the verified Tail operand and claim completion once
-4. consume profile-specific ledgers -> ReadyCanonicalProfileCloseV1
-5. close semantic scopes and seal the After/terminal CFG
-6. finish CanonicalCfgSessionV1
-7. finish semantic, If-control, and identity/BindingSSA preconditions
-8. commit the one PhiTxn
-9. finish the remaining resolved-binding ledger and
+3. close the fixed profile's CFG edges and seal the After continuation
+4. materialize the verified Tail operand and claim completion once
+5. consume profile-specific ledgers -> ReadyCanonicalProfileCloseV1
+6. close semantic scopes and seal the terminal CFG
+7. finish CanonicalCfgSessionV1
+8. finish semantic, If-control, and identity/BindingSSA preconditions
+9. commit the one PhiTxn
+10. finish the remaining resolved-binding ledger and
    ResolvedFunctionCompletionConsumptionV1
-10. issue ReadyFunctionDraftSealV1
-11. prepare every detached DraftSeal check
-12. commit DraftSeal once
+11. issue ReadyFunctionDraftSealV1
+12. prepare every detached DraftSeal check
+13. commit DraftSeal once
 ```
 
 The current production resolved DirectAccum lowerer is a parity oracle, not the
@@ -690,9 +695,10 @@ parks it. Shape similarity must not relabel it as LoopV0 or Generic G0, and a
 
 ## Finite implementation ladder
 
-This D0 closes the common demand, fresh-session, failure-discard, and
-completion/DraftSeal architecture together. Do not reopen them as a deep chain
-of nested design suffixes unless a code audit proves one named missing owner.
+The bounded design is closed, but physical activation is intentionally split
+into three mechanical commits. This is not a new semantic ladder: each row
+consumes an existing owner and has one named temporal prerequisite. Do not
+skip the After closure or reopen a Tail-only route.
 
 | Order | Row | One claim | Stop line |
 | ---: | --- | --- | --- |
@@ -703,8 +709,10 @@ of nested design suffixes unless a code audit proves one named missing owner.
 | 4 | `GENERIC-G0-PHYSICAL-PREPARE-P0` | exact-move G0 adapter issues the same inner demand plus distinct G0 Tail | `NoSafeSlice` if source truth must be copied or reverified |
 | 5 | `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` | resolver-issued variable-only i64 argument rows -> one move-only Prelude product | caller-zero; no Builder physicalizer or selector |
 | 6 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | closed test-only inner demand + `ReadyLoopEntryV1` + borrowed V2 services -> topology/After continuation | no production caller; operation MIR remains `NoSafeSlice` |
-| 7 | `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` | **current design stop:** define one neutral `LoopItemKey` + exact source-anchor effect projection before operation emission | design-only; no new semantic owner or production caller |
-| 8 | `CALLABLE-LOOP-PHYSICAL-CANARY-P0` | exact Prelude -> Loop -> distinct Tail -> typed function finish -> DraftSeal on one fresh unpublished function | caller-zero; late failure discards whole session |
+| 7 | `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` | one neutral `LoopItemKey` + exact source-anchor effect projection before operation emission | closed preparation; no production caller |
+| 8 | `CALLABLE-LOOP-AFTER-CLOSURE-P0` | complete fixed callable operation schedule, issue CFG edges, seal CFG/identity, and mint one `ReadyLoopAfterContinuationV1` | open After is not Tail-readable; no Tail/Completion/DraftSeal |
+| 9 | `CALLABLE-LOOP-TAIL-COMPLETION-P0` | consume sealed After, read exact Tail binding, `mark_return`, and claim completion once | no DraftSeal, selector, retry, or fallback |
+| 10 | `CALLABLE-LOOP-DRAFT-SEAL-P0` | consume profile close, call only `finish_for_draft_seal`, then DraftSeal prepare/commit | caller-zero only; production selection and legacy deletion remain closed |
 | 9 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
 | 10 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
 | 11 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
@@ -933,10 +941,11 @@ terminated block; and late emission failure.
 This D0/I0 boundary claims no full-demand extraction API, AST reread, second
 CFG/SSA/PHI/catalog owner, derived/G0 carrier bridge, other operation kinds,
 return/seal/module publication, selector, retry/fallback, legacy retirement,
-or performance result. The bounded implementation is landed; the separate
-`CALLABLE-LOOP-PHYSICAL-CANARY-P0` card is now the only authorized next
-implementation row and must update reference documentation in the same
-commit as code and focused tests.
+or performance result. The bounded implementation is landed. The current
+authorized row is `CALLABLE-LOOP-AFTER-CLOSURE-P0`; Tail-only lowering is a
+NoSafeSlice until its sealed After receipt exists. Each subsequent Tail and
+DraftSeal slice must update reference documentation in the same commit as
+code and focused tests.
 
 #### ReadBinding source/effect mapping matrix
 
@@ -1105,7 +1114,8 @@ ledger. The physical operation boundary now issues one exact
 logical-to-physical target receipt per row, validates all target blocks before
 the first leaf effect, and separates target/pre-claim physical failure from
 semantic preflight. The next mechanical boundary is
-exact Prelude materialization, Tail-to-ValueId/completion claim, and fresh
-session/DraftSeal integration. Until those are landed, full callable physicalization,
+canonical continuation closure (`CALLABLE-LOOP-AFTER-CLOSURE-P0`). Tail-to-ValueId
+is blocked until a sealed After receipt exists; after that, completion claim and
+fresh session/DraftSeal integration proceed as separate slices. Until those are landed, full callable physicalization,
 production selection, Generic G0 parity, retry/fallback retirement, and
 legacy deletion stay closed.

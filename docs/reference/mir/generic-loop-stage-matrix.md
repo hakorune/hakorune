@@ -160,10 +160,12 @@ seam now issues one exact logical-to-physical target receipt per row and
 separates semantic preflight from post-claim physical failure. The exact
 Prelude receipt is now landed: the resolver-backed Prelude result and the
 distinct Loop initializer are published separately into one session-local
-`ReadyLoopEntryV1`; the two bindings are never conflated. Tail-to-ValueId/
-completion claim, fresh callable session completion, and DraftSeal path remain
-open. Generic G0 parity, production selection, retry/fallback, and legacy
-deletion remain closed.
+`ReadyLoopEntryV1`; the two bindings are never conflated. The topology After
+receipt is still open allocation evidence, so Tail-to-ValueId is blocked until
+`CALLABLE-LOOP-AFTER-CLOSURE-P0` seals CFG/identity and issues one
+`ReadyLoopAfterContinuationV1`. Completion claim, fresh callable session
+completion, and DraftSeal remain later slices. Generic G0 parity, production
+selection, retry/fallback, and legacy deletion remain closed.
 
 ## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
 

@@ -112,9 +112,10 @@ exact resolver-backed argument bindings are read through canonical identity,
 the external Prelude result is emitted through the shared direct-call emitter,
 and the Loop initializer is materialized from its exact source site into a
 separate `ReadyLoopEntryV1` binding/value. The Prelude result local is not the
-Loop input and is never used as an implicit entry value. Full `emit_all`
-completion, callable Tail-to-ValueId, `finish_for_draft_seal`, and DraftSeal
-integration remain the next implementation boundary.
+Loop input and is never used as an implicit entry value. Tail-only lowering is
+blocked while the topology After receipt is open; next is
+`CALLABLE-LOOP-AFTER-CLOSURE-P0`, then Tail/Completion and
+`finish_for_draft_seal`/DraftSeal integration.
 
 ## Full operation demand P0
 

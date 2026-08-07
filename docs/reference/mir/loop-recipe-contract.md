@@ -254,7 +254,11 @@ bindings. The adapter rejects missing or mismatched input declarations and
 unsupported initializer shapes; it does not infer one binding from the other,
 search the AST by name, or pass the Prelude result as the Loop entry value.
 The focused canary emits exactly one static call and one entry initializer,
-then discards the unpublished function session. Tail, Completion,
+then discards the unpublished function session. The topology After receipt is
+still open allocation evidence and is not readable by Tail. The next bounded
+row is `CALLABLE-LOOP-AFTER-CLOSURE-P0`, which must emit the fixed CFG edges,
+seal CFG/identity, and issue one session-local `ReadyLoopAfterContinuationV1`.
+Only that sealed receipt may feed Tail. Tail, Completion,
 `finish_for_draft_seal`, DraftSeal, operation `emit_all`, and production
 selection remain closed.
 
@@ -652,8 +656,10 @@ joins prepared rows across all five operation families with an opaque typed
 value ledger. The physical dispatcher now issues one exact
 logical-to-physical target receipt per row, validates all target blocks before
 the first leaf effect, and distinguishes semantic preflight from post-claim
-physical failure. Exact Prelude materialization,
-Tail-to-ValueId handoff, fresh function session, `finish_for_draft_seal`, and
-DraftSeal integration remain the next bounded implementation work. No production caller,
+physical failure. Exact Prelude materialization is closed. Tail-to-ValueId is
+blocked until the open After receipt becomes a sealed
+`ReadyLoopAfterContinuationV1`; fresh function session,
+`finish_for_draft_seal`, and DraftSeal integration remain later bounded work.
+No production caller,
 selector, retry/fallback, Generic G0 parity, module publication, or legacy
 deletion is opened by this slice.
