@@ -1,9 +1,14 @@
 # LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0
 
-Status: `next design-only row`
+Status: `closed — superseded by accepted S6A design row`
 Date: `2026-08-08`
 Parent: `docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-r0-task-2026-08-08.md`
 North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
+
+Outcome: the audit selected the single shallow
+`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` source-to-Facts-to-Recipe mapping
+task. The audit itself is not an implementation authority; follow the S6A
+task for the exact membership, typed dispositions, gates, and non-claims.
 
 ## Objective
 

@@ -45,6 +45,29 @@ is not a Loop Recipe kind. M7 and M8 therefore close adapter coverage into
 this one algebra. They must not grow a parallel enum of completed source
 patterns.
 
+## Post-G0 I1 top-down audit decision (2026-08-08)
+
+Decision: accepted — the next bounded row is
+`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`.
+
+This is a design-only source-to-Facts-to-Recipe mapping prerequisite. The
+first M8 cohort must freeze one natural recurrence source shape, its exact
+resolver-owned owner/site/frame evidence, neutral structural Facts, typed
+`Candidate|Declined|Unresolved|Rejected` disposition, and the existing
+`LoopRecipeV1`/`VerifiedLoopCoreProductV1` output before implementation opens.
+The likely natural fixture is
+`apps/tests/loop_simple_while_inline_explicit_step_min.hako`, but fixture names
+and `LoopRouteId` labels are evidence only; no route-name alias is authority.
+
+The all-19 labels remain compatibility ingress identities. M8 S6A must not add
+a Recipe kind, a second selector, a route-local physicalizer, an AST-bearing
+transport, or a Builder/MIR owner. If exact neutral membership cannot be
+proved, the outcome is typed `Unresolved`/`NoSafeSlice`. M9 `.hako` parity,
+production selection, M10b cutover, retry/fallback retirement, and M11/M12
+legacy deletion remain closed until M8 S6G and the separate production design.
+The task receipt is
+`docs/development/current/main/investigations/joinir-loop-m8-loopv0-recurrence-s6a-d0-task-2026-08-08.md`.
+
 ## SSOT role disambiguation
 
 The authority split is:

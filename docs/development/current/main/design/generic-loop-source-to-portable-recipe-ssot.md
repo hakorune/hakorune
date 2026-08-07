@@ -2,7 +2,12 @@
 
 Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, RECIPE-COSEAL-D0-r1, bounded RECIPE-COSEAL-I0-R0 caller-zero implementation, CANONICAL-FUNCTION-FINISH-TERMINAL-R0 for the three V2 session lowerers, LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0, Builder-free full-demand/preflight P0, topology split/receipt P0, and ConstI64 leaf-emitter S0 are closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted; physical/production activation remains 0`
 
-Current row: ConstI64 leaf-emitter S0 is closed; the next operation kind requires a separate design row (no physical/production effects authorized)
+Current row: the accepted next row is the design-only
+`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` source-to-Facts-to-Recipe mapping;
+no M8 implementation, M9 parity, or physical/production effects are authorized.
+
+Design task:
+`docs/development/current/main/investigations/joinir-loop-m8-loopv0-recurrence-s6a-d0-task-2026-08-08.md`
 
 Correction task: `docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md`
 
@@ -11,6 +16,14 @@ coverage rows only. M7/M8 map those rows into one recursive `LoopRecipeV1`
 algebra; they do not create 19 Recipe variants. The current callable row is
 another source-to-common-algebra mapping and must not introduce a
 callable-specific or twentieth semantic Loop kind.
+
+The post-G0 I1 audit selected S6A as one shallow design row rather than a new
+deep suffix ladder. S6A must freeze exact natural source membership and a
+neutral output before implementation. `LoopRouteId` is migration evidence, not
+Recipe meaning; `AccumConstLoop`/`DirectAccumV1` receipts and the natural
+`LoopSimpleWhile` fixture must not be conflated without a source-policy proof.
+Generic residual S6E remains blocked by its unobserved corpus and is not a
+prerequisite for S6A.
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a

@@ -983,6 +983,25 @@ the parity receipt.
 This is a caller-zero physical canary only. It does not claim M8/M9 coverage,
 production selection, M10b/M11/M12 cutover, retry/fallback deletion, module
 publication policy, backend parity, or broad legacy retirement. The next row
-is the design-only `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`; no M8/M9
-implementation opens before that top-down source-to-Recipe audit. The
-reference must be updated again after production cutover.
+is the design-only
+`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`; no M8/M9 implementation opens
+before its exact source-to-Facts-to-Recipe mapping is fixed. The reference
+must be updated again after that implementation and after production cutover.
+
+## M8 S6A design-only decision (2026-08-08)
+
+The post-G0 I1 audit is now closed as a shallow design decision:
+`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` is the next row. It must first fix
+one natural recurrence source membership, resolver-owned source/frame/site
+evidence, neutral Facts, typed disposition, and an existing
+`LoopRecipeV1`/`VerifiedLoopCoreProductV1` golden. The likely fixture is
+`apps/tests/loop_simple_while_inline_explicit_step_min.hako`; its fixture name
+and any legacy `LoopRouteId` are not semantic authority.
+
+No S6A producer is claimed by this design receipt. No new Recipe kind,
+selector, physicalizer, Builder/MIR owner, M9 parity, production selection,
+retry/fallback retirement, or legacy deletion is open. If exact membership is
+not provable, the typed result is `Unresolved`/`NoSafeSlice`. After the S6A
+implementation lands, this reference and the module README must be updated in
+that same implementation commit; a final reference update is required again
+at production cutover.

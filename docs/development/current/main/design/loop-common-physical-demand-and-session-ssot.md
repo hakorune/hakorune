@@ -1460,5 +1460,7 @@ The late duplicate fixture fails after earlier emission, discards the whole
 unpublished session, and a fresh session reproduces the same semantic receipt.
 No G0-specific CFG/SSA/PHI owner, production selector, caller switch,
 retry/fallback, collector publication, backend/performance claim, M8/M9
-coverage, or M10b/M11/M12 retirement is opened. The next row is the
-design-only top-down audit `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`.
+coverage, or M10b/M11/M12 retirement is opened. The next row is the accepted
+design-only `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` source-to-Facts-to-Recipe
+mapping; implementation remains closed until its exact membership and typed
+reject boundary are fixed.

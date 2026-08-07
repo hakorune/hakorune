@@ -522,7 +522,7 @@ closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 accepted historical correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
   LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1, LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2,
   LOOP-COMMON-RECURSIVE-AFTER-R3-I0, LOOP-COMMON-PREDICATE-CARRIER-I0-R0, and LOOP-CALLER-ZERO-PARITY-G0-I1-R0.
-  Worker-reviewed G0 I1 is implemented; current execution is the design-only LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0.
+  Worker-reviewed G0 I1 is implemented; current execution is the design-only JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0 mapping row.
 Change:
   correct R3 before implementation: R2 is only an adapter over old
   Header/Body/Step/After blocks; R3 must own exact segment allocation and
@@ -979,7 +979,7 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
-  4. after closed G0 I0, complete common segment R1/block R2/recursive-After R3, then land the common Predicate/carrier I0, implement G0 I1 and M8/M9; only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
+  4. after closed G0 I1, complete the shallow M8 S6A source-to-Facts-to-Recipe design/implementation, then S6B-S6G and M9; only afterward perform the separate production-selection design, M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance

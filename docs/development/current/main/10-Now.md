@@ -169,8 +169,10 @@ Related:
   canonical carrier/Tail reads, reaches typed finish/DraftSeal, and proves
   whole-session discard followed by fresh replay. Physical G0 production
   selection, M8/M9 closure, retry/fallback retirement, and legacy deletion
-  remain closed. The next row is the design-only
-  `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0` top-down audit.
+  remain closed. The audit selected the shallow design-only
+  `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` source-to-Facts-to-Recipe mapping;
+  no implementation opens until exact source membership, typed dispositions,
+  and the existing neutral Recipe/Core golden are fixed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only
