@@ -55,6 +55,20 @@ Recipe, or create a second operation owner. The binding-effect product remains
 a separate table inside that Core. Nested loops must remain unambiguous even
 when role ordinals repeat.
 
+The join must use the existing Core's sealed effect rows. If the current Core
+API does not expose the already-sealed anchor/class needed for the join, add a
+non-authority accessor or one consuming join helper at that Core boundary.
+Do not create a second effect catalog or copy the rows into the operation
+product.
+
+Coverage is keyed by Recipe operations, not by all Core effect rows. Every
+`LoopRecipeItemV1::Operation` item must have exactly one source-evidence row;
+`ReadBinding`/`WriteBinding` items additionally point to their exact sealed
+Core effect row when one exists. Literal/compare/binary operation items need
+no binding-effect row. Structural carrier rows and callable Tail/After reads
+remain owned by their existing continuation/tail products, and their explicit
+non-consumption is not a silent drop.
+
 The operation product must be issued before the P0 topology-only
 `into_physical_boundary` path is called. That path intentionally drops source
 anchors and is not an operation-D0 entry point. Operation D0 must provide a
@@ -168,7 +182,9 @@ open operation MIR before the preceding receipt is green.
 2. neutral product conversion
    issue VerifiedLoopOperationEffectProductV1 once from the co-sealed Core +
    profile evidence; consume/validate Recipe membership exactly once; add positive
-   nested-loop and duplicate/foreign/missing/wrong-placement gates.
+   nested-loop and duplicate/foreign/missing/wrong-placement gates. Join to
+   sealed Core effect rows through an accessor/helper only; no copied effect
+   catalog.
 
 3. operation physicalization canary
    only after steps 0-2 are green; keep operation emission test-only and

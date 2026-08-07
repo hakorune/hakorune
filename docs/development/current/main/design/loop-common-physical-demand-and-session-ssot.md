@@ -753,6 +753,19 @@ authority. Generic G0 must retain or issue its item-keyed source evidence at
 the producer boundary before structural source facts are consumed; it may
 not reconstruct anchors from source preorder after Core issuance.
 
+The operation product joins against the Core's already-sealed effect rows. If
+the current Core API lacks the anchor/class view needed for that join, the
+implementation may add one non-authority accessor or a consuming join helper
+at the Core boundary. A second effect catalog or copied effect rows are not
+allowed.
+
+Coverage is by Recipe operation item, not by every Core effect row. Each
+`LoopRecipeItemV1::Operation` has one exact source-evidence row;
+`ReadBinding`/`WriteBinding` rows may additionally reference their sealed Core
+effect row, while literal/compare/binary rows need no binding-effect row.
+Structural carrier rows and callable Tail/After reads remain with their
+existing owners, and their explicit non-consumption is not a silent drop.
+
 `DerivedCarrierEntry` remains outside the operation/effect rows
 because it has no `LoopRecipeItemV1::Operation` row; if a profile needs its
 anchor as an input witness, it remains explicitly typed as a carrier witness.
