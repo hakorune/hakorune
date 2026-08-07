@@ -110,7 +110,7 @@ not reissue or clone source/JoinSig evidence.
 This receipt opens no physical block mapping, operation instruction emission,
 function session, Return/Completion/DraftSeal, selector, retry/fallback, or
 legacy deletion. The behavior-neutral physicalizer module split is now closed;
-the current row is the separate physical block receipt, followed by the later
+the physical block receipt is now closed, followed by the current ConstI64
 leaf-emitter proof.
 
 ## Physical block receipt P0 (2026-08-07)

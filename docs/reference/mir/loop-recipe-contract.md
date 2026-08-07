@@ -14,9 +14,10 @@ Implementation receipt (`CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, 2026-08-07):
 the canonical V2 function lowerers now enter one typed finish terminal before
 DraftSeal. The portable Recipe/JoinSig algebra and its caller-zero status are
 unchanged; this receipt adds no physicalizer or production Loop authority.
-The bounded prepare-design correction is closed. The current boundary is
-caller-zero topology/After-only `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`;
-operation emission and physical/production activation remain closed.
+The bounded prepare-design correction is closed. The topology/After receipt
+and physical block receipt are closed; the current boundary is the private
+ConstI64 leaf-emitter canary. Full operation emission and physical/production
+activation remain closed.
 
 Executable authority:
 `src/mir/loop_recipe_contract/`

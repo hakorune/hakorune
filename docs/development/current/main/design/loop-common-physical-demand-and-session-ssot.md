@@ -8,8 +8,9 @@ caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`, passive operation/effect S0,
 Callable/G0 adapters, and cross-profile parity are closed. Decision B now
 separates full-demand preflight from leaf emission; the Builder-free
 `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` and the behavior-neutral
-physicalizer module split are closed. The current row is the physical block
-receipt; operation emission and production activation remain 0
+physicalizer module split and physical block receipt are closed. The current
+row is the private ConstI64 leaf-emitter canary; operation production
+activation remains 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -876,10 +877,11 @@ source anchors; P0 cannot be reused as the operation source.
 `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed caller-zero prerequisites. The
 cross-profile parity receipt and reviewed Decision-B closeout are closed.
 Callable has seven item rows and Generic G0 has fifteen, but parity compares
-neither counts nor source order. The full-demand P0 and behavior-neutral module
-split are closed. The next row is the canonical physical block receipt; it
-claims no operation emission, callable physical completion, production
-selection, M8/M9 coverage, or retirement.
+neither counts nor source order. The full-demand P0, behavior-neutral module
+split, and canonical physical block receipt are closed. The current row is the
+private ConstI64 leaf-emitter canary; it claims no full operation
+physicalization, callable physical completion, production selection, M8/M9
+coverage, or retirement.
 
 ## Implementation and documentation obligation
 
@@ -916,7 +918,7 @@ The topology/After canary `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed.
 The operation/effect plan, passive product, Callable adapter, Generic G0
 15-row anchor ledger, cross-profile parity receipt, worker-reviewed
 physicalizer Decision-B closeout, and Builder-free full-demand P0 are closed.
-The current boundary is `LOOP-RECIPE-PHYSICAL-BLOCK-RECEIPT-P0`; Const leaf
-emission, operation production activation, callable physical completion,
-production selection, retry/fallback retirement, and legacy deletion remain
-closed.
+The current boundary is `LOOP-RECIPE-OPERATION-EMITTER-CONST-S0`; full
+operation emission, operation production activation, callable physical
+completion, production selection, retry/fallback retirement, and legacy
+deletion remain closed.

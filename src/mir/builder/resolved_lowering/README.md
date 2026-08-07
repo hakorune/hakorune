@@ -87,9 +87,10 @@ are dropped, with item 3 matching the child-entry carrier relation.
 Cross-profile parity is also closed as a diagnostic-only receipt; it compares
 neither profile counts nor source order. Reviewed Decision B separates full
 demand/preflight from leaf emission. The Builder-free complete operation
-demand and topology module split are now closed. The current row is the
-private logical-to-physical block receipt; Const leaf emission and production
-activation remain closed.
+demand, topology module split, and the private logical-to-physical block
+receipt are now closed. The current row is the
+`LOOP-RECIPE-OPERATION-EMITTER-CONST-S0` private prepared ConstI64 leaf canary;
+full operation emission and production activation remain closed.
 
 ## Full operation demand P0
 

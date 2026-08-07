@@ -100,10 +100,11 @@ Related:
   diagnostic-only receipt: Callable has seven rows and Generic G0 has fifteen,
   but parity compares neither counts nor source order. Reviewed Decision B
   separates complete demand/preflight from private leaf emission. The
-  Builder-free full-demand P0 and the topology module split are now closed.
-  The current execution row is `LOOP-RECIPE-PHYSICAL-BLOCK-RECEIPT-P0`;
-  operation emission, production activation, and physical completion remain
-  closed.
+  Builder-free full-demand P0, the topology module split, and the canonical
+  physical block receipt are now closed. The current execution row is
+  `LOOP-RECIPE-OPERATION-EMITTER-CONST-S0`; only the private ConstI64 leaf
+  emission canary is open. Production activation and physical completion
+  remain closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
