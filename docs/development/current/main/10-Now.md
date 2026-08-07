@@ -75,7 +75,8 @@ Related:
   `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` is closed for the three V2 session
   lowerers through the sole typed terminal. The non-V2 direct constructor
   remains named compatibility debt. The next boundary is the
-  `LOOP-PHYSICAL-PREPARE-I0-R0` design stop; physicalization, production
+  design correction is closed; current row is caller-zero
+  `LOOP-PHYSICAL-PREPARE-P0`; physicalization, production
   selection, strict receipt, retry/fallback retirement, and legacy deletion
   remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

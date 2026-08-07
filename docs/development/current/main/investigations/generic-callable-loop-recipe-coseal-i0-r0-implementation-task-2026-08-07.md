@@ -36,7 +36,7 @@ preheader input relation; PrefixBoundary stays Prelude; TailReturnRead stays
 
 This row has no authority to issue an exact return ABI or
 `VerifiedFunctionCompletionV1`. Existing ABI/Completion issuers remain
-unchanged until `LOOP-PHYSICAL-PREPARE-I0-R0`. AST/name/path/ordinal rematch,
+unchanged until caller-zero `LOOP-PHYSICAL-PREPARE-P0`. AST/name/path/ordinal rematch,
 Builder, ValueId, BasicBlockId, CFG, PHI, retry, fallback, and production
 selection are forbidden. The 19 legacy labels remain ingress coverage only.
 

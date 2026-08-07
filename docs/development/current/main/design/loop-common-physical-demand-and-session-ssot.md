@@ -4,7 +4,8 @@ Date: 2026-08-07
 Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` closed for the three V2
 session lowerers; bounded `RECIPE-COSEAL-I0-R0` is closed; the next
-`LOOP-PHYSICAL-PREPARE-I0-R0` design stop keeps physical Loop activation at 0
+caller-zero `LOOP-PHYSICAL-PREPARE-P0` is the current execution row; physical
+Loop activation remains 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -13,6 +14,7 @@ Related:
   - docs/reference/mir/loop-recipe-contract.md
   - docs/reference/mir/generic-loop-stage-matrix.md
   - src/mir/builder/resolved_lowering/README.md
+  - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
 ---
 
 # Loop Common Physical Demand and Session SSOT
@@ -119,7 +121,7 @@ VerifiedCallableTailV1
 ```
 
 The existing exact ABI and Completion capabilities remain with their existing
-issuers. `LOOP-PHYSICAL-PREPARE-I0-R0` later consumes all components once and
+issuers. `LOOP-PHYSICAL-PREPARE-P0` later consumes all components once and
 either issues one prepared execution product or returns typed `NoSafeSlice`.
 `VerifiedLoopAfterTailEnvelopeV1` is rejected: Loop continuation and callable
 Tail must never be fused and then split again.
@@ -593,15 +595,16 @@ of nested design suffixes unless a code audit proves one named missing owner.
 | ---: | --- | --- | --- |
 | 0 | `RECIPE-COSEAL-I0-R0` | caller-zero common logical co-seal plus separate Prelude/Tail source contracts | closed caller-zero implementation; no ABI/Completion issuance |
 | 1 | `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` | migrate existing canonical V2 paths to one `finish_for_draft_seal` issuer; freeze non-V2 direct construction as compat debt | BoxShape-only; accepted profiles and MIR unchanged |
-| 2 | `LOOP-PHYSICAL-PREPARE-I0-R0` | common demand plus callable prepared product; exact ABI/Completion are consumed from existing issuers | caller-zero; no physicalizer, Builder emission, or selector |
-| 3 | `GENERIC-G0-PHYSICAL-PREPARE-P0` | exact-move G0 adapter issues the same inner demand plus distinct G0 Tail | `NoSafeSlice` if source truth must be copied or reverified |
-| 4 | `LOOP-PHYSICALIZER-COMMON-OWNER-R0` | split the over-budget DirectAccum owner into common services plus thin adapter | BoxShape-only; no new accepted Recipe |
-| 5 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | inner demand + `ReadyLoopEntryV1` + borrowed V2 services -> open continuation | caller-zero; no Return/DraftSeal/publication |
-| 6 | `CALLABLE-LOOP-PHYSICAL-CANARY-I0-R0` | exact Prelude -> Loop -> distinct Tail -> typed function finish -> DraftSeal on one fresh unpublished function | late failure discards whole session; production caller zero |
-| 7 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
-| 8 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
-| 9 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
-| 10 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
+| 2 | `LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0` | fix callable input/prelude/terminal/G0/lifetime pairings in the existing prepare design | design-only; no code, Builder, physicalizer, selector, or caller |
+| 3 | `LOOP-PHYSICAL-PREPARE-P0` | caller-zero common demand plus callable prepared product; exact ABI/Completion are consumed from existing issuers | no physicalizer, Builder emission, selector, or I0 claim |
+| 4 | `GENERIC-G0-PHYSICAL-PREPARE-P0` | exact-move G0 adapter issues the same inner demand plus distinct G0 Tail | `NoSafeSlice` if source truth must be copied or reverified |
+| 5 | `LOOP-PHYSICALIZER-COMMON-OWNER-R0` | split the over-budget DirectAccum owner into common services plus thin adapter | BoxShape-only; no new accepted Recipe |
+| 6 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | inner demand + `ReadyLoopEntryV1` + borrowed V2 services -> open continuation | caller-zero; no Return/DraftSeal/publication |
+| 7 | `CALLABLE-LOOP-PHYSICAL-CANARY-P0` | exact Prelude -> Loop -> distinct Tail -> typed function finish -> DraftSeal on one fresh unpublished function | caller-zero; late failure discards whole session |
+| 8 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
+| 9 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
+| 10 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
+| 11 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Closed implementation receipt: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
 
@@ -631,12 +634,40 @@ Stop:
   or same-session repair/retry returns to design
 ```
 
-### Current design stop: `LOOP-PHYSICAL-PREPARE-I0-R0`
+### Closed design correction receipt: `LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0`
+
+The existing prepare architecture is directionally accepted but has one
+bounded BoxShape correction before implementation. The correction task fixes
+the callable input brand, resolved Prelude target/result capability, one-shot
+Tail/Completion/ABI compatibility receipt, G0 owner/ABI pairing, and the
+borrowed `ResolvedFunctionLoweringInputV1` lifetime wording. It adds no code or
+Builder authority.
+
+The correction is accepted only when these facts are explicit:
+
+```text
+callable input = non-Clone brand over exact input + current header/index
+Prelude        = resolved target/header/arity/result capability, not syntax shape
+terminal       = one-shot Tail/Completion/ABI relation receipt
+G0             = same owner/source-type/ABI/terminal relation check
+lifetime       = owned AST-free demand/receipts separate from borrowed input
+```
+
+Missing/foreign header, target, arity, result ABI, owner, tail site/binding,
+Completion site/value-kind, G0 source brand, duplicate receipt, or any physical
+authority is a pre-effect typed `NoSafeSlice`. The detailed task and its
+acceptance matrix are the only correction checklist; after it closes, the next
+row is caller-zero `LOOP-PHYSICAL-PREPARE-P0`, not an I0.
+
+The correction is closed by the task receipt; the current execution row is
+caller-zero `LOOP-PHYSICAL-PREPARE-P0`.
+
+### Current caller-zero implementation: `LOOP-PHYSICAL-PREPARE-P0`
 
 ```text
 Change:
   consume common co-seal + separate callable Prelude/Tail + existing exact
-  ABI/Completion once and issue PreparedCallableLoopPhysicalizationV1
+  ABI/Completion once and issue PreparedCallableLoopPhysicalizationV1 as caller-zero proof
 
 Contract:
   execution compatibility is the only new relational truth;
@@ -688,6 +719,6 @@ implementation receipt exists.
 The architecture and the `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` implementation
 are closed for the three V2 callers under the typed-receipt and no-reinference
 contract above. The bounded caller-zero `RECIPE-COSEAL-I0-R0` implementation is
-also closed. The next boundary is the `LOOP-PHYSICAL-PREPARE-I0-R0` design
-stop; physical Loop lowering, production selection, retry/fallback retirement,
-and legacy deletion remain closed until that design is accepted.
+also closed. The current boundary is caller-zero `LOOP-PHYSICAL-PREPARE-P0`;
+physical Loop lowering, production selection, retry/fallback retirement, and
+legacy deletion remain closed.

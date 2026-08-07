@@ -292,11 +292,15 @@ implementation permissionやcompletionを決めない。
 
 ```text
 CANONICAL-FUNCTION-FINISH-TERMINAL-R0
-  -> common physicalizer / callable canary
+  -> LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0
+  -> caller-zero LOOP-PHYSICAL-PREPARE-P0
+  -> Generic G0 prepare parity
+  -> common physicalizer / caller-zero canary
   -> production selection
   -> M8/M9 coverage and parity
   -> M10b activation
   -> M11/M12 legacy retirement
+  -> REPO-FINAL-CONVERGENCE-AUDIT0-G0
   -> repo-physical-structure-cleanup-ssot.md final convergence acceptance
 ```
 

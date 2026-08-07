@@ -10,6 +10,10 @@ Workstream:
   - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
 Final convergence pointer (serial, after Loop retirement):
   - docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md
+Closed design-stop correction:
+  - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
+Current execution row:
+  - caller-zero `LOOP-PHYSICAL-PREPARE-P0` in the common physical-demand SSOT
 Supersedes scheduling authority of:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
   - OWN-GRAM-REJECT0-HAKO0-S0

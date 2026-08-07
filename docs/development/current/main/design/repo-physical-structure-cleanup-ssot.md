@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Decision: provisional
+Decision: accepted-for-final-convergence-tasking; implementation remains parked behind the active Loop cutover
 Date: 2026-03-22
 Scope: repo の物理構造を docs/設計の責務分離に追いつかせるための BoxShape cleanup 順序を固定する。即時の `src/mir` crate split や broad rename は扱わない。
 Related:
@@ -364,15 +364,22 @@ in their named owner SSOTs.
 
 3. bounded physical cleanup
    -> one root visibility family -> one temporary-surface selection
-   -> context owner census/decomposition -> crate-boundary recheck
+   -> authority-role census -> MIR-CONTEXT-OWNER-CENSUS0-D0
+   -> bounded MIR-CONTEXT-OWNER-SPLIT0-S0 when a seam is safe
+   -> crate-boundary recheck
 
 4. native .hako authority migration
-   -> existing selfhost inventory/parity/contract-cutover order
+   -> Rust/.hako/compat role manifest -> existing selfhost
+      inventory/parity/contract-cutover order
    -> parser handoff after MirBuilder
 
 5. physical debt retirement
    -> Rust semantic residue, compat/bootstrap keeps, and old facade edges
       retire only from exact caller/reference evidence
+
+6. terminal convergence audit
+   -> REPO-FINAL-CONVERGENCE-AUDIT0-G0
+   -> R4 final conformance may close only after this audit is green
 ```
 
 `CURRENT_STATE` slimming and Design Registry V1/H3 classification are separate
@@ -404,6 +411,94 @@ This is intentionally smaller than crate split.
 - the P0 first batch is landed: root archive relocation + `*.err` ignore policy
 
 ## Final convergence acceptance (post-cutover)
+
+### `REPO-FINAL-CONVERGENCE-AUDIT0-G0`
+
+This is the single terminal audit for the repository-shape cleanup. It is not
+a new compiler architecture, a bulk-delete permission, or a second task
+ledger. It runs only after Loop production selection, M10b, M11, and M12 are
+closed, and it records one machine-readable disposition matrix for the exact
+end-state claims below.
+
+Required audit outputs:
+
+1. **Pipeline authority** — `mirbuilder-final-pipeline-ssot.md` is the only
+   global order authority; `compiler-pipeline-ssot.md` is historical/supporting
+   and has no executable pointer.
+2. **MIR root surface** — `src/mir/mod.rs` has durable facade exports only;
+   every `pilot`/`seed`/`raw`/`compat`/`legacy` declaration is promoted,
+   quarantined, or retired with an owner and removal condition.
+3. **Authority roles** — a checked manifest classifies Rust, `.hako`, and
+   compatibility/bootstrap paths as meaning, substrate/host/backend/oracle,
+   or explicit quarantine. The census scope is `src/**`, `lang/**`, and the
+   explicitly named compatibility/bootstrap/tooling roots; the classification
+   enum and exclusions are recorded in the manifest. Unnamed middle ownership
+   and default fallback are zero. Unknown external callers remain a
+   non-claim, never an excuse for a compatibility edge.
+4. **Context owners** — each mixed context field has one named catalog,
+   environment, options, session, or an explicit blocker/removal condition;
+   no JoinIR/pass layer silently regains AST/runtime/config authority.
+5. **Live pointers** — `CURRENT_STATE.toml`, current mirrors, task maps, and
+   guards agree on one active row; historical ledgers are not executable
+   authority. The live schema and Design Registry status are checked through
+   their own consumer-census/cutover owners.
+6. **Temporary evidence** — every proof/receipt/adapter has a promote,
+   quarantine, or retire disposition; closed D4/S-series material is archived
+   and cannot be selected by a current pointer. The matrix also records
+   `loop_coverage_parity` and `legacy_joinmodule_disposition` explicitly;
+   neither may remain an implicit status claim.
+7. **Documentation parity** — each landed implementation row has its owning
+   README, exact `docs/reference/**` contract (or an explicit
+   `reference_delta = 0` record), guard index, and current mirror updated in
+   the same commit. Post-cutover reference updates are part of the row, not a
+   follow-up.
+
+The matrix is written to
+`docs/development/current/main/investigations/repo-final-convergence-audit0-g0-disposition.toml`.
+Its sole owner is this terminal audit row, and every record has at least:
+`path`, `role`, `owner`, `lifecycle`, `caller_class`, `default_fallback`,
+`retire_when`, `evidence`, `loop_coverage_parity`, and
+`legacy_joinmodule_disposition`. Unknown fields are rejected; duplicate paths,
+unclassified records, and missing evidence are zero. The implementation row
+adds `tools/checks/repo_final_convergence_guard.sh` and registers it in
+`docs/tools/check-scripts-index.md`; no earlier row may claim this guard.
+
+The current-entry parity set is explicit: `CURRENT_STATE.toml`,
+`CURRENT_TASK.md`, `docs/development/current/main/05-Restart-Quick-Resume.md`,
+and `docs/development/current/main/10-Now.md`. A mirror is green only when it
+points to the same active row and blocker; historical detail remains outside
+the executable pointer.
+
+The audit opens only after these dependencies are closed:
+
+```text
+LOOP-PRODUCTION-SELECTION-D0 (or its accepted successor)
+M10b activation
+M11 legacy retirement
+M12 adapter retirement
+CURRENT-STATE-LIVE-CUTOVER0-I0-R0
+Design Registry consumer/cutover row
+```
+
+If a context seam is still unresolved, `MIR-CONTEXT-OWNER-CENSUS0-D0` may
+close with a named blocker and `removal_when`; `MIR-CONTEXT-OWNER-SPLIT0-S0`
+is opened only for a behavior-neutral bounded seam. The terminal audit never
+silently treats an unresolved field as clean.
+
+Acceptance commands are the existing guards and inventories, not a new
+semantic checker:
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/mir_root_facade_guard.sh
+bash tools/checks/mir_root_import_hygiene_guard.sh
+python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict
+git diff --check
+```
+
+Any red item reopens its owning bounded row. The audit must not be made green
+by adding a fallback, inflating a baseline, weakening a guard, or deleting an
+unclassified file.
 
 The cleanup lane is complete only when the physical repository and the live
 design pointers describe the same one-way compiler. These are end-state

@@ -37,10 +37,10 @@ and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. MAP
 co-seals the resolver source/frame/Scope/Region and the selected
 `0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
 not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
-`RECIPE-COSEAL-I0-R0` is closed; Loop continuation/Tail remain separate. `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` is closed for the three existing V2 session lowerers; keep the one non-V2 `ReadyFunctionDraftSealV1::new` caller as named non-growing compatibility debt. Physical/production/retirement stay closed at the next `LOOP-PHYSICAL-PREPARE-I0-R0` design stop.
-
-Final finish line (not an additional active lane): `CANONICAL-FUNCTION-FINISH-TERMINAL-R0 -> common physicalizer -> production selection -> M8/M9 -> M10b -> M11/M12 -> repo-physical-structure-cleanup-ssot.md`. That SSOT owns pipeline/root/context/authority convergence, registry/current-pointer cleanup, temporary-surface disposition, and D4/S-series archive; it opens only after Loop cutover, with README/reference/guard/current-mirror updates in every implementation commit.
-
+`RECIPE-COSEAL-I0-R0` is closed; Loop continuation/Tail remain separate. `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` and its bounded prepare-design correction are closed for the three existing V2 session lowerers; keep the one non-V2 `ReadyFunctionDraftSealV1::new` caller as named non-growing compatibility debt. The current active boundary is caller-zero `LOOP-PHYSICAL-PREPARE-P0`; physical/production/retirement stay closed.
+Final finish line (not an additional active lane) follows
+`mirbuilder-final-pipeline-ssot.md`: typed finish -> prepare-design correction -> caller-zero prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 ->
+`REPO-FINAL-CONVERGENCE-AUDIT0-G0`. The repository cleanup SSOT owns pipeline/root/context/authority convergence, registry/current-pointer cleanup, temporary-surface disposition, and D4/S-series archive; it opens only after Loop cutover, with README/reference/guard/current-mirror updates in every implementation commit.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
@@ -973,8 +973,9 @@ ordered after B-prime correction
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
   4. close Generic G0 source/common-Recipe/selection/physical/parity rows, then perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
-  5. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
-  6. R4 consumes the live fence registry above; every item must retire, reown,
+  5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
+  6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
+  7. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance
 
 R4
@@ -987,7 +988,6 @@ after final-pipeline Complete only
   then select later unimplemented language features
 ```
 ## Fixed packs
-
 Findings stay in the existing eight packs; do not create another pack.
 ## Parked
 ```text

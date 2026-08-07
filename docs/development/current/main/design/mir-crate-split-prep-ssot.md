@@ -195,14 +195,14 @@ consumer census proves the exact seams.
 Parked order after the active Loop production cutover and root-module census:
 
 ```text
-MIR-CONTEXT-OWNER-CENSUS0-P0
+MIR-CONTEXT-OWNER-CENSUS0-D0
   -> enumerate every state field, writer, reader, lifetime, and publication owner
 
-MIR-CONTEXT-SEAM0-D0
-  -> select exact lexical-function and source/catalog/type/options boundaries
+MIR-CONTEXT-OWNER-SPLIT0-S0
+  -> move one behavior-neutral owner seam only when the census proves it safe
 
-MIR-CONTEXT-DECOMPOSE0-R0
-  -> move one owner seam at a time; accepted behavior and public entry unchanged
+MIR-CONTEXT-OWNER-SPLIT0-R0
+  -> close the bounded split with caller/guard/reference parity
 
 MIR-CRATE-BOUNDARY-RECHECK0-P0
   -> reconsider packaging only after the mixed mutable context is gone

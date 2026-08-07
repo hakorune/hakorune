@@ -1234,5 +1234,7 @@ The new `callable_single_loop_v1` producer id is test-only provenance. Focused
 tests cover positive co-seal, source-view drop, Prefix/Tail mismatch, and
 Tail/Loop-After fusion rejection. No Builder/MIR/physical IDs, ABI/Completion,
 physicalizer, selector, retry, fallback, production selection, or legacy
-deletion was opened. The next boundary remains the accepted typed terminal
-design stop; physical preparation and production activation are still zero.
+deletion was opened. The typed function-finish terminal and its bounded
+prepare-design correction are now closed for the three V2 session lowerers.
+The current boundary is caller-zero `LOOP-PHYSICAL-PREPARE-P0`; physical /
+production activation remains closed.

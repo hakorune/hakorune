@@ -124,7 +124,7 @@ statement/value sites and lexical `BindingRef`.
 
 This row does not issue an exact return ABI or
 `VerifiedFunctionCompletionV1`; its source map does not own those authorities.
-The later `LOOP-PHYSICAL-PREPARE-I0-R0` must consume their existing products
+The later caller-zero `LOOP-PHYSICAL-PREPARE-P0` must consume their existing products
 and establish one execution-compatibility proof. If that exact move cannot be
 performed, the result is `NoSafeSlice`. `VerifiedLoopAfterTailEnvelopeV1` is
 rejected.

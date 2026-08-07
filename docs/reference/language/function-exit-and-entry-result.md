@@ -48,6 +48,8 @@ the three canonical V2 lowering profiles now share one typed function-local
 finish terminal before DraftSeal. The non-V2 constructor is explicit
 compatibility debt. This changes no source exit, Result, ABI, or backend
 semantics; it only closes the internal CFG/SSA/PHI/Completion handoff.
+The bounded prepare-design correction is closed; the current boundary is
+caller-zero `LOOP-PHYSICAL-PREPARE-P0`.
 
 The accepted target is:
 
