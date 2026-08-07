@@ -38,7 +38,7 @@ co-seals the resolver source/frame/Scope/Region and the selected
 `0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
 not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
 `RECIPE-COSEAL-I0-R0` and `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` are closed; Loop continuation/Tail remain separate, and the one non-V2 `ReadyFunctionDraftSealV1::new` caller remains named compatibility debt.
-Static-call fixture design is accepted; `CALLABLE-SOURCE-SHAPE-THIN0` is closed as a neutral Method/FreeStatic shape/test split below 800 lines. `CALLABLE-STATIC-PREFIX-S0` is now closed: the top-level resolver/catalog fixture `int_to_str(n: i64) -> to_i64(n: i64)` supplies genuine `FreeStatic` observer evidence, while the MethodCall remains a typed negative. Next is the bounded `CALLABLE-STATIC-PREFIX-MAP-S1` source-map relation; ABI/Prepared, physical/production, and retirement remain closed.
+Static-call fixture design is accepted; `CALLABLE-SOURCE-SHAPE-THIN0`, `CALLABLE-STATIC-PREFIX-S0`, and `CALLABLE-STATIC-PREFIX-MAP-S1` are closed: resolver-backed `int_to_str -> to_i64` proves FreeStatic, same-brand different-owner mapping, and foreign-brand rejection, while MethodCall remains typed negative. Next is `CALLABLE-STATIC-PREFIX-P0` ABI/Prepared evidence; physical/production and retirement remain closed.
 After this shallow sequence, final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
 ## Root-neutral semantic foundation

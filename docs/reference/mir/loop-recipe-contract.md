@@ -242,6 +242,20 @@ Prepared product remain later P0 work. No Recipe, JoinSig, physicalizer,
 Builder/MIR, selector, retry, fallback, publication, or production route is
 opened by this receipt.
 
+## Callable static-prefix source-map receipt (2026-08-07)
+
+`CALLABLE-STATIC-PREFIX-MAP-S1` is closed as a caller-zero source-map
+relation. The resolver-issued `to_i64` target is retained when its function
+owner differs from the caller but its compilation brand matches. Independently
+sealed catalogs provide the foreign-brand negative, which rejects as typed
+`ForeignOwner` before any map product is issued. The MethodCall fixture stays
+a typed negative with no direct callable target.
+
+This product still owns no ABI, Prepared relation, Recipe, JoinSig, physical
+ID, Builder/MIR effect, selector, retry, fallback, publication, or production
+caller. The next bounded cell is `CALLABLE-STATIC-PREFIX-P0` for
+declaration-derived ABI and Prepared evidence.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local

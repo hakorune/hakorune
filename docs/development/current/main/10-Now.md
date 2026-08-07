@@ -81,8 +81,10 @@ Related:
   `CALLABLE-STATIC-PREFIX-S0` is now closed: the exact top-level
   resolver-backed `int_to_str -> to_i64` fixture supplies explicit FreeStatic
   observer evidence, while the existing MethodCall remains a typed negative.
-  The next execution row is `CALLABLE-STATIC-PREFIX-MAP-S1` for same-brand
-  different-owner source-map acceptance and foreign-brand rejection.
+  `CALLABLE-STATIC-PREFIX-MAP-S1` is also closed: same-brand different-owner
+  resolver targets map successfully and foreign compilation brands reject
+  before a map product. The next execution row is
+  `CALLABLE-STATIC-PREFIX-P0` for declaration-derived ABI/Prepared evidence.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

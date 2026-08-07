@@ -4,6 +4,9 @@ use crate::mir::resolved_semantics::{
     VerifiedOwnerFreeCallableCatalogSourceUnitV1,
 };
 
+use super::callable_single_loop_source_map::{
+    issue_callable_single_loop_source_map_v1, CallableSourceMapRejectV1,
+};
 use super::callable_single_loop_source_shapes::SourceCallKindV1;
 use super::callable_single_loop_syntax_facts::issue_callable_single_loop_syntax_facts_v1;
 use super::callable_single_loop_syntax_facts::tests as syntax_tests;
@@ -42,7 +45,7 @@ fn function(name: &str, body: Vec<ASTNode>) -> ASTNode {
     }
 }
 
-fn static_fixture() -> VerifiedResolvedCallableModuleV1 {
+fn static_fixture_with_brand(brand: u32) -> VerifiedResolvedCallableModuleV1 {
     let int_to_str = function(
         "int_to_str",
         vec![
@@ -101,9 +104,13 @@ fn static_fixture() -> VerifiedResolvedCallableModuleV1 {
     .expect("static fixture header source");
     let owner_free = VerifiedOwnerFreeCallableCatalogSourceUnitV1::seal(source)
         .expect("static fixture owner-free catalog");
-    let catalog = CallableCatalogSealOutcomeV1::seal(owner_free, 53)
+    let catalog = CallableCatalogSealOutcomeV1::seal(owner_free, brand)
         .expect("static fixture callable catalog");
     VerifiedResolvedCallableModuleV1::resolve(catalog).expect("static fixture resolver")
+}
+
+fn static_fixture() -> VerifiedResolvedCallableModuleV1 {
+    static_fixture_with_brand(53)
 }
 
 fn facts_for(
@@ -152,6 +159,58 @@ fn resolver_backed_free_static_prefix_is_observed_without_target_injection() {
         input.owner().compilation_brand()
     );
     assert_ne!(target.callable().owner(), input.owner());
+}
+
+#[test]
+fn same_brand_static_target_maps_without_owner_identity_equality() {
+    let module = static_fixture();
+    let (input, facts) = facts_for(&module);
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("static fixture ledger");
+    let map = issue_callable_single_loop_source_map_v1(&ledger, facts)
+        .expect("same-brand static source map");
+    let (_, _, Some(mapped_target)) = map.prefix().target().prefix().expect("prefix target") else {
+        panic!("expected resolver-issued static target");
+    };
+    let expected_target = module
+        .source()
+        .catalog()
+        .index()
+        .resolve_free_static_source_call("to_i64", 1)
+        .expect("to_i64 header")
+        .callable();
+    assert_eq!(mapped_target, expected_target);
+    assert_ne!(mapped_target.owner(), input.owner());
+}
+
+#[test]
+fn foreign_compilation_brand_rejects_before_source_map_effects() {
+    let first = static_fixture_with_brand(53);
+    let second = static_fixture_with_brand(54);
+    let (_, facts) = facts_for(&first);
+    let other_header = second
+        .source()
+        .catalog()
+        .index()
+        .resolve_free_static_source_call("int_to_str", 1)
+        .expect("foreign int_to_str header");
+    let other_input = second
+        .function_input(other_header.source_key())
+        .expect("foreign static fixture input");
+    let other_ledger = other_input
+        .forest()
+        .callable_source_ledger(other_input.owner())
+        .expect("foreign static fixture ledger");
+    assert_ne!(
+        facts.owner().compilation_brand(),
+        other_input.owner().compilation_brand()
+    );
+    assert_eq!(
+        issue_callable_single_loop_source_map_v1(&other_ledger, facts),
+        Err(CallableSourceMapRejectV1::ForeignOwner)
+    );
 }
 
 #[test]

@@ -47,8 +47,12 @@ explicit `FreeStatic` shape plus direct-call ledger evidence without target
 injection. `Method` remains the existing typed negative; neither shape issues
 an ABI, Recipe key, or physical capability. The focused
 shape/source-map/static-fixture suites remain caller-zero and all touched files
-stay below the 800-line source limit. Same-brand different-owner map validation
-is the next `CALLABLE-STATIC-PREFIX-MAP-S1` cell.
+stay below the 800-line source limit. `CALLABLE-STATIC-PREFIX-MAP-S1` is now
+closed as a source-only map relation: the resolver-issued `to_i64` target may
+have a different owner when the compilation brand matches; a foreign brand is
+a typed `ForeignOwner` rejection. The map retains the resolver target and
+does not derive ABI or open a Prepared product. The next bounded cell is
+`CALLABLE-STATIC-PREFIX-P0` for declaration-derived ABI/Prepared evidence.
 
 ## Generic G0 S0A source projector
 

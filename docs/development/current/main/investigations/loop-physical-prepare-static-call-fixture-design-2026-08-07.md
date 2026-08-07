@@ -186,3 +186,17 @@ for the same-brand different-owner relation is the next
 `CALLABLE-STATIC-PREFIX-MAP-S1` task, followed later by declaration-derived
 ABI and Prepared positive evidence. No physical or production authority was
 opened.
+
+## MAP-S1 implementation receipt (2026-08-07)
+
+`CALLABLE-STATIC-PREFIX-MAP-S1` is closed as the bounded source-map cell. The
+map retains the resolver-issued `to_i64` target when caller and callee owners
+differ but their compilation brand matches. Independently sealed catalogs
+prove that a foreign compilation brand is rejected as typed `ForeignOwner`
+before a map product is issued. The existing MethodCall remains a typed
+negative.
+
+The next cell is `CALLABLE-STATIC-PREFIX-P0`, limited to declaration-derived
+parameter/result ABI and one positive Prepared relation. Recipe, physicalizer,
+Builder, selector, retry/fallback, publication, and production claims remain
+closed.

@@ -86,8 +86,11 @@ is opened by this row.
 The neutral shape vocabulary remains in
 `callable_single_loop_source_shapes.rs`; embedded syntax/source-map/static-
 fixture tests remain sibling test-only modules and all touched files stay
-below the 800-line limit. Same-brand different-owner source-map validation is
-the next `CALLABLE-STATIC-PREFIX-MAP-S1` cell.
+below the 800-line limit. `CALLABLE-STATIC-PREFIX-MAP-S1` is now closed as a
+source-only relation: same-brand different-owner resolver targets are kept,
+while foreign compilation brands reject as `ForeignOwner`. The next bounded
+cell is `CALLABLE-STATIC-PREFIX-P0` for declaration-derived ABI/Prepared
+evidence; no physicalizer or production route is opened.
 
 ## Disconnected canonical CFG prerequisite
 

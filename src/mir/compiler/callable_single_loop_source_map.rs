@@ -425,7 +425,9 @@ fn map_prefix(
         ));
     }
     let direct_callable = direct.first().map(|(_, target)| target.callable());
-    if direct_callable.is_some_and(|callable| callable.owner() != ledger.owner()) {
+    if direct_callable.is_some_and(|callable| {
+        callable.owner().compilation_brand() != ledger.owner().compilation_brand()
+    }) {
         return Err(CallableSourceMapRejectV1::ForeignOwner);
     }
     Ok(CallableSourceMapRowV1 {

@@ -1,6 +1,6 @@
 # Callable Static Prefix Map S1 Implementation Task
 
-Status: `active; next bounded caller-zero source-map cell`
+Status: `closed; bounded caller-zero source-map cell`
 Date: 2026-08-07
 Parent: `LOOP-PHYSICAL-PREPARE-STATIC-CALL-FIXTURE-D0`
 
@@ -71,6 +71,18 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
-After this cell closes, open one ABI/Prepared-design implementation cell. Do
-not open physicalization or production selection from this task.
+## Implementation receipt (2026-08-07)
 
+The source map now accepts a resolver-issued static callee owned by a
+different function when both caller and callee carry the same compilation
+brand. A foreign compilation brand is rejected as `ForeignOwner` before any
+source-map product is issued. The positive test retains the exact `to_i64`
+callable from the resolver catalog; the foreign-brand test uses independently
+sealed catalogs. The existing MethodCall fixture remains a typed negative.
+
+No ABI, Prepared product, Recipe, physicalizer, Builder effect, selector,
+retry, fallback, publication, or production caller was opened. Every touched
+source/check file remains below 800 lines.
+
+After this cell closes, open exactly one ABI/Prepared implementation cell. Do
+not open physicalization or production selection from this task.

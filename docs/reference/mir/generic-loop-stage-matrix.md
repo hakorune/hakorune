@@ -1286,3 +1286,15 @@ This is still caller-zero source evidence only. The next cell,
 and foreign-brand rejection. ABI derivation, Prepared positive products,
 physicalization, production selection, fallback/retry retirement, and legacy
 deletion remain closed.
+
+## Callable static-prefix source-map receipt (2026-08-07)
+
+`CALLABLE-STATIC-PREFIX-MAP-S1` is closed as a caller-zero source-map cell.
+The map keeps the resolver-issued `to_i64` target for same-brand,
+different-owner calls and rejects an independently sealed foreign compilation
+brand as `ForeignOwner`. The existing MethodCall fixture remains a typed
+negative. This row adds no ABI, Prepared product, Recipe, physicalizer,
+Builder/MIR, selector, retry, fallback, publication, or production authority.
+
+The next bounded row is `CALLABLE-STATIC-PREFIX-P0`, limited to
+declaration-derived ABI and Prepared evidence.
