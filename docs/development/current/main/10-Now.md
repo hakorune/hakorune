@@ -147,10 +147,12 @@ Related:
   is now accepted: exact resolver input is paired with the neutral S4 product
   by a compiler-side composite ingress. G0 I0 is closed: the ingress splits
   G0 After/Tail and proves fifteen-row `prepare_all` without Builder effect.
-  The active design stop is `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for the fresh
-  session/entry/topology/tail canary; physical G0 emission, production
-  selection, named caller switch, retry/fallback retirement, and legacy
-  deletion remain closed.
+  Top-down I1 review found that nested control splits one logical block around
+  the child Loop. The active row is the Builder-free
+  `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`; Recipe/JoinSig remain the sole
+  logical authority. Segment-aware CFG, recursive After, physical G0,
+  production selection, retry/fallback retirement, and legacy deletion remain
+  closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

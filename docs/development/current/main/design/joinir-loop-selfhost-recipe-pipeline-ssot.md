@@ -457,8 +457,13 @@ G0's post-loop read and I64 ABI in a distinct tail capability, and proves the
 full fifteen-item common preflight. Positive, missing-input, foreign-input,
 and After/Tail separation tests are green; physical G0 and production
 cutover remain later rows.
-The next design-only boundary is
-`LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for a fresh unpublished session.
+Top-down review accepted `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` only after a
+common prerequisite. Generic G0 places pre-child, nested-child, and post-child
+items in one logical block, so the current logical-block-to-one-physical-block
+mapping cannot preserve Recipe order. The next row is the Builder-free
+`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`, mechanically derived from
+Recipe/JoinSig. Segment block cutover, neutral recursive After, and the fresh
+G0 session remain separate later rows.
 
 ## Structural owners
 
@@ -470,6 +475,7 @@ The next design-only boundary is
 | `LoopRecipeV1` | condition, recursive body/control items, carriers, exits | legacy family, policy selection, physical IDs |
 | `LoopRecipeVerifierV1` | recipe shape, definitions, carrier/exit preconditions | logical edge elaboration, repair, fallback |
 | `LoopJoinSigElaboratorV1` / `LoopJoinSigV1` | bounded logical edge/dataflow and carrier-visibility obligations | PHI allocation, CFG repair, physical identities |
+| private `PreparedLoopPhysicalLayoutV1` target | mechanically derived segment order, exact item placement, nested After -> parent resume compatibility | source/AST inference, control meaning, profile policy, physical IDs, second Recipe authority |
 | `LoopCfgSkeletonLoweringV1` / `CanonicalCfgSessionV1` | physical blocks/edges/terminators and sealed predecessor witnesses from verified roles | route selection, AST reading, Binding SSA values |
 | function-owned `BindingSsaBuilderV1` | `BindingRef` reaching values, Read/Write definitions, provisional PHI, seal/finish | source inference, route policy, JoinSig discovery |
 | `PhiTxn` + `MirBindingSsaAdapterV1` | the single low-level PHI insert/patch/rollback lifecycle used by Binding SSA | Loop meaning, route selection |

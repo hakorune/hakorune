@@ -1070,12 +1070,24 @@ CALLABLE-LOOP-PHYSICAL-CANARY-P0
   finish CFG/SSA/PHI/completion and DraftSeal as caller-zero proof
 
 LOOP-CALLER-ZERO-PARITY-G0-I1-D0
-  design the fresh unpublished-session G0 entry/topology/operation/tail/finish
-  canary over the closed I0 ingress; no implementation yet
+  accepted top-down correction: direct G0 physical work waits for a common
+  Recipe-derived recursive segment/resume layout
+
+LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1
+  Builder-free exact item coverage/order and nested After -> parent resume;
+  Recipe/JoinSig remain the sole logical authority
+
+LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2
+  segment-aware canonical block allocation and operation placement; migrate
+  Callable parity and delete the selected logical-block-only execution lookup
+
+LOOP-COMMON-RECURSIVE-AFTER-R3
+  neutral recursive edge writer/After receipt; keep profile Tail and coverage
+  outside the common owner
 
 LOOP-CALLER-ZERO-PARITY-G0-I1-R0
-  prove callable Tail and Generic G0 After remain distinct profile adapters over
-  the same common physical owner after the I1 design receipts close
+  exact G0 parameters, derived-carrier seed, all fifteen operations, distinct
+  Tail/Completion and canonical finish/DraftSeal over the common owner
 
 JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A
 JOINIR-LOOP-M8-LOOPV0-EXITS-JOINS-S6B

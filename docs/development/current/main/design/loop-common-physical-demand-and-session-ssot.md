@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-07
+Date: 2026-08-08
 Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
 P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop,
@@ -10,8 +10,10 @@ separates full-demand preflight from leaf emission; the Builder-free
 `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` and the behavior-neutral
 physicalizer module split, physical block receipt, private ConstI64
 leaf-emitter canary, bounded ReadBinding I0, callable full physical P0, and
-G0 exact-ingress I0 are closed. The current row is the G0 fresh-session
-physical-canary design stop; operation production activation remains 0. The bounded After-closure canary is green: the real
+G0 exact-ingress I0 are closed. Top-down review revised the next boundary:
+before a G0 fresh-session canary, one private Builder-free segment/resume
+layout must be mechanically derived from Recipe/JoinSig. Operation production
+activation remains 0. The bounded After-closure canary is green: the real
 Prelude receipt feeds the complete seven-operation Callable dispatch, fixed
 CFG edges, and canonical CFG/identity sealing. The Tail handoff now reads the
 exact binding through canonical identity, validates the existing trivial ABI,
@@ -31,15 +33,15 @@ plus neutral SyntaxFacts/SourceMap are the target production boundary. The
 source/facts issuer S0 and bounded logical issuer D0/S0 are now closed with
 bounded negatives, exact parity, and caller-zero/current receipt audit. The
 profile Recipe shape is production-owned while the old shape helper remains a
-test-only parity wrapper. The next boundary is the design-only
-`CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0` is accepted and its S1/S2
-caller-zero products are closed. The active design stop is
-`LOOP-CALLER-ZERO-PARITY-G0-D0` is accepted. Its exact resolver-issued
+test-only parity wrapper. `CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0` is
+accepted and its S1/S2 caller-zero products are closed.
+`LOOP-CALLER-ZERO-PARITY-G0-D0` is also accepted. Its exact resolver-issued
 G0 source/input/entry capability is carried by a thin compiler-side composite
 ingress; neutral S4 remains the sole Recipe/effect/After owner. I0 is closed
-as Builder-free exact ingress plus fifteen-row `prepare_all`; the active design
-stop is `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for the fresh-session G0 canary.
-No named production caller switch or physical implementation is open.
+as Builder-free exact ingress plus fifteen-row `prepare_all`. The accepted I1
+design now requires `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`, segment-aware
+block cutover R2, and neutral recursive After R3 before G0 physical I1-R0.
+No named production caller switch or G0 physical implementation is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -91,6 +93,26 @@ capabilities and fixes their exact compatibility before the first Builder
 effect. Only the common inner demand is consumed by the recursive Loop
 physicalizer. Neither product is a new Recipe, selector, SSA, CFG, PHI,
 transaction, Return writer, or publication owner.
+
+Nested control can split one logical Recipe block into multiple physical
+segments. Generic G0 is the counterexample: root block B1 contains a carrier
+read, a nested Loop item, then the root update. Therefore logical-block-to-one-
+physical-block mapping is not a sufficient execution contract. A private,
+move-only `PreparedLoopPhysicalLayoutV1` target is mechanically derived from
+the complete Recipe/JoinSig and exact operation coverage before Builder
+effect. It owns only ordered segment placement and transfer compatibility:
+
+```text
+Recipe item -> exact segment
+segment -> ordered operation rows + one verified transfer
+nested After -> exact parent resume segment
+```
+
+Recipe/JoinSig remain the sole logical authority. The layout may not infer
+control meaning, reorder by item key, accept a profile name, or survive as a
+second Recipe. Unsupported structural items reject with typed `NoSafeSlice`
+before Builder mutation. Canonical CFG remains the sole physical block/edge/
+terminator owner after the layout is admitted.
 
 The existing `VerifiedLoopPhysicalDemandV1` is a closed topology-only P0
 compatibility transport. It feeds only the historical caller-zero topology/
@@ -823,10 +845,14 @@ skip the After closure or reopen a Tail-only route.
 | 10 | `CALLABLE-LOOP-DRAFT-SEAL-P0` | consume profile close, call only `finish_for_draft_seal`, then DraftSeal prepare/commit | closed caller-zero; production selection and legacy deletion remain closed |
 | 11 | `LOOP-CALLER-ZERO-PARITY-G0-D0` | accepted design: compiler-side exact-input composite ingress, neutral S4 owner, common physicalizer, distinct G0 After/Tail | no source reconstruction, physical emission, or production selection |
 | 12 | `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact G0 ingress -> common fifteen-row `prepare_all` with Builder effect zero | closed 2026-08-08; no physical emission, Completion/DraftSeal, selector, retry/fallback, or legacy deletion |
-| 13 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` | fresh-session G0 entry/topology/operation/tail/finish canary design | design stop; no implementation, production selector, retry/fallback, or legacy deletion |
-| 13 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
-| 14 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
-| 14 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
+| 13 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` | top-down counterexample fixes segment/resume as a common prerequisite | accepted design; direct G0 implementation superseded |
+| 14 | `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` | Builder-free Recipe-derived segment/resume layout plus exact order/coverage | no Builder effect or new accepted structural family |
+| 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | segment-aware block allocation/operation placement; Callable parity | BoxShape-only; delete selected logical-block-only execution lookup |
+| 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3` | neutral recursive edge writer and After receipt; Callable profile coverage stays outside | no G0 Tail/Completion or production caller |
+| 17 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, derived carrier, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | caller-zero only; no G0-specific physicalizer |
+| 18 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
+| 19 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
+| 20 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Closed implementation receipt: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
 
@@ -1006,10 +1032,10 @@ Callable has seven item rows and Generic G0 has fifteen, but parity compares
 neither counts nor source order. The full-demand P0, behavior-neutral module
 split, canonical physical block receipt, private ConstI64 leaf-emitter canary,
 bounded ReadBinding I0, and the caller-zero full callable physical canary are
-closed. G0 D0/I0 are accepted/closed and the active next row is the design-only
-`LOOP-CALLER-ZERO-PARITY-G0-I1-D0` fresh-session canary gate;
-production selection, Generic G0 physical parity, M8/M9 coverage, and
-retirement remain separate gates.
+closed. G0 D0/I0 are accepted/closed. Top-down I1 review selected
+`LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` as the active next row; it has Builder
+effect zero. Segment block cutover, recursive After, G0 physical parity,
+production selection, M8/M9 coverage, and retirement remain separate gates.
 
 ### ReadBinding leaf D0 correction (2026-08-07; Decision: accepted and landed)
 

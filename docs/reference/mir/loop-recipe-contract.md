@@ -14,9 +14,9 @@ Implementation receipt (`CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, 2026-08-07):
 the canonical V2 function lowerers now enter one typed finish terminal before
 DraftSeal. The portable Recipe/JoinSig algebra and its caller-zero status are
 unchanged; this receipt adds no physicalizer or production Loop authority.
-The bounded prepare-design correction is closed. The topology/After receipt
-and physical block receipt are closed; the current boundary is the private
-ConstI64 leaf-emitter canary. Full operation emission and physical/production
+The bounded prepare-design correction, Callable full physical canary, and G0
+Builder-free exact ingress are closed. The current boundary is the private
+Recipe-derived recursive segment/resume plan. G0 physical and production
 activation remain closed.
 
 Implementation receipt — `CALLABLE-LOOP-AFTER-CLOSURE-P0` (2026-08-07): the
@@ -781,8 +781,11 @@ fallback, Generic G0 parity, module publication, or legacy authority. G0 D0 is
 now accepted: exact resolver input is paired with neutral S4 by a compiler-side
 composite ingress. The Builder-free
 `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` fifteen-row `prepare_all` receipt is now
-closed; the active next design stop is
-`LOOP-CALLER-ZERO-PARITY-G0-I1-D0` for a fresh-session canary.
+closed. Top-down I1 review fixes the next physical contract: nested control
+may split one logical block into pre-child and parent-resume segments. The
+active row is the Builder-free `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`.
+Recipe/JoinSig remain the sole logical authority; the private layout records
+only mechanically derived order, item placement, and nested After -> resume.
 
 ## Generic G0 parity D0/I0 boundary (2026-08-08)
 
@@ -797,8 +800,8 @@ re-resolve, AST clone, or profile relabel is permitted.
 `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` issued this composite and proved the full
 fifteen-row common `prepare_all` without Builder effect. Physical root/child
 emission, G0 After-to-tail read, Completion, DraftSeal, selector, retry/
-fallback, and legacy deletion remain closed; the next design stop is
-`LOOP-CALLER-ZERO-PARITY-G0-I1-D0`.
+fallback, and legacy deletion remain closed. Segment layout R1, segment-aware
+block cutover R2, and neutral recursive After R3 must close before G0 I1-R0.
 
 ## Generic G0 exact-ingress I0 receipt (2026-08-08)
 

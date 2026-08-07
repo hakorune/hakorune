@@ -516,32 +516,30 @@ closed:
   LOOP-RECIPE-OPERATION-EFFECT-CALLABLE-ADAPTER-S0
   LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
   CALLABLE-LOOP-PRODUCTION-FULL-DEMAND-PREFLIGHT-S2
-closed:
   CALLABLE-LOOP-PHYSICAL-CANARY-P0
-accepted design:
-  LOOP-CALLER-ZERO-PARITY-G0-D0
-closed:
-  LOOP-CALLER-ZERO-PARITY-G0-I0-R0
-current design:
-  LOOP-CALLER-ZERO-PARITY-G0-I1-D0
+accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
+closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
+accepted correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0
+current execution:
+  LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1
 Change:
-  define the fresh-session G0 physical canary that consumes the closed I0
-  ingress without opening a G0 physicalizer or production caller.
+  derive a private Builder-free segment/resume layout from the complete
+  Recipe/JoinSig; add no G0 physicalizer or semantic owner.
 Contract:
-  I0 now splits G0 After into neutral continuation + tail capability, pairs
-  exact input/ledger/entry receipt with neutral S4 once, and calls common
-  prepare_all for all fifteen Recipe members. I1 must specify exact fresh
-  session/entry/topology/tail/finish receipts. No AST/name re-walk, second
-  resolver/owner, physical ID, selector, retry, fallback, publication, or
-  legacy deletion.
+  Recipe/JoinSig remain the sole logical authority. A mechanically derived
+  layout splits a logical block around nested control, covers every admitted
+  item exactly once, and records child-After -> parent-resume placement.
+  Unsupported If/Exit rejects before Builder effect. No AST/name re-walk,
+  second Recipe/CFG/SSA/PHI owner, selector, or fallback.
 Done:
   P0 caller-zero physical canary and G0 I0 exact Builder-free ingress are
-  closed. Positive, missing-input, foreign-input, and tail-separation tests
-  are green; existing demand/producer tests retain duplicate/missing-evidence
-  coverage. Exact capability absence is typed NoSafeSlice rather than
-  reconstructed.
+  closed. Top-down review proved that G0 B1 contains pre-child, nested-child,
+  and post-child items and cannot use the old logical-block-to-one-physical-
+  block execution mapping. The finite order is R1 layout, R2 segment block
+  cutover, R3 neutral recursive After, then G0 I1-R0.
 Stop:
-  Physical G0 emission, production selection, caller switch, fallback/retry,
+  R1 has Builder effect zero. Segment block allocation, recursive edge
+  emission, physical G0, production selection, caller switch, fallback/retry,
   collector/publication, and legacy deletion remain closed. Every
   implementation row requires source README,
   `docs/reference/**`, diagnostics, migration note, guards, and current
@@ -979,7 +977,7 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
-  4. land `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`, then complete G0 physical/parity rows, and only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
+  4. after closed G0 I0, complete common segment R1/block R2/recursive-After R3, then G0 I1 and M8/M9; only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance
