@@ -9,6 +9,8 @@ Related:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
   - docs/development/current/main/design/compiler-pipeline-thinning-ssot.md
   - docs/reference/language/function-exit-and-entry-result.md
+  - docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md
+  - docs/development/current/main/design/mir-root-facade-contract-ssot.md
   - docs/development/current/main/investigations/function-exit-f1-draft-seal0-s0-execution-task-2026-07-25.md
   - docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md
   - src/mir/builder/README.md
@@ -282,6 +284,29 @@ full accepted corpus / backend parity                             = green
 pack counters、replacement ledger、five-cell LOC、source/test measurements
 は、このsemantic completionへ到達する過程の観測値である。増減だけで
 implementation permissionやcompletionを決めない。
+
+## Final repository convergence finish line
+
+`MIRBUILDER-FINAL-PIPELINE-v1` の完了は Loop の production cutover だけで
+終わらない。次の直列順を最終 finish line として固定する。
+
+```text
+CANONICAL-FUNCTION-FINISH-TERMINAL-R0
+  -> common physicalizer / callable canary
+  -> production selection
+  -> M8/M9 coverage and parity
+  -> M10b activation
+  -> M11/M12 legacy retirement
+  -> repo-physical-structure-cleanup-ssot.md final convergence acceptance
+```
+
+最後の cleanup では、pipeline SSOT の一本化、`src/mir` root facade の
+durable-only 化、Rust/.hako/compat authority の分類、Context の owner 分離、
+`CURRENT_STATE` と設計 registry の収束、temporary proof/receipt/adapter の
+promote/quarantine/retire、旧 D4/S-series ledger の archive 化まで確認する。
+cleanup は Loop cutover 前に開かず、各実装 row は owning README/reference、
+guard index、current mirror を同じ commit で更新する。詳細な row と stop
+条件は上記 cleanup SSOT にのみ置き、ここに第二の task ledger は作らない。
 
 ## Explicit non-goals
 

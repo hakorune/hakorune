@@ -335,11 +335,11 @@ impl MirBuilder {
                 let (ready, final_receipt) =
                     CanonicalDirectAccumSsaLowererV1::new(builder, plan)?.lower()?;
                 final_receipt.consume_for_candidate()?;
-                let current_block = builder.function_state.current_block.ok_or_else(|| {
-                    "[freeze:contract][direct_accum/current_block_missing]".to_string()
-                })?;
                 #[cfg(test)]
                 if _inject_seal_failure {
+                    let current_block = builder.function_state.current_block.ok_or_else(|| {
+                        "[freeze:contract][direct_accum/current_block_missing]".to_string()
+                    })?;
                     builder
                         .function_state
                         .current_function
@@ -350,17 +350,17 @@ impl MirBuilder {
                         })?
                         .set_terminator(crate::mir::MirInstruction::Return { value: None });
                 }
-                Ok::<_, String>((ready, current_block))
+                Ok::<_, String>(ready)
             })()
         };
-        let (ready, current_block) = match lowering {
-            Ok(result) => result,
+        let ready = match lowering {
+            Ok(ready) => ready,
             Err(error) => {
                 session.discard_unpublished();
                 return Err(error.into());
             }
         };
-        let open = ReadyFunctionDraftSealV1::new(ready, current_block).open(session);
+        let open = ready.open(session);
         let prepared = open.prepare().map_err(reject_draft_seal)?;
         Ok(prepared.commit().into_draft())
     }
@@ -481,14 +481,15 @@ impl MirBuilder {
                 .map_err(|error| (NormalFunctionDraftLoweringStageV1::BodyLowering, error))?
                 .lower()
                 .map_err(|error| (NormalFunctionDraftLoweringStageV1::BodyLowering, error))?;
-                let current_block = builder.function_state.current_block.ok_or_else(|| {
-                    (
-                        NormalFunctionDraftLoweringStageV1::BodyLowering,
-                        "[freeze:contract][f1_draft_seal/current_block_missing]".to_string(),
-                    )
-                })?;
                 #[cfg(test)]
                 if _inject_seal_failure {
+                    let current_block = builder.function_state.current_block.ok_or_else(|| {
+                        (
+                            NormalFunctionDraftLoweringStageV1::BodyLowering,
+                            "[freeze:contract][if_recipe/test_failure_block_missing]"
+                                .to_string(),
+                        )
+                    })?;
                     builder
                         .function_state
                         .current_function
@@ -503,14 +504,14 @@ impl MirBuilder {
                         })?
                         .set_terminator(crate::mir::MirInstruction::Return { value: None });
                 }
-                Ok((ready, current_block))
+                Ok(ready)
             })()
         };
-        let (ready, current_block) = match lowering {
-            Ok(result) => result,
+        let ready = match lowering {
+            Ok(ready) => ready,
             Err((stage, error)) => return Err(reject_after_session_discard(session, stage, error)),
         };
-        let open = ReadyFunctionDraftSealV1::new(ready, current_block).open(session);
+        let open = ready.open(session);
         let prepared = match open.prepare() {
             Ok(prepared) => prepared,
             Err(rejected) => return Err(reject_draft_seal_typed(rejected)),

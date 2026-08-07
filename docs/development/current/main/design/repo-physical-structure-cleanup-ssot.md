@@ -438,6 +438,11 @@ its typed function-finish design stop are complete.
 - every temporary proof/receipt/adapter is either promoted to a durable owner,
   quarantined with an explicit caller boundary, or removed with a recorded
   evidence-based retirement condition
+- historical D4/S-series task maps, worker consultation notes, and proof
+  ledgers are archived after their owner rows close and their evidence is
+  linked from the durable SSOT; current pointers retain no executable
+  reference to those historical rows, and an archived row cannot be
+  re-selected as the active lane
 - each implementation row updates its owning reference/README and the
   current-entry mirrors in the same commit; post-cutover reference updates
   are part of completion, not a follow-up task

@@ -28,6 +28,11 @@ this inspection-only matrix does not become its selector or Recipe authority.
 The machine-readable test observer is
 `src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs`.
 
+Implementation receipt (`CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, 2026-08-07):
+the shared canonical function finish boundary is implemented for the three
+V2 profiles only. Generic G0 remains caller-zero observation/Recipe evidence;
+no physical selection, fallback removal, or production claim follows.
+
 Production selection remains the ordered registry in
 `src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs` and
 `predicates.rs`. The `loop_route_policy::generic_g0` subtree now owns a

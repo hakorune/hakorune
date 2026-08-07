@@ -149,6 +149,16 @@ pub(super) enum FunctionDraftSealPreparationErrorV1 {
 }
 
 impl ReadyFunctionDraftSealV1 {
+    pub(in crate::mir::builder::resolved_lowering) fn from_v2_finish(
+        completion: ReadyFunctionCompletionV1,
+        current_block: BasicBlockId,
+    ) -> Self {
+        Self {
+            completion,
+            current_block,
+        }
+    }
+
     pub(super) fn new(completion: ReadyFunctionCompletionV1, current_block: BasicBlockId) -> Self {
         Self {
             completion,

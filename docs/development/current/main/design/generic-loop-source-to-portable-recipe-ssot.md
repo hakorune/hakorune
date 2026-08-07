@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, and RECIPE-COSEAL-D0-r1 are closed; bounded RECIPE-COSEAL-I0-R0 caller-zero implementation is closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted in advance; current frontier is a design stop before CANONICAL-FUNCTION-FINISH-TERMINAL-R0; physical/production activation remains 0`
+Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, RECIPE-COSEAL-D0-r1, bounded RECIPE-COSEAL-I0-R0 caller-zero implementation, and CANONICAL-FUNCTION-FINISH-TERMINAL-R0 for the three V2 session lowerers are closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted; the next LOOP-PHYSICAL-PREPARE-I0-R0 design stop keeps physical/production activation at 0`
 
-Current row: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` (design stop; no implementation yet)
+Current row: `LOOP-PHYSICAL-PREPARE-I0-R0` (design stop; no Builder/physical effects authorized)
 
 Count/shape invariant: the legacy count of 19 names scheduler ingress and
 coverage rows only. M7/M8 map those rows into one recursive `LoopRecipeV1`

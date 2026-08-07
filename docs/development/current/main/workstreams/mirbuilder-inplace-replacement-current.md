@@ -37,12 +37,13 @@ and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. MAP
 co-seals the resolver source/frame/Scope/Region and the selected
 `0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
 not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
-`RECIPE-COSEAL-I0-R0` is closed; Loop continuation/Tail remain separate. Current frontier is the design stop before `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`; physical/production/retirement stay closed. R0 audit: migrate only the three existing V2 session lowerers; keep the one non-V2 `ReadyFunctionDraftSealV1::new` caller as named non-growing compatibility debt; consume a move-only profile-close receipt and never re-infer body/site/target/current-block facts.
+`RECIPE-COSEAL-I0-R0` is closed; Loop continuation/Tail remain separate. `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` is closed for the three existing V2 session lowerers; keep the one non-V2 `ReadyFunctionDraftSealV1::new` caller as named non-growing compatibility debt. Physical/production/retirement stay closed at the next `LOOP-PHYSICAL-PREPARE-I0-R0` design stop.
+
+Final finish line (not an additional active lane): `CANONICAL-FUNCTION-FINISH-TERMINAL-R0 -> common physicalizer -> production selection -> M8/M9 -> M10b -> M11/M12 -> repo-physical-structure-cleanup-ssot.md`. That SSOT owns pipeline/root/context/authority convergence, registry/current-pointer cleanup, temporary-surface disposition, and D4/S-series archive; it opens only after Loop cutover, with README/reference/guard/current-mirror updates in every implementation commit.
 
 ## Root-neutral semantic foundation
 
-Closed. One private traversal is the Function/Lambda and selected-Script
-lexical authority. Function/Lambda use dense roots; Script uses the sparse
+Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
 `ProgramBody(original ordinal)` window. The former Script visible-name map,
 recursive mini-resolver, manual Local/Variable facts, and path reconstruction
 are deleted. Complete issues one forest/projection only after total coverage;

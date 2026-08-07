@@ -71,10 +71,13 @@ Related:
   existing Core remains the common owner, while operation/input source
   relations, semantic-context, and After/Tail are co-sealed without a
   callable-specific Recipe/SSA/PHI owner. The bounded caller-zero
-  `RECIPE-COSEAL-I0-R0` implementation is closed. The current frontier is a
-  design stop before `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`; physicalization,
-  production selection, strict receipt, retry/fallback retirement, and legacy
-  deletion remain closed.
+  `RECIPE-COSEAL-I0-R0` implementation is closed. The typed
+  `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` is closed for the three V2 session
+  lowerers through the sole typed terminal. The non-V2 direct constructor
+  remains named compatibility debt. The next boundary is the
+  `LOOP-PHYSICAL-PREPARE-I0-R0` design stop; physicalization, production
+  selection, strict receipt, retry/fallback retirement, and legacy deletion
+  remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

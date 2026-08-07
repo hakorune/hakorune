@@ -24,8 +24,8 @@ use crate::mir::resolved_semantics::BindingKindV1;
 use crate::mir::{BasicBlockId, MirBuilder, ValueId};
 
 use super::canonical_cfg::{CanonicalCfgSessionV1, VerifiedPredecessorsV1};
-use super::canonical_ssa::CanonicalSsaFunctionSessionV2;
-use super::completion_consumption::ReadyFunctionCompletionV1;
+use super::canonical_ssa::{finish_profile_close, CanonicalSsaFunctionSessionV2};
+use super::draft_seal::ReadyFunctionDraftSealV1;
 use super::direct_accum_adapter::CanonicalDirectAccumBindingPort;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -116,7 +116,7 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
 
     pub(in crate::mir::builder::resolved_lowering) fn lower(
         mut self,
-    ) -> Result<(ReadyFunctionCompletionV1, DirectAccumFinalBindingReceiptV1), String> {
+    ) -> Result<(ReadyFunctionDraftSealV1, DirectAccumFinalBindingReceiptV1), String> {
         let (bindings, inputs) = self.publish_prefix()?;
         let preheader = self.current_block()?;
         let roles = self.allocate_roles(preheader)?;
@@ -168,35 +168,17 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             final_values,
             continuation.result.clone(),
         )?;
-        port.finish_effect_claims()?;
+        let profile_close = finish_profile_close(
+            self.input.owner(),
+            continuation.continuation_block,
+            || port.finish_effect_claims(),
+        )?;
         drop(port);
-
-        let body = self
-            .input
-            .source()
-            .root_body()
+        let ready = self
+            .session
+            .finish_for_draft_seal(self.builder, profile_close)
             .map_err(|error| error.to_string())?;
-        let body_end = u32::try_from(body.statements().len())
-            .map_err(|_| "[freeze:contract][direct_accum/body_length_overflow]".to_string())?;
-        let target_function = self.session.semantics.function_region();
-        self.session.semantics.finish()?;
-        self.session
-            .if_control
-            .finish()
-            .map_err(|error| format!("[freeze:contract][if_control/finish] {error:?}"))?;
-        self.session.identity.finish()?;
-        self.session
-            .phis
-            .commit(self.builder)
-            .map_err(|error| error.to_string())?;
-        self.builder
-            .function_state
-            .resolved_binding_state
-            .finish(self.input.owner())?;
-        self.session
-            .completion
-            .finish(body.site(), body_end, target_function)
-            .map(|ready| (ready, final_receipt))
+        Ok((ready, final_receipt))
     }
 
     fn publish_prefix(

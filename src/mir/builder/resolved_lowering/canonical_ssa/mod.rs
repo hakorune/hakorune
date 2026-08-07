@@ -8,4 +8,4 @@ mod identity;
 mod session;
 
 pub(super) use identity::ResolvedSsaIdentityStateV2;
-pub(super) use session::CanonicalSsaFunctionSessionV2;
+pub(super) use session::{finish_profile_close, CanonicalSsaFunctionSessionV2};

@@ -163,7 +163,6 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
     select(builder, cfg, root_header)?;
     seal(builder, cfg, port, phis, root_header)?;
     select(builder, cfg, root_after)?;
-    port.finish_effect_claims()?;
     Ok(NestedPhysicalContinuationV1 {
         continuation_block: root_after,
     })

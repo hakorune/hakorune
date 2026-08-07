@@ -239,6 +239,40 @@ PY
       "D′ SSA-E0 completion consumption drifted: $file:$anchor"
   done
 
+  # CANONICAL-FUNCTION-FINISH-TERMINAL-R0 owns the common V2 close order.
+  # Keep the compatibility constructor visible only at its one non-V2 caller;
+  # the three V2 lowerers must return through the typed terminal instead.
+  local canonical_session="$lowering/canonical_ssa/session.rs"
+  local v2_finish_definition_count v2_finish_call_count non_v2_constructor_count
+  v2_finish_definition_count="$(rg -n 'fn finish_for_draft_seal\(' "$canonical_session" | wc -l | tr -d '[:space:]')"
+  if [[ "$v2_finish_definition_count" != "1" ]]; then
+    guard_fail "$tag" "canonical V2 finish terminal must have one definition"
+  fi
+  v2_finish_call_count="$(rg -n 'finish_for_draft_seal\(' \
+    "$lowering/trivial_ssa/lowerer.rs" \
+    "$lowering/direct_accum_lowerer.rs" \
+    "$lowering/nested_predicate_lowerer.rs" | wc -l | tr -d '[:space:]')"
+  if [[ "$v2_finish_call_count" != "3" ]]; then
+    guard_fail "$tag" "canonical V2 lowerers must issue exactly three typed finish calls"
+  fi
+  if rg -n 'ReadyFunctionDraftSealV1::new' \
+    "$lowering/trivial_ssa/lowerer.rs" \
+    "$lowering/direct_accum_lowerer.rs" \
+    "$lowering/nested_predicate_lowerer.rs"; then
+    guard_fail "$tag" "V2 lowerers must not construct ReadyFunctionDraftSealV1 directly"
+  fi
+  non_v2_constructor_count="$(rg -n 'ReadyFunctionDraftSealV1::new' \
+    "$lowering/mod.rs" | wc -l | tr -d '[:space:]')"
+  if [[ "$non_v2_constructor_count" != "1" ]]; then
+    guard_fail "$tag" "non-V2 ReadyFunctionDraftSealV1::new compatibility caller must stay at one"
+  fi
+  if rg -n 'session\.(semantics|if_control|identity|completion).*finish|session\.phis.*commit' \
+    "$lowering/trivial_ssa/lowerer.rs" \
+    "$lowering/direct_accum_lowerer.rs" \
+    "$lowering/nested_predicate_lowerer.rs"; then
+    guard_fail "$tag" "V2 lowerers must not duplicate function-local finish ownership"
+  fi
+
   # F1 DRAFT-SEAL0-S0 now owns canonical/trivial lowerer closure.  The
   # projection image is the only planned Return image; live lowerers and the
   # old completion finalizers must not write or close this route separately.

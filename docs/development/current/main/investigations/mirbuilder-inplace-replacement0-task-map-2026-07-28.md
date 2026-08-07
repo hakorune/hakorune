@@ -8,6 +8,8 @@ Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
 Workstream:
   - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
+Final convergence pointer (serial, after Loop retirement):
+  - docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md
 Supersedes scheduling authority of:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
   - OWN-GRAM-REJECT0-HAKO0-S0

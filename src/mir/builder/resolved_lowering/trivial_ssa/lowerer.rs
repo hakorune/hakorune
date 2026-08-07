@@ -1,12 +1,14 @@
 //! Located materializer for the whole-owner trivial Binding SSA route.
 
-use super::super::completion_consumption::ReadyFunctionCompletionV1;
 use super::super::if_recipe_adapter::CanonicalIfRecipeAdmissionDispositionV1;
 use super::super::MirBuilder;
 use super::operation::{emit_binary, mir_type};
 use super::parameter_entry::publish_parameter_entries_v1;
 use crate::ast::{ASTNode, LiteralValue};
-use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use crate::mir::builder::resolved_lowering::canonical_ssa::{
+    finish_profile_close, CanonicalSsaFunctionSessionV2,
+};
+use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
@@ -83,7 +85,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
 
     pub(in crate::mir::builder::resolved_lowering) fn lower(
         mut self,
-    ) -> Result<ReadyFunctionCompletionV1, String> {
+    ) -> Result<ReadyFunctionDraftSealV1, String> {
         publish_parameter_entries_v1(self.builder, &mut self.session.identity, &mut self.profile)?;
         let body = self
             .input
@@ -100,30 +102,16 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         }
         self.seal_current_if_needed()?;
 
-        self.session.semantics.finish()?;
-        self.finish_cfg()?;
-        self.profile.finish()?;
+        let terminal_block = self.current_block()?;
+        let profile_close = finish_profile_close(self.input.owner(), terminal_block, || {
+            self.profile.finish()?;
+            self.if_recipe
+                .finish()
+                .map_err(|error| format!("[freeze:contract][if_recipe/finish] {error:?}"))
+        })?;
         self.session
-            .if_control
-            .finish()
-            .map_err(|error| format!("[freeze:contract][if_control/finish] {error:?}"))?;
-        self.if_recipe
-            .finish()
-            .map_err(|error| format!("[freeze:contract][if_recipe/finish] {error:?}"))?;
-        self.session.identity.finish()?;
-        self.session
-            .phis
-            .commit(self.builder)
-            .map_err(|error| error.to_string())?;
-        self.builder
-            .function_state
-            .resolved_binding_state
-            .finish(self.input.owner())?;
-        self.session.completion.finish(
-            body.site(),
-            body_end,
-            self.session.semantics.function_region(),
-        )
+            .finish_for_draft_seal(self.builder, profile_close)
+            .map_err(|error| error.to_string())
     }
 
     fn completion_is_implicit(&self) -> bool {
@@ -477,21 +465,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         self.session
             .identity
             .seal_block(self.builder, &mut self.session.phis, block, &witness)
-    }
-
-    fn finish_cfg(&mut self) -> Result<(), String> {
-        let cfg = std::mem::take(&mut self.session.cfg);
-        let function = self
-            .builder
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or_else(|| {
-                "[freeze:contract][canonical_binding_ssa/function_missing]".to_string()
-            })?;
-        let verified_cfg = cfg.finish(function).map_err(|error| error.to_string())?;
-        debug_assert_eq!(verified_cfg.blocks().len(), function.blocks.len());
-        Ok(())
     }
 
     fn current_block(&self) -> Result<BasicBlockId, String> {

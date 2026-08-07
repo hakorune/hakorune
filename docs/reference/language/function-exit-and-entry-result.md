@@ -43,6 +43,12 @@ It also does not make parser, MIR, runtime, or backend behavior normative.
 Existing code and parity fixtures are implementation evidence. Where they
 disagree with this topic, the difference is an explicit migration gap.
 
+Implementation receipt (`CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, 2026-08-07):
+the three canonical V2 lowering profiles now share one typed function-local
+finish terminal before DraftSeal. The non-V2 constructor is explicit
+compatibility debt. This changes no source exit, Result, ABI, or backend
+semantics; it only closes the internal CFG/SSA/PHI/Completion handoff.
+
 The accepted target is:
 
 ```text

@@ -2,8 +2,9 @@
 Status: SSOT
 Date: 2026-08-07
 Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
-Activation: 0; bounded `RECIPE-COSEAL-I0-R0` is closed; current execution is
-the design stop before `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
+Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` closed for the three V2
+session lowerers; bounded `RECIPE-COSEAL-I0-R0` is closed; the next
+`LOOP-PHYSICAL-PREPARE-I0-R0` design stop keeps physical Loop activation at 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -602,7 +603,7 @@ of nested design suffixes unless a code audit proves one named missing owner.
 | 9 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 10 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
-### Parked next task: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
+### Current implementation task: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
 
 ```text
 Change:
@@ -682,9 +683,10 @@ accepted target now, but the reference pages must not claim physical,
 production, backend, or retirement capability before the corresponding
 implementation receipt exists.
 
-## Current stop
+## Current execution boundary
 
-The architecture is accepted in advance, but execution authority does not
-move past the current design stop. The bounded caller-zero
-`RECIPE-COSEAL-I0-R0` implementation is closed. Stop and consult before
-opening `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`.
+The architecture and the `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` consultation
+are closed. Its implementation is active only within the three-V2-caller,
+typed-receipt, and no-reinference contract above. The bounded caller-zero
+`RECIPE-COSEAL-I0-R0` implementation is closed; physical Loop lowering and
+production selection remain closed until this R0 acceptance pack lands.

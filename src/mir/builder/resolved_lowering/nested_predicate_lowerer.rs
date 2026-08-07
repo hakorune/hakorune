@@ -3,8 +3,10 @@
 //! This is the sibling of the DirectAccum lowerer. It owns no module
 //! transaction and borrows the existing function-wide SSA/CFG/PHI services.
 
-use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
-use crate::mir::builder::resolved_lowering::completion_consumption::ReadyFunctionCompletionV1;
+use crate::mir::builder::resolved_lowering::canonical_ssa::{
+    finish_profile_close, CanonicalSsaFunctionSessionV2,
+};
+use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
 use crate::mir::builder::resolved_lowering::nested_predicate_adapter::CanonicalNestedBindingPort;
 use crate::mir::builder::resolved_lowering::nested_predicate_physicalizer::physicalize_nested_predicate_v1;
 use crate::mir::builder::MirBuilder;
@@ -63,7 +65,7 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
 
     pub(in crate::mir::builder::resolved_lowering) fn lower(
         mut self,
-    ) -> Result<ReadyFunctionCompletionV1, String> {
+    ) -> Result<ReadyFunctionDraftSealV1, String> {
         let preheader = self.current_block()?;
         let root_fresh = self.fresh_blocks();
         let child_fresh = self.fresh_blocks();
@@ -112,6 +114,12 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
             &mut port,
             &mut self.session.phis,
         )?;
+        let profile_close = finish_profile_close(
+            self.input.owner(),
+            continuation.continuation_block,
+            || port.finish_effect_claims(),
+        )?;
+        drop(port);
         self.finish_after(continuation.continuation_block)?;
         self.session
             .semantics
@@ -120,40 +128,9 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
             .semantics
             .close_scope_region_success(root_scope, &mut self.session.identity)?;
 
-        let body = self
-            .input
-            .source()
-            .root_body()
-            .map_err(|error| error.to_string())?;
-        let body_end = u32::try_from(body.statements().len())
-            .map_err(|_| "[freeze:contract][nested_lowerer/body_length]".to_string())?;
-        let target_function = self.session.semantics.function_region();
-        self.session.semantics.finish()?;
         self.session
-            .if_control
-            .finish()
-            .map_err(|error| format!("[freeze:contract][if_control/finish] {error:?}"))?;
-        let cfg = std::mem::take(&mut self.session.cfg);
-        let function = self
-            .builder
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or_else(|| "[freeze:contract][nested_lowerer/function_missing]".to_string())?;
-        cfg.finish(function)
-            .map_err(|error| format!("[freeze:contract][nested_cfg/finish] {error:?}"))?;
-        self.session.identity.finish()?;
-        self.session
-            .phis
-            .commit(self.builder)
-            .map_err(|error| error.to_string())?;
-        self.builder
-            .function_state
-            .resolved_binding_state
-            .finish(self.input.owner())?;
-        self.session
-            .completion
-            .finish(body.site(), body_end, target_function)
+            .finish_for_draft_seal(self.builder, profile_close)
+            .map_err(|error| error.to_string())
     }
 
     fn fresh_blocks(&mut self) -> [BasicBlockId; 4] {
@@ -236,20 +213,17 @@ pub(in crate::mir) fn lower_nested_predicate_function_draft(
             draft_builder.set_current_function_runes(attrs);
             draft_builder.set_current_function_declared_capability_uses(uses);
             let ready = CanonicalNestedPredicateSsaLowererV1::new(draft_builder, plan)?.lower()?;
-            let current_block = draft_builder.function_state.current_block.ok_or_else(|| {
-                "[freeze:contract][nested_predicate/current_block_missing]".to_string()
-            })?;
-            Ok::<_, String>((ready, current_block))
+            Ok::<_, String>(ready)
         })()
     };
-    let (ready, current_block) = match lowering {
-        Ok(result) => result,
+    let ready = match lowering {
+        Ok(ready) => ready,
         Err(error) => {
             session.discard_unpublished();
             return Err(error.into());
         }
     };
-    let open = super::draft_seal::ReadyFunctionDraftSealV1::new(ready, current_block).open(session);
+    let open = ready.open(session);
     let prepared = open.prepare().map_err(|rejected| {
         let stage = rejected.stage();
         let error = format!("{:?}", rejected.error());

@@ -10,6 +10,11 @@ activate a production Loop route.
 Primary design authority:
 `docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md`
 
+Implementation receipt (`CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, 2026-08-07):
+the canonical V2 function lowerers now enter one typed finish terminal before
+DraftSeal. The portable Recipe/JoinSig algebra and its caller-zero status are
+unchanged; this receipt adds no physicalizer or production Loop authority.
+
 Executable authority:
 `src/mir/loop_recipe_contract/`
 
