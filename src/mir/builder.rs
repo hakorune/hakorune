@@ -28,6 +28,7 @@ mod literal_postemit_retirement_tests;
 mod normal_callable_binding_materialization;
 mod normal_callable_binding_materialization_port; // existing formal ValueId handoff
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
+mod normal_callable_prepared_operation; // Builder-free full-demand ingress
 mod normal_callable_semantic_loan_port; // Selected-only outer callable loan
 mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority

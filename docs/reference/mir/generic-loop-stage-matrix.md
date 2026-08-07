@@ -1500,3 +1500,21 @@ profile Recipe shape is production-owned in
 `callable_single_loop_recipe.rs`; `callable_recipe()` is only a test parity
 wrapper. The logical product remains caller-zero: Prepared/physical/selector/
 production-caller/Generic G0/retry/fallback/legacy behavior remain closed.
+
+## Callable full-demand preflight receipt (2026-08-08)
+
+The callable prepared-ingress S2 row is closed as Builder-free preflight.
+`PreparedCallableLoopIngressV1::prepare_full_demand` is the single profile
+entry and consumes one source-plus-logical ingress into the existing neutral
+`VerifiedLoopOperationPhysicalDemandV1`. `prepare_all` derives the complete
+seven-row schedule from Recipe structure and seals exact coverage before any
+physical session opens; no evidence-index order or first/select/filter helper
+can choose a partial program.
+
+The profile wrapper retains only source/input/Prelude/Tail transport. The
+common program remains the sole owner of operation/effect coverage, semantic
+context, and Loop continuation. No Builder/MIR/physical identity,
+ABI/Completion, selector, Generic G0 parity, retry/fallback, publication, or
+legacy behavior is opened. The next bounded row is the caller-zero full
+physical canary; it must prove fresh-session discard/reuse before production
+selection.

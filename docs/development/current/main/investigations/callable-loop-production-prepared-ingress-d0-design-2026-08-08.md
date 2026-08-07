@@ -1,9 +1,9 @@
 # Callable Loop Production Prepared Ingress D0
 
-Status: `accepted`; source-loan expansion S0 and prepared-ingress assembly S1
-are closed (2026-08-08). The next bounded row is Builder-free full-demand
-preflight; no physicalization or physical implementation is authorized by this
-card.
+Status: `accepted`; source-loan expansion S0, prepared-ingress assembly S1,
+and Builder-free full-demand preflight S2 are closed (2026-08-08). The next
+bounded row is the caller-zero full physical canary; production selection and
+legacy retirement remain closed.
 
 ## Purpose
 
@@ -142,13 +142,12 @@ moves to an implementation row.
    consume the existing logical product and disjoint Prelude/Tail/ABI/
    Completion capabilities exactly once; issue one move-only prepared product.
 
-3. Builder-free full-demand preflight — **next**
-   verify complete operation coverage and all profile compatibility before a
-   function session opens; missing/foreign/duplicate/borrowed evidence is
-   typed `NoSafeSlice`.
+3. Builder-free full-demand preflight — **closed**
+   complete callable operation/effect coverage is prepared in Recipe order
+   with zero Builder effect; no partial extraction API exists.
 
-4. bounded physical canary
-   only after 1--3: open a fresh session, use the common profile-blind
+4. bounded physical canary — **next**
+   open a fresh session, use the common profile-blind
    physicalizer, and prove whole-session discard plus fresh-session reuse.
 
 5. reference closeout

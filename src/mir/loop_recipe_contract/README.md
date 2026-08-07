@@ -141,6 +141,14 @@ schedule for Callable's seven rows and Generic G0's fifteen rows with zero
 Builder/MIR effect. It exposes no first/select/filter operation API. Leaf
 emission and production operation activation remain closed.
 
+The normal callable prepared-ingress row now consumes this full demand through
+one `PreparedCallableLoopIngressV1::prepare_full_demand` entry. It checks the
+source/context, input, Prelude, and Tail owner relation once, retains the
+callable transport in a thin profile wrapper, and leaves the common program as
+the sole Recipe-order/coverage owner. This is still Builder-free; physical
+session opening, ABI/Completion handoff, selector, Generic G0 parity, and
+legacy retirement remain later rows.
+
 The neutral `VerifiedLoopSemanticContextV1` and
 `VerifiedLoopContinuationContractV1` wrappers are transport-only. Callable and
 Generic G0 move existing resolver/JoinSig evidence into them exactly once; no

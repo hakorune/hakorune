@@ -5,8 +5,7 @@
 //! the neutral item-keyed product without creating a second Core or operation
 //! owner.
 
-#![cfg(test)]
-
+#[cfg(test)]
 use super::lowering_input::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_recipe_contract::{
     LoopBindingEffectAnchorV1, LoopBindingEffectRoleV1, LoopBlockKeyV1,
@@ -32,6 +31,42 @@ pub(crate) enum CallableOperationEffectAdapterRejectV1 {
     Product(LoopOperationEffectRejectV1),
 }
 
+/// Move-only neutral parts emitted by the callable source/effect adapter.
+/// The prepared-ingress assembler is the only production consumer. This is
+/// intentionally not a public profile product and exposes no borrowed view.
+#[derive(Debug)]
+pub(in crate::mir) struct CallableOperationEffectPartsV1 {
+    operation_effect: VerifiedLoopOperationEffectProductV1,
+    input: VerifiedLoopInputRelationV1,
+    context: VerifiedLoopSemanticContextV1,
+    continuation: VerifiedLoopContinuationContractV1,
+    prelude: VerifiedCallablePreludeV1,
+    tail: VerifiedCallableTailV1,
+}
+
+impl CallableOperationEffectPartsV1 {
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        VerifiedLoopOperationEffectProductV1,
+        VerifiedLoopInputRelationV1,
+        VerifiedLoopSemanticContextV1,
+        VerifiedLoopContinuationContractV1,
+        VerifiedCallablePreludeV1,
+        VerifiedCallableTailV1,
+    ) {
+        (
+            self.operation_effect,
+            self.input,
+            self.context,
+            self.continuation,
+            self.prelude,
+            self.tail,
+        )
+    }
+}
+
+#[cfg(test)]
 #[derive(Debug)]
 pub(crate) struct VerifiedCallableOperationEffectProductV1 {
     operation_effect: VerifiedLoopOperationEffectProductV1,
@@ -69,6 +104,7 @@ pub(crate) fn callable_operation_fixture_for_test() -> CallableOperationFixtureV
     CallableOperationFixtureV1 { unit, product }
 }
 
+#[cfg(test)]
 impl VerifiedCallableOperationEffectProductV1 {
     pub(crate) fn operation_effect(&self) -> &VerifiedLoopOperationEffectProductV1 {
         &self.operation_effect
@@ -148,9 +184,9 @@ impl VerifiedCallableOperationEffectProductV1 {
     }
 }
 
-pub(crate) fn issue_callable_operation_effect_v1(
+pub(in crate::mir) fn issue_callable_operation_effect_parts_v1(
     product: VerifiedCallableSingleLoopRecipeProductV1,
-) -> Result<VerifiedCallableOperationEffectProductV1, CallableOperationEffectAdapterRejectV1> {
+) -> Result<CallableOperationEffectPartsV1, CallableOperationEffectAdapterRejectV1> {
     let (co_seal, prelude, tail) = product.into_parts();
     let (core, input, operations, context, continuation) = co_seal.into_parts();
     let mut evidence = Vec::with_capacity(operations.len());
@@ -176,6 +212,22 @@ pub(crate) fn issue_callable_operation_effect_v1(
     }
     let operation_effect = VerifiedLoopOperationEffectProductV1::issue(core, evidence)
         .map_err(CallableOperationEffectAdapterRejectV1::Product)?;
+    Ok(CallableOperationEffectPartsV1 {
+        operation_effect,
+        input,
+        context,
+        continuation,
+        prelude,
+        tail,
+    })
+}
+
+#[cfg(test)]
+pub(crate) fn issue_callable_operation_effect_v1(
+    product: VerifiedCallableSingleLoopRecipeProductV1,
+) -> Result<VerifiedCallableOperationEffectProductV1, CallableOperationEffectAdapterRejectV1> {
+    let parts = issue_callable_operation_effect_parts_v1(product)?;
+    let (operation_effect, input, context, continuation, prelude, tail) = parts.into_parts();
     Ok(VerifiedCallableOperationEffectProductV1 {
         operation_effect,
         input,

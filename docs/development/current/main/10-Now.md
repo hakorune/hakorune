@@ -137,11 +137,14 @@ Related:
   callable loan still drops forest/projection before raw lowering.
   Prepared-ingress S1 is now closed: one move-only source-plus-logical
   ingress checks owner/origin/Loop frame/scope identity without Builder effect
-  and preserves the raw host. The next authorized row is
-  `CALLABLE-LOOP-PRODUCTION-FULL-DEMAND-PREFLIGHT-S2`, which verifies complete
-  operation/effect coverage before any physical session opens. Recipe/Prepared
-  physicalization, physical selection, named caller switch, Generic G0,
-  retry/fallback retirement, and legacy deletion remain closed.
+  and preserves the raw host. Full-demand preflight S2 is now also closed:
+  `PreparedCallableLoopIngressV1::prepare_full_demand` issues one complete
+  Recipe-order seven-row schedule with zero Builder effect and no partial
+  extraction API. The next authorized row is the caller-zero
+  `CALLABLE-LOOP-PHYSICAL-CANARY-P0`, limited to fresh-session materialization,
+  whole-session discard, and fresh-session reuse. Production selection, named
+  caller switch, Generic G0, retry/fallback retirement, and legacy deletion
+  remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

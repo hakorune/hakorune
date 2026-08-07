@@ -515,36 +515,36 @@ closed:
   LOOP-RECIPE-OPERATION-EFFECT-S0
   LOOP-RECIPE-OPERATION-EFFECT-CALLABLE-ADAPTER-S0
   LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
-
-current:
   CALLABLE-LOOP-PRODUCTION-FULL-DEMAND-PREFLIGHT-S2
-
+current:
+  CALLABLE-LOOP-PHYSICAL-CANARY-P0
 Change:
-  consume one move-only prepared ingress and verify complete callable
-  operation/effect coverage with zero Builder effect; preserve the raw host
-  and keep index/header as optional profile companions.
-
+  open one fresh unpublished function session from the prepared callable
+  ingress, materialize the exact Prelude/entry, consume the complete
+  Recipe-order operation program through the common profile-blind physicalizer,
+  and prove whole-session discard plus fresh-session reuse. This remains a
+  caller-zero canary; the raw host and selector stay untouched.
 Contract:
-  retain exact source, function, forest/projection, Recipe, JoinSig, and After
-  owners with identity checks before Builder effect; Recipe owns complete
-  operation order; no first/select/filter extraction. No AST/name re-walk,
-  second owner, physical ID, Builder/session effect, selector, retry, fallback,
-  or legacy deletion. Missing/foreign evidence returns `NoSafeSlice`.
-
+  consume the S2 full-demand product exactly once, open a fresh canonical
+  function session, keep Prelude/input, Loop After, callable Tail, ABI, and
+  Completion disjoint, and finish only through the existing session/DraftSeal
+  owners. No AST/name re-walk, second CFG/SSA/PHI owner, selector, retry,
+  fallback, Generic G0 parity, module publication, or legacy deletion.
 Done:
-  Prepared-ingress D0/S1 and source-loan expansion S0 are closed. The source
-  receipt is non-Clone/move-only, uses separate program/row lifetimes, and the
-  source-plus-logical ingress checks owner/origin/Loop frame/scope before any
-  Builder effect. The raw host still consumes its old pair, the static-header
-  helper remains test-only, and no physical implementation is authorized.
-
+  Prepared-ingress D0/S1, source-loan expansion S0, and Builder-free full-
+  demand preflight S2 are closed. The source receipt is non-Clone/move-only,
+  uses separate program/row lifetimes, and the source-plus-logical ingress
+  checks owner/origin/Loop frame/scope before any Builder effect. The full
+  callable schedule is prepared in Recipe order with exact seven-row coverage;
+  no physical IDs or session effect are created; the raw host still consumes
+  its old pair and the static-header helper remains test-only.
 Stop:
-  Physicalization, physical Loop emission, I0 caller switch, profile
-  selector, fallback/retry, Generic G0 parity, collector or module
-  publication, and legacy deletion remain closed until this exact prepared
-  ingress is sealed. Implementation requires source README, `docs/reference/**`
-  only if a reference claim changes, diagnostics, migration note, guards, and
-  current pointers in the same commit.
+  The physical canary may open only for the exact fresh-session/discard proof
+  above. Production selection, I0 caller switch, profile selector,
+  fallback/retry, Generic G0 parity, collector or module publication, and
+  legacy deletion remain closed. Implementation requires source README,
+  `docs/reference/**`, diagnostics, migration note, guards, and current
+  pointers in the same commit.
 ```
 ## Production invariants
 ```text

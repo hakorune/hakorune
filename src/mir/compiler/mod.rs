@@ -19,8 +19,8 @@ pub(in crate::mir) mod callable_graph_inventory;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_scc_partition;
 #[allow(dead_code)] pub(crate) mod callable_single_loop_syntax_facts; #[allow(dead_code)] pub(crate) mod callable_single_loop_source_shapes; #[allow(dead_code)] pub(crate) mod callable_single_loop_source_map; #[allow(dead_code)] pub(crate) mod callable_single_loop_recipe; #[allow(dead_code)] pub(crate) mod callable_single_loop_recipe_coseal; #[cfg(test)] pub(crate) mod callable_single_loop_prelude_arguments; #[cfg(test)] #[path = "callable_single_loop_recipe_coseal_tests.rs"] mod callable_single_loop_recipe_coseal_tests; #[cfg(test)] #[path = "callable_single_loop_static_fixture_tests.rs"] pub(crate) mod callable_single_loop_static_fixture_tests;
-#[cfg(test)]
-pub(crate) mod callable_single_loop_operation_effect;
+#[allow(dead_code)]
+pub(in crate::mir) mod callable_single_loop_operation_effect;
 #[cfg(test)]
 pub(crate) mod callable_loop_physical_canary;
 #[allow(dead_code)]

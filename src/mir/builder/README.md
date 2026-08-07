@@ -106,7 +106,13 @@ consumes that receipt together with one existing logical callable Loop product
 and checks owner/origin/Loop frame/scope identity before any Builder effect.
 This is still a Builder-free ingress: it does not allocate physical IDs, open a
 session, emit MIR, select a route, or provide fallback. Full-demand preflight
-is the next bounded row.
+is now closed by `normal_callable_prepared_operation.rs`. That assembler
+consumes the ingress exactly once, issues the existing neutral operation/effect
+demand, and calls `prepare_all` for the complete Recipe-order schedule. The
+result retains only the callable source/input/Prelude/Tail transport while the
+common program owns operation/effect/continuation meaning. It creates no
+Builder/session effect or physical ID; the next bounded row is the caller-zero
+full physical canary.
 
 ## 原則（SSOT / Box-First）
 

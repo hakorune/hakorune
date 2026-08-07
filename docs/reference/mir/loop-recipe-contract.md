@@ -740,3 +740,23 @@ and DraftSeal integration are later bounded work.
 No production caller,
 selector, retry/fallback, Generic G0 parity, module publication, or legacy
 deletion is opened by this slice.
+
+## Callable full-demand preflight receipt (2026-08-08)
+
+`CALLABLE-LOOP-PRODUCTION-FULL-DEMAND-PREFLIGHT-S2` is closed as a Builder-free
+full-demand boundary. `PreparedCallableLoopIngressV1::prepare_full_demand` is
+the single callable entry: it consumes the source-plus-logical ingress once,
+issues the existing neutral operation/effect demand, checks source/context,
+input, Prelude, and Tail owner identity, and calls `prepare_all` for the
+complete seven-row Recipe-order schedule. The resulting thin profile product
+retains only source/input/Prelude/Tail transport; the common demand remains the
+sole owner of Recipe/JoinSig, operation/effect coverage, semantic context, and
+Loop continuation.
+
+This receipt creates no `ValueId`, `BasicBlockId`, CFG/SSA/PHI state, function
+session, ABI/Completion claim, selector, retry, fallback, publication, or
+legacy behavior. There is no first/select/filter operation extraction API, and
+the existing test wrapper remains `cfg(test)`; production exposes only the
+one-shot adapter parts required by the assembler. The next bounded row is the
+caller-zero full physical canary, which must prove fresh-session discard and
+reuse before any production switch.
