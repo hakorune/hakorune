@@ -25,14 +25,15 @@ to atomic SA3-B.
 
 ## Callable single-loop logical issuer (S0)
 
-The accepted `CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-D0` fixes the next
-bounded promotion. The production logical issuer consumes the resolver/MAP
-product exactly once and delegates Recipe verification, JoinSig, After
-binding, and source-bound Core sealing to their existing owners. The common result is
-`VerifiedLoopRecipeCoSealV1`; callable Prelude and Tail remain disjoint sibling
-contracts. The former `callable_single_loop_recipe_coseal.rs` and
-`callable_single_loop_recipe_shape.rs` remain fixture/provenance references
-until the S0 implementation replaces them without promoting fixture builders.
+The accepted `CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-D0` is closed by the
+bounded S0 promotion. The production-scope logical issuer consumes the
+resolver/SourceMap product exactly once and delegates Recipe verification,
+JoinSig, After binding, and source-bound Core sealing to their existing
+owners. The common result is `VerifiedLoopRecipeCoSealV1`; callable Prelude
+and Tail remain disjoint sibling contracts. The fixed profile Recipe shape is
+owned by `callable_single_loop_recipe.rs`; the old
+`callable_single_loop_recipe_shape.rs` is a test-only parity fixture wrapper.
+No production selector or caller invokes the issuer yet.
 
 This boundary owns no AST rematch, Builder/MIR/ValueId/BasicBlockId, ABI,
 Completion, physicalizer, selector, retry, fallback, or production route. The

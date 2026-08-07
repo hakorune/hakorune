@@ -2,8 +2,10 @@ use super::callable_single_loop_recipe_coseal::{
     issue_callable_single_loop_recipe_v1, CallableRecipeCoSealRejectV1,
 };
 use super::callable_single_loop_source_map::issue_callable_single_loop_source_map_v1;
-use super::callable_single_loop_syntax_facts::issue_callable_single_loop_syntax_facts_v1;
-use super::callable_single_loop_syntax_facts::tests::{input_loop_and_context, unit};
+use super::callable_single_loop_syntax_facts::issue_callable_single_loop_syntax_facts_from_ledger_v1;
+use super::callable_single_loop_syntax_facts::tests::unit;
+#[path = "callable_single_loop_recipe_shape.rs"]
+mod callable_single_loop_recipe_shape;
 use crate::mir::loop_recipe_contract::LoopValueKeyV1;
 use crate::mir::resolved_semantics::{BindingRefV1, CallableSemanticSourceLedgerView};
 use hakorune_mir_core::BindingId;
@@ -21,13 +23,13 @@ fn issue(
     CallableSemanticSourceLedgerView<'_>,
     super::callable_single_loop_source_map::VerifiedCallableSingleLoopSourceMapV1,
 ) {
-    let (input, loop_stmt, context) = input_loop_and_context(unit);
-    let syntax = issue_callable_single_loop_syntax_facts_v1(input, loop_stmt, context)
-        .expect("syntax facts");
+    let input = unit.root_function_input().expect("resolved input");
     let ledger = input
         .forest()
         .callable_source_ledger(input.owner())
         .expect("ledger");
+    let syntax = issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger)
+        .expect("syntax facts");
     let map = issue_callable_single_loop_source_map_v1(&ledger, syntax).expect("source map");
     (ledger, map)
 }
@@ -47,6 +49,10 @@ fn co_seals_common_recipe_and_callable_boundary_once() {
     assert_eq!(recipe.exits.len(), 0);
     assert_eq!(co_seal.input().recipe_value().raw(), 0);
     assert_eq!(co_seal.operations().len(), 7);
+    assert_eq!(
+        callable_single_loop_recipe_shape::callable_recipe(),
+        recipe.clone()
+    );
     assert_eq!(co_seal.continuation().after().binding().raw(), 0);
     assert_ne!(
         product.tail().binding(),

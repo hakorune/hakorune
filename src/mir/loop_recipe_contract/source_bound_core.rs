@@ -15,7 +15,6 @@ use super::ids::{LoopBindingKeyV1, LoopCarrierKeyV1};
 use super::join_sig::VerifiedLoopJoinSigV1;
 use super::schema::{LoopRecipeV1, LoopValueClassV1};
 use super::source_binding::StructurallyVerifiedLoopRecipeSourceClaimV1;
-#[cfg(test)]
 use super::verify::LoopRecipeVerifierV1;
 use super::verify::{VerifiedLoopRecipeArtifactV1, VerifiedLoopRecipeV1};
 
@@ -203,8 +202,8 @@ impl VerifiedLoopCoreProductV1 {
 }
 
 /// Co-seals one already verified artifact and one already verified JoinSig.
-/// The Generic producer remains the sole issuer of real relation instances;
-/// this issuer only verifies and seals the shared transport contract.
+/// Each profile producer issues its own source-to-Recipe relation DTOs;
+/// this common owner verifies and seals the shared transport contract.
 pub(super) fn issue_source_bound_core_v1(
     artifact: VerifiedLoopRecipeArtifactV1,
     join_sig: VerifiedLoopJoinSigV1,
@@ -226,6 +225,21 @@ pub(super) fn issue_source_bound_core_v1(
     })
 }
 
+/// Production logical wrapper for the source-bound Core boundary. The
+/// artifact verifier remains the sole owner of Recipe/source-wire validation;
+/// this function only performs that validation before delegating to the
+/// existing co-seal owner.
+pub(crate) fn issue_source_bound_core_from_artifact_v1(
+    artifact: super::schema::LoopRecipeArtifactV1,
+    join_sig: VerifiedLoopJoinSigV1,
+    owner: FunctionOwnerIdV1,
+    bindings: Vec<LoopRecipeBindingRelationV1>,
+    effects: Vec<LoopBindingEffectRelationV1>,
+) -> Result<VerifiedLoopCoreProductV1, Reject> {
+    let verified = LoopRecipeVerifierV1::verify_artifact(artifact)?;
+    issue_source_bound_core_v1(verified, join_sig, owner, bindings, effects)
+}
+
 /// Test-only bridge that keeps the source artifact verifier as the sole wire
 /// claim issuer while exercising the core co-seal boundary.
 #[cfg(test)]
@@ -236,8 +250,7 @@ pub(crate) fn issue_source_bound_core_for_test(
     bindings: Vec<LoopRecipeBindingRelationV1>,
     effects: Vec<LoopBindingEffectRelationV1>,
 ) -> Result<VerifiedLoopCoreProductV1, Reject> {
-    let verified = LoopRecipeVerifierV1::verify_artifact(artifact)?;
-    issue_source_bound_core_v1(verified, join_sig, owner, bindings, effects)
+    issue_source_bound_core_from_artifact_v1(artifact, join_sig, owner, bindings, effects)
 }
 
 fn verify_binding_relations(

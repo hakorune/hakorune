@@ -154,8 +154,9 @@ pub(crate) use schema::{
 pub(crate) use semantic_context::VerifiedLoopSemanticContextV1;
 #[allow(unused_imports)]
 pub(crate) use source_bound_core::{
-    LoopBindingEffectAnchorV1, LoopBindingEffectRelationV1, LoopBindingEffectRoleV1,
-    LoopRecipeBindingRelationV1, VerifiedLoopBindingEffectRelationV1, VerifiedLoopCoreProductV1,
+    issue_source_bound_core_from_artifact_v1, LoopBindingEffectAnchorV1,
+    LoopBindingEffectRelationV1, LoopBindingEffectRoleV1, LoopRecipeBindingRelationV1,
+    VerifiedLoopBindingEffectRelationV1, VerifiedLoopCoreProductV1,
     VerifiedLoopRecipeBindingRelationV1,
 };
 #[allow(unused_imports)]

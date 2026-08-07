@@ -203,18 +203,24 @@ later Recipe/JoinSig parity row.
 atomic rollback, backend parity, and physical caller-zero gates belong to later
 physicalization rows; this source/facts receipt does not claim them.
 
-## Callable logical issuer D0
+## Callable logical issuer D0/S0
 
 Decision: accepted design —
 `CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-D0` (2026-08-08).
 
-The next bounded implementation may promote the existing caller-zero mapping
-only. It must reuse `LoopRecipeVerifierV1`, `LoopJoinSigElaboratorV1`,
-`VerifiedLoopJoinSigV1::require_after_binding`, and the source-bound Core
-co-seal. The seven source roles map to the canonical recipe items
-`I0..I6`/values `V0..V6` exactly as recorded in the D0 design task; source
-roles are consumed once and `CallableSingleLoopV1` is diagnostics-only
-provenance. `callable_recipe()` and `issue_*_for_test` remain fixtures.
+The bounded implementation is closed. It reuses `LoopRecipeVerifierV1`,
+`LoopJoinSigElaboratorV1`, `VerifiedLoopJoinSigV1::require_after_binding`, and
+the source-bound Core co-seal. The seven source roles map to the canonical
+recipe items `I0..I6`/values `V0..V6` exactly as recorded in the D0 design
+task; source roles are consumed once and `CallableSingleLoopV1` is
+diagnostics-only provenance. The production profile shape is owned by
+`callable_single_loop_recipe.rs`; `callable_recipe()` remains a test-only
+parity fixture wrapper.
+
+The issuer is production-scoped but caller-zero: it has no selector, physical
+consumer, or production caller. Focused logical-issuer, SyntaxFacts, and
+SourceMap tests are green; the next step is a fresh design stop for the
+prepared ingress, not physical lowering.
 
 This row does not authorize Prepared/ABI/Completion physicalization, CFG/SSA/
 PHI/Builder/MIR, selector/admission, a production caller switch, Generic G0,
@@ -223,10 +229,11 @@ diagnostic mapping.
 
 ## Callable single-loop co-seal implementation receipt (2026-08-07)
 
-`RECIPE-COSEAL-I0-R0` is now closed as caller-zero evidence. The test-only
-`callable_single_loop_recipe_coseal.rs` consumes the sealed callable source map
-once and delegates Recipe verification, JoinSig elaboration, and source-bound
-Core sealing to their existing owners. It emits one common recursive
+`RECIPE-COSEAL-I0-R0` is now closed as caller-zero evidence. Its historical
+test-only implementation in `callable_single_loop_recipe_coseal.rs` consumed
+the sealed callable source map once and delegated Recipe verification,
+JoinSig elaboration, and source-bound Core sealing to their existing owners. It
+emits one common recursive
 `LoopRecipeV1` with one carrier, one explicit preheader input, seven logical
 operations, and one verified Loop After binding. The callable Prelude and Tail
 remain separate sibling contracts; the Tail is the exact terminal statement

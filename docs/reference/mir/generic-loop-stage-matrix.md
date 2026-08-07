@@ -1492,10 +1492,11 @@ design-only common physicalizer/session boundary review.
 
 ## Callable logical issuer D0/S0 boundary (2026-08-08)
 
-The callable source/facts issuer S0 is closed with exact resolver identity
-parity and bounded negative coverage. The accepted next logical issuer D0
-reuses the canonical Recipe verifier, JoinSig elaborator, After binding, and
-source-bound Core co-seal for the seven-operation mapping. This is a logical
-source product only: `callable_recipe()` remains a test fixture, producer
-provenance is diagnostics-only, and Prepared/physical/selector/production
-caller/Generic G0/retry/fallback/legacy behavior remain closed.
+The callable source/facts issuer S0 and bounded logical issuer S0 are closed
+with exact resolver identity parity and bounded negative coverage. The logical
+issuer reuses the canonical Recipe verifier, JoinSig elaborator, After
+binding, and source-bound Core co-seal for the seven-operation mapping. The
+profile Recipe shape is production-owned in
+`callable_single_loop_recipe.rs`; `callable_recipe()` is only a test parity
+wrapper. The logical product remains caller-zero: Prepared/physical/selector/
+production-caller/Generic G0/retry/fallback/legacy behavior remain closed.

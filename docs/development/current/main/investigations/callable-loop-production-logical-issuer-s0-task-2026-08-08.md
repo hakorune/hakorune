@@ -1,6 +1,6 @@
 # Callable Loop Production Logical Issuer S0
 
-Status: implementation task after accepted
+Status: `closed` — implementation receipt landed 2026-08-08 after accepted
 `CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-D0`.
 
 ## Change
@@ -28,9 +28,27 @@ diagnostic provenance only. `callable_recipe()` and `issue_*_for_test` remain
 test-only. The issuer must not inspect AST, reconstruct names/ordinals, select
 a route, create Builder/MIR/CFG/SSA/PHI state, or use retry/fallback.
 
+## Implementation receipt
+
+The logical issuer is now production-scoped but remains caller-zero: it is
+compiled and available to a future ingress, while no production selector or
+caller invokes it. It consumes the resolver-branded SourceMap exactly once,
+constructs the fixed seven-operation profile Recipe through the profile
+adapter, and delegates verification, JoinSig elaboration, After binding, and
+source-bound Core sealing to their existing owners. `CallableSingleLoopV1`
+remains diagnostics-only provenance.
+
+The profile Recipe shape now lives in
+`src/mir/compiler/callable_single_loop_recipe.rs`. The old
+`callable_single_loop_recipe_shape.rs` is a test-only parity fixture wrapper;
+the production issuer does not import a test-only builder. No new semantic
+owner was introduced.
+
 ## Done
 
 - production logical issuer compiles without `cfg(test)`;
+- the production issuer has no AST/name re-walk and no Builder/MIR/physical
+  imports or effects;
 - source-map ownership, exact owner/frame/Scope relation, and seven operation
   source relations are consumed once;
 - Recipe, JoinSig, After, binding/effect coverage, and prefix/Tail separation
@@ -47,9 +65,17 @@ a route, create Builder/MIR/CFG/SSA/PHI state, or use retry/fallback.
 - focused tests, `git diff --check`, rustfmt check, current-state guard, and
   MirBuilder replacement guard are green.
 
+Focused receipt: `callable_single_loop_recipe_coseal` 4 tests,
+`callable_single_loop_syntax_facts` 14 tests, and
+`callable_single_loop_source_map` 6 tests pass; `cargo check --lib` is green.
+
 ## Stop
 
 Do not open Prepared physicalization, ABI/Completion handoff, CFG/SSA/PHI,
 selector/admission, production caller switch, Generic G0, retry/fallback, or
 legacy deletion. If a relation cannot be represented by the existing Recipe,
 JoinSig, or source-bound Core owner, return typed `NoSafeSlice` and revise D0.
+
+The next design stop is
+`CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0`; this S0 does not authorize
+physical implementation.

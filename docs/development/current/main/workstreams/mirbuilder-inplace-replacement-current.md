@@ -59,7 +59,12 @@ new Bridge owner: resolver ledger plus neutral SyntaxFacts/SourceMap are the
 target. S0-A source navigation is green and S0-B compiles neutral SyntaxFacts/SourceMap issuers in production scope while keeping fixture
 constructors and mutation helpers test-only. S0-C connects the issuer entry,
 exact resolver parity, and the bounded negative matrix; caller-zero/current
-receipt audit is green. Recipe/Prepared issuance, selection, Generic G0, retry/fallback, and legacy retirement remain closed.
+receipt audit is green. Logical issuer D0/S0 is now closed: the
+production-scope issuer consumes the source map once, reuses the existing
+Recipe/JoinSig/After/Core owners, and keeps the profile shape separate from
+the test-only parity wrapper. Prepared issuance, selection, Generic G0,
+retry/fallback, and legacy retirement remain closed; the next row is the
+prepared ingress design stop.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
@@ -512,32 +517,25 @@ closed:
   LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
 
 current:
-  CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0
+  CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0
 
 Change:
-  split the neutral SyntaxFacts/source-shape/SourceMap issuers from test
-  fixtures, using the resolver ledger and exact source navigation. The named
+  define one move-only prepared ingress from the closed logical product;
   `NormalCallableSemanticLoanPortV1` remains host/outer orchestration only.
 
 Contract:
-  consume only sealed resolver/source/facts/lineage products; no AST/name
-  re-walk, route-label inference, test-fixture promotion, second semantic
-  owner, physical ID, Builder/session effect, selector, retry, fallback,
-  Recipe/Prepared issuance, or legacy deletion; incomplete or foreign
-  evidence returns typed `NoSafeSlice` before opening a function session.
+  consume only sealed resolver/source/facts/Recipe products; no AST/name
+  re-walk, second semantic owner, physical ID, Builder/session effect,
+  selector, retry, fallback, or legacy deletion. Missing/foreign receipts
+  return typed `NoSafeSlice` before a function session opens.
 
 Done:
-  Bridge D0 is accepted: no new semantic Bridge owner; the resolver ledger,
-  neutral SyntaxFacts, and SourceMap are the target. S0 must provide the
-  resolver-owned site issuer, owner-branded navigation, production issuers, source-to-ledger parity,
-  typed rejects, caller-zero evidence. The issuer entry now consumes
-  `only_loop_site()` and `stmt_at(membership)`; the bounded
-  negative matrix and exact SourceFacts/SourceMap resolver-identity parity are
-  green. S0-B keeps neutral issuers production-scoped while fixture
-  constructors and mutation helpers remain test-only; caller-zero/current
-  receipt audit is green. S0 is closed and Logical Issuer D0 is accepted with
-  exact source-role mapping and existing-owner reuse. The next bounded row is
-  logical issuer S0 only.
+  Source/facts bridge D0/S0 is closed without a new owner: resolver ledger,
+  exact source navigation, typed rejects, and resolver-identity parity are
+  green. Logical Issuer D0/S0 is closed with exact source-role mapping and
+  existing-owner reuse; the profile shape is production-owned while the old
+  helper is test-only parity. The next row is design-only prepared ingress;
+  no physical implementation is authorized yet.
 
 Stop:
   Recipe/Prepared physicalization, physical Loop emission, I0 caller switch,

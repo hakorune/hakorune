@@ -1,19 +1,19 @@
 //! Caller-zero source-map to portable Recipe co-seal.
 //!
-//! This module is test-only until the production Recipe selector is opened.
-//! It consumes the resolver-issued source map exactly once, reuses the common
-//! Recipe/JoinSig/source-bound Core owners, and publishes only logical source
-//! contracts. No Builder, MIR, physical ID, retry, or fallback is allowed.
-
-#![cfg(test)]
+//! This module is a production-scope logical issuer, but it is not selected by
+//! a production route yet. It consumes the resolver-issued source map exactly
+//! once, reuses the common Recipe/JoinSig/source-bound Core owners, and
+//! publishes only logical source contracts. No Builder, MIR, physical ID,
+//! retry, or fallback is allowed.
 
 use crate::mir::loop_recipe_contract::{
-    issue_source_bound_core_for_test, LoopBindingEffectAnchorV1, LoopBindingEffectRelationV1,
-    LoopBindingEffectRoleV1, LoopBindingKeyV1, LoopCarrierKeyV1, LoopItemKeyV1,
-    LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopNodeKeyV1, LoopRecipeArtifactV1,
-    LoopRecipeBindingRelationV1, LoopRecipeProducerIdV1, LoopRecipeProvenanceV1,
-    LoopRecipeRejectReasonV1, LoopValueClassV1, LoopValueKeyV1, VerifiedLoopContinuationContractV1,
-    VerifiedLoopCoreProductV1, VerifiedLoopPhysicalBoundaryV1, VerifiedLoopSemanticContextV1,
+    issue_source_bound_core_from_artifact_v1, LoopBindingEffectAnchorV1,
+    LoopBindingEffectRelationV1, LoopBindingEffectRoleV1, LoopBindingKeyV1, LoopCarrierKeyV1,
+    LoopItemKeyV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopNodeKeyV1,
+    LoopRecipeArtifactV1, LoopRecipeBindingRelationV1, LoopRecipeProducerIdV1,
+    LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopValueClassV1, LoopValueKeyV1,
+    VerifiedLoopContinuationContractV1, VerifiedLoopCoreProductV1, VerifiedLoopPhysicalBoundaryV1,
+    VerifiedLoopSemanticContextV1,
 };
 use crate::mir::loop_structural_facts::bind_resolved_loop_root_v1;
 use crate::mir::resolved_semantics::{
@@ -21,6 +21,7 @@ use crate::mir::resolved_semantics::{
     SourceExprSiteV1, SourceStmtSiteV1,
 };
 
+use super::callable_single_loop_recipe::canonical_callable_single_loop_recipe_v1;
 use super::callable_single_loop_source_map::{
     CallableSourceMapRoleV1, CallableSourceMapRowV1, VerifiedCallableSingleLoopSourceMapV1,
 };
@@ -28,10 +29,6 @@ use super::callable_single_loop_source_shapes::{
     SourceCallBoundaryShapeV1, SourceLiteralShapeV1, SyntaxBinaryOperatorV1,
 };
 use crate::mir::resolved_semantics::CallableSemanticSourceLedgerView;
-
-#[path = "callable_single_loop_recipe_shape.rs"]
-mod callable_single_loop_recipe_shape;
-use callable_single_loop_recipe_shape::callable_recipe;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopInputRelationV1 {
@@ -398,7 +395,7 @@ pub(crate) fn issue_callable_single_loop_recipe_v1(
     let (declaration, statement) = declaration_for_binding(ledger, carrier_binding)?;
     let source_root = bind_resolved_loop_root_v1(loop_source)
         .map_err(CallableRecipeCoSealRejectV1::SourceRoot)?;
-    let recipe = callable_recipe();
+    let recipe = canonical_callable_single_loop_recipe_v1();
     let verified_recipe =
         crate::mir::loop_recipe_contract::LoopRecipeVerifierV1::verify(recipe.clone())
             .map_err(CallableRecipeCoSealRejectV1::Recipe)?;
@@ -431,8 +428,9 @@ pub(crate) fn issue_callable_single_loop_recipe_v1(
         statement,
         declaration,
     )?;
-    let core = issue_source_bound_core_for_test(artifact, join_sig, owner, bindings, effects)
-        .map_err(CallableRecipeCoSealRejectV1::Recipe)?;
+    let core =
+        issue_source_bound_core_from_artifact_v1(artifact, join_sig, owner, bindings, effects)
+            .map_err(CallableRecipeCoSealRejectV1::Recipe)?;
     let continuation = VerifiedLoopContinuationContractV1::from_after(owner, after);
     Ok(VerifiedCallableSingleLoopRecipeProductV1 {
         co_seal: VerifiedLoopRecipeCoSealV1 {

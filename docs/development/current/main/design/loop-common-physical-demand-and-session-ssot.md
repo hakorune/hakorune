@@ -28,10 +28,12 @@ collector or module publication is performed. The production-edge census and
 Admission D0 are closed as `NoSafeSlice`. The source/facts bridge D0 is
 accepted without a new semantic Bridge owner: the existing resolver ledger
 plus neutral SyntaxFacts/SourceMap are the target production boundary. The
-source/facts issuer S0 is now closed with bounded negatives, exact parity, and
-caller-zero/current receipt audit. Logical issuer D0 is accepted; the next
-boundary is bounded `CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-S0`. No named
-production caller switch is open.
+source/facts issuer S0 and bounded logical issuer D0/S0 are now closed with
+bounded negatives, exact parity, and caller-zero/current receipt audit. The
+profile Recipe shape is production-owned while the old shape helper remains a
+test-only parity wrapper. The next boundary is the design-only
+`CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0`; no named production caller
+switch or physical implementation is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -1192,8 +1194,10 @@ canonical Const/type-fact emission, typed pre-emission rejects, and
 whole-session discard/fresh-session repeat. Full operation emission,
 operation production activation, callable physical completion, production
 selection, retry/fallback retirement, and legacy deletion remain closed. The
-next operation kind must be opened by a separate design row; no single-item
-extraction API may be added to the full demand.
+logical callable issuer S0 is closed without a production caller; the next
+row is the prepared-ingress design stop. The next operation kind must be
+opened by a separate design row; no single-item extraction API may be added to
+the full demand.
 
 ### Callable physical-canary preparation slice (2026-08-07)
 
