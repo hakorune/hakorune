@@ -1051,9 +1051,13 @@ LOOP-PHYSICAL-PREPARE-P0
   caller-zero common Loop demand plus callable Prepared product; exact ABI and Completion
   are consumed once from existing issuers
 
-GENERIC-G0-PHYSICAL-PREPARE-P0
-  existing G0 S4 product through a common co-seal view into the common inner
-  demand schema plus its distinct G0 Tail
+LOOP-CALLER-ZERO-PARITY-G0-D0
+  accepted compiler-side composite of exact resolver input/entry capability
+  plus neutral G0 S4; distinct G0 After/Tail and common inner demand
+
+LOOP-CALLER-ZERO-PARITY-G0-I0-R0
+  Builder-free composite ingress plus complete fifteen-row common prepare_all;
+  split G0 After into neutral continuation and distinct tail capability
 
 LOOP-PHYSICALIZER-COMMON-OWNER-R0
   behavior-neutral 2-5 commit split; accepted shapes unchanged
@@ -1065,9 +1069,9 @@ CALLABLE-LOOP-PHYSICAL-CANARY-P0
   exact prelude + Loop + distinct Tail through one fresh unpublished session;
   finish CFG/SSA/PHI/completion and DraftSeal as caller-zero proof
 
-LOOP-CALLER-ZERO-PARITY-G0
+LOOP-CALLER-ZERO-PARITY-G0-I1-R0
   prove callable Tail and Generic G0 After remain distinct profile adapters over
-  the same common physical owner
+  the same common physical owner after I0 exact-input ingress closes
 
 JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A
 JOINIR-LOOP-M8-LOOPV0-EXITS-JOINS-S6B
@@ -1158,7 +1162,8 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` | the three existing V2 session profiles + move-only profile-close receipt -> sole `finish_for_draft_seal` -> Ready DraftSeal | V2 direct Ready-constructor callers reach zero; the one non-V2 caller remains named compatibility debt; CFG/SSA/PHI/binding/completion finish, receipt order, and body/site/target identity cannot be omitted or re-inferred; DirectAccum `cfg.finish` gap closes | BoxShape-only; no new Recipe/MIR/profile acceptance, no non-V2 migration |
 | `LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0` | existing prepare architecture -> bounded callable/G0 capability correction | brand/header/prelude/terminal/lifetime boundaries and NoSafeSlice rejects are fixed in one SSOT | no code, Builder, physicalizer, selector, or caller |
 | `LOOP-PHYSICAL-PREPARE-P0` | caller-zero common co-seal + callable Prelude/Tail + existing ABI/Completion -> `PreparedCallableLoopPhysicalizationV1` | private index only; execution compatibility is the sole new relational truth; Completion moves once into session | no universal Callable plan, physicalizer, or production caller; not I0 |
-| `GENERIC-G0-PHYSICAL-PREPARE-P0` | existing G0 S4 product -> common co-seal view -> `PreparedGenericG0LoopPhysicalizationV1` | `L0.After/b1` remains distinct from callable prefix `value`; no duplicated source truth | no G0 physicalizer, callable Tail reuse, or production caller |
+| `LOOP-CALLER-ZERO-PARITY-G0-D0` | existing neutral G0 S4 product + exact compiler resolver input -> accepted thin composite ingress design | S4 remains the sole Recipe/effect/After owner; `L0.After/b1` stays distinct; reconstruction is `NoSafeSlice` | no code, physicalizer, selector, or production caller |
+| `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact compiler input/entry capability + neutral S4 product -> `PreparedGenericG0LoopPhysicalizationV1` + common fifteen-row `prepare_all` | Builder-free exact ingress; no duplicated source truth; no count/order parity assumption | no G0 physicalizer, callable Tail reuse, Completion, DraftSeal, or production caller |
 | `LOOP-PHYSICALIZER-COMMON-OWNER-R0` | current 792-line Accum owner -> common small services + thin Accum adapter | existing Accum MIR/fault/reuse/caller counts unchanged; each commit buildable | do not add recursive Generic acceptance in the refactor series |
 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | verified physical demand + private `ReadyLoopEntryV1` + canonical CFG/Binding SSA/PhiTxn -> open continuation | child PHI, post-child outer backedge, shadow, late-failure discard, fresh reuse | no Return, publication, production caller, route-local SSA, or fallback |
 | `CALLABLE-LOOP-PHYSICAL-CANARY-P0` | common demand -> exact prelude/Loop/distinct Tail in one fresh unpublished function -> existing completion/DraftSeal | whole-function CFG finish, late failure discard, live-caller invariance, fresh reuse | caller-zero only; no production selector/caller, retry, fallback, or module publication |

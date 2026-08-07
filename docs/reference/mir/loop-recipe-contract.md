@@ -777,5 +777,22 @@ The failure witness pre-seeds the Recipe-derived Compare result key, emits
 earlier rows, observes typed `ValueAlreadyPublished`, discards the complete
 unpublished function, and reruns the same semantic fixture in a fresh
 session. The bridge adds no resolver owner, AST clone, selector, retry,
-fallback, Generic G0 parity, module publication, or legacy authority. The
-next authorized design stop is `LOOP-CALLER-ZERO-PARITY-G0`.
+fallback, Generic G0 parity, module publication, or legacy authority. G0 D0 is
+now accepted: exact resolver input is paired with neutral S4 by a compiler-side
+composite ingress, and the active next row is Builder-free
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` for fifteen-row `prepare_all`.
+
+## Generic G0 parity D0/I0 boundary (2026-08-08)
+
+The neutral `VerifiedGenericRecipeProductG0` intentionally does not retain the
+compiler `ResolvedFunctionLoweringInputV1`. The accepted boundary is a thin
+compiler-side composite that pairs the exact input/ledger/entry receipt with
+that neutral product. It validates owner/origin/kind/site/frame/scope, forest,
+two G0 input bindings, and `L0.After/b1` before Builder effect. Missing,
+foreign, stale, duplicate, or inferred capability is typed `NoSafeSlice`; no
+re-resolve, AST clone, or profile relabel is permitted.
+
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` may only issue this composite and prove the
+full fifteen-row common `prepare_all`. Physical root/child emission, G0
+After-to-tail read, Completion, DraftSeal, selector, retry/fallback, and
+legacy deletion remain closed.

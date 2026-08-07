@@ -1531,6 +1531,19 @@ whole unpublished-function boundary and the same semantic fixture succeeds in
 a fresh session.
 
 This is not Generic G0 parity, family selection, production activation,
-module publication, retry/fallback retirement, or legacy deletion. The next
-authorized design stop is `LOOP-CALLER-ZERO-PARITY-G0`, which must use the same
-common inner physicalizer while keeping the G0 Tail contract distinct.
+module publication, retry/fallback retirement, or legacy deletion. G0 D0 is
+now accepted: a compiler-side exact-input composite pairs the resolver input
+with neutral S4 while keeping the G0 Tail contract distinct. The active row is
+Builder-free `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`, limited to exact ingress and
+full fifteen-row `prepare_all`.
+
+## Generic G0 parity D0/I0 boundary (2026-08-08)
+
+The neutral S4 product intentionally drops compiler source views. I0 therefore
+must receive an exact resolver-issued `ResolvedFunctionLoweringInputV1` and
+entry receipt alongside S4 in one compiler-side composite. It validates
+owner/origin/kind/site/frame/scope, forest, both G0 entry bindings, and
+`L0.After/b1` before Builder effect. Missing, duplicate, foreign, stale, or
+inferred capabilities reject as `NoSafeSlice`; no second resolver, AST clone,
+count/order parity, or row relabeling is allowed. Physical G0 emission and all
+production/legacy cutover remain closed.

@@ -1,6 +1,6 @@
 # LOOP-CALLER-ZERO-PARITY-G0-D0
 
-Status: `Design stop / implementation closed`
+Status: `Accepted; I0 implementation opened`
 Date: `2026-08-08`
 Parent: `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
 North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
@@ -101,7 +101,7 @@ identity, G0 Tail, ABI, Completion, Return, DraftSeal, or legacy routes.
 
 ## Acceptance and non-claims
 
-The D0 design is accepted only when the following are frozen:
+The D0 design is accepted with the following frozen:
 
 - exact source owner/origin/kind/site/frame/scope-region and two-entry receipt;
 - full Recipe-structure schedule and fifteen exact operation rows, including
@@ -112,6 +112,52 @@ The D0 design is accepted only when the following are frozen:
   input capabilities;
 - positive, post-emission failure, whole-session discard, and fresh-session
   equivalence criteria for I1.
+
+## D0 closeout (2026-08-08)
+
+The source-input audit confirms that the neutral S3/S4 path intentionally
+drops the compiler `ResolvedFunctionLoweringInputV1` after issuing its
+AST-free products. That is correct for the portable Recipe authority and is
+not repaired by adding compiler fields to `VerifiedGenericRecipeProductG0`.
+
+The exact transport boundary is instead a compiler-side, test-only composite
+ingress analogous to the callable ingress:
+
+```text
+VerifiedGenericG0SourceIngressV1<'source>
+  = exact ResolvedFunctionLoweringInputV1<'source>
+  + existing resolver ledger/source receipt
+  + neutral VerifiedGenericRecipeProductG0
+  + exact G0 input/After capability
+```
+
+The composite verifies owner, origin, source kind, root loop site, frame,
+scope/region, source forest, post-loop binding, and target against the moved
+products before any Builder effect. It is a transport/compatibility receipt,
+not a new semantic owner; the neutral S4 product remains the sole logical
+G0 Recipe/effect/After owner. If any exact field is absent, duplicated,
+foreign, stale, or inferred, I0 returns typed `NoSafeSlice` and does not
+re-resolve or reconstruct source.
+
+Therefore D0 is accepted and the next bounded row is
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0`. The I0 row is Builder-free and may only
+issue this composite plus full common-demand preflight. Physical root/child
+emission, G0 After-to-tail read, Completion, DraftSeal, production selection,
+retry/fallback, and legacy deletion remain closed.
+
+One required pre-I0 correction is also frozen: the existing
+`into_operation_demand_parts()` path must not be used for G0 physical work,
+because it drops the G0-specific post-loop read/ABI/owner/frame while creating
+the neutral continuation. I0 must add a consuming split such as
+`VerifiedGenericAfterEffectG0::into_physical_parts()`:
+
+```text
+VerifiedLoopAfterBindingV1       -> common Loop continuation
+VerifiedGenericG0TailCapabilityV1 -> post-loop read + exact I64 ABI + owner/frame
+```
+
+The neutral S4 product and its source/input fields remain unchanged; only this
+move boundary is added before the composite ingress can be accepted.
 
 This design does not open a production caller, selector, module collector,
 retry, fallback, legacy deletion, M8/M9 coverage, or backend parity. Those

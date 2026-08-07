@@ -154,10 +154,13 @@ second CFG/SSA/PHI owner.
 The late-failure canary seeds a Recipe-derived Compare result key, observes a
 typed duplicate after earlier emission, discards the complete unpublished
 function, and reruns the same semantic fixture in a fresh session. The
-focused P0 tests are green and the canary file remains below 800 lines. This
-does not activate a production caller, Generic G0 parity, selector, module
-collector, retry/fallback, or legacy retirement; the next authorized design
-stop is `LOOP-CALLER-ZERO-PARITY-G0`.
+focused P0 tests are green and the canary file remains below 800 lines. The
+G0 parity design is accepted: a compiler-side composite pairs exact resolver
+input with neutral S4, while `L0.After/b1` is split into neutral continuation
+and a distinct tail capability. The next bounded
+row is Builder-free `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`; physical G0 emission,
+selector, module collector, retry/fallback, and legacy retirement remain
+closed.
 
 ## Full operation demand P0
 

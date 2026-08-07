@@ -518,32 +518,27 @@ closed:
   CALLABLE-LOOP-PRODUCTION-FULL-DEMAND-PREFLIGHT-S2
 closed:
   CALLABLE-LOOP-PHYSICAL-CANARY-P0
-next design stop:
-  LOOP-CALLER-ZERO-PARITY-G0
+accepted design:
+  LOOP-CALLER-ZERO-PARITY-G0-D0
+current:
+  LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 Change:
-  open one fresh unpublished function session from the prepared callable
-  ingress, materialize the exact Prelude/entry, consume the complete
-  Recipe-order operation program through the common profile-blind physicalizer,
-  and prove whole-session discard plus fresh-session reuse. This remains a
-  caller-zero canary; the raw host and selector stay untouched.
+  issue a compiler-side exact-input composite from the resolver input and
+  neutral G0 S4 product, then prove common fifteen-row prepare_all with no
+  Builder effect. This remains caller-zero; the raw host and selector stay
+  untouched.
 Contract:
-  consume the S2 full-demand product exactly once, open a fresh canonical
-  function session, keep Prelude/input, Loop After, callable Tail, ABI, and
-  Completion disjoint, and finish only through the existing session/DraftSeal
-  owners. No AST/name re-walk, second CFG/SSA/PHI owner, selector, retry,
-  fallback, Generic G0 parity, module publication, or legacy deletion.
+  split G0 After into neutral continuation + tail capability, then pair exact
+  input/ledger/entry receipt with neutral S4 once and call common prepare_all. No AST/name
+  re-walk, second resolver/owner, physical ID, selector, retry, fallback,
+  publication, or legacy deletion.
 Done:
-  Prepared-ingress D0/S1, source-loan expansion S0, full-demand preflight S2,
-  and the caller-zero physical canary are closed. The exact resolved input /
-  ledger feeds seven Recipe rows through Prelude, topology, all five families,
-  sealed After, Tail+Completion, finish_for_draft_seal, and DraftSeal; a typed
-  late duplicate proves whole-session discard and fresh reuse. No second
-  resolver or semantic owner is created; raw host and selector stay untouched.
+  P0 caller-zero physical canary is closed. G0 D0 is accepted; I0 is now the
+  only open row and must remain Builder-free. Exact capability absence is
+  typed NoSafeSlice rather than reconstructed.
 Stop:
-  Production selection, I0 caller switch, profile selector, fallback/retry,
-  Generic G0 parity, collector or module publication, and legacy deletion
-  remain closed. The next row must have its own design card and preserve the
-  same common physicalizer / distinct G0 Tail boundary. Every implementation row requires source README,
+  Physical G0 emission, production selection, caller switch, fallback/retry,
+  collector/publication, and legacy deletion remain closed. Every implementation row requires source README,
   `docs/reference/**`, diagnostics, migration note, guards, and current
   pointers in the same commit.
 ```
@@ -979,7 +974,7 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
-  4. design and land `LOOP-CALLER-ZERO-PARITY-G0`, then complete Generic G0 physical/parity rows, and only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
+  4. land `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`, then complete G0 physical/parity rows, and only afterward perform M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance

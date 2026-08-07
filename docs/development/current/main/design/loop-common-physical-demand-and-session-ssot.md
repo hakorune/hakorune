@@ -34,10 +34,12 @@ profile Recipe shape is production-owned while the old shape helper remains a
 test-only parity wrapper. The next boundary is the design-only
 `CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0` is accepted and its S1/S2
 caller-zero products are closed. The active design stop is
-`LOOP-CALLER-ZERO-PARITY-G0-D0`, which must freeze exact resolver-issued G0
-source/input/entry capability, the distinct `L0.After/b1` After/Tail boundary,
-and the common physicalizer contract before any G0 implementation opens. No
-named production caller switch or physical implementation is open.
+`LOOP-CALLER-ZERO-PARITY-G0-D0` is accepted. Its exact resolver-issued
+G0 source/input/entry capability is carried by a thin compiler-side composite
+ingress; neutral S4 remains the sole Recipe/effect/After owner. The active row
+is Builder-free `LOOP-CALLER-ZERO-PARITY-G0-I0-R0`, which must issue that
+composite and prove fifteen-row `prepare_all` before any physical G0 canary.
+No named production caller switch or physical implementation is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -819,9 +821,10 @@ skip the After closure or reopen a Tail-only route.
 | 8 | `CALLABLE-LOOP-AFTER-CLOSURE-P0` | complete fixed callable operation schedule, issue CFG edges, seal CFG/identity, and mint one `ReadyLoopAfterContinuationV1` | closed caller-zero; no production selection |
 | 9 | `CALLABLE-LOOP-TAIL-COMPLETION-P0` | consume sealed After, read exact Tail binding, `mark_return`, and claim completion once | closed caller-zero; no selector, retry, or fallback |
 | 10 | `CALLABLE-LOOP-DRAFT-SEAL-P0` | consume profile close, call only `finish_for_draft_seal`, then DraftSeal prepare/commit | closed caller-zero; production selection and legacy deletion remain closed |
-| 11 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
-| 12 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
-| 13 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
+| 11 | `LOOP-CALLER-ZERO-PARITY-G0-D0` | accepted design: compiler-side exact-input composite ingress, neutral S4 owner, common physicalizer, distinct G0 After/Tail | no source reconstruction, physical emission, or production selection |
+| 12 | `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact G0 ingress -> common fifteen-row `prepare_all` with Builder effect zero | no physical emission, Completion/DraftSeal, selector, retry/fallback, or legacy deletion |
+| 13 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
+| 14 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 14 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Closed implementation receipt: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
@@ -1002,9 +1005,10 @@ Callable has seven item rows and Generic G0 has fifteen, but parity compares
 neither counts nor source order. The full-demand P0, behavior-neutral module
 split, canonical physical block receipt, private ConstI64 leaf-emitter canary,
 bounded ReadBinding I0, and the caller-zero full callable physical canary are
-closed. The next authorized row is `LOOP-CALLER-ZERO-PARITY-G0`; production
-selection, Generic G0 parity, M8/M9 coverage, and retirement remain separate
-gates.
+closed. G0 D0 is accepted and the active next row is the Builder-free
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` exact-input composite/`prepare_all` gate;
+production selection, Generic G0 physical parity, M8/M9 coverage, and
+retirement remain separate gates.
 
 ### ReadBinding leaf D0 correction (2026-08-07; Decision: accepted and landed)
 
@@ -1245,5 +1249,6 @@ The test-only source bridge borrows the exact existing resolver ledger from
 the source AST. The complete seven-row Recipe schedule is consumed once and
 the existing owners remain sole authorities for CFG/SSA/PHI, completion,
 DraftSeal, and unpublished-function discard. The focused positive and late
-duplicate/discard/fresh-reuse tests are green; the next authorized row is
-`LOOP-CALLER-ZERO-PARITY-G0`.
+duplicate/discard/fresh-reuse tests are green. G0 D0 is accepted; the next
+authorized row is the Builder-free
+`LOOP-CALLER-ZERO-PARITY-G0-I0-R0` exact-input composite gate.

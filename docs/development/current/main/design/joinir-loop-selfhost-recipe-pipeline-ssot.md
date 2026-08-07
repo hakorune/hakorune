@@ -439,6 +439,16 @@ upvar/capture, binding mismatch, or unproven order reject before publication.
 No AST/name scan, selector, demand, Recipe, Builder/MIR, retry, fallback, or
 production caller may be added in these cells.
 
+The callable full physical canary is now closed caller-zero. The next G0
+parity boundary is split cleanly: `LOOP-CALLER-ZERO-PARITY-G0-D0` accepts a
+compiler-side composite of the exact resolver input plus the neutral S4
+product, and `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` may only split G0 After into
+neutral continuation plus distinct tail capability, issue that composite, and
+prove common fifteen-row `prepare_all` with Builder effect zero. The S4
+Recipe/effect/After owner remains neutral; no AST reconstruction, second
+resolver, profile relabel, physical emission, selector, retry, fallback, or
+production caller is opened.
+
 ## Structural owners
 
 | Owner | Owns | Must not own |
