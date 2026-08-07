@@ -71,12 +71,14 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - final callable truth owner for builtin/plugin/user Box callables;
     Type ABI becomes projection and PluginLoader/type_registry become providers
 - `design/type-abi-naming-and-box-descriptor-ssot.md`
-  - naming boundary for TypeBox ABI v2 vs historical TypeAbi* descriptor
-    projection surfaces and future BoxDescriptor naming
+  - naming boundary for TypeBox ABI v2, the runtime ABI skeleton TypeBox,
+    runtime type metadata TypeBox, MirBuilder TypeRegistry, historical
+    TypeAbi* projections, and future BoxDescriptor naming
 - `design/ring2-provider-link-abi-lifecycle-ssot.md`
-  - separates ring trust/responsibility, provider residency, BID-TLV/TypedFast
-    ABI transport, dispatch binding, optimization outcome, provider-image
-    lifetime, and the required B-prime `fini`/structural `destroy` split
+  - separates package API, ProviderSlot selection, ring trust/responsibility,
+    provider residency, TypeBox-TLV/TypedFast binding, semantic/executable
+    plans, C-prime terminal `fini`, structural `destroy`, and provider-image
+    lifetime
 - `design/typed-object-exact-slot-abi-ssot.md`
   - typed-object exact slot ABI split owner; keeps compat `field_get_hii`
     separate from selected `typed_object.slot_load/store_*` exact routes

@@ -1,10 +1,10 @@
 ---
 Status: SSOT
-Decision: accepted direction; consolidation required before implementation
-Date: 2026-08-02
-Scope: ring responsibilities, provider residency, ring2 ABI transports,
-  dispatch binding, provider-image lifetime, static embedding, and plugin Box
-  lifecycle boundary.
+Decision: accepted target; implementation parked behind the active MirBuilder lane
+Date: 2026-08-07
+Scope: package/ProviderSlot boundary, ring responsibilities, provider
+  residency, Provider Box binding profiles, dispatch binding, provider-image
+  lifetime, static embedding, and plugin Box lifecycle boundary.
 Related:
   - docs/architecture/RINGS.md
   - docs/development/current/main/design/ring1-core-provider-scope-ssot.md
@@ -12,7 +12,8 @@ Related:
   - docs/development/current/main/design/type-abi-naming-and-box-descriptor-ssot.md
   - docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md
   - docs/development/current/main/design/type-abi-box-domain-ssot.md
-  - docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
+  - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
+  - docs/reference/language/lifecycle.md
   - docs/reference/plugin-system/bid-ffi-v1-actual-specification.md
   - docs/reference/plugin-system/plugin_lifecycle.md
   - include/nyash_abi.h
@@ -49,7 +50,8 @@ optimization outcome:
   whether the toolchain later devirtualizes or inlines the call
 
 lifecycle:
-  who owns provider-image lifetime, logical fini, and structural destruction
+  who owns provider-image lifetime, provider-global lifetime,
+  terminal-Home fini, and structural destruction
 ```
 
 Static linking does not promote an extension into ring1. A fast ABI does not
@@ -109,8 +111,11 @@ provider trust / responsibility:
 provider residency:
   dynamic | embedded-static
 
-ABI transport:
-  BID-TLV | TypedFast
+ABI domain:
+  Core C ABI | Provider Box ABI family
+
+Provider Box binding profile:
+  TypeBox-TLV v2 | TypedFast exact-entry
 
 dispatch binding:
   library-generic | per-Box-table | exact-method-pointer | direct-symbol
@@ -119,11 +124,11 @@ optimization outcome:
   none-observed | devirtualized | inlined
 ```
 
-| Provider | Ring | Residency | ABI transport | Binding | Optimization |
+| Provider | Ring | Residency | Provider Box binding | Dispatch binding | Optimization |
 | --- | --- | --- | --- | --- | --- |
 | Console core | ring1 | embedded | in-process core | direct | not claimed |
 | Array core | ring1 | embedded | in-process core | direct | not claimed |
-| Net extension | ring2 | dynamic | BID-TLV | library-generic | none observed |
+| Net extension | ring2 | dynamic | TypeBox-TLV v2 | library-generic | none observed |
 | Net extension | ring2 | dynamic | TypedFast | exact method pointer | none observed |
 | Net extension | ring2 | embedded | TypedFast | per-Box table | none observed |
 | App-specific Box | ring2 | embedded | TypedFast | direct symbol | optional measured LTO |
@@ -160,24 +165,32 @@ encoding, output allocation, TLV decoding, and Box materialization.
 
 Therefore the current per-Box route is not a zero-overhead typed method call.
 
-## 4. Target Two-Transport Model
+## 4. Target Provider Box Binding Model
 
-Ring2 keeps two explicit transports:
+Ring2 keeps one semantic provider contract and two explicit physical binding
+profiles:
 
 ```text
-BID-FFI / TLV:
+TypeBox-TLV v2 / current BID-FFI:
   generic, portable, dynamic, compatibility and tooling route
 
-Typed Fast ABI:
+TypedFast exact-entry:
   load/build-time verified, exact-signature hot execution route
 ```
+
+TypedFast is not a third public semantic ABI. It is an exact-entry binding
+inside the Provider Box ABI family. Both profiles consume the same selected
+ProviderSlot contract, provider identity, ownership/effect contract, and
+lifecycle capability.
 
 They consume the same immutable callable, signature, ownership, effect, and
 lifecycle-capability truth. They must not maintain two independent policies.
 Mutable instance-lifecycle state is not registry truth; it belongs to the host
 lifecycle controller described below.
 
-The production design has exactly three decision authorities:
+After admission, the production runtime has exactly three decision
+authorities. `VerifiedProviderSlotContractV1` remains the cold semantic API
+authority consumed by admission; it is not a fourth runtime selector.
 
 ```text
 what may be called:
@@ -214,8 +227,9 @@ ProviderAdmissionSeal:
 BoxDescriptor / historical TypeAbi* views:
   read-only descriptor projections
 
-TypeBox ABI v2:
-  selected external transport contract
+Provider Box ABI family:
+  selected external execution domain
+  current TypeBox-TLV v2 or verified TypedFast exact-entry binding
 
 runtime object substrate:
   physical ownership, lease drain, and reclamation mechanics
@@ -307,10 +321,85 @@ inlining is an optimization outcome rather than an ABI guarantee.
 For `static-direct`, the build must fail if exact binding is unavailable. It
 must not silently lower the site to BID-TLV or a generic function table.
 
-## 6. Selection And No-Retry Contract
+## 6. ProviderSlot And Contract Authorities
+
+`library = one API contract` is too coarse. A package may contain ordinary
+Hako code and more than one independently replaceable capability. Selection
+is therefore owned by a complete `ProviderSlot`, never by an entire package
+and never by an individual method.
+
+```text
+package/library:
+  public APIs, ordinary Hako implementation, dependencies
+
+ProviderSlot:
+  one versioned, complete replaceable capability contract
+
+provider:
+  one implementation of one ProviderSlot
+```
+
+V1 requires the complete method set of one slot to come from one provider.
+Method-by-method provider mixing is rejected.
+
+The durable products are deliberately separate:
+
+```text
+VerifiedProviderSlotContractV1:
+  semantic API id/version/profile
+  callable role, receiver, ordered parameter/result types
+  parameter Home demands and result Home relation
+  Result/Option/Fault mapping and effects
+  suspension, thread-affinity, reentrancy, and lifecycle capabilities
+
+AdmittedProviderImplementationV1:
+  selected ProviderId/version
+  exact implemented contract id and semantic profile
+  provider export/binding table
+  ABI version/capabilities and host grants
+  cross-boundary memory owner/releaser law
+
+RuntimeExecutablePlanV1:
+  semantic RoutePlan
+  exact ProviderImageId/artifact digest and image pin
+  target/residency/binding profile
+  exact function address/table/method id and PlanStamp
+```
+
+`BoxCallableRegistry` contains only admitted, selected rows. Candidate sets
+belong to cold admission input and are never published into the live registry.
+Each selected registry row co-seals its ProviderSlot contract identity,
+selected provider identity, and callable target. It does not become a second
+contract catalog.
+
+Keep these identities distinct:
+
+```text
+semantic contract id/hash:
+  API meaning and normalized semantic profile
+
+wire signature hash:
+  physical ABI compatibility only
+
+ProviderId:
+  semantic implementation identity
+
+ProviderImageId / artifact hash:
+  exact executable image, target, and build artifact
+```
+
+Dynamic and embedded artifacts may count as the same provider only when
+ProviderId/version, ProviderSlot contract hash, and semantic profile match.
+The executable plan and lock record still pin one exact ProviderImageId.
+
+## 7. Selection And No-Retry Contract
 
 An alternative compatibility transport may be selected before execution. It
 is never selected as an after-failure retry.
+
+The V1 binding epoch is either static build/link or one eager startup/load
+transaction before application effects. Lazy call-time load and reselection
+are outside V1. The generated lock record preserves the exact selection.
 
 ```text
 production / exact AOT requiring TypedFast:
@@ -325,7 +414,7 @@ forbidden:
 
 This prevents duplicate effects and keeps the selected RoutePlan authoritative.
 
-## 7. Plugin Box Lifecycle: Current Truth
+## 8. Plugin Box Lifecycle: Current Truth
 
 The current `PluginBoxV2` uses `Arc<PluginHandleInner>`:
 
@@ -340,7 +429,7 @@ finalize_now / Drop:
   AtomicBool suppresses repeated fini calls for one inner handle
 ```
 
-This provides a practical SharedV1 RAII model, but it is not the final B′ Box
+This provides a practical SharedV1 RAII model, but it is not the final C′ Box
 lifecycle contract.
 
 Known gaps:
@@ -368,71 +457,94 @@ Known gaps:
 10. Reentrancy, output-buffer bounds, panic/exception containment, and
     cross-boundary allocation ownership do not yet have one common ABI law.
 
-## 8. Target Lifecycle ABI
+## 9. Target C′ Lifecycle ABI
 
-Typed Fast ABI adoption requires distinct lifecycle operations:
+Provider lifecycle has four independent lifetimes:
+
+```text
+provider image lifetime:
+  exact dynamic image pinned by plans, instances, and callbacks
+
+provider-global lifetime:
+  init before admission; shutdown only after plans/instances/callbacks drain
+
+Box instance storage lifetime:
+  birth creates storage; structural destroy reclaims it exactly once
+
+C′ semantic lifetime:
+  the last Home release alone enters the terminal fini transaction
+```
+
+Stateless/static capabilities such as scalar Math have no instance handle and
+therefore no birth, fini, or structural destroy route.
+
+For a stateful provider Box, the only accepted lifecycle is:
+
+```text
+Constructing
+  successful birth -> Alive
+  failed birth -> reverse release initialized children; no parent fini
+
+Alive
+  ordinary method under an admitted lease -> Alive
+  terminal Home winner -> Finalizing
+
+Finalizing
+  reject new ordinary leases before provider execution
+  drain already-issued leases
+  invoke the non-callable provider fini hook at most once
+  release host-owned fields in reverse declaration order
+  invoke structural destroy exactly once
+  -> PayloadDropped
+
+PayloadDropped
+  no ordinary method, fini, or destroy route remains callable
+```
+
+The C′ terminal Home DropPlan is the sole transition owner. Neither Rust
+`Drop`, plugin code, a receiver call, nor provider-global shutdown may invoke
+the user `fini` hook independently.
 
 ```text
 birth:
-  create a structural plugin instance
+  instance construction hook selected by the lifecycle contract
 
 fini:
-  explicit logical user finalization and eager external-resource release
+  non-callable, parameterless, non-suspending last-Home hook
+  no Result channel, resurrection, hidden share, or receiver escape
 
 destroy:
-  structural instance destruction/reclamation; never a second user fini
+  structural native payload reclamation after fini and field release
+  exactly once; never invokes fini
+
+close / shutdown / commit / abort:
+  ordinary domain methods; may return Result while the Box remains Alive
 ```
 
-The logical state machine is the B-prime lifecycle authority from
-`box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`:
-
-```text
-Alive
-  method under an ordinary lease -> Alive
-  one fini winner -> Finalizing
-
-Finalizing
-  reject new ordinary leases
-  drain outstanding ordinary leases
-  run the user fini hook at most once under a privileged finalizer lease
-  attempt remaining teardown even when a hook or cleanup step fails
-  preserve the primary typed error
-  publish payload absent and Dead; never reopen partial Alive
-
-Dead
-  ordinary payload method -> fail-fast: use after fini
-  fini -> idempotent result
-  last structural owner -> provider destroy exactly once
-```
-
-Logical `Dead`, provider-instance destruction, and provider-image unloading are
-three different facts. `Destroyed` is not a second logical state beside the
-B-prime authority. Lifecycle state has one host-side authority. Plugins
-implement selected hooks but do not independently decide whether a call is
-legal.
+If a terminal hook or transport boundary faults, preserve the first terminal
+failure, continue remaining field release and destroy best-effort, and never
+republish Alive. A recoverable close failure belongs to an ordinary domain
+method, not to `fini` or `destroy`.
 
 Required invariants:
 
 ```text
 one birth creates one structural instance identity
-share does not create another instance
-clone creates a fresh instance through birth
-the user fini hook is attempted at most once for one lifecycle transaction
-fini failure is observable, remaining teardown still runs, and partial Alive is never republished
-new ordinary lease requests after Finalizing begins fail before plugin method execution
-already-issued ordinary leases drain before the user fini hook
-destroy is called exactly once when structural ownership ends
-destroy never invokes user fini implicitly
-singleton shutdown has an explicit outstanding-share disposition
-static and dynamic ring2 use the same lifecycle state machine
+share adds a Home; it does not create another instance
+clone creates a fresh instance only through the selected birth contract
+only the terminal Home winner enters fini
+new ordinary leases fail before provider execution once Finalizing begins
+already-issued leases drain before fini
+destroy occurs exactly once after the terminal teardown sequence
+provider-global shutdown never substitutes for instance fini
+static and dynamic artifacts of one provider obey the same C′ contract
 ```
 
-The first implementation decision must also define clone through the selected
-birth route, concurrent/reentrant fini behavior, and whether singleton shutdown
-rejects, drains, or retains outstanding shares. `Arc::try_unwrap` success is not
-a lifecycle policy.
+The first lifecycle implementation must also fix clone through the selected
+birth route, concurrent/reentrant terminalization, and the singleton
+outstanding-share policy. `Arc::try_unwrap` success is not lifecycle policy.
 
-## 9. Provider Image Lifetime And Identity
+## 10. Provider Image Lifetime And Identity
 
 A dynamic executable address is legal only while its exact provider image is
 alive. A copied function pointer is not a lifetime proof.
@@ -463,7 +575,7 @@ selected by one sealed, explicit policy before execution. A provider
 generation becomes necessary only if a later row enables reload; the initial
 process-pinned model must not add an unused generation authority.
 
-## 10. TypedFast Wire Contract Obligations
+## 11. TypedFast Wire Contract Obligations
 
 TypedFast cannot be implemented by adding another Rust function-pointer type.
 Its D0 must fix one language-neutral C ABI contract covering all of:
@@ -502,7 +614,7 @@ The exact handle width, hash algorithm, error representation, capability
 vocabulary, and thread model remain D0 decisions. The current `version` and
 reserved `capabilities` fields must not be described as negotiated proof.
 
-## 11. Structural Boundaries
+## 12. Structural Boundaries
 
 Do not put plugin invocation or lifecycle policy into ring0.
 
@@ -515,208 +627,257 @@ hot execution ABI. They remain descriptor projections.
 Do not add unconditional fallback, by-name hot dispatch, or per-plugin
 lifecycle exceptions.
 
-Do not claim plugin ObjectCell/B′ adoption until logical `fini` and structural
-`destroy` have separate ABI owners and use-after-fini is enforced at the
-common boundary.
+Do not claim plugin C′ terminal-Home adoption until non-callable `fini` and
+structural `destroy` have separate ABI owners and post-terminal use is
+rejected at the common boundary.
 
-## 12. Parked Consolidation Task Order
+## 13. Parked Implementation Task Order
 
-The architecture does not need a rewrite. It does require the following
-consolidation before implementation. These tasks are parked inventory, not a
-change to `CURRENT_STATE.toml` or the active MirBuilder lane.
+The architecture does not need a rewrite. The following is one dependency
+ordered future lane. It remains parked and does not change
+`CURRENT_STATE.toml`, the current blocker, or the active MirBuilder lane.
 
-Ceremony is intentionally small:
+### Mandatory reference closeout law
 
-```text
-design:
-  one consultation batch + one SSOT commit
+Every implementation or retirement row below must update the affected
+`docs/reference/**` pages in the same implementation slice. A row may not
+close with code and design docs only.
 
-implementation:
-  two live Refactor Series, each 2-5 buildable commits
-
-activation:
-  one exact TypedFast BoxCount row
-
-docs:
-  do not split select and closeout into separate commits
-  do not create one file per subdecision
-```
-
-### First task: `RING2-PROVIDER-BOUNDARY-CONTRACT0-D0`
-
-Run one consultation batch and land one SSOT update. Do not create separate
-lifecycle, image-pin, and wire-contract documents or closeout commits.
-
-#### Change
-
-Seal the three contracts required by the three-authority production path:
+At minimum, update the applicable lifecycle, plugin ABI, ABI boundary,
+manifest/user workflow, diagnostic, and migration reference pages. The final
+closeout performs a zero-drift census; it is not a substitute for per-row
+reference updates.
 
 ```text
-lifecycle law:
-  registry = immutable birth/fini/destroy capability truth
-  host controller = mutable Alive/Finalizing/Dead legality
-  provider = selected hook implementation only
-  fini failure and teardown order
-  concurrent and reentrant fini
-  use-after-fini gate
-  clone through selected birth
-  outstanding singleton-share shutdown policy
-  legacy BID lifecycle compatibility and retirement condition
-
-link/lifetime law:
-  provider identity
-  image pin owner
-  duplicate export rejection/selection
-  provider init failure before publication
-  object identity across provider/type/instance
-  PlanStamp and cache invalidation boundary
-  no provider generation until reload is supported
-
-wire law:
-  canonical signature bytes and hash
-  version/capability negotiation
-  status, result, and error representation
-  unwind containment and allocation ownership
-  thread/reentrancy contract
-  versioned birth/fini/destroy entries
+docs_only_closeout = forbidden
+code_or_artifact_delta_required = 1
+reference_update_in_same_slice = required
 ```
 
-#### Contract
+### 0. `RING2-PROVIDER-BOUNDARY-CONTRACT0-D0` — accepted here
 
 ```text
-production code delta = 0
-current route delta    = 0
-current lane delta     = 0
-new docs file          = 0
-
-initial dynamic lifetime:
-  process pinned
-  same-identity reload rejected
-  unload / hot reload unsupported
-
-decision authorities:
-  BoxCallableRegistry
-  RoutePlan
-  host lifecycle controller
-  exactly these three
+Change:
+  fix ProviderSlot selection, contract/provider/image identities,
+  semantic/executable plans, C′ lifecycle, and no-retry boundaries
+Contract:
+  production/current-lane delta = 0; no new competing SSOT
+Done:
+  this document is the one Ring2 architecture and task-order authority
+Stop:
+  implementation remains parked until CURRENT_STATE explicitly reopens it
 ```
 
-#### Done
+### 1. `MATH-PROVIDER-CONTRACT0-D0`
 
 ```text
-this SSOT and the B-prime SSOT have one lifecycle state/failure law
-every retained executable address has an exact image-lifetime proof
-provider/type/instance identity is unambiguous
-provider and host can independently build the same ABI descriptor
-current version/capabilities fields are not misrepresented as negotiation
-legacy birth/fini-only plugins have a named compatibility/retirement rule
-counterexample matrix covers share, clone, failed/reentrant fini,
-  use-after-fini, init failure, duplicate export, reload, buffer/error,
-  shutdown with shares, and destroy exactly once
+Change:
+  fix one complete hako.math.scalar@1 ProviderSlot as the first canary;
+  decide source surface, method set, numeric and failure semantics
+Contract:
+  shared MathBox naming is not provider parity; exact semantic profile owns
+  NaN/domain behavior, signed zero, rounding, precision, and Result/Fault
+Done:
+  root/plugin ID and behavior mismatches are explicit counterexamples and
+  one contract is accepted for the canary
+Stop:
+  static/instance surface, method set, or special-value semantics remain
+  ambiguous
 ```
 
-#### Stop
+Current evidence already rejects parity: the root app manifest uses Math IDs
+4-7 while the plugin owns 1-4; builtin negative `sqrt` returns a String error
+while the plugin follows floating NaN behavior; builtin `round` returns an
+Integer while the plugin returns `f64`.
+
+### 2. `PROVIDER-CONTRACT-ARTIFACT0-S0`
 
 ```text
-B-prime failure law cannot be preserved for plugin fini
-existing BID plugins cannot be versioned without a silent lifecycle fallback
-one provider identity cannot cover loader, registry, plan, and object identity
-the first dynamic route requires unload/hot reload support
-the ABI descriptor requires Rust layout or mutable loader state
-an additional decision authority is required beside the selected three
+Change:
+  generate the normalized contract artifact, semantic/wire hashes, IDs,
+  C header, Rust binding, and BoxDescriptor projection from one source
+Contract:
+  no hand-maintained duplicate method table; no runtime provider publication
+Done:
+  provider and host consume the same generated artifact
+Stop:
+  a second source authority or an ABI/runtime fallback is required
 ```
 
-On Stop, do not open either Refactor Series and do not add a compatibility
-adapter.
-
-### Refactor Series 1: `RING2-PLUGIN-LIFECYCLE-BPRIME0`
-
-Use a short live BoxShape series on the existing BID route only.
+### 3. `RING2-PLUGIN-LIFECYCLE-CPRIME0`
 
 ```text
-S0:
-  install one host lifecycle controller and common invocation gate
-
-I0/R0:
-  separate logical fini from structural destroy
-  consume the registry-selected birth route for clone
-  enforce the selected shutdown-share policy
-  add sharing/clone/failure/reentrancy/use-after-fini/destroy-once tests
-
-same-series retirement:
-  Drop -> user fini
-  standalone AtomicBool logical-state authority
-  hard-coded clone birth method zero
-  Arc::try_unwrap as shutdown policy
+Change:
+  separate birth, terminal-Home fini, reverse field release, structural
+  destroy, provider-global shutdown, and image lifetime on the existing TLV
+  route
+Contract:
+  C′ terminal Home owner is sole fini authority; Arc/refcount is not source
+  Home authority
+Done:
+  Drop->fini, AtomicBool lifecycle truth, birth-zero clone, and
+  Arc::try_unwrap shutdown policy are retired or quarantined
+Stop:
+  canonical terminal-Home receipt is unavailable, or a second lifecycle owner
+  is needed
 ```
 
-Do not add TypedFast in this series.
+### 4. `RING2-CALLABLE-LINK-PLAN0`
 
-Done means the existing BID route passes the counterexample matrix, every
-method call crosses one host legality gate, and user `fini` is unreachable
-from structural Drop/destroy. Stop the series if this requires general
-ObjectCell activation, TypedFast, or a second lifecycle state owner.
+```text
+Change:
+  make the existing TLV route the first live consumer of:
 
-### Refactor Series 2: `RING2-CALLABLE-LINK-PLAN0`
+    provider facts -> ProviderAdmissionSeal
+      -> immutable admitted BoxCallableRegistry
+      -> semantic RoutePlan
+      -> RuntimeExecutablePlan + exact image pin
+      -> invoke exactly once
 
-Create the provider-scoped immutable callable/link plan with a live existing
-BID consumer in the first commit. A caller-zero or proof-only generic plan is
+Contract:
+  one selected ProviderSlot, one image, one executable route, no call-time
+  re-selection or fallback
+Done:
+  collisions, per-call snapshot reconstruction, arity-zero lookup, and
+  primary-plus-shim plans have zero production callers
+Stop:
+  caller-zero proof plan, second registry, or hot-path PlanStamp check appears
+```
+
+Reject duplicate/colliding exports before atomic publication. Retire mutable
+config/spec reads after seal, provider identity loss, and unpinned addresses.
+
+### 5. `MIRBUILDER-PROVIDER-CONTRACT-INPUT0`
+
+```text
+Change:
+  replace MirBuilder CWD/nyash_box.toml reads with a resolved sealed callable
+  contract input
+Contract:
+  MirBuilder does not own DLL paths, provider manifests, TypeBox name
+  resolution, or provider selection
+Done:
+  plugin_sigs is no longer semantic authority and the sealed input is the
+  only provider contract source
+Stop:
+  MirBuilder must reopen provider selection or manifest parsing
+```
+
+### 6. `RING2-TYPEDFAST0`
+
+```text
+Change:
+  open BoxCount after rows 3-5: dynamic exact signature -> embedded table
+  -> static direct symbol -> measured assembly/perf evidence
+Contract:
+  TypedFast failure never retries TLV; no hot name/registry/config lookup,
+  TLV conversion, temporary allocation, or per-call PlanStamp check
+Done:
+  one exact dynamic canary and subsequent static rows have measured route
+  evidence; lifecycle gates are accounted for
+Stop:
+  E_SHORT requires effectful re-invocation, or performance claim lacks a
+  pre-edit perf/assembly baseline
+```
+
+```text
+dynamic one exact signature
+  -> embedded static table
+  -> static direct symbol
+  -> assembly/perf evidence
+```
+
+Static-direct absence is a build failure. State-aware lifecycle gates may
+remain; one-indirect-call and inlining claims require measured evidence. Each
+optimization cell starts by recording the exact executable perf and assembly
+baseline before code or API edits.
+
+Before general effectful TLV use, close the `E_SHORT` exactly-once hole by
+choosing contract-sized preallocation, a provider-owned result handle, or an
+effect-free copy phase. Reinvoking an effectful operation for buffer sizing is
 forbidden.
 
-```text
-provider exports
-  -> ProviderAdmissionSeal
-  -> immutable admitted BoxCallableRegistry snapshot
-  -> semantic RoutePlan
-  -> RuntimeExecutablePlan + PlanStamp + provider image pin
-  -> existing BID execution exactly once
-
-same-series retirement:
-  callable snapshot reconstruction per invocation
-  mutable config/spec reads after plan seal
-  unpinned dynamic function pointers
-  provider identity dropped from callable/object identity
-  per-handle compatibility-fallback policy
-```
-
-The series retires per-call reconstruction from mutable config/spec state and
-fails deterministically on provider/type/callable collisions.
-
-Done means the existing BID route is the live first consumer, one provider
-snapshot is published, one plan is selected, and the selected operation is
-invoked once. Stop if a caller-zero plan, a second callable registry, or a
-hot-path `PlanStamp` check is required.
-
-### BoxCount sequence
-
-Only after both Refactor Series are green:
+### 7. `RING2-PROVIDER-CONFIG-SCHEMA0-D0`
 
 ```text
-RING2-TYPEDFAST-DYNAMIC-ONE-SHAPE0-I0-R0
-  one dynamic provider + one exact signature
-  selected before execution; BID retry after failure = 0
-
-RING2-TYPEDFAST-STATIC-TABLE0-I0-R0
-  same ABI plan, embedded residency, indirect table binding
-
-RING2-TYPEDFAST-STATIC-DIRECT0-I0-R0
-  exact direct symbol; unavailable binding = build failure
-
-RING2-TYPEDFAST-ASM-EVIDENCE0-D0
-  measure call count and assembly before any zero-wrapper/LTO claim
-
-RING2-PROVIDER-CONFIG-SCHEMA0-D0
-  only then select hako.toml vocabulary and user workflow
+Change:
+  freeze hako.toml/provider-manifest/lock workflow only after one exact
+  executable canary
+Contract:
+  app manifest contains intent only; one provider manifest authority emits
+  generated IDs/ABI/hashes; lock pins exact ProviderImageId
+Done:
+  filename/schema and nyash_box.toml/using kind=dylib migration are explicit
+Stop:
+  schema needs a third manifest authority or runtime provider discovery
 ```
 
-General unload/hot reload, if still wanted, is a later independent
-`RING2-PROVIDER-UNLOAD-RELOAD0-D0`. It must not be smuggled into the first
-dynamic TypedFast row.
+```text
+hako.toml:
+  dependency and explicit provider override/link intent only
+provider authoring manifest:
+  one source authority; exact filename selected here
+generated artifact manifest:
+  IDs, ABI, hashes, artifacts
+hako.lock:
+  ProviderSlot/ProviderId/ProviderImageId, hashes, target, residency, binding
+```
 
-Keep BoxCount and BoxShape separate. Keep task selection and closeout in one
-workstream update; do not create one docs file per subdecision.
+Do not create a third manifest authority beside existing provider package
+artifacts and migration input. `nyash_box.toml` and `using kind="dylib"` become
+named compatibility inputs with retirement conditions.
 
-## 13. Hard Stops
+### 8. `MATH-PROVIDER-CUTOVER0`
+
+```text
+Change:
+  publish pure Hako, intrinsic/native, and external Math implementations
+  only after exact ProviderSlot parity
+Contract:
+  select one complete provider before effects; optimizer cannot change
+  ProviderId implicitly
+Done:
+  types, errors, special values, ownership, results, and generated IDs match
+Stop:
+  any provider needs semantic exception, fallback, or hidden identity change
+```
+
+### 9. `RING2-COMPAT-REFERENCE-CLOSEOUT0-G0`
+
+```text
+Change:
+  perform the final caller-zero and docs/reference drift census
+Contract:
+  every implementation slice already updated its affected references;
+  this row only proves no residue was missed
+Done:
+  all listed compatibility callers and old lifecycle claims are zero
+Stop:
+  any legacy route still owns production semantics
+```
+
+Require zero production callers for:
+
+```text
+per-call registry snapshot reconstruction
+runtime name and arity-zero compatibility resolution
+primary-plus-shim executable plans
+hand-maintained app/plugin method IDs
+MirBuilder manifest reads
+using kind="dylib"
+Plugin Drop/finalize_now -> user fini
+old B′ provider lifecycle claims
+```
+
+Also finish the TypeBox four-surface naming census and verify that every
+implemented behavior is reflected in `docs/reference/**`, examples,
+diagnostics, and migration guidance. General lazy load, unload, hot reload,
+and provider generation remain a later independent D0.
+
+Keep BoxCount and BoxShape separate. Use one rolling workstream card when the
+lane reopens; do not create one document or guard per subtask.
+
+## 14. Hard Stops
 
 ```text
 classifies direct-symbol as an ABI transport
@@ -725,7 +886,7 @@ uses TypeAbi* descriptor projections as hot callable truth
 calls the current per-Box TLV invoke path TypedFast
 
 keeps mutable lifecycle legality in BoxCallableRegistry or the plugin
-returns Finalizing/partially torn-down state to Alive after fini failure
+returns Finalizing/partially torn-down state to Alive after terminal failure
 calls user fini from Rust Drop or structural destroy
 lets use-after-fini reach the plugin before host rejection
 uses hard-coded method zero as clone birth
@@ -743,6 +904,7 @@ treats a signature hash as trust or authorization
 uses manifest thread_safe alone as host concurrency proof
 
 retries one effectful operation through BID after TypedFast failure
+reinvokes an effectful TLV operation after `E_SHORT`
 publishes a provider after ignored init failure
 lands a disconnected production plan with caller zero
 mixes lifecycle BoxShape and TypedFast BoxCount in one series
@@ -757,7 +919,7 @@ changes the active MirBuilder lane from this parked design document
 - Static ring2 is not ring1.
 - Static embedding alone does not guarantee direct calls.
 - LTO does not guarantee inlining.
-- Current plugin lifecycle is not yet B′ complete.
+- Current plugin lifecycle is not yet C′ complete.
 - Dynamic provider pointers are not yet protected by a sealed image-lifetime
   contract.
 - `NyashTypeBoxFfi.version` and `capabilities` are not currently proof of

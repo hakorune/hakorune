@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-06-13
+Date: 2026-08-07
 Scope: Final Box callable ownership model for builtin boxes, plugin boxes,
 user boxes, Type ABI projection, and route plan generation.
 Related:
@@ -9,6 +9,8 @@ Related:
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/type-abi-box-domain-ssot.md
   - docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md
+  - docs/development/current/main/design/ring2-provider-link-abi-lifecycle-ssot.md
+  - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
   - src/runtime/type_registry.rs
@@ -31,21 +33,25 @@ type_registry:
   builtin input provider
 
 BoxCallableRegistry:
-  canonical callable truth
+  admitted callable availability and selected-target truth
 
 RoutePlan:
-  hot execution truth
+  semantic execution choice
+
+RuntimeExecutablePlan:
+  exact physical binding and provider-image lifetime proof
 
 Type ABI / TypeAbiCatalog / TypeAbiPack:
   read-only projection and artifact surfaces
 ```
 
-This reduces the long-term shape to four layers:
+This reduces the long-term shape to five layers:
 
 ```text
 provider
 registry
-plan
+semantic plan
+executable plan
 execution
 ```
 
@@ -57,7 +63,8 @@ or execution.
 
 ```text
 truth:
-  BoxCallableRegistry
+  ProviderSlot contract catalog for API meaning
+  BoxCallableRegistry for admitted callable availability and selected target
 
 inputs:
   BuiltinBoxProvider
@@ -75,6 +82,7 @@ execution:
   MethodCallRoutePlan
   NewBoxRoutePlan
   DropBoxRoutePlan
+  RuntimeExecutablePlan at the runtime boundary
 ```
 
 Plugin and Type ABI become siblings under the registry:
@@ -112,6 +120,12 @@ enum BoxCallableRole {
     Operator,
 }
 ```
+
+`Fini` and `PluginLifecycle` remain current compatibility vocabulary. Under
+the accepted C′ target, `fini {}` is a non-callable last-Home hook owned by the
+terminal Home DropPlan. Provider lifecycle contracts retain birth, terminal
+fini, and structural destroy capabilities separately; ordinary callable
+lookup must not make `fini` user-callable.
 
 Targets keep execution and id-space differences explicit:
 
@@ -898,6 +912,8 @@ do not remove PluginLoader before registry seeding is proven
 ```text
 Plugin is input.
 Type ABI is output.
-BoxCallableRegistry is the callable truth.
-RoutePlan is execution.
+ProviderSlot contract is API meaning.
+BoxCallableRegistry is admitted callable and selected-target truth.
+RoutePlan is the semantic execution choice.
+RuntimeExecutablePlan is the exact physical binding.
 ```

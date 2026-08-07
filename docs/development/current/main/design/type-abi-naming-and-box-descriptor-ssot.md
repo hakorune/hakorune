@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-06-13
+Date: 2026-08-07
 Scope: Naming boundary between TypeBox ABI v2, historical TypeAbi* code,
 BoxDescriptor projection surfaces, and BoxCallableRegistry.
 Related:
@@ -25,6 +25,15 @@ implementation work.
 TypeBox ABI v2:
   real external plugin execution ABI
 
+runtime::type_box_abi::TypeBox:
+  older Tier-0 external ABI skeleton; not runtime type metadata
+
+core::type_box::TypeBox:
+  in-process runtime type metadata; not an external execution ABI
+
+MirBuilder TypeRegistry:
+  ValueId -> MirType/origin facts; not a Box descriptor or plugin ABI
+
 TypeAbiView / TypeAbiCatalog / TypeAbiPack:
   historical code names for descriptor projection surfaces
 
@@ -47,6 +56,10 @@ TypeBox ABI v2:
   plugin / DLL C ABI
   external execution boundary
   resolve + invoke_id path
+
+TypedFast exact-entry:
+  verified Provider Box binding profile
+  not a third semantic API or descriptor authority
 
 BoxCallableRegistry:
   Rust internal callable truth
@@ -73,6 +86,15 @@ TypeAbiCatalog:
 
 TypeAbiPack:
   historical name for BoxDescriptorPack
+
+runtime::type_box_abi::TypeBox:
+  historical Tier-0 ABI skeleton name
+
+core::type_box::TypeBox:
+  runtime metadata name; future RuntimeTypeDescriptor candidate
+
+src/mir/builder/type_registry.rs TypeRegistry:
+  MIR value type facts; future MirValueTypeFacts candidate
 ```
 
 ## Forbidden Readings
@@ -193,16 +215,22 @@ Move modules only after descriptor naming is stable in consumers.
 Acceptance:
 
 ```text
+four-surface census includes TypeBox ABI v2, runtime ABI skeleton TypeBox,
+  runtime metadata TypeBox, and MirBuilder TypeRegistry
 src/box_descriptor owns descriptor projection code
 src/type_abi remains compatibility shim or is retired with docs
 tests prove old imports or chosen migration path
+implemented renames update the affected docs/reference pages in the same slice
 ```
 
 ## Final Rule
 
 ```text
-TypeBox ABI v2 is the ABI.
-BoxCallableRegistry is the truth.
+ProviderSlot contract is API meaning.
+TypeBox ABI v2 is the external TLV execution boundary.
+TypedFast is an exact-entry Provider Box binding profile, not a third truth.
+BoxCallableRegistry is admitted callable and selected-target truth.
 BoxDescriptor is the projection.
-RoutePlan is execution.
+RoutePlan is semantic execution choice.
+RuntimeExecutablePlan is exact physical execution binding.
 ```
