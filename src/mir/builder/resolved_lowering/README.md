@@ -101,6 +101,14 @@ continuation/Tail, Return/DraftSeal, selector, retry/fallback retirement, and
 legacy deletion remain closed until a named production caller switch is
 authorized.
 
+The current bounded preparation slice adds a private Prepared-product
+move-only handoff, complete WriteBinding projection, and typed pure leaf
+bridges for Const/Binary/Compare. The focused fixture proves a Const -> Binary
+-> Compare chain without introducing a second CFG/SSA/PHI owner. This is not
+yet the five-family dispatcher or the callable Prelude -> Loop -> Tail canary;
+those adapters, `finish_for_draft_seal`, and DraftSeal integration remain the
+next implementation boundary.
+
 ## Full operation demand P0
 
 The Builder-free `VerifiedLoopOperationPhysicalDemandV1` now consumes the

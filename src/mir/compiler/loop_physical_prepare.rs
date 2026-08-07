@@ -357,12 +357,12 @@ impl VerifiedCallableTerminalCompatibilityV1 {
 /// product exactly once and is not copied into the common Loop demand.
 #[derive(Debug)]
 pub(crate) struct PreparedCallableLoopPhysicalizationV1<'a> {
-    input: VerifiedCallableFunctionLoweringInputV1<'a>,
-    demand: VerifiedLoopPhysicalDemandV1,
-    prelude: VerifiedCallablePreludeCapabilityV1,
-    tail: VerifiedCallableTailV1,
-    terminal: VerifiedCallableTerminalCompatibilityV1,
-    completion: VerifiedFunctionCompletionV1,
+    pub(crate) input: VerifiedCallableFunctionLoweringInputV1<'a>,
+    pub(crate) demand: VerifiedLoopPhysicalDemandV1,
+    pub(crate) prelude: VerifiedCallablePreludeCapabilityV1,
+    pub(crate) tail: VerifiedCallableTailV1,
+    pub(crate) terminal: VerifiedCallableTerminalCompatibilityV1,
+    pub(crate) completion: VerifiedFunctionCompletionV1,
 }
 
 impl<'a> PreparedCallableLoopPhysicalizationV1<'a> {

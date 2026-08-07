@@ -1,6 +1,6 @@
 # CALLABLE-LOOP-PHYSICAL-CANARY-P0
 
-Status: `Ready for implementation; caller-zero only`
+Status: `Preparation slice landed; full callable canary still open; caller-zero only`
 Date: `2026-08-07`
 Parent: `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
 North star: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
@@ -22,6 +22,18 @@ PreparedCallableLoopPhysicalizationV1
 
 This row is a caller-zero integration proof. It does not select a production
 caller, change the selector, publish a module, or retire a legacy route.
+
+Before full physical emission, the row must close four mechanical API gaps
+without adding a semantic owner: a consuming Prepared-product handoff, an
+exact Prelude materialization receipt, one common five-family operation
+dispatcher, and an exact Tail-to-ValueId handoff. The first bounded
+preparation slice is landed: the consuming Prepared handoff, complete
+WriteBinding projection, and typed Const/Binary/Compare leaf bridges compile
+and have focused evidence. The remaining adapters are still part of this row;
+they must not infer names, re-resolve source, clone Completion, or create a
+second CFG/SSA/PHI owner. If an adapter cannot be expressed against the
+existing canonical owners, stop and record a design correction before adding
+physical code.
 
 ## Sole claim
 
@@ -83,23 +95,45 @@ labels. Loop continuation and callable Tail remain distinct contracts.
 
 ## Execution stages
 
-1. Prepare and seal the complete callable product with zero Builder effect.
-2. Open one fresh unpublished function session and move Completion exactly
+1. Close the bounded API gaps above with private/test-only adapters and
+   focused contract tests; no MIR effect is allowed in this stage.
+2. Prepare and seal the complete callable product with zero Builder effect.
+3. Open one fresh unpublished function session and move Completion exactly
    once into the V2 session.
-3. Materialize the explicit Prelude and issue `ReadyLoopEntryV1`, including
+4. Materialize the explicit Prelude and issue `ReadyLoopEntryV1`, including
    the exact zero-input case when applicable.
-4. Allocate and receipt the logical-to-physical Loop blocks through the
+5. Allocate and receipt the logical-to-physical Loop blocks through the
    canonical CFG session.
-5. Bind the complete operation schedule to those blocks and emit all supported
+6. Bind the complete operation schedule to those blocks and emit all supported
    operations through the common physicalizer.
-6. Open the Loop continuation, materialize the callable Tail, and claim the
+7. Open the Loop continuation, materialize the callable Tail, and claim the
    exact completion operand through existing owners.
-7. Close the function only through `finish_for_draft_seal`, then pass the
+8. Close the function only through `finish_for_draft_seal`, then pass the
    ready draft through the existing DraftSeal prepare/commit path.
-8. Exercise both success and post-emission failure. Every failure discards
+9. Exercise both success and post-emission failure. Every failure discards
    the complete unpublished session and restores the caller exactly once.
-9. Reopen a fresh session and repeat the same semantic fixture; compare
+10. Reopen a fresh session and repeat the same semantic fixture; compare
    operation/placement/shape receipts, not incidental ValueId or block IDs.
+
+The four adapters are mechanically bounded as follows:
+
+```text
+Prepared product:
+  one consuming into_parts/into_canary_parts handoff; Completion is moved
+  exactly once into CanonicalSsaFunctionSessionV2
+
+Prelude:
+  exact prepared callable capability + existing direct-call/profile owners
+  -> physical result + ReadyLoopEntryV1; no name lookup
+
+Operation:
+  one dispatcher over Read/Const/Compare/Binary/Write; unsupported forms
+  reject before canonical claims; leaf emitters remain private
+
+Tail:
+  exact prepared binding + canonical identity read
+  -> ValueId -> one completion claim; Tail never becomes Loop After
+```
 
 ## Acceptance evidence
 

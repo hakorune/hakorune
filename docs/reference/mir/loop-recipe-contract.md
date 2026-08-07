@@ -601,3 +601,27 @@ the located legacy Loop handoff. Binding merge and implicit-fallthrough
 products require a separate design/implementation row after this logical
 closure. The required README and reference updates are landed in this
 closeout.
+
+## Callable operation-emitter preparation receipt (2026-08-07)
+
+The caller-zero preparation slice now has bounded, test-only physical seams
+for the next callable canary. The complete operation demand still remains a
+move-only full-program product; no operation is extracted from it. A private
+Prepared-product handoff moves its six capability parts without cloning
+Completion, and the operation contract exposes a complete WriteBinding
+projection alongside the existing ReadBinding projection.
+
+The private leaf boundary now has typed bridges for `ConstI64`, `BinaryI64`
+(`Add`/`Sub`), and `CompareI64` (`Less`/`LessEqual`/`Equal`). These emit only
+through the existing Builder/type owners and retain a schedule-local
+`LoopValueKey -> ValueId` transport; BindingSSA, CFG, PHI, Completion, and
+DraftSeal remain owned by their existing sessions. A focused fixture proves
+the pure Const -> Binary -> Compare chain and the full WriteBinding projection
+proves source/effect/placement retention.
+
+This receipt is not the full callable physicalizer. The common dispatcher over
+all five operation families, exact Prelude materialization, Tail-to-ValueId
+handoff, fresh function session, `finish_for_draft_seal`, and DraftSeal
+integration remain the next bounded implementation work. No production caller,
+selector, retry/fallback, Generic G0 parity, module publication, or legacy
+deletion is opened by this slice.

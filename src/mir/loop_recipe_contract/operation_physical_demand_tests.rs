@@ -74,3 +74,19 @@ fn demand_moves_context_and_continuation_into_prepared_program() {
         prepared.demand().context().owner()
     );
 }
+
+#[test]
+fn callable_write_projection_is_full_program_and_source_bound() {
+    let (operation_effect, context, continuation) = callable_operation_demand_parts_for_test();
+    let demand =
+        VerifiedLoopOperationPhysicalDemandV1::issue(context, operation_effect, continuation)
+            .expect("demand");
+    let prepared = demand.prepare_all().expect("prepare");
+    let rows = prepared.write_binding_rows().expect("write projection");
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0].item().raw(), 6);
+    assert_eq!(
+        rows[0].source_binding().owner(),
+        prepared.demand().context().owner()
+    );
+}

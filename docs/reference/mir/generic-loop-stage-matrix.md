@@ -146,6 +146,20 @@ The production replacement row remains open: full operation integration,
 carrier seeds, continuation/Tail, Return/DraftSeal, selector, retry/fallback
 retirement, and legacy deletion are still closed.
 
+## Callable operation-emitter preparation receipt (2026-08-07)
+
+The caller-zero preparation slice adds a private move-only Prepared-product
+handoff and a complete WriteBinding projection. Completion is moved exactly
+once; no clone or second terminal owner is introduced. Typed leaf bridges now
+cover pure `ConstI64`, `BinaryI64`, and `CompareI64` operations, with a focused
+Const -> Binary -> Compare fixture and source-bound Write projection tests.
+
+This remains preparation evidence, not full physicalization. The common
+Read/Const/Compare/Binary/Write dispatcher, exact Prelude receipt,
+Tail-to-ValueId/completion claim, fresh callable session, and DraftSeal path
+remain open. Generic G0 parity, production selection, retry/fallback, and
+legacy deletion remain closed.
+
 ## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
 
 `LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0` is closed as a caller-zero

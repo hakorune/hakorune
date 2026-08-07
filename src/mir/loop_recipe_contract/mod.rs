@@ -134,7 +134,8 @@ pub(crate) use operation_effect::{
 pub(crate) use operation_physical_demand::{
     LoopOperationCoverageReceiptV1, LoopOperationPhysicalDemandRejectV1,
     PreparedLoopOperationProgramV1, PreparedLoopOperationScheduleRowV1,
-    PreparedLoopReadBindingRowV1, VerifiedLoopOperationPhysicalDemandV1,
+    PreparedLoopReadBindingRowV1, PreparedLoopWriteBindingRowV1,
+    VerifiedLoopOperationPhysicalDemandV1,
 };
 #[allow(unused_imports)]
 pub(crate) use physical_input::{VerifiedLoopPhysicalBoundaryV1, VerifiedLoopPhysicalInputV1};

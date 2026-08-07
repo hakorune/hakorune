@@ -1081,3 +1081,22 @@ operation production activation, callable physical completion, production
 selection, retry/fallback retirement, and legacy deletion remain closed. The
 next operation kind must be opened by a separate design row; no single-item
 extraction API may be added to the full demand.
+
+### Callable physical-canary preparation slice (2026-08-07)
+
+The current preparation slice is mechanically green without claiming the full
+callable physicalizer. The Prepared callable product has one private test
+handoff that moves `input`, complete operation demand, Prelude, Tail, terminal
+compatibility, and Completion exactly once. The full operation contract also
+projects every WriteBinding row with its exact Recipe item, source
+binding/site, class, and logical placement.
+
+Private leaf bridges cover `ConstI64`, `BinaryI64`, and `CompareI64` through
+the existing Builder/type emitters. Their schedule-local value map is only a
+temporary `LoopValueKey -> ValueId` transport; it is not a second SSA or PHI
+owner. A focused test proves the Const -> Binary -> Compare chain. The next
+mechanical boundary remains one common five-family dispatcher, exact Prelude
+materialization, Tail-to-ValueId/completion claim, and fresh session/DraftSeal
+integration. Until those are landed, full callable physicalization,
+production selection, Generic G0 parity, retry/fallback retirement, and
+legacy deletion stay closed.

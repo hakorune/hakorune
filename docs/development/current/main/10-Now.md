@@ -105,9 +105,13 @@ Related:
   closed. The bounded ReadBinding I0 leaf is also landed: complete-program
   projection, canonical BindingSSA/PHI receipt, explicit entry requirements,
   and logical/physical placement evidence are green. The next authorized row
-  is `CALLABLE-LOOP-PHYSICAL-CANARY-P0`: caller-zero full callable
-  Prelude -> Loop -> distinct Tail -> `finish_for_draft_seal` -> DraftSeal,
-  covering the complete Read/Const/Compare/Binary/Write operation matrix.
+  is `CALLABLE-LOOP-PHYSICAL-CANARY-P0`: the first bounded preparation slice
+  (Prepared move handoff, complete Write projection, and pure
+  Const/Binary/Compare leaves) is green; complete the common five-family
+  dispatcher, exact Prelude/Tail handoff, and fresh-session
+  `finish_for_draft_seal` -> DraftSeal integration before claiming the full
+  caller-zero Prelude -> Loop -> distinct Tail canary. The complete
+  Read/Const/Compare/Binary/Write operation matrix remains the target.
   Production selection, named caller switch, carrier seeds, retry/fallback
   retirement, and legacy deletion remain closed.
   Declaration-derived ABI, physicalization, production selection,

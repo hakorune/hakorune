@@ -22,20 +22,35 @@ pub(in crate::mir::builder) fn emit_add_i64(
     lhs: ValueId,
     rhs: ValueId,
 ) -> Result<ValueId, String> {
-    require_i64_operands(builder, lhs, rhs)?;
-    let dst = builder.next_value_id();
-    builder.emit_instruction(MirInstruction::BinOp {
-        dst,
-        op: BinaryOp::Add,
-        lhs,
-        rhs,
-    })?;
-    builder
-        .function_state
-        .type_ctx
-        .value_types
-        .insert(dst, MirType::Integer);
-    Ok(dst)
+    let block = require_current_block(builder)?;
+    emit_add_i64_at(builder, block, lhs, rhs)
+}
+
+pub(in crate::mir::builder) fn emit_add_i64_at(
+    builder: &mut MirBuilder,
+    block: crate::mir::BasicBlockId,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<ValueId, String> {
+    emit_binary_i64_at(builder, block, BinaryOp::Add, lhs, rhs)
+}
+
+pub(in crate::mir::builder) fn emit_sub_i64(
+    builder: &mut MirBuilder,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<ValueId, String> {
+    let block = require_current_block(builder)?;
+    emit_binary_i64_at(builder, block, BinaryOp::Sub, lhs, rhs)
+}
+
+pub(in crate::mir::builder) fn emit_sub_i64_at(
+    builder: &mut MirBuilder,
+    block: crate::mir::BasicBlockId,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<ValueId, String> {
+    emit_binary_i64_at(builder, block, BinaryOp::Sub, lhs, rhs)
 }
 
 pub(in crate::mir::builder) fn emit_less_i64(
@@ -43,9 +58,47 @@ pub(in crate::mir::builder) fn emit_less_i64(
     lhs: ValueId,
     rhs: ValueId,
 ) -> Result<ValueId, String> {
-    require_i64_operands(builder, lhs, rhs)?;
+    emit_compare_i64(builder, CompareOp::Lt, lhs, rhs)
+}
+
+pub(in crate::mir::builder) fn emit_compare_i64(
+    builder: &mut MirBuilder,
+    op: CompareOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<ValueId, String> {
+    let block = require_current_block(builder)?;
+    emit_compare_i64_at(builder, block, op, lhs, rhs)
+}
+
+pub(in crate::mir::builder) fn emit_compare_i64_at(
+    builder: &mut MirBuilder,
+    block: crate::mir::BasicBlockId,
+    op: CompareOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<ValueId, String> {
+    require_i64_operands_at(builder, block, lhs, rhs)?;
     let dst = builder.next_value_id();
-    compare::emit_to(builder, dst, CompareOp::Lt, lhs, rhs)?;
+    compare::emit_to_at(builder, block, dst, op, lhs, rhs)?;
+    Ok(dst)
+}
+
+fn emit_binary_i64_at(
+    builder: &mut MirBuilder,
+    block: crate::mir::BasicBlockId,
+    op: BinaryOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<ValueId, String> {
+    require_i64_operands_at(builder, block, lhs, rhs)?;
+    let dst = builder.next_value_id();
+    builder.emit_instruction_at(block, MirInstruction::BinOp { dst, op, lhs, rhs })?;
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(dst, MirType::Integer);
     Ok(dst)
 }
 
@@ -77,7 +130,7 @@ pub(in crate::mir::builder) fn publish_i64_value(
     }
 }
 
-fn require_current_block(builder: &MirBuilder) -> Result<(), String> {
+fn require_current_block(builder: &MirBuilder) -> Result<crate::mir::BasicBlockId, String> {
     let block = builder
         .function_state
         .current_block
@@ -92,11 +145,25 @@ fn require_current_block(builder: &MirBuilder) -> Result<(), String> {
             "[freeze:contract][loop_operation/current_block_not_in_function] block={block:?}"
         ));
     }
-    Ok(())
+    Ok(block)
 }
 
-fn require_i64_operands(builder: &MirBuilder, lhs: ValueId, rhs: ValueId) -> Result<(), String> {
-    require_current_block(builder)?;
+fn require_i64_operands_at(
+    builder: &MirBuilder,
+    block: crate::mir::BasicBlockId,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<(), String> {
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| "[freeze:contract][loop_operation/current_function_missing]".to_string())?;
+    if function.get_block(block).is_none() {
+        return Err(format!(
+            "[freeze:contract][loop_operation/target_block_not_in_function] block={block:?}"
+        ));
+    }
     for (label, value) in [("lhs", lhs), ("rhs", rhs)] {
         if builder.function_state.type_ctx.get_type(value) != Some(&MirType::Integer) {
             return Err(format!(

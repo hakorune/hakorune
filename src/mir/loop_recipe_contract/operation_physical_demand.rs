@@ -31,6 +31,10 @@ pub(crate) enum LoopOperationPhysicalDemandRejectV1 {
     ReadBindingSourceMissing { item: LoopItemKeyV1 },
     ReadBindingSourceShape { item: LoopItemKeyV1 },
     ReadBindingEffectMissing { item: LoopItemKeyV1 },
+    WriteBindingEvidenceMissing { item: LoopItemKeyV1 },
+    WriteBindingSourceMissing { item: LoopItemKeyV1 },
+    WriteBindingEffectMissing { item: LoopItemKeyV1 },
+    WriteBindingSourceShape { item: LoopItemKeyV1 },
     CarrierSeedUnavailable { item: LoopItemKeyV1 },
 }
 
@@ -80,6 +84,45 @@ pub(crate) struct PreparedLoopReadBindingRowV1 {
     source_binding: BindingRefV1,
     source_site: SourceExprSiteV1,
     class: super::schema::LoopValueClassV1,
+}
+
+/// Full-program WriteBinding projection. Like the Read projection, this is
+/// derived only from a complete prepared program and never selects one item.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct PreparedLoopWriteBindingRowV1 {
+    schedule: PreparedLoopOperationScheduleRowV1,
+    binding: super::ids::LoopBindingKeyV1,
+    value: super::ids::LoopValueKeyV1,
+    source_binding: BindingRefV1,
+    source_site: SourceExprSiteV1,
+    class: super::schema::LoopValueClassV1,
+}
+
+impl PreparedLoopWriteBindingRowV1 {
+    pub(crate) const fn item(&self) -> LoopItemKeyV1 {
+        self.schedule.item
+    }
+    pub(crate) const fn block(&self) -> LoopBlockKeyV1 {
+        self.schedule.block
+    }
+    pub(crate) const fn owner_loop(&self) -> LoopNodeKeyV1 {
+        self.schedule.owner_loop
+    }
+    pub(crate) const fn binding(&self) -> super::ids::LoopBindingKeyV1 {
+        self.binding
+    }
+    pub(crate) const fn value(&self) -> super::ids::LoopValueKeyV1 {
+        self.value
+    }
+    pub(crate) const fn source_binding(&self) -> BindingRefV1 {
+        self.source_binding
+    }
+    pub(crate) fn source_site(&self) -> &SourceExprSiteV1 {
+        &self.source_site
+    }
+    pub(crate) const fn class(&self) -> super::schema::LoopValueClassV1 {
+        self.class
+    }
 }
 
 impl PreparedLoopReadBindingRowV1 {
@@ -339,6 +382,94 @@ impl PreparedLoopOperationProgramV1 {
                 schedule,
                 binding,
                 result,
+                source_binding,
+                source_site,
+                class,
+            });
+        }
+        Ok(rows.into_boxed_slice())
+    }
+
+    /// Project every WriteBinding row from the complete prepared program.
+    pub(crate) fn write_binding_rows(
+        &self,
+    ) -> Result<Box<[PreparedLoopWriteBindingRowV1]>, LoopOperationPhysicalDemandRejectV1> {
+        let recipe = self.demand.operation_effect.core().recipe().as_recipe();
+        let mut rows = Vec::new();
+        for schedule in self.schedule.iter().copied() {
+            let Some(LoopRecipeItemV1::Operation { operation }) = recipe
+                .items
+                .iter()
+                .find(|row| row.key == schedule.item)
+                .map(|row| &row.item)
+            else {
+                continue;
+            };
+            let LoopOperationV1::WriteBinding { binding, value } = *operation else {
+                continue;
+            };
+            let evidence = self
+                .demand
+                .operation_effect
+                .evidence()
+                .iter()
+                .find(|evidence| evidence.item() == schedule.item)
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::WriteBindingEvidenceMissing {
+                        item: schedule.item,
+                    },
+                )?;
+            let source_binding = evidence.source_binding().ok_or(
+                LoopOperationPhysicalDemandRejectV1::WriteBindingSourceMissing {
+                    item: schedule.item,
+                },
+            )?;
+            let LoopBindingEffectAnchorV1::Expr(owned_site) = evidence.anchor() else {
+                return Err(
+                    LoopOperationPhysicalDemandRejectV1::CarrierSeedUnavailable {
+                        item: schedule.item,
+                    },
+                );
+            };
+            let source_site = owned_site.site().clone();
+            let effect = self
+                .demand
+                .operation_effect
+                .core()
+                .effect_relations()
+                .iter()
+                .find(|effect| {
+                    effect.recipe_binding() == binding
+                        && effect.source_binding() == source_binding
+                        && effect.anchor() == evidence.anchor()
+                        && matches!(effect.role(), LoopBindingEffectRoleV1::SourceWrite { .. })
+                })
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::WriteBindingEffectMissing {
+                        item: schedule.item,
+                    },
+                )?;
+            let class = recipe
+                .values
+                .iter()
+                .find(|row| row.key == value)
+                .map(|row| row.class)
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::WriteBindingSourceShape {
+                        item: schedule.item,
+                    },
+                )?;
+            if effect.class() != class {
+                return Err(
+                    LoopOperationPhysicalDemandRejectV1::WriteBindingSourceShape {
+                        item: schedule.item,
+                    },
+                );
+            }
+            rows.push(PreparedLoopWriteBindingRowV1 {
+                schedule,
+                binding,
+                value,
                 source_binding,
                 source_site,
                 class,

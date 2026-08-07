@@ -14,10 +14,27 @@ pub fn emit_to(
     rhs: ValueId,
 ) -> Result<(), String> {
     require_existing_current_compare_block(b)?;
+    let block = b
+        .function_state
+        .current_block
+        .expect("current block validated");
+    emit_to_at(b, block, dst, op, lhs, rhs)
+}
+
+#[inline]
+pub(in crate::mir::builder) fn emit_to_at(
+    b: &mut MirBuilder,
+    block: crate::mir::BasicBlockId,
+    dst: ValueId,
+    op: CompareOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<(), String> {
+    require_existing_compare_block(b, block)?;
     let prepared =
         PreparedCanonicalCompareBoolTypeV1::prepare(b.function_state.type_ctx.get_type(dst))
             .map_err(|error| error.to_string())?;
-    b.emit_instruction(MirInstruction::Compare { dst, op, lhs, rhs })?;
+    b.emit_instruction_at(block, MirInstruction::Compare { dst, op, lhs, rhs })?;
     prepared.commit(dst, &mut b.function_state.type_ctx);
     Ok(())
 }
@@ -27,6 +44,13 @@ fn require_existing_current_compare_block(builder: &MirBuilder) -> Result<(), St
         .function_state
         .current_block
         .ok_or_else(|| "[freeze:contract][compare_emission/current_block_missing]".to_string())?;
+    require_existing_compare_block(builder, block)
+}
+
+fn require_existing_compare_block(
+    builder: &MirBuilder,
+    block: crate::mir::BasicBlockId,
+) -> Result<(), String> {
     let function = builder
         .function_state
         .current_function
