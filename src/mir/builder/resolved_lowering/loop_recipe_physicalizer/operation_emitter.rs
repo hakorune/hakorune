@@ -6,6 +6,7 @@
 
 use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
 use super::operation_target::{LoopOperationTargetRejectV1, VerifiedLoopOperationTargetBlockV1};
+use super::operation_type::{ensure_provisional_value_class, expected_mir_type};
 use super::topology::{
     LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1, LoopPhysicalServicesV1, ReadyLoopEntryV1,
 };
@@ -338,14 +339,6 @@ impl<'a, 'source> CanonicalBindingReadServicesV1<'a, 'source> {
     }
 }
 
-fn expected_mir_type(class: LoopValueClassV1) -> MirType {
-    match class {
-        LoopValueClassV1::I64 => MirType::Integer,
-        LoopValueClassV1::Bool => MirType::Bool,
-        LoopValueClassV1::Unit => MirType::Void,
-    }
-}
-
 pub(super) fn emit_prepared_operation_v1(
     prepared: PreparedLoopOperationEmissionV1,
     entry: &ReadyLoopEntryV1,
@@ -618,15 +611,12 @@ pub(super) fn emit_prepared_read_binding_at_target_v1(
     {
         return Err(LoopReadBindingEmissionRejectV1::CanonicalReceiptMismatch);
     }
-    if services
-        .builder
-        .function_state
-        .type_ctx
-        .get_type(canonical.physical_value())
-        != Some(&expected_mir_type(prepared.class))
-    {
-        return Err(LoopReadBindingEmissionRejectV1::ResultTypeMismatch);
-    }
+    ensure_provisional_value_class(
+        services.builder,
+        canonical.physical_value(),
+        prepared.class(),
+    )
+    .map_err(|_| LoopReadBindingEmissionRejectV1::ResultTypeMismatch)?;
     Ok(ReadBindingEmissionReceiptV1 {
         owner: prepared.owner,
         item: prepared.item,

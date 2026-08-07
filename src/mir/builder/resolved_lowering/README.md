@@ -117,6 +117,16 @@ blocked while the topology After receipt is open; next is
 `CALLABLE-LOOP-AFTER-CLOSURE-P0`, then Tail/Completion and
 `finish_for_draft_seal`/DraftSeal integration.
 
+The bounded `CALLABLE-LOOP-AFTER-CLOSURE-P0` slice is now landed as a
+caller-zero continuation proof. It uses the real Prelude receipt, emits the
+complete seven-operation Callable schedule (`Pure=4`, `Read=2`, `Write=1`),
+then emits the fixed preheader/header/body/step/After edges and seals CFG and
+BindingSSA in backedge-safe order. An unsealed `Unknown` PHI is typed only by
+the verified Recipe value class; concrete or missing type facts reject as
+`ResultTypeMismatch`. The test explicitly discards the unpublished session;
+Tail, Completion, DraftSeal, production selection, retry, and legacy deletion
+remain closed.
+
 ## Full operation demand P0
 
 The Builder-free `VerifiedLoopOperationPhysicalDemandV1` now consumes the

@@ -1,6 +1,6 @@
 # CALLABLE-LOOP-AFTER-CLOSURE-P0
 
-Status: `Design correction accepted; implementation next`
+Status: `Implemented caller-zero closure; Tail/Completion remain next`
 Date: `2026-08-07`
 Parent: `docs/development/current/main/investigations/callable-loop-physical-canary-p0-task-2026-08-07.md`
 Authority: `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
@@ -113,6 +113,32 @@ fresh session repeats equivalent semantic receipts
 Tail, Completion, DraftSeal, production selection, and legacy deletion remain untouched
 ```
 
+## Landed A-slice evidence (2026-08-07)
+
+The focused canary now uses the resolver-backed Prelude materialization and
+the same full operation/effect product for the operation demand and Prelude
+capability. It proves the fixed seven-row Callable schedule without a
+single-operation extraction:
+
+```text
+operation coverage: 7
+receipt families:   Pure=4, Read=2, Write=1
+condition:          operation-ledger Bool result
+entry:              real Prelude receipt, not a fabricated ValueId seed
+closure:            preheader/body/step/header/after CFG + identity seals
+terminal boundary:  A-only outer.discard_unpublished()
+```
+
+An unsealed canonical loop-header PHI may expose `MirType::Unknown` only when
+the verified `LoopValueClassV1` supplies the exact expected type. A concrete
+conflict or missing type is `ResultTypeMismatch`; it is never relabeled as a
+generic canonical-read error. The sealed identity/PHI path remains the final
+revalidation authority.
+
+This A slice intentionally stops before Tail/Completion/DraftSeal. The
+operation product, Prelude receipt, and continuation closure are caller-zero
+evidence only; production selection and old-route retirement remain closed.
+
 ## Next slices after this one
 
 The implementation is intentionally split into three commits:
@@ -129,6 +155,14 @@ Each implementation commit must update the active card, `CURRENT_STATE.toml`,
 the current mirrors, the owning `src/mir/.../README.md`, and the relevant
 `docs/reference/mir/*` entry. A slice is not complete while its reference
 claims or restart pointers are stale.
+
+The A-slice acceptance is mechanical: the real Prelude receipt supplies the
+entry value; the complete seven-operation schedule emits `Pure=4`, `Read=2`,
+and `Write=1`; provisional `Unknown` PHI types are published only from the
+verified Recipe class; concrete/missing type facts reject as
+`ResultTypeMismatch`; CFG and identity seal after the backedge; and the
+unpublished session is explicitly discarded before the test exits. No second
+co-seal or fabricated entry value is permitted in the canary.
 
 ## Non-claims
 

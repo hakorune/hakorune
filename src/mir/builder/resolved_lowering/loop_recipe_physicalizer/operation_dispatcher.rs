@@ -110,6 +110,14 @@ impl CompletedLoopOperationDispatchV1 {
     pub(super) fn receipts(&self) -> &[LoopOperationDispatchReceiptV1] {
         &self.receipts
     }
+
+    pub(super) fn contains_result(&self, key: LoopValueKeyV1) -> bool {
+        self.receipts.iter().any(|receipt| match receipt {
+            LoopOperationDispatchReceiptV1::Pure(receipt) => receipt.result() == key,
+            LoopOperationDispatchReceiptV1::Read(receipt) => receipt.result() == key,
+            LoopOperationDispatchReceiptV1::Write(_) => false,
+        })
+    }
 }
 
 impl PreparedLoopOperationDispatchPlanV1 {

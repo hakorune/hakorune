@@ -11,7 +11,9 @@ separates full-demand preflight from leaf emission; the Builder-free
 physicalizer module split, physical block receipt, private ConstI64
 leaf-emitter canary, and bounded ReadBinding I0 are closed. The current row is
 the caller-zero full callable physical canary; operation production activation
-remains 0
+remains 0. The bounded After-closure canary is now green: the real Prelude
+receipt feeds the complete seven-operation Callable dispatch, fixed CFG edges,
+and canonical CFG/identity sealing. Tail/Completion/DraftSeal remain closed.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -713,10 +715,10 @@ skip the After closure or reopen a Tail-only route.
 | 8 | `CALLABLE-LOOP-AFTER-CLOSURE-P0` | complete fixed callable operation schedule, issue CFG edges, seal CFG/identity, and mint one `ReadyLoopAfterContinuationV1` | open After is not Tail-readable; no Tail/Completion/DraftSeal |
 | 9 | `CALLABLE-LOOP-TAIL-COMPLETION-P0` | consume sealed After, read exact Tail binding, `mark_return`, and claim completion once | no DraftSeal, selector, retry, or fallback |
 | 10 | `CALLABLE-LOOP-DRAFT-SEAL-P0` | consume profile close, call only `finish_for_draft_seal`, then DraftSeal prepare/commit | caller-zero only; production selection and legacy deletion remain closed |
-| 9 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
-| 10 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
-| 11 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
-| 12 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
+| 11 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
+| 12 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
+| 13 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
+| 14 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Closed implementation receipt: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
 
@@ -977,6 +979,14 @@ the exact `SourceExprSiteV1` with `claim_variable_use_binding`; call the
 canonical `read_entry_receipt`; validate owner, block, and physical type;
 then return the receipt. A raw `ValueId` from `read_entry` is never a leaf
 receipt and cannot be fabricated or rewrapped by the physicalizer.
+
+Before the loop block is sealed, canonical BindingSSA may return a provisional
+PHI with `MirType::Unknown`. The verified Recipe class is the only permitted
+publication evidence in that state: `Unknown -> exact class MirType` is
+published once by the private operation-type owner, while a concrete conflict
+or missing type rejects as `ResultTypeMismatch`. Block/identity sealing then
+revalidates the now-concrete PHI inputs; this is not type inference or a
+fallback route.
 
 The leaf receipt uses distinct logical and physical names:
 

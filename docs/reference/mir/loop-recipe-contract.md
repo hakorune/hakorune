@@ -19,6 +19,17 @@ and physical block receipt are closed; the current boundary is the private
 ConstI64 leaf-emitter canary. Full operation emission and physical/production
 activation remain closed.
 
+Implementation receipt — `CALLABLE-LOOP-AFTER-CLOSURE-P0` (2026-08-07): the
+caller-zero continuation canary now consumes a real Prelude materialization
+receipt and the complete seven-operation Callable schedule (`Pure=4`,
+`Read=2`, `Write=1`) before issuing the fixed CFG edges. Preheader, body, step,
+header, and After are sealed through the canonical CFG/identity owners, then a
+single session-local `ReadyLoopAfterContinuationV1` is issued. Unsealed PHI
+`Unknown` is published only from the verified Recipe value class; concrete or
+missing type facts reject as `ResultTypeMismatch`. This receipt does not open
+Tail, Completion, DraftSeal, production selection, retry/fallback, or legacy
+retirement.
+
 Executable authority:
 `src/mir/loop_recipe_contract/`
 

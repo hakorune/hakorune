@@ -170,7 +170,7 @@ pub(crate) struct VerifiedCallablePreludeCapabilityV1 {
 }
 
 impl VerifiedCallablePreludeCapabilityV1 {
-    fn issue(
+    pub(crate) fn issue(
         branded: &VerifiedCallableFunctionLoweringInputV1<'_>,
         prelude: &VerifiedCallablePreludeV1,
         expected_receiver: SourceReceiverShapeV1,

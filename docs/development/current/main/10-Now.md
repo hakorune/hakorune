@@ -104,17 +104,20 @@ Related:
   physical block receipt, and the private ConstI64 leaf-emitter canary are now
   closed. The bounded ReadBinding I0 leaf is also landed: complete-program
   projection, canonical BindingSSA/PHI receipt, explicit entry requirements,
-  and logical/physical placement evidence are green. The next authorized row
-  is `CALLABLE-LOOP-PHYSICAL-CANARY-P0`: the first bounded preparation slice
+  and logical/physical placement evidence are green. The bounded
+  `CALLABLE-LOOP-AFTER-CLOSURE-P0` slice is now green: the real Prelude receipt
+  drives all seven operations (`Pure=4`, `Read=2`, `Write=1`), fixed CFG edges,
+  and canonical CFG/identity sealing into one ReadyAfter receipt. The next
+  authorized row is `CALLABLE-LOOP-TAIL-COMPLETION-P0`:
   (Prepared move handoff, complete Write projection, pure
   Const/Binary/Compare leaves, bounded five-family dispatch, full
   Recipe-order prepare, and typed value ledger) is green; exact per-row
   target receipts are batch-validated before the first leaf effect and
   failure-phase separation is now landed; complete
   physical `emit_all`,
-  sealed After continuation closure before exact Tail handoff, then fresh-session
-  `finish_for_draft_seal` -> DraftSeal integration before claiming the full
-  caller-zero Prelude -> Loop -> sealed After -> distinct Tail canary. Prelude materialization
+  exact Tail handoff, then fresh-session `finish_for_draft_seal` -> DraftSeal
+  integration before claiming the full caller-zero Prelude -> Loop -> sealed
+  After -> distinct Tail canary. Prelude materialization
   is now closed as a caller-zero receipt: the external Prelude result and the
   distinct Loop initializer are published through canonical identity into
   separate bindings. The complete

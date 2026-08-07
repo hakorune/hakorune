@@ -63,6 +63,14 @@ are checked before allocation. Operation MIR is still closed until the
 item-keyed product is consumed; this remains disconnected evidence and does
 not activate Generic G0 or any production route.
 
+The callable After-closure canary is now also landed as a separate
+caller-zero boundary. It uses the real Prelude receipt and complete seven-row
+Callable dispatch (`Pure=4`, `Read=2`, `Write=1`) before emitting the fixed CFG
+edges and sealing CFG/identity. A provisional unsealed PHI may be typed only
+by its verified Recipe class; concrete or missing type facts reject as
+`ResultTypeMismatch`. This does not activate Generic G0, Tail, Completion,
+DraftSeal, selector, retry/fallback, or legacy retirement.
+
 ## Operation/effect product S0 receipt (2026-08-07)
 
 `LOOP-RECIPE-OPERATION-EFFECT-S0` is now landed as a passive, AST-free
@@ -160,12 +168,12 @@ seam now issues one exact logical-to-physical target receipt per row and
 separates semantic preflight from post-claim physical failure. The exact
 Prelude receipt is now landed: the resolver-backed Prelude result and the
 distinct Loop initializer are published separately into one session-local
-`ReadyLoopEntryV1`; the two bindings are never conflated. The topology After
-receipt is still open allocation evidence, so Tail-to-ValueId is blocked until
-`CALLABLE-LOOP-AFTER-CLOSURE-P0` seals CFG/identity and issues one
-`ReadyLoopAfterContinuationV1`. Completion claim, fresh callable session
-completion, and DraftSeal remain later slices. Generic G0 parity, production
-selection, retry/fallback, and legacy deletion remain closed.
+`ReadyLoopEntryV1`; the two bindings are never conflated. The callable
+`CALLABLE-LOOP-AFTER-CLOSURE-P0` slice now seals CFG/identity and issues one
+`ReadyLoopAfterContinuationV1` after the complete operation dispatch.
+Tail-to-ValueId, Completion claim, fresh callable session completion, and
+DraftSeal remain later slices. Generic G0 parity, production selection,
+retry/fallback, and legacy deletion remain closed.
 
 ## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
 

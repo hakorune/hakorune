@@ -8,6 +8,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::MirBuilder;
+use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
 use crate::mir::loop_recipe_contract::VerifiedLoopPhysicalBoundaryV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::mir::{BasicBlockId, ValueId};
@@ -144,7 +145,7 @@ pub(super) enum LoopPhysicalBlockReceiptRejectV1 {
     },
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct LoopPhysicalBlockReceiptV1 {
     owner: FunctionOwnerIdV1,
     preheader: BasicBlockId,
@@ -358,13 +359,61 @@ pub(super) fn physicalize_topology_v1(
     entry: ReadyLoopEntryV1,
     services: &mut LoopPhysicalServicesV1<'_>,
 ) -> Result<LoopAfterContinuationReceiptV1, LoopPhysicalizerRejectV1> {
-    let owner = boundary.core().owner();
-    validate_entry(&boundary, &entry, services)?;
-    if boundary.after().loop_key() != boundary.recipe().root_loop() {
+    let view = LoopTopologySourceView::from_boundary(&boundary);
+    physicalize_topology_view(view, entry, services)
+}
+
+/// Borrowed topology input for the operation demand. The demand remains the
+/// sole Core/continuation owner; this view only lets topology allocation run
+/// before the demand is consumed by full operation preparation.
+pub(super) fn physicalize_topology_for_operation_demand_v1(
+    demand: &VerifiedLoopOperationPhysicalDemandV1,
+    entry: ReadyLoopEntryV1,
+    services: &mut LoopPhysicalServicesV1<'_>,
+) -> Result<LoopAfterContinuationReceiptV1, LoopPhysicalizerRejectV1> {
+    physicalize_topology_view(LoopTopologySourceView::from_demand(demand), entry, services)
+}
+
+struct LoopTopologySourceView<'a> {
+    owner: FunctionOwnerIdV1,
+    recipe: &'a crate::mir::loop_recipe_contract::VerifiedLoopRecipeV1,
+    binding_relations:
+        &'a [crate::mir::loop_recipe_contract::VerifiedLoopRecipeBindingRelationV1],
+    after_loop: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+}
+
+impl<'a> LoopTopologySourceView<'a> {
+    fn from_boundary(boundary: &'a VerifiedLoopPhysicalBoundaryV1) -> Self {
+        Self {
+            owner: boundary.core().owner(),
+            recipe: boundary.recipe(),
+            binding_relations: boundary.core().binding_relations(),
+            after_loop: boundary.after().loop_key(),
+        }
+    }
+
+    fn from_demand(demand: &'a VerifiedLoopOperationPhysicalDemandV1) -> Self {
+        Self {
+            owner: demand.operation_effect().core().owner(),
+            recipe: demand.operation_effect().core().recipe(),
+            binding_relations: demand.operation_effect().core().binding_relations(),
+            after_loop: demand.continuation().after().loop_key(),
+        }
+    }
+}
+
+fn physicalize_topology_view(
+    view: LoopTopologySourceView<'_>,
+    entry: ReadyLoopEntryV1,
+    services: &mut LoopPhysicalServicesV1<'_>,
+) -> Result<LoopAfterContinuationReceiptV1, LoopPhysicalizerRejectV1> {
+    let owner = view.owner;
+    validate_entry(&view, &entry, services)?;
+    if view.after_loop != view.recipe.root_loop() {
         return Err(LoopPhysicalizerRejectV1::AfterOwnerMismatch);
     }
 
-    let recipe = boundary.recipe();
+    let recipe = view.recipe;
     let mut physical = BTreeMap::new();
     for node in &recipe.as_recipe().loops {
         let preheader = match node.parent {
@@ -440,11 +489,11 @@ pub(super) fn physicalize_topology_v1(
 }
 
 fn validate_entry(
-    boundary: &VerifiedLoopPhysicalBoundaryV1,
+    view: &LoopTopologySourceView<'_>,
     entry: &ReadyLoopEntryV1,
     services: &LoopPhysicalServicesV1<'_>,
 ) -> Result<(), LoopPhysicalizerRejectV1> {
-    let owner = boundary.core().owner();
+    let owner = view.owner;
     if entry.owner != owner {
         return Err(LoopPhysicalizerRejectV1::EntryOwnerMismatch);
     }
@@ -466,8 +515,8 @@ fn validate_entry(
     if function.get_block(entry.preheader).is_none() {
         return Err(LoopPhysicalizerRejectV1::PreheaderMissing(entry.preheader));
     }
-    let expected = boundary
-        .recipe()
+    let expected = view
+        .recipe
         .as_recipe()
         .inputs
         .iter()
@@ -478,9 +527,8 @@ fn validate_entry(
         if !seen.insert(row.key) || !expected.contains(&row.key) {
             return Err(LoopPhysicalizerRejectV1::EntryKeyMismatch(row.key));
         }
-        if !boundary
-            .core()
-            .binding_relations()
+        if !view
+            .binding_relations
             .iter()
             .any(|relation| relation.source_binding() == row.binding)
         {

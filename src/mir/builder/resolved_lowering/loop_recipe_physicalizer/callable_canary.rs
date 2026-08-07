@@ -13,9 +13,9 @@ use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::emission::constant;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::callable_loop_physical_canary::into_canary_parts;
+use crate::mir::compiler::callable_single_loop_recipe_coseal::VerifiedLoopInputRelationV1;
 use crate::mir::compiler::loop_physical_prepare::{
     VerifiedCallableFunctionLoweringInputV1, VerifiedCallablePreludeCapabilityV1,
-    VerifiedLoopPhysicalDemandV1,
 };
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingOriginV1, OwnedExprSiteV1, SourceBindingSiteV1,
@@ -167,10 +167,11 @@ pub(super) fn materialize_callable_prelude_v1(
     builder: &mut MirBuilder,
     session: &mut CanonicalSsaFunctionSessionV2<'_>,
     input: &VerifiedCallableFunctionLoweringInputV1<'_>,
-    demand: &VerifiedLoopPhysicalDemandV1,
+    input_relation: &VerifiedLoopInputRelationV1,
     prelude: &VerifiedCallablePreludeCapabilityV1,
 ) -> Result<CallablePreludeMaterializationReceiptV1, CallablePreludeMaterializationRejectV1> {
-    if input.owner() != prelude.owner() || input.owner() != demand.co_seal().core().owner() {
+    if input.owner() != prelude.owner() || input.owner() != input_relation.source_binding().owner()
+    {
         return Err(CallablePreludeMaterializationRejectV1::OwnerMismatch);
     }
     let preheader = builder
@@ -231,7 +232,6 @@ pub(super) fn materialize_callable_prelude_v1(
         )
         .map_err(CallablePreludeMaterializationRejectV1::ResultDeclaration)?;
 
-    let input_relation = demand.co_seal().input();
     let initializer_site =
         OwnedExprSiteV1::new(input.owner(), input_relation.initializer().clone());
     let initializer = input
@@ -484,8 +484,14 @@ mod tests {
             let mut session =
                 CanonicalSsaFunctionSessionV2::new(input.input(), if_control, completion, 0)
                     .expect("canonical session");
-            materialize_callable_prelude_v1(builder, &mut session, &input, &demand, &prelude)
-                .expect("Prelude receipt")
+            materialize_callable_prelude_v1(
+                builder,
+                &mut session,
+                &input,
+                &demand.co_seal().input(),
+                &prelude,
+            )
+            .expect("Prelude receipt")
         };
         assert_eq!(receipt.owner(), input.owner());
         assert_eq!(receipt.preheader(), receipt.entry().preheader());

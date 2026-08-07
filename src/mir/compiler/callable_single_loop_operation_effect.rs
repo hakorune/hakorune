@@ -117,6 +117,35 @@ impl VerifiedCallableOperationEffectProductV1 {
         } = self;
         (operation_effect, context, continuation)
     }
+
+    #[cfg(test)]
+    pub(crate) fn into_full_parts(
+        self,
+    ) -> (
+        VerifiedLoopOperationEffectProductV1,
+        VerifiedLoopInputRelationV1,
+        VerifiedLoopSemanticContextV1,
+        VerifiedLoopContinuationContractV1,
+        VerifiedCallablePreludeV1,
+        VerifiedCallableTailV1,
+    ) {
+        let Self {
+            operation_effect,
+            input,
+            context,
+            continuation,
+            prelude,
+            tail,
+        } = self;
+        (
+            operation_effect,
+            input,
+            context,
+            continuation,
+            prelude,
+            tail,
+        )
+    }
 }
 
 pub(crate) fn issue_callable_operation_effect_v1(

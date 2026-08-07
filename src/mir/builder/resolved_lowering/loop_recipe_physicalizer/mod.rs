@@ -11,6 +11,9 @@ mod operation_emitter;
 mod operation_family_tests;
 mod operation_ledger;
 mod operation_target;
+mod operation_type;
+#[cfg(test)]
+mod continuation;
 #[cfg(test)]
 #[path = "read_emitter_tests.rs"]
 mod read_emitter_tests;
