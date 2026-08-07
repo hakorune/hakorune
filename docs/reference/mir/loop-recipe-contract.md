@@ -232,8 +232,8 @@ selection is opened by this row. The next bounded row is
 
 ## Recursive physicalizer P0 scope (2026-08-07)
 
-The current row is a caller-zero topology/After probe. It consumes the
-move-only `VerifiedLoopPhysicalDemandV1` and one session-local
+This closed historical row is a caller-zero topology/After probe. It consumes
+the topology-only compatibility `VerifiedLoopPhysicalDemandV1` and one session-local
 `ReadyLoopEntryV1`, borrows the existing canonical session services, and may
 construct only the recursive logical child/header/body/step/After topology.
 It does not physically emit `ReadBinding`, `WriteBinding`, constants,
@@ -242,6 +242,10 @@ the later `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` design boundary issues a
 neutral item-keyed, exact-source-anchor effect projection. Name, ordinal, or
 profile-based matching is forbidden. No Return, DraftSeal, publication,
 selector, retry, fallback, or legacy deletion is opened by this row.
+
+That compatibility demand is not the current full operation input and cannot
+feed operation emission. The canonical target is the complete
+`VerifiedLoopOperationPhysicalDemandV1` described below.
 
 ## Recursive physicalizer P0 implementation receipt (2026-08-07)
 
@@ -309,9 +313,9 @@ also closed: its producer issues the explicit 15-row item-to-anchor ledger
 before source facts leave the producer boundary, with item 3 as the existing
 child-entry `DerivedCarrierEntry` for carrier 2. Item 4, C0/C1 carriers, and
 Generic tail reads remain outside the operation product. Cross-profile parity
-and the worker-reviewed operation physicalizer design stop are closed as
-caller-zero boundaries; the next implementation is the ConstI64/ReadBinding
-canary.
+and reviewed Decision B are closed as caller-zero boundaries. Decision B keeps
+the complete operation demand/preflight separate from private leaf emission;
+the next implementation is the Builder-free full-demand P0.
 
 ## Cross-profile operation/effect parity receipt (2026-08-07)
 
@@ -331,12 +335,12 @@ count, ordinal, profile label, or source preorder. Focused parity evidence is
 green (8 operation/effect tests and 43 Generic G0 tests).
 
 No operation MIR, physicalizer, selector, retry/fallback, publication, or
-legacy deletion is opened by this receipt. The worker-reviewed design stop is
-closed with one private move-only
-`VerifiedLoopOperationPhysicalDemandV1` bundling operation/effect evidence,
-common continuation, and a key-only private index. The next implementation
-row is the caller-zero ConstI64/ReadBinding canary; it must keep the Generic
-item-3 bridge later.
+legacy deletion is opened by this receipt. Reviewed Decision B fixes one
+private move-only `VerifiedLoopOperationPhysicalDemandV1` as the complete
+full-program input: it bundles operation/effect evidence, common continuation,
+and a key-only private index and exposes no single-operation extraction API.
+The next implementation row is Builder-free `prepare_all`; Const leaf emission
+and the Generic item-3 bridge remain later rows.
 
 ## Callable source-shape split receipt (2026-08-07)
 

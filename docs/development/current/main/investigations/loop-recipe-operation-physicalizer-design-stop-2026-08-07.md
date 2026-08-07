@@ -1,201 +1,292 @@
 # Loop operation physicalizer design stop
 
-Status: `CLOSED; accepted after worker review`
+Status: `CLOSED; Decision B accepted after independent and external review`
 Date: 2026-08-07
 Parent: `LOOP-RECIPE-OPERATION-EFFECT-CROSS-PROFILE-PARITY-S0`
 Authority:
 `docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`
 
-## Purpose
-
-Freeze the smallest common physicalizer boundary before any operation MIR is
-emitted. This is a design-only stop after callable/G0 neutral operation/effect
-parity. It fixes the physical owner, borrowed services, item dispatch,
-failure discard, and Generic item-3 carrier bridge.
-
-The next implementation may be a caller-zero, test-only one-operation canary
-only after this card is accepted. No production selection or legacy retirement
-opens here.
-
 ## Decision
 
-Use one private move-only demand product rather than passing the Core-bearing
-operation product and continuation as separate physicalizer arguments:
+The first physical operation proof is a private leaf-emitter canary, not a
+claim that a complete `LoopRecipeV1` has been physicalized.
+
+```text
+Decision B:
+  full demand and leaf emission are separate proofs
+
+Decision A:
+  a synthetic one-operation full Recipe is not the first authority
+  it may be added later as an integration fixture
+```
+
+Callable and Generic G0 fixtures contain seven and fifteen operations. Taking
+only the first operation from either full product would be partial lowering
+and a hidden selector. No `first_operation`, `select_operation`, filter, or
+ordinal-based execution API may be added to the full demand.
+
+## Authority layers
+
+### Logical authority
+
+Existing products remain authoritative:
+
+```text
+LoopRecipeV1 / LoopJoinSigV1
+  logical operations, nesting, item placement, ports, and carriers
+
+VerifiedLoopCoreProductV1
+  source-bound Recipe, JoinSig, BindingRef, and effect relations
+
+VerifiedLoopOperationEffectProductV1
+  moved Core plus exact evidence for every Recipe operation
+```
+
+### Full physical demand
+
+The private, move-only full-program input is:
 
 ```text
 VerifiedLoopOperationPhysicalDemandV1 {
-    operation_effect: VerifiedLoopOperationEffectProductV1,
-    continuation: VerifiedLoopContinuationContractV1,
-    index: private LoopOperationPhysicalIndexV1,
+  operation_effect: VerifiedLoopOperationEffectProductV1,
+  continuation: VerifiedLoopContinuationContractV1,
+  index: private LoopOperationPhysicalIndexV1,
 }
 ```
 
-The exact Rust field layout remains private. The product is issued once by
-each profile adapter after projecting its continuation into the common
-`VerifiedLoopContinuationContractV1`; Callable and Generic G0 do not share a
-Tail/After source type. `operation_effect` owns the moved Core and its
-item-keyed source/effect ledger. `continuation` owns only the logical Loop
-After capability. The private index is a key-only lookup aid and is not a
-second Recipe, effect, CFG, SSA, or PHI truth.
-
-`VerifiedLoopPhysicalBoundaryV1` is not a valid input for this operation
-physicalizer because it intentionally drops source anchors. The existing
-topology-only canary may retain that boundary as a closed historical receipt;
-the operation canary must consume the new bundled demand instead.
-
-## Source authority
+Its only whole-program transition is conceptually:
 
 ```text
-LoopRecipeV1 / JoinSig:
-  logical operation kind, operands, item placement, continuation ports
-
-VerifiedLoopCoreProductV1:
-  source-bound Recipe, JoinSig, BindingRef and effect relations
-
-VerifiedLoopOperationEffectProductV1:
-  move-only item-keyed source/effect evidence consumed by physicalization
-
-profile adapters:
-  callable/G0 source relation and Tail/After evidence; no physical owner
-
-ReadyLoopEntryV1:
-  session-local, single-use entry materialization receipt
-
-CanonicalSsaFunctionSessionV2 and borrowed services:
-  CFG, BindingSSA, PHI transaction, current function/block and completion
-  owners remain in their existing canonical sessions
+prepare_all(self)
+  -> PreparedLoopOperationProgramV1
 ```
 
-The common physicalizer must consume one move-only private product that
-contains the operation/effect product and one common Loop continuation
-capability. It must not receive those as unrelated arguments or reconstruct
-source facts after consumption. The product may also carry a private,
-non-authoritative lookup index.
+`PreparedLoopOperationProgramV1` retains the complete demand plus a Recipe-
+derived exact schedule and coverage receipt. Semantic preflight proves every
+operation is supported, every source/effect row exists, every logical
+placement is unique, and the operation count is complete before Builder
+mutation.
 
-## Non-authority and forbidden inputs
+The private index is a lookup cache over existing keys. It cannot determine
+execution order, filter by profile, select one operation, or become a second
+Recipe. Execution order comes only from Recipe Loop/Block/Item structure; the
+sorted evidence vector is not execution authority.
 
-The physicalizer must not own or receive:
+### Leaf emission
+
+One leaf operation is represented separately:
 
 ```text
-AST, names, source preorder, route labels, producer/profile switches,
-callable Prelude arguments, callable Tail, Generic tail reads, return ABI,
-VerifiedFunctionCompletion, Return, DraftSeal, collector, module publication,
-legacy scheduler, retry/fallback policy, or a second Recipe/effect catalog
+PreparedLoopOperationEmissionV1 {
+  owner
+  item
+  operation
+  evidence
+  expected_loop
+  expected_block
+}
 ```
 
-It must not create a Loop-local CFG, BindingSSA, PHI transaction, undo log, or
-semantic LoopKey-to-block/ValueKey-to-ValueId truth. Private transient indexes
-are permitted only as non-authoritative lookup receipts.
+The first canary may use a private `cfg(test)` ConstI64 constructor. That
+constructor is not issued by extracting one row from a full demand. The leaf
+emitter never sees Recipe, profile identity, Tail, ABI, Completion, Return,
+DraftSeal, collector, publication, or Loop continuation.
 
-## Owner and failure contract
-
-### Stage A: preflight, no Builder mutation
-
-Before allocating a block, ValueId, PHI, or instruction, validate all of:
+Continuation remains owned by the full orchestrator:
 
 ```text
-exact product owner/frame/Scope/Region
-exact item-keyed operation and effect support
-item block/loop placement
-entry and preheader identity
-current-block/continuation identity
-supported value class and operand relation
-required carrier entry availability
+full demand/program:
+  owns continuation
+
+leaf emission:
+  owns no continuation
 ```
 
-Any mismatch is `NoSafeSlice` and leaves the move-only product unconsumed when
-possible.
+## Physical placement receipt
 
-### Stage B: emission, whole-session discard
-
-Once physical emission begins, the enclosing unpublished function session is
-poisoned on failure. `PhiTxn::abort_on_err` is only best-effort local
-diagnostic cleanup. Atomicity belongs to
-`CanonicalFunctionLoweringSessionV1::discard_unpublished`; caller restore is
-performed once, and a fresh request is required for any later attempt.
-
-Same-session repair, retry, fallback, reselection, ID rollback, and reuse of a
-partially emitted product are forbidden.
-
-## Generic item-3 bridge
-
-Generic item 3 remains a normal Recipe `ReadBinding` operation in the parent
-body. Its source anchor is the existing child-entry `DerivedCarrierEntry`
-for carrier 2; this is not an operation relabel.
-
-The physicalizer must:
+Topology allocation may issue one private receipt from the existing canonical
+CFG owner:
 
 ```text
-1. place item 3 in its Recipe-declared parent block;
-2. emit the ordinary ReadBinding through canonical BindingSSA;
-3. resolve its result BindingRef to one ValueId;
-4. issue a child-entry carrier-seed receipt for carrier 2;
-5. connect the seed to the existing child-entry obligation;
-6. never infer placement from the source anchor or fall back to root preheader.
+LoopPhysicalBlockReceiptV1 {
+  owner
+  preheader
+  rows: logical Loop/Block/role -> physical BasicBlockId
+}
 ```
 
-One nested fixture must assert both parent-block placement and child-entry
-seed ownership. C0/C1/After/Tail reads remain outside the operation stream.
+The receipt proves only that `CanonicalCfgSessionV1` created one exact mapping.
+It is not a second CFG owner. Before instruction emission, the placement binder
+must match the prepared operation's owner, expected Loop, expected logical
+block, preheader, and function state to one receipt row. Unconditional emission
+into `current_block` is forbidden.
 
-## Candidate implementation slices (not yet open)
+## Two-stage preflight
 
-The design must fix this order before implementation:
+### Semantic preflight
+
+Before any Builder effect:
 
 ```text
-1. one ConstI64 or ReadBinding canary through the existing emitter;
-2. one BinaryI64/CompareI64 canary after the first gate;
-3. nested Generic item-3 carrier-seed receipt;
-4. caller-zero fresh-session failure/reuse harness.
+complete operation coverage
+supported operation/value classes
+operand and source/effect relations
+logical placement
+continuation compatibility
 ```
 
-No new Recipe kind, profile-specific physicalizer, or production caller is
-allowed. If Generic G0 cannot issue the same common demand, stop with
-`NoSafeSlice`; do not add a G0-only physical route.
+Failure is typed `NoSafeSlice` with Builder effect zero.
 
-## Required reject matrix
+### Physical placement binding
 
-The design must define typed pre-effect rejects for missing/duplicate/foreign
-items or effects, wrong owner/frame/block/loop, unsupported operation/value
-class, unresolved input, missing carrier entry, terminated preheader, existing
-physical block, AST/name input, route/profile switch, and any second CFG/SSA/
-PHI owner. It must also define the post-emission whole-session discard receipt.
-
-## Exit condition
-
-This card closes only when the following are fixed in the common physical
-SSOT and the implementation-ready successor task:
+After topology blocks exist but before operation instruction emission:
 
 ```text
-physicalizer input type and move semantics
-borrowed CFG/BindingSSA/PhiTxn service APIs
-item-keyed operation dispatch matrix
-Stage-A NoSafeSlice matrix
-Stage-B fresh-session failure/discard harness
-Generic item-3 parent-placement + carrier-seed receipt
-production switch and legacy disposition (explicitly closed here)
-same-commit documentation list
+exact owner/function/preheader
+logical block -> physical block
+physical block is live and unterminated
 ```
 
-Until then, do not edit Builder lowering or emit physical operation MIR.
+Failure discards the whole unpublished function session. It is not described
+as a pre-effect failure because block allocation has already occurred.
 
-## Design closeout receipt (2026-08-07)
+## Canonical owner and atomicity
 
-Worker review accepted the boundary. The canonical input is the private
-move-only `VerifiedLoopOperationPhysicalDemandV1` bundling the Core-bearing
-operation/effect product, one common continuation capability, and a private
-key-only index. The first implementation task is
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`; it is limited to one
-caller-zero ConstI64/ReadBinding emission and the fresh-session failure
-receipt. Binary/Compare and the Generic item-3 carrier bridge remain later
-sub-slices of the same physicalizer family.
+The leaf emitter borrows existing canonical services only:
 
-No Builder mutation, physical MIR, production route, selector, retry/fallback,
-or legacy deletion is claimed by this design closeout.
+```text
+CanonicalCfgSessionV1
+CanonicalSsaFunctionSessionV2.identity
+the function session's one PhiTxn
+ReadyLoopEntryV1
+```
+
+`ReadyLoopEntryV1` is explicit even for ConstI64; its exact required-input set
+is empty rather than omitted. No Loop-local CFG, BindingSSA, PhiTxn, undo log,
+or transaction may be created.
+
+`CanonicalFunctionLoweringSessionV1` remains the sole transaction owner. The
+caller-zero canary explicitly discards the unpublished function on success and
+failure because it does not reach DraftSeal. A single harness-only failure is
+injected after successful emission; production emitter code has no test flag.
+The harness then opens a fresh session and repeats the same semantic emission.
+ValueId and BasicBlockId numbers are not compared across sessions.
+
+## Module boundary
+
+Before operation emission is added, keep topology and operation emission in
+separate modules. The accepted target layout is:
+
+```text
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/
+  mod.rs
+  topology.rs
+  operation_emitter.rs
+  operation_state.rs       # only when ValueKey materialization needs it
+  tests.rs
+```
+
+The module split is a behavior-neutral BoxShape row. It must not add an
+accepted operation shape. `operation_state` may map Recipe ValueKey to already
+materialized ValueId, but it cannot own reaching BindingRef values, assignment
+state, or PHI creation.
+
+The Builder-free demand remains under:
+
+```text
+src/mir/loop_recipe_contract/
+  operation_physical_demand.rs
+  operation_physical_demand_tests.rs
+```
+
+## Ordered implementation ladder
+
+Each line is one responsibility and one acceptance claim:
+
+```text
+1. LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0
+   full Callable/G0 demand issuance and prepare_all; Builder effect zero
+
+2. LOOP-RECIPE-PHYSICALIZER-MODULE-SPLIT-R0
+   move the flat topology module into one directory facade, delete the old
+   flat file, and leave exactly one module entry; behavior unchanged
+
+3. LOOP-RECIPE-PHYSICAL-BLOCK-RECEIPT-P0
+   canonical logical-block -> physical-block receipt only
+
+4. LOOP-RECIPE-OPERATION-EMITTER-CONST-S0
+   private ConstI64 leaf emission, exact placement, discard, fresh reuse
+
+5. LOOP-RECIPE-OPERATION-EMITTER-READ-S1
+   exact source claim and canonical BindingSSA read
+
+6. LOOP-RECIPE-OPERATION-EMITTER-BINARY-S2
+7. LOOP-RECIPE-OPERATION-EMITTER-COMPARE-S3
+8. LOOP-RECIPE-OPERATION-EMITTER-WRITE-S4
+
+9. LOOP-RECIPE-OPERATION-PROGRAM-CALLABLE-P0
+   all seven Callable operations exactly once, then continuation
+
+10. LOOP-RECIPE-OPERATION-PROGRAM-GENERIC-G0-P0
+    all fifteen G0 operations plus item-3 carrier-seed bridge
+
+11. production selection, M8/M9 coverage, M10b activation, M11/M12 retirement
+```
+
+Do not combine the Builder-free demand row, BoxShape module split, block
+receipt, or Const acceptance into one commit. A one-operation full Recipe may
+be added only as a later integration fixture and never as a special producer
+or production route.
+
+## First canary claim
+
+The Const leaf canary may prove only:
+
+```text
+one prepared ConstI64
+-> one exact physical block
+-> existing canonical Builder service
+-> one emission receipt
+
+success and post-emission injected failure
+-> whole unpublished session discard
+-> fresh-session semantic repeat
+```
+
+It may not claim full Loop physicalization, all operations, Callable/G0
+physicalization, BindingSSA read/write, carrier PHI, continuation, Completion,
+DraftSeal, module publication, backend parity/performance, production
+selection, retry/fallback removal, 19-route coverage, or legacy deletion.
+
+## Legacy disposition
+
+The topology-only `VerifiedLoopPhysicalBoundaryV1` intentionally drops source
+anchors. Its general-looking `into_physical_boundary` entry must be quarantined
+or renamed as topology-canary-only during the module-split row. It cannot feed
+operation physicalization.
+
+When the full physicalizer lands, production consumes only:
+
+```text
+full demand
+-> prepare all
+-> topology allocation
+-> bind all placements
+-> emit all exactly once
+-> continuation
+```
+
+Test-only leaf constructors and topology-only boundaries remain inaccessible to
+production. At production cutover, switch one named caller and delete that
+caller's old operation writer, CFG/PHI edge, retry, and fallback in the same
+commit. All-route cutover later retires the legacy scheduler, route-local
+physicalizers/PHI writers, old DirectAccum pilot input, and profile-specific G0
+physical route.
 
 ## Same-commit documentation obligation
 
-The design closeout and every later physicalizer implementation slice must
-update, in the same commit as the code or task transition:
+Every implementation row must update its exact landed receipt in the same
+commit:
 
 ```text
 docs/reference/mir/loop-recipe-contract.md
@@ -207,6 +298,6 @@ docs/development/current/main/CURRENT_STATE.toml
 docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
 ```
 
-Reference pages must claim only the landed design/receipt. Physical,
-production, backend, and legacy-deletion claims remain absent until their
-own implementation receipts land.
+References must claim only landed behavior. Every touched source/test file
+stays below 800 lines. Production, backend, selector, retry/fallback, and
+legacy-deletion claims remain closed until their own rows land.

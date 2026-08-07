@@ -50,10 +50,10 @@ exact source/effect ledger for `ReadBinding`, `WriteBinding`, constants,
 comparisons, and arithmetic, but it does not emit operation MIR. Generic G0
 remains a separate profile and is not relabeled as the callable physicalizer.
 Cross-profile callable/G0 evidence parity is now closed as a diagnostic-only
-receipt. The worker-reviewed operation physicalizer design stop is also
-closed. No selector, retry/fallback, production caller, or legacy deletion is
-implied. The next boundary is the caller-zero
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`.
+receipt. Reviewed Decision B also closes: complete demand/preflight and private
+leaf emission are separate proofs. No selector, retry/fallback, production
+caller, or legacy deletion is implied. The next boundary is Builder-free
+`LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`.
 
 The P0 test canary is now landed: `VerifiedLoopPhysicalBoundaryV1` and the
 private `ReadyLoopEntryV1` are consumed by one recursive topology probe, which
@@ -114,11 +114,10 @@ deletion.
 caller-zero diagnostic evidence. The common verifier, not the parity receipt,
 owns duplicate, missing, foreign, wrong-placement, and pure-binding rejection.
 The receipt does not relabel or select profile items and does not fuse
-Tail/After. The worker-reviewed physicalizer design stop is closed with one
-private move-only operation physical demand, borrowed session owners,
-preflight versus whole-session discard, and the item-3 parent-placement/
-child-carrier bridge. The next implementation row is the caller-zero
-ConstI64/ReadBinding canary.
+Tail/After. Reviewed Decision B closes with one complete move-only operation
+physical demand that exposes only `prepare_all`; leaf emission borrows session
+owners later and owns no continuation. The next implementation row preflights
+all seven Callable and fifteen Generic G0 operations with Builder effect zero.
 
 ## S0A implementation receipt
 
@@ -1326,7 +1325,8 @@ production activation remain closed.
 
 The first caller-zero prepare slice is landed in the test-only
 `loop_physical_prepare` module. It brands the exact resolved callable input,
-moves the common co-seal into `VerifiedLoopPhysicalDemandV1`, and defines the
+moves the common co-seal into the topology-only compatibility
+`VerifiedLoopPhysicalDemandV1`, and defines the
 typed prelude and Tail/ABI/Completion relation boundaries without opening a
 Builder session. Focused tests cover exact catalog branding, source-view
 lifetime independence, and the existing MethodCall fixture's typed
@@ -1339,6 +1339,10 @@ Prepared/ABI witness. A genuine positive requires a separately verified
 static-call source profile with an exact receiver/target relation. No target
 injection, name lookup, AST rematch, physical ID, selector, retry, fallback, or
 production caller is allowed in this row.
+
+This historical transport is not the current full operation demand. Operation
+preflight uses `VerifiedLoopOperationPhysicalDemandV1` and cannot reuse the
+topology-only boundary.
 
 ## Callable source-shape split receipt (2026-08-07)
 

@@ -50,10 +50,10 @@ variable-only i64 Prelude argument receipt contract. The caller-zero
 `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` is now accepted and its ownership,
 coverage, Core move, and P0 boundary ordering are fixed. Passive S0, Callable
 adapter S0, Generic G0 anchor S0, and cross-profile parity S0 are closed. The
-worker-reviewed operation physicalizer design stop is closed with one private
-move-only demand bundling operation/effect evidence, common continuation, and a
-key-only index; current row is caller-zero
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`; physical/production and retirement remain closed.
+reviewed Decision B separates one complete move-only demand/preflight from the
+private leaf emitter and forbids extracting a single operation from the full
+product. Current row is Builder-free
+`LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`; block mapping, operation emission, physical/production activation, and retirement remain closed.
 After this shallow sequence, final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`. The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
 ## Root-neutral semantic foundation
 

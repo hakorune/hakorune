@@ -2,7 +2,7 @@
 Status: accepted execution task map
 Date: 2026-07-28
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
-First executable row:
+Historical first executable replacement row (closed; not current):
   - CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -13,9 +13,9 @@ Final convergence pointer (serial, after Loop retirement):
 Closed design-stop correction:
   - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
 Current execution row:
-  - caller-zero `LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`
+  - Builder-free `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`
 Current execution task:
-  - docs/development/current/main/investigations/loop-recipe-operation-physicalizer-canary-s0-task-2026-08-07.md
+  - docs/development/current/main/investigations/loop-recipe-operation-physical-demand-p0-task-2026-08-07.md
 Supersedes scheduling authority of:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
   - OWN-GRAM-REJECT0-HAKO0-S0
@@ -65,25 +65,35 @@ This is the compact order for the current Loop frontier. It is subordinate to
 the retired prepare-only row.
 
 ```text
-1. LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0
-   one caller-zero ConstI64 or ReadBinding emission
-2. next typed-operation design/selection
-   choose one exact operation slice; no profile-specific physicalizer
-3. typed-operation canaries
-   one operation per slice, with fresh-session discard on failure
-4. Generic G0 adapter/parity
-   exact operation demand adaptation; no shape relabeling
-5. production operation physicalizer selection
-   one selector, no retry/fallback/reselection
-6. M8/M9 all-ingress Recipe coverage
-7. M10b activation, then M11/M12 legacy retirement
-8. REPO-FINAL-CONVERGENCE-AUDIT0-G0
+1. LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0
+   full Callable/G0 demand + prepare_all; Builder effect zero
+2. LOOP-RECIPE-PHYSICALIZER-MODULE-SPLIT-R0
+   flat file -> one directory facade; delete old flat module, behavior unchanged
+3. LOOP-RECIPE-PHYSICAL-BLOCK-RECEIPT-P0
+   canonical logical-block -> physical-block receipt
+4. LOOP-RECIPE-OPERATION-EMITTER-CONST-S0
+   private ConstI64 leaf canary; exact placement/discard/fresh reuse
+5. LOOP-RECIPE-OPERATION-EMITTER-READ-S1
+6. LOOP-RECIPE-OPERATION-EMITTER-BINARY-S2
+7. LOOP-RECIPE-OPERATION-EMITTER-COMPARE-S3
+8. LOOP-RECIPE-OPERATION-EMITTER-WRITE-S4
+9. LOOP-RECIPE-OPERATION-PROGRAM-CALLABLE-P0
+   all seven Callable operations exactly once, then continuation
+10. LOOP-RECIPE-OPERATION-PROGRAM-GENERIC-G0-P0
+    all fifteen G0 operations plus item-3 carrier seed
+11. production operation physicalizer selection
+    one selector, no retry/fallback/reselection
+12. M8/M9 all-ingress Recipe coverage
+13. M10b activation, then M11/M12 legacy retirement
+14. REPO-FINAL-CONVERGENCE-AUDIT0-G0
 ```
 
-The current canary does not claim Return, Completion, DraftSeal, publication,
-backend performance, production selection, retry/fallback removal, or legacy
-deletion. Each later item requires its own task receipt and same-commit
-reference/README/current-mirror updates.
+Decision B forbids taking one operation from a full demand. The current demand
+row and every later leaf row have one acceptance claim each. No current row
+claims Return, Completion, DraftSeal, publication, backend performance,
+production selection, retry/fallback removal, or legacy deletion. Each later
+item requires its own task receipt and same-commit reference/README/current-
+mirror updates.
 
 ## First executable replacement
 

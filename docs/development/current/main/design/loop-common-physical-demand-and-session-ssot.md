@@ -5,10 +5,10 @@ Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SE
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
 P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop,
 caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`, passive operation/effect S0,
-Callable/G0 adapters, and cross-profile parity are closed; the current row is
-the implementation-ready caller-zero
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`; production operation
-activation remains 0
+Callable/G0 adapters, and cross-profile parity are closed. Decision B now
+separates full-demand preflight from leaf emission; the current row is the
+Builder-free `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`. Operation emission
+and production activation remain 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -29,9 +29,8 @@ Close the post-Recipe boundary before physical implementation begins.
 ```text
 resolver / source map
   -> VerifiedLoopRecipeCoSealV1
-  -> disjoint physical-prepare split
-       loop: VerifiedLoopPhysicalDemandV1
-       boundary evidence
+  -> VerifiedLoopOperationEffectProductV1
+  -> VerifiedLoopOperationPhysicalDemandV1
   -> one thin prepared execution product
        PreparedCallableLoopPhysicalizationV1
        OR PreparedGenericG0LoopPhysicalizationV1
@@ -43,9 +42,8 @@ resolver / source map
   -> one unpublished function draft
 ```
 
-The common `VerifiedLoopPhysicalDemandV1` is move-only, AST-free, and
-physical-ID-free. The operation physicalizer uses a separate private,
-move-only `VerifiedLoopOperationPhysicalDemandV1` that bundles the
+The canonical full-operation input is the private, move-only, AST-free, and
+physical-ID-free `VerifiedLoopOperationPhysicalDemandV1`. It bundles the
 Core-bearing operation/effect product with one common continuation capability;
 the two are never passed as independent physicalizer arguments. Each thin
 prepared product is move-only and physical-ID-free;
@@ -57,6 +55,14 @@ capabilities and fixes their exact compatibility before the first Builder
 effect. Only the common inner demand is consumed by the recursive Loop
 physicalizer. Neither product is a new Recipe, selector, SSA, CFG, PHI,
 transaction, Return writer, or publication owner.
+
+The existing `VerifiedLoopPhysicalDemandV1` is a closed topology-only P0
+compatibility transport. It feeds only the historical caller-zero topology/
+After probe, carries no complete operation/effect ledger, and cannot be
+extended, renamed, or reused as the canonical operation input. The module-
+split row moves the flat file into one directory facade, deletes the old flat
+module, and quarantines that entry behind the topology-only test facade. Two
+module entries or two topology authorities are forbidden.
 
 `Admission` remains the semantic family-selection term. `Prepared...` means
 only that already verified capabilities have been related into one executable
@@ -139,7 +145,7 @@ Tail must never be fused and then split again.
 
 ### Operation physical demand
 
-The first operation canary consumes this private move-only product:
+The full-program preflight consumes this private move-only product:
 
 ```text
 VerifiedLoopOperationPhysicalDemandV1 {
@@ -156,17 +162,40 @@ separate Tail/After profiles; they do not share source types, compare counts,
 or pass two independent arguments to the physicalizer. The index is a private
 key-only lookup aid and never a second semantic or physical truth. The existing
 `VerifiedLoopPhysicalBoundaryV1` remains topology-only and is invalid for the
-operation canary because it drops source anchors.
+operation program because it drops source anchors.
+
+Decision B keeps whole-program preparation and leaf emission separate:
+
+```text
+VerifiedLoopOperationPhysicalDemandV1
+  -> prepare_all
+  -> PreparedLoopOperationProgramV1
+       complete Recipe-derived operation schedule
+       exact complete-coverage receipt
+
+PreparedLoopOperationEmissionV1
+  -> one private leaf emitter
+```
+
+The full demand exposes no first/select/filter/take-operation API. Recipe
+Loop/Block/Item structure is the sole execution-order authority; an evidence
+vector sorted by key is only storage order. `PreparedLoopOperationProgramV1`
+retains the complete demand and common continuation. A leaf emission owns only
+one already-prepared operation, source evidence, expected Loop, and expected
+logical block; it never sees Recipe, profile, Tail, ABI, Completion, Return,
+DraftSeal, publication, or continuation.
+
+The first leaf canary may use a private test-only ConstI64 constructor, but it
+must not obtain that row by extracting it from a seven-operation Callable or
+fifteen-operation Generic G0 demand. A synthetic one-operation full Recipe is
+not the first authority and may be added only as a later integration fixture.
 
 The accepted conceptual shape has two layers:
 
 ```text
 PreparedCallableLoopPhysicalizationV1
   input: exact ResolvedFunctionLoweringInputV1
-  loop: VerifiedLoopPhysicalDemandV1
-    core: transferred Recipe/Core/JoinSig/source-effect relations
-    continuation: VerifiedLoopContinuationContractV1
-    index: private LoopPhysicalIndexV1
+  loop: VerifiedLoopOperationPhysicalDemandV1
   prelude: VerifiedCallablePreludeV1
   tail: VerifiedCallableTailV1
   return_abi: existing exact ABI capability
@@ -175,7 +204,7 @@ PreparedCallableLoopPhysicalizationV1
 
 PreparedGenericG0LoopPhysicalizationV1
   input: exact ResolvedFunctionLoweringInputV1
-  loop: VerifiedLoopPhysicalDemandV1
+  loop: VerifiedLoopOperationPhysicalDemandV1
   tail: VerifiedGenericG0TailV1
   return_abi: existing exact ABI capability
               (ExactTrivialReturnAbiV1 for G0)
@@ -185,8 +214,9 @@ PreparedGenericG0LoopPhysicalizationV1
 The exact Rust field split may remain private, but the following contract is
 fixed.
 
-The common prepare consumes the Loop co-seal once and moves it wholly into the
-inner Loop demand. Callable Prelude/Tail remain separate inputs; they are not
+The common prepare consumes the Loop co-seal once and moves it wholly into one
+`VerifiedLoopOperationPhysicalDemandV1`. Callable Prelude/Tail remain separate
+inputs; they are not
 split back out of the co-seal. The prepare never borrows, clones, or re-catalogs
 the co-seal. The inner receives, without duplication:
 
@@ -197,8 +227,8 @@ the co-seal. The inner receives, without duplication:
 - `VerifiedLoopContinuationContractV1`, which owns only the logical Loop After
   port/capability.
 
-`LoopPhysicalIndexV1` is a private, key-only search index over existing logical
-keys:
+`LoopOperationPhysicalIndexV1` is a private, key-only search index over
+existing logical keys:
 
 - Recipe binding/value/item/block keys and their placement roles;
 - Recipe input value -> logical preheader port;
@@ -213,9 +243,9 @@ same prepare operation. The physicalizer consumes the demand as one product,
 not Recipe plus a second public topology truth.
 
 The physicalizer boundary is move-only. Prepare must issue a private consuming
-operation for `VerifiedLoopPhysicalDemandV1`; borrowing, cloning, a second
-co-seal, or MIR reconstruction is invalid. This prevents logical demand from
-being silently reused after it crosses into physical lowering.
+operation for `VerifiedLoopOperationPhysicalDemandV1`; borrowing, cloning, a
+second co-seal, or MIR reconstruction is invalid. This prevents logical demand
+from being silently reused after it crosses into physical lowering.
 
 The callable prepared product relates the non-Loop obligations:
 
@@ -242,11 +272,13 @@ canonical session identity, and materializes the prelude result before issuing
 one private `ReadyLoopEntryV1`. AST reread, name lookup, and arity-only
 reconstruction are forbidden. It then opens the exact function session, moves
 Completion into `CanonicalSsaFunctionSessionV2::new` exactly once, and retains
-Prelude/Tail/ABI evidence only. The common physicalizer consumes the inner
-Loop demand plus that entry receipt and never observes the callable boundary.
+Prelude/Tail/ABI evidence only. The future full operation physicalizer consumes
+the `VerifiedLoopOperationPhysicalDemandV1` plus that entry receipt and never
+observes the callable boundary.
 
-The Generic G0 prepared product wraps one instance of the same common inner-demand
-type but retains its existing `L0.After/b1` boundary capability. It neither
+The Generic G0 prepared product wraps one instance of the same complete
+operation-demand type but retains its existing `L0.After/b1` boundary
+capability. It neither
 reuses the callable prefix `value` Tail nor creates a G0 physicalizer.
 
 The G0 adapter must consume the existing S4 product into a common co-seal view
@@ -360,19 +392,21 @@ session cannot expose the required prepare facts, the result is
 
 ## Exact consumption
 
-The common prepare consumes one `VerifiedLoopRecipeCoSealV1` and either issues
-one non-Clone inner demand or returns a typed rejection retaining the sole
-unconsumed owner. A thin callable or G0 prepare then consumes exactly one inner
-demand plus the profile's disjoint boundary capabilities and issues one
-prepared product. Neither step re-runs Recipe verification, mints keys, or
+The common prepare consumes one `VerifiedLoopRecipeCoSealV1` plus the complete
+operation/effect product and either issues one non-Clone
+`VerifiedLoopOperationPhysicalDemandV1` or returns a typed rejection retaining
+the sole unconsumed owner. A thin callable or G0 prepare then consumes exactly
+one full demand plus the profile's disjoint boundary capabilities and issues
+one prepared product. Neither step re-runs Recipe verification, mints keys, or
 consults the legacy scheduler.
 
 The outer profile entry consumes one prepared product to open the exact fresh
 function session. `VerifiedFunctionCompletionV1` moves exactly once into
 `CanonicalSsaFunctionSessionV2::new`; it cannot remain in the prepared product
 or a sibling boundary. The outer lowerer retains only Prelude/Tail/ABI evidence,
-transfers the inner demand exactly once to the physicalizer, and later claims
-the exact return operand through `session.completion`. Lowering by `&demand`,
+transfers the full operation demand exactly once to the future full
+physicalizer, and later claims the exact return operand through
+`session.completion`. Lowering by `&demand`,
 cloning a split/prepared product, recreating one from MIR, or trying a second
 route is forbidden.
 
@@ -396,10 +430,10 @@ The physicalizer returns an open After/continuation receipt. It must not write
 Opening a function session does not prove that Prelude/parameter/input values
 have been installed. The outer profile lowerer must materialize every required
 entry binding first and issue one private, session-local `ReadyLoopEntryV1`.
-The common physicalizer requires:
+The future full operation physicalizer requires:
 
 ```text
-VerifiedLoopPhysicalDemandV1
+PreparedLoopOperationProgramV1
 + ReadyLoopEntryV1
 + borrowed canonical CFG / Binding SSA / PhiTxn services
 ```
@@ -618,15 +652,15 @@ session. It is not reclassified as a pre-effect decline.
 
 ## One recursive algebra; 19 is coverage only
 
-The inner physical demand accepts the one recursive `LoopRecipeV1` algebra. It does
-not contain `DirectAccum`, `GenericG0`, `LoopTrue`, `LoopCond`, or the 19 legacy
-route labels as physical variants.
+The canonical full operation demand accepts the one recursive `LoopRecipeV1`
+algebra. It does not contain `DirectAccum`, `GenericG0`, `LoopTrue`, `LoopCond`,
+or the 19 legacy route labels as physical variants.
 
 ```text
 source profiles/adapters: many bounded rows
 portable Recipe algebra:  one
 prepared profiles:        bounded callable/G0 compatibility products
-inner Loop demand:        one
+full operation demand:    one
 common physicalizer:      one
 ```
 
@@ -718,7 +752,8 @@ positive prepared-input prerequisites without opening a production caller.
 ```text
 Change:
   add one test-only caller-zero common recursive topology boundary that
-  consumes VerifiedLoopPhysicalDemandV1 exactly once together with the
+  consumes the topology-only compatibility VerifiedLoopPhysicalDemandV1
+  exactly once together with the
   private, single-use ReadyLoopEntryV1 receipt and opens one Loop After
   continuation without emitting operation MIR.
 
@@ -795,31 +830,28 @@ existing owners. The nested Generic G0 item 3 is the explicit exception: its
 match that anchor exactly. Item 4, C0/C1 carriers, and Generic tail reads stay
 outside the operation product.
 
-### Operation physicalizer design stop
+### Operation physicalizer design closeout
 
-The next boundary is design-only:
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-DESIGN-STOP`. The physicalizer must
-consume one move-only private demand that bundles the operation/effect product
-with one common Loop continuation capability; it must not receive the Core
-product and After capability as unrelated arguments. A private transient index
-is allowed, but it is not semantic truth.
+Decision B is accepted: full-demand preparation and one-operation emission are
+different proofs. The full demand bundles the complete operation/effect product
+with one neutral continuation and exposes only `prepare_all`; the private leaf
+emitter consumes `PreparedLoopOperationEmissionV1` and never sees continuation
+or any profile/function terminal contract.
 
-The physicalizer may borrow only the existing canonical CFG, BindingSSA, and
-PhiTxn services plus a session-local single-use `ReadyLoopEntryV1`. It does
-not receive AST/name/profile/route/Tail/ABI/Completion authority and creates
-no second CFG, SSA, PHI, or retry owner. All owner/frame/Scope/Region,
-operation/value support, placement, entry/preheader, continuation, and carrier
-checks happen before Builder mutation. A post-emission failure poisons the
-unpublished function and uses whole-session discard; local Phi rollback is
-diagnostic cleanup only.
+The full semantic preflight runs before Builder mutation. After topology
+allocation, `LoopPhysicalBlockReceiptV1` binds one exact logical Loop/Block to
+one physical block before instruction emission. The leaf emitter may borrow
+only the existing canonical CFG, BindingSSA, and PhiTxn services plus a
+session-local `ReadyLoopEntryV1`. It creates no second CFG, SSA, PHI,
+transaction, or retry owner. A post-emission failure poisons the unpublished
+function and uses whole-session discard; local Phi rollback is diagnostic
+cleanup only.
 
 Generic item 3 remains a normal parent-body `ReadBinding`. Its source anchor is
-the child-entry `DerivedCarrierEntry` for carrier 2. The physicalizer must
-assert parent-block placement and issue a child-entry carrier-seed receipt
-through canonical BindingSSA; it must never relabel the operation or infer
-placement from the anchor. Const/Read canary, Binary/Compare, then this nested
-carrier bridge are the only candidate slices, all caller-zero and test-only.
-No operation MIR or Builder implementation opens until this stop is accepted.
+the child-entry `DerivedCarrierEntry` for carrier 2. The later full G0 program
+row must assert parent-block placement and issue a child-entry carrier-seed
+receipt through canonical BindingSSA; it must never relabel the operation or
+infer placement from the anchor. The first leaf canary is ConstI64 only.
 
 Duplicate item keys, foreign or missing anchors, wrong block/loop membership,
 and repeated-ordinal ambiguity are typed `NoSafeSlice`. No operation MIR is
@@ -829,12 +861,13 @@ source anchors; P0 cannot be reused as the operation source.
 
 `LOOP-PHYSICAL-PREPARE-P0`, the static-call fixture/profile, and
 `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed caller-zero prerequisites. The
-cross-profile parity receipt and worker-reviewed operation physicalizer design
-stop are closed. Callable has seven item rows and Generic G0 has fifteen, but
-parity compares neither counts nor source order. The next row is the caller-zero
-`docs/development/current/main/investigations/loop-recipe-operation-physicalizer-canary-s0-task-2026-08-07.md`;
-it does not claim callable physical completion, production selection, M8/M9
-coverage, or retirement.
+cross-profile parity receipt and reviewed Decision-B closeout are closed.
+Callable has seven item rows and Generic G0 has fifteen, but parity compares
+neither counts nor source order. The next row is the Builder-free
+`docs/development/current/main/investigations/loop-recipe-operation-physical-demand-p0-task-2026-08-07.md`;
+it proves complete demand preflight only and claims no operation emission,
+callable physical completion, production selection, M8/M9 coverage, or
+retirement.
 
 ## Implementation and documentation obligation
 
@@ -870,7 +903,8 @@ receipt are closed under the typed-receipt and no-reinference contract above.
 The topology/After canary `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed.
 The operation/effect plan, passive product, Callable adapter, Generic G0
 15-row anchor ledger, cross-profile parity receipt, and worker-reviewed
-physicalizer design stop are closed. The current boundary is the caller-zero
-`LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`; operation production
-activation, callable physical completion, production selection, retry/fallback
-retirement, and legacy deletion remain closed.
+physicalizer Decision-B closeout is closed. The current boundary is the
+Builder-free `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`; topology module split,
+physical block receipt, Const leaf emission, operation production activation,
+callable physical completion, production selection, retry/fallback retirement,
+and legacy deletion remain closed.

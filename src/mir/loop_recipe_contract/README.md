@@ -115,12 +115,12 @@ carriers, and Generic tail reads remain outside this product.
 
 Cross-profile parity is closed as a diagnostic-only receipt. Callable has seven
 rows and Generic G0 has fifteen, but the receipt compares neither counts nor
-source order; the common verifier owns the shared reject family. The
-worker-reviewed design stop is closed with one private move-only
+source order; the common verifier owns the shared reject family. Reviewed
+Decision B closes with one complete private move-only
 `VerifiedLoopOperationPhysicalDemandV1` bundling operation/effect evidence,
-common continuation, and a key-only private index. The next row is the
-caller-zero ConstI64/ReadBinding canary; physicalization remains test-only and
-production operation activation remains closed.
+common continuation, and a key-only private index. It exposes no first/select/
+filter operation API. The next row is Builder-free full-demand `prepare_all`;
+leaf emission and production operation activation remain closed.
 
 ## Generic legacy corpus inventory
 

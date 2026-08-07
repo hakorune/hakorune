@@ -85,10 +85,10 @@ adapter is now closed as a separate source-evidence receipt. The Generic G0
 anchor ledger is also closed: its 15 item keys are issued before source facts
 are dropped, with item 3 matching the child-entry carrier relation.
 Cross-profile parity is also closed as a diagnostic-only receipt; it compares
-neither profile counts nor source order. The worker-reviewed physicalizer
-design stop is closed. Its next row is the caller-zero ConstI64/ReadBinding
-canary consuming one private move-only operation physical demand; physical
-operation lowering remains test-only and production activation remains closed.
+neither profile counts nor source order. Reviewed Decision B separates full
+demand/preflight from leaf emission. The next row is the Builder-free complete
+operation demand; topology module split, physical block mapping, Const leaf
+emission, and production activation remain closed.
 
 ## Caller-zero Loop physical prepare
 
@@ -96,8 +96,10 @@ operation lowering remains test-only and production activation remains closed.
 boundary for `LOOP-PHYSICAL-PREPARE-P0`. It brands the exact resolved callable
 input, derives a prelude target/result capability from the existing callable
 index/header, and seals one Tail/ABI/Completion compatibility relation before
-any Builder session opens. The moved `VerifiedLoopPhysicalDemandV1` owns the
-co-sealed logical product; the retained resolved input remains a borrowed view.
+any Builder session opens. The moved topology-only compatibility
+`VerifiedLoopPhysicalDemandV1` owns the co-sealed logical product for the
+closed P0 topology probe; the retained resolved input remains a borrowed view.
+It is not the current full-operation demand and cannot feed operation emission.
 
 The current `helper.to_i64(n)` MethodCall fixture intentionally has no
 resolver-issued direct callable target and therefore rejects with typed

@@ -98,10 +98,11 @@ Related:
   The Generic G0 15-row item-to-anchor ledger is now closed, including the
   child-entry carrier row. Cross-profile callable/G0 parity is now closed as a
   diagnostic-only receipt: Callable has seven rows and Generic G0 has fifteen,
-  but parity compares neither counts nor source order. The worker-reviewed
-  operation physicalizer design stop is closed. The current execution row is
-  the caller-zero `LOOP-RECIPE-OPERATION-PHYSICALIZER-CANARY-S0`; operation
-  production activation and physical completion remain closed.
+  but parity compares neither counts nor source order. Reviewed Decision B
+  separates complete demand/preflight from private leaf emission. The current
+  execution row is Builder-free `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`;
+  physical block mapping, operation emission, production activation, and
+  physical completion remain closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
