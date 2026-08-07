@@ -6,9 +6,10 @@ Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
 P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop,
 caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`, passive operation/effect S0,
 Callable/G0 adapters, and cross-profile parity are closed. Decision B now
-separates full-demand preflight from leaf emission; the current row is the
-Builder-free `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`. Operation emission
-and production activation remain 0
+separates full-demand preflight from leaf emission; the Builder-free
+`LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` is closed. The current row is the
+behavior-neutral physicalizer module split; operation emission and production
+activation remain 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -914,9 +915,10 @@ The architecture, `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, bounded
 receipt are closed under the typed-receipt and no-reinference contract above.
 The topology/After canary `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed.
 The operation/effect plan, passive product, Callable adapter, Generic G0
-15-row anchor ledger, cross-profile parity receipt, and worker-reviewed
-physicalizer Decision-B closeout is closed. The current boundary is the
-Builder-free `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`; topology module split,
-physical block receipt, Const leaf emission, operation production activation,
-callable physical completion, production selection, retry/fallback retirement,
-and legacy deletion remain closed.
+15-row anchor ledger, cross-profile parity receipt, worker-reviewed
+physicalizer Decision-B closeout, and Builder-free full-demand P0 are closed.
+The current boundary is the behavior-neutral
+`LOOP-RECIPE-PHYSICALIZER-MODULE-SPLIT-R0`; physical block receipt, Const leaf
+emission, operation production activation, callable physical completion,
+production selection, retry/fallback retirement, and legacy deletion remain
+closed.

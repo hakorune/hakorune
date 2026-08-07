@@ -340,8 +340,9 @@ private move-only `VerifiedLoopOperationPhysicalDemandV1` as the complete
 full-program input: it bundles the moved resolver semantic context,
 operation/effect evidence, common continuation, and a key-only private index
 and exposes no single-operation extraction API.
-The next implementation row is Builder-free `prepare_all`; Const leaf emission
-and the Generic item-3 bridge remain later rows.
+The Builder-free `prepare_all` row is now closed. The next implementation row
+is the behavior-neutral `LOOP-RECIPE-PHYSICALIZER-MODULE-SPLIT-R0`; Const leaf
+emission and the Generic item-3 bridge remain later rows.
 
 ## Full operation demand P0 receipt (2026-08-07)
 
@@ -351,6 +352,17 @@ Loop/Block/Item structure with zero Builder/MIR effect. The neutral context and
 continuation wrappers move existing resolver/JoinSig evidence exactly once.
 This receipt does not open physical block mapping, operation emission,
 function completion, selection, fallback retirement, or legacy deletion.
+
+## Physicalizer module split R0 receipt (2026-08-07)
+
+The test-only topology physicalizer now lives behind one directory facade:
+`loop_recipe_physicalizer/mod.rs` re-exports the unchanged topology API,
+`topology.rs` owns the recursive block skeleton, and `tests.rs` owns the two
+focused topology canaries. The former flat `loop_recipe_physicalizer.rs` file
+is retired. This is a behavior-neutral BoxShape split: nested Generic G0
+topology and pre-allocation entry rejection remain unchanged, and no operation
+shape, physical block receipt, emitter, session, selector, or legacy route is
+opened.
 
 ## Callable source-shape split receipt (2026-08-07)
 

@@ -53,7 +53,7 @@ adapter S0, Generic G0 anchor S0, and cross-profile parity S0 are closed. The
 reviewed Decision B separates one complete move-only demand/preflight from the
 private leaf emitter and forbids extracting a single operation from the full
 product. `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` is now landed as a Builder-free full-demand receipt: neutral resolver context and After continuation move exactly once, Generic G0 Scope/Region comes from the window lease, and Callable/G0 `prepare_all` covers seven/fifteen rows. Block mapping, operation emission, physical/production activation, and retirement remain closed.
-After this shallow sequence, final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`. The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
+Current row: `LOOP-RECIPE-PHYSICALIZER-MODULE-SPLIT-R0`; flat topology is one facade with no operation shape/emission. Final order and cleanup sync are owned by `mirbuilder-final-pipeline-ssot.md` and its cleanup SSOT.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse

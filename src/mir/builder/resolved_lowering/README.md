@@ -64,8 +64,8 @@ the canonical finish guard, and the current-state pointer guard are green;
 physical Loop lowering and production selection remain closed at the next
 design-only operation physicalizer stop.
 
-The caller-zero topology slice is now landed as test-only evidence in
-`loop_recipe_physicalizer.rs`. It consumes one move-only common boundary and
+The caller-zero topology slice is now landed as test-only evidence behind the
+`loop_recipe_physicalizer/` directory facade. It consumes one move-only common boundary and
 one session-local `ReadyLoopEntryV1`, borrows the existing canonical CFG
 service, and allocates only recursive header/body/step/After blocks. Owner,
 entry coverage, binding ownership, parent topology, and preheader placement
@@ -86,9 +86,10 @@ anchor ledger is also closed: its 15 item keys are issued before source facts
 are dropped, with item 3 matching the child-entry carrier relation.
 Cross-profile parity is also closed as a diagnostic-only receipt; it compares
 neither profile counts nor source order. Reviewed Decision B separates full
-demand/preflight from leaf emission. The next row is the Builder-free complete
-operation demand; topology module split, physical block mapping, Const leaf
-emission, and production activation remain closed.
+demand/preflight from leaf emission. The Builder-free complete operation
+demand is now closed. The current row is the behavior-neutral topology module
+split; physical block mapping, Const leaf emission, and production activation
+remain closed.
 
 ## Full operation demand P0
 
