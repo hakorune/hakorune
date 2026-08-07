@@ -102,8 +102,14 @@ pure operations reject fabricated binding evidence.
 The focused nested fixture covers 19 operation items plus duplicate, missing,
 foreign-owner, wrong-placement, and pure-operation binding-evidence rejects.
 This is still a caller-zero contract cell: no Builder/MIR, selector, retry,
-fallback, Return, DraftSeal, or production route is opened. Callable adapter,
-Generic G0 anchor ledger, parity, and physicalization are separate later rows.
+fallback, Return, DraftSeal, or production route is opened.
+
+The callable adapter row is now closed separately. It consumes the callable
+source relations once, checks the transient operation view against the sealed
+Recipe, derives Core placement/effect evidence, and issues this neutral
+product while retaining Prelude/Tail/context in a thin profile wrapper. The
+next row is the explicit Generic G0 anchor ledger; parity and physicalization
+remain closed.
 
 ## Generic legacy corpus inventory
 

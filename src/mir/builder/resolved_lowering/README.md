@@ -80,9 +80,10 @@ the common port; no second CFG/SSA/PHI owner is allowed. The current row is
 the passive `LOOP-RECIPE-OPERATION-EFFECT-S0` product: it issues an item-keyed
 exact source/effect ledger before operation emission is opened. The product is
 test-only, moves the verified Core once, and emits no operation MIR, Return,
-DraftSeal, selector, retry, fallback, or production route. Callable adapter,
-Generic G0 anchor ledger, parity, and physical operation lowering remain
-separate later rows.
+DraftSeal, selector, retry, fallback, or production route. The callable
+adapter is now closed as a separate source-evidence receipt; its next row is
+the Generic G0 anchor ledger. Cross-profile parity and physical operation
+lowering remain closed.
 
 ## Caller-zero Loop physical prepare
 

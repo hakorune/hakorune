@@ -80,11 +80,13 @@ pub(crate) enum LoopRecipeOperationViewV1 {
         value: i64,
     },
     CompareI64 {
+        op: SyntaxBinaryOperatorV1,
         left: LoopValueKeyV1,
         right: LoopValueKeyV1,
         result: LoopValueKeyV1,
     },
     BinaryI64 {
+        op: SyntaxBinaryOperatorV1,
         left: LoopValueKeyV1,
         right: LoopValueKeyV1,
         result: LoopValueKeyV1,
@@ -96,6 +98,21 @@ pub(crate) enum LoopRecipeOperationViewV1 {
 }
 
 impl VerifiedLoopOperationSourceRelationV1 {
+    #[cfg(test)]
+    pub(crate) fn new_for_test(
+        role: CallableSourceMapRoleV1,
+        item: LoopItemKeyV1,
+        site: SourceExprSiteV1,
+        operation: LoopRecipeOperationViewV1,
+    ) -> Self {
+        Self {
+            role,
+            item,
+            site,
+            operation,
+        }
+    }
+
     pub(crate) const fn role(&self) -> CallableSourceMapRoleV1 {
         self.role
     }
@@ -238,6 +255,24 @@ impl VerifiedLoopRecipeCoSealV1 {
     }
     pub(crate) fn continuation(&self) -> &VerifiedLoopContinuationContractV1 {
         &self.continuation
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedLoopCoreProductV1,
+        VerifiedLoopInputRelationV1,
+        Box<[VerifiedLoopOperationSourceRelationV1]>,
+        VerifiedLoopSemanticContextV1,
+        VerifiedLoopContinuationContractV1,
+    ) {
+        (
+            self.core,
+            self.input,
+            self.operations,
+            self.context,
+            self.continuation,
+        )
     }
 
     pub(crate) fn into_physical_boundary(self) -> VerifiedLoopPhysicalBoundaryV1 {
@@ -640,6 +675,7 @@ fn relations(
             LoopItemKeyV1::new(2),
             condition_operator_site.clone(),
             LoopRecipeOperationViewV1::CompareI64 {
+                op: SyntaxBinaryOperatorV1::Less,
                 left: LoopValueKeyV1::new(1),
                 right: LoopValueKeyV1::new(2),
                 result: LoopValueKeyV1::new(3),
@@ -668,6 +704,7 @@ fn relations(
             LoopItemKeyV1::new(5),
             step_operator_site.clone(),
             LoopRecipeOperationViewV1::BinaryI64 {
+                op: SyntaxBinaryOperatorV1::Add,
                 left: LoopValueKeyV1::new(4),
                 right: LoopValueKeyV1::new(5),
                 result: LoopValueKeyV1::new(6),

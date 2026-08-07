@@ -500,37 +500,37 @@ closed:
   LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
   LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0
   LOOP-RECIPE-OPERATION-EFFECT-S0
-
-current:
   LOOP-RECIPE-OPERATION-EFFECT-CALLABLE-ADAPTER-S0
 
+current:
+  LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
+
 Change:
-  adapt the existing callable source-ledger rows into the neutral
-  item-keyed operation/effect evidence product. Consume only exact
-  resolver-issued source identity; do not open Generic G0, physical MIR, or
-  production selection.
+  issue the explicit Generic G0 item-to-anchor ledger before source facts are
+  dropped, then adapt it to the neutral operation/effect product. Keep this
+  caller-zero and passive; do not open parity, physical MIR, or production.
 
 Contract:
   no source/name/order guessing, copied or reverified Recipe truth, second
-  operation owner, P0 boundary reuse after anchor drop, Generic G0 relabel,
-  operation MIR, production selector, retry, fallback, Return, DraftSeal,
-  publication, or legacy deletion.
+  operation owner, source facts dropped before ledger issuance, Generic G0
+  relabel, cross-profile parity, operation MIR, production selector, retry,
+  fallback, Return, DraftSeal, publication, or legacy deletion.
 
 Done:
-  caller-zero passive S0 moves the sealed Core exactly once, verifies one
-  source-evidence row per nested Recipe operation, checks exact placement and
-  Core read/write effects, and rejects fabricated pure-operation bindings.
-  Focused positive/negative tests are green; no production caller or
-  operation MIR exists. Exact MIR references, README, CURRENT_STATE, and
-  this receipt were updated in the implementation commit; source/check files
-  remain below 800.
+  Callable adapter S0 consumes the callable co-seal once, proves transient
+  operation views against Recipe items, derives exact placement/effect
+  evidence, and issues the neutral product without a second Core. The next
+  Generic ledger must issue the 15 explicit anchor rows before source facts
+  are dropped; no production caller or operation MIR exists. Exact MIR
+  references, README, CURRENT_STATE, and this receipt were updated in the
+  adapter commit; source/check files remain below 800.
 
 Stop:
-  Generic G0 parity, operation MIR, a new Recipe kind, profile physicalizer,
-  copied source truth, name/ordinal matching, Return/DraftSeal/publication,
-  selector, fallback, retry, or legacy deletion in the adapter row. A failed
-  focused gate returns to the callable source/evidence boundary; it does not
-  open a workaround route.
+  cross-profile parity, operation MIR, a new Recipe kind, profile
+  physicalizer, copied source truth, name/ordinal matching, source-fact drop
+  before ledger issuance, Return/DraftSeal/publication, selector, fallback,
+  retry, or legacy deletion in the Generic row. A failed focused gate returns
+  to the G0 source/evidence boundary; it does not open a workaround route.
 ```
 ## Production invariants
 ```text

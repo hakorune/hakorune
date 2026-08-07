@@ -72,9 +72,21 @@ invalid-source cases are typed rejects.
 
 The product has no Builder/MIR, operation physicalizer, Return, DraftSeal,
 selector, retry/fallback, production caller, or legacy-deletion authority.
-Callable adaptation is the next bounded row; Generic G0 must later issue its
-explicit anchor ledger before source facts are dropped, followed only then by
-cross-profile parity and physical operation emission.
+
+## Callable operation/effect adapter S0 receipt (2026-08-07)
+
+`LOOP-RECIPE-OPERATION-EFFECT-CALLABLE-ADAPTER-S0` is now closed as
+caller-zero evidence. The adapter consumes the callable co-seal once, proves
+each transient operation view against the sealed Recipe item, derives exact
+block/loop placement, and connects binding operations to the Core's exact
+read/write effect relation before issuing the neutral product. Prelude, Tail,
+input, semantic context, and continuation remain in one thin profile wrapper;
+no operation/effect/Recipe truth is copied.
+
+No Builder/MIR, selector, retry/fallback, production caller, or legacy
+deletion is opened. The current next row is the explicit Generic G0
+item-to-anchor ledger, followed by cross-profile parity and only then
+operation physicalization.
 
 ## S0A implementation receipt
 

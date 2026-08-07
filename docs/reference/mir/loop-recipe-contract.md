@@ -287,8 +287,24 @@ Focused tests cover nested positive coverage (19 operation items), duplicate
 and missing evidence, foreign owner, wrong placement, and fabricated binding
 evidence on a pure operation. This row emits no operation MIR, ValueId,
 BasicBlockId, Return, DraftSeal, selector, retry, fallback, or production
-route. The next row is the separate Callable source-evidence adapter; Generic
-G0 anchor-ledger parity and operation physicalization remain closed.
+route. The Callable source-evidence adapter is now a separate closed receipt;
+the current next row is the Generic G0 anchor ledger. Cross-profile parity and
+operation physicalization remain closed.
+
+## Callable operation/effect adapter S0 (2026-08-07)
+
+`LOOP-RECIPE-OPERATION-EFFECT-CALLABLE-ADAPTER-S0` is closed as caller-zero
+evidence. The adapter consumes the existing callable co-seal once, compares
+each transient operation view with the sealed Recipe item, derives exact
+block/loop placement from the Core, and matches binding operations to the
+existing Core `SourceRead`/`SourceWrite` relation. It then issues the neutral
+`VerifiedLoopOperationEffectProductV1` while retaining the callable Prelude,
+Tail, input, semantic context, and continuation in one profile wrapper.
+
+No operation view, operand, binding relation, effect catalog, or second Core
+is copied. The adapter has no Builder/MIR, selector, retry, fallback, Return,
+DraftSeal, publication, or production authority. The next row is the explicit
+Generic G0 item-to-anchor ledger, followed by cross-profile evidence parity.
 
 ## Callable source-shape split receipt (2026-08-07)
 
