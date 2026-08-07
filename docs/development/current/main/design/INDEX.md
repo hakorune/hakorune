@@ -1153,6 +1153,17 @@ superseded_by = ""
 retire_when = "common Loop physical demand/session authority is replaced explicitly"
 
 [[documents]]
+path = "generic-loop-source-to-portable-recipe-ssot.md"
+role = "authority"
+owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+classification_basis = "CURRENT_STATE: Generic source-to-portable Recipe authority"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "Generic source-to-portable Recipe authority is replaced explicitly"
+
+[[documents]]
 path = "joinir-generic-post-effect-debt-classification-ssot.md"
 role = "authority"
 owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"

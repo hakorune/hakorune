@@ -1,16 +1,16 @@
 {
   "counts": {
-    "checks": 3597,
-    "design_direct": 865,
-    "docs": 12741,
+    "checks": 3600,
+    "design_direct": 868,
+    "docs": 12800,
     "docs_development_archive": 2791,
-    "docs_development_current": 8525,
+    "docs_development_current": 8584,
     "main_direct": 168,
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1039,
     "private": 0,
-    "src": 3936,
-    "tools": 7214
+    "src": 4030,
+    "tools": 7217
   },
   "design_registry": {
     "authority_registry_decided": true,
@@ -709,6 +709,11 @@
           "review_status": "pending"
         },
         {
+          "family_key": "loop-family-observation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
           "family_key": "map-literal-eviction",
           "file_count": 1,
           "review_status": "pending"
@@ -839,28 +844,28 @@
           "review_status": "pending"
         }
       ],
-      "family_count": 47,
+      "family_count": 48,
       "multi_file_family_count": 13,
       "role_assignment": "none",
-      "singleton_family_count": 34
+      "singleton_family_count": 35
     },
-    "direct_files": 865,
-    "markdown_files": 844,
+    "direct_files": 868,
+    "markdown_files": 847,
     "non_markdown_files": 21,
     "owned_sidecar_count": 119,
-    "registered_count": 670,
+    "registered_count": 672,
     "registry_mode": "warning",
     "seed_reference_counts": {
-      "AGENTS.md": 14,
-      "docs/development/current/main/CURRENT_STATE.toml": 9,
-      "docs/development/current/main/DOCS_LAYOUT.md": 65,
-      "docs/development/current/main/design/README.md": 130
+      "AGENTS.md": 11,
+      "docs/development/current/main/CURRENT_STATE.toml": 11,
+      "docs/development/current/main/DOCS_LAYOUT.md": 66,
+      "docs/development/current/main/design/README.md": 131
     },
-    "seed_union_count": 175,
+    "seed_union_count": 176,
     "status_counts": {
       "active_like": 133,
-      "closed": 17,
-      "other_or_missing": 694
+      "closed": 18,
+      "other_or_missing": 696
     },
     "unregistered": [
       "allocator-hook-activation-proof-v0.toml",
@@ -894,6 +899,7 @@
       "exitbranch-ssot.md",
       "hakorune-naming-and-rename-task-order-ssot.md",
       "language-minimal-surface-task-breakdown-ssot.md",
+      "loop-family-observation-policy-ssot.md",
       "map-literal-eviction-and-blockexpr-roadmap-ssot.md",
       "mapbox-proof-bearing-route-ssot.md",
       "match-branchn-skeleton-ssot.md",
@@ -941,14 +947,14 @@
       "trim-route-lowering-readiness-integration-inventory.md"
     ],
     "unregistered_baseline": 77,
-    "unregistered_count": 76,
-    "unseeded_count": 690,
+    "unregistered_count": 77,
+    "unseeded_count": 692,
     "violations": []
   },
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1394,
-    "document_count": 8525,
+    "document_count": 8584,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
       "cluster_count": 1369,
@@ -1928,18 +1934,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5279,
-    "root_count": 3819,
+    "reachable_count": 5328,
+    "root_count": 3831,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1039,
       "current_pointer": 4,
-      "design_authority": 269,
+      "design_authority": 271,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3184
+      "reference_src_tools": 3195
     },
-    "unreachable_count": 3246,
-    "unreachable_pending_count": 1852,
+    "unreachable_count": 3256,
+    "unreachable_pending_count": 1862,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
