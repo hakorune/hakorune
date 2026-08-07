@@ -265,7 +265,7 @@ pub(crate) struct VerifiedCallableTerminalCompatibilityV1 {
 }
 
 impl VerifiedCallableTerminalCompatibilityV1 {
-    fn issue(
+    pub(crate) fn issue(
         branded: &VerifiedCallableFunctionLoweringInputV1<'_>,
         prelude: &VerifiedCallablePreludeCapabilityV1,
         tail: &VerifiedCallableTailV1,

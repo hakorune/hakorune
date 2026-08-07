@@ -10,10 +10,17 @@ separates full-demand preflight from leaf emission; the Builder-free
 `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` and the behavior-neutral
 physicalizer module split, physical block receipt, private ConstI64
 leaf-emitter canary, and bounded ReadBinding I0 are closed. The current row is
-the caller-zero full callable physical canary; operation production activation
-remains 0. The bounded After-closure canary is now green: the real Prelude
-receipt feeds the complete seven-operation Callable dispatch, fixed CFG edges,
-and canonical CFG/identity sealing. Tail/Completion/DraftSeal remain closed.
+the caller-zero callable Tail/Completion boundary; operation production
+activation remains 0. The bounded After-closure canary is green: the real
+Prelude receipt feeds the complete seven-operation Callable dispatch, fixed
+CFG edges, and canonical CFG/identity sealing. The Tail handoff now reads the
+exact binding through canonical identity, validates the existing trivial ABI,
+and claims Completion/return coverage once. The sealed After receipt also
+moves a non-Clone callable profile-close receipt proving exact
+`7 = Pure4 + Read2 + Write1` coverage, the Bool condition, owner, terminal
+block, and After predecessor. Finish must consume that receipt through a
+non-no-op `finish_profile_close` closure. DraftSeal, production selection,
+retry/fallback, and legacy retirement remain closed.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md

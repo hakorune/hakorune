@@ -107,8 +107,12 @@ Related:
   and logical/physical placement evidence are green. The bounded
   `CALLABLE-LOOP-AFTER-CLOSURE-P0` slice is now green: the real Prelude receipt
   drives all seven operations (`Pure=4`, `Read=2`, `Write=1`), fixed CFG edges,
-  and canonical CFG/identity sealing into one ReadyAfter receipt. The next
-  authorized row is `CALLABLE-LOOP-TAIL-COMPLETION-P0`:
+  and canonical CFG/identity sealing into one ReadyAfter receipt.
+  `CALLABLE-LOOP-TAIL-COMPLETION-P0` is now green: the exact Tail binding is
+  read through canonical identity, the declared ABI and Completion are
+  claimed once, and a move-only profile-close receipt preserves the sealed
+  After witness plus exact `7=Pure4+Read2+Write1` coverage with Bool
+  condition. The next authorized row is `CALLABLE-LOOP-DRAFT-SEAL-P0`:
   (Prepared move handoff, complete Write projection, pure
   Const/Binary/Compare leaves, bounded five-family dispatch, full
   Recipe-order prepare, and typed value ledger) is green; exact per-row
@@ -118,7 +122,7 @@ Related:
   exact Tail handoff, then fresh-session `finish_for_draft_seal` -> DraftSeal
   integration before claiming the full caller-zero Prelude -> Loop -> sealed
   After -> distinct Tail canary. Prelude materialization
-  is now closed as a caller-zero receipt: the external Prelude result and the
+  remains closed as a caller-zero receipt: the external Prelude result and the
   distinct Loop initializer are published through canonical identity into
   separate bindings. The complete
   Read/Const/Compare/Binary/Write operation matrix remains the target.

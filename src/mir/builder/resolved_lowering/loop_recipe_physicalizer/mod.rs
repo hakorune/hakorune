@@ -15,6 +15,8 @@ mod operation_type;
 #[cfg(test)]
 mod continuation;
 #[cfg(test)]
+mod tail_completion;
+#[cfg(test)]
 #[path = "read_emitter_tests.rs"]
 mod read_emitter_tests;
 #[cfg(test)]

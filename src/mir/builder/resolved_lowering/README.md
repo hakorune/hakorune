@@ -113,9 +113,16 @@ the external Prelude result is emitted through the shared direct-call emitter,
 and the Loop initializer is materialized from its exact source site into a
 separate `ReadyLoopEntryV1` binding/value. The Prelude result local is not the
 Loop input and is never used as an implicit entry value. Tail-only lowering is
-blocked while the topology After receipt is open; next is
-`CALLABLE-LOOP-AFTER-CLOSURE-P0`, then Tail/Completion and
-`finish_for_draft_seal`/DraftSeal integration.
+blocked while the topology After receipt is open; `CALLABLE-LOOP-AFTER-CLOSURE-P0`
+and `CALLABLE-LOOP-TAIL-COMPLETION-P0` are now bounded caller-zero seams. The
+latter reads the exact Tail binding through canonical identity, validates the
+declared trivial ABI, and claims Completion/return coverage once. The sealed
+After receipt moves a non-Clone profile-close receipt proving the exact
+callable `7 = Pure4 + Read2 + Write1` coverage, Bool condition, owner,
+terminal block, and After predecessor. The later finish step must consume it
+through a non-no-op `finish_profile_close` closure. The common physicalizer
+still stops before Tail, ABI, Completion, Return, and DraftSeal;
+`finish_for_draft_seal`/DraftSeal integration remain later bounded work.
 
 The bounded `CALLABLE-LOOP-AFTER-CLOSURE-P0` slice is now landed as a
 caller-zero continuation proof. It uses the real Prelude receipt, emits the

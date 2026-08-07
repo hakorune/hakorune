@@ -39,12 +39,54 @@ pub(super) enum CallableLoopAfterClosureRejectV1 {
     ConditionNotDispatched,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct ReadyCallableLoopProfileCloseV1 {
+    owner: FunctionOwnerIdV1,
+    terminal_block: BasicBlockId,
+    after_predecessors: Box<[BasicBlockId]>,
+    operation_count: usize,
+    pure_count: usize,
+    read_count: usize,
+    write_count: usize,
+    condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+}
+
+impl ReadyCallableLoopProfileCloseV1 {
+    pub(super) fn finish(
+        self,
+        owner: FunctionOwnerIdV1,
+        terminal_block: BasicBlockId,
+    ) -> Result<(), String> {
+        if self.owner != owner {
+            return Err("callable profile close owner mismatch".into());
+        }
+        if self.terminal_block != terminal_block {
+            return Err("callable profile close terminal block mismatch".into());
+        }
+        if self.after_predecessors.len() != 1 {
+            return Err("callable profile close After predecessor mismatch".into());
+        }
+        if (
+            self.operation_count,
+            self.pure_count,
+            self.read_count,
+            self.write_count,
+        ) != (7, 4, 2, 1)
+        {
+            return Err("callable profile close operation coverage mismatch".into());
+        }
+        let _condition_key = self.condition_key;
+        Ok(())
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub(super) struct ReadyLoopAfterContinuationV1 {
     owner: FunctionOwnerIdV1,
     root_loop: LoopNodeKeyV1,
     root_after: BasicBlockId,
     predecessors: Box<[BasicBlockId]>,
+    profile_close: ReadyCallableLoopProfileCloseV1,
 }
 
 impl ReadyLoopAfterContinuationV1 {
@@ -62,6 +104,10 @@ impl ReadyLoopAfterContinuationV1 {
 
     pub(super) fn predecessors(&self) -> &[BasicBlockId] {
         &self.predecessors
+    }
+
+    pub(super) fn into_profile_close(self) -> ReadyCallableLoopProfileCloseV1 {
+        self.profile_close
     }
 }
 
@@ -84,6 +130,27 @@ pub(super) fn close_callable_loop_after_v1(
         ));
     }
     if completed.operation_count() == 0 {
+        return Err(CallableLoopAfterClosureRejectV1::OperationDispatchIncomplete);
+    }
+    let mut pure_count = 0;
+    let mut read_count = 0;
+    let mut write_count = 0;
+    for receipt in completed.receipts() {
+        match receipt {
+            super::operation_dispatcher::LoopOperationDispatchReceiptV1::Pure(_) => pure_count += 1,
+            super::operation_dispatcher::LoopOperationDispatchReceiptV1::Read(_) => read_count += 1,
+            super::operation_dispatcher::LoopOperationDispatchReceiptV1::Write(_) => {
+                write_count += 1
+            }
+        }
+    }
+    if (
+        completed.operation_count(),
+        pure_count,
+        read_count,
+        write_count,
+    ) != (7, 4, 2, 1)
+    {
         return Err(CallableLoopAfterClosureRejectV1::OperationDispatchIncomplete);
     }
     if !completed.contains_result(condition.key()) {
@@ -172,6 +239,16 @@ pub(super) fn close_callable_loop_after_v1(
         root_loop: root,
         root_after: after,
         predecessors: after_witness.predecessors().to_vec().into_boxed_slice(),
+        profile_close: ReadyCallableLoopProfileCloseV1 {
+            owner,
+            terminal_block: after,
+            after_predecessors: after_witness.predecessors().to_vec().into_boxed_slice(),
+            operation_count: completed.operation_count(),
+            pure_count,
+            read_count,
+            write_count,
+            condition_key: condition.key(),
+        },
     })
 }
 
@@ -203,6 +280,7 @@ fn seal_block(
 #[cfg(test)]
 mod tests {
     use super::super::operation_dispatcher::LoopOperationDispatchReceiptV1;
+    use super::super::tail_completion::consume_callable_tail_completion_v1;
     use super::*;
     use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
     use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
@@ -218,6 +296,7 @@ mod tests {
     use crate::mir::compiler::callable_single_loop_syntax_facts::issue_callable_single_loop_syntax_facts_v1;
     use crate::mir::compiler::loop_physical_prepare::{
         VerifiedCallableFunctionLoweringInputV1, VerifiedCallablePreludeCapabilityV1,
+        VerifiedCallableTerminalCompatibilityV1,
     };
     use crate::mir::function::MirParamDecl;
     use crate::mir::loop_recipe_contract::{
@@ -266,7 +345,7 @@ mod tests {
             LoopConditionV1::Predicate { value, .. } => value,
             LoopConditionV1::Always => panic!("callable fixture must have predicate"),
         };
-        let (effect, input_relation, context, continuation, prelude_source, _tail) =
+        let (effect, input_relation, context, continuation, prelude_source, tail) =
             operation_product.into_full_parts();
         let mut demand =
             VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
@@ -281,6 +360,14 @@ mod tests {
         )
         .expect("prepared callable prelude");
         let completion = verify_function_completion_v1(input.input()).expect("completion");
+        let terminal = VerifiedCallableTerminalCompatibilityV1::issue(
+            &input,
+            &prelude,
+            &tail,
+            &completion,
+            prelude.result_abi(),
+        )
+        .expect("terminal compatibility");
 
         let root = input.input().source().root();
         let crate::ast::ASTNode::FunctionDeclaration {
@@ -428,6 +515,48 @@ mod tests {
                 .expect("selected block"),
             ready.root_after()
         );
+        let terminal_receipt = consume_callable_tail_completion_v1(
+            ready,
+            &tail,
+            &terminal,
+            outer.builder_view_mut_for_lowering(),
+            &mut session,
+        )
+        .expect("Tail and Completion");
+        assert_eq!(terminal_receipt.owner(), owner);
+        assert_eq!(
+            terminal_receipt.block(),
+            outer
+                .builder_view()
+                .current_block_for_test()
+                .expect("Tail block remains selected")
+        );
+        assert_eq!(terminal_receipt.abi(), prelude.result_abi());
+        assert_eq!(
+            outer
+                .builder_view()
+                .function_state
+                .type_ctx
+                .get_type(terminal_receipt.value()),
+            Some(&terminal_receipt.abi().mir_type())
+        );
+        let second_claim = session.completion.claim_explicit_return(
+            tail.statement(),
+            terminal.target_function(),
+            terminal_receipt.block(),
+            terminal_receipt.value(),
+        );
+        assert!(second_claim.is_err(), "Completion must be one-shot");
+        let terminal_block = terminal_receipt.block();
+        terminal_receipt
+            .into_profile_close()
+            .finish(owner, terminal_block)
+            .expect("profile close evidence");
+        let injected_late_failure: Result<(), &str> = Err("after Tail/Completion");
+        assert!(injected_late_failure.is_err());
         outer.discard_unpublished();
+        assert_eq!(builder.next_value_id().0, 0);
+        let fresh = builder.open_resolved_function_draft_seal_session_v1("callable_tail/0");
+        fresh.discard_unpublished();
     }
 }

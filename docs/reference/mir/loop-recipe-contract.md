@@ -26,9 +26,14 @@ receipt and the complete seven-operation Callable schedule (`Pure=4`,
 header, and After are sealed through the canonical CFG/identity owners, then a
 single session-local `ReadyLoopAfterContinuationV1` is issued. Unsealed PHI
 `Unknown` is published only from the verified Recipe value class; concrete or
-missing type facts reject as `ResultTypeMismatch`. This receipt does not open
-Tail, Completion, DraftSeal, production selection, retry/fallback, or legacy
-retirement.
+missing type facts reject as `ResultTypeMismatch`. The successor Tail slice
+now consumes that receipt, reads the exact Tail binding through canonical
+identity, validates the declared `i64` ABI, and claims Completion/return
+coverage once. The After receipt forwards a non-Clone profile-close receipt
+for the sealed After predecessor and exact callable coverage (`7 = Pure4 +
+Read2 + Write1`, including the Bool condition); later finish must consume it
+through a non-no-op closure. Finish/DraftSeal, production selection,
+retry/fallback, and legacy retirement remain closed.
 
 Executable authority:
 `src/mir/loop_recipe_contract/`
@@ -667,10 +672,10 @@ joins prepared rows across all five operation families with an opaque typed
 value ledger. The physical dispatcher now issues one exact
 logical-to-physical target receipt per row, validates all target blocks before
 the first leaf effect, and distinguishes semantic preflight from post-claim
-physical failure. Exact Prelude materialization is closed. Tail-to-ValueId is
-blocked until the open After receipt becomes a sealed
-`ReadyLoopAfterContinuationV1`; fresh function session,
-`finish_for_draft_seal`, and DraftSeal integration remain later bounded work.
+physical failure. Exact Prelude materialization and the bounded
+Tail-to-ValueId/Completion handoff are closed caller-zero seams. The fresh
+function session remains the sole discard boundary; `finish_for_draft_seal`
+and DraftSeal integration are later bounded work.
 No production caller,
 selector, retry/fallback, Generic G0 parity, module publication, or legacy
 deletion is opened by this slice.
