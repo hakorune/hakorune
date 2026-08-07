@@ -1,6 +1,6 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff S0, callable source ledger S1, resolver SyntaxFacts-S1, caller-zero MAP-S1, and the shallow callable RECIPE-COSEAL-D0 design are closed; RECIPE-COSEAL-I0-R0 is the next bounded caller-zero implementation; physical/production activation remains 0`
+Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, and RECIPE-COSEAL-D0 are closed; the post-co-seal common physical-demand/fresh-session/DraftSeal architecture is accepted in advance; RECIPE-COSEAL-I0-R0 remains the next bounded caller-zero implementation; physical/production activation remains 0`
 
 Current row: `RECIPE-COSEAL-I0-R0`
 
@@ -58,6 +58,15 @@ Reuse the common Recipe/physicalizer owners; do not add a Generic-specific
 SSA/PHI owner. Production selection, physical cutover, retry/fallback
 retirement, and legacy deletion remain closed.
 
+The post-co-seal architecture is fixed by
+`loop-common-physical-demand-and-session-ssot.md`. It introduces one
+profile-neutral inner Loop demand plus thin callable/G0 admissions over
+existing source/ABI/Recipe/completion capabilities, one fresh unpublished
+function session, whole-session discard on failure, one common recursive
+physicalizer that leaves After open, and the existing Completion/DraftSeal
+terminal. This advance design does not authorize its I0/R0 row before the
+current co-seal implementation closes.
+
 `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1`,
 `RESOLVER-SYNTAX-FACTS-S1`, and
 `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are now closed as caller-zero
@@ -79,6 +88,9 @@ The accepted design stop is
 
 The next bounded implementation contract is
 `docs/development/current/main/investigations/generic-callable-loop-recipe-coseal-i0-r0-implementation-task-2026-08-07.md`.
+
+The accepted successor physical boundary is
+`docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`.
 
 The implementation contract is
 `docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md`.
@@ -1006,8 +1018,16 @@ GENERIC-LEGACY-DISPOSITION-D0
 GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0
   separate Generic-only deletion from shared/non-Generic canonicalizer callers
 
-GENERIC-G0-PHYSICAL-PREFLIGHT-P0
-  mutation-free common physical input plus Generic After envelope
+LOOP-COMMON-PHYSICAL-DEMAND-I0-R0
+  one disjoint co-seal split and one profile-neutral inner Loop demand;
+  source/effect truth stays in the moved co-seal owner
+
+CALLABLE-LOOP-PHYSICAL-ADMISSION-I0-R0
+  callable boundary, ABI, Tail, and completion plus the common inner demand
+
+GENERIC-G0-COMMON-PHYSICAL-ADMISSION-P0
+  existing G0 S4 product through a common co-seal view into the common inner
+  demand schema plus its distinct G0 After boundary
 
 LOOP-PHYSICALIZER-COMMON-OWNER-R0
   behavior-neutral 2-5 commit split; accepted shapes unchanged
@@ -1015,8 +1035,16 @@ LOOP-PHYSICALIZER-COMMON-OWNER-R0
 LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
   disconnected common CFG/Binding-SSA physicalizer through root After capability
 
+CALLABLE-LOOP-PHYSICAL-CANARY-I0-R0
+  exact prelude + Loop + distinct Tail through one fresh unpublished session;
+  finish CFG/SSA/PHI/completion and DraftSeal without a production caller
+
 GENERIC-G0-COMPLETION-P0
-  hand root After value to existing completion/DraftSeal; no second Return writer
+  adapt root After value to the same completion/DraftSeal owner; no second Return writer
+
+LOOP-CALLER-ZERO-PARITY-G0
+  prove callable Tail and Generic G0 After remain distinct profile adapters over
+  the same common physical owner
 
 JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A
 JOINIR-LOOP-M8-LOOPV0-EXITS-JOINS-S6B
@@ -1103,10 +1131,14 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `GENERIC-LEGACY-ROUTE-OBSERVATION-P1` | green front receipt + normalized universe -> serial route/bypass/RC/output observations | every required release/strict/planner-required run is observed; timeout or pre-Loop failure stays unclassified | no parallel full census and no manufactured result |
 | `GENERIC-LEGACY-DISPOSITION-D0` | observed normalized universe -> checked disposition | accepted cases use only portable owner or accepted typed reject; nonaccepted cases may retain future evidence; unclassified accepted count zero | future evidence cannot retire currently accepted input; failed/unobserved cases block closeout |
 | `GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0` | Generic candidate files + repository caller graph -> Generic-only / neutralize-first / M11 / M12 or named JoinModule ownership | shared `UpdateCanon`, `RecipeBody/RecipeBlock`, located handoff, separate `join_ir/lowering`, and `NYASH_JOINIR_LOWER_GENERIC` are assigned outside R1 | do not wholesale-delete `generic_loop_canon/**`, a name-matched subtree, or its environment reference |
-| `GENERIC-G0-PHYSICAL-PREFLIGHT-P0` | S4 + target + existing completion capability -> one-shot common physical input + Generic After envelope | mismatched Recipe/JoinSig/source/tail cannot be paired; Builder effects zero | no mutation or publication |
+| `LOOP-COMMON-PHYSICAL-DEMAND-I0-R0` | one co-seal -> disjoint boundary evidence + one profile-neutral inner Loop demand | topology is key-only; source/effect/BindingRef truth remains in the moved co-seal owner; Builder effects zero | no profile admission, session, physical ID, mutation, or publication |
+| `CALLABLE-LOOP-PHYSICAL-ADMISSION-I0-R0` | inner demand + exact callable prelude/Tail/return ABI/completion -> one callable admission | owner/site/BindingRef/ABI/completion pairing is total before effects | no universal Callable plan, physicalizer, or production caller |
+| `GENERIC-G0-COMMON-PHYSICAL-ADMISSION-P0` | existing G0 S4 product -> common co-seal view -> the same inner-demand schema + G0 After boundary | `L0.After/b1` remains distinct from callable prefix `value`; no duplicated source truth | no G0 physicalizer, callable Tail reuse, or production caller |
 | `LOOP-PHYSICALIZER-COMMON-OWNER-R0` | current 792-line Accum owner -> common small services + thin Accum adapter | existing Accum MIR/fault/reuse/caller counts unchanged; each commit buildable | do not add recursive Generic acceptance in the refactor series |
 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | verified physical input + canonical CFG + function Binding SSA/PhiTxn -> disconnected candidate + root After capability | child PHI, post-child outer backedge, shadow, late-failure discard, fresh reuse | no Return, publication, production caller, route-local SSA, or fallback |
+| `CALLABLE-LOOP-PHYSICAL-CANARY-I0-R0` | common demand -> exact prelude/Loop/distinct Tail in one fresh unpublished function -> existing completion/DraftSeal | whole-function CFG finish, late failure discard, live-caller invariance, fresh reuse | no production selector/caller, retry, fallback, or module publication |
 | `GENERIC-G0-COMPLETION-P0` | physical result + verified After effect -> existing explicit-return completion/DraftSeal | returned value is `L0.After/b1`; input/body temporaries reject | no direct Return writer and no LoopRecipe function tail |
+| `LOOP-CALLER-ZERO-PARITY-G0` | callable canary + G0 completion adapter -> one common physical-owner parity proof | callable prefix `value` Tail and G0 `L0.After/b1` stay distinct; semantic result and failure/fresh-session receipts agree | no family relabeling or production activation |
 
 ### Coverage, cutover, and retirement
 

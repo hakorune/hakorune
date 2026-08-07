@@ -1142,6 +1142,17 @@ superseded_by = ""
 retire_when = "Loop replacement/cutover authority is replaced explicitly"
 
 [[documents]]
+path = "loop-common-physical-demand-and-session-ssot.md"
+role = "authority"
+owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+classification_basis = "CURRENT_STATE: accepted post-Recipe physical demand/session boundary"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "common Loop physical demand/session authority is replaced explicitly"
+
+[[documents]]
 path = "joinir-generic-post-effect-debt-classification-ssot.md"
 role = "authority"
 owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"

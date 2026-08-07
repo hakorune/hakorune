@@ -37,8 +37,8 @@ and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. MAP
 co-seals the resolver source/frame/Scope/Region and the selected
 `0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
 not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
-`RECIPE-COSEAL-D0` is accepted and caller-zero `RECIPE-COSEAL-I0-R0` is next,
-with no callable-specific Loop kind, physical, production, retry, or deletion.
+`RECIPE-COSEAL-I0-R0` is next; its successor common-demand/fresh-session/
+DraftSeal design is accepted in advance, but physical/production/retirement stay closed.
 
 ## Root-neutral semantic foundation
 

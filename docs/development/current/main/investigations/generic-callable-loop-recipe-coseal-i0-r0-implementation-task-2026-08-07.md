@@ -131,7 +131,10 @@ reselection, or Builder effect is allowed.
   closeout must record the landed relation schema and tests while preserving
   the invariant that 19 means legacy-ingress coverage, not Recipe kinds.
 
-After this row closes, stop before physicalization and open a separate design
-boundary for common physical demand/fresh-session/atomic rollback. Recipe
-completion is not physical completion, production activation, or legacy
-retirement.
+After this row closes, stop before physicalization. The successor common
+physical-demand/fresh-session/failure-discard/Completion-DraftSeal boundary is
+already accepted in
+`docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md`,
+but `LOOP-COMMON-PHYSICAL-DEMAND-I0-R0` does not open until the current pointer
+and user authorization advance. Recipe completion is not physical completion,
+production activation, or legacy retirement.

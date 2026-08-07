@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/joinir-loop-pre-effect-product-ssot.md
   - docs/development/current/main/design/joinir-generic-post-effect-debt-classification-ssot.md
   - docs/development/current/main/design/joinir-loop-scoped-nongeneric-cutover-ssot.md
+  - docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md
   - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
 ---
 
@@ -85,6 +86,13 @@ Loop-local Builder clone, a symbolic MIR fragment, or an undo journal.
 Candidate isolation is not route qualification. Meaning must be decided before
 the first Builder effect; selected physicalization returns terminal success or
 `Freeze` and cannot advance to another route.
+
+The post-Recipe common demand, fresh unpublished function session, failure
+discard, open-After result, and Completion/DraftSeal handoff are fixed by
+`loop-common-physical-demand-and-session-ssot.md`. That boundary is one
+admission envelope over existing authorities, not a universal Callable plan or
+a second physicalizer. Its implementation remains caller-zero until the M8/M9
+and production-selection gates close.
 
 ### Bounded M10a DirectAccum pilot — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT0-M5-P4-S1` (closed)
 

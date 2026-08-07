@@ -151,6 +151,11 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - active selfhost-ready Loop authority; owns the portable
     StructuralFacts/RoutePolicy/Recipe/JoinSig/Verify/Lower task order while the
     existing compile candidate remains the sole abort/publication boundary
+- `design/loop-common-physical-demand-and-session-ssot.md`
+  - post-Recipe physical boundary owner; fixes one move-only common demand,
+    existing fresh unpublished function/session authority, whole-candidate
+    discard, open-After physicalizer result, and Completion/DraftSeal handoff
+    without a second SSA/CFG/PHI/Return/publication authority
 - `design/joinir-target-lowerer-thinning-ssot.md`
   - JoinIR target-specific lowerer thinning order; keeps shared seams,
     LowerOnly observation, and route-specific behavior separated
