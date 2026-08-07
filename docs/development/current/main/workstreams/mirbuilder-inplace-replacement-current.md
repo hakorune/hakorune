@@ -37,7 +37,7 @@ and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. MAP
 co-seals the resolver source/frame/Scope/Region and the selected
 `0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
 not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
-`RECIPE-COSEAL-I0-R0` is closed as caller-zero evidence; Loop continuation/Tail remain separate. Current frontier is the design stop before `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`; physical/production/retirement stay closed.
+`RECIPE-COSEAL-I0-R0` is closed; Loop continuation/Tail remain separate. Current frontier is the design stop before `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`; physical/production/retirement stay closed. R0 audit: migrate only the three existing V2 session lowerers; keep the one non-V2 `ReadyFunctionDraftSealV1::new` caller as named non-growing compatibility debt; consume a move-only profile-close receipt and never re-infer body/site/target/current-block facts.
 
 ## Root-neutral semantic foundation
 

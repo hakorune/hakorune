@@ -26,6 +26,36 @@ Invariants:
 - legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
   Loop activation, Main, REPL, and ProgramV0 are outside this boundary.
 
+## Canonical V2 function finish
+
+The three canonical V2 profile lowerers (`trivial_ssa`, `direct_accum`, and
+`nested_predicate`) share one consuming finish terminal:
+
+```text
+CanonicalSsaFunctionSessionV2::finish_for_draft_seal
+  -> ReadyFunctionDraftSealV1
+```
+
+Each profile closes its private effect/After/final-carrier ledger into one
+move-only `ReadyCanonicalProfileCloseV1`. The common terminal consumes that
+receipt and closes CFG, semantic/If control, identity/Binding SSA, PHI, the
+resolved binding ledger, and Completion exactly once. It is the sole V2 issuer
+of `ReadyFunctionDraftSealV1`.
+
+The terminal accepts no raw body/site/end/target/current-block facts for
+re-inference. Those identities are sealed when the exact resolved function
+session opens; the profile receipt carries the already-claimed terminal
+witness. A failed or duplicate close rejects before publication, and any late
+failure discards the whole unpublished function. `PhiTxn` rollback is only
+best-effort local cleanup; the outer function session owns atomic discard.
+
+The existing non-V2 direct constructor caller is an explicit compatibility
+allowlist entry. It may not gain callers and is retired by a later bounded row;
+it is not part of the V2 finish migration. Focused guards must keep V2 direct
+`ReadyFunctionDraftSealV1::new` callers at zero and keep all source files below
+the repository's 800-line boundary. Every implementation slice updates this
+README, the owning reference, and current-entry mirrors in the same commit.
+
 ## Disconnected canonical CFG prerequisite
 
 `canonical_cfg/` owns the SSA-C1 edge/seal substrate. It emits a terminator and

@@ -470,6 +470,72 @@ ReadyFunctionDraftSealV1 exists
   && the profile-specific close receipt was consumed
 ```
 
+### R0 audit lock (2026-08-07)
+
+The repository audit fixes the migration boundary before implementation. The
+canonical V2 session is constructed by exactly three profile lowerers:
+
+```text
+trivial_ssa/lowerer.rs
+direct_accum_lowerer.rs
+nested_predicate_lowerer.rs
+```
+
+The current production `ReadyFunctionDraftSealV1::new` census contains those
+three V2 callers plus one non-V2 `CanonicalFunctionLowererV1` compatibility
+caller. R0 migrates only the three V2 paths. The non-V2 caller is a named
+compatibility debt and may not gain new callers; its later retirement is a
+separate decision. Test-only constructors are allowed only through an explicit
+test factory and are not production evidence.
+
+The finish API must consume a typed terminal receipt rather than re-deriving
+source facts at the end of lowering. The target shape is conceptually:
+
+```text
+CanonicalSsaFunctionSessionV2::finish_for_draft_seal(
+    self,
+    builder,
+    profile_close: ReadyCanonicalProfileCloseV1,
+) -> Result<ReadyFunctionDraftSealV1, CanonicalFunctionFinishErrorV1>
+```
+
+The exact Rust visibility may remain private, but the contract is fixed:
+
+- `body`, `body_end`, `target_function`, `current_block`, source site, and
+  return operand are not re-inferred from raw AST/source/MIR arguments at the
+  terminal. Function/body identity and completion target are sealed when the
+  V2 session opens; the profile close receipt carries the exact terminal block
+  and already-claimed completion witness.
+- `ReadyCanonicalProfileCloseV1` is move-only, non-cloneable, and contains only
+  profile-ledger closure evidence. It is a temporal receipt, not a new
+  semantic owner or a second Completion/CFG/PHI authority.
+- the common terminal is the sole issuer of `ReadyFunctionDraftSealV1` for V2
+  sessions. A direct V2 `ReadyFunctionDraftSealV1::new` caller count of zero
+  is a guard, not a prose claim.
+- a mismatch, duplicate close, missing close, or completion/body identity
+  mismatch rejects before the terminal consumes the session. Any failure
+  after the fresh session opens discards the whole unpublished function and
+  restores the caller once; same-session repair/retry is forbidden.
+
+The R0 acceptance pack therefore includes all of the following, with no
+profile or MIR acceptance delta:
+
+```text
+DirectAccum omission: missing cfg.finish cannot issue Ready/DraftSeal
+finish order: CFG/semantic/If/identity/binding/Phi/completion close once
+profile receipt: missing/duplicate/foreign receipt rejects
+completion identity: body/site/end/target mismatch rejects before effects
+late failure: unpublished function is discarded and caller is unchanged
+fresh reuse: a failed session cannot poison the next session
+caller census: V2 direct Ready constructor callers = 0
+non-V2 census: compatibility caller remains named and non-growing
+source/README/reference/current-entry update in the same implementation commit
+```
+
+This audit lock is deliberately narrower than a universal function-finalizer
+redesign. It does not migrate the non-V2 lowerer, add a semantic owner, change
+accepted profiles, or open physical Loop lowering.
+
 ## Typed rejection boundary
 
 Before Builder effects, reject at least:
@@ -552,9 +618,12 @@ Contract:
 
 Done:
   DirectAccum cannot reach DraftSeal without cfg.finish;
-  V2 direct Ready constructor callers are zero; focused omission/order/
-  failure-discard tests and the existing canonical gates are green;
-  loop/function-exit references and owning README update in the same commit
+  V2 direct Ready constructor callers are zero; the one non-V2 compatibility
+  caller is named and non-growing; profile close is move-only and completion
+  body/site/target metadata is not re-inferred at finish; focused
+  omission/order/receipt/identity/failure-discard/fresh-reuse tests and the
+  existing canonical gates are green; loop/function-exit references and the
+  owning README update in the same commit
 
 Stop:
   any accepted-profile or MIR delta, new semantic owner, non-V2 migration,

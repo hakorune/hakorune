@@ -157,6 +157,17 @@ production callerを0にする。
 profile固有ledgerは先にprivate close receiptへ畳み、common finish terminalが
 そのreceiptと全function-local ownerをconsumeして初めてReadyを発行する。
 
+The current R0 audit is intentionally bounded: the V2 session has three
+existing profile constructors (`trivial_ssa`, `direct_accum`, and
+`nested_predicate`), while one non-V2 `CanonicalFunctionLowererV1` direct
+constructor remains an explicit compatibility allowlist entry. R0 migrates
+the three V2 paths only. A move-only profile-close receipt and sealed function
+identity prevent terminal re-inference of body/site/target/current-block
+facts. The guard contract is mechanical: V2 direct Ready-constructor callers
+must be zero, the non-V2 allowlist must not grow, and every V2 finish order is
+owned by the one terminal API. Physical Loop lowering, production selection,
+retry/fallback retirement, and legacy deletion are later rows.
+
 すべてのfallibleなexit、PHI、type、signature、metadata、verification、
 session-close準備を`prepare`で終える。`commit(self)`はownership-onlyの
 infallible terminalとする。
