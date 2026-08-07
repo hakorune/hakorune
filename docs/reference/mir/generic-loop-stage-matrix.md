@@ -109,8 +109,16 @@ not reissue or clone source/JoinSig evidence.
 
 This receipt opens no physical block mapping, operation instruction emission,
 function session, Return/Completion/DraftSeal, selector, retry/fallback, or
-legacy deletion. The next row remains the behavior-neutral physicalizer module
-split, followed by the later physical block and leaf-emitter proofs.
+legacy deletion. The behavior-neutral physicalizer module split is now closed;
+the current row is the separate physical block receipt, followed by the later
+leaf-emitter proof.
+
+## Physical block receipt P0 (2026-08-07)
+
+The topology canary issues one private logical Loop/role to physical
+`BasicBlockId` receipt from the existing canonical CFG allocation. Callable and
+Generic G0 operation demand remain untouched; the receipt adds no operation
+shape, emitter, session, selector, fallback, or legacy authority.
 
 ## Generic G0 operation/effect anchor ledger S0 receipt (2026-08-07)
 

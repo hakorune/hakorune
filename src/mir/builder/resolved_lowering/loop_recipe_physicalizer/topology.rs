@@ -54,6 +54,177 @@ impl ReadyLoopEntryV1 {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub(super) enum LoopPhysicalBlockRoleV1 {
+    Preheader,
+    Header,
+    Body,
+    Step,
+    After,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct LoopPhysicalBlockRowV1 {
+    loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+    logical_block: Option<crate::mir::loop_recipe_contract::LoopBlockKeyV1>,
+    role: LoopPhysicalBlockRoleV1,
+    physical_block: BasicBlockId,
+}
+
+impl LoopPhysicalBlockRowV1 {
+    pub(super) const fn new(
+        loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+        logical_block: Option<crate::mir::loop_recipe_contract::LoopBlockKeyV1>,
+        role: LoopPhysicalBlockRoleV1,
+        physical_block: BasicBlockId,
+    ) -> Self {
+        Self {
+            loop_key,
+            logical_block,
+            role,
+            physical_block,
+        }
+    }
+
+    pub(super) const fn loop_key(self) -> crate::mir::loop_recipe_contract::LoopNodeKeyV1 {
+        self.loop_key
+    }
+
+    pub(super) const fn logical_block(
+        self,
+    ) -> Option<crate::mir::loop_recipe_contract::LoopBlockKeyV1> {
+        self.logical_block
+    }
+
+    pub(super) const fn role(self) -> LoopPhysicalBlockRoleV1 {
+        self.role
+    }
+
+    pub(super) const fn physical_block(self) -> BasicBlockId {
+        self.physical_block
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum LoopPhysicalBlockReceiptRejectV1 {
+    ForeignLoop {
+        loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+    },
+    DuplicatePlacement {
+        loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+        role: LoopPhysicalBlockRoleV1,
+    },
+    DuplicateLogicalBlock {
+        loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+        block: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
+    },
+    MissingRole {
+        loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+        role: LoopPhysicalBlockRoleV1,
+    },
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct LoopPhysicalBlockReceiptV1 {
+    owner: FunctionOwnerIdV1,
+    preheader: BasicBlockId,
+    rows: Box<[LoopPhysicalBlockRowV1]>,
+}
+
+impl LoopPhysicalBlockReceiptV1 {
+    pub(super) fn issue(
+        owner: FunctionOwnerIdV1,
+        preheader: BasicBlockId,
+        loop_keys: &[crate::mir::loop_recipe_contract::LoopNodeKeyV1],
+        rows: Vec<LoopPhysicalBlockRowV1>,
+    ) -> Result<Self, LoopPhysicalBlockReceiptRejectV1> {
+        let expected_loops = loop_keys.iter().copied().collect::<BTreeSet<_>>();
+        let mut placements = BTreeSet::new();
+        let mut logical_blocks = BTreeSet::new();
+        for row in &rows {
+            if !expected_loops.contains(&row.loop_key) {
+                return Err(LoopPhysicalBlockReceiptRejectV1::ForeignLoop {
+                    loop_key: row.loop_key,
+                });
+            }
+            if !placements.insert((row.loop_key, row.role)) {
+                return Err(LoopPhysicalBlockReceiptRejectV1::DuplicatePlacement {
+                    loop_key: row.loop_key,
+                    role: row.role,
+                });
+            }
+            if let Some(block) = row.logical_block {
+                if !logical_blocks.insert((row.loop_key, block)) {
+                    return Err(LoopPhysicalBlockReceiptRejectV1::DuplicateLogicalBlock {
+                        loop_key: row.loop_key,
+                        block,
+                    });
+                }
+            }
+        }
+        for &loop_key in loop_keys {
+            for role in [
+                LoopPhysicalBlockRoleV1::Preheader,
+                LoopPhysicalBlockRoleV1::Header,
+                LoopPhysicalBlockRoleV1::Body,
+                LoopPhysicalBlockRoleV1::Step,
+                LoopPhysicalBlockRoleV1::After,
+            ] {
+                if !placements.contains(&(loop_key, role)) {
+                    return Err(LoopPhysicalBlockReceiptRejectV1::MissingRole { loop_key, role });
+                }
+            }
+        }
+        Ok(Self {
+            owner,
+            preheader,
+            rows: rows.into_boxed_slice(),
+        })
+    }
+
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(super) const fn preheader(&self) -> BasicBlockId {
+        self.preheader
+    }
+
+    pub(super) fn rows(&self) -> &[LoopPhysicalBlockRowV1] {
+        &self.rows
+    }
+
+    pub(super) fn lookup(
+        &self,
+        loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+        role: LoopPhysicalBlockRoleV1,
+    ) -> Option<BasicBlockId> {
+        self.rows
+            .iter()
+            .find(|row| row.loop_key == loop_key && row.role == role)
+            .map(|row| row.physical_block)
+    }
+
+    pub(super) fn lookup_logical(
+        &self,
+        loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+        block: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
+    ) -> Option<BasicBlockId> {
+        self.rows
+            .iter()
+            .find(|row| row.loop_key == loop_key && row.logical_block == Some(block))
+            .map(|row| row.physical_block)
+    }
+
+    pub(super) fn loop_count(&self) -> usize {
+        self.rows
+            .iter()
+            .map(|row| row.loop_key)
+            .collect::<BTreeSet<_>>()
+            .len()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum LoopPhysicalizerRejectV1 {
     MissingFunction,
@@ -64,11 +235,12 @@ pub(super) enum LoopPhysicalizerRejectV1 {
     EntryBindingMissing(BindingRefV1),
     ParentTopologyMissing(crate::mir::loop_recipe_contract::LoopNodeKeyV1),
     AfterOwnerMismatch,
+    BlockReceipt(LoopPhysicalBlockReceiptRejectV1),
     BlockAllocation(String),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct LoopPhysicalBlocksV1 {
+struct AllocatedLoopBlocksV1 {
     loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
     preheader: BasicBlockId,
     header: BasicBlockId,
@@ -79,19 +251,19 @@ struct LoopPhysicalBlocksV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct LoopAfterContinuationReceiptV1 {
-    owner: FunctionOwnerIdV1,
     root_loop: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
-    root_after: BasicBlockId,
-    loops: Box<[LoopPhysicalBlocksV1]>,
+    block_receipt: LoopPhysicalBlockReceiptV1,
 }
 
 impl LoopAfterContinuationReceiptV1 {
     pub(super) fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
+        self.block_receipt.owner()
     }
 
     pub(super) fn root_after(&self) -> BasicBlockId {
-        self.root_after
+        self.block_receipt
+            .lookup(self.root_loop, LoopPhysicalBlockRoleV1::After)
+            .expect("validated root After row")
     }
 
     pub(super) fn root_loop(&self) -> crate::mir::loop_recipe_contract::LoopNodeKeyV1 {
@@ -99,27 +271,27 @@ impl LoopAfterContinuationReceiptV1 {
     }
 
     pub(super) fn loop_count(&self) -> usize {
-        self.loops.len()
+        self.block_receipt.loop_count()
     }
 
     pub(super) fn after_for(
         &self,
         loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
     ) -> Option<BasicBlockId> {
-        self.loops
-            .iter()
-            .find(|blocks| blocks.loop_key == loop_key)
-            .map(|blocks| blocks.after)
+        self.block_receipt
+            .lookup(loop_key, LoopPhysicalBlockRoleV1::After)
     }
 
     pub(super) fn preheader_for(
         &self,
         loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
     ) -> Option<BasicBlockId> {
-        self.loops
-            .iter()
-            .find(|blocks| blocks.loop_key == loop_key)
-            .map(|blocks| blocks.preheader)
+        self.block_receipt
+            .lookup(loop_key, LoopPhysicalBlockRoleV1::Preheader)
+    }
+
+    pub(super) fn block_receipt(&self) -> &LoopPhysicalBlockReceiptV1 {
+        &self.block_receipt
     }
 }
 
@@ -167,11 +339,11 @@ pub(super) fn physicalize_topology_v1(
         let preheader = match node.parent {
             Some(parent) => physical
                 .get(&parent)
-                .map(|blocks: &LoopPhysicalBlocksV1| blocks.body)
+                .map(|blocks: &AllocatedLoopBlocksV1| blocks.body)
                 .ok_or(LoopPhysicalizerRejectV1::ParentTopologyMissing(parent))?,
             None => entry.preheader,
         };
-        let blocks = LoopPhysicalBlocksV1 {
+        let blocks = AllocatedLoopBlocksV1 {
             loop_key: node.key,
             preheader,
             header: services.allocate_block()?,
@@ -182,19 +354,57 @@ pub(super) fn physicalize_topology_v1(
         physical.insert(node.key, blocks);
     }
 
-    let root = physical
-        .get(&recipe.root_loop())
-        .copied()
-        .ok_or(LoopPhysicalizerRejectV1::AfterOwnerMismatch)?;
-    let loops = physical
-        .into_values()
-        .collect::<Vec<_>>()
-        .into_boxed_slice();
+    let mut rows = Vec::new();
+    for node in &recipe.as_recipe().loops {
+        let blocks = physical
+            .get(&node.key)
+            .copied()
+            .ok_or(LoopPhysicalizerRejectV1::AfterOwnerMismatch)?;
+        let condition_block = match node.condition {
+            crate::mir::loop_recipe_contract::LoopConditionV1::Always => None,
+            crate::mir::loop_recipe_contract::LoopConditionV1::Predicate { block, .. } => {
+                Some(block)
+            }
+        };
+        rows.extend([
+            LoopPhysicalBlockRowV1::new(
+                node.key,
+                None,
+                LoopPhysicalBlockRoleV1::Preheader,
+                blocks.preheader,
+            ),
+            LoopPhysicalBlockRowV1::new(
+                node.key,
+                condition_block,
+                LoopPhysicalBlockRoleV1::Header,
+                blocks.header,
+            ),
+            LoopPhysicalBlockRowV1::new(
+                node.key,
+                Some(node.body),
+                LoopPhysicalBlockRoleV1::Body,
+                blocks.body,
+            ),
+            LoopPhysicalBlockRowV1::new(node.key, None, LoopPhysicalBlockRoleV1::Step, blocks.step),
+            LoopPhysicalBlockRowV1::new(
+                node.key,
+                None,
+                LoopPhysicalBlockRoleV1::After,
+                blocks.after,
+            ),
+        ]);
+    }
+    let loop_keys = recipe
+        .as_recipe()
+        .loops
+        .iter()
+        .map(|node| node.key)
+        .collect::<Vec<_>>();
+    let block_receipt = LoopPhysicalBlockReceiptV1::issue(owner, entry.preheader, &loop_keys, rows)
+        .map_err(LoopPhysicalizerRejectV1::BlockReceipt)?;
     Ok(LoopAfterContinuationReceiptV1 {
-        owner,
         root_loop: recipe.root_loop(),
-        root_after: root.after,
-        loops,
+        block_receipt,
     })
 }
 

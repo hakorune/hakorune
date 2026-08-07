@@ -340,9 +340,10 @@ private move-only `VerifiedLoopOperationPhysicalDemandV1` as the complete
 full-program input: it bundles the moved resolver semantic context,
 operation/effect evidence, common continuation, and a key-only private index
 and exposes no single-operation extraction API.
-The Builder-free `prepare_all` row is now closed. The next implementation row
-is the behavior-neutral `LOOP-RECIPE-PHYSICALIZER-MODULE-SPLIT-R0`; Const leaf
-emission and the Generic item-3 bridge remain later rows.
+The Builder-free `prepare_all` and behavior-neutral physicalizer module split
+rows are now closed. The next implementation row is the canonical physical
+block receipt; Const leaf emission and the Generic item-3 bridge remain later
+rows.
 
 ## Full operation demand P0 receipt (2026-08-07)
 
@@ -363,6 +364,17 @@ is retired. This is a behavior-neutral BoxShape split: nested Generic G0
 topology and pre-allocation entry rejection remain unchanged, and no operation
 shape, physical block receipt, emitter, session, selector, or legacy route is
 opened.
+
+## Physical block receipt P0 (2026-08-07)
+
+The topology canary now owns one private `LoopPhysicalBlockReceiptV1` issued
+from the existing canonical CFG allocation. It records the owner, root
+preheader, and exact `Preheader`/`Header`/`Body`/`Step`/`After` rows for each
+logical Loop. Existing topology/After queries use this receipt as their sole
+physical mapping; no second CFG/SSA/PHI owner or implicit `current_block`
+placement is introduced. The focused receipt checks preserve nested Generic G0
+allocation and reject incomplete entry before allocation. Operation emission,
+session/Completion, selection, fallback, and legacy deletion remain closed.
 
 ## Callable source-shape split receipt (2026-08-07)
 
