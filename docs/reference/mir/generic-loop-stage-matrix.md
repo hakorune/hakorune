@@ -163,15 +163,17 @@ fallback, production, or legacy-deletion authority.
 The bounded `LOOP-RECIPE-OPERATION-EMITTER-READ-I0` implementation is closed
 as a private test-only leaf. The complete prepared program projects all
 `Expr`/`SourceRead` rows with exact operation/effect/source/placement checks;
-`DerivedCarrierEntry` remains a typed `CarrierSeedUnavailable` reject. The
+`DerivedCarrierEntry` is excluded from this ordinary leaf and is handled by
+the common profile-neutral carrier-seed row in the loop contract reference.
+The
 leaf claims the source through the canonical BindingSSA/PHI seam and returns
 distinct logical/physical placement receipts with explicit `PreheaderSeed`
 and `CanonicalLive` entry requirements. No single-operation demand extraction
 was added.
 
-The production replacement row remains open: full operation integration,
-carrier seeds, continuation/Tail, Return/DraftSeal, selector, retry/fallback
-retirement, and legacy deletion are still closed.
+The production replacement row remains open: full G0 operation integration,
+continuation/Tail, Return/DraftSeal, selector, retry/fallback retirement, and
+legacy deletion are still closed.
 
 ## Callable operation-emitter preparation receipt (2026-08-07)
 

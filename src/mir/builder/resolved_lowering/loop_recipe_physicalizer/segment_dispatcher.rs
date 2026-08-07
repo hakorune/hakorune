@@ -5,6 +5,7 @@
 //! from that layout, and issues every target through the exact segment receipt.
 //! It owns no CFG, SSA, PHI, or retry state.
 
+use super::carrier_emitter::PreparedLoopDerivedCarrierSeedEmissionV1;
 use super::operation_dispatcher::{
     emit_prepared_operation_family_at_target_v1, CompletedLoopOperationDispatchV1,
     LoopOperationDispatchPhysicalFailureV1, LoopOperationDispatchPreflightRejectV1,
@@ -119,6 +120,13 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
         .iter()
         .map(|row| (row.item(), row))
         .collect::<BTreeMap<_, _>>();
+    let carrier_rows_source = program
+        .derived_carrier_seed_rows()
+        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
+    let carrier_rows = carrier_rows_source
+        .iter()
+        .map(|row| (row.item(), row))
+        .collect::<BTreeMap<_, _>>();
     let write_rows_source = program
         .write_binding_rows()
         .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
@@ -149,18 +157,27 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
                         LoopOperationDispatchPreflightRejectV1::DuplicateProducedValue(result),
                     );
                 }
-                let source = read_rows.get(&row.item()).ok_or(
-                    LoopOperationDispatchPreflightRejectV1::ReadProjectionMissing {
-                        item: row.item(),
-                    },
-                )?;
                 available.insert(result);
-                PreparedLoopOperationDispatchV1::Read(PreparedLoopReadBindingEmissionV1::from_row(
-                    owner,
-                    source,
-                    role,
-                    LoopReadEntryRequirementV1::CanonicalLive,
-                ))
+                if let Some(source) = read_rows.get(&row.item()) {
+                    PreparedLoopOperationDispatchV1::Read(
+                        PreparedLoopReadBindingEmissionV1::from_row(
+                            owner,
+                            source,
+                            role,
+                            LoopReadEntryRequirementV1::CanonicalLive,
+                        ),
+                    )
+                } else if let Some(source) = carrier_rows.get(&row.item()) {
+                    PreparedLoopOperationDispatchV1::CarrierSeed(
+                        PreparedLoopDerivedCarrierSeedEmissionV1::from_row(owner, source, role),
+                    )
+                } else {
+                    return Err(
+                        LoopOperationDispatchPreflightRejectV1::ReadProjectionMissing {
+                            item: row.item(),
+                        },
+                    );
+                }
             }
             LoopOperationV1::ConstI64 { result, .. } => {
                 if !produced.insert(result) {
@@ -287,6 +304,7 @@ fn issue_target_for_segment_row(
     let (owner, item) = match row {
         PreparedLoopOperationDispatchV1::Pure(row) => (row.owner(), row.item()),
         PreparedLoopOperationDispatchV1::Read(row) => (row.owner(), row.item()),
+        PreparedLoopOperationDispatchV1::CarrierSeed(row) => (row.owner(), row.item()),
         PreparedLoopOperationDispatchV1::Write(row) => (row.owner(), row.item()),
     };
     VerifiedLoopOperationTargetBlockV1::issue_for_segment(owner, item, segment, entry, receipt)
@@ -296,11 +314,17 @@ fn map_dispatch_reject(
     error: LoopOperationDispatchRejectV1,
 ) -> LoopOperationDispatchPhysicalFailureV1 {
     match error {
+        LoopOperationDispatchRejectV1::Target(error) => {
+            LoopOperationDispatchPhysicalFailureV1::Target(error)
+        }
         LoopOperationDispatchRejectV1::Pure(error) => {
             LoopOperationDispatchPhysicalFailureV1::Pure(error)
         }
         LoopOperationDispatchRejectV1::Read(error) => {
             LoopOperationDispatchPhysicalFailureV1::Read(error)
+        }
+        LoopOperationDispatchRejectV1::CarrierSeed(error) => {
+            LoopOperationDispatchPhysicalFailureV1::CarrierSeed(error)
         }
         LoopOperationDispatchRejectV1::Write(error) => {
             LoopOperationDispatchPhysicalFailureV1::Write(error)

@@ -8,6 +8,7 @@
 mod callable_canary;
 #[cfg(test)]
 mod callable_production_canary_tests;
+mod carrier_emitter;
 mod operation_dispatcher;
 mod operation_emitter;
 #[cfg(test)]
@@ -28,6 +29,7 @@ mod tail_completion;
 mod tests;
 mod topology;
 
+use carrier_emitter::*;
 use operation_dispatcher::*;
 pub(super) use operation_emitter::*;
 use operation_ledger::*;

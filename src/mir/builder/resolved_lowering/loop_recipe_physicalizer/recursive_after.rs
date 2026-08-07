@@ -16,6 +16,7 @@ use crate::mir::loop_recipe_contract::{
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum RecursiveAfterRejectV1 {
@@ -28,6 +29,7 @@ pub(super) enum RecursiveAfterRejectV1 {
     MissingRootAfter(BasicBlockId),
     TargetMissing,
     ConditionMissing,
+    ConditionDuplicate(crate::mir::loop_recipe_contract::LoopValueKeyV1),
     ConditionOwnerMismatch,
     ConditionClassMismatch,
     ConditionTypeMismatch,
@@ -82,14 +84,8 @@ impl ReadyCallableLoopProfileCloseV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct ReadyLoopAfterContinuationV1 {
     owner: FunctionOwnerIdV1,
-    root_loop: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
     root_after: BasicBlockId,
     predecessors: Box<[BasicBlockId]>,
-    operation_count: usize,
-    pure_count: usize,
-    read_count: usize,
-    write_count: usize,
-    condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
 }
 
 impl ReadyLoopAfterContinuationV1 {
@@ -101,25 +97,27 @@ impl ReadyLoopAfterContinuationV1 {
         self.root_after
     }
 
-    pub(super) fn into_profile_close(self) -> ReadyCallableLoopProfileCloseV1 {
+    pub(super) fn into_profile_close(
+        self,
+        counts: (usize, usize, usize, usize),
+        condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+    ) -> ReadyCallableLoopProfileCloseV1 {
         ReadyCallableLoopProfileCloseV1 {
             owner: self.owner,
             terminal_block: self.root_after,
             after_predecessors: self.predecessors,
-            operation_count: self.operation_count,
-            pure_count: self.pure_count,
-            read_count: self.read_count,
-            write_count: self.write_count,
-            condition_key: self.condition_key,
+            operation_count: counts.0,
+            pure_count: counts.1,
+            read_count: counts.2,
+            write_count: counts.3,
+            condition_key,
         }
     }
 }
 
 pub(super) struct PreparedRecursiveAfterV1 {
     program: CompletedLoopSegmentProgramV1,
-    condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
-    condition_value: ValueId,
-    counts: (usize, usize, usize, usize),
+    conditions: BTreeMap<crate::mir::loop_recipe_contract::LoopValueKeyV1, ValueId>,
 }
 
 pub(super) fn prepare_recursive_after_v1(
@@ -148,8 +146,7 @@ pub(super) fn prepare_recursive_after_v1(
         .ok_or(RecursiveAfterRejectV1::TargetFunctionMissing)?;
     let root_after = program.segment_receipt.root_after();
     ensure_open_block(function, root_after)?;
-    let condition = find_condition(&program)?;
-    validate_condition(builder, &program.segment_receipt, condition)?;
+    let mut conditions = BTreeMap::new();
     for segment in program.layout.segments() {
         let source = program
             .segment_receipt
@@ -157,12 +154,25 @@ pub(super) fn prepare_recursive_after_v1(
             .ok_or(RecursiveAfterRejectV1::TargetMissing)?;
         ensure_open_block(function, source)?;
         validate_transfer(&program.segment_receipt, segment.transfer())?;
+        if let LoopPhysicalTransferV1::Predicate { condition, .. } = segment.transfer() {
+            if !program.dispatch.contains_result(condition) {
+                return Err(RecursiveAfterRejectV1::ConditionMissing);
+            }
+            let receipt = program
+                .values
+                .receipt(condition)
+                .ok_or(RecursiveAfterRejectV1::ConditionMissing)?;
+            validate_condition(builder, &program.segment_receipt, source, receipt)?;
+            if conditions
+                .insert(condition, receipt.physical_value())
+                .is_some()
+            {
+                return Err(RecursiveAfterRejectV1::ConditionDuplicate(condition));
+            }
+        }
     }
-    let counts = dispatch_counts(&program);
     Ok(PreparedRecursiveAfterV1 {
-        condition_key: condition.key(),
-        condition_value: condition.physical_value(),
-        counts,
+        conditions,
         program,
     })
 }
@@ -203,7 +213,7 @@ impl PreparedRecursiveAfterV1 {
                     source,
                     segment.transfer(),
                     &self.program.segment_receipt,
-                    self.condition_value,
+                    &self.conditions,
                 )?;
             }
         }
@@ -219,61 +229,18 @@ impl PreparedRecursiveAfterV1 {
         let after = seal_block(builder, cfg, identity, phis, root_after)?;
         cfg.select_block(builder, root_after)
             .map_err(|error| RecursiveAfterRejectV1::SelectAfter(error.to_string()))?;
-        let root_loop = self
-            .program
-            .layout
-            .program()
-            .demand()
-            .continuation()
-            .after()
-            .loop_key();
         Ok(ReadyLoopAfterContinuationV1 {
             owner,
-            root_loop,
             root_after,
             predecessors: after.predecessors().to_vec().into_boxed_slice(),
-            operation_count: self.counts.0,
-            pure_count: self.counts.1,
-            read_count: self.counts.2,
-            write_count: self.counts.3,
-            condition_key: self.condition_key,
         })
     }
-}
-
-fn find_condition(
-    program: &CompletedLoopSegmentProgramV1,
-) -> Result<super::operation_ledger::LoopOperationValueReceiptV1, RecursiveAfterRejectV1> {
-    let recipe = program
-        .layout
-        .program()
-        .demand()
-        .operation_effect()
-        .core()
-        .recipe()
-        .as_recipe();
-    let condition = recipe
-        .loops
-        .iter()
-        .find_map(|row| match row.condition {
-            crate::mir::loop_recipe_contract::LoopConditionV1::Predicate { value, .. } => {
-                Some(value)
-            }
-            crate::mir::loop_recipe_contract::LoopConditionV1::Always => None,
-        })
-        .ok_or(RecursiveAfterRejectV1::ConditionMissing)?;
-    if !program.dispatch.contains_result(condition) {
-        return Err(RecursiveAfterRejectV1::ConditionMissing);
-    }
-    program
-        .values
-        .receipt(condition)
-        .ok_or(RecursiveAfterRejectV1::ConditionMissing)
 }
 
 fn validate_condition(
     builder: &MirBuilder,
     receipt: &LoopPhysicalSegmentBlockReceiptV1,
+    expected_block: BasicBlockId,
     condition: super::operation_ledger::LoopOperationValueReceiptV1,
 ) -> Result<(), RecursiveAfterRejectV1> {
     if condition.owner() != receipt.owner() {
@@ -290,12 +257,9 @@ fn validate_condition(
     {
         return Err(RecursiveAfterRejectV1::ConditionTypeMismatch);
     }
-    let expected = receipt
-        .lookup(receipt.entry_segment())
-        .ok_or(RecursiveAfterRejectV1::TargetMissing)?;
-    if condition.physical_block() != expected {
+    if condition.physical_block() != expected_block {
         return Err(RecursiveAfterRejectV1::ConditionPlacementMismatch {
-            expected,
+            expected: expected_block,
             found: condition.physical_block(),
         });
     }
@@ -337,7 +301,7 @@ fn emit_transfer(
     source: BasicBlockId,
     transfer: LoopPhysicalTransferV1,
     receipt: &LoopPhysicalSegmentBlockReceiptV1,
-    condition: ValueId,
+    conditions: &BTreeMap<crate::mir::loop_recipe_contract::LoopValueKeyV1, ValueId>,
 ) -> Result<(), RecursiveAfterRejectV1> {
     let target = |target: LoopPhysicalTargetV1| -> Result<BasicBlockId, RecursiveAfterRejectV1> {
         match target {
@@ -352,12 +316,16 @@ fn emit_transfer(
             .emit_jump(function, source, target(next)?)
             .map_err(|error| RecursiveAfterRejectV1::Edge(error.to_string())),
         LoopPhysicalTransferV1::Predicate {
-            on_true, on_false, ..
+            condition,
+            on_true,
+            on_false,
         } => cfg
             .emit_branch(
                 function,
                 source,
-                condition,
+                *conditions
+                    .get(&condition)
+                    .ok_or(RecursiveAfterRejectV1::ConditionMissing)?,
                 receipt
                     .lookup(on_true)
                     .ok_or(RecursiveAfterRejectV1::TargetMissing)?,
@@ -374,19 +342,6 @@ fn emit_transfer(
             )
             .map_err(|error| RecursiveAfterRejectV1::Edge(error.to_string())),
     }
-}
-
-fn dispatch_counts(program: &CompletedLoopSegmentProgramV1) -> (usize, usize, usize, usize) {
-    let mut counts = (0, 0, 0, 0);
-    for receipt in program.dispatch.receipts() {
-        match receipt {
-            super::operation_dispatcher::LoopOperationDispatchReceiptV1::Pure(_) => counts.1 += 1,
-            super::operation_dispatcher::LoopOperationDispatchReceiptV1::Read(_) => counts.2 += 1,
-            super::operation_dispatcher::LoopOperationDispatchReceiptV1::Write(_) => counts.3 += 1,
-        }
-    }
-    counts.0 = program.dispatch.operation_count();
-    counts
 }
 
 fn ensure_open_block(

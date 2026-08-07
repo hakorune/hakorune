@@ -521,8 +521,8 @@ accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
 closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 accepted historical correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
   LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1, LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2,
-  and LOOP-COMMON-RECURSIVE-AFTER-R3-I0 are closed. Worker-reviewed D1 is accepted;
-  current execution: LOOP-COMMON-PREDICATE-CARRIER-I0-R0
+  LOOP-COMMON-RECURSIVE-AFTER-R3-I0, and LOOP-COMMON-PREDICATE-CARRIER-I0-R0.
+  Worker-reviewed D1 is implemented; current execution: LOOP-CALLER-ZERO-PARITY-G0-I1-R0
 Change:
   correct R3 before implementation: R2 is only an adapter over old
   Header/Body/Step/After blocks; R3 must own exact segment allocation and
@@ -545,13 +545,13 @@ Done:
   segment plus root After (no Step), retains the completed segment program,
   preflights and emits every entry/transfer once through canonical
   CFG/identity/PhiTxn, and reaches the existing Tail/Completion/DraftSeal path.
+  Common I0 removes the single-condition assumption and emits item-3
+  DerivedCarrierEntry through canonical identity; Callable profile counts stay
+  outer-owned. Focused tests are green and touched source stays below 800 lines.
 Stop:
-  Do not allocate or emit physical G0, perform production selection, switch a
-  production caller, or delete broad legacy until the common D1 contracts and G0 I1 caller-zero are closed.
-  Physical G0, production selection, caller switch, fallback/retry,
-  collector/publication, and legacy deletion remain closed. Every implementation row requires source README,
-  `docs/reference/**`, diagnostics, migration note, guards, and current
-  pointers in the same commit.
+  Do not perform production selection, switch a production caller, or delete
+  broad legacy until G0 I1 caller-zero closes. Every row updates the exact
+  reference and README; final reference update is required after cutover.
 ```
 ## Production invariants
 ```text

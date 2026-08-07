@@ -239,11 +239,13 @@ fn generic_carrier_entry_is_not_admitted_as_read_leaf() {
     let demand = VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
         .expect("generic operation demand");
     let program = demand.prepare_all().expect("generic operation program");
-    assert!(matches!(
-        program.read_binding_rows(),
-        Err(LoopOperationPhysicalDemandRejectV1::CarrierSeedUnavailable { item })
-            if item.raw() == 3
-    ));
+    let read_rows = program.read_binding_rows().expect("ordinary read rows");
+    assert!(read_rows.iter().all(|row| row.item().raw() != 3));
+    let carrier_rows = program
+        .derived_carrier_seed_rows()
+        .expect("derived carrier rows");
+    assert_eq!(carrier_rows.len(), 1);
+    assert_eq!(carrier_rows[0].item().raw(), 3);
 }
 
 #[test]

@@ -391,6 +391,27 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         return Err("late_failure_discarded".into());
     }
     let completed = completed.map_err(|error| format!("operation dispatch: {error:?}"))?;
+    let profile_counts = {
+        let mut counts = (0, 0, 0, 0);
+        for receipt in completed.dispatch.receipts() {
+            match receipt {
+                super::operation_dispatcher::LoopOperationDispatchReceiptV1::Pure(_) => {
+                    counts.1 += 1
+                }
+                super::operation_dispatcher::LoopOperationDispatchReceiptV1::Read(_) => {
+                    counts.2 += 1
+                }
+                super::operation_dispatcher::LoopOperationDispatchReceiptV1::CarrierSeed(_) => {
+                    counts.2 += 1
+                }
+                super::operation_dispatcher::LoopOperationDispatchReceiptV1::Write(_) => {
+                    counts.3 += 1
+                }
+            }
+        }
+        counts.0 = completed.dispatch.operation_count();
+        counts
+    };
     let prepared_after = prepare_recursive_after_v1(completed, outer.builder_view())
         .map_err(|error| format!("After preflight: {error:?}"))?;
     let ready = prepared_after
@@ -403,6 +424,8 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         .map_err(|error| format!("After: {error:?}"))?;
     let terminal_receipt = consume_callable_tail_completion_v1(
         ready,
+        profile_counts,
+        condition_key,
         &tail,
         &terminal,
         outer.builder_view_mut_for_lowering(),

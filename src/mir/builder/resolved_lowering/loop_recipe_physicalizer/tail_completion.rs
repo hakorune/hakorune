@@ -69,6 +69,8 @@ impl ReadyCallableTailCompletionV1 {
 /// No new CFG/SSA owner is created and no source meaning is rediscovered.
 pub(super) fn consume_callable_tail_completion_v1(
     ready: ReadyLoopAfterContinuationV1,
+    profile_counts: (usize, usize, usize, usize),
+    condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
     tail: &VerifiedCallableTailV1,
     terminal: &VerifiedCallableTerminalCompatibilityV1,
     builder: &mut MirBuilder,
@@ -138,6 +140,6 @@ pub(super) fn consume_callable_tail_completion_v1(
         block: after,
         value,
         abi: terminal.abi(),
-        profile_close: ready.into_profile_close(),
+        profile_close: ready.into_profile_close(profile_counts, condition_key),
     })
 }

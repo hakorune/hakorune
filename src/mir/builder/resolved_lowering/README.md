@@ -270,3 +270,18 @@ asserts exact segment coverage, a distinct root After, late-failure whole
 session discard, and fresh-session reuse. No G0 physical allocation,
 production selection, retry/fallback retirement, publication change, or broad
 legacy deletion is claimed.
+
+## Common Predicate/carrier I0 (2026-08-08)
+
+`LOOP-COMMON-PREDICATE-CARRIER-I0-R0` is closed. The neutral After receipt
+contains only common owner/root-After/predecessor facts; each Predicate edge
+uses its own verified Bool operation receipt and source segment. Callable's
+coverage and condition-key checks stay in the profile wrapper.
+
+`DerivedCarrierEntry` is represented by the full-program
+`PreparedLoopDerivedCarrierSeedRowV1` and the private `CarrierSeed` emitter.
+It delegates to canonical identity `read_entry_receipt` and never fabricates
+an expression site, re-resolves a name, or creates a G0-specific SSA owner.
+The focused Callable suite is 25/25 and the source files touched by this row
+remain below 800 lines. The next row is the test-only G0 I1 canary; production
+selection, retry/fallback retirement, and legacy deletion remain closed.

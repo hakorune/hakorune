@@ -8,6 +8,7 @@ mod join_sig;
 mod join_sig_branch;
 mod loop_true_break_continue_producer;
 mod normalize;
+mod operation_carrier_demand;
 mod operation_effect;
 mod operation_physical_demand;
 mod physical_input;
@@ -127,6 +128,8 @@ pub(crate) use loop_true_break_continue_producer::{
 };
 #[allow(unused_imports)]
 pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
+#[allow(unused_imports)]
+pub(crate) use operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
 #[allow(unused_imports)]
 pub(crate) use operation_effect::{
     LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1,

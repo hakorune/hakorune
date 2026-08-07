@@ -161,8 +161,10 @@ Related:
   caller. Worker review sealed `LOOP-CALLER-ZERO-PARITY-G0-I1-D1` and found
   exactly two common contracts still missing: one completed condition receipt
   per Predicate transfer, and a profile-neutral `DerivedCarrierEntry`
-  operation. The next bounded row is
-  `LOOP-COMMON-PREDICATE-CARRIER-I0-R0`; physical G0, production selection,
+  operation. `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` is now closed: the neutral
+  After receipt is profile-free, each transfer owns its Bool receipt, and the
+  carrier seed uses canonical identity. The next bounded row is
+  `LOOP-CALLER-ZERO-PARITY-G0-I1-R0`; physical G0 production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed

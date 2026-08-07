@@ -1056,9 +1056,10 @@ tests. These constraints remain normative for the leaf:
   effect row (`source_binding`, `anchor`, `role`), owner, and logical
   placement must agree. AST, name, ordinal, and ad-hoc full-demand
   re-extraction are forbidden.
-- Admit only `LoopBindingEffectAnchorV1::Expr`. A `DerivedCarrierEntry`
-  (including Generic G0 item 3) is rejected as typed
-  `CarrierSeedUnavailable` and belongs to a later carrier-seed row.
+- The ordinary expression-read leaf admits only
+  `LoopBindingEffectAnchorV1::Expr`. `DerivedCarrierEntry` (including Generic
+  G0 item 3) belongs to the separate common carrier-seed projection closed by
+  `LOOP-COMMON-PREDICATE-CARRIER-I0-R0`.
 - The raw `ValueId` from `ResolvedSsaIdentityStateV2::read_entry` must not
   become the public leaf receipt directly. A thin canonical seam must issue
   `CanonicalBindingReadReceiptV1 { owner, binding, physical_block,
@@ -1078,8 +1079,8 @@ tests. These constraints remain normative for the leaf:
   retain only local Phi cleanup diagnostics, and never retry or fallback.
 
 The required reject matrix is: operation-not-ReadBinding; missing or
-mismatched source anchor/binding; Core effect/role mismatch;
-`CarrierSeedUnavailable`; owner, logical, or physical placement mismatch;
+mismatched expression source anchor/binding; Core effect/role mismatch;
+owner, logical, or physical placement mismatch;
 missing entry binding; canonical BindingRead failure; result-type mismatch;
 terminated block; and late emission failure.
 
@@ -1102,7 +1103,7 @@ operation is extracted from a demand.
 | Recipe operation | Evidence item | Core effect / anchor | D0 admission | Canonical read | Result publication owner |
 | --- | --- | --- | --- | --- | --- |
 | `ReadBinding { binding: LoopBindingKeyV1, result: LoopValueKeyV1 }` | same `LoopItemKeyV1` | `SourceRead { ordinal }`, `source_binding: BindingRefV1`, `Expr(OwnedExprSiteV1)` | admit only when all keys, owner, block, and role match | claim exact `SourceExprSiteV1` for `BindingRefV1`, then issue `CanonicalBindingReadReceiptV1` | outer operation ledger maps `LoopValueKeyV1` to the immutable leaf receipt |
-| same operation | same item | `DerivedCarrierEntry` anchor | reject `CarrierSeedUnavailable`; no claim/read | none | none; later carrier-seed row owns it |
+| same operation | same item | `DerivedCarrierEntry` anchor | ordinary expression leaf excludes it; common carrier-seed row owns it | canonical `read_entry_receipt` | outer operation ledger maps the logical result |
 | any non-`ReadBinding` operation | same item | any effect row | reject `OperationNotReadBinding` | none | none |
 
 The canonical receipt has exact field types and one issuer:
@@ -1413,3 +1414,25 @@ Both remain cfg(test) caller-zero evidence. Production selection, M8/M9,
 M10b/M11/M12, retry/fallback retirement, collector publication, and broad
 legacy deletion remain closed. Each implementation commit updates the exact
 reference page, README, tests/guards, current pointers, and workstream.
+
+### Common Predicate/carrier I0 closeout (2026-08-08; Decision: accepted)
+
+`LOOP-COMMON-PREDICATE-CARRIER-I0-R0` is closed. The neutral After receipt no
+longer carries a profile-specific condition key or operation counts. Recursive
+After validates one completed Bool receipt per Predicate transfer, including
+owner, type, and physical source-segment placement; Callable's coverage and
+condition proof remain in its outer profile close.
+
+The common operation demand now has a separate full-program
+`PreparedLoopDerivedCarrierSeedRowV1` for `DerivedCarrierEntry` anchors. The
+private `CarrierSeed` emitter delegates to canonical identity
+`read_entry_receipt`, so no fake expression source site, G0-name dispatch, or
+second SSA owner is introduced. The focused Callable gate is green (25/25),
+the Generic demand fixture identifies exactly one item-3 carrier row, and all
+touched source files remain below 800 lines. The next implementation row is
+`LOOP-CALLER-ZERO-PARITY-G0-I1-R0`; physical G0, production selection,
+fallback/retry retirement, publication, and legacy deletion remain closed.
+
+The earlier matrix rows that described `CarrierSeedUnavailable` as the final
+DerivedCarrier boundary are historical for this cell and are superseded by
+this receipt; expression-anchor reads keep their original contract.

@@ -9,6 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::continuation::VerifiedLoopContinuationContractV1;
 use super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1};
+use super::operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
 use super::operation_effect::VerifiedLoopOperationEffectProductV1;
 use super::schema::{LoopConditionV1, LoopOperationV1, LoopRecipeItemV1};
 use super::semantic_context::VerifiedLoopSemanticContextV1;
@@ -514,11 +515,7 @@ impl PreparedLoopOperationProgramV1 {
                 },
             )?;
             let LoopBindingEffectAnchorV1::Expr(owned_site) = evidence.anchor() else {
-                return Err(
-                    LoopOperationPhysicalDemandRejectV1::CarrierSeedUnavailable {
-                        item: schedule.item,
-                    },
-                );
+                continue;
             };
             let source_site = owned_site.site().clone();
             let effect = self
@@ -568,6 +565,112 @@ impl PreparedLoopOperationProgramV1 {
                 result,
                 source_binding,
                 source_site,
+                class,
+            });
+        }
+        Ok(rows.into_boxed_slice())
+    }
+
+    /// Project every `DerivedCarrierEntry` ReadBinding row from the complete
+    /// program. The source statement anchor is retained as provenance; no
+    /// expression site is fabricated and no source claim is issued here.
+    pub(crate) fn derived_carrier_seed_rows(
+        &self,
+    ) -> Result<Box<[PreparedLoopDerivedCarrierSeedRowV1]>, LoopOperationPhysicalDemandRejectV1>
+    {
+        let recipe = self.demand.operation_effect.core().recipe().as_recipe();
+        let mut rows = Vec::new();
+        for schedule in self.schedule.iter().copied() {
+            let Some(LoopRecipeItemV1::Operation { operation }) = recipe
+                .items
+                .iter()
+                .find(|row| row.key == schedule.item)
+                .map(|row| &row.item)
+            else {
+                continue;
+            };
+            let LoopOperationV1::ReadBinding { binding, result } = *operation else {
+                continue;
+            };
+            let evidence = self
+                .demand
+                .operation_effect
+                .evidence()
+                .iter()
+                .find(|evidence| evidence.item() == schedule.item)
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::ReadBindingEvidenceMissing {
+                        item: schedule.item,
+                    },
+                )?;
+            let LoopBindingEffectAnchorV1::DerivedCarrierEntry {
+                owner,
+                source_loop,
+                carrier,
+            } = evidence.anchor()
+            else {
+                continue;
+            };
+            let source_binding = evidence.source_binding().ok_or(
+                LoopOperationPhysicalDemandRejectV1::ReadBindingSourceMissing {
+                    item: schedule.item,
+                },
+            )?;
+            let effect = self
+                .demand
+                .operation_effect
+                .core()
+                .effect_relations()
+                .iter()
+                .find(|effect| {
+                    effect.recipe_binding() == binding
+                        && effect.source_binding() == source_binding
+                        && effect.anchor() == evidence.anchor()
+                        && matches!(effect.role(), LoopBindingEffectRoleV1::DerivedCarrierEntry)
+                })
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::ReadBindingEffectMissing {
+                        item: schedule.item,
+                    },
+                )?;
+            let class = recipe
+                .bindings
+                .iter()
+                .find(|row| row.key == binding)
+                .map(|row| row.class)
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::ReadBindingSourceShape {
+                        item: schedule.item,
+                    },
+                )?;
+            let result_class = recipe
+                .values
+                .iter()
+                .find(|row| row.key == result)
+                .map(|row| row.class)
+                .ok_or(
+                    LoopOperationPhysicalDemandRejectV1::ReadBindingSourceShape {
+                        item: schedule.item,
+                    },
+                )?;
+            if *owner != self.demand.context.owner()
+                || source_loop != evidence.source_loop()
+                || effect.class() != class
+                || class != result_class
+            {
+                return Err(
+                    LoopOperationPhysicalDemandRejectV1::ReadBindingSourceShape {
+                        item: schedule.item,
+                    },
+                );
+            }
+            rows.push(PreparedLoopDerivedCarrierSeedRowV1 {
+                schedule,
+                binding,
+                result,
+                source_binding,
+                source_loop: source_loop.clone(),
+                carrier: *carrier,
                 class,
             });
         }

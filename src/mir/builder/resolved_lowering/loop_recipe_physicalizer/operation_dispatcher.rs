@@ -6,6 +6,10 @@
 //! publication state. Recipe-order prepare is Builder-free; physical target
 //! validation and `emit_all` remain the only execution boundary here.
 
+use super::carrier_emitter::{
+    emit_prepared_carrier_seed_at_target_v1, DerivedCarrierSeedEmissionReceiptV1,
+    LoopDerivedCarrierSeedEmissionRejectV1, PreparedLoopDerivedCarrierSeedEmissionV1,
+};
 use super::operation_emitter::{
     emit_prepared_pure_operation_at_target_v1, emit_prepared_pure_operation_v1,
     emit_prepared_read_binding_at_target_v1, emit_prepared_read_binding_v1,
@@ -32,6 +36,7 @@ use std::collections::{BTreeMap, BTreeSet};
 pub(super) enum PreparedLoopOperationDispatchV1 {
     Pure(PreparedLoopOperationEmissionV1),
     Read(PreparedLoopReadBindingEmissionV1),
+    CarrierSeed(PreparedLoopDerivedCarrierSeedEmissionV1),
     Write(PreparedLoopWriteBindingEmissionV1),
 }
 
@@ -39,13 +44,16 @@ pub(super) enum PreparedLoopOperationDispatchV1 {
 pub(super) enum LoopOperationDispatchReceiptV1 {
     Pure(LoopOperationEmissionReceiptV1),
     Read(ReadBindingEmissionReceiptV1),
+    CarrierSeed(DerivedCarrierSeedEmissionReceiptV1),
     Write(WriteBindingEmissionReceiptV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum LoopOperationDispatchRejectV1 {
+    Target(LoopOperationTargetRejectV1),
     Pure(LoopOperationEmissionRejectV1),
     Read(LoopReadBindingEmissionRejectV1),
+    CarrierSeed(LoopDerivedCarrierSeedEmissionRejectV1),
     Write(LoopWriteBindingEmissionRejectV1),
     ValueAlreadyPublished(LoopValueKeyV1),
 }
@@ -85,6 +93,7 @@ pub(super) enum LoopOperationDispatchPhysicalFailureV1 {
     Target(LoopOperationTargetRejectV1),
     Pure(LoopOperationEmissionRejectV1),
     Read(LoopReadBindingEmissionRejectV1),
+    CarrierSeed(LoopDerivedCarrierSeedEmissionRejectV1),
     Write(LoopWriteBindingEmissionRejectV1),
     ValueAlreadyPublished(LoopValueKeyV1),
     ReceiptCountMismatch { expected: usize, found: usize },
@@ -118,6 +127,7 @@ impl CompletedLoopOperationDispatchV1 {
         self.receipts.iter().any(|receipt| match receipt {
             LoopOperationDispatchReceiptV1::Pure(receipt) => receipt.result() == key,
             LoopOperationDispatchReceiptV1::Read(receipt) => receipt.result() == key,
+            LoopOperationDispatchReceiptV1::CarrierSeed(receipt) => receipt.result() == key,
             LoopOperationDispatchReceiptV1::Write(_) => false,
         })
     }
@@ -168,11 +178,17 @@ impl PreparedLoopOperationDispatchPlanV1 {
             let receipt =
                 emit_prepared_operation_family_at_target_v1(row, target, state, &entry, services)
                     .map_err(|reject| match reject {
+                    LoopOperationDispatchRejectV1::Target(error) => {
+                        LoopOperationDispatchPhysicalFailureV1::Target(error)
+                    }
                     LoopOperationDispatchRejectV1::Pure(error) => {
                         LoopOperationDispatchPhysicalFailureV1::Pure(error)
                     }
                     LoopOperationDispatchRejectV1::Read(error) => {
                         LoopOperationDispatchPhysicalFailureV1::Read(error)
+                    }
+                    LoopOperationDispatchRejectV1::CarrierSeed(error) => {
+                        LoopOperationDispatchPhysicalFailureV1::CarrierSeed(error)
                     }
                     LoopOperationDispatchRejectV1::Write(error) => {
                         LoopOperationDispatchPhysicalFailureV1::Write(error)
@@ -223,6 +239,13 @@ pub(super) fn prepare_loop_operation_dispatch_v1(
     let read_rows = IntoIterator::into_iter(read_rows_source)
         .map(|row| (row.item(), row))
         .collect::<BTreeMap<_, _>>();
+    let carrier_rows_source = program
+        .derived_carrier_seed_rows()
+        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
+    let carrier_rows = carrier_rows_source
+        .iter()
+        .map(|row| (row.item(), row))
+        .collect::<BTreeMap<_, _>>();
     let write_rows_source = program
         .write_binding_rows()
         .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
@@ -249,18 +272,27 @@ pub(super) fn prepare_loop_operation_dispatch_v1(
                         LoopOperationDispatchPreflightRejectV1::DuplicateProducedValue(result),
                     );
                 }
-                let source = read_rows.get(&row.item()).ok_or(
-                    LoopOperationDispatchPreflightRejectV1::ReadProjectionMissing {
-                        item: row.item(),
-                    },
-                )?;
                 available.insert(result);
-                PreparedLoopOperationDispatchV1::Read(PreparedLoopReadBindingEmissionV1::from_row(
-                    owner,
-                    source,
-                    role,
-                    LoopReadEntryRequirementV1::CanonicalLive,
-                ))
+                if let Some(source) = read_rows.get(&row.item()) {
+                    PreparedLoopOperationDispatchV1::Read(
+                        PreparedLoopReadBindingEmissionV1::from_row(
+                            owner,
+                            source,
+                            role,
+                            LoopReadEntryRequirementV1::CanonicalLive,
+                        ),
+                    )
+                } else if let Some(source) = carrier_rows.get(&row.item()) {
+                    PreparedLoopOperationDispatchV1::CarrierSeed(
+                        PreparedLoopDerivedCarrierSeedEmissionV1::from_row(owner, source, role),
+                    )
+                } else {
+                    return Err(
+                        LoopOperationDispatchPreflightRejectV1::ReadProjectionMissing {
+                            item: row.item(),
+                        },
+                    );
+                }
             }
             LoopOperationV1::ConstI64 { result, .. } => {
                 if !produced.insert(result) {
@@ -411,6 +443,17 @@ fn issue_target_for_row(
                 block_receipt,
             )
         }
+        PreparedLoopOperationDispatchV1::CarrierSeed(prepared) => {
+            VerifiedLoopOperationTargetBlockV1::issue(
+                prepared.owner(),
+                prepared.item(),
+                prepared.expected_loop(),
+                prepared.logical_block(),
+                prepared.expected_role(),
+                entry,
+                block_receipt,
+            )
+        }
         PreparedLoopOperationDispatchV1::Write(prepared) => {
             VerifiedLoopOperationTargetBlockV1::issue(
                 prepared.owner(),
@@ -467,6 +510,34 @@ pub(super) fn emit_prepared_operation_family_at_target_v1<'source>(
                 })?;
             Ok(LoopOperationDispatchReceiptV1::Read(receipt))
         }
+        PreparedLoopOperationDispatchV1::CarrierSeed(prepared) => {
+            if state.contains(prepared.result()) {
+                return Err(LoopOperationDispatchRejectV1::ValueAlreadyPublished(
+                    prepared.result(),
+                ));
+            }
+            let class = prepared.class();
+            let mut identity = CanonicalBindingReadServicesV1 {
+                builder: services.builder,
+                identity: services.identity,
+                phis: services.phis,
+            };
+            let receipt = emit_prepared_carrier_seed_at_target_v1(prepared, target, &mut identity)
+                .map_err(LoopOperationDispatchRejectV1::CarrierSeed)?;
+            state
+                .publish(LoopOperationValueReceiptV1::new(
+                    receipt.owner(),
+                    receipt.result(),
+                    class,
+                    receipt.item(),
+                    receipt.physical_block(),
+                    receipt.physical_value(),
+                ))
+                .map_err(|_| {
+                    LoopOperationDispatchRejectV1::ValueAlreadyPublished(receipt.result())
+                })?;
+            Ok(LoopOperationDispatchReceiptV1::CarrierSeed(receipt))
+        }
         PreparedLoopOperationDispatchV1::Write(prepared) => {
             let mut identity = CanonicalBindingReadServicesV1 {
                 builder: services.builder,
@@ -521,6 +592,40 @@ pub(super) fn emit_prepared_operation_family_v1<'source>(
                     LoopOperationDispatchRejectV1::ValueAlreadyPublished(receipt.result())
                 })?;
             Ok(LoopOperationDispatchReceiptV1::Read(receipt))
+        }
+        PreparedLoopOperationDispatchV1::CarrierSeed(prepared) => {
+            if state.contains(prepared.result()) {
+                return Err(LoopOperationDispatchRejectV1::ValueAlreadyPublished(
+                    prepared.result(),
+                ));
+            }
+            let class = prepared.class();
+            let target = issue_target_for_row(
+                &PreparedLoopOperationDispatchV1::CarrierSeed(prepared),
+                entry,
+                block_receipt,
+            )
+            .map_err(LoopOperationDispatchRejectV1::Target)?;
+            let mut identity = CanonicalBindingReadServicesV1 {
+                builder: services.builder,
+                identity: services.identity,
+                phis: services.phis,
+            };
+            let receipt = emit_prepared_carrier_seed_at_target_v1(prepared, target, &mut identity)
+                .map_err(LoopOperationDispatchRejectV1::CarrierSeed)?;
+            state
+                .publish(LoopOperationValueReceiptV1::new(
+                    receipt.owner(),
+                    receipt.result(),
+                    class,
+                    receipt.item(),
+                    receipt.physical_block(),
+                    receipt.physical_value(),
+                ))
+                .map_err(|_| {
+                    LoopOperationDispatchRejectV1::ValueAlreadyPublished(receipt.result())
+                })?;
+            Ok(LoopOperationDispatchReceiptV1::CarrierSeed(receipt))
         }
         PreparedLoopOperationDispatchV1::Write(prepared) => {
             let mut identity = CanonicalBindingReadServicesV1 {

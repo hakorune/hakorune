@@ -1,6 +1,6 @@
 # LOOP-CALLER-ZERO-PARITY-G0-I1-R0
 
-Status: `parked behind LOOP-COMMON-PREDICATE-CARRIER-I0-R0`
+Status: `next implementation row — dependency closed 2026-08-08`
 Date: `2026-08-08`
 Design SSOT: `docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-d1-2026-08-08.md`
 
@@ -60,3 +60,13 @@ G0-specific CFG/SSA/PHI owner      = 0
 If any exact capability is missing, foreign, duplicated, stale, or inferred,
 return typed `NoSafeSlice`; do not reconstruct source or add a compatibility
 route.
+
+## Dependency closeout
+
+`LOOP-COMMON-PREDICATE-CARRIER-I0-R0` is now closed. This row is the next
+bounded implementation and may open the G0 caller-zero canary, but it still
+must not open production selection, fallback/retry retirement, collector
+publication, or broad legacy deletion. The same implementation commit must
+update the exact `docs/reference/**` page and the affected README, focused
+tests/guards, current pointers, dashboard, and workstream. A final reference
+documentation update is required again after the G0 implementation/cutover.

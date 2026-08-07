@@ -477,11 +477,10 @@ kind must be opened as a separate design/implementation row.
 test-only leaf receipt. The complete `PreparedLoopOperationProgramV1` now
 projects every `ReadBinding` row and checks the Recipe operation, source
 `Expr(OwnedExprSiteV1)`, `SourceRead` effect relation, binding, owner, and
-logical placement together. `DerivedCarrierEntry` is rejected as
-`CarrierSeedUnavailable`; no single-operation demand extraction exists. This
-is the closed ReadBinding D0 boundary. The current D1 design authorizes a
-profile-neutral carrier-seed variant; it does not reopen this row or add a
-Generic-specific physicalizer.
+logical placement together. Ordinary expression leaf projection excludes
+`DerivedCarrierEntry`; the common I0 receipt below handles that anchor through
+a separate full-program carrier-seed row. No single-operation demand
+extraction exists, and no Generic-specific physicalizer was added.
 
 The leaf borrows the canonical BindingSSA/PHI owners through
 `CanonicalBindingReadServicesV1`, claims the exact source site, and receives
@@ -934,3 +933,29 @@ fresh-session rerun. The former fixed Callable close helper and
 no physical allocation or operation emission; production selection,
 retry/fallback retirement, collector/publication changes, and broad legacy
 deletion remain closed.
+
+## Common Predicate/carrier I0 receipt (2026-08-08; Decision: accepted)
+
+`LOOP-COMMON-PREDICATE-CARRIER-I0-R0` supersedes the earlier temporary
+`CarrierSeedUnavailable` read-only boundary for the bounded common contract.
+The ordinary expression `ReadBinding` projection still admits only expression
+anchors. A `DerivedCarrierEntry` read is projected by the separate full-program
+`PreparedLoopDerivedCarrierSeedRowV1` and is dispatched as a profile-neutral
+`CarrierSeed` operation; no expression site is fabricated and no G0-specific
+physicalizer or SSA owner is introduced. The leaf uses canonical identity's
+`read_entry_receipt` and publishes the same immutable operation value receipt
+as the other common producers.
+
+The neutral `ReadyLoopAfterContinuationV1` now contains only common owner,
+root-After, and predecessor facts. For every
+`LoopPhysicalTransferV1::Predicate`, the recursive writer resolves the
+transfer's own completed Bool value, verifies its owner, type, and physical
+source segment, and emits that value for that edge. Callable's `7 = 4 + 2 + 1`
+coverage and condition-key proof stay in the outer profile close. The focused
+Callable suite is green (25/25), Generic demand identifies exactly one item-3
+derived carrier row, and no G0 physical allocation, production selection,
+fallback/retry retirement, publication, or legacy deletion is claimed.
+
+This section is an implementation receipt only. The next row is
+`LOOP-CALLER-ZERO-PARITY-G0-I1-R0`; the reference must be updated again after
+that canary and again at production cutover.
