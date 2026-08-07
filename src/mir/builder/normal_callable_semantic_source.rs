@@ -1,6 +1,7 @@
 //! Atomic semantic source authority for one selected callable batch.
 
 use crate::ast::ASTNode;
+use crate::mir::compiler::callable_single_loop_recipe_coseal::VerifiedCallableSingleLoopRecipeProductV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
@@ -28,6 +29,10 @@ pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticSourceV1<'sourc
     rows: Box<[VerifiedNormalCallableSemanticSourceRowV1]>,
 }
 
+#[cfg(test)]
+#[path = "normal_callable_prepared_ingress_tests.rs"]
+mod normal_callable_prepared_ingress_tests;
+
 pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
     lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
     _function: &'source ASTNode,
@@ -45,6 +50,35 @@ pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticLoanV1<'source,
 pub(in crate::mir::builder) struct VerifiedNormalCallableSourceIngressReceiptV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     ledger: CallableSemanticSourceLedgerView<'source>,
+}
+
+/// One-shot, Builder-free assembly of the exact callable source receipt and
+/// the already-issued logical Loop product.
+///
+/// This is deliberately narrower than a physicalization request: it carries
+/// no ABI, completion, CFG, SSA, PHI, ValueId, BasicBlockId, selector, or
+/// publication state.  The source receipt and logical product are consumed
+/// together so a later row cannot accidentally retain two independent owners.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedCallableLoopIngressV1<'source> {
+    source: VerifiedNormalCallableSourceIngressReceiptV1<'source>,
+    logical: VerifiedCallableSingleLoopRecipeProductV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum PreparedCallableLoopIngressRejectV1 {
+    SourceLoopIdentityUnavailable,
+    SourceOwnerMismatch,
+    LogicalCoreOwnerMismatch,
+    LogicalPreludeOwnerMismatch,
+    LogicalTailOwnerMismatch,
+    LogicalContinuationOwnerMismatch,
+    LogicalContextOwnerMismatch,
+    LogicalOriginMismatch,
+    LogicalSourceKindMismatch,
+    LogicalLoopSiteMismatch,
+    LogicalFrameMismatch,
+    LogicalScopeRegionMismatch,
 }
 
 impl VerifiedNormalCallableSourceIngressReceiptV1<'_> {
@@ -197,6 +231,60 @@ impl<'source, 'loan> VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
         self.source_ingress
     }
 
+    /// Consume this loan together with one already-issued logical product.
+    /// No Builder/session effect occurs here; identity mismatches are rejected
+    /// before any physical ingress can be opened.
+    pub(super) fn prepare_loop_ingress(
+        self,
+        logical: VerifiedCallableSingleLoopRecipeProductV1,
+    ) -> Result<PreparedCallableLoopIngressV1<'loan>, PreparedCallableLoopIngressRejectV1> {
+        let source = self.source_ingress;
+        let source_owner = source.owner();
+        if source.input().owner() != source_owner || source.ledger().owner() != source_owner {
+            return Err(PreparedCallableLoopIngressRejectV1::SourceOwnerMismatch);
+        }
+
+        let co_seal = logical.co_seal();
+        if co_seal.core().owner() != source_owner {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalCoreOwnerMismatch);
+        }
+        if logical.prelude().owner() != source_owner {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalPreludeOwnerMismatch);
+        }
+        if logical.tail().owner() != source_owner {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalTailOwnerMismatch);
+        }
+        if co_seal.continuation().owner() != source_owner {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalContinuationOwnerMismatch);
+        }
+
+        let context = co_seal.context();
+        if context.owner() != source_owner {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalContextOwnerMismatch);
+        }
+        if context.origin() != source.ledger().function_origin() {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalOriginMismatch);
+        }
+        if context.source_kind() != source.ledger().source_kind() {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalSourceKindMismatch);
+        }
+        let membership = source
+            .ledger()
+            .only_loop_site()
+            .map_err(|_| PreparedCallableLoopIngressRejectV1::SourceLoopIdentityUnavailable)?;
+        if context.loop_site() != membership.source().site() {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalLoopSiteMismatch);
+        }
+        if context.frame() != membership.frame() {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalFrameMismatch);
+        }
+        if context.scope_region() != membership.scope_region() {
+            return Err(PreparedCallableLoopIngressRejectV1::LogicalScopeRegionMismatch);
+        }
+
+        Ok(PreparedCallableLoopIngressV1 { source, logical })
+    }
+
     pub(super) fn into_parts(
         self,
     ) -> (
@@ -210,6 +298,29 @@ impl<'source, 'loan> VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
         &self,
     ) -> &super::raw_invocation_source_transport::RawInvocationRootLineageV1 {
         &self.lineage
+    }
+}
+
+impl<'source> PreparedCallableLoopIngressV1<'source> {
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.source.owner()
+    }
+
+    pub(super) fn source(&self) -> &VerifiedNormalCallableSourceIngressReceiptV1<'_> {
+        &self.source
+    }
+
+    pub(super) fn logical(&self) -> &VerifiedCallableSingleLoopRecipeProductV1 {
+        &self.logical
+    }
+
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        VerifiedNormalCallableSourceIngressReceiptV1<'source>,
+        VerifiedCallableSingleLoopRecipeProductV1,
+    ) {
+        (self.source, self.logical)
     }
 }
 
@@ -276,6 +387,23 @@ mod tests {
     use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, SourcePathV1};
     use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
     use crate::parser::NyashParser;
+
+    fn loop_program() -> crate::ast::ASTNode {
+        NyashParser::parse_from_string(
+            r#"
+                static box StringHelpers {
+                    int_to_str(n) {
+                        local value = me.to_i64(n)
+                        local i = 0
+                        loop(i < 1) { i = i + 1 }
+                        return value
+                    }
+                    to_i64(x) { return x + 1 }
+                }
+            "#,
+        )
+        .expect("callable loop source")
+    }
 
     fn assert_callable_materialization_parity(source: &str) {
         let legacy = MirCompiler::with_options(false)
@@ -372,20 +500,7 @@ mod tests {
 
     #[test]
     fn callable_loop_handoff_issues_exact_resolver_sites_before_lowering() {
-        let program = NyashParser::parse_from_string(
-            r#"
-                static box StringHelpers {
-                    int_to_str(n) {
-                        local value = me.to_i64(n)
-                        local i = 0
-                        loop(i < 1) { i = i + 1 }
-                        return value
-                    }
-                    to_i64(x) { return x + 1 }
-                }
-            "#,
-        )
-        .expect("callable loop source");
+        let program = loop_program();
         let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program)
             .expect("callable catalog");
         let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();

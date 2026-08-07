@@ -1,7 +1,6 @@
 # Callable Loop Production Prepared-Ingress Assembly S1
 
-Status: next implementation row after
-`CALLABLE-LOOP-PRODUCTION-SOURCE-LOAN-EXPANSION-S0` (2026-08-08).
+Status: `closed` (2026-08-08).
 
 ## Change
 
@@ -30,19 +29,21 @@ before any Builder effect.
 ## Done
 
 - one non-`Clone` prepared ingress is assembled from the source-loan receipt
-  and existing logical products;
-- owner, source, function, forest/projection, Recipe, JoinSig, and After
-  identities are checked at the assembly boundary;
-- common ingress succeeds without an index/header companion;
-- duplicate, foreign, missing, borrowed/unconsumed, and fresh-request cases
-  fail through typed existing contract errors;
+  and one existing callable logical product;
+- owner, origin/source-kind, Loop site, frame, scope, Recipe component, and
+  JoinSig/After component ownership are checked at the assembly boundary;
+- the S0 source receipt retains the exact function/forest/projection proof;
+  S1 consumes that receipt without re-walking or re-resolving it;
+- common ingress succeeds without an index/header companion, while the
+  optional profile companion remains outside this row;
+- a foreign logical owner is rejected before any Builder effect;
 - no Builder, physicalizer, selector, production caller, Generic G0,
   retry/fallback, or legacy edge changes occur;
 - focused tests, rustfmt/check, current-state guard, and replacement guard are
   green;
 - the same commit updates the applicable `docs/reference/**` contract only if
   a reference claim changes, and updates diagnostics/migration/current task
-  pointers as required.
+  pointers as required. No language/reference claim changed in this row.
 
 ## Stop
 

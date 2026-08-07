@@ -97,6 +97,17 @@ Builder code should call the documented FlowPlanner / route-entry facades, not
 reach into route-specific plan internals. The current boundary SSOT is
 `docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md`.
 
+## Callable source ingress (current frontier)
+
+`normal_callable_semantic_source.rs` owns the selected normal-callable source
+loan. The S0 receipt retains the exact resolver ledger and
+`ResolvedFunctionLoweringInputV1`; the S1 `PreparedCallableLoopIngressV1`
+consumes that receipt together with one existing logical callable Loop product
+and checks owner/origin/Loop frame/scope identity before any Builder effect.
+This is still a Builder-free ingress: it does not allocate physical IDs, open a
+session, emit MIR, select a route, or provide fallback. Full-demand preflight
+is the next bounded row.
+
 ## 原則（SSOT / Box-First）
 
 - **状態は Context が SSOT**: `MirBuilder` の状態は Context（箱）に分割され、二重管理をしない。

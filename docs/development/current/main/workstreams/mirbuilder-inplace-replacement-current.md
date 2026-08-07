@@ -517,24 +517,26 @@ closed:
   LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
 
 current:
-  CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-S1
+  CALLABLE-LOOP-PRODUCTION-FULL-DEMAND-PREFLIGHT-S2
 
 Change:
-  assemble one move-only prepared ingress from the closed source-loan receipt
-  and existing callable logical products; preserve the raw host and keep
-  index/header as optional profile companions.
+  consume one move-only prepared ingress and verify complete callable
+  operation/effect coverage with zero Builder effect; preserve the raw host
+  and keep index/header as optional profile companions.
 
 Contract:
   retain exact source, function, forest/projection, Recipe, JoinSig, and After
-  owners with identity checks before Builder effect; no AST/name re-walk,
+  owners with identity checks before Builder effect; Recipe owns complete
+  operation order; no first/select/filter extraction. No AST/name re-walk,
   second owner, physical ID, Builder/session effect, selector, retry, fallback,
-  or legacy deletion. Missing/foreign receipts return `NoSafeSlice`.
+  or legacy deletion. Missing/foreign evidence returns `NoSafeSlice`.
 
 Done:
-  Prepared-ingress D0 and source-loan expansion S0 are closed. The source
+  Prepared-ingress D0/S1 and source-loan expansion S0 are closed. The source
   receipt is non-Clone/move-only, uses separate program/row lifetimes, and the
-  raw host still consumes its old pair. The static-header helper remains
-  test-only and no physical implementation is authorized.
+  source-plus-logical ingress checks owner/origin/Loop frame/scope before any
+  Builder effect. The raw host still consumes its old pair, the static-header
+  helper remains test-only, and no physical implementation is authorized.
 
 Stop:
   Physicalization, physical Loop emission, I0 caller switch, profile

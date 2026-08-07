@@ -135,9 +135,13 @@ Related:
   the old shape helper is test-only parity. Prepared-ingress D0 is now
   accepted; the current row is source-loan expansion S0 because the normal
   callable loan still drops forest/projection before raw lowering.
-  Recipe/Prepared physicalization, physical selection,
-  named caller switch, Generic G0, retry/fallback retirement, and legacy
-  deletion remain closed.
+  Prepared-ingress S1 is now closed: one move-only source-plus-logical
+  ingress checks owner/origin/Loop frame/scope identity without Builder effect
+  and preserves the raw host. The next authorized row is
+  `CALLABLE-LOOP-PRODUCTION-FULL-DEMAND-PREFLIGHT-S2`, which verifies complete
+  operation/effect coverage before any physical session opens. Recipe/Prepared
+  physicalization, physical selection, named caller switch, Generic G0,
+  retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

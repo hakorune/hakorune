@@ -1,8 +1,9 @@
 # Callable Loop Production Prepared Ingress D0
 
-Status: `accepted` design stop after the source-loan audit
-(2026-08-08). The next bounded row is source-loan expansion only; no
-Prepared physicalization or physical implementation is authorized by this card.
+Status: `accepted`; source-loan expansion S0 and prepared-ingress assembly S1
+are closed (2026-08-08). The next bounded row is Builder-free full-demand
+preflight; no physicalization or physical implementation is authorized by this
+card.
 
 ## Purpose
 
@@ -132,16 +133,16 @@ No step below is authorized until this D0 is accepted and the current pointer
 moves to an implementation row.
 
 ```text
-1. source-loan expansion receipt
+1. source-loan expansion receipt — **closed**
    expose the exact ledger view and source/function input from existing
    owners; prove owner/frame/scope identity. Add index/header only as an
    optional companion for a profile that requires it; preserve the raw host.
 
-2. prepared ingress assembler
+2. prepared ingress assembler — **closed**
    consume the existing logical product and disjoint Prelude/Tail/ABI/
    Completion capabilities exactly once; issue one move-only prepared product.
 
-3. Builder-free full-demand preflight
+3. Builder-free full-demand preflight — **next**
    verify complete operation coverage and all profile compatibility before a
    function session opens; missing/foreign/duplicate/borrowed evidence is
    typed `NoSafeSlice`.
