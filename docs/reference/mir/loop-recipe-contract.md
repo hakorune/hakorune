@@ -16,9 +16,11 @@ DraftSeal. The portable Recipe/JoinSig algebra and its caller-zero status are
 unchanged; this receipt adds no physicalizer or production Loop authority.
 The bounded prepare-design correction, Callable full physical canary, and G0
 Builder-free exact ingress are closed. The private Recipe-derived
-segment/resume plan and Callable segment-block cutover are closed; the current
-boundary is neutral recursive After R3. G0 physical and production activation
-remain closed.
+segment/resume plan and Callable segment-block adapter are closed. A worker
+premise audit found that R2 maps onto the old fixed Header/Body/Step/After
+topology rather than allocating one block per R1 segment, so the current
+boundary is an R3 design correction before physical implementation. G0
+physical and production activation remain closed.
 
 Implementation receipt — `CALLABLE-LOOP-AFTER-CLOSURE-P0` (2026-08-07): the
 caller-zero continuation canary now consumes a real Prelude materialization
@@ -856,8 +858,37 @@ logical-block-only operation target path. Callable parity remains seven rows
 (`Pure=4`, `Read=2`, `Write=1`), with typed owner/missing/duplicate negatives,
 late-failure whole-session discard, and fresh-session reuse evidence.
 
-This is a bounded physical cutover only. The current topology adapter rejects
-segment aliasing rather than sharing a block, so Generic G0 physical emission,
-recursive After, Tail/Completion changes, selector, retry/fallback retirement,
-collector/publication, and legacy deletion remain closed. The next task is
+This is a bounded adapter cutover only. The current topology adapter rejects
+segment aliasing rather than sharing a block; it is not the R1 segment
+allocator. Generic G0 physical emission, recursive After, Tail/Completion
+changes, selector, retry/fallback retirement, collector/publication, and
+legacy deletion remain closed while the R3 design correction is recorded in
 `investigations/loop-common-recursive-after-r3-task-2026-08-08.md`.
+
+## Recursive After R3 design correction (2026-08-08; Decision: revise)
+
+The R2 receipt cannot be the input to a neutral recursive edge writer: it maps
+R1 segments onto the old fixed `Header/Body/Step/After` topology, while R1's
+verified transfers are segment-based. A new writer on that adapter would leave
+the synthetic `Step` outside the transfer graph and would retain the old fixed
+edge authority.
+
+The corrected R3 boundary is:
+
+```text
+PreparedLoopPhysicalLayoutV1 + ReadyLoopEntryV1
+  -> one physical block per R1 segment + one root After (no Step)
+  -> retain layout + segment receipt + completed operation receipts
+  -> preflight entry and every R1 Jump/Predicate/OpenNestedLoop transfer
+  -> emit through the existing canonical CFG/identity/PhiTxn owners
+  -> one neutral ReadyLoopAfterContinuationV1
+```
+
+`PreparedLoopPhysicalLayoutV1` must expose an explicit sealed entry segment;
+position zero is not an authority. Predicate conditions come from the exact
+completed operation receipt. Callable keeps its `Pure=4 + Read=2 + Write=1`
+check in a thin wrapper while Tail/Completion semantics remain unchanged.
+G0 may receive Builder-free transfer preflight only; G0 physical allocation,
+operation emission, selector, fallback/retry, publication, and legacy deletion
+remain closed until later rows. The fixed Callable close helper and the R2
+topology adapter are retirement targets of the same R3 implementation series.

@@ -1,54 +1,110 @@
 # LOOP-COMMON-RECURSIVE-AFTER-R3
 
-Status: next executable row after R2
-Decision: bounded continuation/After physicalization; R2 closeout is required
+Status: design correction required before implementation
+Decision: revise after worker premise audit
 Date: 2026-08-08
 
-## Purpose
+## Design-stop finding
 
-Use the closed R1 segment layout and the R2 Callable segment-block receipt to
-issue one neutral recursive After/edge receipt. The row must preserve the
-existing Canonical CFG/Binding SSA/PhiTxn owners and must not open Generic G0
-physical emission.
+R2 is an exact segment-to-old-topology adapter, not a segment allocator. The
+old topology still allocates `Header/Body/Step/After` per logical Loop, while
+R1's transfer authority is segment-based. A neutral writer cannot be placed on
+top of that adapter: it would bypass R1's transfer graph, leave `Step`
+unconnected/unsealed, and retain the selected Callable's fixed edge authority.
 
-## Required boundary
+The implementation must therefore stop here and correct the physical boundary
+before any R3 code is added.
+
+## Source authority / non-authority
 
 ```text
-PreparedLoopPhysicalLayoutV1
-  -> exact segment/block receipt
-  -> neutral recursive transfer writer
-  -> one After continuation receipt
+authority:
+  LoopRecipeV1 / LoopJoinSigV1
+  PreparedLoopPhysicalLayoutV1 (R1 segments + transfer facts)
+  ReadyLoopEntryV1 (exact session ingress)
+  completed operation receipts (condition ValueId evidence)
+  CanonicalCfgSessionV1 / canonical identity / one PhiTxn
+
+non-authority:
+  old Header/Body/Step/After topology adapter
+  logical-block lookup
+  fixed Callable close helper
+  current block, item order, segment ordinal, or profile name
+  a second CFG/SSA/PHI/transaction owner
 ```
 
-Recipe/JoinSig remain the only logical authorities. The R3 product may consume
-the R1 `Jump`, `Predicate`, and `OpenNestedLoop` transfer facts, but it may not
-re-interpret Recipe, rediscover segments, or introduce a second CFG/SSA/PHI
-owner. Callable parity is the only physical canary.
+## Corrected R3 boundary
+
+```text
+PreparedLoopPhysicalLayoutV1 + ReadyLoopEntryV1
+  -> exact segment allocator
+       one physical block per R1 segment
+       one root After block
+       no synthetic Step block
+  -> segment-aware operation dispatch
+  -> CompletedLoopSegmentProgramV1
+       moved layout
+       exact segment-block receipt
+       completed operation receipts
+  -> preflight every R1 transfer and the entry edge
+  -> preheader -> exact root entry segment
+  -> emit every R1 Jump/Predicate/OpenNestedLoop exactly once
+  -> canonical CFG/identity/PhiTxn sealing
+  -> neutral ReadyLoopAfterContinuationV1
+```
+
+The `PreparedLoopPhysicalLayoutV1` schema must retain an explicit sealed
+`entry_segment`; `segments()[0]` is not an authority. Predicate conditions are
+resolved from the completed operation receipt, never passed as a second outer
+argument. Tail/Completion meaning is unchanged, but the thin Callable wrapper
+may change its input from the fixed closure receipt to the neutral continuation
+receipt. The old `close_callable_loop_after_v1` and `from_callable_layout`
+authorities retire in this same R3 series; broad legacy deletion remains later.
+
+## Failure and profile boundary
+
+```text
+semantic/ingress/transfer preflight before allocation:
+  Builder effect = 0
+
+allocation or emission failure:
+  discard the whole unpublished function session
+  no retry, fallback, or reselection
+
+Callable:
+  physical canary through DraftSeal; retain 7 = Pure4 + Read2 + Write1
+  only in a thin profile wrapper
+
+Generic G0:
+  Builder-free recursive-transfer preflight only
+  no G0 block allocation, operation emission, carrier lowering, or DraftSeal
+```
 
 ## Explicit non-goals
 
 ```text
-Generic G0 physical emission
-G0 carrier/parameter lowering
-Tail or Completion redesign
-production selector/caller switch
+provider/selector changes
 retry/fallback
 collector/publication changes
-M8/M9 coverage
-legacy deletion
+M8/M9 activation
+M10b/M11/M12 legacy retirement
+semantic Tail/Completion redesign
 ```
 
-## Acceptance gates
+## Acceptance gates after this design stop
 
 ```text
-Callable segment After/edge receipt is owner-branded and exact.
-Every R2 segment transfer is consumed once; missing/foreign/duplicate rows reject.
-The existing Canonical CFG/Binding SSA/PhiTxn owners remain the only physical owners.
-Failure discards the unpublished function session as one transaction.
-All changed source/check files remain below 800 lines.
-The same implementation commit updates docs/reference/**, the affected
-README, CURRENT_STATE/workstream/task mirrors, and this task's closeout.
+entry + segment + transfer coverage is exact and owner-branded
+no Step block is allocated by the new segment physicalizer
+condition missing/foreign/placement/type cases reject before edge emission
+Callable reaches the existing DraftSeal through one neutral After receipt
+G0 transfer preflight is Builder-free only
+old selected fixed-edge caller and the R2 adapter path are zero
+all changed source/check files remain below 800 lines
+implementation commit updates docs/reference/**, README, current/workstream,
+this task closeout, and the executable guards
 ```
 
-R3 must stop again before G0 physicalization. The next design boundary is the
-G0 I1/R0 canary only after R3 closes.
+The next executable row is `LOOP-COMMON-RECURSIVE-AFTER-R3-I0`, after this
+design correction is recorded in the current SSOT. R3 must stop again before
+G0 physical allocation or production selection.

@@ -521,30 +521,30 @@ accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
 closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 accepted correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
   LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1 and LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2 are
-  closed; current execution: LOOP-COMMON-RECURSIVE-AFTER-R3
+  closed; current execution: LOOP-COMMON-RECURSIVE-AFTER-R3-DESIGN-STOP
 Change:
-  bind the closed private R1 segment/resume layout to canonical blocks and
-  migrate Callable placement; no G0 physicalizer or semantic owner.
+  correct R3 before implementation: R2 is only an adapter over old
+  Header/Body/Step/After blocks; R3 must own exact segment allocation and
+  neutral recursive transfer closure without a synthetic Step.
 Contract:
-  Recipe/JoinSig remain the sole logical authority. R1 derives recursive
-  preorder, exact item coverage, and child-After -> parent-resume placement
-  with Builder effect zero. R2 may allocate blocks and bind rows, but may not
-  reinterpret Recipe, create a second CFG/SSA/PHI owner, or open G0, selector,
-  or fallback behavior.
+  Recipe/JoinSig and R1 layout remain the logical authorities. R3 must retain
+  explicit entry_segment, allocate one block per R1 segment plus root After,
+  retain layout/segment receipt/completed operations, preflight every R1
+  transfer, and use only the existing CFG/identity/PhiTxn owners.
 Done:
   P0 caller-zero physical canary, G0 I0 exact Builder-free ingress, and R1 layout
   are closed. R1 derives the complete Callable/G0 operation order from
   verified recursive Recipe traversal and records G0's five segments:
   root condition, root pre-child, child condition, child body, root resume.
   Focused layout tests are green and the source module remains below 800 lines.
-  R2 issues an owner-branded exact segment-to-block receipt, routes the selected
-  Callable canary through segment placement, and proves seven-row parity plus
-  missing/foreign/duplicate negatives. Next: R3 neutral After, then G0 I1-R0.
+  R2 issues an owner-branded adapter receipt and routes the selected Callable
+  canary through exact segment placement, proving seven-row parity plus
+  missing/foreign/duplicate negatives. Worker audit found that this is not a
+  true segment allocator; R3 implementation is not yet authorized.
 Stop:
-  R3 must remain a bounded neutral After/edge receipt cutover. Physical G0,
-  production selection, caller switch, fallback/retry,
-  collector/publication, and legacy deletion remain closed. Every
-  implementation row requires source README,
+  Do not implement R3 until its design correction is recorded. Physical G0,
+  production selection, caller switch, fallback/retry, collector/publication,
+  and legacy deletion remain closed. Every implementation row requires source README,
   `docs/reference/**`, diagnostics, migration note, guards, and current
   pointers in the same commit.
 ```

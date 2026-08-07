@@ -41,9 +41,11 @@ ingress; neutral S4 remains the sole Recipe/effect/After owner. I0 is closed
 as Builder-free exact ingress plus fifteen-row `prepare_all`. The accepted I1
 design now requires `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1`, segment-aware
 block cutover R2, and neutral recursive After R3 before G0 physical I1-R0.
-R1 is now closed as a Builder-free derived layout; R2 is the current bounded
-physical cutover.
-No named production caller switch or G0 physical implementation is open.
+R1 is now closed as a Builder-free derived layout. R2 is closed only as an
+adapter over the old fixed topology; it is not the segment allocator. Worker
+audit moved the current frontier to an R3 design correction before physical
+implementation. No named production caller switch or G0 physical implementation
+is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -849,8 +851,8 @@ skip the After closure or reopen a Tail-only route.
 | 12 | `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact G0 ingress -> common fifteen-row `prepare_all` with Builder effect zero | closed 2026-08-08; no physical emission, Completion/DraftSeal, selector, retry/fallback, or legacy deletion |
 | 13 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` | top-down counterexample fixes segment/resume as a common prerequisite | accepted design; direct G0 implementation superseded |
 | 14 | `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` | Builder-free Recipe-derived segment/resume layout plus exact order/coverage | **closed 2026-08-08**; no Builder effect or new accepted structural family |
-| 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | segment-aware block allocation/operation placement; Callable parity | **closed 2026-08-08**; selected Callable canary uses exact segment receipt; no G0 physical |
-| 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3` | neutral recursive edge writer and After receipt; Callable profile coverage stays outside | **current**; no G0 Tail/Completion or production caller |
+| 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | exact segment-to-old-topology adapter and operation placement; Callable parity | **closed 2026-08-08**; not a segment allocator; no G0 physical |
+| 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3` | design correction: exact segment allocator, retained completed program, complete transfer preflight, neutral After handoff | **design stop**; fixed Step/edge authority must retire before implementation |
 | 17 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, derived carrier, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | caller-zero only; no G0-specific physicalizer |
 | 18 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
 | 19 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
@@ -1319,8 +1321,8 @@ Generic G0 segments: root B0, root B1-pre, child B2, child B3, root B1-resume
 coverage: 16 items / 15 operations / 5 segments
 ```
 
-R2 may bind these private segments to canonical physical blocks. Until its
-closeout, physical block allocation/placement, recursive After emission, G0
+R2 may bind these private segments to the already allocated old topology. Until
+the R3 correction closes, true segment block allocation, recursive After emission, G0
 physical parity, production selection, retry/fallback retirement, and legacy
 deletion remain closed. The R2 task is
 `investigations/loop-common-segment-block-cutover-r2-task-2026-08-08.md`.
@@ -1328,7 +1330,7 @@ deletion remain closed. The R2 task is
 ### Segment block cutover R2 closeout (2026-08-08)
 
 `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is closed for the Callable canary.
-`LoopPhysicalSegmentBlockReceiptV1` is a private physical receipt derived from
+`LoopPhysicalSegmentBlockReceiptV1` is a private adapter receipt derived from
 the closed R1 layout and the already allocated canonical topology. It verifies
 exact segment coverage, owner/preheader branding, and unique physical blocks.
 The selected Callable dispatcher builds one complete item-to-segment index from
@@ -1336,7 +1338,7 @@ that layout and issues each target through the exact segment key; it no longer
 uses logical-block-only execution lookup. The existing canonical CFG,
 BindingSSA, and PhiTxn services remain the only physical owners.
 
-The R2 receipt is intentionally a Callable adapter: segments that would alias
+The R2 receipt is intentionally only a Callable adapter: segments that would alias
 one current topology block reject rather than silently sharing a block. This
 keeps Generic G0's parent pre-child/resume split closed until R3 supplies the
 neutral recursive After/edge physicalization. The focused canary preserves the
@@ -1345,5 +1347,30 @@ foreign-owner, missing-segment, duplicate-block, late-failure discard, and
 fresh-session reuse. No G0 physical emission, selector, fallback, retry,
 collector/publication, or legacy retirement is claimed.
 
-The next task is
+The next task is the design-correction stop in
 `investigations/loop-common-recursive-after-r3-task-2026-08-08.md`.
+
+### R3 design correction (2026-08-08; Decision: revise before implementation)
+
+R2 is an adapter over the old fixed topology, not the physical allocator for
+the R1 segment graph. A neutral edge writer cannot consume it safely because
+R1 transfers do not use the synthetic Step block. The corrected physical
+boundary is:
+
+```text
+PreparedLoopPhysicalLayoutV1 + ReadyLoopEntryV1
+  -> one block per R1 segment + one root After (no Step)
+  -> CompletedLoopSegmentProgramV1 retains layout, segment receipt,
+     and completed operation receipts
+  -> preflight entry plus every R1 transfer exactly once
+  -> canonical CFG/identity/PhiTxn edge emission and sealing
+  -> neutral ReadyLoopAfterContinuationV1
+```
+
+The layout must carry an explicit sealed `entry_segment`; ordinal zero is not
+an entry authority. Predicate values are resolved from the completed operation
+receipt. Callable's seven-row coverage stays in its thin profile wrapper;
+Tail/Completion meaning is unchanged. G0 can receive Builder-free transfer
+preflight only. The fixed Callable closure and R2 topology adapter retire in
+the R3 series, while selector, fallback/retry, publication, and broad legacy
+retirement remain later boundaries.

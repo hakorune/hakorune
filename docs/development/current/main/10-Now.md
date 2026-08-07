@@ -151,12 +151,15 @@ Related:
   the child Loop. The Builder-free
   `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` is now closed: recursive Recipe
   preorder and exact parent-resume segments are derived without Builder
-  effect. `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is also closed: Callable
-  operation placement consumes an owner-branded exact segment receipt.
-  The active row is neutral recursive After
-  `LOOP-COMMON-RECURSIVE-AFTER-R3`; Recipe/JoinSig remain the sole logical
-  authority. Physical G0, production selection, retry/fallback retirement,
-  and legacy deletion remain closed.
+  effect. `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is also closed as an adapter:
+  Callable operation placement consumes an owner-branded exact segment receipt,
+  but the receipt still maps onto the old Header/Body/Step/After topology.
+  Worker audit therefore moved the active row to the
+  `LOOP-COMMON-RECURSIVE-AFTER-R3-DESIGN-STOP` correction: R3 must allocate one
+  block per R1 segment plus root After, retain entry/layout/completed dispatch,
+  and retire the fixed Step/edge caller before implementation. Physical G0,
+  production selection, retry/fallback retirement, and legacy deletion remain
+  closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

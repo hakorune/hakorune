@@ -72,8 +72,9 @@ If any non-goal is needed, stop and update the design SSOT before coding.
 
 ## Closeout receipt (2026-08-08)
 
-Implemented and closed. `LoopPhysicalSegmentBlockReceiptV1` adapts the closed
-R1 layout to the existing canonical topology, validates exact segment
+Implemented and closed. `LoopPhysicalSegmentBlockReceiptV1` is an adapter from
+the closed R1 layout to the already allocated old canonical topology; it is
+not the R1 segment allocator. It validates exact segment
 coverage/owner/preheader/unique-block invariants, and rejects aliased segments
 instead of silently sharing a block. The selected Callable canary now consumes
 the complete layout through `prepare_loop_segment_operation_dispatch_v1`; its
@@ -126,6 +127,7 @@ documentation again in the same commit; a code-only R2 commit is forbidden.
 ## Closeout rule
 
 R2 is closed: Callable segment placement is green and the old selected
-logical-block-only execution lookup is gone from that caller. R3 remains the
-next design/implementation boundary. No G0 physical or production claim is
-part of this closeout.
+logical-block-only execution lookup is gone from that caller. R2 does not
+allocate R1 segments or retire the old Step/edge topology. R3 is a design
+correction before implementation; no G0 physical or production claim is part
+of this closeout.
