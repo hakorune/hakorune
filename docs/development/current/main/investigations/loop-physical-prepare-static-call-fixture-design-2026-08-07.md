@@ -170,3 +170,19 @@ The row is complete when:
 
 The current MethodCall negative and the P0 no-physicalizer boundary remain in
 the test matrix after this row closes.
+
+## S0 implementation receipt (2026-08-07)
+
+`CALLABLE-STATIC-PREFIX-S0` is closed as the bounded observer cell. The new
+test-only fixture uses the existing top-level callable catalog and resolver
+with exact `int_to_str(n: i64): i64` and `to_i64(n: i64): i64` declarations.
+The `FunctionCall` initializer is observed as explicit `FreeStatic` with
+arity one, and the direct target is verified from the resolver ledger with a
+different owner in the same compilation brand. The existing
+`helper.to_i64(n)` MethodCall remains a `Method` negative with no direct target.
+
+This receipt does not close the full static-call design: source-map acceptance
+for the same-brand different-owner relation is the next
+`CALLABLE-STATIC-PREFIX-MAP-S1` task, followed later by declaration-derived
+ABI and Prepared positive evidence. No physical or production authority was
+opened.

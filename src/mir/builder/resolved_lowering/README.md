@@ -75,18 +75,19 @@ co-sealed logical product; the retained resolved input remains a borrowed view.
 
 The current `helper.to_i64(n)` MethodCall fixture intentionally has no
 resolver-issued direct callable target and therefore rejects with typed
-`NoSafeSlice::MissingPreludeTarget`. A test-only positive source substitution
-or a new static-call fixture must never be treated as production resolution;
-receiver, target, arity, and result ABI must come from one exact catalog/header
-relation. No name lookup, AST rematch, physical ID, Builder effect, selector,
-retry, fallback, or production caller is opened by this row.
+`NoSafeSlice::MissingPreludeTarget`. It remains a typed `Method` negative. The
+bounded `CALLABLE-STATIC-PREFIX-S0` fixture is separate: top-level
+`int_to_str(n: i64)` calls catalog-backed `to_i64(n: i64)` as a real
+`FunctionCall`, and the observer records only the resolver-issued target and
+explicit `FreeStatic` shape. No target injection, name lookup, AST rematch,
+physical ID, Builder effect, selector, retry, fallback, or production caller
+is opened by this row.
 
-The bounded shape slice now owns neutral `Method`/`FreeStatic` call vocabulary
-in `callable_single_loop_source_shapes.rs`; the existing MethodCall remains a
-typed negative. Embedded syntax/source-map tests are isolated in sibling
-test-only modules so the observer, source map, and physical-prepare files stay
-below the 800-line limit. The next row may observe only the exact resolver
-catalog-backed FreeStatic fixture.
+The neutral shape vocabulary remains in
+`callable_single_loop_source_shapes.rs`; embedded syntax/source-map/static-
+fixture tests remain sibling test-only modules and all touched files stay
+below the 800-line limit. Same-brand different-owner source-map validation is
+the next `CALLABLE-STATIC-PREFIX-MAP-S1` cell.
 
 ## Disconnected canonical CFG prerequisite
 

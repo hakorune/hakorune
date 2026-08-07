@@ -224,6 +224,24 @@ retry, fallback, publication, or production behavior. The next bounded row is
 `FreeStatic` fixture and its observer evidence. Same-compilation different-owner
 target validation and declaration-derived ABI remain later P0 boundaries.
 
+## Callable static-prefix observer receipt (2026-08-07)
+
+`CALLABLE-STATIC-PREFIX-S0` is closed as a caller-zero source-observation
+cell. A separate top-level catalog fixture now resolves
+`int_to_str(n: i64): i64` calling `to_i64(n: i64): i64` through the existing
+callable index and direct-call ledger. The observer records
+`SourceCallKindV1::FreeStatic` with the exact arity and retains the resolver
+source site; it does not inject a target or infer an ABI. The existing
+`helper.to_i64(n)` `MethodCall` remains a typed `Method` negative with no
+direct callable target.
+
+The positive fixture proves only source-shape and resolver target evidence.
+Same-compilation different-owner source-map acceptance is the next bounded
+`CALLABLE-STATIC-PREFIX-MAP-S1` task; declaration-derived ABI and a positive
+Prepared product remain later P0 work. No Recipe, JoinSig, physicalizer,
+Builder/MIR, selector, retry, fallback, publication, or production route is
+opened by this receipt.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local

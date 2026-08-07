@@ -41,11 +41,14 @@ selection remain closed until a later explicit row.
 
 The bounded `CALLABLE-SOURCE-SHAPE-THIN0` split keeps neutral syntax shapes in
 `callable_single_loop_source_shapes.rs` and keeps observer/source-map tests in
-test-only sibling files. `SourceCallKindV1` distinguishes `Method` from the
-future resolver-backed `FreeStatic` fixture; it is syntax evidence only and
-does not issue a target, ABI, Recipe key, or physical capability. The focused
-shape/source-map suites remain caller-zero and all touched files stay below
-the 800-line source limit.
+test-only sibling files. `CALLABLE-STATIC-PREFIX-S0` now adds a separate
+top-level resolver/catalog fixture (`int_to_str` -> `to_i64`) and records
+explicit `FreeStatic` shape plus direct-call ledger evidence without target
+injection. `Method` remains the existing typed negative; neither shape issues
+an ABI, Recipe key, or physical capability. The focused
+shape/source-map/static-fixture suites remain caller-zero and all touched files
+stay below the 800-line source limit. Same-brand different-owner map validation
+is the next `CALLABLE-STATIC-PREFIX-MAP-S1` cell.
 
 ## Generic G0 S0A source projector
 

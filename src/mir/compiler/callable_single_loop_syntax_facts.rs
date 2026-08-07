@@ -360,6 +360,16 @@ fn observe_locals(
                     ),
                 });
             }
+            ASTNode::FunctionCall { arguments, .. } => {
+                if prefix.is_some() {
+                    return Err(CallableSyntaxFactsRejectV1::DuplicatePrefixBoundary);
+                }
+                prefix = Some(PrefixBoundarySyntaxFactV1 {
+                    statement_site: statement.site().clone(),
+                    initializer_site: initializer.site().clone(),
+                    call: SourceCallBoundaryShapeV1::free_static(arguments.len() as u32),
+                });
+            }
             _ => return Err(CallableSyntaxFactsRejectV1::PrefixBoundaryShape),
         }
     }

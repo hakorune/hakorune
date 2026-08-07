@@ -78,11 +78,13 @@ Related:
   `LOOP-PHYSICAL-PREPARE-STATIC-CALL-FIXTURE-D0` is accepted. The current
   `CALLABLE-SOURCE-SHAPE-THIN0` is closed: neutral Method/FreeStatic shapes and
   sibling observer/source-map tests are isolated under the 800-line limit. The
-  next execution row is `CALLABLE-STATIC-PREFIX-S0`, which may add only the
-  exact resolver-backed FreeStatic fixture. The existing MethodCall remains a
-  typed negative; same-brand target relation and declaration-derived ABI are
-  required later. Physicalization, production selection, retry/fallback
-  retirement, and legacy deletion remain closed.
+  `CALLABLE-STATIC-PREFIX-S0` is now closed: the exact top-level
+  resolver-backed `int_to_str -> to_i64` fixture supplies explicit FreeStatic
+  observer evidence, while the existing MethodCall remains a typed negative.
+  The next execution row is `CALLABLE-STATIC-PREFIX-MAP-S1` for same-brand
+  different-owner source-map acceptance and foreign-brand rejection.
+  Declaration-derived ABI, physicalization, production selection,
+  retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

@@ -1270,3 +1270,19 @@ No Generic/Loop Recipe, selector, physicalizer, Builder/MIR, retry, fallback,
 publication, or production claim follows from this split. The next row is
 `CALLABLE-STATIC-PREFIX-S0`; same-brand different-owner target validation and
 declaration-derived ABI remain later prepare contracts.
+
+## Callable static-prefix observer receipt (2026-08-07)
+
+`CALLABLE-STATIC-PREFIX-S0` now has one exact resolver-backed top-level
+catalog fixture: `int_to_str(n: i64): i64` calls `to_i64(n: i64): i64` as a
+free static `FunctionCall`. The source observer emits explicit
+`SourceCallKindV1::FreeStatic` evidence and the test asserts the direct target
+comes from the same compilation's callable ledger with a different owner.
+The prior `helper.to_i64(n)` `MethodCall` remains an explicit typed negative;
+it is not target-injected or relabeled as static.
+
+This is still caller-zero source evidence only. The next cell,
+`CALLABLE-STATIC-PREFIX-MAP-S1`, owns same-brand different-owner map acceptance
+and foreign-brand rejection. ABI derivation, Prepared positive products,
+physicalization, production selection, fallback/retry retirement, and legacy
+deletion remain closed.
