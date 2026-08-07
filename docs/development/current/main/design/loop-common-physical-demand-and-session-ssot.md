@@ -71,10 +71,15 @@ The canonical full-operation input is the private, move-only, AST-free, and
 physical-ID-free `VerifiedLoopOperationPhysicalDemandV1`. It bundles the
 Core-bearing operation/effect product with one common continuation capability;
 the two are never passed as independent physicalizer arguments. Each thin
-prepared product is move-only and physical-ID-free;
-its sole source-backed field is the existing exact
-`ResolvedFunctionLoweringInputV1`, retained for session opening and the outer
-profile lowerer. No prepare/physicalizer policy may inspect or rematch its AST.
+prepared product is move-only and physical-ID-free. Its source-backed input
+must be issued by one existing-owner ingress receipt that pairs the exact
+`ResolvedFunctionLoweringInputV1` with its resolver ledger view and, where the
+profile requires it, the exact callable index/header. No prepare/physicalizer
+policy may inspect or rematch its AST. The current
+`NormalCallableSemanticLoanPortV1` is only the raw-lowering host and does not
+yet issue this receipt; that source-loan expansion is the remaining D0 gate,
+not a reason to add a second resolver or to remove `cfg(test)` from prepared
+types prematurely.
 A profile prepare consumes one inner demand plus already sealed boundary
 capabilities and fixes their exact compatibility before the first Builder
 effect. Only the common inner demand is consumed by the recursive Loop
@@ -137,6 +142,8 @@ rediscover them from AST, source names, route labels, or existing MIR.
 | `CanonicalDirectAccumSsaLowererV1::lower` finishes semantics/If/identity/Phi/binding/completion but omits `cfg.finish` | prose ordering alone is insufficient; the V2 finish terminal is required |
 | `ReadyFunctionDraftSealV1::new` currently accepts only ready completion + current block | current Ready type does not prove common CFG/SSA/PHI closure by construction |
 | `ResolvedFunctionLoweringInputV1` is an existing exact read-only source/function/forest/header view | prepared outer product may retain it; common Loop demand must not receive it |
+| `NormalCallableSemanticLoanPortV1` currently forwards a raw body after consuming a loan, while `VerifiedNormalCallableSemanticLoanV1::into_parts()` retains only lineage + request-local lowering state | a source-loan expansion receipt must be issued before I0; AST re-walk, name lookup, and synthetic catalog/header pairing are `NoSafeSlice` |
+| `CompilationContext::callable_declaration_catalog()` is installed before normal lowering | the catalog is an existing borrowed authority, not an automatic source/forest pairing; owner/frame/scope/index/header identity must be checked once |
 | `VerifiedCallableSingleLoopSourceMapV1` carries source roles, BindingRefs, loop context, and resolved exit evidence only | current co-seal cannot issue ABI or Completion authority |
 | `PhiTxn::abort_on_err` sees only still-pending provisional PHIs | whole-session discard, not PHI rollback, owns atomicity |
 

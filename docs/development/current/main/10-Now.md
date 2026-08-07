@@ -133,7 +133,9 @@ Related:
   Recipe/JoinSig/After issuer D0/S0 is closed with exact source-role mapping
   and existing-owner reuse; the profile Recipe shape is production-owned and
   the old shape helper is test-only parity. The next row is the design-only
-  prepared ingress. Recipe/Prepared physicalization, physical selection,
+  prepared ingress plus its missing source-loan expansion receipt: the current
+  normal callable loan still drops forest/projection before raw lowering.
+  Recipe/Prepared physicalization, physical selection,
   named caller switch, Generic G0, retry/fallback retirement, and legacy
   deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

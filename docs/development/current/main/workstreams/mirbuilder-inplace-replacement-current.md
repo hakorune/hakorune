@@ -520,8 +520,10 @@ current:
   CALLABLE-LOOP-PRODUCTION-PREPARED-INGRESS-D0
 
 Change:
-  define one move-only prepared ingress from the closed logical product;
-  `NormalCallableSemanticLoanPortV1` remains host/outer orchestration only.
+  define one move-only prepared ingress plus one exact source-loan expansion
+  receipt; the normal callable loan remains host-only until it pairs ledger,
+  ResolvedFunctionLoweringInput, and callable index/header without AST re-walk
+  or a second owner.
 
 Contract:
   consume only sealed resolver/source/facts/Recipe products; no AST/name
@@ -530,12 +532,10 @@ Contract:
   return typed `NoSafeSlice` before a function session opens.
 
 Done:
-  Source/facts bridge D0/S0 is closed without a new owner: resolver ledger,
-  exact source navigation, typed rejects, and resolver-identity parity are
-  green. Logical Issuer D0/S0 is closed with exact source-role mapping and
-  existing-owner reuse; the profile shape is production-owned while the old
-  helper is test-only parity. The next row is design-only prepared ingress;
-  no physical implementation is authorized yet.
+  Source/facts bridge and Logical Issuer D0/S0 are closed with resolver
+  ledger/navigation, typed rejects, exact source-role mapping, and existing
+  owner reuse. The audit records that the current loan drops forest/projection
+  in `into_parts()`, so no physical implementation is authorized yet.
 
 Stop:
   Recipe/Prepared physicalization, physical Loop emission, I0 caller switch,
