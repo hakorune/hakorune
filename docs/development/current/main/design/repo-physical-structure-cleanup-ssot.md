@@ -473,6 +473,8 @@ The audit opens only after these dependencies are closed:
 
 ```text
 LOOP-PRODUCTION-SELECTION-D0 (or its accepted successor)
+M8/M9 coverage and parity closeout
+Legacy JoinModule disposition receipt
 M10b activation
 M11 legacy retirement
 M12 adapter retirement
