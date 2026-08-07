@@ -64,12 +64,21 @@ the canonical finish guard, and the current-state pointer guard are green;
 physical Loop lowering and production selection remain closed at the next
 design stop.
 
-The next common Loop physicalizer slice is intentionally topology-only:
-`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` may consume the move-only demand and
-session-local entry receipt to open a recursive Loop After continuation, but
-it must not emit operation MIR until an item-keyed exact source/effect plan is
-designed. The existing DirectAccum binding port remains profile-specific and
-must not be reused as the common port; no second CFG/SSA/PHI owner is allowed.
+The caller-zero topology slice is now landed as test-only evidence in
+`loop_recipe_physicalizer.rs`. It consumes one move-only common boundary and
+one session-local `ReadyLoopEntryV1`, borrows the existing canonical CFG
+service, and allocates only recursive header/body/step/After blocks. Owner,
+entry coverage, binding ownership, parent topology, and preheader placement
+are checked before allocation; an unknown parent never falls back to the root
+preheader. The focused canary proves a nested Generic G0 topology and
+rejects incomplete entry without allocating blocks.
+
+This is not a production physicalizer or selector. It emits no operation MIR,
+Return, DraftSeal, publication, retry, fallback, or legacy deletion. The
+DirectAccum binding port remains profile-specific and must not be reused as
+the common port; no second CFG/SSA/PHI owner is allowed. The next row is the
+design-only `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`, which must issue an
+item-keyed exact source/effect product before operation emission is opened.
 
 ## Caller-zero Loop physical prepare
 

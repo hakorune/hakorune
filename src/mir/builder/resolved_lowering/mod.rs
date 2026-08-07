@@ -46,6 +46,8 @@ mod if_materialization_tests;
 #[cfg(test)]
 mod if_tests;
 #[cfg(test)]
+mod loop_recipe_physicalizer;
+#[cfg(test)]
 mod nested_predicate_effect_adapter_tests;
 #[cfg(test)]
 mod normal_function_draft_lowering_tests;

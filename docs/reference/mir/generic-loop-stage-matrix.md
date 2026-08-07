@@ -40,15 +40,25 @@ caller-zero AST-free observation only; it is not a Generic winner oracle.
 
 ## Current common physicalizer boundary
 
-The active Loop row is caller-zero topology/After-only
-`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`. It may consume the shared move-only
-demand and session-local entry receipt to construct recursive logical
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed as a caller-zero,
+test-only topology/After canary. It consumes the shared move-only demand and
+session-local entry receipt to construct recursive logical
 child/header/body/step/After topology, but it does not emit operation MIR.
-`ReadBinding`, `WriteBinding`, constants, comparisons, and arithmetic remain
-typed `NoSafeSlice` until the later item-keyed exact source/effect design.
-Generic G0 remains a separate caller-zero profile and is not relabeled as the
-callable physicalizer. No selector, retry/fallback, production caller, or
-legacy deletion is implied.
+The current row is the design-only
+`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`. `ReadBinding`, `WriteBinding`,
+constants, comparisons, and arithmetic remain typed `NoSafeSlice` until that
+row defines an item-keyed exact source/effect product. Generic G0 remains a
+separate caller-zero profile and is not relabeled as the callable
+physicalizer. No selector, retry/fallback, production caller, or legacy
+deletion is implied.
+
+The P0 test canary is now landed: `VerifiedLoopPhysicalBoundaryV1` and the
+private `ReadyLoopEntryV1` are consumed by one recursive topology probe, which
+allocates child/root header-body-step-After blocks and returns one After
+receipt. Owner, exact input coverage, parent topology, and preheader placement
+are checked before allocation. Operation MIR is still closed until the
+item-keyed exact source/effect design; this remains disconnected evidence and
+does not activate Generic G0 or any production route.
 
 ## S0A implementation receipt
 

@@ -243,6 +243,27 @@ neutral item-keyed, exact-source-anchor effect projection. Name, ordinal, or
 profile-based matching is forbidden. No Return, DraftSeal, publication,
 selector, retry, fallback, or legacy deletion is opened by this row.
 
+## Recursive physicalizer P0 implementation receipt (2026-08-07)
+
+The caller-zero canary now has a test-only common boundary. A move-only
+`VerifiedLoopPhysicalBoundaryV1` carries the existing Core plus the issued
+logical After capability; `ReadyLoopEntryV1` carries the exact entry keys,
+resolver bindings, and preheader for one fresh function test session. The
+common `physicalize_topology_v1` allocates only the recursive
+header/body/step/After block skeleton and returns one
+`LoopAfterContinuationReceiptV1`. It validates owner, preheader, exact input
+coverage, binding ownership, parent topology, and root After identity before
+the first block allocation. Unknown parents reject; they never fall back to
+the root preheader.
+
+Focused canary coverage proves a two-level Generic G0 Recipe produces child
+and root After continuations, child preheader placement is preserved, and an
+incomplete entry is rejected without allocating blocks. The module is
+`cfg(test)` and has no production caller, selector, MIR operation emission,
+Return, DraftSeal, publication, retry, fallback, or legacy deletion. The
+operation boundary remains the design-only
+`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` row below.
+
 ## Callable source-shape split receipt (2026-08-07)
 
 `CALLABLE-SOURCE-SHAPE-THIN0` is closed as a behavior-neutral BoxShape slice.

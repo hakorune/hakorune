@@ -6,7 +6,9 @@ Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
 P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop, and
 caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed; the current
 execution row is the topology/After-only
-`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`; operation emission and physical Loop
+`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed as a test-only topology
+canary; the current row is the design-only
+`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`; operation emission and physical Loop
 activation remain 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
@@ -623,8 +625,8 @@ of nested design suffixes unless a code audit proves one named missing owner.
 | 3 | `LOOP-PHYSICAL-PREPARE-P0` | caller-zero common demand plus callable prepared product; exact ABI/Completion are consumed from existing issuers | no physicalizer, Builder emission, selector, or I0 claim |
 | 4 | `GENERIC-G0-PHYSICAL-PREPARE-P0` | exact-move G0 adapter issues the same inner demand plus distinct G0 Tail | `NoSafeSlice` if source truth must be copied or reverified |
 | 5 | `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` | resolver-issued variable-only i64 argument rows -> one move-only Prelude product | caller-zero; no Builder physicalizer or selector |
-| 6 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | inner demand + `ReadyLoopEntryV1` + borrowed V2 services -> topology/After continuation only | caller-zero; operation MIR is `NoSafeSlice`; no Return/DraftSeal/publication |
-| 7 | `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` | design one neutral `LoopItemKey` + exact source-anchor effect projection before operation emission | design-only; no new semantic owner or production caller |
+| 6 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | closed test-only inner demand + `ReadyLoopEntryV1` + borrowed V2 services -> topology/After continuation | no production caller; operation MIR remains `NoSafeSlice` |
+| 7 | `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` | **current design stop:** define one neutral `LoopItemKey` + exact source-anchor effect projection before operation emission | design-only; no new semantic owner or production caller |
 | 8 | `CALLABLE-LOOP-PHYSICAL-CANARY-P0` | exact Prelude -> Loop -> distinct Tail -> typed function finish -> DraftSeal on one fresh unpublished function | caller-zero; late failure discards whole session |
 | 9 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
 | 10 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
@@ -687,11 +689,11 @@ current execution row is the caller-zero recursive physicalizer below.
 The static-call fixture and Prelude argument receipt close the remaining
 positive prepared-input prerequisites without opening a production caller.
 
-### Current execution brief: `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`
+### Closed implementation receipt: `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`
 
 ```text
 Change:
-  add one caller-zero common recursive topology physicalizer boundary that
+  add one test-only caller-zero common recursive topology boundary that
   consumes VerifiedLoopPhysicalDemandV1 exactly once together with the
   private, single-use ReadyLoopEntryV1 receipt and opens one Loop After
   continuation without emitting operation MIR.
@@ -704,20 +706,18 @@ Contract:
   unpublished fresh session; retry and same-session repair are forbidden.
 
 Done:
-  a focused caller-zero canary proves recursive child/After topology
-  construction, exact entry receipt consumption, ownership/foreign-demand
-  rejection, and no duplicate physicalizer or production caller. Operation
-  lowering remains a typed NoSafeSlice until the later
-  `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` design boundary. The implementation
-  commit updates the exact MIR references and owning README together with the
-  compact current-row receipt; source/check files remain below 800 lines.
+  the focused canary proves recursive child/root After topology, exact entry
+  coverage, owner/binding checks, parent/preheader placement, and rejection
+  before block allocation. The module is cfg(test), has no production caller,
+  and keeps source/check files below 800 lines. Exact MIR references, the
+  owning README, and the compact current-row receipt were updated together.
 
 Stop:
-  operation emission without a neutral `LoopItemKey` + exact source-anchor
-  effect plan, missing logical relation, copied/reverified source truth, a new
-  Recipe kind, profile-specific physicalizer, public topology,
-  Return/DraftSeal/publication, selector, fallback, retry, or legacy deletion
-  returns to design.
+  operation emission without the next design-only
+  `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`, missing logical relation,
+  copied/reverified source truth, a new Recipe kind, profile-specific
+  physicalizer, public topology, Return/DraftSeal/publication, selector,
+  fallback, retry, or legacy deletion returns to design.
 ```
 
 The topology probe may allocate only the common logical child/header/body/
@@ -728,9 +728,11 @@ item-keyed source/effect projection so repeated ordinals in nested loops
 cannot be guessed or matched by name.
 
 `LOOP-PHYSICAL-PREPARE-P0`, the static-call fixture/profile, and
-`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed caller-zero prerequisites. This
-row is the first bounded physicalizer slice; it does not claim callable
-physical completion, production selection, M8/M9 coverage, or retirement.
+`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` are closed caller-zero prerequisites. The
+current design-only row is
+`docs/development/current/main/investigations/loop-recipe-operation-effect-plan-d0-task-2026-08-07.md`;
+it does not claim callable physical completion, production selection, M8/M9
+coverage, or retirement.
 
 ## Implementation and documentation obligation
 
@@ -763,7 +765,8 @@ implementation receipt exists.
 The architecture, `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, bounded
 `RECIPE-COSEAL-I0-R0`, callable static-prefix prepare, and Prelude argument
 receipt are closed under the typed-receipt and no-reinference contract above.
-The current boundary is caller-zero topology/After-only
-`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`; operation emission requires the later
-item-keyed source/effect design, and callable physical completion, production
+The topology/After canary `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed.
+The current boundary is the design-only
+`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`; operation emission requires its
+item-keyed source/effect product, and callable physical completion, production
 selection, retry/fallback retirement, and legacy deletion remain closed.

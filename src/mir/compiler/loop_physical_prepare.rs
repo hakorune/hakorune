@@ -10,6 +10,7 @@
 use std::ptr;
 
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
+use crate::mir::loop_recipe_contract::VerifiedLoopPhysicalBoundaryV1;
 use crate::mir::resolved_control_flow::{
     DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1,
 };
@@ -149,6 +150,10 @@ impl VerifiedLoopPhysicalDemandV1 {
 
     pub(crate) fn into_co_seal(self) -> VerifiedLoopRecipeCoSealV1 {
         self.co_seal
+    }
+
+    pub(crate) fn into_physical_boundary(self) -> VerifiedLoopPhysicalBoundaryV1 {
+        self.co_seal.into_physical_boundary()
     }
 }
 
@@ -400,6 +405,10 @@ impl<'a> PreparedCallableLoopPhysicalizationV1<'a> {
 
     pub(crate) fn demand(&self) -> &VerifiedLoopPhysicalDemandV1 {
         &self.demand
+    }
+
+    pub(crate) fn into_demand(self) -> VerifiedLoopPhysicalDemandV1 {
+        self.demand
     }
 
     pub(crate) const fn prelude(&self) -> &VerifiedCallablePreludeCapabilityV1 {

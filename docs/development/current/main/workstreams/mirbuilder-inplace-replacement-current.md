@@ -492,33 +492,37 @@ closed prerequisites:
   CALLABLE-STATIC-PREFIX-P0
   LOOP-PRELUDE-ARGUMENT-RECEIPT-P0
 
-current:
+closed:
   LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
 
+current:
+  LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0
+
 Change:
-  caller-zero common recursive topology physicalizer consumes one move-only
-  VerifiedLoopPhysicalDemandV1 and one private ReadyLoopEntryV1 receipt,
-  then opens the logical Loop After continuation without emitting operation
-  MIR.
+  design one neutral, move-only item-keyed source/effect projection before
+  operation MIR emission. The product must preserve exact source anchors,
+  LoopItemKey, resolver BindingRef, value/operand identity, and owner/loop/block
+  provenance for nested loops.
 
 Contract:
-  only AST-free demand, entry receipt, and borrowed CanonicalSsaFunctionSessionV2
-  services cross the common boundary. Tail/ABI/Completion, profile labels,
-  AST/name lookup, second Recipe/SSA/PHI owners, selector, retry, and fallback
-  remain outside this row. A late failure discards the fresh unpublished session.
+  no source/name/order guessing, copied or reverified Recipe truth, second
+  operation owner, production selector, retry, fallback, Return, DraftSeal,
+  publication, or legacy deletion. This is a design stop; implementation is
+  limited to the later passive product and focused negative fixtures after
+  acceptance.
 
 Done:
-  focused canary proves recursive child/After topology construction, exact
-  receipt consumption, typed foreign/missing rejection, and zero production
-  callers. Operation lowering is an explicit typed NoSafeSlice until a later
-  neutral effect-plan design. The implementation commit updates exact MIR
-  reference pages, the owning README, and this compact receipt together;
-  source/check files stay below 800.
+  caller-zero topology canary consumes a move-only common boundary and one
+  ReadyLoopEntryV1, validates exact entry/parent/preheader ownership before
+  allocation, and returns recursive child/root After receipts. It emits no
+  operation MIR and has no production caller. Exact MIR references, README,
+  and this receipt were updated in the implementation commit; source/check
+  files remain below 800.
 
 Stop:
-  operation emission without a LoopItemKey + exact source-anchor effect plan,
-  Return/DraftSeal/publication, production selection, G0 relabeling, a new
-  Recipe kind, profile physicalizer, retry/fallback, or legacy deletion.
+  operation MIR, a new Recipe kind, profile physicalizer, copied source truth,
+  name/ordinal matching, Return/DraftSeal/publication, selector, fallback,
+  retry, or legacy deletion before the effect-plan design is accepted.
 ```
 ## Production invariants
 ```text

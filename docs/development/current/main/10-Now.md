@@ -87,10 +87,13 @@ Related:
   fixture derives a declaration-backed Prepared ABI. The common physicalizer
   design stop is closed with a resolver-backed variable-only i64 Prelude
   argument receipt contract. The caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`
-  is closed; the current execution row is
-  `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`; the current slice is topology/After
-  only, and operation emission remains behind an item-keyed source/effect
-  design stop. Physical completion remains closed.
+  is closed. The test-only
+  `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` topology/After canary is also
+  closed: it validates exact entry and parent/preheader topology before
+  allocation and emits no operation MIR. The current execution row is the
+  design-only `LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0`, which must define an
+  item-keyed exact source/effect product before operation emission. Physical
+  completion remains closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

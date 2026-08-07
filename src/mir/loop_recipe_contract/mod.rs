@@ -102,7 +102,7 @@ pub(crate) use loop_true_break_continue_producer::{
 #[allow(unused_imports)]
 pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
 #[allow(unused_imports)]
-pub(crate) use physical_input::VerifiedLoopPhysicalInputV1;
+pub(crate) use physical_input::{VerifiedLoopPhysicalBoundaryV1, VerifiedLoopPhysicalInputV1};
 #[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
 #[allow(unused_imports)]

@@ -30,6 +30,10 @@ impl VerifiedGenericAfterEffectG0 {
         &self.after_binding
     }
 
+    pub(crate) fn into_after_binding(self) -> VerifiedLoopAfterBindingV1 {
+        self.after_binding
+    }
+
     pub(crate) fn post_loop_read(&self) -> &VerifiedGenericG0PostLoopReadV1 {
         &self.post_loop_read
     }

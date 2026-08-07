@@ -77,6 +77,17 @@ physicalizer, retry, fallback, production route, or legacy deletion. The
 test-only producer id `callable_single_loop_v1` is provenance only and is not a
 legacy route alias. Physical preparation remains a later explicit row.
 
+## Topology physicalizer boundary (caller-zero)
+
+The bounded P0 canary adds a neutral move-only
+`VerifiedLoopPhysicalBoundaryV1` projection for the existing Core and logical
+After capability. It is consumed only by the test-only topology physicalizer;
+it does not create a Recipe/JoinSig/CFG/SSA/PHI owner or expose callable
+Tail/ABI/Completion. The next operation row must first define an item-keyed,
+exact source/effect product because current effect ordinals alone are
+ambiguous across nested loops. No operation MIR or production caller is
+claimed here.
+
 ## Generic legacy corpus inventory
 
 The pre-production legacy inventory is intentionally outside this portable

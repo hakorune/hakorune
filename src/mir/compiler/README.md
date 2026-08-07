@@ -82,11 +82,16 @@ retry, fallback, or production caller. The next bounded row is
 Its four-block execution brief is kept in the active workstream card and the
 common physical-demand SSOT; do not open a production caller from this README.
 
-The current physicalizer row is topology/After-only. Operation lowering is
-not implied by the word physicalizer: without a neutral `LoopItemKey` plus
-exact source-anchor effect projection, operation emission is typed
-`NoSafeSlice`. That projection is a later design boundary, not an alternate
-profile route or a reason to reopen the old scheduler.
+The topology/After-only canary is now landed in the test-only
+`resolved_lowering::loop_recipe_physicalizer` module. It consumes the neutral
+move-only boundary and a private `ReadyLoopEntryV1`, validates exact owner and
+parent/preheader topology, and returns one recursive After receipt. It does
+not publish a production physicalizer or emit operation MIR. Operation
+lowering remains closed until the design-only
+`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` row issues a neutral `LoopItemKey` plus
+exact source-anchor effect product; name, ordinal, and profile matching are
+forbidden. This is not an alternate profile route or a reason to reopen the
+old scheduler.
 
 ## Generic G0 S0A source projector
 

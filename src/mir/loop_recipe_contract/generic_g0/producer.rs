@@ -11,6 +11,7 @@ use super::super::super::loop_recipe_contract::ids::{LoopBindingKeyV1, LoopNodeK
 use super::super::super::loop_recipe_contract::join_sig::{
     LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
 };
+use super::super::super::loop_recipe_contract::physical_input::VerifiedLoopPhysicalBoundaryV1;
 use super::super::super::loop_recipe_contract::producer_id::LoopRecipeProducerIdV1;
 use super::super::super::loop_recipe_contract::schema::{
     LoopRecipeArtifactV1, LoopRecipeProvenanceV1, LoopValueClassV1,
@@ -58,6 +59,10 @@ impl VerifiedGenericRecipeProductG0 {
 
     pub(crate) const fn target(&self) -> NumericTarget {
         self.target
+    }
+
+    pub(crate) fn into_physical_boundary(self) -> VerifiedLoopPhysicalBoundaryV1 {
+        VerifiedLoopPhysicalBoundaryV1::from_parts(self.core, self.after.into_after_binding())
     }
 }
 
