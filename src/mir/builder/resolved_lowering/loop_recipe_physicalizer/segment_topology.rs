@@ -1,0 +1,231 @@
+//! Exact segment-to-block receipt for the R2 Callable canary.
+//!
+//! The R1 layout is the only logical authority.  This module adapts the
+//! already allocated canonical topology blocks into an exact segment receipt;
+//! operation placement consumes the receipt by segment key and never looks
+//! up a logical block again.  The adapter intentionally rejects two segments
+//! sharing one block until the recursive physical allocator is opened.
+
+use std::collections::BTreeSet;
+
+use super::topology::{LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1};
+use crate::mir::loop_recipe_contract::{LoopPhysicalSegmentKeyV1, PreparedLoopPhysicalLayoutV1};
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::BasicBlockId;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct LoopPhysicalSegmentBlockRowV1 {
+    segment: LoopPhysicalSegmentKeyV1,
+    role: LoopPhysicalBlockRoleV1,
+    physical_block: BasicBlockId,
+}
+
+impl LoopPhysicalSegmentBlockRowV1 {
+    pub(super) const fn new(
+        segment: LoopPhysicalSegmentKeyV1,
+        role: LoopPhysicalBlockRoleV1,
+        physical_block: BasicBlockId,
+    ) -> Self {
+        Self {
+            segment,
+            role,
+            physical_block,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum LoopPhysicalSegmentBlockReceiptRejectV1 {
+    ForeignSegment(LoopPhysicalSegmentKeyV1),
+    DuplicateSegment(LoopPhysicalSegmentKeyV1),
+    DuplicatePhysicalBlock(BasicBlockId),
+    MissingSegment(LoopPhysicalSegmentKeyV1),
+    MissingLogicalPlacement(LoopPhysicalSegmentKeyV1),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct LoopPhysicalSegmentBlockReceiptV1 {
+    owner: FunctionOwnerIdV1,
+    preheader: BasicBlockId,
+    rows: Box<[LoopPhysicalSegmentBlockRowV1]>,
+}
+
+impl LoopPhysicalSegmentBlockReceiptV1 {
+    pub(super) fn issue(
+        owner: FunctionOwnerIdV1,
+        preheader: BasicBlockId,
+        expected_segments: &[LoopPhysicalSegmentKeyV1],
+        rows: Vec<LoopPhysicalSegmentBlockRowV1>,
+    ) -> Result<Self, LoopPhysicalSegmentBlockReceiptRejectV1> {
+        let expected = expected_segments.iter().copied().collect::<BTreeSet<_>>();
+        let mut segments = BTreeSet::new();
+        let mut physical_blocks = BTreeSet::new();
+        for row in &rows {
+            if !expected.contains(&row.segment) {
+                return Err(LoopPhysicalSegmentBlockReceiptRejectV1::ForeignSegment(
+                    row.segment,
+                ));
+            }
+            if !segments.insert(row.segment) {
+                return Err(LoopPhysicalSegmentBlockReceiptRejectV1::DuplicateSegment(
+                    row.segment,
+                ));
+            }
+            if !physical_blocks.insert(row.physical_block) {
+                return Err(
+                    LoopPhysicalSegmentBlockReceiptRejectV1::DuplicatePhysicalBlock(
+                        row.physical_block,
+                    ),
+                );
+            }
+        }
+        for &segment in expected_segments {
+            if !segments.contains(&segment) {
+                return Err(LoopPhysicalSegmentBlockReceiptRejectV1::MissingSegment(
+                    segment,
+                ));
+            }
+        }
+        Ok(Self {
+            owner,
+            preheader,
+            rows: rows.into_boxed_slice(),
+        })
+    }
+
+    /// Adapt the current Callable topology.  The role lookup is confined to
+    /// this one physical boundary; operation emission uses the resulting
+    /// segment receipt only.
+    pub(super) fn from_callable_layout(
+        layout: &PreparedLoopPhysicalLayoutV1,
+        block_receipt: &LoopPhysicalBlockReceiptV1,
+    ) -> Result<Self, LoopPhysicalSegmentBlockReceiptRejectV1> {
+        let mut rows = Vec::with_capacity(layout.segments().len());
+        for segment in layout.segments().iter().map(|row| row.key()) {
+            let role = block_receipt
+                .role_for_logical(segment.loop_key(), segment.block())
+                .ok_or(LoopPhysicalSegmentBlockReceiptRejectV1::MissingLogicalPlacement(segment))?;
+            let physical_block = block_receipt
+                .lookup(segment.loop_key(), role)
+                .ok_or(LoopPhysicalSegmentBlockReceiptRejectV1::MissingLogicalPlacement(segment))?;
+            rows.push(LoopPhysicalSegmentBlockRowV1::new(
+                segment,
+                role,
+                physical_block,
+            ));
+        }
+        let expected = layout
+            .segments()
+            .iter()
+            .map(|row| row.key())
+            .collect::<Vec<_>>();
+        Self::issue(
+            block_receipt.owner(),
+            block_receipt.preheader(),
+            &expected,
+            rows,
+        )
+    }
+
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(super) const fn preheader(&self) -> BasicBlockId {
+        self.preheader
+    }
+
+    pub(super) fn rows(&self) -> &[LoopPhysicalSegmentBlockRowV1] {
+        &self.rows
+    }
+
+    pub(super) fn lookup(&self, segment: LoopPhysicalSegmentKeyV1) -> Option<BasicBlockId> {
+        self.rows
+            .iter()
+            .find(|row| row.segment == segment)
+            .map(|row| row.physical_block)
+    }
+
+    pub(super) fn role(
+        &self,
+        segment: LoopPhysicalSegmentKeyV1,
+    ) -> Option<LoopPhysicalBlockRoleV1> {
+        self.rows
+            .iter()
+            .find(|row| row.segment == segment)
+            .map(|row| row.role)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
+    use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
+
+    fn callable_segments() -> (FunctionOwnerIdV1, Vec<LoopPhysicalSegmentKeyV1>) {
+        let (effect, context, continuation) = callable_operation_demand_parts_for_test();
+        let layout = VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
+            .expect("callable demand")
+            .prepare_all()
+            .expect("callable program")
+            .prepare_physical_layout()
+            .expect("callable layout");
+        (
+            layout.program().demand().context().owner(),
+            layout.segments().iter().map(|row| row.key()).collect(),
+        )
+    }
+
+    #[test]
+    fn receipt_requires_exact_segment_coverage_and_unique_blocks() {
+        let (owner, segments) = callable_segments();
+        let result = LoopPhysicalSegmentBlockReceiptV1::issue(
+            owner,
+            BasicBlockId::new(0),
+            &segments,
+            vec![
+                LoopPhysicalSegmentBlockRowV1::new(
+                    segments[0],
+                    LoopPhysicalBlockRoleV1::Header,
+                    BasicBlockId::new(1),
+                ),
+                LoopPhysicalSegmentBlockRowV1::new(
+                    segments[1],
+                    LoopPhysicalBlockRoleV1::Body,
+                    BasicBlockId::new(2),
+                ),
+            ],
+        )
+        .expect("exact receipt");
+        assert_eq!(result.lookup(segments[0]), Some(BasicBlockId::new(1)));
+        assert_eq!(result.rows().len(), 2);
+    }
+
+    #[test]
+    fn receipt_rejects_segment_aliasing_one_physical_block() {
+        let (owner, segments) = callable_segments();
+        let error = LoopPhysicalSegmentBlockReceiptV1::issue(
+            owner,
+            BasicBlockId::new(0),
+            &segments,
+            vec![
+                LoopPhysicalSegmentBlockRowV1::new(
+                    segments[0],
+                    LoopPhysicalBlockRoleV1::Header,
+                    BasicBlockId::new(1),
+                ),
+                LoopPhysicalSegmentBlockRowV1::new(
+                    segments[1],
+                    LoopPhysicalBlockRoleV1::Body,
+                    BasicBlockId::new(1),
+                ),
+            ],
+        )
+        .expect_err("segment alias must reject");
+        assert_eq!(
+            error,
+            LoopPhysicalSegmentBlockReceiptRejectV1::DuplicatePhysicalBlock(BasicBlockId::new(1))
+        );
+    }
+}

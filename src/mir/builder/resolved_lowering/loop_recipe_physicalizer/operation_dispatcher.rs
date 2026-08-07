@@ -65,6 +65,9 @@ pub(super) enum LoopOperationDispatchPreflightRejectV1 {
     WriteProjectionMissing {
         item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
     },
+    SegmentPlacementMissing {
+        item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+    },
     DuplicateProducedValue(LoopValueKeyV1),
     MissingOperand {
         item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
@@ -98,8 +101,8 @@ pub(super) struct PreparedLoopOperationDispatchPlanV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct CompletedLoopOperationDispatchV1 {
-    operation_count: usize,
-    receipts: Box<[LoopOperationDispatchReceiptV1]>,
+    pub(super) operation_count: usize,
+    pub(super) receipts: Box<[LoopOperationDispatchReceiptV1]>,
 }
 
 impl CompletedLoopOperationDispatchV1 {
@@ -422,7 +425,7 @@ fn issue_target_for_row(
     }
 }
 
-fn emit_prepared_operation_family_at_target_v1<'source>(
+pub(super) fn emit_prepared_operation_family_at_target_v1<'source>(
     prepared: PreparedLoopOperationDispatchV1,
     target: VerifiedLoopOperationTargetBlockV1,
     state: &mut LoopOperationValueLedgerV1,

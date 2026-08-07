@@ -1,6 +1,6 @@
 # LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2
 
-Status: active execution row
+Status: closed implementation row
 Decision: accepted bounded follow-up to R1
 Date: 2026-08-08
 
@@ -70,6 +70,43 @@ M10b/M11/M12 legacy retirement
 
 If any non-goal is needed, stop and update the design SSOT before coding.
 
+## Closeout receipt (2026-08-08)
+
+Implemented and closed. `LoopPhysicalSegmentBlockReceiptV1` adapts the closed
+R1 layout to the existing canonical topology, validates exact segment
+coverage/owner/preheader/unique-block invariants, and rejects aliased segments
+instead of silently sharing a block. The selected Callable canary now consumes
+the complete layout through `prepare_loop_segment_operation_dispatch_v1`; its
+operation targets are issued by exact segment key, with no logical-block-only
+execution lookup in that caller.
+
+The seven-row Callable parity remains `Pure=4 + Read=2 + Write=1`. Focused
+negative evidence covers missing segment, foreign owner, duplicate/aliased
+block, and the existing late-failure whole-session discard/fresh-session
+reuse. The old logical dispatcher remains only for pre-existing test seams and
+was not connected as a fallback or retry path.
+
+Verified:
+
+```text
+cargo test -q mir::builder::resolved_lowering::loop_recipe_physicalizer --lib
+  24 passed
+cargo test -q mir::builder::resolved_lowering::loop_recipe_physicalizer::callable_production_canary_tests --lib
+  2 passed
+cargo test -q mir::builder::resolved_lowering::loop_recipe_physicalizer::segment_topology --lib
+  2 passed
+cargo test -q mir::builder::resolved_lowering::loop_recipe_physicalizer::segment_dispatcher --lib
+  2 passed
+rustfmt --edition 2021 --check <changed Rust files>
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+All touched source files remain below 800 lines. The exact reference,
+resolved-lowering README, current state, 10-Now mirror, workstream, and next
+R3 task were updated in the implementation closeout commit. R3 is now the
+active boundary; no G0 physical emission or production selection is claimed.
+
 ## Acceptance gates
 
 ```text
@@ -88,7 +125,7 @@ documentation again in the same commit; a code-only R2 commit is forbidden.
 
 ## Closeout rule
 
-R2 closes only when Callable segment placement is green and the old selected
+R2 is closed: Callable segment placement is green and the old selected
 logical-block-only execution lookup is gone from that caller. R3 remains the
-next design/implementation boundary. No G0 physical or production claim may
-be added to the R2 closeout.
+next design/implementation boundary. No G0 physical or production claim is
+part of this closeout.

@@ -232,3 +232,20 @@ its cached predecessor witness as one fallible operation, derives predecessor
 truth directly from terminators, and rejects late edges or cache drift without
 calling CFG repair. During SSA-C1 it has zero production If, Loop, and Binding
 SSA callers; the existing A+ If path remains unchanged.
+
+## Callable segment block cutover R2
+
+`LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is closed as a bounded physical
+placement cutover. The private `LoopPhysicalSegmentBlockReceiptV1` adapts the
+closed R1 layout to the existing canonical topology and brands each exact
+segment with its physical block. The selected Callable dispatcher builds its
+complete item-to-segment index from the layout and issues targets by segment;
+the selected canary no longer uses logical-block-only execution lookup.
+
+The receipt rejects missing, foreign, duplicate, and aliased placements. The
+Callable canary preserves seven-row parity (`Pure=4`, `Read=2`, `Write=1`),
+and its late failure still discards the unpublished function as one transaction
+before a fresh-session rerun. No new CFG/SSA/PHI owner, G0 physical route,
+recursive After writer, selector, fallback/retry, publication, or legacy path
+was introduced. The next bounded boundary is
+`LOOP-COMMON-RECURSIVE-AFTER-R3`.

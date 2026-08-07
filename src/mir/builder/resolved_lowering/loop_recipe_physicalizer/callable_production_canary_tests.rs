@@ -11,6 +11,8 @@
 
 use super::callable_canary::materialize_callable_prelude_v1;
 use super::continuation::close_callable_loop_after_v1;
+use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
+use super::segment_topology::LoopPhysicalSegmentBlockReceiptV1;
 use super::tail_completion::consume_callable_tail_completion_v1;
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::builder::normal_callable_semantic_source::{
@@ -20,8 +22,8 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalSsaFunctionSessionV2,
 };
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
-    physicalize_topology_for_operation_demand_v1, prepare_loop_operation_dispatch_v1,
-    LoopOperationDispatchServicesV1, LoopOperationValueLedgerV1, LoopPhysicalServicesV1,
+    physicalize_topology_for_operation_demand_v1, LoopOperationDispatchServicesV1,
+    LoopOperationValueLedgerV1, LoopPhysicalServicesV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
@@ -259,6 +261,9 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         .map_err(|error| format!("full S2 demand: {error:?}"))?;
     let (source_receipt, input_relation, operation_program, prelude_source, tail) =
         prepared.into_parts();
+    let physical_layout = operation_program
+        .prepare_physical_layout()
+        .map_err(|error| format!("physical layout: {error:?}"))?;
     let branded = VerifiedCallableFunctionLoweringInputV1::issue(exact_input, index, header)
         .map_err(|error| format!("exact callable brand: {error:?}"))?;
     let prelude = VerifiedCallablePreludeCapabilityV1::issue(
@@ -308,26 +313,38 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         let mut services =
             LoopPhysicalServicesV1::new(outer.builder_view_mut_for_lowering(), &mut session.cfg);
         physicalize_topology_for_operation_demand_v1(
-            operation_program.demand(),
+            physical_layout.program().demand(),
             make_entry(),
             &mut services,
         )
         .map_err(|error| format!("topology: {error:?}"))?
     };
-    let condition_key = operation_program
+    let (condition_item, condition_key) = physical_layout
+        .program()
         .operation_rows()
         .iter()
         .find_map(|row| match row.operation() {
-            LoopOperationV1::CompareI64 { result, .. } => Some(result),
+            LoopOperationV1::CompareI64 { result, .. } => Some((row.item(), result)),
             _ => None,
         })
         .ok_or_else(|| "condition operation missing".to_owned())?;
-    let plan = prepare_loop_operation_dispatch_v1(
-        operation_program,
-        make_entry(),
-        open.block_receipt().clone(),
+    let segment_receipt = LoopPhysicalSegmentBlockReceiptV1::from_callable_layout(
+        &physical_layout,
+        open.block_receipt(),
     )
-    .map_err(|error| format!("dispatch preflight: {error:?}"))?;
+    .map_err(|error| format!("segment receipt: {error:?}"))?;
+    let condition_segment = physical_layout
+        .segments()
+        .iter()
+        .find(|segment| segment.operations().contains(&condition_item))
+        .map(|segment| segment.key())
+        .ok_or_else(|| "condition segment missing".to_owned())?;
+    let condition_block = segment_receipt
+        .lookup(condition_segment)
+        .ok_or_else(|| "condition physical block missing".to_owned())?;
+    let plan =
+        prepare_loop_segment_operation_dispatch_v1(physical_layout, make_entry(), segment_receipt)
+            .map_err(|error| format!("dispatch preflight: {error:?}"))?;
     let mut values = LoopOperationValueLedgerV1::default();
     if seed_duplicate_condition {
         let existing = crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::
@@ -336,12 +353,7 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
                 condition_key,
                 LoopValueClassV1::Bool,
                 LoopItemKeyV1::new(99),
-                open.block_receipt()
-                    .lookup(
-                        operation_program_root_loop(&open),
-                        super::topology::LoopPhysicalBlockRoleV1::Header,
-                    )
-                    .ok_or_else(|| "condition header missing".to_owned())?,
+                condition_block,
                 crate::mir::ValueId::new(999),
             );
         values
@@ -426,12 +438,6 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         read_count: 2,
         write_count: 1,
     })
-}
-
-fn operation_program_root_loop(
-    open: &super::topology::LoopAfterContinuationReceiptV1,
-) -> crate::mir::loop_recipe_contract::LoopNodeKeyV1 {
-    open.root_loop()
 }
 
 #[test]

@@ -15,9 +15,10 @@ the canonical V2 function lowerers now enter one typed finish terminal before
 DraftSeal. The portable Recipe/JoinSig algebra and its caller-zero status are
 unchanged; this receipt adds no physicalizer or production Loop authority.
 The bounded prepare-design correction, Callable full physical canary, and G0
-Builder-free exact ingress are closed. The current boundary is the private
-Recipe-derived recursive segment/resume plan. G0 physical and production
-activation remain closed.
+Builder-free exact ingress are closed. The private Recipe-derived
+segment/resume plan and Callable segment-block cutover are closed; the current
+boundary is neutral recursive After R3. G0 physical and production activation
+remain closed.
 
 Implementation receipt — `CALLABLE-LOOP-AFTER-CLOSURE-P0` (2026-08-07): the
 caller-zero continuation canary now consumes a real Prelude materialization
@@ -839,3 +840,24 @@ This receipt creates no physical IDs, CFG/SSA/PHI mutation, function session,
 After writer, Tail/Completion path, selector, retry/fallback, or production
 caller. Segment-aware canonical block cutover is the next R2 task; physical
 G0 and legacy retirement remain closed.
+
+## Segment block cutover R2 receipt (2026-08-08)
+
+`LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is closed for the selected Callable
+canary. The private `LoopPhysicalSegmentBlockReceiptV1` adapts the existing
+canonical topology blocks to the exact R1 segment keys and rejects foreign,
+duplicate, missing, or aliased segment placements. The segment receipt is
+owner- and preheader-branded; it is not a second CFG/SSA/PHI owner.
+
+The segment-aware dispatcher consumes the complete `PreparedLoopPhysicalLayoutV1`,
+builds one item-to-segment index from that layout, and resolves every operation
+target through the exact segment key. The selected canary no longer calls the
+logical-block-only operation target path. Callable parity remains seven rows
+(`Pure=4`, `Read=2`, `Write=1`), with typed owner/missing/duplicate negatives,
+late-failure whole-session discard, and fresh-session reuse evidence.
+
+This is a bounded physical cutover only. The current topology adapter rejects
+segment aliasing rather than sharing a block, so Generic G0 physical emission,
+recursive After, Tail/Completion changes, selector, retry/fallback retirement,
+collector/publication, and legacy deletion remain closed. The next task is
+`investigations/loop-common-recursive-after-r3-task-2026-08-08.md`.

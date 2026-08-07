@@ -520,7 +520,8 @@ closed:
 accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
 closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 accepted correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
-  LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1; current execution: LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2
+  LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1 and LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2 are
+  closed; current execution: LOOP-COMMON-RECURSIVE-AFTER-R3
 Change:
   bind the closed private R1 segment/resume layout to canonical blocks and
   migrate Callable placement; no G0 physicalizer or semantic owner.
@@ -535,12 +536,13 @@ Done:
   are closed. R1 derives the complete Callable/G0 operation order from
   verified recursive Recipe traversal and records G0's five segments:
   root condition, root pre-child, child condition, child body, root resume.
-  Focused layout tests are green and the source module remains below 800 lines;
-  the finite order is R2 segment block cutover, R3 neutral recursive After,
-  then G0 I1-R0.
+  Focused layout tests are green and the source module remains below 800 lines.
+  R2 issues an owner-branded exact segment-to-block receipt, routes the selected
+  Callable canary through segment placement, and proves seven-row parity plus
+  missing/foreign/duplicate negatives. Next: R3 neutral After, then G0 I1-R0.
 Stop:
-  R2 must remain a bounded physical placement cutover. Recursive edge
-  emission, physical G0, production selection, caller switch, fallback/retry,
+  R3 must remain a bounded neutral After/edge receipt cutover. Physical G0,
+  production selection, caller switch, fallback/retry,
   collector/publication, and legacy deletion remain closed. Every
   implementation row requires source README,
   `docs/reference/**`, diagnostics, migration note, guards, and current
@@ -831,7 +833,6 @@ closed
      legacy lowering already rejects the shape at
      `[freeze:contract][script-lexical/variable-site]`. No partial
      BlockExpr activation lands; Local/Call/Weak/exit remain Deferred.
-
   RAW-SCRIPT-ARRAY-LITERAL-COMPOSITIONAL-ALLOCATION-DESCENT0-I0-R0
   -> selected Script ArrayLiteral is now a complete compositional allocation
      closure. The raw expression dispatcher creates exact `ArrayElement(n)`

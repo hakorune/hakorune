@@ -216,6 +216,7 @@ pub(super) enum LoopOperationEmissionRejectV1 {
         by_role: BasicBlockId,
         by_logical_block: BasicBlockId,
     },
+    SegmentPlacementMissing(crate::mir::loop_recipe_contract::LoopPhysicalSegmentKeyV1),
     TargetBlockTerminated(BasicBlockId),
     ValueMissing(LoopValueKeyV1),
     ValueAlreadyPublished(LoopValueKeyV1),
@@ -380,6 +381,9 @@ fn map_target_reject(error: LoopOperationTargetRejectV1) -> LoopOperationEmissio
             by_role,
             by_logical_block,
         },
+        LoopOperationTargetRejectV1::SegmentPlacementMissing(segment) => {
+            LoopOperationEmissionRejectV1::SegmentPlacementMissing(segment)
+        }
         LoopOperationTargetRejectV1::TargetFunctionMissing => {
             LoopOperationEmissionRejectV1::TargetFunctionMissing
         }

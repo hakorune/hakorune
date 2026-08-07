@@ -849,8 +849,8 @@ skip the After closure or reopen a Tail-only route.
 | 12 | `LOOP-CALLER-ZERO-PARITY-G0-I0-R0` | exact G0 ingress -> common fifteen-row `prepare_all` with Builder effect zero | closed 2026-08-08; no physical emission, Completion/DraftSeal, selector, retry/fallback, or legacy deletion |
 | 13 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D0` | top-down counterexample fixes segment/resume as a common prerequisite | accepted design; direct G0 implementation superseded |
 | 14 | `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` | Builder-free Recipe-derived segment/resume layout plus exact order/coverage | **closed 2026-08-08**; no Builder effect or new accepted structural family |
-| 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | segment-aware block allocation/operation placement; Callable parity | **current**; BoxShape-only; delete selected logical-block-only execution lookup |
-| 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3` | neutral recursive edge writer and After receipt; Callable profile coverage stays outside | no G0 Tail/Completion or production caller |
+| 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | segment-aware block allocation/operation placement; Callable parity | **closed 2026-08-08**; selected Callable canary uses exact segment receipt; no G0 physical |
+| 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3` | neutral recursive edge writer and After receipt; Callable profile coverage stays outside | **current**; no G0 Tail/Completion or production caller |
 | 17 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, derived carrier, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | caller-zero only; no G0-specific physicalizer |
 | 18 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
 | 19 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
@@ -1004,13 +1004,15 @@ emitter consumes `PreparedLoopOperationEmissionV1` and never sees continuation
 or any profile/function terminal contract.
 
 The full semantic preflight runs before Builder mutation. After topology
-allocation, `LoopPhysicalBlockReceiptV1` binds one exact logical Loop/Block to
-one physical block before instruction emission. The leaf emitter may borrow
-only the existing canonical CFG, BindingSSA, and PhiTxn services plus a
+allocation, the Callable R2 adapter derives an owner-branded
+`LoopPhysicalSegmentBlockReceiptV1` from the R1 layout and binds each exact
+segment to one physical block before instruction emission. The leaf emitter may
+borrow only the existing canonical CFG, BindingSSA, and PhiTxn services plus a
 session-local `ReadyLoopEntryV1`. It creates no second CFG, SSA, PHI,
 transaction, or retry owner. A post-emission failure poisons the unpublished
 function and uses whole-session discard; local Phi rollback is diagnostic
-cleanup only.
+cleanup only. The older logical block receipt remains only for pre-existing
+test seams and is not a fallback for the selected Callable dispatcher.
 
 Generic item 3 remains a normal parent-body `ReadBinding`, but its source
 anchor is the child-entry `DerivedCarrierEntry` for carrier 2. It is **not
@@ -1035,8 +1037,9 @@ neither counts nor source order. The full-demand P0, behavior-neutral module
 split, canonical physical block receipt, private ConstI64 leaf-emitter canary,
 bounded ReadBinding I0, and the caller-zero full callable physical canary are
 closed. G0 D0/I0 are accepted/closed. R1 is now closed with Builder effect
-zero; `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is the active next row. Segment
-block cutover, recursive After, G0 physical parity,
+zero; `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is now closed by the Callable
+segment receipt canary. Neutral recursive After R3 is the active next row.
+Recursive After, G0 physical parity,
 production selection, M8/M9 coverage, and retirement remain separate gates.
 
 ### ReadBinding leaf D0 correction (2026-08-07; Decision: accepted and landed)
@@ -1239,9 +1242,9 @@ canonical Const/type-fact emission, typed pre-emission rejects, and
 whole-session discard/fresh-session repeat. Full operation emission,
 operation production activation, callable physical completion, production
 selection, retry/fallback retirement, and legacy deletion remain closed. The
-logical callable issuer S0 is closed without a production caller. R1 is now
-closed by the receipt below; the next row is the bounded R2 segment/block
-cutover. No single-item extraction API may be added to the full demand.
+logical callable issuer S0 is closed without a production caller. R1 and R2 are
+now closed by the receipts below; the next row is bounded neutral recursive
+After R3. No single-item extraction API may be added to the full demand.
 
 ### Callable physical-canary preparation slice (2026-08-07)
 
@@ -1321,3 +1324,26 @@ closeout, physical block allocation/placement, recursive After emission, G0
 physical parity, production selection, retry/fallback retirement, and legacy
 deletion remain closed. The R2 task is
 `investigations/loop-common-segment-block-cutover-r2-task-2026-08-08.md`.
+
+### Segment block cutover R2 closeout (2026-08-08)
+
+`LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is closed for the Callable canary.
+`LoopPhysicalSegmentBlockReceiptV1` is a private physical receipt derived from
+the closed R1 layout and the already allocated canonical topology. It verifies
+exact segment coverage, owner/preheader branding, and unique physical blocks.
+The selected Callable dispatcher builds one complete item-to-segment index from
+that layout and issues each target through the exact segment key; it no longer
+uses logical-block-only execution lookup. The existing canonical CFG,
+BindingSSA, and PhiTxn services remain the only physical owners.
+
+The R2 receipt is intentionally a Callable adapter: segments that would alias
+one current topology block reject rather than silently sharing a block. This
+keeps Generic G0's parent pre-child/resume split closed until R3 supplies the
+neutral recursive After/edge physicalization. The focused canary preserves the
+seven-row `Pure=4 + Read=2 + Write=1` parity and covers exact placement,
+foreign-owner, missing-segment, duplicate-block, late-failure discard, and
+fresh-session reuse. No G0 physical emission, selector, fallback, retry,
+collector/publication, or legacy retirement is claimed.
+
+The next task is
+`investigations/loop-common-recursive-after-r3-task-2026-08-08.md`.

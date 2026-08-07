@@ -21,6 +21,8 @@ mod operation_type;
 #[cfg(test)]
 #[path = "read_emitter_tests.rs"]
 mod read_emitter_tests;
+mod segment_dispatcher;
+mod segment_topology;
 #[cfg(test)]
 mod tail_completion;
 mod tests;

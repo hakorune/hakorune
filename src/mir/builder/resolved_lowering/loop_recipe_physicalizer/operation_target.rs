@@ -4,9 +4,12 @@
 //! from the existing block receipt; leaves consume it instead of recomputing
 //! role/logical placement independently.
 
+use super::segment_topology::LoopPhysicalSegmentBlockReceiptV1;
 use super::topology::{LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1, ReadyLoopEntryV1};
 use crate::mir::builder::MirBuilder;
-use crate::mir::loop_recipe_contract::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1};
+use crate::mir::loop_recipe_contract::{
+    LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopPhysicalSegmentKeyV1,
+};
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::BasicBlockId;
 
@@ -38,6 +41,7 @@ pub(super) enum LoopOperationTargetRejectV1 {
         by_role: BasicBlockId,
         by_logical_block: BasicBlockId,
     },
+    SegmentPlacementMissing(LoopPhysicalSegmentKeyV1),
     TargetFunctionMissing,
     PreheaderMissing(BasicBlockId),
     TargetBlockMissing(BasicBlockId),
@@ -45,6 +49,39 @@ pub(super) enum LoopOperationTargetRejectV1 {
 }
 
 impl VerifiedLoopOperationTargetBlockV1 {
+    pub(super) fn issue_for_segment(
+        owner: FunctionOwnerIdV1,
+        item: LoopItemKeyV1,
+        segment: LoopPhysicalSegmentKeyV1,
+        entry: &ReadyLoopEntryV1,
+        segment_receipt: &LoopPhysicalSegmentBlockReceiptV1,
+    ) -> Result<Self, LoopOperationTargetRejectV1> {
+        if entry.owner() != owner {
+            return Err(LoopOperationTargetRejectV1::EntryOwnerMismatch);
+        }
+        if segment_receipt.owner() != owner {
+            return Err(LoopOperationTargetRejectV1::ReceiptOwnerMismatch);
+        }
+        if segment_receipt.preheader() != entry.preheader() {
+            return Err(LoopOperationTargetRejectV1::PreheaderMismatch);
+        }
+        let physical_block = segment_receipt.lookup(segment).ok_or(
+            LoopOperationTargetRejectV1::SegmentPlacementMissing(segment),
+        )?;
+        let role = segment_receipt.role(segment).ok_or(
+            LoopOperationTargetRejectV1::SegmentPlacementMissing(segment),
+        )?;
+        Ok(Self {
+            owner,
+            item,
+            loop_key: segment.loop_key(),
+            logical_block: segment.block(),
+            role,
+            preheader: entry.preheader(),
+            physical_block,
+        })
+    }
+
     pub(super) fn issue(
         owner: FunctionOwnerIdV1,
         item: LoopItemKeyV1,
