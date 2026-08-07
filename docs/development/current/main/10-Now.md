@@ -84,8 +84,10 @@ Related:
   `CALLABLE-STATIC-PREFIX-MAP-S1` and `CALLABLE-STATIC-PREFIX-P0` are also
   closed: same-brand different-owner resolver targets map successfully,
   foreign compilation brands reject before a map product, and the static
-  fixture derives a declaration-backed Prepared ABI. The next execution row
-  is the design-only common physicalizer/session boundary review.
+  fixture derives a declaration-backed Prepared ABI. The common physicalizer
+  design stop is closed with a resolver-backed variable-only i64 Prelude
+  argument receipt contract. The current execution row is
+  `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`; physical lowering remains closed.
   Declaration-derived ABI, physicalization, production selection,
   retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

@@ -1,6 +1,6 @@
 # Common Loop Physicalizer Design Stop
 
-Status: `active; design-only stop after worker audit; two boundary contracts remain to be fixed`
+Status: `closed; worker-reviewed boundary fixed; next row is Prelude argument receipt P0`
 Date: 2026-08-07
 Parent: `LOOP-PHYSICAL-PREPARE-STATIC-CALL-FIXTURE-D0`
 Authority:
@@ -36,7 +36,7 @@ Prepared profile product
 - the physicalizer has one recursive Loop algebra and no profile-name or
   legacy-route dispatch.
 
-The worker audit adds two mandatory pre-canary locks:
+The worker audit fixed two mandatory pre-canary locks:
 
 - `VerifiedLoopPhysicalDemandV1` must cross the boundary through a consuming,
   move-only API. Borrowing, cloning, a second co-seal, or MIR reconstruction
@@ -50,6 +50,14 @@ The private `ReadyLoopEntryV1` receipt therefore proves both facts: all exact
 logical entry keys are installed in the fresh session, and each required
 `BindingRef` has its verified entry materialization. It remains session-local,
 non-Clone, and single-use.
+
+The concrete Prelude argument product is now fixed as
+`VerifiedCallablePreludeArgumentListV1`: ordered, move-only rows containing
+`SourceExprSiteV1`, resolver-issued `BindingRefV1`, and exact `i64` ABI. The
+first issuer accepts only `ResolvedLexicalRefV1::Local` rows owned by the
+caller; Upvar, literal, nested expression, and unknown forms are typed
+`NoSafeSlice`. This is a callable-boundary product and is consumed before
+`ReadyLoopEntryV1`; the common physicalizer never receives it.
 
 ## Explicit non-goals
 
@@ -67,20 +75,14 @@ recorded may one bounded physicalizer canary task open. If the boundary is
 not mechanically enforceable, stop and revise the design; do not probe by
 adding another route or fixture.
 
-The next canary, once this stop is closed, is intentionally small:
+The next implementation prerequisite after this stop is intentionally small:
 
 ```text
-resolver-backed static fixture (i64, one loop)
-  -> move Prepared product
-  -> fresh unpublished function session
-  -> exact entry materialization + ReadyLoopEntry
-  -> common recursive physicalizer
-  -> outer Tail/Completion claim
-  -> finish_for_draft_seal
-  -> DraftSeal prepare/commit
+resolver-backed static fixture
+  -> issue/consume Prelude argument receipt
+  -> no AST reread or name lookup
 ```
 
-It remains caller-zero. G0, production selection, retry/fallback retirement,
-and legacy deletion are later rows. Physical failure must discard the whole
-unpublished session and restore the caller once; same-session repair/retry is
-not a canary success criterion.
+This row remains caller-zero and pre-effect. After it closes, the common
+recursive physicalizer canary opens. G0, production selection, retry/fallback
+retirement, and legacy deletion are later rows.

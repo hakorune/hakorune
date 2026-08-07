@@ -3,9 +3,10 @@ Status: SSOT
 Date: 2026-08-07
 Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
-P0, and bounded `LOOP-PHYSICAL-PREPARE-P0` are closed; the current
-execution row is the design-only `LOOP-COMMON-PHYSICALIZER-DESIGN0` stop;
-physical Loop activation remains 0
+P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, and the common-boundary design stop
+are closed; the current execution row is the caller-zero
+`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` prerequisite; physical Loop activation
+remains 0
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -201,16 +202,21 @@ The callable prepared product relates the non-Loop obligations:
 
 The prelude contract contains no `ValueId`. Its current source shape also does
 not prove argument bindings: arity is not an argument materialization receipt.
-Before the physical canary opens, the outer lowerer must use an existing
-resolver-issued argument product, or a separate typed argument receipt, for
-each required `BindingRef`. AST reread, name lookup, and arity-only
-reconstruction at this boundary are forbidden. The lowerer then consumes the
-prepared product, opens the exact function session, moves Completion into
-`CanonicalSsaFunctionSessionV2::new` exactly once, and retains Prelude/Tail/ABI
-evidence only. It emits the prelude through the existing call owner,
-immediately binds its physical result inside the same session, then issues one
-private `ReadyLoopEntryV1`. The common physicalizer consumes the inner Loop
-demand plus that entry receipt and never observes the callable boundary.
+The selected prerequisite is one move-only, AST-free
+`VerifiedCallablePreludeArgumentListV1`. Each row carries an exact ordinal,
+`SourceExprSiteV1`, resolver-issued `BindingRefV1`, and exact `i64` ABI. The
+issuer reads `VerifiedResolvedFunctionV1.variable_ref(site)` and admits only
+`ResolvedLexicalRefV1::Local` owned by the caller. Upvar, literal, nested
+expression, unknown site, foreign binding, and unsupported ABI are typed
+`NoSafeSlice`. No new resolver or semantic owner is introduced.
+
+The outer lowerer consumes this list once, reads each BindingRef through the
+canonical session identity, and materializes the prelude result before issuing
+one private `ReadyLoopEntryV1`. AST reread, name lookup, and arity-only
+reconstruction are forbidden. It then opens the exact function session, moves
+Completion into `CanonicalSsaFunctionSessionV2::new` exactly once, and retains
+Prelude/Tail/ABI evidence only. The common physicalizer consumes the inner
+Loop demand plus that entry receipt and never observes the callable boundary.
 
 The Generic G0 prepared product wraps one instance of the same common inner-demand
 type but retains its existing `L0.After/b1` boundary capability. It neither
@@ -377,6 +383,11 @@ their resolver-issued BindingRef-to-entry materialization, are already
 installed in this function session. It is non-Clone, cannot cross a session,
 and is consumed once by the physicalizer. A receipt containing only arity or a
 source-site label is insufficient.
+
+The argument list is a Prelude product, not a Loop demand field. It is
+consumed before `ReadyLoopEntryV1` is issued and is never passed to the common
+physicalizer. This preserves the single common physical algebra while keeping
+call argument source proof at the callable boundary.
 
 ## Fresh session and atomic failure law
 
@@ -611,12 +622,13 @@ of nested design suffixes unless a code audit proves one named missing owner.
 | 3 | `LOOP-PHYSICAL-PREPARE-P0` | caller-zero common demand plus callable prepared product; exact ABI/Completion are consumed from existing issuers | no physicalizer, Builder emission, selector, or I0 claim |
 | 4 | `GENERIC-G0-PHYSICAL-PREPARE-P0` | exact-move G0 adapter issues the same inner demand plus distinct G0 Tail | `NoSafeSlice` if source truth must be copied or reverified |
 | 5 | `LOOP-PHYSICALIZER-COMMON-OWNER-R0` | split the over-budget DirectAccum owner into common services plus thin adapter | BoxShape-only; no new accepted Recipe |
-| 6 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | inner demand + `ReadyLoopEntryV1` + borrowed V2 services -> open continuation | caller-zero; no Return/DraftSeal/publication |
-| 7 | `CALLABLE-LOOP-PHYSICAL-CANARY-P0` | exact Prelude -> Loop -> distinct Tail -> typed function finish -> DraftSeal on one fresh unpublished function | caller-zero; late failure discards whole session |
-| 8 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
-| 9 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
-| 10 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
-| 11 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
+| 6 | `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` | resolver-issued variable-only i64 argument rows -> one move-only Prelude product | caller-zero; no Builder physicalizer or selector |
+| 7 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | inner demand + `ReadyLoopEntryV1` + borrowed V2 services -> open continuation | caller-zero; no Return/DraftSeal/publication |
+| 8 | `CALLABLE-LOOP-PHYSICAL-CANARY-P0` | exact Prelude -> Loop -> distinct Tail -> typed function finish -> DraftSeal on one fresh unpublished function | caller-zero; late failure discards whole session |
+| 9 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
+| 10 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
+| 11 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
+| 12 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Closed implementation receipt: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
 

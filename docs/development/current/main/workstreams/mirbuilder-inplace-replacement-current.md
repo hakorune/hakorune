@@ -34,13 +34,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 
 `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1`, `RESOLVER-SYNTAX-FACTS-S1`,
 and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. MAP
-co-seals the resolver source/frame/Scope/Region and the selected
-`0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
-not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
+co-seals resolver source/frame/Scope/Region plus the selected `0`/`1`/`Less`/`Add`
+policy. The 19 legacy route labels are ingress coverage, not Recipe kinds;
+this callable maps into the same recursive `LoopRecipeV1`.
 `RECIPE-COSEAL-I0-R0` and `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` are closed; Loop continuation/Tail remain separate, and the one non-V2 `ReadyFunctionDraftSealV1::new` caller remains named compatibility debt.
-Static-call fixture design is accepted; `CALLABLE-SOURCE-SHAPE-THIN0`, `CALLABLE-STATIC-PREFIX-S0`, `CALLABLE-STATIC-PREFIX-MAP-S1`, and `CALLABLE-STATIC-PREFIX-P0` are closed: resolver-backed `int_to_str -> to_i64` proves FreeStatic, same-brand different-owner mapping, foreign-brand rejection, and declaration-derived Prepared ABI, while MethodCall remains typed negative. Next is the design-only common physicalizer/session boundary; physical/production and retirement remain closed.
-After this shallow sequence, final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
-The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
+Static-call fixture design is accepted; `CALLABLE-SOURCE-SHAPE-THIN0`,
+`CALLABLE-STATIC-PREFIX-S0`, `CALLABLE-STATIC-PREFIX-MAP-S1`, and
+`CALLABLE-STATIC-PREFIX-P0` are closed: resolver-backed `int_to_str -> to_i64`
+proves FreeStatic, same-brand different-owner mapping, foreign-brand rejection,
+and declaration-derived Prepared ABI, while MethodCall remains typed negative.
+The common physicalizer/session design stop is closed with a resolver-backed
+variable-only i64 Prelude argument receipt contract; current row is
+`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`; physical/production and retirement remain
+closed.
+After this shallow sequence, final order remains `mirbuilder-final-pipeline-ssot.md`: prepare -> G0/common physicalization -> production selection -> M8/M9 -> M10b -> M11/M12 -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`. The cleanup SSOT owns final pipeline/root/role/context/pointer/evidence/docs convergence and same-commit README/reference/guard/current-mirror updates.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
@@ -57,17 +64,14 @@ closed — RAW-SCRIPT-NEXT-NAMED-FAMILY0-D0 (NoSafeSlice)
   Call/Object needs header/type/origin preflight; Loop drops receipts before
   JoinIR; EnumMatch needs external inventory; GroupedAssignment needs a second
   target demand. No safe I0 exists. Next is Call/Object boundary design only.
-
 closed — RAW-SCRIPT-CALL-OBJECT-OWNER-BOUNDARY0-D0 (NoSafeSlice)
   FunctionCall, indirect Call, MethodCall, New, Field/Index, and RecordUpdate
   each combine preflight route authority with operation lowering. No standalone
   I0 exists. Only catalog-resolved ordinary FunctionCall merits a new D0.
-
 closed — RAW-SCRIPT-DIRECT-CALL-CATALOG-RECEIPT0-D0 (NoSafeSlice)
   A callable-index loan cannot exclude weak/extern/Brand/TypeOp/Math/FastMem
   or replace RootLower header observation without a second classifier.
   Next asks only whether the existing preflight can publish one SSOT receipt.
-
 closed — RAW-SCRIPT-CALL-PREFLIGHT-CLASSIFIER-SSOT0-D0 (Decision B, R4 retained)
   The semantic unit is not a callable name or catalog target: one preflight
   owns special-name classification plus header/environment observation before
@@ -75,7 +79,6 @@ closed — RAW-SCRIPT-CALL-PREFLIGHT-CLASSIFIER-SSOT0-D0 (Decision B, R4 retaine
   R4; the Deferred floor is `FunctionCallPreflightAuthority`. Release requires
   either one all-route preflight recipe or a named final retained operation
   boundary. Do not run a fourth Script-call census.
-
 closed — RAW-SCRIPT-GROUPED-BINDING-REBIND0-I0-R0 (T2)
   The earlier GroupedAssignment NoSafe premise is stale: Script root
   BindingRebind receipts and the BindingRef -> ValueId ledger now exist.
@@ -92,11 +95,9 @@ closed — RAW-SCRIPT-GROUPED-BINDING-REBIND0-I0-R0 (T2)
 closed — RAW-SCRIPT-ENUM-DECLARATION-COMPLETION0-I0-R0 (T2)
   EnumDeclaration is a typed Program transfer plus one existing Void
   completion; declaration facts remain the sole inventory producer/installer.
-
 closed — RAW-SCRIPT-ENUM-INVENTORY-VIEW0-D0 (NoStandaloneRow)
   A view alone had no real Script consumer; AST-only EnumMatch proof is
   forbidden. The producer audit below corrected that premise.
-
 closed — RAW-SCRIPT-ENUM-VARIANT-PRODUCER0-I0-R0 (T2)
   The one declaration-facts scan now proves only final non-generic
   `Type::Variant(args*)` routes with exact arity; Complete co-seals exact
@@ -108,7 +109,6 @@ closed — SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0
   Receipt core/packs, source-vs-invariant Script outcomes, sealed root-demand
   issuance, test-family split, current pointer, and full Complete identity floor
   are now compact; admission, lowering, diagnostics, and raw/reference are unchanged.
-
 closed — ENUM-MATCH-SOURCE-OWNER-FILE-SPLIT0-S0
   ScopeBox preparation/lowering now has its private sibling; enum-match owner
   is below the file boundary with raw behavior and diagnostics unchanged.
