@@ -12,6 +12,7 @@ pub(crate) enum LoopRecipeProducerIdV1 {
     LoopTrueBreakContinueV1,
     NestedPredicateV1,
     GenericG0,
+    CallableSingleLoopV1,
 }
 
 impl LoopRecipeProducerIdV1 {
@@ -21,6 +22,7 @@ impl LoopRecipeProducerIdV1 {
             Self::LoopTrueBreakContinueV1 => "loop_true_break_continue_v1",
             Self::NestedPredicateV1 => "nested_predicate_v1",
             Self::GenericG0 => "generic_g0",
+            Self::CallableSingleLoopV1 => "callable_single_loop_v1",
         }
     }
 }

@@ -377,6 +377,10 @@ fn is_loop_statement_site(site: &SourceStmtSiteV1) -> bool {
             crate::mir::resolved_semantics::SourcePathSegmentV1::LoopCondition
                 | crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBodyRoot
                 | crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_)
+                // Declared-callable resolver products retain a root loop as
+                // a function-body statement. Membership was already sealed
+                // by the resolver token before this structural check.
+                | crate::mir::resolved_semantics::SourcePathSegmentV1::Body(_)
         )
     })
 }

@@ -1213,3 +1213,21 @@ The next row is one bounded caller-zero co-seal implementation. Its commit
 must update this reference page and `docs/reference/mir/loop-recipe-contract.md`
 in the same commit; implementation completion does not imply production
 activation.
+
+## Callable Recipe co-seal I0/R0 implementation receipt (2026-08-07)
+
+`RECIPE-COSEAL-I0-R0` is closed as caller-zero evidence. The implementation
+consumes `VerifiedCallableSingleLoopSourceMapV1` once and publishes the common
+`VerifiedLoopRecipeCoSealV1` plus separate `VerifiedCallablePreludeV1` and
+`VerifiedCallableTailV1` contracts. The selected profile is represented by
+one recursive `LoopRecipeV1`, one carrier, one explicit preheader input, seven
+logical operations, and one Loop After capability. The exact terminal
+statement site is preserved in the MAP Tail target; no source path is rebuilt
+from names or ordinals.
+
+The new `callable_single_loop_v1` producer id is test-only provenance. Focused
+tests cover positive co-seal, source-view drop, Prefix/Tail mismatch, and
+Tail/Loop-After fusion rejection. No Builder/MIR/physical IDs, ABI/Completion,
+physicalizer, selector, retry, fallback, production selection, or legacy
+deletion was opened. The next boundary remains the accepted typed terminal
+design stop; physical preparation and production activation are still zero.

@@ -37,8 +37,7 @@ and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. MAP
 co-seals the resolver source/frame/Scope/Region and the selected
 `0`/`1`/`Less`/`Add` policy. The 19 legacy route labels are ingress coverage,
 not Recipe kinds; this callable maps into the same recursive `LoopRecipeV1`.
-`RECIPE-COSEAL-I0-R0` is next. Accepted r1 keeps Loop continuation and callable
-Tail separate; exact ABI/Completion join later, and one typed session finish must precede DraftSeal. After this row stop before `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`; physical/production/retirement stay closed.
+`RECIPE-COSEAL-I0-R0` is closed as caller-zero evidence; Loop continuation/Tail remain separate. Current frontier is the design stop before `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`; physical/production/retirement stay closed.
 
 ## Root-neutral semantic foundation
 

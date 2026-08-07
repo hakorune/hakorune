@@ -1,8 +1,8 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, and RECIPE-COSEAL-D0-r1 are closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted in advance; RECIPE-COSEAL-I0-R0 remains the next bounded caller-zero implementation; physical/production activation remains 0`
+Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, and RECIPE-COSEAL-D0-r1 are closed; bounded RECIPE-COSEAL-I0-R0 caller-zero implementation is closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted in advance; current frontier is a design stop before CANONICAL-FUNCTION-FINISH-TERMINAL-R0; physical/production activation remains 0`
 
-Current row: `RECIPE-COSEAL-I0-R0`
+Current row: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` (design stop; no implementation yet)
 
 Count/shape invariant: the legacy count of 19 names scheduler ingress and
 coverage rows only. M7/M8 map those rows into one recursive `LoopRecipeV1`
@@ -52,8 +52,11 @@ preserves source/frame/Scope/Region as one product, and unknown root-body
 statements are explicit rejects. MAP-S1 co-seals the nine syntax rows plus
 prefix boundary with resolver BindingRef/assignment/exit evidence and fixes
 the selected `0`/`1`/`Less`/`Add` profile policy. The shallow common
-`RECIPE-COSEAL-D0-r1` design is accepted after external review; the next row is its bounded caller-zero
-`RECIPE-COSEAL-I0-R0` implementation. Do not add row-specific D0 suffixes.
+`RECIPE-COSEAL-D0-r1` design is accepted after external review, and its
+bounded caller-zero `RECIPE-COSEAL-I0-R0` implementation is closed. Do not add
+row-specific D0 suffixes. The next boundary is the typed function-finish
+design stop; do not open physicalization or production selection before that
+boundary is fixed.
 Reuse the common Recipe/physicalizer owners; do not add a Generic-specific
 SSA/PHI owner. Production selection, physical cutover, retry/fallback
 retirement, and legacy deletion remain closed.
@@ -73,8 +76,8 @@ not authorize its R0/I0 rows before the current co-seal implementation closes.
 evidence. The
 resolver-owned typed source view and the AST-free syntax product retain exact
 source roles without copying ValueIds, inferring frames from raw paths, or
-moving Loop policy into the resolver. The common co-seal design is closed;
-implement only the named `RECIPE-COSEAL-I0-R0` slice and do not reopen the old
+moving Loop policy into the resolver. The common co-seal design and its
+bounded `RECIPE-COSEAL-I0-R0` implementation are closed; do not reopen the old
 deep D4 ladder. Recipe/JoinSig, physicalizer, production selection,
 retry/fallback retirement, and legacy deletion remain common/closed owners.
 

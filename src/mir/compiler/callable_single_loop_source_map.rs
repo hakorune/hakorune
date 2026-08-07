@@ -55,6 +55,10 @@ pub(crate) enum CallableSourceMapTargetV1 {
         call: SourceCallBoundaryShapeV1,
         direct_callable: Option<ResolvedCallableRefV1>,
     },
+    Tail {
+        statement: SourceStmtSiteV1,
+        binding: BindingRefV1,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -75,6 +79,80 @@ impl CallableSourceMapRowV1 {
 
     pub(crate) fn target(&self) -> &CallableSourceMapTargetV1 {
         &self.target
+    }
+}
+
+impl CallableSourceMapSiteV1 {
+    pub(crate) fn expression(&self) -> Option<&SourceExprSiteV1> {
+        match self {
+            Self::Expression(site) => Some(site),
+            Self::Statement(_) => None,
+        }
+    }
+
+    pub(crate) fn statement(&self) -> Option<&SourceStmtSiteV1> {
+        match self {
+            Self::Statement(site) => Some(site),
+            Self::Expression(_) => None,
+        }
+    }
+}
+
+impl CallableSourceMapTargetV1 {
+    pub(crate) fn initial_carrier(&self) -> Option<(BindingRefV1, &SourceLiteralShapeV1)> {
+        match self {
+            Self::InitialCarrier { binding, literal } => Some((*binding, literal)),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn binding(&self) -> Option<BindingRefV1> {
+        match self {
+            Self::Binding(binding) => Some(*binding),
+            Self::InitialCarrier { binding, .. } => Some(*binding),
+            Self::Prefix { binding, .. } => Some(*binding),
+            Self::Tail { binding, .. } => Some(*binding),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn literal(&self) -> Option<&SourceLiteralShapeV1> {
+        match self {
+            Self::Literal(literal) => Some(literal),
+            Self::InitialCarrier { literal, .. } => Some(literal),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn operator(&self) -> Option<SyntaxBinaryOperatorV1> {
+        match self {
+            Self::Operator(operator) => Some(*operator),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn prefix(
+        &self,
+    ) -> Option<(
+        BindingRefV1,
+        &SourceCallBoundaryShapeV1,
+        Option<ResolvedCallableRefV1>,
+    )> {
+        match self {
+            Self::Prefix {
+                binding,
+                call,
+                direct_callable,
+            } => Some((*binding, call, *direct_callable)),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn tail(&self) -> Option<(&SourceStmtSiteV1, BindingRefV1)> {
+        match self {
+            Self::Tail { statement, binding } => Some((statement, *binding)),
+            _ => None,
+        }
     }
 }
 
@@ -144,6 +222,59 @@ impl VerifiedCallableSingleLoopSourceMapV1 {
 
     pub(crate) fn prefix(&self) -> &CallableSourceMapRowV1 {
         &self.prefix
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        FunctionOwnerIdV1,
+        FunctionOriginV1,
+        SemanticOwnerSourceKindV1,
+        VerifiedResolvedLoopSourceV1,
+        LoopExecutionFrameKeyV1,
+        ResolvedScopeRegionPairV1,
+        Box<[CallableSourceMapRowV1]>,
+        CallableSourceMapRowV1,
+    ) {
+        (
+            self.owner,
+            self.origin,
+            self.source_kind,
+            self.loop_source,
+            self.loop_frame,
+            self.scope_region,
+            self.rows,
+            self.prefix,
+        )
+    }
+
+    #[cfg(test)]
+    pub(crate) fn replace_prefix_binding_for_test(mut self, binding: BindingRefV1) -> Self {
+        if let CallableSourceMapTargetV1::Prefix {
+            binding: target_binding,
+            ..
+        } = &mut self.prefix.target
+        {
+            *target_binding = binding;
+        }
+        self
+    }
+
+    #[cfg(test)]
+    pub(crate) fn replace_tail_binding_for_test(mut self, binding: BindingRefV1) -> Self {
+        for row in &mut self.rows {
+            if row.role != CallableSourceMapRoleV1::TailReturnRead {
+                continue;
+            }
+            if let CallableSourceMapTargetV1::Tail {
+                binding: target_binding,
+                ..
+            } = &mut row.target
+            {
+                *target_binding = binding;
+            }
+        }
+        self
     }
 }
 
@@ -400,7 +531,10 @@ fn map_tail(
     Ok(CallableSourceMapRowV1 {
         site: CallableSourceMapSiteV1::Expression(fact.value_site().clone()),
         role,
-        target: CallableSourceMapTargetV1::Binding(binding),
+        target: CallableSourceMapTargetV1::Tail {
+            statement: fact.statement_site().clone(),
+            binding,
+        },
     })
 }
 

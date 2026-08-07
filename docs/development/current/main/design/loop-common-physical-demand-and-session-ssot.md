@@ -2,7 +2,8 @@
 Status: SSOT
 Date: 2026-08-07
 Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
-Activation: 0; the current executable row remains `RECIPE-COSEAL-I0-R0`
+Activation: 0; bounded `RECIPE-COSEAL-I0-R0` is closed; current execution is
+the design stop before `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -523,7 +524,7 @@ of nested design suffixes unless a code audit proves one named missing owner.
 
 | Order | Row | One claim | Stop line |
 | ---: | --- | --- | --- |
-| 0 | `RECIPE-COSEAL-I0-R0` | caller-zero common logical co-seal plus separate Prelude/Tail source contracts | current executable row; no ABI/Completion issuance; stop after closeout |
+| 0 | `RECIPE-COSEAL-I0-R0` | caller-zero common logical co-seal plus separate Prelude/Tail source contracts | closed caller-zero implementation; no ABI/Completion issuance |
 | 1 | `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` | migrate existing canonical V2 paths to one `finish_for_draft_seal` issuer; freeze non-V2 direct construction as compat debt | BoxShape-only; accepted profiles and MIR unchanged |
 | 2 | `LOOP-PHYSICAL-PREPARE-I0-R0` | common demand plus callable prepared product; exact ABI/Completion are consumed from existing issuers | caller-zero; no physicalizer, Builder emission, or selector |
 | 3 | `GENERIC-G0-PHYSICAL-PREPARE-P0` | exact-move G0 adapter issues the same inner demand plus distinct G0 Tail | `NoSafeSlice` if source truth must be copied or reverified |
@@ -615,6 +616,6 @@ implementation receipt exists.
 ## Current stop
 
 The architecture is accepted in advance, but execution authority does not
-move. The current row remains the bounded caller-zero
-`RECIPE-COSEAL-I0-R0`. After it lands, stop and ask before opening
-`CANONICAL-FUNCTION-FINISH-TERMINAL-R0`.
+move past the current design stop. The bounded caller-zero
+`RECIPE-COSEAL-I0-R0` implementation is closed. Stop and consult before
+opening `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`.

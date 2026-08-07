@@ -148,6 +148,26 @@ implementation row must update this reference page and
 fresh-session, atomic rollback, backend parity, and caller-zero gates close,
 this section remains a design receipt rather than a production claim.
 
+## Callable single-loop co-seal implementation receipt (2026-08-07)
+
+`RECIPE-COSEAL-I0-R0` is now closed as caller-zero evidence. The test-only
+`callable_single_loop_recipe_coseal.rs` consumes the sealed callable source map
+once and delegates Recipe verification, JoinSig elaboration, and source-bound
+Core sealing to their existing owners. It emits one common recursive
+`LoopRecipeV1` with one carrier, one explicit preheader input, seven logical
+operations, and one verified Loop After binding. The callable Prelude and Tail
+remain separate sibling contracts; the Tail is the exact terminal statement
+site and binding from the resolver/MAP product, not a reconstructed path.
+
+The producer id `callable_single_loop_v1` is test-only provenance for this
+caller-zero profile and is not a legacy route alias. The product has no
+Builder/MIR/ValueId/BasicBlockId, ABI/Completion, physicalizer, selector,
+retry, fallback, or production-publication authority. Focused tests cover the
+positive co-seal, source-view lifetime independence, Prefix/Tail mismatch, and
+Tail/Loop-After fusion rejection. The source files remain below the 800-line
+lane limit. Physical preparation, function-terminal completion, production
+selection, and legacy deletion remain closed.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local

@@ -69,6 +69,9 @@ pub(crate) use generic_g0::{
 };
 
 #[cfg(test)]
+pub(crate) use source_bound_core::issue_source_bound_core_for_test;
+
+#[cfg(test)]
 mod tests;
 
 // M2 is intentionally disconnected. Keep one stable facade for later producers

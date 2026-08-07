@@ -70,8 +70,9 @@ Related:
   evidence. The shallow `RECIPE-COSEAL-D0` common design is now accepted:
   existing Core remains the common owner, while operation/input source
   relations, semantic-context, and After/Tail are co-sealed without a
-  callable-specific Recipe/SSA/PHI owner. The current execution row is the
-  bounded caller-zero `RECIPE-COSEAL-I0-R0` implementation; physicalization,
+  callable-specific Recipe/SSA/PHI owner. The bounded caller-zero
+  `RECIPE-COSEAL-I0-R0` implementation is closed. The current frontier is a
+  design stop before `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`; physicalization,
   production selection, strict receipt, retry/fallback retirement, and legacy
   deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

@@ -208,9 +208,10 @@ permission for a nine-folder bulk move, and they must not collapse the existing
 
 ## Parked post-Loop task order
 
-The current `RECIPE-COSEAL-I0-R0` row and its production Loop cutover/retirement
-chain remain ahead of this BoxShape cleanup. Do not move old Loop authorities
-that the cutover will delete.
+The current `RECIPE-COSEAL-I0-R0` row is closed, but its production Loop
+cutover/retirement chain remains parked behind the typed function-finish
+design stop. Do not move old Loop authorities that the future cutover will
+delete.
 
 ### `MIR-TOPOLOGY-REBASE0-P0`
 

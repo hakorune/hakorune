@@ -402,3 +402,42 @@ This is intentionally smaller than crate split.
 - `CURRENT_TASK.md` points to it
 - `10-Now.md` mentions the fixed order
 - the P0 first batch is landed: root archive relocation + `*.err` ignore policy
+
+## Final convergence acceptance (post-cutover)
+
+The cleanup lane is complete only when the physical repository and the live
+design pointers describe the same one-way compiler. These are end-state
+conditions, not permission to open work before the active Loop cutover and
+its typed function-finish design stop are complete.
+
+- one overall pipeline authority remains:
+  `mirbuilder-final-pipeline-ssot.md` owns
+  `Resolve -> Observe -> Facts -> Recipe -> Verify -> Lower -> Seal -> Collect
+  -> Atomic Publish`; `compiler-pipeline-ssot.md` is historical/supporting
+  text only and is not a competing SSOT
+- after Loop production cutover, fallback, retry, re-selection, and the
+  replaced scheduler/PHI edges for that responsibility are zero; the old
+  edge is deleted in the same replacement cell
+- `src/mir/mod.rs` exposes durable facades only; pilot/seed/raw/legacy
+  surfaces have an explicit promote, quarantine, or retire disposition and
+  no unclassified root authority remains
+- Rust, `.hako`, and compatibility roles are explicit: `.hako` owns language
+  meaning, Rust owns MIR substrate/host/backend/oracle duties, and compat is
+  an explicit quarantine with no default fallback; unnamed middle ownership
+  is zero
+- mixed context ownership is either decomposed into named catalogs/environments
+  (for example `SourceCatalog`, `CallableCatalog`, `TypeEnvironment`, and
+  `CompilationOptions`) or has a named owner, blocker, and removal condition;
+  JoinIR/passes must not silently regain AST/runtime/config authority
+- `CURRENT_STATE.toml`, current mirrors, task maps, and guards agree on one
+  active row; the live pointer is compact and historical ledgers are not used
+  as executable authority
+- Design Authority Registry classification reaches strict mode with
+  `unregistered_baseline = 0` only after its own consumer census and cutover;
+  this cleanup document does not create a second registry or bypass that lane
+- every temporary proof/receipt/adapter is either promoted to a durable owner,
+  quarantined with an explicit caller boundary, or removed with a recorded
+  evidence-based retirement condition
+- each implementation row updates its owning reference/README and the
+  current-entry mirrors in the same commit; post-cutover reference updates
+  are part of completion, not a follow-up task

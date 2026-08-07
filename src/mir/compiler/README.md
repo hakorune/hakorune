@@ -23,6 +23,22 @@ Exact child-site navigation belongs to B0-L2b. Function transaction cleanup
 belongs to B0-L2c. BindingId adoption and production semantic activation belong
 to atomic SA3-B.
 
+## Callable single-loop Recipe co-seal (caller-zero)
+
+`callable_single_loop_recipe_coseal.rs` is a `cfg(test)` implementation of the
+closed `RECIPE-COSEAL-I0-R0` row. It consumes the resolver/MAP product exactly
+once and delegates Recipe verification, JoinSig, and source-bound Core sealing
+to their existing owners. The common result is
+`VerifiedLoopRecipeCoSealV1`; callable Prelude and Tail remain disjoint sibling
+contracts. `callable_single_loop_recipe_shape.rs` contains only the fixed
+logical Recipe fixture so each source file stays below the 800-line lane cap.
+
+This boundary owns no AST rematch, Builder/MIR/ValueId/BasicBlockId, ABI,
+Completion, physicalizer, selector, retry, fallback, or production route. The
+exact Tail statement site is carried by the source-map target; it is not
+reconstructed from a name or ordinal. Physical preparation and production
+selection remain closed until a later explicit row.
+
 ## Generic G0 S0A source projector
 
 `generic_g0_projection/` is the only AST-bearing source projector for the

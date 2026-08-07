@@ -62,6 +62,21 @@ explicit production-caller row; it has no Builder/MIR, physical, completion,
 retry/fallback, or legacy-deletion authority. The implementation receipt is
 in `docs/reference/mir/generic-loop-stage-matrix.md`.
 
+## Callable single-loop co-seal (caller-zero)
+
+The selected callable single-loop profile is not a second Recipe family. Its
+`cfg(test)` producer consumes the resolver/MAP source product once, builds the
+same recursive `LoopRecipeV1`, and delegates structural verification, JoinSig,
+and source-bound Core sealing to the common owners. It publishes the common
+`VerifiedLoopRecipeCoSealV1` together with separate callable Prelude/Tail
+source contracts. The Tail retains its exact terminal statement site and
+prefix binding; it cannot fuse with the logical Loop After binding.
+
+This row owns no Builder/MIR, physical IDs, ABI/Completion, selector,
+physicalizer, retry, fallback, production route, or legacy deletion. The
+test-only producer id `callable_single_loop_v1` is provenance only and is not a
+legacy route alias. Physical preparation remains a later explicit row.
+
 ## Generic legacy corpus inventory
 
 The pre-production legacy inventory is intentionally outside this portable
