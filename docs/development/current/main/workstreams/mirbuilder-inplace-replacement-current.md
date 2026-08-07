@@ -56,8 +56,11 @@ Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical S
 `CALLABLE-LOOP-PRODUCTION-EDGE-D0`/`ADMISSION-D0` are `NoSafeSlice`. The
 `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` design is accepted without a
 new Bridge owner: resolver ledger plus neutral SyntaxFacts/SourceMap are the
-target. Next is `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`;
-Recipe/Prepared issuance, selection, Generic G0, retry/fallback, and legacy retirement remain closed.
+target. S0-A source navigation is green and S0-B now compiles the neutral
+SyntaxFacts/SourceMap issuers in production scope while keeping fixture
+constructors and mutation helpers test-only. Production issuer integration and
+source-to-ledger parity remain in S0; Recipe/Prepared issuance, selection,
+Generic G0, retry/fallback, and legacy retirement remain closed.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
@@ -528,7 +531,11 @@ Done:
   Bridge D0 is accepted: no new semantic Bridge owner; the resolver ledger,
   neutral SyntaxFacts, and SourceMap are the target. S0 must provide the
   resolver-owned site issuer, owner-branded navigation, production issuers,
-  source-to-ledger parity, typed rejects, and caller-zero evidence. First API slice is green: `only_loop_site()` and `stmt_at(membership)` have positive/cardinality/inventory-negative tests; neutral issuer promotion remains.
+  source-to-ledger parity, typed rejects, and caller-zero evidence. First API
+  slice is green: `only_loop_site()` and `stmt_at(membership)` have
+  positive/cardinality/inventory-negative tests. S0-B now compiles neutral
+  SyntaxFacts/SourceMap issuers in production scope while fixture constructors
+  and mutation helpers remain test-only; integration and parity remain.
 
 Stop:
   Recipe/Prepared physicalization, physical Loop emission, I0 caller switch,
@@ -763,7 +770,6 @@ closed
     FieldGet routes from Builder type/origin state. Broad Script FieldAccess
     would bypass or discard sealed facts and can shift diagnostics. A future
     record-only field-read family needs its own source/result receipt boundary.
-
   RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
   -> one declaration-facts collection lends a positive-only schema view before
      the same product installs once in RootLower. Record declarations transfer
@@ -776,7 +782,6 @@ closed
      as `Void`, matching the interpreter. The minimal legacy record Program
      finalizes and supplies the prerequisite parity fixture; schema/default,
      Script routing, and record publication remain unchanged.
-
   RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0
   -> Accepts a source-only seam: `PreparedNormalProgramDeclarationFactsV1`
      already derives record fields/defaults from Program without Builder access.
@@ -798,7 +803,6 @@ closed
      `CheckItem(n)` receipts, the existing eager Select owner, fixture ratchet,
      and its old Deferred edge are all closed. RecordLiteral is the sole next
      candidate, requiring a contract/default-field D0 before any I0.
-
   RAW-SCRIPT-MAP-LITERAL-COMPOSITIONAL-MUTATION-DESCENT0-I0-R0
   -> selected Script Map values now receive exact `MapEntryValue(n)` source
      receipts through the structured child port. The existing Map owner remains
@@ -981,20 +985,16 @@ ordered after B-prime correction
   7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance
 
 R4
-  MIRBUILDER-R4-FINAL-CONFORMANCE0-C0 after all active rows above have exact
-  retire/reown/retain decisions
-
-after final-pipeline Complete only
-  refresh missing-feature / Home ownership readiness inventory
-  resume the parked Home ownership taskboard at OWNERSHIP-HOME-RESUME-D0
-  then select later unimplemented language features
+  MIRBUILDER-R4-FINAL-CONFORMANCE0-C0 after all active rows have exact
+  retire/reown/retain decisions.
+After final-pipeline Complete only: refresh missing-feature/Home readiness,
+resume OWNERSHIP-HOME-RESUME-D0, then select later language features.
 ```
 ## Parked
 ```text
 source-level Home ownership and unimplemented language features until the
-repository-wide final pipeline is Complete
-.hako selfhost MirBuilder/parser migration (current/target scope is fixed in its owning SSOT)
-post-Loop MIR root-module/current-state/design-registry cleanup (owning SSOT task order only)
-new language semantics
-default Raw/Canonical cutover before final conformance
+repository-wide final pipeline is Complete; .hako selfhost MirBuilder/parser
+migration and post-Loop root/current-state/design-registry cleanup follow their
+owning SSOT task orders; new language semantics and default Raw/Canonical
+cutover remain parked before final conformance.
 ```

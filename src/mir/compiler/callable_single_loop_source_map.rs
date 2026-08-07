@@ -5,8 +5,6 @@
 //! neutral source shapes; the ledger owns resolver identity.  This box merely
 //! co-seals their exact sites before a later Recipe design is opened.
 
-#![cfg(test)]
-
 use crate::mir::resolved_semantics::{
     BindingRefV1, CallableSemanticSourceLedgerView, FunctionOriginV1, FunctionOwnerIdV1,
     LoopExecutionFrameKeyV1, ResolvedAssignmentTargetV1, ResolvedCallableRefV1,

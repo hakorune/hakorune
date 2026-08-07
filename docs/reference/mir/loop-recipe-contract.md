@@ -497,9 +497,11 @@ session/Completion, selection, fallback, and legacy deletion remain closed.
 ## Callable source-shape split receipt (2026-08-07)
 
 `CALLABLE-SOURCE-SHAPE-THIN0` is closed as a behavior-neutral BoxShape slice.
-The observer's neutral syntax vocabulary now lives in the small test-only
-`callable_single_loop_source_shapes.rs` module, while syntax-observer and
-source-map tests live in sibling files. `SourceCallKindV1::Method` and
+The observer's neutral syntax vocabulary now lives in the small
+`callable_single_loop_source_shapes.rs` module. The neutral SyntaxFacts and
+SourceMap issuers compile in production scope; fixture constructors,
+mutation helpers, and syntax-observer/source-map tests remain test-only
+siblings. `SourceCallKindV1::Method` and
 `SourceCallKindV1::FreeStatic` are explicit shape labels; neither label is a
 resolver target or a proof of a callable ABI. The existing `helper.to_i64(n)`
 MethodCall remains the typed `MissingPreludeTarget` negative.

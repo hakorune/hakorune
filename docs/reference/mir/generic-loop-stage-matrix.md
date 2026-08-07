@@ -38,6 +38,18 @@ Production selection remains the ordered registry in
 `predicates.rs`. The `loop_route_policy::generic_g0` subtree now owns a
 caller-zero AST-free observation only; it is not a Generic winner oracle.
 
+## Callable source/facts issuer S0 receipt
+
+The callable S0 promotion compiles the neutral SyntaxFacts, source-shape, and
+SourceMap issuers in production scope while keeping fixture constructors and
+mutation helpers test-only. The resolver site seam is
+`CallableSemanticSourceLedgerView::only_loop_site()`; the source navigation
+seam is branded `FunctionSourceViewV1::stmt_at(membership)`. Zero/multiple
+Loop sites and cross-brand memberships are typed rejects. This is still
+source/facts transport only: Recipe/JoinSig, Prepared physicalization,
+selection, retry/fallback, Generic substitution, and production caller
+activation remain closed.
+
 ## Current common physicalizer boundary
 
 `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` is closed as a caller-zero,

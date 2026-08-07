@@ -40,8 +40,10 @@ reconstructed from a name or ordinal. Physical preparation and production
 selection remain closed until a later explicit row.
 
 The bounded `CALLABLE-SOURCE-SHAPE-THIN0` split keeps neutral syntax shapes in
-`callable_single_loop_source_shapes.rs` and keeps observer/source-map tests in
-test-only sibling files. `CALLABLE-STATIC-PREFIX-S0` now adds a separate
+`callable_single_loop_source_shapes.rs`; the neutral SyntaxFacts and
+SourceMap issuers now compile in production scope, while fixture constructors,
+mutation helpers, and observer/source-map tests remain test-only siblings.
+`CALLABLE-STATIC-PREFIX-S0` now adds a separate
 top-level resolver/catalog fixture (`int_to_str` -> `to_i64`) and records
 explicit `FreeStatic` shape plus direct-call ledger evidence without target
 injection. `Method` remains the existing typed negative; neither shape issues

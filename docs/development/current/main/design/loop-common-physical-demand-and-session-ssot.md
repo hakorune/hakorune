@@ -695,9 +695,11 @@ from test fixtures and promoted in
 `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-ISSUER-S0`. The resolver seam is
 `CallableSemanticSourceLedgerView::only_loop_site()` and the observer seam is
 `FunctionSourceViewV1::stmt_at(membership)`; zero/multiple sites are typed
-`NoSafeSlice`. The current issuers remain `cfg(test)` until that row lands. A
-by-name adapter, fixture copying, selector, retry, fallback, Generic G0
-substitution, or legacy deletion is not authorized by this census.
+`NoSafeSlice`. The neutral SyntaxFacts and SourceMap issuers now compile in
+production scope, but they have no production caller or physical consumer.
+Recipe/Prepared issuance remains closed. A by-name adapter, fixture copying,
+selector, retry, fallback, Generic G0 substitution, or legacy deletion is not
+authorized by this census.
 
 ### Production admission contract (design-only)
 

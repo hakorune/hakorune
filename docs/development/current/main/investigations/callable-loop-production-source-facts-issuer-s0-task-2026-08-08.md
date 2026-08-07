@@ -3,11 +3,13 @@
 Status: implementation task after the accepted
 `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` design.
 
-Implementation receipt (first S0 slice, 2026-08-08): resolver
+Implementation receipt (S0-A/S0-B, 2026-08-08): resolver
 `CallableSemanticSourceLedgerView::only_loop_site()` and owner-branded
-`FunctionSourceViewV1::stmt_at(membership)` are now sealed with positive and
-zero/multiple/inventory-negative tests. Neutral SyntaxFacts/SourceMap
-production promotion remains the next S0 slice.
+`FunctionSourceViewV1::stmt_at(membership)` are sealed with positive and
+zero/multiple/inventory-negative tests. The neutral SyntaxFacts, source-shape,
+and SourceMap modules now compile in production scope; fixture constructors,
+mutation helpers, and tests remain test-only. Production issuer integration and
+source-to-ledger parity are the remaining S0 scope.
 
 ## Objective
 

@@ -5,8 +5,6 @@
 //! shapes only; it never carries AST, names as identity, ValueIds, or Recipe
 //! meaning into a downstream consumer.
 
-#![cfg(test)]
-
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, SemanticOwnerSourceKindV1, SourceExprSiteV1,

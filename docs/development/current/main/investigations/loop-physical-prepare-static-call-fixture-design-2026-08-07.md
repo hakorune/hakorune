@@ -62,11 +62,12 @@ SourceCallBoundaryShapeV1::FreeStatic { argument_count }
 ### 1. Keep source-shape files below 800 lines
 
 `callable_single_loop_syntax_facts.rs` and
-`callable_single_loop_source_map.rs` are already near the source limit. First
-extract their embedded test modules into test-only sibling files, then place
-the neutral call-shape vocabulary in a small shared
-`callable_single_loop_source_shapes.rs` module. The production/test-only
-observer files remain thin and each stays below 800 lines.
+`callable_single_loop_source_map.rs` are already near the source limit. Their
+neutral issuer bodies now compile in production scope; embedded fixture
+constructors, mutation helpers, and tests remain in test-only siblings. The
+neutral call-shape vocabulary lives in the small shared
+`callable_single_loop_source_shapes.rs` module. All production/test-only
+files remain thin and below 800 lines.
 
 No broad rename or new root facade is allowed in this row.
 

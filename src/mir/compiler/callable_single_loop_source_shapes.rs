@@ -3,8 +3,6 @@
 //! This module records only as-written call/literal/operator shapes.  It owns
 //! no resolver target, Recipe relation, ValueId, CFG, or physical policy.
 
-#![cfg(test)]
-
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
 use super::located::LocatedExprV1;
