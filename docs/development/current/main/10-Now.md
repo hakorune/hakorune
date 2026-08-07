@@ -126,11 +126,10 @@ Related:
   single Loop site (zero/multiple sites are typed `NoSafeSlice`), and
   owner-branded `FunctionSourceViewV1::stmt_at(membership)` supplies exact source
   navigation; this resolver/navigation slice is now green with typed
-  cardinality/inventory rejects. S0-B now compiles the neutral SyntaxFacts and
-  SourceMap issuers in production scope while keeping fixture constructors and
-  mutation helpers test-only; production issuer integration and
-  source-to-ledger parity remain. Recipe/Prepared production issuance,
-  Recipe/Prepared production issuance,
+  cardinality/inventory rejects. S0-B compiles the neutral SyntaxFacts and
+  SourceMap issuers in production scope, and S0-C connects the issuer entry
+  with a resolver-identity SourceMap parity receipt; the broader negative
+  matrix and final caller-zero audit remain. Recipe/Prepared production issuance,
   physical selection, named caller switch, Generic G0, retry/fallback
   retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue

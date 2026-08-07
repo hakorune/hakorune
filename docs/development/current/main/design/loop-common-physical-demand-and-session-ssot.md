@@ -696,7 +696,9 @@ from test fixtures and promoted in
 `CallableSemanticSourceLedgerView::only_loop_site()` and the observer seam is
 `FunctionSourceViewV1::stmt_at(membership)`; zero/multiple sites are typed
 `NoSafeSlice`. The neutral SyntaxFacts and SourceMap issuers now compile in
-production scope, but they have no production caller or physical consumer.
+production scope; their bounded entry uses resolver `only_loop_site()` plus
+branded `stmt_at`, and the SourceFacts -> SourceMap parity receipt preserves
+resolver identity. They still have no production caller or physical consumer.
 Recipe/Prepared issuance remains closed. A by-name adapter, fixture copying,
 selector, retry, fallback, Generic G0 substitution, or legacy deletion is not
 authorized by this census.

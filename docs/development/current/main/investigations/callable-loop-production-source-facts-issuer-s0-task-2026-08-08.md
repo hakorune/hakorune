@@ -8,8 +8,13 @@ Implementation receipt (S0-A/S0-B, 2026-08-08): resolver
 `FunctionSourceViewV1::stmt_at(membership)` are sealed with positive and
 zero/multiple/inventory-negative tests. The neutral SyntaxFacts, source-shape,
 and SourceMap modules now compile in production scope; fixture constructors,
-mutation helpers, and tests remain test-only. Production issuer integration and
-source-to-ledger parity are the remaining S0 scope.
+mutation helpers, and tests remain test-only. The bounded issuer integration
+now calls the resolver-owned cardinality seam and branded `stmt_at` entry
+before the existing facts observer; a multiple-site reject is covered before
+source navigation. A SourceFacts -> SourceMap parity fixture confirms that
+the resolver Loop site/frame/Scope-Region survives both existing products.
+The broader negative matrix and final caller-zero/current receipt audit remain
+in S0.
 
 ## Objective
 

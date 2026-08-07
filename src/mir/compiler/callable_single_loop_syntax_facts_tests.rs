@@ -145,6 +145,60 @@ fn issues_exact_nine_rows_plus_prefix_boundary() {
 }
 
 #[test]
+fn ledger_issuer_uses_exact_loop_membership_and_source_view() {
+    let unit = unit(None, integer(1));
+    let input = unit.root_function_input().expect("root function input");
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("callable ledger");
+    let facts = issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger)
+        .expect("ledger-backed syntax facts");
+
+    assert_eq!(
+        facts.loop_site(),
+        ledger.only_loop_site().unwrap().source().site()
+    );
+}
+
+#[test]
+fn ledger_issuer_rejects_foreign_compilation_brand() {
+    let first = unit(None, integer(1));
+    let second = unit(None, integer(1));
+    let input = first.root_function_input().expect("first input");
+    let other_input = second.root_function_input().expect("second input");
+    let ledger = other_input
+        .forest()
+        .callable_source_ledger(other_input.owner())
+        .expect("foreign ledger");
+
+    assert_eq!(
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger),
+        Err(CallableSyntaxFactsRejectV1::ForeignOwner)
+    );
+}
+
+#[test]
+fn ledger_issuer_rejects_multiple_loop_sites_before_source_navigation() {
+    let extra_loop = ASTNode::Loop {
+        condition: Box::new(integer(1)),
+        body: Vec::new(),
+        span: Span::unknown(),
+    };
+    let unit = unit(Some(extra_loop), integer(1));
+    let input = unit.root_function_input().expect("root function input");
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("callable ledger");
+
+    assert_eq!(
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger),
+        Err(CallableSyntaxFactsRejectV1::LoopCardinality)
+    );
+}
+
+#[test]
 fn product_survives_source_unit_drop() {
     let facts = {
         let unit = unit(None, integer(1));

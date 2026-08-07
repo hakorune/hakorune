@@ -44,8 +44,10 @@ The callable S0 promotion compiles the neutral SyntaxFacts, source-shape, and
 SourceMap issuers in production scope while keeping fixture constructors and
 mutation helpers test-only. The resolver site seam is
 `CallableSemanticSourceLedgerView::only_loop_site()`; the source navigation
-seam is branded `FunctionSourceViewV1::stmt_at(membership)`. Zero/multiple
-Loop sites and cross-brand memberships are typed rejects. This is still
+seam is branded `FunctionSourceViewV1::stmt_at(membership)`. The production
+issuer entry uses those seams, and the SourceFacts -> SourceMap parity fixture
+preserves resolver Loop/frame/Scope-Region identity. Zero/multiple Loop sites
+and cross-brand memberships are typed rejects. This is still
 source/facts transport only: Recipe/JoinSig, Prepared physicalization,
 selection, retry/fallback, Generic substitution, and production caller
 activation remain closed.

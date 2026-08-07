@@ -7,8 +7,9 @@
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
-    FunctionOriginV1, FunctionOwnerIdV1, SemanticOwnerSourceKindV1, SourceExprSiteV1,
-    SourceStmtSiteV1, VerifiedCallableLoopMembershipV1,
+    CallableSemanticSourceLedgerView, FunctionOriginV1, FunctionOwnerIdV1,
+    SemanticOwnerSourceKindV1, SourceExprSiteV1, SourceStmtSiteV1,
+    VerifiedCallableLoopMembershipV1,
 };
 
 use super::callable_single_loop_source_shapes::{
@@ -320,6 +321,28 @@ pub(crate) fn issue_callable_single_loop_syntax_facts_v1(
         tail,
         _seal: VerifiedSourceSyntaxFactsSealV1,
     })
+}
+
+/// Issue the neutral source facts through the resolver-owned exact Loop seam.
+///
+/// This is the production ingress for the source/facts row: the resolver
+/// chooses the unique Loop membership, and the branded source view reopens
+/// that exact statement. It never reconstructs a path, ordinal, or name.
+pub(crate) fn issue_callable_single_loop_syntax_facts_from_ledger_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+) -> Result<VerifiedSourceSyntaxFactsV1, CallableSyntaxFactsRejectV1> {
+    if input.owner() != ledger.owner() {
+        return Err(CallableSyntaxFactsRejectV1::ForeignOwner);
+    }
+    let loop_context = ledger
+        .only_loop_site()
+        .map_err(|_| CallableSyntaxFactsRejectV1::LoopCardinality)?;
+    let loop_stmt = input
+        .source()
+        .stmt_at(&loop_context)
+        .map_err(|_| CallableSyntaxFactsRejectV1::SourceNavigation)?;
+    issue_callable_single_loop_syntax_facts_v1(input, loop_stmt, loop_context)
 }
 
 fn observe_locals(

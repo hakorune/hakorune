@@ -35,6 +35,25 @@ fn issue(
 }
 
 #[test]
+fn ledger_backed_facts_and_map_preserve_resolver_loop_identity() {
+    let unit = positive();
+    let input = unit.root_function_input().expect("root function input");
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("ledger");
+    let facts = super::super::callable_single_loop_syntax_facts::
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger)
+        .expect("facts");
+    let expected_site = facts.loop_site().clone();
+    let map = issue_callable_single_loop_source_map_v1(&ledger, facts).expect("map");
+
+    assert_eq!(map.loop_source().site(), &expected_site);
+    assert_eq!(map.loop_source().frame_key(), *map.loop_frame());
+    assert_eq!(map.scope_region().scope().owner(), map.owner());
+}
+
+#[test]
 fn seals_nine_rows_plus_prefix_with_resolver_identity() {
     let unit = positive();
     let (_, map) = issue(&unit);

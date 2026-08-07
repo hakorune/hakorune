@@ -43,6 +43,10 @@ The bounded `CALLABLE-SOURCE-SHAPE-THIN0` split keeps neutral syntax shapes in
 `callable_single_loop_source_shapes.rs`; the neutral SyntaxFacts and
 SourceMap issuers now compile in production scope, while fixture constructors,
 mutation helpers, and observer/source-map tests remain test-only siblings.
+The production issuer entry obtains the exact Loop membership from
+`CallableSemanticSourceLedgerView::only_loop_site()` and reopens it only via
+`FunctionSourceViewV1::stmt_at(membership)`; SourceMap parity remains a
+source-only check and never creates a Bridge owner.
 `CALLABLE-STATIC-PREFIX-S0` now adds a separate
 top-level resolver/catalog fixture (`int_to_str` -> `to_i64`) and records
 explicit `FreeStatic` shape plus direct-call ledger evidence without target

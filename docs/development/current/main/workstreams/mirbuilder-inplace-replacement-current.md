@@ -56,11 +56,12 @@ Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical S
 `CALLABLE-LOOP-PRODUCTION-EDGE-D0`/`ADMISSION-D0` are `NoSafeSlice`. The
 `CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` design is accepted without a
 new Bridge owner: resolver ledger plus neutral SyntaxFacts/SourceMap are the
-target. S0-A source navigation is green and S0-B now compiles the neutral
+target. S0-A source navigation is green and S0-B compiles the neutral
 SyntaxFacts/SourceMap issuers in production scope while keeping fixture
-constructors and mutation helpers test-only. Production issuer integration and
-source-to-ledger parity remain in S0; Recipe/Prepared issuance, selection,
-Generic G0, retry/fallback, and legacy retirement remain closed.
+constructors and mutation helpers test-only. S0-C connects the issuer entry
+and SourceMap parity receipt; the broader negative matrix and final caller-zero
+audit remain. Recipe/Prepared issuance, selection, Generic G0, retry/fallback,
+and legacy retirement remain closed.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
@@ -531,11 +532,12 @@ Done:
   Bridge D0 is accepted: no new semantic Bridge owner; the resolver ledger,
   neutral SyntaxFacts, and SourceMap are the target. S0 must provide the
   resolver-owned site issuer, owner-branded navigation, production issuers,
-  source-to-ledger parity, typed rejects, and caller-zero evidence. First API
-  slice is green: `only_loop_site()` and `stmt_at(membership)` have
-  positive/cardinality/inventory-negative tests. S0-B now compiles neutral
-  SyntaxFacts/SourceMap issuers in production scope while fixture constructors
-  and mutation helpers remain test-only; integration and parity remain.
+  source-to-ledger parity, typed rejects, and caller-zero evidence. The issuer
+  entry now consumes `only_loop_site()` and `stmt_at(membership)`; a multiple
+  site reject and SourceFacts/SourceMap resolver-identity parity are green.
+  S0-B keeps neutral issuers production-scoped while fixture constructors and
+  mutation helpers remain test-only; the broader negative matrix and final
+  caller-zero audit remain.
 
 Stop:
   Recipe/Prepared physicalization, physical Loop emission, I0 caller switch,
@@ -776,7 +778,6 @@ closed
      while retaining their existing runtime owner; fully explicit known
      non-generic literals use sealed exact field receipts. Defaults and invalid
      forms stay Deferred. Focused record/schema/reuse parity is green.
-
   RAW-SCRIPT-RECORD-RESULT-TYPE0-I0-R0
   -> `publish_record_local_fields` now publishes successful `RecordValuePublish`
      as `Void`, matching the interpreter. The minimal legacy record Program
@@ -789,7 +790,6 @@ closed
      and move the same prepared product to RootLower for install. Future
      Complete closure is known non-generic RecordLiteral with every field
      explicit; all residual forms retain existing diagnostics.
-
   RAW-SCRIPT-RECORD-LITERAL-COMPOSITIONAL-CONTRACT-DESCENT0-D0
   -> NoSafeSlice. `RecordFieldValue(n)` receipts cover explicit fields, but
      the existing Record owner subsequently lowers omitted declaration defaults
