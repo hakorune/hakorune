@@ -15,6 +15,7 @@ use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     CanonicalBindingReadReceiptV1, ResolvedSsaIdentityStateV2,
 };
+use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
     LoopBinaryI64OpV1, LoopBlockKeyV1, LoopCompareI64OpV1, LoopItemKeyV1, LoopNodeKeyV1,
     LoopOperationV1, LoopValueClassV1, LoopValueKeyV1, PreparedLoopReadBindingRowV1,
@@ -93,6 +94,10 @@ impl LoopOperationValueStateV1 {
     pub(super) fn get(&self, key: LoopValueKeyV1) -> Option<ValueId> {
         self.values.get(&key).copied()
     }
+
+    pub(super) fn contains(&self, key: LoopValueKeyV1) -> bool {
+        self.values.contains_key(&key)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -136,6 +141,10 @@ impl PreparedLoopReadBindingEmissionV1 {
             entry_requirement,
             class: row.class(),
         }
+    }
+
+    pub(super) const fn result(&self) -> LoopValueKeyV1 {
+        self.result
     }
 }
 
@@ -248,6 +257,20 @@ pub(super) struct CanonicalBindingReadServicesV1<'a, 'source> {
     pub(super) phis: &'a mut PhiTxn,
 }
 
+/// Borrowed Builder/type emission services for one pure operation.
+///
+/// CFG allocation belongs to `LoopPhysicalServicesV1`; operation emission
+/// receives an already-issued physical block receipt and needs no CFG owner.
+pub(super) struct LoopOperationServicesV1<'a> {
+    pub(super) builder: &'a mut MirBuilder,
+}
+
+impl<'a> LoopOperationServicesV1<'a> {
+    pub(super) fn new(builder: &'a mut MirBuilder) -> Self {
+        Self { builder }
+    }
+}
+
 impl<'a, 'source> CanonicalBindingReadServicesV1<'a, 'source> {
     fn claim_and_read(
         &mut self,
@@ -287,7 +310,14 @@ pub(super) fn emit_prepared_operation_v1(
     services: &mut LoopPhysicalServicesV1<'_>,
 ) -> Result<LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1> {
     let mut state = LoopOperationValueStateV1::default();
-    emit_prepared_pure_operation_v1(prepared, &mut state, entry, block_receipt, services)
+    let mut operation_services = LoopOperationServicesV1::new(services.builder);
+    emit_prepared_pure_operation_v1(
+        prepared,
+        &mut state,
+        entry,
+        block_receipt,
+        &mut operation_services,
+    )
 }
 
 /// Emit one prepared pure operation.  Read/Write operations use their own
@@ -299,7 +329,7 @@ pub(super) fn emit_prepared_pure_operation_v1(
     state: &mut LoopOperationValueStateV1,
     entry: &ReadyLoopEntryV1,
     block_receipt: &LoopPhysicalBlockReceiptV1,
-    services: &mut LoopPhysicalServicesV1<'_>,
+    services: &mut LoopOperationServicesV1<'_>,
 ) -> Result<LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1> {
     if entry.owner() != prepared.owner {
         return Err(LoopOperationEmissionRejectV1::EntryOwnerMismatch);

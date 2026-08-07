@@ -155,7 +155,7 @@ cover pure `ConstI64`, `BinaryI64`, and `CompareI64` operations, with a focused
 Const -> Binary -> Compare fixture and source-bound Write projection tests.
 
 This remains preparation evidence, not full physicalization. The common
-Read/Const/Compare/Binary/Write dispatcher, exact Prelude receipt,
+bounded row-level Read/Const/Compare/Binary/Write dispatcher seam, exact Prelude receipt,
 Tail-to-ValueId/completion claim, fresh callable session, and DraftSeal path
 remain open. Generic G0 parity, production selection, retry/fallback, and
 legacy deletion remain closed.
