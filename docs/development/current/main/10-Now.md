@@ -128,10 +128,11 @@ Related:
   navigation; this resolver/navigation slice is now green with typed
   cardinality/inventory rejects. S0-B compiles the neutral SyntaxFacts and
   SourceMap issuers in production scope, and S0-C connects the issuer entry
-  with a resolver-identity SourceMap parity receipt; the broader negative
-  matrix and final caller-zero audit remain. Recipe/Prepared production issuance,
-  physical selection, named caller switch, Generic G0, retry/fallback
-  retirement, and legacy deletion remain closed.
+  with exact resolver-identity SourceMap parity. The bounded negative matrix
+  and final caller-zero/current receipt audit are green. S0 is closed; the
+  next stop is logical Recipe/JoinSig/After issuer design only. Recipe/Prepared
+  production issuance, physical selection, named caller switch, Generic G0,
+  retry/fallback retirement, and legacy deletion remain closed.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

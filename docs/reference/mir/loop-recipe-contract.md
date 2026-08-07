@@ -193,13 +193,15 @@ This slice is source/facts transport only. It does not activate Recipe,
 JoinSig, Prepared physicalization, Builder/MIR emission, a selector, retry,
 fallback, Generic G0 substitution, or a production caller switch. Source
 observation may inspect verified `root_body()` contents for totality, but raw
-AST/path/name/ordinal reconstruction is not a source authority.
+AST/path/name/ordinal reconstruction is not a source authority. The S0
+bounded negative matrix and exact resolver-identity parity are closed; issuer
+construction callers remain test-only and no external diagnostic mapping is
+claimed. SourceMap branch-level duplicate-evidence coverage is deferred to the
+later Recipe/JoinSig parity row.
 
-`VerifiedLoopAfterTailEnvelopeV1` is not part of the contract. The
-implementation row must update this reference page and
-`docs/reference/mir/generic-loop-stage-matrix.md` in the same commit. Until
-fresh-session, atomic rollback, backend parity, and caller-zero gates close,
-this section remains a design receipt rather than a production claim.
+`VerifiedLoopAfterTailEnvelopeV1` is not part of the contract. Fresh-session,
+atomic rollback, backend parity, and physical caller-zero gates belong to later
+physicalization rows; this source/facts receipt does not claim them.
 
 ## Callable single-loop co-seal implementation receipt (2026-08-07)
 

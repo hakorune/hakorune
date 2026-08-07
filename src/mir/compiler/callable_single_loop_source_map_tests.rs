@@ -42,15 +42,25 @@ fn ledger_backed_facts_and_map_preserve_resolver_loop_identity() {
         .forest()
         .callable_source_ledger(input.owner())
         .expect("ledger");
+    let membership = ledger.only_loop_site().expect("membership");
+    let expected_origin = membership.source().function_origin();
+    let expected_kind = membership.source().source_kind();
+    let expected_site = membership.source().site().clone();
+    let expected_frame = membership.frame().clone();
+    let expected_scope_region = membership.scope_region();
     let facts = super::super::callable_single_loop_syntax_facts::
         issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger)
         .expect("facts");
-    let expected_site = facts.loop_site().clone();
     let map = issue_callable_single_loop_source_map_v1(&ledger, facts).expect("map");
 
+    assert_eq!(map.origin(), expected_origin);
+    assert_eq!(map.source_kind(), expected_kind);
     assert_eq!(map.loop_source().site(), &expected_site);
-    assert_eq!(map.loop_source().frame_key(), *map.loop_frame());
-    assert_eq!(map.scope_region().scope().owner(), map.owner());
+    assert_eq!(map.loop_source().function_origin(), expected_origin);
+    assert_eq!(map.loop_source().source_kind(), expected_kind);
+    assert_eq!(map.loop_source().frame_key(), expected_frame);
+    assert_eq!(map.loop_frame(), &expected_frame);
+    assert_eq!(map.scope_region(), expected_scope_region);
 }
 
 #[test]
@@ -108,6 +118,30 @@ fn rejects_condition_bound_outside_selected_profile() {
         issue_callable_single_loop_source_map_v1(&ledger, syntax),
         Err(CallableSourceMapRejectV1::UnsupportedLiteral(
             CallableSourceMapRoleV1::ConditionBound,
+        ))
+    );
+}
+
+#[test]
+fn rejects_missing_tail_source_site_before_return_verification() {
+    let unit = positive();
+    let input = unit.root_function_input().expect("root function input");
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("ledger");
+    let facts = super::super::callable_single_loop_syntax_facts::
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger)
+        .expect("facts")
+        .replace_tail_value_site_for_test(
+            super::super::callable_single_loop_syntax_facts::tests::
+                foreign_expression_site_for_test(),
+        );
+
+    assert_eq!(
+        issue_callable_single_loop_source_map_v1(&ledger, facts),
+        Err(CallableSourceMapRejectV1::MissingSourceSite(
+            CallableSourceMapRoleV1::TailReturnRead,
         ))
     );
 }

@@ -53,15 +53,14 @@ reviewed Decision B separates one complete move-only demand/preflight from the
 private leaf emitter and forbids extracting a single operation from the full
 product. `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` is now landed as a Builder-free full-demand receipt: neutral resolver context and After continuation move exactly once, Generic G0 Scope/Region comes from the window lease, and Callable/G0 `prepare_all` covers seven/fifteen rows. Block mapping, operation emission, physical/production activation, and retirement remain closed.
 Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical SSA receipt, exact placement, entry/no-extraction evidence). The first bounded `CALLABLE-LOOP-PHYSICAL-CANARY-P0` preparation slice is green: Prepared move handoff, complete Write projection, and explicit-block Const/Binary/Compare leaf bridges. Caller-zero Prelude, After, Tail/Completion, DraftSeal are closed.
-`CALLABLE-LOOP-PRODUCTION-EDGE-D0`/`ADMISSION-D0` are `NoSafeSlice`. The
-`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` design is accepted without a
+`CALLABLE-LOOP-PRODUCTION-EDGE-D0`/`ADMISSION-D0` are `NoSafeSlice`.
+`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` is accepted without a
 new Bridge owner: resolver ledger plus neutral SyntaxFacts/SourceMap are the
 target. S0-A source navigation is green and S0-B compiles the neutral
 SyntaxFacts/SourceMap issuers in production scope while keeping fixture
-constructors and mutation helpers test-only. S0-C connects the issuer entry
-and SourceMap parity receipt; the broader negative matrix and final caller-zero
-audit remain. Recipe/Prepared issuance, selection, Generic G0, retry/fallback,
-and legacy retirement remain closed.
+constructors and mutation helpers test-only. S0-C connects the issuer entry,
+exact resolver parity, and the bounded negative matrix; caller-zero/current
+receipt audit is green. Recipe/Prepared issuance, selection, Generic G0, retry/fallback, and legacy retirement remain closed.
 ## Root-neutral semantic foundation
 
 Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
@@ -531,13 +530,14 @@ Contract:
 Done:
   Bridge D0 is accepted: no new semantic Bridge owner; the resolver ledger,
   neutral SyntaxFacts, and SourceMap are the target. S0 must provide the
-  resolver-owned site issuer, owner-branded navigation, production issuers,
-  source-to-ledger parity, typed rejects, and caller-zero evidence. The issuer
-  entry now consumes `only_loop_site()` and `stmt_at(membership)`; a multiple
-  site reject and SourceFacts/SourceMap resolver-identity parity are green.
-  S0-B keeps neutral issuers production-scoped while fixture constructors and
-  mutation helpers remain test-only; the broader negative matrix and final
-  caller-zero audit remain.
+  resolver-owned site issuer, owner-branded navigation, production issuers, source-to-ledger parity,
+  typed rejects, caller-zero evidence. The issuer entry now consumes
+  `only_loop_site()` and `stmt_at(membership)`; the bounded
+  negative matrix and exact SourceFacts/SourceMap resolver-identity parity are
+  green. S0-B keeps neutral issuers production-scoped while fixture
+  constructors and mutation helpers remain test-only; caller-zero/current
+  receipt audit is green. S0 is closed; the next stop is logical Recipe/
+  JoinSig/After issuer design only.
 
 Stop:
   Recipe/Prepared physicalization, physical Loop emission, I0 caller switch,

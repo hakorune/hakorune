@@ -1,6 +1,21 @@
 use super::*;
 use crate::ast::{BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1};
+
+impl VerifiedSourceSyntaxFactsV1 {
+    pub(crate) fn replace_tail_value_site_for_test(mut self, site: SourceExprSiteV1) -> Self {
+        self.tail.value_site = site;
+        self
+    }
+}
+
+pub(crate) fn foreign_expression_site_for_test() -> SourceExprSiteV1 {
+    SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(99),
+        SourcePathSegmentV1::Value,
+    ]))
+}
 
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
@@ -98,6 +113,14 @@ pub(crate) fn unit(
 ) -> VerifiedResolvedSourceUnitV1 {
     VerifiedResolvedSourceUnitV1::resolve_function(function(extra_root_statement, condition_rhs))
         .expect("syntax facts fixture resolves")
+}
+
+fn no_loop_unit() -> VerifiedResolvedSourceUnitV1 {
+    let mut root = function(None, integer(1));
+    if let ASTNode::FunctionDeclaration { body, .. } = &mut root {
+        body.remove(2);
+    }
+    VerifiedResolvedSourceUnitV1::resolve_function(root).expect("no-loop fixture resolves")
 }
 
 pub(crate) fn input_loop_and_context(
@@ -199,6 +222,123 @@ fn ledger_issuer_rejects_multiple_loop_sites_before_source_navigation() {
 }
 
 #[test]
+fn ledger_issuer_rejects_zero_loop_sites_before_source_navigation() {
+    let unit = no_loop_unit();
+    let input = unit.root_function_input().expect("root function input");
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("callable ledger");
+
+    assert_eq!(
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger),
+        Err(CallableSyntaxFactsRejectV1::LoopCardinality)
+    );
+}
+
+#[test]
+fn ledger_issuer_rejects_duplicate_initial_carrier() {
+    let mut root = function(None, integer(1));
+    if let ASTNode::FunctionDeclaration { body, .. } = &mut root {
+        body.insert(
+            2,
+            ASTNode::Local {
+                variables: vec!["duplicate".into()],
+                initial_values: vec![Some(Box::new(integer(2)))],
+                declared_type_names: vec![None],
+                span: Span::unknown(),
+            },
+        );
+    }
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root)
+        .expect("duplicate-carrier fixture resolves");
+    let input = unit.root_function_input().expect("root function input");
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("callable ledger");
+
+    assert_eq!(
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger),
+        Err(CallableSyntaxFactsRejectV1::DuplicateInitialCarrier)
+    );
+}
+
+#[test]
+fn ledger_issuer_rejects_nested_loop_profile() {
+    let mut root = function(None, integer(1));
+    if let ASTNode::FunctionDeclaration { body, .. } = &mut root {
+        if let ASTNode::Loop {
+            body: loop_body, ..
+        } = &mut body[2]
+        {
+            loop_body.push(ASTNode::Loop {
+                condition: Box::new(integer(1)),
+                body: Vec::new(),
+                span: Span::unknown(),
+            });
+        }
+    }
+    let unit =
+        VerifiedResolvedSourceUnitV1::resolve_function(root).expect("nested-loop fixture resolves");
+    let input = unit.root_function_input().expect("root function input");
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("callable ledger");
+
+    assert_eq!(
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger),
+        Err(CallableSyntaxFactsRejectV1::LoopCardinality)
+    );
+}
+
+#[test]
+fn ledger_issuer_rejects_opaque_prefix_shape() {
+    let mut root = function(None, integer(1));
+    if let ASTNode::FunctionDeclaration { body, .. } = &mut root {
+        if let ASTNode::Local { initial_values, .. } = &mut body[0] {
+            initial_values[0] = Some(Box::new(variable("helper")));
+        }
+    }
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root)
+        .expect("opaque-prefix fixture resolves");
+    let input = unit.root_function_input().expect("root function input");
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("callable ledger");
+
+    assert_eq!(
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger),
+        Err(CallableSyntaxFactsRejectV1::PrefixBoundaryShape)
+    );
+}
+
+#[test]
+fn failed_source_issuer_does_not_poison_a_fresh_request() {
+    let bad = unit(None, variable("n"));
+    let bad_input = bad.root_function_input().expect("bad input");
+    let bad_ledger = bad_input
+        .forest()
+        .callable_source_ledger(bad_input.owner())
+        .expect("bad ledger");
+    assert_eq!(
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(bad_input, &bad_ledger),
+        Err(CallableSyntaxFactsRejectV1::ConditionRhsNotLiteral)
+    );
+
+    let good = unit(None, integer(1));
+    let good_input = good.root_function_input().expect("good input");
+    let good_ledger = good_input
+        .forest()
+        .callable_source_ledger(good_input.owner())
+        .expect("good ledger");
+    issue_callable_single_loop_syntax_facts_from_ledger_v1(good_input, &good_ledger)
+        .expect("fresh request remains usable");
+}
+
+#[test]
 fn product_survives_source_unit_drop() {
     let facts = {
         let unit = unit(None, integer(1));
@@ -233,9 +373,13 @@ fn rejects_foreign_loop_context() {
 #[test]
 fn rejects_unknown_root_statement_instead_of_skipping_it() {
     let unit = unit(Some(assignment("helper", variable("helper"))), integer(1));
-    let (input, loop_stmt, context) = input_loop_and_context(&unit);
+    let input = unit.root_function_input().expect("root function input");
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("callable ledger");
     assert_eq!(
-        issue_callable_single_loop_syntax_facts_v1(input, loop_stmt, context),
+        issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger),
         Err(CallableSyntaxFactsRejectV1::UnexpectedBodyStatement)
     );
 }
