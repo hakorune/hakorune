@@ -521,7 +521,7 @@ accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
 closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 accepted correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
   LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1 and LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2 are
-  closed; current execution: LOOP-COMMON-RECURSIVE-AFTER-R3-DESIGN-STOP
+  closed; current execution: LOOP-COMMON-RECURSIVE-AFTER-R3-I0
 Change:
   correct R3 before implementation: R2 is only an adapter over old
   Header/Body/Step/After blocks; R3 must own exact segment allocation and
@@ -539,10 +539,10 @@ Done:
   Focused layout tests are green and the source module remains below 800 lines.
   R2 issues an owner-branded adapter receipt and routes the selected Callable
   canary through exact segment placement, proving seven-row parity plus
-  missing/foreign/duplicate negatives. Worker audit found that this is not a
-  true segment allocator; R3 implementation is not yet authorized.
+  missing/foreign/duplicate negatives; worker audit corrected the boundary and authorized R3-I0.
 Stop:
-  Do not implement R3 until its design correction is recorded. Physical G0,
+  Do not allocate or emit physical G0, perform production selection, switch a
+  production caller, or delete broad legacy until R3-I0 closes. Physical G0,
   production selection, caller switch, fallback/retry, collector/publication,
   and legacy deletion remain closed. Every implementation row requires source README,
   `docs/reference/**`, diagnostics, migration note, guards, and current

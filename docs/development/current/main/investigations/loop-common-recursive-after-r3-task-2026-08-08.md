@@ -1,7 +1,7 @@
 # LOOP-COMMON-RECURSIVE-AFTER-R3
 
-Status: design correction required before implementation
-Decision: revise after worker premise audit
+Status: accepted implementation row
+Decision: accepted after worker premise audit and R3 boundary correction
 Date: 2026-08-08
 
 ## Design-stop finding
@@ -12,8 +12,9 @@ R1's transfer authority is segment-based. A neutral writer cannot be placed on
 top of that adapter: it would bypass R1's transfer graph, leave `Step`
 unconnected/unsealed, and retain the selected Callable's fixed edge authority.
 
-The implementation must therefore stop here and correct the physical boundary
-before any R3 code is added.
+The implementation was stopped here, and the physical boundary is now
+corrected below. This task is the executable R3-I0 contract; no code may
+start from the former fixed-topology adapter.
 
 ## Source authority / non-authority
 
@@ -105,6 +106,5 @@ implementation commit updates docs/reference/**, README, current/workstream,
 this task closeout, and the executable guards
 ```
 
-The next executable row is `LOOP-COMMON-RECURSIVE-AFTER-R3-I0`, after this
-design correction is recorded in the current SSOT. R3 must stop again before
-G0 physical allocation or production selection.
+The executable row is now `LOOP-COMMON-RECURSIVE-AFTER-R3-I0`. It must stop
+again before G0 physical allocation or production selection.
