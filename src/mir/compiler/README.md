@@ -54,6 +54,14 @@ a typed `ForeignOwner` rejection. The map retains the resolver target and
 does not derive ABI or open a Prepared product. The next bounded cell is
 `CALLABLE-STATIC-PREFIX-P0` for declaration-derived ABI/Prepared evidence.
 
+`CALLABLE-STATIC-PREFIX-P0` is now closed as a positive pre-effect relation.
+The prepare entry derives the caller result ABI from the completion
+declaration and exact callable header, derives the callee result ABI from the
+resolver-issued target header, and seals one `PreparedCallableLoopPhysicalizationV1`
+for the `FreeStatic` fixture. The old externally supplied ABI argument is gone;
+the MethodCall remains a typed `MissingPreludeTarget` negative. The next stop
+is design-only common physicalizer/session review.
+
 ## Generic G0 S0A source projector
 
 `generic_g0_projection/` is the only AST-bearing source projector for the

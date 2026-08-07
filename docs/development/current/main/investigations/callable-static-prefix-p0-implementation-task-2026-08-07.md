@@ -1,6 +1,6 @@
 # Callable Static Prefix P0 Implementation Task
 
-Status: `active; next bounded ABI/Prepared source cell`
+Status: `closed; bounded ABI/Prepared source cell`
 Date: 2026-08-07
 Parent: `LOOP-PHYSICAL-PREPARE-STATIC-CALL-FIXTURE-D0`
 
@@ -72,3 +72,21 @@ git diff --check
 
 After this cell closes, stop at the design boundary before opening any
 physicalization or production-selection implementation.
+
+## Implementation receipt (2026-08-07)
+
+The callable prepare entry now derives the caller result ABI from the sealed
+completion declaration and exact callable header, then checks the callee
+result ABI from the resolver-issued target header. The static fixture produces
+one positive `PreparedCallableLoopPhysicalizationV1` relation with
+`FreeStatic` receiver shape and the retained `to_i64` target. The existing
+MethodCall fixture still rejects with typed `MissingPreludeTarget`.
+
+The old externally supplied ABI argument was removed from this test-only
+prepare boundary, so ABI cannot be injected by the caller. No Recipe/JoinSig
+producer, physicalizer, Builder effect, selector, retry, fallback,
+publication, or production caller was opened. The source file remains below
+800 lines and focused prepare/static-map tests are green.
+
+The next step is design-only: audit the common physicalizer entry and its
+session/finish contract before any physical implementation is opened.

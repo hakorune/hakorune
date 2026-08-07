@@ -1298,3 +1298,15 @@ Builder/MIR, selector, retry, fallback, publication, or production authority.
 
 The next bounded row is `CALLABLE-STATIC-PREFIX-P0`, limited to
 declaration-derived ABI and Prepared evidence.
+
+## Callable static-prefix Prepared receipt (2026-08-07)
+
+`CALLABLE-STATIC-PREFIX-P0` is closed as a pre-effect Prepared relation. The
+caller ABI is derived from the completion declaration and exact callable
+header, while the callee ABI is derived from the resolver-issued target
+header. The `FreeStatic` fixture produces one positive Prepared product; the
+MethodCall remains a typed `MissingPreludeTarget` negative.
+
+Physicalization, Builder/session effects, selector, retry/fallback,
+publication, and production selection remain closed. The next step is a
+design-only common physicalizer/session boundary review.

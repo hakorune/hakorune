@@ -200,3 +200,17 @@ The next cell is `CALLABLE-STATIC-PREFIX-P0`, limited to declaration-derived
 parameter/result ABI and one positive Prepared relation. Recipe, physicalizer,
 Builder, selector, retry/fallback, publication, and production claims remain
 closed.
+
+## P0 implementation receipt (2026-08-07)
+
+`CALLABLE-STATIC-PREFIX-P0` is closed. The prepare boundary now derives the
+caller ABI from the exact completion declaration and callable header, derives
+the callee ABI from the resolver-issued target header, and produces one
+positive `PreparedCallableLoopPhysicalizationV1` for the `FreeStatic` fixture.
+The external ABI parameter was removed, so the relation cannot be satisfied by
+caller-injected ABI. The MethodCall fixture remains a typed
+`MissingPreludeTarget` negative.
+
+No physicalizer, Builder effect, selector, retry/fallback, publication, or
+production caller was opened. The next work is the design-only common
+physicalizer/session boundary stop.

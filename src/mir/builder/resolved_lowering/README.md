@@ -92,6 +92,13 @@ while foreign compilation brands reject as `ForeignOwner`. The next bounded
 cell is `CALLABLE-STATIC-PREFIX-P0` for declaration-derived ABI/Prepared
 evidence; no physicalizer or production route is opened.
 
+`CALLABLE-STATIC-PREFIX-P0` is now closed: the static fixture yields one
+positive Prepared relation whose caller ABI comes from the completion/header
+declarations and whose callee ABI comes from the resolver target header. ABI
+is no longer accepted as an external argument at this boundary. The next
+step is a design-only audit of the common physicalizer/session finish seam;
+physical Builder effects remain closed.
+
 ## Disconnected canonical CFG prerequisite
 
 `canonical_cfg/` owns the SSA-C1 edge/seal substrate. It emits a terminator and

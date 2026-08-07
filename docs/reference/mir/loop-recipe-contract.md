@@ -256,6 +256,19 @@ ID, Builder/MIR effect, selector, retry, fallback, publication, or production
 caller. The next bounded cell is `CALLABLE-STATIC-PREFIX-P0` for
 declaration-derived ABI and Prepared evidence.
 
+## Callable static-prefix Prepared receipt (2026-08-07)
+
+`CALLABLE-STATIC-PREFIX-P0` is closed as a caller-zero pre-effect relation.
+The caller result ABI is derived from the sealed completion declaration and
+exact callable header; the callee result ABI is derived from the resolver
+target header. The resolver-backed `FreeStatic` fixture therefore produces one
+positive `PreparedCallableLoopPhysicalizationV1`, while the MethodCall fixture
+continues to reject with typed `MissingPreludeTarget`.
+
+No Builder session, physical ID, physicalizer, selector, retry, fallback,
+publication, or production caller follows from this receipt. The next step is
+the design-only common physicalizer/session boundary stop.
+
 ## Contract boundary
 
 `LoopRecipeV1` is a Builder-free semantic wire. It owns canonical recipe-local

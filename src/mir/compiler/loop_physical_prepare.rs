@@ -45,6 +45,7 @@ pub(crate) enum LoopPhysicalPrepareRejectReasonV1 {
     TerminalNotValue,
     TerminalBindingMismatch,
     TerminalAbiMismatch,
+    DeclaredResultAbiUnsupported,
     DeclaredResultAbiMismatch,
 }
 
@@ -351,7 +352,6 @@ impl<'a> PreparedCallableLoopPhysicalizationV1<'a> {
         header: &'a VerifiedCallableHeaderV1,
         product: VerifiedCallableSingleLoopRecipeProductV1,
         completion: VerifiedFunctionCompletionV1,
-        abi: ExactTrivialReturnAbiV1,
         // The profile supplies this already-verified source-call shape.  The
         // prepare layer never guesses a receiver kind from a callable name.
         expected_receiver: SourceReceiverShapeV1,
@@ -360,6 +360,7 @@ impl<'a> PreparedCallableLoopPhysicalizationV1<'a> {
         let (co_seal, prelude, tail) = product.into_parts();
         let prelude_capability =
             VerifiedCallablePreludeCapabilityV1::issue(&input, &prelude, expected_receiver)?;
+        let abi = declared_result_abi(&input, &completion)?;
         let terminal = VerifiedCallableTerminalCompatibilityV1::issue(
             &input,
             &prelude_capability,
@@ -408,7 +409,6 @@ pub(crate) fn issue_callable_loop_physicalization_v1<'a>(
     header: &'a VerifiedCallableHeaderV1,
     product: VerifiedCallableSingleLoopRecipeProductV1,
     completion: VerifiedFunctionCompletionV1,
-    abi: ExactTrivialReturnAbiV1,
     expected_receiver: SourceReceiverShapeV1,
 ) -> Result<PreparedCallableLoopPhysicalizationV1<'a>, LoopPhysicalPrepareRejectV1> {
     PreparedCallableLoopPhysicalizationV1::issue(
@@ -417,9 +417,35 @@ pub(crate) fn issue_callable_loop_physicalization_v1<'a>(
         header,
         product,
         completion,
-        abi,
         expected_receiver,
     )
+}
+
+fn declared_result_abi(
+    branded: &VerifiedCallableFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
+) -> Result<ExactTrivialReturnAbiV1, LoopPhysicalPrepareRejectV1> {
+    let DeclaredFunctionResultContractV1::Annotated(name) =
+        completion.function_exit_contract().declared_result()
+    else {
+        return Err(no_safe_slice(
+            LoopPhysicalPrepareRejectReasonV1::DeclaredResultAbiUnsupported,
+        ));
+    };
+    let completion_abi = ExactTrivialReturnAbiV1::classify(name).ok_or_else(|| {
+        no_safe_slice(LoopPhysicalPrepareRejectReasonV1::DeclaredResultAbiUnsupported)
+    })?;
+    let header_abi =
+        ExactTrivialReturnAbiV1::classify(branded.header().signature().result().source_type_name())
+            .ok_or_else(|| {
+                no_safe_slice(LoopPhysicalPrepareRejectReasonV1::DeclaredResultAbiMismatch)
+            })?;
+    if completion_abi != header_abi {
+        return Err(no_safe_slice(
+            LoopPhysicalPrepareRejectReasonV1::DeclaredResultAbiMismatch,
+        ));
+    }
+    Ok(completion_abi)
 }
 
 fn no_safe_slice(reason: LoopPhysicalPrepareRejectReasonV1) -> LoopPhysicalPrepareRejectV1 {
@@ -433,6 +459,7 @@ mod tests {
     use crate::mir::compiler::callable_single_loop_recipe_coseal::issue_callable_single_loop_recipe_v1;
     use crate::mir::compiler::callable_single_loop_source_map::issue_callable_single_loop_source_map_v1;
     use crate::mir::compiler::callable_single_loop_source_shapes::SourceReceiverShapeV1;
+    use crate::mir::compiler::callable_single_loop_static_fixture_tests::static_fixture_for_test;
     use crate::mir::compiler::callable_single_loop_syntax_facts::issue_callable_single_loop_syntax_facts_v1;
     use crate::mir::compiler::callable_single_loop_syntax_facts::tests::{
         input_loop_and_context, unit,
@@ -675,12 +702,54 @@ mod tests {
                 header,
                 product,
                 completion,
-                ExactTrivialReturnAbiV1::I64,
                 SourceReceiverShapeV1::Other,
             ),
             Err(LoopPhysicalPrepareRejectV1::NoSafeSlice(
                 LoopPhysicalPrepareRejectReasonV1::MissingPreludeTarget
             ))
         ));
+    }
+
+    #[test]
+    fn resolver_static_fixture_produces_declaration_backed_prepared_positive() {
+        let module = static_fixture_for_test();
+        let key = CanonicalCallableKeyV1::free_static_for_test("int_to_str", 1);
+        let input = module.function_input(&key).unwrap();
+        let index = module.source().catalog().index();
+        let header = index.lookup(&key).unwrap();
+        let completion = verify_function_completion_v1(input).unwrap();
+        let (_, product) = loop_product(input);
+        let prepared = issue_callable_loop_physicalization_v1(
+            input,
+            index,
+            header,
+            product,
+            completion,
+            SourceReceiverShapeV1::FreeStatic,
+        )
+        .expect("declaration-backed Prepared product");
+
+        assert_eq!(
+            prepared.prelude().result_abi(),
+            ExactTrivialReturnAbiV1::I64
+        );
+        assert_eq!(prepared.terminal().abi(), ExactTrivialReturnAbiV1::I64);
+        assert_eq!(
+            prepared
+                .completion()
+                .function_exit_contract()
+                .declared_result(),
+            &DeclaredFunctionResultContractV1::Annotated("i64".into())
+        );
+        assert_eq!(
+            prepared.prelude().target(),
+            module
+                .source()
+                .catalog()
+                .index()
+                .resolve_free_static_source_call("to_i64", 1)
+                .unwrap()
+                .callable()
+        );
     }
 }

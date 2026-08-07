@@ -109,7 +109,7 @@ fn static_fixture_with_brand(brand: u32) -> VerifiedResolvedCallableModuleV1 {
     VerifiedResolvedCallableModuleV1::resolve(catalog).expect("static fixture resolver")
 }
 
-fn static_fixture() -> VerifiedResolvedCallableModuleV1 {
+pub(crate) fn static_fixture_for_test() -> VerifiedResolvedCallableModuleV1 {
     static_fixture_with_brand(53)
 }
 
@@ -143,7 +143,7 @@ fn facts_for(
 
 #[test]
 fn resolver_backed_free_static_prefix_is_observed_without_target_injection() {
-    let module = static_fixture();
+    let module = static_fixture_for_test();
     let (input, facts) = facts_for(&module);
 
     assert_eq!(facts.prefix().call().kind(), SourceCallKindV1::FreeStatic);
@@ -163,7 +163,7 @@ fn resolver_backed_free_static_prefix_is_observed_without_target_injection() {
 
 #[test]
 fn same_brand_static_target_maps_without_owner_identity_equality() {
-    let module = static_fixture();
+    let module = static_fixture_for_test();
     let (input, facts) = facts_for(&module);
     let ledger = input
         .forest()
