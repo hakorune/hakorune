@@ -88,11 +88,14 @@ the first Builder effect; selected physicalization returns terminal success or
 `Freeze` and cannot advance to another route.
 
 The post-Recipe common demand, fresh unpublished function session, failure
-discard, open-After result, and Completion/DraftSeal handoff are fixed by
+discard, open-After result, typed function-finish terminal, and
+Completion/DraftSeal handoff are fixed by
 `loop-common-physical-demand-and-session-ssot.md`. That boundary is one
-admission envelope over existing authorities, not a universal Callable plan or
-a second physicalizer. Its implementation remains caller-zero until the M8/M9
-and production-selection gates close.
+prepared execution product over existing authorities, not a universal Callable
+plan or a second physicalizer. Completion moves into the fresh function session
+exactly once; Loop continuation and profile Tail remain distinct. Its
+implementation remains caller-zero until the M8/M9 and production-selection
+gates close.
 
 ### Bounded M10a DirectAccum pilot — `JOINIR-LOOP-ACCUM-MIR-PHYSICAL-SNAPSHOT0-M5-P4-S1` (closed)
 

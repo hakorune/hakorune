@@ -91,7 +91,7 @@ production caller. Real Generic relation instances remain an S4 responsibility.
 
 ## Callable single-loop co-seal design (2026-08-07)
 
-Decision: accepted design — `RECIPE-COSEAL-D0`.
+Decision: accepted design r1 — `RECIPE-COSEAL-D0`.
 
 This is a caller-zero design boundary for the selected
 `StringHelpers.int_to_str/1` profile. It does not activate a Recipe producer,
@@ -106,7 +106,8 @@ The callable path reuses the common chain:
 MAP-S1 source map
   -> common LoopRecipe/JoinSig/Core
   -> operation-source + input-source relations
-  -> profile-neutral After/Tail envelope
+  -> profile-neutral Loop continuation contract
+  -> separate callable Prelude/Tail source contracts
   -> CanonicalSsaFunctionSessionV2 (later sole ValueId/CFG/PHI owner)
   -> VerifiedFunctionCompletionV1 / DraftSeal (later sole terminal owner)
 ```
@@ -122,13 +123,18 @@ The bounded logical mapping is:
 | `StepOperator` | `BinaryI64(Add)` | Logical arithmetic result only. |
 | `StepWrite` | one `WriteBinding` | Exact target/lhs rebind; no second carrier. |
 | `PrefixBoundary` | outer callable-prelude receipt | Optional direct target is preserved; absence is explicit and not repaired by name. |
-| `TailReturnRead` | `AfterTailEnvelope` | The tail reads prefix `value`, not the loop-carrier After binding. |
+| `TailReturnRead` | `VerifiedCallableTailV1` | The tail reads prefix `value`, not the loop-carrier After binding. |
+| logical Loop After | `VerifiedLoopContinuationContractV1` | Common continuation only; it carries no callable Tail, ABI, or Completion. |
 | loop source/frame | `SemanticContext` | Resolver/MAP retain owner/origin/source-kind, frame, Scope/Region. |
 
 The common design names the move-only aggregate
 `VerifiedLoopRecipeCoSealV1`: existing verified Core plus the typed
-operation-source, input-source, semantic-context, and After/Tail capabilities.
-It must not create a second Core, JoinSig, BindingSSA, PHI, or completion owner.
+operation-source, input-source, semantic-context, and Loop-continuation
+capabilities. `VerifiedCallablePreludeV1` and `VerifiedCallableTailV1` remain
+disjoint sibling source contracts. This row does not issue an exact return ABI
+or `VerifiedFunctionCompletionV1`; their existing issuers are consumed only by
+the later prepared physicalization product. It must not create a second Core,
+JoinSig, BindingSSA, PHI, or completion owner.
 Every source row is consumed exactly once by `(site, role, target-kind)`; missing,
 duplicate, foreign, unconsumed, cross-owner, or second-owner evidence rejects
 before any physical effect. If a future profile cannot satisfy this common
@@ -136,7 +142,8 @@ shape, it is `NoSafeSlice`, not an invitation to add a callable-specific
 Recipe kind or physicalizer. The callable row is one more instance of the
 single recursive algebra; it is not a twentieth Recipe variant.
 
-The implementation row must update this reference page and
+`VerifiedLoopAfterTailEnvelopeV1` is not part of the contract. The
+implementation row must update this reference page and
 `docs/reference/mir/generic-loop-stage-matrix.md` in the same commit. Until
 fresh-session, atomic rollback, backend parity, and caller-zero gates close,
 this section remains a design receipt rather than a production claim.

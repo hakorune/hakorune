@@ -35,6 +35,7 @@ Hakorune AST
   -> RecipeVerifier
   -> Verified Lowering Plan
   -> Plan / Body Lowering
+  -> CanonicalSsaFunctionSessionV2::finish_for_draft_seal
   -> ReadyFunctionDraftSealV1
   -> OpenFunctionDraftSealV1::prepare
   -> PreparedFunctionDraftSealV1
@@ -71,6 +72,7 @@ MirBuilderを移す方法である。replacement cellやstructural measurements�
 | RoutePolicy / Recipe | 一度だけ行うroute選択とlowering義務 | real `ValueId` / `BasicBlockId`、publication |
 | RecipeVerifier | omission、duplicate、coverage、exit、carrier、merge契約 | repair、別Recipeへのfallback |
 | Verified-plan Lowering | CFG、operand、Binding SSA、edge、PHI materialization | ASTからのroute再判定、別ownerへのretry |
+| Function-local Finish | CFG / semantic / If / Binding SSA / PHI / resolved-binding / Completion の全closeと `ReadyFunctionDraftSealV1` 発行 | profile選択、Return書込み、draft publication |
 | FunctionDraftSeal | exit、PHI closure、type/signature/metadata、session closeのprepareとcommit | Recipe再解析、source route選択 |
 | Draft Collector | `CompletedFunctionDraftV1`の完全集合 | open/prepared draftの公開 |
 | Module transaction | candidate moduleのsuccess-only atomic publication | partial insertion、failure後のresume |
@@ -109,6 +111,15 @@ lowering productだけを受け取る。名称が将来`LoweredRecipe`などへ�
 canonical function pathでは、Body Loweringはexit operandとexact exit blockを
 準備するが、physical `Return`の唯一writerは
 `PreparedFunctionDraftSealV1::commit(self)`である。
+
+`CanonicalSsaFunctionSessionV2`経路における`ReadyFunctionDraftSealV1`の
+issuerは、target `finish_for_draft_seal`だけに集約する。各V2 profile
+lowererがCFG／SSA／PHI／Completionのfinish順を手作業で複製して直接
+`ReadyFunctionDraftSealV1::new`を呼ぶ形はreplacement debtである。非V2の
+既存direct constructor callerもcompat debtとして増加禁止にし、最終退役で
+production callerを0にする。
+profile固有ledgerは先にprivate close receiptへ畳み、common finish terminalが
+そのreceiptと全function-local ownerをconsumeして初めてReadyを発行する。
 
 すべてのfallibleなexit、PHI、type、signature、metadata、verification、
 session-close準備を`prepare`で終える。`commit(self)`はownership-onlyの

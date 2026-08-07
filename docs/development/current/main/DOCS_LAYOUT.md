@@ -152,10 +152,11 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     StructuralFacts/RoutePolicy/Recipe/JoinSig/Verify/Lower task order while the
     existing compile candidate remains the sole abort/publication boundary
 - `design/loop-common-physical-demand-and-session-ssot.md`
-  - post-Recipe physical boundary owner; fixes one move-only common demand,
-    existing fresh unpublished function/session authority, whole-candidate
-    discard, open-After physicalizer result, and Completion/DraftSeal handoff
-    without a second SSA/CFG/PHI/Return/publication authority
+  - post-Recipe physical boundary owner; fixes separate continuation/Tail,
+    prepared callable/G0 compatibility products, one Completion move into the
+    existing fresh unpublished function/session, private entry/index receipts,
+    whole-candidate discard, and one typed function-finish terminal before
+    DraftSeal without a second SSA/CFG/PHI/Return/publication authority
 - `design/joinir-target-lowerer-thinning-ssot.md`
   - JoinIR target-specific lowerer thinning order; keeps shared seams,
     LowerOnly observation, and route-specific behavior separated

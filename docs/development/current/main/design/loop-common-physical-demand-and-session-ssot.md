@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Date: 2026-08-07
-Decision: accepted — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0`
+Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
 Activation: 0; the current executable row remains `RECIPE-COSEAL-I0-R0`
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
@@ -22,25 +22,36 @@ Close the post-Recipe boundary before physical implementation begins.
 ```text
 resolver / source map
   -> VerifiedLoopRecipeCoSealV1
-  -> disjoint physical-admission split
+  -> disjoint physical-prepare split
        loop: VerifiedLoopPhysicalDemandV1
        boundary evidence
-  -> one thin profile admission
-       VerifiedCallableLoopPhysicalAdmissionV1
-       OR VerifiedGenericG0LoopPhysicalAdmissionV1
+  -> one thin prepared execution product
+       PreparedCallableLoopPhysicalizationV1
+       OR PreparedGenericG0LoopPhysicalizationV1
   -> one fresh unpublished function session
+       completion moves here exactly once
   -> outer callable lowerer + one common recursive Loop physicalizer
   -> open After continuation
   -> existing completion / DraftSeal
   -> one unpublished function draft
 ```
 
-The common `VerifiedLoopPhysicalDemandV1` and each thin profile admission are
-move-only, AST-free, and physical-ID-free. A profile admission consumes one
-inner demand plus already sealed boundary capabilities and fixes their exact
-compatibility before the first Builder effect. Only the common inner demand is
-consumed by the recursive Loop physicalizer. Neither product is a new Recipe,
-selector, SSA, CFG, PHI, transaction, Return writer, or publication owner.
+The common `VerifiedLoopPhysicalDemandV1` is move-only, AST-free, and
+physical-ID-free. Each thin prepared product is move-only and physical-ID-free;
+its sole source-backed field is the existing exact
+`ResolvedFunctionLoweringInputV1`, retained for session opening and the outer
+profile lowerer. No prepare/physicalizer policy may inspect or rematch its AST.
+A profile prepare consumes one inner demand plus already sealed boundary
+capabilities and fixes their exact compatibility before the first Builder
+effect. Only the common inner demand is consumed by the recursive Loop
+physicalizer. Neither product is a new Recipe, selector, SSA, CFG, PHI,
+transaction, Return writer, or publication owner.
+
+`Admission` remains the semantic family-selection term. `Prepared...` means
+only that already verified capabilities have been related into one executable
+request. The prepared product owns exactly one new relational fact: its Loop,
+Prelude/input, Tail, return ABI, Completion, owner, and frame may execute
+together once. It does not own or copy the component semantic truths.
 
 The existing owners remain authoritative:
 
@@ -53,8 +64,9 @@ The existing owners remain authoritative:
 | `BindingRef -> ValueId`, lexical SSA | `CanonicalSsaFunctionSessionV2.identity` |
 | physical blocks, predecessors, sealing | `CanonicalCfgSessionV1` |
 | provisional and patched PHI lifecycle | the function session's one `PhiTxn` |
-| source completion evidence | `VerifiedFunctionCompletionV1` plus exact terminal value/ABI capability |
+| source completion evidence | `VerifiedFunctionCompletionV1`; moved exactly once from the prepared request into the function session |
 | mutable physical completion consumption | fresh `CanonicalSsaFunctionSessionV2.completion` / `ResolvedFunctionCompletionConsumptionV1` |
+| common function-local finish terminal | `CanonicalSsaFunctionSessionV2::finish_for_draft_seal` target API |
 | captured caller restore, unpublished discard, prepared close | `CanonicalFunctionLoweringSessionV1` |
 | detached DraftSeal prepare and rejected-owner retention | `OpenFunctionDraftSealV1` |
 | sole function commit terminal | `PreparedFunctionDraftSealV1::commit` through prepared session close |
@@ -75,6 +87,41 @@ logical program, but it does not prove:
 These obligations must be sealed once before mutation. A physicalizer must not
 rediscover them from AST, source names, route labels, or existing MIR.
 
+### Repository audit receipt
+
+| Observed code authority | Confirmed boundary |
+| --- | --- |
+| `CanonicalSsaFunctionSessionV2::new` consumes `VerifiedFunctionCompletionV1` into `ResolvedFunctionCompletionConsumptionV1` | Completion cannot remain owned by a prepared sibling after session open |
+| `CanonicalDirectAccumSsaLowererV1::lower` finishes semantics/If/identity/Phi/binding/completion but omits `cfg.finish` | prose ordering alone is insufficient; the V2 finish terminal is required |
+| `ReadyFunctionDraftSealV1::new` currently accepts only ready completion + current block | current Ready type does not prove common CFG/SSA/PHI closure by construction |
+| `ResolvedFunctionLoweringInputV1` is an existing exact read-only source/function/forest/header view | prepared outer product may retain it; common Loop demand must not receive it |
+| `VerifiedCallableSingleLoopSourceMapV1` carries source roles, BindingRefs, loop context, and resolved exit evidence only | current co-seal cannot issue ABI or Completion authority |
+| `PhiTxn::abort_on_err` sees only still-pending provisional PHIs | whole-session discard, not PHI rollback, owns atomicity |
+
+### Current co-seal stop correction
+
+`RECIPE-COSEAL-I0-R0` has no authority to issue an exact return ABI or a new
+`VerifiedFunctionCompletionV1`; its current source map contains source-role and
+resolved-exit evidence only. The current row therefore publishes these
+disjoint caller-zero products:
+
+```text
+VerifiedLoopRecipeCoSealV1
+  Core / Recipe / JoinSig
+  operation-source and input-source relations
+  semantic context
+  VerifiedLoopContinuationContractV1
+
+VerifiedCallablePreludeV1
+VerifiedCallableTailV1
+```
+
+The existing exact ABI and Completion capabilities remain with their existing
+issuers. `LOOP-PHYSICAL-PREPARE-I0-R0` later consumes all components once and
+either issues one prepared execution product or returns typed `NoSafeSlice`.
+`VerifiedLoopAfterTailEnvelopeV1` is rejected: Loop continuation and callable
+Tail must never be fused and then split again.
+
 ## Product boundary
 
 ### Common product
@@ -82,45 +129,58 @@ rediscover them from AST, source names, route labels, or existing MIR.
 The accepted conceptual shape has two layers:
 
 ```text
-VerifiedCallableLoopPhysicalAdmissionV1
+PreparedCallableLoopPhysicalizationV1
+  input: exact ResolvedFunctionLoweringInputV1
   loop: VerifiedLoopPhysicalDemandV1
     core: transferred Recipe/Core/JoinSig/source-effect relations
-    topology: VerifiedLoopPhysicalTopologyV1
-  boundary: VerifiedLoopCallableBoundaryV1
+    continuation: VerifiedLoopContinuationContractV1
+    index: private LoopPhysicalIndexV1
+  prelude: VerifiedCallablePreludeV1
+  tail: VerifiedCallableTailV1
+  return_abi: existing exact ABI capability
+              (ExactTrivialReturnAbiV1 for the first profile)
+  completion: VerifiedFunctionCompletionV1
 
-VerifiedGenericG0LoopPhysicalAdmissionV1
+PreparedGenericG0LoopPhysicalizationV1
+  input: exact ResolvedFunctionLoweringInputV1
   loop: VerifiedLoopPhysicalDemandV1
-  boundary: VerifiedGenericG0LoopBoundaryV1
+  tail: VerifiedGenericG0TailV1
+  return_abi: existing exact ABI capability
+              (ExactTrivialReturnAbiV1 for G0)
+  completion: VerifiedFunctionCompletionV1
 ```
 
 The exact Rust field split may remain private, but the following contract is
 fixed.
 
-The common splitter consumes the co-seal once and performs a disjoint move into
-the inner Loop demand and boundary evidence. It never borrows, clones, or
-re-catalogs the co-seal. The inner receives, without duplication:
+The common prepare consumes the Loop co-seal once and moves it wholly into the
+inner Loop demand. Callable Prelude/Tail remain separate inputs; they are not
+split back out of the co-seal. The prepare never borrows, clones, or re-catalogs
+the co-seal. The inner receives, without duplication:
 
 - verified Recipe/Core and JoinSig;
 - semantic owner/origin/source-kind, loop source and execution frame;
 - Scope/Region relation;
 - exact operation-source and input-source relations;
-- the logical Loop After capability.
+- `VerifiedLoopContinuationContractV1`, which owns only the logical Loop After
+  port/capability.
 
-The inner `topology` is a non-owning, key-only projection over existing
-logical keys:
+`LoopPhysicalIndexV1` is a private, key-only search index over existing logical
+keys:
 
 - Recipe binding/value/item/block keys and their placement roles;
 - Recipe input value -> logical preheader port;
 - Recipe item -> owning Loop/Block + exact input/output value keys;
 - JoinSig port/edge obligations -> logical placement roles.
 
-`BindingRef`, source site, source/effect relation, and semantic identity truth
-remain solely in the moved co-seal relation owner held by the inner demand.
-Topology refers to those logical keys; it does not issue, copy, or re-verify
-their source truth. It exists so the physical consumer performs no shape
-matching or policy decision.
+`BindingRef`, source site, source/effect relation, semantic identity, Recipe,
+and JoinSig truth remain solely in the moved co-seal owner held by the inner
+demand. The private index cannot be independently constructed, published, or
+verified; it refers to those logical keys and may be rebuilt only inside the
+same prepare operation. The physicalizer consumes the demand as one product,
+not Recipe plus a second public topology truth.
 
-The callable sibling `boundary` co-seals the non-Loop obligations:
+The callable prepared product relates the non-Loop obligations:
 
 - exact prelude caller/site/target/result contract when a prelude result is
   required;
@@ -131,12 +191,14 @@ The callable sibling `boundary` co-seals the non-Loop obligations:
 - the matching `VerifiedFunctionCompletionV1`.
 
 The prelude contract contains no `ValueId`. The outer callable lowerer consumes
-the callable admission, emits the prelude through the existing call owner,
-immediately binds its physical result inside the same session, passes only the
-inner Loop demand to the Loop physicalizer, and retains the sibling boundary
-for Tail and Completion.
+the prepared product, opens the exact function session, moves Completion into
+`CanonicalSsaFunctionSessionV2::new` exactly once, and retains Prelude/Tail/ABI
+evidence only. It emits the prelude through the existing call owner,
+immediately binds its physical result inside the same session, then issues one
+private `ReadyLoopEntryV1`. The common physicalizer consumes the inner Loop
+demand plus that entry receipt and never observes the callable boundary.
 
-The Generic G0 admission wraps one instance of the same common inner-demand
+The Generic G0 prepared product wraps one instance of the same common inner-demand
 type but retains its existing `L0.After/b1` boundary capability. It neither
 reuses the callable prefix `value` Tail nor creates a G0 physicalizer.
 
@@ -145,12 +207,12 @@ by a disjoint move of its already verified Core/relations/After evidence. If
 that view cannot be issued without copying source truth or re-verifying the
 Recipe, the G0 adapter is `NoSafeSlice` and parity remains parked.
 
-### These are admission envelopes, not callable megaboxes
+### These are prepared execution products, not callable megaboxes
 
-No profile admission becomes a universal callable semantic owner. It owns
-no new truth and implements no new Call, ABI, Loop, Return, or publication
-algorithm. It only proves that already sealed capabilities belong to the same
-callable execution:
+No profile prepared product becomes a universal callable semantic owner. It
+implements no new Call, ABI, Loop, Return, or publication algorithm. It owns
+only the relational compatibility proof that already sealed capabilities
+belong to the same callable execution:
 
 ```text
 source/target identity  -> existing resolver/catalog authority
@@ -159,7 +221,7 @@ Loop meaning            -> Recipe/JoinSig/co-seal
 terminal disposition    -> existing completion capability
 physical commit         -> existing DraftSeal owner
 
-profile admission envelope
+profile prepared product
   -> one exact owner/site/BindingRef compatibility proof
   -> one fixed Prelude -> Loop -> Tail -> Completion order
 ```
@@ -169,7 +231,7 @@ The two-layer product prevents the Loop physicalizer from observing the
 callable boundary at all; only the outer callable lowerer sees both siblings.
 They are not flattened into an opaque `CallablePlan` payload. The envelope
 moves or borrows sealed evidence and cannot copy facts into a second catalog.
-A non-Loop callable remains outside this Loop-specific admission envelope, so
+A non-Loop callable remains outside this Loop-specific prepared product, so
 this D0 does not pre-empt the final general callable design.
 
 ### Completion and ABI are separate
@@ -181,7 +243,7 @@ the return expression site, or a concrete physical ABI. An unannotated
 explicit return can therefore pass completion verification without being safe
 for this physical row.
 
-Each profile admission with a value return requires both:
+Each prepared profile with a value return requires both:
 
 ```text
 exact terminal value site + BindingRef + exact return ABI
@@ -212,7 +274,7 @@ returns `L0.After/b1`; that is a different profile adapter.
 logical Loop After capability != callable terminal Tail capability
 ```
 
-The callable admission keeps both fields distinct. A profile adapter may prove
+The callable prepared product keeps both fields distinct. A profile adapter may prove
 the same binding supplies both, but no consumer may infer that equality.
 Generic G0's `VerifiedGenericAfterEffectG0` remains its boundary input and is
 adapted beside the same common inner demand; it is neither the common Loop
@@ -220,10 +282,13 @@ authority nor the callable Tail authority.
 
 ## Forbidden contents
 
-The upper/inner demands and their co-seal must not contain:
+The inner demand and co-seal must be AST-free. The prepared profile product may
+retain only the exact existing `ResolvedFunctionLoweringInputV1` source view;
+it must not add independent raw source fields. Across these products the
+following are forbidden:
 
 ```text
-AST / StmtRef / ExprRef
+raw AST / StmtRef / ExprRef fields outside ResolvedFunctionLoweringInputV1
 source or callable name selectors
 path-suffix or ordinal rematching
 legacy route ID or scheduler cursor
@@ -237,28 +302,32 @@ commit or publication capability
 
 The old DirectAccum-only `VerifiedLoopPhysicalInputV1` contains Recipe and
 JoinSig only. It is a pilot input and must not be renamed or reused as the
-final common demand; it lacks the co-sealed source/effect, topology, ABI,
-Tail, and completion admission contract.
+final common demand; it lacks the co-sealed source/effect, continuation,
+private-index, ABI, Tail, and prepared execution contract.
 
 No session brand is added merely to pair either demand with a session. The
 pre-effect issuer verifies semantic owner/frame/scope contracts; the consumer
 then checks them against the freshly opened existing session. If the existing
-session cannot expose the required admission facts, the result is
-`SessionAdmissionUnavailable`, not a second session identity.
+session cannot expose the required prepare facts, the result is
+`SessionPreparationUnavailable`, not a second session identity.
 
 ## Exact consumption
 
-The common splitter consumes one `VerifiedLoopRecipeCoSealV1` and either issues
-one non-Clone inner demand plus disjoint boundary evidence or returns a typed
-rejection retaining the sole unconsumed owner. A thin callable or G0 adapter
-then consumes exactly one pair and issues one admission. Neither step re-runs
-Recipe verification, mints keys, or consults the legacy scheduler.
+The common prepare consumes one `VerifiedLoopRecipeCoSealV1` and either issues
+one non-Clone inner demand or returns a typed rejection retaining the sole
+unconsumed owner. A thin callable or G0 prepare then consumes exactly one inner
+demand plus the profile's disjoint boundary capabilities and issues one
+prepared product. Neither step re-runs Recipe verification, mints keys, or
+consults the legacy scheduler.
 
-The outer profile entry consumes one admission while borrowing one
-`CanonicalSsaFunctionSessionV2`. It transfers the inner demand exactly once to
-the physicalizer and retains its sibling boundary until Tail/Completion.
-Lowering by `&demand`, cloning a split/admission product, recreating one from
-MIR, or trying a second route is forbidden.
+The outer profile entry consumes one prepared product to open the exact fresh
+function session. `VerifiedFunctionCompletionV1` moves exactly once into
+`CanonicalSsaFunctionSessionV2::new`; it cannot remain in the prepared product
+or a sibling boundary. The outer lowerer retains only Prelude/Tail/ABI evidence,
+transfers the inner demand exactly once to the physicalizer, and later claims
+the exact return operand through `session.completion`. Lowering by `&demand`,
+cloning a split/prepared product, recreating one from MIR, or trying a second
+route is forbidden.
 
 Logical keys map to physical owners as follows:
 
@@ -275,15 +344,37 @@ Logical keys map to physical owners as follows:
 The physicalizer returns an open After/continuation receipt. It must not write
 `Return`, take the function, publish a draft, or close the module.
 
+### Session-local entry receipt
+
+Opening a function session does not prove that Prelude/parameter/input values
+have been installed. The outer profile lowerer must materialize every required
+entry binding first and issue one private, session-local `ReadyLoopEntryV1`.
+The common physicalizer requires:
+
+```text
+VerifiedLoopPhysicalDemandV1
++ ReadyLoopEntryV1
++ borrowed canonical CFG / Binding SSA / PhiTxn services
+```
+
+`ReadyLoopEntryV1` owns no source or callable semantics. It proves only the
+temporal fact that the exact logical input keys required by the demand are
+already installed in this function session. It is non-Clone, cannot cross a
+session, and is consumed once by the physicalizer.
+
 ## Fresh session and atomic failure law
 
 Neither demand owns freshness or rollback. Existing transactions do.
 
 ```text
-preflight failure
+A. semantic prepare failure
   -> no Builder/session effect
 
-physical failure before or after provisional MIR effects
+B. fresh session open + exact owner binding
+  -> reversible caller-capture/function-state effect
+  -> no MIR / ValueId / BasicBlockId emission yet
+
+C. physical emission failure
   -> rollback only still-pending unpatched provisional PHIs
   -> retain any PHI cleanup failure in the typed failure
   -> discard the complete unpublished function session
@@ -295,6 +386,10 @@ fresh request
   -> allocate new physical IDs
   -> lower independently
 ```
+
+Stage A must complete before B. Exact owner/session binding in B must complete
+before C. Any B/C failure discards the whole session; it does not return to A
+or select another route.
 
 The sole owners are:
 
@@ -318,35 +413,61 @@ result and live-caller fingerprints; it must not require `ValueId` or
 `BasicBlockId` numbers to match across sessions.
 
 `PhiTxn::abort_on_err` rolls back only provisional PHIs that are still pending
-and unpatched. It does not repair patched PHIs, other MIR instructions, or ID
-allocation. Those effects remain inside the poisoned unpublished function and
-are removed only by whole-session discard.
+and unpatched. It is best-effort local cleanup and diagnostic hygiene, not the
+atomicity owner. It does not repair patched PHIs, other MIR instructions, or ID
+allocation. Even if PHI cleanup itself reports a suppressed failure, the
+poisoned unpublished function is still removed by whole-session discard.
 
-## Target common finish order
+## One typed function-finish terminal
 
-The new common path must converge on this order and finish every existing owner
-before DraftSeal. Current profile pilots differ; their order is parity evidence,
-not authority for the final common path.
+The new common path must not rely on every lowerer remembering this order.
+`CanonicalSsaFunctionSessionV2` gains one consuming target API:
+
+```text
+CanonicalSsaFunctionSessionV2::finish_for_draft_seal(...)
+  -> Result<ReadyFunctionDraftSealV1, CanonicalFunctionFinishErrorV1>
+```
+
+Profile-specific ledgers remain with their profile lowerer. Before entering the
+common terminal, that lowerer must consume them and provide one private
+`ReadyCanonicalProfileCloseV1`. This is a temporal receipt, not a semantic
+owner. The common terminal then consumes every common function-local owner and
+is the only issuer of `ReadyFunctionDraftSealV1` for
+`CanonicalSsaFunctionSessionV2` paths.
+
+The target order is:
 
 ```text
 1. materialize verified callable prelude and Recipe inputs
 2. physicalize the recursive Loop, leaving After open
-3. materialize the verified Tail operand in the outer callable lowerer
-4. close semantic scopes and seal the After/terminal CFG
-5. finish CanonicalCfgSessionV1
-6. finish semantic, If-control, and identity/BindingSSA preconditions
-7. commit the one PhiTxn
-8. finish the remaining resolved-binding ledger and
+3. materialize the verified Tail operand and claim completion once
+4. consume profile-specific ledgers -> ReadyCanonicalProfileCloseV1
+5. close semantic scopes and seal the After/terminal CFG
+6. finish CanonicalCfgSessionV1
+7. finish semantic, If-control, and identity/BindingSSA preconditions
+8. commit the one PhiTxn
+9. finish the remaining resolved-binding ledger and
    ResolvedFunctionCompletionConsumptionV1
-9. prepare every detached DraftSeal check
-10. commit DraftSeal once
+10. issue ReadyFunctionDraftSealV1
+11. prepare every detached DraftSeal check
+12. commit DraftSeal once
 ```
 
 The current production resolved DirectAccum lowerer is a parity oracle, not the
 final common owner. Its `CanonicalDirectAccumSsaLowererV1::lower` path lacks a
 whole-function `CanonicalCfgSessionV1::finish` call; the test-only caller-zero
 finish path already has one. The production omission must not be copied into
-the common path. The common canary must prove CFG finish before DraftSeal.
+the common path. Existing non-V2 direct construction is frozen compatibility
+debt: the first R0 adds no caller there, and final retirement makes
+`ReadyFunctionDraftSealV1::new` unavailable to every production lowerer. Tests
+may then use only an explicit test factory. For every migrated V2 path the
+invariant is:
+
+```text
+ReadyFunctionDraftSealV1 exists
+  == common CFG / SSA / PHI / binding / Completion owners are closed
+  && the profile-specific close receipt was consumed
+```
 
 ## Typed rejection boundary
 
@@ -384,7 +505,7 @@ route labels as physical variants.
 ```text
 source profiles/adapters: many bounded rows
 portable Recipe algebra:  one
-profile admissions:       bounded callable/G0 adapters
+prepared profiles:        bounded callable/G0 compatibility products
 inner Loop demand:        one
 common physicalizer:      one
 ```
@@ -402,20 +523,64 @@ of nested design suffixes unless a code audit proves one named missing owner.
 
 | Order | Row | One claim | Stop line |
 | ---: | --- | --- | --- |
-| 0 | `RECIPE-COSEAL-I0-R0` | caller-zero logical co-seal | current executable row; stop after closeout |
-| 1 | `LOOP-COMMON-PHYSICAL-DEMAND-I0-R0` | co-seal -> one disjoint split and one profile-neutral inner Loop demand | no callable/G0 selection, Builder, session, or physical ID |
-| 2 | `CALLABLE-LOOP-PHYSICAL-ADMISSION-I0-R0` | callable co-seal boundary + same inner demand -> one callable admission | caller-zero; no physicalizer or production selector |
-| 3 | `GENERIC-G0-COMMON-PHYSICAL-ADMISSION-P0` | existing G0 S4 product -> common co-seal view -> the same inner-demand schema + distinct G0 After boundary | no G0 physicalizer, callable Tail reuse, or production caller |
-| 4 | `LOOP-PHYSICALIZER-COMMON-OWNER-R0` | split the over-budget DirectAccum owner into common services plus thin adapter | behavior-neutral; no new accepted Recipe |
-| 5 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | inner demand + borrowed V2 session -> open After candidate | caller-zero; no Return/DraftSeal/publication |
-| 6 | `CALLABLE-LOOP-PHYSICAL-CANARY-I0-R0` | exact prelude + Loop + Tail + CFG/SSA/PHI finish + completion/DraftSeal on one fresh unpublished function | late failure discards whole session; production caller zero |
-| 7 | existing `GENERIC-G0-COMPLETION-P0` | G0 `L0.After/b1` boundary -> the same completion/DraftSeal owner | no second Return writer or callable Tail reuse |
-| 8 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 admissions prove the same inner-demand schema/physicalizer while preserving distinct Tail/After contracts | no family relabeling or production selection |
-| 9 | existing M8 S6A..S6G | close the 19-ingress portable coverage cohorts and all-19 proof | does not complete M9 or select production |
-| 10 | existing M9 S7A..S7G | close Rust/.hako portable producer parity | does not activate the physical caller |
-| 11 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
-| 12 | existing `M10b-I0-R0` | one production switch and same-commit retry/scheduler/old-edge deletion | no fallback |
-| 13 | existing R1/M11/M12/R2 rows | manifest-led legacy retirement and sole-authority proof | cutover must already be green |
+| 0 | `RECIPE-COSEAL-I0-R0` | caller-zero common logical co-seal plus separate Prelude/Tail source contracts | current executable row; no ABI/Completion issuance; stop after closeout |
+| 1 | `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` | migrate existing canonical V2 paths to one `finish_for_draft_seal` issuer; freeze non-V2 direct construction as compat debt | BoxShape-only; accepted profiles and MIR unchanged |
+| 2 | `LOOP-PHYSICAL-PREPARE-I0-R0` | common demand plus callable prepared product; exact ABI/Completion are consumed from existing issuers | caller-zero; no physicalizer, Builder emission, or selector |
+| 3 | `GENERIC-G0-PHYSICAL-PREPARE-P0` | exact-move G0 adapter issues the same inner demand plus distinct G0 Tail | `NoSafeSlice` if source truth must be copied or reverified |
+| 4 | `LOOP-PHYSICALIZER-COMMON-OWNER-R0` | split the over-budget DirectAccum owner into common services plus thin adapter | BoxShape-only; no new accepted Recipe |
+| 5 | `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | inner demand + `ReadyLoopEntryV1` + borrowed V2 services -> open continuation | caller-zero; no Return/DraftSeal/publication |
+| 6 | `CALLABLE-LOOP-PHYSICAL-CANARY-I0-R0` | exact Prelude -> Loop -> distinct Tail -> typed function finish -> DraftSeal on one fresh unpublished function | late failure discards whole session; production caller zero |
+| 7 | `LOOP-CALLER-ZERO-PARITY-G0` | callable and G0 prepared products use the same inner demand/physicalizer while preserving distinct Tail contracts | no family relabeling or production selection |
+| 8 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
+| 9 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
+| 10 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
+
+### Parked next task: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
+
+```text
+Change:
+  add one consuming finish_for_draft_seal target to the V2 session;
+  migrate existing V2 profile finish sequences through it;
+  add no non-V2 ReadyFunctionDraftSealV1::new caller
+
+Contract:
+  profile-specific ledgers close into ReadyCanonicalProfileCloseV1;
+  common CFG / semantics / If / identity / PhiTxn / resolved binding /
+  Completion close exactly once; whole unpublished session remains the
+  failure atomicity owner
+
+Done:
+  DirectAccum cannot reach DraftSeal without cfg.finish;
+  V2 direct Ready constructor callers are zero; focused omission/order/
+  failure-discard tests and the existing canonical gates are green;
+  loop/function-exit references and owning README update in the same commit
+
+Stop:
+  any accepted-profile or MIR delta, new semantic owner, non-V2 migration,
+  or same-session repair/retry returns to design
+```
+
+### Parked following task: `LOOP-PHYSICAL-PREPARE-I0-R0`
+
+```text
+Change:
+  consume common co-seal + separate callable Prelude/Tail + existing exact
+  ABI/Completion once and issue PreparedCallableLoopPhysicalizationV1
+
+Contract:
+  execution compatibility is the only new relational truth;
+  LoopPhysicalIndexV1 remains private; Completion moves into the fresh V2
+  session exactly once; no Builder/MIR/physical IDs
+
+Done:
+  owner/site/BindingRef/frame/ABI/Completion mismatches reject before session
+  effects; success survives source-view drop and is non-Clone/caller-zero;
+  exact reference and task status update in the same implementation commit
+
+Stop:
+  copied/reverified source truth, public topology, generic fallback,
+  physical emission, or production selection is NoSafeSlice
+```
 
 The physical canary does not complete M8, M9, production activation, or legacy
 retirement. `Recipe complete`, `physical canary complete`, `production
@@ -430,8 +595,11 @@ same commit after code and focused tests land:
   physical boundary and sole-owner claims;
 - `docs/reference/mir/generic-loop-stage-matrix.md` for caller-zero,
   canary, activation, and retirement status;
+- `docs/reference/language/function-exit-and-entry-result.md` when the typed
+  function-finish/Completion handoff lands;
 - `src/mir/loop_recipe_contract/README.md` and the owning canonical lowering
-  README when their code contract changes;
+  README (`src/mir/builder/resolved_lowering/README.md`) when their code
+  contract changes;
 - `docs/reference/mir/phi_policy.md` and `phi_invariants.md` only when a
   physical PHI contract actually changes;
 - `CURRENT_STATE.toml` and the active rolling workstream for the next exact
@@ -449,4 +617,4 @@ implementation receipt exists.
 The architecture is accepted in advance, but execution authority does not
 move. The current row remains the bounded caller-zero
 `RECIPE-COSEAL-I0-R0`. After it lands, stop and ask before opening
-`LOOP-COMMON-PHYSICAL-DEMAND-I0-R0`.
+`CANONICAL-FUNCTION-FINISH-TERMINAL-R0`.

@@ -1,6 +1,6 @@
 # Callable single-loop Recipe co-seal D0
 
-Status: `Decision: accepted design; bounded caller-zero implementation is the next row; production selection is not authorized`
+Status: `Decision: accepted r1 after external review; bounded caller-zero implementation is the next row; production selection is not authorized`
 
 Parent: `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1`
 
@@ -32,7 +32,8 @@ The design must choose one common, not callable-specific, product for:
 Recipe / JoinSig
 LoopOperationSourceRelation
 BindingSSA effect relation
-After / Tail / completion envelope
+Loop continuation contract
+separate callable Prelude / Tail source contracts
 resolver Loop source + frame + Scope/Region
 ```
 
@@ -61,7 +62,8 @@ resolver ledger + MAP-S1
   -> LoopRecipeVerifierV1
   -> LoopJoinSigElaboratorV1
   -> source-bound Core/effect verifier
-  -> common input + After/Tail envelope
+  -> common input + Loop continuation contract
+  -> separate callable Prelude/Tail source contracts
   -> common physical demand (later)
   -> CanonicalSsaFunctionSessionV2 (sole ValueId/CFG/PHI owner)
   -> VerifiedFunctionCompletionV1 / DraftSeal (sole terminal owner)
@@ -70,8 +72,10 @@ resolver ledger + MAP-S1
 The common co-seal is named `VerifiedLoopRecipeCoSealV1` for design purposes.
 It is move-only and contains the already verified common Core plus the
 profile-neutral operation-source, input-source, semantic-context, and
-After/Tail capabilities. It may be implemented as a thin extension of
-`VerifiedLoopCoreProductV1`; it must not create a second Core authority.
+`VerifiedLoopContinuationContractV1` capabilities. The callable result keeps
+`VerifiedCallablePreludeV1` and `VerifiedCallableTailV1` as disjoint siblings.
+It may be implemented as a thin extension of `VerifiedLoopCoreProductV1`; it
+must not create a second Core authority.
 
 ### Source role to common product
 
@@ -86,8 +90,9 @@ After/Tail capabilities. It may be implemented as a thin extension of
 | `StepOperator` | `BinaryI64(Add) -> value` | arithmetic item/result and operator site | Recipe producer maps; no inline or Builder route. |
 | `StepWrite` | `WriteBinding(binding, value)` | `SourceWrite` plus exact assignment target | One rebind of the carrier; target and lhs must agree. |
 | `PrefixBoundary` | outside `LoopRecipeV1`/`JoinSig` | outer callable-prelude boundary receipt | MAP preserves optional direct target; absence is explicit and is not repaired by name. |
-| `TailReturnRead` | outside `LoopRecipeV1`/`JoinSig` | common `AfterTailEnvelope` with terminal return site and lexical `BindingRef` | Tail returns the prefix `value` binding in the selected profile; it is not the loop carrier After binding. |
+| `TailReturnRead` | outside `LoopRecipeV1`/`JoinSig` | `VerifiedCallableTailV1` with terminal return site and lexical `BindingRef` | Tail returns the prefix `value` binding in the selected profile; it is not the loop carrier After binding. |
 | loop source/frame | `VerifiedLoopSemanticContextV1` | owner/origin/source-kind, loop source, frame, Scope/Region | Resolver/MAP issue and seal it; physical session only consumes the brand. |
+| logical Loop After | `VerifiedLoopContinuationContractV1` | Loop/JoinSig continuation port only | It carries no callable Tail, ABI, or Completion authority. |
 
 The selected logical loop shape is deliberately small:
 
@@ -112,11 +117,17 @@ The operation-source relation is likewise profile-neutral and must retain the
 exact Recipe item key, operation kind, input/output value keys, optional source
 binding, role, and source site. Ordinal-only anchors are insufficient.
 
-The common After/Tail capability is profile-neutral. It carries owner, frame,
-loop key, the opaque logical After binding when one exists, the exact terminal
-return statement/value sites, and the already verified function completion
-contract. If the return ABI or completion owner cannot be sealed, the result
-is `NoSafeSlice`; no Generic or callable-specific After product is invented.
+The common Loop continuation capability is profile-neutral. It carries owner,
+frame, loop key, and the opaque logical After port when one exists. The callable
+Tail remains a separate source contract carrying the exact terminal return
+statement/value sites and lexical `BindingRef`.
+
+This row does not issue an exact return ABI or
+`VerifiedFunctionCompletionV1`; its source map does not own those authorities.
+The later `LOOP-PHYSICAL-PREPARE-I0-R0` must consume their existing products
+and establish one execution-compatibility proof. If that exact move cannot be
+performed, the result is `NoSafeSlice`. `VerifiedLoopAfterTailEnvelopeV1` is
+rejected.
 
 ### Authority and exact consumption
 
@@ -127,7 +138,9 @@ is `NoSafeSlice`; no Generic or callable-specific After product is invented.
 | logical ports and edges | `LoopJoinSigElaboratorV1` |
 | operation/input source relations and binding effects | common source-bound co-seal/verifier; BindingSSA owns their later physical interpretation |
 | ValueId, CFG, PHI, ownership SSA | `CanonicalSsaFunctionSessionV2` only |
-| terminal return, cleanup, publication | `VerifiedFunctionCompletionV1` / DraftSeal only |
+| terminal source binding/site | `VerifiedCallableTailV1`; no physical operand |
+| return ABI and completion | existing ABI issuer and `VerifiedFunctionCompletionV1`; not issued by this row |
+| terminal return, cleanup, publication | function session completion consumer / DraftSeal only |
 
 Every MAP row is consumed exactly once by one typed relation keyed by
 `(source site, role, target kind)`. The mapper consumes the move-only map; no
@@ -138,7 +151,7 @@ any physical effect. A second Recipe/SSA/PHI/After owner is `NoSafeSlice`.
 ## Required design output (satisfied by this decision)
 
 One compact table must close each source role to its common logical product,
-effect/BindingSSA relation, and completion owner:
+effect/BindingSSA relation, and continuation/Tail boundary:
 
 ```text
 InitialCarrier       -> carrier/entry relation
@@ -150,11 +163,12 @@ StepDelta            -> recurrence constant
 StepOperator         -> recurrence arithmetic
 StepWrite            -> one exact rebind
 PrefixBoundary       -> outer callable prelude
-TailReturnRead       -> outer callable After/Tail
+TailReturnRead       -> outer VerifiedCallableTailV1
+logical Loop After   -> VerifiedLoopContinuationContractV1
 Loop source/frame    -> Scope/Region + physical session brand
 ```
 
-The table above defines one sealed `JoinSig`/completion shape, one source
+The table above defines one sealed `JoinSig`/continuation shape, one source
 coverage key, and one exact-consumption rule for the later mapper. If the
 common products cannot represent a future profile without a second owner, the
 outcome remains `NoSafeSlice`; the implementation row may not widen this
@@ -173,14 +187,14 @@ legacy retirement/deletion  = 0
 
 ## Acceptance
 
-- worker-reviewed source-role → Recipe/JoinSig/effect/After/Tail table is
+- reviewed source-role -> Recipe/JoinSig/effect/continuation/Tail table is
   stored in this task and the companion Recipe SSOT;
 - one authority is named for every logical key, BindingSSA effect, scope/frame,
   completion, and physical session;
 - prefix target absence and tail's separate prefix binding are explicit, not
   silently inferred;
 - negative matrix covers missing/duplicate/foreign source or frame, binding
-  mismatch, unsupported policy, absent After/Tail, cross-owner pairing, and
+  mismatch, unsupported policy, absent continuation/Tail, cross-owner pairing, and
   any second Recipe/SSA/PHI owner;
 - implementation entry is one bounded caller-zero Recipe co-seal row,
   with focused tests and `docs/reference/**` updated in the same implementation

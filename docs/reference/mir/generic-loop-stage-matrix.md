@@ -1144,7 +1144,8 @@ Builder, production, retry/fallback, or legacy-retirement caller.
 
 The next execution row is `MAP-S1`. Once MAP-S1 is green, work stops for one
 `RECIPE-COSEAL-D0` design decision covering common Recipe/JoinSig,
-operation-source/effect relation, After/Tail envelope, and co-sealed
+operation-source/effect relation, separate Loop-continuation/callable-Tail
+contracts, and co-sealed
 Scope/Region/frame. This stage row is evidence-only and does not authorize
 physicalization or production selection.
 
@@ -1184,15 +1185,18 @@ Recipe/JoinSig, ValueId, CFG, PHI, Builder, physicalizer, production route,
 retry, fallback, or legacy-retirement authority. The source file remains
 under the 800-line lane limit.
 
-`RECIPE-COSEAL-D0` is now accepted as a shallow common design. It names the
+`RECIPE-COSEAL-D0-r1` is now accepted as a shallow common design after
+external review. It names the
 move-only `VerifiedLoopRecipeCoSealV1` boundary: existing verified Core plus
 profile-neutral operation-source, input-source, semantic-context, and
-After/Tail capabilities. The selected callable profile maps
+`VerifiedLoopContinuationContractV1` capabilities. The selected callable profile maps
 `InitialCarrier` to a carrier plus explicit preheader input relation;
 condition/step rows to common Read/Const/Compare/Add/Write operations;
-`PrefixBoundary` to an outer callable-prelude receipt; and
-`TailReturnRead` to a terminal After/Tail envelope that is deliberately
-separate from the loop-carrier After binding. The nested Generic G0 S4
+`PrefixBoundary` to `VerifiedCallablePreludeV1`; and
+`TailReturnRead` to a separate `VerifiedCallableTailV1`. The current row does
+not issue exact return ABI or `VerifiedFunctionCompletionV1`; their existing
+issuers are joined once by the later prepared physicalization product.
+`VerifiedLoopAfterTailEnvelopeV1` is rejected. The nested Generic G0 S4
 `VerifiedGenericAfterEffectG0` remains G0-only and is not a common callable
 owner.
 

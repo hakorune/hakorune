@@ -1,6 +1,6 @@
 # Generic loop source -> portable Recipe SSOT
 
-Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, and RECIPE-COSEAL-D0 are closed; the post-co-seal common physical-demand/fresh-session/DraftSeal architecture is accepted in advance; RECIPE-COSEAL-I0-R0 remains the next bounded caller-zero implementation; physical/production activation remains 0`
+Status: `Generic G0 demand S3/S4, raw structured carrier/result publication I0/R0, callable handoff/source/map, and RECIPE-COSEAL-D0-r1 are closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted in advance; RECIPE-COSEAL-I0-R0 remains the next bounded caller-zero implementation; physical/production activation remains 0`
 
 Current row: `RECIPE-COSEAL-I0-R0`
 
@@ -52,7 +52,7 @@ preserves source/frame/Scope/Region as one product, and unknown root-body
 statements are explicit rejects. MAP-S1 co-seals the nine syntax rows plus
 prefix boundary with resolver BindingRef/assignment/exit evidence and fixes
 the selected `0`/`1`/`Less`/`Add` profile policy. The shallow common
-`RECIPE-COSEAL-D0` design is accepted; the next row is its bounded caller-zero
+`RECIPE-COSEAL-D0-r1` design is accepted after external review; the next row is its bounded caller-zero
 `RECIPE-COSEAL-I0-R0` implementation. Do not add row-specific D0 suffixes.
 Reuse the common Recipe/physicalizer owners; do not add a Generic-specific
 SSA/PHI owner. Production selection, physical cutover, retry/fallback
@@ -60,12 +60,12 @@ retirement, and legacy deletion remain closed.
 
 The post-co-seal architecture is fixed by
 `loop-common-physical-demand-and-session-ssot.md`. It introduces one
-profile-neutral inner Loop demand plus thin callable/G0 admissions over
-existing source/ABI/Recipe/completion capabilities, one fresh unpublished
+profile-neutral inner Loop demand plus thin callable/G0 prepared execution
+products over existing source/ABI/Recipe/completion capabilities, one fresh unpublished
 function session, whole-session discard on failure, one common recursive
-physicalizer that leaves After open, and the existing Completion/DraftSeal
-terminal. This advance design does not authorize its I0/R0 row before the
-current co-seal implementation closes.
+physicalizer that leaves After open, and one typed function-finish terminal
+before the existing Completion/DraftSeal terminal. This advance design does
+not authorize its R0/I0 rows before the current co-seal implementation closes.
 
 `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1`,
 `RESOLVER-SYNTAX-FACTS-S1`, and
@@ -565,7 +565,9 @@ This closed S4 product is not the common callable co-seal. Its
 must not be reused by `StringHelpers.int_to_str/1`. The callable profile is
 governed by the separate shallow `RECIPE-COSEAL-D0` design, which keeps the
 common Core owner and adds only profile-neutral operation-source, input-source,
-semantic-context, and After/Tail capabilities.
+semantic-context, and Loop-continuation capabilities. Callable Prelude/Tail
+remain disjoint siblings; exact ABI and Completion come from existing issuers
+only in the later prepared physicalization row.
 
 ## Exact portable G0 mapping
 
@@ -1018,16 +1020,17 @@ GENERIC-LEGACY-DISPOSITION-D0
 GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0
   separate Generic-only deletion from shared/non-Generic canonicalizer callers
 
-LOOP-COMMON-PHYSICAL-DEMAND-I0-R0
-  one disjoint co-seal split and one profile-neutral inner Loop demand;
-  source/effect truth stays in the moved co-seal owner
+CANONICAL-FUNCTION-FINISH-TERMINAL-R0
+  migrate canonical V2 paths to one finish_for_draft_seal issuer;
+  accepted profiles and MIR remain unchanged
 
-CALLABLE-LOOP-PHYSICAL-ADMISSION-I0-R0
-  callable boundary, ABI, Tail, and completion plus the common inner demand
+LOOP-PHYSICAL-PREPARE-I0-R0
+  common Loop demand plus callable Prepared product; exact ABI and Completion
+  are consumed once from existing issuers
 
-GENERIC-G0-COMMON-PHYSICAL-ADMISSION-P0
+GENERIC-G0-PHYSICAL-PREPARE-P0
   existing G0 S4 product through a common co-seal view into the common inner
-  demand schema plus its distinct G0 After boundary
+  demand schema plus its distinct G0 Tail
 
 LOOP-PHYSICALIZER-COMMON-OWNER-R0
   behavior-neutral 2-5 commit split; accepted shapes unchanged
@@ -1038,9 +1041,6 @@ LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
 CALLABLE-LOOP-PHYSICAL-CANARY-I0-R0
   exact prelude + Loop + distinct Tail through one fresh unpublished session;
   finish CFG/SSA/PHI/completion and DraftSeal without a production caller
-
-GENERIC-G0-COMPLETION-P0
-  adapt root After value to the same completion/DraftSeal owner; no second Return writer
 
 LOOP-CALLER-ZERO-PARITY-G0
   prove callable Tail and Generic G0 After remain distinct profile adapters over
@@ -1131,14 +1131,13 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | `GENERIC-LEGACY-ROUTE-OBSERVATION-P1` | green front receipt + normalized universe -> serial route/bypass/RC/output observations | every required release/strict/planner-required run is observed; timeout or pre-Loop failure stays unclassified | no parallel full census and no manufactured result |
 | `GENERIC-LEGACY-DISPOSITION-D0` | observed normalized universe -> checked disposition | accepted cases use only portable owner or accepted typed reject; nonaccepted cases may retain future evidence; unclassified accepted count zero | future evidence cannot retire currently accepted input; failed/unobserved cases block closeout |
 | `GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0` | Generic candidate files + repository caller graph -> Generic-only / neutralize-first / M11 / M12 or named JoinModule ownership | shared `UpdateCanon`, `RecipeBody/RecipeBlock`, located handoff, separate `join_ir/lowering`, and `NYASH_JOINIR_LOWER_GENERIC` are assigned outside R1 | do not wholesale-delete `generic_loop_canon/**`, a name-matched subtree, or its environment reference |
-| `LOOP-COMMON-PHYSICAL-DEMAND-I0-R0` | one co-seal -> disjoint boundary evidence + one profile-neutral inner Loop demand | topology is key-only; source/effect/BindingRef truth remains in the moved co-seal owner; Builder effects zero | no profile admission, session, physical ID, mutation, or publication |
-| `CALLABLE-LOOP-PHYSICAL-ADMISSION-I0-R0` | inner demand + exact callable prelude/Tail/return ABI/completion -> one callable admission | owner/site/BindingRef/ABI/completion pairing is total before effects | no universal Callable plan, physicalizer, or production caller |
-| `GENERIC-G0-COMMON-PHYSICAL-ADMISSION-P0` | existing G0 S4 product -> common co-seal view -> the same inner-demand schema + G0 After boundary | `L0.After/b1` remains distinct from callable prefix `value`; no duplicated source truth | no G0 physicalizer, callable Tail reuse, or production caller |
+| `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` | existing canonical V2 session + profile-close receipt -> sole `finish_for_draft_seal` -> Ready DraftSeal | CFG/SSA/PHI/binding/completion finish cannot be omitted; DirectAccum `cfg.finish` gap closes | BoxShape-only; no new Recipe/MIR/profile acceptance |
+| `LOOP-PHYSICAL-PREPARE-I0-R0` | common co-seal + callable Prelude/Tail + existing ABI/Completion -> `PreparedCallableLoopPhysicalizationV1` | private index only; execution compatibility is the sole new relational truth; Completion moves once into session | no universal Callable plan, physicalizer, or production caller |
+| `GENERIC-G0-PHYSICAL-PREPARE-P0` | existing G0 S4 product -> common co-seal view -> `PreparedGenericG0LoopPhysicalizationV1` | `L0.After/b1` remains distinct from callable prefix `value`; no duplicated source truth | no G0 physicalizer, callable Tail reuse, or production caller |
 | `LOOP-PHYSICALIZER-COMMON-OWNER-R0` | current 792-line Accum owner -> common small services + thin Accum adapter | existing Accum MIR/fault/reuse/caller counts unchanged; each commit buildable | do not add recursive Generic acceptance in the refactor series |
-| `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | verified physical input + canonical CFG + function Binding SSA/PhiTxn -> disconnected candidate + root After capability | child PHI, post-child outer backedge, shadow, late-failure discard, fresh reuse | no Return, publication, production caller, route-local SSA, or fallback |
+| `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` | verified physical demand + private `ReadyLoopEntryV1` + canonical CFG/Binding SSA/PhiTxn -> open continuation | child PHI, post-child outer backedge, shadow, late-failure discard, fresh reuse | no Return, publication, production caller, route-local SSA, or fallback |
 | `CALLABLE-LOOP-PHYSICAL-CANARY-I0-R0` | common demand -> exact prelude/Loop/distinct Tail in one fresh unpublished function -> existing completion/DraftSeal | whole-function CFG finish, late failure discard, live-caller invariance, fresh reuse | no production selector/caller, retry, fallback, or module publication |
-| `GENERIC-G0-COMPLETION-P0` | physical result + verified After effect -> existing explicit-return completion/DraftSeal | returned value is `L0.After/b1`; input/body temporaries reject | no direct Return writer and no LoopRecipe function tail |
-| `LOOP-CALLER-ZERO-PARITY-G0` | callable canary + G0 completion adapter -> one common physical-owner parity proof | callable prefix `value` Tail and G0 `L0.After/b1` stay distinct; semantic result and failure/fresh-session receipts agree | no family relabeling or production activation |
+| `LOOP-CALLER-ZERO-PARITY-G0` | callable canary + G0 prepared adapter -> one common physical-owner parity proof | callable prefix `value` Tail and G0 `L0.After/b1` stay distinct; semantic result and failure/fresh-session receipts agree | no family relabeling or production activation |
 
 ### Coverage, cutover, and retirement
 
