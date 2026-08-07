@@ -7,21 +7,19 @@
 //! issue Recipe/Builder/MIR products.
 
 use crate::mir::loop_structural_facts::{
-    DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
-    GenericG0ObservationCoverageV1, GenericG0ObservationModeV1,
-    LoopCondObservationCoverageV1, LoopCondObservationModeV1,
-    LoopTrueObservationCoverageV1, LoopTrueObservationModeV1,
-    NestedPredicateObservationCoverageV1, NestedPredicateObservationModeV1,
+    DirectAccumObservationCoverageV1, DirectAccumObservationModeV1, GenericG0ObservationCoverageV1,
+    GenericG0ObservationModeV1, LoopCondObservationCoverageV1, LoopCondObservationModeV1,
+    LoopTrueObservationCoverageV1, LoopTrueObservationModeV1, NestedPredicateObservationCoverageV1,
+    NestedPredicateObservationModeV1,
 };
 use crate::mir::resolved_semantics::{
-    FunctionOriginV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1,
-    SemanticOwnerSourceKindV1, SourceStmtSiteV1, VerifiedLoopFamilyWindowLeaseV1,
+    FunctionOriginV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, SemanticOwnerSourceKindV1,
+    SourceStmtSiteV1, VerifiedLoopFamilyWindowLeaseV1,
 };
 
 use super::{
-    DirectAccumFamilyObservationV1, GenericG0FamilyObservationV1,
-    LoopCondFamilyObservationV1, LoopTrueFamilyObservationV1,
-    NestedPredicateFamilyObservationV1,
+    DirectAccumFamilyObservationV1, GenericG0FamilyObservationV1, LoopCondFamilyObservationV1,
+    LoopTrueFamilyObservationV1, NestedPredicateFamilyObservationV1,
 };
 
 const FAMILY_TAGS: [LoopFamilyTagV1; 5] = [
@@ -461,13 +459,8 @@ pub(crate) fn assemble_loop_family_admission_window_v1(
         let index = tag_index(row.tag());
         owned_slots[index] = Some(row);
     }
-    let [
-        Some(LoopFamilyObservationRowV1::DirectAccum(direct_accum)),
-        Some(LoopFamilyObservationRowV1::NestedPredicate(nested_predicate)),
-        Some(LoopFamilyObservationRowV1::LoopTrue(loop_true)),
-        Some(LoopFamilyObservationRowV1::LoopCond(loop_cond)),
-        Some(LoopFamilyObservationRowV1::GenericG0(generic_g0)),
-    ] = owned_slots
+    let [Some(LoopFamilyObservationRowV1::DirectAccum(direct_accum)), Some(LoopFamilyObservationRowV1::NestedPredicate(nested_predicate)), Some(LoopFamilyObservationRowV1::LoopTrue(loop_true)), Some(LoopFamilyObservationRowV1::LoopCond(loop_cond)), Some(LoopFamilyObservationRowV1::GenericG0(generic_g0))] =
+        owned_slots
     else {
         unreachable!("validated five-row admission must canonicalize exactly five rows")
     };
@@ -734,9 +727,7 @@ fn direct_disposition(row: &DirectAccumFamilyObservationV1) -> LoopFamilyRowDisp
     match row {
         DirectAccumFamilyObservationV1::Candidate(_) => LoopFamilyRowDispositionV1::Candidate,
         DirectAccumFamilyObservationV1::Declined { .. } => LoopFamilyRowDispositionV1::Declined,
-        DirectAccumFamilyObservationV1::Unresolved { .. } => {
-            LoopFamilyRowDispositionV1::Unresolved
-        }
+        DirectAccumFamilyObservationV1::Unresolved { .. } => LoopFamilyRowDispositionV1::Unresolved,
         DirectAccumFamilyObservationV1::Rejected { .. } => LoopFamilyRowDispositionV1::Rejected,
     }
 }

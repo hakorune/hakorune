@@ -343,9 +343,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
         self.recipe_facts.as_ref()
     }
 
-    pub(crate) fn nested_recipe_facts(
-        &self,
-    ) -> Option<&VerifiedNestedTrivialIfRecipeFactsV1> {
+    pub(crate) fn nested_recipe_facts(&self) -> Option<&VerifiedNestedTrivialIfRecipeFactsV1> {
         self.nested_recipe_facts.as_ref()
     }
 

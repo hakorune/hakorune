@@ -25,8 +25,8 @@ use crate::mir::{BasicBlockId, MirBuilder, ValueId};
 
 use super::canonical_cfg::{CanonicalCfgSessionV1, VerifiedPredecessorsV1};
 use super::canonical_ssa::{finish_profile_close, CanonicalSsaFunctionSessionV2};
-use super::draft_seal::ReadyFunctionDraftSealV1;
 use super::direct_accum_adapter::CanonicalDirectAccumBindingPort;
+use super::draft_seal::ReadyFunctionDraftSealV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct DirectAccumFinalBindingReceiptV1 {
@@ -168,11 +168,10 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             final_values,
             continuation.result.clone(),
         )?;
-        let profile_close = finish_profile_close(
-            self.input.owner(),
-            continuation.continuation_block,
-            || port.finish_effect_claims(),
-        )?;
+        let profile_close =
+            finish_profile_close(self.input.owner(), continuation.continuation_block, || {
+                port.finish_effect_claims()
+            })?;
         drop(port);
         let ready = self
             .session

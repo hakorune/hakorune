@@ -114,11 +114,10 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
             &mut port,
             &mut self.session.phis,
         )?;
-        let profile_close = finish_profile_close(
-            self.input.owner(),
-            continuation.continuation_block,
-            || port.finish_effect_claims(),
-        )?;
+        let profile_close =
+            finish_profile_close(self.input.owner(), continuation.continuation_block, || {
+                port.finish_effect_claims()
+            })?;
         drop(port);
         self.finish_after(continuation.continuation_block)?;
         self.session

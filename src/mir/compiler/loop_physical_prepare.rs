@@ -19,12 +19,12 @@ use crate::mir::resolved_semantics::{
     VerifiedCallableIndexV1,
 };
 
+use super::callable_single_loop_prelude_arguments::{
+    PreludeArgumentRejectV1, VerifiedCallablePreludeArgumentListV1,
+};
 use super::callable_single_loop_recipe_coseal::{
     VerifiedCallablePreludeV1, VerifiedCallableSingleLoopRecipeProductV1, VerifiedCallableTailV1,
     VerifiedLoopRecipeCoSealV1,
-};
-use super::callable_single_loop_prelude_arguments::{
-    PreludeArgumentRejectV1, VerifiedCallablePreludeArgumentListV1,
 };
 use super::callable_single_loop_source_shapes::SourceReceiverShapeV1;
 use super::function_input::ResolvedFunctionLoweringInputV1;
@@ -204,11 +204,10 @@ impl VerifiedCallablePreludeCapabilityV1 {
                     no_safe_slice(LoopPhysicalPrepareRejectReasonV1::PreludeResultAbiUnsupported)
                 })?;
         let arguments =
-            VerifiedCallablePreludeArgumentListV1::issue(branded.input(), prelude, header).map_err(
-                |reason| {
+            VerifiedCallablePreludeArgumentListV1::issue(branded.input(), prelude, header)
+                .map_err(|reason| {
                     no_safe_slice(LoopPhysicalPrepareRejectReasonV1::PreludeArgument(reason))
-                },
-            )?;
+                })?;
         Ok(Self {
             owner: prelude.owner(),
             site: prelude.site().clone(),
@@ -765,7 +764,10 @@ mod tests {
         assert_eq!(arguments[0].abi(), ExactTrivialReturnAbiV1::I64);
         assert_eq!(arguments[0].binding().owner(), input.owner());
         let call_site = OwnedExprSiteV1::new(input.owner(), prepared.prelude().site().clone());
-        let call = input.source().expr_at(&call_site).expect("prepared call site");
+        let call = input
+            .source()
+            .expr_at(&call_site)
+            .expect("prepared call site");
         let argument = input
             .source()
             .child_expr_from_expr(&call, ExprChildRoleV1::CallArgument(0))

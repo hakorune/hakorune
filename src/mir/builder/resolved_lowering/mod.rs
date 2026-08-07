@@ -488,8 +488,7 @@ impl MirBuilder {
                     let current_block = builder.function_state.current_block.ok_or_else(|| {
                         (
                             NormalFunctionDraftLoweringStageV1::BodyLowering,
-                            "[freeze:contract][if_recipe/test_failure_block_missing]"
-                                .to_string(),
+                            "[freeze:contract][if_recipe/test_failure_block_missing]".to_string(),
                         )
                     })?;
                     builder

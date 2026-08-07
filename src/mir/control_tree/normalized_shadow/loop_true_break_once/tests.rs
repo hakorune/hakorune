@@ -183,8 +183,9 @@ fn test_loop_true_break_once_passes_updated_env_to_k_exit() {
         "loop_only module must have exactly 1 tail-call to k_exit"
     );
 
-    let loop_only_mir = crate::mir::join_ir_to_mir::lower_structured_joinir_to_mir(&loop_only_module)
-        .expect("lower_structured_joinir_to_mir failed (loop-only)");
+    let loop_only_mir =
+        crate::mir::join_ir_to_mir::lower_structured_joinir_to_mir(&loop_only_module)
+            .expect("lower_structured_joinir_to_mir failed (loop-only)");
     const FUNC_NAME_ID_BASE: u32 = 90000;
     let k_exit_func_id = crate::mir::ValueId(FUNC_NAME_ID_BASE + k_exit_id.0);
     let mut args0 = std::collections::BTreeSet::new();

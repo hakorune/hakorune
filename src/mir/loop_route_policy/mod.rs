@@ -54,10 +54,8 @@ pub(crate) use evaluate::freeze_loop_route_schedule_v1;
 pub(crate) use family_admission::{
     assemble_loop_family_admission_window_v1, LoopFamilyAdmissionAssemblyOutcomeV1,
     LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionFailureEvidenceV1,
-    LoopFamilyAdmissionIssueV1, LoopFamilyAdmissionModeV1,
-    VerifiedLoopFamilyAdmissionRowsV1, VerifiedLoopFamilyAdmissionWindowV1,
-    LoopFamilyObservationRowV1,
-    LoopFamilyTagV1,
+    LoopFamilyAdmissionIssueV1, LoopFamilyAdmissionModeV1, LoopFamilyObservationRowV1,
+    LoopFamilyTagV1, VerifiedLoopFamilyAdmissionRowsV1, VerifiedLoopFamilyAdmissionWindowV1,
 };
 #[cfg(test)]
 pub(crate) use family_selection::{
@@ -67,8 +65,8 @@ pub(crate) use family_selection::{
 };
 pub(crate) use family_selector::{
     select_canonical_loop_family_v1, CanonicalLoopFamilyCandidateV1,
-    CanonicalLoopFamilySelectionReasonV1, CanonicalLoopFamilySelectionFailureV1,
-    CanonicalLoopFamilySelectionOutcomeV1, CanonicalLoopFamilySelectionV1,
+    CanonicalLoopFamilySelectionFailureV1, CanonicalLoopFamilySelectionOutcomeV1,
+    CanonicalLoopFamilySelectionReasonV1, CanonicalLoopFamilySelectionV1,
 };
 #[allow(unused_imports)]
 pub(crate) use generic_g0::{

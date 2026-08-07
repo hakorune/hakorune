@@ -266,7 +266,9 @@ pub(in crate::mir::builder) struct ModuleDraftCollectorV1 {
     drafts: BTreeMap<FunctionDraftKeyV1, CollectedFunctionDraftV1>,
     key_by_symbol: BTreeMap<String, FunctionDraftKeyV1>,
     receipt_brand: Option<ModuleInvocationBrandV1>,
-    static_result_publication_owner: Option<crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1>,
+    static_result_publication_owner: Option<
+        crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1,
+    >,
     _seal: ModuleDraftCollectorSealV1,
 }
 #[derive(Debug, Default)]

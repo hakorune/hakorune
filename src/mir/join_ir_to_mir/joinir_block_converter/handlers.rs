@@ -614,9 +614,7 @@ pub(crate) fn handle_nested_if_merge(
     ctx.mir_func.blocks.insert(final_else_block, else_block_obj);
     ctx.mir_func
         .get_block_mut(final_else_block)
-        .ok_or_else(|| {
-            JoinIrToMirError::new(format!("else block {:?} missing", final_else_block))
-        })?
+        .ok_or_else(|| JoinIrToMirError::new(format!("else block {:?} missing", final_else_block)))?
         .set_terminator(MirInstruction::Jump {
             target: merge_block,
             edge_args: None,

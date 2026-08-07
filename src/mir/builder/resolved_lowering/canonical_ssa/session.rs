@@ -75,16 +75,18 @@ pub(in crate::mir::builder::resolved_lowering) enum CanonicalFunctionFinishError
 impl std::fmt::Display for CanonicalFunctionFinishErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::ProfileOwnerMismatch => formatter.write_str(
-                "[freeze:contract][canonical_finish/profile_owner_mismatch]",
-            ),
-            Self::TerminalBlockMismatch => formatter.write_str(
-                "[freeze:contract][canonical_finish/terminal_block_mismatch]",
-            ),
+            Self::ProfileOwnerMismatch => {
+                formatter.write_str("[freeze:contract][canonical_finish/profile_owner_mismatch]")
+            }
+            Self::TerminalBlockMismatch => {
+                formatter.write_str("[freeze:contract][canonical_finish/terminal_block_mismatch]")
+            }
             Self::FunctionMissing => {
                 formatter.write_str("[freeze:contract][canonical_finish/function_missing]")
             }
-            Self::Cfg(error) => write!(formatter, "[freeze:contract][canonical_finish/cfg] {error}"),
+            Self::Cfg(error) => {
+                write!(formatter, "[freeze:contract][canonical_finish/cfg] {error}")
+            }
             Self::Semantic(error) => write!(
                 formatter,
                 "[freeze:contract][canonical_finish/semantic] {error}"
@@ -97,7 +99,9 @@ impl std::fmt::Display for CanonicalFunctionFinishErrorV1 {
                 formatter,
                 "[freeze:contract][canonical_finish/identity] {error}"
             ),
-            Self::Phi(error) => write!(formatter, "[freeze:contract][canonical_finish/phi] {error}"),
+            Self::Phi(error) => {
+                write!(formatter, "[freeze:contract][canonical_finish/phi] {error}")
+            }
             Self::Binding(error) => write!(
                 formatter,
                 "[freeze:contract][canonical_finish/binding] {error}"
@@ -106,9 +110,9 @@ impl std::fmt::Display for CanonicalFunctionFinishErrorV1 {
                 formatter,
                 "[freeze:contract][canonical_finish/completion] {error}"
             ),
-            Self::ReturnOperandMissing => formatter.write_str(
-                "[freeze:contract][canonical_finish/return_operand_missing]",
-            ),
+            Self::ReturnOperandMissing => {
+                formatter.write_str("[freeze:contract][canonical_finish/return_operand_missing]")
+            }
         }
     }
 }
@@ -148,8 +152,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         })?;
         let implicit_completion = completion.is_implicit_void();
         let target_function = input.function().function_region();
-        let completion =
-            ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion)?;
+        let completion = ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion)?;
         Ok(Self {
             owner: input.owner(),
             root_body: root_body.site().clone(),
@@ -210,8 +213,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         identity
             .finish()
             .map_err(CanonicalFunctionFinishErrorV1::Identity)?;
-        phis
-            .commit(builder)
+        phis.commit(builder)
             .map_err(|error| CanonicalFunctionFinishErrorV1::Phi(error.to_string()))?;
         builder
             .function_state
@@ -234,8 +236,8 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
 #[cfg(test)]
 mod tests {
     use super::finish_profile_close;
-    use crate::mir::BasicBlockId;
     use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
+    use crate::mir::BasicBlockId;
 
     #[test]
     fn profile_close_receipt_is_minted_only_after_profile_success() {

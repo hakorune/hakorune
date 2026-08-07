@@ -32,13 +32,16 @@ pub(crate) use nested_join_sig::{
     VerifiedNestedIfJoinSigV1,
 };
 pub(crate) use nested_schema::{
-    NestedIfAssignmentV1, NestedIfBindingV1, NestedIfBindingKeyV1, NestedIfBinaryOpV1,
+    NestedIfAssignmentV1, NestedIfBinaryOpV1, NestedIfBindingKeyV1, NestedIfBindingV1,
     NestedIfContinuationV1, NestedIfExprKindV1, NestedIfExprV1, NestedIfJoinRowV1,
     NestedIfNodeKeyV1, NestedIfNodeV1, NestedIfRecipeArtifactV1, NestedIfRecipeProfileV1,
     NestedIfRecipeProvenanceV1, NestedIfRecipeSourceBindingV1, NestedIfRecipeV1,
     NestedIfSourceClaimRoleV1, NestedIfSourceClaimV1, NestedIfSourcePathStepV1,
     NestedIfSourcePathV1, NestedIfValueClassV1, NestedIfValueKeyV1,
     NESTED_IF_RECIPE_SCHEMA_VERSION_V1,
+};
+pub(crate) use nested_verify::{
+    NestedIfRecipeRejectReasonV1, NestedIfRecipeVerifierV1, VerifiedNestedIfRecipeArtifactV1,
 };
 pub(crate) use normalize::{IfRecipeDecodeErrorV1, IfRecipeNormalizerV1};
 pub(crate) use physical_input::{IfPhysicalInputRejectReasonV1, VerifiedIfPhysicalInputV1};
@@ -51,6 +54,3 @@ pub(crate) use schema::{
     IF_RECIPE_SCHEMA_VERSION_V1,
 };
 pub(crate) use verify::{IfRecipeVerifierV1, VerifiedIfRecipeArtifactV1, VerifiedIfRecipeV1};
-pub(crate) use nested_verify::{
-    NestedIfRecipeRejectReasonV1, NestedIfRecipeVerifierV1, VerifiedNestedIfRecipeArtifactV1,
-};

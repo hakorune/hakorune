@@ -251,8 +251,8 @@ mod normal_cataloged_box_method_admission; // Selected normal cataloged-child id
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
 mod normal_script_boundary_receipt_pack; // Script retained boundary receipts
 mod normal_script_operational_demand_receipt_pack; // Script structured demand receipts
-mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
 mod normal_script_semantic_lowering_projection; // Immutable Script lowering projection
+mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
 mod normal_script_semantic_source; // Producer-backed lexical Script source
 mod normal_script_semantic_source_core; // Shared Script source/forest/projection core
 mod program_root_lowering; // Shared typed/generic Program root owner
@@ -313,18 +313,6 @@ mod resolved_owner_header_p0; // ROUTEINV-P0c-SINGLEHDR-P0 matrix
 #[allow(dead_code)]
 mod root_batch_slot; // HEADERPORT0-I0-ROOTBATCH0-S0 identity SSOT
 pub(in crate::mir) use root_batch_slot::raw_main_entry_target;
-#[allow(dead_code)]
-mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
-#[cfg(test)]
-mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
-#[allow(dead_code)]
-mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch // CUT0-I0-POST0-RAW-S0 physical retention
-#[cfg(test)]
-mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
-#[cfg(test)]
-mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
-#[allow(dead_code)]
-mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 policy
 mod enum_match_source_demand;
 mod enum_variant_source_demand;
 mod qmark_source_demand;
@@ -337,11 +325,23 @@ mod raw_structured_child_scope;
 mod record_literal_source_demand;
 mod recursive_child_lowering;
 #[cfg(test)]
-mod recursive_child_lowering_rawport_tests;
-#[cfg(test)]
 mod recursive_child_lowering_rawport_header_tests;
 #[cfg(test)]
+mod recursive_child_lowering_rawport_tests;
+#[cfg(test)]
 mod recursive_child_lowering_tests;
+#[allow(dead_code)]
+mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
+#[cfg(test)]
+mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
+#[allow(dead_code)]
+mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch // CUT0-I0-POST0-RAW-S0 physical retention
+#[cfg(test)]
+mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
+#[cfg(test)]
+mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
+#[allow(dead_code)]
+mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 policy
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
@@ -434,7 +434,9 @@ pub(crate) fn observe_legacy_generic_loop_for_test(
                 LegacyGenericCarrierSummaryV1::CompleteNoRecursive
             }
             GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(bindings) => {
-                LegacyGenericCarrierSummaryV1::CompleteRecursive(bindings.clone().into_boxed_slice())
+                LegacyGenericCarrierSummaryV1::CompleteRecursive(
+                    bindings.clone().into_boxed_slice(),
+                )
             }
             GenericLoopCarrierObservationV1::Unavailable(reason) => {
                 LegacyGenericCarrierSummaryV1::Unavailable(reason.clone())
@@ -446,9 +448,8 @@ pub(crate) fn observe_legacy_generic_loop_for_test(
     });
     let v1_present = carrier.is_some();
     let canonical = control_flow::lower::normalize::canonicalize_loop_facts(facts);
-    let selection = control_flow::joinir::route_entry::registry::select_recipe_first_routes(
-        Some(&canonical),
-    );
+    let selection =
+        control_flow::joinir::route_entry::registry::select_recipe_first_routes(Some(&canonical));
     LegacyGenericLoopObservationV1 {
         status: LegacyGenericFactsStatusV1::Available,
         v0_present,
@@ -533,9 +534,9 @@ mod normal_script_direct_statement_owner; // Selected Script direct statement te
 mod normal_script_program_item_admission; // Selected Script Program-item source admission
 mod normal_script_root_admission_witness; // selected Script root shape/disposition proof
 mod normal_script_root_demand_window; // Selected Script source-only semantic demand receipt
-mod normal_script_selected_occurrence; // typed selected-Script work-plan-to-semantics handoff
 mod normal_script_runtime_block_port;
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission
+mod normal_script_selected_occurrence; // typed selected-Script work-plan-to-semantics handoff
 mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 mod ops;
 mod phi;

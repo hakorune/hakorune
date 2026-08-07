@@ -72,17 +72,14 @@ impl IfRecipeVerifierV1 {
             .as_source_binding()
             .claims
             .iter()
-            .filter(|claim| {
-                claim.role == super::schema::IfSourceClaimRoleV1::DirectStaticCall
-            })
+            .filter(|claim| claim.role == super::schema::IfSourceClaimRoleV1::DirectStaticCall)
             .count();
         if direct_ops != direct_claims {
             return Err(Reject::DirectStaticCallCountMismatch { found: direct_ops });
         }
         let (then_ops, else_ops) = direct_static_call_branch_counts(recipe.as_recipe());
-        let (then_claims, else_claims) = direct_static_call_claim_branch_counts(
-            source_binding.as_source_binding(),
-        );
+        let (then_claims, else_claims) =
+            direct_static_call_claim_branch_counts(source_binding.as_source_binding());
         if (then_ops, else_ops) != (then_claims, else_claims) {
             return Err(Reject::DirectStaticCallBranchMismatch {
                 then_ops,
@@ -221,7 +218,12 @@ fn direct_static_call_count(recipe: &IfRecipeV1) -> usize {
         .items
         .iter()
         .chain(recipe.then_block.items.iter())
-        .chain(recipe.else_block.iter().flat_map(|block| block.items.iter()))
+        .chain(
+            recipe
+                .else_block
+                .iter()
+                .flat_map(|block| block.items.iter()),
+        )
         .chain(recipe.continuation_block.items.iter())
         .filter(|item| matches!(item.operation, IfOperationV1::DirectStaticCall { .. }))
         .count()
@@ -235,7 +237,10 @@ fn direct_static_call_branch_counts(recipe: &IfRecipeV1) -> (usize, usize) {
             .filter(|item| matches!(item.operation, IfOperationV1::DirectStaticCall { .. }))
             .count()
     };
-    (count(&recipe.then_block), recipe.else_block.as_ref().map(count).unwrap_or(0))
+    (
+        count(&recipe.then_block),
+        recipe.else_block.as_ref().map(count).unwrap_or(0),
+    )
 }
 
 fn direct_static_call_claim_branch_counts(
@@ -355,17 +360,12 @@ fn verify_condition_block(
     definitions: &mut BTreeSet<IfValueKeyV1>,
     item_cursor: &mut u32,
 ) -> Result<(), Reject> {
-    if recipe
-        .condition_block
-        .items
-        .iter()
-        .any(|item| {
-            matches!(
-                item.operation,
-                IfOperationV1::WriteBinding { .. } | IfOperationV1::DirectStaticCall { .. }
-            )
-        })
-    {
+    if recipe.condition_block.items.iter().any(|item| {
+        matches!(
+            item.operation,
+            IfOperationV1::WriteBinding { .. } | IfOperationV1::DirectStaticCall { .. }
+        )
+    }) {
         return Err(Reject::UnsupportedOperation);
     }
     verify_operations(

@@ -751,7 +751,8 @@ impl<'a> AnalyzerV1<'a> {
                     index,
                 )?;
                 self.draft.record_direct_call(row)?;
-                self.recipe_facts.record_direct_call(expression.site().clone());
+                self.recipe_facts
+                    .record_direct_call(expression.site().clone());
                 return Ok(TrivialRepresentationV1::InlineI64);
             }
             _ => {

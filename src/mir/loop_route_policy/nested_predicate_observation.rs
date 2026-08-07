@@ -159,9 +159,7 @@ impl NestedPredicateFamilyObservationV1 {
         }
     }
 
-    pub(crate) fn into_admission_row(
-        self,
-    ) -> super::family_admission::LoopFamilyObservationRowV1 {
+    pub(crate) fn into_admission_row(self) -> super::family_admission::LoopFamilyObservationRowV1 {
         super::family_admission::LoopFamilyObservationRowV1::NestedPredicate(self)
     }
 }

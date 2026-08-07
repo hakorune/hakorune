@@ -231,7 +231,7 @@ impl ModuleLoweringPortV1<'_> {
     ) -> Result<
         Option<crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1>,
         crate::mir::callable_result_representation::StaticCallResultPublicationOwnerTakeErrorV1,
-    > {
+    >{
         self.collector
             .take_static_result_publication_handoff(declarations, caller, site, target)
     }

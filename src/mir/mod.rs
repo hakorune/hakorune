@@ -46,14 +46,14 @@ pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
-#[cfg(test)]
-#[path = "shared_loop_source_window_tests.rs"]
-pub(crate) mod shared_loop_source_window;
 pub mod edge_args;
 pub(crate) mod raw_finalization_contract;
 pub(crate) mod raw_physical_drain;
 pub(crate) mod raw_root_body_recipe;
 pub(crate) mod raw_vm_reference_contract;
+#[cfg(test)]
+#[path = "shared_loop_source_window_tests.rs"]
+pub(crate) mod shared_loop_source_window;
 #[allow(unused_imports)]
 pub(crate) use compiler::canonical_core_dispatch::{
     CanonicalCallableDispatchStageV1, CanonicalCoreDispatchErrorV1, CanonicalCoreDispatchStageV1,
@@ -108,9 +108,9 @@ pub mod global_call_route_plan; // MIR-owned unsupported global user-call route 
 pub mod hako_alloc_aligned_small_packed_store_pilot; // MIR-owned C210 aligned-small metadata packed-store pilot
 pub mod hako_alloc_huge_page_packed_store_pilot; // MIR-owned C211 huge-page metadata packed-store pilot
 pub mod hotcore_method_summary; // MIR-owned summaries for selected direct-exact hot-core callees
+pub(crate) mod if_recipe_contract; // Builder-free fixed-shell If recipe wire
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub(crate) mod inline_leaf; // shared narrow leaf inline shape contract for optimizer/verifier
-pub(crate) mod if_recipe_contract; // Builder-free fixed-shell If recipe wire
 pub mod inline_plan; // MIR-owned InlinePlan metadata derived from rune hints
 pub mod instruction;
 pub mod instruction_introspection; // Introspection helpers for tests (instruction names)

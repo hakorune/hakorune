@@ -4,40 +4,84 @@ use super::ids::{IfBindingKeyV1, IfBlockKeyV1, IfValueKeyV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum IfRecipeRejectReasonV1 {
-    UnsupportedVersion { found: u16 },
+    UnsupportedVersion {
+        found: u16,
+    },
     ProfileDispositionMismatch,
-    NonCanonicalKeyOrder { domain: &'static str },
-    InvalidBlockRole { block: IfBlockKeyV1 },
-    DuplicateBlock { block: IfBlockKeyV1 },
-    MissingBlockRole { role: &'static str },
-    MergeTargetCountMismatch { found: usize },
-    InvalidBindingRole { binding: IfBindingKeyV1 },
-    DanglingBinding { binding: IfBindingKeyV1 },
-    DanglingValue { value: IfValueKeyV1 },
-    DuplicateValueDefinition { value: IfValueKeyV1 },
-    UndefinedValue { value: IfValueKeyV1 },
-    ValueUseBeforeDefinition { value: IfValueKeyV1 },
-    ValueClassMismatch { value: IfValueKeyV1 },
-    ConditionNotBool { value: IfValueKeyV1 },
+    NonCanonicalKeyOrder {
+        domain: &'static str,
+    },
+    InvalidBlockRole {
+        block: IfBlockKeyV1,
+    },
+    DuplicateBlock {
+        block: IfBlockKeyV1,
+    },
+    MissingBlockRole {
+        role: &'static str,
+    },
+    MergeTargetCountMismatch {
+        found: usize,
+    },
+    InvalidBindingRole {
+        binding: IfBindingKeyV1,
+    },
+    DanglingBinding {
+        binding: IfBindingKeyV1,
+    },
+    DanglingValue {
+        value: IfValueKeyV1,
+    },
+    DuplicateValueDefinition {
+        value: IfValueKeyV1,
+    },
+    UndefinedValue {
+        value: IfValueKeyV1,
+    },
+    ValueUseBeforeDefinition {
+        value: IfValueKeyV1,
+    },
+    ValueClassMismatch {
+        value: IfValueKeyV1,
+    },
+    ConditionNotBool {
+        value: IfValueKeyV1,
+    },
     ExplicitElseRequired,
     ImplicitElseBlockPresent,
     ImplicitBaselineMismatch,
-    MissingBranchWrite { branch: &'static str },
-    BranchWriteCountMismatch { branch: &'static str, found: usize },
+    MissingBranchWrite {
+        branch: &'static str,
+    },
+    BranchWriteCountMismatch {
+        branch: &'static str,
+        found: usize,
+    },
     BranchBindingMismatch,
-    JoinRowCountMismatch { found: usize },
+    JoinRowCountMismatch {
+        found: usize,
+    },
     JoinBindingMismatch,
     JoinValueMismatch,
     MissingContinuationRead,
     ContinuationBindingMismatch,
     UnsupportedOperation,
-    UnusedBlock { role: &'static str },
-    UnusedValue { value: IfValueKeyV1 },
-    SourceClaimCoverageMismatch { expected: usize, found: usize },
+    UnusedBlock {
+        role: &'static str,
+    },
+    UnusedValue {
+        value: IfValueKeyV1,
+    },
+    SourceClaimCoverageMismatch {
+        expected: usize,
+        found: usize,
+    },
     SourceClaimOrderMismatch,
     DuplicateSourceClaimRole,
     InvalidSourcePath,
-    DirectStaticCallCountMismatch { found: usize },
+    DirectStaticCallCountMismatch {
+        found: usize,
+    },
     DirectStaticCallBranchMismatch {
         then_ops: usize,
         else_ops: usize,
