@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0/D-I0/PARSER-PUBLIC-AST-POSTPASS-I0-A/PARSER-PUBLIC-AST-POSTPASS-I0-B/PARSER-PUBLIC-AST-POSTPASS-I0-C projection closed; FINAL is a retirement-proof design stop, not an invented production switch
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0/D-I0/PARSER-PUBLIC-AST-POSTPASS-I0-A/PARSER-PUBLIC-AST-POSTPASS-I0-B/PARSER-PUBLIC-AST-POSTPASS-I0-C projection/SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0/SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-I0 closed; FINAL is a retirement-proof design stop, not an invented production switch
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -341,12 +341,22 @@ SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0 (design audit closed)
   Task:
   `docs/development/current/main/investigations/source-instance-result-contract-retire0-r0-task-2026-08-09.md`
 
-SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-I0 (next bounded implementation)
+SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-I0 (closed implementation)
   delete the caller-zero module and mod.rs edge; remove old-only rebind/
   preloop fixtures; preserve neutral raw source-view tests; no new target
   authority
   Task:
   `docs/development/current/main/investigations/source-instance-result-contract-retire0-i0-implementation-task-2026-08-09.md`
+
+  Receipt: module/issuer deleted; neutral raw source-view tests retained;
+  source_call_target 55 tests, callable_result_representation 72 tests, and
+  cargo check passed. The standalone catalog guard remains at its unrelated
+  pre-existing SourcePath projector owner-count drift.
+
+LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (next design stop)
+  declaration-first source authority, typed Query semantic profile,
+  same-declaration VerifiedHomeAbi relation, and separate body-conformance
+  product. No target, Recipe/CallSlot, Builder/MIR, or fallback.
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
   complete same-brand declared-contract + body-conformance set
@@ -710,7 +720,7 @@ Rejected > Unresolved > Declined > Candidate
 | parallel `method_source_member_ordinals` sidecar | R6-S2 ordinary transaction cutover | deleted from the ordinary parser; bounded final rich source seal is R6-S3A |
 | inventory `selected_method_ordinal` as source identity | R6 | retain only as selected inventory placement |
 | Builder same-module name/arity catalog | current production compatibility | resolver target is selected and its caller cut over |
-| `source_instance_result_contract` body-inferred target/result family | current caller-zero tests | `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`, before new target I0 |
+| `source_instance_result_contract` body-inferred target/result family | retired | `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-I0` landed 2026-08-09 |
 | FreeStatic resolved index | indefinitely for FreeStatic only | never reused for instance methods |
 | `Contract(pure|readonly)` metadata | existing metadata lane | a separate Decision explicitly migrates it |
 | test-only normalized Rust/Hako comparison | parity tests | may remain as evidence; never runtime authority |

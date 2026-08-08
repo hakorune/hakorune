@@ -1,5 +1,5 @@
 ---
-Status: active — bounded caller-zero retirement implementation
+Status: closed — bounded caller-zero retirement landed
 Date: 2026-08-09
 Decision: delete the old body-inferred instance-result/target family before declaration-first target I0
 Parent: `source-instance-result-contract-retire0-r0-task-2026-08-09.md`
@@ -86,3 +86,49 @@ receipt, `source_call_target`/fixture README as needed, the language/callable
 task map, `CURRENT_STATE.toml`, and `10-Now.md` in the same commit. Then push
 the commit. The next design stop may open declaration-first resolver contract
 issuance; it must not infer a replacement target from this retired family.
+
+## Landed implementation receipt — 2026-08-09
+
+The caller-zero family was removed in this slice:
+
+```text
+deleted src/mir/source_instance_result_contract/**
+deleted src/mir/callable_result_representation/body_proof_issue.rs
+deleted solver.rs::issue_unannotated_body_proof()
+removed the mir module edge and old-only rebind/pre-loop fixtures
+renamed/reduced the raw source-view fixture so it carries no target/result
+contract
+```
+
+The general `source_call_target` primitives and static result-representation
+owners remain. No declaration-first target, Recipe/CallSlot, Builder/MIR
+route, or fallback was introduced.
+
+Focused evidence:
+
+```text
+RUSTFLAGS=-Awarnings cargo test -q -p nyash-rust source_call_target        # 55 passed
+RUSTFLAGS=-Awarnings cargo test -q -p nyash-rust callable_result_representation # 72 passed
+RUSTFLAGS=-Awarnings cargo check -q -p nyash-rust                        # passed
+git grep active old-family names in src/crates/lang/tools/checks           # empty
+git diff --check                                                          # passed
+bash tools/checks/current_state_pointer_guard.sh                          # passed
+python3 tools/rust_lifecycle/mirbuilder_native_owner_candidate_inventory.py --check # passed
+```
+
+All changed Rust files remain below the 760-line review threshold. The
+generated native-owner candidate inventory was regenerated to remove retired
+paths and its check is green. The existing
+`callable_result_i64_catalog_s0.py` guard still reports its unrelated baseline
+`SourcePath projector owner count drift`; this retirement slice does not alter
+that projector owner.
+
+The next stop is design-only:
+
+```text
+LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0
+```
+
+It must first close the declaration-first source authority, typed Query
+profile, same-declaration Home ABI relation, and separate body-conformance
+boundary before any target or Recipe work opens.

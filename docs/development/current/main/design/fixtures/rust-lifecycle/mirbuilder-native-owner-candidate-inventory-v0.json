@@ -5484,7 +5484,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_empty",
-      "line": 215,
+      "line": 256,
       "path": "src/mir/builder/callable_declaration_catalog/catalog.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -5515,8 +5515,16 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "declared_name",
+      "line": 29,
+      "path": "src/mir/builder/callable_declaration_catalog/selected_source_inventory.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "rejects_parameter_declaration_name_and_cardinality_drift",
-      "line": 367,
+      "line": 371,
       "path": "src/mir/builder/callable_declaration_catalog/tests.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -5893,11 +5901,34 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "display_formatter",
-      "display_target": "LoopRouteId",
-      "function": "Display::fmt",
-      "line": 79,
-      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/types.rs",
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_labels",
+      "line": 52,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_nested_carrier_winner_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify",
+      "line": 249,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_resolved_carrier_toplevel_compound_premise_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "generic_stage_matrix_never_calls_effectful_failure_a_decline",
+      "line": 706,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "result_kind",
+      "line": 38,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_receipt.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -5926,14 +5957,6 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_break_or_continue_only",
-      "line": 169,
-      "path": "src/mir/builder/control_flow/normalization/plan_box.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "exit_kinds_empty",
       "line": 8,
@@ -5944,7 +5967,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_add_one_of_var",
-      "line": 179,
+      "line": 193,
       "path": "src/mir/builder/control_flow/plan/composer/shadow_adopt.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -5976,15 +5999,23 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_increment_step_one",
-      "line": 89,
+      "line": 122,
       "path": "src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
     {
       "candidate_kind": "boolean_classifier",
+      "function": "is_available",
+      "line": 33,
+      "path": "src/mir/builder/control_flow/plan/facts/loop_source_receipt.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
       "function": "is_split_scan_match_condition",
-      "line": 130,
+      "line": 174,
       "path": "src/mir/builder/control_flow/plan/facts/loop_split_scan.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -5992,7 +6023,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_substring_i_plus_sep_len",
-      "line": 159,
+      "line": 203,
       "path": "src/mir/builder/control_flow/plan/facts/loop_split_scan.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6000,7 +6031,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_start_update",
-      "line": 264,
+      "line": 308,
       "path": "src/mir/builder/control_flow/plan/facts/loop_split_scan.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6008,7 +6039,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_i_set_to_start",
-      "line": 294,
+      "line": 338,
       "path": "src/mir/builder/control_flow/plan/facts/loop_split_scan.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6016,7 +6047,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_i_increment_by_one",
-      "line": 302,
+      "line": 346,
       "path": "src/mir/builder/control_flow/plan/facts/loop_split_scan.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6120,7 +6151,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_bool_literal_condition",
-      "line": 401,
+      "line": 402,
       "path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6128,7 +6159,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "receiver_name_matches_loop_var",
-      "line": 586,
+      "line": 587,
       "path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6346,6 +6377,31 @@
       "function": "is_supported_value_expr_for_true_loop",
       "line": 44,
       "path": "src/mir/builder/control_flow/plan/loop_cond/true_break_continue_helpers.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "display_formatter",
+      "display_target": "LoopPhiMaterializerErrorV1",
+      "function": "Display::fmt",
+      "line": 46,
+      "path": "src/mir/builder/control_flow/plan/loop_phi_materializer.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_header_input",
+      "line": 669,
+      "path": "src/mir/builder/control_flow/plan/loop_phi_materializer.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "mir_type_for_class",
+      "line": 676,
+      "path": "src/mir/builder/control_flow/plan/loop_phi_materializer.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -6680,7 +6736,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "runtime_variant_box_name",
-      "line": 577,
+      "line": 523,
       "path": "src/mir/builder/exprs_enum_match.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6731,8 +6787,16 @@
     },
     {
       "candidate_kind": "boolean_classifier",
+      "function": "is_active",
+      "line": 86,
+      "path": "src/mir/builder/function_lowering_state.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
       "function": "is_reserved_value_id",
-      "line": 164,
+      "line": 304,
       "path": "src/mir/builder/function_lowering_state.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6816,7 +6880,7 @@
       "candidate_kind": "display_formatter",
       "display_target": "CollectorReceiptBrandErrorV1",
       "function": "Display::fmt",
-      "line": 96,
+      "line": 97,
       "path": "src/mir/builder/module_draft_collector.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6825,7 +6889,7 @@
       "candidate_kind": "display_formatter",
       "display_target": "ModuleDraftAdmissionErrorV1",
       "function": "Display::fmt",
-      "line": 107,
+      "line": 108,
       "path": "src/mir/builder/module_draft_collector.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7054,6 +7118,14 @@
       "status": "candidate"
     },
     {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_direct_child",
+      "line": 300,
+      "path": "src/mir/builder/normal_callable_loop_handoff.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
       "candidate_kind": "display_formatter",
       "display_target": "NormalCatalogedBoxMethodAdmissionErrorV1",
       "function": "Display::fmt",
@@ -7066,7 +7138,7 @@
       "candidate_kind": "display_formatter",
       "display_target": "NormalDefaultRootCatalogLifecycleErrorV1",
       "function": "Display::fmt",
-      "line": 58,
+      "line": 91,
       "path": "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7074,7 +7146,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "stage",
-      "line": 118,
+      "line": 151,
       "path": "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7113,16 +7185,64 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "classify_normal_script_runtime_statement_v1",
-      "line": 411,
-      "path": "src/mir/builder/normal_script_runtime_work.rs",
+      "function": "kind",
+      "line": 43,
+      "path": "src/mir/builder/normal_script_deferred_residual_registry.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_direct_selected_unsupported_statement_v1",
+      "line": 120,
+      "path": "src/mir/builder/normal_script_program_item_admission.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_plain_box",
-      "line": 465,
+      "line": 134,
+      "path": "src/mir/builder/normal_script_program_item_admission.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_program_record_declaration",
+      "line": 258,
+      "path": "src/mir/builder/normal_script_root_admission_witness.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_variable_target_binding_rebind",
+      "line": 270,
+      "path": "src/mir/builder/normal_script_root_admission_witness.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_index_write_assignment",
+      "line": 278,
+      "path": "src/mir/builder/normal_script_root_admission_witness.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_literal_only",
+      "line": 141,
+      "path": "src/mir/builder/normal_script_runtime_work.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_literal_only",
+      "line": 214,
       "path": "src/mir/builder/normal_script_runtime_work.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7130,16 +7250,8 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "classifies_only_plain_direct_runtime_boxes",
-      "line": 529,
+      "line": 474,
       "path": "src/mir/builder/normal_script_runtime_work.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "declared_name",
-      "line": 43,
-      "path": "src/mir/builder/normal_top_level_function_admission.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -7163,15 +7275,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "name",
-      "line": 305,
-      "path": "src/mir/builder/program_root_work_plan.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "classify_statement",
-      "line": 376,
+      "line": 308,
       "path": "src/mir/builder/program_root_work_plan.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7218,6 +7322,38 @@
       "status": "candidate"
     },
     {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_rootless_item_site_kind",
+      "line": 9,
+      "path": "src/mir/builder/raw_invocation_source_item_site.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_located_scalar_statement",
+      "line": 493,
+      "path": "src/mir/builder/raw_invocation_source_transport.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_located_zero_child_runtime_completion",
+      "line": 506,
+      "path": "src/mir/builder/raw_invocation_source_transport.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_located_lambda_statement",
+      "line": 510,
+      "path": "src/mir/builder/raw_invocation_source_transport.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "kind",
       "line": 33,
@@ -7244,7 +7380,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "classify_raw_loop_child_entry_v1",
-      "line": 28,
+      "line": 154,
       "path": "src/mir/builder/raw_loop_child_entry.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7371,6 +7507,23 @@
       "status": "candidate"
     },
     {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "named_block_owner_rejects_duplicate_creation",
+      "line": 299,
+      "path": "src/mir/builder/resolved_lowering/canonical_cfg/tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "display_formatter",
+      "display_target": "CanonicalFunctionFinishErrorV1",
+      "function": "Display::fmt",
+      "line": 75,
+      "path": "src/mir/builder/resolved_lowering/canonical_ssa/session.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
       "candidate_kind": "boolean_classifier",
       "function": "is_implicit_void",
       "line": 41,
@@ -7387,10 +7540,59 @@
       "status": "candidate"
     },
     {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_not_selected",
+      "line": 75,
+      "path": "src/mir/builder/resolved_lowering/if_recipe_adapter.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_explicit_else",
+      "line": 249,
+      "path": "src/mir/builder/resolved_lowering/if_recipe_adapter.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "branch_local_same_name_shadow_is_retired_without_touching_outer_binding",
       "line": 248,
       "path": "src/mir/builder/resolved_lowering/if_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "display_formatter",
+      "display_target": "CallablePreludeMaterializationRejectV1",
+      "function": "Display::fmt",
+      "line": 51,
+      "path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_canary.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 65,
+      "path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/carrier_emitter.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 174,
+      "path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_emitter.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 49,
+      "path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_ledger.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -7408,6 +7610,14 @@
       "function": "Display::fmt",
       "line": 27,
       "path": "src/mir/builder/resolved_lowering/trivial_ssa/direct_call_type.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_explicit_else",
+      "line": 72,
+      "path": "src/mir/builder/resolved_lowering/trivial_ssa/if_recipe_physicalizer.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -7668,7 +7878,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_empty",
-      "line": 133,
+      "line": 129,
       "path": "src/mir/callable_result_representation/solver.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7676,7 +7886,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_branded_by",
-      "line": 222,
+      "line": 170,
       "path": "src/mir/callable_result_representation/solver.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7710,6 +7920,30 @@
       "function": "classifies_nonrecursive_self_and_finite_mutual_components",
       "line": 111,
       "path": "src/mir/compiler/callable_scc_partition/tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 203,
+      "path": "src/mir/compiler/callable_single_loop_source_map.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "kind",
+      "line": 77,
+      "path": "src/mir/compiler/callable_single_loop_source_shapes.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 221,
+      "path": "src/mir/compiler/callable_single_loop_syntax_facts.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -7796,15 +8030,39 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "named_function",
-      "line": 74,
+      "line": 91,
       "path": "src/mir/compiler/capability_tests.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "kind",
+      "line": 38,
+      "path": "src/mir/compiler/direct_accum_prefix.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "name",
+      "line": 46,
+      "path": "src/mir/compiler/direct_accum_prefix.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "wrong_recurrence_binding_rejects_without_name_fallback",
+      "line": 166,
+      "path": "src/mir/compiler/generic_g0_projection_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "program_v0_typed_errors_match_legacy_program_stages_exactly",
-      "line": 548,
+      "line": 562,
       "path": "src/mir/compiler/legacy_candidate_session_tests.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7830,6 +8088,46 @@
       "function": "into_stage_parts",
       "line": 311,
       "path": "src/mir/compiler/module_postprocess.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "kind",
+      "line": 44,
+      "path": "src/mir/compiler/nested_predicate_effect_plan.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "name",
+      "line": 48,
+      "path": "src/mir/compiler/nested_predicate_effect_plan.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "kind",
+      "line": 88,
+      "path": "src/mir/compiler/nested_predicate_effect_plan.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "name",
+      "line": 92,
+      "path": "src/mir/compiler/nested_predicate_effect_plan.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_local_j",
+      "line": 217,
+      "path": "src/mir/compiler/nested_predicate_projection.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -7967,7 +8265,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "stage",
-      "line": 251,
+      "line": 252,
       "path": "src/mir/compiler/normal_source_plan/module_source.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7975,7 +8273,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "stage",
-      "line": 285,
+      "line": 286,
       "path": "src/mir/compiler/normal_source_plan/module_source.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7983,7 +8281,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "module_unsupported_kind",
-      "line": 389,
+      "line": 390,
       "path": "src/mir/compiler/normal_source_plan/module_source.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8064,7 +8362,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "existing_exact_classifier_still_rejects_non_main_box",
-      "line": 396,
+      "line": 400,
       "path": "src/mir/compiler/normal_source_plan/tests.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8169,7 +8467,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "stage",
-      "line": 511,
+      "line": 513,
       "path": "src/mir/compiler/raw_root_eligibility.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8177,7 +8475,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "owner_module_name",
-      "line": 534,
+      "line": 536,
       "path": "src/mir/compiler/raw_root_eligibility.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8308,7 +8606,7 @@
       "candidate_kind": "display_formatter",
       "display_target": "SourceBindingErrorV1",
       "function": "Display::fmt",
-      "line": 82,
+      "line": 53,
       "path": "src/mir/compiler/source_bound_package.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8422,6 +8720,14 @@
       "function": "stage",
       "line": 23,
       "path": "src/mir/compiler/source_entry_vm_runner_adapter.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "expected_root_name",
+      "line": 360,
+      "path": "src/mir/compiler/source_projection.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -9438,6 +9744,14 @@
       "status": "candidate"
     },
     {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_merge_target",
+      "line": 273,
+      "path": "src/mir/if_recipe_contract/join_sig.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
       "candidate_kind": "display_formatter",
       "display_target": "IndexOfSearchMicroSeedVariant",
       "function": "Display::fmt",
@@ -9741,7 +10055,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "join_func_name",
-      "line": 79,
+      "line": 48,
       "path": "src/mir/join_ir_to_mir/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9784,6 +10098,200 @@
       "function": "Display::fmt",
       "line": 244,
       "path": "src/mir/loop_canonicalizer/skeleton_types.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 59,
+      "path": "src/mir/loop_recipe_contract/input_source.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_bounded_nested_predicate",
+      "line": 267,
+      "path": "src/mir/loop_recipe_contract/join_sig/flow.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_nested_predicate_condition_operation",
+      "line": 316,
+      "path": "src/mir/loop_recipe_contract/join_sig/flow.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_nested_predicate_body_operation",
+      "line": 325,
+      "path": "src/mir/loop_recipe_contract/join_sig/flow.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 56,
+      "path": "src/mir/loop_recipe_contract/join_sig/model.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "after_capability_rejects_wrong_owner_binding_and_class",
+      "line": 96,
+      "path": "src/mir/loop_recipe_contract/join_sig_after_binding_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "incoming_port_classes_must_match",
+      "line": 194,
+      "path": "src/mir/loop_recipe_contract/join_sig_after_binding_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_direct_exit_at_block_end",
+      "line": 100,
+      "path": "src/mir/loop_recipe_contract/join_sig_branch.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_supported_loop_exit",
+      "line": 121,
+      "path": "src/mir/loop_recipe_contract/join_sig_branch.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_supported_loop_branch_pair",
+      "line": 125,
+      "path": "src/mir/loop_recipe_contract/join_sig_branch.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 56,
+      "path": "src/mir/loop_recipe_contract/operation_carrier_demand.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "binding_class",
+      "line": 325,
+      "path": "src/mir/loop_recipe_contract/operation_effect.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_loop_source_site",
+      "line": 370,
+      "path": "src/mir/loop_recipe_contract/operation_effect.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 104,
+      "path": "src/mir/loop_recipe_contract/operation_physical_demand_rows.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 131,
+      "path": "src/mir/loop_recipe_contract/operation_physical_demand_rows.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "as_str",
+      "line": 21,
+      "path": "src/mir/loop_recipe_contract/producer_id.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "display_formatter",
+      "display_target": "LoopRecipeProducerIdV1",
+      "function": "Display::fmt",
+      "line": 34,
+      "path": "src/mir/loop_recipe_contract/producer_id.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "display_formatter",
+      "display_target": "LoopRouteId",
+      "function": "Display::fmt",
+      "line": 81,
+      "path": "src/mir/loop_recipe_contract/route_id.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 48,
+      "path": "src/mir/loop_recipe_contract/semantic_context.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 117,
+      "path": "src/mir/loop_recipe_contract/source_bound_core.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class",
+      "line": 149,
+      "path": "src/mir/loop_recipe_contract/source_bound_core.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "nested_loop_must_name_its_actual_parent",
+      "line": 423,
+      "path": "src/mir/loop_recipe_contract/tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "carrier_class_must_match_binding_and_entry_value",
+      "line": 449,
+      "path": "src/mir/loop_recipe_contract/tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_ancestor_or_self",
+      "line": 193,
+      "path": "src/mir/loop_recipe_contract/verify_keys.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -9916,6 +10424,166 @@
       "status": "candidate"
     },
     {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "tag",
+      "line": 68,
+      "path": "src/mir/loop_route_policy/family_admission.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_rejected",
+      "line": 171,
+      "path": "src/mir/loop_route_policy/family_admission.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "tag_index",
+      "line": 482,
+      "path": "src/mir/loop_route_policy/family_admission.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "duplicate_tag_is_rejected_before_selection",
+      "line": 306,
+      "path": "src/mir/loop_route_policy/family_admission_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "tag",
+      "line": 38,
+      "path": "src/mir/loop_route_policy/family_selector.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 103,
+      "path": "src/mir/loop_structural_facts/direct_accum_observation.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 140,
+      "path": "src/mir/loop_structural_facts/generic_g0/mod.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 456,
+      "path": "src/mir/loop_structural_facts/generic_g0/mod.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 105,
+      "path": "src/mir/loop_structural_facts/generic_g0_observation.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 102,
+      "path": "src/mir/loop_structural_facts/loop_cond_break_continue_observation.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 102,
+      "path": "src/mir/loop_structural_facts/loop_true_break_continue_observation.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 103,
+      "path": "src/mir/loop_structural_facts/nested_predicate_observation.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_body_root",
+      "line": 293,
+      "path": "src/mir/loop_structural_facts/resolved_source_adapter.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class",
+      "line": 111,
+      "path": "src/mir/loop_structural_facts/variable_accum_break.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class",
+      "line": 153,
+      "path": "src/mir/loop_structural_facts/variable_accum_break.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 331,
+      "path": "src/mir/loop_structural_facts/variable_accum_break.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class",
+      "line": 119,
+      "path": "src/mir/loop_structural_facts/variable_accum_recurrence.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class",
+      "line": 166,
+      "path": "src/mir/loop_structural_facts/variable_accum_recurrence.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 416,
+      "path": "src/mir/loop_structural_facts/variable_accum_recurrence.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 484,
+      "path": "src/mir/loop_structural_facts/variable_accum_recurrence.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
       "candidate_kind": "display_formatter",
       "display_target": "MapLookupFusionOp",
       "function": "Display::fmt",
@@ -9985,7 +10653,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_numeric_integer_type_name",
-      "line": 45,
+      "line": 46,
       "path": "src/mir/numeric_substrate.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9993,7 +10661,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_inline_i64_storage_type_name",
-      "line": 49,
+      "line": 50,
       "path": "src/mir/numeric_substrate.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -10369,7 +11037,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "sealed_blockexpr_pair_has_exact_kinds_origin_and_normalized_parity",
-      "line": 218,
+      "line": 221,
       "path": "src/mir/resolved_semantics/block_expr_tests.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -10432,6 +11100,14 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 146,
+      "path": "src/mir/resolved_semantics/callable_source_ledger.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "from_name_arity",
       "line": 10,
       "path": "src/mir/resolved_semantics/callable_symbol.rs",
@@ -10447,26 +11123,114 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_body_region_origin",
-      "line": 115,
-      "path": "src/mir/resolved_semantics/function_root.rs",
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "tag",
+      "line": 29,
+      "path": "src/mir/resolved_semantics/enum_variant_demand.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_body_scope_origin",
-      "line": 122,
-      "path": "src/mir/resolved_semantics/function_root.rs",
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 145,
+      "path": "src/mir/resolved_semantics/explicit_parameter_type_map.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_exact_body_root",
-      "line": 129,
-      "path": "src/mir/resolved_semantics/function_root.rs",
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "rejects_parameter_name_mismatch_before_map_issue",
+      "line": 295,
+      "path": "src/mir/resolved_semantics/explicit_parameter_type_map.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 97,
+      "path": "src/mir/resolved_semantics/function_view.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 101,
+      "path": "src/mir/resolved_semantics/generic_g0/mod.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 227,
+      "path": "src/mir/resolved_semantics/generic_resolved_carrier_provenance.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "kinds",
+      "line": 130,
+      "path": "src/mir/resolved_semantics/generic_resolved_carrier_source_lease/candidate_envelope_witness.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 57,
+      "path": "src/mir/resolved_semantics/generic_resolved_carrier_source_lease/carrier_proof_witness.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classifies_increasing_strict_progression",
+      "line": 421,
+      "path": "src/mir/resolved_semantics/generic_resolved_carrier_source_lease/numeric_policy_projection_v6.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "kind",
+      "line": 73,
+      "path": "src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 175,
+      "path": "src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tests.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 70,
+      "path": "src/mir/resolved_semantics/loop_family_window.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 178,
+      "path": "src/mir/resolved_semantics/loop_region.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 118,
+      "path": "src/mir/resolved_semantics/normalized.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -10483,6 +11247,30 @@
       "function": "name",
       "line": 26,
       "path": "src/mir/resolved_semantics/normalized_callable_catalog.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 50,
+      "path": "src/mir/resolved_semantics/owner_forest_payload.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 18,
+      "path": "src/mir/resolved_semantics/owner_root_profile.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 170,
+      "path": "src/mir/resolved_semantics/product.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -10521,7 +11309,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "binding_kind",
-      "line": 417,
+      "line": 555,
       "path": "src/mir/resolved_semantics/resolver.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -10529,7 +11317,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "scope_kind",
-      "line": 427,
+      "line": 565,
       "path": "src/mir/resolved_semantics/resolver.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -10537,7 +11325,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "region_kind",
-      "line": 438,
+      "line": 576,
       "path": "src/mir/resolved_semantics/resolver.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -10552,6 +11340,38 @@
     },
     {
       "candidate_kind": "boolean_classifier",
+      "function": "is_script_lexical_core",
+      "line": 311,
+      "path": "src/mir/resolved_semantics/shadow/resolver.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_array_initialized_local",
+      "line": 673,
+      "path": "src/mir/resolved_semantics/shadow/resolver.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_final_ordinal",
+      "line": 205,
+      "path": "src/mir/resolved_semantics/shadow/script_root_window.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_block_expr_pure_expression",
+      "line": 87,
+      "path": "src/mir/resolved_semantics/shadow/traversal_profile.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
       "function": "is_statement_expression_surface_v1",
       "line": 11,
       "path": "src/mir/resolved_semantics/source_path_policy.rs",
@@ -10561,7 +11381,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "kind",
-      "line": 249,
+      "line": 277,
       "path": "src/mir/resolved_semantics/source_path_policy.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -10569,7 +11389,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "body_kind_owns_one_exact_item_index_vocabulary",
-      "line": 385,
+      "line": 484,
       "path": "src/mir/resolved_semantics/source_path_policy.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -10577,15 +11397,31 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "projector_admits_segment_kind",
-      "line": 53,
+      "line": 54,
       "path": "src/mir/resolved_semantics/source_projection_tests.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 67,
+      "path": "src/mir/resolved_semantics/source_site_inventory.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "binary_class",
+      "line": 252,
+      "path": "src/mir/resolved_value_profile/nested_recipe_mapper.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "source_name",
-      "line": 66,
+      "line": 68,
       "path": "src/mir/resolved_value_profile/product.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -10593,8 +11429,24 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "declared_type_name",
-      "line": 70,
+      "line": 72,
       "path": "src/mir/resolved_value_profile/product.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "kind",
+      "line": 109,
+      "path": "src/mir/resolved_value_profile/recipe_facts.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "binary_class",
+      "line": 482,
+      "path": "src/mir/resolved_value_profile/recipe_mapper.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -10635,6 +11487,14 @@
       "function": "as_json_name",
       "line": 17,
       "path": "src/mir/same_module_definition_plan.rs",
+      "reject_reasons": [],
+      "status": "candidate"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_kind",
+      "line": 102,
+      "path": "src/mir/shared_loop_source_window_tests.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -10707,38 +11567,6 @@
       "function": "supplied_alias_precedes_equal_named_lexical_binding",
       "line": 161,
       "path": "src/mir/source_call_target/whole_source_inventory_tests.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "stage",
-      "line": 49,
-      "path": "src/mir/source_instance_result_contract/contract.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "stage",
-      "line": 97,
-      "path": "src/mir/source_instance_result_contract/owned_rebind.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "stage",
-      "line": 72,
-      "path": "src/mir/source_instance_result_contract/preloop_association.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "stage",
-      "line": 129,
-      "path": "src/mir/source_instance_result_contract/preloop_located_argument.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -12151,7 +12979,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "return_type_name",
-      "line": 36,
+      "line": 37,
       "path": "src/mir/builder/callable_declaration_catalog/catalog.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -12552,9 +13380,364 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "every_route_reaches_a_named_physical_boundary_after_qualification",
+      "line": 235,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/effect_order_matrix_tests.rs",
+      "reject_reasons": [
+        "depends_on_lowering",
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "observe_both_direct_stage",
+      "line": 405,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_accepted_plan_reachability_tests.rs",
+      "reject_reasons": [
+        "depends_on_collection",
+        "depends_on_lowering",
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "stage_for_v1",
+      "line": 188,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_nested_carrier_bindingref_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_builder",
+        "depends_on_context",
+        "depends_on_lowering",
+        "depends_on_route_selection",
+        "may_mutate_state"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "required_carrier_tags",
+      "line": 61,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_nested_carrier_winner_tests.rs",
+      "reject_reasons": [
+        "depends_on_collection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "carrier_projected_final_labels",
+      "line": 73,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_nested_carrier_winner_tests.rs",
+      "reject_reasons": [
+        "depends_on_collection",
+        "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "v1_stage_fields",
+      "line": 85,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_nested_carrier_winner_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "generic_d3_s1_s2_parsed_candidate_stage_bridge_is_observation_only",
+      "line": 351,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_resolved_carrier_candidate_stage_source_bridge_tests.rs",
+      "reject_reasons": [
+        "depends_on_collection",
+        "depends_on_lowering",
+        "depends_on_resolution",
+        "depends_on_route_selection",
+        "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify",
+      "line": 286,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_resolved_carrier_compound_unavailable_tests.rs",
+      "reject_reasons": [
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify",
+      "line": 343,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_resolved_carrier_eligibility_protocol_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_resolution",
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_projector_pair",
+      "line": 371,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_resolved_carrier_eligibility_protocol_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify",
+      "line": 224,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_resolved_carrier_index_ambiguous_tests.rs",
+      "reject_reasons": [
+        "depends_on_resolution",
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_planner_suppression",
+      "line": 35,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_resolved_carrier_planner_suppression_tests.rs",
+      "reject_reasons": [
+        "depends_on_resolution",
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_natural_both",
+      "line": 229,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_resolved_carrier_projector_tests.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "exit_kind",
+      "line": 441,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_semantic_digest_tests.rs",
+      "reject_reasons": [
+        "depends_on_builder",
+        "takes_mut_self"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "disposition_for_direct_stage",
+      "line": 255,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_lowering",
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "required_stages",
+      "line": 575,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs",
+      "reject_reasons": [
+        "depends_on_lowering"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "generic_stage_disposition_matrix_is_complete_and_repeatable",
+      "line": 666,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_matrix_tests.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "generic_both_evidence_matrix_keeps_direct_stage_and_witness_separate",
+      "line": 510,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/generic_stage_observer_tests.rs",
+      "reject_reasons": [
+        "depends_on_collection",
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "as_str",
       "line": 27,
       "path": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "generic_receipt_keeps_composer_and_result_stage_distinct",
+      "line": 50,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_receipt.rs",
+      "reject_reasons": [
+        "depends_on_lowering"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_front",
+      "line": 34,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection",
+        "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_scan_with_init",
+      "line": 55,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_nested_loop_minimal",
+      "line": 76,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_loop_array_join",
+      "line": 97,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_loop_char_map",
+      "line": 118,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_loop_true_early_exit",
+      "line": 139,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_loop_continue_only",
+      "line": 160,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_if_phi_join",
+      "line": 181,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection",
+        "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_loop_break",
+      "line": 204,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_simple_while",
+      "line": 228,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_accum_const",
+      "line": 249,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_bool_predicate_scan",
+      "line": 7,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight/bool_predicate_scan.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_split_scan",
+      "line": 7,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality/all_route_preflight/split_scan.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_generic",
+      "line": 60,
+      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/scoped_nongeneric_cutover_tests.rs",
       "reject_reasons": [
         "depends_on_route_selection"
       ],
@@ -12568,16 +13751,6 @@
       "reject_reasons": [
         "depends_on_collection",
         "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "as_str",
-      "line": 54,
-      "path": "src/mir/builder/control_flow/joinir/route_entry/registry/types.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
       ],
       "status": "rejected"
     },
@@ -12618,10 +13791,32 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "canonical_projects_empty_exit_kinds_present",
-      "line": 143,
+      "line": 145,
       "path": "src/mir/builder/control_flow/lower/normalize/canonicalize.rs",
       "reject_reasons": [
         "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_direct_complete_schedule",
+      "line": 37,
+      "path": "src/mir/builder/control_flow/plan/facts/loop_continue_only_facts.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_collection",
+        "may_mutate_state"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "carrier_update_name",
+      "line": 169,
+      "path": "src/mir/builder/control_flow/plan/facts/loop_continue_only_facts.rs",
+      "reject_reasons": [
+        "carrier_surface"
       ],
       "status": "rejected"
     },
@@ -12649,6 +13844,17 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "stage_result",
+      "line": 151,
+      "path": "src/mir/builder/control_flow/plan/features/generic_loop_body/nested_depth_observer_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_lowering"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "maybe_emit_planner_first_tag",
       "line": 94,
       "path": "src/mir/builder/control_flow/plan/features/generic_loop_body/nested_loop_recipe_adoption.rs",
@@ -12660,7 +13866,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "receiver_candidate_name",
-      "line": 174,
+      "line": 269,
       "path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -12674,6 +13880,86 @@
       "path": "src/mir/builder/control_flow/plan/generic_loop/located_representation/recipe_seal.rs",
       "reject_reasons": [
         "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "binding_label",
+      "line": 47,
+      "path": "src/mir/builder/control_flow/plan/loop_accum_binding_ssa_candidate_tests.rs",
+      "reject_reasons": [
+        "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "logical_labels",
+      "line": 55,
+      "path": "src/mir/builder/control_flow/plan/loop_accum_binding_ssa_candidate_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "may_mutate_state"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "normalize_phi_tag",
+      "line": 42,
+      "path": "src/mir/builder/control_flow/plan/loop_accum_physical_parity_tests.rs",
+      "reject_reasons": [
+        "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "derive_labels",
+      "line": 62,
+      "path": "src/mir/builder/control_flow/plan/loop_accum_physical_parity_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_collection",
+        "depends_on_emission",
+        "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "label",
+      "line": 34,
+      "path": "src/mir/builder/control_flow/plan/loop_accum_resolved_snapshot_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "assign_labels",
+      "line": 135,
+      "path": "src/mir/builder/control_flow/plan/loop_accum_resolved_snapshot_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_resolution",
+        "may_mutate_state",
+        "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "physicalizer_labels",
+      "line": 403,
+      "path": "src/mir/builder/control_flow/plan/loop_accum_semantic_parity_tests.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "may_mutate_state",
+        "phi_or_localssa_surface"
       ],
       "status": "rejected"
     },
@@ -13065,7 +14351,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "debug_value_join_invariant_panics_without_exit_kinds",
-      "line": 435,
+      "line": 437,
       "path": "src/mir/builder/control_flow/verify/verifier/tests.rs",
       "reject_reasons": [
         "phi_or_localssa_surface"
@@ -13141,8 +14427,18 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "guard_let_subject_temp_name",
+      "line": 69,
+      "path": "src/mir/builder/enum_match_scopebox.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "require_exhaustive_known_arm_names",
-      "line": 416,
+      "line": 422,
       "path": "src/mir/builder/exprs_enum_match.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -13153,18 +14449,8 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "guard_let_subject_temp_name",
-      "line": 473,
-      "path": "src/mir/builder/exprs_enum_match.rs",
-      "reject_reasons": [
-        "carrier_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "concrete_enum_payload_type_name",
-      "line": 550,
+      "line": 490,
       "path": "src/mir/builder/exprs_enum_match.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -13237,7 +14523,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_closed_for_external_commit",
-      "line": 77,
+      "line": 223,
       "path": "src/mir/builder/function_lowering_state.rs",
       "reject_reasons": [
         "depends_on_emission",
@@ -13409,8 +14695,18 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_suffix",
+      "line": 244,
+      "path": "src/mir/builder/normal_callable_loop_handoff.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "stage",
-      "line": 35,
+      "line": 60,
       "path": "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -13476,9 +14772,30 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "classify_normal_script_nonbox_statement_v1",
-      "line": 21,
-      "path": "src/mir/builder/normal_script_nonbox_statement_disposition.rs",
+      "function": "registry_records_only_named_residual_families",
+      "line": 140,
+      "path": "src/mir/builder/normal_script_deferred_residual_registry.rs",
+      "reject_reasons": [
+        "depends_on_builder"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "registry_names_every_current_root_only_residual_family",
+      "line": 172,
+      "path": "src/mir/builder/normal_script_deferred_residual_registry.rs",
+      "reject_reasons": [
+        "depends_on_builder",
+        "depends_on_collection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_normal_script_program_item_v1",
+      "line": 26,
+      "path": "src/mir/builder/normal_script_program_item_admission.rs",
       "reject_reasons": [
         "depends_on_context"
       ],
@@ -13486,11 +14803,23 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "preclassified",
-      "line": 38,
+      "function": "preclassified_at",
+      "line": 34,
       "path": "src/mir/builder/normal_script_runtime_work.rs",
       "reject_reasons": [
         "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "fastmem_weak_child_remains_deferred_before_name_resolution",
+      "line": 213,
+      "path": "src/mir/builder/normal_script_semantic_source_runtime_tests.rs",
+      "reject_reasons": [
+        "depends_on_collection",
+        "depends_on_lowering",
+        "depends_on_route_selection"
       ],
       "status": "rejected"
     },
@@ -13530,8 +14859,18 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "current_function_name_for_port",
-      "line": 132,
+      "line": 144,
       "path": "src/mir/builder/port_aware_function_draft_impl.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "classify_statement",
+      "line": 375,
+      "path": "src/mir/builder/program_root_work_plan.rs",
       "reject_reasons": [
         "carrier_surface"
       ],
@@ -13558,6 +14897,16 @@
       "status": "rejected"
     },
     {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_located_control_or_diagnostic_terminal",
+      "line": 514,
+      "path": "src/mir/builder/raw_invocation_source_transport.rs",
+      "reject_reasons": [
+        "depends_on_context"
+      ],
+      "status": "rejected"
+    },
+    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "name",
       "line": 28,
@@ -13574,6 +14923,16 @@
       "path": "src/mir/builder/raw_lambda_lexical_observation.rs",
       "reject_reasons": [
         "takes_mut_self"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "unlocated_entry_is_rejected_before_child_classification",
+      "line": 408,
+      "path": "src/mir/builder/raw_loop_child_entry.rs",
+      "reject_reasons": [
+        "depends_on_context"
       ],
       "status": "rejected"
     },
@@ -13718,11 +15077,41 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "named_return_owner_is_checked_and_updates_terminator_truth",
+      "line": 311,
+      "path": "src/mir/builder/resolved_lowering/canonical_cfg/tests.rs",
+      "reject_reasons": [
+        "depends_on_emission"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "named_selection_never_creates_a_missing_block",
+      "line": 325,
+      "path": "src/mir/builder/resolved_lowering/canonical_cfg/tests.rs",
+      "reject_reasons": [
+        "depends_on_builder"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "draft_seal_prepares_the_exact_explicit_operand_without_reclassifying_it",
       "line": 161,
       "path": "src/mir/builder/resolved_lowering/completion_tests.rs",
       "reject_reasons": [
         "depends_on_lowering",
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "adapter_role_contract_is_named_and_keyed",
+      "line": 271,
+      "path": "src/mir/builder/resolved_lowering/direct_accum_adapter.rs",
+      "reject_reasons": [
         "depends_on_resolution"
       ],
       "status": "rejected"
@@ -13741,7 +15130,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "verify_name",
-      "line": 275,
+      "line": 305,
       "path": "src/mir/builder/resolved_lowering/identity/ledger.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -13750,8 +15139,20 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "ensure_provisional_value_class",
+      "line": 19,
+      "path": "src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_type.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_builder",
+        "may_mutate_state"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "stage",
-      "line": 131,
+      "line": 148,
       "path": "src/mir/builder/resolved_lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -13784,6 +15185,16 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "class_for_representation",
+      "line": 537,
+      "path": "src/mir/builder/resolved_lowering/trivial_ssa/if_recipe_physicalizer.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "classify_return_type_strategy_miss",
       "line": 17,
       "path": "src/mir/builder/return_type_strategy.rs",
@@ -13806,7 +15217,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "primary_hint_and_uniform_fallback_partition_function_names",
-      "line": 12,
+      "line": 13,
       "path": "src/mir/builder/return_type_strategy_tests.rs",
       "reject_reasons": [
         "phi_or_localssa_surface"
@@ -13969,7 +15380,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "declared_type_names",
-      "line": 67,
+      "line": 62,
       "path": "src/mir/builder/stmts/local_statement_descent.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -14039,12 +15450,12 @@
       "status": "rejected"
     },
     {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "stageb_source_for_lowering",
-      "line": 71,
-      "path": "src/mir/callable_result_representation/tests/actual_parser_add_fixture.rs",
+      "candidate_kind": "boolean_classifier",
+      "function": "is_branded_by",
+      "line": 100,
+      "path": "src/mir/callable_result_representation/static_call_result_publication.rs",
       "reject_reasons": [
-        "depends_on_lowering"
+        "depends_on_builder"
       ],
       "status": "rejected"
     },
@@ -14100,8 +15511,29 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "non_binding_assignment_target_rejects_without_name_fallback",
+      "line": 417,
+      "path": "src/mir/compiler/direct_accum_projection.rs",
+      "reject_reasons": [
+        "depends_on_resolution",
+        "may_mutate_state"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "split_tail_is_not_relabelled_as_neutral_after",
+      "line": 458,
+      "path": "src/mir/compiler/generic_g0_physical_prepare.rs",
+      "reject_reasons": [
+        "depends_on_context"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "callable_program_stage_error",
-      "line": 703,
+      "line": 826,
       "path": "src/mir/compiler/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -14262,8 +15694,7 @@
       "line": 543,
       "path": "src/mir/compiler/raw_root_plan0.rs",
       "reject_reasons": [
-        "carrier_surface",
-        "depends_on_collection"
+        "carrier_surface"
       ],
       "status": "rejected"
     },
@@ -14354,7 +15785,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "declared_return_type_name",
-      "line": 96,
+      "line": 114,
       "path": "src/mir/compiler/source_view.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -16089,6 +17520,16 @@
       "status": "rejected"
     },
     {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class",
+      "line": 280,
+      "path": "src/mir/if_recipe_contract/join_sig.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
       "candidate_kind": "boolean_classifier",
       "function": "is_supported_single_base_field_access_leaf_instruction",
       "line": 237,
@@ -16372,6 +17813,120 @@
       "path": "src/mir/loop_canonicalizer/skeleton_types.rs",
       "reject_reasons": [
         "depends_on_collection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "require_class",
+      "line": 334,
+      "path": "src/mir/loop_recipe_contract/operation_effect.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class",
+      "line": 359,
+      "path": "src/mir/loop_recipe_contract/operation_effect.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "profile_item_relabel_is_rejected_before_parity",
+      "line": 108,
+      "path": "src/mir/loop_recipe_contract/operation_effect_parity.rs",
+      "reject_reasons": [
+        "depends_on_collection",
+        "may_mutate_state"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "producer_id_wire_keys_roundtrip_without_legacy_route_names",
+      "line": 72,
+      "path": "src/mir/loop_recipe_contract/producer_id_migration_tests.rs",
+      "reject_reasons": [
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "as_str",
+      "line": 56,
+      "path": "src/mir/loop_recipe_contract/route_id.rs",
+      "reject_reasons": [
+        "phi_or_localssa_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_loop_statement_site",
+      "line": 410,
+      "path": "src/mir/loop_recipe_contract/source_bound_core.rs",
+      "reject_reasons": [
+        "depends_on_resolution",
+        "may_mutate_state"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "binding_classes",
+      "line": 210,
+      "path": "src/mir/loop_recipe_contract/typed_schema_v2.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "may_mutate_state"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_classes",
+      "line": 223,
+      "path": "src/mir/loop_recipe_contract/typed_schema_v2.rs",
+      "reject_reasons": [
+        "carrier_surface",
+        "depends_on_collection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "binding_class",
+      "line": 158,
+      "path": "src/mir/loop_recipe_contract/verify_keys.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class",
+      "line": 170,
+      "path": "src/mir/loop_recipe_contract/verify_keys.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "expect_value_class",
+      "line": 182,
+      "path": "src/mir/loop_recipe_contract/verify_keys.rs",
+      "reject_reasons": [
+        "carrier_surface"
       ],
       "status": "rejected"
     },
@@ -17176,8 +18731,78 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "declared_payload_type_name",
+      "line": 37,
+      "path": "src/mir/resolved_semantics/enum_variant_demand.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "declared_type_name",
+      "line": 106,
+      "path": "src/mir/resolved_semantics/explicit_parameter_type_map.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_body_region_origin",
+      "line": 116,
+      "path": "src/mir/resolved_semantics/function_root.rs",
+      "reject_reasons": [
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_body_scope_origin",
+      "line": 123,
+      "path": "src/mir/resolved_semantics/function_root.rs",
+      "reject_reasons": [
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "role_kinds",
+      "line": 239,
+      "path": "src/mir/resolved_semantics/generic_resolved_carrier_provenance.rs",
+      "reject_reasons": [
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "retains_typed_literal_spelling_without_classification",
+      "line": 287,
+      "path": "src/mir/resolved_semantics/generic_resolved_carrier_source_lease/numeric_source_receipt_v4.rs",
+      "reject_reasons": [
+        "may_mutate_state"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "unknown_type_name_is_unresolved_not_host_fallback",
+      "line": 516,
+      "path": "src/mir/resolved_semantics/generic_resolved_carrier_source_lease/numeric_substrate_projection_v5.rs",
+      "reject_reasons": [
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "seal_rejects_wrong_control_and_branch_kind_or_origin",
-      "line": 417,
+      "line": 420,
       "path": "src/mir/resolved_semantics/if_region_tests.rs",
       "reject_reasons": [
         "depends_on_resolution",
@@ -17187,8 +18812,18 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "forest_rejects_non_declared_owner_kinds_before_lookup",
+      "line": 522,
+      "path": "src/mir/resolved_semantics/loop_region.rs",
+      "reject_reasons": [
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "resolve_named_assignment",
-      "line": 311,
+      "line": 357,
       "path": "src/mir/resolved_semantics/shadow/expr.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -17200,7 +18835,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "resolve_named_use",
-      "line": 331,
+      "line": 382,
       "path": "src/mir/resolved_semantics/shadow/expr.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -17211,8 +18846,18 @@
     },
     {
       "candidate_kind": "boolean_classifier",
+      "function": "is_script_source_deferral",
+      "line": 234,
+      "path": "src/mir/resolved_semantics/shadow/product.rs",
+      "reject_reasons": [
+        "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "boolean_classifier",
       "function": "is_closed_expression",
-      "line": 381,
+      "line": 477,
       "path": "src/mir/resolved_semantics/shadow/stmt.rs",
       "reject_reasons": [
         "depends_on_resolution"
@@ -17263,7 +18908,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "kind_for",
-      "line": 272,
+      "line": 304,
       "path": "src/mir/resolved_semantics/source_path_policy.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -17274,7 +18919,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "seal_rejects_binding_kind_origin_drift",
-      "line": 472,
+      "line": 491,
       "path": "src/mir/resolved_semantics/tests.rs",
       "reject_reasons": [
         "depends_on_resolution",
@@ -17285,7 +18930,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "verify_kind_origin_contracts",
-      "line": 167,
+      "line": 169,
       "path": "src/mir/resolved_semantics/verifier.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -17296,7 +18941,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_region_ancestor",
-      "line": 608,
+      "line": 610,
       "path": "src/mir/resolved_semantics/verifier.rs",
       "reject_reasons": [
         "depends_on_resolution"
@@ -17306,10 +18951,51 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_exact_source_container",
-      "line": 628,
+      "line": 630,
       "path": "src/mir/resolved_semantics/verifier.rs",
       "reject_reasons": [
         "depends_on_resolution"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class",
+      "line": 242,
+      "path": "src/mir/resolved_value_profile/nested_recipe_mapper.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class",
+      "line": 404,
+      "path": "src/mir/resolved_value_profile/recipe_mapper.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "value_class_for_key",
+      "line": 414,
+      "path": "src/mir/resolved_value_profile/recipe_mapper.rs",
+      "reject_reasons": [
+        "carrier_surface"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "recipe_mapper_rejects_entry_class_drift_before_portable_mapping",
+      "line": 421,
+      "path": "src/mir/resolved_value_profile/tests.rs",
+      "reject_reasons": [
+        "depends_on_resolution",
+        "may_mutate_state"
       ],
       "status": "rejected"
     },
@@ -18303,25 +19989,25 @@
     "source_scan": {
       "by_reject_reason": {
         "backend_surface": 11,
-        "carrier_surface": 258,
-        "depends_on_builder": 38,
-        "depends_on_collection": 67,
-        "depends_on_context": 25,
-        "depends_on_emission": 43,
-        "depends_on_lowering": 74,
+        "carrier_surface": 288,
+        "depends_on_builder": 45,
+        "depends_on_collection": 77,
+        "depends_on_context": 29,
+        "depends_on_emission": 45,
+        "depends_on_lowering": 81,
         "depends_on_metadata": 74,
-        "depends_on_resolution": 71,
-        "depends_on_route_selection": 112,
-        "may_mutate_state": 101,
-        "phi_or_localssa_surface": 94,
-        "takes_mut_self": 12
+        "depends_on_resolution": 89,
+        "depends_on_route_selection": 139,
+        "may_mutate_state": 113,
+        "phi_or_localssa_surface": 103,
+        "takes_mut_self": 13
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 880,
-        "rejected": 616
+        "candidate": 982,
+        "rejected": 696
       },
-      "surface_count": 1497
+      "surface_count": 1679
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

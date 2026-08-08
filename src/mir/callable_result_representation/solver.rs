@@ -7,10 +7,6 @@ use crate::mir::builder::{
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 
-use super::body_proof_issue::{
-    CallableBodyProofIssueErrorV1, VerifiedUnannotatedCallableBodyResultOutcomeV1,
-    VerifiedUnannotatedCallableBodyResultProofV1,
-};
 use super::call_row::{CallableResultCallRowsV1, VerifiedCallableResultCallSiteV1};
 use super::function_proof::{prove_function, FunctionProofOutcomeV1};
 use super::{
@@ -132,54 +128,6 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
 
     pub(crate) fn is_empty(&self) -> bool {
         self.rows_by_key.is_empty()
-    }
-
-    /// Issues one opaque body proof without widening this static-row catalog.
-    ///
-    /// The caller must already hold an exact declaration from this catalog.
-    /// Instance/current-owner route selection intentionally remains outside
-    /// this module.
-    pub(in crate::mir) fn issue_unannotated_body_proof(
-        &self,
-        target: &'catalog VerifiedSameModuleCallableDeclarationV1,
-    ) -> Result<VerifiedUnannotatedCallableBodyResultProofV1<'catalog>, CallableBodyProofIssueErrorV1>
-    {
-        let Some(owned_target) = self.declarations.declaration(target.key()) else {
-            return Err(CallableBodyProofIssueErrorV1::TargetOutsideCatalog {
-                target: target.key().clone(),
-            });
-        };
-        if !std::ptr::eq(owned_target, target) {
-            return Err(CallableBodyProofIssueErrorV1::TargetOutsideCatalog {
-                target: target.key().clone(),
-            });
-        }
-        if target.return_type_name().is_some() {
-            return Err(
-                CallableBodyProofIssueErrorV1::DeclaredResultAuthorityForbidden {
-                    target: target.key().clone(),
-                },
-            );
-        }
-
-        let product = prove_function(target, self.targets, &self.rows_by_key)
-            .map_err(CallableBodyProofIssueErrorV1::Catalog)?;
-        let outcome = match product.outcome {
-            FunctionProofOutcomeV1::Exact(requirements) => {
-                VerifiedUnannotatedCallableBodyResultOutcomeV1::ExactI64 {
-                    required_i64_arguments: requirements.into_iter().collect(),
-                }
-            }
-            FunctionProofOutcomeV1::Unavailable(reason) => {
-                VerifiedUnannotatedCallableBodyResultOutcomeV1::Unavailable(reason)
-            }
-            FunctionProofOutcomeV1::PendingDependency => {
-                VerifiedUnannotatedCallableBodyResultOutcomeV1::PendingDependency
-            }
-        };
-        Ok(VerifiedUnannotatedCallableBodyResultProofV1::new(
-            target, outcome,
-        ))
     }
 
     pub(crate) fn disposition(

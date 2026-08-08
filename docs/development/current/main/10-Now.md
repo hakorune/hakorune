@@ -23,20 +23,21 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
-callable syntax carriage, and old instance-result/target design audit are
-closed. The selected bounded implementation is:
+Current mode is `design_stop`. The parser public-AST/postpass, V2 schema,
+typed callable syntax carriage, and old instance-result/target retirement are
+closed. The selected design stop is:
 
 ```text
-SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-I0
+LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0
 ```
 
-This I0 deletes the audited caller-zero body-inferred instance-result/target
-family and preserves only neutral source-view primitives. The landed syntax
-slice carried parser-owned `CallableContract(query)` syntax into a typed DTO
-and rich source seal only. Resolver declaration/signature, Home ABI, instance
-targets, source-bound CallSlot relations, ScanWithInit, physical lowering,
-production selection, and legacy retirement remain unopened.
+The preceding I0 deleted the audited caller-zero body-inferred
+instance-result/target family and preserved only neutral source-view
+primitives. The next design stop must seal declaration-first source authority,
+typed Query behavior, the same-declaration Home ABI relation, and separate body
+conformance before resolver targets, source-bound CallSlot relations,
+ScanWithInit, physical lowering, production selection, or legacy retirement
+open.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No

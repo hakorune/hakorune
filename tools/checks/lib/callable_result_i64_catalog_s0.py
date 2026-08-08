@@ -30,7 +30,6 @@ BUILDER_RESERVED_EMITTER = Path("src/mir/builder/calls/debug_method_routing.rs")
 BUILDER_RESERVED_TESTS = Path("src/mir/builder/calls/reserved_method_route_tests.rs")
 RECEIVER_MODULE = Path("src/mir/source_core_receiver")
 RECEIVER_PRODUCT = "VerifiedSourceCoreReceiverV1"
-INSTANCE_RESULT_MODULE = Path("src/mir/source_instance_result_contract")
 SOURCE_PROJECTOR = Path("src/mir/resolved_semantics/source_projection.rs")
 COMPILER_PROJECTION = Path("src/mir/compiler/source_projection.rs")
 
@@ -58,7 +57,6 @@ def production_rust(root: Path) -> str:
             MODULE in relative.parents
             or TARGET_MODULE in relative.parents
             or RECEIVER_MODULE in relative.parents
-            or INSTANCE_RESULT_MODULE in relative.parents
         ):
             continue
         if (
@@ -154,12 +152,7 @@ def verify(root: Path) -> dict[str, int]:
         "solver must derive rows from the single static declaration view",
     )
     require(
-        "InstanceBoxMethod"
-        not in code_only(
-            solver
-            + disposition
-            + sources[module_root / "body_proof_issue.rs"]
-        ),
+        "InstanceBoxMethod" not in code_only(solver + disposition),
         "instance namespace entered production result rows",
     )
     require(
