@@ -89,14 +89,20 @@ pub(crate) struct LoopRecipeItemRowV2 {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub(crate) enum LoopRecipeItemV2 {
-    Operation { operation: LoopOperationV2 },
+    Operation {
+        operation: LoopOperationV2,
+    },
     If {
         condition: LoopValueKeyV1,
         then_block: LoopBlockKeyV1,
         else_block: Option<LoopBlockKeyV1>,
     },
-    Loop { loop_key: LoopNodeKeyV1 },
-    Exit { exit: LoopExitKeyV1 },
+    Loop {
+        loop_key: LoopNodeKeyV1,
+    },
+    Exit {
+        exit: LoopExitKeyV1,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

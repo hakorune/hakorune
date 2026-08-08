@@ -2,11 +2,11 @@ use super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
 use super::producer_id::LoopRecipeProducerIdV1;
 use super::schema::{
     LoopNodeSourceBindingV1, LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1,
-    LoopRecipeSourceOwnerV1, LoopSourcePathV1, LoopSourcePathStepV1,
+    LoopRecipeSourceOwnerV1, LoopSourcePathStepV1, LoopSourcePathV1,
 };
 use super::schema_v2::{
-    LoopConditionV2, LoopOperationV2, LoopRecipeArtifactV2, LoopRecipeBlockV2,
-    LoopRecipeItemRowV2, LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2, LoopValueClassV2,
+    LoopConditionV2, LoopOperationV2, LoopRecipeArtifactV2, LoopRecipeBlockV2, LoopRecipeItemRowV2,
+    LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2, LoopValueClassV2,
 };
 use super::typed_schema_v2::{LoopRecipeV2RejectReason, LoopRecipeVerifierV2};
 
@@ -115,8 +115,7 @@ fn v2_rejects_text_eq_with_non_text_operand() {
 fn v2_rejects_unknown_wire_fields() {
     let artifact = minimal_typed_recipe();
     let mut value: serde_json::Value =
-        serde_json::from_str(&serde_json::to_string(&artifact).expect("encode"))
-            .expect("value");
+        serde_json::from_str(&serde_json::to_string(&artifact).expect("encode")).expect("value");
     value["recipe"]["unknown"] = serde_json::json!(true);
     let json = serde_json::to_string(&value).expect("mutated JSON");
     assert!(serde_json::from_str::<LoopRecipeArtifactV2>(&json).is_err());

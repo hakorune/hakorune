@@ -18,29 +18,78 @@ use super::schema_v2::{
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum LoopRecipeV2RejectReason {
-    UnsupportedVersion { found: u16 },
-    NonCanonicalKeyOrder { domain: &'static str, expected: u32, found: u32 },
-    EmptyBindingLabel { key: LoopBindingKeyV1 },
-    DuplicateInput { key: LoopValueKeyV1 },
-    UnknownBinding { key: LoopBindingKeyV1 },
-    UnknownValue { key: LoopValueKeyV1 },
-    UnknownBlock { key: LoopBlockKeyV1 },
-    UnknownLoop { key: LoopNodeKeyV1 },
-    UnknownItem { key: LoopItemKeyV1 },
-    UnknownCarrier { key: LoopCarrierKeyV1 },
-    UnknownExit { key: LoopExitKeyV1 },
-    DuplicateValueDefinition { key: LoopValueKeyV1 },
-    UndefinedValue { key: LoopValueKeyV1 },
-    ValueClassMismatch { key: LoopValueKeyV1 },
-    TextEqOperandClassMismatch { item: LoopItemKeyV1 },
-    TextEqResultClassMismatch { item: LoopItemKeyV1 },
-    InvalidOperationDomain { item: LoopItemKeyV1 },
-    InvalidLoopCondition { loop_key: LoopNodeKeyV1 },
-    InvalidCarrierClass { key: LoopCarrierKeyV1 },
-    InvalidCarrierBinding { key: LoopCarrierKeyV1 },
-    DuplicateItemUse { key: LoopItemKeyV1 },
-    DuplicateCarrierBinding { loop_key: LoopNodeKeyV1, binding: LoopBindingKeyV1 },
-    DuplicateExitUse { key: LoopExitKeyV1 },
+    UnsupportedVersion {
+        found: u16,
+    },
+    NonCanonicalKeyOrder {
+        domain: &'static str,
+        expected: u32,
+        found: u32,
+    },
+    EmptyBindingLabel {
+        key: LoopBindingKeyV1,
+    },
+    DuplicateInput {
+        key: LoopValueKeyV1,
+    },
+    UnknownBinding {
+        key: LoopBindingKeyV1,
+    },
+    UnknownValue {
+        key: LoopValueKeyV1,
+    },
+    UnknownBlock {
+        key: LoopBlockKeyV1,
+    },
+    UnknownLoop {
+        key: LoopNodeKeyV1,
+    },
+    UnknownItem {
+        key: LoopItemKeyV1,
+    },
+    UnknownCarrier {
+        key: LoopCarrierKeyV1,
+    },
+    UnknownExit {
+        key: LoopExitKeyV1,
+    },
+    DuplicateValueDefinition {
+        key: LoopValueKeyV1,
+    },
+    UndefinedValue {
+        key: LoopValueKeyV1,
+    },
+    ValueClassMismatch {
+        key: LoopValueKeyV1,
+    },
+    TextEqOperandClassMismatch {
+        item: LoopItemKeyV1,
+    },
+    TextEqResultClassMismatch {
+        item: LoopItemKeyV1,
+    },
+    InvalidOperationDomain {
+        item: LoopItemKeyV1,
+    },
+    InvalidLoopCondition {
+        loop_key: LoopNodeKeyV1,
+    },
+    InvalidCarrierClass {
+        key: LoopCarrierKeyV1,
+    },
+    InvalidCarrierBinding {
+        key: LoopCarrierKeyV1,
+    },
+    DuplicateItemUse {
+        key: LoopItemKeyV1,
+    },
+    DuplicateCarrierBinding {
+        loop_key: LoopNodeKeyV1,
+        binding: LoopBindingKeyV1,
+    },
+    DuplicateExitUse {
+        key: LoopExitKeyV1,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -211,12 +260,8 @@ fn check_loops(
             return Err(LoopRecipeV2RejectReason::UnknownLoop { key: node.key });
         }
         if let LoopConditionV2::Predicate { block, value } = node.condition {
-            if !blocks.contains(&block)
-                || values.get(&value) != Some(&LoopValueClassV2::Bool)
-            {
-                return Err(LoopRecipeV2RejectReason::InvalidLoopCondition {
-                    loop_key: node.key,
-                });
+            if !blocks.contains(&block) || values.get(&value) != Some(&LoopValueClassV2::Bool) {
+                return Err(LoopRecipeV2RejectReason::InvalidLoopCondition { loop_key: node.key });
             }
         }
     }
@@ -257,14 +302,17 @@ fn check_exits(recipe: &LoopRecipeV2) -> Result<(), LoopRecipeV2RejectReason> {
     let mut seen = BTreeSet::new();
     for exit in &recipe.exits {
         if !loops.contains(&exit.owner_loop) {
-            return Err(LoopRecipeV2RejectReason::UnknownLoop { key: exit.owner_loop });
+            return Err(LoopRecipeV2RejectReason::UnknownLoop {
+                key: exit.owner_loop,
+            });
         }
         if !seen.insert(exit.key) {
             return Err(LoopRecipeV2RejectReason::DuplicateExitUse { key: exit.key });
         }
         let target = match exit.kind {
-            LoopExitKindV2::Break { target_loop }
-            | LoopExitKindV2::Continue { target_loop } => Some(target_loop),
+            LoopExitKindV2::Break { target_loop } | LoopExitKindV2::Continue { target_loop } => {
+                Some(target_loop)
+            }
             LoopExitKindV2::Return { .. } => None,
         };
         if target.is_some_and(|target| !loops.contains(&target)) {
@@ -283,7 +331,11 @@ fn check_blocks_and_items(
 ) -> Result<(), LoopRecipeV2RejectReason> {
     let loops: BTreeSet<_> = recipe.loops.iter().map(|node| node.key).collect();
     let blocks: BTreeSet<_> = recipe.blocks.iter().map(|block| block.key).collect();
-    let items: BTreeMap<_, _> = recipe.items.iter().map(|row| (row.key, &row.item)).collect();
+    let items: BTreeMap<_, _> = recipe
+        .items
+        .iter()
+        .map(|row| (row.key, &row.item))
+        .collect();
     let exits: BTreeSet<_> = recipe.exits.iter().map(|exit| exit.key).collect();
     let mut uses = BTreeSet::new();
     let mut definitions = recipe
@@ -315,7 +367,16 @@ fn check_blocks_and_items(
             let Some(item) = items.get(item_key) else {
                 return Err(LoopRecipeV2RejectReason::UnknownItem { key: *item_key });
             };
-            check_item(item_key, item, &blocks, &loops, &exits, bindings, values, &mut definitions)?;
+            check_item(
+                item_key,
+                item,
+                &blocks,
+                &loops,
+                &exits,
+                bindings,
+                values,
+                &mut definitions,
+            )?;
         }
     }
 
@@ -405,12 +466,22 @@ fn check_operation(
             define(*result, *class)
         }
         LoopOperationV2::ConstI64 { result, .. } => define(*result, LoopValueClassV2::I64),
-        LoopOperationV2::BinaryI64 { left, right, result, .. } => {
+        LoopOperationV2::BinaryI64 {
+            left,
+            right,
+            result,
+            ..
+        } => {
             expect_i64(*left)?;
             expect_i64(*right)?;
             define(*result, LoopValueClassV2::I64)
         }
-        LoopOperationV2::CompareI64 { left, right, result, .. } => {
+        LoopOperationV2::CompareI64 {
+            left,
+            right,
+            result,
+            ..
+        } => {
             expect_i64(*left)?;
             expect_i64(*right)?;
             define(*result, LoopValueClassV2::Bool)
@@ -424,7 +495,11 @@ fn check_operation(
             }
             Ok(())
         }
-        LoopOperationV2::CallSlot { receiver, args, result } => {
+        LoopOperationV2::CallSlot {
+            receiver,
+            args,
+            result,
+        } => {
             if let Some(key) = receiver.filter(|key| !values.contains_key(key)) {
                 return Err(LoopRecipeV2RejectReason::UnknownValue { key });
             }
@@ -432,22 +507,30 @@ fn check_operation(
                 return Err(LoopRecipeV2RejectReason::UnknownValue { key });
             }
             if let Some(result) = result {
-                let class = *values.get(result).ok_or(LoopRecipeV2RejectReason::UnknownValue {
-                    key: *result,
-                })?;
+                let class = *values
+                    .get(result)
+                    .ok_or(LoopRecipeV2RejectReason::UnknownValue { key: *result })?;
                 define(*result, class)
             } else {
                 Ok(())
             }
         }
-        LoopOperationV2::TextEq { left, right, result } => {
+        LoopOperationV2::TextEq {
+            left,
+            right,
+            result,
+        } => {
             if values.get(left) != Some(&LoopValueClassV2::Text)
                 || values.get(right) != Some(&LoopValueClassV2::Text)
             {
-                return Err(LoopRecipeV2RejectReason::TextEqOperandClassMismatch { item: *item_key });
+                return Err(LoopRecipeV2RejectReason::TextEqOperandClassMismatch {
+                    item: *item_key,
+                });
             }
             if values.get(result) != Some(&LoopValueClassV2::Bool) {
-                return Err(LoopRecipeV2RejectReason::TextEqResultClassMismatch { item: *item_key });
+                return Err(LoopRecipeV2RejectReason::TextEqResultClassMismatch {
+                    item: *item_key,
+                });
             }
             if definitions.insert(*result, Some(*item_key)).is_some() {
                 return Err(LoopRecipeV2RejectReason::DuplicateValueDefinition { key: *result });

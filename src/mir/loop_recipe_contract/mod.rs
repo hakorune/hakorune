@@ -2,8 +2,6 @@
 
 mod continuation;
 mod direct_accum_producer;
-mod variable_accum_recurrence_producer;
-mod variable_accum_break_producer;
 mod error;
 mod ids;
 mod input_source;
@@ -24,6 +22,8 @@ mod semantic_context;
 mod source_binding;
 mod source_bound_core;
 mod typed_schema_v2;
+mod variable_accum_break_producer;
+mod variable_accum_recurrence_producer;
 mod verify;
 
 #[cfg(test)]
@@ -118,17 +118,6 @@ pub(crate) use direct_accum_producer::{
     VerifiedDirectAccumRecipeProductV1,
 };
 #[allow(unused_imports)]
-pub(crate) use variable_accum_recurrence_producer::{
-    produce_variable_accum_recurrence_recipe_v1,
-    VariableAccumRecurrenceRecipeProducerRejectV1,
-    VerifiedVariableAccumRecurrenceRecipeProductV1,
-};
-#[allow(unused_imports)]
-pub(crate) use variable_accum_break_producer::{
-    produce_variable_accum_break_recipe_v1, VariableAccumBreakControlSourceReceiptV1,
-    VariableAccumBreakRecipeProducerRejectV1, VerifiedVariableAccumBreakRecipeProductV1,
-};
-#[allow(unused_imports)]
 pub(crate) use error::LoopRecipeRejectReasonV1;
 #[allow(unused_imports)]
 pub(crate) use ids::{
@@ -142,10 +131,10 @@ pub(crate) use input_source::{
 };
 #[allow(unused_imports)]
 pub(crate) use join_sig::{
-    LoopJoinBranchArmV1, LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1, LoopJoinEdgeV1,
-    LoopJoinLoopV1,
-    LoopJoinPayloadV1, LoopJoinPortBindingV1, LoopJoinPortV1, LoopJoinSigElaboratorV1,
-    LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
+    LoopJoinBranchArmV1, LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1,
+    LoopJoinEdgeV1, LoopJoinLoopV1, LoopJoinPayloadV1, LoopJoinPortBindingV1, LoopJoinPortV1,
+    LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1,
+    VerifiedLoopJoinSigV1,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue_producer::{
@@ -191,8 +180,8 @@ pub(crate) use schema::{
 pub(crate) use schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
     LoopOperationV2, LoopRecipeArtifactV2, LoopRecipeBindingV2, LoopRecipeBlockV2,
-    LoopRecipeCarrierV2, LoopRecipeExitV2, LoopRecipeItemRowV2, LoopRecipeItemV2,
-    LoopRecipeV2, LoopRecipeValueV2, LoopValueClassV2, LOOP_RECIPE_SCHEMA_VERSION_V2,
+    LoopRecipeCarrierV2, LoopRecipeExitV2, LoopRecipeItemRowV2, LoopRecipeItemV2, LoopRecipeV2,
+    LoopRecipeValueV2, LoopValueClassV2, LOOP_RECIPE_SCHEMA_VERSION_V2,
 };
 #[allow(unused_imports)]
 pub(crate) use semantic_context::VerifiedLoopSemanticContextV1;
@@ -204,13 +193,23 @@ pub(crate) use source_bound_core::{
     VerifiedLoopRecipeBindingRelationV1,
 };
 #[allow(unused_imports)]
-pub(crate) use verify::{
-    verify_source_bound_recipe_v1, LoopRecipeVerifierV1, VerifiedLoopRecipeV1,
-};
-#[allow(unused_imports)]
 pub(crate) use typed_schema_v2::{
     LoopRecipeV2RejectReason, LoopRecipeVerifierV2, VerifiedLoopRecipeArtifactV2,
     VerifiedLoopRecipeV2,
+};
+#[allow(unused_imports)]
+pub(crate) use variable_accum_break_producer::{
+    produce_variable_accum_break_recipe_v1, VariableAccumBreakControlSourceReceiptV1,
+    VariableAccumBreakRecipeProducerRejectV1, VerifiedVariableAccumBreakRecipeProductV1,
+};
+#[allow(unused_imports)]
+pub(crate) use variable_accum_recurrence_producer::{
+    produce_variable_accum_recurrence_recipe_v1, VariableAccumRecurrenceRecipeProducerRejectV1,
+    VerifiedVariableAccumRecurrenceRecipeProductV1,
+};
+#[allow(unused_imports)]
+pub(crate) use verify::{
+    verify_source_bound_recipe_v1, LoopRecipeVerifierV1, VerifiedLoopRecipeV1,
 };
 
 /// Test-only end-to-end seam. The structural source-claim capability remains

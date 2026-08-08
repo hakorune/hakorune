@@ -19,9 +19,9 @@ mod nested_predicate_source;
 mod resolved_source_adapter;
 mod selected_demand;
 mod types;
+mod variable_accum_break;
 mod variable_accum_recurrence;
 mod variable_accum_recurrence_validation;
-mod variable_accum_break;
 
 #[allow(unused_imports)]
 pub(crate) use resolved_source_adapter::{
@@ -94,6 +94,18 @@ pub(crate) use selected_demand::{
 pub(crate) use types::{
     DirectAccumObservedShapeV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,
 };
+pub(crate) use variable_accum_break::{
+    issue_variable_accum_break_facts_v1, VariableAccumBreakAssignmentObservationV1,
+    VariableAccumBreakBindingObservationV1, VariableAccumBreakBindingRoleV1,
+    VariableAccumBreakCompareV1, VariableAccumBreakConditionObservationV1,
+    VariableAccumBreakCoverageV1, VariableAccumBreakFactsIssueV1,
+    VariableAccumBreakInputObservationV1, VariableAccumBreakInputRoleV1,
+    VariableAccumBreakObservationCoverageV1, VariableAccumBreakOperationRoleV1,
+    VariableAccumBreakSourceAttemptOutcomeV1, VariableAccumBreakSourceDeclineV1,
+    VariableAccumBreakSourceIdentityV1, VariableAccumBreakSourceRejectV1,
+    VariableAccumBreakSourceUnresolvedV1, VariableAccumBreakValueClassV1,
+    VerifiedVariableAccumBreakFactsV1, VerifiedVariableAccumBreakSourceAttemptV1,
+};
 #[allow(unused_imports)]
 pub(crate) use variable_accum_recurrence::{
     issue_variable_accum_recurrence_facts_v1, VariableAccumRecurrenceAccumulatorUpdateV1,
@@ -109,18 +121,6 @@ pub(crate) use variable_accum_recurrence::{
     VerifiedVariableAccumRecurrenceSourceAttemptV1,
 };
 pub(crate) use variable_accum_recurrence_validation::source_coherence_is_exact;
-pub(crate) use variable_accum_break::{
-    issue_variable_accum_break_facts_v1, VariableAccumBreakAssignmentObservationV1,
-    VariableAccumBreakBindingObservationV1, VariableAccumBreakBindingRoleV1,
-    VariableAccumBreakCompareV1, VariableAccumBreakConditionObservationV1,
-    VariableAccumBreakCoverageV1, VariableAccumBreakFactsIssueV1,
-    VariableAccumBreakInputObservationV1, VariableAccumBreakInputRoleV1,
-    VariableAccumBreakObservationCoverageV1, VariableAccumBreakOperationRoleV1,
-    VariableAccumBreakSourceAttemptOutcomeV1, VariableAccumBreakSourceDeclineV1,
-    VariableAccumBreakSourceIdentityV1, VariableAccumBreakSourceRejectV1,
-    VariableAccumBreakSourceUnresolvedV1, VariableAccumBreakValueClassV1,
-    VerifiedVariableAccumBreakFactsV1, VerifiedVariableAccumBreakSourceAttemptV1,
-};
 
 #[cfg(test)]
 pub(crate) use selected_demand::{

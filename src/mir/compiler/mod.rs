@@ -15,13 +15,30 @@ pub(in crate::mir) mod acyclic_callable_graph;
 pub(in crate::mir) mod acyclic_callable_module_plan;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_graph_inventory;
+#[cfg(test)]
+pub(crate) mod callable_loop_physical_canary;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_scc_partition;
-#[allow(dead_code)] pub(crate) mod callable_single_loop_syntax_facts; #[allow(dead_code)] pub(crate) mod callable_single_loop_source_shapes; #[allow(dead_code)] pub(crate) mod callable_single_loop_source_map; #[allow(dead_code)] pub(crate) mod callable_single_loop_recipe; #[allow(dead_code)] pub(crate) mod callable_single_loop_recipe_coseal; #[cfg(test)] pub(crate) mod callable_single_loop_prelude_arguments; #[cfg(test)] #[path = "callable_single_loop_recipe_coseal_tests.rs"] mod callable_single_loop_recipe_coseal_tests; #[cfg(test)] #[path = "callable_single_loop_static_fixture_tests.rs"] pub(crate) mod callable_single_loop_static_fixture_tests;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_single_loop_operation_effect;
 #[cfg(test)]
-pub(crate) mod callable_loop_physical_canary;
+pub(crate) mod callable_single_loop_prelude_arguments;
+#[allow(dead_code)]
+pub(crate) mod callable_single_loop_recipe;
+#[allow(dead_code)]
+pub(crate) mod callable_single_loop_recipe_coseal;
+#[cfg(test)]
+#[path = "callable_single_loop_recipe_coseal_tests.rs"]
+mod callable_single_loop_recipe_coseal_tests;
+#[allow(dead_code)]
+pub(crate) mod callable_single_loop_source_map;
+#[allow(dead_code)]
+pub(crate) mod callable_single_loop_source_shapes;
+#[cfg(test)]
+#[path = "callable_single_loop_static_fixture_tests.rs"]
+pub(crate) mod callable_single_loop_static_fixture_tests;
+#[allow(dead_code)]
+pub(crate) mod callable_single_loop_syntax_facts;
 #[allow(dead_code)]
 pub(crate) mod canonical_core_dispatch;
 #[allow(dead_code)]
@@ -42,20 +59,26 @@ pub(in crate::mir) mod direct_accum_profile;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_projection;
 #[allow(dead_code)]
-pub(in crate::mir) mod variable_accum_recurrence_projection;
-#[cfg(test)]
-mod variable_accum_recurrence_projection_tests;
-#[allow(dead_code)] pub(in crate::mir) mod variable_accum_break_projection;
-#[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
-#[cfg(test)] pub(crate) mod generic_g0_observation;
-#[cfg(test)] pub(crate) mod generic_g0_physical_prepare;
+#[cfg(test)]
+pub(crate) mod generic_g0_observation;
+#[cfg(test)]
+pub(crate) mod generic_g0_physical_prepare;
 #[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod located;
-#[cfg(test)] pub(crate) mod loop_cond_break_continue_observation; #[cfg(test)] pub(crate) mod loop_physical_prepare; #[allow(dead_code)] pub(in crate::mir) mod loop_cond_break_continue_projection; #[cfg(test)] pub(crate) mod loop_true_break_continue_observation; #[allow(dead_code)] pub(in crate::mir) mod loop_true_break_continue_projection;
+#[cfg(test)]
+pub(crate) mod loop_cond_break_continue_observation;
+#[allow(dead_code)]
+pub(in crate::mir) mod loop_cond_break_continue_projection;
+#[cfg(test)]
+pub(crate) mod loop_physical_prepare;
+#[cfg(test)]
+pub(crate) mod loop_true_break_continue_observation;
+#[allow(dead_code)]
+pub(in crate::mir) mod loop_true_break_continue_projection;
 mod lowering_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
@@ -77,9 +100,24 @@ pub(in crate::mir) mod nested_predicate_projection;
 pub(in crate::mir) mod nested_predicate_source_handoff;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_topology;
+#[allow(dead_code)]
+pub(in crate::mir) mod variable_accum_break_projection;
+#[allow(dead_code)]
+pub(in crate::mir) mod variable_accum_recurrence_projection;
+#[cfg(test)]
+mod variable_accum_recurrence_projection_tests;
 #[cfg(test)]
 pub(crate) use nested_predicate_producer_tests::nested_function as nested_function_for_p3_test;
-#[cfg(test)] mod loop_true_break_continue_projection_tests; #[cfg(test)] pub(crate) use loop_true_break_continue_projection_tests::positive_function as loop_true_function_for_test; #[cfg(test)] mod loop_cond_break_continue_projection_tests; #[cfg(test)] pub(crate) use loop_cond_break_continue_projection_tests::positive_function as loop_cond_function_for_test; #[cfg(test)] mod nested_predicate_effect_plan_tests;
+#[cfg(test)]
+mod loop_true_break_continue_projection_tests;
+#[cfg(test)]
+pub(crate) use loop_true_break_continue_projection_tests::positive_function as loop_true_function_for_test;
+#[cfg(test)]
+mod loop_cond_break_continue_projection_tests;
+#[cfg(test)]
+pub(crate) use loop_cond_break_continue_projection_tests::positive_function as loop_cond_function_for_test;
+#[cfg(test)]
+mod nested_predicate_effect_plan_tests;
 #[cfg(test)]
 mod nested_predicate_physical_input_tests;
 #[allow(dead_code)]
@@ -193,7 +231,10 @@ mod capability_tests;
 mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
-#[cfg(test)] mod generic_g0_numeric_projection_tests; #[cfg(test)] mod generic_g0_observation_tests;
+#[cfg(test)]
+mod generic_g0_numeric_projection_tests;
+#[cfg(test)]
+mod generic_g0_observation_tests;
 #[cfg(test)]
 mod generic_g0_projection_tests;
 #[cfg(test)]

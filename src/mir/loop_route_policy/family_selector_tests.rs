@@ -264,10 +264,8 @@ pub(crate) fn generic_selection_for_test() -> CanonicalLoopFamilySelectionV1 {
 /// Keep the resolver unit beside the selected candidate for compiler-side
 /// ingress tests.  The selection owns only AST-free evidence; the returned
 /// unit is the exact resolver view that issued that evidence.
-pub(crate) fn generic_source_unit_and_selection_for_test() -> (
-    VerifiedResolvedSourceUnitV1,
-    CanonicalLoopFamilySelectionV1,
-) {
+pub(crate) fn generic_source_unit_and_selection_for_test(
+) -> (VerifiedResolvedSourceUnitV1, CanonicalLoopFamilySelectionV1) {
     let (unit, lease, identity, candidate) = generic_candidate_fixture_with_unit();
     let mut rows = all_declined(&identity).into_vec();
     rows[0] = candidate;

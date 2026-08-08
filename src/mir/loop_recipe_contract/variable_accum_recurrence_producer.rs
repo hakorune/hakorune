@@ -6,8 +6,7 @@
 
 use crate::mir::loop_structural_facts::{
     bind_resolved_loop_root_v1, VariableAccumRecurrenceBindingRoleV1,
-    VariableAccumRecurrenceInputRoleV1,
-    VerifiedVariableAccumRecurrenceFactsV1,
+    VariableAccumRecurrenceInputRoleV1, VerifiedVariableAccumRecurrenceFactsV1,
 };
 use crate::mir::resolved_semantics::{BindingOriginV1, OwnedExprSiteV1};
 
