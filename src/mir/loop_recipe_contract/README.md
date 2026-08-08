@@ -123,6 +123,23 @@ foreign owner (`Rejected`). S6B remains Builder-free and caller-zero: no
 physicalizer, completion, selector, retry/fallback, production caller, or
 legacy retirement is opened.
 
+## M8 S6C scans design stop
+
+Scan source is not yet a portable Recipe cohort. `LoopRecipeV1` currently has
+only numeric operations and `I64`/`Bool`/`Unit` values, while the smallest
+forward `ScanWithInit` shape requires typed text values, resolver-bound calls,
+text comparison, and a distinct callable tail. The legacy scan composers are
+AST-reconstructing compatibility owners and are not reusable source authority.
+
+Keep S6C at `NoSafeSlice` until the separate
+`LOOP-RECIPE-TYPED-CALL-VALUE-D0` design closes one neutral typed call/value
+contract. Implement `ScanWithInit` first after that decision; keep
+`SplitScan`, `CharMap`, `ArrayJoin`, and `BoolPredicateScan` as separate
+cohorts. Do not publish guessed counts or add an opaque/route-specific
+operation. The eventual implementation commit must update
+`docs/reference/mir/loop-recipe-contract.md`, this README, and the source
+Facts README together with its tests.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one

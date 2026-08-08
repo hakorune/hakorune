@@ -503,13 +503,14 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 ```text
 Change:
-  S6A and S6B are closed; S6B's resolver-backed source observer, atomic Facts,
-  and existing-Recipe producer are green. The next row is a design-only S6C
-  scans contract; no S6C implementation may start from this pointer.
+  S6A and S6B are closed. S6C is a design-only schema prerequisite: the
+  current numeric LoopRecipe cannot represent the smallest scan exactly.
+  Close one neutral typed call/value contract before any S6C observer.
 Contract:
   keep the ordered M8 cohort on one recursive Recipe algebra; source Facts
   own semantic roles and BindingRefs, producers alone mint Recipe keys, and
-  JoinSig alone owns conditional transfer/dataflow obligations
+  JoinSig alone owns conditional transfer/dataflow obligations. Legacy scan
+  builders and the If-only call schema are not source authority.
 Done:
   S6A Facts/producer, exact Main.main ingress, typed C/D/U/R, duplicate-role
   and source-site rejects, <800-line split, README, reference receipt, and
@@ -520,12 +521,13 @@ Done:
   independent terminal payloads and normal backedge evidence. Module READMEs,
   design SSOT, task, and reference receipt are synchronized.
 Stop:
-  missing resolver authority, unresolved source-to-Recipe mapping, unsealed
-  source-role coverage, AST reread, partial product, or a second
-  selector/physical path returns to design
+  missing typed call/value/schema authority, unresolved source-to-Recipe
+  mapping, unsealed source-role coverage, AST reread, guessed counts, opaque
+  call fallback, partial product, or a second selector/physical path returns
+  to design
 
 ordered successor boundary:
-  S6C design -> S6C implementation -> S6D -> S6E -> S6G -> M9
+  typed call/value D0 -> S6C ScanWithInit -> S6D -> S6E -> S6G -> M9
   -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
   -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
   -> LOOP-PHYSICAL-ALWAYS/IF/EXIT-COVERAGE-I0 (one BoxCount commit each)

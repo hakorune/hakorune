@@ -1395,6 +1395,23 @@ physicalization, selector, retry/fallback, production, tail, or legacy
 authority. The S6B task and implementation receipt update this SSOT and both
 module references in the same closeout commit.
 
+S6C design stop (2026-08-08): the current `LoopRecipeV1` vocabulary is not
+expressive enough for scan source. It admits only numeric operations and
+`I64`/`Bool`/`Unit` values, while even the smallest forward `ScanWithInit`
+fixture requires typed text values, `length`/`substring` calls, text equality,
+and a Loop Return distinct from the callable tail. The old scan builders are
+AST-reconstructing compatibility owners and cannot supply portable Facts.
+
+The prerequisite is the separate design task
+`loop-recipe-typed-call-value-d0-design-task-2026-08-08.md`: define one
+profile-neutral typed call/value contract, its source/effect/Home ownership,
+and the fail-fast boundary before any S6C observer or producer is implemented.
+The first later implementation cohort is forward `ScanWithInit` only;
+`SplitScan`, `CharMap`, `ArrayJoin`, and `BoolPredicateScan` remain separate
+families. No Recipe counts, selector, physical route, opaque call fallback,
+AST rewrite, Builder/MIR effect, production caller, or legacy deletion is
+claimed by S6C design.
+
 Contract:
 : 19/19 legacy ingress rows have typed pre-effect decline or one verified
   instance of the common recipe algebra. Legacy winner

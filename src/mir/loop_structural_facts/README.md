@@ -66,6 +66,17 @@ not a fifth source outcome. The producer and JoinSig tests are caller-zero;
 there is no Builder/MIR/CFG/PHI, selector, retry/fallback, production route,
 callable tail, or legacy-deletion authority in S6B.
 
+## M8 S6C scans design stop
+
+No scan Facts product is landed. The current portable Loop schema is numeric
+only, while forward `ScanWithInit` needs resolver-bound text calls and typed
+text values. Do not add a scan-specific Facts union, reuse legacy AST-based
+scan builders, or publish guessed operation counts. The separate
+`LOOP-RECIPE-TYPED-CALL-VALUE-D0` design must first close the neutral call,
+value, effect/Home, and source-site contract. After that, implement only
+`ScanWithInit`; keep `SplitScan`, `CharMap`, `ArrayJoin`, and
+`BoolPredicateScan` as separate source-family rows.
+
 ## Generic G0 S0A
 
 `generic_g0/` is the sole issuer of `VerifiedGenericStructuralFactsG0`.
