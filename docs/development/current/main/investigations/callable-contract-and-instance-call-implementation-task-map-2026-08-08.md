@@ -185,6 +185,14 @@ R6-S3B-C
   GeneratedDelegateSourceRelation and generated-batch coverage; open only
   after C-D0 design guard is green
 
+R6-S3B-C-S0 (active)
+  parser-time `DelegateSourceDeclarationV1` transport, one row per expose,
+  selected member-gate source-path rebase, prepared postpass carriage, and
+  compatibility-only rejection. No target lookup, generated placement,
+  final-seal expansion, or resolver connection.
+  Reference:
+  `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0-implementation-task-2026-08-09.md`
+
 R6-S3B-D
   final complete relation coverage and one final non-Clone seal
   retire the bounded S3A generated-suffix adapter

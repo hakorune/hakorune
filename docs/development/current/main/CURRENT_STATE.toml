@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "B-prime through G0 exact Builder-free I0 ingress, recursive segment/After caller-zero canaries, common Predicate/carrier I0, bounded Generic G0 I1, initialized-local input-set R0, S6A variable-accum recurrence, S6B variable-accum break/fallthrough source-to-Recipe, the behavior-neutral operation-demand/verifier BoxShape split, and the R6-S3B-B3-I0 parser finalizer/source-path alignment are closed. External and worker audits accepted two mandatory post-M9/pre-cutover BoxShape corrections: one atomic semantic-program co-seal and JoinSig-authorized transfer/Layout ownership. Production selection, retry/fallback retirement, remaining M8/M9 closure, legacy deletion, R6-S3B-C implementation, and R6-S3B-D remain closed; the C-D0 source-aware delegate design receipt is closed."
+status = "B-prime through G0 exact Builder-free I0 ingress, recursive segment/After caller-zero canaries, common Predicate/carrier I0, bounded Generic G0 I1, initialized-local input-set R0, S6A variable-accum recurrence, S6B variable-accum break/fallthrough source-to-Recipe, the behavior-neutral operation-demand/verifier BoxShape split, and the R6-S3B-B3-I0 parser finalizer/source-path alignment are closed. External and worker audits accepted two mandatory post-M9/pre-cutover BoxShape corrections: one atomic semantic-program co-seal and JoinSig-authorized transfer/Layout ownership. Production selection, retry/fallback retirement, remaining M8/M9 closure, legacy deletion, and R6-S3B-D remain closed; R6-S3B-C-D0 is closed and C-S0 parser source transport is active."
 date = "2026-08-08"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "R6-D0 accepted after parser-path audit: H1's disconnected source-carrier substrate, R6-S0 vocabulary slice, R6-S1 parser-private source-authority substrate, R6-S2a parser-session ingress, R6-S2 ordinary transaction cutover, R6-S3A bounded rich ordinary-Box parse product/final non-Clone seal, R6-S3B-A single postpass product/direct AST projection, R6-S3B-B1 parser-issued structural path transport, R6-S3B-B2 parser-issued gate ledger/top-level scope/distinct gate path/one selection receipt/atomic source-session prune, R6-S3B-B3-D0 finalizer/source coverage decision, R6-S3B-B3-I0 private finalizer coverage implementation, and R6-S3B-C-D0 source-aware delegate relation/transaction design are closed. R6-S3B-C implementation remains closed; the next boundary is parser-time delegate source transport."
-work_mode = "design_stop"
-current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-D0"
-current_blocker_token = "R6-S3B-C-D0: design source-aware GeneratedDelegateSourceRelation and delegate transaction; preserve valid generated suffix outside resolver-visible seal; define exact coverage/ownership/fail-fast boundary before implementation"
+current_design_stop = "R6-D0 accepted after parser-path audit: H1's disconnected source-carrier substrate, R6-S0 vocabulary slice, R6-S1 parser-private source-authority substrate, R6-S2a parser-session ingress, R6-S2 ordinary transaction cutover, R6-S3A bounded rich ordinary-Box parse product/final non-Clone seal, R6-S3B-A single postpass product/direct AST projection, R6-S3B-B1 parser-issued structural path transport, R6-S3B-B2 parser-issued gate ledger/top-level scope/distinct gate path/one selection receipt/atomic source-session prune, R6-S3B-B3-D0 finalizer/source coverage decision, R6-S3B-B3-I0 private finalizer coverage implementation, and R6-S3B-C-D0 source-aware delegate relation/transaction design are closed. The current fast slice is C-S0 parser-time source transport; C-S1/C-I0 and final seal coverage remain closed."
+work_mode = "fast"
+current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-S0"
+current_blocker_token = "R6-S3B-C-S0: record one parser-private delegate source row per expose and rebase it through selected member-gate transaction; do not open target lookup or final seal"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -64,6 +64,7 @@ frontend_ordered_box_method_inventory_r3_task = "docs/development/current/main/i
 frontend_ordered_box_method_inventory_r4_task = "docs/development/current/main/investigations/frontend-ordered-box-method-inventory-r4-json-codec-task-2026-08-08.md"
 hako_parser_box_declaration_carrier_design_task = "docs/development/current/main/investigations/hako-parser-box-declaration-carrier-d0-design-task-2026-08-08.md"
 frontend_parsed_box_source_aware_delegate_d0_task = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md"
+frontend_parsed_box_source_aware_delegate_s0_task = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0-implementation-task-2026-08-09.md"
 resolver_declared_query_instance_contract_task = "docs/development/current/main/investigations/loop-resolver-declared-query-instance-contract-i0-task-2026-08-08.md"
 callable_contract_language_reference = "docs/reference/language/callable-contracts.md"
 loop_recipe_operation_shape_split_task = "docs/development/current/main/investigations/loop-recipe-operation-shape-split-r0-task-2026-08-08.md"
@@ -160,8 +161,8 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "R5, H1, R6-S0, R6-S1, R6-S2a, R6-S2, R6-S3A, R6-S3B-A, R6-S3B-B1, R6-S3B-B2, R6-S3B-B3-D0, R6-S3B-B3-I0, and R6-S3B-C-D0 are closed. B3-I0 landed private one-to-one finalizer source-path coverage, no positional final-AST identity, and generated delegate suffix isolation outside the resolver-visible source seal. C-D0 now fixes one parser-private relation per expose, parser-time source transport, path-based target lookup, and whole-product atomicity; C implementation and D remain closed."
-current_execution_design = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md"
+current_execution_summary = "R5, H1, R6-S0, R6-S1, R6-S2a, R6-S2, R6-S3A, R6-S3B-A, R6-S3B-B1, R6-S3B-B2, R6-S3B-B3-D0, R6-S3B-B3-I0, and R6-S3B-C-D0 are closed. B3-I0 landed private one-to-one finalizer source-path coverage, no positional final-AST identity, and generated delegate suffix isolation outside the resolver-visible source seal. C-S0 is the active bounded parser-time transport implementation; target lookup, batch transaction, final seal, and resolver work remain closed."
+current_execution_design = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0-implementation-task-2026-08-09.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
 generic_g0_post_i1_audit_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-post-i1-topdown-audit-d0-task-2026-08-08.md"
@@ -640,11 +641,11 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0"
-latest_card_path = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md"
+latest_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0"
+latest_card_path = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0-implementation-task-2026-08-09.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "R5, H1, R6-S0, R6-S1, R6-S2a, R6-S2, R6-S3A, R6-S3B-A, R6-S3B-B1, R6-S3B-B2, R6-S3B-B3-D0, R6-S3B-B3-I0, and R6-S3B-C-D0 are closed. C-D0 fixes one parser-private GeneratedDelegateSourceRelation per expose, parser-time source transport, path-based private target lookup, complete preflight, and whole unpublished-product atomicity. Valid generated delegate suffixes remain outside the resolver-visible seal until D; C implementation, D, and resolver work remain closed."
+latest_card_summary = "R5, H1, R6-S0, R6-S1, R6-S2a, R6-S2, R6-S3A, R6-S3B-A, R6-S3B-B1, R6-S3B-B2, R6-S3B-B3-D0, R6-S3B-B3-I0, and R6-S3B-C-D0 are closed. C-S0 is active: parser-time source transport records one private delegate row per expose and rebases it through selected member-gate transactions. Generated suffixes remain outside the resolver-visible seal; target lookup, batch transaction, D, and resolver work remain closed."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
