@@ -386,12 +386,16 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current next design stop:
+Current execution row:
 
 ```text
-RESOLVER-DECLARED-QUERY-BEHAVIOR-D0
-  one typed Query behavior issuer co-sealed later with the landed Home ABI;
-  Query never duplicates receiver/parameter/result Home relations.
+RESOLVER-DECLARED-QUERY-BEHAVIOR-I0
+  implement the accepted typed Query behavior catalog; emit only the exact
+  non-empty Query subset and never duplicate Home ABI relations.
+  Task:
+  `docs/development/current/main/investigations/own-home-query-behavior-i0-implementation-task-2026-08-09.md`
+  Next design stop:
+  `docs/development/current/main/investigations/own-home-declared-query-home-aggregate-d0-design-task-2026-08-09.md`
 ```
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
@@ -731,7 +735,10 @@ Rejected > Unresolved > Declined > Candidate
     - independently consume typed `CallableContractSyntaxV1::Query` plus the
       semantic declaration;
     - issue the behavioral read/effect/control obligation;
-    - no Home or physical ABI issuance.
+    - emit a non-empty Query subset catalog in declaration order;
+    - no Home or physical ABI issuance;
+    - implementation task:
+      `docs/development/current/main/investigations/own-home-query-behavior-i0-implementation-task-2026-08-09.md`.
 15. `RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0`
     - co-seal declaration, semantic signature, Query behavior, and the exact
       same-declaration `VerifiedHomeAbi`;

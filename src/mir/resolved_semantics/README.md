@@ -68,9 +68,11 @@ The catalog owns only exact Box/method source identity and semantic
 parameter/result classes (`I64` or `Unit`). Parser invocation provenance is
 retained as provenance; it is not reused as nominal type identity. The issuer
 does not clone rows through the parser inspection API or issue partial
-receipts. `CallableContractSyntaxV1` is carried as typed syntax only; Query
-behavior, body conformance, resolver targets, Recipe/CallSlot, Builder/MIR,
-and physical ABI remain separate unopened boundaries.
+receipts. `CallableContractSyntaxV1` is carried as typed syntax only; the
+Query D0 behavior boundary is closed and Query I0 is the current
+resolver-only implementation row. Query behavior, body conformance,
+resolver targets, Recipe/CallSlot, Builder/MIR, and physical ABI remain
+separate unopened boundaries.
 
 This I0 is a resolver semantic declaration receipt, not a production call
 path. `OWN-HOME-ABI0-S0` now issues the bounded semantic Home catalog through

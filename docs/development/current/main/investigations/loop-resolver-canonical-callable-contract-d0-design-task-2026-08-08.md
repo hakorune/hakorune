@@ -92,8 +92,8 @@ and Home capabilities and returns only the aggregate:
 ```text
 DeclaredInstanceMethodContractIssuerV1::issue(
   VerifiedInstanceMethodDeclarationCatalogV1,
-  VerifiedDeclaredQueryBehaviorV1,
-  verified_home_abi,
+  VerifiedDeclaredQueryBehaviorCatalogV1,
+  VerifiedDeclaredInstanceMethodHomeCatalogV1,
 )
   -> VerifiedDeclaredInstanceMethodContractV1
 ```

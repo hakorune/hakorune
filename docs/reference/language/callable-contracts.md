@@ -32,9 +32,10 @@ source site. Legacy JSON and AST-only compatibility rows cannot reconstruct or
 promote the seal. The parser→resolver source handoff is now implemented as a
 one-shot, AST-free transfer product for this bounded Rust cohort. The
 declaration/signature I0 consumes that product by value and issues one fresh,
-non-Clone AST-free declaration catalog with semantic `I64`/`Unit` classes;
-Home ABI, Query behavior, body conformance, target, Recipe/CallSlot, and
-physical ABI remain production zero.
+non-Clone AST-free declaration catalog with semantic `I64`/`Unit` classes.
+Home ABI0 and the Query behavior D0 design are now closed as resolver-only
+internal boundaries; Query I0 is the current bounded execution row. Body
+conformance, target, Recipe/CallSlot, and physical ABI remain production zero.
 
 The R4 AST-side atomic reconstruction product and strict recursive JSON v2
 codec are landed. The root selects v2 or legacy mode once; malformed nested v2
@@ -142,6 +143,17 @@ method body
   -> semantic body Facts / Recipe
   -> VerifiedCallableContractConformanceV1
 ```
+
+The Query issuer emits one non-`Clone`
+`VerifiedDeclaredQueryBehaviorCatalogV1` for the exact non-empty subset of
+declarations carrying typed `CallableContractSyntaxV1::Query`. Non-Query rows
+are outside this behavior family and are never filled with a default Query
+row. The catalog records only resolver/declaration identity, the normalized
+Query obligation, and optional rune provenance for diagnostics. It does not
+copy semantic signature classes, `HomeDemand`, `HomeResultRelation`, relation
+batch brands, body facts, `EffectMask`, or physical ABI. A later aggregate
+co-seal must use the same selected declaration subset and the landed
+`VerifiedHomeAbi` catalog.
 
 Declaration contracts may be cataloged before bodies are verified so recursive
 and mutually recursive calls can resolve. After body verification, the sealed
