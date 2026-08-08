@@ -65,22 +65,39 @@ query envelope would still create a second guessed truth.
 
 ## Required source-backed products
 
-### 1. Instance declaration inventory
+### 1. Resolver-owned instance declaration catalog
 
 ```text
-VerifiedBoxMethodDeclarationV1 {
-  catalog/compilation brand,
-  enclosing Box identity and declaration site,
-  method declaration site and static/instance status,
-  ordered parameter declarations,
-  declared result declaration,
+ResolverNominalTypeEnvironmentV1 {
+  fresh resolver catalog/type brand,
+  exact nominal Box declaration identities,
+}
+
+SemanticInstanceDeclarationIssuerV1::issue(
+  ParserBoxResolverSourceHandoffV1,
+  ResolverNominalTypeEnvironmentV1,
+) -> VerifiedInstanceMethodDeclarationCatalogV1 {
+  same resolver brand,
+  exact Box/method source sites,
+  nominal receiver type,
+  instance/static status,
+  ordered semantic parameter/result signature,
 }
 ```
 
-It consumes only a parser-sealed explicit-method source row. It is immutable,
-AST-free after issuance, and cannot be reconstructed from a method or Box
-name. Generated/property rows, duplicate/foreign identity, and static/instance
-cross-wiring reject before a contract is attempted.
+The issuer consumes the handoff by value through its single `into_parts` path;
+it must not call `boxes()` and clone rows or retain a parser row as a partial
+receipt. The resulting declaration catalog is non-Clone, AST-free, and owns a
+fresh resolver catalog/type brand. The parser invocation brand remains only as
+provenance/membership evidence. It cannot be reconstructed from a method or
+Box name, inventory ordinal, Builder catalog, or `FunctionOwnerIdV1` brand.
+Generated/property rows, duplicate/foreign/stale identity, static/instance
+cross-wiring, and unknown nominal type fail before any contract is attempted.
+
+The bounded positive is `TextLike.length(): i64` with arity zero and semantic
+`I64`. Typed Query syntax is carried for the later behavior issuer; it is not
+required to issue the declaration/signature product and its absence is a
+later `Declined`.
 
 ### 2. Typed semantic call-contract receipts
 
@@ -203,14 +220,52 @@ development state and must not be converted into a source disposition.
 
 1. The semantic issuer consumes one `ParserBoxResolverSourceHandoffV1` by
    value and cannot drop its parser brand while retaining rows.
-2. A fresh resolver catalog/type brand issues the exact nominal Box and method
-   declaration relation; parser brand is provenance only.
+2. A fresh `ResolverNominalTypeEnvironmentV1`/catalog brand issues the exact
+   nominal Box and method declaration relation; parser brand is provenance
+   only. Missing/unknown type authority is `NoSafeSlice` or `Unresolved`, never
+   a guessed type.
 3. One semantic signature owns ordered arity/types without
    `ExactTrivial*Abi`/`MirType` authority.
-4. Home ABI is a later, separate issuer; Query behavior is independent and
+4. Home ABI is a later, separate issuer; its bounded `Handle`/empty-parameter/
+   `Trivial` relation must come from the Home classifier and same-declaration
+   brand, never from fixture defaults. Query behavior is independent and
    absence of Query remains `Declined`.
 5. One declaration aggregate and negative matrix are fixed; no target,
    Recipe, body conformance, or physical ABI is opened.
+
+## I0 guard and acceptance matrix
+
+The semantic declaration implementation gets a dedicated resolver module and
+must remain below the 760-line split trigger (800 hard boundary). Its imports
+must exclude `ExactTrivial*Abi`, `MirType`, `FunctionSignature`, `EffectMask`,
+Builder, Recipe, CallSlot, target, provider, and runtime modules.
+
+The focused matrix must prove:
+
+```text
+positive:
+  TextLike.length(): i64, arity 0, same resolver brand/site
+
+rejected:
+  foreign/stale/duplicate Box or method site
+  static/instance mismatch
+  generated/property/compatibility row
+  mutated inventory ordinal used as source identity
+  forged or partial declaration receipt
+
+unresolved / no-safe-slice:
+  unknown nominal Box type
+  missing resolver type environment
+  missing semantic signature issuer
+
+ownership:
+  handoff reused after one consuming issue
+  row cloning/partial re-issuance API absent from the issuer path
+```
+
+`CallableContract(query)` may be present or absent in this row. Absence is
+preserved as a later behavior `Declined`; declaration/signature issuance does
+not require Query and must not fabricate Home, effect, or ABI facts.
 
 ## Ordered follow-up
 

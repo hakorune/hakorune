@@ -35,8 +35,10 @@ The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
 primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,
 and the closed I0 consumes it once into an AST-free handoff. The next design
-stop must fix one semantic declaration/signature issuer and one sole Home ABI
-relation before typed Query co-seal, resolver targets, source-bound CallSlot
+stop must fix one resolver nominal/type environment, one semantic
+declaration/signature issuer, and one sole Home ABI relation. The issuer must
+consume the handoff by value and preserve parser brand only as provenance.
+These must land before typed Query co-seal, resolver targets, source-bound CallSlot
 relations, ScanWithInit, physical lowering, production selection, or legacy
 retirement.
 

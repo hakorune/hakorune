@@ -1,5 +1,5 @@
 ---
-Status: accepted architecture — implementation parked behind parser→resolver handoff and Home issuer
+Status: accepted architecture — implementation parked behind semantic declaration/type issuer and Home issuer
 Date: 2026-08-08
 Decision: one declared semantic contract, separate body conformance, no physical ABI axis
 Parent: `loop-resolver-instance-call-target-d0-design-task-2026-08-08.md`
@@ -11,8 +11,8 @@ Language: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
 ## Decision brief
 
 ```text
-non-Clone parser-sealed source method
-+ exact nominal Box declaration
+one-shot ParserBoxResolverSourceHandoffV1 (consumed by value)
++ fresh resolver nominal/type declaration catalog
 + resolved semantic signature
 + typed CallableContractSyntaxV1::Query behavior
 + same-declaration VerifiedHomeAbi
@@ -86,19 +86,33 @@ to the canonical whole-call contract.
 
 ## Canonical issuer
 
-One public issuer consumes the exact frontend/resolver capabilities and
-returns only the aggregate:
+One public aggregate issuer consumes already-issued declaration, behavior,
+and Home capabilities and returns only the aggregate:
 
 ```text
 DeclaredInstanceMethodContractIssuerV1::issue(
-  ordered_source_method,
-  nominal_box_declaration,
-  resolved_semantic_signature,
-  typed_callable_contract_source_row,
+  VerifiedInstanceMethodDeclarationCatalogV1,
+  VerifiedDeclaredQueryBehaviorV1,
   verified_home_abi,
 )
   -> VerifiedDeclaredInstanceMethodContractV1
 ```
+
+The declaration/signature issuer is a separate earlier boundary:
+
+```text
+SemanticInstanceDeclarationIssuerV1::issue(
+  ParserBoxResolverSourceHandoffV1,
+  ResolverNominalTypeEnvironmentV1,
+) -> VerifiedInstanceMethodDeclarationCatalogV1
+```
+
+It consumes the handoff by value through its sole `into_parts` path, issues a
+fresh resolver catalog/type brand, and keeps parser brand only as provenance.
+It must not clone rows, infer nominal types from names/ordinals, or use
+`FunctionOwnerIdV1::compilation_brand` as type identity. `VerifiedHomeAbi` is
+issued only by the Home owner; the Query behavior issuer does not restate its
+receiver/parameter/result demands.
 
 No public `Verified*::new(...)`, arbitrary test constructor, MIR-to-semantic
 reverse projection, name-based repair, or FreeStatic alias is allowed.

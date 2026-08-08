@@ -684,9 +684,14 @@ Rejected > Unresolved > Declined > Candidate
      remains unopened.
 12. `RESOLVER-INSTANCE-METHOD-DECLARATION-AND-SEMANTIC-SIGNATURE-I0`
    - consume one `ParserBoxResolverSourceHandoffV1` by value;
-   - issue a fresh resolver catalog/type brand plus exact nominal Box/method
-     identity and resolved semantic parameter/result types;
+   - issue a fresh resolver catalog/type brand from a resolver-owned nominal
+     type environment plus exact Box/method identity and resolved semantic
+     parameter/result types;
    - retain parser invocation brand only as source provenance/membership;
+   - publish one non-Clone declaration catalog/row; `boxes()`/row cloning and
+     partial re-issuance are forbidden;
+   - unknown/missing nominal type authority is `NoSafeSlice`/`Unresolved`, not
+     a guessed type;
    - semantic `I64` is not `ExactTrivial*Abi`, `MirType`, or a source-string
      physical classifier;
    - Query syntax may be carried but is not issued as behavior here;
@@ -697,6 +702,8 @@ Rejected > Unresolved > Declined > Candidate
    - consume the semantic declaration output and issue one same-declaration
      `VerifiedHomeAbi` with receiver `Handle`, zero parameter demands, and
      Trivial result for the bounded cohort;
+   - `Handle`/empty-parameter/`Trivial` must come from the Home classifier and
+     same declaration brand/site, never from fixture defaults or Query text;
    - no Query behavior or aggregate may restate or fabricate this axis.
 14. `RESOLVER-DECLARED-QUERY-BEHAVIOR-I0`
     - independently consume typed `CallableContractSyntaxV1::Query` plus the

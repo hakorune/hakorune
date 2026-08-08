@@ -509,9 +509,12 @@ The declared instance contract then co-seals typed
 `CallableContractSyntaxV1::Query` behavior with the same-declaration
 `VerifiedHomeAbi`. Query does not issue a second receiver Handle axis; the
 Home ABI alone owns receiver/parameter demands and the result relation.
-Physical call ABI is deliberately downstream. A missing parser seal, semantic
-signature, typed Query row, or Home ABI is `NoSafeSlice`, not an empty contract
-or a FreeStatic alias.
+Physical call ABI is deliberately downstream. The parser handoff is already
+closed for the bounded Rust cohort; a missing resolver semantic signature,
+nominal type authority, typed Query behavior, or Home ABI is `NoSafeSlice`, not
+an empty contract or a FreeStatic alias. The semantic issuer must consume the
+handoff by value and issue a fresh resolver catalog/type brand; parser and
+function-owner brands remain provenance/membership only.
 See `LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0` in the current investigation
 task and `RESOLVER-BOX-SOURCE-HANDOFF-D0` for the ingress contract. No Recipe
 key, CallSlot, Builder/MIR ID, runtime lookup, or fallback may cross this

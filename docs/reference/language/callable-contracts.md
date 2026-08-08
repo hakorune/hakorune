@@ -173,12 +173,17 @@ The parser first normalizes the raw rune spelling into a typed
 selected-source provenance. Resolver code never reparses the strings
 `"CallableContract"` or `"query"`.
 
-The future canonical issuer consumes one exact parser-sealed source-method
-capability, nominal Box identity, resolved semantic signature, typed Query
-row, and same-declaration `VerifiedHomeAbi`. It returns one declared aggregate
-and a sealed declared catalog. The aggregate co-seals these axis owners; it
-does not restate Home or infer semantic types from `ExactTrivial*Abi`,
-`MirType`, or `FunctionSignature`.
+The bounded parser→resolver handoff now supplies the source capability. The
+next semantic issuer consumes one `ParserBoxResolverSourceHandoffV1` by value
+through its sole `into_parts` path plus a resolver-owned nominal/type
+environment, then issues a fresh non-Clone declaration catalog with semantic
+parameter/result types. Parser invocation brand is provenance only; rows must
+not be cloned or re-issued, and `FunctionOwnerIdV1::compilation_brand` is not
+nominal type identity. The later aggregate issuer consumes that declaration
+catalog, typed Query behavior, and same-declaration `VerifiedHomeAbi`; it
+returns one declared aggregate and a sealed conformant catalog. The aggregate
+co-seals these axis owners; it does not restate Home or infer semantic types
+from `ExactTrivial*Abi`, `MirType`, or `FunctionSignature`.
 
 Parser errors own syntax only:
 
