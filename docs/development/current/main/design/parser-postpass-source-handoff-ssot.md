@@ -336,6 +336,15 @@ from the final AST or inventory order.
 This receipt does not open `BuildGateSelectionReceiptV1`, source-session
 prune/rebase, delegate relation transport, or final top-level gate sealing.
 
+## R6-S3B-B2 design stop
+
+B1 is closed. Before implementation, freeze the selection receipt's owner,
+branch decision, exact path coverage, and the consume-return
+`ParserSourceSession` transaction. Prune must consume AST and source session
+together, preserve surviving structural paths, and reject missing, foreign,
+or duplicate path evidence. Source identity must not be reconstructed from the
+final AST, inventory ordinal, or a detached source vector.
+
 ## Nonclaims until R6-S3B-D closes
 
 ```text

@@ -672,7 +672,7 @@ parity. The implementation/reference/guard closeout lands together.
 ### R6-S3B-B design receipt and B1 implementation boundary
 
 The design receipt is accepted in
-`docs/development/current/main/design/parser-postpass-source-handoff-ssot.md#r6-s3b-b-design-receipt--accepted-implementation-opened`.
+`docs/development/current/main/design/parser-postpass-source-handoff-ssot.md#r6-s3b-b-design-receipt--accepted-b1-implementation-opened`.
 The current `statement_ordinal` cannot identify multiple Boxes inside one
 gate. B must add parser-issued gate id/branch/child structural paths and one
 `BuildGateSelectionReceiptV1`, then make product prune consume/return a
