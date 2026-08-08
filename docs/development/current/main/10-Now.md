@@ -23,24 +23,24 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. The parser public-AST/postpass, V2 schema,
-typed callable syntax carriage, old instance-result/target retirement, and the
-source-handoff D0/I0 are closed. The selected execution row is:
+Current mode is `design_stop`. The parser public-AST/postpass, V2 schema,
+typed callable syntax carriage, old instance-result/target retirement,
+source-handoff D0/I0, and resolver declaration/signature I0 are closed. The
+next design row is:
 
 ```text
-RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0
+OWN-HOME-CALLABLE-ABI-D0
 ```
 
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
 primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,
-and the closed I0 consumes it once into an AST-free handoff. The accepted D0
-fixed one resolver nominal/type environment, one semantic declaration/signature
-issuer, and one sole Home ABI relation. The selected I0 implements only the
-first declaration/signature slice: it must consume the handoff by value and
-preserve parser brand only as provenance. This must land before typed Query co-seal, resolver targets, source-bound CallSlot
-relations, ScanWithInit, physical lowering, production selection, or legacy
-retirement.
+the handoff is consumed once into an AST-free resolver ingress, and the closed
+declaration/signature I0 issues one fresh resolver nominal/type catalog with
+semantic `I64`/`Unit` classes. The next design stop must define the sole Home
+ABI classifier/issuer and its same-declaration co-seal before typed Query
+behavior, resolver targets, source-bound CallSlot relations, ScanWithInit,
+physical lowering, production selection, or legacy retirement.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No

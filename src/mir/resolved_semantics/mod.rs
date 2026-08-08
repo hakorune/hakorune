@@ -24,6 +24,7 @@ mod function_view;
 pub(crate) mod generic_g0;
 mod ids;
 mod if_region;
+mod instance_method_declaration;
 mod loop_family_window;
 #[cfg(test)]
 mod loop_family_window_tests;
@@ -92,6 +93,14 @@ pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub use if_region::ResolvedIfRegionVerificationErrorV1;
 pub(crate) use if_region::{ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1};
+pub(crate) use instance_method_declaration::{
+    InstanceMethodDeclarationIssueV1, ResolverCatalogBrandV1,
+    ResolverNominalBoxDeclarationInputV1, ResolverNominalBoxTypeIdV1,
+    ResolverNominalTypeEnvironmentIssueV1, ResolverNominalTypeEnvironmentV1,
+    ResolverSemanticValueTypeV1, SemanticInstanceDeclarationIssuerV1,
+    VerifiedInstanceMethodDeclarationCatalogV1, VerifiedInstanceMethodDeclarationV1,
+    VerifiedSemanticCallableSignatureV1,
+};
 pub(crate) use loop_family_window::{
     LoopFamilyWindowLeaseIssueV1, VerifiedLoopFamilyWindowLeaseV1,
 };

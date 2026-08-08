@@ -26,7 +26,7 @@ impl ParserInvocationBrandV1 {
         Self(Arc::new(()))
     }
 
-    fn same_as(&self, other: &Self) -> bool {
+    pub(super) fn same_as(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
     }
 }

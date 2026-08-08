@@ -127,6 +127,13 @@ pub use hakorune_frontend_parser::migration_transport::{
 };
 pub use hakorune_frontend_parser::parser::ParseError;
 
+pub(crate) use callable_contract_syntax::CallableContractSyntaxV1;
+pub(crate) use source_resolver_handoff::{
+    ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceRowV1,
+    ResolverBoxMethodSourceSiteV1, ResolverBoxSourceRowV1, ResolverMethodParameterSyntaxV1,
+    ResolverMethodSignatureSyntaxV1, ResolverSourceInvocationProvenanceV1,
+};
+
 /// Nyashパーサー - トークン列をASTに変換
 pub struct NyashParser {
     pub(super) tokens: Vec<Token>,

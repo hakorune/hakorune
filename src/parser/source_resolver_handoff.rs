@@ -128,6 +128,19 @@ pub(crate) struct ParserBoxResolverSourceHandoffV1 {
     boxes: Box<[ResolverBoxSourceRowV1]>,
 }
 
+/// Opaque parser-invocation provenance carried into resolver products.
+///
+/// The resolver may retain and compare this membership evidence, but it
+/// cannot use it as nominal type identity or mint another parser seal.
+#[derive(Debug)]
+pub(crate) struct ResolverSourceInvocationProvenanceV1(ParserInvocationBrandV1);
+
+impl ResolverSourceInvocationProvenanceV1 {
+    pub(crate) fn same_as(&self, other: &Self) -> bool {
+        self.0.same_as(&other.0)
+    }
+}
+
 impl ParserBoxResolverSourceHandoffV1 {
     pub(crate) fn boxes(&self) -> &[ResolverBoxSourceRowV1] {
         &self.boxes
@@ -140,8 +153,11 @@ impl ParserBoxResolverSourceHandoffV1 {
     /// dropping the brand would make a partial re-issuance look authoritative.
     pub(crate) fn into_parts(
         self,
-    ) -> (ParserInvocationBrandV1, Box<[ResolverBoxSourceRowV1]>) {
-        (self.brand, self.boxes)
+    ) -> (
+        ResolverSourceInvocationProvenanceV1,
+        Box<[ResolverBoxSourceRowV1]>,
+    ) {
+        (ResolverSourceInvocationProvenanceV1(self.brand), self.boxes)
     }
 
     pub(crate) fn same_source_invocation(&self, other: &Self) -> bool {

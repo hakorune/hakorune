@@ -1,5 +1,5 @@
 ---
-Status: active — bounded semantic declaration/signature implementation
+Status: closed — bounded semantic declaration/signature implementation landed
 Date: 2026-08-09
 Parent: `loop-resolver-instance-declaration-and-contract-receipts-d0-design-task-2026-08-08.md`
 Reference: `docs/reference/language/callable-contracts.md`
@@ -111,8 +111,10 @@ cross 800 lines. Split by owner/interface, not by arbitrary line count.
 2. The issuer consumes the handoff by value and preserves parser provenance;
    no `boxes()`/row-clone path can issue the product.
 3. Missing Query does not prevent declaration/signature issuance.
-4. Static, foreign, duplicate, generated-only, stale-site, unknown-type, and
-   ordinal-mutation cases fail at the declared boundary.
+4. Foreign, duplicate, unused, unknown-type, and exact nominal/source mismatch
+   cases fail at the declared boundary. Static/generated-only/compatibility
+   rows are rejected or excluded by the parser handoff before this issuer;
+   they are not reclassified here.
 5. No Home ABI, Query behavior, target, Recipe/CallSlot, Builder/MIR, or
    physical ABI caller is added.
 6. Focused tests, `src/mir/resolved_semantics/README.md`,
@@ -129,3 +131,35 @@ git diff --check
 ```
 
 No production selection or runtime gate is opened by this row.
+
+## Implementation receipt (2026-08-09)
+
+Landed in the same implementation closeout:
+
+```text
+src/mir/resolved_semantics/instance_method_declaration.rs
+src/mir/resolved_semantics/instance_method_declaration_tests.rs
+src/mir/resolved_semantics/README.md
+docs/reference/language/callable-contracts.md
+```
+
+The issuer consumes the handoff through `into_parts(self)`, creates a fresh
+resolver catalog/type brand, validates exact nominal source coverage, and
+returns one non-`Clone` declaration catalog. The focused matrix covers the
+positive typed Query carriage, missing Query, unknown nominal Box, unsupported
+semantic type, duplicate source identity/name, and unused nominal declaration.
+Static/generated-only/compatibility rows are owned by the parser handoff
+boundary and are intentionally not fabricated as issuer fixtures.
+
+Verification receipt:
+
+```text
+RUSTFLAGS=-Awarnings cargo test -q -p nyash-rust instance_method_declaration  # 8 passed
+RUSTFLAGS=-Awarnings cargo test -q -p nyash-rust source_resolver_handoff      # 3 passed
+RUSTFLAGS=-Awarnings cargo test -q -p nyash-rust parser::source_seal         # 13 passed
+RUSTFLAGS=-Awarnings cargo check -q -p nyash-rust                             # pass
+```
+
+The row deliberately does not claim Home ABI, Query behavior/conformance,
+resolver targets, Recipe/CallSlot, Builder/MIR, physical ABI, provider/runtime,
+fallback, or production activation. The next row is the Home ABI design stop.

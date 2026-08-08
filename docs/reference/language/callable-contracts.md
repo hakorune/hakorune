@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage and parser→resolver source handoff I0 landed, resolver semantic/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted; resolver coverage remains unopened.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, and bounded resolver declaration/signature I0 landed; Home ABI, Query behavior/body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -18,9 +18,10 @@ box TextLike {
 `CallableContract` is declaration-local and non-repeatable. The first accepted
 value is `query`, and the first implementation cohort is an instance method.
 The Rust parser accepts and carries this syntax through its rich,
-parser-owned, non-Clone `ParserBoxSourceSealV1`; semantic issuance remains
-production zero. The seal is currently bounded to ordinary top-level Rust
-Boxes. The Hako parser keeps the same accepted name/value syntax in its
+parser-owned, non-Clone `ParserBoxSourceSealV1`; Home/Query behavior and call
+execution remain production zero. The bounded declaration/signature issuer is
+now landed for ordinary top-level Rust Boxes. The Hako parser keeps the same
+accepted name/value syntax in its
 compatibility rune normalizer, but does not issue the Rust source seal. The
 Clone-capable `BoxMethodInventoryV1` owns selected placement and descriptive
 provenance, not resolver-grade source identity. Exact as-written method sites
@@ -29,9 +30,11 @@ property/delegate rows also consume inventory positions. Generated rows
 receive only a generated source-member origin and never an explicit method
 source site. Legacy JSON and AST-only compatibility rows cannot reconstruct or
 promote the seal. The parser→resolver source handoff is now implemented as a
-one-shot, AST-free transfer product for this bounded Rust cohort. Resolver
-declaration and Home issuance remain production zero and must still land before
-the declared contract issuer opens.
+one-shot, AST-free transfer product for this bounded Rust cohort. The
+declaration/signature I0 consumes that product by value and issues one fresh,
+non-Clone AST-free declaration catalog with semantic `I64`/`Unit` classes;
+Home ABI, Query behavior, body conformance, target, Recipe/CallSlot, and
+physical ABI remain production zero.
 
 The R4 AST-side atomic reconstruction product and strict recursive JSON v2
 codec are landed. The root selects v2 or legacy mode once; malformed nested v2
@@ -43,13 +46,15 @@ The current frontend migration also keeps the ordered
 `BoxMethodInventoryV1` carrier intact through the connected static-`Main`
 Builder compatibility ports. That R5-S2 edge retains only the historical
 name-order projection inside the compatibility leaf; it does not establish
-source-order authority, resolver target authority, or a callable-contract
-issuer.
+source-order authority or resolver target authority. The bounded resolver
+declaration/signature I0 is a separate one-shot consumer of the source
+handoff and does not reopen compatibility maps.
 
 The frontend ordered-inventory migration is now closed through R5-S3: the
 production Builder no longer round-trips the inventory through compatibility
-maps. This does not open the Hako parser carrier, resolver declaration issuer,
-or callable-contract semantic issuance; those remain separate design rows.
+maps. This does not open the Hako parser carrier, Home/Query behavior, body
+conformance, resolver target, or callable-contract execution; those remain
+separate design rows.
 
 ## `query` meaning
 
@@ -174,12 +179,12 @@ selected-source provenance. Resolver code never reparses the strings
 `"CallableContract"` or `"query"`.
 
 The bounded parser→resolver handoff now supplies the source capability. The
-next semantic issuer consumes one `ParserBoxResolverSourceHandoffV1` by value
-through its sole `into_parts` path plus a resolver-owned nominal/type
+declaration/signature issuer consumes one `ParserBoxResolverSourceHandoffV1`
+by value through its sole `into_parts` path plus a resolver-owned nominal/type
 environment, then issues a fresh non-Clone declaration catalog with semantic
 parameter/result types. Parser invocation brand is provenance only; rows must
 not be cloned or re-issued, and `FunctionOwnerIdV1::compilation_brand` is not
-nominal type identity. The later aggregate issuer consumes that declaration
+nominal type identity. A later aggregate issuer will consume that declaration
 catalog, typed Query behavior, and same-declaration `VerifiedHomeAbi`; it
 returns one declared aggregate and a sealed conformant catalog. The aggregate
 co-seals these axis owners; it does not restate Home or infer semantic types

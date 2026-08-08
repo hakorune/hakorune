@@ -55,6 +55,28 @@ seal. OF0 rejects a second root, mixed compilation brands, cycles, duplicate
 parent/definition sites, and a parent scope that is not the exact lexical
 scope containing the Lambda definition.
 
+## Instance declaration/signature I0
+
+The bounded resolver declaration slice is landed in
+`instance_method_declaration.rs`. `SemanticInstanceDeclarationIssuerV1`
+consumes one `ParserBoxResolverSourceHandoffV1` by value together with a
+resolver-owned nominal/type environment, issues one fresh resolver catalog
+brand, and returns one non-`Clone` AST-free
+`VerifiedInstanceMethodDeclarationCatalogV1`.
+
+The catalog owns only exact Box/method source identity and semantic
+parameter/result classes (`I64` or `Unit`). Parser invocation provenance is
+retained as provenance; it is not reused as nominal type identity. The issuer
+does not clone rows through the parser inspection API or issue partial
+receipts. `CallableContractSyntaxV1` is carried as typed syntax only; Home
+ABI, Query behavior, body conformance, resolver targets, Recipe/CallSlot,
+Builder/MIR, and physical ABI remain separate unopened boundaries.
+
+This I0 is a resolver semantic declaration receipt, not a production call
+path. The next design stop is the sole Home ABI classifier/issuer, which must
+co-seal with the declaration later without duplicating receiver or result
+ownership meaning.
+
 Lambda syntax is borrowed through an AST-derived view and never cloned into a
 semantic product. A child declaration uses a child-local `BindingId`; raw IDs
 may repeat across owners without aliasing.

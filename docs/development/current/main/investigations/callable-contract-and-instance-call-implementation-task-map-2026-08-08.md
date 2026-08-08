@@ -374,11 +374,23 @@ behind the handoff)
   same-declaration VerifiedHomeAbi relation, and separate body-conformance
   product. No target, Recipe/CallSlot, Builder/MIR, or fallback.
 
+RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
+  consume one AST-free parser handoff by value; issue one fresh resolver-owned
+  nominal/type declaration catalog with exact source sites and semantic
+  `I64`/`Unit` signature classes. Parser provenance is retained only as
+  provenance. Home ABI, Query behavior/conformance, target, Recipe/CallSlot,
+  Builder/MIR, physical ABI, and production remain closed.
+  Task:
+  `docs/development/current/main/investigations/resolver-instance-declaration-signature-i0-implementation-task-2026-08-09.md`
+  Receipt:
+  `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
+  declaration/handoff/source-seal tests.
+
 Current next design stop:
 
 ```text
-LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-D0
-  one semantic signature issuer plus sole Home ABI relation;
+OWN-HOME-CALLABLE-ABI-D0
+  sole Home ABI classifier/issuer co-sealed with the landed declaration;
   no partial receipts, physical ABI inference, target, or Recipe.
 ```
 
