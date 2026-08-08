@@ -503,19 +503,22 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 ```text
 Change:
-  S6A is closed; select the next S6B LoopV0 exits/joins source-to-Recipe
-  correspondence before opening any source observer or physical route
+  S6A is closed; S6B is pinned to the natural LoopBreak fixture, but first
+  close the shared JoinSig mixed-fallthrough/per-arm-payload contract
 Contract:
   keep the ordered M8 cohort on one recursive Recipe algebra; source Facts
   own semantic roles and BindingRefs, producers alone mint Recipe keys, and
-  design/selection must precede implementation
+  JoinSig alone owns conditional transfer/dataflow obligations
 Done:
   S6A Facts/producer, exact Main.main ingress, typed C/D/U/R, duplicate-role
   and source-site rejects, <800-line split, README, reference receipt, and
-  focused tests are green; next row is the named S6B design stop
+  focused tests are green. S6B source membership is selected as
+  `apps/tests/loop_break_plan_subset_min.hako`; the shared JoinSig design is
+  recorded in the named task before implementation
 Stop:
-  missing resolver authority, unresolved source-to-Recipe mapping, AST reread,
-  partial product, or a second selector/physical path returns to design
+  missing resolver authority, unresolved source-to-Recipe mapping, unsealed
+  mixed-fallthrough/per-arm payload semantics, AST reread, partial product,
+  or a second selector/physical path returns to design
 
 ordered successor boundary:
   S6B -> S6C -> S6D -> S6E -> S6G -> M9

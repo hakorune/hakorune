@@ -1235,6 +1235,79 @@ Stop:
   support in `phi_policy.md` or `phi_invariants.md`; update those only after a
   later physical adoption changes their contract.
 
+#### M7-S2-B — `LOOP-JOINSIG-MIXED-FALLTHROUGH-D0` (selected design; implementation pending)
+
+Decision:
+: **Provisional / design-selected.** The deferred S2-B obligation is the
+  shared logical JoinSig contract required by the next M8 S6B LoopBreak cohort.
+  It is not a LoopV0 Recipe kind, a route selector, or a physicalization path.
+
+Change:
+: Extend the one logical `LoopJoinSigV1` branch relation so one branch arm may
+  terminate with a direct `Break`/`Continue` while the other arm falls through,
+  including the implicit fallthrough of `If` with no `else`. Keep
+  `LoopRecipeV1` unchanged: `If { else_block: None }` is the source-neutral
+  representation and no synthetic `else`, `Continue`, or AST rewrite is
+  allowed. The next S6B source cohort is pinned to
+  `apps/tests/loop_break_plan_subset_min.hako`.
+
+Contract:
+: `LoopJoinSigElaboratorV1` remains the sole issuer. Internally it may use a
+  private block-flow summary with an optional normal continuation plus direct
+  exit observations. The published branch relation uses two arm records:
+
+  ```text
+  LoopJoinBranchV1
+    owner_loop
+    if_item
+    condition
+    then_arm: LoopJoinBranchArmV1
+    else_arm: LoopJoinBranchArmV1
+
+  LoopJoinBranchArmV1
+    Exit { exit_item, role: Break|Continue, target_loop, payload }
+    Fallthrough { payload }
+  ```
+
+  A terminal arm does not participate in a binding merge; its payload is
+  captured at the exit site. Two normal arms must agree on binding/value state
+  because no PHI obligation is introduced by this row. A terminal arm plus a
+  normal arm keeps only the normal arm as the block's continuation, while the
+  branch relation records both arm payloads. A no-`else` source supplies an
+  implicit `Fallthrough` arm without creating a source node.
+
+  `LoopJoinLoopV1.edges` continues to own logical loop-level `Break`,
+  `Continue`, and `Backedge` transfer roles; the branch relation owns the
+  conditional origin and per-arm payload. Recipe remains the control-shape
+  authority, JoinSig remains the transfer/dataflow authority, and physical
+  CFG/PHI/Layout ownership remains outside this row.
+
+Implementation boundary:
+: First implementation admits only direct same-loop `Break`/`Continue` arms,
+  one conditional exit site per arm, no `Return`, nested exit, call, opaque
+  effect, or physical consumer. Existing M7-S2-A explicit Break+Continue
+  remains a positive compatibility case under `Exit`/`Exit`; the new positive
+  case is one `Exit` plus one `Fallthrough` with branch-local payloads. Missing
+  source/flow evidence is `Unresolved`; fully observed but unsupported shape is
+  `Declined`; foreign/duplicate/incoherent identity is `Rejected`.
+
+Done:
+: The JoinSig model, private flow summary, and focused tests prove deterministic
+  branch-arm payloads, implicit-else fallthrough, terminal-arm state capture,
+  normal continuation after a branch, and rejection of divergent normal-arm
+  state without a PHI contract. No Recipe key, selector, Builder/MIR/CFG/PHI,
+  physical ID, retry, or fallback is introduced. The implementation commit
+  updates `src/mir/loop_recipe_contract/README.md` and
+  `docs/reference/mir/loop-recipe-contract.md` with the exact envelope,
+  caller-zero status, and non-claims.
+
+Stop:
+: Do not implement S6B source observation or patch `direct_branch_row` ad hoc
+  until this shared JoinSig contract is green. If the natural fixture requires
+  an additional merge/PHI meaning, keep the row at design and open a separate
+  explicit contract rather than synthesizing an `else` or reusing legacy
+  `LoopFacts`.
+
 #### M7-S3 — `JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0` (closed)
 Decision: accepted after independent worker audits; source projection S0,
 policy demand S1, caller-zero Recipe/JoinSig parity S2, and the required
@@ -1295,6 +1368,16 @@ Ordered rows:
   proof into the same `CanonicalLoopFamilySelectionV1` introduced at S2 and
   opens its `NoCandidate` result. It does not create a second selector and its
   production caller remains zero.
+
+S6B dependency:
+: S6B uses the shared `LOOP-JOINSIG-MIXED-FALLTHROUGH-D0` contract above before
+  issuing any source observer or producer. Its natural source is the pinned
+  `loop_break_plan_subset_min.hako` alias: one predicate Loop, one direct
+  same-loop Break under an `If` with implicit fallthrough, then normal carrier
+  and induction updates. `print`/`return` remain callable Tail, not Loop
+  Recipe operations. If the JoinSig dependency is not green, S6B stays
+  `NoSafeSlice`; no adapter-local branch patch or legacy-facts import is
+  allowed.
 
 Contract:
 : 19/19 legacy ingress rows have typed pre-effect decline or one verified
