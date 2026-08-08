@@ -27,8 +27,9 @@ pub use attrs::{DeclarationAttrs, RuneAttr};
 pub use box_method_inventory::{
     BoxMemberGateSiteV1, BoxMethodCompatibilityOriginV1, BoxMethodDeclarationSiteV1,
     BoxMethodDeclarationTransformErrorV1, BoxMethodEntryV1, BoxMethodGateSelectionV1,
-    BoxMethodGeneratedProvenanceV1, BoxMethodInventoryErrorV1, BoxMethodInventoryV1,
-    BoxMethodProvenanceV1, BoxMethodSourceSelectionV1, PreparedGeneratedBoxMethodBatchV1,
+    BoxMethodGeneratedProvenanceV1, BoxMethodInventoryErrorV1, BoxMethodInventoryRoundtripRowV2,
+    BoxMethodInventoryV1, BoxMethodProvenanceV1, BoxMethodSourceSelectionV1,
+    PreparedBoxMethodInventoryRoundtripV2, PreparedGeneratedBoxMethodBatchV1,
     PreparedGeneratedBoxMethodV1,
 };
 pub use build_predicate::BuildPredicate;

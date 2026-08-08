@@ -19,6 +19,11 @@ pub enum BoxMethodInventoryErrorV1 {
         methods: usize,
         ordinals: usize,
     },
+    NonContiguousSelectedMethodOrdinal {
+        expected: u32,
+        found: u32,
+    },
+    EmptySelectedBuildGatePath,
     OrdinalOverflow,
 }
 
@@ -51,6 +56,13 @@ impl fmt::Display for BoxMethodInventoryErrorV1 {
             Self::BranchMemberOrdinalCountMismatch { methods, ordinals } => write!(
                 formatter,
                 "selected Box member gate has {methods} methods but {ordinals} source-member ordinals",
+            ),
+            Self::NonContiguousSelectedMethodOrdinal { expected, found } => write!(
+                formatter,
+                "Box method roundtrip row has selected ordinal {found}; expected contiguous ordinal {expected}",
+            ),
+            Self::EmptySelectedBuildGatePath => formatter.write_str(
+                "selected Box build-gate provenance must contain at least one gate selection",
             ),
             Self::OrdinalOverflow => {
                 formatter.write_str("Box method declaration ordinal exceeds u32")

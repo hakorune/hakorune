@@ -53,6 +53,13 @@ Raw rows still do not issue a resolver-grade source capability. Compatibility
 rows cannot be upgraded. JSON v2 preservation is the separate R4 row; JSON v1
 decoding remains explicitly compatibility-only.
 
+R4 now has an atomic AST reconstruction substrate. A complete set of
+`BoxMethodInventoryRoundtripRowV2` values is preflighted for declaration/name
+identity, duplicate names, contiguous selected ordinals, and non-empty
+selected-gate paths before an infallible inventory construction. This is a
+descriptive transport boundary only; it cannot seal resolver source truth.
+The root schema dispatcher and recursive JSON codec are still pending.
+
 ## Boundaries
 
 - parser: may issue explicit/generated rows through typed methods;

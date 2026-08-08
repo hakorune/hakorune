@@ -7,6 +7,7 @@
 
 mod error;
 mod generated_batch;
+mod roundtrip_v2;
 mod transform;
 
 use std::collections::HashMap;
@@ -15,6 +16,7 @@ use crate::{ASTNode, Span};
 
 pub use error::BoxMethodInventoryErrorV1;
 pub use generated_batch::{PreparedGeneratedBoxMethodBatchV1, PreparedGeneratedBoxMethodV1};
+pub use roundtrip_v2::{BoxMethodInventoryRoundtripRowV2, PreparedBoxMethodInventoryRoundtripV2};
 pub use transform::BoxMethodDeclarationTransformErrorV1;
 
 #[cfg(test)]
@@ -42,6 +44,13 @@ pub struct BoxMethodGateSelectionV1 {
 }
 
 impl BoxMethodGateSelectionV1 {
+    pub const fn from_parts(gate_site: BoxMemberGateSiteV1, branch_member_ordinal: u32) -> Self {
+        Self {
+            gate_site,
+            branch_member_ordinal,
+        }
+    }
+
     pub const fn gate_site(self) -> BoxMemberGateSiteV1 {
         self.gate_site
     }
@@ -60,6 +69,26 @@ pub enum BoxMethodSourceSelectionV1 {
 }
 
 impl BoxMethodSourceSelectionV1 {
+    pub fn selected_build_gate(
+        path: impl Into<Box<[BoxMethodGateSelectionV1]>>,
+    ) -> Result<Self, BoxMethodInventoryErrorV1> {
+        let path = path.into();
+        if path.is_empty() {
+            return Err(BoxMethodInventoryErrorV1::EmptySelectedBuildGatePath);
+        }
+        Ok(Self::SelectedBuildGate { path })
+    }
+
+    fn validate_transport(&self) -> Result<(), BoxMethodInventoryErrorV1> {
+        match self {
+            Self::Direct => Ok(()),
+            Self::SelectedBuildGate { path } if path.is_empty() => {
+                Err(BoxMethodInventoryErrorV1::EmptySelectedBuildGatePath)
+            }
+            Self::SelectedBuildGate { .. } => Ok(()),
+        }
+    }
+
     pub(crate) fn prepend_gate(
         &mut self,
         gate_site: BoxMemberGateSiteV1,
@@ -135,6 +164,18 @@ impl BoxMethodProvenanceV1 {
             | Self::CompatibilityOnly { .. } => {
                 Err(BoxMethodInventoryErrorV1::InvalidSelectedGateProvenance)
             }
+        }
+    }
+
+    fn validate_transport(&self) -> Result<(), BoxMethodInventoryErrorV1> {
+        match self {
+            Self::ExplicitSource { selection }
+            | Self::Generated(BoxMethodGeneratedProvenanceV1::Property { selection, .. })
+            | Self::Generated(BoxMethodGeneratedProvenanceV1::Delegate { selection, .. }) => {
+                selection.validate_transport()
+            }
+            Self::Generated(BoxMethodGeneratedProvenanceV1::MacroOrImport { .. })
+            | Self::CompatibilityOnly { .. } => Ok(()),
         }
     }
 }
