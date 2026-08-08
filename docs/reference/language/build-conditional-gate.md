@@ -280,6 +280,15 @@ evidence remains a separate demand, and the explicit AST-only compatibility arm
 is not a fallback. A top-level no-else source gate still needs an explicit
 typed receipt decision; it must never be silently represented as `Else`.
 
+FINAL D0 typed receipt decision (2026-08-09): the semantic decision outcome
+`BuildGateSelectedBranchV1::{Then, Else, NoElse}` is the receipt's selected
+outcome. `SourceBuildGateBranchV1::{Then, Else}` remains the source/Box path
+segment type. A top-level no-else gate emits one source record and one
+`NoElse` receipt, but no child path; source-seal survival accepts only exact
+Then/Then or Else/Else path/selection matches. Receipt omission, registration
+delay, `Option<Then|Else>`, and `NoElse -> Else` conversion are forbidden.
+Decision evaluation and explain semantics remain unchanged.
+
 ## Explain Report
 
 Build conditional pruning should expose a compact report:

@@ -768,3 +768,27 @@ no Recipe before the exact source-bound call relation
 no production publication before publishable-catalog co-seal
 no Builder/provider/runtime retry or fallback
 ```
+
+## Current parser FINAL sub-row: typed no-else receipt (design stop)
+
+The parser FINAL retirement proof has one remaining typed boundary before any
+caller-zero helper removal. The accepted design is:
+
+```text
+BuildGateSelectedBranchV1::{Then, Else, NoElse}
+  = semantic decision outcome and receipt selected_branch
+
+SourceBuildGateBranchV1::{Then, Else}
+  = source/Box path segment only
+```
+
+Top-level no-else gates emit one source record and one `NoElse` receipt, with no
+child path. Final-seal survival matches only Then/Then and Else/Else; it never
+maps NoElse to Else. Registration delay and receipt omission are rejected
+because they break total source-record/receipt coverage. Explain and decision
+evaluation remain unchanged.
+
+Implementation is a separate bounded parser slice after the D0 design stop;
+it must include positive/negative receipt tests, same-commit reference/README
+updates, and the final/pointer guards. It does not open resolver, Builder,
+MIR, grammar-evidence redesign, compatibility replacement, retry, or fallback.

@@ -317,6 +317,59 @@ solution explicitly (preferred: add `NoElse` to the receipt branch enum while
 keeping path segments Then/Else-only), add positive/negative receipt tests, and
 only then open caller-zero helper retirement. Never map `NoElse` to `Else`.
 
+## Final D0 sub-decision: top-level no-else source receipt
+
+Status: **accepted design; implementation not opened**.
+
+The independent top-down audit selected the explicit receipt outcome:
+
+```text
+decision-set semantic outcome:
+  BuildGateSelectedBranchV1::{Then, Else, NoElse}
+
+source path branch:
+  SourceBuildGateBranchV1::{Then, Else}
+
+selection receipt:
+  selected_branch: BuildGateSelectedBranchV1
+```
+
+This is deliberately not an extension of `SourceBuildGateBranchV1`.
+`NoElse` describes the selected semantic outcome of a top-level gate, not a
+child path. A no-else gate still emits exactly one source record and exactly
+one receipt, preserving finalizer totality. It has no child source path and
+cannot authorize a descendant path. `source_seal_survives` therefore accepts
+only matching Then/Then or Else/Else pairs and rejects/does not survive any
+NoElse/path pairing. Mapping NoElse to Else, using `Option<Then|Else>`, or
+delaying source-ledger registration is forbidden.
+
+The alternate design (B: no receipt until a branch exists) is rejected because
+it breaks the one-record/one-receipt coverage proof and requires a second
+no-selection authority. Explain counters and decision-set evaluation are
+unchanged.
+
+### NoElse implementation task order (opened only after this D0)
+
+1. Remove or quarantine caller-zero `source_gate_prune.rs` and the old explain
+   helper in a separate retirement slice; do not carry their legacy
+   NoElse-to-Else conversion into the new receipt.
+2. Change `BuildGateSelectionReceiptV1.selected_branch` to the existing
+   semantic outcome type (or a parser-private shared alias) and project
+   `NoElse` directly.
+3. Update final-seal survival matching so path segments stay Then/Else-only
+   and NoElse authorizes no descendant path.
+4. Add positive top-level no-else receipt coverage and negative tests for
+   missing, duplicate, foreign, shape-mismatch, and descendant-under-NoElse
+   cases. Preserve Then/Else path behavior exactly.
+5. In the same implementation commit, update parser README, source-handoff
+   SSOT, BuildGate language reference, task map, guard, and current-state
+   receipt. Run focused tests, BuildCfg 12-case gate, pointer/final guards,
+   `cargo fmt --all -- --check`, and `git diff --check`.
+
+No Builder/MIR/CFG/PHI work, grammar-evidence redesign, compatibility-arm
+replacement, public caller switch, retry, reparse, or fallback is part of this
+slice.
+
 FINAL nonclaims:
 
 ```text

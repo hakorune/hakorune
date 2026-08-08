@@ -162,3 +162,18 @@ row must quarantine grammar-evidence and the explicit compatibility arm,
 retire only caller-zero helpers, and never invent a production switch. A
 top-level no-else source receipt must receive an explicit typed representation
 before helper retirement; mapping it to `Else` is forbidden.
+
+The accepted D0 representation is intentionally split by authority:
+
+```text
+BuildGateSelectedBranchV1::{Then, Else, NoElse}
+  = semantic decision outcome carried by the selection receipt
+
+SourceBuildGateBranchV1::{Then, Else}
+  = source/Box path segment only
+```
+
+Every top-level gate keeps one source record and one receipt. `NoElse` creates
+no child path and cannot authorize a descendant; final-seal survival matches
+only Then/Then or Else/Else. NoElse-to-Else mapping and missing receipts are
+not compatibility behavior.

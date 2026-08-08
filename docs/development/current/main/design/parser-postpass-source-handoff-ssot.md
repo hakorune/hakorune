@@ -212,6 +212,42 @@ no-else source gate is represented by the receipt branch type. The preferred
 decision is an explicit `NoElse` receipt branch while path segments remain
 Then/Else-only; mapping `NoElse` to `Else` is forbidden.
 
+### Typed no-else receipt decision (D0, 2026-08-09)
+
+Decision: **accepted — choose A'**.
+
+The decision-set issuer already owns the semantic outcome
+`BuildGateSelectedBranchV1::{Then, Else, NoElse}`. The source receipt must
+carry that same outcome rather than asking the path model to represent it:
+
+```text
+BuildGateSelectedBranchV1
+  -> BuildGateSelectionReceiptV1.selected_branch
+
+SourceBuildGateBranchV1
+  -> remains Then | Else only
+  -> remains the branch segment type for Box/source paths
+```
+
+`NoElse` is a valid top-level source selection receipt with one source record
+and no child path. It is not a path segment and must never be mapped to
+`Else`. `source_seal_survives` may match only `(Then, Then)` and
+`(Else, Else)` path/selection pairs; a `NoElse` selection cannot authorize any
+child path. The finalizer still requires one receipt per top-level source
+record, so `records.len() == receipts.len()` and exact receipt coverage remain
+unchanged.
+
+The rejected alternative is to delay ledger registration or omit a receipt for
+no-else gates. That would break decision-row/source-record totality and force
+a second no-selection proof. No `Option<Then|Else>` encoding and no
+`NoElse -> Else` compatibility mapping is permitted.
+
+The bounded implementation slice is: change only the receipt's selected
+outcome type and projection/final-seal matching, add positive and negative
+receipt tests, and keep explain/decision evaluation unchanged. Caller-zero
+retirement candidates are a separate slice and must not hide this type
+boundary.
+
 ## Finalizer completeness
 
 The finalizer issues `ParserBoxSourceSealV1` exactly once and requires:
