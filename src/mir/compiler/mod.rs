@@ -9,7 +9,6 @@ use super::semantic_refresh::{
 use super::verification::MirVerifier;
 use super::verification_types::VerificationError;
 use std::time::Instant;
-
 #[allow(dead_code)]
 pub(in crate::mir) mod acyclic_callable_graph;
 #[allow(dead_code)]
@@ -783,7 +782,6 @@ impl MirCompiler {
         MirPrinter::new().print_module(module)
     }
 }
-
 fn callable_program_stage_error(
     stage: &'static str,
     error: impl std::fmt::Debug,
@@ -792,7 +790,6 @@ fn callable_program_stage_error(
         detail: format!("[freeze:contract][canonical_callable_module/{stage}] {error:?}"),
     }
 }
-
 impl Default for MirCompiler {
     fn default() -> Self {
         Self::new()

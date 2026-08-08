@@ -502,53 +502,36 @@ records below are evidence only and must not schedule another route.
 
 Current decision and execution brief:
 ```text
-closed prerequisites:
-  RECIPE-COSEAL-I0-R0
-  CANONICAL-FUNCTION-FINISH-TERMINAL-R0
-  LOOP-PHYSICAL-PREPARE-P0
-  CALLABLE-STATIC-PREFIX-P0
-  LOOP-PRELUDE-ARGUMENT-RECEIPT-P0
-
-closed:
-  LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
-  LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0
-  LOOP-RECIPE-OPERATION-EFFECT-S0
-  LOOP-RECIPE-OPERATION-EFFECT-CALLABLE-ADAPTER-S0
-  LOOP-RECIPE-OPERATION-EFFECT-GENERIC-G0-ANCHOR-S0
-  CALLABLE-LOOP-PRODUCTION-FULL-DEMAND-PREFLIGHT-S2
-  CALLABLE-LOOP-PHYSICAL-CANARY-P0
-accepted design: LOOP-CALLER-ZERO-PARITY-G0-D0
-closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
-accepted historical correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
-  LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1, LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2,
-  LOOP-COMMON-RECURSIVE-AFTER-R3-I0, LOOP-COMMON-PREDICATE-CARRIER-I0-R0, and LOOP-CALLER-ZERO-PARITY-G0-I1-R0.
-  Worker-reviewed G0 I1 is implemented. External and independent worker review
-  accepted the S6A variable-accum recurrence design. R0 is now closed as the
-  behavior-preserving common initialized-local input-set migration.
 Change:
-  move the callable-only singular input relation into
-  loop_recipe_contract/input_source.rs as one move-only
-  VerifiedLoopInitializedLocalInputSourceSetV1, retain declaration/
-  initializer/BindingRef/Recipe value/class, and delete the local type.
+  finish the bounded S6A duplicate-role/source-identity and exact source-site
+  coherence negative matrix; add no Recipe kind, selector, or physical route
 Contract:
-  Core remains the Recipe/JoinSig/binding/effect authority. The input set is a
-  sibling initialized-local source contract; Generic parameter inputs remain
-  separate. Callable cardinality stays exactly one, every consumer uses the
-  complete set, and no consumer reconstructs a declaration or extracts a
-  first row. Execution brief:
-  docs/development/current/main/investigations/loop-input-source-relation-set-r0-task-2026-08-08.md
+  resolver -> private observation -> one neutral Facts -> deterministic
+  existing Recipe/JoinSig/Core/input/effect projection; Facts own semantic
+  roles and BindingRefs, never Recipe keys
 Done:
-  R0 implementation is landed: common set validation covers exact input
-  coverage, owner/value/carrier/Core declaration correspondence, and all
-  callable ingress/operation/Prelude/physical consumers use the complete set.
-  Focused callable recipe tests are green and touched source/check files stay
-  below 800 lines. Recipe README, compiler README, and reference receipt were
-  updated in the same closeout. The next S6A row consumes this set at
-  cardinality two.
+  Facts/producer, exact Main.main ingress, typed C/D/U/R, and 2/2/8/11 seals are
+  landed; the current row closes when all remaining identity/coherence rejects,
+  focused guards, <800-line checks, README, and reference receipt are green
 Stop:
-  do not admit the recurrence shape, add S6A provenance, change Core, widen the
-  family selector, emit Builder/MIR effects, or open M9/production/cutover.
-  Any need for a second input authority or partial-row API returns to design.
+  missing resolver authority, overlapping roles, AST reread, partial product,
+  or a second selector/physical path returns to design
+
+ordered successor boundary:
+  S6B -> S6C -> S6D -> S6E -> S6G -> M9
+  -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
+  -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
+  -> LOOP-PHYSICAL-ALWAYS/IF/EXIT-COVERAGE-I0 (one BoxCount commit each)
+  -> LOOP-PRECUTOVER-AUTHORITY-G0
+  -> human LOOP-PRODUCTION-SELECTION-D0 -> M10b -> M11 -> M12
+
+audited pre-cutover correction:
+  co-seal exact resolver Loop source, Core, item/carrier evidence, opaque entry
+  coverage, and Core-owned continuation once; then make JoinSig the sole
+  logical-transfer authority and Layout placement-only. Current split product
+  pairing and Recipe-derived Layout transfers are caller-zero debt, not a
+  production contract. Every implementation row updates the exact README and
+  docs/reference receipt in the same commit; M10b updates it again at cutover.
 ```
 ## Production invariants
 ```text
@@ -976,7 +959,7 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
-  4. after closed G0 I1, complete the shallow M8 S6A source-to-Facts-to-Recipe design/implementation, then S6B-S6G and M9; only afterward perform the separate production-selection design, M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
+  4. after closed G0 I1, complete M8 S6A-S6G and M9; then close the audited semantic-program co-seal, JoinSig transfer authority, separate Always/If/Exit physical coverage, and pre-cutover authority gate before the human production-selection design, M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance

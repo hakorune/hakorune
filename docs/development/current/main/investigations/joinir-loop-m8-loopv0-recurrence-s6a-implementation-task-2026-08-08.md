@@ -106,6 +106,13 @@ retry/fallback retirement, outer print/return tail coverage, or legacy deletion.
 No step may introduce a deeper S6A task suffix. A newly discovered prerequisite
 reopens design rather than being guessed into the implementation.
 
+After this bounded closeout, continue only through S6B-S6G and M9. The audited
+semantic-program co-seal and JoinSig-authorized Layout work are separate
+pre-cutover BoxShape rows owned by the two Loop SSOTs; S6A does not implement
+or bypass them. Their implementation commits must update the exact module
+README and `docs/reference/mir/loop-recipe-contract.md`, and M10b must update
+the reference again when the production caller and legacy retirements change.
+
 ## Code homes
 
 ```text

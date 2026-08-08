@@ -1,6 +1,6 @@
 ---
 Status: Active task-order SSOT
-Date: 2026-08-04
+Date: 2026-08-08
 Decision: accepted — `JOINIR-LOOP-SELFHOST-RECIPE-PIPELINE0-D0`
 Scope: production Loop meaning, selfhost-portable recipe, terminal candidate lowering, and atomic retirement
 Related:
@@ -208,6 +208,81 @@ may add a second selector, route-local physicalizer, AST-bearing Facts
 transport, Builder/MIR owner, retry, or fallback. S6A emits a typed observation
 but does not widen the complete family window; S6G owns all-family selection
 coverage. M9 parity, M10b cutover, and M11/M12 deletion remain closed.
+
+## Pre-cutover semantic-program and transfer authority decision (2026-08-08)
+
+Decision: accepted after external review and two independent repository
+audits. This decision corrects two real caller-zero boundary gaps before any
+production physical activation; it does not reopen S6A or create a universal
+Callable plan.
+
+The first gap is that current canary code can still pair semantic context,
+Core-bearing operation evidence, and a continuation that were issued
+separately. Matching owner and `LoopNodeKey` values are not proof that they
+came from the same resolver Loop site, frame, Recipe, and JoinSig. The target
+therefore has one profile-neutral, move-only compatibility receipt:
+
+```text
+VerifiedLoopSemanticProgramV1
+  = one existing Core-bearing operation/effect product
+  + resolver-issued semantic context
+  + exact LoopNodeKey -> resolver Loop-source relations
+  + complete item/carrier source relations
+  + opaque complete-entry-source coverage receipt
+  + continuation issued from this Core's own JoinSig
+```
+
+The entry-source receipt does not flatten initialized-local inputs and Generic
+parameter inputs into a new universal input authority. Their existing typed
+owners remain distinct; the semantic-program co-seal records only that the
+same Recipe inputs are completely and exactly backed by one admitted owner.
+Callable Prelude, Callable/G0 Tail, return ABI, Completion, physical layout,
+CFG/SSA/PHI, DraftSeal, collector, and publication remain outside this
+product.
+
+The second gap is a confirmed implementation/SSOT mismatch. Current
+`PreparedLoopPhysicalLayoutV1` code derives Predicate true/false, body
+backedge, nested entry, and child-After resume transfers from Recipe without
+consuming JoinSig transfer authority; the recursive CFG writer then consumes
+those derived transfers. The final split is:
+
+```text
+Recipe:
+  Loop/Block/Item structure, item order, and structural segment boundaries
+JoinSig:
+  logical transfer role, source/target ports, carrier payload, and exit/After
+Physical Layout:
+  operation-to-segment placement and verified-transfer-to-segment binding
+Canonical CFG:
+  BasicBlock, edge, terminator, predecessor, and seal
+```
+
+Layout must not infer that a body returns to Header or that Predicate false
+targets After. JoinSig must issue an opaque item/control-point-keyed transfer
+capability, and Layout may only bind that capability to exact segments. A
+private Recipe traversal may be shared by operation scheduling and segment
+construction, but it is not a public Plan, does not contain transfer meaning,
+and cannot become a second Recipe.
+
+The current Facts rule is also fixed for every new cohort:
+
+```text
+Facts:
+  semantic role + BindingRef + exact source site
+Producer:
+  semantic role -> Recipe Binding/Value/Item/Carrier keys
+```
+
+S6A already satisfies this rule. The legacy DirectAccum Facts/effect port that
+stores fixed Recipe binding keys is named M12 migration debt; it is not copied
+into S6A or any later family. Core binding-effect rows and item-source rows
+remain separate verified contracts until Callable/G0/S6A parity proves a safe
+common relation representation. This decision does not merge them by name.
+
+Typed fail-fast remains mandatory. Until JoinSig has exact capabilities for a
+structural family, `Always`, ordinary `If`, and `Exit` remain unsupported in
+the common physical path. Layout-only inference, profile relabeling, and
+fallback to a route-local physicalizer are forbidden.
 
 ## SSOT role disambiguation
 
@@ -626,16 +701,19 @@ common prerequisite. Generic G0 places pre-child, nested-child, and post-child
 items in one logical block, so the current logical-block-to-one-physical-block
 mapping cannot preserve Recipe order. The Builder-free
 `LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1` is now closed: its private layout is
-mechanically derived from Recipe/JoinSig, proves recursive operation order,
-and splits parent pre-child/resume segments. The current next row is
-`LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2`; neutral recursive After and the fresh
-G0 session remain separate later rows.
+derived from Recipe structure, proves recursive operation order, and splits
+parent pre-child/resume segments. A later audit confirmed that its transfer
+rows did not yet consume JoinSig authority; the pre-cutover transfer R0 above
+owns that correction. R2/R3/G0 remain caller-zero evidence, not production
+transfer authority.
 
 ## Recursive segment plan R1 receipt (2026-08-08)
 
 `PreparedLoopOperationProgramV1::prepare_physical_layout` consumes the whole
 prepared program and produces `PreparedLoopPhysicalLayoutV1`. It owns no
-semantic truth: Recipe/JoinSig remain the sole authorities. The Callable and
+semantic truth by contract, but the landed canary still derives transfers from
+Recipe and therefore remains compatibility debt until the JoinSig-authority
+R0 closes. The Callable and
 Generic G0 fixtures prove exact recursive operation order, item coverage, and
 G0's five derived segments (`B0`, `B1` pre-child, `B2`, `B3`, `B1` resume)
 without Builder/MIR effect. R2 alone may bind these segments to canonical
@@ -1265,12 +1343,64 @@ Stop:
   The no-hostbridge claim covers the portable producer subtree, not unrelated
   compatibility providers elsewhere in the canonical builder.
 
+### M10 pre-cutover authority seal — caller-zero only
+
+M8/M9 close logical coverage and parity. They do not by themselves authorize
+the current split semantic products or Recipe-derived physical transfers as a
+production boundary. Before `LOOP-PRODUCTION-SELECTION-D0` and M10b, close
+this shallow ordered series:
+
+1. `LOOP-SEMANTIC-PROGRAM-COSEAL-R0`
+   - add exact Loop-node source relations and a resolver-capability-backed
+     semantic context issuer;
+   - issue continuation only from the JoinSig owned by the moved Core;
+   - co-seal the operation/effect product, node/item/carrier source relations,
+     and one opaque complete-entry-source coverage receipt into
+     `VerifiedLoopSemanticProgramV1`;
+   - migrate Callable, Generic G0, and the M8/M9 producer cohorts to that one
+     input and delete the public split/re-pair ingress;
+   - keep initialized-local and Generic parameter input owners distinct.
+2. `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0`
+   - first extract one private behavior-preserving Recipe traversal used by
+     schedule and segment construction;
+   - make JoinSig issue exact opaque transfer capabilities for the currently
+     admitted Predicate/backedge/nested-resume cohort;
+   - cut Layout, segment allocation, and recursive CFG emission over to those
+     capabilities and delete their direct control-meaning inference;
+   - finish with Callable/G0 parity plus missing, duplicate, foreign, and
+     wrong-target negatives. This is one BoxShape Refactor Series; accepted
+     source shapes do not change inside it.
+3. `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0`,
+   `LOOP-PHYSICAL-IF-COVERAGE-I0`, then
+   `LOOP-PHYSICAL-EXIT-COVERAGE-I0`
+   - each is a separate BoxCount commit after transfer authority is singular;
+   - each adds exactly one structural family through Recipe + JoinSig + the
+     common physicalizer, with fixture/gate and no route-local fallback;
+   - `Exit` includes the exact item-keyed Break/Continue/Return obligations
+     required by the admitted M8 corpus. Unsupported families remain typed
+     fail-fast until their own row lands.
+4. `LOOP-PRECUTOVER-AUTHORITY-G0`
+   - prove every admitted all-19 fixture enters one semantic program, one
+     JoinSig-authorized layout, one canonical CFG/Binding-SSA path, and one
+     whole-session failure boundary;
+   - prove split semantic-program ingress, Layout transfer inference,
+     profile-local CFG/PHI writers, retry, and fallback are zero in the target
+     subtree.
+
+Every implementation commit in this series updates the exact module README
+and `docs/reference/mir/loop-recipe-contract.md` after the implementation
+lands. M10b updates the reference again for the actual production switch and
+retirements. A failed exact co-seal or transfer coverage check returns to
+design; it does not grow another profile adapter.
+
 ### M10b — `JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0` (final; optional M10a bridge is separate)
 
 Entry row:
 : `GENERIC-M10B-DELETION-MANIFEST-S0` freezes the exact current symbols and
   caller counts immediately before cutover. The atomic commit uses that checked
   manifest; names copied from historical docs are never deletion authority.
+  M8/M9 and every M10 pre-cutover authority/coverage row above must already be
+  closed.
 
 Change:
 : Switch `route_loop` to frozen source -> StructuralFacts -> one policy winner
@@ -1336,7 +1466,11 @@ Change:
 : After M10/M11 remove old physical edges, classify each `11/1/1/4/2`
   first-mutation profile, family receipt, and route wrapper as semantic input,
   migration evidence, or duplicate facade; delete migration-only/duplicate
-  rows and keep only source-policy rows producing the common recipe.
+  rows and keep only source-policy rows producing the common recipe. The
+  checked manifest must include DirectAccum's Facts-layer fixed Recipe binding
+  keys, binding port/effect adapter, synthetic 19-row admission/cursor, and
+  any remaining route-local physical/PHI wrapper; none may survive merely
+  because it is caller-zero or test-visible.
 
 Contract:
 : Retirement only: verifier, JoinSig obligation producer, canonical CFG,
@@ -1348,13 +1482,33 @@ Done:
 : Production references to `ComposerMutationFamily`/equivalent legacy
   first-mutation enums and family adapter dispatch are zero. Family-specific
   recipe/verifier/CFG/PHI/physicalizer branches and duplicate producer wrappers
-  are zero; retained route rows are data-only source policy. The terminal
+  are zero; neutral Facts contain no Recipe key, and retained route rows are
+  data-only source policy. The terminal
   physicalizer has one production caller and all parity/quick/release gates green.
 
 Stop:
 : If a retained adapter still owns physical allocation, retry, AST rematch, or
   route selection, M12 is not complete. Keep the exact owner named and repair
   it; do not relabel it as a semantic feature or leave it for selfhost cleanup.
+
+### Post-M12 physical cleanup handoff
+
+After sole Loop authority is proven, run one bounded
+`LOOP-POST-CUTOVER-BOXSHAPE-C0` census before moving files. It classifies each
+Loop module as durable production, bootstrap compatibility, test/oracle, or
+retire candidate and produces an exact move/delete manifest. Only then may a
+2-5 commit behavior-preserving series split the physical homes into neutral
+Recipe contract, source producers, route/migration policy, and physical
+lowering facades.
+
+Compiler-wide header/session opening, non-V2 Ready construction, direct module
+insertion, Collector legacy policy, DraftSeal projection ownership, Context
+splitting, and root facade cleanup stay with the final-pipeline/repository
+cleanup SSOTs. M12 must either delete a Loop-owned occurrence or hand it off by
+exact symbol and owner; an unnamed "later cleanup" is not an accepted
+disposition. Finish with `REPO-FINAL-CONVERGENCE-AUDIT0-G0`, reference/README
+closeout, design-registry classification, zero-caller guards, and a clean
+current-state pointer before the Loop lane is called structurally complete.
 
 ## Complete Loop selfhost lane — reserved after M12
 

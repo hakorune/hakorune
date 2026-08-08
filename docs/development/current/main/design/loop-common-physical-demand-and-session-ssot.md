@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Date: 2026-08-08
-Decision: accepted after external review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r1`
+Decision: accepted after external and independent worker review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r2`
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
 P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop,
 caller-zero `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0`, passive operation/effect S0,
@@ -11,8 +11,10 @@ separates full-demand preflight from leaf emission; the Builder-free
 physicalizer module split, physical block receipt, private ConstI64
 leaf-emitter canary, bounded ReadBinding I0, callable full physical P0, and
 G0 exact-ingress I0 are closed. Top-down review revised the next boundary:
-before a G0 fresh-session canary, one private Builder-free segment/resume
-layout must be mechanically derived from Recipe/JoinSig. Operation production
+the private Builder-free segment/resume layout and bounded G0 fresh-session
+canary are closed. A later audit found that the landed layout still derives
+logical transfers from Recipe instead of consuming JoinSig authority; the
+post-M9 pre-cutover R0 rows below own that correction. Operation production
 activation remains 0. The bounded After-closure canary is green: the real
 Prelude receipt feeds the complete seven-operation Callable dispatch, fixed
 CFG edges, and canonical CFG/identity sealing. The Tail handoff now reads the
@@ -40,11 +42,14 @@ G0 source/input/entry capability is carried by a thin compiler-side composite
 ingress; neutral S4 remains the sole Recipe/effect/After owner. I0 is closed
 as Builder-free exact ingress plus fifteen-row `prepare_all`. R1 is closed as
 a Builder-free derived layout, R2 as a Callable adapter, and R3-I0 as the
-selected Callable exact-segment/neutral-After canary. The post-R3 D1 review
-now owns the only two remaining common contracts: per-transfer Predicate
-value receipts and a profile-neutral `DerivedCarrierEntry` operation. They
-must land before the bounded G0 I1 canary; no named production caller switch
-or G0 physical implementation is open.
+selected Callable exact-segment/neutral-After canary. Per-transfer Predicate
+value receipts, the profile-neutral `DerivedCarrierEntry` operation, and the
+bounded G0 I1 canary are also closed. A later top-down audit found that current
+caller-zero products can still be re-paired and current Layout code still
+derives logical transfers without JoinSig authority. The accepted target is
+unchanged, but semantic-program and transfer-authority R0 rows must close
+after M8/M9 and before production selection. No named production caller
+switch is open.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -78,10 +83,12 @@ resolver / source map
   -> one unpublished function draft
 ```
 
-The canonical full-operation input is the private, move-only, AST-free, and
-physical-ID-free `VerifiedLoopOperationPhysicalDemandV1`. It bundles the
-Core-bearing operation/effect product with one common continuation capability;
-the two are never passed as independent physicalizer arguments. Each thin
+The target canonical full-operation input is a private, move-only, AST-free,
+and physical-ID-free semantic-program receipt which feeds
+`VerifiedLoopOperationPhysicalDemandV1`. It co-seals the Core-bearing
+operation/effect product with one common continuation capability issued by
+that Core's own JoinSig; the two are never independently re-paired at the
+physical boundary. Each thin
 prepared product is move-only and physical-ID-free. Its source-backed input
 must be issued by one existing-owner ingress receipt that pairs the exact
 `ResolvedFunctionLoweringInputV1` with its resolver ledger view and, where the
@@ -117,6 +124,65 @@ second Recipe. Unsupported structural items reject with typed `NoSafeSlice`
 before Builder mutation. Canonical CFG remains the sole physical block/edge/
 terminator owner after the layout is admitted.
 
+### Pre-cutover authority correction (2026-08-08)
+
+Decision: accepted after external review and independent code audits. The
+direction above remains authoritative, but current caller-zero code has two
+known gaps and must not be activated in production yet.
+
+First, current `VerifiedLoopOperationPhysicalDemandV1::issue` accepts semantic
+context, operation/effect product, and continuation as separate verified
+arguments. Its checks establish owner/scope/root-key compatibility but do not
+prove that all three came from the same resolver Loop site/frame and the same
+Core-owned JoinSig. The final issuer is:
+
+```text
+resolver-issued Loop source capability
++ exact LoopNodeKey -> source relations
++ complete item/carrier source relations
++ one existing entry-source owner's complete-coverage receipt
++ Core-bearing operation/effect product
+    -> require continuation from this Core's JoinSig
+    -> VerifiedLoopSemanticProgramV1
+    -> VerifiedLoopOperationPhysicalDemandV1
+```
+
+`VerifiedLoopSemanticProgramV1` owns only the relational proof that these
+existing products describe one executable Loop program. It is not a second
+Core, Recipe, source observer, selector, input owner, or Callable plan. The
+actual initialized-local input set and Generic parameter input contract stay
+typed and distinct; each may issue only an opaque coverage receipt over the
+same Recipe inputs. Raw `VerifiedLoopSemanticContextV1::from_parts`, external
+continuation `from_after`, and the three-argument physical-demand issue path
+are compatibility debt and reach zero callers in the co-seal migration.
+
+Second, current `physical_layout.rs` does not consume JoinSig transfers. It
+reconstructs Predicate true/false, body backedge, nested entry, and child-After
+resume from Recipe; `segment_allocator.rs` also rereads Recipe condition roles,
+and `recursive_after.rs` emits the resulting transfer. This is caller-zero
+evidence, not the accepted final transfer authority.
+
+The corrected physical contract is:
+
+```text
+private Recipe traversal events
+  -> item order and structural segment boundaries only
+JoinSig-issued VerifiedLoopTransferV1
+  -> logical role, exact control point, ports, payload, exit/After obligation
+PreparedLoopPhysicalLayoutV1
+  -> bind each verified transfer and operation to exact segments
+CanonicalCfgSessionV1
+  -> allocate and emit each admitted edge/terminator exactly once
+```
+
+The private traversal event stream may be retained inside
+`PreparedLoopOperationProgramV1` and reused by schedule/layout preparation.
+It carries no control target, is not public, and is never serialized as a
+second Recipe. JoinSig must first gain exact item/control-point-keyed
+capabilities for every admitted family. Therefore current typed
+`UnsupportedAlways`, `UnsupportedIf`, and `UnsupportedExit` remain correct
+until separate BoxCount rows land after the BoxShape authority cutover.
+
 The existing `VerifiedLoopPhysicalDemandV1` is a closed topology-only P0
 compatibility transport. It feeds only the historical caller-zero topology/
 After probe, carries no complete operation/effect ledger, and cannot be
@@ -138,7 +204,8 @@ The existing owners remain authoritative:
 | source membership, owner, frame, Scope/Region | resolver ledger and source map |
 | logical operations, keys, recursive nesting | `LoopRecipeV1` |
 | logical ports, edges, carrier obligations | `LoopJoinSigV1` |
-| source/effect/input relations | `VerifiedLoopRecipeCoSealV1` |
+| source/effect/input relations | existing Core, initialized-local input, Generic parameter-input, item-source, and carrier-source products; none is replaced by the semantic program |
+| cross-product source/Core/continuation compatibility | target `VerifiedLoopSemanticProgramV1`; relational co-seal only |
 | `BindingRef -> ValueId`, lexical SSA | `CanonicalSsaFunctionSessionV2.identity` |
 | physical blocks, predecessors, sealing | `CanonicalCfgSessionV1` |
 | provisional and patched PHI lifecycle | the function session's one `PhiTxn` |
@@ -209,7 +276,7 @@ Tail must never be fused and then split again.
 
 ### Operation physical demand
 
-The full-program preflight consumes this private move-only product:
+The current caller-zero compatibility shape is:
 
 ```text
 VerifiedLoopOperationPhysicalDemandV1 {
@@ -764,6 +831,14 @@ NormalCallableSemanticLoanPortV1
   -> DraftSeal prepare/commit
 ```
 
+Before production activation, `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` replaces the
+three separately supplied semantic fields with one consumed
+`VerifiedLoopSemanticProgramV1`. The demand may retain a private lookup index,
+but it cannot expose `first`/`select`/`filter`, split the semantic program, or
+reconstruct context/continuation from matching keys. The old multi-argument
+issuer and any caller that manufactures context or continuation from parts are
+deleted in the same Refactor Series.
+
 The source-facts step must promote the existing neutral
 `VerifiedSourceSyntaxFactsV1` and `VerifiedCallableSingleLoopSourceMapV1`;
 it must not create a new aggregate Bridge owner. It may consume only
@@ -853,11 +928,68 @@ skip the After closure or reopen a Tail-only route.
 | 15 | `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` | exact segment-to-old-topology adapter and operation placement; Callable parity | **closed 2026-08-08**; not a segment allocator; no G0 physical |
 | 16 | `LOOP-COMMON-RECURSIVE-AFTER-R3-I0` | exact segment allocator, retained completed program, complete transfer preflight, neutral After handoff | **closed 2026-08-08** for Callable caller-zero; G0 physical and production selection remain closed |
 | 17 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D1` | per-transfer Predicate receipts, neutral After boundary, and common DerivedCarrierEntry emitter contract | **accepted design 2026-08-08**; implementation is split into the common I0 row below and G0 I1 |
-| 18 | `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` | common per-transfer Predicate values plus profile-neutral DerivedCarrierEntry emission | next implementation row; no G0 allocation or production selection |
-| 19 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, five segments + root After, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | caller-zero only; no G0-specific physicalizer |
+| 18 | `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` | common per-transfer Predicate values plus profile-neutral DerivedCarrierEntry emission | **closed 2026-08-08**; no G0-specific owner or production selection |
+| 19 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, five segments + root After, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | **closed 2026-08-08** caller-zero; no G0-specific physicalizer |
 | 20 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
-| 21 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
-| 22 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
+| 21 | `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` | exact node/source/entry coverage + Core-owned continuation -> one semantic-program input; migrate callers and delete split issuance | BoxShape Refactor Series; no accepted-shape or production change |
+| 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
+| 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
+| 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
+| 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
+| 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
+| 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
+| 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
+
+### Pre-cutover execution briefs
+
+`LOOP-SEMANTIC-PROGRAM-COSEAL-R0`
+
+```text
+Change:
+  issue one move-only semantic program from existing source/Core authorities;
+  migrate caller-zero Callable/G0/all-route logical products; delete split issue
+Contract:
+  exact resolver site/frame and Core-owned JoinSig are co-branded once;
+  profile input owners, Tail, ABI, Completion, and physical owners stay outside
+Done:
+  mixed-Core/context/continuation and wrong-node/source fixtures reject;
+  raw from_parts/from_after and three-argument demand callers are zero
+Stop:
+  any need to copy input truth, infer source coordinates, or add a selector
+  returns to design
+```
+
+`LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0`
+
+```text
+Change:
+  share one private structural traversal; issue current-cohort transfers from
+  JoinSig; bind them in Layout; delete Recipe-derived transfer inference
+Contract:
+  Recipe owns structure, JoinSig owns logical transfers, Layout owns placement,
+  Canonical CFG owns physical edges; accepted shapes remain unchanged
+Done:
+  Callable/G0 layouts and MIR receipts retain parity; missing/duplicate/foreign/
+  wrong-target transfer fixtures reject; direct Layout/allocator/writer inference
+  callers are zero
+Stop:
+  If/Exit/Always support, profile-specific repair, or a public traversal Plan
+  is a different row and cannot enter this Refactor Series
+```
+
+The three structural-coverage I0 rows each use the same four-block contract:
+
+```text
+Change:
+  add exactly one previously typed-unsupported structural family
+Contract:
+  Recipe + JoinSig + common physicalizer only; no new route or fallback
+Done:
+  one positive fixture, exact transfer/coverage negatives, common guards, and
+  implementation-coupled README/reference update are green
+Stop:
+  a missing JoinSig vocabulary returns to design before Layout or CFG edits
+```
 
 ### Closed implementation receipt: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`
 
@@ -1231,6 +1363,13 @@ accepted target now, but the reference pages must not claim physical,
 production, backend, or retirement capability before the corresponding
 implementation receipt exists.
 
+For the new pre-cutover rows, the co-seal and transfer-authority implementation
+commits each update the reference with their exact caller-zero status; each
+Always/If/Exit BoxCount commit updates the supported structural matrix; M10b
+then updates the same reference once more to record the real production caller
+and removed legacy authorities. A design-only commit does not pre-announce any
+of those capabilities in `docs/reference/**`.
+
 ## Current execution boundary
 
 The architecture, `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, bounded
@@ -1463,5 +1602,8 @@ retry/fallback, collector publication, backend/performance claim, M8/M9
 coverage, or M10b/M11/M12 retirement is opened. The behavior-preserving
 `LOOP-INPUT-SOURCE-RELATION-SET-R0` is now closed: callable consumes the common
 exact-coverage initialized-local input set and Generic parameter inputs remain
-separate. The next row is S6A source-to-Facts-to-Recipe implementation; current
-source task order is owned by the Loop pipeline SSOT and `CURRENT_STATE.toml`.
+separate. S6A's caller-zero Facts/producer and typed Main C/D/U/R ingress are
+landed; its exact identity/source-coherence negative closeout remains current.
+After M8/M9, the semantic-program and transfer-authority rows above are the
+mandatory production-selection prerequisites. Current source task order is
+owned by the Loop pipeline SSOT and `CURRENT_STATE.toml`.

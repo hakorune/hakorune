@@ -6,8 +6,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROBE="$ROOT/checks/route_env_probe.sh"
 
-if [[ ! -x "$PROBE" ]]; then
-  echo "[FAIL] route_no_fallback_guard: probe missing/executable: $PROBE" >&2
+if [[ ! -f "$PROBE" ]]; then
+  echo "[FAIL] route_no_fallback_guard: probe missing: $PROBE" >&2
   exit 1
 fi
 
@@ -16,7 +16,7 @@ if [[ ! -x "${NYASH_BIN:-$ROOT/../target/release/hakorune}" ]]; then
 fi
 
 for route in direct hako-mainline; do
-  out="$("$PROBE" --route "$route" --require-no-fallback)"
+  out="$(bash "$PROBE" --route "$route" --require-no-fallback)"
   if ! printf '%s\n' "$out" | rg -q "\\[route_env_probe\\] route = ${route}$"; then
     echo "[FAIL] route_no_fallback_guard: route marker missing for $route" >&2
     printf '%s\n' "$out" >&2
