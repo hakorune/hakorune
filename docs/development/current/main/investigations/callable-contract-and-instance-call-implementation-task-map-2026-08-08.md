@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A closed, R6-S3B-B design stop
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0 closed, R6-S3B-B1 active
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -216,9 +216,9 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
 ```
 
 The parser rows are R6-S3 design/implementation boundaries; R6-S3A,
-R6-S3B-D0, and S3B-A are closed. S3B-B is the current design stop; B0
-through B3 are the only subsequent parser implementation
-slices. The latter five callable rows remain resolver/callable rows. Do not create a parallel
+R6-S3B-D0, S3B-A, and S3B-B0 are closed. S3B-B1 is the active parser
+implementation slice for path transport only; B2/B3 remain closed. The
+latter five callable rows remain resolver/callable rows. Do not create a parallel
 implementation lane for them.
 
 `NoSafeSlice` means a required issuer is not implemented. It is not a source

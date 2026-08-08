@@ -314,6 +314,28 @@ focused tests, guard/index, active task receipt, and the affected
 `docs/reference/**` document in the same commit. Every touched source file
 uses the 760-line split trigger and may not cross 800 lines.
 
+## R6-S3B-B1 implementation receipt
+
+Closed implementation scope for B1 is parser-private path transport only:
+
+```text
+NyashParser
+  -> parser-issued SourceBuildGateIdV1
+  -> SourceBuildGateBranchV1
+  -> SourceBoxPathCursorV1 child ordinals
+  -> SourceBoxDeclarationPathV1
+  -> OpenBoxMethodSourceTransactionV1::open_with_path
+```
+
+The path is installed while each gate child is parsed and restored when that
+child returns. Direct top-level Boxes use a root path; Boxes in the same gate
+branch receive distinct child ordinals; nested gates append another segment.
+The path is carried by `SourceBoxDeclarationSiteV1` and is never reconstructed
+from the final AST or inventory order.
+
+This receipt does not open `BuildGateSelectionReceiptV1`, source-session
+prune/rebase, delegate relation transport, or final top-level gate sealing.
+
 ## Nonclaims until R6-S3B-D closes
 
 ```text

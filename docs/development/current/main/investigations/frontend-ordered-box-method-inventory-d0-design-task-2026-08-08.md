@@ -645,9 +645,9 @@ Required S3B decision receipts are:
 4. projection parity tests proving AST-only and rich paths parse once;
 5. a guard and reference update in the same implementation slice later.
 
-The S3B-D0 receipts are accepted and S3B-A is closed. `R6-S3B-B` is now the
-current design stop for top-level gate path/cursor and atomic source-session
-prune/rebase. Until B-D0 is accepted, do not add top-level gate rebase,
+The S3B-D0 receipts are accepted and S3B-A/B0 are closed. `R6-S3B-B1` is now
+the active implementation cell for top-level gate path/cursor transport only.
+Atomic source-session prune/rebase remains B2; do not add top-level gate rebase,
 source-aware delegate transport, interface/static/record seals, Hako parser
 parity, resolver declaration, `CallableContract`, target, Recipe, Builder,
 MIR, provider, or runtime code.
@@ -680,6 +680,20 @@ complete source session atomically. The final AST ordinal remains forbidden
 as source identity. B1 is active for path/cursor transport only; B2/B3 remain
 closed. Delegate relation,
 interface/static/record, Hako, resolver, and MIR work stay closed.
+
+### R6-S3B-B1 implementation receipt
+
+B1 adds only parser-private structural transport. `NyashParser` issues a
+monotonic `SourceBuildGateIdV1`, tracks the active
+`SourceBoxDeclarationPathV1`, and installs a `SourceBoxPathCursorV1` for each
+gate branch. Multiple Boxes in one branch receive different child ordinals;
+nested gates append segments. `OpenBoxMethodSourceTransactionV1` consumes the
+path directly, so no final-AST or inventory-ordinal reconstruction is used.
+
+Focused parser-session tests cover direct, sibling, and nested gate paths. The
+B1 guard and callable-contract reference are updated in the same implementation
+slice. `BuildGateSelectionReceiptV1`, consume-return source-session
+prune/rebase, and all later resolver/delegate work remain unimplemented.
 
 ## Ordered implementation series
 

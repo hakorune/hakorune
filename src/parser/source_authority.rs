@@ -38,19 +38,27 @@ impl PartialEq for ParserInvocationBrandV1 {
 
 impl Eq for ParserInvocationBrandV1 {}
 
+pub(super) use super::source_path::{
+    SourceBoxDeclarationPathV1, SourceBoxPathCursorV1, SourceBoxPathSegmentV1,
+    SourceBuildGateBranchV1, SourceBuildGateIdV1,
+};
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct SourceBoxDeclarationSiteV1 {
-    brand: ParserInvocationBrandV1,
-    statement_ordinal: u32,
+    path: SourceBoxDeclarationPathV1,
 }
 
 impl SourceBoxDeclarationSiteV1 {
     pub(super) fn statement_ordinal(&self) -> u32 {
-        self.statement_ordinal
+        self.path.root_statement_ordinal().unwrap_or_default()
+    }
+
+    pub(super) fn path(&self) -> &SourceBoxDeclarationPathV1 {
+        &self.path
     }
 
     fn brand_matches(&self, brand: &ParserInvocationBrandV1) -> bool {
-        self.brand.same_as(brand)
+        self.path.brand().same_as(brand)
     }
 }
 
@@ -267,10 +275,18 @@ pub(super) struct OpenBoxMethodSourceTransactionV1 {
 
 impl OpenBoxMethodSourceTransactionV1 {
     pub(super) fn open(brand: ParserInvocationBrandV1, statement_ordinal: u32) -> Self {
-        let box_site = SourceBoxDeclarationSiteV1 {
-            brand: brand.clone(),
-            statement_ordinal,
-        };
+        Self::open_with_path(
+            brand.clone(),
+            SourceBoxDeclarationPathV1::root(brand, statement_ordinal),
+        )
+    }
+
+    pub(super) fn open_with_path(
+        brand: ParserInvocationBrandV1,
+        path: SourceBoxDeclarationPathV1,
+    ) -> Self {
+        debug_assert!(path.brand().same_as(&brand));
+        let box_site = SourceBoxDeclarationSiteV1 { path };
         Self {
             brand,
             box_site,
@@ -570,8 +586,7 @@ mod tests {
         let foreign_site = SourceBoxMethodSiteV1::Direct {
             member: SourceBoxMemberSiteV1 {
                 box_site: SourceBoxDeclarationSiteV1 {
-                    brand: foreign,
-                    statement_ordinal: 1,
+                    path: SourceBoxDeclarationPathV1::root(foreign, 1),
                 },
                 member_ordinal: 0,
             },

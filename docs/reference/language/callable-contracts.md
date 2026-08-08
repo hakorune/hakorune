@@ -263,6 +263,14 @@ single AST projection of the finalized rich product for direct ordinary Rust
 `box` only. Top-level gate structural paths and source-aware delegate
 relations remain closed for S3B-B/C/D.
 
+R6-S3B-B1 receipt (2026-08-08): parser-private top-level build-gate source
+paths now carry an invocation brand, parser-issued gate id, branch, and child
+ordinal through `SourceBoxDeclarationPathV1`. Box source transactions consume
+that path directly, including distinct paths for multiple Boxes in one branch
+and nested-gate paths. This is transport only; branch selection receipts,
+prune/rebase, delegate relations, resolver contracts, and callable activation
+remain closed for later S3B-B2/B3/C/D rows.
+
 ## Related references
 
 - [Rune declaration metadata](runes.md)

@@ -68,14 +68,15 @@ fn parse_box_declaration_after_box_keyword(
     let (name, type_parameters, extends, implements) = header::parse_header(p)?;
 
     p.consume(TokenType::LBRACE)?;
-    let statement_ordinal =
-        p.active_source_statement_ordinal()
+    let source_path =
+        p.active_source_declaration_path()
+            .cloned()
             .ok_or_else(|| ParseError::BuildCfg {
-                message: "Box source transaction requires an active top-level statement".to_owned(),
+                message: "Box source transaction requires an active parser source path".to_owned(),
                 line: p.current_token().line,
             })?;
     let source_tx =
-        OpenBoxMethodSourceTransactionV1::open(p.source_invocation_brand(), statement_ordinal);
+        OpenBoxMethodSourceTransactionV1::open_with_path(p.source_invocation_brand(), source_path);
     let mut state = BoxMemberState::with_source_transaction(source_tx);
     parse_box_member_body(p, &mut state)?;
     p.consume(TokenType::RBRACE)?;

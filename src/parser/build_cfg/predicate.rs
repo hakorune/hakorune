@@ -1,5 +1,6 @@
 use crate::ast::{ASTNode, BuildPredicate, Span};
 use crate::parser::common::ParserUtils;
+use crate::parser::source_authority::{SourceBoxPathCursorV1, SourceBuildGateBranchV1};
 use crate::parser::statements::helpers::AnnotationSite;
 use crate::parser::{BuildMode, NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -29,16 +30,36 @@ impl NyashParser {
 
     pub(crate) fn parse_build_gate_item(&mut self) -> Result<ASTNode, ParseError> {
         let line = self.current_token().line;
+        let parent_path = self
+            .active_source_declaration_path()
+            .cloned()
+            .ok_or_else(|| ParseError::BuildCfg {
+                message: "build-gate source path requires an active parser path".to_owned(),
+                line,
+            })?;
+        let gate_id = self.issue_source_build_gate_id()?;
         self.consume_build_gate_head()?;
         let predicate = self.parse_build_predicate()?;
-        let then_items = self.parse_build_gate_item_block()?;
+        let then_items = self.parse_build_gate_item_block(
+            parent_path.clone(),
+            gate_id,
+            SourceBuildGateBranchV1::Then,
+        )?;
 
         let else_items = if self.match_token(&TokenType::ELSE) {
             self.advance();
             if self.is_build_gate_head() {
-                Some(vec![self.parse_build_gate_item()?])
+                let child_path = parent_path.child(gate_id, SourceBuildGateBranchV1::Else, 0);
+                let previous = self.active_source_declaration_path.replace(child_path);
+                let nested = self.parse_build_gate_item();
+                self.active_source_declaration_path = previous;
+                Some(vec![nested?])
             } else {
-                Some(self.parse_build_gate_item_block()?)
+                Some(self.parse_build_gate_item_block(
+                    parent_path,
+                    gate_id,
+                    SourceBuildGateBranchV1::Else,
+                )?)
             }
         } else {
             None
@@ -65,9 +86,15 @@ impl NyashParser {
         }
     }
 
-    fn parse_build_gate_item_block(&mut self) -> Result<Vec<ASTNode>, ParseError> {
+    fn parse_build_gate_item_block(
+        &mut self,
+        parent_path: crate::parser::source_authority::SourceBoxDeclarationPathV1,
+        gate_id: crate::parser::source_authority::SourceBuildGateIdV1,
+        branch: SourceBuildGateBranchV1,
+    ) -> Result<Vec<ASTNode>, ParseError> {
         self.consume(TokenType::LBRACE)?;
         let mut items = Vec::new();
+        let mut cursor = SourceBoxPathCursorV1::new(parent_path, gate_id, branch);
 
         while !self.is_at_end() {
             self.skip_statement_separators();
@@ -78,11 +105,18 @@ impl NyashParser {
                 continue;
             }
 
-            let mut item = if self.is_build_gate_head() {
+            let item_path = cursor.next_child().ok_or_else(|| ParseError::BuildCfg {
+                message: "build-gate child path ordinal exceeds u32".to_owned(),
+                line: self.current_token().line,
+            })?;
+            let previous = self.active_source_declaration_path.replace(item_path);
+            let item = if self.is_build_gate_head() {
                 self.parse_build_gate_item()?
             } else {
                 self.parse_statement()?
             };
+            self.active_source_declaration_path = previous;
+            let mut item = item;
             self.attach_pending_runes_to_declaration(&mut item)?;
             items.push(item);
         }

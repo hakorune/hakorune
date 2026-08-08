@@ -37,6 +37,7 @@ mod lifecycle;
 pub(crate) mod log;
 mod runes;
 mod source_authority;
+mod source_path;
 mod source_seal;
 #[cfg(test)]
 mod source_session_tests;
@@ -125,6 +126,11 @@ pub struct NyashParser {
     /// sites. It is parser-session state only; no seal is issued here.
     pub(super) next_source_statement_ordinal: u32,
     pub(super) active_source_statement_ordinal: Option<u32>,
+    /// Parser-issued structural path for the currently parsed declaration.
+    /// This is richer than the top-level statement cursor because multiple
+    /// Boxes may occur inside one build-gate branch.
+    pub(super) active_source_declaration_path: Option<source_authority::SourceBoxDeclarationPathV1>,
+    pub(super) next_source_build_gate_id: u32,
     /// 🔥 Static box依存関係追跡（循環依存検出用）
     pub(super) static_box_dependencies:
         std::collections::HashMap<String, std::collections::HashSet<String>>,
@@ -157,6 +163,8 @@ impl NyashParser {
             source_invocation_brand: source_authority::ParserInvocationBrandV1::issue(),
             next_source_statement_ordinal: 0,
             active_source_statement_ordinal: None,
+            active_source_declaration_path: None,
+            next_source_build_gate_id: 0,
             static_box_dependencies: std::collections::HashMap::new(),
             debug_fuel: Some(100_000), // デフォルト値
             pending_runes: Vec::new(),
@@ -180,6 +188,26 @@ impl NyashParser {
 
     pub(super) fn active_source_statement_ordinal(&self) -> Option<u32> {
         self.active_source_statement_ordinal
+    }
+
+    pub(super) fn active_source_declaration_path(
+        &self,
+    ) -> Option<&source_authority::SourceBoxDeclarationPathV1> {
+        self.active_source_declaration_path.as_ref()
+    }
+
+    pub(super) fn issue_source_build_gate_id(
+        &mut self,
+    ) -> Result<source_authority::SourceBuildGateIdV1, ParseError> {
+        let raw = self.next_source_build_gate_id;
+        self.next_source_build_gate_id =
+            self.next_source_build_gate_id
+                .checked_add(1)
+                .ok_or_else(|| ParseError::BuildCfg {
+                    message: "parser source build-gate id exceeds u32".to_owned(),
+                    line: self.current_token().line,
+                })?;
+        Ok(source_authority::SourceBuildGateIdV1::from_raw(raw))
     }
 
     pub(super) fn register_prepared_source_seal(
@@ -449,12 +477,18 @@ impl NyashParser {
                     line: self.current_token().line,
                 })?;
             self.active_source_statement_ordinal = Some(statement_ordinal);
+            self.active_source_declaration_path =
+                Some(source_authority::SourceBoxDeclarationPathV1::root(
+                    self.source_invocation_brand(),
+                    statement_ordinal,
+                ));
             let mut statement = if self.is_build_gate_head() {
                 self.parse_build_gate_item()?
             } else {
                 self.parse_statement()?
             };
             self.active_source_statement_ordinal = None;
+            self.active_source_declaration_path = None;
             self.attach_pending_runes_to_declaration(&mut statement)?;
             statements.push(statement);
         }
