@@ -13,6 +13,13 @@ input/condition/update/step/coverage observations co-seal into one move-only
 `VerifiedVariableAccumRecurrenceFactsV1`, then deterministically issue only the
 existing Recipe, JoinSig, Core, input-set, and operation/effect products.
 
+This is one bounded implementation cohort, not a new S6A suffix ladder. The
+source observer may use private input/condition/update/step/coverage DTOs, but
+the only neutral product is the one atomic Facts aggregate. It must retain the
+resolver-issued non-Clone loop capability and exact frame/site identity; the
+producer consumes Candidate once and never re-reads AST, resolves names, or
+reclassifies the family.
+
 ## Contract
 
 The accepted D0 card and Loop pipeline SSOT own the exact source membership,
@@ -39,9 +46,45 @@ The same implementation commit updates `src/mir/compiler/README.md`,
 Focused tests, current-pointer, Recipe in-place/no-fallback guards, formatting,
 and `git diff --check` must pass.
 
+The acceptance matrix must distinguish the four source outcomes using this
+precedence: foreign/duplicate identity conflict = `Rejected`; missing or
+opaque required evidence = `Unresolved`; fully observed non-family shape =
+`Declined`; exact complete shape = `Candidate`. `NoSafeSlice` is only the
+development status before the observer contract exists and is never emitted as
+a fifth disposition.
+
+The landed receipt must state the exact relation cardinalities:
+
+```text
+2 input-source relations
+2 Recipe binding relations
+8 Core binding-effect relations
+11 item-source operation relations
+```
+
+It must also state the source-anchor rule: reads use variable-reference
+expressions, constants use literal expressions, Compare/Add use whole binary
+expressions, writes use assignment targets, carrier entries use Loop statement
+plus carrier key, and inputs use declaration plus initializer expression.
+
 ## Stop
 
 Return to design for missing resolver authority, incomplete/overlapping source
 roles, a need to re-read AST in the producer, or any second selector/physical
 route. Do not claim all-19 coverage, M9 parity, production activation,
 retry/fallback retirement, outer print/return tail coverage, or legacy deletion.
+
+## Implementation order
+
+```text
+1. audit and consume existing resolver/source capability
+2. private source observations
+3. atomic Facts + C/D/U/R disposition
+4. deterministic existing-Recipe projection
+5. complete input/Core/operation-source seals and golden
+6. negative/identity/coverage/line-count guards
+7. same-commit README and reference closeout
+```
+
+No step may introduce a deeper S6A task suffix. A newly discovered prerequisite
+reopens design rather than being guessed into the implementation.

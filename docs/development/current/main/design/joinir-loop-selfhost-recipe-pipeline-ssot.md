@@ -103,6 +103,68 @@ input relations. `print(acc)` and `return 0` remain outside Loop membership as
 an unclaimed callable tail. `NoSafeSlice` is a development state, never a
 fifth source disposition.
 
+### S6A contract closeout (external review, 2026-08-08)
+
+The public boundary is deliberately one aggregate, even though the compiler
+projection may use private partial observations. The only neutral product that
+may cross the source-to-Facts boundary is
+`VerifiedVariableAccumRecurrenceFactsV1`; condition, update, step, input, and
+coverage DTOs are private implementation details and cannot be independently
+verified or mixed across frames.
+
+The owner split is fixed as follows:
+
+```text
+resolver:
+  owner/origin/source-kind/site/frame/scope and BindingRef identity
+observer:
+  exact as-written shape, semantic source roles, and complete coverage
+Facts:
+  one co-sealed recurrence meaning and its non-Clone source capability
+producer:
+  deterministic role -> existing Recipe/JoinSig/Core/input/effect projection
+Recipe/JoinSig/Core:
+  existing structural/dataflow/source-bound contracts only
+physical layers:
+  no S6A authority or caller
+```
+
+The observer does not mint `LoopBindingKeyV1`, `LoopItemKeyV1`, route IDs, or
+physical IDs. The producer consumes the Candidate exactly once and never
+re-reads AST, resolves names, or reclassifies the family. A resolver-issued
+source capability and its exact frame/site identity are retained until the
+Facts aggregate is sealed; coordinates alone cannot recreate that authority.
+
+The four relation families are independent cardinality checks over one sealed
+source-role map, not four competing truths:
+
+```text
+input-source relations          = 2
+Recipe binding relations        = 2
+Core binding-effect relations   = 8
+item-source operation relations = 11
+```
+
+Operation-source anchors are fixed by semantic operation kind: variable reads
+use the exact variable-reference expression, constants use the literal
+expression, Compare/Add use the whole binary expression, writes use the exact
+assignment target, carrier entries use the Loop statement plus carrier key,
+and inputs use the declaration plus initializer expression. Statement sites
+are never reconstructed from Recipe ordinals.
+
+Disposition precedence is structural and fail-fast:
+
+```text
+identity/foreign/duplicate conflict -> Rejected
+required source evidence unavailable -> Unresolved
+fully observed non-family shape     -> Declined
+fully observed exact shape          -> Candidate
+```
+
+`NoSafeSlice` is not a disposition. It means that the observer contract is not
+implemented or safely issuable yet; it must not be emitted as a fifth outcome
+or used as a retry/fallback signal.
+
 `LOOP-INPUT-SOURCE-RELATION-SET-R0` is now closed: it moved the existing
 callable-only singular initialized-local input relation into the common Recipe
 contract and sealed an exact move-only initialized-local set. Callable retains

@@ -67,6 +67,16 @@ first/filter/ordinal reconstruction API exists. Empty, duplicate, foreign-owner,
 missing-carrier, class, declaration, and binding mismatches fail before Builder
 effects.
 
+S6A keeps the same one-owner rule for the recurrence source map. Private
+condition/update/step observations never become separate verified products;
+`VerifiedVariableAccumRecurrenceFactsV1` is the only neutral handoff. Its
+producer consumes a Candidate once and projects exactly 2 input, 2 binding, 8
+Core-effect, and 11 item-source relations into the existing owners. Reads,
+constants, binary expressions, assignment targets, carrier entries, and
+initializer declarations use their exact owned source anchors; Recipe ordinals
+are not source lookup keys. `NoSafeSlice` is a development stop, not a source
+disposition, and no S6A selector or physicalizer is opened here.
+
 The audited `loop_simple_while_inline_explicit_step_min.hako` fixture remains
 Declined by the existing SimpleWhile, DirectAccum, and Generic G0 observers.
 No route relabel, DirectAccum widening, new Recipe kind, selector/physicalizer,

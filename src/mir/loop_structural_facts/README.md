@@ -1,5 +1,34 @@
 # Loop Structural Facts
 
+## M8 S6A variable-accum recurrence boundary
+
+The future `VariableAccumRecurrenceV1` observer is the sole source-family
+owner for `acc = acc + i; i = i + 1`. Its compiler projection may use private
+partial observations, but exactly one AST-free move-only aggregate,
+`VerifiedVariableAccumRecurrenceFactsV1`, crosses this module boundary.
+
+The aggregate retains resolver-issued owner/origin/source-kind/site/frame and
+scope identity, two distinct local `BindingRef` roles, two initializer inputs,
+the condition/update/step roles, and complete source coverage. It does not
+mint Recipe/JoinSig keys, route IDs, ValueId/BasicBlockId, or physical facts.
+
+The source-role map is sealed with these exact cardinalities:
+
+```text
+input-source relations          = 2
+Recipe binding relations        = 2
+Core binding-effect relations   = 8
+item-source operation relations = 11
+```
+
+Private DTOs are not independent verified products. The producer consumes a
+Candidate once and projects only into the existing neutral Recipe/Core/input/
+operation owners. `NoSafeSlice` is a development status, not a source
+disposition. Source outcomes are `Candidate`, `Declined`, `Unresolved`, or
+`Rejected`, with identity conflict first, missing evidence second, and fully
+observed shape mismatch third. `print(acc)` and `return 0` remain callable-tail
+evidence outside this Facts boundary.
+
 ## Generic G0 S0A
 
 `generic_g0/` is the sole issuer of `VerifiedGenericStructuralFactsG0`.

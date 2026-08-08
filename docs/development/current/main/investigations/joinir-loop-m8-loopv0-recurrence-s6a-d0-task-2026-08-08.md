@@ -1,6 +1,6 @@
 # JOINIR Loop M8 LoopV0 recurrence S6A — accepted design decision
 
-Status: `accepted design; implementation blocked on LOOP-INPUT-SOURCE-RELATION-SET-R0`
+Status: `accepted design; R0 prerequisite closed; implementation is the next caller-zero row`
 Date: 2026-08-08
 Parent: `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`
 Decision row: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`
@@ -239,6 +239,41 @@ Initializers are not Loop operations. They are two external input-source
 relations co-sealed beside Core. `print(acc)` and `return 0` are an outer
 callable tail and remain outside S6A.
 
+### Contract closeout and disposition precedence
+
+The observer may split work into private DTOs for inputs, condition, update,
+step, and coverage, but exactly one move-only aggregate crosses the neutral
+boundary. No partial DTO is independently verified, cloneable source truth,
+or reusable input to a second producer. The resolver, observer, Facts,
+producer, and existing Recipe/JoinSig/Core owners are separated as follows:
+
+```text
+resolver:  owner/origin/source-kind/site/frame/scope + BindingRef identity
+observer:  exact source shape, semantic roles, and complete coverage
+Facts:     one recurrence meaning + resolver-issued non-Clone capability
+producer:  deterministic role -> existing neutral Recipe products
+lowering:  no S6A authority or caller
+```
+
+Operation-source anchors are exact and typed: variable reads use the variable
+reference expression; constants use the literal expression; Compare/Add use
+the whole binary expression; writes use the assignment target; carrier entries
+use the Loop statement plus carrier key; and inputs use declaration plus
+initializer expression. Recipe ordinals never reconstruct a source site.
+
+When several failures are present, the observer uses this precedence:
+
+```text
+foreign/duplicate/identity conflict -> Rejected
+missing or opaque required evidence  -> Unresolved
+fully observed non-family shape       -> Declined
+fully observed exact shape            -> Candidate
+```
+
+`NoSafeSlice` remains a development status meaning that this observer contract
+is not safely issuable yet. It is not a fifth source disposition and never
+authorizes retry, fallback, or route selection.
+
 ## Selected prerequisite
 
 The existing callable-only `VerifiedLoopInputRelationV1` already owns the same
@@ -310,6 +345,27 @@ common input-set R0. It must have:
 After S6A implementation, update the reference receipt again with
 the landed producer. The final reference update is required again at M10b
 production cutover; this design card itself makes no production claim.
+
+## Ordered implementation cells
+
+The implementation is one bounded cohort. Do not create deeper `S6A-S1-S2`
+task suffixes. The cells are internal execution order, not new semantic
+owners:
+
+```text
+1. audit existing resolver capability (no new resolver owner unless required)
+2. issue private source observations from the exact resolved input
+3. co-seal Candidate Facts and typed C/D/U/R disposition
+4. project the one source-role map into existing Recipe/JoinSig/Core/input/effect products
+5. seal complete 11-item operation/source coverage and normalized golden
+6. add negative matrix and caller-zero/AST-free/line-count guards
+7. update module READMEs and docs/reference in the same implementation commit
+```
+
+The first executable code may be Builder-free only. If any cell needs AST
+re-reading after Facts, a second selector, a route-specific physicalizer, or
+an unresolved resolver capability, stop and replace this card with one explicit
+design decision before editing further.
 
 ## Ordered follow-on work
 

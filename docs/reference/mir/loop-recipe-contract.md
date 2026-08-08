@@ -990,8 +990,8 @@ and again after production cutover.
 
 ## M8 S6A design decision (2026-08-08)
 
-Decision: accepted; implementation is blocked on
-`LOOP-INPUT-SOURCE-RELATION-SET-R0`.
+Decision: accepted; `LOOP-INPUT-SOURCE-RELATION-SET-R0` is closed and the
+resolver-backed S6A implementation row is now the next caller-zero step.
 
 The inspected
 `apps/tests/loop_simple_while_inline_explicit_step_min.hako` fixture has
@@ -1015,6 +1015,19 @@ The condition normalizes as `Const -> Read -> Compare`; accumulator and step
 normalize as `Read -> Read/Const -> Add -> Write`. Initializers remain external
 input relations, while `print(acc)` and `return 0` remain an unclaimed callable
 tail. `NoSafeSlice` is a development state, not a fifth source disposition.
+
+The source-to-Facts boundary is one atomic product even when the compiler
+projection uses private partial observations. Resolver-issued owner/site/frame
+and `BindingRef` identity stay with the non-Clone capability until the Facts
+aggregate is sealed; the producer does not re-read AST or reclassify the family.
+Source anchors are exact: variable references for reads, literal expressions
+for constants, whole binary expressions for Compare/Add, assignment targets for
+writes, Loop statement plus carrier key for carrier entries, and declaration
+plus initializer expression for inputs. The four relation families are
+cardinality checks over one source-role map: 2 input, 2 binding, 8 Core-effect,
+and 11 item-source relations. Disposition precedence is Rejected for identity
+conflict, Unresolved for unavailable evidence, Declined for a fully observed
+non-family shape, and Candidate only for the exact complete shape.
 
 R0 first replaces callable's singular initialized-local input relation with
 one common move-only exact-coverage initialized-local set without changing
