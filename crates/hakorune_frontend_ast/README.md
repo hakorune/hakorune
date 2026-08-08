@@ -30,7 +30,8 @@ Raw `ExplicitSource` provenance is also descriptive. A later parser-owned seal
 must prove complete parsing, duplicate freedom, selected Box membership, and
 exact source identity before lending resolver-grade rows.
 
-Current status: R5 is closed. `ASTNode::BoxDeclaration.methods` now stores
+Current status: R6-S3B-D-I0 is the active parser final-seal slice; R5 is
+closed. `ASTNode::BoxDeclaration.methods` now stores
 `BoxMethodInventoryV1`, and compatibility consumers use explicitly named
 exact-lookup, selected-order, name-order, or `CompatibilityOnly` projections.
 The old public HashMap field and arbitrary mutable method access are gone.
@@ -125,6 +126,14 @@ crate only supplies descriptive
 inventory operations; the rich parser product owns postpass handoff and the
 single AST projection. Gate structural paths and source-aware delegate
 relations are later parser slices.
+
+Current-state rule: the status line above is the only live status in this
+README. The R1--R6 paragraphs below are landed receipts and historical
+context; they must not be read as a new active row. D-I0 now retains complete
+generated-delegate relation rows in the sole parser-owned non-Clone seal.
+The remaining D-I0 condition is caller-zero retirement of the old AST-only
+delegate projection; resolver, Recipe, Builder/MIR, provider, and runtime
+work remain closed until that parser cutover is complete.
 
 ## Boundaries
 

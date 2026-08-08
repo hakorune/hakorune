@@ -153,9 +153,10 @@ The parser seal is an explicit boundary, not an inference from provenance:
 BoxMethodInventoryV1
   = cloneable ordered placement carrier
         ↓
-VerifiedParsedBoxDeclarationV1
+ParserBoxSourceSealV1
   = non-Clone parser-owned source seal
   = complete duplicate-free source/member relation coverage
+  (rich handoff product: ParsedProgramWithSourceV1)
         ↓
 resolver declaration inventory
 ```
@@ -182,7 +183,7 @@ For callable contracts, the typed syntax path is mandatory:
 
 ```text
 RuneAttr(name/args)
-  -> CallableContractSyntaxViewV1::Query
+  -> CallableContractSyntaxV1::Query
   -> canonical semantic issuer
 ```
 

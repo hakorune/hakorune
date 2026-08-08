@@ -38,9 +38,10 @@ invariants, not permission to open the later resolver rows early:
 BoxMethodInventoryV1
   = cloneable selected/generated placement carrier
 
-VerifiedParsedBoxDeclarationV1
+ParserBoxSourceSealV1
   = non-Clone parser-owned source seal
   = final rich parse product only
+  (the rich handoff product is ParsedProgramWithSourceV1)
 
 SourceBoxMethodSiteV1
   = as-written source/member identity and selected-gate path
@@ -48,7 +49,7 @@ SourceBoxMethodSiteV1
 BoxMethodInventoryOrdinalV1
   = placement only; never resolver identity
 
-CallableContractSyntaxViewV1
+CallableContractSyntaxV1
   = typed syntax normalization before resolver
 
 VerifiedHomeAbi
@@ -96,7 +97,7 @@ CallableContract(query) references, but never duplicates, VerifiedHomeAbi
   -> LANGUAGE-TYPED-CALLABLE-PROFILE-D0 / OWN-HOME-ABI0-S0/query
 
 raw rune strings become typed syntax before the resolver issuer
-  -> typed CallableContractSyntaxViewV1 in the language/parser row
+  -> typed CallableContractSyntaxV1 in the language/parser row
 
 old body-inferred source_instance_result_contract is dispositioned before
 the declaration-first instance target opens
@@ -141,9 +142,10 @@ Clone-capable data; only the non-Clone parser seal may cross into resolver
 semantics. Third, the seal must be issued only from one rich parse-output path
 after build-gate prune/rebase and delegate lowering have completed; AST-only
 APIs are projections that discard the seal. H1 is now closed as a disconnected
-substrate; `CURRENT_STATE.toml` is deliberately design-stopped at the Rust R6
-source-seal/final-parse-product correction before any parser connection or
-resolver semantic publication. Fourth, the callable contract may reference
+substrate; `CURRENT_STATE.toml` remains on the Rust R6 source-seal/final-parse
+product correction. D-I0 is implemented but remains open until the named
+AST-only compatibility callers are caller-zero; resolver semantic publication
+is still closed. Fourth, the callable contract may reference
 `VerifiedHomeAbi` but must not duplicate its receiver/parameter/result Home
 demand; typed syntax normalization must happen before the resolver issuer.
 
@@ -284,7 +286,12 @@ R6-S3B-D (R6-S3B-D-D0 design closed; D-I0 implementation active)
   D-I0 now retains generated relation rows in the sole final seal after
   same-brand relation-key, provenance, and placement-receipt coverage; focused
   positive/negative tests and the D-I0 guard are landed. Resolver/runtime work
-  remains closed.
+  remains closed. The exact remaining caller-zero condition is retirement of
+  `delegate_lowering::lower_delegate_exposes` from the public AST-only
+  `parse`, `parse_from_string_with_fuel_and_build_config`, and
+  `parse_from_string_with_fuel_and_build_config_and_explain_report` paths;
+  each must project from `parse_from_string_with_source_seal` before D-I0
+  closes. The rich product itself is not reopened or duplicated.
 
 R6-S3B-B0
   accepted design receipt for parser-issued gate paths and selection receipts (closed)
@@ -317,7 +324,7 @@ R6-S3-SOURCE-SITE-PLACEMENT-I0
   remove parser sidecar/member-ordinal reconstruction
 
 CALLABLE-CONTRACT-TYPED-SYNTAX-D0/I0
-  RuneAttr -> CallableContractSyntaxViewV1::Query
+  RuneAttr -> CallableContractSyntaxV1::Query
   parser validates placement/duplicates; resolver consumes typed syntax only
 
 CALLABLE-HOME-ABI-REFERENCE-COSEAL-D0/I0
@@ -338,6 +345,21 @@ CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
 CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection
   no ExactTrivial*Abi/MirType reverse inference
+
+POST-CUTOVER-COMPAT-API-QUARANTINE-D0 (parked)
+  after parser/Builder caller-zero and legacy retirement, move remaining
+  inventory compatibility conversions and historical name-order views behind
+  an explicit compat module; canonical `BoxMethodInventoryV1` must not expose
+  compatibility constructors as ordinary authority. Keep JSON v1 and other
+  bootstrap adapters descriptive-only, with a named removal condition for
+  each retained consumer.
+
+POST-CUTOVER-DOC-CURRENT-HISTORY-CLEANUP-D0 (parked)
+  keep one live status line in each owner README and move landed R1--R6
+  receipts into clearly labeled historical sections; reconcile
+  `CURRENT_TASK.md`, `CURRENT_STATE.toml`, task-map status, and reference
+  receipts at each row close. This is documentation hygiene only and must not
+  open a second semantic or implementation authority.
 ```
 
 The parser rows are R6-S3 design/implementation boundaries; R6-S3A,
@@ -404,7 +426,8 @@ Rejected > Unresolved > Declined > Candidate
    - no parser connection, build-gate, delegate postpass, scanner, resolver,
      semantic publication, or compatibility projection.
 7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0/S1/S2A/S2/S3A` — R6-D0
-   accepted; S0, S1, S2a, and S2 closed; S3A is the current bounded slice
+   accepted; S0, S1, S2a, and S2 closed; S3A was the bounded predecessor and
+   D-I0 is the current final-seal slice
    - give explicit methods an exact branded source site independent of the
      all-row inventory ordinal;
    - generated property/delegate rows retain generated origin only and never

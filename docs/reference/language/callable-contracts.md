@@ -227,9 +227,10 @@ Implementation order is:
 ```text
 ordered Box-method inventory + parser-owned source seal
   -> Rust/.hako source-site and typed Query parity
-  -> resolver semantic declaration/signature
+  -> resolver declaration identity
+  -> semantic signature
   -> VerifiedHomeAbi
-  -> declared Query behavior and declared catalog
+  -> declared Query behavior and atomic declared catalog
   -> old body-inferred instance-result authority retirement
   -> reusable resolver target
   -> exact source-bound call relation / CallSlot
@@ -251,7 +252,13 @@ placement, and retains the complete rows in the sole non-Clone
 `ParserBoxSourceSealV1`. Malformed, orphan, duplicate, foreign, or
 provenance-invalid coverage rejects the unpublished product. This does not
 open typed `CallableContract` parser carriage, resolver publication, Hako
-parity, or body conformance.
+parity, or body conformance. D-I0 remains active until the public AST-only
+`NyashParser` paths `parse`,
+`parse_from_string_with_fuel_and_build_config`, and
+`parse_from_string_with_fuel_and_build_config_and_explain_report` project
+through this rich product instead of calling
+`delegate_lowering::lower_delegate_exposes` directly; no second seal or
+fallback is allowed.
 
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate

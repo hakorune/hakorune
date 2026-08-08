@@ -90,6 +90,12 @@ generated-suffix production caller is retired.
 The finalizer implementation and focused tests are landed in the active D-I0
 slice. `ParserBoxSourceSealV1` now retains the complete generated relation rows
 after exact same-brand relation-key, provenance/selection, and placement
-coverage. The old AST-only `delegate_lowering` caller remains a compatibility
-caller by design; its retirement is a later caller-zero/cutover condition, so
-this task remains active rather than claiming full S3A retirement.
+coverage. The remaining compatibility callers are the public AST-only
+`NyashParser::parse`,
+`NyashParser::parse_from_string_with_fuel_and_build_config`, and
+`NyashParser::parse_from_string_with_fuel_and_build_config_and_explain_report`
+paths, which still call `delegate_lowering::lower_delegate_exposes` directly.
+They must project from `parse_from_string_with_source_seal` before this row
+closes. This is a later caller-zero/cutover condition, not permission to add a
+second seal or a fallback, so the task remains active rather than claiming
+full S3A retirement.

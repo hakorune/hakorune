@@ -263,7 +263,13 @@ one-to-one generated suffix coverage are required. Duplicate, missing/orphan,
 foreign, non-generated, or mismatched rows reject the unpublished product.
 The final seal retains the generated relation rows. No AST/name/ordinal
 reconstruction, resolver target, Recipe, Builder/MIR, provider/runtime,
-fallback, or retry is opened by this slice.
+fallback, or retry is opened by this slice. D-I0 remains open only for
+caller-zero retirement of the three public AST-only `NyashParser` paths that
+still call `delegate_lowering::lower_delegate_exposes` directly: `parse`,
+`parse_from_string_with_fuel_and_build_config`, and
+`parse_from_string_with_fuel_and_build_config_and_explain_report`. They must
+project from `parse_from_string_with_source_seal`; no second seal or fallback
+is allowed.
 
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 
