@@ -19,6 +19,7 @@
 // サブモジュール宣言
 mod build_cfg;
 mod build_gate_selection;
+mod callable_contract_syntax;
 mod common;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理

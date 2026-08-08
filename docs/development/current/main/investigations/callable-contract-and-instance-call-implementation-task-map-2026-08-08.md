@@ -321,13 +321,14 @@ R6-S3B-B3-I0 (closed)
   guard, reference, and parser-module owner documentation landed. The next
   boundary is R6-S3B-C design for a source-aware generated delegate relation.
 
-R6-S3-SOURCE-SITE-PLACEMENT-I0
+R6-S3-SOURCE-SITE-PLACEMENT-I0 (closed)
   SourceBoxMethodSiteV1 separate from selected/generated inventory ordinal
   remove parser sidecar/member-ordinal reconstruction
 
-CALLABLE-CONTRACT-TYPED-SYNTAX-D0/I0
+CALLABLE-CONTRACT-TYPED-SYNTAX-D0/I0 (closed)
   RuneAttr -> CallableContractSyntaxV1::Query
-  parser validates placement/duplicates; resolver consumes typed syntax only
+  parser validates placement/duplicates; rich source seal carries typed syntax;
+  resolver consumes typed syntax only
 
 CALLABLE-HOME-ABI-REFERENCE-COSEAL-D0/I0
   VerifiedHomeAbi remains the sole Home authority

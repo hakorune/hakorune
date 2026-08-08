@@ -41,8 +41,10 @@ latest_card_path
 current_execution_row
 ```
 
-An `I0` is closed only by an actual named production caller switch plus
-selected old-path retirement and zero fallback. Do not resume Stage-B,
+An **in-place production-replacement I0** is closed only by an actual named
+production caller switch plus selected old-path retirement and zero fallback.
+Bounded parser/resolver/contract I0 rows close by their own card acceptance;
+they do not claim a production switch. Do not resume Stage-B,
 Ownership, Language v1, selfhost, or a parked stash from historical prose.
 
 The replacement rows are migration mechanics. Select them only when they

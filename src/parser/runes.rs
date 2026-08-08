@@ -163,6 +163,16 @@ fn validate_runes_for_target(
             visibility = Some(&rune.name);
         }
 
+        if rune.name == "CallableContract" && !matches!(target, RuneTarget::InstanceMethod) {
+            return Err(ParseError::UnexpectedToken {
+                found: TokenType::IDENTIFIER(rune.name.clone()),
+                expected:
+                    "[freeze:contract][parser/rune] CallableContract is allowed only on instance methods"
+                        .to_string(),
+                line,
+            });
+        }
+
         match target {
             RuneTarget::Box => {
                 if !matches!(rune.name.as_str(), "Public" | "Internal") {
@@ -184,6 +194,7 @@ fn validate_runes_for_target(
                         | "Hint"
                         | "Inline"
                         | "Contract"
+                        | "CallableContract"
                         | "IntrinsicCandidate"
                         | "Lowering"
                         | "Profile"
@@ -191,7 +202,7 @@ fn validate_runes_for_target(
                     return Err(ParseError::UnexpectedToken {
                         found: TokenType::IDENTIFIER(rune.name.clone()),
                         expected: format!(
-                            "[freeze:contract][parser/rune] {} target supports only Public|Internal|Ownership|Hint|Inline|Contract|IntrinsicCandidate|Lowering|Profile",
+                            "[freeze:contract][parser/rune] {} target supports only Public|Internal|Ownership|Hint|Inline|Contract|CallableContract|IntrinsicCandidate|Lowering|Profile",
                             target_label(&target)
                         ),
                         line,

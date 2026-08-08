@@ -9,7 +9,7 @@ using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
 
 static box RuneContractBox {
   supported_names_msg() {
-    return "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Inline|Contract|IntrinsicCandidate|Lowering|Profile|FastMemory"
+    return "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Inline|Contract|CallableContract|IntrinsicCandidate|Lowering|Profile|FastMemory"
   }
 
   supported_name(rune_name) {
@@ -25,6 +25,7 @@ static box RuneContractBox {
     if name == "Hint" { return 1 }
     if name == "Inline" { return 1 }
     if name == "Contract" { return 1 }
+    if name == "CallableContract" { return 1 }
     if name == "IntrinsicCandidate" { return 1 }
     if name == "Lowering" { return 1 }
     if name == "Profile" { return 1 }
@@ -45,7 +46,7 @@ static box RuneContractBox {
     if name == "Symbol" || name == "CallConv" || name == "FreeWith" || name == "Ownership" {
       return 1
     }
-    if name == "Hint" || name == "Inline" || name == "Contract" || name == "IntrinsicCandidate" || name == "Lowering" {
+    if name == "Hint" || name == "Inline" || name == "Contract" || name == "CallableContract" || name == "IntrinsicCandidate" || name == "Lowering" {
       return 1
     }
     if name == "Profile" { return 1 }
@@ -103,6 +104,12 @@ static box RuneContractBox {
     if name == "Contract" {
       if arg0 != "pure" && arg0 != "readonly" && arg0 != "no_alloc" && arg0 != "no_safepoint" {
         return "[freeze:contract][parser/rune] Contract(pure|readonly|no_alloc|no_safepoint)"
+      }
+    }
+
+    if name == "CallableContract" {
+      if arg0 != "query" {
+        return "[freeze:contract][parser/rune] CallableContract(query)"
       }
     }
 

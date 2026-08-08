@@ -4,6 +4,23 @@ The parser owns source syntax, ordered source coordinates, and parser-private
 transport products. It does not resolve callable targets, issue semantic
 contracts, build Recipe/CallSlot products, or emit MIR/runtime routes.
 
+## Typed `CallableContract` syntax carriage (I0)
+
+The parser accepts the declaration-local spelling
+`@rune CallableContract(query)` only on instance methods. `runes.rs` owns
+unknown-value, arity, duplicate, and placement rejection. The small
+`callable_contract_syntax.rs` module normalizes the validated attribute into
+`CallableContractSyntaxV1::Query`; the explicit method source relation carries
+that row together with the non-Clone `SourceBoxMethodSiteV1` and the
+declaration-local rune ordinal.
+
+This is syntax carriage, not semantic issuance. The parser does not decide
+Home, signature, effect, suspension/control, ABI, body conformance, resolver
+targets, Recipe/CallSlot, or MIR. Generated/property/delegate rows receive no
+explicit callable-contract row, and inventory ordinals never become source
+identity. Conflicts with legacy `Contract`/`Profile` metadata remain a later
+semantic issuer responsibility.
+
 ## C-S1 delegate target index
 
 `delegate_target_index.rs` is a borrowed lookup proof over one unpublished

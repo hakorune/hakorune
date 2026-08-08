@@ -48,8 +48,10 @@ cargo check -q
 - read `method_anchor` for the in-place production replacement law
 - read `mirbuilder_north_star` before selecting a replacement cell; cell and
   LOC counters are migration metrics, not the architecture goal
-- `I0` requires a real production caller switch; a disconnected candidate is
-  S0/PROBE0, not I0
+- an in-place production-replacement `I0` requires a real production caller
+  switch; a disconnected candidate is S0/PROBE0, not I0. Bounded
+  parser/resolver/contract I0 rows use their own card acceptance and do not
+  claim a production switch
 - the same cell deletes the selected old branch in I0/R0 before unrelated work
 - Stage-B, Ownership, Language v1, and `.hako` selfhost lanes are parked
 - do not paste landed chronology into restart docs

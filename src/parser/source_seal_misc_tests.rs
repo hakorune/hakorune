@@ -36,6 +36,30 @@ box Plain {
 }
 
 #[test]
+fn callable_contract_query_is_carried_by_explicit_source_relation() {
+    let parsed = NyashParser::parse_from_string_with_source_seal(
+        r#"
+box TextLike {
+    @rune CallableContract(query)
+    length() { return 0 }
+}
+"#,
+        ParserBuildConfig::default(),
+    )
+    .expect("query rune should survive the rich parser seal");
+
+    let relation = &parsed.source_seals()[0].method_relations()[0];
+    assert_eq!(relation.source_site().unwrap().source_member_ordinal(), 0);
+    let Some(crate::parser::callable_contract_syntax::CallableContractSyntaxV1::Query {
+        source_site,
+    }) = relation.callable_contract()
+    else {
+        panic!("explicit query relation must carry typed syntax")
+    };
+    assert_eq!(source_site.rune_ordinal(), 0);
+}
+
+#[test]
 fn r6_s3b_d_i0_keeps_generated_inventory_descriptive_and_seal_source_bound() {
     let parsed = NyashParser::parse_from_string_with_source_seal(
         r#"

@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted, I0 parked; resolver coverage remains unopened.
+Status: accepted language target; typed parser carriage I0 landed, resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted; resolver coverage remains unopened.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -17,8 +17,10 @@ box TextLike {
 
 `CallableContract` is declaration-local and non-repeatable. The first accepted
 value is `query`, and the first implementation cohort is an instance method.
-Current parsers do not accept this family yet; acceptance and semantic
-issuance remain production zero. The Rust AST stores the ordered
+The Rust parser now accepts and carries this syntax through its rich
+parser-owned source seal; semantic issuance remains production zero. The Hako
+parser keeps the same accepted name/value syntax in its compatibility rune
+normalizer, but does not issue the Rust source seal. The Rust AST stores the ordered
 `BoxMethodInventoryV1`. That Clone-capable inventory owns selected placement
 and descriptive provenance, not resolver-grade source identity. Exact
 as-written method sites are separate from all-row inventory ordinals because
@@ -30,8 +32,9 @@ the future connected parser seal must still relate explicit method sites to
 selected entries after complete duplicate and build-gate selection checks.
 Generated rows receive only a generated source-member origin and never an
 explicit method source site. Legacy JSON remains compatibility-only and cannot
-reconstruct the seal. The parser seal, Rust/`.hako` parity, and resolver
-declaration issuance must still land before the declared contract issuer opens.
+reconstruct the seal. The parser seal and Rust/`.hako` syntax parity are now
+landed; resolver declaration issuance must still land before the declared
+contract issuer opens.
 
 The R4 AST-side atomic reconstruction product and strict recursive JSON v2
 codec are landed. The root selects v2 or legacy mode once; malformed nested v2

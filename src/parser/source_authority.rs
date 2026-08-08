@@ -8,6 +8,7 @@
 
 use std::sync::Arc;
 
+use super::callable_contract_syntax::CallableContractSyntaxV1;
 use crate::ast::{
     ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1,
     BoxMethodInventoryPlacementReceiptV1, BoxMethodInventoryV1, DelegateDecl,
@@ -204,6 +205,7 @@ pub(super) struct ExplicitMethodSourceRelationV1 {
     source_site: SourceBoxMethodSiteV1,
     inventory_ordinal: BoxMethodInventoryOrdinalV1,
     name: Box<str>,
+    callable_contract: Option<CallableContractSyntaxV1>,
 }
 
 impl ExplicitMethodSourceRelationV1 {
@@ -217,6 +219,10 @@ impl ExplicitMethodSourceRelationV1 {
 
     pub(super) fn name(&self) -> &str {
         &self.name
+    }
+
+    pub(super) fn callable_contract(&self) -> Option<&CallableContractSyntaxV1> {
+        self.callable_contract.as_ref()
     }
 }
 
@@ -244,6 +250,20 @@ impl MethodSourceRelationV1 {
         match self {
             Self::Explicit(relation) => relation.name(),
             Self::GeneratedProperty { name, .. } => name,
+        }
+    }
+
+    pub(super) fn source_site(&self) -> Option<&SourceBoxMethodSiteV1> {
+        match self {
+            Self::Explicit(relation) => Some(relation.source_site()),
+            Self::GeneratedProperty { .. } => None,
+        }
+    }
+
+    pub(super) fn callable_contract(&self) -> Option<&CallableContractSyntaxV1> {
+        match self {
+            Self::Explicit(relation) => relation.callable_contract(),
+            Self::GeneratedProperty { .. } => None,
         }
     }
 
@@ -414,6 +434,7 @@ impl OpenBoxMethodSourceTransactionV1 {
             return Err(SourceAuthorityErrorV1::ForeignBoxSite);
         }
         let name = name.into();
+        let callable_contract = CallableContractSyntaxV1::from_instance_method(&declaration);
         let ordinal = self
             .inventory
             .try_push_explicit_source(name.clone(), declaration, diagnostic_span)
@@ -423,6 +444,7 @@ impl OpenBoxMethodSourceTransactionV1 {
                 source_site,
                 inventory_ordinal: ordinal,
                 name,
+                callable_contract,
             },
         ));
         Ok(ordinal)
@@ -650,133 +672,8 @@ fn inventory_error_to_parse_error(error: BoxMethodInventoryErrorV1) -> ParseErro
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::ast::{DeclarationAttrs, Span};
-
-    fn function(name: &str) -> ASTNode {
-        ASTNode::FunctionDeclaration {
-            name: name.to_owned(),
-            params: Vec::new(),
-            param_decls: Vec::new(),
-            return_type_name: None,
-            body: Vec::new(),
-            contracts: Vec::new(),
-            uses: Vec::new(),
-            is_static: false,
-            is_override: false,
-            attrs: DeclarationAttrs::default(),
-            span: Span::unknown(),
-        }
-    }
-
-    #[test]
-    fn transaction_co_seals_explicit_source_with_inventory_placement() {
-        let brand = ParserInvocationBrandV1::issue();
-        let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 4);
-        let site = SourceBoxMethodSiteV1::Direct {
-            member: transaction.current_member_site(),
-        };
-        let ordinal = transaction
-            .commit_explicit_method(site, "length", function("length"), Span::unknown())
-            .unwrap();
-        transaction.finish_member().unwrap();
-
-        let prepared = transaction.finish();
-        assert_eq!(prepared.box_site().statement_ordinal(), 4);
-        assert_eq!(prepared.inventory().len(), 1);
-        assert_eq!(prepared.method_relations().len(), 1);
-        let MethodSourceRelationV1::Explicit(relation) = &prepared.method_relations()[0] else {
-            panic!("direct method must produce an explicit source relation")
-        };
-        assert_eq!(relation.inventory_ordinal(), ordinal);
-        assert_eq!(relation.name(), "length");
-    }
-
-    #[test]
-    fn foreign_invocation_site_is_rejected_before_inventory_mutation() {
-        let brand = ParserInvocationBrandV1::issue();
-        let foreign = ParserInvocationBrandV1::issue();
-        let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 1);
-        let foreign_site = SourceBoxMethodSiteV1::Direct {
-            member: SourceBoxMemberSiteV1 {
-                box_site: SourceBoxDeclarationSiteV1 {
-                    path: SourceBoxDeclarationPathV1::root(foreign, 1),
-                },
-                member_ordinal: 0,
-            },
-        };
-
-        assert_eq!(
-            transaction
-                .commit_explicit_method(
-                    foreign_site,
-                    "length",
-                    function("length"),
-                    Span::unknown(),
-                )
-                .unwrap_err(),
-            SourceAuthorityErrorV1::ForeignBoxSite
-        );
-        assert!(transaction.inventory().is_empty());
-    }
-
-    #[test]
-    fn brand_is_identity_not_value_equality() {
-        let left = ParserInvocationBrandV1::issue();
-        let right = ParserInvocationBrandV1::issue();
-        assert_ne!(left, right);
-        assert_eq!(left, left.clone());
-    }
-
-    #[test]
-    fn duplicate_source_name_is_rejected_without_partial_relation() {
-        let brand = ParserInvocationBrandV1::issue();
-        let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 2);
-        let site = SourceBoxMethodSiteV1::Direct {
-            member: transaction.current_member_site(),
-        };
-        transaction
-            .commit_explicit_method(site.clone(), "length", function("length"), Span::unknown())
-            .unwrap();
-        transaction.finish_member().unwrap();
-        let duplicate_site = SourceBoxMethodSiteV1::Direct {
-            member: transaction.current_member_site(),
-        };
-
-        let error = transaction
-            .commit_explicit_method(
-                duplicate_site,
-                "length",
-                function("length"),
-                Span::unknown(),
-            )
-            .unwrap_err();
-        assert!(matches!(
-            error,
-            SourceAuthorityErrorV1::Inventory(BoxMethodInventoryErrorV1::DuplicateMethod { .. })
-        ));
-        assert_eq!(transaction.inventory().len(), 1);
-    }
-
-    #[test]
-    fn stale_same_box_member_site_is_rejected_before_inventory_mutation() {
-        let brand = ParserInvocationBrandV1::issue();
-        let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 3);
-        let stale_site = SourceBoxMethodSiteV1::Direct {
-            member: transaction.current_member_site(),
-        };
-        transaction.finish_member().unwrap();
-
-        assert_eq!(
-            transaction
-                .commit_explicit_method(stale_site, "length", function("length"), Span::unknown())
-                .unwrap_err(),
-            SourceAuthorityErrorV1::StaleMemberSite
-        );
-        assert!(transaction.inventory().is_empty());
-    }
-}
+#[path = "source_authority_tests.rs"]
+mod tests;
 
 #[cfg(test)]
 #[path = "delegate_source_tests.rs"]

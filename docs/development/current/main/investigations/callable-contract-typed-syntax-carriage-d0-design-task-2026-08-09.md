@@ -1,5 +1,5 @@
 ---
-Status: accepted design stop — implementation not opened
+Status: accepted design stop — bounded I0 landed
 Date: 2026-08-09
 Decision: parser-owned typed `CallableContract(query)` syntax carriage only
 Parent: `callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`
