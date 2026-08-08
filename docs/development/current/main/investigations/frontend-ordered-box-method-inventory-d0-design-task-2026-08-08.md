@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A closed — R6-S3B design stop
+Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0 closed — R6-S3B-A active
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -575,12 +575,13 @@ not authorize a rescan, name lookup, ordinal reconstruction, or AST rewrite.
 
 Acceptance for this slice is the focused rich-product test/guard plus the
 existing parser-session and AST inventory gates. The implementation and its
-reference receipt must land together. R6-S3B is the next design stop for
-AST-only API projection and top-level build-gate/source-aware delegate
-transport; no resolver `CallableContract`, target, Recipe, Builder, MIR,
-provider, or runtime work opens from R6-S3A.
+reference receipt must land together. R6-S3B-D0 is now accepted; S3B-A is the
+active implementation slice for direct ordinary-Box AST projection parity.
+Top-level build-gate/source-aware delegate transport remains later S3B-B/C/D
+work; no resolver `CallableContract`, target, Recipe, Builder, MIR, provider,
+or runtime work opens here.
 
-### R6-S3B design stop (no implementation)
+### R6-S3B design and implementation ladder
 
 External top-down audit receipt (2026-08-08): **revise before
 implementation**. R6-S3A is accepted only as a bounded ordinary-Box canary;
@@ -607,7 +608,8 @@ Until the delegate relation exists, the rich path must reject generated
 delegate suffixes or keep them explicitly outside the final source seal. No
 resolver-grade seal may silently accept an AST-only generated suffix.
 
-The next question is deliberately closed at design, not code:
+The design question is closed; the following implementation ladder is the only
+permitted continuation:
 
 ```text
 Which single typed product crosses the postpass boundary so that
@@ -643,7 +645,9 @@ Required S3B decision receipts are:
 4. projection parity tests proving AST-only and rich paths parse once;
 5. a guard and reference update in the same implementation slice later.
 
-Until those receipts are accepted, do not add top-level gate rebase,
+The S3B-D0 receipts are accepted. `R6-S3B-A` is now the only open slice:
+implement the rich postpass product and direct ordinary-Box AST projection
+parity. Until S3B-A closes, do not add top-level gate rebase,
 source-aware delegate transport, interface/static/record seals, Hako parser
 parity, resolver declaration, `CallableContract`, target, Recipe, Builder,
 MIR, provider, or runtime code.

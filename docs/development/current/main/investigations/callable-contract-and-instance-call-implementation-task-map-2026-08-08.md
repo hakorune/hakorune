@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A closed, R6-S3B-D0 design accepted, implementation not opened
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0 closed, R6-S3B-A active
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -197,9 +197,9 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   no ExactTrivial*Abi/MirType reverse inference
 ```
 
-The parser rows are R6-S3 design/implementation boundaries; R6-S3A is closed
-as the bounded rich-product slice and R6-S3B-D0 is the current accepted design
-stop. S3B-A through S3B-D are the only subsequent parser implementation
+The parser rows are R6-S3 design/implementation boundaries; R6-S3A and
+R6-S3B-D0 are closed, and S3B-A is the active bounded implementation slice.
+S3B-A through S3B-D are the only subsequent parser implementation
 slices. The latter five callable rows remain resolver/callable rows. Do not create a parallel
 implementation lane for them.
 
