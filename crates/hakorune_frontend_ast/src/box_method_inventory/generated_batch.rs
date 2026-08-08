@@ -65,4 +65,8 @@ impl PreparedGeneratedBoxMethodBatchV1 {
     pub fn is_empty(&self) -> bool {
         self.rows.is_empty()
     }
+
+    pub fn names_in_order(&self) -> impl ExactSizeIterator<Item = &str> {
+        self.rows.iter().map(|row| row.name.as_ref())
+    }
 }

@@ -1,6 +1,5 @@
-use crate::ast::{
-    ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1, BoxMethodInventoryV1, Span,
-};
+use crate::ast::{ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1, Span};
+use crate::parser::source_authority::ExplicitMethodSink;
 use crate::parser::{NyashParser, ParseError};
 
 /// An explicit method remains unpublished until its optional postfix syntax
@@ -32,11 +31,9 @@ impl PendingExplicitMethodV1 {
 
     pub(crate) fn commit(
         self,
-        inventory: &mut BoxMethodInventoryV1,
+        sink: &mut impl ExplicitMethodSink,
     ) -> Result<BoxMethodInventoryOrdinalV1, ParseError> {
-        inventory
-            .try_push_explicit_source(self.name, self.declaration, self.diagnostic_span)
-            .map_err(map_inventory_error)
+        sink.commit_explicit_method_at_current(self.name, self.declaration, self.diagnostic_span)
     }
 }
 
@@ -63,10 +60,10 @@ pub(crate) fn map_inventory_error(error: BoxMethodInventoryErrorV1) -> ParseErro
 
 pub(crate) fn commit_pending_method(
     pending: &mut Option<PendingExplicitMethodV1>,
-    inventory: &mut BoxMethodInventoryV1,
+    sink: &mut impl ExplicitMethodSink,
 ) -> Result<(), ParseError> {
     if let Some(method) = pending.take() {
-        let _ = method.commit(inventory)?;
+        let _ = method.commit(sink)?;
     }
     Ok(())
 }

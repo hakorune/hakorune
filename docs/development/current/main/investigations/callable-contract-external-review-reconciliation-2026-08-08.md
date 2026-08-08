@@ -144,8 +144,73 @@ parser-owned source seal:
 
 resolver:
   consumes only the final seal after build-gate prune/rebase and delegate
-  postpass; it never trusts inventory ordinals or raw rune strings
+postpass; it never trusts inventory ordinals or raw rune strings
 ```
+
+The parser seal is an explicit boundary, not an inference from provenance:
+
+```text
+BoxMethodInventoryV1
+  = cloneable ordered placement carrier
+        ↓
+VerifiedParsedBoxDeclarationV1
+  = non-Clone parser-owned source seal
+  = complete duplicate-free source/member relation coverage
+        ↓
+resolver declaration inventory
+```
+
+The seal is issued only by the final rich parse product after selected
+build-gate pruning/rebase and delegate postpass. AST-only APIs project that
+product and discard the seal; they do not issue a second source authority.
+
+The source method coordinate is also permanently separate from selected
+placement:
+
+```text
+SourceBoxMethodSiteV1
+  = as-written Box member path and selected-gate path
+BoxMethodInventoryOrdinalV1
+  = selected/generated placement only
+```
+
+Generated property/delegate rows have generated origin and placement receipts,
+but no explicit method source site. Resolver identity never depends on the
+generated-row strategy or inventory ordinal.
+
+For callable contracts, the typed syntax path is mandatory:
+
+```text
+RuneAttr(name/args)
+  -> CallableContractSyntaxViewV1::Query
+  -> canonical semantic issuer
+```
+
+Resolver code must not parse `"CallableContract"` or `"query"` strings. The
+declared contract may reference the same-declaration `VerifiedHomeAbi`, but it
+does not restate receiver/parameter/result Home demands. `VerifiedHomeAbi` is
+the sole Home authority; the contract co-seal owns only the relation that both
+receipts belong to the same declaration and catalog brand.
+
+The pre-target retirement gate is explicit. The old
+`source_instance_result_contract` family (call-site lookup, body-inferred
+result, rebind/preloop witnesses) must reach non-test caller-zero or be
+retired before the declaration-first instance target is opened. A new target
+must not coexist with a second target authority.
+
+Finally, body conformance is a complete Verify product, not a publication-time
+per-call query:
+
+```text
+DeclaredCallableContractCatalog
+  + exactly-one same-brand body conformance per body-bearing declaration
+  -> VerifiedConformantCallableCatalog
+  -> Lower / Seal / Collect
+```
+
+Recursive target resolution may use the declared catalog; lowering and module
+publication consume only the complete conformant catalog. Missing, duplicate,
+foreign, or rejected conformance is fail-fast.
 
 The source method site and all-row inventory placement are separate forever.
 Generated property/delegate rows can consume placement slots, so neither

@@ -66,18 +66,18 @@ The final seal has no constructor in this slice and cannot be issued until the
 later rich parse-output row completes prune and delegate postpass. Explicit
 source identity is separate from `selected_method_ordinal` because generated
 property/delegate rows consume inventory slots. Generated rows keep only their
-source-member origin and generated role. The current parallel
+source-member origin and generated role. R6-S2 now routes the ordinary Box
+parser through one source transaction; the parallel
 `method_source_member_ordinals` sidecar and length-delta reconstruction are
-retirement debt; R6-S2 owns producer cutover and their removal. The typed
-`PreparedBoxMethodInventoryAppendV1` bridge is now landed: the parser source
+deleted. The typed `PreparedBoxMethodInventoryAppendV1` bridge is landed: the parser source
 transaction prepares rebased entries, while the AST crate validates
 duplicate/name/declaration identity and contiguous placement and commits one
 append. Parser brands, source sites, and gate-path rebasing remain outside the
-AST crate. The old selected-gate
-`try_merge_selected_gate(selected, &[u32], gate_site)` API remains only until
-all parser callers migrate in the same R6-S2 series; it is not a source
-authority and cannot be renamed into another sidecar. JSON remains descriptive
-and cannot manufacture the seal.
+AST crate. The old selected-gate `try_merge_selected_gate(selected, &[u32],
+gate_site)` API is removed; no parser producer may recreate it through another
+ordinal slice. Interface/static compatibility sinks remain outside the bounded
+ordinary-Box source-seal claim. JSON remains descriptive and cannot
+manufacture the seal.
 
 R4 now has an atomic AST reconstruction substrate and a strict recursive JSON
 v2 codec. A complete set of `BoxMethodInventoryRoundtripRowV2` values is

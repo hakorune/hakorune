@@ -1,10 +1,11 @@
 //! Fields parsing (header-first: `name: Type` + unified members gates)
-use crate::ast::{ASTNode, BoxMethodInventoryV1, FieldDecl, Span};
+use crate::ast::{ASTNode, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::declarations::box_def::members::{
     property_batch::{PreparedGeneratedPropertyMethodBatchV1, PropertyMemberKindV1},
     syntax::{self, PropertyBodyPostfix},
 };
+use crate::parser::source_authority::GeneratedPropertySink;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
@@ -12,7 +13,7 @@ fn try_parse_computed_body(
     p: &mut NyashParser,
     fname: String,
     diagnostic_span: Span,
-    methods: &mut BoxMethodInventoryV1,
+    sink: &mut impl GeneratedPropertySink,
 ) -> Result<bool, ParseError> {
     if let Some(body) = syntax::try_parse_property_body(p, PropertyBodyPostfix::BlockOnly)? {
         let batch = PreparedGeneratedPropertyMethodBatchV1::prepare(
@@ -21,7 +22,7 @@ fn try_parse_computed_body(
             body,
             diagnostic_span,
         )?;
-        let birth_once_property = batch.commit(methods)?;
+        let birth_once_property = batch.commit(sink)?;
         debug_assert!(birth_once_property.is_none());
         return Ok(true);
     }
@@ -35,7 +36,7 @@ fn try_parse_computed_body(
 pub(crate) fn try_parse_get_computed_property(
     p: &mut NyashParser,
     get_line: usize,
-    methods: &mut BoxMethodInventoryV1,
+    sink: &mut impl GeneratedPropertySink,
 ) -> Result<Option<String>, ParseError> {
     if !crate::parser::env::unified_members() {
         return Ok(None);
@@ -60,7 +61,7 @@ pub(crate) fn try_parse_get_computed_property(
     let _declared_type_name =
         syntax::parse_optional_type_after_colon(p, "':' after get property name")?;
 
-    if try_parse_computed_body(p, fname.clone(), diagnostic_span, methods)? {
+    if try_parse_computed_body(p, fname.clone(), diagnostic_span, sink)? {
         return Ok(Some(fname));
     }
 
@@ -85,7 +86,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
     p: &mut NyashParser,
     fname: String,
     diagnostic_span: Span,
-    methods: &mut BoxMethodInventoryV1,
+    sink: &mut impl GeneratedPropertySink,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
     field_initializers: &mut Vec<(String, ASTNode)>,
@@ -134,7 +135,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
 
     // Unified members gate behavior
     if crate::parser::env::unified_members() {
-        if try_parse_computed_body(p, fname.clone(), diagnostic_span, methods)? {
+        if try_parse_computed_body(p, fname.clone(), diagnostic_span, sink)? {
             return Ok(true);
         }
     }
@@ -172,7 +173,7 @@ fn record_visibility(
 pub(crate) fn try_parse_visibility_block_or_single(
     p: &mut NyashParser,
     visibility: &str,
-    methods: &mut BoxMethodInventoryV1,
+    sink: &mut impl GeneratedPropertySink,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
     field_initializers: &mut Vec<(String, ASTNode)>,
@@ -263,7 +264,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
         if crate::parser::env::unified_members() && n == "get" {
             let get_line = p.current_token().line;
             p.advance();
-            if let Some(property_name) = try_parse_get_computed_property(p, get_line, methods)? {
+            if let Some(property_name) = try_parse_get_computed_property(p, get_line, sink)? {
                 record_visibility(visibility, property_name, public_fields, private_fields);
                 return Ok(true);
             }
@@ -272,7 +273,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
                 p,
                 fname.clone(),
                 diagnostic_span,
-                methods,
+                sink,
                 fields,
                 field_decls,
                 field_initializers,
@@ -289,7 +290,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
             p,
             fname.clone(),
             diagnostic_span,
-            methods,
+            sink,
             fields,
             field_decls,
             field_initializers,

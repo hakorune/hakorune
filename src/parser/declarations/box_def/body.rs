@@ -14,16 +14,12 @@ fn box_try_block_first_property(
         return Ok(false);
     }
     p.ensure_no_pending_runes("block-first property")?;
-    let previous_len = state.methods.len();
     let parsed =
         crate::parser::declarations::box_def::members::properties::try_parse_block_first_property(
             p,
-            &mut state.methods,
+            &mut state.source_tx,
             &mut state.birth_once_props,
         )?;
-    if parsed {
-        state.record_new_methods_since(previous_len)?;
-    }
     Ok(parsed)
 }
 
@@ -34,9 +30,7 @@ fn commit_pending_ordinary_method(
     let Some(method) = pending.take() else {
         return Ok(false);
     };
-    let previous_len = state.methods.len();
-    let _ = method.commit(&mut state.methods)?;
-    state.record_new_methods_since(previous_len)?;
+    let _ = method.commit(&mut state.source_tx)?;
     state.finish_source_member()?;
     Ok(true)
 }
@@ -106,11 +100,10 @@ fn box_try_visibility(
         return Ok(false);
     }
     p.ensure_no_pending_runes("visibility field/property")?;
-    let previous_len = state.methods.len();
     let parsed = crate::parser::declarations::box_def::members::fields::try_parse_visibility_block_or_single(
         p,
         visibility,
-        &mut state.methods,
+        &mut state.source_tx,
         &mut state.fields,
         &mut state.field_decls,
         &mut state.field_initializers,
@@ -118,9 +111,6 @@ fn box_try_visibility(
         &mut state.private_fields,
         &mut state.weak_fields,
     )?;
-    if parsed {
-        state.record_new_methods_since(previous_len)?;
-    }
     Ok(parsed)
 }
 
@@ -137,13 +127,13 @@ fn box_try_build_gate_members(
     p.consume_build_gate_head()?;
     let predicate = p.parse_build_predicate()?;
 
-    let then_state = parse_box_member_gate_block(p)?;
+    let then_state = parse_box_member_gate_block(p, &state.source_tx)?;
     let else_state = if p.match_token(&TokenType::ELSE) {
         p.advance();
         Some(if p.is_build_gate_head() {
-            parse_box_member_gate_group(p, gate_site)?
+            parse_box_member_gate_group(p, gate_site, &state.source_tx)?
         } else {
-            parse_box_member_gate_block(p)?
+            parse_box_member_gate_block(p, &state.source_tx)?
         })
     } else {
         None
@@ -177,16 +167,19 @@ fn box_try_build_gate_members(
     } else if let Some(else_state) = else_state {
         else_state
     } else {
-        BoxMemberState::default()
+        BoxMemberState::with_source_transaction(state.source_tx.branch())
     };
 
     state.try_merge_selected_gate(selected_state, gate_site)?;
     Ok(true)
 }
 
-fn parse_box_member_gate_block(p: &mut NyashParser) -> Result<BoxMemberState, ParseError> {
+fn parse_box_member_gate_block(
+    p: &mut NyashParser,
+    source_tx: &crate::parser::source_authority::OpenBoxMethodSourceTransactionV1,
+) -> Result<BoxMemberState, ParseError> {
     p.consume(TokenType::LBRACE)?;
-    let mut state = BoxMemberState::default();
+    let mut state = BoxMemberState::with_source_transaction(source_tx.branch());
     parse_box_member_body(p, &mut state)?;
     p.consume(TokenType::RBRACE)?;
     Ok(state)
@@ -195,6 +188,7 @@ fn parse_box_member_gate_block(p: &mut NyashParser) -> Result<BoxMemberState, Pa
 fn parse_box_member_gate_group(
     p: &mut NyashParser,
     gate_site: crate::ast::BoxMemberGateSiteV1,
+    source_tx: &crate::parser::source_authority::OpenBoxMethodSourceTransactionV1,
 ) -> Result<BoxMemberState, ParseError> {
     if !p.is_build_gate_head() {
         return Err(ParseError::UnexpectedToken {
@@ -206,13 +200,13 @@ fn parse_box_member_gate_group(
     let line = p.current_token().line;
     p.consume_build_gate_head()?;
     let predicate = p.parse_build_predicate()?;
-    let then_state = parse_box_member_gate_block(p)?;
+    let then_state = parse_box_member_gate_block(p, source_tx)?;
     let else_state = if p.match_token(&TokenType::ELSE) {
         p.advance();
         Some(if p.is_build_gate_head() {
-            parse_box_member_gate_group(p, gate_site)?
+            parse_box_member_gate_group(p, gate_site, source_tx)?
         } else {
-            parse_box_member_gate_block(p)?
+            parse_box_member_gate_block(p, source_tx)?
         })
     } else {
         None
@@ -245,9 +239,9 @@ fn parse_box_member_gate_group(
     } else if let Some(else_state) = else_state {
         else_state
     } else {
-        BoxMemberState::default()
+        BoxMemberState::with_source_transaction(source_tx.branch())
     };
-    let mut merged = BoxMemberState::default();
+    let mut merged = BoxMemberState::with_source_transaction(source_tx.branch());
     merged.try_merge_selected_gate(selected, gate_site)?;
     Ok(merged)
 }
@@ -361,16 +355,14 @@ pub(crate) fn parse_box_member_body(
             }
 
             if crate::parser::env::unified_members() && field_or_method == "get" {
-                let previous_len = state.methods.len();
                 if let Some(_property_name) =
                     crate::parser::declarations::box_def::members::fields::try_parse_get_computed_property(
                         p,
                         field_or_method_line,
-                        &mut state.methods,
+                        &mut state.source_tx,
                     )?
                 {
                     p.ensure_no_pending_runes("get property")?;
-                    state.record_new_methods_since(previous_len)?;
                     state.finish_source_member()?;
                     continue;
                 }
@@ -380,20 +372,17 @@ pub(crate) fn parse_box_member_body(
                 && (field_or_method == "once" || field_or_method == "birth_once")
             {
                 p.ensure_no_pending_runes("unified property")?;
-                let previous_len = state.methods.len();
                 if crate::parser::declarations::box_def::members::properties::try_parse_unified_property(
                     p,
                     &field_or_method,
-                    &mut state.methods,
+                    &mut state.source_tx,
                     &mut state.birth_once_props,
                 )? {
-                    state.record_new_methods_since(previous_len)?;
                     state.finish_source_member()?;
                     continue;
                 }
             }
 
-            let previous_len = state.methods.len();
             if box_try_method_or_field(
                 p,
                 field_or_method,
@@ -403,7 +392,6 @@ pub(crate) fn parse_box_member_body(
                 &mut pending_method,
             )? {
                 if pending_method.is_none() {
-                    state.record_new_methods_since(previous_len)?;
                     state.finish_source_member()?;
                 }
                 continue;
@@ -444,7 +432,7 @@ fn box_try_method_or_field(
         p,
         name,
         declaration_span,
-        &mut state.methods,
+        &mut state.source_tx,
         &mut state.fields,
         &mut state.field_decls,
         &mut state.field_initializers,

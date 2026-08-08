@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a closed, R6-S2 next
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2 closed, R6-S3 final parser seal next
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -11,10 +11,10 @@ Reference: `docs/reference/language/callable-contracts.md`
 
 ```text
 cloneable ordered Box method inventory
-  + non-Clone parser-owned source seal
+  + explicit non-Clone parser-owned source seal
   -> resolver declaration + semantic signature
   -> typed declared Query behavior
-  + same-declaration VerifiedHomeAbi
+  + same-declaration VerifiedHomeAbi (sole Home authority)
   -> sealed declared callable catalog
   -> reusable instance target
   -> exact source-bound call relation
@@ -28,6 +28,55 @@ module publication
   consumes only the publishable catalog
   and does not decide callable semantics
 ```
+
+## External-review closure checklist (2026-08-08)
+
+The external review is reconciled into this task map. These are design
+invariants, not permission to open the later resolver rows early:
+
+```text
+BoxMethodInventoryV1
+  = cloneable selected/generated placement carrier
+
+VerifiedParsedBoxDeclarationV1
+  = non-Clone parser-owned source seal
+  = final rich parse product only
+
+SourceBoxMethodSiteV1
+  = as-written source/member identity and selected-gate path
+
+BoxMethodInventoryOrdinalV1
+  = placement only; never resolver identity
+
+CallableContractSyntaxViewV1
+  = typed syntax normalization before resolver
+
+VerifiedHomeAbi
+  = sole receiver/parameter/result Home authority
+  = callable contract may reference, but never restates, its demands
+
+VerifiedConformantCallableCatalogV1
+  = complete same-brand declared-contract + body-conformance co-seal
+```
+
+Required ordering and stop lines:
+
+1. Finish the parser-owned source seal and source-site/placement split before
+   resolver declaration issuance.
+2. Normalize raw rune attributes into typed syntax before the semantic issuer;
+   resolver string matching is forbidden.
+3. Retire or prove non-test caller-zero for
+   `source_instance_result_contract` before opening the declaration-first
+   instance target. Two target authorities may not coexist.
+4. Build conformance as a complete Verify product. Lower and publication
+   consume only the conformant catalog; publication does not re-decide meaning.
+5. Keep semantic `I64` separate from `ExactTrivial*Abi`, `MirType`, and target
+   ABI projections.
+
+All five rows require focused positive/negative tests, owner README updates,
+and the affected `docs/reference/**` receipt in the same implementation
+commit. A missing issuer is `NoSafeSlice` development state, not a source
+disposition.
 
 The external review's architecture is accepted with these mandatory Hakorune
 corrections:
@@ -45,7 +94,7 @@ physical verifier owns: MIR representation and target ABI
 Declaration and conformance are separate. An annotation declares an
 obligation; it does not prove the body. Production publication requires both.
 
-The Hako parser D0 audit adds three mandatory frontend corrections. First, reuse
+The Hako parser D0 audit adds four mandatory frontend corrections. First, reuse
 the source-carrier lifecycle/sealer but add parser-invocation-branded
 declaration refs/sites. Second, separate exact as-written method source sites
 from selected/generated inventory placement. Raw `BoxMethodInventoryV1` stays
@@ -55,7 +104,9 @@ after build-gate prune/rebase and delegate lowering have completed; AST-only
 APIs are projections that discard the seal. H1 is now closed as a disconnected
 substrate; `CURRENT_STATE.toml` is deliberately design-stopped at the Rust R6
 source-seal/final-parse-product correction before any parser connection or
-resolver semantic publication.
+resolver semantic publication. Fourth, the callable contract may reference
+`VerifiedHomeAbi` but must not duplicate its receiver/parameter/result Home
+demand; typed syntax normalization must happen before the resolver issuer.
 
 ## Single authority table
 
@@ -73,6 +124,47 @@ resolver semantic publication.
 | reusable declaration target | resolver target catalog | call-site text, runtime registry |
 | caller/receiver/arguments/result relation | source-bound call relation | Recipe or Lower re-resolution |
 | logical call operation | verified Recipe `CallSlot` | provider/runtime fallback |
+
+## Additional finite task slices from the review
+
+These rows are deliberately placed before resolver target implementation and
+do not change the active R6 implementation lane:
+
+```text
+R6-S3-PARSER-SOURCE-SEAL-D0
+  final rich parse product and one non-Clone seal issuer
+  build-gate prune/rebase + delegate postpass transport
+  AST-only projection/discard path
+
+R6-S3-SOURCE-SITE-PLACEMENT-I0
+  SourceBoxMethodSiteV1 separate from selected/generated inventory ordinal
+  remove parser sidecar/member-ordinal reconstruction
+
+CALLABLE-CONTRACT-TYPED-SYNTAX-D0/I0
+  RuneAttr -> CallableContractSyntaxViewV1::Query
+  parser validates placement/duplicates; resolver consumes typed syntax only
+
+CALLABLE-HOME-ABI-REFERENCE-COSEAL-D0/I0
+  VerifiedHomeAbi remains the sole Home authority
+  declared callable contract stores a same-declaration relation, not a second
+  receiver/parameter/result demand
+
+SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0
+  non-test caller-zero or retirement of the old body-inferred target/result
+  family before declaration-first instance target issuance
+
+CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
+  complete same-brand declared-contract + body-conformance set
+  Lower/publication consumes only VerifiedConformantCallableCatalogV1
+
+CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
+  semantic I64 -> one-way physical ABI projection
+  no ExactTrivial*Abi/MirType reverse inference
+```
+
+The first two rows are R6-S3/nonclaims while the current active row is R6-S2;
+the latter five remain resolver/callable rows. Do not create a parallel
+implementation lane for them.
 
 `NoSafeSlice` means a required issuer is not implemented. It is not a source
 disposition. After an issuer exists, disposition is:
@@ -123,8 +215,8 @@ Rejected > Unresolved > Declined > Candidate
      sources remain below 800 lines;
    - no parser connection, build-gate, delegate postpass, scanner, resolver,
      semantic publication, or compatibility projection.
-7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0/S1/S2A` — R6-D0 accepted; S0,
-   S1, and S2a closed; S2 next
+7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0/S1/S2A/S2` — R6-D0 accepted;
+   S0, S1, S2a, and S2 closed; S3 next
    - give explicit methods an exact branded source site independent of the
      all-row inventory ordinal;
    - generated property/delegate rows retain generated origin only and never
@@ -150,7 +242,8 @@ Rejected > Unresolved > Declined > Candidate
      sidecar retirement; delegate ordinal retirement remains an explicit S3
      nonclaim because the delegate postpass is still AST-only.
 
-   R6-S2 is a behavior-neutral Refactor Series with three bounded cells:
+   R6-S2 was a behavior-neutral Refactor Series with three bounded cells; all
+   three are now landed:
 
    ```text
    R6-S2b-AST-receipts
@@ -186,10 +279,9 @@ Rejected > Unresolved > Declined > Candidate
    `PreparedBoxMethodInventoryAppendV1` with
    `BoxMethodInventoryV1::prepare_append` / `commit_prepared_append`.
    The AST crate must not know parser brands or source-site authority. The
-   old `try_merge_selected_gate(selected, &[u32], gate_site)` is not renamed
-   into a new sidecar; it is removed or unreachable in the same series.
-   Until this bridge is fixed, the S2 blocker is `NoSafeSlice` for the
-   implementation—not permission to add another parallel ordinal ledger.
+   former `try_merge_selected_gate(selected, &[u32], gate_site)` was removed,
+   not renamed into a new sidecar. Until this bridge was fixed, the S2 blocker
+   was `NoSafeSlice`; it never authorized another parallel ordinal ledger.
 
    The transaction-side owner surface is bounded to
    `open_for_box`, `branch`, current member/gate site, explicit commit,
@@ -199,12 +291,13 @@ Rejected > Unresolved > Declined > Candidate
    relations. No parser producer receives `&mut BoxMethodInventoryV1` after
    the cutover.
 
-   R6-S2b AST receipt support is landed in the frontend AST crate. The
-   prepared append validates the complete unpublished batch before mutation,
-   returns placement receipts, and exposes gate-path rebasing without making
-   the AST crate a parser source authority. The old parallel gate merge is
-   intentionally still present until the parser transaction callers migrate;
-   its removal is required in the next cell.
+   R6-S2b AST receipt support and the parser transaction cutover are landed in
+   the frontend AST/parser crates. The prepared append validates the complete
+   unpublished batch before mutation, returns placement receipts, and exposes
+   gate-path rebasing without making the AST crate a parser source authority.
+   The former parallel gate merge and all ordinary-parser sidecars are
+   removed; the live path accepts only the typed transaction-owned relation
+   and append products.
 
    The latest external review is reconciled into this row, not opened as a
    second authority. `BoxMethodInventoryV1` remains cloneable selected/
@@ -316,7 +409,7 @@ Rejected > Unresolved > Declined > Candidate
 | --- | --- | --- |
 | AST compatibility method map | R1-R4 | R5 caller zero and JSON v2 parity |
 | name-sorted compatibility iteration | legacy JSON/Builder consumers | those named consumers migrate |
-| parallel `method_source_member_ordinals` sidecar | R6 typed transaction cutover | inventory + source seal are issued atomically |
+| parallel `method_source_member_ordinals` sidecar | R6-S2 ordinary transaction cutover | deleted from the ordinary parser; final rich source seal remains R6-S3 |
 | inventory `selected_method_ordinal` as source identity | R6 | retain only as selected inventory placement |
 | Builder same-module name/arity catalog | current production compatibility | resolver target is selected and its caller cut over |
 | `source_instance_result_contract` body-inferred target/result family | current caller-zero tests | `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`, before new target I0 |

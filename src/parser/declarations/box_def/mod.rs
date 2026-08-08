@@ -5,6 +5,7 @@
 
 use crate::ast::{ASTNode, Span};
 use crate::parser::common::ParserUtils;
+use crate::parser::source_authority::OpenBoxMethodSourceTransactionV1;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
@@ -67,7 +68,15 @@ fn parse_box_declaration_after_box_keyword(
     let (name, type_parameters, extends, implements) = header::parse_header(p)?;
 
     p.consume(TokenType::LBRACE)?;
-    let mut state = BoxMemberState::default();
+    let statement_ordinal =
+        p.active_source_statement_ordinal()
+            .ok_or_else(|| ParseError::BuildCfg {
+                message: "Box source transaction requires an active top-level statement".to_owned(),
+                line: p.current_token().line,
+            })?;
+    let source_tx =
+        OpenBoxMethodSourceTransactionV1::open(p.source_invocation_brand(), statement_ordinal);
+    let mut state = BoxMemberState::with_source_transaction(source_tx);
     parse_box_member_body(p, &mut state)?;
     p.consume(TokenType::RBRACE)?;
     members::property_emit::apply_birth_once_constructor_prologues(
@@ -78,18 +87,19 @@ fn parse_box_declaration_after_box_keyword(
         &mut state.constructors,
         &state.field_initializers,
     );
+    let methods = state.methods().clone();
     // 🚫 Disallow method named same as the box (constructor-like confusion)
-    validators::validate_no_ctor_like_name(p, &name, &state.methods)?;
+    validators::validate_no_ctor_like_name(p, &name, &methods)?;
 
     // 🔥 Override validation
     for parent in &extends {
-        p.validate_override_methods(&name, parent, &state.methods)?;
+        p.validate_override_methods(&name, parent, &methods)?;
     }
 
     // birth_once 相互依存の簡易検出（宣言間の循環）
-    validators::validate_birth_once_cycles(p, &state.methods)?;
+    validators::validate_birth_once_cycles(p, &methods)?;
     if is_sync {
-        sync_box::validate_no_waits_in_sync_box(p, &name, &state.methods, &state.constructors)?;
+        sync_box::validate_no_waits_in_sync_box(p, &name, &methods, &state.constructors)?;
     }
 
     let node = ASTNode::BoxDeclaration {
@@ -98,7 +108,7 @@ fn parse_box_declaration_after_box_keyword(
         field_decls: state.field_decls,
         public_fields: state.public_fields,
         private_fields: state.private_fields,
-        methods: state.methods,
+        methods,
         constructors: state.constructors,
         init_fields: state.init_fields,
         weak_fields: state.weak_fields, // 🔗 Add weak fields to AST

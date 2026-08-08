@@ -1,23 +1,24 @@
 //! Properties parsing (once/birth_once, header-first)
-use crate::ast::{BoxMethodInventoryV1, Span};
+use crate::ast::Span;
 use crate::parser::common::ParserUtils;
 use crate::parser::declarations::box_def::members::{
     property_batch::{PreparedGeneratedPropertyMethodBatchV1, PropertyMemberKindV1},
     syntax::{self, PropertyBodyPostfix},
 };
+use crate::parser::source_authority::GeneratedPropertySink;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
 fn prepare_and_commit(
     kind: PropertyMemberKindV1,
-    methods: &mut BoxMethodInventoryV1,
+    sink: &mut impl GeneratedPropertySink,
     birth_once_props: &mut Vec<String>,
     name: String,
     body: Vec<crate::ast::ASTNode>,
     diagnostic_span: Span,
 ) -> Result<(), ParseError> {
     let batch = PreparedGeneratedPropertyMethodBatchV1::prepare(kind, name, body, diagnostic_span)?;
-    if let Some(property_name) = batch.commit(methods)? {
+    if let Some(property_name) = batch.commit(sink)? {
         birth_once_props.push(property_name);
     }
     Ok(())
@@ -28,7 +29,7 @@ fn prepare_and_commit(
 pub(crate) fn try_parse_unified_property(
     p: &mut NyashParser,
     kind_kw: &str,
-    methods: &mut BoxMethodInventoryV1,
+    sink: &mut impl GeneratedPropertySink,
     birth_once_props: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
     let Some(kind) = PropertyMemberKindV1::from_keyword(kind_kw) else {
@@ -50,7 +51,7 @@ pub(crate) fn try_parse_unified_property(
         PropertyBodyPostfix::ArrowOrBlock,
         "'=>' expression or block for once/birth_once property",
     )?;
-    prepare_and_commit(kind, methods, birth_once_props, name, body, diagnostic_span)?;
+    prepare_and_commit(kind, sink, birth_once_props, name, body, diagnostic_span)?;
     Ok(true)
 }
 
@@ -58,7 +59,7 @@ pub(crate) fn try_parse_unified_property(
 /// Returns Ok(true) if a member was parsed and emitted into `methods`.
 pub(crate) fn try_parse_block_first_property(
     p: &mut NyashParser,
-    methods: &mut BoxMethodInventoryV1,
+    sink: &mut impl GeneratedPropertySink,
     birth_once_props: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
     if !(crate::parser::env::unified_members() && p.match_token(&TokenType::LBRACE)) {
@@ -116,7 +117,7 @@ pub(crate) fn try_parse_block_first_property(
 
     prepare_and_commit(
         kind,
-        methods,
+        sink,
         birth_once_props,
         name,
         final_body,

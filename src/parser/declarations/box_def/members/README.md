@@ -32,9 +32,12 @@ Rules:
   the method pending and commit it once at the next member or Box end.
 - Do not insert generated property/delegate rows one at a time. Construct one
   complete `PreparedGeneratedBoxMethodBatchV1` and commit it atomically.
-- Selected branches may stage syntactic source-member ordinals, but that
-  staging owns no declarations or lookup policy. The sole method owner is
-  `BoxMethodInventoryV1`.
+- Selected branches stage through the enclosing
+  `OpenBoxMethodSourceTransactionV1`; the branch relation table owns exact
+  source sites while the AST inventory receives one prepared append. No
+  parallel ordinal slice or length delta may cross this boundary. The sole
+  unpublished method/source owner is the transaction; the AST inventory is
+  only its ordered placement carrier.
 - A parsed delegate carries its exact source selection. Compatibility-only
   delegates must not generate fresh source-authoritative method rows.
 - Do not bypass the member postfix gate for method or constructor postfix

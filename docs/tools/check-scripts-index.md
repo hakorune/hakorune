@@ -602,6 +602,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/hako_parser_box_declaration_h1_guard.sh` | H1 disconnected Box declaration-carrier guard for branded source refs/sites, separate source-site versus inventory placement, duplicate-before-mutation, one-Box sealing, foreign-site rejection, double-finish rejection, parser nonconnection, and below-800-line sources. |
 | `tools/checks/frontend_parsed_box_source_seal_r6_s1_guard.sh` | R6-S1 parser-private source-authority substrate guard for invocation brands, source sites, one transaction owner, prepared/non-Clone seal vocabulary, no final-seal constructor, parser-postpass/resolver disconnection, and below-800-line source. |
 | `tools/checks/frontend_parsed_box_source_seal_r6_s2a_guard.sh` | R6-S2a parser-session ingress guard for one invocation brand, exact top-level statement cursor, focused parser-session tests, and zero producer/rich-output/resolver connection. |
+| `tools/checks/frontend_parsed_box_source_seal_r6_s2_guard.sh` | R6-S2 ordinary Box source-transaction cutover guard for direct/property/member-gate producers, typed append/rebase, zero method sidecars, zero parallel ordinal-slice merge, and below-800-line sources. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy

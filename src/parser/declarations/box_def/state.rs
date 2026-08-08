@@ -2,15 +2,15 @@ use crate::ast::{
     ASTNode, BoxMemberGateSiteV1, BoxMethodInventoryV1, ContractClause, DeclarationAttrs,
     DelegateDecl, FieldDecl, ParamDecl, TransitionDecl,
 };
+use crate::parser::source_authority::{OpenBoxMethodSourceTransactionV1, ParserInvocationBrandV1};
 use std::collections::{BTreeMap, HashMap};
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub(crate) struct BoxMemberState {
     pub(crate) fields: Vec<String>,
     pub(crate) field_decls: Vec<FieldDecl>,
     pub(crate) field_initializers: Vec<(String, ASTNode)>,
-    pub(crate) methods: BoxMethodInventoryV1,
-    method_source_member_ordinals: Vec<u32>,
+    pub(crate) source_tx: OpenBoxMethodSourceTransactionV1,
     pub(crate) public_fields: Vec<String>,
     pub(crate) private_fields: Vec<String>,
     pub(crate) constructors: HashMap<String, ASTNode>,
@@ -20,7 +20,15 @@ pub(crate) struct BoxMemberState {
     pub(crate) invariants: Vec<ASTNode>,
     pub(crate) transitions: Vec<TransitionDecl>,
     pub(crate) birth_once_props: Vec<String>,
-    next_member_ordinal: u32,
+}
+
+impl Default for BoxMemberState {
+    fn default() -> Self {
+        Self::with_source_transaction(OpenBoxMethodSourceTransactionV1::open(
+            ParserInvocationBrandV1::issue(),
+            0,
+        ))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -103,40 +111,43 @@ impl BoxMemberSignature {
 }
 
 impl BoxMemberState {
-    pub(crate) const fn current_gate_site(&self) -> BoxMemberGateSiteV1 {
-        BoxMemberGateSiteV1::from_box_member_ordinal(self.next_member_ordinal)
-    }
-
-    pub(crate) const fn current_source_member_ordinal(&self) -> u32 {
-        self.next_member_ordinal
-    }
-
-    pub(crate) fn record_new_methods_since(
-        &mut self,
-        previous_len: usize,
-    ) -> Result<(), crate::parser::ParseError> {
-        if self.method_source_member_ordinals.len() != previous_len
-            || self.methods.len() < previous_len
-        {
-            return Err(crate::parser::ParseError::BuildCfg {
-                message: "Box method source-member ordinal sidecar is out of sync".to_owned(),
-                line: 0,
-            });
+    pub(crate) fn with_source_transaction(source_tx: OpenBoxMethodSourceTransactionV1) -> Self {
+        Self {
+            source_tx,
+            fields: Vec::new(),
+            field_decls: Vec::new(),
+            field_initializers: Vec::new(),
+            public_fields: Vec::new(),
+            private_fields: Vec::new(),
+            constructors: HashMap::new(),
+            init_fields: Vec::new(),
+            weak_fields: Vec::new(),
+            delegates: Vec::new(),
+            invariants: Vec::new(),
+            transitions: Vec::new(),
+            birth_once_props: Vec::new(),
         }
-        self.method_source_member_ordinals.extend(
-            std::iter::repeat(self.next_member_ordinal).take(self.methods.len() - previous_len),
-        );
-        Ok(())
+    }
+
+    pub(crate) fn methods(&self) -> &BoxMethodInventoryV1 {
+        self.source_tx.inventory()
+    }
+
+    pub(crate) fn current_gate_site(&self) -> crate::ast::BoxMemberGateSiteV1 {
+        self.source_tx.current_gate_site()
+    }
+
+    pub(crate) fn current_source_member_ordinal(&self) -> u32 {
+        self.source_tx.current_member_ordinal()
     }
 
     pub(crate) fn finish_source_member(&mut self) -> Result<(), crate::parser::ParseError> {
-        self.next_member_ordinal = self.next_member_ordinal.checked_add(1).ok_or_else(|| {
-            crate::parser::ParseError::BuildCfg {
-                message: "Box member ordinal exceeds u32".to_owned(),
+        self.source_tx
+            .finish_member()
+            .map_err(|error| crate::parser::ParseError::BuildCfg {
+                message: format!("Box member source transaction failed: {error:?}"),
                 line: 0,
-            }
-        })?;
-        Ok(())
+            })
     }
 
     pub(crate) fn try_merge_selected_gate(
@@ -144,12 +155,6 @@ impl BoxMemberState {
         mut other: BoxMemberState,
         gate_site: BoxMemberGateSiteV1,
     ) -> Result<(), crate::parser::ParseError> {
-        if other.method_source_member_ordinals.len() != other.methods.len() {
-            return Err(crate::parser::ParseError::BuildCfg {
-                message: "selected Box method ordinal sidecar is incomplete".to_owned(),
-                line: 0,
-            });
-        }
         for delegate in &mut other.delegates {
             delegate.prepend_selected_gate(gate_site).map_err(|error| {
                 crate::parser::ParseError::BuildCfg {
@@ -160,18 +165,8 @@ impl BoxMemberState {
                 }
             })?;
         }
-        let selected_method_count = other.methods.len();
-        self.methods
-            .try_merge_selected_gate(
-                other.methods,
-                &other.method_source_member_ordinals,
-                gate_site,
-            )
-            .map_err(
-                crate::parser::declarations::box_def::members::pending_method::map_inventory_error,
-            )?;
-        self.method_source_member_ordinals
-            .extend(std::iter::repeat(gate_site.box_member_ordinal()).take(selected_method_count));
+        self.source_tx
+            .try_merge_selected_gate(other.source_tx, gate_site)?;
         self.fields.extend(other.fields.drain(..));
         self.field_decls.extend(other.field_decls.drain(..));
         self.field_initializers
@@ -191,7 +186,7 @@ impl BoxMemberState {
 
     pub(crate) fn signature(&self) -> BoxMemberSignature {
         let mut methods = BTreeMap::new();
-        for entry in self.methods.iter_selected_declaration_order() {
+        for entry in self.methods().iter_selected_declaration_order() {
             let name = entry.name();
             let node = entry.declaration();
             if let Some(sig) = MethodSignature::from_node(node) {
@@ -249,21 +244,19 @@ mod tests {
     fn selected_collision_leaves_whole_destination_state_unchanged() {
         let mut destination = BoxMemberState::default();
         destination
-            .methods
-            .try_push_explicit_source("run", function("run", 1), Span::new(0, 0, 1, 1))
+            .source_tx
+            .commit_explicit_at_current("run".to_owned(), function("run", 1), Span::new(0, 0, 1, 1))
             .unwrap();
-        destination.record_new_methods_since(0).unwrap();
         destination.fields.push("before".to_owned());
-        let methods_before = destination.methods.clone();
+        let methods_before = destination.methods().clone();
         let fields_before = destination.fields.clone();
         let birth_once_before = destination.birth_once_props.clone();
 
         let mut selected = BoxMemberState::default();
         selected
-            .methods
-            .try_push_explicit_source("run", function("run", 7), Span::new(0, 0, 7, 1))
+            .source_tx
+            .commit_explicit_at_current("run".to_owned(), function("run", 7), Span::new(0, 0, 7, 1))
             .unwrap();
-        selected.record_new_methods_since(0).unwrap();
         selected.fields.push("must_not_publish".to_owned());
         selected
             .birth_once_props
@@ -272,7 +265,7 @@ mod tests {
         assert!(destination
             .try_merge_selected_gate(selected, BoxMemberGateSiteV1::from_box_member_ordinal(3),)
             .is_err());
-        assert_eq!(destination.methods, methods_before);
+        assert_eq!(destination.methods(), &methods_before);
         assert_eq!(destination.fields, fields_before);
         assert_eq!(destination.birth_once_props, birth_once_before);
     }

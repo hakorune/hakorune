@@ -1,10 +1,11 @@
 //! Atomic generated-method transaction for one source property.
 
 use crate::ast::{
-    ASTNode, BoxMethodGeneratedProvenanceV1, BoxMethodInventoryV1, BoxMethodSourceSelectionV1,
+    ASTNode, BoxMethodGeneratedProvenanceV1, BoxMethodSourceSelectionV1,
     PreparedGeneratedBoxMethodBatchV1, PreparedGeneratedBoxMethodV1, Span,
 };
 use crate::parser::declarations::box_def::members::{pending_method, property_emit};
+use crate::parser::source_authority::GeneratedPropertySink;
 use crate::parser::ParseError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -75,11 +76,9 @@ impl PreparedGeneratedPropertyMethodBatchV1 {
 
     pub(super) fn commit(
         self,
-        methods: &mut BoxMethodInventoryV1,
+        sink: &mut impl GeneratedPropertySink,
     ) -> Result<Option<String>, ParseError> {
-        methods
-            .try_commit_generated_batch(self.methods)
-            .map_err(pending_method::map_inventory_error)?;
+        sink.commit_generated_property_batch_at_current(self.methods)?;
         Ok(self.birth_once.then_some(self.property_name))
     }
 }
@@ -87,7 +86,7 @@ impl PreparedGeneratedPropertyMethodBatchV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{BoxMethodProvenanceV1, DeclarationAttrs};
+    use crate::ast::{BoxMethodInventoryV1, BoxMethodProvenanceV1, DeclarationAttrs};
 
     fn function(name: &str, span: Span) -> ASTNode {
         ASTNode::FunctionDeclaration {

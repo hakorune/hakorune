@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1/R6-S2a closed — R6-S2 design corrected; ordinary producer cutover next
+Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2 closed — R6-S3 final parser seal is next
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -115,7 +115,7 @@ iter_selected_declaration_order()
 get(name)
 into_selected_declaration_order()
 try_push(parser-issued entry)
-try_merge_selected_gate(unpublished selected inventory, gate site)
+try_merge_selected_gate(unpublished selected transaction, gate site)
 try_from_compatibility_entries(entries, compatibility origin)
 iter_compat_name_order()
 ```
@@ -247,23 +247,23 @@ connection is opened by R6-S2.
 
 ### R6-S2 implementation cells
 
-1. **R6-S2b-AST receipt support**
+1. **R6-S2b-AST receipt support — landed**
    - return generated placement receipts from a complete batch commit;
    - replace the parallel selected-gate ordinal merge with a transaction-owned
      relation lookup/rebase API;
-   - keep the old API only until all parser callers are migrated in the same
-     series; do not add a second source authority.
+   - do not reintroduce the removed ordinal-slice API or a second source
+     authority.
 2. **R6-S2 transaction owner cutover**
    - move `BoxMemberState` inventory, source relations, and member cursor into
      one parser transaction owner;
    - route ordinary direct/property/once/birth_once/member-gate producers
      through that owner with duplicate-first/commit-once behavior;
    - preserve generated provenance and exact explicit source sites.
-3. **R6-S2 sidecar retirement**
-   - delete `method_source_member_ordinals`, `record_new_methods_since`, and
-     length-delta reconstruction after caller-zero is proven;
-   - update focused parser/AST tests, owner READMEs, and reference receipt in
-     the same commit; all touched sources remain below 800 lines.
+3. **R6-S2 sidecar retirement — landed**
+   - `method_source_member_ordinals`, `record_new_methods_since`,
+     length-delta reconstruction, and the AST ordinal-slice merge are deleted;
+   - focused parser/AST tests, owner READMEs, reference receipt, and the R6-S2
+     guard are updated in the same slice.
 
 Each cell is a behavior-preserving Refactor Series commit. No new resolver
 issuer, rich parse output, delegate postpass, or semantic callable contract
@@ -295,8 +295,9 @@ The concrete API may be named
 crate must remain ignorant of parser brands and source-site authority. A
 consumed unpublished branch inventory may expose selected entries only to the
 source transaction; the transaction owns the source-site/path rebase. The
-existing `try_merge_selected_gate(selected, &[u32], gate_site)` API is not a
-rename target and must be removed or made unreachable before S2 closes.
+former `try_merge_selected_gate(selected, &[u32], gate_site)` API was not a
+rename target; it was removed when S2 closed. The live API accepts only the
+typed transaction-owned relation/rebase product.
 
 The transaction-side minimum is:
 
@@ -327,15 +328,45 @@ The AST-side first cell is now implemented and tested. It adds:
 PreparedBoxMethodInventoryAppendV1
 BoxMethodEntryV1::prepend_selected_gate(...)
 BoxMethodInventoryV1::commit_prepared_append(...)
-try_commit_generated_batch_with_ordinals(...)
+try_commit_generated_batch_with_placements(...)
 ```
 
 The append product is validated before mutation and returns exact placement
 receipts. The AST crate remains source-authority agnostic: parser brands,
-source sites, and gate-path relation rebasing stay in the future transaction
-owner. The old parallel selected-gate API remains temporarily because parser
-callers still use it; its removal is part of the next transaction-cutover
-cell, not a silent compatibility rename.
+source sites, and gate-path relation rebasing stay in the transaction owner.
+The old AST selected-gate API accepting a caller-supplied ordinal slice was
+removed in the R6-S2 transaction cutover; the AST now accepts only the typed
+prepared append product.
+
+### R6-S2 transaction cutover — landed in the current slice
+
+The ordinary Rust `box` parser now routes direct methods, generated
+property/once/birth_once batches, and selected member-gate branches through one
+`OpenBoxMethodSourceTransactionV1` held by `BoxMemberState`. The transaction
+owns the unpublished ordered inventory, exact explicit source relations,
+generated-row relations, and member cursor. Branch merge consumes the typed
+relation table, prepends selected-gate provenance, prepares one complete AST
+append, and commits only after duplicate/name/placement validation.
+
+The former ordinary-parser sidecars and reconstruction path are gone:
+
+```text
+method_source_member_ordinals      deleted
+record_new_methods_since           deleted
+length-delta source reconstruction  deleted
+AST &[u32] selected-gate merge      deleted
+```
+
+Interface/static compatibility lanes may still use the explicit compatibility
+sink because they are outside the bounded ordinary-`box` R6-S2 source-seal
+claim. Delegate AST-only postpass, final rich parse output, and final
+non-Clone seal issuance remain R6-S3 nonclaims. The nested selected-else
+fixture in the historical R2 parser pack remains a pre-existing red baseline;
+it is not used as evidence for this behavior-neutral transaction cutover.
+
+The current source transaction does not issue `ParserBoxSourceSealV1` and does
+not authorize resolver semantics. It only removes the parallel mutable owner
+before the final rich parse-product row.
 
 ## Compatibility retirement
 

@@ -144,96 +144,6 @@ fn immutable_lookup_preserves_identity() {
 }
 
 #[test]
-fn selected_gate_merge_is_atomic_and_keeps_nested_path() {
-    let mut destination = BoxMethodInventoryV1::empty();
-    destination
-        .try_push_explicit_source("outer", function("outer"), Span::unknown())
-        .unwrap();
-
-    let mut inner = BoxMethodInventoryV1::empty();
-    inner
-        .try_push_explicit_source("selected", function("selected"), Span::unknown())
-        .unwrap();
-    let mut selected = BoxMethodInventoryV1::empty();
-    selected
-        .try_merge_selected_gate(inner, &[4], BoxMemberGateSiteV1::from_box_member_ordinal(7))
-        .unwrap();
-
-    destination
-        .try_merge_selected_gate(
-            selected,
-            &[9],
-            BoxMemberGateSiteV1::from_box_member_ordinal(3),
-        )
-        .unwrap();
-
-    let entry = destination.get("selected").unwrap();
-    assert_eq!(entry.site().selected_method_ordinal(), 1);
-    let Some(BoxMethodSourceSelectionV1::SelectedBuildGate { path }) =
-        entry.provenance().explicit_source_selection()
-    else {
-        panic!("selected source must retain its gate path")
-    };
-    assert_eq!(path.len(), 2);
-    assert_eq!(path[0].gate_site().box_member_ordinal(), 3);
-    assert_eq!(path[0].branch_member_ordinal(), 9);
-    assert_eq!(path[1].gate_site().box_member_ordinal(), 7);
-    assert_eq!(path[1].branch_member_ordinal(), 4);
-}
-
-#[test]
-fn selected_gate_rejects_missing_source_member_ordinals_without_mutation() {
-    let mut destination = BoxMethodInventoryV1::empty();
-    let before = destination.clone();
-    let mut selected = BoxMethodInventoryV1::empty();
-    selected
-        .try_push_explicit_source("run", function("run"), Span::unknown())
-        .unwrap();
-
-    assert_eq!(
-        destination
-            .try_merge_selected_gate(
-                selected,
-                &[],
-                BoxMemberGateSiteV1::from_box_member_ordinal(0),
-            )
-            .unwrap_err(),
-        BoxMethodInventoryErrorV1::BranchMemberOrdinalCountMismatch {
-            methods: 1,
-            ordinals: 0,
-        }
-    );
-    assert_eq!(destination, before);
-}
-
-#[test]
-fn selected_gate_collision_leaves_destination_unchanged() {
-    let mut destination = BoxMethodInventoryV1::empty();
-    destination
-        .try_push_explicit_source("run", function("run"), Span::unknown())
-        .unwrap();
-    let before = destination.clone();
-
-    let mut selected = BoxMethodInventoryV1::empty();
-    selected
-        .try_push_explicit_source("run", function("run"), Span::unknown())
-        .unwrap();
-
-    let error = destination
-        .try_merge_selected_gate(
-            selected,
-            &[0],
-            BoxMemberGateSiteV1::from_box_member_ordinal(1),
-        )
-        .unwrap_err();
-    assert!(matches!(
-        error,
-        BoxMethodInventoryErrorV1::DuplicateMethod { .. }
-    ));
-    assert_eq!(destination, before);
-}
-
-#[test]
 fn generated_and_compatibility_rows_are_not_explicit_source() {
     let mut inventory = BoxMethodInventoryV1::empty();
     inventory
@@ -393,12 +303,8 @@ fn prepared_append_rebases_gate_path_and_returns_placement_receipts() {
         .unwrap();
     let placements = destination.commit_prepared_append(append).unwrap();
 
-    assert_eq!(
-        placements.as_ref(),
-        &[BoxMethodInventoryOrdinalV1 {
-            selected_method_ordinal: 1,
-        }]
-    );
+    assert_eq!(placements[0].name(), "selected");
+    assert_eq!(placements[0].inventory_ordinal().inventory_ordinal(), 1);
     let entry = destination.get("selected").unwrap();
     assert_eq!(entry.site().inventory_ordinal(), 1);
     let Some(BoxMethodSourceSelectionV1::SelectedBuildGate { path }) =
@@ -448,9 +354,10 @@ fn generated_batch_returns_exact_placement_receipts() {
     .unwrap();
 
     let placements = destination
-        .try_commit_generated_batch_with_ordinals(batch)
+        .try_commit_generated_batch_with_placements(batch)
         .unwrap();
-    assert_eq!(placements[0].inventory_ordinal(), 1);
+    assert_eq!(placements[0].name(), "__get_value");
+    assert_eq!(placements[0].inventory_ordinal().inventory_ordinal(), 1);
     assert!(matches!(
         destination.get("__get_value").unwrap().provenance(),
         BoxMethodProvenanceV1::Generated(BoxMethodGeneratedProvenanceV1::Property { .. })

@@ -15,10 +15,6 @@ pub enum BoxMethodInventoryErrorV1 {
         declaration_name: Box<str>,
     },
     InvalidSelectedGateProvenance,
-    BranchMemberOrdinalCountMismatch {
-        methods: usize,
-        ordinals: usize,
-    },
     NonContiguousSelectedMethodOrdinal {
         expected: u32,
         found: u32,
@@ -52,10 +48,6 @@ impl fmt::Display for BoxMethodInventoryErrorV1 {
             ),
             Self::InvalidSelectedGateProvenance => formatter.write_str(
                 "selected Box member gate contains a method provenance that cannot be source-selected",
-            ),
-            Self::BranchMemberOrdinalCountMismatch { methods, ordinals } => write!(
-                formatter,
-                "selected Box member gate has {methods} methods but {ordinals} source-member ordinals",
             ),
             Self::NonContiguousSelectedMethodOrdinal { expected, found } => write!(
                 formatter,
