@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, and bounded resolver declaration/signature I0 landed; Home ABI, Query behavior/body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, and bounded internal Home ABI0 S0 landed; Query behavior/body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -97,7 +97,7 @@ method signature:
 callable contract:
   behavioral obligation only
 
-VerifiedHomeAbi:
+VerifiedHomeAbiV1:
   receiver/parameter demands and result Home relation
 
 physical ABI verifier:
@@ -184,11 +184,16 @@ by value through its sole `into_parts` path plus a resolver-owned nominal/type
 environment, then issues a fresh non-Clone declaration catalog with semantic
 parameter/result types. Parser invocation brand is provenance only; rows must
 not be cloned or re-issued, and `FunctionOwnerIdV1::compilation_brand` is not
-nominal type identity. A later aggregate issuer will consume that declaration
-catalog, typed Query behavior, and same-declaration `VerifiedHomeAbi`; it
-returns one declared aggregate and a sealed conformant catalog. The aggregate
-co-seals these axis owners; it does not restate Home or infer semantic types
-from `ExactTrivial*Abi`, `MirType`, or `FunctionSignature`.
+nominal type identity. `OWN-HOME-ABI0-S0` now consumes that declaration catalog
+by value together with a same-resolver-brand capability environment and issues
+one non-`Clone` Home ABI catalog. Its relation batch brand is provenance only
+and is never a nominal Box/method identity. The issuer maps receiver `Handle`,
+`I64`/`Unit` parameters to `Trivial`, `Unit` result to `Unit`, and `I64`
+result to `Trivial`; it does not read Query syntax or body facts. A later
+aggregate issuer will consume this Home catalog, typed Query behavior, and
+the declaration catalog to co-seal one declared aggregate and a conformant
+catalog. It does not restate Home or infer semantic types from
+`ExactTrivial*Abi`, `MirType`, or `FunctionSignature`.
 
 Parser errors own syntax only:
 

@@ -68,14 +68,16 @@ The catalog owns only exact Box/method source identity and semantic
 parameter/result classes (`I64` or `Unit`). Parser invocation provenance is
 retained as provenance; it is not reused as nominal type identity. The issuer
 does not clone rows through the parser inspection API or issue partial
-receipts. `CallableContractSyntaxV1` is carried as typed syntax only; Home
-ABI, Query behavior, body conformance, resolver targets, Recipe/CallSlot,
-Builder/MIR, and physical ABI remain separate unopened boundaries.
+receipts. `CallableContractSyntaxV1` is carried as typed syntax only; Query
+behavior, body conformance, resolver targets, Recipe/CallSlot, Builder/MIR,
+and physical ABI remain separate unopened boundaries.
 
 This I0 is a resolver semantic declaration receipt, not a production call
-path. The next design stop is the sole Home ABI classifier/issuer, which must
-co-seal with the declaration later without duplicating receiver or result
-ownership meaning.
+path. `OWN-HOME-ABI0-S0` now issues the bounded semantic Home catalog through
+one non-`Clone` co-seal. The Home relation batch brand remains provenance only;
+the resolver catalog brand, nominal type, and exact source site remain the
+declaration identity. Query behavior, body conformance, targets, Recipe, and
+physical lowering remain unopened.
 
 ## Home relation vocabulary S0
 
@@ -83,10 +85,24 @@ ownership meaning.
 provides one fresh relation brand, opaque root/destination source ordinals,
 the exhaustive `HomeDemandV1` and `HomeResultRelationV1` enums, and typed
 foreign/duplicate rejection reasons. The brand issuer is only a relation
-receipt factory: it does not classify source types, issue `VerifiedHomeAbi`,
-run Home Flow, or connect to Builder/MIR/runtime. A later ABI issuer must
-co-seal these relations with the same resolver declaration brand/site rather
-than reusing or guessing them.
+receipt factory: it does not classify source types or run Home Flow, and it
+does not connect to Builder/MIR/runtime. The landed ABI issuer stores this
+relation batch brand separately and never treats it as nominal source
+identity.
+
+## Home ABI0 S0
+
+`home_abi.rs` contains the sole `CallableHomeAbiIssuerV1` for the bounded
+semantic cohort. It consumes the declaration catalog by value plus a
+resolver-owned `ResolverHomeCapabilityEnvironmentV1` whose resolver brand and
+declaration anchors must match. The resulting non-`Clone`
+`VerifiedDeclaredInstanceMethodHomeCatalogV1` owns one `VerifiedHomeAbiV1`
+row per declaration in declaration order.
+
+The explicit mapping is receiver `Handle`, semantic `I64`/`Unit` parameters to
+`Trivial`, `Unit` result to `Unit`, and `I64` result to `Trivial`. The issuer
+does not read Query syntax, body facts, `MirType`, physical ABI, or runtime
+state. It has no Home Flow or production caller.
 
 Lambda syntax is borrowed through an AST-derived view and never cloned into a
 semantic product. A child declaration uses a child-local `BindingId`; raw IDs

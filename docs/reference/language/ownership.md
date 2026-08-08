@@ -303,9 +303,11 @@ result relation:
 ```
 
 The passive relation vocabulary for these demands/results is landed in the
-resolver as an internal, branded receipt only. It does not make Home grammar
-or production ABI live: classification, declaration co-seal, Home Flow, and
-physical ownership remain separate gates.
+resolver as an internal, branded receipt, and the bounded `I64|Unit` Home ABI
+catalog is now issued through one same-declaration co-seal. The relation brand
+is batch provenance only, not resolver nominal identity. This does not make
+Home grammar or production ABI live: Query/body conformance, Home Flow,
+physical ownership, targets, and production remain separate gates.
 
 ### ClosedCallable
 

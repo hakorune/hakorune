@@ -1,5 +1,5 @@
 ---
-Status: active — bounded implementation
+Status: closed — bounded implementation landed
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-abi0-s0-design-task-2026-08-09.md`
 Authority: `docs/development/current/main/design/ownership-home-model-ssot.md`
@@ -119,3 +119,6 @@ The implementation commit must update `src/mir/resolved_semantics/README.md`,
 `docs/reference/language/callable-contracts.md`, the parent Home taskboard,
 and current pointers in the same slice. Keep each Rust file below the 760-line
 split trigger and hard-stop at 800.
+
+Receipt: `src/mir/resolved_semantics/home_abi.rs` plus focused Home ABI tests;
+the next design stop is declared Query behavior and its Home aggregate co-seal.

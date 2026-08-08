@@ -386,14 +386,12 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current active execution:
+Current next design stop:
 
 ```text
-OWN-HOME-ABI0-S0
-  implementation of the sole Home ABI classifier/issuer co-sealed with the
-  landed declaration;
-  passive relation brand is batch provenance only; no partial receipts,
-  physical ABI inference, target, or Recipe.
+RESOLVER-DECLARED-QUERY-BEHAVIOR-D0
+  one typed Query behavior issuer co-sealed later with the landed Home ABI;
+  Query never duplicates receiver/parameter/result Home relations.
 ```
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
@@ -715,11 +713,14 @@ Rejected > Unresolved > Declined > Candidate
    - status: closed 2026-08-09; focused declaration/handoff/source-seal
      matrix and same-slice README/reference/current receipts landed.
 13. `OWN-HOME-CALLABLE-ABI-D0` — closed -> `OWN-HOME-RELATION0-S0` — closed ->
-   `OWN-HOME-ABI0-S0` design stop -> implementation/query
+   `OWN-HOME-ABI0-S0` design/implementation — closed ->
+   `RESOLVER-DECLARED-QUERY-BEHAVIOR-D0` design stop
    - existing Home taskboard remains the sole owner;
    - D0 fixes one Home ABI issuer and same-declaration co-seal; Relation0 is
      passive branded vocabulary only and has no classifier or production
      caller; its relation brand is not the resolver catalog brand;
+   - ABI0 issues one non-Clone same-brand/site I64/Unit Home catalog and does
+     not open Query behavior, Home Flow, target, or production;
    - consume the semantic declaration output and issue one same-declaration
      `VerifiedHomeAbi` with receiver `Handle`, zero parameter demands, and
      Trivial result for the bounded cohort;

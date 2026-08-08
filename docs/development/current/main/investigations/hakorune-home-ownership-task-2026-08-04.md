@@ -446,8 +446,12 @@ The later implementation introduces receiver/parameter demands and result
 relation for the explicit I64/Unit cohort. Parameter/receiver demands come
 from the resolved declaration; ClosedCallable body analysis may infer result
 relation and verify local flow, but cannot invent a consuming demand. Only the
-canonical issuer seals the product. Until this design stop closes, no Home ABI
-implementation, Query behavior, target, Recipe, or Home Flow opens.
+canonical issuer seals the product. The bounded ABI0 implementation is
+caller-zero and does not open Query behavior, target, Recipe, or Home Flow.
+
+The next design stop is
+[`own-home-query-behavior-d0-design-task-2026-08-09.md`](own-home-query-behavior-d0-design-task-2026-08-09.md),
+which must co-seal typed Query behavior without reissuing Home relations.
 
 ### `OWN-HOME-BOUNDARY0-S0`
 
