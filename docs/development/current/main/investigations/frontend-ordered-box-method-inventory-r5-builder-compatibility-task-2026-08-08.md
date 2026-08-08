@@ -54,6 +54,56 @@ no Builder retry/fallback
 no broad cleanup mixed with a single caller migration
 ```
 
+## Preflight census receipt — R5-S1
+
+The first bounded Builder edge is selected, but implementation is not yet
+opened because the worktree contains unrelated Loop/Recipe changes. R5 must
+start from a clean boundary (commit or user-directed stash); those changes
+must not be reset, folded into R5, or silently rewritten.
+
+Selected first edge:
+
+```text
+PreparedProgramDeferredStaticBoxWorkV1
+  -> into_compatibility_map()
+  -> ProgramDeferredStaticBoxLifecycleV1::new()
+  -> from_legacy_ast_map()
+  -> PreparedNonMainStaticBoxMethodBatchV1
+```
+
+Audited locations:
+
+```text
+src/mir/builder/program_root_work_plan.rs:149
+src/mir/builder/program_root_lowering.rs:90,385
+src/mir/builder/nonmain_static_box_method_batch.rs:26
+```
+
+The implementation slice is intentionally narrow:
+
+```text
+PreparedProgramDeferredStaticBoxWorkV1::into_parts()
+  returns (String, BoxMethodInventoryV1)
+
+ProgramDeferredStaticBoxLifecycleV1::new()
+  accepts BoxMethodInventoryV1 directly
+
+PreparedNonMainStaticBoxMethodBatchV1
+  uses one explicit named compatibility name-order view
+```
+
+The historical lowering order (`beta`, `alpha` source -> `alpha`, `beta`
+execution) must remain unchanged. The slice must not claim source-order
+promotion, resolver authority, Hako parser parity, or removal of the other
+legacy projections. Acceptance requires a caller-zero guard proving that this
+edge contains no `into_compatibility_map` / `from_legacy_ast_map` roundtrip,
+plus focused order and context-restoration tests.
+
+Retain for now: legacy JSON decoders, `declaration_order.rs`, raw static-Main
+compatibility, normal/raw source-plan projections, and the callable declaration
+catalog until their exact authority exists. Delete any helper only after its
+complete production caller set reaches zero.
+
 ## Acceptance
 
 ```text
