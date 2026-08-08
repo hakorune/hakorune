@@ -614,8 +614,8 @@ The only reusable result is a parser-private borrowed target reference carrying
 the exact target path and explicit source relation. It contains no generated
 placement, AST node, resolver identity, Recipe key, ValueId, provider handle,
 or runtime route. C-S1 does not mutate AST/inventory/seal state. Complete
-all-host/expose preflight and atomic generated batch commit remain C-I0; final
-resolver-visible relation coverage remains R6-S3B-D.
+all-host/expose preflight and atomic generated batch commit are the accepted
+C-I0 boundary; final resolver-visible relation coverage remains R6-S3B-D.
 
 ## R6-S3B-C-S1 implementation receipt — closed (2026-08-09)
 
@@ -634,14 +634,66 @@ state is mutated.
 The four focused tests landed in the same slice and prove positive reuse,
 missing-field unresolved, missing-method no-fallback rejection, and duplicate
 target rejection. All touched Rust files remain below 800 lines. The next
-frontier is C-I0 design for all-host/expose preflight and one atomic generated
-batch commit.
+execution frontier is the separately tracked C-I0 implementation; its design
+is accepted, but the code row remains unopened at the current clean stop.
 
-The next design-only frontier is
-`frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md`.
-It must close the complete all-host/expose preflight, generated placement and
-relation receipt, collision policy, and whole-product atomic discard contract
-before any C-I0 implementation opens.
+The accepted C-I0 design and unopened implementation card are:
+
+```text
+frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md
+frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md
+```
+
+## R6-S3B-C-I0-D0 design receipt — accepted; implementation not opened
+
+C-I0 is now design-closed after an independent authority audit. The row does
+not extend `ParserBoxSourceSealV1`; it defines the parser-private staged batch
+that the later implementation must produce:
+
+```text
+PreparedDelegatePostpassBatchV1
+  staged per-host generated AST batches
+  expected BoxMethodInventoryPlacementReceiptV1 rows
+  owned GeneratedDelegateSourceRelationV1 rows
+  exact same-brand host/target paths and target source references
+```
+
+The batch is issued by a consume-only prepare step on
+`OpenParserPostpassProductV1` and committed by one consume-return step. The
+prepare step borrows the C-S1 target index only while it is open; the
+staged batch owns all paths, source references, generated names, and placement
+receipts before commit. A borrowed descriptive target method
+signature/declaration view is allowed solely to construct the forwarding AST;
+it is not source identity, a semantic contract, or a resolver target.
+
+The complete preflight covers every ordinary host Box and every parser-issued
+delegate expose exactly once. It verifies host/source-path alignment, target
+field/type, explicit target method relation, generated name and collision
+policy, generated provenance, staged inventory placement, and AST/source-row
+one-to-one coverage. Placement is computed against a staging inventory and
+actual commit receipts must equal the expected receipts. A zero-delegate
+ordinary program is an exact no-op.
+
+Generated relation rows are carried by `ParserSourceSessionV1`/the prepared
+source payload through prune and finalization so R6-S3B-D can verify complete
+coverage without AST re-scan. C-I0 keeps them outside the final non-Clone
+`ParserBoxSourceSealV1`; only D can issue resolver-visible relation/seal
+coverage. Any failure consumes and drops the whole unpublished product: no
+partial host commit, rollback repair, same-session retry, or name fallback.
+
+Disposition is fixed as follows:
+
+```text
+NoSafeSlice = missing staged issuer/typed transaction (development state)
+Rejected    = foreign/duplicate/mismatch/collision/orphan/placement failure
+Unresolved  = incomplete source path/field/type/signature evidence
+Declined    = fully observed outside the bounded C cohort
+Candidate   = all rows exact and the complete staged batch is ready
+```
+
+The dedicated implementation card and guard must land before C-I0 code opens.
+The implementation commit must update this reference, the parser README, the
+language reference receipt, focused tests, and current task pointers together.
 
 ## Nonclaims until R6-S3B-D closes
 

@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1 closed; C-I0-D0 is the current design stop and C-I0 implementation/D remain closed
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0 design closed; C-I0 implementation and R6-S3B-D remain closed
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -213,13 +213,21 @@ R6-S3B-C-S1 (closed)
   Task:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-implementation-task-2026-08-09.md`
 
-R6-S3B-C-I0-D0 (current design stop)
-  design all-host/expose preflight, generated placement/relation coverage,
-  and one atomic postpass batch commit. This row must preserve the private
-  C-S1 borrowed index, keep final seal/resolver work closed, and define the
-  complete failure/discard contract before implementation.
-  Task:
+R6-S3B-C-I0-D0 (accepted design; implementation closed)
+  defines the private `PreparedDelegatePostpassBatchV1` owner, borrowed target
+  signature view, all-host/expose exact preflight, staged placement receipts,
+  relation persistence through finalization, typed failure/discard matrix, and
+  one consume-return commit. It does not extend the final seal or issue a
+  resolver target.
+  Design:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md`
+
+R6-S3B-C-I0 (planned implementation; not opened)
+  implements only the accepted parser-private atomic generated batch. Same
+  slice must update focused tests, parser README, source-handoff SSOT,
+  language reference receipt, and guard. No R6-S3B-D authority may open.
+  Task:
+  `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md`
 
 R6-S3B-D
   final complete relation coverage and one final non-Clone seal

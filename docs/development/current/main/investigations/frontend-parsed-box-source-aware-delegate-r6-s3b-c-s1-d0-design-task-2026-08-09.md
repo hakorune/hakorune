@@ -161,5 +161,6 @@ guard/task entry. The implementation slice must update its reference and owner
 README in the same commit and keep every touched Rust source file below 800
 lines.
 
-The child C-S1 implementation receipt is now closed. The next design frontier
-is C-I0 all-host/expose preflight and one atomic generated-batch commit.
+The child C-S1 implementation receipt is now closed. The accepted next
+execution frontier is the unopened C-I0 implementation for all-host/expose
+preflight and one atomic generated-batch commit.

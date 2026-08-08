@@ -10,19 +10,20 @@ SSOT="$ROOT/docs/development/current/main/design/parser-postpass-source-handoff-
 REFERENCE="$ROOT/docs/reference/language/callable-contracts.md"
 TASK="$ROOT/docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-implementation-task-2026-08-09.md"
 NEXT="$ROOT/docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md"
+NEXT_IMPL="$ROOT/docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md"
 TASKMAP="$ROOT/docs/development/current/main/investigations/callable-contract-and-instance-call-implementation-task-map-2026-08-08.md"
 STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 INDEX="$ROOT/docs/tools/check-scripts-index.md"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$MODULE" "$AUTHORITY" "$README" "$SSOT" "$REFERENCE" "$TASK" "$NEXT" "$TASKMAP" "$STATE" "$INDEX"
+guard_require_files "$TAG" "$MODULE" "$AUTHORITY" "$README" "$SSOT" "$REFERENCE" "$TASK" "$NEXT" "$NEXT_IMPL" "$TASKMAP" "$STATE" "$INDEX"
 
-python3 - "$MODULE" "$AUTHORITY" "$README" "$SSOT" "$REFERENCE" "$TASK" "$NEXT" "$TASKMAP" "$STATE" "$INDEX" <<'PY'
+python3 - "$MODULE" "$AUTHORITY" "$README" "$SSOT" "$REFERENCE" "$TASK" "$NEXT" "$NEXT_IMPL" "$TASKMAP" "$STATE" "$INDEX" <<'PY'
 import sys
 from pathlib import Path
 
-module, authority, readme, ssot, reference, task, next_design, taskmap, state, index = [
+module, authority, readme, ssot, reference, task, next_design, next_impl, taskmap, state, index = [
     Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
 ]
 
@@ -58,11 +59,14 @@ for document, label in ((ssot, "SSOT"), (reference, "reference"), (task, "task")
         if needle not in document:
             raise SystemExit(f"{label} missing C-S1 closeout: {needle}")
 
-if "Status: planned design stop; implementation not opened" not in next_design:
-    raise SystemExit("next C-I0 card must remain a design stop")
+if "Status: accepted design; implementation not opened" not in next_design:
+    raise SystemExit("C-I0 design receipt must be accepted before implementation opens")
+if "Status: planned; implementation not opened" not in next_impl:
+    raise SystemExit("C-I0 implementation card must remain unopened")
 for needle in (
     "R6-S3B-C-S1 (closed)",
     "frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md",
+    "frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md",
 ):
     if needle not in taskmap:
         raise SystemExit(f"task map missing next C-I0 boundary: {needle}")
@@ -88,7 +92,7 @@ print("private_target_index=1")
 print("exact_path_relation=1")
 print("focused_disposition_tests=1")
 print("no_later_authority=1")
-print("c_i0_design_stop=1")
+print("c_i0_design_receipt=1")
 print("source_files_below_800=1")
 print("summary=ok")
 PY

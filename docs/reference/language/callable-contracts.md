@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index receipt closed, C-I0 batch design remains unopened.
+Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index receipt closed, C-I0 batch design accepted and implementation unopened.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -352,8 +352,23 @@ Focused tests cover a reusable positive candidate, missing-field unresolved,
 missing-method rejection without fallback, and duplicate-target rejection.
 The implementation does not mutate AST/inventory/seals, add generated
 placement, extend the final seal, or connect resolver/Recipe/runtime routes.
-C-I0 all-host/expose preflight and atomic generated-batch commit remain a
-design frontier.
+C-I0 all-host/expose preflight and atomic generated-batch commit have an
+accepted design; implementation remains unopened at the current clean stop.
+
+R6-S3B-C-I0-D0 design receipt (2026-08-09): the accepted next parser slice
+owns one private `PreparedDelegatePostpassBatchV1` containing staged per-host
+forwarder drafts, expected inventory placement receipts, and owned generated
+delegate source-relation rows. It borrows the C-S1 target index only during
+preflight and may borrow a descriptive target declaration/signature view for
+forwarder construction; neither is a semantic or resolver authority. Every
+host and expose is matched exactly once before any AST/inventory mutation.
+Generated relation rows are carried through the prepared parser payload so D
+can verify complete coverage without AST re-scan, but C-I0 does not extend
+`ParserBoxSourceSealV1`. Placement is computed against staging inventory and
+actual commit receipts must match. Zero-delegate ordinary programs are exact
+no-ops; all failures drop the unpublished product with no partial commit,
+retry, or fallback. The implementation card and guard remain unopened until
+the next bounded slice.
 
 ## Related references
 
