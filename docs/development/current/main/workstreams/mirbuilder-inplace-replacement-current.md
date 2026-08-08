@@ -505,8 +505,9 @@ Current decision and execution brief:
 Change:
   S6A and S6B are closed. The S6C typed call/value architecture is accepted,
   but the current numeric LoopRecipe cannot represent the smallest scan
-  exactly. First split the near-limit demand/verifier modules behavior-
-  neutrally; then land explicit V2 typed schema and instance-target rows.
+  exactly. The behavior-neutral demand/verifier split is closed. The current
+  bounded row lands only the explicit V2 typed wire and structural verifier;
+  resolver instance-target and source-bound relation rows remain separate.
 Contract:
   keep the ordered M8 cohort on one recursive Recipe algebra; source Facts
   own semantic roles and BindingRefs, producers alone mint Recipe keys, and
@@ -531,7 +532,7 @@ Stop:
 
 ordered successor boundary:
   LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
-  -> LoopRecipeV2 typed schema/Text/CallSlot/TextEq
+  -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0 (current)
   -> resolver instance-call target
   -> source-bound call relation
   -> S6C ScanWithInit -> S6D -> S6E -> S6G -> M9

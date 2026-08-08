@@ -19,9 +19,11 @@ mod physical_layout;
 mod producer_id;
 pub(crate) mod route_id;
 mod schema;
+mod schema_v2;
 mod semantic_context;
 mod source_binding;
 mod source_bound_core;
+mod typed_schema_v2;
 mod verify;
 
 #[cfg(test)]
@@ -95,6 +97,10 @@ mod operation_effect_parity;
 #[cfg(test)]
 #[path = "operation_physical_demand_tests.rs"]
 mod operation_physical_demand_tests;
+
+#[cfg(test)]
+#[path = "typed_schema_v2_tests.rs"]
+mod typed_schema_v2_tests;
 
 #[cfg(test)]
 pub(crate) use operation_effect_parity::{
@@ -182,6 +188,13 @@ pub(crate) use schema::{
     LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
 };
 #[allow(unused_imports)]
+pub(crate) use schema_v2::{
+    LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
+    LoopOperationV2, LoopRecipeArtifactV2, LoopRecipeBindingV2, LoopRecipeBlockV2,
+    LoopRecipeCarrierV2, LoopRecipeExitV2, LoopRecipeItemRowV2, LoopRecipeItemV2,
+    LoopRecipeV2, LoopRecipeValueV2, LoopValueClassV2, LOOP_RECIPE_SCHEMA_VERSION_V2,
+};
+#[allow(unused_imports)]
 pub(crate) use semantic_context::VerifiedLoopSemanticContextV1;
 #[allow(unused_imports)]
 pub(crate) use source_bound_core::{
@@ -193,6 +206,11 @@ pub(crate) use source_bound_core::{
 #[allow(unused_imports)]
 pub(crate) use verify::{
     verify_source_bound_recipe_v1, LoopRecipeVerifierV1, VerifiedLoopRecipeV1,
+};
+#[allow(unused_imports)]
+pub(crate) use typed_schema_v2::{
+    LoopRecipeV2RejectReason, LoopRecipeVerifierV2, VerifiedLoopRecipeArtifactV2,
+    VerifiedLoopRecipeV2,
 };
 
 /// Test-only end-to-end seam. The structural source-claim capability remains

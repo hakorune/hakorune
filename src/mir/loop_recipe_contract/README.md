@@ -492,3 +492,21 @@ at parent `e00a374803`; it is recorded in the active R0 card and is not repaired
 by this BoxShape series. Typed Text/Call schema growth remains a separate
 BoxCount row. When that later row changes the language contract, its reference
 page and this module README must be updated in the same implementation commit.
+
+## Explicit typed Recipe V2 schema — `LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0`
+
+The typed vocabulary is a separate wire, not an in-place widening of V1.
+`schema_v2.rs` owns `LoopRecipeArtifactV2`, logical `Text`, `CallSlot`, and
+`TextEq`; `typed_schema_v2.rs` owns only structural verification. A CallSlot
+contains recipe-local optional receiver/result keys and ordered argument keys.
+It contains no method/Box name, resolver target, Home/effect/ABI contract,
+MIR/physical ID, or runtime lookup string. The resolver target and source-bound
+call relation are later rows.
+
+The first V2 verifier checks schema version, canonical logical keys, referenced
+values, duplicate definitions, numeric domains, and `TextEq(Text, Text) ->
+Bool`. It performs no source lookup, Builder/MIR/CFG/PHI lowering, Tail/
+Completion handling, scan observation, selector, fallback, or production
+activation. `Text` is a logical class only; representation and ownership stay
+in the source-bound contract. V1 remains a separate accepted wire and is not
+decoded as V2.

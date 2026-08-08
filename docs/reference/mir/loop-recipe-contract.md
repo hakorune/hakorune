@@ -1,5 +1,44 @@
 # Portable Loop Recipe Contract
 
+## Explicit typed Recipe V2 wire — `LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0`
+
+Decision: accepted — V2 is an explicit schema boundary; V1 is not silently
+widened. This receipt covers only the profile-neutral typed wire and its
+structural verifier. It does not issue resolver instance-call targets or
+source-bound Home/effect/ABI relations.
+
+The V2 logical vocabulary preserves `I64`, `Bool`, and `Unit`, and adds the
+logical `Text` class. It adds two operations:
+
+```text
+CallSlot {
+  receiver: Option<ValueKey>
+  args: [ValueKey, ...]
+  result: Option<ValueKey>
+}
+TextEq { left: ValueKey, right: ValueKey, result: ValueKey }
+```
+
+`CallSlot` is a recipe-local slot only. Method/Box names, resolver
+capabilities, Home/effect/ABI contracts, MIR/physical IDs, and runtime lookup
+strings are source-bound concerns and are not on the V2 wire. The first
+callable cohort may later require a receiver and result, but that admission
+policy belongs to the resolver/source relation row.
+
+`LoopRecipeVerifierV2` rejects unsupported schema versions, non-canonical
+keys, unknown references, duplicate value definitions, invalid numeric
+domains, and non-`Text` `TextEq` operands or non-`Bool` results. It does not
+claim source existence, target resolution, input-source relations,
+ScanWithInit, Loop/Tail/Completion, Builder/MIR/physicalization, fallback, or
+production activation. The focused receipt is
+`typed_schema_v2_tests.rs`; all touched Rust files remain below the 760-line
+design trigger and 800-line hard boundary.
+
+The next independent rows are resolver instance-target issuance, source-bound
+call relation verification, typed parameter/initializer input relations, and
+only then the S6C ScanWithInit observer/producer. No guessed scan counts or
+legacy deletion belongs to this receipt.
+
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 
