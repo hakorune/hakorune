@@ -193,17 +193,24 @@ R6-S3B-C-S0 (closed)
   Reference:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0-implementation-task-2026-08-09.md`
 
-R6-S3B-C-S1-D0 (accepted design stop; implementation closed)
+R6-S3B-C-S1-D0 (accepted design; closed)
   private borrowed target index keyed by exact same-brand Box paths, with
   existing explicit method source relations as the only target authority.
   Field/type and method names are query selectors only; zero candidates are
   Unresolved, ambiguous paths are Rejected, and outside-cohort generated or
   chained targets are Declined. The C-S0 prepared transport remains the only
-  landed C implementation; C-S1 implementation and C-I0 batch commit stay
-  closed until this receipt's guard/task contract is opened.
+  landed C implementation; C-I0 batch commit stays closed.
   Reference:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-d0-design-task-2026-08-09.md`
   Planned implementation:
+  `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-implementation-task-2026-08-09.md`
+
+R6-S3B-C-S1 (active)
+  private `DelegateTargetIndexV1<'product>` borrowing the unpublished
+  postpass product; exact same-brand Box paths plus one explicit target method
+  relation. No AST/inventory/final-seal mutation, generated placement, batch
+  commit, resolver target, or runtime route.
+  Task:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-implementation-task-2026-08-09.md`
 
 R6-S3B-D

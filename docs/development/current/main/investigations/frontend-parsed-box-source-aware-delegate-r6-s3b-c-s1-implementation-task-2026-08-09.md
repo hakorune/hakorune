@@ -1,7 +1,7 @@
 ---
-Status: planned; implementation not opened
+Status: active bounded implementation
 Date: 2026-08-09
-Decision: implement only the accepted private borrowed target-index slice after the current design stop is reopened
+Decision: implement only the accepted private borrowed target-index slice; do not open generated placement or final seal
 Parent: `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-d0-design-task-2026-08-09.md`
 Reference: `docs/development/current/main/design/parser-postpass-source-handoff-ssot.md`
 ---

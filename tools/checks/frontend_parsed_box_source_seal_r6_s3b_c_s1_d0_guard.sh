@@ -44,26 +44,29 @@ for document, label in ((ssot, "SSOT"), (reference, "reference")):
         if needle not in document:
             raise SystemExit(f"{label} missing C-S1 design receipt: {needle}")
 
-for needle in (
-    "Status: planned; implementation not opened",
-    "same-brand",
-    "GeneratedDelegateSourceRelation",
-    "no final ParserBoxSourceSealV1 extension",
+if not any(
+    marker in implementation
+    for marker in (
+        "Status: planned; implementation not opened",
+        "Status: active bounded implementation",
+    )
 ):
+    raise SystemExit("implementation task must be planned or active, never completed")
+for needle in ("same-brand", "GeneratedDelegateSourceRelation", "no final ParserBoxSourceSealV1 extension"):
     if needle not in implementation:
         raise SystemExit(f"implementation task missing stop line: {needle}")
 
 for needle in (
-    "R6-S3B-C-S1-D0 (accepted design stop; implementation closed)",
+    "R6-S3B-C-S1-D0 (accepted design; closed)",
     "frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-implementation-task-2026-08-09.md",
 ):
     if needle not in taskmap:
         raise SystemExit(f"task map missing C-S1 task pointer: {needle}")
 
 for needle in (
-    'work_mode = "design_stop"',
-    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-S1-D0"',
-    'current_blocker_token = "R6-S3B-C-S1-D0:',
+    'work_mode = "fast"',
+    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-S1"',
+    'current_blocker_token = "R6-S3B-C-S1:',
 ):
     if needle not in state:
         raise SystemExit(f"current state missing design stop: {needle}")
@@ -78,8 +81,8 @@ for path in (Path("src/parser/source_authority.rs"), Path("src/parser/source_sea
 print("accepted_design=1")
 print("private_borrowed_index=1")
 print("disposition_matrix=1")
-print("implementation_closed=1")
-print("current_design_stop=1")
+print("implementation_scope_guarded=1")
+print("current_row_contract=1")
 print("landed_docs=1")
 print("summary=ok")
 PY
