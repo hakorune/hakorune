@@ -373,8 +373,8 @@ receipt. Delegate relations, final seal expansion, Hako parity, resolver
 contracts, Recipe, Builder, and MIR remain closed.
 
 R6-S3B-B3-I0 implementation receipt (2026-08-08): the finalizer now carries a
-parser-private `GatePruneOutputV1::final_box_paths` list and issues one private
-`FinalizerCoveragePlanV1`. It matches prepared source paths to final ordinary
+parser-private `OpenParserPostpassProductV1::final_box_paths` list and issues
+one private `FinalizerCoveragePlanV1`. It matches prepared source paths to final ordinary
 AST Boxes by exact parser brand/path, rejects count, duplicate, foreign, or
 missing coverage, and uses the resulting mapping instead of positional final
 AST order. The generated delegate suffix remains descriptive AST compatibility

@@ -6,21 +6,21 @@ TAG="frontend-parsed-box-source-seal-r6-s3b-b2"
 PARSER="$ROOT/src/parser/mod.rs"
 LEDGER="$ROOT/src/parser/source_gate_ledger.rs"
 PATHS="$ROOT/src/parser/source_path.rs"
-WALKER="$ROOT/src/parser/source_gate_prune.rs"
+PROJECTION="$ROOT/src/parser/build_cfg/prune.rs"
 SEAL="$ROOT/src/parser/source_seal.rs"
 TESTS="$ROOT/src/parser/source_session_tests.rs"
-SEAL_TESTS="$ROOT/src/parser/source_seal.rs"
+SEAL_TESTS="$ROOT/src/parser/source_seal_finalizer_tests.rs"
 TASK="$ROOT/docs/development/current/main/design/parser-postpass-source-handoff-ssot.md"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$PARSER" "$LEDGER" "$PATHS" "$WALKER" "$SEAL" "$TESTS" "$SEAL_TESTS" "$TASK"
+guard_require_files "$TAG" "$PARSER" "$LEDGER" "$PATHS" "$PROJECTION" "$SEAL" "$TESTS" "$SEAL_TESTS" "$TASK"
 
-python3 - "$PARSER" "$LEDGER" "$PATHS" "$WALKER" "$SEAL" "$TESTS" "$SEAL_TESTS" "$TASK" <<'PY'
+python3 - "$PARSER" "$LEDGER" "$PATHS" "$PROJECTION" "$SEAL" "$TESTS" "$SEAL_TESTS" "$TASK" <<'PY'
 import sys
 from pathlib import Path
 
-parser, ledger, paths, walker, seal, tests, seal_tests, task = [Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]]
+parser, ledger, paths, projection, seal, tests, seal_tests, task = [Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]]
 
 for needle in ("source_build_gate_scope", "prepared_source_build_gate_records", "take_source_build_gate_records"):
     if needle not in parser:
@@ -34,8 +34,8 @@ for needle in ("SourceBuildGatePathV1", "RootTopLevel", "BranchChild"):
     if needle not in paths:
         raise SystemExit(f"missing distinct gate path grammar: {needle}")
 
-for needle in ("prune_top_level_gate_program", "parser build-gate ledger", "BuildGateSelectionReceiptV1"):
-    if needle not in walker + seal:
+for needle in ("project_build_gate_program", "BuildGateProjectionSelector", "BuildGateSelectionReceiptV1"):
+    if needle not in projection + seal:
         raise SystemExit(f"missing source-aware gate prune contract: {needle}")
 
 for needle in ("prepare_prune", "commit_prune", "source_seal_survives"):
@@ -53,7 +53,7 @@ for needle in ("R6-S3B-B2", "SourceBuildGatePathV1", "one selection receipt", "m
     if needle not in task:
         raise SystemExit(f"missing B2 SSOT boundary: {needle}")
 
-for path in map(Path, sys.argv[1:7]):
+for path in map(Path, sys.argv[1:8]):
     if len(path.read_text(encoding="utf-8").splitlines()) >= 800:
         raise SystemExit(f"source must remain below 800 lines: {path}")
 

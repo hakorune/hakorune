@@ -49,7 +49,14 @@ closed_review_row = (
     'work_mode = "design_stop"' in state
     and 'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-CLOSEOUT-D0"' in state
 )
-if not (active_row or closed_row or closed_review_row):
+cleanup_successor = all(
+    needle in state
+    for needle in (
+        'work_mode = "fast"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-GUARD-CLEANUP-S0"',
+    )
+)
+if not (active_row or closed_row or closed_review_row or cleanup_successor):
     raise SystemExit("CURRENT_STATE missing retirement active/closeout pointer")
 if "source_gate_prune" in mod:
     raise SystemExit("caller-zero source_gate_prune module is not retired")

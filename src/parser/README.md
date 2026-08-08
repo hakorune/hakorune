@@ -183,3 +183,8 @@ old `explain_build_gate_program` helper were removed. Grammar-evidence
 selection, resolver source-seal transport, and the explicit compatibility arm
 remain separate owners; this retirement did not change receipt or path
 semantics.
+
+FINAL-GUARD-CLEANUP-S0 is the bounded closeout row: active B2/B3/D-I0 guards
+now validate `build_cfg/prune.rs`, `source_seal.rs`, and the private finalizer
+owners rather than the retired helper. The retired filename remains only in
+historical retirement evidence; it is not an active parser authority.

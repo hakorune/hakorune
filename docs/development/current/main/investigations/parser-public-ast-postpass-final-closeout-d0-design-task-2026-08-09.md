@@ -1,4 +1,4 @@
-Status: accepted design; implementation not opened
+Status: closed design audit
 Date: 2026-08-09
 Row: PARSER-PUBLIC-AST-POSTPASS-FINAL-CLOSEOUT-D0
 Parent: `parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`
@@ -55,6 +55,22 @@ no retry/reparse/fallback
 no SourceBuildGateBranchV1::NoElse
 ```
 
-Only after this audit may a later caller-zero cleanup or production selection
-design be opened. Any new semantic source contract requires its own D0 before
-implementation.
+Before this audit, no caller-zero cleanup or production selection design was
+opened. The bounded guard cleanup is now closed; any new semantic source
+contract requires its own D0 before implementation.
+
+## Closeout receipt (2026-08-09)
+
+The audit is closed by the bounded
+`PARSER-PUBLIC-AST-POSTPASS-FINAL-GUARD-CLEANUP-S0` receipt. It updated the
+tracked B2/B3 guards to the shared projection/finalizer owners, extended the
+historical successor guards through the cleanup row, and added a dedicated
+cleanup guard for stale-helper absence, current-state synchronization, line
+limits, and known parent-baseline red classification.
+
+No parser semantic authority changed. `BuildGateSelectionOutcomeV1` remains
+the sole semantic selection outcome; `SourceBuildGateBranchV1` remains
+Then/Else-only path authority; grammar evidence, resolver source-seal
+transport, and explicit compatibility remain separate. Production selection,
+resolver/runtime, grammar redesign, compatibility replacement, retry, and
+fallback remain closed. The next semantic step requires a new D0.

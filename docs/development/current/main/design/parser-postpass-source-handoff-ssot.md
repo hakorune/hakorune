@@ -921,6 +921,13 @@ parser-module owner comments landed in the same slice.
 R6-S3B-C remains the next design boundary for a source-aware generated
 delegate relation; it is not opened by B3-I0.
 
+FINAL-GUARD-CLEANUP-S0 (2026-08-09) is a guard/documentation-only closeout
+row. The active B2/B3/D-I0 checks point at the shared BuildCfg projection,
+source-session finalizer, and delegate relation tests. The retired
+`source_gate_prune.rs` filename is retained only as historical retirement
+evidence and is not required by any active guard. Parser semantics, receipt
+authority, and path vocabulary are unchanged.
+
 The current bounded S3A test accepts a generated delegate suffix only as a
 temporary placement canary. That acceptance is not a resolver-grade source
 claim: B3 keeps it explicitly outside the final source seal, while malformed

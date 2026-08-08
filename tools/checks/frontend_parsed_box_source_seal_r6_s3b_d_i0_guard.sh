@@ -81,6 +81,10 @@ if not any(
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-C-PROJECTION-D0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-C-PROJECTION-I0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-D0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-RETIRE-S0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-NOELSE-RECEIPT-I0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-CLOSEOUT-D0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-GUARD-CLEANUP-S0"',
     )
 ):
     raise SystemExit("CURRENT_STATE is neither on D-I0 nor its explicit postpass successor")

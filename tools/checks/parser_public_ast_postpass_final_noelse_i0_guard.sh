@@ -50,10 +50,18 @@ closed = (
         for needle in (
             'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-NOELSE-RECEIPT-D0"',
             'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-CLOSEOUT-D0"',
+            'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-GUARD-CLEANUP-S0"',
         )
     )
 )
-if not (active or closed):
+cleanup_successor = all(
+    needle in state
+    for needle in (
+        'work_mode = "fast"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-GUARD-CLEANUP-S0"',
+    )
+)
+if not (active or closed or cleanup_successor):
     raise SystemExit("CURRENT_STATE missing NoElse active/closeout pointer")
 if "BuildGateSelectionOutcomeV1" not in selection:
     raise SystemExit("semantic outcome owner is missing")

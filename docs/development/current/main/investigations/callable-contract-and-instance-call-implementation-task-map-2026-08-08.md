@@ -793,7 +793,7 @@ it must include positive/negative receipt tests, same-commit reference/README
 updates, and the final/pointer guards. It does not open resolver, Builder,
 MIR, grammar-evidence redesign, compatibility replacement, retry, or fallback.
 
-The immediate execution row is now:
+Historical transition (closed): the immediate execution row was:
 
 ```text
 PARSER-PUBLIC-AST-POSTPASS-FINAL-RETIRE-S0
@@ -801,9 +801,14 @@ PARSER-PUBLIC-AST-POSTPASS-FINAL-RETIRE-S0
   task: parser-public-ast-postpass-final-retire-s0-implementation-task-2026-08-09.md
 ```
 
-After that row closes, the separate `FINAL-NOELSE-RECEIPT-D0` design opens and
-then its receipt implementation. These rows must not be combined into one
-commit or one authority.
+That row and the separate `FINAL-NOELSE-RECEIPT-D0`/I0 rows are now closed.
+The active parser closeout is the bounded guard-hygiene row below; these rows
+remain separate authorities and are not reopened:
+
+```text
+PARSER-PUBLIC-AST-POSTPASS-FINAL-GUARD-CLEANUP-S0
+  task: parser-public-ast-postpass-final-guard-cleanup-s0-implementation-task-2026-08-09.md
+```
 
 `FINAL-NOELSE-RECEIPT-D0` is now closed as the accepted design, and its
 implementation is landed:

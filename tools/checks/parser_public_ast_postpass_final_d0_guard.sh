@@ -24,8 +24,14 @@ task, taskmap, ssot, state, mod, seal, entry = [
     Path(path).read_text(encoding="utf-8") for path in sys.argv[2:]
 ]
 
-if "Status: accepted design; implementation not opened" not in task:
-    raise SystemExit("FINAL D0 must remain design-only")
+if not any(
+    status in task
+    for status in (
+        "Status: accepted design; implementation not opened",
+        "Status: closed design audit",
+    )
+):
+    raise SystemExit("FINAL D0 must remain design-only or carry its closeout receipt")
 for text, label in ((taskmap, "task map"), (ssot, "SSOT")):
     if "PARSER-PUBLIC-AST-POSTPASS-FINAL" not in text:
         raise SystemExit(f"{label} missing FINAL boundary")
@@ -39,14 +45,23 @@ for needle in (
 ):
     if needle not in task:
         raise SystemExit(f"FINAL task missing contract: {needle}")
-if 'work_mode = "design_stop"' not in state:
-    raise SystemExit("FINAL D0 must remain a design stop")
+final_design_stop = 'work_mode = "design_stop"' in state
+cleanup_successor = all(
+    needle in state
+    for needle in (
+        'work_mode = "fast"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-GUARD-CLEANUP-S0"',
+    )
+)
+if not (final_design_stop or cleanup_successor):
+    raise SystemExit("FINAL D0 must remain a design stop or explicit cleanup successor")
 if not any(
     needle in state
     for needle in (
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-D0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-NOELSE-RECEIPT-D0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-CLOSEOUT-D0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-GUARD-CLEANUP-S0"',
     )
 ):
     raise SystemExit("CURRENT_STATE missing FINAL/NoElse design-stop pointer")
