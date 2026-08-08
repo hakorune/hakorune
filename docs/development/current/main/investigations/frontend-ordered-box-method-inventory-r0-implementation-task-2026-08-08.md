@@ -1,5 +1,5 @@
 ---
-Status: active implementation row — first bounded Refactor Series cell
+Status: implemented — first bounded Refactor Series cell; awaiting closeout commit
 Date: 2026-08-08
 Decision: model only; connection is mandatory in immediate R1
 Parent: `frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md`
@@ -48,6 +48,7 @@ get_mut_preserving_identity(name)
 into_source_order()
 try_push(entry)
 try_merge_selected_gate(selected, gate_site)
+try_from_compatibility_entries(entries, origin)
 iter_compat_name_order()
 ```
 
@@ -66,7 +67,7 @@ direct rows retain insertion order and receive 0..N selected ordinals
 duplicate direct name rejects without mutation
 get and get_mut preserve entry identity
 compat iteration is deterministic name order but does not mutate source order
-selected-gate merge retains branch origin and rebases once
+selected-gate merge retains the outer-to-inner nested branch path and rebases once
 selected-gate collision rejects with destination unchanged
 generated provenance never exposes an ExplicitSource site
 ```
@@ -97,3 +98,18 @@ All new Rust files remain below 800 lines; split tests from the model before
 the model reaches 650--700 lines. The same commit updates the frontend AST
 owner documentation and this task receipt. After R0 lands, CURRENT_STATE moves
 directly to R1 rather than leaving the model parked.
+
+## Implementation receipt
+
+```text
+model/API: landed
+focused tests: 7
+production consumers: 0
+resolver/source authority: 0
+compatibility batch import: atomic and CompatibilityOnly
+```
+
+The compatibility batch constructor exists only to make the immediate R1
+field cutover compile without falsely claiming source authority. Parser-owned
+rows must migrate to `ExplicitSource` in the following cells; compatibility
+rows can never back the callable-contract resolver issuer.

@@ -10,6 +10,7 @@ pub const FRONTEND_AST_CRATE_READY: bool = true;
 
 mod ast_node;
 mod attrs;
+mod box_method_inventory;
 mod build_predicate;
 mod decls;
 mod literal;
@@ -23,6 +24,12 @@ pub use ast_node::{
     ASTNode, CatchClause, CheckItem, ContractClause, EnumMatchArm, EnumVariantDecl, FieldDecl,
 };
 pub use attrs::{DeclarationAttrs, RuneAttr};
+pub use box_method_inventory::{
+    BoxMemberGateSiteV1, BoxMethodCompatibilityOriginV1, BoxMethodDeclarationSiteV1,
+    BoxMethodEntryV1, BoxMethodGateSelectionV1, BoxMethodGeneratedProvenanceV1,
+    BoxMethodInventoryErrorV1, BoxMethodInventoryV1, BoxMethodProvenanceV1,
+    BoxMethodSourceSelectionV1,
+};
 pub use build_predicate::BuildPredicate;
 pub use decls::{ContractKind, DelegateDecl, DelegateExposeDecl, ParamDecl, TransitionDecl};
 pub use literal::LiteralValue;

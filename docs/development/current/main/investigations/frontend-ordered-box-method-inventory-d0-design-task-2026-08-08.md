@@ -50,8 +50,10 @@ ExplicitSource {
   selection:
     Direct
     | SelectedBuildGate {
-        gate_site,
-        branch_member_ordinal,
+        path: [
+          { gate_site, branch_member_ordinal },
+          ...
+        ]
       }
 }
 
@@ -62,8 +64,8 @@ CompatibilityOnly
 ```
 
 `SelectedBuildGate` is not a generated provenance. A method written by the
-user inside the selected branch remains `ExplicitSource`; its selection path
-is nested metadata. Only `ExplicitSource` rows may back the first resolver
+user inside the selected branch remains `ExplicitSource`; its outer-to-inner
+selection path is nested metadata. Only `ExplicitSource` rows may back the first resolver
 `CallableContract(query)` declaration.
 
 Constructors remain a separate authority. Source properties are Box members
@@ -82,8 +84,9 @@ selected method ordinal
 
 The inventory owns the Box-local selected method ordinal. The program/resolver
 inventory later co-seals the Box statement ordinal and brand. `Span` is
-diagnostic only. Selected-gate provenance retains the gate site and original
-branch member ordinal while the selected ordinal is rebased once at commit.
+diagnostic only. Selected-gate provenance retains every gate site and original
+branch member ordinal in outer-to-inner order while the selected ordinal is
+rebased once at commit.
 
 ## Public API and forbidden API
 
@@ -96,6 +99,7 @@ get_mut_preserving_identity(name)
 into_source_order()
 try_push(parser-issued entry)
 try_merge_selected_gate(unpublished selected inventory, gate site)
+try_from_compatibility_entries(entries, compatibility origin)
 iter_compat_name_order()
 ```
 
