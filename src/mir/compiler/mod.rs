@@ -45,6 +45,7 @@ pub(in crate::mir) mod direct_accum_projection;
 pub(in crate::mir) mod variable_accum_recurrence_projection;
 #[cfg(test)]
 mod variable_accum_recurrence_projection_tests;
+#[allow(dead_code)] pub(in crate::mir) mod variable_accum_break_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
@@ -261,7 +262,6 @@ mod sibling_call_tests;
 mod source_bound_package_p0;
 #[cfg(test)]
 mod source_view_tests;
-
 use crate::mir::builder::BuilderInvocationConfigV1;
 use capability::{
     CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1, CanonicalLoweringPreflightV1,

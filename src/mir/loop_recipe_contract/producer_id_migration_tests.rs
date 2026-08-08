@@ -77,6 +77,7 @@ fn producer_id_wire_keys_roundtrip_without_legacy_route_names() {
         LoopRecipeProducerIdV1::GenericG0,
         LoopRecipeProducerIdV1::CallableSingleLoopV1,
         LoopRecipeProducerIdV1::VariableAccumRecurrenceV1,
+        LoopRecipeProducerIdV1::VariableAccumBreakV1,
     ] {
         let json = serde_json::to_string(&producer_id).expect("producer id encodes");
         let decoded: LoopRecipeProducerIdV1 =

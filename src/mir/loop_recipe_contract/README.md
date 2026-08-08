@@ -98,6 +98,31 @@ Builder/MIR effect, M9 parity, production route, retry/fallback, or legacy
 deletion is open. The S6A closeout updates this README and the matching
 `docs/reference/**` receipt; M10b cutover requires a final update.
 
+## M8 S6B variable-accum break/fallthrough producer
+
+The caller-zero `VariableAccumBreakV1` producer consumes one atomic Facts
+candidate for `apps/tests/loop_break_plan_subset_min.hako` and deterministically
+projects it into the existing `LoopRecipeV1`, `LoopJoinSigV1`, source-bound
+Core, initialized-local input set, and operation/effect product. It does not
+inspect AST, select a route, or create physical identities. The normalized
+Recipe keeps the conditional terminal arm separate from the implicit normal
+fallthrough arm; the terminal payload is not merged with the normal update.
+
+The sealed receipt is intentionally explicit: 2 Recipe bindings, 2 external
+inputs, 3 logical blocks, 20 item rows, 17 values, 2 carriers, and 1 break
+exit. The source-bound relation counts are 2 inputs, 2 bindings, 10 Core
+effects, and 18 operation-source rows. The branch `If` and `Break` source
+anchors are retained in `VariableAccumBreakControlSourceReceiptV1`; they are
+not forced into the operation/effect table. Producer provenance is
+`variable_accum_break_v1` and is diagnostic only.
+
+Focused positive/negative tests cover exact source projection, deterministic
+Recipe/JoinSig/Core sealing, independent `Exit`/`Fallthrough` arms, incomplete
+coverage (`Unresolved`), unsupported/explicit-else shapes (`Declined`), and
+foreign owner (`Rejected`). S6B remains Builder-free and caller-zero: no
+physicalizer, completion, selector, retry/fallback, production caller, or
+legacy retirement is opened.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one

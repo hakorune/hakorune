@@ -1379,6 +1379,22 @@ S6B dependency:
   `NoSafeSlice`; no adapter-local branch patch or legacy-facts import is
   allowed.
 
+S6B implementation receipt (2026-08-08): the source observer now seals one
+atomic `VerifiedVariableAccumBreakFactsV1` and the producer consumes that
+Candidate once. Facts retain resolver-owned sites/frame, two distinct source
+bindings, two initializer/input relations, terminal/normal/step assignments,
+the branch/break control anchors, and complete role coverage without minting
+Recipe keys. The producer emits the existing recursive Recipe with 3 blocks,
+20 item rows (18 operations plus `If`/`Break`), 17 values, 2 carriers, and 1
+break exit. The source-bound relation counts are 2 inputs, 2 bindings, 10 Core
+effects, and 18 item-source operation rows; control anchors stay in a separate
+receipt. Existing JoinSig owns the `Exit`/implicit `Fallthrough` branch arms
+and normal backedge. Focused positive/negative tests close Candidate,
+Declined, Unresolved, and Rejected without opening Builder/MIR/CFG/PHI,
+physicalization, selector, retry/fallback, production, tail, or legacy
+authority. The S6B task and implementation receipt update this SSOT and both
+module references in the same closeout commit.
+
 Contract:
 : 19/19 legacy ingress rows have typed pre-effect decline or one verified
   instance of the common recipe algebra. Legacy winner

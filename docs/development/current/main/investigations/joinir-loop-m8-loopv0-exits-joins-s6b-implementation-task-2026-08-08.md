@@ -1,5 +1,5 @@
 ---
-Status: active implementation task
+Status: closed implementation task
 Decision: accepted — implement the bounded S6B source observer/Recipe producer
 Date: 2026-08-08
 DesignPrerequisite: docs/development/current/main/investigations/loop-joinsig-mixed-fallthrough-d0-design-2026-08-08.md
@@ -81,6 +81,27 @@ Negative:
   commit;
 - after green, update `CURRENT_STATE.toml` and this task to `closed`, then
   stop at the S6B boundary before S6C.
+
+## Closeout receipt (2026-08-08)
+
+Closed with the resolver-backed observer, atomic Facts, deterministic existing
+Recipe/JoinSig/Core/input/effect producer, and six focused tests. The landed
+receipt is 2 bindings, 2 inputs, 3 logical blocks, 20 Recipe items (18
+operations plus `If`/`Break`), 17 values, 2 carriers, 1 break exit, 10 Core
+effects, and 18 operation-source rows. The branch preserves an independent
+terminal `Exit` arm and implicit normal `Fallthrough` arm. No physical or
+production route was opened. Module READMEs, design SSOT, and the reference
+receipt were updated in the same closeout slice. The next S6C work requires a
+new design-only entry before implementation.
+
+Verification note: the four landed S6B Rust files pass targeted
+`rustfmt --check`, `cargo test --lib variable_accum_break`, the focused
+JoinSig suite, `git diff --check`, the current-state pointer guard, and the
+shared MirBuilder replacement guard. Repository-wide `cargo fmt --check`
+remains red on pre-existing formatting drift in older compiler/physicalizer
+module facades; this slice does not reformat those unrelated files. The shared
+logical-demand guard was extended only to recognize the S6B test-only JoinSig
+projection and producer boundary.
 
 ## Stop conditions
 
