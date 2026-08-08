@@ -3,15 +3,22 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::error::LoopRecipeRejectReasonV1 as Reject;
-use super::ids::{
-    LoopBindingKeyV1, LoopBlockKeyV1, LoopExitKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1,
-};
+use super::ids::{LoopBlockKeyV1, LoopExitKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
 use super::schema::{
     LoopConditionV1, LoopExitKindV1, LoopOperationV1, LoopRecipeArtifactV1, LoopRecipeItemV1,
     LoopRecipeProvenanceV1, LoopRecipeV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
 };
 use super::source_binding::{
     LoopRecipeSourceClaimVerifierV1, StructurallyVerifiedLoopRecipeSourceClaimV1,
+};
+
+#[path = "verify_keys.rs"]
+mod verify_keys;
+
+use verify_keys::{
+    binding_class, block_at, check_canonical_keys, exit_at, expect_value_class,
+    is_ancestor_or_self, item_at, loop_at, loop_entry_item, mark_block_use, mark_exit_use,
+    mark_item_use, value_class,
 };
 
 #[derive(Debug)]
@@ -119,72 +126,6 @@ pub(crate) fn verify_source_bound_recipe_v1(
     artifact: LoopRecipeArtifactV1,
 ) -> Result<VerifiedLoopRecipeV1, Reject> {
     LoopRecipeVerifierV1::verify_artifact(artifact).map(VerifiedLoopRecipeArtifactV1::into_recipe)
-}
-
-fn check_canonical_keys(recipe: &LoopRecipeV1) -> Result<(), Reject> {
-    for (domain, canonical) in [
-        (
-            "loops",
-            recipe
-                .loops
-                .iter()
-                .enumerate()
-                .all(|(i, row)| row.key.raw() == i as u32),
-        ),
-        (
-            "blocks",
-            recipe
-                .blocks
-                .iter()
-                .enumerate()
-                .all(|(i, row)| row.key.raw() == i as u32),
-        ),
-        (
-            "items",
-            recipe
-                .items
-                .iter()
-                .enumerate()
-                .all(|(i, row)| row.key.raw() == i as u32),
-        ),
-        (
-            "bindings",
-            recipe
-                .bindings
-                .iter()
-                .enumerate()
-                .all(|(i, row)| row.key.raw() == i as u32),
-        ),
-        (
-            "values",
-            recipe
-                .values
-                .iter()
-                .enumerate()
-                .all(|(i, row)| row.key.raw() == i as u32),
-        ),
-        (
-            "carriers",
-            recipe
-                .carriers
-                .iter()
-                .enumerate()
-                .all(|(i, row)| row.key.raw() == i as u32),
-        ),
-        (
-            "exits",
-            recipe
-                .exits
-                .iter()
-                .enumerate()
-                .all(|(i, row)| row.key.raw() == i as u32),
-        ),
-    ] {
-        if !canonical {
-            return Err(Reject::NonCanonicalKeyOrder { domain });
-        }
-    }
-    Ok(())
 }
 
 fn check_bindings_and_values(recipe: &LoopRecipeV1) -> Result<(), Reject> {
@@ -605,121 +546,4 @@ fn check_exits(recipe: &LoopRecipeV1, uses: &[u8]) -> Result<(), Reject> {
         }
     }
     Ok(())
-}
-
-fn mark_block_use(uses: &mut [u8], key: LoopBlockKeyV1) -> Result<(), Reject> {
-    let Some(slot) = uses.get_mut(key.raw() as usize) else {
-        return Err(Reject::DanglingBlock { key });
-    };
-    *slot += 1;
-    if *slot > 1 {
-        return Err(Reject::DuplicateBlockUse { key });
-    }
-    Ok(())
-}
-
-fn mark_item_use(uses: &mut [u8], key: LoopItemKeyV1) -> Result<(), Reject> {
-    let Some(slot) = uses.get_mut(key.raw() as usize) else {
-        return Err(Reject::DanglingItem { key });
-    };
-    *slot += 1;
-    if *slot > 1 {
-        return Err(Reject::DuplicateItemUse { key });
-    }
-    Ok(())
-}
-
-fn mark_exit_use(uses: &mut [u8], key: LoopExitKeyV1) -> Result<(), Reject> {
-    let Some(slot) = uses.get_mut(key.raw() as usize) else {
-        return Err(Reject::DanglingExit { key });
-    };
-    *slot += 1;
-    if *slot > 1 {
-        return Err(Reject::DuplicateExitUse { key });
-    }
-    Ok(())
-}
-
-fn loop_at(recipe: &LoopRecipeV1, key: LoopNodeKeyV1) -> Option<&super::schema::LoopNodeV1> {
-    recipe
-        .loops
-        .get(key.raw() as usize)
-        .filter(|row| row.key == key)
-}
-
-fn block_at(
-    recipe: &LoopRecipeV1,
-    key: LoopBlockKeyV1,
-) -> Option<&super::schema::LoopRecipeBlockV1> {
-    recipe
-        .blocks
-        .get(key.raw() as usize)
-        .filter(|row| row.key == key)
-}
-
-fn item_at(
-    recipe: &LoopRecipeV1,
-    key: LoopItemKeyV1,
-) -> Option<&super::schema::LoopRecipeItemRowV1> {
-    recipe
-        .items
-        .get(key.raw() as usize)
-        .filter(|row| row.key == key)
-}
-
-fn exit_at(recipe: &LoopRecipeV1, key: LoopExitKeyV1) -> Option<&super::schema::LoopRecipeExitV1> {
-    recipe
-        .exits
-        .get(key.raw() as usize)
-        .filter(|row| row.key == key)
-}
-
-fn loop_entry_item(recipe: &LoopRecipeV1, key: LoopNodeKeyV1) -> Option<LoopItemKeyV1> {
-    if key == recipe.root_loop {
-        return None;
-    }
-    recipe.items.iter().find_map(|row| match row.item {
-        LoopRecipeItemV1::Loop { loop_key } if loop_key == key => Some(row.key),
-        _ => None,
-    })
-}
-
-fn binding_class(recipe: &LoopRecipeV1, key: LoopBindingKeyV1) -> Result<LoopValueClassV1, Reject> {
-    recipe
-        .bindings
-        .get(key.raw() as usize)
-        .filter(|row| row.key == key)
-        .map(|row| row.class)
-        .ok_or(Reject::DanglingBinding { key })
-}
-
-fn value_class(recipe: &LoopRecipeV1, key: LoopValueKeyV1) -> Result<LoopValueClassV1, Reject> {
-    recipe
-        .values
-        .get(key.raw() as usize)
-        .filter(|row| row.key == key)
-        .map(|row| row.class)
-        .ok_or(Reject::DanglingValue { key })
-}
-
-fn expect_value_class(
-    recipe: &LoopRecipeV1,
-    key: LoopValueKeyV1,
-    expected: LoopValueClassV1,
-) -> Result<(), Reject> {
-    if value_class(recipe, key)? != expected {
-        return Err(Reject::ValueClassMismatch { key });
-    }
-    Ok(())
-}
-
-fn is_ancestor_or_self(recipe: &LoopRecipeV1, owner: LoopNodeKeyV1, target: LoopNodeKeyV1) -> bool {
-    let mut cursor = Some(owner);
-    while let Some(key) = cursor {
-        if key == target {
-            return true;
-        }
-        cursor = loop_at(recipe, key).and_then(|row| row.parent);
-    }
-    false
 }

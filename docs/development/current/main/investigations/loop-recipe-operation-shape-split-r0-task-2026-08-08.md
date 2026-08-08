@@ -65,7 +65,7 @@ the invariant is one owner per behavior, not arbitrary line slicing.
    remain green. The full `loop_recipe_contract` package currently contains a
    pre-existing red in
    `source_bound_core_rejects_derived_carrier_and_duplicate_effect_mismatch`;
-   it reproduces at the pre-split parent commit `8966ddfccd` and is tracked as
+   it reproduces at the pre-split parent commit `e00a374803` and is tracked as
    known baseline debt, not repaired in this BoxShape series.
 2. Public re-exports and `operation_physical_demand_tests` compile unchanged.
 3. `git diff --check` and `bash tools/checks/current_state_pointer_guard.sh` pass.

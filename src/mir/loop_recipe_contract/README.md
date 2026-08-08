@@ -475,3 +475,20 @@ bounded caller-zero logical branch shapes; physical consumers, PHI material,
 and broader nested branch/merge obligations remain explicitly out of scope.
 Do not attempt this convergence during D5 caller-zero physical-input work; it
 is a post-cutover refactor gate.
+
+## Operation shape split R0
+
+The behavior-neutral R0 split keeps the public `loop_recipe_contract` facade
+and all semantic owners unchanged while separating the operation-demand
+facade into row types and recursive schedule construction, and separating the
+verifier facade from canonical key/lookup helpers. The split is structural;
+it adds no Recipe vocabulary, selector, physical ID, Builder effect, or
+production caller. Each changed Rust file remains below the 760-line design
+trigger (800-line hard boundary).
+
+The focused demand, verifier, and structural tests are green. One existing
+`source_bound_core_tests` assertion remains a known baseline red and reproduces
+at parent `e00a374803`; it is recorded in the active R0 card and is not repaired
+by this BoxShape series. Typed Text/Call schema growth remains a separate
+BoxCount row. When that later row changes the language contract, its reference
+page and this module README must be updated in the same implementation commit.

@@ -8,13 +8,22 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::continuation::VerifiedLoopContinuationContractV1;
-use super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1};
+use super::ids::LoopItemKeyV1;
 use super::operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
 use super::operation_effect::VerifiedLoopOperationEffectProductV1;
-use super::schema::{LoopConditionV1, LoopOperationV1, LoopRecipeItemV1};
+use super::schema::{LoopOperationV1, LoopRecipeItemV1};
 use super::semantic_context::VerifiedLoopSemanticContextV1;
 use super::source_bound_core::{LoopBindingEffectAnchorV1, LoopBindingEffectRoleV1};
-use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1};
+
+#[path = "operation_physical_demand_rows.rs"]
+mod operation_physical_demand_rows;
+#[path = "operation_physical_demand_schedule.rs"]
+mod operation_physical_demand_schedule;
+
+pub(crate) use operation_physical_demand_rows::{
+    PreparedLoopOperationRowV1, PreparedLoopOperationScheduleRowV1, PreparedLoopReadBindingRowV1,
+    PreparedLoopWriteBindingRowV1,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum LoopOperationPhysicalDemandRejectV1 {
@@ -50,135 +59,8 @@ pub(crate) struct VerifiedLoopOperationPhysicalDemandV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct LoopOperationPhysicalIndexV1 {
+pub(super) struct LoopOperationPhysicalIndexV1 {
     evidence_by_item: BTreeMap<LoopItemKeyV1, usize>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct PreparedLoopOperationScheduleRowV1 {
-    item: LoopItemKeyV1,
-    block: LoopBlockKeyV1,
-    owner_loop: LoopNodeKeyV1,
-}
-
-/// Full Recipe-order operation view derived from a prepared program.
-///
-/// This is intentionally a complete projection: callers cannot ask for one
-/// item by key and thereby bypass whole-program coverage.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct PreparedLoopOperationRowV1 {
-    schedule: PreparedLoopOperationScheduleRowV1,
-    operation: LoopOperationV1,
-}
-
-impl PreparedLoopOperationRowV1 {
-    pub(crate) const fn item(self) -> LoopItemKeyV1 {
-        self.schedule.item
-    }
-
-    pub(crate) const fn block(self) -> LoopBlockKeyV1 {
-        self.schedule.block
-    }
-
-    pub(crate) const fn owner_loop(self) -> LoopNodeKeyV1 {
-        self.schedule.owner_loop
-    }
-
-    pub(crate) const fn operation(self) -> LoopOperationV1 {
-        self.operation
-    }
-}
-
-impl PreparedLoopOperationScheduleRowV1 {
-    pub(crate) const fn item(self) -> LoopItemKeyV1 {
-        self.item
-    }
-
-    pub(crate) const fn block(self) -> LoopBlockKeyV1 {
-        self.block
-    }
-
-    pub(crate) const fn owner_loop(self) -> LoopNodeKeyV1 {
-        self.owner_loop
-    }
-}
-
-/// Full-program ReadBinding projection. This is derived only from a complete
-/// prepared program; it is not a single-operation extraction API.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct PreparedLoopReadBindingRowV1 {
-    schedule: PreparedLoopOperationScheduleRowV1,
-    binding: super::ids::LoopBindingKeyV1,
-    result: super::ids::LoopValueKeyV1,
-    source_binding: BindingRefV1,
-    source_site: SourceExprSiteV1,
-    class: super::schema::LoopValueClassV1,
-}
-
-/// Full-program WriteBinding projection. Like the Read projection, this is
-/// derived only from a complete prepared program and never selects one item.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct PreparedLoopWriteBindingRowV1 {
-    schedule: PreparedLoopOperationScheduleRowV1,
-    binding: super::ids::LoopBindingKeyV1,
-    value: super::ids::LoopValueKeyV1,
-    source_binding: BindingRefV1,
-    source_site: SourceExprSiteV1,
-    class: super::schema::LoopValueClassV1,
-}
-
-impl PreparedLoopWriteBindingRowV1 {
-    pub(crate) const fn item(&self) -> LoopItemKeyV1 {
-        self.schedule.item
-    }
-    pub(crate) const fn block(&self) -> LoopBlockKeyV1 {
-        self.schedule.block
-    }
-    pub(crate) const fn owner_loop(&self) -> LoopNodeKeyV1 {
-        self.schedule.owner_loop
-    }
-    pub(crate) const fn binding(&self) -> super::ids::LoopBindingKeyV1 {
-        self.binding
-    }
-    pub(crate) const fn value(&self) -> super::ids::LoopValueKeyV1 {
-        self.value
-    }
-    pub(crate) const fn source_binding(&self) -> BindingRefV1 {
-        self.source_binding
-    }
-    pub(crate) fn source_site(&self) -> &SourceExprSiteV1 {
-        &self.source_site
-    }
-    pub(crate) const fn class(&self) -> super::schema::LoopValueClassV1 {
-        self.class
-    }
-}
-
-impl PreparedLoopReadBindingRowV1 {
-    pub(crate) const fn item(&self) -> LoopItemKeyV1 {
-        self.schedule.item
-    }
-    pub(crate) const fn block(&self) -> LoopBlockKeyV1 {
-        self.schedule.block
-    }
-    pub(crate) const fn owner_loop(&self) -> LoopNodeKeyV1 {
-        self.schedule.owner_loop
-    }
-    pub(crate) const fn binding(&self) -> super::ids::LoopBindingKeyV1 {
-        self.binding
-    }
-    pub(crate) const fn result(&self) -> super::ids::LoopValueKeyV1 {
-        self.result
-    }
-    pub(crate) const fn source_binding(&self) -> BindingRefV1 {
-        self.source_binding
-    }
-    pub(crate) fn source_site(&self) -> &SourceExprSiteV1 {
-        &self.source_site
-    }
-    pub(crate) const fn class(&self) -> super::schema::LoopValueClassV1 {
-        self.class
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -259,7 +141,7 @@ impl VerifiedLoopOperationPhysicalDemandV1 {
             .collect::<BTreeMap<_, _>>();
         let mut seen = BTreeSet::new();
         let mut schedule = Vec::new();
-        append_operation_schedule(
+        operation_physical_demand_schedule::append_operation_schedule(
             recipe,
             recipe.root_loop,
             &item_rows,
@@ -287,147 +169,6 @@ impl VerifiedLoopOperationPhysicalDemandV1 {
             },
         })
     }
-}
-
-fn append_operation_schedule(
-    recipe: &super::schema::LoopRecipeV1,
-    loop_key: LoopNodeKeyV1,
-    item_rows: &BTreeMap<LoopItemKeyV1, LoopRecipeItemV1>,
-    operation_effect: &VerifiedLoopOperationEffectProductV1,
-    index: &LoopOperationPhysicalIndexV1,
-    seen: &mut BTreeSet<LoopItemKeyV1>,
-    schedule: &mut Vec<PreparedLoopOperationScheduleRowV1>,
-) -> Result<(), LoopOperationPhysicalDemandRejectV1> {
-    let expected = operation_effect.evidence().len();
-    let Some(loop_node) = recipe.loops.iter().find(|row| row.key == loop_key) else {
-        return Err(LoopOperationPhysicalDemandRejectV1::IncompleteSchedule {
-            expected,
-            found: schedule.len(),
-        });
-    };
-    if let LoopConditionV1::Predicate { block, .. } = loop_node.condition {
-        append_block_operation_schedule(
-            recipe,
-            block,
-            item_rows,
-            operation_effect,
-            index,
-            seen,
-            schedule,
-        )?;
-    }
-    append_block_operation_schedule(
-        recipe,
-        loop_node.body,
-        item_rows,
-        operation_effect,
-        index,
-        seen,
-        schedule,
-    )
-}
-
-fn append_block_operation_schedule(
-    recipe: &super::schema::LoopRecipeV1,
-    block_key: LoopBlockKeyV1,
-    item_rows: &BTreeMap<LoopItemKeyV1, LoopRecipeItemV1>,
-    operation_effect: &VerifiedLoopOperationEffectProductV1,
-    index: &LoopOperationPhysicalIndexV1,
-    seen: &mut BTreeSet<LoopItemKeyV1>,
-    schedule: &mut Vec<PreparedLoopOperationScheduleRowV1>,
-) -> Result<(), LoopOperationPhysicalDemandRejectV1> {
-    let expected = operation_effect.evidence().len();
-    let Some(block) = recipe.blocks.iter().find(|row| row.key == block_key) else {
-        return Err(LoopOperationPhysicalDemandRejectV1::IncompleteSchedule {
-            expected,
-            found: schedule.len(),
-        });
-    };
-    for item in &block.items {
-        match item_rows.get(item).cloned() {
-            Some(LoopRecipeItemV1::Operation { .. }) => {
-                append_one_operation_schedule(
-                    *item,
-                    block,
-                    operation_effect,
-                    index,
-                    seen,
-                    schedule,
-                )?;
-            }
-            Some(LoopRecipeItemV1::If {
-                then_block,
-                else_block,
-                ..
-            }) => {
-                append_block_operation_schedule(
-                    recipe,
-                    then_block,
-                    item_rows,
-                    operation_effect,
-                    index,
-                    seen,
-                    schedule,
-                )?;
-                if let Some(else_block) = else_block {
-                    append_block_operation_schedule(
-                        recipe,
-                        else_block,
-                        item_rows,
-                        operation_effect,
-                        index,
-                        seen,
-                        schedule,
-                    )?;
-                }
-            }
-            Some(LoopRecipeItemV1::Loop { loop_key }) => {
-                append_operation_schedule(
-                    recipe,
-                    loop_key,
-                    item_rows,
-                    operation_effect,
-                    index,
-                    seen,
-                    schedule,
-                )?;
-            }
-            Some(LoopRecipeItemV1::Exit { .. }) => {}
-            None => {
-                return Err(LoopOperationPhysicalDemandRejectV1::IncompleteSchedule {
-                    expected,
-                    found: schedule.len(),
-                });
-            }
-        }
-    }
-    Ok(())
-}
-
-fn append_one_operation_schedule(
-    item: LoopItemKeyV1,
-    block: &super::schema::LoopRecipeBlockV1,
-    operation_effect: &VerifiedLoopOperationEffectProductV1,
-    index: &LoopOperationPhysicalIndexV1,
-    seen: &mut BTreeSet<LoopItemKeyV1>,
-    schedule: &mut Vec<PreparedLoopOperationScheduleRowV1>,
-) -> Result<(), LoopOperationPhysicalDemandRejectV1> {
-    if !seen.insert(item) {
-        return Err(LoopOperationPhysicalDemandRejectV1::DuplicateSchedule { item });
-    }
-    let Some(evidence_index) = index.evidence_by_item.get(&item).copied() else {
-        return Err(LoopOperationPhysicalDemandRejectV1::MissingEvidence { item });
-    };
-    let evidence = &operation_effect.evidence()[evidence_index];
-    if evidence.block() != block.key || evidence.owner_loop() != block.owner_loop {
-        return Err(LoopOperationPhysicalDemandRejectV1::EvidencePlacementMismatch { item });
-    }
-    schedule.push(PreparedLoopOperationScheduleRowV1 {
-        item,
-        block: block.key,
-        owner_loop: block.owner_loop,
-    });
-    Ok(())
 }
 
 impl PreparedLoopOperationProgramV1 {
