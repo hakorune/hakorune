@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1 closed — R6-S3B-B2 active
+Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1 closed — R6-S3B-B2 design stop
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -646,8 +646,9 @@ Required S3B decision receipts are:
 5. a guard and reference update in the same implementation slice later.
 
 The S3B-D0 receipts are accepted and S3B-A/B0/B1 are closed. `R6-S3B-B2` is
-now the active implementation cell for parser-issued gate-ledger transport,
-typed selection receipts, and atomic source-session prune/rebase. Do not add
+the current design stop for parser-issued gate-ledger transport, explicit
+top-level scope, a distinct gate-path type, typed selection receipts, and
+atomic source-session prune/rebase. Do not add
 top-level gate rebase,
 source-aware delegate transport, interface/static/record seals, Hako parser
 parity, resolver declaration, `CallableContract`, target, Recipe, Builder,
@@ -697,17 +698,18 @@ B1 guard and callable-contract reference are updated in the same implementation
 slice. `BuildGateSelectionReceiptV1`, consume-return source-session
 prune/rebase, and all later resolver/delegate work remain unimplemented.
 
-### R6-S3B-B2 implementation boundary
+### R6-S3B-B2 design receipt
 
-B1 is complete and pushed. The B2 design is accepted after an independent
-authority audit. B2 is limited to a parser-owned gate source ledger,
+B1 is complete and pushed. The B2 design is revised after an independent
+authority audit; implementation remains closed. B2 is limited to a
+parser-owned gate source ledger,
 non-forgeable `BuildGateSelectionReceiptV1`, and a consume-return atomic
 AST/source prune transaction. AST nodes do not receive gate IDs; the AST walk
 validates parser-issued records using a structural cursor and does not issue
 source identity.
 
-The ledger record must carry the invocation brand, parser gate ID, structural
-gate path, and an explicit scope. Only top-level build-gate items are opened
+The ledger record must carry the invocation brand, parser gate ID, a distinct
+`SourceBuildGatePathV1`, and an explicit scope. Only top-level build-gate items are opened
 in this row. Gates encountered inside Box methods or method bodies remain a
 documented nonclaim/reject boundary; a Box declaration path must not be reused
 as their source path.

@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A and R6-S3B-B1 closed; R6-S3B-B2 implementation active; B3 not opened
+Status: accepted design with R6-S3B-B2 design revision; R6-S3B-A and R6-S3B-B1 closed; B2 implementation not opened; B3 not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -299,7 +299,7 @@ Normal selection of a supported branch is not an error disposition.
 ```text
 R6-S3B-B0  design receipt and owner/type/negative matrix (closed)
 R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport (closed)
-R6-S3B-B2  parser gate-ledger transport, typed selection receipts, and consume-return ParserSourceSession prune/rebase (active)
+R6-S3B-B2  parser gate-ledger transport, typed selection receipts, and consume-return ParserSourceSession prune/rebase (design stop)
 R6-S3B-B3  AST/source coverage tests, guard, finalizer receipt, and docs
 ```
 
@@ -336,9 +336,10 @@ from the final AST or inventory order.
 This receipt does not open `BuildGateSelectionReceiptV1`, source-session
 prune/rebase, delegate relation transport, or final top-level gate sealing.
 
-## R6-S3B-B2 implementation boundary
+## R6-S3B-B2 design receipt
 
-B1 is closed and the B2 design is accepted. B2 now implements only the
+B1 is closed. The B2 design is revised after an independent authority audit;
+implementation is not opened yet. B2 will implement only the
 parser-issued gate ledger, one typed selection receipt per gate, and the
 consume-return atomic prune/rebase transaction. The AST remains free of gate
 IDs. The parser owns the gate source records and transports them inside
@@ -351,7 +352,7 @@ The parser ledger is a typed, parser-private record stream:
 PreparedBuildGateSourceRecordV1 {
   invocation_brand,
   gate_id,
-  gate_path,
+  gate_path: SourceBuildGatePathV1,
   scope,
   predicate/source evidence,
 }
@@ -378,7 +379,12 @@ preserving surviving structural paths. Any AST/source mismatch, missing,
 foreign, duplicate, or lost seal consumes and rejects the whole unpublished
 product; the old session is never reused.
 
-### B2 acceptance
+`SourceBuildGatePathV1` is a distinct parser-private node-path type. It must
+not reuse `SourceBoxDeclarationPathV1` as if a gate were a Box, even when both
+paths share structural segments. The AST remains free of gate IDs; the parser
+ledger is the sole gate identity authority.
+
+### B2 acceptance before implementation opens
 
 ```text
 parser gate records are issued during parse and moved into the postpass product
