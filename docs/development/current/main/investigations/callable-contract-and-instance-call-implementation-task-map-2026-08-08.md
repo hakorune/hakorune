@@ -804,3 +804,11 @@ PARSER-PUBLIC-AST-POSTPASS-FINAL-RETIRE-S0
 After that row closes, the separate `FINAL-NOELSE-RECEIPT-D0` design opens and
 then its receipt implementation. These rows must not be combined into one
 commit or one authority.
+
+`FINAL-NOELSE-RECEIPT-D0` is now closed as the accepted design, and the active
+execution row is:
+
+```text
+PARSER-PUBLIC-AST-POSTPASS-FINAL-NOELSE-RECEIPT-I0
+  task: parser-public-ast-postpass-final-no-else-receipt-i0-implementation-task-2026-08-09.md
+```
