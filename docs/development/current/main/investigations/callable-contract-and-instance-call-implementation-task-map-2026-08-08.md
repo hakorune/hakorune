@@ -96,8 +96,9 @@ as-written SourceBoxMethodSite != selected/generated inventory placement
 CallableContract(query) references, but never duplicates, VerifiedHomeAbi
   -> LANGUAGE-TYPED-CALLABLE-PROFILE-D0 / OWN-HOME-ABI0-S0/query
 
-raw rune strings become typed syntax before the resolver issuer
-  -> typed CallableContractSyntaxV1 in the language/parser row
+  raw rune strings become typed syntax before the resolver issuer
+  -> `CALLABLE-CONTRACT-TYPED-SYNTAX-CARRIAGE-D0` (accepted design stop),
+     then its bounded parser/Hako I0
 
 old body-inferred source_instance_result_contract is dispositioned before
 the declaration-first instance target opens
@@ -617,7 +618,9 @@ Rejected > Unresolved > Declined > Candidate
 10. `HAKO-PARSER-BOX-DECLARATION-CARRIER-H5/H6`
    - H5 normalized Rust/Hako parity is test evidence, never semantic
      transport;
-   - H6 issues typed `CallableContractSyntaxV1::Query` carriage with exact
+   - H6 is represented by the accepted
+     `CALLABLE-CONTRACT-TYPED-SYNTAX-CARRIAGE-D0` boundary and its later I0;
+     it issues typed `CallableContractSyntaxV1::Query` carriage with exact
      site/provenance; resolver raw-string matching is zero.
 
 ### C. Resolver declaration and declared contract
