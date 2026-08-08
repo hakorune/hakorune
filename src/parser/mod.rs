@@ -51,6 +51,7 @@ mod source_seal_finalizer;
 mod source_session_tests;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
 mod statements; // Now uses modular structure in statements/
+mod string_postpass_entry;
 pub mod sugar; // Phase 12.7-B: desugar pass (basic)
 pub mod sugar_gate; // thread-local gate for sugar parsing (tests/docs)
                     // mod errors;
@@ -297,12 +298,7 @@ impl NyashParser {
         fuel: Option<usize>,
         build_config: ParserBuildConfig,
     ) -> Result<ASTNode, ParseError> {
-        let ast = Self::parse_grammar_evidence_from_string_with_fuel_and_build_config(
-            input,
-            fuel,
-            build_config,
-        )?;
-        delegate_lowering::lower_delegate_exposes(ast)
+        string_postpass_entry::parse(input.into(), fuel, build_config)
     }
 
     pub fn parse_grammar_evidence_from_string_with_build_config(

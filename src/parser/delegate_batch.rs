@@ -373,7 +373,11 @@ fn stage_host(
     let mut staging_inventory = host.methods.clone();
     let placements = staging_inventory
         .try_commit_generated_batch_with_placements(batch.clone())
-        .map_err(|error| BatchFailureV1::Rejected(format!("staging placement: {error}")))?;
+        .map_err(|error| {
+            // Preserve the public delegate-lowering diagnostic family while
+            // retaining the typed inventory error as its detail.
+            BatchFailureV1::Rejected(format!("delegate method batch conflicts: {error}"))
+        })?;
     if placements.len() != pending.len()
         || placements
             .iter()

@@ -400,6 +400,25 @@ explain, resolver, Recipe, Builder, MIR, runtime, or remaining legacy-caller
 retirement. The implementation may proceed only in `fast` mode after this
 brief and the task card are committed.
 
+### I0-A implementation receipt — closed (2026-08-09)
+
+The selected `parse_from_string_with_fuel_and_build_config` edge now enters
+one private `string_postpass_entry` helper. It performs one tokenize, one
+parser construction with the supplied fuel/config, one `parse_program`, one
+postpass-product open, and one S0 completion/AST projection. The convenience
+wrappers inherit that edge. The old delegate-only path is no longer a
+production route for this family; it is not used as a fallback or retry.
+
+Ordinary, static/interface/record/mixed compatibility, selected-gate, fuel,
+unsupported-identifier, and delegate collision behavior are covered by the
+focused and existing parser regression tests. Parent `72b3471e55` also has a
+known baseline-red nested member-gate source-path test that fails before
+postpass opening because its branches have different public signatures. That
+debt is parked as `PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0`; I0-A does not
+change the signature rule or claim that full suite green. I0-A does not open
+metadata, `NyashParser::parse`, explain/full-gate-decision parity, resolver,
+Recipe, Builder, MIR, runtime, or remaining legacy callers.
+
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 
 The top-level build-gate boundary is a parser source-transport problem, not

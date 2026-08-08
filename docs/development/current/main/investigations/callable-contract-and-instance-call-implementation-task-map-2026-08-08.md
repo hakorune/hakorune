@@ -347,7 +347,7 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection
   no ExactTrivial*Abi/MirType reverse inference
 
-PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0 closed; I0-A active; I0-B/C parked)
+PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A closed; I0-B/C parked)
   one total typed postpass owner for `parse`, fuel/build-config parsing,
   metadata, and explain-report projections. The private result carries AST,
   metadata, optional explain, and typed per-Box coverage:
@@ -377,8 +377,18 @@ PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0 closed; I0-A active; I0-B/C park
   `docs/development/current/main/investigations/parser-public-ast-postpass-s0-implementation-task-2026-08-09.md`
   S0 receipt:
   private total envelope/cohort coordinator is landed; public callers remain
-  unchanged. I0-A is the selected implementation card after the accepted
-  parity matrix and single-edge boundary.
+  unchanged before I0-A. I0-A receipt: the string/build-config edge now
+  enters `string_postpass_entry` once, preserves fuel/AST/diagnostic behavior,
+  and retires its delegate-only production edge. I0-B/C remain parked.
+
+PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0 (parked baseline debt)
+  The existing nested selected-else source-path fixture fails on parent
+  `72b3471e55` before postpass opening because its member-level gate branches
+  have different public signatures. This is not an I0-A regression. Decide
+  fixture repair versus a language-rule change in a separate design row;
+  do not weaken the signature validator or add postpass fallback.
+  Task:
+  `docs/development/current/main/investigations/parser-member-gate-nested-source-path-d0-task-2026-08-09.md`
 
 POST-CUTOVER-COMPAT-API-QUARANTINE-D0 (parked)
   after parser/Builder caller-zero and legacy retirement, move remaining

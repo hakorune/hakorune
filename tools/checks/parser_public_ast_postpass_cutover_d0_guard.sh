@@ -68,9 +68,10 @@ if not any(
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-S0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-A"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-B"',
     )
 ):
-    raise SystemExit("CURRENT_STATE must point to the cutover design/S0/I0-A boundary")
+    raise SystemExit("CURRENT_STATE must point to the cutover design/S0/I0-A/I0-B boundary")
 if not any(
     token in state
     for token in ('work_mode = "design_stop"', 'work_mode = "fast"')

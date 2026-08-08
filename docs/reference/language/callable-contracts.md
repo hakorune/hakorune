@@ -293,6 +293,19 @@ AST-only compatibility coverage. The existing rich ordinary entry reuses the
 postpass-opening helper, while public AST/metadata/explain callers remain
 unchanged until the ordered I0-A/B/C parity rows.
 
+I0-A implementation receipt (2026-08-09): the selected
+`parse_from_string_with_fuel_and_build_config` edge now uses one private
+`string_postpass_entry` helper. It performs one tokenize, one parser
+construction with fuel/config, one parse, one S0 postpass completion, and one
+AST projection. The convenience wrappers inherit that edge; compatibility
+cohorts are successful AST transport and the old delegate-only route is not a
+fallback. Metadata, `NyashParser::parse`, explain/full-gate parity, resolver,
+Recipe, Builder, MIR, and runtime remain parked for later rows. Parent
+`72b3471e55` has one separate baseline-red nested member-gate source-path test
+that fails before postpass opening because its branches have different public
+signatures; it is parked as `PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0` and is
+not an I0-A regression.
+
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate
 boundary. The product owns the AST, a `ParserSourceSessionV1` for prepared

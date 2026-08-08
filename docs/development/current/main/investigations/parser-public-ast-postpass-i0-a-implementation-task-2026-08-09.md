@@ -1,5 +1,5 @@
 ---
-Status: active implementation
+Status: closed implementation
 Date: 2026-08-09
 Decision: switch the string/build-config AST parser family through the S0 coordinator
 Parent: `parser-public-ast-postpass-s0-implementation-task-2026-08-09.md`
@@ -82,3 +82,29 @@ resolver source publication
 Recipe/CallSlot/Builder/MIR/runtime
 legacy helper retirement for remaining callers
 ```
+
+## Implementation receipt (2026-08-09)
+
+I0-A switched the single production edge
+`parse_from_string_with_fuel_and_build_config` to the private
+`string_postpass_entry` helper. The helper tokenizes once, assigns fuel and
+build configuration once, parses once, opens one S0 postpass product, and
+projects `CompletedParserPostpassV1::into_ast` once. The three convenience
+wrappers inherit this edge; grammar-evidence, metadata, `NyashParser::parse`,
+and explain-report callers remain unchanged.
+
+Focused parser tests cover ordinary, static/interface/record/mixed
+compatibility cohorts, selected build gates, `None` fuel, the existing
+unsupported-identifier diagnostic, delegate-bearing ordinary Boxes, and the
+existing build-config/grammar/delegate regression suites. A delegate staging
+collision keeps the prior public diagnostic family while exposing the typed
+inventory error detail. The parent `72b3471e55` already has one separate
+baseline-red nested member-gate source-path test: it fails before postpass
+opening because the fixture violates the existing equal-public-signature
+rule. That debt is parked as
+`PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0`; I0-A neither changes that rule nor
+claims the full `parser_box_method_inventory_r2` suite green. No fallback,
+retry, reparse, resolver source publication, or MIR/runtime work was opened.
+
+The next row is I0-B for `NyashParser::parse` and metadata projection; I0-C
+remains parked for the shared full BuildGate decision set and explain parity.

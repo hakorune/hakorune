@@ -75,6 +75,7 @@ if not any(
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-S0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-A"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-B"',
     )
 ):
     raise SystemExit("CURRENT_STATE is neither on D-I0 nor its explicit postpass successor")

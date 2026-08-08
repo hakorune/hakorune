@@ -90,3 +90,20 @@ cohort classifier, explicit compatibility delegate arm, and
 uses the shared postpass-opening helper. Public AST, metadata, and explain
 callers are still unchanged; I0-A/B/C own those switches and their parity
 receipts.
+
+## I0-A string/build-config edge — closed
+
+`parse_from_string_with_fuel_and_build_config` now enters the private
+`string_postpass_entry` owner exactly once: tokenize, configure fuel/build
+profile, parse, open the total postpass product, and project the AST. Its
+convenience wrappers inherit the same edge. Compatibility cohorts remain
+successful AST transport; they never become source seals or fallback markers.
+The prior delegate-only production call was removed from this edge, while
+grammar-evidence, metadata, `NyashParser::parse`, and explain callers remain
+parked for I0-B/I0-C. Focused and parser regression tests preserve AST shape,
+fuel, diagnostic-family, gate, cohort, and delegate behavior. No resolver,
+Recipe, Builder, MIR, runtime, or remaining caller retirement is claimed. The
+parent `72b3471e55` has one separate baseline-red nested member-gate
+source-path test that fails before postpass opening because its branches have
+different public signatures; it is parked as
+`PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0` and is not an I0-A regression.
