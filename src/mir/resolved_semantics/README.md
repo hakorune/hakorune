@@ -488,6 +488,22 @@ profile, and duplicate keys reject with both source sites before any
 does not resolve bodies, create the immutable owned catalog, or connect a
 production caller.
 
+## Typed instance-call contract frontier (design stop)
+
+The typed LoopRecipe V2 row is intentionally separate from callable target
+resolution. The current `VerifiedCallableIndexV1` is FreeStatic-only and the
+header source unit is function-header-only; it is not an instance-method
+target issuer. MIR `FunctionSignature`/`EffectMask` and the documented but not
+yet issued `VerifiedHomeAbi` are not interchangeable resolver contracts.
+
+Before adding `ResolvedInstanceMethodRefV1`, a single resolver-owned
+declaration contract issuer must co-seal receiver, ordered parameters, result,
+Home, semantic effect/suspension/control, and call-ABI/profile receipts. A
+missing issuer is `NoSafeSlice`, not an empty contract or a FreeStatic alias.
+See `LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0` in the current investigation
+task. No Recipe key, CallSlot, Builder/MIR ID, runtime lookup, or fallback may
+cross this boundary.
+
 ## Authority
 
 - The canonical AST owns syntax and source execution order.
