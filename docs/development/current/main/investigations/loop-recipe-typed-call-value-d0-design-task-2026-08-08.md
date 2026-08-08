@@ -1,7 +1,7 @@
 ---
-Status: Design closed; next bounded BoxShape row
+Status: Design closed; next bounded BoxCount row
 Date: 2026-08-08
-Decision: accepted architecture; `NoSafeSlice` remains only until the typed schema/target issuer is implemented
+Decision: accepted architecture; the first implementation row is schema-only and does not issue resolver targets
 Scope: M8 LoopV0 scan ingress; one profile-neutral Recipe vocabulary, no physical activation
 ---
 
@@ -169,9 +169,9 @@ it is not a fifth source disposition.
 
 ```text
 LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
-  -> typed schema V2 + local call slot/TextEq
-  -> resolver instance-call target contract
-  -> source-bound call relation/verifier
+  -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0
+  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0
+  -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0
   -> S6C ScanWithInit Facts/producer
   -> physical canary
   -> production switch and callers-zero retirement
@@ -189,3 +189,51 @@ Do not implement S6C if the proposed call/value contract still requires a
 method-name lookup, an opaque result, If-specific schema reuse, guessed item
 counts, AST reconstruction, or a route-local adapter. Return to this design
 boundary and close the missing authority first.
+
+## Decision revision — 2026-08-08: typed V2 schema row is closed
+
+The worker audits are integrated into one boundary decision:
+
+```text
+LoopRecipeV2 wire
+  -> resolver-issued instance-call target capability
+  -> source-bound call relation / verifier
+```
+
+These are three different products and three different rows. The wire never
+contains a method name, Box name, resolver capability, ABI profile, Home
+relation, effect set, MIR identity, physical ID, or runtime lookup string.
+
+The first bounded implementation row is therefore:
+
+```text
+LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0
+```
+
+It owns only the profile-neutral schema/artifact types and a structural
+verifier for the new typed vocabulary. It may add:
+
+```text
+LoopRecipeArtifactV2
+LoopRecipeV2
+LoopValueClassV2::{I64, Bool, Unit, Text}
+LoopOperationV2::CallSlot { receiver, args, result }
+LoopOperationV2::TextEq { left, right, result }
+```
+
+`CallSlot` is a Recipe-local logical operation. The first cohort's admission
+will later require a receiver and a result, but the wire keeps the receiver
+and result optional so that the schema does not encode resolver policy. The
+schema row does not admit static/resultless calls, because no target issuer or
+source relation exists yet; those are later policy rows.
+
+The structural verifier checks only canonical keys, referenced values, typed
+operation domains, duplicate definitions, and schema version. It does not
+claim source existence, callable target resolution, Home/effect/ABI validity,
+Builder/MIR/CFG/PHI lowering, Loop/Tail/Completion integration, or physical
+activation. `Text` is a logical value class only; representation and ownership
+remain source-bound contracts.
+
+The normalized `ScanWithInit` operation/item counts remain provisional until
+parameter-input relations, instance target issuance, and source-bound call
+relations are sealed. No fixture or scan observer is part of this row.
