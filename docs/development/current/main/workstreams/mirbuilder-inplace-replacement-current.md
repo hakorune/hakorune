@@ -514,7 +514,7 @@ Contract:
   JoinSig alone owns conditional transfer/dataflow obligations. Legacy scan
   builders and the If-only call schema are not source authority. The typed
   cohort is `I64|Bool|Unit|Text` plus local CallSlot and TextEq only; source-
-  bound target/Home/effect/ABI contracts remain outside the Recipe wire.
+  bound target/Home/effect contracts and downstream ABI projections remain outside the Recipe wire.
 Done:
   S6A Facts/producer, exact Main.main ingress, typed C/D/U/R, duplicate-role
   and source-site rejects, <800-line split, README, reference receipt, and
@@ -532,9 +532,9 @@ Stop:
 ordered successor boundary:
   LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
   -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0 (closed)
-  -> LANGUAGE-TYPED-CALLABLE-PROFILE-D0 (design stop; current)
-     -> LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-I0
-     -> LOOP-RESOLVER-CANONICAL-EXACT-TRIVIAL-INSTANCE-CONTRACT-I0 (receipts only)
+  -> LANGUAGE-TYPED-CALLABLE-PROFILE-D0 (closed: CallableContract(query))
+  -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0 (design stop; current)
+     -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0 (declared receipt only)
   -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0 (re-open after contract closes)
   -> source-bound call relation
   -> S6C ScanWithInit -> S6D -> S6E -> S6G -> M9
@@ -979,7 +979,7 @@ ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
   3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
-  4. after closed G0 I1, complete M8 S6A-S6G and M9; then close the audited semantic-program co-seal, JoinSig transfer authority, separate Always/If/Exit physical coverage, and pre-cutover authority gate before the human production-selection design, M10b atomic scheduler/Retry cutover, Generic dead-code R1, and M11/M12
+  4. current design chain: accepted `CallableContract(query)` -> ordered Box-method inventory D0 -> one BoxShape/Rust/Hako parity series -> declared instance contract -> target -> source-bound CallSlot -> body conformance; independently complete M8/M9, then semantic-program co-seal, JoinSig transfer authority, Always/If/Exit coverage, pre-cutover gate, M10b cutover, Generic R1, and M11/M12
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance

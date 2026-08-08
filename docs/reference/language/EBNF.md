@@ -35,6 +35,12 @@ Design SSOT note (Scope Exit Semantics):
   `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0` must synchronize EBNF, registry, corpus,
   and both parsers after implementation.
 - Rune declaration metadata is active on both Rust and `.hako` parsers; canonical syntax is `@rune`, optimization families (`Inline` / `Hint` / `Contract` / `Profile` / `IntrinsicCandidate`) are part of the same metadata lane, and legacy `@hint` / `@contract` / `@intrinsic_candidate` plus compat `Lowering(inline_required)` remain migration aliases. Program(JSON v0) is not widened for Rune metadata.
+- `@rune CallableContract(query)` is the accepted non-repeatable whole-call
+  query-contract target. It remains parser/resolver production 0 until the
+  ordered Box-method inventory and Rust/`.hako` parity rows land. The generic
+  `rune_attr` production below does not imply that its value is currently
+  accepted. Types and arity remain in the method signature; physical ABI is
+  not encoded in the rune value. See `callable-contracts.md`.
 - SSOT:
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`

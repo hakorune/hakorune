@@ -1,153 +1,199 @@
 ---
-Status: design stop — source-level callable profile authority
+Status: closed — accepted language Decision; production activation 0
 Date: 2026-08-08
-Decision: required before instance declaration/profile I0
+Decision: `@rune CallableContract(query)`
 Parent: `loop-resolver-instance-declaration-and-contract-receipts-d0-design-task-2026-08-08.md`
+Reference: `docs/reference/language/callable-contracts.md`
 ---
 
 # LANGUAGE-TYPED-CALLABLE-PROFILE-D0
 
-## Decision brief
+## Decision
 
 ```text
-Decision:
-  Do not promote existing @rune Contract(pure) or Profile metadata into a
-  resolver semantic callable contract. First decide one declaration-local,
-  source-visible profile family and its typed issuer.
+Accepted source:
+  @rune CallableContract(query)
 
-Source authority + canonical issuer:
-  language/spec declaration profile -> resolver-owned typed profile issuer;
-  the exact Box/method declaration inventory remains the identity input.
-
-Non-authority:
-  current Contract/Profile metadata, EffectPlan(verified=false), body
-  inference, MIR EffectMask/FunctionSignature, Builder facts, runtime/provider
-  registries, method/Box names, or an empty/default receipt.
-
-Fail-fast boundary:
-  missing/ambiguous profile, foreign declaration brand, unsupported effect,
-  missing Home/suspend/control/ABI receipt, or duplicate member keeps the row
-  NoSafeSlice/Unresolved; no instance contract is issued.
-
-Smallest next slice:
-  choose the source spelling and typed semantic obligations for one exact
-  instance `length(): i64` profile; keep parser/resolver implementation closed.
-
-Non-claims:
-  no target, call site, Recipe/CallSlot, Builder/MIR, runtime, provider,
-  fallback, production activation, or legacy deletion.
+Rejected source authority:
+  CallableContract(exact_trivial_i64)
+  Contract(pure) / Contract(readonly) promotion
+  Profile(...)
+  method or Box name
+  method-body inference
+  MIR EffectMask / FunctionSignature
 ```
 
-## Why this is a language boundary
+`query` is one stable whole-call behavioral contract. It is not the name of
+the current `length(): i64` compiler cohort and carries no arity, value type,
+MIR type, register class, or physical ABI.
 
-The current language reference defines `Contract(...)` as a shared rune family,
-but only `Contract(no_alloc)` and `Contract(no_safepoint)` are live narrow
-verifier rows. `Contract(pure)` and `Contract(readonly)` remain metadata-only.
-`Profile(...)` is a reserved/compat bundle and is not a backend or callable
-semantic contract. The current parser accepts these values, but acceptance is
-not a typed semantic issuer.
-
-Promoting an existing rune silently would change language meaning without a
-`docs/reference/**` Decision. Adding separate runes for every dimension would
-also allow inconsistent partial claims such as Pure without a Home or
-suspension receipt. The D0 therefore chooses one declaration-local profile
-family (exact spelling is still open) whose issuer emits one typed aggregate.
-
-## Bounded profile obligations
-
-The first cohort is deliberately narrow:
+The selected declaration means:
 
 ```text
 receiver:
-  exact declared Box type + Handle/NoHome relation
-parameters/result:
-  exact semantic I64 scalar
-effect:
-  semantic Pure
-suspension/control:
-  NonSuspending + NonControl
-call representation:
-  ExactScalar
+  exact enclosing nominal Box
+  ordinary receiver demand = Handle
+  receiver reads allowed
+
+forbidden:
+  receiver/global writes
+  Home consume/create/share/escape
+  allocation
+  IO / FFI
+  Fault / throw / non-local failure propagation
+  suspension
+  non-local control transfer
+
+allowed:
+  ordinary return
 ```
 
-The profile is declaration-level and reusable by later call sites. It carries
-no call site, Recipe key, ValueKey, ValueId, BasicBlockId, function pointer,
-provider image, or runtime route. A later physical bridge may map the semantic
-profile to a physical call ABI; it must not move physical facts upstream.
+Parameter arity and parameter/result semantic types come only from the method
+signature. A later physical verifier may project semantic `i64` into a
+physical scalar ABI. `ExactScalar`, `MirType`, and `FunctionSignature` remain
+downstream and never become source semantic axes.
 
-## Candidates to decide
+## Why `query`, not `exact_trivial_i64`
 
-The D0 must compare, then select exactly one of these language surfaces:
+The rejected value repeats facts already written in the signature and would
+create a profile per arity/type/backend cohort. It also mixes language meaning
+with the first compiler implementation slice.
+
+```hako
+box TextLike {
+    @rune CallableContract(query)
+    length(): i64 {
+        // ...
+    }
+}
+```
+
+The rune says how the call may observe and affect the world. The declaration
+still says what values cross the boundary. Future `CallableContract` values
+require a separate language Decision and must name a stable recurring
+behavioral class, never a type-specific implementation cohort.
+
+## Pure and Readonly boundary
+
+This Decision does not promote existing `Contract(pure)` or
+`Contract(readonly)` metadata. It fixes the semantic distinction needed by the
+future issuer:
 
 ```text
-A. extend the existing Contract family with one typed callable-profile value
-B. add one declaration-local CallableContract(profile) family
-C. use a generated/provider declaration profile outside ordinary source
+Pure:
+  no receiver/heap/global read
+  no write, allocation, IO/FFI, Fault/throw, suspension, or non-local control
+
+Query/Readonly behavior:
+  exact receiver read allowed
+  the same write/effect/control prohibitions as above
 ```
 
-Rules:
+Therefore an ordinary mutable receiver `length()` is a `query`, not `Pure`.
+Only a future immutable/frozen-receiver proof may strengthen a receiver read
+to Pure. Physical MIR effect verification must preserve this distinction; it
+may not call a ReadHeap operation Pure. The bounded I0 result is semantic
+`i64`; this Decision makes no claim about a future `Result`-returning query.
+
+## Declaration is not conformance
+
+Source annotation issues a declared obligation, not proof that the body
+satisfies it.
 
 ```text
-existing Contract(pure) stays metadata-only until this Decision lands
-Profile(...) stays a reserved bundle, never the issuer by name alone
-body inference cannot issue Pure/Home/suspend/control/ABI facts
-the selected syntax must have Rust/.hako parser parity before activation
+ordered source declaration
+  -> VerifiedDeclaredCallableContractV1
+
+method body
+  -> semantic body Facts / Recipe
+  -> VerifiedCallableContractConformanceV1
 ```
 
-Option C may serve generated/native declarations, but it cannot silently
-become the authority for ordinary source Box methods. The selected option must
-state how source, generated provider, and compatibility inputs are separated.
+Recursive and mutually recursive targets may use the declared contract during
+resolution. Module publication later requires body conformance for every
+declared contract. A missing or failed conformance rejects publication; the
+compiler never infers a different public contract from the body.
 
-## Required decision evidence
+## Canonical issuer boundary
 
-Positive cohort:
+One resolver-owned issuer consumes:
 
 ```text
-same catalog/compilation brand
-exact instance Box method `length(): i64`
-explicit profile spelling
-all five typed obligations issued
-profile is reusable by two later call sites
+ordered duplicate-free source method capability
+exact nominal Box identity
+method signature
+CallableContract(query) source row
+ordinary receiver Handle rule
 ```
 
-Negative matrix:
+and returns one declared aggregate. Private axis verifiers may exist, but no
+public partial Home/effect/control receipt constructor is exposed. The
+aggregate issues only the relational truth that all inputs belong to the same
+declaration/catalog brand; it does not invent an axis meaning.
+
+The ownership vocabulary remains `Handle`, not a new `NoHomeHandle` or
+`HandleOnly` capability. “Handle-only call” is explanatory prose: the call
+boundary does not transfer, add, end, or escape a Home.
+
+## Source and failure rules
+
+`CallableContract` is declaration-local, non-repeatable, and first opens only
+on instance methods. Parser responsibility is deliberately narrow:
 
 ```text
-Contract(pure) metadata with no typed issuer -> Unresolved/NoSafeSlice
-Profile(name) without a declaration profile -> Unresolved
-FreeStatic/instance cross-wire -> Rejected
-foreign or duplicate Box/method declaration -> Rejected
-missing receiver Home or ABI receipt -> Unresolved
-Mut/Io/Alloc/Panic/FFI/Async/control -> Declined
-generic/dynamic/overloaded/provider-backed method -> Declined
-substring/fresh Text/Home result -> Declined
+parser reject:
+  unknown contract value
+  invalid placement
+  duplicate CallableContract rune
+  duplicate as-written method declaration
+
+semantic issuer reject:
+  conflict with Profile / Ownership / ReturnsOwned / CallConv
+  conflict with Contract(pure|readonly)
+  signature/declaration/receiver mismatch
 ```
 
-Use precedence `Rejected > Unresolved > Declined > Candidate`. `NoSafeSlice`
-is a development state and is never converted into a source disposition.
+Meaning conflicts stay in one semantic issuer rather than being duplicated in
+the Rust and `.hako` parsers.
 
-## Exit criteria
+Disposition applies only after that observer/issuer exists:
 
-1. One source spelling and its ownership scope are accepted in a language
-   reference Decision; no old rune meaning is silently promoted.
-2. The canonical issuer and every typed sub-receipt issuer are named.
-3. Rust/parser and `.hako`/selfhost parity obligations are listed.
-4. Duplicate/ambiguous Box method inventory and exact declaration-site rules
-   are explicit.
-5. The exact-trivial resolver D0 can consume the profile without defaults or
-   physical-MIR inference.
+```text
+issuer not implemented                         -> NoSafeSlice
+exact-family source with no CallableContract    -> Declined
+contract present but type/site unavailable      -> Unresolved
+contract contradicts declaration/signature      -> Rejected
+exact source-backed aggregate                   -> Candidate
+declared Candidate but body violates contract   -> conformance Rejected
+```
 
-Implementation of parser/AST/resolver products opens only after this D0.
-When it opens, the same slice must update `docs/reference/language/runes.md`,
-the relevant EBNF/grammar registry and corpus, the resolver module README, and
-the exact reference receipt. No later documentation-only catch-up task is
-allowed.
+Precedence is `Rejected > Unresolved > Declined > Candidate`.
+`NoSafeSlice` is a development state, never a source disposition.
+
+## Implementation stop line
+
+Production activation remains zero. This Decision authorizes no parser edit,
+resolver product, target, call-site relation, Recipe/CallSlot, Builder/MIR,
+provider/runtime route, fallback, or publication path.
+
+The immediate blocker is the frontend method inventory: current
+`BoxDeclaration.methods: HashMap` has already lost duplicate declarations,
+source order, provenance, and exact member identity. The resolver must not
+reconstruct those facts by name.
 
 ## Ordered follow-up
 
 ```text
-LANGUAGE-TYPED-CALLABLE-PROFILE-D0
-  -> LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-I0
-  -> LOOP-RESOLVER-CANONICAL-EXACT-TRIVIAL-INSTANCE-CONTRACT-I0
-  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0
+LANGUAGE-TYPED-CALLABLE-PROFILE-D0                 closed
+  -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0      current design stop
+  -> frontend inventory BoxShape/Rust/.hako series
+  -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
+  -> RESOLVER-INSTANCE-CALL-TARGET-D0/I0
+  -> SOURCE-BOUND-INSTANCE-CALL-D0/I0
+  -> CALLABLE-CONTRACT-CONFORMANCE-D0/I0
+  -> production activation only after conformance
 ```
+
+Each implementation slice updates its exact owner README and
+`docs/reference/**` receipt in the same commit. There is no deferred
+documentation-only catch-up row.

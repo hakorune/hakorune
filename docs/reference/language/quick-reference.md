@@ -26,6 +26,10 @@ Feature status and gates
 - Check the [language status index](status-index.md) before treating an example
   or parser path as live support. Grammar status and profile availability are
   separate axes.
+- `@rune CallableContract(query)` is an accepted target for receiver-reading,
+  non-mutating/non-suspending instance queries, but parser/resolver activation
+  remains 0. Types and arity stay in the method signature. See
+  [callable contracts](callable-contracts.md).
 - `throw` is prohibited and parser-rejected with a stable freeze tag. It is not
   a feature that can be enabled by a compatibility toggle.
 - source `try`, `throw`, `catch`, and `RecoverableFailure` are rejected target

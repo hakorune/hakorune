@@ -30,6 +30,7 @@ Current canonical surface:
 - Option / Result enum prelude: [option.md](option.md)
 - Failure/Outcome relations: [failure-outcome-relations.md](failure-outcome-relations.md)
 - Rune declaration metadata: [runes.md](runes.md)
+- Declared whole-call query contracts: [callable-contracts.md](callable-contracts.md)
 - Build conditional `gate`: [build-conditional-gate.md](build-conditional-gate.md)
 - Low-level language surface: [low-level-capabilities.md](low-level-capabilities.md)
 - Concurrency / Thread Boundary: [semantics.md](../concurrency/semantics.md),

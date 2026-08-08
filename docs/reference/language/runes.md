@@ -51,6 +51,7 @@ aliases.
 | `Inline(...)` | `prefer`, `avoid`, `required` | Canonical inline request family. |
 | `Hint(...)` | `hot`, `cold` | Advisory tuning metadata. |
 | `Contract(...)` | `pure`, `readonly`, `no_alloc`, `no_safepoint` | Verifier-backed or reserved contract metadata. |
+| `CallableContract(...)` | accepted target: `query` | Non-repeatable whole-call behavioral obligation. Parser/resolver production 0. |
 | `IntrinsicCandidate("...")` | non-empty string | Candidate intrinsic replacement identity. |
 | `Profile(...)` | reserved names such as `allocator.fast` | Reserved/compat bundle names. New source should prefer primitive runes. |
 | ABI/export rows | `FfiSafe`, `Symbol("...")`, `CallConv("c")`, `ReturnsOwned`, `FreeWith("...")` | ABI-facing metadata where supported by the target declaration. |
@@ -65,6 +66,13 @@ spelling.
 currently come from metadata-only `uses ...` rows where the relevant design card
 explicitly owns them. Profile-derived capability bundles are parked unless a
 future row reopens them.
+
+`CallableContract(query)` is an accepted language target but is not parser-live
+yet. It declares an exact receiver query: receiver reads are allowed, while
+writes, Home transfer/escape, allocation, IO/FFI, Fault, suspension, and
+non-local control are forbidden. Parameter/result types remain owned by the
+method signature, and physical ABI remains downstream. See
+[`callable-contracts.md`](callable-contracts.md).
 
 ## Inline Requests
 
@@ -262,10 +270,16 @@ Backends must not rediscover legality from raw rune strings, helper names,
 profile names, app names, or owner names. They consume already-derived MIR
 route and plan facts.
 
+Once activated, `CallableContract` follows the stronger path documented in
+`callable-contracts.md`: ordered method declaration -> declared semantic
+contract -> body conformance -> target/call relation. It is never translated
+directly from a raw rune string into backend policy.
+
 ## Related References
 
 - `docs/reference/language/EBNF.md`
 - `docs/reference/language/low-level-capabilities.md`
+- `docs/reference/language/callable-contracts.md`
 - `docs/reference/mir/hints.md`
 - `docs/reference/mir/metadata-facts-ssot.md`
 - `docs/reference/mir/rune-profile-registry.md`
