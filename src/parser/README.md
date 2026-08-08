@@ -177,3 +177,9 @@ Every top-level gate keeps one source record and one receipt. `NoElse` creates
 no child path and cannot authorize a descendant; final-seal survival matches
 only Then/Then or Else/Else. NoElse-to-Else mapping and missing receipts are
 not compatibility behavior.
+
+FINAL-RETIRE-S0 is closed: the caller-zero `source_gate_prune.rs` owner and
+old `explain_build_gate_program` helper were removed. Grammar-evidence
+selection, resolver source-seal transport, and the explicit compatibility arm
+remain separate owners; this retirement did not change receipt or path
+semantics.

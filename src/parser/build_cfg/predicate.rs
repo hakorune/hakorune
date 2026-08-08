@@ -6,8 +6,6 @@ use crate::parser::statements::helpers::AnnotationSite;
 use crate::parser::{BuildMode, NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
-use super::BuildGateExplainReport;
-
 impl NyashParser {
     pub(crate) fn is_build_gate_head(&self) -> bool {
         if !matches!(
@@ -279,59 +277,6 @@ impl NyashParser {
                 line: self.current_token().line,
             })
         }
-    }
-
-    pub(crate) fn explain_build_gate_program(
-        &self,
-        ast: &ASTNode,
-    ) -> Result<BuildGateExplainReport, ParseError> {
-        let mut report = BuildGateExplainReport::new();
-        self.collect_build_gate_explain(ast, &mut report)?;
-        Ok(report)
-    }
-
-    fn collect_build_gate_explain(
-        &self,
-        node: &ASTNode,
-        report: &mut BuildGateExplainReport,
-    ) -> Result<(), ParseError> {
-        match node {
-            ASTNode::BuildGate {
-                predicate,
-                then_items,
-                else_items,
-                span,
-            } => {
-                report.conditional_group_count += 1;
-                if self.eval_build_predicate(predicate, *span)? {
-                    report.active_branch_count += 1;
-                    if else_items.is_some() {
-                        report.inactive_branch_count += 1;
-                    }
-                    for item in then_items {
-                        self.collect_build_gate_explain(item, report)?;
-                    }
-                } else if let Some(else_items) = else_items {
-                    report.active_branch_count += 1;
-                    report.inactive_branch_count += 1;
-                    for item in else_items {
-                        self.collect_build_gate_explain(item, report)?;
-                    }
-                } else {
-                    report.inactive_branch_count += 1;
-                }
-            }
-            _ => {
-                let mut child_result: Result<(), ParseError> = Ok(());
-                node.for_each_child(&mut |child| {
-                    if child_result.is_ok() {
-                        child_result = self.collect_build_gate_explain(child, report);
-                    }
-                });
-                child_result?;
-            }
-        }
-        Ok(())
     }
 
     pub(crate) fn eval_build_predicate(

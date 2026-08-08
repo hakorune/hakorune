@@ -1,4 +1,4 @@
-Status: accepted execution task; implementation not landed
+Status: closed implementation receipt
 Date: 2026-08-09
 Row: PARSER-PUBLIC-AST-POSTPASS-FINAL-RETIRE-S0
 Parent: `parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`
@@ -70,3 +70,23 @@ The same implementation commit updates this card's closeout, the parser
 README, the FINAL guard/index, and CURRENT_STATE. The next row is the separate
 NoElse receipt implementation task.
 
+## Closeout (2026-08-09)
+
+The caller-zero `source_gate_prune.rs` module and the old
+`explain_build_gate_program` helper were removed. The shared decision-set
+projection remains the only public postpass owner; grammar evidence,
+source-seal handoff, and the explicit compatibility arm remain separate.
+
+Evidence:
+
+```text
+parser_build_cfg_gate: 12 passed
+parser::source_seal: 12 passed
+parser::postpass_envelope::tests: 7 passed
+parser::string_postpass_entry::tests: 7 passed
+parser_grammar_profile: 17 passed
+all touched source files < 760 lines
+pointer/final/cutover guards: green
+```
+
+No receipt or path semantics changed in this row.

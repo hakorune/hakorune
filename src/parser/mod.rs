@@ -43,7 +43,6 @@ mod postpass_envelope;
 mod runes;
 mod source_authority;
 mod source_gate_ledger;
-mod source_gate_prune;
 mod source_gate_receipt;
 mod source_path;
 mod source_seal;

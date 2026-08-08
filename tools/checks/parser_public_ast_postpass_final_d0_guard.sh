@@ -39,12 +39,16 @@ for needle in (
 ):
     if needle not in task:
         raise SystemExit(f"FINAL task missing contract: {needle}")
-for needle in (
-    'work_mode = "design_stop"',
-    'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-D0"',
+if 'work_mode = "design_stop"' not in state:
+    raise SystemExit("FINAL D0 must remain a design stop")
+if not any(
+    needle in state
+    for needle in (
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-D0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-NOELSE-RECEIPT-D0"',
+    )
 ):
-    if needle not in state:
-        raise SystemExit(f"CURRENT_STATE missing FINAL design-stop pointer: {needle}")
+    raise SystemExit("CURRENT_STATE missing FINAL/NoElse design-stop pointer")
 if "parse_postpass_s0" not in entry or "parse_postpass_with_demand" not in entry:
     raise SystemExit("public parser entry must remain on the shared postpass owner")
 if "postpass_compatibility::lower" not in seal:

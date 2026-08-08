@@ -248,6 +248,11 @@ receipt tests, and keep explain/decision evaluation unchanged. Caller-zero
 retirement candidates are a separate slice and must not hide this type
 boundary.
 
+FINAL-RETIRE-S0 closeout (2026-08-09): the caller-zero
+`source_gate_prune.rs` owner and old `explain_build_gate_program` helper are
+retired. This does not retire the shared projection walker, grammar-evidence
+selector, resolver source-seal entry, or explicit compatibility arm.
+
 ## Finalizer completeness
 
 The finalizer issues `ParserBoxSourceSealV1` exactly once and requires:
