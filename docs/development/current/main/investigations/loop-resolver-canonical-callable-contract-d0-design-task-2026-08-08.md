@@ -53,9 +53,22 @@ currently available. Therefore an instance target must not copy fields from
 those unrelated layers or pretend that a missing Home/effect/ABI contract is
 trivial.
 
+The current callable catalog is also function-header-only: its namespace and
+key are `FreeStatic`, while the header view does not carry a Box receiver or an
+instance declaration identity. `ExactTrivialParameterAbiV1` and
+`ExactTrivialReturnAbiV1` are source-spelling-to-MIR projection helpers, not a
+declaration contract. Rune-derived `EffectPlan` is metadata attached to a MIR
+function and is not a resolver-owned call-site contract. These are evidence
+that the instance target cannot be admitted by widening one existing type.
+
 The contract owner is the single place that proves declaration-level call
 compatibility. It is not a universal physical callable plan and it does not
 choose a provider or a Recipe operation.
+
+Before the target I0 row, the source surface must therefore provide an exact
+Box/instance declaration inventory and the semantic sub-contract issuers. If
+that source inventory or any required issuer is missing, the correct result is
+another named design stop, not a test-only constructor or a FreeStatic alias.
 
 ## Proposed contract shape
 
