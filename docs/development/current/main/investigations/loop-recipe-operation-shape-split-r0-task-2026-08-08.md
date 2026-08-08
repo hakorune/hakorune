@@ -1,5 +1,5 @@
 ---
-Status: Ready
+Status: Closed
 Date: 2026-08-08
 Decision: accepted — behavior-preserving BoxShape split before typed-call growth
 Scope: `src/mir/loop_recipe_contract/operation_physical_demand.rs` and `verify.rs`
@@ -80,6 +80,18 @@ Language reference documentation is not changed by this behavior-neutral
 split. The later typed schema/instance-target implementation must update
 `docs/reference/mir/loop-recipe-contract.md`, the two module READMEs, and its
 focused tests in the same implementation commit.
+
+## Closeout
+
+- Commit: `032db90298`
+- Focused evidence: operation-demand 5/5; structural Recipe tests 38/38;
+  release `hakorune` build green; line-count, diff, and current-pointer guards
+  green.
+- Baseline evidence: the one failing source-bound-core assertion reproduces at
+  parent `e00a374803`; it remains known baseline debt and is not part of this
+  refactor.
+- Next blocker: `LOOP-RECIPE-TYPED-SCHEMA-V2-D0`, an explicit design stop for
+  the V2 wire/CallSlot and resolver instance-target relation.
 
 ## Non-claims and stop
 
