@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0 design closed; C-I0 implementation and R6-S3B-D remain closed
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation closed; R6-S3B-D remains closed
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -77,6 +77,45 @@ All five rows require focused positive/negative tests, owner README updates,
 and the affected `docs/reference/**` receipt in the same implementation
 commit. A missing issuer is `NoSafeSlice` development state, not a source
 disposition.
+
+## External authority audit reconciliation — 2026-08-09
+
+The latest outside review was checked against the landed R6-S3B parser work
+and this task map. It does not require a new architecture or an early resolver
+implementation. The recommended corrections are already assigned to the
+following existing owners and remain ordered, not silently folded into C-I0:
+
+```text
+parser-owned source seal between AST inventory and resolver
+  -> R6-D0/S0-S3 + the closed R6-S3B-C-I0 parser-private receipt
+
+as-written SourceBoxMethodSite != selected/generated inventory placement
+  -> SourceBoxMethodSiteV1 / BoxMethodInventoryOrdinalV1 boundary
+
+CallableContract(query) references, but never duplicates, VerifiedHomeAbi
+  -> LANGUAGE-TYPED-CALLABLE-PROFILE-D0 / OWN-HOME-ABI0-S0/query
+
+raw rune strings become typed syntax before the resolver issuer
+  -> typed CallableContractSyntaxViewV1 in the language/parser row
+
+old body-inferred source_instance_result_contract is dispositioned before
+the declaration-first instance target opens
+  -> SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0
+
+declared contract and body conformance are separate; the complete conformant
+catalog is the Verify owner
+  -> CALLABLE-CONTRACT-CONFORMANCE-D0/I0 and publishable catalog co-seal
+
+semantic I64 projects one-way to physical ABI; MirType/ExactTrivial*Abi do not
+issue source meaning
+  -> semantic-signature row followed by physical ABI projection
+```
+
+This audit is therefore recorded as **accepted architecture / parked
+implementation**. No `Verified*` placeholder, test-only issuer, target
+fallback, or second source authority is opened by the audit itself. Each
+future implementation row must update its focused tests, owner README, and
+language/reference receipt in the same commit.
 
 The external review's architecture is accepted with these mandatory Hakorune
 corrections:
@@ -222,10 +261,14 @@ R6-S3B-C-I0-D0 (accepted design; implementation closed)
   Design:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md`
 
-R6-S3B-C-I0 (planned implementation; not opened)
-  implements only the accepted parser-private atomic generated batch. Same
-  slice must update focused tests, parser README, source-handoff SSOT,
-  language reference receipt, and guard. No R6-S3B-D authority may open.
+R6-S3B-C-I0 (closed implementation receipt)
+  implements only the accepted parser-private atomic generated batch. The
+  bounded batch performs all-host/expose preflight, stages inventory placement,
+  persists parser-private relation rows through the prepared source payload,
+  and applies one consume-return commit. Focused tests cover zero-delegate
+  no-op, later-host failure without AST mutation, generated-name collision,
+  staged-vs-actual placement mismatch, and duplicate source rows. No
+  R6-S3B-D authority opened.
   Task:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md`
 
@@ -276,6 +319,8 @@ CALLABLE-HOME-ABI-REFERENCE-COSEAL-D0/I0
 SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0
   non-test caller-zero or retirement of the old body-inferred target/result
   family before declaration-first instance target issuance
+  Task:
+  `docs/development/current/main/investigations/source-instance-result-contract-retire0-r0-task-2026-08-09.md`
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
   complete same-brand declared-contract + body-conformance set
@@ -506,6 +551,8 @@ Rejected > Unresolved > Declined > Candidate
     - preserve only general `source_call_target` source-site primitives and
       unrelated production result-representation owners;
     - require non-test caller zero and same-slice module/README/ledger guard.
+    - Task:
+      `docs/development/current/main/investigations/source-instance-result-contract-retire0-r0-task-2026-08-09.md`
 16. `LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0`
     - catalog-owned reusable opaque target reference;
     - existing FreeStatic index unchanged;

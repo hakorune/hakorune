@@ -20,6 +20,11 @@ box Host {
     let host_seal = &parsed.source_seals()[1];
     assert!(host_seal.prepared.delegate_source_declarations.is_empty());
     assert!(host_seal.inventory().get("runAlias").is_none());
+    let relations = parsed.generated_delegate_source_relations();
+    assert_eq!(relations.len(), 1);
+    assert_eq!(relations[0].exposed_method_name(), "runAlias");
+    assert_eq!(relations[0].source_method_name(), "run");
+    assert_eq!(relations[0].delegate_field_name(), "target");
     let generated = match parsed.ast() {
         ASTNode::Program { statements, .. } => statements
             .iter()
@@ -38,4 +43,27 @@ box Host {
             crate::ast::BoxMethodGeneratedProvenanceV1::Delegate { .. }
         )
     ));
+}
+
+#[test]
+fn r6_s3b_c_i0_zero_delegate_program_is_an_exact_noop() {
+    let parsed = NyashParser::parse_from_string_with_source_seal(
+        r#"
+box Plain {
+    run() { return 1 }
+}
+"#,
+        ParserBuildConfig::default(),
+    )
+    .expect("ordinary Box without delegates should remain a valid source product");
+
+    assert!(parsed.generated_delegate_source_relations().is_empty());
+    let ASTNode::Program { statements, .. } = parsed.ast() else {
+        panic!("source-sealed parse must return a Program AST");
+    };
+    let ASTNode::BoxDeclaration { methods, .. } = &statements[0] else {
+        panic!("fixture must contain one Box");
+    };
+    assert_eq!(methods.len(), 1);
+    assert!(methods.get("runAlias").is_none());
 }

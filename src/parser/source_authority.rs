@@ -100,6 +100,30 @@ impl SourceBoxMethodSiteV1 {
         self.member().box_site()
     }
 
+    pub(super) fn source_member_ordinal(&self) -> u32 {
+        self.member().member_ordinal()
+    }
+
+    pub(super) fn matches_ast_selection(
+        &self,
+        selection: &crate::ast::BoxMethodSourceSelectionV1,
+    ) -> bool {
+        match (self, selection) {
+            (Self::Direct { .. }, crate::ast::BoxMethodSourceSelectionV1::Direct) => true,
+            (
+                Self::SelectedBuildGate { path, .. },
+                crate::ast::BoxMethodSourceSelectionV1::SelectedBuildGate { path: ast_path },
+            ) => {
+                path.len() == ast_path.len()
+                    && path.iter().zip(ast_path.iter()).all(|(source, ast)| {
+                        source.gate_member_ordinal == ast.gate_site().box_member_ordinal()
+                            && source.branch_member_ordinal == ast.branch_member_ordinal()
+                    })
+            }
+            _ => false,
+        }
+    }
+
     fn member(&self) -> &SourceBoxMemberSiteV1 {
         match self {
             Self::Direct { member } | Self::SelectedBuildGate { member, .. } => member,
@@ -136,10 +160,6 @@ impl SourceBoxMethodSiteV1 {
                 *path = rebased.into_boxed_slice();
             }
         }
-    }
-
-    fn source_member_ordinal(&self) -> u32 {
-        self.member().member_ordinal()
     }
 }
 
@@ -570,6 +590,7 @@ impl OpenBoxMethodSourceTransactionV1 {
             inventory: self.inventory,
             method_relations: self.method_relations.into_boxed_slice(),
             delegate_source_declarations: self.delegate_source_declarations.into_boxed_slice(),
+            generated_delegate_source_relations: Box::new([]),
         }
     }
 }

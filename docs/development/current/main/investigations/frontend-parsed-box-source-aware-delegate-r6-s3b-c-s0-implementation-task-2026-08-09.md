@@ -128,7 +128,7 @@ no Hako parity, generated-delegate chain, fallback, or retry
 ## Next slice
 
 This row is closed. Its child `R6-S3B-C-S1-D0` design and bounded C-S1 private
-target-index implementation are also closed. The C-I0 design is accepted and
-its implementation remains unopened at the clean stop for all-host/expose
-preflight and one atomic generated batch. If the parser cannot issue an exact source row, stop at
+target-index implementation are also closed. The C-I0 design and bounded
+implementation receipt are now closed for all-host/expose preflight and one
+atomic generated batch. If the parser cannot issue an exact source row, stop at
 `NoSafeSlice`; do not add a test constructor or a name-based shortcut.

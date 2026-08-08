@@ -1,7 +1,7 @@
 ---
-Status: planned; implementation not opened
+Status: closed implementation receipt
 Date: 2026-08-09
-Decision: implement only the accepted C-I0 parser-private atomic delegate batch
+Decision: accepted C-I0 parser-private atomic delegate batch landed; R6-S3B-D remains closed
 Parent: `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md`
 Reference: `docs/development/current/main/design/parser-postpass-source-handoff-ssot.md`
 ---
@@ -108,3 +108,43 @@ no generated-delegate chain semantics
 no fallback/retry/AST rewrite
 no production selection or legacy deletion
 ```
+
+## Implementation receipt — closed (2026-08-09)
+
+The bounded batch is implemented in `src/parser/delegate_batch.rs` and owns a
+single `PreparedDelegatePostpassBatchV1` containing staged per-host batches,
+placement receipts, and owned `GeneratedDelegateSourceRelationV1` rows. The
+C-S1 target index now exposes only a borrowed descriptive target declaration;
+forwarder construction remains an AST-shape helper and does not issue a
+resolver target or semantic contract.
+
+The prepare phase covers every ordinary host and expose before touching the
+product. It validates parser-row/AST one-to-one coverage, target field/type and
+explicit method relation, generated-name collisions, and same-brand paths. A
+clone/staging inventory computes placements; the consume-return commit applies
+the cloned AST and attaches relation rows to `ParserSourceSessionV1` only after
+all hosts pass. Actual placement receipts are compared with staged receipts.
+
+`ParsedProgramWithSourceV1` carries the parser-private relation rows for the
+later R6-S3B-D finalizer. `ParserBoxSourceSealV1` remains unchanged and no
+resolver-visible generated relation is issued here. The source-seal module
+stays below 800 lines after moving unrelated test receipts to a dedicated
+parser test module.
+
+Focused receipts landed in the same slice:
+
+```text
+source_seal_delegate_tests:
+  generated delegate AST plus one persisted relation row
+  exact zero-delegate no-op
+
+delegate_batch::tests:
+  all-host preflight leaves the original AST untouched on a later failure
+  generated-name collision rejects during staging
+  staged-vs-actual placement mismatch rejects before commit
+  duplicate parser source rows reject before staging
+```
+
+The implementation intentionally stops before final seal extension,
+resolver declaration/target issuance, Recipe/CallSlot, Builder/MIR, provider,
+runtime, fallback, or production activation.

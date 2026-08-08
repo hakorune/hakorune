@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index receipt closed, C-I0 batch design accepted and implementation unopened.
+Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D/final resolver coverage unopened.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -353,9 +353,10 @@ missing-method rejection without fallback, and duplicate-target rejection.
 The implementation does not mutate AST/inventory/seals, add generated
 placement, extend the final seal, or connect resolver/Recipe/runtime routes.
 C-I0 all-host/expose preflight and atomic generated-batch commit have an
-accepted design; implementation remains unopened at the current clean stop.
+accepted parser-private implementation receipt; final relation/seal coverage
+remains unopened at the current clean stop.
 
-R6-S3B-C-I0-D0 design receipt (2026-08-09): the accepted next parser slice
+R6-S3B-C-I0-D0 design receipt (2026-08-09): the accepted parser slice
 owns one private `PreparedDelegatePostpassBatchV1` containing staged per-host
 forwarder drafts, expected inventory placement receipts, and owned generated
 delegate source-relation rows. It borrows the C-S1 target index only during
@@ -367,8 +368,15 @@ can verify complete coverage without AST re-scan, but C-I0 does not extend
 `ParserBoxSourceSealV1`. Placement is computed against staging inventory and
 actual commit receipts must match. Zero-delegate ordinary programs are exact
 no-ops; all failures drop the unpublished product with no partial commit,
-retry, or fallback. The implementation card and guard remain unopened until
-the next bounded slice.
+retry, or fallback.
+
+R6-S3B-C-I0 implementation receipt (2026-08-09): the batch is implemented in
+`src/parser/delegate_batch.rs` and carries owned relation rows through
+`ParsedProgramWithSourceV1`. Focused tests cover all-host preflight, zero
+delegate no-op, generated-name collision, duplicate source rows,
+staged-vs-actual placement mismatch, and persisted relation output. The
+final non-Clone source seal remains unchanged; no resolver, Recipe/CallSlot,
+Builder/MIR, provider/runtime, or production authority opens in C-I0.
 
 ## Related references
 

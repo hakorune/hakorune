@@ -1,7 +1,7 @@
 ---
-Status: accepted design; implementation not opened
+Status: accepted design; implementation closed
 Date: 2026-08-09
-Decision: C-I0 batch boundary is accepted after independent authority audit; implementation remains closed until the bounded receipt is opened
+Decision: C-I0 batch boundary is accepted after independent authority audit; bounded implementation receipt is closed and R6-S3B-D remains unopened
 Parent: `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md`
 Reference: `docs/development/current/main/design/parser-postpass-source-handoff-ssot.md`
 ---

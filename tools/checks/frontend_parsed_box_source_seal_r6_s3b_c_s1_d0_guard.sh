@@ -65,9 +65,9 @@ for needle in (
         raise SystemExit(f"task map missing C-S1 task pointer: {needle}")
 
 for needle in (
-    'work_mode = "design_stop"',
-    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0-D0"',
-    'current_blocker_token = "R6-S3B-C-I0-D0:',
+    'work_mode = "closeout"',
+    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0"',
+    'current_blocker_token = "R6-S3B-C-I0-CLOSEOUT:',
 ):
     if needle not in state:
         raise SystemExit(f"current state missing design stop: {needle}")

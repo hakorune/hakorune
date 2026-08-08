@@ -11,6 +11,7 @@ use crate::ast::{
 };
 use crate::parser::ParserMetadata;
 
+use super::delegate_source_relation::GeneratedDelegateSourceRelationV1;
 use super::source_authority::{
     DelegateSourceDeclarationV1, MethodSourceRelationV1, ParserInvocationBrandV1,
     SourceBoxDeclarationSiteV1,
@@ -20,7 +21,7 @@ use super::source_path::{
     SourceBoxDeclarationPathV1, SourceBoxPathSegmentV1, SourceBuildGateBranchV1,
     SourceBuildGatePathV1,
 };
-use super::{delegate_lowering, NyashParser};
+use super::NyashParser;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct BuildGateSelectionReceiptV1 {
@@ -33,6 +34,10 @@ pub(super) struct BuildGateSelectionReceiptV1 {
 #[cfg(test)]
 #[path = "source_seal_delegate_tests.rs"]
 mod source_seal_delegate_tests;
+
+#[cfg(test)]
+#[path = "source_seal_misc_tests.rs"]
+mod source_seal_misc_tests;
 
 impl BuildGateSelectionReceiptV1 {
     pub(super) fn issue(
@@ -70,6 +75,7 @@ pub(super) struct PreparedBoxSourceSealV1 {
     pub(super) inventory: BoxMethodInventoryV1,
     pub(super) method_relations: Box<[MethodSourceRelationV1]>,
     pub(super) delegate_source_declarations: Box<[DelegateSourceDeclarationV1]>,
+    pub(super) generated_delegate_source_relations: Box<[GeneratedDelegateSourceRelationV1]>,
 }
 
 impl PreparedBoxSourceSealV1 {
@@ -85,14 +91,20 @@ impl PreparedBoxSourceSealV1 {
         &self.delegate_source_declarations
     }
 
+    pub(super) fn generated_delegate_source_relations(
+        &self,
+    ) -> &[GeneratedDelegateSourceRelationV1] {
+        &self.generated_delegate_source_relations
+    }
+
     pub(super) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
         &self.box_site
     }
 
     /// Consume the prepared payload only after the postpass has produced the
-    /// final inventory. Delegate rows may be present in the descriptive AST
-    /// inventory, but they remain outside this resolver-visible source seal
-    /// until a source-aware delegate relation exists.
+    /// final inventory. Generated delegate relations are carried by the rich
+    /// parsed product, but remain outside this resolver-visible source seal
+    /// until the later R6-S3B-D complete-coverage issuer.
     pub(super) fn finalize_against(
         self,
         final_inventory: &BoxMethodInventoryV1,
@@ -135,10 +147,11 @@ impl PreparedBoxSourceSealV1 {
                 box_site: self.box_site,
                 inventory: self.inventory,
                 method_relations: self.method_relations,
-                // C-S0 transports parser-private delegate rows through the
-                // prepared payload only. They are deliberately dropped until
-                // C-D extends final seal coverage.
+                // C-I0 transports relation rows through the rich parsed
+                // product. The final non-Clone seal stays intentionally
+                // limited until R6-S3B-D extends complete coverage.
                 delegate_source_declarations: Box::new([]),
+                generated_delegate_source_relations: Box::new([]),
             },
         })
     }
@@ -193,6 +206,25 @@ impl ParserSourceSessionV1 {
         &self.gate_records
     }
 
+    pub(super) fn attach_generated_delegate_relations(
+        &mut self,
+        box_path: &SourceBoxDeclarationPathV1,
+        relations: Box<[GeneratedDelegateSourceRelationV1]>,
+    ) -> Result<(), String> {
+        let Some(seal) = self
+            .prepared_source_seals
+            .iter_mut()
+            .find(|seal| seal.box_site.path() == box_path)
+        else {
+            return Err("generated delegate relation host path is absent".to_owned());
+        };
+        if !seal.generated_delegate_source_relations.is_empty() {
+            return Err("generated delegate relation host is already committed".to_owned());
+        }
+        seal.generated_delegate_source_relations = relations;
+        Ok(())
+    }
+
     pub(super) fn prepare_prune(
         &self,
         receipts: &[BuildGateSelectionReceiptV1],
@@ -230,6 +262,7 @@ fn clone_prepared_source_seal(seal: &PreparedBoxSourceSealV1) -> PreparedBoxSour
         inventory: seal.inventory.clone(),
         method_relations: seal.method_relations.clone(),
         delegate_source_declarations: seal.delegate_source_declarations.clone(),
+        generated_delegate_source_relations: seal.generated_delegate_source_relations.clone(),
     }
 }
 
@@ -369,8 +402,26 @@ impl OpenParserPostpassProductV1 {
     }
 
     pub(super) fn lower_delegates(self) -> Result<Self, crate::parser::ParseError> {
-        let ast = delegate_lowering::lower_delegate_exposes(self.ast)?;
-        Ok(Self { ast, ..self })
+        super::delegate_batch::lower_delegates(self)
+    }
+
+    pub(super) fn commit_generated_delegate_batch(
+        self,
+        ast: ASTNode,
+        relation_batches: Vec<(
+            SourceBoxDeclarationPathV1,
+            Box<[GeneratedDelegateSourceRelationV1]>,
+        )>,
+    ) -> Result<Self, String> {
+        let mut source_session = self.source_session;
+        for (path, relations) in relation_batches {
+            source_session.attach_generated_delegate_relations(&path, relations)?;
+        }
+        Ok(Self {
+            ast,
+            source_session,
+            ..self
+        })
     }
 
     pub(super) fn finalize(
@@ -410,6 +461,7 @@ impl ParserBoxSourceSealV1 {
 pub(super) struct ParsedProgramWithSourceV1 {
     ast: ASTNode,
     source_seals: Box<[ParserBoxSourceSealV1]>,
+    generated_delegate_source_relations: Box<[GeneratedDelegateSourceRelationV1]>,
     metadata: ParserMetadata,
 }
 
@@ -424,6 +476,12 @@ impl ParsedProgramWithSourceV1 {
 
     pub(super) fn source_seals(&self) -> &[ParserBoxSourceSealV1] {
         &self.source_seals
+    }
+
+    pub(super) fn generated_delegate_source_relations(
+        &self,
+    ) -> &[GeneratedDelegateSourceRelationV1] {
+        &self.generated_delegate_source_relations
     }
 
     pub(super) fn metadata(&self) -> &ParserMetadata {
@@ -531,6 +589,12 @@ fn finalize_program(
         });
     }
 
+    let generated_delegate_source_relations = prepared
+        .iter()
+        .flat_map(PreparedBoxSourceSealV1::generated_delegate_source_relations)
+        .cloned()
+        .collect::<Vec<_>>()
+        .into_boxed_slice();
     let coverage = FinalizerCoveragePlanV1::issue(&prepared, &final_box_paths)?;
     let source_seals = prepared
         .into_iter()
@@ -545,6 +609,7 @@ fn finalize_program(
     Ok(ParsedProgramWithSourceV1 {
         ast,
         source_seals,
+        generated_delegate_source_relations,
         metadata,
     })
 }
@@ -701,82 +766,6 @@ gate Build.test {
         assert!(
             matches!(parsed.ast(), ASTNode::Program { statements, .. } if statements.is_empty())
         );
-    }
-
-    #[test]
-    fn r6_s3b_a_ast_projection_matches_the_rich_product() {
-        let source = r#"
-box Plain {
-    run() { return 1 }
-}
-"#;
-        let rich =
-            NyashParser::parse_from_string_with_source_seal(source, ParserBuildConfig::default())
-                .expect("rich direct-Box product should finalize");
-        let projected = NyashParser::parse_from_string_with_source_seal_ast(
-            source,
-            ParserBuildConfig::default(),
-        )
-        .expect("AST projection should use the rich path");
-
-        assert_eq!(rich.into_ast(), projected);
-    }
-
-    #[test]
-    fn r6_s3b_a_rich_product_keeps_diagnostic_metadata_outside_source_seal() {
-        let parsed = NyashParser::parse_from_string_with_source_seal(
-            r#"@rune Public
-box Plain {
-    run() { return 1 }
-}
-"#,
-            ParserBuildConfig::default(),
-        )
-        .expect("diagnostic rune metadata must not block the bounded product");
-
-        assert_eq!(parsed.source_seals().len(), 1);
-        assert_eq!(parsed.metadata().runes.len(), 1);
-        assert_eq!(parsed.metadata().runes[0].name, "Public");
-    }
-
-    #[test]
-    fn r6_s3b_b3_keeps_delegate_suffix_outside_source_seal() {
-        let parsed = NyashParser::parse_from_string_with_source_seal(
-            r#"
-box Target { run() { return 1 } }
-box Host {
-    target: Target
-    delegate target exposes { run as runAlias }
-}
-"#,
-            ParserBuildConfig::default(),
-        )
-        .expect("delegate postpass should be included before the final seal");
-
-        assert_eq!(parsed.source_seals().len(), 2);
-        let host = match parsed.ast() {
-            ASTNode::Program { statements, .. } => statements
-                .iter()
-                .find_map(|statement| match statement {
-                    ASTNode::BoxDeclaration { name, methods, .. } if name == "Host" => {
-                        Some(methods)
-                    }
-                    _ => None,
-                })
-                .expect("delegate host must remain in the final AST"),
-            _ => panic!("source-sealed parse must return a Program AST"),
-        };
-        let generated = host
-            .get("runAlias")
-            .expect("delegate generated method must remain in descriptive AST inventory");
-        assert!(matches!(
-            generated.provenance(),
-            BoxMethodProvenanceV1::Generated(BoxMethodGeneratedProvenanceV1::Delegate { .. })
-        ));
-        assert!(parsed.source_seals()[1]
-            .inventory()
-            .get("runAlias")
-            .is_none());
     }
 
     #[test]

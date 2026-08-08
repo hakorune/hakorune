@@ -24,7 +24,7 @@ design, implementation, ssot, readme, reference, taskmap, state = [
 ]
 
 for needle in (
-    "Status: accepted design; implementation not opened",
+    "Status: accepted design; implementation closed",
     "PreparedDelegatePostpassBatchV1",
     "borrowed descriptive target",
     "method declaration/signature view",
@@ -44,8 +44,8 @@ for needle in (
     if needle not in design:
         raise SystemExit(f"C-I0 design receipt missing: {needle}")
 
-if "Status: planned; implementation not opened" not in implementation:
-    raise SystemExit("C-I0 implementation must remain unopened")
+if "Status: closed implementation receipt" not in implementation:
+    raise SystemExit("C-I0 implementation receipt must be closed")
 for needle in (
     "GeneratedDelegateSourceRelationV1",
     "staged-vs-actual placement receipt equality",
@@ -61,10 +61,10 @@ for document, label in ((ssot, "SSOT"), (reference, "reference"), (readme, "READ
             raise SystemExit(f"{label} missing C-I0 design receipt: {needle}")
 
 for needle in (
-    'work_mode = "design_stop"',
-    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0-D0"',
-    'next_execution_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0"',
-    'current_blocker_token = "R6-S3B-C-I0-D0:',
+    'work_mode = "closeout"',
+    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0"',
+    'next_execution_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0"',
+    'current_blocker_token = "R6-S3B-C-I0-CLOSEOUT:',
 ):
     if needle not in state:
         raise SystemExit(f"CURRENT_STATE missing clean C-I0 stop: {needle}")
@@ -74,7 +74,7 @@ print("all_host_expose_preflight=1")
 print("staged_atomic_batch=1")
 print("relation_persistence=1")
 print("typed_failure_matrix=1")
-print("implementation_closed=1")
+print("implementation_receipt=1")
 print("summary=ok")
 PY
 

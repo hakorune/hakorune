@@ -59,10 +59,10 @@ for document, label in ((ssot, "SSOT"), (reference, "reference"), (task, "task")
         if needle not in document:
             raise SystemExit(f"{label} missing C-S1 closeout: {needle}")
 
-if "Status: accepted design; implementation not opened" not in next_design:
-    raise SystemExit("C-I0 design receipt must be accepted before implementation opens")
-if "Status: planned; implementation not opened" not in next_impl:
-    raise SystemExit("C-I0 implementation card must remain unopened")
+if "Status: accepted design; implementation closed" not in next_design:
+    raise SystemExit("C-I0 design receipt must be accepted and closed")
+if "Status: closed implementation receipt" not in next_impl:
+    raise SystemExit("C-I0 implementation receipt must be closed")
 for needle in (
     "R6-S3B-C-S1 (closed)",
     "frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md",
@@ -72,9 +72,9 @@ for needle in (
         raise SystemExit(f"task map missing next C-I0 boundary: {needle}")
 
 for needle in (
-    'work_mode = "design_stop"',
-    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0-D0"',
-    'current_blocker_token = "R6-S3B-C-I0-D0:',
+    'work_mode = "closeout"',
+    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0"',
+    'current_blocker_token = "R6-S3B-C-I0-CLOSEOUT:',
 ):
     if needle not in state:
         raise SystemExit(f"CURRENT_STATE missing C-I0 design stop: {needle}")

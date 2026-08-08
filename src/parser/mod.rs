@@ -22,7 +22,9 @@ mod common;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
+mod delegate_batch;
 mod delegate_lowering;
+mod delegate_source_relation;
 mod delegate_target_index;
 pub(crate) mod env;
 // depth_tracking.rs was a legacy depth counter for Smart advance.

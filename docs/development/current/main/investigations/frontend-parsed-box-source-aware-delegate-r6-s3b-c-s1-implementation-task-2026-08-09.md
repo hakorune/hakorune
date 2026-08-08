@@ -143,6 +143,6 @@ target name (`Rejected` at index issue). No AST/inventory/prepared-seal/final-
 seal mutation, generated placement, batch commit, resolver target, or runtime
 route was added. All touched Rust source files remain below 800 lines.
 
-The accepted next boundary is the separately tracked C-I0 implementation for
-all-host/expose preflight and one atomic generated-batch commit; this row does
-not open that implementation.
+The accepted C-I0 implementation for all-host/expose preflight and one atomic
+generated-batch commit is now closed in its own receipt; this row does not
+extend the final seal or resolver authority.

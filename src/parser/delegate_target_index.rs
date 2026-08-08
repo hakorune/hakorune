@@ -45,6 +45,10 @@ impl<'product> TargetMethodRefV1<'product> {
     pub(super) fn method_name(&self) -> &str {
         self.method.name()
     }
+
+    pub(super) fn method_source_relation(&self) -> &ExplicitMethodSourceRelationV1 {
+        self.method
+    }
 }
 
 #[derive(Debug)]
@@ -191,6 +195,17 @@ impl<'product> DelegateTargetIndexV1<'product> {
             target_box_path: target.path.clone(),
             method,
         })
+    }
+
+    pub(super) fn method_declaration(
+        &self,
+        target: &TargetMethodRefV1<'product>,
+    ) -> Option<&'product ASTNode> {
+        self.entries
+            .iter()
+            .find(|entry| entry.path == target.target_box_path)
+            .and_then(|entry| entry.inventory.get(target.method_name()))
+            .map(|entry| entry.declaration())
     }
 }
 

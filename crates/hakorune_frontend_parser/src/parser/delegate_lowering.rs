@@ -234,6 +234,15 @@ fn resolve_unique_method(
             target_type, method_name
         )));
     };
+    let sig = method_signature(method, target_type, method_name)?;
+    Ok(sig)
+}
+
+fn method_signature(
+    method: &ASTNode,
+    target_type: &str,
+    method_name: &str,
+) -> Result<MethodSig, ParseError> {
     let ASTNode::FunctionDeclaration {
         name,
         params,
@@ -253,6 +262,18 @@ fn resolve_unique_method(
         param_decls: param_decls.clone(),
         return_type_name: return_type_name.clone(),
     })
+}
+
+/// Builds one forwarding method from a parser-verified descriptive target
+/// declaration. The target identity and source relation stay with the caller;
+/// this helper only owns the AST shape of the generated function.
+pub fn build_forwarding_method_from_declaration(
+    field_name: &str,
+    exposed_name: &str,
+    target_method: &ASTNode,
+) -> Result<ASTNode, ParseError> {
+    let sig = method_signature(target_method, "<verified target>", exposed_name)?;
+    Ok(build_forwarding_method(field_name, exposed_name, sig))
 }
 
 fn build_forwarding_method(field_name: &str, exposed_name: &str, sig: MethodSig) -> ASTNode {

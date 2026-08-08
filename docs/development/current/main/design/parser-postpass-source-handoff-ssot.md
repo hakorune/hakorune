@@ -633,18 +633,18 @@ state is mutated.
 
 The four focused tests landed in the same slice and prove positive reuse,
 missing-field unresolved, missing-method no-fallback rejection, and duplicate
-target rejection. All touched Rust files remain below 800 lines. The next
-execution frontier is the separately tracked C-I0 implementation; its design
-is accepted, but the code row remains unopened at the current clean stop.
+target rejection. All touched Rust files remain below 800 lines. The
+separately tracked C-I0 implementation is now closed at the current clean
+stop; the next R6-S3B-D final-seal design remains unopened.
 
-The accepted C-I0 design and unopened implementation card are:
+The accepted C-I0 design and closed implementation card are:
 
 ```text
 frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md
 frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md
 ```
 
-## R6-S3B-C-I0-D0 design receipt — accepted; implementation not opened
+## R6-S3B-C-I0-D0 design receipt — accepted; implementation closed
 
 C-I0 is now design-closed after an independent authority audit. The row does
 not extend `ParserBoxSourceSealV1`; it defines the parser-private staged batch
@@ -691,9 +691,31 @@ Declined    = fully observed outside the bounded C cohort
 Candidate   = all rows exact and the complete staged batch is ready
 ```
 
-The dedicated implementation card and guard must land before C-I0 code opens.
-The implementation commit must update this reference, the parser README, the
-language reference receipt, focused tests, and current task pointers together.
+The dedicated implementation card, guard, parser README, language reference
+receipt, focused tests, and current task pointers landed together with the
+bounded C-I0 implementation. `ParserBoxSourceSealV1` remains unchanged; the
+relation rows are available only from `ParsedProgramWithSourceV1` for the later
+R6-S3B-D finalizer.
+
+## R6-S3B-C-I0 implementation receipt — closed (2026-08-09)
+
+`src/parser/delegate_batch.rs` now owns one
+`PreparedDelegatePostpassBatchV1`. It borrows the C-S1 target index while
+preparing every ordinary host/expose row, obtains a descriptive target method
+declaration only for forwarding AST construction, stages each inventory
+append, and records one placement receipt plus one owned
+`GeneratedDelegateSourceRelationV1` per expose. The original postpass product
+is not mutated until all hosts pass preflight; a later-host failure therefore
+drops the unpublished batch without partial AST mutation.
+
+The consume-return commit applies the cloned AST and attaches relation rows to
+`ParserSourceSessionV1`. Finalization carries those rows into
+`ParsedProgramWithSourceV1` without an AST/name rescan, while the final
+non-Clone source seal still excludes generated delegate relations. Focused
+tests cover exact zero-delegate no-op, later-host failure, generated-name
+collision, duplicate source rows, placement-receipt mismatch, and persisted
+relation output. No resolver, Recipe/CallSlot, Builder/MIR, provider/runtime,
+fallback, or production authority is opened.
 
 ## Nonclaims until R6-S3B-D closes
 
