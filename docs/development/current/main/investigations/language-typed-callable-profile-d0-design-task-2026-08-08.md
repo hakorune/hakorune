@@ -180,13 +180,13 @@ provider/runtime route, fallback, or publication path.
 
 The frontend inventory is now ordered through R5 and the bounded rich Rust
 parser now issues a non-Clone `ParserBoxSourceSealV1`. Its all-row selected
-ordinal is still only placement, not an explicit-method source site. The seal
-is parser-private and ordinary-top-level-only; Hako compatibility, AST-only
-postpass, interface/static/record/mixed cohorts remain outside resolver
-authority. The resolver must not promote raw `ExplicitSource`, JSON, a
-compatibility map, selected placement, or cloneable relation slices into
-declaration authority. The remaining next boundary is the explicit consuming
-parser→resolver handoff, followed by semantic declaration/signature and Home
+ordinal is still only placement, not an explicit-method source site. The
+bounded parser→resolver handoff I0 consumes that seal once into
+`ParserBoxResolverSourceHandoffV1`; Hako compatibility, AST-only postpass,
+interface/static/record/mixed cohorts remain outside resolver authority. The
+resolver must not promote raw `ExplicitSource`, JSON, a compatibility map,
+selected placement, or cloneable relation slices into declaration authority.
+The remaining next boundary is semantic declaration/signature and Home
 issuers.
 
 ## Ordered follow-up
@@ -198,9 +198,10 @@ projection, and same-slice reference updates, is owned only by
 
 ```text
 LANGUAGE-TYPED-CALLABLE-PROFILE-D0                 closed
-  -> RESOLVER-BOX-SOURCE-HANDOFF-D0                 current design stop
-  -> resolver semantic declaration/signature
-  -> OWN-HOME-ABI0-S0/query
+  -> RESOLVER-BOX-SOURCE-HANDOFF-D0/I0              closed (bounded Rust)
+  -> semantic declaration/signature D0/I0
+  -> OWN-HOME-CALLABLE-ABI-D0 -> RELATION0-S0
+  -> ABI0-S0 / Query behavior / declared aggregate
   -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
   -> RESOLVER-INSTANCE-CALL-TARGET-D0/I0
   -> SOURCE-BOUND-INSTANCE-CALL-D0/I0

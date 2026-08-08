@@ -7,18 +7,18 @@
 use crate::ast::{ASTNode, DeclarationAttrs};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) struct CallableContractRuneSiteV1 {
+pub(crate) struct CallableContractRuneSiteV1 {
     rune_ordinal: u32,
 }
 
 impl CallableContractRuneSiteV1 {
-    pub(super) fn rune_ordinal(&self) -> u32 {
+    pub(crate) fn rune_ordinal(&self) -> u32 {
         self.rune_ordinal
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum CallableContractSyntaxV1 {
+pub(crate) enum CallableContractSyntaxV1 {
     Query {
         source_site: CallableContractRuneSiteV1,
     },
@@ -49,7 +49,7 @@ impl CallableContractSyntaxV1 {
             })
     }
 
-    pub(super) fn source_site(&self) -> &CallableContractRuneSiteV1 {
+    pub(crate) fn source_site(&self) -> &CallableContractRuneSiteV1 {
         match self {
             Self::Query { source_site } => source_site,
         }

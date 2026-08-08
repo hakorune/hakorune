@@ -117,14 +117,15 @@ and inventory-placement receipts. The Clone-capable `BoxMethodInventoryV1`,
 legacy JSON, Hako compatibility normalizer, and AST-only postpass products
 remain descriptive or compatibility inputs; none is resolver authority.
 
-The remaining gap is the **parser→resolver ingress**, not parser source
-authority itself. `ParserBoxSourceSealV1` and its relation rows are currently
-parser-private, so resolver declaration issuance remains production zero. A
-future handoff must consume the one non-Clone seal and issue one opaque,
-AST-free resolver source capability. It must not clone or reassemble partial
-method rows, recover source identity from inventory ordinals/names, or expose
-cloneable Home/semantic receipts. That handoff is a separate design row:
-`RESOLVER-BOX-SOURCE-HANDOFF-D0`.
+The parser→resolver ingress is now landed for the bounded ordinary Rust
+cohort. `ParserBoxSourceSealV1` is consumed once into the non-Clone,
+AST-free `ParserBoxResolverSourceHandoffV1`; the handoff keeps source sites
+and typed Query syntax while refusing generated-only and foreign rows. The
+remaining gap is resolver semantic declaration/type authority, not parser
+source authority. The next issuer must consume the handoff by value, retain
+the parser brand only as provenance, and issue a fresh resolver catalog/type
+brand. It must not clone or reassemble partial rows, recover identity from
+inventory ordinals/names, or issue Home/target/Recipe receipts early.
 
 ## Declaration versus conformance
 
@@ -157,13 +158,13 @@ Precedence is `Rejected > Unresolved > Declined > Candidate`.
 
 ## Current blocker and ordered follow-up
 
-The resolver cannot issue this contract from raw `BoxMethodInventoryV1` or from
-the parser-private seal by implicit field access. R1-R5 preserve selected order
-and descriptive provenance, but the all-row inventory ordinal is not an
-explicit-method source site. The rich parser seal exists for the bounded Rust
-cohort, while its resolver ingress/issuer is still absent. Resolver sorting,
-JSON, raw `ExplicitSource`, name lookup, or a cloneable relation view cannot
-repair or promote that boundary.
+The resolver cannot issue this contract from raw `BoxMethodInventoryV1` or by
+reconstructing rows from names. R1-R5 preserve selected order and descriptive
+provenance, while the all-row inventory ordinal is not an explicit-method
+source site. The bounded Rust handoff is closed; resolver semantic
+declaration/type authority is still absent. Hako/selfhost and compatibility
+cohorts remain outside that I0. Resolver sorting, JSON, raw `ExplicitSource`,
+name lookup, or a cloneable relation view cannot repair or promote the boundary.
 
 The following is a subsystem view only. The complete executable order,
 including old-target retirement, publishable-catalog co-seal, physical ABI
@@ -172,9 +173,10 @@ projection, and same-slice reference updates, is owned only by
 
 ```text
 LANGUAGE-TYPED-CALLABLE-PROFILE-D0                  closed
-  -> RESOLVER-BOX-SOURCE-HANDOFF-D0                 current design stop
-  -> resolver semantic declaration/signature
-  -> OWN-HOME-ABI0-S0/query
+  -> RESOLVER-BOX-SOURCE-HANDOFF-D0/I0               closed (bounded Rust)
+  -> semantic declaration/signature D0/I0
+  -> OWN-HOME-CALLABLE-ABI-D0 -> RELATION0-S0
+  -> ABI0-S0 / Query behavior / declared aggregate
   -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
   -> RESOLVER-INSTANCE-CALL-TARGET-D0/I0
   -> SOURCE-BOUND-INSTANCE-CALL-D0/I0

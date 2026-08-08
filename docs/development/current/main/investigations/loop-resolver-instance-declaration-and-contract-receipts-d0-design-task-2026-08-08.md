@@ -1,7 +1,7 @@
 ---
-Status: parked — frontend ordered method inventory prerequisite
+Status: accepted design — implementation parked at semantic issuer/type authority
 Date: 2026-08-08
-Decision: declaration/contract split accepted; implementation remains closed
+Decision: declaration/contract split accepted; semantic issuer implementation remains closed
 Parent: `loop-resolver-canonical-callable-contract-d0-design-task-2026-08-08.md`
 ---
 
@@ -12,16 +12,16 @@ Parent: `loop-resolver-canonical-callable-contract-d0-design-task-2026-08-08.md`
 ```text
 Decision:
   Do not issue an instance contract from lexical receiver presence or a
-  FreeStatic header. Consume the future frontend-owned ordered method source
-  capability, issue one semantic signature, then co-seal typed Query behavior
-  and the exact same-declaration `VerifiedHomeAbi` with the nominal Box
-  declaration before any target.
+  FreeStatic header. Consume the landed parser→resolver source handoff by
+  value, issue one resolver-owned semantic declaration/signature under a new
+  catalog brand, then let the separate Home issuer provide the exact
+  same-declaration `VerifiedHomeAbi` before any target.
 
 Source authority:
-  parser-owned non-Clone Box source seal, same catalog/compilation brand,
-  nominal receiver type identity, ordered semantic parameter/result
-  declarations, typed `CallableContractSyntaxV1::Query`, and
-  `VerifiedHomeAbi`.
+  one-shot `ParserBoxResolverSourceHandoffV1`, a new resolver catalog brand,
+  resolver-owned nominal receiver type identity, ordered semantic
+  parameter/result declarations, typed `CallableContractSyntaxV1::Query`,
+  and the separate `VerifiedHomeAbi` issuer.
 
 Non-authority:
   BindingKind::Receiver, ReceiverPolicy::DeclaredInstance, HashMap/name order,
@@ -30,14 +30,16 @@ Non-authority:
   registries, Recipe/CallSlot, or an empty receipt.
 
 Fail-fast boundary:
-  missing ordered source row, missing nominal receiver type, missing declared
-  query contract, foreign/duplicate declaration, or conflicting source facts
-  keeps the row NoSafeSlice/Unresolved. No target is issued.
+  missing resolver type authority or semantic signature issuer is
+  `NoSafeSlice`; a missing ordered source row, foreign/duplicate declaration,
+  or conflicting source fact is `Rejected`/`Unresolved`. Absence of the
+  optional Query annotation is a later `Declined`, not a declaration-layer
+  `NoSafeSlice`. No target is issued.
 
 Smallest next slice:
-  after frontend parity, semantic signature, and bounded Home ABI, issue one
-  exact `length(): i64` declared query contract with no body conformance or
-  target.
+  design and then implementation of one resolver semantic declaration/signature
+  for exact `length(): i64`; Home ABI and Query behavior remain separate
+  follow-up rows. No body conformance or target is included here.
 
 Non-claims:
   body conformance, resolver target, Recipe/CallSlot, source-bound relation,
@@ -108,14 +110,16 @@ meaning; it never infers or rewrites the public contract.
 
 ## Read-only source census (2026-08-08)
 
-The repository has enough syntax to describe a future instance declaration,
-but not enough resolver-owned authority to issue one yet:
+The bounded Rust parser now has enough syntax and a one-shot handoff to feed a
+future instance declaration, but the resolver still lacks the nominal type
+authority and semantic signature issuer needed to issue one:
 
 ```text
 ASTNode::BoxDeclaration:
   name, methods: BoxMethodInventoryV1, is_static, type parameters, fields and
-  declaration metadata; the inventory is ordered descriptive AST data, not a
-  parser source seal
+  declaration metadata; the inventory remains passive AST data. The landed
+  parser seal and `ParserBoxResolverSourceHandoffV1` are the only source
+  authority crossing into the resolver boundary.
 
 ASTNode::FunctionDeclaration:
   method name, params/ParamDecl, declared return type, is_static, attrs
@@ -139,14 +143,15 @@ FunctionOwnerIdV1::compilation_brand:
   invocation-local membership brand, not source Box identity or type identity
 ```
 
-Therefore the existing syntax is evidence for a future issuer input, not an
-issuer itself. R1-R5 fixed ordering and compatibility transport, but selected
-inventory placement still differs from an exact explicit-method source site,
-and the parser-owned non-Clone source seal remains absent. Method/Box strings,
-raw `ExplicitSource`, JSON, `ReceiverPolicy`, the embedded helper, Builder
-declaration facts, and owner brand cannot be combined after the fact to
-manufacture a declaration. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0-S3` plus Hako
-parser parity owns that correction before resolver consumption.
+Therefore the passive inventory is still not an issuer. R1-R5 fixed ordering
+and compatibility transport, and the bounded Rust source-seal/handoff I0 now
+closes the parser boundary. Hako/selfhost and compatibility cohorts remain
+outside this I0. Method/Box strings, raw `ExplicitSource`, JSON,
+`ReceiverPolicy`, the embedded helper, Builder declaration facts, and
+`FunctionOwnerIdV1::compilation_brand` cannot be combined after the fact to
+manufacture a declaration. The next issuer must consume the handoff by value,
+issue a fresh resolver catalog brand, and retain the parser brand only as
+provenance/membership evidence.
 
 The declared-contract issuer audit is also closed at `issuer=0` for the current source:
 
@@ -160,7 +165,8 @@ The declared-contract issuer audit is also closed at `issuer=0` for the current 
   receipt
 
 CallableContract(query):
-  accepted language target; parser and resolver issuer remain production 0
+  typed parser carriage is landed for the bounded Rust handoff; semantic
+  declaration and behavior issuers remain production 0
 
 receiver Handle / query effect-control envelope:
   no source-backed typed issuer in the current resolver catalog
@@ -193,16 +199,18 @@ Candidate:
 Use `Rejected > Unresolved > Declined > Candidate`. `NoSafeSlice` remains a
 development state and must not be converted into a source disposition.
 
-## Exit criteria before I0
+## Exit criteria for the next semantic-declaration I0
 
-1. Frontend `BoxMethodInventoryV1` and Rust/.hako source parity are closed.
-2. The declaration issuer consumes the parser-sealed source row and nominal Box.
-3. One semantic signature exists without `ExactTrivial*Abi`/`MirType` authority.
-4. Typed Query behavior and one same-declaration `VerifiedHomeAbi` exist;
-   receiver demand uses the existing `Handle` vocabulary only in that ABI.
-5. Signature owns arity/types; physical ABI remains downstream.
-6. One atomic declared-contract co-seal and negative matrix are fixed.
-7. Body conformance remains a separate complete-catalog gate.
+1. The semantic issuer consumes one `ParserBoxResolverSourceHandoffV1` by
+   value and cannot drop its parser brand while retaining rows.
+2. A fresh resolver catalog/type brand issues the exact nominal Box and method
+   declaration relation; parser brand is provenance only.
+3. One semantic signature owns ordered arity/types without
+   `ExactTrivial*Abi`/`MirType` authority.
+4. Home ABI is a later, separate issuer; Query behavior is independent and
+   absence of Query remains `Declined`.
+5. One declaration aggregate and negative matrix are fixed; no target,
+   Recipe, body conformance, or physical ABI is opened.
 
 ## Ordered follow-up
 
@@ -213,9 +221,10 @@ projection, and same-slice reference updates, is owned only by
 
 ```text
 LANGUAGE-TYPED-CALLABLE-PROFILE-D0                 closed
-  -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0
-  -> frontend BoxShape/Rust/.hako implementation series
-  -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
+  -> RESOLVER-BOX-SOURCE-HANDOFF-D0/I0             closed (bounded Rust)
+  -> semantic declaration/signature D0/I0
+  -> OWN-HOME-CALLABLE-ABI-D0 -> RELATION0-S0
+  -> ABI0-S0 / Query behavior / declared aggregate
   -> RESOLVER-INSTANCE-CALL-TARGET-D0/I0
   -> SOURCE-BOUND-INSTANCE-CALL-D0/I0
   -> CALLABLE-CONTRACT-CONFORMANCE-D0/I0

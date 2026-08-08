@@ -105,6 +105,10 @@ impl SourceBoxMethodSiteV1 {
         self.member().member_ordinal()
     }
 
+    pub(super) fn is_direct(&self) -> bool {
+        matches!(self, Self::Direct { .. })
+    }
+
     pub(super) fn matches_ast_selection(
         &self,
         selection: &crate::ast::BoxMethodSourceSelectionV1,

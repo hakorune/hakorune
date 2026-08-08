@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage I0 landed, resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted; resolver coverage remains unopened.
+Status: accepted language target; typed parser carriage and parser→resolver source handoff I0 landed, resolver semantic/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted; resolver coverage remains unopened.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -28,9 +28,10 @@ are separate from all-row inventory ordinals because generated
 property/delegate rows also consume inventory positions. Generated rows
 receive only a generated source-member origin and never an explicit method
 source site. Legacy JSON and AST-only compatibility rows cannot reconstruct or
-promote the seal. The remaining boundary is an explicit consuming
-parser→resolver handoff; resolver declaration/Home issuance must still land
-before the declared contract issuer opens.
+promote the seal. The parser→resolver source handoff is now implemented as a
+one-shot, AST-free transfer product for this bounded Rust cohort. Resolver
+declaration and Home issuance remain production zero and must still land before
+the declared contract issuer opens.
 
 The R4 AST-side atomic reconstruction product and strict recursive JSON v2
 codec are landed. The root selects v2 or legacy mode once; malformed nested v2

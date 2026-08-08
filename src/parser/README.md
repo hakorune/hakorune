@@ -21,6 +21,21 @@ explicit callable-contract row, and inventory ordinals never become source
 identity. Conflicts with legacy `Contract`/`Profile` metadata remain a later
 semantic issuer responsibility.
 
+## Parser→resolver source handoff (I0)
+
+`source_resolver_handoff.rs` consumes one finalized non-Clone
+`ParserBoxSourceSealV1` and returns the AST separately from one
+`ParserBoxResolverSourceHandoffV1`. The handoff is AST-free and retains only
+the bounded ordinary top-level Rust Box source name, direct method site,
+ordered header syntax, typed Query carriage, and diagnostic inventory
+placement. It skips generated rows and rejects generated-only or unsupported
+cohorts; it never rebuilds identity from `HashMap`, JSON, names, or selected
+ordinals. The handoff is non-Clone and cannot be issued twice by ownership.
+
+This is parser transport, not resolver semantic issuance. Semantic types,
+nominal Box identity, Home ABI, targets, Recipe/CallSlot, body conformance,
+Builder/MIR, and runtime/provider routes remain later owners.
+
 ## C-S1 delegate target index
 
 `delegate_target_index.rs` is a borrowed lookup proof over one unpublished

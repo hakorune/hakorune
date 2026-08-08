@@ -496,15 +496,14 @@ header source unit is function-header-only; it is not an instance-method
 target issuer. MIR `FunctionSignature`/`EffectMask` and the documented but not
 yet issued `VerifiedHomeAbi` are not interchangeable resolver contracts.
 
-Before adding `ResolvedInstanceMethodRefV1`, a single resolver-owned
-declaration path must first consume the bounded ordinary-top-level Rust
-parser's non-Clone `ParserBoxSourceSealV1` through the dedicated
-`RESOLVER-BOX-SOURCE-HANDOFF-D0` ingress. The handoff must preserve the exact
-source method site and typed syntax without exposing cloneable partial rows.
-It must then issue the exact nominal receiver plus a semantic
-parameter/result signature. It may not treat the selected/generated inventory
-ordinal as a method source site or use `ExactTrivial*Abi`/`MirType` as semantic
-type truth.
+Before adding `ResolvedInstanceMethodRefV1`, the resolver must consume the
+bounded ordinary-top-level Rust parser's non-Clone `ParserBoxSourceSealV1`
+through the landed `ParserBoxResolverSourceHandoffV1` ingress from
+`RESOLVER-BOX-SOURCE-HANDOFF-I0`. The handoff preserves the exact source method
+site and typed syntax without exposing cloneable partial rows. The resolver
+must then issue the exact nominal receiver plus a semantic parameter/result
+signature. It may not treat the selected/generated inventory ordinal as a
+method source site or use `ExactTrivial*Abi`/`MirType` as semantic type truth.
 
 The declared instance contract then co-seals typed
 `CallableContractSyntaxV1::Query` behavior with the same-declaration

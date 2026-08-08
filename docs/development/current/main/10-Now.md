@@ -24,21 +24,21 @@ CURRENT_STATE.toml
 ```
 
 Current mode is `design_stop`. The parser public-AST/postpass, V2 schema,
-typed callable syntax carriage, and old instance-result/target retirement are
-closed. The selected design stop is:
+typed callable syntax carriage, old instance-result/target retirement, and the
+source-handoff D0/I0 are closed. The selected design stop is:
 
 ```text
-RESOLVER-BOX-SOURCE-HANDOFF-D0
+LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-D0
 ```
 
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
-primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal;
-the next design stop must define the one consuming parser→resolver handoff.
-Only after that may declaration/signature, typed Query behavior, the
-same-declaration Home ABI relation, and separate body conformance open before
-resolver targets, source-bound CallSlot relations, ScanWithInit, physical
-lowering, production selection, or legacy retirement.
+primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,
+and the closed I0 consumes it once into an AST-free handoff. The next design
+stop must fix one semantic declaration/signature issuer and one sole Home ABI
+relation before typed Query co-seal, resolver targets, source-bound CallSlot
+relations, ScanWithInit, physical lowering, production selection, or legacy
+retirement.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No
@@ -57,7 +57,7 @@ cutover. The ordered path remains:
 
 ```text
 typed syntax carriage (closed)
--> old instance-result/target retirement (active bounded I0)
+-> old instance-result/target retirement (closed bounded I0)
 -> declaration / Home ABI / target / source-bound relation
 -> S6C ScanWithInit
 -> M9 parity

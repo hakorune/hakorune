@@ -41,7 +41,11 @@ BoxMethodInventoryV1
 ParserBoxSourceSealV1
   = non-Clone parser-owned source seal
   = final rich parse product only
-  (the rich handoff product is ParsedProgramWithSourceV1)
+
+ParserBoxResolverSourceHandoffV1
+  = one-shot AST-free parser→resolver ingress
+  = consumes ParserBoxSourceSealV1 by value
+  = bounded Rust I0 landed; semantic issuer still unopened
 
 SourceBoxMethodSiteV1
   = as-written source/member identity and selected-gate path
@@ -62,10 +66,10 @@ VerifiedConformantCallableCatalogV1
 
 Required ordering and stop lines:
 
-1. The bounded ordinary Rust parser now has the non-Clone source seal and
-   source-site/placement split. Before resolver declaration issuance, add one
-   consuming parser→resolver handoff; do not expose parser-private seal rows
-   or rebuild them in resolver.
+1. The bounded ordinary Rust parser now has the non-Clone source seal,
+   source-site/placement split, and consuming parser→resolver handoff. The
+   semantic issuer must consume that handoff by value; do not expose parser
+   seal rows or rebuild them in resolver.
 2. Normalize raw rune attributes into typed syntax before the semantic issuer;
    resolver string matching is forbidden.
 3. Retire or prove non-test caller-zero for
@@ -358,7 +362,7 @@ SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-I0 (closed implementation)
   cargo check passed. The standalone catalog guard remains at its unrelated
   pre-existing SourcePath projector owner-count drift.
 
-RESOLVER-BOX-SOURCE-HANDOFF-D0 (current design stop)
+RESOLVER-BOX-SOURCE-HANDOFF-D0/I0 (closed)
   consume the parser-private non-Clone ordinary Rust Box source seal once and
   issue one opaque AST-free resolver ingress. Preserve source-site identity,
   typed Query carriage, and placement separation. No semantic signature, Home
@@ -369,6 +373,14 @@ behind the handoff)
   declaration-first source authority, typed Query semantic profile,
   same-declaration VerifiedHomeAbi relation, and separate body-conformance
   product. No target, Recipe/CallSlot, Builder/MIR, or fallback.
+
+Current next design stop:
+
+```text
+LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-D0
+  one semantic signature issuer plus sole Home ABI relation;
+  no partial receipts, physical ABI inference, target, or Recipe.
+```
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
   complete same-brand declared-contract + body-conformance set
@@ -655,7 +667,7 @@ Rejected > Unresolved > Declined > Candidate
 
 ### C. Resolver ingress, declaration, and declared contract
 
-11. `RESOLVER-BOX-SOURCE-HANDOFF-D0`
+11. `RESOLVER-BOX-SOURCE-HANDOFF-D0/I0` — closed
    - consume exactly one non-Clone `ParserBoxSourceSealV1` for the bounded
      ordinary top-level Rust Box cohort;
    - issue one opaque AST-free resolver source capability;
@@ -666,21 +678,29 @@ Rejected > Unresolved > Declined > Candidate
    - no semantic signature, Home ABI, target, Recipe, Builder/MIR, or fallback;
    - task:
      `docs/development/current/main/investigations/resolver-box-source-handoff-d0-design-task-2026-08-09.md`
+   - implementation:
+     `docs/development/current/main/investigations/resolver-box-source-handoff-i0-implementation-task-2026-08-09.md`
+   - bounded Rust source handoff is landed; semantic declaration/Home issuer
+     remains unopened.
 12. `RESOLVER-INSTANCE-METHOD-DECLARATION-AND-SEMANTIC-SIGNATURE-I0`
-   - consume only the parser-owned source seal;
-   - exact nominal Box/method identity, catalog brand, and resolved semantic
-     parameter/result types;
+   - consume one `ParserBoxResolverSourceHandoffV1` by value;
+   - issue a fresh resolver catalog/type brand plus exact nominal Box/method
+     identity and resolved semantic parameter/result types;
+   - retain parser invocation brand only as source provenance/membership;
    - semantic `I64` is not `ExactTrivial*Abi`, `MirType`, or a source-string
      physical classifier;
-   - no behavioral contract, Home ABI, physical ABI, or target.
+   - Query syntax may be carried but is not issued as behavior here;
+   - no Home ABI, physical ABI, target, Recipe, or body conformance.
 13. `OWN-HOME-CALLABLE-ABI-D0` -> `OWN-HOME-RELATION0-S0` ->
    `OWN-HOME-ABI0-S0/query`
    - existing Home taskboard remains the sole owner;
-   - issue one same-declaration `VerifiedHomeAbi` with receiver `Handle`, zero
-     parameter demands, and Trivial result for the bounded query cohort;
-   - no query aggregate may restate or fabricate this axis.
+   - consume the semantic declaration output and issue one same-declaration
+     `VerifiedHomeAbi` with receiver `Handle`, zero parameter demands, and
+     Trivial result for the bounded cohort;
+   - no Query behavior or aggregate may restate or fabricate this axis.
 14. `RESOLVER-DECLARED-QUERY-BEHAVIOR-I0`
-    - consume only typed `CallableContractSyntaxV1::Query`;
+    - independently consume typed `CallableContractSyntaxV1::Query` plus the
+      semantic declaration;
     - issue the behavioral read/effect/control obligation;
     - no Home or physical ABI issuance.
 15. `RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0`

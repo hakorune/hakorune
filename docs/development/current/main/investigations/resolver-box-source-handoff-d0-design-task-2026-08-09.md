@@ -1,5 +1,5 @@
 ---
-Status: accepted design — implementation parked at resolver ingress
+Status: closed — accepted design; I0 opened
 Date: 2026-08-09
 Decision: one parser-seal-consuming Box source handoff; no second source authority
 Parent: `loop-resolver-canonical-callable-contract-d0-design-task-2026-08-08.md`

@@ -49,6 +49,7 @@ mod source_gate_receipt;
 mod source_path;
 mod source_seal;
 mod source_seal_finalizer;
+mod source_resolver_handoff;
 #[cfg(test)]
 mod source_session_tests;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
