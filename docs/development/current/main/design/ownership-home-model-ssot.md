@@ -179,6 +179,19 @@ The callable D0 also decides whether this ABI is part of callable identity,
 overload uniqueness, interface compatibility, and cache keys. Method spelling
 alone is never enough.
 
+The callable Home ABI design stop is now closed by
+[`OWN-HOME-CALLABLE-ABI-D0`](../investigations/own-home-callable-abi-d0-design-task-2026-08-09.md).
+The next implementation sequence consumes the landed resolver
+`VerifiedInstanceMethodDeclarationCatalogV1` together with an explicit,
+same-brand resolver Home-capability classification environment. One canonical
+issuer returns one non-`Clone` declared catalog containing one exact
+`VerifiedHomeAbi` row per declaration. The Home issuer owns no Query behavior,
+body conformance, target, Recipe, physical ABI, or runtime meaning; it must not
+infer capability from method names, body shape, `MirType`, or backend layout.
+The first bounded row classifies an ordinary instance receiver as `Handle` and
+semantic `I64`/`Unit` values as `Trivial` only through the classifier's explicit
+receipt. Unknown/generic/composite capability remains `Unresolved`.
+
 ClosedCallable bodies may infer a candidate result relation and local Home
 Flow. They may not invent parameter/receiver Home demand: a plain parameter is
 Handle, and only the resolved declaration supplies a consuming demand. Body

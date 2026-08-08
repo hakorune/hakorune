@@ -424,6 +424,14 @@ production callers zero.
 Introduce branded, non-forgeable relation vocabulary for Home roots,
 destinations, result origins, and typed rejection reasons.
 
+Implementation task:
+`docs/development/current/main/investigations/own-home-relation0-s0-implementation-task-2026-08-09.md`
+
+The bounded S0 module is passive and caller-zero. It issues only a fresh
+relation brand, opaque source ordinals, exhaustive demand/result vocabulary,
+and typed foreign/duplicate rejection reasons. It does not classify types or
+issue `VerifiedHomeAbi`; those remain the next `OWN-HOME-ABI0-S0` boundary.
+
 ### `OWN-HOME-ABI0-S0`
 
 Introduce one `VerifiedHomeAbi` containing receiver/parameter demands and

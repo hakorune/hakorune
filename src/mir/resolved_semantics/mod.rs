@@ -25,6 +25,7 @@ pub(crate) mod generic_g0;
 mod ids;
 mod if_region;
 mod instance_method_declaration;
+mod home_relation;
 mod loop_family_window;
 #[cfg(test)]
 mod loop_family_window_tests;
@@ -100,6 +101,10 @@ pub(crate) use instance_method_declaration::{
     ResolverSemanticValueTypeV1, SemanticInstanceDeclarationIssuerV1,
     VerifiedInstanceMethodDeclarationCatalogV1, VerifiedInstanceMethodDeclarationV1,
     VerifiedSemanticCallableSignatureV1,
+};
+pub(crate) use home_relation::{
+    HomeDemandV1, HomeDestinationV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1,
+    HomeRelationRejectV1, HomeResultRelationV1, HomeRootRefV1,
 };
 pub(crate) use loop_family_window::{
     LoopFamilyWindowLeaseIssueV1, VerifiedLoopFamilyWindowLeaseV1,

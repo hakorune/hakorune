@@ -386,10 +386,14 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current next design stop:
+Current active execution / next design stop:
 
 ```text
-OWN-HOME-CALLABLE-ABI-D0
+OWN-HOME-RELATION0-S0
+  passive branded Home root/destination relation vocabulary only;
+  no classifier, `VerifiedHomeAbi`, Home Flow, target, or Recipe.
+
+next design: OWN-HOME-ABI0-S0
   sole Home ABI classifier/issuer co-sealed with the landed declaration;
   no partial receipts, physical ABI inference, target, or Recipe.
 ```
@@ -694,7 +698,7 @@ Rejected > Unresolved > Declined > Candidate
      `docs/development/current/main/investigations/resolver-box-source-handoff-i0-implementation-task-2026-08-09.md`
    - bounded Rust source handoff is landed; semantic declaration/Home issuer
      remains unopened.
-12. `RESOLVER-INSTANCE-METHOD-DECLARATION-AND-SEMANTIC-SIGNATURE-I0`
+12. `RESOLVER-INSTANCE-METHOD-DECLARATION-AND-SEMANTIC-SIGNATURE-I0` — closed
    - consume one `ParserBoxResolverSourceHandoffV1` by value;
    - issue a fresh resolver catalog/type brand from a resolver-owned nominal
      type environment plus exact Box/method identity and resolved semantic
@@ -710,12 +714,14 @@ Rejected > Unresolved > Declined > Candidate
    - no Home ABI, physical ABI, target, Recipe, or body conformance.
    - implementation task:
      `docs/development/current/main/investigations/resolver-instance-declaration-signature-i0-implementation-task-2026-08-09.md`
-   - status: active fast row after the accepted declaration/signature D0;
-     close only with the focused negative matrix and same-slice reference
-     receipts.
-13. `OWN-HOME-CALLABLE-ABI-D0` -> `OWN-HOME-RELATION0-S0` ->
+   - status: closed 2026-08-09; focused declaration/handoff/source-seal
+     matrix and same-slice README/reference/current receipts landed.
+13. `OWN-HOME-CALLABLE-ABI-D0` — closed -> `OWN-HOME-RELATION0-S0` — active ->
    `OWN-HOME-ABI0-S0/query`
    - existing Home taskboard remains the sole owner;
+   - D0 fixes one Home ABI issuer and same-declaration co-seal; Relation0 is
+     passive branded vocabulary only and has no classifier or production
+     caller;
    - consume the semantic declaration output and issue one same-declaration
      `VerifiedHomeAbi` with receiver `Handle`, zero parameter demands, and
      Trivial result for the bounded cohort;

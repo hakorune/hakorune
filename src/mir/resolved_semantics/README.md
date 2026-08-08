@@ -77,6 +77,17 @@ path. The next design stop is the sole Home ABI classifier/issuer, which must
 co-seal with the declaration later without duplicating receiver or result
 ownership meaning.
 
+## Home relation vocabulary S0
+
+`home_relation.rs` is the passive next-step vocabulary for that issuer. It
+provides one fresh relation brand, opaque root/destination source ordinals,
+the exhaustive `HomeDemandV1` and `HomeResultRelationV1` enums, and typed
+foreign/duplicate rejection reasons. The brand issuer is only a relation
+receipt factory: it does not classify source types, issue `VerifiedHomeAbi`,
+run Home Flow, or connect to Builder/MIR/runtime. A later ABI issuer must
+co-seal these relations with the same resolver declaration brand/site rather
+than reusing or guessing them.
+
 Lambda syntax is borrowed through an AST-derived view and never cloned into a
 semantic product. A child declaration uses a child-local `BindingId`; raw IDs
 may repeat across owners without aliasing.

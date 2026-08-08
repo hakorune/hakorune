@@ -302,6 +302,11 @@ result relation:
   FromParameter(index) | SharedHomeToCaller
 ```
 
+The passive relation vocabulary for these demands/results is landed in the
+resolver as an internal, branded receipt only. It does not make Home grammar
+or production ABI live: classification, declaration co-seal, Home Flow, and
+physical ownership remain separate gates.
+
 ### ClosedCallable
 
 A callable whose body and all relevant resolved facts are locally available
