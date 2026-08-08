@@ -1,7 +1,7 @@
 ---
-Status: parked design
+Status: accepted design; implementation not landed
 Date: 2026-08-09
-Decision: open only after I0-A closeout; no implementation in this row yet
+Decision: accepted bounded metadata/parse projection; implementation may open in fast mode
 Parent: `parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`
 ---
 
@@ -28,6 +28,36 @@ Before code, fix the exact metadata ownership and public error-preservation
 matrix in the SSOT. `ParserMetadata` must be moved/borrowed exactly once from
 the postpass product; the new edge must not call a second parser entry or
 reconstruct metadata from AST nodes.
+
+### Design acceptance — 2026-08-09
+
+I0-B uses one parser-private finalization helper shared by the string entry,
+`NyashParser::parse`, and the metadata entry:
+
+```text
+parser.parse_program()
+  -> parser.open_postpass_product(ast)
+  -> finish_total_s0(PostpassDemandV1::None)
+  -> CompletedParserPostpassV1
+```
+
+The completed product has one consuming projection:
+
+```text
+into_ast_and_metadata()
+  -> (ASTNode, ParserMetadata)
+```
+
+`into_ast()` remains for AST-only callers. The metadata is moved from the
+postpass product, never reconstructed from AST nodes and never taken again
+from `NyashParser`. Compatibility cohorts preserve their already-collected
+metadata just like ordinary source-sealed cohorts. Fuel, tokenizer choice,
+`self` diagnostics, and `ParseError` propagation remain owned by the caller's
+single parser invocation.
+
+The shared helper is a transport/coordinator owner only. It does not classify
+source by name, issue resolver authority, or add fallback/retry. I0-B does
+not open explain demand; that remains I0-C.
 
 ## Non-claims
 

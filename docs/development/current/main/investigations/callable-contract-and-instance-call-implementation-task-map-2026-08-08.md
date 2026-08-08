@@ -380,6 +380,11 @@ PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A closed; I0-B/C parked)
   unchanged before I0-A. I0-A receipt: the string/build-config edge now
   enters `string_postpass_entry` once, preserves fuel/AST/diagnostic behavior,
   and retires its delegate-only production edge. I0-B/C remain parked.
+  I0-B design receipt: `NyashParser::parse` and the metadata wrapper will share
+  one parser-private postpass finalizer and one consuming
+  `into_ast_and_metadata()` projection; metadata is moved from the completed
+  product exactly once. Explain/full BuildGate decision-set parity remains in
+  I0-C.
 
 PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0 (parked baseline debt)
   The existing nested selected-else source-path fixture fails on parent

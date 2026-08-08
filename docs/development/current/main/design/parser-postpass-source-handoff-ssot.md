@@ -419,6 +419,25 @@ change the signature rule or claim that full suite green. I0-A does not open
 metadata, `NyashParser::parse`, explain/full-gate-decision parity, resolver,
 Recipe, Builder, MIR, runtime, or remaining legacy callers.
 
+### I0-B design acceptance — metadata/parse projection (2026-08-09)
+
+The next public parser slice shares one parser-private finalization entry across
+the instance `NyashParser::parse` method and the string metadata wrapper. Each
+caller parses once, opens one `OpenParserPostpassProductV1`, and completes it
+with `PostpassDemandV1::None`. `CompletedParserPostpassV1` owns the only
+consuming AST/metadata projection:
+
+```text
+into_ast_and_metadata() -> (ASTNode, ParserMetadata)
+```
+
+AST-only callers continue to use `into_ast()`. `ParserMetadata` is moved from
+the completed postpass product exactly once; no caller re-takes parser state or
+reconstructs metadata from AST nodes. Compatibility rows retain their
+parser-collected metadata, and ordinary source-sealed rows retain the same
+metadata path. Explain capture/full BuildGate decision-set parity remains
+parked for I0-C. No resolver/Recipe/Builder/MIR/runtime authority is opened.
+
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 
 The top-level build-gate boundary is a parser source-transport problem, not
