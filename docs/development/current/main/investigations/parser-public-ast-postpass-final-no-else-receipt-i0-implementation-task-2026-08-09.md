@@ -1,4 +1,4 @@
-Status: accepted execution task; implementation not landed
+Status: closed implementation receipt
 Date: 2026-08-09
 Row: PARSER-PUBLIC-AST-POSTPASS-FINAL-NOELSE-RECEIPT-I0
 Parent: `parser-public-ast-postpass-final-no-else-receipt-d0-design-task-2026-08-09.md`
@@ -60,3 +60,27 @@ no retry/reparse/fallback
 
 Implementation and the parser README, source-handoff SSOT, BuildGate
 reference, task map, guard, and CURRENT_STATE receipt close in one commit.
+
+## Closeout (2026-08-09)
+
+`BuildGateSelectionOutcomeV1` is now the single parser-private semantic
+selection owner shared by decision rows and `BuildGateSelectionReceiptV1`.
+`SourceBuildGateBranchV1` remains Then/Else-only. Projection emits one
+`NoElse` receipt for a top-level no-else gate, and source-seal survival only
+accepts exact Then/Then or Else/Else matches.
+
+Evidence:
+
+```text
+shared_projection_emits_no_else_receipt_without_a_child_path: passed
+parser_build_cfg_gate: 12 passed
+parser::source_seal: 12 passed
+parser::postpass_envelope::tests: 7 passed
+parser::string_postpass_entry::tests: 7 passed
+parser_grammar_profile: 17 passed
+all touched source files < 760 lines
+pointer/final/cutover/retirement/NoElse guards: green
+```
+
+No grammar-evidence, compatibility, resolver, Builder, MIR, runtime, retry,
+reparse, or fallback behavior changed.

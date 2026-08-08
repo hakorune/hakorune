@@ -46,6 +46,7 @@ if not any(
     for needle in (
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-D0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-NOELSE-RECEIPT-D0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-CLOSEOUT-D0"',
     )
 ):
     raise SystemExit("CURRENT_STATE missing FINAL/NoElse design-stop pointer")

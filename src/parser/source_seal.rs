@@ -19,7 +19,7 @@ use super::source_authority::{
     SourceBoxDeclarationSiteV1,
 };
 use super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
-use super::source_gate_receipt::BuildGateSelectionReceiptV1;
+use super::source_gate_receipt::{selection_matches_path, BuildGateSelectionReceiptV1};
 use super::source_path::{
     SourceBoxDeclarationPathV1, SourceBoxPathSegmentV1, SourceBuildGatePathV1,
 };
@@ -339,7 +339,7 @@ fn source_seal_survives(
             .ok_or_else(|| "Box source seal has no build-gate selection receipt".to_owned())?;
         if receipt.brand != record.brand
             || receipt.predicate != record.predicate
-            || receipt.selected_branch != *branch
+            || !selection_matches_path(receipt.selected_branch, *branch)
         {
             return Ok(false);
         }

@@ -7,6 +7,7 @@
 //! source-path rebasing, and explain.
 
 use crate::ast::{ASTNode, BuildPredicate, Span};
+use crate::parser::build_gate_selection::BuildGateSelectionOutcomeV1;
 use crate::parser::source_authority::{ParserInvocationBrandV1, SourceBuildGateIdV1};
 use crate::parser::source_path::SourceBuildGatePathV1;
 use crate::parser::{NyashParser, ParseError};
@@ -19,13 +20,6 @@ pub(crate) struct BuildGateObservationV1 {
     pub(super) source_path: Option<SourceBuildGatePathV1>,
     pub(super) predicate: BuildPredicate,
     pub(super) span: Span,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum BuildGateSelectedBranchV1 {
-    Then,
-    Else,
-    NoElse,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -42,7 +36,7 @@ pub(crate) struct BuildGateDecisionRowV1 {
     pub(super) source_path: Option<SourceBuildGatePathV1>,
     pub(super) predicate: BuildPredicate,
     pub(super) span: Span,
-    pub(super) selected_branch: BuildGateSelectedBranchV1,
+    pub(super) selected_branch: BuildGateSelectionOutcomeV1,
     pub(super) reachability: BuildGateReachabilityV1,
 }
 
@@ -98,11 +92,11 @@ impl PreparedBuildGateDecisionSetV1 {
             validate_predicate_configuration(parser, predicate, span)?;
             let selected = parser.eval_build_predicate(predicate, *span)?;
             let selected_branch = if selected {
-                BuildGateSelectedBranchV1::Then
+                BuildGateSelectionOutcomeV1::Then
             } else if *has_else {
-                BuildGateSelectedBranchV1::Else
+                BuildGateSelectionOutcomeV1::Else
             } else {
-                BuildGateSelectedBranchV1::NoElse
+                BuildGateSelectionOutcomeV1::NoElse
             };
             rows.push(BuildGateDecisionRowV1 {
                 brand: observation.brand,
@@ -233,13 +227,13 @@ fn assign_reachability(
             };
             *cursor += 1;
             let then_reachable =
-                reachable && matches!(selected_branch, BuildGateSelectedBranchV1::Then);
+                reachable && matches!(selected_branch, BuildGateSelectionOutcomeV1::Then);
             for item in then_items {
                 assign_reachability(item, cursor, then_reachable, output)?;
             }
             if let Some(items) = else_items {
                 let else_reachable =
-                    reachable && matches!(selected_branch, BuildGateSelectedBranchV1::Else);
+                    reachable && matches!(selected_branch, BuildGateSelectionOutcomeV1::Else);
                 for item in items {
                     assign_reachability(item, cursor, else_reachable, output)?;
                 }

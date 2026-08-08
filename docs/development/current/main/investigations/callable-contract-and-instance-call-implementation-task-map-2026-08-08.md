@@ -775,7 +775,7 @@ The parser FINAL retirement proof has one remaining typed boundary before any
 caller-zero helper removal. The accepted design is:
 
 ```text
-BuildGateSelectedBranchV1::{Then, Else, NoElse}
+BuildGateSelectionOutcomeV1::{Then, Else, NoElse}
   = semantic decision outcome and receipt selected_branch
 
 SourceBuildGateBranchV1::{Then, Else}
@@ -805,10 +805,14 @@ After that row closes, the separate `FINAL-NOELSE-RECEIPT-D0` design opens and
 then its receipt implementation. These rows must not be combined into one
 commit or one authority.
 
-`FINAL-NOELSE-RECEIPT-D0` is now closed as the accepted design, and the active
-execution row is:
+`FINAL-NOELSE-RECEIPT-D0` is now closed as the accepted design, and its
+implementation is landed:
 
 ```text
 PARSER-PUBLIC-AST-POSTPASS-FINAL-NOELSE-RECEIPT-I0
   task: parser-public-ast-postpass-final-no-else-receipt-i0-implementation-task-2026-08-09.md
 ```
+
+After the I0 closeout, the next design-only audit is
+`PARSER-PUBLIC-AST-POSTPASS-FINAL-CLOSEOUT-D0`. It audits final authority and
+retirement proof; it does not open a production switch.

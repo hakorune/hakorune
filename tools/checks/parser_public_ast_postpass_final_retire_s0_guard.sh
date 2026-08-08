@@ -45,7 +45,11 @@ closed_row = all(
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-NOELSE-RECEIPT-D0"',
     )
 )
-if not (active_row or closed_row):
+closed_review_row = (
+    'work_mode = "design_stop"' in state
+    and 'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-CLOSEOUT-D0"' in state
+)
+if not (active_row or closed_row or closed_review_row):
     raise SystemExit("CURRENT_STATE missing retirement active/closeout pointer")
 if "source_gate_prune" in mod:
     raise SystemExit("caller-zero source_gate_prune module is not retired")

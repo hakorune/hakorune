@@ -6,13 +6,12 @@
 //! emits only the selected branch while still visiting inactive branches.
 
 use crate::ast::{ASTNode, BuildPredicate, Span};
+use crate::parser::build_gate_selection::BuildGateSelectionOutcomeV1;
 
 use super::decision_set::{
-    BuildGateDecisionRowV1, BuildGateReachabilityV1, BuildGateSelectedBranchV1,
-    PreparedBuildGateDecisionSetV1,
+    BuildGateDecisionRowV1, BuildGateReachabilityV1, PreparedBuildGateDecisionSetV1,
 };
 use super::prune::{project_build_gate_program, BuildGateProjectionSelector};
-use crate::parser::source_authority::SourceBuildGateBranchV1;
 use crate::parser::source_gate_ledger::PreparedBuildGateSourceRecordV1;
 use crate::parser::source_gate_receipt::BuildGateSelectionReceiptV1;
 use crate::parser::{BuildGateExplainReport, NyashParser, ParseError};
@@ -131,9 +130,9 @@ impl<'a> DecisionProjectionSelector<'a> {
             ));
         }
         let shape_mismatch = match row.selected_branch {
-            BuildGateSelectedBranchV1::NoElse => has_else,
-            BuildGateSelectedBranchV1::Else => !has_else,
-            BuildGateSelectedBranchV1::Then => false,
+            BuildGateSelectionOutcomeV1::NoElse => has_else,
+            BuildGateSelectionOutcomeV1::Else => !has_else,
+            BuildGateSelectionOutcomeV1::Then => false,
         };
         if shape_mismatch {
             return Err(projection_error(
@@ -174,22 +173,12 @@ impl<'a> DecisionProjectionSelector<'a> {
                 row.span.line,
             ));
         }
-        let selected_branch = match row.selected_branch {
-            BuildGateSelectedBranchV1::Then => SourceBuildGateBranchV1::Then,
-            BuildGateSelectedBranchV1::Else => SourceBuildGateBranchV1::Else,
-            BuildGateSelectedBranchV1::NoElse => {
-                return Err(projection_error(
-                    "source BuildGate record cannot represent a no-else selection",
-                    row.span.line,
-                ))
-            }
-        };
         self.receipts
             .push(BuildGateSelectionReceiptV1::issue_from_decision(
                 record,
                 row.coordinate,
                 &row.predicate,
-                selected_branch,
+                row.selected_branch,
             ));
         Ok(())
     }
@@ -211,17 +200,17 @@ impl BuildGateProjectionSelector for DecisionProjectionSelector<'_> {
             if let Some(report) = self.explain.as_mut() {
                 report.conditional_group_count += 1;
                 match row.selected_branch {
-                    BuildGateSelectedBranchV1::Then => {
+                    BuildGateSelectionOutcomeV1::Then => {
                         report.active_branch_count += 1;
                         if has_else {
                             report.inactive_branch_count += 1;
                         }
                     }
-                    BuildGateSelectedBranchV1::Else => {
+                    BuildGateSelectionOutcomeV1::Else => {
                         report.active_branch_count += 1;
                         report.inactive_branch_count += 1;
                     }
-                    BuildGateSelectedBranchV1::NoElse => {
+                    BuildGateSelectionOutcomeV1::NoElse => {
                         report.inactive_branch_count += 1;
                     }
                 }
@@ -230,7 +219,7 @@ impl BuildGateProjectionSelector for DecisionProjectionSelector<'_> {
         self.cursor += 1;
         Ok(matches!(
             row.selected_branch,
-            BuildGateSelectedBranchV1::Then
+            BuildGateSelectionOutcomeV1::Then
         ))
     }
 

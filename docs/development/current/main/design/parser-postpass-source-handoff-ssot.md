@@ -217,11 +217,11 @@ Then/Else-only; mapping `NoElse` to `Else` is forbidden.
 Decision: **accepted — choose A'**.
 
 The decision-set issuer already owns the semantic outcome
-`BuildGateSelectedBranchV1::{Then, Else, NoElse}`. The source receipt must
+`BuildGateSelectionOutcomeV1::{Then, Else, NoElse}`. The source receipt must
 carry that same outcome rather than asking the path model to represent it:
 
 ```text
-BuildGateSelectedBranchV1
+BuildGateSelectionOutcomeV1
   -> BuildGateSelectionReceiptV1.selected_branch
 
 SourceBuildGateBranchV1
@@ -252,6 +252,12 @@ FINAL-RETIRE-S0 closeout (2026-08-09): the caller-zero
 `source_gate_prune.rs` owner and old `explain_build_gate_program` helper are
 retired. This does not retire the shared projection walker, grammar-evidence
 selector, resolver source-seal entry, or explicit compatibility arm.
+
+FINAL-NOELSE-RECEIPT-I0 implementation (2026-08-09): the semantic outcome is
+now issued by the parser-private `build_gate_selection` module and is shared by
+the decision rows and selection receipts. Path segments continue to use the
+Then/Else-only source branch type; no-else outcomes produce no descendant
+path.
 
 ## Finalizer completeness
 

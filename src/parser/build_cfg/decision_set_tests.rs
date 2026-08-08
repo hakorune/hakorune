@@ -1,5 +1,6 @@
-use super::{BuildGateReachabilityV1, BuildGateSelectedBranchV1, PreparedBuildGateDecisionSetV1};
+use super::{BuildGateReachabilityV1, PreparedBuildGateDecisionSetV1};
 use crate::ast::BuildPredicate;
+use crate::parser::build_gate_selection::BuildGateSelectionOutcomeV1;
 use crate::parser::{NyashParser, ParseError, ParserBuildConfig};
 use crate::tokenizer::NyashTokenizer;
 
@@ -27,7 +28,7 @@ fn i0_c_issues_one_row_per_nested_ast_gate_and_preserves_reachability() {
     assert_eq!(decisions.rows().len(), 2);
     assert_eq!(
         decisions.rows()[0].selected_branch,
-        BuildGateSelectedBranchV1::NoElse
+        BuildGateSelectionOutcomeV1::NoElse
     );
     assert_eq!(
         decisions.rows()[0].reachability,
@@ -35,7 +36,7 @@ fn i0_c_issues_one_row_per_nested_ast_gate_and_preserves_reachability() {
     );
     assert_eq!(
         decisions.rows()[1].selected_branch,
-        BuildGateSelectedBranchV1::NoElse
+        BuildGateSelectionOutcomeV1::NoElse
     );
     assert_eq!(
         decisions.rows()[1].reachability,

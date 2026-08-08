@@ -1,4 +1,5 @@
 use crate::ast::ASTNode;
+use crate::parser::build_gate_selection::BuildGateSelectionOutcomeV1;
 use crate::parser::postpass_envelope::{ExplainDemandV1, PostpassDemandV1};
 use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 use crate::tokenizer::NyashTokenizer;
@@ -35,4 +36,26 @@ fn shared_projection_consumes_one_selected_source_gate() {
     assert!(
         matches!(statements.as_slice(), [ASTNode::BoxDeclaration { name, .. }] if name == "Enabled")
     );
+}
+
+#[test]
+fn shared_projection_emits_no_else_receipt_without_a_child_path() {
+    let tokens = NyashTokenizer::new("gate Build.test { box Hidden {} }\n")
+        .tokenize()
+        .unwrap();
+    let mut parser = NyashParser::new(tokens);
+    let ast = parser.parse_program().unwrap();
+    let decisions = parser.issue_build_gate_decision_set(&ast).unwrap();
+    let records = parser.take_source_build_gate_records();
+
+    let output = super::project_build_gates(&parser, ast, &decisions, &records, false).unwrap();
+    assert_eq!(output.receipts.len(), 1);
+    assert_eq!(
+        output.receipts[0].selected_branch,
+        BuildGateSelectionOutcomeV1::NoElse
+    );
+    assert!(matches!(
+        output.ast,
+        ASTNode::Program { statements, .. } if statements.is_empty()
+    ));
 }

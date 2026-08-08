@@ -8,7 +8,7 @@ Parent: `parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`
 The receipt uses the existing semantic decision outcome:
 
 ```text
-BuildGateSelectedBranchV1::{Then, Else, NoElse}
+BuildGateSelectionOutcomeV1::{Then, Else, NoElse}
   = decision-set and receipt selection outcome
 
 SourceBuildGateBranchV1::{Then, Else}

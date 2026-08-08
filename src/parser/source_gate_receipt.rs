@@ -6,9 +6,11 @@
 
 use crate::ast::BuildPredicate;
 
+use super::build_gate_selection::BuildGateSelectionOutcomeV1;
+use super::source_authority::SourceBuildGateBranchV1;
 use super::source_authority::{ParserInvocationBrandV1, SourceBuildGateIdV1};
 use super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
-use super::source_path::{SourceBuildGateBranchV1, SourceBuildGatePathV1};
+use super::source_path::SourceBuildGatePathV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct BuildGateSelectionReceiptV1 {
@@ -17,7 +19,7 @@ pub(super) struct BuildGateSelectionReceiptV1 {
     pub(super) gate_path: SourceBuildGatePathV1,
     pub(super) predicate: BuildPredicate,
     pub(super) decision_coordinate: u32,
-    pub(super) selected_branch: SourceBuildGateBranchV1,
+    pub(super) selected_branch: BuildGateSelectionOutcomeV1,
 }
 
 impl BuildGateSelectionReceiptV1 {
@@ -25,7 +27,7 @@ impl BuildGateSelectionReceiptV1 {
         record: &PreparedBuildGateSourceRecordV1,
         decision_coordinate: u32,
         predicate: &BuildPredicate,
-        selected_branch: SourceBuildGateBranchV1,
+        selected_branch: BuildGateSelectionOutcomeV1,
     ) -> Self {
         Self {
             brand: record.brand.clone(),
@@ -36,4 +38,20 @@ impl BuildGateSelectionReceiptV1 {
             selected_branch,
         }
     }
+}
+
+pub(super) fn selection_matches_path(
+    selection: BuildGateSelectionOutcomeV1,
+    path_branch: SourceBuildGateBranchV1,
+) -> bool {
+    matches!(
+        (selection, path_branch),
+        (
+            BuildGateSelectionOutcomeV1::Then,
+            SourceBuildGateBranchV1::Then
+        ) | (
+            BuildGateSelectionOutcomeV1::Else,
+            SourceBuildGateBranchV1::Else
+        )
+    )
 }

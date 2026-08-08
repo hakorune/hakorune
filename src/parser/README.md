@@ -166,7 +166,7 @@ before helper retirement; mapping it to `Else` is forbidden.
 The accepted D0 representation is intentionally split by authority:
 
 ```text
-BuildGateSelectedBranchV1::{Then, Else, NoElse}
+BuildGateSelectionOutcomeV1::{Then, Else, NoElse}
   = semantic decision outcome carried by the selection receipt
 
 SourceBuildGateBranchV1::{Then, Else}

@@ -325,13 +325,13 @@ The independent top-down audit selected the explicit receipt outcome:
 
 ```text
 decision-set semantic outcome:
-  BuildGateSelectedBranchV1::{Then, Else, NoElse}
+  BuildGateSelectionOutcomeV1::{Then, Else, NoElse}
 
 source path branch:
   SourceBuildGateBranchV1::{Then, Else}
 
 selection receipt:
-  selected_branch: BuildGateSelectedBranchV1
+  selected_branch: BuildGateSelectionOutcomeV1
 ```
 
 This is deliberately not an extension of `SourceBuildGateBranchV1`.
