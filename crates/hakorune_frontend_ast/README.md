@@ -30,8 +30,9 @@ Raw `ExplicitSource` provenance is also descriptive. A later parser-owned seal
 must prove complete parsing, duplicate freedom, selected Box membership, and
 exact source identity before lending resolver-grade rows.
 
-Current status: R6-S3B-D-I0 is the active parser final-seal slice; R5 is
-closed. `ASTNode::BoxDeclaration.methods` now stores
+Current status: R6-S3B-D-I0 is closed for the bounded ordinary-Box rich path;
+the broad public AST postpass cutover D0 is active; R5 is closed.
+`ASTNode::BoxDeclaration.methods` now stores
 `BoxMethodInventoryV1`, and compatibility consumers use explicitly named
 exact-lookup, selected-order, name-order, or `CompatibilityOnly` projections.
 The old public HashMap field and arbitrary mutable method access are gone.
@@ -131,9 +132,12 @@ Current-state rule: the status line above is the only live status in this
 README. The R1--R6 paragraphs below are landed receipts and historical
 context; they must not be read as a new active row. D-I0 now retains complete
 generated-delegate relation rows in the sole parser-owned non-Clone seal.
-The remaining D-I0 condition is caller-zero retirement of the old AST-only
-delegate projection; resolver, Recipe, Builder/MIR, provider, and runtime
-work remain closed until that parser cutover is complete.
+The three broad public AST-only parser entrypoints remain compatibility
+nonclaims because the rich finalizer intentionally rejects
+interface/static/record/mixed cohorts. Their total postpass envelope is the
+separate `PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0` row; resolver, Recipe,
+Builder/MIR, provider, and runtime work remain closed until that design is
+implemented and verified.
 
 ## Boundaries
 

@@ -28,8 +28,8 @@ design, task, ssot, readme, reference, taskmap, state, index, source_seal, final
     Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
 ]
 
-if "Status: accepted design boundary; D-I0 implementation opened" not in design:
-    raise SystemExit("D0 design must record the opened D-I0 boundary")
+if "Status: accepted design boundary; D-I0 implementation closed" not in design:
+    raise SystemExit("D0 design must record the closed D-I0 boundary")
 if "Status: active bounded implementation" not in task and "Status: closed implementation receipt" not in task:
     raise SystemExit("D-I0 task is neither active nor closed")
 for document, label in ((ssot, "SSOT"), (readme, "README"), (reference, "reference"), (taskmap, "task map")):
@@ -68,8 +68,8 @@ for needle in (
 for forbidden in ("AST-only", "name-based", "inventory ordinal reconstruction", "CallSlot", "ValueId"):
     if forbidden in finalizer:
         raise SystemExit(f"finalizer contains forbidden later authority: {forbidden}")
-if 'work_mode = "fast"' not in state or 'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-I0"' not in state:
-    raise SystemExit("CURRENT_STATE is not on the active D-I0 row")
+if 'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-I0"' not in state and 'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0"' not in state:
+    raise SystemExit("CURRENT_STATE is neither on D-I0 nor its explicit postpass cutover successor")
 if "frontend_parsed_box_source_seal_r6_s3b_d_i0_guard.sh" not in index:
     raise SystemExit("check index must list the D-I0 guard")
 for relative in ("src/parser/source_seal.rs", "src/parser/source_seal_finalizer.rs", "src/parser/delegate_source_relation.rs"):
@@ -77,7 +77,7 @@ for relative in ("src/parser/source_seal.rs", "src/parser/source_seal_finalizer.
     if len(lines) >= 800:
         raise SystemExit(f"{relative} exceeds the 800-line boundary")
 
-print("active_d_i0=1")
+print("d_i0_receipt=1")
 print("final_seal_relation_coverage=1")
 print("no_later_authority=1")
 print("source_files_below_800=1")

@@ -1,5 +1,5 @@
 ---
-Status: active bounded implementation
+Status: closed implementation receipt
 Date: 2026-08-09
 Decision: implement only the accepted R6-S3B-D final source-seal extension
 Parent: `frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0-design-task-2026-08-09.md`
@@ -81,21 +81,20 @@ cannot be issued from the existing parser payload, stop with `NoSafeSlice` and
 return to D0 design. Do not add a test constructor, name fallback, sidecar
 ordinal, partial seal, or resolver adapter.
 
-The row is closed only when the focused tests, guard, source-file line-count
-guard, and same-slice documentation receipt are green and the old S3A
-generated-suffix production caller is retired.
+The row closes when the bounded rich path has zero direct legacy delegate
+callers, complete final relation coverage, and green focused tests, guard,
+source-file line-count guard, and same-slice documentation receipt. The three
+wide public AST-only callers are not part of this bounded row; their later
+cutover is tracked by
+`parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`.
 
 ## Landed bounded implementation receipt
 
-The finalizer implementation and focused tests are landed in the active D-I0
-slice. `ParserBoxSourceSealV1` now retains the complete generated relation rows
-after exact same-brand relation-key, provenance/selection, and placement
-coverage. The remaining compatibility callers are the public AST-only
-`NyashParser::parse`,
-`NyashParser::parse_from_string_with_fuel_and_build_config`, and
-`NyashParser::parse_from_string_with_fuel_and_build_config_and_explain_report`
-paths, which still call `delegate_lowering::lower_delegate_exposes` directly.
-They must project from `parse_from_string_with_source_seal` before this row
-closes. This is a later caller-zero/cutover condition, not permission to add a
-second seal or a fallback, so the task remains active rather than claiming
-full S3A retirement.
+The finalizer implementation and focused tests are landed. The bounded rich
+path `parse_from_string_with_source_seal` now has zero direct
+`delegate_lowering::lower_delegate_exposes` callers and retains complete
+generated relation rows in the sole `ParserBoxSourceSealV1` after exact
+same-brand relation-key, provenance/selection, and placement coverage. The
+wide public AST-only callers remain compatibility nonclaims because the rich
+finalizer is ordinary-Box-only; their total postpass/caller cutover is a
+separate design stop.

@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0/C-I0/D-D0 closed; D-I0 implementation active
+Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0/C-I0/D-D0/D-I0 closed; broad public AST postpass cutover D0 active
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -221,12 +221,15 @@ R6-S3B-B  typed gate path/cursor and transactional prune/rebase
 R6-S3B-C  source-aware delegate transaction and
            GeneratedDelegateSourceRelation
 
-R6-S3B-D  final complete-coverage seal, retire the S3A generated-suffix
-           adapter, and switch all AST-only APIs to the rich path
+R6-S3B-D  final complete-coverage seal and retire the bounded S3A
+           generated-suffix adapter
+
+PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0
+           total typed postpass envelope before switching broad AST-only APIs
 
 ```
 
-## R6-S3B-D-D0 design receipt — accepted; D-I0 implementation active
+## R6-S3B-D-D0 design receipt — accepted; D-I0 implementation closed
 
 The final-seal boundary is fixed by:
 
@@ -249,9 +252,10 @@ direct explicit target methods only. Generated chains, compatibility-only,
 interface/static/record/Hako/provider declarations, overloads, and resolver
 connection remain closed. Any failure discards the unpublished parsed product;
 there is no partial seal, retry, or fallback. The D-I0 task and guard are
-opened as the active bounded implementation row at this design stop.
+closed for the bounded ordinary-Box rich path; the broad public AST postpass
+cutover is the next design stop.
 
-## R6-S3B-D-I0 implementation receipt — active slice
+## R6-S3B-D-I0 implementation receipt — closed (2026-08-09)
 
 The finalizer now consumes the C-I0 `GeneratedDelegateSourceRelationV1` rows
 and validates them against the final inventory before issuing the sole
@@ -263,13 +267,18 @@ one-to-one generated suffix coverage are required. Duplicate, missing/orphan,
 foreign, non-generated, or mismatched rows reject the unpublished product.
 The final seal retains the generated relation rows. No AST/name/ordinal
 reconstruction, resolver target, Recipe, Builder/MIR, provider/runtime,
-fallback, or retry is opened by this slice. D-I0 remains open only for
-caller-zero retirement of the three public AST-only `NyashParser` paths that
-still call `delegate_lowering::lower_delegate_exposes` directly: `parse`,
-`parse_from_string_with_fuel_and_build_config`, and
-`parse_from_string_with_fuel_and_build_config_and_explain_report`. They must
-project from `parse_from_string_with_source_seal`; no second seal or fallback
-is allowed.
+fallback, or retry is opened by this slice. The three broad public AST-only
+`NyashParser` paths remain compatibility nonclaims because the rich finalizer
+is ordinary-Box-only; their total postpass envelope is the following D0 row.
+
+## PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0 — active design stop
+
+`parse`, `parse_from_string_with_fuel_and_build_config`, and
+`parse_from_string_with_fuel_and_build_config_and_explain_report` support
+interface/static/record/mixed programs and preserve fuel, metadata, and
+explain-report behavior. They must not be switched to the ordinary-only rich
+source-seal path by catching rejection or adding a fallback. The D0 task fixes
+the typed total envelope and cohort parity before I0 opens.
 
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 

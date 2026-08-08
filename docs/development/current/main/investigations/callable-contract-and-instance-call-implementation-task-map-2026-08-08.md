@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0 design closed; D-I0 implementation active
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0/D-I0 closed; broad public AST postpass cutover D0 active
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -143,9 +143,11 @@ semantics. Third, the seal must be issued only from one rich parse-output path
 after build-gate prune/rebase and delegate lowering have completed; AST-only
 APIs are projections that discard the seal. H1 is now closed as a disconnected
 substrate; `CURRENT_STATE.toml` remains on the Rust R6 source-seal/final-parse
-product correction. D-I0 is implemented but remains open until the named
-AST-only compatibility callers are caller-zero; resolver semantic publication
-is still closed. Fourth, the callable contract may reference
+product correction. D-I0 is closed for the bounded ordinary-Box rich path;
+broad public AST-only caller convergence is a separate BoxShape design stop
+because the current rich finalizer rejects interface/static/record/mixed
+cohorts and must preserve fuel, metadata, and explain-report contracts.
+Resolver semantic publication is still closed. Fourth, the callable contract may reference
 `VerifiedHomeAbi` but must not duplicate its receiver/parameter/result Home
 demand; typed syntax normalization must happen before the resolver issuer.
 
@@ -274,24 +276,23 @@ R6-S3B-C-I0 (closed implementation receipt)
   Task:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md`
 
-R6-S3B-D (R6-S3B-D-D0 design closed; D-I0 implementation active)
+R6-S3B-D (R6-S3B-D-D0 and D-I0 closed; broad AST cutover design active)
   final complete relation coverage and one final non-Clone seal
   sole `ParserBoxSourceSealV1` extension after complete relation coverage
   retire the bounded S3A generated-suffix adapter
-  close all AST-only projection and rich-path parity gaps
+  keep broad AST-only projection as an explicit compatibility nonclaim until
+  the total postpass envelope is designed
   D0 design receipt:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0-design-task-2026-08-09.md`
   implementation receipt:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-d-i0-implementation-task-2026-08-09.md`
-  D-I0 now retains generated relation rows in the sole final seal after
-  same-brand relation-key, provenance, and placement-receipt coverage; focused
-  positive/negative tests and the D-I0 guard are landed. Resolver/runtime work
-  remains closed. The exact remaining caller-zero condition is retirement of
-  `delegate_lowering::lower_delegate_exposes` from the public AST-only
-  `parse`, `parse_from_string_with_fuel_and_build_config`, and
-  `parse_from_string_with_fuel_and_build_config_and_explain_report` paths;
-  each must project from `parse_from_string_with_source_seal` before D-I0
-  closes. The rich product itself is not reopened or duplicated.
+  D-I0 retains generated relation rows in the sole final seal after same-brand
+  relation-key, provenance, and placement-receipt coverage; focused
+  positive/negative tests and the D-I0 guard are landed. The three broad
+  public AST-only callers remain compatibility nonclaims because the rich
+  finalizer is ordinary-Box-only. Their total postpass envelope and caller
+  cutover are the separate `PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0` row.
+  Resolver/runtime work remains closed.
 
 R6-S3B-B0
   accepted design receipt for parser-issued gate paths and selection receipts (closed)
@@ -345,6 +346,14 @@ CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
 CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection
   no ExactTrivial*Abi/MirType reverse inference
+
+PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0 active; I0 parked)
+  total typed postpass envelope for `parse`, fuel/build-config parsing, and
+  explain-report parsing; preserve interface/static/record/mixed cohorts,
+  fuel, metadata, and explain-report contracts before switching any caller to
+  the rich source-seal projection. No catch-and-fallback or fake seal.
+  Task:
+  `docs/development/current/main/investigations/parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`
 
 POST-CUTOVER-COMPAT-API-QUARANTINE-D0 (parked)
   after parser/Builder caller-zero and legacy retirement, move remaining
@@ -427,7 +436,7 @@ Rejected > Unresolved > Declined > Candidate
      semantic publication, or compatibility projection.
 7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0/S1/S2A/S2/S3A` — R6-D0
    accepted; S0, S1, S2a, and S2 closed; S3A was the bounded predecessor and
-   D-I0 is the current final-seal slice
+   D-I0 is the closed final-seal slice; broad public AST postpass design is next
    - give explicit methods an exact branded source site independent of the
      all-row inventory ordinal;
    - generated property/delegate rows retain generated origin only and never

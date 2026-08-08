@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0 final-seal design accepted; D-I0 final-seal implementation active; resolver coverage remains unopened.
+Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 active; resolver coverage remains unopened.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -252,13 +252,14 @@ placement, and retains the complete rows in the sole non-Clone
 `ParserBoxSourceSealV1`. Malformed, orphan, duplicate, foreign, or
 provenance-invalid coverage rejects the unpublished product. This does not
 open typed `CallableContract` parser carriage, resolver publication, Hako
-parity, or body conformance. D-I0 remains active until the public AST-only
-`NyashParser` paths `parse`,
+parity, or body conformance. D-I0 is closed for this bounded path. The public
+AST-only `NyashParser` paths `parse`,
 `parse_from_string_with_fuel_and_build_config`, and
-`parse_from_string_with_fuel_and_build_config_and_explain_report` project
-through this rich product instead of calling
-`delegate_lowering::lower_delegate_exposes` directly; no second seal or
-fallback is allowed.
+`parse_from_string_with_fuel_and_build_config_and_explain_report` remain
+compatibility nonclaims because the rich finalizer is ordinary-Box-only. Their
+total postpass envelope is the separate
+`PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0` design row; no second seal or
+catch-and-fallback is allowed.
 
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate

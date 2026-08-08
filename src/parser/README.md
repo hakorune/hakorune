@@ -33,7 +33,8 @@ provider, and runtime authority remain closed.
 
 ## R6-S3B-D-D0 / D-I0 final-seal boundary
 
-The D0 design is accepted and D-I0 is the active bounded implementation.
+The D0 design is accepted and D-I0 is closed for the bounded ordinary-Box
+rich path.
 It is the only boundary allowed to consume the C-I0 relation rows and extend
 the non-Clone `ParserBoxSourceSealV1`. Its finalizer-owned coverage plan must
 compare exact same-brand relation keys and generated inventory placement
@@ -47,4 +48,9 @@ seal. It rejects duplicate or orphan relation keys, foreign host/target paths,
 non-delegate placements, and provenance/selection mismatches before issuing
 the seal. The focused final-seal tests and
 `frontend_parsed_box_source_seal_r6_s3b_d_i0_guard.sh` are part of this same
-implementation slice; resolver/runtime connection remains closed.
+implementation slice; resolver/runtime connection remains closed. The public
+AST-only `parse`/fuel/explain entrypoints remain compatibility nonclaims
+because the rich finalizer intentionally rejects interface/static/record/mixed
+cohorts. Their total postpass envelope is tracked by
+`PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0`; no catch-and-fallback cutover is
+allowed.

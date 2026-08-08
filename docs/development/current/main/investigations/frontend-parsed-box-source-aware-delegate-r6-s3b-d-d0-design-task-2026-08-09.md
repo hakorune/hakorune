@@ -1,9 +1,9 @@
 ---
-Status: accepted design boundary; D-I0 implementation opened
+Status: accepted design boundary; D-I0 implementation closed
 Date: 2026-08-09
 Decision: R6-S3B-D is the sole final generated-delegate source-seal extension
 Parent: `docs/development/current/main/design/parser-postpass-source-handoff-ssot.md`
-Next: the active bounded final-seal implementation slice in the D-I0 task
+Next: `parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`
 ---
 
 # FRONTEND-PARSED-BOX-SOURCE-AWARE-DELEGATE-R6-S3B-D-D0
