@@ -519,5 +519,8 @@ and exact Loop membership, while `loop_structural_facts` owns the one atomic
 AST-free Facts product. `variable_accum_recurrence_producer.rs` then projects
 that Candidate into the existing Recipe/JoinSig/Core/input/effect owners.
 No Recipe kind, route selector, Builder/MIR effect, or physical caller is
-introduced. The current closeout is the normal `Main.main` resolver ingress,
-typed C/D/U/R disposition, and foreign/duplicate identity coverage.
+introduced. The normal `Main.main` resolver ingress and typed C/D/U/R
+disposition are now closed for the bounded S6A ingress. Focused coverage
+includes Candidate, Declined, incomplete-evidence Unresolved, and
+foreign-owner Rejected. The remaining closeout is duplicate-role/source-
+identity rejection and complete source-site coherence coverage.

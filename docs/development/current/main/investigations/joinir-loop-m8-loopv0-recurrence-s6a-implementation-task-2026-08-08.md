@@ -1,6 +1,6 @@
 # JOINIR Loop M8 variable-accum recurrence S6A — execution brief
 
-Status: `implementation slice landed; bounded closeout remains`
+Status: `normal Main ingress and typed disposition landed; bounded closeout remains`
 Date: 2026-08-08
 Parent: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`
 Current row: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A`
@@ -46,9 +46,12 @@ unchanged. The producer seals the existing Recipe/JoinSig/Core/input/effect
 owners with the exact `2/2/8/11` relation counts and no Builder effect.
 Source/check files stay below 800 lines.
 
-The full S6A row is not yet closed: the exact normal `Main.main` resolver path,
-typed C/D/U/R ingress envelope, foreign/duplicate identity negatives, and
-complete source-site coherence checks remain required.
+The exact normal `Main.main` resolver path and the typed C/D/U/R ingress
+envelope are now landed.  Focused tests cover Candidate, Declined,
+Unresolved (incomplete coverage), and Rejected (foreign owner) without
+creating a fifth disposition.  The full S6A row is not yet closed: duplicate
+role/source identity negatives and complete source-site coherence checks
+remain required.
 
 The same implementation commit updates `src/mir/compiler/README.md`,
 `src/mir/loop_structural_facts/README.md`,
@@ -90,12 +93,12 @@ retry/fallback retirement, outer print/return tail coverage, or legacy deletion.
 ## Implementation order
 
 ```text
-1. audit and consume existing resolver/source capability
-2. private source observations
-3. atomic Facts + C/D/U/R disposition
-4. deterministic existing-Recipe projection
-5. complete input/Core/operation-source seals and golden
-6. negative/identity/coverage/line-count guards
+1. audit and consume existing resolver/source capability (closed)
+2. private source observations (closed)
+3. atomic Facts + C/D/U/R disposition (closed for the bounded ingress)
+4. deterministic existing-Recipe projection (closed)
+5. complete input/Core/operation-source seals and golden (closed)
+6. duplicate/identity/source-coherence negatives and line-count guards
 7. same-commit README and reference closeout (landed for this slice; repeat at
    the bounded closeout and at M10b)
 ```

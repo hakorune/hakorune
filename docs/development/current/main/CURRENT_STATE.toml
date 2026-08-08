@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "B-prime through G0 exact Builder-free I0 ingress, the common Builder-free recursive segment plan R1, Callable segment-block cutover R2, Callable recursive After R3-I0, common Predicate/carrier I0, bounded Generic G0 I1, and the callable initialized-local input-set R0 are closed. G0 I1 reaches typed finish/DraftSeal and proves whole-session discard/fresh rerun. S6A source observation is next; production selection, retry/fallback retirement, M8/M9 closure, and legacy deletion remain closed."
+status = "B-prime through G0 exact Builder-free I0 ingress, the common Builder-free recursive segment plan R1, Callable segment-block cutover R2, Callable recursive After R3-I0, common Predicate/carrier I0, bounded Generic G0 I1, the callable initialized-local input-set R0, and the bounded S6A normal Main ingress/C-D-U-R envelope are closed. S6A identity/coherence negatives remain; production selection, retry/fallback retirement, M8/M9 closure, and legacy deletion remain closed."
 date = "2026-08-08"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "S6A variable-accum recurrence design is accepted and its caller-zero Facts/producer implementation slice is landed: one atomic Facts product maps two initialized-local inputs, two bindings, eight Core effects, and eleven operation-source rows into the existing Recipe/JoinSig/Core algebra. The remaining bounded closeout is exact normal Main.main ingress, typed C/D/U/R disposition, and identity/coverage negatives. Generic parameter inputs stay separate. M9 parity, production selection, and legacy retirement remain closed."
+current_design_stop = "S6A variable-accum recurrence design is accepted. The caller-zero Facts/producer slice, exact program-owned Main.main resolver ingress, and typed C/D/U/R observer envelope are landed: one atomic Facts product maps two initialized-local inputs, two bindings, eight Core effects, and eleven operation-source rows into the existing Recipe/JoinSig/Core algebra. The remaining bounded closeout is duplicate-role/source-identity rejection and complete source-site coherence negatives. Generic parameter inputs stay separate. M9 parity, production selection, and legacy retirement remain closed."
 current_execution_row = "JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A"
-current_blocker_token = "JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A: close normal Main.main resolver ingress, typed C/D/U/R disposition, and source identity/coverage negatives; no new kind or physical route"
+current_blocker_token = "JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A: close duplicate-role/source-identity rejection and complete source-site coherence negatives; no new kind or physical route"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"

@@ -12,8 +12,12 @@ use crate::mir::loop_structural_facts::{
     VariableAccumRecurrenceConditionObservationV1, VariableAccumRecurrenceConditionOperatorV1,
     VariableAccumRecurrenceCoverageV1, VariableAccumRecurrenceFactsIssueV1,
     VariableAccumRecurrenceInductionStepV1, VariableAccumRecurrenceInputObservationV1,
-    VariableAccumRecurrenceInputRoleV1, VariableAccumRecurrenceSourceRoleV1,
+    VariableAccumRecurrenceInputRoleV1, VariableAccumRecurrenceObservationCoverageV1,
+    VariableAccumRecurrenceSourceAttemptOutcomeV1, VariableAccumRecurrenceSourceDeclineV1,
+    VariableAccumRecurrenceSourceIdentityV1, VariableAccumRecurrenceSourceRejectV1,
+    VariableAccumRecurrenceSourceRoleV1, VariableAccumRecurrenceSourceUnresolvedV1,
     VariableAccumRecurrenceValueClassV1, VerifiedVariableAccumRecurrenceFactsV1,
+    VerifiedVariableAccumRecurrenceSourceAttemptV1,
 };
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, CallableSemanticSourceLedgerView, ExprChildRoleV1, ResolvedAssignmentTargetV1,
@@ -39,6 +43,103 @@ pub(crate) enum VariableAccumRecurrenceProjectionRejectV1 {
     ConstantShape,
     BindingMismatch,
     Facts(VariableAccumRecurrenceFactsIssueV1),
+}
+
+/// The single typed ingress from source projection into the C/D/U/R
+/// disposition algebra.  Identity is captured before the membership token is
+/// consumed, so a non-Candidate row cannot be mistaken for a Facts product.
+pub(crate) fn issue_variable_accum_recurrence_source_attempt_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    membership: VerifiedCallableLoopMembershipV1,
+    coverage: VariableAccumRecurrenceObservationCoverageV1,
+) -> VerifiedVariableAccumRecurrenceSourceAttemptV1 {
+    let identity =
+        VariableAccumRecurrenceSourceIdentityV1::from_source(input.owner(), membership.source());
+    if coverage == VariableAccumRecurrenceObservationCoverageV1::Incomplete {
+        return VerifiedVariableAccumRecurrenceSourceAttemptV1::new(
+            VariableAccumRecurrenceSourceAttemptOutcomeV1::Unresolved(
+                VariableAccumRecurrenceSourceUnresolvedV1::IncompleteCoverage,
+            ),
+            identity,
+            coverage,
+        );
+    }
+    let outcome =
+        match issue_variable_accum_recurrence_facts_from_membership_v1(input, ledger, membership) {
+            Ok(facts) => VariableAccumRecurrenceSourceAttemptOutcomeV1::Candidate(facts),
+            Err(reject) => map_projection_reject(reject),
+        };
+    VerifiedVariableAccumRecurrenceSourceAttemptV1::new(outcome, identity, coverage)
+}
+
+fn map_projection_reject(
+    reject: VariableAccumRecurrenceProjectionRejectV1,
+) -> VariableAccumRecurrenceSourceAttemptOutcomeV1 {
+    match reject {
+        VariableAccumRecurrenceProjectionRejectV1::ForeignOwner => {
+            VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+                VariableAccumRecurrenceSourceRejectV1::ForeignOwner,
+            )
+        }
+        VariableAccumRecurrenceProjectionRejectV1::SourceIdentityMismatch => {
+            VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+                VariableAccumRecurrenceSourceRejectV1::SourceIdentityMismatch,
+            )
+        }
+        VariableAccumRecurrenceProjectionRejectV1::BindingMismatch => {
+            VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+                VariableAccumRecurrenceSourceRejectV1::BindingConflict,
+            )
+        }
+        VariableAccumRecurrenceProjectionRejectV1::Facts(
+            VariableAccumRecurrenceFactsIssueV1::ForeignOwner,
+        ) => VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+            VariableAccumRecurrenceSourceRejectV1::ForeignOwner,
+        ),
+        VariableAccumRecurrenceProjectionRejectV1::Facts(
+            VariableAccumRecurrenceFactsIssueV1::ForeignFrame,
+        ) => VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+            VariableAccumRecurrenceSourceRejectV1::ForeignFrame,
+        ),
+        VariableAccumRecurrenceProjectionRejectV1::Facts(
+            VariableAccumRecurrenceFactsIssueV1::BindingConflict,
+        ) => VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+            VariableAccumRecurrenceSourceRejectV1::BindingConflict,
+        ),
+        VariableAccumRecurrenceProjectionRejectV1::Facts(
+            VariableAccumRecurrenceFactsIssueV1::InputConflict,
+        ) => VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+            VariableAccumRecurrenceSourceRejectV1::InputConflict,
+        ),
+        VariableAccumRecurrenceProjectionRejectV1::Facts(
+            VariableAccumRecurrenceFactsIssueV1::CoverageConflict,
+        ) => VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+            VariableAccumRecurrenceSourceRejectV1::CoverageConflict,
+        ),
+        VariableAccumRecurrenceProjectionRejectV1::Facts(
+            VariableAccumRecurrenceFactsIssueV1::RoleConflict,
+        ) => VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+            VariableAccumRecurrenceSourceRejectV1::DuplicateRole,
+        ),
+        VariableAccumRecurrenceProjectionRejectV1::SourceNavigation
+        | VariableAccumRecurrenceProjectionRejectV1::MissingResolverEvidence => {
+            VariableAccumRecurrenceSourceAttemptOutcomeV1::Unresolved(
+                VariableAccumRecurrenceSourceUnresolvedV1::MissingEvidence,
+            )
+        }
+        VariableAccumRecurrenceProjectionRejectV1::RootShape
+        | VariableAccumRecurrenceProjectionRejectV1::BodyShape
+        | VariableAccumRecurrenceProjectionRejectV1::ConditionShape
+        | VariableAccumRecurrenceProjectionRejectV1::UpdateShape
+        | VariableAccumRecurrenceProjectionRejectV1::StepShape
+        | VariableAccumRecurrenceProjectionRejectV1::BindingShape
+        | VariableAccumRecurrenceProjectionRejectV1::ConstantShape => {
+            VariableAccumRecurrenceSourceAttemptOutcomeV1::Declined(
+                VariableAccumRecurrenceSourceDeclineV1::NotVariableAccumRecurrenceShape,
+            )
+        }
+    }
 }
 
 pub(crate) fn issue_variable_accum_recurrence_facts_from_membership_v1(

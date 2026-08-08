@@ -197,11 +197,11 @@ the existing Recipe/JoinSig/Core/input/effect owners receiving one terminal
 product with the exact `2/2/8/11` relation counts. No selector, physicalizer,
 Builder/MIR, retry, or fallback caller was opened.
 
-The remaining S6A closeout is deliberately bounded: run the exact normal
-`Main.main` resolver path (not a shape-equivalent root-function fixture), add
-the typed C/D/U/R envelope at the observer ingress, and add foreign/duplicate
-identity negatives. Until those gates land, the current row remains open and
-`NoSafeSlice` remains a development status only.
+The exact normal `Main.main` resolver path and typed C/D/U/R observer ingress
+are now landed. Focused tests prove Candidate, Declined, Unresolved for
+incomplete coverage, and Rejected for a foreign owner. The remaining bounded
+closeout is duplicate-role/source-identity rejection and complete source-site
+coherence coverage; `NoSafeSlice` remains a development status only.
 
 The all-19 labels remain compatibility ingress identities. Neither R0 nor S6A
 may add a second selector, route-local physicalizer, AST-bearing Facts

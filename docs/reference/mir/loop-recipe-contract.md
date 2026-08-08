@@ -983,10 +983,10 @@ the parity receipt.
 This is a caller-zero physical canary only. It does not claim M8/M9 coverage,
 production selection, M10b/M11/M12 cutover, retry/fallback deletion, module
 publication policy, backend parity, or broad legacy retirement. The S6A design
-is now accepted, but its common initialized-local input-set prerequisite and
-source observer are not implemented. Generic parameter inputs remain a
-separate contract. This reference must be updated after each implementation
-and again after production cutover.
+is now accepted, its common initialized-local input-set prerequisite is closed,
+and the bounded resolver-backed source observer slice is landed. Generic
+parameter inputs remain a separate contract. This reference must be updated
+after each implementation and again after production cutover.
 
 ## M8 S6A design decision (2026-08-08)
 
@@ -1031,6 +1031,13 @@ and any duplicate, foreign, missing, or inconsistent row fails with published
 product count zero. Disposition precedence is Rejected for identity conflict,
 Unresolved for unavailable evidence, Declined for a fully observed non-family
 shape, and Candidate only for the exact complete shape.
+
+The bounded ingress now also proves the exact program-owned `Main.main`
+resolver path and the typed C/D/U/R envelope: Candidate for the complete
+fixture, Declined for a fully observed non-`Less` condition, Unresolved for
+incomplete coverage, and Rejected for a foreign owner. Duplicate-role,
+source-identity, and complete source-site-coherence negatives remain part of
+the S6A closeout. `NoSafeSlice` remains a development status only.
 
 R0 first replaces callable's singular initialized-local input relation with
 one common move-only exact-coverage initialized-local set without changing
