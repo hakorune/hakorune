@@ -113,6 +113,42 @@ Historical tokens are not renamed solely for style.
   the single Facts owner and keeps Recipe keys, selectors, and physical IDs
   out of the observation layer.
 
+### One-pass development workflow
+
+Every bounded slice follows one finite loop:
+
+```text
+current pointer + clean tree
+  -> classify BoxCount / BoxShape / Design Stop
+  -> seal the smallest design brief when needed
+  -> implement one responsibility and one production edge
+  -> run focused positive/negative evidence and the reusable guard
+  -> update the owning README/reference, then commit/push
+  -> update current pointers only when the active blocker or lane changes
+```
+
+If source membership, source-to-Recipe correspondence, authority, or failure
+ownership is still being discovered, the slice is a design stop rather than an
+implementation row. Do not add fixtures, fallback, or a compatibility adapter
+to make an unresolved mapping look green. A row that cannot satisfy its Done
+block keeps its blocker and next action; it is not closed as “partially landed.”
+
+### Worker consultation contract
+
+Workers are a bounded review resource, not a second implementation stream.
+
+- Use a worker for a genuinely difficult design/authority audit or an
+  independent premise review; mechanical T0 work does not need one.
+- The worker receives a read-only question covering source authority,
+  non-authority, candidate boundary, fail-fast owner, explicit non-claims, and
+  acceptance evidence. It must not edit the same files as the primary agent.
+- The primary agent distills the report into one Decision in the existing card
+  or owning SSOT. Do not copy the full report into a new task. Conflicting
+  reports keep the design stop active until one premise audit resolves them.
+- After a design Decision closes, implement the smallest row, run the focused
+  gate, and commit/push before opening another design question unless the user
+  explicitly requests a parked consultation.
+
 ### Guard result classes
 
 Use the three result classes owned by
@@ -258,6 +294,11 @@ module-global fallback.
 If a user-scoped Codex goal explicitly says to stop at design consultation, the
 goal should be considered complete at this stop point after the brief is ready
 and the worktree is clean.
+
+The design brief is the only permission boundary. A worker's green probe,
+existing lowerer, or compatibility fixture cannot authorize implementation
+until the brief names the source authority, non-authority, fail-fast boundary,
+recommended slice, and non-claims.
 
 ### Source-to-Recipe implementation gate
 

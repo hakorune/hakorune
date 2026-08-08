@@ -214,6 +214,12 @@ AST kind. Run a fresh census at a responsibility-batch boundary, not
 automatically after every small constructor. Proof and old-edge deletion remain
 mandatory; only repeated prose ceremony is removed.
 
+For a green bounded implementation slice, commit and push at the slice
+boundary before starting another design or implementation slice, unless the
+user explicitly requests a local-only checkpoint. A push is a delivery
+boundary, not evidence that a production route is active; the active pointer
+and closeout evidence still decide that claim.
+
 ### Responsibility-Family Amortization Law
 
 Documentation is amortized over a semantic responsibility family, not emitted
