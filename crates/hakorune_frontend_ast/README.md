@@ -68,8 +68,13 @@ source identity is separate from `selected_method_ordinal` because generated
 property/delegate rows consume inventory slots. Generated rows keep only their
 source-member origin and generated role. The current parallel
 `method_source_member_ordinals` sidecar and length-delta reconstruction are
-retirement debt; R6-S2 owns producer cutover and their removal. JSON remains
-descriptive and cannot manufacture the seal.
+retirement debt; R6-S2 owns producer cutover and their removal. Before that
+retirement, the old selected-gate
+`try_merge_selected_gate(selected, &[u32], gate_site)` bridge must be replaced
+by a typed prepared append/rebase product. The AST crate validates
+duplicate/name/declaration identity and contiguous placement only; parser
+brands, source sites, and gate-path rebasing belong to the parser source
+transaction. JSON remains descriptive and cannot manufacture the seal.
 
 R4 now has an atomic AST reconstruction substrate and a strict recursive JSON
 v2 codec. A complete set of `BoxMethodInventoryRoundtripRowV2` values is

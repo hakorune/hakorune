@@ -150,6 +150,72 @@ Rejected > Unresolved > Declined > Candidate
      sidecar retirement; delegate ordinal retirement remains an explicit S3
      nonclaim because the delegate postpass is still AST-only.
 
+   R6-S2 is a behavior-neutral Refactor Series with three bounded cells:
+
+   ```text
+   R6-S2b-AST-receipts
+     generated batch commit returns placement receipts;
+     selected-gate merge consumes transaction-owned relation lookup/rebase;
+     replace the AST parallel &[u32] merge with a typed prepared append/rebase
+     boundary before claiming sidecar retirement
+
+   R6-S2-transaction-cutover
+     BoxMemberState's unpublished inventory, source relations, and member
+     cursor have one transaction owner; direct/property/once/birth_once and
+     member-gate producers use that owner
+
+   R6-S2-sidecar-retirement
+     delete method_source_member_ordinals, record_new_methods_since, and
+     length-delta reconstruction after parser caller-zero tests are green
+   ```
+
+   The typed AST bridge is a prerequisite, not an optional cleanup:
+
+   ```text
+   source transaction:
+     consume branch inventory and its typed method-row relations
+     prepend the selected-gate path and rebase source rows
+     prepare one complete append
+
+   AST inventory:
+     validate duplicate/name/declaration identity and contiguous placement
+     commit the prepared append atomically
+   ```
+
+   A suitable shape is
+   `PreparedBoxMethodInventoryAppendV1` with
+   `BoxMethodInventoryV1::prepare_append` / `commit_prepared_append`.
+   The AST crate must not know parser brands or source-site authority. The
+   old `try_merge_selected_gate(selected, &[u32], gate_site)` is not renamed
+   into a new sidecar; it is removed or unreachable in the same series.
+   Until this bridge is fixed, the S2 blocker is `NoSafeSlice` for the
+   implementation—not permission to add another parallel ordinal ledger.
+
+   The transaction-side owner surface is bounded to
+   `open_for_box`, `branch`, current member/gate site, explicit commit,
+   generated-property batch commit, prepared gate merge, and final `finish`.
+   `BoxMemberState` keeps non-method metadata and delegates, while one
+   `source_tx` owns the unpublished inventory, member cursor, and typed source
+   relations. No parser producer receives `&mut BoxMethodInventoryV1` after
+   the cutover.
+
+   The latest external review is reconciled into this row, not opened as a
+   second authority. `BoxMethodInventoryV1` remains cloneable selected/
+   generated placement data; only the non-Clone parser source seal is
+   resolver-grade. Inventory ordinals may index a transaction-private
+   relation table, but never become declaration identity. Generated rows have
+   generated origin and placement receipts only; explicit source sites are
+   independent of all-row placement.
+
+   These are explicit R6-S3 or later nonclaims: delegate AST-only postpass and
+   raw `DelegateDecl` ordinal retirement, rich parse output and final seal
+   issuance, typed `CallableContractSyntaxV1` parser acceptance, resolver
+   declaration/target issuance, Recipe/Builder/MIR/provider/runtime
+   connection. The final parser seal is issued only by the final rich parse
+   product after build-gate prune/rebase and delegate lowering. If current
+   parser inputs cannot issue a required relation, stop at `NoSafeSlice`; do
+   not infer source identity from names, ordinals, JSON, or sidecar deltas.
+
 8. `HAKO-PARSER-BOX-DECLARATION-CARRIER-H2/H3`
    - issue the same ordered inventory and non-Clone parser seal while
      parsing each Box and body once; no body slice or scanner rescan;

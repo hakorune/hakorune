@@ -129,3 +129,36 @@ no target before declared contract
 no publication before body conformance
 no Recipe/Builder/provider fallback
 ```
+
+## Follow-up parser/source-authority audit (2026-08-08)
+
+The later review does not open a new callable-contract design. Its parser
+corrections are folded into the active R6 card:
+
+```text
+raw BoxMethodInventoryV1:
+  descriptive, cloneable selected/generated placement carrier
+
+parser-owned source seal:
+  non-Clone authority carrying brand, exact source site, and relation coverage
+
+resolver:
+  consumes only the final seal after build-gate prune/rebase and delegate
+  postpass; it never trusts inventory ordinals or raw rune strings
+```
+
+The source method site and all-row inventory placement are separate forever.
+Generated property/delegate rows can consume placement slots, so neither
+`selected_method_ordinal` nor a sidecar length delta is a declaration identity.
+The parser transaction owns the unpublished inventory and typed source-row
+relations. R6-S2 therefore must replace the old parallel selected-gate
+`&[u32]` merge with a typed prepared append/rebase bridge before deleting the
+method sidecar. The AST carrier validates append collisions and placement; it
+does not own parser brands or source sites.
+
+The old body-inferred instance result/target family remains a retire-before-new-
+target row (`SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`). The callable plan
+already separates typed `CallableContractSyntaxV1::Query`, same-declaration
+`VerifiedHomeAbi`, semantic `I64`, physical ABI projection, and complete body
+conformance. Those rows remain later than R6 and are not pulled into the
+parser transaction cutover.

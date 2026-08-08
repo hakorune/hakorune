@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1 closed — parser source-seal/final parse-product boundary fixed; R6-S2 next
+Status: R6-D0/R6-S0/R6-S1/R6-S2a closed — R6-S2 design corrected; ordinary producer cutover next
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -192,6 +192,132 @@ rollback repair are forbidden.
 
 The existing order-insensitive build-gate branch-signature comparison may
 remain a derived compatibility check; it is not source identity.
+
+## R6-S2 external-review reconciliation (2026-08-08)
+
+The external review and worker audit agree that the remaining R6 work is a
+BoxShape cutover, not a new source-authority design. The following rules are
+now normative for R6-S2:
+
+```text
+BoxMethodInventoryV1:
+  Clone-capable selected/generated placement carrier
+
+ParserBoxSourceSealV1:
+  non-Clone parser-owned authority
+  exact source site, brand, and relation coverage
+
+resolver identity:
+  source/catalog brand + Box source site + as-written member path
+  never inventory ordinal, JSON, HashMap, or generated placement
+```
+
+`BoxMethodInventoryOrdinalV1` is only a selected/generated placement number.
+It may be used to index a parser-private relation table while a transaction is
+open, but it must never be promoted into a declaration identity or source
+capability.
+
+The transaction is the single owner of the unpublished inventory and its
+source relations. It must cover all ordinary producer rows in this slice:
+
+```text
+explicit direct method
+generated property / once / birth_once batch
+selected member-gate branch inventory
+```
+
+Generated rows receive a generated origin and a placement receipt; they do
+not receive an explicit method source site. An explicit method source site is
+independent of the selected/generated inventory ordinal. The old
+`method_source_member_ordinals` sidecar, length-delta reconstruction, and
+parallel gate ordinal slice therefore have no place in the final owner.
+
+The selected-gate merge must consume the branch transaction's relation map
+and perform path rebasing atomically. A caller-supplied `&[u32]` parallel
+slice is not an authority and is forbidden after the S2 cutover. Generated
+batch APIs may return placement receipts, but may not expose private rows or
+make the parser reconstruct source identity from a length delta.
+
+R6-S2 deliberately does **not** issue the final parser seal. Delegate AST-only
+postpass, raw `DelegateDecl` ordinal retirement, rich parse output, and final
+seal issuance remain R6-S3. The seal is issued only from the final parse
+product after build-gate prune/rebase and delegate lowering have completed.
+No resolver, `CallableContract`, target, Recipe, JSON, or Builder semantic
+connection is opened by R6-S2.
+
+### R6-S2 implementation cells
+
+1. **R6-S2b-AST receipt support**
+   - return generated placement receipts from a complete batch commit;
+   - replace the parallel selected-gate ordinal merge with a transaction-owned
+     relation lookup/rebase API;
+   - keep the old API only until all parser callers are migrated in the same
+     series; do not add a second source authority.
+2. **R6-S2 transaction owner cutover**
+   - move `BoxMemberState` inventory, source relations, and member cursor into
+     one parser transaction owner;
+   - route ordinary direct/property/once/birth_once/member-gate producers
+     through that owner with duplicate-first/commit-once behavior;
+   - preserve generated provenance and exact explicit source sites.
+3. **R6-S2 sidecar retirement**
+   - delete `method_source_member_ordinals`, `record_new_methods_since`, and
+     length-delta reconstruction after caller-zero is proven;
+   - update focused parser/AST tests, owner READMEs, and reference receipt in
+     the same commit; all touched sources remain below 800 lines.
+
+Each cell is a behavior-preserving Refactor Series commit. No new resolver
+issuer, rich parse output, delegate postpass, or semantic callable contract
+may be smuggled into these cells. If a required transaction relation cannot
+be issued from the current parser inputs, stop at `NoSafeSlice` and add the
+missing source-ingress design instead of inferring it from names or ordinals.
+
+### R6-S2 API freeze from worker audit
+
+Before claiming the old parallel gate-merge API retired, the AST carrier must
+stop accepting a parser-owned `&[u32]` source-ordinal slice. The preferred
+bridge is a typed append/rebase boundary:
+
+```text
+source transaction:
+  consume branch inventory + transaction-owned method-row relations
+  prepend the selected-gate path to each branch row
+  prepare one complete rebased append
+
+AST inventory:
+  validate names, declaration identity, duplicate collisions, and contiguous
+  selected placement
+  commit the prepared append atomically
+```
+
+The concrete API may be named
+`PreparedBoxMethodInventoryAppendV1` with
+`BoxMethodInventoryV1::prepare_append` / `commit_prepared_append`. The AST
+crate must remain ignorant of parser brands and source-site authority. A
+consumed unpublished branch inventory may expose selected entries only to the
+source transaction; the transaction owns the source-site/path rebase. The
+existing `try_merge_selected_gate(selected, &[u32], gate_site)` API is not a
+rename target and must be removed or made unreachable before S2 closes.
+
+The transaction-side minimum is:
+
+```text
+open_for_box(brand, active_statement)
+branch()
+current_member_site() / current_gate_site()
+finish_member()
+commit_explicit_at_current(...)
+commit_generated_property_batch_at_current(...)
+prepare_selected_gate_merge(...)
+commit_selected_gate_merge(...)
+finish()
+```
+
+`BoxMemberState` retains non-method metadata and delegates, but the sole
+unpublished method/source owner becomes one `source_tx` field. No
+`&mut BoxMethodInventoryV1` crosses parser producers after the cutover.
+Top-level/interface/static parser paths and delegate AST-only postpass remain
+outside this ordinary-Rust-`box` S2 cell; if their source ingress is missing,
+the correct result is a later `NoSafeSlice`, not a guessed outer gate ordinal.
 
 ## Compatibility retirement
 
