@@ -335,11 +335,18 @@ CALLABLE-HOME-ABI-REFERENCE-COSEAL-D0/I0
   declared callable contract stores a same-declaration relation, not a second
   receiver/parameter/result demand
 
-SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0
+SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0 (design audit closed)
   non-test caller-zero or retirement of the old body-inferred target/result
   family before declaration-first instance target issuance
   Task:
   `docs/development/current/main/investigations/source-instance-result-contract-retire0-r0-task-2026-08-09.md`
+
+SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-I0 (next bounded implementation)
+  delete the caller-zero module and mod.rs edge; remove old-only rebind/
+  preloop fixtures; preserve neutral raw source-view tests; no new target
+  authority
+  Task:
+  `docs/development/current/main/investigations/source-instance-result-contract-retire0-i0-implementation-task-2026-08-09.md`
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
   complete same-brand declared-contract + body-conformance set

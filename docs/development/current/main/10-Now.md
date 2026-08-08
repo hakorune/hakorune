@@ -23,20 +23,20 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, and
-typed callable syntax carriage closeouts are closed. The next design boundary
-is:
+Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
+callable syntax carriage, and old instance-result/target design audit are
+closed. The selected bounded implementation is:
 
 ```text
-SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0
+SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-I0
 ```
 
-This boundary audits and retires or quarantines the old body-inferred
-instance-result/target family before any declaration-first target I0. The
-landed syntax slice carried parser-owned `CallableContract(query)` syntax into
-a typed DTO and rich source seal only. Resolver declaration/signature, Home
-ABI, instance targets, source-bound CallSlot relations, ScanWithInit, physical
-lowering, production selection, and legacy retirement remain unopened.
+This I0 deletes the audited caller-zero body-inferred instance-result/target
+family and preserves only neutral source-view primitives. The landed syntax
+slice carried parser-owned `CallableContract(query)` syntax into a typed DTO
+and rich source seal only. Resolver declaration/signature, Home ABI, instance
+targets, source-bound CallSlot relations, ScanWithInit, physical lowering,
+production selection, and legacy retirement remain unopened.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No
@@ -55,7 +55,7 @@ cutover. The ordered path remains:
 
 ```text
 typed syntax carriage (closed)
--> old instance-result/target disposition (design stop)
+-> old instance-result/target retirement (active bounded I0)
 -> declaration / Home ABI / target / source-bound relation
 -> S6C ScanWithInit
 -> M9 parity
