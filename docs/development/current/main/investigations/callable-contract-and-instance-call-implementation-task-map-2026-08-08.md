@@ -347,7 +347,7 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection
   no ExactTrivial*Abi/MirType reverse inference
 
-PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0 closed; I0-A design accepted and parked; I0-B/C parked)
+PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0 closed; I0-A active; I0-B/C parked)
   one total typed postpass owner for `parse`, fuel/build-config parsing,
   metadata, and explain-report projections. The private result carries AST,
   metadata, optional explain, and typed per-Box coverage:
@@ -377,8 +377,8 @@ PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0 closed; I0-A design accepted and
   `docs/development/current/main/investigations/parser-public-ast-postpass-s0-implementation-task-2026-08-09.md`
   S0 receipt:
   private total envelope/cohort coordinator is landed; public callers remain
-  unchanged. I0-A is the next implementation card, but remains parked at the
-  current design-consultation stop until its parity matrix is accepted.
+  unchanged. I0-A is the selected implementation card after the accepted
+  parity matrix and single-edge boundary.
 
 POST-CUTOVER-COMPAT-API-QUARANTINE-D0 (parked)
   after parser/Builder caller-zero and legacy retirement, move remaining

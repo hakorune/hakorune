@@ -1,8 +1,7 @@
 ---
-Status: accepted design; implementation not opened
+Status: active implementation
 Date: 2026-08-09
-Decision: switch the string/build-config AST parser family through the S0 coordinator;
-implementation remains parked at the requested design-consultation stop
+Decision: switch the string/build-config AST parser family through the S0 coordinator
 Parent: `parser-public-ast-postpass-s0-implementation-task-2026-08-09.md`
 ---
 

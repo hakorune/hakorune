@@ -365,6 +365,41 @@ The next implementation is I0-A for the string/build-config wrapper family;
 I0-B metadata/`NyashParser::parse` and I0-C full BuildGate decision-set/
 explain parity remain ordered and unopened.
 
+### I0-A design acceptance — implementation boundary (2026-08-09)
+
+I0-A is accepted as one bounded production-edge replacement. Its source
+authority is the existing parser invocation, its parser-issued source session,
+and the AST produced by that same `parse_program` call. The S0 coordinator is
+the sole postpass issuer for this edge:
+
+```text
+normalize/tokenize once
+  -> parser construction (fuel/config once)
+  -> parse_program once
+  -> open_postpass_product once
+  -> finish_total_s0(PostpassDemandV1::None)
+  -> CompletedParserPostpassV1::into_ast once
+```
+
+The only production caller replaced is
+`parse_from_string_with_fuel_and_build_config`; its three convenience wrappers
+inherit the edge. Grammar-evidence APIs, metadata, `NyashParser::parse`, and
+explain-report APIs are separate contracts and remain parked. The old
+delegate-only route is not a fallback or a second production authority; it is
+removed from the selected edge in the I0-A implementation commit.
+
+The fail-fast boundary is the existing `ParseError` family. Tokenization,
+parse, source-session/cohort, and explicit compatibility lowering errors are
+returned directly; no catch, retry, reparse, name scan, ordinal reconstruction,
+or rich-then-legacy fallback is allowed. Compatibility rows are successful AST
+transport, not a decline.
+
+I0-A acceptance is AST-shape and diagnostic-family parity for the matrix in
+the task card, with fuel assigned exactly once. It does not claim metadata,
+explain, resolver, Recipe, Builder, MIR, runtime, or remaining legacy-caller
+retirement. The implementation may proceed only in `fast` mode after this
+brief and the task card are committed.
+
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 
 The top-level build-gate boundary is a parser source-transport problem, not
