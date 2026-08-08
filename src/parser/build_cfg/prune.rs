@@ -1,6 +1,54 @@
-use crate::ast::{ASTNode, BoxMethodDeclarationTransformErrorV1};
+use crate::ast::{ASTNode, BoxMethodDeclarationTransformErrorV1, BuildPredicate, Span};
 use crate::parser::{NyashParser, ParseError};
 use std::collections::HashMap;
+
+pub(super) trait BuildGateProjectionSelector {
+    fn select(
+        &mut self,
+        predicate: &BuildPredicate,
+        span: Span,
+        has_else: bool,
+        reachable: bool,
+    ) -> Result<bool, ParseError>;
+
+    fn visit_inactive_branches(&self) -> bool;
+}
+
+struct LegacyBuildGateSelector<'a> {
+    parser: &'a NyashParser,
+}
+
+impl BuildGateProjectionSelector for LegacyBuildGateSelector<'_> {
+    fn select(
+        &mut self,
+        predicate: &BuildPredicate,
+        span: Span,
+        _has_else: bool,
+        _reachable: bool,
+    ) -> Result<bool, ParseError> {
+        self.parser.eval_build_predicate(predicate, span)
+    }
+
+    fn visit_inactive_branches(&self) -> bool {
+        false
+    }
+}
+
+pub(super) fn project_build_gate_program(
+    ast: ASTNode,
+    selector: &mut dyn BuildGateProjectionSelector,
+) -> Result<ASTNode, ParseError> {
+    let mut walker = ProjectionWalker {
+        selector,
+        emit: true,
+    };
+    walker.project_program(ast)
+}
+
+struct ProjectionWalker<'a> {
+    selector: &'a mut dyn BuildGateProjectionSelector,
+    emit: bool,
+}
 
 fn map_method_transform_error(
     error: BoxMethodDeclarationTransformErrorV1<ParseError>,
@@ -16,16 +64,24 @@ fn map_method_transform_error(
 
 impl NyashParser {
     pub(crate) fn prune_build_gate_program(&self, ast: ASTNode) -> Result<ASTNode, ParseError> {
+        let mut selector = LegacyBuildGateSelector { parser: self };
+        project_build_gate_program(ast, &mut selector)
+    }
+}
+
+impl ProjectionWalker<'_> {
+    fn project_program(&mut self, ast: ASTNode) -> Result<ASTNode, ParseError> {
         match ast {
             ASTNode::Program { statements, span } => Ok(ASTNode::Program {
                 statements: self.prune_build_gate_items(statements)?,
                 span,
             }),
-            other => Ok(other),
+            other => self.prune_build_gate_node(other),
         }
     }
 
-    fn prune_build_gate_items(&self, items: Vec<ASTNode>) -> Result<Vec<ASTNode>, ParseError> {
+    fn prune_build_gate_items(&mut self, items: Vec<ASTNode>) -> Result<Vec<ASTNode>, ParseError> {
+        let emit = self.emit;
         let mut out = Vec::new();
         for item in items {
             match item {
@@ -35,12 +91,39 @@ impl NyashParser {
                     else_items,
                     span,
                 } => {
-                    let selected = if self.eval_build_predicate(&predicate, span)? {
-                        then_items
+                    let parent_emit = self.emit;
+                    if !parent_emit && !self.selector.visit_inactive_branches() {
+                        continue;
+                    }
+                    let selected_then = self.selector.select(
+                        &predicate,
+                        span,
+                        else_items.is_some(),
+                        parent_emit,
+                    )?;
+                    self.emit = parent_emit && selected_then;
+                    let then_pruned = self.prune_build_gate_items(then_items)?;
+                    let else_pruned = if self.selector.visit_inactive_branches() {
+                        self.emit = parent_emit && !selected_then;
+                        else_items
+                            .map(|items| self.prune_build_gate_items(items))
+                            .transpose()?
+                    } else if !selected_then {
+                        self.emit = parent_emit;
+                        else_items
+                            .map(|items| self.prune_build_gate_items(items))
+                            .transpose()?
                     } else {
-                        else_items.unwrap_or_default()
+                        None
                     };
-                    out.extend(self.prune_build_gate_items(selected)?);
+                    self.emit = parent_emit;
+                    if parent_emit {
+                        if selected_then {
+                            out.extend(then_pruned);
+                        } else if let Some(else_pruned) = else_pruned {
+                            out.extend(else_pruned);
+                        }
+                    }
                 }
                 ASTNode::Program { statements, span } => {
                     out.push(ASTNode::Program {
@@ -276,10 +359,14 @@ impl NyashParser {
                 other => out.push(other),
             }
         }
-        Ok(out)
+        if emit {
+            Ok(out)
+        } else {
+            Ok(Vec::new())
+        }
     }
 
-    fn prune_build_gate_node(&self, node: ASTNode) -> Result<ASTNode, ParseError> {
+    fn prune_build_gate_node(&mut self, node: ASTNode) -> Result<ASTNode, ParseError> {
         match node {
             ASTNode::Program { statements, span } => Ok(ASTNode::Program {
                 statements: self.prune_build_gate_items(statements)?,

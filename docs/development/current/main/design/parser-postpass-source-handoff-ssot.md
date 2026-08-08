@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0/C-I0/D-D0/D-I0 closed; broad public AST postpass cutover D0 accepted, I0 parked
+Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0/C-I0/D-D0/D-I0 and I0-C projection I0 closed; broad public AST postpass cutover remains bounded
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -510,7 +510,20 @@ and unselected branches for complete coverage, emit only the selected AST,
 strengthen source selection receipts with predicate/coordinate checks, and
 derive the reachable-row v0 explain report without a second evaluator. The
 next implementation row is `PARSER-PUBLIC-AST-POSTPASS-I0-C-PROJECTION-I0`;
-until it closes, the legacy prune/explain consumers remain unchanged.
+the receipt below records its closed shared-consumer cutover.
+
+I0-C projection I0 receipt (2026-08-09): the accepted boundary is landed.
+`PreparedBuildGateDecisionSetV1` is borrowed by one parser-private structural
+projection walker. The walker validates brand, preorder coordinate, predicate,
+span, reachability, and source-record identity while traversing both selected
+and inactive branches. It emits one pruned AST, one validated top-level source
+receipt set, and the reachable-row v0 explain report. The source session keeps
+ownership of retained seals; final Box paths come from the prepared source
+seals rather than post-prune AST ordinals. `parse`, metadata, and public
+explain remain projections of the same completed postpass product, and the
+shared path contains no predicate re-evaluation, old generic prune, or retry.
+The implementation receipt is guarded by
+`tools/checks/parser_public_ast_postpass_i0_c_projection_i0_guard.sh`.
 
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 

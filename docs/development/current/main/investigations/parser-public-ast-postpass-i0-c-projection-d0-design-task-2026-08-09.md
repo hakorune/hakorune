@@ -1,4 +1,4 @@
-Status: accepted design boundary; implementation task opened separately
+Status: closed design; I0 implementation landed
 Date: 2026-08-09
 Decision: design the one-way I0-C projection from the parser-private decision set
 Parent: `parser-public-ast-postpass-i0-c-design-task-2026-08-09.md`
@@ -60,6 +60,12 @@ reference/task/README/guard update lands in the same implementation commit
 Until this design is implemented, the existing consumers remain unchanged and
 the current work mode is `design_stop`.
 
+Implementation receipt (2026-08-09): `PARSER-PUBLIC-AST-POSTPASS-I0-C-PROJECTION-I0`
+closed this boundary. The decision set is consumed by one projection walker;
+prune, source-path survival, and explain capture now share its rows. The old
+shared evaluator/cursor path is no longer used. The implementation keeps
+member-level gates and grammar evidence outside this row.
+
 ## Accepted projection architecture
 
 The decision set is the sole predicate truth, but it is not moved separately
@@ -71,13 +77,15 @@ The walker emits one aggregate:
 BuildGateProjectionOutputV1
   pruned AST
   top-level BuildGateSelectionReceiptV1[]
-  retained SourceBoxDeclarationPathV1[]
   optional v0 BuildGateExplainReport
   complete-consumption receipt
 ```
 
-The aggregate is then consumed by the existing source-session prune and the
-existing delegate/final-seal path. The decision set is dropped only after all
+The aggregate is consumed by the existing source-session prune. Retained Box
+paths are then read from the prepared source seals, which remain the source
+identity authority; the projection never derives them from final AST ordinals.
+The existing delegate/final-seal path then consumes the same prepared source
+session. The decision set is dropped only after all
 requested projections have succeeded; no consumer clones it or re-evaluates a
 predicate.
 

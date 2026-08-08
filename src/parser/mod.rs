@@ -44,6 +44,7 @@ mod runes;
 mod source_authority;
 mod source_gate_ledger;
 mod source_gate_prune;
+mod source_gate_receipt;
 mod source_path;
 mod source_seal;
 mod source_seal_finalizer;
@@ -289,9 +290,16 @@ impl NyashParser {
     pub(super) fn parse_postpass_s0(
         &mut self,
     ) -> Result<postpass_envelope::CompletedParserPostpassV1, ParseError> {
+        self.parse_postpass_with_demand(postpass_envelope::PostpassDemandV1::default())
+    }
+
+    pub(super) fn parse_postpass_with_demand(
+        &mut self,
+        demand: postpass_envelope::PostpassDemandV1,
+    ) -> Result<postpass_envelope::CompletedParserPostpassV1, ParseError> {
         let ast = self.parse_program()?;
         let product = self.open_postpass_product(ast)?;
-        product.finish_total_s0(self, postpass_envelope::PostpassDemandV1::default())
+        product.finish_total_s0(self, demand)
     }
 
     /// Bounded AST-only projection for the same direct ordinary-Box rich
@@ -371,33 +379,7 @@ impl NyashParser {
         fuel: Option<usize>,
         build_config: ParserBuildConfig,
     ) -> Result<(ASTNode, BuildGateExplainReport), ParseError> {
-        let input_s: String = input.into();
-        let pre = normalize_logical_ops(&input_s);
-        let mut tokenizer = crate::tokenizer::NyashTokenizer::with_grammar_profile(
-            pre,
-            build_config.grammar_profile,
-        );
-        let tokens = tokenizer.tokenize()?;
-
-        for tok in &tokens {
-            if let TokenType::IDENTIFIER(name) = &tok.token_type {
-                if name == "self" {
-                    return Err(ParseError::UnsupportedIdentifier {
-                        name: name.clone(),
-                        line: tok.line,
-                    });
-                }
-            }
-        }
-
-        let mut parser = Self::new(tokens);
-        parser.debug_fuel = fuel;
-        parser.build_config = build_config;
-        let ast = parser.parse_program()?;
-        let report = parser.explain_build_gate_program(&ast)?;
-        let ast = parser.prune_build_gate_program(ast)?;
-        let ast = delegate_lowering::lower_delegate_exposes(ast)?;
-        Ok((ast, report))
+        string_postpass_entry::parse_with_explain(input.into(), fuel, build_config)
     }
 
     /// 文字列からパースし、デバッグ燃料と metadata sidecar を返す。

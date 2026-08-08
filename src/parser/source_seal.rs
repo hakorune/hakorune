@@ -12,26 +12,19 @@ use crate::ast::{
 use crate::parser::ParserMetadata;
 
 use super::build_cfg::decision_set::PreparedBuildGateDecisionSetV1;
+use super::build_cfg::project_build_gates;
 use super::delegate_source_relation::GeneratedDelegateSourceRelationV1;
 use super::source_authority::{
     DelegateSourceDeclarationV1, MethodSourceRelationV1, ParserInvocationBrandV1,
     SourceBoxDeclarationSiteV1,
 };
 use super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
+use super::source_gate_receipt::BuildGateSelectionReceiptV1;
 use super::source_path::{
-    SourceBoxDeclarationPathV1, SourceBoxPathSegmentV1, SourceBuildGateBranchV1,
-    SourceBuildGatePathV1,
+    SourceBoxDeclarationPathV1, SourceBoxPathSegmentV1, SourceBuildGatePathV1,
 };
 use super::source_seal_finalizer::GeneratedDelegateCoverageErrorV1;
 use super::NyashParser;
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) struct BuildGateSelectionReceiptV1 {
-    brand: ParserInvocationBrandV1,
-    gate_id: super::source_authority::SourceBuildGateIdV1,
-    gate_path: SourceBuildGatePathV1,
-    selected_branch: SourceBuildGateBranchV1,
-}
 
 #[cfg(test)]
 #[path = "source_seal_delegate_tests.rs"]
@@ -44,20 +37,6 @@ mod source_seal_misc_tests;
 #[cfg(test)]
 #[path = "source_seal_finalizer_tests.rs"]
 mod source_seal_finalizer_tests;
-
-impl BuildGateSelectionReceiptV1 {
-    pub(super) fn issue(
-        record: &PreparedBuildGateSourceRecordV1,
-        selected_branch: SourceBuildGateBranchV1,
-    ) -> Self {
-        Self {
-            brand: record.brand.clone(),
-            gate_id: record.gate_id,
-            gate_path: record.gate_path.clone(),
-            selected_branch,
-        }
-    }
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) enum SourceSealFinalizationErrorV1 {
@@ -177,6 +156,7 @@ pub(super) struct OpenParserPostpassProductV1 {
     pub(super) source_session: ParserSourceSessionV1,
     pub(super) final_box_paths: Vec<SourceBoxDeclarationPathV1>,
     pub(super) build_gate_decision_set: PreparedBuildGateDecisionSetV1,
+    pub(super) explain: Option<super::BuildGateExplainReport>,
     metadata: ParserMetadata,
 }
 
@@ -192,8 +172,17 @@ pub(super) struct ParserSourceSessionV1 {
 
 #[derive(Debug)]
 pub(super) struct PreparedParserSourcePruneV1 {
-    prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
-    selection_receipts: Vec<BuildGateSelectionReceiptV1>,
+    pub(super) prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+    pub(super) selection_receipts: Vec<BuildGateSelectionReceiptV1>,
+}
+
+impl PreparedParserSourcePruneV1 {
+    pub(super) fn retained_box_paths(&self) -> Vec<SourceBoxDeclarationPathV1> {
+        self.prepared_source_seals
+            .iter()
+            .map(|seal| seal.box_site.path().clone())
+            .collect()
+    }
 }
 
 impl ParserSourceSessionV1 {
@@ -300,6 +289,9 @@ fn validate_gate_receipts(
             if receipt.brand != record.brand {
                 return Err("foreign parser brand in build-gate receipt".to_owned());
             }
+            if receipt.predicate != record.predicate {
+                return Err("build-gate receipt predicate disagrees with source record".to_owned());
+            }
         } else {
             return Err("missing build-gate selection receipt".to_owned());
         }
@@ -345,7 +337,10 @@ fn source_seal_survives(
             .iter()
             .find(|receipt| receipt.gate_id == *gate_id && receipt.gate_path == gate_path)
             .ok_or_else(|| "Box source seal has no build-gate selection receipt".to_owned())?;
-        if receipt.brand != record.brand || receipt.selected_branch != *branch {
+        if receipt.brand != record.brand
+            || receipt.predicate != record.predicate
+            || receipt.selected_branch != *branch
+        {
             return Ok(false);
         }
     }
@@ -372,6 +367,7 @@ impl OpenParserPostpassProductV1 {
             ),
             final_box_paths: Vec::new(),
             build_gate_decision_set,
+            explain: None,
             metadata,
         }
     }
@@ -380,33 +376,40 @@ impl OpenParserPostpassProductV1 {
         self,
         parser: &NyashParser,
     ) -> Result<Self, crate::parser::ParseError> {
+        self.prune_build_gates_with_explain(parser, false)
+    }
+
+    pub(super) fn prune_build_gates_with_explain(
+        self,
+        parser: &NyashParser,
+        capture_explain: bool,
+    ) -> Result<Self, crate::parser::ParseError> {
         let Self {
             ast,
             source_session,
             final_box_paths: _,
             build_gate_decision_set,
+            explain: _,
             metadata,
         } = self;
-        let pruned = super::source_gate_prune::prune_top_level_gate_program(
+        let projection = project_build_gates(
             parser,
             ast,
+            &build_gate_decision_set,
             source_session.gate_records(),
+            capture_explain,
         )?;
-        let super::source_gate_prune::GatePruneOutputV1 {
-            ast,
-            receipts,
-            final_box_paths,
-        } = pruned;
-        let ast = parser.prune_build_gate_program(ast)?;
         let prepared = source_session
-            .prepare_prune(&receipts)
+            .prepare_prune(&projection.receipts)
             .map_err(source_prune_error)?;
+        let final_box_paths = prepared.retained_box_paths();
         let source_session = source_session.commit_prune(prepared);
         Ok(Self {
-            ast,
+            ast: projection.ast,
             source_session,
             final_box_paths,
             build_gate_decision_set,
+            explain: projection.explain,
             metadata,
         })
     }
@@ -454,16 +457,14 @@ impl OpenParserPostpassProductV1 {
         demand: super::postpass_envelope::PostpassDemandV1,
     ) -> Result<super::postpass_envelope::CompletedParserPostpassV1, crate::parser::ParseError>
     {
-        if matches!(
-            demand.explain,
-            super::postpass_envelope::ExplainDemandV1::Capture
-        ) {
-            return Err(
-                super::postpass_envelope::ParserPostpassEnvelopeErrorV1::ExplainDecisionSetNotReady
-                    .into_parse_error(),
-            );
-        }
-        let product = self.prune_build_gates(parser)?;
+        let product = self.prune_build_gates_with_explain(
+            parser,
+            matches!(
+                demand.explain,
+                super::postpass_envelope::ExplainDemandV1::Capture
+            ),
+        )?;
+        let explain = product.explain.clone();
         let cohort = super::postpass_envelope::classify_program(&product.ast);
         if matches!(
             cohort,
@@ -471,15 +472,17 @@ impl OpenParserPostpassProductV1 {
         ) {
             let sealed = product.lower_delegates()?.finalize().map_err(map_error)?;
             return super::postpass_envelope::CompletedParserPostpassV1::from_source_product(
-                sealed, None,
+                sealed, explain,
             )
             .map_err(|error| error.into_parse_error());
         }
 
         let (ast, metadata) = product.into_compatibility_parts();
         let ast = super::postpass_compatibility::lower(ast)?;
-        super::postpass_envelope::CompletedParserPostpassV1::from_compatibility(ast, metadata, None)
-            .map_err(|error| error.into_parse_error())
+        super::postpass_envelope::CompletedParserPostpassV1::from_compatibility(
+            ast, metadata, explain,
+        )
+        .map_err(|error| error.into_parse_error())
     }
 
     fn into_compatibility_parts(self) -> (ASTNode, ParserMetadata) {

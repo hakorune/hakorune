@@ -259,14 +259,14 @@ I0-C-S0 implementation receipt (2026-08-09): parser-private decision-set
 issuance is landed and does not change the public language surface. Every
 postpass-visible AST gate is aligned with one parser-issued observation; nested
 predicate configuration is validated even under inactive branches, and each
-top-level predicate is evaluated once. Prune, source-path, and explain remain
-unopened projections for the next design row.
+top-level predicate is evaluated once.
 
-Projection D0 is now accepted: the shared decision set will be consumed by
-one parser-private structural walker, with inactive rows retained only for
-coverage/diagnostics and the v0 explain counters derived from reachable rows.
-The public explain/prune/source-path cutover is still a separate implementation
-row; no language surface or member-level gate rule changes here.
+Projection I0 receipt (2026-08-09): one parser-private structural walker now
+consumes the shared decision set for prune, top-level source-path survival, and
+explain capture. It validates brand, coordinate, predicate/span, reachability,
+and source-record identity; traverses inactive branches for coverage; and never
+re-evaluates a predicate. The public explain wrapper uses the same postpass
+coordinator. No language surface or member-level gate rule changes here.
 
 ## Explain Report
 

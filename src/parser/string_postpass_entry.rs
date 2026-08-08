@@ -6,6 +6,7 @@
 use crate::ast::ASTNode;
 use crate::tokenizer::{NyashTokenizer, TokenType};
 
+use super::postpass_envelope::{ExplainDemandV1, PostpassDemandV1};
 use super::ParserMetadata;
 use super::{normalize_logical_ops, NyashParser, ParseError, ParserBuildConfig};
 
@@ -29,6 +30,28 @@ pub(super) fn parse(
 
 pub(super) fn parse_existing(parser: &mut NyashParser) -> Result<ASTNode, ParseError> {
     Ok(parser.parse_postpass_s0()?.into_ast())
+}
+
+pub(super) fn parse_with_explain(
+    input: String,
+    fuel: Option<usize>,
+    build_config: ParserBuildConfig,
+) -> Result<(ASTNode, super::BuildGateExplainReport), ParseError> {
+    let preprocessed = normalize_logical_ops(&input);
+    let mut tokenizer =
+        NyashTokenizer::with_grammar_profile(preprocessed, build_config.grammar_profile);
+    let tokens = tokenizer.tokenize()?;
+    reject_unsupported_self_identifier(&tokens)?;
+
+    let mut parser = NyashParser::new(tokens);
+    parser.debug_fuel = fuel;
+    parser.build_config = build_config;
+    parser
+        .parse_postpass_with_demand(PostpassDemandV1 {
+            explain: ExplainDemandV1::Capture,
+        })?
+        .into_ast_and_explain()
+        .map_err(|error| error.into_parse_error())
 }
 
 pub(super) fn parse_with_metadata(

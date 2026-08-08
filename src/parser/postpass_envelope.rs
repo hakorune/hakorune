@@ -157,6 +157,14 @@ impl CompletedParserPostpassV1 {
         self.ast
     }
 
+    pub(super) fn into_ast_and_explain(
+        self,
+    ) -> Result<(ASTNode, BuildGateExplainReport), ParserPostpassEnvelopeErrorV1> {
+        let Self { ast, explain, .. } = self;
+        let explain = explain.ok_or(ParserPostpassEnvelopeErrorV1::ExplainDecisionSetNotReady)?;
+        Ok((ast, explain))
+    }
+
     pub(super) fn into_ast_and_metadata(self) -> (ASTNode, ParserMetadata) {
         // This is the sole consuming pair projection. Metadata is moved from
         // the completed product; it is never reconstructed from AST nodes.
@@ -409,17 +417,15 @@ mod tests {
     }
 
     #[test]
-    fn s0_explain_capture_stops_before_partial_postpass() {
-        let error = finish_s0(
+    fn s0_explain_capture_uses_shared_projection() {
+        let envelope = finish_s0(
             "box Plain {}\n",
             PostpassDemandV1 {
                 explain: ExplainDemandV1::Capture,
             },
         )
-        .unwrap_err();
-        assert!(matches!(
-            error,
-            ParseError::BuildCfg { message, .. } if message.contains("decision set")
-        ));
+        .unwrap();
+        let report = envelope.explain().expect("shared projection report");
+        assert_eq!(report.conditional_group_count, 0);
     }
 }

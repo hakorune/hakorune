@@ -117,7 +117,7 @@ callers use `into_ast()`. No caller reparses, retakes metadata, or reconstructs
 it from AST nodes. Explain/full BuildGate decision-set parity remains parked
 for I0-C.
 
-## I0-C BuildGate decision-set — S0 closed, projection parked
+## I0-C BuildGate decision-set and projection — closed
 
 The postpass-visible AST `BuildGate` family will use one parser-private
 `PreparedBuildGateDecisionSetV1`. Parser-issued observations cover every AST
@@ -140,12 +140,12 @@ the non-Clone `PreparedBuildGateDecisionSetV1` from parser-owned observations.
 It aligns every postpass-visible AST gate, validates nested predicate
 configuration even in inactive subtrees, evaluates each top-level predicate
 once, and records selected branch plus reachability. Focused I0-C tests and
-the existing 12-case BuildCfg regression gate are green. Prune, source-path,
-and explain projection remain a separate design-stop; no public consumer has
-been switched.
+the existing 12-case BuildCfg regression gate are green.
 
-Projection D0 receipt (2026-08-09): the next implementation row is a single
-private structural walker that borrows the non-Clone decision set and emits
-pruned AST, validated source selection receipts, retained paths, and the v0
-explain report. The old evaluator/generic-prune route remains unopened until
-that bounded I0 slice is implemented.
+Projection I0 receipt (2026-08-09): `build_cfg/projection.rs` is now the one
+shared structural walker. It borrows the decision set, traverses selected and
+inactive branches for complete coverage, emits only the selected AST, and
+produces validated source receipts plus reachable-row v0 explain output.
+`source_seal.rs` consumes this aggregate and derives retained Box paths from
+prepared source seals; the old evaluator/generic-prune path is not used by the
+shared postpass. Public explain uses the same completed postpass product.

@@ -81,9 +81,9 @@ if not any(
     raise SystemExit("CURRENT_STATE must point to the cutover design/S0/I0-A/I0-B boundary")
 if not any(
     token in state
-    for token in ('work_mode = "design_stop"', 'work_mode = "fast"')
+    for token in ('work_mode = "design_stop"', 'work_mode = "fast"', 'work_mode = "closeout"')
 ):
-    raise SystemExit("CURRENT_STATE must route the cutover design/S0 boundary")
+    raise SystemExit("CURRENT_STATE must route the cutover design/S0/closeout boundary")
 if "parse_postpass_s0" not in mod or "parse_existing" not in entry:
     raise SystemExit("I0-B must use the shared parser postpass entry")
 if "into_ast_and_metadata" not in envelope:

@@ -9,8 +9,8 @@ use crate::ast::{ASTNode, Span};
 
 use super::source_authority::SourceBuildGateBranchV1;
 use super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
+use super::source_gate_receipt::BuildGateSelectionReceiptV1;
 use super::source_path::{SourceBoxDeclarationPathV1, SourceBuildGatePathV1};
-use super::source_seal::BuildGateSelectionReceiptV1;
 use super::{NyashParser, ParseError};
 
 struct GateCursor<'a> {
@@ -69,8 +69,17 @@ impl<'a> GateCursor<'a> {
         } else {
             SourceBuildGateBranchV1::Else
         };
+        let decision_coordinate = u32::try_from(self.next).map_err(|_| ParseError::BuildCfg {
+            message: "build-gate decision coordinate exceeds u32".to_owned(),
+            line: span.line,
+        })?;
         self.receipts
-            .push(BuildGateSelectionReceiptV1::issue(record, branch));
+            .push(BuildGateSelectionReceiptV1::issue_from_decision(
+                record,
+                decision_coordinate,
+                predicate,
+                branch,
+            ));
         self.next += 1;
         Ok((record.gate_id, branch))
     }

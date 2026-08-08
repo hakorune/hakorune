@@ -395,11 +395,12 @@ PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A/I0-B closed; I0-C parked)
   Prune/source-path/explain projection remains the next design-stop and no
   public consumer is switched.
 
-  I0-C projection D0 is accepted. The next bounded row is
-  `PARSER-PUBLIC-AST-POSTPASS-I0-C-PROJECTION-I0`: one private structural
-  walker will derive pruned AST, source receipts, retained paths, and the v0
-  explain report from the shared decision set. No old evaluator or generic
-  prune path may remain on the shared postpass edge.
+  I0-C projection D0 and its bounded implementation are closed. One private
+  structural walker now derives pruned AST, validated source receipts,
+  retained paths, and the v0 explain report from the shared decision set. The
+  public explain entry uses the same postpass coordinator; no old evaluator or
+  generic prune path remains on the shared postpass edge. The next decision is
+  the separately bounded `PARSER-PUBLIC-AST-POSTPASS-FINAL` cutover design.
 
 PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0 (parked baseline debt)
   The existing nested selected-else source-path fixture fails on parent

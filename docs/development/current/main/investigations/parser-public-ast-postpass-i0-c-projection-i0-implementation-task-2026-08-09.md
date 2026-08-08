@@ -1,4 +1,4 @@
-Status: accepted implementation boundary; implementation not opened
+Status: closed
 Date: 2026-08-09
 Decision: implement the one-way I0-C projection from the shared decision set
 Parent: `parser-public-ast-postpass-i0-c-projection-d0-design-task-2026-08-09.md`
@@ -11,8 +11,10 @@ Implement one parser-private projection walker for all postpass-visible AST
 `BuildGate` rows. The walker consumes the already-issued
 `PreparedBuildGateDecisionSetV1` by borrow, never calls
 `eval_build_predicate`, and returns one aggregate containing the pruned AST,
-validated top-level selection receipts, retained source paths, and optional
-v0 explain output.
+validated top-level selection receipts, and optional v0 explain output.
+Retained Box paths are derived from the prepared source seals immediately after
+the receipt aggregate is validated; the projection never derives identity from
+post-prune AST ordinals.
 
 This is a parser postpass slice only. It does not open resolver, Recipe,
 Builder, MIR, runtime, member-level gate semantics, grammar evidence, or
@@ -94,6 +96,19 @@ no production selection or legacy deletion
 ```
 
 ## Closeout
+
+Implementation receipt (2026-08-09): the shared projection is landed. One
+borrowed `PreparedBuildGateDecisionSetV1` drives a single structural walker;
+the walker emits the pruned AST, validated top-level source receipts, and the
+reachable-row explain report. The public explain entry now consumes the same
+postpass coordinator. `source_seal.rs` no longer calls the old source-gate
+cursor or generic evaluator/prune path. The focused BuildCfg, source-seal,
+postpass-envelope, and explain tests are green; the known nested member-gate
+baseline remains separate. The static receipt guard is
+`tools/checks/parser_public_ast_postpass_i0_c_projection_i0_guard.sh`.
+The implementation is represented by `BuildGateProjectionOutputV1` and the
+focused `build_cfg/projection_tests.rs` slice; the
+projection contains no `eval_build_predicate` call and no old generic prune.
 
 The implementation commit must update this task, the projection D0 card,
 `src/parser/README.md`, `docs/reference/language/build-conditional-gate.md`,
