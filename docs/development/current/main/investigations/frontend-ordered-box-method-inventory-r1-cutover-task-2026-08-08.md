@@ -1,5 +1,5 @@
 ---
-Status: queued — opens only after R0A authority correction
+Status: active implementation row — R0A authority correction closed
 Date: 2026-08-08
 Decision: replace the AST field and compile consumers without claiming source authority
 Parent: `frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md`

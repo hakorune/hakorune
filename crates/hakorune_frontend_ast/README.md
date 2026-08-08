@@ -5,13 +5,13 @@ on resolver, MIR, runtime, provider, backend, environment, or route policy.
 
 ## Ordered Box-method inventory
 
-`BoxMethodInventoryV1` is the target sole authority for Box method order,
-provenance, Box-local declaration site, diagnostic span, and exact-name
-lookup.
+`BoxMethodInventoryV1` is the canonical ordered AST carrier for Box methods.
+It owns selected-declaration order, descriptive provenance, Box-local ordinal,
+diagnostic span, and exact-name lookup. It is not a resolver source authority.
 
 ```text
 ordered entries
-  = source/selected order authority
+  = selected-declaration carrier order
 
 private name index
   = derived lookup only
@@ -20,10 +20,14 @@ iter_compat_name_order
   = explicit legacy execution-order projection only
 ```
 
-The model exposes no HashMap, unordered iterator, `insert`, `extend`, or
-`Deref<HashMap>`. Direct source ordinals are issued by the inventory.
+The model exposes no HashMap, unordered iterator, arbitrary mutable AST borrow,
+`insert`, `extend`, or `Deref<HashMap>`. Selected ordinals are issued by the inventory.
 Compatibility imports are explicitly `CompatibilityOnly` and can never back a
 resolver source contract.
+
+Raw `ExplicitSource` provenance is also descriptive. A later parser-owned seal
+must prove complete parsing, duplicate freedom, selected Box membership, and
+exact source identity before lending resolver-grade rows.
 
 Current status: the passive model and focused tests are landed; connection to
 `ASTNode::BoxDeclaration.methods` is the immediate next Refactor Series cell.
@@ -35,7 +39,7 @@ has production consumers zero.
 - parser: may issue explicit/generated rows through typed methods;
 - build-gate parser: may merge an unpublished selected inventory only through
   atomic preflight/commit;
-- resolver: may later consume only explicit source rows in source order;
+- resolver: may later consume only rows lent by the parser-owned seal;
 - Builder/JSON compatibility: may use exact lookup or explicitly named
   compatibility projections, never claim source order;
 - tests: may construct compatibility rows, but may not forge explicit source

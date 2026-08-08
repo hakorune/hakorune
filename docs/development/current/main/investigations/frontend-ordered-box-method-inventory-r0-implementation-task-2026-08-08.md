@@ -42,10 +42,9 @@ the frontend AST crate.
 
 ```text
 empty()
-iter_source_order()
+iter_selected_declaration_order()
 get(name)
-get_mut_preserving_identity(name)
-into_source_order()
+into_selected_declaration_order()
 try_push(entry)
 try_merge_selected_gate(selected, gate_site)
 try_from_compatibility_entries(entries, origin)
@@ -65,7 +64,7 @@ keeps branch origin and rebases selected ordinals only after full preflight.
 ```text
 direct rows retain insertion order and receive 0..N selected ordinals
 duplicate direct name rejects without mutation
-get and get_mut preserve entry identity
+immutable get preserves entry identity; arbitrary mutable AST borrow is absent
 compat iteration is deterministic name order but does not mutate source order
 selected-gate merge retains the outer-to-inner nested branch path and rebases once
 selected-gate collision rejects with destination unchanged

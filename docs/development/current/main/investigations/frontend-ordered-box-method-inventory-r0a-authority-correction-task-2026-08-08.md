@@ -1,5 +1,5 @@
 ---
-Status: active BoxShape correction — required before R1
+Status: closed — authority/API correction implemented and verified
 Date: 2026-08-08
 Decision: raw inventory is an ordered AST carrier, never a resolver source capability
 Parent: `frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md`
@@ -68,3 +68,17 @@ bash tools/checks/current_state_pointer_guard.sh
 
 Update the frontend AST README, D0 task, and landed reference/task receipt in
 the same commit. All files remain below 800 lines. R1 opens only after R0A.
+
+## Implementation receipt
+
+```text
+iter_source_order: removed
+iter_selected_declaration_order: landed
+into_source_order: removed
+into_selected_declaration_order: landed
+arbitrary &mut ASTNode lookup: removed
+raw ExplicitSource resolver authority: 0
+focused tests: 7 passed
+cargo check: passed with repository-baseline warnings
+production AST field consumers: 0 (R1)
+```

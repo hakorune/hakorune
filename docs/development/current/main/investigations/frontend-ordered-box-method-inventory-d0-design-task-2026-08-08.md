@@ -100,7 +100,7 @@ Allowed API:
 ```text
 iter_selected_declaration_order()
 get(name)
-into_source_order()
+into_selected_declaration_order()
 try_push(parser-issued entry)
 try_merge_selected_gate(unpublished selected inventory, gate site)
 try_from_compatibility_entries(entries, compatibility origin)

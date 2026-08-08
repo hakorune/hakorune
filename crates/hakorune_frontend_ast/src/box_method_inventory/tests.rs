@@ -31,7 +31,7 @@ fn direct_rows_keep_source_order_and_issue_ordinals() {
     assert_eq!(alpha.selected_method_ordinal(), 1);
     assert_eq!(
         inventory
-            .iter_source_order()
+            .iter_selected_declaration_order()
             .map(BoxMethodEntryV1::name)
             .collect::<Vec<_>>(),
         vec!["zeta", "alpha"]
@@ -64,30 +64,18 @@ fn duplicate_rejects_without_mutation() {
 }
 
 #[test]
-fn mutable_lookup_preserves_identity() {
+fn immutable_lookup_preserves_identity() {
     let mut inventory = BoxMethodInventoryV1::empty();
     let site = inventory
         .try_push_explicit_source("run", function("run"), Span::new(5, 8, 3, 2))
         .unwrap();
-    let before = inventory.get("run").unwrap().provenance().clone();
-
-    let ASTNode::FunctionDeclaration { body, .. } = inventory
-        .get_mut_preserving_identity("run")
-        .expect("method must exist")
-    else {
-        panic!("method must remain a function declaration")
-    };
-    body.push(ASTNode::Return {
-        value: Some(Box::new(ASTNode::Literal {
-            value: crate::LiteralValue::Integer(1),
-            span: Span::unknown(),
-        })),
-        span: Span::unknown(),
-    });
-
-    let after = inventory.get("run").unwrap();
-    assert_eq!(after.site(), site);
-    assert_eq!(after.provenance(), &before);
+    let entry = inventory.get("run").expect("method must exist");
+    assert_eq!(entry.site(), site);
+    assert_eq!(entry.name(), "run");
+    assert!(matches!(
+        entry.declaration(),
+        ASTNode::FunctionDeclaration { name, .. } if name == "run"
+    ));
 }
 
 #[test]
@@ -201,12 +189,12 @@ fn compatibility_batch_is_atomic_and_never_source_authority() {
     .unwrap();
     assert_eq!(
         inventory
-            .iter_source_order()
+            .iter_selected_declaration_order()
             .map(BoxMethodEntryV1::name)
             .collect::<Vec<_>>(),
         vec!["zeta", "alpha"]
     );
     assert!(inventory
-        .iter_source_order()
+        .iter_selected_declaration_order()
         .all(|entry| entry.provenance().explicit_source_selection().is_none()));
 }

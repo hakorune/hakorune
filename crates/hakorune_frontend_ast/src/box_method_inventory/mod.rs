@@ -1,7 +1,9 @@
 //! Ordered Box-method source inventory.
 //!
-//! This model owns lexical/selected method order and a private lookup index.
-//! It does not resolve names, types, callable contracts, or physical routes.
+//! This model owns selected-declaration order and a private lookup index.
+//! Provenance is descriptive: only a later parser-owned seal may authorize a
+//! resolver source row. This crate does not resolve names, types, callable
+//! contracts, or physical routes.
 
 mod error;
 
@@ -190,7 +192,9 @@ impl BoxMethodInventoryV1 {
         self.entries.is_empty()
     }
 
-    pub fn iter_source_order(&self) -> impl ExactSizeIterator<Item = &BoxMethodEntryV1> {
+    pub fn iter_selected_declaration_order(
+        &self,
+    ) -> impl ExactSizeIterator<Item = &BoxMethodEntryV1> {
         self.entries.iter()
     }
 
@@ -204,15 +208,15 @@ impl BoxMethodInventoryV1 {
         self.lookup.get(name).map(|index| &self.entries[*index])
     }
 
-    pub fn get_mut_preserving_identity(&mut self, name: &str) -> Option<&mut ASTNode> {
-        let index = *self.lookup.get(name)?;
-        Some(&mut self.entries[index].declaration)
-    }
-
-    pub fn into_source_order(self) -> Vec<BoxMethodEntryV1> {
+    pub fn into_selected_declaration_order(self) -> Vec<BoxMethodEntryV1> {
         self.entries
     }
 
+    /// Adds descriptive explicit-source provenance to the raw AST carrier.
+    ///
+    /// This does not issue a resolver capability. A future parser-owned seal
+    /// must prove complete parsing, selected membership, and exact source
+    /// identity before a row may cross into resolved semantics.
     pub fn try_push_explicit_source(
         &mut self,
         name: impl Into<Box<str>>,
