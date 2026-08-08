@@ -77,7 +77,7 @@ they never select it. All restart mirrors and guards must follow this field.
 | Mode | Entry condition | Allowed work | Exit evidence |
 | --- | --- | --- | --- |
 | Fast path | source-to-Recipe mapping, owner, and failure boundary are already closed | one existing owner, one focused gate, no new authority | positive/negative evidence and the row's closeout receipt |
-| Design stop | any mapping, selector, authority, or failure owner is still being discovered | one compact design brief; no code, fixture, fallback, or production switch | accepted Decision plus one bounded next slice |
+| Design stop | any mapping, selector, authority, failure owner, or canonical issuer is still being discovered | one compact design brief; no code, fixture, fallback, production switch, or guessed `Verified*`/`Prepared*` receipt | accepted Decision plus one bounded next slice |
 | Closeout | the selected slice has been edited and tested | classify evidence, update owning docs, commit/push or retain blocker | all Done items observable; otherwise the row remains active |
 
 The readiness sentence is:
@@ -111,7 +111,7 @@ Use this compact brief when stopping:
 
 ```text
 Decision:
-Source authority:
+Source authority + canonical issuer:
 Non-authority:
 Fail-fast boundary:
 Smallest next slice:
@@ -123,6 +123,24 @@ are accepted in the owning card/SSOT. If a schema or operation vocabulary is
 missing, record `NoSafeSlice` as a development state; do not force it into
 `Candidate`/`Declined`/`Unresolved`/`Rejected` and do not publish guessed Recipe
 counts.
+
+### Source-backed receipt gate
+
+Before adding any new semantic `Verified*` or `Prepared*` product, the brief
+must name both the source authority and its canonical issuer. The issuer must
+consume resolver/source capability and issue the receipt from that authority;
+lexical receiver presence, names, body inference, physical MIR facts, or an
+empty/default enum are not issuers. If any required Home, effect, lifecycle,
+receiver-type, or ABI receipt has no issuer, keep the row at `NoSafeSlice` and
+do not create a guessed product.
+
+An aggregate may co-seal existing receipts, but may not invent a new semantic
+fact while aggregating. Semantic `Pure`, Home, effect, suspension/control, and
+ABI receipts must not reuse MIR `EffectMask`/`FunctionSignature` as their
+authority. `NoSafeSlice` is a development state; `Candidate`, `Declined`,
+`Unresolved`, and `Rejected` remain source dispositions. A parked I0 must say
+whether its next slice is (a) the missing issuer design/implementation or (b)
+an explicit park; it may not cross the boundary with a test-only constructor.
 
 ### Compact router
 
@@ -207,6 +225,10 @@ Workers are a bounded review resource, not a second implementation stream.
 - The worker receives a read-only question covering source authority,
   non-authority, candidate boundary, fail-fast owner, explicit non-claims, and
   acceptance evidence. It must not edit the same files as the primary agent.
+- For a new semantic receipt, the worker must also audit issuer availability
+  and distinguish semantic facts from physical MIR projections. A worker may
+  report that an issuer is missing, but that report never authorizes a guessed
+  receipt or implementation.
 - The primary agent distills the report into one Decision in the existing card
   or owning SSOT. Do not copy the full report into a new task. Conflicting
   reports keep the design stop active until one premise audit resolves them.

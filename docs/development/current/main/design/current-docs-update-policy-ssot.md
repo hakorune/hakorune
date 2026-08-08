@@ -92,6 +92,24 @@ not classifiers. A worker review, local test, or legacy parity result is
 evidence for the mode decision, not permission to cross it. This prevents a
 small green probe from silently becoming a production claim.
 
+### Source-backed semantic receipt gate
+
+When a row proposes a new `Verified*` or `Prepared*` semantic product, its
+design brief must name the source authority and the canonical issuer before
+implementation. If a required receiver/Home, effect, lifecycle,
+suspension/control, or ABI receipt has no source-backed issuer, the row stays
+in `design_stop` as `NoSafeSlice`; do not fill the gap with an empty/default
+receipt, body inference, a name lookup, or a physical MIR projection.
+
+Aggregates may co-seal receipts already issued by their owners, but they may
+not become a second semantic authority. In particular, language-semantic
+`Pure`/Home/effect/ABI facts do not use MIR `EffectMask` or
+`FunctionSignature` as their source of truth. `NoSafeSlice` is a development
+state, not a `Candidate`/`Declined`/`Unresolved`/`Rejected` disposition. A
+parked I0 must explicitly choose either the missing issuer slice or an
+intentional park, and implementation slices must update the affected module
+README and `docs/reference/**` in the same closeout.
+
 Per-card mandatory docs updates are limited to:
 
 1. `CURRENT_STATE.toml`

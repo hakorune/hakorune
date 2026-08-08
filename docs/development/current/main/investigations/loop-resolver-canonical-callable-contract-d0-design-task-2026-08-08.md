@@ -1,7 +1,8 @@
 ---
-Status: design stop — contract-owner prerequisite
+Status: design stop — bounded profile defined, source issuers missing
 Date: 2026-08-08
-Decision: accepted boundary; implementation is not open
+Decision: accepted boundary; exact-trivial I0 remains NoSafeSlice until every
+source-backed sub-receipt issuer exists
 Parent: `loop-resolver-instance-call-target-d0-design-task-2026-08-08.md`
 ---
 
@@ -69,6 +70,45 @@ Before the target I0 row, the source surface must therefore provide an exact
 Box/instance declaration inventory and the semantic sub-contract issuers. If
 that source inventory or any required issuer is missing, the correct result is
 another named design stop, not a test-only constructor or a FreeStatic alias.
+
+## Bounded first profile (definition only)
+
+The first profile is deliberately narrow, but its shape alone does not
+authorize an implementation. It may issue only source-backed receipts for:
+
+```text
+receiver:
+  NoHomeHandle(exact receiver type identity; no consume/escape)
+parameters/result:
+  ExactTrivialScalarAbiV1 (currently I64 only)
+semantic effect:
+  Pure (no Mut/Io/Alloc/Panic/Global/FFI)
+suspension/control:
+  NonSuspending + NonControl
+call representation:
+  ExactScalarAbi
+```
+
+These must be verified from canonical source issuers. They are not aliases for
+MIR `EffectMask` or `FunctionSignature`, and they must not be emitted as
+unconditional empty enums. A later physical bridge may prove that a
+semantic-pure operation has a physical read effect (for example a length
+query); that bridge does not move physical facts upstream. `substring`,
+fresh/allocation results, Text ownership, generic/overloaded/dynamic
+receivers, and full Home/Result relations remain outside this profile.
+
+The intended smallest positive declaration is an exact instance `length(): i64`
+with a resolver catalog/compilation brand, but it is not Candidate until the
+Box declaration inventory, receiver Home receipt, explicit effect receipt,
+non-suspending/non-control receipt, and exact scalar ABI receipt all exist.
+One target identity may then be reused by two later call sites; the target
+itself carries no call site. Body inspection cannot invent Pure, Home, or ABI
+receipts.
+
+Current evidence is `NoSafeSlice`: `VerifiedHomeAbi` is documentation-only,
+`EffectPlan` is unverified rune metadata, `EffectMask` is physical MIR data,
+Shadow receiver rows have no type contract, and the callable index is
+FreeStatic-only. A future I0 must consume source-backed receipts or stop.
 
 ## Proposed contract shape
 
@@ -167,7 +207,8 @@ into a source disposition.
 ## Ordered follow-up
 
 ```text
-LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0
+LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-D0
+  -> LOOP-RESOLVER-CANONICAL-EXACT-TRIVIAL-INSTANCE-CONTRACT-I0
   -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0 (re-open after issuer exists)
   -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0
   -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0

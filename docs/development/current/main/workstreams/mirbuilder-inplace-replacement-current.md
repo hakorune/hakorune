@@ -532,8 +532,9 @@ Stop:
 ordered successor boundary:
   LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
   -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0 (current)
-  -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (design stop; issuer missing)
-  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0 (re-open only after issuer closes)
+  -> LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-D0 (design stop)
+     -> LOOP-RESOLVER-CANONICAL-EXACT-TRIVIAL-INSTANCE-CONTRACT-I0 (receipts only)
+  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0 (re-open after contract closes)
   -> source-bound call relation
   -> S6C ScanWithInit -> S6D -> S6E -> S6G -> M9
   -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
@@ -541,7 +542,6 @@ ordered successor boundary:
   -> LOOP-PHYSICAL-ALWAYS/IF/EXIT-COVERAGE-I0 (one BoxCount commit each)
   -> LOOP-PRECUTOVER-AUTHORITY-G0
   -> human LOOP-PRODUCTION-SELECTION-D0 -> M10b -> M11 -> M12
-
   audited pre-cutover correction:
   co-seal exact resolver Loop source, Core, item/carrier evidence, opaque entry
   coverage, and Core-owned continuation once; then make JoinSig the sole
