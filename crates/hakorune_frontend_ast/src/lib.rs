@@ -29,8 +29,8 @@ pub use box_method_inventory::{
     BoxMethodEntryV1, BoxMethodGateSelectionV1, BoxMethodGeneratedProvenanceV1,
     BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1, BoxMethodInventoryRoundtripRowV2,
     BoxMethodInventoryV1, BoxMethodProvenanceV1, BoxMethodSourceSelectionV1,
-    PreparedBoxMethodInventoryRoundtripV2, PreparedGeneratedBoxMethodBatchV1,
-    PreparedGeneratedBoxMethodV1,
+    PreparedBoxMethodInventoryAppendV1, PreparedBoxMethodInventoryRoundtripV2,
+    PreparedGeneratedBoxMethodBatchV1, PreparedGeneratedBoxMethodV1,
 };
 pub use build_predicate::BuildPredicate;
 pub use decls::{

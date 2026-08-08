@@ -7,6 +7,7 @@
 
 mod error;
 mod generated_batch;
+mod prepared_append;
 mod roundtrip_v2;
 mod transform;
 
@@ -16,6 +17,7 @@ use crate::{ASTNode, Span};
 
 pub use error::BoxMethodInventoryErrorV1;
 pub use generated_batch::{PreparedGeneratedBoxMethodBatchV1, PreparedGeneratedBoxMethodV1};
+pub use prepared_append::PreparedBoxMethodInventoryAppendV1;
 pub use roundtrip_v2::{BoxMethodInventoryRoundtripRowV2, PreparedBoxMethodInventoryRoundtripV2};
 pub use transform::BoxMethodDeclarationTransformErrorV1;
 
@@ -79,7 +81,7 @@ impl BoxMethodSourceSelectionV1 {
         Ok(Self::SelectedBuildGate { path })
     }
 
-    fn validate_transport(&self) -> Result<(), BoxMethodInventoryErrorV1> {
+    pub(super) fn validate_transport(&self) -> Result<(), BoxMethodInventoryErrorV1> {
         match self {
             Self::Direct => Ok(()),
             Self::SelectedBuildGate { path } if path.is_empty() => {
@@ -231,6 +233,17 @@ impl BoxMethodEntryV1 {
     pub const fn diagnostic_span(&self) -> Span {
         self.diagnostic_span
     }
+
+    /// Rebase parser-owned selected-gate provenance without exposing the
+    /// inventory placement or source authority to the AST carrier.
+    pub fn prepend_selected_gate(
+        &mut self,
+        gate_site: BoxMemberGateSiteV1,
+        branch_member_ordinal: u32,
+    ) -> Result<(), BoxMethodInventoryErrorV1> {
+        self.provenance
+            .prepend_selected_gate(gate_site, branch_member_ordinal)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -375,38 +388,28 @@ impl BoxMethodInventoryV1 {
         &mut self,
         batch: PreparedGeneratedBoxMethodBatchV1,
     ) -> Result<(), BoxMethodInventoryErrorV1> {
-        for row in batch.rows.iter() {
-            if let Some(first_index) = self.lookup.get(row.name.as_ref()) {
-                return Err(BoxMethodInventoryErrorV1::DuplicateMethod {
-                    name: row.name.clone(),
-                    first_span: self.entries[*first_index].diagnostic_span,
-                    duplicate_span: row.diagnostic_span,
-                });
-            }
-        }
+        self.try_commit_generated_batch_with_ordinals(batch)
+            .map(|_| ())
+    }
 
-        let base = self.entries.len();
-        let final_len = base
-            .checked_add(batch.rows.len())
-            .ok_or(BoxMethodInventoryErrorV1::OrdinalOverflow)?;
-        u32::try_from(final_len).map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?;
-
-        for row in batch.rows {
-            let site = BoxMethodInventoryOrdinalV1 {
-                selected_method_ordinal: u32::try_from(self.entries.len())
-                    .map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?,
-            };
-            let index = self.entries.len();
-            self.lookup.insert(row.name.clone(), index);
-            self.entries.push(BoxMethodEntryV1 {
+    pub fn try_commit_generated_batch_with_ordinals(
+        &mut self,
+        batch: PreparedGeneratedBoxMethodBatchV1,
+    ) -> Result<Box<[BoxMethodInventoryOrdinalV1]>, BoxMethodInventoryErrorV1> {
+        let entries = batch
+            .rows
+            .into_vec()
+            .into_iter()
+            .map(|row| BoxMethodEntryV1 {
                 name: row.name,
                 declaration: row.declaration,
                 provenance: BoxMethodProvenanceV1::Generated(row.provenance),
-                site,
+                site: BoxMethodInventoryOrdinalV1 {
+                    selected_method_ordinal: 0,
+                },
                 diagnostic_span: row.diagnostic_span,
             });
-        }
-        Ok(())
+        self.commit_prepared_append(PreparedBoxMethodInventoryAppendV1::try_new(entries)?)
     }
 
     pub fn try_push_compatibility(
@@ -511,6 +514,44 @@ impl BoxMethodInventoryV1 {
             self.entries.push(entry);
         }
         Ok(())
+    }
+
+    /// Commits an append whose source/gate rebasing was completed by the
+    /// parser transaction. This is the only AST-side append authority for the
+    /// R6 typed transaction bridge.
+    pub fn commit_prepared_append(
+        &mut self,
+        append: PreparedBoxMethodInventoryAppendV1,
+    ) -> Result<Box<[BoxMethodInventoryOrdinalV1]>, BoxMethodInventoryErrorV1> {
+        for entry in &append.entries {
+            if let Some(first_index) = self.lookup.get(entry.name()) {
+                return Err(BoxMethodInventoryErrorV1::DuplicateMethod {
+                    name: entry.name.clone(),
+                    first_span: self.entries[*first_index].diagnostic_span,
+                    duplicate_span: entry.diagnostic_span,
+                });
+            }
+        }
+
+        let base = self.entries.len();
+        let final_len = base
+            .checked_add(append.entries.len())
+            .ok_or(BoxMethodInventoryErrorV1::OrdinalOverflow)?;
+        u32::try_from(final_len).map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?;
+
+        let mut ordinals = Vec::with_capacity(append.entries.len());
+        for (offset, mut entry) in append.into_entries().into_vec().into_iter().enumerate() {
+            let ordinal = BoxMethodInventoryOrdinalV1 {
+                selected_method_ordinal: u32::try_from(base + offset)
+                    .map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?,
+            };
+            entry.site = ordinal;
+            let index = self.entries.len();
+            self.lookup.insert(entry.name.clone(), index);
+            self.entries.push(entry);
+            ordinals.push(ordinal);
+        }
+        Ok(ordinals.into_boxed_slice())
     }
 
     fn try_push_with_provenance(

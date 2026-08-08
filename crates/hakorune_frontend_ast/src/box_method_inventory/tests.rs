@@ -374,3 +374,85 @@ fn generated_batch_collision_leaves_destination_unchanged() {
     ));
     assert_eq!(destination, before);
 }
+
+#[test]
+fn prepared_append_rebases_gate_path_and_returns_placement_receipts() {
+    let mut branch = BoxMethodInventoryV1::empty();
+    branch
+        .try_push_explicit_source("selected", function("selected"), Span::unknown())
+        .unwrap();
+    let mut entries = branch.into_selected_declaration_order();
+    entries[0]
+        .prepend_selected_gate(BoxMemberGateSiteV1::from_box_member_ordinal(7), 4)
+        .unwrap();
+
+    let append = PreparedBoxMethodInventoryAppendV1::try_new(entries).unwrap();
+    let mut destination = BoxMethodInventoryV1::empty();
+    destination
+        .try_push_explicit_source("outer", function("outer"), Span::unknown())
+        .unwrap();
+    let placements = destination.commit_prepared_append(append).unwrap();
+
+    assert_eq!(
+        placements.as_ref(),
+        &[BoxMethodInventoryOrdinalV1 {
+            selected_method_ordinal: 1,
+        }]
+    );
+    let entry = destination.get("selected").unwrap();
+    assert_eq!(entry.site().inventory_ordinal(), 1);
+    let Some(BoxMethodSourceSelectionV1::SelectedBuildGate { path }) =
+        entry.provenance().explicit_source_selection()
+    else {
+        panic!("prepared append must preserve rebased selected path")
+    };
+    assert_eq!(path.len(), 1);
+    assert_eq!(path[0].gate_site().box_member_ordinal(), 7);
+    assert_eq!(path[0].branch_member_ordinal(), 4);
+}
+
+#[test]
+fn prepared_append_collision_is_atomic() {
+    let mut destination = BoxMethodInventoryV1::empty();
+    destination
+        .try_push_explicit_source("run", function("run"), Span::unknown())
+        .unwrap();
+    let before = destination.clone();
+
+    let append =
+        PreparedBoxMethodInventoryAppendV1::try_new([destination.get("run").unwrap().clone()])
+            .unwrap();
+    assert!(matches!(
+        destination.commit_prepared_append(append),
+        Err(BoxMethodInventoryErrorV1::DuplicateMethod { .. })
+    ));
+    assert_eq!(destination, before);
+}
+
+#[test]
+fn generated_batch_returns_exact_placement_receipts() {
+    let mut destination = BoxMethodInventoryV1::empty();
+    destination
+        .try_push_explicit_source("run", function("run"), Span::unknown())
+        .unwrap();
+    let batch = PreparedGeneratedBoxMethodBatchV1::try_new([PreparedGeneratedBoxMethodV1::new(
+        "__get_value",
+        function("__get_value"),
+        BoxMethodGeneratedProvenanceV1::Property {
+            property_name: "value".into(),
+            selection: BoxMethodSourceSelectionV1::Direct,
+        },
+        Span::unknown(),
+    )
+    .unwrap()])
+    .unwrap();
+
+    let placements = destination
+        .try_commit_generated_batch_with_ordinals(batch)
+        .unwrap();
+    assert_eq!(placements[0].inventory_ordinal(), 1);
+    assert!(matches!(
+        destination.get("__get_value").unwrap().provenance(),
+        BoxMethodProvenanceV1::Generated(BoxMethodGeneratedProvenanceV1::Property { .. })
+    ));
+}

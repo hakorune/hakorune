@@ -319,6 +319,24 @@ Top-level/interface/static parser paths and delegate AST-only postpass remain
 outside this ordinary-Rust-`box` S2 cell; if their source ingress is missing,
 the correct result is a later `NoSafeSlice`, not a guessed outer gate ordinal.
 
+### R6-S2b AST receipt support — landed
+
+The AST-side first cell is now implemented and tested. It adds:
+
+```text
+PreparedBoxMethodInventoryAppendV1
+BoxMethodEntryV1::prepend_selected_gate(...)
+BoxMethodInventoryV1::commit_prepared_append(...)
+try_commit_generated_batch_with_ordinals(...)
+```
+
+The append product is validated before mutation and returns exact placement
+receipts. The AST crate remains source-authority agnostic: parser brands,
+source sites, and gate-path relation rebasing stay in the future transaction
+owner. The old parallel selected-gate API remains temporarily because parser
+callers still use it; its removal is part of the next transaction-cutover
+cell, not a silent compatibility rename.
+
 ## Compatibility retirement
 
 The compatibility surface closes only when all are true:

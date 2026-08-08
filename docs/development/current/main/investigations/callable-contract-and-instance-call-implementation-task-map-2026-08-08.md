@@ -199,6 +199,13 @@ Rejected > Unresolved > Declined > Candidate
    relations. No parser producer receives `&mut BoxMethodInventoryV1` after
    the cutover.
 
+   R6-S2b AST receipt support is landed in the frontend AST crate. The
+   prepared append validates the complete unpublished batch before mutation,
+   returns placement receipts, and exposes gate-path rebasing without making
+   the AST crate a parser source authority. The old parallel gate merge is
+   intentionally still present until the parser transaction callers migrate;
+   its removal is required in the next cell.
+
    The latest external review is reconciled into this row, not opened as a
    second authority. `BoxMethodInventoryV1` remains cloneable selected/
    generated placement data; only the non-Clone parser source seal is
