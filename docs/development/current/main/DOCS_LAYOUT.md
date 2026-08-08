@@ -3,6 +3,19 @@
 Status: SSOT  
 Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSOT/履歴メモの混在を防ぐための最小ガイド。
 
+## Current Capsule
+
+- **Current decision:** current entrypoints stay thin; each durable truth has
+  one tracked owner.
+- **Current implementation status:** current ownership and archive placement
+  rules are active; no active-lane change is made here.
+- **Next ordered task:** place new material using the ownership table below and
+  keep task tokens shallow.
+- **Production stop line:** moving or summarizing docs cannot change semantic
+  authority, production selection, or a guard result.
+- **Retirement finish line:** duplicate current mirrors and misplaced history
+  are removed or replaced by one stable pointer.
+
 ## 目的
 
 - 入口（読む順序）と、詳細（設計図/調査/Phaseログ）を分離して迷子を防ぐ。
@@ -24,6 +37,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - not a landed-history ledger
 - `CURRENT_STATE.toml`
   - machine-readable current lane / blocker / latest-card pointer SSOT
+  - keep only live restart/selection pointers and a short landed tail; do not
+    add one field per historical row
+  - historical indexes and generated inventories live in their owning ledger
+    or archive, not in the current pointer
 - `10-Now.md`
   - docs-side thin mirror/dashboard
   - one-screen summary + links only
@@ -300,7 +317,14 @@ Rule:
 - do not let `CURRENT_TASK.md` or `10-Now.md` regrow into landed-history ledgers.
 - do not let `05-Restart-Quick-Resume.md` or `15-Workstream-Map.md` regrow into landed-history ledgers either.
 - if a block already has a better owner, replace it with a short summary plus a link.
+- new or materially revised active design SSOTs start with the five-field
+  Current Capsule defined by `current-docs-update-policy-ssot.md`; archived
+  history and landed reference pages are exempt.
+- new task names use a shallow `FAMILY-SLICE-STAGE` form. Parentage and order
+  belong in card metadata/queues rather than recursively appended suffixes.
 - keep the 800-line hard cap for source code files, not active docs.
+- at 760 source lines, design the responsibility split before semantic growth;
+  never compress formatting merely to stay below 800.
 - if an active entry/workstream/taskboard/design doc grows past roughly 1000
   lines, add a docs-slim task or archive split before adding more historical
   prose. Archive and investigation docs may remain long; active restart docs

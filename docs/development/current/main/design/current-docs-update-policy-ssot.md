@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-28
+Date: 2026-08-08
 Scope: current docs update policy for restart/current-lane pointers.
 Related:
   - AGENTS.md
@@ -17,6 +17,19 @@ Related:
 ---
 
 # Current Docs Update Policy
+
+## Current Capsule
+
+- **Current decision:** `CURRENT_STATE.toml` is the compact current pointer;
+  active cards own execution and git history owns landed detail.
+- **Current implementation status:** the pointer/mirror thinning policy is
+  active; this policy update does not change the selected compiler lane.
+- **Next ordered task:** apply the compact pointer, shallow task-name, and
+  classified-guard rules to the next selected row.
+- **Production stop line:** documentation and guard cleanup cannot activate a
+  production route or waive a failing current contract.
+- **Retirement finish line:** current mirrors contain no copied history,
+  `landed_tail` stays bounded, and durable rules have one tracked owner.
 
 ## Problem
 
@@ -64,7 +77,9 @@ Per-card mandatory docs updates are limited to:
 
 1. `CURRENT_STATE.toml`
 2. the active card
-3. code/test docs only when the card changes their contract
+3. owning `docs/reference/**`, module README, or code/test docs only when the
+   card changes their contract; close those updates in the implementation
+   slice rather than an unnamed later docs task
 
 Changes to the ignored root `AGENTS.md` router are policy-level changes, not
 per-card mirror work. When the router is reorganized, update
@@ -390,6 +405,29 @@ limit:
 - do not split a doc just to satisfy a line count if the split would hide the
   SSOT or make the next action harder to find.
 
+For source code, use the earlier design trigger owned by
+`agent-current-entry-contract-ssot.md`: 760 lines requires a responsibility
+split plan before semantic growth, while 800 lines remains the hard boundary.
+Formatting compression is never an acceptable line-count fix.
+
+## Active SSOT Header Policy
+
+Every new durable SSOT, and every active SSOT receiving a material decision
+revision, places a five-field Current Capsule near the beginning of its body:
+
+```text
+Current decision
+Current implementation status
+Next ordered task
+Production stop line
+Retirement finish line
+```
+
+The capsule is a navigation aid, not another current-state ledger. It must not
+copy concrete `latest_card`, `current_blocker_token`, or `landed_tail` values.
+Archived/historical notes and landed reference pages are exempt. The detailed
+behavioral contract remains in the owning sections below the capsule.
+
 Immediate cleanup policy for phase-296x:
 
 - keep rows through the current card as history;
@@ -676,6 +714,13 @@ target maximum:
   12 rows
 ```
 
+Do not add one scalar or path field for every completed row. A new
+`CURRENT_STATE.toml` field is allowed only when current selection or restart
+requires a machine-readable pointer that cannot be derived from an existing
+field. Historical indexes, full card lists, and generated inventories belong
+in an archive/ledger owned outside the current pointer. Compaction must not
+change the active lane or blocker.
+
 ## Guard Contract
 
 `tools/checks/current_state_pointer_guard.sh` verifies:
@@ -697,6 +742,22 @@ Past row guards must not pin `CURRENT_STATE.latest_card`,
 `latest_card_path`, `current_blocker_token`, or `landed_tail` rows as proof
 that the row landed. Use the row card, durable SSOT, check-script index,
 fixtures, or an explicit phase-card resolver instead.
+
+### Guard Result Classification
+
+New or materially revised reusable guards and closeouts use exactly these
+result classes:
+
+- `current-change failure`: blocking;
+- `known baseline debt`: separately tracked and nonblocking only under an
+  existing active-card allowance with no regression and an exact owner;
+- `informational census`: inventory only and never success evidence.
+
+The class and owner must be visible in stable output or the check-script index.
+An unclassified failure is blocking. A new row may repair baseline debt, but it
+may not silently relabel or waive it. A census may select future work; it may
+not prove correctness or completion. Existing green guards migrate when their
+contract is next revised; this rule does not require a rename-only sweep.
 
 ### Provenance Guard Rule
 

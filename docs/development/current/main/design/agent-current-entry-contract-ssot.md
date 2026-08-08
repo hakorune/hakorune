@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-06
+Date: 2026-08-08
 Scope: `AGENTS.md` の current-first 読み順と historical section の扱い。
 Related:
   - AGENTS.md
@@ -13,6 +13,19 @@ Related:
 ---
 
 # Agent Current Entry Contract
+
+## Current Capsule
+
+- **Current decision:** `AGENTS.md` is a compact local router; tracked SSOTs
+  own durable procedure and design truth.
+- **Current implementation status:** the router and this tracked contract are
+  synchronized; this policy does not change the active compiler lane.
+- **Next ordered task:** resume only the blocker selected by
+  `CURRENT_STATE.toml` after the normal pointer guard passes.
+- **Production stop line:** no router or guard wording may authorize a source
+  shape, production caller, fallback, or publication path.
+- **Retirement finish line:** duplicated procedure and historical command
+  tables are absent from the local router and current mirrors.
 
 ## Purpose
 
@@ -44,6 +57,61 @@ Read current-state documents first:
 Then read `AGENTS.md` for personality, always-on engineering rules, and
 stop-the-line policy.
 
+## Daily usability contract
+
+The entry path must be strict without becoming ceremonial. Apply these limits
+to new and actively revised material.
+
+### Compact router
+
+- Keep `AGENTS.md` near one screen of headings and short rules; about 80--120
+  lines is the editorial target, not a semantic permission gate.
+- Keep only personality, current-first order, always-on stop conditions, and
+  links to tracked owners. Move detailed procedures, command tables, fixture
+  matrices, and historical rationale to their owning tracked document.
+- Do not make the router repeat `CURRENT_STATE.toml`, an active workstream, or
+  the check-script index. A pointer is sufficient.
+
+### Shallow task names
+
+New task tokens describe the semantic product and its current stage, not the
+full ancestry of previous investigations. Prefer:
+
+```text
+FAMILY-SLICE-STAGE
+```
+
+Do not extend tokens by repeatedly appending `-S*`, `-D*`, or parent task
+names. Put parentage and ordering in card metadata or the active queue. If a
+new token needs more than one stable family/slice prefix plus one stage suffix,
+stop and check whether the work is actually one task or an unsealed design.
+Historical tokens are not renamed solely for style.
+
+### Source split trigger
+
+- 760 lines is the design trigger for a source file; 800 lines remains the
+  hard boundary.
+- At 760 lines, name the responsibility split before adding semantic growth.
+  Split by owner or interface, not by arbitrary line ranges.
+- Never compress formatting, merge declarations, shorten diagnostics, or
+  remove explanatory structure merely to pass the line count.
+- Test fixtures and generated files follow their owning policy, but generated
+  status must be explicit rather than inferred from size.
+
+### Guard result classes
+
+Use the three result classes owned by
+`current-docs-update-policy-ssot.md`: current-change failure, known baseline
+debt, and informational census. An unclassified failure is blocking, and an
+agent may not invent a waiver or turn census output into completion evidence.
+
+### Active SSOT current capsule
+
+Use the five-field Current Capsule defined by
+`current-docs-update-policy-ssot.md` for every new or materially revised active
+SSOT. It summarizes only that document's authority and never copies global row
+tokens or landed history.
+
 ## Document placement contract
 
 `AGENTS.md` is a local router, not a second taskboard or design registry.
@@ -62,6 +130,11 @@ Keep each kind of truth in one durable home:
 | landed implementation detail | source/tests and git history |
 | superseded or historical material | `docs/development/current/main/design/archive/**`, `docs/development/archive/phases/**`, `docs/archive/**`, or the owning retirement SSOT |
 | local personality and always-on routing rules | `AGENTS.md` only |
+
+When implementation changes a language, ABI, lifecycle, diagnostic, or public
+compiler contract, update the owning `docs/reference/**` page and affected
+module README in the same implementation slice. Do not defer that work to an
+unnamed later documentation task.
 
 When an instruction grows beyond a short routing rule, move its durable
 content to the matching tracked home above and leave a pointer in
