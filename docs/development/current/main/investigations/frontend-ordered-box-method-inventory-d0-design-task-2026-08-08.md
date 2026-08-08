@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2 closed — R6-S3B-B3-D0 design stop; B3-I0 not opened
+Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0 closed — R6-S3B-B3-I0 active
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -733,9 +733,9 @@ gates are covered; selected source seals retain their original Box paths and
 unselected seals are removed through consume-return pruning. Method/body and
 other closed scopes do not enter the top-level ledger. Focused parser tests,
 the B2 guard, `cargo check --bin hakorune`, formatting, and diff checks were
-green in this slice. B3-D0 remains a design stop; B3-I0 and delegate relations, Hako
-parity, resolver, Recipe, Builder, MIR, provider, and runtime work stay
-closed.
+green in this slice. B3-D0 is closed; B3-I0 is the active bounded
+implementation, while delegate relations, Hako parity, resolver, Recipe,
+Builder, MIR, provider, and runtime work stay closed.
 
 ### R6-S3B-B3-D0 design stop — finalizer alignment
 
@@ -766,11 +766,11 @@ Nonclaims for B3 are delegate relation implementation, interface/static/record
 cohorts, Hako parity, resolver, `CallableContract`, target, Recipe, Builder,
 MIR, provider, runtime, fallback, source rescan, and AST rewrite.
 
-The next row is `R6-S3B-B3-I0` and is not opened in this design-stop slice.
-It may implement only the private finalizer coverage plan and its focused
-ordinary-Box positive/negative guard, while preserving the valid generated
-delegate placement canary outside the final source seal. The same slice must
-update the landed reference and parser-module owner documentation.
+The active row is `R6-S3B-B3-I0`. It may implement only the private finalizer
+coverage plan and its focused ordinary-Box positive/negative guard, while
+preserving the valid generated delegate placement canary outside the final
+source seal. The same slice must update the landed reference and parser-module
+owner documentation.
 
 ## Ordered implementation series
 

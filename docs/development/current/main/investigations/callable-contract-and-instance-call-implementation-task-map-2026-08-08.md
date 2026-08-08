@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2 closed, R6-S3B-B3-D0 design stop, B3-I0 not opened
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0 closed, R6-S3B-B3-I0 active
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -195,7 +195,7 @@ R6-S3B-B3-D0
   reject malformed/provenance-invalid suffixes. R6-S3B-C later issues
   GeneratedDelegateSourceRelation; no implementation is opened here.
 
-R6-S3B-B3-I0 (next, not opened)
+R6-S3B-B3-I0 (active)
   private FinalizerCoveragePlanV1 and source-path one-to-one finalizer
   alignment for the bounded ordinary Rust Box cohort; preserve the valid
   generated-delegate placement canary outside the final source seal; reject
@@ -239,9 +239,8 @@ External review reconciliation (2026-08-08): no new parallel task is needed.
 The parser source seal, source-site/placement split, typed callable syntax,
 `VerifiedHomeAbi` sole authority, old instance-result retirement,
 conformance-catalog plan, and semantic-I64/physical-ABI split remain ordered
-in this task map. The only current design stop is R6-S3B-B3-D0 finalizer
-alignment; R6-S3B-B3-I0 is not opened and delegate relation work remains
-R6-S3B-C.
+in this task map. R6-S3B-B3-I0 is the active implementation boundary and
+delegate relation work remains R6-S3B-C.
 
 `NoSafeSlice` means a required issuer is not implemented. It is not a source
 disposition. After an issuer exists, disposition is:

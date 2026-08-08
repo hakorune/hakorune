@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A/B1/B2 closed; R6-S3B-B3-D0 design stop; B3-I0 and delegate/Hako/resolver rows not opened
+Status: accepted design; R6-S3B-A/B1/B2/B3-D0 closed; R6-S3B-B3-I0 active; delegate/Hako/resolver rows not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -304,7 +304,8 @@ Normal selection of a supported branch is not an error disposition.
 R6-S3B-B0  design receipt and owner/type/negative matrix (closed)
 R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport (closed)
 R6-S3B-B2  parser gate-ledger transport, typed selection receipts, and consume-return ParserSourceSession prune/rebase (closed)
-R6-S3B-B3-D0  finalizer AST/source exact-coverage alignment (design stop)
+R6-S3B-B3-D0  finalizer AST/source exact-coverage alignment (closed)
+R6-S3B-B3-I0  private finalizer coverage plan and suffix isolation (active)
 ```
 
 B1/B2 must not add delegate relations, interface/static/record seals, Hako
