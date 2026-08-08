@@ -531,8 +531,9 @@ Stop:
   to design. NoSafeSlice is a development state, not a source disposition.
 ordered successor boundary:
   LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
-  -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0 (current)
-  -> LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-D0 (design stop)
+  -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0 (closed)
+  -> LANGUAGE-TYPED-CALLABLE-PROFILE-D0 (design stop; current)
+     -> LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-I0
      -> LOOP-RESOLVER-CANONICAL-EXACT-TRIVIAL-INSTANCE-CONTRACT-I0 (receipts only)
   -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0 (re-open after contract closes)
   -> source-bound call relation
@@ -803,7 +804,6 @@ closed
      ScriptSemanticSeal, so a Map-style cutover would assign false provenance
      or exhaust receipts. Dynamic Deferred would be fallback. The prerequisite
      is immutable schema admission; RecordUpdate remains out of scope.
-
   RAW-SCRIPT-POST-MAP-LITERAL-CAPABILITY-CENSUS0-D0
   -> CheckExpr is already Complete: shared profile admission, exact
      `CheckItem(n)` receipts, the existing eager Select owner, fixture ratchet,

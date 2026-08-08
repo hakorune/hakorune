@@ -96,6 +96,72 @@ The source syntax or trusted declaration profile that proves `Pure` and the
 non-suspending/non-control facts is intentionally unresolved in this D0. It
 must be a language/spec authority, not an unverified rune metadata reuse.
 
+## Read-only source census (2026-08-08)
+
+The repository has enough syntax to describe a future instance declaration,
+but not enough resolver-owned authority to issue one yet:
+
+```text
+ASTNode::BoxDeclaration:
+  name, methods: HashMap<String, ASTNode>, is_static, type parameters,
+  fields and declaration metadata
+
+ASTNode::FunctionDeclaration:
+  method name, params/ParamDecl, declared return type, is_static, attrs
+
+CallableHeaderSyntaxViewV1 / CallableHeaderSourceUnitV1:
+  body-free FunctionDeclaration view; the catalog rejects non-function
+  top-level statements and `VerifiedCallableIndexV1` is FreeStatic-only
+
+FunctionSyntaxViewV1:
+  maps `is_static` to a lexical ReceiverPolicy, but carries no enclosing
+  Box identity or nominal receiver type
+
+VerifiedCallableHeaderSourceUnitV1::embedded_function:
+  private raw `(statement_index, method_key)` helper; it is not a sealed
+  Box/method declaration relation or a reusable resolver target
+
+PreparedNormalProgramDeclarationFactsV1 / CompilationContext:
+  Builder-owned declaration/field/static facts; not resolver authority
+
+FunctionOwnerIdV1::compilation_brand:
+  invocation-local membership brand, not source Box identity or type identity
+```
+
+Therefore the existing syntax is evidence for a future issuer input, not an
+issuer itself. In particular, method/Box strings, `ReceiverPolicy`, the raw
+embedded helper, Builder declaration facts, and owner brand cannot be combined
+after the fact to manufacture `VerifiedInstanceMethodDeclarationV1`. The D0
+must first define the exact Box statement/site relation, method declaration
+site, nominal receiver/type identity, and same compilation/catalog brand as one
+resolver-owned product. The semantic profile issuer must then attach the
+source-backed Home/effect/suspension/control/ABI receipts before the aggregate
+is released.
+
+The semantic-profile audit is also closed at `issuer=0` for the current source:
+
+```text
+@contract(pure|readonly|no_alloc|no_safepoint):
+  parser metadata only; the current EffectPlan consumes only no_alloc and
+  no_safepoint and marks the plan `verified = false`
+
+@rune Contract / Profile:
+  accepted annotation/metadata surface, not a resolver Pure or lifecycle
+  receipt
+
+NonSuspending / NonControl / receiver Home / ExactScalar:
+  no source-level typed issuer in the current resolver catalog
+```
+
+Consequently a future `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` may be required
+before this row can enter I0. Reusing annotation metadata or translating a
+physical `EffectMask` into semantic `Pure` would violate the source-backed
+receipt gate. The current language reference already records
+`Contract(no_alloc)`/`Contract(no_safepoint)` as the live narrow rows while
+`Contract(pure)`/`Contract(readonly)` remain metadata-only; this D0 must not
+silently promote those existing rows. Any promotion or new declaration syntax
+requires an explicit language-spec Decision first.
+
 ## Disposition and precedence
 
 ```text
@@ -132,7 +198,7 @@ development state and must not be converted into a source disposition.
 ## Ordered follow-up
 
 ```text
-LANGUAGE-TYPED-CALLABLE-PROFILE-D0 (if Pure/source profile syntax is needed)
+LANGUAGE-TYPED-CALLABLE-PROFILE-D0
   -> LOOP-RESOLVER-INSTANCE-DECLARATION-AND-CONTRACT-RECEIPTS-I0
   -> LOOP-RESOLVER-CANONICAL-EXACT-TRIVIAL-INSTANCE-CONTRACT-I0
   -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0
