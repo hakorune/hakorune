@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A closed, R6-S3B design stop
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A closed, R6-S3B-D0 design accepted, implementation not opened
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -139,12 +139,37 @@ R6-S3-PARSER-SOURCE-SEAL-D0
 R6-S3A-PARSER-RICH-PRODUCT-I0
   bounded direct top-level ordinary Rust Box path
   finalizer after existing prune/delegate AST postpass
-  exact prepared-inventory prefix + generated delegate suffix validation
+  exact prepared-inventory prefix + generated delegate suffix placement probe
+  no resolver-grade GeneratedDelegate relation claim in this row
   no partial seal for top-level gate/interface/static/record cohorts
 
 R6-S3B-PARSER-SOURCE-AWARE-POSTPASS-D0/I0
   AST-only projection through the rich path
   typed top-level gate rebase and source-aware delegate transport
+
+R6-S3B-D0
+  one move-only ParserPostpassProductV1 handoff
+  parser-issued structural source paths and sole postpass owner
+  NoSafeSlice/Rejected/Unresolved/Declined/Candidate boundaries
+
+R6-S3B-A
+  canonical rich parse product for the ordinary direct-Box cohort
+  AST-only APIs project from that product exactly once
+  no resolver-grade generated-delegate suffix claim
+
+R6-S3B-B
+  typed top-level build-gate path/cursor
+  atomic branch selection, prune, and source-path preservation
+  no post-prune ordinal reconstruction
+
+R6-S3B-C
+  source-aware delegate transaction
+  GeneratedDelegateSourceRelation and generated-batch coverage
+
+R6-S3B-D
+  final complete relation coverage and one final non-Clone seal
+  retire the bounded S3A generated-suffix adapter
+  close all AST-only projection and rich-path parity gaps
 
 R6-S3-SOURCE-SITE-PLACEMENT-I0
   SourceBoxMethodSiteV1 separate from selected/generated inventory ordinal
@@ -173,8 +198,9 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
 ```
 
 The parser rows are R6-S3 design/implementation boundaries; R6-S3A is closed
-as the bounded rich-product slice and R6-S3B is the current design stop. The
-latter five remain resolver/callable rows. Do not create a parallel
+as the bounded rich-product slice and R6-S3B-D0 is the current accepted design
+stop. S3B-A through S3B-D are the only subsequent parser implementation
+slices. The latter five callable rows remain resolver/callable rows. Do not create a parallel
 implementation lane for them.
 
 `NoSafeSlice` means a required issuer is not implemented. It is not a source

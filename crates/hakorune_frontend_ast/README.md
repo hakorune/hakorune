@@ -112,8 +112,12 @@ R6-S3A keeps this crate descriptive: it does not issue or store the parser's
 non-Clone source seal. The bounded rich parser finalizer compares the final
 `BoxMethodInventoryV1` with the parser-owned prepared payload after prune and
 delegate postpass, then rebuilds the descriptive final inventory through the
-typed append API. Generated delegate suffixes remain generated provenance;
-source-site authority stays in `src/parser/source_seal.rs`.
+typed append API. Generated delegate suffixes are a bounded placement canary
+only: because the current AST-only delegate path has no
+`GeneratedDelegateSourceRelation`, those suffixes are not complete
+resolver-grade source authority. S3B-C/D must add the source-aware relation
+and complete final coverage, or retire/reject the suffix adapter. Source-site
+authority stays in `src/parser/source_seal.rs`.
 
 ## Boundaries
 

@@ -582,6 +582,31 @@ provider, or runtime work opens from R6-S3A.
 
 ### R6-S3B design stop (no implementation)
 
+External top-down audit receipt (2026-08-08): **revise before
+implementation**. R6-S3A is accepted only as a bounded ordinary-Box canary;
+it is not the final resolver-grade architecture. In particular, the current
+AST-only delegate postpass adds generated suffix placement, while the current
+seal relation set has no `GeneratedDelegate` source relation. S3B therefore
+must not treat that suffix as complete source authority. The accepted S3B
+handoff and owner contract is the dedicated SSOT:
+`docs/development/current/main/design/parser-postpass-source-handoff-ssot.md`.
+
+The audit fixes the following before code is allowed:
+
+```text
+one move-only ParserPostpassProductV1 owns AST + source session + metadata
+parser-issued structural Box paths include gate branch and child coordinates
+gate prune consumes/returns the same product and preserves original paths
+delegate lowering consumes/returns the same product and commits a
+  GeneratedDelegateSourceRelation atomically
+AST-only APIs project from the rich path exactly once
+final ParserBoxSourceSealV1 is issued only after complete relation coverage
+```
+
+Until the delegate relation exists, the rich path must reject generated
+delegate suffixes or keep them explicitly outside the final source seal. No
+resolver-grade seal may silently accept an AST-only generated suffix.
+
 The next question is deliberately closed at design, not code:
 
 ```text
