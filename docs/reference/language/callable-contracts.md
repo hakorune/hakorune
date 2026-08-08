@@ -34,6 +34,13 @@ payloads reject the complete root, and legacy v1 imports remain
 `CompatibilityOnly(LegacyJsonV1)`. This descriptive transport still does not
 change the production-zero status or authorize a declared callable contract.
 
+The current frontend migration also keeps the ordered
+`BoxMethodInventoryV1` carrier intact through the connected static-`Main`
+Builder compatibility ports. That R5-S2 edge retains only the historical
+name-order projection inside the compatibility leaf; it does not establish
+source-order authority, resolver target authority, or a callable-contract
+issuer.
+
 ## `query` meaning
 
 `query` is a stable whole-call behavioral contract:

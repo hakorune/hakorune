@@ -2,7 +2,7 @@
 //! This module owns the typed body, statement, and expression entry boundary.
 //! It owns no source navigation, callable-result plan, location, ledger,
 //! MethodCall route, or result-publication policy.
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
 use std::cell::RefCell;
@@ -142,7 +142,7 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
         &mut self,
         builder: &mut MirBuilder,
         box_name: String,
-        methods: std::collections::HashMap<String, ASTNode>,
+        methods: BoxMethodInventoryV1,
     ) -> Result<ValueId, String>;
 
     fn lower_static_box_method(
@@ -567,7 +567,7 @@ impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
         &mut self,
         builder: &mut MirBuilder,
         box_name: String,
-        methods: std::collections::HashMap<String, ASTNode>,
+        methods: BoxMethodInventoryV1,
     ) -> Result<ValueId, String> {
         PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)
             .lower_with_port_v1(builder, self)
@@ -651,7 +651,7 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         &mut self,
         _builder: &mut MirBuilder,
         box_name: String,
-        _methods: std::collections::HashMap<String, ASTNode>,
+        _methods: BoxMethodInventoryV1,
     ) -> Result<ValueId, String> {
         Err(
             super::control_flow::lower::Freeze::contract(&format!(

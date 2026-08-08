@@ -535,7 +535,7 @@ fn invocation_main_box_is_rejected_before_root_effects() {
 
     let result = invocation.with_module_port(|builder, port| {
         let mut raw_port = RawInvocationChildPortV1::new(port);
-        raw_port.lower_static_main_box(builder, name, methods.into_compatibility_map())
+        raw_port.lower_static_main_box(builder, name, methods)
     });
 
     assert!(result

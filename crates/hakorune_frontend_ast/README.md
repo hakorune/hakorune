@@ -69,6 +69,13 @@ The historical name-order behavior is an explicit
 `into_compatibility_name_order()` projection inside the compatibility batch;
 it is not source order and does not promote resolver authority.
 
+R5-S2 carries the same inventory directly through the connected static-`Main`
+compatibility child-port family. The raw/normal forwarding ports and the
+compatibility batch no longer accept or reconstruct `HashMap<String, ASTNode>`.
+The compatibility leaf still calls `declaration_order::sorted_method_entries`
+for the historical helper-before-main execution order; this remains a named
+compatibility projection, not source-order authority.
+
 ## Boundaries
 
 - parser: may issue explicit/generated rows through typed methods;

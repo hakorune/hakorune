@@ -7,8 +7,7 @@
 use super::decls::CallableMainCompatibilityLoweringErrorV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::{declaration_order::sorted_method_entries, MirBuilder, ValueId};
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
-use std::collections::HashMap;
+use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 
 #[derive(Debug)]
 pub(super) struct PreparedRawStaticMainBoxCompatibilityV1 {
@@ -86,8 +85,7 @@ impl OwnedRawStaticMainFunctionPartsV1 {
 }
 
 impl PreparedRawStaticMainBoxCompatibilityV1 {
-    pub(super) fn prepare(box_name: String, methods: HashMap<String, ASTNode>) -> Self {
-        let methods = crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods);
+    pub(super) fn prepare(box_name: String, methods: BoxMethodInventoryV1) -> Self {
         let mut helpers = Vec::new();
         let mut root = RawStaticMainRootDispositionV1::Missing;
 

@@ -472,11 +472,7 @@ impl super::MirBuilder {
                     // Main is a root-only entry.  The invocation port rejects
                     // nested Main before any root-main mutation; the legacy
                     // adapter preserves the existing inline-main behavior.
-                    port.lower_static_main_box(
-                        self,
-                        name.clone(),
-                        methods.clone_compatibility_map(),
-                    )
+                    port.lower_static_main_box(self, name.clone(), methods.clone())
                 } else if is_static {
                     PreparedRawNonMainStaticBoxLifecycleV1::prepare(name, methods)
                         .lower_with_port_v1(self, port)

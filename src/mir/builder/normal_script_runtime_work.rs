@@ -267,7 +267,7 @@ where
     if name != "Main" {
         return Err("[freeze:contract][mir/script-runtime/main-name-drift]".to_owned());
     }
-    port.lower_static_main_box(builder, name.clone(), methods.clone_compatibility_map())
+    port.lower_static_main_box(builder, name.clone(), methods.clone())
 }
 
 pub(super) fn reject_sync_box_at_runtime_v1(statement: &ASTNode) -> Result<ValueId, String> {

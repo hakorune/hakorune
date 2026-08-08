@@ -60,6 +60,18 @@ explicitly named `into_compatibility_name_order()` projection in the
 compatibility batch. This projection is not source-order authority and is
 scheduled for removal only after its production callers reach zero.
 
+### Ordered Box-method compatibility edge (R5-S2)
+
+The connected static-`Main` compatibility child-port family now carries
+`BoxMethodInventoryV1` directly through `RawBoxMethodChildPortV1` and its
+normal/raw forwarding implementations. The compatibility leaf receives the
+inventory without a legacy-map roundtrip and retains
+`declaration_order::sorted_method_entries` only for the historical
+helper-before-main execution order. Nested static `Main` remains a root-only
+rejection before root effects. This edge does not promote name order to source
+order or open resolver authority; the remaining legacy projections stay
+explicitly parked until their own caller-zero receipts exist.
+
 ## Reading Order
 
 1. `src/mir/README.md`

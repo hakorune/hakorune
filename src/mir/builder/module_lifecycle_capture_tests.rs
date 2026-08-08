@@ -35,7 +35,7 @@ impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
         &mut self,
         builder: &mut MirBuilder,
         box_name: String,
-        methods: std::collections::HashMap<String, ASTNode>,
+        methods: crate::ast::BoxMethodInventoryV1,
     ) -> Result<ValueId, String> {
         RawLegacyChildLoweringPortV1.lower_static_main_box(builder, box_name, methods)
     }
@@ -603,7 +603,6 @@ fn verified_and_compatibility_main_share_required_callable_order() {
         .expect("verified Main lowering");
 
     let (box_name, methods) = parsed_static_box(source);
-    let methods = methods.into_compatibility_map();
     let mut compatibility_builder = MirBuilder::new();
     compatibility_builder
         .prepare_module()
@@ -661,7 +660,6 @@ fn verified_main_helper_failure_stops_later_helpers_and_body() {
     let (box_name, methods) = parsed_static_box(
         "static box Main { zeta() { return 2 } alpha() { return 1 } main() { return 0 } }",
     );
-    let methods = methods.into_compatibility_map();
     let mut compatibility_builder = MirBuilder::new();
     let mut compatibility_port = RecordingOrdinaryPortV1 {
         fail_static_method: Some("Main.alpha/0".to_owned()),

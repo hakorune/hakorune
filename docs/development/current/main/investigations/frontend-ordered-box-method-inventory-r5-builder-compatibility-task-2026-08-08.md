@@ -1,5 +1,5 @@
 ---
-Status: active — R5-S1 landed; the next Builder compatibility caller remains
+Status: active — R5-S2 landed; the next Builder compatibility caller remains
 open
 Date: 2026-08-08
 Parent: `callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`
@@ -133,6 +133,80 @@ rg -n 'into_compatibility_map|from_legacy_ast_map' \
   src/mir/builder/nonmain_static_box_method_batch.rs
 => no matches
 ```
+
+## R5-S2 selected design — STATIC-MAIN-INVENTORY-PORT
+
+The next bounded edge is the connected static-`Main` compatibility trait
+family. It carries the ordered inventory through the port unchanged; the
+historical compatibility ordering remains private to the compatibility leaf.
+
+```text
+BoxMethodInventoryV1
+  -> RawBoxMethodChildPortV1::lower_static_main_box
+  -> RawLegacyChildLoweringPortV1 / RawInvocationChildPortV1
+  -> PreparedRawStaticMainBoxCompatibilityV1::prepare
+  -> declaration_order::sorted_method_entries
+```
+
+Audited locations:
+
+```text
+src/mir/builder/recursive_child_lowering.rs
+src/mir/builder/normal_callable_semantic_loan_port.rs
+src/mir/builder/normal_script_runtime_work.rs:270
+src/mir/builder/raw_expression_dispatch/mod.rs:475
+src/mir/builder/raw_static_main_compat_batch.rs:89
+```
+
+The implementation slice is intentionally narrow:
+
+```text
+trait and forwarding ports:
+  accept BoxMethodInventoryV1 directly
+
+normal/raw call sites:
+  pass the inventory directly (clone only at the existing ownership edge)
+
+compatibility leaf:
+  accept the inventory directly
+  retain sorted_method_entries(&methods) as historical compatibility order
+  retain helper-before-main and first-failure-stop behavior
+```
+
+This slice does not promote compatibility order to source order, does not
+change nested-`Main` rejection, and does not remove the remaining legacy
+maps, JSON v1, raw-root mutation, or unrelated runtime/catalog edges.
+
+Caller-zero guard for the migrated trait family:
+
+```text
+rg -n 'methods: std::collections::HashMap<String, ASTNode>' \
+  src/mir/builder/recursive_child_lowering.rs \
+  src/mir/builder/normal_callable_semantic_loan_port.rs
+
+rg -n 'clone_compatibility_map' \
+  src/mir/builder/normal_script_runtime_work.rs \
+  src/mir/builder/raw_expression_dispatch/mod.rs
+
+rg -n 'from_legacy_ast_map' \
+  src/mir/builder/raw_static_main_compat_batch.rs
+```
+
+Expected result after implementation: no matches. The explicit
+`declaration_order::sorted_method_entries` call remains allowed inside the
+compatibility leaf and is not a source-authority claim.
+
+Acceptance retains the existing focused behavior:
+
+```text
+verified_and_compatibility_main_share_required_callable_order
+verified_main_helper_failure_stops_later_helpers_and_body
+invocation_main_box_is_rejected_before_root_effects
+```
+
+The parsed `zeta`, `alpha`, `main` fixture must continue to execute helpers as
+`alpha`, `zeta`, `main`, while nested `Main` remains rejected before any root
+effect.
 
 ## Acceptance
 

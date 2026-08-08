@@ -83,6 +83,9 @@ Rejected > Unresolved > Declined > Candidate
    - R5-S1 closed: deferred non-Main static-Box Program edge now consumes the
      ordered inventory directly and retains only an explicit compatibility
      name-order projection;
+   - R5-S2 closed: connected static-`Main` compatibility child ports now carry
+     the ordered inventory directly; the compatibility leaf retains only its
+     explicit historical name-order projection and nested-`Main` rejection;
    - migrate remaining Builder compatibility projections;
    - delete old AST-map helpers when callers reach zero;
    - update the owning reference/README and active card in the same

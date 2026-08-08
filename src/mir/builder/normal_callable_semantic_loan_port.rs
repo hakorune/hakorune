@@ -7,7 +7,7 @@
 use std::collections::BTreeSet;
 use std::{cell::RefCell, rc::Rc};
 
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
 
@@ -203,7 +203,7 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, '_
         &mut self,
         builder: &mut MirBuilder,
         box_name: String,
-        methods: std::collections::HashMap<String, ASTNode>,
+        methods: BoxMethodInventoryV1,
     ) -> Result<ValueId, String> {
         self.inner.lower_static_main_box(builder, box_name, methods)
     }
