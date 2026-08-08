@@ -145,7 +145,7 @@ inventory placement still differs from an exact explicit-method source site,
 and the parser-owned non-Clone source seal remains absent. Method/Box strings,
 raw `ExplicitSource`, JSON, `ReceiverPolicy`, the embedded helper, Builder
 declaration facts, and owner brand cannot be combined after the fact to
-manufacture a declaration. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6` plus Hako
+manufacture a declaration. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0-S3` plus Hako
 parser parity owns that correction before resolver consumption.
 
 The declared-contract issuer audit is also closed at `issuer=0` for the current source:

@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1 closed, R6 active next
+Status: accepted revised task map; H1 closed, R6-D0 design stop
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -45,14 +45,17 @@ physical verifier owns: MIR representation and target ABI
 Declaration and conformance are separate. An annotation declares an
 obligation; it does not prove the body. Production publication requires both.
 
-The Hako parser D0 audit adds two mandatory frontend corrections. First, reuse
+The Hako parser D0 audit adds three mandatory frontend corrections. First, reuse
 the source-carrier lifecycle/sealer but add parser-invocation-branded
 declaration refs/sites. Second, separate exact as-written method source sites
 from selected/generated inventory placement. Raw `BoxMethodInventoryV1` stays
 Clone-capable data; only the non-Clone parser seal may cross into resolver
-semantics. H1 is now closed as a disconnected substrate;
-`CURRENT_STATE.toml` points to the Rust R6 source-seal correction before any
-parser connection or resolver semantic publication.
+semantics. Third, the seal must be issued only from one rich parse-output path
+after build-gate prune/rebase and delegate lowering have completed; AST-only
+APIs are projections that discard the seal. H1 is now closed as a disconnected
+substrate; `CURRENT_STATE.toml` is deliberately design-stopped at the Rust R6
+source-seal/final-parse-product correction before any parser connection or
+resolver semantic publication.
 
 ## Single authority table
 
@@ -120,23 +123,33 @@ Rejected > Unresolved > Declined > Candidate
      sources remain below 800 lines;
    - no parser connection, build-gate, delegate postpass, scanner, resolver,
      semantic publication, or compatibility projection.
-7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6` — active next BoxShape correction
+7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0` — design stop; implementation is
+   not opened until the parse-output/final-seal boundary is accepted
    - give explicit methods an exact branded source site independent of the
      all-row inventory ordinal;
    - generated property/delegate rows retain generated origin only and never
      receive an explicit method source site;
-   - atomically publish the inventory plus one non-Clone parser source seal;
-   - delete `method_source_member_ordinals`, length-delta reconstruction, the
-     parallel gate-merge slice, and raw delegate ordinal sidecars after the
-     typed transaction owns every caller;
+   - define one parser invocation/source-authority session owning the fresh
+     brand, source sites, unpublished inventory, and prepared seal payload;
+   - carry that payload through build-gate prune/rebase and delegate
+     postpass, then issue one non-Clone parser source seal only for the final
+     AST/inventory product;
+   - make AST-only parser APIs project the same rich parse path and discard
+     the seal; no second scanner/rescan and no `ParserMetadata` authority;
+   - only after the above contract is accepted, atomically publish the
+     inventory plus seal and delete `method_source_member_ordinals`,
+     length-delta reconstruction, the parallel gate-merge slice, and raw
+     delegate ordinal sidecars in one transaction cutover series;
    - R4 JSON remains descriptive and R5 Builder receives inventory only.
+   - no code, fixture, or compatibility fallback is opened during this D0
+     stop.
 
 8. `HAKO-PARSER-BOX-DECLARATION-CARRIER-H2/H3`
    - issue the same ordered inventory and non-Clone parser seal while
      parsing each Box and body once; no body slice or scanner rescan;
-   - whole-program delegate expansion must happen before final seal or consume
-     and return the branded product; detached sealed inventory mutation is
-     forbidden;
+   - consume the R6 rich parse product; whole-program delegate expansion must
+     happen before final seal or consume and return the branded product;
+     detached sealed inventory mutation is forbidden;
    - if one-pass body `ParserNodeProductV1` is unavailable, stop at
      `NoSafeSlice` rather than adding a fallback.
 9. `HAKO-PARSER-BOX-DECLARATION-CARRIER-H4`

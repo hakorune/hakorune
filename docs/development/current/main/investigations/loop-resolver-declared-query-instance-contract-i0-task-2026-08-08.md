@@ -22,7 +22,8 @@ The first positive fixture is `length(): i64`, but neither the source rune nor
 the durable product is named `exact_trivial_i64`. Types and arity come from the
 method signature; physical ABI remains downstream.
 
-This row may open only after the full Rust/`.hako` source-seal and typed
+This row may open only after the full Rust R6-D0/S0-S3 and `.hako` source-seal
+series, plus typed
 `CallableContract(query)` parity, resolver semantic signature, and bounded
 `OWN-HOME-ABI0-S0/query` are closed. It has no target,
 source-bound call relation, Recipe/CallSlot, body conformance, Builder, MIR, or
@@ -120,7 +121,7 @@ is owned only by
 `callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`.
 
 ```text
-FRONTEND-PARSED-BOX-SOURCE-SEAL-R6 + Hako H1-H6 parity
+FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0-S3 + Hako H1-H6 parity
   -> resolver semantic declaration/signature
   -> OWN-HOME-ABI0-S0/query
   -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0

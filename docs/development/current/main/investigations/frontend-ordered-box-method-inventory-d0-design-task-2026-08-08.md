@@ -1,5 +1,5 @@
 ---
-Status: closed through R5 — R6 source-seal correction parked
+Status: R6-D0 design stop — parser source-seal/final parse-product boundary revised; implementation not opened
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -234,6 +234,89 @@ MapBox, or function scanner is reread.
 The current `parser_box.hako` is already 787 lines and receives no new
 responsibility. Any necessary edit requires a prior facade split.
 
+## R6-D0 correction: one parser output and one final source seal
+
+The first R6 proposal was incomplete: it retired the Rust ordinal sidecar but
+did not define how a non-Clone parser seal survives the prune and delegate
+postpass boundary. The parser's public APIs currently return `ASTNode`, while
+`lower_delegate_exposes` appends generated rows after the initial parse. A seal
+issued before that postpass would describe an intermediate inventory and could
+not be the resolver source authority.
+
+R6 therefore remains a design stop until the following single path is fixed:
+
+```text
+source text
+  -> one parser invocation/source-authority session
+       (fresh invocation brand + top-level statement coordinates)
+  -> parse AST + prepared Box source-seal payloads
+  -> build-gate prune/rebase carries the payload without fabricating sites
+  -> delegate postpass consumes the typed source-aware transaction and returns
+       the updated unpublished inventory/payload
+  -> finalizer checks the final AST inventory and exact source relations
+  -> ParserBoxSourceSealV1 / ParsedProgramWithSourceV1 (non-Clone)
+  -> legacy AST-only APIs project the AST from that same path and discard seal
+```
+
+The parser invocation session is the sole owner of the fresh brand, source
+Box/member sites, member cursor, unpublished ordered inventory, and prepared
+seal payload. `ParserMetadata` remains cloneable diagnostic metadata and is not
+source authority. AST data, JSON, Builder, MIR, resolver, provider, and runtime
+must never own or forge a seal.
+
+The delegate postpass must not accept only an AST and append generated rows to
+a detached inventory. It either consumes/returns the unpublished source-aware
+transaction or remains outside the seal-producing path. The final seal is
+issued only after delegate lowering has completed. AST-only compatibility APIs
+must call the rich canonical parse path once; a second scanner/rescan is not an
+authority.
+
+R6 I0 is bounded to ordinary Rust `box` parsing. Interface/static inventories,
+top-level build-gated source selection, Hako parser connection, and resolver
+semantic publication remain nonclaims unless a later row explicitly opens
+their source-authority seam. For a build-gated cohort, the session must either
+survive prune with a typed rebase or issue no seal; it must never invent a
+post-prune ordinal from the final AST.
+
+### R6-D0 owner and removal contract
+
+```text
+AST / JSON:
+  descriptive ordered inventory and inventory placement only
+
+Parser transaction:
+  fresh brand, exact source sites, typed generated origins, unpublished rows
+
+ParserBoxSourceSeal:
+  non-Clone final source authority, issued exactly once after postpasses
+
+Resolver:
+  consumes the final seal; never reconstructs from names/ordinals/maps
+```
+
+The sidecar and raw ordinal retirement is one transaction cutover, not a
+partial patch. `method_source_member_ordinals`,
+`record_new_methods_since`, raw `DelegateDecl` source ordinals, and parallel
+ordinal-slice merge APIs are deleted in the same series that makes every
+ordinary producer use the transaction. A seal constructor is not public and
+cannot be created by tests with arbitrary rows.
+
+The bounded implementation series is:
+
+```text
+R6-S0  rename/clarify inventory ordinal vocabulary; preserve JSON wire spelling
+R6-S1  parser-private brand, source sites, transaction, prepared/final seal
+R6-S2  ordinary Box direct/property/gate/delegate producer cutover;
+       delete sidecar/raw ordinal/parallel merge APIs
+R6-S3  canonical rich parse output across prune + delegate postpass;
+       AST-only projections, final seal, focused end-to-end guard
+```
+
+Each slice is behavior-preserving and updates focused tests, the owner README,
+the active task receipt, and the applicable reference in the same commit.
+No R6 implementation may begin while this R6-D0 parse-output contract is
+unaccepted.
+
 ## Ordered implementation series
 
 ```text
@@ -248,7 +331,10 @@ Rust BoxShape series:
      + selected-gate/property/delegate atomic transactions
   R4 JSON Box codec split + ordered v2 / CompatibilityOnly v1
   R5 Builder compatibility consumer migration + old helper retirement
-  R6 parser-owned source seal + source-site/inventory-ordinal split + sidecar retirement
+  R6-D0 design stop: parser-owned source seal must include the final parse
+      product after prune and delegate postpass
+  R6-S0/S1/S2/S3 parser source-site/inventory-ordinal split, transaction
+      cutover, final rich parse output, and sidecar retirement
 
 Hako prerequisite and parity:
   H0 HAKO-PARSER-BOX-DECLARATION-CARRIER-D0
@@ -265,10 +351,12 @@ Then:
   RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
 ```
 
-Historical execution note: R0/R0A and R1-R5 are closed. The current frontier
-is the Hako parser carrier design stop; R6 must close before H5 parity or any
-resolver declaration row. No caller-zero model may become a second AST or
-production route.
+Historical execution note: R0/R0A and R1-R5 are closed. H1's disconnected
+carrier substrate is closed, but the current frontier is the R6-D0 parser
+source-seal design stop. R6 must close its canonical rich parse-output and
+delegate-postpass boundary before H2-H6, H5 parity, or any resolver
+declaration row. No caller-zero model may become a second AST or production
+route.
 
 ## Verification contract
 
@@ -285,6 +373,10 @@ v2 ordered codec roundtrip
 v1 rows are CompatibilityOnly
 name-order compatibility behavior unchanged
 no resolver compat import
+one parser invocation/source-authority session across prune and delegate postpass
+final seal only after delegate-generated inventory rows are committed
+AST-only APIs project the same rich parse path and do not rescan
+non-Clone seal cannot be issued from AST/JSON/ParserMetadata/test constructors
 all touched source files below 800 lines
 ```
 

@@ -1,5 +1,5 @@
 ---
-Status: H1 closed — disconnected parser substrate landed; R6 is next
+Status: H1 closed — disconnected parser substrate landed; Rust R6-D0 is the current design stop
 Date: 2026-08-08
 Decision: reuse the parser-private source-carrier lifecycle; separate exact
 source sites from selected inventory placement; issue one non-Clone parser
@@ -396,10 +396,12 @@ H5  test-only normalized Rust/.hako parity                   after H4
 H6  typed CallableContract(query) carriage + reference       after H5
 ```
 
-The Rust-side `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6` BoxShape series may land
-after H1 but must close before H5 or any resolver declaration row. It removes
-the parallel source-ordinal sidecar and gives Rust/Hako parity the same source
-site versus inventory-placement model; it is not part of the H1 commit.
+The Rust-side `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0` design stop now owns the
+parse-output/final-seal correction. Its S0-S3 implementation series may open
+only after the rich parse product is accepted, and must close before H5 or any
+resolver declaration row. It removes the parallel source-ordinal sidecar and
+gives Rust/Hako parity the same source-site versus inventory-placement model;
+it is not part of the H1 commit.
 
 Each implementation row must close with focused tests, the owning README,
 the affected reference receipt, the active card/task pointer, and a check
