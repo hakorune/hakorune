@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0 closed, R6-S3B-A active
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A closed, R6-S3B-B design stop
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -177,6 +177,18 @@ R6-S3B-D
   retire the bounded S3A generated-suffix adapter
   close all AST-only projection and rich-path parity gaps
 
+R6-S3B-B0
+  accepted design receipt for parser-issued gate paths and selection receipts
+
+R6-S3B-B1
+  parser gate-id/branch/child cursor and SourceBoxDeclarationPath transport
+
+R6-S3B-B2
+  atomic consume-return ParserSourceSession prune/rebase
+
+R6-S3B-B3
+  AST/source coverage tests, guard, finalizer alignment, and reference closeout
+
 R6-S3-SOURCE-SITE-PLACEMENT-I0
   SourceBoxMethodSiteV1 separate from selected/generated inventory ordinal
   remove parser sidecar/member-ordinal reconstruction
@@ -203,9 +215,9 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   no ExactTrivial*Abi/MirType reverse inference
 ```
 
-The parser rows are R6-S3 design/implementation boundaries; R6-S3A and
-R6-S3B-D0 are closed, and S3B-A is the active bounded implementation slice.
-S3B-A through S3B-D are the only subsequent parser implementation
+The parser rows are R6-S3 design/implementation boundaries; R6-S3A,
+R6-S3B-D0, and S3B-A are closed. S3B-B is the current design stop; B0
+through B3 are the only subsequent parser implementation
 slices. The latter five callable rows remain resolver/callable rows. Do not create a parallel
 implementation lane for them.
 

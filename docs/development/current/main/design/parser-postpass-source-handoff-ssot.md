@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B implementation not opened
+Status: accepted design; R6-S3B-A closed; R6-S3B-B implementation not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -197,6 +197,116 @@ R6-S3B-C  source-aware delegate transaction and
 R6-S3B-D  final complete-coverage seal, retire the S3A generated-suffix
            adapter, and switch all AST-only APIs to the rich path
 ```
+
+## R6-S3B-B design receipt — accepted, implementation not opened
+
+The top-level build-gate boundary is a parser source-transport problem, not
+an AST-only filtering helper. The current `statement_ordinal` site is
+insufficient because multiple Boxes inside one gate can share the outer
+ordinal. S3B-B introduces no semantic `Verified*` or physical `Prepared*`
+product; it adds only parser-private structural coordinates and an atomic
+source-session operation.
+
+### Sole owners and types
+
+```text
+NyashParser
+  owns invocation brand, top-level cursor, gate-id issuer, and predicate policy
+
+SourceBuildGateIdV1
+SourceBuildGateBranchV1 { Then | Else }
+SourceBoxDeclarationPathV1
+  = invocation brand + immutable root/gate/child segments
+
+SourceBoxDeclarationSiteV1
+  owns one SourceBoxDeclarationPathV1
+
+BuildGateSelectionReceiptV1
+  = one gate id + selected branch + original source path
+
+ParserSourceSessionV1
+  owns all unpublished Box source candidates and relations
+  prepares/commits prune as one consume-return transaction
+
+OpenParserPostpassProductV1
+  owns AST + ParserSourceSessionV1 + diagnostic metadata across the boundary
+```
+
+The path grammar is private and parser-issued:
+
+```text
+RootStatement { ordinal }
+BuildGate { gate_id, branch: Then|Else, child_ordinal }
+... nested segments ...
+```
+
+Member-level `SourceBoxMethodSiteV1` paths remain nested under the Box path;
+their member ordinal vocabulary is not reused for top-level gate children.
+Paths retain original coordinates after pruning. A final AST vector position
+is never a source identity.
+
+### Atomic prune contract
+
+```text
+OpenParserPostpassProductV1::prune_build_gates(self, parser)
+  -> Result<Self, ParserPostpassRejectV1>
+```
+
+The operation performs one AST/source walk and one predicate selection per
+gate. It issues a typed `BuildGateSelectionReceiptV1` for each gate, prepares
+the selected source candidates, and commits a complete replacement session
+only after all of these invariants hold:
+
+```text
+one invocation brand
+unique gate ids and paths
+every parsed Box candidate has exactly one path
+every selected ordinary Box has exactly one source candidate and vice versa
+unselected branch AST and source candidates are dropped together
+selected source paths retain original coordinates
+no missing/duplicate/foreign path
+```
+
+Failure drops the unpublished product; it never partially mutates the AST or
+reuses a source session. The parser remains the evaluator/cursor owner, but it
+does not become a second source-session owner.
+
+### Disposition and negative matrix
+
+```text
+NoSafeSlice
+  typed path issuer/cursor or source-session transport is not implemented
+
+Rejected
+  foreign brand/path, duplicate gate/path, branch/path mismatch,
+  cursor overflow, lost/duplicated candidate, final AST/source mismatch
+
+Unresolved
+  source path or branch membership is missing from parser evidence
+
+Declined
+  fully observed gate is outside the opened S3B-B cohort or its predicate is
+  unsupported by the bounded source policy
+
+Candidate
+  same-brand product has one selection receipt per gate and exact coverage
+```
+
+Normal selection of a supported branch is not an error disposition.
+
+### B implementation ladder
+
+```text
+R6-S3B-B0  design receipt and owner/type/negative matrix (this row)
+R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport
+R6-S3B-B2  consume-return ParserSourceSession prune/rebase transaction
+R6-S3B-B3  AST/source coverage tests, guard, finalizer receipt, and docs
+```
+
+B1/B2 must not add delegate relations, interface/static/record seals, Hako
+parser parity, resolver publication, or Recipe/Builder/MIR integration. Every
+future implementation cell updates its guard, owner README, active task, and
+affected `docs/reference/**` document in the same commit.
 
 Each slice is a BoxShape refactor/authority closure, not a new language
 acceptance shape. Each implementation slice must update its owner README,

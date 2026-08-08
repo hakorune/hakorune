@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0 closed — R6-S3B-A active
+Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A closed — R6-S3B-B design stop
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -575,11 +575,11 @@ not authorize a rescan, name lookup, ordinal reconstruction, or AST rewrite.
 
 Acceptance for this slice is the focused rich-product test/guard plus the
 existing parser-session and AST inventory gates. The implementation and its
-reference receipt must land together. R6-S3B-D0 is now accepted; S3B-A is the
-active implementation slice for direct ordinary-Box AST projection parity.
-Top-level build-gate/source-aware delegate transport remains later S3B-B/C/D
-work; no resolver `CallableContract`, target, Recipe, Builder, MIR, provider,
-or runtime work opens here.
+reference receipt landed together. R6-S3B-D0 and S3B-A are closed. The current
+design stop is S3B-B for top-level gate path/cursor and atomic source-session
+prune/rebase; source-aware delegate transport remains later S3B-C/D work. No
+resolver `CallableContract`, target, Recipe, Builder, MIR, provider, or runtime
+work opens here.
 
 ### R6-S3B design and implementation ladder
 
@@ -645,14 +645,14 @@ Required S3B decision receipts are:
 4. projection parity tests proving AST-only and rich paths parse once;
 5. a guard and reference update in the same implementation slice later.
 
-The S3B-D0 receipts are accepted. `R6-S3B-A` is now the only open slice:
-implement the rich postpass product and direct ordinary-Box AST projection
-parity. Until S3B-A closes, do not add top-level gate rebase,
+The S3B-D0 receipts are accepted and S3B-A is closed. `R6-S3B-B` is now the
+current design stop for top-level gate path/cursor and atomic source-session
+prune/rebase. Until B-D0 is accepted, do not add top-level gate rebase,
 source-aware delegate transport, interface/static/record seals, Hako parser
 parity, resolver declaration, `CallableContract`, target, Recipe, Builder,
 MIR, provider, or runtime code.
 
-### R6-S3B-A implementation receipt
+### R6-S3B-A implementation receipt — closed
 
 The first S3B-A cell now owns one non-Clone
 `OpenParserPostpassProductV1` containing the AST, a named
@@ -668,6 +668,17 @@ the existing gate/delegate behavior remains a compatibility canary and no new
 resolver-grade relation claim is made. The focused S3B-A guard and tests prove
 product handoff, diagnostic metadata separation, and rich/projection AST
 parity. The implementation/reference/guard closeout lands together.
+
+### R6-S3B-B design stop (no implementation)
+
+The next frontier is accepted only as a design receipt in
+`docs/development/current/main/design/parser-postpass-source-handoff-ssot.md#r6-s3b-b-design-receipt--accepted-implementation-not-opened`.
+The current `statement_ordinal` cannot identify multiple Boxes inside one
+gate. B must add parser-issued gate id/branch/child structural paths and one
+`BuildGateSelectionReceiptV1`, then make product prune consume/return a
+complete source session atomically. The final AST ordinal remains forbidden
+as source identity. B0/B1/B2/B3 are the only next cells; delegate relation,
+interface/static/record, Hako, resolver, and MIR work stay closed.
 
 ## Ordered implementation series
 
