@@ -1,5 +1,5 @@
 ---
-Status: accepted task map; execution is Hako ordered Box declaration carrier D0
+Status: accepted task map; Hako ordered Box declaration carrier D0 accepted, H1 is next but remains at design-stop handoff
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -38,6 +38,13 @@ physical verifier owns: MIR representation and target ABI
 
 Declaration and conformance are separate. An annotation declares an
 obligation; it does not prove the body. Production publication requires both.
+
+The Hako parser D0 audit adds one mandatory frontend correction: reuse the
+source-carrier lifecycle/sealer, but add parser-invocation-branded
+declaration refs/sites. The current index-only source refs cannot distinguish
+foreign builders with the same index and are not promoted to declaration
+identity. H1 is disconnected by design; its implementation is not opened
+while `CURRENT_STATE.toml` remains in `design_stop`.
 
 ## Single authority table
 
@@ -93,10 +100,22 @@ Rejected > Unresolved > Declined > Candidate
 ### B. Hako parser parity
 
 6. `HAKO-PARSER-BOX-DECLARATION-CARRIER-D0/H1-H6`
+   - D0 accepted: reuse the source-carrier lifecycle/sealer, add branded
+     declaration refs/records, and keep parser products below resolver
+     semantics;
+   - H1 first proves disconnected branded refs/sites, ordered drafts,
+     duplicate-without-mutation, one-Box seal, foreign-brand/site negatives,
+     and double-finish rejection;
    - split the current oversized parser facade before adding responsibility;
-   - issue the same ordered declaration carrier while parsing once;
-   - carry `CallableContract(query)`;
-   - normalized Rust/Hako parity is test evidence, never semantic transport.
+   - H2/H3 issue the same ordered declaration carrier while parsing each Box
+     and body once; no body slice or scanner rescan;
+   - H4 is the sole selected build-gate transaction: parse branch states,
+     compare surface signatures, select once, rebase ordinals, then commit;
+   - H5 normalized Rust/Hako parity is test evidence, never semantic
+     transport; H6 may carry opaque `CallableContract(query)` spelling only;
+   - if one-pass body `ParserNodeProductV1` or canonical Hako build-config
+     evaluation is unavailable, stop at `NoSafeSlice` rather than adding a
+     fallback.
 
 ### C. Resolver declaration and declared contract
 
