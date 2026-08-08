@@ -2,6 +2,7 @@ pub mod constructors;
 pub mod delegates;
 pub mod fields;
 pub mod methods;
+pub(crate) mod pending_method;
 pub mod postfix;
 pub mod properties;
 pub mod property_emit;

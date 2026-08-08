@@ -29,6 +29,17 @@ pub enum ParseError {
         line: usize,
     },
 
+    #[error(
+        "Duplicate Box method '{name}' at line {duplicate_line}, column {duplicate_column}; first declared at line {first_line}, column {first_column}"
+    )]
+    DuplicateBoxMethod {
+        name: String,
+        first_line: usize,
+        first_column: usize,
+        duplicate_line: usize,
+        duplicate_column: usize,
+    },
+
     #[error("Unexpected end of file")]
     UnexpectedEOF,
 

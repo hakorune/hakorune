@@ -318,7 +318,9 @@ box ChoiceBox {
     assert_eq!(field_decls[0].name, "value");
     assert_eq!(field_decls[0].declared_type_name.as_deref(), Some("i64"));
 
-    let choose = methods.get("choose").expect("expected choose() method");
+    let choose = methods
+        .get_declaration("choose")
+        .expect("expected choose() method");
     let ASTNode::FunctionDeclaration { body, .. } = choose else {
         panic!("expected FunctionDeclaration");
     };

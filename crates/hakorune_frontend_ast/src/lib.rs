@@ -26,9 +26,9 @@ pub use ast_node::{
 pub use attrs::{DeclarationAttrs, RuneAttr};
 pub use box_method_inventory::{
     BoxMemberGateSiteV1, BoxMethodCompatibilityOriginV1, BoxMethodDeclarationSiteV1,
-    BoxMethodEntryV1, BoxMethodGateSelectionV1, BoxMethodGeneratedProvenanceV1,
-    BoxMethodInventoryErrorV1, BoxMethodInventoryV1, BoxMethodProvenanceV1,
-    BoxMethodSourceSelectionV1,
+    BoxMethodDeclarationTransformErrorV1, BoxMethodEntryV1, BoxMethodGateSelectionV1,
+    BoxMethodGeneratedProvenanceV1, BoxMethodInventoryErrorV1, BoxMethodInventoryV1,
+    BoxMethodProvenanceV1, BoxMethodSourceSelectionV1,
 };
 pub use build_predicate::BuildPredicate;
 pub use decls::{ContractKind, DelegateDecl, DelegateExposeDecl, ParamDecl, TransitionDecl};

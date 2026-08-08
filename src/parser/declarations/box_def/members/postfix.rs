@@ -9,6 +9,36 @@ fn has_postfix(p: &NyashParser) -> bool {
     p.match_token(&TokenType::CATCH) || p.match_token(&TokenType::CLEANUP)
 }
 
+pub(crate) fn try_apply_to_pending_method(
+    p: &mut NyashParser,
+    declaration: &mut ASTNode,
+) -> Result<bool, ParseError> {
+    if !has_postfix(p) {
+        return Ok(false);
+    }
+    require_member_postfix_enabled(p)?;
+    let ASTNode::FunctionDeclaration { body, .. } = declaration else {
+        return Err(ParseError::UnexpectedToken {
+            found: p.current_token().token_type.clone(),
+            expected: "function declaration before postfix catch/cleanup".to_string(),
+            line: p.current_token().line,
+        });
+    };
+    if body
+        .iter()
+        .any(|node| matches!(node, ASTNode::TryCatch { .. }))
+    {
+        return Err(ParseError::UnexpectedToken {
+            found: p.current_token().token_type.clone(),
+            expected: "single postfix catch/cleanup after method".to_string(),
+            line: p.current_token().line,
+        });
+    }
+    let old = std::mem::take(body);
+    *body = parse_postfix_trycatch(p, old, "single catch only after method body")?;
+    Ok(true)
+}
+
 fn member_postfix_enabled() -> bool {
     crate::parser::env::method_catch()
 }

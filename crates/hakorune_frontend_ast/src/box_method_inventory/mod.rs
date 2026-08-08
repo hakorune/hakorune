@@ -6,12 +6,14 @@
 //! contracts, or physical routes.
 
 mod error;
+mod transform;
 
 use std::collections::HashMap;
 
 use crate::{ASTNode, Span};
 
 pub use error::BoxMethodInventoryErrorV1;
+pub use transform::BoxMethodDeclarationTransformErrorV1;
 
 #[cfg(test)]
 mod tests;
@@ -338,9 +340,11 @@ impl BoxMethodInventoryV1 {
         gate_site: BoxMemberGateSiteV1,
     ) -> Result<(), BoxMethodInventoryErrorV1> {
         for entry in &selected.entries {
-            if self.lookup.contains_key(entry.name()) {
+            if let Some(first_index) = self.lookup.get(entry.name()) {
                 return Err(BoxMethodInventoryErrorV1::DuplicateMethod {
                     name: entry.name.clone(),
+                    first_span: self.entries[*first_index].diagnostic_span,
+                    duplicate_span: entry.diagnostic_span,
                 });
             }
         }
@@ -383,8 +387,12 @@ impl BoxMethodInventoryV1 {
         if !matches!(provenance, BoxMethodProvenanceV1::CompatibilityOnly { .. }) {
             Self::validate_declaration_name(&name, &declaration)?;
         }
-        if self.lookup.contains_key(name.as_ref()) {
-            return Err(BoxMethodInventoryErrorV1::DuplicateMethod { name });
+        if let Some(first_index) = self.lookup.get(name.as_ref()) {
+            return Err(BoxMethodInventoryErrorV1::DuplicateMethod {
+                name,
+                first_span: self.entries[*first_index].diagnostic_span,
+                duplicate_span: diagnostic_span,
+            });
         }
         let selected_method_ordinal = u32::try_from(self.entries.len())
             .map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?;

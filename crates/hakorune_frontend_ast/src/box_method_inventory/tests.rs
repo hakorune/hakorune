@@ -48,19 +48,83 @@ fn direct_rows_keep_source_order_and_issue_ordinals() {
 #[test]
 fn duplicate_rejects_without_mutation() {
     let mut inventory = BoxMethodInventoryV1::empty();
+    let first_span = Span::new(0, 0, 3, 2);
+    let duplicate_span = Span::new(0, 0, 8, 4);
+    inventory
+        .try_push_explicit_source("run", function("run"), first_span)
+        .unwrap();
+
+    let error = inventory
+        .try_push_explicit_source("run", function("run"), duplicate_span)
+        .unwrap_err();
+
+    assert_eq!(
+        error,
+        BoxMethodInventoryErrorV1::DuplicateMethod {
+            name: "run".into(),
+            first_span,
+            duplicate_span,
+        }
+    );
+    assert_eq!(inventory.len(), 1);
+}
+
+#[test]
+fn declaration_transform_preserves_inventory_metadata() {
+    let mut inventory = BoxMethodInventoryV1::empty();
+    let diagnostic_span = Span::new(0, 0, 4, 7);
+    inventory
+        .try_push_explicit_source("run", function("run"), diagnostic_span)
+        .unwrap();
+    let before = inventory.get("run").unwrap().clone();
+
+    let transformed = inventory
+        .try_map_declarations_preserving_metadata::<(), _>(|mut declaration| {
+            let ASTNode::FunctionDeclaration { is_override, .. } = &mut declaration else {
+                unreachable!()
+            };
+            *is_override = true;
+            Ok(declaration)
+        })
+        .unwrap();
+    let after = transformed.get("run").unwrap();
+
+    assert_eq!(after.name(), before.name());
+    assert_eq!(after.provenance(), before.provenance());
+    assert_eq!(after.site(), before.site());
+    assert_eq!(after.diagnostic_span(), diagnostic_span);
+    assert!(matches!(
+        after.declaration(),
+        ASTNode::FunctionDeclaration {
+            is_override: true,
+            ..
+        }
+    ));
+}
+
+#[test]
+fn declaration_transform_rejects_changed_method_name() {
+    let mut inventory = BoxMethodInventoryV1::empty();
     inventory
         .try_push_explicit_source("run", function("run"), Span::unknown())
         .unwrap();
 
     let error = inventory
-        .try_push_explicit_source("run", function("run"), Span::unknown())
+        .try_map_declarations_preserving_metadata::<(), _>(|mut declaration| {
+            let ASTNode::FunctionDeclaration { name, .. } = &mut declaration else {
+                unreachable!()
+            };
+            *name = "renamed".to_owned();
+            Ok(declaration)
+        })
         .unwrap_err();
 
-    assert_eq!(
+    assert!(matches!(
         error,
-        BoxMethodInventoryErrorV1::DuplicateMethod { name: "run".into() }
-    );
-    assert_eq!(inventory.len(), 1);
+        BoxMethodDeclarationTransformErrorV1::InvalidInventory(
+            BoxMethodInventoryErrorV1::DeclarationNameMismatch { .. }
+        )
+    ));
 }
 
 #[test]

@@ -107,8 +107,10 @@ fn lower_statement(
         return Ok(statement);
     };
 
-    let mut compatibility_methods = methods.into_compatibility_map();
-    if !is_record && !delegates.is_empty() {
+    let methods = if is_record || delegates.is_empty() {
+        methods
+    } else {
+        let mut compatibility_methods = methods.into_compatibility_map();
         lower_delegates_for_box(
             &name,
             &field_decls,
@@ -116,14 +118,14 @@ fn lower_statement(
             &mut compatibility_methods,
             boxes,
         )?;
-    }
-    let methods = BoxMethodInventoryV1::try_from_compatibility_map(
-        compatibility_methods,
-        BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
-    )
-    .map_err(|error| {
-        delegate_error(format!("invalid compatibility method inventory: {error:?}"))
-    })?;
+        BoxMethodInventoryV1::try_from_compatibility_map(
+            compatibility_methods,
+            BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
+        )
+        .map_err(|error| {
+            delegate_error(format!("invalid compatibility method inventory: {error:?}"))
+        })?
+    };
 
     Ok(ASTNode::BoxDeclaration {
         name,

@@ -1,5 +1,5 @@
 ---
-Status: active — revised after whole-owner audit
+Status: closed — implementation, tests, and reference receipt landed
 Date: 2026-08-08
 Decision: parser-owned ExplicitSource issuance and duplicate/site seal
 Parent: `frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md`
@@ -62,3 +62,38 @@ methods, selected build-gate methods, and postfix mutation in one `HashMap`.
 Opening only its direct rows here would require a dual ledger or a false
 `CompatibilityOnly` downgrade. Both are forbidden. R3 replaces that owner and
 its generated/selected transactions as one BoxShape cutover.
+
+## Implementation receipt
+
+```text
+interface/static parser:
+  fresh ExplicitSource rows in lexical order
+
+duplicate diagnostic:
+  first + duplicate line/column
+
+postfix:
+  unpublished PendingExplicitMethodV1 -> one commit
+
+build_cfg:
+  consuming declaration transform; metadata preserved
+
+delegate-free lowering:
+  original inventory passed through unchanged
+
+ordinary ExplicitSource:
+  0 (R3)
+```
+
+Evidence:
+
+```text
+cargo test -q -p hakorune-frontend-ast box_method_inventory
+  9 passed
+
+cargo test -q --lib parser_box_method_inventory_r2 -- --nocapture
+  7 passed
+
+cargo test -q --no-run
+  green (warning baseline only)
+```

@@ -1,5 +1,5 @@
 ---
-Status: accepted task map; execution is frontend inventory R2
+Status: accepted task map; execution is frontend inventory R3
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -66,12 +66,12 @@ Rejected > Unresolved > Declined > Candidate
    - replace the AST `HashMap` field;
    - compile compatibility consumers through explicit `CompatibilityOnly`;
    - no source-authority claim.
-2. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R2`
+2. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R2` — closed
    - shared pending/direct issuance substrate;
    - interface/static parser issuance and duplicate/site proof;
    - build_cfg transforms declarations without losing metadata;
    - ordinary source authority remains zero.
-3. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R3`
+3. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R3` — active
    - ordinary Box sole-inventory cutover;
    - selected build-gate, generated property, and delegate atomic batches;
    - generated rows stay non-source provenance.

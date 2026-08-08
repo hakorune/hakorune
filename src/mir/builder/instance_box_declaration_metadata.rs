@@ -88,7 +88,7 @@ impl PreparedInstanceBoxDeclarationMetadataV1 {
 mod tests {
     use std::collections::HashMap;
 
-    use crate::ast::{ASTNode, DeclarationAttrs, Span};
+    use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, Span};
 
     use super::PreparedInstanceBoxDeclarationMetadataV1;
 

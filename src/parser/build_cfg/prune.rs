@@ -1,6 +1,18 @@
-use crate::ast::{ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1};
+use crate::ast::{ASTNode, BoxMethodDeclarationTransformErrorV1};
 use crate::parser::{NyashParser, ParseError};
 use std::collections::HashMap;
+
+fn map_method_transform_error(
+    error: BoxMethodDeclarationTransformErrorV1<ParseError>,
+) -> ParseError {
+    match error {
+        BoxMethodDeclarationTransformErrorV1::Transform(error) => error,
+        BoxMethodDeclarationTransformErrorV1::InvalidInventory(error) => ParseError::BuildCfg {
+            message: format!("invalid Box method inventory after build_cfg transform: {error}"),
+            line: 0,
+        },
+    }
+}
 
 impl NyashParser {
     pub(crate) fn prune_build_gate_program(&self, ast: ASTNode) -> Result<ASTNode, ParseError> {
@@ -150,18 +162,10 @@ impl NyashParser {
                     span,
                 } => {
                     let methods = methods
-                        .into_compatibility_map()
-                        .into_iter()
-                        .map(|(key, method)| Ok((key, self.prune_build_gate_node(method)?)))
-                        .collect::<Result<HashMap<_, _>, ParseError>>()?;
-                    let methods = BoxMethodInventoryV1::try_from_compatibility_map(
-                        methods,
-                        BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
-                    )
-                    .map_err(|error| ParseError::BuildCfg {
-                        message: format!("invalid compatibility method inventory: {error:?}"),
-                        line: 0,
-                    })?;
+                        .try_map_declarations_preserving_metadata(|method| {
+                            self.prune_build_gate_node(method)
+                        })
+                        .map_err(map_method_transform_error)?;
                     let constructors = constructors
                         .into_iter()
                         .map(|(key, ctor)| Ok((key, self.prune_build_gate_node(ctor)?)))
@@ -379,18 +383,10 @@ impl NyashParser {
                 span,
             } => {
                 let methods = methods
-                    .into_compatibility_map()
-                    .into_iter()
-                    .map(|(key, method)| Ok((key, self.prune_build_gate_node(method)?)))
-                    .collect::<Result<HashMap<_, _>, ParseError>>()?;
-                let methods = BoxMethodInventoryV1::try_from_compatibility_map(
-                    methods,
-                    BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
-                )
-                .map_err(|error| ParseError::BuildCfg {
-                    message: format!("invalid compatibility method inventory: {error:?}"),
-                    line: 0,
-                })?;
+                    .try_map_declarations_preserving_metadata(|method| {
+                        self.prune_build_gate_node(method)
+                    })
+                    .map_err(map_method_transform_error)?;
                 let constructors = constructors
                     .into_iter()
                     .map(|(key, ctor)| Ok((key, self.prune_build_gate_node(ctor)?)))

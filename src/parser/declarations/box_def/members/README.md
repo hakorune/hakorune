@@ -12,6 +12,9 @@ synthetic method body construction.
   prologues, and `birth_once` constructor prologue statements.
 - `postfix.rs`: the only owner for Box member postfix `catch/cleanup` parsing
   and `TryCatch` wrapping, including the member postfix syntax gate.
+- `pending_method.rs`: unpublished explicit method transaction. Postfix
+  syntax may mutate this value; the ordered inventory receives it exactly
+  once only after postfix parsing is complete.
 
 Rules:
 
@@ -22,6 +25,8 @@ Rules:
   AST construction outside `property_emit.rs`.
 - Do not duplicate Box member postfix `catch/cleanup` parsing outside
   `postfix.rs`.
+- Do not mutate a published method inventory entry for postfix syntax. Keep
+  the method pending and commit it once at the next member or Box end.
 - Do not bypass the member postfix gate for method or constructor postfix
   handlers.
 - Keep `weak` on the stored-field path only. Do not route weak fields through

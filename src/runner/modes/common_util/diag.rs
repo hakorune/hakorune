@@ -78,6 +78,11 @@ fn extract_line_col(err: &ParseError) -> (Option<usize>, Option<usize>) {
             (Some(*line), None)
         }
         ParseError::UnexpectedToken { line, .. } => (Some(*line), None),
+        ParseError::DuplicateBoxMethod {
+            duplicate_line,
+            duplicate_column,
+            ..
+        } => (Some(*duplicate_line), Some(*duplicate_column)),
         ParseError::UnexpectedEOF => (None, None),
         ParseError::InvalidExpression { line } => (Some(*line), None),
         ParseError::InvalidStatement { line } => (Some(*line), None),

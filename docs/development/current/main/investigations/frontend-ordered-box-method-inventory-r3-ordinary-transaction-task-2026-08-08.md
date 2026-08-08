@@ -1,5 +1,5 @@
 ---
-Status: queued after R2; do not execute early
+Status: active — R2 prerequisite closed
 Date: 2026-08-08
 Decision: ordinary Box sole-inventory and generated/selected atomic cutover
 Parent: `frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md`

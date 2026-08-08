@@ -18,10 +18,13 @@ box TextLike {
 `CallableContract` is declaration-local and non-repeatable. The first accepted
 value is `query`, and the first implementation cohort is an instance method.
 Current parsers do not accept this family yet; acceptance and semantic
-issuance remain production zero. The Rust AST now stores the ordered
-`BoxMethodInventoryV1`, but its R1 rows remain `CompatibilityOnly`. Parser-owned
-source sealing, duplicate/site proof, and Rust/`.hako` parity must land before
-the declared contract issuer opens.
+issuance remain production zero. The Rust AST stores the ordered
+`BoxMethodInventoryV1`. Interface and static Box parsing now retain lexical
+order, explicit-source provenance, Box-local structural sites, and available
+token line/column through build-gate pruning and delegate-free lowering.
+Ordinary Box rows remain `CompatibilityOnly` until the atomic R3 mixed-owner
+cutover. Resolver sealing and Rust/`.hako` parity must still land before the
+declared contract issuer opens.
 
 ## `query` meaning
 

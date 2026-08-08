@@ -1,9 +1,13 @@
 use std::fmt;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+use crate::Span;
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum BoxMethodInventoryErrorV1 {
     DuplicateMethod {
         name: Box<str>,
+        first_span: Span,
+        duplicate_span: Span,
     },
     NotFunctionDeclaration,
     DeclarationNameMismatch {
@@ -17,8 +21,15 @@ pub enum BoxMethodInventoryErrorV1 {
 impl fmt::Display for BoxMethodInventoryErrorV1 {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::DuplicateMethod { name } => {
-                write!(formatter, "duplicate Box method declaration `{name}`")
+            Self::DuplicateMethod {
+                name,
+                first_span,
+                duplicate_span,
+            } => {
+                write!(
+                    formatter,
+                    "duplicate Box method declaration `{name}` at {duplicate_span}; first declared at {first_span}"
+                )
             }
             Self::NotFunctionDeclaration => {
                 formatter.write_str("Box method entry is not a FunctionDeclaration")

@@ -1,9 +1,14 @@
 //! Members helpers for static box (staged)
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, Span};
 use crate::parser::common::ParserUtils;
+use crate::parser::declarations::box_def::members::pending_method::PendingExplicitMethodV1;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
-use std::collections::HashMap;
+
+pub(crate) enum ParsedStaticMemberV1 {
+    Field(String),
+    Method(PendingExplicitMethodV1),
+}
 
 /// Parse a `static { ... }` initializer if present, honoring STRICT gate behavior.
 /// Returns Ok(Some(body)) when consumed; Ok(None) otherwise.
@@ -39,25 +44,13 @@ pub(crate) fn parse_static_initializer_if_any(
     }
 }
 
-/// Parse a method body and apply optional postfix catch/cleanup inline (Stage‑3 gate).
-/// Caller must have consumed `(` and collected `params` and parsed `body`.
-pub(crate) fn wrap_method_body_with_postfix_if_any(
-    p: &mut NyashParser,
-    body: Vec<ASTNode>,
-) -> Result<Vec<ASTNode>, ParseError> {
-    crate::parser::declarations::box_def::members::postfix::wrap_with_optional_postfix(p, body)
-}
-
 /// Parse either a method or a field in static box after consuming an identifier `name`.
-/// - If next token is `(`, parses a method with optional postfix and inserts into `methods`.
-/// - Otherwise, treats as a field name and pushes into `fields`.
+/// The caller owns publication into the ordered inventory.
 pub(crate) fn try_parse_method_or_field(
     p: &mut NyashParser,
     name: String,
-    methods: &mut HashMap<String, ASTNode>,
-    fields: &mut Vec<String>,
-    last_method_name: &mut Option<String>,
-) -> Result<bool, ParseError> {
+    declaration_span: Span,
+) -> Result<ParsedStaticMemberV1, ParseError> {
     let trace = crate::parser::env::parser_static_trace_enabled();
     // Allow NEWLINE(s) between identifier and '('
     if !p.match_token(&TokenType::LPAREN) {
@@ -79,9 +72,7 @@ pub(crate) fn try_parse_method_or_field(
                     name
                 ));
             }
-            // Field
-            fields.push(name);
-            return Ok(true);
+            return Ok(ParsedStaticMemberV1::Field(name));
         }
     }
     if trace {
@@ -111,7 +102,6 @@ pub(crate) fn try_parse_method_or_field(
     } else {
         p.parse_block_statements()?
     };
-    let body = wrap_method_body_with_postfix_if_any(p, body)?;
     // Construct method node
     let method = ASTNode::FunctionDeclaration {
         name: name.clone(),
@@ -125,11 +115,13 @@ pub(crate) fn try_parse_method_or_field(
         is_static: true,
         is_override: false,
         attrs,
-        span: crate::ast::Span::unknown(),
+        span: declaration_span,
     };
     let mut method = method;
     p.attach_pending_runes_to_declaration(&mut method)?;
-    *last_method_name = Some(name.clone());
-    methods.insert(name, method);
-    Ok(true)
+    Ok(ParsedStaticMemberV1::Method(PendingExplicitMethodV1::new(
+        name,
+        method,
+        declaration_span,
+    )))
 }

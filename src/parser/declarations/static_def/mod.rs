@@ -1,7 +1,10 @@
 //! Static Box Definition (staged split)
 
-use crate::ast::{ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1, FieldDecl, Span};
+use crate::ast::{ASTNode, BoxMethodInventoryV1, FieldDecl};
 use crate::parser::common::ParserUtils;
+use crate::parser::declarations::box_def::members::pending_method::{
+    commit_pending_method, PendingExplicitMethodV1,
+};
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::HashMap;
@@ -11,6 +14,7 @@ pub mod members;
 
 /// Parse static box declaration: static box Name { ... }
 pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
+    let box_span = p.current_span();
     p.consume(TokenType::BOX)?;
     let attrs = p.take_pending_runes_for_box()?;
     let (name, type_parameters, extends, implements) = header::parse_static_header(p)?;
@@ -18,19 +22,24 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
     p.consume(TokenType::LBRACE)?;
 
     let mut fields = Vec::new();
-    let mut methods = HashMap::new();
+    let mut methods = BoxMethodInventoryV1::empty();
     let constructors = HashMap::new();
     let mut init_fields = Vec::new();
     let mut weak_fields = Vec::new(); // 🔗 Track weak fields for static box
     let mut static_init: Option<Vec<ASTNode>> = None;
 
-    // Track last inserted method name to allow postfix catch/cleanup fallback parsing
-    let mut last_method_name: Option<String> = None;
+    let mut pending_method: Option<PendingExplicitMethodV1> = None;
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
         // Tolerate blank lines between members
         while p.match_token(&TokenType::NEWLINE) {
             p.advance();
         }
+        if let Some(method) = pending_method.as_mut() {
+            if method.try_apply_postfix(p)? {
+                continue;
+            }
+        }
+        commit_pending_method(&mut pending_method, &mut methods)?;
         if p.maybe_parse_opt_annotation_noop(
             crate::parser::statements::helpers::AnnotationSite::Member,
         )? {
@@ -43,11 +52,6 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                 p.current_token().token_type
             ));
         }
-
-        // Fallback: method-level postfix catch/cleanup immediately following a method
-        if crate::parser::declarations::box_def::members::postfix::try_parse_method_postfix_after_last_method(
-            p, &mut methods, &last_method_name,
-        )? { continue; }
 
         // RBRACEに到達していればループを抜ける
         if p.match_token(&TokenType::RBRACE) {
@@ -134,15 +138,13 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                 }
             }
             TokenType::IDENTIFIER(field_or_method) => {
+                let declaration_span = p.current_span();
                 let field_or_method = field_or_method.clone();
                 p.advance();
-                members::try_parse_method_or_field(
-                    p,
-                    field_or_method,
-                    &mut methods,
-                    &mut fields,
-                    &mut last_method_name,
-                )?;
+                match members::try_parse_method_or_field(p, field_or_method, declaration_span)? {
+                    members::ParsedStaticMemberV1::Field(field) => fields.push(field),
+                    members::ParsedStaticMemberV1::Method(method) => pending_method = Some(method),
+                }
             }
             _ => {
                 return Err(ParseError::UnexpectedToken {
@@ -153,6 +155,8 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
             }
         }
     }
+
+    commit_pending_method(&mut pending_method, &mut methods)?;
 
     // Tolerate trailing NEWLINE(s) before the closing '}' of the static box
     while p.match_token(&TokenType::NEWLINE) {
@@ -201,11 +205,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         field_decls,
         public_fields: vec![],
         private_fields: vec![],
-        methods: BoxMethodInventoryV1::try_from_compatibility_map(
-            methods,
-            BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
-        )
-        .expect("static Box method HashMap compatibility import must be lossless"),
+        methods,
         constructors,
         init_fields,
         weak_fields, // 🔗 Add weak fields to static box construction
@@ -221,6 +221,6 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         is_static: true, // 🔥 static boxフラグを設定
         static_init,     // 🔥 static初期化ブロック
         attrs,
-        span: Span::unknown(),
+        span: box_span,
     })
 }

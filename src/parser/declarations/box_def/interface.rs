@@ -1,6 +1,7 @@
 //! Interface box parser: `interface box Name { methods... }`
-use crate::ast::{ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1, Span};
+use crate::ast::{ASTNode, BoxMethodInventoryV1};
 use crate::parser::common::ParserUtils;
+use crate::parser::declarations::box_def::members::pending_method::PendingExplicitMethodV1;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::HashMap;
@@ -8,6 +9,7 @@ use std::collections::HashMap;
 /// Parse `interface box Name { methods... }` and return an AST BoxDeclaration.
 /// Caller must be positioned at the beginning of `interface box`.
 pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
+    let box_span = p.current_span();
     p.consume(TokenType::INTERFACE)?;
     p.consume(TokenType::BOX)?;
     let attrs = p.take_pending_runes_for_box()?;
@@ -52,7 +54,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
 
     p.consume(TokenType::LBRACE)?;
 
-    let mut methods = HashMap::new();
+    let mut methods = BoxMethodInventoryV1::empty();
 
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
         if p.match_token(&TokenType::NEWLINE) || p.match_token(&TokenType::SEMICOLON) {
@@ -65,6 +67,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
             continue;
         }
         if let TokenType::IDENTIFIER(method_name) = &p.current_token().token_type {
+            let method_span = p.current_span();
             let method_name = method_name.clone();
             p.advance();
 
@@ -96,9 +99,10 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
                     is_static: false,   // インターフェースメソッドは通常静的でない
                     is_override: false, // デフォルトは非オーバーライド
                     attrs,
-                    span: Span::unknown(),
+                    span: method_span,
                 };
-                methods.insert(method_name, method_decl);
+                PendingExplicitMethodV1::new(method_name, method_decl, method_span)
+                    .commit(&mut methods)?;
             } else {
                 let line = p.current_token().line;
                 return Err(ParseError::UnexpectedToken {
@@ -125,11 +129,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
         field_decls: vec![],
         public_fields: vec![],
         private_fields: vec![],
-        methods: BoxMethodInventoryV1::try_from_compatibility_map(
-            methods,
-            BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
-        )
-        .expect("interface method HashMap compatibility import must be lossless"),
+        methods,
         constructors: HashMap::new(), // インターフェースにコンストラクタなし
         init_fields: vec![],          // インターフェースにinitブロックなし
         weak_fields: vec![],          // インターフェースにweak fieldsなし
@@ -145,7 +145,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
         is_static: false,  // インターフェースは非static
         static_init: None, // インターフェースにstatic initなし
         attrs,
-        span: Span::unknown(),
+        span: box_span,
     };
 
     p.wrap_with_pending_build_gate(node)
