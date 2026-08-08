@@ -1,5 +1,6 @@
 ---
-Status: closed — implementation and closeout receipt landed at `f15056f903`
+Status: closed — schema implementation landed at `f15056f903`; fixture-only
+verifier closeout landed at `a613695387`
 Date: 2026-08-08
 Decision: accepted — explicit V2 typed wire, local CallSlot, and TextEq only
 Parent: `loop-recipe-typed-call-value-d0-design-task-2026-08-08.md`

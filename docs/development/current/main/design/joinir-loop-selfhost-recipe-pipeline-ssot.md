@@ -1459,9 +1459,10 @@ demand and verifier responsibilities were split before typed vocabulary was
 added, and every resulting Rust source file remains below the 760-line design
 trigger. The explicit V2 schema implementation landed at `f15056f903` with
 `LoopRecipeArtifactV2`, `I64|Bool|Unit|Text`, local `CallSlot`, `TextEq`, and a
-Builder-free structural verifier. Its focused suite is now green with seven
-tests; the duplicate-definition fixture uses a prior same-class `CallSlot`
-result so it isolates exactly one rejection. V2 is a wire/schema receipt only;
+Builder-free structural verifier. The fixture-only verifier closeout landed
+at `a613695387`; its focused suite is green with seven tests, and the
+duplicate-definition fixture uses a prior same-class `CallSlot` result so it
+isolates exactly one rejection. V2 is a wire/schema receipt only;
 it does not issue resolver targets or source-bound calls. The remaining rows
 are separate BoxCount boundaries. The later implementation order is:
 
