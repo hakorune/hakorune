@@ -677,8 +677,9 @@ The current `statement_ordinal` cannot identify multiple Boxes inside one
 gate. B must add parser-issued gate id/branch/child structural paths and one
 `BuildGateSelectionReceiptV1`, then make product prune consume/return a
 complete source session atomically. The final AST ordinal remains forbidden
-as source identity. B1 is active for path/cursor transport only; B2/B3 remain
-closed. Delegate relation,
+as source identity. B1 is closed for path/cursor transport. B2 is the current
+design stop for selection receipt and atomic source-session prune/rebase; B3
+remains closed. Delegate relation,
 interface/static/record, Hako, resolver, and MIR work stay closed.
 
 ### R6-S3B-B1 implementation receipt
@@ -694,6 +695,15 @@ Focused parser-session tests cover direct, sibling, and nested gate paths. The
 B1 guard and callable-contract reference are updated in the same implementation
 slice. `BuildGateSelectionReceiptV1`, consume-return source-session
 prune/rebase, and all later resolver/delegate work remain unimplemented.
+
+### R6-S3B-B2 design stop
+
+B1 is complete and pushed. Before any B2 code, freeze the selection receipt's
+owner, branch decision, exact path coverage, and the consume-return
+`ParserSourceSession` transaction. Prune must consume AST and source session
+together, preserve surviving structural paths, and reject missing, foreign,
+or duplicate path evidence. Do not reconstruct source identity from the final
+AST, inventory ordinal, or a detached source vector.
 
 ## Ordered implementation series
 

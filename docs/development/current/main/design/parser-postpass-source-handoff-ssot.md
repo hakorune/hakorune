@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A closed; R6-S3B-B1 implementation active; B2/B3 not opened
+Status: accepted design; R6-S3B-A and R6-S3B-B1 closed; R6-S3B-B2 design stop; B3 not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -298,8 +298,8 @@ Normal selection of a supported branch is not an error disposition.
 
 ```text
 R6-S3B-B0  design receipt and owner/type/negative matrix (closed)
-R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport (active)
-R6-S3B-B2  consume-return ParserSourceSession prune/rebase transaction
+R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport (closed)
+R6-S3B-B2  consume-return ParserSourceSession prune/rebase transaction (design stop)
 R6-S3B-B3  AST/source coverage tests, guard, finalizer receipt, and docs
 ```
 
