@@ -44,10 +44,18 @@ import sys
 from pathlib import Path
 
 root, source_dir, fixture = map(Path, sys.argv[1:])
-sources = sorted(source_dir.glob("*.hako"))
+# Keep the P0 contract explicit: later parser-private slices must not silently
+# widen this guard's source scope.
+sources = [
+    source_dir / "source_vocabulary_v1.hako",
+    source_dir / "source_refs_v1.hako",
+    source_dir / "source_records_v1.hako",
+    source_dir / "parser_node_product_v1.hako",
+    source_dir / "source_carrier_builder_v1.hako",
+    source_dir / "source_carrier_outcome_v1.hako",
+    source_dir / "source_carrier_sealer_v1.hako",
+]
 paths = sources + [fixture]
-if len(sources) != 7:
-    raise SystemExit(f"expected seven P0 Hako modules, got {len(sources)}")
 for path in paths:
     lines = len(path.read_text(encoding="utf-8").splitlines())
     if lines >= 800:

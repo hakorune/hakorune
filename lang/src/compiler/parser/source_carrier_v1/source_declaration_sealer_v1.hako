@@ -1,0 +1,40 @@
+using lang.compiler.parser.source_carrier_v1.source_declaration_refs_v1 as ParserDeclarationRefsV1Box
+using lang.compiler.parser.source_carrier_v1.source_declaration_records_v1 as ParserDeclarationRecordsV1Box
+
+// The only declaration publication point. It assigns inventory placement
+// after all drafts have passed source/site and duplicate validation.
+static box ParserDeclarationSealerV1Box {
+  finish(carrier, box_site, drafts) {
+    if carrier == null || box_site == null || drafts == null { return ParserDeclarationRecordsV1Box.failed("parser.declaration.seal_input_invalid") }
+    local entries = new ArrayBox() local i = 0
+    loop(i < drafts.size()) {
+      local draft = drafts.get(i)
+      if me._draft_valid(carrier, box_site, draft) == false { return ParserDeclarationRecordsV1Box.failed("parser.declaration.draft_site_invalid") }
+      if me._duplicate_before(drafts, i, draft.name()) { return ParserDeclarationRecordsV1Box.failed("parser.declaration.duplicate_method") }
+      local ordinal = ParserDeclarationRefsV1Box.inventory_ordinal(i)
+      entries.push(ParserDeclarationRecordsV1Box.inventory_entry(ordinal, draft))
+      i = i + 1
+    }
+    return ParserDeclarationRecordsV1Box.ready(ParserDeclarationRecordsV1Box.sealed(box_site, entries, carrier))
+  }
+
+  _draft_valid(carrier, box_site, draft) {
+    if draft == null || draft.name() == "" || draft.arity() < 0 { return false }
+    if draft.kind() == "Explicit" {
+      return draft.source_site() != null && draft.source_site().same_box(box_site) && draft.source_site().member_site().box_site().source_unit().carrier().same(carrier)
+    }
+    if draft.kind() == "Generated" {
+      return draft.generated_origin() != null && draft.generated_origin().same_box(box_site) && draft.generated_origin().member_site().box_site().source_unit().carrier().same(carrier)
+    }
+    return false
+  }
+
+  _duplicate_before(drafts, end, name) {
+    local i = 0
+    loop(i < end) {
+      if drafts.get(i).name() == name { return true }
+      i = i + 1
+    }
+    return false
+  }
+}

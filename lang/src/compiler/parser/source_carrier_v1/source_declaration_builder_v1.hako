@@ -1,0 +1,66 @@
+using lang.compiler.parser.source_carrier_v1.source_declaration_refs_v1 as ParserDeclarationRefsV1Box
+using lang.compiler.parser.source_carrier_v1.source_declaration_records_v1 as ParserDeclarationRecordsV1Box
+using lang.compiler.parser.source_carrier_v1.source_declaration_sealer_v1 as ParserDeclarationSealerV1Box
+
+// Unpublished declaration transaction. All validation happens before drafts
+// are appended; finish is the only path that assigns inventory ordinals.
+box ParserBoxDeclarationBuilderV1 {
+  _carrier
+  _issuer
+  _box_site
+  _drafts: ArrayBox
+  _state: String
+  _issue: String
+  birth(issuer, box_site) {
+    me._issuer = issuer me._carrier = issuer.carrier() me._box_site = box_site me._drafts = new ArrayBox()
+    me._state = "Open" me._issue = ""
+  }
+  state() { return me._state }
+  issue() { return me._issue }
+  draft_count() { return me._drafts.size() }
+  add_explicit(name, is_static, arity, result_token, source_site) {
+    if me._open() == false { return false }
+    if source_site == null || source_site.same_box(me._box_site) == false { return me._poison("parser.declaration.source_site_invalid") }
+    return me._append(ParserDeclarationRecordsV1Box.explicit(name, is_static, arity, result_token, source_site))
+  }
+  add_generated(name, is_static, arity, result_token, origin) {
+    if me._open() == false { return false }
+    if origin == null || origin.same_box(me._box_site) == false { return me._poison("parser.declaration.generated_origin_invalid") }
+    return me._append(ParserDeclarationRecordsV1Box.generated(name, is_static, arity, result_token, origin))
+  }
+  finish() {
+    if me._state == "Sealed" { return ParserDeclarationRecordsV1Box.failed("parser.declaration.double_finish") }
+    if me._state == "Poisoned" { return ParserDeclarationRecordsV1Box.failed(me._issue) }
+    local result = ParserDeclarationSealerV1Box.finish(me._carrier, me._box_site, me._drafts)
+    if result.status() != "Ready" { me._state = "Poisoned" me._issue = result.issue().reason() return result }
+    me._state = "Sealed"
+    return result
+  }
+  _append(draft) {
+    if draft == null || me._duplicate(draft.name()) { return me._poison("parser.declaration.duplicate_method") }
+    me._drafts.push(draft)
+    return true
+  }
+  _duplicate(name) {
+    local i = 0
+    loop(i < me._drafts.size()) {
+      if me._drafts.get(i).name() == name { return true }
+      i = i + 1
+    }
+    return false
+  }
+  _open() {
+    if me._state == "Open" { return true }
+    if me._issue == "" { me._issue = "parser.declaration.mutation_after_close" }
+    return false
+  }
+  _poison(reason) { me._state = "Poisoned" me._issue = reason return false }
+}
+
+static box ParserDeclarationBuilderV1Box {
+  open(issuer, box_site) {
+    if issuer == null || box_site == null { return null }
+    if issuer.owns_box_site(box_site) == false { return null }
+    return new ParserBoxDeclarationBuilderV1(issuer, box_site)
+  }
+}

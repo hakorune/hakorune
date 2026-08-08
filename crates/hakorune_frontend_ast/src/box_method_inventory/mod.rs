@@ -277,6 +277,26 @@ impl BoxMethodInventoryV1 {
         self.entries
     }
 
+    /// Rewrites declaration payloads while preserving the ordered inventory
+    /// and each row's descriptive provenance. This is the only canonical
+    /// carrier-preserving transform; callers cannot rebuild source identity
+    /// from a compatibility map.
+    pub fn map_declarations<F>(self, mut rewrite: F) -> Result<Self, BoxMethodInventoryErrorV1>
+    where
+        F: FnMut(ASTNode) -> ASTNode,
+    {
+        let mut mapped = Self::empty();
+        for entry in self.entries {
+            mapped.try_push_with_provenance(
+                entry.name,
+                rewrite(entry.declaration),
+                entry.provenance,
+                entry.diagnostic_span,
+            )?;
+        }
+        Ok(mapped)
+    }
+
     /// Consumes the carrier into the historical deterministic name-order
     /// projection used by compatibility-only Builder edges. This is not
     /// source order and must not be used as resolver or semantic authority.

@@ -1,0 +1,88 @@
+using lang.compiler.parser.source_carrier_v1.source_declaration_refs_v1 as ParserDeclarationRefsV1Box
+using lang.compiler.parser.source_carrier_v1.source_carrier_outcome_v1 as SourceCarrierOutcomeV1Box
+
+// Declaration drafts are parser evidence. Inventory entries are immutable
+// publication records and keep source site separate from placement ordinal.
+box ParserBoxMethodDraftV1 {
+  _kind: String
+  _name: String
+  _is_static: Bool
+  _arity: Integer
+  _result_token: String
+  _source_site
+  _generated_origin
+  birth(kind, name, is_static, arity, result_token, source_site, generated_origin) {
+    me._kind = kind me._name = name me._is_static = is_static me._arity = arity
+    me._result_token = result_token me._source_site = source_site
+    me._generated_origin = generated_origin
+  }
+  kind() { return me._kind }
+  name() { return me._name }
+  is_static() { return me._is_static }
+  arity() { return me._arity }
+  result_token() { return me._result_token }
+  source_site() { return me._source_site }
+  generated_origin() { return me._generated_origin }
+}
+
+box ParserBoxInventoryEntryV1 {
+  _ordinal
+  _draft
+  birth(ordinal, draft) { me._ordinal = ordinal me._draft = draft }
+  inventory_ordinal() { return me._ordinal }
+  kind() { return me._draft.kind() }
+  name() { return me._draft.name() }
+  is_static() { return me._draft.is_static() }
+  arity() { return me._draft.arity() }
+  result_token() { return me._draft.result_token() }
+  source_site() { return me._draft.source_site() }
+  generated_origin() { return me._draft.generated_origin() }
+}
+
+box SealedParserBoxDeclarationV1 {
+  _box_site
+  _entries: ArrayBox
+  _sealed_token
+  birth(box_site, entries, sealed_token) {
+    me._box_site = box_site me._entries = entries me._sealed_token = sealed_token
+  }
+  box_site() { return me._box_site }
+  entry_count() { return me._entries.size() }
+  entry(index) { return me._entries.get(index) }
+  sealed_token() { return me._sealed_token }
+  explicit_count() {
+    local out = 0 local i = 0
+    loop(i < me.entry_count()) {
+      if me.entry(i).kind() == "Explicit" { out = out + 1 }
+      i = i + 1
+    }
+    return out
+  }
+}
+
+box ParserBoxDeclarationFinishV1 {
+  _status: String
+  _product
+  _issue
+  birth(status, product, issue) { me._status = status me._product = product me._issue = issue }
+  status() { return me._status }
+  product() { return me._product }
+  issue() { return me._issue }
+}
+
+static box ParserDeclarationRecordsV1Box {
+  explicit(name, is_static, arity, result_token, source_site) {
+    return new ParserBoxMethodDraftV1("Explicit", name, is_static, arity, result_token, source_site, null)
+  }
+  generated(name, is_static, arity, result_token, origin) {
+    return new ParserBoxMethodDraftV1("Generated", name, is_static, arity, result_token, null, origin)
+  }
+  inventory_entry(ordinal, draft) { return new ParserBoxInventoryEntryV1(ordinal, draft) }
+  sealed(box_site, entries, sealed_token) {
+    return new SealedParserBoxDeclarationV1(box_site, entries, sealed_token)
+  }
+  ready(product) { return new ParserBoxDeclarationFinishV1("Ready", product, null) }
+  failed(reason) {
+    return new ParserBoxDeclarationFinishV1("InternalCarrierContractViolation", null, SourceCarrierOutcomeV1Box.internal(reason))
+  }
+}

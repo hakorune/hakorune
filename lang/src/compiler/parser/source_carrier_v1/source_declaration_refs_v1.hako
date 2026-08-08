@@ -1,0 +1,190 @@
+// Parser-invocation branded declaration coordinates. These are source
+// capabilities, not resolver identities or inventory ordering.
+box ParserCarrierBrandV1 {
+  _carrier_token
+  birth(carrier_token) { me._carrier_token = carrier_token }
+  carrier_token() { return me._carrier_token }
+  same(other) { return other != null && me._carrier_token == other.carrier_token() }
+}
+
+box ParserSourceUnitRefV1 {
+  _carrier
+  _ordinal: Integer
+  birth(carrier, ordinal) { me._carrier = carrier me._ordinal = ordinal }
+  carrier() { return me._carrier }
+  ordinal() { return me._ordinal }
+  same(other) {
+    return other != null && me._ordinal == other.ordinal() && me._carrier.same(other.carrier())
+  }
+}
+
+box ParserProgramStatementSiteV1 {
+  _source_unit
+  _ordinal: Integer
+  birth(source_unit, ordinal) { me._source_unit = source_unit me._ordinal = ordinal }
+  source_unit() { return me._source_unit }
+  ordinal() { return me._ordinal }
+  same(other) {
+    return other != null && me._ordinal == other.ordinal() && me._source_unit.same(other.source_unit())
+  }
+}
+
+box ParserBoxDeclarationSiteV1 {
+  _program_site
+  birth(program_site) { me._program_site = program_site }
+  program_site() { return me._program_site }
+  source_unit() { return me._program_site.source_unit() }
+  statement_ordinal() { return me._program_site.ordinal() }
+  same(other) {
+    return other != null && me._program_site.same(other.program_site())
+  }
+}
+
+box ParserSelectedGateStepV1 {
+  _gate_ordinal: Integer
+  _branch_ordinal: Integer
+  _member_ordinal: Integer
+  birth(gate_ordinal, branch_ordinal, member_ordinal) {
+    me._gate_ordinal = gate_ordinal me._branch_ordinal = branch_ordinal
+    me._member_ordinal = member_ordinal
+  }
+  gate_ordinal() { return me._gate_ordinal }
+  branch_ordinal() { return me._branch_ordinal }
+  member_ordinal() { return me._member_ordinal }
+  same(other) {
+    return other != null && me._gate_ordinal == other.gate_ordinal() && me._branch_ordinal == other.branch_ordinal() && me._member_ordinal == other.member_ordinal()
+  }
+}
+
+box ParserBoxMemberSiteV1 {
+  _kind: String
+  _box_site
+  _member_ordinal: Integer
+  _gate_path: ArrayBox
+  birth(kind, box_site, member_ordinal, gate_path) {
+    me._kind = kind me._box_site = box_site me._member_ordinal = member_ordinal
+    me._gate_path = gate_path
+  }
+  kind() { return me._kind }
+  box_site() { return me._box_site }
+  member_ordinal() { return me._member_ordinal }
+  gate_count() { return me._gate_path.size() }
+  gate_step(index) { return me._gate_path.get(index) }
+  same_box(box_site) { return box_site != null && me._box_site.same(box_site) }
+  same(other) {
+    if other == null || me._kind != other.kind() || me._member_ordinal != other.member_ordinal() { return false }
+    if me._box_site.same(other.box_site()) == false || me.gate_count() != other.gate_count() { return false }
+    local i = 0
+    loop(i < me.gate_count()) {
+      if me.gate_step(i).same(other.gate_step(i)) == false { return false }
+      i = i + 1
+    }
+    return true
+  }
+}
+
+box ParserBoxMethodSourceSiteV1 {
+  _member_site
+  birth(member_site) { me._member_site = member_site }
+  member_site() { return me._member_site }
+  same_box(box_site) { return me._member_site != null && me._member_site.same_box(box_site) }
+  same(other) { return other != null && me._member_site.same(other.member_site()) }
+}
+
+box ParserBoxGeneratedOriginV1 {
+  _member_site
+  _role: String
+  birth(member_site, role) { me._member_site = member_site me._role = role }
+  member_site() { return me._member_site }
+  role() { return me._role }
+  same_box(box_site) { return me._member_site != null && me._member_site.same_box(box_site) }
+}
+
+box ParserBoxInventoryOrdinalV1 {
+  _value: Integer
+  birth(value) { me._value = value }
+  value() { return me._value }
+}
+
+static box ParserDeclarationRefsV1Box {
+  issuer(token) { return new ParserDeclarationSiteIssuerV1(token) }
+  source_unit(carrier, ordinal) {
+    if carrier == null || ordinal < 0 { return null }
+    return new ParserSourceUnitRefV1(carrier, ordinal)
+  }
+  program_site(source_unit, ordinal) {
+    if source_unit == null || ordinal < 0 { return null }
+    return new ParserProgramStatementSiteV1(source_unit, ordinal)
+  }
+  box_site(program_site) {
+    if program_site == null { return null }
+    return new ParserBoxDeclarationSiteV1(program_site)
+  }
+  direct_member(box_site, member_ordinal) {
+    if box_site == null || member_ordinal < 0 { return null }
+    return new ParserBoxMemberSiteV1("Direct", box_site, member_ordinal, new ArrayBox())
+  }
+  selected_member(box_site, member_ordinal, gate_path) {
+    if box_site == null || member_ordinal < 0 || gate_path == null || gate_path.size() == 0 { return null }
+    return new ParserBoxMemberSiteV1("SelectedBuildGate", box_site, member_ordinal, me._copy_path(gate_path))
+  }
+  gate_step(gate_ordinal, branch_ordinal, member_ordinal) {
+    if gate_ordinal < 0 || branch_ordinal < 0 || member_ordinal < 0 { return null }
+    return new ParserSelectedGateStepV1(gate_ordinal, branch_ordinal, member_ordinal)
+  }
+  method_source(member_site) {
+    if member_site == null { return null }
+    return new ParserBoxMethodSourceSiteV1(member_site)
+  }
+  generated_origin(member_site, role) {
+    if member_site == null || role == "" { return null }
+    return new ParserBoxGeneratedOriginV1(member_site, role)
+  }
+  inventory_ordinal(value) {
+    if value < 0 { return null }
+    return new ParserBoxInventoryOrdinalV1(value)
+  }
+  _copy_path(path) {
+    local out = new ArrayBox() local i = 0
+    loop(i < path.size()) { out.push(path.get(i)) i = i + 1 }
+    return out
+  }
+}
+
+box ParserDeclarationSiteIssuerV1 {
+  _carrier
+  _source_unit
+  _next_statement: Integer
+  _next_member: Integer
+  birth(token) {
+    me._carrier = new ParserCarrierBrandV1(token)
+    me._source_unit = new ParserSourceUnitRefV1(me._carrier, 0)
+    me._next_statement = 0 me._next_member = 0
+  }
+  carrier() { return me._carrier }
+  source_unit() { return me._source_unit }
+  next_box_site() {
+    local site = new ParserProgramStatementSiteV1(me._source_unit, me._next_statement)
+    me._next_statement = me._next_statement + 1
+    return new ParserBoxDeclarationSiteV1(site)
+  }
+  next_direct_member_site(box_site) {
+    if me._owns_box(box_site) == false { return null }
+    local site = new ParserBoxMemberSiteV1("Direct", box_site, me._next_member, new ArrayBox())
+    me._next_member = me._next_member + 1
+    return site
+  }
+  next_selected_member_site(box_site, gate_path) {
+    if me._owns_box(box_site) == false || gate_path == null || gate_path.size() == 0 { return null }
+    local site = new ParserBoxMemberSiteV1("SelectedBuildGate", box_site, me._next_member, me._copy_path(gate_path))
+    me._next_member = me._next_member + 1
+    return site
+  }
+  owns_box_site(box_site) { return box_site != null && box_site.source_unit().same(me._source_unit) }
+  _owns_box(box_site) { return me.owns_box_site(box_site) }
+  _copy_path(path) {
+    local out = new ArrayBox() local i = 0
+    loop(i < path.size()) { out.push(path.get(i)) i = i + 1 }
+    return out
+  }
+}

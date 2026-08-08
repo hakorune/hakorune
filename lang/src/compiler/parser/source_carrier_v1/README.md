@@ -48,6 +48,10 @@ ParserProgramBox cursor
   -> ordered inventory + non-Clone parser source seal
 ```
 
+Here `non-Clone` is a repository-enforced capability boundary, not an affine
+type-system claim. The seal has no public copy/clone/reconstruction API and
+can be finished only once; H1 guards enforce that shape.
+
 The ordinary branch is the only future source authority. `ParserBox`,
 `FuncScannerBox`, `StageBRuneBox`, `tools/hako_parser`, ProgramJSON, and
 MapBox remain non-authoritative compatibility surfaces. The branch must parse
@@ -61,3 +65,7 @@ double-finish rejection. It does not wire the program parser, build-gate
 selection, delegate postpass, typed CallableContract carriage, resolver
 semantics, Recipe, or publication. The D0/task card is the authority for the
 H1 connection and removal conditions.
+
+The focused receipt is `tools/checks/hako_parser_box_declaration_h1_guard.sh`.
+The P0 guard keeps an explicit seven-module manifest, so adding these H1
+modules cannot silently change the P0 scope.

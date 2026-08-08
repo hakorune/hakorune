@@ -70,14 +70,14 @@ impl ReplAstRewriter {
                 }
             }
 
-            // Box declarations (methods: HashMap<String, ASTNode>)
+            // Box declarations (ordered inventory with derived lookup)
             ASTNode::BoxDeclaration {
                 methods,
                 static_init,
                 ..
             } => {
-                for (_method_name, method_node) in methods {
-                    self.collect_from_node(method_node);
+                for method_entry in methods.iter_selected_declaration_order() {
+                    self.collect_from_node(method_entry.declaration());
                 }
                 if let Some(init) = static_init {
                     for stmt in init {
@@ -249,9 +249,8 @@ impl ReplAstRewriter {
                 }
 
                 let rewritten_methods = methods
-                    .into_iter()
-                    .map(|(k, v)| (k, self.rewrite_node(v)))
-                    .collect();
+                    .map_declarations(|method_node| self.rewrite_node(method_node))
+                    .expect("REPL method rewrite must preserve inventory invariants");
                 let rewritten_constructors = constructors
                     .into_iter()
                     .map(|(k, v)| (k, self.rewrite_node(v)))
@@ -520,7 +519,7 @@ impl ReplAstRewriter {
                     if let ASTNode::BoxDeclaration { name, methods, .. } = stmt {
                         if name == "Main" {
                             // Check if main() method has a single expression in its body
-                            if let Some(main_fn) = methods.get("main") {
+                            if let Some(main_fn) = methods.get_declaration("main") {
                                 return Self::check_main_function_is_expression(main_fn);
                             }
                         }
@@ -588,7 +587,7 @@ mod tests {
                 is_static: true,
                 methods,
                 ..
-            } if name == "Main" && methods.contains_key("main")
+            } if name == "Main" && methods.contains_name("main")
         )));
     }
 }

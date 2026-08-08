@@ -1,0 +1,83 @@
+using lang.compiler.parser.source_carrier_v1.source_declaration_refs_v1 as ParserDeclarationRefsV1Box
+using lang.compiler.parser.source_carrier_v1.source_declaration_builder_v1 as ParserDeclarationBuilderV1Box
+
+static box ParserBoxDeclarationH1FixtureV1Box {
+  positive() {
+    local issuer = ParserDeclarationRefsV1Box.issuer(101)
+    local box_site = issuer.next_box_site()
+    local direct = issuer.next_direct_member_site(box_site)
+    local source = ParserDeclarationRefsV1Box.method_source(direct)
+    local step = ParserDeclarationRefsV1Box.gate_step(2, 1, 8)
+    local path = new ArrayBox() path.push(step)
+    local selected = issuer.next_selected_member_site(box_site, path)
+    local selected_source = ParserDeclarationRefsV1Box.method_source(selected)
+    local generated_origin = ParserDeclarationRefsV1Box.generated_origin(direct, "PropertyGetter")
+    local builder = ParserDeclarationBuilderV1Box.open(issuer, box_site)
+    if builder == null { return 1 }
+    if builder.add_explicit("length", false, 0, "i64", source) == false { return 2 }
+    if builder.add_explicit("selected", false, 0, "i64", selected_source) == false { return 3 }
+    if builder.add_generated("__get_value", false, 0, "i64", generated_origin) == false { return 4 }
+    local result = builder.finish()
+    if result.status() != "Ready" { return 5 }
+    local product = result.product()
+    if product.entry_count() != 3 || product.explicit_count() != 2 { return 6 }
+    if product.entry(0).inventory_ordinal().value() != 0 || product.entry(1).inventory_ordinal().value() != 1 { return 7 }
+    if product.entry(0).source_site().member_site().member_ordinal() != 0 { return 8 }
+    if product.entry(1).source_site().member_site().member_ordinal() != 1 { return 9 }
+    if product.entry(1).source_site().member_site().kind() != "SelectedBuildGate" { return 10 }
+    if product.entry(1).source_site().member_site().gate_count() != 1 { return 11 }
+    if product.entry(2).source_site() != null || product.entry(2).generated_origin().role() != "PropertyGetter" { return 12 }
+    if builder.state() != "Sealed" || builder.draft_count() != 3 { return 13 }
+    return 0
+  }
+
+  duplicate_without_mutation() {
+    local issuer = ParserDeclarationRefsV1Box.issuer(201)
+    local box_site = issuer.next_box_site()
+    local source = ParserDeclarationRefsV1Box.method_source(issuer.next_direct_member_site(box_site))
+    local builder = ParserDeclarationBuilderV1Box.open(issuer, box_site)
+    if builder.add_explicit("same", false, 0, "i64", source) == false { return 21 }
+    if builder.add_explicit("same", false, 0, "i64", source) != false { return 22 }
+    if builder.draft_count() != 1 || builder.state() != "Poisoned" { return 23 }
+    if builder.finish().status() != "InternalCarrierContractViolation" { return 24 }
+    return 0
+  }
+
+  foreign_and_invalid_reject() {
+    local issuer = ParserDeclarationRefsV1Box.issuer(301)
+    local foreign_issuer = ParserDeclarationRefsV1Box.issuer(302)
+    local box_site = issuer.next_box_site()
+    local foreign_box = foreign_issuer.next_box_site()
+    local foreign_site = ParserDeclarationRefsV1Box.method_source(foreign_issuer.next_direct_member_site(foreign_box))
+    local builder = ParserDeclarationBuilderV1Box.open(issuer, box_site)
+    if builder.add_explicit("foreign", false, 0, "i64", foreign_site) != false { return 31 }
+    if builder.draft_count() != 0 || builder.state() != "Poisoned" { return 32 }
+    if issuer.next_direct_member_site(null) != null { return 33 }
+    if issuer.next_selected_member_site(box_site, null) != null { return 34 }
+    return 0
+  }
+
+  closed_and_double_finish() {
+    local issuer = ParserDeclarationRefsV1Box.issuer(401)
+    local box_site = issuer.next_box_site()
+    local source = ParserDeclarationRefsV1Box.method_source(issuer.next_direct_member_site(box_site))
+    local builder = ParserDeclarationBuilderV1Box.open(issuer, box_site)
+    builder.add_explicit("only", false, 0, "i64", source)
+    if builder.finish().status() != "Ready" { return 41 }
+    if builder.finish().status() != "InternalCarrierContractViolation" { return 42 }
+    if builder.add_explicit("late", false, 0, "i64", source) != false { return 43 }
+    if builder.state() != "Sealed" || builder.draft_count() != 1 { return 44 }
+    return 0
+  }
+
+  run() {
+    local rc = me.positive() if rc != 0 { return rc }
+    rc = me.duplicate_without_mutation() if rc != 0 { return rc }
+    rc = me.foreign_and_invalid_reject() if rc != 0 { return rc }
+    return me.closed_and_double_finish()
+  }
+}
+
+static box Main {
+  main() { return ParserBoxDeclarationH1FixtureV1Box.run() }
+}

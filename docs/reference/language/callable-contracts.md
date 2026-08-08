@@ -22,8 +22,11 @@ issuance remain production zero. The Rust AST stores the ordered
 `BoxMethodInventoryV1`. That Clone-capable inventory owns selected placement
 and descriptive provenance, not resolver-grade source identity. Exact
 as-written method sites are separate from all-row inventory ordinals because
-generated property/delegate rows also consume inventory positions. A future
-non-Clone parser-owned Box source seal must relate explicit method sites to
+generated property/delegate rows also consume inventory positions. The
+disconnected H1 parser-carrier slice now supplies a repository-enforced
+one-shot seal substrate for branded method sites, ordered drafts, and separate
+inventory placement. It is not connected to an authoritative parser branch;
+the future connected parser seal must still relate explicit method sites to
 selected entries after complete duplicate and build-gate selection checks.
 Generated rows receive only a generated source-member origin and never an
 explicit method source site. Legacy JSON remains compatibility-only and cannot

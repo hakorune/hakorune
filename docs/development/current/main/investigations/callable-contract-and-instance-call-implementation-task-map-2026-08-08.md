@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1 remains at design-stop handoff
+Status: accepted revised task map; H1 closed, R6 active next
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -50,8 +50,9 @@ the source-carrier lifecycle/sealer but add parser-invocation-branded
 declaration refs/sites. Second, separate exact as-written method source sites
 from selected/generated inventory placement. Raw `BoxMethodInventoryV1` stays
 Clone-capable data; only the non-Clone parser seal may cross into resolver
-semantics. H1 is disconnected by design and remains unopened while
-`CURRENT_STATE.toml` stays in `design_stop`.
+semantics. H1 is now closed as a disconnected substrate;
+`CURRENT_STATE.toml` points to the Rust R6 source-seal correction before any
+parser connection or resolver semantic publication.
 
 ## Single authority table
 
@@ -111,14 +112,15 @@ Rejected > Unresolved > Declined > Candidate
 
 ### B. Exact parser source authority and parity
 
-6. `HAKO-PARSER-BOX-DECLARATION-CARRIER-H1` — design complete; handoff closed
+6. `HAKO-PARSER-BOX-DECLARATION-CARRIER-H1` — closed
    - prove only the disconnected branded refs/sites, exact member paths,
      separate inventory ordinals, ordered drafts, duplicate-without-mutation,
      one-Box seal, foreign-brand/site negatives, and double-finish rejection;
-   - split the current oversized parser facade before adding responsibility;
+   - focused H1 guard and the existing P0 guard are green; all touched Hako
+     sources remain below 800 lines;
    - no parser connection, build-gate, delegate postpass, scanner, resolver,
      semantic publication, or compatibility projection.
-7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6` — parked BoxShape correction
+7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6` — active next BoxShape correction
    - give explicit methods an exact branded source site independent of the
      all-row inventory ordinal;
    - generated property/delegate rows retain generated origin only and never

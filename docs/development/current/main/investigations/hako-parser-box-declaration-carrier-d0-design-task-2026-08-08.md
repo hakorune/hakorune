@@ -1,5 +1,5 @@
 ---
-Status: H1 implementation active — disconnected parser substrate only
+Status: H1 closed — disconnected parser substrate landed; R6 is next
 Date: 2026-08-08
 Decision: reuse the parser-private source-carrier lifecycle; separate exact
 source sites from selected inventory placement; issue one non-Clone parser
@@ -165,6 +165,9 @@ must carry the same `ParserCarrierBrandV1`; foreign-brand and invalid-site
 inputs fail before mutation. The sealer owns the single commit and immutable
 publication. `ParserBoxDeclarationProductV1` is the only product that crosses
 the parser branch boundary. No public partial receipt constructor is allowed.
+The `non-Clone` wording means non-reconstructible/one-shot capability under
+repository guards; Hako does not provide affine alias prevention. The H1
+implementation must not claim stronger type-system ownership than that.
 
 Structural ordinals are not caller-supplied constructor arguments. The
 `ParserProgramBox` cursor advances the program-statement ordinal, the ordinary
@@ -280,7 +283,7 @@ semantic publication. The H1 card records both the H2 connection condition
 and the removal condition so this substrate cannot become a permanent
 parallel authority.
 
-## Candidate physical layout
+## H1 landed physical layout
 
 ```text
 lang/src/compiler/parser/source_carrier_v1/
@@ -291,13 +294,12 @@ lang/src/compiler/parser/source_carrier_v1/
   (existing README/outcome/lifecycle remain the authority)
 
 lang/src/compiler/parser/decl/
-  parser_box_declaration_product_box.hako
-  parser_box_method_inventory_box.hako (only after H3 issuer is open)
+  (not opened by H1; parser connection remains H2/H3)
 ```
 
-Names remain provisional until H1 code/owner census confirms they do not
-duplicate the existing source-carrier vocabulary. A new top-level
-`declaration_carrier_v1` authority is not allowed.
+H1 confirmed that these four modules do not duplicate the existing
+source-carrier vocabulary. A new top-level `declaration_carrier_v1` authority
+is not allowed.
 
 ## Mandatory stop lines
 
@@ -357,10 +359,32 @@ worktree clean at closeout
 implementation + focused tests + README/reference receipt in one commit
 ```
 
-The current source-carrier guard is updated in H1 before any parser connection.
-H1 is intentionally disconnected and must close in one small implementation
-slice; it cannot become a long-lived caller-zero asset. H2/H3 are the first
-connected rows, and H4 is the only selected build-gate publication point.
+H1 lands the disconnected source-carrier substrate and a dedicated
+`hako_parser_box_declaration_h1_guard.sh`; the existing P0 guard remains green
+by checking its explicit seven-module manifest. H1 is intentionally
+disconnected and must close in one small implementation slice; it cannot
+become a long-lived caller-zero asset. H2/H3 are the first connected rows, and
+H4 is the only selected build-gate publication point.
+
+### H1 implementation receipt
+
+H1 is implemented in the existing `source_carrier_v1` directory by:
+
+```text
+source_declaration_refs_v1.hako
+source_declaration_records_v1.hako
+source_declaration_builder_v1.hako
+source_declaration_sealer_v1.hako
+tools/checks/fixtures/parser_box_declaration_h1_v1.hako
+tools/checks/hako_parser_box_declaration_h1_guard.sh
+```
+
+The focused H1 guard is green and the existing P0 guard remains green. The
+receipt proves only the disconnected branded refs/sites, ordered drafts,
+separate seal-time inventory ordinals, duplicate-before-mutation, foreign
+brand/site rejection, and double-finish/post-seal mutation rejection. It does
+not claim parser connection, resolver authority, callable semantics, Recipe,
+Builder, or publication.
 
 ```text
 H0  D0 owner/vocabulary/API decision                         accepted here
