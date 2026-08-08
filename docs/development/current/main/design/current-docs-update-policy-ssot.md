@@ -103,6 +103,28 @@ per-card mirror work. When the router is reorganized, update
 file limited to short routing rules; durable procedure and design prose stays
 in its owning tracked document.
 
+### Practical mode check
+
+The mode check is intentionally finite and must happen before editing:
+
+```text
+current blocker is design/select/policy?
+  -> Design stop
+source -> Facts -> Recipe -> failure boundary is one sentence?
+  no -> Design stop
+  yes -> choose exactly one: BoxCount or BoxShape
+```
+
+`NoSafeSlice` means that the current design cannot yet issue a safe product;
+it is not a source disposition and must not be relabeled as a convenient
+`Declined`/`Unresolved` result. Do not add guessed operation counts, a route
+specific adapter, or a green fixture to cross this boundary. The next card
+must either close the missing schema/authority or explicitly park the family.
+
+This is a routing aid, not a new task hierarchy. The active lane and blocker
+remain owned by `CURRENT_STATE.toml`, and detailed execution remains in the
+rolling workstream card.
+
 Do not update `CURRENT_TASK.md`, `05-Restart-Quick-Resume.md`, `10-Now.md`,
 `AGENTS.md`, phase README, taskboards, or ledgers for every landed card.
 

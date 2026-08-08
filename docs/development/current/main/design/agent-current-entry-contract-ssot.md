@@ -82,6 +82,40 @@ This input maps once to this Facts/Recipe, and fails at this boundary.
 If that sentence is not true, the work is a design stop. A worker report,
 local green test, or compatibility fixture never changes the mode by itself.
 
+### 90-second routing card
+
+The mode decision must be cheap enough to use before every edit. Ask these
+questions in order:
+
+1. Does `CURRENT_STATE.toml.current_blocker_token` contain `design`, `select`,
+   `consultation`, or `policy`? If yes, stay in **Design stop** and do not add
+   code, fixtures, fallback, or a production switch.
+2. Can the source be stated as one deterministic
+   `source -> Facts -> Recipe -> fail-fast boundary` sentence? If no, stay in
+   **Design stop**. A worker may audit the premise, but a worker report is not
+   implementation permission.
+3. If the mapping is closed, is the change **BoxCount** (one new accepted
+   shape) or **BoxShape** (same behavior, cleaner ownership)? Choose exactly
+   one. A behavior-preserving refactor series may have a few commits, but it
+   may not add a shape or fixture.
+
+Use this compact brief when stopping:
+
+```text
+Decision:
+Source authority:
+Non-authority:
+Fail-fast boundary:
+Smallest next slice:
+Non-claims:
+```
+
+The design stop ends only after the selected slice and its explicit non-claims
+are accepted in the owning card/SSOT. If a schema or operation vocabulary is
+missing, record `NoSafeSlice` as a development state; do not force it into
+`Candidate`/`Declined`/`Unresolved`/`Rejected` and do not publish guessed Recipe
+counts.
+
 ### Compact router
 
 - Keep `AGENTS.md` near one screen of headings and short rules; about 80--120
