@@ -108,8 +108,8 @@ impl ASTNode {
                         visitor(statement);
                     }
                 }
-                for method in methods.values() {
-                    visitor(method);
+                for method in methods.iter_selected_declaration_order() {
+                    visitor(method.declaration());
                 }
                 for constructor in constructors.values() {
                     visitor(constructor);

@@ -208,8 +208,42 @@ impl BoxMethodInventoryV1 {
         self.lookup.get(name).map(|index| &self.entries[*index])
     }
 
+    pub fn get_declaration(&self, name: &str) -> Option<&ASTNode> {
+        self.get(name).map(BoxMethodEntryV1::declaration)
+    }
+
+    pub fn contains_name(&self, name: &str) -> bool {
+        self.lookup.contains_key(name)
+    }
+
+    pub fn declarations_in_selected_order(&self) -> impl ExactSizeIterator<Item = &ASTNode> {
+        self.entries.iter().map(BoxMethodEntryV1::declaration)
+    }
+
+    pub fn names_in_selected_order(&self) -> impl ExactSizeIterator<Item = &str> {
+        self.entries.iter().map(BoxMethodEntryV1::name)
+    }
+
     pub fn into_selected_declaration_order(self) -> Vec<BoxMethodEntryV1> {
         self.entries
+    }
+
+    /// Projects the carrier into the legacy lookup shape. The result carries
+    /// no order, provenance, or resolver authority.
+    pub fn clone_compatibility_map(&self) -> HashMap<String, ASTNode> {
+        self.entries
+            .iter()
+            .map(|entry| (entry.name.to_string(), entry.declaration.clone()))
+            .collect()
+    }
+
+    /// Consumes the carrier into the legacy lookup shape. The result carries
+    /// no order, provenance, or resolver authority.
+    pub fn into_compatibility_map(self) -> HashMap<String, ASTNode> {
+        self.entries
+            .into_iter()
+            .map(|entry| (entry.name.into(), entry.declaration))
+            .collect()
     }
 
     /// Adds descriptive explicit-source provenance to the raw AST carrier.
@@ -279,6 +313,25 @@ impl BoxMethodInventoryV1 {
         Ok(inventory)
     }
 
+    /// Imports a legacy method map through an explicitly non-authoritative,
+    /// deterministic name-order compatibility boundary.
+    pub fn try_from_compatibility_map(
+        methods: HashMap<String, ASTNode>,
+        origin: BoxMethodCompatibilityOriginV1,
+    ) -> Result<Self, BoxMethodInventoryErrorV1> {
+        let mut entries = methods.into_iter().collect::<Vec<_>>();
+        entries.sort_by(|left, right| left.0.cmp(&right.0));
+        Self::try_from_compatibility_entries(entries, origin)
+    }
+
+    pub fn from_legacy_ast_map(methods: HashMap<String, ASTNode>) -> Self {
+        Self::try_from_compatibility_map(
+            methods,
+            BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
+        )
+        .expect("legacy AST HashMap compatibility import must be lossless")
+    }
+
     pub fn try_merge_selected_gate(
         &mut self,
         selected: Self,
@@ -327,7 +380,9 @@ impl BoxMethodInventoryV1 {
         provenance: BoxMethodProvenanceV1,
         diagnostic_span: Span,
     ) -> Result<BoxMethodDeclarationSiteV1, BoxMethodInventoryErrorV1> {
-        Self::validate_declaration_name(&name, &declaration)?;
+        if !matches!(provenance, BoxMethodProvenanceV1::CompatibilityOnly { .. }) {
+            Self::validate_declaration_name(&name, &declaration)?;
+        }
         if self.lookup.contains_key(name.as_ref()) {
             return Err(BoxMethodInventoryErrorV1::DuplicateMethod { name });
         }

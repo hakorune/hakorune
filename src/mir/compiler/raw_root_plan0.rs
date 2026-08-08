@@ -541,12 +541,10 @@ fn work_kind_for_scalar_error(error: &RawScalarControl0ErrorV1) -> RawRootWorkKi
 }
 
 fn first_unsupported_main_method_kind(
-    methods: &std::collections::HashMap<String, ASTNode>,
+    methods: &crate::ast::BoxMethodInventoryV1,
 ) -> Option<RawRootWorkKindV1> {
-    let mut names: Vec<&str> = methods.keys().map(String::as_str).collect();
-    names.sort_unstable();
-    names.into_iter().find_map(|name| {
-        let method = methods.get(name)?;
+    methods.iter_compat_name_order().find_map(|entry| {
+        let method = entry.declaration();
         let ASTNode::FunctionDeclaration { body, .. } = method else {
             return Some(RawRootWorkKindV1::UnsupportedSurface);
         };
@@ -665,7 +663,7 @@ mod tests {
         ASTNode::Program {
             statements: vec![ASTNode::BoxDeclaration {
                 name: "Main".into(),
-                methods,
+                methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
                 is_static: true,
                 fields: Vec::new(),
                 field_decls: Vec::new(),

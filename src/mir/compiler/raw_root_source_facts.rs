@@ -302,7 +302,7 @@ impl RawRootSourceFactsV1 {
                     contracts,
                     attrs,
                     ..
-                }) = methods.get(app.main().method_name())
+                }) = methods.get_declaration(app.main().method_name())
                 else {
                     return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
                 };

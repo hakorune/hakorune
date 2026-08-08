@@ -46,7 +46,7 @@ pub(crate) fn install_inline_user_box_factory(
                     fields: fields.clone(),
                     public_fields: public_fields.clone(),
                     private_fields: private_fields.clone(),
-                    methods: methods.clone(),
+                    methods: methods.clone_compatibility_map(),
                     constructors: constructors.clone(),
                     init_fields: init_fields.clone(),
                     weak_fields: weak_fields.clone(),

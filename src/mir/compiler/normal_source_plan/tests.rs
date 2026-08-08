@@ -28,10 +28,12 @@ fn main_box(methods: Vec<(&str, ASTNode)>, is_static: bool) -> ASTNode {
         field_decls: Vec::new(),
         public_fields: Vec::new(),
         private_fields: Vec::new(),
-        methods: methods
-            .into_iter()
-            .map(|(name, method)| (name.to_owned(), method))
-            .collect::<HashMap<_, _>>(),
+        methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(
+            methods
+                .into_iter()
+                .map(|(name, method)| (name.to_owned(), method))
+                .collect::<HashMap<_, _>>(),
+        ),
         constructors: HashMap::new(),
         init_fields: Vec::new(),
         weak_fields: Vec::new(),
@@ -67,10 +69,12 @@ fn instance_box(name: &str, methods: Vec<(&str, ASTNode)>) -> ASTNode {
         }],
         public_fields: vec!["value".to_owned()],
         private_fields: Vec::new(),
-        methods: methods
-            .into_iter()
-            .map(|(method_name, method)| (method_name.to_owned(), method))
-            .collect(),
+        methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(
+            methods
+                .into_iter()
+                .map(|(method_name, method)| (method_name.to_owned(), method))
+                .collect(),
+        ),
         constructors: HashMap::new(),
         init_fields: vec!["value".to_owned()],
         weak_fields: Vec::new(),

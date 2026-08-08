@@ -248,7 +248,7 @@ pub(super) fn verify_main_source_parts(
     if main_method.method_key() != "main" {
         return Err(NormalMainFunctionSourceErrorV1::MainMethodNameDrift);
     }
-    let Some(function) = methods.get(main_method.method_key()) else {
+    let Some(function) = methods.get_declaration(main_method.method_key()) else {
         return Err(NormalMainFunctionSourceErrorV1::MainMethodMissing);
     };
     let Some(function_view) = CallableFunctionSyntaxViewV1::from_function_ast(function) else {
@@ -294,7 +294,7 @@ fn locate_main_function<'src>(
     else {
         return None;
     };
-    methods.get(main_method.method_key())
+    methods.get_declaration(main_method.method_key())
 }
 
 #[cfg(test)]

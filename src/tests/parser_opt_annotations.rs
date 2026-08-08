@@ -50,7 +50,9 @@ fn find_box_and_method_runes(
                 .iter()
                 .map(|rune| (rune.name.clone(), rune.args.clone()))
                 .collect::<Vec<_>>();
-            let Some(ASTNode::FunctionDeclaration { attrs, .. }) = methods.get(method_name) else {
+            let Some(ASTNode::FunctionDeclaration { attrs, .. }) =
+                methods.get_declaration(method_name)
+            else {
                 panic!("method not found: {box_name}.{method_name}");
             };
             let method_runes = attrs

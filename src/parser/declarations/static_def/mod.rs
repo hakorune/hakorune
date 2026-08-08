@@ -1,6 +1,6 @@
 //! Static Box Definition (staged split)
 
-use crate::ast::{ASTNode, FieldDecl, Span};
+use crate::ast::{ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -201,7 +201,11 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         field_decls,
         public_fields: vec![],
         private_fields: vec![],
-        methods,
+        methods: BoxMethodInventoryV1::try_from_compatibility_map(
+            methods,
+            BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
+        )
+        .expect("static Box method HashMap compatibility import must be lossless"),
         constructors,
         init_fields,
         weak_fields, // 🔗 Add weak fields to static box construction

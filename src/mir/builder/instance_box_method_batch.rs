@@ -4,9 +4,7 @@
 //! Program lowering resolves each exact callable-catalog key, while raw
 //! lowering directly uses the existing instance-method child terminal.
 
-use std::collections::HashMap;
-
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 
 use super::declaration_order::sorted_method_entries;
 use super::module_lifecycle::RootCallableCapturePortV1;
@@ -32,7 +30,7 @@ struct PreparedInstanceBoxMethodV1 {
 }
 
 impl PreparedInstanceBoxMethodBatchV1 {
-    pub(super) fn prepare(owner: &str, methods: &HashMap<String, ASTNode>) -> Self {
+    pub(super) fn prepare(owner: &str, methods: &BoxMethodInventoryV1) -> Self {
         let methods = sorted_method_entries(methods)
             .into_iter()
             .filter_map(|(method_name, method)| {

@@ -49,7 +49,7 @@ fn main_program_with_result(result: Option<&str>, body: Vec<ASTNode>) -> ASTNode
             field_decls: Vec::new(),
             public_fields: Vec::new(),
             private_fields: Vec::new(),
-            methods,
+            methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
             constructors: HashMap::new(),
             init_fields: Vec::new(),
             weak_fields: Vec::new(),

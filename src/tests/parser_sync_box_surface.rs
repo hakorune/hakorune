@@ -36,7 +36,7 @@ sync box Counter {
     assert!(!*is_record, "sync box is not a record");
     assert!(!*is_static, "sync box is not a static box");
     assert_eq!(field_decls.len(), 1);
-    assert!(methods.contains_key("inc"));
+    assert!(methods.contains_name("inc"));
 }
 
 #[test]
@@ -71,7 +71,9 @@ box Main {
     let ASTNode::BoxDeclaration { methods, .. } = find_box(&ast, "Main") else {
         panic!("expected BoxDeclaration");
     };
-    let ASTNode::FunctionDeclaration { body, .. } = methods.get("run").expect("run method") else {
+    let ASTNode::FunctionDeclaration { body, .. } =
+        methods.get_declaration("run").expect("run method")
+    else {
         panic!("expected FunctionDeclaration");
     };
     assert!(matches!(body[0], ASTNode::Local { .. }));

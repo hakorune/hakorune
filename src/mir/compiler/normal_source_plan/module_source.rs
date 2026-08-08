@@ -152,7 +152,8 @@ impl VerifiedNormalModuleSourceV1 {
         else {
             return Err(NormalInstanceMethodSourceLoanErrorV1::SourceDrift);
         };
-        let Some(function @ ASTNode::FunctionDeclaration { params, .. }) = methods.get(key.name())
+        let Some(function @ ASTNode::FunctionDeclaration { params, .. }) =
+            methods.get_declaration(key.name())
         else {
             return Err(NormalInstanceMethodSourceLoanErrorV1::SourceDrift);
         };
@@ -551,9 +552,9 @@ fn verify_instance_boxes(
             ));
         }
 
-        let mut method_rows = methods.iter().collect::<Vec<_>>();
-        method_rows.sort_by(|(left, _), (right, _)| left.cmp(right));
-        for (method_key, method) in method_rows {
+        for entry in methods.iter_compat_name_order() {
+            let method_key = entry.name();
+            let method = entry.declaration();
             let ASTNode::FunctionDeclaration {
                 name: declaration_name,
                 params,
@@ -598,7 +599,7 @@ fn verify_instance_boxes(
             expected.push(ExpectedCallableV1 {
                 namespace: SameModuleCallableNamespaceV1::InstanceBoxMethod,
                 owner: name.as_str().into(),
-                method: method_key.as_str().into(),
+                method: method_key.into(),
                 arity,
                 statement_index,
             });
@@ -654,7 +655,7 @@ fn verify_catalog_correspondence(
             uses,
             attrs,
             ..
-        }) = methods.get(row.method.as_ref())
+        }) = methods.get_declaration(row.method.as_ref())
         else {
             return Err(callable_drift(row));
         };

@@ -74,7 +74,7 @@ fn find_first_loop<'a>(node: &'a ASTNode) -> Option<(&'a ASTNode, &'a [ASTNode])
             static_init,
             ..
         } => {
-            for v in methods.values() {
+            for v in methods.declarations_in_selected_order() {
                 if let Some(found) = find_first_loop(v) {
                     return Some(found);
                 }

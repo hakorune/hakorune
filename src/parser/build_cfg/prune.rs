@@ -1,4 +1,4 @@
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1};
 use crate::parser::{NyashParser, ParseError};
 use std::collections::HashMap;
 
@@ -150,9 +150,18 @@ impl NyashParser {
                     span,
                 } => {
                     let methods = methods
+                        .into_compatibility_map()
                         .into_iter()
                         .map(|(key, method)| Ok((key, self.prune_build_gate_node(method)?)))
                         .collect::<Result<HashMap<_, _>, ParseError>>()?;
+                    let methods = BoxMethodInventoryV1::try_from_compatibility_map(
+                        methods,
+                        BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
+                    )
+                    .map_err(|error| ParseError::BuildCfg {
+                        message: format!("invalid compatibility method inventory: {error:?}"),
+                        line: 0,
+                    })?;
                     let constructors = constructors
                         .into_iter()
                         .map(|(key, ctor)| Ok((key, self.prune_build_gate_node(ctor)?)))
@@ -370,9 +379,18 @@ impl NyashParser {
                 span,
             } => {
                 let methods = methods
+                    .into_compatibility_map()
                     .into_iter()
                     .map(|(key, method)| Ok((key, self.prune_build_gate_node(method)?)))
                     .collect::<Result<HashMap<_, _>, ParseError>>()?;
+                let methods = BoxMethodInventoryV1::try_from_compatibility_map(
+                    methods,
+                    BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
+                )
+                .map_err(|error| ParseError::BuildCfg {
+                    message: format!("invalid compatibility method inventory: {error:?}"),
+                    line: 0,
+                })?;
                 let constructors = constructors
                     .into_iter()
                     .map(|(key, ctor)| Ok((key, self.prune_build_gate_node(ctor)?)))

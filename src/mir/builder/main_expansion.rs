@@ -256,7 +256,7 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             return Err(MainExpansionErrorV1::RootMustBeProgram);
         };
 
-        let mut main_box: Option<(&str, &std::collections::HashMap<String, ASTNode>)> = None;
+        let mut main_box: Option<(&str, &crate::ast::BoxMethodInventoryV1)> = None;
         for statement in statements {
             let ASTNode::BoxDeclaration {
                 name,
@@ -278,7 +278,7 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             return Err(MainExpansionErrorV1::MainBoxMissing);
         };
 
-        let Some(main_source) = methods.get("main") else {
+        let Some(main_source) = methods.get_declaration("main") else {
             return Err(MainExpansionErrorV1::MainMethodMissing);
         };
         let ASTNode::FunctionDeclaration {
@@ -443,7 +443,7 @@ mod tests {
         ASTNode::Program {
             statements: vec![ASTNode::BoxDeclaration {
                 name: "Main".to_owned(),
-                methods,
+                methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
                 is_static: true,
                 fields: Vec::new(),
                 field_decls: Vec::new(),
@@ -644,7 +644,7 @@ mod tests {
         };
         statements.push(ASTNode::BoxDeclaration {
             name: name.clone(),
-            methods: second_methods,
+            methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(second_methods),
             is_static: *is_static,
             fields: fields.clone(),
             field_decls: field_decls.clone(),

@@ -4,7 +4,10 @@
 //! delegate fields against sibling box declarations. It deliberately stays
 //! narrow: explicit `delegate field exposes { method [as alias] }` only.
 
-use crate::ast::{ASTNode, DelegateDecl, FieldDecl, ParamDecl, Span};
+use crate::ast::{
+    ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1, DelegateDecl, FieldDecl,
+    ParamDecl, Span,
+};
 use crate::parser::ParseError;
 use std::collections::{HashMap, HashSet};
 
@@ -65,7 +68,7 @@ fn collect_box_info(statements: &[ASTNode]) -> HashMap<String, BoxInfo> {
             Some((
                 name.clone(),
                 BoxInfo {
-                    methods: methods.clone(),
+                    methods: methods.clone_compatibility_map(),
                 },
             ))
         })
@@ -82,7 +85,7 @@ fn lower_statement(
         field_decls,
         public_fields,
         private_fields,
-        mut methods,
+        methods,
         constructors,
         init_fields,
         weak_fields,
@@ -104,9 +107,23 @@ fn lower_statement(
         return Ok(statement);
     };
 
+    let mut compatibility_methods = methods.into_compatibility_map();
     if !is_record && !delegates.is_empty() {
-        lower_delegates_for_box(&name, &field_decls, &delegates, &mut methods, boxes)?;
+        lower_delegates_for_box(
+            &name,
+            &field_decls,
+            &delegates,
+            &mut compatibility_methods,
+            boxes,
+        )?;
     }
+    let methods = BoxMethodInventoryV1::try_from_compatibility_map(
+        compatibility_methods,
+        BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
+    )
+    .map_err(|error| {
+        delegate_error(format!("invalid compatibility method inventory: {error:?}"))
+    })?;
 
     Ok(ASTNode::BoxDeclaration {
         name,

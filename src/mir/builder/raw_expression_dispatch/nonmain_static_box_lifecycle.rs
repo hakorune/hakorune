@@ -5,9 +5,7 @@
 //! app mode is a declaration no-op and non-App mode isolates one full method
 //! batch in the existing four-state transaction.
 
-use std::collections::HashMap;
-
-use crate::ast::ASTNode;
+use crate::ast::BoxMethodInventoryV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use crate::mir::builder::raw_expression_dispatch::static_box_state::ActiveRawStaticBoxCompilationStateV1;
@@ -20,10 +18,7 @@ pub(in crate::mir::builder) struct PreparedRawNonMainStaticBoxLifecycleV1 {
 }
 
 impl PreparedRawNonMainStaticBoxLifecycleV1 {
-    pub(in crate::mir::builder) fn prepare(
-        name: String,
-        methods: HashMap<String, ASTNode>,
-    ) -> Self {
+    pub(in crate::mir::builder) fn prepare(name: String, methods: BoxMethodInventoryV1) -> Self {
         Self {
             methods: PreparedNonMainStaticBoxMethodBatchV1::prepare(name.clone(), methods),
             name,

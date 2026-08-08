@@ -22,7 +22,10 @@ fn expanded_box_method_names(code: &str, box_name: &str, derive_all: Option<&str
     ) else {
         panic!("{box_name} declaration not found after expansion");
     };
-    methods.into_keys().collect()
+    methods
+        .names_in_selected_order()
+        .map(str::to_owned)
+        .collect()
 }
 
 #[test]

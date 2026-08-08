@@ -33,13 +33,13 @@ pub(super) fn find_static_main_box(ast: &ASTNode) -> Option<StaticMainBox<'_>> {
         }
 
         let declaration = methods
-            .get("main/0")
-            .or_else(|| methods.get("main"))
+            .get_declaration("main/0")
+            .or_else(|| methods.get_declaration("main"))
             .or_else(|| {
                 methods
-                    .iter()
-                    .find(|(key, _)| key.starts_with("main/"))
-                    .map(|(_, value)| value)
+                    .iter_compat_name_order()
+                    .find(|entry| entry.name().starts_with("main/"))
+                    .map(|entry| entry.declaration())
             })?;
 
         let ASTNode::FunctionDeclaration { body, .. } = declaration else {
@@ -60,7 +60,10 @@ pub(super) fn find_static_main_box(ast: &ASTNode) -> Option<StaticMainBox<'_>> {
             continue;
         };
 
-        for declaration in methods.values() {
+        for declaration in methods
+            .iter_selected_declaration_order()
+            .map(|entry| entry.declaration())
+        {
             let ASTNode::FunctionDeclaration {
                 name: method_name,
                 params,

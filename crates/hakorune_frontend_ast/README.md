@@ -29,10 +29,15 @@ Raw `ExplicitSource` provenance is also descriptive. A later parser-owned seal
 must prove complete parsing, duplicate freedom, selected Box membership, and
 exact source identity before lending resolver-grade rows.
 
-Current status: the passive model and focused tests are landed; connection to
-`ASTNode::BoxDeclaration.methods` is the immediate next Refactor Series cell.
-Until that cutover, the old HashMap remains production storage and this model
-has production consumers zero.
+Current status: R1 is landed. `ASTNode::BoxDeclaration.methods` now stores
+`BoxMethodInventoryV1`, and compatibility consumers use explicitly named
+exact-lookup, selected-order, name-order, or `CompatibilityOnly` projections.
+The old public HashMap field and arbitrary mutable method access are gone.
+
+R1 deliberately does not issue resolver-grade source rows. Ordinary,
+interface, and static parser branches remain compatibility imports until R2
+seals complete parsing, duplicate freedom, exact sites, and fresh
+`ExplicitSource` provenance. Compatibility rows cannot be upgraded.
 
 ## Boundaries
 

@@ -413,7 +413,7 @@ mod tests {
         ASTNode::Program {
             statements: vec![ASTNode::BoxDeclaration {
                 name: "Main".into(),
-                methods,
+                methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
                 is_static: true,
                 fields: Vec::new(),
                 field_decls: Vec::new(),
@@ -586,7 +586,8 @@ mod tests {
             let ASTNode::BoxDeclaration { methods, .. } = statements.first_mut().unwrap() else {
                 panic!("static Main declaration is required")
             };
-            methods.insert(
+            let mut compatibility_methods = std::mem::take(methods).into_compatibility_map();
+            compatibility_methods.insert(
                 "zeta".into(),
                 function_with_body(
                     "zeta",
@@ -599,6 +600,7 @@ mod tests {
                     }],
                 ),
             );
+            *methods = crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(compatibility_methods);
         }
         let mut compiler = MirCompiler::new();
         let rejected = compiler

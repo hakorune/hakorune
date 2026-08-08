@@ -104,7 +104,6 @@ impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
         )
     }
 }
-
 impl RecursiveChildLoweringPortV1 for RecordingOrdinaryPortV1 {
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;
@@ -169,7 +168,6 @@ impl RootCallableCapturePortV1 for RecordingOrdinaryPortV1 {
         )
     }
 }
-
 fn parsed_static_box(source: &str) -> (String, std::collections::HashMap<String, ASTNode>) {
     let ASTNode::Program { mut statements, .. } =
         NyashParser::parse_from_string(source).expect("deferred static Box source")
@@ -179,9 +177,8 @@ fn parsed_static_box(source: &str) -> (String, std::collections::HashMap<String,
     let ASTNode::BoxDeclaration { name, methods, .. } = statements.remove(0) else {
         panic!("fixture must contain one static Box");
     };
-    (name, methods)
+    (name, methods.into_compatibility_map())
 }
-
 fn parsed_instance_box(source: &str) -> (String, std::collections::HashMap<String, ASTNode>) {
     let ASTNode::Program { mut statements, .. } =
         NyashParser::parse_from_string(source).expect("instance Box source")
@@ -196,7 +193,6 @@ fn parsed_instance_box(source: &str) -> (String, std::collections::HashMap<Strin
     };
     (name, constructors)
 }
-
 fn parsed_instance_methods(source: &str) -> (String, std::collections::HashMap<String, ASTNode>) {
     let ASTNode::Program { mut statements, .. } =
         NyashParser::parse_from_string(source).expect("instance method source")
@@ -206,9 +202,13 @@ fn parsed_instance_methods(source: &str) -> (String, std::collections::HashMap<S
     let ASTNode::BoxDeclaration { name, methods, .. } = statements.remove(0) else {
         panic!("fixture must contain one instance Box");
     };
-    (name, methods)
+    (name, methods.into_compatibility_map())
 }
-
+fn compatibility_inventory(
+    methods: &std::collections::HashMap<String, ASTNode>,
+) -> crate::ast::BoxMethodInventoryV1 {
+    crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods.clone())
+}
 fn parsed_instance_declaration(source: &str) -> ASTNode {
     let ASTNode::Program { mut statements, .. } =
         NyashParser::parse_from_string(source).expect("instance declaration source")
@@ -246,7 +246,6 @@ fn mirbuilder_minimal_literal_integer_path_smoke() {
         )
     }));
 }
-
 #[test]
 fn shared_root_kernel_lends_each_instance_method_to_one_stack_port() {
     let source = "box Worker { run(value) { return value } }";
@@ -273,7 +272,6 @@ fn shared_root_kernel_lends_each_instance_method_to_one_stack_port() {
     assert_eq!(port.methods, vec![("Worker".into(), "run".into(), 1)]);
     assert!(module.functions.contains_key("Worker.run/1"));
 }
-
 #[test]
 fn instance_method_batch_preserves_route_specific_admission_and_order() {
     let source = "box Page { omega(value) { return value } alpha() { return 1 } }";
@@ -298,7 +296,7 @@ fn instance_method_batch_preserves_route_specific_admission_and_order() {
         record_only_instance: true,
         ..RecordingOrdinaryPortV1::default()
     };
-    PreparedInstanceBoxMethodBatchV1::prepare(&owner, &methods)
+    PreparedInstanceBoxMethodBatchV1::prepare(&owner, &compatibility_inventory(&methods))
         .lower_raw_with_port_v1(&mut raw_builder, &mut raw_port)
         .expect("raw method batch needs no catalog");
 
@@ -312,7 +310,7 @@ fn instance_method_batch_preserves_route_specific_admission_and_order() {
         record_only_instance: true,
         ..RecordingOrdinaryPortV1::default()
     };
-    PreparedInstanceBoxMethodBatchV1::prepare(&owner, &methods)
+    PreparedInstanceBoxMethodBatchV1::prepare(&owner, &compatibility_inventory(&methods))
         .lower_root_with_port_v1(&mut root_builder, &mut root_port)
         .expect("root method batch uses exact catalog");
 
@@ -337,7 +335,6 @@ fn instance_method_batch_preserves_route_specific_admission_and_order() {
             .collect::<Vec<_>>()
     );
 }
-
 #[test]
 fn instance_method_batch_preserves_prefix_on_route_failure() {
     let source = "box Page { gamma() { return 3 } beta() { return 2 } alpha() { return 1 } }";
@@ -356,9 +353,10 @@ fn instance_method_batch_preserves_prefix_on_route_failure() {
         record_only_instance: true,
         ..RecordingOrdinaryPortV1::default()
     };
-    let error = PreparedInstanceBoxMethodBatchV1::prepare(&owner, &methods)
-        .lower_root_with_port_v1(&mut root_builder, &mut root_port)
-        .expect_err("missing beta catalog row must stop the batch");
+    let error =
+        PreparedInstanceBoxMethodBatchV1::prepare(&owner, &compatibility_inventory(&methods))
+            .lower_root_with_port_v1(&mut root_builder, &mut root_port)
+            .expect_err("missing beta catalog row must stop the batch");
     assert!(error.contains("missing exact declaration for Page.beta/0"));
     assert_eq!(root_port.instance_methods, vec!["Page.alpha/0"]);
 
@@ -368,16 +366,16 @@ fn instance_method_batch_preserves_prefix_on_route_failure() {
         record_only_instance: true,
         ..RecordingOrdinaryPortV1::default()
     };
-    let error = PreparedInstanceBoxMethodBatchV1::prepare(&owner, &methods)
-        .lower_raw_with_port_v1(&mut raw_builder, &mut raw_port)
-        .expect_err("raw beta failure must stop the batch");
+    let error =
+        PreparedInstanceBoxMethodBatchV1::prepare(&owner, &compatibility_inventory(&methods))
+            .lower_raw_with_port_v1(&mut raw_builder, &mut raw_port)
+            .expect_err("raw beta failure must stop the batch");
     assert_eq!(error, "selected instance method failure: Page.beta/0");
     assert_eq!(
         raw_port.instance_methods,
         vec!["Page.alpha/0", "Page.beta/0"]
     );
 }
-
 #[test]
 fn instance_box_declaration_lifecycle_preserves_prefix_and_route_terminals() {
     let source = "box Page {
@@ -721,9 +719,12 @@ fn nonmain_static_method_batch_sorts_projects_and_keeps_ordinary_main() {
         ..RecordingOrdinaryPortV1::default()
     };
 
-    PreparedNonMainStaticBoxMethodBatchV1::prepare(name, methods)
-        .lower_with_port_v1(&mut builder, &mut port)
-        .expect("prepared static method batch");
+    PreparedNonMainStaticBoxMethodBatchV1::prepare(
+        name,
+        crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
+    )
+    .lower_with_port_v1(&mut builder, &mut port)
+    .expect("prepared static method batch");
 
     assert_eq!(
         port.static_methods,

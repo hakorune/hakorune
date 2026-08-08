@@ -58,7 +58,7 @@ fn box_declaration(owner: &str, functions: Vec<ASTNode>, is_static: bool) -> AST
         field_decls: Vec::new(),
         public_fields: Vec::new(),
         private_fields: Vec::new(),
-        methods,
+        methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
         constructors: HashMap::new(),
         init_fields: Vec::new(),
         weak_fields: Vec::new(),
@@ -336,8 +336,10 @@ fn rejects_duplicate_owner_and_malformed_method_pairing() {
     let ASTNode::BoxDeclaration { methods, .. } = &mut malformed else {
         unreachable!()
     };
-    let function = methods.remove("actual").unwrap();
-    methods.insert("map_name".to_string(), function);
+    let mut compatibility = std::mem::take(methods).into_compatibility_map();
+    let function = compatibility.remove("actual").unwrap();
+    compatibility.insert("map_name".to_string(), function);
+    *methods = crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(compatibility);
     assert_eq!(
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program(vec![malformed]))
             .unwrap_err(),
@@ -352,7 +354,9 @@ fn rejects_duplicate_owner_and_malformed_method_pairing() {
     let ASTNode::BoxDeclaration { methods, .. } = &mut non_function else {
         unreachable!()
     };
-    methods.insert("run".to_string(), scalar());
+    let mut compatibility = std::mem::take(methods).into_compatibility_map();
+    compatibility.insert("run".to_string(), scalar());
+    *methods = crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(compatibility);
     assert_eq!(
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program(vec![non_function]))
             .unwrap_err(),

@@ -107,6 +107,16 @@ Every implementation row must update its landed owner README and relevant
 claim an issuer, target, conformance proof, or production route before it
 exists.
 
+The finite executable ordering, legacy retirement conditions, test matrix,
+and implementation-coupled reference updates are owned by:
+
+```text
+callable-contract-and-instance-call-implementation-task-map-2026-08-08.md
+```
+
+This reconciliation owns the external-review disposition; the task map owns
+execution order. Neither is a second language reference.
+
 ## Stop lines
 
 ```text

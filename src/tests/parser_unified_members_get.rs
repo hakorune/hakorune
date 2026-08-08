@@ -21,7 +21,7 @@ box Greeter {
 
     assert!(fields.contains(&"name".to_string()));
     assert!(!fields.contains(&"greeting".to_string()));
-    assert!(methods.contains_key("__get_greeting"));
+    assert!(methods.contains_name("__get_greeting"));
 }
 
 #[test]
@@ -44,7 +44,7 @@ box HasGetField {
 
     assert!(fields.contains(&"get".to_string()));
     assert!(fields.contains(&"name".to_string()));
-    assert!(!methods.contains_key("__get_get"));
+    assert!(!methods.contains_name("__get_get"));
 }
 
 #[test]
@@ -67,8 +67,8 @@ box HasGetMethod {
     };
 
     assert!(!fields.contains(&"get".to_string()));
-    assert!(methods.contains_key("get"));
-    assert!(!methods.contains_key("__get_get"));
+    assert!(methods.contains_name("get"));
+    assert!(!methods.contains_name("__get_get"));
 }
 
 #[test]
@@ -91,7 +91,7 @@ box HasBareGetField {
 
     assert!(fields.contains(&"get".to_string()));
     assert!(fields.contains(&"name".to_string()));
-    assert!(!methods.contains_key("__get_name"));
+    assert!(!methods.contains_name("__get_name"));
 }
 
 #[test]
@@ -116,7 +116,7 @@ box VisibleComputed {
 
     assert!(public_fields.contains(&"size".to_string()));
     assert!(!fields.contains(&"size".to_string()));
-    assert!(methods.contains_key("__get_size"));
+    assert!(methods.contains_name("__get_size"));
 }
 
 #[test]
@@ -143,7 +143,7 @@ box PrivateComputed {
     assert!(private_fields.contains(&"hidden".to_string()));
     assert!(!public_fields.contains(&"hidden".to_string()));
     assert!(!fields.contains(&"hidden".to_string()));
-    assert!(methods.contains_key("__get_hidden"));
+    assert!(methods.contains_name("__get_hidden"));
 }
 
 #[test]
@@ -168,7 +168,7 @@ box VisibleGetField {
 
     assert!(public_fields.contains(&"get".to_string()));
     assert!(fields.contains(&"get".to_string()));
-    assert!(!methods.contains_key("__get_get"));
+    assert!(!methods.contains_name("__get_get"));
 }
 
 #[test]

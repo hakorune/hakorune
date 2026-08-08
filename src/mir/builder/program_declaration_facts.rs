@@ -9,7 +9,7 @@ use std::collections::{BTreeSet, HashMap};
 use super::compilation_context::CompilationContext;
 use super::declaration_order::sorted_method_entries;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
-use crate::ast::{ASTNode, EnumVariantDecl, FieldDecl};
+use crate::ast::{ASTNode, BoxMethodInventoryV1, EnumVariantDecl, FieldDecl};
 use crate::mir::resolved_semantics::{
     admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1, EnumVariantAdmissionV1,
     EnumVariantDemandV1, FullyExplicitRecordLiteralAdmissionV1, RecordSchemaDemandV1,
@@ -347,7 +347,7 @@ impl RecordSchemaDemandV1 for RecordSchemaDemandViewV1<'_> {
 
 fn collect_static_scalar_updates(
     box_name: &str,
-    methods: &HashMap<String, ASTNode>,
+    methods: &BoxMethodInventoryV1,
 ) -> Box<[StaticScalarFactUpdateV1]> {
     if box_name != "HakoAllocObjectLifecycleFacadeReason" {
         return Box::default();
@@ -413,7 +413,7 @@ mod tests {
             field_decls,
             public_fields: Vec::new(),
             private_fields: Vec::new(),
-            methods,
+            methods: BoxMethodInventoryV1::from_legacy_ast_map(methods),
             constructors: HashMap::new(),
             init_fields,
             weak_fields,

@@ -59,7 +59,10 @@ fn check_node(node: &ASTNode, arities: &BTreeMap<String, usize>) -> Result<(), S
             ..
         } => {
             check_field_decls(field_decls, arities)?;
-            for method in methods.values() {
+            for method in methods
+                .iter_selected_declaration_order()
+                .map(|entry| entry.declaration())
+            {
                 check_node(method, arities)?;
             }
             for constructor in constructors.values() {

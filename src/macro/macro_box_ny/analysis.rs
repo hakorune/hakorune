@@ -155,7 +155,7 @@ pub fn analyze_macro_file(path: &str) -> MacroBehavior {
                 // Detect LoopNormalize/IfMatchNormalize by name() returning a specific string
                 if let Some(ASTNode::FunctionDeclaration {
                     name: mname, body, ..
-                }) = methods.get("name")
+                }) = methods.get_declaration("name")
                 {
                     if mname == "name" {
                         if body.len() == 1 {
@@ -187,7 +187,7 @@ pub fn analyze_macro_file(path: &str) -> MacroBehavior {
                     body,
                     params,
                     ..
-                }) = methods.get("expand")
+                }) = methods.get_declaration("expand")
                 {
                     if mname == "expand" {
                         if expand_indicates_uppercase(body, params) {

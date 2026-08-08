@@ -127,7 +127,7 @@ impl VerifiedCallableHeaderSourceUnitV1 {
         let ASTNode::BoxDeclaration { methods, .. } = statements.get(statement_index)? else {
             return None;
         };
-        let function_ast = methods.get(method_key)?;
+        let function_ast = methods.get_declaration(method_key)?;
         let function = CallableFunctionSyntaxViewV1::from_function_ast(function_ast)?;
         Some(EmbeddedCallableFunctionSyntaxViewV1 {
             function_ast,

@@ -1,5 +1,6 @@
 use nyash_rust::ast::{
-    ASTNode, CatchClause, DelegateDecl, DelegateExposeDecl, EnumVariantDecl, FieldDecl, Span,
+    ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1, CatchClause, DelegateDecl,
+    DelegateExposeDecl, EnumVariantDecl, FieldDecl, Span,
 };
 use serde_json::Value;
 use std::collections::HashMap;
@@ -111,7 +112,11 @@ pub(super) fn box_declaration_from_json(
                     .collect::<Vec<_>>()
             })
             .unwrap_or_default(),
-        methods,
+        methods: BoxMethodInventoryV1::try_from_compatibility_map(
+            methods,
+            BoxMethodCompatibilityOriginV1::LegacyJsonV1,
+        )
+        .ok()?,
         constructors,
         init_fields: v
             .get("init_fields")

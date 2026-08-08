@@ -8,7 +8,7 @@ fn main_return_value(ast: &ASTNode) -> &ASTNode {
     let Some(ASTNode::BoxDeclaration { methods, .. }) = statements.first() else {
         panic!("expected static box");
     };
-    let main = methods.get("main").expect("main method");
+    let main = methods.get_declaration("main").expect("main method");
     let ASTNode::FunctionDeclaration { body, .. } = main else {
         panic!("expected function declaration");
     };

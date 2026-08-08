@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, FieldDecl, Span};
+use crate::ast::{ASTNode, BoxMethodInventoryV1, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -136,7 +136,7 @@ pub(crate) fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, P
         field_decls,
         public_fields: vec![],
         private_fields: vec![],
-        methods: HashMap::new(),
+        methods: BoxMethodInventoryV1::empty(),
         constructors: HashMap::new(),
         init_fields: vec![],
         weak_fields: vec![],

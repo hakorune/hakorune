@@ -50,7 +50,7 @@ static box Main {
         param_decls,
         return_type_name,
         ..
-    } = &methods["main"]
+    } = methods.get_declaration("main").unwrap()
     else {
         panic!("expected main method");
     };

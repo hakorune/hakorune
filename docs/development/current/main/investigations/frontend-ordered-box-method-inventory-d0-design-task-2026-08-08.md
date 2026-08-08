@@ -226,10 +226,13 @@ responsibility. Any necessary edit requires a prior facade split.
 ```text
 Rust BoxShape series:
   R0 AST inventory model + focused model tests
-  R1 AST field/source producer cutover + duplicate/span tests
-  R2 selected-gate and generated-producer atomic transactions
-  R3 JSON Box codec split + ordered v2 / CompatibilityOnly v1
-  R4 Builder compatibility consumer migration + old helper retirement
+  R0A inventory API authority correction
+  R1 AST field + CompatibilityOnly consumer cutover
+  R2 ordinary/interface/static parser ExplicitSource issuance
+     + duplicate/site sealing
+  R3 selected-gate and generated-producer atomic transactions
+  R4 JSON Box codec split + ordered v2 / CompatibilityOnly v1
+  R5 Builder compatibility consumer migration + old helper retirement
 
 Hako prerequisite and parity:
   H0 HAKO-PARSER-BOX-DECLARATION-CARRIER-D0
@@ -244,9 +247,9 @@ Then:
   RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
 ```
 
-R0 is the next executable row. Temporary caller-zero model code may exist only
-inside this bounded Refactor Series and must connect at R1; it cannot become a
-second AST or production route.
+R0 and R0A are closed and R1 is the active executable row. Temporary
+caller-zero model code may exist only inside this bounded Refactor Series and
+must connect through R1/R2; it cannot become a second AST or production route.
 
 ## Verification contract
 

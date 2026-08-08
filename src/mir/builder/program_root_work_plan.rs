@@ -50,7 +50,7 @@ pub(super) enum PreparedProgramRootImmediateWorkV1 {
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootInstanceBoxWorkV1 {
     name: String,
-    methods: HashMap<String, ASTNode>,
+    methods: crate::ast::BoxMethodInventoryV1,
     fields: Vec<String>,
     field_decls: Vec<FieldDecl>,
     constructors: PreparedInstanceBoxConstructorBatchV1,
@@ -79,7 +79,7 @@ pub(super) struct PreparedProgramRootTopLevelFunctionPartsV1 {
 #[derive(Debug)]
 pub(super) struct PreparedProgramDeferredStaticBoxWorkV1 {
     name: String,
-    methods: HashMap<String, ASTNode>,
+    methods: crate::ast::BoxMethodInventoryV1,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum ProgramRootWorkPlanAdmissionV1 {
@@ -148,7 +148,7 @@ impl PreparedProgramRootRuntimeWorkV1 {
 }
 impl PreparedProgramDeferredStaticBoxWorkV1 {
     pub(super) fn into_parts(self) -> (String, HashMap<String, ASTNode>) {
-        (self.name, self.methods)
+        (self.name, self.methods.into_compatibility_map())
     }
 }
 enum ProgramRootStatementDispositionV1 {

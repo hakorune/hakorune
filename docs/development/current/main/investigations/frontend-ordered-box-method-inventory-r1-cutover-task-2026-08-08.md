@@ -1,5 +1,5 @@
 ---
-Status: active implementation row — R0A authority correction closed
+Status: closed — AST field and compatibility consumers cut over
 Date: 2026-08-08
 Decision: replace the AST field and compile consumers without claiming source authority
 Parent: `frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md`
@@ -61,3 +61,37 @@ commit updates the frontend AST README and any landed `docs/reference/**`
 receipt affected by the actual field surface. R2 follows immediately with the
 ordinary parser ExplicitSource issuer; no unrelated caller-zero product may be
 inserted between them.
+
+## Implementation receipt
+
+```text
+ASTNode::BoxDeclaration.methods:
+  BoxMethodInventoryV1
+
+old public HashMap field:
+  0
+
+compatibility imports:
+  explicit CompatibilityOnly only
+
+generic map-like inventory APIs:
+  IntoIterator/Deref/Index/insert/remove/get_mut/values = 0
+
+parser-owned ExplicitSource seal:
+  0; R2
+```
+
+Verification:
+
+```text
+cargo test -q -p hakorune-frontend-ast box_method_inventory  # 7 passed
+cargo test -q --no-run                                      # green
+cargo check -q                                              # green
+git diff --check                                            # green
+current_state_pointer_guard                                 # green
+touched Rust files >= 800 lines                             # 0
+```
+
+Legacy consumers that still require a map receive one named compatibility
+projection at their old boundary. No resolver, Recipe, Builder route, or
+language acceptance was activated by this row.

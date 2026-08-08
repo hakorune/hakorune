@@ -24,7 +24,9 @@ fn find_check_expr(node: &ASTNode) -> Option<&ASTNode> {
         | ASTNode::ScopeBox {
             body: statements, ..
         } => statements.iter().find_map(find_check_expr),
-        ASTNode::BoxDeclaration { methods, .. } => methods.values().find_map(find_check_expr),
+        ASTNode::BoxDeclaration { methods, .. } => methods
+            .declarations_in_selected_order()
+            .find_map(find_check_expr),
         ASTNode::FunctionDeclaration { body, .. } => body.iter().find_map(find_check_expr),
         ASTNode::Local { initial_values, .. } => initial_values
             .iter()

@@ -5,9 +5,9 @@
 //! route or callable-catalog policy: Program-root and raw Box lowering share
 //! the same prepared metadata and keep their distinct child terminals.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, BoxMethodInventoryV1};
 use crate::mir::slot_registry::{get_or_assign_type_id, reserve_method_slot};
 
 use super::declaration_order::sorted_method_entries;
@@ -24,7 +24,7 @@ pub(super) struct PreparedInstanceBoxDeclarationMetadataV1 {
 impl PreparedInstanceBoxDeclarationMetadataV1 {
     pub(super) fn prepare(
         name: &str,
-        methods: &HashMap<String, ASTNode>,
+        methods: &BoxMethodInventoryV1,
         fields: &[String],
         weak_fields: &[String],
     ) -> Self {
@@ -117,7 +117,7 @@ mod tests {
 
         let metadata = PreparedInstanceBoxDeclarationMetadataV1::prepare(
             "Page",
-            &methods,
+            &BoxMethodInventoryV1::from_legacy_ast_map(methods),
             &["value".to_owned()],
             &["parent".to_owned()],
         );

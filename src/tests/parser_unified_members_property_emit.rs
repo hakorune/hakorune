@@ -3,15 +3,13 @@ use crate::tests::helpers::parser::{
     find_box, find_constructor_body, parse_ok_with_unified_members,
 };
 
-fn has_method(methods: &std::collections::HashMap<String, ASTNode>, name: &str) -> bool {
-    methods.contains_key(name)
+fn has_method(methods: &crate::ast::BoxMethodInventoryV1, name: &str) -> bool {
+    methods.contains_name(name)
 }
 
-fn method_body<'a>(
-    methods: &'a std::collections::HashMap<String, ASTNode>,
-    name: &str,
-) -> &'a Vec<ASTNode> {
-    let ASTNode::FunctionDeclaration { body, .. } = methods.get(name).expect("method should exist")
+fn method_body<'a>(methods: &'a crate::ast::BoxMethodInventoryV1, name: &str) -> &'a Vec<ASTNode> {
+    let ASTNode::FunctionDeclaration { body, .. } =
+        methods.get_declaration(name).expect("method should exist")
     else {
         panic!("expected FunctionDeclaration");
     };

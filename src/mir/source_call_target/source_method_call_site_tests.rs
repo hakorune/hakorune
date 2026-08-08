@@ -295,7 +295,10 @@ fn rejects_a_nested_lambda_call_as_the_outer_catalog_caller() {
     let ASTNode::BoxDeclaration { methods, .. } = caller_box else {
         unreachable!();
     };
-    let invoke = methods.get_mut("invoke").expect("invoke method must exist");
+    let mut compatibility = std::mem::take(methods).into_compatibility_map();
+    let invoke = compatibility
+        .get_mut("invoke")
+        .expect("invoke method must exist");
     let ASTNode::FunctionDeclaration { body, .. } = invoke else {
         panic!("invoke must be a function declaration");
     };
@@ -321,6 +324,7 @@ fn rejects_a_nested_lambda_call_as_the_outer_catalog_caller() {
         })),
         span: crate::ast::Span::unknown(),
     }];
+    *methods = crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(compatibility);
 
     let declarations = catalog(&root);
     let caller = key(&declarations, "Caller", "invoke", 1);

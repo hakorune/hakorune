@@ -60,10 +60,13 @@ LoopRecipeV2 CallSlot
 The resolver target is an opaque, reusable declaration capability. It does not
 carry a call site: a later source-bound relation supplies the exact caller,
 receiver, argument, and result sites and consumes/borrows the target once.
-The target refers to one existing canonical callable-contract issuer for the
-declaration's receiver, ordered parameters, result, exact Home ABI, effects,
-suspension/control, and call ABI/profile. It must not duplicate those facts in
-an ad-hoc target struct. If that issuer does not exist, this row is
+The target refers to one existing canonical declared-callable contract for the
+declaration's nominal receiver, receiver `Handle` demand, ordered semantic
+parameters/result, `query` behavior, and suspension/control obligations. It
+must not duplicate those facts in an ad-hoc target struct. Physical
+representation, `MirType`, `FunctionSignature`, and target call ABI remain
+downstream verifier authority. If the declared-contract issuer does not exist,
+this row is
 `NoSafeSlice`/design stop. `CallSlot` remains a logical operation shape:
 receiver, argument values, and optional result only.
 
@@ -83,30 +86,31 @@ brand, but may not reconstruct it from owner, Loop key, name, or arity.
 
 ## Minimum target product
 
-The exact Rust names remain open until the implementation row, but the product
-must have this shape:
+The exact Rust names remain open until the implementation row, but the catalog
+ownership must have this shape:
 
 ```text
-ResolvedInstanceMethodRefV1 {
-  target_declaration_identity,
+VerifiedInstanceMethodCatalogRowV1 {
+  declaration_id,
+  declared_contract_id,
   catalog/compilation brand,
-  canonical_callable_contract_receipt,
   opaque target identity,
 }
 
-VerifiedInstanceMethodTargetV1 {
-  target_ref: ResolvedInstanceMethodRefV1,
-  canonical contract receipt,
-  declaration provenance,
+VerifiedInstanceMethodTargetRefV1<'catalog> {
+  opaque target identity,
+  catalog/compilation brand,
 }
 ```
 
-The public handoff is move-only or borrow-scoped and cannot be forged from a
-string. It contains no call-site source expression, `LoopBindingKey`,
+The catalog is the move-only owner. Its public handoff is borrow-scoped and
+cannot be forged from a string. The reference does not copy the declaration or
+declared contract; consumers resolve that relation through the catalog owner.
+It contains no call-site source expression, `LoopBindingKey`,
 `LoopItemKey`, `ValueId`, `BasicBlockId`, function pointer, duplicated
 `EffectMask`, `FunctionSignature`, MIR type, ABI transport, Home token, or
-runtime provider identity. Those belong to the canonical contract issuer,
-later source-bound relation, lowering, or provider owners.
+runtime provider identity. Those belong to the declared contract, later
+source-bound relation, physical verifier/lowering, or provider owners.
 
 First cohort is intentionally narrow:
 
@@ -114,8 +118,9 @@ First cohort is intentionally narrow:
 same compilation owner
 exact instance receiver declaration
 known declaration target
-exact arity and parameter/result classes
-non-suspending, non-control-transfer call
+exact semantic arity and parameter/result classes
+declared query contract with receiver Handle demand
+non-suspending, non-control-transfer obligation
 no implicit provider/runtime fallback
 ```
 
@@ -131,15 +136,15 @@ resolve.
 ```text
 Candidate:
   exact resolver declaration/catalog brand and one existing canonical callable
-  contract receipt are sealed for the same-owner instance declaration.
+  declared contract id are sealed for the same-owner instance declaration.
 
 Declined:
   the target is fully observed but outside this narrow instance-call cohort
   (for example static, overloaded, or suspending).
 
 Unresolved:
-  declaration, receiver type, signature, Home/effect/ABI contract issuer, or
-  source inventory is unavailable/opaque; no target product may be issued.
+  declaration, receiver type, signature, declared query/Home relation issuer,
+  or source inventory is unavailable/opaque; no target product may be issued.
 
 Rejected:
   foreign owner/frame/site, duplicate target, forged or mismatched resolver
@@ -160,8 +165,8 @@ observed unsupported shape is `Declined`.
    is deterministic and cannot fall through to FreeStatic or name lookup.
 4. A method name or Box name alone cannot issue a target.
 5. The existing FreeStatic target/index remains behaviorally unchanged.
-6. No Recipe key, CallSlot, ABI/Home/MIR/physical identifier enters the target
-   issuer's semantic output.
+6. No Recipe key, CallSlot, physical ABI/MIR identifier, duplicated declared
+   contract receipt, or runtime identity enters the target reference.
 7. Module README and the exact `docs/reference/**` receipt are updated in the
    same implementation commit. If the canonical contract issuer is absent,
    the implementation row is not opened and a contract-owner D0 is recorded

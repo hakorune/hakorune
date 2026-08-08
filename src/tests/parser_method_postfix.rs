@@ -44,7 +44,7 @@ box SafeBox {
     fn has_method_trycatch(ast: &crate::ast::ASTNode) -> bool {
         match ast {
             crate::ast::ASTNode::BoxDeclaration { methods, .. } => {
-                for (_name, m) in methods {
+                for m in methods.declarations_in_selected_order() {
                     if let crate::ast::ASTNode::FunctionDeclaration { name, body, .. } = m {
                         if name == "update" {
                             return body

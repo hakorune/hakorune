@@ -141,9 +141,9 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                 );
             }
 
-            let mut method_rows = methods.iter().collect::<Vec<_>>();
-            method_rows.sort_by(|(left, _), (right, _)| left.cmp(right));
-            for (map_name, declaration) in method_rows {
+            for entry in methods.iter_compat_name_order() {
+                let map_name = entry.name();
+                let declaration = entry.declaration();
                 let ASTNode::FunctionDeclaration {
                     name: declaration_name,
                     params,
@@ -158,7 +158,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                     return Err(
                         SameModuleCallableDeclarationCatalogErrorV1::MethodMustBeFunction {
                             owner: name.clone(),
-                            method: map_name.clone(),
+                            method: map_name.to_owned(),
                         },
                     );
                 };
@@ -180,7 +180,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                     return Err(
                         SameModuleCallableDeclarationCatalogErrorV1::MethodNameMismatch {
                             owner: name.clone(),
-                            map_name: map_name.clone(),
+                            map_name: map_name.to_owned(),
                             declaration_name: declaration_name.clone(),
                         },
                     );
@@ -188,7 +188,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                 let arity = u32::try_from(params.len()).map_err(|_| {
                     SameModuleCallableDeclarationCatalogErrorV1::ArityOverflow {
                         owner: name.clone(),
-                        method: map_name.clone(),
+                        method: map_name.to_string(),
                     }
                 })?;
                 let key = match namespace {
@@ -219,13 +219,13 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                         SelectedNormalCallableKeyV1::Cataloged(key.clone()),
                         SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
                             statement_index,
-                            method_key: map_name.clone().into_boxed_str(),
+                            method_key: map_name.to_string().into_boxed_str(),
                         },
                     ));
                 }
                 if namespace == SameModuleCallableNamespaceV1::StaticBoxMethod {
                     static_keys_by_method_and_arity
-                        .entry((map_name.clone().into_boxed_str(), arity))
+                        .entry((map_name.to_string().into_boxed_str(), arity))
                         .or_default()
                         .push(key);
                 }

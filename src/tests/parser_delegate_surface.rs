@@ -46,9 +46,11 @@ box MeshNode {
     assert_eq!(delegates[0].exposes[0].exposed_name, "connect");
     assert_eq!(delegates[0].exposes[1].source_name, "send");
     assert_eq!(delegates[0].exposes[1].exposed_name, "p2pSend");
-    assert!(methods.contains_key("connect"));
-    assert!(methods.contains_key("p2pSend"));
-    let ASTNode::FunctionDeclaration { params, body, .. } = &methods["p2pSend"] else {
+    assert!(methods.contains_name("connect"));
+    assert!(methods.contains_name("p2pSend"));
+    let ASTNode::FunctionDeclaration { params, body, .. } =
+        methods.get_declaration("p2pSend").unwrap()
+    else {
         panic!("generated forwarding method");
     };
     assert_eq!(params.as_slice(), ["value".to_string()].as_slice());

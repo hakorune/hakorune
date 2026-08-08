@@ -17,7 +17,8 @@ static box Main {
     let ASTNode::BoxDeclaration { methods, .. } = &statements[0] else {
         panic!("expected box declaration");
     };
-    let ASTNode::FunctionDeclaration { uses, body, .. } = &methods["main"] else {
+    let ASTNode::FunctionDeclaration { uses, body, .. } = methods.get_declaration("main").unwrap()
+    else {
         panic!("expected main method");
     };
 
@@ -59,7 +60,8 @@ static box Main {
     let ASTNode::BoxDeclaration { methods, .. } = &statements[0] else {
         panic!("expected box declaration");
     };
-    let ASTNode::FunctionDeclaration { uses, body, .. } = &methods["main"] else {
+    let ASTNode::FunctionDeclaration { uses, body, .. } = methods.get_declaration("main").unwrap()
+    else {
         panic!("expected main method");
     };
 

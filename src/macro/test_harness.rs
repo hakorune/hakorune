@@ -353,7 +353,9 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                 ..
             } = st
             {
-                for (mname, mnode) in methods {
+                for entry in methods.iter_selected_declaration_order() {
+                    let mname = entry.name();
+                    let mnode = entry.declaration();
                     if !mname.starts_with("test_") {
                         continue;
                     }
@@ -389,7 +391,7 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                                     name: box_name.clone(),
                                     span: nyash_rust::ast::Span::unknown(),
                                 }),
-                                method: mname.clone(),
+                                method: mname.to_string(),
                                 arguments: args,
                                 span: nyash_rust::ast::Span::unknown(),
                             };
@@ -474,7 +476,7 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                                     name: inst_var.clone(),
                                     span: nyash_rust::ast::Span::unknown(),
                                 }),
-                                method: mname.clone(),
+                                method: mname.to_string(),
                                 arguments: args,
                                 span: nyash_rust::ast::Span::unknown(),
                             };

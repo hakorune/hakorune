@@ -26,7 +26,8 @@ static box Main {
         let ASTNode::BoxDeclaration { methods, .. } = &statements[0] else {
             panic!("expected box declaration");
         };
-        let ASTNode::FunctionDeclaration { body, .. } = &methods["main"] else {
+        let ASTNode::FunctionDeclaration { body, .. } = methods.get_declaration("main").unwrap()
+        else {
             panic!("expected main method");
         };
 

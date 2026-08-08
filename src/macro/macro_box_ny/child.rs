@@ -81,17 +81,17 @@ pub(crate) struct NyChildMacroBox {
 pub(crate) fn register_decl_box(
     path: &str,
     box_name: &str,
-    methods: &std::collections::HashMap<String, ASTNode>,
+    methods: &nyash_rust::ast::BoxMethodInventoryV1,
 ) -> Result<(), String> {
     if let Some(ASTNode::FunctionDeclaration {
         name: mname,
         body: exp_body,
         params,
         ..
-    }) = methods.get("expand")
+    }) = methods.get_declaration("expand")
     {
         if mname == "expand" {
-            let reg_name = derive_box_name(box_name, methods.get("name"));
+            let reg_name = derive_box_name(box_name, methods.get_declaration("name"));
             let use_child = crate::config::env::macro_box_child();
             if use_child {
                 let nm = reg_name;

@@ -99,7 +99,7 @@ impl RawStaticHelperCoverageV1 {
             if name != locator.box_name() {
                 return Err(RawStaticHelper0CoverageErrorV1::BoxNameMismatch);
             }
-            let Some(declaration) = methods.get(locator.method_name()) else {
+            let Some(declaration) = methods.get_declaration(locator.method_name()) else {
                 return Err(RawStaticHelper0CoverageErrorV1::MethodMissing);
             };
             let ASTNode::FunctionDeclaration {
@@ -235,7 +235,7 @@ mod tests {
         ASTNode::Program {
             statements: vec![ASTNode::BoxDeclaration {
                 name: "Main".into(),
-                methods,
+                methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
                 is_static: true,
                 fields: Vec::new(),
                 field_decls: Vec::new(),

@@ -141,7 +141,7 @@ impl OwnedRawSourceV1 {
         if name != locator.box_name() {
             return Err(RawRootStaticChildWorkErrorV1::BoxNameMismatch);
         }
-        let Some(declaration) = methods.get(locator.method_name()) else {
+        let Some(declaration) = methods.get_declaration(locator.method_name()) else {
             return Err(RawRootStaticChildWorkErrorV1::MethodNameMismatch);
         };
         let ASTNode::FunctionDeclaration {

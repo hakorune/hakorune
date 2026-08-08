@@ -267,7 +267,7 @@ where
     if name != "Main" {
         return Err("[freeze:contract][mir/script-runtime/main-name-drift]".to_owned());
     }
-    port.lower_static_main_box(builder, name.clone(), methods.clone())
+    port.lower_static_main_box(builder, name.clone(), methods.clone_compatibility_map())
 }
 
 pub(super) fn reject_sync_box_at_runtime_v1(statement: &ASTNode) -> Result<ValueId, String> {
@@ -386,7 +386,7 @@ mod tests {
             field_decls: Vec::new(),
             public_fields: Vec::new(),
             private_fields: Vec::new(),
-            methods: HashMap::new(),
+            methods: crate::ast::BoxMethodInventoryV1::empty(),
             constructors: HashMap::new(),
             init_fields: Vec::new(),
             weak_fields: Vec::new(),

@@ -1,5 +1,5 @@
 //! Interface box parser: `interface box Name { methods... }`
-use crate::ast::{ASTNode, Span};
+use crate::ast::{ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -125,7 +125,11 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
         field_decls: vec![],
         public_fields: vec![],
         private_fields: vec![],
-        methods,
+        methods: BoxMethodInventoryV1::try_from_compatibility_map(
+            methods,
+            BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
+        )
+        .expect("interface method HashMap compatibility import must be lossless"),
         constructors: HashMap::new(), // インターフェースにコンストラクタなし
         init_fields: vec![],          // インターフェースにinitブロックなし
         weak_fields: vec![],          // インターフェースにweak fieldsなし

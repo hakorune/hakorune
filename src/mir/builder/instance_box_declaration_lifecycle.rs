@@ -30,7 +30,7 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
     #[allow(clippy::too_many_arguments)]
     pub(super) fn prepare(
         name: &'source str,
-        methods: &'source HashMap<String, ASTNode>,
+        methods: &'source crate::ast::BoxMethodInventoryV1,
         fields: &'source [String],
         field_decls: &'source [FieldDecl],
         constructors: &'source HashMap<String, ASTNode>,
@@ -51,7 +51,7 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
     #[allow(clippy::too_many_arguments)]
     pub(super) fn prepare_with_constructor_batch_v1(
         name: &'source str,
-        methods: &'source HashMap<String, ASTNode>,
+        methods: &'source crate::ast::BoxMethodInventoryV1,
         fields: &'source [String],
         field_decls: &'source [FieldDecl],
         init_fields: &'source [String],

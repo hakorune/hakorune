@@ -64,24 +64,22 @@ impl NormalSourceSurfaceInventoryV1 {
                     is_static,
                     ..
                 } if name == "Main" => {
-                    let mut method_entries = methods.iter().collect::<Vec<_>>();
-                    method_entries.sort_by(|(left, _), (right, _)| left.cmp(right));
-                    let methods = method_entries
-                        .into_iter()
-                        .map(|(method_key, source)| match source {
+                    let methods = methods
+                        .iter_compat_name_order()
+                        .map(|entry| match entry.declaration() {
                             ASTNode::FunctionDeclaration {
                                 name,
                                 params,
                                 is_static,
                                 ..
                             } => NormalMethodSurfaceV1 {
-                                method_key: method_key.as_str().into(),
+                                method_key: entry.name().into(),
                                 declaration_name: Some(name.as_str().into()),
                                 arity: Some(params.len()),
                                 is_static: Some(*is_static),
                             },
                             _ => NormalMethodSurfaceV1 {
-                                method_key: method_key.as_str().into(),
+                                method_key: entry.name().into(),
                                 declaration_name: None,
                                 arity: None,
                                 is_static: None,

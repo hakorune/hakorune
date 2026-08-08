@@ -86,7 +86,10 @@ fn check_node(node: &ASTNode, context: &PackedArrayEligibilityContext) -> Result
             ..
         } => {
             check_field_decls(field_decls, context)?;
-            for method in methods.values() {
+            for method in methods
+                .iter_selected_declaration_order()
+                .map(|entry| entry.declaration())
+            {
                 check_node(method, context)?;
             }
             for constructor in constructors.values() {

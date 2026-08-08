@@ -335,14 +335,16 @@ fn verify_plain_static_main(
             RawRootEligibilityErrorV1::UnsupportedCatalog,
         ));
     }
-    let Some(main) = methods.get("main") else {
+    let Some(main) = methods.get_declaration("main") else {
         return Err((
             RawRootEligibilityStageV1::Catalog,
             RawRootEligibilityErrorV1::UnsupportedCatalog,
         ));
     };
     let mut helper_count = 0;
-    for (method_name, method) in methods {
+    for entry in methods.iter_selected_declaration_order() {
+        let method_name = entry.name();
+        let method = entry.declaration();
         let ASTNode::FunctionDeclaration {
             name: declared_name,
             params,
@@ -591,7 +593,7 @@ mod tests {
         ASTNode::Program {
             statements: vec![ASTNode::BoxDeclaration {
                 name: "Main".into(),
-                methods,
+                methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
                 is_static: true,
                 fields: Vec::new(),
                 field_decls: Vec::new(),
@@ -621,7 +623,14 @@ mod tests {
         let mut source = app(main_body);
         if let ASTNode::Program { statements, .. } = &mut source {
             if let Some(ASTNode::BoxDeclaration { methods, .. }) = statements.first_mut() {
-                methods.insert("helper".into(), function("helper", Vec::new()));
+                methods
+                    .try_push_compatibility(
+                        "helper",
+                        function("helper", Vec::new()),
+                        crate::ast::BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
+                        Span::unknown(),
+                    )
+                    .unwrap();
             }
         }
         source

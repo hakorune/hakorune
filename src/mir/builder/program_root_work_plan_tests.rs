@@ -54,7 +54,7 @@ fn box_declaration(name: &str, is_static: bool) -> ASTNode {
         field_decls: Vec::new(),
         public_fields: Vec::new(),
         private_fields: Vec::new(),
-        methods: HashMap::new(),
+        methods: crate::ast::BoxMethodInventoryV1::empty(),
         constructors: HashMap::new(),
         init_fields: Vec::new(),
         weak_fields: Vec::new(),

@@ -24,7 +24,7 @@ fn located_parent_seals_function_relative_nested_method_root() {
             field_decls: Vec::new(),
             public_fields: Vec::new(),
             private_fields: Vec::new(),
-            methods: std::collections::HashMap::new(),
+            methods: crate::ast::BoxMethodInventoryV1::empty(),
             constructors: std::collections::HashMap::new(),
             init_fields: Vec::new(),
             weak_fields: Vec::new(),

@@ -71,7 +71,7 @@ fn try_load_one(path: &str) -> Result<(), String> {
             } = st
             {
                 if let Some(ASTNode::FunctionDeclaration { name: mname, .. }) =
-                    methods.get("expand")
+                    methods.get_declaration("expand")
                 {
                     if mname == "expand" {
                         let _ = mname; // keep the shape explicit for readability

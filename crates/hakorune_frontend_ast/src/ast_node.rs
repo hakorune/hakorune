@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::{
-    BinaryOperator, BuildPredicate, ContractKind, DeclarationAttrs, DelegateDecl, LiteralValue,
-    ParamDecl, Span, TransitionDecl, UnaryOperator,
+    BinaryOperator, BoxMethodInventoryV1, BuildPredicate, ContractKind, DeclarationAttrs,
+    DelegateDecl, LiteralValue, ParamDecl, Span, TransitionDecl, UnaryOperator,
 };
 
 /// Catch節の構造体
@@ -325,14 +325,14 @@ pub enum ASTNode {
         public_fields: Vec<String>,
         /// 非公開フィールド（private { ... }）
         private_fields: Vec<String>,
-        methods: HashMap<String, ASTNode>, // method_name -> FunctionDeclaration
+        methods: BoxMethodInventoryV1,
         constructors: HashMap<String, ASTNode>, // constructor_key -> FunctionDeclaration
-        init_fields: Vec<String>,          // initブロック内のフィールド定義
-        weak_fields: Vec<String>,          // 🔗 weak修飾子が付いたフィールドのリスト
-        delegates: Vec<DelegateDecl>,      // explicit field delegation metadata
-        invariants: Vec<ASTNode>,          // Stage0 contract metadata capsule
-        transitions: Vec<TransitionDecl>,  // Stage0 lifecycle transition metadata capsule
-        is_interface: bool,                // interface box かどうか
+        init_fields: Vec<String>,               // initブロック内のフィールド定義
+        weak_fields: Vec<String>,               // 🔗 weak修飾子が付いたフィールドのリスト
+        delegates: Vec<DelegateDecl>,           // explicit field delegation metadata
+        invariants: Vec<ASTNode>,               // Stage0 contract metadata capsule
+        transitions: Vec<TransitionDecl>,       // Stage0 lifecycle transition metadata capsule
+        is_interface: bool,                     // interface box かどうか
         is_record: bool, // record surface かどうか（identity-free aggregate contract）
         extends: Vec<String>, // 🚀 Multi-delegation: Changed from Option<String> to Vec<String>
         implements: Vec<String>, // 実装するinterface名のリスト

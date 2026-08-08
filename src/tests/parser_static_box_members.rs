@@ -20,7 +20,7 @@ fn box_has_methods(ast: &crate::ast::ASTNode, box_name: &str, methods: &[&str]) 
         {
             if name == box_name && *is_static {
                 return methods.iter().all(|k| {
-                    if let Some(node) = m.get(*k) {
+                    if let Some(node) = m.get_declaration(*k) {
                         matches!(node, crate::ast::ASTNode::FunctionDeclaration { name, .. } if name == *k)
                     } else { false }
                 });

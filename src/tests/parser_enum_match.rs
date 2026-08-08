@@ -16,7 +16,7 @@ fn find_enum_match(ast: &ASTNode) -> Option<(&str, &Vec<crate::ast::EnumMatchArm
             static_init,
             ..
         } => methods
-            .values()
+            .declarations_in_selected_order()
             .find_map(find_enum_match)
             .or_else(|| constructors.values().find_map(find_enum_match))
             .or_else(|| {
@@ -54,7 +54,7 @@ fn find_from_call(ast: &ASTNode) -> Option<(&str, &str, usize)> {
             static_init,
             ..
         } => methods
-            .values()
+            .declarations_in_selected_order()
             .find_map(find_from_call)
             .or_else(|| constructors.values().find_map(find_from_call))
             .or_else(|| {
@@ -87,7 +87,7 @@ fn find_scope_box(ast: &ASTNode) -> Option<&Vec<ASTNode>> {
             static_init,
             ..
         } => methods
-            .values()
+            .declarations_in_selected_order()
             .find_map(find_scope_box)
             .or_else(|| constructors.values().find_map(find_scope_box))
             .or_else(|| {

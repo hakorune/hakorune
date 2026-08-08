@@ -359,7 +359,9 @@ fn function_at_site<'source>(
             statement_index,
             method_key,
         } => match statements.get(*statement_index) {
-            Some(ASTNode::BoxDeclaration { methods, .. }) => methods.get(method_key.as_ref()),
+            Some(ASTNode::BoxDeclaration { methods, .. }) => {
+                methods.get_declaration(method_key.as_ref())
+            }
             _ => None,
         },
     }

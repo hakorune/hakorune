@@ -62,8 +62,9 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "public_fields": public_fields,
             "private_fields": private_fields,
             "methods": methods
+                .into_selected_declaration_order()
                 .into_iter()
-                .map(|(key, decl)| json!({"key": key, "decl": ast_to_json(&decl)}))
+                .map(|entry| json!({"key": entry.name(), "decl": ast_to_json(entry.declaration())}))
                 .collect::<Vec<_>>(),
             "constructors": constructors
                 .into_iter()

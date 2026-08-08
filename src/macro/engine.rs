@@ -1,5 +1,8 @@
 use nyash_rust::ast::Span;
-use nyash_rust::{ast::BinaryOperator, ast::LiteralValue, ASTNode};
+use nyash_rust::{
+    ast::{BinaryOperator, BoxMethodGeneratedProvenanceV1, LiteralValue},
+    ASTNode,
+};
 use std::time::Instant;
 
 /// HIR Patch description (MVP placeholder)
@@ -166,7 +169,7 @@ impl MacroEngine {
                     && (derive_all || derive_set.contains("ToString"));
                 // Philosophy-2: respect box independence — operate on public interface only
                 let field_view: &Vec<String> = &public_fields;
-                if want_equals && !methods.contains_key("equals") {
+                if want_equals && methods.get_declaration("equals").is_none() {
                     if crate::config::env::macro_trace() {
                         crate::macro_log!(
                             "[macro][derive] equals for {} (public fields: {})",
@@ -175,9 +178,18 @@ impl MacroEngine {
                         );
                     }
                     let m = build_equals_method(&name, field_view);
-                    methods.insert("equals".to_string(), m);
+                    methods
+                        .try_push_generated(
+                            "equals",
+                            m,
+                            BoxMethodGeneratedProvenanceV1::MacroOrImport {
+                                generator: "macro-derive-equals".into(),
+                            },
+                            Span::unknown(),
+                        )
+                        .expect("macro derive preflight must prevent duplicate equals");
                 }
-                if want_tostring && !methods.contains_key("toString") {
+                if want_tostring && methods.get_declaration("toString").is_none() {
                     if crate::config::env::macro_trace() {
                         crate::macro_log!(
                             "[macro][derive] toString for {} (public fields: {})",
@@ -186,7 +198,16 @@ impl MacroEngine {
                         );
                     }
                     let m = build_tostring_method(&name, field_view);
-                    methods.insert("toString".to_string(), m);
+                    methods
+                        .try_push_generated(
+                            "toString",
+                            m,
+                            BoxMethodGeneratedProvenanceV1::MacroOrImport {
+                                generator: "macro-derive-to-string".into(),
+                            },
+                            Span::unknown(),
+                        )
+                        .expect("macro derive preflight must prevent duplicate toString");
                 }
                 ASTNode::BoxDeclaration {
                     name,

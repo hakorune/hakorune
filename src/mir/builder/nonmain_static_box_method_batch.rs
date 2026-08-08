@@ -4,9 +4,7 @@
 //! transactions. This owner is the sole projection from the shared method map
 //! into ordered, owned inputs for the existing Box-method child port.
 
-use std::collections::HashMap;
-
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::nested_box_method_source::NestedBoxMethodLoweringInputV1;
@@ -31,12 +29,13 @@ struct PreparedNonMainStaticBoxMethodV1 {
 }
 
 impl PreparedNonMainStaticBoxMethodBatchV1 {
-    pub(super) fn prepare(owner: String, methods: HashMap<String, ASTNode>) -> Self {
-        let mut entries: Vec<(String, ASTNode)> = methods.into_iter().collect();
-        entries.sort_by(|(lhs, _), (rhs, _)| lhs.cmp(rhs));
-        let methods = entries
+    pub(super) fn prepare(owner: String, methods: BoxMethodInventoryV1) -> Self {
+        let methods = methods
+            .into_selected_declaration_order()
             .into_iter()
-            .filter_map(|(method_name, method)| {
+            .filter_map(|entry| {
+                let method_name = entry.name().to_owned();
+                let method = entry.declaration().clone();
                 let ASTNode::FunctionDeclaration {
                     params,
                     param_decls,

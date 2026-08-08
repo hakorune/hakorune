@@ -32,7 +32,7 @@ fn app(body: Vec<ASTNode>, with_sibling: bool) -> ASTNode {
     methods.insert("main".into(), function("main", body));
     let mut statements = vec![ASTNode::BoxDeclaration {
         name: "Main".into(),
-        methods,
+        methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
         is_static: true,
         fields: Vec::new(),
         field_decls: Vec::new(),
@@ -57,7 +57,7 @@ fn app(body: Vec<ASTNode>, with_sibling: bool) -> ASTNode {
     if with_sibling {
         statements.push(ASTNode::BoxDeclaration {
             name: "Other".into(),
-            methods: HashMap::new(),
+            methods: crate::ast::BoxMethodInventoryV1::empty(),
             is_static: true,
             fields: Vec::new(),
             field_decls: Vec::new(),
@@ -263,7 +263,7 @@ fn partial_catalog_and_main_arity_reject_before_physical_open() {
         ASTNode::Program {
             statements: vec![ASTNode::BoxDeclaration {
                 name: "Main".into(),
-                methods,
+                methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
                 is_static: true,
                 fields: Vec::new(),
                 field_decls: Vec::new(),

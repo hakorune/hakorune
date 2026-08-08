@@ -3,7 +3,7 @@
 //! Box宣言（box, interface box, static box）の解析を担当
 //! Nyashの中核概念「Everything is Box」を実現する重要モジュール
 
-use crate::ast::{ASTNode, Span};
+use crate::ast::{ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -98,7 +98,11 @@ fn parse_box_declaration_after_box_keyword(
         field_decls: state.field_decls,
         public_fields: state.public_fields,
         private_fields: state.private_fields,
-        methods: state.methods,
+        methods: BoxMethodInventoryV1::try_from_compatibility_map(
+            state.methods,
+            BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
+        )
+        .expect("Box method HashMap compatibility import must be lossless"),
         constructors: state.constructors,
         init_fields: state.init_fields,
         weak_fields: state.weak_fields, // 🔗 Add weak fields to AST

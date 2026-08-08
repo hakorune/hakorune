@@ -62,7 +62,10 @@ pub(super) fn check_brand_mismatches(
                 check_body(body, None, name, &mut env, &sigs, brands)?;
             }
             ASTNode::BoxDeclaration { name, methods, .. } => {
-                for method in methods.values() {
+                for method in methods
+                    .iter_selected_declaration_order()
+                    .map(|entry| entry.declaration())
+                {
                     if let ASTNode::FunctionDeclaration {
                         params,
                         param_decls,
@@ -102,7 +105,10 @@ fn collect_signatures(
                 sigs.insert(name.clone(), function_sig(params, param_decls, brands));
             }
             ASTNode::BoxDeclaration { name, methods, .. } => {
-                for method in methods.values() {
+                for method in methods
+                    .iter_selected_declaration_order()
+                    .map(|entry| entry.declaration())
+                {
                     if let ASTNode::FunctionDeclaration {
                         name: method_name,
                         params,

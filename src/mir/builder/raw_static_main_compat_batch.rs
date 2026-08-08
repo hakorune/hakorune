@@ -87,6 +87,7 @@ impl OwnedRawStaticMainFunctionPartsV1 {
 
 impl PreparedRawStaticMainBoxCompatibilityV1 {
     pub(super) fn prepare(box_name: String, methods: HashMap<String, ASTNode>) -> Self {
+        let methods = crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods);
         let mut helpers = Vec::new();
         let mut root = RawStaticMainRootDispositionV1::Missing;
 

@@ -86,7 +86,10 @@ fn nested_box_with_body(name: &str, is_static: bool, body: Vec<ASTNode>) -> ASTN
         field_decls: Vec::new(),
         public_fields: Vec::new(),
         private_fields: Vec::new(),
-        methods: HashMap::from([(method_name.clone(), method)]),
+        methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(HashMap::from([(
+            method_name.clone(),
+            method,
+        )])),
         constructors: HashMap::new(),
         init_fields: Vec::new(),
         weak_fields: Vec::new(),
@@ -532,7 +535,7 @@ fn invocation_main_box_is_rejected_before_root_effects() {
 
     let result = invocation.with_module_port(|builder, port| {
         let mut raw_port = RawInvocationChildPortV1::new(port);
-        raw_port.lower_static_main_box(builder, name, methods)
+        raw_port.lower_static_main_box(builder, name, methods.into_compatibility_map())
     });
 
     assert!(result

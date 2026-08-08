@@ -26,7 +26,7 @@ static box Main {
     };
     let ASTNode::FunctionDeclaration {
         contracts, body, ..
-    } = &methods["main"]
+    } = methods.get_declaration("main").unwrap()
     else {
         panic!("expected main method");
     };
@@ -89,7 +89,7 @@ box Page {
     };
 
     assert_eq!(invariants.len(), 1);
-    assert!(methods.contains_key("getUsed"));
+    assert!(methods.contains_name("getUsed"));
 }
 
 #[test]
@@ -138,7 +138,7 @@ static box Main {
     };
     let ASTNode::FunctionDeclaration {
         contracts, body, ..
-    } = &methods["main"]
+    } = methods.get_declaration("main").unwrap()
     else {
         panic!("expected main method");
     };

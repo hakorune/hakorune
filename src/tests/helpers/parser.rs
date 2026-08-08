@@ -48,7 +48,7 @@ pub fn find_method_decl<'a>(ast: &'a ASTNode, box_name: &str, method_name: &str)
         panic!("expected BoxDeclaration");
     };
     methods
-        .get(method_name)
+        .get_declaration(method_name)
         .unwrap_or_else(|| panic!("method not found: {box_name}.{method_name}"))
 }
 

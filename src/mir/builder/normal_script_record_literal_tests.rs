@@ -16,7 +16,7 @@ fn record_declaration(name: &str, fields: Vec<FieldDecl>) -> ASTNode {
         field_decls: fields,
         public_fields: Vec::new(),
         private_fields: Vec::new(),
-        methods: HashMap::new(),
+        methods: crate::ast::BoxMethodInventoryV1::empty(),
         constructors: HashMap::new(),
         init_fields: Vec::new(),
         weak_fields: Vec::new(),

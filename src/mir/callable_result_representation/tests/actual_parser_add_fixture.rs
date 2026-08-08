@@ -101,8 +101,9 @@ pub(crate) fn method_declaration_for_lowering() -> crate::ast::ASTNode {
         })
         .expect("actual ParserBox declaration");
     methods
+        .into_selected_declaration_order()
         .into_iter()
-        .map(|(_, declaration)| declaration)
+        .map(|entry| entry.declaration().clone())
         .find(|declaration| {
             matches!(
                 declaration,

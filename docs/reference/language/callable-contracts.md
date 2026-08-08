@@ -18,8 +18,10 @@ box TextLike {
 `CallableContract` is declaration-local and non-repeatable. The first accepted
 value is `query`, and the first implementation cohort is an instance method.
 Current parsers do not accept this family yet; acceptance and semantic
-issuance remain production zero until the ordered Box-method inventory and
-Rust/`.hako` parser rows land.
+issuance remain production zero. The Rust AST now stores the ordered
+`BoxMethodInventoryV1`, but its R1 rows remain `CompatibilityOnly`. Parser-owned
+source sealing, duplicate/site proof, and Rust/`.hako` parity must land before
+the declared contract issuer opens.
 
 ## `query` meaning
 
