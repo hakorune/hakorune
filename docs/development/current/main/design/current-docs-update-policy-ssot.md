@@ -73,6 +73,22 @@ and the durable workstream card it points to. The current active buckets are:
 These buckets are the work taxonomy. Do not open a new active lane outside
 them without updating this policy and `CURRENT_STATE.toml`.
 
+### Operational mode rule
+
+To keep the rules usable, every active turn is classified as exactly one of
+three modes:
+
+```text
+Fast path    = closed mapping; reuse one owner; edit/test/close
+Design stop  = open mapping or authority; brief only; no code/fixture/fallback
+Closeout     = classify evidence; update owner docs; commit/push or retain blocker
+```
+
+The mode is selected before editing and is recorded in the active card when it
+is not Fast path. A worker review, local test, or legacy parity result is
+evidence for the mode decision, not permission to cross it. This prevents a
+small green probe from silently becoming a production claim.
+
 Per-card mandatory docs updates are limited to:
 
 1. `CURRENT_STATE.toml`

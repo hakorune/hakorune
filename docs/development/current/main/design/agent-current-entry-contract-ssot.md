@@ -62,6 +62,26 @@ stop-the-line policy.
 The entry path must be strict without becoming ceremonial. Apply these limits
 to new and actively revised material.
 
+### Three work modes
+
+Every turn selects exactly one mode before editing. This is a routing rule,
+not another task hierarchy.
+
+| Mode | Entry condition | Allowed work | Exit evidence |
+| --- | --- | --- | --- |
+| Fast path | source-to-Recipe mapping, owner, and failure boundary are already closed | one existing owner, one focused gate, no new authority | positive/negative evidence and the row's closeout receipt |
+| Design stop | any mapping, selector, authority, or failure owner is still being discovered | one compact design brief; no code, fixture, fallback, or production switch | accepted Decision plus one bounded next slice |
+| Closeout | the selected slice has been edited and tested | classify evidence, update owning docs, commit/push or retain blocker | all Done items observable; otherwise the row remains active |
+
+The readiness sentence is:
+
+```text
+This input maps once to this Facts/Recipe, and fails at this boundary.
+```
+
+If that sentence is not true, the work is a design stop. A worker report,
+local green test, or compatibility fixture never changes the mode by itself.
+
 ### Compact router
 
 - Keep `AGENTS.md` near one screen of headings and short rules; about 80--120
@@ -148,6 +168,10 @@ Workers are a bounded review resource, not a second implementation stream.
 - After a design Decision closes, implement the smallest row, run the focused
   gate, and commit/push before opening another design question unless the user
   explicitly requests a parked consultation.
+- Before requesting a worker, record one sentence in the active card explaining
+  why the slice is not Fast path. The worker supplies premise evidence only;
+  the primary agent owns the Decision, task boundary, implementation, and
+  closeout.
 
 ### Guard result classes
 
@@ -162,6 +186,14 @@ Use the five-field Current Capsule defined by
 `current-docs-update-policy-ssot.md` for every new or materially revised active
 SSOT. It summarizes only that document's authority and never copies global row
 tokens or landed history.
+
+### Closeout minimum
+
+A row is not complete merely because its code compiles. The smallest closeout
+receipt names the positive path, the negative or rejection boundary, the
+reusable guard, the README/reference update when a contract changed, the
+commit, and the next blocker. Missing evidence keeps the row active; it does
+not justify a deeper task suffix.
 
 ## Document placement contract
 
