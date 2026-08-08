@@ -1026,6 +1026,14 @@ payload before walking any legacy compatibility ladder.
 | `proof` | Proof string copied from the selected source route |
 | `selected_value` | Optional value id for plan-indexed routes; null for route-payload fields such as Sum and UserBox exact seeds |
 
+## CallableContract source transport
+
+Until the canonical resolver issuer lands, `CallableContract(query)` is only
+an ordered source-attribute fact carried from the frontend declaration. It is
+not a verified effect, Home ABI, target, MIR `EffectMask`, or physical call
+ABI. Only the future declared-contract issuer may promote that exact source
+row, and body conformance remains a separate pre-publication receipt.
+
 ## Text MIR / verbose MIR relation
 
 `src/mir/printer.rs` also prints metadata in verbose mode. Current Rust-side

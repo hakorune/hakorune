@@ -533,7 +533,7 @@ ordered successor boundary:
   LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
   -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0 (closed)
   -> LANGUAGE-TYPED-CALLABLE-PROFILE-D0 (closed: CallableContract(query)) -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0 (closed)
-     -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R0 (current; connect at R1) -> HAKO-PARSER-BOX-DECLARATION-CARRIER-D0 before Hako parity
+     -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R0 (closed) -> R0A raw-carrier authority/API correction (current) -> R1 AST field/compatibility cutover -> R2 explicit-source parser seal/issuance -> HAKO-PARSER-BOX-DECLARATION-CARRIER-D0 before Hako parity
      -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0 (declared receipt only)
   -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0 (re-open after contract closes)
   -> source-bound call relation

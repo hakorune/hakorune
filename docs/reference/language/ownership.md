@@ -539,3 +539,9 @@ move-out unless that exact operation is legal.
 11. `release root` is the sole explicit early Home-end spelling. It has no
     Result, ordinary/generic wrapper Call, `drop` alias, field/projection form,
     hidden handle re-rooting, or MirBuilder/backend name magic.
+
+Whole-call behavior does not create a second ownership vocabulary.
+`@rune CallableContract(query)` uses the ordinary receiver `Handle` boundary:
+the call does not transfer, add, end, or escape a Home. See
+[`callable-contracts.md`](callable-contracts.md); declaration conformance and
+physical ABI remain separate owners.

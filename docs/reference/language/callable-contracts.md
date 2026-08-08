@@ -29,10 +29,11 @@ Rust/`.hako` parser rows land.
 receiver:
   exact enclosing nominal Box
   ordinary receiver demand = Handle
-  exact receiver reads allowed
+  exact receiver direct-state reads allowed
 
 forbidden:
   receiver/global writes
+  ambient/global/unrelated heap reads
   Home consume/create/share/end/escape
   allocation
   IO / FFI
@@ -43,6 +44,11 @@ forbidden:
 allowed:
   ordinary return
 ```
+
+The first contract does not authorize transitive reads through arbitrary
+objects or calls. A callee/read-footprint composition rule requires a later
+Decision; until then it fails before the declared query contract is issued or
+before body conformance is sealed.
 
 The rune does not name parameter/result types, arity, MIR representation, or a
 backend ABI. Those authorities remain separate:
@@ -69,7 +75,7 @@ Pure:
   no receiver/heap/global read
   no write, allocation, IO/FFI, Fault/throw, suspension, or non-local control
 
-Query/Readonly behavior:
+Query (read-only behavior):
   exact receiver read allowed
   the same write/effect/control prohibitions
 ```

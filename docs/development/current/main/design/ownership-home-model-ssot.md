@@ -397,6 +397,12 @@ specific provenance.
 
 ## Readiness definition
 
+The callable-contract lane reuses this model rather than inventing a second
+receiver capability. `CallableContract(query)` requires the ordinary receiver
+`Handle` boundary: no Home transfer, addition, end, or escape. Its declared
+behavior, body conformance, and physical ABI are separate owners; see
+`docs/reference/language/callable-contracts.md`.
+
 HomeV1 is product-ready only when:
 
 - one source profile produces one verified Home product;

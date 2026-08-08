@@ -497,9 +497,12 @@ target issuer. MIR `FunctionSignature`/`EffectMask` and the documented but not
 yet issued `VerifiedHomeAbi` are not interchangeable resolver contracts.
 
 Before adding `ResolvedInstanceMethodRefV1`, a single resolver-owned
-declaration contract issuer must co-seal receiver, ordered parameters, result,
-Home, semantic effect/suspension/control, and call-ABI/profile receipts. A
-missing issuer is `NoSafeSlice`, not an empty contract or a FreeStatic alias.
+declaration contract issuer must co-seal the exact nominal receiver, ordered
+signature, ordinary receiver `Handle` boundary, and the declared
+`CallableContract(query)` obligation. Parameter/result types come from the
+signature; physical call ABI is deliberately downstream and is not part of
+this source contract. A missing issuer is `NoSafeSlice`, not an empty contract
+or a FreeStatic alias.
 See `LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0` in the current investigation
 task. No Recipe key, CallSlot, Builder/MIR ID, runtime lookup, or fallback may
 cross this boundary.

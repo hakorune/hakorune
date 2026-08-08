@@ -65,8 +65,10 @@ CompatibilityOnly
 
 `SelectedBuildGate` is not a generated provenance. A method written by the
 user inside the selected branch remains `ExplicitSource`; its outer-to-inner
-selection path is nested metadata. Only `ExplicitSource` rows may back the first resolver
-`CallableContract(query)` declaration.
+selection path is nested metadata. Only rows lent through the future
+parser-owned explicit-source seal may back the first resolver
+`CallableContract(query)` declaration. Raw `ExplicitSource` provenance is
+descriptive and cannot authorize resolution.
 
 Constructors remain a separate authority. Source properties are Box members
 whose emitted helpers carry `GeneratedProperty`; they never borrow a source
@@ -82,7 +84,10 @@ program Box statement ordinal
 selected method ordinal
 ```
 
-The inventory owns the Box-local selected method ordinal. The program/resolver
+The raw inventory owns the Box-local selected method ordinal as an ordered AST
+carrier. It is not itself a resolver-grade source capability. A later
+parser-owned seal proves complete parsing, selected Box membership, duplicate
+freedom, and exact source origin. The program/resolver
 inventory later co-seals the Box statement ordinal and brand. `Span` is
 diagnostic only. Selected-gate provenance retains every gate site and original
 branch member ordinal in outer-to-inner order while the selected ordinal is
@@ -93,9 +98,8 @@ rebased once at commit.
 Allowed API:
 
 ```text
-iter_source_order()
+iter_selected_declaration_order()
 get(name)
-get_mut_preserving_identity(name)
 into_source_order()
 try_push(parser-issued entry)
 try_merge_selected_gate(unpublished selected inventory, gate site)
