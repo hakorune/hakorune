@@ -72,10 +72,17 @@ No scan Facts product is landed. The current portable Loop schema is numeric
 only, while forward `ScanWithInit` needs resolver-bound text calls and typed
 text values. Do not add a scan-specific Facts union, reuse legacy AST-based
 scan builders, or publish guessed operation counts. The separate
-`LOOP-RECIPE-TYPED-CALL-VALUE-D0` design must first close the neutral call,
-value, effect/Home, and source-site contract. After that, implement only
-`ScanWithInit`; keep `SplitScan`, `CharMap`, `ArrayJoin`, and
-`BoolPredicateScan` as separate source-family rows.
+`LOOP-RECIPE-TYPED-CALL-VALUE-D0` design is accepted, but the next row is the
+behavior-neutral demand/verifier split
+`LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0`. Facts remains below the Recipe wire:
+it owns semantic roles, `BindingRef`s, exact sites, and complete coverage;
+producers alone mint Recipe-local keys. The later typed cohort uses logical
+`Text` plus a local CallSlot and `TextEq`; source-bound instance target,
+signature, Home, effect, ABI, and source-site contracts remain outside Facts.
+No `Handle`/`Any`/`Opaque`/Array/Box fallback is allowed. After those rows,
+implement only `ScanWithInit`; keep `SplitScan`, `CharMap`, `ArrayJoin`, and
+`BoolPredicateScan` as separate source-family rows. `NoSafeSlice` remains a
+development state, not a source disposition.
 
 ## Generic G0 S0A
 

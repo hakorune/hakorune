@@ -131,14 +131,24 @@ forward `ScanWithInit` shape requires typed text values, resolver-bound calls,
 text comparison, and a distinct callable tail. The legacy scan composers are
 AST-reconstructing compatibility owners and are not reusable source authority.
 
-Keep S6C at `NoSafeSlice` until the separate
-`LOOP-RECIPE-TYPED-CALL-VALUE-D0` design closes one neutral typed call/value
-contract. Implement `ScanWithInit` first after that decision; keep
-`SplitScan`, `CharMap`, `ArrayJoin`, and `BoolPredicateScan` as separate
-cohorts. Do not publish guessed counts or add an opaque/route-specific
-operation. The eventual implementation commit must update
-`docs/reference/mir/loop-recipe-contract.md`, this README, and the source
-Facts README together with its tests.
+The typed call/value architecture is now accepted, but implementation starts
+with the behavior-neutral `LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0` row because
+`operation_physical_demand.rs` is 781 lines and `verify.rs` is 725 lines. No
+schema growth is allowed until the responsibility split leaves every changed
+Rust source file below the 760-line design trigger. This is BoxShape-only and
+must not add an operation, value class, fixture, selector, or physical route.
+
+The later typed cohort uses an explicit `LoopRecipeV2` boundary with logical
+`I64|Bool|Unit|Text`, a Recipe-local CallSlot, and `TextEq(Text, Text) -> Bool`.
+The Recipe contains no method/Box names, MIR IDs, resolver capability, Home,
+effect, ABI, or runtime lookup. A separate resolver-issued instance-call
+target and source-bound call relation own those facts. `Handle`, `Any`,
+`Opaque`, Array/collection, and nominal Box values are not admitted. Implement
+`ScanWithInit` first after these rows; keep `SplitScan`, `CharMap`, `ArrayJoin`,
+and `BoolPredicateScan` separate. `NoSafeSlice` is a development state, not a
+source disposition. Every landed typed schema/observer/producer commit must
+update `docs/reference/mir/loop-recipe-contract.md`, this README, and the
+source Facts README with its focused tests.
 
 ## Generic G0 S4 producer
 

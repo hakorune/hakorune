@@ -1412,6 +1412,70 @@ families. No Recipe counts, selector, physical route, opaque call fallback,
 AST rewrite, Builder/MIR effect, production caller, or legacy deletion is
 claimed by S6C design.
 
+### S6C typed call/value decision closeout (2026-08-08)
+
+The external typed-call audit accepts the architecture with one explicit
+precondition: the numeric pre-production wire is not silently widened. The
+future typed cohort uses an explicit `LoopRecipeV2` schema/artifact version.
+The first semantic vocabulary is deliberately small:
+
+```text
+values: I64 | Bool | Unit | Text
+operation additions: local CallSlot, TextEq(Text, Text) -> Bool
+```
+
+`Text` is only a logical value domain. It does not encode representation,
+ownership, GC, Home, or ABI. `Handle`, `Any`, `Opaque`, Array/collection, and
+nominal Box values are not admitted by this cohort. Home remains in the
+source-bound call/result contract, not in `LoopValueClass`.
+
+The Recipe-local call item carries only a local call-slot key, optional
+receiver `ValueKey`, ordered argument `ValueKey`s, and optional result
+`ValueKey`. It contains no method/Box name, MIR callee, resolver capability,
+physical ID, or runtime lookup string. A separate source-bound call relation
+owns the resolver-issued target, exact receiver/parameter/result contract,
+Home relation, effects/suspension/control, ABI profile, and exact source
+expression site. Facts retain roles, `BindingRef`s, and sites; the producer
+alone mints Recipe keys and projects the relation once.
+
+The current free-static-only `ResolvedCallableRefV1` cannot issue the target
+for `subject.length()` or `subject.substring(...)`. A neutral resolver-issued
+instance-method target capability is therefore a prerequisite, not an
+observer workaround. Unknown target, signature, Home, effect, class, or site
+freezes before Recipe/Core publication.
+
+Text equality is a common typed operation (`TextEq`), not reuse of the If-only
+direct-call schema. A Loop-owned `return i` is a Recipe `Exit(Return { value })`;
+the outer callable `return -1` remains Tail/Completion. ABI, Tail, and
+Completion never enter Loop Facts or the neutral Recipe.
+
+Disposition precedence is fixed as `Rejected` (identity/foreign/duplicate/
+forged) > `Unresolved` (missing authority/evidence) > `Declined` (fully
+observed non-family shape/effect) > `Candidate` (exact complete contract).
+`NoSafeSlice` remains a development state, not a fifth disposition.
+
+Before any V2/schema or S6C implementation, the behavior-neutral
+`LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0` row must split the 781-line demand and
+725-line verifier modules by responsibility, keeping every resulting Rust
+source file below the 760-line design trigger. That row is BoxShape-only; V2,
+instance-target, source-bound call relation, and ScanWithInit are separate
+BoxCount rows. The later implementation order is:
+
+```text
+operation-shape split
+  -> LoopRecipeV2 typed schema / local CallSlot / TextEq
+  -> resolver instance-call target issuer
+  -> source-bound call relation and verifier
+  -> ScanWithInit Facts/producer
+  -> physical canary
+  -> production parity, caller-zero, then legacy retirement
+```
+
+Each landed typed schema/observer/producer row updates
+`docs/reference/mir/loop-recipe-contract.md` and the affected module READMEs in
+the same commit. No scan physicalizer, selector, fallback, or legacy deletion
+is opened by this design closeout.
+
 Contract:
 : 19/19 legacy ingress rows have typed pre-effect decline or one verified
   instance of the common recipe algebra. Legacy winner

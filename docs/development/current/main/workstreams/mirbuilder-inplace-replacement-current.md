@@ -503,14 +503,17 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 ```text
 Change:
-  S6A and S6B are closed. S6C is a design-only schema prerequisite: the
-  current numeric LoopRecipe cannot represent the smallest scan exactly.
-  Close one neutral typed call/value contract before any S6C observer.
+  S6A and S6B are closed. The S6C typed call/value architecture is accepted,
+  but the current numeric LoopRecipe cannot represent the smallest scan
+  exactly. First split the near-limit demand/verifier modules behavior-
+  neutrally; then land explicit V2 typed schema and instance-target rows.
 Contract:
   keep the ordered M8 cohort on one recursive Recipe algebra; source Facts
   own semantic roles and BindingRefs, producers alone mint Recipe keys, and
   JoinSig alone owns conditional transfer/dataflow obligations. Legacy scan
-  builders and the If-only call schema are not source authority.
+  builders and the If-only call schema are not source authority. The typed
+  cohort is `I64|Bool|Unit|Text` plus local CallSlot and TextEq only; source-
+  bound target/Home/effect/ABI contracts remain outside the Recipe wire.
 Done:
   S6A Facts/producer, exact Main.main ingress, typed C/D/U/R, duplicate-role
   and source-site rejects, <800-line split, README, reference receipt, and
@@ -524,23 +527,30 @@ Stop:
   missing typed call/value/schema authority, unresolved source-to-Recipe
   mapping, unsealed source-role coverage, AST reread, guessed counts, opaque
   call fallback, partial product, or a second selector/physical path returns
-  to design
+  to design. NoSafeSlice is a development state, not a source disposition.
 
 ordered successor boundary:
-  typed call/value D0 -> S6C ScanWithInit -> S6D -> S6E -> S6G -> M9
+  LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
+  -> LoopRecipeV2 typed schema/Text/CallSlot/TextEq
+  -> resolver instance-call target
+  -> source-bound call relation
+  -> S6C ScanWithInit -> S6D -> S6E -> S6G -> M9
   -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
   -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
   -> LOOP-PHYSICAL-ALWAYS/IF/EXIT-COVERAGE-I0 (one BoxCount commit each)
   -> LOOP-PRECUTOVER-AUTHORITY-G0
   -> human LOOP-PRODUCTION-SELECTION-D0 -> M10b -> M11 -> M12
 
-audited pre-cutover correction:
+  audited pre-cutover correction:
   co-seal exact resolver Loop source, Core, item/carrier evidence, opaque entry
   coverage, and Core-owned continuation once; then make JoinSig the sole
   logical-transfer authority and Layout placement-only. Current split product
   pairing and Recipe-derived Layout transfers are caller-zero debt, not a
   production contract. Every implementation row updates the exact README and
   docs/reference receipt in the same commit; M10b updates it again at cutover.
+  The first split row is BoxShape-only and may use a short refactor series;
+  schema, target, observer, and physical changes remain separate BoxCount
+  rows.
 ```
 ## Production invariants
 ```text
