@@ -287,6 +287,18 @@ and `frontend_parsed_box_source_seal_r6_s3b_b2_guard.sh` are the landed
 receipt. Delegate relations, final seal expansion, Hako parity, resolver
 contracts, Recipe, Builder, and MIR remain closed.
 
+R6-S3B-B3-I0 implementation receipt (2026-08-08): the finalizer now carries a
+parser-private `GatePruneOutputV1::final_box_paths` list and issues one private
+`FinalizerCoveragePlanV1`. It matches prepared source paths to final ordinary
+AST Boxes by exact parser brand/path, rejects count, duplicate, foreign, or
+missing coverage, and uses the resulting mapping instead of positional final
+AST order. The generated delegate suffix remains descriptive AST compatibility
+data outside the resolver-visible source seal until R6-S3B-C issues a
+source-aware relation. Focused tests and
+`frontend_parsed_box_source_seal_r6_s3b_b3_guard.sh` landed in the same slice;
+no delegate transport, resolver, Recipe, Builder, or MIR implementation was
+opened.
+
 ## Related references
 
 - [Rune declaration metadata](runes.md)

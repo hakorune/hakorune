@@ -7,7 +7,7 @@
 
 use crate::ast::{
     ASTNode, BoxMethodGeneratedProvenanceV1, BoxMethodInventoryErrorV1, BoxMethodInventoryV1,
-    BoxMethodProvenanceV1, PreparedBoxMethodInventoryAppendV1,
+    BoxMethodProvenanceV1,
 };
 use crate::parser::ParserMetadata;
 
@@ -15,7 +15,10 @@ use super::source_authority::{
     MethodSourceRelationV1, ParserInvocationBrandV1, SourceBoxDeclarationSiteV1,
 };
 use super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
-use super::source_path::{SourceBoxPathSegmentV1, SourceBuildGateBranchV1, SourceBuildGatePathV1};
+use super::source_path::{
+    SourceBoxDeclarationPathV1, SourceBoxPathSegmentV1, SourceBuildGateBranchV1,
+    SourceBuildGatePathV1,
+};
 use super::{delegate_lowering, NyashParser};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,6 +51,10 @@ pub(super) enum SourceSealFinalizationErrorV1 {
     FinalInventoryShorter { prepared: usize, final_ast: usize },
     InventoryPrefixMismatch { ordinal: usize },
     UnexpectedGeneratedRow { ordinal: usize },
+    FinalAstBoxPathCoverageMismatch { prepared: usize, final_ast: usize },
+    DuplicateFinalAstBoxPath { final_index: usize },
+    PreparedBoxPathMissing { prepared_index: usize },
+    ForeignFinalAstBoxPath { final_index: usize },
     Inventory(BoxMethodInventoryErrorV1),
 }
 
@@ -73,8 +80,9 @@ impl PreparedBoxSourceSealV1 {
     }
 
     /// Consume the prepared payload only after the postpass has produced the
-    /// final inventory. Delegate rows may be appended, but the original
-    /// ordered rows must remain byte-for-byte equivalent at the AST level.
+    /// final inventory. Delegate rows may be present in the descriptive AST
+    /// inventory, but they remain outside this resolver-visible source seal
+    /// until a source-aware delegate relation exists.
     pub(super) fn finalize_against(
         self,
         final_inventory: &BoxMethodInventoryV1,
@@ -111,19 +119,11 @@ impl PreparedBoxSourceSealV1 {
             }
         }
 
-        let mut inventory = BoxMethodInventoryV1::empty();
-        inventory
-            .commit_prepared_append(
-                PreparedBoxMethodInventoryAppendV1::try_new(final_entries)
-                    .map_err(SourceSealFinalizationErrorV1::Inventory)?,
-            )
-            .map_err(SourceSealFinalizationErrorV1::Inventory)?;
-
         Ok(ParserBoxSourceSealV1 {
             prepared: PreparedBoxSourceSealV1 {
                 brand: self.brand,
                 box_site: self.box_site,
-                inventory,
+                inventory: self.inventory,
                 method_relations: self.method_relations,
             },
         })
@@ -142,6 +142,7 @@ impl PreparedBoxSourceSealV1 {
 pub(super) struct OpenParserPostpassProductV1 {
     ast: ASTNode,
     source_session: ParserSourceSessionV1,
+    final_box_paths: Vec<SourceBoxDeclarationPathV1>,
     metadata: ParserMetadata,
 }
 
@@ -313,6 +314,7 @@ impl OpenParserPostpassProductV1 {
                 prepared_source_seals,
                 gate_records,
             ),
+            final_box_paths: Vec::new(),
             metadata,
         }
     }
@@ -324,13 +326,19 @@ impl OpenParserPostpassProductV1 {
         let Self {
             ast,
             source_session,
+            final_box_paths: _,
             metadata,
         } = self;
-        let (ast, receipts) = super::source_gate_prune::prune_top_level_gate_program(
+        let pruned = super::source_gate_prune::prune_top_level_gate_program(
             parser,
             ast,
             source_session.gate_records(),
         )?;
+        let super::source_gate_prune::GatePruneOutputV1 {
+            ast,
+            receipts,
+            final_box_paths,
+        } = pruned;
         let ast = parser.prune_build_gate_program(ast)?;
         let prepared = source_session
             .prepare_prune(&receipts)
@@ -339,6 +347,7 @@ impl OpenParserPostpassProductV1 {
         Ok(Self {
             ast,
             source_session,
+            final_box_paths,
             metadata,
         })
     }
@@ -351,7 +360,12 @@ impl OpenParserPostpassProductV1 {
     pub(super) fn finalize(
         self,
     ) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
-        finalize_program(self.ast, self.source_session.into_prepared(), self.metadata)
+        finalize_program(
+            self.ast,
+            self.source_session.into_prepared(),
+            self.final_box_paths,
+            self.metadata,
+        )
     }
 }
 
@@ -403,9 +417,66 @@ impl ParsedProgramWithSourceV1 {
 
 /// Finalize only the bounded R6-S3 cohort: direct top-level ordinary Rust
 /// `box` declarations, after build-gate pruning and delegate lowering.
+/// `FinalizerCoveragePlanV1` is the private one-to-one source-path alignment
+/// between parser-owned declarations and the final AST. Generated delegate
+/// rows remain descriptive AST compatibility data until a later source-aware
+/// delegate relation exists.
+#[derive(Debug)]
+struct FinalizerCoveragePlanV1 {
+    prepared_to_final: Vec<usize>,
+}
+
+impl FinalizerCoveragePlanV1 {
+    fn issue(
+        prepared: &[PreparedBoxSourceSealV1],
+        final_box_paths: &[SourceBoxDeclarationPathV1],
+    ) -> Result<Self, SourceSealFinalizationErrorV1> {
+        if prepared.len() != final_box_paths.len() {
+            return Err(
+                SourceSealFinalizationErrorV1::FinalAstBoxPathCoverageMismatch {
+                    prepared: prepared.len(),
+                    final_ast: final_box_paths.len(),
+                },
+            );
+        }
+        for (final_index, path) in final_box_paths.iter().enumerate() {
+            if final_box_paths[..final_index]
+                .iter()
+                .any(|previous| previous == path)
+            {
+                return Err(SourceSealFinalizationErrorV1::DuplicateFinalAstBoxPath {
+                    final_index,
+                });
+            }
+            if let Some(first) = prepared.first() {
+                if path.brand() != &first.brand {
+                    return Err(SourceSealFinalizationErrorV1::ForeignFinalAstBoxPath {
+                        final_index,
+                    });
+                }
+            }
+        }
+
+        let mut prepared_to_final = Vec::with_capacity(prepared.len());
+        for (prepared_index, seal) in prepared.iter().enumerate() {
+            let Some(final_index) = final_box_paths
+                .iter()
+                .position(|path| path == seal.box_site.path())
+            else {
+                return Err(SourceSealFinalizationErrorV1::PreparedBoxPathMissing {
+                    prepared_index,
+                });
+            };
+            prepared_to_final.push(final_index);
+        }
+        Ok(Self { prepared_to_final })
+    }
+}
+
 fn finalize_program(
     ast: ASTNode,
     prepared: Vec<PreparedBoxSourceSealV1>,
+    final_box_paths: Vec<SourceBoxDeclarationPathV1>,
     metadata: ParserMetadata,
 ) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
     let ASTNode::Program { ref statements, .. } = ast else {
@@ -444,10 +515,14 @@ fn finalize_program(
         });
     }
 
+    let coverage = FinalizerCoveragePlanV1::issue(&prepared, &final_box_paths)?;
     let source_seals = prepared
         .into_iter()
-        .zip(final_inventories)
-        .map(|(prepared, final_inventory)| prepared.finalize_against(final_inventory))
+        .enumerate()
+        .map(|(prepared_index, prepared)| {
+            let final_index = coverage.prepared_to_final[prepared_index];
+            prepared.finalize_against(final_inventories[final_index])
+        })
         .collect::<Result<Vec<_>, _>>()?
         .into_boxed_slice();
 
@@ -488,6 +563,23 @@ pub(super) fn map_error(error: SourceSealFinalizationErrorV1) -> crate::parser::
         }
         SourceSealFinalizationErrorV1::UnexpectedGeneratedRow { ordinal } => {
             format!("R6-S3A unexpected non-delegate generated row at ordinal {ordinal}")
+        }
+        SourceSealFinalizationErrorV1::FinalAstBoxPathCoverageMismatch {
+            prepared,
+            final_ast,
+        } => {
+            format!(
+                "R6-S3B-B3 final AST Box source-path coverage mismatch: prepared={prepared}, final={final_ast}"
+            )
+        }
+        SourceSealFinalizationErrorV1::DuplicateFinalAstBoxPath { final_index } => {
+            format!("R6-S3B-B3 duplicate final AST Box source path at index {final_index}")
+        }
+        SourceSealFinalizationErrorV1::PreparedBoxPathMissing { prepared_index } => {
+            format!("R6-S3B-B3 prepared Box source path is absent from final AST at index {prepared_index}")
+        }
+        SourceSealFinalizationErrorV1::ForeignFinalAstBoxPath { final_index } => {
+            format!("R6-S3B-B3 final AST Box source path has a foreign parser brand at index {final_index}")
         }
         SourceSealFinalizationErrorV1::Inventory(error) => {
             format!("R6-S3A final Box inventory is invalid: {error}")
@@ -632,7 +724,7 @@ box Plain {
     }
 
     #[test]
-    fn r6_s3_accepts_delegate_generated_suffix_as_generated_provenance() {
+    fn r6_s3b_b3_keeps_delegate_suffix_outside_source_seal() {
         let parsed = NyashParser::parse_from_string_with_source_seal(
             r#"
 box Target { run() { return 1 } }
@@ -646,15 +738,29 @@ box Host {
         .expect("delegate postpass should be included before the final seal");
 
         assert_eq!(parsed.source_seals().len(), 2);
-        let host = &parsed.source_seals()[1];
+        let host = match parsed.ast() {
+            ASTNode::Program { statements, .. } => statements
+                .iter()
+                .find_map(|statement| match statement {
+                    ASTNode::BoxDeclaration { name, methods, .. } if name == "Host" => {
+                        Some(methods)
+                    }
+                    _ => None,
+                })
+                .expect("delegate host must remain in the final AST"),
+            _ => panic!("source-sealed parse must return a Program AST"),
+        };
         let generated = host
-            .inventory()
             .get("runAlias")
-            .expect("delegate generated method must be in the final inventory");
+            .expect("delegate generated method must remain in descriptive AST inventory");
         assert!(matches!(
             generated.provenance(),
             BoxMethodProvenanceV1::Generated(BoxMethodGeneratedProvenanceV1::Delegate { .. })
         ));
+        assert!(parsed.source_seals()[1]
+            .inventory()
+            .get("runAlias")
+            .is_none());
     }
 
     #[test]

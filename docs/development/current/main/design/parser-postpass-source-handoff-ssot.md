@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A/B1/B2/B3-D0 closed; R6-S3B-B3-I0 active; delegate/Hako/resolver rows not opened
+Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0 closed; delegate/Hako/resolver rows not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -305,7 +305,7 @@ R6-S3B-B0  design receipt and owner/type/negative matrix (closed)
 R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport (closed)
 R6-S3B-B2  parser gate-ledger transport, typed selection receipts, and consume-return ParserSourceSession prune/rebase (closed)
 R6-S3B-B3-D0  finalizer AST/source exact-coverage alignment (closed)
-R6-S3B-B3-I0  private finalizer coverage plan and suffix isolation (active)
+R6-S3B-B3-I0  private finalizer coverage plan and suffix isolation (closed)
 ```
 
 B1/B2 must not add delegate relations, interface/static/record seals, Hako
@@ -452,9 +452,8 @@ Rust suites cover source-preordered ledger transport, method/body scope
 closure, direct/sibling/nested/empty gate pruning, selected-branch seal
 preservation, and consume-return session validation. The B2 guard also checks
 the distinct gate-path grammar, one receipt per opened gate, exact
-end-of-stream coverage, and the below-800-line source boundary. B3-D0 is a
-design stop only; B3-I0 and no new resolver implementation are open from this
-receipt.
+end-of-stream coverage, and the below-800-line source boundary. B3-D0 and
+B3-I0 are closed; no new resolver implementation is open from this receipt.
 
 ## R6-S3B-B3-D0 design stop — finalizer alignment
 
@@ -496,17 +495,23 @@ Non-claims:
 runtime integration, source rescan, fallback, or AST rewrite.
 ```
 
-The next row is `R6-S3B-B3-I0` and is not opened in this design-stop slice.
-It may implement only the private finalizer coverage plan and focused
-ordinary-Box positive/negative guard, while preserving the valid generated
-delegate placement canary outside the final source seal. The same slice must
-update the landed reference and parser-module owner documentation.
+R6-S3B-B3-I0 is now closed. Its implementation adds only the private
+`FinalizerCoveragePlanV1` and parser-private final Box source paths. The plan
+matches prepared source paths to final AST ordinary Boxes one-to-one, rejects
+count/duplicate/foreign/missing coverage, and removes final-AST positional
+order as an identity source. The valid generated delegate placement canary
+remains in the descriptive AST inventory but outside the resolver-visible
+source seal. Focused parser tests, the B3 guard, this reference, and the
+parser-module owner comments landed in the same slice.
+
+R6-S3B-C remains the next design boundary for a source-aware generated
+delegate relation; it is not opened by B3-I0.
 
 The current bounded S3A test accepts a generated delegate suffix only as a
 temporary placement canary. That acceptance is not a resolver-grade source
 claim: B3 keeps it explicitly outside the final source seal, while malformed
 or provenance-invalid suffixes still reject. R6-S3B-C owns the later
-source-aware delegate transaction and relation; B3 must not implement it
+source-aware delegate transaction and relation; B3-I0 does not implement it
 indirectly.
 
 ## Nonclaims until R6-S3B-D closes

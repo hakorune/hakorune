@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0 closed, R6-S3B-B3-I0 active
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0 closed
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -195,12 +195,13 @@ R6-S3B-B3-D0
   reject malformed/provenance-invalid suffixes. R6-S3B-C later issues
   GeneratedDelegateSourceRelation; no implementation is opened here.
 
-R6-S3B-B3-I0 (active)
+R6-S3B-B3-I0 (closed)
   private FinalizerCoveragePlanV1 and source-path one-to-one finalizer
   alignment for the bounded ordinary Rust Box cohort; preserve the valid
   generated-delegate placement canary outside the final source seal; reject
   malformed/foreign/missing/duplicate coverage; same-slice focused tests,
-  guard, reference, and module README update.
+  guard, reference, and parser-module owner documentation landed. The next
+  boundary is R6-S3B-C design for a source-aware generated delegate relation.
 
 R6-S3-SOURCE-SITE-PLACEMENT-I0
   SourceBoxMethodSiteV1 separate from selected/generated inventory ordinal
@@ -239,8 +240,8 @@ External review reconciliation (2026-08-08): no new parallel task is needed.
 The parser source seal, source-site/placement split, typed callable syntax,
 `VerifiedHomeAbi` sole authority, old instance-result retirement,
 conformance-catalog plan, and semantic-I64/physical-ABI split remain ordered
-in this task map. R6-S3B-B3-I0 is the active implementation boundary and
-delegate relation work remains R6-S3B-C.
+in this task map. R6-S3B-B3-I0 is closed; delegate relation work remains the
+separate R6-S3B-C design boundary.
 
 `NoSafeSlice` means a required issuer is not implemented. It is not a source
 disposition. After an issuer exists, disposition is:
