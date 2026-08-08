@@ -5,6 +5,7 @@ use crate::mir::resolved_semantics::{
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
 };
 use crate::parser::NyashParser;
+use std::collections::HashMap;
 
 fn selected_plan(statements: Vec<ASTNode>, is_app_mode: bool) -> PreparedProgramRootWorkPlanV1 {
     let root = ASTNode::Program {

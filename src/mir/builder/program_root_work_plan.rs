@@ -17,7 +17,6 @@ use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::MirBuilder;
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
-use std::collections::HashMap;
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootWorkPlanV1 {
     immediate: Box<[PreparedProgramRootImmediateWorkV1]>,
@@ -147,8 +146,8 @@ impl PreparedProgramRootRuntimeWorkV1 {
     }
 }
 impl PreparedProgramDeferredStaticBoxWorkV1 {
-    pub(super) fn into_parts(self) -> (String, HashMap<String, ASTNode>) {
-        (self.name, self.methods.into_compatibility_map())
+    pub(super) fn into_parts(self) -> (String, crate::ast::BoxMethodInventoryV1) {
+        (self.name, self.methods)
     }
 }
 enum ProgramRootStatementDispositionV1 {

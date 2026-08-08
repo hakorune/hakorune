@@ -168,7 +168,7 @@ impl RootCallableCapturePortV1 for RecordingOrdinaryPortV1 {
         )
     }
 }
-fn parsed_static_box(source: &str) -> (String, std::collections::HashMap<String, ASTNode>) {
+fn parsed_static_box(source: &str) -> (String, crate::ast::BoxMethodInventoryV1) {
     let ASTNode::Program { mut statements, .. } =
         NyashParser::parse_from_string(source).expect("deferred static Box source")
     else {
@@ -177,7 +177,7 @@ fn parsed_static_box(source: &str) -> (String, std::collections::HashMap<String,
     let ASTNode::BoxDeclaration { name, methods, .. } = statements.remove(0) else {
         panic!("fixture must contain one static Box");
     };
-    (name, methods.into_compatibility_map())
+    (name, methods)
 }
 fn parsed_instance_box(source: &str) -> (String, std::collections::HashMap<String, ASTNode>) {
     let ASTNode::Program { mut statements, .. } =
@@ -279,7 +279,8 @@ fn instance_method_batch_preserves_route_specific_admission_and_order() {
     let catalog =
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&root).expect("catalog");
     let (owner, mut methods) = parsed_instance_methods(source);
-    let (_, mut static_methods) = parsed_static_box("static box Static { helper() { return 0 } }");
+    let (_, static_methods) = parsed_static_box("static box Static { helper() { return 0 } }");
+    let mut static_methods = static_methods.into_compatibility_map();
     methods.insert(
         "static_helper".to_owned(),
         static_methods.remove("helper").expect("static helper"),
@@ -471,7 +472,6 @@ fn instance_box_declaration_lifecycle_preserves_prefix_and_route_terminals() {
             .is_some_and(|fields| fields.contains("parent")));
     }
 }
-
 #[test]
 fn instance_box_declaration_lifecycle_stops_after_exact_dirty_prefix() {
     let source = "box Page {
@@ -541,7 +541,6 @@ fn instance_box_declaration_lifecycle_stops_after_exact_dirty_prefix() {
         .user_defined_boxes
         .contains_key("Page"));
 }
-
 #[test]
 fn verified_main_expansion_lowers_helpers_in_order_before_body() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -574,7 +573,6 @@ fn verified_main_expansion_lowers_helpers_in_order_before_body() {
     assert_eq!(port.static_methods, vec!["Main.alpha/0", "Main.zeta/1"]);
     assert_eq!(port.body_calls, 1);
 }
-
 #[test]
 fn verified_and_compatibility_main_share_required_callable_order() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -605,6 +603,7 @@ fn verified_and_compatibility_main_share_required_callable_order() {
         .expect("verified Main lowering");
 
     let (box_name, methods) = parsed_static_box(source);
+    let methods = methods.into_compatibility_map();
     let mut compatibility_builder = MirBuilder::new();
     compatibility_builder
         .prepare_module()
@@ -626,7 +625,6 @@ fn verified_and_compatibility_main_share_required_callable_order() {
     assert_eq!(selected_port.body_calls, 1);
     assert_eq!(compatibility_port.body_calls, 1);
 }
-
 #[test]
 fn verified_main_helper_failure_stops_later_helpers_and_body() {
     let root = NyashParser::parse_from_string(
@@ -663,6 +661,7 @@ fn verified_main_helper_failure_stops_later_helpers_and_body() {
     let (box_name, methods) = parsed_static_box(
         "static box Main { zeta() { return 2 } alpha() { return 1 } main() { return 0 } }",
     );
+    let methods = methods.into_compatibility_map();
     let mut compatibility_builder = MirBuilder::new();
     let mut compatibility_port = RecordingOrdinaryPortV1 {
         fail_static_method: Some("Main.alpha/0".to_owned()),
@@ -704,9 +703,10 @@ fn deferred_static_box_lifecycle_lowers_sorted_methods_and_clears_on_success() {
 
 #[test]
 fn nonmain_static_method_batch_sorts_projects_and_keeps_ordinary_main() {
-    let (name, mut methods) = parsed_static_box(
+    let (name, methods) = parsed_static_box(
         "static box Helpers { omega() { return 3 } main() { return 2 } alpha(value) { return value } }",
     );
+    let mut methods = methods.into_compatibility_map();
     let ASTNode::Program { mut statements, .. } =
         NyashParser::parse_from_string("42").expect("non-function method-map fixture")
     else {
@@ -778,9 +778,6 @@ fn instance_constructor_batch_stops_after_first_failure() {
 
 #[test]
 fn deferred_static_box_lifecycle_restores_context_and_stops_after_failure() {
-    let (name, methods) = parsed_static_box(
-        "static box Broken { gamma() { return 3 } beta() { return 2 } alpha() { return 1 } }",
-    );
     let mut builder = MirBuilder::new();
     let mut port = RecordingOrdinaryPortV1 {
         fail_static_method: Some("Broken.beta/0".to_owned()),
@@ -788,6 +785,9 @@ fn deferred_static_box_lifecycle_restores_context_and_stops_after_failure() {
         ..RecordingOrdinaryPortV1::default()
     };
 
+    let (name, methods) = parsed_static_box(
+        "static box Broken { gamma() { return 3 } beta() { return 2 } alpha() { return 1 } }",
+    );
     let error = ProgramDeferredStaticBoxLifecycleV1::new(name, methods)
         .lower_with_port_v1(&mut builder, &mut port)
         .expect_err("selected static method must fail");

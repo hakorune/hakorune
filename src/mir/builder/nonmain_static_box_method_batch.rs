@@ -31,7 +31,9 @@ struct PreparedNonMainStaticBoxMethodV1 {
 impl PreparedNonMainStaticBoxMethodBatchV1 {
     pub(super) fn prepare(owner: String, methods: BoxMethodInventoryV1) -> Self {
         let methods = methods
-            .into_selected_declaration_order()
+            // This batch preserves the historical compatibility order. It is
+            // deliberately not the parser-selected source order.
+            .into_compatibility_name_order()
             .into_iter()
             .filter_map(|entry| {
                 let method_name = entry.name().to_owned();

@@ -62,6 +62,13 @@ malformed nested v2 values reject the whole root, while legacy JSON remains
 `CompatibilityOnly(LegacyJsonV1)`. This is a descriptive transport boundary
 only; it cannot seal resolver source truth or promote compatibility rows.
 
+R5-S1 keeps the deferred non-Main static-Box Builder edge on the same
+carrier: `PreparedProgramDeferredStaticBoxWorkV1` transfers
+`BoxMethodInventoryV1` directly to `ProgramDeferredStaticBoxLifecycleV1`.
+The historical name-order behavior is an explicit
+`into_compatibility_name_order()` projection inside the compatibility batch;
+it is not source order and does not promote resolver authority.
+
 ## Boundaries
 
 - parser: may issue explicit/generated rows through typed methods;

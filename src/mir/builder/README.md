@@ -50,6 +50,16 @@ An internal candidate connection with production callers at zero is not I0.
 Stage-B-specific source routes must not be connected here; only their
 source-neutral reusable parts may enter a named production replacement cell.
 
+### Ordered Box-method compatibility edge (R5-S1)
+
+The deferred non-Main static-Box Program path consumes the AST-owned
+`BoxMethodInventoryV1` directly. It does not round-trip through
+`HashMap<String, ASTNode>` or reconstruct an inventory at the Builder edge.
+The historical alpha-before-beta execution order is retained only by the
+explicitly named `into_compatibility_name_order()` projection in the
+compatibility batch. This projection is not source-order authority and is
+scheduled for removal only after its production callers reach zero.
+
 ## Reading Order
 
 1. `src/mir/README.md`

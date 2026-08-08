@@ -80,6 +80,9 @@ Rejected > Unresolved > Declined > Candidate
    - legacy JSON v1 imports only `CompatibilityOnly`;
    - strict recursive mode rejects malformed nested v2 without fallback.
 5. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R5` — active
+   - R5-S1 closed: deferred non-Main static-Box Program edge now consumes the
+     ordered inventory directly and retains only an explicit compatibility
+     name-order projection;
    - migrate remaining Builder compatibility projections;
    - delete old AST-map helpers when callers reach zero;
    - update the owning reference/README and active card in the same

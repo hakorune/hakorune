@@ -1,5 +1,6 @@
 ---
-Status: active — Builder compatibility migration is the next bounded slice
+Status: active — R5-S1 landed; the next Builder compatibility caller remains
+open
 Date: 2026-08-08
 Parent: `callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`
 Reference: `docs/reference/language/callable-contracts.md`
@@ -103,6 +104,35 @@ Retain for now: legacy JSON decoders, `declaration_order.rs`, raw static-Main
 compatibility, normal/raw source-plan projections, and the callable declaration
 catalog until their exact authority exists. Delete any helper only after its
 complete production caller set reaches zero.
+
+## R5-S1 landed receipt
+
+Closed in the same implementation slice:
+
+```text
+BoxMethodInventoryV1
+  -> PreparedProgramDeferredStaticBoxWorkV1
+  -> ProgramDeferredStaticBoxLifecycleV1
+  -> PreparedNonMainStaticBoxMethodBatchV1
+```
+
+The selected Program edge contains no production
+`into_compatibility_map()` / `from_legacy_ast_map()` roundtrip. The batch keeps
+the historical name-order result through the explicit
+`into_compatibility_name_order()` projection. Focused context-restoration and
+failure-prefix tests remain green, and the direct inventory ordering is covered
+by the deferred static-Box fixture. This receipt does not close R5: the next
+named Builder projection must be selected by a new census.
+
+Caller-zero evidence for the migrated production edge:
+
+```text
+rg -n 'into_compatibility_map|from_legacy_ast_map' \
+  src/mir/builder/program_root_work_plan.rs \
+  src/mir/builder/program_root_lowering.rs \
+  src/mir/builder/nonmain_static_box_method_batch.rs
+=> no matches
+```
 
 ## Acceptance
 

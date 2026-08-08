@@ -277,6 +277,15 @@ impl BoxMethodInventoryV1 {
         self.entries
     }
 
+    /// Consumes the carrier into the historical deterministic name-order
+    /// projection used by compatibility-only Builder edges. This is not
+    /// source order and must not be used as resolver or semantic authority.
+    pub fn into_compatibility_name_order(self) -> Vec<BoxMethodEntryV1> {
+        let mut entries = self.entries;
+        entries.sort_by(|left, right| left.name.cmp(&right.name));
+        entries
+    }
+
     /// Projects the carrier into the legacy lookup shape. The result carries
     /// no order, provenance, or resolver authority.
     pub fn clone_compatibility_map(&self) -> HashMap<String, ASTNode> {

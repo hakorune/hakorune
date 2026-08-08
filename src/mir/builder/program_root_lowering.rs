@@ -3,8 +3,6 @@
 //! Selected normal/default reaches this owner through its sealed Program
 //! product. No arbitrary-AST root facade participates in this lifecycle.
 
-use std::collections::HashMap;
-
 use crate::ast::ASTNode;
 use hakorune_mir_builder::BoxCompilationContext;
 
@@ -88,12 +86,9 @@ pub(super) enum NormalCallableSemanticSourceMode<'source> {
 }
 
 impl ProgramDeferredStaticBoxLifecycleV1 {
-    pub(super) fn new(name: String, methods: HashMap<String, ASTNode>) -> Self {
+    pub(super) fn new(name: String, methods: crate::ast::BoxMethodInventoryV1) -> Self {
         Self {
-            methods: PreparedNonMainStaticBoxMethodBatchV1::prepare(
-                name,
-                crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(methods),
-            ),
+            methods: PreparedNonMainStaticBoxMethodBatchV1::prepare(name, methods),
         }
     }
 
