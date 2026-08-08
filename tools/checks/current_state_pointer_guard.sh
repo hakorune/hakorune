@@ -78,6 +78,7 @@ count_landed_tail_rows() {
 active_lane="$(require_scalar active_lane)"
 active_phase="$(require_scalar active_phase)"
 phase_status="$(require_scalar phase_status)"
+work_mode="$(require_scalar work_mode)"
 mirbuilder_north_star="$(require_scalar mirbuilder_north_star)"
 method_anchor="$(require_scalar method_anchor)"
 taskboard="$(require_scalar taskboard)"
@@ -89,6 +90,15 @@ current_update_policy="$(require_scalar current_update_policy)"
 pre_perf_gate="$(require_scalar pre_perf_gate)"
 pre_perf_gate_status="$(require_scalar pre_perf_gate_status)"
 optimization_return_lane="$(require_scalar optimization_return_lane)"
+
+case "$work_mode" in
+  fast|design_stop|closeout) ;;
+  *) guard_fail "$TAG" "CURRENT_STATE.toml work_mode must be fast, design_stop, or closeout: $work_mode" ;;
+esac
+
+if [[ "$work_mode" == "design_stop" ]] && [[ -z "$(toml_scalar current_design_stop)" ]]; then
+  guard_fail "$TAG" "design_stop work_mode requires current_design_stop"
+fi
 
 require_repo_file() {
   local rel="$1"
@@ -139,7 +149,7 @@ for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
   guard_expect_fixed_in_file "$TAG" "current_blocker_token" "$doc" "$(realpath --relative-to="$ROOT_DIR" "$doc") missing CURRENT_STATE token: current_blocker_token"
 done
 
-guard_require_design_stop_pause_contract "$TAG" "$ROOT_DIR" "$blocker_token" "$DESIGN_STOP_CONTRACT_FILE"
+guard_require_design_stop_pause_contract "$TAG" "$ROOT_DIR" "$work_mode" "$DESIGN_STOP_CONTRACT_FILE"
 
 guard_expect_fixed_in_file "$TAG" "docs/development/current/main/CURRENT_STATE.toml" "$PHASE137X_README" "$(realpath --relative-to="$ROOT_DIR" "$PHASE137X_README") missing CURRENT_STATE token: docs/development/current/main/CURRENT_STATE.toml"
 guard_expect_fixed_in_file "$TAG" "active_lane" "$PHASE137X_README" "$(realpath --relative-to="$ROOT_DIR" "$PHASE137X_README") missing CURRENT_STATE token: active_lane"

@@ -15,6 +15,7 @@ Related:
 - MirBuilder final pipeline: read `mirbuilder_north_star` in
   `CURRENT_STATE.toml`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
+- work mode: read `work_mode` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`

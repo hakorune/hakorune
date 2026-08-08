@@ -9,7 +9,7 @@ Scope: root restart anchor only. Do not store landed history here.
 1. Read `docs/development/current/main/CURRENT_STATE.toml`.
 2. Read its `latest_card_path`.
 3. Read its `latest_workstream_card` when present.
-4. Check `active_lane` and `current_blocker_token`; do not infer them here.
+4. Check `active_lane`, `work_mode`, and `current_blocker_token`; do not infer them here.
 5. Run:
 
 ```bash
@@ -21,7 +21,7 @@ Run heavier gates only when the active card requires them. Current scope,
 acceptance, parked items, and non-claims belong in the active card and the
 workstream SSOT, not this pointer.
 
-When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executable owner from historical mirrors.
+When `work_mode = "design_stop"`, do not invent a new executable owner from historical mirrors.
 Do not keep the goal open until the frontier names a concrete next executable
 row; stop at the consultation boundary. When the token names an implementation
 row, follow only the `latest_card_path` contract.

@@ -17,7 +17,9 @@ Related:
 ## Current Capsule
 
 - **Current decision:** `AGENTS.md` is a compact local router; tracked SSOTs
-  own durable procedure and design truth.
+  own durable procedure and design truth. `CURRENT_STATE.toml.work_mode` is
+  the sole Fast/Design-stop/Closeout routing authority; blocker text is not a
+  mode classifier.
 - **Current implementation status:** the router and this tracked contract are
   synchronized; this policy does not change the active compiler lane.
 - **Next ordered task:** resume only the blocker selected by
@@ -67,6 +69,11 @@ to new and actively revised material.
 Every turn selects exactly one mode before editing. This is a routing rule,
 not another task hierarchy.
 
+The selected mode is the explicit scalar
+`CURRENT_STATE.toml.work_mode = "fast" | "design_stop" | "closeout"`.
+`current_blocker_token` and free-form `current_design_stop` explain the mode;
+they never select it. All restart mirrors and guards must follow this field.
+
 | Mode | Entry condition | Allowed work | Exit evidence |
 | --- | --- | --- | --- |
 | Fast path | source-to-Recipe mapping, owner, and failure boundary are already closed | one existing owner, one focused gate, no new authority | positive/negative evidence and the row's closeout receipt |
@@ -87,9 +94,10 @@ local green test, or compatibility fixture never changes the mode by itself.
 The mode decision must be cheap enough to use before every edit. Ask these
 questions in order:
 
-1. Does `CURRENT_STATE.toml.current_blocker_token` contain `design`, `select`,
-   `consultation`, or `policy`? If yes, stay in **Design stop** and do not add
-   code, fixtures, fallback, or a production switch.
+1. Read `CURRENT_STATE.toml.work_mode`; do not classify it from token text.
+   `design_stop` forbids code, fixtures, fallback, and production switches;
+   `fast` permits only the selected bounded slice; `closeout` permits evidence,
+   owning-doc, commit, and pointer work.
 2. Can the source be stated as one deterministic
    `source -> Facts -> Recipe -> fail-fast boundary` sentence? If no, stay in
    **Design stop**. A worker may audit the premise, but a worker report is not
@@ -125,6 +133,9 @@ counts.
   matrices, and historical rationale to their owning tracked document.
 - Do not make the router repeat `CURRENT_STATE.toml`, an active workstream, or
   the check-script index. A pointer is sufficient.
+- Keep the router near one screen. Detailed guard procedures, historical
+  command tables, and evidence matrices belong in this tracked contract or
+  the owning lane SSOT.
 
 ### Shallow task names
 

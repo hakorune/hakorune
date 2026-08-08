@@ -85,8 +85,10 @@ Design stop  = open mapping or authority; brief only; no code/fixture/fallback
 Closeout     = classify evidence; update owner docs; commit/push or retain blocker
 ```
 
-The mode is selected before editing and is recorded in the active card when it
-is not Fast path. A worker review, local test, or legacy parity result is
+The mode is selected before editing by the explicit
+`CURRENT_STATE.toml.work_mode` scalar (`fast`, `design_stop`, or `closeout`).
+`current_blocker_token` and `current_design_stop` are explanatory pointers,
+not classifiers. A worker review, local test, or legacy parity result is
 evidence for the mode decision, not permission to cross it. This prevents a
 small green probe from silently becoming a production claim.
 
@@ -109,7 +111,7 @@ in its owning tracked document.
 The mode check is intentionally finite and must happen before editing:
 
 ```text
-current blocker is design/select/policy?
+work_mode = "design_stop"?
   -> Design stop
 source -> Facts -> Recipe -> failure boundary is one sentence?
   no -> Design stop

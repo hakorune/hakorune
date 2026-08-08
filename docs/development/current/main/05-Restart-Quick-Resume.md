@@ -32,6 +32,7 @@ cargo check -q
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
+- work mode: read `work_mode` in `CURRENT_STATE.toml`; do not infer it from the blocker text
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
@@ -40,7 +41,7 @@ cargo check -q
 ## Restart Notes
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
-- at `DESIGN-STOP`, stop the goal-driven execution loop here and review the frontier card before selecting more work
+- when `work_mode = "design_stop"`, stop the goal-driven execution loop here and review the frontier card before selecting more work
 - read `latest_card_path` before editing
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows

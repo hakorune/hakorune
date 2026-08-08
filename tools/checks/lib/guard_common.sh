@@ -77,37 +77,37 @@ guard_expect_fixed_in_file() {
 guard_require_design_stop_pause_contract() {
     local tag="$1"
     local root_dir="$2"
-    local blocker_token="$3"
+    local work_mode="$3"
     local contract_file="$4"
 
-    local blocker_class=""
+    local expected_mode=""
     local entry
     local target
     local pattern
     while IFS= read -r entry; do
         [[ -z "$entry" ]] && continue
         [[ "$entry" = \#* ]] && continue
-        if [[ "$entry" == blocker_token_contains=* ]]; then
-            blocker_class="${entry#blocker_token_contains=}"
-            if [[ -z "$blocker_class" ]]; then
-                guard_fail "$tag" "design-stop contract missing blocker token class"
+        if [[ "$entry" == work_mode=* ]]; then
+            expected_mode="${entry#work_mode=}"
+            if [[ -z "$expected_mode" ]]; then
+                guard_fail "$tag" "design-stop contract missing work mode"
             fi
             break
         fi
     done < "$contract_file"
 
-    if [[ -z "$blocker_class" ]]; then
-        guard_fail "$tag" "design-stop contract missing blocker token class"
+    if [[ -z "$expected_mode" ]]; then
+        guard_fail "$tag" "design-stop contract missing work mode"
     fi
 
-    if [[ "$blocker_token" != *"$blocker_class"* ]]; then
+    if [[ "$work_mode" != "$expected_mode" ]]; then
         return 0
     fi
 
     while IFS= read -r entry; do
         [[ -z "$entry" ]] && continue
         [[ "$entry" = \#* ]] && continue
-        if [[ "$entry" == blocker_token_contains=* ]]; then
+        if [[ "$entry" == work_mode=* ]]; then
             continue
         fi
         IFS='|' read -r target pattern <<<"$entry"
