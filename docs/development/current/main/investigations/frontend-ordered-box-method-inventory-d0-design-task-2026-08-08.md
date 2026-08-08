@@ -716,8 +716,9 @@ as their source path.
 
 Acceptance requires one receipt per parsed top-level gate, exact direct/
 sibling/nested/empty-gate coverage, selected-branch seal preservation,
-unselected-branch removal, same-brand validation, duplicate/missing/foreign
-rejection, and whole-product discard on any mismatch. No delegate relation,
+unselected-branch removal, same-brand validation, parser-preorder record order,
+leftover/end-of-stream coverage, duplicate/missing/foreign rejection, and
+whole-product discard on any mismatch. No delegate relation,
 finalizer expansion, Hako parity, resolver, Recipe, Builder, or MIR work opens.
 
 ## Ordered implementation series

@@ -358,11 +358,40 @@ PreparedBuildGateSourceRecordV1 {
 }
 ```
 
-Only the bounded top-level build-gate item scope is opened in B2. A gate found
+The ledger order is normative: records are emitted in parser source-preorder
+and are consumed in that same order by the original-AST validation cursor.
+No sorting, `HashMap`, name order, post-prune reindexing, or final-AST ordinal
+may establish the order. The cursor must reject a missing record, a duplicate
+record, a leftover record at end of walk, or a record whose path/predicate does
+not match the current original AST gate.
+
+The distinct gate-path grammar is:
+
+```text
+SourceBuildGatePathV1 {
+  invocation_brand,
+  segments: [
+    RootTopLevel { statement_ordinal },
+    BranchChild { parent_gate_id, branch, child_ordinal },
+    ...
+  ]
+}
+```
+
+The path points to the gate node itself. A top-level gate starts at
+`RootTopLevel`; a nested gate uses a `BranchChild` segment whose
+`parent_gate_id` names the enclosing gate. The nested gate's own `gate_id` is
+separate. `SourceBoxDeclarationPathV1` may use analogous coordinates for Box
+source sites, but the two path types are never interchangeable.
+
+Only the bounded top-level build-gate item scope is opened in B2. The outer
+top-level gate and nested gates parsed inside its selected Then/Else items
+inherit `TopLevelItem` scope. A gate found
 inside a Box method/body is not silently registered as a top-level source gate;
-it remains an explicit nonclaim/reject boundary until a separate method-scope
-source contract is designed. A Box declaration path is never reused as a
-general method/body gate path.
+the same applies to constructor bodies, field initializers, and other member
+scopes. Those scopes are closed/nonclaim and their records are not issued by
+the B2 ledger. A Box declaration path is never reused as a general
+method/body gate path.
 
 The source-aware walk traverses the original AST once for validation and
 pruning. It matches the parser ledger by structural cursor, evaluates each
@@ -372,9 +401,11 @@ ID, path, and selected branch. Empty and nested gates still require a ledger
 record and exactly one receipt. The receipt owner is the postpass prune
 transaction, not the AST node and not a detached vector.
 
-`ParserSourceSessionV1::prepare_prune` validates same-brand identity, unique
+`ParserSourceSessionV1::prepare_prune(&self, plan)` is a no-mutation validation
+step. It validates same-brand identity, unique
 IDs/paths, exact gate-record/AST coverage, and candidate path membership. Its
-consume-return commit filters source seals by the selected branch while
+validated `commit_prune(self, prepared)` consume-return step filters source
+seals by the selected branch while
 preserving surviving structural paths. Any AST/source mismatch, missing,
 foreign, duplicate, or lost seal consumes and rejects the whole unpublished
 product; the old session is never reused.
@@ -389,12 +420,13 @@ ledger is the sole gate identity authority.
 ```text
 parser gate records are issued during parse and moved into the postpass product
 AST contains no gate ID or source identity reconstruction
-one selection receipt per parsed top-level gate
+one selection receipt per opened `TopLevelItem` gate exactly (empty and nested
+gates included); declined/unresolved/rejected products issue no receipt
 direct, sibling, nested, and empty-gate path coverage is exact
 selected-branch Box source seals survive with original paths
 unselected-branch seals are dropped atomically
 method/body gates are outside the opened top-level cohort
-foreign/duplicate/missing/cursor-overflow evidence fails fast
+foreign/duplicate/missing/leftover/order/cursor-overflow evidence fails fast
 ```
 
 ### B2 nonclaims

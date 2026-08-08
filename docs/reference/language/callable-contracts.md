@@ -278,7 +278,7 @@ of gate IDs; an original-AST walk will validate the parser ledger by structural
 cursor and evaluate each gate once. `ParserSourceSessionV1` will transport the
 ledger and atomically consume/return the selected-branch source seals while
 preserving their original paths. Nested and empty top-level gates require
-exact coverage. Gates inside Box methods/bodies are outside this cohort and
+parser-source-preorder order and exact end-of-stream coverage. Gates inside Box methods/bodies are outside this cohort and
 must not be registered through the top-level Box path vocabulary. Missing,
 foreign, duplicate, or mismatched evidence rejects the whole unpublished
 postpass product. Implementation is not opened at this design stop. Delegate
