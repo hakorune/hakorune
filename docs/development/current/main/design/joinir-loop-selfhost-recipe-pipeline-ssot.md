@@ -1454,12 +1454,18 @@ forged) > `Unresolved` (missing authority/evidence) > `Declined` (fully
 observed non-family shape/effect) > `Candidate` (exact complete contract).
 `NoSafeSlice` remains a development state, not a fifth disposition.
 
-Before any V2/schema or S6C implementation, the behavior-neutral
-`LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0` row must split the 781-line demand and
-725-line verifier modules by responsibility, keeping every resulting Rust
-source file below the 760-line design trigger. That row is BoxShape-only; V2,
-instance-target, source-bound call relation, and ScanWithInit are separate
-BoxCount rows. The later implementation order is:
+The behavior-neutral `LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0` row is closed: the
+demand and verifier responsibilities were split before typed vocabulary was
+added, and every resulting Rust source file remains below the 760-line design
+trigger. The explicit V2 schema implementation landed at `f15056f903` with
+`LoopRecipeArtifactV2`, `I64|Bool|Unit|Text`, local `CallSlot`, `TextEq`, and a
+Builder-free structural verifier. Its focused suite still has one known
+validation-order expectation mismatch (`v2_rejects_duplicate_result_definition`:
+`TextEqResultClassMismatch` precedes duplicate-definition detection), so the
+V2 implementation receipt is not yet a closed proof. V2 is a wire/schema
+receipt only; it does not issue resolver targets or source-bound calls. The
+remaining rows are separate BoxCount boundaries. The later implementation
+order is:
 
 ```text
 operation-shape split
@@ -1473,8 +1479,10 @@ operation-shape split
 
 Each landed typed schema/observer/producer row updates
 `docs/reference/mir/loop-recipe-contract.md` and the affected module READMEs in
-the same commit. No scan physicalizer, selector, fallback, or legacy deletion
-is opened by this design closeout.
+the same commit. The V2 implementation has its schema/reference receipt, but
+the focused verifier closeout remains pending the explicit validation-order
+fix. No resolver target, scan physicalizer, selector, fallback, or legacy
+deletion is opened by this design closeout.
 
 Contract:
 : 19/19 legacy ingress rows have typed pre-effect decline or one verified

@@ -1,5 +1,6 @@
 ---
-Status: Ready after design stop; implementation row
+Status: implementation landed at `f15056f903`; closeout pending one focused
+verifier-test contract mismatch
 Date: 2026-08-08
 Decision: accepted — explicit V2 typed wire, local CallSlot, and TextEq only
 Parent: `loop-recipe-typed-call-value-d0-design-task-2026-08-08.md`
@@ -11,9 +12,16 @@ Parent: `loop-recipe-typed-call-value-d0-design-task-2026-08-08.md`
 
 - **Current decision:** widen the portable Recipe vocabulary only through an
   explicit V2 artifact; never reinterpret the numeric V1 wire.
-- **Current implementation status:** no V2 code or fixture is landed.
-- **Next ordered task:** add schema/artifact types and structural verifier;
-  then open the resolver instance-target row.
+- **Current implementation status:** `LoopRecipeArtifactV2`, `LoopRecipeV2`,
+  the typed `CallSlot`/`TextEq` vocabulary, and the structural verifier are
+  landed. The implementation is still Builder-free and source-observer-free.
+  The focused suite currently has one known expectation mismatch:
+  `v2_rejects_duplicate_result_definition` reaches the earlier
+  `TextEqResultClassMismatch` check before duplicate-definition detection.
+  This must be resolved before the implementation receipt is called closed.
+- **Next ordered task:** close the source/authority prerequisites, then open
+  the resolver instance-target row. This receipt does not authorize
+  `ScanWithInit` or source-bound call implementation.
 - **Production stop line:** no resolver lookup, source observer, Builder/MIR,
   physicalizer, selector, fallback, or production caller.
 - **Retirement finish line:** typed legacy scan facts are removed only after
@@ -83,7 +91,15 @@ V1 in place, or publish guessed ScanWithInit counts.
 4. Missing/duplicate CallSlot value references reject deterministically.
 5. Unknown wire fields reject through `deny_unknown_fields`.
 6. All changed Rust files stay below the 760-line design trigger and 800-line
-   hard boundary.
+  hard boundary.
+
+Closeout stop:
+
+```text
+the focused V2 suite must be green with an explicit validation-order
+contract; do not hide the mismatch by changing the task claim or adding a
+source/observer/physical fallback.
+```
 7. The focused schema/verifier tests, pointer guard, diff check, and release
    build are green.
 8. This task updates `src/mir/loop_recipe_contract/README.md` and
