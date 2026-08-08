@@ -28,16 +28,17 @@ typed callable syntax carriage, and old instance-result/target retirement are
 closed. The selected design stop is:
 
 ```text
-LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0
+RESOLVER-BOX-SOURCE-HANDOFF-D0
 ```
 
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
-primitives. The next design stop must seal declaration-first source authority,
-typed Query behavior, the same-declaration Home ABI relation, and separate body
-conformance before resolver targets, source-bound CallSlot relations,
-ScanWithInit, physical lowering, production selection, or legacy retirement
-open.
+primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal;
+the next design stop must define the one consuming parser→resolver handoff.
+Only after that may declaration/signature, typed Query behavior, the
+same-declaration Home ABI relation, and separate body conformance open before
+resolver targets, source-bound CallSlot relations, ScanWithInit, physical
+lowering, production selection, or legacy retirement.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No

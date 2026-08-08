@@ -1,5 +1,5 @@
 ---
-Status: accepted architecture — implementation parked behind frontend authority
+Status: accepted architecture — implementation parked behind parser→resolver handoff and Home issuer
 Date: 2026-08-08
 Decision: one declared semantic contract, separate body conformance, no physical ABI axis
 Parent: `loop-resolver-instance-call-target-d0-design-task-2026-08-08.md`
@@ -107,6 +107,25 @@ The current `VerifiedCallableIndexV1` remains FreeStatic-only. A later sibling
 instance target catalog borrows/references this declaration product rather
 than widening the FreeStatic key or copying the contract fields.
 
+## Parser seal status and resolver ingress
+
+The parser prerequisite is no longer an unimplemented idea. The rich Rust
+parser now issues a non-Clone `ParserBoxSourceSealV1` for the bounded ordinary
+top-level Box cohort. It owns the final parser-selected method relations,
+exact `SourceBoxMethodSiteV1` data, typed `CallableContractSyntaxV1` carriage,
+and inventory-placement receipts. The Clone-capable `BoxMethodInventoryV1`,
+legacy JSON, Hako compatibility normalizer, and AST-only postpass products
+remain descriptive or compatibility inputs; none is resolver authority.
+
+The remaining gap is the **parser→resolver ingress**, not parser source
+authority itself. `ParserBoxSourceSealV1` and its relation rows are currently
+parser-private, so resolver declaration issuance remains production zero. A
+future handoff must consume the one non-Clone seal and issue one opaque,
+AST-free resolver source capability. It must not clone or reassemble partial
+method rows, recover source identity from inventory ordinals/names, or expose
+cloneable Home/semantic receipts. That handoff is a separate design row:
+`RESOLVER-BOX-SOURCE-HANDOFF-D0`.
+
 ## Declaration versus conformance
 
 ```text
@@ -138,11 +157,13 @@ Precedence is `Rejected > Unresolved > Declined > Candidate`.
 
 ## Current blocker and ordered follow-up
 
-The resolver cannot issue this contract from raw `BoxMethodInventoryV1`.
-R1-R5 preserve selected order and descriptive provenance, but the all-row
-inventory ordinal is not an explicit-method source site and no non-Clone
-parser source seal exists yet. Resolver sorting, JSON, raw `ExplicitSource`,
-or name lookup cannot repair or promote that boundary.
+The resolver cannot issue this contract from raw `BoxMethodInventoryV1` or from
+the parser-private seal by implicit field access. R1-R5 preserve selected order
+and descriptive provenance, but the all-row inventory ordinal is not an
+explicit-method source site. The rich parser seal exists for the bounded Rust
+cohort, while its resolver ingress/issuer is still absent. Resolver sorting,
+JSON, raw `ExplicitSource`, name lookup, or a cloneable relation view cannot
+repair or promote that boundary.
 
 The following is a subsystem view only. The complete executable order,
 including old-target retirement, publishable-catalog co-seal, physical ABI
@@ -151,8 +172,7 @@ projection, and same-slice reference updates, is owned only by
 
 ```text
 LANGUAGE-TYPED-CALLABLE-PROFILE-D0                  closed
-  -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0/I0    current
-  -> typed CallableContract syntax + Rust/Hako parity
+  -> RESOLVER-BOX-SOURCE-HANDOFF-D0                 current design stop
   -> resolver semantic declaration/signature
   -> OWN-HOME-ABI0-S0/query
   -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0

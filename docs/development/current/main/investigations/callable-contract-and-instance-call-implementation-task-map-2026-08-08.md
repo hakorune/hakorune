@@ -62,8 +62,10 @@ VerifiedConformantCallableCatalogV1
 
 Required ordering and stop lines:
 
-1. Finish the parser-owned source seal and source-site/placement split before
-   resolver declaration issuance.
+1. The bounded ordinary Rust parser now has the non-Clone source seal and
+   source-site/placement split. Before resolver declaration issuance, add one
+   consuming parser→resolver handoff; do not expose parser-private seal rows
+   or rebuild them in resolver.
 2. Normalize raw rune attributes into typed syntax before the semantic issuer;
    resolver string matching is forbidden.
 3. Retire or prove non-test caller-zero for
@@ -88,7 +90,8 @@ following existing owners and remain ordered, not silently folded into C-I0:
 
 ```text
 parser-owned source seal between AST inventory and resolver
-  -> R6-D0/S0-S3 + the closed R6-S3B-C-I0 parser-private receipt
+  -> closed R6-D0/S0-S3 + R6-S3B-D-I0 parser-private receipt;
+     resolver ingress is the new `RESOLVER-BOX-SOURCE-HANDOFF-D0` row
 
 as-written SourceBoxMethodSite != selected/generated inventory placement
   -> SourceBoxMethodSiteV1 / BoxMethodInventoryOrdinalV1 boundary
@@ -114,10 +117,12 @@ issue source meaning
 ```
 
 This audit is therefore recorded as **accepted architecture / parked
-implementation**. No `Verified*` placeholder, test-only issuer, target
-fallback, or second source authority is opened by the audit itself. Each
-future implementation row must update its focused tests, owner README, and
-language/reference receipt in the same commit.
+implementation**. The parser seal exists for its bounded Rust cohort, but the
+resolver ingress and semantic/Home issuers remain production zero. No
+`Verified*` placeholder, test-only issuer, target fallback, or second source
+authority is opened by the audit itself. Each future implementation row must
+update its focused tests, owner README, and language/reference receipt in the
+same commit.
 
 The external review's architecture is accepted with these mandatory Hakorune
 corrections:
@@ -353,7 +358,14 @@ SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-I0 (closed implementation)
   cargo check passed. The standalone catalog guard remains at its unrelated
   pre-existing SourcePath projector owner-count drift.
 
-LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (next design stop)
+RESOLVER-BOX-SOURCE-HANDOFF-D0 (current design stop)
+  consume the parser-private non-Clone ordinary Rust Box source seal once and
+  issue one opaque AST-free resolver ingress. Preserve source-site identity,
+  typed Query carriage, and placement separation. No semantic signature, Home
+  ABI, target, Recipe/CallSlot, Builder/MIR, or fallback.
+
+LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (accepted architecture; parked
+behind the handoff)
   declaration-first source authority, typed Query semantic profile,
   same-declaration VerifiedHomeAbi relation, and separate body-conformance
   product. No target, Recipe/CallSlot, Builder/MIR, or fallback.
@@ -641,26 +653,37 @@ Rejected > Unresolved > Declined > Candidate
      it issues typed `CallableContractSyntaxV1::Query` carriage with exact
      site/provenance; resolver raw-string matching is zero.
 
-### C. Resolver declaration and declared contract
+### C. Resolver ingress, declaration, and declared contract
 
-11. `RESOLVER-INSTANCE-METHOD-DECLARATION-AND-SEMANTIC-SIGNATURE-I0`
+11. `RESOLVER-BOX-SOURCE-HANDOFF-D0`
+   - consume exactly one non-Clone `ParserBoxSourceSealV1` for the bounded
+     ordinary top-level Rust Box cohort;
+   - issue one opaque AST-free resolver source capability;
+   - preserve `SourceBoxMethodSiteV1` as identity and inventory ordinal only
+     as placement/diagnostic data;
+   - carry typed `CallableContractSyntaxV1::Query` without raw rune strings;
+   - reject foreign/duplicate/generated-only/missing/reused rows;
+   - no semantic signature, Home ABI, target, Recipe, Builder/MIR, or fallback;
+   - task:
+     `docs/development/current/main/investigations/resolver-box-source-handoff-d0-design-task-2026-08-09.md`
+12. `RESOLVER-INSTANCE-METHOD-DECLARATION-AND-SEMANTIC-SIGNATURE-I0`
    - consume only the parser-owned source seal;
    - exact nominal Box/method identity, catalog brand, and resolved semantic
      parameter/result types;
    - semantic `I64` is not `ExactTrivial*Abi`, `MirType`, or a source-string
      physical classifier;
    - no behavioral contract, Home ABI, physical ABI, or target.
-12. `OWN-HOME-CALLABLE-ABI-D0` -> `OWN-HOME-RELATION0-S0` ->
+13. `OWN-HOME-CALLABLE-ABI-D0` -> `OWN-HOME-RELATION0-S0` ->
    `OWN-HOME-ABI0-S0/query`
    - existing Home taskboard remains the sole owner;
    - issue one same-declaration `VerifiedHomeAbi` with receiver `Handle`, zero
      parameter demands, and Trivial result for the bounded query cohort;
    - no query aggregate may restate or fabricate this axis.
-13. `RESOLVER-DECLARED-QUERY-BEHAVIOR-I0`
+14. `RESOLVER-DECLARED-QUERY-BEHAVIOR-I0`
     - consume only typed `CallableContractSyntaxV1::Query`;
     - issue the behavioral read/effect/control obligation;
     - no Home or physical ABI issuance.
-14. `RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0`
+15. `RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0`
     - co-seal declaration, semantic signature, Query behavior, and the exact
       same-declaration `VerifiedHomeAbi`;
     - publish one sealed declared callable catalog usable for recursive
@@ -670,7 +693,7 @@ Rejected > Unresolved > Declined > Candidate
 
 ### D. Target and source-bound logical call
 
-15. `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`
+16. `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`
     - delete the caller-zero body-inferred result/target/rebind/preloop family
       before adding the new declaration-first target;
     - preserve only general `source_call_target` source-site primitives and
@@ -678,36 +701,36 @@ Rejected > Unresolved > Declined > Candidate
     - require non-test caller zero and same-slice module/README/ledger guard.
     - Task:
       `docs/development/current/main/investigations/source-instance-result-contract-retire0-r0-task-2026-08-09.md`
-16. `LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0`
+17. `LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0`
     - catalog-owned reusable opaque target reference;
     - existing FreeStatic index unchanged;
     - no call-site or Recipe facts.
-17. `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0/I0`
+18. `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0/I0`
     - exact caller/receiver/argument/result sites and exact target;
     - caller-zero logical product;
     - no Builder or physical call.
-18. `LOOP-RECIPE-CALLSLOT-COSEAL-I0`
+19. `LOOP-RECIPE-CALLSLOT-COSEAL-I0`
     - deterministic source relation to existing typed Recipe `CallSlot`;
     - full source evidence and verifier coverage;
     - no provider selection or fallback.
 
 ### E. Body conformance and activation
 
-19. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
+20. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
     - verify direct receiver-read footprint, no writes/Home escape/allocation/
       IO/FFI/failure escape/suspension/non-local control;
     - publish one complete same-brand conformance set;
     - never infer a replacement public contract from the body.
-20. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
+21. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
     - co-seal the declared catalog with exactly one accepted conformance per
       body-bearing declaration;
     - reject missing, duplicate, foreign, or rejected conformance;
     - issue one publishable catalog; publication performs no semantic recheck.
-21. `CALLABLE-PHYSICAL-ABI-PROJECTION-D0/I0`
+22. `CALLABLE-PHYSICAL-ABI-PROJECTION-D0/I0`
     - project semantic signature plus target capability one way into physical
       ABI and `FunctionSignature`;
     - no `MirType`/physical ABI reverse inference into resolver semantics.
-22. Named production activation
+23. Named production activation
     - one selected caller switches to the verified route;
     - delete that caller's old lookup/retry/fallback in the same commit.
 

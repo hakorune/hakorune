@@ -178,11 +178,16 @@ Production activation remains zero. This Decision authorizes no parser edit,
 resolver product, target, call-site relation, Recipe/CallSlot, Builder/MIR,
 provider/runtime route, fallback, or publication path.
 
-The frontend inventory is now ordered through R5, but it remains descriptive:
-its all-row selected ordinal is not an explicit-method source site and the
-non-Clone parser source seal is still absent. The resolver must not promote
-raw `ExplicitSource`, JSON, a compatibility map, or selected placement into
-declaration authority.
+The frontend inventory is now ordered through R5 and the bounded rich Rust
+parser now issues a non-Clone `ParserBoxSourceSealV1`. Its all-row selected
+ordinal is still only placement, not an explicit-method source site. The seal
+is parser-private and ordinary-top-level-only; Hako compatibility, AST-only
+postpass, interface/static/record/mixed cohorts remain outside resolver
+authority. The resolver must not promote raw `ExplicitSource`, JSON, a
+compatibility map, selected placement, or cloneable relation slices into
+declaration authority. The remaining next boundary is the explicit consuming
+parser→resolver handoff, followed by semantic declaration/signature and Home
+issuers.
 
 ## Ordered follow-up
 
@@ -193,9 +198,7 @@ projection, and same-slice reference updates, is owned only by
 
 ```text
 LANGUAGE-TYPED-CALLABLE-PROFILE-D0                 closed
-  -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0      current design stop
-  -> frontend inventory BoxShape/Rust/.hako series
-  -> typed CallableContract syntax carriage
+  -> RESOLVER-BOX-SOURCE-HANDOFF-D0                 current design stop
   -> resolver semantic declaration/signature
   -> OWN-HOME-ABI0-S0/query
   -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0

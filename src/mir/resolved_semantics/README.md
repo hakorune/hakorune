@@ -497,10 +497,14 @@ target issuer. MIR `FunctionSignature`/`EffectMask` and the documented but not
 yet issued `VerifiedHomeAbi` are not interchangeable resolver contracts.
 
 Before adding `ResolvedInstanceMethodRefV1`, a single resolver-owned
-declaration path must first consume the non-Clone parser-owned Box source seal
-and issue the exact nominal receiver plus a semantic parameter/result
-signature. It may not treat the selected/generated inventory ordinal as a
-method source site or use `ExactTrivial*Abi`/`MirType` as semantic type truth.
+declaration path must first consume the bounded ordinary-top-level Rust
+parser's non-Clone `ParserBoxSourceSealV1` through the dedicated
+`RESOLVER-BOX-SOURCE-HANDOFF-D0` ingress. The handoff must preserve the exact
+source method site and typed syntax without exposing cloneable partial rows.
+It must then issue the exact nominal receiver plus a semantic
+parameter/result signature. It may not treat the selected/generated inventory
+ordinal as a method source site or use `ExactTrivial*Abi`/`MirType` as semantic
+type truth.
 
 The declared instance contract then co-seals typed
 `CallableContractSyntaxV1::Query` behavior with the same-declaration
@@ -510,8 +514,9 @@ Physical call ABI is deliberately downstream. A missing parser seal, semantic
 signature, typed Query row, or Home ABI is `NoSafeSlice`, not an empty contract
 or a FreeStatic alias.
 See `LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0` in the current investigation
-task. No Recipe key, CallSlot, Builder/MIR ID, runtime lookup, or fallback may
-cross this boundary.
+task and `RESOLVER-BOX-SOURCE-HANDOFF-D0` for the ingress contract. No Recipe
+key, CallSlot, Builder/MIR ID, runtime lookup, or fallback may cross this
+boundary.
 
 ## Authority
 
