@@ -4,6 +4,7 @@ use crate::ast::{
 };
 use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 use crate::tests::helpers::parser::{find_box, parse_ok};
+use serde_json::json;
 
 #[test]
 fn parser_delegate_surface_parses_explicit_exposes_list() {
@@ -173,7 +174,7 @@ box Host {
 }
 "#,
     );
-    let json = crate::r#macro::ast_json::ast_to_json_roundtrip(&ast);
+    let json = crate::r#macro::ast_json::ast_to_json(&ast);
     let decoded = crate::r#macro::ast_json::json_to_ast(&json).expect("legacy JSON decode");
     let ASTNode::BoxDeclaration { delegates, .. } = find_box(&decoded, "Host") else {
         panic!("expected Host BoxDeclaration")
@@ -186,6 +187,64 @@ box Host {
     ));
     assert!(delegates[0].explicit_source_selection().is_none());
     assert!(delegates[0].source_member_ordinal().is_none());
+}
+
+#[test]
+fn roundtrip_v2_preserves_generated_delegate_provenance_and_schema() {
+    let ast = parse_ok(
+        r#"
+box Target { run() { return 1 } }
+box Host {
+    target: Target
+    delegate target exposes { run as runAlias }
+}
+"#,
+    );
+    let json = crate::r#macro::ast_json::ast_to_json_roundtrip(&ast);
+    assert_eq!(json["schema"], "ast_json_roundtrip_v2");
+    assert_eq!(json["schema_version"], 2);
+    let decoded = crate::r#macro::ast_json::json_to_ast(&json).expect("v2 decode");
+    let ASTNode::BoxDeclaration { methods, .. } = find_box(&decoded, "Host") else {
+        panic!("expected Host BoxDeclaration")
+    };
+    assert!(matches!(
+        methods.get("runAlias").unwrap().provenance(),
+        BoxMethodProvenanceV1::Generated(BoxMethodGeneratedProvenanceV1::Delegate {
+            field_name,
+            exposed_name,
+            selection: BoxMethodSourceSelectionV1::Direct,
+        }) if field_name.as_ref() == "target" && exposed_name.as_ref() == "runAlias"
+    ));
+}
+
+#[test]
+fn roundtrip_v2_rejects_schema_mismatch_and_malformed_nested_box() {
+    let ast = parse_ok(
+        r#"
+box Outer {
+    run() { return 1 }
+}
+box Inner {
+    nested: Outer = new Outer()
+}
+"#,
+    );
+    let json = crate::r#macro::ast_json::ast_to_json_roundtrip(&ast);
+
+    let mut wrong_version = json.clone();
+    wrong_version["schema_version"] = json!(99);
+    assert!(crate::r#macro::ast_json::json_to_ast(&wrong_version).is_none());
+
+    let mut partial_marker = json.clone();
+    partial_marker
+        .as_object_mut()
+        .unwrap()
+        .remove("schema_version");
+    assert!(crate::r#macro::ast_json::json_to_ast(&partial_marker).is_none());
+
+    let mut malformed = json;
+    malformed["statements"][0]["methods"][0]["decl"] = json!({"kind": "Unknown"});
+    assert!(crate::r#macro::ast_json::json_to_ast(&malformed).is_none());
 }
 
 #[test]

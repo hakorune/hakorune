@@ -28,10 +28,11 @@ and delegate helpers are committed as atomic batches and never become
 Rust/`.hako` parser parity, and resolver sealing must still land before the
 declared contract issuer opens.
 
-The R4 AST-side atomic reconstruction product is landed, but the public JSON
-v2 schema dispatcher and recursive codec are not. This partial substrate does
-not change the production-zero status and cannot authorize a declared
-callable contract.
+The R4 AST-side atomic reconstruction product and strict recursive JSON v2
+codec are landed. The root selects v2 or legacy mode once; malformed nested v2
+payloads reject the complete root, and legacy v1 imports remain
+`CompatibilityOnly(LegacyJsonV1)`. This descriptive transport still does not
+change the production-zero status or authorize a declared callable contract.
 
 ## `query` meaning
 

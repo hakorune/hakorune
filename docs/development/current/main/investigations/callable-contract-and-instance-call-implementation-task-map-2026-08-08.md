@@ -75,12 +75,15 @@ Rejected > Unresolved > Declined > Candidate
    - ordinary Box sole-inventory cutover;
    - selected build-gate, generated property, and delegate atomic batches;
    - generated rows stay non-source provenance.
-4. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R4` — active
+4. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R4` — closed
    - ordered JSON v2;
-   - legacy JSON v1 imports only `CompatibilityOnly`.
-5. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R5`
+   - legacy JSON v1 imports only `CompatibilityOnly`;
+   - strict recursive mode rejects malformed nested v2 without fallback.
+5. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R5` — active
    - migrate remaining Builder compatibility projections;
-   - delete old AST-map helpers when callers reach zero.
+   - delete old AST-map helpers when callers reach zero;
+   - update the owning reference/README and active card in the same
+     implementation commit.
 
 ### B. Hako parser parity
 

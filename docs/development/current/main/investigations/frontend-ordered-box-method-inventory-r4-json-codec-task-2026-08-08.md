@@ -1,5 +1,5 @@
 ---
-Status: active — AST atomic reconstruction substrate landed; codec cutover pending
+Status: closed — ordered JSON v2 codec landed with legacy compatibility boundary
 Date: 2026-08-08
 Decision: ordered roundtrip JSON v2; legacy JSON v1 is compatibility-only
 Parent: `frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md`
@@ -123,6 +123,30 @@ BoxMethodInventoryRoundtripRowV2[]
 
 It preserves exact provenance and diagnostic span but issues no resolver
 capability. Focused AST tests cover mixed provenance, duplicate names,
-declaration mismatch, ordinal gaps, and empty selected-gate paths. The public
-root schema dispatcher and recursive v2 Box codec remain the next slice; R4 is
-not closed by the substrate alone.
+declaration mismatch, ordinal gaps, and empty selected-gate paths.
+
+## R4 landed receipt
+
+The codec is split into a small root facade, a strict recursive decoder, and a
+Box-inventory v2 codec:
+
+```text
+ast_json_roundtrip_v2 root marker
+  -> one DecodeMode selection
+  -> recursive children stay in that mode
+  -> complete Box method rows preflight
+  -> one inventory commit
+```
+
+Legacy JSON remains an explicit compatibility transport. It is selected only
+by the v1 marker or by an unmarked legacy payload and produces
+`CompatibilityOnly(LegacyJsonV1)` rows. A partial, mismatched, or unknown
+marker rejects at the root; malformed nested v2 nodes set a decoder failure
+receipt and reject the complete root instead of being silently removed by a
+collection helper.
+
+Focused coverage now includes v2 schema/provenance preservation, legacy
+compatibility provenance, schema mismatch rejection, malformed nested-box
+rejection, and the existing AST transport negative matrix. The codec remains a
+descriptive transport only: no resolver capability, source promotion, Builder
+consumer, or fallback was opened.
