@@ -1,5 +1,5 @@
 ---
-Status: accepted design; implementation not opened
+Status: accepted design; implementation not opened; FINAL is a retirement-proof design stop
 Date: 2026-08-09
 Decision: broad AST-only parser APIs need a total typed postpass envelope before caller cutover
 Parent: `frontend-parsed-box-source-aware-delegate-r6-s3b-d-i0-implementation-task-2026-08-09.md`
@@ -222,8 +222,10 @@ PARSER-PUBLIC-AST-POSTPASS-I0-C
   switch explain route only after the shared decision set is green
 
 PARSER-PUBLIC-AST-POSTPASS-FINAL
-  census direct old postpass callers, retire the old whole-root delegate edge,
-  and prove no retry/fallback remains
+  close the direct old-broad-caller census, quarantine separate grammar
+  evidence and compatibility arms, retire only caller-zero helpers, and prove
+  no retry/fallback remains. If the census remains zero, this row is a
+  retirement proof rather than a forced production switch.
 ```
 
 Each implementation row must update the parser README, the affected language
@@ -249,3 +251,78 @@ source/reference parity matrix, and fail-fast diagnostics are accepted.
 Implementation must update the parser README, language reference, task map,
 CURRENT_STATE, focused tests, and a row guard in the same slice. All touched
 source files remain below 800 lines.
+
+## FINAL audit receipt and remaining design stop (2026-08-09)
+
+The worker route census confirms that the broad public AST family already
+converges on the shared postpass coordinator:
+
+```text
+parse / string / build-config / metadata / explain
+  -> one parser invocation
+  -> parse_program once
+  -> PreparedBuildGateDecisionSetV1
+  -> shared projection/envelope
+```
+
+The remaining routes are deliberately different contracts and must not be
+collapsed into a fake FINAL switch:
+
+```text
+parse_from_string_with_source_seal
+  = crate-private resolver/source-authority handoff; keep
+
+parse_grammar_evidence_from_string_with_build_config
+  = separate grammar-evidence demand used by runner/emit.rs; quarantine
+
+postpass_compatibility::lower
+  = explicit AST-only compatibility arm; keep until a cohort-specific owner
+    and retirement condition exist
+```
+
+The direct old broad production caller census is zero. Therefore FINAL must
+not invent an I0 caller switch merely to satisfy the historical row name. Its
+implementation claim is a retirement proof and quarantine receipt:
+
+```text
+retire candidate:
+  source_gate_prune.rs (caller-zero)
+  build_cfg::predicate::explain_build_gate_program (caller-zero)
+
+retain:
+  shared projection walker
+  grammar-evidence legacy selector until its own demand is redesigned
+  explicit compatibility arm
+  resolver-grade source-seal entry
+```
+
+`build_cfg::prune.rs` is split in authority rather than deleted wholesale:
+the generic projection walker remains shared, while the legacy selector and
+`NyashParser::prune_build_gate_program` remain owned by the separate grammar
+evidence demand until that demand has its own typed projection. `eval_build_predicate`
+therefore remains valid only for the decision-set issuer, member-level gate
+parser, and isolated grammar selector; no shared postpass consumer may call it
+again.
+
+The current I0-C implementation also fixed a structural-gate boundary: gates
+inside method/function bodies do not receive top-level source-ledger identity.
+Their decision rows are still fully covered by the shared projection, but only
+top-level source records produce `BuildGateSelectionReceiptV1`. The existing
+12-case BuildCfg gate is green after this correction.
+
+One additional D0 decision remains before any FINAL cleanup implementation:
+top-level no-else source gates currently have a source record shape that cannot
+be represented by the `Then`/`Else`-only receipt branch enum. Choose one typed
+solution explicitly (preferred: add `NoElse` to the receipt branch enum while
+keeping path segments Then/Else-only), add positive/negative receipt tests, and
+only then open caller-zero helper retirement. Never map `NoElse` to `Else`.
+
+FINAL nonclaims:
+
+```text
+no grammar-evidence semantic redesign
+no compatibility delegate replacement
+no resolver/runtime activation
+no broad source-seal caller switch when census is zero
+no fallback/retry/reparse/name-based identity reconstruction
+```

@@ -110,6 +110,16 @@ The implementation is represented by `BuildGateProjectionOutputV1` and the
 focused `build_cfg/projection_tests.rs` slice; the
 projection contains no `eval_build_predicate` call and no old generic prune.
 
+Post-closeout correction (2026-08-09): structural BuildGate nodes parsed
+inside method/function bodies are not top-level source-ledger entries. The
+parser now attaches `gate_id`/`source_path` to the decision observation only
+while `SourceBuildGateScopeV1::TopLevelItem` is open. The shared projection
+therefore validates and consumes body-gate decision rows without requiring a
+top-level source record, while the final receipt coverage check still requires
+every top-level source record to be consumed exactly once. This fixes the two
+statement-level body-gate regressions without adding a second evaluator,
+source-path reconstruction, or compatibility fallback.
+
 The implementation commit must update this task, the projection D0 card,
 `src/parser/README.md`, `docs/reference/language/build-conditional-gate.md`,
 `docs/reference/language/callable-contracts.md`, the postpass SSOT, CURRENT_STATE,

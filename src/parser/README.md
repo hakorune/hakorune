@@ -149,3 +149,16 @@ produces validated source receipts plus reachable-row v0 explain output.
 `source_seal.rs` consumes this aggregate and derives retained Box paths from
 prepared source seals; the old evaluator/generic-prune path is not used by the
 shared postpass. Public explain uses the same completed postpass product.
+
+The post-closeout structural-gate correction is also part of this boundary:
+BuildGates inside method/function bodies remain decision-covered, but receive
+no top-level source-ledger identity. Only observations issued while
+`SourceBuildGateScopeV1::TopLevelItem` is open may produce source selection
+receipts. The 12-case BuildCfg gate is green after this correction.
+
+The next `PARSER-PUBLIC-AST-POSTPASS-FINAL` row is a retirement-proof design
+stop. The broad public callers are already caller-zero on the old edge, so the
+row must quarantine grammar-evidence and the explicit compatibility arm,
+retire only caller-zero helpers, and never invent a production switch. A
+top-level no-else source receipt must receive an explicit typed representation
+before helper retirement; mapping it to `Else` is forbidden.

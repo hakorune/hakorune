@@ -268,6 +268,18 @@ and source-record identity; traverses inactive branches for coverage; and never
 re-evaluates a predicate. The public explain wrapper uses the same postpass
 coordinator. No language surface or member-level gate rule changes here.
 
+Structural statement-level gates inside method/function bodies are covered by
+the same decision rows but are not top-level source-ledger entries. They carry
+no top-level source identity and therefore produce no source selection receipt;
+only `TopLevelItem` observations can produce resolver-grade receipts. This
+scope correction keeps AST decision coverage separate from source authority and
+is covered by the 12-case BuildCfg regression gate.
+
+The broad postpass FINAL row is a caller-zero retirement proof. Grammar
+evidence remains a separate demand, and the explicit AST-only compatibility arm
+is not a fallback. A top-level no-else source gate still needs an explicit
+typed receipt decision; it must never be silently represented as `Else`.
+
 ## Explain Report
 
 Build conditional pruning should expose a compact report:

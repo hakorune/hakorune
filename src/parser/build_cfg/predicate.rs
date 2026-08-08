@@ -41,17 +41,21 @@ impl NyashParser {
         let gate_id = self.issue_source_build_gate_id()?;
         self.consume_build_gate_head()?;
         let predicate = self.parse_build_predicate()?;
+        let source_gate_scope = self.source_build_gate_scope();
         let gate_path =
             crate::parser::source_path::SourceBuildGatePathV1::from_box_path(&parent_path)
                 .ok_or_else(|| ParseError::BuildCfg {
                     message: "build-gate source path cannot be converted to a gate path".to_owned(),
                     line,
                 })?;
+        let source_gate_id =
+            (source_gate_scope == SourceBuildGateScopeV1::TopLevelItem).then_some(gate_id);
+        let source_gate_path = source_gate_id.is_some().then(|| gate_path.clone());
         self.issue_build_gate_observation(
             predicate.clone(),
             Span::new(0, 0, line, 1),
-            Some(gate_id),
-            Some(gate_path.clone()),
+            source_gate_id,
+            source_gate_path,
         )?;
         self.register_source_build_gate(
             gate_id,

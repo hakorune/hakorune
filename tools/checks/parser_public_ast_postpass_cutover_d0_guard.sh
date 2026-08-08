@@ -76,6 +76,7 @@ if not any(
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-C-S0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-C-PROJECTION-D0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-C-PROJECTION-I0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-FINAL-D0"',
     )
 ):
     raise SystemExit("CURRENT_STATE must point to the cutover design/S0/I0-A/I0-B boundary")

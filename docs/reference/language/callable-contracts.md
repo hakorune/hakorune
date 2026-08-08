@@ -286,6 +286,13 @@ ledger is top-level scoped, a shared private full BuildGate decision set must
 feed prune, explain projection, and top-level ordinary source-path rebase.
 Explain cutover remains parked until that decision-set parity is proven.
 
+The shared projection keeps this scope distinction explicit: a structural
+BuildGate inside a method/function body is decision-covered but is not a
+top-level source-ledger entry, so it emits no resolver-grade source receipt.
+Only top-level-scoped observations may produce selection receipts. The
+post-closeout BuildCfg regression gate is green; member-level gate semantics
+and grammar-evidence remain separate contracts.
+
 S0 implementation receipt (2026-08-09): the parser now has a private total
 postpass envelope and one explicit coordinator. Ordinary rows retain the sole
 non-Clone source seal; interface/static/record/mixed/no-Box rows are typed

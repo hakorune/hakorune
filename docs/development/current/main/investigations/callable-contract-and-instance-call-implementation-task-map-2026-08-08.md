@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0/D-I0/PARSER-PUBLIC-AST-POSTPASS-I0-A/PARSER-PUBLIC-AST-POSTPASS-I0-B closed; broad AST postpass I0-C remains parked
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0/D-I0/PARSER-PUBLIC-AST-POSTPASS-I0-A/PARSER-PUBLIC-AST-POSTPASS-I0-B/PARSER-PUBLIC-AST-POSTPASS-I0-C projection closed; FINAL is a retirement-proof design stop, not an invented production switch
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -347,7 +347,7 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection
   no ExactTrivial*Abi/MirType reverse inference
 
-PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A/I0-B closed; I0-C parked)
+PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A/I0-B/I0-C projection closed; FINAL design stop)
   one total typed postpass owner for `parse`, fuel/build-config parsing,
   metadata, and explain-report projections. The private result carries AST,
   metadata, optional explain, and typed per-Box coverage:
@@ -369,7 +369,9 @@ PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A/I0-B closed; I0-C parked)
     PARSER-PUBLIC-AST-POSTPASS-I0-C
       full BuildGate decision set and explain parity
     PARSER-PUBLIC-AST-POSTPASS-FINAL
-      old whole-root delegate caller-zero and compatibility quarantine
+      direct old-broad caller census and retirement proof; keep grammar
+      evidence separate, keep the explicit compatibility arm, and delete
+      only caller-zero helpers
 
   Task:
   `docs/development/current/main/investigations/parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`
@@ -400,7 +402,12 @@ PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A/I0-B closed; I0-C parked)
   retained paths, and the v0 explain report from the shared decision set. The
   public explain entry uses the same postpass coordinator; no old evaluator or
   generic prune path remains on the shared postpass edge. The next decision is
-  the separately bounded `PARSER-PUBLIC-AST-POSTPASS-FINAL` cutover design.
+  the separately bounded `PARSER-PUBLIC-AST-POSTPASS-FINAL` retirement-proof
+  design. The post-closeout body-gate correction limits source-ledger identity
+  to top-level scope, so statement-level gates remain structural decision rows
+  without requiring a top-level receipt. The BuildCfg 12-case gate is green
+  again. FINAL must decide the typed representation of top-level no-else
+  source receipts before deleting caller-zero helpers.
 
 PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0 (parked baseline debt)
   The existing nested selected-else source-path fixture fails on parent

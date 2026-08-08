@@ -168,6 +168,50 @@ rich product
 The projection may keep cloneable diagnostic metadata, but it must not rescan
 source, call a second parser, or promote `ParserMetadata` to source authority.
 
+## `PARSER-PUBLIC-AST-POSTPASS-FINAL` audit (2026-08-09)
+
+The broad public AST routes are now all on the shared postpass owner:
+
+```text
+parse / string / build-config / metadata / explain
+  -> one parser invocation
+  -> one decision set
+  -> one projection/envelope
+```
+
+The following routes are intentionally separate contracts and are not to be
+collapsed into a single "old path" retirement:
+
+```text
+parse_from_string_with_source_seal
+  = crate-private resolver/source-authority handoff; keep
+
+parse_grammar_evidence_from_string_with_build_config
+  = grammar-evidence demand used by runner/emit.rs; quarantine until its own
+    typed projection exists
+
+postpass_compatibility::lower
+  = explicit AST-only compatibility arm; it is not rich-then-legacy fallback
+```
+
+The old broad production caller census is zero. The FINAL row therefore
+proves caller-zero retirement and compatibility quarantine rather than
+inventing a production switch. The shared projection walker remains; only
+the caller-zero `source_gate_prune.rs` and old explain helper are retirement
+candidates. The legacy selector in `build_cfg/prune.rs` remains owned by the
+grammar-evidence demand until that demand is redesigned.
+
+Structural BuildGates inside method/function bodies do not belong to the
+top-level source ledger. Their decision rows remain fully covered by the
+shared projection, but only rows emitted while `TopLevelItem` scope is open
+produce source selection receipts. This keeps AST decision coverage and
+resolver-grade source identity separate.
+
+Before deleting caller-zero helpers, FINAL must decide how a top-level
+no-else source gate is represented by the receipt branch type. The preferred
+decision is an explicit `NoElse` receipt branch while path segments remain
+Then/Else-only; mapping `NoElse` to `Else` is forbidden.
+
 ## Finalizer completeness
 
 The finalizer issues `ParserBoxSourceSealV1` exactly once and requires:
