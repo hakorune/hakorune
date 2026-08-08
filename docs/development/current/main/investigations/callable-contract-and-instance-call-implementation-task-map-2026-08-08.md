@@ -696,6 +696,11 @@ Rejected > Unresolved > Declined > Candidate
      physical classifier;
    - Query syntax may be carried but is not issued as behavior here;
    - no Home ABI, physical ABI, target, Recipe, or body conformance.
+   - implementation task:
+     `docs/development/current/main/investigations/resolver-instance-declaration-signature-i0-implementation-task-2026-08-09.md`
+   - status: active fast row after the accepted declaration/signature D0;
+     close only with the focused negative matrix and same-slice reference
+     receipts.
 13. `OWN-HOME-CALLABLE-ABI-D0` -> `OWN-HOME-RELATION0-S0` ->
    `OWN-HOME-ABI0-S0/query`
    - existing Home taskboard remains the sole owner;
