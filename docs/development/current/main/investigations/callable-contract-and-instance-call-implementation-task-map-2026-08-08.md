@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1 closed, R6-S2 next
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a closed, R6-S2 next
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -123,8 +123,8 @@ Rejected > Unresolved > Declined > Candidate
      sources remain below 800 lines;
    - no parser connection, build-gate, delegate postpass, scanner, resolver,
      semantic publication, or compatibility projection.
-7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0/S1` — R6-D0 accepted; S0 and
-   S1 closed; S2 next
+7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0/S1/S2A` — R6-D0 accepted; S0,
+   S1, and S2a closed; S2 next
    - give explicit methods an exact branded source site independent of the
      all-row inventory ordinal;
    - generated property/delegate rows retain generated origin only and never
@@ -144,8 +144,11 @@ Rejected > Unresolved > Declined > Candidate
    - S0 closed with the descriptive `BoxMethodInventoryOrdinalV1` rename and
      preserved JSON wire spelling; S1 closed with parser-private
      brand/source-site/transaction/prepared-seal types and a non-Clone final
-     seal type with no constructor; S2 now owns the ordinary producer cutover
-     and sidecar retirement.
+     seal type with no constructor; S2a closed with parser-session ingress:
+     one invocation brand and exact top-level statement cursor. S2 now owns
+     the ordinary direct/property/member-gate producer cutover and method
+     sidecar retirement; delegate ordinal retirement remains an explicit S3
+     nonclaim because the delegate postpass is still AST-only.
 
 8. `HAKO-PARSER-BOX-DECLARATION-CARRIER-H2/H3`
    - issue the same ordered inventory and non-Clone parser seal while

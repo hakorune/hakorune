@@ -306,6 +306,8 @@ The bounded implementation series is:
 ```text
 R6-S0  rename/clarify inventory ordinal vocabulary; preserve JSON wire spelling
 R6-S1  parser-private brand, source sites, transaction, prepared/final seal
+R6-S2a parser-session ingress: one invocation brand and exact top-level
+       statement cursor; no producer or sidecar cutover yet
 R6-S2  ordinary Box direct/property/gate/delegate producer cutover;
        delete sidecar/raw ordinal/parallel merge APIs
 R6-S3  canonical rich parse output across prune + delegate postpass;
@@ -347,6 +349,20 @@ delegate lowering, resolver, JSON, or sidecar retirement. The focused
 transaction ownership, no early final-seal constructor, parser
 non-connection, and the below-800-line boundary.
 
+### R6-S2a implementation receipt
+
+`NyashParser` now owns one fresh `ParserInvocationBrandV1`, a monotonic
+top-level statement cursor, and the active top-level statement ordinal. The
+cursor is assigned once before each top-level statement parse and cleared after
+successful parsing. Focused parser-session tests prove fresh invocation brands,
+two-statement cursor advancement, and inactive state after completion.
+
+This is ingress only: no Box producer opens the source transaction yet, no
+build-gated branch is treated as an ordinary Box source site, no sidecar is
+retired, and no rich parse product, final seal, delegate postpass, or resolver
+connection is introduced. The `frontend_parsed_box_source_seal_r6_s2a_guard.sh`
+owns this boundary.
+
 ## Ordered implementation series
 
 ```text
@@ -365,8 +381,8 @@ Rust BoxShape series:
       after prune and delegate postpass
   R6-S0 closed: inventory ordinal vocabulary clarified; JSON wire spelling
       preserved
-  R6-S1/S2/S3 parser-private transaction, producer cutover, final rich parse
-      output, and sidecar retirement
+  R6-S1/S2a/S2/S3 parser-private transaction, parser-session ingress,
+      producer cutover, final rich parse output, and sidecar retirement
 
 Hako prerequisite and parity:
   H0 HAKO-PARSER-BOX-DECLARATION-CARRIER-D0
@@ -384,9 +400,11 @@ Then:
 ```
 
 Historical execution note: R0/R0A and R1-R5 are closed. H1's disconnected
-carrier substrate, R6-S0 vocabulary slice, and R6-S1 parser-private source
-authority substrate are closed. The current frontier is R6-S2: ordinary
-producer cutover and sidecar retirement. R6
+carrier substrate, R6-S0 vocabulary slice, R6-S1 parser-private source
+authority substrate, and R6-S2a parser-session ingress are closed. The current
+frontier is R6-S2: ordinary direct/property/member-gate producer cutover and
+method-sidecar retirement. Delegate AST-only postpass transport and raw
+DelegateDecl ordinal retirement remain explicit R6-S3 boundaries. R6
 must close its canonical rich parse-output and delegate-postpass boundary
 before H2-H6, H5 parity, or any resolver declaration row. No caller-zero model
 may become a second AST or production route.

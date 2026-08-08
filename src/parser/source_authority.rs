@@ -94,8 +94,11 @@ impl SourceBoxMethodSiteV1 {
         &self,
         brand: &ParserInvocationBrandV1,
         box_site: &SourceBoxDeclarationSiteV1,
+        expected_member_ordinal: u32,
     ) -> bool {
-        self.member().box_site() == box_site && box_site.brand_matches(brand)
+        self.member().box_site() == box_site
+            && box_site.brand_matches(brand)
+            && self.member().member_ordinal() == expected_member_ordinal
     }
 }
 
@@ -123,6 +126,7 @@ impl ExplicitMethodSourceRelationV1 {
 #[derive(Debug, Clone, PartialEq)]
 pub(super) enum SourceAuthorityErrorV1 {
     ForeignBoxSite,
+    StaleMemberSite,
     MemberOrdinalOverflow,
     Inventory(BoxMethodInventoryErrorV1),
 }
@@ -177,7 +181,12 @@ impl OpenBoxMethodSourceTransactionV1 {
         declaration: ASTNode,
         diagnostic_span: Span,
     ) -> Result<BoxMethodInventoryOrdinalV1, SourceAuthorityErrorV1> {
-        if !source_site.validate_for(&self.brand, &self.box_site) {
+        if !source_site.validate_for(&self.brand, &self.box_site, self.next_member_ordinal) {
+            if source_site.member().box_site() == &self.box_site
+                && source_site.member().member_ordinal() != self.next_member_ordinal
+            {
+                return Err(SourceAuthorityErrorV1::StaleMemberSite);
+            }
             return Err(SourceAuthorityErrorV1::ForeignBoxSite);
         }
         let name = name.into();
@@ -329,14 +338,41 @@ mod tests {
         transaction
             .commit_explicit_method(site.clone(), "length", function("length"), Span::unknown())
             .unwrap();
+        transaction.finish_member().unwrap();
+        let duplicate_site = SourceBoxMethodSiteV1::Direct {
+            member: transaction.current_member_site(),
+        };
 
         let error = transaction
-            .commit_explicit_method(site, "length", function("length"), Span::unknown())
+            .commit_explicit_method(
+                duplicate_site,
+                "length",
+                function("length"),
+                Span::unknown(),
+            )
             .unwrap_err();
         assert!(matches!(
             error,
             SourceAuthorityErrorV1::Inventory(BoxMethodInventoryErrorV1::DuplicateMethod { .. })
         ));
         assert_eq!(transaction.inventory().len(), 1);
+    }
+
+    #[test]
+    fn stale_same_box_member_site_is_rejected_before_inventory_mutation() {
+        let brand = ParserInvocationBrandV1::issue();
+        let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 3);
+        let stale_site = SourceBoxMethodSiteV1::Direct {
+            member: transaction.current_member_site(),
+        };
+        transaction.finish_member().unwrap();
+
+        assert_eq!(
+            transaction
+                .commit_explicit_method(stale_site, "length", function("length"), Span::unknown())
+                .unwrap_err(),
+            SourceAuthorityErrorV1::StaleMemberSite
+        );
+        assert!(transaction.inventory().is_empty());
     }
 }

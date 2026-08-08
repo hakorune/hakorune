@@ -38,6 +38,7 @@ required = (
     "BoxMethodInventoryErrorV1",
     "try_push_explicit_source",
     "finish(self) -> PreparedBoxSourceSealV1",
+    "StaleMemberSite",
 )
 for needle in required:
     if needle not in source:

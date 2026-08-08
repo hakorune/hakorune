@@ -37,6 +37,8 @@ mod lifecycle;
 pub(crate) mod log;
 mod runes;
 mod source_authority;
+#[cfg(test)]
+mod source_session_tests;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
 mod statements; // Now uses modular structure in statements/
 pub mod sugar; // Phase 12.7-B: desugar pass (basic)
@@ -115,6 +117,13 @@ pub use hakorune_frontend_parser::parser::ParseError;
 pub struct NyashParser {
     pub(super) tokens: Vec<Token>,
     pub(super) current: usize,
+    /// Fresh identity for one parser invocation. Source authority products
+    /// must never be reconstructed from token positions or AST names.
+    pub(super) source_invocation_brand: source_authority::ParserInvocationBrandV1,
+    /// Top-level source statement cursor used to issue exact Box declaration
+    /// sites. It is parser-session state only; no seal is issued here.
+    pub(super) next_source_statement_ordinal: u32,
+    pub(super) active_source_statement_ordinal: Option<u32>,
     /// 🔥 Static box依存関係追跡（循環依存検出用）
     pub(super) static_box_dependencies:
         std::collections::HashMap<String, std::collections::HashSet<String>>,
@@ -140,6 +149,9 @@ impl NyashParser {
         Self {
             tokens,
             current: 0,
+            source_invocation_brand: source_authority::ParserInvocationBrandV1::issue(),
+            next_source_statement_ordinal: 0,
+            active_source_statement_ordinal: None,
             static_box_dependencies: std::collections::HashMap::new(),
             debug_fuel: Some(100_000), // デフォルト値
             pending_runes: Vec::new(),
@@ -154,6 +166,14 @@ impl NyashParser {
     pub fn with_build_config(mut self, build_config: ParserBuildConfig) -> Self {
         self.build_config = build_config;
         self
+    }
+
+    pub(super) fn source_invocation_brand(&self) -> source_authority::ParserInvocationBrandV1 {
+        self.source_invocation_brand.clone()
+    }
+
+    pub(super) fn active_source_statement_ordinal(&self) -> Option<u32> {
+        self.active_source_statement_ordinal
     }
 
     pub(super) fn register_enum_declaration(&mut self, name: &str, variants: &[EnumVariantDecl]) {
@@ -334,7 +354,6 @@ impl NyashParser {
     /// プログラム全体をパース
     fn parse_program(&mut self) -> Result<ASTNode, ParseError> {
         let mut statements = Vec::new();
-        let mut _statement_count = 0;
 
         let allow_sc = crate::parser::env::parser_allow_semicolon_raw();
 
@@ -358,14 +377,23 @@ impl NyashParser {
                 continue;
             }
 
+            let statement_ordinal = self.next_source_statement_ordinal;
+            self.next_source_statement_ordinal = self
+                .next_source_statement_ordinal
+                .checked_add(1)
+                .ok_or(ParseError::BuildCfg {
+                    message: "parser source statement ordinal exceeds u32".to_owned(),
+                    line: self.current_token().line,
+                })?;
+            self.active_source_statement_ordinal = Some(statement_ordinal);
             let mut statement = if self.is_build_gate_head() {
                 self.parse_build_gate_item()?
             } else {
                 self.parse_statement()?
             };
+            self.active_source_statement_ordinal = None;
             self.attach_pending_runes_to_declaration(&mut statement)?;
             statements.push(statement);
-            _statement_count += 1;
         }
 
         self.ensure_no_pending_runes("end of file")?;

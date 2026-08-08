@@ -1,5 +1,5 @@
 ---
-Status: H1 closed; Rust R6-D0/R6-S0/R6-S1 closed; R6-S2 is next
+Status: H1 closed; Rust R6-D0/R6-S0/R6-S1/R6-S2a closed; R6-S2 is next
 Date: 2026-08-08
 Decision: reuse the parser-private source-carrier lifecycle; separate exact
 source sites from selected inventory placement; issue one non-Clone parser
