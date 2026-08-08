@@ -45,41 +45,81 @@ is not a Loop Recipe kind. M7 and M8 therefore close adapter coverage into
 this one algebra. They must not grow a parallel enum of completed source
 patterns.
 
-## Post-G0 I1 top-down audit decision (2026-08-08)
+## M8 S6A variable-accum recurrence design (2026-08-08)
 
-Decision: accepted — the next bounded row is
-`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`.
-
-This is a design-only source-to-Facts-to-Recipe mapping prerequisite. The
-first M8 cohort must freeze one natural variable-update recurrence source
-shape, its exact resolver-owned owner/site/frame evidence, neutral structural
-Facts, typed `Candidate|Declined|Unresolved|Rejected` disposition, and the
-existing `LoopRecipeV1`/`VerifiedLoopCoreProductV1` output before
-implementation opens. The audited natural fixture
-`apps/tests/loop_simple_while_inline_explicit_step_min.hako` is a negative
-boundary for the current owners: `LoopSimpleWhileFacts` declines its
-non-step-only body and `DirectAccumFacts` declines its non-constant accumulator
-update. Its `LoopSimpleWhile` label is migration evidence only; no route-name
-alias or DirectAccum reuse is authority.
-
-The all-19 labels remain compatibility ingress identities. M8 S6A must not add
-a Recipe kind, a second selector, a route-local physicalizer, an AST-bearing
-transport, or a Builder/MIR owner. If exact neutral membership cannot be
-proved, the outcome is typed `Unresolved`/`NoSafeSlice`. M9 `.hako` parity,
-production selection, M10b cutover, retry/fallback retirement, and M11/M12
-legacy deletion remain closed until M8 S6G and the separate production design.
-The task receipt is
-`docs/development/current/main/investigations/joinir-loop-m8-loopv0-recurrence-s6a-d0-task-2026-08-08.md`.
+Decision: accepted after external and independent worker review.
 
 The audited S6A target is one resolver-owned `Main.main` loop with
-`acc = acc + i` and `i = i + 1`. It is not admitted by the current
-`LoopSimpleWhileFacts`, `DirectAccumFacts`, or Generic G0 owners. The design
-target is nevertheless expressible by the existing neutral algebra as one
-predicate loop with two bindings and eleven operations; a new observer/Facts
-contract must prove its exact source/frame/site and eight source/effect anchors
-(two carrier entries plus six reads/writes) before a producer can issue the
-existing Recipe/Core products. The fixture and planner label remain negative
-classification evidence until then.
+`acc = acc + i` and `i = i + 1`. It is not admitted by current
+`LoopSimpleWhileFacts`, `DirectAccumFacts`, or Generic G0; the fixture's
+`LoopSimpleWhile` label is migration evidence only. S6A adds a new semantic
+source observer and provenance-only producer, not a Recipe kind or route
+alias.
+
+The authority chain is:
+
+```text
+resolver ledger + non-Clone Loop source capability
+  -> private source observations
+  -> one atomic VerifiedVariableAccumRecurrenceFactsV1
+  -> one typed C/D/U/R observation
+  -> deterministic VariableAccumRecurrenceV1 producer
+  -> existing LoopRecipeV1 verifier
+  -> existing JoinSig elaborator
+  -> existing source-bound Core co-seal
+  -> existing full operation/effect product
+```
+
+Condition, accumulator update, induction step, inputs, and coverage may be
+private DTOs. They are not independently verified products. The atomic Facts
+aggregate owns one context, exact `BindingRef` roles, two initializer inputs,
+eleven source operation roles, and total body coverage. Recipe keys are minted
+only by the producer.
+
+The canonical golden has two bindings, two external inputs, two carriers,
+eleven operations, and no in-loop exits. Its condition item order is
+`ConstI64 -> ReadBinding -> CompareI64`, matching existing normalized Recipe
+producers. The accumulator body uses `Read(acc) -> Read(i) -> Add -> Write(acc)`;
+the step uses `Read(i) -> Const(1) -> Add -> Write(i)`.
+
+One source-role map is projected into four relation families, sealed by the
+initialized-local input set, Core, and operation/effect owners:
+
+```text
+input-source relations          = 2
+Recipe binding relations        = 2
+Core binding-effect relations   = 8
+item-source operation relations = 11
+```
+
+The eight Core relations are two `DerivedCarrierEntry`, four reads, and two
+writes. Source read/write ordinals are per `(Recipe binding, access kind)`;
+semantic roles plus exact owned sites are authority, while ordinals are only
+canonical transport/diagnostic order. The eleven item relations include the
+five pure Const/Compare/Add operations that are not Core binding effects.
+
+Initializers are outside Loop operations but must be co-sealed as two external
+input relations. `print(acc)` and `return 0` remain outside Loop membership as
+an unclaimed callable tail. `NoSafeSlice` is a development state, never a
+fifth source disposition.
+
+Before S6A implementation, `LOOP-INPUT-SOURCE-RELATION-SET-R0` moves the
+existing callable-only singular initialized-local input relation into the
+common Recipe contract and seals an exact move-only initialized-local set.
+Callable retains cardinality one; S6A uses cardinality two. Generic parameter
+entries remain a separate contract. This BoxShape row changes no accepted
+source shape. Its task and the blocked S6A implementation task are:
+
+```text
+docs/development/current/main/investigations/loop-input-source-relation-set-r0-task-2026-08-08.md
+docs/development/current/main/investigations/joinir-loop-m8-loopv0-recurrence-s6a-implementation-task-2026-08-08.md
+```
+
+The all-19 labels remain compatibility ingress identities. Neither R0 nor S6A
+may add a second selector, route-local physicalizer, AST-bearing Facts
+transport, Builder/MIR owner, retry, or fallback. S6A emits a typed observation
+but does not widen the complete family window; S6G owns all-family selection
+coverage. M9 parity, M10b cutover, and M11/M12 deletion remain closed.
 
 ## SSOT role disambiguation
 

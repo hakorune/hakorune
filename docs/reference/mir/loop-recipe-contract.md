@@ -982,31 +982,46 @@ the parity receipt.
 
 This is a caller-zero physical canary only. It does not claim M8/M9 coverage,
 production selection, M10b/M11/M12 cutover, retry/fallback deletion, module
-publication policy, backend parity, or broad legacy retirement. The next row
-is the design-only
-`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`; no M8/M9 implementation opens
-before its exact source-to-Facts-to-Recipe mapping is fixed. The reference
-must be updated again after that implementation and after production cutover.
+publication policy, backend parity, or broad legacy retirement. The S6A design
+is now accepted, but its common initialized-local input-set prerequisite and
+source observer are not implemented. Generic parameter inputs remain a
+separate contract. This reference must be updated after each implementation
+and again after production cutover.
 
-## M8 S6A design-only decision (2026-08-08)
+## M8 S6A design decision (2026-08-08)
 
-The post-G0 I1 audit remains a shallow design decision:
-`JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` is the next row, but its source
-cohort is not yet sealed. The inspected
+Decision: accepted; implementation is blocked on
+`LOOP-INPUT-SOURCE-RELATION-SET-R0`.
+
+The inspected
 `apps/tests/loop_simple_while_inline_explicit_step_min.hako` fixture has
 `acc = acc + i` followed by `i = i + 1`; current `LoopSimpleWhileFacts` and
 `DirectAccumFacts` both Decline it, and it is not Generic G0. Its fast-gate
-`LoopSimpleWhile` label is migration evidence only. S6A must instead freeze a
-resolver-owned observer/Facts contract for this variable-update recurrence and
-the existing neutral `LoopRecipeV1`/`VerifiedLoopCoreProductV1` golden: two
-bindings and eleven operations. No route relabel or DirectAccum reuse is
-allowed.
+`LoopSimpleWhile` label is migration evidence only. The accepted S6A boundary
+uses private input/condition/update/step/coverage observations and exposes one
+move-only atomic `VerifiedVariableAccumRecurrenceFactsV1`. Its deterministic
+provenance-only producer maps into the existing algebra with:
 
-No S6A producer is claimed by this design receipt. No new Recipe kind,
-selector, physicalizer, Builder/MIR owner, M9 parity, production selection,
-retry/fallback retirement, or legacy deletion is open. Until the observer and
-mapping are proven, the typed result is `Declined` for the current owners or
-`Unresolved`/`NoSafeSlice` for the new cohort. After the S6A implementation
-lands, this reference and the module README must be updated in that same
-implementation commit; a final reference update is required again at
-production cutover.
+```text
+external input-source relations = 2
+Recipe binding relations        = 2
+Core binding-effect relations   = 8
+item-source relations           = 11
+carriers                        = 2
+in-loop exits                   = 0
+```
+
+The condition normalizes as `Const -> Read -> Compare`; accumulator and step
+normalize as `Read -> Read/Const -> Add -> Write`. Initializers remain external
+input relations, while `print(acc)` and `return 0` remain an unclaimed callable
+tail. `NoSafeSlice` is a development state, not a fifth source disposition.
+
+R0 first replaces callable's singular initialized-local input relation with
+one common move-only exact-coverage initialized-local set without changing
+accepted source shapes. After R0, S6A may
+add the resolver-backed observer and provenance-only
+`VariableAccumRecurrenceV1` producer. No route relabel, DirectAccum widening,
+new Recipe kind, selector, physicalizer, Builder/MIR owner, M9 parity,
+production selection, retry/fallback retirement, or legacy deletion is open.
+The R0 and S6A implementation commits must each update this reference and the
+module README; M10b cutover requires a final reference update.

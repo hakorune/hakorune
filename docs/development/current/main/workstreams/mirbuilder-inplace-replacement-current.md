@@ -522,36 +522,31 @@ closed: LOOP-CALLER-ZERO-PARITY-G0-I0-R0
 accepted historical correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
   LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1, LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2,
   LOOP-COMMON-RECURSIVE-AFTER-R3-I0, LOOP-COMMON-PREDICATE-CARRIER-I0-R0, and LOOP-CALLER-ZERO-PARITY-G0-I1-R0.
-  Worker-reviewed G0 I1 is implemented; current execution is the design-only JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0 mapping row.
+  Worker-reviewed G0 I1 is implemented. External and independent worker review
+  accepted the S6A variable-accum recurrence design. Current execution is the
+  behavior-preserving LOOP-INPUT-SOURCE-RELATION-SET-R0 prerequisite.
 Change:
-  correct R3 before implementation: R2 is only an adapter over old
-  Header/Body/Step/After blocks; R3 must own exact segment allocation and
-  neutral recursive transfer closure without a synthetic Step.
+  move the callable-only singular input relation into
+  loop_recipe_contract/input_source.rs as one move-only
+  VerifiedLoopInitializedLocalInputSourceSetV1, retain declaration/
+  initializer/BindingRef/Recipe value/class, and delete the local type.
 Contract:
-  Recipe/JoinSig and R1 layout remain the logical authorities. R3 must retain
-  explicit entry_segment, allocate one block per R1 segment plus root After,
-  retain layout/segment receipt/completed operations, preflight every R1
-  transfer, and use only the existing CFG/identity/PhiTxn owners.
+  Core remains the Recipe/JoinSig/binding/effect authority. The input set is a
+  sibling initialized-local source contract; Generic parameter inputs remain
+  separate. Callable cardinality stays exactly one, every consumer uses the
+  complete set, and no consumer reconstructs a declaration or extracts a
+  first row. Execution brief:
+  docs/development/current/main/investigations/loop-input-source-relation-set-r0-task-2026-08-08.md
 Done:
-  P0 caller-zero physical canary, G0 I0 exact Builder-free ingress, R1 layout,
-  and R3-I0 Callable recursive After are closed. R1 derives the complete
-  Callable/G0 operation order from
-  verified recursive Recipe traversal and records G0's five segments:
-  root condition, root pre-child, child condition, child body, root resume.
-  Focused layout tests are green and the source module remains below 800 lines.
-  R2 issues an owner-branded adapter receipt and routes the selected Callable
-  canary through exact segment placement, proving seven-row parity plus
-  missing/foreign/duplicate negatives. R3-I0 then allocates one block per R1
-  segment plus root After (no Step), retains the completed segment program,
-  preflights and emits every entry/transfer once through canonical
-  CFG/identity/PhiTxn, and reaches the existing Tail/Completion/DraftSeal path.
-  Common I0 removes the single-condition assumption and emits item-3
-  DerivedCarrierEntry through canonical identity; Callable profile counts stay
-  outer-owned. G0 I1 then proves canonical receiver/parameter identity, five segment blocks plus a distinct root After, all fifteen operations, carrier/predicate separation, exact I64 Tail, DraftSeal finish, late discard, and shape-neutral fresh-session replay; focused tests are green and touched source
-  stays below 800 lines.
+  focused common-set and callable ingress/operation/physical tests cover exact
+  cardinality one plus missing/duplicate/foreign/mismatch rejection; existing
+  callable receipts stay equal; touched source/check files stay below 800
+  lines. The implementation commit updates the Recipe README and reference
+  receipt. S6A then consumes the same set at cardinality two.
 Stop:
-  Do not perform M8/M9 implementation, production selection, switch a production caller, or delete broad legacy from this receipt. The next row is the design-only G0 post-I1 top-down audit. Every row updates the exact reference and README;
-  final reference update is required after cutover.
+  do not admit the recurrence shape, add S6A provenance, change Core, widen the
+  family selector, emit Builder/MIR effects, or open M9/production/cutover.
+  Any need for a second input authority or partial-row API returns to design.
 ```
 ## Production invariants
 ```text

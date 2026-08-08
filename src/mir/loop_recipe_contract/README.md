@@ -49,20 +49,23 @@ Loop lowering.
   non-`Clone` validation capability. Its wire DTO remains intentionally
   `Clone`; neither type is source authority.
 
-## Current M8 design stop
+## Current M8 boundary
 
-G0 I1 is a closed caller-zero physical canary. The next row is the revised
-design-only `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0` mapping from one exact
-resolver-owned variable-update recurrence source shape through neutral Facts
-to the existing Recipe/Core products. The audited natural
-`loop_simple_while_inline_explicit_step_min.hako` fixture is Declined by the
-current SimpleWhile and DirectAccum Facts owners (`acc = acc + i` is neither
-step-only nor constant-update); it is a negative boundary, not a producer
-fixture. Legacy `LoopRouteId` labels remain migration evidence and are not
-Recipe kinds. No S6A producer, Builder/MIR, selector, physicalizer, M9 parity,
-production route, retry/fallback, or legacy deletion is open. The
-implementation commit must update this README and `docs/reference/**`
-together.
+G0 I1 is a closed caller-zero physical canary. The S6A variable-accum design is
+accepted: one atomic AST-free Facts product will project two external inputs,
+two Recipe bindings, eight Core binding effects, and eleven item-source rows
+into the existing Recipe/JoinSig/Core owners. The selected next row is the
+behavior-preserving `LOOP-INPUT-SOURCE-RELATION-SET-R0`, which moves callable's
+singular initialized-local input relation into one common exact-coverage
+initialized-local set; callable remains at cardinality one, Generic parameter
+inputs stay separate, and S6A remains unimplemented until R0 lands.
+
+The audited `loop_simple_while_inline_explicit_step_min.hako` fixture remains
+Declined by the existing SimpleWhile, DirectAccum, and Generic G0 observers.
+No route relabel, DirectAccum widening, new Recipe kind, selector/physicalizer,
+Builder/MIR effect, M9 parity, production route, retry/fallback, or legacy
+deletion is open. Each implementation commit must update this README and the
+matching `docs/reference/**` receipt; M10b cutover requires a final update.
 
 ## Generic G0 S4 producer
 

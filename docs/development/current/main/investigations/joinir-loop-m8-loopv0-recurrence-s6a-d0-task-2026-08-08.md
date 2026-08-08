@@ -1,16 +1,17 @@
-# JOINIR Loop M8 LoopV0 recurrence S6A — design-only task
+# JOINIR Loop M8 LoopV0 recurrence S6A — accepted design decision
 
-Status: `revised design-only row — source cohort not yet sealed`
+Status: `accepted design; implementation blocked on LOOP-INPUT-SOURCE-RELATION-SET-R0`
 Date: 2026-08-08
 Parent: `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`
-Current execution row: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`
+Decision row: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`
+Selected next row: `LOOP-INPUT-SOURCE-RELATION-SET-R0`
 
 ## Decision
 
-The next bounded prerequisite is one shallow source-to-Facts-to-Recipe mapping
-for the M8 LoopV0 recurrence cohort. This is a design row only. Do not open
-M8 implementation, M9 `.hako` parity, production selection, M10b cutover, or
-legacy deletion from this card.
+This decision fixes one shallow source-to-Facts-to-Recipe mapping for the M8
+LoopV0 recurrence cohort. Implementation opens only through the selected R0
+prerequisite and the bounded S6A execution brief. Do not open M9 `.hako`
+parity, production selection, M10b cutover, or legacy deletion from this card.
 
 ### Audit correction (2026-08-08)
 
@@ -35,8 +36,9 @@ Generic G0:
 The fixture name and the `LoopSimpleWhile` fast-gate label are classification
 evidence only. The shape is a real single-loop recurrence, but its resolver
 observer, neutral Facts contract, and Recipe producer mapping are not
-implemented yet. The S6A design remains open as `NoSafeSlice`; no route
-relabel, DirectAccum reuse, or new Recipe kind is allowed.
+implemented yet. The S6A development row remains `NoSafeSlice` until
+implementation; the source has no S6A disposition before that observer exists.
+No route relabel, DirectAccum reuse, or new Recipe kind is allowed.
 
 The active authority is the portable Recipe pipeline:
 
@@ -54,11 +56,15 @@ portable producer receipts. `GenericLoopV0`/`GenericLoopV1` remain
 `legacy_only`, and Generic G0 is a separate portable producer. No route-name
 alias may be inferred during S6A.
 
-## Sole owner and authority
+## Owner and supporting authorities
 
-The sole design owner is the M8 source-to-portable-Recipe pipeline:
+The sole normative design owner is:
 
 - `docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md`
+
+The Generic task-order SSOT, public reference receipt, and module README are
+subordinate views; they must not redefine S6A:
+
 - `docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md`
 - `docs/reference/mir/loop-recipe-contract.md`
 - `src/mir/loop_recipe_contract/README.md`
@@ -72,12 +78,12 @@ There is no new selector, Recipe family, Builder owner, or physicalizer.
 
 Use one natural resolver-backed source cohort and its exact source-policy
 observation. The audited fixture
-`apps/tests/loop_simple_while_inline_explicit_step_min.hako` is retained as a
-negative boundary: its planner/fast-gate `LoopSimpleWhile` label is legacy
-provenance, not a canonical Facts result. The positive cohort must be the
-variable-update recurrence shape itself, with a new observer contract designed
-here; no existing DirectAccum whole-function capability may be widened to
-ingest this `Main.main` five-statement frame.
+`apps/tests/loop_simple_while_inline_explicit_step_min.hako` is the positive
+source target for the new S6A observer, while remaining a typed Decline for the
+existing SimpleWhile/DirectAccum/G0 observers. Its planner/fast-gate
+`LoopSimpleWhile` label is legacy provenance, not a canonical Facts result. No
+existing DirectAccum whole-function capability may be widened to ingest this
+`Main.main` five-statement frame.
 
 The mapping must record, for one function/frame/site:
 
@@ -91,8 +97,10 @@ JoinSig/Core obligations
 Candidate | Declined | Unresolved | Rejected disposition
 ```
 
-If the natural source cannot be proven to have one exact neutral mapping, the
-result is typed `Unresolved`/`NoSafeSlice`, not a new route label or producer.
+After the observer exists, missing source evidence is typed `Unresolved`. If no
+safe observer contract exists at all, the development row remains
+`NoSafeSlice`; that is not a source disposition and must not be placed inside
+the C/D/U/R enum.
 
 The audited fixture is specifically `Main.main` with five root statements
 (`local i`, `local acc`, the loop, `print`, `return`). Existing DirectAccum
@@ -101,7 +109,7 @@ its own two-statement prefix and does not admit `main`), in addition to
 rejecting the variable accumulator update. This is a source-owner boundary,
 not a reason to widen DirectAccum.
 
-## Frozen design target (not yet an implementation claim)
+## Frozen design target (Decision: accepted)
 
 The S6A observer contract is for exactly this one-loop source shape:
 
@@ -111,7 +119,19 @@ condition:      i < 4
 body:           acc = acc + i; i = i + 1
 carriers:       i, acc (two distinct local BindingRef values)
 outer tail:     print(acc); return 0 (outside the LoopRecipe cohort)
+
+i declaration:   Local { statement: Body(0), ordinal: 0 }
+acc declaration: Local { statement: Body(1), ordinal: 0 }
+i initializer:   Body(0) / Initializer(0)
+acc initializer: Body(1) / Initializer(0)
 ```
+
+The selected fixture uses literal zero initializers, but the recurrence family
+does not interpret those values. Admission proves each exact declaration,
+initializer site, `BindingRef`, and I64 class; initializer evaluation belongs
+to the outer callable Prelude. Missing or opaque input evidence is
+`Unresolved`, while the initializer value is not a Loop operation or a
+recurrence-family discriminator.
 
 The neutral Recipe/Core golden is schema-level and must be issued only after
 the new observer proves the source anchors:
@@ -119,41 +139,132 @@ the new observer proves the source anchors:
 ```text
 Recipe: one L0 Predicate(Less), no exits, two carrier entries
 inputs: V0=i-init, V1=acc-init
-items:  V0..V10 (11 operations)
-  condition: read(i), const(4), compare-less
+items:  I0..I10 (11 operations), values V0..V10
+  condition: const(4), read(i), compare-less
   accumulator: read(acc), read(i), add, write(acc)
   step: read(i), const(1), add, write(i)
-JoinSig: Header/Body/After payloads for i and acc, plus the backedge
-Core effects: 2 carrier-entry anchors + 6 exact read/write anchors
+JoinSig:
+  Preheader -> Header Enter(B0,B1)
+  Header -> Body PredicateTrue(B0,B1)
+  Header -> After PredicateFalse(B0,B1)
+  Body -> Header Backedge(updated B0,B1)
+input-source relations: 2
+binding relations: 2
+Core effects: 2 carrier-entry anchors + 6 exact read/write anchors = 8
+item-source relations: 11
 ```
 
+Canonical item/source-role assignment is exact:
+
+```text
+I0  ConstI64(bound)        -> V3   ConditionBound
+I1  ReadBinding(B0)        -> V2   ConditionInductionRead
+I2  CompareI64(Less,V2,V3) -> V4   ConditionCompare
+I3  ReadBinding(B1)        -> V5   AccumulatorRead
+I4  ReadBinding(B0)        -> V6   AccumulatorInductionRead
+I5  BinaryI64(Add,V5,V6)   -> V7   AccumulatorAdd
+I6  WriteBinding(B1,V7)            AccumulatorWrite
+I7  ReadBinding(B0)        -> V8   StepInductionRead
+I8  ConstI64(1)            -> V9   StepDelta
+I9  BinaryI64(Add,V8,V9)   -> V10  StepAdd
+I10 WriteBinding(B0,V10)           StepInductionWrite
+```
+
+Source anchors are uniform across producers: reads use the variable-reference
+expression, constants use the literal expression, Compare/Add use the whole
+binary expression, writes use the assignment target, carrier entries use the
+Loop statement plus carrier key, and inputs use the declaration plus
+initializer expression. Statement/expression sites are never inferred from a
+Recipe ordinal.
+
 This is representable by the existing `LoopRecipeV1` algebra but is not yet
-issued by any resolver-backed producer. Therefore the current design result is
-`NoSafeSlice`, not `Candidate`; the implementation row may open only after the
-observer/Facts/effect-anchor ownership is sealed.
+issued by any resolver-backed producer. `NoSafeSlice` is the current
+development state, not a fifth source disposition. The implementation row may
+open only after the common input-set R0 has landed.
 
 Typed disposition matrix:
 
 ```text
 Candidate:
-  only after the new observer proves the frozen shape and all anchors
+  the new observer proves the frozen shape and all anchors
 Declined:
-  current SimpleWhile/DirectAccum/G0 owners, exit-only, nested, calls,
-  unsupported operators, or a non-recurrence shape
+  the new observer fully sees an exit-only, nested, call-bearing,
+  unsupported-operator, or other non-family shape
 Unresolved:
   missing/opaque source, frame, BindingRef, carrier, or effect coverage
 Rejected:
   foreign owner/frame/site, duplicate evidence, or foreign binding/effect
 ```
 
+Independently, the selected fixture remains Declined by the existing
+SimpleWhile, DirectAccum, and Generic G0 observers. That fact is not a
+disposition issued by the not-yet-implemented S6A observer.
+
+## Accepted observer/Facts/Core boundary
+
+Private source observation may use small DTOs for the two inputs, condition,
+accumulator update, induction step, and exact coverage. Those partial DTOs are
+not independent verified products. Exactly one move-only aggregate crosses the
+neutral boundary:
+
+```text
+VerifiedVariableAccumRecurrenceFactsV1
+```
+
+It retains the resolver-issued non-Clone Loop source capability, semantic
+context, two input observations, exact source roles, binding identities, and
+total body coverage. The producer consumes Candidate once and deterministically
+assigns Recipe keys. It does not re-read AST or reclassify the family.
+
+The accepted producer provenance is diagnostic only:
+
+```text
+LoopRecipeProducerIdV1::VariableAccumRecurrenceV1
+serialized = variable_accum_recurrence_v1
+```
+
+Core effect ordinals are per `(Recipe binding, access kind)`:
+
+```text
+B0/i reads: 0 condition, 1 accumulator RHS, 2 step RHS induction operand
+B0/i writes: 0 step target
+B1/acc reads: 0 accumulator LHS
+B1/acc writes: 0 accumulator target
+```
+
+Semantic source roles and exact owned expression sites are the Facts-level
+authority. Ordinals are canonical transport/diagnostic order only.
+
+Initializers are not Loop operations. They are two external input-source
+relations co-sealed beside Core. `print(acc)` and `return 0` are an outer
+callable tail and remain outside S6A.
+
+## Selected prerequisite
+
+The existing callable-only `VerifiedLoopInputRelationV1` already owns the same
+truth for one input. Creating an S6A-only two-input product would create a
+second authority. Therefore the next executable row is the behavior-preserving
+`LOOP-INPUT-SOURCE-RELATION-SET-R0` task, which moves the model into the common
+Recipe contract and introduces one move-only exact-coverage set. Callable uses
+cardinality one; S6A later uses cardinality two.
+
+Task order:
+
+```text
+LOOP-INPUT-SOURCE-RELATION-SET-R0
+  -> JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A
+  -> S6B / S6C / S6D / S6E / S6G
+```
+
 ## Required output
 
-The implementation that follows this design may issue only existing neutral
-products:
+The implementation that follows R0 may issue only neutral products:
 
 ```text
 LoopRecipeV1
 VerifiedLoopCoreProductV1
+VerifiedLoopInitializedLocalInputSourceSetV1
+VerifiedLoopOperationEffectProductV1
 typed source-policy observation/disposition
 ```
 
@@ -186,10 +297,8 @@ The design must state whether each case is `Declined`, `Unresolved`, or
 
 ## Implementation gate (after this D0)
 
-The later S6A implementation is one bounded cohort and one commit. It may
-begin only after this card records the exact source membership, normalized
-golden, disposition matrix, and acceptance commands. That implementation must
-have:
+The later S6A implementation is one bounded cohort and one commit after the
+common input-set R0. It must have:
 
 - Builder-free source/Facts/Recipe tests with normalized golden evidence;
 - caller-zero, in-place-replacement, and R4 guards green;
@@ -198,8 +307,7 @@ have:
 - the relevant module README and `docs/reference/**` updated in the same
   implementation commit.
 
-After this design is closed, the implementation must be a separate bounded
-S6A cohort. After S6A implementation, update the reference receipt again with
+After S6A implementation, update the reference receipt again with
 the landed producer. The final reference update is required again at M10b
 production cutover; this design card itself makes no production claim.
 
