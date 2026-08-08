@@ -1,7 +1,7 @@
 ---
-Status: design stop — next bounded resolver boundary
+Status: parked prerequisite — canonical callable contract issuer required
 Date: 2026-08-08
-Decision: provisional-to-accepted candidate; implementation is not open
+Decision: boundary accepted; target I0 remains unopened until the contract-owner D0/I0 closes
 Parent: `loop-recipe-typed-call-value-d0-design-task-2026-08-08.md`
 ---
 
@@ -171,6 +171,8 @@ observed unsupported shape is `Declined`.
 ## Ordered follow-up
 
 ```text
+LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0/I0
+  -> reopen this target boundary
 LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0
   -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0
   -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0

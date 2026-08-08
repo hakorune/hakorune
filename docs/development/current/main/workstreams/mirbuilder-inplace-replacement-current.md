@@ -532,8 +532,8 @@ Stop:
 ordered successor boundary:
   LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
   -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0 (current)
-  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0 (design stop; FreeStatic unchanged;
-     canonical callable/Home/effect/ABI issuer required before I0)
+  -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (design stop; issuer missing)
+  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0 (re-open only after issuer closes)
   -> source-bound call relation
   -> S6C ScanWithInit -> S6D -> S6E -> S6G -> M9
   -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
