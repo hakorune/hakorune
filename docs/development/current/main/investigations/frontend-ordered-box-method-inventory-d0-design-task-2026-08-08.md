@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1 closed — R6-S3B-B2 active
+Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2 closed — R6-S3B-B3 design stop
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -645,8 +645,8 @@ Required S3B decision receipts are:
 4. projection parity tests proving AST-only and rich paths parse once;
 5. a guard and reference update in the same implementation slice later.
 
-The S3B-D0 receipts are accepted and S3B-A/B0/B1 are closed. `R6-S3B-B2` is
-the active implementation cell for parser-issued gate-ledger transport,
+The S3B-D0 receipts are accepted and S3B-A/B0/B1/B2 are closed. `R6-S3B-B3`
+is the design-stop cell after parser-issued gate-ledger transport,
 explicit top-level scope, a distinct gate-path type, typed selection receipts,
 and atomic source-session prune/rebase. Do not add
 top-level gate rebase,
@@ -679,9 +679,9 @@ The current `statement_ordinal` cannot identify multiple Boxes inside one
 gate. B must add parser-issued gate id/branch/child structural paths and one
 `BuildGateSelectionReceiptV1`, then make product prune consume/return a
 complete source session atomically. The final AST ordinal remains forbidden
-as source identity. B1 is closed for path/cursor transport. B2 is the current
-design stop for selection receipt and atomic source-session prune/rebase; B3
-remains closed. Delegate relation,
+as source identity. B1 and B2 are closed: B2 owns the parser ledger,
+source-preordered cursor, one selection receipt per opened gate, and
+consume-return source-session prune/rebase. B3 is now the design stop. Delegate relation,
 interface/static/record, Hako, resolver, and MIR work stay closed.
 
 ### R6-S3B-B1 implementation receipt
@@ -695,8 +695,9 @@ path directly, so no final-AST or inventory-ordinal reconstruction is used.
 
 Focused parser-session tests cover direct, sibling, and nested gate paths. The
 B1 guard and callable-contract reference are updated in the same implementation
-slice. `BuildGateSelectionReceiptV1`, consume-return source-session
-prune/rebase, and all later resolver/delegate work remain unimplemented.
+slice. B2 now closes the selection receipt, source-preorder ledger, and
+consume-return source-session prune/rebase; later resolver/delegate work remains
+unimplemented.
 
 ### R6-S3B-B2 implementation boundary
 
@@ -721,6 +722,20 @@ leftover/end-of-stream coverage, duplicate/missing/foreign rejection, and
 whole-product discard on any mismatch. No delegate relation,
 finalizer expansion, Hako parity, resolver, Recipe, Builder, or MIR work opens.
 
+### R6-S3B-B2 implementation receipt — closed
+
+The B2 parser implementation is landed. Parser source-preorder records are
+transported in `ParserSourceSessionV1`; the original AST is validated once by
+the source-aware cursor, and each opened top-level gate issues exactly one
+private `BuildGateSelectionReceiptV1`. Direct, sibling, nested, and empty
+gates are covered; selected source seals retain their original Box paths and
+unselected seals are removed through consume-return pruning. Method/body and
+other closed scopes do not enter the top-level ledger. Focused parser tests,
+the B2 guard, `cargo check --bin hakorune`, formatting, and diff checks were
+green in this slice. B3 remains a design stop; delegate relations, Hako
+parity, resolver, Recipe, Builder, MIR, provider, and runtime work stay
+closed.
+
 ## Ordered implementation series
 
 ```text
@@ -741,6 +756,8 @@ Rust BoxShape series:
       preserved
   R6-S1/S2a/S2/S3A parser-private transaction, parser-session ingress,
   producer cutover, bounded final rich parse output, and sidecar retirement
+  R6-S3B-B2 parser gate-ledger, typed selection receipt, source-preorder
+  cursor, and atomic source-session prune/rebase (closed)
 
 Hako prerequisite and parity:
   H0 HAKO-PARSER-BOX-DECLARATION-CARRIER-D0

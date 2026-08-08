@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1 closed, R6-S3B-B2 active
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2 closed, R6-S3B-B3 design stop
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -186,10 +186,11 @@ R6-S3B-B1
 R6-S3B-B2
   parser-issued gate-ledger transport with explicit top-level scope and a
   distinct gate-path type, one typed selection receipt per gate, and atomic
-  consume-return ParserSourceSession prune/rebase (active)
+  consume-return ParserSourceSession prune/rebase (closed)
 
 R6-S3B-B3
-  AST/source coverage tests, guard, finalizer alignment, and reference closeout
+  design stop for the next AST/source coverage and finalizer-alignment slice;
+  no implementation opened
 
 R6-S3-SOURCE-SITE-PLACEMENT-I0
   SourceBoxMethodSiteV1 separate from selected/generated inventory ordinal
@@ -218,9 +219,9 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
 ```
 
 The parser rows are R6-S3 design/implementation boundaries; R6-S3A,
-R6-S3B-D0, S3B-A, S3B-B0, and S3B-B1 are closed. S3B-B2 is the current
-implementation row for parser gate-ledger transport, scope/path distinction,
-selection receipts, and atomic prune/rebase; B3 remains closed. The
+R6-S3B-D0, S3B-A, S3B-B0, S3B-B1, and S3B-B2 are closed. S3B-B3 is the
+current design stop after parser gate-ledger transport, scope/path distinction,
+selection receipts, and atomic prune/rebase; no implementation is open there. The
 latter five callable rows remain resolver/callable rows. Do not create a parallel
 implementation lane for them.
 

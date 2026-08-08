@@ -1,4 +1,5 @@
 use super::source_authority::SourceBoxPathSegmentV1;
+use super::source_gate_ledger::SourceBuildGateScopeV1;
 use super::NyashParser;
 use crate::tokenizer::NyashTokenizer;
 
@@ -92,4 +93,40 @@ fn nested_build_gate_path_keeps_parent_child_coordinate() {
             }
         ] if outer_gate.raw() == 0 && inner_gate.raw() == 1
     ));
+}
+
+#[test]
+fn b2_top_level_gate_ledger_is_source_preordered_and_scoped() {
+    let mut tokenizer = NyashTokenizer::new(
+        "gate Build.test {\n  gate Build.debug { box Nested {} }\n  box Direct {}\n}\n",
+    );
+    let tokens = tokenizer.tokenize().unwrap();
+    let mut parser = NyashParser::new(tokens);
+
+    parser.parse_program().unwrap();
+    assert_eq!(parser.prepared_source_build_gate_records.len(), 2);
+    assert!(parser
+        .prepared_source_build_gate_records
+        .iter()
+        .all(|record| record.scope == SourceBuildGateScopeV1::TopLevelItem));
+    assert_eq!(
+        parser.prepared_source_build_gate_records[0].gate_id.raw(),
+        0
+    );
+    assert_eq!(
+        parser.prepared_source_build_gate_records[1].gate_id.raw(),
+        1
+    );
+}
+
+#[test]
+fn b2_method_body_gate_does_not_enter_top_level_ledger() {
+    let mut tokenizer = NyashTokenizer::new(
+        "box Plain {\n  run() { gate Build.test { return 1 } else { return 2 } }\n}\n",
+    );
+    let tokens = tokenizer.tokenize().unwrap();
+    let mut parser = NyashParser::new(tokens);
+
+    parser.parse_program().unwrap();
+    assert!(parser.prepared_source_build_gate_records.is_empty());
 }

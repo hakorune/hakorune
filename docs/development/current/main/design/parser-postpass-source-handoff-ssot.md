@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A and R6-S3B-B1 closed; R6-S3B-B2 implementation active; B3 not opened
+Status: accepted design; R6-S3B-A/B1/B2 closed; R6-S3B-B3 design stop; delegate/Hako/resolver rows not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -415,7 +415,7 @@ not reuse `SourceBoxDeclarationPathV1` as if a gate were a Box, even when both
 paths share structural segments. The AST remains free of gate IDs; the parser
 ledger is the sole gate identity authority.
 
-### B2 acceptance before implementation opens
+### B2 implementation acceptance (2026-08-08)
 
 ```text
 parser gate records are issued during parse and moved into the postpass product
@@ -439,6 +439,16 @@ Hako parser parity
 resolver/CallableContract/Recipe/Builder/MIR/provider/runtime integration
 finalizer expansion beyond the bounded rich product
 ```
+
+The B2 implementation receipt is closed by the parser source-session tests and
+the dedicated guard
+`tools/checks/frontend_parsed_box_source_seal_r6_s3b_b2_guard.sh`. The focused
+Rust suites cover source-preordered ledger transport, method/body scope
+closure, direct/sibling/nested/empty gate pruning, selected-branch seal
+preservation, and consume-return session validation. The B2 guard also checks
+the distinct gate-path grammar, one receipt per opened gate, exact
+end-of-stream coverage, and the below-800-line source boundary. B3 is a design
+stop only; no new parser or resolver implementation is open from this receipt.
 
 ## Nonclaims until R6-S3B-D closes
 

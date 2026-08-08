@@ -7,21 +7,23 @@ PARSER="$ROOT/src/parser/mod.rs"
 PREDICATE="$ROOT/src/parser/build_cfg/predicate.rs"
 AUTHORITY="$ROOT/src/parser/source_authority.rs"
 BOX="$ROOT/src/parser/declarations/box_def/mod.rs"
+PATHS="$ROOT/src/parser/source_path.rs"
 TASK="$ROOT/docs/development/current/main/design/parser-postpass-source-handoff-ssot.md"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$PARSER" "$PREDICATE" "$AUTHORITY" "$BOX" "$TASK"
+guard_require_files "$TAG" "$PARSER" "$PREDICATE" "$AUTHORITY" "$BOX" "$PATHS" "$TASK"
 
-python3 - "$PARSER" "$PREDICATE" "$AUTHORITY" "$BOX" "$TASK" <<'PY'
+python3 - "$PARSER" "$PREDICATE" "$AUTHORITY" "$BOX" "$PATHS" "$TASK" <<'PY'
 import sys
 from pathlib import Path
 
-parser_path, predicate_path, authority_path, box_path, task_path = map(Path, sys.argv[1:])
+parser_path, predicate_path, authority_path, box_path, paths_path, task_path = map(Path, sys.argv[1:])
 parser = parser_path.read_text(encoding="utf-8")
 predicate = predicate_path.read_text(encoding="utf-8")
 authority = authority_path.read_text(encoding="utf-8")
 box = box_path.read_text(encoding="utf-8")
+paths = paths_path.read_text(encoding="utf-8")
 task = task_path.read_text(encoding="utf-8")
 
 for needle in (
@@ -30,7 +32,7 @@ for needle in (
     "issue_source_build_gate_id",
     "SourceBoxDeclarationPathV1::root",
 ):
-    if needle not in parser:
+    if needle not in (parser + paths):
         raise SystemExit(f"missing parser B1 transport: {needle}")
 
 for needle in (
@@ -69,7 +71,7 @@ for needle in (
     if needle not in task:
         raise SystemExit(f"missing B1 SSOT boundary: {needle}")
 
-for path in (parser_path, predicate_path, authority_path, box_path):
+for path in (parser_path, predicate_path, authority_path, box_path, paths_path):
     if len(path.read_text(encoding="utf-8").splitlines()) >= 800:
         raise SystemExit(f"source must remain below 800 lines: {path}")
 

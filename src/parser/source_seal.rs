@@ -14,7 +14,31 @@ use crate::parser::ParserMetadata;
 use super::source_authority::{
     MethodSourceRelationV1, ParserInvocationBrandV1, SourceBoxDeclarationSiteV1,
 };
+use super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
+use super::source_path::{SourceBoxPathSegmentV1, SourceBuildGateBranchV1, SourceBuildGatePathV1};
 use super::{delegate_lowering, NyashParser};
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct BuildGateSelectionReceiptV1 {
+    brand: ParserInvocationBrandV1,
+    gate_id: super::source_authority::SourceBuildGateIdV1,
+    gate_path: SourceBuildGatePathV1,
+    selected_branch: SourceBuildGateBranchV1,
+}
+
+impl BuildGateSelectionReceiptV1 {
+    pub(super) fn issue(
+        record: &PreparedBuildGateSourceRecordV1,
+        selected_branch: SourceBuildGateBranchV1,
+    ) -> Self {
+        Self {
+            brand: record.brand.clone(),
+            gate_id: record.gate_id,
+            gate_path: record.gate_path.clone(),
+            selected_branch,
+        }
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) enum SourceSealFinalizationErrorV1 {
@@ -127,12 +151,54 @@ pub(super) struct OpenParserPostpassProductV1 {
 #[derive(Debug)]
 pub(super) struct ParserSourceSessionV1 {
     prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+    gate_records: Vec<PreparedBuildGateSourceRecordV1>,
+    selection_receipts: Vec<BuildGateSelectionReceiptV1>,
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedParserSourcePruneV1 {
+    prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+    selection_receipts: Vec<BuildGateSelectionReceiptV1>,
 }
 
 impl ParserSourceSessionV1 {
-    pub(super) fn from_prepared(prepared_source_seals: Vec<PreparedBoxSourceSealV1>) -> Self {
+    pub(super) fn from_prepared(
+        prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+        gate_records: Vec<PreparedBuildGateSourceRecordV1>,
+    ) -> Self {
         Self {
             prepared_source_seals,
+            gate_records,
+            selection_receipts: Vec::new(),
+        }
+    }
+
+    pub(super) fn gate_records(&self) -> &[PreparedBuildGateSourceRecordV1] {
+        &self.gate_records
+    }
+
+    pub(super) fn prepare_prune(
+        &self,
+        receipts: &[BuildGateSelectionReceiptV1],
+    ) -> Result<PreparedParserSourcePruneV1, String> {
+        validate_gate_receipts(&self.gate_records, receipts)?;
+        let mut retained = Vec::with_capacity(self.prepared_source_seals.len());
+        for seal in &self.prepared_source_seals {
+            if source_seal_survives(seal, &self.gate_records, receipts)? {
+                retained.push(clone_prepared_source_seal(seal));
+            }
+        }
+        Ok(PreparedParserSourcePruneV1 {
+            prepared_source_seals: retained,
+            selection_receipts: receipts.to_vec(),
+        })
+    }
+
+    pub(super) fn commit_prune(self, prepared: PreparedParserSourcePruneV1) -> Self {
+        Self {
+            prepared_source_seals: prepared.prepared_source_seals,
+            gate_records: self.gate_records,
+            selection_receipts: prepared.selection_receipts,
         }
     }
 
@@ -141,15 +207,112 @@ impl ParserSourceSessionV1 {
     }
 }
 
+fn clone_prepared_source_seal(seal: &PreparedBoxSourceSealV1) -> PreparedBoxSourceSealV1 {
+    PreparedBoxSourceSealV1 {
+        brand: seal.brand.clone(),
+        box_site: seal.box_site.clone(),
+        inventory: seal.inventory.clone(),
+        method_relations: seal.method_relations.clone(),
+    }
+}
+
+fn validate_gate_receipts(
+    records: &[PreparedBuildGateSourceRecordV1],
+    receipts: &[BuildGateSelectionReceiptV1],
+) -> Result<(), String> {
+    if records.len() != receipts.len() {
+        return Err(format!(
+            "build-gate receipt coverage mismatch: records={}, receipts={}",
+            records.len(),
+            receipts.len()
+        ));
+    }
+    for (index, record) in records.iter().enumerate() {
+        if record.scope != super::source_gate_ledger::SourceBuildGateScopeV1::TopLevelItem {
+            return Err(
+                "build-gate source record is outside the opened top-level scope".to_owned(),
+            );
+        }
+        if records[..index].iter().any(|previous| {
+            previous.gate_id == record.gate_id || previous.gate_path == record.gate_path
+        }) {
+            return Err("duplicate build-gate source record id/path".to_owned());
+        }
+        if let Some(receipt) = receipts.iter().find(|receipt| {
+            receipt.gate_id == record.gate_id && receipt.gate_path == record.gate_path
+        }) {
+            if receipt.brand != record.brand {
+                return Err("foreign parser brand in build-gate receipt".to_owned());
+            }
+        } else {
+            return Err("missing build-gate selection receipt".to_owned());
+        }
+    }
+    for (index, receipt) in receipts.iter().enumerate() {
+        if receipts[..index].iter().any(|previous| {
+            previous.gate_id == receipt.gate_id || previous.gate_path == receipt.gate_path
+        }) {
+            return Err("duplicate build-gate selection receipt id/path".to_owned());
+        }
+        if !records.iter().any(|record| {
+            record.gate_id == receipt.gate_id && record.gate_path == receipt.gate_path
+        }) {
+            return Err("foreign build-gate selection receipt".to_owned());
+        }
+    }
+    Ok(())
+}
+
+fn source_seal_survives(
+    seal: &PreparedBoxSourceSealV1,
+    records: &[PreparedBuildGateSourceRecordV1],
+    receipts: &[BuildGateSelectionReceiptV1],
+) -> Result<bool, String> {
+    let path = seal.box_site.path();
+    for (segment_index, segment) in path.segments().iter().enumerate() {
+        let SourceBoxPathSegmentV1::BuildGate {
+            gate_id, branch, ..
+        } = segment
+        else {
+            continue;
+        };
+        let gate_path = SourceBuildGatePathV1::from_box_prefix(path, segment_index)
+            .ok_or_else(|| "cannot derive gate path from Box source path".to_owned())?;
+        let record = records
+            .iter()
+            .find(|record| record.gate_id == *gate_id && record.gate_path == gate_path)
+            .ok_or_else(|| "Box source seal references an unknown build gate".to_owned())?;
+        if seal.brand != record.brand {
+            return Err("foreign parser brand in Box source seal gate relation".to_owned());
+        }
+        let receipt = receipts
+            .iter()
+            .find(|receipt| receipt.gate_id == *gate_id && receipt.gate_path == gate_path)
+            .ok_or_else(|| "Box source seal has no build-gate selection receipt".to_owned())?;
+        if receipt.brand != record.brand || receipt.selected_branch != *branch {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+fn source_prune_error(message: String) -> crate::parser::ParseError {
+    crate::parser::ParseError::BuildCfg { message, line: 0 }
+}
+
 impl OpenParserPostpassProductV1 {
     pub(super) fn new(
         ast: ASTNode,
         prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+        gate_records: Vec<PreparedBuildGateSourceRecordV1>,
         metadata: ParserMetadata,
     ) -> Self {
         Self {
             ast,
-            source_session: ParserSourceSessionV1::from_prepared(prepared_source_seals),
+            source_session: ParserSourceSessionV1::from_prepared(
+                prepared_source_seals,
+                gate_records,
+            ),
             metadata,
         }
     }
@@ -158,8 +321,26 @@ impl OpenParserPostpassProductV1 {
         self,
         parser: &NyashParser,
     ) -> Result<Self, crate::parser::ParseError> {
-        let ast = parser.prune_build_gate_program(self.ast)?;
-        Ok(Self { ast, ..self })
+        let Self {
+            ast,
+            source_session,
+            metadata,
+        } = self;
+        let (ast, receipts) = super::source_gate_prune::prune_top_level_gate_program(
+            parser,
+            ast,
+            source_session.gate_records(),
+        )?;
+        let ast = parser.prune_build_gate_program(ast)?;
+        let prepared = source_session
+            .prepare_prune(&receipts)
+            .map_err(source_prune_error)?;
+        let source_session = source_session.commit_prune(prepared);
+        Ok(Self {
+            ast,
+            source_session,
+            metadata,
+        })
     }
 
     pub(super) fn lower_delegates(self) -> Result<Self, crate::parser::ParseError> {
@@ -318,7 +499,7 @@ pub(super) fn map_error(error: SourceSealFinalizationErrorV1) -> crate::parser::
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser::{NyashParser, ParserBuildConfig};
+    use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 
     #[test]
     fn r6_s3_finalizes_ordinary_box_after_final_parse_postpass() {
@@ -338,6 +519,80 @@ box Plain {
         assert_eq!(seal.inventory().get("run").unwrap().name(), "run");
         assert_eq!(seal.method_relations().len(), 1);
         assert!(matches!(parsed.ast(), ASTNode::Program { .. }));
+    }
+
+    #[test]
+    fn r6_s3b_b2_prunes_selected_top_level_gate_and_preserves_box_path() {
+        let parsed = NyashParser::parse_from_string_with_source_seal(
+            r#"
+gate Build.test {
+    box ThenBox { run() { return 1 } }
+} else {
+    box ElseBox { run() { return 2 } }
+}
+"#,
+            ParserBuildConfig::default(),
+        )
+        .expect("release config should select the else branch");
+
+        assert_eq!(parsed.source_seals().len(), 1);
+        assert!(matches!(
+            parsed.ast(),
+            ASTNode::Program { statements, .. }
+                if matches!(statements.as_slice(), [ASTNode::BoxDeclaration { name, .. }] if name == "ElseBox")
+        ));
+        assert!(matches!(
+            parsed.source_seals()[0].box_site().path().segments(),
+            [
+                crate::parser::source_path::SourceBoxPathSegmentV1::RootStatement { ordinal: 0 },
+                crate::parser::source_path::SourceBoxPathSegmentV1::BuildGate {
+                    branch: crate::parser::source_authority::SourceBuildGateBranchV1::Else,
+                    ..
+                }
+            ]
+        ));
+    }
+
+    #[test]
+    fn r6_s3b_b2_prunes_nested_top_level_gate_once() {
+        let config = ParserBuildConfig {
+            mode: BuildMode::Test,
+            ..ParserBuildConfig::default()
+        };
+        let parsed = NyashParser::parse_from_string_with_source_seal(
+            r#"
+gate Build.test {
+            gate Build.test {
+        box NestedBox { run() { return 1 } }
+    }
+}
+"#,
+            config,
+        )
+        .expect("nested selected gate should issue one rich source product");
+
+        assert_eq!(parsed.source_seals().len(), 1);
+        assert!(matches!(
+            parsed.source_seals()[0].box_site().path().segments(),
+            [
+                crate::parser::source_path::SourceBoxPathSegmentV1::RootStatement { ordinal: 0 },
+                crate::parser::source_path::SourceBoxPathSegmentV1::BuildGate { .. },
+                crate::parser::source_path::SourceBoxPathSegmentV1::BuildGate { .. }
+            ]
+        ));
+    }
+
+    #[test]
+    fn r6_s3b_b2_empty_gate_has_no_source_seal_and_still_finalizes() {
+        let parsed = NyashParser::parse_from_string_with_source_seal(
+            "gate Build.test { } else { }",
+            ParserBuildConfig::default(),
+        )
+        .expect("empty gate should have exact ledger/receipt coverage");
+        assert_eq!(parsed.source_seals().len(), 0);
+        assert!(
+            matches!(parsed.ast(), ASTNode::Program { statements, .. } if statements.is_empty())
+        );
     }
 
     #[test]

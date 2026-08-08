@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, BuildPredicate, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::source_authority::{SourceBoxPathCursorV1, SourceBuildGateBranchV1};
+use crate::parser::source_gate_ledger::SourceBuildGateScopeV1;
 use crate::parser::statements::helpers::AnnotationSite;
 use crate::parser::{BuildMode, NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -40,6 +41,18 @@ impl NyashParser {
         let gate_id = self.issue_source_build_gate_id()?;
         self.consume_build_gate_head()?;
         let predicate = self.parse_build_predicate()?;
+        let gate_path =
+            crate::parser::source_path::SourceBuildGatePathV1::from_box_path(&parent_path)
+                .ok_or_else(|| ParseError::BuildCfg {
+                    message: "build-gate source path cannot be converted to a gate path".to_owned(),
+                    line,
+                })?;
+        self.register_source_build_gate(
+            gate_id,
+            gate_path,
+            predicate.clone(),
+            Span::new(0, 0, line, 1),
+        )?;
         let then_items = self.parse_build_gate_item_block(
             parent_path.clone(),
             gate_id,
@@ -111,9 +124,16 @@ impl NyashParser {
             })?;
             let previous = self.active_source_declaration_path.replace(item_path);
             let item = if self.is_build_gate_head() {
-                self.parse_build_gate_item()?
+                let previous =
+                    self.set_source_build_gate_scope(SourceBuildGateScopeV1::TopLevelItem);
+                let parsed = self.parse_build_gate_item();
+                self.set_source_build_gate_scope(previous);
+                parsed?
             } else {
-                self.parse_statement()?
+                let previous = self.set_source_build_gate_scope(SourceBuildGateScopeV1::Closed);
+                let parsed = self.parse_statement();
+                self.set_source_build_gate_scope(previous);
+                parsed?
             };
             self.active_source_declaration_path = previous;
             let mut item = item;

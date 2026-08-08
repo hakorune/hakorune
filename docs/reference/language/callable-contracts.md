@@ -274,15 +274,17 @@ remain closed for later S3B-B2/B3/C/D rows.
 R6-S3B-B2 implementation receipt (2026-08-08): this parser slice owns a typed
 parser-issued gate source ledger and one private
 `BuildGateSelectionReceiptV1` per opened top-level gate. The AST remains free
-of gate IDs; an original-AST walk will validate the parser ledger by structural
-cursor and evaluate each gate once. `ParserSourceSessionV1` transports the
-ledger and atomically consume/return the selected-branch source seals while
+of gate IDs; an original-AST walk validates the parser ledger by structural
+cursor and evaluates each gate once. `ParserSourceSessionV1` transports the
+ledger and atomically consumes/returns the selected-branch source seals while
 preserving their original paths. Nested and empty top-level gates require
-parser-source-preorder order and exact end-of-stream coverage. Gates inside Box methods/bodies are outside this cohort and
-must not be registered through the top-level Box path vocabulary. Missing,
-foreign, duplicate, or mismatched evidence rejects the whole unpublished
-postpass product. Delegate relations, final seal expansion, Hako parity,
-resolver contracts, Recipe, Builder, and MIR remain closed.
+parser-source-preorder order and exact end-of-stream coverage. Gates inside Box
+methods/bodies are outside this cohort and must not be registered through the
+top-level Box path vocabulary. Missing, foreign, duplicate, or mismatched
+evidence rejects the whole unpublished postpass product. Focused parser tests
+and `frontend_parsed_box_source_seal_r6_s3b_b2_guard.sh` are the landed
+receipt. Delegate relations, final seal expansion, Hako parity, resolver
+contracts, Recipe, Builder, and MIR remain closed.
 
 ## Related references
 

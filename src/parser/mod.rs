@@ -37,6 +37,8 @@ mod lifecycle;
 pub(crate) mod log;
 mod runes;
 mod source_authority;
+mod source_gate_ledger;
+mod source_gate_prune;
 mod source_path;
 mod source_seal;
 #[cfg(test)]
@@ -131,6 +133,9 @@ pub struct NyashParser {
     /// Boxes may occur inside one build-gate branch.
     pub(super) active_source_declaration_path: Option<source_authority::SourceBoxDeclarationPathV1>,
     pub(super) next_source_build_gate_id: u32,
+    pub(super) source_build_gate_scope: source_gate_ledger::SourceBuildGateScopeV1,
+    pub(super) prepared_source_build_gate_records:
+        Vec<source_gate_ledger::PreparedBuildGateSourceRecordV1>,
     /// 🔥 Static box依存関係追跡（循環依存検出用）
     pub(super) static_box_dependencies:
         std::collections::HashMap<String, std::collections::HashSet<String>>,
@@ -165,6 +170,8 @@ impl NyashParser {
             active_source_statement_ordinal: None,
             active_source_declaration_path: None,
             next_source_build_gate_id: 0,
+            source_build_gate_scope: source_gate_ledger::SourceBuildGateScopeV1::Closed,
+            prepared_source_build_gate_records: Vec::new(),
             static_box_dependencies: std::collections::HashMap::new(),
             debug_fuel: Some(100_000), // デフォルト値
             pending_runes: Vec::new(),
@@ -180,41 +187,6 @@ impl NyashParser {
     pub fn with_build_config(mut self, build_config: ParserBuildConfig) -> Self {
         self.build_config = build_config;
         self
-    }
-
-    pub(super) fn source_invocation_brand(&self) -> source_authority::ParserInvocationBrandV1 {
-        self.source_invocation_brand.clone()
-    }
-
-    pub(super) fn active_source_statement_ordinal(&self) -> Option<u32> {
-        self.active_source_statement_ordinal
-    }
-
-    pub(super) fn active_source_declaration_path(
-        &self,
-    ) -> Option<&source_authority::SourceBoxDeclarationPathV1> {
-        self.active_source_declaration_path.as_ref()
-    }
-
-    pub(super) fn issue_source_build_gate_id(
-        &mut self,
-    ) -> Result<source_authority::SourceBuildGateIdV1, ParseError> {
-        let raw = self.next_source_build_gate_id;
-        self.next_source_build_gate_id =
-            self.next_source_build_gate_id
-                .checked_add(1)
-                .ok_or_else(|| ParseError::BuildCfg {
-                    message: "parser source build-gate id exceeds u32".to_owned(),
-                    line: self.current_token().line,
-                })?;
-        Ok(source_authority::SourceBuildGateIdV1::from_raw(raw))
-    }
-
-    pub(super) fn register_prepared_source_seal(
-        &mut self,
-        prepared: source_authority::PreparedBoxSourceSealV1,
-    ) {
-        self.prepared_source_seals.push(prepared);
     }
 
     pub(super) fn register_enum_declaration(&mut self, name: &str, variants: &[EnumVariantDecl]) {
@@ -288,6 +260,7 @@ impl NyashParser {
         let product = source_seal::OpenParserPostpassProductV1::new(
             ast,
             std::mem::take(&mut parser.prepared_source_seals),
+            parser.take_source_build_gate_records(),
             parser.take_metadata(),
         );
         let product = product.prune_build_gates(&parser)?;
@@ -483,9 +456,19 @@ impl NyashParser {
                     statement_ordinal,
                 ));
             let mut statement = if self.is_build_gate_head() {
-                self.parse_build_gate_item()?
+                let previous = self.set_source_build_gate_scope(
+                    source_gate_ledger::SourceBuildGateScopeV1::TopLevelItem,
+                );
+                let parsed = self.parse_build_gate_item();
+                self.set_source_build_gate_scope(previous);
+                parsed?
             } else {
-                self.parse_statement()?
+                let previous = self.set_source_build_gate_scope(
+                    source_gate_ledger::SourceBuildGateScopeV1::Closed,
+                );
+                let parsed = self.parse_statement();
+                self.set_source_build_gate_scope(previous);
+                parsed?
             };
             self.active_source_statement_ordinal = None;
             self.active_source_declaration_path = None;

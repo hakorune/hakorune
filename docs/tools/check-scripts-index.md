@@ -606,6 +606,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/frontend_parsed_box_source_seal_r6_s3a_guard.sh` | R6-S3A bounded rich parse-product guard for the post-prune/delegate finalizer, non-Clone parser seal, ordinary-Box transaction registration, no seal constructor, zero legacy sidecars, and below-800-line sources. |
 | `tools/checks/frontend_parsed_box_source_seal_r6_s3b_a_guard.sh` | R6-S3B-A guard for the single typed postpass product, diagnostic metadata carriage, bounded direct ordinary-Box AST projection, no reopened gate/delegate authority, and below-800-line sources. |
 | `tools/checks/frontend_parsed_box_source_seal_r6_s3b_b1_guard.sh` | R6-S3B-B1 guard for parser-issued gate ids, branch/child structural path transport, typed Box transaction paths, no AST-ordinal fallback, and the closed B2 prune/rebase boundary. |
+| `tools/checks/frontend_parsed_box_source_seal_r6_s3b_b2_guard.sh` | R6-S3B-B2 guard for parser-issued gate ledger/scope, distinct gate paths, source-aware preorder pruning, one selection receipt per opened gate, atomic source-session prune, and below-800-line sources. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy
