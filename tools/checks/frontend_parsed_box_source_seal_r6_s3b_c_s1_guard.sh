@@ -71,13 +71,24 @@ for needle in (
     if needle not in taskmap:
         raise SystemExit(f"task map missing next C-I0 boundary: {needle}")
 
-for needle in (
-    'work_mode = "closeout"',
-    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0"',
-    'current_blocker_token = "R6-S3B-C-I0-CLOSEOUT:',
-):
-    if needle not in state:
-        raise SystemExit(f"CURRENT_STATE missing C-I0 design stop: {needle}")
+closeout_state = all(
+    needle in state
+    for needle in (
+        'work_mode = "closeout"',
+        'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0"',
+        'current_blocker_token = "R6-S3B-C-I0-CLOSEOUT:',
+    )
+)
+advanced_design_stop = all(
+    needle in state
+    for needle in (
+        'work_mode = "design_stop"',
+        'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-D0"',
+        'current_blocker_token = "R6-S3B-D-D0:',
+    )
+)
+if not (closeout_state or advanced_design_stop):
+    raise SystemExit("current state missing C-I0 closeout or the accepted next D0 stop")
 
 if "frontend_parsed_box_source_seal_r6_s3b_c_s1_guard.sh" not in index:
     raise SystemExit("check index must list the C-S1 implementation guard")

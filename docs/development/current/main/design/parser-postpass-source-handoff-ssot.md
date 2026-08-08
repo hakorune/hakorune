@@ -1,11 +1,12 @@
 ---
-Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0 closed; C implementation, D, Hako, and resolver rows not opened
+Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0/C-I0 closed; R6-S3B-D0 accepted and D-I0 not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
   - docs/development/current/main/investigations/frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md
   - docs/development/current/main/investigations/callable-contract-and-instance-call-implementation-task-map-2026-08-08.md
   - docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md
+  - docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0-design-task-2026-08-09.md
   - docs/reference/language/callable-contracts.md
 ---
 
@@ -222,7 +223,33 @@ R6-S3B-C  source-aware delegate transaction and
 
 R6-S3B-D  final complete-coverage seal, retire the S3A generated-suffix
            adapter, and switch all AST-only APIs to the rich path
+
 ```
+
+## R6-S3B-D-D0 design receipt — accepted; implementation not opened
+
+The final-seal boundary is fixed by:
+
+```text
+ParsedProgramWithSourceV1
+  -> one finalizer-owned relation/placement coverage plan
+  -> sole non-Clone ParserBoxSourceSealV1 issuer
+```
+
+The finalizer consumes the parser-private `GeneratedDelegateSourceRelationV1`
+rows carried by C-I0. It verifies same-brand host/target paths, one relation
+per `(host path, delegate member source site, expose ordinal)`, exact final
+inventory placement receipts, explicit/property prefix coverage, and the
+absence of orphan/non-delegate generated rows. It does not rescan AST names,
+reconstruct source identity from inventory ordinals, or issue semantic
+callable/target/Recipe products.
+
+The accepted implementation cohort is ordinary top-level Rust Boxes with
+direct explicit target methods only. Generated chains, compatibility-only,
+interface/static/record/Hako/provider declarations, overloads, and resolver
+connection remain closed. Any failure discards the unpublished parsed product;
+there is no partial seal, retry, or fallback. The D-I0 task and guard are
+planned but implementation is deliberately not opened at this design stop.
 
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 

@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "B-prime through G0 exact Builder-free I0 ingress, recursive segment/After caller-zero canaries, common Predicate/carrier I0, bounded Generic G0 I1, initialized-local input-set R0, S6A variable-accum recurrence, S6B variable-accum break/fallthrough source-to-Recipe, the behavior-neutral operation-demand/verifier BoxShape split, and the R6-S3B-B3-I0 parser finalizer/source-path alignment are closed. External and worker audits accepted two mandatory post-M9/pre-cutover BoxShape corrections: one atomic semantic-program co-seal and JoinSig-authorized transfer/Layout ownership. Production selection, retry/fallback retirement, remaining M8/M9 closure, legacy deletion, and R6-S3B-D remain closed; R6-S3B-C-D0, C-S0 parser source transport, C-S1-D0 design, the private C-S1 target index, the C-I0 batch design, and the bounded C-I0 implementation are closed. Final-seal/resolver/runtime work remains closed."
+status = "B-prime through G0 exact Builder-free I0 ingress, recursive segment/After caller-zero canaries, common Predicate/carrier I0, bounded Generic G0 I1, initialized-local input-set R0, S6A variable-accum recurrence, S6B variable-accum break/fallthrough source-to-Recipe, the behavior-neutral operation-demand/verifier BoxShape split, and the R6-S3B-B3-I0 parser finalizer/source-path alignment are closed. External and worker audits accepted two mandatory post-M9/pre-cutover BoxShape corrections: one atomic semantic-program co-seal and JoinSig-authorized transfer/Layout ownership. Production selection, retry/fallback retirement, remaining M8/M9 closure, legacy deletion, and resolver/runtime work remain closed; R6-S3B-C-D0, C-S0 parser source transport, C-S1-D0 design, the private C-S1 target index, the C-I0 batch design, the bounded C-I0 implementation, and the R6-S3B-D0 final-seal design are closed. D-I0 implementation remains unopened."
 date = "2026-08-09"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "R6-D0 accepted after parser-path audit: H1's disconnected source-carrier substrate, R6-S0 vocabulary slice, R6-S1 parser-private source-authority substrate, R6-S2a parser-session ingress, R6-S2 ordinary transaction cutover, R6-S3A bounded rich ordinary-Box parse product/final non-Clone seal, R6-S3B-A single postpass product/direct AST projection, R6-S3B-B1 parser-issued structural path transport, R6-S3B-B2 parser-issued gate ledger/top-level scope/distinct gate path/one selection receipt/atomic source-session prune, R6-S3B-B3-D0 finalizer/source coverage decision, R6-S3B-B3-I0 private finalizer coverage implementation, R6-S3B-C-D0 source-aware delegate relation/transaction design, C-S0 parser-time source transport, C-S1-D0 target-index design, C-S1 private target-index implementation, C-I0 all-host/expose batch design, and C-I0 bounded implementation receipt are closed. The next clean stop is before R6-S3B-D final-seal coverage and resolver connection."
-work_mode = "closeout"
-current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0"
-current_blocker_token = "R6-S3B-C-I0-CLOSEOUT: bounded parser-private batch is closed; R6-S3B-D final seal/resolver/runtime remain closed"
+current_design_stop = "R6-D0 accepted after parser-path audit: H1's disconnected source-carrier substrate, R6-S0 vocabulary slice, R6-S1 parser-private source-authority substrate, R6-S2a parser-session ingress, R6-S2 ordinary transaction cutover, R6-S3A bounded rich ordinary-Box parse product/final non-Clone seal, R6-S3B-A single postpass product/direct AST projection, R6-S3B-B1 parser-issued structural path transport, R6-S3B-B2 parser-issued gate ledger/top-level scope/distinct gate path/one selection receipt/atomic source-session prune, R6-S3B-B3-D0 finalizer/source coverage decision, R6-S3B-B3-I0 private finalizer coverage implementation, R6-S3B-C-D0 source-aware delegate relation/transaction design, C-S0 parser-time source transport, C-S1-D0 target-index design, C-S1 private target-index implementation, C-I0 all-host/expose batch design, C-I0 bounded implementation receipt, and R6-S3B-D0 final-seal design are closed. Stop at the accepted D0 boundary before D-I0 final seal coverage and resolver connection."
+work_mode = "design_stop"
+current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-D0"
+current_blocker_token = "R6-S3B-D-D0: accepted final-seal design; D-I0 implementation not opened"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -642,15 +642,15 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0"
-latest_card_path = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md"
-next_design_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0"
-next_design_card_path = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md"
-next_execution_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0"
-next_execution_card_path = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md"
+latest_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0"
+latest_card_path = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0-design-task-2026-08-09.md"
+next_design_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0"
+next_design_card_path = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0-design-task-2026-08-09.md"
+next_execution_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-d-i0"
+next_execution_card_path = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-d-i0-implementation-task-2026-08-09.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "R5, H1, R6-S0, R6-S1, R6-S2a, R6-S2, R6-S3A, R6-S3B-A, R6-S3B-B1, R6-S3B-B2, R6-S3B-B3-D0, R6-S3B-B3-I0, R6-S3B-C-D0, C-S0, C-S1-D0, C-S1, C-I0-D0, and C-I0 are closed. C-I0 landed the bounded parser-private staged delegate batch: all-host/expose preflight, target declaration view, placement receipts, relation persistence, and one consume-return commit. Final seal/resolver/runtime work remains closed."
+latest_card_summary = "R5, H1, R6-S0, R6-S1, R6-S2a, R6-S2, R6-S3A, R6-S3B-A, R6-S3B-B1, R6-S3B-B2, R6-S3B-B3-D0, R6-S3B-B3-I0, R6-S3B-C-D0, C-S0, C-S1-D0, C-S1, C-I0-D0, C-I0, and R6-S3B-D0 are closed. D0 fixes the sole finalizer-owned generated-delegate relation/placement coverage plan and keeps D-I0 unopened. Resolver/runtime work remains closed."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

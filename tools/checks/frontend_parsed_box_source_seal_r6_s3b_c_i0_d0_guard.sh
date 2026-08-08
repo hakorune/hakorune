@@ -60,14 +60,25 @@ for document, label in ((ssot, "SSOT"), (reference, "reference"), (readme, "READ
         if needle not in document:
             raise SystemExit(f"{label} missing C-I0 design receipt: {needle}")
 
-for needle in (
-    'work_mode = "closeout"',
-    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0"',
-    'next_execution_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0"',
-    'current_blocker_token = "R6-S3B-C-I0-CLOSEOUT:',
-):
-    if needle not in state:
-        raise SystemExit(f"CURRENT_STATE missing clean C-I0 stop: {needle}")
+closeout_state = all(
+    needle in state
+    for needle in (
+        'work_mode = "closeout"',
+        'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0"',
+        'current_blocker_token = "R6-S3B-C-I0-CLOSEOUT:',
+    )
+)
+advanced_design_stop = all(
+    needle in state
+    for needle in (
+        'work_mode = "design_stop"',
+        'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-D0"',
+        'next_execution_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-d-i0"',
+        'current_blocker_token = "R6-S3B-D-D0:',
+    )
+)
+if not (closeout_state or advanced_design_stop):
+    raise SystemExit("CURRENT_STATE missing C-I0 closeout or the accepted next D0 stop")
 
 print("accepted_design=1")
 print("all_host_expose_preflight=1")
