@@ -447,6 +447,54 @@ metadata, source-session, delegate, build-config, transition, and check-block
 tests are green. The known nested member-gate baseline red remains parked in
 its separate D0 row; no parser signature rule or fallback was changed.
 
+### I0-C design acceptance — one postpass-visible BuildGate decision set (2026-08-09)
+
+I0-C is accepted as a design-only boundary. The postpass-visible AST
+`BuildGate` family has one parser-private decision authority:
+
+```text
+parser-issued AST gate observations
+  -> PreparedBuildGateDecisionSetV1
+  -> prune/source-path/explain projections
+```
+
+The set covers top-level and statement-level AST gates, including nested
+structural gates, and evaluates every predicate exactly once. Its rows carry a
+private structural coordinate, parser gate id, predicate/span, selected branch,
+reachability, and an optional top-level `SourceBuildGatePathV1` relation.
+The coordinate and final AST placement are never resolver identity. The
+top-level source ledger remains the narrower source-path/seal authority.
+
+Member-level gates are excluded because `BoxMemberState` selects and merges
+them during parsing; their existing same-public-signature contract remains the
+sole authority. `parse_grammar_evidence_from_string_with_build_config` is also
+a separate grammar-evidence demand and remains a nonclaim until explicitly
+designed.
+
+All structural rows are evaluated once, including inactive subtrees, so an
+unknown feature or unsupported predicate is a deterministic `ParseError`.
+Explain counters retain the `hakorune-build-cfg-explain-v0` compatibility
+projection by counting reachable rows only; inactive rows are retained for
+coverage and diagnostics but are not re-evaluated. Prune and source-path
+rebase consume decision rows and relation receipts only. `BuildGateSelectionReceiptV1`
+must verify predicate as well as brand, gate id, path, and selected branch.
+
+The coordinator remains one-way and whole-product atomic:
+
+```text
+issue decisions once
+  -> project prune/rebase
+  -> ordinary or explicit compatibility arm
+  -> project explain from the same rows
+  -> CompletedParserPostpassV1
+```
+
+No second AST semantic walk, generic postpass re-evaluation, fallback, retry,
+reparse, member-gate redesign, resolver/Recipe/Builder/MIR/runtime work, or
+source identity reconstruction is opened by I0-C. The implementation must
+use dedicated parser modules because `src/parser/mod.rs` and
+`src/parser/source_seal.rs` are already past the 760-line split trigger.
+
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 
 The top-level build-gate boundary is a parser source-transport problem, not

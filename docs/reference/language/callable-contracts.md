@@ -312,6 +312,15 @@ I0-B receipt: `NyashParser::parse` and the metadata wrapper share one
 from AST nodes. Explain/full BuildGate decision-set parity remains an I0-C
 boundary.
 
+I0-C design receipt (2026-08-09): the next parser slice is accepted as one
+private `PreparedBuildGateDecisionSetV1` for postpass-visible AST gates. It
+evaluates every structural predicate once, including inactive subtrees, and
+feeds prune, top-level source-path survival, and explain projection. Explain
+counter output remains the reachable-row v0 projection; inactive rows are
+retained for coverage and diagnostics. Member-level parse-time gates and the
+separate grammar-evidence demand remain outside this decision set. No
+resolver/Recipe/Builder/MIR/runtime or fallback/reparse path opens here.
+
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate
 boundary. The product owns the AST, a `ParserSourceSessionV1` for prepared

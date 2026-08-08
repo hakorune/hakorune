@@ -234,6 +234,27 @@ members or ordinary statements.
   available in production builds. In particular, `gate` must not silently remove
   a public stats accessor or change a hot-core box layout.
 
+## Predicate decision and inactive-subtree diagnostics
+
+Decision: accepted for the I0-C parser postpass boundary (2026-08-09).
+
+For the postpass-visible AST `gate` family, the parser creates one private
+structural decision row for every AST `BuildGate` and evaluates each predicate
+exactly once before pruning. This includes a predicate inside a structurally
+inactive branch. An unknown feature or unsupported predicate key is therefore
+a compile error even when its branch is not selected; it is never silently
+treated as false.
+
+The same decision rows feed AST pruning, top-level source-path survival, and
+the explain projection. Explain counters retain the v0 compatibility view and
+count only reachable rows, while inactive rows remain available for complete
+coverage and diagnostics. No consumer evaluates a predicate a second time.
+
+This postpass decision set does not include member-level gate groups: those
+are selected during Box member parsing and remain governed by the existing
+same-public-signature rule. It also does not change the separate grammar-
+evidence parser demand.
+
 ## Explain Report
 
 Build conditional pruning should expose a compact report:

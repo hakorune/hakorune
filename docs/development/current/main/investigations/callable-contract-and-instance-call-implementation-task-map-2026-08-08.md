@@ -382,8 +382,13 @@ PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A/I0-B closed; I0-C parked)
   and retires its delegate-only production edge. I0-B receipt:
   `NyashParser::parse` and the metadata wrapper share one parser-private
   postpass finalizer and one consuming `into_ast_and_metadata()` projection;
-  metadata is moved from the completed product exactly once. I0-C remains
-  parked for the full BuildGate decision set and explain parity.
+  metadata is moved from the completed product exactly once. I0-C design is
+  accepted: one parser-private `PreparedBuildGateDecisionSetV1` evaluates all
+  postpass-visible AST predicates exactly once and feeds prune, top-level
+  source-path survival, and explain projection. Explain counters retain the
+  reachable-row v0 projection; member-level gates and grammar-evidence remain
+  separate nonclaims. I0-C implementation remains parked until its design
+  card opens the bounded S0 slice.
 
 PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0 (parked baseline debt)
   The existing nested selected-else source-path fixture fails on parent

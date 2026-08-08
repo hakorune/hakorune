@@ -116,3 +116,21 @@ metadata until one consuming `into_ast_and_metadata()` projection; AST-only
 callers use `into_ast()`. No caller reparses, retakes metadata, or reconstructs
 it from AST nodes. Explain/full BuildGate decision-set parity remains parked
 for I0-C.
+
+## I0-C BuildGate decision-set design — accepted, implementation parked
+
+The postpass-visible AST `BuildGate` family will use one parser-private
+`PreparedBuildGateDecisionSetV1`. Parser-issued observations cover every AST
+gate, including nested statement gates; the set evaluates each predicate once
+and feeds prune, top-level source-path survival, and explain projection.
+Consumers never call `eval_build_predicate` again. The decision coordinate is a
+private structural projection, not source/resolver identity or final AST
+ordinal, and the top-level source ledger remains the narrower source-path
+authority.
+
+All structural predicates, including inactive subtrees, are validated once.
+Explain counters retain the v0 reachable-row projection, while inactive rows
+remain in the decision set for coverage and diagnostics. Member-level gates
+remain the separate parse-time BoxMemberState/signature contract; grammar
+evidence remains a separate demand. I0-C opens no resolver, Recipe, Builder,
+MIR, runtime, fallback, retry, or reparse path.
