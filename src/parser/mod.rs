@@ -36,6 +36,7 @@ mod items;
 mod lifecycle;
 pub(crate) mod log;
 mod runes;
+mod source_authority;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
 mod statements; // Now uses modular structure in statements/
 pub mod sugar; // Phase 12.7-B: desugar pass (basic)

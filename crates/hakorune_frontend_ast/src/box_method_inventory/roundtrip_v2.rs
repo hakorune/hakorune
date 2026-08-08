@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{ASTNode, Span};
 
 use super::{
-    BoxMethodDeclarationSiteV1, BoxMethodEntryV1, BoxMethodInventoryErrorV1, BoxMethodInventoryV1,
+    BoxMethodEntryV1, BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1, BoxMethodInventoryV1,
     BoxMethodProvenanceV1,
 };
 
@@ -84,7 +84,7 @@ impl PreparedBoxMethodInventoryRoundtripV2 {
                 name: row.name,
                 declaration: row.declaration,
                 provenance: row.provenance,
-                site: BoxMethodDeclarationSiteV1 {
+                site: BoxMethodInventoryOrdinalV1 {
                     selected_method_ordinal: row.selected_method_ordinal,
                 },
                 diagnostic_span: row.diagnostic_span,
@@ -203,6 +203,7 @@ mod tests {
             direct_span
         );
         let selected = inventory.get("__get_value").unwrap();
+        assert_eq!(selected.site().inventory_ordinal(), 1);
         assert_eq!(selected.site().selected_method_ordinal(), 1);
         assert_eq!(selected.diagnostic_span(), selected_span);
         assert_eq!(

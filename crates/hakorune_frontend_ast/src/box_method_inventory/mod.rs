@@ -181,13 +181,24 @@ impl BoxMethodProvenanceV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct BoxMethodDeclarationSiteV1 {
+/// Selected/generated inventory placement.
+///
+/// This is deliberately not a source declaration identity. Parser-owned
+/// source sites are a later non-Clone authority and must not be reconstructed
+/// from this placement ordinal.
+pub struct BoxMethodInventoryOrdinalV1 {
     selected_method_ordinal: u32,
 }
 
-impl BoxMethodDeclarationSiteV1 {
-    pub const fn selected_method_ordinal(self) -> u32 {
+impl BoxMethodInventoryOrdinalV1 {
+    /// Canonical descriptive inventory placement accessor.
+    pub const fn inventory_ordinal(self) -> u32 {
         self.selected_method_ordinal
+    }
+
+    /// Compatibility accessor preserving the v2 wire vocabulary.
+    pub const fn selected_method_ordinal(self) -> u32 {
+        self.inventory_ordinal()
     }
 }
 
@@ -196,7 +207,7 @@ pub struct BoxMethodEntryV1 {
     name: Box<str>,
     declaration: ASTNode,
     provenance: BoxMethodProvenanceV1,
-    site: BoxMethodDeclarationSiteV1,
+    site: BoxMethodInventoryOrdinalV1,
     diagnostic_span: Span,
 }
 
@@ -213,7 +224,7 @@ impl BoxMethodEntryV1 {
         &self.provenance
     }
 
-    pub const fn site(&self) -> BoxMethodDeclarationSiteV1 {
+    pub const fn site(&self) -> BoxMethodInventoryOrdinalV1 {
         self.site
     }
 
@@ -334,7 +345,7 @@ impl BoxMethodInventoryV1 {
         name: impl Into<Box<str>>,
         declaration: ASTNode,
         diagnostic_span: Span,
-    ) -> Result<BoxMethodDeclarationSiteV1, BoxMethodInventoryErrorV1> {
+    ) -> Result<BoxMethodInventoryOrdinalV1, BoxMethodInventoryErrorV1> {
         self.try_push_with_provenance(
             name.into(),
             declaration,
@@ -351,7 +362,7 @@ impl BoxMethodInventoryV1 {
         declaration: ASTNode,
         provenance: BoxMethodGeneratedProvenanceV1,
         diagnostic_span: Span,
-    ) -> Result<BoxMethodDeclarationSiteV1, BoxMethodInventoryErrorV1> {
+    ) -> Result<BoxMethodInventoryOrdinalV1, BoxMethodInventoryErrorV1> {
         self.try_push_with_provenance(
             name.into(),
             declaration,
@@ -381,7 +392,7 @@ impl BoxMethodInventoryV1 {
         u32::try_from(final_len).map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?;
 
         for row in batch.rows {
-            let site = BoxMethodDeclarationSiteV1 {
+            let site = BoxMethodInventoryOrdinalV1 {
                 selected_method_ordinal: u32::try_from(self.entries.len())
                     .map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?,
             };
@@ -404,7 +415,7 @@ impl BoxMethodInventoryV1 {
         declaration: ASTNode,
         origin: BoxMethodCompatibilityOriginV1,
         diagnostic_span: Span,
-    ) -> Result<BoxMethodDeclarationSiteV1, BoxMethodInventoryErrorV1> {
+    ) -> Result<BoxMethodInventoryOrdinalV1, BoxMethodInventoryErrorV1> {
         self.try_push_with_provenance(
             name.into(),
             declaration,
@@ -487,7 +498,7 @@ impl BoxMethodInventoryV1 {
             entry
                 .provenance
                 .prepend_selected_gate(gate_site, branch_member_ordinal)?;
-            entry.site = BoxMethodDeclarationSiteV1 {
+            entry.site = BoxMethodInventoryOrdinalV1 {
                 selected_method_ordinal: u32::try_from(base + prepared.len())
                     .map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?,
             };
@@ -508,7 +519,7 @@ impl BoxMethodInventoryV1 {
         declaration: ASTNode,
         provenance: BoxMethodProvenanceV1,
         diagnostic_span: Span,
-    ) -> Result<BoxMethodDeclarationSiteV1, BoxMethodInventoryErrorV1> {
+    ) -> Result<BoxMethodInventoryOrdinalV1, BoxMethodInventoryErrorV1> {
         if !matches!(provenance, BoxMethodProvenanceV1::CompatibilityOnly { .. }) {
             Self::validate_declaration_name(&name, &declaration)?;
         }
@@ -521,7 +532,7 @@ impl BoxMethodInventoryV1 {
         }
         let selected_method_ordinal = u32::try_from(self.entries.len())
             .map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?;
-        let site = BoxMethodDeclarationSiteV1 {
+        let site = BoxMethodInventoryOrdinalV1 {
             selected_method_ordinal,
         };
         let index = self.entries.len();

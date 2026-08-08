@@ -27,8 +27,9 @@ fn direct_rows_keep_source_order_and_issue_ordinals() {
         .try_push_explicit_source("alpha", function("alpha"), Span::new(2, 3, 2, 1))
         .unwrap();
 
-    assert_eq!(zeta.selected_method_ordinal(), 0);
-    assert_eq!(alpha.selected_method_ordinal(), 1);
+    assert_eq!(zeta.inventory_ordinal(), 0);
+    assert_eq!(alpha.inventory_ordinal(), 1);
+    assert_eq!(zeta.selected_method_ordinal(), zeta.inventory_ordinal());
     assert_eq!(
         inventory
             .iter_selected_declaration_order()

@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1 closed, R6-D0 design stop
+Status: accepted revised task map; H1/R6-S0/R6-S1 closed, R6-S2 next
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -123,8 +123,8 @@ Rejected > Unresolved > Declined > Candidate
      sources remain below 800 lines;
    - no parser connection, build-gate, delegate postpass, scanner, resolver,
      semantic publication, or compatibility projection.
-7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0` — design stop; implementation is
-   not opened until the parse-output/final-seal boundary is accepted
+7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0/S1` — R6-D0 accepted; S0 and
+   S1 closed; S2 next
    - give explicit methods an exact branded source site independent of the
      all-row inventory ordinal;
    - generated property/delegate rows retain generated origin only and never
@@ -141,8 +141,11 @@ Rejected > Unresolved > Declined > Candidate
      length-delta reconstruction, the parallel gate-merge slice, and raw
      delegate ordinal sidecars in one transaction cutover series;
    - R4 JSON remains descriptive and R5 Builder receives inventory only.
-   - no code, fixture, or compatibility fallback is opened during this D0
-     stop.
+   - S0 closed with the descriptive `BoxMethodInventoryOrdinalV1` rename and
+     preserved JSON wire spelling; S1 closed with parser-private
+     brand/source-site/transaction/prepared-seal types and a non-Clone final
+     seal type with no constructor; S2 now owns the ordinary producer cutover
+     and sidecar retirement.
 
 8. `HAKO-PARSER-BOX-DECLARATION-CARRIER-H2/H3`
    - issue the same ordered inventory and non-Clone parser seal while

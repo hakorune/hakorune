@@ -16,7 +16,7 @@ BoxMethodInventoryV1
 BoxMethodEntryV1
 BoxMethodProvenanceV1
 BoxMethodSourceSelectionV1
-BoxMethodDeclarationSiteV1
+BoxMethodInventoryOrdinalV1
 BoxMethodInventoryErrorV1
 ```
 

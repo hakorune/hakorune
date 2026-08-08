@@ -54,14 +54,22 @@ Raw rows still do not issue a resolver-grade source capability. Compatibility
 rows cannot be upgraded. JSON v2 preservation is the separate R4 row; JSON v1
 decoding remains explicitly compatibility-only.
 
-The next parser-source correction is R6. One non-Clone parser seal will own
-exact explicit-method source sites and relate them to the selected inventory.
-Explicit source identity is separate from `selected_method_ordinal` because
-generated property/delegate rows consume inventory slots. Generated rows keep
-only their source-member origin and generated role. The current parallel
+R6-S0 is closed: `BoxMethodInventoryOrdinalV1` now names the descriptive
+selected/generated placement record, and `inventory_ordinal()` is its
+canonical accessor. The `selected_method_ordinal` spelling remains only for
+the JSON-v2 wire and compatibility accessor; it is not source identity.
+
+R6-S1 is closed as a disconnected parser-private substrate. The parser now
+has a fresh invocation brand, exact explicit-method source-site vocabulary,
+one unpublished source transaction, and non-Clone prepared/final seal types.
+The final seal has no constructor in this slice and cannot be issued until the
+later rich parse-output row completes prune and delegate postpass. Explicit
+source identity is separate from `selected_method_ordinal` because generated
+property/delegate rows consume inventory slots. Generated rows keep only their
+source-member origin and generated role. The current parallel
 `method_source_member_ordinals` sidecar and length-delta reconstruction are
-retirement debt; resolver work cannot consume Rust parser rows until R6
-removes them. JSON remains descriptive and cannot manufacture the seal.
+retirement debt; R6-S2 owns producer cutover and their removal. JSON remains
+descriptive and cannot manufacture the seal.
 
 R4 now has an atomic AST reconstruction substrate and a strict recursive JSON
 v2 codec. A complete set of `BoxMethodInventoryRoundtripRowV2` values is

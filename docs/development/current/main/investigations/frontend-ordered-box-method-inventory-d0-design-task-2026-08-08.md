@@ -1,5 +1,5 @@
 ---
-Status: R6-D0 design stop — parser source-seal/final parse-product boundary revised; implementation not opened
+Status: R6-D0/R6-S0/R6-S1 closed — parser source-seal/final parse-product boundary fixed; R6-S2 next
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -38,14 +38,14 @@ pub struct BoxMethodEntryV1 {
     name: Box<str>,
     declaration: ASTNode,
     provenance: BoxMethodProvenanceV1,
-    site: BoxMethodDeclarationSiteV1,
+    site: BoxMethodInventoryOrdinalV1,
     diagnostic_span: Span,
 }
 ```
 
 This is the landed R1-R5 descriptive inventory model. R6 does not replace its
 ordered lookup role; it adds an independent exact source site and one
-parser-owned non-Clone seal. `BoxMethodDeclarationSiteV1` therefore remains
+parser-owned non-Clone seal. `BoxMethodInventoryOrdinalV1` therefore remains
 an inventory-placement record and is not promoted into resolver identity.
 
 The exact provenance is:
@@ -314,8 +314,38 @@ R6-S3  canonical rich parse output across prune + delegate postpass;
 
 Each slice is behavior-preserving and updates focused tests, the owner README,
 the active task receipt, and the applicable reference in the same commit.
-No R6 implementation may begin while this R6-D0 parse-output contract is
-unaccepted.
+R6-D0 is now accepted after the parser-path audit. R6-S0 is closed: it only
+renames the descriptive inventory-placement vocabulary and preserves the JSON
+wire spelling; it does not connect a parser seal or change parser behavior.
+
+### R6-S0 implementation receipt
+
+`BoxMethodDeclarationSiteV1` is retired from the Rust AST carrier. The
+descriptive placement type is now `BoxMethodInventoryOrdinalV1`, with
+`inventory_ordinal()` as the canonical accessor. The existing
+`selected_method_ordinal` JSON-v2 field and accessor remain only as explicit
+wire/compatibility vocabulary. No parser source identity, resolver capability,
+or non-Clone seal is issued by this row. The focused AST tests and frontend
+crate checks are green.
+
+### R6-S1 implementation receipt
+
+The parser now has a disconnected private source-authority substrate in
+`src/parser/source_authority.rs`. `ParserInvocationBrandV1` issues a fresh
+invocation identity; declaration/member/method source-site types carry that
+brand; and `OpenBoxMethodSourceTransactionV1` is the single unpublished owner
+for the ordered inventory plus explicit source relations. Duplicate inventory
+entries and foreign invocation sites fail before a partial relation is
+published. `PreparedBoxSourceSealV1` is non-Clone, while
+`ParserBoxSourceSealV1` is private, non-Clone, and has no constructor in this
+slice. It can only be issued by the later final rich parse-output row after
+prune and delegate postpass.
+
+R6-S1 deliberately does not connect AST parse output, build-gate pruning,
+delegate lowering, resolver, JSON, or sidecar retirement. The focused
+`frontend_parsed_box_source_seal_r6_s1_guard.sh` proves the type vocabulary,
+transaction ownership, no early final-seal constructor, parser
+non-connection, and the below-800-line boundary.
 
 ## Ordered implementation series
 
@@ -331,10 +361,12 @@ Rust BoxShape series:
      + selected-gate/property/delegate atomic transactions
   R4 JSON Box codec split + ordered v2 / CompatibilityOnly v1
   R5 Builder compatibility consumer migration + old helper retirement
-  R6-D0 design stop: parser-owned source seal must include the final parse
-      product after prune and delegate postpass
-  R6-S0/S1/S2/S3 parser source-site/inventory-ordinal split, transaction
-      cutover, final rich parse output, and sidecar retirement
+  R6-D0 accepted: parser-owned source seal includes the final parse product
+      after prune and delegate postpass
+  R6-S0 closed: inventory ordinal vocabulary clarified; JSON wire spelling
+      preserved
+  R6-S1/S2/S3 parser-private transaction, producer cutover, final rich parse
+      output, and sidecar retirement
 
 Hako prerequisite and parity:
   H0 HAKO-PARSER-BOX-DECLARATION-CARRIER-D0
@@ -352,11 +384,12 @@ Then:
 ```
 
 Historical execution note: R0/R0A and R1-R5 are closed. H1's disconnected
-carrier substrate is closed, but the current frontier is the R6-D0 parser
-source-seal design stop. R6 must close its canonical rich parse-output and
-delegate-postpass boundary before H2-H6, H5 parity, or any resolver
-declaration row. No caller-zero model may become a second AST or production
-route.
+carrier substrate, R6-S0 vocabulary slice, and R6-S1 parser-private source
+authority substrate are closed. The current frontier is R6-S2: ordinary
+producer cutover and sidecar retirement. R6
+must close its canonical rich parse-output and delegate-postpass boundary
+before H2-H6, H5 parity, or any resolver declaration row. No caller-zero model
+may become a second AST or production route.
 
 ## Verification contract
 

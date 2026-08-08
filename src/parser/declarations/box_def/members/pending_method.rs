@@ -1,5 +1,5 @@
 use crate::ast::{
-    ASTNode, BoxMethodDeclarationSiteV1, BoxMethodInventoryErrorV1, BoxMethodInventoryV1, Span,
+    ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1, BoxMethodInventoryV1, Span,
 };
 use crate::parser::{NyashParser, ParseError};
 
@@ -33,7 +33,7 @@ impl PendingExplicitMethodV1 {
     pub(crate) fn commit(
         self,
         inventory: &mut BoxMethodInventoryV1,
-    ) -> Result<BoxMethodDeclarationSiteV1, ParseError> {
+    ) -> Result<BoxMethodInventoryOrdinalV1, ParseError> {
         inventory
             .try_push_explicit_source(self.name, self.declaration, self.diagnostic_span)
             .map_err(map_inventory_error)
