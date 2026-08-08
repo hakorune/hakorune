@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0/D-I0 closed; broad public AST postpass cutover D0 active
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0/D-I0 closed; broad public AST postpass cutover D0 accepted, I0 parked
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -347,11 +347,30 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection
   no ExactTrivial*Abi/MirType reverse inference
 
-PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0 active; I0 parked)
-  total typed postpass envelope for `parse`, fuel/build-config parsing, and
-  explain-report parsing; preserve interface/static/record/mixed cohorts,
-  fuel, metadata, and explain-report contracts before switching any caller to
-  the rich source-seal projection. No catch-and-fallback or fake seal.
+PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0 accepted; I0 parked)
+  one total typed postpass owner for `parse`, fuel/build-config parsing,
+  metadata, and explain-report projections. The private result carries AST,
+  metadata, optional explain, and typed per-Box coverage:
+  `SourceSealedOrdinary` or `AstOnlyCompatibility`. Only the ordinary row may
+  become resolver source authority; interface/static/record/mixed rows are
+  successful AST-only compatibility and never fake seals. A shared full
+  BuildGate decision set must feed prune, explain, and top-level source-path
+  rebase. Preserve fuel, metadata, and explain behavior; no reparse, AST/name
+  rescan, catch-and-fallback, retry, ordinal identity reconstruction, or old
+  whole-root helper hidden behind the new owner.
+
+  Ordered rows:
+    PARSER-PUBLIC-AST-POSTPASS-S0
+      private envelope/cohort admission/caller census; no public switch
+    PARSER-PUBLIC-AST-POSTPASS-I0-A
+      string/build-config wrapper family with fuel/AST/diagnostic parity
+    PARSER-PUBLIC-AST-POSTPASS-I0-B
+      `NyashParser::parse` and metadata projection, no re-tokenization
+    PARSER-PUBLIC-AST-POSTPASS-I0-C
+      full BuildGate decision set and explain parity
+    PARSER-PUBLIC-AST-POSTPASS-FINAL
+      old whole-root delegate caller-zero and compatibility quarantine
+
   Task:
   `docs/development/current/main/investigations/parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`
 

@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0/C-I0/D-D0/D-I0 closed; broad public AST postpass cutover D0 active
+Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0/C-I0/D-D0/D-I0 closed; broad public AST postpass cutover D0 accepted, I0 parked
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -273,12 +273,80 @@ is ordinary-Box-only; their total postpass envelope is the following D0 row.
 
 ## PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0 — active design stop
 
-`parse`, `parse_from_string_with_fuel_and_build_config`, and
-`parse_from_string_with_fuel_and_build_config_and_explain_report` support
-interface/static/record/mixed programs and preserve fuel, metadata, and
-explain-report behavior. They must not be switched to the ordinary-only rich
-source-seal path by catching rejection or adding a fallback. The D0 task fixes
-the typed total envelope and cohort parity before I0 opens.
+The broad AST API family is not allowed to call the ordinary-only rich path
+and catch rejection. It must first converge on one total parser postpass
+owner whose output distinguishes AST transport from resolver-visible source
+authority:
+
+```text
+parse_program once
+  -> PreparedBuildGateDecisionSetV1 (all structural gate paths)
+  -> one prune/delegate coordinator
+  -> one final cohort coverage pass
+  -> CompletedParserPostpassV1
+
+CompletedParserPostpassV1 {
+  ast,
+  metadata,
+  explain,
+  box_coverage,
+}
+
+box_coverage row
+  = SourceSealedOrdinary { ParserBoxSourceSealV1 }
+  | AstOnlyCompatibility { typed cohort receipt }
+```
+
+`SourceSealedOrdinary` is the only row that may cross into resolver source
+authority. `AstOnlyCompatibility` is a successful AST/metadata/explain
+projection for interface/static/record/mixed compatibility and is never an
+empty seal, target, Recipe input, or fallback result. Final AST placement is
+coverage only; parser-issued source paths/sites remain identity.
+
+The coordinator is the sole postpass owner for `NyashParser::parse`, the
+string/build-config family, metadata wrappers, and the explain route. It
+consumes the parser invocation, source session, AST, and metadata once. No
+wrapper reparses, rescans names, reconstructs identity from inventory ordinals,
+or retries another postpass arm.
+
+### Gate, fuel, metadata, and compatibility contract
+
+The existing explain traversal covers all nested BuildGate nodes, whereas the
+source gate ledger is top-level scoped. Therefore a private typed
+`PreparedBuildGateDecisionSetV1` must evaluate all structural gate paths once;
+the same decision set is consumed by AST prune, explain-report projection, and
+top-level ordinary source-path rebase. The full decision set and the
+top-level source path remain distinct types joined by one relation receipt.
+
+Fuel is configured once at parser construction and remains observable through
+all wrapper projections. Metadata is taken once by the postpass envelope;
+AST-only projections discard it, metadata projections return it. Explain is
+captured only when requested and is derived from the shared decision set, not a
+second AST semantic walk.
+
+Ordinary selected gate branches may receive `SourceSealedOrdinary` only when
+the selected branch is proven to be the supported ordinary cohort. Fully
+observed interface/static/record/mixed cohorts receive typed compatibility
+rows. Foreign, duplicate, malformed, or missing source relations reject the
+whole unpublished product; source/cohort alignment gaps are unresolved;
+compatibility selection is not a decline and never triggers rich-then-legacy
+fallback. `NoSafeSlice` remains a development state for an unimplemented
+coordinator/issuer rather than a source disposition.
+
+The first implementation series is deliberately finite:
+
+```text
+S0   private total envelope/cohort admission/caller census, no public switch
+I0-A string/build-config wrapper family + fuel/AST/diagnostic parity
+I0-B NyashParser::parse + metadata projection, no re-tokenization
+I0-C full gate-decision-set + explain parity
+FINAL old whole-root delegate caller-zero and compatibility quarantine
+```
+
+The ordinary rich D-I0 receipt remains closed and unchanged. This D0/I0 row
+must update its parser README, language reference, focused parity/negative
+tests, task map, CURRENT_STATE, and consolidated guard in each implementation
+commit; no broad implementation is opened while `work_mode = "design_stop"`.
 
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 

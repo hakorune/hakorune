@@ -22,7 +22,7 @@ task, taskmap, ssot, state, readme, reference = [
     Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
 ]
 
-if "Status: accepted design stop; implementation not opened" not in task:
+if "Status: accepted design; implementation not opened" not in task:
     raise SystemExit("cutover D0 must remain design-only")
 for document, label in (
     (taskmap, "task map"),
@@ -46,6 +46,22 @@ for needle in (
 ):
     if needle not in task:
         raise SystemExit(f"cutover task missing contract: {needle}")
+for needle in (
+    "CompletedParserPostpassV1",
+    "SourceSealedOrdinary",
+    "AstOnlyCompatibility",
+    "PreparedBuildGateDecisionSetV1",
+    "NyashParser::parse",
+    "PARSER-PUBLIC-AST-POSTPASS-S0",
+    "PARSER-PUBLIC-AST-POSTPASS-I0-A",
+    "PARSER-PUBLIC-AST-POSTPASS-I0-B",
+    "PARSER-PUBLIC-AST-POSTPASS-I0-C",
+    "PARSER-PUBLIC-AST-POSTPASS-FINAL",
+    "NoSafeSlice",
+    "no retry",
+):
+    if needle not in task:
+        raise SystemExit(f"cutover task missing total-envelope contract: {needle}")
 if 'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0"' not in state:
     raise SystemExit("CURRENT_STATE must point to the cutover design stop")
 if 'work_mode = "design_stop"' not in state:

@@ -54,3 +54,32 @@ because the rich finalizer intentionally rejects interface/static/record/mixed
 cohorts. Their total postpass envelope is tracked by
 `PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0`; no catch-and-fallback cutover is
 allowed.
+
+## Broad AST postpass design stop
+
+The broad parser API family will converge on one private postpass owner, not
+on a rich-path attempt followed by a legacy retry. The owner will consume one
+parser invocation, AST, source session, metadata, and optional explain demand
+and return a typed total result:
+
+```text
+CompletedParserPostpassV1
+  ast + metadata + optional explain + per-Box coverage
+
+coverage row
+  SourceSealedOrdinary(ParserBoxSourceSealV1)
+  | AstOnlyCompatibility(typed interface/static/record/mixed cohort)
+```
+
+Only `SourceSealedOrdinary` is resolver-visible. Compatibility rows are
+successful AST projections and never carry an empty seal, target, Recipe
+input, or fallback marker. Final AST placement is coverage metadata; parser
+source paths/sites remain identity and inventory ordinals never become source
+identity.
+
+The same private `PreparedBuildGateDecisionSetV1` (implementation name may
+change) must feed AST prune, explain-report projection, and top-level ordinary
+source-path rebase. Fuel is configured once at parser construction; metadata
+is taken once by the envelope; `NyashParser::parse` uses the same owner without
+re-tokenizing. Explain cutover is parked until the shared all-gate decision
+set has parity. This design stop adds no code or public API switch.

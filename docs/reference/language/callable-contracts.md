@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 active; resolver coverage remains unopened.
+Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted, I0 parked; resolver coverage remains unopened.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -260,6 +260,31 @@ compatibility nonclaims because the rich finalizer is ordinary-Box-only. Their
 total postpass envelope is the separate
 `PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0` design row; no second seal or
 catch-and-fallback is allowed.
+
+The broad AST cutover design uses one total private postpass result rather
+than pretending that every parsed program is resolver-source sealed:
+
+```text
+CompletedParserPostpassV1
+  = AST + ParserMetadata + optional BuildGateExplainReport
+    + typed per-Box coverage
+
+coverage row
+  = SourceSealedOrdinary(ParserBoxSourceSealV1)
+  | AstOnlyCompatibility(typed interface/static/record/mixed cohort)
+```
+
+Only `SourceSealedOrdinary` is a source-authority input. Compatibility rows
+remain valid AST/metadata/explain projections and never become an empty seal,
+resolver target, Recipe input, or fallback result. The postpass coordinator
+consumes one parser invocation and one source session; wrappers do not reparse,
+rescan AST names, or reconstruct identity from inventory ordinals. Fuel is set
+once during parser construction and the same typed envelope owns metadata.
+
+Because explain traversal covers nested BuildGate nodes while the source gate
+ledger is top-level scoped, a shared private full BuildGate decision set must
+feed prune, explain projection, and top-level ordinary source-path rebase.
+Explain cutover remains parked until that decision-set parity is proven.
 
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate
