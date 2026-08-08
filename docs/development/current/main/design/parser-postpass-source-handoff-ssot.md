@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A closed; R6-S3B-B implementation not opened
+Status: accepted design; R6-S3B-A closed; R6-S3B-B1 implementation active; B2/B3 not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -198,7 +198,7 @@ R6-S3B-D  final complete-coverage seal, retire the S3A generated-suffix
            adapter, and switch all AST-only APIs to the rich path
 ```
 
-## R6-S3B-B design receipt — accepted, implementation not opened
+## R6-S3B-B design receipt — accepted; B1 implementation opened
 
 The top-level build-gate boundary is a parser source-transport problem, not
 an AST-only filtering helper. The current `statement_ordinal` site is
@@ -297,8 +297,8 @@ Normal selection of a supported branch is not an error disposition.
 ### B implementation ladder
 
 ```text
-R6-S3B-B0  design receipt and owner/type/negative matrix (this row)
-R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport
+R6-S3B-B0  design receipt and owner/type/negative matrix (closed)
+R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport (active)
 R6-S3B-B2  consume-return ParserSourceSession prune/rebase transaction
 R6-S3B-B3  AST/source coverage tests, guard, finalizer receipt, and docs
 ```

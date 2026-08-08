@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A closed — R6-S3B-B design stop
+Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0 closed — R6-S3B-B1 active
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -669,15 +669,16 @@ resolver-grade relation claim is made. The focused S3B-A guard and tests prove
 product handoff, diagnostic metadata separation, and rich/projection AST
 parity. The implementation/reference/guard closeout lands together.
 
-### R6-S3B-B design stop (no implementation)
+### R6-S3B-B design receipt and B1 implementation boundary
 
-The next frontier is accepted only as a design receipt in
-`docs/development/current/main/design/parser-postpass-source-handoff-ssot.md#r6-s3b-b-design-receipt--accepted-implementation-not-opened`.
+The design receipt is accepted in
+`docs/development/current/main/design/parser-postpass-source-handoff-ssot.md#r6-s3b-b-design-receipt--accepted-implementation-opened`.
 The current `statement_ordinal` cannot identify multiple Boxes inside one
 gate. B must add parser-issued gate id/branch/child structural paths and one
 `BuildGateSelectionReceiptV1`, then make product prune consume/return a
 complete source session atomically. The final AST ordinal remains forbidden
-as source identity. B0/B1/B2/B3 are the only next cells; delegate relation,
+as source identity. B1 is active for path/cursor transport only; B2/B3 remain
+closed. Delegate relation,
 interface/static/record, Hako, resolver, and MIR work stay closed.
 
 ## Ordered implementation series

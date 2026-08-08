@@ -178,10 +178,10 @@ R6-S3B-D
   close all AST-only projection and rich-path parity gaps
 
 R6-S3B-B0
-  accepted design receipt for parser-issued gate paths and selection receipts
+  accepted design receipt for parser-issued gate paths and selection receipts (closed)
 
 R6-S3B-B1
-  parser gate-id/branch/child cursor and SourceBoxDeclarationPath transport
+  parser gate-id/branch/child cursor and SourceBoxDeclarationPath transport (active)
 
 R6-S3B-B2
   atomic consume-return ParserSourceSession prune/rebase
