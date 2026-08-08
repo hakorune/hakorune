@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2 closed — R6-S3B-B3 design stop
+Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2 closed — R6-S3B-B3-D0 design stop; B3-I0 not opened
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -604,9 +604,10 @@ AST-only APIs project from the rich path exactly once
 final ParserBoxSourceSealV1 is issued only after complete relation coverage
 ```
 
-Until the delegate relation exists, the rich path must reject generated
-delegate suffixes or keep them explicitly outside the final source seal. No
-resolver-grade seal may silently accept an AST-only generated suffix.
+Until the delegate relation exists, the rich path may keep a valid generated
+delegate suffix explicitly outside the final source seal. No resolver-grade
+seal may silently treat an AST-only generated suffix as an explicit source
+relation; malformed or provenance-invalid suffixes still reject the product.
 
 The design question is closed; the following implementation ladder is the only
 permitted continuation:
@@ -645,7 +646,7 @@ Required S3B decision receipts are:
 4. projection parity tests proving AST-only and rich paths parse once;
 5. a guard and reference update in the same implementation slice later.
 
-The S3B-D0 receipts are accepted and S3B-A/B0/B1/B2 are closed. `R6-S3B-B3`
+The S3B-D0 receipts are accepted and S3B-A/B0/B1/B2 are closed. `R6-S3B-B3-D0`
 is the design-stop cell after parser-issued gate-ledger transport,
 explicit top-level scope, a distinct gate-path type, typed selection receipts,
 and atomic source-session prune/rebase. Do not add
@@ -732,9 +733,44 @@ gates are covered; selected source seals retain their original Box paths and
 unselected seals are removed through consume-return pruning. Method/body and
 other closed scopes do not enter the top-level ledger. Focused parser tests,
 the B2 guard, `cargo check --bin hakorune`, formatting, and diff checks were
-green in this slice. B3 remains a design stop; delegate relations, Hako
+green in this slice. B3-D0 remains a design stop; B3-I0 and delegate relations, Hako
 parity, resolver, Recipe, Builder, MIR, provider, and runtime work stay
 closed.
+
+### R6-S3B-B3-D0 design stop — finalizer alignment
+
+The next row is design-only. Its decision is to close the exact final
+AST↔source-seal coverage contract before opening any delegate relation
+implementation. `ParserSourceSessionV1` remains the sole unpublished source
+transaction owner and the existing finalizer remains the sole issuer of the
+non-Clone `ParserBoxSourceSealV1`; B3 introduces no new semantic receipt or
+second issuer. Final-AST/inventory ordinals, generated delegate suffix
+provenance alone, delegate AST mutation, and AST-only projections are not
+source authorities.
+
+The bounded next implementation, after this design stop is accepted, is only
+finalizer alignment: explicit and generated-property rows retain exact
+same-brand coverage, while a valid generated-delegate suffix remains in the
+AST/descriptive compatibility projection but stays outside the resolver-
+visible source seal. A malformed or provenance-invalid suffix rejects the
+rich product. The existing generated-delegate placement test remains a
+descriptive canary, not a resolver-grade claim. `R6-S3B-C` owns the later
+source-aware delegate transaction and `GeneratedDelegateSourceRelation`.
+
+The implementation must use a private `FinalizerCoveragePlanV1` to match
+parser source paths to final AST Boxes one-to-one. Final AST/inventory
+ordinal, name order, `HashMap` order, positional `zip`, and postpass reindexing
+are not source identity. B3 adds no public semantic receipt or second issuer.
+
+Nonclaims for B3 are delegate relation implementation, interface/static/record
+cohorts, Hako parity, resolver, `CallableContract`, target, Recipe, Builder,
+MIR, provider, runtime, fallback, source rescan, and AST rewrite.
+
+The next row is `R6-S3B-B3-I0` and is not opened in this design-stop slice.
+It may implement only the private finalizer coverage plan and its focused
+ordinary-Box positive/negative guard, while preserving the valid generated
+delegate placement canary outside the final source seal. The same slice must
+update the landed reference and parser-module owner documentation.
 
 ## Ordered implementation series
 

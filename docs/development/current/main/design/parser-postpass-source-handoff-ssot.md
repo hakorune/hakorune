@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A/B1/B2 closed; R6-S3B-B3 design stop; delegate/Hako/resolver rows not opened
+Status: accepted design; R6-S3B-A/B1/B2 closed; R6-S3B-B3-D0 design stop; B3-I0 and delegate/Hako/resolver rows not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -24,7 +24,7 @@ parse
   -> source-aware delegate lowering
   -> finalizer
   -> ParsedProgramWithSourceV1
-       { final AST, complete non-Clone source seals }
+       { final AST, complete explicit-source non-Clone seals }
 ```
 
 There is no detached `ASTNode` postpass plus a separately registered seal
@@ -46,8 +46,9 @@ and its source records.
 
 `BoxMethodInventoryV1` remains cloneable descriptive data. Only the final
 `ParserBoxSourceSealV1` is non-Clone and resolver-grade. Until generated
-delegate relations exist, a generated suffix is not enough to issue a complete
-resolver-grade seal.
+delegate relations exist, a generated suffix remains descriptive compatibility
+data outside the resolver-visible seal; it is not enough to issue a generated
+source relation or to extend explicit-source coverage.
 
 ## Typed source path
 
@@ -122,11 +123,14 @@ generated inventory placement
    (host Box path, delegate member/expose site, target Box/method path)
 ```
 
-The generated declaration and relation are issued by the same transaction.
-The existing AST-only delegate pass is a descriptive compatibility adapter
-only; it must not feed a final resolver-grade seal. Until the generated
-relation is implemented, the rich path rejects generated delegate suffixes
-instead of accepting an incomplete seal.
+The generated declaration and relation are issued by the same transaction when
+the source-aware delegate row is opened. The existing AST-only delegate pass
+is a descriptive compatibility adapter only; it must not feed a final
+resolver-grade seal. Until the generated relation is implemented, the rich
+path may preserve a valid generated suffix in its AST/descriptive
+compatibility projection, but it keeps that suffix outside the
+resolver-visible source seal. A malformed or provenance-invalid suffix
+rejects the whole unpublished product.
 
 ### AST-only projections
 
@@ -299,8 +303,8 @@ Normal selection of a supported branch is not an error disposition.
 ```text
 R6-S3B-B0  design receipt and owner/type/negative matrix (closed)
 R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport (closed)
-R6-S3B-B2  parser gate-ledger transport, typed selection receipts, and consume-return ParserSourceSession prune/rebase (design stop)
-R6-S3B-B3  AST/source coverage tests, guard, finalizer receipt, and docs
+R6-S3B-B2  parser gate-ledger transport, typed selection receipts, and consume-return ParserSourceSession prune/rebase (closed)
+R6-S3B-B3-D0  finalizer AST/source exact-coverage alignment (design stop)
 ```
 
 B1/B2 must not add delegate relations, interface/static/record seals, Hako
@@ -447,8 +451,62 @@ Rust suites cover source-preordered ledger transport, method/body scope
 closure, direct/sibling/nested/empty gate pruning, selected-branch seal
 preservation, and consume-return session validation. The B2 guard also checks
 the distinct gate-path grammar, one receipt per opened gate, exact
-end-of-stream coverage, and the below-800-line source boundary. B3 is a design
-stop only; no new parser or resolver implementation is open from this receipt.
+end-of-stream coverage, and the below-800-line source boundary. B3-D0 is a
+design stop only; B3-I0 and no new resolver implementation are open from this
+receipt.
+
+## R6-S3B-B3-D0 design stop — finalizer alignment
+
+```text
+Decision:
+  close the finalizer's exact AST↔source-seal coverage contract before opening
+  any delegate relation implementation; do not broaden the source cohort here.
+
+Source authority + canonical issuer:
+  ParserSourceSessionV1 owns the unpublished source transactions, and the
+  existing finalizer is the sole issuer of ParserBoxSourceSealV1 after prune
+  and delegate postpass. B3 adds no new semantic receipt or second issuer.
+
+Non-authority:
+  final-AST/inventory ordinals, generated delegate suffix provenance alone,
+  delegate-lowering AST mutation, and AST-only compatibility projections.
+
+Fail-fast boundary:
+  every final ordinary-Box explicit/property row and source relation must have
+  exact same-brand coverage. A valid generated delegate suffix may remain in
+  the final AST/descriptive compatibility projection, but it is outside the
+  resolver-visible source seal until GeneratedDelegateSourceRelation exists.
+  A malformed or provenance-invalid generated suffix rejects/no-seal; a valid
+  suffix is never treated as an explicit source relation.
+
+Smallest next slice:
+  a bounded finalizer alignment implementation/guard that proves explicit and
+  property rows seal through a private source-path coverage plan, keeps the
+  generated-delegate placement canary outside the final source seal, and
+  rejects malformed/foreign/missing/duplicate coverage. The plan must match
+  parser source paths to final AST Boxes one-to-one; no positional zip,
+  inventory/name order, HashMap order, or postpass ordinal is identity. No new
+  public semantic receipt is introduced; `FinalizerCoveragePlanV1` is private
+  implementation state only.
+
+Non-claims:
+  no GeneratedDelegateSourceRelation, delegate transaction, interface/static/
+  record cohort, Hako parity, resolver, Recipe, Builder, MIR, provider, or
+runtime integration, source rescan, fallback, or AST rewrite.
+```
+
+The next row is `R6-S3B-B3-I0` and is not opened in this design-stop slice.
+It may implement only the private finalizer coverage plan and focused
+ordinary-Box positive/negative guard, while preserving the valid generated
+delegate placement canary outside the final source seal. The same slice must
+update the landed reference and parser-module owner documentation.
+
+The current bounded S3A test accepts a generated delegate suffix only as a
+temporary placement canary. That acceptance is not a resolver-grade source
+claim: B3 keeps it explicitly outside the final source seal, while malformed
+or provenance-invalid suffixes still reject. R6-S3B-C owns the later
+source-aware delegate transaction and relation; B3 must not implement it
+indirectly.
 
 ## Nonclaims until R6-S3B-D closes
 

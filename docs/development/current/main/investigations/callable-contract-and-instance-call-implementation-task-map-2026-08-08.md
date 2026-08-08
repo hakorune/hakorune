@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2 closed, R6-S3B-B3 design stop
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2 closed, R6-S3B-B3-D0 design stop, B3-I0 not opened
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -188,9 +188,19 @@ R6-S3B-B2
   distinct gate-path type, one typed selection receipt per gate, and atomic
   consume-return ParserSourceSession prune/rebase (closed)
 
-R6-S3B-B3
-  design stop for the next AST/source coverage and finalizer-alignment slice;
-  no implementation opened
+R6-S3B-B3-D0
+  accepted design stop for finalizer AST/source exact coverage. The next bounded
+  implementation must preserve explicit/property seals, keep a valid
+  generated-delegate suffix outside the resolver-visible source seal, and
+  reject malformed/provenance-invalid suffixes. R6-S3B-C later issues
+  GeneratedDelegateSourceRelation; no implementation is opened here.
+
+R6-S3B-B3-I0 (next, not opened)
+  private FinalizerCoveragePlanV1 and source-path one-to-one finalizer
+  alignment for the bounded ordinary Rust Box cohort; preserve the valid
+  generated-delegate placement canary outside the final source seal; reject
+  malformed/foreign/missing/duplicate coverage; same-slice focused tests,
+  guard, reference, and module README update.
 
 R6-S3-SOURCE-SITE-PLACEMENT-I0
   SourceBoxMethodSiteV1 separate from selected/generated inventory ordinal
@@ -219,11 +229,19 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
 ```
 
 The parser rows are R6-S3 design/implementation boundaries; R6-S3A,
-R6-S3B-D0, S3B-A, S3B-B0, S3B-B1, and S3B-B2 are closed. S3B-B3 is the
+R6-S3B-D0, S3B-A, S3B-B0, S3B-B1, and S3B-B2 are closed. S3B-B3-D0 is the
 current design stop after parser gate-ledger transport, scope/path distinction,
 selection receipts, and atomic prune/rebase; no implementation is open there. The
 latter five callable rows remain resolver/callable rows. Do not create a parallel
 implementation lane for them.
+
+External review reconciliation (2026-08-08): no new parallel task is needed.
+The parser source seal, source-site/placement split, typed callable syntax,
+`VerifiedHomeAbi` sole authority, old instance-result retirement,
+conformance-catalog plan, and semantic-I64/physical-ABI split remain ordered
+in this task map. The only current design stop is R6-S3B-B3-D0 finalizer
+alignment; R6-S3B-B3-I0 is not opened and delegate relation work remains
+R6-S3B-C.
 
 `NoSafeSlice` means a required issuer is not implemented. It is not a source
 disposition. After an issuer exists, disposition is:

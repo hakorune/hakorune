@@ -248,9 +248,10 @@ Current frontend receipt (2026-08-08): R6-S3A provides a bounded
 build-gate/delegate postpass boundary, validates the prepared inventory prefix,
 and records generated delegate suffix placement only as a bounded canary. The
 current AST-only delegate path has no `GeneratedDelegateSourceRelation`, so the
-suffix is not complete resolver-grade source authority; S3B-C/D must either
-add that relation and re-seal complete coverage or retire/reject the suffix
-adapter. This does not open typed `CallableContract` parser carriage, resolver
+suffix remains descriptive compatibility data outside the resolver-visible
+source seal; S3B-C/D must either add that relation and extend complete source
+coverage or retire the suffix adapter. Malformed or provenance-invalid suffixes
+reject the unpublished product. This does not open typed `CallableContract` parser carriage, resolver
 publication, source-aware delegate transport, top-level gate rebase, or body
 conformance.
 
