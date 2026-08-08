@@ -251,6 +251,20 @@ connection remain closed. Any failure discards the unpublished parsed product;
 there is no partial seal, retry, or fallback. The D-I0 task and guard are
 opened as the active bounded implementation row at this design stop.
 
+## R6-S3B-D-I0 implementation receipt — active slice
+
+The finalizer now consumes the C-I0 `GeneratedDelegateSourceRelationV1` rows
+and validates them against the final inventory before issuing the sole
+non-Clone `ParserBoxSourceSealV1`. Coverage is keyed by the exact host path,
+delegate member source site, and expose ordinal; placement is checked through
+the carried `generated_inventory_placement` receipt. Same-brand host/target
+paths, generated provenance/selection, explicit/property prefix coverage, and
+one-to-one generated suffix coverage are required. Duplicate, missing/orphan,
+foreign, non-generated, or mismatched rows reject the unpublished product.
+The final seal retains the generated relation rows. No AST/name/ordinal
+reconstruction, resolver target, Recipe, Builder/MIR, provider/runtime,
+fallback, or retry is opened by this slice.
+
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 
 The top-level build-gate boundary is a parser source-transport problem, not

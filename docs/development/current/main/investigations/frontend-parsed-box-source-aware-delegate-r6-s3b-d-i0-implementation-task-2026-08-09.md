@@ -10,13 +10,16 @@ Parent: `frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0-design-task-2026-
 ## Scope
 
 This is the active bounded implementation row after the D0 design stop. It
-consumes the parser-private relation rows
+consumes the parser-private `GeneratedDelegateSourceRelationV1` rows
 already carried by `ParsedProgramWithSourceV1`, verify complete final AST and
 inventory coverage, and issue the sole non-Clone `ParserBoxSourceSealV1` with
 generated-delegate relations included.
 
 It must not add a resolver target, semantic callable contract, Recipe/CallSlot,
 Builder/MIR route, provider/runtime route, fallback, retry, or AST rewrite.
+no fallback is permitted after the finalizer starts coverage.
+There is no partial seal, fallback, or retry: any coverage failure discards the
+unpublished parsed product.
 
 ## Required implementation
 
@@ -32,6 +35,9 @@ Builder/MIR route, provider/runtime route, fallback, retry, or AST rewrite.
 
 The finalizer must consume the prepared payload. It may not re-read AST names,
 rebuild source rows from inventory ordinals, or call the private target index.
+The exact placement receipt is the C-I0
+`GeneratedDelegateSourceRelationV1::generated_inventory_placement` field; the
+finalizer must not replace it with AST/name/ordinal reconstruction (no AST/name/ordinal recovery).
 
 ## Acceptance matrix
 
@@ -78,3 +84,12 @@ ordinal, partial seal, or resolver adapter.
 The row is closed only when the focused tests, guard, source-file line-count
 guard, and same-slice documentation receipt are green and the old S3A
 generated-suffix production caller is retired.
+
+## Landed bounded implementation receipt
+
+The finalizer implementation and focused tests are landed in the active D-I0
+slice. `ParserBoxSourceSealV1` now retains the complete generated relation rows
+after exact same-brand relation-key, provenance/selection, and placement
+coverage. The old AST-only `delegate_lowering` caller remains a compatibility
+caller by design; its retirement is a later caller-zero/cutover condition, so
+this task remains active rather than claiming full S3A retirement.

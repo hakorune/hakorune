@@ -279,8 +279,12 @@ R6-S3B-D (R6-S3B-D-D0 design closed; D-I0 implementation active)
   close all AST-only projection and rich-path parity gaps
   D0 design receipt:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0-design-task-2026-08-09.md`
-  planned implementation:
+  implementation receipt:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-d-i0-implementation-task-2026-08-09.md`
+  D-I0 now retains generated relation rows in the sole final seal after
+  same-brand relation-key, provenance, and placement-receipt coverage; focused
+  positive/negative tests and the D-I0 guard are landed. Resolver/runtime work
+  remains closed.
 
 R6-S3B-B0
   accepted design receipt for parser-issued gate paths and selection receipts (closed)

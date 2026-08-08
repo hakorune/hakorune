@@ -21,6 +21,7 @@ use super::source_path::{
     SourceBoxDeclarationPathV1, SourceBoxPathSegmentV1, SourceBuildGateBranchV1,
     SourceBuildGatePathV1,
 };
+use super::source_seal_finalizer::GeneratedDelegateCoverageErrorV1;
 use super::NyashParser;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -38,6 +39,10 @@ mod source_seal_delegate_tests;
 #[cfg(test)]
 #[path = "source_seal_misc_tests.rs"]
 mod source_seal_misc_tests;
+
+#[cfg(test)]
+#[path = "source_seal_finalizer_tests.rs"]
+mod source_seal_finalizer_tests;
 
 impl BuildGateSelectionReceiptV1 {
     pub(super) fn issue(
@@ -65,6 +70,7 @@ pub(super) enum SourceSealFinalizationErrorV1 {
     DuplicateFinalAstBoxPath { final_index: usize },
     PreparedBoxPathMissing { prepared_index: usize },
     ForeignFinalAstBoxPath { final_index: usize },
+    GeneratedDelegateCoverage(GeneratedDelegateCoverageErrorV1),
     Inventory(BoxMethodInventoryErrorV1),
 }
 
@@ -102,9 +108,7 @@ impl PreparedBoxSourceSealV1 {
     }
 
     /// Consume the prepared payload only after the postpass has produced the
-    /// final inventory. Generated delegate relations are carried by the rich
-    /// parsed product, but remain outside this resolver-visible source seal
-    /// until the later R6-S3B-D complete-coverage issuer.
+    /// final inventory and the generated-delegate relation coverage is exact.
     pub(super) fn finalize_against(
         self,
         final_inventory: &BoxMethodInventoryV1,
@@ -141,17 +145,17 @@ impl PreparedBoxSourceSealV1 {
             }
         }
 
+        super::source_seal_finalizer::validate_generated_delegate_coverage(&self, final_inventory)
+            .map_err(SourceSealFinalizationErrorV1::GeneratedDelegateCoverage)?;
+
         Ok(ParserBoxSourceSealV1 {
             prepared: PreparedBoxSourceSealV1 {
                 brand: self.brand,
                 box_site: self.box_site,
                 inventory: self.inventory,
                 method_relations: self.method_relations,
-                // C-I0 transports relation rows through the rich parsed
-                // product. The final non-Clone seal stays intentionally
-                // limited until R6-S3B-D extends complete coverage.
                 delegate_source_declarations: Box::new([]),
-                generated_delegate_source_relations: Box::new([]),
+                generated_delegate_source_relations: self.generated_delegate_source_relations,
             },
         })
     }
@@ -163,9 +167,9 @@ impl PreparedBoxSourceSealV1 {
 /// behavior. The important boundary is that those postpasses consume and
 /// return this product instead of separately mutating an AST and a seal list.
 /// Gate path rebasing and private target lookup are parser-private slices;
-/// generated relation coverage remains later S3B work. This product must not
-/// be treated as resolver authority until the final relation coverage is
-/// complete.
+/// final generated relation coverage is completed by the sole finalizer below.
+/// This product is not resolver authority until that final relation coverage
+/// succeeds.
 #[derive(Debug)]
 pub(super) struct OpenParserPostpassProductV1 {
     pub(super) ast: ASTNode,
@@ -176,7 +180,7 @@ pub(super) struct OpenParserPostpassProductV1 {
 
 /// Parser-owned source transport for the open postpass product. This wrapper
 /// keeps prepared payload storage behind a named session boundary; generated
-/// delegate-relation expansion belongs to later S3B slices.
+/// delegate relations stay parser-private until finalizer coverage succeeds.
 #[derive(Debug)]
 pub(super) struct ParserSourceSessionV1 {
     pub(super) prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
@@ -455,6 +459,12 @@ impl ParserBoxSourceSealV1 {
     pub(super) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
         &self.prepared.box_site
     }
+
+    pub(super) fn generated_delegate_source_relations(
+        &self,
+    ) -> &[GeneratedDelegateSourceRelationV1] {
+        &self.prepared.generated_delegate_source_relations
+    }
 }
 
 #[derive(Debug)]
@@ -493,8 +503,8 @@ impl ParsedProgramWithSourceV1 {
 /// `box` declarations, after build-gate pruning and delegate lowering.
 /// `FinalizerCoveragePlanV1` is the private one-to-one source-path alignment
 /// between parser-owned declarations and the final AST. Generated delegate
-/// rows remain descriptive AST compatibility data until a later source-aware
-/// delegate relation exists.
+/// rows are retained in the final source seal only after the source-aware
+/// relation/placement coverage check succeeds.
 #[derive(Debug)]
 struct FinalizerCoveragePlanV1 {
     prepared_to_final: Vec<usize>,
@@ -662,121 +672,12 @@ pub(super) fn map_error(error: SourceSealFinalizationErrorV1) -> crate::parser::
         SourceSealFinalizationErrorV1::ForeignFinalAstBoxPath { final_index } => {
             format!("R6-S3B-B3 final AST Box source path has a foreign parser brand at index {final_index}")
         }
+        SourceSealFinalizationErrorV1::GeneratedDelegateCoverage(error) => {
+            format!("R6-S3B-D generated delegate relation coverage is invalid: {error:?}")
+        }
         SourceSealFinalizationErrorV1::Inventory(error) => {
             format!("R6-S3A final Box inventory is invalid: {error}")
         }
     };
     crate::parser::ParseError::BuildCfg { message, line: 0 }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
-
-    #[test]
-    fn r6_s3_finalizes_ordinary_box_after_final_parse_postpass() {
-        let parsed = NyashParser::parse_from_string_with_source_seal(
-            r#"
-box Plain {
-    run() { return 1 }
-}
-"#,
-            ParserBuildConfig::default(),
-        )
-        .expect("ordinary Box should issue the final source seal");
-
-        assert_eq!(parsed.source_seals().len(), 1);
-        let seal = &parsed.source_seals()[0];
-        assert_eq!(seal.inventory().len(), 1);
-        assert_eq!(seal.inventory().get("run").unwrap().name(), "run");
-        assert_eq!(seal.method_relations().len(), 1);
-        assert!(matches!(parsed.ast(), ASTNode::Program { .. }));
-    }
-
-    #[test]
-    fn r6_s3b_b2_prunes_selected_top_level_gate_and_preserves_box_path() {
-        let parsed = NyashParser::parse_from_string_with_source_seal(
-            r#"
-gate Build.test {
-    box ThenBox { run() { return 1 } }
-} else {
-    box ElseBox { run() { return 2 } }
-}
-"#,
-            ParserBuildConfig::default(),
-        )
-        .expect("release config should select the else branch");
-
-        assert_eq!(parsed.source_seals().len(), 1);
-        assert!(matches!(
-            parsed.ast(),
-            ASTNode::Program { statements, .. }
-                if matches!(statements.as_slice(), [ASTNode::BoxDeclaration { name, .. }] if name == "ElseBox")
-        ));
-        assert!(matches!(
-            parsed.source_seals()[0].box_site().path().segments(),
-            [
-                crate::parser::source_path::SourceBoxPathSegmentV1::RootStatement { ordinal: 0 },
-                crate::parser::source_path::SourceBoxPathSegmentV1::BuildGate {
-                    branch: crate::parser::source_authority::SourceBuildGateBranchV1::Else,
-                    ..
-                }
-            ]
-        ));
-    }
-
-    #[test]
-    fn r6_s3b_b2_prunes_nested_top_level_gate_once() {
-        let config = ParserBuildConfig {
-            mode: BuildMode::Test,
-            ..ParserBuildConfig::default()
-        };
-        let parsed = NyashParser::parse_from_string_with_source_seal(
-            r#"
-gate Build.test {
-            gate Build.test {
-        box NestedBox { run() { return 1 } }
-    }
-}
-"#,
-            config,
-        )
-        .expect("nested selected gate should issue one rich source product");
-
-        assert_eq!(parsed.source_seals().len(), 1);
-        assert!(matches!(
-            parsed.source_seals()[0].box_site().path().segments(),
-            [
-                crate::parser::source_path::SourceBoxPathSegmentV1::RootStatement { ordinal: 0 },
-                crate::parser::source_path::SourceBoxPathSegmentV1::BuildGate { .. },
-                crate::parser::source_path::SourceBoxPathSegmentV1::BuildGate { .. }
-            ]
-        ));
-    }
-
-    #[test]
-    fn r6_s3b_b2_empty_gate_has_no_source_seal_and_still_finalizes() {
-        let parsed = NyashParser::parse_from_string_with_source_seal(
-            "gate Build.test { } else { }",
-            ParserBuildConfig::default(),
-        )
-        .expect("empty gate should have exact ledger/receipt coverage");
-        assert_eq!(parsed.source_seals().len(), 0);
-        assert!(
-            matches!(parsed.ast(), ASTNode::Program { statements, .. } if statements.is_empty())
-        );
-    }
-
-    #[test]
-    fn r6_s3_does_not_issue_a_partial_seal_for_unsupported_top_level_box() {
-        let error = NyashParser::parse_from_string_with_source_seal(
-            r#"
-static box StaticOnly { run() { return 1 } }
-"#,
-            ParserBuildConfig::default(),
-        )
-        .expect_err("static Box must remain outside the bounded rich product");
-        assert!(error.to_string().contains("ordinary top-level Box only"));
-    }
 }

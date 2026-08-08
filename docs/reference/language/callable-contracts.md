@@ -242,18 +242,16 @@ ordered Box-method inventory + parser-owned source seal
 Every implementation slice updates this reference and its owning module README
 in the same commit.
 
-Current frontend receipt (2026-08-08): R6-S3A provides a bounded
+Current frontend receipt (2026-08-09): R6-S3B-D-I0 extends the bounded
 `parse_from_string_with_source_seal` product for direct top-level ordinary Rust
-`box` declarations. It issues the non-Clone parser seal only after the existing
-build-gate/delegate postpass boundary, validates the prepared inventory prefix,
-and records generated delegate suffix placement only as a bounded canary. The
-current AST-only delegate path has no `GeneratedDelegateSourceRelation`, so the
-suffix remains descriptive compatibility data outside the resolver-visible
-source seal; S3B-C/D must either add that relation and extend complete source
-coverage or retire the suffix adapter. Malformed or provenance-invalid suffixes
-reject the unpublished product. This does not open typed `CallableContract` parser carriage, resolver
-publication, source-aware delegate transport, top-level gate rebase, or body
-conformance.
+`box` declarations. It consumes the parser-private
+`GeneratedDelegateSourceRelationV1` rows after the build-gate/delegate
+postpass, verifies exact same-brand relation keys and generated inventory
+placement, and retains the complete rows in the sole non-Clone
+`ParserBoxSourceSealV1`. Malformed, orphan, duplicate, foreign, or
+provenance-invalid coverage rejects the unpublished product. This does not
+open typed `CallableContract` parser carriage, resolver publication, Hako
+parity, or body conformance.
 
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate
@@ -377,6 +375,19 @@ delegate no-op, generated-name collision, duplicate source rows,
 staged-vs-actual placement mismatch, and persisted relation output. The
 final non-Clone source seal remains unchanged; no resolver, Recipe/CallSlot,
 Builder/MIR, provider/runtime, or production authority opens in C-I0.
+
+R6-S3B-D-I0 implementation receipt (2026-08-09): the finalizer now owns the
+single generated-delegate relation/placement coverage check. It validates
+same-brand host and target paths, exact `(host path, delegate member source
+site, expose ordinal)` relation keys, generated provenance/selection, and the
+C-I0 placement receipt against the final inventory. Every generated suffix
+entry must have exactly one relation and every relation must land on one
+generated entry; duplicates, missing/orphan placements, foreign paths, and
+non-delegate rows reject before the non-Clone seal is issued. The final seal
+retains the generated relation rows, while AST/name/ordinal reconstruction,
+resolver targets, Recipe/CallSlot, Builder/MIR, provider/runtime, fallback,
+and retry remain closed. Focused positive/negative tests, the D-I0 guard, and
+this reference update landed in the same implementation slice.
 
 ## Related references
 

@@ -36,7 +36,7 @@ box Plain {
 }
 
 #[test]
-fn r6_s3b_b3_keeps_delegate_suffix_outside_source_seal() {
+fn r6_s3b_d_i0_keeps_generated_inventory_descriptive_and_seal_source_bound() {
     let parsed = NyashParser::parse_from_string_with_source_seal(
         r#"
 box Target { run() { return 1 } }
@@ -71,4 +71,10 @@ box Host {
         .inventory()
         .get("runAlias")
         .is_none());
+    assert_eq!(
+        parsed.source_seals()[1]
+            .generated_delegate_source_relations()
+            .len(),
+        1
+    );
 }

@@ -37,11 +37,11 @@ for document, label in ((ssot, "SSOT"), (readme, "README"), (reference, "referen
         if needle not in document:
             raise SystemExit(f"{label} missing D-I0 receipt: {needle}")
 for needle in (
-    "finalizer-owned relation/placement coverage",
+    "finalizer-owned relation coverage plan",
     "GeneratedDelegateSourceRelationV1",
     "generated_inventory_placement",
     "same-brand",
-    "sole ParserBoxSourceSealV1",
+    "sole non-Clone `ParserBoxSourceSealV1`",
     "no AST/name/ordinal",
     "no partial",
     "no fallback",
@@ -52,7 +52,7 @@ for needle in (
     "GeneratedDelegateCoverageErrorV1",
     "validate_generated_delegate_coverage",
     "generated_delegate_source_relations: self.generated_delegate_source_relations",
-    "generated_delegate_source_relations(&self)",
+    "pub(super) fn generated_delegate_source_relations",
 ):
     if needle not in source_seal + finalizer:
         raise SystemExit(f"D-I0 final-seal implementation missing: {needle}")

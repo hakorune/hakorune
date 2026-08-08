@@ -41,3 +41,10 @@ receipts without rescanning AST names or rebuilding source identity from
 ordinals. The implementation is limited to that final seal and retirement of
 the bounded S3A generated-suffix adapter; resolver, CallableContract, Recipe,
 Builder/MIR, provider, and runtime work remain outside the row.
+
+The D-I0 finalizer now retains the complete generated relation rows in the
+seal. It rejects duplicate or orphan relation keys, foreign host/target paths,
+non-delegate placements, and provenance/selection mismatches before issuing
+the seal. The focused final-seal tests and
+`frontend_parsed_box_source_seal_r6_s3b_d_i0_guard.sh` are part of this same
+implementation slice; resolver/runtime connection remains closed.

@@ -116,6 +116,9 @@ fn prepare_all<'product>(
     product: &'product OpenParserPostpassProductV1,
 ) -> Result<PreparedDelegatePostpassBatchV1, BatchFailureV1> {
     let hosts = collect_hosts(product)?;
+    if hosts.is_empty() {
+        return Ok(PreparedDelegatePostpassBatchV1::new(Vec::new()));
+    }
     let target_index = product
         .issue_delegate_target_index()
         .map_err(map_target_index_error)?;
