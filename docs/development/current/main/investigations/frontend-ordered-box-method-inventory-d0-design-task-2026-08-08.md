@@ -228,9 +228,11 @@ Rust BoxShape series:
   R0 AST inventory model + focused model tests
   R0A inventory API authority correction
   R1 AST field + CompatibilityOnly consumer cutover
-  R2 ordinary/interface/static parser ExplicitSource issuance
-     + duplicate/site sealing
-  R3 selected-gate and generated-producer atomic transactions
+  R2 shared pending/direct issuance substrate
+     + interface/static ExplicitSource cutover
+     + build_cfg metadata-preserving transform
+  R3 ordinary sole-inventory cutover
+     + selected-gate/property/delegate atomic transactions
   R4 JSON Box codec split + ordered v2 / CompatibilityOnly v1
   R5 Builder compatibility consumer migration + old helper retirement
 

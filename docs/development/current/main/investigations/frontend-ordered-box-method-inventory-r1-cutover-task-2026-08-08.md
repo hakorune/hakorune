@@ -59,8 +59,9 @@ Add focused compatibility tests where the type replacement changes behavior.
 Keep every touched/new Rust file below 800 lines. The same implementation
 commit updates the frontend AST README and any landed `docs/reference/**`
 receipt affected by the actual field surface. R2 follows immediately with the
-ordinary parser ExplicitSource issuer; no unrelated caller-zero product may be
-inserted between them.
+shared pending/direct substrate and interface/static source issuance. Ordinary
+source issuance waits for the atomic mixed-owner R3 cutover; no unrelated
+caller-zero product may be inserted between these rows.
 
 ## Implementation receipt
 
