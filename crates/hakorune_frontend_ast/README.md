@@ -29,7 +29,7 @@ Raw `ExplicitSource` provenance is also descriptive. A later parser-owned seal
 must prove complete parsing, duplicate freedom, selected Box membership, and
 exact source identity before lending resolver-grade rows.
 
-Current status: R2 is landed. `ASTNode::BoxDeclaration.methods` now stores
+Current status: R3 is landed. `ASTNode::BoxDeclaration.methods` now stores
 `BoxMethodInventoryV1`, and compatibility consumers use explicitly named
 exact-lookup, selected-order, name-order, or `CompatibilityOnly` projections.
 The old public HashMap field and arbitrary mutable method access are gone.
@@ -41,9 +41,17 @@ rows with duplicate first/second coordinates. An unpublished
 name, order, provenance, site, or diagnostic span; delegate-free lowering
 passes the inventory through unchanged.
 
-Ordinary Box remains `CompatibilityOnly` until R3 atomically replaces its
-mixed direct/generated/selected/delegate owner. Raw rows still do not issue a
-resolver-grade source capability. Compatibility rows cannot be upgraded.
+Ordinary, interface, and static source methods now enter as ordered
+`ExplicitSource` rows. Selected build gates retain their exact outer-to-inner
+gate path and syntactic branch-member ordinal. Property and delegate helpers
+enter only through complete generated batches whose collisions and ordinal
+capacity are checked before one commit. A parsed `DelegateDecl` carries its
+exact source selection; legacy JSON delegates remain compatibility-only and
+cannot manufacture `Direct` provenance.
+
+Raw rows still do not issue a resolver-grade source capability. Compatibility
+rows cannot be upgraded. JSON v2 preservation is the separate R4 row; JSON v1
+decoding remains explicitly compatibility-only.
 
 ## Boundaries
 

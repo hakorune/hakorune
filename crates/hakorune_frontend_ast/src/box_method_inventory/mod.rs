@@ -6,6 +6,7 @@
 //! contracts, or physical routes.
 
 mod error;
+mod generated_batch;
 mod transform;
 
 use std::collections::HashMap;
@@ -13,6 +14,7 @@ use std::collections::HashMap;
 use crate::{ASTNode, Span};
 
 pub use error::BoxMethodInventoryErrorV1;
+pub use generated_batch::{PreparedGeneratedBoxMethodBatchV1, PreparedGeneratedBoxMethodV1};
 pub use transform::BoxMethodDeclarationTransformErrorV1;
 
 #[cfg(test)]
@@ -58,7 +60,11 @@ pub enum BoxMethodSourceSelectionV1 {
 }
 
 impl BoxMethodSourceSelectionV1 {
-    fn prepend_gate(&mut self, gate_site: BoxMemberGateSiteV1, branch_member_ordinal: u32) {
+    pub(crate) fn prepend_gate(
+        &mut self,
+        gate_site: BoxMemberGateSiteV1,
+        branch_member_ordinal: u32,
+    ) {
         let mut path = vec![BoxMethodGateSelectionV1 {
             gate_site,
             branch_member_ordinal,
@@ -284,6 +290,44 @@ impl BoxMethodInventoryV1 {
         )
     }
 
+    pub fn try_commit_generated_batch(
+        &mut self,
+        batch: PreparedGeneratedBoxMethodBatchV1,
+    ) -> Result<(), BoxMethodInventoryErrorV1> {
+        for row in batch.rows.iter() {
+            if let Some(first_index) = self.lookup.get(row.name.as_ref()) {
+                return Err(BoxMethodInventoryErrorV1::DuplicateMethod {
+                    name: row.name.clone(),
+                    first_span: self.entries[*first_index].diagnostic_span,
+                    duplicate_span: row.diagnostic_span,
+                });
+            }
+        }
+
+        let base = self.entries.len();
+        let final_len = base
+            .checked_add(batch.rows.len())
+            .ok_or(BoxMethodInventoryErrorV1::OrdinalOverflow)?;
+        u32::try_from(final_len).map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?;
+
+        for row in batch.rows {
+            let site = BoxMethodDeclarationSiteV1 {
+                selected_method_ordinal: u32::try_from(self.entries.len())
+                    .map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?,
+            };
+            let index = self.entries.len();
+            self.lookup.insert(row.name.clone(), index);
+            self.entries.push(BoxMethodEntryV1 {
+                name: row.name,
+                declaration: row.declaration,
+                provenance: BoxMethodProvenanceV1::Generated(row.provenance),
+                site,
+                diagnostic_span: row.diagnostic_span,
+            });
+        }
+        Ok(())
+    }
+
     pub fn try_push_compatibility(
         &mut self,
         name: impl Into<Box<str>>,
@@ -337,8 +381,17 @@ impl BoxMethodInventoryV1 {
     pub fn try_merge_selected_gate(
         &mut self,
         selected: Self,
+        branch_member_ordinals: &[u32],
         gate_site: BoxMemberGateSiteV1,
     ) -> Result<(), BoxMethodInventoryErrorV1> {
+        if selected.entries.len() != branch_member_ordinals.len() {
+            return Err(
+                BoxMethodInventoryErrorV1::BranchMemberOrdinalCountMismatch {
+                    methods: selected.entries.len(),
+                    ordinals: branch_member_ordinals.len(),
+                },
+            );
+        }
         for entry in &selected.entries {
             if let Some(first_index) = self.lookup.get(entry.name()) {
                 return Err(BoxMethodInventoryErrorV1::DuplicateMethod {
@@ -356,9 +409,11 @@ impl BoxMethodInventoryV1 {
         u32::try_from(final_len).map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?;
 
         let mut prepared = Vec::with_capacity(selected.entries.len());
-        for (branch_member_ordinal, mut entry) in selected.entries.into_iter().enumerate() {
-            let branch_member_ordinal = u32::try_from(branch_member_ordinal)
-                .map_err(|_| BoxMethodInventoryErrorV1::OrdinalOverflow)?;
+        for (mut entry, branch_member_ordinal) in selected
+            .entries
+            .into_iter()
+            .zip(branch_member_ordinals.iter().copied())
+        {
             entry
                 .provenance
                 .prepend_selected_gate(gate_site, branch_member_ordinal)?;
@@ -411,7 +466,7 @@ impl BoxMethodInventoryV1 {
         Ok(site)
     }
 
-    fn validate_declaration_name(
+    pub(super) fn validate_declaration_name(
         expected: &str,
         declaration: &ASTNode,
     ) -> Result<(), BoxMethodInventoryErrorV1> {

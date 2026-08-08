@@ -3,7 +3,6 @@ use crate::ast::{ASTNode, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
-use std::collections::HashMap;
 
 fn has_postfix(p: &NyashParser) -> bool {
     p.match_token(&TokenType::CATCH) || p.match_token(&TokenType::CLEANUP)
@@ -115,48 +114,4 @@ pub(crate) fn wrap_with_required_postfix(
 ) -> Result<Vec<ASTNode>, ParseError> {
     require_member_postfix_enabled(p)?;
     parse_postfix_trycatch(p, body, duplicate_catch_expected)
-}
-
-/// Try to parse method-level postfix catch/cleanup after the last parsed method.
-/// Attaches a TryCatch wrapper around the last method body.
-pub(crate) fn try_parse_method_postfix_after_last_method(
-    p: &mut NyashParser,
-    methods: &mut HashMap<String, ASTNode>,
-    last_method_name: &Option<String>,
-) -> Result<bool, ParseError> {
-    if !has_postfix(p) || last_method_name.is_none() {
-        return Ok(false);
-    }
-    require_member_postfix_enabled(p)?;
-    let mname = last_method_name.clone().unwrap();
-    let Some(mnode) = methods.get_mut(&mname) else {
-        let line = p.current_token().line;
-        return Err(ParseError::UnexpectedToken {
-            found: p.current_token().token_type.clone(),
-            expected: "method body before postfix catch/cleanup".to_string(),
-            line,
-        });
-    };
-    let crate::ast::ASTNode::FunctionDeclaration { body, .. } = mnode else {
-        let line = p.current_token().line;
-        return Err(ParseError::UnexpectedToken {
-            found: p.current_token().token_type.clone(),
-            expected: "function declaration before postfix catch/cleanup".to_string(),
-            line,
-        });
-    };
-    let already = body
-        .iter()
-        .any(|n| matches!(n, crate::ast::ASTNode::TryCatch { .. }));
-    if already {
-        let line = p.current_token().line;
-        return Err(ParseError::UnexpectedToken {
-            found: p.current_token().token_type.clone(),
-            expected: "duplicate postfix catch/cleanup after method".to_string(),
-            line,
-        });
-    }
-    let old = std::mem::take(body);
-    *body = parse_postfix_trycatch(p, old, "single catch only after method body")?;
-    Ok(true)
 }

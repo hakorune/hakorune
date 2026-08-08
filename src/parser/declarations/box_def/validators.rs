@@ -1,5 +1,5 @@
 //! Validators and light analysis for box members
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, BoxMethodInventoryV1};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use std::collections::{HashMap, HashSet};
@@ -10,9 +10,9 @@ use std::collections::{HashMap, HashSet};
 pub(crate) fn validate_no_ctor_like_name(
     p: &mut NyashParser,
     box_name: &str,
-    methods: &HashMap<String, ASTNode>,
+    methods: &BoxMethodInventoryV1,
 ) -> Result<(), ParseError> {
-    if methods.contains_key(box_name) {
+    if methods.contains_name(box_name) {
         let line = p.current_token().line;
         return Err(ParseError::UnexpectedToken {
             found: p.current_token().token_type.clone(),
@@ -29,14 +29,16 @@ pub(crate) fn validate_no_ctor_like_name(
 /// Validate that birth_once properties do not have cyclic dependencies via me.<prop> references
 pub(crate) fn validate_birth_once_cycles(
     p: &mut NyashParser,
-    methods: &HashMap<String, ASTNode>,
+    methods: &BoxMethodInventoryV1,
 ) -> Result<(), ParseError> {
     if !crate::parser::env::unified_members() {
         return Ok(());
     }
     // Collect birth_once compute bodies
     let mut birth_bodies: HashMap<String, Vec<ASTNode>> = HashMap::new();
-    for (mname, mast) in methods {
+    for entry in methods.iter_selected_declaration_order() {
+        let mname = entry.name();
+        let mast = entry.declaration();
         if let Some(prop) = mname.strip_prefix("__compute_birth_") {
             if let ASTNode::FunctionDeclaration { body, .. } = mast {
                 birth_bodies.insert(prop.to_string(), body.clone());

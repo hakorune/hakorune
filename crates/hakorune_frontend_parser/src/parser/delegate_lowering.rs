@@ -5,11 +5,11 @@
 //! narrow: explicit `delegate field exposes { method [as alias] }` only.
 
 use crate::ast::{
-    ASTNode, BoxMethodCompatibilityOriginV1, BoxMethodInventoryV1, DelegateDecl, FieldDecl,
-    ParamDecl, Span,
+    ASTNode, BoxMethodGeneratedProvenanceV1, BoxMethodInventoryV1, DelegateDecl, FieldDecl,
+    ParamDecl, PreparedGeneratedBoxMethodBatchV1, PreparedGeneratedBoxMethodV1, Span,
 };
 use crate::parser::ParseError;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 #[derive(Clone)]
 struct MethodSig {
@@ -21,7 +21,7 @@ struct MethodSig {
 
 #[derive(Clone)]
 struct BoxInfo {
-    methods: HashMap<String, ASTNode>,
+    methods: BoxMethodInventoryV1,
 }
 
 fn delegate_error(message: impl Into<String>) -> ParseError {
@@ -68,7 +68,7 @@ fn collect_box_info(statements: &[ASTNode]) -> HashMap<String, BoxInfo> {
             Some((
                 name.clone(),
                 BoxInfo {
-                    methods: methods.clone_compatibility_map(),
+                    methods: methods.clone(),
                 },
             ))
         })
@@ -107,25 +107,15 @@ fn lower_statement(
         return Ok(statement);
     };
 
-    let methods = if is_record || delegates.is_empty() {
-        methods
-    } else {
-        let mut compatibility_methods = methods.into_compatibility_map();
-        lower_delegates_for_box(
-            &name,
-            &field_decls,
-            &delegates,
-            &mut compatibility_methods,
-            boxes,
-        )?;
-        BoxMethodInventoryV1::try_from_compatibility_map(
-            compatibility_methods,
-            BoxMethodCompatibilityOriginV1::LegacyAstConstruction,
-        )
-        .map_err(|error| {
-            delegate_error(format!("invalid compatibility method inventory: {error:?}"))
-        })?
-    };
+    let mut methods = methods;
+    if !is_record && !delegates.is_empty() {
+        let batch = prepare_delegates_for_box(&name, &field_decls, &delegates, boxes)?;
+        methods.try_commit_generated_batch(batch).map_err(|error| {
+            delegate_error(format!(
+                "delegate method batch conflicts in box '{name}': {error}"
+            ))
+        })?;
+    }
 
     Ok(ASTNode::BoxDeclaration {
         name,
@@ -153,16 +143,24 @@ fn lower_statement(
     })
 }
 
-fn lower_delegates_for_box(
+fn prepare_delegates_for_box(
     box_name: &str,
     field_decls: &[FieldDecl],
     delegates: &[DelegateDecl],
-    methods: &mut HashMap<String, ASTNode>,
     boxes: &HashMap<String, BoxInfo>,
-) -> Result<(), ParseError> {
-    let mut exposed_names = HashSet::new();
+) -> Result<PreparedGeneratedBoxMethodBatchV1, ParseError> {
+    let mut rows = Vec::new();
 
     for delegate in delegates {
+        let selection = delegate
+            .explicit_source_selection()
+            .cloned()
+            .ok_or_else(|| {
+                delegate_error(format!(
+                    "delegate field '{}' in box '{}' has compatibility-only provenance and cannot issue generated methods",
+                    delegate.field_name, box_name
+                ))
+            })?;
         let target_type = delegate_field_type(box_name, field_decls, &delegate.field_name)?;
         let target = boxes.get(&target_type).ok_or_else(|| {
             delegate_error(format!(
@@ -172,28 +170,35 @@ fn lower_delegates_for_box(
         })?;
 
         for expose in &delegate.exposes {
-            if !exposed_names.insert(expose.exposed_name.clone()) {
-                return Err(delegate_error(format!(
-                    "delegate exposed method '{}' is duplicated in box '{}'",
-                    expose.exposed_name, box_name
-                )));
-            }
-            if methods.contains_key(&expose.exposed_name) {
-                return Err(delegate_error(format!(
-                    "delegate exposed method '{}' conflicts with local method in box '{}'",
-                    expose.exposed_name, box_name
-                )));
-            }
-
             let sig = resolve_unique_method(&target_type, target, &expose.source_name)?;
-            methods.insert(
-                expose.exposed_name.clone(),
-                build_forwarding_method(&delegate.field_name, &expose.exposed_name, sig),
+            let declaration =
+                build_forwarding_method(&delegate.field_name, &expose.exposed_name, sig);
+            rows.push(
+                PreparedGeneratedBoxMethodV1::new(
+                    expose.exposed_name.clone(),
+                    declaration,
+                    BoxMethodGeneratedProvenanceV1::Delegate {
+                        field_name: delegate.field_name.clone().into_boxed_str(),
+                        exposed_name: expose.exposed_name.clone().into_boxed_str(),
+                        selection: selection.clone(),
+                    },
+                    Span::unknown(),
+                )
+                .map_err(|error| {
+                    delegate_error(format!(
+                        "invalid delegate method '{}' in box '{}': {error}",
+                        expose.exposed_name, box_name
+                    ))
+                })?,
             );
         }
     }
 
-    Ok(())
+    PreparedGeneratedBoxMethodBatchV1::try_new(rows).map_err(|error| {
+        delegate_error(format!(
+            "invalid delegate method batch in box '{box_name}': {error}"
+        ))
+    })
 }
 
 fn delegate_field_type(
@@ -223,40 +228,31 @@ fn resolve_unique_method(
     target: &BoxInfo,
     method_name: &str,
 ) -> Result<MethodSig, ParseError> {
-    let matches = target
-        .methods
-        .values()
-        .filter_map(|method| {
-            let ASTNode::FunctionDeclaration {
-                name,
-                params,
-                param_decls,
-                return_type_name,
-                ..
-            } = method
-            else {
-                return None;
-            };
-            (name == method_name).then(|| MethodSig {
-                source_name: name.clone(),
-                params: params.clone(),
-                param_decls: param_decls.clone(),
-                return_type_name: return_type_name.clone(),
-            })
-        })
-        .collect::<Vec<_>>();
-
-    match matches.len() {
-        1 => Ok(matches[0].clone()),
-        0 => Err(delegate_error(format!(
+    let Some(method) = target.methods.get_declaration(method_name) else {
+        return Err(delegate_error(format!(
             "delegate target '{}' has no method '{}'",
             target_type, method_name
-        ))),
-        _ => Err(delegate_error(format!(
-            "delegate target '{}' has ambiguous method '{}'",
+        )));
+    };
+    let ASTNode::FunctionDeclaration {
+        name,
+        params,
+        param_decls,
+        return_type_name,
+        ..
+    } = method
+    else {
+        return Err(delegate_error(format!(
+            "delegate target '{}' method '{}' is not a function declaration",
             target_type, method_name
-        ))),
-    }
+        )));
+    };
+    Ok(MethodSig {
+        source_name: name.clone(),
+        params: params.clone(),
+        param_decls: param_decls.clone(),
+        return_type_name: return_type_name.clone(),
+    })
 }
 
 fn build_forwarding_method(field_name: &str, exposed_name: &str, sig: MethodSig) -> ASTNode {

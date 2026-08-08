@@ -6,6 +6,22 @@
 use crate::ast::{ASTNode, CatchClause, Span};
 use std::collections::HashMap;
 
+pub(super) struct GeneratedPropertyMethodV1 {
+    name: String,
+    declaration: ASTNode,
+}
+
+impl GeneratedPropertyMethodV1 {
+    fn new(name: String, body: Vec<ASTNode>) -> Self {
+        let declaration = function_decl(name.clone(), body);
+        Self { name, declaration }
+    }
+
+    pub(super) fn into_parts(self) -> (String, ASTNode) {
+        (self.name, self.declaration)
+    }
+}
+
 fn function_decl(name: String, body: Vec<ASTNode>) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name,
@@ -132,25 +148,17 @@ fn once_poison_message(name: &str) -> String {
     format!("once '{}' previously failed", name)
 }
 
-pub(crate) fn insert_computed_getter(
-    methods: &mut HashMap<String, ASTNode>,
-    name: String,
-    body: Vec<ASTNode>,
-) {
+pub(super) fn computed_getter(name: String, body: Vec<ASTNode>) -> Vec<GeneratedPropertyMethodV1> {
     let getter_name = format!("__get_{}", name);
-    methods.insert(getter_name.clone(), function_decl(getter_name, body));
+    vec![GeneratedPropertyMethodV1::new(getter_name, body)]
 }
 
-pub(crate) fn insert_once_methods(
-    methods: &mut HashMap<String, ASTNode>,
+pub(super) fn once_methods(
     name: String,
     compute_body: Vec<ASTNode>,
-) {
+) -> Vec<GeneratedPropertyMethodV1> {
     let compute_name = format!("__compute_once_{}", name);
-    methods.insert(
-        compute_name.clone(),
-        function_decl(compute_name.clone(), compute_body),
-    );
+    let compute = GeneratedPropertyMethodV1::new(compute_name.clone(), compute_body);
 
     let key = format!("__once_{}", name);
     let poison_key = format!("__once_poison_{}", name);
@@ -208,26 +216,28 @@ pub(crate) fn insert_once_methods(
     ];
 
     let getter_name = format!("__get_once_{}", name);
-    methods.insert(getter_name.clone(), function_decl(getter_name, getter_body));
+    vec![
+        compute,
+        GeneratedPropertyMethodV1::new(getter_name, getter_body),
+    ]
 }
 
-pub(crate) fn insert_birth_once_methods(
-    methods: &mut HashMap<String, ASTNode>,
+pub(super) fn birth_once_methods(
     name: String,
     compute_body: Vec<ASTNode>,
-) {
+) -> Vec<GeneratedPropertyMethodV1> {
     let compute_name = birth_once_compute_method_name(&name);
-    methods.insert(
-        compute_name.clone(),
-        function_decl(compute_name, compute_body),
-    );
+    let compute = GeneratedPropertyMethodV1::new(compute_name, compute_body);
 
     let getter_body = vec![return_expr(me_call(
         "getField".to_string(),
         vec![string_lit(birth_once_storage_key(&name))],
     ))];
     let getter_name = birth_once_getter_method_name(&name);
-    methods.insert(getter_name.clone(), function_decl(getter_name, getter_body));
+    vec![
+        compute,
+        GeneratedPropertyMethodV1::new(getter_name, getter_body),
+    ]
 }
 
 fn birth_once_initializer_pair(name: &str) -> Vec<ASTNode> {

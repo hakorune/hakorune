@@ -1,21 +1,28 @@
 //! Fields parsing (header-first: `name: Type` + unified members gates)
-use crate::ast::{ASTNode, FieldDecl};
+use crate::ast::{ASTNode, BoxMethodInventoryV1, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::declarations::box_def::members::{
-    property_emit,
+    property_batch::{PreparedGeneratedPropertyMethodBatchV1, PropertyMemberKindV1},
     syntax::{self, PropertyBodyPostfix},
 };
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
-use std::collections::HashMap;
 
 fn try_parse_computed_body(
     p: &mut NyashParser,
     fname: String,
-    methods: &mut HashMap<String, ASTNode>,
+    diagnostic_span: Span,
+    methods: &mut BoxMethodInventoryV1,
 ) -> Result<bool, ParseError> {
     if let Some(body) = syntax::try_parse_property_body(p, PropertyBodyPostfix::BlockOnly)? {
-        property_emit::insert_computed_getter(methods, fname, body);
+        let batch = PreparedGeneratedPropertyMethodBatchV1::prepare(
+            PropertyMemberKindV1::Computed,
+            fname,
+            body,
+            diagnostic_span,
+        )?;
+        let birth_once_property = batch.commit(methods)?;
+        debug_assert!(birth_once_property.is_none());
         return Ok(true);
     }
     Ok(false)
@@ -28,7 +35,7 @@ fn try_parse_computed_body(
 pub(crate) fn try_parse_get_computed_property(
     p: &mut NyashParser,
     get_line: usize,
-    methods: &mut HashMap<String, ASTNode>,
+    methods: &mut BoxMethodInventoryV1,
 ) -> Result<Option<String>, ParseError> {
     if !crate::parser::env::unified_members() {
         return Ok(None);
@@ -47,12 +54,13 @@ pub(crate) fn try_parse_get_computed_property(
         });
     }
 
+    let diagnostic_span = p.current_span();
     let fname = fname.clone();
     p.advance(); // consume property name
     let _declared_type_name =
         syntax::parse_optional_type_after_colon(p, "':' after get property name")?;
 
-    if try_parse_computed_body(p, fname.clone(), methods)? {
+    if try_parse_computed_body(p, fname.clone(), diagnostic_span, methods)? {
         return Ok(Some(fname));
     }
 
@@ -76,11 +84,11 @@ pub(crate) fn try_parse_get_computed_property(
 pub(crate) fn try_parse_header_first_field_or_property(
     p: &mut NyashParser,
     fname: String,
-    methods: &mut HashMap<String, ASTNode>,
+    diagnostic_span: Span,
+    methods: &mut BoxMethodInventoryV1,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
     field_initializers: &mut Vec<(String, ASTNode)>,
-    _weak_fields: &mut Vec<String>,
     is_weak: bool,
 ) -> Result<bool, ParseError> {
     // Expect ':' Type after name
@@ -126,7 +134,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
 
     // Unified members gate behavior
     if crate::parser::env::unified_members() {
-        if try_parse_computed_body(p, fname.clone(), methods)? {
+        if try_parse_computed_body(p, fname.clone(), diagnostic_span, methods)? {
             return Ok(true);
         }
     }
@@ -164,13 +172,12 @@ fn record_visibility(
 pub(crate) fn try_parse_visibility_block_or_single(
     p: &mut NyashParser,
     visibility: &str,
-    methods: &mut HashMap<String, ASTNode>,
+    methods: &mut BoxMethodInventoryV1,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
     field_initializers: &mut Vec<(String, ASTNode)>,
     public_fields: &mut Vec<String>,
     private_fields: &mut Vec<String>,
-    last_method_name: &mut Option<String>,
     weak_fields: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
     if visibility != "public" && visibility != "private" {
@@ -236,12 +243,11 @@ pub(crate) fn try_parse_visibility_block_or_single(
             p.advance(); // consume IDENTIFIER
 
             // Delegate to existing weak field parser (handles type annotation, etc.)
-            parse_weak_field(p, fname.clone(), methods, fields, field_decls, weak_fields)?;
+            parse_weak_field(p, fname.clone(), fields, field_decls, weak_fields)?;
 
             // Register with visibility tracking
             record_visibility(visibility, fname, public_fields, private_fields);
 
-            *last_method_name = None; // Reset method context (Phase 285A1.4)
             return Ok(true);
         } else {
             return Err(ParseError::UnexpectedToken {
@@ -252,28 +258,27 @@ pub(crate) fn try_parse_visibility_block_or_single(
         }
     }
     if let TokenType::IDENTIFIER(n) = &p.current_token().token_type {
+        let diagnostic_span = p.current_span();
         let n = n.clone();
         if crate::parser::env::unified_members() && n == "get" {
             let get_line = p.current_token().line;
             p.advance();
             if let Some(property_name) = try_parse_get_computed_property(p, get_line, methods)? {
                 record_visibility(visibility, property_name, public_fields, private_fields);
-                *last_method_name = None;
                 return Ok(true);
             }
             let fname = "get".to_string();
             if try_parse_header_first_field_or_property(
                 p,
                 fname.clone(),
+                diagnostic_span,
                 methods,
                 fields,
                 field_decls,
                 field_initializers,
-                weak_fields,
                 false,
             )? {
                 record_visibility(visibility, fname, public_fields, private_fields);
-                *last_method_name = None;
                 return Ok(true);
             }
         }
@@ -283,15 +288,14 @@ pub(crate) fn try_parse_visibility_block_or_single(
         if try_parse_header_first_field_or_property(
             p,
             fname.clone(),
+            diagnostic_span,
             methods,
             fields,
             field_decls,
             field_initializers,
-            weak_fields,
             false,
         )? {
             record_visibility(visibility, fname, public_fields, private_fields);
-            *last_method_name = None;
             return Ok(true);
         }
     }
@@ -305,7 +309,6 @@ pub(crate) fn try_parse_visibility_block_or_single(
 pub(crate) fn parse_weak_field(
     p: &mut NyashParser,
     field_name: String,
-    _methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
     weak_fields: &mut Vec<String>,

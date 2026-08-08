@@ -19,11 +19,13 @@ box TextLike {
 value is `query`, and the first implementation cohort is an instance method.
 Current parsers do not accept this family yet; acceptance and semantic
 issuance remain production zero. The Rust AST stores the ordered
-`BoxMethodInventoryV1`. Interface and static Box parsing now retain lexical
-order, explicit-source provenance, Box-local structural sites, and available
-token line/column through build-gate pruning and delegate-free lowering.
-Ordinary Box rows remain `CompatibilityOnly` until the atomic R3 mixed-owner
-cutover. Resolver sealing and Rust/`.hako` parity must still land before the
+`BoxMethodInventoryV1`. Ordinary, interface, and static Box parsing now retain
+selected declaration order, explicit-source provenance, Box-local structural
+sites, and available token line/column. Selected build gates preserve their
+outer-to-inner gate path and exact branch-member ordinal. Generated property
+and delegate helpers are committed as atomic batches and never become
+`ExplicitSource`; legacy JSON remains compatibility-only. Ordered JSON v2,
+Rust/`.hako` parser parity, and resolver sealing must still land before the
 declared contract issuer opens.
 
 ## `query` meaning

@@ -1,4 +1,7 @@
-use crate::ast::ASTNode;
+use crate::ast::{
+    ASTNode, BoxMethodGeneratedProvenanceV1, BoxMethodProvenanceV1, BoxMethodSourceSelectionV1,
+};
+use crate::parser::{NyashParser, ParseError};
 use crate::tests::helpers::parser::{
     find_box, find_constructor_body, parse_ok_with_unified_members,
 };
@@ -251,4 +254,59 @@ box EagerOnly {
 
     assert_eq!(body.len(), 2);
     assert_birth_once_initializer_pair(body, 0, "config");
+}
+
+#[test]
+fn generated_property_rows_keep_direct_provenance_and_source_site() {
+    let ast = parse_ok_with_unified_members(
+        r#"
+box Lazy {
+  once value: IntegerBox => 1
+}
+"#,
+    );
+    let ASTNode::BoxDeclaration { methods, .. } = find_box(&ast, "Lazy") else {
+        panic!("expected BoxDeclaration");
+    };
+
+    for entry in methods.iter_selected_declaration_order() {
+        assert_eq!(
+            (entry.diagnostic_span().line, entry.diagnostic_span().column),
+            (3, 8)
+        );
+        assert!(matches!(
+            entry.provenance(),
+            BoxMethodProvenanceV1::Generated(
+                BoxMethodGeneratedProvenanceV1::Property {
+                    property_name,
+                    selection: BoxMethodSourceSelectionV1::Direct,
+                }
+            ) if property_name.as_ref() == "value"
+        ));
+    }
+}
+
+#[test]
+fn property_then_explicit_collision_reports_both_source_sites() {
+    let error = crate::tests::helpers::env::with_env_var(
+        "NYASH_ENABLE_UNIFIED_MEMBERS",
+        "1",
+        || {
+            NyashParser::parse_from_string(
+                "box Clash {\n  once value: IntegerBox => 1\n  __get_once_value() { return 2 }\n}\n",
+            )
+            .expect_err("generated/explicit collision must reject")
+        },
+    );
+
+    assert!(matches!(
+        error,
+        ParseError::DuplicateBoxMethod {
+            name,
+            first_line: 2,
+            first_column: 8,
+            duplicate_line: 3,
+            duplicate_column: 3,
+        } if name == "__get_once_value"
+    ));
 }

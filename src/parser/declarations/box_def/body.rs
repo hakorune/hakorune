@@ -1,5 +1,6 @@
 use crate::ast::Span;
 use crate::parser::common::ParserUtils;
+use crate::parser::declarations::box_def::members::pending_method::PendingExplicitMethodV1;
 use crate::parser::declarations::box_def::state::BoxMemberState;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -13,28 +14,31 @@ fn box_try_block_first_property(
         return Ok(false);
     }
     p.ensure_no_pending_runes("block-first property")?;
-    crate::parser::declarations::box_def::members::properties::try_parse_block_first_property(
-        p,
-        &mut state.methods,
-        &mut state.birth_once_props,
-    )
+    let previous_len = state.methods.len();
+    let parsed =
+        crate::parser::declarations::box_def::members::properties::try_parse_block_first_property(
+            p,
+            &mut state.methods,
+            &mut state.birth_once_props,
+        )?;
+    if parsed {
+        state.record_new_methods_since(previous_len)?;
+    }
+    Ok(parsed)
 }
 
-fn box_try_method_postfix_after_last(
-    p: &mut NyashParser,
+fn commit_pending_ordinary_method(
+    pending: &mut Option<PendingExplicitMethodV1>,
     state: &mut BoxMemberState,
 ) -> Result<bool, ParseError> {
-    if state.last_method_name.is_none()
-        || !(p.match_token(&TokenType::CATCH) || p.match_token(&TokenType::CLEANUP))
-    {
+    let Some(method) = pending.take() else {
         return Ok(false);
-    }
-    p.ensure_no_pending_runes("method postfix")?;
-    crate::parser::declarations::box_def::members::postfix::try_parse_method_postfix_after_last_method(
-        p,
-        &mut state.methods,
-        &state.last_method_name,
-    )
+    };
+    let previous_len = state.methods.len();
+    let _ = method.commit(&mut state.methods)?;
+    state.record_new_methods_since(previous_len)?;
+    state.finish_source_member()?;
+    Ok(true)
 }
 
 fn box_try_init_block(p: &mut NyashParser, state: &mut BoxMemberState) -> Result<bool, ParseError> {
@@ -54,9 +58,12 @@ fn box_try_delegate(p: &mut NyashParser, state: &mut BoxMemberState) -> Result<b
         return Ok(false);
     }
     p.ensure_no_pending_runes("delegate declaration")?;
-    state
-        .delegates
-        .push(crate::parser::declarations::box_def::members::delegates::parse_delegate_decl(p)?);
+    state.delegates.push(
+        crate::parser::declarations::box_def::members::delegates::parse_delegate_decl(
+            p,
+            state.current_source_member_ordinal(),
+        )?,
+    );
     Ok(true)
 }
 
@@ -99,7 +106,8 @@ fn box_try_visibility(
         return Ok(false);
     }
     p.ensure_no_pending_runes("visibility field/property")?;
-    crate::parser::declarations::box_def::members::fields::try_parse_visibility_block_or_single(
+    let previous_len = state.methods.len();
+    let parsed = crate::parser::declarations::box_def::members::fields::try_parse_visibility_block_or_single(
         p,
         visibility,
         &mut state.methods,
@@ -108,9 +116,12 @@ fn box_try_visibility(
         &mut state.field_initializers,
         &mut state.public_fields,
         &mut state.private_fields,
-        &mut state.last_method_name,
         &mut state.weak_fields,
-    )
+    )?;
+    if parsed {
+        state.record_new_methods_since(previous_len)?;
+    }
+    Ok(parsed)
 }
 
 fn box_try_build_gate_members(
@@ -122,6 +133,7 @@ fn box_try_build_gate_members(
     }
 
     let line = p.current_token().line;
+    let gate_site = state.current_gate_site();
     p.consume_build_gate_head()?;
     let predicate = p.parse_build_predicate()?;
 
@@ -129,7 +141,7 @@ fn box_try_build_gate_members(
     let else_state = if p.match_token(&TokenType::ELSE) {
         p.advance();
         Some(if p.is_build_gate_head() {
-            parse_box_member_gate_group(p)?
+            parse_box_member_gate_group(p, gate_site)?
         } else {
             parse_box_member_gate_block(p)?
         })
@@ -168,8 +180,7 @@ fn box_try_build_gate_members(
         BoxMemberState::default()
     };
 
-    state.merge_from(selected_state);
-    state.last_method_name = None;
+    state.try_merge_selected_gate(selected_state, gate_site)?;
     Ok(true)
 }
 
@@ -181,7 +192,10 @@ fn parse_box_member_gate_block(p: &mut NyashParser) -> Result<BoxMemberState, Pa
     Ok(state)
 }
 
-fn parse_box_member_gate_group(p: &mut NyashParser) -> Result<BoxMemberState, ParseError> {
+fn parse_box_member_gate_group(
+    p: &mut NyashParser,
+    gate_site: crate::ast::BoxMemberGateSiteV1,
+) -> Result<BoxMemberState, ParseError> {
     if !p.is_build_gate_head() {
         return Err(ParseError::UnexpectedToken {
             found: p.current_token().token_type.clone(),
@@ -196,7 +210,7 @@ fn parse_box_member_gate_group(p: &mut NyashParser) -> Result<BoxMemberState, Pa
     let else_state = if p.match_token(&TokenType::ELSE) {
         p.advance();
         Some(if p.is_build_gate_head() {
-            parse_box_member_gate_group(p)?
+            parse_box_member_gate_group(p, gate_site)?
         } else {
             parse_box_member_gate_block(p)?
         })
@@ -226,20 +240,33 @@ fn parse_box_member_gate_group(p: &mut NyashParser) -> Result<BoxMemberState, Pa
         _ => {}
     }
 
-    Ok(if selected_then {
+    let selected = if selected_then {
         then_state
     } else if let Some(else_state) = else_state {
         else_state
     } else {
         BoxMemberState::default()
-    })
+    };
+    let mut merged = BoxMemberState::default();
+    merged.try_merge_selected_gate(selected, gate_site)?;
+    Ok(merged)
 }
 
 pub(crate) fn parse_box_member_body(
     p: &mut NyashParser,
     state: &mut BoxMemberState,
 ) -> Result<(), ParseError> {
+    let mut pending_method: Option<PendingExplicitMethodV1> = None;
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
+        if let Some(method) = pending_method.as_mut() {
+            if p.match_token(&TokenType::CATCH) || p.match_token(&TokenType::CLEANUP) {
+                p.ensure_no_pending_runes("method postfix")?;
+                method.try_apply_postfix(p)?;
+                continue;
+            }
+        }
+        commit_pending_ordinary_method(&mut pending_method, state)?;
+
         if p.maybe_parse_opt_annotation_noop(
             crate::parser::statements::helpers::AnnotationSite::Member,
         )? {
@@ -247,10 +274,7 @@ pub(crate) fn parse_box_member_body(
         }
 
         if box_try_block_first_property(p, state)? {
-            continue;
-        }
-
-        if box_try_method_postfix_after_last(p, state)? {
+            state.finish_source_member()?;
             continue;
         }
 
@@ -259,26 +283,28 @@ pub(crate) fn parse_box_member_body(
         }
 
         if box_try_init_block(p, state)? {
+            state.finish_source_member()?;
             continue;
         }
 
         if box_try_delegate(p, state)? {
-            state.last_method_name = None;
+            state.finish_source_member()?;
             continue;
         }
 
         if box_try_transition(p, state)? {
-            state.last_method_name = None;
+            state.finish_source_member()?;
             continue;
         }
 
         if let Some(invariant) = p.try_parse_invariant_clause()? {
             state.invariants.push(invariant);
-            state.last_method_name = None;
+            state.finish_source_member()?;
             continue;
         }
 
         if box_try_build_gate_members(p, state)? {
+            state.finish_source_member()?;
             continue;
         }
 
@@ -289,6 +315,7 @@ pub(crate) fn parse_box_member_body(
         }
 
         if box_try_constructor(p, is_override, state)? {
+            state.finish_source_member()?;
             continue;
         }
 
@@ -307,11 +334,11 @@ pub(crate) fn parse_box_member_body(
                 crate::parser::declarations::box_def::members::fields::parse_weak_field(
                     p,
                     field_name,
-                    &mut state.methods,
                     &mut state.fields,
                     &mut state.field_decls,
                     &mut state.weak_fields,
                 )?;
+                state.finish_source_member()?;
                 continue;
             } else {
                 return Err(ParseError::UnexpectedToken {
@@ -325,13 +352,16 @@ pub(crate) fn parse_box_member_body(
         if let TokenType::IDENTIFIER(field_or_method) = &p.current_token().token_type {
             let field_or_method = field_or_method.clone();
             let field_or_method_line = p.current_token().line;
+            let declaration_span = p.current_span();
             p.advance();
 
             if box_try_visibility(p, &field_or_method, state)? {
+                state.finish_source_member()?;
                 continue;
             }
 
             if crate::parser::env::unified_members() && field_or_method == "get" {
+                let previous_len = state.methods.len();
                 if let Some(_property_name) =
                     crate::parser::declarations::box_def::members::fields::try_parse_get_computed_property(
                         p,
@@ -340,7 +370,8 @@ pub(crate) fn parse_box_member_body(
                     )?
                 {
                     p.ensure_no_pending_runes("get property")?;
-                    state.last_method_name = None;
+                    state.record_new_methods_since(previous_len)?;
+                    state.finish_source_member()?;
                     continue;
                 }
             }
@@ -349,18 +380,32 @@ pub(crate) fn parse_box_member_body(
                 && (field_or_method == "once" || field_or_method == "birth_once")
             {
                 p.ensure_no_pending_runes("unified property")?;
+                let previous_len = state.methods.len();
                 if crate::parser::declarations::box_def::members::properties::try_parse_unified_property(
                     p,
                     &field_or_method,
                     &mut state.methods,
                     &mut state.birth_once_props,
                 )? {
-                    state.last_method_name = None;
+                    state.record_new_methods_since(previous_len)?;
+                    state.finish_source_member()?;
                     continue;
                 }
             }
 
-            if box_try_method_or_field(p, field_or_method, is_override, state)? {
+            let previous_len = state.methods.len();
+            if box_try_method_or_field(
+                p,
+                field_or_method,
+                declaration_span,
+                is_override,
+                state,
+                &mut pending_method,
+            )? {
+                if pending_method.is_none() {
+                    state.record_new_methods_since(previous_len)?;
+                    state.finish_source_member()?;
+                }
                 continue;
             }
         } else {
@@ -371,6 +416,7 @@ pub(crate) fn parse_box_member_body(
             });
         }
     }
+    commit_pending_ordinary_method(&mut pending_method, state)?;
     Ok(())
 }
 
@@ -379,8 +425,10 @@ pub(crate) fn parse_box_member_body(
 fn box_try_method_or_field(
     p: &mut NyashParser,
     name: String,
+    declaration_span: crate::ast::Span,
     is_override: bool,
     state: &mut BoxMemberState,
+    pending_method: &mut Option<PendingExplicitMethodV1>,
 ) -> Result<bool, ParseError> {
     if let Some(method) = crate::parser::declarations::box_def::members::methods::try_parse_method(
         p,
@@ -389,18 +437,17 @@ fn box_try_method_or_field(
     )? {
         let mut method = method;
         p.attach_pending_runes_to_declaration(&mut method)?;
-        state.last_method_name = Some(name.clone());
-        state.methods.insert(name, method);
+        *pending_method = Some(PendingExplicitMethodV1::new(name, method, declaration_span));
         return Ok(true);
     }
     let parsed = crate::parser::declarations::box_def::members::fields::try_parse_header_first_field_or_property(
         p,
         name,
+        declaration_span,
         &mut state.methods,
         &mut state.fields,
         &mut state.field_decls,
         &mut state.field_initializers,
-        &mut state.weak_fields,
         false,
     )?;
     if parsed {

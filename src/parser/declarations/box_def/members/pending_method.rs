@@ -1,4 +1,6 @@
-use crate::ast::{ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryV1, Span};
+use crate::ast::{
+    ASTNode, BoxMethodDeclarationSiteV1, BoxMethodInventoryErrorV1, BoxMethodInventoryV1, Span,
+};
 use crate::parser::{NyashParser, ParseError};
 
 /// An explicit method remains unpublished until its optional postfix syntax
@@ -28,15 +30,17 @@ impl PendingExplicitMethodV1 {
         )
     }
 
-    pub(crate) fn commit(self, inventory: &mut BoxMethodInventoryV1) -> Result<(), ParseError> {
+    pub(crate) fn commit(
+        self,
+        inventory: &mut BoxMethodInventoryV1,
+    ) -> Result<BoxMethodDeclarationSiteV1, ParseError> {
         inventory
             .try_push_explicit_source(self.name, self.declaration, self.diagnostic_span)
-            .map(|_| ())
             .map_err(map_inventory_error)
     }
 }
 
-fn map_inventory_error(error: BoxMethodInventoryErrorV1) -> ParseError {
+pub(crate) fn map_inventory_error(error: BoxMethodInventoryErrorV1) -> ParseError {
     match error {
         BoxMethodInventoryErrorV1::DuplicateMethod {
             name,
@@ -62,7 +66,7 @@ pub(crate) fn commit_pending_method(
     inventory: &mut BoxMethodInventoryV1,
 ) -> Result<(), ParseError> {
     if let Some(method) = pending.take() {
-        method.commit(inventory)?;
+        let _ = method.commit(inventory)?;
     }
     Ok(())
 }

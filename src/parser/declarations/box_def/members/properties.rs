@@ -1,46 +1,26 @@
 //! Properties parsing (once/birth_once, header-first)
-use crate::ast::ASTNode;
+use crate::ast::{BoxMethodInventoryV1, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::declarations::box_def::members::{
-    property_emit,
+    property_batch::{PreparedGeneratedPropertyMethodBatchV1, PropertyMemberKindV1},
     syntax::{self, PropertyBodyPostfix},
 };
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
-use std::collections::HashMap;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum PropertyMemberKind {
-    Computed,
-    Once,
-    BirthOnce,
-}
-
-impl PropertyMemberKind {
-    fn from_keyword(keyword: &str) -> Option<Self> {
-        match keyword {
-            "once" => Some(Self::Once),
-            "birth_once" => Some(Self::BirthOnce),
-            _ => None,
-        }
+fn prepare_and_commit(
+    kind: PropertyMemberKindV1,
+    methods: &mut BoxMethodInventoryV1,
+    birth_once_props: &mut Vec<String>,
+    name: String,
+    body: Vec<crate::ast::ASTNode>,
+    diagnostic_span: Span,
+) -> Result<(), ParseError> {
+    let batch = PreparedGeneratedPropertyMethodBatchV1::prepare(kind, name, body, diagnostic_span)?;
+    if let Some(property_name) = batch.commit(methods)? {
+        birth_once_props.push(property_name);
     }
-
-    fn emit(
-        self,
-        methods: &mut HashMap<String, ASTNode>,
-        birth_once_props: &mut Vec<String>,
-        name: String,
-        body: Vec<ASTNode>,
-    ) {
-        match self {
-            Self::Computed => property_emit::insert_computed_getter(methods, name, body),
-            Self::Once => property_emit::insert_once_methods(methods, name, body),
-            Self::BirthOnce => {
-                birth_once_props.push(name.clone());
-                property_emit::insert_birth_once_methods(methods, name, body);
-            }
-        }
-    }
+    Ok(())
 }
 
 /// Try to parse a unified member property: `once name: Type ...` or `birth_once name: Type ...`
@@ -48,12 +28,13 @@ impl PropertyMemberKind {
 pub(crate) fn try_parse_unified_property(
     p: &mut NyashParser,
     kind_kw: &str,
-    methods: &mut HashMap<String, ASTNode>,
+    methods: &mut BoxMethodInventoryV1,
     birth_once_props: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
-    let Some(kind) = PropertyMemberKind::from_keyword(kind_kw) else {
+    let Some(kind) = PropertyMemberKindV1::from_keyword(kind_kw) else {
         return Ok(false);
     };
+    let diagnostic_span = p.current_span();
 
     let syntax::TypedMemberHeader {
         name,
@@ -69,7 +50,7 @@ pub(crate) fn try_parse_unified_property(
         PropertyBodyPostfix::ArrowOrBlock,
         "'=>' expression or block for once/birth_once property",
     )?;
-    kind.emit(methods, birth_once_props, name, body);
+    prepare_and_commit(kind, methods, birth_once_props, name, body, diagnostic_span)?;
     Ok(true)
 }
 
@@ -77,7 +58,7 @@ pub(crate) fn try_parse_unified_property(
 /// Returns Ok(true) if a member was parsed and emitted into `methods`.
 pub(crate) fn try_parse_block_first_property(
     p: &mut NyashParser,
-    methods: &mut HashMap<String, ASTNode>,
+    methods: &mut BoxMethodInventoryV1,
     birth_once_props: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
     if !(crate::parser::env::unified_members() && p.match_token(&TokenType::LBRACE)) {
@@ -107,15 +88,16 @@ pub(crate) fn try_parse_block_first_property(
     p.advance(); // consume 'as'
 
     // 3) Optional kind keyword: once | birth_once
-    let mut kind = PropertyMemberKind::Computed;
+    let mut kind = PropertyMemberKindV1::Computed;
     if let TokenType::IDENTIFIER(k) = &p.current_token().token_type {
-        if let Some(parsed_kind) = PropertyMemberKind::from_keyword(k.as_str()) {
+        if let Some(parsed_kind) = PropertyMemberKindV1::from_keyword(k.as_str()) {
             kind = parsed_kind;
             p.advance();
         }
     }
 
     // 4) Name : Type
+    let diagnostic_span = p.current_span();
     let syntax::TypedMemberHeader {
         name,
         declared_type_name: _declared_type_name,
@@ -132,6 +114,13 @@ pub(crate) fn try_parse_block_first_property(
             p, final_body,
         )?;
 
-    kind.emit(methods, birth_once_props, name, final_body);
+    prepare_and_commit(
+        kind,
+        methods,
+        birth_once_props,
+        name,
+        final_body,
+        diagnostic_span,
+    )?;
     Ok(true)
 }

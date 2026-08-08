@@ -155,11 +155,15 @@ fn selected_gate_merge_is_atomic_and_keeps_nested_path() {
         .unwrap();
     let mut selected = BoxMethodInventoryV1::empty();
     selected
-        .try_merge_selected_gate(inner, BoxMemberGateSiteV1::from_box_member_ordinal(7))
+        .try_merge_selected_gate(inner, &[4], BoxMemberGateSiteV1::from_box_member_ordinal(7))
         .unwrap();
 
     destination
-        .try_merge_selected_gate(selected, BoxMemberGateSiteV1::from_box_member_ordinal(3))
+        .try_merge_selected_gate(
+            selected,
+            &[9],
+            BoxMemberGateSiteV1::from_box_member_ordinal(3),
+        )
         .unwrap();
 
     let entry = destination.get("selected").unwrap();
@@ -171,7 +175,34 @@ fn selected_gate_merge_is_atomic_and_keeps_nested_path() {
     };
     assert_eq!(path.len(), 2);
     assert_eq!(path[0].gate_site().box_member_ordinal(), 3);
+    assert_eq!(path[0].branch_member_ordinal(), 9);
     assert_eq!(path[1].gate_site().box_member_ordinal(), 7);
+    assert_eq!(path[1].branch_member_ordinal(), 4);
+}
+
+#[test]
+fn selected_gate_rejects_missing_source_member_ordinals_without_mutation() {
+    let mut destination = BoxMethodInventoryV1::empty();
+    let before = destination.clone();
+    let mut selected = BoxMethodInventoryV1::empty();
+    selected
+        .try_push_explicit_source("run", function("run"), Span::unknown())
+        .unwrap();
+
+    assert_eq!(
+        destination
+            .try_merge_selected_gate(
+                selected,
+                &[],
+                BoxMemberGateSiteV1::from_box_member_ordinal(0),
+            )
+            .unwrap_err(),
+        BoxMethodInventoryErrorV1::BranchMemberOrdinalCountMismatch {
+            methods: 1,
+            ordinals: 0,
+        }
+    );
+    assert_eq!(destination, before);
 }
 
 #[test]
@@ -188,7 +219,11 @@ fn selected_gate_collision_leaves_destination_unchanged() {
         .unwrap();
 
     let error = destination
-        .try_merge_selected_gate(selected, BoxMemberGateSiteV1::from_box_member_ordinal(1))
+        .try_merge_selected_gate(
+            selected,
+            &[0],
+            BoxMemberGateSiteV1::from_box_member_ordinal(1),
+        )
         .unwrap_err();
     assert!(matches!(
         error,
@@ -261,4 +296,80 @@ fn compatibility_batch_is_atomic_and_never_source_authority() {
     assert!(inventory
         .iter_selected_declaration_order()
         .all(|entry| entry.provenance().explicit_source_selection().is_none()));
+}
+
+#[test]
+fn generated_batch_rejects_internal_duplicates_before_publication() {
+    let first_span = Span::new(0, 0, 2, 3);
+    let duplicate_span = Span::new(0, 0, 4, 5);
+    let rows = [
+        PreparedGeneratedBoxMethodV1::new(
+            "__get_value",
+            function("__get_value"),
+            BoxMethodGeneratedProvenanceV1::Property {
+                property_name: "value".into(),
+                selection: BoxMethodSourceSelectionV1::Direct,
+            },
+            first_span,
+        )
+        .unwrap(),
+        PreparedGeneratedBoxMethodV1::new(
+            "__get_value",
+            function("__get_value"),
+            BoxMethodGeneratedProvenanceV1::Property {
+                property_name: "other".into(),
+                selection: BoxMethodSourceSelectionV1::Direct,
+            },
+            duplicate_span,
+        )
+        .unwrap(),
+    ];
+
+    let error = PreparedGeneratedBoxMethodBatchV1::try_new(rows).unwrap_err();
+    assert_eq!(
+        error,
+        BoxMethodInventoryErrorV1::DuplicateMethod {
+            name: "__get_value".into(),
+            first_span,
+            duplicate_span,
+        }
+    );
+}
+
+#[test]
+fn generated_batch_collision_leaves_destination_unchanged() {
+    let mut destination = BoxMethodInventoryV1::empty();
+    destination
+        .try_push_explicit_source("run", function("run"), Span::new(0, 0, 1, 1))
+        .unwrap();
+    let before = destination.clone();
+    let batch = PreparedGeneratedBoxMethodBatchV1::try_new([
+        PreparedGeneratedBoxMethodV1::new(
+            "helper",
+            function("helper"),
+            BoxMethodGeneratedProvenanceV1::Property {
+                property_name: "helper".into(),
+                selection: BoxMethodSourceSelectionV1::Direct,
+            },
+            Span::new(0, 0, 3, 1),
+        )
+        .unwrap(),
+        PreparedGeneratedBoxMethodV1::new(
+            "run",
+            function("run"),
+            BoxMethodGeneratedProvenanceV1::Property {
+                property_name: "run".into(),
+                selection: BoxMethodSourceSelectionV1::Direct,
+            },
+            Span::new(0, 0, 4, 1),
+        )
+        .unwrap(),
+    ])
+    .unwrap();
+
+    assert!(matches!(
+        destination.try_commit_generated_batch(batch),
+        Err(BoxMethodInventoryErrorV1::DuplicateMethod { .. })
+    ));
+    assert_eq!(destination, before);
 }

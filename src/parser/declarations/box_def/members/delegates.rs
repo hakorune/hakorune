@@ -33,7 +33,10 @@ fn match_contextual_ident(p: &NyashParser, expected: &str) -> bool {
     matches!(&p.current_token().token_type, TokenType::IDENTIFIER(name) if name == expected)
 }
 
-pub(crate) fn parse_delegate_decl(p: &mut NyashParser) -> Result<DelegateDecl, ParseError> {
+pub(crate) fn parse_delegate_decl(
+    p: &mut NyashParser,
+    source_member_ordinal: u32,
+) -> Result<DelegateDecl, ParseError> {
     p.consume(TokenType::DELEGATE)?;
     let field_name = take_identifier(p, "delegate field name")?;
 
@@ -83,8 +86,9 @@ pub(crate) fn parse_delegate_decl(p: &mut NyashParser) -> Result<DelegateDecl, P
     }
 
     p.consume(TokenType::RBRACE)?;
-    Ok(DelegateDecl {
+    Ok(DelegateDecl::explicit_source(
         field_name,
         exposes,
-    })
+        source_member_ordinal,
+    ))
 }

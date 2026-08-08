@@ -5,6 +5,7 @@ pub mod methods;
 pub(crate) mod pending_method;
 pub mod postfix;
 pub mod properties;
+pub(crate) mod property_batch;
 pub mod property_emit;
 pub mod syntax;
 pub mod transitions;

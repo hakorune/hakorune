@@ -28,10 +28,14 @@ pub use box_method_inventory::{
     BoxMemberGateSiteV1, BoxMethodCompatibilityOriginV1, BoxMethodDeclarationSiteV1,
     BoxMethodDeclarationTransformErrorV1, BoxMethodEntryV1, BoxMethodGateSelectionV1,
     BoxMethodGeneratedProvenanceV1, BoxMethodInventoryErrorV1, BoxMethodInventoryV1,
-    BoxMethodProvenanceV1, BoxMethodSourceSelectionV1,
+    BoxMethodProvenanceV1, BoxMethodSourceSelectionV1, PreparedGeneratedBoxMethodBatchV1,
+    PreparedGeneratedBoxMethodV1,
 };
 pub use build_predicate::BuildPredicate;
-pub use decls::{ContractKind, DelegateDecl, DelegateExposeDecl, ParamDecl, TransitionDecl};
+pub use decls::{
+    ContractKind, DelegateDecl, DelegateDeclarationProvenanceV1, DelegateExposeDecl,
+    DelegateSelectionErrorV1, ParamDecl, TransitionDecl,
+};
 pub use literal::LiteralValue;
 pub use node_wrappers::*;
 pub use operators::{BinaryOperator, UnaryOperator};

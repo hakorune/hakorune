@@ -71,11 +71,11 @@ Rejected > Unresolved > Declined > Candidate
    - interface/static parser issuance and duplicate/site proof;
    - build_cfg transforms declarations without losing metadata;
    - ordinary source authority remains zero.
-3. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R3` — active
+3. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R3` — closed
    - ordinary Box sole-inventory cutover;
    - selected build-gate, generated property, and delegate atomic batches;
    - generated rows stay non-source provenance.
-4. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R4`
+4. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R4` — active
    - ordered JSON v2;
    - legacy JSON v1 imports only `CompatibilityOnly`.
 5. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R5`

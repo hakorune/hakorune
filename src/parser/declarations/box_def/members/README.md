@@ -15,6 +15,9 @@ synthetic method body construction.
 - `pending_method.rs`: unpublished explicit method transaction. Postfix
   syntax may mutate this value; the ordered inventory receives it exactly
   once only after postfix parsing is complete.
+- `property_batch.rs`: prepares every helper emitted by one property member
+  and commits the complete generated-method batch only after all collision and
+  provenance checks pass.
 
 Rules:
 
@@ -27,6 +30,13 @@ Rules:
   `postfix.rs`.
 - Do not mutate a published method inventory entry for postfix syntax. Keep
   the method pending and commit it once at the next member or Box end.
+- Do not insert generated property/delegate rows one at a time. Construct one
+  complete `PreparedGeneratedBoxMethodBatchV1` and commit it atomically.
+- Selected branches may stage syntactic source-member ordinals, but that
+  staging owns no declarations or lookup policy. The sole method owner is
+  `BoxMethodInventoryV1`.
+- A parsed delegate carries its exact source selection. Compatibility-only
+  delegates must not generate fresh source-authoritative method rows.
 - Do not bypass the member postfix gate for method or constructor postfix
   handlers.
 - Keep `weak` on the stored-field path only. Do not route weak fields through

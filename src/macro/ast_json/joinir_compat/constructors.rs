@@ -134,10 +134,9 @@ pub(super) fn box_declaration_from_json(
             .map(|arr| {
                 arr.iter()
                     .filter_map(|item| {
-                        Some(DelegateDecl {
-                            field_name: item.get("field_name")?.as_str()?.to_string(),
-                            exposes: item
-                                .get("exposes")
+                        Some(DelegateDecl::compatibility_only(
+                            item.get("field_name")?.as_str()?.to_string(),
+                            item.get("exposes")
                                 .and_then(|value| value.as_array())
                                 .map(|exposes| {
                                     exposes
@@ -157,7 +156,8 @@ pub(super) fn box_declaration_from_json(
                                         .collect::<Vec<_>>()
                                 })
                                 .unwrap_or_default(),
-                        })
+                            BoxMethodCompatibilityOriginV1::LegacyJsonV1,
+                        ))
                     })
                     .collect::<Vec<_>>()
             })

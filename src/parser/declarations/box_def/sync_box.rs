@@ -5,7 +5,7 @@
 //! constructs are rejected here so sync methods cannot silently become
 //! ordinary box methods with hidden suspension points.
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, BoxMethodInventoryV1};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use std::collections::HashMap;
@@ -13,10 +13,24 @@ use std::collections::HashMap;
 pub(crate) fn validate_no_waits_in_sync_box(
     p: &NyashParser,
     box_name: &str,
-    methods: &HashMap<String, ASTNode>,
+    methods: &BoxMethodInventoryV1,
     constructors: &HashMap<String, ASTNode>,
 ) -> Result<(), ParseError> {
-    for (method_name, node) in methods.iter().chain(constructors.iter()) {
+    for entry in methods.iter_selected_declaration_order() {
+        if let Some(kind) = first_wait_like_in_callable(entry.declaration()) {
+            return Err(ParseError::UnexpectedToken {
+                found: p.current_token().token_type.clone(),
+                expected: format!(
+                    "[freeze:contract][sync_box/wait_forbidden] box={} method={} wait_kind={} sync box methods cannot contain await/nowait/channel wait until CONC-SYNCBOX runtime rows land",
+                    box_name,
+                    entry.name(),
+                    kind
+                ),
+                line: p.current_token().line,
+            });
+        }
+    }
+    for (method_name, node) in constructors {
         if let Some(kind) = first_wait_like_in_callable(node) {
             return Err(ParseError::UnexpectedToken {
                 found: p.current_token().token_type.clone(),

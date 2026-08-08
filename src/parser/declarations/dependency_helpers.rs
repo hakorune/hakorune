@@ -6,7 +6,7 @@
 
 use crate::ast::ASTNode;
 use crate::parser::{NyashParser, ParseError};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 impl NyashParser {
     /// Static初期化ブロック内の文から依存関係を抽出
@@ -146,11 +146,13 @@ impl NyashParser {
         &self,
         child_name: &str,
         parent_name: &str,
-        methods: &HashMap<String, ASTNode>,
+        methods: &crate::ast::BoxMethodInventoryV1,
     ) -> Result<(), ParseError> {
         // 現時点では簡単な検証のみ
         // TODO: 親クラスのメソッドシグネチャとの比較
-        for (method_name, method_ast) in methods {
+        for entry in methods.iter_selected_declaration_order() {
+            let method_name = entry.name();
+            let method_ast = entry.declaration();
             if let ASTNode::FunctionDeclaration { is_override, .. } = method_ast {
                 if *is_override {
                     // 将来的にここで親クラスのメソッドが存在するかチェック
