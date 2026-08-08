@@ -1,5 +1,5 @@
 ---
-Status: accepted revised design stop — H1 remains unopened
+Status: H1 implementation active — disconnected parser substrate only
 Date: 2026-08-08
 Decision: reuse the parser-private source-carrier lifecycle; separate exact
 source sites from selected inventory placement; issue one non-Clone parser
@@ -333,6 +333,29 @@ The cross-language executable order is owned by
 `callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`.
 In particular, H2 does not open until the R6 source-site/seal boundary has
 replaced the Rust sidecar model.
+
+## H1 implementation handoff
+
+H1 is now open as a BoxShape-only implementation slice. It may add only the
+branded parser refs/sites, ordered drafts, duplicate-before-mutation checks,
+one-Box non-Clone seal substrate, focused negative tests, and the existing
+`hako_parser_source_carrier_p0_guard.sh` coverage. It must not connect the
+ordinary parser, build-gate, delegate postpass, JSON projection, typed rune
+carriage, resolver, Recipe, Builder, or publication.
+
+Acceptance:
+
+```text
+all touched Hako source files < 800 lines
+source-carrier guard green
+positive one-Box seal
+foreign brand/site rejection
+invalid path rejection
+duplicate rejection leaves no partial publication
+double finish and post-seal mutation reject
+worktree clean at closeout
+implementation + focused tests + README/reference receipt in one commit
+```
 
 The current source-carrier guard is updated in H1 before any parser connection.
 H1 is intentionally disconnected and must close in one small implementation
