@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A and R6-S3B-B1 closed; R6-S3B-B2 design stop; B3 not opened
+Status: accepted design; R6-S3B-A and R6-S3B-B1 closed; R6-S3B-B2 implementation active; B3 not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -299,7 +299,7 @@ Normal selection of a supported branch is not an error disposition.
 ```text
 R6-S3B-B0  design receipt and owner/type/negative matrix (closed)
 R6-S3B-B1  parser-issued gate id, branch, child cursor, and path transport (closed)
-R6-S3B-B2  consume-return ParserSourceSession prune/rebase transaction (design stop)
+R6-S3B-B2  parser gate-ledger transport, typed selection receipts, and consume-return ParserSourceSession prune/rebase (active)
 R6-S3B-B3  AST/source coverage tests, guard, finalizer receipt, and docs
 ```
 
@@ -336,14 +336,71 @@ from the final AST or inventory order.
 This receipt does not open `BuildGateSelectionReceiptV1`, source-session
 prune/rebase, delegate relation transport, or final top-level gate sealing.
 
-## R6-S3B-B2 design stop
+## R6-S3B-B2 implementation boundary
 
-B1 is closed. Before implementation, freeze the selection receipt's owner,
-branch decision, exact path coverage, and the consume-return
-`ParserSourceSession` transaction. Prune must consume AST and source session
-together, preserve surviving structural paths, and reject missing, foreign,
-or duplicate path evidence. Source identity must not be reconstructed from the
-final AST, inventory ordinal, or a detached source vector.
+B1 is closed and the B2 design is accepted. B2 now implements only the
+parser-issued gate ledger, one typed selection receipt per gate, and the
+consume-return atomic prune/rebase transaction. The AST remains free of gate
+IDs. The parser owns the gate source records and transports them inside
+`ParserSourceSessionV1`; the source-aware AST walk validates those records and
+does not become a second source-identity authority.
+
+The parser ledger is a typed, parser-private record stream:
+
+```text
+PreparedBuildGateSourceRecordV1 {
+  invocation_brand,
+  gate_id,
+  gate_path,
+  scope,
+  predicate/source evidence,
+}
+```
+
+Only the bounded top-level build-gate item scope is opened in B2. A gate found
+inside a Box method/body is not silently registered as a top-level source gate;
+it remains an explicit nonclaim/reject boundary until a separate method-scope
+source contract is designed. A Box declaration path is never reused as a
+general method/body gate path.
+
+The source-aware walk traverses the original AST once for validation and
+pruning. It matches the parser ledger by structural cursor, evaluates each
+opened gate once, and issues a private/non-forgeable
+`BuildGateSelectionReceiptV1` containing the same invocation brand, parser gate
+ID, path, and selected branch. Empty and nested gates still require a ledger
+record and exactly one receipt. The receipt owner is the postpass prune
+transaction, not the AST node and not a detached vector.
+
+`ParserSourceSessionV1::prepare_prune` validates same-brand identity, unique
+IDs/paths, exact gate-record/AST coverage, and candidate path membership. Its
+consume-return commit filters source seals by the selected branch while
+preserving surviving structural paths. Any AST/source mismatch, missing,
+foreign, duplicate, or lost seal consumes and rejects the whole unpublished
+product; the old session is never reused.
+
+### B2 acceptance
+
+```text
+parser gate records are issued during parse and moved into the postpass product
+AST contains no gate ID or source identity reconstruction
+one selection receipt per parsed top-level gate
+direct, sibling, nested, and empty-gate path coverage is exact
+selected-branch Box source seals survive with original paths
+unselected-branch seals are dropped atomically
+method/body gates are outside the opened top-level cohort
+foreign/duplicate/missing/cursor-overflow evidence fails fast
+```
+
+### B2 nonclaims
+
+```text
+final complete ParserBoxSourceSealV1
+generated delegate relation
+method/body gate source authority
+Hako parser parity
+resolver/CallableContract/Recipe/Builder/MIR/provider/runtime integration
+finalizer expansion beyond the bounded rich product
+```
 
 ## Nonclaims until R6-S3B-D closes
 
