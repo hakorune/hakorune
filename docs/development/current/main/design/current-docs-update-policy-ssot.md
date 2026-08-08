@@ -22,10 +22,11 @@ Related:
 
 - **Current decision:** `CURRENT_STATE.toml` is the compact current pointer;
   active cards own execution and git history owns landed detail.
-- **Current implementation status:** the pointer/mirror thinning policy is
-  active; this policy update does not change the selected compiler lane.
-- **Next ordered task:** apply the compact pointer, shallow task-name, and
-  classified-guard rules to the next selected row.
+- **Current implementation status:** the pointer/mirror thinning policy and
+  classified-red procedure are active; this policy update does not change the
+  selected compiler lane.
+- **Next ordered task:** apply the compact pointer, shallow task-name,
+  semantic-boundary, and parent-baseline rules to the next selected row.
 - **Production stop line:** documentation and guard cleanup cannot activate a
   production route or waive a failing current contract.
 - **Retirement finish line:** current mirrors contain no copied history,
@@ -802,6 +803,12 @@ An unclassified failure is blocking. A new row may repair baseline debt, but it
 may not silently relabel or waive it. A census may select future work; it may
 not prove correctness or completion. Existing green guards migrate when their
 contract is next revised; this rule does not require a rename-only sweep.
+
+For a behavior-preserving refactor, classify a red by rerunning the same
+command at the parent commit before changing scope. Record the parent commit,
+exact test, and result in the active card when the failure reproduces. If it
+does not reproduce, treat it as a current-change failure. Do not weaken the
+test or use a bare "known" label as a substitute for this comparison.
 
 ### Provenance Guard Rule
 

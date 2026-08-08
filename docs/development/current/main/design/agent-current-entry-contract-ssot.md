@@ -229,6 +229,17 @@ reusable guard, the README/reference update when a contract changed, the
 commit, and the next blocker. Missing evidence keeps the row active; it does
 not justify a deeper task suffix.
 
+### Baseline-red classification
+
+When a focused or package gate is red during a behavior-preserving refactor,
+rerun the same command at the parent commit before changing the scope. A
+failure that reproduces at the parent is **known baseline debt** and must be
+recorded in the active card with the parent commit and exact test; it is not a
+permission to repair unrelated semantics in the refactor series. A failure
+that does not reproduce at the parent is a current-change failure and blocks
+closeout. An uncategorized red is always blocking. Never hide a red by weakening
+the test or by calling it an expected baseline without this comparison.
+
 ## Document placement contract
 
 `AGENTS.md` is a local router, not a second taskboard or design registry.
@@ -382,6 +393,31 @@ source evidence, passing compatibility fixtures, or an old Builder recipe do
 not substitute for a natural-source-to-portable mapping. A planned legacy
 cutover must also classify every currently accepted input before deleting the
 old authority.
+
+### Semantic-program boundary gate
+
+Before opening a physical or production row, the semantic program must have
+one issuance point. That issuance point co-seals the resolver-issued source
+context, the source-bound Core product, all input/item/carrier relations, and
+the Loop continuation authorized by that Core's own JoinSig. A caller may not
+construct these verified products independently and pair them later by matching
+owner or Loop keys. If the co-seal is missing, the work is a design stop even
+when each lower-level product is individually green.
+
+The authority split is fixed:
+
+```text
+Facts/observation: source roles, BindingRef, exact source sites, coverage
+Recipe producer: Recipe/JoinSig keys and deterministic role -> key mapping
+JoinSig: logical transfer/edge authorization
+Physical layout: segment placement only; never edge or merge inference
+```
+
+Facts must not carry Recipe keys, selector cursors, BasicBlock/Value IDs, or
+physical route identity. Layout may consume JoinSig transfer receipts, but it
+must not rediscover predicate/exit/backedge meaning from Recipe text. A new
+boundary owner or a violation of this split requires a design brief before code
+or fixtures are added.
 
 ### Premise-reset circuit breaker
 

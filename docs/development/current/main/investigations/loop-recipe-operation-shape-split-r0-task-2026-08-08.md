@@ -61,11 +61,20 @@ the invariant is one owner per behavior, not arbitrary line slicing.
 
 ## Verification
 
-1. Existing focused `loop_recipe_contract` tests remain green.
+1. The focused operation-demand, structural-verifier, and shape-split tests
+   remain green. The full `loop_recipe_contract` package currently contains a
+   pre-existing red in
+   `source_bound_core_rejects_derived_carrier_and_duplicate_effect_mismatch`;
+   it reproduces at the pre-split parent commit `8966ddfccd` and is tracked as
+   known baseline debt, not repaired in this BoxShape series.
 2. Public re-exports and `operation_physical_demand_tests` compile unchanged.
 3. `git diff --check` and `bash tools/checks/current_state_pointer_guard.sh` pass.
 4. A line-count check proves every changed Rust source file is `< 760`.
 5. No new Recipe schema/operation/value vocabulary appears in the diff.
+
+Baseline-red procedure: if any other red appears, rerun the exact command at
+the parent commit before changing this row. A non-reproducing red blocks
+closeout; a reproducing red must be recorded with its exact owner and test.
 
 Language reference documentation is not changed by this behavior-neutral
 split. The later typed schema/instance-target implementation must update
