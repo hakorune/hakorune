@@ -386,16 +386,13 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current active execution / next design stop:
+Current next design stop:
 
 ```text
-OWN-HOME-RELATION0-S0
-  passive branded Home root/destination relation vocabulary only;
-  no classifier, `VerifiedHomeAbi`, Home Flow, target, or Recipe.
-
-next design: OWN-HOME-ABI0-S0
+OWN-HOME-ABI0-S0
   sole Home ABI classifier/issuer co-sealed with the landed declaration;
-  no partial receipts, physical ABI inference, target, or Recipe.
+  passive relation brand is batch provenance only; no partial receipts,
+  physical ABI inference, target, or Recipe.
 ```
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
@@ -716,12 +713,12 @@ Rejected > Unresolved > Declined > Candidate
      `docs/development/current/main/investigations/resolver-instance-declaration-signature-i0-implementation-task-2026-08-09.md`
    - status: closed 2026-08-09; focused declaration/handoff/source-seal
      matrix and same-slice README/reference/current receipts landed.
-13. `OWN-HOME-CALLABLE-ABI-D0` — closed -> `OWN-HOME-RELATION0-S0` — active ->
-   `OWN-HOME-ABI0-S0/query`
+13. `OWN-HOME-CALLABLE-ABI-D0` — closed -> `OWN-HOME-RELATION0-S0` — closed ->
+   `OWN-HOME-ABI0-S0` design stop -> implementation/query
    - existing Home taskboard remains the sole owner;
    - D0 fixes one Home ABI issuer and same-declaration co-seal; Relation0 is
      passive branded vocabulary only and has no classifier or production
-     caller;
+     caller; its relation brand is not the resolver catalog brand;
    - consume the semantic declaration output and issue one same-declaration
      `VerifiedHomeAbi` with receiver `Handle`, zero parameter demands, and
      Trivial result for the bounded cohort;

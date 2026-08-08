@@ -23,13 +23,14 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
-D0 design are closed. The selected bounded execution row is:
+D0 design, and passive Home relation vocabulary S0 are closed. The current
+design row is:
 
 ```text
-OWN-HOME-RELATION0-S0
+OWN-HOME-ABI0-S0
 ```
 
 The preceding I0 deleted the audited caller-zero body-inferred
@@ -37,12 +38,13 @@ instance-result/target family and preserved only neutral source-view
 primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,
 the handoff is consumed once into an AST-free resolver ingress, and the closed
 declaration/signature I0 issues one fresh resolver nominal/type catalog with
-semantic `I64`/`Unit` classes. The current S0 issues only passive branded Home
-root/destination relation vocabulary and typed rejection reasons. It does not
-classify Home capability, issue `VerifiedHomeAbi`, open Home Flow, or create a
-production caller. The next design stop is `OWN-HOME-ABI0-S0`; typed Query
-behavior, resolver targets, source-bound CallSlot relations, ScanWithInit,
-physical lowering, production selection, and legacy retirement remain closed.
+semantic `I64`/`Unit` classes. Relation0 is closed as a passive vocabulary
+slice, and its relation brand is batch provenance only—not the resolver
+catalog brand or nominal type identity. The current design stop fixes the sole
+Home ABI issuer, same-brand/site co-seal, and explicit I64/Unit classifier
+before any implementation. Typed Query behavior, resolver targets,
+source-bound CallSlot relations, ScanWithInit, physical lowering, production
+selection, and legacy retirement remain closed.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No

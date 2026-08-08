@@ -434,10 +434,18 @@ issue `VerifiedHomeAbi`; those remain the next `OWN-HOME-ABI0-S0` boundary.
 
 ### `OWN-HOME-ABI0-S0`
 
-Introduce one `VerifiedHomeAbi` containing receiver/parameter demands and
-result relation. Parameter/receiver demands come from the resolved declaration;
-ClosedCallable body analysis may infer result relation and verify local flow,
-but cannot invent a consuming demand. Only the verifier seals the product.
+Design/implementation boundary:
+[`own-home-abi0-s0-design-task-2026-08-09.md`](own-home-abi0-s0-design-task-2026-08-09.md).
+
+The design stop fixes one `CallableHomeAbiIssuerV1`, one same-resolver-brand
+capability environment, and one non-`Clone` `VerifiedHomeAbiV1` catalog. The
+passive relation brand is batch provenance only, never nominal type identity.
+The later implementation introduces receiver/parameter demands and result
+relation for the explicit I64/Unit cohort. Parameter/receiver demands come
+from the resolved declaration; ClosedCallable body analysis may infer result
+relation and verify local flow, but cannot invent a consuming demand. Only the
+canonical issuer seals the product. Until this design stop closes, no Home ABI
+implementation, Query behavior, target, Recipe, or Home Flow opens.
 
 ### `OWN-HOME-BOUNDARY0-S0`
 

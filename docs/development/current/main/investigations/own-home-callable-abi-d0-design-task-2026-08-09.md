@@ -133,7 +133,7 @@ only lifecycle/source direction. This row does not reopen `drop`, direct
 ```text
 OWN-HOME-CALLABLE-ABI-D0                  closed (this card)
   -> OWN-HOME-RELATION0-S0                passive branded relation vocabulary
-  -> OWN-HOME-ABI0-S0                     exact I64/Unit instance Home rows
+  -> OWN-HOME-ABI0-S0                     design stop, then exact I64/Unit instance Home rows
   -> declared Query + Home aggregate co-seal
   -> body conformance catalog
   -> resolver target / source-bound Call relation
