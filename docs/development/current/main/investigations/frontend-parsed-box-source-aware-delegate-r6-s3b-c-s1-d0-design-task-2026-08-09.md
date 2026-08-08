@@ -1,5 +1,5 @@
 ---
-Status: design stop
+Status: accepted design; implementation not opened
 Date: 2026-08-09
 Decision: C-S1 target lookup boundary is not opened; design only
 Parent: `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md`
@@ -57,6 +57,87 @@ parser-issued path and existing explicit method source relation remain the
 semantic authority. Any candidate design that uses method name, exposed name,
 inventory ordinal, AST order, or runtime/provider lookup as identity is
 rejected.
+
+## Accepted C-S1 boundary
+
+The C-S1 product is a parser-private borrowed index, not a new source seal or
+resolver target catalog:
+
+```text
+OpenParserPostpassProductV1
+  -> DelegateTargetIndexV1<'product>
+       exact SourceBoxDeclarationPathV1 -> source-backed target entry
+       explicit MethodSourceRelationV1 rows only
+```
+
+`DelegateTargetIndexV1<'product>` borrows the unpublished postpass product's
+source session and AST. It is not stored, published, or passed to the resolver.
+Because `SourceBoxDeclarationPathV1` deliberately has no `Hash`/`Ord` identity,
+the minimal implementation is a `Vec<TargetBoxEntryV1>` with a private
+name-to-candidate-index lookup view. Exact path equality and parser-brand
+identity are checked before every borrowed result; map order and map keys do
+not escape as source authority.
+
+Each entry carries the exact target path, a diagnostic Box-name label, and
+explicit method relation entries. A borrowed `TargetMethodRef<'product>` may
+be reused by multiple exposes and is not one-shot.
+
+The target Box selector is the host delegate field's declared type name. The
+field name identifies the host field; the declared type name only selects
+candidate source paths. The bounded cohort requires exactly one same-brand Box
+path for that selector. Missing source path/alignment or missing field/type
+evidence is `Unresolved`. If the same-brand index is complete but no admitted
+ordinary target exists, the target is `Declined`; multiple candidates are
+`Rejected` as ambiguous source identity.
+
+Within the selected target path, the source method selector is the delegate's
+`source_method_name`. C-S1 admits exactly one existing explicit
+`MethodSourceRelationV1::Explicit` row, matching its target path, source site,
+and placement. A generated-property-only target, generated-delegate target,
+delegate chain, compatibility-only target, or overload/ambiguous row is
+`Declined` when fully observed. A missing explicit method for an otherwise
+present target, foreign/duplicate/contradictory relation, or path/brand
+mismatch is `Rejected`; there is no name-only fallback.
+
+The reusable result is a private borrowed target reference:
+
+```text
+TargetMethodRef<'product>
+  target_box_path: SourceBoxDeclarationPathV1
+  explicit_method_source: &'product ExplicitMethodSourceRelationV1
+```
+
+It contains no generated inventory placement, AST node, function pointer,
+resolver identity, Recipe key, ValueId, provider handle, or runtime route.
+Multiple exposes may borrow the same target reference. C-S1 does not mutate
+the AST, inventory, prepared seal, or final source seal.
+
+## C-S1 disposition precedence
+
+```text
+NoSafeSlice
+  canonical private target-index/source-relation issuer is not implemented
+
+Rejected
+  foreign brand/path, duplicate Box candidate, duplicate/contradictory source
+  relation, malformed source capability, or ambiguous target identity
+
+Unresolved
+  source field/type or target source inventory is unavailable/incomplete
+
+Declined
+  fully observed generated-only target, delegate chain, compatibility-only
+  target, overload, or other outside-cohort target shape
+
+Candidate
+  exactly one same-brand target path and exactly one existing explicit method
+  source relation are borrowed without mutation
+```
+
+`NoSafeSlice` is development state and is never serialized as a source
+disposition. C-S1 remains a lookup/borrow proof; complete host/expose
+preflight, generated placement, and atomic AST/inventory/relation commit stay
+in C-I0.
 
 ## Nonclaims
 

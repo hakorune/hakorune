@@ -581,6 +581,42 @@ issuance, Recipe/CallSlot, or a second source authority. The focused tests and
 implementation; source authority and source-seal modules remain below 800
 lines.
 
+## R6-S3B-C-S1-D0 design receipt — accepted; implementation remains closed
+
+C-S1 is a private borrowed target-index boundary. A
+`DelegateTargetIndexV1<'product>` borrows the unpublished
+`OpenParserPostpassProductV1` source session and AST. It is built from the same
+parser invocation's prepared source seals and exact
+`SourceBoxDeclarationPathV1` values; it does not issue a resolver target or
+extend the final source seal. Because paths deliberately have no `Hash`/`Ord`
+identity, a private `Vec<TargetBoxEntryV1>` plus a private name-to-candidate
+lookup view is sufficient. The index is never stored, published, or passed to
+the resolver.
+
+The index may use a host delegate field's declared type name and an expose's
+source method name as query selectors, but a successful result must carry the
+exact same-brand target Box path and exactly one existing explicit
+`MethodSourceRelationV1` row. Names, AST order, inventory ordinals, generated
+suffix order, and map order never become identity. A reusable borrowed
+`TargetMethodRef<'product>` may serve multiple exposes and is not one-shot.
+
+The bounded selector requires one target path. Missing source path/alignment or
+missing field/type or incomplete source inventory is `Unresolved`. If a complete
+same-brand index has no admitted ordinary target, the target is `Declined`;
+multiple Box candidates are `Rejected` as ambiguous identity. A generated-only,
+delegate-chain, compatibility-only, overload, or otherwise outside-cohort
+target is `Declined` when fully observed. A missing explicit method for an
+otherwise present target, foreign, duplicate, contradictory, or brand/path-
+mismatched evidence is `Rejected`. A canonical issuer gap is development-state
+`NoSafeSlice`, not a source disposition.
+
+The only reusable result is a parser-private borrowed target reference carrying
+the exact target path and explicit source relation. It contains no generated
+placement, AST node, resolver identity, Recipe key, ValueId, provider handle,
+or runtime route. C-S1 does not mutate AST/inventory/seal state. Complete
+all-host/expose preflight and atomic generated batch commit remain C-I0; final
+resolver-visible relation coverage remains R6-S3B-D.
+
 ## Nonclaims until R6-S3B-D closes
 
 ```text

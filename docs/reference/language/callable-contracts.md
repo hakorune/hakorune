@@ -331,6 +331,18 @@ remain closed.
 The S0 cardinality is one row per expose; generated inventory order is not
 source identity.
 
+R6-S3B-C-S1-D0 design receipt (2026-08-09): the next boundary is an accepted
+parser-private borrowed `DelegateTargetIndexV1` target index, not a resolver target catalog. It uses
+the host field's declared type and the expose's source method name only as
+query selectors, then returns the exact same-brand target Box path plus one
+existing explicit method source relation. Zero candidates are Unresolved,
+ambiguous path candidates are Rejected, and fully observed generated-only,
+delegate-chain, compatibility-only, or overload targets are Declined. No AST,
+inventory, final seal, Recipe/CallSlot, or runtime state is mutated in C-S1;
+the implementation remains closed pending its focused guard. The borrowed
+`TargetMethodRef` may be reused by multiple exposes and carries no generated
+placement or resolver identity.
+
 ## Related references
 
 - [Rune declaration metadata](runes.md)

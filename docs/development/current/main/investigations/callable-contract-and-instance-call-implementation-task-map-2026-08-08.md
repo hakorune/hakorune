@@ -193,11 +193,18 @@ R6-S3B-C-S0 (closed)
   Reference:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0-implementation-task-2026-08-09.md`
 
-R6-S3B-C-S1-D0 (next design stop)
-  design-only boundary for the private path-based target index and existing
-  source-method relation lookup. No C-S1 implementation until the target
-  authority, exact same-brand path relation, and failure matrix are sealed.
-  The C-S0 prepared transport remains the only landed C implementation.
+R6-S3B-C-S1-D0 (accepted design stop; implementation closed)
+  private borrowed target index keyed by exact same-brand Box paths, with
+  existing explicit method source relations as the only target authority.
+  Field/type and method names are query selectors only; zero candidates are
+  Unresolved, ambiguous paths are Rejected, and outside-cohort generated or
+  chained targets are Declined. The C-S0 prepared transport remains the only
+  landed C implementation; C-S1 implementation and C-I0 batch commit stay
+  closed until this receipt's guard/task contract is opened.
+  Reference:
+  `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-d0-design-task-2026-08-09.md`
+  Planned implementation:
+  `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-implementation-task-2026-08-09.md`
 
 R6-S3B-D
   final complete relation coverage and one final non-Clone seal

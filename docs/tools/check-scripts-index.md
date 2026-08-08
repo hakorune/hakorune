@@ -609,6 +609,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/frontend_parsed_box_source_seal_r6_s3b_b2_guard.sh` | R6-S3B-B2 guard for parser-issued gate ledger/scope, distinct gate paths, source-aware preorder pruning, one selection receipt per opened gate, atomic source-session prune, and below-800-line sources. |
 | `tools/checks/frontend_parsed_box_source_seal_r6_s3b_b3_guard.sh` | R6-S3B-B3 guard for parser-private final Box source paths, one-to-one finalizer coverage, delegate suffix isolation, landed reference, and below-800-line sources. |
 | `tools/checks/frontend_parsed_box_source_seal_r6_s3b_c_s0_guard.sh` | R6-S3B-C-S0 guard for one parser-private delegate source row per expose, selected member-gate path rebasing, prepared-only carriage, final source-seal isolation, focused tests, landed docs, and below-800-line sources. |
+| `tools/checks/frontend_parsed_box_source_seal_r6_s3b_c_s1_d0_guard.sh` | R6-S3B-C-S1-D0 design-stop guard for the private borrowed target index, exact same-brand path/method relation, disposition matrix, implementation stop line, and current-state design stop. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy
