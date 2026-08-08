@@ -96,6 +96,10 @@ pub(super) enum SourceBoxMethodSiteV1 {
 }
 
 impl SourceBoxMethodSiteV1 {
+    pub(super) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
+        self.member().box_site()
+    }
+
     fn member(&self) -> &SourceBoxMemberSiteV1 {
         match self {
             Self::Direct { member } | Self::SelectedBuildGate { member, .. } => member,
@@ -207,7 +211,7 @@ pub(super) enum MethodSourceRelationV1 {
 }
 
 impl MethodSourceRelationV1 {
-    fn inventory_ordinal(&self) -> BoxMethodInventoryOrdinalV1 {
+    pub(super) fn inventory_ordinal(&self) -> BoxMethodInventoryOrdinalV1 {
         match self {
             Self::Explicit(relation) => relation.inventory_ordinal(),
             Self::GeneratedProperty {
@@ -216,7 +220,7 @@ impl MethodSourceRelationV1 {
         }
     }
 
-    fn name(&self) -> &str {
+    pub(super) fn name(&self) -> &str {
         match self {
             Self::Explicit(relation) => relation.name(),
             Self::GeneratedProperty { name, .. } => name,

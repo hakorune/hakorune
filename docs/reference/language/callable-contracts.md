@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-D0 parser delegate design receipt closed, implementation 0.
+Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index receipt closed, C-I0 batch design remains unopened.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -339,9 +339,21 @@ existing explicit method source relation. Zero candidates are Unresolved,
 ambiguous path candidates are Rejected, and fully observed generated-only,
 delegate-chain, compatibility-only, or overload targets are Declined. No AST,
 inventory, final seal, Recipe/CallSlot, or runtime state is mutated in C-S1;
-the implementation remains closed pending its focused guard. The borrowed
+the implementation was later closed by its focused guard. The borrowed
 `TargetMethodRef` may be reused by multiple exposes and carries no generated
 placement or resolver identity.
+
+R6-S3B-C-S1 implementation receipt (2026-08-09): the parser now issues the
+private borrowed target index from the unpublished postpass product. The index
+aligns ordinary Box AST entries with same-brand exact source paths and prepared
+seals, validates existing explicit method relations, and returns a reusable
+`TargetMethodRefV1` only for one exact target path plus one explicit relation.
+Focused tests cover a reusable positive candidate, missing-field unresolved,
+missing-method rejection without fallback, and duplicate-target rejection.
+The implementation does not mutate AST/inventory/seals, add generated
+placement, extend the final seal, or connect resolver/Recipe/runtime routes.
+C-I0 all-host/expose preflight and atomic generated-batch commit remain a
+design frontier.
 
 ## Related references
 

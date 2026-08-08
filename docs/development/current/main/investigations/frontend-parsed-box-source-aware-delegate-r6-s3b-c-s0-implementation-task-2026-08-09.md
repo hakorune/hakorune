@@ -127,7 +127,8 @@ no Hako parity, generated-delegate chain, fallback, or retry
 
 ## Next slice
 
-After the focused guard is green and this row is closed, open
-`R6-S3B-C-S1-D0` for a design-only private path-based target index and existing
-source-method relation lookup. If the parser cannot issue an exact source row,
-stop at `NoSafeSlice`; do not add a test constructor or a name-based shortcut.
+This row is closed. Its child `R6-S3B-C-S1-D0` design and bounded C-S1 private
+target-index implementation are also closed. The next frontier is the
+`R6-S3B-C-I0-D0` design stop for all-host/expose preflight and one atomic
+generated batch. If the parser cannot issue an exact source row, stop at
+`NoSafeSlice`; do not add a test constructor or a name-based shortcut.

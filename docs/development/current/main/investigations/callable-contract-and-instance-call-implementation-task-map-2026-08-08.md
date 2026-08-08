@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0 closed; C-S1/C-I0 and D remain closed
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1 closed; C-I0-D0 is the current design stop and C-I0 implementation/D remain closed
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -205,13 +205,21 @@ R6-S3B-C-S1-D0 (accepted design; closed)
   Planned implementation:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-implementation-task-2026-08-09.md`
 
-R6-S3B-C-S1 (active)
+R6-S3B-C-S1 (closed)
   private `DelegateTargetIndexV1<'product>` borrowing the unpublished
   postpass product; exact same-brand Box paths plus one explicit target method
   relation. No AST/inventory/final-seal mutation, generated placement, batch
   commit, resolver target, or runtime route.
   Task:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-implementation-task-2026-08-09.md`
+
+R6-S3B-C-I0-D0 (current design stop)
+  design all-host/expose preflight, generated placement/relation coverage,
+  and one atomic postpass batch commit. This row must preserve the private
+  C-S1 borrowed index, keep final seal/resolver work closed, and define the
+  complete failure/discard contract before implementation.
+  Task:
+  `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md`
 
 R6-S3B-D
   final complete relation coverage and one final non-Clone seal

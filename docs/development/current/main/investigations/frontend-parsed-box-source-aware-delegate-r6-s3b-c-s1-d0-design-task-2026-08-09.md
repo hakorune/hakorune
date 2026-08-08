@@ -1,7 +1,7 @@
 ---
-Status: accepted design; implementation not opened
+Status: accepted design; implementation closed
 Date: 2026-08-09
-Decision: C-S1 target lookup boundary is not opened; design only
+Decision: C-S1 target lookup boundary is closed by its bounded implementation receipt
 Parent: `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md`
 Reference: `docs/development/current/main/design/parser-postpass-source-handoff-ssot.md`
 ---
@@ -11,7 +11,7 @@ Reference: `docs/development/current/main/design/parser-postpass-source-handoff-
 ## Purpose
 
 Define the next private target-lookup boundary after the closed C-S0 parser
-transport. This is a design-only row. It must not add a resolver target,
+transport. This was a design-only row. It must not add a resolver target,
 generated placement relation, final source-seal field, or name-based fallback.
 
 ## Authority to preserve
@@ -160,3 +160,6 @@ in the parser source-handoff SSOT, an explicit negative matrix, and a focused
 guard/task entry. The implementation slice must update its reference and owner
 README in the same commit and keep every touched Rust source file below 800
 lines.
+
+The child C-S1 implementation receipt is now closed. The next design frontier
+is C-I0 all-host/expose preflight and one atomic generated-batch commit.

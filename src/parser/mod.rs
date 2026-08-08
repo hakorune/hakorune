@@ -23,6 +23,7 @@ mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
 mod delegate_lowering;
+mod delegate_target_index;
 pub(crate) mod env;
 // depth_tracking.rs was a legacy depth counter for Smart advance.
 // Phase 15.5: removed in favor of TokenCursor-centric newline handling.

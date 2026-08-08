@@ -24,7 +24,7 @@ design, implementation, ssot, reference, taskmap, state, index = [
 ]
 
 for needle in (
-    "Status: accepted design; implementation not opened",
+    "Status: accepted design; implementation closed",
     "DelegateTargetIndexV1<'product>",
     "Vec<TargetBoxEntryV1>",
     "TargetMethodRef<'product>",
@@ -49,6 +49,7 @@ if not any(
     for marker in (
         "Status: planned; implementation not opened",
         "Status: active bounded implementation",
+        "Status: closed implementation receipt",
     )
 ):
     raise SystemExit("implementation task must be planned or active, never completed")
@@ -64,9 +65,9 @@ for needle in (
         raise SystemExit(f"task map missing C-S1 task pointer: {needle}")
 
 for needle in (
-    'work_mode = "fast"',
-    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-S1"',
-    'current_blocker_token = "R6-S3B-C-S1:',
+    'work_mode = "design_stop"',
+    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-C-I0-D0"',
+    'current_blocker_token = "R6-S3B-C-I0-D0:',
 ):
     if needle not in state:
         raise SystemExit(f"current state missing design stop: {needle}")
@@ -74,9 +75,8 @@ for needle in (
 if "frontend_parsed_box_source_seal_r6_s3b_c_s1_d0_guard.sh" not in index:
     raise SystemExit("check index must list the C-S1-D0 guard")
 
-for path in (Path("src/parser/source_authority.rs"), Path("src/parser/source_seal.rs")):
-    if "DelegateTargetIndexV1" in (Path.cwd() / path).read_text(encoding="utf-8"):
-        raise SystemExit(f"C-S1 implementation must remain closed: {path}")
+if not (Path.cwd() / "src/parser/delegate_target_index.rs").is_file():
+    raise SystemExit("C-S1 implementation receipt requires the private target-index module")
 
 print("accepted_design=1")
 print("private_borrowed_index=1")

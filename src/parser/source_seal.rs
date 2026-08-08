@@ -149,23 +149,24 @@ impl PreparedBoxSourceSealV1 {
 /// S3B-A intentionally keeps the existing direct ordinary-Box prune/delegate
 /// behavior. The important boundary is that those postpasses consume and
 /// return this product instead of separately mutating an AST and a seal list.
-/// Gate path rebasing and source-aware delegate relations remain later S3B
-/// slices; this product must not be treated as resolver authority until the
-/// final relation coverage is complete.
+/// Gate path rebasing and private target lookup are parser-private slices;
+/// generated relation coverage remains later S3B work. This product must not
+/// be treated as resolver authority until the final relation coverage is
+/// complete.
 #[derive(Debug)]
 pub(super) struct OpenParserPostpassProductV1 {
-    ast: ASTNode,
-    source_session: ParserSourceSessionV1,
-    final_box_paths: Vec<SourceBoxDeclarationPathV1>,
+    pub(super) ast: ASTNode,
+    pub(super) source_session: ParserSourceSessionV1,
+    pub(super) final_box_paths: Vec<SourceBoxDeclarationPathV1>,
     metadata: ParserMetadata,
 }
 
 /// Parser-owned source transport for the open postpass product. This wrapper
-/// keeps prepared payload storage behind a named session boundary; gate path
-/// and generated-delegate relation expansion belong to later S3B slices.
+/// keeps prepared payload storage behind a named session boundary; generated
+/// delegate-relation expansion belongs to later S3B slices.
 #[derive(Debug)]
 pub(super) struct ParserSourceSessionV1 {
-    prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+    pub(super) prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
     gate_records: Vec<PreparedBuildGateSourceRecordV1>,
     selection_receipts: Vec<BuildGateSelectionReceiptV1>,
 }

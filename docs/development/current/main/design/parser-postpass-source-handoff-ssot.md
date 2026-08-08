@@ -581,7 +581,7 @@ issuance, Recipe/CallSlot, or a second source authority. The focused tests and
 implementation; source authority and source-seal modules remain below 800
 lines.
 
-## R6-S3B-C-S1-D0 design receipt — accepted; implementation remains closed
+## R6-S3B-C-S1-D0 design receipt — accepted; implementation closed
 
 C-S1 is a private borrowed target-index boundary. A
 `DelegateTargetIndexV1<'product>` borrows the unpublished
@@ -616,6 +616,32 @@ placement, AST node, resolver identity, Recipe key, ValueId, provider handle,
 or runtime route. C-S1 does not mutate AST/inventory/seal state. Complete
 all-host/expose preflight and atomic generated batch commit remain C-I0; final
 resolver-visible relation coverage remains R6-S3B-D.
+
+## R6-S3B-C-S1 implementation receipt — closed (2026-08-09)
+
+The parser-private `DelegateTargetIndexV1` is implemented in
+`src/parser/delegate_target_index.rs`. It borrows the unpublished postpass
+product and validates that ordinary Box AST entries, prepared source seals,
+and `SourceBoxDeclarationPathV1` values have complete same-brand alignment.
+Target field/type and expose source-method names are selectors only. A
+successful query returns a reusable `TargetMethodRefV1` carrying the exact
+target path and one existing explicit `MethodSourceRelationV1`; missing field
+evidence is `Unresolved`, missing method is `Rejected`, and duplicate target
+names are rejected when the index is issued. No AST, inventory, prepared seal,
+final seal, generated placement, resolver target, Recipe/CallSlot, or runtime
+state is mutated.
+
+The four focused tests landed in the same slice and prove positive reuse,
+missing-field unresolved, missing-method no-fallback rejection, and duplicate
+target rejection. All touched Rust files remain below 800 lines. The next
+frontier is C-I0 design for all-host/expose preflight and one atomic generated
+batch commit.
+
+The next design-only frontier is
+`frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-d0-design-task-2026-08-09.md`.
+It must close the complete all-host/expose preflight, generated placement and
+relation receipt, collision policy, and whole-product atomic discard contract
+before any C-I0 implementation opens.
 
 ## Nonclaims until R6-S3B-D closes
 

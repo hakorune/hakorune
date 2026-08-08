@@ -1,5 +1,5 @@
 ---
-Status: active bounded implementation
+Status: closed implementation receipt
 Date: 2026-08-09
 Decision: implement only the accepted private borrowed target-index slice; do not open generated placement or final seal
 Parent: `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s1-d0-design-task-2026-08-09.md`
@@ -125,3 +125,23 @@ no resolver-visible target catalog
 no Recipe/CallSlot/Builder/MIR/ABI/Home/provider/runtime
 no Hako parity
 ```
+
+## Landed C-S1 receipt (2026-08-09)
+
+`src/parser/delegate_target_index.rs` now owns the bounded private index. It
+borrows the unpublished postpass product, aligns the pruned ordinary-Box AST
+with parser-issued prepared seals and exact `SourceBoxDeclarationPathV1`
+values, and validates existing explicit method relations before issuing the
+index. A query uses the host field's declared type and expose source method
+only as selectors; a successful `TargetMethodRefV1` carries the exact target
+path and borrowed explicit relation. The same reference can be queried again
+without consuming or mutating the product.
+
+The focused suite covers the positive reusable candidate, missing field
+(`Unresolved`), missing method (`Rejected` without fallback), and duplicate
+target name (`Rejected` at index issue). No AST/inventory/prepared-seal/final-
+seal mutation, generated placement, batch commit, resolver target, or runtime
+route was added. All touched Rust source files remain below 800 lines.
+
+The next boundary is a design stop for C-I0 all-host/expose preflight and one
+atomic generated-batch commit; this row does not open that implementation.
