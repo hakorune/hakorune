@@ -504,6 +504,14 @@ focused I0-C tests (7), and the 12-case `parser_build_cfg_gate` regression
 gate are green. Existing prune/source-path/explain consumers are intentionally
 unchanged; the next row designs their one-way projection from this set.
 
+I0-C projection D0 receipt (2026-08-09): the projection boundary is accepted.
+One private walker will borrow the non-Clone decision rows, consume selected
+and unselected branches for complete coverage, emit only the selected AST,
+strengthen source selection receipts with predicate/coordinate checks, and
+derive the reachable-row v0 explain report without a second evaluator. The
+next implementation row is `PARSER-PUBLIC-AST-POSTPASS-I0-C-PROJECTION-I0`;
+until it closes, the legacy prune/explain consumers remain unchanged.
+
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 
 The top-level build-gate boundary is a parser source-transport problem, not

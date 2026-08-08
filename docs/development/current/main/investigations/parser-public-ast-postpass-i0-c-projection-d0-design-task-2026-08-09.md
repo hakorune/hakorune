@@ -1,4 +1,4 @@
-Status: accepted design boundary; implementation not opened
+Status: accepted design boundary; implementation task opened separately
 Date: 2026-08-09
 Decision: design the one-way I0-C projection from the parser-private decision set
 Parent: `parser-public-ast-postpass-i0-c-design-task-2026-08-09.md`
@@ -59,3 +59,118 @@ reference/task/README/guard update lands in the same implementation commit
 
 Until this design is implemented, the existing consumers remain unchanged and
 the current work mode is `design_stop`.
+
+## Accepted projection architecture
+
+The decision set is the sole predicate truth, but it is not moved separately
+into three consumers. `OpenParserPostpassProductV1` remains its non-Clone owner
+and a private projection walker borrows its rows for one structural traversal.
+The walker emits one aggregate:
+
+```text
+BuildGateProjectionOutputV1
+  pruned AST
+  top-level BuildGateSelectionReceiptV1[]
+  retained SourceBoxDeclarationPathV1[]
+  optional v0 BuildGateExplainReport
+  complete-consumption receipt
+```
+
+The aggregate is then consumed by the existing source-session prune and the
+existing delegate/final-seal path. The decision set is dropped only after all
+requested projections have succeeded; no consumer clones it or re-evaluates a
+predicate.
+
+### Single structural walker
+
+`build_cfg/projection.rs` (new dedicated module) owns the future walker. It
+visits AST `BuildGate` nodes in the same private preorder coordinate used by
+the issuer and verifies, at every row:
+
+```text
+invocation brand
+coordinate
+predicate and span
+optional parser-issued gate id/path
+```
+
+Both selected and unselected branches are traversed for row coverage. Only the
+selected branch is emitted into the output AST. An inactive nested gate is
+therefore consumed as a row without being evaluated or emitted. Non-gate AST
+containers are rebuilt by the same walker; the current generic prune walk and
+the source-gate `GateCursor` are not run afterward.
+
+AST child ordinals may be used only as local traversal coordinates. They never
+issue a source identity, gate id, or resolver identity. Top-level source
+identity comes from the parser-issued `SourceBuildGatePathV1` and the existing
+source-session records.
+
+### Selection receipt strengthening
+
+`BuildGateSelectionReceiptV1` must carry the decision row's predicate (and its
+private coordinate) in addition to brand, gate id/path, and selected branch.
+Source-session validation then checks:
+
+```text
+record ↔ decision row ↔ receipt
+  same brand
+  same gate id/path
+  same predicate
+  unique coordinate
+```
+
+The receipt is a projection receipt, not a new evaluator or source authority.
+The existing `ParserSourceSessionV1::prepare_prune` remains the owner of
+retaining prepared source seals; it receives validated receipts and does not
+inspect AST names or ordinals.
+
+### Explain compatibility projection
+
+The v0 report is derived from reachable decision rows, not from the pruned AST:
+
+```text
+conditional_group_count = reachable gate rows
+active_branch_count     = one for each reachable gate row
+inactive_branch_count   = selected false/no-else, or the unselected else arm
+```
+
+Inactive rows remain in the decision set for complete coverage and diagnostics
+but do not increment the v0 counters. The source predicate is never called by
+the report builder.
+
+The public explain wrapper must enter the same postpass coordinator as `parse`
+and metadata, request `ExplainDemandV1::Capture`, and consume one completed
+postpass product through a dedicated `into_ast_and_explain` projection. The
+current direct `explain_build_gate_program` + `prune_build_gate_program` route
+is retired by the implementation task. Grammar-evidence parsing remains a
+separate nonclaim.
+
+### Cohort and failure rules
+
+Projection happens before ordinary/compatibility cohort admission so both arms
+can retain the same branch decision and optional explain report. A projection
+failure is `ParseError::BuildCfg`; there is no fallback to the old evaluator.
+The member-level `BoxMemberState` gate selector remains outside this product.
+
+## Ordered implementation task
+
+The design is implemented by:
+
+```text
+PARSER-PUBLIC-AST-POSTPASS-I0-C-PROJECTION-I0
+```
+
+in this order:
+
+```text
+1. private projection row/cursor and strengthened selection receipt
+2. one walker producing pruned AST + source receipts + optional explain
+3. source-session prune consumes only validated projection receipts
+4. finish_total_s0 Capture arm and CompletedPostpass explain projection
+5. switch public explain wrapper to the shared postpass entry
+6. remove old evaluator calls from postpass consumers
+7. focused parity/negative tests and same-slice reference/README/guard update
+```
+
+No part of this task opens resolver, Recipe, Builder, MIR, runtime, member-gate
+semantics, or production selection.

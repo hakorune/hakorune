@@ -143,3 +143,9 @@ once, and records selected branch plus reachability. Focused I0-C tests and
 the existing 12-case BuildCfg regression gate are green. Prune, source-path,
 and explain projection remain a separate design-stop; no public consumer has
 been switched.
+
+Projection D0 receipt (2026-08-09): the next implementation row is a single
+private structural walker that borrows the non-Clone decision set and emits
+pruned AST, validated source selection receipts, retained paths, and the v0
+explain report. The old evaluator/generic-prune route remains unopened until
+that bounded I0 slice is implemented.

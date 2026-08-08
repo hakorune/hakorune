@@ -326,6 +326,10 @@ I0-C-S0 receipt (2026-08-09): the parser-private
 tests and the 12-case BuildCfg regression gate. This is an internal postpass
 authority only; public explain/prune/source-path consumers are not switched.
 
+The accepted follow-up projection row uses one structural walker and one
+postpass product for AST pruning, source-path receipts, and explain capture;
+it does not add a second callable or parser semantic authority.
+
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate
 boundary. The product owns the AST, a `ParserSourceSessionV1` for prepared

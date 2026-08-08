@@ -262,6 +262,12 @@ predicate configuration is validated even under inactive branches, and each
 top-level predicate is evaluated once. Prune, source-path, and explain remain
 unopened projections for the next design row.
 
+Projection D0 is now accepted: the shared decision set will be consumed by
+one parser-private structural walker, with inactive rows retained only for
+coverage/diagnostics and the v0 explain counters derived from reachable rows.
+The public explain/prune/source-path cutover is still a separate implementation
+row; no language surface or member-level gate rule changes here.
+
 ## Explain Report
 
 Build conditional pruning should expose a compact report:
