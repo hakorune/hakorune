@@ -13,13 +13,15 @@ Parent: `loop-resolver-canonical-callable-contract-d0-design-task-2026-08-08.md`
 Decision:
   Do not issue an instance contract from lexical receiver presence or a
   FreeStatic header. Consume the future frontend-owned ordered method source
-  capability, then co-seal one declared `CallableContract(query)` with the
-  exact nominal Box declaration before any target.
+  capability, issue one semantic signature, then co-seal typed Query behavior
+  and the exact same-declaration `VerifiedHomeAbi` with the nominal Box
+  declaration before any target.
 
 Source authority:
-  BoxMethodInventoryV1 Source row, same catalog/compilation brand, nominal
-  receiver type identity, ordered parameter/result declarations, ordinary
-  receiver Handle rule, and `CallableContract(query)`.
+  parser-owned non-Clone Box source seal, same catalog/compilation brand,
+  nominal receiver type identity, ordered semantic parameter/result
+  declarations, typed `CallableContractSyntaxV1::Query`, and
+  `VerifiedHomeAbi`.
 
 Non-authority:
   BindingKind::Receiver, ReceiverPolicy::DeclaredInstance, HashMap/name order,
@@ -33,8 +35,9 @@ Fail-fast boundary:
   keeps the row NoSafeSlice/Unresolved. No target is issued.
 
 Smallest next slice:
-  after frontend parity, issue one exact `length(): i64` declared query
-  contract with no body conformance or target.
+  after frontend parity, semantic signature, and bounded Home ABI, issue one
+  exact `length(): i64` declared query contract with no body conformance or
+  target.
 
 Non-claims:
   body conformance, resolver target, Recipe/CallSlot, source-bound relation,
@@ -72,7 +75,7 @@ VerifiedBoxMethodDeclarationV1 {
 }
 ```
 
-It consumes only a `BoxMethodInventoryV1::Source` row. It is immutable,
+It consumes only a parser-sealed explicit-method source row. It is immutable,
 AST-free after issuance, and cannot be reconstructed from a method or Box
 name. Generated/property rows, duplicate/foreign identity, and static/instance
 cross-wiring reject before a contract is attempted.
@@ -83,13 +86,14 @@ The declaration inventory alone is insufficient. The accepted language
 Decision supplies one declared whole-call obligation:
 
 ```text
-receiver demand: ordinary Handle; no Home transfer/share/end/escape
+receiver demand: supplied only by same-declaration VerifiedHomeAbi
 receiver effect: exact receiver read allowed; no writes
 effects/control: no alloc, IO/FFI, Fault, suspension, or non-local control
 parameter/result: exact semantic declaration from the method signature
 ```
 
-The source spelling is `@rune CallableContract(query)`. It is a declared
+The source spelling is `@rune CallableContract(query)`, normalized by the
+parser to a typed Query row. It is a declared
 obligation, not body proof. `Pure` is stricter and disallows receiver/heap
 reads; `length()` is therefore query/readonly behavior, not Pure. Physical
 scalar ABI remains a later projection from semantic `i64`.
@@ -109,8 +113,9 @@ but not enough resolver-owned authority to issue one yet:
 
 ```text
 ASTNode::BoxDeclaration:
-  name, methods: HashMap<String, ASTNode>, is_static, type parameters,
-  fields and declaration metadata
+  name, methods: BoxMethodInventoryV1, is_static, type parameters, fields and
+  declaration metadata; the inventory is ordered descriptive AST data, not a
+  parser source seal
 
 ASTNode::FunctionDeclaration:
   method name, params/ParamDecl, declared return type, is_static, attrs
@@ -135,12 +140,13 @@ FunctionOwnerIdV1::compilation_brand:
 ```
 
 Therefore the existing syntax is evidence for a future issuer input, not an
-issuer itself. The current HashMap has also discarded duplicate declarations,
-source order, provenance, and an exact member ordinal. Method/Box strings,
-`ReceiverPolicy`, the raw embedded helper, Builder declaration facts, and
-owner brand cannot be combined after the fact to manufacture a declaration.
-`FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0` owns that correction before the
-resolver consumes a source capability.
+issuer itself. R1-R5 fixed ordering and compatibility transport, but selected
+inventory placement still differs from an exact explicit-method source site,
+and the parser-owned non-Clone source seal remains absent. Method/Box strings,
+raw `ExplicitSource`, JSON, `ReceiverPolicy`, the embedded helper, Builder
+declaration facts, and owner brand cannot be combined after the fact to
+manufacture a declaration. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6` plus Hako
+parser parity owns that correction before resolver consumption.
 
 The declared-contract issuer audit is also closed at `issuer=0` for the current source:
 
@@ -190,13 +196,20 @@ development state and must not be converted into a source disposition.
 ## Exit criteria before I0
 
 1. Frontend `BoxMethodInventoryV1` and Rust/.hako source parity are closed.
-2. The query contract issuer consumes that exact Source row and nominal Box.
-3. Receiver demand uses the existing `Handle` vocabulary.
-4. Signature owns arity/types; physical ABI remains downstream.
-5. One atomic declared-contract co-seal and negative matrix are fixed.
-6. Body conformance remains a separate pre-publication gate.
+2. The declaration issuer consumes the parser-sealed source row and nominal Box.
+3. One semantic signature exists without `ExactTrivial*Abi`/`MirType` authority.
+4. Typed Query behavior and one same-declaration `VerifiedHomeAbi` exist;
+   receiver demand uses the existing `Handle` vocabulary only in that ABI.
+5. Signature owns arity/types; physical ABI remains downstream.
+6. One atomic declared-contract co-seal and negative matrix are fixed.
+7. Body conformance remains a separate complete-catalog gate.
 
 ## Ordered follow-up
+
+This is a resolver-declaration view only. The complete executable order,
+including old-target retirement, publishable-catalog co-seal, physical ABI
+projection, and same-slice reference updates, is owned only by
+`callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`.
 
 ```text
 LANGUAGE-TYPED-CALLABLE-PROFILE-D0                 closed
@@ -206,4 +219,6 @@ LANGUAGE-TYPED-CALLABLE-PROFILE-D0                 closed
   -> RESOLVER-INSTANCE-CALL-TARGET-D0/I0
   -> SOURCE-BOUND-INSTANCE-CALL-D0/I0
   -> CALLABLE-CONTRACT-CONFORMANCE-D0/I0
+  -> publishable catalog / physical ABI projection
+  -> production activation only after complete conformance
 ```

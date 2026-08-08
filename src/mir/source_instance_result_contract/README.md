@@ -1,5 +1,20 @@
 # Source instance-result contract
 
+## Disposition
+
+Decision (2026-08-08): retire this entire caller-zero family before the new
+declaration-first instance target is implemented. Repository census found no
+non-test caller. This module derives an exact-I64 result from body proof and
+resolves a target from the current call site/name/arity catalog, which is the
+opposite direction from the accepted declaration -> contract -> target ->
+source-bound call pipeline.
+
+`SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0` deletes this module, its rebind and
+pre-loop adapters, tests, and `src/mir/mod.rs` declaration in one BoxShape
+slice. It does not delete the general exact source-site primitives in
+`source_call_target` or unrelated production result-representation owners.
+No new resolver target may coexist with this authority.
+
 This module owns one disconnected source-only result contract for an exact
 current-owner instance `MethodCall`.
 

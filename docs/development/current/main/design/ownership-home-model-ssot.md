@@ -399,8 +399,12 @@ specific provenance.
 
 The callable-contract lane reuses this model rather than inventing a second
 receiver capability. `CallableContract(query)` requires the ordinary receiver
-`Handle` boundary: no Home transfer, addition, end, or escape. Its declared
-behavior, body conformance, and physical ABI are separate owners; see
+`Handle` boundary: no Home transfer, addition, end, or escape. The Query
+behavioral receipt does not issue or restate that axis. The same-declaration
+`VerifiedHomeAbi` alone owns receiver/parameter demands and the result
+relation, and the declared callable contract merely co-seals it with Query and
+the semantic signature. Its declared behavior, body conformance, and physical
+ABI are separate owners; see
 `docs/reference/language/callable-contracts.md`.
 
 HomeV1 is product-ready only when:

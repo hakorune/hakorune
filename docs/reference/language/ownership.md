@@ -542,6 +542,9 @@ move-out unless that exact operation is legal.
 
 Whole-call behavior does not create a second ownership vocabulary.
 `@rune CallableContract(query)` uses the ordinary receiver `Handle` boundary:
-the call does not transfer, add, end, or escape a Home. See
+the call does not transfer, add, end, or escape a Home. The Query receipt does
+not independently own this fact; one same-declaration `VerifiedHomeAbi` is the
+sole receiver/parameter/result Home authority consumed by the declared
+callable contract. See
 [`callable-contracts.md`](callable-contracts.md); declaration conformance and
 physical ABI remain separate owners.

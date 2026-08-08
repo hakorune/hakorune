@@ -33,17 +33,19 @@ co-seal.
 
 The brand and structural ordinals are issued by their owners: the program
 cursor issues the top-level statement ordinal, the ordinary Box branch issues
-branch-local member ordinals, and the declaration builder/sealer issues the
-selected method ordinal. Caller-supplied arbitrary ref constructors are not
-an authority. Diagnostic offsets are carried separately and are never used
-as identity.
+exact member paths, and the declaration sealer issues independent selected
+inventory ordinals. An explicit method source site is never the same thing as
+an all-row inventory position; generated property/delegate rows have only a
+source-member origin and generated role. Caller-supplied arbitrary ref
+constructors are not an authority. Diagnostic offsets are carried separately
+and are never used as identity.
 
 ```text
 ParserProgramBox cursor
   -> ordinary Box parser branch
-  -> branded ordered declaration drafts
+  -> branded unpublished member transaction
   -> one declaration sealer
-  -> sealed parser product
+  -> ordered inventory + non-Clone parser source seal
 ```
 
 The ordinary branch is the only future source authority. `ParserBox`,
@@ -52,8 +54,10 @@ MapBox remain non-authoritative compatibility surfaces. The branch must parse
 the Box body once and carry the resulting `ParserNodeProductV1` disposition;
 it must never save a source slice for a later rescan.
 
-H1 is intentionally disconnected and proves only branded refs/sites,
-ordered drafts, duplicate-without-mutation, one-Box seal, foreign-brand/site
-rejection, and double-finish rejection. It does not wire the program parser,
-build-gate selection, runes, resolver semantics, Recipe, or publication. The
-D0/task card is the authority for the H1 connection and removal conditions.
+H1 is intentionally disconnected and proves only branded refs/sites, exact
+source-member paths, separate inventory ordinals, ordered drafts,
+duplicate-without-mutation, one-Box seal, foreign-brand/site rejection, and
+double-finish rejection. It does not wire the program parser, build-gate
+selection, delegate postpass, typed CallableContract carriage, resolver
+semantics, Recipe, or publication. The D0/task card is the authority for the
+H1 connection and removal conditions.

@@ -1,9 +1,9 @@
 ---
-Status: closed — authority, API, census, retirement, and implementation order fixed
+Status: closed through R5 — R6 source-seal correction parked
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
-Next: `frontend-ordered-box-method-inventory-r0-implementation-task-2026-08-08.md`
+Next: `callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`
 ---
 
 # FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0
@@ -43,6 +43,11 @@ pub struct BoxMethodEntryV1 {
 }
 ```
 
+This is the landed R1-R5 descriptive inventory model. R6 does not replace its
+ordered lookup role; it adds an independent exact source site and one
+parser-owned non-Clone seal. `BoxMethodDeclarationSiteV1` therefore remains
+an inventory-placement record and is not promoted into resolver identity.
+
 The exact provenance is:
 
 ```text
@@ -76,22 +81,30 @@ method ordinal.
 
 ## Structural identity
 
-The selected compilation identity is:
+R1-R5 own selected inventory placement only:
+
+```text
+BoxMethodInventoryOrdinalV1
+  = position among selected/generated rows
+  = descriptive AST placement
+```
+
+R6 introduces the independent resolver-grade source coordinate:
 
 ```text
 source/catalog brand
-program Box statement ordinal
-selected method ordinal
++ program Box statement site
++ exact as-written method member path
+  Direct(box_member_ordinal)
+  | SelectedBuildGate(path, branch_member_ordinal)
 ```
 
-The raw inventory owns the Box-local selected method ordinal as an ordered AST
-carrier. It is not itself a resolver-grade source capability. A later
-parser-owned seal proves complete parsing, selected Box membership, duplicate
-freedom, and exact source origin. The program/resolver
-inventory later co-seals the Box statement ordinal and brand. `Span` is
-diagnostic only. Selected-gate provenance retains every gate site and original
-branch member ordinal in outer-to-inner order while the selected ordinal is
-rebased once at commit.
+The parser-owned seal proves complete parsing, selected Box membership,
+duplicate freedom, and the exact relation from each explicit method source
+site to one selected inventory entry. Generated property/delegate rows have a
+generated origin and inventory ordinal but no explicit method source site.
+`Span` is diagnostic only. Neither JSON nor `selected_method_ordinal` can
+reconstruct or issue this capability.
 
 ## Public API and forbidden API
 
@@ -235,23 +248,27 @@ Rust BoxShape series:
      + selected-gate/property/delegate atomic transactions
   R4 JSON Box codec split + ordered v2 / CompatibilityOnly v1
   R5 Builder compatibility consumer migration + old helper retirement
+  R6 parser-owned source seal + source-site/inventory-ordinal split + sidecar retirement
 
 Hako prerequisite and parity:
   H0 HAKO-PARSER-BOX-DECLARATION-CARRIER-D0
-  H1 typed declaration carrier substrate
-  H2 ordinary Box parser branch
-  H3 ordered inventory + duplicate/site issuer
+  H1 typed transaction/source-site substrate
+  H2 ordinary Box parser member-draft branch
+  H3 atomic inventory + parser source-seal issuer
   H4 selected-gate transaction
   H5 test-only normalized Rust/.hako parity
-  H6 CallableContract(query) carriage and reference closeout
+  H6 typed CallableContract(query) carriage and reference closeout
 
 Then:
+  resolver semantic declaration/signature
+  OWN-HOME-ABI0-S0/query
   RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
 ```
 
-R0 and R0A are closed and R1 is the active executable row. Temporary
-caller-zero model code may exist only inside this bounded Refactor Series and
-must connect through R1/R2; it cannot become a second AST or production route.
+Historical execution note: R0/R0A and R1-R5 are closed. The current frontier
+is the Hako parser carrier design stop; R6 must close before H5 parity or any
+resolver declaration row. No caller-zero model may become a second AST or
+production route.
 
 ## Verification contract
 

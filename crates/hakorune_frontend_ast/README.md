@@ -6,8 +6,9 @@ on resolver, MIR, runtime, provider, backend, environment, or route policy.
 ## Ordered Box-method inventory
 
 `BoxMethodInventoryV1` is the canonical ordered AST carrier for Box methods.
-It owns selected-declaration order, descriptive provenance, Box-local ordinal,
-diagnostic span, and exact-name lookup. It is not a resolver source authority.
+It owns selected-declaration placement, descriptive provenance, diagnostic
+span, and exact-name lookup. Its all-row inventory ordinal is not an
+as-written method source site and it is not a resolver source authority.
 
 ```text
 ordered entries
@@ -29,7 +30,7 @@ Raw `ExplicitSource` provenance is also descriptive. A later parser-owned seal
 must prove complete parsing, duplicate freedom, selected Box membership, and
 exact source identity before lending resolver-grade rows.
 
-Current status: R3 is landed. `ASTNode::BoxDeclaration.methods` now stores
+Current status: R5 is closed. `ASTNode::BoxDeclaration.methods` now stores
 `BoxMethodInventoryV1`, and compatibility consumers use explicitly named
 exact-lookup, selected-order, name-order, or `CompatibilityOnly` projections.
 The old public HashMap field and arbitrary mutable method access are gone.
@@ -52,6 +53,15 @@ cannot manufacture `Direct` provenance.
 Raw rows still do not issue a resolver-grade source capability. Compatibility
 rows cannot be upgraded. JSON v2 preservation is the separate R4 row; JSON v1
 decoding remains explicitly compatibility-only.
+
+The next parser-source correction is R6. One non-Clone parser seal will own
+exact explicit-method source sites and relate them to the selected inventory.
+Explicit source identity is separate from `selected_method_ordinal` because
+generated property/delegate rows consume inventory slots. Generated rows keep
+only their source-member origin and generated role. The current parallel
+`method_source_member_ordinals` sidecar and length-delta reconstruction are
+retirement debt; resolver work cannot consume Rust parser rows until R6
+removes them. JSON remains descriptive and cannot manufacture the seal.
 
 R4 now has an atomic AST reconstruction substrate and a strict recursive JSON
 v2 codec. A complete set of `BoxMethodInventoryRoundtripRowV2` values is

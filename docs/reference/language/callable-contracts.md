@@ -19,14 +19,16 @@ box TextLike {
 value is `query`, and the first implementation cohort is an instance method.
 Current parsers do not accept this family yet; acceptance and semantic
 issuance remain production zero. The Rust AST stores the ordered
-`BoxMethodInventoryV1`. Ordinary, interface, and static Box parsing now retain
-selected declaration order, explicit-source provenance, Box-local structural
-sites, and available token line/column. Selected build gates preserve their
-outer-to-inner gate path and exact branch-member ordinal. Generated property
-and delegate helpers are committed as atomic batches and never become
-`ExplicitSource`; legacy JSON remains compatibility-only. Ordered JSON v2,
-Rust/`.hako` parser parity, and resolver sealing must still land before the
-declared contract issuer opens.
+`BoxMethodInventoryV1`. That Clone-capable inventory owns selected placement
+and descriptive provenance, not resolver-grade source identity. Exact
+as-written method sites are separate from all-row inventory ordinals because
+generated property/delegate rows also consume inventory positions. A future
+non-Clone parser-owned Box source seal must relate explicit method sites to
+selected entries after complete duplicate and build-gate selection checks.
+Generated rows receive only a generated source-member origin and never an
+explicit method source site. Legacy JSON remains compatibility-only and cannot
+reconstruct the seal. The parser seal, Rust/`.hako` parity, and resolver
+declaration issuance must still land before the declared contract issuer opens.
 
 The R4 AST-side atomic reconstruction product and strict recursive JSON v2
 codec are landed. The root selects v2 or legacy mode once; malformed nested v2
@@ -53,8 +55,10 @@ or callable-contract semantic issuance; those remain separate design rows.
 ```text
 receiver:
   exact enclosing nominal Box
-  ordinary receiver demand = Handle
   exact receiver direct-state reads allowed
+
+required ownership compatibility:
+  same-declaration VerifiedHomeAbi receiver demand = Handle
 
 forbidden:
   receiver/global writes
@@ -83,7 +87,10 @@ method signature:
   parameter/result semantic types and arity
 
 callable contract:
-  behavioral and Home-boundary obligation
+  behavioral obligation only
+
+VerifiedHomeAbi:
+  receiver/parameter demands and result Home relation
 
 physical ABI verifier:
   semantic value -> target representation
@@ -129,29 +136,46 @@ method body
 ```
 
 Declaration contracts may be cataloged before bodies are verified so recursive
-and mutually recursive calls can resolve. A module may be published only after
-every declared contract has a matching body-conformance receipt. The body
-verifier checks the declared meaning; it never infers or substitutes a public
-contract.
+and mutually recursive calls can resolve. After body verification, the sealed
+declared catalog and one complete same-brand conformance set are atomically
+co-sealed into one publishable callable catalog. Missing, duplicate, foreign,
+or rejected conformance prevents that product from being issued. Module
+publication consumes the publishable catalog and performs no new semantic
+decision. The body verifier checks the declared meaning; it never infers or
+substitutes a public contract.
 
 ## Receiver Home rule
 
 The canonical ownership word is `Handle`:
 
 ```text
-query receiver demand = Handle
+VerifiedHomeAbi for the bounded query cohort:
+  receiver demand = Handle
+  parameter demands = []
+  result relation = Trivial
 ```
 
 This does not claim that the receiver object has no Home. It means this call
 boundary does not transfer, add, end, or escape a Home token. New
 `NoHomeHandle` or `HandleOnly` capability spellings are not introduced.
+`query` requires compatibility with this ABI but does not issue, store, or
+duplicate the Home axis. `VerifiedHomeAbi` remains the sole call-site
+ownership authority and must exist before the declared instance contract can
+be sealed.
 
 ## Issuer and conflict owner
 
-The future canonical issuer consumes one exact ordered source-method
-capability, nominal Box identity, method signature, and the source contract.
-It returns one declared aggregate. Partial Home/effect/control receipts are
-private implementation details and cannot be freely paired by callers.
+The parser first normalizes the raw rune spelling into a typed
+`CallableContractSyntaxV1::Query` source row with exact method/rune site and
+selected-source provenance. Resolver code never reparses the strings
+`"CallableContract"` or `"query"`.
+
+The future canonical issuer consumes one exact parser-sealed source-method
+capability, nominal Box identity, resolved semantic signature, typed Query
+row, and same-declaration `VerifiedHomeAbi`. It returns one declared aggregate
+and a sealed declared catalog. The aggregate co-seals these axis owners; it
+does not restate Home or infer semantic types from `ExactTrivial*Abi`,
+`MirType`, or `FunctionSignature`.
 
 Parser errors own syntax only:
 
@@ -198,12 +222,17 @@ fallback or production publication
 Implementation order is:
 
 ```text
-ordered Box-method source inventory
-  -> Rust/.hako parser and inventory parity
-  -> declared instance-method contract
+ordered Box-method inventory + parser-owned source seal
+  -> Rust/.hako source-site and typed Query parity
+  -> resolver semantic declaration/signature
+  -> VerifiedHomeAbi
+  -> declared Query behavior and declared catalog
+  -> old body-inferred instance-result authority retirement
   -> reusable resolver target
   -> exact source-bound call relation / CallSlot
-  -> body conformance
+  -> complete body conformance set
+  -> publishable callable catalog
+  -> physical ABI projection
   -> production activation
 ```
 

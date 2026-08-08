@@ -1029,10 +1029,15 @@ payload before walking any legacy compatibility ladder.
 ## CallableContract source transport
 
 Until the canonical resolver issuer lands, `CallableContract(query)` is only
-an ordered source-attribute fact carried from the frontend declaration. It is
-not a verified effect, Home ABI, target, MIR `EffectMask`, or physical call
-ABI. Only the future declared-contract issuer may promote that exact source
-row, and body conformance remains a separate pre-publication receipt.
+an ordered source-attribute fact carried from the frontend declaration. The
+parser must normalize the raw rune into a typed
+`CallableContractSyntaxV1::Query` row with exact method/rune site and
+selected-source provenance; resolver code never reinterprets raw name/argument
+strings. This row is not a verified effect, Home ABI, target, MIR `EffectMask`,
+or physical call ABI. Only the future declared-contract issuer may co-seal the
+typed row with the semantic declaration and same-declaration
+`VerifiedHomeAbi`; body conformance remains a separate complete-coverage
+receipt before the publishable catalog is issued.
 
 ## Text MIR / verbose MIR relation
 

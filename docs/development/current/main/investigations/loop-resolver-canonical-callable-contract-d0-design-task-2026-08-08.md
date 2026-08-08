@@ -11,11 +11,11 @@ Language: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
 ## Decision brief
 
 ```text
-ordered duplicate-free source method
+non-Clone parser-sealed source method
 + exact nominal Box declaration
-+ ordered semantic signature
-+ CallableContract(query)
-+ ordinary receiver Handle rule
++ resolved semantic signature
++ typed CallableContractSyntaxV1::Query behavior
++ same-declaration VerifiedHomeAbi
   -> one VerifiedDeclaredInstanceMethodContractV1
 
 method body
@@ -35,7 +35,7 @@ exact Box and method declaration identity
 exact nominal receiver type
 ordered semantic parameter/result signature
 declared query behavior
-receiver demand = Handle
+same-declaration VerifiedHomeAbi
 ```
 
 The aggregate creates one relational truth: all of these inputs belong to the
@@ -74,9 +74,11 @@ suspension, and non-local control. An ordinary mutable receiver query is not
 Pure: Pure forbids receiver/heap/global reads as well.
 
 The receiver demand uses the existing ownership vocabulary `Handle`. There is
-no `NoHomeHandle`, `HandleOnly`, or empty `VerifiedHomeAbi` shortcut. The
-contract means only that this call boundary does not transfer, create, share,
-end, or escape a Home.
+no `NoHomeHandle`, `HandleOnly`, or empty `VerifiedHomeAbi` shortcut. Query
+does not issue this axis: one source-backed `VerifiedHomeAbi` alone owns the
+receiver/parameter demands and result relation. The declared contract co-seals
+that product and means only that this call boundary does not transfer, create,
+share, end, or escape a Home.
 
 Existing `Contract(pure|readonly)` remains its current metadata family and
 `Profile(...)` remains a compatibility bundle. Neither is silently promoted
@@ -92,7 +94,8 @@ DeclaredInstanceMethodContractIssuerV1::issue(
   ordered_source_method,
   nominal_box_declaration,
   resolved_semantic_signature,
-  callable_contract_source_row,
+  typed_callable_contract_source_row,
+  verified_home_abi,
 )
   -> VerifiedDeclaredInstanceMethodContractV1
 ```
@@ -135,19 +138,29 @@ Precedence is `Rejected > Unresolved > Declined > Candidate`.
 
 ## Current blocker and ordered follow-up
 
-The resolver cannot issue this contract from the current
-`BoxDeclaration.methods: HashMap`: duplicate declarations, source order,
-provenance, and exact member sites have already been lost. Resolver sorting or
-name lookup cannot repair them.
+The resolver cannot issue this contract from raw `BoxMethodInventoryV1`.
+R1-R5 preserve selected order and descriptive provenance, but the all-row
+inventory ordinal is not an explicit-method source site and no non-Clone
+parser source seal exists yet. Resolver sorting, JSON, raw `ExplicitSource`,
+or name lookup cannot repair or promote that boundary.
+
+The following is a subsystem view only. The complete executable order,
+including old-target retirement, publishable-catalog co-seal, physical ABI
+projection, and same-slice reference updates, is owned only by
+`callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`.
 
 ```text
 LANGUAGE-TYPED-CALLABLE-PROFILE-D0                  closed
   -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0/I0    current
+  -> typed CallableContract syntax + Rust/Hako parity
+  -> resolver semantic declaration/signature
+  -> OWN-HOME-ABI0-S0/query
   -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
   -> RESOLVER-INSTANCE-CALL-TARGET-D0/I0
   -> SOURCE-BOUND-INSTANCE-CALL-D0/I0
   -> CALLABLE-CONTRACT-CONFORMANCE-D0/I0
-  -> production activation only after conformance
+  -> publishable catalog / physical ABI projection
+  -> production activation only after complete conformance
 ```
 
 Each implementation slice updates its exact owner README and

@@ -10,8 +10,10 @@ Parent: `loop-resolver-canonical-callable-contract-d0-design-task-2026-08-08.md`
 ## Source -> resolver contract
 
 ```text
-frontend-owned BoxMethodInventoryV1::Source capability
-  -> exact resolver nominal Box/method declaration
+parser-owned non-Clone Box source seal
+  -> exact resolver nominal Box/method declaration + semantic signature
+  + typed Query behavior
+  + same-declaration VerifiedHomeAbi
   -> one VerifiedDeclaredInstanceMethodContractV1
   -> typed positive/negative issuer guard
 ```
@@ -20,8 +22,9 @@ The first positive fixture is `length(): i64`, but neither the source rune nor
 the durable product is named `exact_trivial_i64`. Types and arity come from the
 method signature; physical ABI remains downstream.
 
-This row may open only after the full Rust/`.hako` ordered inventory and
-`CallableContract(query)` parser parity are closed. It has no target,
+This row may open only after the full Rust/`.hako` source-seal and typed
+`CallableContract(query)` parity, resolver semantic signature, and bounded
+`OWN-HOME-ABI0-S0/query` are closed. It has no target,
 source-bound call relation, Recipe/CallSlot, body conformance, Builder, MIR, or
 physical consumer.
 
@@ -31,18 +34,20 @@ The sole public issuer co-seals:
 
 ```text
 declaration:
-  exact Source provenance, catalog/compilation brand, Box and method site
+  exact parser-sealed source capability, catalog/compilation brand, Box and
+  explicit method source site
 
 receiver:
   exact resolver-issued nominal Box identity
-  ordinary receiver demand = Handle
+  same-declaration VerifiedHomeAbi receiver demand = Handle
 
 signature:
   ordered semantic parameters and result
   bounded I0 admits arity 0 and semantic I64 result
+  no ExactTrivial ABI or MirType source authority
 
 declared behavior:
-  CallableContract(query)
+  typed CallableContractSyntaxV1::Query
   receiver reads allowed
   writes/Home transfer or escape/alloc/IO/FFI/Fault/suspension/
   non-local control forbidden
@@ -108,11 +113,20 @@ The implementation commit updates
 
 ## Ordered follow-up
 
+This is a bounded I0 view only. The complete executable order, including the
+pre-target retirement of `source_instance_result_contract`, publishable
+catalog co-seal, physical ABI projection, and same-slice reference updates,
+is owned only by
+`callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`.
+
 ```text
-FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0/I0
+FRONTEND-PARSED-BOX-SOURCE-SEAL-R6 + Hako H1-H6 parity
+  -> resolver semantic declaration/signature
+  -> OWN-HOME-ABI0-S0/query
   -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
   -> RESOLVER-INSTANCE-CALL-TARGET-D0/I0
   -> SOURCE-BOUND-INSTANCE-CALL-D0/I0
   -> CALLABLE-CONTRACT-CONFORMANCE-D0/I0
-  -> production activation only after conformance
+  -> publishable catalog / physical ABI projection
+  -> production activation only after complete conformance
 ```

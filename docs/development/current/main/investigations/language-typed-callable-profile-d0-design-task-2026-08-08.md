@@ -32,8 +32,8 @@ The selected declaration means:
 ```text
 receiver:
   exact enclosing nominal Box
-  ordinary receiver demand = Handle
   receiver reads allowed
+  requires same-declaration VerifiedHomeAbi receiver demand = Handle
 
 forbidden:
   receiver/global writes
@@ -119,11 +119,11 @@ compiler never infers a different public contract from the body.
 One resolver-owned issuer consumes:
 
 ```text
-ordered duplicate-free source method capability
+non-Clone parser-sealed source method capability
 exact nominal Box identity
-method signature
-CallableContract(query) source row
-ordinary receiver Handle rule
+resolved semantic method signature
+typed CallableContractSyntaxV1::Query source row
+same-declaration VerifiedHomeAbi
 ```
 
 and returns one declared aggregate. Private axis verifiers may exist, but no
@@ -133,7 +133,9 @@ declaration/catalog brand; it does not invent an axis meaning.
 
 The ownership vocabulary remains `Handle`, not a new `NoHomeHandle` or
 `HandleOnly` capability. “Handle-only call” is explanatory prose: the call
-boundary does not transfer, add, end, or escape a Home.
+boundary does not transfer, add, end, or escape a Home. Query owns behavioral
+compatibility only; `VerifiedHomeAbi` is the sole receiver/parameter/result
+Home authority.
 
 ## Source and failure rules
 
@@ -176,22 +178,32 @@ Production activation remains zero. This Decision authorizes no parser edit,
 resolver product, target, call-site relation, Recipe/CallSlot, Builder/MIR,
 provider/runtime route, fallback, or publication path.
 
-The immediate blocker is the frontend method inventory: current
-`BoxDeclaration.methods: HashMap` has already lost duplicate declarations,
-source order, provenance, and exact member identity. The resolver must not
-reconstruct those facts by name.
+The frontend inventory is now ordered through R5, but it remains descriptive:
+its all-row selected ordinal is not an explicit-method source site and the
+non-Clone parser source seal is still absent. The resolver must not promote
+raw `ExplicitSource`, JSON, a compatibility map, or selected placement into
+declaration authority.
 
 ## Ordered follow-up
+
+This is a bounded language-to-contract view. The complete executable order,
+including old-target retirement, publishable-catalog co-seal, physical ABI
+projection, and same-slice reference updates, is owned only by
+`callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`.
 
 ```text
 LANGUAGE-TYPED-CALLABLE-PROFILE-D0                 closed
   -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0      current design stop
   -> frontend inventory BoxShape/Rust/.hako series
+  -> typed CallableContract syntax carriage
+  -> resolver semantic declaration/signature
+  -> OWN-HOME-ABI0-S0/query
   -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0
   -> RESOLVER-INSTANCE-CALL-TARGET-D0/I0
   -> SOURCE-BOUND-INSTANCE-CALL-D0/I0
   -> CALLABLE-CONTRACT-CONFORMANCE-D0/I0
-  -> production activation only after conformance
+  -> publishable catalog / physical ABI projection
+  -> production activation only after complete conformance
 ```
 
 Each implementation slice updates its exact owner README and

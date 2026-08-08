@@ -1,8 +1,9 @@
 ---
-Status: accepted design stop — H1 is the next implementation row
+Status: accepted revised design stop — H1 remains unopened
 Date: 2026-08-08
-Decision: reuse the parser-private source-carrier builder/sealer; one typed
-ordinary Box parser branch; no semantic inventory issuer in H1
+Decision: reuse the parser-private source-carrier lifecycle; separate exact
+source sites from selected inventory placement; issue one non-Clone parser
+source seal; no semantic inventory issuer in H1
 Parent: `frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md`
 ---
 
@@ -36,8 +37,8 @@ authority and is rejected.
 ParserProgramBox
   -> ParserDeclarationBox typed product entry
   -> one ordinary Box parser branch
-  -> declaration children built once
-  -> sealed Box declaration + ordered method inventory
+  -> declaration children built once into an unpublished transaction
+  -> ordered AST inventory + non-Clone parser-owned source seal
   -> ProgramJSON/string only as one-way compatibility projection
 ```
 
@@ -55,12 +56,18 @@ one-shot sealer, and typed outcome discipline are reused, but the current
 index-only refs do not provide declaration identity: declaration refs must
 carry a parser-carrier brand.
 
+`BoxMethodInventoryV1` remains a Clone-capable descriptive AST carrier. Its
+`ExplicitSource` provenance and selected entry order are data, not resolver
+authority. The non-Clone parser seal is the sole capability that proves that
+one complete Box was parsed, selected, duplicate-checked, and related to exact
+as-written method sites.
+
 ```text
 ParserProgramBox
   -> ParserDeclarationBox ordinary-Box branch
-  -> ordered declaration draft
+  -> ordered unpublished member transaction
   -> source-carrier sealer
-  -> ParserBoxDeclarationProductV1
+  -> (BoxMethodInventoryV1, SealedParserBoxDeclarationV1)
   -> one-way ProgramJSON compatibility projection
 ```
 
@@ -116,26 +123,36 @@ ParserBoxDeclarationSiteV1
   only issuer of the ordinal
 
 ParserBoxMemberSiteV1
-  Box declaration site + branch-local member ordinal; selected ordinal is
-  assigned only by the ordinary-Box branch while parsing
+  Box declaration site + exact as-written member path; Direct carries the
+  Box member ordinal, while SelectedBuildGate carries the outer-to-inner gate
+  path and branch-local member ordinal
 
-ParserBoxMethodSiteV1
-  Box declaration site + selected method ordinal; issued only by the
-  declaration builder/sealer during the selected commit
+ParserBoxMethodSourceSiteV1
+  exact as-written method member site; present only for explicit methods
+
+ParserBoxInventoryOrdinalV1
+  placement in the selected/generated inventory; assigned at the atomic
+  commit and never used as declaration identity
 
 ParserSelectedGateStepV1
   outer-to-inner gate path + gate site + branch-local member ordinal; used
   for selected-state rebase and never treated as source identity
 
 ParserBoxMethodDraftV1
-  member site, method name, instance/static kind, arity/result tokens,
-  source refs, and opaque rune/query spelling
+  method source site, method name, instance/static kind, arity/result tokens,
+  source refs, and typed parser syntax rows
+
+ParserGeneratedMethodDraftV1
+  generated role plus the originating member site; it has no method source
+  site and cannot be promoted to an explicit declaration
 
 ParserBoxDeclarationDraftV1
   Box site, Box name/kind, ordered method drafts, and duplicate ledger
 
-ParserBoxDeclarationProductV1
-  sealed immutable parser product; ordered methods and exact sites only
+SealedParserBoxDeclarationV1
+  non-Clone parser authority; sealed Box identity, complete explicit-method
+  source rows, generated-origin rows, and exact source-site -> inventory-slot
+  relations
 ```
 
 `Span` is diagnostic metadata, not semantic identity. Names and arity are
@@ -151,10 +168,41 @@ the parser branch boundary. No public partial receipt constructor is allowed.
 
 Structural ordinals are not caller-supplied constructor arguments. The
 `ParserProgramBox` cursor advances the program-statement ordinal, the ordinary
-Box branch advances the branch-local member ordinal, and the declaration
-builder/sealer alone issues the selected final method ordinal. Diagnostic
-start/end offsets may be passed by the recognizing parser branch, but offsets
-never participate in identity.
+Box branch advances the exact member path, and the declaration sealer alone
+issues selected inventory ordinals. Generated property/delegate rows may
+consume inventory slots, but never change an explicit method's source
+identity. Diagnostic start/end offsets may be passed by the recognizing
+parser branch, but offsets never participate in identity.
+
+## Rust parser source-site correction
+
+The current Rust parser still keeps one source relation in two places:
+
+```text
+BoxMethodEntryV1.site.selected_method_ordinal
++ BoxMemberState.method_source_member_ordinals
+```
+
+The first is an all-row inventory position; generated property/delegate rows
+consume it. The second is a parallel `Vec<u32>` reconstructed from length
+deltas and zipped back during gate merge. Length checks do not prove the
+correct pairing. Before Rust rows can enter resolver semantics, one bounded
+BoxShape correction must establish:
+
+```text
+explicit method draft owns exact SourceBoxMethodSiteV1
+generated draft owns source-member origin + generated role only
+atomic parser seal assigns independent BoxMethodInventoryOrdinalV1
+source seal relates explicit source site -> selected inventory entry
+```
+
+The selected-inventory JSON v2 key may remain a descriptive compatibility
+spelling; JSON cannot reconstruct or issue the parser seal. R4/R5 behavior is
+not reopened, and Builder consumers continue to receive only the inventory.
+
+Retirement is complete only when
+`method_source_member_ordinals`, `record_new_methods_since`, the merge API's
+parallel ordinal slice, and raw delegate ordinal sidecars have zero callers.
 
 ## Atomic build-gate transaction
 
@@ -186,6 +234,13 @@ to commit the product; direct/deferred/compatibility branches cannot publish a
 second copy. If the Hako side has no canonical build-config evaluator, H4 is
 `NoSafeSlice` and does not invent one in the parser.
 
+Delegate helpers currently expand in a whole-program typed postpass. H3 must
+choose exactly one atomic boundary: either final Box sealing occurs after that
+postpass, or the postpass consumes and returns the branded parser product while
+preserving the seal relation. A detached AST inventory may not be mutated
+after it has been claimed as sealed. Generated delegate helpers still receive
+no method source site.
+
 ## Failure boundary
 
 These are parser/source errors, not semantic Candidate/Declined outcomes:
@@ -206,16 +261,20 @@ declaration/profile issuer and must not be invented in the parser carrier.
 
 ## CallableContract carriage boundary
 
-H1/H2 may carry an opaque, ordered rune/query record on the method draft so
-that source order and placement are preserved. It must remain parser data.
+H1/H2 may carry generic rune syntax as parser data, but it is not resolver
+input. H6 replaces raw name/argument interpretation with a typed
+`CallableContractSyntaxV1::Query` source row carrying the exact method/rune
+site and selected-source provenance.
 The Hako parser does not issue `CallableContract(query)` semantics, Home
 demand, Pure/effect, receiver ABI, or body conformance. H6 may consume the
 sealed parser product only after Rust/Hako normalized inventory parity is a
-test-only fact.
+test-only fact. Resolver code never re-parses `"CallableContract"` or
+`"query"` strings.
 
-H1 is disconnected by design: it proves branded refs/sites, ordered method
-drafts, duplicate-without-mutation, one-Box seal, foreign-brand and
-invalid-site negatives, and double-finish rejection. It does not wire
+H1 is disconnected by design: it proves branded refs/sites, exact source
+member paths, separate inventory ordinals, ordered member drafts,
+duplicate-without-mutation, one-Box seal, foreign-brand and invalid-site
+negatives, and double-finish rejection. It does not wire
 `ParserProgramBox`, build-gate selection, ProgramJSON, rune carriage, or
 semantic publication. The H1 card records both the H2 connection condition
 and the removal condition so this substrate cannot become a permanent
@@ -261,13 +320,19 @@ before adding a call. Every new `.hako` file stays below 800 lines.
 
 ```text
 H0 D0 owner/vocabulary/API decision
-H1 disconnected typed declaration substrate + guard
-H2 canonical ordinary Box parser product branch
-H3 ordered method inventory/duplicate/site issuer
+H1 disconnected typed transaction/source-site/placement substrate + guard
+Rust R6 parser-owned source-site/seal cutover + sidecar retirement
+H2 canonical ordinary Box parser member-draft branch
+H3 atomic inventory + parser source-seal issuer
 H4 selected build-gate transaction/rebase
 H5 test-only normalized Rust/.hako parity
-H6 CallableContract(query) carriage + same-slice reference update
+H6 typed CallableContract(query) syntax carriage + reference update
 ```
+
+The cross-language executable order is owned by
+`callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`.
+In particular, H2 does not open until the R6 source-site/seal boundary has
+replaced the Rust sidecar model.
 
 The current source-carrier guard is updated in H1 before any parser connection.
 H1 is intentionally disconnected and must close in one small implementation
@@ -276,13 +341,18 @@ connected rows, and H4 is the only selected build-gate publication point.
 
 ```text
 H0  D0 owner/vocabulary/API decision                         accepted here
-H1  disconnected typed declaration substrate + guard         next
-H2  canonical ordinary Box parser branch                     after H1
-H3  ordered method product, duplicate/site issuer            after H2
+H1  disconnected typed transaction/source-site substrate     next
+H2  canonical ordinary Box member-draft branch               after H1
+H3  atomic inventory + parser source seal                    after H2
 H4  selected build-gate transaction/rebase                   after H3
 H5  test-only normalized Rust/.hako parity                   after H4
-H6  CallableContract(query) carriage + reference closeout    after H5
+H6  typed CallableContract(query) carriage + reference       after H5
 ```
+
+The Rust-side `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6` BoxShape series may land
+after H1 but must close before H5 or any resolver declaration row. It removes
+the parallel source-ordinal sidecar and gives Rust/Hako parity the same source
+site versus inventory-placement model; it is not part of the H1 commit.
 
 Each implementation row must close with focused tests, the owning README,
 the affected reference receipt, the active card/task pointer, and a check
@@ -298,7 +368,7 @@ The normalized parity report is test-only and ordered:
 ```text
 inventory_v1
 box=<box-statement-ordinal>:<name>:<instance|static>
-method=<selected-ordinal>:<name>:<arity>:<result-token>:<provenance>:<runes>
+method=<inventory-ordinal>:<source-site-or-generated-origin>:<name>:<arity>:<result-token>:<provenance>:<typed-runes>
 ```
 
 Rust and `.hako` consume the same source and selected build profile. The gate
