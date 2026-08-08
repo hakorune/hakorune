@@ -52,12 +52,14 @@ fn box_try_delegate(p: &mut NyashParser, state: &mut BoxMemberState) -> Result<b
         return Ok(false);
     }
     p.ensure_no_pending_runes("delegate declaration")?;
-    state.delegates.push(
-        crate::parser::declarations::box_def::members::delegates::parse_delegate_decl(
-            p,
-            state.current_source_member_ordinal(),
-        )?,
-    );
+    let delegate = crate::parser::declarations::box_def::members::delegates::parse_delegate_decl(
+        p,
+        state.current_source_member_ordinal(),
+    )?;
+    state
+        .source_tx
+        .record_delegate_source_at_current(&delegate)?;
+    state.delegates.push(delegate);
     Ok(true)
 }
 

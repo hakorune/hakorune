@@ -10,8 +10,8 @@ use std::sync::Arc;
 
 use crate::ast::{
     ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1,
-    BoxMethodInventoryPlacementReceiptV1, BoxMethodInventoryV1, PreparedGeneratedBoxMethodBatchV1,
-    Span,
+    BoxMethodInventoryPlacementReceiptV1, BoxMethodInventoryV1, DelegateDecl,
+    PreparedGeneratedBoxMethodBatchV1, Span,
 };
 use crate::parser::ParseError;
 
@@ -140,6 +140,42 @@ impl SourceBoxMethodSiteV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct DelegateSourceDeclarationV1 {
+    source_site: SourceBoxMethodSiteV1,
+    expose_ordinal: u32,
+    delegate_field_name: Box<str>,
+    source_method_name: Box<str>,
+    exposed_method_name: Box<str>,
+}
+
+impl DelegateSourceDeclarationV1 {
+    pub(super) fn source_site(&self) -> &SourceBoxMethodSiteV1 {
+        &self.source_site
+    }
+
+    pub(super) fn expose_ordinal(&self) -> u32 {
+        self.expose_ordinal
+    }
+
+    pub(super) fn delegate_field_name(&self) -> &str {
+        &self.delegate_field_name
+    }
+
+    pub(super) fn source_method_name(&self) -> &str {
+        &self.source_method_name
+    }
+
+    pub(super) fn exposed_method_name(&self) -> &str {
+        &self.exposed_method_name
+    }
+
+    fn prepend_selected_gate(&mut self, gate_member_ordinal: u32, branch_member_ordinal: u32) {
+        self.source_site
+            .prepend_selected_gate(gate_member_ordinal, branch_member_ordinal);
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct ExplicitMethodSourceRelationV1 {
     source_site: SourceBoxMethodSiteV1,
     inventory_ordinal: BoxMethodInventoryOrdinalV1,
@@ -213,6 +249,8 @@ pub(super) enum SourceAuthorityErrorV1 {
     ForeignBoxSite,
     StaleMemberSite,
     MemberOrdinalOverflow,
+    ExposeOrdinalOverflow,
+    DelegateCompatibilityOnly,
     MissingMethodSourceRelation { inventory_ordinal: u32 },
     MethodSourceRelationMismatch { name: Box<str> },
     Inventory(BoxMethodInventoryErrorV1),
@@ -270,6 +308,7 @@ pub(super) struct OpenBoxMethodSourceTransactionV1 {
     box_site: SourceBoxDeclarationSiteV1,
     inventory: BoxMethodInventoryV1,
     method_relations: Vec<MethodSourceRelationV1>,
+    delegate_source_declarations: Vec<DelegateSourceDeclarationV1>,
     next_member_ordinal: u32,
 }
 
@@ -292,6 +331,7 @@ impl OpenBoxMethodSourceTransactionV1 {
             box_site,
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
+            delegate_source_declarations: Vec::new(),
             next_member_ordinal: 0,
         }
     }
@@ -321,6 +361,7 @@ impl OpenBoxMethodSourceTransactionV1 {
             box_site: self.box_site.clone(),
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
+            delegate_source_declarations: Vec::new(),
             next_member_ordinal: 0,
         }
     }
@@ -410,6 +451,35 @@ impl OpenBoxMethodSourceTransactionV1 {
         Ok(placements)
     }
 
+    pub(super) fn record_delegate_source_at_current(
+        &mut self,
+        delegate: &DelegateDecl,
+    ) -> Result<(), ParseError> {
+        if delegate.explicit_source_selection().is_none() {
+            return Err(source_authority_to_parse_error(
+                SourceAuthorityErrorV1::DelegateCompatibilityOnly,
+            ));
+        }
+        let source_site = SourceBoxMethodSiteV1::Direct {
+            member: self.current_member_site(),
+        };
+        let mut rows = Vec::with_capacity(delegate.exposes.len());
+        for (expose_ordinal, expose) in delegate.exposes.iter().enumerate() {
+            let expose_ordinal = u32::try_from(expose_ordinal).map_err(|_| {
+                source_authority_to_parse_error(SourceAuthorityErrorV1::ExposeOrdinalOverflow)
+            })?;
+            rows.push(DelegateSourceDeclarationV1 {
+                source_site: source_site.clone(),
+                expose_ordinal,
+                delegate_field_name: delegate.field_name.clone().into_boxed_str(),
+                source_method_name: expose.source_name.clone().into_boxed_str(),
+                exposed_method_name: expose.exposed_name.clone().into_boxed_str(),
+            });
+        }
+        self.delegate_source_declarations.extend(rows);
+        Ok(())
+    }
+
     pub(super) fn try_merge_selected_gate(
         &mut self,
         selected: Self,
@@ -417,6 +487,7 @@ impl OpenBoxMethodSourceTransactionV1 {
     ) -> Result<(), ParseError> {
         let mut entries = selected.inventory.into_selected_declaration_order();
         let mut relations = selected.method_relations;
+        let mut delegate_source_declarations = selected.delegate_source_declarations;
         if entries.len() != relations.len() {
             return Err(ParseError::BuildCfg {
                 message: "selected Box source relation coverage is incomplete".to_owned(),
@@ -438,6 +509,12 @@ impl OpenBoxMethodSourceTransactionV1 {
                 .map_err(inventory_error_to_parse_error)?;
             relation.prepend_selected_gate(gate_member_ordinal, branch_member_ordinal);
             rebased_relations.push(relation.clone());
+        }
+        for declaration in &mut delegate_source_declarations {
+            declaration.prepend_selected_gate(
+                gate_member_ordinal,
+                declaration.source_site.source_member_ordinal(),
+            );
         }
 
         let placements = self
@@ -465,6 +542,8 @@ impl OpenBoxMethodSourceTransactionV1 {
             };
             self.method_relations.push(relation);
         }
+        self.delegate_source_declarations
+            .extend(delegate_source_declarations);
         Ok(())
     }
 
@@ -476,12 +555,17 @@ impl OpenBoxMethodSourceTransactionV1 {
         &self.method_relations
     }
 
+    pub(super) fn delegate_source_declarations(&self) -> &[DelegateSourceDeclarationV1] {
+        &self.delegate_source_declarations
+    }
+
     pub(super) fn finish(self) -> PreparedBoxSourceSealV1 {
         PreparedBoxSourceSealV1 {
             brand: self.brand,
             box_site: self.box_site,
             inventory: self.inventory,
             method_relations: self.method_relations.into_boxed_slice(),
+            delegate_source_declarations: self.delegate_source_declarations.into_boxed_slice(),
         }
     }
 }
@@ -514,6 +598,12 @@ fn source_authority_to_parse_error(error: SourceAuthorityErrorV1) -> ParseError 
         SourceAuthorityErrorV1::StaleMemberSite => "Box source member site is stale".to_owned(),
         SourceAuthorityErrorV1::MemberOrdinalOverflow => {
             "Box member ordinal exceeds u32".to_owned()
+        }
+        SourceAuthorityErrorV1::ExposeOrdinalOverflow => {
+            "delegate expose ordinal exceeds u32".to_owned()
+        }
+        SourceAuthorityErrorV1::DelegateCompatibilityOnly => {
+            "compatibility-only delegate cannot issue parser source declarations".to_owned()
         }
         SourceAuthorityErrorV1::MissingMethodSourceRelation { inventory_ordinal } => {
             format!("Box source relation missing for inventory ordinal {inventory_ordinal}")
@@ -662,3 +752,7 @@ mod tests {
         assert!(transaction.inventory().is_empty());
     }
 }
+
+#[cfg(test)]
+#[path = "delegate_source_tests.rs"]
+mod delegate_source_tests;

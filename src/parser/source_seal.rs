@@ -12,7 +12,8 @@ use crate::ast::{
 use crate::parser::ParserMetadata;
 
 use super::source_authority::{
-    MethodSourceRelationV1, ParserInvocationBrandV1, SourceBoxDeclarationSiteV1,
+    DelegateSourceDeclarationV1, MethodSourceRelationV1, ParserInvocationBrandV1,
+    SourceBoxDeclarationSiteV1,
 };
 use super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
 use super::source_path::{
@@ -28,6 +29,10 @@ pub(super) struct BuildGateSelectionReceiptV1 {
     gate_path: SourceBuildGatePathV1,
     selected_branch: SourceBuildGateBranchV1,
 }
+
+#[cfg(test)]
+#[path = "source_seal_delegate_tests.rs"]
+mod source_seal_delegate_tests;
 
 impl BuildGateSelectionReceiptV1 {
     pub(super) fn issue(
@@ -64,6 +69,7 @@ pub(super) struct PreparedBoxSourceSealV1 {
     pub(super) box_site: SourceBoxDeclarationSiteV1,
     pub(super) inventory: BoxMethodInventoryV1,
     pub(super) method_relations: Box<[MethodSourceRelationV1]>,
+    pub(super) delegate_source_declarations: Box<[DelegateSourceDeclarationV1]>,
 }
 
 impl PreparedBoxSourceSealV1 {
@@ -73,6 +79,10 @@ impl PreparedBoxSourceSealV1 {
 
     pub(super) fn method_relations(&self) -> &[MethodSourceRelationV1] {
         &self.method_relations
+    }
+
+    pub(super) fn delegate_source_declarations(&self) -> &[DelegateSourceDeclarationV1] {
+        &self.delegate_source_declarations
     }
 
     pub(super) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
@@ -125,6 +135,10 @@ impl PreparedBoxSourceSealV1 {
                 box_site: self.box_site,
                 inventory: self.inventory,
                 method_relations: self.method_relations,
+                // C-S0 transports parser-private delegate rows through the
+                // prepared payload only. They are deliberately dropped until
+                // C-D extends final seal coverage.
+                delegate_source_declarations: Box::new([]),
             },
         })
     }
@@ -214,6 +228,7 @@ fn clone_prepared_source_seal(seal: &PreparedBoxSourceSealV1) -> PreparedBoxSour
         box_site: seal.box_site.clone(),
         inventory: seal.inventory.clone(),
         method_relations: seal.method_relations.clone(),
+        delegate_source_declarations: seal.delegate_source_declarations.clone(),
     }
 }
 

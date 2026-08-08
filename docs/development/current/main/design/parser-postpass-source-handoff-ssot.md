@@ -554,6 +554,33 @@ name-based fallback is permitted. C does not widen `ParserBoxSourceSealV1`.
 Only R6-S3B-D may consume complete relation coverage, issue the final
 non-Clone seal, and retire the bounded generated-delegate suffix adapter.
 
+## R6-S3B-C-S0 implementation receipt — closed (2026-08-09)
+
+The first C implementation slice is intentionally narrower than the C-D0
+transaction design. Parsing an explicit delegate now issues exactly one
+parser-private `DelegateSourceDeclarationV1` per `expose` into the open source
+transaction. The row carries the parser-issued host member source site, expose
+ordinal, delegate field, source method, and exposed method names. A selected
+member-gate merge consumes and rebases those rows by prepending the selected
+gate path while preserving the branch member ordinal.
+
+The closed S0 contract is one row per expose; no expose is silently folded or
+reconstructed from the generated inventory.
+
+`PreparedBoxSourceSealV1` transports the rows across the parser postpass. The
+final `ParserBoxSourceSealV1` deliberately drops them: generated delegate rows
+are still outside the resolver-visible source seal until C/D issues complete
+relation coverage. Compatibility-only delegates reject before source authority
+is acquired.
+
+This receipt proves parser-time source transport, selected-gate path rebasing,
+prepared-payload carriage, and final-seal isolation only. It does not open
+target lookup, generated placement, all-host/expose preflight, resolver target
+issuance, Recipe/CallSlot, or a second source authority. The focused tests and
+`frontend_parsed_box_source_seal_r6_s3b_c_s0_guard.sh` landed with the
+implementation; source authority and source-seal modules remain below 800
+lines.
+
 ## Nonclaims until R6-S3B-D closes
 
 ```text

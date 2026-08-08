@@ -318,6 +318,19 @@ whole unpublished postpass product; partial commit, retry, and name-based
 fallback remain forbidden. No C implementation, resolver target, Recipe,
 Builder, MIR, or provider integration is open from this receipt.
 
+R6-S3B-C-S0 implementation receipt (2026-08-09): the parser now records one
+private `DelegateSourceDeclarationV1` per explicit `expose`, rebases its
+parser-issued source member path through selected member-gate merges, and
+transports the rows only through `PreparedBoxSourceSealV1`. The final
+resolver-visible source seal deliberately excludes these rows until C/D issues
+complete generated-delegate relation coverage. Compatibility-only delegates
+reject before source authority is acquired. Focused parser tests and the
+S0 guard landed in the same implementation slice. Target lookup, generated
+placement, resolver target issuance, Recipe/CallSlot, and final seal expansion
+remain closed.
+The S0 cardinality is one row per expose; generated inventory order is not
+source identity.
+
 ## Related references
 
 - [Rune declaration metadata](runes.md)

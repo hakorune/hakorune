@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0 closed; C implementation and D remain closed
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0 closed; C-S1/C-I0 and D remain closed
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -185,13 +185,19 @@ R6-S3B-C
   GeneratedDelegateSourceRelation and generated-batch coverage; open only
   after C-D0 design guard is green
 
-R6-S3B-C-S0 (active)
+R6-S3B-C-S0 (closed)
   parser-time `DelegateSourceDeclarationV1` transport, one row per expose,
   selected member-gate source-path rebase, prepared postpass carriage, and
   compatibility-only rejection. No target lookup, generated placement,
   final-seal expansion, or resolver connection.
   Reference:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0-implementation-task-2026-08-09.md`
+
+R6-S3B-C-S1-D0 (next design stop)
+  design-only boundary for the private path-based target index and existing
+  source-method relation lookup. No C-S1 implementation until the target
+  authority, exact same-brand path relation, and failure matrix are sealed.
+  The C-S0 prepared transport remains the only landed C implementation.
 
 R6-S3B-D
   final complete relation coverage and one final non-Clone seal

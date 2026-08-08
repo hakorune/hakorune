@@ -1,5 +1,5 @@
 ---
-Status: active bounded implementation
+Status: closed bounded implementation
 Date: 2026-08-09
 Decision: implement parser-time delegate source transport only; do not open target lookup or final seal coverage
 Parent: `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md`
@@ -74,6 +74,44 @@ tests, formatting, current pointer guard, the B3 parser guard, and this task's
 source-transport guard are required before closeout. The implementation and
 reference receipt must land in the same commit.
 
+## Implementation receipt (2026-08-09)
+
+Closed with the parser-private transport implemented in one slice:
+
+```text
+DelegateSourceDeclarationV1
+  one row per expose (explicit delegate source only)
+  parser-issued host source site + expose ordinal + names
+
+OpenBoxMethodSourceTransactionV1
+  records rows at parse time
+  rebases selected member-gate paths during consume-return merge
+
+PreparedBoxSourceSealV1
+  carries rows across the parser postpass
+
+ParserBoxSourceSealV1
+  deliberately drops rows until C-D extends final seal coverage
+```
+
+Compatibility-only delegates reject before acquiring source authority. The
+existing descriptive AST/generated delegate inventory remains unchanged, and
+no target lookup, generated placement relation, resolver-visible seal
+extension, or postpass batch commit was opened.
+
+Verification:
+
+```text
+cargo test -q --lib parser::source_authority -- --nocapture
+cargo test -q --lib parser::source_seal::source_seal_delegate_tests -- --nocapture
+cargo test -q --lib parser_delegate_surface -- --nocapture
+cargo fmt --all -- --check
+git diff --check
+bash tools/checks/frontend_parsed_box_source_seal_r6_s3b_b3_guard.sh
+bash tools/checks/frontend_parsed_box_source_seal_r6_s3b_c_s0_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
 ## Nonclaims
 
 ```text
@@ -90,6 +128,6 @@ no Hako parity, generated-delegate chain, fallback, or retry
 ## Next slice
 
 After the focused guard is green and this row is closed, open
-`R6-S3B-C-S1` for a private path-based target index and existing source-method
-relation lookup. If the parser cannot issue an exact source row, stop at
-`NoSafeSlice`; do not add a test constructor or a name-based shortcut.
+`R6-S3B-C-S1-D0` for a design-only private path-based target index and existing
+source-method relation lookup. If the parser cannot issue an exact source row,
+stop at `NoSafeSlice`; do not add a test constructor or a name-based shortcut.
