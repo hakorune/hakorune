@@ -618,6 +618,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/parser_public_ast_postpass_cutover_d0_guard.sh` | Design-stop guard for the total broad AST postpass envelope: interface/static/record/mixed cohort parity, fuel/metadata/explain preservation, no catch-and-fallback, and no fake source seal. |
 | `tools/checks/parser_public_ast_postpass_i0_c_projection_i0_guard.sh` | I0-C projection implementation receipt guard for one decision-set walker, shared prune/source-path/explain projection, no predicate re-evaluation or old shared consumer, consuming explain output, and below-760-line parser sources. |
 | `tools/checks/parser_public_ast_postpass_final_d0_guard.sh` | FINAL design-stop guard for caller-zero retirement proof, grammar-evidence/compatibility quarantine, explicit source-seal retention, top-level `NoElse` decision, and no forced production switch. |
+| `tools/checks/parser_public_ast_postpass_final_retire_s0_guard.sh` | FINAL-RETIRE-S0 guard for caller-zero source-gate/explain-helper removal, separate NoElse design, fast-row pointer, and below-760-line boundary. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy

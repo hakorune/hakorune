@@ -792,3 +792,15 @@ Implementation is a separate bounded parser slice after the D0 design stop;
 it must include positive/negative receipt tests, same-commit reference/README
 updates, and the final/pointer guards. It does not open resolver, Builder,
 MIR, grammar-evidence redesign, compatibility replacement, retry, or fallback.
+
+The immediate execution row is now:
+
+```text
+PARSER-PUBLIC-AST-POSTPASS-FINAL-RETIRE-S0
+  caller-zero source_gate_prune.rs and old explain helper only
+  task: parser-public-ast-postpass-final-retire-s0-implementation-task-2026-08-09.md
+```
+
+After that row closes, the separate `FINAL-NOELSE-RECEIPT-D0` design opens and
+then its receipt implementation. These rows must not be combined into one
+commit or one authority.
