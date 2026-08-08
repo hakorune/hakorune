@@ -98,6 +98,21 @@ Historical tokens are not renamed solely for style.
 - Test fixtures and generated files follow their owning policy, but generated
   status must be explicit rather than inferred from size.
 
+### Bounded closeout rule
+
+- A bounded row is closed only when its named positive path, negative matrix,
+  line-count guard, focused gate, and same-slice README/reference receipt are
+  all green.
+- “Partially landed” is an implementation status, not a completion claim.
+  Keep the current blocker on the row until every item in its `Done` block is
+  observable.
+- If a closeout reveals a missing source authority or a new source-to-Recipe
+  correspondence, return to design; do not grow a deeper task suffix or add a
+  repair adapter.
+- A source-validation split is a structural refactor only when it preserves
+  the single Facts owner and keeps Recipe keys, selectors, and physical IDs
+  out of the observation layer.
+
 ### Guard result classes
 
 Use the three result classes owned by

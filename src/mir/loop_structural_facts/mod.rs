@@ -20,6 +20,7 @@ mod resolved_source_adapter;
 mod selected_demand;
 mod types;
 mod variable_accum_recurrence;
+mod variable_accum_recurrence_validation;
 
 #[allow(unused_imports)]
 pub(crate) use resolved_source_adapter::{
@@ -106,6 +107,7 @@ pub(crate) use variable_accum_recurrence::{
     VariableAccumRecurrenceValueClassV1, VerifiedVariableAccumRecurrenceFactsV1,
     VerifiedVariableAccumRecurrenceSourceAttemptV1,
 };
+pub(crate) use variable_accum_recurrence_validation::source_coherence_is_exact;
 
 #[cfg(test)]
 pub(crate) use selected_demand::{

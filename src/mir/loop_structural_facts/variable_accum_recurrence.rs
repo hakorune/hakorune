@@ -545,6 +545,7 @@ pub(crate) enum VariableAccumRecurrenceSourceUnresolvedV1 {
 pub(crate) enum VariableAccumRecurrenceSourceRejectV1 {
     ForeignOwner,
     SourceIdentityMismatch,
+    SourceSiteConflict,
     ForeignFrame,
     DuplicateRole,
     BindingConflict,
@@ -624,6 +625,7 @@ impl VerifiedVariableAccumRecurrenceSourceAttemptV1 {
 pub(crate) enum VariableAccumRecurrenceFactsIssueV1 {
     ForeignOwner,
     ForeignFrame,
+    SourceSiteConflict,
     BindingConflict,
     InputConflict,
     CoverageConflict,
@@ -654,6 +656,17 @@ pub(crate) fn issue_variable_accum_recurrence_facts_v1(
     }
     if !scope_region.scope().owner().eq(&owner) || !scope_region.region().owner().eq(&owner) {
         return Err(VariableAccumRecurrenceFactsIssueV1::ForeignFrame);
+    }
+    if !super::source_coherence_is_exact(
+        &source,
+        &bindings,
+        &inputs,
+        &condition,
+        &accumulator_update,
+        &induction_step,
+        &coverage,
+    ) {
+        return Err(VariableAccumRecurrenceFactsIssueV1::SourceSiteConflict);
     }
     let induction = binding_for_role(&bindings, VariableAccumRecurrenceBindingRoleV1::Induction)
         .ok_or(VariableAccumRecurrenceFactsIssueV1::RoleConflict)?;

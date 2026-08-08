@@ -31,11 +31,13 @@ evidence outside this Facts boundary.
 
 The resolver-backed projection and atomic Facts issuer are landed in
 `mir/compiler/variable_accum_recurrence_projection.rs` and
-`variable_accum_recurrence.rs`. The producer-facing Recipe mapping is tested
-through the existing source-bound owners; the exact normal `Main.main`
-resolver ingress and the full C/D/U/R envelope remain the closeout gate.
-Bounds and deltas are general `I64` literals with exact source anchors; the
-fixture values `4` and `1` are not hard-coded policy.
+`variable_accum_recurrence.rs`; source-site coherence checks live in the
+separate `variable_accum_recurrence_validation.rs` module so this Facts owner
+remains below 800 lines. The producer-facing Recipe mapping is tested through
+the existing source-bound owners, and the normal `Main.main` resolver ingress,
+full C/D/U/R envelope, duplicate-role rejection, and source-site negatives are
+closed. Bounds and deltas are general `I64` literals with exact source anchors;
+the fixture values `4` and `1` are not hard-coded policy.
 
 ## Generic G0 S0A
 

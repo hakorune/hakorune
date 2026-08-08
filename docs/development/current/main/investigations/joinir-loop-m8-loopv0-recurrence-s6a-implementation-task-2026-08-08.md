@@ -1,6 +1,6 @@
 # JOINIR Loop M8 variable-accum recurrence S6A — execution brief
 
-Status: `normal Main ingress and typed disposition landed; bounded closeout remains`
+Status: `closed — normal Main ingress, typed disposition, and identity/coherence negatives landed`
 Date: 2026-08-08
 Parent: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`
 Current row: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A`
@@ -47,11 +47,12 @@ owners with the exact `2/2/8/11` relation counts and no Builder effect.
 Source/check files stay below 800 lines.
 
 The exact normal `Main.main` resolver path and the typed C/D/U/R ingress
-envelope are now landed.  Focused tests cover Candidate, Declined,
-Unresolved (incomplete coverage), and Rejected (foreign owner) without
-creating a fifth disposition.  The full S6A row is not yet closed: duplicate
-role/source identity negatives and complete source-site coherence checks
-remain required.
+envelope are now landed. Focused tests cover Candidate, Declined, Unresolved
+(incomplete coverage), and Rejected (foreign owner, duplicate binding role,
+and source-site conflict) without creating a fifth disposition. The Facts
+issuer now performs the bounded source-site coherence check through a separate
+validation module, keeping the Facts owner below the 800-line limit. S6A is
+closed; no production selector, physical route, or Builder caller was opened.
 
 The same implementation commit updates `src/mir/compiler/README.md`,
 `src/mir/loop_structural_facts/README.md`,
@@ -62,7 +63,7 @@ The same implementation commit updates `src/mir/compiler/README.md`,
 Focused tests, current-pointer, Recipe in-place/no-fallback guards, formatting,
 and `git diff --check` must pass.
 
-The acceptance matrix must distinguish the four source outcomes using this
+The acceptance matrix distinguishes the four source outcomes using this
 precedence: foreign/duplicate identity conflict = `Rejected`; missing or
 opaque required evidence = `Unresolved`; fully observed non-family shape =
 `Declined`; exact complete shape = `Candidate`. `NoSafeSlice` is only the
@@ -98,9 +99,9 @@ retry/fallback retirement, outer print/return tail coverage, or legacy deletion.
 3. atomic Facts + C/D/U/R disposition (closed for the bounded ingress)
 4. deterministic existing-Recipe projection (closed)
 5. complete input/Core/operation-source seals and golden (closed)
-6. duplicate/identity/source-coherence negatives and line-count guards
-7. same-commit README and reference closeout (landed for this slice; repeat at
-   the bounded closeout and at M10b)
+6. duplicate/identity/source-coherence negatives and line-count guards (closed)
+7. same-commit README and reference closeout (closed for this slice; repeat at
+   M10b)
 ```
 
 No step may introduce a deeper S6A task suffix. A newly discovered prerequisite
@@ -120,6 +121,8 @@ src/mir/compiler/variable_accum_recurrence_projection.rs
   resolver-backed AST/source-view observer only
 src/mir/loop_structural_facts/variable_accum_recurrence.rs
   atomic AST-free Facts and C/D/U/R outcome only
+src/mir/loop_structural_facts/variable_accum_recurrence_validation.rs
+  source-site coherence validation only; it does not create a second Facts owner
 src/mir/loop_recipe_contract/variable_accum_recurrence_producer.rs
   terminal projection into existing Recipe/JoinSig/Core/input/effect owners
 src/mir/loop_route_policy/

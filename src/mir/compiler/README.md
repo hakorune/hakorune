@@ -522,5 +522,8 @@ No Recipe kind, route selector, Builder/MIR effect, or physical caller is
 introduced. The normal `Main.main` resolver ingress and typed C/D/U/R
 disposition are now closed for the bounded S6A ingress. Focused coverage
 includes Candidate, Declined, incomplete-evidence Unresolved, and
-foreign-owner Rejected. The remaining closeout is duplicate-role/source-
-identity rejection and complete source-site coherence coverage.
+foreign-owner Rejected. Duplicate binding-role and source-site coherence
+negatives now map to typed Rejected outcomes; source identity remains a
+resolver-owned rejection. The Facts owner stays below 800 lines through a
+separate validation module. S6A is closed with no selector, physical caller,
+or Builder/MIR effect.

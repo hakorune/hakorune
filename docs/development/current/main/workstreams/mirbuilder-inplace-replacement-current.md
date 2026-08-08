@@ -503,19 +503,19 @@ records below are evidence only and must not schedule another route.
 Current decision and execution brief:
 ```text
 Change:
-  finish the bounded S6A duplicate-role/source-identity and exact source-site
-  coherence negative matrix; add no Recipe kind, selector, or physical route
+  S6A is closed; select the next S6B LoopV0 exits/joins source-to-Recipe
+  correspondence before opening any source observer or physical route
 Contract:
-  resolver -> private observation -> one neutral Facts -> deterministic
-  existing Recipe/JoinSig/Core/input/effect projection; Facts own semantic
-  roles and BindingRefs, never Recipe keys
+  keep the ordered M8 cohort on one recursive Recipe algebra; source Facts
+  own semantic roles and BindingRefs, producers alone mint Recipe keys, and
+  design/selection must precede implementation
 Done:
-  Facts/producer, exact Main.main ingress, typed C/D/U/R, and 2/2/8/11 seals are
-  landed; the current row closes when all remaining identity/coherence rejects,
-  focused guards, <800-line checks, README, and reference receipt are green
+  S6A Facts/producer, exact Main.main ingress, typed C/D/U/R, duplicate-role
+  and source-site rejects, <800-line split, README, reference receipt, and
+  focused tests are green; next row is the named S6B design stop
 Stop:
-  missing resolver authority, overlapping roles, AST reread, partial product,
-  or a second selector/physical path returns to design
+  missing resolver authority, unresolved source-to-Recipe mapping, AST reread,
+  partial product, or a second selector/physical path returns to design
 
 ordered successor boundary:
   S6B -> S6C -> S6D -> S6E -> S6G -> M9

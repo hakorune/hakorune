@@ -9,7 +9,10 @@ use crate::mir::compiler::normal_source_plan::{
     SealedNormalSourcePlanV1,
 };
 use crate::mir::loop_structural_facts::{
-    VariableAccumRecurrenceObservationCoverageV1, VariableAccumRecurrenceSourceAttemptOutcomeV1,
+    issue_variable_accum_recurrence_facts_v1, VariableAccumRecurrenceBindingObservationV1,
+    VariableAccumRecurrenceBindingRoleV1, VariableAccumRecurrenceConditionObservationV1,
+    VariableAccumRecurrenceFactsIssueV1, VariableAccumRecurrenceObservationCoverageV1,
+    VariableAccumRecurrenceSourceAttemptOutcomeV1, VariableAccumRecurrenceSourceRejectV1,
 };
 use crate::mir::resolved_semantics::CallableSemanticSourceLedgerView;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
@@ -136,6 +139,19 @@ fn input_for(condition: BinaryOperator) -> ResolvedFunctionLoweringInputV1<'stat
     unit.root_function_input().expect("root input")
 }
 
+fn input_with_two_loops() -> ResolvedFunctionLoweringInputV1<'static> {
+    let mut function = function(BinaryOperator::Less);
+    let ASTNode::FunctionDeclaration { body, .. } = &mut function else {
+        unreachable!()
+    };
+    body[3] = body[2].clone();
+    let unit = Box::leak(Box::new(
+        crate::mir::compiler::VerifiedResolvedSourceUnitV1::resolve_function(function)
+            .expect("two-loop fixture resolves"),
+    ));
+    unit.root_function_input().expect("root input")
+}
+
 fn normal_main_input_for(condition: BinaryOperator) -> ResolvedFunctionLoweringInputV1<'static> {
     let prepared = PreparedNormalSourcePlanInputV1::new(
         normal_main_program(condition),
@@ -249,8 +265,109 @@ fn variable_recurrence_attempt_rejects_foreign_owner_before_shape() {
     );
     assert!(matches!(
         attempt.outcome(),
-        VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(_)
+        VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+            VariableAccumRecurrenceSourceRejectV1::ForeignOwner
+        )
     ));
+}
+
+#[test]
+fn variable_recurrence_facts_reject_duplicate_binding_role() {
+    let input = input_for(BinaryOperator::Less);
+    let ledger = CallableSemanticSourceLedgerView::from_forest(input.forest(), input.owner())
+        .expect("ledger");
+    let membership = ledger.only_loop_site().expect("one loop");
+    let facts =
+        issue_variable_accum_recurrence_facts_from_membership_v1(input, &ledger, membership)
+            .expect("candidate facts");
+    let (source, owner, scope_region, mut bindings, inputs, condition, update, step, coverage) =
+        facts.into_parts();
+    bindings[1] = VariableAccumRecurrenceBindingObservationV1::new(
+        VariableAccumRecurrenceBindingRoleV1::Induction,
+        bindings[1].binding(),
+        bindings[1].declaration().clone(),
+        bindings[1].value_class(),
+    );
+
+    let error = issue_variable_accum_recurrence_facts_v1(
+        owner,
+        source,
+        scope_region,
+        bindings,
+        inputs,
+        condition,
+        update,
+        step,
+        coverage,
+    )
+    .expect_err("duplicate binding roles must not seal Facts");
+    assert_eq!(error, VariableAccumRecurrenceFactsIssueV1::RoleConflict);
+}
+
+#[test]
+fn variable_recurrence_facts_reject_incoherent_condition_site() {
+    let input = input_for(BinaryOperator::Less);
+    let ledger = CallableSemanticSourceLedgerView::from_forest(input.forest(), input.owner())
+        .expect("ledger");
+    let membership = ledger.only_loop_site().expect("one loop");
+    let facts =
+        issue_variable_accum_recurrence_facts_from_membership_v1(input, &ledger, membership)
+            .expect("candidate facts");
+    let (source, owner, scope_region, bindings, inputs, condition, update, step, coverage) =
+        facts.into_parts();
+    let incoherent_condition = VariableAccumRecurrenceConditionObservationV1::new(
+        condition.lhs().clone(),
+        condition.lhs().clone(),
+        condition.rhs().clone(),
+        condition.induction(),
+        condition.bound(),
+        condition.operator(),
+    );
+
+    let error = issue_variable_accum_recurrence_facts_v1(
+        owner,
+        source,
+        scope_region,
+        bindings,
+        inputs,
+        incoherent_condition,
+        update,
+        step,
+        coverage,
+    )
+    .expect_err("condition site must remain under the loop condition");
+    assert_eq!(
+        error,
+        VariableAccumRecurrenceFactsIssueV1::SourceSiteConflict
+    );
+}
+
+#[test]
+fn variable_recurrence_rejects_source_token_for_different_loop_site() {
+    let input = input_with_two_loops();
+    let ledger = CallableSemanticSourceLedgerView::from_forest(input.forest(), input.owner())
+        .expect("ledger");
+    let root = input.source().root_body().expect("root body");
+    let second_loop = input.source().body_stmt(&root, 3).expect("second loop");
+    let membership = ledger
+        .resolved_loop_source(second_loop.site())
+        .expect("second loop membership");
+    let attempt = issue_variable_accum_recurrence_source_attempt_v1(
+        input,
+        &ledger,
+        membership,
+        VariableAccumRecurrenceObservationCoverageV1::Complete,
+    );
+    assert!(
+        matches!(
+            attempt.outcome(),
+            VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+                VariableAccumRecurrenceSourceRejectV1::SourceIdentityMismatch
+            )
+        ),
+        "unexpected outcome: {:?}",
+        attempt.outcome()
+    );
 }
 
 #[test]

@@ -1035,15 +1035,17 @@ shape, and Candidate only for the exact complete shape.
 The bounded ingress now also proves the exact program-owned `Main.main`
 resolver path and the typed C/D/U/R envelope: Candidate for the complete
 fixture, Declined for a fully observed non-`Less` condition, Unresolved for
-incomplete coverage, and Rejected for a foreign owner. Duplicate-role,
-source-identity, and complete source-site-coherence negatives remain part of
-the S6A closeout. `NoSafeSlice` remains a development status only.
+incomplete coverage, and Rejected for a foreign owner, duplicate binding role,
+or incoherent source site. Source identity remains a resolver-owned rejection;
+`NoSafeSlice` remains a development status only.
 
 R0 first replaces callable's singular initialized-local input relation with
 one common move-only exact-coverage initialized-local set without changing
 accepted source shapes. The S6A resolver-backed observer and provenance-only
 `VariableAccumRecurrenceV1` producer are now landed as a caller-zero
-implementation slice. No route relabel, DirectAccum widening,
+implementation slice. The S6A identity/coherence negative matrix is closed;
+the Facts source-site validator remains below 800 lines. No route relabel,
+DirectAccum widening,
 new Recipe kind, selector, physicalizer, Builder/MIR owner, M9 parity,
 production selection, retry/fallback retirement, or legacy deletion is open.
 The R0 and S6A implementation commits must each update this reference and the

@@ -103,6 +103,11 @@ fn map_projection_reject(
             VariableAccumRecurrenceSourceRejectV1::ForeignFrame,
         ),
         VariableAccumRecurrenceProjectionRejectV1::Facts(
+            VariableAccumRecurrenceFactsIssueV1::SourceSiteConflict,
+        ) => VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
+            VariableAccumRecurrenceSourceRejectV1::SourceSiteConflict,
+        ),
+        VariableAccumRecurrenceProjectionRejectV1::Facts(
             VariableAccumRecurrenceFactsIssueV1::BindingConflict,
         ) => VariableAccumRecurrenceSourceAttemptOutcomeV1::Rejected(
             VariableAccumRecurrenceSourceRejectV1::BindingConflict,

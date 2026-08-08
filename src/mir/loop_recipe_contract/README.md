@@ -59,9 +59,9 @@ into the existing Recipe/JoinSig/Core owners. The selected
 initialized-local input relation is a one-row instance of the common
 exact-coverage `VerifiedLoopInitializedLocalInputSourceSetV1`; Generic
 parameter inputs stay separate. S6A source observation and its
-provenance-only producer are partially landed as a caller-zero row. The
-remaining closeout is the normal `Main.main` resolver ingress plus the typed
-C/D/U/R envelope and identity negatives; no selector or physical consumer is
+provenance-only producer are closed as a caller-zero row, including the normal
+`Main.main` resolver ingress, typed C/D/U/R envelope, duplicate-role rejection,
+and source-site coherence negatives; no selector or physical consumer is
 opened.
 
 The common set co-seals declaration (including its statement site), initializer,
@@ -78,8 +78,10 @@ producer consumes a Candidate once and projects exactly 2 input, 2 binding, 8
 Core-effect, and 11 item-source relations into the existing owners. Reads,
 constants, binary expressions, assignment targets, carrier entries, and
 initializer declarations use their exact owned source anchors; Recipe ordinals
-are not source lookup keys. `NoSafeSlice` is a development stop, not a source
-disposition, and no S6A selector or physicalizer is opened here.
+are not source lookup keys. Duplicate roles and incoherent source sites fail
+before the aggregate is issued, while missing evidence remains Unresolved.
+`NoSafeSlice` is a development stop, not a source disposition, and no S6A
+selector or physicalizer is opened here.
 
 The producer is `variable_accum_recurrence_producer.rs`. It consumes one Facts
 aggregate and seals the existing Recipe/JoinSig/Core/input/effect owners with
@@ -91,8 +93,8 @@ The audited `loop_simple_while_inline_explicit_step_min.hako` fixture remains
 Declined by the existing SimpleWhile, DirectAccum, and Generic G0 observers.
 No route relabel, DirectAccum widening, new Recipe kind, selector/physicalizer,
 Builder/MIR effect, M9 parity, production route, retry/fallback, or legacy
-deletion is open. Each implementation commit must update this README and the
-matching `docs/reference/**` receipt; M10b cutover requires a final update.
+deletion is open. The S6A closeout updates this README and the matching
+`docs/reference/**` receipt; M10b cutover requires a final update.
 
 ## Generic G0 S4 producer
 
