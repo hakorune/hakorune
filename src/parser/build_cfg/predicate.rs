@@ -47,6 +47,12 @@ impl NyashParser {
                     message: "build-gate source path cannot be converted to a gate path".to_owned(),
                     line,
                 })?;
+        self.issue_build_gate_observation(
+            predicate.clone(),
+            Span::new(0, 0, line, 1),
+            Some(gate_id),
+            Some(gate_path.clone()),
+        )?;
         self.register_source_build_gate(
             gate_id,
             gate_path,

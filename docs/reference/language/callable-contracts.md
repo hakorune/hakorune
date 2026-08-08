@@ -321,6 +321,11 @@ retained for coverage and diagnostics. Member-level parse-time gates and the
 separate grammar-evidence demand remain outside this decision set. No
 resolver/Recipe/Builder/MIR/runtime or fallback/reparse path opens here.
 
+I0-C-S0 receipt (2026-08-09): the parser-private
+`PreparedBuildGateDecisionSetV1` issuer is landed with seven focused I0-C
+tests and the 12-case BuildCfg regression gate. This is an internal postpass
+authority only; public explain/prune/source-path consumers are not switched.
+
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate
 boundary. The product owns the AST, a `ParserSourceSessionV1` for prepared

@@ -255,6 +255,13 @@ are selected during Box member parsing and remain governed by the existing
 same-public-signature rule. It also does not change the separate grammar-
 evidence parser demand.
 
+I0-C-S0 implementation receipt (2026-08-09): parser-private decision-set
+issuance is landed and does not change the public language surface. Every
+postpass-visible AST gate is aligned with one parser-issued observation; nested
+predicate configuration is validated even under inactive branches, and each
+top-level predicate is evaluated once. Prune, source-path, and explain remain
+unopened projections for the next design row.
+
 ## Explain Report
 
 Build conditional pruning should expose a compact report:

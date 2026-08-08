@@ -11,6 +11,7 @@ use crate::ast::{
 };
 use crate::parser::ParserMetadata;
 
+use super::build_cfg::decision_set::PreparedBuildGateDecisionSetV1;
 use super::delegate_source_relation::GeneratedDelegateSourceRelationV1;
 use super::source_authority::{
     DelegateSourceDeclarationV1, MethodSourceRelationV1, ParserInvocationBrandV1,
@@ -175,6 +176,7 @@ pub(super) struct OpenParserPostpassProductV1 {
     pub(super) ast: ASTNode,
     pub(super) source_session: ParserSourceSessionV1,
     pub(super) final_box_paths: Vec<SourceBoxDeclarationPathV1>,
+    pub(super) build_gate_decision_set: PreparedBuildGateDecisionSetV1,
     metadata: ParserMetadata,
 }
 
@@ -360,6 +362,7 @@ impl OpenParserPostpassProductV1 {
         prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
         gate_records: Vec<PreparedBuildGateSourceRecordV1>,
         metadata: ParserMetadata,
+        build_gate_decision_set: PreparedBuildGateDecisionSetV1,
     ) -> Self {
         Self {
             ast,
@@ -368,6 +371,7 @@ impl OpenParserPostpassProductV1 {
                 gate_records,
             ),
             final_box_paths: Vec::new(),
+            build_gate_decision_set,
             metadata,
         }
     }
@@ -380,6 +384,7 @@ impl OpenParserPostpassProductV1 {
             ast,
             source_session,
             final_box_paths: _,
+            build_gate_decision_set,
             metadata,
         } = self;
         let pruned = super::source_gate_prune::prune_top_level_gate_program(
@@ -401,6 +406,7 @@ impl OpenParserPostpassProductV1 {
             ast,
             source_session,
             final_box_paths,
+            build_gate_decision_set,
             metadata,
         })
     }

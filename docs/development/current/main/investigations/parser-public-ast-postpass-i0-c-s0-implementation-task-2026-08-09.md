@@ -1,5 +1,5 @@
 ---
-Status: active bounded implementation
+Status: closed implementation receipt
 Date: 2026-08-09
 Decision: implement parser-private BuildGate inventory and decision-set issuer only
 Parent: `parser-public-ast-postpass-i0-c-design-task-2026-08-09.md`
@@ -102,3 +102,25 @@ consolidated guard in the same commit. New source belongs in dedicated parser
 modules; do not append the decision set to `src/parser/mod.rs` or
 `src/parser/source_seal.rs`, both of which are already past the 760-line split
 trigger. All touched source files must remain below 800 lines.
+
+## S0 implementation receipt (2026-08-09)
+
+Closed with the parser-private `build_cfg::decision_set` issuer and focused
+Builder-free tests. The issuer consumes parser-issued observations, aligns
+them with every postpass-visible AST `BuildGate`, validates nested predicate
+configuration before evaluation, evaluates each top-level predicate once, and
+records selected branch plus reachable/inactive-subtree status in a
+non-Clone `PreparedBuildGateDecisionSetV1`.
+
+Evidence:
+
+```text
+cargo check -q -p nyash-rust                              # pass
+cargo test -q -p nyash-rust --lib i0_c                   # 7 passed
+cargo test -q -p nyash-rust --test parser_build_cfg_gate # 12 passed
+```
+
+The existing prune/source-path/explain consumers still use their pre-I0-C
+paths. Projection is deliberately the next design-stop row; no public
+consumer cutover or production semantic change is claimed here. The known
+nested member-gate source-path baseline remains parked separately.

@@ -304,7 +304,7 @@ mod tests {
         let tokens = NyashTokenizer::new(source).tokenize().unwrap();
         let mut parser = NyashParser::new(tokens);
         let ast = parser.parse_program()?;
-        let product = parser.open_postpass_product(ast);
+        let product = parser.open_postpass_product(ast)?;
         product.finish_total_s0(&parser, demand)
     }
 

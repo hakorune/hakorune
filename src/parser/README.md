@@ -117,7 +117,7 @@ callers use `into_ast()`. No caller reparses, retakes metadata, or reconstructs
 it from AST nodes. Explain/full BuildGate decision-set parity remains parked
 for I0-C.
 
-## I0-C BuildGate decision-set design — accepted, implementation parked
+## I0-C BuildGate decision-set — S0 closed, projection parked
 
 The postpass-visible AST `BuildGate` family will use one parser-private
 `PreparedBuildGateDecisionSetV1`. Parser-issued observations cover every AST
@@ -134,3 +134,12 @@ remain in the decision set for coverage and diagnostics. Member-level gates
 remain the separate parse-time BoxMemberState/signature contract; grammar
 evidence remains a separate demand. I0-C opens no resolver, Recipe, Builder,
 MIR, runtime, fallback, retry, or reparse path.
+
+S0 receipt (2026-08-09): `src/parser/build_cfg/decision_set.rs` now issues
+the non-Clone `PreparedBuildGateDecisionSetV1` from parser-owned observations.
+It aligns every postpass-visible AST gate, validates nested predicate
+configuration even in inactive subtrees, evaluates each top-level predicate
+once, and records selected branch plus reachability. Focused I0-C tests and
+the existing 12-case BuildCfg regression gate are green. Prune, source-path,
+and explain projection remain a separate design-stop; no public consumer has
+been switched.

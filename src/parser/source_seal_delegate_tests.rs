@@ -59,16 +59,13 @@ fn open_postpass_product(source: &str) -> OpenParserPostpassProductV1 {
     let mut parser = NyashParser::new(tokens);
     parser.build_config = config;
     let ast = parser.parse_program().expect("test source must parse");
-    OpenParserPostpassProductV1::new(
-        ast,
-        std::mem::take(&mut parser.prepared_source_seals),
-        parser.take_source_build_gate_records(),
-        parser.take_metadata(),
-    )
-    .prune_build_gates(&parser)
-    .expect("test source must produce an open postpass product")
-    .lower_delegates()
-    .expect("test source must lower delegates")
+    parser
+        .open_postpass_product(ast)
+        .expect("test source must issue BuildGate decision set")
+        .prune_build_gates(&parser)
+        .expect("test source must produce an open postpass product")
+        .lower_delegates()
+        .expect("test source must lower delegates")
 }
 
 #[test]

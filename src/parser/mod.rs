@@ -143,6 +143,7 @@ pub struct NyashParser {
     pub(super) source_build_gate_scope: source_gate_ledger::SourceBuildGateScopeV1,
     pub(super) prepared_source_build_gate_records:
         Vec<source_gate_ledger::PreparedBuildGateSourceRecordV1>,
+    pub(super) build_gate_observations: Vec<build_cfg::decision_set::BuildGateObservationV1>,
     /// 🔥 Static box依存関係追跡（循環依存検出用）
     pub(super) static_box_dependencies:
         std::collections::HashMap<String, std::collections::HashSet<String>>,
@@ -179,6 +180,7 @@ impl NyashParser {
             next_source_build_gate_id: 0,
             source_build_gate_scope: source_gate_ledger::SourceBuildGateScopeV1::Closed,
             prepared_source_build_gate_records: Vec::new(),
+            build_gate_observations: Vec::new(),
             static_box_dependencies: std::collections::HashMap::new(),
             debug_fuel: Some(100_000), // デフォルト値
             pending_runes: Vec::new(),
@@ -264,7 +266,7 @@ impl NyashParser {
         let mut parser = Self::new(tokens);
         parser.build_config = build_config;
         let ast = parser.parse_program()?;
-        let product = parser.open_postpass_product(ast);
+        let product = parser.open_postpass_product(ast)?;
         let product = product.prune_build_gates(&parser)?;
         let product = product.lower_delegates()?;
         product.finalize().map_err(source_seal::map_error)
@@ -273,20 +275,22 @@ impl NyashParser {
     pub(super) fn open_postpass_product(
         &mut self,
         ast: ASTNode,
-    ) -> source_seal::OpenParserPostpassProductV1 {
-        source_seal::OpenParserPostpassProductV1::new(
+    ) -> Result<source_seal::OpenParserPostpassProductV1, ParseError> {
+        let build_gate_decision_set = self.issue_build_gate_decision_set(&ast)?;
+        Ok(source_seal::OpenParserPostpassProductV1::new(
             ast,
             std::mem::take(&mut self.prepared_source_seals),
             self.take_source_build_gate_records(),
             self.take_metadata(),
-        )
+            build_gate_decision_set,
+        ))
     }
 
     pub(super) fn parse_postpass_s0(
         &mut self,
     ) -> Result<postpass_envelope::CompletedParserPostpassV1, ParseError> {
         let ast = self.parse_program()?;
-        let product = self.open_postpass_product(ast);
+        let product = self.open_postpass_product(ast)?;
         product.finish_total_s0(self, postpass_envelope::PostpassDemandV1::default())
     }
 
@@ -602,6 +606,7 @@ impl NyashParser {
                 line,
             });
         }
+        self.issue_pending_build_gate_observation(predicate.clone(), Span::new(0, 0, line, 1))?;
         self.pending_build_gate = Some((predicate, line));
         Ok(())
     }

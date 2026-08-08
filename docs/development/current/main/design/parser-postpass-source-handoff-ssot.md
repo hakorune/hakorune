@@ -495,6 +495,15 @@ source identity reconstruction is opened by I0-C. The implementation must
 use dedicated parser modules because `src/parser/mod.rs` and
 `src/parser/source_seal.rs` are already past the 760-line split trigger.
 
+I0-C-S0 receipt (2026-08-09): the parser-private issuer is implemented in
+`src/parser/build_cfg/decision_set.rs`. It consumes parser-issued observations,
+co-seals them with the AST's complete gate inventory, validates nested
+predicate configuration before evaluation, and emits one non-Clone decision
+set with branch and reachability rows. `cargo check -q -p nyash-rust`, the
+focused I0-C tests (7), and the 12-case `parser_build_cfg_gate` regression
+gate are green. Existing prune/source-path/explain consumers are intentionally
+unchanged; the next row designs their one-way projection from this set.
+
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 
 The top-level build-gate boundary is a parser source-transport problem, not

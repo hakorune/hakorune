@@ -387,8 +387,13 @@ PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A/I0-B closed; I0-C parked)
   postpass-visible AST predicates exactly once and feeds prune, top-level
   source-path survival, and explain projection. Explain counters retain the
   reachable-row v0 projection; member-level gates and grammar-evidence remain
-  separate nonclaims. I0-C implementation remains parked until its design
-  card opens the bounded S0 slice.
+  separate nonclaims. I0-C-S0 receipt: the parser-private decision-set issuer
+  is landed in `src/parser/build_cfg/decision_set.rs`; it aligns all
+  postpass-visible AST gates, validates nested predicate configuration,
+  evaluates each top-level predicate once, and records branch/reachability
+  rows. Focused I0-C tests and the 12-case BuildCfg regression gate are green.
+  Prune/source-path/explain projection remains the next design-stop and no
+  public consumer is switched.
 
 PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0 (parked baseline debt)
   The existing nested selected-else source-path fixture fails on parent
