@@ -68,8 +68,16 @@ for needle in (
 for forbidden in ("AST-only", "name-based", "inventory ordinal reconstruction", "CallSlot", "ValueId"):
     if forbidden in finalizer:
         raise SystemExit(f"finalizer contains forbidden later authority: {forbidden}")
-if 'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-I0"' not in state and 'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0"' not in state:
-    raise SystemExit("CURRENT_STATE is neither on D-I0 nor its explicit postpass cutover successor")
+if not any(
+    token in state
+    for token in (
+        'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-I0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-S0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-A"',
+    )
+):
+    raise SystemExit("CURRENT_STATE is neither on D-I0 nor its explicit postpass successor")
 if "frontend_parsed_box_source_seal_r6_s3b_d_i0_guard.sh" not in index:
     raise SystemExit("check index must list the D-I0 guard")
 for relative in ("src/parser/source_seal.rs", "src/parser/source_seal_finalizer.rs", "src/parser/delegate_source_relation.rs"):

@@ -438,6 +438,47 @@ impl OpenParserPostpassProductV1 {
             self.metadata,
         )
     }
+
+    /// S0 total postpass coordinator. Cohort admission happens after the
+    /// shared prune transaction and chooses exactly one explicit arm: the
+    /// ordinary source-seal path or the AST-only compatibility path.
+    pub(super) fn finish_total_s0(
+        self,
+        parser: &NyashParser,
+        demand: super::postpass_envelope::PostpassDemandV1,
+    ) -> Result<super::postpass_envelope::CompletedParserPostpassV1, crate::parser::ParseError>
+    {
+        if matches!(
+            demand.explain,
+            super::postpass_envelope::ExplainDemandV1::Capture
+        ) {
+            return Err(
+                super::postpass_envelope::ParserPostpassEnvelopeErrorV1::ExplainDecisionSetNotReady
+                    .into_parse_error(),
+            );
+        }
+        let product = self.prune_build_gates(parser)?;
+        let cohort = super::postpass_envelope::classify_program(&product.ast);
+        if matches!(
+            cohort,
+            super::postpass_envelope::ParserPostpassProgramCohortV1::OrdinaryTopLevelBox
+        ) {
+            let sealed = product.lower_delegates()?.finalize().map_err(map_error)?;
+            return super::postpass_envelope::CompletedParserPostpassV1::from_source_product(
+                sealed, None,
+            )
+            .map_err(|error| error.into_parse_error());
+        }
+
+        let (ast, metadata) = product.into_compatibility_parts();
+        let ast = super::postpass_compatibility::lower(ast)?;
+        super::postpass_envelope::CompletedParserPostpassV1::from_compatibility(ast, metadata, None)
+            .map_err(|error| error.into_parse_error())
+    }
+
+    fn into_compatibility_parts(self) -> (ASTNode, ParserMetadata) {
+        (self.ast, self.metadata)
+    }
 }
 
 /// Final authority. It is intentionally non-Clone and has no public
@@ -471,6 +512,7 @@ impl ParserBoxSourceSealV1 {
 pub(super) struct ParsedProgramWithSourceV1 {
     ast: ASTNode,
     source_seals: Box<[ParserBoxSourceSealV1]>,
+    final_box_ordinals: Box<[usize]>,
     generated_delegate_source_relations: Box<[GeneratedDelegateSourceRelationV1]>,
     metadata: ParserMetadata,
 }
@@ -492,6 +534,22 @@ impl ParsedProgramWithSourceV1 {
         &self,
     ) -> &[GeneratedDelegateSourceRelationV1] {
         &self.generated_delegate_source_relations
+    }
+
+    pub(super) fn into_postpass_parts(
+        self,
+    ) -> (
+        ASTNode,
+        Box<[ParserBoxSourceSealV1]>,
+        Box<[usize]>,
+        ParserMetadata,
+    ) {
+        (
+            self.ast,
+            self.source_seals,
+            self.final_box_ordinals,
+            self.metadata,
+        )
     }
 
     pub(super) fn metadata(&self) -> &ParserMetadata {
@@ -619,6 +677,7 @@ fn finalize_program(
     Ok(ParsedProgramWithSourceV1 {
         ast,
         source_seals,
+        final_box_ordinals: coverage.prepared_to_final.into_boxed_slice(),
         generated_delegate_source_relations,
         metadata,
     })

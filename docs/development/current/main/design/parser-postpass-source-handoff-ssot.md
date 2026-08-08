@@ -346,7 +346,24 @@ FINAL old whole-root delegate caller-zero and compatibility quarantine
 The ordinary rich D-I0 receipt remains closed and unchanged. This D0/I0 row
 must update its parser README, language reference, focused parity/negative
 tests, task map, CURRENT_STATE, and consolidated guard in each implementation
-commit; no broad implementation is opened while `work_mode = "design_stop"`.
+commit.
+
+### S0 implementation receipt — closed (2026-08-09)
+
+S0 adds the private `CompletedParserPostpassV1` envelope and the explicit
+`OpenParserPostpassProductV1::finish_total_s0` coordinator. Structural cohort
+classification is performed after the shared prune transaction. Ordinary
+cohorts enter the existing source-aware delegate batch and sole finalizer;
+interface/static/record/mixed/no-Box cohorts enter the isolated compatibility
+delegate arm and produce AST-only coverage rows. No public parser caller was
+switched, no explain report was synthesized, and no source seal was issued
+for a compatibility row. The rich ordinary API now reuses the common
+postpass-opening helper. Focused tests cover the two variants, mixed coverage,
+constructor separation, and the explicit parked explain-capture diagnostic.
+
+The next implementation is I0-A for the string/build-config wrapper family;
+I0-B metadata/`NyashParser::parse` and I0-C full BuildGate decision-set/
+explain parity remain ordered and unopened.
 
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 

@@ -62,10 +62,20 @@ for needle in (
 ):
     if needle not in task:
         raise SystemExit(f"cutover task missing total-envelope contract: {needle}")
-if 'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0"' not in state:
-    raise SystemExit("CURRENT_STATE must point to the cutover design stop")
-if 'work_mode = "design_stop"' not in state:
-    raise SystemExit("CURRENT_STATE must stop implementation at the cutover design")
+if not any(
+    token in state
+    for token in (
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-S0"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-A"',
+    )
+):
+    raise SystemExit("CURRENT_STATE must point to the cutover design/S0/I0-A boundary")
+if not any(
+    token in state
+    for token in ('work_mode = "design_stop"', 'work_mode = "fast"')
+):
+    raise SystemExit("CURRENT_STATE must route the cutover design/S0 boundary")
 print("cutover_d0_design=1")
 print("no_broad_cutover_implementation=1")
 print("cohort_parity_boundary=1")

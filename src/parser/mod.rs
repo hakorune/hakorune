@@ -38,6 +38,8 @@ mod grammar_contract;
 mod items;
 mod lifecycle;
 pub(crate) mod log;
+mod postpass_compatibility;
+mod postpass_envelope;
 mod runes;
 mod source_authority;
 mod source_gate_ledger;
@@ -261,15 +263,22 @@ impl NyashParser {
         let mut parser = Self::new(tokens);
         parser.build_config = build_config;
         let ast = parser.parse_program()?;
-        let product = source_seal::OpenParserPostpassProductV1::new(
-            ast,
-            std::mem::take(&mut parser.prepared_source_seals),
-            parser.take_source_build_gate_records(),
-            parser.take_metadata(),
-        );
+        let product = parser.open_postpass_product(ast);
         let product = product.prune_build_gates(&parser)?;
         let product = product.lower_delegates()?;
         product.finalize().map_err(source_seal::map_error)
+    }
+
+    pub(super) fn open_postpass_product(
+        &mut self,
+        ast: ASTNode,
+    ) -> source_seal::OpenParserPostpassProductV1 {
+        source_seal::OpenParserPostpassProductV1::new(
+            ast,
+            std::mem::take(&mut self.prepared_source_seals),
+            self.take_source_build_gate_records(),
+            self.take_metadata(),
+        )
     }
 
     /// Bounded AST-only projection for the same direct ordinary-Box rich

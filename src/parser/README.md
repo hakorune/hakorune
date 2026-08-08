@@ -82,4 +82,11 @@ change) must feed AST prune, explain-report projection, and top-level ordinary
 source-path rebase. Fuel is configured once at parser construction; metadata
 is taken once by the envelope; `NyashParser::parse` uses the same owner without
 re-tokenizing. Explain cutover is parked until the shared all-gate decision
-set has parity. This design stop adds no code or public API switch.
+set has parity.
+
+S0 now implements the private `CompletedParserPostpassV1` envelope, structural
+cohort classifier, explicit compatibility delegate arm, and
+`OpenParserPostpassProductV1::finish_total_s0`. The bounded rich ordinary path
+uses the shared postpass-opening helper. Public AST, metadata, and explain
+callers are still unchanged; I0-A/B/C own those switches and their parity
+receipts.

@@ -286,6 +286,13 @@ ledger is top-level scoped, a shared private full BuildGate decision set must
 feed prune, explain projection, and top-level ordinary source-path rebase.
 Explain cutover remains parked until that decision-set parity is proven.
 
+S0 implementation receipt (2026-08-09): the parser now has a private total
+postpass envelope and one explicit coordinator. Ordinary rows retain the sole
+non-Clone source seal; interface/static/record/mixed/no-Box rows are typed
+AST-only compatibility coverage. The existing rich ordinary entry reuses the
+postpass-opening helper, while public AST/metadata/explain callers remain
+unchanged until the ordered I0-A/B/C parity rows.
+
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate
 boundary. The product owns the AST, a `ParserSourceSessionV1` for prepared

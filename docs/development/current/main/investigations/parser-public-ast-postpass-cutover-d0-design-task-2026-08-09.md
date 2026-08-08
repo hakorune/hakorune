@@ -70,11 +70,11 @@ ParserBoxPostpassCoverageV1 {
 
 ParserBoxPostpassRowV1
   = SourceSealedOrdinary {
-        final_statement_placement,
+        final_box_ordinal,
         seal: ParserBoxSourceSealV1,
     }
   | AstOnlyCompatibility {
-        final_statement_placement,
+        final_box_ordinal,
         cohort: ParserCompatibilityCohortV1,
     }
 ```
@@ -91,9 +91,10 @@ AstOnlyCompatibility
   -> never a source seal, resolver target, Recipe input, or fake seal
 ```
 
-`final_statement_placement` is an AST coverage coordinate, not declaration
-identity. Source identity remains the parser-issued path/source-site product;
-inventory ordinals and final AST positions are never resolver identity.
+`final_box_ordinal` is an AST Box-coverage coordinate, not declaration
+identity. It is only the row's placement in the final Box coverage list.
+Source identity remains the parser-issued path/source-site product; inventory
+ordinals and final AST positions are never resolver identity.
 
 The sole owner is an `OpenParserPostpassProductV1`/private coordinator that
 consumes the AST, parser source session, metadata, and explain demand exactly
