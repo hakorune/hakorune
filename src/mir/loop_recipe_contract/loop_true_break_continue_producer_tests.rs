@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use super::ids::{LoopItemKeyV1, LoopValueKeyV1};
-use super::join_sig::LoopJoinEdgeRoleV1;
+use super::join_sig::{LoopJoinBranchArmV1, LoopJoinEdgeRoleV1};
 use super::loop_true_break_continue_producer::{
     produce_loop_true_break_continue_recipe_v1, VerifiedLoopTrueBreakContinueRecipeProductV1,
 };
@@ -186,10 +186,13 @@ fn producer_emits_exact_verified_recipe_and_join_sig() {
         .edges
         .iter()
         .any(|edge| edge.role == LoopJoinEdgeRoleV1::Backedge));
-    assert_eq!(
-        sig.branches[0].then_exit.payload,
-        sig.branches[0].else_exit.payload
-    );
+    let LoopJoinBranchArmV1::Exit(then_exit) = &sig.branches[0].then_arm else {
+        panic!("then arm must be a direct exit");
+    };
+    let LoopJoinBranchArmV1::Exit(else_exit) = &sig.branches[0].else_arm else {
+        panic!("else arm must be a direct exit");
+    };
+    assert_eq!(then_exit.payload, else_exit.payload);
 }
 
 #[test]

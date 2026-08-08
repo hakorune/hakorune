@@ -3,7 +3,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::super::ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1,
 };
-use super::super::join_sig_branch::{direct_branch_row, is_supported_loop_branch_pair};
+use super::super::join_sig_branch::{
+    branch_row, is_supported_loop_branch_pair, is_supported_loop_exit,
+};
 use super::super::schema::{
     LoopConditionV1, LoopExitKindV1, LoopOperationV1, LoopRecipeItemV1, LoopRecipeV1,
 };
@@ -22,8 +24,18 @@ pub(in crate::mir::loop_recipe_contract) struct Flow {
     pub(in crate::mir::loop_recipe_contract) bindings: BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     pub(in crate::mir::loop_recipe_contract) available: BTreeSet<LoopValueKeyV1>,
     pub(in crate::mir::loop_recipe_contract) exit: Option<(LoopItemKeyV1, LoopExitKindV1)>,
+    pub(in crate::mir::loop_recipe_contract) exit_payload: Option<Vec<LoopJoinPayloadV1>>,
     pub(in crate::mir::loop_recipe_contract) alternate_exit:
         Option<(LoopItemKeyV1, LoopExitKindV1)>,
+    pub(in crate::mir::loop_recipe_contract) alternate_exit_payload: Option<Vec<LoopJoinPayloadV1>>,
+    pub(in crate::mir::loop_recipe_contract) side_exits: Vec<FlowExit>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::loop_recipe_contract) struct FlowExit {
+    pub(in crate::mir::loop_recipe_contract) item: LoopItemKeyV1,
+    pub(in crate::mir::loop_recipe_contract) kind: LoopExitKindV1,
+    pub(in crate::mir::loop_recipe_contract) payload: Vec<LoopJoinPayloadV1>,
 }
 
 pub(crate) struct LoopJoinSigElaboratorV1;
@@ -96,7 +108,7 @@ pub(super) fn elaborate_loop(
             rows,
             branches,
         )?;
-        if flow.exit.is_some() || flow.alternate_exit.is_some() {
+        if flow.exit.is_some() || flow.alternate_exit.is_some() || !flow.side_exits.is_empty() {
             return Err(LoopJoinSigRejectReasonV1::UnsupportedExit {
                 item: block_item(recipe, block),
             });
@@ -149,6 +161,14 @@ pub(super) fn elaborate_loop(
         }
     }
     let body_payload = visible_payloads(recipe, key, &body_flow.bindings)?;
+    for side_exit in &body_flow.side_exits {
+        if !is_supported_loop_exit(key, side_exit.kind) {
+            return Err(LoopJoinSigRejectReasonV1::UnsupportedExit {
+                item: side_exit.item,
+            });
+        }
+        edges.push(loop_exit_edge(side_exit.kind, side_exit.payload.clone()));
+    }
     let propagated_exit = if let Some(else_exit) = body_flow.alternate_exit {
         let then_exit = body_flow
             .exit
@@ -156,8 +176,20 @@ pub(super) fn elaborate_loop(
         if !is_supported_loop_branch_pair(key, then_exit.1, else_exit.1) {
             return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: then_exit.0 });
         }
-        edges.push(loop_exit_edge(then_exit.1, body_payload.clone()));
-        edges.push(loop_exit_edge(else_exit.1, body_payload));
+        edges.push(loop_exit_edge(
+            then_exit.1,
+            body_flow
+                .exit_payload
+                .clone()
+                .expect("primary branch exit has payload"),
+        ));
+        edges.push(loop_exit_edge(
+            else_exit.1,
+            body_flow
+                .alternate_exit_payload
+                .clone()
+                .expect("alternate branch exit has payload"),
+        ));
         None
     } else {
         match body_flow.exit {
@@ -219,7 +251,10 @@ pub(super) fn elaborate_loop(
             bindings: body_flow.bindings,
             available: body_flow.available,
             exit: propagated_exit,
+            exit_payload: None,
             alternate_exit: None,
+            alternate_exit_payload: None,
+            side_exits: Vec::new(),
         },
         &parent_bindings,
         &parent_available,
@@ -318,7 +353,10 @@ fn project_parent_flow(
         bindings,
         available,
         exit: flow.exit,
+        exit_payload: flow.exit_payload,
         alternate_exit: flow.alternate_exit,
+        alternate_exit_payload: flow.alternate_exit_payload,
+        side_exits: Vec::new(),
     }
 }
 
@@ -339,7 +377,10 @@ fn process_block(
         bindings: bindings.clone(),
         available: available.clone(),
         exit: None,
+        exit_payload: None,
         alternate_exit: None,
+        alternate_exit_payload: None,
+        side_exits: Vec::new(),
     };
     for item_key in &block.items {
         if flow.exit.is_some() || flow.alternate_exit.is_some() {
@@ -370,7 +411,10 @@ fn process_block(
                 flow.bindings = child.bindings;
                 flow.available = child.available;
                 flow.exit = child.exit;
+                flow.exit_payload = child.exit_payload;
                 flow.alternate_exit = child.alternate_exit;
+                flow.alternate_exit_payload = child.alternate_exit_payload;
+                flow.side_exits.extend(child.side_exits);
             }
             LoopRecipeItemV1::If {
                 condition,
@@ -407,21 +451,69 @@ fn process_block(
                         bindings: flow.bindings.clone(),
                         available: flow.available.clone(),
                         exit: None,
+                        exit_payload: None,
                         alternate_exit: None,
+                        alternate_exit_payload: None,
+                        side_exits: Vec::new(),
                     }
                 };
                 if then_flow.alternate_exit.is_some() || else_flow.alternate_exit.is_some() {
                     return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: *item_key });
                 }
-                if then_flow.exit.is_some() && else_flow.exit.is_some() {
-                    if then_flow.bindings != else_flow.bindings
-                        || then_flow.available != else_flow.available
-                    {
+                let then_has_exit = then_flow.exit.is_some();
+                let else_has_exit = else_flow.exit.is_some();
+                if then_has_exit ^ else_has_exit {
+                    if !then_flow.side_exits.is_empty() || !else_flow.side_exits.is_empty() {
                         return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch {
                             item: *item_key,
                         });
                     }
-                    let branch = direct_branch_row(
+                    branches.push(branch_row(
+                        recipe,
+                        owner_loop,
+                        *item_key,
+                        condition,
+                        then_block,
+                        explicit_else_block,
+                        &then_flow,
+                        &else_flow,
+                    )?);
+                    if let Some((item, kind)) = then_flow.exit {
+                        flow.side_exits.push(FlowExit {
+                            item,
+                            kind,
+                            payload: then_flow
+                                .exit_payload
+                                .clone()
+                                .expect("terminal branch has payload"),
+                        });
+                    }
+                    if let Some((item, kind)) = else_flow.exit {
+                        flow.side_exits.push(FlowExit {
+                            item,
+                            kind,
+                            payload: else_flow
+                                .exit_payload
+                                .clone()
+                                .expect("terminal branch has payload"),
+                        });
+                    }
+                    let normal = if then_has_exit { else_flow } else { then_flow };
+                    flow.bindings = normal.bindings;
+                    flow.available = normal.available;
+                    flow.exit = None;
+                    flow.exit_payload = None;
+                    flow.alternate_exit = None;
+                    flow.alternate_exit_payload = None;
+                    continue;
+                }
+                if then_flow.exit.is_some() && else_flow.exit.is_some() {
+                    if !then_flow.side_exits.is_empty() || !else_flow.side_exits.is_empty() {
+                        return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch {
+                            item: *item_key,
+                        });
+                    }
+                    let branch = branch_row(
                         recipe,
                         owner_loop,
                         *item_key,
@@ -435,19 +527,25 @@ fn process_block(
                     flow.bindings = then_flow.bindings;
                     flow.available = then_flow.available;
                     flow.exit = then_flow.exit;
+                    flow.exit_payload = then_flow.exit_payload;
                     flow.alternate_exit = else_flow.exit;
+                    flow.alternate_exit_payload = else_flow.exit_payload;
                     continue;
                 }
                 if then_flow.exit != else_flow.exit
                     || then_flow.bindings != else_flow.bindings
                     || then_flow.available != else_flow.available
+                    || !then_flow.side_exits.is_empty()
+                    || !else_flow.side_exits.is_empty()
                 {
                     return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: *item_key });
                 }
                 flow.bindings = then_flow.bindings;
                 flow.available = then_flow.available;
                 flow.exit = then_flow.exit;
+                flow.exit_payload = then_flow.exit_payload;
                 flow.alternate_exit = None;
+                flow.alternate_exit_payload = None;
             }
             LoopRecipeItemV1::Exit { exit } => {
                 let exit_row = recipe
@@ -455,6 +553,7 @@ fn process_block(
                     .get(exit.raw() as usize)
                     .expect("verified recipe has canonical exit keys");
                 flow.exit = Some((*item_key, exit_row.kind));
+                flow.exit_payload = Some(visible_payloads(recipe, owner_loop, &flow.bindings)?);
             }
         }
     }

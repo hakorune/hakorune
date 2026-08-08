@@ -1235,10 +1235,10 @@ Stop:
   support in `phi_policy.md` or `phi_invariants.md`; update those only after a
   later physical adoption changes their contract.
 
-#### M7-S2-B — `LOOP-JOINSIG-MIXED-FALLTHROUGH-D0` (selected design; implementation pending)
+#### M7-S2-B — `LOOP-JOINSIG-MIXED-FALLTHROUGH-D0` (implemented caller-zero contract)
 
 Decision:
-: **Provisional / design-selected.** The deferred S2-B obligation is the
+: **Accepted.** The deferred S2-B obligation was the
   shared logical JoinSig contract required by the next M8 S6B LoopBreak cohort.
   It is not a LoopV0 Recipe kind, a route selector, or a physicalization path.
 
@@ -1302,11 +1302,10 @@ Done:
   caller-zero status, and non-claims.
 
 Stop:
-: Do not implement S6B source observation or patch `direct_branch_row` ad hoc
-  until this shared JoinSig contract is green. If the natural fixture requires
-  an additional merge/PHI meaning, keep the row at design and open a separate
-  explicit contract rather than synthesizing an `else` or reusing legacy
-  `LoopFacts`.
+: The shared contract is green. The next row may implement only S6B source
+  observation and deterministic Recipe production. If the natural fixture
+  requires an additional merge/PHI meaning, return to a new explicit contract
+  rather than synthesizing an `else` or reusing legacy `LoopFacts`.
 
 #### M7-S3 — `JOINIR-LOOP-TRUE-SOURCE-RECIPE-COHORT0-M7-S3-D0` (closed)
 Decision: accepted after independent worker audits; source projection S0,
@@ -1370,8 +1369,9 @@ Ordered rows:
   production caller remains zero.
 
 S6B dependency:
-: S6B uses the shared `LOOP-JOINSIG-MIXED-FALLTHROUGH-D0` contract above before
-  issuing any source observer or producer. Its natural source is the pinned
+: S6B now consumes the implemented shared
+  `LOOP-JOINSIG-MIXED-FALLTHROUGH-D0` contract before issuing its source
+  observer or producer. Its natural source is the pinned
   `loop_break_plan_subset_min.hako` alias: one predicate Loop, one direct
   same-loop Break under an `If` with implicit fallthrough, then normal carrier
   and induction updates. `print`/`return` remain callable Tail, not Loop

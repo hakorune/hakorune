@@ -81,18 +81,24 @@ pub(crate) struct LoopJoinSigV1 {
     pub(crate) port_bindings: Vec<LoopJoinPortBindingV1>,
 }
 
-/// Caller-zero logical evidence for the bounded LoopTrue branch shape.
+/// Caller-zero logical evidence for a verified conditional branch.
 ///
 /// This is deliberately not a CFG edge or a PHI plan. It records the source
-/// If item and its two direct exits so a later physical consumer can decide
-/// how to materialize the already-verified choice.
+/// If item and each arm's logical disposition so a later physical consumer can
+/// materialize the already-verified choice without rediscovering fallthrough.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LoopJoinBranchV1 {
     pub(crate) owner_loop: LoopNodeKeyV1,
     pub(crate) if_item: LoopItemKeyV1,
     pub(crate) condition: LoopValueKeyV1,
-    pub(crate) then_exit: LoopJoinBranchExitV1,
-    pub(crate) else_exit: LoopJoinBranchExitV1,
+    pub(crate) then_arm: LoopJoinBranchArmV1,
+    pub(crate) else_arm: LoopJoinBranchArmV1,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum LoopJoinBranchArmV1 {
+    Exit(LoopJoinBranchExitV1),
+    Fallthrough { payload: Vec<LoopJoinPayloadV1> },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

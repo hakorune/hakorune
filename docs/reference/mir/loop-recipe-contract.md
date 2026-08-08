@@ -637,8 +637,12 @@ LoopJoinBranchV1
   owner_loop
   if_item
   condition
-  then_exit: LoopJoinBranchExitV1
-  else_exit: LoopJoinBranchExitV1
+  then_arm: LoopJoinBranchArmV1
+  else_arm: LoopJoinBranchArmV1
+
+LoopJoinBranchArmV1
+  Exit(LoopJoinBranchExitV1)
+  Fallthrough { payload }
 
 LoopJoinBranchExitV1
   exit_item
@@ -657,8 +661,20 @@ else block     = one direct Continue targeting the owner Loop
 
 The branch row is ordered by owner and If item. The Loop row receives the two
 logical Body edges (`Break` to `After`, `Continue` to `Header`) and receives no
-natural `Backedge` for this shape. Payloads are the already-visible logical
-carrier rows; no hidden ownership operation is inserted.
+natural `Backedge` for this explicit-exit shape. Payloads are the
+already-visible logical carrier rows; no hidden ownership operation is
+inserted.
+
+Reference receipt — `LOOP-JOINSIG-MIXED-FALLTHROUGH-D0` (2026-08-08): the
+bounded shared JoinSig contract now records one-sided terminal/fallthrough
+branches without changing `LoopRecipeV1`. An omitted source `else` is a
+logical `Fallthrough` arm, not a synthesized AST node. The terminal arm keeps
+its own payload, while the normal arm continues with its own state; the loop
+row receives the terminal `Break`/`Continue` edge and a normal `Backedge`.
+Two normal arms must agree on binding/value state. This is a caller-zero
+logical contract only: source observation, physical CFG/PHI, Builder/MIR,
+selector, retry/fallback, production activation, and legacy deletion remain
+closed.
 
 ### Visible carrier payloads
 
@@ -694,8 +710,7 @@ opaque After capability for its exact loop and binding.
 
 The following remain typed rejects at this stage:
 
-- implicit else or one-arm fallthrough;
-- any branch binding write or divergent branch state;
+- divergent normal-arm binding/value state;
 - nested control inside either direct branch arm;
 - Return or any non-owner exit in the branch pair;
 - a branch block containing more than its one direct exit;
@@ -709,12 +724,12 @@ checks.
 
 ## Non-claims and next slice
 
-This row claims only projection from the already sealed source shape into the
-source-bound Recipe artifact. It does not claim fresh AST-to-Recipe discovery,
-route activation, physical CFG/PHI parity, runtime execution, or deletion of
-the located legacy Loop handoff. Binding merge and implicit-fallthrough
-products require a separate design/implementation row after this logical
-closure. The required README and reference updates are landed in this
+This row claims only logical projection from an already sealed Recipe shape
+into JoinSig branch-arm/edge relations. It does not claim fresh AST-to-Recipe
+discovery, route activation, physical CFG/PHI parity, runtime execution, or
+deletion of the located legacy Loop handoff. Source observation and Recipe
+production remain the next S6B row; physical transfer and PHI obligations are
+still closed. The required README and reference updates are landed in this
 closeout.
 
 ## Callable operation-emitter preparation receipt (2026-08-07)

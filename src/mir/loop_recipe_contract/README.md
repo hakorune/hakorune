@@ -31,12 +31,14 @@ Loop lowering.
   has exactly one operation result.
 - A carrier entry must be available before its owning Loop is entered. The
   caller-zero `LoopJoinSigElaboratorV1` elaborates bounded Accum edges,
-  visible ancestor-carrier payloads, and the accepted M7-S2-A LoopTrue
-  explicit-else branch row. The branch row records direct then-`break` and
-  else-`continue` exits without creating physical CFG/PHI obligations. Its
-  verified product is non-`Clone` and has no production caller. Full
-  dominance/predecessor, binding merges, implicit fallthrough, and wider
-  nested-exit closure remain later slices.
+  visible ancestor-carrier payloads, the accepted M7-S2-A explicit-else
+  branch row, and the shared M7-S2-B one-sided exit/fallthrough row. A branch
+  row has two typed arm dispositions: `Exit` or `Fallthrough`. An omitted
+  source `else` is represented by logical `Fallthrough`; no source node or AST
+  rewrite is synthesized. Terminal arms retain their own visible payload and
+  do not participate in a binding merge. The verified product is non-`Clone`
+  and has no production caller. Full dominance/predecessor, PHI materialization,
+  and wider nested-exit closure remain later slices.
 - `LoopRecipeVerifierV1` consumes only `LoopRecipeV1`. It cannot select or retry
   a route and cannot inspect source ownership or the producer receipt.
 - `LoopRecipeVerifierV1` owns structural recipe preconditions; the JoinSig
@@ -341,6 +343,35 @@ retry/fallback, physical CFG/PHI, or Builder effect. The result is a verified
 logical product only; it does not claim a production caller or physical
 adoption.
 
+## Loop JoinSig mixed-fallthrough S2-B
+
+The shared `LoopJoinSigElaboratorV1` now records conditional arms with one
+stable shape:
+
+```text
+LoopJoinBranchV1
+  owner_loop
+  if_item
+  condition
+  then_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { payload }
+  else_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { payload }
+```
+
+An omitted source `else` is an implicit logical `Fallthrough`; no AST node or
+synthetic source branch is created. A terminal arm captures the visible
+payload at its own exit site. A terminal arm and a normal arm therefore do not
+merge binding state. The normal arm continues with its state, while the loop
+row receives the terminal `Break`/`Continue` edge and a normal `Backedge`.
+Two normal arms must have equal binding/value state and are rejected otherwise.
+The existing explicit `Break`-then/`Continue`-else pair remains valid.
+
+This is a caller-zero logical JoinSig contract only. `LoopRecipeV1` is
+unchanged; source observation, Recipe production, physical CFG/PHI, Builder,
+selector, retry/fallback, production activation, and legacy deletion remain
+outside this row. The exact implementation receipt is in
+`docs/reference/mir/loop-recipe-contract.md` under
+`LOOP-JOINSIG-MIXED-FALLTHROUGH-D0`.
+
 ## Forbidden dependencies
 
 This subtree must not import AST nodes, `MirBuilder`, `CorePlan`, physical
@@ -387,8 +418,8 @@ Generic
 
 The gate is semantic and evidence-based, not a rename: all fixtures must have
 the same verified Recipe/JoinSig winner, CFG/PHI/value parity, and no legacy
-family production caller. M7-S2-A closes only one caller-zero logical branch
-shape; physical consumers, binding merges, implicit fallthrough, and broader
-branch/merge obligations remain explicitly out of scope. Do not attempt this
-convergence during D5 caller-zero physical-input work; it is a post-cutover
-refactor gate.
+family production caller. M7-S2-A and the shared M7-S2-B contract close only
+bounded caller-zero logical branch shapes; physical consumers, PHI material,
+and broader nested branch/merge obligations remain explicitly out of scope.
+Do not attempt this convergence during D5 caller-zero physical-input work; it
+is a post-cutover refactor gate.

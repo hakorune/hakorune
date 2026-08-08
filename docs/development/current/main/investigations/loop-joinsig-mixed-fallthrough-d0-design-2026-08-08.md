@@ -1,6 +1,6 @@
 ---
-Status: active design stop
-Decision: provisional — selected as the shared prerequisite for M8 S6B
+Status: implementation complete — caller-zero logical contract
+Decision: accepted — bounded shared prerequisite for M8 S6B
 Date: 2026-08-08
 Exception: durable cross-row logical JoinSig contract required before S6B implementation
 ParentCurrentCard: docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
@@ -12,10 +12,12 @@ ParentCurrentCard: docs/development/current/main/workstreams/mirbuilder-inplace-
 
 - **Current decision:** represent one-sided conditional exits with a shared
   JoinSig branch-arm contract; keep `LoopRecipeV1` unchanged.
-- **Current implementation status:** design only; no source observer, producer,
-  Builder, MIR, CFG, PHI, or physical caller is opened.
-- **Next ordered task:** implement and verify the bounded JoinSig contract,
-  then resume `JOINIR-LOOP-M8-LOOPV0-EXITS-JOINS-S6B`.
+- **Current implementation status:** the bounded JoinSig contract and focused
+  logical tests are landed; no source observer, producer, Builder, MIR, CFG,
+  PHI, or physical caller is opened.
+- **Next ordered task:** resume
+  `JOINIR-LOOP-M8-LOOPV0-EXITS-JOINS-S6B` with source observation and the
+  deterministic Recipe producer only.
 - **Production stop line:** caller-zero; no selector, retry, fallback, or
   physical transfer/layout authority may consume this row.
 - **Retirement finish line:** the old branch/exit authority is removed only at
@@ -117,8 +119,9 @@ The implementation row may close only when all are observable:
 - branch-arm model and private flow summary are implemented below 800 lines;
 - deterministic positive tests cover `Exit`/`Exit`, implicit `Fallthrough`,
   terminal-arm payload capture, and normal continuation after the branch;
-- negative tests cover divergent normal-arm state, foreign/duplicate identity,
-  Return, nested/multiple exit, and missing flow evidence;
+- negative tests cover divergent normal-arm state and Return; foreign/duplicate
+  identity, nested/multiple exit, and missing flow evidence remain owned by
+  existing Recipe/JoinSig source guards;
 - `LoopRecipeV1` JSON/keys are unchanged and no AST/legacy `LoopFacts` enters
   the portable subtree;
 - no selector, Recipe kind, Builder/MIR/CFG/PHI/physical ID, retry, or fallback
@@ -132,9 +135,9 @@ The implementation row may close only when all are observable:
 
 ## Stop
 
-Do not implement S6B source observation or modify `direct_branch_row` until
-this shared contract is green. If the natural fixture needs a merge/PHI
-meaning beyond the bounded arm model, keep S6B at `NoSafeSlice` and open a
-separate explicit design decision. Never synthesize an `else`, re-read AST in
-the producer, import legacy facts, or add a route-local physical workaround.
-
+The shared contract is green, so the next row may implement only S6B source
+observation and deterministic Recipe production. Keep source admission, Recipe
+verification, JoinSig, and physicalization as separate owners. Never synthesize
+an `else`, re-read AST in the producer, import legacy facts, or add a route-local
+physical workaround. If the natural fixture needs a merge/PHI meaning beyond
+the bounded arm model, return to a new explicit design stop.

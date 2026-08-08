@@ -130,7 +130,8 @@ pub(crate) use input_source::{
 };
 #[allow(unused_imports)]
 pub(crate) use join_sig::{
-    LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1,
+    LoopJoinBranchArmV1, LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1, LoopJoinEdgeV1,
+    LoopJoinLoopV1,
     LoopJoinPayloadV1, LoopJoinPortBindingV1, LoopJoinPortV1, LoopJoinSigElaboratorV1,
     LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
 };
