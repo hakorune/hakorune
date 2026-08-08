@@ -157,6 +157,12 @@ impl CompletedParserPostpassV1 {
         self.ast
     }
 
+    pub(super) fn into_ast_and_metadata(self) -> (ASTNode, ParserMetadata) {
+        // This is the sole consuming pair projection. Metadata is moved from
+        // the completed product; it is never reconstructed from AST nodes.
+        (self.ast, self.metadata)
+    }
+
     pub(super) fn metadata(&self) -> &ParserMetadata {
         &self.metadata
     }

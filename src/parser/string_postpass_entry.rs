@@ -1,13 +1,12 @@
-//! String/build-config parser entry owned by the total postpass coordinator.
+//! Shared public parser projections owned by the total postpass coordinator.
 //!
-//! This module contains only the selected public AST edge. Grammar-evidence,
-//! metadata, `NyashParser::parse`, and explain-report entries remain separate
-//! contracts until their own rows are opened.
+//! String/build-config, instance-parser, and metadata callers all use the same
+//! postpass finalizer. Explain-report capture remains a separate I0-C contract.
 
 use crate::ast::ASTNode;
 use crate::tokenizer::{NyashTokenizer, TokenType};
 
-use super::postpass_envelope::PostpassDemandV1;
+use super::ParserMetadata;
 use super::{normalize_logical_ops, NyashParser, ParseError, ParserBuildConfig};
 
 pub(super) fn parse(
@@ -24,10 +23,18 @@ pub(super) fn parse(
     let mut parser = NyashParser::new(tokens);
     parser.debug_fuel = fuel;
     parser.build_config = build_config;
-    let ast = parser.parse_program()?;
-    let product = parser.open_postpass_product(ast);
-    let completed = product.finish_total_s0(&parser, PostpassDemandV1::default())?;
+    let completed = parser.parse_postpass_s0()?;
     Ok(completed.into_ast())
+}
+
+pub(super) fn parse_existing(parser: &mut NyashParser) -> Result<ASTNode, ParseError> {
+    Ok(parser.parse_postpass_s0()?.into_ast())
+}
+
+pub(super) fn parse_with_metadata(
+    parser: &mut NyashParser,
+) -> Result<(ASTNode, ParserMetadata), ParseError> {
+    Ok(parser.parse_postpass_s0()?.into_ast_and_metadata())
 }
 
 fn reject_unsupported_self_identifier(
@@ -116,5 +123,28 @@ mod tests {
         )
         .unwrap_err();
         assert!(matches!(error, ParseError::UnsupportedIdentifier { .. }));
+    }
+
+    #[test]
+    fn i0_b_existing_parser_instance_uses_the_same_postpass_entry() {
+        let tokens = NyashTokenizer::new("box Existing { run() { return 1 } }\n")
+            .tokenize()
+            .unwrap();
+        let mut parser = NyashParser::new(tokens);
+        let ast = parse_existing(&mut parser).unwrap();
+        assert!(matches!(ast, ASTNode::Program { .. }));
+    }
+
+    #[test]
+    fn i0_b_metadata_projection_moves_the_completed_sidecar_once() {
+        let tokens =
+            NyashTokenizer::new("static box Main { @rune Hint(inline) main() { return 0 } }\n")
+                .tokenize()
+                .unwrap();
+        let mut parser = NyashParser::new(tokens);
+        let (ast, metadata) = parse_with_metadata(&mut parser).unwrap();
+        assert!(matches!(ast, ASTNode::Program { .. }));
+        assert_eq!(metadata.runes.len(), 1);
+        assert_eq!(metadata.runes[0].name, "Hint");
     }
 }

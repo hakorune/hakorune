@@ -9,16 +9,19 @@ SSOT="$ROOT/docs/development/current/main/design/parser-postpass-source-handoff-
 STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 README="$ROOT/src/parser/README.md"
 REFERENCE="$ROOT/docs/reference/language/callable-contracts.md"
+MOD="$ROOT/src/parser/mod.rs"
+ENTRY="$ROOT/src/parser/string_postpass_entry.rs"
+ENVELOPE="$ROOT/src/parser/postpass_envelope.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$TASK" "$TASKMAP" "$SSOT" "$STATE" "$README" "$REFERENCE"
+guard_require_files "$TAG" "$TASK" "$TASKMAP" "$SSOT" "$STATE" "$README" "$REFERENCE" "$MOD" "$ENTRY" "$ENVELOPE"
 
-python3 - "$TASK" "$TASKMAP" "$SSOT" "$STATE" "$README" "$REFERENCE" <<'PY'
+python3 - "$TASK" "$TASKMAP" "$SSOT" "$STATE" "$README" "$REFERENCE" "$MOD" "$ENTRY" "$ENVELOPE" <<'PY'
 import sys
 from pathlib import Path
 
-task, taskmap, ssot, state, readme, reference = [
+task, taskmap, ssot, state, readme, reference, mod, entry, envelope = [
     Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
 ]
 
@@ -69,6 +72,7 @@ if not any(
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-S0"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-A"',
         'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-B"',
+        'current_execution_row = "PARSER-PUBLIC-AST-POSTPASS-I0-C"',
     )
 ):
     raise SystemExit("CURRENT_STATE must point to the cutover design/S0/I0-A/I0-B boundary")
@@ -77,6 +81,10 @@ if not any(
     for token in ('work_mode = "design_stop"', 'work_mode = "fast"')
 ):
     raise SystemExit("CURRENT_STATE must route the cutover design/S0 boundary")
+if "parse_postpass_s0" not in mod or "parse_existing" not in entry:
+    raise SystemExit("I0-B must use the shared parser postpass entry")
+if "into_ast_and_metadata" not in envelope:
+    raise SystemExit("I0-B must expose the consuming AST/metadata projection")
 print("cutover_d0_design=1")
 print("no_broad_cutover_implementation=1")
 print("cohort_parity_boundary=1")

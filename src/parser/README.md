@@ -107,3 +107,12 @@ parent `72b3471e55` has one separate baseline-red nested member-gate
 source-path test that fails before postpass opening because its branches have
 different public signatures; it is parked as
 `PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0` and is not an I0-A regression.
+
+## I0-B parse/metadata projections — closed
+
+`NyashParser::parse` and `parse_from_string_with_fuel_and_metadata` now share
+the parser-private `parse_postpass_s0` finalizer. The completed postpass owns
+metadata until one consuming `into_ast_and_metadata()` projection; AST-only
+callers use `into_ast()`. No caller reparses, retakes metadata, or reconstructs
+it from AST nodes. Explain/full BuildGate decision-set parity remains parked
+for I0-C.

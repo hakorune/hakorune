@@ -1,5 +1,5 @@
 ---
-Status: accepted design; implementation not landed
+Status: closed implementation
 Date: 2026-08-09
 Decision: accepted bounded metadata/parse projection; implementation may open in fast mode
 Parent: `parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md`
@@ -58,6 +58,29 @@ single parser invocation.
 The shared helper is a transport/coordinator owner only. It does not classify
 source by name, issue resolver authority, or add fallback/retry. I0-B does
 not open explain demand; that remains I0-C.
+
+## Implementation receipt — 2026-08-09
+
+I0-B now routes `NyashParser::parse` and
+`parse_from_string_with_fuel_and_metadata` through the shared
+`parse_postpass_s0`/`string_postpass_entry` owner. The parser tokenizes and
+parses once, opens one postpass product, and completes it once. Metadata is
+consumed from `CompletedParserPostpassV1::into_ast_and_metadata()`; AST nodes
+are never rescanned and parser metadata is never taken a second time.
+
+Focused evidence:
+
+```text
+string_postpass_entry: 7 passed
+parser_opt_annotations: 33 passed
+parser source-session: 6 passed
+delegate/build-config/transition/check-block suites: green
+```
+
+The existing parent-baseline nested member-gate red remains excluded under
+`PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0`. I0-B does not open explain/full
+BuildGate decision-set parity, resolver, Recipe, Builder, MIR, runtime, or
+fallback/retry.
 
 ## Non-claims
 

@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0/D-I0 closed; broad public AST postpass cutover D0 accepted, I0 parked
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0/D-I0/PARSER-PUBLIC-AST-POSTPASS-I0-A/PARSER-PUBLIC-AST-POSTPASS-I0-B closed; broad AST postpass I0-C remains parked
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -347,7 +347,7 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection
   no ExactTrivial*Abi/MirType reverse inference
 
-PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A closed; I0-B/C parked)
+PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A/I0-B closed; I0-C parked)
   one total typed postpass owner for `parse`, fuel/build-config parsing,
   metadata, and explain-report projections. The private result carries AST,
   metadata, optional explain, and typed per-Box coverage:
@@ -379,12 +379,11 @@ PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0 (D0/S0/I0-A closed; I0-B/C parked)
   private total envelope/cohort coordinator is landed; public callers remain
   unchanged before I0-A. I0-A receipt: the string/build-config edge now
   enters `string_postpass_entry` once, preserves fuel/AST/diagnostic behavior,
-  and retires its delegate-only production edge. I0-B/C remain parked.
-  I0-B design receipt: `NyashParser::parse` and the metadata wrapper will share
-  one parser-private postpass finalizer and one consuming
-  `into_ast_and_metadata()` projection; metadata is moved from the completed
-  product exactly once. Explain/full BuildGate decision-set parity remains in
-  I0-C.
+  and retires its delegate-only production edge. I0-B receipt:
+  `NyashParser::parse` and the metadata wrapper share one parser-private
+  postpass finalizer and one consuming `into_ast_and_metadata()` projection;
+  metadata is moved from the completed product exactly once. I0-C remains
+  parked for the full BuildGate decision set and explain parity.
 
 PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0 (parked baseline debt)
   The existing nested selected-else source-path fixture fails on parent

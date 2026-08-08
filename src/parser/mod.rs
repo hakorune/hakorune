@@ -282,6 +282,14 @@ impl NyashParser {
         )
     }
 
+    pub(super) fn parse_postpass_s0(
+        &mut self,
+    ) -> Result<postpass_envelope::CompletedParserPostpassV1, ParseError> {
+        let ast = self.parse_program()?;
+        let product = self.open_postpass_product(ast);
+        product.finish_total_s0(self, postpass_envelope::PostpassDemandV1::default())
+    }
+
     /// Bounded AST-only projection for the same direct ordinary-Box rich
     /// path. This is intentionally crate-visible until all general parser
     /// cohorts have typed path/relation transport.
@@ -411,15 +419,12 @@ impl NyashParser {
 
         let mut parser = Self::new(tokens);
         parser.debug_fuel = fuel;
-        let ast = parser.parse()?;
-        Ok((ast, parser.take_metadata()))
+        crate::parser::string_postpass_entry::parse_with_metadata(&mut parser)
     }
 
     /// パース実行 - Program ASTを返す
     pub fn parse(&mut self) -> Result<ASTNode, ParseError> {
-        let ast = self.parse_program()?;
-        let ast = self.prune_build_gate_program(ast)?;
-        delegate_lowering::lower_delegate_exposes(ast)
+        string_postpass_entry::parse_existing(self)
     }
 
     // ===== パース関数群 =====

@@ -438,6 +438,15 @@ parser-collected metadata, and ordinary source-sealed rows retain the same
 metadata path. Explain capture/full BuildGate decision-set parity remains
 parked for I0-C. No resolver/Recipe/Builder/MIR/runtime authority is opened.
 
+### I0-B implementation receipt — closed (2026-08-09)
+
+`NyashParser::parse` and the string metadata wrapper now share the parser
+postpass finalizer. The completed product is consumed either as AST-only or as
+the single `(ASTNode, ParserMetadata)` pair. Focused instance-parser,
+metadata, source-session, delegate, build-config, transition, and check-block
+tests are green. The known nested member-gate baseline red remains parked in
+its separate D0 row; no parser signature rule or fallback was changed.
+
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 
 The top-level build-gate boundary is a parser source-transport problem, not

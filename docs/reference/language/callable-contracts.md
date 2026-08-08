@@ -306,6 +306,12 @@ that fails before postpass opening because its branches have different public
 signatures; it is parked as `PARSER-MEMBER-GATE-NESTED-SOURCE-PATH-D0` and is
 not an I0-A regression.
 
+I0-B receipt: `NyashParser::parse` and the metadata wrapper share one
+`parse_postpass_s0` finalizer. `ParserMetadata` is moved exactly once through
+`CompletedParserPostpassV1::into_ast_and_metadata()`; metadata is not rebuilt
+from AST nodes. Explain/full BuildGate decision-set parity remains an I0-C
+boundary.
+
 R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
 non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate
 boundary. The product owns the AST, a `ParserSourceSessionV1` for prepared
