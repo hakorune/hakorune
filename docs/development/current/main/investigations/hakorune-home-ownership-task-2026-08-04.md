@@ -436,6 +436,8 @@ issue `VerifiedHomeAbi`; those remain the next `OWN-HOME-ABI0-S0` boundary.
 
 Design/implementation boundary:
 [`own-home-abi0-s0-design-task-2026-08-09.md`](own-home-abi0-s0-design-task-2026-08-09.md).
+The design stop is closed; the bounded implementation task is
+[`own-home-abi0-s0-implementation-task-2026-08-09.md`](own-home-abi0-s0-implementation-task-2026-08-09.md).
 
 The design stop fixes one `CallableHomeAbiIssuerV1`, one same-resolver-brand
 capability environment, and one non-`Clone` `VerifiedHomeAbiV1` catalog. The

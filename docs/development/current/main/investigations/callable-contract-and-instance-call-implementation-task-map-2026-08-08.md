@@ -386,11 +386,12 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current next design stop:
+Current active execution:
 
 ```text
 OWN-HOME-ABI0-S0
-  sole Home ABI classifier/issuer co-sealed with the landed declaration;
+  implementation of the sole Home ABI classifier/issuer co-sealed with the
+  landed declaration;
   passive relation brand is batch provenance only; no partial receipts,
   physical ABI inference, target, or Recipe.
 ```

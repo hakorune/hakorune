@@ -23,11 +23,11 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, and passive Home relation vocabulary S0 are closed. The current
-design row is:
+bounded implementation row is:
 
 ```text
 OWN-HOME-ABI0-S0
@@ -40,11 +40,11 @@ the handoff is consumed once into an AST-free resolver ingress, and the closed
 declaration/signature I0 issues one fresh resolver nominal/type catalog with
 semantic `I64`/`Unit` classes. Relation0 is closed as a passive vocabulary
 slice, and its relation brand is batch provenance only—not the resolver
-catalog brand or nominal type identity. The current design stop fixes the sole
-Home ABI issuer, same-brand/site co-seal, and explicit I64/Unit classifier
-before any implementation. Typed Query behavior, resolver targets,
-source-bound CallSlot relations, ScanWithInit, physical lowering, production
-selection, and legacy retirement remain closed.
+catalog brand or nominal type identity. The closed design fixes the sole Home
+ABI issuer, same-brand/site co-seal, and explicit I64/Unit classifier. The
+active implementation may issue only that non-`Clone` catalog. Typed Query
+behavior, resolver targets, source-bound CallSlot relations, ScanWithInit,
+physical lowering, production selection, and legacy retirement remain closed.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No

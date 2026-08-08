@@ -1,5 +1,5 @@
 ---
-Status: active — design stop; implementation unopened
+Status: closed — accepted design; implementation opened in the bounded child task
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-abi-d0-design-task-2026-08-09.md`
 Authority: `docs/development/current/main/design/ownership-home-model-ssot.md`
