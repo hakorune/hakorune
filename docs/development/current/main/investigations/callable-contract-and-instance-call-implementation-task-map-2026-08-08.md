@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2 closed, R6-S3 final parser seal next
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A closed, R6-S3B design stop
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -136,6 +136,16 @@ R6-S3-PARSER-SOURCE-SEAL-D0
   build-gate prune/rebase + delegate postpass transport
   AST-only projection/discard path
 
+R6-S3A-PARSER-RICH-PRODUCT-I0
+  bounded direct top-level ordinary Rust Box path
+  finalizer after existing prune/delegate AST postpass
+  exact prepared-inventory prefix + generated delegate suffix validation
+  no partial seal for top-level gate/interface/static/record cohorts
+
+R6-S3B-PARSER-SOURCE-AWARE-POSTPASS-D0/I0
+  AST-only projection through the rich path
+  typed top-level gate rebase and source-aware delegate transport
+
 R6-S3-SOURCE-SITE-PLACEMENT-I0
   SourceBoxMethodSiteV1 separate from selected/generated inventory ordinal
   remove parser sidecar/member-ordinal reconstruction
@@ -162,8 +172,9 @@ CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   no ExactTrivial*Abi/MirType reverse inference
 ```
 
-The first two rows are R6-S3/nonclaims while the current active row is R6-S2;
-the latter five remain resolver/callable rows. Do not create a parallel
+The parser rows are R6-S3 design/implementation boundaries; R6-S3A is closed
+as the bounded rich-product slice and R6-S3B is the current design stop. The
+latter five remain resolver/callable rows. Do not create a parallel
 implementation lane for them.
 
 `NoSafeSlice` means a required issuer is not implemented. It is not a source
@@ -215,19 +226,20 @@ Rejected > Unresolved > Declined > Candidate
      sources remain below 800 lines;
    - no parser connection, build-gate, delegate postpass, scanner, resolver,
      semantic publication, or compatibility projection.
-7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0/S1/S2A/S2` — R6-D0 accepted;
-   S0, S1, S2a, and S2 closed; S3 next
+7. `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0/S0/S1/S2A/S2/S3A` — R6-D0
+   accepted; S0, S1, S2a, and S2 closed; S3A is the current bounded slice
    - give explicit methods an exact branded source site independent of the
      all-row inventory ordinal;
    - generated property/delegate rows retain generated origin only and never
      receive an explicit method source site;
    - define one parser invocation/source-authority session owning the fresh
      brand, source sites, unpublished inventory, and prepared seal payload;
-   - carry that payload through build-gate prune/rebase and delegate
-     postpass, then issue one non-Clone parser source seal only for the final
-     AST/inventory product;
-   - make AST-only parser APIs project the same rich parse path and discard
-     the seal; no second scanner/rescan and no `ParserMetadata` authority;
+   - carry that payload through the bounded finalizer after the existing
+     prune/delegate AST postpass, then issue one non-Clone parser source seal
+     only for the final ordinary-Box AST/inventory product;
+   - later S3B will make AST-only parser APIs project the same rich parse path
+     and discard the seal; no second scanner/rescan and no `ParserMetadata`
+     authority;
    - only after the above contract is accepted, atomically publish the
      inventory plus seal and delete `method_source_member_ordinals`,
      length-delta reconstruction, the parallel gate-merge slice, and raw
@@ -239,8 +251,9 @@ Rejected > Unresolved > Declined > Candidate
      seal type with no constructor; S2a closed with parser-session ingress:
      one invocation brand and exact top-level statement cursor. S2 now owns
      the ordinary direct/property/member-gate producer cutover and method
-     sidecar retirement; delegate ordinal retirement remains an explicit S3
-     nonclaim because the delegate postpass is still AST-only.
+     sidecar retirement; S3A now validates the AST-only delegate suffix after
+     the postpass, while source-aware delegate relation transport remains an
+     explicit S3B nonclaim.
 
    R6-S2 was a behavior-neutral Refactor Series with three bounded cells; all
    three are now landed:
@@ -307,12 +320,12 @@ Rejected > Unresolved > Declined > Candidate
    generated origin and placement receipts only; explicit source sites are
    independent of all-row placement.
 
-   These are explicit R6-S3 or later nonclaims: delegate AST-only postpass and
-   raw `DelegateDecl` ordinal retirement, rich parse output and final seal
-   issuance, typed `CallableContractSyntaxV1` parser acceptance, resolver
-   declaration/target issuance, Recipe/Builder/MIR/provider/runtime
-   connection. The final parser seal is issued only by the final rich parse
-   product after build-gate prune/rebase and delegate lowering. If current
+   These are explicit R6-S3B or later nonclaims: AST-only projection cutover,
+   top-level build-gate rebase, source-aware delegate relation transport, raw
+   `DelegateDecl` ordinal retirement, typed `CallableContractSyntaxV1` parser
+   acceptance, resolver declaration/target issuance, Recipe/Builder/MIR/
+   provider/runtime connection. S3A's final parser seal is issued only by its
+   bounded rich product after the existing prune/delegate postpass. If current
    parser inputs cannot issue a required relation, stop at `NoSafeSlice`; do
    not infer source identity from names, ordinals, JSON, or sidecar deltas.
 
@@ -409,7 +422,7 @@ Rejected > Unresolved > Declined > Candidate
 | --- | --- | --- |
 | AST compatibility method map | R1-R4 | R5 caller zero and JSON v2 parity |
 | name-sorted compatibility iteration | legacy JSON/Builder consumers | those named consumers migrate |
-| parallel `method_source_member_ordinals` sidecar | R6-S2 ordinary transaction cutover | deleted from the ordinary parser; final rich source seal remains R6-S3 |
+| parallel `method_source_member_ordinals` sidecar | R6-S2 ordinary transaction cutover | deleted from the ordinary parser; bounded final rich source seal is R6-S3A |
 | inventory `selected_method_ordinal` as source identity | R6 | retain only as selected inventory placement |
 | Builder same-module name/arity catalog | current production compatibility | resolver target is selected and its caller cut over |
 | `source_instance_result_contract` body-inferred target/result family | current caller-zero tests | `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`, before new target I0 |

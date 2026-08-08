@@ -1,5 +1,5 @@
 ---
-Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2 closed — R6-S3 final parser seal is next
+Status: R6-D0/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A closed — R6-S3B design stop
 Date: 2026-08-08
 Decision: one AST-owned ordered inventory; selected-gate source remains explicit source
 Parent: `language-typed-callable-profile-d0-design-task-2026-08-08.md`
@@ -359,14 +359,15 @@ AST &[u32] selected-gate merge      deleted
 
 Interface/static compatibility lanes may still use the explicit compatibility
 sink because they are outside the bounded ordinary-`box` R6-S2 source-seal
-claim. Delegate AST-only postpass, final rich parse output, and final
-non-Clone seal issuance remain R6-S3 nonclaims. The nested selected-else
+claim. R6-S3A now opens only the bounded rich ordinary-Box output and final
+non-Clone seal; source-aware delegate transport and top-level gate rebase
+remain later nonclaims. The nested selected-else
 fixture in the historical R2 parser pack remains a pre-existing red baseline;
 it is not used as evidence for this behavior-neutral transaction cutover.
 
-The current source transaction does not issue `ParserBoxSourceSealV1` and does
-not authorize resolver semantics. It only removes the parallel mutable owner
-before the final rich parse-product row.
+The current source transaction still does not authorize resolver semantics.
+R6-S3A consumes its prepared payload only once, after the existing prune and
+delegate postpass, to issue the bounded final rich parse product.
 
 ## Compatibility retirement
 
@@ -485,8 +486,10 @@ R6-S2a parser-session ingress: one invocation brand and exact top-level
        statement cursor; no producer or sidecar cutover yet
 R6-S2  ordinary Box direct/property/gate/delegate producer cutover;
        delete sidecar/raw ordinal/parallel merge APIs
-R6-S3  canonical rich parse output across prune + delegate postpass;
-       AST-only projections, final seal, focused end-to-end guard
+  R6-S3A bounded canonical rich parse output across prune + delegate
+       postpass for ordinary Rust Box; final seal and focused guard
+  R6-S3B AST-only projection cutover, top-level build-gate rebase, and
+       source-aware delegate transport
 ```
 
 Each slice is behavior-preserving and updates focused tests, the owner README,
@@ -521,8 +524,9 @@ prune and delegate postpass.
 R6-S1 deliberately does not connect AST parse output, build-gate pruning,
 delegate lowering, resolver, JSON, or sidecar retirement. The focused
 `frontend_parsed_box_source_seal_r6_s1_guard.sh` proves the type vocabulary,
-transaction ownership, no early final-seal constructor, parser
-non-connection, and the below-800-line boundary.
+transaction ownership, no early final-seal constructor, and the
+below-800-line boundary. Later R6 rows may consume this substrate; this guard
+does not assert historical disconnection after those rows land.
 
 ### R6-S2a implementation receipt
 
@@ -537,6 +541,87 @@ build-gated branch is treated as an ordinary Box source site, no sidecar is
 retired, and no rich parse product, final seal, delegate postpass, or resolver
 connection is introduced. The `frontend_parsed_box_source_seal_r6_s2a_guard.sh`
 owns this boundary.
+
+### R6-S3A bounded rich parse product (implementation slice)
+
+R6-S3A opens only the smallest final-output slice needed to prove that the
+parser-owned payload survives the existing Rust parse postpasses. The canonical
+entry is:
+
+```text
+parse_from_string_with_source_seal
+  -> one parser invocation/source transaction
+  -> AST parse
+  -> build-gate prune (ordinary direct Box cohort only)
+  -> existing delegate AST postpass
+  -> source_seal::finalize_program
+  -> ParsedProgramWithSourceV1 (non-Clone)
+```
+
+The finalizer is the sole issuer of `ParserBoxSourceSealV1`. It compares the
+prepared ordered inventory with the final AST inventory, requires the prepared
+rows to remain an exact prefix, and accepts only delegate-generated suffix rows
+as generated provenance. The final product exposes the AST as a compatibility
+projection and keeps the parser seal private/non-Clone; no resolver or semantic
+callable product is issued here.
+
+R6-S3A is intentionally bounded to direct top-level ordinary Rust `box`
+declarations. It rejects top-level build-gate nodes and interface/static/record
+Box declarations instead of issuing a partial seal. The existing delegate
+lowerer remains an AST-only postpass in this slice; generated delegate rows are
+validated as generated placement, while source-aware delegate relation transport
+remains a later R6-S3B/H3 seam. This is not a second source authority and does
+not authorize a rescan, name lookup, ordinal reconstruction, or AST rewrite.
+
+Acceptance for this slice is the focused rich-product test/guard plus the
+existing parser-session and AST inventory gates. The implementation and its
+reference receipt must land together. R6-S3B is the next design stop for
+AST-only API projection and top-level build-gate/source-aware delegate
+transport; no resolver `CallableContract`, target, Recipe, Builder, MIR,
+provider, or runtime work opens from R6-S3A.
+
+### R6-S3B design stop (no implementation)
+
+The next question is deliberately closed at design, not code:
+
+```text
+Which single typed product crosses the postpass boundary so that
+AST-only callers project from the rich parse result, while build-gate
+selection and delegate lowering cannot forge or lose source identity?
+```
+
+Before implementation, the owner table and negative matrix must fix all three
+seams:
+
+```text
+AST-only API:
+  call the rich canonical path once and discard the non-Clone seal;
+  no second scan and no `ParserMetadata` authority.
+
+Top-level build gate:
+  either carry the transaction through prune with an exact typed rebase,
+  or reject the rich product; never invent post-prune ordinals.
+
+Delegate postpass:
+  either consume/return the branded unpublished transaction, or remain an
+  explicitly descriptive generated-suffix adapter outside source relations;
+  it must not mutate a detached resolver-grade inventory.
+```
+
+Required S3B decision receipts are:
+
+1. one postpass handoff type and one issuer/consumer owner;
+2. exact mapping for source member sites, selected-gate paths, generated
+   origins, and inventory placement;
+3. `NoSafeSlice`/`Rejected` diagnostics for unsupported gate or delegate
+   cohorts;
+4. projection parity tests proving AST-only and rich paths parse once;
+5. a guard and reference update in the same implementation slice later.
+
+Until those receipts are accepted, do not add top-level gate rebase,
+source-aware delegate transport, interface/static/record seals, Hako parser
+parity, resolver declaration, `CallableContract`, target, Recipe, Builder,
+MIR, provider, or runtime code.
 
 ## Ordered implementation series
 
@@ -556,8 +641,8 @@ Rust BoxShape series:
       after prune and delegate postpass
   R6-S0 closed: inventory ordinal vocabulary clarified; JSON wire spelling
       preserved
-  R6-S1/S2a/S2/S3 parser-private transaction, parser-session ingress,
-      producer cutover, final rich parse output, and sidecar retirement
+  R6-S1/S2a/S2/S3A parser-private transaction, parser-session ingress,
+  producer cutover, bounded final rich parse output, and sidecar retirement
 
 Hako prerequisite and parity:
   H0 HAKO-PARSER-BOX-DECLARATION-CARRIER-D0
@@ -576,13 +661,13 @@ Then:
 
 Historical execution note: R0/R0A and R1-R5 are closed. H1's disconnected
 carrier substrate, R6-S0 vocabulary slice, R6-S1 parser-private source
-authority substrate, and R6-S2a parser-session ingress are closed. The current
-frontier is R6-S2: ordinary direct/property/member-gate producer cutover and
-method-sidecar retirement. Delegate AST-only postpass transport and raw
-DelegateDecl ordinal retirement remain explicit R6-S3 boundaries. R6
-must close its canonical rich parse-output and delegate-postpass boundary
-before H2-H6, H5 parity, or any resolver declaration row. No caller-zero model
-may become a second AST or production route.
+authority substrate, R6-S2a parser-session ingress, and R6-S2 ordinary
+transaction cutover are closed. The current frontier is R6-S3A: bounded rich
+ordinary-Box parse output and final non-Clone seal after existing postpasses.
+Source-aware delegate relation transport, top-level build-gate rebase, raw
+DelegateDecl ordinal retirement, AST-only projection cutover, H2-H6, H5
+parity, and all resolver declaration rows remain later design stops. No
+caller-zero model may become a second AST or production route.
 
 ## Verification contract
 

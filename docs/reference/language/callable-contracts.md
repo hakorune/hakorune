@@ -242,6 +242,14 @@ ordered Box-method inventory + parser-owned source seal
 Every implementation slice updates this reference and its owning module README
 in the same commit.
 
+Current frontend receipt (2026-08-08): R6-S3A provides a bounded
+`parse_from_string_with_source_seal` product for direct top-level ordinary Rust
+`box` declarations. It issues the non-Clone parser seal only after the existing
+build-gate/delegate postpass boundary, validates the prepared inventory prefix,
+and accepts generated delegate suffix provenance. This does not open typed
+`CallableContract` parser carriage, resolver publication, source-aware
+delegate transport, top-level gate rebase, or body conformance.
+
 ## Related references
 
 - [Rune declaration metadata](runes.md)

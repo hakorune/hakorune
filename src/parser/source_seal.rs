@@ -1,0 +1,300 @@
+//! Final parser source product for the bounded R6-S3 slice.
+//!
+//! This module owns the post-prune/post-delegate boundary.  The ordinary
+//! parser transaction issues only a prepared payload; this module is the only
+//! place that can compare that payload with the final AST inventory and issue
+//! the non-Clone source seal.
+
+use crate::ast::{
+    ASTNode, BoxMethodGeneratedProvenanceV1, BoxMethodInventoryErrorV1, BoxMethodInventoryV1,
+    BoxMethodProvenanceV1, PreparedBoxMethodInventoryAppendV1,
+};
+
+use super::source_authority::{
+    MethodSourceRelationV1, ParserInvocationBrandV1, SourceBoxDeclarationSiteV1,
+};
+
+#[derive(Debug, Clone, PartialEq)]
+pub(super) enum SourceSealFinalizationErrorV1 {
+    TopLevelBuildGateUnsupported,
+    UnsupportedTopLevelBoxKind { ordinal: usize },
+    OrdinaryBoxCountMismatch { prepared: usize, final_ast: usize },
+    FinalInventoryShorter { prepared: usize, final_ast: usize },
+    InventoryPrefixMismatch { ordinal: usize },
+    UnexpectedGeneratedRow { ordinal: usize },
+    Inventory(BoxMethodInventoryErrorV1),
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedBoxSourceSealV1 {
+    pub(super) brand: ParserInvocationBrandV1,
+    pub(super) box_site: SourceBoxDeclarationSiteV1,
+    pub(super) inventory: BoxMethodInventoryV1,
+    pub(super) method_relations: Box<[MethodSourceRelationV1]>,
+}
+
+impl PreparedBoxSourceSealV1 {
+    pub(super) fn inventory(&self) -> &BoxMethodInventoryV1 {
+        &self.inventory
+    }
+
+    pub(super) fn method_relations(&self) -> &[MethodSourceRelationV1] {
+        &self.method_relations
+    }
+
+    pub(super) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
+        &self.box_site
+    }
+
+    /// Consume the prepared payload only after the postpass has produced the
+    /// final inventory. Delegate rows may be appended, but the original
+    /// ordered rows must remain byte-for-byte equivalent at the AST level.
+    pub(super) fn finalize_against(
+        self,
+        final_inventory: &BoxMethodInventoryV1,
+    ) -> Result<ParserBoxSourceSealV1, SourceSealFinalizationErrorV1> {
+        let prepared_entries = self.inventory.clone().into_selected_declaration_order();
+        let final_entries = final_inventory.clone().into_selected_declaration_order();
+        if final_entries.len() < prepared_entries.len() {
+            return Err(SourceSealFinalizationErrorV1::FinalInventoryShorter {
+                prepared: prepared_entries.len(),
+                final_ast: final_entries.len(),
+            });
+        }
+
+        for (ordinal, (prepared, final_entry)) in prepared_entries
+            .iter()
+            .zip(final_entries.iter())
+            .enumerate()
+        {
+            if prepared != final_entry {
+                return Err(SourceSealFinalizationErrorV1::InventoryPrefixMismatch { ordinal });
+            }
+        }
+
+        for (ordinal, entry) in final_entries
+            .iter()
+            .enumerate()
+            .skip(prepared_entries.len())
+        {
+            if !matches!(
+                entry.provenance(),
+                BoxMethodProvenanceV1::Generated(BoxMethodGeneratedProvenanceV1::Delegate { .. })
+            ) {
+                return Err(SourceSealFinalizationErrorV1::UnexpectedGeneratedRow { ordinal });
+            }
+        }
+
+        let mut inventory = BoxMethodInventoryV1::empty();
+        inventory
+            .commit_prepared_append(
+                PreparedBoxMethodInventoryAppendV1::try_new(final_entries)
+                    .map_err(SourceSealFinalizationErrorV1::Inventory)?,
+            )
+            .map_err(SourceSealFinalizationErrorV1::Inventory)?;
+
+        Ok(ParserBoxSourceSealV1 {
+            prepared: PreparedBoxSourceSealV1 {
+                brand: self.brand,
+                box_site: self.box_site,
+                inventory,
+                method_relations: self.method_relations,
+            },
+        })
+    }
+}
+
+/// Final authority. It is intentionally non-Clone and has no public
+/// constructor. Only `finalize_program` can issue it.
+#[derive(Debug)]
+pub(super) struct ParserBoxSourceSealV1 {
+    prepared: PreparedBoxSourceSealV1,
+}
+
+impl ParserBoxSourceSealV1 {
+    pub(super) fn inventory(&self) -> &BoxMethodInventoryV1 {
+        &self.prepared.inventory
+    }
+
+    pub(super) fn method_relations(&self) -> &[MethodSourceRelationV1] {
+        &self.prepared.method_relations
+    }
+
+    pub(super) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
+        &self.prepared.box_site
+    }
+}
+
+#[derive(Debug)]
+pub(super) struct ParsedProgramWithSourceV1 {
+    ast: ASTNode,
+    source_seals: Box<[ParserBoxSourceSealV1]>,
+}
+
+impl ParsedProgramWithSourceV1 {
+    pub(super) fn ast(&self) -> &ASTNode {
+        &self.ast
+    }
+
+    pub(super) fn into_ast(self) -> ASTNode {
+        self.ast
+    }
+
+    pub(super) fn source_seals(&self) -> &[ParserBoxSourceSealV1] {
+        &self.source_seals
+    }
+}
+
+/// Finalize only the bounded R6-S3 cohort: direct top-level ordinary Rust
+/// `box` declarations, after build-gate pruning and delegate lowering.
+pub(super) fn finalize_program(
+    ast: ASTNode,
+    prepared: Vec<PreparedBoxSourceSealV1>,
+) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
+    let ASTNode::Program { ref statements, .. } = ast else {
+        return Err(SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
+            prepared: prepared.len(),
+            final_ast: 0,
+        });
+    };
+
+    if statements
+        .iter()
+        .any(|statement| matches!(statement, ASTNode::BuildGate { .. }))
+    {
+        return Err(SourceSealFinalizationErrorV1::TopLevelBuildGateUnsupported);
+    }
+    let mut final_inventories = Vec::new();
+    for (ordinal, statement) in statements.iter().enumerate() {
+        match statement {
+            ASTNode::BoxDeclaration {
+                methods,
+                is_interface: false,
+                is_record: false,
+                is_static: false,
+                ..
+            } => final_inventories.push(methods),
+            ASTNode::BoxDeclaration { .. } => {
+                return Err(SourceSealFinalizationErrorV1::UnsupportedTopLevelBoxKind { ordinal });
+            }
+            _ => {}
+        }
+    }
+    if final_inventories.len() != prepared.len() {
+        return Err(SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
+            prepared: prepared.len(),
+            final_ast: final_inventories.len(),
+        });
+    }
+
+    let source_seals = prepared
+        .into_iter()
+        .zip(final_inventories)
+        .map(|(prepared, final_inventory)| prepared.finalize_against(final_inventory))
+        .collect::<Result<Vec<_>, _>>()?
+        .into_boxed_slice();
+
+    Ok(ParsedProgramWithSourceV1 { ast, source_seals })
+}
+
+pub(super) fn map_error(error: SourceSealFinalizationErrorV1) -> crate::parser::ParseError {
+    let message = match error {
+        SourceSealFinalizationErrorV1::TopLevelBuildGateUnsupported => {
+            "R6-S3A source seal requires top-level build-gate selection to be closed first"
+                .to_owned()
+        }
+        SourceSealFinalizationErrorV1::UnsupportedTopLevelBoxKind { ordinal } => {
+            format!(
+                "R6-S3A source seal supports ordinary top-level Box only at statement ordinal {ordinal}"
+            )
+        }
+        SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
+            prepared,
+            final_ast,
+        } => {
+            format!(
+                "R6-S3A ordinary Box seal count mismatch: prepared={prepared}, final={final_ast}"
+            )
+        }
+        SourceSealFinalizationErrorV1::FinalInventoryShorter {
+            prepared,
+            final_ast,
+        } => {
+            format!("R6-S3A final Box inventory is shorter: prepared={prepared}, final={final_ast}")
+        }
+        SourceSealFinalizationErrorV1::InventoryPrefixMismatch { ordinal } => {
+            format!("R6-S3A final Box inventory prefix mismatch at ordinal {ordinal}")
+        }
+        SourceSealFinalizationErrorV1::UnexpectedGeneratedRow { ordinal } => {
+            format!("R6-S3A unexpected non-delegate generated row at ordinal {ordinal}")
+        }
+        SourceSealFinalizationErrorV1::Inventory(error) => {
+            format!("R6-S3A final Box inventory is invalid: {error}")
+        }
+    };
+    crate::parser::ParseError::BuildCfg { message, line: 0 }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::parser::{NyashParser, ParserBuildConfig};
+
+    #[test]
+    fn r6_s3_finalizes_ordinary_box_after_final_parse_postpass() {
+        let parsed = NyashParser::parse_from_string_with_source_seal(
+            r#"
+box Plain {
+    run() { return 1 }
+}
+"#,
+            ParserBuildConfig::default(),
+        )
+        .expect("ordinary Box should issue the final source seal");
+
+        assert_eq!(parsed.source_seals().len(), 1);
+        let seal = &parsed.source_seals()[0];
+        assert_eq!(seal.inventory().len(), 1);
+        assert_eq!(seal.inventory().get("run").unwrap().name(), "run");
+        assert_eq!(seal.method_relations().len(), 1);
+        assert!(matches!(parsed.ast(), ASTNode::Program { .. }));
+    }
+
+    #[test]
+    fn r6_s3_accepts_delegate_generated_suffix_as_generated_provenance() {
+        let parsed = NyashParser::parse_from_string_with_source_seal(
+            r#"
+box Target { run() { return 1 } }
+box Host {
+    target: Target
+    delegate target exposes { run as runAlias }
+}
+"#,
+            ParserBuildConfig::default(),
+        )
+        .expect("delegate postpass should be included before the final seal");
+
+        assert_eq!(parsed.source_seals().len(), 2);
+        let host = &parsed.source_seals()[1];
+        let generated = host
+            .inventory()
+            .get("runAlias")
+            .expect("delegate generated method must be in the final inventory");
+        assert!(matches!(
+            generated.provenance(),
+            BoxMethodProvenanceV1::Generated(BoxMethodGeneratedProvenanceV1::Delegate { .. })
+        ));
+    }
+
+    #[test]
+    fn r6_s3_does_not_issue_a_partial_seal_for_unsupported_top_level_box() {
+        let error = NyashParser::parse_from_string_with_source_seal(
+            r#"
+static box StaticOnly { run() { return 1 } }
+"#,
+            ParserBuildConfig::default(),
+        )
+        .expect_err("static Box must remain outside the bounded rich product");
+        assert!(error.to_string().contains("ordinary top-level Box only"));
+    }
+}

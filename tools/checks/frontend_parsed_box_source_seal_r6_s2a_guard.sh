@@ -42,26 +42,11 @@ for path in (parser_mod_path, session_tests_path):
     if len(path.read_text(encoding="utf-8").splitlines()) >= 800:
         raise SystemExit(f"source must remain below 800 lines: {path}")
 
-# S2a only establishes parser-session inputs. It must not open a transaction
-# from the Box producer or connect the rich parse product/resolver yet.
-parser_root = root / "src/parser"
-for path in parser_root.rglob("*.rs"):
-    if path in (parser_mod_path, session_tests_path, parser_root / "source_authority.rs"):
-        continue
-    text = path.read_text(encoding="utf-8")
-    for needle in (
-        "OpenBoxMethodSourceTransactionV1",
-        "ParserBoxSourceSealV1",
-        "source_invocation_brand()",
-    ):
-        if needle in text:
-            raise SystemExit(f"R6-S2a producer connection is premature: {path}: {needle}")
-
 print("parser_invocation_brand_owner=1")
 print("top_level_statement_cursor=1")
 print("session_test_coverage=1")
-print("producer_transaction_connection=0")
-print("rich_parse_output_connection=0")
+print("producer_transaction_connection=historical-later-rows-allowed")
+print("rich_parse_output_connection=historical-later-rows-allowed")
 print("resolver_connection=0")
 print("source_files_below_800=1")
 print("summary=ok")

@@ -102,6 +102,12 @@ fn parse_box_declaration_after_box_keyword(
         sync_box::validate_no_waits_in_sync_box(p, &name, &methods, &state.constructors)?;
     }
 
+    // The transaction is consumed only after all declaration-local validation
+    // succeeds. R6-S3 finalizes this prepared payload after prune/delegate
+    // postpasses; the AST inventory remains a descriptive carrier.
+    let prepared_source_seal = state.source_tx.finish();
+    p.register_prepared_source_seal(prepared_source_seal);
+
     let node = ASTNode::BoxDeclaration {
         name,
         fields: state.fields,

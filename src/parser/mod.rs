@@ -37,6 +37,7 @@ mod lifecycle;
 pub(crate) mod log;
 mod runes;
 mod source_authority;
+mod source_seal;
 #[cfg(test)]
 mod source_session_tests;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
@@ -139,6 +140,10 @@ pub struct NyashParser {
     pub(super) known_enums: std::collections::BTreeMap<String, Vec<EnumVariantDecl>>,
     /// Build configuration used to prune AST-level `gate` conditionals.
     pub(super) build_config: ParserBuildConfig,
+    /// Prepared Box source payloads retained until the final postpass.
+    /// `source_seal` consumes these exactly once; AST-only paths may discard
+    /// them as compatibility projections.
+    pub(super) prepared_source_seals: Vec<source_authority::PreparedBoxSourceSealV1>,
 }
 
 // ParserUtils trait implementation now lives here (legacy depth tracking removed)
@@ -160,6 +165,7 @@ impl NyashParser {
             known_enums:
                 hakorune_frontend_ast::result_option_prelude::result_option_prelude_enum_decls(),
             build_config: ParserBuildConfig::default(),
+            prepared_source_seals: Vec::new(),
         }
     }
 
@@ -174,6 +180,13 @@ impl NyashParser {
 
     pub(super) fn active_source_statement_ordinal(&self) -> Option<u32> {
         self.active_source_statement_ordinal
+    }
+
+    pub(super) fn register_prepared_source_seal(
+        &mut self,
+        prepared: source_authority::PreparedBoxSourceSealV1,
+    ) {
+        self.prepared_source_seals.push(prepared);
     }
 
     pub(super) fn register_enum_declaration(&mut self, name: &str, variants: &[EnumVariantDecl]) {
@@ -213,6 +226,41 @@ impl NyashParser {
         build_config: ParserBuildConfig,
     ) -> Result<ASTNode, ParseError> {
         Self::parse_from_string_with_fuel_and_build_config(input, Some(100_000), build_config)
+    }
+
+    /// Canonical R6-S3 source product for the bounded ordinary Rust `box`
+    /// cohort. The returned product is non-Clone and is finalized only after
+    /// build-gate pruning and delegate lowering. Existing AST-only APIs remain
+    /// compatibility projections until the later top-level-gate cutover.
+    pub(crate) fn parse_from_string_with_source_seal(
+        input: impl Into<String>,
+        build_config: ParserBuildConfig,
+    ) -> Result<source_seal::ParsedProgramWithSourceV1, ParseError> {
+        let input_s: String = input.into();
+        let pre = normalize_logical_ops(&input_s);
+        let mut tokenizer = crate::tokenizer::NyashTokenizer::with_grammar_profile(
+            pre,
+            build_config.grammar_profile,
+        );
+        let tokens = tokenizer.tokenize()?;
+        for tok in &tokens {
+            if let TokenType::IDENTIFIER(name) = &tok.token_type {
+                if name == "self" {
+                    return Err(ParseError::UnsupportedIdentifier {
+                        name: name.clone(),
+                        line: tok.line,
+                    });
+                }
+            }
+        }
+
+        let mut parser = Self::new(tokens);
+        parser.build_config = build_config;
+        let ast = parser.parse_program()?;
+        let ast = parser.prune_build_gate_program(ast)?;
+        let ast = delegate_lowering::lower_delegate_exposes(ast)?;
+        source_seal::finalize_program(ast, std::mem::take(&mut parser.prepared_source_seals))
+            .map_err(source_seal::map_error)
     }
 
     pub fn parse_from_string_with_fuel_and_build_config(

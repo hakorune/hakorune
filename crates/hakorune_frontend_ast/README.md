@@ -108,6 +108,13 @@ round-trip the inventory through `clone_compatibility_map()` or
 compatibility, and explicit name-order views remain retained where they own
 historical slot, lowering, or catalog ordering.
 
+R6-S3A keeps this crate descriptive: it does not issue or store the parser's
+non-Clone source seal. The bounded rich parser finalizer compares the final
+`BoxMethodInventoryV1` with the parser-owned prepared payload after prune and
+delegate postpass, then rebuilds the descriptive final inventory through the
+typed append API. Generated delegate suffixes remain generated provenance;
+source-site authority stays in `src/parser/source_seal.rs`.
+
 ## Boundaries
 
 - parser: may issue explicit/generated rows through typed methods;

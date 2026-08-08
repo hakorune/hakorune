@@ -1,9 +1,8 @@
 //! Parser-private source authority substrate for Box declarations.
 //!
-//! R6-S1 deliberately stops before connecting this transaction to the public
-//! AST parse output, build-gate pruning, or delegate lowering. The transaction
-//! owns the only fresh invocation brand and the unpublished ordered inventory;
-//! a later R6-S3 finalizer will issue the non-Clone seal after all postpasses.
+//! R6-S1 introduced this parser-private transaction. R6-S3A now connects its
+//! prepared payload to the bounded rich parse product; the final non-Clone
+//! seal is still issued only by `source_seal` after all supported postpasses.
 
 #![allow(dead_code)]
 
@@ -15,6 +14,8 @@ use crate::ast::{
     Span,
 };
 use crate::parser::ParseError;
+
+pub(super) use super::source_seal::PreparedBoxSourceSealV1;
 
 #[derive(Debug, Clone)]
 pub(super) struct ParserInvocationBrandV1(Arc<()>);
@@ -515,36 +516,6 @@ fn source_authority_to_parse_error(error: SourceAuthorityErrorV1) -> ParseError 
 
 fn inventory_error_to_parse_error(error: BoxMethodInventoryErrorV1) -> ParseError {
     crate::parser::declarations::box_def::members::pending_method::map_inventory_error(error)
-}
-
-#[derive(Debug)]
-pub(super) struct PreparedBoxSourceSealV1 {
-    brand: ParserInvocationBrandV1,
-    box_site: SourceBoxDeclarationSiteV1,
-    inventory: BoxMethodInventoryV1,
-    method_relations: Box<[MethodSourceRelationV1]>,
-}
-
-impl PreparedBoxSourceSealV1 {
-    pub(super) fn inventory(&self) -> &BoxMethodInventoryV1 {
-        &self.inventory
-    }
-
-    pub(super) fn method_relations(&self) -> &[MethodSourceRelationV1] {
-        &self.method_relations
-    }
-
-    pub(super) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
-        &self.box_site
-    }
-}
-
-/// Final authority. It intentionally has no public constructor and no Clone.
-/// R6-S3 will issue it only from the final rich parse product after prune and
-/// delegate postpass have completed.
-#[derive(Debug)]
-pub(super) struct ParserBoxSourceSealV1 {
-    prepared: PreparedBoxSourceSealV1,
 }
 
 #[cfg(test)]
