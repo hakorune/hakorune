@@ -72,6 +72,15 @@ rejection before root effects. This edge does not promote name order to source
 order or open resolver authority; the remaining legacy projections stay
 explicitly parked until their own caller-zero receipts exist.
 
+### Ordered Box-method compatibility closeout (R5-S3)
+
+The production Builder census is now caller-zero for inventory-to-map
+roundtrips. Remaining `sorted_method_entries` users are explicit compatibility
+views for stable method-slot, lowering, scalar-fact, and callable-catalog
+ordering; they are not source-order reconstruction and remain outside this
+transport cleanup. Runtime `CoreBoxDecl` projection, legacy JSON, and test
+fixture maps remain separately classified.
+
 ## Reading Order
 
 1. `src/mir/README.md`

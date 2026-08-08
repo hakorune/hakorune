@@ -1,5 +1,5 @@
 ---
-Status: accepted task map; execution is frontend inventory R3
+Status: accepted task map; execution is Hako ordered Box declaration carrier D0
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -79,17 +79,16 @@ Rejected > Unresolved > Declined > Candidate
    - ordered JSON v2;
    - legacy JSON v1 imports only `CompatibilityOnly`;
    - strict recursive mode rejects malformed nested v2 without fallback.
-5. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R5` — active
+5. `FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R5` — closed
    - R5-S1 closed: deferred non-Main static-Box Program edge now consumes the
      ordered inventory directly and retains only an explicit compatibility
      name-order projection;
    - R5-S2 closed: connected static-`Main` compatibility child ports now carry
      the ordered inventory directly; the compatibility leaf retains only its
      explicit historical name-order projection and nested-`Main` rejection;
-   - migrate remaining Builder compatibility projections;
-   - delete old AST-map helpers when callers reach zero;
-   - update the owning reference/README and active card in the same
-     implementation commit.
+   - R5-S3 closed: production Builder map caller-zero was proven; retained
+     name-order owners are explicit compatibility views, while runtime and
+     legacy JSON projections remain outside R5.
 
 ### B. Hako parser parity
 

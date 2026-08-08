@@ -41,6 +41,11 @@ name-order projection inside the compatibility leaf; it does not establish
 source-order authority, resolver target authority, or a callable-contract
 issuer.
 
+The frontend ordered-inventory migration is now closed through R5-S3: the
+production Builder no longer round-trips the inventory through compatibility
+maps. This does not open the Hako parser carrier, resolver declaration issuer,
+or callable-contract semantic issuance; those remain separate design rows.
+
 ## `query` meaning
 
 `query` is a stable whole-call behavioral contract:

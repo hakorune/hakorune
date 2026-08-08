@@ -1,6 +1,6 @@
 ---
-Status: active — R5-S2 landed; the next Builder compatibility caller remains
-open
+Status: closed — R5-S3 closeout landed; no production Builder map caller
+remains
 Date: 2026-08-08
 Parent: `callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`
 Reference: `docs/reference/language/callable-contracts.md`
@@ -207,6 +207,50 @@ invocation_main_box_is_rejected_before_root_effects
 The parsed `zeta`, `alpha`, `main` fixture must continue to execute helpers as
 `alpha`, `zeta`, `main`, while nested `Main` remains rejected before any root
 effect.
+
+## R5-S3 closeout receipt — BUILDER-PRODUCTION-MAP-CALLER-ZERO
+
+The post-S2 census found no remaining production Builder caller that converts
+`BoxMethodInventoryV1` through `clone_compatibility_map()` or
+`into_compatibility_map()`:
+
+```text
+rg -n 'clone_compatibility_map|into_compatibility_map' \
+  src/mir/builder --glob '!**/*tests.rs'
+=> no matches
+```
+
+The remaining Builder `from_legacy_ast_map` occurrences are test fixture
+construction only. The following explicit name-order owners remain by design:
+
+```text
+src/mir/builder/declaration_order.rs
+src/mir/builder/main_expansion.rs
+src/mir/builder/instance_box_declaration_metadata.rs
+src/mir/builder/instance_box_method_batch.rs
+src/mir/builder/program_declaration_facts.rs
+src/mir/builder/callable_declaration_catalog/catalog.rs
+```
+
+These views preserve historical helper order, method-slot order, lowering
+order, bounded scalar-fact order, and stable callable-catalog key order. They
+do not reconstruct source order from a map and are not removed in R5.
+
+Explicitly out of scope for this closeout:
+
+```text
+runtime CoreBoxDecl.methods projection
+legacy JSON v1 decoders
+test fixture map cleanup
+resolver/Hako parser authority
+provider/runtime route changes
+name-order to source-order promotion
+global compatibility-helper deletion
+```
+
+R5 is therefore closed without a third production migration. The next design
+boundary is the parked Hako ordered Box declaration carrier D0; no Hako parser
+implementation or semantic issuer is opened by this closeout.
 
 ## Acceptance
 

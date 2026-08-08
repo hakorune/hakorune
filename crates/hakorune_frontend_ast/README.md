@@ -76,6 +76,12 @@ The compatibility leaf still calls `declaration_order::sorted_method_entries`
 for the historical helper-before-main execution order; this remains a named
 compatibility projection, not source-order authority.
 
+R5-S3 closes the Builder migration: production Builder callers no longer
+round-trip the inventory through `clone_compatibility_map()` or
+`into_compatibility_map()`. Remaining map constructors are test/transport
+compatibility, and explicit name-order views remain retained where they own
+historical slot, lowering, or catalog ordering.
+
 ## Boundaries
 
 - parser: may issue explicit/generated rows through typed methods;
