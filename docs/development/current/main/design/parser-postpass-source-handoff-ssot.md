@@ -1,5 +1,5 @@
 ---
-Status: accepted design with R6-S3B-B2 design revision; R6-S3B-A and R6-S3B-B1 closed; B2 implementation not opened; B3 not opened
+Status: accepted design; R6-S3B-A and R6-S3B-B1 closed; R6-S3B-B2 implementation active; B3 not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -336,10 +336,10 @@ from the final AST or inventory order.
 This receipt does not open `BuildGateSelectionReceiptV1`, source-session
 prune/rebase, delegate relation transport, or final top-level gate sealing.
 
-## R6-S3B-B2 design receipt
+## R6-S3B-B2 implementation boundary
 
-B1 is closed. The B2 design is revised after an independent authority audit;
-implementation is not opened yet. B2 will implement only the
+B1 is closed and the B2 design is accepted after an independent authority
+audit. B2 implements only the
 parser-issued gate ledger, one typed selection receipt per gate, and the
 consume-return atomic prune/rebase transaction. The AST remains free of gate
 IDs. The parser owns the gate source records and transports them inside
