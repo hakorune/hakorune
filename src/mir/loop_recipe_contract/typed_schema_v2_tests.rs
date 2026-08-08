@@ -112,6 +112,18 @@ fn v2_rejects_text_eq_with_non_text_operand() {
 }
 
 #[test]
+fn v2_rejects_text_eq_with_non_bool_result() {
+    let mut artifact = minimal_typed_recipe();
+    artifact.recipe.values[3].class = LoopValueClassV2::Text;
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::TextEqResultClassMismatch {
+            item: LoopItemKeyV1::new(1),
+        })
+    );
+}
+
+#[test]
 fn v2_rejects_unknown_wire_fields() {
     let artifact = minimal_typed_recipe();
     let mut value: serde_json::Value =
@@ -125,15 +137,15 @@ fn v2_rejects_unknown_wire_fields() {
 fn v2_rejects_duplicate_result_definition() {
     let mut artifact = minimal_typed_recipe();
     if let LoopRecipeItemV2::Operation {
-        operation: LoopOperationV2::TextEq { result, .. },
-    } = &mut artifact.recipe.items[1].item
+        operation: LoopOperationV2::CallSlot { result, .. },
+    } = &mut artifact.recipe.items[0].item
     {
-        *result = LoopValueKeyV1::new(2);
+        *result = Some(LoopValueKeyV1::new(3));
     }
     assert_eq!(
         LoopRecipeVerifierV2::verify_artifact(artifact),
         Err(LoopRecipeV2RejectReason::DuplicateValueDefinition {
-            key: LoopValueKeyV1::new(2),
+            key: LoopValueKeyV1::new(3),
         })
     );
 }

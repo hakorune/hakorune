@@ -505,7 +505,9 @@ call relation are later rows.
 
 The first V2 verifier checks schema version, canonical logical keys, referenced
 values, duplicate definitions, numeric domains, and `TextEq(Text, Text) ->
-Bool`. It performs no source lookup, Builder/MIR/CFG/PHI lowering, Tail/
+Bool`. Its focused closeout keeps duplicate-definition and wrong-result-class
+fixtures independent, so the verifier contract remains unchanged. It performs
+no source lookup, Builder/MIR/CFG/PHI lowering, Tail/
 Completion handling, scan observation, selector, fallback, or production
 activation. `Text` is a logical class only; representation and ownership stay
 in the source-bound contract. V1 remains a separate accepted wire and is not

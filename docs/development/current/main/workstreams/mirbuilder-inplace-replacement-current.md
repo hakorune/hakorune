@@ -506,8 +506,8 @@ Change:
   S6A and S6B are closed. The S6C typed call/value architecture is accepted,
   but the current numeric LoopRecipe cannot represent the smallest scan
   exactly. The behavior-neutral demand/verifier split is closed. The current
-  bounded V2 implementation landed at `f15056f903`; verifier closeout has one
-  validation-order mismatch; resolver target/source-bound rows remain unopened.
+  bounded V2 implementation and verifier closeout landed at `f15056f903`;
+  resolver target/source-bound rows remain unopened.
 Contract:
   keep the ordered M8 cohort on one recursive Recipe algebra; source Facts
   own semantic roles and BindingRefs, producers alone mint Recipe keys, and

@@ -31,8 +31,9 @@ domains, and non-`Text` `TextEq` operands or non-`Bool` results. It does not
 claim source existence, target resolution, input-source relations,
 ScanWithInit, Loop/Tail/Completion, Builder/MIR/physicalization, fallback, or
 production activation. The focused receipt is
-`typed_schema_v2_tests.rs`; all touched Rust files remain below the 760-line
-design trigger and 800-line hard boundary.
+`typed_schema_v2_tests.rs` (seven tests, including independent duplicate and
+wrong-result-class negatives); all touched Rust files remain below the
+760-line design trigger and 800-line hard boundary.
 
 The next independent rows are resolver instance-target issuance, source-bound
 call relation verification, typed parameter/initializer input relations, and

@@ -1459,13 +1459,11 @@ demand and verifier responsibilities were split before typed vocabulary was
 added, and every resulting Rust source file remains below the 760-line design
 trigger. The explicit V2 schema implementation landed at `f15056f903` with
 `LoopRecipeArtifactV2`, `I64|Bool|Unit|Text`, local `CallSlot`, `TextEq`, and a
-Builder-free structural verifier. Its focused suite still has one known
-validation-order expectation mismatch (`v2_rejects_duplicate_result_definition`:
-`TextEqResultClassMismatch` precedes duplicate-definition detection), so the
-V2 implementation receipt is not yet a closed proof. V2 is a wire/schema
-receipt only; it does not issue resolver targets or source-bound calls. The
-remaining rows are separate BoxCount boundaries. The later implementation
-order is:
+Builder-free structural verifier. Its focused suite is now green with seven
+tests; the duplicate-definition fixture uses a prior same-class `CallSlot`
+result so it isolates exactly one rejection. V2 is a wire/schema receipt only;
+it does not issue resolver targets or source-bound calls. The remaining rows
+are separate BoxCount boundaries. The later implementation order is:
 
 ```text
 operation-shape split
@@ -1479,10 +1477,9 @@ operation-shape split
 
 Each landed typed schema/observer/producer row updates
 `docs/reference/mir/loop-recipe-contract.md` and the affected module READMEs in
-the same commit. The V2 implementation has its schema/reference receipt, but
-the focused verifier closeout remains pending the explicit validation-order
-fix. No resolver target, scan physicalizer, selector, fallback, or legacy
-deletion is opened by this design closeout.
+the same commit. The V2 implementation and focused verifier closeout have
+their schema/reference receipts. No resolver target, scan physicalizer,
+selector, fallback, or legacy deletion is opened by this design closeout.
 
 Contract:
 : 19/19 legacy ingress rows have typed pre-effect decline or one verified
