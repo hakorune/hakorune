@@ -58,7 +58,11 @@ into the existing Recipe/JoinSig/Core owners. The selected
 `LOOP-INPUT-SOURCE-RELATION-SET-R0` is now landed: callable's singular
 initialized-local input relation is a one-row instance of the common
 exact-coverage `VerifiedLoopInitializedLocalInputSourceSetV1`; Generic
-parameter inputs stay separate. S6A remains the next source-observer row.
+parameter inputs stay separate. S6A source observation and its
+provenance-only producer are partially landed as a caller-zero row. The
+remaining closeout is the normal `Main.main` resolver ingress plus the typed
+C/D/U/R envelope and identity negatives; no selector or physical consumer is
+opened.
 
 The common set co-seals declaration (including its statement site), initializer,
 `BindingRefV1`, Recipe input value, and class against the already sealed Recipe
@@ -76,6 +80,12 @@ constants, binary expressions, assignment targets, carrier entries, and
 initializer declarations use their exact owned source anchors; Recipe ordinals
 are not source lookup keys. `NoSafeSlice` is a development stop, not a source
 disposition, and no S6A selector or physicalizer is opened here.
+
+The producer is `variable_accum_recurrence_producer.rs`. It consumes one Facts
+aggregate and seals the existing Recipe/JoinSig/Core/input/effect owners with
+`2` input, `2` binding, `8` Core-effect, and `11` item-source rows. It accepts
+exact `I64` bound/delta literals from Facts and does not inspect AST or
+reclassify the source family.
 
 The audited `loop_simple_while_inline_explicit_step_min.hako` fixture remains
 Declined by the existing SimpleWhile, DirectAccum, and Generic G0 observers.

@@ -2,7 +2,7 @@
 
 ## M8 S6A variable-accum recurrence boundary
 
-The future `VariableAccumRecurrenceV1` observer is the sole source-family
+The `VariableAccumRecurrenceV1` observer is the sole source-family
 owner for `acc = acc + i; i = i + 1`. Its compiler projection may use private
 partial observations, but exactly one AST-free move-only aggregate,
 `VerifiedVariableAccumRecurrenceFactsV1`, crosses this module boundary.
@@ -28,6 +28,14 @@ disposition. Source outcomes are `Candidate`, `Declined`, `Unresolved`, or
 `Rejected`, with identity conflict first, missing evidence second, and fully
 observed shape mismatch third. `print(acc)` and `return 0` remain callable-tail
 evidence outside this Facts boundary.
+
+The resolver-backed projection and atomic Facts issuer are landed in
+`mir/compiler/variable_accum_recurrence_projection.rs` and
+`variable_accum_recurrence.rs`. The producer-facing Recipe mapping is tested
+through the existing source-bound owners; the exact normal `Main.main`
+resolver ingress and the full C/D/U/R envelope remain the closeout gate.
+Bounds and deltas are general `I64` literals with exact source anchors; the
+fixture values `4` and `1` are not hard-coded policy.
 
 ## Generic G0 S0A
 

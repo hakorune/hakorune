@@ -174,8 +174,11 @@ Related:
   relations. The behavior-preserving
   `LOOP-INPUT-SOURCE-RELATION-SET-R0` is closed: callable now consumes the
   common exact-coverage initialized-local input set and Generic parameter
-  inputs remain separate. The active row is S6A source observation; read
-  `CURRENT_STATE.toml` and the active workstream for its exact execution brief.
+inputs remain separate. The caller-zero S6A Facts/producer slice is now
+landed with focused 2/2/8/11 cardinality tests. The active closeout is the
+exact normal `Main.main` resolver ingress, typed C/D/U/R disposition, and
+identity/coverage negatives; read `CURRENT_STATE.toml` and the active
+workstream for its exact execution brief.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

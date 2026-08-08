@@ -43,6 +43,10 @@ pub(in crate::mir) mod direct_accum_profile;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_projection;
 #[allow(dead_code)]
+pub(in crate::mir) mod variable_accum_recurrence_projection;
+#[cfg(test)]
+mod variable_accum_recurrence_projection_tests;
+#[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
 #[cfg(test)] pub(crate) mod generic_g0_observation;

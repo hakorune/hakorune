@@ -183,6 +183,26 @@ docs/development/current/main/investigations/loop-input-source-relation-set-r0-t
 docs/development/current/main/investigations/joinir-loop-m8-loopv0-recurrence-s6a-implementation-task-2026-08-08.md
 ```
 
+S6A literal bounds are parameterized within the admitted `I64` source class:
+`i < bound` and `i = i + delta` retain their exact literal source anchors.
+The first fixture uses `4` and `1`, but those values are not semantic keys and
+are not frozen into the observer. The callable tail remains outside this row.
+
+## S6A implementation receipt (2026-08-08)
+
+The caller-zero source projection and deterministic producer are now present
+under the code homes named by the S6A execution brief. Focused unit tests prove
+the positive two-binding/eleven-role observation, non-`Less` rejection, and
+the existing Recipe/JoinSig/Core/input/effect owners receiving one terminal
+product with the exact `2/2/8/11` relation counts. No selector, physicalizer,
+Builder/MIR, retry, or fallback caller was opened.
+
+The remaining S6A closeout is deliberately bounded: run the exact normal
+`Main.main` resolver path (not a shape-equivalent root-function fixture), add
+the typed C/D/U/R envelope at the observer ingress, and add foreign/duplicate
+identity negatives. Until those gates land, the current row remains open and
+`NoSafeSlice` remains a development status only.
+
 The all-19 labels remain compatibility ingress identities. Neither R0 nor S6A
 may add a second selector, route-local physicalizer, AST-bearing Facts
 transport, Builder/MIR owner, retry, or fallback. S6A emits a typed observation

@@ -19,6 +19,7 @@ mod nested_predicate_source;
 mod resolved_source_adapter;
 mod selected_demand;
 mod types;
+mod variable_accum_recurrence;
 
 #[allow(unused_imports)]
 pub(crate) use resolved_source_adapter::{
@@ -90,6 +91,20 @@ pub(crate) use selected_demand::{
 };
 pub(crate) use types::{
     DirectAccumObservedShapeV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,
+};
+#[allow(unused_imports)]
+pub(crate) use variable_accum_recurrence::{
+    issue_variable_accum_recurrence_facts_v1, VariableAccumRecurrenceAccumulatorUpdateV1,
+    VariableAccumRecurrenceBindingObservationV1, VariableAccumRecurrenceBindingRoleV1,
+    VariableAccumRecurrenceConditionObservationV1, VariableAccumRecurrenceConditionOperatorV1,
+    VariableAccumRecurrenceCoverageV1, VariableAccumRecurrenceFactsIssueV1,
+    VariableAccumRecurrenceInductionStepV1, VariableAccumRecurrenceInputObservationV1,
+    VariableAccumRecurrenceInputRoleV1, VariableAccumRecurrenceObservationCoverageV1,
+    VariableAccumRecurrenceSourceAttemptOutcomeV1, VariableAccumRecurrenceSourceDeclineV1,
+    VariableAccumRecurrenceSourceIdentityV1, VariableAccumRecurrenceSourceRejectV1,
+    VariableAccumRecurrenceSourceRoleV1, VariableAccumRecurrenceSourceUnresolvedV1,
+    VariableAccumRecurrenceValueClassV1, VerifiedVariableAccumRecurrenceFactsV1,
+    VerifiedVariableAccumRecurrenceSourceAttemptV1,
 };
 
 #[cfg(test)]

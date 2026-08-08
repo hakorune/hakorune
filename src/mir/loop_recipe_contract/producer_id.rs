@@ -13,6 +13,7 @@ pub(crate) enum LoopRecipeProducerIdV1 {
     NestedPredicateV1,
     GenericG0,
     CallableSingleLoopV1,
+    VariableAccumRecurrenceV1,
 }
 
 impl LoopRecipeProducerIdV1 {
@@ -23,6 +24,7 @@ impl LoopRecipeProducerIdV1 {
             Self::NestedPredicateV1 => "nested_predicate_v1",
             Self::GenericG0 => "generic_g0",
             Self::CallableSingleLoopV1 => "callable_single_loop_v1",
+            Self::VariableAccumRecurrenceV1 => "variable_accum_recurrence_v1",
         }
     }
 }

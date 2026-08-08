@@ -28,6 +28,11 @@ mutation, composition, lowering, or physical ID allocation. `evaluate.rs`
 performs structural validation and row sealing; `policy.rs` performs the pure
 M3-E audit and emits only Qualified, Blocked, or Exhausted.
 
+M8 S6A does not add code or a selector here. Its
+`VariableAccumRecurrenceV1` producer remains a caller-zero provenance path
+owned by the compiler projection and neutral Recipe contract; production
+selection and legacy schedule retirement stay closed.
+
 ## Generic G0 S1 observation
 
 `generic_g0.rs` is a separate AST-free policy issuer for the bounded Generic

@@ -1034,9 +1034,9 @@ shape, and Candidate only for the exact complete shape.
 
 R0 first replaces callable's singular initialized-local input relation with
 one common move-only exact-coverage initialized-local set without changing
-accepted source shapes. After R0, S6A may
-add the resolver-backed observer and provenance-only
-`VariableAccumRecurrenceV1` producer. No route relabel, DirectAccum widening,
+accepted source shapes. The S6A resolver-backed observer and provenance-only
+`VariableAccumRecurrenceV1` producer are now landed as a caller-zero
+implementation slice. No route relabel, DirectAccum widening,
 new Recipe kind, selector, physicalizer, Builder/MIR owner, M9 parity,
 production selection, retry/fallback retirement, or legacy deletion is open.
 The R0 and S6A implementation commits must each update this reference and the

@@ -1,6 +1,6 @@
 # JOINIR Loop M8 variable-accum recurrence S6A — execution brief
 
-Status: `accepted; R0 prerequisite closed`
+Status: `implementation slice landed; bounded closeout remains`
 Date: 2026-08-08
 Parent: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`
 Current row: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A`
@@ -37,13 +37,18 @@ that terminal is issued. Any missing, duplicate, foreign, or inconsistent row
 returns a typed failure with published product count zero; there is no partial
 publication or retry.
 
-## Done
+## Landed in this slice
 
-The natural fixture is Candidate only for the new observation; existing
-SimpleWhile/DirectAccum/G0 observations remain Declined. Golden and negative
-tests seal exact source identity, total coverage, all relation cardinalities,
-Header/Body/After carrier visibility, and zero Builder effect. Source/check
-files stay below 800 lines.
+The neutral Facts issuer, resolver-backed source projection, deterministic
+existing-Recipe producer, and focused positive/non-`Less`/producer cardinality
+tests are landed. Existing SimpleWhile/DirectAccum/G0 observations remain
+unchanged. The producer seals the existing Recipe/JoinSig/Core/input/effect
+owners with the exact `2/2/8/11` relation counts and no Builder effect.
+Source/check files stay below 800 lines.
+
+The full S6A row is not yet closed: the exact normal `Main.main` resolver path,
+typed C/D/U/R ingress envelope, foreign/duplicate identity negatives, and
+complete source-site coherence checks remain required.
 
 The same implementation commit updates `src/mir/compiler/README.md`,
 `src/mir/loop_structural_facts/README.md`,
@@ -91,7 +96,8 @@ retry/fallback retirement, outer print/return tail coverage, or legacy deletion.
 4. deterministic existing-Recipe projection
 5. complete input/Core/operation-source seals and golden
 6. negative/identity/coverage/line-count guards
-7. same-commit README and reference closeout
+7. same-commit README and reference closeout (landed for this slice; repeat at
+   the bounded closeout and at M10b)
 ```
 
 No step may introduce a deeper S6A task suffix. A newly discovered prerequisite

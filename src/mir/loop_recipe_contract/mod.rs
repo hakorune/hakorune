@@ -2,6 +2,7 @@
 
 mod continuation;
 mod direct_accum_producer;
+mod variable_accum_recurrence_producer;
 mod error;
 mod ids;
 mod input_source;
@@ -108,6 +109,12 @@ pub(crate) use continuation::VerifiedLoopContinuationContractV1;
 pub(crate) use direct_accum_producer::{
     produce_direct_accum_recipe_v1, DirectAccumRecipeProducerRejectV1,
     VerifiedDirectAccumRecipeProductV1,
+};
+#[allow(unused_imports)]
+pub(crate) use variable_accum_recurrence_producer::{
+    produce_variable_accum_recurrence_recipe_v1,
+    VariableAccumRecurrenceRecipeProducerRejectV1,
+    VerifiedVariableAccumRecurrenceRecipeProductV1,
 };
 #[allow(unused_imports)]
 pub(crate) use error::LoopRecipeRejectReasonV1;

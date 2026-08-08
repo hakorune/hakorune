@@ -510,3 +510,14 @@ P0c-F-I1 adds no ownership operation, raw-name lookup, fallback, incremental
 publication, or backend widening. Self edges, mutual recursion, and SCC
 authority remain rejected. The next callable task is the behavior-neutral
 P0c-MR-G0 inventory extraction.
+
+## M8 S6A variable-accum recurrence (caller-zero)
+
+`variable_accum_recurrence_projection.rs` is the sole source-view adapter for
+the bounded `acc = acc + i; i = i + 1` family. It consumes the resolver ledger
+and exact Loop membership, while `loop_structural_facts` owns the one atomic
+AST-free Facts product. `variable_accum_recurrence_producer.rs` then projects
+that Candidate into the existing Recipe/JoinSig/Core/input/effect owners.
+No Recipe kind, route selector, Builder/MIR effect, or physical caller is
+introduced. The current closeout is the normal `Main.main` resolver ingress,
+typed C/D/U/R disposition, and foreign/duplicate identity coverage.
