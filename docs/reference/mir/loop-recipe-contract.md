@@ -1025,3 +1025,22 @@ new Recipe kind, selector, physicalizer, Builder/MIR owner, M9 parity,
 production selection, retry/fallback retirement, or legacy deletion is open.
 The R0 and S6A implementation commits must each update this reference and the
 module README; M10b cutover requires a final reference update.
+
+## Initialized-local input relation set R0 implementation receipt (2026-08-08)
+
+R0 is closed as a behavior-preserving common-contract migration. The former
+callable-local `VerifiedLoopInputRelationV1` was removed. Its initialized-local
+row is now issued as `LoopInitializedLocalInputSourceRelationV1` and sealed by
+`VerifiedLoopInitializedLocalInputSourceSetV1` in the neutral
+`loop_recipe_contract::input_source` module. Callable remains exactly one row;
+Generic parameter inputs are not folded into this set.
+
+The set is Builder-free and move-only. It checks complete Recipe input
+coverage, owner, value class, unique carrier, Core binding relation, and the
+exact `SourceBindingSiteV1::Local` declaration (whose sealed statement site is
+the sole statement authority). The Prelude materializer consumes the complete
+set and uses the sealed declaration site directly; it no longer reconstructs a
+local ordinal. Focused callable
+Recipe, operation/effect, prepared-ingress, Prelude, and physical-canary tests
+remain green. No S6A observer, new producer, Recipe kind, selector, physical
+route, or production caller was opened by this row.

@@ -94,7 +94,8 @@ fn prepared_ingress_runs_one_shot_callable_full_demand_preflight() {
     assert_eq!(operation.schedule().len(), 7);
     assert_eq!(operation.coverage().operation_count(), 7);
     assert_eq!(source.owner(), operation.demand().context().owner());
-    assert_eq!(input.source_binding().owner(), source.owner());
+    assert_eq!(input.owner(), source.owner());
+    assert_eq!(input.rows().len(), 1);
     assert_eq!(prelude.owner(), source.owner());
     assert_eq!(tail.owner(), source.owner());
 }

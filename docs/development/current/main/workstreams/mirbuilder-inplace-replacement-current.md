@@ -523,8 +523,8 @@ accepted historical correction: LOOP-CALLER-ZERO-PARITY-G0-I1-D0; closed:
   LOOP-COMMON-RECURSIVE-SEGMENT-PLAN-R1, LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2,
   LOOP-COMMON-RECURSIVE-AFTER-R3-I0, LOOP-COMMON-PREDICATE-CARRIER-I0-R0, and LOOP-CALLER-ZERO-PARITY-G0-I1-R0.
   Worker-reviewed G0 I1 is implemented. External and independent worker review
-  accepted the S6A variable-accum recurrence design. Current execution is the
-  behavior-preserving LOOP-INPUT-SOURCE-RELATION-SET-R0 prerequisite.
+  accepted the S6A variable-accum recurrence design. R0 is now closed as the
+  behavior-preserving common initialized-local input-set migration.
 Change:
   move the callable-only singular input relation into
   loop_recipe_contract/input_source.rs as one move-only
@@ -538,11 +538,13 @@ Contract:
   first row. Execution brief:
   docs/development/current/main/investigations/loop-input-source-relation-set-r0-task-2026-08-08.md
 Done:
-  focused common-set and callable ingress/operation/physical tests cover exact
-  cardinality one plus missing/duplicate/foreign/mismatch rejection; existing
-  callable receipts stay equal; touched source/check files stay below 800
-  lines. The implementation commit updates the Recipe README and reference
-  receipt. S6A then consumes the same set at cardinality two.
+  R0 implementation is landed: common set validation covers exact input
+  coverage, owner/value/carrier/Core declaration correspondence, and all
+  callable ingress/operation/Prelude/physical consumers use the complete set.
+  Focused callable recipe tests are green and touched source/check files stay
+  below 800 lines. Recipe README, compiler README, and reference receipt were
+  updated in the same closeout. The next S6A row consumes this set at
+  cardinality two.
 Stop:
   do not admit the recurrence shape, add S6A provenance, change Core, widen the
   family selector, emit Builder/MIR effects, or open M9/production/cutover.

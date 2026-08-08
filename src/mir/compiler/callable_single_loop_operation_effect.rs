@@ -17,10 +17,12 @@ use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
 
 use super::callable_single_loop_recipe_coseal::{
     LoopRecipeOperationViewV1, VerifiedCallablePreludeV1,
-    VerifiedCallableSingleLoopRecipeProductV1, VerifiedCallableTailV1, VerifiedLoopInputRelationV1,
+    VerifiedCallableSingleLoopRecipeProductV1, VerifiedCallableTailV1,
     VerifiedLoopOperationSourceRelationV1,
 };
-use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopNodeKeyV1};
+use crate::mir::loop_recipe_contract::{
+    LoopItemKeyV1, LoopNodeKeyV1, VerifiedLoopInitializedLocalInputSourceSetV1,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum CallableOperationEffectAdapterRejectV1 {
@@ -37,7 +39,7 @@ pub(crate) enum CallableOperationEffectAdapterRejectV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct CallableOperationEffectPartsV1 {
     operation_effect: VerifiedLoopOperationEffectProductV1,
-    input: VerifiedLoopInputRelationV1,
+    input: VerifiedLoopInitializedLocalInputSourceSetV1,
     context: VerifiedLoopSemanticContextV1,
     continuation: VerifiedLoopContinuationContractV1,
     prelude: VerifiedCallablePreludeV1,
@@ -49,7 +51,7 @@ impl CallableOperationEffectPartsV1 {
         self,
     ) -> (
         VerifiedLoopOperationEffectProductV1,
-        VerifiedLoopInputRelationV1,
+        VerifiedLoopInitializedLocalInputSourceSetV1,
         VerifiedLoopSemanticContextV1,
         VerifiedLoopContinuationContractV1,
         VerifiedCallablePreludeV1,
@@ -70,7 +72,7 @@ impl CallableOperationEffectPartsV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedCallableOperationEffectProductV1 {
     operation_effect: VerifiedLoopOperationEffectProductV1,
-    input: VerifiedLoopInputRelationV1,
+    input: VerifiedLoopInitializedLocalInputSourceSetV1,
     context: VerifiedLoopSemanticContextV1,
     continuation: VerifiedLoopContinuationContractV1,
     prelude: VerifiedCallablePreludeV1,
@@ -110,7 +112,7 @@ impl VerifiedCallableOperationEffectProductV1 {
         &self.operation_effect
     }
 
-    pub(crate) fn input(&self) -> &VerifiedLoopInputRelationV1 {
+    pub(crate) fn input(&self) -> &VerifiedLoopInitializedLocalInputSourceSetV1 {
         &self.input
     }
 
@@ -159,7 +161,7 @@ impl VerifiedCallableOperationEffectProductV1 {
         self,
     ) -> (
         VerifiedLoopOperationEffectProductV1,
-        VerifiedLoopInputRelationV1,
+        VerifiedLoopInitializedLocalInputSourceSetV1,
         VerifiedLoopSemanticContextV1,
         VerifiedLoopContinuationContractV1,
         VerifiedCallablePreludeV1,
@@ -440,7 +442,8 @@ mod tests {
             product.context().owner()
         );
         assert_eq!(product.prelude().binding(), product.tail().binding());
-        assert_eq!(product.input().recipe_value().raw(), 0);
+        assert_eq!(product.input().rows().len(), 1);
+        assert_eq!(product.input().rows()[0].recipe_value().raw(), 0);
         assert_eq!(product.continuation().loop_key().raw(), 0);
     }
 

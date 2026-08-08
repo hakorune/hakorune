@@ -7,12 +7,14 @@
 //! retry, or fallback is allowed.
 
 use crate::mir::loop_recipe_contract::{
-    issue_source_bound_core_from_artifact_v1, LoopBindingEffectAnchorV1,
-    LoopBindingEffectRelationV1, LoopBindingEffectRoleV1, LoopBindingKeyV1, LoopCarrierKeyV1,
-    LoopItemKeyV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopNodeKeyV1,
-    LoopRecipeArtifactV1, LoopRecipeBindingRelationV1, LoopRecipeProducerIdV1,
-    LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopValueClassV1, LoopValueKeyV1,
-    VerifiedLoopContinuationContractV1, VerifiedLoopCoreProductV1, VerifiedLoopPhysicalBoundaryV1,
+    issue_initialized_local_input_source_set_v1, issue_source_bound_core_from_artifact_v1,
+    LoopBindingEffectAnchorV1, LoopBindingEffectRelationV1, LoopBindingEffectRoleV1,
+    LoopBindingKeyV1, LoopCarrierKeyV1, LoopInitializedLocalInputSourceRelationV1,
+    LoopInitializedLocalInputSourceSetRejectV1, LoopItemKeyV1, LoopJoinSigElaboratorV1,
+    LoopJoinSigRejectReasonV1, LoopNodeKeyV1, LoopRecipeArtifactV1, LoopRecipeBindingRelationV1,
+    LoopRecipeProducerIdV1, LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopValueClassV1,
+    LoopValueKeyV1, VerifiedLoopContinuationContractV1, VerifiedLoopCoreProductV1,
+    VerifiedLoopInitializedLocalInputSourceSetV1, VerifiedLoopPhysicalBoundaryV1,
     VerifiedLoopSemanticContextV1,
 };
 use crate::mir::loop_structural_facts::bind_resolved_loop_root_v1;
@@ -29,33 +31,6 @@ use super::callable_single_loop_source_shapes::{
     SourceCallBoundaryShapeV1, SourceLiteralShapeV1, SyntaxBinaryOperatorV1,
 };
 use crate::mir::resolved_semantics::CallableSemanticSourceLedgerView;
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedLoopInputRelationV1 {
-    statement: SourceStmtSiteV1,
-    initializer: SourceExprSiteV1,
-    source_binding: BindingRefV1,
-    recipe_value: LoopValueKeyV1,
-    class: LoopValueClassV1,
-}
-
-impl VerifiedLoopInputRelationV1 {
-    pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
-        &self.statement
-    }
-    pub(crate) fn initializer(&self) -> &SourceExprSiteV1 {
-        &self.initializer
-    }
-    pub(crate) const fn source_binding(&self) -> BindingRefV1 {
-        self.source_binding
-    }
-    pub(crate) const fn recipe_value(&self) -> LoopValueKeyV1 {
-        self.recipe_value
-    }
-    pub(crate) const fn class(&self) -> LoopValueClassV1 {
-        self.class
-    }
-}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopOperationSourceRelationV1 {
@@ -176,7 +151,7 @@ impl VerifiedCallableTailV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedLoopRecipeCoSealV1 {
     core: VerifiedLoopCoreProductV1,
-    input: VerifiedLoopInputRelationV1,
+    input: VerifiedLoopInitializedLocalInputSourceSetV1,
     operations: Box<[VerifiedLoopOperationSourceRelationV1]>,
     context: VerifiedLoopSemanticContextV1,
     continuation: VerifiedLoopContinuationContractV1,
@@ -186,7 +161,7 @@ impl VerifiedLoopRecipeCoSealV1 {
     pub(crate) fn core(&self) -> &VerifiedLoopCoreProductV1 {
         &self.core
     }
-    pub(crate) fn input(&self) -> &VerifiedLoopInputRelationV1 {
+    pub(crate) fn input(&self) -> &VerifiedLoopInitializedLocalInputSourceSetV1 {
         &self.input
     }
     pub(crate) fn operations(&self) -> &[VerifiedLoopOperationSourceRelationV1] {
@@ -203,7 +178,7 @@ impl VerifiedLoopRecipeCoSealV1 {
         self,
     ) -> (
         VerifiedLoopCoreProductV1,
-        VerifiedLoopInputRelationV1,
+        VerifiedLoopInitializedLocalInputSourceSetV1,
         Box<[VerifiedLoopOperationSourceRelationV1]>,
         VerifiedLoopSemanticContextV1,
         VerifiedLoopContinuationContractV1,
@@ -277,6 +252,7 @@ pub(crate) enum CallableRecipeCoSealRejectV1 {
     NonLocalDeclaration,
     PrefixTailBindingMismatch,
     TailContinuationFusion,
+    InputSource(LoopInitializedLocalInputSourceSetRejectV1),
     SourceRoot(crate::mir::loop_structural_facts::LoopRootSourceBindingRejectV1),
     Recipe(LoopRecipeRejectReasonV1),
     JoinSig(LoopJoinSigRejectReasonV1),
@@ -431,6 +407,8 @@ pub(crate) fn issue_callable_single_loop_recipe_v1(
     let core =
         issue_source_bound_core_from_artifact_v1(artifact, join_sig, owner, bindings, effects)
             .map_err(CallableRecipeCoSealRejectV1::Recipe)?;
+    let input = issue_initialized_local_input_source_set_v1(&core, vec![input])
+        .map_err(CallableRecipeCoSealRejectV1::InputSource)?;
     let continuation = VerifiedLoopContinuationContractV1::from_after(owner, after);
     Ok(VerifiedCallableSingleLoopRecipeProductV1 {
         co_seal: VerifiedLoopRecipeCoSealV1 {
@@ -531,7 +509,7 @@ fn operator_target(
 fn declaration_for_binding(
     ledger: &CallableSemanticSourceLedgerView<'_>,
     binding: BindingRefV1,
-) -> Result<(BindingOriginV1, SourceStmtSiteV1), CallableRecipeCoSealRejectV1> {
+) -> Result<(SourceBindingSiteV1, SourceStmtSiteV1), CallableRecipeCoSealRejectV1> {
     let mut matches = ledger
         .declaration_sites()
         .filter(|site| ledger.declaration_binding(site) == Some(binding));
@@ -542,9 +520,7 @@ fn declaration_for_binding(
         return Err(CallableRecipeCoSealRejectV1::DuplicateDeclaration);
     }
     match site {
-        SourceBindingSiteV1::Local { statement, .. } => {
-            Ok((BindingOriginV1::Source(site.clone()), statement.clone()))
-        }
+        SourceBindingSiteV1::Local { statement, .. } => Ok((site.clone(), statement.clone())),
         _ => Err(CallableRecipeCoSealRejectV1::NonLocalDeclaration),
     }
 }
@@ -561,10 +537,10 @@ fn relations(
     binding: BindingRefV1,
     loop_site: SourceStmtSiteV1,
     declaration_statement: SourceStmtSiteV1,
-    declaration: BindingOriginV1,
+    declaration: SourceBindingSiteV1,
 ) -> Result<
     (
-        VerifiedLoopInputRelationV1,
+        LoopInitializedLocalInputSourceRelationV1,
         Vec<VerifiedLoopOperationSourceRelationV1>,
         Vec<LoopRecipeBindingRelationV1>,
         Vec<LoopBindingEffectRelationV1>,
@@ -583,13 +559,13 @@ fn relations(
     let step_delta_site = expr_site(step_delta)?;
     let step_operator_site = expr_site(step_operator)?;
     let step_write_site = expr_site(step_write)?;
-    let input = VerifiedLoopInputRelationV1 {
-        statement: declaration_statement.clone(),
-        initializer: initial_site,
-        source_binding: binding,
-        recipe_value: LoopValueKeyV1::new(0),
-        class: LoopValueClassV1::I64,
-    };
+    let input = LoopInitializedLocalInputSourceRelationV1::new(
+        declaration.clone(),
+        initial_site,
+        binding,
+        LoopValueKeyV1::new(0),
+        LoopValueClassV1::I64,
+    );
     let operations = vec![
         operation(
             CallableSourceMapRoleV1::ConditionRead,
@@ -663,7 +639,7 @@ fn relations(
         LoopBindingKeyV1::new(0),
         binding,
         LoopValueClassV1::I64,
-        declaration,
+        BindingOriginV1::Source(declaration),
     )];
     let effects = vec![
         LoopBindingEffectRelationV1::new(

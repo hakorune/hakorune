@@ -117,6 +117,10 @@ impl VerifiedLoopRecipeBindingRelationV1 {
     pub(crate) fn class(&self) -> LoopValueClassV1 {
         self.0.class
     }
+
+    pub(crate) fn declaration(&self) -> &BindingOriginV1 {
+        &self.0.declaration
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]

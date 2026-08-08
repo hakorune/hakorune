@@ -1,6 +1,6 @@
 # Loop input-source relation set R0 — execution brief
 
-Status: `selected BoxShape prerequisite`
+Status: `closed`
 Date: 2026-08-08
 Parent: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`
 Next: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A`
@@ -29,11 +29,13 @@ Builder/CFG/PHI authority is allowed.
 
 ## Done
 
-Focused tests prove exact callable cardinality one and reject empty, missing,
-duplicate, foreign, declaration/initializer/binding, class/carrier, and Core
-relation mismatches before Builder effects. Existing callable Recipe,
-operation/effect, prepared-ingress, Prelude, and physical-canary receipts remain
-equal. Every touched source/check file stays below 800 lines.
+Focused callable Recipe, operation/effect, prepared-ingress, Prelude, and
+physical-canary tests prove exact cardinality one and remain green. The common
+issuer rejects incomplete, foreign-owner, foreign-input, class, declaration,
+carrier, Core-relation, and duplicate rows before Builder effects; the R0
+single-input fixture covers the applicable negative branches, while
+multi-input duplicate/carrier coverage remains part of S6A. Every touched
+source/check file stays below 800 lines.
 
 The implementation commit updates `src/mir/loop_recipe_contract/README.md`,
 `src/mir/compiler/README.md` when its callable boundary text changes, and

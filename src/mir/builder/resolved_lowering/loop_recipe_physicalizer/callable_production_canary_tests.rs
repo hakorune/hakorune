@@ -258,7 +258,7 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
     let prepared = PreparedCallableLoopIngressV1::from_source_for_test(source_receipt, logical)
         .prepare_full_demand()
         .map_err(|error| format!("full S2 demand: {error:?}"))?;
-    let (source_receipt, input_relation, operation_program, prelude_source, tail) =
+    let (source_receipt, input_relations, operation_program, prelude_source, tail) =
         prepared.into_parts();
     let physical_layout = operation_program
         .prepare_physical_layout()
@@ -292,22 +292,14 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         outer.builder_view_mut_for_lowering(),
         &mut session,
         &branded,
-        &input_relation,
+        &input_relations,
         &prelude,
     )
     .map_err(|error| format!("Prelude materialization: {error}"))?;
-    let input_value = prelude_receipt.entry().rows[0].value();
-    let make_entry = || {
-        super::topology::ReadyLoopEntryV1::new_for_test(
-            owner,
-            preheader,
-            vec![super::topology::ReadyLoopEntryRowV1::new(
-                input_relation.recipe_value(),
-                input_relation.source_binding(),
-                input_value,
-            )],
-        )
-    };
+    assert_eq!(input_relations.rows().len(), 1);
+    let entry_rows = prelude_receipt.entry().rows.to_vec();
+    let make_entry =
+        || super::topology::ReadyLoopEntryV1::new_for_test(owner, preheader, entry_rows.clone());
     let segment_receipt = {
         let mut services =
             LoopPhysicalServicesV1::new(outer.builder_view_mut_for_lowering(), &mut session.cfg);

@@ -1460,8 +1460,8 @@ The late duplicate fixture fails after earlier emission, discards the whole
 unpublished session, and a fresh session reproduces the same semantic receipt.
 No G0-specific CFG/SSA/PHI owner, production selector, caller switch,
 retry/fallback, collector publication, backend/performance claim, M8/M9
-coverage, or M10b/M11/M12 retirement is opened. The next row is the accepted
-behavior-preserving `LOOP-INPUT-SOURCE-RELATION-SET-R0` prerequisite for the
-now-accepted S6A source-to-Facts-to-Recipe design. S6A implementation remains
-closed until that initialized-local input-set row lands; current source task
-order is owned by the Loop pipeline SSOT and `CURRENT_STATE.toml`.
+coverage, or M10b/M11/M12 retirement is opened. The behavior-preserving
+`LOOP-INPUT-SOURCE-RELATION-SET-R0` is now closed: callable consumes the common
+exact-coverage initialized-local input set and Generic parameter inputs remain
+separate. The next row is S6A source-to-Facts-to-Recipe implementation; current
+source task order is owned by the Loop pipeline SSOT and `CURRENT_STATE.toml`.

@@ -4,6 +4,7 @@ mod continuation;
 mod direct_accum_producer;
 mod error;
 mod ids;
+mod input_source;
 mod join_sig;
 mod join_sig_branch;
 mod loop_true_break_continue_producer;
@@ -114,6 +115,11 @@ pub(crate) use error::LoopRecipeRejectReasonV1;
 pub(crate) use ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
     LoopNodeKeyV1, LoopValueKeyV1,
+};
+#[allow(unused_imports)]
+pub(crate) use input_source::{
+    issue_initialized_local_input_source_set_v1, LoopInitializedLocalInputSourceRelationV1,
+    LoopInitializedLocalInputSourceSetRejectV1, VerifiedLoopInitializedLocalInputSourceSetV1,
 };
 #[allow(unused_imports)]
 pub(crate) use join_sig::{

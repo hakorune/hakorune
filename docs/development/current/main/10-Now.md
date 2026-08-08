@@ -171,9 +171,11 @@ Related:
   selection, M8/M9 closure, retry/fallback retirement, and legacy deletion
   remain closed. S6A source-to-Facts-to-Recipe design is accepted with one
   atomic Facts product and exact 2-input/2-binding/8-Core-effect/11-item-source
-  relations. The active prerequisite is the behavior-preserving
-  `LOOP-INPUT-SOURCE-RELATION-SET-R0`; read `CURRENT_STATE.toml` and the active
-  workstream for its exact execution brief.
+  relations. The behavior-preserving
+  `LOOP-INPUT-SOURCE-RELATION-SET-R0` is closed: callable now consumes the
+  common exact-coverage initialized-local input set and Generic parameter
+  inputs remain separate. The active row is S6A source observation; read
+  `CURRENT_STATE.toml` and the active workstream for its exact execution brief.
 - current frontier: Decision B-prime, M7-S2-A, the full M7-S3 LoopTrue
   source-to-Recipe cohort, Generic D2-B4-S1, D2-B4-S2, the scoped D3 typed
   matrix, S2A, and the resolved projector coverage row are closed as test-only

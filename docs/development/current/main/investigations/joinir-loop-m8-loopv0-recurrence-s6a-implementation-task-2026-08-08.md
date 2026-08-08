@@ -1,9 +1,9 @@
 # JOINIR Loop M8 variable-accum recurrence S6A — execution brief
 
-Status: `accepted; blocked on LOOP-INPUT-SOURCE-RELATION-SET-R0`
+Status: `accepted; R0 prerequisite closed`
 Date: 2026-08-08
 Parent: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`
-Row after R0: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A`
+Current row: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A`
 
 ## Change
 

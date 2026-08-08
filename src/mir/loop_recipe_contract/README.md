@@ -54,11 +54,18 @@ Loop lowering.
 G0 I1 is a closed caller-zero physical canary. The S6A variable-accum design is
 accepted: one atomic AST-free Facts product will project two external inputs,
 two Recipe bindings, eight Core binding effects, and eleven item-source rows
-into the existing Recipe/JoinSig/Core owners. The selected next row is the
-behavior-preserving `LOOP-INPUT-SOURCE-RELATION-SET-R0`, which moves callable's
-singular initialized-local input relation into one common exact-coverage
-initialized-local set; callable remains at cardinality one, Generic parameter
-inputs stay separate, and S6A remains unimplemented until R0 lands.
+into the existing Recipe/JoinSig/Core owners. The selected
+`LOOP-INPUT-SOURCE-RELATION-SET-R0` is now landed: callable's singular
+initialized-local input relation is a one-row instance of the common
+exact-coverage `VerifiedLoopInitializedLocalInputSourceSetV1`; Generic
+parameter inputs stay separate. S6A remains the next source-observer row.
+
+The common set co-seals declaration (including its statement site), initializer,
+`BindingRefV1`, Recipe input value, and class against the already sealed Recipe
+carrier and Core binding relation. It exposes the complete row slice only; no
+first/filter/ordinal reconstruction API exists. Empty, duplicate, foreign-owner,
+missing-carrier, class, declaration, and binding mismatches fail before Builder
+effects.
 
 The audited `loop_simple_while_inline_explicit_step_min.hako` fixture remains
 Declined by the existing SimpleWhile, DirectAccum, and Generic G0 observers.

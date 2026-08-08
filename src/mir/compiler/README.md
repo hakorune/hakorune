@@ -41,6 +41,14 @@ exact Tail statement site is carried by the source-map target; it is not
 reconstructed from a name or ordinal. Physical preparation and production
 selection remain closed until a later explicit row.
 
+The callable initialized-local Prelude input now crosses the compiler boundary
+as the neutral `VerifiedLoopInitializedLocalInputSourceSetV1` from
+`loop_recipe_contract::input_source`. Callable currently supplies exactly one
+row; all consumers consume the complete set, while Generic parameter inputs
+remain a separate contract. This set verifies declaration/initializer,
+binding, Recipe input, carrier, and Core binding correspondence before any
+Builder effect.
+
 The bounded `CALLABLE-SOURCE-SHAPE-THIN0` split keeps neutral syntax shapes in
 `callable_single_loop_source_shapes.rs`; the neutral SyntaxFacts and
 SourceMap issuers now compile in production scope, while fixture constructors,

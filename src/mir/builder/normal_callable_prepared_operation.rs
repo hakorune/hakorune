@@ -13,11 +13,12 @@ use crate::mir::compiler::callable_single_loop_operation_effect::{
     issue_callable_operation_effect_parts_v1, CallableOperationEffectAdapterRejectV1,
 };
 use crate::mir::compiler::callable_single_loop_recipe_coseal::{
-    VerifiedCallablePreludeV1, VerifiedCallableTailV1, VerifiedLoopInputRelationV1,
+    VerifiedCallablePreludeV1, VerifiedCallableTailV1,
 };
 use crate::mir::loop_recipe_contract::{
     LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
-    VerifiedLoopOperationPhysicalDemandV1, VerifiedLoopSemanticContextV1,
+    VerifiedLoopInitializedLocalInputSourceSetV1, VerifiedLoopOperationPhysicalDemandV1,
+    VerifiedLoopSemanticContextV1,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -42,7 +43,7 @@ pub(in crate::mir::builder) enum PreparedCallableLoopOperationRejectV1 {
 #[derive(Debug)]
 pub(in crate::mir::builder) struct PreparedCallableLoopOperationProgramV1<'source> {
     source: VerifiedNormalCallableSourceIngressReceiptV1<'source>,
-    input: VerifiedLoopInputRelationV1,
+    input: VerifiedLoopInitializedLocalInputSourceSetV1,
     operation: PreparedLoopOperationProgramV1,
     prelude: VerifiedCallablePreludeV1,
     tail: VerifiedCallableTailV1,
@@ -63,7 +64,7 @@ impl<'source> PreparedCallableLoopIngressV1<'source> {
             .map_err(PreparedCallableLoopOperationRejectV1::OperationEffect)?;
         let (operation_effect, input, context, continuation, prelude, tail) = parts.into_parts();
         verify_source_context(&source, &context)?;
-        if input.source_binding().owner() != source.owner() {
+        if input.owner() != source.owner() {
             return Err(PreparedCallableLoopOperationRejectV1::InputOwnerMismatch);
         }
         if prelude.owner() != source.owner() {
@@ -93,7 +94,7 @@ impl<'source> PreparedCallableLoopOperationProgramV1<'source> {
         self,
     ) -> (
         VerifiedNormalCallableSourceIngressReceiptV1<'source>,
-        VerifiedLoopInputRelationV1,
+        VerifiedLoopInitializedLocalInputSourceSetV1,
         PreparedLoopOperationProgramV1,
         VerifiedCallablePreludeV1,
         VerifiedCallableTailV1,

@@ -103,12 +103,12 @@ input relations. `print(acc)` and `return 0` remain outside Loop membership as
 an unclaimed callable tail. `NoSafeSlice` is a development state, never a
 fifth source disposition.
 
-Before S6A implementation, `LOOP-INPUT-SOURCE-RELATION-SET-R0` moves the
-existing callable-only singular initialized-local input relation into the
-common Recipe contract and seals an exact move-only initialized-local set.
-Callable retains cardinality one; S6A uses cardinality two. Generic parameter
-entries remain a separate contract. This BoxShape row changes no accepted
-source shape. Its task and the blocked S6A implementation task are:
+`LOOP-INPUT-SOURCE-RELATION-SET-R0` is now closed: it moved the existing
+callable-only singular initialized-local input relation into the common Recipe
+contract and sealed an exact move-only initialized-local set. Callable retains
+cardinality one; S6A uses cardinality two. Generic parameter entries remain a
+separate contract. This BoxShape row changed no accepted source shape. Its
+receipt and the current S6A implementation task are:
 
 ```text
 docs/development/current/main/investigations/loop-input-source-relation-set-r0-task-2026-08-08.md
