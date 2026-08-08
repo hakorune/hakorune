@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0 closed
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0 closed; C implementation and D remain closed
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -168,9 +168,22 @@ R6-S3B-B
   atomic branch selection, prune, and source-path preservation
   no post-prune ordinal reconstruction
 
+R6-S3B-C-D0
+  accepted design stop for one parser-private source-aware relation per
+  expose, parser-time source transport, path-based private target lookup,
+  all-host/expose preflight, and consume-return atomic AST/inventory/relation
+  commit. Direct ordinary Rust Box targets only; generated-delegate chains,
+  compatibility-only, interface/static/record/Hako/provider cohorts remain
+  outside the bounded row. C does not widen the resolver-visible final seal;
+  R6-S3B-D owns complete relation coverage and suffix-adapter retirement.
+
+  Reference:
+  `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md`
+
 R6-S3B-C
   source-aware delegate transaction
-  GeneratedDelegateSourceRelation and generated-batch coverage
+  GeneratedDelegateSourceRelation and generated-batch coverage; open only
+  after C-D0 design guard is green
 
 R6-S3B-D
   final complete relation coverage and one final non-Clone seal

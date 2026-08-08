@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; parser/resolver/body-conformance production 0.
+Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-D0 parser delegate design receipt closed, implementation 0.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -298,6 +298,25 @@ source-aware relation. Focused tests and
 `frontend_parsed_box_source_seal_r6_s3b_b3_guard.sh` landed in the same slice;
 no delegate transport, resolver, Recipe, Builder, or MIR implementation was
 opened.
+
+R6-S3B-C-D0 design receipt (2026-08-08): the next delegate slice is a
+parser-private source-aware transaction, not a resolver or callable-contract
+implementation. It records exactly one
+`GeneratedDelegateSourceRelationV1` per source `expose` while parsing, then
+preflights all hosts, target source relations, generated placements, names,
+and collisions before one consume-return commit of AST rows, inventory
+placement, and relation rows. A private target index may use names for lookup,
+but parser-issued same-brand Box paths and existing target method relations
+are the authority; inventory ordinals, generated suffixes, AST order, and
+`HashMap` order are not source identity. The bounded cohort is ordinary
+top-level Rust Boxes with direct explicit target methods. Generated-delegate
+chains, compatibility-only delegates, interface/static/record/Hako/provider
+cohorts remain outside the row. C does not widen the resolver-visible
+`ParserBoxSourceSealV1`; R6-S3B-D owns complete relation coverage, final seal
+issuance, and generated-suffix adapter retirement. Any failure discards the
+whole unpublished postpass product; partial commit, retry, and name-based
+fallback remain forbidden. No C implementation, resolver target, Recipe,
+Builder, MIR, or provider integration is open from this receipt.
 
 ## Related references
 

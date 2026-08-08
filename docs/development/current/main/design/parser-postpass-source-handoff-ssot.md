@@ -1,10 +1,11 @@
 ---
-Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0 closed; delegate/Hako/resolver rows not opened
+Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0 closed; C implementation, D, Hako, and resolver rows not opened
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
   - docs/development/current/main/investigations/frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md
   - docs/development/current/main/investigations/callable-contract-and-instance-call-implementation-task-map-2026-08-08.md
+  - docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md
   - docs/reference/language/callable-contracts.md
 ---
 
@@ -114,14 +115,35 @@ transport that does not yet exist is development-state `NoSafeSlice`.
 
 Delegate lowering consumes and returns the same product. It may use a private
 descriptive target index derived from the product's current AST/session, but
-that index is not a source authority. For every generated method it must
-atomically commit:
+that index is not a source authority. For every parsed `expose` it must
+eventually produce one relation row and atomically commit:
 
 ```text
 generated inventory placement
 + GeneratedDelegateSourceRelation
-   (host Box path, delegate member/expose site, target Box/method path)
+   (host Box path, delegate member/expose ordinal, target Box/method path)
 ```
+
+R6-S3B-C records this relation parser-privately and keeps it outside the
+resolver-visible final seal. The relation is source evidence, not a semantic
+`Verified*` product. The parser records the delegate member and expose ordinal
+while reading source; it never reconstructs them from generated AST,
+inventory ordinal, or a name `HashMap`. The first C cohort admits ordinary
+top-level Rust Boxes with direct explicit target methods only. Generated
+delegate chains, compatibility-only delegates, interface/static/record/Hako,
+and provider-generated declarations remain outside the cohort. Missing typed
+transport is `NoSafeSlice`, fully observed unsupported provenance is
+`Declined`, unavailable source evidence is `Unresolved`, and foreign,
+duplicate, malformed, or contradictory evidence is `Rejected`.
+
+The C transaction preflights all hosts, exposes, exact source paths, target
+relations, generated names, placement, and collisions before staging one
+complete batch. AST mutation, inventory placement, and relation rows commit
+once through `OpenParserPostpassProductV1`; any error discards the complete
+unpublished product. Partial per-host commit, same-session retry, and
+name-based target fallback are forbidden. R6-S3B-D alone extends complete
+relation coverage into the final non-Clone `ParserBoxSourceSealV1` and retires
+the bounded generated-suffix adapter.
 
 The generated declaration and relation are issued by the same transaction when
 the source-aware delegate row is opened. The existing AST-only delegate pass
@@ -513,6 +535,24 @@ claim: B3 keeps it explicitly outside the final source seal, while malformed
 or provenance-invalid suffixes still reject. R6-S3B-C owns the later
 source-aware delegate transaction and relation; B3-I0 does not implement it
 indirectly.
+
+## R6-S3B-C-D0 design receipt — accepted; C implementation remains closed
+
+The source-aware delegate boundary is now fixed by
+`frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md`.
+The C row has one parser-private `GeneratedDelegateSourceRelationV1` per
+`expose`, issued from parser-time source transport and committed together with
+generated AST rows and inventory placement. A private target index may use
+names for lookup, but exact parser-issued Box paths, same-brand source
+relations, and existing target method relations are the authority. Generated
+delegate chains are outside the bounded cohort.
+
+The transaction preflights every host/expose/target/collision before one
+consume-return commit. Any failure discards the whole unpublished
+`OpenParserPostpassProductV1`; no partial host commit, same-session retry, or
+name-based fallback is permitted. C does not widen `ParserBoxSourceSealV1`.
+Only R6-S3B-D may consume complete relation coverage, issue the final
+non-Clone seal, and retire the bounded generated-delegate suffix adapter.
 
 ## Nonclaims until R6-S3B-D closes
 
