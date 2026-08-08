@@ -31,13 +31,13 @@ name collision, duplicate source rows, staged-vs-actual placement mismatch,
 and persisted relation output. Final-seal, resolver, Recipe, Builder, MIR,
 provider, and runtime authority remain closed.
 
-## R6-S3B-D-D0 design stop
+## R6-S3B-D-D0 / D-I0 final-seal boundary
 
-The D0 design is accepted, but implementation is not opened. D is the only
-boundary allowed to consume the C-I0 relation rows and extend the non-Clone
-`ParserBoxSourceSealV1`. Its finalizer-owned coverage plan must compare exact
-same-brand relation keys and generated inventory placement receipts without
-rescanning AST names or rebuilding source identity from ordinals. The planned
-D-I0 task is limited to that final seal and retirement of the bounded S3A
-generated-suffix adapter; resolver, CallableContract, Recipe, Builder/MIR,
-provider, and runtime work remain outside the row.
+The D0 design is accepted and D-I0 is the active bounded implementation.
+It is the only boundary allowed to consume the C-I0 relation rows and extend
+the non-Clone `ParserBoxSourceSealV1`. Its finalizer-owned coverage plan must
+compare exact same-brand relation keys and generated inventory placement
+receipts without rescanning AST names or rebuilding source identity from
+ordinals. The implementation is limited to that final seal and retirement of
+the bounded S3A generated-suffix adapter; resolver, CallableContract, Recipe,
+Builder/MIR, provider, and runtime work remain outside the row.

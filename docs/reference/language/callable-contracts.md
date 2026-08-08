@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0 final-seal design accepted; D-I0/final resolver coverage unopened.
+Status: accepted language target; parser/resolver/body-conformance production 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0 final-seal design accepted; D-I0 final-seal implementation active; resolver coverage remains unopened.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 

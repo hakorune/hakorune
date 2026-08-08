@@ -77,8 +77,16 @@ advanced_design_stop = all(
         'current_blocker_token = "R6-S3B-D-D0:',
     )
 )
-if not (closeout_state or advanced_design_stop):
-    raise SystemExit("CURRENT_STATE missing C-I0 closeout or the accepted next D0 stop")
+active_implementation = all(
+    needle in state
+    for needle in (
+        'work_mode = "fast"',
+        'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-I0"',
+        'current_blocker_token = "R6-S3B-D-I0:',
+    )
+)
+if not (closeout_state or advanced_design_stop or active_implementation):
+    raise SystemExit("CURRENT_STATE missing C-I0 closeout, D0 stop, or D-I0 implementation")
 
 print("accepted_design=1")
 print("all_host_expose_preflight=1")

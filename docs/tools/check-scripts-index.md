@@ -613,7 +613,8 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/frontend_parsed_box_source_seal_r6_s3b_c_s1_guard.sh` | R6-S3B-C-S1 implementation guard for the private borrowed exact-path target index, reusable explicit method reference, focused dispositions, below-800-line sources, and the next C-I0 design stop. |
 | `tools/checks/frontend_parsed_box_source_seal_r6_s3b_c_i0_d0_guard.sh` | R6-S3B-C-I0-D0 accepted design guard for complete all-host/expose preflight, staged placement/relation ownership, atomic consume-return commit, typed failure/discard matrix, and closed implementation receipt. |
 | `tools/checks/frontend_parsed_box_source_seal_r6_s3b_c_i0_guard.sh` | R6-S3B-C-I0 implementation receipt guard for all-host/expose preflight, staged-vs-actual placement equality, parser-private relation persistence, atomic failure coverage, no later authority, and below-800-line sources. |
-| `tools/checks/frontend_parsed_box_source_seal_r6_s3b_d_d0_guard.sh` | R6-S3B-D0 design-stop guard for the sole final-seal issuer, complete relation/placement coverage, no AST/name reconstruction, D-I0 unopened, and below-800-line sources. |
+| `tools/checks/frontend_parsed_box_source_seal_r6_s3b_d_d0_guard.sh` | R6-S3B-D0 design guard for the sole final-seal issuer, complete relation/placement coverage, no AST/name reconstruction, active D-I0 boundary, and below-800-line sources. |
+| `tools/checks/frontend_parsed_box_source_seal_r6_s3b_d_i0_guard.sh` | R6-S3B-D-I0 implementation guard for final generated-delegate relation/placement coverage, sole `ParserBoxSourceSealV1` extension, no later authority, and below-800-line sources. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy

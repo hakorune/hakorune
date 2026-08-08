@@ -1,5 +1,5 @@
 ---
-Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0/C-I0 closed; R6-S3B-D0 accepted and D-I0 not opened
+Status: accepted design; R6-S3B-A/B1/B2/B3-D0/B3-I0/C-D0/C-I0/D-D0 closed; D-I0 implementation active
 Date: 2026-08-08
 Decision: one typed parser postpass product owns AST and source transport
 Related:
@@ -226,7 +226,7 @@ R6-S3B-D  final complete-coverage seal, retire the S3A generated-suffix
 
 ```
 
-## R6-S3B-D-D0 design receipt — accepted; implementation not opened
+## R6-S3B-D-D0 design receipt — accepted; D-I0 implementation active
 
 The final-seal boundary is fixed by:
 
@@ -249,7 +249,7 @@ direct explicit target methods only. Generated chains, compatibility-only,
 interface/static/record/Hako/provider declarations, overloads, and resolver
 connection remain closed. Any failure discards the unpublished parsed product;
 there is no partial seal, retry, or fallback. The D-I0 task and guard are
-planned but implementation is deliberately not opened at this design stop.
+opened as the active bounded implementation row at this design stop.
 
 ## R6-S3B-B design receipt — accepted; B1 implementation opened
 

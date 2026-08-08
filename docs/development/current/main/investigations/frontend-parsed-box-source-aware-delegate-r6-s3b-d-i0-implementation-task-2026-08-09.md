@@ -1,5 +1,5 @@
 ---
-Status: planned implementation; not opened
+Status: active bounded implementation
 Date: 2026-08-09
 Decision: implement only the accepted R6-S3B-D final source-seal extension
 Parent: `frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0-design-task-2026-08-09.md`
@@ -9,8 +9,8 @@ Parent: `frontend-parsed-box-source-aware-delegate-r6-s3b-d-d0-design-task-2026-
 
 ## Scope
 
-This is the next bounded implementation row after the D0 design stop. It is
-not open yet. When opened, it will consume the parser-private relation rows
+This is the active bounded implementation row after the D0 design stop. It
+consumes the parser-private relation rows
 already carried by `ParsedProgramWithSourceV1`, verify complete final AST and
 inventory coverage, and issue the sole non-Clone `ParserBoxSourceSealV1` with
 generated-delegate relations included.

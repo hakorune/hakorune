@@ -25,7 +25,7 @@ design, implementation, ssot, readme, reference, taskmap, state, index = [
 ]
 
 for needle in (
-    "Status: accepted design boundary; implementation not opened",
+    "Status: accepted design boundary; D-I0 implementation opened",
     "sole resolver-visible",
     "GeneratedDelegateSourceRelationV1",
     "finalizer-owned relation/placement coverage",
@@ -44,8 +44,15 @@ for needle in (
     if needle not in design:
         raise SystemExit(f"D0 design receipt missing: {needle}")
 
-if "Status: planned implementation; not opened" not in implementation:
-    raise SystemExit("D-I0 must remain planned and unopened")
+if not any(
+    status in implementation
+    for status in (
+        "Status: planned implementation; not opened",
+        "Status: active bounded implementation",
+        "Status: closed implementation receipt",
+    )
+):
+    raise SystemExit("D-I0 implementation status is invalid")
 for needle in ("ParserBoxSourceSealV1", "old S3A", "NoSafeSlice", "same-slice"):
     if needle not in implementation:
         raise SystemExit(f"D-I0 task missing boundary: {needle}")
@@ -55,14 +62,16 @@ for document, label in ((ssot, "SSOT"), (readme, "README"), (reference, "referen
         if needle not in document:
             raise SystemExit(f"{label} missing D0 receipt: {needle}")
 
-for needle in (
-    'work_mode = "design_stop"',
-    'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-D0"',
-    'current_blocker_token = "R6-S3B-D-D0:',
-    'next_execution_card = "frontend-parsed-box-source-aware-delegate-r6-s3b-d-i0"',
-):
-    if needle not in state:
-        raise SystemExit(f"CURRENT_STATE missing D0 design stop: {needle}")
+active_implementation = all(
+    needle in state
+    for needle in (
+        'work_mode = "fast"',
+        'current_execution_row = "FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-S3B-D-I0"',
+        'current_blocker_token = "R6-S3B-D-I0:',
+    )
+)
+if not active_implementation:
+    raise SystemExit("CURRENT_STATE must point at the active D-I0 implementation")
 
 if "frontend_parsed_box_source_seal_r6_s3b_d_d0_guard.sh" not in index:
     raise SystemExit("check index must list the D0 guard")
@@ -75,7 +84,7 @@ for relative in ("src/parser/source_seal.rs", "src/parser/delegate_batch.rs", "s
 print("accepted_design=1")
 print("sole_final_seal_owner=1")
 print("complete_relation_coverage=1")
-print("implementation_unopened=1")
+print("implementation_boundary=1")
 print("source_files_below_800=1")
 print("summary=ok")
 PY

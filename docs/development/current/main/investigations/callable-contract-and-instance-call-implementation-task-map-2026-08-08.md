@@ -1,5 +1,5 @@
 ---
-Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0 design closed; D-I0 remains unopened
+Status: accepted revised task map; H1/R6-S0/R6-S1/R6-S2a/R6-S2/R6-S3A/R6-S3B-D0/R6-S3B-A/R6-S3B-B0/R6-S3B-B1/R6-S3B-B2/R6-S3B-B3-D0/R6-S3B-B3-I0/R6-S3B-C-D0/R6-S3B-C-S0/R6-S3B-C-S1/C-I0-D0/C-I0 implementation/R6-S3B-D0 design closed; D-I0 implementation active
 Date: 2026-08-08
 Decision: current Hakorune authority wins over the external type-profile proposal
 Reference: `docs/reference/language/callable-contracts.md`
@@ -272,7 +272,7 @@ R6-S3B-C-I0 (closed implementation receipt)
   Task:
   `docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md`
 
-R6-S3B-D (R6-S3B-D-D0 design closed; D-I0 unopened)
+R6-S3B-D (R6-S3B-D-D0 design closed; D-I0 implementation active)
   final complete relation coverage and one final non-Clone seal
   sole `ParserBoxSourceSealV1` extension after complete relation coverage
   retire the bounded S3A generated-suffix adapter

@@ -1,5 +1,5 @@
 ---
-Status: accepted design boundary; implementation not opened
+Status: accepted design boundary; D-I0 implementation opened
 Date: 2026-08-09
 Decision: R6-S3B-D is the sole final generated-delegate source-seal extension
 Parent: `docs/development/current/main/design/parser-postpass-source-handoff-ssot.md`
