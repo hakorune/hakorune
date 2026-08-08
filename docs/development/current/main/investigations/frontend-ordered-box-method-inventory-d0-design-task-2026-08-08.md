@@ -652,6 +652,23 @@ source-aware delegate transport, interface/static/record seals, Hako parser
 parity, resolver declaration, `CallableContract`, target, Recipe, Builder,
 MIR, provider, or runtime code.
 
+### R6-S3B-A implementation receipt
+
+The first S3B-A cell now owns one non-Clone
+`OpenParserPostpassProductV1` containing the AST, a named
+`ParserSourceSessionV1` for prepared parser source payloads, and cloneable
+diagnostic `ParserMetadata`. The bounded rich path
+consumes and returns that product through prune and delegate lowering, then
+the product alone may issue `ParsedProgramWithSourceV1`. A crate-visible
+`parse_from_string_with_source_seal_ast` helper projects the finalized rich
+result to AST exactly once for the direct ordinary-Box cohort.
+
+This cell does not add gate structural paths or `GeneratedDelegateSourceRelation`;
+the existing gate/delegate behavior remains a compatibility canary and no new
+resolver-grade relation claim is made. The focused S3B-A guard and tests prove
+product handoff, diagnostic metadata separation, and rich/projection AST
+parity. The implementation/reference/guard closeout lands together.
+
 ## Ordered implementation series
 
 ```text

@@ -157,6 +157,12 @@ R6-S3B-A
   AST-only APIs project from that product exactly once
   no resolver-grade generated-delegate suffix claim
 
+  implementation receipt:
+    OpenParserPostpassProductV1 owns AST + ParserSourceSessionV1 + diagnostic
+    ParserMetadata; rich finalization and bounded AST projection
+    consume the same product; gate structural paths and delegate relations
+    remain closed for later S3B-B/C/D.
+
 R6-S3B-B
   typed top-level build-gate path/cursor
   atomic branch selection, prune, and source-path preservation

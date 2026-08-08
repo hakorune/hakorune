@@ -27,7 +27,8 @@ for needle in (
     "mod source_seal;",
     "parse_from_string_with_source_seal",
     "std::mem::take(&mut parser.prepared_source_seals)",
-    "source_seal::finalize_program",
+    "OpenParserPostpassProductV1::new",
+    ".finalize()",
 ):
     if needle not in parser:
         raise SystemExit(f"missing R6-S3A rich parse entry/finalizer: {needle}")
@@ -35,7 +36,7 @@ for needle in (
 for needle in (
     "pub(super) struct ParserBoxSourceSealV1",
     "pub(super) struct ParsedProgramWithSourceV1",
-    "pub(super) fn finalize_program",
+    "fn finalize_program",
     "InventoryPrefixMismatch",
 ):
     if needle not in seal:
@@ -45,7 +46,11 @@ if "lower_delegate_exposes" not in parser:
 
 if re.search(r"derive\([^)]*Clone[^)]*\)\s*pub\(super\) struct ParserBoxSourceSealV1", seal):
     raise SystemExit("ParserBoxSourceSealV1 must remain non-Clone")
-if re.search(r"pub(?:\(crate\)|\(super\))?\s+fn\s+new\s*\(", seal):
+if re.search(
+    r"impl\s+ParserBoxSourceSealV1\s*\{.*?pub(?:\(crate\)|\(super\))?\s+fn\s+new\s*\(",
+    seal,
+    re.S,
+):
     raise SystemExit("R6-S3A final source seal must not expose a constructor")
 
 if "register_prepared_source_seal" not in box or "state.source_tx.finish()" not in box:

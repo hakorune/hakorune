@@ -254,6 +254,15 @@ adapter. This does not open typed `CallableContract` parser carriage, resolver
 publication, source-aware delegate transport, top-level gate rebase, or body
 conformance.
 
+R6-S3B-A receipt (2026-08-08): the bounded rich parse path now carries one
+non-Clone `OpenParserPostpassProductV1` across its existing prune/delegate
+boundary. The product owns the AST, a `ParserSourceSessionV1` for prepared
+parser source payloads, and
+cloneable diagnostic metadata; `parse_from_string_with_source_seal_ast` is a
+single AST projection of the finalized rich product for direct ordinary Rust
+`box` only. Top-level gate structural paths and source-aware delegate
+relations remain closed for S3B-B/C/D.
+
 ## Related references
 
 - [Rune declaration metadata](runes.md)

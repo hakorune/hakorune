@@ -1,18 +1,20 @@
 //! Final parser source product for the bounded R6-S3 slice.
 //!
 //! This module owns the post-prune/post-delegate boundary.  The ordinary
-//! parser transaction issues only a prepared payload; this module is the only
-//! place that can compare that payload with the final AST inventory and issue
-//! the non-Clone source seal.
+//! parser transaction issues only a prepared payload; the postpass product in
+//! this module is the only owner that can compare that payload with the final
+//! AST inventory and issue the non-Clone source seal.
 
 use crate::ast::{
     ASTNode, BoxMethodGeneratedProvenanceV1, BoxMethodInventoryErrorV1, BoxMethodInventoryV1,
     BoxMethodProvenanceV1, PreparedBoxMethodInventoryAppendV1,
 };
+use crate::parser::ParserMetadata;
 
 use super::source_authority::{
     MethodSourceRelationV1, ParserInvocationBrandV1, SourceBoxDeclarationSiteV1,
 };
+use super::{delegate_lowering, NyashParser};
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) enum SourceSealFinalizationErrorV1 {
@@ -104,8 +106,76 @@ impl PreparedBoxSourceSealV1 {
     }
 }
 
+/// Single typed owner for the AST/source handoff between parser postpasses.
+///
+/// S3B-A intentionally keeps the existing direct ordinary-Box prune/delegate
+/// behavior. The important boundary is that those postpasses consume and
+/// return this product instead of separately mutating an AST and a seal list.
+/// Gate path rebasing and source-aware delegate relations remain later S3B
+/// slices; this product must not be treated as resolver authority until the
+/// final relation coverage is complete.
+#[derive(Debug)]
+pub(super) struct OpenParserPostpassProductV1 {
+    ast: ASTNode,
+    source_session: ParserSourceSessionV1,
+    metadata: ParserMetadata,
+}
+
+/// Parser-owned source transport for the open postpass product. This wrapper
+/// keeps prepared payload storage behind a named session boundary; gate path
+/// and generated-delegate relation expansion belong to later S3B slices.
+#[derive(Debug)]
+pub(super) struct ParserSourceSessionV1 {
+    prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+}
+
+impl ParserSourceSessionV1 {
+    pub(super) fn from_prepared(prepared_source_seals: Vec<PreparedBoxSourceSealV1>) -> Self {
+        Self {
+            prepared_source_seals,
+        }
+    }
+
+    fn into_prepared(self) -> Vec<PreparedBoxSourceSealV1> {
+        self.prepared_source_seals
+    }
+}
+
+impl OpenParserPostpassProductV1 {
+    pub(super) fn new(
+        ast: ASTNode,
+        prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+        metadata: ParserMetadata,
+    ) -> Self {
+        Self {
+            ast,
+            source_session: ParserSourceSessionV1::from_prepared(prepared_source_seals),
+            metadata,
+        }
+    }
+
+    pub(super) fn prune_build_gates(
+        self,
+        parser: &NyashParser,
+    ) -> Result<Self, crate::parser::ParseError> {
+        let ast = parser.prune_build_gate_program(self.ast)?;
+        Ok(Self { ast, ..self })
+    }
+
+    pub(super) fn lower_delegates(self) -> Result<Self, crate::parser::ParseError> {
+        let ast = delegate_lowering::lower_delegate_exposes(self.ast)?;
+        Ok(Self { ast, ..self })
+    }
+
+    pub(super) fn finalize(
+        self,
+    ) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
+        finalize_program(self.ast, self.source_session.into_prepared(), self.metadata)
+    }
+}
+
 /// Final authority. It is intentionally non-Clone and has no public
-/// constructor. Only `finalize_program` can issue it.
+/// constructor. Only `OpenParserPostpassProductV1::finalize` can issue it.
 #[derive(Debug)]
 pub(super) struct ParserBoxSourceSealV1 {
     prepared: PreparedBoxSourceSealV1,
@@ -129,6 +199,7 @@ impl ParserBoxSourceSealV1 {
 pub(super) struct ParsedProgramWithSourceV1 {
     ast: ASTNode,
     source_seals: Box<[ParserBoxSourceSealV1]>,
+    metadata: ParserMetadata,
 }
 
 impl ParsedProgramWithSourceV1 {
@@ -143,13 +214,18 @@ impl ParsedProgramWithSourceV1 {
     pub(super) fn source_seals(&self) -> &[ParserBoxSourceSealV1] {
         &self.source_seals
     }
+
+    pub(super) fn metadata(&self) -> &ParserMetadata {
+        &self.metadata
+    }
 }
 
 /// Finalize only the bounded R6-S3 cohort: direct top-level ordinary Rust
 /// `box` declarations, after build-gate pruning and delegate lowering.
-pub(super) fn finalize_program(
+fn finalize_program(
     ast: ASTNode,
     prepared: Vec<PreparedBoxSourceSealV1>,
+    metadata: ParserMetadata,
 ) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
     let ASTNode::Program { ref statements, .. } = ast else {
         return Err(SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
@@ -194,7 +270,11 @@ pub(super) fn finalize_program(
         .collect::<Result<Vec<_>, _>>()?
         .into_boxed_slice();
 
-    Ok(ParsedProgramWithSourceV1 { ast, source_seals })
+    Ok(ParsedProgramWithSourceV1 {
+        ast,
+        source_seals,
+        metadata,
+    })
 }
 
 pub(super) fn map_error(error: SourceSealFinalizationErrorV1) -> crate::parser::ParseError {
@@ -258,6 +338,42 @@ box Plain {
         assert_eq!(seal.inventory().get("run").unwrap().name(), "run");
         assert_eq!(seal.method_relations().len(), 1);
         assert!(matches!(parsed.ast(), ASTNode::Program { .. }));
+    }
+
+    #[test]
+    fn r6_s3b_a_ast_projection_matches_the_rich_product() {
+        let source = r#"
+box Plain {
+    run() { return 1 }
+}
+"#;
+        let rich =
+            NyashParser::parse_from_string_with_source_seal(source, ParserBuildConfig::default())
+                .expect("rich direct-Box product should finalize");
+        let projected = NyashParser::parse_from_string_with_source_seal_ast(
+            source,
+            ParserBuildConfig::default(),
+        )
+        .expect("AST projection should use the rich path");
+
+        assert_eq!(rich.into_ast(), projected);
+    }
+
+    #[test]
+    fn r6_s3b_a_rich_product_keeps_diagnostic_metadata_outside_source_seal() {
+        let parsed = NyashParser::parse_from_string_with_source_seal(
+            r#"@rune Public
+box Plain {
+    run() { return 1 }
+}
+"#,
+            ParserBuildConfig::default(),
+        )
+        .expect("diagnostic rune metadata must not block the bounded product");
+
+        assert_eq!(parsed.source_seals().len(), 1);
+        assert_eq!(parsed.metadata().runes.len(), 1);
+        assert_eq!(parsed.metadata().runes[0].name, "Public");
     }
 
     #[test]

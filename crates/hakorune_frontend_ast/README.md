@@ -119,6 +119,13 @@ resolver-grade source authority. S3B-C/D must add the source-aware relation
 and complete final coverage, or retire/reject the suffix adapter. Source-site
 authority stays in `src/parser/source_seal.rs`.
 
+R6-S3B-A keeps the same boundary: `OpenParserPostpassProductV1` and its
+`ParserSourceSessionV1` are owned by the parser, not this AST crate. The AST
+crate only supplies descriptive
+inventory operations; the rich parser product owns postpass handoff and the
+single AST projection. Gate structural paths and source-aware delegate
+relations are later parser slices.
+
 ## Boundaries
 
 - parser: may issue explicit/generated rows through typed methods;

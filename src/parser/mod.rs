@@ -257,10 +257,25 @@ impl NyashParser {
         let mut parser = Self::new(tokens);
         parser.build_config = build_config;
         let ast = parser.parse_program()?;
-        let ast = parser.prune_build_gate_program(ast)?;
-        let ast = delegate_lowering::lower_delegate_exposes(ast)?;
-        source_seal::finalize_program(ast, std::mem::take(&mut parser.prepared_source_seals))
-            .map_err(source_seal::map_error)
+        let product = source_seal::OpenParserPostpassProductV1::new(
+            ast,
+            std::mem::take(&mut parser.prepared_source_seals),
+            parser.take_metadata(),
+        );
+        let product = product.prune_build_gates(&parser)?;
+        let product = product.lower_delegates()?;
+        product.finalize().map_err(source_seal::map_error)
+    }
+
+    /// Bounded AST-only projection for the same direct ordinary-Box rich
+    /// path. This is intentionally crate-visible until all general parser
+    /// cohorts have typed path/relation transport.
+    pub(crate) fn parse_from_string_with_source_seal_ast(
+        input: impl Into<String>,
+        build_config: ParserBuildConfig,
+    ) -> Result<ASTNode, ParseError> {
+        Self::parse_from_string_with_source_seal(input, build_config)
+            .map(source_seal::ParsedProgramWithSourceV1::into_ast)
     }
 
     pub fn parse_from_string_with_fuel_and_build_config(
