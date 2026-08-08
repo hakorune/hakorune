@@ -83,7 +83,7 @@ unknown CallableContract value       -> parser error
 wrong placement                     -> parser error
 duplicate CallableContract rune     -> parser error
 duplicate method declaration         -> parser error
-conflicting Profile/Contract rune   -> parser error
+conflicting Profile/Contract rune   -> semantic issuer Rejected (later D0)
 foreign/stale source seal            -> Rejected at source handoff
 missing typed syntax row             -> Declined for a source without it
 issuer not implemented               -> NoSafeSlice development state

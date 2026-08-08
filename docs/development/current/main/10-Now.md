@@ -23,17 +23,17 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass and V2 schema
-closeouts are closed. The selected next boundary is:
+Current mode is `fast`. The parser public-AST/postpass and V2 schema closeouts
+are closed. The selected bounded implementation is:
 
 ```text
-CALLABLE-CONTRACT-TYPED-SYNTAX-CARRIAGE-D0
+CALLABLE-CONTRACT-TYPED-SYNTAX-CARRIAGE-I0
 ```
 
-This D0 carries parser-owned `CallableContract(query)` syntax into a typed DTO
-only. It does not open resolver declaration/signature, Home ABI, instance
-targets, source-bound CallSlot relations, ScanWithInit, physical lowering,
-production selection, or legacy retirement.
+This I0 carries parser-owned `CallableContract(query)` syntax into a typed DTO
+and rich source seal only. It does not open resolver declaration/signature,
+Home ABI, instance targets, source-bound CallSlot relations, ScanWithInit,
+physical lowering, production selection, or legacy retirement.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No
