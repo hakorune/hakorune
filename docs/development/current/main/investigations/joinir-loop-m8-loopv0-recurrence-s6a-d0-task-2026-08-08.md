@@ -4,7 +4,7 @@ Status: `accepted design; R0 prerequisite closed; implementation is the next cal
 Date: 2026-08-08
 Parent: `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`
 Decision row: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A-D0`
-Selected next row: `LOOP-INPUT-SOURCE-RELATION-SET-R0`
+Selected next row: `JOINIR-LOOP-M8-LOOPV0-RECURRENCE-S6A`
 
 ## Decision
 
@@ -68,6 +68,12 @@ subordinate views; they must not redefine S6A:
 - `docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md`
 - `docs/reference/mir/loop-recipe-contract.md`
 - `src/mir/loop_recipe_contract/README.md`
+
+This D0 card is a bounded child execution contract. It may repeat the exact
+golden and acceptance matrix for implementation convenience, but it cannot
+introduce a second semantic decision. If this card and the pipeline SSOT ever
+diverge, the pipeline SSOT wins and this card must be corrected before code is
+changed.
 
 The resolver owns source owner/site/scope/frame and `BindingRef` identity.
 The source observer owns only neutral structural Facts and typed provenance.
@@ -223,6 +229,13 @@ LoopRecipeProducerIdV1::VariableAccumRecurrenceV1
 serialized = variable_accum_recurrence_v1
 ```
 
+Producer success has one terminal move-only product: the complete source-bound
+Recipe/JoinSig/Core/input/operation-evidence aggregate. No input set, Core
+relation, or operation/effect product may escape independently before that
+terminal is issued. Any missing, duplicate, foreign, or inconsistent row
+returns a typed failure with published product count zero; there is no partial
+publication or retry.
+
 Core effect ordinals are per `(Recipe binding, access kind)`:
 
 ```text
@@ -366,6 +379,27 @@ The first executable code may be Builder-free only. If any cell needs AST
 re-reading after Facts, a second selector, a route-specific physicalizer, or
 an unresolved resolver capability, stop and replace this card with one explicit
 design decision before editing further.
+
+## Code homes
+
+The implementation locations are fixed before coding:
+
+```text
+src/mir/compiler/variable_accum_recurrence_projection.rs
+  AST/source-view observer only; resolver-backed input, no neutral owner
+
+src/mir/loop_structural_facts/variable_accum_recurrence.rs
+  atomic AST-free Facts and C/D/U/R outcome only
+
+src/mir/loop_recipe_contract/variable_accum_recurrence_producer.rs
+  one terminal move-only projection into existing Recipe/JoinSig/Core/input/effect owners
+
+src/mir/loop_route_policy/
+  no S6A code or selector change; README/reference receipt only
+```
+
+If an implementation needs another code home, stop and revise this card rather
+than adding a parallel authority.
 
 ## Ordered follow-on work
 

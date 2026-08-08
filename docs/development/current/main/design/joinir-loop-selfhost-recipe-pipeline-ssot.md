@@ -135,6 +135,12 @@ re-reads AST, resolves names, or reclassifies the family. A resolver-issued
 source capability and its exact frame/site identity are retained until the
 Facts aggregate is sealed; coordinates alone cannot recreate that authority.
 
+Producer success has one terminal move-only aggregate containing the complete
+source-bound Recipe/JoinSig/Core/input/operation-evidence result. Partial input,
+Core, or operation/effect products cannot escape before that terminal. Any
+missing, duplicate, foreign, or inconsistent row yields typed failure with
+published product count zero; no partial publication or retry is permitted.
+
 The four relation families are independent cardinality checks over one sealed
 source-role map, not four competing truths:
 

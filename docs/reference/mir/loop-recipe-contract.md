@@ -1025,9 +1025,12 @@ for constants, whole binary expressions for Compare/Add, assignment targets for
 writes, Loop statement plus carrier key for carrier entries, and declaration
 plus initializer expression for inputs. The four relation families are
 cardinality checks over one source-role map: 2 input, 2 binding, 8 Core-effect,
-and 11 item-source relations. Disposition precedence is Rejected for identity
-conflict, Unresolved for unavailable evidence, Declined for a fully observed
-non-family shape, and Candidate only for the exact complete shape.
+and 11 item-source relations. Producer success is one terminal move-only
+source-bound aggregate; partial input/Core/operation products are not published,
+and any duplicate, foreign, missing, or inconsistent row fails with published
+product count zero. Disposition precedence is Rejected for identity conflict,
+Unresolved for unavailable evidence, Declined for a fully observed non-family
+shape, and Candidate only for the exact complete shape.
 
 R0 first replaces callable's singular initialized-local input relation with
 one common move-only exact-coverage initialized-local set without changing

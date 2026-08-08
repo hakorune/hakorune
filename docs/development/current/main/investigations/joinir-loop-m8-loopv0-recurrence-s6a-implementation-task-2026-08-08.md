@@ -22,12 +22,20 @@ reclassifies the family.
 
 ## Contract
 
-The accepted D0 card and Loop pipeline SSOT own the exact source membership,
-C/D/U/R precedence, normalized 2-binding/11-operation/2-carrier golden, and
-2 input / 2 binding / 8 Core-effect / 11 item-source relation counts. Recipe
-keys begin at the producer; AST navigation stays in compiler projection and
-neutral Facts remain AST-free. DirectAccum, Recipe/operation kinds, Core,
-JoinSig elaboration, the family selector, and physical owners are not widened.
+The Loop pipeline SSOT is the sole normative owner of the exact source
+membership, C/D/U/R precedence, normalized 2-binding/11-operation/2-carrier
+golden, and 2 input / 2 binding / 8 Core-effect / 11 item-source relation
+counts. The D0 card is only the bounded execution brief. Recipe keys begin at
+the producer; AST navigation stays in compiler projection and neutral Facts
+remain AST-free. DirectAccum, Recipe/operation kinds, Core, JoinSig
+elaboration, the family selector, and physical owners are not widened.
+
+Producer success has one terminal move-only aggregate: the complete
+source-bound Recipe/JoinSig/Core/input/operation-evidence result. No input set,
+Core relation, or operation/effect product may escape independently before
+that terminal is issued. Any missing, duplicate, foreign, or inconsistent row
+returns a typed failure with published product count zero; there is no partial
+publication or retry.
 
 ## Done
 
@@ -88,3 +96,20 @@ retry/fallback retirement, outer print/return tail coverage, or legacy deletion.
 
 No step may introduce a deeper S6A task suffix. A newly discovered prerequisite
 reopens design rather than being guessed into the implementation.
+
+## Code homes
+
+```text
+src/mir/compiler/variable_accum_recurrence_projection.rs
+  resolver-backed AST/source-view observer only
+src/mir/loop_structural_facts/variable_accum_recurrence.rs
+  atomic AST-free Facts and C/D/U/R outcome only
+src/mir/loop_recipe_contract/variable_accum_recurrence_producer.rs
+  terminal projection into existing Recipe/JoinSig/Core/input/effect owners
+src/mir/loop_route_policy/
+  no S6A code or selector change; README/reference receipt only
+```
+
+If implementation needs another code home, stop and revise the design card
+before editing. The named homes and the pipeline SSOT together prevent a
+second source, producer, or selector authority.
