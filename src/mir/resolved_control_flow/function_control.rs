@@ -5,7 +5,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::SourceBodySiteV1;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, RegionId, ResolvedControlTransferV1, ResolvedExitOriginV1,
-    ResolvedExitSiteV1, SourceStmtSiteV1,
+    ResolvedExitRecordV1, ResolvedExitSiteV1, SourceStmtSiteV1,
 };
 
 use super::cleanup::ResolvedCleanupObligationsV1;
@@ -40,12 +40,19 @@ pub(crate) enum SealedFunctionExitDispositionV1 {
         body_end: u32,
         origin: FunctionUnitOriginV1,
     },
+    ExplicitValueSet {
+        sites: Box<[SourceStmtSiteV1]>,
+    },
+    ExplicitUnitSet {
+        sites: Box<[SourceStmtSiteV1]>,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FunctionExitCoverageV1 {
     ExactZeroExitRootBody,
     ExactOneTerminalRootReturn,
+    ExactExplicitReturnSet { count: u32 },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -147,8 +154,19 @@ pub(crate) struct VerifiedImplicitVoidCompletionV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedExplicitReturnSetV1 {
+    owner: FunctionOwnerIdV1,
+    sites: Box<[SourceStmtSiteV1]>,
+    target_function: RegionId,
+    value: TerminalReturnValueV1,
+    cleanup: ResolvedCleanupObligationsV1,
+    exit_contract: SealedFunctionExitContractV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) enum VerifiedFunctionCompletionV1 {
     ExplicitReturn(VerifiedTerminalReturnV1),
+    ExplicitReturns(VerifiedExplicitReturnSetV1),
     ImplicitVoid(VerifiedImplicitVoidCompletionV1),
 }
 
@@ -156,6 +174,7 @@ impl VerifiedFunctionCompletionV1 {
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         match self {
             Self::ExplicitReturn(contract) => contract.owner,
+            Self::ExplicitReturns(contract) => contract.owner,
             Self::ImplicitVoid(contract) => contract.owner,
         }
     }
@@ -163,6 +182,7 @@ impl VerifiedFunctionCompletionV1 {
     pub(crate) const fn target_function(&self) -> RegionId {
         match self {
             Self::ExplicitReturn(contract) => contract.target_function,
+            Self::ExplicitReturns(contract) => contract.target_function,
             Self::ImplicitVoid(contract) => contract.target_function,
         }
     }
@@ -170,6 +190,7 @@ impl VerifiedFunctionCompletionV1 {
     pub(crate) fn cleanup(&self) -> &ResolvedCleanupObligationsV1 {
         match self {
             Self::ExplicitReturn(contract) => &contract.cleanup,
+            Self::ExplicitReturns(contract) => &contract.cleanup,
             Self::ImplicitVoid(contract) => &contract.cleanup,
         }
     }
@@ -177,6 +198,7 @@ impl VerifiedFunctionCompletionV1 {
     pub(crate) fn function_exit_contract(&self) -> &SealedFunctionExitContractV1 {
         match self {
             Self::ExplicitReturn(contract) => &contract.exit_contract,
+            Self::ExplicitReturns(contract) => &contract.exit_contract,
             Self::ImplicitVoid(contract) => &contract.exit_contract,
         }
     }
@@ -184,6 +206,7 @@ impl VerifiedFunctionCompletionV1 {
     pub(crate) const fn explicit_site(&self) -> Option<&SourceStmtSiteV1> {
         match self {
             Self::ExplicitReturn(contract) => Some(&contract.site),
+            Self::ExplicitReturns(_) => None,
             Self::ImplicitVoid(_) => None,
         }
     }
@@ -192,6 +215,9 @@ impl VerifiedFunctionCompletionV1 {
         matches!(
             self,
             Self::ExplicitReturn(VerifiedTerminalReturnV1 {
+                value: TerminalReturnValueV1::Value,
+                ..
+            }) | Self::ExplicitReturns(VerifiedExplicitReturnSetV1 {
                 value: TerminalReturnValueV1::Value,
                 ..
             })
@@ -205,6 +231,7 @@ impl VerifiedFunctionCompletionV1 {
     pub(crate) const fn unreachable_suffix_count(&self) -> u32 {
         match self {
             Self::ExplicitReturn(contract) => contract.unreachable_suffix_count,
+            Self::ExplicitReturns(_) => 0,
             Self::ImplicitVoid(_) => 0,
         }
     }
@@ -212,7 +239,16 @@ impl VerifiedFunctionCompletionV1 {
     pub(crate) const fn implicit_body_end(&self) -> Option<(&SourceBodySiteV1, u32)> {
         match self {
             Self::ExplicitReturn(_) => None,
+            Self::ExplicitReturns(_) => None,
             Self::ImplicitVoid(contract) => Some((&contract.body, contract.body_end)),
+        }
+    }
+
+    pub(crate) fn explicit_sites(&self) -> &[SourceStmtSiteV1] {
+        match self {
+            Self::ExplicitReturn(contract) => std::slice::from_ref(&contract.site),
+            Self::ExplicitReturns(contract) => &contract.sites,
+            Self::ImplicitVoid(_) => &[],
         }
     }
 }
@@ -293,6 +329,9 @@ pub(crate) fn verify_function_completion_v1(
             },
         ));
     }
+    if exits.len() > 1 {
+        return verify_explicit_return_set(input, &body, declared_result, target_function, &exits);
+    }
     if exits.len() != 1 {
         return Err(FunctionCompletionVerificationErrorV1::UnsupportedExitCardinality(exits.len()));
     }
@@ -347,61 +386,8 @@ pub(crate) fn verify_function_completion_v1(
         ));
     }
 
-    let (value, unit_origin, exact_non_unit_literal) = match value.as_deref() {
-        None => (
-            TerminalReturnValueV1::Void,
-            Some(FunctionUnitOriginV1::BareReturn),
-            false,
-        ),
-        Some(ASTNode::Literal {
-            value: LiteralValue::Void,
-            ..
-        }) => (
-            TerminalReturnValueV1::Void,
-            Some(FunctionUnitOriginV1::ExplicitVoid),
-            false,
-        ),
-        Some(ASTNode::Literal {
-            value: LiteralValue::Null,
-            ..
-        }) => (
-            TerminalReturnValueV1::Void,
-            Some(FunctionUnitOriginV1::ExplicitNull),
-            false,
-        ),
-        Some(ASTNode::Literal { .. }) => (TerminalReturnValueV1::Value, None, true),
-        Some(_) => (TerminalReturnValueV1::Value, None, false),
-    };
-    if matches!(
-        (&declared_result, value),
-        (
-            DeclaredFunctionResultContractV1::Annotated(_),
-            TerminalReturnValueV1::Void
-        )
-    ) {
-        let DeclaredFunctionResultContractV1::Annotated(name) = &declared_result else {
-            return Err(FunctionCompletionVerificationErrorV1::ReturnClassificationInvariant);
-        };
-        return Err(
-            FunctionCompletionVerificationErrorV1::MissingReturnValueOnPath {
-                declared_type_name: name.to_string(),
-            },
-        );
-    }
-    if matches!(
-        (&declared_result, value, exact_non_unit_literal),
-        (
-            DeclaredFunctionResultContractV1::Void,
-            TerminalReturnValueV1::Value,
-            true,
-        )
-    ) {
-        return Err(
-            FunctionCompletionVerificationErrorV1::ReturnContractMismatch {
-                declared_type_name: "void".to_string(),
-            },
-        );
-    }
+    let (value, unit_origin, exact_non_unit_literal) = classify_return_value(value.as_deref());
+    verify_declared_return_value(&declared_result, value, exact_non_unit_literal)?;
 
     let disposition = match (value, unit_origin) {
         (TerminalReturnValueV1::Value, None) => SealedFunctionExitDispositionV1::ExplicitValue {
@@ -432,6 +418,183 @@ pub(crate) fn verify_function_completion_v1(
             ),
         },
     ))
+}
+
+fn verify_explicit_return_set(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    body: &crate::mir::compiler::located::LocatedBodyV1<'_>,
+    declared_result: DeclaredFunctionResultContractV1,
+    target_function: RegionId,
+    exits: &[(&ResolvedExitSiteV1, &ResolvedExitRecordV1)],
+) -> Result<VerifiedFunctionCompletionV1, FunctionCompletionVerificationErrorV1> {
+    let last_index = body.statements().len().checked_sub(1).ok_or_else(|| {
+        FunctionCompletionVerificationErrorV1::UnsupportedExitCardinality(exits.len())
+    })?;
+    let terminal = input
+        .source()
+        .body_stmt(body, last_index)
+        .map_err(|error| {
+            FunctionCompletionVerificationErrorV1::SourceNavigation(error.to_string())
+        })?;
+    if !matches!(terminal.node(), ASTNode::Return { .. }) {
+        return Err(
+            FunctionCompletionVerificationErrorV1::TerminalSiteIsNotReturn(terminal.site().clone()),
+        );
+    }
+
+    let mut sites = Vec::with_capacity(exits.len());
+    let mut common_value = None;
+    for (exit_site, exit) in exits.iter().copied() {
+        let ResolvedExitSiteV1::Statement(site) = exit_site else {
+            return Err(FunctionCompletionVerificationErrorV1::UnsupportedExitSite(
+                exit_site.clone(),
+            ));
+        };
+        let statement = input.source().exact_stmt(site).map_err(|error| {
+            FunctionCompletionVerificationErrorV1::SourceNavigation(error.to_string())
+        })?;
+        let ASTNode::Return { value, .. } = statement.node() else {
+            return Err(
+                FunctionCompletionVerificationErrorV1::TerminalSiteIsNotReturn(site.clone()),
+            );
+        };
+        if exit.source_region().owner() != input.owner() {
+            return Err(FunctionCompletionVerificationErrorV1::WrongSourceRegion(
+                exit_site.clone(),
+            ));
+        }
+        if exit.origin() != ResolvedExitOriginV1::ExplicitReturn {
+            return Err(FunctionCompletionVerificationErrorV1::WrongExitOrigin(
+                exit_site.clone(),
+            ));
+        }
+        let ResolvedControlTransferV1::Return {
+            target_function: actual_target,
+        } = exit.transfer()
+        else {
+            return Err(FunctionCompletionVerificationErrorV1::WrongTransferKind(
+                exit_site.clone(),
+            ));
+        };
+        if actual_target != target_function {
+            return Err(FunctionCompletionVerificationErrorV1::WrongFunctionTarget(
+                exit_site.clone(),
+            ));
+        }
+        let (value_kind, _, exact_non_unit_literal) = classify_return_value(value.as_deref());
+        verify_declared_return_value(&declared_result, value_kind, exact_non_unit_literal)?;
+        if common_value
+            .replace(value_kind)
+            .is_some_and(|prior| prior != value_kind)
+        {
+            return Err(FunctionCompletionVerificationErrorV1::ReturnClassificationInvariant);
+        }
+        sites.push(site.clone());
+    }
+    if !sites.contains(terminal.site()) {
+        return Err(FunctionCompletionVerificationErrorV1::NonTerminalReturn {
+            actual: sites
+                .first()
+                .cloned()
+                .unwrap_or_else(|| terminal.site().clone()),
+            expected: terminal.site().clone(),
+        });
+    }
+    let value =
+        common_value.ok_or(FunctionCompletionVerificationErrorV1::ReturnClassificationInvariant)?;
+    let count = u32::try_from(sites.len())
+        .map_err(|_| FunctionCompletionVerificationErrorV1::BodyLengthOverflow)?;
+    let disposition = match value {
+        TerminalReturnValueV1::Value => SealedFunctionExitDispositionV1::ExplicitValueSet {
+            sites: sites.clone().into_boxed_slice(),
+        },
+        TerminalReturnValueV1::Void => SealedFunctionExitDispositionV1::ExplicitUnitSet {
+            sites: sites.clone().into_boxed_slice(),
+        },
+    };
+    Ok(VerifiedFunctionCompletionV1::ExplicitReturns(
+        VerifiedExplicitReturnSetV1 {
+            owner: input.owner(),
+            sites: sites.into_boxed_slice(),
+            target_function,
+            value,
+            cleanup: ResolvedCleanupObligationsV1::explicit_empty(),
+            exit_contract: SealedFunctionExitContractV1::new(
+                input.owner(),
+                declared_result,
+                disposition,
+                FunctionExitCoverageV1::ExactExplicitReturnSet { count },
+            ),
+        },
+    ))
+}
+
+fn classify_return_value(
+    value: Option<&ASTNode>,
+) -> (TerminalReturnValueV1, Option<FunctionUnitOriginV1>, bool) {
+    match value {
+        None => (
+            TerminalReturnValueV1::Void,
+            Some(FunctionUnitOriginV1::BareReturn),
+            false,
+        ),
+        Some(ASTNode::Literal {
+            value: LiteralValue::Void,
+            ..
+        }) => (
+            TerminalReturnValueV1::Void,
+            Some(FunctionUnitOriginV1::ExplicitVoid),
+            false,
+        ),
+        Some(ASTNode::Literal {
+            value: LiteralValue::Null,
+            ..
+        }) => (
+            TerminalReturnValueV1::Void,
+            Some(FunctionUnitOriginV1::ExplicitNull),
+            false,
+        ),
+        Some(ASTNode::Literal { .. }) => (TerminalReturnValueV1::Value, None, true),
+        Some(_) => (TerminalReturnValueV1::Value, None, false),
+    }
+}
+
+fn verify_declared_return_value(
+    declared_result: &DeclaredFunctionResultContractV1,
+    value: TerminalReturnValueV1,
+    exact_non_unit_literal: bool,
+) -> Result<(), FunctionCompletionVerificationErrorV1> {
+    if matches!(
+        (declared_result, value),
+        (
+            DeclaredFunctionResultContractV1::Annotated(_),
+            TerminalReturnValueV1::Void
+        )
+    ) {
+        let DeclaredFunctionResultContractV1::Annotated(name) = declared_result else {
+            return Err(FunctionCompletionVerificationErrorV1::ReturnClassificationInvariant);
+        };
+        return Err(
+            FunctionCompletionVerificationErrorV1::MissingReturnValueOnPath {
+                declared_type_name: name.to_string(),
+            },
+        );
+    }
+    if matches!(
+        (declared_result, value, exact_non_unit_literal),
+        (
+            DeclaredFunctionResultContractV1::Void,
+            TerminalReturnValueV1::Value,
+            true,
+        )
+    ) {
+        return Err(
+            FunctionCompletionVerificationErrorV1::ReturnContractMismatch {
+                declared_type_name: "void".to_string(),
+            },
+        );
+    }
+    Ok(())
 }
 
 fn declared_result_contract(declared_type_name: Option<&str>) -> DeclaredFunctionResultContractV1 {

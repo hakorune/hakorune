@@ -205,6 +205,34 @@ impl<'a> FunctionSourceViewV1<'a> {
         ))
     }
 
+    /// Re-open one exact resolver-inventoried statement site.
+    ///
+    /// This does not search syntax or infer a site from a name. It is the
+    /// shared source-navigation boundary for sealed products such as function
+    /// completion that already own the exact `SourceStmtSiteV1`.
+    pub(crate) fn exact_stmt(
+        self,
+        site: &SourceStmtSiteV1,
+    ) -> Result<LocatedStmtV1<'a>, SourceNavigationErrorV1> {
+        let Some(function) = self.forest.owner(self.owner) else {
+            return Err(SourceNavigationErrorV1::UnknownOwner(self.owner));
+        };
+        if !function.source_site_inventory().contains_statement(site) {
+            return Err(SourceNavigationErrorV1::InvalidSite {
+                owner: self.owner,
+                site: site.node().clone(),
+                reason: "statement_not_in_resolver_inventory",
+            });
+        }
+        let node = self.project_node(site.node())?;
+        Ok(LocatedStmtV1::new(
+            self.owner,
+            site.clone(),
+            node,
+            SourceViewSealV1::new(),
+        ))
+    }
+
     pub(crate) fn child_expr_from_stmt(
         self,
         parent: &LocatedStmtV1<'a>,

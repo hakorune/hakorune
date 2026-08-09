@@ -157,6 +157,12 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         root_body_end: u32,
         target_function: RegionId,
     ) -> Result<ReadyFunctionCompletionV1, String> {
+        if self.completion.explicit_sites().len() > 1 {
+            return Err(
+                "[freeze:contract][canonical_completion/multiple_exit_draft_seal_closed]"
+                    .to_string(),
+            );
+        }
         if self.completion.target_function() != target_function {
             return Err(
                 "[freeze:contract][canonical_completion/finish_target_mismatch]".to_string(),

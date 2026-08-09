@@ -45,10 +45,11 @@ activation remain disconnected.
 
 ## SSA-E0 function completion
 
-`function_control.rs` seals the two already-accepted function completion
-forms before Builder effects:
+`function_control.rs` seals the accepted function completion forms before
+Builder effects:
 
-- one exact function-root terminal `Return`; or
+- one or more exact explicit `Return` sites, including the function-root
+  terminal `Return`; or
 - implicit Void fallthrough.
 
 The explicit form carries its exact statement site, exact function-region
@@ -57,10 +58,12 @@ The E0 cleanup set is empty by design; nested exits remain rejected by the
 existing capability boundary. `cleanup.rs` owns only the ordered crossed-scope
 vocabulary and no runtime cleanup or value state.
 
-Production Lower consumes the explicit site and target exactly once. Implicit
-completion remains a separate variant and is finalized only after the
-canonical function Lower session has finished. This slice adds no Return
-shape, nested exit, `ValueId`, `BasicBlockId`, or Binding SSA connection.
+The multiple-exit form seals exact source membership, common function target,
+declared-result compatibility, and uniform value/unit disposition. Canonical
+Lower may use that semantic receipt to open a fresh unpublished session, but
+DraftSeal completion for multiple physical return paths remains deliberately
+closed and fails fast. Implicit completion remains a separate variant and is
+finalized only after the canonical function Lower session has finished.
 
 ## SSA-S3 carrier-free If control
 
@@ -80,3 +83,8 @@ This product contains no binding effects, `may_rebind` sets, carrier or join
 rows, names, MIR identities, or Builder state. The historical A+ RegionFlow
 product remains the sole production If authority until the atomic SSA-I1
 cutover. The new analyzer has zero production callers.
+
+For a selected Loop profile, `loop_owned_if.rs` verifies that every exact If
+region is structurally inside that exact resolver-inventoried Loop before the
+outer If ledger may be closed empty. The Loop owner must later consume those
+rows; foreign outer If control rejects rather than disappearing.

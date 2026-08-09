@@ -89,6 +89,10 @@ impl VerifiedResolvedFunctionV1 {
     pub(crate) fn if_region_bundle_count(&self) -> usize {
         self.core.if_regions.len()
     }
+
+    pub(crate) fn if_region_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
+        self.core.if_regions.by_site.keys()
+    }
 }
 
 pub(super) fn build_verified_if_region_index_v1(

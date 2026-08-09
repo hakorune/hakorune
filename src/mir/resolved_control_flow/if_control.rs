@@ -170,23 +170,28 @@ pub(crate) struct VerifiedResolvedFunctionIfControlV1 {
 }
 
 impl VerifiedResolvedFunctionIfControlV1 {
-    /// Named zero-row control witness for a Loop-only canonical profile.
-    ///
-    /// This does not infer control shape from syntax. The sealed resolved
-    /// function index must already prove that the function owns no If region;
-    /// the canonical session can then reuse its normal If-control ledger
-    /// without manufacturing a second control owner.
     pub(crate) fn empty_for_loop_profile(
         input: ResolvedFunctionLoweringInputV1<'_>,
     ) -> Result<Self, String> {
-        if input.function().if_region_bundle_count() != 0 {
-            return Err("[freeze:contract][if_control/loop_profile_not_empty]".to_string());
-        }
-        Ok(Self {
-            owner: input.owner(),
+        super::loop_owned_if::verify_empty_loop_if_partition_v1(input)
+    }
+
+    /// Close the outer If-control ledger when every exact If belongs to one
+    /// selected Loop source. The Loop logical/physical owner must consume those
+    /// rows; this function does not silently discard unrelated If control.
+    pub(crate) fn empty_for_owned_loop_profile(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        loop_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> Result<Self, String> {
+        super::loop_owned_if::verify_owned_loop_if_partition_v1(input, loop_site)
+    }
+
+    pub(super) fn empty_verified(owner: FunctionOwnerIdV1) -> Self {
+        Self {
+            owner,
             rows: Box::new([]),
             coverage_partition: Box::new([]),
-        })
+        }
     }
 
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {

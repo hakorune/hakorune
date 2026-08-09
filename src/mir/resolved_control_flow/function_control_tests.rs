@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
+use crate::parser::NyashParser;
 
 use super::function_control::{
     verify_function_completion_v1, DeclaredFunctionResultContractV1,
@@ -106,6 +107,39 @@ fn verify_with_return_type(
     ))
     .unwrap();
     verify_function_completion_v1(unit.root_function_input().unwrap())
+}
+
+#[test]
+fn source_backed_loop_accepts_exact_early_and_terminal_return_set() {
+    let program = NyashParser::parse_from_string(include_str!(
+        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+    ))
+    .unwrap();
+    let ASTNode::Program { statements, .. } = program else {
+        panic!("parser must return Program")
+    };
+    let function = statements
+        .into_iter()
+        .find_map(|statement| match statement {
+            ASTNode::BoxDeclaration { name, methods, .. } if name == "ParserScanLoopBox" => {
+                methods.get_declaration("skip_while").cloned()
+            }
+            _ => None,
+        })
+        .unwrap();
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
+    let completion = verify_function_completion_v1(unit.root_function_input().unwrap()).unwrap();
+
+    assert!(completion.returns_value());
+    assert_eq!(completion.explicit_sites().len(), 2);
+    assert!(matches!(
+        completion.function_exit_contract().coverage(),
+        FunctionExitCoverageV1::ExactExplicitReturnSet { count: 2 }
+    ));
+    assert!(matches!(
+        completion.function_exit_contract().disposition(),
+        SealedFunctionExitDispositionV1::ExplicitValueSet { sites } if sites.len() == 2
+    ));
 }
 
 #[test]
