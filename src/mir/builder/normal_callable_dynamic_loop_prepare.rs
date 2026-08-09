@@ -44,7 +44,7 @@ impl PreparedLoopCarrierRepresentationV1 {
         }
     }
 
-    pub(super) const fn dynamic_origin(self) -> Option<BindingRefV1> {
+    pub(super) const fn dynamic_origin(&self) -> Option<BindingRefV1> {
         match self.kind {
             LoopCarrierRepresentationKindV1::SourceBackedDynamic { origin } => Some(origin),
             LoopCarrierRepresentationKindV1::Exact(_) => None,
@@ -79,8 +79,8 @@ impl PreparedDynamicLoopEntryBindingV1 {
         self.current
     }
 
-    pub(super) const fn representation(self) -> PreparedLoopCarrierRepresentationV1 {
-        self.representation
+    pub(super) const fn representation(&self) -> &PreparedLoopCarrierRepresentationV1 {
+        &self.representation
     }
 }
 
@@ -101,11 +101,11 @@ impl PreparedDynamicLoopCarrierV1 {
         self.entry
     }
 
-    pub(super) const fn representation(self) -> PreparedLoopCarrierRepresentationV1 {
-        self.representation
+    pub(super) const fn representation(&self) -> &PreparedLoopCarrierRepresentationV1 {
+        &self.representation
     }
 
-    pub(super) const fn expected_roles(self) -> [PreparedLoopIncomingRoleV1; 2] {
+    pub(super) const fn expected_roles(&self) -> [PreparedLoopIncomingRoleV1; 2] {
         self.expected_roles
     }
 }
@@ -142,8 +142,17 @@ impl PreparedSourceBackedDynamicLoopIngressV1 {
         &self.entry_bindings
     }
 
-    pub(super) const fn carrier(&self) -> PreparedDynamicLoopCarrierV1 {
-        self.carrier
+    pub(super) const fn carrier(&self) -> &PreparedDynamicLoopCarrierV1 {
+        &self.carrier
+    }
+
+    pub(super) fn entry_binding(
+        &self,
+        binding: BindingRefV1,
+    ) -> Option<&PreparedDynamicLoopEntryBindingV1> {
+        self.entry_bindings
+            .iter()
+            .find(|row| row.binding() == binding)
     }
 }
 
@@ -224,7 +233,7 @@ impl DynamicLoopPrepareIssuerV1 {
         let carrier = PreparedDynamicLoopCarrierV1 {
             binding: carrier_binding,
             entry: carrier_entry.current(),
-            representation: carrier_entry.representation(),
+            representation: *carrier_entry.representation(),
             expected_roles: [
                 PreparedLoopIncomingRoleV1::Enter,
                 PreparedLoopIncomingRoleV1::Backedge,

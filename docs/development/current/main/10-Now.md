@@ -23,20 +23,22 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. Source-backed Dynamic S0 and origin P0 are
-closed. Exact source ingress now reaches the existing formal-entry snapshot
-and ordinal-keyed local completion receipt without changing the sole parameter
-publisher or accepting raw `MirType::Unknown`. The next boundary is design-only:
+Current mode is `fast`. Dynamic source/origin, complete Loop source coverage,
+operation-source co-seal, prepared ingress, and atomic operation/rebind P1 are
+closed for the unmodified production `skip_while/4` source. The next bounded
+implementation row is:
 
 ```text
-GENERIC-LOOP-DYNAMIC-CARRIER-L0-D0
+DYNAMIC-LOOP-PHI-P2
 ```
 
-Fix the sole prepared-carrier/PHI authorization, mixed-input rejection, and
-unsupported-backend pre-effect failure before any GenericLoop mutation. The
-parser H2-S2-S1-R1 worktree is preserved
-and must not be rewritten or mixed into this compiler-side slice. Read the
-active card from `CURRENT_STATE.toml` for the exact Done/Stop contract.
+Bind P1's move-only Enter/Backedge handoff to exact canonical CFG
+predecessors and emit one Dynamic carrier PHI only through the existing
+Binding SSA / `PhiTxn` owners. Raw incoming vectors, route-local PHI writers,
+backend activation, retry/fallback, and source rewrites remain closed. The
+parser H2-S2-S1-R1 worktree is preserved and must not be mixed into this
+compiler-side slice. Read the active card from `CURRENT_STATE.toml` for the
+exact Done/Stop contract.
 
 ### Historical context (non-authoritative; pending mirror compaction)
 

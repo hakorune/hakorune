@@ -11,7 +11,10 @@ use crate::mir::resolved_semantics::{
 use crate::mir::ValueId;
 
 use super::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
-use super::normal_callable_dynamic_origin::CallableDynamicOriginLoweringStateV1;
+use super::normal_callable_dynamic_origin::{
+    CallableDynamicOriginLoweringStateV1, CurrentDynamicBindingReceiptV1,
+    PreparedDynamicOriginRebindV1,
+};
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
 
 /// Physical values materialized while lowering one callable body.
@@ -34,6 +37,15 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_variables: BTreeSet<SourceNodeSiteV1>,
     consumed_assignments: BTreeSet<SourceNodeSiteV1>,
     consumed_direct_lambdas: BTreeSet<SourceNodeSiteV1>,
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedCallableDynamicRebindV1 {
+    site: SourceNodeSiteV1,
+    binding: BindingRefV1,
+    result: ValueId,
+    consumes_target_read: bool,
+    origin: PreparedDynamicOriginRebindV1,
 }
 
 impl CallableSemanticLoweringState {
@@ -185,6 +197,27 @@ impl CallableSemanticLoweringState {
         )
     }
 
+    pub(super) fn prepare_source_backed_dynamic_loop_ingress(
+        &self,
+        schedule: super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1,
+        operations: super::normal_callable_dynamic_operation_source::VerifiedDynamicLoopOperationSourceSetV1,
+        parent_site: &SourceNodeSiteV1,
+        condition_site: &SourceNodeSiteV1,
+        body_site: &SourceNodeSiteV1,
+    ) -> Result<
+        super::normal_callable_dynamic_loop_prepare::PreparedSourceBackedDynamicLoopIngressV1,
+        super::normal_callable_dynamic_loop_prepare::DynamicLoopPrepareIssueV1,
+    > {
+        super::normal_callable_dynamic_loop_prepare::DynamicLoopPrepareIssuerV1::issue(
+            schedule,
+            operations,
+            &self.dynamic_origins,
+            parent_site,
+            condition_site,
+            body_site,
+        )
+    }
+
     pub(super) fn install_entry_values(
         &mut self,
         entry: &PreparedCallableEntryValuesV1,
@@ -290,6 +323,71 @@ impl CallableSemanticLoweringState {
         Ok(())
     }
 
+    pub(super) fn prepare_source_backed_dynamic_rebind(
+        &self,
+        site: &SourceNodeSiteV1,
+        expected_binding: BindingRefV1,
+        expected_previous: ValueId,
+        result: ValueId,
+        expected_origin: BindingRefV1,
+    ) -> Result<PreparedCallableDynamicRebindV1, String> {
+        let binding = self
+            .assignments
+            .get(site)
+            .copied()
+            .ok_or_else(|| freeze("missing-assignment-site"))?;
+        if binding != expected_binding || self.consumed_assignments.contains(site) {
+            return Err(freeze("dynamic-rebind-assignment-mismatch"));
+        }
+        let consumes_target_read = match self.variables.get(site).copied() {
+            Some(read_binding)
+                if read_binding == binding && !self.consumed_variables.contains(site) =>
+            {
+                true
+            }
+            Some(_) => return Err(freeze("assignment-target-read-mismatch")),
+            None => false,
+        };
+        if self.values.get(&binding).copied() != Some(expected_previous) {
+            return Err(freeze("dynamic-rebind-current-mismatch"));
+        }
+        let origin = self
+            .dynamic_origins
+            .prepare_current_rebind(binding, expected_previous, result, expected_origin)
+            .map_err(|error| error.to_string())?;
+        Ok(PreparedCallableDynamicRebindV1 {
+            site: site.clone(),
+            binding,
+            result,
+            consumes_target_read,
+            origin,
+        })
+    }
+
+    pub(super) fn commit_source_backed_dynamic_rebind(
+        &mut self,
+        prepared: PreparedCallableDynamicRebindV1,
+    ) -> CurrentDynamicBindingReceiptV1 {
+        debug_assert_eq!(
+            self.values.get(&prepared.binding),
+            Some(
+                &self
+                    .dynamic_origins
+                    .current_binding(prepared.binding)
+                    .expect("prepared Dynamic origin")
+                    .0
+            )
+        );
+        let inserted_assignment = self.consumed_assignments.insert(prepared.site.clone());
+        debug_assert!(inserted_assignment);
+        if prepared.consumes_target_read {
+            let inserted_read = self.consumed_variables.insert(prepared.site.clone());
+            debug_assert!(inserted_read);
+        }
+        self.values.insert(prepared.binding, prepared.result);
+        self.dynamic_origins.commit_current_rebind(prepared.origin)
+    }
+
     pub(super) fn direct_lambda_captures(
         &mut self,
         site: &SourceNodeSiteV1,
@@ -367,6 +465,34 @@ impl CallableSemanticLoweringState {
     #[cfg(test)]
     pub(super) fn dynamic_value_origin_for_test(&self, value: ValueId) -> Option<BindingRefV1> {
         self.dynamic_origins.value_origin(value)
+    }
+
+    #[cfg(test)]
+    pub(super) fn install_single_local_for_test(
+        &mut self,
+        site: &SourceNodeSiteV1,
+        binding: BindingRefV1,
+        ordinal: u32,
+        initializer: ValueId,
+        local: ValueId,
+    ) -> Result<(), String> {
+        if self.locals.get(site).map(|rows| rows.as_ref()) != Some(&[binding])
+            || !self.materialized_locals.insert(site.clone())
+        {
+            return Err(freeze("test-local-shape"));
+        }
+        self.insert_value(binding, local)?;
+        self.dynamic_origins
+            .record_local(
+                site,
+                &[binding],
+                &[super::stmts::CompletedLocalBindingV1::new(
+                    ordinal,
+                    initializer,
+                    local,
+                )],
+            )
+            .map_err(|error| error.to_string())
     }
 }
 

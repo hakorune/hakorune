@@ -31,6 +31,9 @@ pub(super) enum CallableDynamicOriginErrorV1 {
     InitializerOriginMismatch(BindingRefV1),
     DuplicateLocalCompletion(BindingRefV1),
     StaleRebindOrigin(BindingRefV1),
+    RebindOriginMismatch(BindingRefV1),
+    RebindResultReusesCurrent(ValueId),
+    DuplicateRebindResult(ValueId),
     IncompleteConsumption,
 }
 
@@ -61,6 +64,40 @@ pub(super) struct CallableDynamicOriginLoweringStateV1 {
     value_origins: BTreeMap<ValueId, BindingRefV1>,
     completed_locals: BTreeSet<BindingRefV1>,
     entry_installed: bool,
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedDynamicOriginRebindV1 {
+    binding: BindingRefV1,
+    previous: ValueId,
+    result: ValueId,
+    origin: BindingRefV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct CurrentDynamicBindingReceiptV1 {
+    binding: BindingRefV1,
+    previous: ValueId,
+    current: ValueId,
+    origin: BindingRefV1,
+}
+
+impl CurrentDynamicBindingReceiptV1 {
+    pub(super) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(super) const fn previous(&self) -> ValueId {
+        self.previous
+    }
+
+    pub(super) const fn current(&self) -> ValueId {
+        self.current
+    }
+
+    pub(super) const fn origin(&self) -> BindingRefV1 {
+        self.origin
+    }
 }
 
 impl CallableDynamicOriginLoweringStateV1 {
@@ -247,6 +284,58 @@ impl CallableDynamicOriginLoweringStateV1 {
         }
         self.active_origins.remove(&binding);
         Ok(())
+    }
+
+    pub(super) fn prepare_current_rebind(
+        &self,
+        binding: BindingRefV1,
+        previous: ValueId,
+        result: ValueId,
+        expected_origin: BindingRefV1,
+    ) -> Result<PreparedDynamicOriginRebindV1, CallableDynamicOriginErrorV1> {
+        let Some((active, origin)) = self.active_origins.get(&binding).copied() else {
+            return Err(CallableDynamicOriginErrorV1::StaleRebindOrigin(binding));
+        };
+        if active != previous {
+            return Err(CallableDynamicOriginErrorV1::StaleRebindOrigin(binding));
+        }
+        if origin != expected_origin {
+            return Err(CallableDynamicOriginErrorV1::RebindOriginMismatch(binding));
+        }
+        if result == previous {
+            return Err(CallableDynamicOriginErrorV1::RebindResultReusesCurrent(
+                result,
+            ));
+        }
+        if self.value_origins.contains_key(&result) {
+            return Err(CallableDynamicOriginErrorV1::DuplicateRebindResult(result));
+        }
+        Ok(PreparedDynamicOriginRebindV1 {
+            binding,
+            previous,
+            result,
+            origin,
+        })
+    }
+
+    pub(super) fn commit_current_rebind(
+        &mut self,
+        prepared: PreparedDynamicOriginRebindV1,
+    ) -> CurrentDynamicBindingReceiptV1 {
+        debug_assert_eq!(
+            self.active_origins.get(&prepared.binding),
+            Some(&(prepared.previous, prepared.origin))
+        );
+        debug_assert!(!self.value_origins.contains_key(&prepared.result));
+        self.value_origins.insert(prepared.result, prepared.origin);
+        self.active_origins
+            .insert(prepared.binding, (prepared.result, prepared.origin));
+        CurrentDynamicBindingReceiptV1 {
+            binding: prepared.binding,
+            previous: prepared.previous,
+            current: prepared.result,
+            origin: prepared.origin,
+        }
     }
 
     pub(super) fn current_origin(

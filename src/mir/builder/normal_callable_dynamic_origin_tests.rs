@@ -299,6 +299,110 @@ fn unrelated_local_is_not_promoted_and_rebind_invalidates_current_origin() {
 }
 
 #[test]
+fn dynamic_rebind_preflight_rejects_stale_foreign_and_reused_values_without_mutation() {
+    let mut fixture = fixture(dynamic_local_source());
+    fixture
+        .state
+        .install_entry(&fixture.parameters, &fixture.entry)
+        .unwrap();
+    let (origin, local, statement, ordinal) = fixture.dynamic_local.unwrap();
+    let local_value = ValueId::new(920);
+    fixture
+        .state
+        .record_local(
+            &statement,
+            &[local],
+            &[CompletedLocalBindingV1::new(
+                ordinal,
+                fixture.entry.parameters()[0],
+                local_value,
+            )],
+        )
+        .unwrap();
+
+    assert!(matches!(
+        fixture.state.prepare_current_rebind(
+            local,
+            ValueId::new(999),
+            ValueId::new(921),
+            origin,
+        ),
+        Err(error) if error == CallableDynamicOriginErrorV1::StaleRebindOrigin(local)
+    ));
+    assert!(matches!(
+        fixture.state.prepare_current_rebind(
+            local,
+            local_value,
+            ValueId::new(921),
+            fixture.parameters[1],
+        ),
+        Err(error) if error == CallableDynamicOriginErrorV1::RebindOriginMismatch(local)
+    ));
+    assert!(matches!(
+        fixture
+            .state
+            .prepare_current_rebind(local, local_value, local_value, origin),
+        Err(error)
+            if error == CallableDynamicOriginErrorV1::RebindResultReusesCurrent(local_value)
+    ));
+    assert!(matches!(
+        fixture.state.prepare_current_rebind(
+            local,
+            local_value,
+            fixture.entry.parameters()[1],
+            origin,
+        ),
+        Err(error)
+            if error == CallableDynamicOriginErrorV1::DuplicateRebindResult(
+                fixture.entry.parameters()[1]
+            )
+    ));
+    assert_eq!(
+        fixture.state.current_origin(local, local_value),
+        Some(origin)
+    );
+    assert_eq!(fixture.state.value_origin(ValueId::new(921)), None);
+}
+
+#[test]
+fn prepared_dynamic_rebind_commits_current_and_lineage_together() {
+    let mut fixture = fixture(dynamic_local_source());
+    fixture
+        .state
+        .install_entry(&fixture.parameters, &fixture.entry)
+        .unwrap();
+    let (origin, local, statement, ordinal) = fixture.dynamic_local.unwrap();
+    let local_value = ValueId::new(930);
+    fixture
+        .state
+        .record_local(
+            &statement,
+            &[local],
+            &[CompletedLocalBindingV1::new(
+                ordinal,
+                fixture.entry.parameters()[0],
+                local_value,
+            )],
+        )
+        .unwrap();
+    let result = ValueId::new(931);
+    let prepared = fixture
+        .state
+        .prepare_current_rebind(local, local_value, result, origin)
+        .unwrap();
+
+    let receipt = fixture.state.commit_current_rebind(prepared);
+
+    assert_eq!(receipt.binding(), local);
+    assert_eq!(receipt.previous(), local_value);
+    assert_eq!(receipt.current(), result);
+    assert_eq!(receipt.origin(), origin);
+    assert_eq!(fixture.state.current_origin(local, local_value), None);
+    assert_eq!(fixture.state.current_origin(local, result), Some(origin));
+    assert_eq!(fixture.state.value_origin(result), Some(origin));
+}
+
+#[test]
 fn normal_callable_scope_consumes_real_entry_and_local_terminal_receipts() {
     let program =
         NyashParser::parse_from_string("function walk(pos) { local i = pos return i }").unwrap();

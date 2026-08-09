@@ -191,6 +191,22 @@ expectations. The issuer has no Builder/CFG handle, no raw Unknown
 representation arm, and no operation, PHI, backend, retry, fallback, or route
 authority.
 
+The P1 compiler-acceptance prerequisite is conservative at both common type
+owners: ordinary Add completion and final BinOp re-propagation require exact
+Integer evidence on both operands before publishing an Integer result.
+`Unknown + Integer` stays physically unknown. A source-backed Dynamic result
+is authorized only by the prepared operation relation; raw Unknown never
+becomes Dynamic, and production `.hako` source is not rewritten to fit the
+old inference shortcut.
+
+`normal_callable_dynamic_loop_rebind.rs` is the private exact-once P1
+operation terminal. It consumes the complete prepared ingress, delegates
+Compare/Const/Add insertion to existing writers, and uses a prepare plus
+infallible commit to advance callable-current and Dynamic-origin projections
+together. Its move-only output carries only the exact Enter/Backedge lineage
+needed by the next canonical CFG/Binding SSA/PHI row. It owns no second
+emitter, predecessor selection, PHI destination, retry/fallback, or route.
+
 ## 原則（SSOT / Box-First）
 
 - **状態は Context が SSOT**: `MirBuilder` の状態は Context（箱）に分割され、二重管理をしない。

@@ -578,17 +578,72 @@ Closeout:
 ##### L0-P1 — `DYNAMIC-LOOP-REBIND-P1`
 
 Change:
-  At the canonical operation terminal, bind the exact emitted Add result to
-  the prepared Dynamic relation and atomically replace the carrier's current
-  receipt. A late failure discards the whole unpublished session.
+  First repair the common compiler rule that currently promotes
+  `Unknown + Integer` to `Integer`: an unknown physical fact is not proof of
+  an exact integer result, either at ordinary BinOp completion or during
+  function type re-propagation. Keep the production source unchanged.
+
+  Then consume the whole prepared ingress in one private operation-execution
+  state. Emit the authorized Add through the existing
+  `MirBuilder::emit_instruction_at` writer and the comparison through the
+  existing `compare::emit_to_at` writer. Bind the exact emitted Add result to
+  the prepared Dynamic relation and atomically replace both current-value
+  projections. A late failure discards the whole unpublished session.
 
 Done:
-  no invalidate/register gap exists; unrelated values and stale targets
-  cannot acquire the lineage. Compare publishes exact Bool only. Update the
-  operation owner README and MIR reference in the same commit.
+  `Unknown + Integer` remains unknown without source authority; exact
+  `Integer + Integer` remains Integer. No invalidate/register gap exists;
+  unrelated values and stale targets cannot acquire the lineage. Compare
+  publishes exact Bool only. The completed move-only handoff retains Enter,
+  Backedge, exact assignment source, definition block, one lineage, and
+  expected roles for P2. Update the operation owner README and MIR reference
+  in the same commit.
 
 Stop:
-  No second operation emitter, same-session repair, or PHI claim.
+  No source rewrite, narrower fixture, raw-Unknown admission, second operation
+  emitter, same-session repair, or PHI claim. Do not pass a raw predecessor
+  vector, Phi token, or caller-constructed PHI destination to P2.
+
+Authority correction:
+  When a valid production source is outside a legacy inference shortcut, fix
+  the compiler authority that made the shortcut too narrow. Do not annotate,
+  copy, simplify, or otherwise rewrite the `.hako` source to fit it. Here the
+  narrow owner is the common `Unknown + Integer -> Integer` inference, not the
+  `skip_while/4` fixture.
+
+P1/P2 handoff:
+
+```text
+PreparedSourceBackedDynamicLoopIngressV1
+  -> private exact-once operation execution
+  -> ReadySourceBackedDynamicLoopCarrierForPhiV1
+       owner / exact Loop site
+       carrier BindingRef / one Dynamic origin
+       Enter ValueId
+       Backedge Add-result ValueId
+       exact assignment source site
+       Add definition block
+       expected [Enter, Backedge]
+```
+
+The handoff owns no `PhiToken`, PHI destination, raw incoming vector,
+`MirType` inference, Builder handle, or SSA handle. P2 must consume it through
+the canonical CFG witness and existing Binding SSA / `PhiTxn` owners.
+
+Closeout:
+  Closed in the P1 implementation slice. Ordinary Add completion and final
+  BinOp re-propagation no longer promote `Unknown + Integer` to `Integer`;
+  exact Integer pairs retain their old result. One private exact-once terminal
+  consumes the whole P0 ingress and delegates comparison, constant, and Add
+  insertion to existing writers. Its prepare/commit boundary updates callable
+  current value and Dynamic lineage together, and stale, foreign, reused, or
+  duplicate values reject without mutation. The production `skip_while/4`
+  source remains unchanged. The comparison publishes exact Bool; the Add wire
+  stays physically untyped while the source-backed relation authorizes its
+  Dynamic lineage. The move-only P2 handoff contains only exact Enter,
+  Backedge, definition/source identity, lineage, and expected roles. A
+  post-emission injected failure discards the complete unpublished function
+  session. No PHI, second emitter, retry/fallback, or production route opened.
 
 ##### L0-P2 — `DYNAMIC-LOOP-PHI-P2`
 

@@ -1698,3 +1698,27 @@ remains iteration-local. Missing or stale current Dynamic evidence rejects
 without changing the current function's block count or value allocator.
 There is no Builder/CFG handle, operation emission, PHI, backend lookup,
 retry, fallback, or production route in this row.
+
+## Dynamic Loop atomic rebind P1 receipt (2026-08-09)
+
+The first P1 prerequisite repairs a common compiler over-inference rather
+than narrowing or annotating `ParserScanLoopBox.skip_while/4`. Both ordinary
+Add completion and the shared type-propagation pipeline now require exact
+Integer evidence on both operands before publishing an Integer result.
+`Unknown + Integer` remains unknown; this is essential because an unknown
+physical wire may carry a separately verified source-backed Dynamic lineage.
+
+The P1 terminal consumes the whole prepared ingress exactly once. It delegates
+the comparison, exact integer constant, and Add instruction to existing MIR
+writers, publishes exact Bool for the comparison, and leaves the Add result
+physically untyped. A prepared/infallible-commit boundary atomically advances
+both callable-current state and the source-backed Dynamic lineage. Stale,
+foreign, reused, or duplicate values reject without changing that state.
+
+The resulting move-only handoff retains exact owner/Loop/source identity,
+carrier binding and origin, Enter and Backedge values, Add definition block,
+and expected Enter/Backedge roles. It contains no raw predecessor vector,
+PHI token/destination, Builder or SSA handle, or physical type inference.
+Post-emission failure discards the complete unpublished function session.
+Raw Unknown admission, a second emitter, PHI/backend support, retry/fallback,
+and production route activation remain closed for P2 and later rows.

@@ -52,6 +52,14 @@ impl VerifiedDynamicLoopComparisonSourceV1 {
         self.carrier
     }
 
+    pub(super) const fn carrier_read(&self) -> &SourceExprSiteV1 {
+        &self.carrier_read
+    }
+
+    pub(super) const fn operand_read(&self) -> &SourceExprSiteV1 {
+        &self.operand_read
+    }
+
     pub(super) const fn operand(&self) -> BindingRefV1 {
         self.operand
     }
@@ -83,6 +91,14 @@ impl VerifiedDynamicLoopAddRebindSourceV1 {
 
     pub(super) const fn target(&self) -> &SourceExprSiteV1 {
         &self.target
+    }
+
+    pub(super) const fn carrier_read(&self) -> &SourceExprSiteV1 {
+        &self.carrier_read
+    }
+
+    pub(super) const fn exact_literal(&self) -> &SourceExprSiteV1 {
+        &self.exact_literal
     }
 
     pub(super) const fn carrier(&self) -> BindingRefV1 {

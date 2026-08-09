@@ -121,13 +121,19 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                     .value_types
                     .insert(dst, MirType::String);
             }
-            (Integer, Integer) | (Integer, Unknown) | (Unknown, Integer) => {
-                // TypeFact: Integer + anything non-String = Integer
+            (Integer, Integer) => {
+                // Exact integer evidence on both operands is required.
+                // A physical Unknown may be a source-backed Dynamic value;
+                // it is not permission to publish an Integer result.
                 builder
                     .function_state
                     .type_ctx
                     .value_types
                     .insert(dst, MirType::Integer);
+            }
+            (Integer, Unknown) | (Unknown, Integer) => {
+                // Keep the result physically unknown until a source-backed
+                // semantic authority classifies it.
             }
             (String, Integer) | (Integer, String) => {
                 // Mixed types: leave as Unknown for use-site coercion
@@ -217,14 +223,18 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                             .value_types
                             .insert(dst, MirType::String);
                     }
-                    (Integer, Integer) | (Integer, Unknown) | (Unknown, Integer) => {
-                        // TypeFact: Integer + anything non-String = Integer
-                        // This handles `counter + 1` where counter might be Unknown
+                    (Integer, Integer) => {
+                        // Exact integer evidence on both operands is required.
+                        // Source-backed Dynamic lineage is sealed elsewhere.
                         builder
                             .function_state
                             .type_ctx
                             .value_types
                             .insert(dst, MirType::Integer);
+                    }
+                    (Integer, Unknown) | (Unknown, Integer) => {
+                        // Keep the result physically unknown until a
+                        // source-backed semantic authority classifies it.
                     }
                     (String, Integer) | (Integer, String) => {
                         // Mixed types: leave as Unknown for use-site coercion
@@ -269,8 +279,8 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                     .type_ctx
                     .value_types
                     .insert(dst, MirType::String);
-            } else if lhs_type != String && rhs_type != String {
-                // NEITHER is a string: numeric addition
+            } else if lhs_type == Integer && rhs_type == Integer {
+                // Both operands carry exact integer evidence.
                 builder
                     .function_state
                     .type_ctx
@@ -330,4 +340,50 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
     }
 
     Ok(dst)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::build_arithmetic_op;
+    use crate::mir::builder::MirBuilder;
+    use crate::mir::{BinaryOp, MirType, ValueId};
+
+    #[test]
+    fn add_does_not_promote_unknown_plus_integer_to_integer() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("arithmetic_unknown_add/0".to_string());
+        let lhs = ValueId::new(40);
+        let rhs = ValueId::new(41);
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(rhs, MirType::Integer);
+
+        let result = build_arithmetic_op(&mut builder, BinaryOp::Add, lhs, rhs).unwrap();
+
+        assert_eq!(builder.function_state.type_ctx.get_type(result), None);
+    }
+
+    #[test]
+    fn add_keeps_exact_integer_plus_integer_inference() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("arithmetic_integer_add/0".to_string());
+        let lhs = ValueId::new(50);
+        let rhs = ValueId::new(51);
+        for value in [lhs, rhs] {
+            builder
+                .function_state
+                .type_ctx
+                .value_types
+                .insert(value, MirType::Integer);
+        }
+
+        let result = build_arithmetic_op(&mut builder, BinaryOp::Add, lhs, rhs).unwrap();
+
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(result),
+            Some(&MirType::Integer)
+        );
+    }
 }

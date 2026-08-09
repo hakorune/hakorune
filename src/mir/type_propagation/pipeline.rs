@@ -159,9 +159,10 @@ impl TypePropagationPipeline {
                         use OperandTypeClass::*;
                         let new_type = match (lhs_class, rhs_class) {
                             (String, String) => Some(MirType::String),
-                            (Integer, Integer) | (Integer, Unknown) | (Unknown, Integer) => {
-                                Some(MirType::Integer)
-                            }
+                            // Unknown is not numeric evidence.  In particular,
+                            // source-backed Dynamic values intentionally use an
+                            // unknown physical wire without becoming Integer.
+                            (Integer, Integer) => Some(MirType::Integer),
                             // Phase 275 P0 C2: Number promotion (Int+Float → Float)
                             (Integer, Float) | (Float, Integer) => Some(MirType::Float),
                             (Float, Float) => Some(MirType::Float),
@@ -398,5 +399,58 @@ mod tests {
             value_types.get(&ValueId::new(2)),
             Some(&MirType::Box("IntegerBox".to_string()))
         );
+    }
+
+    #[test]
+    fn pipeline_does_not_reclassify_unknown_plus_integer_as_integer() {
+        let signature = FunctionSignature {
+            name: "dynamic_add_stays_untyped".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block")
+            .add_instruction(MirInstruction::BinOp {
+                dst: ValueId::new(3),
+                op: BinaryOp::Add,
+                lhs: ValueId::new(1),
+                rhs: ValueId::new(2),
+            });
+        let mut value_types = BTreeMap::from([(ValueId::new(2), MirType::Integer)]);
+
+        TypePropagationPipeline::run(&mut function, &mut value_types).expect("pipeline");
+
+        assert_eq!(value_types.get(&ValueId::new(3)), None);
+    }
+
+    #[test]
+    fn pipeline_keeps_exact_integer_add_inference() {
+        let signature = FunctionSignature {
+            name: "exact_integer_add".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block")
+            .add_instruction(MirInstruction::BinOp {
+                dst: ValueId::new(3),
+                op: BinaryOp::Add,
+                lhs: ValueId::new(1),
+                rhs: ValueId::new(2),
+            });
+        let mut value_types = BTreeMap::from([
+            (ValueId::new(1), MirType::Integer),
+            (ValueId::new(2), MirType::Integer),
+        ]);
+
+        TypePropagationPipeline::run(&mut function, &mut value_types).expect("pipeline");
+
+        assert_eq!(value_types.get(&ValueId::new(3)), Some(&MirType::Integer));
     }
 }
