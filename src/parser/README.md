@@ -36,6 +36,27 @@ This is parser transport, not resolver semantic issuance. Semantic types,
 nominal Box identity, Home ABI, targets, Recipe/CallSlot, body conformance,
 Builder/MIR, and runtime/provider routes remain later owners.
 
+## Body-source transaction boundary (design stop)
+
+The body-source path must not pair an AST with the declaration handoff after
+the parser transaction has ended. A parser-private non-`Clone`
+`ParserResolverBodyTransactionV1` consumes the rich parse product exactly once
+and exposes only:
+
+```text
+ParserBoxResolverSourceHandoffV1
+ParserBoxBodySourceEnvelopeV1
+```
+
+The envelope carries AST-free branded method sites, body-root/item coverage,
+and parser provenance. It does not expose an AST, method-name lookup, bare
+inventory ordinal, or resolver brand. The general resolver body-source issuer
+validates every supported direct declaration; it does not select Query
+behavior. A separate Query body-source projection borrows the already sealed
+selected Query view, preserves sparse source order, and emits no default row
+for non-Query methods. FunctionOwner binding, body facts, conformance,
+targets, Recipe/CallSlot, and MIR remain later owners.
+
 ## C-S1 delegate target index
 
 `delegate_target_index.rs` is a borrowed lookup proof over one unpublished

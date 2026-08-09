@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, and declared Query/Home aggregate I0 landed; body-source authority is the current design stop, so body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, and declared Query/Home aggregate I0 landed; general body-source authority is the current design stop, followed by a separate Query body-source projection, so body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -163,14 +163,13 @@ and mutually recursive calls can resolve. The current parser→resolver
 handoff, however, intentionally carries no instance-method body, and the
 declaration catalog is not co-sealed with a `VerifiedResolvedFunctionV1`
 owner. Therefore body conformance is not yet open: the separate
-`CALLABLE-BODY-SOURCE-AUTHORITY-D0` row must first issue an exact,
-same-source body capability and body-facts product. After that source/body
-path exists, the sealed declared catalog and one complete same-brand
-conformance set are atomically co-sealed into one publishable callable
-catalog. Missing, duplicate, foreign, or rejected conformance prevents that
-product from being issued. Module publication consumes the publishable
-catalog and performs no new semantic decision. The body verifier checks the
-declared meaning; it never infers or substitutes a public contract.
+the body-source row must first issue a general exact same-source body catalog,
+then a separate Query projection must borrow the aggregate's already sealed
+selected view, and only then may owner binding/body facts open. Missing,
+duplicate, foreign, or rejected conformance prevents the publishable catalog
+from being issued. Module publication consumes the publishable catalog and
+performs no new semantic decision. The body verifier checks the declared
+meaning; it never infers or substitutes a public contract.
 
 The body source path is intentionally separate from the declaration handoff:
 
@@ -180,7 +179,8 @@ parser rich transaction
   -> consuming into_parts()
        ParserBoxResolverSourceHandoffV1
        ParserBoxBodySourceEnvelopeV1
-  -> AST-free VerifiedInstanceMethodBodySourceCatalogV1
+  -> AST-free VerifiedInstanceMethodBodySourceCatalogV1 (all direct rows)
+  -> VerifiedDeclaredQueryBodySourceCatalogV1 (selected Query view)
   -> private body observer / body facts
   -> conformance Verify product
 ```
@@ -190,16 +190,17 @@ body envelope owns normalized body-root/item-path DTOs plus a checked parser
 invocation provenance token; its one-shot syntax callback cannot return an AST
 or syntax pointer. A complete branded `SourceBoxMethodSiteV1` tuple is the
 only source identity. A bare member ordinal, selected/generated inventory
-ordinal, method name, or map order is not identity. The resolver body issuer
-selects exactly the declared Query subset from the borrowed aggregate and
-requires one row per selected declaration; non-Query declarations receive no
-default body row. It is bounded to ordinary direct Rust Box methods in the
-first cohort, does not mint `FunctionOwnerIdV1`, and does not consume the
-declared Home/Query aggregate. Missing body carrier or a missing
-declaration/body owner link is development `NoSafeSlice`, never an empty
-verified body product. The explicit owner-binding D0/I0 must co-seal the
-body source with `VerifiedResolvedFunctionV1` before body facts can use
-lexical/control facts.
+ordinal, method name, or map order is not identity. The general body issuer
+validates one row per supported direct declaration without inspecting Query
+behavior. A separate Query projection borrows the already selected aggregate
+view, preserves sparse source order, requires one row per selected Query
+declaration, and emits no default non-Query row. It is bounded to ordinary
+direct Rust Box methods in the first cohort, does not mint
+`FunctionOwnerIdV1`, and does not consume the declared Home/Query aggregate.
+Missing body carrier or a missing declaration/body owner link is development
+`NoSafeSlice`, never an empty verified body product. The explicit owner-binding
+D0/I0 must co-seal the Query body source with `VerifiedResolvedFunctionV1`
+before body facts can use lexical/control facts.
 
 ## Receiver Home rule
 

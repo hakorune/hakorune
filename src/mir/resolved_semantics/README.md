@@ -87,9 +87,12 @@ now landed in `declared_instance_contract.rs`: it consumes the Home catalog
 (the declaration owner) and the selected Query catalog by value, then seals
 only same-brand/site/order coverage. The next design stop is
 `CALLABLE-BODY-SOURCE-AUTHORITY-D0`: the current AST-free parser handoff does
-not carry an instance-method body, and the declaration catalog has no exact
-body/function-owner co-seal. Body conformance must wait for that source
-authority; it must not pair by name, inventory ordinal, or MIR facts.
+not carry a general instance-method body, and the declaration catalog has no
+exact body/function-owner co-seal. The first body-source issuer must cover the
+complete supported direct cohort without selecting Query behavior; a separate
+Query body-source projection then borrows the aggregate's selected view.
+Body conformance must wait for both that projection and the later owner link;
+it must not pair by name, inventory ordinal, Query re-selection, or MIR facts.
 
 The next body-source D0 fixes the parser-side boundary before any conformance
 issuer opens. The existing declaration handoff remains body-free. A private
@@ -98,11 +101,11 @@ non-`Clone` `ParserResolverBodyTransactionV1` must decompose exactly once via
 retains the complete branded direct `SourceBoxMethodSiteV1` tuple, normalized
 body-root/item paths, and a checked parser-invocation provenance token. A bare
 ordinal, name, selected inventory placement, or map order cannot pair a body.
-Its resolver result is AST-free and borrows the already landed declared
-contract aggregate; it never consumes Home/Query again or mints a
-`FunctionOwnerIdV1`. The body issuer selects exactly the declared Query subset
-and requires one row per selected declaration, with no default non-Query row.
-A separate `CALLABLE-BODY-OWNER-BINDING-D0/I0` must co-seal that body source
+Its resolver result is AST-free and borrows the already landed declaration
+catalog; it never consumes Home/Query again or mints a
+`FunctionOwnerIdV1`. A separate Query projection borrows the declared
+aggregate's selected view and requires one row per selected declaration, with
+no default non-Query row. A separate `CALLABLE-BODY-OWNER-BINDING-D0/I0` must co-seal that body source
 with the exact `VerifiedResolvedFunctionV1` before body facts can use
 lexical/control facts. Missing carrier/owner link is `NoSafeSlice`, not a
 default body receipt. Body modules must be dedicated and must not grow

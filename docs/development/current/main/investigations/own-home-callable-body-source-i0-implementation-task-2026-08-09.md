@@ -10,7 +10,9 @@ Authority: `docs/reference/language/callable-contracts.md`
 ## Scope
 
 Implement only the resolver-only, behavior-free body-source capability for
-one ordinary top-level Rust Box and one explicit direct instance method:
+the complete supported direct-instance-method cohort of one ordinary
+top-level Rust Box. The first fixture may contain one method, but the
+product is not Query-specific:
 
 ```hako
 box TextLike {
@@ -21,10 +23,11 @@ box TextLike {
 }
 ```
 
-This row proves that the exact method body is present, belongs to the exact
-`SourceBoxMethodSiteV1`, and has complete ordered body-root coverage. It does
-not prove Query conformance and does not connect to target, Recipe/CallSlot,
-Builder, MIR, runtime, provider, or production.
+This row proves that every supported direct declaration has exactly one body,
+belongs to the exact `SourceBoxMethodSiteV1`, and has complete ordered
+body-root coverage. It does not select or reissue Query behavior, prove Query
+conformance, and does not connect to target, Recipe/CallSlot, Builder, MIR,
+runtime, provider, or production.
 
 ## Required architecture
 
@@ -66,25 +69,27 @@ The direct source identity is the complete branded
 inventory ordinal is rejected as an identity.
 
 The resolver issuer borrows the existing
-`VerifiedDeclaredInstanceMethodContractCatalogV1`; it must not consume,
-clone, or rebuild its Home/Query/declaration catalogs. The issued body-source
-catalog is non-`Clone`, AST-free, and contains only exact source/body
-identity, checked parser provenance, and ordered coverage. It selects the
-borrowed aggregate's exact Query declaration subset and requires one row per
-selected identity; non-Query rows receive no default body row.
+`VerifiedInstanceMethodDeclarationCatalogV1`; it must not consume, clone, or
+rebuild declaration identity. The issued body-source catalog is non-`Clone`,
+AST-free, and contains only exact source/body identity, checked parser
+provenance, and ordered coverage for every supported direct declaration.
+Query selection is a separate projection row that borrows the already sealed
+selected view from `VerifiedDeclaredInstanceMethodContractCatalogV1` and
+requires one validated body row per selected Query identity. Non-Query rows
+receive no default Query row.
 
 ## Acceptance
 
 Positive:
 
 ```text
-one direct `length(): i64` body
+one ordinary direct Box with one or more direct instance bodies
 same parser invocation brand
-same resolver/catalog anchor
+same resolver/declaration catalog anchor
 exact direct SourceBoxMethodSiteV1
-one body root
-ordered body item sites
-complete cardinality
+one body root per declaration
+ordered body item sites per declaration
+complete declaration/body cardinality
 ```
 
 Negative matrix:
@@ -99,6 +104,8 @@ body/root cardinality mismatch               -> Rejected
 selected/generated/Hako/interface/static    -> NoSafeSlice
 body syntax unavailable with intact identity  -> Unresolved
 body observed outside direct cohort           -> Declined
+valid non-Query declaration                  -> retained by general catalog
+Query subset projection                      -> separate task
 reusing or cloning one-shot envelope          -> Rejected/compile failure
 ```
 
@@ -139,6 +146,7 @@ docs/reference/language/callable-contracts.md
 src/mir/resolved_semantics/README.md
 docs/development/current/main/investigations/
   own-home-callable-body-source-d0-design-task-2026-08-09.md
+  own-home-callable-query-body-selection-d0-design-task-2026-08-09.md
   callable-contract-and-instance-call-implementation-task-map-2026-08-08.md
 CURRENT_STATE.toml / 10-Now.md
 ```
@@ -147,9 +155,10 @@ The reference receipt must state that this is body-source identity only;
 `VerifiedCallableBodyFactsCatalogV1`, conformance, target, Recipe, and
 physical lowering remain zero.
 
-The next design row after this I0 is
+The next design rows after this I0 are, in order,
+`CALLABLE-QUERY-BODY-SELECTION-D0/I0` and then
 `CALLABLE-BODY-OWNER-BINDING-D0/I0`; body-facts Query observation cannot open
-until that owner relation is sealed.
+until both the Query projection and owner relation are sealed.
 
 ## Explicit nonclaims
 

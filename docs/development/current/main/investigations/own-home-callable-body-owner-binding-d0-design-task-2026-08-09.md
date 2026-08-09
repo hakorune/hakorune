@@ -1,5 +1,5 @@
 ---
-Status: parked — opens only after `CALLABLE-BODY-SOURCE-AUTHORITY-I0` lands
+Status: parked — opens only after general body-source I0 and Query projection I0
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -14,7 +14,7 @@ function product before any body observer may read lexical/control facts.
 This is a relational co-seal, not a second `FunctionOwnerIdV1` issuer.
 
 ```text
-VerifiedInstanceMethodBodySourceCatalogV1
+VerifiedDeclaredQueryBodySourceCatalogV1
   + VerifiedResolvedFunctionV1
   + VerifiedInstanceMethodDeclarationCatalogV1
       -> VerifiedInstanceMethodBodyOwnerLinkV1
@@ -24,6 +24,14 @@ VerifiedInstanceMethodBodySourceCatalogV1
 `FunctionOwnerIdV1`. The owner link must verify the same resolver/catalog
 brand, nominal Box/method identity, complete branded `SourceBoxMethodSiteV1`,
 parser provenance receipt, body-root identity, and exact function origin.
+
+## Input boundary
+
+The general body-source catalog is produced first and remains the source
+authority for all supported direct declarations. This first owner-binding
+cohort consumes the declared Query projection; it does not perform Query
+selection itself. A future non-Query body observer may use the same owner-link
+shape only through a separately accepted input boundary.
 
 ## Scope
 
@@ -73,4 +81,3 @@ until this link is sealed.
   mirrors are updated in the same implementation slice;
 * all touched source files remain below the 760-line split trigger and below
   800 lines.
-

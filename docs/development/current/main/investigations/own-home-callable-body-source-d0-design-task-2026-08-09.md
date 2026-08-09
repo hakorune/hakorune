@@ -55,8 +55,14 @@ resolver body-source issuer
         |
         v
 VerifiedInstanceMethodBodySourceCatalogV1
-  = non-Clone, AST-free body source capability
-  = one exact body source row per selected declaration
+  = non-Clone, AST-free body source capability for every
+    supported direct instance declaration
+  = one exact body source row per declaration identity
+        |
+        v
+VerifiedDeclaredQueryBodySourceCatalogV1
+  = deterministic projection of the declared Query selection
+  = one exact body row per selected Query declaration
         |
         v
 private body observer
@@ -113,6 +119,14 @@ complete ordered-body coverage. It does not contain an `ASTNode`, a
 Recipe, or MIR. The private observer callback may borrow the syntax arena while
 the envelope is alive; the callback must finish before the envelope is dropped.
 
+The general body-source issuer does not inspect or reissue Query behavior. A
+separate `VerifiedDeclaredQueryBodySourceCatalogV1` projection borrows the
+already sealed selected Query view from
+`VerifiedDeclaredInstanceMethodContractCatalogV1`. It requires exactly one
+validated body row per selected Query declaration, preserves sparse source
+order and branded source identity, and emits no default row for non-Query
+declarations. A foreign or duplicate row is rejected before projection.
+
 The first cohort is deliberately limited to an ordinary top-level Rust Box
 with explicit direct instance methods. Selected-gate, Hako, interface, static,
 record, mixed, generated, and compatibility rows remain `NoSafeSlice` until a
@@ -166,13 +180,17 @@ parser transaction. Resolver comparison is performed through a sealed
 
 ### Selected identity and cardinality
 
-The body envelope may carry all rows in the bounded direct cohort, but the
-resolver body-source issuer selects the exact Query subset from the borrowed
-`VerifiedDeclaredInstanceMethodContractCatalogV1`. It must require exactly
-one body row for each selected declaration identity, reject duplicate/missing
-rows, and leave non-Query declarations without a default body row. The
-selected identity is the full same-brand declaration/site tuple, never an
-inventory placement ordinal.
+The body envelope may carry all rows in the bounded direct cohort. The general
+body-source issuer first requires exactly one body row for every declaration
+identity in that cohort, rejecting duplicate, missing, foreign, or
+contradictory rows. It does not select Query methods.
+
+The separate Query projection borrows the aggregate's already sealed selected
+view and requires exactly one body row for each selected Query declaration.
+For a Query/non-Query/Query source, the projection contains the first and
+third source rows with their original identities; it does not rebase ordinals,
+sort by name, or create a default row for the non-Query declaration. Query
+selection is never rebuilt from rune syntax, names, or inventory placement.
 
 ### Function-owner boundary
 
@@ -221,11 +239,13 @@ resolved lexical/control facts remain `NoSafeSlice`.
 
 ## Input ownership
 
-The body-source issuer borrows the already landed
-`VerifiedDeclaredInstanceMethodContractCatalogV1`; it does not consume or
-clone the Home catalog, Query catalog, or declaration catalog. The aggregate
-remains available for the later conformance co-seal. The one-shot move belongs
-to the parser body envelope, not to the semantic aggregate.
+The general body-source issuer borrows the already landed
+`VerifiedInstanceMethodDeclarationCatalogV1`; it does not consume or clone
+the declaration catalog. The separate Query projection borrows the already
+sealed `VerifiedDeclaredInstanceMethodContractCatalogV1` selected view and
+does not consume or clone its Home/Query rows. Both aggregates remain
+available for later owner/conformance co-seals. The one-shot move belongs to
+the parser body envelope, not to a semantic aggregate.
 
 The exact public type names above are design names until the implementation
 row closes. The ownership and ordering are normative.
@@ -257,6 +277,29 @@ The observer records exact source sites and resolved identities for the facts
 it proves. It does not issue `Query`, `Handle`, parameter/result Home
 relations, semantic I64, physical ABI, `EffectMask`, or `FunctionSignature`.
 Those meanings remain owned by the declaration, Home, and signature issuers.
+
+## External review correction (2026-08-09)
+
+The earlier draft combined general body-source authority and Query selection.
+The accepted ordering is now explicitly:
+
+```text
+ParserResolverBodyTransactionV1
+  -> ParserBoxResolverSourceHandoffV1
+  -> ParserBoxBodySourceEnvelopeV1
+       -> VerifiedInstanceMethodBodySourceCatalogV1
+            -> VerifiedDeclaredQueryBodySourceCatalogV1
+                 -> body-owner binding
+                      -> body facts / conformance
+```
+
+The parser envelope is AST-free after decomposition. If a future observer
+needs a private syntax view, it may borrow that view only inside the one-shot
+callback; the resolver-facing catalogs never retain an AST or syntax pointer.
+The body-source I0 therefore proves declaration/body identity and ordered
+coverage for the complete supported direct cohort. Query subset projection is
+its own bounded design/implementation row, and FunctionOwner binding remains
+the following relational co-seal.
 
 `VerifiedResolvedFunctionV1` may supply resolved lexical/control facts only
 after it is explicitly co-sealed to the same Box method declaration. An equal

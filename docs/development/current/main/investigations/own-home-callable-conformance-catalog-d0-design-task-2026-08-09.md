@@ -20,7 +20,9 @@ cannot be paired by name, ordinal, or equal-looking owner. See
 `own-home-callable-body-source-d0-design-task-2026-08-09.md`.
 
 It opens only after the declared Query/Home aggregate I0 lands with its
-same-brand/site coverage tests **and** a complete branded body-source/body-
-facts path exists. It must remain separate from resolver target,
+same-brand/site coverage tests, the general body-source I0, the declared
+Query body-source projection I0, and the body-owner binding I0. The first
+body-facts path consumes that branded Query view plus owner link. It must
+remain separate from resolver target,
 Recipe/CallSlot, Builder/MIR, runtime, provider, fallback, and production
 selection until its own source/body authority is designed.
