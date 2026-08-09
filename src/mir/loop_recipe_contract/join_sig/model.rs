@@ -29,6 +29,7 @@ pub(crate) struct LoopJoinPayload<C> {
 }
 
 pub(crate) type LoopJoinPayloadV1 = LoopJoinPayload<super::super::schema::LoopValueClassV1>;
+pub(crate) type LoopJoinPayloadV2 = LoopJoinPayload<super::super::schema_v2::LoopValueClassV2>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct LoopJoinPortBinding<C> {
@@ -39,6 +40,8 @@ pub(crate) struct LoopJoinPortBinding<C> {
 }
 
 pub(crate) type LoopJoinPortBindingV1 = LoopJoinPortBinding<super::super::schema::LoopValueClassV1>;
+pub(crate) type LoopJoinPortBindingV2 =
+    LoopJoinPortBinding<super::super::schema_v2::LoopValueClassV2>;
 
 /// A verified logical identity at a loop's After port.
 ///
@@ -74,6 +77,7 @@ pub(crate) struct LoopJoinEdge<C> {
 }
 
 pub(crate) type LoopJoinEdgeV1 = LoopJoinEdge<super::super::schema::LoopValueClassV1>;
+pub(crate) type LoopJoinEdgeV2 = LoopJoinEdge<super::super::schema_v2::LoopValueClassV2>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LoopJoinLoop<C> {
@@ -84,15 +88,18 @@ pub(crate) struct LoopJoinLoop<C> {
 }
 
 pub(crate) type LoopJoinLoopV1 = LoopJoinLoop<super::super::schema::LoopValueClassV1>;
+pub(crate) type LoopJoinLoopV2 = LoopJoinLoop<super::super::schema_v2::LoopValueClassV2>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct LoopJoinSig<C> {
+pub(crate) struct LoopJoinSig<C, T = LoopNodeKeyV1> {
     pub(crate) loops: Vec<LoopJoinLoop<C>>,
-    pub(crate) branches: Vec<LoopJoinBranch<C>>,
+    pub(crate) branches: Vec<LoopJoinBranch<C, T>>,
     pub(crate) port_bindings: Vec<LoopJoinPortBinding<C>>,
 }
 
-pub(crate) type LoopJoinSigV1 = LoopJoinSig<super::super::schema::LoopValueClassV1>;
+pub(crate) type LoopJoinSigV1 = LoopJoinSig<super::super::schema::LoopValueClassV1, LoopNodeKeyV1>;
+pub(crate) type LoopJoinSigV2 =
+    LoopJoinSig<super::super::schema_v2::LoopValueClassV2, LoopJoinBranchExitTargetV2>;
 
 /// Caller-zero logical evidence for a verified conditional branch.
 ///
@@ -100,54 +107,107 @@ pub(crate) type LoopJoinSigV1 = LoopJoinSig<super::super::schema::LoopValueClass
 /// If item and each arm's logical disposition so a later physical consumer can
 /// materialize the already-verified choice without rediscovering fallthrough.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct LoopJoinBranch<C> {
+pub(crate) struct LoopJoinBranch<C, T = LoopNodeKeyV1> {
     pub(crate) owner_loop: LoopNodeKeyV1,
     pub(crate) if_item: LoopItemKeyV1,
     pub(crate) condition: LoopValueKeyV1,
-    pub(crate) then_arm: LoopJoinBranchArm<C>,
-    pub(crate) else_arm: LoopJoinBranchArm<C>,
+    pub(crate) then_arm: LoopJoinBranchArm<C, T>,
+    pub(crate) else_arm: LoopJoinBranchArm<C, T>,
 }
 
-pub(crate) type LoopJoinBranchV1 = LoopJoinBranch<super::super::schema::LoopValueClassV1>;
+pub(crate) type LoopJoinBranchV1 =
+    LoopJoinBranch<super::super::schema::LoopValueClassV1, LoopNodeKeyV1>;
+pub(crate) type LoopJoinBranchV2 =
+    LoopJoinBranch<super::super::schema_v2::LoopValueClassV2, LoopJoinBranchExitTargetV2>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum LoopJoinBranchArm<C> {
-    Exit(LoopJoinBranchExit<C>),
+pub(crate) enum LoopJoinBranchArm<C, T = LoopNodeKeyV1> {
+    Exit(LoopJoinBranchExit<C, T>),
     Fallthrough { payload: Vec<LoopJoinPayload<C>> },
 }
 
-pub(crate) type LoopJoinBranchArmV1 = LoopJoinBranchArm<super::super::schema::LoopValueClassV1>;
+pub(crate) type LoopJoinBranchArmV1 =
+    LoopJoinBranchArm<super::super::schema::LoopValueClassV1, LoopNodeKeyV1>;
+pub(crate) type LoopJoinBranchArmV2 =
+    LoopJoinBranchArm<super::super::schema_v2::LoopValueClassV2, LoopJoinBranchExitTargetV2>;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LoopJoinBranchExitTargetV2 {
+    Loop(LoopNodeKeyV1),
+    FunctionExit,
+}
+
+impl LoopJoinBranchExitTargetV2 {
+    pub(crate) fn accepts_role(self, role: LoopJoinEdgeRoleV1) -> bool {
+        matches!(
+            (self, role),
+            (
+                Self::Loop(_),
+                LoopJoinEdgeRoleV1::Break | LoopJoinEdgeRoleV1::Continue
+            ) | (Self::FunctionExit, LoopJoinEdgeRoleV1::Return)
+        )
+    }
+}
+
+pub(in crate::mir::loop_recipe_contract) trait LoopJoinBranchTarget:
+    Copy + Eq
+{
+    fn accepts(self, role: LoopJoinEdgeRoleV1) -> bool;
+}
+
+impl LoopJoinBranchTarget for LoopNodeKeyV1 {
+    fn accepts(self, role: LoopJoinEdgeRoleV1) -> bool {
+        matches!(
+            role,
+            LoopJoinEdgeRoleV1::Break | LoopJoinEdgeRoleV1::Continue
+        )
+    }
+}
+
+impl LoopJoinBranchTarget for LoopJoinBranchExitTargetV2 {
+    fn accepts(self, role: LoopJoinEdgeRoleV1) -> bool {
+        self.accepts_role(role)
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct LoopJoinBranchExit<C> {
+pub(crate) struct LoopJoinBranchExit<C, T = LoopNodeKeyV1> {
     pub(crate) exit_item: LoopItemKeyV1,
     pub(crate) role: LoopJoinEdgeRoleV1,
-    pub(crate) target_loop: LoopNodeKeyV1,
+    pub(crate) target: T,
     pub(crate) payload: Vec<LoopJoinPayload<C>>,
 }
 
-pub(crate) type LoopJoinBranchExitV1 = LoopJoinBranchExit<super::super::schema::LoopValueClassV1>;
+pub(crate) type LoopJoinBranchExitV1 =
+    LoopJoinBranchExit<super::super::schema::LoopValueClassV1, LoopNodeKeyV1>;
+pub(crate) type LoopJoinBranchExitV2 =
+    LoopJoinBranchExit<super::super::schema_v2::LoopValueClassV2, LoopJoinBranchExitTargetV2>;
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedLoopJoinSig<C>(LoopJoinSig<C>);
+pub(crate) struct VerifiedLoopJoinSig<C, T = LoopNodeKeyV1>(LoopJoinSig<C, T>);
 
-pub(crate) type VerifiedLoopJoinSigV1 = VerifiedLoopJoinSig<super::super::schema::LoopValueClassV1>;
+pub(crate) type VerifiedLoopJoinSigV1 =
+    VerifiedLoopJoinSig<super::super::schema::LoopValueClassV1, LoopNodeKeyV1>;
+pub(crate) type VerifiedLoopJoinSigV2 =
+    VerifiedLoopJoinSig<super::super::schema_v2::LoopValueClassV2, LoopJoinBranchExitTargetV2>;
 
-impl<C: Copy + PartialEq> VerifiedLoopJoinSig<C> {
-    pub(super) fn from_sig(sig: LoopJoinSig<C>) -> Self {
+impl<C: Copy + PartialEq, T> VerifiedLoopJoinSig<C, T> {
+    pub(super) fn from_sig(sig: LoopJoinSig<C, T>) -> Self {
         Self(sig)
     }
 
-    pub(crate) fn as_sig(&self) -> &LoopJoinSig<C> {
+    pub(crate) fn as_sig(&self) -> &LoopJoinSig<C, T> {
         &self.0
     }
+}
 
+impl VerifiedLoopJoinSig<super::super::schema::LoopValueClassV1, LoopNodeKeyV1> {
     pub(crate) fn require_after_binding(
         &self,
         loop_key: LoopNodeKeyV1,
         binding: LoopBindingKeyV1,
-        class: C,
-    ) -> Result<VerifiedLoopAfterBinding<C>, LoopJoinSigRejectReasonV1> {
+        class: super::super::schema::LoopValueClassV1,
+    ) -> Result<VerifiedLoopAfterBindingV1, LoopJoinSigRejectReasonV1> {
         let Some(row) = self.0.port_bindings.iter().find(|row| {
             row.loop_key == loop_key && row.port == LoopJoinPortV1::After && row.binding == binding
         }) else {

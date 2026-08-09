@@ -140,10 +140,12 @@ pub(crate) use input_source::{
 };
 #[allow(unused_imports)]
 pub(crate) use join_sig::{
-    LoopJoinBranchArmV1, LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1,
-    LoopJoinEdgeV1, LoopJoinLoopV1, LoopJoinPayloadV1, LoopJoinPortBindingV1, LoopJoinPortV1,
-    LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1,
-    VerifiedLoopJoinSigV1,
+    LoopJoinBranchArmV1, LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinBranchExitV1,
+    LoopJoinBranchExitV2, LoopJoinBranchV1, LoopJoinBranchV2, LoopJoinEdgeRoleV1, LoopJoinEdgeV1,
+    LoopJoinEdgeV2, LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinPayloadV1, LoopJoinPayloadV2,
+    LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
+    LoopJoinSigElaboratorV2, LoopJoinSigRejectReasonV1, LoopJoinSigV1, LoopJoinSigV2,
+    VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue_producer::{

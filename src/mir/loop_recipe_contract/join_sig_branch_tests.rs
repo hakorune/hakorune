@@ -105,8 +105,10 @@ fn loop_true_branch_exit_join_sig_is_deterministic_and_has_no_backedge() {
     };
     assert_eq!(then_exit.exit_item, LoopItemKeyV1::new(1));
     assert_eq!(then_exit.role, LoopJoinEdgeRoleV1::Break);
+    assert_eq!(then_exit.target, LoopNodeKeyV1::new(0));
     assert_eq!(else_exit.exit_item, LoopItemKeyV1::new(2));
     assert_eq!(else_exit.role, LoopJoinEdgeRoleV1::Continue);
+    assert_eq!(else_exit.target, LoopNodeKeyV1::new(0));
     let edges = &left.as_sig().loops[0].edges;
     assert!(edges
         .iter()

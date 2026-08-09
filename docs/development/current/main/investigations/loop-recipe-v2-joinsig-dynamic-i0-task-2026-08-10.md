@@ -1,6 +1,6 @@
 # LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0
 
-Status: ordered after `LOOP-JOINSIG-NEUTRAL-ENGINE-R0`
+Status: closed; next `LOOP-V2-SEMANTIC-PROGRAM-COSEAL-I0`
 Date: 2026-08-10
 Design authority:
 `loop-recipe-v2-joinsig-dynamic-d0-design-task-2026-08-10.md`
@@ -82,3 +82,17 @@ Home classification/install/cleanup
 physical Layout / Builder / MIR / CFG / PHI
 production selection / retry / fallback
 ```
+
+## Closeout receipt
+
+One private borrowed V2 adapter now feeds the sole class-generic flow engine.
+The V2 seal retains `Dynamic`, uses a typed Loop/FunctionExit branch target,
+and emits the exact five-edge/one-branch/two-port golden from the complete
+unchanged source Recipe. The target/role negative matrix rejects cross-family
+pairings; exact payload assertions exclude V10 and V14. V1 still rejects a
+Return arm and all 31 focused JoinSig regressions are green. The V2 verifier
+also rejects a body-local or Return value as a root carrier entry before
+JoinSig issuance. The Dynamic full-body focus is 15/15, `cargo check --lib` is
+green, and the largest touched source file is 757 lines. No source co-seal,
+After/Continuation issuer, Completion consumption, Fault/Home, or
+physical/production edge was opened.

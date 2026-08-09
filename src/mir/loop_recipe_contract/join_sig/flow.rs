@@ -3,9 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::super::ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1,
 };
-use super::super::join_sig_branch::{
-    branch_row, is_supported_loop_branch_pair, is_supported_loop_exit,
-};
+use super::super::join_sig_branch::{branch_row, is_supported_loop_branch_pair};
 use super::super::verify::VerifiedLoopRecipeV1;
 use super::model::{
     LoopJoinBranch, LoopJoinEdge, LoopJoinEdgeRoleV1, LoopJoinLoop, LoopJoinPayload, LoopJoinSig,
@@ -50,9 +48,9 @@ impl LoopJoinSigElaboratorV1 {
     }
 }
 
-fn elaborate_view<V: LoopJoinRecipeView>(
+pub(super) fn elaborate_view<V: LoopJoinRecipeView>(
     recipe: &V,
-) -> Result<VerifiedLoopJoinSig<V::Class>, LoopJoinSigRejectReasonV1> {
+) -> Result<VerifiedLoopJoinSig<V::Class, V::BranchTarget>, LoopJoinSigRejectReasonV1> {
     let mut rows = Vec::with_capacity(recipe.loop_count());
     let mut branches = Vec::new();
     let mut available = recipe.inputs().iter().copied().collect();
@@ -81,7 +79,7 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
     inherited: &mut BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     available: &mut BTreeSet<LoopValueKeyV1>,
     rows: &mut Vec<LoopJoinLoop<V::Class>>,
-    branches: &mut Vec<LoopJoinBranch<V::Class>>,
+    branches: &mut Vec<LoopJoinBranch<V::Class, V::BranchTarget>>,
 ) -> Result<Flow<V::Class>, LoopJoinSigRejectReasonV1> {
     let node = recipe
         .loop_at(key)
@@ -169,7 +167,7 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
     }
     let body_payload = visible_payloads_from_view(recipe, key, &body_flow.bindings)?;
     for side_exit in &body_flow.side_exits {
-        if !is_supported_loop_exit(key, side_exit.kind) {
+        if recipe.branch_exit_target(key, side_exit.kind).is_none() {
             return Err(LoopJoinSigRejectReasonV1::UnsupportedExit {
                 item: side_exit.item,
             });
@@ -180,7 +178,7 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
         let then_exit = body_flow
             .exit
             .expect("alternate branch exit always has a primary exit");
-        if !is_supported_loop_branch_pair(key, then_exit.1, else_exit.1) {
+        if !is_supported_loop_branch_pair(recipe, key, then_exit.1, else_exit.1) {
             return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: then_exit.0 });
         }
         edges.push(loop_exit_edge(
@@ -376,7 +374,7 @@ fn process_block<V: LoopJoinRecipeView>(
     bindings: &mut BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     available: &mut BTreeSet<LoopValueKeyV1>,
     rows: &mut Vec<LoopJoinLoop<V::Class>>,
-    branches: &mut Vec<LoopJoinBranch<V::Class>>,
+    branches: &mut Vec<LoopJoinBranch<V::Class, V::BranchTarget>>,
 ) -> Result<Flow<V::Class>, LoopJoinSigRejectReasonV1> {
     let block = recipe
         .block_at(key)

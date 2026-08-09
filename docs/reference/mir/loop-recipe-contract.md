@@ -194,15 +194,28 @@ Three focused tests are green. No envelope co-seal, JoinSigV2, physical route,
 fallback, or production caller is introduced. The next row is the atomic
 source-bound Recipe/envelope co-seal design.
 
-Accepted target (`LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0`, implementation 0): V1
-and V2 Recipe wires feed one private common JoinSig flow engine through exact
-borrowed views. The V2 seal preserves `Dynamic` and a typed `FunctionExit`
-branch target. The unchanged Recipe must produce Enter, PredicateTrue,
+Implementation receipt (`LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0`, 2026-08-10): V1
+and V2 Recipe wires now feed one private common JoinSig flow engine through
+exact borrowed views. The V2 adapter exhaustively projects all current V2
+operation def/use forms without a V2-to-V1 conversion, and the typed V2 seal
+preserves `Dynamic`. Its branch target is exactly
+`LoopJoinBranchExitTargetV2::{Loop, FunctionExit}`; Return-to-Loop and
+Break/Continue-to-FunctionExit are rejected by the target/role contract while
+the V1 Return-arm rejection remains unchanged.
+
+The complete unchanged Recipe produces Enter, PredicateTrue,
 PredicateFalse, inner Return, and Backedge edges with carrier payload values
-`V1/V1/V1/V1/V17` for `B0`. `V10/ch` and Return operand `V14` are not carrier
-payloads. The outer source Return remains Callable Tail/Completion and Dynamic
-Fault remains outside Recipe/JoinSig. No V2 JoinSig implementation or semantic
-continuation is claimed by this Decision receipt.
+`V1/V1/V1/V1/V17` for `B0`, one I10/V13 Return/fallthrough branch, and only
+Header/After `B0:Dynamic` port bindings. Exact tests prove that `V10/ch` and
+Return operand `V14` never enter payloads or ports, and the V2 verifier rejects
+either value when substituted as the root carrier entry. Fifteen focused
+Dynamic full-body tests, all 31 focused JoinSig regressions, and `cargo check
+--lib` are green; the largest touched source file is 757 lines. The outer source
+Return remains Callable Tail/Completion and Dynamic Fault remains outside
+Recipe/JoinSig. Source co-seal, After/Continuation issuance, Completion
+consumption, Home/Fault handling, physical lowering, production selection,
+retry, and fallback remain closed. The next row is the atomic V2 semantic
+program co-seal.
 
 Reference receipt — `LOOP-JOINSIG-NEUTRAL-ENGINE-R0` (2026-08-10): the
 verified V1 Recipe now enters one private borrowed V1 view and one common
@@ -214,8 +227,8 @@ port bindings, After capabilities, rejection matrix, and accepted shapes.
 `cargo check --lib` is green and the largest touched source file is 634 lines.
 This receipt imports no V2 schema or Dynamic class and adds no one-arm Return,
 FunctionExit branch target, semantic-program co-seal, Continuation, physical
-effect, production caller, retry, or fallback. The V2 adapter and its exact
-Dynamic golden remain the next separately named I0.
+effect, production caller, retry, or fallback. The separately named V2 I0
+above is the only later widening of that neutral engine.
 
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).

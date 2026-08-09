@@ -12,9 +12,11 @@ use super::super::schema::{
     LoopValueClassV1,
 };
 use super::super::verify::VerifiedLoopRecipeV1;
+use super::model::LoopJoinBranchTarget;
 
 pub(in crate::mir::loop_recipe_contract) trait LoopJoinRecipeView {
     type Class: Copy + Eq;
+    type BranchTarget: LoopJoinBranchTarget;
 
     fn root_loop(&self) -> LoopNodeKeyV1;
     fn inputs(&self) -> &[LoopValueKeyV1];
@@ -25,6 +27,11 @@ pub(in crate::mir::loop_recipe_contract) trait LoopJoinRecipeView {
     fn carrier_count(&self) -> usize;
     fn carrier_at(&self, index: usize) -> Option<LoopJoinCarrierView<Self::Class>>;
     fn exit_at(&self, key: LoopExitKeyV1) -> Option<LoopJoinExitView>;
+    fn branch_exit_target(
+        &self,
+        owner_loop: LoopNodeKeyV1,
+        exit: LoopJoinExitView,
+    ) -> Option<Self::BranchTarget>;
 }
 
 #[derive(Clone, Copy)]
@@ -69,6 +76,10 @@ pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationFamily {
     BinaryI64,
     CompareI64,
     WriteBinding,
+    DynamicAdd,
+    DynamicLess,
+    CallSlot,
+    TextEq,
 }
 
 pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationView<'a> {
@@ -129,6 +140,7 @@ impl<'a> LoopRecipeV1JoinView<'a> {
 
 impl LoopJoinRecipeView for LoopRecipeV1JoinView<'_> {
     type Class = LoopValueClassV1;
+    type BranchTarget = LoopNodeKeyV1;
 
     fn root_loop(&self) -> LoopNodeKeyV1 {
         self.recipe.root_loop
@@ -205,6 +217,24 @@ impl LoopJoinRecipeView for LoopRecipeV1JoinView<'_> {
             LoopExitKindV1::Continue { target_loop } => LoopJoinExitView::Continue { target_loop },
             LoopExitKindV1::Return { value } => LoopJoinExitView::Return { value },
         })
+    }
+
+    fn branch_exit_target(
+        &self,
+        owner_loop: LoopNodeKeyV1,
+        exit: LoopJoinExitView,
+    ) -> Option<Self::BranchTarget> {
+        match exit {
+            LoopJoinExitView::Break { target_loop }
+            | LoopJoinExitView::Continue { target_loop }
+                if target_loop == owner_loop =>
+            {
+                Some(target_loop)
+            }
+            LoopJoinExitView::Break { .. }
+            | LoopJoinExitView::Continue { .. }
+            | LoopJoinExitView::Return { .. } => None,
+        }
     }
 }
 

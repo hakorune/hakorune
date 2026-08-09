@@ -538,6 +538,30 @@ outside this row. The exact implementation receipt is in
 `docs/reference/mir/loop-recipe-contract.md` under
 `LOOP-JOINSIG-MIXED-FALLTHROUGH-D0`.
 
+## Typed Dynamic JoinSig V2 receipt
+
+`LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0` connects the complete verified V2 Recipe
+to the same private JoinSig flow engine through a borrowed V2 adapter. The
+adapter exhaustively projects every V2 operation's def/use relation and keeps
+`LoopValueClassV2::Dynamic`; it never converts V2 into V1 or walks control a
+second time.
+
+Branch targets are a separate typed family from value classes. V1 retains
+Loop-only targets and still rejects a Return arm. V2 uses
+`LoopJoinBranchExitTargetV2::{Loop, FunctionExit}` and accepts only
+Break/Continue-to-Loop or Return-to-FunctionExit. The unchanged Dynamic Recipe
+seals exactly five edges, one Return/fallthrough branch, and Header/After
+bindings for `B0:Dynamic`. Carrier-derived payloads contain `V1` on entry and
+Return, `V17` on backedge, and never contain the iteration-local `V10/ch` or
+the Return operand `V14`. The V2 Recipe verifier also rejects either body-local
+value as the root carrier entry, so the exclusion is sealed before JoinSig
+issuance rather than maintained by convention.
+
+This is still caller-zero logical evidence. Source/Recipe/JoinSig/After
+co-seal, Continuation, Completion consumption, Fault/Home, physical layout,
+Builder/MIR/CFG/PHI, production selection, retry, and fallback remain outside
+this receipt.
+
 ## Forbidden dependencies
 
 This subtree must not import AST nodes, `MirBuilder`, `CorePlan`, physical

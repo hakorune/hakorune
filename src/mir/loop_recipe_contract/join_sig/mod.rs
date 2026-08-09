@@ -8,17 +8,25 @@ mod flow;
 mod model;
 mod port;
 pub(super) mod recipe_view;
+mod recipe_view_v2;
+mod v2;
 mod visibility;
 
 pub(crate) use flow::LoopJoinSigElaboratorV1;
 pub(crate) use model::{
-    LoopJoinBranchArmV1, LoopJoinBranchExitV1, LoopJoinBranchV1, LoopJoinEdgeRoleV1,
-    LoopJoinEdgeV1, LoopJoinLoopV1, LoopJoinPayloadV1, LoopJoinPortBindingV1, LoopJoinPortV1,
-    LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
+    LoopJoinBranchArmV1, LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinBranchExitV1,
+    LoopJoinBranchExitV2, LoopJoinBranchV1, LoopJoinBranchV2, LoopJoinEdgeRoleV1, LoopJoinEdgeV1,
+    LoopJoinEdgeV2, LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinPayloadV1, LoopJoinPayloadV2,
+    LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigRejectReasonV1,
+    LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
+    VerifiedLoopJoinSigV2,
 };
+pub(crate) use v2::LoopJoinSigElaboratorV2;
 
 pub(super) use flow::Flow;
-pub(super) use model::{LoopJoinBranch, LoopJoinBranchArm, LoopJoinBranchExit, LoopJoinPayload};
+pub(super) use model::{
+    LoopJoinBranch, LoopJoinBranchArm, LoopJoinBranchExit, LoopJoinBranchTarget, LoopJoinPayload,
+};
 #[cfg(test)]
 pub(super) use port::port_bindings;
 #[cfg(test)]

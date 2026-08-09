@@ -84,6 +84,9 @@ pub(crate) enum LoopRecipeV2RejectReason {
     InvalidCarrierBinding {
         key: LoopCarrierKeyV1,
     },
+    CarrierEntryNotAvailable {
+        key: LoopCarrierKeyV1,
+    },
     DuplicateItemUse {
         key: LoopItemKeyV1,
     },
@@ -213,9 +216,9 @@ impl LoopRecipeVerifierV2 {
         let values = value_classes(&recipe)?;
         check_inputs(&recipe, &values)?;
         check_loops(&recipe, &values)?;
-        check_carriers(&recipe, &bindings, &values)?;
         check_exits(&recipe)?;
-        check_blocks_and_items(&recipe, &bindings, &values)?;
+        let definitions = check_blocks_and_items(&recipe, &bindings, &values)?;
+        check_carriers(&recipe, &bindings, &values, &definitions)?;
         super::typed_schema_v2_structure::check_control_structure(&recipe)?;
         Ok(VerifiedLoopRecipeV2(recipe))
     }
@@ -333,6 +336,7 @@ fn check_carriers(
     recipe: &LoopRecipeV2,
     bindings: &BTreeMap<LoopBindingKeyV1, LoopValueClassV2>,
     values: &BTreeMap<LoopValueKeyV1, LoopValueClassV2>,
+    definitions: &BTreeMap<LoopValueKeyV1, Option<LoopItemKeyV1>>,
 ) -> Result<(), LoopRecipeV2RejectReason> {
     let loops: BTreeSet<_> = recipe.loops.iter().map(|node| node.key).collect();
     let mut seen = BTreeSet::new();
@@ -353,6 +357,20 @@ fn check_carriers(
         }
         if values.get(&carrier.entry_value) != Some(&carrier.class) {
             return Err(LoopRecipeV2RejectReason::InvalidCarrierClass { key: carrier.key });
+        }
+        let definition = definitions.get(&carrier.entry_value).ok_or(
+            LoopRecipeV2RejectReason::UnknownValue {
+                key: carrier.entry_value,
+            },
+        )?;
+        let entry_item = loop_entry_item(recipe, carrier.owner_loop);
+        let available = match (*definition, entry_item) {
+            (None, _) => true,
+            (Some(_), None) => false,
+            (Some(definition), Some(entry)) => definition.raw() < entry.raw(),
+        };
+        if !available {
+            return Err(LoopRecipeV2RejectReason::CarrierEntryNotAvailable { key: carrier.key });
         }
     }
     Ok(())
@@ -389,7 +407,7 @@ fn check_blocks_and_items(
     recipe: &LoopRecipeV2,
     bindings: &BTreeMap<LoopBindingKeyV1, LoopValueClassV2>,
     values: &BTreeMap<LoopValueKeyV1, LoopValueClassV2>,
-) -> Result<(), LoopRecipeV2RejectReason> {
+) -> Result<BTreeMap<LoopValueKeyV1, Option<LoopItemKeyV1>>, LoopRecipeV2RejectReason> {
     let loops: BTreeSet<_> = recipe.loops.iter().map(|node| node.key).collect();
     let blocks: BTreeSet<_> = recipe.blocks.iter().map(|block| block.key).collect();
     let items: BTreeMap<_, _> = recipe
@@ -455,7 +473,17 @@ fn check_blocks_and_items(
             return Err(LoopRecipeV2RejectReason::UndefinedValue { key: value.key });
         }
     }
-    Ok(())
+    Ok(definitions)
+}
+
+fn loop_entry_item(recipe: &LoopRecipeV2, key: LoopNodeKeyV1) -> Option<LoopItemKeyV1> {
+    if key == recipe.root_loop {
+        return None;
+    }
+    recipe.items.iter().find_map(|row| match row.item {
+        LoopRecipeItemV2::Loop { loop_key } if loop_key == key => Some(row.key),
+        _ => None,
+    })
 }
 
 fn check_item(

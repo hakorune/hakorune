@@ -1,6 +1,6 @@
 # LOOP-V2-SEMANTIC-PROGRAM-COSEAL-I0
 
-Status: ordered after `LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0`
+Status: active after `LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0` closeout
 Date: 2026-08-10
 Design authority:
 `loop-recipe-v2-joinsig-dynamic-d0-design-task-2026-08-10.md`

@@ -23,7 +23,12 @@ pub(super) fn loop_exit_edge<C>(
             role: LoopJoinEdgeRoleV1::Continue,
             payload,
         },
-        LoopJoinExitView::Return { .. } => unreachable!("direct branch rows reject Return"),
+        LoopJoinExitView::Return { .. } => LoopJoinEdge {
+            from: LoopJoinPortV1::Body,
+            to: LoopJoinPortV1::FunctionExit,
+            role: LoopJoinEdgeRoleV1::Return,
+            payload,
+        },
     }
 }
 
