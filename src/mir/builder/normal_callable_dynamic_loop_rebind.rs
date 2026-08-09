@@ -30,6 +30,18 @@ pub(super) struct CompletedDynamicLoopCompareBoolReceiptV1 {
 }
 
 impl CompletedDynamicLoopCompareBoolReceiptV1 {
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(super) const fn loop_site(&self) -> &SourceNodeSiteV1 {
+        &self.loop_site
+    }
+
+    pub(super) const fn lhs(&self) -> ValueId {
+        self.lhs
+    }
+
     pub(super) const fn result(&self) -> ValueId {
         self.result
     }

@@ -25,12 +25,13 @@ CURRENT_STATE.toml
 
 Current mode is `fast`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
-operation/rebind P1, Header-current P2A, and corrected Header-based P1R are
+operation/rebind P1, Header-current P2A, corrected Header-based P1R, and
+canonical PHI close P2B are
 closed for the unmodified production `skip_while/4` source. The next
 compiler-side row is:
 
 ```text
-DYNAMIC-LOOP-PHI-CLOSE-P2B
+DYNAMIC-LOOP-PHI-DISCARD-P2C
 ```
 
 The previous post-P1-only PHI plan is rejected: the pre-correction P1 emitted
@@ -48,12 +49,13 @@ P2A Header read / provisional PHI
 P2A consumes the R0 exact Enter relation inside one canonical function
 session and opens the provisional Header PHI before operations. P1R consumes
 that whole open product: Compare and Add both use the Header PHI destination,
-and the exact source-backed Dynamic Add result is retained as the terminal
-Backedge definition. P2B must now define that assignment through canonical
-Binding SSA, complete the actual Backedge edge, seal Header, and patch the
-existing PHI from canonical predecessor truth. After, raw incoming vectors,
-route-local PHI writers, backend activation, retry/fallback, and source
-rewrites remain closed. The
+and the exact source-backed Dynamic Add result is retained. P2B now claims the
+assignment only through canonical Binding SSA, creates the reachable
+Header/body/terminal-Backedge cycle, seals Header from exactly Enter plus
+Backedge, and patches the existing PHI through the session `PhiTxn`. P2C must
+now prove whole-session discard at every post-effect boundary and fresh
+session repeatability. After, raw incoming vectors, route-local PHI writers,
+backend activation, retry/fallback, and source rewrites remain closed. The
 parser H2-S2-S1-R1 worktree is preserved and must not be mixed into this
 compiler-side slice.
 

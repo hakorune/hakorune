@@ -231,8 +231,13 @@ Header current, and retains the same open product with the source-backed
 Dynamic Backedge receipt. It has no caller-chosen block/value seam and never
 rewrites an emitted operand. It also does not consume the source assignment or
 advance the legacy callable-current map. P2B must define the assignment once
-through canonical Binding SSA, complete the Backedge edge, seal Header, and
-let the existing `PhiTxn` patch the provisional PHI. After publication,
+through canonical Binding SSA, complete the real
+Header-to-body-to-terminal-Backedge-to-Header path, and seal Enter, body,
+terminal Backedge, then Header through canonical CFG. The Header witness is
+exactly Enter plus terminal Backedge, and canonical Binding SSA uses it to
+patch the existing provisional PHI to `(Enter, entry)` and `(Backedge, Add)`.
+The resulting move-only close receipt contains no PHI token or predecessor
+authority. After publication,
 DraftSeal, backend activation, retry, and fallback remain closed.
 
 ## 原則（SSOT / Box-First）

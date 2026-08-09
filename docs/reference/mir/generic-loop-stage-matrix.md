@@ -1786,3 +1786,19 @@ canonical Binding SSA in P2B is the sole assignment claimant and
 reaching-value authority. No operand rewrite, raw Unknown admission, actual
 Backedge edge, canonical assignment definition, PHI patch, After, backend,
 retry/fallback, or production activation is claimed. P2B is next.
+
+## Dynamic Loop canonical PHI close P2B receipt (2026-08-10)
+
+The exact P1R operation product is consumed once inside the same canonical
+function session. Canonical identity alone claims the assignment and records
+the Dynamic Add result. Canonical CFG emits the reachable Header branch,
+body-to-terminal edge, and terminal Backedge-to-Header edge, then seals the
+touched CFG blocks. The exact Header witness contains only Enter and terminal
+Backedge.
+
+Canonical Binding SSA uses that witness through the existing `PhiTxn`; the
+sole provisional Header PHI is patched to `(Enter, entry)` and `(Backedge,
+Add result)`. No raw predecessor vector, PHI token, route-local writer,
+legacy current synchronization, source rewrite, retry, fallback, backend, or
+production authority is introduced. After and whole-session finish remain
+closed for later rows. P2C whole-session discard proof is next.

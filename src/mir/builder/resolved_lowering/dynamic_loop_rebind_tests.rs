@@ -38,7 +38,7 @@ fn parsed_skip_while() -> ASTNode {
 }
 
 #[test]
-fn prepared_dynamic_operations_emit_atomic_backedge_and_late_failure_discards_session() {
+fn prepared_dynamic_operations_close_the_canonical_header_phi() {
     let function = parsed_skip_while();
     let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function).unwrap();
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
@@ -200,8 +200,65 @@ fn prepared_dynamic_operations_emit_atomic_backedge_and_late_failure_discards_se
                 if *dst == carrier.backedge() && *lhs == header_current
         )));
 
-    let injected_after_emission: Result<(), &str> = Err("injected-after-dynamic-add");
-    assert!(injected_after_emission.is_err());
+    let closed = canonical
+        .close_source_backed_dynamic_loop_header(builder, completed)
+        .unwrap();
+    assert_eq!(closed.owner(), input().owner());
+    assert_eq!(closed.loop_site(), &parent);
+    assert_eq!(closed.binding(), local.local());
+    assert_eq!(closed.origin(), local.formal());
+    assert_eq!(closed.entry(), local_value);
+    assert_eq!(closed.header_current(), header_current);
+    let backedge = closed.backedge();
+    assert_eq!(closed.placement(), placement);
+
+    let mir = builder.function_state.current_function.as_ref().unwrap();
+    let header = mir.get_block(placement.header()).unwrap();
+    let phi = header
+        .instructions
+        .iter()
+        .find(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::Phi { dst, .. } if *dst == header_current
+            )
+        })
+        .expect("canonical Header PHI");
+    let MirInstruction::Phi { inputs, .. } = phi else {
+        unreachable!()
+    };
+    assert_eq!(inputs.len(), 2);
+    assert!(inputs.contains(&(placement.enter(), local_value)));
+    assert!(inputs.contains(&(placement.terminal_backedge(), backedge)));
+    assert!(matches!(
+        header.terminator,
+        Some(MirInstruction::Branch {
+            then_bb,
+            else_bb,
+            ..
+        }) if then_bb == placement.body_path() && else_bb == placement.after()
+    ));
+    assert!(matches!(
+        mir.get_block(placement.body_path()).unwrap().terminator,
+        Some(MirInstruction::Jump { target, .. })
+            if target == placement.terminal_backedge()
+    ));
+    assert!(matches!(
+        mir.get_block(placement.terminal_backedge())
+            .unwrap()
+            .terminator,
+        Some(MirInstruction::Jump { target, .. }) if target == placement.header()
+    ));
+    for block in [
+        placement.enter(),
+        placement.body_path(),
+        placement.terminal_backedge(),
+        placement.header(),
+    ] {
+        assert!(mir.get_block(block).unwrap().is_sealed());
+    }
+    assert!(!mir.get_block(placement.after()).unwrap().is_sealed());
+
     session.discard_unpublished();
     assert!(builder_owner.function_state.current_function.is_none());
 }
@@ -224,6 +281,25 @@ fn operation_terminal_source_has_no_phi_or_fallback_authority() {
         assert!(
             !source.contains(forbidden),
             "operation terminal must not contain {forbidden}"
+        );
+    }
+}
+
+#[test]
+fn phi_close_source_has_no_route_local_phi_or_fallback_authority() {
+    let source = include_str!("dynamic_loop_phi_close.rs");
+    for forbidden in [
+        "PhiToken",
+        "MirInstruction::Phi",
+        "patch_phi_inputs",
+        "predecessors: Vec",
+        "CallableSemanticLoweringState",
+        "fallback",
+        "retry",
+    ] {
+        assert!(
+            !source.contains(forbidden),
+            "P2B owner must not contain {forbidden}"
         );
     }
 }

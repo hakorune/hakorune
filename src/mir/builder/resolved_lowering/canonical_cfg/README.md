@@ -29,5 +29,8 @@ this connection.
 Dynamic Loop P2A adds one migration-private caller-zero consumer. The one
 canonical function session allocates distinct Enter, Header, body,
 terminal-Backedge, and After roles and emits only the Enter-to-Header edge.
-It does not expose a raw predecessor list or authorize PHI patching; P2B must
-later complete the actual Backedge and seal Header through this same owner.
+It does not expose a raw predecessor list or authorize PHI patching. P2B now
+uses this same owner to emit the Header branch, body-to-terminal edge, and
+terminal Backedge-to-Header edge. It seals Enter, body, terminal Backedge, and
+Header; only the resulting exact Header witness authorizes canonical Binding
+SSA to complete the already-open PHI. After remains open for its later owner.

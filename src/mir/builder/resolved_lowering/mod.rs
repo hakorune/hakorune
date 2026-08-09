@@ -14,6 +14,7 @@ mod direct_accum_lowerer;
 mod draft_seal;
 mod draft_seal_owner;
 pub(in crate::mir::builder) mod dynamic_loop_phi;
+mod dynamic_loop_phi_close;
 mod flow_consumption;
 mod identity;
 pub(in crate::mir::builder) mod if_cfg_ready_bridge;

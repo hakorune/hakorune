@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1, Header-current P2A, and Header-based P1R closed; P2B next
+Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1, Header-current P2A, Header-based P1R, and canonical PHI close P2B closed; P2C next
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -921,6 +921,24 @@ Stop:
   legacy variable-map synchronization, or production claim. Mixed
   Exact/Dynamic remains structurally unavailable until an exact-arm issuer
   exists; do not forge it solely for a negative test.
+
+Closeout:
+  Closed in the P2B implementation slice. The whole P1R operation product is
+  consumed atomically by one private `CanonicalSsaFunctionSessionV2` method.
+  Canonical identity claims the exact source assignment once. Canonical CFG
+  emits the reachable Header branch, body-to-terminal edge, and terminal
+  Backedge-to-Header edge, then seals Enter, body, terminal Backedge, and
+  Header. The Header witness is exactly `{Enter, terminal Backedge}`.
+  Canonical Binding SSA seals the touched Enter and terminal blocks before
+  Header, verifies MIR dominance, and lets the existing `PhiTxn` patch the
+  already-open PHI to `(Enter, entry)` and `(Backedge, Add result)`.
+
+  The move-only close receipt retains the whole operation/open product and
+  exposes no PHI token, destination, incoming vector, or alternate
+  constructor. After remains unselected and unsealed. Whole-function
+  `identity.finish`, `phis.commit`, and `cfg.finish`, failure-point atomicity,
+  backend, route activation, retry/fallback, and source rewrite remain
+  nonclaims for P2C and later rows.
 
 ##### L0-P2C — `DYNAMIC-LOOP-PHI-DISCARD-P2C`
 

@@ -45,5 +45,9 @@ the unsealed Header creates the sole provisional PHI before Compare/Add. The
 opaque P2A receipt does not expose the PHI lifecycle token or become a second
 reaching-value owner. P1R now consumes that whole receipt and emits Compare
 and Add from its Header current while retaining it in the Backedge handoff.
-P2B alone may later define the assignment, seal Header, and patch the PHI from
-canonical predecessor truth.
+P2B now defines the assignment exactly once, completes the reachable CFG
+cycle, and seals the Binding SSA blocks touched by this carrier. Header is
+sealed last from the canonical witness `{Enter, terminal Backedge}`; the
+existing MIR adapter verifies definition dominance and patches the sole
+provisional PHI to the exact entry and Add-result inputs. P2B does not expose
+the PHI token, select After, or finish/commit the whole function session.
