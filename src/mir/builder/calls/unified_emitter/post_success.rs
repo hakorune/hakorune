@@ -10,6 +10,12 @@ use crate::mir::definitions::call_unified::{Callee, CalleeBoxKind, TypeCertainty
 
 use super::super::annotation::callee_sig_name;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum UnifiedCallSignaturePublicationV1 {
+    Existing,
+    ExternalSourceBound,
+}
+
 /// Immutable payload prepared after unified-call normalization and before its
 /// physical instruction. It is deliberately non-Clone: the later receipt
 /// owner must consume one prepared payload at most once.
@@ -46,14 +52,18 @@ impl<'lookup> PreparedUnifiedCallPostSuccessV1<'lookup> {
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
         lookup: Option<&'lookup dyn FunctionSignatureLookupV1>,
+        signature_publication: UnifiedCallSignaturePublicationV1,
     ) -> Self {
-        let signature = destination.and_then(|destination| {
-            let arity = signature_arity(callee, arguments);
-            callee_sig_name(callee, arity).map(|function_name| PreparedSignatureAnnotationV1 {
-                destination,
-                function_name,
-            })
-        });
+        let signature = match signature_publication {
+            UnifiedCallSignaturePublicationV1::Existing => destination.and_then(|destination| {
+                let arity = signature_arity(callee, arguments);
+                callee_sig_name(callee, arity).map(|function_name| PreparedSignatureAnnotationV1 {
+                    destination,
+                    function_name,
+                })
+            }),
+            UnifiedCallSignaturePublicationV1::ExternalSourceBound => None,
+        };
         let collection_result =
             destination.map(|destination| PreparedCollectionResultAnnotationV1 {
                 destination,
@@ -147,6 +157,7 @@ mod tests {
             &arguments,
             None,
             None,
+            UnifiedCallSignaturePublicationV1::Existing,
         );
 
         assert_eq!(
@@ -176,6 +187,7 @@ mod tests {
             &[receiver, ValueId::new(4)],
             None,
             None,
+            UnifiedCallSignaturePublicationV1::Existing,
         );
 
         assert_eq!(
@@ -195,9 +207,25 @@ mod tests {
             &[ValueId::new(9)],
             None,
             None,
+            UnifiedCallSignaturePublicationV1::Existing,
         );
 
         assert!(prepared.signature.is_none());
         assert!(prepared.collection_result.is_none());
+    }
+
+    #[test]
+    fn external_source_bound_publication_suppresses_signature_annotation() {
+        let prepared = PreparedUnifiedCallPostSuccessV1::prepare(
+            Some(ValueId::new(10)),
+            &Callee::Global("answer/0".to_string()),
+            &[],
+            None,
+            None,
+            UnifiedCallSignaturePublicationV1::ExternalSourceBound,
+        );
+
+        assert!(prepared.signature.is_none());
+        assert!(prepared.collection_result.is_some());
     }
 }

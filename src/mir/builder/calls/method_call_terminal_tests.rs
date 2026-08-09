@@ -229,11 +229,8 @@ fn static_global_receipt_matches_the_successful_physical_call_destination() {
         let mut builder = builder("terminal_global_receipt/0");
         let left = crate::mir::builder::emission::constant::emit_integer(&mut builder, 3).unwrap();
         let right = crate::mir::builder::emission::constant::emit_integer(&mut builder, 4).unwrap();
-        let mut port = RawLegacyChildLoweringPortV1;
-
         let receipt = emit_static_global_value_terminal_with_receipt_v1(
             &mut builder,
-            &mut port,
             "TerminalCatalogOwner",
             "call",
             2,
@@ -262,10 +259,8 @@ fn static_global_receipt_matches_the_successful_physical_call_destination() {
 fn static_global_receipt_rejects_disabled_unified_without_legacy_retry() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
         let mut receipt_builder = builder("terminal_global_receipt_disabled/0");
-        let mut receipt_port = RawLegacyChildLoweringPortV1;
         let error = emit_static_global_value_terminal_with_receipt_v1(
             &mut receipt_builder,
-            &mut receipt_port,
             "TerminalCatalogOwner",
             "call",
             0,
@@ -299,11 +294,8 @@ fn failed_static_global_call_emission_issues_no_receipt() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         let mut builder = builder("terminal_global_receipt_failure/0");
         builder.function_state.current_block = None;
-        let mut port = RawLegacyChildLoweringPortV1;
-
         let error = emit_static_global_value_terminal_with_receipt_v1(
             &mut builder,
-            &mut port,
             "TerminalCatalogOwner",
             "call",
             0,

@@ -1,7 +1,7 @@
 # Same-module callable result representation
 
-This module seals one disconnected exact-`i64` sufficient-condition catalog
-from the exact same-module callable declaration and source-target catalogs.
+This module seals one exact-`i64` sufficient-condition catalog from the exact
+same-module callable declaration and source-target catalogs.
 
 The S0b substrate owns:
 
@@ -41,9 +41,20 @@ termination, general String interpretation, general non-`i64` result typing,
 or recursive result inference. It stores no `ValueId`, `MirType`, Builder,
 final MIR metadata, physical-symbol parsing, runtime tag, or HMI-specific fact.
 
-S0b remains disconnected: production producers, consumers, call-result
-publication, lowering behavior, runtime behavior, backend behavior, and
-ownership behavior all remain unchanged.
+The normal module lifecycle now projects both exact general
+`SameModuleStatic` call-result rows and the older bounded exact-`i64` rows into
+one `VerifiedStaticCallResultPublicationOwnerV1`. General evidence wins when
+present; the same caller/site cannot receive both rows. The raw terminal
+consumes a selected handoff once, requires a successful generic physical Call
+receipt, and commits `MirType::Integer` through the sole source-bound
+publisher. Its receipt emitter suppresses the legacy signature annotation, so
+the two result authorities cannot double-write the destination. Selected
+missing/consumed/foreign/target-mismatch rows freeze; only genuinely
+unselected source calls retain the ordinary terminal.
+
+This production connection does not add result inference, name lookup,
+GenericLoop defaults, local-copy policy, Completion meaning, retry, fallback,
+runtime behavior, backend behavior, or ownership behavior.
 
 ## SITE0 located legacy inputs
 

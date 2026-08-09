@@ -1,5 +1,5 @@
 ---
-Status: ready
+Status: closed
 Date: 2026-08-09
 Row: `GENERAL-STATIC-CALL-RESULT-PUBLICATION-I0`
 Parent: `HAKO-PARSER-RICH-BODY-S0-DEPENDENCY-CARRIER-D0`
@@ -41,3 +41,18 @@ Stop and return to design if the actual source row lacks an exact target or
 ExactI64 disposition, if the repair needs a name lookup/source annotation,
 or if it requires GenericLoop/local/Completion inference, retry, fallback,
 or a second publication owner.
+
+## Closeout receipt
+
+The general exact row now enters the existing publication owner and is
+consumed by a typed `Selected` disposition. `Unselected` is reserved for
+ordinary calls with no exact result row; target mismatch, foreign/missing
+owner, and second consumption are terminal contract errors. The selected
+physical Call disables legacy signature annotation, then the existing
+source-bound publisher performs the sole post-success Integer write.
+
+The actual unmodified `lang/src/shared/common/string_helpers.hako` lifecycle
+canary is green through `StringHelpers.int_to_str/1` and its first Loop. The
+focused general-row, bounded-row, mismatch, single-consumption, unselected,
+physical-receipt, post-success publication, and lifecycle tests are green.
+No `.hako` annotation or GenericLoop/local/Completion inference was added.

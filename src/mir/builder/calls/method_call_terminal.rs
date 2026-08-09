@@ -361,17 +361,13 @@ fn emit_global_value_terminal_with_lookup_v1(
 /// accepts only the existing generic physical Call terminal, so rewrites,
 /// BoxCall, legacy compatibility, a missing destination, and failed emission
 /// cannot produce a receipt.
-pub(in crate::mir::builder) fn emit_static_global_value_terminal_with_receipt_v1<Port>(
+pub(in crate::mir::builder) fn emit_static_global_value_terminal_with_receipt_v1(
     builder: &mut MirBuilder,
-    port: &mut Port,
     owner: &str,
     method: &str,
     checked_source_arity: u32,
     arguments: Vec<ValueId>,
-) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1>
-where
-    Port: RawFunctionHeaderLookupPortV1,
-{
+) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1> {
     let request = PreparedGlobalValueCallRequestV1::prepare(
         builder,
         owner,
@@ -379,15 +375,15 @@ where
         checked_source_arity,
         arguments,
     );
-    port.with_function_headers(|lookup| {
-        UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
-            builder,
-            request.destination,
-            request.target,
-            request.arguments,
-            lookup,
-        )
-    })
+    // This terminal is entered only after an exact source-bound result demand
+    // was selected.  Signature annotation would be a second result publisher;
+    // the caller commits that demand after this physical receipt succeeds.
+    UnifiedCallEmitterBox::emit_unified_value_call_with_external_result_publication_receipt_v1(
+        builder,
+        request.destination,
+        request.target,
+        request.arguments,
+    )
 }
 
 struct PreparedGlobalValueCallRequestV1 {

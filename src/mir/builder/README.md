@@ -185,8 +185,9 @@ full physical canary.
   - E0 selects one fresh raw port synchronously at each legacy facade. The
     port is never stored in `MirBuilder`, shared, cloned, or retried.
   - Existing helper recursion remains an explicit raw leaf. Located inputs,
-    caller ledgers, MethodCall route splitting, and result publication remain
-    disconnected until their later SITE0-R0 rows.
+    caller ledgers, and MethodCall route splitting retain their own bounded
+    rows. Exact static result publication is connected only through the
+    module-installed `VerifiedStaticCallResultPublicationOwnerV1`.
   - `stmts/variable_assignment_completion.rs` is the source-neutral receipt
     sibling for the existing `build_assignment_from_value` authority. It calls
     that authority once and retains the exact target, RHS, and returned carrier
@@ -195,6 +196,9 @@ full physical canary.
     static/global sibling. It shares `PreparedGlobalValueCallRequestV1` with
     the ordinary terminal and delegates to the existing generic physical Call
     receipt authority; it does not classify source results or publish facts.
+    The source-bound sibling disables the legacy signature annotation because
+    `PreparedStaticCallResultPublicationV1` is the sole selected-row result
+    publisher after physical success.
 - legacy block descent boundary
   - `src/mir/builder/stmts/block_driver.rs` alone owns scope lifetime, the
     termination checks, last-value selection, and empty-block Void publication.

@@ -1204,6 +1204,25 @@ negative receipt rather than a production-support claim. A dedicated
 cataloged fixture is still required before Generic production selection or
 physical cutover can open.
 
+## General static-call result publication I0 receipt (2026-08-09)
+
+`GENERAL-STATIC-CALL-RESULT-PUBLICATION-I0` closes the general-row exclusion
+in the existing source-bound publication owner. Exact general
+`SameModuleStatic` call-result rows and bounded exact-`i64` requirements now
+enter the same move-only owner; general evidence takes precedence and no
+caller/site may be inserted twice. `take` distinguishes `Unselected` from a
+selected row that was consumed or lost, and foreign catalog or target identity
+fails before emission.
+
+The selected terminal requires the existing generic physical Call receipt and
+then commits `MirType::Integer` through
+`PreparedStaticCallResultPublicationV1`. The receipt-required source-bound
+emitter suppresses the legacy signature annotation, preventing a second
+result publisher. The actual unmodified `StringHelpers` source now lowers
+`int_to_str/1`, publishes the `to_i64/1` initializer result, and passes its
+first GenericLoop carrier verifier. No source annotation, by-name inference,
+local/Loop default, Completion meaning, retry, or fallback was added.
+
 ## Callable-semantic Loop handoff S0 receipt (2026-08-07)
 
 `GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-S0` is now closed as a pre-effect

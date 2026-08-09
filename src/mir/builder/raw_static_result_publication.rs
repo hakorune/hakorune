@@ -11,6 +11,7 @@ use crate::mir::builder::raw_invocation_source_transport::{
 };
 use crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::mir::builder::{MirBuilder, SameModuleCallableNamespaceV1, ValueId};
+use crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1;
 
 pub(super) fn try_emit_source_bound_static_call_result_v1(
     port: &mut RawInvocationChildPortV1<'_, '_>,
@@ -46,17 +47,17 @@ pub(super) fn try_emit_source_bound_static_call_result_v1(
         return Ok(None);
     };
     let source_site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone());
-    let handoff = port
+    let decision = port
         .module_port
         .take_static_result_publication_handoff(declarations, caller, &source_site, &target)
         .map_err(|error| format!("[freeze:contract][static-result-owner/take] {error:?}"))?;
-    let Some(handoff) = handoff else {
-        return Ok(None);
+    let handoff = match decision {
+        StaticCallResultPublicationTakeV1::Unselected => return Ok(None),
+        StaticCallResultPublicationTakeV1::Selected(handoff) => handoff,
     };
     let (demand, _required_i64_arguments) = handoff.consume();
     let emission = emit_static_global_value_terminal_with_receipt_v1(
         builder,
-        port,
         owner,
         method,
         checked_source_arity,

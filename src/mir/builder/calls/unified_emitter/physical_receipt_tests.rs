@@ -81,6 +81,7 @@ fn generic_call_without_destination_has_no_value_receipt() {
         vec![],
         None,
         None,
+        super::post_success::UnifiedCallSignaturePublicationV1::Existing,
     )
     .expect("generic no-destination Call");
 

@@ -8,7 +8,7 @@
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
-use super::VerifiedStaticExactI64RequirementV1;
+use super::{VerifiedCallableResultCallSiteV1, VerifiedStaticExactI64RequirementV1};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedStaticCallResultPublicationDemandV1 {
@@ -75,6 +75,25 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
             demand,
             required_i64_arguments,
         }
+    }
+
+    pub(super) fn from_general_call_result(
+        catalog_identity: usize,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+        result: &VerifiedCallableResultCallSiteV1<'_>,
+    ) -> Option<Self> {
+        let target = result.static_target_key()?.clone();
+        Some(Self {
+            catalog_identity,
+            demand: VerifiedStaticCallResultPublicationDemandV1 {
+                caller: caller.clone(),
+                site: site.clone(),
+                target,
+                _seal: VerifiedStaticCallResultPublicationDemandSealV1,
+            },
+            required_i64_arguments: result.required_i64_arguments().to_vec().into_boxed_slice(),
+        })
     }
 
     pub(crate) const fn catalog_identity(&self) -> usize {

@@ -9,7 +9,8 @@ use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{MirBuilder, ValueId};
 
 use super::{
-    CompletedUnifiedValueCallEmissionV1, UnifiedCallAlternateRouteV1, UnifiedCallEmitterBox,
+    post_success::UnifiedCallSignaturePublicationV1, CompletedUnifiedValueCallEmissionV1,
+    UnifiedCallAlternateRouteV1, UnifiedCallEmitterBox,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -71,6 +72,29 @@ impl UnifiedCallEmitterBox {
             lookup,
             None,
             UnifiedCompatibilityDispositionV1::RequireGenericReceipt,
+            UnifiedCallSignaturePublicationV1::Existing,
+        )
+        .map_err(UnifiedCallAttemptErrorV1::into_receipt_error)?
+        .into_required_value_receipt()
+    }
+
+    /// Emit one generic Call while reserving result publication for the
+    /// already-selected source-bound owner.
+    pub(in crate::mir::builder) fn emit_unified_value_call_with_external_result_publication_receipt_v1(
+        builder: &mut MirBuilder,
+        destination: ValueId,
+        target: CallTarget,
+        args: Vec<ValueId>,
+    ) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1> {
+        Self::emit_unified_call_outcome_with_lookup_and_map_replay(
+            builder,
+            Some(destination),
+            target,
+            args,
+            None,
+            None,
+            UnifiedCompatibilityDispositionV1::RequireGenericReceipt,
+            UnifiedCallSignaturePublicationV1::ExternalSourceBound,
         )
         .map_err(UnifiedCallAttemptErrorV1::into_receipt_error)?
         .into_required_value_receipt()

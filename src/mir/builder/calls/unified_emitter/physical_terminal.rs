@@ -8,7 +8,7 @@ use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{MirBuilder, MirInstruction, ValueId};
 use crate::mir::definitions::call_unified::MirCall;
 
-use super::post_success::PreparedUnifiedCallPostSuccessV1;
+use super::post_success::{PreparedUnifiedCallPostSuccessV1, UnifiedCallSignaturePublicationV1};
 use super::UnifiedValueCallReceiptErrorV1;
 
 /// One successful generic physical Call with an exact final destination.
@@ -79,6 +79,7 @@ pub(super) fn emit_finalized_generic_call_v1(
         crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
     >,
     lookup: Option<&dyn FunctionSignatureLookupV1>,
+    signature_publication: UnifiedCallSignaturePublicationV1,
 ) -> Result<CompletedUnifiedCallEmissionV1, String> {
     let final_destination = call.dst;
     let prepared_post_success = PreparedUnifiedCallPostSuccessV1::prepare(
@@ -87,6 +88,7 @@ pub(super) fn emit_finalized_generic_call_v1(
         &call.args,
         map_write_replay,
         lookup,
+        signature_publication,
     );
 
     let call_inst = MirInstruction::Call {

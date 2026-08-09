@@ -1,11 +1,6 @@
 /*!
  * UnifiedCallEmitterBox - 統一Call発行専用箱
  *
- * 箱理論の実践:
- * - 箱にする: 統一Call発行ロジックを1箱に集約
- * - 境界を作る: Legacy/Unifiedの明確な分離
- * - 状態最小: MirBuilderを引数として受け取る（所有しない）
- *
  * 責務:
  * - emit_unified_call: 統一Call発行の公開API
  * - emit_unified_call_impl: コア実装（CallTarget → MirCall変換）
@@ -46,6 +41,7 @@ use physical_terminal::UnifiedCallEmissionOutcomeV1;
 pub(in crate::mir::builder) use physical_terminal::{
     CompletedUnifiedValueCallEmissionV1, UnifiedCallAlternateRouteV1,
 };
+use post_success::UnifiedCallSignaturePublicationV1;
 pub(in crate::mir::builder) use request_boundary::UnifiedValueCallReceiptErrorV1;
 use request_boundary::{UnifiedCallAttemptErrorV1, UnifiedCompatibilityDispositionV1};
 
@@ -112,6 +108,7 @@ impl UnifiedCallEmitterBox {
             lookup,
             map_write_replay,
             UnifiedCompatibilityDispositionV1::PermitLegacy,
+            UnifiedCallSignaturePublicationV1::Existing,
         )
         .map(drop)
         .map_err(UnifiedCallAttemptErrorV1::into_ordinary_string)
@@ -127,6 +124,7 @@ impl UnifiedCallEmitterBox {
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
         compatibility: UnifiedCompatibilityDispositionV1,
+        signature_publication: UnifiedCallSignaturePublicationV1,
     ) -> Result<UnifiedCallEmissionOutcomeV1, UnifiedCallAttemptErrorV1> {
         // Debug: Check recursion depth
         const MAX_EMIT_DEPTH: usize = 100;
@@ -176,6 +174,7 @@ impl UnifiedCallEmitterBox {
                 args,
                 lookup,
                 map_write_replay,
+                signature_publication,
             )
             .map_err(UnifiedCallAttemptErrorV1::Emission)
         };
@@ -230,6 +229,7 @@ impl UnifiedCallEmitterBox {
             args,
             lookup,
             map_write_replay,
+            UnifiedCallSignaturePublicationV1::Existing,
         )
         .map(drop)
     }
@@ -243,6 +243,7 @@ impl UnifiedCallEmitterBox {
         map_write_replay: Option<
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
+        signature_publication: UnifiedCallSignaturePublicationV1,
     ) -> Result<UnifiedCallEmissionOutcomeV1, String> {
         // Phase 287 P4: Debug trace to see what CallTarget is passed
         if crate::config::env::builder_static_call_trace() {
@@ -742,6 +743,7 @@ impl UnifiedCallEmitterBox {
             mir_call,
             map_write_replay,
             lookup,
+            signature_publication,
         )
         .map(UnifiedCallEmissionOutcomeV1::Generic)
     }

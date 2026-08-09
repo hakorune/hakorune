@@ -490,4 +490,28 @@ mod tests {
                 .any(|(_, function)| function.signature.name == "StringHelpers.int_to_str/1"));
         });
     }
+
+    #[test]
+    fn actual_string_helpers_general_result_row_reaches_its_first_loop_carrier() {
+        crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+            let source = NyashParser::parse_from_string(include_str!(concat!(
+                "../../../lang/src/shared/common/",
+                "string_helpers.hako"
+            )))
+            .expect("actual StringHelpers source");
+            let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
+            let completed = session()
+                .complete_normal_default_program_root_catalog_lifecycle(
+                    source,
+                    CallableMainMaterializationPolicyV1::Omitted,
+                    NormalRuntimeInputSnapshotV1::empty(),
+                )
+                .expect("actual StringHelpers exact result must reach GenericLoop");
+            let (_, module) = completed.into_parts();
+            assert!(module
+                .functions
+                .iter()
+                .any(|(_, function)| function.signature.name == "StringHelpers.int_to_str/1"));
+        });
+    }
 }
