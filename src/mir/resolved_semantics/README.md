@@ -148,9 +148,9 @@ exact `return me` structural safety and a sibling Query Home no-transfer
 receipt. The facts catalog and evidence aggregate are not a general proof of
 no writes/Home escape/allocation/IO/FFI/failure/suspension/non-local control;
 any incomplete axis remains `NoSafeSlice`. The current general design stop
-must define four neutral source-level receipts—complete body coverage,
-effect events, control/exit events, and Home-flow events/state—then one
-same-root execution-evidence co-seal. Existing body-shape effects are
+must define four private axis receipts or borrowed views—complete body
+coverage, effect events, control/exit events, and Home-flow events/state—then
+one same-root public execution-evidence co-seal. Existing body-shape effects are
 partial (Print/IO and unsupported control are not fully recorded), and
 `VerifiedHomeAbi` remains declaration-only. The bounded exact `return me` Query
 conformance I0 is landed; its issuer consumes the declared contract and
@@ -159,6 +159,11 @@ behavior, and pairs by aggregate-owned identity. It does not use
 zip/name/ordinal pairing or reissue Query/Home/signature/ABI. General
 conformance, target, Recipe/CallSlot, Builder, MIR, and production remain
 separate and parked behind the general evidence D0.
+The four axis receipts remain private or borrowed views; the only new public
+semantic owner is the body-root-scoped execution-evidence aggregate. Coverage
+borrows existing body-owner/carrier/shape/forest identity, `Await` belongs to
+effect/suspension rather than control, and Home flow requires an independent
+language event issuer with CFG-complete readiness.
 Missing issuer/evidence is `NoSafeSlice`, not a default body receipt. Body
 modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line

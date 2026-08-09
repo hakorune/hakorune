@@ -1067,8 +1067,14 @@ Rejected > Unresolved > Declined > Candidate
     - design four neutral source-level receipts before general conformance:
       complete body coverage, effect events, control/exit events, and Home
       flow events/state, followed by one same-root execution-evidence co-seal;
+    - keep the four axis receipts private/borrowed; the only new public
+      semantic owner is the body-root-scoped execution-evidence aggregate;
+      coverage borrows existing body-owner/carrier/shape/forest identity;
     - existing body-shape effects are partial: Print/IO, QMark/Throw/Await,
-      non-local control, and Home event authority are not yet complete;
+      non-local control, CFG-complete branch/loop transfer, and Home event
+      authority are not yet complete (`Await` belongs to effect/suspension);
+    - Home readiness requires the Home-model CFG-complete/admitted-grammar/
+      ownership-changing-witness conditions;
     - no semantic `NoHome` effect, copied partial shadow vector, empty/default
       receipt, target, Recipe, Builder, MIR, or production switch;
     - task:

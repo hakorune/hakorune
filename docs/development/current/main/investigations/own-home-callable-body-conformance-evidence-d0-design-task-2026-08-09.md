@@ -38,24 +38,25 @@ conformance.
 ## General body execution evidence D0 (current design stop)
 
 General conformance needs four source-level axes and one relational aggregate.
-The names below are proposed boundaries; this section authorizes design only,
-not their implementation.
+The four axes are private receipts or borrowed views; the only new public
+semantic owner is the non-`Clone`, body-root-scoped execution-evidence
+aggregate. This section authorizes design only, not implementation.
 
 ```text
-VerifiedBodyCoverageReceiptV1
+private BodyCoverageReceiptV1
   = exact body root/owner/provenance and complete statement/expression/
     relation coverage, including nested-owner boundaries
 
-VerifiedBodyEffectEvidenceV1
+private BodyEffectEvidenceV1
   = source-anchored neutral effect events (write, allocation, call, IO,
     await, and the accepted effect vocabulary), with unknown/opaque rows
     rejected rather than silently omitted
 
-VerifiedBodyControlEvidenceV1
-  = source-anchored Return/Break/Continue/QMark/Throw/Await/non-local-control
-    events and resolved-exit target consistency
+private BodyControlEvidenceV1
+  = source-anchored Return/Break/Continue/QMark/Throw/non-local-control,
+    branch/loop transfer events, and resolved-exit target consistency
 
-VerifiedBodyHomeFlowEvidenceV1
+private BodyHomeFlowEvidenceV1
   = Home-flow events/state (consume/create/share/end/escape or explicit
     no-transfer) from a language Home-flow issuer; it does not reissue the
     declared Home ABI or use ownership SSA as source authority
@@ -77,7 +78,8 @@ The current code gaps are intentional design blockers:
   expression class; an empty effect vector is therefore not a no-effect
   proof.
 * Return/Break/Continue are not yet co-sealed with a complete QMark/Throw/
-  Await/non-local-control inventory.
+  non-local-control and branch/loop-transfer inventory; Await belongs to the
+  effect/suspension axis.
 * `VerifiedHomeAbiV1` is declaration-only. A body Home event/state issuer for
   consume/create/share/end/escape is not yet available.
 
@@ -88,6 +90,126 @@ cannot be issued and fully covered, the development state is `NoSafeSlice`.
 The first general implementation slice, after this D0 is accepted, must stay
 resolver-only and must not open target, Recipe, Builder, MIR, publication, or
 fallback.
+
+## Authority table and co-seal contract
+
+The four general receipts do not replace existing authorities and do not form
+four independent semantic guesses.
+
+| Authority | Owns | Must not own |
+| --- | --- | --- |
+| `VerifiedResolvedBodyShapeInventoryV1` | neutral statement/expression/relation shape and source coverage input | effect absence, Home meaning, contract/profile, Recipe key |
+| `VerifiedResolvedFunctionV1` | `BindingRef`, assignment/direct-call sites, resolved exits, region identity | Home state, MIR `ValueId`/block, public contract |
+| `VerifiedSemanticOwnerForestV1` | root/child/upvar and nested-owner isolation | parent-body interpretation of child facts |
+| private `BodyCoverageReceiptV1` view | existing body-owner/carrier/shape/forest identity and coverage agreement | a second source-membership truth |
+| private `BodyEffectEvidenceV1` view/issuer | complete source-anchored effect rows and effect coverage | Home ABI, Query/Pure selection, physical effect mask |
+| private `BodyControlEvidenceV1` view/issuer | complete source-anchored control/exit rows and target consistency using resolved-exit/region authority | contract selection, CFG reconstruction by guess |
+| private `BodyHomeFlowEvidenceV1` issuer | language Home events/state and explicit closed no-transfer result | declared Home ABI reissue, ownership SSA, MIR cleanup |
+| `VerifiedBodyExecutionEvidenceV1` | same declaration/owner/root/provenance relation across all four receipts | any new effect, control, Home, or ABI meaning |
+
+The aggregate is therefore relational only. It may say that the four receipts
+describe the same body and complete source domain; each axis issuer must have
+already proved its own vocabulary and coverage.
+
+## Event vocabulary and coverage rules
+
+The D0 vocabulary is source-level and neutral:
+
+```text
+effect axis:
+  Write, Allocation, Call, IO, Await, FailurePropagation
+
+control axis:
+  Return, Break, Continue, QMark, Throw, NonLocalControl, branch/loop transfer
+
+Home axis:
+  Consume, Create, Share, End, Escape, Forward
+```
+
+`Await` belongs to the effect/suspension axis, not the control-exit axis.
+`NoHome` is not an effect event. A no-transfer result is issued only after the
+Home event domain is complete and contains no transfer rows.
+
+For every selected body root, the future issuers must prove:
+
+```text
+every statement/expression/relation source site is covered exactly once
+every effect/control/Home event points to one covered source site
+unknown/opaque/unclassified sites are rejected, not omitted
+resolved exit targets agree with the source owner/region
+nested callable bodies and upvars are separate owner domains
+no duplicate/missing/foreign event or coverage row
+```
+
+The current implementation cannot satisfy all rows: Print/IO is not yet
+recorded as a neutral effect, QMark/Throw/non-local control and branch/loop
+transfer are not fully co-sealed, and no language Home event issuer exists.
+Those cases remain `NoSafeSlice` until their issuer and full-coverage receipt
+are designed and landed. The existing owner/carrier/body-shape coverage is a
+relational receipt only; it must not become a second source-membership truth.
+Once an issuer exists, an opaque or unclassified site in an otherwise admitted
+cohort is `Unresolved`; it is not converted into an empty effect/control/Home
+set.
+
+## Minimal next implementation slice (not open yet)
+
+After this D0 is accepted, implementation must proceed in this order:
+
+```text
+1. neutral coverage + effect/control source inventory
+   using one existing owner-tree/shadow walk and existing resolved-exit /
+   region authority; unsupported classes stay NoSafeSlice rather than becoming
+   an incomplete Candidate
+2. independent language Home-flow event/state issuer
+   borrowing the declaration Home ABI but never reissuing it
+3. same-root VerifiedBodyExecutionEvidenceV1 co-seal for one finite,
+   root-direct resolver-only fixture (the landed `return me` I0 remains
+   unchanged)
+4. full-coverage conformance catalog
+5. stop before target / Recipe / Builder / MIR
+```
+
+The first implementation slice must not add a Query-specific port, infer
+contract behavior from method names, copy `Shadow*` vectors as verified facts,
+or use a test-only constructor. Coverage must borrow the existing
+body-owner/carrier/shape/forest identity; it is not a second source truth.
+Home readiness additionally requires the Home-model SSOT's CFG-complete,
+admitted-grammar, and ownership-changing witness conditions. A positive
+fixture is admissible only when all four axes are available; otherwise the
+correct result is development `NoSafeSlice`.
+
+## General disposition matrix
+
+```text
+NoSafeSlice:
+  required issuer/event vocabulary/coverage authority is absent, or the
+  source class is unsupported/opaque for the current cohort
+
+Unresolved:
+  the accepted traversal exists, but a required source/resolver capability
+  is opaque or incomplete for this body
+
+Declined:
+  all four axes are fully observed and coherent, but the declared contract
+  disallows the observed effect/control/Home behavior
+
+Rejected:
+  foreign owner/brand/root, duplicate/missing/extra relation, inconsistent
+  region target, ABI mismatch, or parent/child body leakage
+
+Candidate:
+  all four axes are complete, same-root, coherent, and contract-compatible
+```
+
+Required negative coverage includes foreign parser/resolver/body-root or
+nested-child leakage; missing/duplicate/opaque Print/IO, call, write,
+allocation, await, or other effect rows; missing or wrong branch/loop/exit
+targets; omitted QMark/Throw/non-local control; foreign Home ABI/flow brand,
+double consume, use-after-consume, invalid Maybe join/backedge, duplicate
+share, and unknown Home state; and any co-seal cardinality/identity mismatch.
+
+`NoSafeSlice` is a development state outside the source disposition enum. The
+source precedence remains `Rejected > Unresolved > Declined > Candidate`.
 
 ## Bounded evidence product (landed I0)
 

@@ -179,13 +179,18 @@ ordinary return (`return me`); it does not infer field/method identity, result
 types, contracts, or complete effect/control absence. The accepted
 `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` now has its bounded I0 receipt landed:
 a separate structural-safety and Query Home no-transfer evidence pair.
-General evidence is currently a design stop. It must define four neutral
-source-level receipts—complete body coverage, effect events, control/exit
-events, and Home-flow events/state—then one same-root execution-evidence
-co-seal. Existing body-shape effects are partial (Print/IO and unsupported
-control are not fully recorded), and `VerifiedHomeAbi` remains declaration-
-only. Until those issuers exist, the body verifier has issued only the bounded
-exact Query conformance catalog; broader conformance remains `NoSafeSlice`.
+General evidence is currently a design stop. It must define four private
+axis receipts or borrowed views—complete body coverage, effect events,
+control/exit events, and Home-flow events/state—then one same-root public
+`VerifiedBodyExecutionEvidenceV1` co-seal. Existing body-shape effects are
+partial (Print/IO and unsupported control are not fully recorded), and
+`VerifiedHomeAbi` remains declaration-only. Until those issuers exist, the
+body verifier has issued only the bounded exact Query conformance catalog;
+broader conformance remains `NoSafeSlice`.
+Coverage is a relational check over the existing body-owner/carrier/shape/
+forest identity, not a second source-membership authority. `Await` belongs to
+the effect/suspension axis; control requires CFG-complete exit/branch/loop
+evidence, and Home flow requires its own language event issuer.
 Missing,
 duplicate, foreign, or rejected conformance prevents the publishable catalog
 from being issued. Module publication consumes the publishable catalog and

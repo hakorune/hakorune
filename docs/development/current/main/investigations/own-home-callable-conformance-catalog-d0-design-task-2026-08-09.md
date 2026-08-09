@@ -97,13 +97,15 @@ no non-local control
 complete statement, expression, relation, and effect/control coverage
 ```
 
-The minimal general boundary is four sibling receipts—complete body coverage,
-neutral effect events, neutral control/exit events, and language Home-flow
-events/state—followed by one same-root `VerifiedBodyExecutionEvidenceV1`
-co-seal. The current `BodyEffectKindV1`/shadow inventory does not yet record
+The minimal general boundary is four private axis receipts or borrowed views—
+complete body coverage, neutral effect events, neutral control/exit events,
+and language Home-flow events/state—followed by one same-root public
+`VerifiedBodyExecutionEvidenceV1` co-seal. The current
+`BodyEffectKindV1`/shadow inventory does not yet record
 Print/IO or every opaque expression, the ordinary function product does not
-yet co-seal all QMark/Throw/Await/non-local control, and no body Home event
-issuer exists. These are design blockers, not reasons to copy partial vectors
+yet co-seal all QMark/Throw/non-local control or branch/loop transfer, and no
+body Home event issuer exists (`Await` belongs to effect/suspension). These are
+design blockers, not reasons to copy partial vectors
 or infer absence from an empty list.
 
 The existing neutral body-shape inventory and landed `return me` evidence are
