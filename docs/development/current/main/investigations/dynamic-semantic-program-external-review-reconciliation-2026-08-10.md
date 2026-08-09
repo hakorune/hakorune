@@ -29,10 +29,10 @@ conversion, profile callback, Fault JoinSig edge, or Dynamic-to-Home inference.
 ## Ordered tasks
 
 1. Finish the current operator lifecycle closeout.
-2. Stop at `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`; decide Normal/Fault and
-   displaced-carrier ordering before code.
-3. Close the rebind/flow/cleanup/Completion lane without importing the parked
-   JoinSig generalizations.
+2. `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0` accepts commit-before-end but
+   remains `NoSafeSlice`: initial V1/B0 disposition has no canonical issuer.
+3. Close `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-D0/I0`, then rebind/flow/cleanup/
+   Completion without importing the parked JoinSig generalizations.
 4. Run `CURRENT-STATE-CROSS-FIELD-CONSISTENCY-R0` as an isolated docs-tooling
    BoxShape change. It must validate `work_mode`, `current_execution_row`,
    `latest_card_path`, `next_design_card`, and `next_execution_card` together.

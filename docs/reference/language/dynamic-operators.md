@@ -82,8 +82,10 @@ These two mappings are now co-sealed from the complete non-splittable Dynamic
 semantic program. V9 requires exact I6 argument ordinal 1 and ends only after
 the invocation's Normal-or-Fault outcome. V17 requires exact I16
 `WriteBinding(B0,V17)` plus exact JoinSig Backedge `B0=V17`, and is forwarded
-only at the later rebind commit. The old B0 displacement/end order belongs to
-a separate rebind transaction Decision.
+only at the later rebind commit. The rebind Decision fixes commit-before-end,
+but implementation remains closed until initial V1/B0 ingress is classified.
+A plain parameter-derived borrowed ingress must not be ended merely because
+later V17 replacements carry `EndExactlyOnceUnlessForwarded`.
 
 ## Activation boundary
 
@@ -95,7 +97,8 @@ Implementation order is:
 shared carrier vocabulary
 -> operator semantic issuer
 -> exact V9/V17 lifecycle co-seal
--> carrier rebind transaction Decision/I0
+-> carrier ingress lifecycle Decision/I0
+-> carrier rebind transaction I0
 -> carrier flow and exit cleanup
 -> physical execution
 ```

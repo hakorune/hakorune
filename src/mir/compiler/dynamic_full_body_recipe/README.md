@@ -35,6 +35,10 @@ complete resolver source inventory
   carrier lifecycle: V9 ends after I6's Normal-or-Fault outcome; V17 is
   authorized only for the later exact B0 rebind commit backed by I16 and the
   JoinSig Backedge. It does not perform either effect.
+  Rebind implementation is still closed: the initial V1/C0/B0 current comes
+  from plain parameter `pos`, and this module has no authority to classify it
+  as borrowed-no-end or owner-bearing. A separate resolver/callable-backed
+  ingress lifecycle issuer must be consumed first.
 - `dynamic_invocation_contract` remains the complete immutable envelope
   catalog owner. This directory borrows it and never copies targets or
   selector semantics.

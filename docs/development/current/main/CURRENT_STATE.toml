@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The Dynamic operator lifecycle I0 is closed: the complete non-splittable semantic program now co-seals exact V9-after-I6-Normal-or-Fault and V17-forward-to-exact-B0/backedge rows. Rebind ordering, displaced-B0 ending, Home, cleanup execution, Completion, and physical activation remain zero."
+status = "The rebind D0 accepts commit-before-end and rejects V15/last-use cleanup, but rebind I0 is NoSafeSlice: initial V1/B0 comes from plain parameter pos and has no canonical ingress lifecycle disposition. The current stop selects that ingress authority before any rebind implementation."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "DYNAMIC-CARRIER-REBIND-TRANSACTION-D0: decide the one atomic Normal/Fault rebind transaction, displaced-B0 obligation handoff, primary-Fault preservation, and semantic-versus-physical cleanup boundary before implementation"
+current_design_stop = "DYNAMIC-CARRIER-INGRESS-LIFECYCLE-D0: select the canonical normal-callable parameter/input authority that classifies initial V1/C0/B0 as borrowed-no-end or owned-carrier without duplicating Home ABI or inferring from Recipe Dynamic"
 work_mode = "design_stop"
-current_execution_row = "DYNAMIC-CARRIER-REBIND-TRANSACTION-D0"
-current_blocker_token = "DYNAMIC-CARRIER-REBIND-TRANSACTION-D0: choose one atomic transaction where I15 Fault leaves B0 unchanged and publishes no V17, while Normal authorizes exact I16, commits V17 as current B0 once, returns the displaced-B0 end obligation once, and publishes Backedge(B0=V17); no guessed last-use, Home inference, cleanup execution, CFG/MIR, Completion, retry, or fallback"
+current_execution_row = "DYNAMIC-CARRIER-INGRESS-LIFECYCLE-D0"
+current_blocker_token = "DYNAMIC-CARRIER-INGRESS-LIFECYCLE-D0: determine the exact resolver/callable authority relating plain parameter pos, PreludeInitializerPos, Recipe V1, and carrier C0/L0/B0 to BorrowedIngressNoEnd or an owned carrier obligation; if no canonical normal-callable parameter-demand issuer exists, record NoSafeSlice and do not add a profile-local Home receipt"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -715,15 +715,15 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "dynamic-carrier-rebind-transaction-d0"
-latest_card_path = "docs/development/current/main/investigations/dynamic-carrier-rebind-transaction-d0-design-task-2026-08-10.md"
-next_design_card = "DYNAMIC-CARRIER-REBIND-TRANSACTION-D0"
-next_design_card_path = "docs/development/current/main/investigations/dynamic-carrier-rebind-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "none until DYNAMIC-CARRIER-REBIND-TRANSACTION-D0 is accepted"
+latest_card = "dynamic-carrier-ingress-lifecycle-d0"
+latest_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
+next_design_card = "DYNAMIC-CARRIER-INGRESS-LIFECYCLE-D0"
+next_design_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
+next_execution_card = "none until DYNAMIC-CARRIER-INGRESS-LIFECYCLE-D0 is accepted"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The exact V9/V17 lifecycle co-seal is closed. The current design stop must select one Normal/Fault-safe B0 rebind transaction before any displaced-carrier end, cleanup, Completion, or physical work opens."
+latest_card_summary = "Commit-before-end is selected for future B0 replacement, but the initial V1/B0 lifecycle disposition is missing. The current design stop must classify the plain-parameter ingress before rebind I0 can open."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

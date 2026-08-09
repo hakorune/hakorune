@@ -133,6 +133,13 @@ Only borrow-scoped views leave the non-Clone wrapper. This receipt does not
 end the displaced B0 carrier, install V17, infer Home, execute cleanup, or
 claim CFG/MIR/Completion authority.
 
+The subsequent rebind Decision selects commit-before-end but cannot yet issue
+an implementation product. Initial C0/B0 entry V1 comes from plain parameter
+`pos`; no canonical normal-callable parameter-demand issuer currently proves
+whether that ingress is borrowed-no-end or owns a carrier end obligation.
+Recipe `Dynamic`, the carrier row, and JoinSig are insufficient. An exact
+ingress lifecycle product must land before rebind I0.
+
 The landed caller-zero V2 golden covers one consistent Dynamic input, binding,
 ReadBinding result, carrier, CallSlot normal result, WriteBinding, and Return.
 Eighteen focused schema tests reject forward/undefined/duplicate values,

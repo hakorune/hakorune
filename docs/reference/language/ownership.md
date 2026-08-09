@@ -481,6 +481,13 @@ borrow and ends after the I6 Normal/Fault outcome. V17 is forwarded through
 I16 into B0 and remains live on the JoinSig Backedge. Neither chronology may be
 derived from ValueKey last use.
 
+The current B0 before a rebind is a symbolic binding-carrier lineage, not the
+I13/V15 borrowed read. Its first instance comes from plain parameter `pos`,
+while later instances come from forwarded V17 results. These origins may have
+different displaced-end dispositions. The rebind transaction commits the new
+current before discharging the old disposition; it may not assume that the
+initial borrowed ingress owns an end obligation.
+
 Home transfer also has an exact temporal boundary. Argument expressions are
 prepared in source order; a later argument failure must not leave an earlier
 caller Home consumed. The transfer/failure D0 selects one commit point before
