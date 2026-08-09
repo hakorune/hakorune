@@ -1,5 +1,5 @@
 ---
-Status: full-body source I0 closed; Dynamic dispatch D0 next
+Status: Dynamic dispatch D0 closed; neutral MethodCall source relation I0 next
 Date: 2026-08-10
 Row: `GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0`
 Parent: `generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md`
@@ -293,31 +293,43 @@ instead of reclassifying it as this canary shape, and rejects a foreign
 Completion owner. Selector spelling is source-shape evidence only; it issues
 no semantic target or result type.
 
-### 3. `SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0`
+### 3. `SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0` — closed
 
-Define the route-disjoint Dynamic member target/dispatch contract, ordered
-arguments, result class, effect/control envelope, and Recipe sibling relation.
-Owned by `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`.
+Separate route-disjoint Dynamic message identity/source rows from the later
+execution envelope. Owned by
+`source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`.
 
-### 4. `SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-I0`
+### 4. `RESOLVED-METHOD-CALL-SOURCE-RELATION-I0`
+
+Add one reusable AST-free resolved MethodCall row with exact call/receiver/
+result sites, checked selector/arity, and complete ordered argument sites.
+Profile-specific full-body roles are not promoted into universal authority.
+
+### 5. `SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-I0`
 
 Issue exact caller-zero source-call target rows for `substring/2` and
 `indexOf/1`. No nominal receiver fabrication, name-based semantic classifier,
 Builder lookup, retry, or fallback.
 
-### 5. `LOOP-V2-DYNAMIC-VALUE-AND-CALL-RELATION-D0`
+### 6. `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0/I0`
+
+Define and issue one selector-independent conservative effect/Fault/
+suspension/Home contract. The Dynamic result lifetime is the hard prerequisite;
+no Pure, NonSuspending, Trivial result, or other permissive default is allowed.
+
+### 7. `LOOP-V2-DYNAMIC-VALUE-AND-CALL-RELATION-D0`
 
 Fix profile-neutral `Dynamic`, explicit Dynamic Add/Compare semantics,
 CallSlot target/source relations, and the `ch` local-value relation. Do not
 overload I64 operations, widen V1, or infer Dynamic from `MirType::Unknown`.
 
-### 6. `LOOP-V2-DYNAMIC-VALUE-AND-CALL-RELATION-I0`
+### 8. `LOOP-V2-DYNAMIC-VALUE-AND-CALL-RELATION-I0`
 
 Produce and verify all Dynamic value/operation/CallSlot relations from the
 complete source product and dynamic target catalog, still with zero Builder
 effect.
 
-### 7. `LOOP-V2-JOINSIG-RETURN-D0/I0`
+### 9. `LOOP-V2-JOINSIG-RETURN-D0/I0`
 
 Extend the common V2 Core/semantic-program co-seal so the inner
 `If(Return i, fallthrough)` has JoinSig-authorized true-to-FunctionExit and
@@ -325,43 +337,43 @@ false-to-resume transfers; Loop predicate false reaches After, and outer Tail
 reaches FunctionExit. Recipe owns structure; JoinSig alone owns transfer
 meaning.
 
-### 8. `LOOP-V2-FULL-PREFLIGHT-I0`
+### 10. `LOOP-V2-FULL-PREFLIGHT-I0`
 
 Produce the complete V2 Recipe plus source/input/item/carrier/Loop relations,
 then preflight every item exactly once. Expose no first/select/filter API.
 
-### 9. `LOOP-COMMON-V2-CONTROL-PHYSICAL-I0`
+### 11. `LOOP-COMMON-V2-CONTROL-PHYSICAL-I0`
 
 Bind Recipe-derived segment placement to opaque JoinSig transfers and lower
 Call/Dynamic operations/If/Return through canonical CFG, Binding SSA, and
 PhiTxn services. Layout never infers Return or After destinations.
 
-### 10. `GENERIC-LOOP-DYNAMIC-AFTER-TAIL-P2D`
+### 12. `GENERIC-LOOP-DYNAMIC-AFTER-TAIL-P2D`
 
 Close normal zero/nonzero Loop After and issue the outer final-return
 candidate. The inner Return bypasses After. A partial carrier-only session is
 not accepted.
 
-### 11. `GENERIC-LOOP-DYNAMIC-MULTI-RETURN-COMPLETION-D0/I0`
+### 13. `GENERIC-LOOP-DYNAMIC-MULTI-RETURN-COMPLETION-D0/I0`
 
 Project the existing exact `ExplicitReturns` set to one canonical function
 exit, merge reachable result candidates (one PHI when needed), define Dynamic
 return representation/ABI projection, and consume Completion exactly once.
 DraftSeal remains the only physical Return writer.
 
-### 12. `GENERIC-LOOP-DYNAMIC-DRAFT-COLLECT-P2E`
+### 14. `GENERIC-LOOP-DYNAMIC-DRAFT-COLLECT-P2E`
 
 Run `finish_for_draft_seal`, DraftSeal prepare/commit, and canonical collector
 batch admission. Produce one completed callable draft with exact symbol/arity
 and no direct module insertion.
 
-### 13. `GENERIC-LOOP-DYNAMIC-BACKEND-CAPABILITY-I0`
+### 15. `GENERIC-LOOP-DYNAMIC-BACKEND-CAPABILITY-I0`
 
 Install passive capability only from verified Dynamic physical completion.
 The shared backend gate accepts `mir-interpreter`; unsupported backends return
 one stable no-fallback error. No MIR scanning or Builder backend policy.
 
-### 14. `GENERIC-LOOP-DYNAMIC-VM-CANARY-I0`
+### 16. `GENERIC-LOOP-DYNAMIC-VM-CANARY-I0`
 
 Switch one exact method-level production caller, collect it, and execute the
 unchanged production source. Test zero-iteration, inner-return, and normal

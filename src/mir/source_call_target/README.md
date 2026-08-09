@@ -197,3 +197,25 @@ Future route families may add variants to the final target vocabulary, but
 they must keep route-disjoint sealers and reject duplicate caller/site rows
 across variants. They must not turn this module into a replay of the complete
 Builder call router.
+
+## Accepted Dynamic member target boundary (D0)
+
+The next route family is a source-backed Dynamic member message, not an exact
+declaration/provider target. Before its I0, resolved semantics must publish one
+AST-free MethodCall row containing the exact call/receiver/result sites,
+checked selector/arity, and complete ordered argument sites.
+
+The implementation series generalizes the current static-only catalog names
+in place to one `VerifiedSourceCallTargetCatalogV1` with route-disjoint Static
+and DynamicMember arms. `DynamicMember(selector, arity)` is runtime message
+identity only. It cannot classify receiver Box/type, result class, Home,
+effect, ABI, provider, or executable plan. Static/Dynamic rows at the same
+caller/site reject as duplicates.
+
+Execution readiness is a later sibling contract. Unknown Dynamic calls need a
+selector-independent conservative effect/Fault/suspension/Home envelope before
+Recipe CallSlot co-seal; no receipt is inferred from `MirType::Unknown`, MIR
+effects, runtime tags, or method spelling. Runtime later combines actual
+receiver class with selector/arity and one immutable registry snapshot, selects
+one executable plan, and invokes once. Missing or failed selection does not
+retry a legacy or provider route.

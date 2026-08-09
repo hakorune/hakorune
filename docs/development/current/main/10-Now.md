@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. Dynamic source/origin, complete Loop source
+Current mode is `fast`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
@@ -32,17 +32,22 @@ closed as unpublished-session carrier proofs for the unmodified production
 cannot yet execute the complete method and closed the missing-authority
 inventory. That I0 is now closed: the unchanged method seals six exact
 binding roles, twenty-eight exact statement/expression roles, and the existing
-two-site Completion product with zero Builder effect. The current boundary is:
+two-site Completion product with zero Builder effect. The Dynamic dispatch D0
+audit is also closed. It found that the durable resolver product still lacks
+one general AST-free MethodCall source row. The current implementation row is:
 
 ```text
-SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0
+RESOLVED-METHOD-CALL-SOURCE-RELATION-I0
 ```
 
-It must define a route-disjoint source-bound Dynamic member target instead of
-fabricating an exact declaration target or treating selector spelling as a
-semantic classifier. V2 Dynamic
-value/call relations, JoinSig-authorized If/Return transfers, and multi-return
-Completion merge then precede DraftSeal/collector/backend/VM activation.
+It seals exact call/receiver/result sites, selector/arity syntax, and complete
+ordered argument sites without Dynamic classification or target issuance.
+Next, the existing target catalog is generalized in place with one
+route-disjoint DynamicMember arm. Message identity remains separate from a
+selector-independent execution envelope. Dynamic result Home/lifetime is the
+hard design stop before V2 CallSlot/Recipe; no Pure, Trivial, NonSuspending,
+or other permissive default is allowed. JoinSig-authorized If/Return and
+multi-return Completion still precede DraftSeal/collector/backend/VM.
 
 The previous post-P1-only PHI plan is rejected: the pre-correction P1 emitted
 Compare/Add from Enter, so a PHI created afterward would not have been the

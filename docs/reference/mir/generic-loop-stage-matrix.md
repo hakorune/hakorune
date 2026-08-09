@@ -42,6 +42,21 @@ wire. Dynamic values/operations, V2 source relations and JoinSig/Core,
 JoinSig-authorized physical If/Return transfers, and a V2 physical consumer
 remain prerequisites. V1 layout must not be widened around these gaps.
 
+The Dynamic-dispatch D0 audit adds two prerequisites. First, a neutral
+resolver-owned AST-free MethodCall source row must own exact receiver/result
+sites and complete ordered argument sites; the bounded full-body role map is
+not the universal authority. Second, message target/source identity is not an
+execution contract. A selector-independent execution-envelope issuer must
+close conservative effects, normal-result versus terminal Fault, suspension,
+and exact Dynamic Home/lifetime before any CallSlot becomes Recipe-ready.
+`ch` being Recipe-local SSA does not make its Dynamic result `Trivial`.
+
+The existing static target catalog is generalized in-place to one
+route-neutral source-call target catalog with disjoint Static and
+DynamicMember arms. A second Dynamic catalog, `MirType::Unknown` reverse
+inference, selector-specific result refinement, and permissive Home/effect
+defaults are forbidden.
+
 This correction widens compiler acceptance. It does not authorize source
 annotations, a copied/narrowed fixture, a second whole-body lowerer, raw-loop
 fallback, or backend metadata inferred from incomplete MIR.
