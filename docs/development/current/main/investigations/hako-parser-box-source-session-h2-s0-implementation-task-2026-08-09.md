@@ -1,5 +1,5 @@
 ---
-Status: ready; implementation 0
+Status: closed implementation
 Date: 2026-08-09
 Decision: BoxShape only; correct parser source-session ownership before H2 connects
 Parent: `HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0`
@@ -117,10 +117,44 @@ new language acceptance
 
 ## Done
 
-- [ ] program-owned session is the sole invocation-brand issuer;
-- [ ] member cursors are exact-Box-scoped and reset per Box;
-- [ ] invocation-wide member ordinal authority is removed or quarantined;
-- [ ] focused positive/negative tests are green;
-- [ ] owner README and guard encode the boundary;
-- [ ] current pointers name `H2-S1` only after this receipt closes;
-- [ ] implementation, tests, docs, and pointer closeout land together.
+- [x] program-owned session is the sole invocation-brand issuer;
+- [x] member cursors are exact-Box-scoped and reset per Box;
+- [x] invocation-wide member ordinal authority is removed;
+- [x] focused positive/negative tests are green;
+- [x] owner README and guard encode the boundary;
+- [x] current pointers name `H2-S1` only after this receipt closes;
+- [x] implementation, tests, docs, and pointer closeout land together.
+
+## Implementation receipt
+
+Landed ownership shape:
+
+```text
+ParserSourceSessionV1Box.open()
+  -> ParserProgramSourceSessionV1
+       program-scoped Box statement cursor
+       exactly one live Box member cursor
+  -> ParserBoxMemberSourceCursorV1
+       exact Box site
+       member ordinal starts at zero
+```
+
+`ParserDeclarationSiteIssuerV1` and its invocation-wide `_next_member` were
+removed. The session creates its own invocation brand; the fixture cannot
+provide one. Raw source-site factories are guard-allowlisted only inside the
+session module. The existing builder/sealer now consumes the session without
+changing declaration publication or parser connectivity.
+
+Focused evidence:
+
+```text
+bash tools/checks/hako_parser_box_declaration_h1_guard.sh
+  -> two Boxes independently start at member ordinal 0
+  -> cross-session/foreign Box/cursor rejection
+  -> live-cursor and double-finish rejection
+  -> parser_branch_connection=0
+  -> source_files_below_800=1
+```
+
+No parameter row, body result, H3 seal change, parser connection, or language
+acceptance landed in this row.

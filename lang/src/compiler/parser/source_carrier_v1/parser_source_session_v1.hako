@@ -1,0 +1,129 @@
+using lang.compiler.parser.source_carrier_v1.source_declaration_refs_v1 as ParserDeclarationRefsV1Box
+
+// A cursor owns source-member order for exactly one Box. It is declared
+// before the program session because Hako construction resolves birth methods
+// in source order.
+box ParserBoxMemberSourceCursorV1 {
+  _box_site
+  _next_member: Integer
+  _state: String
+  _issue: String
+
+  birth(box_site) {
+    me._box_site = box_site me._next_member = 0
+    me._state = "Open" me._issue = ""
+  }
+
+  box_site() { return me._box_site }
+  state() { return me._state }
+  issue() { return me._issue }
+  owns_box_site(box_site) { return box_site != null && me._box_site.same(box_site) }
+
+  next_direct_member_site() {
+    if me._require_open() == false { return null }
+    local site = ParserDeclarationRefsV1Box.direct_member(me._box_site, me._next_member)
+    me._next_member = me._next_member + 1
+    return site
+  }
+
+  // H4 remains closed. This method only preserves the disconnected H1 proof.
+  next_selected_member_site(gate_path) {
+    if me._require_open() == false || gate_path == null || gate_path.size() == 0 { return null }
+    local site = ParserDeclarationRefsV1Box.selected_member(me._box_site, me._next_member, gate_path)
+    me._next_member = me._next_member + 1
+    return site
+  }
+
+  finish_for_session() {
+    if me._state != "Open" {
+      if me._issue == "" { me._issue = "parser.source_cursor.double_finish" }
+      return false
+    }
+    me._state = "Finished"
+    return true
+  }
+
+  _require_open() {
+    if me._state == "Open" { return true }
+    if me._issue == "" { me._issue = "parser.source_cursor.mutation_after_close" }
+    return false
+  }
+}
+
+// Program-owned source identity. Box statement order belongs here; member
+// order is delegated to one fresh cursor for each exact Box.
+box ParserProgramSourceSessionV1 {
+  _carrier
+  _source_unit
+  _next_statement: Integer
+  _live_cursor
+  _state: String
+  _issue: String
+
+  birth() {
+    me._carrier = ParserDeclarationRefsV1Box.carrier(me)
+    me._source_unit = ParserDeclarationRefsV1Box.source_unit(me._carrier, 0)
+    me._next_statement = 0 me._live_cursor = null
+    me._state = "Open" me._issue = ""
+  }
+
+  carrier() { return me._carrier }
+  source_unit() { return me._source_unit }
+  state() { return me._state }
+  issue() { return me._issue }
+
+  next_box_site() {
+    if me._require_open("parser.source_session.box_after_close") == false { return null }
+    if me._live_cursor != null { return me._reject("parser.source_session.box_with_live_cursor") }
+    local program_site = ParserDeclarationRefsV1Box.program_site(me._source_unit, me._next_statement)
+    me._next_statement = me._next_statement + 1
+    return ParserDeclarationRefsV1Box.box_site(program_site)
+  }
+
+  open_member_cursor(box_site) {
+    if me._require_open("parser.source_session.cursor_after_close") == false { return null }
+    if me._live_cursor != null { return me._reject("parser.source_session.cursor_already_open") }
+    if me.owns_box_site(box_site) == false { return me._reject("parser.source_session.foreign_box") }
+    local cursor = new ParserBoxMemberSourceCursorV1(box_site)
+    me._live_cursor = cursor
+    return cursor
+  }
+
+  owns_box_site(box_site) {
+    return box_site != null && box_site.source_unit().same(me._source_unit)
+  }
+
+  finish_member_cursor(cursor) {
+    if me._state != "Open" || cursor == null || me._live_cursor != cursor || cursor.state() != "Open" {
+      if me._issue == "" { me._issue = "parser.source_session.foreign_cursor" }
+      return false
+    }
+    if cursor.finish_for_session() == false { return false }
+    me._live_cursor = null
+    return true
+  }
+
+  finish() {
+    if me._state != "Open" {
+      if me._issue == "" { me._issue = "parser.source_session.double_finish" }
+      return false
+    }
+    if me._live_cursor != null {
+      me._issue = "parser.source_session.finish_with_live_cursor"
+      return false
+    }
+    me._state = "Finished"
+    return true
+  }
+
+  _require_open(reason) {
+    if me._state == "Open" { return true }
+    if me._issue == "" { me._issue = reason }
+    return false
+  }
+  _reject(reason) { if me._issue == "" { me._issue = reason } return null }
+}
+
+static box ParserSourceSessionV1Box {
+  open() { return new ParserProgramSourceSessionV1() }
+}

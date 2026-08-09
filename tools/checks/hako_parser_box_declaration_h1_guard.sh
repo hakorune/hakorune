@@ -13,6 +13,7 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" \
   "$DIR/source_declaration_refs_v1.hako" \
+  "$DIR/parser_source_session_v1.hako" \
   "$DIR/source_declaration_records_v1.hako" \
   "$DIR/source_declaration_sealer_v1.hako" \
   "$DIR/source_declaration_builder_v1.hako" \
@@ -38,6 +39,7 @@ from pathlib import Path
 root, source_dir, fixture = map(Path, sys.argv[1:])
 paths = [
     source_dir / "source_declaration_refs_v1.hako",
+    source_dir / "parser_source_session_v1.hako",
     source_dir / "source_declaration_records_v1.hako",
     source_dir / "source_declaration_sealer_v1.hako",
     source_dir / "source_declaration_builder_v1.hako",
@@ -53,9 +55,11 @@ required = (
     "ParserCarrierBrandV1", "ParserSourceUnitRefV1",
     "ParserProgramStatementSiteV1", "ParserBoxDeclarationSiteV1", "ParserBoxMemberSiteV1",
     "ParserBoxMethodSourceSiteV1", "ParserBoxInventoryOrdinalV1",
-    "ParserDeclarationSiteIssuerV1", "ParserBoxDeclarationBuilderV1", "SealedParserBoxDeclarationV1",
+    "ParserProgramSourceSessionV1", "ParserBoxMemberSourceCursorV1",
+    "ParserBoxDeclarationBuilderV1", "SealedParserBoxDeclarationV1",
     "duplicate_method", "double_finish", "SelectedBuildGate",
-    "PropertyGetter", "foreign_and_invalid_reject",
+    "PropertyGetter", "positive_two_box_session", "foreign_session_and_box_reject",
+    "finish_with_live_cursor", "foreign_cursor", "mutation_after_close",
 )
 for needle in required:
     if needle not in joined:
@@ -63,22 +67,50 @@ for needle in required:
 for forbidden in (
     "CallableContract", "Resolver", "Recipe", "MIR",
     "FuncScannerBox", "StageBRuneBox", "source_slice", "MapBox",
-    "JsonParser", "ParserDeclarationRefsV1Box.source_unit",
+    "JsonParser",
+    "ParserDeclarationSiteIssuerV1", "_next_member: Integer\n  birth(token)",
 ):
     if forbidden in joined:
         raise SystemExit(f"forbidden H1 dependency or reserved spelling: {forbidden}")
 
+fixture_text = fixture.read_text(encoding="utf-8")
+for forbidden in (
+    "ParserDeclarationRefsV1Box.carrier",
+    "ParserDeclarationRefsV1Box.source_unit",
+    "ParserDeclarationRefsV1Box.program_site",
+    "ParserDeclarationRefsV1Box.box_site",
+    "ParserDeclarationRefsV1Box.direct_member",
+    "ParserDeclarationRefsV1Box.selected_member",
+):
+    if forbidden in fixture_text:
+        raise SystemExit(f"fixture bypasses program-owned source session: {forbidden}")
+
 parser_root = root / "lang/src/compiler/parser"
+session_path = source_dir / "parser_source_session_v1.hako"
+raw_session_factories = (
+    "ParserDeclarationRefsV1Box.carrier",
+    "ParserDeclarationRefsV1Box.source_unit",
+    "ParserDeclarationRefsV1Box.program_site",
+    "ParserDeclarationRefsV1Box.box_site",
+    "ParserDeclarationRefsV1Box.direct_member",
+    "ParserDeclarationRefsV1Box.selected_member",
+)
 for path in parser_root.rglob("*.hako"):
+    text = path.read_text(encoding="utf-8")
+    if path != session_path:
+        for needle in raw_session_factories:
+            if needle in text:
+                raise SystemExit(f"raw source-site factory bypasses program session: {path}: {needle}")
     if source_dir in path.parents:
         continue
-    text = path.read_text(encoding="utf-8")
     if "source_declaration_builder_v1" in text or "SealedParserBoxDeclarationV1" in text:
         raise SystemExit(f"H1 declaration carrier connected to parser branch: {path}")
 
 print("parser_branch_connection=0")
 print("resolver_semantic_publication=0")
 print("inventory_ordinal_source_identity=0")
+print("program_owned_source_session=1")
+print("box_scoped_member_cursor=1")
 print("duplicate_partial_publication=0")
 print("source_files_below_800=1")
 print("summary=ok")

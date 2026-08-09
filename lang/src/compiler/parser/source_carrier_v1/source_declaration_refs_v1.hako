@@ -107,7 +107,10 @@ box ParserBoxInventoryOrdinalV1 {
 }
 
 static box ParserDeclarationRefsV1Box {
-  issuer(token) { return new ParserDeclarationSiteIssuerV1(token) }
+  carrier(token) {
+    if token == null { return null }
+    return new ParserCarrierBrandV1(token)
+  }
   source_unit(carrier, ordinal) {
     if carrier == null || ordinal < 0 { return null }
     return new ParserSourceUnitRefV1(carrier, ordinal)
@@ -144,44 +147,6 @@ static box ParserDeclarationRefsV1Box {
     if value < 0 { return null }
     return new ParserBoxInventoryOrdinalV1(value)
   }
-  _copy_path(path) {
-    local out = new ArrayBox() local i = 0
-    loop(i < path.size()) { out.push(path.get(i)) i = i + 1 }
-    return out
-  }
-}
-
-box ParserDeclarationSiteIssuerV1 {
-  _carrier
-  _source_unit
-  _next_statement: Integer
-  _next_member: Integer
-  birth(token) {
-    me._carrier = new ParserCarrierBrandV1(token)
-    me._source_unit = new ParserSourceUnitRefV1(me._carrier, 0)
-    me._next_statement = 0 me._next_member = 0
-  }
-  carrier() { return me._carrier }
-  source_unit() { return me._source_unit }
-  next_box_site() {
-    local site = new ParserProgramStatementSiteV1(me._source_unit, me._next_statement)
-    me._next_statement = me._next_statement + 1
-    return new ParserBoxDeclarationSiteV1(site)
-  }
-  next_direct_member_site(box_site) {
-    if me._owns_box(box_site) == false { return null }
-    local site = new ParserBoxMemberSiteV1("Direct", box_site, me._next_member, new ArrayBox())
-    me._next_member = me._next_member + 1
-    return site
-  }
-  next_selected_member_site(box_site, gate_path) {
-    if me._owns_box(box_site) == false || gate_path == null || gate_path.size() == 0 { return null }
-    local site = new ParserBoxMemberSiteV1("SelectedBuildGate", box_site, me._next_member, me._copy_path(gate_path))
-    me._next_member = me._next_member + 1
-    return site
-  }
-  owns_box_site(box_site) { return box_site != null && box_site.source_unit().same(me._source_unit) }
-  _owns_box(box_site) { return me.owns_box_site(box_site) }
   _copy_path(path) {
     local out = new ArrayBox() local i = 0
     loop(i < path.size()) { out.push(path.get(i)) i = i + 1 }

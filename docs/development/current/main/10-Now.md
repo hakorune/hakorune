@@ -35,7 +35,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-HAKO-PARSER-BOX-SOURCE-SESSION-H2-S0
+HAKO-PARSER-PARAMETER-LIST-PRODUCT-H2-S1
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -50,9 +50,12 @@ Home meaning. The `take` census is also closed as NoSafeSlice. The H2/H3
 parameter-carriage consultation is now accepted: keep `ParamDecl` neutral,
 use one parser-private atomic parameter product, retain the body result from
 the same parse, and publish only through the existing H3 seal. The current
-H2-S0 corrects the deeper prerequisite first: one program-owned parser source
-session and one fresh member cursor per exact Box, with no parser connection
-or language activation.
+H2-S0 is now closed: one program-owned parser source session owns the
+invocation brand/Box order and one fresh member cursor owns each exact Box's
+member order starting at zero. The current H2-S1 adds only one disconnected
+atomic ordinary parameter-list product with exact source rows and one-way
+neutral projections. There is still no parser connection or language
+activation.
 Home capability and Home Flow remain closed; target,
 Recipe/CallSlot, Builder/MIR, publication, fallback, and production remain
 closed.
@@ -137,8 +140,8 @@ typed syntax carriage (closed)
 -> release source I0 (closed; semantics 0)
 -> take declaration syntax preflight (closed NoSafeSlice)
 -> Hako H2/H3 parameter carriage design consultation (closed)
--> H2-S0 program source session + Box-scoped member cursor (current)
--> H2-S1 atomic parameter-list product
+-> H2-S0 program source session + Box-scoped member cursor (closed)
+-> H2-S1 atomic parameter-list product (current)
 -> H2-S2 same-pass rich body result
 -> H2-I0 bounded ordinary Box direct-method transaction
 -> H3-I0 sole final source seal

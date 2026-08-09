@@ -6,13 +6,13 @@ using lang.compiler.parser.source_carrier_v1.source_declaration_sealer_v1 as Par
 // are appended; finish is the only path that assigns inventory ordinals.
 box ParserBoxDeclarationBuilderV1 {
   _carrier
-  _issuer
+  _session
   _box_site
   _drafts: ArrayBox
   _state: String
   _issue: String
-  birth(issuer, box_site) {
-    me._issuer = issuer me._carrier = issuer.carrier() me._box_site = box_site me._drafts = new ArrayBox()
+  birth(session, box_site) {
+    me._session = session me._carrier = session.carrier() me._box_site = box_site me._drafts = new ArrayBox()
     me._state = "Open" me._issue = ""
   }
   state() { return me._state }
@@ -58,9 +58,9 @@ box ParserBoxDeclarationBuilderV1 {
 }
 
 static box ParserDeclarationBuilderV1Box {
-  open(issuer, box_site) {
-    if issuer == null || box_site == null { return null }
-    if issuer.owns_box_site(box_site) == false { return null }
-    return new ParserBoxDeclarationBuilderV1(issuer, box_site)
+  open(session, box_site) {
+    if session == null || box_site == null { return null }
+    if session.owns_box_site(box_site) == false { return null }
+    return new ParserBoxDeclarationBuilderV1(session, box_site)
   }
 }

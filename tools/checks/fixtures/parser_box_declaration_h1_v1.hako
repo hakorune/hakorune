@@ -1,41 +1,59 @@
+using lang.compiler.parser.source_carrier_v1.parser_source_session_v1 as ParserSourceSessionV1Box
 using lang.compiler.parser.source_carrier_v1.source_declaration_refs_v1 as ParserDeclarationRefsV1Box
 using lang.compiler.parser.source_carrier_v1.source_declaration_builder_v1 as ParserDeclarationBuilderV1Box
 
 static box ParserBoxDeclarationH1FixtureV1Box {
-  positive() {
-    local issuer = ParserDeclarationRefsV1Box.issuer(101)
-    local box_site = issuer.next_box_site()
-    local direct = issuer.next_direct_member_site(box_site)
-    local source = ParserDeclarationRefsV1Box.method_source(direct)
+  positive_two_box_session() {
+    local session = ParserSourceSessionV1Box.open()
+
+    local first_box = session.next_box_site()
+    local first_cursor = session.open_member_cursor(first_box)
+    if first_cursor == null { return 1 }
+    if first_cursor.state() != "Open" { return 61 }
+    local direct = first_cursor.next_direct_member_site()
+    if direct == null { return 2 }
     local step = ParserDeclarationRefsV1Box.gate_step(2, 1, 8)
     local path = new ArrayBox() path.push(step)
-    local selected = issuer.next_selected_member_site(box_site, path)
+    local selected = first_cursor.next_selected_member_site(path)
+    if selected == null { return 3 }
+    if direct.member_ordinal() != 0 || selected.member_ordinal() != 1 { return 4 }
+    if session.finish_member_cursor(first_cursor) == false { return 5 }
+
+    local second_box = session.next_box_site()
+    local second_cursor = session.open_member_cursor(second_box)
+    if second_cursor == null { return 6 }
+    local second_direct = second_cursor.next_direct_member_site()
+    if second_direct == null { return 7 }
+    if second_direct.member_ordinal() != 0 { return 8 }
+    if first_box.statement_ordinal() != 0 || second_box.statement_ordinal() != 1 { return 9 }
+    if session.finish_member_cursor(second_cursor) == false { return 10 }
+
+    local source = ParserDeclarationRefsV1Box.method_source(direct)
     local selected_source = ParserDeclarationRefsV1Box.method_source(selected)
     local generated_origin = ParserDeclarationRefsV1Box.generated_origin(direct, "PropertyGetter")
-    local builder = ParserDeclarationBuilderV1Box.open(issuer, box_site)
-    if builder == null { return 1 }
-    if builder.add_explicit("length", false, 0, "i64", source) == false { return 2 }
-    if builder.add_explicit("selected", false, 0, "i64", selected_source) == false { return 3 }
-    if builder.add_generated("__get_value", false, 0, "i64", generated_origin) == false { return 4 }
+    local builder = ParserDeclarationBuilderV1Box.open(session, first_box)
+    if builder == null { return 11 }
+    if builder.add_explicit("length", false, 0, "i64", source) == false { return 12 }
+    if builder.add_explicit("selected", false, 0, "i64", selected_source) == false { return 13 }
+    if builder.add_generated("__get_value", false, 0, "i64", generated_origin) == false { return 14 }
     local result = builder.finish()
-    if result.status() != "Ready" { return 5 }
+    if result.status() != "Ready" { return 15 }
     local product = result.product()
-    if product.entry_count() != 3 || product.explicit_count() != 2 { return 6 }
-    if product.entry(0).inventory_ordinal().value() != 0 || product.entry(1).inventory_ordinal().value() != 1 { return 7 }
-    if product.entry(0).source_site().member_site().member_ordinal() != 0 { return 8 }
-    if product.entry(1).source_site().member_site().member_ordinal() != 1 { return 9 }
-    if product.entry(1).source_site().member_site().kind() != "SelectedBuildGate" { return 10 }
-    if product.entry(1).source_site().member_site().gate_count() != 1 { return 11 }
-    if product.entry(2).source_site() != null || product.entry(2).generated_origin().role() != "PropertyGetter" { return 12 }
-    if builder.state() != "Sealed" || builder.draft_count() != 3 { return 13 }
+    if product.entry_count() != 3 || product.explicit_count() != 2 { return 16 }
+    if product.entry(0).inventory_ordinal().value() != 0 || product.entry(1).inventory_ordinal().value() != 1 { return 17 }
+    if product.entry(1).source_site().member_site().kind() != "SelectedBuildGate" { return 18 }
+    if product.entry(2).source_site() != null || product.entry(2).generated_origin().role() != "PropertyGetter" { return 19 }
+    if session.finish() == false { return 20 }
     return 0
   }
 
   duplicate_without_mutation() {
-    local issuer = ParserDeclarationRefsV1Box.issuer(201)
-    local box_site = issuer.next_box_site()
-    local source = ParserDeclarationRefsV1Box.method_source(issuer.next_direct_member_site(box_site))
-    local builder = ParserDeclarationBuilderV1Box.open(issuer, box_site)
+    local session = ParserSourceSessionV1Box.open()
+    local box_site = session.next_box_site()
+    local cursor = session.open_member_cursor(box_site)
+    local source = ParserDeclarationRefsV1Box.method_source(cursor.next_direct_member_site())
+    session.finish_member_cursor(cursor)
+    local builder = ParserDeclarationBuilderV1Box.open(session, box_site)
     if builder.add_explicit("same", false, 0, "i64", source) == false { return 21 }
     if builder.add_explicit("same", false, 0, "i64", source) != false { return 22 }
     if builder.draft_count() != 1 || builder.state() != "Poisoned" { return 23 }
@@ -43,38 +61,63 @@ static box ParserBoxDeclarationH1FixtureV1Box {
     return 0
   }
 
-  foreign_and_invalid_reject() {
-    local issuer = ParserDeclarationRefsV1Box.issuer(301)
-    local foreign_issuer = ParserDeclarationRefsV1Box.issuer(302)
-    local box_site = issuer.next_box_site()
-    local foreign_box = foreign_issuer.next_box_site()
-    local foreign_site = ParserDeclarationRefsV1Box.method_source(foreign_issuer.next_direct_member_site(foreign_box))
-    local builder = ParserDeclarationBuilderV1Box.open(issuer, box_site)
-    if builder.add_explicit("foreign", false, 0, "i64", foreign_site) != false { return 31 }
-    if builder.draft_count() != 0 || builder.state() != "Poisoned" { return 32 }
-    if issuer.next_direct_member_site(null) != null { return 33 }
-    if issuer.next_selected_member_site(box_site, null) != null { return 34 }
+  foreign_session_and_box_reject() {
+    local session = ParserSourceSessionV1Box.open()
+    local foreign_session = ParserSourceSessionV1Box.open()
+    local box_site = session.next_box_site()
+    local foreign_box = foreign_session.next_box_site()
+    if session.open_member_cursor(foreign_box) != null { return 31 }
+    if ParserDeclarationBuilderV1Box.open(foreign_session, box_site) != null { return 32 }
+
+    local cursor = session.open_member_cursor(box_site)
+    if cursor == null || cursor.owns_box_site(foreign_box) { return 33 }
+    if foreign_session.finish_member_cursor(cursor) != false { return 34 }
+    local foreign_cursor = foreign_session.open_member_cursor(foreign_box)
+    local foreign_site = ParserDeclarationRefsV1Box.method_source(foreign_cursor.next_direct_member_site())
+    foreign_session.finish_member_cursor(foreign_cursor)
+    local builder = ParserDeclarationBuilderV1Box.open(session, box_site)
+    if builder.add_explicit("foreign", false, 0, "i64", foreign_site) != false { return 35 }
+    if builder.draft_count() != 0 || builder.state() != "Poisoned" { return 36 }
+    if session.finish_member_cursor(cursor) == false { return 37 }
     return 0
   }
 
-  closed_and_double_finish() {
-    local issuer = ParserDeclarationRefsV1Box.issuer(401)
-    local box_site = issuer.next_box_site()
-    local source = ParserDeclarationRefsV1Box.method_source(issuer.next_direct_member_site(box_site))
-    local builder = ParserDeclarationBuilderV1Box.open(issuer, box_site)
+  lifecycle_rejects() {
+    local session = ParserSourceSessionV1Box.open()
+    local box_site = session.next_box_site()
+    local cursor = session.open_member_cursor(box_site)
+    if session.next_box_site() != null { return 41 }
+    if session.finish() != false { return 42 }
+    if session.finish_member_cursor(cursor) == false { return 43 }
+    if session.finish_member_cursor(cursor) != false { return 44 }
+    if cursor.next_direct_member_site() != null { return 45 }
+    if session.finish() == false { return 46 }
+    if session.finish() != false { return 47 }
+    if session.next_box_site() != null { return 48 }
+    return 0
+  }
+
+  closed_builder_rejects() {
+    local session = ParserSourceSessionV1Box.open()
+    local box_site = session.next_box_site()
+    local cursor = session.open_member_cursor(box_site)
+    local source = ParserDeclarationRefsV1Box.method_source(cursor.next_direct_member_site())
+    session.finish_member_cursor(cursor)
+    local builder = ParserDeclarationBuilderV1Box.open(session, box_site)
     builder.add_explicit("only", false, 0, "i64", source)
-    if builder.finish().status() != "Ready" { return 41 }
-    if builder.finish().status() != "InternalCarrierContractViolation" { return 42 }
-    if builder.add_explicit("late", false, 0, "i64", source) != false { return 43 }
-    if builder.state() != "Sealed" || builder.draft_count() != 1 { return 44 }
+    if builder.finish().status() != "Ready" { return 51 }
+    if builder.finish().status() != "InternalCarrierContractViolation" { return 52 }
+    if builder.add_explicit("late", false, 0, "i64", source) != false { return 53 }
+    if builder.state() != "Sealed" || builder.draft_count() != 1 { return 54 }
     return 0
   }
 
   run() {
-    local rc = me.positive() if rc != 0 { return rc }
+    local rc = me.positive_two_box_session() if rc != 0 { return rc }
     rc = me.duplicate_without_mutation() if rc != 0 { return rc }
-    rc = me.foreign_and_invalid_reject() if rc != 0 { return rc }
-    return me.closed_and_double_finish()
+    rc = me.foreign_session_and_box_reject() if rc != 0 { return rc }
+    rc = me.lifecycle_rejects() if rc != 0 { return rc }
+    return me.closed_builder_rejects()
   }
 }
 

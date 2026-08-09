@@ -84,9 +84,11 @@ H2-I0  bounded ordinary Box direct-method transaction
 H3-I0  sole final declaration seal
 ```
 
-H2-S0 must remove the invocation-wide member-ordinal authority: Box statement
-ordinals belong to the program session, while member ordinals restart at zero
-inside each Box cursor. H2-S1 keeps Clone `ParamDecl` neutral and carries exact
+H2-S0 is closed: `ParserProgramSourceSessionV1` now owns its invocation brand
+and Box statement order, while each `ParserBoxMemberSourceCursorV1` restarts
+member ordinal at zero for one exact Box. The invocation-wide member-ordinal
+issuer is removed, and the H1 guard limits raw site factories to the session
+module. H2-S1 keeps Clone `ParamDecl` neutral and carries exact
 parameter source rows in a parser-private non-Clone product. H2-S2 must retain
 `ParserNodeProductV1` from the same parse; ProgramJSON is only a projection.
 
