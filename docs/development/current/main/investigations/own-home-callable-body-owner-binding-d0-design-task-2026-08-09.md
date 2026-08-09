@@ -135,7 +135,7 @@ returns; the callback is the only place where a function syntax view may be
 constructed.
 
 ```text
-ParserResolverBodyTransactionV1::with_instance_method_sources(self, callback)
+ParserResolverBodyTransactionV1::with_direct_method_syntax(self, callback)
   callback receives, for one parser invocation:
     ParserBoxResolverSourceHandoffV1
     ParserBoxBodySourceEnvelopeV1
@@ -200,5 +200,7 @@ second `FunctionOwnerIdV1` issuer is permitted.
 5. CALLABLE-BODY-FACTS-QUERY-D0/I0
 ```
 
-Until steps 1–2 close, the current execution row remains `NoSafeSlice` and
-the owner link must not be implemented against bare `VerifiedResolvedFunctionV1`.
+Before the carrier I0 is landed, the missing issuer is represented as
+development `NoSafeSlice`; after the carrier I0 closes, the owner link remains
+parked behind its own D0/I0 and must not be implemented against bare
+`VerifiedResolvedFunctionV1`.

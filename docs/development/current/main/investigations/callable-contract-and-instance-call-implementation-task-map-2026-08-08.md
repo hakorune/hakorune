@@ -245,7 +245,7 @@ resolver-issued body-root and ordered body-item coverage receipt
 
 The issuer is the same resolver method-resolution path that produced the
 function. The parser transaction keeps its AST only inside one
-`with_instance_method_sources(self, callback)` callback. The callback receives
+`with_direct_method_syntax(self, callback)` callback. The callback receives
 the AST-free handoff/body envelope plus a private borrowed syntax lease; the
 resolver constructs `FunctionSyntaxViewV1` there and returns only AST-free
 carrier products. A caller-supplied ordinal/name/body count, a separately-built
@@ -952,7 +952,7 @@ Rejected > Unresolved > Declined > Candidate
       compares parser provenance and resolver brand without copying/reissuing
       Home or Query receipts, and leaves the general all-row body catalog
       reusable.
-18. `CALLABLE-BODY-OWNER-CARRIER-D0/I0` (current design stop)
+18. `CALLABLE-BODY-OWNER-CARRIER-D0/I0` (D0 closed; I0 current execution)
     - define then issue one resolver-owned instance-method function
       carrier/catalog on the existing `FunctionSemanticResolverSessionV1`
       method-resolution path;
