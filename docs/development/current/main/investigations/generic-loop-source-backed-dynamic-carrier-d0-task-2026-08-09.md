@@ -1,5 +1,5 @@
 ---
-Status: S0 closed; P0 design stop active
+Status: S0 closed; P0 accepted and ready
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -229,11 +229,91 @@ Closeout:
 
 ### P0 — function-entry and local propagation
 
-1. Add one origin-preserving handoff at the existing callable entry.
-2. Keep `setup_function_params` as the sole formal ValueId/type publisher.
-3. Preserve verified dynamic origin through the existing local Copy terminal.
-4. Reject missing/foreign/duplicate/consumed origin; never synthesize it from
-   `MirType::Unknown`.
+Row: `GENERIC-LOOP-DYNAMIC-ORIGIN-P0-I0`
+
+Decision:
+  Connect the S0 product only to the existing entry snapshot and local
+  completion terminal. `setup_function_params` remains unchanged and remains
+  the sole formal `ValueId`/type publisher.
+
+Canonical flow:
+
+```text
+VerifiedNormalCallableSourceIngressReceiptV1
+  -> ResolvedFunctionLoweringInputV1
+  -> SourceBackedDynamicCallableIssuerV1
+  -> CallableDynamicOriginLoweringStateV1
+
+setup_function_params
+  -> CallableEntryShapeV1::prepare_values
+  -> PreparedCallableEntryValuesV1
+  -> exact dynamic formal origin installation
+
+existing local terminal
+  -> CompletedLocalBindingV1 {
+       ordinal,
+       initializer,
+       local,
+     }
+  -> exact formal-to-local origin propagation
+```
+
+Ownership:
+
+- `VerifiedNormalCallableSemanticLoanV1::into_parts` returns lineage plus the
+  exact source ingress; it no longer creates a temporarily origin-less
+  lowering state.
+- `NormalCallableSemanticLoanPortV1::with_callable_source_scope` constructs
+  `CallableSemanticLoweringState` once from that ingress and the non-`Clone`
+  S0 product.
+- private `CallableDynamicOriginLoweringStateV1` owns the source product,
+  formal/local indexes, consumption state, and physical `ValueId` to exact
+  source-formal origin relation.
+- `CompletedLocalStatementV1` carries ordinal-keyed initializer/local pairs;
+  it does not require an instruction scan or a second Copy owner.
+- rebind removes the prior current-value authorization. Dynamic operation and
+  PHI continuation remain L0 responsibilities.
+
+Fail-fast:
+
+- source owner, input/forest, formal ordinal/cardinality, or entry coverage
+  mismatch rejects before body effects;
+- wrong initializer/local `ValueId`, ordinal drift, duplicate local completion,
+  or missing completion poisons the unpublished function and uses the existing
+  whole-session discard; there is no repair or retry.
+
+Non-authority:
+
+```text
+MirType::Unknown
+TypeContext
+variable_map / names
+result demand
+post-emission instruction scan
+GenericLoop / PHI
+```
+
+Done:
+
+1. untyped `pos` maps to its already-published formal `ValueId`, then the exact
+   `local i = pos` Copy receipt preserves the same origin;
+2. all untyped formals, including `end`, receive entry origins while typed
+   formals on an Unknown wire receive none;
+3. unrelated locals and Copies cannot acquire Dynamic origin;
+4. foreign owner, missing/duplicate entry, arity/ordinal mismatch, wrong
+   initializer/local `ValueId`, duplicate/missing local completion, and stale
+   rebind origin all reject;
+5. the production callable source scope consumes the exact ingress, all
+   focused tests and structural guards are green, and every source file stays
+   below 800 lines;
+6. Builder/stmts README, this card, the MIR reference receipt, and current
+   pointers are updated in the implementation commit.
+
+Stop:
+  Return to design if implementation needs Builder-global origin storage,
+  `TypeContext` mutation, `MirType::Unknown` inference, instruction scanning,
+  name matching, a second parameter publisher, or any GenericLoop/PHI change.
+  L0 remains a separate BoxCount row.
 
 ### L0 — GenericLoop/PHI canary
 
@@ -290,7 +370,9 @@ root plus `VerifiedSourceProjectionV1` and matching resolver forest/ledger;
 the canonical issuer is
 `SourceBackedDynamicCallableIssuerV1`, and its only public semantic output is
 `VerifiedSourceBackedDynamicCallableV1`. S0 has landed that disconnected
-issuer with zero Builder effect. P0 must now select the sole formal-entry and
-local-Copy origin handoff. If that boundary cannot preserve the verified origin
+issuer with zero Builder effect. P0 is accepted: the existing positional entry
+snapshot and an ordinal-keyed local completion receipt are the only physical
+handoffs, and `CallableDynamicOriginLoweringStateV1` is the private projection
+owner. If implementation cannot preserve the origin through those owners
 without a second publisher or raw-`Unknown` inference, return to `NoSafeSlice`
 rather than widening GenericLoop.

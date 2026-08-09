@@ -23,25 +23,20 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. The compiler-side dependency repair is closed: general
-exact rows reach the sole source-bound publisher and the unmodified
-`StringHelpers` source passes its first GenericLoop. The follow-up unmodified
-`ParserNumberScanBox.scan_int("42}", 0)` probe also succeeds, so no scanner
-annotation or additional carrier publisher is needed. The parser-private
-numeric lexical-parts row is now unblocked.
-The parser public-AST/postpass, V2 schema, typed
-callable syntax carriage, old instance-result/target retirement,
-source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
-D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, declared
-Query behavior D0/I0, aggregate D0/I0, general body-source I0, borrowed Query
-body-source projection I0, bounded Query body-facts, complete-evidence design,
-bounded evidence I0, bounded exact Query conformance catalog I0, and the
-bounded Call+Return effect/control I0, focused Home source-event D0, and the
-minimal contextual Home syntax D0 are closed. The current bounded row is:
+Current mode is `fast`. Source-backed Dynamic S0 is closed. The current
+bounded row connects that exact source product to the existing formal-entry
+snapshot and local completion receipt without changing the sole parameter
+publisher or accepting raw `MirType::Unknown`:
 
 ```text
-HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0
+GENERIC-LOOP-DYNAMIC-ORIGIN-P0-I0
 ```
+
+GenericLoop/PHI remains closed. The parser H2-S2-S1-R1 worktree is preserved
+and must not be rewritten or mixed into this compiler-side slice. Read the
+active card from `CURRENT_STATE.toml` for the exact Done/Stop contract.
+
+### Historical context (non-authoritative; pending mirror compaction)
 
 The Call+Return row landed one private borrowed receipt from one
 `ResolvedFunctionBodyShapeProductV1` for exact root-direct
