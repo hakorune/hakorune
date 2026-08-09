@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1 canary closed; PHI temporal-order D0 accepted; Header-current P2A next
+Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1 and Header-current P2A closed; P1R next
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -844,6 +844,24 @@ Done:
 Stop:
   Do not emit Compare/Add, define Backedge, patch PHI inputs, or claim Loop
   After.
+
+Closeout:
+  Closed in the P2A implementation slice. The unmodified production
+  `ParserScanLoopBox.skip_while/4` source opens one fresh canonical function
+  session. Its exact existing local definition is adopted at Enter, the
+  bounded role-distinct placement is allocated only through canonical CFG,
+  and the first unsealed Header read creates one provisional PHI with zero
+  inputs before any Compare/Add. Missing or duplicate physical entry
+  definitions reject with a typed P2A error; success and failure discard the
+  complete unpublished session.
+
+  Two compiler acceptance gaps were fixed rather than narrowing the source.
+  Function completion can now seal an exact, uniform set of explicit returns
+  for semantic/session admission, while multi-return DraftSeal completion
+  remains an explicit fail-fast nonclaim. The outer If ledger may close empty
+  only after proving that every exact If region belongs to the selected exact
+  Loop source. No source rewrite, raw predecessor vector, PHI token,
+  Compare/Add, PHI patch, After, retry/fallback, or production route opened.
 
 ##### L0-P1R — `DYNAMIC-LOOP-HEADER-REBIND-P1R`
 

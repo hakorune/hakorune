@@ -215,6 +215,17 @@ through the one canonical CFG/Binding SSA/`PhiTxn` session. Its move-only
 output contains no second emitter, predecessor authority, PHI destination,
 retry/fallback, or production route.
 
+`dynamic_loop_phi.rs` owns the migration-private P2A Header-current opening
+boundary. One `CanonicalSsaFunctionSessionV2` adopts the already-emitted local
+Enter value through its exact resolver declaration site, allocates the bounded
+Enter/Header/body/terminal-Backedge/After placement through canonical CFG,
+and reads the still-unsealed Header through canonical Binding SSA. That read
+creates the sole provisional PHI before Compare/Add emission. The opaque
+result exposes no PHI token, raw predecessor vector, route-local writer, or
+second SSA owner. P1R must next consume this Header current; PHI patching,
+After publication, DraftSeal, backend activation, retry, and fallback remain
+closed.
+
 ## 原則（SSOT / Box-First）
 
 - **状態は Context が SSOT**: `MirBuilder` の状態は Context（箱）に分割され、二重管理をしない。

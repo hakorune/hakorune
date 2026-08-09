@@ -25,3 +25,9 @@ at the moment the block was sealed.
 SSA-I1-T has exactly one production consumer in the admitted trivial
 whole-owner lowerer. Loop and non-admitted canonical owners remain outside
 this connection.
+
+Dynamic Loop P2A adds one migration-private caller-zero consumer. The one
+canonical function session allocates distinct Enter, Header, body,
+terminal-Backedge, and After roles and emits only the Enter-to-Header edge.
+It does not expose a raw predecessor list or authorize PHI patching; P2B must
+later complete the actual Backedge and seal Header through this same owner.

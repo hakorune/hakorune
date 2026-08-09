@@ -1,6 +1,6 @@
 ---
 Status: SSOT mirror
-Date: 2026-08-09
+Date: 2026-08-10
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -26,11 +26,11 @@ CURRENT_STATE.toml
 Current mode is `fast`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, and a bounded
 one-iteration operation/rebind P1 canary are closed for the unmodified
-production `skip_while/4` source. The PHI temporal-order correction is
-accepted. The next compiler-side row is:
+production `skip_while/4` source. The PHI temporal-order correction and P2A
+Header-current opening are closed. The next compiler-side row is:
 
 ```text
-DYNAMIC-LOOP-PHI-OPEN-P2A
+DYNAMIC-LOOP-HEADER-REBIND-P1R
 ```
 
 The previous post-P1-only PHI plan is rejected: landed P1 currently emits
@@ -44,13 +44,14 @@ P2A Header read / provisional PHI
 -> whole-session discard canary
 ```
 
-R0 now retains and co-seals the exact local declaration/materialization
-relation with the existing entry ValueId and Dynamic origin. P2A consumes it
-inside one canonical function session, creates only the bounded physical
-placement through canonical CFG, adopts the existing local value as Enter,
-and reads the unsealed Header to obtain its provisional-PHI current. Compare
-and Add remain closed until P1R. Raw incoming vectors, route-local PHI writers,
-backend activation, retry/fallback, and source rewrites remain closed. The
+P2A consumes the R0 exact Enter relation inside one canonical function
+session, creates the bounded physical placement through canonical CFG, adopts
+the existing local value as Enter, and reads the unsealed Header to obtain its
+provisional-PHI current before any Compare/Add. P1R must now consume that
+opaque Header current for Compare/Add and issue one source-backed Dynamic
+Backedge receipt. PHI patching and After remain closed until P2B. Raw incoming
+vectors, route-local PHI writers, backend activation, retry/fallback, and
+source rewrites remain closed. The
 parser H2-S2-S1-R1 worktree is preserved and must not be mixed into this
 compiler-side slice.
 

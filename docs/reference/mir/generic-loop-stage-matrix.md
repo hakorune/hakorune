@@ -1750,3 +1750,21 @@ canonical unsealed Header read / provisional PHI
 `CanonicalSsaFunctionSessionV2` remains the sole CFG/Binding SSA/PhiTxn owner.
 No source narrowing or annotation is permitted to avoid this compiler-side
 temporal correction.
+
+## Dynamic Loop Header-current P2A receipt (2026-08-10)
+
+The unmodified production `ParserScanLoopBox.skip_while/4` source now opens
+one migration-private canonical function session and consumes the exact Enter
+definition handoff. Canonical identity adopts the already-emitted local value
+through its resolver declaration site; canonical CFG alone allocates the
+bounded Enter/Header/body/terminal-Backedge/After placement. The first read of
+the unsealed Header produces the sole provisional PHI before any Compare/Add.
+
+The acceptance path was widened in the compiler, not in `.hako`: function
+completion can seal an exact uniform set of explicit return sites for session
+admission, and the outer If ledger can close empty only when every exact If is
+proven inside the selected exact Loop. Multiple-return DraftSeal completion is
+still closed with an explicit fail-fast boundary. The P2A receipt exposes no
+PHI token, raw predecessor list, route-local writer, Compare/Add, PHI patch,
+After value, retry/fallback, backend, or production authority. P1R is the next
+row and must emit Compare/Add from the opaque canonical Header current.

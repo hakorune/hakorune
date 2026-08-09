@@ -38,3 +38,10 @@ SSA-I1-T connects the adapter to one admitted trivial whole-function route.
 That route has exactly one `BindingSsaBuilderV1`; no old-map synchronization
 bridge is allowed. Non-admitted current canonical owners remain a separately
 selected whole-unit A+ route and never retry after a Binding-SSA failure.
+
+Dynamic Loop P2A exercises the same temporal rule in a migration-private
+caller-zero session: after exact Enter declaration adoption, the first read of
+the unsealed Header creates the sole provisional PHI before Compare/Add. The
+opaque P2A receipt does not expose the PHI lifecycle token or become a second
+reaching-value owner. P1R consumes the Header current; P2B alone may later
+seal and patch it from canonical predecessor truth.

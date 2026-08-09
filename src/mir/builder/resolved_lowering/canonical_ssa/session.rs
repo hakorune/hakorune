@@ -172,6 +172,10 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         self.implicit_completion
     }
 
+    pub(in crate::mir::builder::resolved_lowering) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
     pub(in crate::mir::builder::resolved_lowering) fn finish_for_draft_seal(
         self,
         builder: &mut MirBuilder,

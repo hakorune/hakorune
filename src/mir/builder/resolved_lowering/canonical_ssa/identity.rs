@@ -86,6 +86,31 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         Ok(binding)
     }
 
+    /// Publish an existing local value through an exact resolver-issued
+    /// declaration relation. No caller-supplied name or binding kind is used.
+    pub(in crate::mir::builder::resolved_lowering) fn publish_declaration_exact(
+        &mut self,
+        site: &SourceBindingSiteV1,
+        expected_binding: BindingRefV1,
+        block: BasicBlockId,
+        value: ValueId,
+    ) -> Result<BindingRefV1, String> {
+        let binding = self
+            .ledger
+            .adopt_declaration_exact(site, expected_binding)?;
+        self.ssa
+            .define(binding, block, value)
+            .map_err(|error| error.to_string())?;
+        if !self.active.insert(binding) {
+            return Err(format!(
+                "[freeze:contract][canonical_binding_ssa/duplicate_active] binding={binding:?}"
+            ));
+        }
+        self.ledger.mark_declaration(site)?;
+        self.initialized.insert(binding);
+        Ok(binding)
+    }
+
     /// Activate a declaration whose first reaching value is issued later by
     /// an exact assignment claim. This seam never calls the SSA builder and
     /// therefore cannot allocate a value or provisional PHI.

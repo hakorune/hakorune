@@ -93,6 +93,34 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         Ok(binding)
     }
 
+    /// Adopt one declaration through an already sealed exact source relation.
+    ///
+    /// Unlike the legacy name/kind entry, this boundary never asks a physical
+    /// adapter to repeat resolver-owned record fields. The declaration site is
+    /// still required, so a raw `(BindingRef, ValueId)` pair cannot enter the
+    /// canonical identity owner.
+    pub(in crate::mir::builder::resolved_lowering) fn adopt_declaration_exact(
+        &mut self,
+        site: &SourceBindingSiteV1,
+        expected_binding: BindingRefV1,
+    ) -> Result<BindingRefV1, String> {
+        let binding = self.product.declaration_binding(site).ok_or_else(|| {
+            format!("[freeze:contract][canonical_identity/declaration_missing] site={site:?}")
+        })?;
+        if binding != expected_binding {
+            return Err(format!(
+                "[freeze:contract][canonical_identity/declaration_binding_mismatch] site={site:?} expected={expected_binding:?} actual={binding:?}"
+            ));
+        }
+        if self.product.binding(binding).is_none() {
+            return Err(format!(
+                "[freeze:contract][canonical_identity/foreign_binding] binding={binding:?}"
+            ));
+        }
+        self.adoption.adopt(binding)?;
+        Ok(binding)
+    }
+
     pub(in crate::mir::builder::resolved_lowering) fn mark_declaration(
         &mut self,
         site: &SourceBindingSiteV1,
