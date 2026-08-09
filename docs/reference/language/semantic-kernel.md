@@ -10,6 +10,7 @@ Related:
 
 - `docs/reference/language/semantic-contract-charter.md`
 - `docs/reference/language/function-exit-and-entry-result.md`
+- `docs/reference/language/dynamic-invocation.md`
 - `docs/reference/language/EBNF.md`
 - `docs/reference/language/scope-exit-semantics.md`
 - `docs/development/current/main/workstreams/language-v1-convergence-current.md`
@@ -29,6 +30,12 @@ Fault(reason)
 
 `Fault` is an unrecoverable canonical semantic outcome. It is not absence or
 recoverable failure and no `catch` operation handles it.
+
+An ordinary Dynamic invocation yields either
+`Normal(SelfContainedDynamicCarrier)` or `Fault`. Its callable-bounded Return
+does not escape as a caller Return, and failure is never converted to Unit,
+Option, or Result. The complete boundary is fixed by
+`dynamic-invocation.md`.
 
 `Result::Err(E)` and `Option::None` are ordinary enum values, not Outcomes.
 Typed Result-only postfix `?` may turn an `Err(E)` value into the enclosing

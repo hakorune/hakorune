@@ -17,6 +17,8 @@ Related authorities:
 - `scope-exit-semantics.md`: lexical cleanup and exit ordering;
 - `lifecycle.md`: non-callable `fini {}` hook, terminal Home DropPlan, weak
   references, and reclamation;
+- `dynamic-invocation.md`: the uniform borrowed-input and self-contained
+  result-carrier boundary for ordinary Dynamic invocation;
 - `../../development/current/main/design/ownership-home-model-ssot.md`:
   cross-layer compiler authority;
 - `../../development/current/main/design/box-member-field-method-surface-ssot.md`:
@@ -120,6 +122,12 @@ print(a.value) // 10
 `b` does not add an owner or perform RC bookkeeping. Handles are mutable and
 non-exclusive; the optimizer must assume that `a` and `b` can alias. A handle
 cannot escape beyond the Home that supports it.
+
+Dynamic invocation does not change this rule based on a runtime tag. Its
+receiver and arguments are borrowed without escape for the exact invocation,
+and a normal result is one self-contained Dynamic carrier published to the
+caller. The selector-independent contract and failure boundary are defined in
+`dynamic-invocation.md`.
 
 ### Value capability is separate
 

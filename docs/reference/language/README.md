@@ -29,6 +29,8 @@ Current canonical surface:
   and [object-storage-plan-boundary-ssot.md](../../development/current/main/design/object-storage-plan-boundary-ssot.md)
 - Option / Result enum prelude: [option.md](option.md)
 - Failure/Outcome relations: [failure-outcome-relations.md](failure-outcome-relations.md)
+- Selector-independent Dynamic invocation contract:
+  [dynamic-invocation.md](dynamic-invocation.md)
 - Rune declaration metadata: [runes.md](runes.md)
 - Declared whole-call query contracts: [callable-contracts.md](callable-contracts.md)
 - Build conditional `gate`: [build-conditional-gate.md](build-conditional-gate.md)

@@ -133,6 +133,23 @@ Homes are released. The first Fault in time remains primary; later cleanup or
 terminal-finalization Faults are suppressed diagnostics while teardown
 continues best effort. `Result::Err` never becomes a cleanup Fault implicitly.
 
+## Dynamic Invocation
+
+An exact source-bound Dynamic member invocation has only these caller-visible
+outcomes:
+
+```text
+Normal(SelfContainedDynamicCarrier)
+Fault(fault_record)
+```
+
+Missing or ambiguous dispatch, unavailable provider/image, malformed
+arguments/results, and execution failure are terminal Faults. They do not
+publish a result and are not repaired by another route, arity, provider, or
+legacy writer. Earlier observable effects are not rolled back. See
+`dynamic-invocation.md` for the complete selector-independent effect,
+suspension, and Home contract.
+
 ## Uninitialized Locals
 
 An uninitialized local is a slot state, not an implicit `Unit`, `None`, or

@@ -23,6 +23,12 @@ Coercion SSOT status:
 - `local` declares a variable; **re-assignment is allowed** (single keyword policy).
 - There is currently no static type checker. Some parts of MIR carry **type facts** as metadata for optimization / routing, not for semantics.
 
+An ordinary call through an exact resolver-proven Dynamic receiver uses the
+single selector-independent contract in
+[`dynamic-invocation.md`](dynamic-invocation.md). Runtime tags may select
+physical storage/drop mechanics, but they do not choose effect, Fault,
+suspension, or Home meaning.
+
 ### Language v1 annotation guarantee matrix
 
 Decision: accepted.
