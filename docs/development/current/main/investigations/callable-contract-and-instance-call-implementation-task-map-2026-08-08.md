@@ -18,6 +18,7 @@ cloneable ordered Box method inventory
   -> sealed declared callable catalog
   -> parser-owned one-shot body-source transaction
   -> general AST-free instance-method body-source catalog
+  -> aggregate-owned selected Query view
   -> declared Query body-source projection
   -> exact resolved-function owner binding
   -> body facts
@@ -146,6 +147,37 @@ Pure owns: no receiver/heap/global read
 physical verifier owns: MIR representation and target ABI
 ```
 
+The body-source correction is now explicit in the task order:
+
+```text
+general body source
+  = all supported direct instance-method declarations
+  = parser provenance + exact SourceBoxMethodSite coverage
+
+selected Query view
+  = aggregate-owned borrowed relation
+  = declaration + Home ABI + Query behavior already co-sealed
+
+Query body projection
+  = sparse, source-ordered subset of the general catalog
+  = no Query re-selection, no semantic receipt copies
+```
+
+The projection must compare both identity axes: parser provenance proves that
+the body envelope and declared catalog came from one parser transaction;
+resolver brand proves that all semantic rows belong to one resolver catalog
+allocation. The parser envelope never accepts a caller-supplied resolver
+brand. A valid non-Query body row is unselected, while a foreign/duplicate/
+missing body identity is rejected before projection can hide it. Empty body
+coverage is valid at the source layer and is not a body-conformance claim.
+
+The aggregate owner must expose a borrow-scoped `selected_contracts()`-style
+view (or an equivalent single read-only API). The Query projection may not
+join `declarations()`, `home_abis()`, and `query_behaviors()` itself, inspect
+raw rune strings, or use vector positions/inventory ordinals as identity. If
+that view cannot be supplied without a second selection authority, the row is
+`NoSafeSlice` and implementation stops.
+
 Declaration and conformance are separate. An annotation declares an
 obligation; it does not prove the body. Production publication requires both.
 
@@ -189,6 +221,15 @@ These rows are deliberately placed before resolver target implementation and
 do not change the active R6 implementation lane:
 
 ```text
+CALLABLE-QUERY-BODY-SELECTION-D0/I0
+  general body source is already closed; add only the aggregate-owned
+  selected Query view and the sparse AST-free projection. Co-seal parser
+  provenance/resolver brand, preserve SourceBoxMethodSite, keep empty bodies
+  valid, reject foreign/duplicate/missing rows, and update the focused
+  reference/README/current mirrors in the same implementation commit. Do not
+  open FunctionOwner, body Facts, conformance, target, Recipe, Builder/MIR, or
+  production selection.
+
 R6-S3-PARSER-SOURCE-SEAL-D0
   final rich parse product and one non-Clone seal issuer
   build-gate prune/rebase + delegate postpass transport
@@ -425,6 +466,7 @@ CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0 (parked behind body facts)
   Lower/publication consumes only VerifiedConformantCallableCatalogV1.
   Prerequisites:
   `CALLABLE-BODY-SOURCE-AUTHORITY-D0/I0`,
+  `CALLABLE-QUERY-BODY-SELECTION-D0/I0`,
   `CALLABLE-BODY-OWNER-BINDING-D0/I0`, and
   `CALLABLE-BODY-FACTS-QUERY-D0/I0`.
 
@@ -788,8 +830,9 @@ Rejected > Unresolved > Declined > Candidate
       exactly once from the rich parse product;
     - decompose it into declaration handoff plus body envelope only through a
       consuming `into_parts` boundary;
-    - retain the complete branded `SourceBoxMethodSiteV1` tuple and checked
-      parser provenance; never use a bare ordinal/name/inventory placement;
+    - retain the parser-issued source site through the resolver-normalized
+      branded `ResolverBoxMethodSourceSiteV1` plus checked parser provenance;
+      never use a bare ordinal/name/inventory placement;
     - issue a general body-source catalog for every supported direct instance
       declaration; require one exact row per declaration, with no Query/Home
       or behavior inference;
@@ -810,8 +853,13 @@ Rejected > Unresolved > Declined > Candidate
       create no default row for non-Query methods;
     - never rebuild Query selection from rune syntax, names, ordinals, or
       vector positions;
-    - task:
-      `docs/development/current/main/investigations/own-home-callable-query-body-selection-d0-design-task-2026-08-09.md`.
+    - D0 task:
+      `docs/development/current/main/investigations/own-home-callable-query-body-selection-d0-design-task-2026-08-09.md`;
+    - parked I0 task:
+      `docs/development/current/main/investigations/own-home-callable-query-body-selection-i0-implementation-task-2026-08-09.md`;
+    - I0 may open only after the aggregate exposes one borrowed
+      `selected_contracts()`-style view; it must compare parser provenance and
+      resolver brand without copying/reissuing Home or Query receipts.
 18. `CALLABLE-BODY-OWNER-BINDING-D0/I0`
     - co-seal the AST-free body-source catalog with the exact
       `VerifiedResolvedFunctionV1` and declaration/catalog identity;

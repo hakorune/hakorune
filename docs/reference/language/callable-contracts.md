@@ -189,9 +189,13 @@ parser rich transaction
 The transaction is non-`Clone` and is the only legal pairing authority. The
 body envelope owns normalized body-root/item-path DTOs plus a checked parser
 invocation provenance token; its one-shot syntax callback cannot return an AST
-or syntax pointer. A complete branded `SourceBoxMethodSiteV1` tuple is the
-only source identity. A bare member ordinal, selected/generated inventory
-ordinal, method name, or map order is not identity. The general body issuer
+or syntax pointer. For the bounded direct cohort, the parser source site is
+normalized at the resolver boundary to a branded
+`ResolverBoxMethodSourceSiteV1` (Box statement ordinal plus direct member
+ordinal) and is never treated as a bare ordinal. A selected/generated
+inventory ordinal, method name, or map order is not identity. Selected-gate
+paths and generated/delegate origins require a later source-seal decision and
+are not claimed by this cohort. The general body issuer
 validates one row per supported direct declaration without inspecting Query
 behavior. A separate Query projection borrows the already selected aggregate
 view, preserves sparse source order, requires one row per selected Query

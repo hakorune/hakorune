@@ -165,12 +165,18 @@ AST pointer.
 
 ### Branded source identity and provenance
 
-The only source-site comparison allowed for a direct method is the complete
-branded `SourceBoxMethodSiteV1` tuple (Box statement ordinal, direct member
-ordinal, and any selected-gate path carried by the site). A bare integer,
-method name, selected/generated inventory ordinal, or name-sorted map is not a
-source identity. The direct member ordinal inside a branded source-site tuple
-is allowed; using that integer alone is forbidden.
+For the bounded direct cohort, the parser-issued source site is normalized at
+the resolver boundary to `ResolverBoxMethodSourceSiteV1` (Box statement
+ordinal plus direct member ordinal) and remains branded by the parser
+provenance and resolver catalog. This is a resolver-normalized source site,
+not a bare ordinal. A method name, selected/generated inventory ordinal, or
+name-sorted map is not a source identity. The direct member ordinal inside the
+branded site is allowed; using that integer alone is forbidden.
+
+Selected build-gate paths or generated/delegate origins are outside this I0.
+If they must become source identity in a later cohort, a separate parser
+source-seal decision must add and validate that path receipt; this row must not
+silently claim it.
 
 The parser body envelope and the resolver body-source catalog must retain a
 checked parser-invocation provenance token (or an issuer-issued comparison

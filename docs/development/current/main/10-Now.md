@@ -34,6 +34,17 @@ body-source I0 is also closed. The current design row is:
 CALLABLE-QUERY-BODY-SELECTION-D0
 ```
 
+This design stop has one explicit implementation boundary: the declared
+contract aggregate must expose one borrowed selected-Query view. The
+projection then checks both parser provenance and resolver brand, preserves
+sparse source order, and emits no default non-Query body row. No body owner,
+facts, conformance, target, Recipe/CallSlot, Builder/MIR, or production work
+is open.
+
+The parked implementation card is
+`own-home-callable-query-body-selection-i0-implementation-task-2026-08-09.md`;
+it is not an execution pointer until this D0 is accepted.
+
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
 primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,
