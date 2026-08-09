@@ -1,5 +1,5 @@
 ---
-Status: accepted design stop — implementation not open
+Status: accepted revised design stop — implementation not open
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -118,6 +118,89 @@ with explicit direct instance methods. Selected-gate, Hako, interface, static,
 record, mixed, generated, and compatibility rows remain `NoSafeSlice` until a
 separate source-path decision supplies their exact body coordinates.
 
+## Top-down audit corrections (2026-08-09)
+
+The body-source design is accepted only with the following five boundaries
+closed. These are design contracts, not permission to start I0.
+
+### One-shot parser transaction
+
+The declaration handoff and body rows must be decomposed exactly once from the
+same rich parse product. The parser-private transaction is the only pairing
+authority:
+
+```text
+ParserResolverBodyTransactionV1  (non-Clone, parser-private)
+  owns rich AST, source seal, parser invocation brand, and body rows
+        |
+        +-- into_parts(self)
+              -> ParserBoxResolverSourceHandoffV1
+              -> ParserBoxBodySourceEnvelopeV1
+```
+
+`into_parts` is a consuming operation that returns the two AST-free parts of
+one branded transaction; it never returns the AST. The handoff and envelope
+may be passed to their separate issuers only after the issuer verifies the
+same parser provenance and complete source-site coverage; swapping parts from
+different transactions is `Rejected`. The existing declaration-only parser API
+remains a projection for declaration consumers, but the body path may not
+rescan or reconstruct its input from that projection. The body envelope owns
+only normalized AST-free body DTOs after decomposition; its one-shot callback
+must complete before the envelope is dropped and may not return syntax or an
+AST pointer.
+
+### Branded source identity and provenance
+
+The only source-site comparison allowed for a direct method is the complete
+branded `SourceBoxMethodSiteV1` tuple (Box statement ordinal, direct member
+ordinal, and any selected-gate path carried by the site). A bare integer,
+method name, selected/generated inventory ordinal, or name-sorted map is not a
+source identity. The direct member ordinal inside a branded source-site tuple
+is allowed; using that integer alone is forbidden.
+
+The parser body envelope and the resolver body-source catalog must retain a
+checked parser-invocation provenance token (or an issuer-issued comparison
+receipt). `same resolver brand` alone is insufficient to detect a foreign
+parser transaction. Resolver comparison is performed through a sealed
+`same_as`/co-seal API; callers cannot forge or reinterpret the token.
+
+### Selected identity and cardinality
+
+The body envelope may carry all rows in the bounded direct cohort, but the
+resolver body-source issuer selects the exact Query subset from the borrowed
+`VerifiedDeclaredInstanceMethodContractCatalogV1`. It must require exactly
+one body row for each selected declaration identity, reject duplicate/missing
+rows, and leave non-Query declarations without a default body row. The
+selected identity is the full same-brand declaration/site tuple, never an
+inventory placement ordinal.
+
+### Function-owner boundary
+
+`CALLABLE-BODY-SOURCE-AUTHORITY-I0` issues only AST-free source/body identity
+and ordered coverage. Before any body facts that need lexical/control facts,
+open the explicit:
+
+```text
+CALLABLE-BODY-OWNER-BINDING-D0/I0
+  VerifiedInstanceMethodBodySourceCatalogV1
+  + VerifiedResolvedFunctionV1
+  + declaration/catalog identity
+  -> one branded body-owner link
+```
+
+`FunctionSemanticResolverSessionV1` remains the sole issuer of
+`FunctionOwnerIdV1`. Equal owner numbers, source ordinals, names, or
+compilation brands never establish the link.
+
+### Source-module split boundary
+
+Body fields must not be appended to `source_seal.rs`, `source_authority.rs`, or
+`parser/mod.rs`. The I0 row owns dedicated parser body-envelope/row modules
+and one dedicated resolver body-source module. The existing files receive
+only minimal module wiring. If wiring would cross the 760-line split trigger,
+stop and split before implementation; do not hide the growth in a private
+helper.
+
 ## Function-owner binding is a later boundary
 
 `FunctionSemanticResolverSessionV1` is the sole issuer of
@@ -208,7 +291,7 @@ Non-Query declarations may remain outside the selected Query cohort. They
 must not receive a default body row. A body row for a method without a
 declared contract is outside this first conformance product.
 
-## Disposition
+## Disposition and precedence
 
 ```text
 NoSafeSlice:
@@ -231,6 +314,20 @@ Rejected:
 
 `NoSafeSlice` is development state only. It must not be encoded as an empty
 `VerifiedCallableBodyFactsCatalogV1` or reported as a language disposition.
+
+The precedence is fixed:
+
+```text
+unsupported source cohort / missing issuer -> NoSafeSlice
+foreign or contradictory identity         -> Rejected
+incomplete facts with intact identity     -> Unresolved
+fully observed body outside Query cohort  -> Declined
+complete bounded source + facts            -> Candidate
+```
+
+Thus `selected/generated/Hako/interface/static` is `NoSafeSlice` in this row,
+while a body that is fully observed by a future issuer but is outside the
+bounded Query meaning is `Declined`. The two outcomes must not be conflated.
 
 ## Nonclaims and stop lines
 
@@ -258,7 +355,9 @@ performs no semantic re-check.
 1. CALLABLE-BODY-SOURCE-AUTHORITY-D0
    source authority census, exact identity tuple, body-root/order contract,
    parser body envelope, resolver borrow boundary, owner-link stop line, and
-   fail-fast matrix (this row)
+   fail-fast matrix, one-shot transaction decomposition, provenance bridge,
+   selected identity/cardinality, owner-binding insertion, and module split
+   boundary (this row)
 
 2. CALLABLE-BODY-SOURCE-AUTHORITY-I0
    one bounded `length(): i64` instance-method body source capability;
@@ -266,17 +365,21 @@ performs no semantic re-check.
    `NoSafeSlice` until the parser body envelope and its one-shot callback are
    implemented; do not add a test-only constructor.
 
-3. CALLABLE-BODY-FACTS-QUERY-D0
+3. CALLABLE-BODY-OWNER-BINDING-D0/I0
+   co-seal the AST-free body source with the exact resolved function product;
+   no body facts yet
+
+4. CALLABLE-BODY-FACTS-QUERY-D0
    exact receiver-read/return observation and body-facts owner
 
-4. CALLABLE-BODY-FACTS-QUERY-I0
+5. CALLABLE-BODY-FACTS-QUERY-I0
    positive/negative body facts for the bounded fixture; no contract co-seal
 
-5. CALLABLE-CONFORMANCE-CATALOG-D0/I0
+6. CALLABLE-CONFORMANCE-CATALOG-D0/I0
    complete same-brand declared-contract + body-facts co-seal;
    issue `VerifiedConformantCallableCatalogV1`
 
-6. only after 5:
+7. only after 6:
    resolver target -> source-bound relation -> Recipe CallSlot
 ```
 

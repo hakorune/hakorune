@@ -176,18 +176,30 @@ The body source path is intentionally separate from the declaration handoff:
 
 ```text
 parser rich transaction
-  -> private one-shot ParserBoxBodySourceEnvelopeV1
+  -> one-shot ParserResolverBodyTransactionV1
+  -> consuming into_parts()
+       ParserBoxResolverSourceHandoffV1
+       ParserBoxBodySourceEnvelopeV1
   -> AST-free VerifiedInstanceMethodBodySourceCatalogV1
   -> private body observer / body facts
   -> conformance Verify product
 ```
 
-The envelope is the only legal pairing of body syntax with the existing
-AST-free declaration handoff. It is bounded to ordinary direct Rust Box
-methods in the first cohort, does not mint `FunctionOwnerIdV1`, and does not
-consume the declared Home/Query aggregate. Missing body carrier or a missing
+The transaction is non-`Clone` and is the only legal pairing authority. The
+body envelope owns normalized body-root/item-path DTOs plus a checked parser
+invocation provenance token; its one-shot syntax callback cannot return an AST
+or syntax pointer. A complete branded `SourceBoxMethodSiteV1` tuple is the
+only source identity. A bare member ordinal, selected/generated inventory
+ordinal, method name, or map order is not identity. The resolver body issuer
+selects exactly the declared Query subset from the borrowed aggregate and
+requires one row per selected declaration; non-Query declarations receive no
+default body row. It is bounded to ordinary direct Rust Box methods in the
+first cohort, does not mint `FunctionOwnerIdV1`, and does not consume the
+declared Home/Query aggregate. Missing body carrier or a missing
 declaration/body owner link is development `NoSafeSlice`, never an empty
-verified body product.
+verified body product. The explicit owner-binding D0/I0 must co-seal the
+body source with `VerifiedResolvedFunctionV1` before body facts can use
+lexical/control facts.
 
 ## Receiver Home rule
 
@@ -284,10 +296,12 @@ ordered Box-method inventory + parser-owned source seal
   -> VerifiedHomeAbi
   -> declared Query behavior and atomic declared catalog
   -> old body-inferred instance-result authority retirement
+  -> one-shot body-source transaction and AST-free body catalog
+  -> exact resolved-function owner binding
+  -> body facts and complete body conformance set
+  -> publishable callable catalog
   -> reusable resolver target
   -> exact source-bound call relation / CallSlot
-  -> complete body conformance set
-  -> publishable callable catalog
   -> physical ABI projection
   -> production activation
 ```

@@ -16,11 +16,15 @@ cloneable ordered Box method inventory
   -> typed declared Query behavior
   + same-declaration VerifiedHomeAbi (sole Home authority)
   -> sealed declared callable catalog
+  -> parser-owned one-shot body-source transaction
+  -> AST-free instance-method body-source catalog
+  -> exact resolved-function owner binding
+  -> body facts
+  -> complete body conformance set
+  -> publishable callable catalog
   -> reusable instance target
   -> exact source-bound call relation
   -> Recipe CallSlot
-  -> complete body conformance set
-  -> publishable callable catalog
   -> physical ABI projection
   -> Lower
 
@@ -386,25 +390,20 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current design stop:
+Current design stop (top-down audit synchronized 2026-08-09):
 
 ```text
 CALLABLE-BODY-SOURCE-AUTHORITY-D0
   define the missing parser/resolver body-source authority that binds an
-  instance-method body to the exact declaration/Query/Home identity. The
-  current parser handoff is intentionally AST-free and does not carry a body;
-  no body conformance, target, Recipe/CallSlot, Builder/MIR, or production
-  work is open.
+  instance-method body to the exact declaration/Query/Home identity. Close
+  the one-shot parser transaction decomposition, parser-provenance bridge,
+  selected Query identity/cardinality, dedicated module split, and the later
+  FunctionOwner-binding stop. The current parser handoff is intentionally
+  AST-free and does not carry a body; no body conformance, target,
+  Recipe/CallSlot, Builder/MIR, or production work is open.
   Task:
   `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 ```
-
-CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
-  complete same-brand declared-contract + body-conformance set
-  Lower/publication consumes only VerifiedConformantCallableCatalogV1
-  Prerequisite:
-  `CALLABLE-BODY-SOURCE-AUTHORITY-D0/I0` and
-  `CALLABLE-BODY-FACTS-QUERY-D0/I0`
 
 CALLABLE-BODY-SOURCE-AUTHORITY-I0 (parked behind D0)
   issue only the AST-free, non-Clone body-source capability for one ordinary
@@ -413,6 +412,23 @@ CALLABLE-BODY-SOURCE-AUTHORITY-I0 (parked behind D0)
   body facts, conformance, target, Recipe/CallSlot, Builder/MIR, or fallback.
   Task:
   `docs/development/current/main/investigations/own-home-callable-body-source-i0-implementation-task-2026-08-09.md`
+
+CALLABLE-BODY-OWNER-BINDING-D0/I0 (parked behind body-source I0)
+  co-seal the body-source catalog with the exact resolved function product and
+  declaration/catalog identity; `FunctionSemanticResolverSessionV1` remains
+  the sole FunctionOwner issuer. No body facts or conformance.
+
+CALLABLE-BODY-FACTS-QUERY-D0/I0 (parked behind owner binding)
+  observe only the bounded receiver-read/return body through the branded
+  owner link; no public contract re-inference, target, Recipe, or MIR.
+
+CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0 (parked behind body facts)
+  complete same-brand declared-contract + body-conformance set
+  Lower/publication consumes only VerifiedConformantCallableCatalogV1.
+  Prerequisites:
+  `CALLABLE-BODY-SOURCE-AUTHORITY-D0/I0`,
+  `CALLABLE-BODY-OWNER-BINDING-D0/I0`, and
+  `CALLABLE-BODY-FACTS-QUERY-D0/I0`.
 
 CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection
@@ -767,9 +783,52 @@ Rejected > Unresolved > Declined > Candidate
     - next design stop:
       `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`.
 
-### D. Target and source-bound logical call
+### D. Body source, owner binding, and conformance
 
-16. `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`
+16. `CALLABLE-BODY-SOURCE-AUTHORITY-D0/I0`
+    - issue the parser-private non-Clone `ParserResolverBodyTransactionV1`
+      exactly once from the rich parse product;
+    - decompose it into declaration handoff plus body envelope only through a
+      consuming `into_parts` boundary;
+    - retain the complete branded `SourceBoxMethodSiteV1` tuple and checked
+      parser provenance; never use a bare ordinal/name/inventory placement;
+    - select the exact declared Query subset and require one body row per
+      selected declaration, with no default row for non-Query methods;
+    - keep unsupported cohorts at `NoSafeSlice`, and keep the body source
+      catalog AST-free/non-Clone; no FunctionOwner, facts, target, Recipe, or
+      MIR;
+    - dedicated parser/resolver modules only; do not grow `source_seal.rs`,
+      `source_authority.rs`, or `parser/mod.rs` across the 760-line trigger;
+    - design:
+      `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`;
+    - implementation (parked):
+      `docs/development/current/main/investigations/own-home-callable-body-source-i0-implementation-task-2026-08-09.md`.
+17. `CALLABLE-BODY-OWNER-BINDING-D0/I0`
+    - co-seal the AST-free body-source catalog with the exact
+      `VerifiedResolvedFunctionV1` and declaration/catalog identity;
+    - `FunctionSemanticResolverSessionV1` remains the sole FunctionOwner
+      issuer; equal numbers, names, ordinals, or compilation brands are not
+      enough;
+    - no body facts or conformance in this row.
+18. `CALLABLE-BODY-FACTS-QUERY-D0/I0`
+    - observe the bounded receiver-read/return body through the branded
+      body-owner link;
+    - issue source-derived facts only; no replacement Query/Home/signature,
+      target, Recipe, or MIR meaning.
+19. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
+    - verify direct receiver-read footprint, no writes/Home escape/allocation/
+      IO/FFI/failure escape/suspension/non-local control;
+    - publish one complete same-brand conformance set;
+    - never infer a replacement public contract from the body.
+20. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
+    - co-seal the declared catalog with exactly one accepted conformance per
+      body-bearing declaration;
+    - reject missing, duplicate, foreign, or rejected conformance;
+    - issue one publishable catalog; publication performs no semantic recheck.
+
+### E. Target and source-bound logical call
+
+21. `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`
     - delete the caller-zero body-inferred result/target/rebind/preloop family
       before adding the new declaration-first target;
     - preserve only general `source_call_target` source-site primitives and
@@ -777,36 +836,26 @@ Rejected > Unresolved > Declined > Candidate
     - require non-test caller zero and same-slice module/README/ledger guard.
     - Task:
       `docs/development/current/main/investigations/source-instance-result-contract-retire0-r0-task-2026-08-09.md`
-17. `LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0`
+22. `LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0`
     - catalog-owned reusable opaque target reference;
     - existing FreeStatic index unchanged;
     - no call-site or Recipe facts.
-18. `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0/I0`
+23. `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0/I0`
     - exact caller/receiver/argument/result sites and exact target;
     - caller-zero logical product;
     - no Builder or physical call.
-19. `LOOP-RECIPE-CALLSLOT-COSEAL-I0`
+24. `LOOP-RECIPE-CALLSLOT-COSEAL-I0`
     - deterministic source relation to existing typed Recipe `CallSlot`;
     - full source evidence and verifier coverage;
     - no provider selection or fallback.
 
-### E. Body conformance and activation
+### F. Physical ABI and activation
 
-20. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
-    - verify direct receiver-read footprint, no writes/Home escape/allocation/
-      IO/FFI/failure escape/suspension/non-local control;
-    - publish one complete same-brand conformance set;
-    - never infer a replacement public contract from the body.
-21. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
-    - co-seal the declared catalog with exactly one accepted conformance per
-      body-bearing declaration;
-    - reject missing, duplicate, foreign, or rejected conformance;
-    - issue one publishable catalog; publication performs no semantic recheck.
-22. `CALLABLE-PHYSICAL-ABI-PROJECTION-D0/I0`
+25. `CALLABLE-PHYSICAL-ABI-PROJECTION-D0/I0`
     - project semantic signature plus target capability one way into physical
       ABI and `FunctionSignature`;
     - no `MirType`/physical ABI reverse inference into resolver semantics.
-23. Named production activation
+26. Named production activation
     - one selected caller switches to the verified route;
     - delete that caller's old lookup/retry/fallback in the same commit.
 

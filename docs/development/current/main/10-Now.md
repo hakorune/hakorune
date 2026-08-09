@@ -48,8 +48,10 @@ Aggregate I0 implements only their same-brand/site/order relational co-seal;
 Home remains the declaration owner. Resolver targets, source-bound CallSlot
 relations, ScanWithInit, physical lowering, production selection, and legacy
 retirement remain closed. The current stop defines the missing
-parser/resolver body-source authority; body conformance must not pair by name,
-inventory ordinal, or MIR facts.
+parser/resolver body-source authority; the top-down audit additionally fixes
+the one-shot parser transaction/provenance bridge, selected Query
+cardinality, and the later FunctionOwner co-seal. Body conformance must not
+pair by name, inventory ordinal, or MIR facts.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No
@@ -69,7 +71,11 @@ cutover. The ordered path remains:
 ```text
 typed syntax carriage (closed)
 -> old instance-result/target retirement (closed bounded I0)
--> declaration / Home ABI / target / source-bound relation
+-> declaration / Home ABI / declared Query aggregate (closed)
+-> body-source transaction / AST-free body catalog (current D0/I0)
+-> body-owner co-seal
+-> body facts / conformance catalog
+-> target / source-bound relation / Recipe CallSlot
 -> S6C ScanWithInit
 -> M9 parity
 -> M10 semantic co-seal and transfer authority

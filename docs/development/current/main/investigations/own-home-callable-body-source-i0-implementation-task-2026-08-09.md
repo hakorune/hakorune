@@ -1,5 +1,5 @@
 ---
-Status: parked — opens only after `CALLABLE-BODY-SOURCE-AUTHORITY-D0` closes
+Status: parked — opens only after the revised `CALLABLE-BODY-SOURCE-AUTHORITY-D0` closes
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -48,11 +48,30 @@ AST-free. The body envelope is created by the same rich parse transaction and
 is the only pairing authority for body syntax plus that handoff. No caller
 may supply an AST, method name, inventory ordinal, or body index separately.
 
+The parser transaction shape is fixed before implementation:
+
+```text
+ParserResolverBodyTransactionV1 (non-Clone, parser-private)
+  -> into_parts(self)
+       ParserBoxResolverSourceHandoffV1
+       ParserBoxBodySourceEnvelopeV1
+```
+
+This is the only decomposition path. The body envelope contains normalized
+AST-free body-root/item-path DTOs and a checked parser-invocation provenance
+token. A one-shot callback may borrow private syntax only while the envelope
+is alive and may return coverage receipts, never syntax or an AST pointer.
+The direct source identity is the complete branded
+`SourceBoxMethodSiteV1` tuple; a bare member ordinal, method name, or selected
+inventory ordinal is rejected as an identity.
+
 The resolver issuer borrows the existing
 `VerifiedDeclaredInstanceMethodContractCatalogV1`; it must not consume,
 clone, or rebuild its Home/Query/declaration catalogs. The issued body-source
 catalog is non-`Clone`, AST-free, and contains only exact source/body
-identity and ordered coverage.
+identity, checked parser provenance, and ordered coverage. It selects the
+borrowed aggregate's exact Query declaration subset and requires one row per
+selected identity; non-Query rows receive no default body row.
 
 ## Acceptance
 
@@ -83,16 +102,28 @@ body observed outside direct cohort           -> Declined
 reusing or cloning one-shot envelope          -> Rejected/compile failure
 ```
 
+Precedence is fixed: unsupported cohort or missing issuer is `NoSafeSlice`;
+foreign/contradictory identity is `Rejected`; incomplete evidence with intact
+identity is `Unresolved`; only a fully observed body outside the bounded Query
+meaning is `Declined`.
+
 No empty/default verified body row is allowed. `FunctionOwnerIdV1` is not
 issued here; any body fact requiring resolved function-owner facts remains
-closed until `InstanceMethodBodyOwnerBindingIssuer` has its own D0.
+closed until the separate `CALLABLE-BODY-OWNER-BINDING-D0/I0` row co-seals
+`VerifiedInstanceMethodBodySourceCatalogV1` with the exact
+`VerifiedResolvedFunctionV1` product. Equal owner numbers, names, ordinals, or
+compilation brands do not establish that link.
 
 ## Required tests and guards
 
 * parser envelope is one-shot and cannot be cloned or reused;
 * body source and declaration handoff can only be paired through the combined
   envelope;
+* parser transaction decomposition occurs exactly once; no AST/body rescan or
+  independent handoff/body pairing is available;
 * exact direct method site/body root/order are retained;
+* parser provenance is compared through a sealed token/receipt, not a raw
+  number or name;
 * foreign/missing/duplicate/cardinality cases fail before semantic output;
 * body-source modules do not import `EffectMask`, `FunctionSignature`, MIR,
   Recipe, CallSlot, Builder, runtime, or provider modules;
@@ -116,6 +147,10 @@ The reference receipt must state that this is body-source identity only;
 `VerifiedCallableBodyFactsCatalogV1`, conformance, target, Recipe, and
 physical lowering remain zero.
 
+The next design row after this I0 is
+`CALLABLE-BODY-OWNER-BINDING-D0/I0`; body-facts Query observation cannot open
+until that owner relation is sealed.
+
 ## Explicit nonclaims
 
 ```text
@@ -135,4 +170,3 @@ runtime/provider dispatch
 fallback/retry
 module publication
 ```
-
