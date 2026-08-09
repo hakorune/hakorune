@@ -1,5 +1,5 @@
 ---
-Status: ready
+Status: implementation preserved; blocked by `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`

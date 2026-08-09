@@ -1,5 +1,5 @@
 ---
-Status: implementation in progress — semantic/unit slice landed in worktree
+Status: exact nominal Box sub-slice landed at `6c0f5450b6`; parser closeout remains blocked upstream
 Date: 2026-08-09
 Row: `GENERAL-STATIC-CALL-EXACT-BOX-RESULT-I1-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -141,3 +141,20 @@ Stop if the implementation needs MIR-body inspection, raw function names,
 source annotations, or a second publisher. The exact fact must originate from
 the existing source result solver and reach the existing selected physical
 publication edge.
+
+## Landed receipt and next observed blocker
+
+Commit `6c0f5450b6` added exact nominal Box representation to the existing
+result catalog/publication owner and passed its focused semantic, physical,
+build, and guard checks. The resumed parser R1 probe then failed earlier in
+`ParserScanLoopBox.skip_while/4`: the valid untyped formal `pos` reaches local
+`i`, while GenericLoop correctly refuses to treat missing representation
+authority as exact.
+
+This does not reopen the exact-Box implementation. Its end-to-end parser claim
+remains pending behind:
+
+```text
+docs/development/current/main/investigations/
+generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md
+```
