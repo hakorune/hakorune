@@ -232,6 +232,34 @@ forbidden.
 
 ## Ordered implementation tasks
 
+### Forward-order correction — 2026-08-10
+
+The historical Release/Take-preflight/Hako-carrier rows below remain evidence
+of the order already executed. They do not authorize Take activation directly.
+After the active Dynamic JoinSig lane yields this workstream, the mandatory
+forward order is:
+
+```text
+HOME-CONTEXTUAL-HTRIVIA-PARITY-R0
+  -> PARSER-DIRECT-METHOD-OBSERVATION-RECUT-R0
+  -> HAKO-PARAMETER-TRANSFER-TYPED-SEAL-D0
+  -> HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0
+  -> OWN-HOME-TAKE-DECL-SYNTAX-I0
+  -> OWN-HOME-SHARE-REPRESENTATION-D0
+  -> OWN-HOME-SHARE-EXPR-SYNTAX-I0
+```
+
+The reconciliation authority and exact task cards are:
+
+- `own-home-parser-cleanliness-reconciliation-2026-08-10.md`
+- `home-contextual-htrivia-parity-r0-task-2026-08-10.md`
+- `parser-direct-method-observation-recut-r0-task-2026-08-10.md`
+- `hako-parameter-transfer-typed-seal-d0-task-2026-08-10.md`
+- `hako-parameter-transfer-typed-seal-r0-task-2026-08-10.md`
+
+Nested Release source paths and Dynamic-local private slot indices are P2
+polish. They are not allowed to delay JoinSig, Take, or Share representation.
+
 ```text
 1. OWN-HOME-SYNTAX-D0
    accepted target; Release syntax/source is now live, semantics remain 0

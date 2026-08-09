@@ -19,6 +19,17 @@ Decision state:
   completion;
 - current row remains the row named by `CURRENT_STATE.toml`.
 
+Parser cleanliness forward-order correction (2026-08-10):
+
+- reconciliation authority:
+  `own-home-parser-cleanliness-reconciliation-2026-08-10.md`;
+- before Take/Share activation, close contextual HTRIVIA parity, recut the
+  direct-method parser observation transaction, then replace the Hako raw
+  parameter transfer tag/builder token with the accepted typed seal;
+- nested Release exact paths and Dynamic-local slot indices remain P2 polish;
+- this parked correction never overrides the active row in
+  `CURRENT_STATE.toml`.
+
 Authorities:
 
 - source semantics: `docs/reference/language/ownership.md`

@@ -150,6 +150,21 @@ silently reinterpret it.
 
 ## Ordered task ladder
 
+### Follow-up authority correction — 2026-08-10
+
+H2-S1 remains a closed historical receipt. It must not be reopened or described
+as if it had already proven Take. After H2-S2 and before H2-S3/H2-I0/Take, run:
+
+```text
+HAKO-PARAMETER-TRANSFER-TYPED-SEAL-D0
+  -> R0a closed opaque Ordinary/Take issuer
+  -> R0b parser-session/exact-method co-seal and sealed_token retirement
+```
+
+Authority:
+`hako-parameter-transfer-typed-seal-d0-task-2026-08-10.md` and
+`hako-parameter-transfer-typed-seal-r0-task-2026-08-10.md`.
+
 ```text
 H2-S0  parser source-session correction
        program-owned invocation + Box-scoped member cursor
