@@ -1,5 +1,5 @@
 ---
-Status: accepted architecture; I0 parked behind body-conformance evidence D0
+Status: accepted bounded I0 design; general conformance remains parked
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-facts-query-i0-implementation-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -9,10 +9,11 @@ Authority: `docs/reference/language/callable-contracts.md`
 
 ## Decision
 
-The conformance architecture is accepted, but implementation must stop until
-the complete body-conformance evidence boundary is designed. The bounded
-`return me` facts I0 is a shape candidate only; an empty `effects()` list is
-not proof that the body cannot write, allocate, perform IO/FFI, escape a
+The conformance architecture is accepted for a bounded exact `return me`
+cohort. The landed evidence I0 is sufficient for that narrow row. General
+conformance must still stop until the complete body-conformance evidence
+boundary is designed. An empty `effects()` list outside the bounded receipt
+is not proof that the body cannot write, allocate, perform IO/FFI, escape a
 failure, suspend, transfer non-local control, or move/escape Home.
 
 The fixed pipeline is:
@@ -38,6 +39,10 @@ VerifiedCallableQueryBodyFactsCatalogV1
   = bounded source shape (`return me`) only
 
 VerifiedQueryBodyConformanceEvidenceV1
+  = landed bounded structural-safety/Home no-transfer receipt
+    for the exact `return me` cohort
+
+GeneralBodyConformanceEvidenceV1
   = future complete statement/expression/effect/control/Home-escape receipt
 
 VerifiedCallableBodyConformanceCatalogV1
@@ -77,8 +82,8 @@ unselected and receive no default facts or conformance.
 
 ## Complete evidence boundary
 
-`CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` is a prerequisite design stop. Its
-future receipt must make absence explicit for this first Query cohort:
+`CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` remains the future general-design
+stop. Its future receipt must make absence explicit for broader Query bodies:
 
 ```text
 no binding write or Home escape
@@ -90,10 +95,10 @@ no non-local control
 complete statement, expression, relation, and effect/control coverage
 ```
 
-The existing neutral body-shape inventory and `return me` facts may be
-positive evidence, but they do not imply the absence receipt. If the existing
-shadow traversal cannot issue complete evidence, stop at `NoSafeSlice` and
-design the missing issuer; do not emit an empty/default conformance receipt.
+The existing neutral body-shape inventory and landed `return me` evidence are
+positive evidence only for their exact bounded cohort. If broader source
+coverage is not issued, stop at `NoSafeSlice` and design the missing issuer;
+do not emit an empty/default conformance receipt.
 
 ## Dispositions
 
@@ -130,12 +135,19 @@ than coexist with this declaration-first path.
 ## Implementation order
 
 ```text
-1. CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0/I0
-2. private per-row Query conformance issuer
+1. landed bounded CALLABLE-BODY-CONFORMANCE-EVIDENCE-I0
+2. private per-row bounded Query conformance issuer
 3. same-brand full-coverage VerifiedCallableBodyConformanceCatalogV1
 4. VerifiedConformantCallableCatalogV1 co-seal
 5. stop before resolver target / Recipe / MIR
+
+Implementation receipt:
+`docs/development/current/main/investigations/own-home-callable-conformance-catalog-i0-implementation-task-2026-08-09.md`.
+
+The general evidence design remains a future `NoSafeSlice` boundary; it is not
+a prerequisite for this exact bounded I0.
 ```
 
-The next current design stop is the evidence D0 above. No conformance code or
-fixture is authorized by this card yet.
+The next execution row is the bounded conformance I0 implementation receipt
+above. General evidence remains a future design stop; no broader conformance
+code or fixture is authorized by this card.

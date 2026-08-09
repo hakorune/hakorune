@@ -1052,11 +1052,12 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-callable-body-facts-query-i0-implementation-task-2026-08-09.md`.
     - focused evidence: 4 Query facts, 3 body-shape, 3 owner-link, and 4
       resolver tests passed; current pointer guard passed.
-22. `CALLABLE-CONTRACT-CONFORMANCE-D0` (accepted architecture; I0 parked)
+22. `CALLABLE-CONTRACT-CONFORMANCE-D0` (accepted bounded I0; general parked)
     - keep declared Query/Home/signature authority separate from body facts;
     - define one per-row behavioral conformance product and one same-brand,
       full-coverage conformant catalog;
-    - body facts alone do not prove complete absence of writes/Home escape,
+    - bounded `return me` evidence is sufficient only for the exact I0 cohort;
+      body facts alone do not prove complete absence of writes/Home escape,
       allocation, IO/FFI, failure, suspension, or non-local control;
     - task:
       `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`.
@@ -1077,10 +1078,19 @@ Rejected > Unresolved > Declined > Candidate
     - landed issuer: `QueryBodyConformanceEvidenceIssuerV1`;
     - focused `query_body_facts` slice is green; general conformance remains
       unopened.
-22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (parked by general-evidence NoSafeSlice)
-    - consume declared contract + bounded Query facts + complete evidence;
-    - issue one accepted row per selected declaration and reject any
-      missing/duplicate/foreign/nonconforming row;
+22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (bounded exact Query cohort; implementation row)
+    - consume only the declared contract catalog and landed bounded Query
+      conformance-evidence catalog;
+    - require `DeclaredQueryBehaviorV1::ReceiverDirectReadNoEffects` and
+      exact brand/nominal Box/source-site identity; never use `zip`, name,
+      inventory ordinal, or numeric owner identity;
+    - issue one bounded conformance row per selected Query declaration and
+      reject missing/duplicate/foreign/nonconforming rows;
+    - preserve sparse Query/non-Query source order and emit no default row;
+    - implementation receipt:
+      `docs/development/current/main/investigations/own-home-callable-conformance-catalog-i0-implementation-task-2026-08-09.md`;
+    - general effect/control/Home-flow conformance remains a separate
+      `NoSafeSlice` future design and does not block this bounded row;
     - never infer or replace public contract meaning from the body.
 23. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
     - co-seal the declared catalog with exactly one accepted conformance per

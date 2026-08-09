@@ -147,9 +147,13 @@ I0 is landed in `query_body_conformance_evidence.rs`. The issuer is limited to
 exact `return me` structural safety and a sibling Query Home no-transfer
 receipt. The facts catalog and evidence aggregate are not a general proof of
 no writes/Home escape/allocation/IO/FFI/failure/suspension/non-local control;
-any incomplete axis remains `NoSafeSlice`. Full conformance, target,
-Recipe/CallSlot, Builder, MIR, and production remain separate and the
-conformance I0 is parked.
+any incomplete axis remains `NoSafeSlice`. The bounded exact `return me` Query
+conformance I0 is the next implementation row; its issuer must consume the
+declared contract and evidence catalogs, compare the existing
+`ReceiverDirectReadNoEffects` behavior, and pair by aggregate-owned identity.
+It must not use zip/name/ordinal pairing or reissue Query/Home/signature/ABI.
+General conformance, target, Recipe/CallSlot, Builder, MIR, and production
+remain separate and general conformance remains parked.
 Missing issuer/evidence is `NoSafeSlice`, not a default body receipt. Body
 modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line
