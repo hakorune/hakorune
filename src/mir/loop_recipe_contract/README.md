@@ -205,8 +205,25 @@ The focused golden contains two Add, two Less, and three distinct
 `ConstI64(1/0/1)` rows; substring Add is temporary, inner Less consumes the
 prior CallSlot result, and only StepAdd feeds `WriteBinding`. Eight focused
 Dynamic-operation tests and all twenty-six V2 schema tests pass. The next row
-is a design stop for one complete unchanged-source V2 producer; no partial
+was a design stop for one complete unchanged-source V2 producer; no partial
 call-only producer or durable source-to-key product may be opened.
+
+That top-down audit found a compiler-side BoxShape gap, not a source gap. The
+complete source is expressible as one Loop, three blocks, one induction
+binding, four inputs, one carrier, eighteen values, seventeen items, one
+inner Return, and two CallSlots. However, V2 does not yet seal V1-equivalent
+root/block ownership, exact block/Loop/Exit use, recursive preorder, terminal
+Exit, or artifact source-binding structure. `LOOP-V2-CONTROL-STRUCTURE-GUARD-R0`
+must restore those neutral checks before the full candidate producer. The
+fixture remains unchanged; no new accepted operation or source shape is part
+of R0.
+
+The later producer retains `ch` as a source-local value relation over the
+substring CallSlot result rather than inventing a Recipe binding/carrier. The
+inner Return is the sole Recipe Exit; the outer Return remains Callable Tail,
+and the existing two-site Completion stays intact for a later exact
+partition. The detailed mapping and negative matrix are owned by
+`loop-v2-dynamic-full-producer-task-2026-08-10.md`.
 
 ## Generic G0 S4 producer
 

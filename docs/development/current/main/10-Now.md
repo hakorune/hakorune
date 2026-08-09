@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. Dynamic source/origin, complete Loop source
+Current mode is `fast`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
@@ -44,10 +44,10 @@ the compiler acceptance was widened instead of rewriting or narrowing the
 source. The selector-independent language Decision and caller-zero complete
 semantic-envelope catalog are now closed. The Dynamic Recipe consultation,
 Dynamic operation D0, and schema/verifier I0 are also closed. The current row
-is the next design stop:
+is the compiler-side BoxShape prerequisite:
 
 ```text
-LOOP-V2-DYNAMIC-FULL-PRODUCER-D0
+LOOP-V2-CONTROL-STRUCTURE-GUARD-R0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe
@@ -68,10 +68,13 @@ rows for the unchanged source. This includes the substring-end temporary Add
 and inner CallSlot-result Less that the old condition-plus-step P1 proof did
 not cover. Exact literals remain three separate `ConstI64` source anchors.
 The schema/verifier I0 widened the compiler, not the fixture, and its
-four-operation golden plus domain negatives are green. The next design must
-define one complete unchanged-source V2 producer and a private source-to-key
-candidate; it may not publish a partial call-only `Verified*` product. If
-another valid row is unsupported, widen the compiler or stop at a named design
+four-operation golden plus domain negatives are green. The complete mapping
+is now fixed at one Loop, three blocks, one induction binding, four inputs,
+one carrier, eighteen values, seventeen items, one inner Return, and two
+CallSlots. A top-down audit found that V2 still lacks V1-equivalent
+root/block/If/Exit/preorder/source-binding checks. The current R0 restores
+that neutral verifier boundary before the private full producer. If another
+valid row is unsupported, widen the compiler or stop at a named design
 question; never narrow or rewrite source. Physical
 projection, provider plan, retry, and fallback remain closed.
 JoinSig-authorized If/Return and multi-return Completion still precede

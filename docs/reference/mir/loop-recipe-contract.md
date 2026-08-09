@@ -132,6 +132,32 @@ complete twenty-six-test V2 schema suite pass. V1 decoding remains unchanged.
 No source relation, full producer, physical writer, or production activation
 is introduced by this receipt.
 
+Complete-producer preflight (`LOOP-V2-DYNAMIC-FULL-PRODUCER-D0`, 2026-08-10):
+the unchanged `skip_while/4` source is fully expressible with the existing V2
+logical vocabulary:
+
+```text
+1 Loop / 3 blocks
+1 Dynamic induction binding / 4 Dynamic inputs / 1 carrier
+18 values / 17 items / 1 inner Return exit
+2 CallSlots / 2 DynamicAdd / 2 DynamicLess / 3 distinct ConstI64
+```
+
+The iteration-local `ch` is a source-local relation over the substring result,
+not a second Recipe binding or carrier. The inner Return is the only Recipe
+Exit; the outer Return is Callable Tail and remains paired with the same
+two-site Completion product.
+
+The preflight found that V2 artifact verification is weaker than V1: it does
+not yet prove exact root/block/If/Exit use and ownership, recursive preorder,
+terminal Exit placement, or structural source-binding coverage/path shape.
+The next row is therefore the behavior-neutral
+`LOOP-V2-CONTROL-STRUCTURE-GUARD-R0`, followed by the complete private
+producer. This is a compiler correction boundary; narrowing or rewriting the
+accepted source is forbidden. No source/envelope co-seal, Home, JoinSigV2,
+Completion consumption, physical route, or production activation is claimed
+by this Decision.
+
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 
