@@ -1,5 +1,5 @@
 ---
-Status: accepted direction; design stop before I0 source issuer
+Status: accepted design; S0 source issuer selected, implementation not landed
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -70,25 +70,48 @@ exact untyped ParamDecl
 + exact local initializer relation (formal pos -> local i)
 + exact Loop carrier membership
 + verified body rebind relation
-        -> VerifiedDynamicCallableParameterV1
-        -> VerifiedDynamicLocalInitializationV1
-        -> VerifiedDynamicLoopCarrierV1
+        -> private parameter/local/carrier observations
+        -> VerifiedSourceBackedDynamicCallableV1
 ```
 
-The public physical input should be one move-only aggregate, for example:
+The canonical semantic issuer is:
 
 ```text
-VerifiedDynamicLoopCarrierV1
-  callable owner
-  source parameter ordinal and BindingRef
-  local/carrier BindingRef
-  initializer source relation
-  Loop source identity
-  source-backed dynamic representation
+SourceBackedDynamicCallableIssuerV1
 ```
 
-Names and raw source ordinals are diagnostic only. The issuer consumes the
-existing resolved callable source/ledger and produces an AST-free product.
+It lives under `src/mir/resolved_semantics/`, not under GenericLoop or the
+Builder. It is called only while one exact `CallableFunctionSyntaxViewV1` and
+the matching `CallableSemanticSourceLedgerView` are simultaneously borrowed
+inside the existing normal-callable semantic seal. This is the only point
+where the source header still proves that a parameter is untyped and the
+resolver forest already proves its exact `BindingRefV1` and Loop membership.
+
+The issuer returns one non-`Clone`, AST-free aggregate:
+
+```text
+VerifiedSourceBackedDynamicCallableV1
+  callable owner
+  complete untyped formal rows
+    parameter ordinal + exact formal BindingRef
+  exact local-initialization rows
+    dynamic formal -> local BindingRef
+    declaration + initializer + lexical-ref sites
+  exact Loop-carrier rows
+    local BindingRef -> exact Loop source/frame/scope-region
+    condition read + body rebind source relations
+```
+
+The formal catalog is complete for the selected callable, not just for
+parameters that later become Loop carriers. This is required because
+`skip_while/4` also reads untyped `end` directly in the comparison. Private
+parameter/local/carrier DTOs may exist inside the issuer, but callers receive
+only the aggregate and cannot freely re-pair them.
+
+Names and unbranded raw ordinals are diagnostic only. The source-branded
+parameter ordinal remains part of the exact declaration coordinate. The
+issuer consumes the exact callable syntax view and existing resolved callable
+source ledger and produces an AST-free product.
 It does not read Builder state, `ValueId`, `MirType`, result requirements, a
 method name, or a route label as semantic authority.
 
@@ -108,7 +131,8 @@ require a distinct authorization receipt:
 ```text
 PreparedLoopCarrierRepresentationV1
   Exact(MirType)
-  Dynamic(VerifiedDynamicLoopCarrierV1, wire = MirType::Unknown)
+  Dynamic(source-backed callable + exact carrier row,
+          wire = MirType::Unknown)
 ```
 
 This keeps wire compatibility while preventing:
@@ -161,13 +185,36 @@ complete-ingress Decision. It is not part of this blocker.
 
 ### S0 — source-backed dynamic parameter/local carrier
 
-1. Define the neutral dynamic representation vocabulary and source-backed
-   callable parameter receipt.
-2. Co-seal exact formal BindingRef, local initializer BindingRef, Loop source,
-   and carrier membership for the first direct static-method cohort.
-3. Prove that arbitrary constructors, foreign owners/sites, typed parameters,
-   missing initializer relations, and duplicate rows reject.
-4. Keep the product disconnected from Builder and GenericLoop.
+Row: `GENERIC-LOOP-DYNAMIC-SOURCE-S0`
+
+Change:
+  Add `SourceBackedDynamicCallableIssuerV1` under resolved semantics. From one
+  exact callable syntax/ledger pair, issue one non-`Clone`, AST-free
+  `VerifiedSourceBackedDynamicCallableV1` containing complete untyped-formal
+  coverage and exact formal-to-local-to-Loop-carrier relations. Old authority:
+  none.
+
+Contract:
+  `ParamDecl::declared_type_name == None` is source syntax evidence only while
+  the matching resolver ledger supplies every `BindingRef`, initializer read,
+  Loop membership, condition read, and body rebind. The aggregate contains no
+  `MirType`, `ValueId`, route label, method-name policy, result requirement, or
+  Builder state. Typed formals are never relabeled Dynamic; unrelated body
+  reads are allowed and do not weaken exact carrier membership.
+
+Done:
+  The unmodified `skip_while/4` source issues dynamic formal rows for `pos`
+  and `end`, plus the exact `pos -> i -> Loop carrier` row, with zero Builder
+  effect. Focused negatives reject foreign owner/site, typed-formal relabel,
+  missing or duplicate initializer/rebind relations, arbitrary construction,
+  and raw-`Unknown` issuance. Update `src/mir/resolved_semantics/README.md` and
+  `docs/reference/mir/generic-loop-stage-matrix.md` in the implementation
+  commit.
+
+Stop:
+  Return to design if the row needs a post-resolver AST rescan, a Builder
+  lookup, source-name matching, a body-cardinality assumption, or any inferred
+  exact numeric type. Do not open entry propagation or GenericLoop in S0.
 
 ### P0 — function-entry and local propagation
 
@@ -227,8 +274,12 @@ retry/fallback
 
 ## Stop condition
 
-S0 stays in design stop until the exact resolver-issued formal/local/Loop
-relations and their one canonical issuer are named from current code. If that
-relation cannot be issued without AST rescan after the resolver boundary,
-Builder state, a name heuristic, or a raw Unknown check, stop as `NoSafeSlice`
-and improve the source ledger first.
+The D0 stop is closed. The exact source authority is the co-present
+`CallableFunctionSyntaxViewV1` plus matching
+`CallableSemanticSourceLedgerView`; the canonical issuer is
+`SourceBackedDynamicCallableIssuerV1`, and its only public semantic output is
+`VerifiedSourceBackedDynamicCallableV1`. S0 may now implement that disconnected
+issuer. If implementation reveals that these two owners cannot prove an exact
+initializer or Loop relation without reopening AST after the seal, return to
+`NoSafeSlice` and improve the resolver/source seal rather than widening
+GenericLoop.
