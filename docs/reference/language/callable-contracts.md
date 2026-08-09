@@ -245,7 +245,9 @@ valid and non-Query carrier rows remain unselected extras. The resolved-shape
 D0 is accepted and its current implementation row is
 `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0`: the existing shadow traversal must
 issue one neutral AST-free inventory for receiver lexical reads and ordinary
-returns, co-sealed to the exact owner/body root and source provenance. Direct
+returns, co-sealed to the exact owner/body root. The instance-method carrier
+then co-seals that inventory with the declaration catalog's parser provenance
+and resolver brand. Direct
 field/state authority remains a separate design row. Body facts remain parked
 until this inventory lands. Conformance, target, Recipe/CallSlot, and physical
 lowering remain closed.

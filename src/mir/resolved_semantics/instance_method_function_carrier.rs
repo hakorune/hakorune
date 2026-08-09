@@ -18,8 +18,8 @@ use super::{
     FunctionOriginV1, FunctionOwnerIdV1, FunctionSemanticResolverSessionV1, ReceiverPolicyV1,
     ResolveOwnerForestErrorV1, ResolvedScopeRegionPairV1, ResolverCatalogBrandV1,
     ResolverNominalBoxTypeIdV1, SemanticOwnerRootProfileV1, SemanticOwnerSourceKindV1,
-    VerifiedInstanceMethodDeclarationCatalogV1, VerifiedResolvedFunctionV1,
-    VerifiedSemanticOwnerForestV1,
+    VerifiedInstanceMethodDeclarationCatalogV1, VerifiedResolvedBodyShapeInventoryV1,
+    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 
 #[derive(Debug)]
@@ -45,6 +45,8 @@ pub(in crate::mir) enum InstanceMethodFunctionCarrierIssueV1 {
         actual_kind: SemanticOwnerSourceKindV1,
         actual_policy: ReceiverPolicyV1,
     },
+    BodyShapeMissing(FunctionOwnerIdV1),
+    BodyShapeMismatch(FunctionOwnerIdV1),
     BodyItemOrdinalOverflow {
         count: usize,
     },
@@ -81,6 +83,7 @@ pub(in crate::mir) struct VerifiedInstanceMethodFunctionCarrierRowV1 {
     body_root: SourcePathSegmentV1,
     body_pair: ResolvedScopeRegionPairV1,
     body_coverage: VerifiedMethodBodyCoverageV1,
+    body_shape: VerifiedResolvedBodyShapeInventoryV1,
 }
 
 impl VerifiedInstanceMethodFunctionCarrierRowV1 {
@@ -119,6 +122,10 @@ impl VerifiedInstanceMethodFunctionCarrierRowV1 {
 
     pub(crate) fn body_coverage(&self) -> &VerifiedMethodBodyCoverageV1 {
         &self.body_coverage
+    }
+
+    pub(crate) fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
+        &self.body_shape
     }
 
     pub(crate) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
@@ -202,8 +209,8 @@ impl InstanceMethodFunctionCarrierIssuerV1 {
                 syntax.body(),
                 ReceiverPolicyV1::DeclaredInstance,
             );
-            let forest = resolver
-                .resolve_forest(function_view)
+            let (forest, mut body_shapes) = resolver
+                .resolve_forest_with_body_shapes(function_view)
                 .map_err(InstanceMethodFunctionCarrierIssueV1::OwnerForest)?;
             let [root_owner] = forest.roots() else {
                 return Err(InstanceMethodFunctionCarrierIssueV1::RootCardinality {
@@ -222,6 +229,14 @@ impl InstanceMethodFunctionCarrierIssuerV1 {
                     actual_policy: profile.receiver_policy(),
                 });
             }
+            let body_shape = body_shapes.remove(root_owner).ok_or(
+                InstanceMethodFunctionCarrierIssueV1::BodyShapeMissing(*root_owner),
+            )?;
+            if body_shape.owner() != *root_owner || *body_shape.body_root() != profile.body_root() {
+                return Err(InstanceMethodFunctionCarrierIssueV1::BodyShapeMismatch(
+                    *root_owner,
+                ));
+            }
             rows.push(VerifiedInstanceMethodFunctionCarrierRowV1 {
                 source_site,
                 name: syntax.name().to_owned().into_boxed_str(),
@@ -230,6 +245,7 @@ impl InstanceMethodFunctionCarrierIssuerV1 {
                 body_root: profile.body_root(),
                 body_pair: root.lowering_roots().body_pair(),
                 body_coverage: VerifiedMethodBodyCoverageV1::issue(syntax.body().len())?,
+                body_shape,
                 forest,
             });
         }

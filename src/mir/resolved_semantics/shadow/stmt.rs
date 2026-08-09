@@ -74,7 +74,9 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 site: path.stmt(),
             });
         }
-        self.record_statement_site(path.stmt());
+        let statement_site = path.stmt();
+        self.record_statement_site(statement_site.clone());
+        self.record_statement_shape(statement, statement_site);
         match statement {
             ASTNode::Local {
                 variables,
@@ -87,6 +89,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 ..
             } => self.resolve_declaration(statement, variables, initial_values, path, true, false),
             ASTNode::Assignment { target, value, .. } => {
+                self.record_effect(
+                    Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentTarget).expr(),
+                    crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Write,
+                );
                 self.resolve_assignment_target(
                     target,
                     &Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentTarget),
@@ -97,6 +103,15 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 )
             }
             ASTNode::CompoundAssignment { target, value, .. } => {
+                self.record_effect(
+                    Self::stmt_expr_path(
+                        statement,
+                        path,
+                        ExprChildRoleV1::CompoundAssignmentTarget,
+                    )
+                    .expr(),
+                    crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Write,
+                );
                 self.resolve_compound_assignment_target(
                     target,
                     &Self::stmt_expr_path(
@@ -178,10 +193,13 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             });
         };
         if let Some(value) = value {
-            self.resolve_expr(
-                value,
-                &Self::stmt_expr_path(statement, path, ExprChildRoleV1::ReturnValue),
-            )?;
+            let value_path = Self::stmt_expr_path(statement, path, ExprChildRoleV1::ReturnValue);
+            self.resolve_expr(value, &value_path)?;
+            self.record_relation(
+                path.node(),
+                crate::mir::resolved_semantics::SourcePathSegmentV1::Value,
+                value_path.expr(),
+            );
         }
         self.record_exit(
             path.stmt(),

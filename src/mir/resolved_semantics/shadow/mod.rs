@@ -11,7 +11,7 @@ mod ids;
 mod owner_boundary;
 mod path;
 mod product;
-mod resolver;
+pub(super) mod resolver;
 mod root_traversal;
 mod script_admission;
 mod script_root_dispatch;

@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
+use crate::mir::resolved_semantics::body_shape::ShadowBodyShapeDraftV0;
 use crate::mir::resolved_semantics::function_view::ReceiverPolicyV1;
 use crate::mir::resolved_semantics::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
@@ -42,7 +43,7 @@ enum ShadowMethodCallObservationModeV0 {
     All,
 }
 
-pub(super) struct ShadowResolverV0<'ast, 'schema> {
+pub(in crate::mir::resolved_semantics) struct ShadowResolverV0<'ast, 'schema> {
     function_scope: ShadowScopeIdV0,
     function_region: ShadowRegionIdV0,
     next_binding: u32,
@@ -82,8 +83,8 @@ pub(super) struct ShadowResolverV0<'ast, 'schema> {
     pub(super) enum_match_demands: BTreeSet<SourceExprSiteV1>,
     pub(super) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     pub(super) match_control_sites: BTreeSet<SourceExprSiteV1>,
+    pub(in crate::mir::resolved_semantics) body_shape: ShadowBodyShapeDraftV0,
 }
-
 pub(super) fn resolve_function_shadow_v0(
     _function_origin: FunctionOriginV1,
     function: &ASTNode,
@@ -155,7 +156,6 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
     )
     .map(|resolver| resolver.finish_owner(profile).function)
 }
-
 pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'ast>(
     view: ScriptSyntaxViewV1<'ast>,
     window: &'ast VerifiedScriptRootDemandWindowV1,
@@ -180,7 +180,6 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'a
     )
     .map(|resolver| resolver.finish_owner(profile))
 }
-
 fn resolve_shadow_view<'ast>(
     view: FunctionSyntaxViewV1<'ast>,
     lambda_mode: ShadowLambdaModeV0,
@@ -195,7 +194,6 @@ fn resolve_shadow_view<'ast>(
         ShadowTraversalProfileV1::FullFunctionV1,
     )
 }
-
 fn resolve_shadow_view_with_profile<'ast>(
     view: FunctionSyntaxViewV1<'ast>,
     lambda_mode: ShadowLambdaModeV0,
@@ -215,10 +213,6 @@ fn resolve_shadow_view_with_profile<'ast>(
     .map(|resolver| resolver.finish_owner(root_profile))
 }
 
-/// Reuses the one shadow lexical traversal for exact qualified receivers.
-///
-/// This entry deliberately has no `FunctionOriginV1`: it publishes only
-/// Bound/ProvenUnbound observations and never constructs a semantic owner.
 pub(in crate::mir) fn observe_qualified_receiver_shadow_view_v0(
     view: FunctionSyntaxViewV1<'_>,
     requested_sites: BTreeSet<SourceExprSiteV1>,
@@ -234,7 +228,6 @@ pub(in crate::mir) fn observe_qualified_receiver_shadow_view_v0(
     .finish_qualified_receiver_observations()
 }
 
-/// Reuses the sole shadow traversal to inventory every MethodCall site.
 pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
     view: FunctionSyntaxViewV1<'_>,
 ) -> Result<BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>, ShadowResolveErrorV0> {
@@ -390,6 +383,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             enum_match_demands: BTreeSet::new(),
             qmark_propagation_sites: BTreeSet::new(),
             match_control_sites: BTreeSet::new(),
+            body_shape: ShadowBodyShapeDraftV0::default(),
         }
     }
 
@@ -418,6 +412,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 enum_match_demands: self.enum_match_demands,
                 qmark_propagation_sites: self.qmark_propagation_sites,
                 match_control_sites: self.match_control_sites,
+                body_shape: self.body_shape,
             },
             lambdas: self.lambdas.into_boxed_slice(),
         }
@@ -488,31 +483,24 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     pub(super) fn current_scope(&self) -> ShadowScopeIdV0 {
         self.scope_stack.last().expect("function scope exists").id
     }
-
     pub(super) fn record_statement_site(&mut self, site: SourceStmtSiteV1) {
         self.statement_sites.insert(site);
     }
-
     pub(super) fn record_expression_site(&mut self, site: SourceExprSiteV1) {
         self.expression_sites.insert(site);
     }
-
     pub(super) fn current_region(&self) -> ShadowRegionIdV0 {
         *self.region_stack.last().expect("function region exists")
     }
-
     pub(super) fn function_region(&self) -> ShadowRegionIdV0 {
         self.function_region
     }
-
     pub(super) fn nearest_loop(&self) -> Option<ShadowRegionIdV0> {
         self.loop_stack.last().copied()
     }
-
     pub(super) fn receiver(&self) -> Option<ShadowBindingOrdinalV0> {
         self.receiver
     }
-
     pub(super) fn lookup(&self, name: &str) -> Option<ShadowBindingOrdinalV0> {
         self.scope_stack
             .iter()
@@ -523,7 +511,6 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     pub(super) fn ancestor_is_visible(&self, name: &str) -> bool {
         self.ancestor_names.contains(name)
     }
-
     pub(super) fn record_use(&mut self, site: SourceExprSiteV1, lexical_ref: ShadowLexicalRefV0) {
         self.variable_uses.insert(site, lexical_ref);
     }

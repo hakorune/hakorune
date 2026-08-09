@@ -47,6 +47,12 @@ fn carrier_issues_one_direct_instance_method_with_exact_root_receipts() {
     assert_eq!(row.root_function().owner(), row.forest().roots()[0]);
     assert_eq!(row.body_root(), &SourcePathSegmentV1::FunctionBody);
     assert_eq!(row.body_coverage().item_ordinals(), &[0]);
+    assert_eq!(row.body_shape().owner(), row.root_function().owner());
+    assert!(row
+        .body_shape()
+        .statements()
+        .iter()
+        .any(|statement| matches!(statement, BodyStatementShapeV1::Return { .. })));
 }
 
 #[test]

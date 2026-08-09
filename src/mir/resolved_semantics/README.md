@@ -127,19 +127,21 @@ receipt, and exact body coverage. The owner-link I0 is now closed: it consumes
 only the selected Query projection and existing carrier/catalog, borrows the
 exact carrier-root function, and issues no owner or second function product.
 The owner-link I0 is closed, and the resolved-shape D0 is accepted. The current
-bounded implementation row is `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0`.
+bounded implementation row is closed; the next design stop is
+`CALLABLE-BODY-FACTS-QUERY-D0`.
 The body-facts row remains a `NoSafeSlice`:
 `VerifiedResolvedFunctionV1` and its source-site inventory do not expose
 expression/statement kind, field/method identity, return-value relation, or
 complete effect/control evidence. The current implementation row is
 `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0`: the issuer runs during the existing
 parser-private syntax lease and returns one neutral AST-free body-shape
-inventory co-sealed to the exact owner/body root, parser provenance, resolver
-brand, source sites, and complete coverage. I0 is bounded to receiver lexical
-reads and ordinary returns; direct field/state authority remains separate. It
-must not reopen parser transport or add a second owner issuer. Only after that
-inventory lands may a private Query observer issue body facts; conformance
-remains unopened.
+inventory co-sealed to the exact owner/body root, source sites, and complete
+coverage. The carrier row then co-seals that shape with the declaration
+catalog's parser provenance and resolver brand. I0 is bounded to receiver
+lexical reads and ordinary returns; direct field/state authority remains
+separate. It must not reopen parser transport or add a second owner issuer.
+Only after that inventory lands may a private Query observer issue body facts;
+conformance remains unopened.
 Missing issuer/evidence is `NoSafeSlice`, not a default body receipt. Body
 modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line
@@ -148,7 +150,9 @@ split trigger.
 `CALLABLE-BODY-OWNER-CARRIER-I0` is now closed. The landed carrier owns the
 existing `VerifiedSemanticOwnerForestV1`, exposes its single resolved root by
 borrow, records the root `FunctionOriginV1` only as a consistency receipt, and
-stores the resolver-issued body-root pair plus contiguous body-item coverage.
+stores the resolver-issued body-root pair, neutral body-shape inventory, plus
+contiguous body-item coverage. The shape is produced by the same owner-tree
+walk; the carrier does not rescan syntax or reconstruct source identity.
 Its focused three-test slice proves direct-method success, empty-body source
 coverage, and foreign parser-provenance rejection. It does not perform Query
 selection or owner binding. The owner-link I0 is a separate, non-`Clone`

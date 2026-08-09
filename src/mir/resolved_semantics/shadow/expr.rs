@@ -34,6 +34,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             });
         }
         self.record_expression_site(path.expr());
+        self.record_expression_shape(expr, path.expr());
         match expr {
             ASTNode::Literal { .. } => Ok(()),
             ASTNode::Variable { name, .. } => self.resolve_named_use(name, path),
@@ -58,10 +59,16 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                     &Self::expr_child_path(expr, path, ExprChildRoleV1::BinaryRight),
                 )
             }
-            ASTNode::AwaitExpression { expression, .. } => self.resolve_expr(
-                expression,
-                &Self::expr_child_path(expr, path, ExprChildRoleV1::AwaitOperand),
-            ),
+            ASTNode::AwaitExpression { expression, .. } => {
+                self.record_effect(
+                    path.expr(),
+                    crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Await,
+                );
+                self.resolve_expr(
+                    expression,
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::AwaitOperand),
+                )
+            }
             ASTNode::ArrayLiteral { elements, .. } => {
                 for (index, element) in elements.iter().enumerate() {
                     self.resolve_expr(
@@ -152,13 +159,27 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 object, arguments, ..
             } => {
                 let receiver_path = Self::expr_child_path(expr, path, ExprChildRoleV1::Receiver);
+                self.record_effect(
+                    path.expr(),
+                    crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Call,
+                );
+                self.record_relation(
+                    path.node(),
+                    crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver,
+                    receiver_path.expr(),
+                );
                 self.resolve_method_call_receiver(path.expr(), object, &receiver_path)?;
                 self.resolve_arguments(expr, arguments, path)
             }
-            ASTNode::FieldAccess { object, .. } => self.resolve_expr(
-                object,
-                &Self::expr_child_path(expr, path, ExprChildRoleV1::Receiver),
-            ),
+            ASTNode::FieldAccess { object, .. } => {
+                let receiver_path = Self::expr_child_path(expr, path, ExprChildRoleV1::Receiver);
+                self.record_relation(
+                    path.node(),
+                    crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver,
+                    receiver_path.expr(),
+                );
+                self.resolve_expr(object, &receiver_path)
+            }
             ASTNode::Index { target, index, .. } => {
                 self.resolve_expr(
                     target,
@@ -172,6 +193,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             ASTNode::FunctionCall {
                 name, arguments, ..
             } => {
+                self.record_effect(
+                    path.expr(),
+                    crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Call,
+                );
                 self.record_direct_call(path.expr(), name, arguments.len())?;
                 self.resolve_arguments(expr, arguments, path)
             }
@@ -203,6 +228,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             ASTNode::Call {
                 callee, arguments, ..
             } => {
+                self.record_effect(
+                    path.expr(),
+                    crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Call,
+                );
                 self.resolve_expr(
                     callee,
                     &Self::expr_child_path(expr, path, ExprChildRoleV1::CallCallee),
@@ -214,6 +243,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 field_initializers,
                 ..
             } => {
+                self.record_effect(
+                    path.expr(),
+                    crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Allocation,
+                );
                 self.resolve_arguments(expr, arguments, path)?;
                 for (index, (_, value)) in field_initializers.iter().enumerate() {
                     self.resolve_expr(
@@ -241,6 +274,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     ) -> Result<(), ShadowResolveErrorV0> {
         let target_site = path.expr();
         self.record_expression_site(target_site.clone());
+        self.record_expression_shape(target, target_site.clone());
         let resolved = match target {
             ASTNode::Variable { name, .. } => {
                 let Some(binding) = self.lookup(name) else {
@@ -318,6 +352,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             && self.receiver_policy() == ReceiverPolicyV1::StaticCurrentOwner
         {
             self.record_expression_site(receiver_path.expr());
+            self.record_expression_shape(object, receiver_path.expr());
             if self.observes_all_method_calls() {
                 self.record_method_call_observation(
                     call_site,

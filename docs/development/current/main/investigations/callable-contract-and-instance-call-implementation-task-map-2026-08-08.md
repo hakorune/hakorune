@@ -226,9 +226,10 @@ CALLABLE-BODY-OWNER-BINDING-D0/I0
   co-seal selected Query body source + carrier/catalog + exact resolved
   functions into a one-to-one body-owner catalog
 
-CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0
-  define the neutral AST-free expression/statement/effect/control inventory
-  that the current resolved function product does not yet expose
+CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0/I0
+  closed: define and issue the neutral AST-free expression/statement/effect/
+  control inventory that the current resolved function product did not expose;
+  the carrier retains it from the same owner-tree walk
 
 CALLABLE-BODY-FACTS-QUERY-D0/I0
   only after the owner catalog and neutral body-shape inventory are sealed
@@ -561,18 +562,18 @@ CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0 (accepted design; I0 ready)
   the bounded Query observer. The accepted correction is one AST-free
   resolver-session issuer during the existing parser-private syntax lease;
   its neutral inventory is co-sealed with the exact resolved function/body
-  root, parser provenance, resolver brand, source sites, and coverage. No
-  parser transport reopening or second owner issuer.
+  root and source sites, while the carrier row co-seals parser provenance and
+  resolver brand. No parser transport reopening or second owner issuer.
 
-CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0 (current bounded implementation)
+CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0 (closed bounded implementation)
   issue the neutral inventory for receiver lexical `Me`/receiver-binding reads
-  and ordinary return value relations. Direct field/state authority,
-  conformance, target, Recipe/CallSlot, Builder, MIR, and production remain
-  closed.
+  and ordinary return value relations from the same owner-tree walk used by
+  the instance-method carrier. Direct field/state authority, conformance,
+  target, Recipe/CallSlot, Builder, MIR, and production remain closed.
   Task:
   `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-i0-implementation-task-2026-08-09.md`
 
-CALLABLE-BODY-FACTS-QUERY-D0/I0 (parked behind resolved-shape issuer I0)
+CALLABLE-BODY-FACTS-QUERY-D0/I0 (next design stop; implementation parked)
   observe the bounded receiver-read/return body through the branded owner link
   only after the neutral shape inventory exists; no public contract
   re-inference, target, Recipe, or MIR.

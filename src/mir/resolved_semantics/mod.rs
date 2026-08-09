@@ -7,6 +7,7 @@
 #![allow(dead_code, unused_imports)]
 
 mod callable_catalog;
+mod body_shape;
 mod callable_catalog_candidate;
 mod callable_catalog_resolution_source;
 mod callable_header_source_unit;
@@ -125,6 +126,11 @@ pub(crate) use instance_method_body_source::{
     InstanceMethodBodySourceIssuerV1, InstanceMethodBodySourceIssueV1,
     VerifiedInstanceMethodBodySourceCatalogV1, VerifiedInstanceMethodBodySourceRowV1,
 };
+pub(crate) use body_shape::{
+    BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyShapeRelationV1,
+    BodyStatementShapeV1, ResolvedFunctionBodyShapeProductV1,
+    VerifiedResolvedBodyShapeInventoryV1,
+};
 pub(in crate::mir) use instance_method_function_carrier::{
     InstanceMethodFunctionCarrierIssueV1, InstanceMethodFunctionCarrierIssuerV1,
     VerifiedInstanceMethodFunctionCarrierCatalogV1,
@@ -240,6 +246,8 @@ mod callable_source_ledger_tests;
 mod declared_instance_contract_tests;
 #[cfg(test)]
 mod instance_method_function_carrier_tests;
+#[cfg(test)]
+mod body_shape_tests;
 #[cfg(test)]
 mod explicit_parameter_type_map;
 #[cfg(test)]

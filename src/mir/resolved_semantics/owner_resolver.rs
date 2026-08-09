@@ -20,6 +20,7 @@ use super::resolver::{
 };
 use super::script_view::ScriptSyntaxViewV1;
 use super::shadow::{resolve_function_shadow_view_v0, ShadowLambdaSyntaxV0};
+use super::VerifiedResolvedBodyShapeInventoryV1;
 use super::{
     EnumMatchDemandV1, EnumVariantDemandV1, FunctionOriginV1, OwnedExprSiteV1,
     RecordSchemaDemandV1, VerifiedScriptRootDemandWindowV1,
@@ -70,7 +71,7 @@ impl FunctionSemanticResolverSessionV1 {
         let mut forests = Vec::with_capacity(trees.len());
         for tree in trees {
             let mut draft = SemanticOwnerForestDraftV1::new();
-            self.seal_owner_tree(tree, &BTreeMap::new(), None, None, None, &mut draft)?;
+            self.seal_owner_tree(tree, &BTreeMap::new(), None, None, None, &mut draft, None)?;
             forests.push(
                 draft
                     .seal()
@@ -126,10 +127,40 @@ impl FunctionSemanticResolverSessionV1 {
         let tree = construct_function_owner_tree_v1(root, &BTreeSet::new())
             .map_err(ResolveFunctionErrorV1::Syntax)
             .map_err(ResolveOwnerForestErrorV1::Function)?;
-        self.seal_owner_tree(tree, &BTreeMap::new(), None, None, None, &mut draft)?;
+        self.seal_owner_tree(tree, &BTreeMap::new(), None, None, None, &mut draft, None)?;
         draft
             .seal()
             .map_err(ResolveOwnerForestErrorV1::Verification)
+    }
+
+    pub(in crate::mir) fn resolve_forest_with_body_shapes(
+        &mut self,
+        root: FunctionSyntaxViewV1<'_>,
+    ) -> Result<
+        (
+            VerifiedSemanticOwnerForestV1,
+            BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+        ),
+        ResolveOwnerForestErrorV1,
+    > {
+        let mut draft = SemanticOwnerForestDraftV1::new();
+        let tree = construct_function_owner_tree_v1(root, &BTreeSet::new())
+            .map_err(ResolveFunctionErrorV1::Syntax)
+            .map_err(ResolveOwnerForestErrorV1::Function)?;
+        let mut body_shapes = BTreeMap::new();
+        self.seal_owner_tree(
+            tree,
+            &BTreeMap::new(),
+            None,
+            None,
+            None,
+            &mut draft,
+            Some(&mut body_shapes),
+        )?;
+        let forest = draft
+            .seal()
+            .map_err(ResolveOwnerForestErrorV1::Verification)?;
+        Ok((forest, body_shapes))
     }
 
     pub(in crate::mir) fn resolve_forest_with_callable_index(
@@ -148,6 +179,7 @@ impl FunctionSemanticResolverSessionV1 {
             None,
             Some(callable_index),
             &mut draft,
+            None,
         )?;
         draft
             .seal()
@@ -172,6 +204,7 @@ impl FunctionSemanticResolverSessionV1 {
             Some((origin, owner)),
             Some(callable_index),
             &mut draft,
+            None,
         )?;
         draft
             .seal()
@@ -186,6 +219,9 @@ impl FunctionSemanticResolverSessionV1 {
         reserved: Option<(FunctionOriginV1, FunctionOwnerIdV1)>,
         callable_index: Option<&VerifiedCallableIndexV1>,
         draft: &mut SemanticOwnerForestDraftV1,
+        mut body_shapes: Option<
+            &mut BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+        >,
     ) -> Result<FunctionOwnerIdV1, ResolveOwnerForestErrorV1> {
         let (origin, owner) = match reserved {
             Some(identity) => identity,
@@ -199,6 +235,7 @@ impl FunctionSemanticResolverSessionV1 {
             binding_refs,
             scope_ids,
             ordered_capture_demands,
+            body_shape,
         } = match callable_index {
             Some(index) => self.seal_owner_with_ancestors_and_callable_index(
                 owner,
@@ -210,6 +247,9 @@ impl FunctionSemanticResolverSessionV1 {
             None => self.seal_owner_with_ancestors(owner, origin, function, ancestor_bindings),
         }
         .map_err(ResolveOwnerForestErrorV1::Function)?;
+        if let Some(shapes) = body_shapes.as_deref_mut() {
+            shapes.insert(owner, body_shape);
+        }
 
         let children = children
             .into_iter()
@@ -255,6 +295,7 @@ impl FunctionSemanticResolverSessionV1 {
                 None,
                 callable_index,
                 draft,
+                body_shapes.as_deref_mut(),
             )?;
         }
         Ok(owner)
@@ -273,6 +314,7 @@ impl FunctionSemanticResolverSessionV1 {
             binding_refs,
             scope_ids,
             ordered_capture_demands,
+            body_shape: _,
         } = self
             .seal_script_owner_with_maps(owner, origin, function)
             .map_err(ResolveOwnerForestErrorV1::Function)?;
@@ -306,6 +348,7 @@ impl FunctionSemanticResolverSessionV1 {
                 None,
                 None,
                 draft,
+                None,
             )?;
         }
         Ok(())

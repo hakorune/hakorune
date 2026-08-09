@@ -1,5 +1,5 @@
 ---
-Status: ready bounded implementation
+Status: closed bounded implementation
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -138,3 +138,37 @@ git diff --check
 Keep every touched Rust file below 760 lines and never above 800 lines.
 After this I0, stop before `CALLABLE-BODY-FACTS-QUERY-I0` and update the
 design/task pointers in the same closeout slice.
+
+## Landed receipt (2026-08-09)
+
+The existing shadow traversal now records a private neutral ledger and seals
+`VerifiedResolvedBodyShapeInventoryV1` beside the canonical resolved
+function. `resolve_forest_with_body_shapes` carries the same inventory through
+the existing owner-tree walk, so the instance-method carrier retains the root
+shape without a second AST traversal. The carrier row performs the final
+parser-provenance/resolver-brand co-seal already owned by its declaration
+catalog; the shape inventory itself owns only the exact resolver owner and
+body-root identity and remains profile-neutral.
+
+Landed evidence:
+
+```text
+src/mir/resolved_semantics/body_shape.rs
+src/mir/resolved_semantics/body_shape_tests.rs
+FunctionSemanticResolverSessionV1::resolve_with_body_shape
+FunctionSemanticResolverSessionV1::resolve_forest_with_body_shapes
+VerifiedInstanceMethodFunctionCarrierRowV1::body_shape
+```
+
+Focused tests are green:
+
+```text
+body_shape_tests: 3 passed
+resolver_tests: 4 passed
+instance_method_function_carrier_tests: 3 passed
+instance_method_body_owner_tests: 3 passed
+```
+
+The next design stop is `CALLABLE-BODY-FACTS-QUERY-D0`. Body facts,
+conformance, field/state authority, targets, Recipe/CallSlot, MIR, and
+production remain closed.

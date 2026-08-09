@@ -3,6 +3,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
+use crate::mir::resolved_semantics::body_shape::ShadowBodyShapeDraftV0;
 use crate::mir::resolved_semantics::source_site::{
     ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1,
 };
@@ -268,6 +269,7 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) enum_match_demands: BTreeSet<SourceExprSiteV1>,
     pub(crate) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     pub(crate) match_control_sites: BTreeSet<SourceExprSiteV1>,
+    pub(crate) body_shape: ShadowBodyShapeDraftV0,
 }
 
 #[cfg(test)]

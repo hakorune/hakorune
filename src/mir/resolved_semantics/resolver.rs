@@ -5,6 +5,10 @@ use std::sync::Arc;
 
 use hakorune_mir_core::BindingId;
 
+use super::body_shape::{
+    seal_shadow_body_shape, ResolvedFunctionBodyShapeProductV1,
+    VerifiedResolvedBodyShapeInventoryV1,
+};
 use super::callable_index::{CallableLookupErrorV1, VerifiedCallableIndexV1};
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::function_view::FunctionSyntaxViewV1;
@@ -64,6 +68,7 @@ pub(super) struct SealedOwnerConstructionV1 {
     pub(super) binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
     pub(super) scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
     pub(super) ordered_capture_demands: Box<[OrderedCaptureDemandV1]>,
+    pub(super) body_shape: VerifiedResolvedBodyShapeInventoryV1,
 }
 
 pub(super) struct SealedScriptConstructionV1 {
@@ -71,6 +76,7 @@ pub(super) struct SealedScriptConstructionV1 {
     pub(super) binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
     pub(super) scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
     pub(super) ordered_capture_demands: Box<[OrderedCaptureDemandV1]>,
+    pub(super) body_shape: VerifiedResolvedBodyShapeInventoryV1,
 }
 
 #[derive(Debug, Clone)]
@@ -84,6 +90,7 @@ struct CanonicalizedDraftV1 {
     binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
     scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
     ordered_capture_demands: Box<[OrderedCaptureDemandV1]>,
+    body_shape: VerifiedResolvedBodyShapeInventoryV1,
 }
 
 impl FunctionSemanticResolverSessionV1 {
@@ -104,6 +111,23 @@ impl FunctionSemanticResolverSessionV1 {
         let draft =
             resolve_function_shadow_view_v0(view).map_err(ResolveFunctionErrorV1::Syntax)?;
         self.seal_owner(owner, origin, draft).map(Arc::new)
+    }
+
+    /// Issue the existing resolved function and neutral body shape from the
+    /// same shadow traversal.  This is the sole resolver-session entry for
+    /// the I0 shape inventory; callers cannot rescan the AST afterward.
+    pub(crate) fn resolve_with_body_shape(
+        &mut self,
+        view: FunctionSyntaxViewV1<'_>,
+    ) -> Result<ResolvedFunctionBodyShapeProductV1, ResolveFunctionErrorV1> {
+        let (origin, owner) = self.issue_owner()?;
+        let draft =
+            resolve_function_shadow_view_v0(view).map_err(ResolveFunctionErrorV1::Syntax)?;
+        let sealed = self.seal_owner_with_maps(owner, origin, draft)?;
+        Ok(ResolvedFunctionBodyShapeProductV1::from_parts(
+            Arc::new(sealed.product),
+            sealed.body_shape,
+        ))
     }
 
     pub(crate) fn resolve_script(
@@ -192,6 +216,7 @@ impl FunctionSemanticResolverSessionV1 {
             binding_refs: canonical.binding_refs,
             scope_ids: canonical.scope_ids,
             ordered_capture_demands: canonical.ordered_capture_demands,
+            body_shape: canonical.body_shape,
         })
     }
 
@@ -263,6 +288,7 @@ impl FunctionSemanticResolverSessionV1 {
             binding_refs: canonical.binding_refs,
             scope_ids: canonical.scope_ids,
             ordered_capture_demands: canonical.ordered_capture_demands,
+            body_shape: canonical.body_shape,
         })
     }
 }
@@ -392,6 +418,15 @@ fn canonicalize_draft(
             Ok((site.clone(), lexical_ref))
         })
         .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?;
+    let body_shape = seal_shadow_body_shape(
+        owner,
+        draft.root_profile,
+        draft.body_shape.clone(),
+        &variable_uses,
+        &draft.statement_sites,
+        &draft.expression_sites,
+    )
+    .map_err(ResolveFunctionErrorV1::DraftInvariant)?;
     let assignment_targets = draft
         .assignment_targets
         .iter()
@@ -528,6 +563,7 @@ fn canonicalize_draft(
         binding_refs,
         scope_ids,
         ordered_capture_demands,
+        body_shape,
     })
 }
 
