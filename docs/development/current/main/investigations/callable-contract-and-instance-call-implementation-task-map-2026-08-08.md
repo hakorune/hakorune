@@ -1111,11 +1111,16 @@ Rejected > Unresolved > Declined > Candidate
     - `release root` direction is accepted as a statement-only contextual
       source form, but exact `take`/`share` syntax and parser source-event
       authority are not sealed;
+    - the next bounded decision is `OWN-HOME-SYNTAX-D0`: choose the canonical
+      declaration-side `take` form, expression-side `share` form/precedence,
+      and record rejected alternatives before parser I0;
     - keep `release(value)`, `obj.release()`, callable/binding names,
       `drop`, `unbox`, and `unhome` out of Home ownership authority;
     - define one future typed parser carrier and its provenance boundary;
       parser acceptance, Home-demand/root issuance, and Home Flow remain
       closed until this D0 is accepted;
+    - after syntax D0, close `OWN-HOME-CAPABILITY-TAXONOMY-D0` before issuing
+      any Home-demand product;
     - focused card:
       `docs/development/current/main/investigations/own-home-source-event-d0-design-task-2026-08-09.md`.
 22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after source-event D0)

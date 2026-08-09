@@ -39,6 +39,40 @@ The source token does not prove ownership.  A later resolver Home-demand/root
 issuer and Home Flow witness must prove that the identifier denotes one exact
 available whole-root Home.
 
+## Focused external design question
+
+One narrow language-D0 review is still useful before opening the parser I0.
+The review must choose syntax and precedence only; it must not redesign Home
+ABI, Home Flow, or the existing `release root` decision.
+
+Ask the reviewer to return one canonical answer for each item, including a
+small EBNF/FIRST-set explanation and negative examples:
+
+```text
+1. Declaration-side demand:
+   adopt(take node: Node)
+   Is `take` the sole declaration-side ownership-demand spelling for this
+   cohort, and is it declaration-only?
+
+2. Explicit sharing:
+   share expr
+   versus
+   adopt(share expr)
+   Choose one canonical source form, define its precedence with calls,
+   returns, fields, and parentheses, and keep `share(...)` an ordinary call.
+
+3. Early release:
+   release root
+   Confirm statement-only contextual disambiguation: `release` is not a
+   global reserved word, `release(value)` and `obj.release()` remain ordinary
+   calls, and only one identifier whole-root is in the first parser cohort.
+```
+
+The review must also state the rejected alternatives and confirm that parser
+acceptance remains out of scope until the decision is recorded here and in the
+language reference.  Until this question is answered, the current source-event
+card remains a design stop and no parser carrier or Home issuer is implemented.
+
 ## Source carrier boundary
 
 The future parser row may issue one typed, AST-free source carrier after the
@@ -151,20 +185,28 @@ as the Home root identity.
 1. OWN-HOME-SOURCE-EVENT-D0
    this design stop; no code yet
 
-2. OWN-HOME-SOURCE-EVENT-I0
+2. OWN-HOME-SYNTAX-D0
+   close the focused `take` / `share` grammar and precedence question above;
+   update the language reference only after one canonical choice is accepted
+
+3. OWN-HOME-SOURCE-EVENT-I0
    parser rich-path carrier for `release IDENT`, grammar guard, and exact
    contextual negatives; same-slice reference/EBNF updates
 
-3. OWN-HOME-ABI-HOME-DEMAND-I0
+4. OWN-HOME-CAPABILITY-TAXONOMY-D0
+   freeze Create/Consume/Share/Forward/Escape/End capability meanings and
+   dispositions before issuing Home-demand products
+
+5. OWN-HOME-ABI-HOME-DEMAND-I0
    source-backed owning parameter/local root capability; no body inference
 
-4. CALLABLE-BODY-HOME-FLOW-LINEAR-I0
+6. CALLABLE-BODY-HOME-FLOW-LINEAR-I0
    private body_home_flow issuer for Available -> End/Consumed -> Unit return
 
-5. CALLABLE-BODY-HOME-FLOW-CFG-D0
+7. CALLABLE-BODY-HOME-FLOW-CFG-D0
    branch/loop/backedge/Maybe-join and transfer authority
 
-6. CALLABLE-BODY-EXECUTION-COSEAL
+8. CALLABLE-BODY-EXECUTION-COSEAL
    only after all four axis issuers are complete
 ```
 
