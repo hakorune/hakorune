@@ -287,6 +287,7 @@ mod tests {
                     CallableLoopBindingRoleV1::BodyRebind,
                 ),
             ],
+            std::collections::BTreeSet::new(),
         )
         .unwrap()
     }

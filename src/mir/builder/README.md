@@ -158,8 +158,19 @@ state; the existing post-`setup_function_params` entry receipt installs formal
 origins, and the local terminal's ordinal-keyed initializer/local receipt
 propagates only exact source-authorized copies. Rebind invalidates the active
 origin. This state is not a type owner, parameter publisher, GenericLoop/PHI
-authority, or fallback route. GenericLoop consumption remains closed behind
-the separate L0 design boundary.
+authority, or fallback route.
+
+`normal_callable_loop_handoff.rs` owns the L0-R0 source-coverage projection.
+It no longer treats `(condition reads, body reads, rebinds) = (1,1,1)` as a
+semantic contract or discards exact relations into a count receipt. One
+non-`Clone` schedule groups exact source sites by resolver `BindingRefV1` and
+classifies the supported window as one pre-Loop carrier, variable read-only
+operands, and Loop-declared iteration locals. The production
+`ParserScanLoopBox.skip_while/4` source is the positive fixture: `i` alone is
+the carrier, while `end`, `src`, and `pred_chars` are operands and `ch` is
+iteration-local. This remains source-only; Dynamic operation results,
+prepared representation, PHI, backend metadata, route selection, retry, and
+fallback remain closed.
 
 ## 原則（SSOT / Box-First）
 

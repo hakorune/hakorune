@@ -1644,3 +1644,21 @@ lacking an instance receiver `BindingRef`; instance Query consumers continue
 to require the lexical receiver arm. Compound rebind completion also consumes
 its exact co-located target-read receipt, rather than leaving a valid target as
 incomplete source coverage. L0 remains a separate design row.
+
+## Callable Loop source-coverage R0 receipt (2026-08-09)
+
+`CALLABLE-LOOP-SOURCE-COVERAGE-R0` is closed as a source-only compiler
+acceptance repair. The callable Loop handoff no longer fixes total role counts
+to one condition read, one body read, and one rebind, and its consumed product
+no longer reduces exact relations to two counters.
+
+The move-only schedule now retains exact-source-site-keyed resolver relations grouped
+by `BindingRefV1`. The supported first cohort explicitly distinguishes one
+pre-Loop carrier, any number of exact read-only operands, and observed
+Loop-declared iteration locals. The unmodified production
+`ParserScanLoopBox.skip_while/4` proves `i` is the sole carrier while
+`end/src/pred_chars` remain operands and `ch` remains iteration-local.
+Foreign, duplicate, nested-Loop, incomplete carrier, and cross-binding rows
+reject. No Builder/MIR effect, Dynamic operation-result authority, raw
+`Unknown` admission, prepared representation, PHI, backend metadata, route
+selection, retry, or fallback is opened.

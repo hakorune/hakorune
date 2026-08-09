@@ -564,11 +564,10 @@ mod tests {
             .loop_binding_source_projection()
             .project(SourcePathV1::root_body(2).node())
             .expect("loop schedule");
-        assert_eq!(schedule.receipts().len(), 3);
+        assert_eq!(schedule.receipt_count(), 3);
         assert_eq!(
             schedule
                 .receipts()
-                .iter()
                 .filter(|receipt| {
                     matches!(
                         receipt.role(),
@@ -582,7 +581,6 @@ mod tests {
         assert_eq!(
             schedule
                 .receipts()
-                .iter()
                 .filter(|receipt| {
                     matches!(
                         receipt.role(),

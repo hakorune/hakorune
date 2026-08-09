@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 closed; L0 design accepted; source-coverage R0 ready
+Status: S0/P0 and L0-R0 closed; Dynamic operation-source S0 ready
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -388,9 +388,11 @@ iteration-local result:
 ```
 
 All resolver-issued reads and rebinds in the supported Loop source window are
-item/site-keyed and completely covered. Total read count is not semantic
-authority. The first cohort may still support one carrier and one canonical
-rebind topology, but it must say so with typed relations rather than counts.
+exact-source-site-keyed and completely covered. The later operation-source row
+is the sole owner of the source-site-to-operation-role relation. Total read
+count is not semantic authority. The first cohort may still support one
+carrier and one canonical rebind topology, but it must say so with typed
+relations rather than counts.
 
 #### Three separate owners
 
@@ -485,7 +487,7 @@ or reuse the poisoned function session.
 
 Change:
   Replace the fixed `(1,1,1)` schedule and count-only consumed receipt with
-  one item/site-keyed complete relation set. Co-seal the one selected carrier,
+  one exact-source-site-keyed complete relation set. Co-seal the one selected carrier,
   its exact reads/rebind, read-only operands, and iteration-local bindings. No
   Builder/MIR effect.
 
@@ -500,6 +502,16 @@ Stop:
   Do not widen by total counts, names, source-position guesses, or a default
   catch-all row. Do not open representation, operation emission, PHI, route
   selection, or fallback.
+
+Closeout:
+  Closed in the R0 implementation slice. The count-only receipt is replaced
+  by grouped exact relation rows, and the actual production `skip_while/4`
+  source is covered without annotation or copying. `i` is the sole carrier;
+  `end/src/pred_chars` are read-only operands and `ch` is iteration-local.
+  Variable read cardinality is no longer policy. Focused handoff, semantic
+  source, raw child-entry, Dynamic source, and Dynamic origin tests are green;
+  the owner file remains below 800 lines. No Builder/MIR effect or later L0
+  authority was opened.
 
 ##### L0-S0 — `DYNAMIC-LOOP-OPERATION-SOURCE-S0`
 

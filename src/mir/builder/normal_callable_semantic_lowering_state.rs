@@ -179,6 +179,7 @@ impl CallableSemanticLoweringState {
     ) -> super::normal_callable_loop_handoff::CallableLoopSourceProjectionV1<'_> {
         super::normal_callable_loop_handoff::CallableLoopSourceProjectionV1::new(
             self.owner,
+            &self.locals,
             &self.variables,
             &self.assignments,
         )

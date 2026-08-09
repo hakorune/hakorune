@@ -17,11 +17,39 @@ pub(super) enum CallableLoopBindingRoleV1 {
     BodyRebind,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum CallableLoopBindingClassV1 {
+    Carrier,
+    ReadOnlyOperand,
+    IterationLocal,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct CallableLoopBindingReceiptV1 {
     site: SourceNodeSiteV1,
     binding: BindingRefV1,
     role: CallableLoopBindingRoleV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct CallableLoopBindingCoverageRowV1 {
+    binding: BindingRefV1,
+    class: CallableLoopBindingClassV1,
+    receipts: Box<[CallableLoopBindingReceiptV1]>,
+}
+
+impl CallableLoopBindingCoverageRowV1 {
+    pub(super) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(super) const fn class(&self) -> CallableLoopBindingClassV1 {
+        self.class
+    }
+
+    pub(super) fn receipts(&self) -> &[CallableLoopBindingReceiptV1] {
+        &self.receipts
+    }
 }
 
 impl CallableLoopBindingReceiptV1 {
@@ -60,14 +88,14 @@ impl CallableLoopBindingReceiptV1 {
 pub(super) struct VerifiedCallableSemanticLoopBindingScheduleV1 {
     owner: FunctionOwnerIdV1,
     loop_site: SourceNodeSiteV1,
-    receipts: Box<[CallableLoopBindingReceiptV1]>,
+    rows: Box<[CallableLoopBindingCoverageRowV1]>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(super) struct CallableSemanticLoopHandoffPreEffectReceiptV1 {
     owner: FunctionOwnerIdV1,
-    variable_reads: u32,
-    assignments: u32,
+    loop_site: SourceNodeSiteV1,
+    rows: Box<[CallableLoopBindingCoverageRowV1]>,
 }
 
 /// Immutable source-only view used by the projector.
@@ -77,6 +105,7 @@ pub(super) struct CallableSemanticLoopHandoffPreEffectReceiptV1 {
 /// the source-role classification and schedule construction.
 pub(super) struct CallableLoopSourceProjectionV1<'a> {
     owner: FunctionOwnerIdV1,
+    locals: &'a BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
     variables: &'a BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     assignments: &'a BTreeMap<SourceNodeSiteV1, BindingRefV1>,
 }
@@ -84,11 +113,13 @@ pub(super) struct CallableLoopSourceProjectionV1<'a> {
 impl<'a> CallableLoopSourceProjectionV1<'a> {
     pub(super) fn new(
         owner: FunctionOwnerIdV1,
+        locals: &'a BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
         variables: &'a BTreeMap<SourceNodeSiteV1, BindingRefV1>,
         assignments: &'a BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     ) -> Self {
         Self {
             owner,
+            locals,
             variables,
             assignments,
         }
@@ -138,21 +169,37 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
                 CallableLoopBindingRoleV1::BodyRebind,
             ));
         }
-        VerifiedCallableSemanticLoopBindingScheduleV1::seal(self.owner, loop_site, receipts)
+        let observed_bindings = receipts
+            .iter()
+            .map(CallableLoopBindingReceiptV1::binding)
+            .collect::<BTreeSet<_>>();
+        let iteration_locals = self
+            .locals
+            .iter()
+            .filter(|(site, _)| is_direct_loop_body_descendant(&loop_site, site))
+            .flat_map(|(_, bindings)| bindings.iter().copied())
+            .filter(|binding| observed_bindings.contains(binding))
+            .collect();
+        VerifiedCallableSemanticLoopBindingScheduleV1::seal(
+            self.owner,
+            loop_site.clone(),
+            receipts,
+            iteration_locals,
+        )
     }
 }
 
 impl CallableSemanticLoopHandoffPreEffectReceiptV1 {
-    pub(super) const fn owner(self) -> FunctionOwnerIdV1 {
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
 
-    pub(super) const fn variable_reads(self) -> u32 {
-        self.variable_reads
+    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 {
+        &self.loop_site
     }
 
-    pub(super) const fn assignments(self) -> u32 {
-        self.assignments
+    pub(super) fn rows(&self) -> &[CallableLoopBindingCoverageRowV1] {
+        &self.rows
     }
 }
 
@@ -161,6 +208,7 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
         owner: FunctionOwnerIdV1,
         loop_site: SourceNodeSiteV1,
         receipts: Vec<CallableLoopBindingReceiptV1>,
+        iteration_locals: BTreeSet<BindingRefV1>,
     ) -> Result<Self, String> {
         if loop_site.segments().is_empty() {
             return Err(freeze("empty-loop-site"));
@@ -168,31 +216,79 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
         if receipts.is_empty() {
             return Err(freeze("incomplete-coverage"));
         }
+        if iteration_locals
+            .iter()
+            .any(|binding| binding.owner() != owner)
+        {
+            return Err(freeze("foreign-iteration-local"));
+        }
         let mut sites = BTreeSet::new();
-        let mut condition_reads = 0;
-        let mut body_reads = 0;
-        let mut body_rebinds = 0;
+        let mut receipts_by_binding = BTreeMap::<_, Vec<_>>::new();
         for receipt in &receipts {
             if receipt.binding().owner() != owner {
                 return Err(freeze("foreign-binding"));
             }
             classify_suffix(&loop_site, receipt.site(), receipt.role())?;
-            match receipt.role() {
-                CallableLoopBindingRoleV1::ConditionRead => condition_reads += 1,
-                CallableLoopBindingRoleV1::BodyRead => body_reads += 1,
-                CallableLoopBindingRoleV1::BodyRebind => body_rebinds += 1,
-            }
             if !sites.insert(receipt.site().clone()) {
                 return Err(freeze("duplicate-source-site"));
             }
         }
-        if (condition_reads, body_reads, body_rebinds) != (1, 1, 1) {
-            return Err(freeze("incomplete-coverage"));
+        for receipt in receipts {
+            receipts_by_binding
+                .entry(receipt.binding())
+                .or_default()
+                .push(receipt);
+        }
+        let mut carrier_count = 0;
+        let mut rows = Vec::with_capacity(receipts_by_binding.len());
+        for (binding, receipts) in receipts_by_binding {
+            let has_read = receipts.iter().any(|receipt| {
+                matches!(
+                    receipt.role(),
+                    CallableLoopBindingRoleV1::ConditionRead | CallableLoopBindingRoleV1::BodyRead
+                )
+            });
+            let has_rebind = receipts
+                .iter()
+                .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRebind);
+            let has_condition_read = receipts
+                .iter()
+                .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::ConditionRead);
+            let has_body_read = receipts
+                .iter()
+                .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRead);
+            let class = if iteration_locals.contains(&binding) {
+                CallableLoopBindingClassV1::IterationLocal
+            } else if has_rebind {
+                carrier_count += 1;
+                CallableLoopBindingClassV1::Carrier
+            } else {
+                CallableLoopBindingClassV1::ReadOnlyOperand
+            };
+            if !has_read
+                || (class == CallableLoopBindingClassV1::Carrier
+                    && (!has_condition_read || !has_body_read || !has_rebind))
+            {
+                return Err(freeze("incomplete-binding-coverage"));
+            }
+            rows.push(CallableLoopBindingCoverageRowV1 {
+                binding,
+                class,
+                receipts: receipts.into_boxed_slice(),
+            });
+        }
+        if carrier_count != 1 {
+            return Err(freeze("carrier-cardinality"));
+        }
+        for binding in iteration_locals {
+            if !rows.iter().any(|row| row.binding() == binding) {
+                return Err(freeze("unconsumed-iteration-local"));
+            }
         }
         Ok(Self {
             owner,
             loop_site,
-            receipts: receipts.into_boxed_slice(),
+            rows: rows.into_boxed_slice(),
         })
     }
 
@@ -215,20 +311,10 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
         if !is_direct_child(parent_site, body_site, SourcePathSegmentV1::LoopBodyRoot) {
             return Err(freeze("body-source-mismatch"));
         }
-        let mut variable_reads = 0;
-        let mut assignments = 0;
-        for receipt in &self.receipts {
-            match receipt.role() {
-                CallableLoopBindingRoleV1::ConditionRead | CallableLoopBindingRoleV1::BodyRead => {
-                    variable_reads += 1
-                }
-                CallableLoopBindingRoleV1::BodyRebind => assignments += 1,
-            }
-        }
         Ok(CallableSemanticLoopHandoffPreEffectReceiptV1 {
             owner: self.owner,
-            variable_reads,
-            assignments,
+            loop_site: self.loop_site,
+            rows: self.rows,
         })
     }
 
@@ -236,8 +322,16 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
         &self.loop_site
     }
 
-    pub(super) fn receipts(&self) -> &[CallableLoopBindingReceiptV1] {
-        &self.receipts
+    pub(super) fn receipt_count(&self) -> usize {
+        self.rows.iter().map(|row| row.receipts().len()).sum()
+    }
+
+    pub(super) fn receipts(&self) -> impl Iterator<Item = &CallableLoopBindingReceiptV1> {
+        self.rows.iter().flat_map(|row| row.receipts())
+    }
+
+    pub(super) fn rows(&self) -> &[CallableLoopBindingCoverageRowV1] {
+        &self.rows
     }
 }
 
@@ -255,35 +349,46 @@ fn classify_suffix(
     let is_nested = relative.iter().skip(1).any(|segment| {
         matches!(
             segment,
-            SourcePathSegmentV1::LoopCondition | SourcePathSegmentV1::LoopBodyRoot
+            SourcePathSegmentV1::LoopCondition
+                | SourcePathSegmentV1::LoopBodyRoot
+                | SourcePathSegmentV1::LoopBody(_)
+                | SourcePathSegmentV1::LambdaBodyRoot
+                | SourcePathSegmentV1::LambdaBody(_)
         )
     });
     if is_nested {
         return Err(freeze("nested-loop-profile-not-admitted"));
     }
-    let valid = match role {
-        CallableLoopBindingRoleV1::ConditionRead => {
-            relative == [SourcePathSegmentV1::LoopCondition, SourcePathSegmentV1::Lhs]
+    let valid = match (role, relative.first()) {
+        (CallableLoopBindingRoleV1::ConditionRead, Some(SourcePathSegmentV1::LoopCondition)) => {
+            true
         }
-        CallableLoopBindingRoleV1::BodyRead => {
-            relative
-                == [
-                    SourcePathSegmentV1::LoopBody(0),
-                    SourcePathSegmentV1::Value,
-                    SourcePathSegmentV1::Lhs,
-                ]
-        }
-        CallableLoopBindingRoleV1::BodyRebind => {
-            relative
-                == [
-                    SourcePathSegmentV1::LoopBody(0),
-                    SourcePathSegmentV1::Target,
-                ]
-        }
+        (
+            CallableLoopBindingRoleV1::BodyRead | CallableLoopBindingRoleV1::BodyRebind,
+            Some(SourcePathSegmentV1::LoopBody(_)),
+        ) => true,
+        _ => false,
     };
     valid
         .then_some(())
         .ok_or_else(|| freeze("role-source-mismatch"))
+}
+
+fn is_direct_loop_body_descendant(loop_site: &SourceNodeSiteV1, site: &SourceNodeSiteV1) -> bool {
+    let Some(relative) = relative_segments(loop_site, site) else {
+        return false;
+    };
+    matches!(relative.first(), Some(SourcePathSegmentV1::LoopBody(_)))
+        && !relative.iter().skip(1).any(|segment| {
+            matches!(
+                segment,
+                SourcePathSegmentV1::LoopCondition
+                    | SourcePathSegmentV1::LoopBodyRoot
+                    | SourcePathSegmentV1::LoopBody(_)
+                    | SourcePathSegmentV1::LambdaBodyRoot
+                    | SourcePathSegmentV1::LambdaBody(_)
+            )
+        })
 }
 
 fn relative_segments<'a>(
@@ -314,7 +419,14 @@ mod tests {
     use hakorune_mir_core::BindingId;
 
     use super::*;
-    use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SourcePathV1};
+    use crate::ast::ASTNode;
+    use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+    use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
+    use crate::mir::resolved_semantics::{
+        CallableFunctionSyntaxViewV1, FunctionOwnerIssuerV1, FunctionSemanticResolverSessionV1,
+        ResolveSelectedCallableForestsOutcomeV1, SourcePathV1,
+    };
+    use crate::parser::NyashParser;
 
     fn owner() -> FunctionOwnerIdV1 {
         let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
@@ -323,6 +435,25 @@ mod tests {
 
     fn binding(owner: FunctionOwnerIdV1, slot: u32) -> BindingRefV1 {
         BindingRefV1::new(owner, BindingId::new(slot))
+    }
+
+    fn parsed_skip_while() -> ASTNode {
+        let program = NyashParser::parse_from_string(include_str!(
+            "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+        ))
+        .expect("production parser scan loop source");
+        let ASTNode::Program { statements, .. } = program else {
+            panic!("parser must return Program")
+        };
+        statements
+            .into_iter()
+            .find_map(|statement| match statement {
+                ASTNode::BoxDeclaration { name, methods, .. } if name == "ParserScanLoopBox" => {
+                    methods.get_declaration("skip_while").cloned()
+                }
+                _ => None,
+            })
+            .expect("production skip_while declaration")
     }
 
     #[test]
@@ -362,6 +493,7 @@ mod tests {
                     CallableLoopBindingRoleV1::BodyRebind,
                 ),
             ],
+            BTreeSet::new(),
         )
         .unwrap();
         let receipt = schedule
@@ -376,8 +508,13 @@ mod tests {
             )
             .unwrap();
         assert_eq!(receipt.owner(), owner);
-        assert_eq!(receipt.variable_reads(), 2);
-        assert_eq!(receipt.assignments(), 1);
+        assert_eq!(receipt.loop_site(), &loop_site);
+        assert_eq!(receipt.rows().len(), 1);
+        assert_eq!(
+            receipt.rows()[0].class(),
+            CallableLoopBindingClassV1::Carrier
+        );
+        assert_eq!(receipt.rows()[0].receipts().len(), 3);
     }
 
     #[test]
@@ -404,24 +541,28 @@ mod tests {
                 binding(foreign, 0),
                 CallableLoopBindingRoleV1::ConditionRead,
             )],
+            BTreeSet::new(),
         )
         .is_err());
         assert!(VerifiedCallableSemanticLoopBindingScheduleV1::seal(
             owner_id,
             loop_site.clone(),
             vec![receipt(), receipt()],
+            BTreeSet::new(),
         )
         .is_err());
         assert!(VerifiedCallableSemanticLoopBindingScheduleV1::seal(
             owner_id,
             loop_site.clone(),
             Vec::new(),
+            BTreeSet::new(),
         )
         .is_err());
         assert!(VerifiedCallableSemanticLoopBindingScheduleV1::seal(
             owner_id,
             loop_site.clone(),
             vec![receipt()],
+            BTreeSet::new(),
         )
         .is_err());
         let nested = SourcePathV1::from_node(&loop_site)
@@ -437,7 +578,172 @@ mod tests {
                 binding(owner_id, 0),
                 CallableLoopBindingRoleV1::BodyRead,
             )],
+            BTreeSet::new(),
         )
         .is_err());
+    }
+
+    #[test]
+    fn variable_reads_are_rows_not_fixed_counts_or_cross_binding_repair() {
+        let owner_id = owner();
+        let foreign = owner();
+        let loop_site = SourcePathV1::root_body(2).node();
+        let condition = |side| {
+            SourcePathV1::from_node(&loop_site)
+                .child(SourcePathSegmentV1::LoopCondition)
+                .child(side)
+                .node()
+        };
+        let body = |index, tail| {
+            SourcePathV1::from_node(&loop_site)
+                .child(SourcePathSegmentV1::LoopBody(index))
+                .child(tail)
+                .node()
+        };
+        let carrier = binding(owner_id, 0);
+        let read_only = binding(owner_id, 1);
+        let iteration_local = binding(owner_id, 2);
+        let receipts = vec![
+            CallableLoopBindingReceiptV1::new(
+                condition(SourcePathSegmentV1::Lhs),
+                carrier,
+                CallableLoopBindingRoleV1::ConditionRead,
+            ),
+            CallableLoopBindingReceiptV1::new(
+                condition(SourcePathSegmentV1::Rhs),
+                read_only,
+                CallableLoopBindingRoleV1::ConditionRead,
+            ),
+            CallableLoopBindingReceiptV1::new(
+                body(0, SourcePathSegmentV1::Value),
+                iteration_local,
+                CallableLoopBindingRoleV1::BodyRead,
+            ),
+            CallableLoopBindingReceiptV1::new(
+                body(1, SourcePathSegmentV1::Lhs),
+                carrier,
+                CallableLoopBindingRoleV1::BodyRead,
+            ),
+            CallableLoopBindingReceiptV1::new(
+                body(1, SourcePathSegmentV1::Target),
+                carrier,
+                CallableLoopBindingRoleV1::BodyRebind,
+            ),
+        ];
+        let schedule = VerifiedCallableSemanticLoopBindingScheduleV1::seal(
+            owner_id,
+            loop_site.clone(),
+            receipts,
+            BTreeSet::from([iteration_local]),
+        )
+        .expect("variable exact reads are admitted by relation");
+        assert_eq!(schedule.receipt_count(), 5);
+        assert_eq!(schedule.rows().len(), 3);
+
+        let cross_binding = vec![
+            CallableLoopBindingReceiptV1::new(
+                condition(SourcePathSegmentV1::Lhs),
+                carrier,
+                CallableLoopBindingRoleV1::ConditionRead,
+            ),
+            CallableLoopBindingReceiptV1::new(
+                body(0, SourcePathSegmentV1::Lhs),
+                read_only,
+                CallableLoopBindingRoleV1::BodyRead,
+            ),
+            CallableLoopBindingReceiptV1::new(
+                body(0, SourcePathSegmentV1::Target),
+                carrier,
+                CallableLoopBindingRoleV1::BodyRebind,
+            ),
+        ];
+        assert!(VerifiedCallableSemanticLoopBindingScheduleV1::seal(
+            owner_id,
+            loop_site.clone(),
+            cross_binding,
+            BTreeSet::new(),
+        )
+        .is_err());
+        assert!(VerifiedCallableSemanticLoopBindingScheduleV1::seal(
+            owner_id,
+            loop_site.clone(),
+            vec![
+                CallableLoopBindingReceiptV1::new(
+                    condition(SourcePathSegmentV1::Lhs),
+                    carrier,
+                    CallableLoopBindingRoleV1::ConditionRead,
+                ),
+                CallableLoopBindingReceiptV1::new(
+                    body(0, SourcePathSegmentV1::Lhs),
+                    carrier,
+                    CallableLoopBindingRoleV1::BodyRead,
+                ),
+                CallableLoopBindingReceiptV1::new(
+                    body(0, SourcePathSegmentV1::Target),
+                    carrier,
+                    CallableLoopBindingRoleV1::BodyRebind,
+                ),
+            ],
+            BTreeSet::from([binding(foreign, 9)]),
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn production_skip_while_keeps_one_carrier_and_variable_operand_rows() {
+        let function = parsed_skip_while();
+        let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function)
+            .expect("callable syntax view");
+        let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
+        let ResolveSelectedCallableForestsOutcomeV1::Complete(mut forests) = resolver
+            .resolve_selected_callable_forests(&[syntax.function()])
+            .expect("resolved production function")
+        else {
+            panic!("production skip_while unexpectedly deferred")
+        };
+        let forest = forests
+            .into_vec()
+            .pop()
+            .expect("one production function forest");
+        let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
+            &function,
+            &forest,
+            syntax.function().root_profile(),
+        )
+        .expect("source projection");
+        let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+            &function,
+            &forest,
+            &projection,
+        )
+        .expect("resolved lowering input");
+        let state = super::super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(input)
+            .expect("callable semantic lowering state");
+        let schedule = state
+            .loop_binding_source_projection()
+            .project(SourcePathV1::root_body(1).node())
+            .expect("production Loop source coverage");
+
+        assert_eq!(
+            schedule
+                .rows()
+                .iter()
+                .filter(|row| row.class() == CallableLoopBindingClassV1::Carrier)
+                .count(),
+            1
+        );
+        assert!(
+            schedule
+                .rows()
+                .iter()
+                .filter(|row| row.class() == CallableLoopBindingClassV1::ReadOnlyOperand)
+                .count()
+                >= 3
+        );
+        assert!(schedule
+            .rows()
+            .iter()
+            .any(|row| row.class() == CallableLoopBindingClassV1::IterationLocal));
+        assert!(schedule.receipt_count() > 3);
     }
 }
