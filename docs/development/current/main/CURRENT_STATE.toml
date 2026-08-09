@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic carrier P2C through semantic-envelope I0, the V2 operand-definition guard R0, and Dynamic value I0 are closed. Source-value relation D0 is NoSafeSlice as an executable row. Dynamic operation D0 is accepted: unchanged skip_while requires two DynamicAdd and two DynamicLess rows, including the previously uncovered substring temporary Add and inner CallSlot-result Less. The next bounded compiler-widening row is schema/verifier-only I0; source stays unchanged."
+status = "Dynamic carrier P2C through semantic-envelope I0, the V2 operand-definition guard R0, Dynamic value I0, and Dynamic operation I0 are closed. V2 now accepts the unchanged source's two DynamicAdd and two DynamicLess rows with three distinct ConstI64 anchors; V1 and the source are unchanged. The next design stop owns one complete unchanged-source V2 producer and private source-to-key candidate; no partial call-only product."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-work_mode = "fast"
-current_execution_row = "LOOP-V2-DYNAMIC-OPERATION-I0"
-current_blocker_token = "LOOP-V2-DYNAMIC-OPERATION-I0: add exact V2 DynamicAdd and DynamicLess schema/verifier vocabulary plus the four-row structural golden; preserve V1 and the unchanged source; no full producer, source/envelope co-seal, selector refinement, Fault/value fusion, physical/provider/runtime plan, retry, fallback, or fixture narrowing"
+current_design_stop = "LOOP-V2-DYNAMIC-FULL-PRODUCER-D0"
+work_mode = "design_stop"
+current_execution_row = "LOOP-V2-DYNAMIC-FULL-PRODUCER-D0"
+current_blocker_token = "LOOP-V2-DYNAMIC-FULL-PRODUCER-D0: define one complete V2 Recipe for unchanged skip_while and the producer-private source-to-key candidate covering all operations/calls/control; no partial Verified key product, source/envelope co-seal implementation, Home, JoinSig/control activation, physical/provider/runtime plan, retry, fallback, selector refinement, or fixture narrowing before consultation"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"

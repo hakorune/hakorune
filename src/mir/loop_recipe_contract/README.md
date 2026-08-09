@@ -182,7 +182,7 @@ is corrected to Dynamic operations, full unchanged-source V2 producer, then a
 single atomic source/Recipe/envelope co-seal. The per-Recipe co-seal will
 borrow—not consume—the complete seven-row module envelope catalog.
 
-The Dynamic operation D0 is accepted. The next schema/verifier row adds only
+The Dynamic operation D0 and schema/verifier I0 are landed. V2 adds only
 `DynamicAdd` and `DynamicLess`:
 
 ```text
@@ -200,6 +200,13 @@ operator contract; TypeError/Fault defines no Recipe value or lexical control
 edge. I0 changes only V2 schema/verifier/tests and leaves V1, source co-seal,
 physical lowering, provider/runtime execution, and production selection
 closed.
+
+The focused golden contains two Add, two Less, and three distinct
+`ConstI64(1/0/1)` rows; substring Add is temporary, inner Less consumes the
+prior CallSlot result, and only StepAdd feeds `WriteBinding`. Eight focused
+Dynamic-operation tests and all twenty-six V2 schema tests pass. The next row
+is a design stop for one complete unchanged-source V2 producer; no partial
+call-only producer or durable source-to-key product may be opened.
 
 ## Generic G0 S4 producer
 

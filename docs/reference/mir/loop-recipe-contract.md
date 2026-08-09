@@ -124,6 +124,14 @@ operation, false predicate, Exit, JoinSig edge, Return, or Completion. The
 schema I0 is logical only; physical/provider/runtime execution remains closed
 until a route proves the same result/Fault behavior without retry or fallback.
 
+Implementation receipt (`LOOP-V2-DYNAMIC-OPERATION-I0`, 2026-08-10): V2 now
+contains the two exact variants and verifies all three admitted domains. A
+dedicated four-operation golden preserves two Add, two Less, and three distinct
+`ConstI64` rows (`1`, `0`, `1`). Eight focused Dynamic-operation tests and the
+complete twenty-six-test V2 schema suite pass. V1 decoding remains unchanged.
+No source relation, full producer, physical writer, or production activation
+is introduced by this receipt.
+
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 

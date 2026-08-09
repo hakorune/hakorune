@@ -512,6 +512,60 @@ fn check_operation(
                 definitions,
             )
         }
+        LoopOperationV2::DynamicAdd {
+            left,
+            right,
+            result,
+        } => {
+            expect_defined_class(
+                *item_key,
+                *left,
+                LoopValueClassV2::Dynamic,
+                values,
+                definitions,
+            )?;
+            expect_defined_class(
+                *item_key,
+                *right,
+                LoopValueClassV2::I64,
+                values,
+                definitions,
+            )?;
+            define_value(
+                *item_key,
+                *result,
+                LoopValueClassV2::Dynamic,
+                values,
+                definitions,
+            )
+        }
+        LoopOperationV2::DynamicLess {
+            left,
+            right,
+            result,
+        } => {
+            expect_defined_class(
+                *item_key,
+                *left,
+                LoopValueClassV2::Dynamic,
+                values,
+                definitions,
+            )?;
+            let right_class = expect_defined_value(*item_key, *right, values, definitions)?;
+            if !matches!(
+                right_class,
+                LoopValueClassV2::Dynamic | LoopValueClassV2::I64
+            ) {
+                return Err(LoopRecipeV2RejectReason::InvalidOperationDomain { item: *item_key });
+            }
+            define_value(
+                *item_key,
+                *result,
+                LoopValueClassV2::Bool,
+                values,
+                definitions,
+            )
+        }
         LoopOperationV2::WriteBinding { binding, value } => {
             let Some(class) = bindings.get(binding) else {
                 return Err(LoopRecipeV2RejectReason::UnknownBinding { key: *binding });

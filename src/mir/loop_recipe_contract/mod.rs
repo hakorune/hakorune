@@ -103,6 +103,10 @@ mod operation_physical_demand_tests;
 mod typed_schema_v2_tests;
 
 #[cfg(test)]
+#[path = "typed_schema_v2_dynamic_operation_tests.rs"]
+mod typed_schema_v2_dynamic_operation_tests;
+
+#[cfg(test)]
 pub(crate) use operation_effect_parity::{
     issue_operation_effect_parity_receipt_v1, LoopOperationEffectParityReceiptV1,
     LoopOperationEffectParityRejectV1, LoopOperationEffectParitySideV1,

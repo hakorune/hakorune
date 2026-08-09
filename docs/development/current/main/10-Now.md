@@ -42,11 +42,12 @@ source link and issues `substring/2` plus `indexOf/1` for the unchanged full
 production fixture. Qualified helper receivers remain valid unselected rows;
 the compiler acceptance was widened instead of rewriting or narrowing the
 source. The selector-independent language Decision and caller-zero complete
-semantic-envelope catalog are now closed. The Dynamic Recipe consultation and
-Dynamic operation D0 are also closed. The current executable row is:
+semantic-envelope catalog are now closed. The Dynamic Recipe consultation,
+Dynamic operation D0, and schema/verifier I0 are also closed. The current row
+is the next design stop:
 
 ```text
-LOOP-V2-DYNAMIC-OPERATION-I0
+LOOP-V2-DYNAMIC-FULL-PRODUCER-D0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe
@@ -66,9 +67,12 @@ accepted operation vocabulary owns two `DynamicAdd` and two `DynamicLess`
 rows for the unchanged source. This includes the substring-end temporary Add
 and inner CallSlot-result Less that the old condition-plus-step P1 proof did
 not cover. Exact literals remain three separate `ConstI64` source anchors.
-The schema/verifier I0 widens the compiler, not the fixture. If another valid
-row is unsupported, widen the compiler or stop at a named design question;
-never narrow or rewrite source. Physical
+The schema/verifier I0 widened the compiler, not the fixture, and its
+four-operation golden plus domain negatives are green. The next design must
+define one complete unchanged-source V2 producer and a private source-to-key
+candidate; it may not publish a partial call-only `Verified*` product. If
+another valid row is unsupported, widen the compiler or stop at a named design
+question; never narrow or rewrite source. Physical
 projection, provider plan, retry, and fallback remain closed.
 JoinSig-authorized If/Return and multi-return Completion still precede
 DraftSeal/collector/backend/VM.

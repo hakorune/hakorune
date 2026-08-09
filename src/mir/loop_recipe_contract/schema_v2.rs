@@ -128,6 +128,16 @@ pub(crate) enum LoopOperationV2 {
         right: LoopValueKeyV1,
         result: LoopValueKeyV1,
     },
+    DynamicAdd {
+        left: LoopValueKeyV1,
+        right: LoopValueKeyV1,
+        result: LoopValueKeyV1,
+    },
+    DynamicLess {
+        left: LoopValueKeyV1,
+        right: LoopValueKeyV1,
+        result: LoopValueKeyV1,
+    },
     WriteBinding {
         binding: LoopBindingKeyV1,
         value: LoopValueKeyV1,

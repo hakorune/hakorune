@@ -1,11 +1,11 @@
 ---
-Status: Dynamic operation D0 accepted; schema/verifier I0 next
+Status: Dynamic operation schema/verifier I0 closed; full producer D0 next
 Date: 2026-08-10
 Decision row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`
 Closed row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0`
-Next row: `LOOP-V2-DYNAMIC-OPERATION-I0`
+Next row: `LOOP-V2-DYNAMIC-FULL-PRODUCER-D0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
-Mode: fast / one Dynamic logical operation vocabulary slice
+Mode: design stop / complete unchanged-source V2 producer boundary
 ---
 
 # Dynamic dispatch execution envelope
@@ -732,3 +732,50 @@ the module README with focused schema tests in the same commit. If the exact
 unchanged source exceeds the accepted domains, the compiler vocabulary is
 widened through another named Decision; the source is never rewritten or
 reduced to fit the verifier.
+
+## Dynamic operation I0 closeout
+
+`LOOP-V2-DYNAMIC-OPERATION-I0` is closed. V2 now serializes and structurally
+verifies exact `DynamicAdd` and `DynamicLess` variants with the accepted domain
+table. The implementation reuses the common operand-definition guard and
+defines only normal-path results.
+
+The dedicated structural golden contains the four unchanged-source roles:
+
+```text
+DynamicLess Dynamic x Dynamic -> Bool
+DynamicAdd  Dynamic x I64     -> Dynamic
+DynamicLess Dynamic x I64     -> Bool
+DynamicAdd  Dynamic x I64     -> Dynamic
+```
+
+Three separate `ConstI64` rows carry `1`, `0`, and `1`. The first Add remains
+a temporary result, the second Add alone feeds `WriteBinding`, and the inner
+Less consumes a prior Dynamic CallSlot result. Focused negatives reject
+reversed/mixed unsupported domains, wrong result class, and forward use.
+
+```text
+focused Dynamic operation tests:
+  cargo test -q typed_schema_v2_dynamic_operation_tests --lib
+  8 passed
+
+complete V2 schema regression:
+  cargo test -q loop_recipe_contract::typed_schema_v2 --lib
+  26 passed
+
+unchanged envelope regression:
+  cargo test -q dynamic_invocation_contract::tests --lib
+  5 passed
+
+line counts:
+  schema_v2.rs                                  221
+  typed_schema_v2.rs                            672
+  typed_schema_v2_tests.rs                      485
+  typed_schema_v2_dynamic_operation_tests.rs    300
+```
+
+This row changes no V1 wire, source observer/relation, full producer, Home,
+JoinSig, Builder/MIR writer, provider/runtime plan, fallback, or production
+caller. The next row is design-only: define the one complete unchanged-source
+V2 producer and its private source-to-key candidate without publishing a
+partial `Verified*` relation.
