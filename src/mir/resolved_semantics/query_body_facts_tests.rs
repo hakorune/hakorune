@@ -4,7 +4,8 @@ use crate::mir::resolved_semantics::{
     CallableHomeAbiIssuerV1, DeclaredInstanceMethodContractIssuerV1, DeclaredQueryBehaviorIssuerV1,
     DeclaredQueryBodySourceIssuerV1, FunctionSemanticResolverSessionV1,
     InstanceMethodBodyOwnerBindingIssuerV1, InstanceMethodBodySourceIssuerV1,
-    InstanceMethodFunctionCarrierIssuerV1, ResolverHomeCapabilityEnvironmentV1,
+    InstanceMethodFunctionCarrierIssuerV1, QueryBodyConformanceEvidenceIssuerV1,
+    QueryBodyHomeTransferV1, ResolverHomeCapabilityEnvironmentV1,
     ResolverNominalBoxDeclarationInputV1, ResolverNominalTypeEnvironmentV1,
     SemanticInstanceDeclarationIssuerV1,
 };
@@ -77,6 +78,13 @@ fn query_body_facts_accept_exact_return_me() {
             assert_eq!(
                 row.receiver_read().expression(),
                 row.ordinary_return().value()
+            );
+            let evidence = QueryBodyConformanceEvidenceIssuerV1::issue(&owner, &facts)
+                .expect("bounded conformance evidence should issue");
+            assert_eq!(evidence.rows().len(), 1);
+            assert_eq!(
+                evidence.rows()[0].home_flow().transfer(),
+                QueryBodyHomeTransferV1::None
             );
         },
     );

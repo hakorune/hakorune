@@ -1068,13 +1068,16 @@ Rejected > Unresolved > Declined > Candidate
     - no conformance code, empty/default receipt, target, Recipe, or MIR;
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-d0-design-task-2026-08-09.md`.
-22A-I0. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-I0` (current implementation row)
+22A-I0. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-I0` (closed bounded implementation)
     - issue only the exact `return me` structural safety receipt and the
       sibling Query Home no-transfer receipt;
     - stop at `NoSafeSlice` for incomplete effect/control/Home coverage;
     - implementation:
       `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-i0-implementation-task-2026-08-09.md`.
-22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (parked behind 22A-I0)
+    - landed issuer: `QueryBodyConformanceEvidenceIssuerV1`;
+    - focused `query_body_facts` slice is green; general conformance remains
+      unopened.
+22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (parked by general-evidence NoSafeSlice)
     - consume declared contract + bounded Query facts + complete evidence;
     - issue one accepted row per selected declaration and reject any
       missing/duplicate/foreign/nonconforming row;

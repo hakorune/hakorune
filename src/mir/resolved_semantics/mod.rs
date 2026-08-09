@@ -34,6 +34,7 @@ mod instance_method_function_carrier;
 mod home_relation;
 mod query_behavior;
 mod query_body_facts;
+mod query_body_conformance_evidence;
 mod instance_method_body_owner;
 mod loop_family_window;
 #[cfg(test)]
@@ -128,6 +129,13 @@ pub(in crate::mir) use query_body_facts::{
     QueryBodyFactsRejectV1, QueryBodyFactsUnresolvedV1,
     ReceiverReadFactV1, OrdinaryReturnFactV1,
     VerifiedCallableQueryBodyFactsCatalogV1, VerifiedCallableQueryBodyFactsRowV1,
+};
+pub(in crate::mir) use query_body_conformance_evidence::{
+    QueryBodyConformanceEvidenceDeclineV1, QueryBodyConformanceEvidenceIssueV1,
+    QueryBodyConformanceEvidenceIssuerV1, QueryBodyConformanceEvidenceNoSafeSliceV1,
+    QueryBodyConformanceEvidenceRejectV1, QueryBodyHomeTransferV1,
+    VerifiedQueryBodyConformanceEvidenceCatalogV1, VerifiedQueryBodyConformanceEvidenceV1,
+    VerifiedQueryBodyHomeFlowEvidenceV1,
 };
 pub(crate) use instance_method_body_source::{
     InstanceMethodBodySourceIssuerV1, InstanceMethodBodySourceIssueV1,

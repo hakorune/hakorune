@@ -1,5 +1,5 @@
 ---
-Status: implementation ready after design stop
+Status: landed bounded implementation; general conformance remains parked
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -9,7 +9,7 @@ Authority: `docs/reference/language/callable-contracts.md`
 
 ## Change
 
-Implement only the private, bounded `return me` evidence path:
+Implemented only the private, bounded `return me` evidence path:
 
 ```text
 VerifiedInstanceMethodBodyOwnerCatalogV1
@@ -18,9 +18,21 @@ VerifiedInstanceMethodBodyOwnerCatalogV1
       -> VerifiedQueryBodyConformanceEvidenceV1
 ```
 
-The implementation must have one public-in-module issuer and one atomic
+The implementation has one public-in-module issuer and one atomic
 non-`Clone` aggregate. Keep the neutral body-shape inventory, declared Home
 ABI, and Query behavior as separate authorities.
+
+Landed in `src/mir/resolved_semantics/query_body_conformance_evidence.rs`:
+
+```text
+QueryBodyConformanceEvidenceIssuerV1
+  -> VerifiedQueryBodyConformanceEvidenceCatalogV1
+  -> VerifiedQueryBodyHomeFlowEvidenceV1(transfer = None)
+```
+
+The focused `query_body_facts` slice now exercises the real parser/resolver
+fixture and asserts the bounded Home no-transfer receipt. No general
+conformance catalog was opened.
 
 ## Required proof
 
@@ -72,6 +84,8 @@ fallback/retry/provider/runtime/production
 Keep each Rust file under 800 lines. Add focused real-fixture tests, update the
 resolved-semantics README, callable reference, this receipt, task map, and
 current pointers in one slice. Run focused resolver tests and
-`bash tools/checks/current_state_pointer_guard.sh`, then commit and push. Stop
-before `CALLABLE-CONTRACT-CONFORMANCE-I0` if any complete evidence axis is
-still `NoSafeSlice`.
+`bash tools/checks/current_state_pointer_guard.sh`; commit and push this slice.
+`CALLABLE-CONTRACT-CONFORMANCE-I0` remains parked because general
+effect/control/Home-flow completeness is still `NoSafeSlice` outside this
+bounded cohort. Do not widen `BodyEffectKindV1`, use MIR ownership SSA, or
+open target/Recipe/MIR as a workaround.
