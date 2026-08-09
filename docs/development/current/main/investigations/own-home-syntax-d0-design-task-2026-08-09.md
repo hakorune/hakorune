@@ -241,31 +241,37 @@ forbidden.
    transaction; Rust/Hako parity and same-slice reference receipt
 
 3. OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT
-   current: select the typed parameter carrier and exact Hako owner without
-   duplicating the existing Home ABI authority
+   closed NoSafeSlice: no connected canonical Hako method-header owner
 
-4. OWN-HOME-TAKE-DECL-SYNTAX-I0
+4. HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0
+   current design consultation: integrate ordered typed parameter rows into
+   the existing H2/H3 ordinary Box transaction and sole source seal
+
+5. HAKO-PARSER-BOX-DECLARATION-CARRIER-H2/H3
+   canonical Hako method-header/parameter source authority
+
+6. OWN-HOME-TAKE-DECL-SYNTAX-I0
    typed parameter modifier in the declaration handoff; no Home ABI issuance
 
-5. OWN-HOME-CAPABILITY-TAXONOMY-D0
+7. OWN-HOME-CAPABILITY-TAXONOMY-D0
    Create/Consume/Share/Forward/Escape/End meanings and dispositions
 
-6. OWN-HOME-ABI-HOME-DEMAND-I0
+8. OWN-HOME-ABI-HOME-DEMAND-I0
    resolve the take declaration into one exact Home-demand capability
 
-7. CALLABLE-BODY-HOME-FLOW-LINEAR-I0
+9. CALLABLE-BODY-HOME-FLOW-LINEAR-I0
    Available -> End/Forward for the first linear owning-root cohort
 
-8. OWN-HOME-SHARE-REPRESENTATION-D0
+10. OWN-HOME-SHARE-REPRESENTATION-D0
    select Shared representation and destination/lifetime compatibility
 
-9. OWN-HOME-SHARE-EXPR-SYNTAX-I0
+11. OWN-HOME-SHARE-EXPR-SYNTAX-I0
    typed non-group postfix share carrier; no runtime/materialization fallback
 
-10. CALLABLE-BODY-HOME-FLOW-CFG-D0
+12. CALLABLE-BODY-HOME-FLOW-CFG-D0
    branch/loop/backedge/Maybe-join authority
 
-11. CALLABLE-BODY-EXECUTION-COSEAL
+13. CALLABLE-BODY-EXECUTION-COSEAL
     only after the required axis issuers are complete
 ```
 

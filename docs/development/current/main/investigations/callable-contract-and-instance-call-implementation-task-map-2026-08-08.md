@@ -524,13 +524,21 @@ OWN-HOME-RELEASE-SOURCE-I0 (closed 2026-08-09; Home semantics 0)
   Task:
   `docs/development/current/main/investigations/own-home-release-source-i0-implementation-task-2026-08-09.md`
 
-OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT (current census; implementation 0)
+OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT (closed NoSafeSlice 2026-08-09)
   inventory the shared Rust parameter parser/AST/handoff, Hako method-header
-  owner, and existing declaration-only Home ABI before selecting a typed
-  `take` syntax carrier. Do not put transfer meaning in type/name strings or
-  duplicate `HomeDemandV1` outside `VerifiedHomeAbiV1`.
+  owner, and existing declaration-only Home ABI. The census found no connected
+  canonical Hako method-header owner; `FuncScannerBox` is compatibility-only
+  and H1 is disconnected, so one-sided `take` activation is forbidden.
   Task:
   `docs/development/current/main/investigations/own-home-take-decl-syntax-i0-preflight-task-2026-08-09.md`
+
+HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0 (current design consultation)
+  refine the existing H2/H3 ordinary Box branch so one parser-private atomic
+  parameter-list product carries neutral AST projection plus exact typed
+  transfer rows into the sole final source seal. Keep `ParamDecl` neutral and
+  keep all Home-demand issuance in `VerifiedHomeAbiV1`.
+  Task:
+  `docs/development/current/main/investigations/hako-parser-take-parameter-carriage-h2-d0-consultation-2026-08-09.md`
 ```
 
 CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
@@ -1155,7 +1163,7 @@ Rejected > Unresolved > Declined > Candidate
       fallback, or production activation;
     - implementation card:
       `docs/development/current/main/investigations/own-home-release-source-i0-implementation-task-2026-08-09.md`.
-22A-HOME-TAKE-I0. `OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT` (current census)
+22A-HOME-TAKE-I0. `OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT` (closed NoSafeSlice)
     - audit the canonical shared parameter parser and `ParamDecl` compatibility
       surface before adding any transfer marker;
     - identify the exact Hako method-header/parser parity owner instead of
@@ -1166,6 +1174,16 @@ Rejected > Unresolved > Declined > Candidate
       no Builder/MIR/runtime activation;
     - preflight card:
       `docs/development/current/main/investigations/own-home-take-decl-syntax-i0-preflight-task-2026-08-09.md`.
+22A-HOME-TAKE-H2-D0. `HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0` (current consultation)
+    - the census found no connected canonical Hako method-header/parameter
+      authority; `FuncScannerBox` and ProgramJSON are non-authoritative;
+    - integrate ordered parameter syntax into the already planned H2/H3
+      ordinary Box transaction and sole final source seal;
+    - prefer one parser-private parameter-list product with a neutral
+      `ParamDecl` projection and typed exact-source rows;
+    - no code until the owner/product/cohort/fail-fast/test decisions close;
+    - consultation card:
+      `docs/development/current/main/investigations/hako-parser-take-parameter-carriage-h2-d0-consultation-2026-08-09.md`.
 22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after release/take/Home-demand rows)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;

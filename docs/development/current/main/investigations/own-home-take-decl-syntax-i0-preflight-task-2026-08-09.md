@@ -1,5 +1,5 @@
 ---
-Status: current census/design stop; implementation 0
+Status: census closed as NoSafeSlice; Hako H2/H3 parameter authority required
 Date: 2026-08-09
 Parent: `OWN-HOME-SYNTAX-D0`
 Ceremony: T2 declaration/parser/Home authority boundary
@@ -41,12 +41,42 @@ semantic Home ABI authority:
   -> current bounded schema classifies only I64/Unit as Trivial and hardcodes
      instance receiver Handle
 
-Hako parity owner:
-  not yet identified by the bounded census; do not infer it from body JSON or
-  add a one-sided Rust production
+Hako canonical parser owner:
+  absent today
+
+Hako compatibility scanner:
+  lang/src/compiler/entry/func_scanner.hako
+  -> strips/comments and rescans method text
+  -> emits params/param_decls JSON
+  -> explicitly non-authoritative for source identity
+
+Hako future source authority:
+  lang/src/compiler/parser/source_carrier_v1
+  -> H1 disconnected substrate is landed
+  -> method draft currently carries name/static/arity/result/source site only
+  -> H2/H3 ordinary Box branch + final source seal are not connected
+  -> ordered parameter syntax rows do not yet exist
 ```
 
-## Required design result
+## Census conclusion
+
+`OWN-HOME-TAKE-DECL-SYNTAX-I0` cannot open safely yet. Rust could parse the
+surface, but Hako has no canonical method-header/parameter authority capable of
+issuing the matching row. `FuncScannerBox`, ProgramJSON, or raw method text
+cannot fill that gap. This is a development `NoSafeSlice`, not a source
+`Unresolved` outcome.
+
+The next design card is:
+
+```text
+HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0
+```
+
+It refines the already planned
+`HAKO-PARSER-BOX-DECLARATION-CARRIER-H2/H3`; it does not create a parallel
+parser or source seal.
+
+## Required design result after the prerequisite
 
 Choose one typed syntax vocabulary such as:
 
@@ -71,11 +101,13 @@ and decide where it lives so that:
 
 ## Questions the census must close
 
-1. Should the typed transfer marker extend `ParamDecl`, or should explicit
-   method source inventory carry a sibling parameter-transfer row so legacy
-   AST constructors stay neutral?
-2. Which Hako parser module owns method/function parameter declarations, and
-   can it preserve the same no-line-terminator contextual decision?
+1. Prefer a parser-private atomic parameter-list product whose neutral AST
+   projection remains `ParamDecl`, while exact source rows retain parameter
+   ordinal, declared type syntax, and `ParameterTransferSyntaxV1`. Confirm this
+   instead of widening every Clone compatibility `ParamDecl` constructor.
+2. Extend the canonical Hako H2 ordinary Box branch to parse method headers
+   once and place ordered parameter syntax rows in the H3 source seal. Do not
+   reuse `FuncScannerBox` or introduce a sibling final seal.
 3. Which declaration cohorts enter I0: direct instance methods only, or every
    caller of the shared Rust parameter parser? The durable grammar is general,
    but one-sided activation is forbidden.
@@ -123,3 +155,5 @@ Stop for design consultation if the implementation would require changing all
 legacy `ParamDecl` constructors at once, inferring Home from a type/name string,
 duplicating parameter demand outside `VerifiedHomeAbiV1`, guessing the Hako
 owner, activating only one parser, or adding a global `TAKE` token.
+
+The present row stops here because the canonical Hako owner is absent.

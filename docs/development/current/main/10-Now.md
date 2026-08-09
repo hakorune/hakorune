@@ -35,7 +35,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT
+HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -46,9 +46,12 @@ contextual forms: declaration `take node: Node`, expression
 `share <non-group postfix>`, and statement `release node`. All remain
 same-line `IDENT` spellings, and `share(...)` is permanently an ordinary call.
 The exact `release IDENT` Rust/Hako parser/source row is closed; it carries no
-Home meaning. The current row inventories the shared parameter parser,
-compatibility `ParamDecl`, declaration handoff, Hako header owner, and the sole
-`VerifiedHomeAbiV1` demand authority before selecting a `take` implementation.
+Home meaning. The `take` census is also closed as NoSafeSlice: Rust has a
+shared parameter parser, while Hako has no connected canonical method-header
+owner. `FuncScannerBox`/ProgramJSON are compatibility-only and H1 is
+disconnected. The current design consultation decides how the existing H2/H3
+ordinary Box transaction and sole source seal carry typed parameter rows while
+keeping `ParamDecl` neutral and `VerifiedHomeAbiV1` the only demand authority.
 Home capability and Home Flow remain closed; target,
 Recipe/CallSlot, Builder/MIR, publication, fallback, and production remain
 closed.
@@ -131,7 +134,9 @@ typed syntax carriage (closed)
 -> Home source-event D0 (closed)
 -> Home syntax D0 (closed target; production 0)
 -> release source I0 (closed; semantics 0)
--> take declaration syntax preflight (current design stop)
+-> take declaration syntax preflight (closed NoSafeSlice)
+-> Hako H2/H3 parameter carriage design consultation (current stop)
+-> Hako H2/H3 method-header/source seal implementation
 -> take parser/source implementation + Home-demand rows
 -> bounded linear Home Flow
 -> target / source-bound relation / Recipe CallSlot
