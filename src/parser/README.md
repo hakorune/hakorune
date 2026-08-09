@@ -36,7 +36,7 @@ This is parser transport, not resolver semantic issuance. Semantic types,
 nominal Box identity, Home ABI, targets, Recipe/CallSlot, body conformance,
 Builder/MIR, and runtime/provider routes remain later owners.
 
-## Body-source transaction boundary (design stop)
+## Body-source transaction boundary (general I0 landed)
 
 The body-source path must not pair an AST with the declaration handoff after
 the parser transaction has ended. A parser-private non-`Clone`

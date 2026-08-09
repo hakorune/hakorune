@@ -9,7 +9,7 @@ use std::collections::HashSet;
 use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, ParamDecl};
 
 use super::callable_contract_syntax::CallableContractSyntaxV1;
-use super::source_authority::{MethodSourceRelationV1, ParserInvocationBrandV1};
+use super::source_authority::ParserInvocationBrandV1;
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{NyashParser, ParseError, ParserBuildConfig};
 
@@ -132,7 +132,7 @@ pub(crate) struct ParserBoxResolverSourceHandoffV1 {
 ///
 /// The resolver may retain and compare this membership evidence, but it
 /// cannot use it as nominal type identity or mint another parser seal.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct ResolverSourceInvocationProvenanceV1(ParserInvocationBrandV1);
 
 impl ResolverSourceInvocationProvenanceV1 {
@@ -162,6 +162,10 @@ impl ParserBoxResolverSourceHandoffV1 {
 
     pub(crate) fn same_source_invocation(&self, other: &Self) -> bool {
         self.brand == other.brand
+    }
+
+    pub(crate) fn parser_provenance(&self) -> ResolverSourceInvocationProvenanceV1 {
+        ResolverSourceInvocationProvenanceV1(self.brand.clone())
     }
 }
 
@@ -202,51 +206,59 @@ impl ParsedProgramWithSourceV1 {
         self,
     ) -> Result<(ASTNode, ParserBoxResolverSourceHandoffV1), ResolverSourceHandoffErrorV1> {
         let (ast, seals, _, _) = self.into_postpass_parts();
-        let statements = match &ast {
-            ASTNode::Program { statements, .. } => statements,
-            _ => return Err(ResolverSourceHandoffErrorV1::ProgramNotAvailable),
+        let handoff = build_resolver_source_handoff(&ast, &seals)?;
+        Ok((ast, handoff))
+    }
+}
+
+pub(super) fn build_resolver_source_handoff(
+    ast: &ASTNode,
+    seals: &[ParserBoxSourceSealV1],
+) -> Result<ParserBoxResolverSourceHandoffV1, ResolverSourceHandoffErrorV1> {
+    let statements = match ast {
+        ASTNode::Program { statements, .. } => statements,
+        _ => return Err(ResolverSourceHandoffErrorV1::ProgramNotAvailable),
+    };
+
+    let mut brand: Option<ParserInvocationBrandV1> = None;
+    let mut boxes = Vec::with_capacity(seals.len());
+    for seal in seals {
+        let statement_ordinal = seal.box_site().statement_ordinal();
+        let box_name = match statements.get(statement_ordinal as usize) {
+            Some(ASTNode::BoxDeclaration { name, .. }) => name.clone().into_boxed_str(),
+            Some(_) | None => {
+                return Err(ResolverSourceHandoffErrorV1::BoxSiteMissing {
+                    statement_ordinal,
+                })
+            }
         };
 
-        let mut brand: Option<ParserInvocationBrandV1> = None;
-        let mut boxes = Vec::with_capacity(seals.len());
-        for seal in seals {
-            let statement_ordinal = seal.box_site().statement_ordinal();
-            let box_name = match statements.get(statement_ordinal as usize) {
-                Some(ASTNode::BoxDeclaration { name, .. }) => name.clone().into_boxed_str(),
-                Some(_) | None => {
-                    return Err(ResolverSourceHandoffErrorV1::BoxSiteMissing {
-                        statement_ordinal,
-                    })
-                }
-            };
-
-            let seal_brand = seal.box_site().path().brand().clone();
-            if let Some(existing) = &brand {
-                if *existing != seal_brand {
-                    return Err(ResolverSourceHandoffErrorV1::MethodRelationMismatch {
-                        name: box_name,
-                    });
-                }
-            } else {
-                brand = Some(seal_brand);
+        let seal_brand = seal.box_site().path().brand().clone();
+        if let Some(existing) = &brand {
+            if *existing != seal_brand {
+                return Err(ResolverSourceHandoffErrorV1::MethodRelationMismatch {
+                    name: box_name,
+                });
             }
-
-            let methods = collect_explicit_methods(&seal, statement_ordinal)?;
-            boxes.push(ResolverBoxSourceRowV1 {
-                statement_ordinal,
-                name: box_name,
-                methods: methods.into_boxed_slice(),
-            });
+        } else {
+            brand = Some(seal_brand);
         }
 
-        let Some(brand) = brand else {
-            return Err(ResolverSourceHandoffErrorV1::ProgramNotAvailable);
-        };
-        Ok((ast, ParserBoxResolverSourceHandoffV1 {
-            brand,
-            boxes: boxes.into_boxed_slice(),
-        }))
+        let methods = collect_explicit_methods(seal, statement_ordinal)?;
+        boxes.push(ResolverBoxSourceRowV1 {
+            statement_ordinal,
+            name: box_name,
+            methods: methods.into_boxed_slice(),
+        });
     }
+
+    let Some(brand) = brand else {
+        return Err(ResolverSourceHandoffErrorV1::ProgramNotAvailable);
+    };
+    Ok(ParserBoxResolverSourceHandoffV1 {
+        brand,
+        boxes: boxes.into_boxed_slice(),
+    })
 }
 
 fn collect_explicit_methods(

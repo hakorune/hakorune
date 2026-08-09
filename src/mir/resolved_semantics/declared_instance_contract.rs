@@ -11,6 +11,7 @@ use super::{
     VerifiedDeclaredQueryBehaviorCatalogV1, VerifiedDeclaredQueryBehaviorV1, VerifiedHomeAbiV1,
     VerifiedInstanceMethodDeclarationV1,
 };
+use crate::parser::ResolverSourceInvocationProvenanceV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum DeclaredInstanceMethodContractIssueV1 {
@@ -45,6 +46,10 @@ impl VerifiedDeclaredInstanceMethodContractCatalogV1 {
 
     pub(crate) fn declarations(&self) -> &[VerifiedInstanceMethodDeclarationV1] {
         self.home_catalog.declarations()
+    }
+
+    pub(crate) fn parser_provenance(&self) -> &ResolverSourceInvocationProvenanceV1 {
+        self.home_catalog.parser_provenance()
     }
 
     pub(crate) fn home_abis(&self) -> &[VerifiedHomeAbiV1] {

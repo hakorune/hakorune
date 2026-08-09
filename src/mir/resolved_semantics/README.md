@@ -94,8 +94,8 @@ Query body-source projection then borrows the aggregate's selected view.
 Body conformance must wait for both that projection and the later owner link;
 it must not pair by name, inventory ordinal, Query re-selection, or MIR facts.
 
-The next body-source D0 fixes the parser-side boundary before any conformance
-issuer opens. The existing declaration handoff remains body-free. A private
+The general body-source I0 fixes the parser-side boundary before any
+conformance issuer opens. The existing declaration handoff remains body-free. A private
 non-`Clone` `ParserResolverBodyTransactionV1` must decompose exactly once via
 `into_parts()` into the declaration handoff and a body envelope. The envelope
 retains the complete branded direct `SourceBoxMethodSiteV1` tuple, normalized
@@ -103,9 +103,10 @@ body-root/item paths, and a checked parser-invocation provenance token. A bare
 ordinal, name, selected inventory placement, or map order cannot pair a body.
 Its resolver result is AST-free and borrows the already landed declaration
 catalog; it never consumes Home/Query again or mints a
-`FunctionOwnerIdV1`. A separate Query projection borrows the declared
-aggregate's selected view and requires one row per selected declaration, with
-no default non-Query row. A separate `CALLABLE-BODY-OWNER-BINDING-D0/I0` must co-seal that body source
+`FunctionOwnerIdV1`. The current next row is a separate Query projection that
+borrows the declared aggregate's selected view and requires one row per
+selected declaration, with no default non-Query row. A separate
+`CALLABLE-BODY-OWNER-BINDING-D0/I0` must co-seal that body source
 with the exact `VerifiedResolvedFunctionV1` before body facts can use
 lexical/control facts. Missing carrier/owner link is `NoSafeSlice`, not a
 default body receipt. Body modules must be dedicated and must not grow

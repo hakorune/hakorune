@@ -36,9 +36,10 @@ non-Clone AST-free declaration catalog with semantic `I64`/`Unit` classes.
 Home ABI0, Query behavior I0, and the declared Query/Home aggregate I0 are now
 closed as resolver-only internal boundaries. The aggregate consumes the Home
 catalog (which owns declarations) and the selected Query catalog by value and
-seals only same-brand/site/order coverage. The next design stop is complete
-body conformance. Target, Recipe/CallSlot, and physical ABI remain production
-zero.
+seals only same-brand/site/order coverage. The general direct body-source I0
+is now landed; the next design stop is the separate Query body-source
+projection, followed by owner binding and complete body conformance. Target,
+Recipe/CallSlot, and physical ABI remain production zero.
 
 The R4 AST-side atomic reconstruction product and strict recursive JSON v2
 codec are landed. The root selects v2 or legacy mode once; malformed nested v2

@@ -9,6 +9,7 @@ use super::{
     HomeResultRelationV1, ResolverNominalBoxTypeIdV1, ResolverSemanticValueTypeV1,
     VerifiedInstanceMethodDeclarationCatalogV1, VerifiedInstanceMethodDeclarationV1,
 };
+use crate::parser::ResolverSourceInvocationProvenanceV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum HomeCapabilitySchemaV1 {
@@ -158,6 +159,10 @@ impl VerifiedDeclaredInstanceMethodHomeCatalogV1 {
 
     pub(crate) fn declarations(&self) -> &[VerifiedInstanceMethodDeclarationV1] {
         self.declarations.declarations()
+    }
+
+    pub(crate) fn parser_provenance(&self) -> &ResolverSourceInvocationProvenanceV1 {
+        self.declarations.parser_provenance()
     }
 
     pub(crate) fn home_abis(&self) -> &[VerifiedHomeAbiV1] {

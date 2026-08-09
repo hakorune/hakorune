@@ -27,11 +27,11 @@ Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
-declared Query behavior D0/I0, aggregate D0/I0 are closed. The current design
-row is:
+declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
+body-source I0 is also closed. The current design row is:
 
 ```text
-CALLABLE-BODY-SOURCE-AUTHORITY-D0
+CALLABLE-QUERY-BODY-SELECTION-D0
 ```
 
 The preceding I0 deleted the audited caller-zero body-inferred
@@ -47,12 +47,12 @@ only the typed non-empty Query subset and never duplicates Home relations.
 Aggregate I0 implements only their same-brand/site/order relational co-seal;
 Home remains the declaration owner. Resolver targets, source-bound CallSlot
 relations, ScanWithInit, physical lowering, production selection, and legacy
-retirement remain closed. The current stop defines the missing
-parser/resolver body-source authority; the top-down audit additionally fixes
-the one-shot parser transaction/provenance bridge, general direct-cohort body
-cardinality, the separate Query projection, and the later FunctionOwner
-co-seal. Body conformance must not pair by name, inventory ordinal, Query
-re-selection, or MIR facts.
+retirement remain closed. The current stop defines the separate Query
+projection over the general parser/resolver body-source authority. The
+one-shot parser transaction/provenance bridge and general direct-cohort body
+cardinality are landed; the later FunctionOwner co-seal remains parked. Body
+conformance must not pair by name, inventory ordinal, Query re-selection, or
+MIR facts.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No
@@ -73,8 +73,8 @@ cutover. The ordered path remains:
 typed syntax carriage (closed)
 -> old instance-result/target retirement (closed bounded I0)
 -> declaration / Home ABI / declared Query aggregate (closed)
--> body-source transaction / general AST-free body catalog (current D0/I0)
--> declared Query body-source projection
+-> body-source transaction / general AST-free body catalog (closed I0)
+-> declared Query body-source projection (current D0)
 -> body-owner co-seal
 -> body facts / conformance catalog
 -> target / source-bound relation / Recipe CallSlot

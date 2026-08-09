@@ -19,6 +19,7 @@
 // サブモジュール宣言
 mod build_cfg;
 mod build_gate_selection;
+mod body_source;
 mod callable_contract_syntax;
 mod common;
 mod contracts;
@@ -128,6 +129,10 @@ pub use hakorune_frontend_parser::migration_transport::{
 pub use hakorune_frontend_parser::parser::ParseError;
 
 pub(crate) use callable_contract_syntax::CallableContractSyntaxV1;
+pub(crate) use body_source::{
+    ParserBoxBodySourceEnvelopeV1, ParserBoxMethodBodySourceRowV1,
+    ParserResolverBodyTransactionV1,
+};
 pub(crate) use source_resolver_handoff::{
     ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceRowV1,
     ResolverBoxMethodSourceSiteV1, ResolverBoxSourceRowV1, ResolverMethodParameterSyntaxV1,

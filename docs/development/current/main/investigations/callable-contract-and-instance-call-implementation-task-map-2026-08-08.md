@@ -391,30 +391,27 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current design stop (top-down audit synchronized 2026-08-09):
+Current design stop (body-source I0 landed; external review synchronized
+2026-08-09):
 
 ```text
-CALLABLE-BODY-SOURCE-AUTHORITY-D0
-  define the general parser/resolver body-source authority for the complete
-  supported direct-instance cohort. Close the one-shot parser transaction
-  decomposition, parser-provenance bridge, full declaration/body identity,
-  dedicated module split, and the later Query-projection/FunctionOwner
-  stops. The current parser handoff is intentionally AST-free and does not
-  carry a body; no body conformance, target, Recipe/CallSlot, Builder/MIR, or
-  production work is open.
+CALLABLE-QUERY-BODY-SELECTION-D0
+  project the already landed general AST-free body-source catalog through the
+  declared aggregate's sealed Query view. Preserve sparse branded source
+  order, reject missing/duplicate/foreign rows, and emit no default row for
+  non-Query methods. The parser handoff remains AST-free; no body facts,
+  conformance, target, Recipe/CallSlot, Builder/MIR, or production work is
+  open.
   Task:
-  `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
+  `docs/development/current/main/investigations/own-home-callable-query-body-selection-d0-design-task-2026-08-09.md`
 ```
 
-CALLABLE-BODY-SOURCE-AUTHORITY-I0 (parked behind D0)
-  issue only the AST-free, non-Clone body-source capability for one ordinary
-  direct Rust Box method. The parser body envelope is the sole pairing point
-  for body syntax and the existing declaration handoff. No FunctionOwnerId,
-  body facts, conformance, target, Recipe/CallSlot, Builder/MIR, or fallback.
-  Task:
-  `docs/development/current/main/investigations/own-home-callable-body-source-i0-implementation-task-2026-08-09.md`
+CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
+  general direct-cohort AST-free body-source capability landed; no
+  FunctionOwnerId, body facts, conformance, target, Recipe/CallSlot,
+  Builder/MIR, or fallback.
 
-CALLABLE-BODY-OWNER-BINDING-D0/I0 (parked behind body-source I0)
+CALLABLE-BODY-OWNER-BINDING-D0/I0 (parked behind Query projection I0)
   co-seal the body-source catalog with the exact resolved function product and
   declaration/catalog identity; `FunctionSemanticResolverSessionV1` remains
   the sole FunctionOwner issuer. No body facts or conformance.
@@ -786,7 +783,7 @@ Rejected > Unresolved > Declined > Candidate
 
 ### D. Body source, owner binding, and conformance
 
-16. `CALLABLE-BODY-SOURCE-AUTHORITY-D0/I0`
+16. `CALLABLE-BODY-SOURCE-AUTHORITY-D0/I0` (closed 2026-08-09)
     - issue the parser-private non-Clone `ParserResolverBodyTransactionV1`
       exactly once from the rich parse product;
     - decompose it into declaration handoff plus body envelope only through a
@@ -803,9 +800,9 @@ Rejected > Unresolved > Declined > Candidate
       `source_authority.rs`, or `parser/mod.rs` across the 760-line trigger;
     - design:
       `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`;
-    - implementation (parked):
+    - implementation receipt:
       `docs/development/current/main/investigations/own-home-callable-body-source-i0-implementation-task-2026-08-09.md`.
-17. `CALLABLE-QUERY-BODY-SELECTION-D0/I0`
+17. `CALLABLE-QUERY-BODY-SELECTION-D0/I0` (current design stop)
     - project the already validated general body-source catalog through the
       declared aggregate's selected Query view;
     - require exactly one body row per selected Query declaration, preserve

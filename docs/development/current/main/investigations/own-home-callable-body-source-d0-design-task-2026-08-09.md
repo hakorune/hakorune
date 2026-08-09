@@ -1,5 +1,5 @@
 ---
-Status: accepted revised design stop — implementation not open
+Status: closed design 2026-08-09 — general body-source boundary landed
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`

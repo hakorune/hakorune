@@ -27,6 +27,7 @@ mod ids;
 mod if_region;
 mod home_abi;
 mod instance_method_declaration;
+mod instance_method_body_source;
 mod home_relation;
 mod query_behavior;
 mod loop_family_window;
@@ -108,6 +109,10 @@ pub(crate) use instance_method_declaration::{
     ResolverSemanticValueTypeV1, SemanticInstanceDeclarationIssuerV1,
     VerifiedInstanceMethodDeclarationCatalogV1, VerifiedInstanceMethodDeclarationV1,
     VerifiedSemanticCallableSignatureV1,
+};
+pub(crate) use instance_method_body_source::{
+    InstanceMethodBodySourceIssuerV1, InstanceMethodBodySourceIssueV1,
+    VerifiedInstanceMethodBodySourceCatalogV1, VerifiedInstanceMethodBodySourceRowV1,
 };
 pub(crate) use home_relation::{
     HomeDemandV1, HomeDestinationV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1,

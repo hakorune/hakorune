@@ -1,5 +1,5 @@
 ---
-Status: parked — opens only after the revised `CALLABLE-BODY-SOURCE-AUTHORITY-D0` closes
+Status: closed 2026-08-09 — general direct body-source I0 landed
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -179,3 +179,27 @@ runtime/provider dispatch
 fallback/retry
 module publication
 ```
+
+## Implementation receipt (2026-08-09)
+
+The bounded implementation is landed in:
+
+```text
+src/parser/body_source.rs
+src/mir/resolved_semantics/instance_method_body_source.rs
+```
+
+The parser exposes one consuming
+`ParserResolverBodyTransactionV1::into_parts()` boundary. The resolver issuer
+now consumes the AST-free body envelope against the declaration catalog (not
+the Query aggregate), validates the complete direct cohort, preserves the
+branded source site and parser provenance, and rejects duplicate, foreign,
+missing, or non-contiguous body coverage. The focused body-source gate is
+green with the complete direct-cohort positive (including empty body
+coverage), one-shot consumption, and foreign parser-provenance rejection
+cases.
+
+This receipt does not open Query projection, FunctionOwner binding, body
+facts, conformance, target, Recipe/CallSlot, Builder/MIR, runtime, provider,
+fallback, or production. The next design row is
+`CALLABLE-QUERY-BODY-SELECTION-D0/I0`.
