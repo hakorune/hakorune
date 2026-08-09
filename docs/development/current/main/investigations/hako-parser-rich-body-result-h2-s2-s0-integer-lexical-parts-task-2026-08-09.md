@@ -1,5 +1,5 @@
 ---
-Status: ready — dependency carrier prerequisite is green
+Status: closed — implementation, fixture, guard, and owner docs landed
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0`
@@ -21,12 +21,14 @@ the compatibility projection used by the live parser.
 
 ```text
 existing ParserNumberScanBox numeric traversal
-  -> ParserNumericLexicalPartsV1
-       exact start/next position
-       exact numeric spelling
-       digit count
-       kind = Integer | Float | Missing
-       exact suffix spelling or absence
+  -> ParserNumberScanOutcomeV1
+       Ready(ParserNumberLexicalPartsV1)
+         exact start/next position
+         exact numeric spelling
+         leading digit count
+         kind = Integer | Float | Missing
+         exact suffix spelling or absence
+       InvalidStart(requested start)
   -> exact integer typed admission
   -> compatibility JSON@pos projection
 ```
@@ -47,18 +49,18 @@ accepted exact-integer typed admission:
   kind = Integer
   no suffix
 
-parts retained for compatibility-only projection:
+Ready parts retained for compatibility-only projection:
   existing float spelling
   existing suffixed integer spelling
   zero-digit/missing spelling
 
 typed admission declines:
-  digit count = 0 or kind = Missing
+  leading digit count = 0 or kind = Missing
   kind = Float
   suffix is present
 
-scanner issue:
-  invalid start range
+scanner issue, never Missing:
+  InvalidStart when start < 0 or start > source length
 ```
 
 The current compatibility scanner's empty-input `0` default must be projected
@@ -66,12 +68,23 @@ only from `Missing`; synthetic zero must never enter exact-integer evidence.
 `1.` remains the existing integer row ending before `.` because a float is
 recognized only when at least one digit follows the decimal point.
 
+`InvalidStart` is a typed scanner issue, not a zero-digit lexical row. The live
+compatibility projection preserves the historical `Int 0@requested_start`
+result for that issue. `start == source length` is a valid Ready/Missing row.
+Null input remains an explicit Ready/Missing compatibility case because no
+source length exists to validate.
+
 ## Structure
 
-Prefer a small parser scan/result owner near
+Use a small parser scan/result owner near
 `lang/src/compiler/parser/scan/parser_number_scan_box.hako`. Keep constructors
-private to that owner. Do not add public selection/filter helpers or a second
-numeric scanner.
+confined to that scanner owner. Hako does not enforce constructor privacy, so
+the repository guard enforces the issuance boundary. Do not add a public
+factory, selection/filter helpers, or a second numeric scanner.
+
+Do not add source annotations or materialization copies such as `src: String`,
+`i: i64`, `"" + src`, or `0 + i`. Those were retired compiler-acceptance
+workarounds; the compiler-side prerequisite is already fixed.
 
 The live `parse_number2` path may continue consuming `scan_int` in this row.
 Connecting typed parts to `ParserNodeProductV1` belongs to the later same-pass
@@ -90,11 +103,14 @@ parts + typed-admission matrix:
   123}
   123usize
   1.5
+  .5
   1.
   empty source
+  start exactly at source length
   null source
   non-digit start
-  invalid start range
+  negative start
+  start past source length
 
 structural:
   one numeric traversal owner
@@ -138,8 +154,22 @@ retry or fallback
 ## Closeout
 
 Implementation, focused fixture/guard, scan-owner README/reference receipt,
-current pointers, commit, and push close together. The next row is
+current pointers, commit, and push close together. This row changes no public
+grammar, so `docs/reference/language/**` remains unchanged. The next row is
 `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`, the sole same-pass Return product.
+
+## Closeout receipt
+
+The landed scanner now performs exactly one numeric traversal and returns a
+parser-private `Ready(parts) | InvalidStart` outcome. `scan_int` consumes that
+outcome once and is projection-only. Exact integer admission requires a Ready
+Integer row, at least one leading digit, and no suffix. The live expression
+parser still calls only `scan_int`; no expression, Return, body, method,
+resolver, Home, Recipe, or MIR authority opened.
+
+Focused coverage includes decimal integers, offset input, suffix, `1.5`, `.5`,
+`1.`, empty/end/null/non-digit Missing rows, and both negative and past-end
+InvalidStart rows with byte-for-byte legacy compatibility projection.
 
 ## Implementation probe receipt
 
@@ -154,26 +184,19 @@ GenericLoop carrier representation failed:
 MissingTransientType { init: ValueId(3) }
 ```
 
-The same failure reproduces on clean HEAD with a direct call to the existing
-`ParserNumberScanBox.scan_int("42}", 0)`. It is therefore a pre-existing
-carrier type-publication gap, not evidence against the lexical-parts design.
+The same failure reproduced on the then-current clean HEAD with a direct call
+to `ParserNumberScanBox.scan_int("42}", 0)`. Later import and compiler census
+proved it was an upstream static-call result publication gap, not evidence
+against the lexical-parts design or a scanner parameter-type gap.
 
-The selected carrier reaches GenericLoop as `ValueId(3)`, but the exact
-initializer producer is not yet proven. A formal parameter alias, a local
-copy/concatenation result, and other initializer producers must be
-distinguished before choosing the publication owner. `GenericLoop` correctly
-refuses to invent the missing transient type.
-
-The failed implementation is preserved only as:
+The failed implementation is preserved only under the stash message:
 
 ```text
-stash@{0}: wip/h2-s2-s0 numeric lexical parts
-           (fails generic loop carrier type gate)
+wip/h2-s2-s0 numeric lexical parts (fails generic loop carrier type gate)
 ```
 
-Do not resume it until
-`HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0` identifies the exact producer,
-and the resulting producer-specific executable prerequisite is green.
+Do not restore that stash: its source annotations and materialization copies
+are retired compiler-acceptance workarounds.
 
 ## Resume receipt
 
@@ -182,5 +205,5 @@ and the resulting producer-specific executable prerequisite is green.
 `ParserNumberScanBox.scan_int("42}", 0)` fixture now exits `0` and returns the
 expected compatibility `JSON@pos` result. No scanner source annotation or
 GenericLoop acceptance change was required. The failed probe above remains
-historical evidence only; S0 may now resume with its original lexical-parts
-scope and nonclaims.
+historical evidence only; the landed S0 was rebuilt from the clean source with
+its original lexical-parts scope and nonclaims.

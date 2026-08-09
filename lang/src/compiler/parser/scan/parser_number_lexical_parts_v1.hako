@@ -1,0 +1,51 @@
+// Parser-private result of one numeric-token traversal. This carries lexical
+// truth only; it owns no semantic type, Recipe value, or physical ABI.
+box ParserNumberLexicalPartsV1 {
+  _kind: String
+  _spelling: String
+  _suffix: String
+  _start_pos: Integer
+  _next_pos: Integer
+  _leading_digit_count: Integer
+
+  birth(kind, spelling, suffix, start_pos, next_pos, leading_digit_count) {
+    me._kind = kind
+    me._spelling = spelling
+    me._suffix = suffix
+    me._start_pos = start_pos
+    me._next_pos = next_pos
+    me._leading_digit_count = leading_digit_count
+  }
+
+  kind() { return me._kind }
+  spelling() { return me._spelling }
+  suffix() { return me._suffix }
+  has_suffix() { return me._suffix.length() > 0 }
+  start_pos() { return me._start_pos }
+  next_pos() { return me._next_pos }
+  leading_digit_count() { return me._leading_digit_count }
+
+  is_exact_unsuffixed_decimal() {
+    return me._kind == "Integer" && me._leading_digit_count > 0 && me.has_suffix() == false
+  }
+}
+
+// InvalidStart is deliberately not a Missing lexical row. The compatibility
+// scanner may project its historical zero fallback, while later typed parser
+// rows can stop on the scanner issue without inventing numeric evidence.
+box ParserNumberScanOutcomeV1 {
+  _status: String
+  _parts
+  _requested_start: Integer
+
+  birth(status, parts, requested_start) {
+    me._status = status
+    me._parts = parts
+    me._requested_start = requested_start
+  }
+
+  status() { return me._status }
+  is_ready() { return me._status == "Ready" }
+  parts() { return me._parts }
+  requested_start() { return me._requested_start }
+}

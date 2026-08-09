@@ -1,0 +1,66 @@
+using lang.compiler.parser.scan.parser_number_scan_box
+
+static box Main {
+  main(args) {
+    local zero_outcome = ParserNumberScanBox.scan_parts("0}", 0)
+    if zero_outcome.is_ready() == false { return 1 }
+    local zero = zero_outcome.parts()
+    if zero.kind() != "Integer" || zero.spelling() != "0" { return 2 }
+    if zero.start_pos() != 0 || zero.next_pos() != 1 { return 3 }
+    if zero.leading_digit_count() != 1 || zero.is_exact_unsuffixed_decimal() == false { return 4 }
+    if ParserNumberScanBox.scan_int("0}", 0) != "{\"type\":\"Int\",\"value\":0}@1" { return 5 }
+
+    local forty_two = ParserNumberScanBox.scan_parts("x42!", 1).parts()
+    if forty_two.kind() != "Integer" || forty_two.spelling() != "42" { return 6 }
+    if forty_two.start_pos() != 1 || forty_two.next_pos() != 3 { return 7 }
+    if ParserNumberScanBox.scan_int("x42!", 1) != "{\"type\":\"Int\",\"value\":42}@3" { return 8 }
+
+    local suffix = ParserNumberScanBox.scan_parts("12usize}", 0).parts()
+    if suffix.kind() != "Integer" || suffix.suffix() != "usize" { return 9 }
+    if suffix.next_pos() != 7 || suffix.is_exact_unsuffixed_decimal() { return 10 }
+    if ParserNumberScanBox.scan_int("12usize}", 0) != "{\"type\":\"Int\",\"value\":12,\"declared_type\":\"usize\"}@7" { return 11 }
+
+    local float_value = ParserNumberScanBox.scan_parts("1.5}", 0).parts()
+    if float_value.kind() != "Float" || float_value.spelling() != "1.5" { return 12 }
+    if float_value.next_pos() != 3 || float_value.is_exact_unsuffixed_decimal() { return 13 }
+    if ParserNumberScanBox.scan_int("1.5}", 0) != "{\"type\":\"Float\",\"value\":1.5}@3" { return 14 }
+
+    local leading_dot = ParserNumberScanBox.scan_parts(".5}", 0).parts()
+    if leading_dot.kind() != "Float" || leading_dot.spelling() != ".5" { return 15 }
+    if leading_dot.leading_digit_count() != 0 || leading_dot.next_pos() != 2 { return 16 }
+    if leading_dot.is_exact_unsuffixed_decimal() { return 17 }
+    if ParserNumberScanBox.scan_int(".5}", 0) != "{\"type\":\"Float\",\"value\":.5}@2" { return 18 }
+
+    local dot = ParserNumberScanBox.scan_parts("1.}", 0).parts()
+    if dot.kind() != "Integer" || dot.spelling() != "1" || dot.next_pos() != 1 { return 19 }
+    if dot.is_exact_unsuffixed_decimal() == false { return 20 }
+
+    local empty = ParserNumberScanBox.scan_parts("", 0).parts()
+    if empty.kind() != "Missing" || empty.spelling() != "" || empty.next_pos() != 0 { return 21 }
+    if empty.is_exact_unsuffixed_decimal() { return 22 }
+    if ParserNumberScanBox.scan_int("", 0) != "{\"type\":\"Int\",\"value\":0}@0" { return 23 }
+
+    local at_end = ParserNumberScanBox.scan_parts("1", 1)
+    if at_end.is_ready() == false || at_end.parts().kind() != "Missing" { return 24 }
+    if at_end.parts().start_pos() != 1 || at_end.parts().next_pos() != 1 { return 25 }
+
+    local absent = ParserNumberScanBox.scan_parts(null, 3).parts()
+    if absent.kind() != "Missing" || absent.start_pos() != 3 || absent.next_pos() != 3 { return 26 }
+    if ParserNumberScanBox.scan_int(null, 3) != "{\"type\":\"Int\",\"value\":0}@3" { return 27 }
+
+    local nondigit = ParserNumberScanBox.scan_parts("x", 0).parts()
+    if nondigit.kind() != "Missing" || nondigit.suffix() != "x" || nondigit.next_pos() != 1 { return 28 }
+    if ParserNumberScanBox.scan_int("x", 0) != "{\"type\":\"Int\",\"value\":0,\"declared_type\":\"x\"}@1" { return 29 }
+
+    local high_start = ParserNumberScanBox.scan_parts("1", 4)
+    if high_start.status() != "InvalidStart" || high_start.parts() != null { return 30 }
+    if high_start.requested_start() != 4 { return 31 }
+    if ParserNumberScanBox.scan_int("1", 4) != "{\"type\":\"Int\",\"value\":0}@4" { return 32 }
+
+    local negative_start = ParserNumberScanBox.scan_parts("1", -1)
+    if negative_start.status() != "InvalidStart" || negative_start.parts() != null { return 33 }
+    if negative_start.requested_start() != -1 { return 34 }
+    if ParserNumberScanBox.scan_int("1", -1) != "{\"type\":\"Int\",\"value\":0}@-1" { return 35 }
+    return 0
+  }
+}

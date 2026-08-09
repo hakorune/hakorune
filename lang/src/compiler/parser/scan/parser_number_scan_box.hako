@@ -6,11 +6,32 @@
 //   "{\"type\":\"Int\",\"value\":<digits>,\"declared_type\":\"usize\"}@<pos>"
 
 using lang.compiler.parser.scan.parser_common_utils_box as ParserCommonUtilsBox
+using lang.compiler.parser.scan.parser_number_lexical_parts_v1
 
 static box ParserNumberScanBox {
-  scan_int(src, i) {
-    if src == null { return "{\"type\":\"Int\",\"value\":0}@" + ParserCommonUtilsBox.i2s(i) }
+  _ready_integer(spelling, suffix, start_pos, next_pos, leading_digit_count) {
+    local parts = new ParserNumberLexicalPartsV1("Integer", spelling, suffix, start_pos, next_pos, leading_digit_count)
+    return new ParserNumberScanOutcomeV1("Ready", parts, start_pos)
+  }
+
+  _ready_float(spelling, start_pos, next_pos, leading_digit_count) {
+    local parts = new ParserNumberLexicalPartsV1("Float", spelling, "", start_pos, next_pos, leading_digit_count)
+    return new ParserNumberScanOutcomeV1("Ready", parts, start_pos)
+  }
+
+  _ready_missing(suffix, start_pos, next_pos) {
+    local parts = new ParserNumberLexicalPartsV1("Missing", "", suffix, start_pos, next_pos, 0)
+    return new ParserNumberScanOutcomeV1("Ready", parts, start_pos)
+  }
+
+  _invalid_start(requested_start) {
+    return new ParserNumberScanOutcomeV1("InvalidStart", null, requested_start)
+  }
+
+  scan_parts(src, i) {
+    if src == null { return me._ready_missing("", i, i) }
     local n = src.length()
+    if i < 0 || i > n { return me._invalid_start(i) }
     local j = i
     local done = 0
     // Keep one loop exit/PHI shape; the mode-B compatibility VM path can lose `j`
@@ -22,8 +43,8 @@ static box ParserNumberScanBox {
         done = 1
       }
     }
+    local leading_digit_count = j - i
     local s = src.substring(i, j)
-    if s.length() == 0 { s = "0" }
 
     local is_float = 0
     if j + 1 < n && src.substring(j, j + 1) == "." {
@@ -38,7 +59,7 @@ static box ParserNumberScanBox {
     }
 
     if is_float == 1 {
-      return "{\"type\":\"Float\",\"value\":" + s + "}@" + ParserCommonUtilsBox.i2s(j)
+      return me._ready_float(s, i, j, leading_digit_count)
     }
 
     local suffix_start = j
@@ -53,9 +74,27 @@ static box ParserNumberScanBox {
     }
 
     local suffix = src.substring(suffix_start, j)
-    if suffix.length() > 0 {
-      return "{\"type\":\"Int\",\"value\":" + s + ",\"declared_type\":\"" + suffix + "\"}@" + ParserCommonUtilsBox.i2s(j)
+    if leading_digit_count == 0 {
+      return me._ready_missing(suffix, i, j)
     }
-    return "{\"type\":\"Int\",\"value\":" + s + "}@" + ParserCommonUtilsBox.i2s(j)
+    return me._ready_integer(s, suffix, i, j, leading_digit_count)
+  }
+
+  scan_int(src, i) {
+    local outcome = me.scan_parts(src, i)
+    if outcome.is_ready() == false {
+      return "{\"type\":\"Int\",\"value\":0}@" + ParserCommonUtilsBox.i2s(outcome.requested_start())
+    }
+    local parts = outcome.parts()
+    local pos = ParserCommonUtilsBox.i2s(parts.next_pos())
+    if parts.kind() == "Float" {
+      return "{\"type\":\"Float\",\"value\":" + parts.spelling() + "}@" + pos
+    }
+    local spelling = parts.spelling()
+    if parts.kind() == "Missing" { spelling = "0" }
+    if parts.has_suffix() {
+      return "{\"type\":\"Int\",\"value\":" + spelling + ",\"declared_type\":\"" + parts.suffix() + "\"}@" + pos
+    }
+    return "{\"type\":\"Int\",\"value\":" + spelling + "}@" + pos
   }
 }

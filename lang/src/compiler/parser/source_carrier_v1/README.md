@@ -96,22 +96,18 @@ module. H2-S1 is also closed: one atomic parser-private product owns ordered
 and omits transfer syntax. H2-S2 must retain
 `ParserNodeProductV1` and its sealed tree from the same parse; ProgramJSON is
 only a projection. H2-S2 first closed a behavior-neutral ParserBox facade
-split. S0 is parked because a clean-HEAD direct call to the existing numeric
-scanner reaches GenericLoop with a carrier whose final ValueId lacks an exact
-transient type. The carrier-source D0 proved that `local j = i` creates one
-fresh local Copy. A source `i: i64` probe reported the same failure, but import
-bisection proved that `sh_core` freezes before `scan_int` is lowered. The
-annotation row is retired as an acceptance repair and the parameter-carriage
-D0 is parked without a loss conclusion. The dependency-carrier D0 proved that
-the exact general result row exists but is skipped by the production
-publication owner. The current general-result I0 connects that row to the
-existing sole post-success publisher. No source annotation workaround, local
-type override, or GenericLoop inference is permitted. After the compiler-side
-canary is green, S0 may add private numeric lexical parts plus exact
-unsuffixed-decimal admission while keeping the live `JSON@pos` result as a
-compatibility projection of the same traversal.
-It does not connect an expression, Return, body, or method product. Later rows
-add the sole return statement product and sole block product. H2-S3 temporarily
+split. The compiler-side general static result publisher then removed the
+pre-existing scanner dependency failure without source annotations or
+GenericLoop inference. S0 is now closed: the existing scanner traversal emits
+one parser-private `Ready(ParserNumberLexicalPartsV1) | InvalidStart` outcome,
+and live `scan_int` projects the unchanged compatibility `JSON@pos` result from
+that outcome without rescanning. Ready exact integer admission requires an
+unsuffixed Integer row with at least one leading digit; Missing and
+InvalidStart never synthesize typed integer evidence. Constructors remain
+scanner-owned by repository guard because Hako has no private constructor.
+S0 does not connect an expression, Return, body, or method product. S1 adds the
+sole same-pass return statement product, followed by the sole block product.
+H2-S3 temporarily
 co-owns exact method site, parameter
 product, and method-bound body result but does not seal or publish; H3 remains
 the only final source seal.
