@@ -42,11 +42,11 @@ source link and issues `substring/2` plus `indexOf/1` for the unchanged full
 production fixture. Qualified helper receivers remain valid unselected rows;
 the compiler acceptance was widened instead of rewriting or narrowing the
 source. The selector-independent language Decision and caller-zero complete
-semantic-envelope catalog are now closed. The Dynamic Recipe consultation is
-also closed. The current executable row is:
+semantic-envelope catalog are now closed. The Dynamic Recipe consultation and
+Dynamic operation D0 are also closed. The current executable row is:
 
 ```text
-LOOP-V2-DYNAMIC-OPERATION-D0
+LOOP-V2-DYNAMIC-OPERATION-I0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe
@@ -62,9 +62,13 @@ Bool domains unchanged. A premise audit found that issuing keys for only two
 calls would create partial truth because no complete V2 producer or Dynamic
 Add/Less vocabulary exists. The order is corrected: Dynamic operations, full
 unchanged-source producer, then one atomic source/Recipe/envelope co-seal. The
-current design stop owns the operation vocabulary. If a valid row is
-unsupported, widen the compiler
-or stop at a named design question; never narrow or rewrite source. Physical
+accepted operation vocabulary owns two `DynamicAdd` and two `DynamicLess`
+rows for the unchanged source. This includes the substring-end temporary Add
+and inner CallSlot-result Less that the old condition-plus-step P1 proof did
+not cover. Exact literals remain three separate `ConstI64` source anchors.
+The schema/verifier I0 widens the compiler, not the fixture. If another valid
+row is unsupported, widen the compiler or stop at a named design question;
+never narrow or rewrite source. Physical
 projection, provider plan, retry, and fallback remain closed.
 JoinSig-authorized If/Return and multi-return Completion still precede
 DraftSeal/collector/backend/VM.

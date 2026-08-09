@@ -96,6 +96,34 @@ then one atomic source/Recipe/CallSlot/envelope co-seal. No durable intermediate
 `Verified*` key relation is published. The module-wide seven-row envelope
 catalog is borrowed, never consumed by one Recipe.
 
+The Dynamic operation Decision is now accepted. V2 will add exact
+`DynamicAdd` and `DynamicLess` variants instead of widening `BinaryI64` /
+`CompareI64` or adding an unconstrained Dynamic operator family. The first
+domain table is:
+
+```text
+DynamicAdd:
+  Dynamic x I64 -> Dynamic
+
+DynamicLess:
+  Dynamic x Dynamic -> Bool
+  Dynamic x I64     -> Bool
+```
+
+The unchanged `skip_while/4` source requires four exact rows: root `i < end`,
+substring-end `i + 1`, inner `indexOf(ch) < 0`, and step `i + 1`. The two
+equal literal `1` sites and the literal `0` site remain three separate
+`ConstI64` operations/source anchors. The prior P1/S0 condition-plus-step
+proof is migration evidence, not complete four-row authority.
+
+These operations follow the language operator contract in
+`docs/reference/language/types.md`: normal Add publishes one Dynamic value,
+normal Less publishes one Bool, and unsupported runtime operand kinds produce
+TypeError/Fault with no result. Fault is not a Recipe value, resultless
+operation, false predicate, Exit, JoinSig edge, Return, or Completion. The
+schema I0 is logical only; physical/provider/runtime execution remains closed
+until a route proves the same result/Fault behavior without retry or fallback.
+
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 

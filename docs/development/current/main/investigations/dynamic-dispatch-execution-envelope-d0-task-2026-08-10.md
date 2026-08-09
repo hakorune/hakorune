@@ -1,11 +1,11 @@
 ---
-Status: source-value relation D0 audited NoSafeSlice; Dynamic operation D0 next
+Status: Dynamic operation D0 accepted; schema/verifier I0 next
 Date: 2026-08-10
 Decision row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`
 Closed row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0`
-Next row: `LOOP-V2-DYNAMIC-OPERATION-D0`
+Next row: `LOOP-V2-DYNAMIC-OPERATION-I0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
-Mode: design stop / Dynamic logical operation vocabulary
+Mode: fast / one Dynamic logical operation vocabulary slice
 ---
 
 # Dynamic dispatch execution envelope
@@ -422,25 +422,26 @@ acceptance:
   full envelope regression still reports seven retained rows
 ```
 
-### 3. `LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0/I0`
-
-Define and implement the exact source-site/role to Recipe operand/result-key
-relation. The source observer does not mint Recipe keys. This row contains no
-target, envelope, Home, or provider copy.
-
-### 4. `LOOP-V2-DYNAMIC-CALL-RELATION-COSEAL-I0`
-
-Issue the item-keyed sibling product over the verified Recipe and the borrowed
-complete envelope catalog. The unchanged fixture must prove seven retained,
-two exact `skip_while/4` relations, and five valid unselected rows. Missing,
-duplicate, foreign, reordered, wrong-class, resultless, static, or reused
-relations reject.
-
-### 5. `LOOP-V2-DYNAMIC-OPERATION-D0/I0`
+### 3. `LOOP-V2-DYNAMIC-OPERATION-D0/I0`
 
 Add explicit selector-independent Dynamic numeric operations required by the
 source, including Add and Less. Do not overload `BinaryI64`/`CompareI64` and
 do not infer a result class from a method name.
+
+### 4. unchanged `skip_while/4` full V2 Recipe producer D0/I0
+
+Produce one complete V2 Recipe for the unchanged source. A producer may issue
+private source-to-key claims beside the artifact, but it may not publish a
+partial call-only Recipe or a durable intermediate `Verified*` key map.
+
+### 5. `LOOP-V2-DYNAMIC-CALL-RELATION-COSEAL-I0`
+
+Validate the producer's private source-to-key claims and issue the item-keyed
+sibling product over the complete verified Recipe and borrowed complete
+envelope catalog. The unchanged fixture must prove seven retained, two exact
+`skip_while/4` call relations, and five valid unselected rows. Missing,
+duplicate, foreign, reordered, wrong-class, resultless, static, or reused
+relations reject.
 
 ### 6. `LOOP-V2-DYNAMIC-LOCAL-VALUE-D0/I0`
 
@@ -619,3 +620,115 @@ CallSlot, and extra relations reject atomically.
 `NoSafeSlice` here is a development-order result, not a source disposition.
 The source is unchanged; the compiler vocabulary and producer are widened
 first.
+
+## Dynamic operation D0 — accepted compiler widening
+
+The unchanged `skip_while/4` source owns four logical arithmetic/comparison
+expressions. The earlier P1/S0 migration proof covers only the root condition
+and terminal step; it is not complete source or Recipe authority.
+
+```text
+LoopCondition       i < end             Dynamic x Dynamic -> Bool
+SubstringEndAdd     i + 1               Dynamic x I64     -> Dynamic
+InnerIfCondition    indexOf(ch) < 0     Dynamic x I64     -> Bool
+StepAdd             i + 1               Dynamic x I64     -> Dynamic
+```
+
+The V2 wire adds two exact operation variants. A one-case operator enum or an
+`AnyDynamicOperator` family would add abstraction without an admitted second
+operation and is not introduced in I0.
+
+```rust
+DynamicAdd {
+    left,
+    right,
+    result,
+}
+
+DynamicLess {
+    left,
+    right,
+    result,
+}
+```
+
+Exact I0 domains:
+
+```text
+DynamicAdd:
+  (Dynamic, I64) -> Dynamic
+
+DynamicLess:
+  (Dynamic, Dynamic) -> Bool
+  (Dynamic, I64)     -> Bool
+```
+
+`ConstI64` remains the sole logical owner of the literal values. The source
+contains three distinct literal sites (`1`, `0`, `1`); equal literal values do
+not merge their source anchors. No embedded delta field and no
+`ConstDynamic` operation is added.
+
+The operation result is the normal-path value only. Canonical language
+semantics remain those in `docs/reference/language/types.md`:
+
+```text
+DynamicAdd  -> Normal(Dynamic) | Fault(TypeError)
+DynamicLess -> Normal(Bool)    | Fault(TypeError)
+```
+
+Fault is not `result = None`, `false`, `Void`, an Exit, JoinSig edge, Return,
+Completion, or DraftSeal value. The wire does not copy an effect/Fault
+envelope into each row; a later private semantics view derives the fixed
+operation contract from the verified variant. Optional OperatorBox/provider
+routes are not logical authority. A physical route that cannot preserve the
+language operator result/Fault contract must reject before Builder effect; it
+may not retry or fall back.
+
+### I0 acceptance
+
+```text
+positive:
+  schema round-trip for DynamicAdd
+  schema round-trip for DynamicLess
+  exact three admitted domains above
+  complete unchanged-source golden:
+    2 Add + 2 Less
+    2 Dynamic results + 2 Bool results
+    3 distinct ConstI64/source anchors
+  inner Less consumes the prior Dynamic CallSlot result
+  substring Add remains a temporary value
+  StepAdd alone feeds the exact WriteBinding/rebind
+
+negative:
+  I64 + Dynamic
+  Dynamic + Dynamic in the Add I0 cohort
+  I64-left Dynamic operation
+  Bool/Text/Unit operands
+  wrong result class
+  Sub, Mul, or non-Less comparison
+  BinaryI64/CompareI64 with a Dynamic operand
+  undefined or forward operand, including the CallSlot result
+  missing/duplicate/reused/swapped source item or literal site
+  selector-based indexOf-to-I64 refinement
+  treating the old two-row P1 proof as four-row coverage
+  V1 decode/adaptation
+```
+
+### I0 nonclaims
+
+```text
+no full V2 producer
+no source/Recipe/envelope co-seal
+no local ch Home
+no V2 JoinSig, If, Return, or Completion activation
+no Builder/MIR/physical operator writer
+no provider/runtime plan
+no retry/fallback or production caller
+no source or fixture narrowing
+```
+
+The implementation slice updates this card, the Loop Recipe reference, and
+the module README with focused schema tests in the same commit. If the exact
+unchanged source exceeds the accepted domains, the compiler vocabulary is
+widened through another named Decision; the source is never rewritten or
+reduced to fit the verifier.

@@ -182,6 +182,25 @@ is corrected to Dynamic operations, full unchanged-source V2 producer, then a
 single atomic source/Recipe/envelope co-seal. The per-Recipe co-seal will
 borrow—not consume—the complete seven-row module envelope catalog.
 
+The Dynamic operation D0 is accepted. The next schema/verifier row adds only
+`DynamicAdd` and `DynamicLess`:
+
+```text
+DynamicAdd:  Dynamic x I64 -> Dynamic
+DynamicLess: Dynamic x Dynamic -> Bool
+             Dynamic x I64     -> Bool
+```
+
+Existing `ConstI64` rows own the exact `1`, `0`, and second `1`; no
+`ConstDynamic`, embedded delta, selector refinement, or reuse of one literal
+source anchor is allowed. The unchanged source has two Add and two Less rows.
+The older profile-specific P1 proof owns only the root Less and step Add and
+must not be promoted as complete authority. Normal results follow the language
+operator contract; TypeError/Fault defines no Recipe value or lexical control
+edge. I0 changes only V2 schema/verifier/tests and leaves V1, source co-seal,
+physical lowering, provider/runtime execution, and production selection
+closed.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one
