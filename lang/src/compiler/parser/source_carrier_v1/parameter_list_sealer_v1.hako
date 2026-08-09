@@ -3,9 +3,12 @@ using lang.compiler.parser.source_carrier_v1.parameter_syntax_records_v1 as Pars
 // The only parameter-list product issuer. It defensively validates the full
 // row set before publishing an immutable product.
 static box ParserParameterListSealerV1Box {
-  finish(method_site, rows, sealed_token) {
-    if method_site == null || rows == null || sealed_token == null {
+  finish(source_unit, method_site, rows) {
+    if source_unit == null || method_site == null || rows == null {
       return ParserParameterSyntaxRecordsV1Box.failed("parser.parameter_list.seal_input_invalid")
+    }
+    if method_site.member_site().box_site().source_unit().same(source_unit) == false {
+      return ParserParameterSyntaxRecordsV1Box.failed("parser.parameter_list.foreign_source")
     }
     local copied = new ArrayBox() local neutral = new ArrayBox() local i = 0
     loop(i < rows.size()) {
@@ -20,7 +23,7 @@ static box ParserParameterListSealerV1Box {
       neutral.push(ParserParameterSyntaxRecordsV1Box.neutral(row))
       i = i + 1
     }
-    local product = ParserParameterSyntaxRecordsV1Box.product(method_site, copied, neutral, sealed_token)
+    local product = ParserParameterSyntaxRecordsV1Box.product(source_unit, method_site, copied, neutral)
     return ParserParameterSyntaxRecordsV1Box.ready(product)
   }
 

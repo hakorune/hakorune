@@ -2,7 +2,6 @@ using lang.compiler.parser.source_carrier_v1.parser_source_session_v1 as ParserS
 using lang.compiler.parser.source_carrier_v1.source_declaration_refs_v1 as ParserDeclarationRefsV1Box
 using lang.compiler.parser.source_carrier_v1.parameter_syntax_records_v1 as ParserParameterSyntaxRecordsV1Box
 using lang.compiler.parser.source_carrier_v1.parameter_list_builder_v1 as ParserParameterListBuilderV1Box
-using lang.compiler.parser.source_carrier_v1.parameter_list_sealer_v1 as ParserParameterListSealerV1Box
 
 static box ParserParameterListH2S1FixtureV1Box {
   method_source(session) {
@@ -15,16 +14,19 @@ static box ParserParameterListH2S1FixtureV1Box {
 
   empty_exact_list() {
     local session = ParserSourceSessionV1Box.open()
-    local builder = ParserParameterListBuilderV1Box.open(me.method_source(session))
+    local source = me.method_source(session)
+    local builder = ParserParameterListBuilderV1Box.open(session, source)
     local result = builder.finish()
     if result.status() != "Ready" || result.product().parameter_count() != 0 { return 1 }
+    if result.product().same_parser_source(session.source_unit()) == false { return 2 }
+    if result.product().same_method_site(source) == false { return 3 }
     return 0
   }
 
   ordered_ordinary_rows() {
     local session = ParserSourceSessionV1Box.open()
     local source = me.method_source(session)
-    local builder = ParserParameterListBuilderV1Box.open(source)
+    local builder = ParserParameterListBuilderV1Box.open(session, source)
     if builder.add_ordinary("left", "Node") == false { return 11 }
     if builder.add_ordinary("count", "i64") == false { return 12 }
     if builder.add_ordinary("right", "Node") == false { return 13 }
@@ -46,20 +48,23 @@ static box ParserParameterListH2S1FixtureV1Box {
 
   duplicate_and_empty_name_reject() {
     local session = ParserSourceSessionV1Box.open()
-    local builder = ParserParameterListBuilderV1Box.open(me.method_source(session))
+    local source = me.method_source(session)
+    local builder = ParserParameterListBuilderV1Box.open(session, source)
     if builder.add_ordinary("same", "Node") == false { return 21 }
     if builder.add_ordinary("same", "Node") != false { return 22 }
     if builder.row_count() != 1 || builder.state() != "Poisoned" { return 23 }
     if builder.finish().status() != "InternalCarrierContractViolation" { return 24 }
 
-    local empty_name = ParserParameterListBuilderV1Box.open(me.method_source(ParserSourceSessionV1Box.open()))
+    local empty_session = ParserSourceSessionV1Box.open()
+    local empty_name = ParserParameterListBuilderV1Box.open(empty_session, me.method_source(empty_session))
     if empty_name.add_ordinary("", "Node") != false { return 25 }
     return 0
   }
 
   untyped_ordinary_is_explicit_absence() {
     local session = ParserSourceSessionV1Box.open()
-    local builder = ParserParameterListBuilderV1Box.open(me.method_source(session))
+    local source = me.method_source(session)
+    local builder = ParserParameterListBuilderV1Box.open(session, source)
     if builder.add_ordinary("source", "") == false { return 26 }
     local result = builder.finish()
     if result.status() != "Ready" { return 27 }
@@ -69,24 +74,26 @@ static box ParserParameterListH2S1FixtureV1Box {
     return 0
   }
 
-  foreign_and_ordinal_reject() {
+  foreign_and_duplicate_seal_reject() {
     local first_session = ParserSourceSessionV1Box.open()
     local second_session = ParserSourceSessionV1Box.open()
     local first = me.method_source(first_session)
-    local second = me.method_source(second_session)
-    local rows = new ArrayBox()
-    local site = ParserParameterSyntaxRecordsV1Box.site(second, 1)
-    local transfer = ParserParameterSyntaxRecordsV1Box.ordinary_transfer()
-    local declared_type = ParserParameterSyntaxRecordsV1Box.declared_type("Node")
-    rows.push(ParserParameterSyntaxRecordsV1Box.row(site, "node", declared_type, transfer))
-    local result = ParserParameterListSealerV1Box.finish(first, rows, first_session)
-    if result.status() != "InternalCarrierContractViolation" { return 31 }
+    if ParserParameterListBuilderV1Box.open(second_session, first) != null { return 31 }
+
+    local first_builder = ParserParameterListBuilderV1Box.open(first_session, first)
+    if first_builder.add_ordinary("node", "Node") == false { return 32 }
+    if first_builder.finish().status() != "Ready" { return 33 }
+
+    local duplicate = ParserParameterListBuilderV1Box.open(first_session, first)
+    if duplicate.add_ordinary("node", "Node") == false { return 34 }
+    if duplicate.finish().status() != "InternalCarrierContractViolation" { return 35 }
     return 0
   }
 
   closed_state_rejects() {
     local session = ParserSourceSessionV1Box.open()
-    local builder = ParserParameterListBuilderV1Box.open(me.method_source(session))
+    local source = me.method_source(session)
+    local builder = ParserParameterListBuilderV1Box.open(session, source)
     builder.add_ordinary("node", "Node")
     if builder.finish().status() != "Ready" { return 41 }
     if builder.finish().status() != "InternalCarrierContractViolation" { return 42 }
@@ -100,7 +107,7 @@ static box ParserParameterListH2S1FixtureV1Box {
     rc = me.ordered_ordinary_rows() if rc != 0 { return rc }
     rc = me.duplicate_and_empty_name_reject() if rc != 0 { return rc }
     rc = me.untyped_ordinary_is_explicit_absence() if rc != 0 { return rc }
-    rc = me.foreign_and_ordinal_reject() if rc != 0 { return rc }
+    rc = me.foreign_and_duplicate_seal_reject() if rc != 0 { return rc }
     return me.closed_state_rejects()
   }
 }

@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: ingress and parameter-transfer authority Decisions accepted; Hako R0a closed
+Status: ingress and parameter-transfer authority Decisions accepted; Hako R0a/R0b closed
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0B`
+Current implementation row: `PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
 
@@ -152,12 +152,16 @@ The landed row also represents an untyped ordinary parameter as explicit
 `Absent` declared-type syntax rather than rejecting or inferring an empty
 String token. `Take` remains vocabulary-only with no issuer.
 
-### 1B. `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0B` — selected
+### 1B. `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0B` — closed
 
 Issue the parameter-list seal from `ParserProgramSourceSessionV1`, bind it to
 the exact method, and remove builder-as-token plus `sealed_token()`.
 
-### 1C. `PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0`
+The product now retains only parser-source and exact-method relations. Foreign
+session and duplicate method issuance reject before publication, and the
+guard prevents direct sealer/session/product bypasses.
+
+### 1C. `PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0` — selected
 
 Before adding Rust parameter rows, extract their model/issuer from the
 near-limit parser owners. `source_seal.rs` is already above 750 lines and must

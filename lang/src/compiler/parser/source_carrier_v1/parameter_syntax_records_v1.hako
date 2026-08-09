@@ -77,19 +77,25 @@ box ParserNeutralParameterDeclV1 {
 }
 
 box ParserParameterListProductV1 {
+  _source_unit
   _method_site
   _rows: ArrayBox
   _neutral: ArrayBox
-  _sealed_token
-  birth(method_site, rows, neutral, sealed_token) {
+  birth(source_unit, method_site, rows, neutral) {
+    me._source_unit = source_unit
     me._method_site = method_site me._rows = rows
-    me._neutral = neutral me._sealed_token = sealed_token
+    me._neutral = neutral
   }
   method_site() { return me._method_site }
+  same_parser_source(source_unit) {
+    return source_unit != null && me._source_unit.same(source_unit)
+  }
+  same_method_site(method_site) {
+    return method_site != null && me._method_site.same(method_site)
+  }
   parameter_count() { return me._rows.size() }
   row(index) { return me._rows.get(index) }
   neutral_parameter(index) { return me._neutral.get(index) }
-  sealed_token() { return me._sealed_token }
 }
 
 box ParserParameterListFinishV1 {
@@ -124,8 +130,8 @@ static box ParserParameterSyntaxRecordsV1Box {
     return new ParserParameterSyntaxRowV1(site, name, declared_type, transfer)
   }
   neutral(row) { return new ParserNeutralParameterDeclV1(row) }
-  product(method_site, rows, neutral, sealed_token) {
-    return new ParserParameterListProductV1(method_site, rows, neutral, sealed_token)
+  product(source_unit, method_site, rows, neutral) {
+    return new ParserParameterListProductV1(source_unit, method_site, rows, neutral)
   }
   ready(product) { return new ParserParameterListFinishV1("Ready", product, "") }
   failed(issue) { return new ParserParameterListFinishV1("InternalCarrierContractViolation", null, issue) }

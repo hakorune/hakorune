@@ -1,6 +1,6 @@
 # HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0
 
-Status: R0a closed; R0b selected
+Status: R0a and R0b closed
 Date: 2026-08-10
 Depends on: `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-D0`
 
@@ -95,6 +95,37 @@ bash tools/checks/hako_parser_parameter_list_h2_s1_guard.sh
   -> take_syntax_construction=0
 ```
 
-R0a does not make the builder a parser provenance authority. R0b remains the
-only next row and must bind the list seal to the exact parser session and
-method while removing `sealed_token()` and builder-as-brand.
+R0a did not make the builder a parser provenance authority. The following R0b
+therefore bound the list seal to the exact parser session and method while
+removing `sealed_token()` and builder-as-brand.
+
+## R0b closeout
+
+R0b is closed:
+
+- `ParserParameterListBuilderV1` retains the exact parser session and method
+  only while open, then delegates publication to
+  `ParserProgramSourceSessionV1::seal_parameter_list(...)`;
+- the session verifies its parser source, exact method membership, absence of
+  a live member cursor, and exactly-once method issuance before calling the
+  sole structural sealer;
+- `ParserParameterListProductV1` retains the source-unit/method relation and
+  exposes only `same_parser_source(...)`, `same_method_site(...)`, ordered
+  rows, and the neutral projection;
+- builder-as-brand, `_sealed_token`, and `sealed_token()` are removed;
+- the repository guard prevents direct sealer/product issuance outside the
+  selected owners and prevents direct session sealing outside the builder.
+
+Focused evidence:
+
+```text
+bash tools/checks/hako_parser_parameter_list_h2_s1_guard.sh
+  -> summary=ok
+  -> builder_as_parameter_brand=0
+  -> parser_session_method_coseal=1
+  -> partial_product_publication=0
+```
+
+The next row is `PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0`. It is a Rust
+owner split only; Take, Home, resolver demand, Recipe, and production remain
+closed.

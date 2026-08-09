@@ -109,7 +109,10 @@ one parser-private closed `Ordinary | Take` vocabulary. Only `Ordinary` has an
 issuer; `Take` remains syntax-inactive. Declared parameter types are carried
 as explicit `Absent | Explicit` syntax, so an untyped ordinary parameter is
 not represented as an invalid or inferred empty type. Parser-session and exact
-method co-sealing remain the separate R0b boundary. H2-S2 must retain
+method co-sealing are now closed by R0b: the builder can finish only through
+`ParserProgramSourceSessionV1`, the session rejects foreign or duplicate
+method issuance, and the product retains parser-source and method relations
+without a builder token or public `sealed_token()`. H2-S2 must retain
 `ParserNodeProductV1` and its sealed tree from the same parse; ProgramJSON is
 only a projection. H2-S2 first closed a behavior-neutral ParserBox facade
 split. The compiler-side general static result publisher then removed the

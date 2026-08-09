@@ -15,6 +15,7 @@ guard_require_files "$TAG" \
   "$DIR/parameter_syntax_records_v1.hako" \
   "$DIR/parameter_list_sealer_v1.hako" \
   "$DIR/parameter_list_builder_v1.hako" \
+  "$DIR/parser_source_session_v1.hako" \
   "$FIXTURE"
 
 cd "$ROOT"
@@ -39,8 +40,10 @@ sources = [
     source_dir / "parameter_syntax_records_v1.hako",
     source_dir / "parameter_list_sealer_v1.hako",
     source_dir / "parameter_list_builder_v1.hako",
+    source_dir / "parser_source_session_v1.hako",
 ]
 paths = sources + [fixture]
+scan_paths = list(source_dir.rglob("*.hako")) + [fixture]
 for path in paths:
     lines = len(path.read_text(encoding="utf-8").splitlines())
     if lines >= 800:
@@ -56,6 +59,8 @@ required = (
     "ParserParameterListProductV1", "ParserParameterListBuilderV1",
     "ParserParameterListSealerV1Box", "Ordinary", "Take", "Absent", "Explicit",
     "accepts_ordinary", "is_absent",
+    "same_parser_source", "same_method_site", "owns_method_site",
+    "seal_parameter_list", "duplicate_parameter_list",
     "duplicate_name", "double_finish", "mutation_after_close",
 )
 for needle in required:
@@ -82,7 +87,7 @@ construction_allow = {
 }
 for token, owner in construction_allow.items():
     spelling = f"new {token}"
-    for path in paths:
+    for path in scan_paths:
         if path != owner and spelling in path.read_text(encoding="utf-8"):
             raise SystemExit(f"factory-only parameter construction escaped: {path}: {spelling}")
 
@@ -98,7 +103,7 @@ fixture_text = fixture.read_text(encoding="utf-8")
 for needle in (
     "empty_exact_list", "ordered_ordinary_rows", "duplicate_and_empty_name_reject",
     "untyped_ordinary_is_explicit_absence",
-    "foreign_and_ordinal_reject", "closed_state_rejects",
+    "foreign_and_duplicate_seal_reject", "closed_state_rejects",
 ):
     if needle not in fixture_text:
         raise SystemExit(f"missing H2-S1 lifecycle fixture: {needle}")
@@ -111,16 +116,35 @@ for path in paths:
 for forbidden in (
     '.kind()', '== "Ordinary"', '!= "Ordinary"',
     '== "Take"', '!= "Take"', 'take_transfer()',
+    'sealed_token()', '_sealed_token',
 ):
     if forbidden in joined:
         raise SystemExit(f"raw or prematurely active transfer authority: {forbidden}")
 if "ParserParameterTransferKindV1::Take(" in records_text:
     raise SystemExit("Take vocabulary exists but must have no R0a issuer")
 
+sealer_call = "ParserParameterListSealerV1Box.finish("
+for path in scan_paths:
+    text = path.read_text(encoding="utf-8")
+    if sealer_call in text and path != sources[3]:
+        raise SystemExit(f"parameter-list sealer bypassed parser session: {path}")
+product_call = "ParserParameterSyntaxRecordsV1Box.product("
+for path in scan_paths:
+    text = path.read_text(encoding="utf-8")
+    if product_call in text and path != sources[1]:
+        raise SystemExit(f"parameter-list product escaped sole sealer: {path}")
+session_seal_call = ".seal_parameter_list("
+for path in scan_paths:
+    text = path.read_text(encoding="utf-8")
+    if session_seal_call in text and path != sources[2]:
+        raise SystemExit(f"parser-session parameter seal escaped builder: {path}")
+
 print("parser_branch_connection=0")
 print("take_syntax_construction=0")
 print("raw_transfer_string_authority=0")
 print("untyped_parameter_explicit_absence=1")
+print("builder_as_parameter_brand=0")
+print("parser_session_method_coseal=1")
 print("resolver_home_semantics=0")
 print("parameter_ordinals_source_ordered=1")
 print("neutral_projection_one_way=1")

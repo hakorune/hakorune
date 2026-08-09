@@ -1,4 +1,6 @@
 using lang.compiler.parser.source_carrier_v1.source_declaration_refs_v1 as ParserDeclarationRefsV1Box
+using lang.compiler.parser.source_carrier_v1.parameter_list_sealer_v1 as ParserParameterListSealerV1Box
+using lang.compiler.parser.source_carrier_v1.parameter_syntax_records_v1 as ParserParameterSyntaxRecordsV1Box
 
 // A cursor owns source-member order for exactly one Box. It is declared
 // before the program session because Hako construction resolves birth methods
@@ -57,6 +59,7 @@ box ParserProgramSourceSessionV1 {
   _source_unit
   _next_statement: Integer
   _live_cursor
+  _sealed_parameter_methods: ArrayBox
   _state: String
   _issue: String
 
@@ -64,6 +67,7 @@ box ParserProgramSourceSessionV1 {
     me._carrier = ParserDeclarationRefsV1Box.carrier(me)
     me._source_unit = ParserDeclarationRefsV1Box.source_unit(me._carrier, 0)
     me._next_statement = 0 me._live_cursor = null
+    me._sealed_parameter_methods = new ArrayBox()
     me._state = "Open" me._issue = ""
   }
 
@@ -93,6 +97,30 @@ box ParserProgramSourceSessionV1 {
     return box_site != null && box_site.source_unit().same(me._source_unit)
   }
 
+  owns_method_site(method_site) {
+    return method_site != null && method_site.member_site() != null &&
+      me.owns_box_site(method_site.member_site().box_site())
+  }
+
+  seal_parameter_list(method_site, rows) {
+    if me._require_open("parser.source_session.parameter_after_close") == false {
+      return ParserParameterSyntaxRecordsV1Box.failed(me._issue)
+    }
+    if me._live_cursor != null {
+      return me._parameter_failure("parser.source_session.parameter_with_live_cursor")
+    }
+    if me.owns_method_site(method_site) == false {
+      return me._parameter_failure("parser.source_session.foreign_parameter_method")
+    }
+    if me._parameter_method_already_sealed(method_site) {
+      return me._parameter_failure("parser.source_session.duplicate_parameter_list")
+    }
+    local result = ParserParameterListSealerV1Box.finish(me._source_unit, method_site, rows)
+    if result.status() != "Ready" { return result }
+    me._sealed_parameter_methods.push(method_site)
+    return result
+  }
+
   finish_member_cursor(cursor) {
     if me._state != "Open" || cursor == null || me._live_cursor != cursor || cursor.state() != "Open" {
       if me._issue == "" { me._issue = "parser.source_session.foreign_cursor" }
@@ -120,6 +148,18 @@ box ParserProgramSourceSessionV1 {
     if me._state == "Open" { return true }
     if me._issue == "" { me._issue = reason }
     return false
+  }
+  _parameter_method_already_sealed(method_site) {
+    local i = 0
+    loop(i < me._sealed_parameter_methods.size()) {
+      if me._sealed_parameter_methods.get(i).same(method_site) { return true }
+      i = i + 1
+    }
+    return false
+  }
+  _parameter_failure(reason) {
+    if me._issue == "" { me._issue = reason }
+    return ParserParameterSyntaxRecordsV1Box.failed(reason)
   }
   _reject(reason) { if me._issue == "" { me._issue = reason } return null }
 }
