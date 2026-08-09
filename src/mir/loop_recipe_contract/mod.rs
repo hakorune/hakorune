@@ -22,6 +22,7 @@ mod semantic_context;
 mod source_binding;
 mod source_bound_core;
 mod typed_schema_v2;
+mod typed_schema_v2_structure;
 mod variable_accum_break_producer;
 mod variable_accum_recurrence_producer;
 mod verify;
@@ -105,6 +106,10 @@ mod typed_schema_v2_tests;
 #[cfg(test)]
 #[path = "typed_schema_v2_dynamic_operation_tests.rs"]
 mod typed_schema_v2_dynamic_operation_tests;
+
+#[cfg(test)]
+#[path = "typed_schema_v2_structure_tests.rs"]
+mod typed_schema_v2_structure_tests;
 
 #[cfg(test)]
 pub(crate) use operation_effect_parity::{

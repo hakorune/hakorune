@@ -225,6 +225,16 @@ and the existing two-site Completion stays intact for a later exact
 partition. The detailed mapping and negative matrix are owned by
 `loop-v2-dynamic-full-producer-task-2026-08-10.md`.
 
+`LOOP-V2-CONTROL-STRUCTURE-GUARD-R0` is now landed. V2 uses a separate
+`typed_schema_v2_structure.rs` owner for root/parent, block/If ownership,
+exact block/Loop/Exit use, terminal Exit, target ancestry, and recursive
+preorder. Artifact verification also consumes the common structural
+source-path verifier and stores a non-Clone verified source claim. The
+resolved-source adapter can bind its non-Clone Loop root directly to a
+verified V2 root; callers cannot provide a key or coordinates. R0 is
+BoxShape-only and adds no accepted source shape. The complete producer I0 is
+now open.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one

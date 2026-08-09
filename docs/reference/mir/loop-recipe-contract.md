@@ -158,6 +158,18 @@ accepted source is forbidden. No source/envelope co-seal, Home, JoinSigV2,
 Completion consumption, physical route, or production activation is claimed
 by this Decision.
 
+Implementation receipt (`LOOP-V2-CONTROL-STRUCTURE-GUARD-R0`, 2026-08-10):
+V2 now seals root/parent identity, condition/body/If block ownership, exact
+block/Loop/Exit use, terminal Exit placement, Break/Continue ancestry, and
+recursive Loop/Block/Item preorder in a neutral structure module. Artifact
+verification also validates the shared Loop-source wire and retains a
+non-Clone structural claim instead of raw source coordinates. The
+resolver-issued non-Clone Loop root has a consuming V2 adapter, so no caller
+may manufacture the Recipe root key. Six structure tests, thirty-seven V2
+schema tests, and the focused adapter test are green. The row adds no new
+source shape, operation, JoinSig, producer, physical route, or production
+caller. `LOOP-V2-DYNAMIC-FULL-PRODUCER-I0` is next.
+
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 

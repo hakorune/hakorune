@@ -145,6 +145,10 @@ VerifiedResolvedFunctionV1::resolved_loop_source(site)
   -> into_root_claim(&VerifiedLoopRecipeV1)
   -> LoopRecipeSourceBindingV1
 
+VerifiedLoopRootSourceV1
+  -> into_root_claim_v2(&VerifiedLoopRecipeV2)
+  -> LoopRecipeSourceBindingV1
+
 VerifiedResolvedFunctionV1::resolved_loop_source_forest(root)
   -> VerifiedResolvedLoopSourceForestV1
   -> bind_resolved_loop_source_forest_v1(forest)
@@ -160,8 +164,8 @@ even the contract module's structurally verified claim capability proves only
 recipe coverage and path shape—not source existence or AST correspondence.
 
 The adapter consumes the non-Clone resolved token. Root-key binding consumes
-the local authority and reads the key only from `VerifiedLoopRecipeV1`; an
-arbitrary `LoopNodeKeyV1` cannot be injected. The adapter must not scan AST,
+the local authority and reads the key only from `VerifiedLoopRecipeV1` or
+`VerifiedLoopRecipeV2`; an arbitrary `LoopNodeKeyV1` cannot be injected. The adapter must not scan AST,
 inspect `LoopRouteContext`, read route-local facts, infer an index from body
 contents, or call Builder/Planner/Lower. Only the declared-function root and
 the closed `Body` / `ScopeBody` / `LoopBody` statement lineage are portable in

@@ -39,13 +39,20 @@ fn dynamic_operation_recipe() -> LoopRecipeArtifactV2 {
                 block: LoopBlockKeyV1::new(0),
                 value: LoopValueKeyV1::new(3),
             },
-            body: LoopBlockKeyV1::new(0),
+            body: LoopBlockKeyV1::new(1),
         }],
-        blocks: vec![LoopRecipeBlockV2 {
-            key: LoopBlockKeyV1::new(0),
-            owner_loop: LoopNodeKeyV1::new(0),
-            items: (0..10).map(LoopItemKeyV1::new).collect(),
-        }],
+        blocks: vec![
+            LoopRecipeBlockV2 {
+                key: LoopBlockKeyV1::new(0),
+                owner_loop: LoopNodeKeyV1::new(0),
+                items: (0..2).map(LoopItemKeyV1::new).collect(),
+            },
+            LoopRecipeBlockV2 {
+                key: LoopBlockKeyV1::new(1),
+                owner_loop: LoopNodeKeyV1::new(0),
+                items: (2..10).map(LoopItemKeyV1::new).collect(),
+            },
+        ],
         items: vec![
             operation(
                 0,

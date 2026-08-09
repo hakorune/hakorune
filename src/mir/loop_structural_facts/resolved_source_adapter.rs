@@ -2,7 +2,7 @@
 
 use crate::mir::loop_recipe_contract::{
     LoopNodeKeyV1, LoopNodeSourceBindingV1, LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1,
-    LoopSourcePathStepV1, LoopSourcePathV1, VerifiedLoopRecipeV1,
+    LoopSourcePathStepV1, LoopSourcePathV1, VerifiedLoopRecipeV1, VerifiedLoopRecipeV2,
 };
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, SemanticOwnerSourceKindV1, SourcePathSegmentV1,
@@ -66,6 +66,18 @@ impl VerifiedLoopRootSourceV1 {
     pub(crate) fn into_root_claim(
         self,
         recipe: &VerifiedLoopRecipeV1,
+    ) -> LoopRecipeSourceBindingV1 {
+        LoopRecipeSourceBindingV1::new(
+            self.owner,
+            vec![LoopNodeSourceBindingV1::new(recipe.root_loop(), self.path)],
+        )
+    }
+
+    /// V2 sibling of `into_root_claim`; the resolver token remains the only
+    /// source-coordinate issuer while the verified Recipe owns the root key.
+    pub(crate) fn into_root_claim_v2(
+        self,
+        recipe: &VerifiedLoopRecipeV2,
     ) -> LoopRecipeSourceBindingV1 {
         LoopRecipeSourceBindingV1::new(
             self.owner,

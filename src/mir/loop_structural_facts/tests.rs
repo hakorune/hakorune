@@ -2,10 +2,11 @@ use std::sync::Arc;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::loop_recipe_contract::{
-    verify_artifact_for_test, LoopNodeSourceBindingV1, LoopRecipeArtifactV1,
-    LoopRecipeProducerIdV1, LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1,
-    LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeVerifierV1, LoopSourcePathStepV1,
-    LoopSourcePathV1, VerifiedLoopRecipeV1,
+    verify_artifact_for_test, LoopConditionV2, LoopNodeSourceBindingV1, LoopNodeV2,
+    LoopRecipeArtifactV1, LoopRecipeBlockV2, LoopRecipeProducerIdV1, LoopRecipeProvenanceV1,
+    LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeV2,
+    LoopRecipeVerifierV1, LoopRecipeVerifierV2, LoopSourcePathStepV1, LoopSourcePathV1,
+    VerifiedLoopRecipeV1,
 };
 use crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame;
 use crate::mir::resolved_semantics::{
@@ -97,6 +98,30 @@ fn root_recipe() -> LoopRecipeV1 {
         }"#,
     )
     .expect("minimal semantic recipe JSON")
+}
+
+fn verified_root_recipe_v2() -> crate::mir::loop_recipe_contract::VerifiedLoopRecipeV2 {
+    LoopRecipeVerifierV2::verify(LoopRecipeV2 {
+        root_loop: crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0),
+        loops: vec![LoopNodeV2 {
+            key: crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0),
+            parent: None,
+            condition: LoopConditionV2::Always,
+            body: crate::mir::loop_recipe_contract::LoopBlockKeyV1::new(0),
+        }],
+        blocks: vec![LoopRecipeBlockV2 {
+            key: crate::mir::loop_recipe_contract::LoopBlockKeyV1::new(0),
+            owner_loop: crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0),
+            items: vec![],
+        }],
+        items: vec![],
+        bindings: vec![],
+        values: vec![],
+        inputs: vec![],
+        carriers: vec![],
+        exits: vec![],
+    })
+    .expect("minimal V2 root verifies")
 }
 
 fn verified_root_recipe() -> VerifiedLoopRecipeV1 {
@@ -240,6 +265,29 @@ fn resolved_adapter_to_structurally_verified_artifact_is_end_to_end_green() {
     );
 
     verify_artifact_for_test(artifact).expect("source-bound artifact verifies");
+}
+
+#[test]
+fn resolved_root_adapter_issues_v2_root_without_manual_coordinates() {
+    let tree = function(vec![loop_stmt(Vec::new())]);
+    let product = resolve_function(&tree);
+    let source = bind_resolved_loop_root_v1(
+        product
+            .resolved_loop_source(&stmt(vec![SourcePathSegmentV1::Body(0)]))
+            .unwrap(),
+    )
+    .unwrap();
+    let claim = source.into_root_claim_v2(&verified_root_recipe_v2());
+    assert_eq!(
+        claim,
+        LoopRecipeSourceBindingV1::new(
+            LoopRecipeSourceOwnerV1::function_body(0, 0),
+            vec![LoopNodeSourceBindingV1::new(
+                crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0),
+                LoopSourcePathV1::new(vec![LoopSourcePathStepV1::BodyItem { index: 0 }]),
+            )],
+        )
+    );
 }
 
 #[test]

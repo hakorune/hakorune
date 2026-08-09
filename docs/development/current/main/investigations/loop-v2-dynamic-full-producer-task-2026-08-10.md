@@ -1,8 +1,8 @@
 ---
-Status: accepted design; control-parity implementation next
+Status: control/source parity R0 closed; complete producer I0 next
 Date: 2026-08-10
-Current row: `LOOP-V2-CONTROL-STRUCTURE-GUARD-R0`
-Next row: `LOOP-V2-DYNAMIC-FULL-PRODUCER-I0`
+Closed row: `LOOP-V2-CONTROL-STRUCTURE-GUARD-R0`
+Current row: `LOOP-V2-DYNAMIC-FULL-PRODUCER-I0`
 Parent: `dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md`
 Mode: BoxShape first; unchanged-source producer second
 ---
@@ -205,6 +205,50 @@ source_binding.rs
 
 Do not grow `typed_schema_v2.rs` beyond the 760-line split trigger. Every
 source file remains below the 800-line hard limit.
+
+### R0 closeout
+
+R0 is landed as a behavior-neutral compiler correction.
+
+```text
+typed_schema_v2_structure.rs
+  root/parent ownership
+  exact block/Loop/Exit use
+  If child ownership and order
+  terminal Exit
+  Break/Continue ancestry
+  recursive preorder
+
+source_binding.rs
+  one shared V1/V2 Loop-source path verifier
+
+resolved_source_adapter.rs
+  consuming VerifiedLoopRootSourceV1 -> V2 root claim
+```
+
+The verified V2 artifact now owns a non-Clone structurally verified source
+claim rather than carrying the raw DTO. The prior Dynamic-operation test
+fixture no longer aliases condition and body to one physical logical block;
+it uses the exact two-block structure required by the common contract.
+
+Focused evidence:
+
+```text
+cargo test -q loop_recipe_contract::typed_schema_v2_structure_tests --lib
+  6 passed
+cargo test -q loop_recipe_contract::typed_schema_v2 --lib
+  37 passed
+cargo test -q resolved_root_adapter_issues_v2_root_without_manual_coordinates --lib
+  1 passed
+
+typed_schema_v2.rs                 717 lines
+typed_schema_v2_structure.rs       296 lines
+typed_schema_v2_structure_tests.rs 221 lines
+```
+
+R0 added no operation, value class, source shape, selector, Recipe producer,
+JoinSig, physical route, or production caller. Path-sensitive control remains
+the later JoinSigV2 owner.
 
 ## I0 — complete producer
 

@@ -483,3 +483,79 @@ fn v2_rejects_unknown_return_value() {
         })
     );
 }
+
+#[test]
+fn v2_rejects_root_with_parent() {
+    let mut artifact = minimal_typed_recipe();
+    artifact.recipe.loops[0].parent = Some(LoopNodeKeyV1::new(0));
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::InvalidRootParent)
+    );
+}
+
+#[test]
+fn v2_rejects_condition_and_body_reusing_one_block() {
+    let mut artifact = minimal_typed_recipe();
+    artifact.recipe.loops[0].condition = LoopConditionV2::Predicate {
+        block: LoopBlockKeyV1::new(0),
+        value: LoopValueKeyV1::new(3),
+    };
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::DuplicateBlockUse {
+            key: LoopBlockKeyV1::new(0),
+        })
+    );
+}
+
+#[test]
+fn v2_rejects_unreachable_item_after_exit() {
+    let mut artifact = minimal_dynamic_recipe();
+    artifact.recipe.items[2].item = LoopRecipeItemV2::Exit {
+        exit: super::ids::LoopExitKeyV1::new(0),
+    };
+    artifact.recipe.items[3].item = LoopRecipeItemV2::Operation {
+        operation: LoopOperationV2::WriteBinding {
+            binding: LoopBindingKeyV1::new(0),
+            value: LoopValueKeyV1::new(2),
+        },
+    };
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::UnreachableItem {
+            item: LoopItemKeyV1::new(3),
+        })
+    );
+}
+
+#[test]
+fn v2_rejects_unconsumed_exit() {
+    let mut artifact = minimal_typed_recipe();
+    artifact.recipe.exits.push(LoopRecipeExitV2 {
+        key: super::ids::LoopExitKeyV1::new(0),
+        owner_loop: LoopNodeKeyV1::new(0),
+        kind: LoopExitKindV2::Return { value: None },
+    });
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::UnusedExit {
+            key: super::ids::LoopExitKeyV1::new(0),
+        })
+    );
+}
+
+#[test]
+fn v2_rejects_incomplete_source_binding() {
+    let mut artifact = minimal_typed_recipe();
+    artifact.source_binding.loops.clear();
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::SourceBinding(
+            super::error::LoopRecipeRejectReasonV1::SourceBindingCoverageMismatch {
+                expected: 1,
+                found: 0,
+            },
+        ))
+    );
+}

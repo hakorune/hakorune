@@ -94,6 +94,41 @@ pub(crate) enum LoopRecipeV2RejectReason {
     DuplicateExitUse {
         key: LoopExitKeyV1,
     },
+    InvalidRootParent,
+    InvalidLoopParent {
+        loop_key: LoopNodeKeyV1,
+    },
+    DuplicateBlockUse {
+        key: LoopBlockKeyV1,
+    },
+    UnusedBlock {
+        key: LoopBlockKeyV1,
+    },
+    UnusedLoop {
+        key: LoopNodeKeyV1,
+    },
+    UnusedExit {
+        key: LoopExitKeyV1,
+    },
+    BlockOwnerMismatch {
+        key: LoopBlockKeyV1,
+    },
+    ChildBlockMustFollowParent {
+        key: LoopBlockKeyV1,
+    },
+    NestedLoopOwnerMismatch {
+        key: LoopNodeKeyV1,
+    },
+    ExitOwnerMismatch {
+        key: LoopExitKeyV1,
+    },
+    ExitTargetNotAncestor {
+        key: LoopExitKeyV1,
+    },
+    UnreachableItem {
+        item: LoopItemKeyV1,
+    },
+    SourceBinding(super::error::LoopRecipeRejectReasonV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -107,12 +142,16 @@ impl VerifiedLoopRecipeV2 {
     pub(crate) fn into_recipe(self) -> LoopRecipeV2 {
         self.0
     }
+
+    pub(crate) fn root_loop(&self) -> LoopNodeKeyV1 {
+        self.0.root_loop
+    }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopRecipeArtifactV2 {
     provenance: super::schema::LoopRecipeProvenanceV1,
-    source_binding: LoopRecipeSourceBindingV1,
+    source_binding: super::source_binding::StructurallyVerifiedLoopRecipeSourceClaimV1,
     recipe: VerifiedLoopRecipeV2,
 }
 
@@ -126,7 +165,7 @@ impl VerifiedLoopRecipeArtifactV2 {
     }
 
     pub(crate) fn source_binding(&self) -> &LoopRecipeSourceBindingV1 {
-        &self.source_binding
+        self.source_binding.as_source_binding()
     }
 }
 
@@ -142,9 +181,14 @@ impl LoopRecipeVerifierV2 {
             });
         }
         let recipe = Self::verify(artifact.recipe)?;
+        let source_binding = super::source_binding::LoopRecipeSourceClaimVerifierV1::verify_v2(
+            recipe.as_recipe(),
+            artifact.source_binding,
+        )
+        .map_err(LoopRecipeV2RejectReason::SourceBinding)?;
         Ok(VerifiedLoopRecipeArtifactV2 {
             provenance: artifact.provenance,
-            source_binding: artifact.source_binding,
+            source_binding,
             recipe,
         })
     }
@@ -160,6 +204,7 @@ impl LoopRecipeVerifierV2 {
         check_carriers(&recipe, &bindings, &values)?;
         check_exits(&recipe)?;
         check_blocks_and_items(&recipe, &bindings, &values)?;
+        super::typed_schema_v2_structure::check_control_structure(&recipe)?;
         Ok(VerifiedLoopRecipeV2(recipe))
     }
 }
