@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The existing MIR/Recipe and parser/resolver closeouts remain unchanged. H2-S2-S0 and S1-R0 are closed. H2-S2-S1-R1 implementation is preserved in the worktree. Exact nominal Box call-result publication landed at 6c0f5450b6. Dynamic source S0 and origin P0 are closed: the exact resolved input, existing post-setup entry receipt, and ordinal-keyed local completion receipt feed one private CallableDynamicOriginLoweringState; setup_function_params remains the sole formal publisher. The focused regression also fixed neutral static-current-owner me in the compiler body-shape authority. GenericLoop/PHI is now the L0 design stop; Return/SourceBody/method/H3 integration, Take activation, Home capability/Flow, target, Recipe, production cutover, and runtime remain closed."
+status = "Dynamic source S0 and origin P0 are closed. L0 design is accepted: compiler acceptance must replace the fixed 1/1/1 Loop schedule with complete carrier/read-only/iteration-local source relations, then seal Dynamic operation-result lineage, atomic rebind, and full CFG-ready PHI coverage. Raw Unknown remains invalid. Backend rejection stays in the shared completed-module preflight; backend policy does not move into Builder. The preserved parser R1 worktree remains parked until the L0 sequence closes."
 date = "2026-08-09"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "GENERIC-LOOP-DYNAMIC-CARRIER-L0-D0: seal the exact P0-origin -> prepared carrier -> complete Dynamic PHI authorization and pre-effect backend rejection; no raw Unknown admission, mixed-input repair, retry, fallback, or source annotation"
-work_mode = "design_stop"
-current_execution_row = "GENERIC-LOOP-DYNAMIC-CARRIER-L0-D0"
-current_blocker_token = "GENERIC-LOOP-DYNAMIC-CARRIER-L0-D0: decide the sole prepared-carrier/PHI authorization seam and unsupported-backend pre-effect boundary before opening GenericLoop implementation"
+current_design_stop = "none"
+work_mode = "fast"
+current_execution_row = "CALLABLE-LOOP-SOURCE-COVERAGE-R0"
+current_blocker_token = "CALLABLE-LOOP-SOURCE-COVERAGE-R0: replace fixed 1/1/1 counts and the count-only consumed receipt with one exact item/site-keyed carrier/read-only/iteration-local relation set; Builder effect remains zero"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -205,7 +205,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "Parser R1 is preserved at its next valid compiler blocker. S0 seals complete source-backed dynamic formal and Loop-carrier relations. P0 now attaches them to already-published entry ValueIds and exact local initializer-to-destination receipts through one private origin state; GenericLoop remains unopened."
+current_execution_summary = "CALLABLE-LOOP-SOURCE-COVERAGE-R0 is the first executable L0 row. It removes the fixture-only 1/1/1 schedule and count-only receipt, preserving one exact carrier plus variable read-only and iteration-local source relations with zero Builder effect. Representation, operation emission, PHI, backend metadata, and route activation remain closed."
 current_execution_design = "docs/development/current/main/investigations/generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -689,13 +689,13 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "generic-loop-source-backed-dynamic-carrier-d0"
 latest_card_path = "docs/development/current/main/investigations/generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md"
-next_design_card = "generic-loop-dynamic-carrier-l0-d0"
-next_design_card_path = "docs/development/current/main/investigations/generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md#l0--genericloopphi-canary"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "CALLABLE-LOOP-SOURCE-COVERAGE-R0"
+next_execution_card_path = "docs/development/current/main/investigations/generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md#l0-r0--callable-loop-source-coverage-r0"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "Dynamic source S0 and origin P0 are closed. Exact source ingress plus the existing entry/local terminals feed one private origin state; no raw Unknown or second publisher was added. The next boundary is L0 design-only: prepared Dynamic carrier/PHI authorization, mixed-input rejection, and unsupported-backend pre-effect failure."
+latest_card_summary = "L0 design is accepted after independent architecture, PHI, and backend audits. Compiler acceptance must replace fixed source-role counts, then separately seal Dynamic operation-result lineage and CFG-ready PHI coverage. Dynamic semantic failures reject before Loop allocation; unsupported backends reject at the existing completed-module shared preflight. R0 is ready."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

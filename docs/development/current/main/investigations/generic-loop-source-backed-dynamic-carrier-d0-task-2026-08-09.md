@@ -1,5 +1,5 @@
 ---
-Status: S0 closed; P0 accepted and ready
+Status: S0/P0 closed; L0 design accepted; source-coverage R0 ready
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -151,17 +151,38 @@ origin to the exact final carrier value. GenericLoop only verifies and
 consumes the prepared representation. It does not infer dynamic meaning.
 
 PHI materialization must accept Unknown wire type only when the same
-source-backed dynamic receipt authorizes every incoming carrier relation.
-Mixed exact/dynamic, missing origin, foreign owner, or partially covered
-incoming rows reject. No fact refinement from raw Unknown is added.
+source-backed dynamic lineage authorizes every incoming carrier relation.
+The entry origin alone is insufficient: an exact Dynamic operation-result
+receipt must authorize the body result before an atomic rebind can become the
+backedge input. Mixed exact/dynamic, missing lineage, foreign owner, or
+partially covered incoming rows reject. No fact refinement from raw Unknown
+is added.
 
 ## Backend boundary
 
 The MIR interpreter is the first supported consumer because it already
-executes dynamic values. Backends that require a concrete carrier type must
-reject before Loop block allocation or module publication with a stable
-capability error. They must not erase the receipt, choose Integer, retry a
-legacy Loop route, or defer failure until code generation.
+executes dynamic values. The compiler and `NormalCompileRequestV1` are
+currently backend-neutral; the runner selects a backend only after MIR module
+construction. Therefore two distinct fail-fast points are normative:
+
+```text
+Dynamic semantic/PHI preflight failure
+  -> before Loop block allocation
+
+unsupported selected backend
+  -> completed MirModule shared backend preflight
+  -> before backend serialization, lowering, execution, or fallback
+```
+
+Do not thread a backend string, environment lookup, or runner policy into the
+Builder merely to move the second check earlier. The Dynamic Loop capability
+is installed as passive function/module metadata and registered in the shared
+`mir::backend_capability` gate. Unsupported backends return one stable error
+with `silent_fallback_allowed=false`.
+
+If a future product requires target-specific rejection before MIR
+construction, it needs a separate target-aware compile-request Decision. It
+is not part of L0.
 
 ## Reachability is not this repair
 
@@ -330,25 +351,252 @@ Closeout:
 
 ### L0 — GenericLoop/PHI canary
 
-Status: `design_stop`
+Status: `accepted`; implementation is split below
 
-Before implementation, fix one design card for the exact authorization seam:
+#### Decision
 
-- which prepared carrier consumes the P0 current-origin receipt;
-- how complete predecessor coverage authorizes one Dynamic PHI without making
-  raw `Unknown` an admissible type;
-- where exact/dynamic mixed-input rejection occurs before physical Loop
-  effects;
-- which backend capability rejects unsupported Dynamic Loop execution before
-  mutation;
-- how the unmodified `skip_while/4` VM canary proves the row without adding a
-  route retry or source annotation.
+The compiler acceptance is too narrow and must be repaired. The current
+`VerifiedCallableSemanticLoopBindingScheduleV1` fixes total role counts to:
 
-1. Extend the prepared carrier representation with the explicit Dynamic arm.
-2. Authorize Unknown-wire PHI only from complete dynamic carrier coverage.
-3. Prove exact and dynamic lanes remain distinct and mixed inputs reject.
-4. Run the unmodified `skip_while/4` canary on the MIR interpreter.
-5. Verify unsupported backends fail before physical Loop effects.
+```text
+condition reads = 1
+body reads      = 1
+body rebinds    = 1
+```
+
+That is a fixture shape, not a language or GenericLoop contract. The exact
+`skip_while/4` source contains a redefined carrier plus read-only Dynamic
+operands. Raising the constants would only create another narrow shape.
+
+The durable source classification is:
+
+```text
+carrier:
+  exact entry seed
+  exact Loop-local rebind
+  backedge payload / PHI required
+
+read-only operand:
+  exact source reads inside the Loop
+  no rebind by this Loop
+  no carrier PHI
+
+iteration-local result:
+  exact operation result inside the Loop
+  no entry seed
+  no header carrier PHI
+```
+
+All resolver-issued reads and rebinds in the supported Loop source window are
+item/site-keyed and completely covered. Total read count is not semantic
+authority. The first cohort may still support one carrier and one canonical
+rebind topology, but it must say so with typed relations rather than counts.
+
+#### Three separate owners
+
+```text
+1. Dynamic carrier ingress                     // before Builder effect
+   complete source coverage
+   + exact carrier relation
+   + P0 current origin
+      -> PreparedSourceBackedDynamicLoopIngressV1
+
+2. Dynamic operation result / atomic rebind    // body emission terminal
+   current Dynamic operand
+   + exact operation-source relation
+   + emitted result ValueId
+      -> CurrentDynamicBindingReceiptV1
+
+3. Dynamic PHI authorization                   // CFG-ready, before PHI emit
+   JoinSig/expected predecessor roles
+   + actual VerifiedPredecessors
+   + every incoming Dynamic lineage
+      -> PreparedDynamicPhiAuthorizationV1
+```
+
+The first owner must reject before `LoopBlocksStandard5::allocate`. The third
+owner necessarily runs after blocks/body values exist; its failure poisons
+the unpublished function and uses whole-session discard. It must not be
+misdescribed as a zero-Builder-effect rejection.
+
+The PHI writer remains the canonical Binding SSA / `PhiTxn` path. L0 adds an
+authorization receipt, not a second PHI writer. Pending-PHI cleanup remains
+best-effort diagnostic hygiene; whole unpublished session discard owns
+atomicity.
+
+#### Representation boundary
+
+```text
+PreparedGenericLoopCarrierRepresentationV1
+  Exact {
+    init,
+    exact_type,
+  }
+  Dynamic {
+    init,
+    authorization,
+    wire = MirType::Unknown,
+  }
+```
+
+Only the Dynamic arm can project to an Unknown wire. `MirType::Unknown` can
+never construct that arm. Exact and Dynamic inputs are mutually exclusive;
+dual evidence, mixed PHI inputs, raw Unknown, missing origin, foreign origin,
+and stale current values reject.
+
+The prepared representation is passed into the skeleton. The skeleton must
+not rediscover it from a variable name, `variable_map`, or `TypeContext`.
+Additional route-local carriers currently defaulted with
+`unwrap_or(MirType::Unknown)` are not admitted by this row.
+
+#### Operation and Recipe boundary
+
+P0 invalidates an origin on rebind but does not yet issue the result of
+`i = i + 1`. L0 must add a profile-neutral source-backed Dynamic operation
+contract. For the first cohort:
+
+```text
+Dynamic operand + exact literal Add
+  -> Dynamic result with the same lineage
+
+Dynamic operand + Dynamic read-only bound Compare
+  -> exact Bool result
+```
+
+This is not `BinaryI64`/`CompareI64` inference. `LoopRecipeV1` currently has
+only I64/Bool/Unit value classes and I64 arithmetic/comparison operations.
+The bounded legacy GenericLoop canary may borrow the neutral Dynamic operation
+receipt, but it may not become its semantic owner. Production selection stays
+closed until a later Recipe vocabulary Decision represents Dynamic
+operations honestly and the legacy adapter has a same-commit retirement
+edge.
+
+#### Retry boundary
+
+The current release Generic handler converts some lowering errors into
+`PostEffectRetryDebt` and continues the route schedule. A selected
+source-backed Dynamic failure must be a typed terminal rejection. It may not
+be converted to retry debt, run a suffix route, use the LLVM mock fallback,
+or reuse the poisoned function session.
+
+#### Ordered implementation tasks
+
+##### L0-R0 — `CALLABLE-LOOP-SOURCE-COVERAGE-R0`
+
+Change:
+  Replace the fixed `(1,1,1)` schedule and count-only consumed receipt with
+  one item/site-keyed complete relation set. Co-seal the one selected carrier,
+  its exact reads/rebind, read-only operands, and iteration-local bindings. No
+  Builder/MIR effect.
+
+Done:
+  The unmodified `skip_while/4` source is accepted with `i` as the only
+  carrier and additional exact reads retained as operands. Foreign,
+  duplicate, missing, unconsumed, cross-Loop, and cross-binding rows reject.
+  Existing simple one-carrier fixtures remain green. Update the owning Builder
+  README and this reference receipt in the same implementation commit.
+
+Stop:
+  Do not widen by total counts, names, source-position guesses, or a default
+  catch-all row. Do not open representation, operation emission, PHI, route
+  selection, or fallback.
+
+##### L0-S0 — `DYNAMIC-LOOP-OPERATION-SOURCE-S0`
+
+Change:
+  Issue one source-only neutral Dynamic carrier-lineage operation relation set
+  for the exact Add/rebind and comparison rows needed by the bounded source
+  window.
+
+Done:
+  Every carrier-lineage operand/result/source role is covered exactly once;
+  Dynamic Add and exact Bool Compare semantics are explicit. Existing method
+  calls, local `ch`, early Return, and Tail remain separately owned and are
+  not reissued by this product. No `MirType`, ValueId, Builder, Recipe-I64
+  relabel, or method-name inference. Update the resolved-semantics README and
+  MIR reference in the same commit.
+
+Stop:
+  Missing call/method result authority is `NoSafeSlice`; do not infer it from
+  raw Unknown or emitted opcodes.
+
+##### L0-P0 — `DYNAMIC-LOOP-PREPARE-P0`
+
+Change:
+  Co-seal the complete source coverage, P0 current origins, carrier and
+  read-only operand rows, operation relations, and expected Enter/Backedge
+  roles into one non-`Clone` prepared program before Loop allocation. Add the
+  closed Exact/Dynamic carrier representation enum.
+
+Done:
+  missing/dual/mixed/foreign/stale evidence rejects with block, ValueId, and
+  instruction snapshots unchanged. Raw Unknown remains rejected. The skeleton
+  accepts only the prepared representation. Update GenericLoop README and the
+  MIR reference in the same commit.
+
+Stop:
+  No Builder-global origin map, backend string, name lookup, TypeContext
+  repair, PHI emission, retry, or fallback.
+
+##### L0-P1 — `DYNAMIC-LOOP-REBIND-P1`
+
+Change:
+  At the canonical operation terminal, bind the exact emitted Add result to
+  the prepared Dynamic relation and atomically replace the carrier's current
+  receipt. A late failure discards the whole unpublished session.
+
+Done:
+  no invalidate/register gap exists; unrelated values and stale targets
+  cannot acquire the lineage. Compare publishes exact Bool only. Update the
+  operation owner README and MIR reference in the same commit.
+
+Stop:
+  No second operation emitter, same-session repair, or PHI claim.
+
+##### L0-P2 — `DYNAMIC-LOOP-PHI-P2`
+
+Change:
+  Bind expected Enter/Backedge roles to actual canonical predecessors and
+  exact incoming values after CFG/body completion. Issue one prepared Dynamic
+  PHI authorization and emit through the existing Binding SSA / `PhiTxn`
+  owner.
+
+Done:
+  missing, duplicate, phantom, extra, foreign, mixed Exact/Dynamic, or
+  different-lineage incoming rows reject. Failure discards the unpublished
+  session. Update the PHI owner README and MIR reference in the same commit.
+
+Stop:
+  No route-local PHI writer and no Unknown-only admission.
+
+##### L0-I0 — `GENERIC-LOOP-DYNAMIC-VM-CANARY-I0`
+
+Change:
+  Wire the bounded legacy GenericLoop adapter to consume only the prepared
+  neutral receipts. Install passive Dynamic-Loop backend capability metadata,
+  register it in the shared backend gate, and add a small tracked Main wrapper
+  that imports and executes the production `skip_while/4` unchanged.
+
+Done:
+  MIR interpreter succeeds. Unsupported backends reject at the shared module
+  backend preflight before backend effects with a stable tag and no retry,
+  suffix route, mock fallback, or compatibility fallback. Source files remain
+  below 800 lines. Update GenericLoop README, backend capability reference,
+  this card, and `docs/reference/mir/generic-loop-stage-matrix.md` in the same
+  commit.
+
+Stop:
+  This is a bounded VM canary, not production selection or Dynamic Recipe
+  parity. The production `skip_while` source must not be copied, annotated, or
+  rewritten.
+
+##### Post-L0 — `LOOP-RECIPE-DYNAMIC-SEMANTICS-D0/I0`
+
+Before production activation, add an explicit Recipe Decision for Dynamic
+value class, Add/Compare semantics, source-operation coverage, and JoinSig
+carrier compatibility. Then switch one named caller and delete its legacy
+carrier inference, route-local PHI, retry/fallback, and fixed-read schedule in
+the same cutover series.
 
 ### R1 resume
 
@@ -371,7 +619,8 @@ negative:
   foreign formal/local/Loop BindingRef rejects
   missing or duplicate initializer relation rejects
   mixed exact/dynamic PHI inputs reject in the first cohort
-  unsupported backend rejects pre-effect
+  unsupported backend rejects at shared module preflight before backend effect
+  selected Dynamic failure never becomes PostEffectRetryDebt
   consumed/missing selected handoff never falls back
 ```
 
