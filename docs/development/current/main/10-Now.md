@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
@@ -32,19 +32,21 @@ body-source I0 and borrowed Query body-source projection I0 are also closed.
 The current execution row is:
 
 ```text
-CALLABLE-BODY-OWNER-CARRIER-D0
+CALLABLE-BODY-OWNER-CARRIER-I0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
 selected-Query view and borrowed `<'body,'contract>` sparse projection check
 parser provenance and resolver brand, preserve sparse source order, keep the
 general catalog reusable, and emit no default non-Query row. The current
-design stop is that bare `VerifiedResolvedFunctionV1` cannot prove the
-instance-method source identity or complete body coverage needed for an owner
-link. First define the resolver-issued instance-method function carrier on the
-existing FunctionSemanticResolverSession path; only then open the catalog-level
-owner co-seal. No body facts, conformance, target, Recipe/CallSlot, Builder/MIR,
-or production work is open.
+carrier D0 is accepted. The bounded I0 now has one permitted route: the
+parser transaction keeps AST-backed syntax only inside a single
+transaction-scoped callback/lease, the resolver constructs
+`FunctionSyntaxViewV1` there, and only AST-free carrier/catalog products escape.
+The carrier must retain exact source identity, parser/resolver brands, nominal
+Box, owner-bearing forest/function, root/body receipt, and body coverage before
+the catalog-level owner co-seal opens. No body facts, conformance, target,
+Recipe/CallSlot, Builder/MIR, or production work is open.
 
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
@@ -61,10 +63,9 @@ Home remains the declaration owner. Resolver targets, source-bound CallSlot
 relations, ScanWithInit, physical lowering, production selection, and legacy
 retirement remain closed. The one-shot parser transaction/provenance bridge,
 general direct-cohort body cardinality, and borrowed Query projection are
-landed; the resolver-issued FunctionOwner carrier and its body-root/item
-coverage receipt are the current design stop before the FunctionOwner
-co-seal. Body conformance must not pair by name, inventory ordinal, Query
-re-selection, FunctionOrigin, or MIR facts.
+landed; the resolver-issued FunctionOwner carrier is the current bounded fast
+row before the FunctionOwner co-seal. Body conformance must not pair by name,
+inventory ordinal, Query re-selection, FunctionOrigin, or MIR facts.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No

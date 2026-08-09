@@ -1,5 +1,5 @@
 ---
-Status: revised design stop — owner carrier is missing; implementation not opened
+Status: accepted design; next bounded execution is owner-carrier I0
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -127,6 +127,44 @@ have a public arbitrary constructor. If the resolver cannot issue the body
 root/coverage receipt without AST re-scan or name lookup, the carrier row
 remains `NoSafeSlice`; do not invent an empty or test-only verified product.
 
+## Accepted carrier issuer boundary
+
+The carrier D0 is now closed with the following source lease boundary. The
+parser transaction owns the AST until a single higher-ranked-resolver callback
+returns; the callback is the only place where a function syntax view may be
+constructed.
+
+```text
+ParserResolverBodyTransactionV1::with_instance_method_sources(self, callback)
+  callback receives, for one parser invocation:
+    ParserBoxResolverSourceHandoffV1
+    ParserBoxBodySourceEnvelopeV1
+    ParserBoxInstanceMethodSyntaxLeaseV1<'ast>   // parser-private only
+
+  callback returns only AST-free resolver products
+  transaction and syntax lease cannot escape or be reused
+```
+
+The syntax lease contains exact normalized source coordinates plus borrowed
+parameter/body slices. It is not a resolver product, is not `Clone`, and is
+never stored in a body-source catalog. The resolver constructs
+`FunctionSyntaxViewV1` from the lease, runs the existing
+`FunctionSemanticResolverSessionV1` owner-forest issuer, and emits a
+resolver-owned instance-method function unit/catalog containing:
+
+```text
+declaration/source identity
+parser provenance / resolver brand / nominal Box identity
+owner-bearing resolved forest/function product
+FunctionOriginV1 as a consistency receipt
+body-root profile and exact ordered body-item coverage
+```
+
+The carrier issuer and body-source issuer consume the same parser provenance;
+the owner-link issuer later co-seals their AST-free catalogs. No AST pointer,
+method-name lookup, inventory ordinal lookup, caller-built function map, or
+second `FunctionOwnerIdV1` issuer is permitted.
+
 ## Acceptance and closeout
 
 * carrier D0 first fixes the source-bound resolver issuer and body-root/
@@ -145,9 +183,10 @@ remains `NoSafeSlice`; do not invent an empty or test-only verified product.
 ## Explicit task order
 
 ```text
-1. CALLABLE-BODY-OWNER-CARRIER-D0
-   exact resolver path, source identity, parser/resolver brands,
-   body-root/item-coverage receipt, no second FunctionOwner issuer
+1. CALLABLE-BODY-OWNER-CARRIER-D0 (closed)
+   exact resolver callback/source-lease path, source identity,
+   parser/resolver brands, body-root/item-coverage receipt, no second
+   FunctionOwner issuer
 
 2. CALLABLE-BODY-OWNER-CARRIER-I0
    one real direct instance-method carrier and focused negative matrix

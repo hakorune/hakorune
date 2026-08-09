@@ -57,6 +57,22 @@ selected Query view, preserves sparse source order, and emits no default row
 for non-Query methods. FunctionOwner binding, body facts, conformance,
 targets, Recipe/CallSlot, and MIR remain later owners.
 
+## Resolver instance-method syntax lease (carrier I0)
+
+The accepted next boundary is transaction-scoped, not a second AST API:
+
+```text
+ParserResolverBodyTransactionV1::with_direct_method_syntax(self, callback)
+  -> handoff + body envelope + borrowed private syntax lease
+  -> callback returns AST-free resolver carrier/catalog only
+```
+
+The lease is non-`Clone`, cannot escape the callback lifetime, and is keyed by
+the parser-issued direct source site. The resolver constructs its canonical
+`FunctionSyntaxViewV1` only inside this callback; after the callback returns,
+no resolver product retains an AST or syntax pointer. Name, inventory ordinal,
+legacy AST lookup, and caller-built function maps are forbidden.
+
 ## C-S1 delegate target index
 
 `delegate_target_index.rs` is a borrowed lookup proof over one unpublished

@@ -115,11 +115,16 @@ sparse source order and retaining the all-row catalog for future observers.
 It checks parser provenance and resolver brand once and emits no default
 non-Query row. A bare `VerifiedResolvedFunctionV1` is not enough for owner
 binding: it has no instance-method source identity or complete body coverage.
-The next `CALLABLE-BODY-OWNER-CARRIER-D0/I0` must define and issue a
-resolver-owned instance-method function carrier on the existing
-`FunctionSemanticResolverSessionV1` path. Only after that carrier is sealed
-may `CALLABLE-BODY-OWNER-BINDING-D0/I0` co-seal the selected body source with
-the exact resolved function. Missing carrier/owner link is `NoSafeSlice`, not a
+The accepted carrier boundary is a single transaction-scoped parser-private
+callback/lease: `ParserResolverBodyTransactionV1` keeps borrowed method
+parameters/body slices alive only while the resolver constructs
+`FunctionSyntaxViewV1`. The callback returns no AST or syntax pointer. The
+existing `FunctionSemanticResolverSessionV1` then issues an AST-free
+instance-method function carrier/catalog containing source identity,
+parser/resolver brands, nominal Box, owner-bearing forest/function, root/body
+receipt, and exact body coverage. Only after that carrier is sealed may
+`CALLABLE-BODY-OWNER-BINDING-D0/I0` co-seal the selected body source with the
+exact resolved function. Missing carrier/owner link is `NoSafeSlice`, not a
 default body receipt. Body modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line
 split trigger.

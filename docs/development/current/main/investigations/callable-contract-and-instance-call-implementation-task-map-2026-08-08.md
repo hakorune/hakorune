@@ -217,7 +217,8 @@ CALLABLE-BODY-OWNER-CARRIER-D0
   define the resolver-issued instance-method function carrier/catalog
 
 CALLABLE-BODY-OWNER-CARRIER-I0
-  issue one real direct-method carrier on the existing
+  issue one real direct-method carrier through the accepted
+  parser-private syntax-lease callback and existing
   FunctionSemanticResolverSessionV1 path
 
 CALLABLE-BODY-OWNER-BINDING-D0/I0
@@ -243,8 +244,12 @@ resolver-issued body-root and ordered body-item coverage receipt
 ```
 
 The issuer is the same resolver method-resolution path that produced the
-function. A caller-supplied ordinal/name/body count, a separately-built map,
-legacy AST/name lookup, or a public arbitrary constructor is forbidden.
+function. The parser transaction keeps its AST only inside one
+`with_instance_method_sources(self, callback)` callback. The callback receives
+the AST-free handoff/body envelope plus a private borrowed syntax lease; the
+resolver constructs `FunctionSyntaxViewV1` there and returns only AST-free
+carrier products. A caller-supplied ordinal/name/body count, a separately-built
+map, legacy AST/name lookup, or a public arbitrary constructor is forbidden.
 
 The owner-link issuer is a pure relational co-seal: it issues no owner and
 does not copy or compare owner numbers as identity. It verifies declaration
@@ -253,12 +258,12 @@ source-kind/receiver policy, body-root/coverage, and one-to-one selected
 coverage. Equal numeric owner values, `FunctionOriginV1`, names, inventory
 ordinals, or compilation brands alone are never sufficient.
 
-Until the carrier D0/I0 closes, `CALLABLE-BODY-OWNER-BINDING-D0` remains
-`NoSafeSlice`; body facts, conformance, target, Recipe/CallSlot, Builder/MIR,
-and production selection remain closed. The owner-binding card records this
-same stop and the required negative matrix (foreign parser/resolver brand or
-site, wrong function root, missing/duplicate owner, body coverage mismatch,
-one-to-many/many-to-one, same numeric owner from an unrelated issuer).
+Until the carrier I0 closes, `CALLABLE-BODY-OWNER-BINDING-D0` remains parked;
+body facts, conformance, target, Recipe/CallSlot, Builder/MIR, and production
+selection remain closed. The owner-binding card records the required negative
+matrix (foreign parser/resolver brand or site, wrong function root,
+missing/duplicate owner, body coverage mismatch, one-to-many/many-to-one, same
+numeric owner from an unrelated issuer).
 
 ## Single authority table
 
@@ -516,15 +521,20 @@ CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
   FunctionOwnerId, body facts, conformance, target, Recipe/CallSlot,
   Builder/MIR, or fallback.
 
-CALLABLE-BODY-OWNER-CARRIER-D0/I0 (new prerequisite; current NoSafeSlice)
-  define and issue a resolver-owned instance-method function carrier/catalog on
-  the exact `FunctionSemanticResolverSessionV1` method-resolution path. The
-  carrier retains declaration/source identity, parser provenance, resolver
-  brand, nominal Box identity, FunctionOrigin as a consistency receipt, the
-  owner-bearing `VerifiedResolvedFunctionV1`, and a resolver-issued body-root/
-  ordered body-item coverage receipt. Do not join functions by name, ordinal,
-  inventory placement, compilation brand, or a caller-built map; do not add a
-  second FunctionOwner issuer. No owner link, body facts, or conformance.
+CALLABLE-BODY-OWNER-CARRIER-D0 (closed 2026-08-09)
+  accepted a transaction-scoped parser-private syntax-lease callback. The
+  callback receives the AST-free declaration handoff/body envelope plus exact
+  borrowed direct-method syntax views, constructs FunctionSyntaxView only
+  inside the resolver callback, and returns AST-free carrier/catalog products.
+  No AST escape, name/ordinal/inventory lookup, caller-built map, or second
+  FunctionOwner issuer.
+
+CALLABLE-BODY-OWNER-CARRIER-I0 (current execution row)
+  issue one real bounded direct-method carrier through that callback and the
+  existing FunctionSemanticResolverSessionV1 path. The carrier retains source
+  identity, parser/resolver brands, nominal Box, owner-bearing forest/function,
+  FunctionOrigin consistency, root profile/body pair, and exact body coverage.
+  No owner link, body facts, or conformance.
 
 CALLABLE-BODY-OWNER-BINDING-D0/I0 (parked behind owner carrier I0)
   co-seal the selected Query body-source projection with the exact resolver-

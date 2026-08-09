@@ -186,6 +186,7 @@ parser rich transaction
        ParserBoxBodySourceEnvelopeV1
   -> AST-free VerifiedInstanceMethodBodySourceCatalogV1 (all direct rows)
   -> VerifiedDeclaredQueryBodySourceCatalogV1 (selected Query view)
+  -> transaction-scoped parser-private syntax lease/callback
   -> resolver-issued instance-method function carrier/catalog
   -> catalog-level body-owner co-seal
   -> private body observer / body facts
@@ -194,8 +195,10 @@ parser rich transaction
 
 The transaction is non-`Clone` and is the only legal pairing authority. The
 body envelope owns normalized body-root/item-path DTOs plus a checked parser
-invocation provenance token; its one-shot syntax callback cannot return an AST
-or syntax pointer. For the bounded direct cohort, the parser source site is
+invocation provenance token. The carrier path uses one additional
+transaction-scoped callback: it may borrow exact method params/body slices only
+while the resolver constructs `FunctionSyntaxViewV1`; the callback returns no
+AST or syntax pointer. For the bounded direct cohort, the parser source site is
 normalized at the resolver boundary to a branded
 `ResolverBoxMethodSourceSiteV1` (Box statement ordinal plus direct member
 ordinal) and is never treated as a bare ordinal. A selected/generated
