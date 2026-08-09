@@ -1109,16 +1109,17 @@ Rejected > Unresolved > Declined > Candidate
       not re-exported and does not widen the general four-axis owner.
 22A-HOME-SOURCE-D0. `OWN-HOME-SOURCE-EVENT-D0` (current design stop)
     - `release root` direction is accepted as a statement-only contextual
-      source form, but exact `take`/`share` syntax and parser source-event
-      authority are not sealed;
+      source form; the parser source-event issuer is design-sealed at the
+      existing `ParserResolverBodyTransactionV1::with_direct_method_syntax`
+      boundary, while its I0 implementation remains closed;
     - the next bounded decision is `OWN-HOME-SYNTAX-D0`: choose the canonical
       declaration-side `take` form, expression-side `share` form/precedence,
       and record rejected alternatives before parser I0;
     - keep `release(value)`, `obj.release()`, callable/binding names,
       `drop`, `unbox`, and `unhome` out of Home ownership authority;
-    - define one future typed parser carrier and its provenance boundary;
-      parser acceptance, Home-demand/root issuance, and Home Flow remain
-      closed until this D0 is accepted;
+    - the future typed parser carrier must be issued only by that parser
+      transaction callback; parser acceptance, Home-demand/root issuance,
+      and Home Flow remain closed until the syntax D0 and later I0 rows land;
     - after syntax D0, close `OWN-HOME-CAPABILITY-TAXONOMY-D0` before issuing
       any Home-demand product;
     - focused card:

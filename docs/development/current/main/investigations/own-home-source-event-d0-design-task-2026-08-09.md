@@ -70,8 +70,10 @@ small EBNF/FIRST-set explanation and negative examples:
 
 The review must also state the rejected alternatives and confirm that parser
 acceptance remains out of scope until the decision is recorded here and in the
-language reference.  Until this question is answered, the current source-event
-card remains a design stop and no parser carrier or Home issuer is implemented.
+language reference.  The parser source-event issuer is already design-sealed
+in this card; only its I0 implementation waits behind the syntax decision.
+Until this question is answered, the current source-event card remains a
+design stop and no parser carrier or Home issuer is implemented.
 
 ## Source carrier boundary
 
@@ -90,10 +92,28 @@ This carrier owns spelling, source location, and lexical binding reference
 lookup input only.  It does not own `HomeRoot`, availability, terminality,
 fini, cleanup invalidation, or physical release.
 
-The carrier must be issued from the parser's existing rich/source-seal path.
-It must not be reconstructed from an AST-only projection, method name, raw
-statement ordinal, JSON, or a post-hoc text scan.  A missing rich parser
-issuer is `NoSafeSlice`, not a default empty release event.
+### Issuer decision
+
+The sole parser issuer is the existing rich body transaction boundary:
+
+```text
+ParserResolverBodyTransactionV1::with_direct_method_syntax(self, callback)
+  -> parser-private borrowed syntax lease
+  -> ReleaseStatementSourceV1
+  -> AST-free resolver-facing carrier
+```
+
+The observer runs while the parser owns the rich body syntax, consumes the
+borrowed lease, and returns only an owned carrier.  It does not add a second
+parser transaction, rescan an AST after the callback, or reconstruct a row
+from a method name, inventory ordinal, JSON, or post-hoc text scan.  The
+carrier inherits parser provenance from the same handoff and identifies the
+statement by the exact method source site plus body statement ordinal; the
+root token remains lexical input, not a resolved Home root.
+
+The issuer is design-sealed here but not implemented.  Until
+`OWN-HOME-SOURCE-EVENT-I0` lands, a missing observer remains `NoSafeSlice`,
+not a default empty release event.
 
 ## Event mapping
 
@@ -143,8 +163,8 @@ parser syntax error:
   `release(...)`, or a globally reserved-word interpretation
 
 NoSafeSlice:
-  source carrier issuer absent, Home-demand/root issuer absent, or the
-  selected source path cannot preserve parser provenance and exact site
+  source-event observer implementation absent, Home-demand/root issuer absent,
+  or the selected source path cannot preserve parser provenance and exact site
 
 Rejected:
   field/index/container root, generic root, foreign source brand, duplicate

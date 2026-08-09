@@ -39,9 +39,10 @@ OWN-HOME-SOURCE-EVENT-D0
 The Call+Return row landed one private borrowed receipt from one
 `ResolvedFunctionBodyShapeProductV1` for exact root-direct
 `return me.invoke()` (Call + ordinary Return + exact source relations), with
-five focused tests. The ownership direction `release root` is accepted, but
-the exact `take`/`share` source syntax and parser source-event issuer are not
-sealed. Home-demand and Home-flow implementation remain `NoSafeSlice`; target,
+five focused tests. The ownership direction `release root` and its existing
+parser-transaction issuer boundary are design-sealed, but the exact
+`take`/`share` source syntax remains open. Home-demand and Home-flow
+implementation remain `NoSafeSlice`; target,
 Recipe/CallSlot, Builder/MIR, publication, fallback, and production remain
 closed.
 
