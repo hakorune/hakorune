@@ -1,5 +1,5 @@
 ---
-Status: accepted design; current design stop after owner-carrier I0
+Status: closed design; owner carrier and owner-link I0 landed
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -268,10 +268,12 @@ create Recipe/CallSlot, lower Builder/MIR, or add fallback/retry.
    selected Query projection + carrier catalog co-seal; no second function
    input and no new owner issuer
 
-4. CALLABLE-BODY-OWNER-BINDING-I0 (next bounded implementation)
+4. CALLABLE-BODY-OWNER-BINDING-I0 (closed 2026-08-09)
    catalog-level one-to-one owner link; no body facts/conformance
 
-5. CALLABLE-BODY-FACTS-QUERY-D0/I0
+5. CALLABLE-BODY-FACTS-QUERY-D0 (current design stop)
+   define the resolved-body observation authority and bounded facts product;
+   implementation remains closed until the D0 source mapping is accepted
 ```
 
 Before the carrier I0 is landed, the missing issuer is represented as

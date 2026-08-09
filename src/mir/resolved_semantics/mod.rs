@@ -32,6 +32,7 @@ mod instance_method_body_source;
 mod instance_method_function_carrier;
 mod home_relation;
 mod query_behavior;
+mod instance_method_body_owner;
 mod loop_family_window;
 #[cfg(test)]
 mod loop_family_window_tests;
@@ -115,6 +116,10 @@ pub(crate) use instance_method_declaration::{
     ResolverSemanticValueTypeV1, SemanticInstanceDeclarationIssuerV1,
     VerifiedInstanceMethodDeclarationCatalogV1, VerifiedInstanceMethodDeclarationV1,
     VerifiedSemanticCallableSignatureV1,
+};
+pub(in crate::mir) use instance_method_body_owner::{
+    InstanceMethodBodyOwnerBindingIssueV1, InstanceMethodBodyOwnerBindingIssuerV1,
+    VerifiedInstanceMethodBodyOwnerCatalogV1, VerifiedInstanceMethodBodyOwnerRowV1,
 };
 pub(crate) use instance_method_body_source::{
     InstanceMethodBodySourceIssuerV1, InstanceMethodBodySourceIssueV1,
@@ -246,6 +251,8 @@ pub(crate) mod generic_resolved_carrier_provenance;
 pub(crate) mod generic_resolved_carrier_source_lease;
 #[cfg(test)]
 mod if_region_tests;
+#[cfg(test)]
+mod instance_method_body_owner_tests;
 #[cfg(test)]
 mod query_behavior_tests;
 #[cfg(test)]

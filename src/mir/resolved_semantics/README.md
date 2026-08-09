@@ -86,8 +86,9 @@ declaration identity. Query behavior, body conformance, targets, Recipe, and
 physical lowering remain unopened. The declared Query/Home aggregate I0 is
 now landed in `declared_instance_contract.rs`: it consumes the Home catalog
 (the declaration owner) and the selected Query catalog by value, then seals
-only same-brand/site/order coverage. The next design stop is
-`CALLABLE-BODY-SOURCE-AUTHORITY-D0`: the current AST-free parser handoff does
+only same-brand/site/order coverage. The earlier design stop was
+`CALLABLE-BODY-SOURCE-AUTHORITY-D0`; that row is now closed. The current
+AST-free parser handoff does
 not carry a general instance-method body, and the declaration catalog has no
 exact body/function-owner co-seal. The first body-source issuer must cover the
 complete supported direct cohort without selecting Query behavior; a separate
@@ -122,10 +123,12 @@ parameters/body slices alive only while the resolver constructs
 existing `FunctionSemanticResolverSessionV1` then issues an AST-free
 instance-method function carrier/catalog containing source identity,
 parser/resolver brands, nominal Box, owner-bearing forest/function, root/body
-receipt, and exact body coverage. Only after that carrier is sealed may
-`CALLABLE-BODY-OWNER-BINDING-D0/I0` co-seal the selected body source with the
-exact resolved function. Missing carrier/owner link is `NoSafeSlice`, not a
-default body receipt. Body modules must be dedicated and must not grow
+receipt, and exact body coverage. The owner-link I0 is now closed: it consumes
+only the selected Query projection and existing carrier/catalog, borrows the
+exact carrier-root function, and issues no owner or second function product.
+The current design stop is `CALLABLE-BODY-FACTS-QUERY-D0`; body facts and
+conformance remain unopened. Missing carrier/owner link is `NoSafeSlice`, not
+a default body receipt. Body modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line
 split trigger.
 
@@ -135,8 +138,15 @@ borrow, records the root `FunctionOriginV1` only as a consistency receipt, and
 stores the resolver-issued body-root pair plus contiguous body-item coverage.
 Its focused three-test slice proves direct-method success, empty-body source
 coverage, and foreign parser-provenance rejection. It does not perform Query
-selection or owner binding; the next design stop is the catalog-level
-`CALLABLE-BODY-OWNER-BINDING-D0` co-seal.
+selection or owner binding. The owner-link I0 is a separate, non-`Clone`
+relational co-seal over exactly two existing catalogs: the selected Query body
+projection and the carrier/catalog. It borrows the carrier root
+`VerifiedResolvedFunctionV1`; it accepts no second function array, issues no
+owner, and does not re-resolve. It checks parser provenance, resolver brand,
+nominal/source site, diagnostic name agreement, and exact ordered body
+coverage. Empty coverage is valid; non-Query carrier rows remain unselected
+extras. Body facts, conformance, targets, Recipe, and MIR remain closed behind
+the next `CALLABLE-BODY-FACTS-QUERY-D0` design stop.
 
 ## Home relation vocabulary S0
 

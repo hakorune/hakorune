@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, and resolver-owned instance-method carrier I0 landed; owner binding/body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, and catalog-level body-owner binding I0 landed; body facts/conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -40,8 +40,11 @@ seals only same-brand/site/order coverage. The general direct body-source I0
 and the separate borrowed Query body-source projection I0 are now landed. The
 projection consumes the aggregate-owned selected-contract view, preserves
 sparse source order, checks parser provenance and resolver brand, and retains
-the general all-row catalog for future observers. The next design stop is
-owner binding and complete body conformance. Target,
+the general all-row catalog for future observers. The owner-binding I0 is now
+landed as a relational co-seal over the selected Query projection and existing
+resolver carrier/catalog; it issues no owner and borrows the exact
+carrier-root resolved function. The next design stop is the owner-link-bounded
+body observer and complete body conformance. Target,
 Recipe/CallSlot, and physical ABI remain production zero.
 
 The R4 AST-side atomic reconstruction product and strict recursive JSON v2
@@ -225,10 +228,15 @@ ordinals, inventory placement, or compilation brands alone are never enough.
 
 The carrier I0 is a source-authority receipt only. It does not select Query
 rows, duplicate Home/Query contracts, issue a new `FunctionOwnerIdV1`, or
-bind a body-source row. The next accepted design boundary is the
-catalog-level owner co-seal, which must compare the selected Query projection,
-carrier/catalog, parser provenance, resolver brand, source site, root profile,
-and body coverage in one-to-one form before body facts can open.
+bind a body-source row. The owner-binding I0 is a separate non-`Clone`
+relational co-seal over exactly the selected Query projection and the existing
+carrier/catalog. The carrier root is the exact resolved-function input; the
+link accepts no second function array, re-resolves nothing, and issues no
+owner. It compares parser provenance, resolver brand, nominal/source site,
+diagnostic name agreement, and exact ordered body coverage; empty coverage is
+valid and non-Query carrier rows remain unselected extras. Body facts,
+conformance, target, Recipe/CallSlot, and physical lowering remain behind the
+current `CALLABLE-BODY-FACTS-QUERY-D0` design stop.
 
 ## Receiver Home rule
 

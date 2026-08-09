@@ -1,5 +1,5 @@
 ---
-Status: ready bounded implementation
+Status: closed bounded implementation
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-owner-binding-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -108,3 +108,30 @@ git diff --check
 
 Keep every touched source file below the 760-line split trigger and below
 800 lines.
+
+## Closeout receipt (2026-08-09)
+
+Implemented `InstanceMethodBodyOwnerBindingIssuerV1` as the sole catalog-level
+relational co-seal over the selected Query body projection and the existing
+resolver-issued function carrier/catalog. The output is non-`Clone`, borrows
+the selected body row, carrier row, and exact carrier-root
+`VerifiedResolvedFunctionV1`, and issues no `FunctionOwnerIdV1` or second
+function product.
+
+The focused matrix is green for sparse Query selection, empty body coverage,
+unselected non-Query carrier extras, and foreign parser provenance. Exact
+parser provenance, resolver brand, nominal/source site, diagnostic name, and
+ordered body coverage checks are enforced; body facts, conformance, target,
+Recipe/CallSlot, Builder/MIR, and runtime remain closed.
+
+Verification receipt:
+
+```text
+cargo test --lib instance_method_body_owner -- --nocapture  # 3 passed
+cargo check --lib
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+The next design stop is `CALLABLE-BODY-FACTS-QUERY-D0`; do not implement body
+facts in this row.

@@ -544,14 +544,13 @@ CALLABLE-BODY-OWNER-BINDING-D0 (closed 2026-08-09)
   names and FunctionOrigin are diagnostic-only. Non-Query carrier rows remain
   valid unselected direct-cohort rows.
 
-CALLABLE-BODY-OWNER-BINDING-I0 (next bounded implementation)
-  issue the non-Clone catalog-level one-to-one owner link and borrow each
-  selected body row, carrier row, and carrier root owner/function. Reject
-  foreign/missing/duplicate rows, site/brand mismatch, coverage gap/duplicate/
-  reorder/count mismatch, and one-to-many/many-to-one reuse. No body facts or
-  conformance.
+CALLABLE-BODY-OWNER-BINDING-I0 (closed 2026-08-09)
+  issued the non-Clone catalog-level one-to-one owner link and borrowed each
+  selected body row, carrier row, and carrier root function. It rejects
+  foreign brand/provenance, missing/duplicate exact carrier identity,
+  site/nominal mismatch, and coverage mismatch. No body facts or conformance.
 
-CALLABLE-BODY-FACTS-QUERY-D0/I0 (parked behind owner binding)
+CALLABLE-BODY-FACTS-QUERY-D0/I0 (current design stop after owner binding)
   observe only the bounded receiver-read/return body through the branded
   owner link; no public contract re-inference, target, Recipe, or MIR.
 
@@ -979,25 +978,24 @@ Rejected > Unresolved > Declined > Candidate
     - match parser provenance, resolver brand, nominal/source site, and exact
       body coverage; names/FunctionOrigin/owner numbers are diagnostic only;
     - no body facts or conformance.
-20. `CALLABLE-BODY-OWNER-BINDING-I0` (next bounded implementation)
-    - co-seal the selected Query body projection with the resolver-issued
-      carrier/catalog into a catalog-level one-to-one owner link;
-    - the link issues no owner and rejects foreign parser/resolver brand or
-      site, wrong method/root/source kind, missing/duplicate rows,
-      body-coverage mismatch, one-to-many/many-to-one, and unrelated equal
-      owner numbers;
-    - no body facts or conformance in this row; do not repeat Query selection.
-21. `CALLABLE-BODY-FACTS-QUERY-D0/I0`
+20. `CALLABLE-BODY-OWNER-BINDING-I0` (closed 2026-08-09)
+    - issued the non-`Clone` one-to-one owner link over the selected Query
+      projection and existing carrier/catalog;
+    - borrows the carrier root function and issues no owner or second
+      function product; focused tests cover sparse Query rows, empty body,
+      non-Query extras, and foreign parser provenance;
+    - no body facts or conformance.
+21. `CALLABLE-BODY-FACTS-QUERY-D0/I0` (current design stop)
     - observe the bounded receiver-read/return body through the branded
       body-owner link;
     - issue source-derived facts only; no replacement Query/Home/signature,
       target, Recipe, or MIR meaning.
-21. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
+22. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
     - verify direct receiver-read footprint, no writes/Home escape/allocation/
       IO/FFI/failure escape/suspension/non-local control;
     - publish one complete same-brand conformance set;
     - never infer a replacement public contract from the body.
-22. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
+23. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
     - co-seal the declared catalog with exactly one accepted conformance per
       body-bearing declaration;
     - reject missing, duplicate, foreign, or rejected conformance;
@@ -1005,7 +1003,7 @@ Rejected > Unresolved > Declined > Candidate
 
 ### E. Target and source-bound logical call
 
-22. `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`
+24. `SOURCE-INSTANCE-RESULT-CONTRACT-RETIRE0-R0`
     - delete the caller-zero body-inferred result/target/rebind/preloop family
       before adding the new declaration-first target;
     - preserve only general `source_call_target` source-site primitives and
@@ -1013,22 +1011,22 @@ Rejected > Unresolved > Declined > Candidate
     - require non-test caller zero and same-slice module/README/ledger guard.
     - Task:
       `docs/development/current/main/investigations/source-instance-result-contract-retire0-r0-task-2026-08-09.md`
-23. `LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0`
+25. `LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0`
     - catalog-owned reusable opaque target reference;
     - existing FreeStatic index unchanged;
     - no call-site or Recipe facts.
-24. `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0/I0`
+26. `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0/I0`
     - exact caller/receiver/argument/result sites and exact target;
     - caller-zero logical product;
     - no Builder or physical call.
-25. `LOOP-RECIPE-CALLSLOT-COSEAL-I0`
+27. `LOOP-RECIPE-CALLSLOT-COSEAL-I0`
     - deterministic source relation to existing typed Recipe `CallSlot`;
     - full source evidence and verifier coverage;
     - no provider selection or fallback.
 
 ### F. Physical ABI and activation
 
-26. `CALLABLE-PHYSICAL-ABI-PROJECTION-D0/I0`
+28. `CALLABLE-PHYSICAL-ABI-PROJECTION-D0/I0`
     - project semantic signature plus target capability one way into physical
       ABI and `FunctionSignature`;
     - no `MirType`/physical ABI reverse inference into resolver semantics.
