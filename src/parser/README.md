@@ -4,7 +4,7 @@ The parser owns source syntax, ordered source coordinates, and parser-private
 transport products. It does not resolve callable targets, issue semantic
 contracts, build Recipe/CallSlot products, or emit MIR/runtime routes.
 
-## Home contextual syntax target (D0 accepted; production 0)
+## Home contextual syntax (`release` source I0 landed)
 
 The language target has exactly three ownership-changing source forms:
 
@@ -18,15 +18,17 @@ statement    release node
 does not add global keyword tokens. Contextual recognition is same-line.
 `share(...)` and `share (expr)` remain ordinary calls permanently, while
 `adopt(share node)` is ordinary-call composition. `take` belongs to the
-declaration handoff; future `share` and `release` carriers belong to the rich
+declaration handoff; `share` and `release` carriers belong to the rich
 body transaction below. Parser acceptance proves syntax and source identity
 only, never Home capability, demand, availability, sharing representation, or
 terminality.
 
-No Rust or Hako parser production is live yet. The next bounded row first
-censuses and then implements only the `release IDENT` source carrier with
-Rust/Hako parity. See `OWN-HOME-SYNTAX-D0` and
-`OWN-HOME-RELEASE-SOURCE-I0` in the current task map.
+The bounded `release IDENT` parser/source row is live in both parsers. Rust
+uses a dedicated `ASTNode::Release`; the one-shot body transaction issues a
+non-`Clone` catalog keyed by exact method source site and direct body ordinal.
+Nested Release is rejected in this cohort, and all semantic/physical paths
+remain unsupported. `take` and `share` parser rows remain inactive. See
+`OWN-HOME-SYNTAX-D0` and `OWN-HOME-RELEASE-SOURCE-I0` in the current task map.
 
 ## Typed `CallableContract` syntax carriage (I0)
 

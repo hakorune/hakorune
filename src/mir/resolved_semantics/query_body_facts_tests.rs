@@ -38,7 +38,7 @@ fn with_contract_and_owner<R>(
     )
     .expect("body transaction should parse");
     transaction
-        .with_direct_method_syntax(|handoff, envelope, lease| {
+        .with_direct_method_syntax(|handoff, envelope, lease, _release_sources| {
             let declarations =
                 SemanticInstanceDeclarationIssuerV1::issue(handoff, nominal_environment())
                     .expect("declaration catalog should issue");

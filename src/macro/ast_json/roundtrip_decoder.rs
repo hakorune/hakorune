@@ -157,6 +157,10 @@ impl AstJsonDecoder {
             "Continue" => ASTNode::Continue {
                 span: Span::unknown(),
             },
+            "Release" => ASTNode::Release {
+                root: v.get("root")?.as_str()?.to_string(),
+                span: Span::unknown(),
+            },
             "Assignment" => ASTNode::Assignment {
                 target: Box::new(
                     if let Some(lhs) = v.get("lhs").and_then(|node| self.decode(node)) {

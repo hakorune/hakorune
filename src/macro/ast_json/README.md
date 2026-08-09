@@ -26,3 +26,7 @@ mode and can only produce `CompatibilityOnly(LegacyJsonV1)` method rows.
 The AST transport transaction validates all Box method rows before committing
 one ordered inventory. Resolver-grade source truth remains a later parser
 seal, and Builder/MIR consumers are outside this module.
+
+`Release` is descriptive syntax transport only. Roundtrip v2 preserves its
+exact lexical root, while legacy JoinIR emits explicit `Unsupported`. The
+decoder does not turn it into a call or issue Home meaning.

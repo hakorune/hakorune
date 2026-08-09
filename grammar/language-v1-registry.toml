@@ -431,6 +431,14 @@ canonical = { status = "canonical", normalization_mode = "canonical_shape", norm
 compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "Continue", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["continue_statement_compat"], negative_fixture_ids = [] }
 
 [[rows]]
+row_id = "release_statement"
+family = "ownership"
+spelling_id = "release_statement"
+production = "release identifier"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ReleaseStatement", semantic_owner = "parser-source-authority", stable_reject_tag = "parser/release_exact_root_required", positive_fixture_ids = ["release_statement_canonical"], negative_fixture_ids = ["release_projected_root_canonical_reject", "release_receiver_root_canonical_reject"] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ReleaseStatement", semantic_owner = "parser-source-authority", stable_reject_tag = "parser/release_exact_root_required", positive_fixture_ids = ["release_statement_compat"], negative_fixture_ids = ["release_projected_root_compat_reject", "release_receiver_root_compat_reject"] }
+
+[[rows]]
 row_id = "for_loop"
 family = "loop"
 spelling_id = "for_loop"

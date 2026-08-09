@@ -1,0 +1,55 @@
+// Contextual `release root` source syntax.
+//
+// This box owns only the exact same-line parser surface. It intentionally
+// does not use skip_ws because that helper crosses line terminators.
+
+static box ParserStmtReleaseSourceBox {
+  parse_or_null(src, i, stmt_start, ctx) {
+    if ctx.starts_with_kw(src, i, "release") != 1 { return null }
+
+    local n = src.length()
+    local j = i + 7
+    loop(j < n) {
+      local ch = src.substring(j, j+1)
+      if ch == " " || ch == "\t" { j = j + 1 } else { break }
+    }
+
+    // Parenthesized calls, assignments, and newline-separated identifiers
+    // remain ordinary syntax.
+    if j >= n { return null }
+    local first = src.substring(j, j+1)
+    if first == "\n" || first == "\r" { return null }
+    if ctx.is_alpha(first) != 1 { return null }
+
+    local root_pair = ctx.read_ident2(src, j)
+    local root_at = root_pair.lastIndexOf("@")
+    if root_at <= 0 { return null }
+    local root = root_pair.substring(0, root_at)
+    local end_pos = ctx.to_int(root_pair.substring(root_at+1, root_pair.length()))
+
+    if root == "me" || root == "this" {
+      ctx.gpos_set(end_pos)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return ctx.freeze_contract(
+        "parser/release_exact_root_required",
+        "release requires one exact identifier root; receiver keywords are not roots"
+      )
+    }
+
+    local terminal = ""
+    if end_pos < n { terminal = src.substring(end_pos, end_pos+1) }
+    if terminal != "" && terminal != "\n" && terminal != "\r" && terminal != ";" && terminal != "}" {
+      ctx.gpos_set(end_pos)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return ctx.freeze_contract(
+        "parser/release_exact_root_required",
+        "release requires one exact identifier root followed by statement end"
+      )
+    }
+
+    if end_pos <= stmt_start { end_pos = stmt_start + 1 }
+    ctx.gpos_set(end_pos)
+    env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+    return "{\"type\":\"Release\",\"root\":\"" + ctx.esc_json(root) + "\"}"
+  }
+}

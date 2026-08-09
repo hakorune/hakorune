@@ -35,7 +35,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-OWN-HOME-RELEASE-SOURCE-I0
+OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -45,10 +45,11 @@ five focused tests. The language target is now fixed to exactly three
 contextual forms: declaration `take node: Node`, expression
 `share <non-group postfix>`, and statement `release node`. All remain
 same-line `IDENT` spellings, and `share(...)` is permanently an ordinary call.
-Parser production is still 0. The current row performs only the exact
-Rust/Hako statement, source-carrier, compatibility, body-transaction,
-identity, and parity census for `release IDENT` before code. Home capability
-and Home Flow remain closed; target,
+The exact `release IDENT` Rust/Hako parser/source row is closed; it carries no
+Home meaning. The current row inventories the shared parameter parser,
+compatibility `ParamDecl`, declaration handoff, Hako header owner, and the sole
+`VerifiedHomeAbiV1` demand authority before selecting a `take` implementation.
+Home capability and Home Flow remain closed; target,
 Recipe/CallSlot, Builder/MIR, publication, fallback, and production remain
 closed.
 
@@ -129,8 +130,9 @@ typed syntax carriage (closed)
 -> general body execution evidence D0 (closed)
 -> Home source-event D0 (closed)
 -> Home syntax D0 (closed target; production 0)
--> release source I0 (current implementation preflight)
--> take declaration syntax / Home-demand rows
+-> release source I0 (closed; semantics 0)
+-> take declaration syntax preflight (current design stop)
+-> take parser/source implementation + Home-demand rows
 -> bounded linear Home Flow
 -> target / source-bound relation / Recipe CallSlot
 -> S6C ScanWithInit

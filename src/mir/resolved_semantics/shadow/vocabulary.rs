@@ -69,6 +69,7 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::StaticConstTable { .. } => SemanticallyTransparentCandidate,
 
         ASTNode::LoopRange { .. }
+        | ASTNode::Release { .. }
         | ASTNode::BuildGate { .. }
         | ASTNode::ContextScope { .. }
         | ASTNode::QMarkPropagate { .. }

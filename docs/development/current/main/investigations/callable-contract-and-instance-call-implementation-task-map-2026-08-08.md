@@ -516,13 +516,21 @@ OWN-HOME-SYNTAX-D0 (closed target; parser production 0)
   Task:
   `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`
 
-OWN-HOME-RELEASE-SOURCE-I0 (current implementation selected; production 0)
-  the completed census selects one dedicated syntax-only `ASTNode::Release`,
-  one parser-owned non-Clone source catalog, Hako normalized parity, and
-  explicit legacy/semantic unsupported paths. Split the 796-line roundtrip
-  decoder before implementing the one `release IDENT` carrier.
+OWN-HOME-RELEASE-SOURCE-I0 (closed 2026-08-09; Home semantics 0)
+  one dedicated syntax-only `ASTNode::Release`, one parser-owned non-Clone
+  source catalog, Hako normalized parity, and explicit legacy/semantic
+  unsupported paths are landed. The roundtrip decoder prerequisite was split
+  first; `BindingRef`, Home capability/Flow, DropPlan, and execution remain 0.
   Task:
   `docs/development/current/main/investigations/own-home-release-source-i0-implementation-task-2026-08-09.md`
+
+OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT (current census; implementation 0)
+  inventory the shared Rust parameter parser/AST/handoff, Hako method-header
+  owner, and existing declaration-only Home ABI before selecting a typed
+  `take` syntax carrier. Do not put transfer meaning in type/name strings or
+  duplicate `HomeDemandV1` outside `VerifiedHomeAbiV1`.
+  Task:
+  `docs/development/current/main/investigations/own-home-take-decl-syntax-i0-preflight-task-2026-08-09.md`
 ```
 
 CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
@@ -1135,9 +1143,9 @@ Rejected > Unresolved > Declined > Candidate
       to the existing rich body transaction;
     - accepted Decision:
       `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`.
-22A-HOME-RELEASE-I0. `OWN-HOME-RELEASE-SOURCE-I0` (current implementation selected)
-    - implement exactly one parser/source carrier for `release IDENT`;
-    - the completed census selects a dedicated `ASTNode::Release`, exact
+22A-HOME-RELEASE-I0. `OWN-HOME-RELEASE-SOURCE-I0` (closed 2026-08-09; semantics 0)
+    - exactly one parser/source carrier for `release IDENT` is live;
+    - the landed row uses a dedicated `ASTNode::Release`, exact
       method-site/body-ordinal source identity, a one-shot non-Clone parser
       catalog, and Rust/Hako normalized parity;
     - split the 796-line roundtrip decoder in one behavior-neutral prerequisite
@@ -1147,6 +1155,17 @@ Rejected > Unresolved > Declined > Candidate
       fallback, or production activation;
     - implementation card:
       `docs/development/current/main/investigations/own-home-release-source-i0-implementation-task-2026-08-09.md`.
+22A-HOME-TAKE-I0. `OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT` (current census)
+    - audit the canonical shared parameter parser and `ParamDecl` compatibility
+      surface before adding any transfer marker;
+    - identify the exact Hako method-header/parser parity owner instead of
+      guessing from body JSON;
+    - preserve one-way ownership: typed declaration syntax -> resolver
+      declaration relation -> existing `VerifiedHomeAbiV1` parameter demand;
+    - no `HomeDemandV1` in AST, no raw-string inference, no call-site `take`,
+      no Builder/MIR/runtime activation;
+    - preflight card:
+      `docs/development/current/main/investigations/own-home-take-decl-syntax-i0-preflight-task-2026-08-09.md`.
 22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after release/take/Home-demand rows)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;

@@ -236,6 +236,17 @@ impl AstJsonEncoder {
                 "kind": "Continue",
                 "type": "Continue"  // JoinIR Frontend expects "type"
             }),
+            ASTNode::Release { root, .. } => match self.mode {
+                BoxMethodJsonMode::RoundtripV2 => json!({
+                    "kind": "Release",
+                    "type": "Release",
+                    "root": root,
+                }),
+                BoxMethodJsonMode::Legacy => json!({
+                    "kind": "Unsupported",
+                    "debug": "Release is not part of the legacy JoinIR JSON vocabulary",
+                }),
+            },
             // Phase 54: Assignment with JoinIR-compatible fields
             ASTNode::Assignment { target, value, .. } => {
                 // Extract variable name if target is a simple Variable

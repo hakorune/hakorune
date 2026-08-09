@@ -171,6 +171,12 @@ pub enum ASTNode {
     /// continue文
     Continue { span: Span },
 
+    /// Contextual Home-end request: `release root`.
+    ///
+    /// This syntax-only statement never desugars to an ordinary call named
+    /// `release`, and does not by itself prove that `root` owns a Home.
+    Release { root: String, span: Span },
+
     /// using文: using namespace_name
     UsingStatement { namespace_name: String, span: Span },
     /// import文: import "path" (as Alias)?

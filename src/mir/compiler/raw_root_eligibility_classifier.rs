@@ -380,7 +380,10 @@ impl RawScalarControl0ClassifierV1 {
             | ASTNode::GroupedAssignmentExpr { .. } => {
                 Self::unsupported(path, RawScalarUnsupportedSurface0V1::UnsupportedExpression)
             }
-            ASTNode::BlockExpr { .. } | ASTNode::TryCatch { .. } | ASTNode::Throw { .. } => {
+            ASTNode::BlockExpr { .. }
+            | ASTNode::TryCatch { .. }
+            | ASTNode::Throw { .. }
+            | ASTNode::Release { .. } => {
                 Self::unsupported(path, RawScalarUnsupportedSurface0V1::UnsupportedStatement)
             }
             ASTNode::Arrow { .. }
@@ -476,6 +479,7 @@ impl RawScalarControl0ClassifierV1 {
             | ASTNode::Return { .. }
             | ASTNode::Break { .. }
             | ASTNode::Continue { .. }
+            | ASTNode::Release { .. }
             | ASTNode::Print { .. }
             | ASTNode::Assignment { .. }
             | ASTNode::CompoundAssignment { .. }

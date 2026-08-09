@@ -29,7 +29,8 @@ Design SSOT note (Scope Exit Semantics):
   Flow, not parser or MIR name matching. `release(value)` stays an ordinary
   Call; bindings/callables named `release` and `Build.release` remain legal.
   `release` is not a globally reserved lexer token. `drop` and `unbox` have no
-  Home alias production. Production activation remains 0.
+  Home alias production. The dedicated Rust/Hako syntax/source row is live;
+  Home resolution and execution remain 0.
 - The concrete productions below are not rewritten in this Decision-only
   slice. `LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` and
   `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0` must synchronize EBNF, registry, corpus,
@@ -53,7 +54,8 @@ Ownership grammar status (2026-08-04):
 - The bounded target surface accepts declaration-side contextual `take`,
   expression-side contextual `share` over one non-group postfix operand, and
   statement-side contextual `release root`. Contract result `from` remains a
-  separate provisional row. Home parser production remains 0.
+  separate provisional row. Only the exact-root `release` parser/source row is
+  live; `take` and `share` remain parser-inactive.
 - `take`, `share`, and `release` remain `IDENT` spellings and are not global
   lexer keywords. Contextual recognition requires same-line lookahead.
   `share(...)` and `share (expr)` are permanently ordinary calls;
@@ -65,24 +67,24 @@ Ownership grammar status (2026-08-04):
   them.
 - Composite/generic classification, Shared representation, owning storage,
   callable boundaries, and CFG Home Flow must close before grammar activation.
-- Therefore the live EBNF below intentionally contains no Home ownership
-  productions. The accepted target grammar is recorded in
-  `OWN-HOME-SYNTAX-D0`; current parsers must reject inactive ownership
-  spellings and former `move/view/shared` lookalikes. Accidental parsing is
-  not support.
+- Therefore the live EBNF below contains only the bounded Release syntax row;
+  the other accepted target grammar remains recorded in `OWN-HOME-SYNTAX-D0`.
+  Current parsers must reject inactive ownership spellings and former
+  `move/view/shared` lookalikes. Accidental parsing is not support.
 - The parked order is
   `docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`.
   Support status is reported by `stage-profiles.md`.
 
-Accepted target only — not part of the live productions below:
+Accepted ownership grammar and implementation status:
 
 ```ebnf
 target_take_param    := IDENT("take") HTRIVIA IDENT HTRIVIA ':' type_ref
 target_share_expr    := IDENT("share") HTRIVIA non_group_postfix_expr
-target_release_stmt  := IDENT("release") HTRIVIA IDENT stmt_end
+release_stmt         := IDENT("release") HSPACE IDENT stmt_end  (* parser/source live; semantic 0 *)
 ```
 
-`HTRIVIA` excludes line terminators. `take` is recognized only at parameter
+`HTRIVIA` excludes line terminators. Release I0 narrows `HSPACE` to spaces and
+tabs; comment trivia is not part of that row. `take` is recognized only at parameter
 head, `share` only at expression-prefix position when the next token starts a
 non-group primary, and `release` only at statement head. See
 `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`
@@ -137,6 +139,7 @@ brand_decl := 'brand' IDENT ':' TYPE_REF
 type_alias_decl := 'type' IDENT '=' TYPE_REF
 
 stmt      := 'return' expr
+           | release_stmt
            | local_stmt
            | cleanup_stmt
            | assign_stmt

@@ -11,6 +11,7 @@ using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
 using lang.compiler.parser.stmt.parser_stmt_box.annotations as ParserStmtAnnotationBox
 using lang.compiler.parser.stmt.parser_stmt_box.extern_c as ParserStmtExternCBox
 using lang.compiler.parser.stmt.parser_stmt_box.local_stmt as ParserStmtLocalBox
+using lang.compiler.parser.stmt.parser_stmt_box.release_source as ParserStmtReleaseSourceBox
 using lang.compiler.parser.stmt.parser_stmt_box.using_stmt as ParserStmtUsingBox
 
 static box ParserStmtCoreBox {
@@ -89,6 +90,13 @@ static box ParserStmtCoreBox {
       local out_using = ParserStmtUsingBox.parse_or_null(src, j, stmt_start, ctx)
       if out_using != null {
         return out_using
+      }
+    }
+
+    {
+      local out_release = ParserStmtReleaseSourceBox.parse_or_null(src, j, stmt_start, ctx)
+      if out_release != null {
+        return out_release
       }
     }
 

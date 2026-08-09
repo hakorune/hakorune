@@ -227,9 +227,7 @@ pub(super) fn build_resolver_source_handoff(
         let box_name = match statements.get(statement_ordinal as usize) {
             Some(ASTNode::BoxDeclaration { name, .. }) => name.clone().into_boxed_str(),
             Some(_) | None => {
-                return Err(ResolverSourceHandoffErrorV1::BoxSiteMissing {
-                    statement_ordinal,
-                })
+                return Err(ResolverSourceHandoffErrorV1::BoxSiteMissing { statement_ordinal })
             }
         };
 
@@ -328,10 +326,7 @@ fn signature_from_declaration(
         .iter()
         .map(|param| ResolverMethodParameterSyntaxV1 {
             name: param.name.clone().into_boxed_str(),
-            declared_type_name: param
-                .declared_type_name
-                .clone()
-                .map(String::into_boxed_str),
+            declared_type_name: param.declared_type_name.clone().map(String::into_boxed_str),
         })
         .collect();
     Ok(ResolverMethodSignatureSyntaxV1 {

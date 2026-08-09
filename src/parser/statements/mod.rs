@@ -21,6 +21,7 @@ pub mod variables;
 pub mod context_scope;
 pub mod fastmem;
 pub mod io_async;
+pub mod release;
 pub mod task_scope;
 
 // Exception handling
@@ -349,6 +350,9 @@ impl NyashParser {
 
             // Assignment or function call
             TokenType::IDENTIFIER(_) | TokenType::THIS | TokenType::ME => {
+                if self.is_release_statement_start() {
+                    return self.parse_release_statement();
+                }
                 if self.is_unsafe_block_statement_start() {
                     return self.parse_unsafe_block_statement_error();
                 }

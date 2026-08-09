@@ -481,6 +481,7 @@ fn build_schedule(statements: &[ASTNode]) -> Vec<RawRootWorkItemV1> {
                     (kind, None)
                 }
                 ASTNode::Program { .. }
+                | ASTNode::Release { .. }
                 | ASTNode::UsingStatement { .. }
                 | ASTNode::ImportStatement { .. }
                 | ASTNode::BuildGate { .. }

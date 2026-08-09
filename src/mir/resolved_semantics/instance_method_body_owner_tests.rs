@@ -25,7 +25,7 @@ fn with_owner<R>(
     )
     .expect("body transaction should parse");
     transaction
-        .with_direct_method_syntax(|handoff, envelope, lease| {
+        .with_direct_method_syntax(|handoff, envelope, lease, _release_sources| {
             let declarations =
                 SemanticInstanceDeclarationIssuerV1::issue(handoff, nominal_environment())
                     .expect("declaration catalog should issue");
@@ -89,7 +89,7 @@ fn owner_link_rejects_foreign_parser_provenance() {
         )
         .expect("foreign transaction should parse");
         transaction
-            .with_direct_method_syntax(|handoff, _envelope, lease| {
+            .with_direct_method_syntax(|handoff, _envelope, lease, _release_sources| {
                 let declarations =
                     SemanticInstanceDeclarationIssuerV1::issue(handoff, nominal_environment())
                         .expect("foreign declarations should issue");
@@ -107,7 +107,7 @@ fn owner_link_rejects_foreign_parser_provenance() {
     )
     .expect("body transaction should parse");
     let error = transaction
-        .with_direct_method_syntax(|handoff, envelope, lease| {
+        .with_direct_method_syntax(|handoff, envelope, lease, _release_sources| {
             let declarations =
                 SemanticInstanceDeclarationIssuerV1::issue(handoff, nominal_environment())
                     .expect("declarations should issue");

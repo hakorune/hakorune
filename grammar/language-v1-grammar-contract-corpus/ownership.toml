@@ -1,0 +1,56 @@
+# Contextual ownership syntax. These fixtures prove parser shape only; Home
+# capability and flow remain outside this grammar corpus.
+
+[[fixtures]]
+fixture_id = "release_statement_canonical"
+row_id = "release_statement"
+profile = "Canonical"
+source = "release root"
+accepted = true
+normalized_form = { kind = "ReleaseStatement", value = "root", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "release_statement_compat"
+row_id = "release_statement"
+profile = "Compat2025"
+source = "release root"
+accepted = true
+normalized_form = { kind = "ReleaseStatement", value = "root", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "release_projected_root_canonical_reject"
+row_id = "release_statement"
+profile = "Canonical"
+source = "release root.field"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/release_exact_root_required"
+
+[[fixtures]]
+fixture_id = "release_projected_root_compat_reject"
+row_id = "release_statement"
+profile = "Compat2025"
+source = "release root.field"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/release_exact_root_required"
+
+[[fixtures]]
+fixture_id = "release_receiver_root_canonical_reject"
+row_id = "release_statement"
+profile = "Canonical"
+source = "release me"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/release_exact_root_required"
+
+[[fixtures]]
+fixture_id = "release_receiver_root_compat_reject"
+row_id = "release_statement"
+profile = "Compat2025"
+source = "release me"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/release_exact_root_required"

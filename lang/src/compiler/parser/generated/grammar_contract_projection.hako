@@ -118,6 +118,11 @@ static box GrammarContractProjection {
       if profile == "compat2025" { return "canonical" }
       return "parser/profile_mismatch"
     }
+    if row_id == "release_statement" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
     if row_id == "for_loop" {
       if profile == "canonical" { return "rejected" }
       if profile == "compat2025" { return "rejected" }
@@ -322,6 +327,11 @@ static box GrammarContractProjection {
       if profile == "compat2025" { return "Continue" }
       return "parser/profile_mismatch"
     }
+    if row_id == "release_statement" {
+      if profile == "canonical" { return "ReleaseStatement" }
+      if profile == "compat2025" { return "ReleaseStatement" }
+      return "parser/profile_mismatch"
+    }
     if row_id == "for_loop" {
       if profile == "canonical" { return "" }
       if profile == "compat2025" { return "" }
@@ -524,6 +534,11 @@ static box GrammarContractProjection {
     if row_id == "continue_statement" {
       if profile == "canonical" { return "" }
       if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "release_statement" {
+      if profile == "canonical" { return "parser/release_exact_root_required" }
+      if profile == "compat2025" { return "parser/release_exact_root_required" }
       return "parser/profile_mismatch"
     }
     if row_id == "for_loop" {

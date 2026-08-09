@@ -17,9 +17,9 @@
  */
 
 // サブモジュール宣言
+mod body_source;
 mod build_cfg;
 mod build_gate_selection;
-mod body_source;
 mod callable_contract_syntax;
 mod common;
 mod contracts;
@@ -43,14 +43,15 @@ mod lifecycle;
 pub(crate) mod log;
 mod postpass_compatibility;
 mod postpass_envelope;
+mod release_source;
 mod runes;
 mod source_authority;
 mod source_gate_ledger;
 mod source_gate_receipt;
 mod source_path;
+mod source_resolver_handoff;
 mod source_seal;
 mod source_seal_finalizer;
-mod source_resolver_handoff;
 #[cfg(test)]
 mod source_session_tests;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
@@ -128,15 +129,15 @@ pub use hakorune_frontend_parser::migration_transport::{
 };
 pub use hakorune_frontend_parser::parser::ParseError;
 
-pub(crate) use callable_contract_syntax::CallableContractSyntaxV1;
 pub(crate) use body_source::{
     ParserBoxBodySourceEnvelopeV1, ParserBoxInstanceMethodSyntaxLeaseV1,
     ParserBoxMethodBodySourceRowV1,
 };
+pub(crate) use callable_contract_syntax::CallableContractSyntaxV1;
 pub(crate) use source_resolver_handoff::{
-    ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceRowV1,
-    ResolverBoxMethodSourceSiteV1, ResolverBoxSourceRowV1, ResolverMethodParameterSyntaxV1,
-    ResolverMethodSignatureSyntaxV1, ResolverSourceInvocationProvenanceV1,
+    ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceRowV1, ResolverBoxMethodSourceSiteV1,
+    ResolverBoxSourceRowV1, ResolverMethodParameterSyntaxV1, ResolverMethodSignatureSyntaxV1,
+    ResolverSourceInvocationProvenanceV1,
 };
 
 /// Nyashパーサー - トークン列をASTに変換

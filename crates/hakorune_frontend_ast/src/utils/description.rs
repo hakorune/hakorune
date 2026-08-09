@@ -43,6 +43,7 @@ impl ASTNode {
             }
             ASTNode::Break { .. } => "Break".to_string(),
             ASTNode::Continue { .. } => "Continue".to_string(),
+            ASTNode::Release { root, .. } => format!("Release({root})"),
             ASTNode::UsingStatement { namespace_name, .. } => {
                 format!("UsingStatement({})", namespace_name)
             }

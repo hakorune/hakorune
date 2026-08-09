@@ -16,10 +16,11 @@ Ownership note
   contextual targets but are not added to this current-syntax sheet until
   their Rust/Hako parser rows close. Result `from` remains provisional. Do not
   infer parser support from the target reference.
-- Contextual statement `release root` is the accepted early whole-root Home-end
-  target, but remains absent from current syntax until
-  `OWN-HOME-RELEASE-SOURCE-I0`
-  lands. Ordinary `release(value)` has no Home authority and `drop` is no alias.
+- Contextual statement `release root` has a live Rust/Hako syntax and
+  parser-owned source carrier. Home capability, availability, DropPlan, and
+  execution remain inactive, so parser acceptance alone does not release an
+  object. Ordinary `release(value)` has no Home authority and `drop` is no
+  alias.
 - Former `move/view/shared` target spellings are historical and remain
   unsupported. Inactive ownership lookalikes must continue to fail fast.
 

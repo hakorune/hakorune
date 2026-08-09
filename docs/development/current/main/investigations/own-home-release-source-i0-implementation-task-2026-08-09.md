@@ -1,5 +1,5 @@
 ---
-Status: preflight closed; implementation selected; production 0
+Status: closed; parser/source carrier landed; Home semantics and production 0
 Date: 2026-08-09
 Parent: `OWN-HOME-SYNTAX-D0`
 Ceremony: T2 language/parser boundary
@@ -31,10 +31,10 @@ closeout.  Do not commit one-sided parser activation.
 
 ```text
 contextual:
-  statement-head IDENT("release") HTRIVIA IDENT statement-end
+  statement-head IDENT("release") HSPACE IDENT statement-end
 
-HTRIVIA:
-  horizontal whitespace or a comment with no line terminator
+HSPACE:
+  zero or more spaces/tabs; comment trivia is outside I0
 
 ordinary/non-selected:
   release(...), release = x, local release = x, obj.release(),
@@ -81,6 +81,21 @@ runtime, fallback, or production route.
 - The implementation commit updates language ownership/EBNF/status/quick
   references plus parser and AST-JSON owner READMEs before marking the syntax
   parser-live.  Home capability/Flow/DropPlan/execution remain 0.
+
+## Closeout receipt
+
+- The prerequisite decoder split landed separately as `6ec011e1ba`.
+- Rust and Hako recognize the same dedicated exact-root statement and retain
+  ordinary call/name spellings. `release me`, projections, calls, and trailing
+  expressions fail with the stable exact-root tag after syntax commitment; a
+  line terminator prevents commitment.
+- The Rust one-shot body transaction issues one non-`Clone` release-source
+  catalog. Direct rows preserve parser provenance, exact method source site,
+  direct body ordinal, and lexical root; nested rows fail rather than vanish.
+- Roundtrip v2 preserves `Release`; legacy JSON and every semantic/physical
+  consumer remain explicitly unsupported.
+- This closes syntax/source carriage only. `BindingRef`, Home capability,
+  Home Flow, DropPlan, lowering, and runtime behavior remain zero.
 
 ## Stop
 

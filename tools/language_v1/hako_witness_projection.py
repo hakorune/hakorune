@@ -346,6 +346,17 @@ def _remaining_expression(program: dict[str, Any], row_id: str) -> dict[str, Any
     return _expression_node(expression)
 
 
+def _release_statement(program: dict[str, Any]) -> dict[str, Any]:
+    statement = _single_body(program)
+    root = statement.get("root")
+    if statement.get("type") != "Release" or not isinstance(root, str):
+        raise HakoProjectionError(
+            "Hako contextual release evidence is missing",
+            "parser/release_contextual_not_selected",
+        )
+    return _node("ReleaseStatement", value=root)
+
+
 def project_hako_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
     program = _object(program, "Hako ProgramJSON must be an object")
     if row_id == "guard_expr_else":
@@ -375,6 +386,8 @@ def project_hako_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
         return _loop(program, row_id)
     if row_id == "map_literal_percent_brace":
         return _map_literal(program)
+    if row_id == "release_statement":
+        return _release_statement(program)
     if row_id in {
         "weak_unary_expr",
         "record_literal",

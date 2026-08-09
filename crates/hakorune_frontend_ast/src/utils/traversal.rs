@@ -272,6 +272,7 @@ impl ASTNode {
             | ASTNode::Variable { .. }
             | ASTNode::Break { .. }
             | ASTNode::Continue { .. }
+            | ASTNode::Release { .. }
             | ASTNode::UsingStatement { .. }
             | ASTNode::ImportStatement { .. }
             | ASTNode::EnumDeclaration { .. }

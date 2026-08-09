@@ -1,7 +1,7 @@
 # Ownership and Home Flow (SSOT)
 
 Status: Language semantics SSOT; Home direction and bounded take/share/release
-syntax target accepted, production activation 0
+target accepted; `release root` parser/source carriage live, Home semantics 0
 
 Decision: accepted on 2026-08-04 as the successor to the earlier
 `move/share/view` target; C′ terminal Home finalization and contextual
@@ -35,9 +35,9 @@ historical evidence only. They do not restore `move`, source `view`, source
 | --- | --- |
 | Home direction and durable laws | accepted by this page |
 | C′ last-Home finalization direction | accepted target; production 0 |
-| explicit `release root` direction | accepted whole-root target; production 0 |
+| explicit `release root` direction | parser/source carrier live; Home semantics 0 |
 | generic/composite release | provisional; exact capability D0 open |
-| bounded HomeV1 source grammar | accepted target; parser production 0 |
+| bounded HomeV1 source grammar | `release root` live; `take`/`share` inactive |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
 | Rust/Hako parser and AST Home carriers | inactive / absent |
 | resolver Home-demand/root and Home Flow | inactive / absent |
@@ -46,9 +46,10 @@ historical evidence only. They do not restore `move`, source `view`, source
 | passive Ownership SSA / ownership opcodes | existing narrow infrastructure only |
 | current ordinary Box assignment | transitional SharedV1 behavior |
 
-The live `EBNF.md` and grammar registry remain syntax authority. Examples on
-this page are target examples, not evidence that a parser accepts them.
-Unsupported lookalikes must fail fast until their exact shared grammar row
+The live `EBNF.md` and grammar registry remain syntax authority. Only
+`release root` currently has a Rust/Hako parser and parser-owned source row;
+the other examples remain targets. Parser acceptance does not issue Home
+meaning. Unsupported lookalikes fail fast until their exact shared grammar row
 lands.
 
 ## 1. Thirty-second rule
@@ -276,6 +277,13 @@ and `unbox` forms are not aliases. The lexer does not globally reserve
 ordinary syntax. Contextual recognition requires the root identifier on the
 same line; tokens separated by a line terminator are left to ordinary grammar
 and do not request a Home release.
+
+The Rust/Hako parser and descriptive roundtrip row are live. Their sole output
+is syntax/source identity: exact lexical root, parser provenance, method source
+site, and direct body ordinal. `BindingRef`, owning-root capability, Home
+availability, terminality, DropPlan, and execution remain later authorities.
+Nested Release is outside this first source cohort and fails rather than being
+silently omitted.
 
 The first profile accepts only a verified whole-root owning local or owning
 parameter containing exactly one available Home. Release consumes that root at

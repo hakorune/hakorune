@@ -121,6 +121,7 @@ impl AstWireOracleV0 {
             | ASTNode::FunctionCall { .. } => self.emit_expr_stmt(statement, path, depth),
             ASTNode::Program { .. }
             | ASTNode::CompoundAssignment { .. }
+            | ASTNode::Release { .. }
             | ASTNode::UsingStatement { .. }
             | ASTNode::ImportStatement { .. }
             | ASTNode::BuildGate { .. }

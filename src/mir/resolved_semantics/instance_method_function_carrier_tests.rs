@@ -18,7 +18,7 @@ fn issue_carrier(
     )
     .expect("body transaction should parse");
     transaction
-        .with_direct_method_syntax(|handoff, _envelope, lease| {
+        .with_direct_method_syntax(|handoff, _envelope, lease, _release_sources| {
             let declarations =
                 SemanticInstanceDeclarationIssuerV1::issue(handoff, nominal_environment())
                     .expect("declaration catalog should issue");
@@ -87,7 +87,7 @@ fn carrier_rejects_a_foreign_parser_transaction() {
     )
     .expect("body transaction should parse");
     let error = transaction
-        .with_direct_method_syntax(|_handoff, _envelope, lease| {
+        .with_direct_method_syntax(|_handoff, _envelope, lease, _release_sources| {
             let mut resolver =
                 FunctionSemanticResolverSessionV1::new(0).expect("resolver session should issue");
             InstanceMethodFunctionCarrierIssuerV1::issue(

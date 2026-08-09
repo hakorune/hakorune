@@ -46,6 +46,7 @@ impl AstWireOracleV0 {
             | ASTNode::Return { .. }
             | ASTNode::Break { .. }
             | ASTNode::Continue { .. }
+            | ASTNode::Release { .. }
             | ASTNode::UsingStatement { .. }
             | ASTNode::ImportStatement { .. }
             | ASTNode::BuildGate { .. }

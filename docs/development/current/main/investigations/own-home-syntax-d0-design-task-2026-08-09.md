@@ -1,5 +1,5 @@
 ---
-Status: accepted language target; parser production 0
+Status: accepted language target; Release parser/source I0 landed; take/share inactive
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-source-event-d0-design-task-2026-08-09.md`
 Authority: `docs/development/current/main/design/ownership-home-model-ssot.md`
@@ -234,39 +234,44 @@ forbidden.
 
 ```text
 1. OWN-HOME-SYNTAX-D0
-   this accepted target; production remains 0
+   accepted target; Release syntax/source is now live, semantics remain 0
 
 2. OWN-HOME-RELEASE-SOURCE-I0
-   exact `release IDENT` statement carrier through the existing body
+   closed: exact `release IDENT` statement carrier through the existing body
    transaction; Rust/Hako parity and same-slice reference receipt
 
-3. OWN-HOME-TAKE-DECL-SYNTAX-I0
+3. OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT
+   current: select the typed parameter carrier and exact Hako owner without
+   duplicating the existing Home ABI authority
+
+4. OWN-HOME-TAKE-DECL-SYNTAX-I0
    typed parameter modifier in the declaration handoff; no Home ABI issuance
 
-4. OWN-HOME-CAPABILITY-TAXONOMY-D0
+5. OWN-HOME-CAPABILITY-TAXONOMY-D0
    Create/Consume/Share/Forward/Escape/End meanings and dispositions
 
-5. OWN-HOME-ABI-HOME-DEMAND-I0
+6. OWN-HOME-ABI-HOME-DEMAND-I0
    resolve the take declaration into one exact Home-demand capability
 
-6. CALLABLE-BODY-HOME-FLOW-LINEAR-I0
+7. CALLABLE-BODY-HOME-FLOW-LINEAR-I0
    Available -> End/Forward for the first linear owning-root cohort
 
-7. OWN-HOME-SHARE-REPRESENTATION-D0
+8. OWN-HOME-SHARE-REPRESENTATION-D0
    select Shared representation and destination/lifetime compatibility
 
-8. OWN-HOME-SHARE-EXPR-SYNTAX-I0
+9. OWN-HOME-SHARE-EXPR-SYNTAX-I0
    typed non-group postfix share carrier; no runtime/materialization fallback
 
-9. CALLABLE-BODY-HOME-FLOW-CFG-D0
+10. CALLABLE-BODY-HOME-FLOW-CFG-D0
    branch/loop/backedge/Maybe-join authority
 
-10. CALLABLE-BODY-EXECUTION-COSEAL
+11. CALLABLE-BODY-EXECUTION-COSEAL
     only after the required axis issuers are complete
 ```
 
 ## Explicit non-claims
 
-This Decision does not implement parser productions, add AST variants, issue
-Home ABI/Flow products, choose Shared representation, or activate Builder,
-MIR, runtime, backend, DropPlan, fallback, retry, or production routes.
+This Decision itself issued no parser or semantic product. The later bounded
+Release I0 now supplies one syntax/source row only. `take`/`share`, Home
+ABI/Flow products, Shared representation, Builder, MIR, runtime, backend,
+DropPlan, fallback, retry, and production routes remain outside this Decision.

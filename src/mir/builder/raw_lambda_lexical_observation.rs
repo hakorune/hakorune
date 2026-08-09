@@ -474,6 +474,7 @@ impl RawLambdaLexicalObserverV1 {
                 })
             }
             ASTNode::UsingStatement { .. }
+            | ASTNode::Release { .. }
             | ASTNode::ImportStatement { .. }
             | ASTNode::BuildGate { .. }
             | ASTNode::EnumDeclaration { .. }

@@ -56,4 +56,22 @@ mod tests {
             Some(ASTNode::ScopeBox { body, .. }) if body.is_empty()
         ));
     }
+
+    #[test]
+    fn release_is_preserved_only_by_roundtrip_v2() {
+        let release = ASTNode::Release {
+            root: "root".to_string(),
+            span: nyash_rust::ast::Span::unknown(),
+        };
+        let json = ast_to_json_roundtrip(&release);
+        assert_eq!(json["kind"], "Release");
+        assert_eq!(json["root"], "root");
+        assert!(matches!(
+            json_to_ast(&json),
+            Some(ASTNode::Release { root, .. }) if root == "root"
+        ));
+
+        let legacy = joinir_compat::ast_to_json(&release);
+        assert_eq!(legacy["kind"], "Unsupported");
+    }
 }

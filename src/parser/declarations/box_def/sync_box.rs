@@ -216,6 +216,7 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
         | ASTNode::MeField { .. }
         | ASTNode::Break { .. }
         | ASTNode::Continue { .. }
+        | ASTNode::Release { .. }
         | ASTNode::UsingStatement { .. }
         | ASTNode::ImportStatement { .. }
         | ASTNode::FunctionDeclaration { .. }

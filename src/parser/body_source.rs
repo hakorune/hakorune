@@ -10,9 +10,8 @@ use std::collections::BTreeSet;
 use crate::ast::ASTNode;
 
 use super::source_resolver_handoff::{
-    build_resolver_source_handoff, ParserBoxResolverSourceHandoffV1,
-    ResolverBoxMethodSourceSiteV1, ResolverSourceHandoffErrorV1,
-    ResolverSourceInvocationProvenanceV1,
+    build_resolver_source_handoff, ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceSiteV1,
+    ResolverSourceHandoffErrorV1, ResolverSourceInvocationProvenanceV1,
 };
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{NyashParser, ParseError, ParserBuildConfig};
@@ -50,10 +49,7 @@ pub(crate) struct ParserBoxBodySourceEnvelopeV1 {
 impl ParserBoxBodySourceEnvelopeV1 {
     pub(crate) fn consume_with<R>(
         self,
-        f: impl FnOnce(
-            &ResolverSourceInvocationProvenanceV1,
-            &[ParserBoxMethodBodySourceRowV1],
-        ) -> R,
+        f: impl FnOnce(&ResolverSourceInvocationProvenanceV1, &[ParserBoxMethodBodySourceRowV1]) -> R,
     ) -> R {
         f(&self.parser_provenance, &self.rows)
     }
@@ -150,6 +146,7 @@ impl ParserResolverBodyTransactionV1 {
             ParserBoxResolverSourceHandoffV1,
             ParserBoxBodySourceEnvelopeV1,
             ParserBoxInstanceMethodSyntaxLeaseV1<'ast>,
+            super::release_source::ParserReleaseStatementSourceCatalogV1,
         ) -> R,
     ) -> Result<R, BodySourceTransactionErrorV1> {
         let (ast, seals, _, _) = self.product.into_postpass_parts();
@@ -157,11 +154,12 @@ impl ParserResolverBodyTransactionV1 {
             .map_err(BodySourceTransactionErrorV1::ResolverHandoff)?;
         let rows = collect_body_rows(&ast, &seals, &handoff)?;
         let syntax_lease = collect_syntax_lease(&ast, &seals, &handoff)?;
+        let release_sources = super::release_source::collect_release_sources(&syntax_lease)?;
         let envelope = ParserBoxBodySourceEnvelopeV1 {
             parser_provenance: handoff.parser_provenance(),
             rows: rows.into_boxed_slice(),
         };
-        Ok(callback(handoff, envelope, syntax_lease))
+        Ok(callback(handoff, envelope, syntax_lease, release_sources))
     }
 }
 
@@ -169,12 +167,26 @@ impl ParserResolverBodyTransactionV1 {
 pub(crate) enum BodySourceTransactionErrorV1 {
     ResolverHandoff(ResolverSourceHandoffErrorV1),
     ProgramNotAvailable,
-    BoxSealMissing { statement_ordinal: u32 },
-    MethodInventoryMissing { name: Box<str> },
-    MethodDeclarationUnsupported { name: Box<str> },
-    StaticMethodUnsupported { name: Box<str> },
-    BodyItemOrdinalOverflow { name: Box<str> },
-    DuplicateSourceSite { statement_ordinal: u32, member_ordinal: u32 },
+    BoxSealMissing {
+        statement_ordinal: u32,
+    },
+    MethodInventoryMissing {
+        name: Box<str>,
+    },
+    MethodDeclarationUnsupported {
+        name: Box<str>,
+    },
+    StaticMethodUnsupported {
+        name: Box<str>,
+    },
+    BodyItemOrdinalOverflow {
+        name: Box<str>,
+    },
+    DuplicateSourceSite {
+        statement_ordinal: u32,
+        member_ordinal: u32,
+    },
+    ReleaseSource(super::release_source::ReleaseSourceIssueV1),
 }
 
 impl NyashParser {

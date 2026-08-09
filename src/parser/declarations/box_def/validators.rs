@@ -322,6 +322,7 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
             | ASTNode::ThisField { .. }
             | ASTNode::Break { .. }
             | ASTNode::Continue { .. }
+            | ASTNode::Release { .. }
             | ASTNode::UsingStatement { .. }
             | ASTNode::ImportStatement { .. }
             | ASTNode::FunctionDeclaration { .. }

@@ -471,6 +471,7 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
         | ASTNode::Return { .. }
+        | ASTNode::Release { .. }
         | ASTNode::Local { .. }
         | ASTNode::Print { .. }
         | ASTNode::GroupedAssignmentExpr { .. }

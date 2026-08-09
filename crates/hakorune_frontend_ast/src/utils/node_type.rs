@@ -14,6 +14,7 @@ impl ASTNode {
             ASTNode::Return { .. } => "Return",
             ASTNode::Break { .. } => "Break",
             ASTNode::Continue { .. } => "Continue",
+            ASTNode::Release { .. } => "Release",
             ASTNode::UsingStatement { .. } => "UsingStatement",
             ASTNode::ImportStatement { .. } => "ImportStatement",
             ASTNode::BuildGate { .. } => "BuildGate",
