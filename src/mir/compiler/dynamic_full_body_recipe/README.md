@@ -20,9 +20,10 @@ complete resolver source inventory
 - `coseal/local.rs` validates the already-sealed V10/ch/I7 mapping and lends
   one borrow-scoped neutral view. It owns no Home or cleanup meaning.
 - `coseal/semantic_program/` consumes the whole exact envelope, derives one
-  non-splittable JoinSig/root-carrier-After closure, and lends only the exact
-  After plus the existing iteration-local view. It accepts no raw owner,
-  Recipe, JoinSig, After, Continuation, or Completion input.
+  non-splittable JoinSig/root-carrier-After closure and the private complete
+  six-site Fault authorization catalog, and lends only borrow-scoped views of
+  those rows plus the existing iteration-local relation. It accepts no raw
+  owner, Recipe, JoinSig, After, Continuation, Fault row, or Completion input.
 - `dynamic_invocation_contract` remains the complete immutable envelope
   catalog owner. This directory borrows it and never copies targets or
   selector semantics.
@@ -74,16 +75,33 @@ destination/flow owners must land before any install or cleanup receipt.
 
 ## Atomic semantic program (I0)
 
-`VerifiedDynamicFullLoopSemanticProgramV2` now retains the complete envelope
-and one `VerifiedLoopJoinClosureV2`. The neutral closure derives the root Loop
-and exactly one root-owned carrier from the verified Recipe, elaborates the
-common JoinSig, and requires After inside the private JoinSig subtree. Raw V2
-After and `LoopJoinSigElaboratorV2` are not production facade entries.
+`VerifiedDynamicFullLoopSemanticProgramV2` now retains the complete envelope,
+one private exact Fault cut-point catalog, and one
+`VerifiedLoopJoinClosureV2`. The neutral closure derives the root Loop and
+exactly one root-owned carrier from the verified Recipe, elaborates the common
+JoinSig, and requires After inside the private JoinSig subtree. Raw V2 After
+and `LoopJoinSigElaboratorV2` are not production facade entries.
 
-The product lends exact `L0/B0/Dynamic` After and the existing V10/I6/I7 local
-relation. It owns no Completion consumption, Dynamic Fault transaction, Home,
-physical layout, Builder/MIR/CFG/PHI, publication, retry, or fallback.
+The Fault catalog derives verified `DynamicAdd`/`DynamicLess` rows and exact
+I6/I7 invocation relations internally. Its complete Recipe order is:
 
-The next boundary is `DYNAMIC-FAULT-EXIT-TRANSACTION-D0`. It must enumerate
-normal, Return, backedge, and fault cut points without inferring Home from the
-logical `Dynamic` class.
+```text
+I1 Less -> V5
+I5 Add -> V9
+I6 invocation -> V10
+I7 invocation -> V11
+I9 Less -> V13
+I15 Add -> V17
+```
+
+These rows authorize only `Fault before normal-result publication`; they do
+not create a concrete Fault/Outcome, cleanup, Home, or control edge. The
+product also lends exact `L0/B0/Dynamic` After and the existing V10/I6/I7
+local relation. It owns no Completion consumption, Dynamic Fault transaction,
+Home, physical layout, Builder/MIR/CFG/PHI, publication, retry, or fallback.
+
+The full exit transaction remains `NoSafeSlice` until a neutral Dynamic local
+destination capability, CFG-complete Home Flow, cleanup projection, and the
+two-Return Completion consumer exist. The next Decision is
+`DYNAMIC-LOCAL-DESTINATION-HOME-CAPABILITY-D0`; it must not infer Home from the
+logical `Dynamic` class or a runtime tag.

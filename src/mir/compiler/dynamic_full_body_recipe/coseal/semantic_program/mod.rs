@@ -3,6 +3,8 @@
 //! The issuer consumes only the existing exact envelope. It never accepts a
 //! caller-supplied owner, Recipe, JoinSig, After, Continuation, or Completion.
 
+mod fault_cut_points;
+
 #[cfg(test)]
 mod tests;
 
@@ -14,9 +16,15 @@ use crate::mir::loop_recipe_contract::{
 };
 
 use super::{DynamicIterationLocalValueRefV2, VerifiedDynamicFullLoopSourceRecipeEnvelopeV2};
+use fault_cut_points::{issue_fault_cut_points_v2, VerifiedDynamicFullLoopFaultCutPointCatalogV2};
+pub(in crate::mir) use fault_cut_points::{
+    DynamicFullLoopFaultCutPointCatalogRefV2, DynamicFullLoopFaultCutPointV2,
+    DynamicFullLoopFaultFamilyV2,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicFullLoopSemanticProgramRejectV2 {
+    FaultCutPoints,
     JoinClosure(LoopJoinClosureRejectV2),
 }
 
@@ -48,6 +56,7 @@ impl DynamicFullLoopAfterRefV2<'_> {
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl> {
     envelope: VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'env, 'decl>,
+    fault_cut_points: VerifiedDynamicFullLoopFaultCutPointCatalogV2,
     control: VerifiedLoopJoinClosureV2,
 }
 
@@ -62,6 +71,10 @@ impl VerifiedDynamicFullLoopSemanticProgramV2<'_, '_> {
         self.envelope.iteration_local()
     }
 
+    pub(in crate::mir) fn fault_cut_points(&self) -> DynamicFullLoopFaultCutPointCatalogRefV2<'_> {
+        self.fault_cut_points.borrow()
+    }
+
     #[cfg(test)]
     fn join_sig(&self) -> &VerifiedLoopJoinSigV2 {
         self.control.join_sig()
@@ -74,7 +87,13 @@ pub(in crate::mir) fn issue_dynamic_full_loop_semantic_program_v2<'env, 'decl>(
     VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl>,
     DynamicFullLoopSemanticProgramRejectV2,
 > {
+    let fault_cut_points = issue_fault_cut_points_v2(&envelope)
+        .map_err(|_| DynamicFullLoopSemanticProgramRejectV2::FaultCutPoints)?;
     let control = issue_sole_root_carrier_join_closure_v2(envelope.artifact.recipe())
         .map_err(DynamicFullLoopSemanticProgramRejectV2::JoinClosure)?;
-    Ok(VerifiedDynamicFullLoopSemanticProgramV2 { envelope, control })
+    Ok(VerifiedDynamicFullLoopSemanticProgramV2 {
+        envelope,
+        fault_cut_points,
+        control,
+    })
 }

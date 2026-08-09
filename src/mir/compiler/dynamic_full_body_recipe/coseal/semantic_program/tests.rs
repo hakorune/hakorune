@@ -1,9 +1,14 @@
 use crate::mir::loop_recipe_contract::{
-    LoopBindingKeyV1, LoopJoinEdgeRoleV1, LoopJoinPortV1, LoopNodeKeyV1, LoopValueClassV2,
-    LoopValueKeyV1,
+    LoopBindingKeyV1, LoopItemKeyV1, LoopJoinEdgeRoleV1, LoopJoinPortV1, LoopNodeKeyV1,
+    LoopValueClassV2, LoopValueKeyV1,
 };
 
-use super::issue_dynamic_full_loop_semantic_program_v2;
+use super::{
+    fault_cut_points::{
+        verify_recipe_fault_cut_points_for_test_v2, DynamicFullLoopFaultCutPointRejectV2,
+    },
+    issue_dynamic_full_loop_semantic_program_v2, DynamicFullLoopFaultFamilyV2,
+};
 use crate::mir::compiler::dynamic_full_body_recipe::coseal::{
     issue_dynamic_full_loop_source_recipe_envelope_v2, tests::fixture,
 };
@@ -59,6 +64,60 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
         local.consumer(),
         crate::mir::loop_recipe_contract::LoopItemKeyV1::new(7)
     );
+
+    let fault_rows = program.fault_cut_points();
+    assert_eq!(
+        fault_rows
+            .rows()
+            .iter()
+            .map(|row| (row.item(), row.family(), row.normal_result()))
+            .collect::<Vec<_>>(),
+        vec![
+            (
+                LoopItemKeyV1::new(1),
+                DynamicFullLoopFaultFamilyV2::DynamicLess,
+                LoopValueKeyV1::new(5),
+            ),
+            (
+                LoopItemKeyV1::new(5),
+                DynamicFullLoopFaultFamilyV2::DynamicAdd,
+                LoopValueKeyV1::new(9),
+            ),
+            (
+                LoopItemKeyV1::new(6),
+                DynamicFullLoopFaultFamilyV2::DynamicInvocation,
+                LoopValueKeyV1::new(10),
+            ),
+            (
+                LoopItemKeyV1::new(7),
+                DynamicFullLoopFaultFamilyV2::DynamicInvocation,
+                LoopValueKeyV1::new(11),
+            ),
+            (
+                LoopItemKeyV1::new(9),
+                DynamicFullLoopFaultFamilyV2::DynamicLess,
+                LoopValueKeyV1::new(13),
+            ),
+            (
+                LoopItemKeyV1::new(15),
+                DynamicFullLoopFaultFamilyV2::DynamicAdd,
+                LoopValueKeyV1::new(17),
+            ),
+        ]
+    );
+}
+
+#[test]
+fn wrong_invocation_membership_rejects_the_private_catalog() {
+    let fixture = fixture(true);
+    let recipe = fixture.candidate.artifact.recipe().as_recipe();
+    assert_eq!(
+        verify_recipe_fault_cut_points_for_test_v2(
+            recipe,
+            [LoopItemKeyV1::new(6), LoopItemKeyV1::new(8)],
+        ),
+        Err(DynamicFullLoopFaultCutPointRejectV2::UnexpectedDynamicInvocation)
+    );
 }
 
 #[test]
@@ -100,4 +159,18 @@ fn semantic_program_surface_has_one_input_and_no_split_or_physical_escape() {
         1
     );
     assert!(!join_v2.contains("pub(crate) fn require_after"));
+
+    let fault_source = include_str!("fault_cut_points.rs");
+    for forbidden in [
+        "FaultRecord",
+        "VerifiedHome",
+        "BasicBlockId",
+        "ValueId",
+        "into_parts",
+    ] {
+        assert!(
+            !fault_source.contains(forbidden),
+            "Fault catalog must not contain {forbidden}"
+        );
+    }
 }

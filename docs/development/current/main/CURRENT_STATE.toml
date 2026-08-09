@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The Dynamic Fault/exit Decision is accepted with a corrected six-site census. Full exit transaction remains NoSafeSlice because Dynamic local Home Flow and multi-Return Completion consumption do not exist. The active BoxShape row adds only a private exact I1/I5/I6/I7/I9/I15 Fault cut-point catalog inside the non-splittable semantic program."
+status = "The Dynamic semantic program now retains one private complete six-site Fault cut-point catalog in verified Recipe order: 2 DynamicLess, 2 DynamicAdd, and exact I6/I7 invocation rows. It still creates no concrete Fault, Home, cleanup, Completion claim, or physical edge. The frontier is the neutral Dynamic local destination Home-capability design consultation."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none; DYNAMIC-FAULT-EXIT-TRANSACTION-D0 accepted the revised owner split and keeps the full transaction NoSafeSlice"
-work_mode = "fast"
-current_execution_row = "DYNAMIC-FAULT-CUTPOINT-CATALOG-I0"
-current_blocker_token = "DYNAMIC-FAULT-CUTPOINT-CATALOG-I0: derive the exact six I1/I5/I6/I7/I9/I15 fault-authorized rows internally from the atomic semantic program; add no concrete Fault, Home/cleanup, Completion consumption, physical CFG/MIR, retry/fallback, or source narrowing"
+current_design_stop = "DYNAMIC-LOCAL-DESTINATION-HOME-CAPABILITY-D0: the exact V10/ch source relation is neutral and no canonical source-backed owner-bearing/trivial/weak Dynamic destination classifier has been selected"
+work_mode = "design_stop"
+current_execution_row = "DYNAMIC-LOCAL-DESTINATION-HOME-CAPABILITY-D0"
+current_blocker_token = "DYNAMIC-LOCAL-DESTINATION-HOME-CAPABILITY-D0: census existing semantic value/result/destination/Home authorities and select one source-backed value-to-destination capability or record NoSafeSlice; add no Dynamic/runtime-tag implies Home, Home Flow/cleanup, Fault execution, Completion consumption, physical CFG/MIR, retry/fallback, or source narrowing"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -106,6 +106,7 @@ loop_recipe_v2_joinsig_dynamic_i0_task = "docs/development/current/main/investig
 loop_v2_semantic_program_coseal_i0_task = "docs/development/current/main/investigations/loop-v2-semantic-program-coseal-i0-task-2026-08-10.md"
 dynamic_fault_exit_transaction_d0_task = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 dynamic_fault_cutpoint_catalog_i0_task = "docs/development/current/main/investigations/dynamic-fault-cutpoint-catalog-i0-task-2026-08-10.md"
+dynamic_local_destination_home_capability_d0_task = "docs/development/current/main/investigations/dynamic-local-destination-home-capability-d0-design-task-2026-08-10.md"
 hako_parser_numeric_scan_carrier_source_d0_task = "docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-source-d0-consultation-2026-08-09.md"
 hako_parser_numeric_scan_carrier_parameter_i0_task = "docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-parameter-i0-task-2026-08-09.md"
 hako_parser_numeric_scan_parameter_carriage_d0_task = "docs/development/current/main/investigations/hako-parser-numeric-scan-parameter-carriage-d0-consultation-2026-08-09.md"

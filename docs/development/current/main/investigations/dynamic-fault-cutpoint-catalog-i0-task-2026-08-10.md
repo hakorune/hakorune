@@ -1,6 +1,6 @@
 # DYNAMIC-FAULT-CUTPOINT-CATALOG-I0
 
-Status: ready implementation; BoxShape only
+Status: closed; BoxShape only
 Date: 2026-08-10
 Decision:
 `dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md`
@@ -101,3 +101,16 @@ cargo check -q
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Closeout receipt
+
+The non-Clone semantic program now retains one private catalog derived in
+verified Recipe item order. `DynamicAdd`/`DynamicLess` are selected from the
+verified operation vocabulary; I6/I7 are admitted only through the exact call
+relation already sealed in the source/Recipe envelope. The production code
+does not duplicate the I/V golden as a second schedule: it checks complete
+2-Less/2-Add/2-invocation coverage, while focused tests and the reference fix
+the exact six rows.
+
+No concrete Fault, Home, cleanup, Completion claim, CFG edge, physical ID, or
+production consumer was added.

@@ -91,6 +91,28 @@ two Dynamic rows: additional valid rows remain unselected in the complete
 catalog. The current seven/two/five counts are regression evidence only, not a
 language acceptance limit.
 
+The caller-zero Dynamic semantic program now also retains one private complete
+Fault cut-point catalog. It derives four rows from the verified V2 operation
+contract and two rows from the exact Dynamic call-relation seal:
+
+```text
+I1  DynamicLess       -> V5
+I5  DynamicAdd        -> V9
+I6  DynamicInvocation -> V10
+I7  DynamicInvocation -> V11
+I9  DynamicLess       -> V13
+I15 DynamicAdd        -> V17
+```
+
+The order is verified Recipe item order. A row means only that the operation
+may produce Fault before its named normal result is published. The catalog is
+an internal field of the non-Clone semantic program and exposes only a
+borrow-scoped view; callers cannot supply or split a Recipe, call item, Fault
+family, or expected schedule. It does not create a Fault value, Recipe Exit,
+JoinSig edge, Home/cleanup obligation, Completion claim, or physical route.
+The complete exit transaction remains closed until source-backed Dynamic local
+Home Flow and multi-Return Completion consumption are available.
+
 The landed caller-zero V2 golden covers one consistent Dynamic input, binding,
 ReadBinding result, carrier, CallSlot normal result, WriteBinding, and Return.
 Eighteen focused schema tests reject forward/undefined/duplicate values,
