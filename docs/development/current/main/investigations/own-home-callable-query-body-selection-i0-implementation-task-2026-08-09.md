@@ -36,7 +36,8 @@ Focused receipt:
 general body catalog remains reusable after projection
 ```
 
-The next design stop is `CALLABLE-BODY-OWNER-BINDING-D0/I0`; body facts,
+The next design stop is `CALLABLE-BODY-OWNER-CARRIER-D0/I0`, followed by
+`CALLABLE-BODY-OWNER-BINDING-D0/I0`; body facts,
 conformance, targets, Recipe/CallSlot, and physical lowering remain closed.
 
 ## Purpose
@@ -262,5 +263,6 @@ latest_card_path = this I0 card
 ```
 
 Only after that transition may the aggregate view/projection code be edited.
-The next row is `CALLABLE-BODY-OWNER-BINDING-D0/I0`. It must consume this
+The next rows are `CALLABLE-BODY-OWNER-CARRIER-D0/I0` and then
+`CALLABLE-BODY-OWNER-BINDING-D0/I0`. The link must consume this
 selected Query body-source product and must not reselect Query rows.

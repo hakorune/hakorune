@@ -203,14 +203,18 @@ selection is never rebuilt from rune syntax, names, or inventory placement.
 
 `CALLABLE-BODY-SOURCE-AUTHORITY-I0` issues only AST-free source/body identity
 and ordered coverage. Before any body facts that need lexical/control facts,
-open the explicit:
+close the explicit carrier row and then the owner-link row:
 
 ```text
+CALLABLE-BODY-OWNER-CARRIER-D0/I0
+  resolver-issued instance-method function carrier/catalog
+
 CALLABLE-BODY-OWNER-BINDING-D0/I0
   VerifiedInstanceMethodBodySourceCatalogV1
-  + VerifiedResolvedFunctionV1
+  + resolver-issued instance-method function carrier/catalog
+  + exact VerifiedResolvedFunctionV1 products
   + declaration/catalog identity
-  -> one branded body-owner link
+  -> one catalog-level branded body-owner link
 ```
 
 `FunctionSemanticResolverSessionV1` remains the sole issuer of
@@ -230,19 +234,25 @@ helper.
 
 `FunctionSemanticResolverSessionV1` is the sole issuer of
 `FunctionOwnerIdV1`/`VerifiedResolvedFunctionV1`. Body-source I0 never mints,
-copies, or reinterprets that owner. A later
-`InstanceMethodBodyOwnerBindingIssuer` must co-seal:
+copies, or reinterprets that owner. A preceding carrier D0/I0 must be issued
+on the same method-resolution path and retain exact declaration/source
+identity, parser provenance, resolver brand, nominal Box identity,
+`FunctionOriginV1` as a consistency receipt, the owner-bearing resolved
+function, and a resolver-issued body-root/item-coverage receipt. Only then may
+the later `InstanceMethodBodyOwnerBindingIssuer` co-seal:
 
 ```text
 VerifiedInstanceMethodBodySourceCatalogV1
-+ exact resolved function product
++ resolver-issued function carrier/catalog
++ exact resolved function products
 + declaration/catalog identity
-  -> one branded instance-method body-owner link
+  -> one catalog-level branded instance-method body-owner link
 ```
 
-Equal-looking owner numbers, source ordinals, method names, or compilation
-brands are insufficient. Until this link issuer exists, body facts that need
-resolved lexical/control facts remain `NoSafeSlice`.
+Equal-looking owner numbers, `FunctionOriginV1`, source ordinals, method names,
+or compilation brands are insufficient. A caller-built map or legacy AST/name
+lookup is not an issuer. Until the carrier and link issuers exist, body facts
+that need resolved lexical/control facts remain `NoSafeSlice`.
 
 ## Input ownership
 
@@ -309,8 +319,9 @@ its own bounded design/implementation row, and FunctionOwner binding remains
 the following relational co-seal.
 
 `VerifiedResolvedFunctionV1` may supply resolved lexical/control facts only
-after it is explicitly co-sealed to the same Box method declaration. An equal
-`FunctionOwnerIdV1`, source ordinal, or method name is not sufficient.
+after it is carried by a resolver-issued instance-method unit and explicitly
+co-sealed to the same Box method declaration. An equal `FunctionOwnerIdV1`,
+`FunctionOriginV1`, source ordinal, or method name is not sufficient.
 
 ## Co-seal and coverage
 

@@ -32,16 +32,19 @@ body-source I0 and borrowed Query body-source projection I0 are also closed.
 The current execution row is:
 
 ```text
-CALLABLE-BODY-OWNER-BINDING-D0
+CALLABLE-BODY-OWNER-CARRIER-D0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
 selected-Query view and borrowed `<'body,'contract>` sparse projection check
 parser provenance and resolver brand, preserve sparse source order, keep the
 general catalog reusable, and emit no default non-Query row. The current
-design stop is the exact body-source/`VerifiedResolvedFunctionV1` owner
-co-seal. No body facts, conformance, target, Recipe/CallSlot, Builder/MIR, or
-production work is open.
+design stop is that bare `VerifiedResolvedFunctionV1` cannot prove the
+instance-method source identity or complete body coverage needed for an owner
+link. First define the resolver-issued instance-method function carrier on the
+existing FunctionSemanticResolverSession path; only then open the catalog-level
+owner co-seal. No body facts, conformance, target, Recipe/CallSlot, Builder/MIR,
+or production work is open.
 
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
@@ -58,9 +61,10 @@ Home remains the declaration owner. Resolver targets, source-bound CallSlot
 relations, ScanWithInit, physical lowering, production selection, and legacy
 retirement remain closed. The one-shot parser transaction/provenance bridge,
 general direct-cohort body cardinality, and borrowed Query projection are
-landed; the FunctionOwner co-seal is the current design stop. Body
-conformance must not pair by name, inventory ordinal, Query re-selection, or
-MIR facts.
+landed; the resolver-issued FunctionOwner carrier and its body-root/item
+coverage receipt are the current design stop before the FunctionOwner
+co-seal. Body conformance must not pair by name, inventory ordinal, Query
+re-selection, FunctionOrigin, or MIR facts.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No

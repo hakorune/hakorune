@@ -186,6 +186,8 @@ parser rich transaction
        ParserBoxBodySourceEnvelopeV1
   -> AST-free VerifiedInstanceMethodBodySourceCatalogV1 (all direct rows)
   -> VerifiedDeclaredQueryBodySourceCatalogV1 (selected Query view)
+  -> resolver-issued instance-method function carrier/catalog
+  -> catalog-level body-owner co-seal
   -> private body observer / body facts
   -> conformance Verify product
 ```
@@ -207,9 +209,16 @@ declaration, and emits no default non-Query row. It is bounded to ordinary
 direct Rust Box methods in the first cohort, does not mint
 `FunctionOwnerIdV1`, and does not consume the declared Home/Query aggregate.
 Missing body carrier or a missing declaration/body owner link is development
-`NoSafeSlice`, never an empty verified body product. The explicit owner-binding
-D0/I0 must co-seal the Query body source with `VerifiedResolvedFunctionV1`
-before body facts can use lexical/control facts.
+`NoSafeSlice`, never an empty verified body product. Bare
+`VerifiedResolvedFunctionV1` is not an owner-link key: it lacks the
+instance-method source identity, parser/resolver provenance, and complete body
+coverage required for exact pairing. The carrier must be issued on the same
+`FunctionSemanticResolverSessionV1` method-resolution path and retain the
+normalized declaration/source site, nominal Box identity, resolver/parser
+brands, owner-bearing resolved function, and resolver-issued body-root/item
+coverage receipt. Only then may the catalog-level owner co-seal connect the
+selected Query body source to the exact function. `FunctionOriginV1`, names,
+ordinals, inventory placement, or compilation brands alone are never enough.
 
 ## Receiver Home rule
 
@@ -307,6 +316,7 @@ ordered Box-method inventory + parser-owned source seal
   -> declared Query behavior and atomic declared catalog
   -> old body-inferred instance-result authority retirement
   -> one-shot body-source transaction and AST-free body catalog
+  -> resolver-issued instance-method function carrier
   -> exact resolved-function owner binding
   -> body facts and complete body conformance set
   -> publishable callable catalog

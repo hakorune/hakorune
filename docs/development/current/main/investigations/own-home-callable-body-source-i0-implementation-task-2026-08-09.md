@@ -121,10 +121,12 @@ meaning is `Declined`.
 
 No empty/default verified body row is allowed. `FunctionOwnerIdV1` is not
 issued here; any body fact requiring resolved function-owner facts remains
-closed until the separate `CALLABLE-BODY-OWNER-BINDING-D0/I0` row co-seals
-`VerifiedInstanceMethodBodySourceCatalogV1` with the exact
-`VerifiedResolvedFunctionV1` product. Equal owner numbers, names, ordinals, or
-compilation brands do not establish that link.
+closed until `CALLABLE-BODY-OWNER-CARRIER-D0/I0` issues the exact
+instance-method function carrier and the following
+`CALLABLE-BODY-OWNER-BINDING-D0/I0` row co-seals
+`VerifiedInstanceMethodBodySourceCatalogV1` with that carrier and exact
+`VerifiedResolvedFunctionV1` product. Equal owner numbers, names, ordinals,
+`FunctionOriginV1`, or compilation brands do not establish that link.
 
 ## Required tests and guards
 
@@ -161,9 +163,10 @@ The reference receipt must state that this is body-source identity only;
 physical lowering remain zero.
 
 The next design rows after this I0 are, in order,
-`CALLABLE-QUERY-BODY-SELECTION-D0/I0` and then
+`CALLABLE-QUERY-BODY-SELECTION-D0/I0`,
+`CALLABLE-BODY-OWNER-CARRIER-D0/I0`, and then
 `CALLABLE-BODY-OWNER-BINDING-D0/I0`; body-facts Query observation cannot open
-until both the Query projection and owner relation are sealed.
+until all three boundaries are sealed.
 
 ## Explicit nonclaims
 

@@ -20,6 +20,7 @@ cloneable ordered Box method inventory
   -> general AST-free instance-method body-source catalog
   -> aggregate-owned selected Query view
   -> declared Query body-source projection
+  -> resolver-issued instance-method function carrier
   -> exact resolved-function owner binding
   -> body facts
   -> complete body conformance set
@@ -197,6 +198,67 @@ cohorts and must preserve fuel, metadata, and explain-report contracts.
 Resolver semantic publication is still closed. Fourth, the callable contract may reference
 `VerifiedHomeAbi` but must not duplicate its receiver/parameter/result Home
 demand; typed syntax normalization must happen before the resolver issuer.
+
+## Owner-binding audit reconciliation — 2026-08-09
+
+The latest outside review and repository census revise the owner-binding row
+from an implementation-ready link to a two-stage design stop. The previous
+wording that paired a Query body row directly with bare
+`VerifiedResolvedFunctionV1` was too weak: that generic product does not carry
+the Box/method source identity, parser provenance, nominal Box identity, or an
+exact body-root/item-coverage receipt. `FunctionOriginV1` is only a resolver
+allocation receipt (`compilation_unit_ordinal` + `function_ordinal`); it is not
+a source lookup key and cannot recover body cardinality.
+
+The fixed order is now:
+
+```text
+CALLABLE-BODY-OWNER-CARRIER-D0
+  define the resolver-issued instance-method function carrier/catalog
+
+CALLABLE-BODY-OWNER-CARRIER-I0
+  issue one real direct-method carrier on the existing
+  FunctionSemanticResolverSessionV1 path
+
+CALLABLE-BODY-OWNER-BINDING-D0/I0
+  co-seal selected Query body source + carrier/catalog + exact resolved
+  functions into a one-to-one body-owner catalog
+
+CALLABLE-BODY-FACTS-QUERY-D0/I0
+  only after the owner catalog is sealed
+```
+
+The carrier must mirror the existing resolved callable function-unit pattern,
+not add Box identity to the generic resolved-function type and not create a
+second `FunctionOwnerIdV1` issuer. Its exact fields are fixed by the carrier
+D0, but it must include:
+
+```text
+declaration identity / resolver-normalized method source site
+parser provenance and resolver catalog brand
+nominal Box identity
+FunctionOriginV1 (consistency receipt only)
+owner-bearing VerifiedResolvedFunctionV1
+resolver-issued body-root and ordered body-item coverage receipt
+```
+
+The issuer is the same resolver method-resolution path that produced the
+function. A caller-supplied ordinal/name/body count, a separately-built map,
+legacy AST/name lookup, or a public arbitrary constructor is forbidden.
+
+The owner-link issuer is a pure relational co-seal: it issues no owner and
+does not copy or compare owner numbers as identity. It verifies declaration
+identity, parser provenance, resolver brand, nominal Box/method site,
+source-kind/receiver policy, body-root/coverage, and one-to-one selected
+coverage. Equal numeric owner values, `FunctionOriginV1`, names, inventory
+ordinals, or compilation brands alone are never sufficient.
+
+Until the carrier D0/I0 closes, `CALLABLE-BODY-OWNER-BINDING-D0` remains
+`NoSafeSlice`; body facts, conformance, target, Recipe/CallSlot, Builder/MIR,
+and production selection remain closed. The owner-binding card records this
+same stop and the required negative matrix (foreign parser/resolver brand or
+site, wrong function root, missing/duplicate owner, body coverage mismatch,
+one-to-many/many-to-one, same numeric owner from an unrelated issuer).
 
 ## Single authority table
 
@@ -454,10 +516,23 @@ CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
   FunctionOwnerId, body facts, conformance, target, Recipe/CallSlot,
   Builder/MIR, or fallback.
 
-CALLABLE-BODY-OWNER-BINDING-D0/I0 (parked behind Query projection I0)
-  co-seal the body-source catalog with the exact resolved function product and
-  declaration/catalog identity; `FunctionSemanticResolverSessionV1` remains
-  the sole FunctionOwner issuer. No body facts or conformance.
+CALLABLE-BODY-OWNER-CARRIER-D0/I0 (new prerequisite; current NoSafeSlice)
+  define and issue a resolver-owned instance-method function carrier/catalog on
+  the exact `FunctionSemanticResolverSessionV1` method-resolution path. The
+  carrier retains declaration/source identity, parser provenance, resolver
+  brand, nominal Box identity, FunctionOrigin as a consistency receipt, the
+  owner-bearing `VerifiedResolvedFunctionV1`, and a resolver-issued body-root/
+  ordered body-item coverage receipt. Do not join functions by name, ordinal,
+  inventory placement, compilation brand, or a caller-built map; do not add a
+  second FunctionOwner issuer. No owner link, body facts, or conformance.
+
+CALLABLE-BODY-OWNER-BINDING-D0/I0 (parked behind owner carrier I0)
+  co-seal the selected Query body-source projection with the exact resolver-
+  issued carrier/catalog and resolved functions into a catalog-level one-to-one
+  owner link. The link issues no owner and rejects foreign parser/resolver
+  brands or sites, wrong method/root/source kind, missing/duplicate rows,
+  body-coverage mismatch, one-to-many/many-to-one, and unrelated equal owner
+  numbers. No body facts or conformance.
 
 CALLABLE-BODY-FACTS-QUERY-D0/I0 (parked behind owner binding)
   observe only the bounded receiver-read/return body through the branded
@@ -469,6 +544,7 @@ CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0 (parked behind body facts)
   Prerequisites:
   `CALLABLE-BODY-SOURCE-AUTHORITY-D0/I0`,
   `CALLABLE-QUERY-BODY-SELECTION-D0/I0`,
+  `CALLABLE-BODY-OWNER-CARRIER-D0/I0`,
   `CALLABLE-BODY-OWNER-BINDING-D0/I0`, and
   `CALLABLE-BODY-FACTS-QUERY-D0/I0`.
 
@@ -866,26 +942,38 @@ Rejected > Unresolved > Declined > Candidate
       compares parser provenance and resolver brand without copying/reissuing
       Home or Query receipts, and leaves the general all-row body catalog
       reusable.
-18. `CALLABLE-BODY-OWNER-BINDING-D0/I0` (current design stop)
-    - co-seal the AST-free body-source catalog with the exact
-      `VerifiedResolvedFunctionV1` and declaration/catalog identity;
-    - `FunctionSemanticResolverSessionV1` remains the sole FunctionOwner
-      issuer; equal numbers, names, ordinals, or compilation brands are not
-      enough;
-    - no body facts or conformance in this row;
-    - D0 must consume the selected Query body projection and must not repeat
-      Query selection or issue a second FunctionOwner.
-19. `CALLABLE-BODY-FACTS-QUERY-D0/I0`
+18. `CALLABLE-BODY-OWNER-CARRIER-D0/I0` (current design stop)
+    - define then issue one resolver-owned instance-method function
+      carrier/catalog on the existing `FunctionSemanticResolverSessionV1`
+      method-resolution path;
+    - retain exact declaration/source identity, parser provenance, resolver
+      brand, nominal Box identity, `FunctionOriginV1` as a consistency receipt,
+      owner-bearing `VerifiedResolvedFunctionV1`, and a resolver-issued
+      body-root/ordered body-item coverage receipt;
+    - never pair by name, ordinal, inventory placement, compilation brand,
+      caller-built map, or legacy AST lookup; never add a second owner issuer;
+    - remain `NoSafeSlice` if the resolver cannot issue the exact body-root /
+      coverage receipt without a re-scan or inference.
+19. `CALLABLE-BODY-OWNER-BINDING-D0/I0` (parked behind carrier I0)
+    - co-seal the selected Query body projection with the resolver-issued
+      carrier/catalog and exact resolved functions into a catalog-level
+      one-to-one owner link;
+    - the link issues no owner and rejects foreign parser/resolver brand or
+      site, wrong method/root/source kind, missing/duplicate rows,
+      body-coverage mismatch, one-to-many/many-to-one, and unrelated equal
+      owner numbers;
+    - no body facts or conformance in this row; do not repeat Query selection.
+20. `CALLABLE-BODY-FACTS-QUERY-D0/I0`
     - observe the bounded receiver-read/return body through the branded
       body-owner link;
     - issue source-derived facts only; no replacement Query/Home/signature,
       target, Recipe, or MIR meaning.
-20. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
+21. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
     - verify direct receiver-read footprint, no writes/Home escape/allocation/
       IO/FFI/failure escape/suspension/non-local control;
     - publish one complete same-brand conformance set;
     - never infer a replacement public contract from the body.
-21. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
+22. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
     - co-seal the declared catalog with exactly one accepted conformance per
       body-bearing declaration;
     - reject missing, duplicate, foreign, or rejected conformance;

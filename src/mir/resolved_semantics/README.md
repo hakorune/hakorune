@@ -113,9 +113,13 @@ that view into a borrowed
 `VerifiedDeclaredQueryBodySourceCatalogV1<'body, 'contract>`, preserving
 sparse source order and retaining the all-row catalog for future observers.
 It checks parser provenance and resolver brand once and emits no default
-non-Query row. A separate `CALLABLE-BODY-OWNER-BINDING-D0/I0` must co-seal that body source
-with the exact `VerifiedResolvedFunctionV1` before body facts can use
-lexical/control facts. Missing carrier/owner link is `NoSafeSlice`, not a
+non-Query row. A bare `VerifiedResolvedFunctionV1` is not enough for owner
+binding: it has no instance-method source identity or complete body coverage.
+The next `CALLABLE-BODY-OWNER-CARRIER-D0/I0` must define and issue a
+resolver-owned instance-method function carrier on the existing
+`FunctionSemanticResolverSessionV1` path. Only after that carrier is sealed
+may `CALLABLE-BODY-OWNER-BINDING-D0/I0` co-seal the selected body source with
+the exact resolved function. Missing carrier/owner link is `NoSafeSlice`, not a
 default body receipt. Body modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line
 split trigger.
