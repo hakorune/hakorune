@@ -17,6 +17,12 @@ opens before Take/Share parser activation, does not authorize edits to the
 current user-owned Hako parser worktree, and does not change ownership
 semantics.
 
+The review's historical suggestion to close
+`LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0` first is already satisfied: Dynamic
+JoinSig D0/I0 is landed. The live frontier is now
+`DYNAMIC-OPERATOR-CARRIER-LIFECYCLE-D0`. These parser rows remain parked behind
+that active design lane and in front of every Take/Share activation row.
+
 ## Confirmed findings
 
 1. Hako `release` skips only space/tab; it has no same-line comment helper.
@@ -32,6 +38,23 @@ semantics.
 6. nested Release currently reports only its containing top-level ordinal.
 7. Dynamic local borrowing re-finds sealed roles; safe now, but a private slot
    index can remove that lookup later without adding a standalone ch product.
+
+## Feedback-to-task crosswalk
+
+| Review point | Disposition | Task owner |
+| --- | --- | --- |
+| HTRIVIA Rust/Hako parity | accepted P0 | `HOME-CONTEXTUAL-HTRIVIA-PARITY-R0` |
+| repeated direct-method traversal | accepted BoxShape | `PARSER-DIRECT-METHOD-OBSERVATION-RECUT-R0` |
+| positional callback growth | same BoxShape row | transport-only `ParserDirectMethodObservationPartsV1` |
+| raw Hako Ordinary/Take String tag | accepted design then refactor | `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-D0/R0` |
+| builder `sealed_token` as future brand | same typed-seal D0/R0 | parser-session/method co-seal, limited comparison API |
+| shared grammar corpus gaps | part of HTRIVIA P0 | corpus/registry/reference/tests in one slice |
+| nested Release boolean path | accepted P2, not blocker | `OWN-HOME-NESTED-RELEASE-SOURCE-PATH-P2` |
+| Dynamic local role re-search | accepted P2, not blocker | `LOOP-V2-DYNAMIC-LOCAL-SLOT-INDEX-P2` |
+
+No ninth implementation row is created. The transport bundle is not a
+semantic mega-product, and the two P2 polish rows do not delay Take, Share, or
+the active Dynamic design lane.
 
 ## Ordered parked tasks
 
