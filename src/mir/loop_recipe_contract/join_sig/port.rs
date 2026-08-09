@@ -1,35 +1,35 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::super::schema::LoopExitKindV1;
 use super::model::{
-    LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1, LoopJoinPayloadV1, LoopJoinPortBindingV1,
+    LoopJoinEdge, LoopJoinEdgeRoleV1, LoopJoinLoop, LoopJoinPayload, LoopJoinPortBinding,
     LoopJoinPortV1, LoopJoinSigRejectReasonV1,
 };
+use super::recipe_view::LoopJoinExitView;
 
-pub(super) fn loop_exit_edge(
-    exit: LoopExitKindV1,
-    payload: Vec<LoopJoinPayloadV1>,
-) -> LoopJoinEdgeV1 {
+pub(super) fn loop_exit_edge<C>(
+    exit: LoopJoinExitView,
+    payload: Vec<LoopJoinPayload<C>>,
+) -> LoopJoinEdge<C> {
     match exit {
-        LoopExitKindV1::Break { .. } => LoopJoinEdgeV1 {
+        LoopJoinExitView::Break { .. } => LoopJoinEdge {
             from: LoopJoinPortV1::Body,
             to: LoopJoinPortV1::After,
             role: LoopJoinEdgeRoleV1::Break,
             payload,
         },
-        LoopExitKindV1::Continue { .. } => LoopJoinEdgeV1 {
+        LoopJoinExitView::Continue { .. } => LoopJoinEdge {
             from: LoopJoinPortV1::Body,
             to: LoopJoinPortV1::Header,
             role: LoopJoinEdgeRoleV1::Continue,
             payload,
         },
-        LoopExitKindV1::Return { .. } => unreachable!("direct branch rows reject Return"),
+        LoopJoinExitView::Return { .. } => unreachable!("direct branch rows reject Return"),
     }
 }
 
-pub(in crate::mir::loop_recipe_contract) fn port_bindings(
-    rows: &[LoopJoinLoopV1],
-) -> Result<Vec<LoopJoinPortBindingV1>, LoopJoinSigRejectReasonV1> {
+pub(in crate::mir::loop_recipe_contract) fn port_bindings<C: Copy + Eq>(
+    rows: &[LoopJoinLoop<C>],
+) -> Result<Vec<LoopJoinPortBinding<C>>, LoopJoinSigRejectReasonV1> {
     let mut classes = BTreeMap::new();
     let mut edge_sets =
         BTreeMap::<(super::super::ids::LoopNodeKeyV1, LoopJoinPortV1), BTreeSet<_>>::new();
@@ -78,7 +78,7 @@ pub(in crate::mir::loop_recipe_contract) fn port_bindings(
 
     Ok(classes
         .into_iter()
-        .map(|((loop_key, port, binding), class)| LoopJoinPortBindingV1 {
+        .map(|((loop_key, port, binding), class)| LoopJoinPortBinding {
             loop_key,
             port,
             binding,

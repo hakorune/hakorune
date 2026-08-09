@@ -373,6 +373,16 @@ internally; callers never pass JoinSig or Continuation into that co-seal.
 `V10/ch`, Dynamic Fault, Callable Tail, Completion, Home, and physical layout
 remain outside this module boundary until their separately named rows land.
 
+`LOOP-JOINSIG-NEUTRAL-ENGINE-R0` is landed. The existing V1 elaborator now
+projects its verified Recipe through `join_sig/recipe_view.rs` into one common
+class-generic flow engine. The view is borrowed, unpublished, non-serialized,
+and exhaustive over V1 operations/items/exits. Existing V1 aliases, normalized
+edge/branch/payload/port order, accepted shapes, After capabilities, and branch
+Return rejection are unchanged. No V2 adapter, Dynamic class, FunctionExit
+branch target, source co-seal, or physical dependency is present in this row.
+Focused evidence is 31 passing `join_sig` tests and a green library check; the
+largest touched source file is 634 lines.
+
 ## Generic legacy corpus inventory
 
 The pre-production legacy inventory is intentionally outside this portable
@@ -399,6 +409,7 @@ responsibilities without adding a semantic route:
 | Module | Responsibility | Non-authority |
 | --- | --- | --- |
 | `join_sig/mod.rs` | module declarations and compatibility re-exports | no construction or elaboration policy |
+| `join_sig/recipe_view.rs` | private borrowed schema projection into the one flow engine | no stored Recipe, public Plan, source admission, or physical meaning |
 | `join_sig/model.rs` | logical ports, edges, payloads, branch rows, rejection algebra, opaque verified wrapper | no raw constructor outside the facade/issuer boundary |
 | `join_sig/port.rs` | logical exit-to-port edge projection | no physical CFG/PHI or MIR IDs |
 | `join_sig/visibility.rs` | carrier seeding and visible payload projection | no source/AST inspection or route choice |

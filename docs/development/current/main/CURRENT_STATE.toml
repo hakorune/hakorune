@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic JoinSig D0 is accepted after three independent audits. The exact five-edge/one-branch golden, FunctionExit Return target, V10/ch exclusion, external Fault/Tail boundary, and Core-owned continuation order are sealed. The executable row is the behavior-neutral common JoinSig engine extraction; V2 activation, Home/Fault, and physical lowering remain closed."
+status = "The behavior-neutral common JoinSig engine R0 is closed with exact V1 parity: one private borrowed V1 view, one class-generic flow owner, 31 focused tests, and no V2/Dynamic/Return widening. The executable row now connects the complete unchanged verified Recipe V2 and adds only its exact one-sided Return-to-FunctionExit logical family; source co-seal, Continuation, Home/Fault, and physical lowering remain closed."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none; LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0 accepted on 2026-08-10"
 work_mode = "fast"
-current_execution_row = "LOOP-JOINSIG-NEUTRAL-ENGINE-R0"
-current_blocker_token = "LOOP-JOINSIG-NEUTRAL-ENGINE-R0: extract one private borrowed common flow engine with exact V1 parity only; add no V2 connection, Return widening, accepted shape, public Plan, copied walker, Builder/MIR/CFG/PHI, Fault/Home, physical layout, retry/fallback, or source narrowing"
+current_execution_row = "LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0"
+current_blocker_token = "LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0: feed the complete unchanged verified Recipe V2 through the one common engine; preserve Dynamic exactly and add only the exact one-sided Return-to-FunctionExit family with five-edge/one-branch/two-port golden; add no source co-seal, After/Continuation issuer, Completion consumption, Fault/Home, physical Layout/Builder/MIR/CFG/PHI, production selection, retry/fallback, or source narrowing"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -221,7 +221,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "Local-scope R0 is closed in the existing source/co-seal owner: exact Loop-body scope, one I7 read, zero rebinds/captures, and one borrow-scoped V10/I6/I7 view. The active design stop now decides V2 Dynamic JoinSig reuse and its Fault/Tail/Continuation boundaries."
+current_execution_summary = "Neutral-engine R0 is closed: one private borrowed V1 Recipe view feeds the sole class-generic JoinSig flow owner with all 31 focused V1 tests unchanged and no V2/Dynamic/Return widening. The active I0 now adds the exact V2 adapter, typed Dynamic seal, and one-sided Return-to-FunctionExit golden only."
 current_execution_design = "docs/development/current/main/investigations/loop-recipe-v2-joinsig-dynamic-d0-design-task-2026-08-10.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -703,15 +703,15 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "loop-joinsig-neutral-engine-r0"
-latest_card_path = "docs/development/current/main/investigations/loop-joinsig-neutral-engine-r0-task-2026-08-10.md"
-next_design_card = "LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0"
+latest_card = "loop-recipe-v2-joinsig-dynamic-i0"
+latest_card_path = "docs/development/current/main/investigations/loop-recipe-v2-joinsig-dynamic-i0-task-2026-08-10.md"
+next_design_card = "none; Dynamic JoinSig D0 is accepted"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-v2-joinsig-dynamic-d0-design-task-2026-08-10.md"
-next_execution_card = "none until D0 accepted"
-next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-v2-joinsig-dynamic-d0-design-task-2026-08-10.md"
+next_execution_card = "LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0"
+next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-v2-joinsig-dynamic-i0-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "Dynamic local-scope R0 is closed without a second semantic owner or source narrowing. The next design stop selects the single V2 Dynamic JoinSig/transfer boundary before implementation."
+latest_card_summary = "Neutral-engine R0 is closed with exact V1 parity and no accepted-shape widening. The active V2 I0 adds one exact adapter/seal and the already accepted one-sided Return-to-FunctionExit logical family only."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

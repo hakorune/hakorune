@@ -204,6 +204,19 @@ payloads. The outer source Return remains Callable Tail/Completion and Dynamic
 Fault remains outside Recipe/JoinSig. No V2 JoinSig implementation or semantic
 continuation is claimed by this Decision receipt.
 
+Reference receipt — `LOOP-JOINSIG-NEUTRAL-ENGINE-R0` (2026-08-10): the
+verified V1 Recipe now enters one private borrowed V1 view and one common
+class-generic JoinSig flow engine. The view exhaustively projects every V1
+operation/item/exit/carrier/class and is neither stored nor serialized. The
+public-in-crate V1 facade and aliases remain stable; all 31 focused JoinSig
+tests preserve their existing exact loop rows, branch rows, payload order,
+port bindings, After capabilities, rejection matrix, and accepted shapes.
+`cargo check --lib` is green and the largest touched source file is 634 lines.
+This receipt imports no V2 schema or Dynamic class and adds no one-arm Return,
+FunctionExit branch target, semantic-program co-seal, Continuation, physical
+effect, production caller, retry, or fallback. The V2 adapter and its exact
+Dynamic golden remain the next separately named I0.
+
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 

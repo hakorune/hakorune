@@ -50,11 +50,11 @@ scope, one I7 read, zero rebinds/captures, and lends only a neutral V10/I6/I7
 borrow view. The Dynamic JoinSig D0 is now accepted after three independent
 audits. It fixes one common borrowed flow engine, a typed FunctionExit Return,
 the exact five-edge/one-branch payload golden, V10/ch exclusion, external
-Fault/Tail boundaries, and internal After issuance. The current executable
-BoxShape row is:
+Fault/Tail boundaries, and internal After issuance. The behavior-neutral
+common engine R0 is closed. The current executable row is:
 
 ```text
-LOOP-JOINSIG-NEUTRAL-ENGINE-R0
+LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe
@@ -92,11 +92,12 @@ seven is not a language constant and additional valid owner rows are accepted.
 If another valid row is unsupported, widen the compiler
 or stop at a named design question; never narrow or rewrite source. Physical
 projection, provider plan, retry, and fallback remain closed.
-R0 extracts the V1 algorithm behind one private borrowed Recipe view and must
-preserve every normalized V1 output and accepted shape. It adds no V2
-connection or Return widening. The following I0 uses the same engine for the
-unchanged Dynamic Recipe; only after that does the atomic semantic-program
-co-seal derive After internally. Dynamic Fault remains outside Recipe/JoinSig,
+R0 now extracts the V1 algorithm behind one private borrowed Recipe view and
+preserves every normalized V1 output and accepted shape; all 31 focused tests
+are green and no V2 connection or Return widening was added. The active I0
+uses that engine for the unchanged Dynamic Recipe and adds only its exact
+one-sided Return-to-FunctionExit family. Only after that does the atomic
+semantic-program co-seal derive After internally. Dynamic Fault remains outside Recipe/JoinSig,
 and the outer Return remains Callable Tail/Completion. JoinSig-authorized
 If/Return and multi-return Completion still precede DraftSeal/collector/backend/VM.
 

@@ -6,36 +6,38 @@ use super::super::ids::{
 use super::super::join_sig_branch::{
     branch_row, is_supported_loop_branch_pair, is_supported_loop_exit,
 };
-use super::super::schema::{
-    LoopConditionV1, LoopExitKindV1, LoopOperationV1, LoopRecipeItemV1, LoopRecipeV1,
-};
 use super::super::verify::VerifiedLoopRecipeV1;
 use super::model::{
-    LoopJoinBranchV1, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1, LoopJoinPayloadV1,
-    LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopJoinSigV1,
+    LoopJoinBranch, LoopJoinEdge, LoopJoinEdgeRoleV1, LoopJoinLoop, LoopJoinPayload, LoopJoinSig,
+    LoopJoinSigRejectReasonV1, VerifiedLoopJoinSig, VerifiedLoopJoinSigV1,
 };
 use super::port::{loop_exit_edge, port_bindings};
+use super::recipe_view::{
+    LoopJoinConditionView, LoopJoinExitView, LoopJoinItemView, LoopJoinOperationFamily,
+    LoopJoinOperationView, LoopJoinRecipeView, LoopJoinValueUses, LoopRecipeV1JoinView,
+};
 use super::visibility::{
-    block_item, has_only_operations, payloads, seed_carriers, visible_payloads,
+    block_item, has_only_operations, payloads, seed_carriers, visible_payloads_from_view,
 };
 
 #[derive(Debug)]
-pub(in crate::mir::loop_recipe_contract) struct Flow {
+pub(in crate::mir::loop_recipe_contract) struct Flow<C> {
     pub(in crate::mir::loop_recipe_contract) bindings: BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     pub(in crate::mir::loop_recipe_contract) available: BTreeSet<LoopValueKeyV1>,
-    pub(in crate::mir::loop_recipe_contract) exit: Option<(LoopItemKeyV1, LoopExitKindV1)>,
-    pub(in crate::mir::loop_recipe_contract) exit_payload: Option<Vec<LoopJoinPayloadV1>>,
+    pub(in crate::mir::loop_recipe_contract) exit: Option<(LoopItemKeyV1, LoopJoinExitView)>,
+    pub(in crate::mir::loop_recipe_contract) exit_payload: Option<Vec<LoopJoinPayload<C>>>,
     pub(in crate::mir::loop_recipe_contract) alternate_exit:
-        Option<(LoopItemKeyV1, LoopExitKindV1)>,
-    pub(in crate::mir::loop_recipe_contract) alternate_exit_payload: Option<Vec<LoopJoinPayloadV1>>,
-    pub(in crate::mir::loop_recipe_contract) side_exits: Vec<FlowExit>,
+        Option<(LoopItemKeyV1, LoopJoinExitView)>,
+    pub(in crate::mir::loop_recipe_contract) alternate_exit_payload:
+        Option<Vec<LoopJoinPayload<C>>>,
+    pub(in crate::mir::loop_recipe_contract) side_exits: Vec<FlowExit<C>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::loop_recipe_contract) struct FlowExit {
+pub(in crate::mir::loop_recipe_contract) struct FlowExit<C> {
     pub(in crate::mir::loop_recipe_contract) item: LoopItemKeyV1,
-    pub(in crate::mir::loop_recipe_contract) kind: LoopExitKindV1,
-    pub(in crate::mir::loop_recipe_contract) payload: Vec<LoopJoinPayloadV1>,
+    pub(in crate::mir::loop_recipe_contract) kind: LoopJoinExitView,
+    pub(in crate::mir::loop_recipe_contract) payload: Vec<LoopJoinPayload<C>>,
 }
 
 pub(crate) struct LoopJoinSigElaboratorV1;
@@ -44,41 +46,45 @@ impl LoopJoinSigElaboratorV1 {
     pub(crate) fn elaborate(
         verified: &VerifiedLoopRecipeV1,
     ) -> Result<VerifiedLoopJoinSigV1, LoopJoinSigRejectReasonV1> {
-        let recipe = verified.as_recipe();
-        let mut rows = Vec::with_capacity(recipe.loops.len());
-        let mut branches = Vec::new();
-        let mut available = recipe.inputs.iter().copied().collect();
-        let mut bindings = BTreeMap::new();
-        elaborate_loop(
-            recipe,
-            verified.root_loop(),
-            &mut bindings,
-            &mut available,
-            &mut rows,
-            &mut branches,
-        )?;
-        rows.sort_by_key(|row| row.key);
-        branches.sort_by_key(|branch| (branch.owner_loop, branch.if_item));
-        let port_bindings = port_bindings(&rows)?;
-        Ok(VerifiedLoopJoinSigV1::from_sig(LoopJoinSigV1 {
-            loops: rows,
-            branches,
-            port_bindings,
-        }))
+        elaborate_view(&LoopRecipeV1JoinView::verified(verified))
     }
 }
 
-pub(super) fn elaborate_loop(
-    recipe: &LoopRecipeV1,
+fn elaborate_view<V: LoopJoinRecipeView>(
+    recipe: &V,
+) -> Result<VerifiedLoopJoinSig<V::Class>, LoopJoinSigRejectReasonV1> {
+    let mut rows = Vec::with_capacity(recipe.loop_count());
+    let mut branches = Vec::new();
+    let mut available = recipe.inputs().iter().copied().collect();
+    let mut bindings = BTreeMap::new();
+    elaborate_loop(
+        recipe,
+        recipe.root_loop(),
+        &mut bindings,
+        &mut available,
+        &mut rows,
+        &mut branches,
+    )?;
+    rows.sort_by_key(|row| row.key);
+    branches.sort_by_key(|branch| (branch.owner_loop, branch.if_item));
+    let port_bindings = port_bindings(&rows)?;
+    Ok(VerifiedLoopJoinSig::from_sig(LoopJoinSig {
+        loops: rows,
+        branches,
+        port_bindings,
+    }))
+}
+
+pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
+    recipe: &V,
     key: LoopNodeKeyV1,
     inherited: &mut BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     available: &mut BTreeSet<LoopValueKeyV1>,
-    rows: &mut Vec<LoopJoinLoopV1>,
-    branches: &mut Vec<LoopJoinBranchV1>,
-) -> Result<Flow, LoopJoinSigRejectReasonV1> {
+    rows: &mut Vec<LoopJoinLoop<V::Class>>,
+    branches: &mut Vec<LoopJoinBranch<V::Class>>,
+) -> Result<Flow<V::Class>, LoopJoinSigRejectReasonV1> {
     let node = recipe
-        .loops
-        .get(key.raw() as usize)
+        .loop_at(key)
         .expect("verified recipe has canonical loop keys");
     let parent_bindings = inherited.clone();
     let parent_available = available.clone();
@@ -86,19 +92,19 @@ pub(super) fn elaborate_loop(
     let mut local_available = parent_available.clone();
     seed_carriers(recipe, key, &mut local, &mut local_available);
     if node.parent.is_some()
-        && matches!(node.condition, LoopConditionV1::Predicate { .. })
+        && matches!(node.condition, LoopJoinConditionView::Predicate { .. })
         && !is_bounded_nested_predicate(recipe, key)
     {
         return Err(LoopJoinSigRejectReasonV1::UnsupportedNestedPredicate { loop_key: key });
     }
-    let mut edges = vec![LoopJoinEdgeV1 {
+    let mut edges = vec![LoopJoinEdge {
         from: super::model::LoopJoinPortV1::Preheader,
         to: super::model::LoopJoinPortV1::Header,
         role: LoopJoinEdgeRoleV1::Enter,
-        payload: visible_payloads(recipe, key, &local)?,
+        payload: visible_payloads_from_view(recipe, key, &local)?,
     }];
 
-    if let LoopConditionV1::Predicate { block, value } = node.condition {
+    if let LoopJoinConditionView::Predicate { block, value } = node.condition {
         let flow = process_block(
             recipe,
             key,
@@ -116,24 +122,24 @@ pub(super) fn elaborate_loop(
         local = flow.bindings;
         local_available = flow.available;
         require_value(&local_available, value)?;
-        edges.push(LoopJoinEdgeV1 {
+        edges.push(LoopJoinEdge {
             from: super::model::LoopJoinPortV1::Header,
             to: super::model::LoopJoinPortV1::Body,
             role: LoopJoinEdgeRoleV1::PredicateTrue,
-            payload: visible_payloads(recipe, key, &local)?,
+            payload: visible_payloads_from_view(recipe, key, &local)?,
         });
-        edges.push(LoopJoinEdgeV1 {
+        edges.push(LoopJoinEdge {
             from: super::model::LoopJoinPortV1::Header,
             to: super::model::LoopJoinPortV1::After,
             role: LoopJoinEdgeRoleV1::PredicateFalse,
-            payload: visible_payloads(recipe, key, &local)?,
+            payload: visible_payloads_from_view(recipe, key, &local)?,
         });
     } else {
-        edges.push(LoopJoinEdgeV1 {
+        edges.push(LoopJoinEdge {
             from: super::model::LoopJoinPortV1::Header,
             to: super::model::LoopJoinPortV1::Body,
             role: LoopJoinEdgeRoleV1::BodyEntry,
-            payload: visible_payloads(recipe, key, &local)?,
+            payload: visible_payloads_from_view(recipe, key, &local)?,
         });
     }
 
@@ -148,19 +154,20 @@ pub(super) fn elaborate_loop(
         branches,
     )?;
     for binding in body_flow.bindings.keys() {
-        if !entry_bindings.contains(binding)
-            && !recipe
-                .carriers
-                .iter()
-                .any(|carrier| carrier.owner_loop == key && carrier.binding == *binding)
-        {
+        let has_carrier = (0..recipe.carrier_count()).any(|index| {
+            let carrier = recipe
+                .carrier_at(index)
+                .expect("verified Recipe view has dense carrier rows");
+            carrier.owner_loop == key && carrier.binding == *binding
+        });
+        if !entry_bindings.contains(binding) && !has_carrier {
             return Err(LoopJoinSigRejectReasonV1::MissingCarrierClosure {
                 loop_key: key,
                 binding: *binding,
             });
         }
     }
-    let body_payload = visible_payloads(recipe, key, &body_flow.bindings)?;
+    let body_payload = visible_payloads_from_view(recipe, key, &body_flow.bindings)?;
     for side_exit in &body_flow.side_exits {
         if !is_supported_loop_exit(key, side_exit.kind) {
             return Err(LoopJoinSigRejectReasonV1::UnsupportedExit {
@@ -194,7 +201,7 @@ pub(super) fn elaborate_loop(
     } else {
         match body_flow.exit {
             None => {
-                edges.push(LoopJoinEdgeV1 {
+                edges.push(LoopJoinEdge {
                     from: super::model::LoopJoinPortV1::Body,
                     to: super::model::LoopJoinPortV1::Header,
                     role: LoopJoinEdgeRoleV1::Backedge,
@@ -202,8 +209,8 @@ pub(super) fn elaborate_loop(
                 });
                 None
             }
-            Some((item, LoopExitKindV1::Continue { target_loop })) if target_loop == key => {
-                edges.push(LoopJoinEdgeV1 {
+            Some((item, LoopJoinExitView::Continue { target_loop })) if target_loop == key => {
+                edges.push(LoopJoinEdge {
                     from: super::model::LoopJoinPortV1::Body,
                     to: super::model::LoopJoinPortV1::Header,
                     role: LoopJoinEdgeRoleV1::Continue,
@@ -212,8 +219,8 @@ pub(super) fn elaborate_loop(
                 let _ = item;
                 None
             }
-            Some((item, LoopExitKindV1::Break { target_loop })) if target_loop == key => {
-                edges.push(LoopJoinEdgeV1 {
+            Some((item, LoopJoinExitView::Break { target_loop })) if target_loop == key => {
+                edges.push(LoopJoinEdge {
                     from: super::model::LoopJoinPortV1::Body,
                     to: super::model::LoopJoinPortV1::After,
                     role: LoopJoinEdgeRoleV1::Break,
@@ -222,8 +229,8 @@ pub(super) fn elaborate_loop(
                 let _ = item;
                 None
             }
-            Some((item, exit @ LoopExitKindV1::Return { .. })) => {
-                edges.push(LoopJoinEdgeV1 {
+            Some((item, exit @ LoopJoinExitView::Return { .. })) => {
+                edges.push(LoopJoinEdge {
                     from: super::model::LoopJoinPortV1::Body,
                     to: super::model::LoopJoinPortV1::FunctionExit,
                     role: LoopJoinEdgeRoleV1::Return,
@@ -236,7 +243,7 @@ pub(super) fn elaborate_loop(
     };
 
     let carriers = payloads(recipe, key, &body_flow.bindings)?;
-    rows.push(LoopJoinLoopV1 {
+    rows.push(LoopJoinLoop {
         key,
         parent: node.parent,
         carriers,
@@ -264,20 +271,22 @@ pub(super) fn elaborate_loop(
     Ok(resumed)
 }
 
-fn is_bounded_nested_predicate(recipe: &LoopRecipeV1, key: LoopNodeKeyV1) -> bool {
-    let Some(node) = recipe.loops.get(key.raw() as usize) else {
+fn is_bounded_nested_predicate<V: LoopJoinRecipeView>(recipe: &V, key: LoopNodeKeyV1) -> bool {
+    let Some(node) = recipe.loop_at(key) else {
         return false;
     };
     let Some(parent_key) = node.parent else {
         return false;
     };
-    let Some(parent) = recipe.loops.get(parent_key.raw() as usize) else {
+    let Some(parent) = recipe.loop_at(parent_key) else {
         return false;
     };
-    if parent.parent.is_some() || !matches!(parent.condition, LoopConditionV1::Predicate { .. }) {
+    if parent.parent.is_some()
+        || !matches!(parent.condition, LoopJoinConditionView::Predicate { .. })
+    {
         return false;
     }
-    let LoopConditionV1::Predicate { block, .. } = node.condition else {
+    let LoopJoinConditionView::Predicate { block, .. } = node.condition else {
         return false;
     };
     if !has_only_operations(recipe, block, is_nested_predicate_condition_operation)
@@ -285,27 +294,27 @@ fn is_bounded_nested_predicate(recipe: &LoopRecipeV1, key: LoopNodeKeyV1) -> boo
     {
         return false;
     }
-    if recipe
-        .loops
-        .iter()
-        .any(|candidate| candidate.parent == Some(key))
-    {
+    if (0..recipe.loop_count()).any(|raw| {
+        recipe
+            .loop_at(LoopNodeKeyV1::new(raw as u32))
+            .is_some_and(|candidate| candidate.parent == Some(key))
+    }) {
         return false;
     }
-    let Some(parent_body) = recipe.blocks.get(parent.body.raw() as usize) else {
+    let Some(parent_body) = recipe.block_at(parent.body) else {
         return false;
     };
     let mut child_items = 0;
-    for item_key in &parent_body.items {
-        let Some(row) = recipe.items.get(item_key.raw() as usize) else {
-            return false;
-        };
-        match row.item {
-            LoopRecipeItemV1::Loop { loop_key } if loop_key == key => child_items += 1,
-            LoopRecipeItemV1::Operation { .. } => {}
-            LoopRecipeItemV1::If { .. }
-            | LoopRecipeItemV1::Loop { .. }
-            | LoopRecipeItemV1::Exit { .. } => {
+    for item_key in parent_body.items {
+        match recipe.item_at(*item_key) {
+            Some(LoopJoinItemView::Loop { loop_key }) if loop_key == key => child_items += 1,
+            Some(LoopJoinItemView::Operation(_)) => {}
+            Some(
+                LoopJoinItemView::If { .. }
+                | LoopJoinItemView::Loop { .. }
+                | LoopJoinItemView::Exit { .. },
+            )
+            | None => {
                 return false;
             }
         }
@@ -313,31 +322,31 @@ fn is_bounded_nested_predicate(recipe: &LoopRecipeV1, key: LoopNodeKeyV1) -> boo
     child_items == 1
 }
 
-fn is_nested_predicate_condition_operation(operation: LoopOperationV1) -> bool {
+fn is_nested_predicate_condition_operation(operation: LoopJoinOperationFamily) -> bool {
     matches!(
         operation,
-        LoopOperationV1::ReadBinding { .. }
-            | LoopOperationV1::ConstI64 { .. }
-            | LoopOperationV1::CompareI64 { .. }
+        LoopJoinOperationFamily::ReadBinding
+            | LoopJoinOperationFamily::ConstI64
+            | LoopJoinOperationFamily::CompareI64
     )
 }
 
-fn is_nested_predicate_body_operation(operation: LoopOperationV1) -> bool {
+fn is_nested_predicate_body_operation(operation: LoopJoinOperationFamily) -> bool {
     matches!(
         operation,
-        LoopOperationV1::ReadBinding { .. }
-            | LoopOperationV1::ConstI64 { .. }
-            | LoopOperationV1::BinaryI64 { .. }
-            | LoopOperationV1::CompareI64 { .. }
-            | LoopOperationV1::WriteBinding { .. }
+        LoopJoinOperationFamily::ReadBinding
+            | LoopJoinOperationFamily::ConstI64
+            | LoopJoinOperationFamily::BinaryI64
+            | LoopJoinOperationFamily::CompareI64
+            | LoopJoinOperationFamily::WriteBinding
     )
 }
 
-fn project_parent_flow(
-    flow: Flow,
+fn project_parent_flow<C>(
+    flow: Flow<C>,
     parent_bindings: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     parent_available: &BTreeSet<LoopValueKeyV1>,
-) -> Flow {
+) -> Flow<C> {
     let bindings = parent_bindings
         .iter()
         .map(|(binding, before)| {
@@ -360,18 +369,17 @@ fn project_parent_flow(
     }
 }
 
-fn process_block(
-    recipe: &LoopRecipeV1,
+fn process_block<V: LoopJoinRecipeView>(
+    recipe: &V,
     owner_loop: LoopNodeKeyV1,
     key: LoopBlockKeyV1,
     bindings: &mut BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     available: &mut BTreeSet<LoopValueKeyV1>,
-    rows: &mut Vec<LoopJoinLoopV1>,
-    branches: &mut Vec<LoopJoinBranchV1>,
-) -> Result<Flow, LoopJoinSigRejectReasonV1> {
+    rows: &mut Vec<LoopJoinLoop<V::Class>>,
+    branches: &mut Vec<LoopJoinBranch<V::Class>>,
+) -> Result<Flow<V::Class>, LoopJoinSigRejectReasonV1> {
     let block = recipe
-        .blocks
-        .get(key.raw() as usize)
+        .block_at(key)
         .expect("verified recipe has canonical block keys");
     let mut flow = Flow {
         bindings: bindings.clone(),
@@ -382,16 +390,15 @@ fn process_block(
         alternate_exit_payload: None,
         side_exits: Vec::new(),
     };
-    for item_key in &block.items {
+    for item_key in block.items {
         if flow.exit.is_some() || flow.alternate_exit.is_some() {
             return Err(LoopJoinSigRejectReasonV1::UnreachableItem { item: *item_key });
         }
         let row = recipe
-            .items
-            .get(item_key.raw() as usize)
+            .item_at(*item_key)
             .expect("verified recipe has canonical item keys");
-        match row.item {
-            LoopRecipeItemV1::Operation { operation } => {
+        match row {
+            LoopJoinItemView::Operation(operation) => {
                 process_operation(
                     owner_loop,
                     operation,
@@ -399,7 +406,7 @@ fn process_block(
                     &mut flow.available,
                 )?;
             }
-            LoopRecipeItemV1::Loop { loop_key } => {
+            LoopJoinItemView::Loop { loop_key } => {
                 let child = elaborate_loop(
                     recipe,
                     loop_key,
@@ -416,7 +423,7 @@ fn process_block(
                 flow.alternate_exit_payload = child.alternate_exit_payload;
                 flow.side_exits.extend(child.side_exits);
             }
-            LoopRecipeItemV1::If {
+            LoopJoinItemView::If {
                 condition,
                 then_block,
                 else_block,
@@ -547,13 +554,16 @@ fn process_block(
                 flow.alternate_exit = None;
                 flow.alternate_exit_payload = None;
             }
-            LoopRecipeItemV1::Exit { exit } => {
+            LoopJoinItemView::Exit { exit } => {
                 let exit_row = recipe
-                    .exits
-                    .get(exit.raw() as usize)
+                    .exit_at(exit)
                     .expect("verified recipe has canonical exit keys");
-                flow.exit = Some((*item_key, exit_row.kind));
-                flow.exit_payload = Some(visible_payloads(recipe, owner_loop, &flow.bindings)?);
+                flow.exit = Some((*item_key, exit_row));
+                flow.exit_payload = Some(visible_payloads_from_view(
+                    recipe,
+                    owner_loop,
+                    &flow.bindings,
+                )?);
             }
         }
     }
@@ -562,15 +572,15 @@ fn process_block(
     Ok(flow)
 }
 
-fn process_operation(
+fn process_operation<'a>(
     owner_loop: LoopNodeKeyV1,
-    operation: LoopOperationV1,
+    operation: LoopJoinOperationView<'a>,
     bindings: &mut BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
     available: &mut BTreeSet<LoopValueKeyV1>,
 ) -> Result<(), LoopJoinSigRejectReasonV1> {
     let require = |value| require_value(available, value);
     match operation {
-        LoopOperationV1::ReadBinding { binding, result } => {
+        LoopJoinOperationView::ReadBinding { binding, result } => {
             let value = bindings
                 .get(&binding)
                 .copied()
@@ -578,26 +588,27 @@ fn process_operation(
             require(value)?;
             available.insert(result);
         }
-        LoopOperationV1::ConstI64 { result, .. } => {
-            available.insert(result);
+        LoopJoinOperationView::Define { uses, result, .. } => {
+            match uses {
+                LoopJoinValueUses::None => {}
+                LoopJoinValueUses::Two(left, right) => {
+                    require(left)?;
+                    require(right)?;
+                }
+                LoopJoinValueUses::Call { receiver, args } => {
+                    if let Some(receiver) = receiver {
+                        require(receiver)?;
+                    }
+                    for argument in args {
+                        require(*argument)?;
+                    }
+                }
+            }
+            if let Some(result) = result {
+                available.insert(result);
+            }
         }
-        LoopOperationV1::BinaryI64 {
-            left,
-            right,
-            result,
-            ..
-        }
-        | LoopOperationV1::CompareI64 {
-            left,
-            right,
-            result,
-            ..
-        } => {
-            require(left)?;
-            require(right)?;
-            available.insert(result);
-        }
-        LoopOperationV1::WriteBinding { binding, value } => {
+        LoopJoinOperationView::WriteBinding { binding, value } => {
             require(value)?;
             if !bindings.contains_key(&binding) {
                 return Err(LoopJoinSigRejectReasonV1::MissingCarrierClosure {

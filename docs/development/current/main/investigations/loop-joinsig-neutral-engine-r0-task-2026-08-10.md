@@ -1,6 +1,6 @@
 # LOOP-JOINSIG-NEUTRAL-ENGINE-R0
 
-Status: ready; executable BoxShape row
+Status: closed; behavior-neutral BoxShape receipt
 Date: 2026-08-10
 Design authority:
 `loop-recipe-v2-joinsig-dynamic-d0-design-task-2026-08-10.md`
@@ -64,3 +64,25 @@ production activation
 
 If behavior parity requires a copied walker, a lossy DTO, a public generic
 Plan, or an accepted-shape change, stop and return to D0.
+
+## Closeout receipt — 2026-08-10
+
+The V1 elaborator now enters one private borrowed `LoopRecipeV1JoinView` and
+one class-generic common flow engine. `recipe_view.rs` exhaustively projects
+all V1 operations, items, exits, carriers, and value classes; no V2 module or
+Dynamic class is imported. The existing V1 aliases and facade remain stable,
+and branch Return remains rejected exactly where it was rejected before.
+
+Evidence:
+
+```text
+rustfmt --check <seven changed JoinSig files>       green
+cargo test --lib join_sig                           31 passed
+cargo check --lib                                   green
+git diff --check                                    green
+largest touched source                              flow.rs = 634 lines
+```
+
+No Recipe shape, Return target, source product, Continuation, physical owner,
+retry, or fallback was added. The next executable row is
+`LOOP-RECIPE-V2-JOINSIG-DYNAMIC-I0`.

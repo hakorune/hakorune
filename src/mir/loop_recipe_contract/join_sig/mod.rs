@@ -7,6 +7,7 @@
 mod flow;
 mod model;
 mod port;
+pub(super) mod recipe_view;
 mod visibility;
 
 pub(crate) use flow::LoopJoinSigElaboratorV1;
@@ -17,5 +18,9 @@ pub(crate) use model::{
 };
 
 pub(super) use flow::Flow;
+pub(super) use model::{LoopJoinBranch, LoopJoinBranchArm, LoopJoinBranchExit, LoopJoinPayload};
+#[cfg(test)]
 pub(super) use port::port_bindings;
+#[cfg(test)]
 pub(super) use visibility::visible_payloads;
+pub(super) use visibility::visible_payloads_from_view;

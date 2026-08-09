@@ -1,22 +1,22 @@
 //! Logical conditional-branch helpers for the caller-zero JoinSig product.
 
 use super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
+use super::join_sig::recipe_view::{LoopJoinExitView, LoopJoinItemView, LoopJoinRecipeView};
 use super::join_sig::{
-    visible_payloads, Flow, LoopJoinBranchArmV1, LoopJoinBranchExitV1, LoopJoinBranchV1,
-    LoopJoinEdgeRoleV1, LoopJoinPayloadV1, LoopJoinSigRejectReasonV1,
+    visible_payloads_from_view, Flow, LoopJoinBranch, LoopJoinBranchArm, LoopJoinBranchExit,
+    LoopJoinEdgeRoleV1, LoopJoinPayload, LoopJoinSigRejectReasonV1,
 };
-use super::schema::{LoopExitKindV1, LoopRecipeItemV1, LoopRecipeV1};
 
-pub(super) fn branch_row(
-    recipe: &LoopRecipeV1,
+pub(super) fn branch_row<V: LoopJoinRecipeView>(
+    recipe: &V,
     owner_loop: LoopNodeKeyV1,
     if_item: LoopItemKeyV1,
     condition: LoopValueKeyV1,
     then_block: LoopBlockKeyV1,
     else_block: Option<LoopBlockKeyV1>,
-    then_flow: &Flow,
-    else_flow: &Flow,
-) -> Result<LoopJoinBranchV1, LoopJoinSigRejectReasonV1> {
+    then_flow: &Flow<V::Class>,
+    else_flow: &Flow<V::Class>,
+) -> Result<LoopJoinBranch<V::Class>, LoopJoinSigRejectReasonV1> {
     let then_arm = branch_arm(recipe, owner_loop, then_block, then_flow)?;
     let else_arm = match else_block {
         Some(block) => branch_arm(recipe, owner_loop, block, else_flow)?,
@@ -25,7 +25,7 @@ pub(super) fn branch_row(
     if !supported_arm_pair(owner_loop, &then_arm, &else_arm) {
         return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: if_item });
     }
-    Ok(LoopJoinBranchV1 {
+    Ok(LoopJoinBranch {
         owner_loop,
         if_item,
         condition,
@@ -34,44 +34,44 @@ pub(super) fn branch_row(
     })
 }
 
-fn branch_arm(
-    recipe: &LoopRecipeV1,
+fn branch_arm<V: LoopJoinRecipeView>(
+    recipe: &V,
     owner_loop: LoopNodeKeyV1,
     block: LoopBlockKeyV1,
-    flow: &Flow,
-) -> Result<LoopJoinBranchArmV1, LoopJoinSigRejectReasonV1> {
+    flow: &Flow<V::Class>,
+) -> Result<LoopJoinBranchArm<V::Class>, LoopJoinSigRejectReasonV1> {
     if let Some((item, kind)) = flow.exit {
         if !is_direct_exit_at_block_end(recipe, block, item)
             || !is_supported_loop_exit(owner_loop, kind)
         {
             return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item });
         }
-        return Ok(LoopJoinBranchArmV1::Exit(branch_exit(
+        return Ok(LoopJoinBranchArm::Exit(branch_exit(
             item,
             kind,
-            visible_payloads(recipe, owner_loop, &flow.bindings)?,
+            visible_payloads_from_view(recipe, owner_loop, &flow.bindings)?,
         )));
     }
     fallthrough_arm(recipe, owner_loop, flow)
 }
 
-fn fallthrough_arm(
-    recipe: &LoopRecipeV1,
+fn fallthrough_arm<V: LoopJoinRecipeView>(
+    recipe: &V,
     owner_loop: LoopNodeKeyV1,
-    flow: &Flow,
-) -> Result<LoopJoinBranchArmV1, LoopJoinSigRejectReasonV1> {
-    Ok(LoopJoinBranchArmV1::Fallthrough {
-        payload: visible_payloads(recipe, owner_loop, &flow.bindings)?,
+    flow: &Flow<V::Class>,
+) -> Result<LoopJoinBranchArm<V::Class>, LoopJoinSigRejectReasonV1> {
+    Ok(LoopJoinBranchArm::Fallthrough {
+        payload: visible_payloads_from_view(recipe, owner_loop, &flow.bindings)?,
     })
 }
 
-fn supported_arm_pair(
+fn supported_arm_pair<C>(
     _owner_loop: LoopNodeKeyV1,
-    then_arm: &LoopJoinBranchArmV1,
-    else_arm: &LoopJoinBranchArmV1,
+    then_arm: &LoopJoinBranchArm<C>,
+    else_arm: &LoopJoinBranchArm<C>,
 ) -> bool {
     match (then_arm, else_arm) {
-        (LoopJoinBranchArmV1::Exit(then_exit), LoopJoinBranchArmV1::Exit(else_exit)) => {
+        (LoopJoinBranchArm::Exit(then_exit), LoopJoinBranchArm::Exit(else_exit)) => {
             then_exit.role == LoopJoinEdgeRoleV1::Break
                 && else_exit.role == LoopJoinEdgeRoleV1::Continue
         }
@@ -79,30 +79,29 @@ fn supported_arm_pair(
     }
 }
 
-fn branch_exit(
+fn branch_exit<C>(
     exit_item: LoopItemKeyV1,
-    exit: LoopExitKindV1,
-    payload: Vec<LoopJoinPayloadV1>,
-) -> LoopJoinBranchExitV1 {
-    LoopJoinBranchExitV1 {
+    exit: LoopJoinExitView,
+    payload: Vec<LoopJoinPayload<C>>,
+) -> LoopJoinBranchExit<C> {
+    LoopJoinBranchExit {
         exit_item,
         role: exit_role(exit),
         target_loop: match exit {
-            LoopExitKindV1::Break { target_loop } | LoopExitKindV1::Continue { target_loop } => {
-                target_loop
-            }
-            LoopExitKindV1::Return { .. } => unreachable!("branch rows reject Return"),
+            LoopJoinExitView::Break { target_loop }
+            | LoopJoinExitView::Continue { target_loop } => target_loop,
+            LoopJoinExitView::Return { .. } => unreachable!("branch rows reject Return"),
         },
         payload,
     }
 }
 
-fn is_direct_exit_at_block_end(
-    recipe: &LoopRecipeV1,
+fn is_direct_exit_at_block_end<V: LoopJoinRecipeView>(
+    recipe: &V,
     block: LoopBlockKeyV1,
     exit_item: LoopItemKeyV1,
 ) -> bool {
-    let block = match recipe.blocks.get(block.raw() as usize) {
+    let block = match recipe.block_at(block) {
         Some(block) => block,
         None => return false,
     };
@@ -112,29 +111,26 @@ fn is_direct_exit_at_block_end(
     if item != exit_item {
         return false;
     }
-    let Some(row) = recipe.items.get(item.raw() as usize) else {
-        return false;
-    };
-    matches!(row.item, LoopRecipeItemV1::Exit { .. })
+    matches!(recipe.item_at(item), Some(LoopJoinItemView::Exit { .. }))
 }
 
-pub(super) fn is_supported_loop_exit(owner_loop: LoopNodeKeyV1, exit: LoopExitKindV1) -> bool {
-    matches!(exit, LoopExitKindV1::Break { target_loop } | LoopExitKindV1::Continue { target_loop } if target_loop == owner_loop)
+pub(super) fn is_supported_loop_exit(owner_loop: LoopNodeKeyV1, exit: LoopJoinExitView) -> bool {
+    matches!(exit, LoopJoinExitView::Break { target_loop } | LoopJoinExitView::Continue { target_loop } if target_loop == owner_loop)
 }
 
 pub(super) fn is_supported_loop_branch_pair(
     owner_loop: LoopNodeKeyV1,
-    then_exit: LoopExitKindV1,
-    else_exit: LoopExitKindV1,
+    then_exit: LoopJoinExitView,
+    else_exit: LoopJoinExitView,
 ) -> bool {
-    matches!(then_exit, LoopExitKindV1::Break { target_loop } if target_loop == owner_loop)
-        && matches!(else_exit, LoopExitKindV1::Continue { target_loop } if target_loop == owner_loop)
+    matches!(then_exit, LoopJoinExitView::Break { target_loop } if target_loop == owner_loop)
+        && matches!(else_exit, LoopJoinExitView::Continue { target_loop } if target_loop == owner_loop)
 }
 
-fn exit_role(exit: LoopExitKindV1) -> LoopJoinEdgeRoleV1 {
+fn exit_role(exit: LoopJoinExitView) -> LoopJoinEdgeRoleV1 {
     match exit {
-        LoopExitKindV1::Break { .. } => LoopJoinEdgeRoleV1::Break,
-        LoopExitKindV1::Continue { .. } => LoopJoinEdgeRoleV1::Continue,
-        LoopExitKindV1::Return { .. } => unreachable!("direct branch rows reject Return"),
+        LoopJoinExitView::Break { .. } => LoopJoinEdgeRoleV1::Break,
+        LoopJoinExitView::Continue { .. } => LoopJoinEdgeRoleV1::Continue,
+        LoopJoinExitView::Return { .. } => unreachable!("direct branch rows reject Return"),
     }
 }
