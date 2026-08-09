@@ -38,6 +38,13 @@ outer Return. `ch` is source identity only: it is neither a carrier nor a
 second Binding-SSA owner. Completion remains the unique authority for the
 two Return sites and is moved into the inventory rather than recreated.
 
+The local-scope R0 strengthens this same issuer rather than adding a sibling
+product. `ch` must be declared in the resolver-sealed Loop-body scope, have
+exactly the I7 argument read, and have no binding rebind or nested capture.
+After the complete source/Recipe/envelope co-seal, callers may borrow the
+neutral V10/I6/I7 relation; they cannot obtain Home, cleanup, or physical
+authority from it.
+
 The spellings `substring` and `indexOf` are checked only as the bounded
 unchanged-source shape for this I0. They do not classify receiver type,
 result type, declaration target, provider, ABI, or physical route. Those

@@ -2,7 +2,7 @@
 Status: local-value D0 accepted with Home split; local-scope R0 next
 Date: 2026-08-10
 Closed row: `LOOP-V2-DYNAMIC-LOCAL-VALUE-D0`
-Current row: `LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0`
+Current row: `LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0` closed
 Parent: `dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md`
 Mode: BoxShape first; unchanged-source producer second
 ---
@@ -636,10 +636,48 @@ retry, fallback, or production activation.
 no source rewrite or fixture narrowing
 no selector-specific Text/I64 refinement
 no standalone Verified source-to-key product
-no source/envelope co-seal in R0 or producer I0
+no second source/envelope co-seal or standalone local product
 no Home, effect, Fault, JoinSigV2, continuation, Tail ABI, or Completion use
 no Builder / MIR / CFG / PHI
 no provider/runtime plan or invocation
 no retry/fallback
 no physical or production activation
 ```
+
+## R0 closeout — exact iteration-local source closure
+
+`LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0` is closed. The existing source issuer now
+checks, from resolver-owned inventories only:
+
+```text
+BindingRef(ch).owner_scope = exact Loop-body scope
+lexical reads of ch         = [IndexOfArgumentCh]
+binding rebinds of ch       = 0
+nested capture demands      = 0
+```
+
+The existing atomic source/Recipe/envelope product now retains one private
+local relation and lends `DynamicIterationLocalValueRefV2<'_>`. The view
+borrows the exact declaration and read rows and carries only the already
+verified V10 producer I6 and consumer I7 keys. It is not independently
+constructible and creates no second source, Recipe, or lifetime authority.
+
+Evidence:
+
+```text
+cargo check --lib
+  green
+cargo test --lib dynamic_full_body_source_tests
+  6 passed
+cargo test --lib dynamic_full_body_recipe::coseal::tests
+  5 passed
+all touched Rust files
+  below 800 lines
+```
+
+No source/fixture was rewritten or narrowed. Home installation, cleanup,
+JoinSigV2, Fault, Tail/Completion consumption, Builder/MIR/CFG/PHI, provider
+execution, retry, fallback, and production activation remain absent.
+
+The next row is the independent design stop
+`LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0`; it must be reviewed before implementation.

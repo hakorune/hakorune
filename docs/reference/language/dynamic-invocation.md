@@ -143,6 +143,12 @@ route-neutral target catalog and derives exactly one indivisible envelope view
 for every Dynamic arm without a second row map. Static arms remain retained
 and unselected.
 
-Recipe value/CallSlot support, a production envelope consumer, physical
-projection, provider admission, executable plan, and runtime cutover remain
-inactive until their separately named rows land.
+Caller-zero Recipe V2 value/CallSlot support and the complete unchanged-source
+source/Recipe/envelope co-seal are live. The same product now lends one neutral
+borrow-scoped V10/ch/I7 relation only after resolver-sealed Loop-body scope,
+one exact lexical read, zero rebinds, and zero nested captures are proved.
+This is not a Home/install/cleanup receipt.
+
+JoinSig/Fault authority, a production envelope consumer, physical projection,
+provider admission, executable plan, and runtime cutover remain inactive until
+their separately named rows land.

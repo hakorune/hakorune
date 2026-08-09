@@ -7,6 +7,7 @@ use crate::mir::builder::{
 use crate::mir::dynamic_invocation_contract::{
     DynamicInvocationEnvelopeLookupV1, VerifiedDynamicInvocationEnvelopeCatalogV1,
 };
+use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::{
     CallableSemanticSourceLedgerView, FunctionSemanticResolverSessionV1,
@@ -109,6 +110,20 @@ fn unchanged_source_coseals_all_claims_and_two_of_seven_envelopes() {
     assert_eq!(product.artifact().recipe().as_recipe().items.len(), 17);
     assert_eq!(product.source().completion.explicit_sites().len(), 2);
     assert!(!product.calls().caller().name().is_empty());
+    let local = product.iteration_local();
+    assert_eq!(local.value(), LoopValueKeyV1::new(10));
+    assert_eq!(local.producer(), LoopItemKeyV1::new(6));
+    assert_eq!(local.consumer(), LoopItemKeyV1::new(7));
+    assert_eq!(local.scope_region(), product.source().scope_region);
+    let crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement, ordinal } =
+        local.declaration()
+    else {
+        panic!("iteration-local declaration must remain a local source site")
+    };
+    assert_eq!(*ordinal, 0);
+    assert_eq!(local.declaration_statement(), statement);
+    assert_eq!(local.binding().owner(), product.source().owner);
+    assert_ne!(local.read().node(), local.declaration_statement().node());
 }
 
 #[test]

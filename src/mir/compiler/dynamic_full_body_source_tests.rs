@@ -4,9 +4,9 @@ use crate::mir::resolved_semantics::CallableSemanticSourceLedgerView;
 use crate::parser::NyashParser;
 
 use super::dynamic_full_body_source::{
-    DynamicFullBodyBindingRoleV1, DynamicFullBodySourceIssueV1, DynamicFullBodySourceIssuerV1,
-    DynamicFullBodySourceRoleV1, DynamicFullBodySourceSiteV1,
-    VerifiedDynamicLoopFullBodySourceInventoryV1,
+    verify_iteration_local_source_closure, DynamicFullBodyBindingRoleV1,
+    DynamicFullBodySourceIssueV1, DynamicFullBodySourceIssuerV1, DynamicFullBodySourceRoleV1,
+    DynamicFullBodySourceSiteV1, VerifiedDynamicLoopFullBodySourceInventoryV1,
 };
 use super::function_input::ResolvedFunctionLoweringInputV1;
 
@@ -96,6 +96,55 @@ fn unchanged_skip_while_issues_complete_ast_free_source_inventory() {
             1
         );
     }
+}
+
+#[test]
+fn iteration_local_closure_is_exactly_one_read_in_the_loop_body_scope() {
+    let input = input_for(production_skip_while());
+    let ledger = CallableSemanticSourceLedgerView::from_forest(input.forest(), input.owner())
+        .expect("source ledger");
+    let membership = ledger.only_loop_site().expect("one loop");
+    let completion = verify_function_completion_v1(input).expect("completion");
+    let product = DynamicFullBodySourceIssuerV1::issue(input, membership, completion)
+        .expect("full source inventory");
+    let binding = product
+        .bindings()
+        .iter()
+        .find(|row| row.role() == DynamicFullBodyBindingRoleV1::IterationLocalCh)
+        .expect("iteration-local binding")
+        .binding();
+    let read = profile_expr_site(&product, DynamicFullBodySourceRoleV1::IndexOfArgumentCh);
+
+    assert_eq!(
+        verify_iteration_local_source_closure(
+            input,
+            product.loop_membership().scope_region().scope(),
+            binding,
+            read,
+        ),
+        Ok(())
+    );
+    assert_eq!(
+        verify_iteration_local_source_closure(
+            input,
+            input.function().function_scope(),
+            binding,
+            read,
+        ),
+        Err(DynamicFullBodySourceIssueV1::IterationLocalScopeMismatch)
+    );
+    assert_eq!(
+        verify_iteration_local_source_closure(
+            input,
+            product.loop_membership().scope_region().scope(),
+            binding,
+            profile_expr_site(
+                &product,
+                DynamicFullBodySourceRoleV1::IndexOfReceiverPredChars,
+            ),
+        ),
+        Err(DynamicFullBodySourceIssueV1::IterationLocalUseClosureMismatch)
+    );
 }
 
 #[test]

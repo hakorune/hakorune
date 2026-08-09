@@ -170,6 +170,13 @@ relation, CallSlot/envelope co-seal, explicit Dynamic operations, exact local
 source/scope closure, V2 JoinSig/Fault authority, and only then neutral local
 Home Flow. V1 remains unchanged.
 
+The exact local source/scope closure is now landed. The existing Dynamic source
+issuer proves the iteration-local declaration belongs to the sealed Loop-body
+scope and that its resolver use set is exactly one I7 read with no rebind or
+nested capture. The atomic envelope exposes only a borrowed V10/I6/I7 view;
+it adds no Recipe binding/carrier, Home state, cleanup plan, or physical port.
+The next design boundary is V2 Dynamic JoinSig and its separation from Fault.
+
 The focused golden covers type-consistent Dynamic input, binding, carrier,
 CallSlot normal result, WriteBinding, and Return domains. It does not issue the
 external source-value or target/envelope relation. That relation is the next

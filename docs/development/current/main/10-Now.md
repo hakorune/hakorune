@@ -44,11 +44,13 @@ the compiler acceptance was widened instead of rewriting or narrowing the
 source. The selector-independent language Decision and caller-zero complete
 semantic-envelope catalog are now closed. The Dynamic Recipe consultation,
 Dynamic operation D0, schema/verifier I0, V2 control/source parity R0, and the
-complete private producer I0 and atomic co-seal I0 are also closed. The
-current row is the behavior-neutral iteration-local source/scope closure:
+complete private producer I0, atomic co-seal I0, and behavior-neutral
+iteration-local source/scope R0 are also closed. R0 proves exact Loop-body
+scope, one I7 read, zero rebinds/captures, and lends only a neutral V10/I6/I7
+borrow view. The current row is the next design stop:
 
 ```text
-LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0
+LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe
@@ -86,7 +88,10 @@ seven is not a language constant and additional valid owner rows are accepted.
 If another valid row is unsupported, widen the compiler
 or stop at a named design question; never narrow or rewrite source. Physical
 projection, provider plan, retry, and fallback remain closed.
-JoinSig-authorized If/Return and multi-return Completion still precede
+The active design question must keep JoinSig as the sole logical transfer
+owner, keep Dynamic Fault outside Recipe values/exits, and keep the outer
+Return in Callable Tail/Completion. JoinSig-authorized If/Return and
+multi-return Completion still precede
 DraftSeal/collector/backend/VM.
 
 The previous post-P1-only PHI plan is rejected: the pre-correction P1 emitted

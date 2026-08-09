@@ -10,7 +10,7 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, ExprChildRoleV1, ResolvedAssignmentTargetV1, ResolvedExitSiteV1,
-    ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    ResolvedLexicalRefV1, ScopeId, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
     SourceStmtSiteV1, VerifiedCallableLoopMembershipV1,
 };
 
@@ -159,6 +159,8 @@ pub(crate) enum DynamicFullBodySourceIssueV1 {
     ExpressionShape,
     MissingResolverEvidence,
     BindingMismatch,
+    IterationLocalScopeMismatch,
+    IterationLocalUseClosureMismatch,
     DuplicateSourceRole,
     DuplicateSourceSite,
     CompletionMismatch,
@@ -384,6 +386,12 @@ impl DynamicFullBodySourceIssuerV1 {
             index_ch.site(),
             binding(DynamicFullBodyBindingRoleV1::IterationLocalCh)?,
         )?;
+        verify_iteration_local_source_closure(
+            input,
+            loop_membership.scope_region().scope(),
+            binding(DynamicFullBodyBindingRoleV1::IterationLocalCh)?,
+            index_ch.site(),
+        )?;
         require_assignment(
             input,
             step_target.site(),
@@ -488,6 +496,50 @@ impl DynamicFullBodySourceIssuerV1 {
             completion,
         })
     }
+}
+
+/// Closes the resolver-owned lexical boundary for the iteration-local value.
+///
+/// The exact source observer has already identified the declaration and I7
+/// argument site. This check does not classify Home or lifetime behavior; it
+/// only proves that the declaration belongs to the sealed Loop-body scope and
+/// that the same binding has one exact read with no write or nested capture.
+pub(super) fn verify_iteration_local_source_closure(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    loop_body_scope: ScopeId,
+    binding: BindingRefV1,
+    expected_read: &SourceExprSiteV1,
+) -> Result<(), DynamicFullBodySourceIssueV1> {
+    let record = input
+        .function()
+        .binding(binding)
+        .ok_or(DynamicFullBodySourceIssueV1::MissingResolverEvidence)?;
+    if record.owner_scope() != loop_body_scope {
+        return Err(DynamicFullBodySourceIssueV1::IterationLocalScopeMismatch);
+    }
+
+    let reads = input
+        .function()
+        .variable_refs()
+        .filter_map(|(site, resolved)| {
+            matches!(resolved, ResolvedLexicalRefV1::Local(actual) if *actual == binding)
+                .then_some(site)
+        })
+        .collect::<Vec<_>>();
+    let reassigned = input.function().assignment_targets().any(|(_, target)| {
+        matches!(target, ResolvedAssignmentTargetV1::BindingRebind(actual) if *actual == binding)
+    });
+    let captured = input.forest().owners().any(|(owner, _)| {
+        input
+            .forest()
+            .ordered_capture_demands(owner)
+            .iter()
+            .any(|row| row.source_binding() == binding)
+    });
+    if reads.as_slice() != [expected_read] || reassigned || captured {
+        return Err(DynamicFullBodySourceIssueV1::IterationLocalUseClosureMismatch);
+    }
+    Ok(())
 }
 
 fn expr_from_stmt<'a>(

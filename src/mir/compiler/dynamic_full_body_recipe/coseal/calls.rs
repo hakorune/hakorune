@@ -52,6 +52,13 @@ impl VerifiedDynamicFullLoopCallRelationsV2 {
     pub(super) const fn rows(&self) -> &[DynamicFullLoopCallRelationKeyV2; 2] {
         &self.rows
     }
+
+    pub(super) fn item_for(&self, role: DynamicFullBodySourceRoleV1) -> Option<LoopItemKeyV1> {
+        self.rows
+            .iter()
+            .find(|row| row.call_role == role)
+            .map(|row| row.item)
+    }
 }
 
 pub(super) fn verify_dynamic_call_relations_v2(

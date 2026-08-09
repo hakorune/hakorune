@@ -17,6 +17,8 @@ complete resolver source inventory
   twenty-eight source roles.
 - `coseal/calls.rs` binds I6 and I7 to exact Dynamic envelopes by resolver
   owner plus exact source call site.
+- `coseal/local.rs` validates the already-sealed V10/ch/I7 mapping and lends
+  one borrow-scoped neutral view. It owns no Home or cleanup meaning.
 - `dynamic_invocation_contract` remains the complete immutable envelope
   catalog owner. This directory borrows it and never copies targets or
   selector semantics.
@@ -42,7 +44,7 @@ stop at a named design question. Never rewrite or narrow the source fixture.
 This directory does not own:
 
 - selector-specific type refinement;
-- the iteration-local `ch` Home relation;
+- any iteration-local `ch` Home/install/cleanup relation;
 - JoinSigV2, continuation, or Dynamic Fault compatibility;
 - Callable Tail, Completion consumption, or return ABI;
 - Builder, MIR, CFG, PHI, provider selection, runtime invocation, retry, or
@@ -50,14 +52,21 @@ This directory does not own:
 
 The verified co-seal product is therefore not a final semantic program.
 
-## Next boundary
+## Iteration-local source closure (R0)
 
-The co-seal already owns the V10-to-`ch`-to-I7 logical relation. The next
-behavior-neutral row closes exact Loop-body scope and full-use coverage in the
-existing source issuer and exposes only a borrow-scoped neutral view. It does
-not add a standalone `VerifiedCh*` product.
+The co-seal owns the V10-to-`ch`-to-I7 logical relation. R0 now additionally
+requires the exact `ch` declaration owner scope to equal the resolver-sealed
+Loop-body scope and closes the complete resolver use inventory as exactly one
+I7 argument read, zero binding rebinds, and zero nested captures. The verified
+envelope lends that relation only as `DynamicIterationLocalValueRefV2`, a
+borrow-scoped view over the retained declaration/read rows plus V10/I6/I7.
+There is no standalone `VerifiedCh*` product or copied source authority.
 
 Local Home installation is not yet available. A self-contained Dynamic
 carrier may be trivial, owner-bearing, or weak; Recipe `Dynamic` and runtime
 tags cannot classify it. JoinSig/Fault/exit authority and the general Home
 destination/flow owners must land before any install or cleanup receipt.
+
+The next boundary is `LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0`. It must keep JoinSig
+as the sole logical transfer authority while Dynamic Fault remains outside
+Recipe values and exits.

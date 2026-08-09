@@ -2,6 +2,7 @@
 
 mod calls;
 mod coverage;
+mod local;
 
 #[cfg(test)]
 mod tests;
@@ -18,11 +19,14 @@ use coverage::{
     verify_complete_claim_coverage_v2, DynamicFullLoopCoverageRejectV2,
     VerifiedDynamicFullLoopClaimCoverageV2,
 };
+pub(in crate::mir) use local::DynamicIterationLocalValueRefV2;
+use local::{verify_iteration_local_relation_v2, DynamicIterationLocalRelationV2};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicFullLoopSourceRecipeEnvelopeRejectV2 {
     Coverage(DynamicFullLoopCoverageRejectV2),
     Calls(DynamicFullLoopCallRelationRejectV2),
+    IterationLocal,
 }
 
 /// Bounded source-bound Recipe product.
@@ -36,10 +40,15 @@ pub(in crate::mir) struct VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'env, 'd
     artifact: VerifiedLoopRecipeArtifactV2,
     coverage: VerifiedDynamicFullLoopClaimCoverageV2,
     calls: VerifiedDynamicFullLoopCallRelationsV2,
+    iteration_local: DynamicIterationLocalRelationV2,
     catalog: &'env VerifiedDynamicInvocationEnvelopeCatalogV1<'decl>,
 }
 
 impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'_, '_> {
+    pub(in crate::mir) fn iteration_local(&self) -> DynamicIterationLocalValueRefV2<'_> {
+        self.iteration_local.borrow(&self.source)
+    }
+
     #[cfg(test)]
     fn artifact(&self) -> &VerifiedLoopRecipeArtifactV2 {
         &self.artifact
@@ -78,11 +87,14 @@ pub(in crate::mir) fn issue_dynamic_full_loop_source_recipe_envelope_v2<'env, 'd
         .map_err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Coverage)?;
     let calls = verify_dynamic_call_relations_v2(&source, artifact.recipe(), catalog)
         .map_err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Calls)?;
+    let iteration_local = verify_iteration_local_relation_v2(&source, &coverage, &calls)
+        .ok_or(DynamicFullLoopSourceRecipeEnvelopeRejectV2::IterationLocal)?;
     Ok(VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
         source,
         artifact,
         coverage,
         calls,
+        iteration_local,
         catalog,
     })
 }

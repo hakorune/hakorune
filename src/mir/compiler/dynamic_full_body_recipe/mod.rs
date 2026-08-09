@@ -11,7 +11,7 @@ mod mapping;
 #[allow(unused_imports)]
 pub(in crate::mir) use coseal::{
     issue_dynamic_full_loop_source_recipe_envelope_v2, DynamicFullLoopSourceRecipeEnvelopeRejectV2,
-    VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
+    DynamicIterationLocalValueRefV2, VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
 };
 
 #[cfg(test)]

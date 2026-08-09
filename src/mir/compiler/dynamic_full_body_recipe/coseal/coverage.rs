@@ -3,7 +3,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::loop_recipe_contract::{
-    LoopExitKindV2, LoopItemKeyV1, LoopRecipeItemV2, LoopValueClassV2, VerifiedLoopRecipeV2,
+    LoopExitKindV2, LoopRecipeItemV2, LoopValueClassV2, VerifiedLoopRecipeV2,
 };
 
 use super::super::super::dynamic_full_body_source::{
@@ -49,6 +49,26 @@ impl VerifiedDynamicFullLoopClaimCoverageV2 {
             self.deferred_local_count,
             self.deferred_tail_count,
         )
+    }
+
+    pub(super) fn binding_target(
+        &self,
+        role: DynamicFullBodyBindingRoleV1,
+    ) -> Option<DynamicFullLoopClaimTargetV2> {
+        self.bindings
+            .iter()
+            .find(|row| row.role == role)
+            .map(|row| row.target)
+    }
+
+    pub(super) fn source_target(
+        &self,
+        role: DynamicFullBodySourceRoleV1,
+    ) -> Option<DynamicFullLoopClaimTargetV2> {
+        self.sources
+            .iter()
+            .find(|row| row.role == role)
+            .map(|row| row.target)
     }
 }
 
