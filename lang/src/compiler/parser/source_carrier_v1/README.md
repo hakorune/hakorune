@@ -19,6 +19,17 @@ Mutation and publication are physically separate: `source_carrier_builder_v1`
 owns drafts/state, while `source_carrier_sealer_v1` owns reachability,
 bottom-up defensive validation, and immutable reconstruction.
 
+A Typed `ParserNodeProductV1` retains the exact open builder that issued its
+node ref, as well as its compatibility fragment and next position. A bare
+node ref is not a transportable source truth because its index is meaningful
+only inside that builder allocation. CompatOnly and ParseError products carry
+no builder and no node ref. The later body owner must continue and seal this
+same builder; it may not reconstruct the node or open a second tree.
+
+Node/list refs carry a private builder-local arena brand. Builder mutation
+rejects a ref from another arena before checking its numeric index, so a
+same-index foreign ref cannot be paired with the wrong open carrier.
+
 The language cannot enforce module-private constructors. Repository guards
 therefore enforce factory-only construction and parser nonconnection during
 P0.

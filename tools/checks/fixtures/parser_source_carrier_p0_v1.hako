@@ -25,23 +25,30 @@ static box SourceCarrierP0FixtureV1Box {
   }
 
   products() {
-    local ref = SourceCarrierRefsV1Box.node(2)
-    local typed = ParserNodeProductV1Box.typed(ref, 10)
-    if typed.kind() != "Typed" || typed.node_ref().index() != 2 || typed.next_pos() != 10 { return 11 }
+    local carrier = SourceCarrierBuilderV1Box.open()
+    local ref = carrier.add_literal_int(2)
+    local typed = ParserNodeProductV1Box.typed(carrier, ref, "{\"type\":\"Int\",\"value\":2}", 10)
+    if typed.kind() != "Typed" || typed.node_ref().index() != 0 || typed.next_pos() != 10 { return 11 }
+    if typed.carrier() == null || typed.carrier().state() != "Open" { return 15 }
+    if typed.compat_fragment() != "{\"type\":\"Int\",\"value\":2}" { return 16 }
+    if typed.carrier().add_return_present(typed.node_ref()) == null { return 17 }
     local compat = ParserNodeProductV1Box.compat_only("legacy.return", "Return", "opaque", 12)
     if compat.kind() != "CompatOnly" || compat.branch_id() != "legacy.return" { return 12 }
     if compat.source_kind() != "Return" || compat.next_pos() != 12 { return 13 }
+    if compat.carrier() != null || compat.node_ref() != null { return 18 }
     local failed = ParserNodeProductV1Box.parse_error("source.parse.expected", 3)
     if failed.kind() != "ParseError" || failed.issue().domain() != "SourceParseError" { return 14 }
+    if failed.carrier() != null || failed.node_ref() != null { return 19 }
     return 0
   }
 
   invalid_ref_poison() {
     local b = SourceCarrierBuilderV1Box.open()
-    local bad = SourceCarrierRefsV1Box.node(99)
+    local foreign = SourceCarrierBuilderV1Box.open()
+    local bad = foreign.add_literal_int(99)
     if b.add_unary_neg(bad) != null { return 21 }
     if b.state() != "Poisoned" { return 22 }
-    if b.issue().reason() != "internal.carrier.node_ref_invalid" { return 23 }
+    if b.issue().reason() != "internal.carrier.node_ref_foreign" { return 23 }
     if b.add_return_absent() != null { return 24 }
     local result = b.finish()
     if result.status() != "InternalCarrierContractViolation" { return 25 }
@@ -89,11 +96,12 @@ static box SourceCarrierP0FixtureV1Box {
     return 0
   }
 
-  cycle_attempt() {
+  foreign_list_ref_poison() {
     local b = SourceCarrierBuilderV1Box.open()
-    local future = SourceCarrierRefsV1Box.node(0)
-    if b.add_unary_neg(future) != null { return 71 }
-    if b.issue().reason() != "internal.carrier.node_ref_invalid" { return 72 }
+    local foreign = SourceCarrierBuilderV1Box.open()
+    local list = foreign.create_list(SourceVocabularyV1Box.family_stmt())
+    if b.seal_list(list) != false { return 71 }
+    if b.issue().reason() != "internal.carrier.list_ref_foreign" { return 72 }
     return 0
   }
 
@@ -119,7 +127,7 @@ static box SourceCarrierP0FixtureV1Box {
     rc = me.mutation_after_list_seal() if rc != 0 { return rc }
     rc = me.incomplete_root() if rc != 0 { return rc }
     rc = me.unreachable_node() if rc != 0 { return rc }
-    rc = me.cycle_attempt() if rc != 0 { return rc }
+    rc = me.foreign_list_ref_poison() if rc != 0 { return rc }
     return me.double_finish_and_closed_mutation()
   }
 }

@@ -68,6 +68,7 @@ required = (
     "InternalCarrierContractViolation", "ProgramV0CompatProjectionViolation",
     "internal.carrier.unreachable_node", "internal.carrier.double_finish",
     "internal.carrier.list_mutation_after_seal", "internal.carrier.node_ref_invalid",
+    "internal.carrier.node_ref_foreign", "internal.carrier.list_ref_foreign",
 )
 for needle in required:
     if needle not in joined:
@@ -77,11 +78,19 @@ for forbidden in ("MapBox", "JsonParser", "indexOf", "substring(", "MIRBuilder",
         raise SystemExit(f"forbidden P0 carrier dependency: {forbidden}")
 
 product = (source_dir / "parser_node_product_v1.hako").read_text(encoding="utf-8")
+for needle in (
+    "_carrier", "carrier()", "typed(carrier, node_ref, compat_fragment, next_pos)",
+):
+    if needle not in product:
+        raise SystemExit(f"typed node product lost open-carrier ownership: {needle}")
+if "typed(node_ref, next_pos)" in product:
+    raise SystemExit("partial typed node-ref-only factory must remain retired")
 for path in sources:
     if path.name != "parser_node_product_v1.hako" and "compat_fragment" in path.read_text(encoding="utf-8"):
         raise SystemExit(f"compat fragment escaped explicit parser product: {path}")
 
 construction_allow = {
+    "SourceCarrierArenaBrandV1": source_dir / "source_refs_v1.hako",
     "SourceNodeRefV1": source_dir / "source_refs_v1.hako",
     "SourceNodeListRefV1": source_dir / "source_refs_v1.hako",
     "SourceNodeRecordV1": source_dir / "source_records_v1.hako",
@@ -106,7 +115,7 @@ fixture_text = fixture.read_text(encoding="utf-8")
 for needle in (
     "success_tree", "products", "invalid_ref_poison", "wrong_family_poison",
     "mutation_after_list_seal", "incomplete_root", "unreachable_node",
-    "cycle_attempt", "double_finish_and_closed_mutation",
+    "foreign_list_ref_poison", "double_finish_and_closed_mutation",
 ):
     if needle not in fixture_text:
         raise SystemExit(f"missing lifecycle fixture: {needle}")
@@ -114,6 +123,7 @@ for needle in (
 print("parser_branch_connection=0")
 print("program_v0_behavior_change=0")
 print("typed_branch_count=0")
+print("typed_open_carrier_ownership=1")
 print("partial_tree_publication=0")
 print("raw_map_json_carrier=0")
 print("source_files_below_800=1")

@@ -1,5 +1,5 @@
 ---
-Status: ready
+Status: accepted parent series — R0 selected
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0`
@@ -50,11 +50,12 @@ Typed:
 CompatOnly:
   bare return
   return variable/call/binary/group/unary
-  float or suffixed integer
+  float
   any other syntactically valid Return expression
 
 ParseError:
   InvalidStart scanner outcome
+  suffixed integer rejected by the current language profile
   malformed Return/expression
   no parser progress
 ```
@@ -81,6 +82,35 @@ product, parser transaction, resolver identity, Home, Recipe, MIR, or runtime
 meaning. Bare `return` remains distinct from `return 0` before compatibility
 projection.
 
+The current `ParserNodeProductV1::Typed` carries only a `SourceNodeRefV1`.
+That is insufficient: the ref is meaningful only inside the exact open
+`SourceCarrierBuilderV1` that issued it. S1 therefore starts by making the
+Typed product retain that open carrier and the compatibility fragment. Later
+SourceBody assembly must consume the same carrier; it may not reconstruct a
+node from the ref or start a second builder.
+
+## Ordered implementation series
+
+```text
+H2-S2-S1-R0
+  Typed ParserNodeProduct retains exact open carrier + node ref + compat
+  no parser branch connection
+
+H2-S2-S1-R1
+  refactor the existing precedence traversal in place to return a private
+  compatibility fragment + optional exact integer lexical witness
+  old string APIs become projections; no parallel expression parser
+
+H2-S2-S1-I0
+  existing Return arm consumes that exact expression result once
+  and emits Return(Present, LiteralInt)
+```
+
+The S1 parent is not executable as one broad commit. R0 and R1 are
+behavior-preserving BoxShape prerequisites; I0 is the one bounded Return
+connection. The existing P0 guard must transition deliberately when I0 makes
+the first parser-branch import. It must never silently ignore the connection.
+
 ## Acceptance matrix
 
 ```text
@@ -97,7 +127,7 @@ CompatOnly with typed publication 0:
   return (1)
   return -1
   return 1.5
-  return 1usize
+  return 1usize -> ParseError/current profile rejection
 
 ParseError with typed publication 0:
   invalid numeric start
@@ -116,7 +146,7 @@ structural:
 
 ## Guard and docs
 
-Add `hako_parser_rich_body_h2_s2_s1_guard.sh`, register it in
+The final I0 adds `hako_parser_rich_body_h2_s2_s1_guard.sh`, registers it in
 `docs/tools/check-scripts-index.md`, update the statement parser owner README
 or nearest owner reference, and run:
 

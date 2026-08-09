@@ -4,18 +4,20 @@ using lang.compiler.parser.source_carrier_v1.source_carrier_outcome_v1 as Source
 // Explicit parser return product. Compat fragments are opaque to V1 consumers.
 box ParserNodeProductV1 {
   _kind: String
+  _carrier
   _node_ref
   _branch_id: String
   _source_kind: String
   _compat_fragment
   _next_pos: Integer
   _issue
-  birth(kind, node_ref, branch_id, source_kind, compat_fragment, next_pos, issue) {
-    me._kind = kind me._node_ref = node_ref me._branch_id = branch_id
+  birth(kind, carrier, node_ref, branch_id, source_kind, compat_fragment, next_pos, issue) {
+    me._kind = kind me._carrier = carrier me._node_ref = node_ref me._branch_id = branch_id
     me._source_kind = source_kind me._compat_fragment = compat_fragment
     me._next_pos = next_pos me._issue = issue
   }
   kind() { return me._kind }
+  carrier() { return me._carrier }
   node_ref() { return me._node_ref }
   branch_id() { return me._branch_id }
   source_kind() { return me._source_kind }
@@ -25,14 +27,14 @@ box ParserNodeProductV1 {
 }
 
 static box ParserNodeProductV1Box {
-  typed(node_ref, next_pos) {
-    return new ParserNodeProductV1(SourceVocabularyV1Box.branch_typed(), node_ref, "", "", null, next_pos, null)
+  typed(carrier, node_ref, compat_fragment, next_pos) {
+    return new ParserNodeProductV1(SourceVocabularyV1Box.branch_typed(), carrier, node_ref, "", "", compat_fragment, next_pos, null)
   }
   compat_only(branch_id, source_kind, compat_fragment, next_pos) {
-    return new ParserNodeProductV1(SourceVocabularyV1Box.branch_compat_only(), null, branch_id, source_kind, compat_fragment, next_pos, null)
+    return new ParserNodeProductV1(SourceVocabularyV1Box.branch_compat_only(), null, null, branch_id, source_kind, compat_fragment, next_pos, null)
   }
   parse_error(reason, next_pos) {
     local issue = SourceCarrierOutcomeV1Box.source_parse_error(reason)
-    return new ParserNodeProductV1(SourceVocabularyV1Box.branch_parse_error(), null, "", "", null, next_pos, issue)
+    return new ParserNodeProductV1(SourceVocabularyV1Box.branch_parse_error(), null, null, "", "", null, next_pos, issue)
   }
 }

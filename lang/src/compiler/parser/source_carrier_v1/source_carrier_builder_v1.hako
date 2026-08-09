@@ -20,12 +20,14 @@ box SourceNodeListDraftV1 {
 }
 
 box SourceCarrierBuilderV1 {
+  _arena
   _state: String
   _nodes: ArrayBox
   _lists: ArrayBox
   _root_ref
   _issue
   birth() {
+    me._arena = SourceCarrierRefsV1Box.arena()
     me._state = SourceVocabularyV1Box.state_open()
     me._nodes = new ArrayBox() me._lists = new ArrayBox()
     me._root_ref = null me._issue = null
@@ -44,7 +46,7 @@ box SourceCarrierBuilderV1 {
     }
     local index = me._lists.size()
     me._lists.push(new SourceNodeListDraftV1(index, family))
-    return SourceCarrierRefsV1Box.list(index)
+    return SourceCarrierRefsV1Box.list(me._arena, index)
   }
 
   list_push(list_ref, node_ref) {
@@ -126,17 +128,23 @@ box SourceCarrierBuilderV1 {
     }
     local node_record = SourceCarrierRecordsV1Box.node(next, family, kind, scalar, children, lists)
     me._nodes.push(node_record)
-    return SourceCarrierRefsV1Box.node(next)
+    return SourceCarrierRefsV1Box.node(me._arena, next)
   }
 
   _node_or_poison(node_ref) {
-    if node_ref == null || node_ref.index() < 0 || node_ref.index() >= me._nodes.size() {
+    if node_ref == null || node_ref.owned_by(me._arena) == false {
+      me._poison("internal.carrier.node_ref_foreign") return null
+    }
+    if node_ref.index() < 0 || node_ref.index() >= me._nodes.size() {
       me._poison("internal.carrier.node_ref_invalid") return null
     }
     return me._nodes.get(node_ref.index())
   }
   _list_or_poison(list_ref) {
-    if list_ref == null || list_ref.index() < 0 || list_ref.index() >= me._lists.size() {
+    if list_ref == null || list_ref.owned_by(me._arena) == false {
+      me._poison("internal.carrier.list_ref_foreign") return null
+    }
+    if list_ref.index() < 0 || list_ref.index() >= me._lists.size() {
       me._poison("internal.carrier.list_ref_invalid") return null
     }
     return me._lists.get(list_ref.index())

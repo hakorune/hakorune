@@ -1,14 +1,22 @@
-// Invocation-local typed indices. Builders validate arena ownership/ranges.
+// Invocation-local typed indices. The private arena brand prevents an index
+// issued by one open builder from being accepted by another builder.
+box SourceCarrierArenaBrandV1 {
+}
+
 box SourceNodeRefV1 {
+  _arena
   _index: Integer
-  birth(index) { me._index = index }
+  birth(arena, index) { me._arena = arena me._index = index }
   index() { return me._index }
+  owned_by(arena) { return arena != null && me._arena == arena }
 }
 
 box SourceNodeListRefV1 {
+  _arena
   _index: Integer
-  birth(index) { me._index = index }
+  birth(arena, index) { me._arena = arena me._index = index }
   index() { return me._index }
+  owned_by(arena) { return arena != null && me._arena == arena }
 }
 
 box SourcePresenceV1 {
@@ -20,13 +28,14 @@ box SourcePresenceV1 {
 }
 
 static box SourceCarrierRefsV1Box {
-  node(index) {
-    if index < 0 { return null }
-    return new SourceNodeRefV1(index)
+  arena() { return new SourceCarrierArenaBrandV1() }
+  node(arena, index) {
+    if arena == null || index < 0 { return null }
+    return new SourceNodeRefV1(arena, index)
   }
-  list(index) {
-    if index < 0 { return null }
-    return new SourceNodeListRefV1(index)
+  list(arena, index) {
+    if arena == null || index < 0 { return null }
+    return new SourceNodeListRefV1(arena, index)
   }
   absent() { return new SourcePresenceV1("Absent", null) }
   present(node_ref) { return new SourcePresenceV1("Present", node_ref) }

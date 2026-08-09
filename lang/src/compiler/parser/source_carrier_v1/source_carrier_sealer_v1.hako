@@ -11,8 +11,7 @@ static box SourceCarrierSealerV1Box {
     if nodes == null { return SourceCarrierOutcomeV1Box.failed(SourceCarrierOutcomeV1Box.internal("internal.carrier.node_reconstruction_failed")) }
     local lists = me._copy_lists(source_lists)
     if lists == null { return SourceCarrierOutcomeV1Box.failed(SourceCarrierOutcomeV1Box.internal("internal.carrier.list_reconstruction_failed")) }
-    local root_copy = SourceCarrierRefsV1Box.node(root_ref.index())
-    return SourceCarrierOutcomeV1Box.ready(SourceCarrierRecordsV1Box.tree(root_copy, nodes, lists))
+    return SourceCarrierOutcomeV1Box.ready(SourceCarrierRecordsV1Box.tree(root_ref, nodes, lists))
   }
 
   _reachability_issue(root_ref, nodes, lists) {
@@ -110,7 +109,7 @@ static box SourceCarrierSealerV1Box {
     loop(i < node.child_count()) {
       local ref = node.child(i)
       if ref == null || ref.index() >= node.index() { return null }
-      out.push(SourceCarrierRefsV1Box.node(ref.index()))
+      out.push(ref)
       i = i + 1
     }
     return out
@@ -121,7 +120,7 @@ static box SourceCarrierSealerV1Box {
     loop(i < node.list_count()) {
       local ref = node.list_ref(i)
       if ref == null { return null }
-      out.push(SourceCarrierRefsV1Box.list(ref.index()))
+      out.push(ref)
       i = i + 1
     }
     return out
@@ -134,7 +133,7 @@ static box SourceCarrierSealerV1Box {
       if list.sealed() == false || list.index() != i { return null }
       local refs = new ArrayBox() local j = 0
       loop(j < list.node_count()) {
-        refs.push(SourceCarrierRefsV1Box.node(list.node_ref(j).index()))
+        refs.push(list.node_ref(j))
         j = j + 1
       }
       out.push(SourceCarrierRecordsV1Box.list(i, list.family(), refs))
