@@ -97,7 +97,11 @@ impl<'loan, 'source, 'port, 'collector>
     ) -> Result<R, String> {
         let transport = super::raw_invocation_source_transport::RawInvocationSourceTransportV1::
             callable_semantic_root((), &loan);
-        let (_, state) = loan.into_parts();
+        let (_, source_ingress) = loan.into_parts();
+        let state =
+            super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(
+                source_ingress.input(),
+            )?;
         let state = Rc::new(RefCell::new(state));
         let script_ledger = self.inner.semantic_ledger.take();
         let parent_callable = self.inner.callable_ledger.replace(state.clone());

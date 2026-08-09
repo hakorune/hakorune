@@ -2,7 +2,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 
 use super::{
     BodyExpressionShapeV1, BodyStatementShapeV1, FunctionSemanticResolverSessionV1,
-    FunctionSyntaxViewV1, SourcePathSegmentV1,
+    FunctionSyntaxViewV1, ReceiverPolicyV1, SourcePathSegmentV1,
 };
 
 fn function(body: Vec<ASTNode>, is_static: bool) -> ASTNode {
@@ -19,6 +19,48 @@ fn function(body: Vec<ASTNode>, is_static: bool) -> ASTNode {
         attrs: DeclarationAttrs::default(),
         span: Span::unknown(),
     }
+}
+
+#[test]
+fn resolved_shape_keeps_static_current_owner_me_without_forging_a_receiver_binding() {
+    let tree = function(
+        vec![return_value(Some(ASTNode::MethodCall {
+            object: Box::new(ASTNode::Me {
+                span: Span::unknown(),
+            }),
+            method: "read".into(),
+            arguments: Vec::new(),
+            span: Span::unknown(),
+        }))],
+        true,
+    );
+    let ASTNode::FunctionDeclaration { params, body, .. } = &tree else {
+        unreachable!("fixture is a function")
+    };
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_borrowed_function_parts(
+            params,
+            body,
+            ReceiverPolicyV1::StaticCurrentOwner,
+        ))
+        .unwrap();
+
+    assert!(product
+        .body_shape()
+        .expressions()
+        .iter()
+        .any(|row| matches!(
+            row,
+            BodyExpressionShapeV1::Me {
+                receiver: super::BodyMeReceiverV1::StaticCurrentOwner,
+                ..
+            }
+        )));
+    assert!(product
+        .function()
+        .declaration_sites()
+        .all(|site| !matches!(site, super::SourceBindingSiteV1::Receiver)));
 }
 
 fn int(value: i64) -> ASTNode {
@@ -78,7 +120,10 @@ fn resolved_shape_seals_me_as_the_lexical_receiver_binding() {
         .expressions()
         .iter()
         .find_map(|row| match row {
-            BodyExpressionShapeV1::Me { site, receiver } => Some((site, *receiver)),
+            BodyExpressionShapeV1::Me {
+                site,
+                receiver: super::BodyMeReceiverV1::Lexical(receiver),
+            } => Some((site, *receiver)),
             _ => None,
         })
         .expect("Me shape should be present");

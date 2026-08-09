@@ -150,9 +150,16 @@ untyped/dynamic callables. It combines the exact function root,
 `VerifiedSourceProjectionV1`, and matching resolver forest once, then emits one
 non-`Clone`, AST-free aggregate containing complete untyped-formal coverage and
 exact formal-to-local-to-Loop-carrier relations. It never derives Dynamic from
-`MirType::Unknown`, result requirements, names, or Builder state. S0 is
-caller-zero outside its focused tests; entry publication, local origin
-propagation, GenericLoop, and PHI consumption remain later rows.
+`MirType::Unknown`, result requirements, names, or Builder state.
+
+`normal_callable_dynamic_origin.rs` is the private P0 physical projection. The
+normal callable loan hands the exact resolved input to one scoped lowering
+state; the existing post-`setup_function_params` entry receipt installs formal
+origins, and the local terminal's ordinal-keyed initializer/local receipt
+propagates only exact source-authorized copies. Rebind invalidates the active
+origin. This state is not a type owner, parameter publisher, GenericLoop/PHI
+authority, or fallback route. GenericLoop consumption remains closed behind
+the separate L0 design boundary.
 
 ## 原則（SSOT / Box-First）
 

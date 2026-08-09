@@ -315,7 +315,34 @@ Stop:
   name matching, a second parameter publisher, or any GenericLoop/PHI change.
   L0 remains a separate BoxCount row.
 
+Closeout:
+  Closed in the P0 implementation slice. The normal callable scope now builds
+  its lowering state atomically from the exact source ingress, installs all
+  source-backed dynamic formal origins from the existing entry receipt, and
+  propagates an origin only through an ordinal- and ValueId-exact local
+  completion pair. Rebind invalidates current authorization. Seven origin,
+  six source, twelve callable-semantic, twenty-two local-statement, nine
+  body-shape, and seven Query-body focused tests are green. The regression
+  pass fixed the compiler's neutral static-current-owner `me` representation;
+  it also made the callable completion ledger consume the co-located read
+  receipt of a compound-rebind target. No source workaround or new fallback
+  was added.
+
 ### L0 — GenericLoop/PHI canary
+
+Status: `design_stop`
+
+Before implementation, fix one design card for the exact authorization seam:
+
+- which prepared carrier consumes the P0 current-origin receipt;
+- how complete predecessor coverage authorizes one Dynamic PHI without making
+  raw `Unknown` an admissible type;
+- where exact/dynamic mixed-input rejection occurs before physical Loop
+  effects;
+- which backend capability rejects unsupported Dynamic Loop execution before
+  mutation;
+- how the unmodified `skip_while/4` VM canary proves the row without adding a
+  route retry or source annotation.
 
 1. Extend the prepared carrier representation with the explicit Dynamic arm.
 2. Authorize Unknown-wire PHI only from complete dynamic carrier coverage.

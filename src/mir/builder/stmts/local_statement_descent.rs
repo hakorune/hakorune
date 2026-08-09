@@ -261,7 +261,40 @@ where
 
 pub(in crate::mir::builder) struct CompletedLocalStatementV1 {
     result: ValueId,
-    values: Box<[ValueId]>,
+    bindings: Box<[CompletedLocalBindingV1]>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) struct CompletedLocalBindingV1 {
+    ordinal: u32,
+    initializer: ValueId,
+    local: ValueId,
+}
+
+impl CompletedLocalBindingV1 {
+    pub(in crate::mir::builder) const fn new(
+        ordinal: u32,
+        initializer: ValueId,
+        local: ValueId,
+    ) -> Self {
+        Self {
+            ordinal,
+            initializer,
+            local,
+        }
+    }
+
+    pub(in crate::mir::builder) const fn ordinal(self) -> u32 {
+        self.ordinal
+    }
+
+    pub(in crate::mir::builder) const fn initializer(self) -> ValueId {
+        self.initializer
+    }
+
+    pub(in crate::mir::builder) const fn local(self) -> ValueId {
+        self.local
+    }
 }
 
 impl CompletedLocalStatementV1 {
@@ -269,8 +302,8 @@ impl CompletedLocalStatementV1 {
         self.result
     }
 
-    pub(in crate::mir::builder) fn values(&self) -> &[ValueId] {
-        &self.values
+    pub(in crate::mir::builder) fn bindings(&self) -> &[CompletedLocalBindingV1] {
+        &self.bindings
     }
 }
 
@@ -328,6 +361,7 @@ where
         preclaimed_arrays.push(preclaimed);
     }
 
+    let initializer_values = evaluated_values.clone();
     let mut values = Vec::with_capacity(variables.len());
     let result = super::variable_stmt::build_local_statement_from_values_with_types_and_preclaims_with_receipt_v1(
         builder,
@@ -337,8 +371,19 @@ where
         preclaimed_arrays,
         &mut values,
     )?;
+    let bindings = initializer_values
+        .into_iter()
+        .zip(values)
+        .enumerate()
+        .map(|(ordinal, (initializer, local))| {
+            let ordinal = u32::try_from(ordinal).map_err(|_| {
+                "[freeze:contract][local-descent/completion-ordinal-overflow]".to_owned()
+            })?;
+            Ok(CompletedLocalBindingV1::new(ordinal, initializer, local))
+        })
+        .collect::<Result<Vec<_>, String>>()?;
     Ok(CompletedLocalStatementV1 {
         result,
-        values: values.into_boxed_slice(),
+        bindings: bindings.into_boxed_slice(),
     })
 }

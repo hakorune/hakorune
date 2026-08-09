@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The existing MIR/Recipe and parser/resolver closeouts remain unchanged. H2-S2-S0 and S1-R0 are closed. H2-S2-S1-R1 implementation is preserved in the worktree. Exact nominal Box call-result publication landed at 6c0f5450b6. The resumed probe stops in ParserScanLoopBox.skip_while/4 on a valid untyped formal/local Loop carrier. Dynamic source S0 is closed. P0 design is accepted: the existing post-setup positional entry snapshot and an ordinal-keyed local completion receipt feed one private CallableDynamicOriginLoweringState; setup_function_params remains the sole formal publisher. GenericLoop/PHI, Return/SourceBody/method/H3 integration, Take activation, Home capability/Flow, target, Recipe, production cutover, and runtime remain closed."
+status = "The existing MIR/Recipe and parser/resolver closeouts remain unchanged. H2-S2-S0 and S1-R0 are closed. H2-S2-S1-R1 implementation is preserved in the worktree. Exact nominal Box call-result publication landed at 6c0f5450b6. Dynamic source S0 and origin P0 are closed: the exact resolved input, existing post-setup entry receipt, and ordinal-keyed local completion receipt feed one private CallableDynamicOriginLoweringState; setup_function_params remains the sole formal publisher. The focused regression also fixed neutral static-current-owner me in the compiler body-shape authority. GenericLoop/PHI is now the L0 design stop; Return/SourceBody/method/H3 integration, Take activation, Home capability/Flow, target, Recipe, production cutover, and runtime remain closed."
 date = "2026-08-09"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none; P0 fixes PreparedCallableEntryValuesV1 plus ordinal-keyed CompletedLocalBindingV1 as the only physical handoffs"
-work_mode = "fast"
-current_execution_row = "GENERIC-LOOP-DYNAMIC-ORIGIN-P0-I0"
-current_blocker_token = "GENERIC-LOOP-DYNAMIC-ORIGIN-P0-I0: connect the exact S0 product to existing entry/local receipts through one private origin state; no TypeContext, raw Unknown, instruction scan, second publisher, GenericLoop, retry, or fallback"
+current_design_stop = "GENERIC-LOOP-DYNAMIC-CARRIER-L0-D0: seal the exact P0-origin -> prepared carrier -> complete Dynamic PHI authorization and pre-effect backend rejection; no raw Unknown admission, mixed-input repair, retry, fallback, or source annotation"
+work_mode = "design_stop"
+current_execution_row = "GENERIC-LOOP-DYNAMIC-CARRIER-L0-D0"
+current_blocker_token = "GENERIC-LOOP-DYNAMIC-CARRIER-L0-D0: decide the sole prepared-carrier/PHI authorization seam and unsupported-backend pre-effect boundary before opening GenericLoop implementation"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -689,13 +689,13 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "generic-loop-source-backed-dynamic-carrier-d0"
 latest_card_path = "docs/development/current/main/investigations/generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md"
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "generic-loop-dynamic-origin-p0-i0"
-next_execution_card_path = "docs/development/current/main/investigations/generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md#p0--function-entry-and-local-propagation"
+next_design_card = "generic-loop-dynamic-carrier-l0-d0"
+next_design_card_path = "docs/development/current/main/investigations/generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md#l0--genericloopphi-canary"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "Dynamic source S0 is closed and P0 design is accepted. P0 consumes exact source ingress, reuses the sole post-setup entry snapshot, and strengthens local completion with ordinal-keyed initializer/local pairs; one private state owns origin propagation and GenericLoop/raw Unknown remain unopened."
+latest_card_summary = "Dynamic source S0 and origin P0 are closed. Exact source ingress plus the existing entry/local terminals feed one private origin state; no raw Unknown or second publisher was added. The next boundary is L0 design-only: prepared Dynamic carrier/PHI authorization, mixed-input rejection, and unsupported-backend pre-effect failure."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

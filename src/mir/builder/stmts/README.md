@@ -37,6 +37,13 @@ This boundary must not reconstruct source sites, own a caller ledger, infer
 types, reimplement typed-array or record semantics, publish a binding before
 all initializer values exist, or store its port/input in `MirBuilder`.
 
+`CompletedLocalStatementV1` is also the sole local completion handoff for
+source-backed Dynamic origin P0. Each completed row carries the source ordinal,
+the already-lowered initializer `ValueId`, and the newly published local
+`ValueId`. It does not classify Dynamic, inspect emitted instructions, or own
+SSA/PHI policy; the callable-scoped origin state matches this receipt against
+the resolver-issued formal-to-local relation.
+
 The raw/default `statement_surface` directly selects the generic Local driver
 with one owned `RawLegacyLocalInputV1`; the old `variable_stmt` and raw-driver
 facades are retired. The shared driver keeps the existing preflight-success

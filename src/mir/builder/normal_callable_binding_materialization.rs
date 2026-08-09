@@ -26,9 +26,7 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
             return Ok(());
         };
         let values = shape.prepare_values(builder)?;
-        let result = ledger
-            .borrow_mut()
-            .install_entry_values(values.receiver(), values.parameters());
+        let result = ledger.borrow_mut().install_entry_values(&values);
         result
     }
 }

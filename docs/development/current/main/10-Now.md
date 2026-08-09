@@ -23,16 +23,18 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. Source-backed Dynamic S0 is closed. The current
-bounded row connects that exact source product to the existing formal-entry
-snapshot and local completion receipt without changing the sole parameter
-publisher or accepting raw `MirType::Unknown`:
+Current mode is `design_stop`. Source-backed Dynamic S0 and origin P0 are
+closed. Exact source ingress now reaches the existing formal-entry snapshot
+and ordinal-keyed local completion receipt without changing the sole parameter
+publisher or accepting raw `MirType::Unknown`. The next boundary is design-only:
 
 ```text
-GENERIC-LOOP-DYNAMIC-ORIGIN-P0-I0
+GENERIC-LOOP-DYNAMIC-CARRIER-L0-D0
 ```
 
-GenericLoop/PHI remains closed. The parser H2-S2-S1-R1 worktree is preserved
+Fix the sole prepared-carrier/PHI authorization, mixed-input rejection, and
+unsupported-backend pre-effect failure before any GenericLoop mutation. The
+parser H2-S2-S1-R1 worktree is preserved
 and must not be rewritten or mixed into this compiler-side slice. Read the
 active card from `CURRENT_STATE.toml` for the exact Done/Stop contract.
 

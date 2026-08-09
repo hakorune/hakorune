@@ -124,7 +124,7 @@ impl BodyEffectControlCoverageIssuerV1 {
                 ..
             }, BodyExpressionShapeV1::Me {
                 site: me_site,
-                receiver,
+                receiver: super::body_shape::BodyMeReceiverV1::Lexical(receiver),
             }] if receiver_site == me_site => (call_site, me_site, receiver),
             _ => {
                 return Err(no_safe(

@@ -3,11 +3,16 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::stmts::CompletedLocalStatementV1;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, SourceBindingSiteV1,
-    SourceNodeSiteV1, VerifiedSemanticOwnerForestV1,
+    SourceNodeSiteV1,
 };
 use crate::mir::ValueId;
+
+use super::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
+use super::normal_callable_dynamic_origin::CallableDynamicOriginLoweringStateV1;
+use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
 
 /// Physical values materialized while lowering one callable body.
 ///
@@ -23,6 +28,7 @@ pub(super) struct CallableSemanticLoweringState {
     assignments: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     direct_lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
     values: BTreeMap<BindingRefV1, ValueId>,
+    dynamic_origins: CallableDynamicOriginLoweringStateV1,
     entry_installed: bool,
     materialized_locals: BTreeSet<SourceNodeSiteV1>,
     consumed_variables: BTreeSet<SourceNodeSiteV1>,
@@ -31,12 +37,22 @@ pub(super) struct CallableSemanticLoweringState {
 }
 
 impl CallableSemanticLoweringState {
-    pub(super) fn from_forest(forest: &VerifiedSemanticOwnerForestV1) -> Result<Self, String> {
+    pub(super) fn from_exact_source(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+    ) -> Result<Self, String> {
+        let dynamic_source = SourceBackedDynamicCallableIssuerV1::issue_from_resolved_input(input)
+            .map_err(|error| format!("[freeze:contract][callable-dynamic-source] {error:?}"))?;
+        let dynamic_origins = CallableDynamicOriginLoweringStateV1::from_source(dynamic_source)
+            .map_err(|error| error.to_string())?;
+        let forest = input.forest();
         let [root] = forest.roots() else {
             return Err(freeze("root-cardinality"));
         };
         let owner = forest.owner(*root).ok_or_else(|| freeze("root-owner"))?;
         let owner_id = owner.owner();
+        if dynamic_origins.owner() != owner_id {
+            return Err(freeze("dynamic-origin-owner"));
+        }
         let mut receiver = None;
         let mut parameters = BTreeMap::new();
         let mut locals = BTreeMap::<_, BTreeMap<_, _>>::new();
@@ -149,6 +165,7 @@ impl CallableSemanticLoweringState {
             assignments,
             direct_lambda_captures,
             values: BTreeMap::new(),
+            dynamic_origins,
             entry_installed: false,
             materialized_locals: BTreeSet::new(),
             consumed_variables: BTreeSet::new(),
@@ -169,9 +186,10 @@ impl CallableSemanticLoweringState {
 
     pub(super) fn install_entry_values(
         &mut self,
-        receiver: Option<ValueId>,
-        parameters: &[ValueId],
+        entry: &PreparedCallableEntryValuesV1,
     ) -> Result<(), String> {
+        let receiver = entry.receiver();
+        let parameters = entry.parameters();
         if self.entry_installed {
             return Err(freeze("duplicate-entry-install"));
         }
@@ -186,6 +204,9 @@ impl CallableSemanticLoweringState {
         for index in 0..self.parameters.len() {
             self.insert_value(self.parameters[index], parameters[index])?;
         }
+        self.dynamic_origins
+            .install_entry(&self.parameters, entry)
+            .map_err(|error| error.to_string())?;
         self.entry_installed = true;
         Ok(())
     }
@@ -200,7 +221,7 @@ impl CallableSemanticLoweringState {
             .get(site)
             .cloned()
             .ok_or_else(|| freeze("missing-local-site"))?;
-        if bindings.len() != completed.values().len()
+        if bindings.len() != completed.bindings().len()
             || !self.materialized_locals.insert(site.clone())
         {
             return Err(freeze("local-materialization-mismatch"));
@@ -208,10 +229,13 @@ impl CallableSemanticLoweringState {
         for (binding, value) in bindings
             .iter()
             .copied()
-            .zip(completed.values().iter().copied())
+            .zip(completed.bindings().iter().map(|row| row.local()))
         {
             self.insert_value(binding, value)?;
         }
+        self.dynamic_origins
+            .record_local(site, &bindings, completed.bindings())
+            .map_err(|error| error.to_string())?;
         Ok(())
     }
 
@@ -248,11 +272,20 @@ impl CallableSemanticLoweringState {
         if !self.consumed_assignments.insert(site.clone()) {
             return Err(freeze("duplicate-assignment-consumption"));
         }
-        let slot = self
+        if let Some(read_binding) = self.variables.get(site).copied() {
+            if read_binding != binding || !self.consumed_variables.insert(site.clone()) {
+                return Err(freeze("assignment-target-read-mismatch"));
+            }
+        }
+        let previous = self
             .values
-            .get_mut(&binding)
+            .get(&binding)
+            .copied()
             .ok_or_else(|| freeze("rebind-before-materialization"))?;
-        *slot = value;
+        self.dynamic_origins
+            .invalidate_rebind(binding, previous)
+            .map_err(|error| error.to_string())?;
+        self.values.insert(binding, value);
         Ok(())
     }
 
@@ -281,6 +314,14 @@ impl CallableSemanticLoweringState {
     }
 
     pub(super) fn finish(self) -> Result<(), String> {
+        self.dynamic_origins
+            .finish()
+            .map_err(|error| error.to_string())?;
+        let missing_variables = self
+            .variables
+            .keys()
+            .filter(|site| !self.consumed_variables.contains(*site))
+            .collect::<Vec<_>>();
         if !self.entry_installed
             || self.materialized_locals.len() != self.locals.len()
             || self.consumed_variables.len() != self.variables.len()
@@ -288,13 +329,15 @@ impl CallableSemanticLoweringState {
             || self.consumed_direct_lambdas.len() != self.direct_lambda_captures.len()
         {
             return Err(format!(
-                "{} entry={} locals={}/{} variables={}/{} assignments={}/{} lambdas={}/{}",
+                "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{}",
                 freeze("incomplete-consumption"),
+                self.owner,
                 self.entry_installed,
                 self.materialized_locals.len(),
                 self.locals.len(),
                 self.consumed_variables.len(),
                 self.variables.len(),
+                missing_variables,
                 self.consumed_assignments.len(),
                 self.assignments.len(),
                 self.consumed_direct_lambdas.len(),
@@ -309,6 +352,20 @@ impl CallableSemanticLoweringState {
             return Err(freeze("duplicate-value"));
         }
         Ok(())
+    }
+
+    #[cfg(test)]
+    pub(super) fn dynamic_current_origin_for_test(
+        &self,
+        binding: BindingRefV1,
+        value: ValueId,
+    ) -> Option<BindingRefV1> {
+        self.dynamic_origins.current_origin(binding, value)
+    }
+
+    #[cfg(test)]
+    pub(super) fn dynamic_value_origin_for_test(&self, value: ValueId) -> Option<BindingRefV1> {
+        self.dynamic_origins.value_origin(value)
     }
 }
 

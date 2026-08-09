@@ -35,7 +35,7 @@ pub(crate) enum BodyExpressionShapeV1 {
     },
     Me {
         site: SourceExprSiteV1,
-        receiver: BindingRefV1,
+        receiver: BodyMeReceiverV1,
     },
     FieldAccess {
         site: SourceExprSiteV1,
@@ -52,6 +52,17 @@ pub(crate) enum BodyExpressionShapeV1 {
         site: SourceExprSiteV1,
         kind: Box<str>,
     },
+}
+
+/// Resolver-owned meaning of one `me` expression.
+///
+/// Static-box current-owner syntax has no lexical receiver binding. Keeping
+/// that case explicit prevents the neutral body inventory from fabricating a
+/// `BindingRefV1` merely to satisfy instance-only consumers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum BodyMeReceiverV1 {
+    Lexical(BindingRefV1),
+    StaticCurrentOwner,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -253,8 +264,20 @@ pub(crate) fn seal_shadow_body_shape(
             }
             ShadowExpressionShapeV0::Me { site } => {
                 let receiver = match variable_refs.get(&site).copied() {
-                    Some(ResolvedLexicalRefV1::Local(receiver)) => receiver,
-                    _ => return Err("body Me shape lacks local receiver binding"),
+                    Some(ResolvedLexicalRefV1::Local(receiver)) => {
+                        BodyMeReceiverV1::Lexical(receiver)
+                    }
+                    None if matches!(
+                        root_profile,
+                        SemanticOwnerRootProfileV1::DeclaredFunction {
+                            receiver_policy:
+                                super::function_view::ReceiverPolicyV1::StaticCurrentOwner,
+                        }
+                    ) =>
+                    {
+                        BodyMeReceiverV1::StaticCurrentOwner
+                    }
+                    _ => return Err("body Me shape lacks exact receiver authority"),
                 };
                 Ok(BodyExpressionShapeV1::Me { site, receiver })
             }

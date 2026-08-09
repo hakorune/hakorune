@@ -220,7 +220,10 @@ impl QueryBodyConformanceEvidenceIssuerV1 {
             }
         };
         let (me_site, receiver) = match shape.expressions() {
-            [BodyExpressionShapeV1::Me { site, receiver }] => (site, receiver),
+            [BodyExpressionShapeV1::Me {
+                site,
+                receiver: super::body_shape::BodyMeReceiverV1::Lexical(receiver),
+            }] => (site, receiver),
             _ => {
                 return Err(QueryBodyConformanceEvidenceIssueV1::Declined(
                     QueryBodyConformanceEvidenceDeclineV1::ShapeOutsideCohort,

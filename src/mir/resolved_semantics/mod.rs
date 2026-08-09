@@ -149,8 +149,8 @@ pub(crate) use instance_method_body_source::{
     VerifiedInstanceMethodBodySourceCatalogV1, VerifiedInstanceMethodBodySourceRowV1,
 };
 pub(crate) use body_shape::{
-    BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyShapeRelationV1,
-    BodyStatementShapeV1, ResolvedFunctionBodyShapeProductV1,
+    BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyMeReceiverV1,
+    BodyShapeRelationV1, BodyStatementShapeV1, ResolvedFunctionBodyShapeProductV1,
     VerifiedResolvedBodyShapeInventoryV1,
 };
 pub(in crate::mir) use instance_method_function_carrier::{

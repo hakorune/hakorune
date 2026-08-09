@@ -1622,3 +1622,25 @@ compatibility parameters, foreign projection/forest pairs, and missing source
 relations cannot become Dynamic. No `MirType`, `ValueId`, Builder effect,
 GenericLoop/PHI acceptance, backend support, retry, or fallback is added by
 this row.
+
+## Source-backed Dynamic origin P0 receipt (2026-08-09)
+
+`GENERIC-LOOP-DYNAMIC-ORIGIN-P0-I0` is closed. The normal callable source loan
+now hands its exact `ResolvedFunctionLoweringInputV1` into one scoped semantic
+lowering state. The existing `PreparedCallableEntryValuesV1` remains the only
+post-parameter-publication snapshot, while `CompletedLocalBindingV1` records
+each local ordinal plus its initializer/local physical pair. A private
+`CallableDynamicOriginLoweringStateV1` consumes the non-`Clone` S0 product and
+preserves the exact untyped-formal origin through authorized local copies.
+Unrelated copies do not gain an origin, and rebind removes current-origin
+authorization without rewriting historical value provenance.
+
+The implementation neither reads `MirType::Unknown` nor mutates `TypeContext`,
+scans emitted instructions, publishes parameters a second time, or opens
+GenericLoop/PHI. During the focused regression pass the neutral body-shape
+issuer was also widened at its true compiler boundary: static-box `me` is now
+represented explicitly as `StaticCurrentOwner` instead of being rejected for
+lacking an instance receiver `BindingRef`; instance Query consumers continue
+to require the lexical receiver arm. Compound rebind completion also consumes
+its exact co-located target-read receipt, rather than leaving a valid target as
+incomplete source coverage. L0 remains a separate design row.

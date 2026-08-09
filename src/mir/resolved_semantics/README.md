@@ -170,6 +170,12 @@ zip/name/ordinal pairing or reissue Query/Home/signature/ABI. General
 conformance, target, Recipe/CallSlot, Builder, MIR, and production remain
 separate and parked behind the accepted evidence D0. Unsupported/opaque/
 foreign shapes remain `NoSafeSlice` or `Rejected`.
+
+The neutral `Me` body shape distinguishes lexical instance receiver authority
+from `StaticCurrentOwner`. A selected static-Box method may therefore retain
+its exact `me.method()` source shape without fabricating a receiver
+`BindingRefV1`; Query/body-conformance consumers remain instance-only and
+match only the lexical arm.
 The four axis receipts remain private or borrowed views; the only new public
 semantic owner is the body-root-scoped execution-evidence aggregate. Coverage
 borrows existing body-owner/carrier/shape/forest identity, `Await` belongs to

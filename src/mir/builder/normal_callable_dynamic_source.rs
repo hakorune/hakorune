@@ -8,6 +8,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     project_source_node_v1, BindingKindV1, BindingOriginV1, BindingRefV1,
@@ -19,9 +20,7 @@ use crate::mir::resolved_semantics::{
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum SourceBackedDynamicCallableIssueV1 {
-    RootCardinality,
     SourceProjection(String),
-    RootIdentity,
     MissingFunctionSyntax,
     ParameterDeclarationCardinality { names: usize, declarations: usize },
     ParameterNameMismatch { index: u32 },
@@ -153,30 +152,37 @@ impl SourceBackedDynamicCallableIssuerV1 {
         forest: &VerifiedSemanticOwnerForestV1,
         projection: &VerifiedSourceProjectionV1,
     ) -> Result<VerifiedSourceBackedDynamicCallableV1, SourceBackedDynamicCallableIssueV1> {
-        let [owner] = forest.roots() else {
-            return Err(SourceBackedDynamicCallableIssueV1::RootCardinality);
-        };
-        let projected = projection.owner_root(function, *owner).map_err(|error| {
-            SourceBackedDynamicCallableIssueV1::SourceProjection(error.to_string())
-        })?;
-        if !std::ptr::eq(projected, function) {
-            return Err(SourceBackedDynamicCallableIssueV1::RootIdentity);
-        }
-        let syntax = CallableFunctionSyntaxViewV1::from_function_ast(projected)
-            .ok_or(SourceBackedDynamicCallableIssueV1::MissingFunctionSyntax)?;
-        let ledger = forest.callable_source_ledger(*owner).map_err(|error| {
+        let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+            function, forest, projection,
+        )
+        .map_err(|error| {
             SourceBackedDynamicCallableIssueV1::SourceProjection(format!("{error:?}"))
         })?;
+        Self::issue_from_resolved_input(input)
+    }
+
+    pub(super) fn issue_from_resolved_input(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+    ) -> Result<VerifiedSourceBackedDynamicCallableV1, SourceBackedDynamicCallableIssueV1> {
+        let function = input.source().root();
+        let syntax = CallableFunctionSyntaxViewV1::from_function_ast(function)
+            .ok_or(SourceBackedDynamicCallableIssueV1::MissingFunctionSyntax)?;
+        let ledger = input
+            .forest()
+            .callable_source_ledger(input.owner())
+            .map_err(|error| {
+                SourceBackedDynamicCallableIssueV1::SourceProjection(format!("{error:?}"))
+            })?;
         let formals = issue_formals(syntax, &ledger)?;
         let dynamic_bindings = formals
             .iter()
             .map(|row| row.binding())
             .collect::<BTreeSet<_>>();
         let local_initializations =
-            issue_local_initializations(projected, &ledger, &dynamic_bindings)?;
+            issue_local_initializations(function, &ledger, &dynamic_bindings)?;
         let loops = issue_loop_carriers(&ledger, &local_initializations)?;
         Ok(VerifiedSourceBackedDynamicCallableV1 {
-            owner: *owner,
+            owner: input.owner(),
             formals: formals.into_boxed_slice(),
             local_initializations: local_initializations.into_boxed_slice(),
             loops: loops.into_boxed_slice(),

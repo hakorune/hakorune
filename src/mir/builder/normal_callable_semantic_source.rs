@@ -36,7 +36,6 @@ mod normal_callable_prepared_ingress_tests;
 pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
     lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
     _function: &'source ASTNode,
-    lowering_state: super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
     source_ingress: VerifiedNormalCallableSourceIngressReceiptV1<'loan>,
 }
 
@@ -198,8 +197,6 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         if !std::ptr::eq(projected, function) {
             return Err("[freeze:contract][mir/callable-semantic/root-identity]".to_owned());
         }
-        let lowering_state =
-            super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_forest(&row.forest)?;
         let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
             function,
             &row.forest,
@@ -228,7 +225,6 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         Ok(VerifiedNormalCallableSemanticLoanV1 {
             lineage,
             _function: function,
-            lowering_state,
             source_ingress,
         })
     }
@@ -303,9 +299,9 @@ impl<'source, 'loan> VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
         self,
     ) -> (
         super::raw_invocation_source_transport::RawInvocationRootLineageV1,
-        super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
+        VerifiedNormalCallableSourceIngressReceiptV1<'loan>,
     ) {
-        (self.lineage, self.lowering_state)
+        (self.lineage, self.source_ingress)
     }
 
     pub(super) fn lineage(
@@ -559,7 +555,11 @@ mod tests {
 
         // The source rows remain reusable: issuing a fresh loan creates a
         // fresh receipt without rewalking or mutating the resolver forest.
-        let (_, state) = source.loan(&key).unwrap().into_parts();
+        let (_, ingress) = source.loan(&key).unwrap().into_parts();
+        let state = super::super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(
+            ingress.input(),
+        )
+        .unwrap();
         let schedule = state
             .loop_binding_source_projection()
             .project(SourcePathV1::root_body(2).node())

@@ -176,7 +176,10 @@ impl QueryBodyFactsIssuerV1 {
         };
 
         let (me_site, receiver) = match shape.expressions() {
-            [BodyExpressionShapeV1::Me { site, receiver }] => (site, receiver),
+            [BodyExpressionShapeV1::Me {
+                site,
+                receiver: super::body_shape::BodyMeReceiverV1::Lexical(receiver),
+            }] => (site, receiver),
             [] => {
                 return Err(QueryBodyFactsIssueV1::Declined(
                     QueryBodyFactsDeclineV1::MissingReturnValue,
