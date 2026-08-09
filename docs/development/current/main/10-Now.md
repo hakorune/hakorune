@@ -23,16 +23,16 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
 declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
 body-source I0 and borrowed Query body-source projection I0 are also closed.
-The current design stop is:
+The current execution row is:
 
 ```text
-CALLABLE-BODY-OWNER-BINDING-D0
+CALLABLE-BODY-OWNER-BINDING-I0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
@@ -44,9 +44,12 @@ parser transaction keeps AST-backed syntax only inside a single
 transaction-scoped callback/lease, the resolver constructs
 `FunctionSyntaxViewV1` there, and only AST-free carrier/catalog products escape.
 The carrier retains exact source identity, parser/resolver brands, nominal Box,
-owner-bearing forest/function, root/body receipt, and body coverage. The
-catalog-level owner co-seal is now the only open semantic row; no body facts,
-conformance, target, Recipe/CallSlot, Builder/MIR, or production work is open.
+owner-bearing forest/function, root/body receipt, and body coverage. Owner-
+binding D0 is closed: the I0 owner-link consumes only the selected Query body
+projection and existing resolver-issued carrier/catalog; the carrier root is
+the exact resolved-function input and no second owner issuer exists. The
+catalog-level owner-link I0 is the only open row; no body facts, conformance,
+target, Recipe/CallSlot, Builder/MIR, or production work is open.
 
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view

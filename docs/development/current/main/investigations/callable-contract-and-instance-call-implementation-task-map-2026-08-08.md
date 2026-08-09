@@ -535,13 +535,21 @@ CALLABLE-BODY-OWNER-CARRIER-I0 (closed 2026-08-09)
   FunctionOrigin consistency, root profile/body pair, and exact body coverage.
   No owner link, body facts, or conformance.
 
-CALLABLE-BODY-OWNER-BINDING-D0/I0 (current design stop after owner carrier I0)
-  co-seal the selected Query body-source projection with the exact resolver-
-  issued carrier/catalog and resolved functions into a catalog-level one-to-one
-  owner link. The link issues no owner and rejects foreign parser/resolver
-  brands or sites, wrong method/root/source kind, missing/duplicate rows,
-  body-coverage mismatch, one-to-many/many-to-one, and unrelated equal owner
-  numbers. No body facts or conformance.
+CALLABLE-BODY-OWNER-BINDING-D0 (closed 2026-08-09)
+  fixes the only owner-link issuer and its two existing catalog inputs:
+  selected Query body projection plus resolver-issued carrier/catalog. The
+  carrier already owns the exact resolved root, so the link accepts no second
+  function array, issues no owner, and never re-resolves. It matches parser
+  provenance, resolver brand, nominal Box/source site, and exact body coverage;
+  names and FunctionOrigin are diagnostic-only. Non-Query carrier rows remain
+  valid unselected direct-cohort rows.
+
+CALLABLE-BODY-OWNER-BINDING-I0 (next bounded implementation)
+  issue the non-Clone catalog-level one-to-one owner link and borrow each
+  selected body row, carrier row, and carrier root owner/function. Reject
+  foreign/missing/duplicate rows, site/brand mismatch, coverage gap/duplicate/
+  reorder/count mismatch, and one-to-many/many-to-one reuse. No body facts or
+  conformance.
 
 CALLABLE-BODY-FACTS-QUERY-D0/I0 (parked behind owner binding)
   observe only the bounded receiver-read/return body through the branded
@@ -963,16 +971,23 @@ Rejected > Unresolved > Declined > Candidate
       caller-built map, or legacy AST lookup; never add a second owner issuer;
     - remain `NoSafeSlice` if the resolver cannot issue the exact body-root /
       coverage receipt without a re-scan or inference.
-19. `CALLABLE-BODY-OWNER-BINDING-D0/I0` (current design stop after carrier I0)
-    - D0 must define, then I0 must co-seal, the selected Query body projection with the resolver-issued
-      carrier/catalog and exact resolved functions into a catalog-level
-      one-to-one owner link;
+19. `CALLABLE-BODY-OWNER-BINDING-D0` (closed 2026-08-09)
+    - D0 fixes `InstanceMethodBodyOwnerBindingIssuerV1` as the sole owner-link
+      issuer over the selected Query projection and existing carrier/catalog;
+    - the carrier root is the exact resolved function input, so no separate
+      function array or second owner issuer exists;
+    - match parser provenance, resolver brand, nominal/source site, and exact
+      body coverage; names/FunctionOrigin/owner numbers are diagnostic only;
+    - no body facts or conformance.
+20. `CALLABLE-BODY-OWNER-BINDING-I0` (next bounded implementation)
+    - co-seal the selected Query body projection with the resolver-issued
+      carrier/catalog into a catalog-level one-to-one owner link;
     - the link issues no owner and rejects foreign parser/resolver brand or
       site, wrong method/root/source kind, missing/duplicate rows,
       body-coverage mismatch, one-to-many/many-to-one, and unrelated equal
       owner numbers;
     - no body facts or conformance in this row; do not repeat Query selection.
-20. `CALLABLE-BODY-FACTS-QUERY-D0/I0`
+21. `CALLABLE-BODY-FACTS-QUERY-D0/I0`
     - observe the bounded receiver-read/return body through the branded
       body-owner link;
     - issue source-derived facts only; no replacement Query/Home/signature,

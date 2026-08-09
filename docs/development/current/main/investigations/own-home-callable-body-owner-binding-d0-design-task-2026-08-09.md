@@ -177,6 +177,67 @@ provenance. The carrier does not select Query rows or bind a body source.
 The current design stop is this document's owner-link D0. It must define the
 catalog-level relation before any owner-link I0 implementation starts.
 
+## Owner-link D0 final decision
+
+The owner link is a relational co-seal, not another owner issuer and not a
+second resolved-function product. Its only inputs are the two already sealed
+catalogs:
+
+```text
+VerifiedDeclaredQueryBodySourceCatalogV1<'body,'contract>
++ VerifiedInstanceMethodFunctionCarrierCatalogV1
+    -> VerifiedInstanceMethodBodyOwnerCatalogV1
+```
+
+The carrier row already borrows the exact root `VerifiedResolvedFunctionV1`
+from its owner-bearing forest. The owner link therefore does not accept a
+separate function array, copy `FunctionOwnerIdV1`, or re-resolve a function.
+It only verifies and borrows the carrier root through the output row.
+
+The single public issuer is:
+
+```rust
+InstanceMethodBodyOwnerBindingIssuerV1::issue(
+    body: &VerifiedDeclaredQueryBodySourceCatalogV1<'body, 'contract>,
+    carrier: &VerifiedInstanceMethodFunctionCarrierCatalogV1,
+) -> Result<VerifiedInstanceMethodBodyOwnerCatalogV1<'body, 'contract>, _>
+```
+
+The output is non-`Clone` and catalog-level. Each row borrows:
+
+```text
+selected Query body row
+carrier row
+carrier root VerifiedResolvedFunction / owner
+```
+
+Matching is exact and one-to-one:
+
+```text
+body.parser_provenance == carrier.parser_provenance
+body.resolver_brand == carrier.resolver_brand
+body row nominal Box + Box site + method site
+  == exactly one carrier row with the same identity and brand
+body item coverage == carrier ordered body coverage
+```
+
+`name` is a diagnostic consistency check only. It is never a pairing key.
+`FunctionOriginV1`, owner numbers, inventory ordinals, names, arity, vector
+position, and compilation brands are not identity authority. Non-Query
+carrier rows from the complete direct cohort may remain unselected; selected
+Query rows must have exactly one carrier row. Empty body coverage (`[]`) is a
+valid source/owner relation.
+
+The owner-link issuer rejects parser/resolver brand mismatch, foreign or
+wrong nominal/source sites, missing or duplicate selected carrier rows, body
+coverage gaps/duplicates/reordering/count mismatch, and one-to-many or
+many-to-one reuse. Static/generated/selected-gate source is rejected upstream
+by the parser/carrier cohort and is not a new owner-link disposition.
+
+The I0 claim ends at this AST-free owner relation. It does not issue body
+facts, reselect Query, infer Home/Pure/signature meaning, issue a target,
+create Recipe/CallSlot, lower Builder/MIR, or add fallback/retry.
+
 ## Acceptance and closeout
 
 * carrier D0 first fixes the source-bound resolver issuer and body-root/
@@ -203,10 +264,11 @@ catalog-level relation before any owner-link I0 implementation starts.
 2. CALLABLE-BODY-OWNER-CARRIER-I0
    one real direct instance-method carrier and focused negative matrix
 
-3. CALLABLE-BODY-OWNER-BINDING-D0
-   selected Query projection + carrier + resolved function co-seal
+3. CALLABLE-BODY-OWNER-BINDING-D0 (closed by this decision)
+   selected Query projection + carrier catalog co-seal; no second function
+   input and no new owner issuer
 
-4. CALLABLE-BODY-OWNER-BINDING-I0
+4. CALLABLE-BODY-OWNER-BINDING-I0 (next bounded implementation)
    catalog-level one-to-one owner link; no body facts/conformance
 
 5. CALLABLE-BODY-FACTS-QUERY-D0/I0
