@@ -21,7 +21,9 @@ pub(crate) use model::{
     LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
     VerifiedLoopJoinSigV2,
 };
-pub(crate) use v2::LoopJoinSigElaboratorV2;
+pub(crate) use v2::{
+    issue_sole_root_carrier_join_closure_v2, LoopJoinClosureRejectV2, VerifiedLoopJoinClosureV2,
+};
 
 pub(super) use flow::Flow;
 pub(super) use model::{

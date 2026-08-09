@@ -199,15 +199,18 @@ impl<C: Copy + PartialEq, T> VerifiedLoopJoinSig<C, T> {
     pub(crate) fn as_sig(&self) -> &LoopJoinSig<C, T> {
         &self.0
     }
-}
 
-impl VerifiedLoopJoinSig<super::super::schema::LoopValueClassV1, LoopNodeKeyV1> {
-    pub(crate) fn require_after_binding(
+    /// Issue one exact After capability inside the JoinSig owner.
+    ///
+    /// V2 keeps this raw-key operation private to the `join_sig` subtree. Its
+    /// public-in-MIR boundary issues JoinSig and After as one non-splittable
+    /// closure instead of exporting this lookup.
+    pub(super) fn require_after_binding_internal(
         &self,
         loop_key: LoopNodeKeyV1,
         binding: LoopBindingKeyV1,
-        class: super::super::schema::LoopValueClassV1,
-    ) -> Result<VerifiedLoopAfterBindingV1, LoopJoinSigRejectReasonV1> {
+        class: C,
+    ) -> Result<VerifiedLoopAfterBinding<C>, LoopJoinSigRejectReasonV1> {
         let Some(row) = self.0.port_bindings.iter().find(|row| {
             row.loop_key == loop_key && row.port == LoopJoinPortV1::After && row.binding == binding
         }) else {
@@ -226,6 +229,17 @@ impl VerifiedLoopJoinSig<super::super::schema::LoopValueClassV1, LoopNodeKeyV1> 
             binding,
             class,
         }))
+    }
+}
+
+impl VerifiedLoopJoinSig<super::super::schema::LoopValueClassV1, LoopNodeKeyV1> {
+    pub(crate) fn require_after_binding(
+        &self,
+        loop_key: LoopNodeKeyV1,
+        binding: LoopBindingKeyV1,
+        class: super::super::schema::LoopValueClassV1,
+    ) -> Result<VerifiedLoopAfterBindingV1, LoopJoinSigRejectReasonV1> {
+        self.require_after_binding_internal(loop_key, binding, class)
     }
 }
 

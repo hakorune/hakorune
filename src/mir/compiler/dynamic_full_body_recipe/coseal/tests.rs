@@ -33,12 +33,12 @@ fn production_program() -> ASTNode {
     .expect("production parser module")
 }
 
-struct CosealFixtureV2 {
-    candidate: DynamicFullLoopRecipeCandidateV2,
-    catalog: VerifiedDynamicInvocationEnvelopeCatalogV1<'static>,
+pub(super) struct CosealFixtureV2 {
+    pub(super) candidate: DynamicFullLoopRecipeCandidateV2,
+    pub(super) catalog: VerifiedDynamicInvocationEnvelopeCatalogV1<'static>,
 }
 
-fn fixture(include_dynamic_targets: bool) -> CosealFixtureV2 {
+pub(super) fn fixture(include_dynamic_targets: bool) -> CosealFixtureV2 {
     let program = Box::leak(Box::new(production_program()));
     let declarations = Box::leak(Box::new(
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(program)

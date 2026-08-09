@@ -562,6 +562,19 @@ co-seal, Continuation, Completion consumption, Fault/Home, physical layout,
 Builder/MIR/CFG/PHI, production selection, retry, and fallback remain outside
 this receipt.
 
+## V2 root-carrier Join closure
+
+The semantic-program row removes the split V2 issuance surface. A verified V2
+Recipe now enters `issue_sole_root_carrier_join_closure_v2`, which derives its
+root and requires exactly one root-owned carrier before invoking the private
+V2 adapter and raw After lookup. The result keeps the JoinSig and matching
+After in one non-`Clone` `VerifiedLoopJoinClosureV2` with no `into_parts`.
+
+The compiler profile supplies no Loop key, binding key, class, JoinSig, or
+After. `LoopJoinSigElaboratorV2` and a raw V2 After alias are not re-exported
+through the production facade. This subtree still does not import the Dynamic
+compiler profile; the profile consumes the safe combined closure instead.
+
 ## Forbidden dependencies
 
 This subtree must not import AST nodes, `MirBuilder`, `CorePlan`, physical

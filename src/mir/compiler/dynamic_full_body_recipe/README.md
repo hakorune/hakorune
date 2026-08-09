@@ -19,6 +19,10 @@ complete resolver source inventory
   owner plus exact source call site.
 - `coseal/local.rs` validates the already-sealed V10/ch/I7 mapping and lends
   one borrow-scoped neutral view. It owns no Home or cleanup meaning.
+- `coseal/semantic_program/` consumes the whole exact envelope, derives one
+  non-splittable JoinSig/root-carrier-After closure, and lends only the exact
+  After plus the existing iteration-local view. It accepts no raw owner,
+  Recipe, JoinSig, After, Continuation, or Completion input.
 - `dynamic_invocation_contract` remains the complete immutable envelope
   catalog owner. This directory borrows it and never copies targets or
   selector semantics.
@@ -50,7 +54,8 @@ This directory does not own:
 - Builder, MIR, CFG, PHI, provider selection, runtime invocation, retry, or
   fallback.
 
-The verified co-seal product is therefore not a final semantic program.
+The envelope-only co-seal product is not itself a semantic program. The next
+child boundary consumes it whole; neither product exposes `into_parts`.
 
 ## Iteration-local source closure (R0)
 
@@ -67,6 +72,18 @@ carrier may be trivial, owner-bearing, or weak; Recipe `Dynamic` and runtime
 tags cannot classify it. JoinSig/Fault/exit authority and the general Home
 destination/flow owners must land before any install or cleanup receipt.
 
-The next boundary is `LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0`. It must keep JoinSig
-as the sole logical transfer authority while Dynamic Fault remains outside
-Recipe values and exits.
+## Atomic semantic program (I0)
+
+`VerifiedDynamicFullLoopSemanticProgramV2` now retains the complete envelope
+and one `VerifiedLoopJoinClosureV2`. The neutral closure derives the root Loop
+and exactly one root-owned carrier from the verified Recipe, elaborates the
+common JoinSig, and requires After inside the private JoinSig subtree. Raw V2
+After and `LoopJoinSigElaboratorV2` are not production facade entries.
+
+The product lends exact `L0/B0/Dynamic` After and the existing V10/I6/I7 local
+relation. It owns no Completion consumption, Dynamic Fault transaction, Home,
+physical layout, Builder/MIR/CFG/PHI, publication, retry, or fallback.
+
+The next boundary is `DYNAMIC-FAULT-EXIT-TRANSACTION-D0`. It must enumerate
+normal, Return, backedge, and fault cut points without inferring Home from the
+logical `Dynamic` class.

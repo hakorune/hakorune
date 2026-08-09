@@ -217,6 +217,24 @@ consumption, Home/Fault handling, physical lowering, production selection,
 retry, and fallback remain closed. The next row is the atomic V2 semantic
 program co-seal.
 
+Implementation receipt (`LOOP-V2-SEMANTIC-PROGRAM-COSEAL-I0`, 2026-08-10):
+the exact Dynamic source/Recipe/envelope is now the sole input to one atomic
+semantic-program issuer. The neutral V2 owner derives the verified Recipe root
+and its exactly-one root carrier, privately elaborates JoinSig, privately
+requires the matching After, and returns one non-`Clone`, non-splittable
+`VerifiedLoopJoinClosureV2`. No raw V2 After or V2 elaborator remains in the
+production facade.
+
+`VerifiedDynamicFullLoopSemanticProgramV2` moves the complete envelope and
+that control closure together. It lends exact `L0/B0/Dynamic` After and the
+existing V10/I6/I7 iteration-local relation; V10 and V14 remain absent from
+all payloads, ports, and After identity. Its issuer accepts no owner, root key,
+Recipe, JoinSig, After, Continuation, or Completion input. The already-sealed
+two-site Completion partition remains inside the envelope and is neither
+rechecked nor consumed here. Dynamic Fault, Home, physical transfer/layout,
+Builder/MIR/CFG/PHI, DraftSeal, collector, publication, retry, and fallback
+remain closed.
+
 Reference receipt — `LOOP-JOINSIG-NEUTRAL-ENGINE-R0` (2026-08-10): the
 verified V1 Recipe now enters one private borrowed V1 view and one common
 class-generic JoinSig flow engine. The view exhaustively projects every V1

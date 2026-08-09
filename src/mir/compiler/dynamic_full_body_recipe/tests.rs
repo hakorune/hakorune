@@ -1,9 +1,10 @@
 use crate::ast::ASTNode;
 use crate::mir::loop_recipe_contract::{
-    LoopBindingKeyV1, LoopCarrierKeyV1, LoopExitKindV2, LoopItemKeyV1, LoopJoinBranchArmV2,
-    LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinPayloadV2,
-    LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV2, LoopNodeKeyV1, LoopOperationV2,
-    LoopRecipeItemV2, LoopRecipeV2RejectReason, LoopRecipeVerifierV2, LoopValueClassV2,
+    issue_sole_root_carrier_join_closure_v2, LoopBindingKeyV1, LoopCarrierKeyV1, LoopExitKindV2,
+    LoopItemKeyV1, LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinClosureRejectV2,
+    LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1,
+    LoopNodeKeyV1, LoopOperationV2, LoopRecipeBindingV2, LoopRecipeCarrierV2, LoopRecipeItemV2,
+    LoopRecipeV2RejectReason, LoopRecipeValueV2, LoopRecipeVerifierV2, LoopValueClassV2,
     LoopValueKeyV1,
 };
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
@@ -134,9 +135,9 @@ fn private_claims_cover_all_source_roles_without_partial_selection_api() {
 fn unchanged_dynamic_recipe_has_exact_typed_joinsig() {
     let candidate =
         produce_dynamic_full_loop_recipe_v2(source_inventory()).expect("complete Recipe");
-    let sig = LoopJoinSigElaboratorV2::elaborate(candidate.artifact().recipe())
-        .expect("typed Dynamic JoinSig");
-    let sig = sig.as_sig();
+    let closure = issue_sole_root_carrier_join_closure_v2(candidate.artifact().recipe())
+        .expect("typed Dynamic JoinSig/After closure");
+    let sig = closure.join_sig().as_sig();
 
     let b0 = LoopBindingKeyV1::new(0);
     let l0 = LoopNodeKeyV1::new(0);
@@ -227,18 +228,47 @@ fn v2_branch_targets_reject_cross_family_roles() {
 }
 
 #[test]
-fn v2_joinsig_rejects_binding_without_carrier() {
+fn v2_join_closure_rejects_missing_root_carrier_before_split_truth() {
     let mut recipe = super::mapping::complete_dynamic_loop_recipe_v2();
     recipe.carriers.clear();
     let verified = LoopRecipeVerifierV2::verify(recipe).expect("carrier-free wire verifies");
-    assert_eq!(
-        LoopJoinSigElaboratorV2::elaborate(&verified),
-        Err(
-            crate::mir::loop_recipe_contract::LoopJoinSigRejectReasonV1::BindingNotAvailable {
-                binding: LoopBindingKeyV1::new(0),
-            }
-        )
-    );
+    assert!(matches!(
+        issue_sole_root_carrier_join_closure_v2(&verified),
+        Err(LoopJoinClosureRejectV2::RootCarrierCardinality {
+            root,
+            found: 0,
+        }) if root == LoopNodeKeyV1::new(0)
+    ));
+}
+
+#[test]
+fn v2_join_closure_rejects_multiple_root_carriers_before_elaboration() {
+    let mut recipe = super::mapping::complete_dynamic_loop_recipe_v2();
+    recipe.bindings.push(LoopRecipeBindingV2 {
+        key: LoopBindingKeyV1::new(1),
+        label: "second".to_owned(),
+        class: LoopValueClassV2::Dynamic,
+    });
+    recipe.values.push(LoopRecipeValueV2 {
+        key: LoopValueKeyV1::new(18),
+        class: LoopValueClassV2::Dynamic,
+    });
+    recipe.inputs.push(LoopValueKeyV1::new(18));
+    recipe.carriers.push(LoopRecipeCarrierV2 {
+        key: LoopCarrierKeyV1::new(1),
+        owner_loop: LoopNodeKeyV1::new(0),
+        binding: LoopBindingKeyV1::new(1),
+        class: LoopValueClassV2::Dynamic,
+        entry_value: LoopValueKeyV1::new(18),
+    });
+    let verified = LoopRecipeVerifierV2::verify(recipe).expect("two-carrier wire verifies");
+    assert!(matches!(
+        issue_sole_root_carrier_join_closure_v2(&verified),
+        Err(LoopJoinClosureRejectV2::RootCarrierCardinality {
+            root,
+            found: 2,
+        }) if root == LoopNodeKeyV1::new(0)
+    ));
 }
 
 #[test]
@@ -290,8 +320,9 @@ fn changed_recipe_backedge_cannot_match_the_unchanged_golden() {
     };
     *value = LoopValueKeyV1::new(15);
     let verified = LoopRecipeVerifierV2::verify(recipe).expect("different valid Recipe");
-    let sig = LoopJoinSigElaboratorV2::elaborate(&verified).expect("derived JoinSig");
-    let backedge = sig.as_sig().loops[0]
+    let closure =
+        issue_sole_root_carrier_join_closure_v2(&verified).expect("derived JoinSig closure");
+    let backedge = closure.join_sig().as_sig().loops[0]
         .edges
         .iter()
         .find(|edge| edge.role == LoopJoinEdgeRoleV1::Backedge)
