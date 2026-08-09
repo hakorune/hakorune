@@ -1,7 +1,7 @@
 # Dynamic operators
 
-Status: accepted language Decision; canonical semantic issuer landed;
-source/Recipe consumer 0
+Status: accepted language Decision; canonical semantic issuer and exact
+source/Recipe lifecycle consumer landed; physical activation 0
 Date: 2026-08-10
 
 ## Authority
@@ -78,14 +78,17 @@ I15 DynamicAdd -> V17
   JoinSig Backedge carries B0=V17
 ```
 
-These mappings are target contracts only until their named implementation
-rows land. The old B0 displacement/end order belongs to a separate rebind
-transaction Decision.
+These two mappings are now co-sealed from the complete non-splittable Dynamic
+semantic program. V9 requires exact I6 argument ordinal 1 and ends only after
+the invocation's Normal-or-Fault outcome. V17 requires exact I16
+`WriteBinding(B0,V17)` plus exact JoinSig Backedge `B0=V17`, and is forwarded
+only at the later rebind commit. The old B0 displacement/end order belongs to
+a separate rebind transaction Decision.
 
 ## Activation boundary
 
-The language Decision and profile-neutral issuer are live, but source/Recipe
-co-seal and production activation remain zero.
+The language Decision, profile-neutral issuer, and exact private V9/V17
+lifecycle co-seal are live. Rebind and production activation remain zero.
 Implementation order is:
 
 ```text

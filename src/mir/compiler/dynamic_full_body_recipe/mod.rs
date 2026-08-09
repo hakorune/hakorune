@@ -11,11 +11,15 @@ mod mapping;
 #[allow(unused_imports)]
 pub(in crate::mir) use coseal::{
     issue_dynamic_full_loop_semantic_program_v2, issue_dynamic_full_loop_source_recipe_envelope_v2,
-    DynamicFullLoopAfterRefV2, DynamicFullLoopFaultCutPointCatalogRefV2,
-    DynamicFullLoopFaultCutPointV2, DynamicFullLoopFaultFamilyV2,
-    DynamicFullLoopSemanticProgramRejectV2, DynamicFullLoopSourceRecipeEnvelopeRejectV2,
-    DynamicIterationLocalValueRefV2, VerifiedDynamicFullLoopSemanticProgramV2,
+    issue_dynamic_operator_carrier_lifecycle_program_v1, DynamicFullLoopAfterRefV2,
+    DynamicFullLoopFaultCutPointCatalogRefV2, DynamicFullLoopFaultCutPointV2,
+    DynamicFullLoopFaultFamilyV2, DynamicFullLoopSemanticProgramRejectV2,
+    DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicIterationLocalValueRefV2,
+    DynamicOperatorCarrierDestinationRefV1, DynamicOperatorCarrierLifecycleCatalogRefV1,
+    DynamicOperatorCarrierLifecycleProgramRejectV1, DynamicOperatorCarrierLifecycleRowRefV1,
+    DynamicOperatorCarrierPublicationV1, VerifiedDynamicFullLoopSemanticProgramV2,
     VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
+    VerifiedDynamicOperatorCarrierLifecycleProgramV1,
 };
 
 #[cfg(test)]

@@ -31,6 +31,10 @@ complete resolver source inventory
   `BorrowedNoEscapeForInvocation` contract. It lends only borrow-scoped views and
   accepts no raw owner, Recipe, JoinSig, After, Continuation, lifecycle row,
   Fault row, or Completion input.
+  The following non-splittable wrapper derives the exact two-row operator
+  carrier lifecycle: V9 ends after I6's Normal-or-Fault outcome; V17 is
+  authorized only for the later exact B0 rebind commit backed by I16 and the
+  JoinSig Backedge. It does not perform either effect.
 - `dynamic_invocation_contract` remains the complete immutable envelope
   catalog owner. This directory borrows it and never copies targets or
   selector semantics.

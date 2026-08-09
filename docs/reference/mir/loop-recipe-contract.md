@@ -113,6 +113,26 @@ JoinSig edge, Home/cleanup obligation, Completion claim, or physical route.
 The complete exit transaction remains closed until source-backed Dynamic local
 Home Flow and multi-Return Completion consumption are available.
 
+The next consuming wrapper now co-seals the two `DynamicAdd` Normal-result
+lifecycle rows without accepting caller-supplied Recipe keys, source sites,
+operator contracts, or JoinSig data:
+
+```text
+I5 -> V9:
+  exact I6 argument 1
+  BorrowedNoEscapeForInvocation
+  end after the I6 Normal-or-Fault outcome
+
+I15 -> V17:
+  exact I16 WriteBinding(B0,V17)
+  exact Backedge(B0=V17)
+  forward at the later rebind commit
+```
+
+Only borrow-scoped views leave the non-Clone wrapper. This receipt does not
+end the displaced B0 carrier, install V17, infer Home, execute cleanup, or
+claim CFG/MIR/Completion authority.
+
 The landed caller-zero V2 golden covers one consistent Dynamic input, binding,
 ReadBinding result, carrier, CallSlot normal result, WriteBinding, and Return.
 Eighteen focused schema tests reject forward/undefined/duplicate values,

@@ -1,6 +1,6 @@
 # DYNAMIC-OPERATOR-CARRIER-LIFECYCLE-I0
 
-Status: ordered after `DYNAMIC-OPERATOR-EXECUTION-CONTRACT-I0`
+Status: closed
 Date: 2026-08-10
 
 ## Change
@@ -35,3 +35,26 @@ JoinSig.
 - I15 Fault leaves B0 unchanged and publishes no V17;
 - old B0 end/install order remains unclaimed;
 - no Home, cleanup execution, CFG/MIR, Completion, retry, or fallback.
+
+## Closeout
+
+Landed one consuming, non-splittable wrapper over the complete invocation
+lifecycle program. The private issuer derives all item/value/binding/source,
+operator-contract, Fault-cutpoint, invocation-input, WriteBinding, and
+Backedge relations. It accepts no raw relation input.
+
+The destination vocabulary has no boolean or partial state:
+
+```text
+EndAfterInvocationNormalOrFaultOutcome
+ForwardToBindingAtRebindCommit
+```
+
+Focused tests fix the exact two-row golden and reject wrong invocation
+consumer/ordinal, wrong WriteBinding binding/value, and wrong Backedge value.
+Structural guards retain the non-Clone/no-effect-owner surface. The next row
+is the independent `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0` design stop.
+
+External architecture-review follow-ups are reconciled in
+`dynamic-semantic-program-external-review-reconciliation-2026-08-10.md`;
+none is folded into this BoxCount-free lifecycle row.

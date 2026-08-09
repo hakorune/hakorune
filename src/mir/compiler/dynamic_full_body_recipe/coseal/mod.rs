@@ -24,13 +24,17 @@ pub(in crate::mir) use local::DynamicIterationLocalValueRefV2;
 use local::{verify_iteration_local_relation_v2, DynamicIterationLocalRelationV2};
 pub(in crate::mir) use semantic_program::{
     issue_dynamic_full_loop_semantic_program_v2,
-    issue_dynamic_invocation_carrier_lifecycle_program_v1, DynamicFullLoopAfterRefV2,
+    issue_dynamic_invocation_carrier_lifecycle_program_v1,
+    issue_dynamic_operator_carrier_lifecycle_program_v1, DynamicFullLoopAfterRefV2,
     DynamicFullLoopFaultCutPointCatalogRefV2, DynamicFullLoopFaultCutPointV2,
     DynamicFullLoopFaultFamilyV2, DynamicFullLoopSemanticProgramRejectV2,
     DynamicInvocationCarrierDestinationRefV1, DynamicInvocationCarrierLifecycleCatalogRefV1,
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCarrierLifecycleRowRefV1,
-    DynamicInvocationCarrierPublicationV1, VerifiedDynamicFullLoopSemanticProgramV2,
-    VerifiedDynamicInvocationCarrierLifecycleProgramV1,
+    DynamicInvocationCarrierPublicationV1, DynamicOperatorCarrierDestinationRefV1,
+    DynamicOperatorCarrierLifecycleCatalogRefV1, DynamicOperatorCarrierLifecycleProgramRejectV1,
+    DynamicOperatorCarrierLifecycleRowRefV1, DynamicOperatorCarrierPublicationV1,
+    VerifiedDynamicFullLoopSemanticProgramV2, VerifiedDynamicInvocationCarrierLifecycleProgramV1,
+    VerifiedDynamicOperatorCarrierLifecycleProgramV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
