@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, catalog-level body-owner binding I0, resolved body-shape issuer I0, bounded Query body-facts I0, bounded Query body-conformance evidence I0, and bounded exact Query conformance catalog I0 are landed; the evidence aggregate and conformance catalog prove only exact `return me` structural safety plus Query Home no-transfer; general effect/control/Home-flow completeness remains `NoSafeSlice`, so general conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, catalog-level body-owner binding I0, resolved body-shape issuer I0, bounded Query body-facts I0, bounded Query body-conformance evidence I0, and bounded exact Query conformance catalog I0 are landed; the evidence aggregate and conformance catalog prove only exact `return me` structural safety plus Query Home no-transfer. The current design stop is the general four-axis body execution evidence boundary: complete coverage, neutral effect/control, Home-flow event authority, and one same-root co-seal. General conformance, resolver target, Recipe/CallSlot, and production remain `NoSafeSlice`; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -179,10 +179,13 @@ ordinary return (`return me`); it does not infer field/method identity, result
 types, contracts, or complete effect/control absence. The accepted
 `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` now has its bounded I0 receipt landed:
 a separate structural-safety and Query Home no-transfer evidence pair.
-General effect/control/Home-flow completeness remains `NoSafeSlice`, so the
-body verifier has issued only the bounded exact Query conformance catalog; the
-general body verifier remains the owner of declared-contract conformance
-outside that cohort.
+General evidence is currently a design stop. It must define four neutral
+source-level receipts—complete body coverage, effect events, control/exit
+events, and Home-flow events/state—then one same-root execution-evidence
+co-seal. Existing body-shape effects are partial (Print/IO and unsupported
+control are not fully recorded), and `VerifiedHomeAbi` remains declaration-
+only. Until those issuers exist, the body verifier has issued only the bounded
+exact Query conformance catalog; broader conformance remains `NoSafeSlice`.
 Missing,
 duplicate, foreign, or rejected conformance prevents the publishable catalog
 from being issued. Module publication consumes the publishable catalog and

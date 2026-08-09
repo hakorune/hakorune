@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
@@ -35,7 +35,7 @@ closed. General effect/control/Home-flow conformance remains parked by the
 general-evidence boundary. The current design stop is:
 
 ```text
-CALLABLE-CONTRACT-CONFORMANCE-GENERAL-D0 (bounded I0 closed)
+CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0 (bounded I0 closed; general design stop)
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
@@ -61,11 +61,15 @@ ordinary returns. The carrier keeps that shape from the same owner-tree walk
 and co-seals it with the declaration catalog's parser provenance and resolver
 brand. Direct field/state authority remains closed. The shape I0, bounded
 Query body-facts I0, and bounded structural-safety/Home no-transfer evidence
-I0 are now closed. The evidence aggregate proves only the exact `return me`
-cohort; general effect/control/Home-flow completeness remains `NoSafeSlice`.
-No general conformance catalog, target, Recipe/CallSlot, Builder/MIR, or
-production work is open. The bounded I0 must stop after its per-row/catalog
-receipt and propagate `NoSafeSlice` for broader bodies.
+I0 are now closed. The evidence aggregate and conformance catalog prove only
+the exact `return me` cohort. General evidence now stops at one design
+boundary that must define complete body coverage, neutral effect events,
+neutral control/exit events, and a language Home-flow event authority before
+one same-root co-seal can be issued. Existing body-shape effects are partial
+(Print/IO and unsupported control are not fully recorded), and
+`VerifiedHomeAbi` remains declaration-only. No general conformance catalog,
+target, Recipe/CallSlot, Builder/MIR, or production work is open; broader
+bodies remain `NoSafeSlice`.
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
 primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,
@@ -107,7 +111,8 @@ typed syntax carriage (closed)
 -> body-source transaction / general AST-free body catalog (closed I0)
 -> declared Query body-source projection (closed I0)
 -> body-owner co-seal
--> body facts / conformance catalog
+-> bounded body facts / conformance (closed I0)
+-> general body execution evidence D0 (current design stop)
 -> target / source-bound relation / Recipe CallSlot
 -> S6C ScanWithInit
 -> M9 parity

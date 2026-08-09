@@ -1052,7 +1052,7 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-callable-body-facts-query-i0-implementation-task-2026-08-09.md`.
     - focused evidence: 4 Query facts, 3 body-shape, 3 owner-link, and 4
       resolver tests passed; current pointer guard passed.
-22. `CALLABLE-CONTRACT-CONFORMANCE-D0` (accepted bounded I0; general parked)
+22. `CALLABLE-CONTRACT-CONFORMANCE-D0` (bounded I0 closed; general evidence D0 current stop)
     - keep declared Query/Home/signature authority separate from body facts;
     - define one per-row behavioral conformance product and one same-brand,
       full-coverage conformant catalog;
@@ -1061,12 +1061,16 @@ Rejected > Unresolved > Declined > Candidate
       allocation, IO/FFI, failure, suspension, or non-local control;
     - task:
       `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`.
-22A. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` (accepted bounded design)
-    - define the single complete statement/expression/effect/control/Home-
-      escape evidence receipt required before conformance I0;
-    - decide whether the existing body-shape traversal can issue complete
-      coverage or a sibling resolver-owned issuer is required;
-    - no conformance code, empty/default receipt, target, Recipe, or MIR;
+22A. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` (bounded I0 closed; general design stop)
+    - keep the landed exact `return me` structural-safety and Query Home
+      no-transfer evidence bounded to its cohort;
+    - design four neutral source-level receipts before general conformance:
+      complete body coverage, effect events, control/exit events, and Home
+      flow events/state, followed by one same-root execution-evidence co-seal;
+    - existing body-shape effects are partial: Print/IO, QMark/Throw/Await,
+      non-local control, and Home event authority are not yet complete;
+    - no semantic `NoHome` effect, copied partial shadow vector, empty/default
+      receipt, target, Recipe, Builder, MIR, or production switch;
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-d0-design-task-2026-08-09.md`.
 22A-I0. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-I0` (closed bounded implementation)
@@ -1077,7 +1081,7 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-i0-implementation-task-2026-08-09.md`.
     - landed issuer: `QueryBodyConformanceEvidenceIssuerV1`;
     - focused `query_body_facts` slice is green; general conformance remains
-      unopened.
+      unopened behind 22A's evidence D0.
 22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (closed bounded exact Query cohort)
     - consume only the declared contract catalog and landed bounded Query
       conformance-evidence catalog;
@@ -1090,8 +1094,8 @@ Rejected > Unresolved > Declined > Candidate
     - landed implementation receipt:
       `docs/development/current/main/investigations/own-home-callable-conformance-catalog-i0-implementation-task-2026-08-09.md`;
     - focused `query_body_facts` slice is green (4 tests);
-    - general effect/control/Home-flow conformance remains a separate
-      `NoSafeSlice` future design and does not block this bounded row;
+    - general effect/control/Home-flow conformance remains the separate
+      `NoSafeSlice` design stop in 22A and does not widen this bounded row;
     - never infer or replace public contract meaning from the body.
 23. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
     - co-seal the declared catalog with exactly one accepted conformance per
