@@ -553,12 +553,19 @@ HAKO-PARSER-PARAMETER-LIST-PRODUCT-H2-S1 (closed)
   Task:
   `docs/development/current/main/investigations/hako-parser-parameter-list-product-h2-s1-implementation-task-2026-08-09.md`
 
-HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0 (current design stop)
-  select the existing live grammar owner and one same-pass
-  `ParserNodeProductV1` result before connecting an ordinary method; JSON is
-  projection only and rescan/FuncScanner are forbidden.
+HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0 (closed accepted Decision)
+  keep the existing block/statement/expression grammar as sole owner; the
+  exact first tree is `SourceBody[Return(Present, LiteralInt)]`, compatibility
+  JSON is a projection, and H3 remains the sole seal.
   Task:
   `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-d0-consultation-2026-08-09.md`
+
+HAKO-PARSER-RICH-BODY-RESULT-H2-S2-R0 (current)
+  split the 787-line ParserBox facade behavior-neutrally before adding a tiny
+  rich-result delegation; no typed emission, parser acceptance, or language
+  activation.
+  Task:
+  `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-r0-refactor-task-2026-08-09.md`
 ```
 
 CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
@@ -1202,7 +1209,8 @@ Rejected > Unresolved > Declined > Candidate
     - prefer one parser-private parameter-list product with a neutral
       `ParamDecl` projection and typed exact-source rows;
     - the accepted ladder is H2-S0 source session -> H2-S1 parameter product
-      -> H2-S2 rich body -> H2-I0 direct method -> H3-I0 sole seal -> parity
+      -> H2-S2 rich body -> H2-S3 unpublished transaction
+      -> H2-I0 direct method -> H3-I0 sole seal -> parity
       -> Take syntax;
     - consultation card:
       `docs/development/current/main/investigations/hako-parser-take-parameter-carriage-h2-d0-consultation-2026-08-09.md`.
@@ -1221,13 +1229,19 @@ Rejected > Unresolved > Declined > Candidate
       resolver, Home, or language activation;
     - implementation card:
       `docs/development/current/main/investigations/hako-parser-parameter-list-product-h2-s1-implementation-task-2026-08-09.md`.
-22A-HOME-TAKE-H2-S2-D0. `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0` (current design stop)
-    - audit the existing live stmt/block grammar and select one same-pass
-      rich body result plus one-way JSON projection;
-    - no source rescan, FuncScanner/StageB authority, JSON reconstruction,
-      fabricated Typed row, parser connection, or H3 publication;
+22A-HOME-TAKE-H2-S2-D0. `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0` (closed accepted)
+    - sole grammar chain remains block -> statement -> return -> expression ->
+      integer lexing;
+    - exact first tree uses existing `LiteralInt`, `Return`, and `SourceBody`;
+    - JSON reconstruction, rescan, partial tree publication, and second seal
+      remain forbidden;
     - consultation card:
       `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-d0-consultation-2026-08-09.md`.
+22A-HOME-TAKE-H2-S2-R0. `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-R0` (current)
+    - behavior-neutrally split the ParserBox facade below the source-size limit;
+    - do not add typed products, syntax acceptance, or parser connection;
+    - implementation card:
+      `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-r0-refactor-task-2026-08-09.md`.
 22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after release/take/Home-demand rows)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;

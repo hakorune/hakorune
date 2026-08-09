@@ -80,7 +80,10 @@ H2-S0  program-owned parser source session
        + one member cursor per exact Box
 H2-S1  atomic ordered parameter-list product
 H2-S2  same-pass rich body result
-H2-I0  bounded ordinary Box direct-method transaction
+         exact first tree = SourceBody[Return(Present, LiteralInt)]
+         existing grammar owner only; JSON is a projection
+H2-S3  unpublished method-bound body/parameter transaction
+H2-I0  bounded ordinary Box direct-method parser connection
 H3-I0  sole final declaration seal
 ```
 
@@ -91,7 +94,12 @@ issuer is removed, and the H1 guard limits raw site factories to the session
 module. H2-S1 is also closed: one atomic parser-private product owns ordered
 `Ordinary` parameter rows, while its neutral projection borrows sealed rows
 and omits transfer syntax. H2-S2 must retain
-`ParserNodeProductV1` from the same parse; ProgramJSON is only a projection.
+`ParserNodeProductV1` and its sealed tree from the same parse; ProgramJSON is
+only a projection. H2-S2 first opens a behavior-neutral ParserBox facade split,
+then typed integer lexical parts, the sole return statement product, and the
+sole block product. H2-S3 temporarily co-owns exact method site, parameter
+product, and method-bound body result but does not seal or publish; H3 remains
+the only final source seal.
 
 `FuncScannerBox`, saved-source rescans, JSON reconstruction, caller-supplied
 production brands, a second declaration/parameter sealer, and defaulting a

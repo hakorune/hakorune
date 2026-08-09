@@ -23,7 +23,8 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`, bounded by the active rich-body consultation.
+Current mode is `fast`, bounded by the active behavior-neutral
+ParserBox facade split.
 The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
@@ -35,7 +36,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0
+HAKO-PARSER-RICH-BODY-RESULT-H2-S2-R0
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -54,9 +55,12 @@ H2-S0 is now closed: one program-owned parser source session owns the
 invocation brand/Box order and one fresh member cursor owns each exact Box's
 member order starting at zero. H2-S1 is also closed with one disconnected
 atomic ordinary parameter-list product, exact source rows, and one-way neutral
-projections. The current H2-S2 is a design stop: select a same-pass rich body
-result from the existing live grammar without source rescan or JSON
-reconstruction. There is still no parser connection or language activation.
+projections. The H2-S2 Decision is closed: the existing live grammar will
+parse exact `return <unsuffixed decimal integer>` once and project both a
+typed `SourceBody[Return(Present, LiteralInt)]` tree and compatibility JSON.
+The current R0 only splits the 787-line ParserBox facade behavior-neutrally;
+there is still no rich-result emission, parser connection, or language
+activation.
 Home capability and Home Flow remain closed; target,
 Recipe/CallSlot, Builder/MIR, publication, fallback, and production remain
 closed.
@@ -143,8 +147,10 @@ typed syntax carriage (closed)
 -> Hako H2/H3 parameter carriage design consultation (closed)
 -> H2-S0 program source session + Box-scoped member cursor (closed)
 -> H2-S1 atomic parameter-list product (closed)
--> H2-S2 same-pass rich body result design (current stop)
--> H2-I0 bounded ordinary Box direct-method transaction
+-> H2-S2 same-pass rich body result design (closed)
+-> H2-S2-R0 ParserBox facade split (current)
+-> H2-S3 unpublished direct-method transaction
+-> H2-I0 bounded ordinary Box direct-method parser connection
 -> H3-I0 sole final source seal
 -> take parser/source implementation + Home-demand rows
 -> bounded linear Home Flow

@@ -158,7 +158,11 @@ H2-S1  atomic ordinary parameter-list product
        Ordinary rows first; neutral projection; no Home meaning
 
 H2-S2  same-pass rich body result
-       Typed/CompatOnly/ParseError; JSON is projection only
+       existing grammar owner only; JSON is projection only
+       R0 facade split -> typed integer parts -> Return -> SourceBody
+
+H2-S3  unpublished direct-method transaction
+       exact site + parameter product + method-bound body; no seal
 
 H2-I0  bounded ordinary Box direct-method branch
        header + parameters + body parsed once into one transaction
@@ -181,7 +185,7 @@ HOME-PARAMETER-DEMAND-I0
        only after nominal capability taxonomy can prove movable Home
 ```
 
-Each row is separate. In particular, H2-S0/H2-S1/H2-S2 are BoxShape rows and
+Each row is separate. In particular, H2-S0/H2-S1/H2-S2/H2-S3 are BoxShape rows and
 must not activate a new language form.
 
 ## Test and guard matrix

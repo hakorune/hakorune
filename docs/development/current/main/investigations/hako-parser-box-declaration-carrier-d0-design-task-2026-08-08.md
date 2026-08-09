@@ -327,7 +327,8 @@ Rust R6 parser-owned source-site/seal cutover + sidecar retirement
 H2-S0 program-owned parser session + Box-scoped member cursor
 H2-S1 atomic ordered parameter-list product (Ordinary rows first)
 H2-S2 same-pass rich body result; JSON is projection only
-H2-I0 bounded ordinary Box direct-method transaction
+H2-S3 unpublished method-bound parameter/body transaction; no seal
+H2-I0 bounded ordinary Box direct-method parser connection
 H3-I0 atomic inventory + parser source-seal issuer
 H4 selected build-gate transaction/rebase
 H5 test-only normalized Rust/.hako parity
@@ -339,8 +340,9 @@ The cross-language executable order is owned by
 In particular, H2 does not open until the R6 source-site/seal boundary has
 replaced the Rust sidecar model. H2-S0 is the first executable H2 row: it
 replaces H1's caller-token/invocation-wide member cursor with one program-owned
-source session and one exact-Box-scoped member cursor. H2-S1/H2-S2 remain
-closed until that receipt lands. The accepted parameter-carriage Decision is
+source session and one exact-Box-scoped member cursor. H2-S0/H2-S1 are closed,
+and the H2-S2 rich-body Decision is accepted. Its first executable row is the
+behavior-neutral ParserBox facade split. The accepted parameter-carriage Decision is
 `hako-parser-take-parameter-carriage-h2-d0-consultation-2026-08-09.md`.
 
 ## H1 implementation handoff
@@ -396,10 +398,12 @@ Builder, or publication.
 ```text
 H0     D0 owner/vocabulary/API decision                       closed
 H1     disconnected typed transaction/source-site substrate   closed
-H2-S0  program session + Box-scoped member cursor              next
-H2-S1  atomic ordered parameter-list product                   after H2-S0
-H2-S2  same-pass rich body result                              after H2-S1
-H2-I0  bounded ordinary Box direct-method transaction          after H2-S2
+H2-S0  program session + Box-scoped member cursor              closed
+H2-S1  atomic ordered parameter-list product                   closed
+H2-S2  same-pass rich body result Decision                     closed
+H2-S2-R0 behavior-neutral ParserBox facade split               current
+H2-S3  unpublished method-bound parameter/body transaction     after H2-S2
+H2-I0  bounded ordinary Box direct-method parser connection    after H2-S3
 H3-I0  atomic inventory + parser source seal                   after H2-I0
 H4     selected build-gate transaction/rebase                  after H3-I0
 H5     test-only normalized Rust/.hako parity                  after H4
