@@ -50,9 +50,14 @@ Ownership grammar status (2026-08-04):
 - `docs/reference/language/ownership.md` accepts the Home direction: ordinary
   use is a non-owning handle, a sealed destination demand transfers one Home,
   and only explicit `share` may add an independent owner.
-- The smallest candidate surface is declaration-side `take`, contract result
-  `from`, expression-side `share`, and contextual statement `release root`, but its
-  exact Home semantics remain production 0.
+- The bounded target surface accepts declaration-side contextual `take`,
+  expression-side contextual `share` over one non-group postfix operand, and
+  statement-side contextual `release root`. Contract result `from` remains a
+  separate provisional row. Home parser production remains 0.
+- `take`, `share`, and `release` remain `IDENT` spellings and are not global
+  lexer keywords. Contextual recognition requires same-line lookahead.
+  `share(...)` and `share (expr)` are permanently ordinary calls;
+  `adopt(share expr)` is ordinary-call composition.
 - The first release profile is whole-root owning local/parameter only.
   Generic/composite whole-root support under the same statement, fields,
   projections, containers, and unknown capability remain provisional or
@@ -61,11 +66,28 @@ Ownership grammar status (2026-08-04):
 - Composite/generic classification, Shared representation, owning storage,
   callable boundaries, and CFG Home Flow must close before grammar activation.
 - Therefore the live EBNF below intentionally contains no Home ownership
-  productions. Current parsers must reject inactive ownership spellings and
-  former `move/view/shared` lookalikes; accidental parsing is not support.
+  productions. The accepted target grammar is recorded in
+  `OWN-HOME-SYNTAX-D0`; current parsers must reject inactive ownership
+  spellings and former `move/view/shared` lookalikes. Accidental parsing is
+  not support.
 - The parked order is
   `docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`.
   Support status is reported by `stage-profiles.md`.
+
+Accepted target only — not part of the live productions below:
+
+```ebnf
+target_take_param    := IDENT("take") HTRIVIA IDENT HTRIVIA ':' type_ref
+target_share_expr    := IDENT("share") HTRIVIA non_group_postfix_expr
+target_release_stmt  := IDENT("release") HTRIVIA IDENT stmt_end
+```
+
+`HTRIVIA` excludes line terminators. `take` is recognized only at parameter
+head, `share` only at expression-prefix position when the next token starts a
+non-group primary, and `release` only at statement head. See
+`docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`
+for FIRST/precedence, ordinary-call preservation, and parser parity
+requirements.
 
 Function-exit semantic status:
 

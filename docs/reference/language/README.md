@@ -66,10 +66,10 @@ Variables and scope
 - See: [variables-and-scope.md](variables-and-scope.md) — Block-scoped locals,
   assignment resolution, and Home/handle/weak binding guidance.
 - See: [ownership.md](ownership.md) — SSOT for Home slots/tokens, ordinary
-  handles, destination transfer, result relations, explicit `share`, canonical
-  whole-root statement `release root`, and callable Home ABI. Generic/composite release
-  remains provisional; accepted target spellings become
-  parser-live only when their D0, EBNF, and registry rows land.
+  handles, declaration `take`, non-group postfix `share`, result relations,
+  canonical whole-root statement `release root`, and callable Home ABI.
+  Generic/composite release remains provisional; accepted target spellings
+  become parser-live only when their Rust/Hako implementation rows land.
 - See: [lifecycle.md](lifecycle.md) — terminal Home finalization, weak-only
   tombstones, non-callable Box `fini {}` hooks, and structural drop SSOT.
 - See: [constructor-birth-new-lifecycle-ssot.md](../../development/current/main/design/constructor-birth-new-lifecycle-ssot.md) — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.

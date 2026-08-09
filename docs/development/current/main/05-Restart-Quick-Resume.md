@@ -54,6 +54,7 @@ cargo check -q
   claim a production switch
 - the same cell deletes the selected old branch in I0/R0 before unrelated work
 - Stage-B, Ownership, Language v1, and `.hako` selfhost lanes are parked
+  unless `CURRENT_STATE.toml` explicitly selects one of them
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`

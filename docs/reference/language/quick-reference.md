@@ -12,12 +12,13 @@ Ownership note
   is supported by a Home, ordinary locals/parameters are non-owning handles,
   a sealed destination demand transfers one Home, and only explicit `share`
   may add an independent owner.
-- Candidate declaration `take`, result `from`, and expression `share` forms are
-  not added to this current-syntax sheet until their semantic D0 and shared
-  EBNF/registry/parser rows close. Do not infer parser support from the target
-  reference.
+- Declaration `take` and non-group postfix expression `share` are accepted
+  contextual targets but are not added to this current-syntax sheet until
+  their Rust/Hako parser rows close. Result `from` remains provisional. Do not
+  infer parser support from the target reference.
 - Contextual statement `release root` is the accepted early whole-root Home-end
-  target, but remains absent from current syntax until `OWN-GRAM-RELEASE0`
+  target, but remains absent from current syntax until
+  `OWN-HOME-RELEASE-SOURCE-I0`
   lands. Ordinary `release(value)` has no Home authority and `drop` is no alias.
 - Former `move/view/shared` target spellings are historical and remain
   unsupported. Inactive ownership lookalikes must continue to fail fast.
@@ -53,9 +54,9 @@ Selected current reserved keywords
 
 Selected contextual forms
 - declaration header: `uses`
-- provisional inactive Home forms: declaration `take`, result `from`, and
-  expression `share` (see the ownership note; none is a current reserved
-  keyword)
+- accepted inactive Home targets: declaration `take` and expression `share`;
+  provisional result `from` (none is a current reserved keyword, and
+  `share(...)` remains an ordinary call)
 
 Expressions and Calls
 - Function call: `f(a, b)`

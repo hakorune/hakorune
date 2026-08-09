@@ -506,19 +506,22 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Latest completed row / current design stop (synchronized 2026-08-09):
+Latest completed Decision / current execution preflight (synchronized 2026-08-09):
 
 ```text
-CALLABLE-QUERY-BODY-SELECTION-I0
-  add the aggregate-owned borrowed selected-contract view first, then project
-  the already landed general AST-free body-source catalog through the
-  borrowed <'body,'contract> Query view. Preserve sparse normalized source
-  order, keep the general catalog reusable, and emit no default row for
-  non-Query methods. The parser handoff remains AST-free; no body facts,
-  conformance, target, Recipe/CallSlot, Builder/MIR, or production work is
-  open.
+OWN-HOME-SYNTAX-D0 (closed target; parser production 0)
+  accept the same-line contextual target `take node: Node`,
+  `share <non-group postfix>`, and `release node`; keep every spelling as
+  IDENT and keep `share(...)` permanently ordinary.
   Task:
-  `docs/development/current/main/investigations/own-home-callable-query-body-selection-i0-implementation-task-2026-08-09.md`
+  `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`
+
+OWN-HOME-RELEASE-SOURCE-I0 (current implementation preflight)
+  census the exact Rust/Hako statement, AST/source-carrier, compatibility,
+  body-transaction, source-identity, and parity owners before implementing
+  one `release IDENT` carrier. Parser production and Home semantics remain 0.
+  Task:
+  `docs/development/current/main/investigations/own-home-release-source-i0-implementation-task-2026-08-09.md`
 ```
 
 CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
@@ -683,11 +686,11 @@ POST-CUTOVER-DOC-CURRENT-HISTORY-CLEANUP-D0 (parked)
 ```
 
 The parser rows are R6-S3 design/implementation boundaries; R6-S3A,
-R6-S3B-D0, S3B-A, S3B-B0, S3B-B1, and S3B-B2 are closed. S3B-B3-D0 is the
-current design stop after parser gate-ledger transport, scope/path distinction,
-selection receipts, and atomic prune/rebase; no implementation is open there. The
-latter five callable rows remain resolver/callable rows. Do not create a parallel
-implementation lane for them.
+R6-S3B-D0, S3B-A, S3B-B0, S3B-B1, and S3B-B2 are closed. S3B-B3-D0 was the
+historical design stop after parser gate-ledger transport, scope/path
+distinction, selection receipts, and atomic prune/rebase; its bounded I0 is
+now closed. The latter callable rows remain resolver/callable rows. Do not
+create a parallel implementation lane for them.
 
 External review reconciliation (2026-08-08): no new parallel task is needed.
 The parser source seal, source-site/placement split, typed callable syntax,
@@ -1107,28 +1110,39 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-callable-body-effect-control-i0-implementation-task-2026-08-09.md`;
     - focused evidence: 5 resolver-only tests passed; the private receipt is
       not re-exported and does not widen the general four-axis owner.
-22A-HOME-SOURCE-D0. `OWN-HOME-SOURCE-EVENT-D0` (current design stop)
+22A-HOME-SOURCE-D0. `OWN-HOME-SOURCE-EVENT-D0` (closed design 2026-08-09)
     - `release root` direction is accepted as a statement-only contextual
       source form; the parser source-event issuer is design-sealed at the
       existing `ParserResolverBodyTransactionV1::with_direct_method_syntax`
       boundary, while its I0 implementation remains closed;
-    - the next bounded decision is `OWN-HOME-SYNTAX-D0`: choose the canonical
-      declaration-side `take` form, expression-side `share` form/precedence,
-      and record rejected alternatives before parser I0.  Worker audit
-      proposal: `take` is parameter-position contextual only; `share expr` is
-      an expression prefix, while `adopt(share expr)` is ordinary-call
-      composition and `share(...)` remains an ordinary call.  This proposal
-      is not accepted until the language Decision is recorded;
     - keep `release(value)`, `obj.release()`, callable/binding names,
       `drop`, `unbox`, and `unhome` out of Home ownership authority;
     - the future typed parser carrier must be issued only by that parser
       transaction callback; parser acceptance, Home-demand/root issuance,
-      and Home Flow remain closed until the syntax D0 and later I0 rows land;
-    - after syntax D0, close `OWN-HOME-CAPABILITY-TAXONOMY-D0` before issuing
-      any Home-demand product;
+      and Home Flow remain closed until later I0 rows land;
     - focused card:
       `docs/development/current/main/investigations/own-home-source-event-d0-design-task-2026-08-09.md`.
-22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after source-event D0)
+22A-HOME-SYNTAX-D0. `OWN-HOME-SYNTAX-D0` (closed target 2026-08-09; production 0)
+    - `take node: Node` is a declaration-head contextual modifier;
+    - `share node` is a prefix over one non-group postfix operand;
+      `adopt(share node)` is ordinary-call composition and `share(...)` /
+      `share (node)` are permanently ordinary calls;
+    - `release node` keeps the existing statement-only exact-root form;
+    - all three spellings remain `IDENT`, use same-line lookahead, and are not
+      global lexer keywords;
+    - `take` belongs to the declaration handoff; `share` and `release` belong
+      to the existing rich body transaction;
+    - accepted Decision:
+      `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`.
+22A-HOME-RELEASE-I0. `OWN-HOME-RELEASE-SOURCE-I0` (current implementation preflight)
+    - implement exactly one parser/source carrier for `release IDENT`;
+    - first census the Rust/Hako statement, AST/source carrier, JSON/compat,
+      body transaction, and parity owners;
+    - no HomeRoot, Home state, semantic release, DropPlan, Builder/MIR,
+      fallback, or production activation;
+    - implementation card:
+      `docs/development/current/main/investigations/own-home-release-source-i0-implementation-task-2026-08-09.md`.
+22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after release/take/Home-demand rows)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;
     - define the future source event vocabulary (`Create`, `Consume`, `Share`,

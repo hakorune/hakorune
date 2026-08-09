@@ -13,9 +13,11 @@ Decision:
   ordinary call and `drop` is not an alias;
 - accepted: C′ terminal Home release is the sole user-`fini` authority;
   `fini {}` is a non-callable Box hook and direct `obj.fini()` is rejected;
-- provisional: the smallest HomeV1 source capsule is declaration-side
-  `take` parameters, contract-boundary `T from owner`, and expression-side
-  `share`;
+- accepted target, production 0: declaration-side contextual `take`
+  parameters and expression-side contextual `share` over one non-group
+  postfix operand; neither is globally reserved and contextual recognition
+  never crosses a line terminator;
+- provisional: contract-boundary `T from owner`;
 - unresolved: composite/generic classification, Shared representation,
   owning storage destinations, and exact C-speed physical ABI;
 - inactive: parser, resolver, Home Flow, Builder, runtime, and backend
@@ -63,8 +65,8 @@ checkpoint named there.
 ## Purpose
 
 This page fixes the layer boundaries that must survive future implementation.
-It does not select exact grammar or physical representation before their
-design rows close.
+The bounded take/share/release grammar target is selected by
+`OWN-HOME-SYNTAX-D0`; physical representation remains owned by later rows.
 
 The short model is:
 
@@ -259,7 +261,8 @@ hot path, plus exact-front and whole-program perf/assembly evidence.
 
 ## Accepted source-direction laws
 
-These laws are durable even while the exact grammar remains provisional:
+These laws are durable while parser production and physical representation
+remain inactive:
 
 1. `local b = a` does not add or transfer a Home; `b` is a handle.
 2. An owning destination may consume exactly one available Home.
@@ -310,9 +313,9 @@ rejected remains `OWN-FIELD-CONTAINER-DEST-D0`. C′ applies to a field only aft
 that field has a verified owning Home relation; it does not silently classify
 every current Box field as owning.
 
-## Provisional HomeV1 surface
+## Accepted HomeV1 syntax target; production 0
 
-Subject to the D0 rows in the taskboard, the smallest candidate is:
+The syntax D0 accepts the following smallest target:
 
 ```hako
 adopt(take node: Node)       // declaration owns a Home demand
@@ -321,6 +324,12 @@ adopt(node)                  // destination consumes node's Home
 adopt(share node)            // if the ABI admits Shared; node remains
 release node                 // end one verified whole-root Home now
 ```
+
+`take`, `share`, and `release` remain contextual `IDENT` spellings and are not
+global lexer keywords. `take` belongs to the declaration handoff. `share` is a
+prefix over one non-group postfix expression; `adopt(share node)` is ordinary
+call composition, while `share(node)` and `share (node)` are permanently
+ordinary calls. All three contextual heads require same-line lookahead.
 
 `release root` is a statement-only contextual keyword with one identifier
 root. Its AST/source carrier is not authority: one resolved whole-root place,

@@ -1,5 +1,5 @@
 ---
-Status: design stop; accepted source direction, issuer not implemented
+Status: accepted design; issuer implementation not landed
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-home-flow-d0-design-task-2026-08-09.md`
 Authority: `docs/development/current/main/design/ownership-home-model-ssot.md`
@@ -39,81 +39,24 @@ The source token does not prove ownership.  A later resolver Home-demand/root
 issuer and Home Flow witness must prove that the identifier denotes one exact
 available whole-root Home.
 
-## Focused external design question
+## Syntax review closeout
 
-One narrow language-D0 review is still useful before opening the parser I0.
-The review must choose syntax and precedence only; it must not redesign Home
-ABI, Home Flow, or the existing `release root` decision.
-
-Ask the reviewer to return one canonical answer for each item, including a
-small EBNF/FIRST-set explanation and negative examples:
+The focused worker and external reviews converge on one accepted syntax target:
 
 ```text
-1. Declaration-side demand:
-   adopt(take node: Node)
-   Is `take` the sole declaration-side ownership-demand spelling for this
-   cohort, and is it declaration-only?
-
-2. Explicit sharing:
-   share expr
-   versus
-   adopt(share expr)
-   Choose one canonical source form, define its precedence with calls,
-   returns, fields, and parentheses, and keep `share(...)` an ordinary call.
-
-3. Early release:
-   release root
-   Confirm statement-only contextual disambiguation: `release` is not a
-   global reserved word, `release(value)` and `obj.release()` remain ordinary
-   calls, and only one identifier whole-root is in the first parser cohort.
+take node: Node  = declaration-only contextual parameter modifier
+share node       = expression prefix over one non-group postfix operand
+release node     = statement-only contextual exact identifier form
 ```
 
-The review must also state the rejected alternatives and confirm that parser
-acceptance remains out of scope until the decision is recorded here and in the
-language reference.  The parser source-event issuer is already design-sealed
-in this card; only its I0 implementation waits behind the syntax decision.
-Until this question is answered, the current source-event card remains a
-design stop and no parser carrier or Home issuer is implemented.
+None is globally reserved; all three contextual heads require same-line
+lookahead.  `adopt(share node)` is ordinary call composition, and
+`share(node)` / `share (node)` are permanently ordinary calls.  The complete
+FIRST/precedence and parity Decision is owned by:
 
-## Worker syntax audit — proposal, not yet accepted
+`docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`
 
-The independent parser/EBNF audit recommends the following bounded choice.
-This is a design candidate only; it does not activate the language grammar.
-
-```text
-take:
-  declaration-side parameter modifier only
-  take_param := TAKE_CTX IDENT ':' TYPE_REF
-  param      := take_param | ordinary_param
-  TAKE_CTX is a parameter-position lookahead for IDENT("take") IDENT ':'
-
-  `take: Node` remains an ordinary parameter named `take`.
-  `take` in an expression, `return take x`, `foo(take x)`,
-  `take place_expr`, and consuming-receiver syntax are outside this cohort.
-
-share:
-  expression-level contextual prefix, not a wrapper declaration
-  `adopt(share node)` means an ordinary call whose argument is `share node`.
-  `share(...)` remains an ordinary call because the following `(` is the
-  ordinary-call disambiguator.
-  postfix binds tighter: `share obj.field()` means `share (obj.field())`.
-  `share (obj)` remains the ordinary call `share(obj)` in this cohort;
-  grouped ownership operands require a separate language D0.
-
-reservation:
-  neither `take` nor `share` is globally reserved; declarations/bindings and
-  ordinary calls keep their existing meaning outside the contextual positions.
-```
-
-The audit also recommends that the first parser cohort allow only the bounded
-prefix/parameter shapes above.  Resolver/Home capability remains responsible
-for rejecting unsupported field, index, composite, generic, or unknown Home
-roots; parser acceptance must not imply semantic ownership.
-
-If this proposal is accepted, the language reference must explicitly state
-that `adopt(share expr)` is composition, not a second ownership grammar, and
-must publish the FIRST/precedence table plus the negative matrix before
-`OWN-HOME-SOURCE-EVENT-I0` opens.
+That Decision accepts the target grammar but leaves parser production at 0.
 
 ## Source carrier boundary
 
@@ -124,8 +67,8 @@ ordinary parser transaction has completed:
 ReleaseStatementSourceV1
   parser provenance
   exact statement site
-  lexical root declaration/source site
-  contextual-keyword classification
+  root identifier spelling/source site
+  contextual-form classification
 ```
 
 This carrier owns spelling, source location, and lexical binding reference
@@ -152,7 +95,7 @@ statement by the exact method source site plus body statement ordinal; the
 root token remains lexical input, not a resolved Home root.
 
 The issuer is design-sealed here but not implemented.  Until
-`OWN-HOME-SOURCE-EVENT-I0` lands, a missing observer remains `NoSafeSlice`,
+`OWN-HOME-RELEASE-SOURCE-I0` lands, a missing observer remains `NoSafeSlice`,
 not a default empty release event.
 
 ## Event mapping
@@ -199,8 +142,11 @@ semantic Home Flow fixture remains a later owning-local/parameter linear row.
 
 ```text
 parser syntax error:
-  missing identifier, extra arguments, invalid statement placement,
-  `release(...)`, or a globally reserved-word interpretation
+  extra tokens after exact `release IDENT` contextual commitment
+
+ordinary syntax, not a Home event:
+  `release(...)`, `release (value)`, method/callable/binding uses, or a
+  same spelling separated from its operand by a line terminator
 
 NoSafeSlice:
   source-event observer implementation absent, Home-demand/root issuer absent,
@@ -243,13 +189,13 @@ as the Home root identity.
 
 ```text
 1. OWN-HOME-SOURCE-EVENT-D0
-   this design stop; no code yet
+   accepted design; no code yet
 
 2. OWN-HOME-SYNTAX-D0
-   close the focused `take` / `share` grammar and precedence question above;
-   update the language reference only after one canonical choice is accepted
+   accepted target; same-line contextual take/share/release grammar;
+   parser production remains 0
 
-3. OWN-HOME-SOURCE-EVENT-I0
+3. OWN-HOME-RELEASE-SOURCE-I0
    parser-private observer inside
    `ParserResolverBodyTransactionV1::with_direct_method_syntax`; issue one
    AST-free carrier for `release IDENT`, add grammar/contextual negatives,
@@ -272,10 +218,10 @@ as the Home root identity.
    only after all four axis issuers are complete
 ```
 
-The current Home Flow D0 remains the parent boundary.  This source-event D0
-may become the next current design card only after the pointer update in the
-same docs closeout commit.  If the grammar requires a new ownership concept,
-stop and open a separate language D0; do not widen this card.
+The current Home Flow D0 remains the parent boundary.  The next executable row
+is the bounded release source carrier only after the current pointers are
+updated in this docs closeout.  If implementation exposes a new ownership
+concept, stop and open another language D0; do not widen this card.
 
 ## Explicit non-claims
 

@@ -1,11 +1,12 @@
 # Ownership and Home Flow (SSOT)
 
-Status: Language semantics SSOT; Home direction accepted, exact HomeV1 grammar
-provisional, production activation 0
+Status: Language semantics SSOT; Home direction and bounded take/share/release
+syntax target accepted, production activation 0
 
 Decision: accepted on 2026-08-04 as the successor to the earlier
 `move/share/view` target; C′ terminal Home finalization and contextual
-whole-root `release root` amendments accepted on 2026-08-05.
+whole-root `release root` amendments accepted on 2026-08-05; bounded
+take/share contextual syntax accepted on 2026-08-09.
 
 This page is the source-language authority for ownership, ordinary aliases,
 Home transfer, and the explicit boundary that adds an independent owner.
@@ -36,10 +37,11 @@ historical evidence only. They do not restore `move`, source `view`, source
 | C′ last-Home finalization direction | accepted target; production 0 |
 | explicit `release root` direction | accepted whole-root target; production 0 |
 | generic/composite release | provisional; exact capability D0 open |
-| exact HomeV1 source grammar | provisional; D0 rows open |
+| bounded HomeV1 source grammar | accepted target; parser production 0 |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
 | Rust/Hako parser and AST Home carriers | inactive / absent |
-| resolver, Home Flow, callable Home ABI | inactive / absent |
+| resolver Home-demand/root and Home Flow | inactive / absent |
+| callable Home ABI | bounded declaration-only receipt exists; source `take` linkage absent |
 | canonical Builder/source producers | 0 |
 | passive Ownership SSA / ownership opcodes | existing narrow infrastructure only |
 | current ordinary Box assignment | transitional SharedV1 behavior |
@@ -138,20 +140,34 @@ Unknown never defaults to Trivial, Unique, or Shared.
 An identity-free record may still carry an owner-bearing Box payload. “All
 records are Trivial” is not a valid rule.
 
-## 3. Accepted direction and provisional HomeV1 capsule
+## 3. Accepted HomeV1 syntax target; production 0
 
-The durable semantics are accepted. The smallest source spelling remains
-provisional until the named D0 and grammar rows close.
+The durable semantics and bounded contextual spellings are accepted. They are
+not evidence that either parser currently accepts the forms.
 
 ### Declaration-side Home demand
 
-Candidate target:
+Canonical target:
 
 ```hako
 adopt(take node: Node) {
     // the body may consume node only through a separately verified destination
 }
 ```
+
+`take` is a declaration-head contextual modifier with an explicit type. It is
+not globally reserved and does not cross a line terminator:
+
+```text
+take node: Node  = Home-demand parameter target
+take: Node       = ordinary parameter named take
+take(node)       = ordinary call
+obj.take()       = ordinary method
+```
+
+Call-site `take`, `return take node`, `take place_expr`, and consuming receiver
+syntax are outside HomeV1. The declaration handoff owns the typed syntax row;
+a body observer never rediscovers it from parameter text.
 
 Here `take` describes the destination contract. It does not instruct the
 callee to guess from runtime state. The call site is ordinary:
@@ -234,8 +250,19 @@ The exact physical operation depends on a verified representation plan. It
 may be RC/control-cell work, another Shared mechanism, or a rejected route.
 No runtime tag or observed reference count selects it.
 
-`share(...)` remains an ordinary function call; contextual ownership `share`
-is only the prefix expression form selected by its grammar row.
+Contextual ownership `share` is a prefix over one non-group postfix operand.
+Postfix binds inside the request and infix operators bind outside it:
+
+```text
+share obj.field() = Share(MethodCall(obj, field))
+share obj + y     = Add(Share(obj), y)
+```
+
+`adopt(share node)` is ordinary call composition, not a second ownership
+grammar. `share(...)` and `share (expr)` are permanently ordinary function
+calls; a future grouped ownership form must choose another spelling. The
+contextual head does not cross a line terminator. `share`, `obj.share()`, and
+bindings named `share` remain ordinary outside the exact prefix position.
 
 ### Explicit early Home release
 
@@ -246,7 +273,9 @@ wrapper, method-name convention, direct `fini` call, or backend name match.
 Ordinary `release(value)` and `obj.release()` remain ordinary calls. `drop`
 and `unbox` forms are not aliases. The lexer does not globally reserve
 `release`; declarations/bindings named `release` and `Build.release` remain
-ordinary syntax.
+ordinary syntax. Contextual recognition requires the root identifier on the
+same line; tokens separated by a line terminator are left to ordinary grammar
+and do not request a Home release.
 
 The first profile accepts only a verified whole-root owning local or owning
 parameter containing exactly one available Home. Release consumes that root at
@@ -314,8 +343,8 @@ physical ownership, targets, and production remain separate gates.
 A callable whose body and all relevant resolved facts are locally available
 may derive a candidate **result relation** and local Home Flow from its body.
 Parameter and receiver Home demands come only from the resolved declaration:
-a plain parameter is always Handle, and only an accepted explicit Home-demand
-form such as candidate `take` may consume it. Body analysis verifies that
+a plain parameter is always Handle, and only the accepted explicit Home-demand
+form `take` may consume it. Body analysis verifies that
 contract and may not invent an invisible consuming parameter. The verifier
 seals the combined ABI once. Private is a common ClosedCallable case, but
 visibility alone is not the classifier.

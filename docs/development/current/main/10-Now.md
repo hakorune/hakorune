@@ -23,27 +23,32 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `fast`, bounded by the active implementation-preflight card.
+The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, declared
 Query behavior D0/I0, aggregate D0/I0, general body-source I0, borrowed Query
 body-source projection I0, bounded Query body-facts, complete-evidence design,
 bounded evidence I0, bounded exact Query conformance catalog I0, and the
-bounded Call+Return effect/control I0 are closed. The current design stop is:
+bounded Call+Return effect/control I0, focused Home source-event D0, and the
+minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-OWN-HOME-SOURCE-EVENT-D0
+OWN-HOME-RELEASE-SOURCE-I0
 ```
 
 The Call+Return row landed one private borrowed receipt from one
 `ResolvedFunctionBodyShapeProductV1` for exact root-direct
 `return me.invoke()` (Call + ordinary Return + exact source relations), with
-five focused tests. The ownership direction `release root` and its existing
-parser-transaction issuer boundary are design-sealed, but the exact
-`take`/`share` source syntax remains open; a worker proposal is recorded in
-the active card but is not accepted. Home-demand and Home-flow implementation
-remain `NoSafeSlice`; target,
+five focused tests. The language target is now fixed to exactly three
+contextual forms: declaration `take node: Node`, expression
+`share <non-group postfix>`, and statement `release node`. All remain
+same-line `IDENT` spellings, and `share(...)` is permanently an ordinary call.
+Parser production is still 0. The current row performs only the exact
+Rust/Hako statement, source-carrier, compatibility, body-transaction,
+identity, and parity census for `release IDENT` before code. Home capability
+and Home Flow remain closed; target,
 Recipe/CallSlot, Builder/MIR, publication, fallback, and production remain
 closed.
 
@@ -121,7 +126,12 @@ typed syntax carriage (closed)
 -> declared Query body-source projection (closed I0)
 -> body-owner co-seal
 -> bounded body facts / conformance (closed I0)
--> general body execution evidence D0 (current design stop)
+-> general body execution evidence D0 (closed)
+-> Home source-event D0 (closed)
+-> Home syntax D0 (closed target; production 0)
+-> release source I0 (current implementation preflight)
+-> take declaration syntax / Home-demand rows
+-> bounded linear Home Flow
 -> target / source-bound relation / Recipe CallSlot
 -> S6C ScanWithInit
 -> M9 parity
