@@ -506,7 +506,7 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Latest completed Decision / current execution preflight (synchronized 2026-08-09):
+Latest completed Decision / current selected implementation (synchronized 2026-08-09):
 
 ```text
 OWN-HOME-SYNTAX-D0 (closed target; parser production 0)
@@ -516,10 +516,11 @@ OWN-HOME-SYNTAX-D0 (closed target; parser production 0)
   Task:
   `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`
 
-OWN-HOME-RELEASE-SOURCE-I0 (current implementation preflight)
-  census the exact Rust/Hako statement, AST/source-carrier, compatibility,
-  body-transaction, source-identity, and parity owners before implementing
-  one `release IDENT` carrier. Parser production and Home semantics remain 0.
+OWN-HOME-RELEASE-SOURCE-I0 (current implementation selected; production 0)
+  the completed census selects one dedicated syntax-only `ASTNode::Release`,
+  one parser-owned non-Clone source catalog, Hako normalized parity, and
+  explicit legacy/semantic unsupported paths. Split the 796-line roundtrip
+  decoder before implementing the one `release IDENT` carrier.
   Task:
   `docs/development/current/main/investigations/own-home-release-source-i0-implementation-task-2026-08-09.md`
 ```
@@ -1134,10 +1135,14 @@ Rejected > Unresolved > Declined > Candidate
       to the existing rich body transaction;
     - accepted Decision:
       `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`.
-22A-HOME-RELEASE-I0. `OWN-HOME-RELEASE-SOURCE-I0` (current implementation preflight)
+22A-HOME-RELEASE-I0. `OWN-HOME-RELEASE-SOURCE-I0` (current implementation selected)
     - implement exactly one parser/source carrier for `release IDENT`;
-    - first census the Rust/Hako statement, AST/source carrier, JSON/compat,
-      body transaction, and parity owners;
+    - the completed census selects a dedicated `ASTNode::Release`, exact
+      method-site/body-ordinal source identity, a one-shot non-Clone parser
+      catalog, and Rust/Hako normalized parity;
+    - split the 796-line roundtrip decoder in one behavior-neutral prerequisite
+      commit; the implementation commit keeps legacy JoinIR and every semantic
+      and physical consumer explicitly unsupported;
     - no HomeRoot, Home state, semantic release, DropPlan, Builder/MIR,
       fallback, or production activation;
     - implementation card:
