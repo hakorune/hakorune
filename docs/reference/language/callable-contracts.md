@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, and bounded declared Query behavior I0 landed; Query body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, and declared Query/Home aggregate I0 landed; body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -33,9 +33,11 @@ promote the seal. The parser→resolver source handoff is now implemented as a
 one-shot, AST-free transfer product for this bounded Rust cohort. The
 declaration/signature I0 consumes that product by value and issues one fresh,
 non-Clone AST-free declaration catalog with semantic `I64`/`Unit` classes.
-Home ABI0 and the Query behavior I0 are now closed as resolver-only internal
-boundaries. The next design stop is the declared Query/Home aggregate co-seal.
-Body conformance, target, Recipe/CallSlot, and physical ABI remain production
+Home ABI0, Query behavior I0, and the declared Query/Home aggregate I0 are now
+closed as resolver-only internal boundaries. The aggregate consumes the Home
+catalog (which owns declarations) and the selected Query catalog by value and
+seals only same-brand/site/order coverage. The next design stop is complete
+body conformance. Target, Recipe/CallSlot, and physical ABI remain production
 zero.
 
 The R4 AST-side atomic reconstruction product and strict recursive JSON v2

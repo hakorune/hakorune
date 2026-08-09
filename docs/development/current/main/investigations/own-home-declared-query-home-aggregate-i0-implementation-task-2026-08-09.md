@@ -1,5 +1,5 @@
 ---
-Status: active — bounded implementation
+Status: closed — bounded implementation landed
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-declared-query-home-aggregate-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -111,5 +111,12 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
-After this row closes, stop at body-conformance/catalog closure design. Do
-not open resolver target or physical lowering from this implementation alone.
+After this row closes, stop at
+`own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`. Do not
+open resolver target or physical lowering from this implementation alone.
+
+Receipt: `src/mir/resolved_semantics/declared_instance_contract.rs` plus three
+focused aggregate tests and the Home catalog resolver-brand accessor. The
+aggregate owns Home and Query catalogs and only their relational coverage;
+body conformance, target, Recipe/CallSlot, MIR, runtime, and production remain
+closed.

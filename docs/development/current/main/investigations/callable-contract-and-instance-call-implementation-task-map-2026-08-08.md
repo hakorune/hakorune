@@ -386,15 +386,14 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current execution row:
+Current design stop:
 
 ```text
-DECLARED-QUERY-HOME-AGGREGATE-I0
-  consume the Home catalog (which owns declarations) and the selected Query
-  catalog by value; issue only their same-brand/site/order relational co-seal.
+CALLABLE-CONFORMANCE-CATALOG-D0
+  define complete body-conformance coverage for the already co-sealed
+  declaration/Query/Home catalog; no target, Recipe/CallSlot, Builder/MIR, or
+  production work.
   Task:
-  `docs/development/current/main/investigations/own-home-declared-query-home-aggregate-i0-implementation-task-2026-08-09.md`
-  Next design stop:
   `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`
 ```
 
@@ -741,7 +740,7 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-query-behavior-i0-implementation-task-2026-08-09.md`;
     - receipt: `src/mir/resolved_semantics/query_behavior.rs` and focused
       Query/Home tests; next stop is the aggregate co-seal D0.
-15. `DECLARED-QUERY-HOME-AGGREGATE-D0/I0`
+15. `DECLARED-QUERY-HOME-AGGREGATE-D0/I0` (closed 2026-08-09)
     - D0 fixes the sole two-input move-only co-seal: Home catalog (which owns
       declarations) plus selected Query behavior catalog;
     - I0 publishes only their same-brand/site/order relational contract and
@@ -750,6 +749,8 @@ Rejected > Unresolved > Declined > Candidate
       subset coverage; neither name nor physical ABI is semantic authority;
     - implementation task:
       `docs/development/current/main/investigations/own-home-declared-query-home-aggregate-i0-implementation-task-2026-08-09.md`;
+    - receipt: `src/mir/resolved_semantics/declared_instance_contract.rs`
+      plus focused same-brand/site/order coverage tests;
     - next design stop:
       `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`.
 

@@ -82,8 +82,11 @@ path. `OWN-HOME-ABI0-S0` now issues the bounded semantic Home catalog through
 one non-`Clone` co-seal. The Home relation batch brand remains provenance only;
 the resolver catalog brand, nominal type, and exact source site remain the
 declaration identity. Query behavior, body conformance, targets, Recipe, and
-physical lowering remain unopened. The next design stop is the one
-same-brand/site Query/Home aggregate co-seal.
+physical lowering remain unopened. The declared Query/Home aggregate I0 is
+now landed in `declared_instance_contract.rs`: it consumes the Home catalog
+(the declaration owner) and the selected Query catalog by value, then seals
+only same-brand/site/order coverage. The next design stop is separate complete
+body conformance.
 
 ## Home relation vocabulary S0
 

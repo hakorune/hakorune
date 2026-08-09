@@ -15,6 +15,7 @@ mod callable_index;
 mod callable_module_header_view;
 mod callable_source_ledger;
 mod callable_symbol;
+mod declared_instance_contract;
 mod direct_call;
 mod direct_call_verifier;
 mod enum_match_demand;
@@ -82,6 +83,10 @@ pub(crate) use callable_source_ledger::{
 };
 pub(crate) use callable_symbol::CanonicalCallableSymbolV1;
 pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
+pub(crate) use declared_instance_contract::{
+    DeclaredInstanceMethodContractIssueV1, DeclaredInstanceMethodContractIssuerV1,
+    VerifiedDeclaredInstanceMethodContractCatalogV1,
+};
 pub(crate) use enum_match_demand::{
     admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1,
 };
@@ -210,6 +215,8 @@ mod callable_catalog_tests;
 mod callable_header_source_unit_tests;
 #[cfg(test)]
 mod callable_source_ledger_tests;
+#[cfg(test)]
+mod declared_instance_contract_tests;
 #[cfg(test)]
 mod explicit_parameter_type_map;
 #[cfg(test)]

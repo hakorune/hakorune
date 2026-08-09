@@ -152,6 +152,10 @@ pub(crate) struct VerifiedDeclaredInstanceMethodHomeCatalogV1 {
 }
 
 impl VerifiedDeclaredInstanceMethodHomeCatalogV1 {
+    pub(crate) const fn resolver_brand(&self) -> super::ResolverCatalogBrandV1 {
+        self.declarations.resolver_brand()
+    }
+
     pub(crate) fn declarations(&self) -> &[VerifiedInstanceMethodDeclarationV1] {
         self.declarations.declarations()
     }
