@@ -200,12 +200,16 @@ becomes Dynamic, and production `.hako` source is not rewritten to fit the
 old inference shortcut.
 
 `normal_callable_dynamic_loop_rebind.rs` is the private exact-once P1
-operation terminal. It consumes the complete prepared ingress, delegates
+operation/rebind canary. It consumes the complete prepared ingress, delegates
 Compare/Const/Add insertion to existing writers, and uses a prepare plus
-infallible commit to advance callable-current and Dynamic-origin projections
-together. Its move-only output carries only the exact Enter/Backedge lineage
-needed by the next canonical CFG/Binding SSA/PHI row. It owns no second
-emitter, predecessor selection, PHI destination, retry/fallback, or route.
+infallible commit to advance its bounded callable-current and Dynamic-origin
+projections together. It does not yet prove canonical repeated-Loop or After
+reaching-value semantics: the landed canary uses Enter as the operation input.
+The next design must open the canonical Header current before operation
+emission, correct this terminal to consume it, and close the PHI afterward
+through the one canonical CFG/Binding SSA/`PhiTxn` session. Its move-only
+output contains no second emitter, predecessor authority, PHI destination,
+retry/fallback, or production route.
 
 ## 原則（SSOT / Box-First）
 

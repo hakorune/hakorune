@@ -23,22 +23,30 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. Dynamic source/origin, complete Loop source coverage,
-operation-source co-seal, prepared ingress, and atomic operation/rebind P1 are
-closed for the unmodified production `skip_while/4` source. The next bounded
-implementation row is:
+Current mode is `design_stop`. Dynamic source/origin, complete Loop source
+coverage, operation-source co-seal, prepared ingress, and a bounded
+one-iteration operation/rebind P1 canary are closed for the unmodified
+production `skip_while/4` source. The active design correction is:
 
 ```text
-DYNAMIC-LOOP-PHI-P2
+DYNAMIC-LOOP-PHI-ORDER-D0
 ```
 
-Bind P1's move-only Enter/Backedge handoff to exact canonical CFG
-predecessors and emit one Dynamic carrier PHI only through the existing
-Binding SSA / `PhiTxn` owners. Raw incoming vectors, route-local PHI writers,
-backend activation, retry/fallback, and source rewrites remain closed. The
-parser H2-S2-S1-R1 worktree is preserved and must not be mixed into this
-compiler-side slice. Read the active card from `CURRENT_STATE.toml` for the
-exact Done/Stop contract.
+The previous post-P1-only PHI plan is rejected: landed P1 currently emits
+Compare/Add from Enter, so a PHI created afterward would not be the value used
+by the Loop. Seal one canonical-session sequence instead:
+
+```text
+P2A Header read / provisional PHI
+-> P1-R Compare/Add using Header current
+-> P2B canonical CFG witness / Binding SSA seal
+-> whole-session discard canary
+```
+
+No implementation row is open until this boundary is fixed in the active
+card. Raw incoming vectors, route-local PHI writers, backend activation,
+retry/fallback, and source rewrites remain closed. The parser H2-S2-S1-R1
+worktree is preserved and must not be mixed into this compiler-side slice.
 
 ### Historical context (non-authoritative; pending mirror compaction)
 

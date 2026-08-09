@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0 R0/S0/P0 closed; Dynamic atomic rebind P1 ready
+Status: S0/P0 and L0 R0/S0/P0 closed; bounded Dynamic operation/rebind P1 canary closed; PHI temporal-order D0 active
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -611,7 +611,7 @@ Authority correction:
   narrow owner is the common `Unknown + Integer -> Integer` inference, not the
   `skip_while/4` fixture.
 
-P1/P2 handoff:
+P1 output (bounded canary; not a canonical Loop-current handoff):
 
 ```text
 PreparedSourceBackedDynamicLoopIngressV1
@@ -626,9 +626,11 @@ PreparedSourceBackedDynamicLoopIngressV1
        expected [Enter, Backedge]
 ```
 
-The handoff owns no `PhiToken`, PHI destination, raw incoming vector,
-`MirType` inference, Builder handle, or SSA handle. P2 must consume it through
-the canonical CFG witness and existing Binding SSA / `PhiTxn` owners.
+The product owns no `PhiToken`, PHI destination, raw incoming vector,
+`MirType` inference, Builder handle, or SSA handle. A later audit proved that
+it cannot be consumed as a post-hoc canonical PHI input program: Compare and
+Add were already emitted from Enter. It remains useful as bounded evidence
+for exact operation/source emission and atomic Dynamic rebind only.
 
 Closeout:
   Closed in the P1 implementation slice. Ordinary Add completion and final
@@ -641,25 +643,194 @@ Closeout:
   source remains unchanged. The comparison publishes exact Bool; the Add wire
   stays physically untyped while the source-backed relation authorizes its
   Dynamic lineage. The move-only P2 handoff contains only exact Enter,
-  Backedge, definition/source identity, lineage, and expected roles. A
+  Backedge, definition/source identity, lineage, and expected roles. These
+  roles are descriptive canary evidence, not canonical reaching-value or CFG
+  authorization. A
   post-emission injected failure discards the complete unpublished function
   session. No PHI, second emitter, retry/fallback, or production route opened.
 
-##### L0-P2 — `DYNAMIC-LOOP-PHI-P2`
+##### L0 PHI temporal-order correction
+
+Row: `DYNAMIC-LOOP-PHI-ORDER-D0`
+
+Decision: `revise`; the former post-P1-only `DYNAMIC-LOOP-PHI-P2` row is
+rejected.
+
+The landed P1 emits both Compare and Add from `carrier.entry()`. Opening a PHI
+afterward would create an unused value and would keep every iteration on the
+entry value. Advancing callable-current directly to the Add result also does
+not represent the zero-iteration path or the value reaching Loop After.
+
+The only accepted temporal order is:
+
+```text
+same fresh CanonicalSsaFunctionSessionV2
+  -> exact physical Loop roles created by the canonical CFG owner
+  -> Enter definition already present in canonical Binding SSA
+  -> unsealed Header read
+       -> provisional PHI / canonical Header current
+  -> Compare and Add consume that Header current
+  -> exact source assignment defines the Add result in its definition block
+  -> actual terminal Backedge path reaches Header
+  -> CanonicalCfgSessionV1 seals Header
+       -> VerifiedPredecessorsV1
+  -> ResolvedSsaIdentityStateV2 seals Header
+       -> existing BindingSsaBuilderV1 / PhiTxn patch the provisional PHI
+  -> After reads the canonical merged reaching value
+```
+
+`CanonicalSsaFunctionSessionV2` is the only mutable CFG/Binding SSA/PhiTxn
+bundle. The Dynamic adapter may authorize one source-backed lineage and drive
+the existing APIs in order; it does not allocate or patch a PHI itself.
+
+Physical-role mapping for this pre-Recipe L0 canary is one private,
+move-only, bounded placement receipt issued while the exact blocks are created
+through the canonical CFG session. It relates owner/exact Loop site to Enter,
+Header, body path, terminal Backedge predecessor, and After. It is placement
+only and retires when the common Recipe physical-layout receipt owns this
+caller. Actual predecessor truth remains solely
+`CanonicalCfgSessionV1::seal_block` / `VerifiedPredecessorsV1`.
+
+The Add definition block is not assumed to equal the terminal Backedge
+predecessor. The existing MIR Binding SSA adapter must verify that each value
+definition dominates its selected terminal predecessor. Block-ID order,
+predecessor-vector position, terminator rescans, or name inference never assign
+Enter/Backedge roles.
+
+Owner table:
+
+```text
+source-backed Dynamic lineage and expected carrier roles:
+  P0/S0 semantic products
+
+physical role -> block placement:
+  private bounded canonical-CFG placement receipt
+
+actual Header predecessor set:
+  CanonicalCfgSessionV1 / VerifiedPredecessorsV1
+
+reaching definitions and assignment source claim:
+  ResolvedSsaIdentityStateV2
+
+provisional PHI decision:
+  BindingSsaBuilderV1
+
+physical PHI define/patch/best-effort pending rollback:
+  MirBindingSsaAdapterV1 borrowing the session PhiTxn
+
+failure atomicity:
+  whole unpublished CanonicalFunctionLoweringSessionV1 discard
+```
+
+Forbidden:
+
+```text
+post-P1 PHI insertion
+rewriting already-emitted operands
+raw predecessor Vec / PhiToken / caller-chosen PHI destination
+second BindingSsaBuilderV1 or PhiTxn
+route-local PHI writer
+entry or Add result as Loop After current
+definition block == terminal Backedge assumption
+same-session repair/retry/fallback
+source annotation or narrower .hako fixture
+```
+
+The valid production source remains the fixture. If the legacy route cannot
+accept this sequence, repair or replace the compiler owner; never rewrite the
+source to fit the narrower route.
+
+##### L0-P2A — `DYNAMIC-LOOP-PHI-OPEN-P2A`
 
 Change:
-  Bind expected Enter/Backedge roles to actual canonical predecessors and
-  exact incoming values after CFG/body completion. Issue one prepared Dynamic
-  PHI authorization and emit through the existing Binding SSA / `PhiTxn`
-  owner.
+  Borrow the one canonical function session, co-seal the exact Enter/Header
+  placement with the prepared ingress, confirm the existing Enter definition,
+  and read the unsealed Header through
+  `ResolvedSsaIdentityStateV2::read_entry_receipt`. Return one opaque,
+  move-only Header-current product. Do not expose its PHI token or construct a
+  second SSA owner.
 
 Done:
-  missing, duplicate, phantom, extra, foreign, mixed Exact/Dynamic, or
-  different-lineage incoming rows reject. Failure discards the unpublished
-  session. Update the PHI owner README and MIR reference in the same commit.
+  The provisional PHI exists before operation emission; its current belongs
+  to the exact owner/Loop/binding/Header and the same Dynamic lineage. Foreign,
+  stale, missing-entry, already-sealed Header, duplicate-open, or role-alias
+  inputs reject. All failures are post-effect and require whole-session
+  discard.
 
 Stop:
-  No route-local PHI writer and no Unknown-only admission.
+  Do not emit Compare/Add, define Backedge, patch PHI inputs, or claim Loop
+  After.
+
+##### L0-P1R — `DYNAMIC-LOOP-HEADER-REBIND-P1R`
+
+Change:
+  Correct the private P1 terminal to consume the opaque canonical Header
+  current. Compare and Add use that value as their left operand; the Add
+  result becomes one source-backed Dynamic Backedge definition receipt.
+  Canonical Binding SSA remains the reaching-value authority; the legacy
+  callable-current projection is not final Loop-current truth.
+
+Done:
+  Focused MIR evidence proves both operation lhs values equal the provisional
+  Header PHI destination and differ from Enter. The Add stays physically
+  unknown while its exact source relation preserves one Dynamic lineage.
+
+Stop:
+  No operand rewrite after emission, raw-Unknown admission, After publication,
+  or second current-value owner.
+
+##### L0-P2B — `DYNAMIC-LOOP-PHI-CLOSE-P2B`
+
+Change:
+  Define the exact source assignment through canonical Binding SSA, finish the
+  actual terminal Backedge path, seal Header through canonical CFG, verify the
+  witness is exactly Enter plus Backedge, then seal the canonical identity so
+  existing Binding SSA / `PhiTxn` patches the already-open PHI.
+
+Done:
+  The PHI inputs are exactly `(Enter, entry)` and `(Backedge, Add result)`;
+  each value dominates its selected predecessor. Missing, duplicate, phantom,
+  extra, foreign, role-aliased, or different-lineage evidence rejects. The
+  first cohort has one Enter and one Backedge; Continue and multiple Backedges
+  remain closed. `identity.finish`, `phis.commit`, and `cfg.finish` can succeed
+  only after this close.
+
+Stop:
+  No route-local PHI writer, raw-Unknown admission, inferred Dynamic type,
+  legacy variable-map synchronization, or production claim. Mixed
+  Exact/Dynamic remains structurally unavailable until an exact-arm issuer
+  exists; do not forge it solely for a negative test.
+
+##### L0-P2C — `DYNAMIC-LOOP-PHI-DISCARD-P2C`
+
+Change:
+  Prove whole-session atomicity at the open, operation, definition, and
+  post-patch failure points.
+
+Done:
+  Every failure consumes the unpublished function session and restores the
+  caller exactly once. Pending PHI rollback is best-effort diagnostic hygiene,
+  never the correctness owner. A fresh session can repeat the same semantic
+  program; tests compare roles and instruction shape rather than numeric IDs.
+
+Stop:
+  No same-session retry, MIR repair, suffix route, or fallback.
+
+Implementation order after this D0 closes:
+
+```text
+P2A Header-current open
+-> P1R operation correction
+-> P2B predecessor close / PHI patch
+-> P2C discard canary
+-> L0-I0 bounded ownership switch or caller-zero-only status
+```
+
+The implementation slice must update
+`src/mir/builder/resolved_lowering/canonical_cfg/README.md`,
+`src/mir/builder/ssa/binding/README.md`, `src/mir/builder/README.md`, and
+`docs/reference/mir/generic-loop-stage-matrix.md` with landed facts. All new
+source files remain below 800 lines.
 
 ##### L0-I0 — `GENERIC-LOOP-DYNAMIC-VM-CANARY-I0`
 

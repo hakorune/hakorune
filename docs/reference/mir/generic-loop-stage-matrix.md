@@ -1715,10 +1715,27 @@ physically untyped. A prepared/infallible-commit boundary atomically advances
 both callable-current state and the source-backed Dynamic lineage. Stale,
 foreign, reused, or duplicate values reject without changing that state.
 
-The resulting move-only handoff retains exact owner/Loop/source identity,
+The resulting move-only canary product retains exact owner/Loop/source identity,
 carrier binding and origin, Enter and Backedge values, Add definition block,
-and expected Enter/Backedge roles. It contains no raw predecessor vector,
+and descriptive Enter/Backedge roles. It contains no raw predecessor vector,
 PHI token/destination, Builder or SSA handle, or physical type inference.
 Post-emission failure discards the complete unpublished function session.
 Raw Unknown admission, a second emitter, PHI/backend support, retry/fallback,
 and production route activation remain closed for P2 and later rows.
+
+This receipt is deliberately narrower than a canonical Loop-current handoff.
+The landed P1 emits Compare/Add from Enter, so a PHI created only afterward
+would be unused and would not represent repeated iterations or the
+zero-iteration/After reaching value. The accepted follow-up order is:
+
+```text
+canonical unsealed Header read / provisional PHI
+-> Compare/Add using Header current
+-> actual Backedge completion
+-> canonical CFG witness
+-> Binding SSA seal / existing PhiTxn patch
+```
+
+`CanonicalSsaFunctionSessionV2` remains the sole CFG/Binding SSA/PhiTxn owner.
+No source narrowing or annotation is permitted to avoid this compiler-side
+temporal correction.
