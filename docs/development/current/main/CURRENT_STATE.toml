@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Initial V1/C0/B0 is accepted as BorrowedIngressNoEnd, but ingress I0 is NoSafeSlice until one common Rust/Hako parameter-transfer seal and complete callable parameter-demand catalog can prove parameter #1 is Ordinary/Handle."
+status = "Callable parameter-transfer authority is accepted. The selected behavior-neutral R0a replaces Hako raw Ordinary strings with one closed parser-private vocabulary; Take, Home demand, Dynamic ingress, and production remain closed."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0: seal one typed Rust/Hako Ordinary|Take parameter source authority shared by static and instance callable declarations, without parser Home meaning, raw string tags, builder-token identity, or old-AST absence inference"
-work_mode = "design_stop"
-current_execution_row = "CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0"
-current_blocker_token = "CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0: reconcile the existing Hako typed-seal tasks with the missing Rust/resolver normal-callable parameter source seal; define exact declaration/site/ordinal/provenance identity and keep Ordinary|Take syntax separate from Home demand"
+current_design_stop = "none; CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0 accepted"
+work_mode = "fast"
+current_execution_row = "HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0A"
+current_blocker_token = "HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0A: replace raw String Ordinary classification with one parser-private closed transfer vocabulary and opaque list-bound row capability; preserve Ordinary-only behavior and do not activate Take or Home"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -234,7 +234,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "Initial V1/C0/B0 is BorrowedIngressNoEnd. The current design stop selects the shared typed parameter source authority needed before a complete Ordinary-to-Handle demand catalog and Dynamic ingress co-seal can be implemented."
+current_execution_summary = "The parameter-transfer authority Decision is accepted. R0a closes the Hako raw-tag authority first; R0b then binds the list seal to parser session/method identity before the Rust sibling callable-parameter catalog opens."
 current_execution_design = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -718,13 +718,13 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-carrier-ingress-lifecycle-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-next_design_card = "CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0"
+next_design_card = "none; CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0 accepted"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-next_execution_card = "none until CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0 is accepted"
-next_execution_card_path = "none"
+next_execution_card = "HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0A"
+next_execution_card_path = "docs/development/current/main/investigations/hako-parameter-transfer-typed-seal-r0-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "Initial V1/C0/B0 is BorrowedIngressNoEnd. A common typed callable parameter source seal and complete parameter-demand catalog must land before Dynamic ingress I0 and rebind I0 can open."
+latest_card_summary = "Initial V1/C0/B0 is BorrowedIngressNoEnd. The shared parameter-transfer authority is accepted; Hako R0a/R0b, the Rust sibling callable-parameter source catalog, and the complete demand catalog precede Dynamic ingress I0."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

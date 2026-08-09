@@ -1,6 +1,6 @@
 # HAKO-PARAMETER-TRANSFER-TYPED-SEAL-D0
 
-Status: parked design stop; required before Take source I0
+Status: accepted Decision; R0a selected
 Date: 2026-08-10
 
 ## Goal
@@ -19,18 +19,37 @@ parser_source_session_v1.hako
 source_declaration_refs_v1.hako
 ```
 
-## Decision questions
+## Decision
 
-1. How does Hako represent the closed syntax set `Ordinary | Take` without
-   allowing arbitrary caller strings?
-2. Which canonical issuer owns each tag/capability?
-3. How are `ParserProgramSourceSession` brand, exact method site, and parameter
-   list issuer sealed without exposing a builder instance?
-4. Which limited comparison/co-seal API replaces consumer-visible
-   `sealed_token()`?
-5. How does Rust/Hako normalized parity encode the typed transfer row?
+Use one parser-private closed enum plus an opaque wrapper bound to an exact
+parameter-list issuer seal:
 
-## Required output
+```text
+ParserParameterTransferKindV1::{Ordinary, Take}
+
+ParserParameterTransferSyntaxV1
+  private kind
+  exact parameter-list issuer seal
+  optional modifier site
+```
+
+The wrapper has no raw kind getter. R0 exposes only the Ordinary issuer. Take
+is reserved vocabulary with no issuing API until Take I0. Any normalized
+`"Ordinary"` text is serializer output only, never input or evidence.
+
+`ParserProgramSourceSessionV1` issues one
+`ParserParameterListIssuerSealV1` for an exact owned method site. Duplicate or
+foreign issuance rejects. The builder retains that seal but is not itself a
+brand. The sealer consumes `(method_site, rows, list_seal)`, and the finished
+product keeps the seal private. Allowed comparisons are limited to
+`same_parser_source(...)`, `same_parameter_list_source(...)`, and bounded
+`parameter_is_ordinary(index)`.
+
+Ordinary parameters may have no declared type. The source row represents
+`None | Some(type token)` explicitly; empty string is not a type and absence
+does not reject. Take remains typed when its grammar opens.
+
+## Implementation series
 
 ```text
 owner/non-owner table
@@ -41,8 +60,6 @@ R0 implementation task
 legacy raw-string/token removal condition
 focused guard/corpus update list
 ```
-
-The resulting R0 is a short behavior-neutral Refactor Series:
 
 ```text
 R0a:

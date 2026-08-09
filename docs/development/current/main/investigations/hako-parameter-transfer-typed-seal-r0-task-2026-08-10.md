@@ -1,6 +1,6 @@
 # HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0
 
-Status: parked implementation; opens only after the D0 is accepted
+Status: R0a selected; R0b follows atomically
 Date: 2026-08-10
 Depends on: `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-D0`
 
@@ -52,6 +52,8 @@ The exact owners are `parameter_syntax_records_v1.hako`,
 - owner README, focused tests, task receipt, and language/parser reference are
   updated in the same commit;
 - all touched source files remain below 800 lines.
+- an Ordinary row represents absent or present declared type explicitly;
+  untyped `skip_while` parameters never require an empty-string fake type;
 
 `tools/checks/hako_parser_parameter_list_h2_s1_guard.sh` must prove that no
 raw `"Ordinary"` / `"Take"` comparison exists outside the issuer and no

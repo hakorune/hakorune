@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: ingress Decision accepted; implementation is `NoSafeSlice`
+Status: ingress and parameter-transfer authority Decisions accepted; implementation pending
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current design row: `CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0`
+Current implementation row: `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0A`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
 
@@ -61,6 +61,34 @@ Dynamic, Recipe, carrier, CFG, or physical ABI meaning. Existing and future
 callable Home ABI aggregates must consume or project these rows rather than
 reissue parameter demand independently.
 
+The parser source authority is a sibling product, not an expansion of the
+existing `ParserBoxSourceSealV1`:
+
+```text
+same parser invocation provenance
++ exact direct Box-method source coordinate
++ complete ordered parameter syntax rows
+  -> ParserCallableParameterSourceCatalogV1
+```
+
+`ParserBoxSourceSealV1` remains the ordinary-Box post-prune/delegate owner.
+Static boxes currently use an AST-only compatibility lane; forcing
+`ParserScanLoopBox` into that seal would incorrectly couple parameter syntax
+to inventory/delegate/build-gate policy. The sibling catalog supports direct
+static and direct ordinary instance methods through one source coordinate:
+parser provenance, Box statement/path, source member ordinal, then parameter
+ordinal. Inventory ordinal and method name are diagnostics, not identity.
+
+The cloneable AST `ParamDecl` remains a neutral name/type projection. A
+parser-private one-shot parameter-list product owns transfer syntax and lends
+that projection to AST construction; neither `ParamDecl` nor its legacy
+name-only fallback can issue `Ordinary` evidence.
+
+Parameter type syntax is optional for `Ordinary`. The unchanged
+`skip_while(src, pos, end, pred_chars)` declaration is untyped. Missing type
+syntax is represented explicitly, never as an error or an empty-string type.
+Future accepted `Take` syntax still requires its exact type relation.
+
 The Dynamic ingress issuer is a one-way relational co-seal:
 
 ```text
@@ -89,7 +117,7 @@ C0/L0/B0, but they intentionally own no callable parameter demand. Recipe
 
 ## Ordered tasks
 
-### 1. `CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0` — current
+### 1. `CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0` — accepted
 
 Close the common Rust/Hako authority contract:
 
@@ -102,10 +130,43 @@ Close the common Rust/Hako authority contract:
 - reuse the existing `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-D0/R0` work instead
   of creating a second Hako vocabulary.
 
+Selected Hako representation:
+
+```text
+parser-private ParserParameterTransferKindV1::{Ordinary, Take}
++ opaque transfer wrapper bound to one parameter-list issuer seal
+```
+
+There is no raw-kind getter. R0 exposes only the Ordinary issuer; the Take
+variant is reserved but has no issuing API until Take I0. The parser source
+session issues one exact method-bound parameter-list seal, rejects duplicate
+issuance, and the final product exposes only limited same-source/ordinary-row
+queries. Builder identity and `sealed_token()` are not provenance.
+
+### 1A. `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0A` — selected
+
+Replace raw `"Ordinary"` classification with the closed private vocabulary
+and opaque row capability. No grammar or semantic behavior changes.
+
+### 1B. `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0B`
+
+Issue the parameter-list seal from `ParserProgramSourceSessionV1`, bind it to
+the exact method, and remove builder-as-token plus `sealed_token()`.
+
+### 1C. `PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0`
+
+Before adding Rust parameter rows, extract their model/issuer from the
+near-limit parser owners. `source_seal.rs` is already above 750 lines and must
+not receive the new authority. Keep the sibling catalog in a dedicated
+`callable_parameter_source/` module and keep tests separate.
+
 ### 2. `CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0`
 
 Land the complete parser/resolver handoff and Rust/Hako parity. First active
-cohort may issue only exact `Ordinary` rows; this does not activate `take`.
+cohort issues exact `Ordinary` rows for direct static Box methods and direct
+ordinary instance methods; this does not activate `take`. Top-level functions,
+interfaces, constructors, generated methods, and selected build gates remain
+closed until their exact source issuer exists.
 
 Required negatives: missing/duplicate/foreign ordinal, wrong parser/catalog
 brand, raw `"Ordinary"` construction, builder token as identity, and
