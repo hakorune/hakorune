@@ -180,6 +180,11 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.assignment_targets()
     }
 
+    /// Borrows the complete resolver-sealed Loop site inventory.
+    pub(crate) fn loop_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
+        self.function.loop_sites()
+    }
+
     pub(crate) fn direct_call_targets(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, ResolvedDirectCallTargetV1)> {

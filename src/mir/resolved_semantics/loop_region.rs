@@ -213,6 +213,15 @@ impl ResolvedLoopRegionIndexV1 {
 }
 
 impl VerifiedResolvedFunctionV1 {
+    /// Borrows every sealed Loop site in deterministic source-path order.
+    ///
+    /// Consumers that need complete coverage must use this inventory instead
+    /// of repeatedly calling `only_loop_site` and thereby narrowing valid
+    /// multi-Loop callables to a singleton cohort.
+    pub(crate) fn loop_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
+        self.core.loop_regions.sites()
+    }
+
     /// Issues the sole Loop site only when the sealed index proves exactly one.
     /// Cardinality failure is a typed source/facts rejection; callers may not
     /// recover a route-local ordinal or choose one member from a larger set.

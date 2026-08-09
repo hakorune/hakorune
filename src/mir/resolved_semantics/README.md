@@ -844,3 +844,17 @@ The common admission assembler is now landed separately in
 value and co-seals mode/coverage from the five policy rows; the resolver does
 not issue rows, select a family, or relookup the source. Selector, Recipe,
 Builder/MIR production, physical cutover, and legacy retirement remain closed.
+
+## Source-backed dynamic callable support
+
+The resolver remains the sole issuer of formal/local `BindingRefV1`, exact
+Loop source/frame/scope-region identity, lexical-reference sites, and binding
+rebind targets. Its callable ledger now exposes the complete deterministic
+Loop-site inventory so a consumer does not narrow valid multi-Loop functions
+through `only_loop_site()`.
+
+The source-backed Dynamic classification itself is co-sealed one layer above,
+while exact syntax and `VerifiedSourceProjectionV1` are still available. The
+resolver does not infer Dynamic from a missing type fact or `MirType::Unknown`.
+Plain binding assignment targets are lvalues in the neutral body-shape
+inventory and are no longer misclassified as lexical value reads.

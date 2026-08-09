@@ -1,5 +1,5 @@
 ---
-Status: accepted design; S0 source issuer selected, implementation not landed
+Status: S0 closed; P0 design stop active
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -80,12 +80,13 @@ The canonical semantic issuer is:
 SourceBackedDynamicCallableIssuerV1
 ```
 
-It lives under `src/mir/resolved_semantics/`, not under GenericLoop or the
-Builder. It is called only while one exact `CallableFunctionSyntaxViewV1` and
-the matching `CallableSemanticSourceLedgerView` are simultaneously borrowed
-inside the existing normal-callable semantic seal. This is the only point
-where the source header still proves that a parameter is untyped and the
-resolver forest already proves its exact `BindingRefV1` and Loop membership.
+It lives in the source-only `normal_callable_dynamic_source.rs` sibling of the
+existing normal-callable semantic seal, not under GenericLoop or a physical
+Builder service. It is called only while one exact function root, its
+`VerifiedSourceProjectionV1`, and the matching resolver forest/ledger are
+simultaneously borrowed. This is the only point where the source header still
+proves that a parameter is untyped, the projection proves the exact AST owner,
+and the resolver forest proves each `BindingRefV1` and Loop membership.
 
 The issuer returns one non-`Clone`, AST-free aggregate:
 
@@ -188,8 +189,9 @@ complete-ingress Decision. It is not part of this blocker.
 Row: `GENERIC-LOOP-DYNAMIC-SOURCE-S0`
 
 Change:
-  Add `SourceBackedDynamicCallableIssuerV1` under resolved semantics. From one
-  exact callable syntax/ledger pair, issue one non-`Clone`, AST-free
+  Add `SourceBackedDynamicCallableIssuerV1` at the normal callable source
+  co-seal. From one exact syntax/projection/forest relation, issue one
+  non-`Clone`, AST-free
   `VerifiedSourceBackedDynamicCallableV1` containing complete untyped-formal
   coverage and exact formal-to-local-to-Loop-carrier relations. Old authority:
   none.
@@ -215,6 +217,15 @@ Stop:
   Return to design if the row needs a post-resolver AST rescan, a Builder
   lookup, source-name matching, a body-cardinality assumption, or any inferred
   exact numeric type. Do not open entry propagation or GenericLoop in S0.
+
+Closeout:
+  Closed in the S0 implementation slice. Six focused tests prove complete
+  untyped-formal coverage, exact `pos -> i -> Loop` membership, typed-formal
+  non-promotion, multi-Loop nearest-membership separation, foreign
+  projection/forest rejection, and names-only compatibility rejection. The
+  prerequisite body-shape correction records a binding assignment target as
+  an lvalue shape rather than fabricating a lexical read. The aggregate remains
+  disconnected from entry publication and GenericLoop.
 
 ### P0 — function-entry and local propagation
 
@@ -274,12 +285,12 @@ retry/fallback
 
 ## Stop condition
 
-The D0 stop is closed. The exact source authority is the co-present
-`CallableFunctionSyntaxViewV1` plus matching
-`CallableSemanticSourceLedgerView`; the canonical issuer is
+The D0 stop is closed. The exact source authority is the co-present function
+root plus `VerifiedSourceProjectionV1` and matching resolver forest/ledger;
+the canonical issuer is
 `SourceBackedDynamicCallableIssuerV1`, and its only public semantic output is
-`VerifiedSourceBackedDynamicCallableV1`. S0 may now implement that disconnected
-issuer. If implementation reveals that these two owners cannot prove an exact
-initializer or Loop relation without reopening AST after the seal, return to
-`NoSafeSlice` and improve the resolver/source seal rather than widening
-GenericLoop.
+`VerifiedSourceBackedDynamicCallableV1`. S0 has landed that disconnected
+issuer with zero Builder effect. P0 must now select the sole formal-entry and
+local-Copy origin handoff. If that boundary cannot preserve the verified origin
+without a second publisher or raw-`Unknown` inference, return to `NoSafeSlice`
+rather than widening GenericLoop.

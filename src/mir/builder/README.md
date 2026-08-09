@@ -145,6 +145,15 @@ common program owns operation/effect/continuation meaning. It creates no
 Builder/session effect or physical ID; the next bounded row is the caller-zero
 full physical canary.
 
+`normal_callable_dynamic_source.rs` owns the source-only co-seal for deliberate
+untyped/dynamic callables. It combines the exact function root,
+`VerifiedSourceProjectionV1`, and matching resolver forest once, then emits one
+non-`Clone`, AST-free aggregate containing complete untyped-formal coverage and
+exact formal-to-local-to-Loop-carrier relations. It never derives Dynamic from
+`MirType::Unknown`, result requirements, names, or Builder state. S0 is
+caller-zero outside its focused tests; entry publication, local origin
+propagation, GenericLoop, and PHI consumption remain later rows.
+
 ## 原則（SSOT / Box-First）
 
 - **状態は Context が SSOT**: `MirBuilder` の状態は Context（箱）に分割され、二重管理をしない。

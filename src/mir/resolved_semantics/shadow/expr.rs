@@ -274,7 +274,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     ) -> Result<(), ShadowResolveErrorV0> {
         let target_site = path.expr();
         self.record_expression_site(target_site.clone());
-        self.record_expression_shape(target, target_site.clone());
+        self.record_assignment_target_shape(target, target_site.clone());
         let resolved = match target {
             ASTNode::Variable { name, .. } => {
                 let Some(binding) = self.lookup(name) else {

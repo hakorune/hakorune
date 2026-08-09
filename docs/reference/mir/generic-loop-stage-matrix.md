@@ -1605,3 +1605,20 @@ missing-input, foreign-input, and tail-separation tests are green; existing
 demand/producer tests retain duplicate/missing-evidence coverage. No physical
 G0 emission, Completion/DraftSeal, selector, retry/fallback, or legacy
 retirement is claimed.
+
+## Source-backed Dynamic carrier S0 receipt (2026-08-09)
+
+`GENERIC-LOOP-DYNAMIC-SOURCE-S0` is closed as a source-only, caller-zero
+receipt. One exact function root, `VerifiedSourceProjectionV1`, and matching
+resolver forest feed `SourceBackedDynamicCallableIssuerV1`. Its sole public
+semantic result is one non-`Clone`, AST-free aggregate containing complete
+untyped-formal rows, exact dynamic-formal-to-local initialization rows, and
+nearest-Loop carrier read/rebind relations.
+
+The unmodified `skip_while/4` shape seals `pos` and `end` as source-backed
+dynamic formals and seals the exact `pos -> i -> Loop` carrier. Multi-Loop
+source is inventoried without singleton admission. Typed formals, names-only
+compatibility parameters, foreign projection/forest pairs, and missing source
+relations cannot become Dynamic. No `MirType`, `ValueId`, Builder effect,
+GenericLoop/PHI acceptance, backend support, retry, or fallback is added by
+this row.

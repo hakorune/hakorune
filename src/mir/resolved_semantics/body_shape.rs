@@ -369,6 +369,26 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
         self.body_shape.expressions.insert(site, shape);
     }
 
+    /// Records one assignment-place expression without reclassifying a plain
+    /// binding target as a lexical value read.
+    pub(super) fn record_assignment_target_shape(
+        &mut self,
+        target: &crate::ast::ASTNode,
+        site: SourceExprSiteV1,
+    ) {
+        if matches!(target, crate::ast::ASTNode::Variable { .. }) {
+            self.body_shape.expressions.insert(
+                site.clone(),
+                ShadowExpressionShapeV0::Other {
+                    site,
+                    kind: "BindingAssignmentTarget".into(),
+                },
+            );
+        } else {
+            self.record_expression_shape(target, site);
+        }
+    }
+
     pub(super) fn record_effect(&mut self, site: SourceExprSiteV1, kind: BodyEffectKindV1) {
         self.body_shape.effects.insert((site, kind));
     }
