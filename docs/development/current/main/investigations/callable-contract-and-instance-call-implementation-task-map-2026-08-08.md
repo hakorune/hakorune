@@ -1107,7 +1107,18 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-callable-body-effect-control-i0-implementation-task-2026-08-09.md`;
     - focused evidence: 5 resolver-only tests passed; the private receipt is
       not re-exported and does not widen the general four-axis owner.
-22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (current design stop)
+22A-HOME-SOURCE-D0. `OWN-HOME-SOURCE-EVENT-D0` (current design stop)
+    - `release root` direction is accepted as a statement-only contextual
+      source form, but exact `take`/`share` syntax and parser source-event
+      authority are not sealed;
+    - keep `release(value)`, `obj.release()`, callable/binding names,
+      `drop`, `unbox`, and `unhome` out of Home ownership authority;
+    - define one future typed parser carrier and its provenance boundary;
+      parser acceptance, Home-demand/root issuance, and Home Flow remain
+      closed until this D0 is accepted;
+    - focused card:
+      `docs/development/current/main/investigations/own-home-source-event-d0-design-task-2026-08-09.md`.
+22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after source-event D0)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;
     - define the future source event vocabulary (`Create`, `Consume`, `Share`,

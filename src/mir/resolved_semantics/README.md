@@ -154,9 +154,9 @@ any incomplete axis remains `NoSafeSlice`. The bounded
 receipt for exact root-direct `return me.invoke()` (one Call effect, one
 same-function Return exit, and exact source relations). Five focused tests
 pass; the receipt is not re-exported. It does not widen `BodyEffectKindV1`
-or open Home flow. The next design stop is `CALLABLE-BODY-HOME-FLOW-D0`:
-Home source events/grammar, a Home-demand issuer, and CFG-complete ownership
-witnesses are not yet available, so Home flow remains `NoSafeSlice`. The
+or open Home flow. The next design stop is
+`OWN-HOME-SOURCE-EVENT-D0`: `release root` direction is accepted, while exact
+`take`/`share` syntax and the parser source-event issuer are not sealed. The
 general D0 defines four private
  axis receipts or borrowed views—complete body
 coverage, effect events, control/exit events, and Home-flow events/state—then

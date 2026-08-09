@@ -139,7 +139,8 @@ Keep this order shallow and do not skip the missing authority boundary:
    without inventing Home/effect/control meaning in the aggregate
 ```
 
-The first two follow-up rows are design/authority rows. No Home-flow source
-event, fake ABI, public aggregate, target, Recipe/CallSlot, FunctionOwner,
-Builder, MIR, DropPlan, fallback, or production route may be added while this
-card remains the current design stop.
+The source-event authority is now split into the focused
+`OWN-HOME-SOURCE-EVENT-D0` card. No Home-flow source event, fake ABI, public
+aggregate, target, Recipe/CallSlot, FunctionOwner, Builder, MIR, DropPlan,
+fallback, or production route may be added while that card remains the current
+design stop.
