@@ -32,7 +32,7 @@ body-source I0 and borrowed Query body-source projection I0 are also closed.
 The current bounded implementation row is:
 
 ```text
-CALLABLE-BODY-FACTS-QUERY-D0
+CALLABLE-BODY-FACTS-QUERY-I0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
@@ -57,7 +57,7 @@ one neutral AST-free shape inventory, bounded to receiver lexical reads and
 ordinary returns. The carrier keeps that shape from the same owner-tree walk
 and co-seals it with the declaration catalog's parser provenance and resolver
 brand. Direct field/state authority remains closed. The shape I0 is now
-closed; the next design stop is the bounded Query body observer. No conformance,
+closed; the bounded Query body-facts implementation is now the active row. No conformance,
 target, Recipe/CallSlot, Builder/MIR, or production work is open.
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view

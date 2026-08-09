@@ -1031,7 +1031,7 @@ Rejected > Unresolved > Declined > Candidate
       source sites, and complete coverage; no second owner issuer;
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-i0-implementation-task-2026-08-09.md`.
-21B. `CALLABLE-BODY-FACTS-QUERY-D0` (accepted design; I0 not opened)
+21B. `CALLABLE-BODY-FACTS-QUERY-D0` (accepted design; I0 opened)
     - consume only the already selected Query owner-link catalog and each
       carrier's neutral `VerifiedResolvedBodyShapeInventoryV1`;
     - issue one atomic private `VerifiedCallableQueryBodyFactsCatalogV1`;
@@ -1046,6 +1046,8 @@ Rejected > Unresolved > Declined > Candidate
       mismatches are `Rejected`, and opaque evidence is `Unresolved`;
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-facts-query-d0-design-task-2026-08-09.md`.
+    - implementation:
+      `docs/development/current/main/investigations/own-home-callable-body-facts-query-i0-implementation-task-2026-08-09.md`.
 22. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
     - verify direct receiver-read footprint, no writes/Home escape/allocation/
       IO/FFI/failure escape/suspension/non-local control;
