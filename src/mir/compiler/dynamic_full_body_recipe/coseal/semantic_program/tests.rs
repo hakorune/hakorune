@@ -168,7 +168,7 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
     }
     assert!(rows.iter().all(|row| {
         row.lifecycle()
-            == crate::mir::dynamic_invocation_contract::DynamicInvocationResultLifecycleV1::EndExactlyOnceUnlessForwarded
+            == crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded
     }));
     assert_eq!(lifecycle.after().loop_key(), LoopNodeKeyV1::new(0));
     assert_eq!(lifecycle.fault_cut_points().rows().len(), 6);

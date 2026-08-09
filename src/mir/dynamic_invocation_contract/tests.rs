@@ -112,7 +112,7 @@ fn unchanged_full_fixture_issues_one_complete_envelope_per_dynamic_target() {
         );
         assert_eq!(
             contract.result_lifecycle(),
-            DynamicInvocationResultLifecycleV1::EndExactlyOnceUnlessForwarded
+            crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded
         );
         let address = contract as *const _;
         if let Some(expected) = contract_address {
@@ -224,4 +224,31 @@ fn duplicate_dynamic_source_cannot_reach_a_second_envelope_row() {
             DynamicMemberSourceRejectV1::DuplicateOrCollidingTarget { .. }
         ))
     ));
+}
+
+#[test]
+fn carrier_lifecycle_vocabulary_has_one_neutral_owner() {
+    let invocation_model = include_str!("model.rs");
+    let carrier_model = include_str!("../dynamic_carrier_contract/model.rs");
+
+    let retired_name = concat!("DynamicInvocationResult", "LifecycleV1");
+    assert!(!invocation_model.contains(retired_name));
+    assert_eq!(
+        carrier_model
+            .matches("enum DynamicCarrierLifecycleObligationV1")
+            .count(),
+        1
+    );
+    assert_eq!(
+        carrier_model
+            .matches("EndExactlyOnceUnlessForwarded")
+            .count(),
+        1
+    );
+    for forbidden in ["Home", "runtime tag", "provider", "BasicBlockId", "ValueId"] {
+        assert!(
+            !carrier_model.contains(forbidden),
+            "neutral carrier vocabulary must not contain {forbidden}"
+        );
+    }
 }

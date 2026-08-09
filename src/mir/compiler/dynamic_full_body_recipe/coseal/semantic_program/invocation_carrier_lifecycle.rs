@@ -8,8 +8,9 @@ use crate::mir::compiler::{
     dynamic_full_body_recipe::claims::DynamicFullLoopClaimTargetV2,
     dynamic_full_body_source::{DynamicFullBodySourceRoleV1, DynamicFullBodySourceSiteV1},
 };
+use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
 use crate::mir::dynamic_invocation_contract::{
-    DynamicInvocationInputHomeV1, DynamicInvocationOutcomeV1, DynamicInvocationResultLifecycleV1,
+    DynamicInvocationInputHomeV1, DynamicInvocationOutcomeV1,
 };
 use crate::mir::loop_recipe_contract::{
     LoopItemKeyV1, LoopOperationV2, LoopRecipeItemV2, LoopValueKeyV1,
@@ -52,7 +53,7 @@ struct DynamicInvocationCarrierLifecycleRowV1 {
     result: LoopValueKeyV1,
     publication: DynamicInvocationCarrierPublicationV1,
     destination: DynamicInvocationCarrierDestinationV1,
-    lifecycle: DynamicInvocationResultLifecycleV1,
+    lifecycle: DynamicCarrierLifecycleObligationV1,
 }
 
 #[derive(Debug)]
@@ -123,7 +124,7 @@ impl DynamicInvocationCarrierLifecycleRowRefV1<'_> {
         }
     }
 
-    pub(in crate::mir) const fn lifecycle(&self) -> DynamicInvocationResultLifecycleV1 {
+    pub(in crate::mir) const fn lifecycle(&self) -> DynamicCarrierLifecycleObligationV1 {
         self.row.lifecycle
     }
 }
@@ -254,7 +255,7 @@ pub(super) fn issue_invocation_carrier_lifecycle_v1(
 
 struct DynamicInvocationEnvelopeContractV1 {
     input: DynamicInvocationInputHomeV1,
-    lifecycle: DynamicInvocationResultLifecycleV1,
+    lifecycle: DynamicCarrierLifecycleObligationV1,
 }
 
 fn require_envelope_contract(
@@ -273,7 +274,7 @@ fn require_envelope_contract(
         || envelope.envelope().input_home()
             != DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation
         || envelope.envelope().result_lifecycle()
-            != DynamicInvocationResultLifecycleV1::EndExactlyOnceUnlessForwarded
+            != DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded
     {
         return Err(DynamicInvocationCarrierLifecycleRejectV1::EnvelopeContract);
     }

@@ -39,7 +39,7 @@ Rename the misleading compatibility vocabulary in the same bounded module:
 
 ```text
 DynamicInvocationResultHomeV1
-  -> DynamicInvocationResultLifecycleV1
+  -> DynamicCarrierLifecycleObligationV1
 
 result_home()
   -> result_lifecycle()
@@ -52,7 +52,8 @@ result contract or retain the old name as a second authority.
 
 - exact two-row Recipe-order golden: I6/V10 local, I7/V11 temporary;
 - every row borrows `EndExactlyOnceUnlessForwarded` from the canonical
-  language-wide Dynamic envelope; the profile does not redefine it;
+  language-wide Dynamic envelope; the neutral `dynamic_carrier_contract`
+  owns the vocabulary and the profile does not redefine it;
 - I7 exact argument is V10 and its envelope supplies
   `BorrowedNoEscapeForInvocation`; I7 does not move/end V10's obligation;
 - missing/duplicate/foreign/wrong-result/wrong-destination rows reject before

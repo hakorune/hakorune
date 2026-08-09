@@ -13,9 +13,8 @@ pub(crate) use catalog::{
 #[allow(unused_imports)]
 pub(crate) use model::{
     DynamicInvocationControlV1, DynamicInvocationEffectV1, DynamicInvocationInputHomeV1,
-    DynamicInvocationOrderingV1, DynamicInvocationOutcomeV1, DynamicInvocationResultLifecycleV1,
-    DynamicInvocationSuspensionV1, VerifiedDynamicInvocationEnvelopeRefV1,
-    VerifiedDynamicInvocationExecutionEnvelopeV1,
+    DynamicInvocationOrderingV1, DynamicInvocationOutcomeV1, DynamicInvocationSuspensionV1,
+    VerifiedDynamicInvocationEnvelopeRefV1, VerifiedDynamicInvocationExecutionEnvelopeV1,
 };
 
 #[cfg(test)]

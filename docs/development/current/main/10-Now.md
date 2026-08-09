@@ -55,7 +55,7 @@ common engine R0 is closed. The executable row is owned by
 `CURRENT_STATE.toml`; at this lane-change closeout it is:
 
 ```text
-DYNAMIC-CARRIER-LIFECYCLE-VOCABULARY-R0
+DYNAMIC-OPERATOR-EXECUTION-CONTRACT-I0
 ```
 
 The Dynamic local Home-capability census is closed as `NoSafeSlice`: the
@@ -67,10 +67,10 @@ claiming Home. The current bounded I0 retains exact I6/V10 local and I7/V11
 temporary obligations. That I0 is now closed with
 OnNormalResultPublication authorization and
 the old ResultHome vocabulary removed. The DynamicAdd lifecycle Decision is
-now accepted. The selected behavior-neutral row moves the shared lifecycle
-vocabulary out of the invocation-specific module; the operator issuer, exact
-V9/V17 rows, full carrier flow, Home, cleanup execution, Completion, and
-physical lowering remain closed.
+now accepted. The behavior-neutral shared lifecycle vocabulary move is closed.
+The selected row adds the atomic operator issuer; exact V9/V17 rows, full
+carrier flow, Home, cleanup execution, Completion, and physical lowering
+remain closed.
 
 Message identity remains separate from the atomic semantic envelope. Recipe
 V2 has one honest logical `Dynamic` class, while an external item/source

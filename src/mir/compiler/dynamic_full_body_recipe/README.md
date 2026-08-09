@@ -24,7 +24,9 @@ complete resolver source inventory
   six-site Fault authorization catalog. Its next consuming wrapper derives the
   complete two-row invocation-result lifecycle catalog: I6/V10 local and
   I7/V11 temporary, both activated on exact Normal publication and borrowing
-  `EndExactlyOnceUnlessForwarded` from the canonical Dynamic envelope. The
+  `EndExactlyOnceUnlessForwarded` from the neutral
+  `dynamic_carrier_contract` vocabulary through the canonical Dynamic
+  envelope. The
   views retain exact local/call/boundary source sites and I7's
   `BorrowedNoEscapeForInvocation` contract. It lends only borrow-scoped views and
   accepts no raw owner, Recipe, JoinSig, After, Continuation, lifecycle row,
@@ -32,6 +34,8 @@ complete resolver source inventory
 - `dynamic_invocation_contract` remains the complete immutable envelope
   catalog owner. This directory borrows it and never copies targets or
   selector semantics.
+- `dynamic_carrier_contract` remains the sole shared lifecycle-vocabulary
+  owner. This directory never redefines or infers it.
 
 The semantic source batch owns the exact relation between a catalog callable
 and its invocation-local resolver owner. Tests and production integration must

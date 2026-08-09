@@ -1,4 +1,5 @@
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1;
 
@@ -30,11 +31,6 @@ pub(crate) enum DynamicInvocationControlV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DynamicInvocationInputHomeV1 {
     BorrowedNoEscapeForInvocation,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum DynamicInvocationResultLifecycleV1 {
-    EndExactlyOnceUnlessForwarded,
 }
 
 /// The one language-wide Dynamic invocation contract.
@@ -75,8 +71,8 @@ impl VerifiedDynamicInvocationExecutionEnvelopeV1 {
         DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation
     }
 
-    pub(crate) const fn result_lifecycle(&self) -> DynamicInvocationResultLifecycleV1 {
-        DynamicInvocationResultLifecycleV1::EndExactlyOnceUnlessForwarded
+    pub(crate) const fn result_lifecycle(&self) -> DynamicCarrierLifecycleObligationV1 {
+        DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded
     }
 }
 

@@ -83,6 +83,7 @@ pub mod direct_array_access_plan; // MIR-owned DirectArray access plans
 pub mod direct_array_extent_fact; // MIR-owned DirectArray extent facts
 pub mod direct_exact_hotcore_call_plan; // MIR-owned direct-exact HotCore call-edge plans
 pub mod direct_state_plan; // metadata-only direct mutable-state candidate plans
+pub(crate) mod dynamic_carrier_contract; // neutral opaque Dynamic carrier lifecycle vocabulary
 pub(crate) mod dynamic_invocation_contract; // source-bound Dynamic semantic envelope
 pub mod effect;
 pub mod effect_capability_plan; // MIR-owned EffectPlan/CapabilityPlan metadata boundary

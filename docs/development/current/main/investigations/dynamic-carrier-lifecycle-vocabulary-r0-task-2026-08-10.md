@@ -1,6 +1,6 @@
 # DYNAMIC-CARRIER-LIFECYCLE-VOCABULARY-R0
 
-Status: selected after the Dynamic operator Decision closeout
+Status: closed; neutral vocabulary is the sole lifecycle owner
 Date: 2026-08-10
 Depends on: `DYNAMIC-INVOCATION-RESULT-LIFECYCLE-I0` closed
 
@@ -36,3 +36,11 @@ all duplicate spellings in the same commit.
 Any need to classify payload Home, infer from a runtime implementation, change
 Fault behavior, or add the V9/V17 operator rows returns to design. This row is
 a behavior-neutral vocabulary move only.
+
+## Closeout
+
+`DynamicCarrierLifecycleObligationV1` now lives only in
+`src/mir/dynamic_carrier_contract`. The invocation envelope and exact
+I6/V10/I7/V11 lifecycle catalog borrow it; the old invocation-specific type is
+absent. Focused invocation and semantic-program tests plus `cargo check --lib`
+are green. Existing unrelated unused-import warnings remain baseline evidence.

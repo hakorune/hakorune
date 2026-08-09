@@ -130,8 +130,9 @@ I6/I7 Fault -> static authorization remains, no runtime carrier is instantiated
 ```
 
 Both static rows authorize lifecycle creation only on exact Normal result
-publication and borrow `EndExactlyOnceUnlessForwarded` from the language-wide
-envelope. A Fault instantiates no runtime carrier. This receipt does not
+publication and borrow `EndExactlyOnceUnlessForwarded` from the neutral
+Dynamic carrier vocabulary through the language-wide envelope. A Fault
+instantiates no runtime carrier. This receipt does not
 cover Dynamic operator results, complete callable carrier flow, Home, physical
 End emission, or production activation.
 
