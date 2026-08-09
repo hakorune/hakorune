@@ -573,10 +573,12 @@ CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0 (closed bounded implementation)
   Task:
   `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-i0-implementation-task-2026-08-09.md`
 
-CALLABLE-BODY-FACTS-QUERY-D0/I0 (next design stop; implementation parked)
-  observe the bounded receiver-read/return body through the branded owner link
-  only after the neutral shape inventory exists; no public contract
-  re-inference, target, Recipe, or MIR.
+CALLABLE-BODY-FACTS-QUERY-D0/I0 (closed bounded implementation 2026-08-09)
+  observed the bounded receiver-read/return body through the branded owner
+  link after the neutral shape inventory landed; no public contract
+  re-inference, target, Recipe, or MIR. Receipt:
+  `docs/development/current/main/investigations/own-home-callable-body-facts-query-i0-implementation-task-2026-08-09.md`.
+  Focused evidence: query_body_facts 4, body_shape 3, owner 3, resolver 4.
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0 (parked behind body facts)
   complete same-brand declared-contract + body-conformance set
@@ -1031,7 +1033,7 @@ Rejected > Unresolved > Declined > Candidate
       source sites, and complete coverage; no second owner issuer;
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-i0-implementation-task-2026-08-09.md`.
-21B. `CALLABLE-BODY-FACTS-QUERY-D0` (accepted design; I0 opened)
+21B. `CALLABLE-BODY-FACTS-QUERY-D0/I0` (closed bounded implementation 2026-08-09)
     - consume only the already selected Query owner-link catalog and each
       carrier's neutral `VerifiedResolvedBodyShapeInventoryV1`;
     - issue one atomic private `VerifiedCallableQueryBodyFactsCatalogV1`;
@@ -1044,10 +1046,12 @@ Rejected > Unresolved > Declined > Candidate
     - `NoSafeSlice` is only the development state for a missing issuer/evidence;
       fully observed out-of-cohort shapes are `Declined`, identity/coverage
       mismatches are `Rejected`, and opaque evidence is `Unresolved`;
-    - task:
+    - task/design receipt:
       `docs/development/current/main/investigations/own-home-callable-body-facts-query-d0-design-task-2026-08-09.md`.
-    - implementation:
+    - implementation receipt:
       `docs/development/current/main/investigations/own-home-callable-body-facts-query-i0-implementation-task-2026-08-09.md`.
+    - focused evidence: 4 Query facts, 3 body-shape, 3 owner-link, and 4
+      resolver tests passed; current pointer guard passed.
 22. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
     - verify direct receiver-read footprint, no writes/Home escape/allocation/
       IO/FFI/failure escape/suspension/non-local control;

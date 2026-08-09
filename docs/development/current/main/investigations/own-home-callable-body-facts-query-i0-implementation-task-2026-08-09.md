@@ -1,5 +1,5 @@
 ---
-Status: implementation open
+Status: closed bounded implementation
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-facts-query-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -98,23 +98,22 @@ missing shape issuer            -> NoSafeSlice (development state only)
 extra statement/effect, and unsupported control are negative fixtures. A
 valid non-Query row remains unselected upstream and receives no default facts.
 
-## Required tests
+## Landed focused tests
 
 ```text
-positive `return me`
-return 0 / empty / local / multiple-return -> Declined
-field/method call / extra effect           -> Declined
-foreign receiver BindingRef                -> Rejected
-wrong owner/body-root/shape root           -> Rejected
-missing/duplicate ReturnValue relation     -> Rejected
-nested callable does not leak into parent  -> Rejected or no candidate
-sparse Query/non-Query/Query order retained
-all selected Query rows seal atomically
+query_body_facts_accept_exact_return_me
+query_body_facts_decline_constant_and_empty_shapes
+query_body_facts_decline_field_and_extra_statement_shapes
+query_body_facts_preserve_sparse_selected_query_order
 ```
 
-Use real parser/resolver/carrier/owner products. Do not add arbitrary
-`Verified*` constructors, default facts, AST rescans, name repair, or test-only
-forged owners.
+The existing owner-link and body-shape focused suites retain the preceding
+foreign-brand, source-root, coverage, and neutral-shape rejection evidence.
+The facts issuer itself consumes only valid owner-link products, so invalid
+owner/root/duplicate relation fixtures are not forged inside this slice. Use
+real parser/resolver/carrier/owner products; do not add arbitrary `Verified*`
+constructors, default facts, AST rescans, name repair, or test-only forged
+owners.
 
 ## Explicit non-claims
 
@@ -131,9 +130,21 @@ no fallback/retry/provider/runtime/production
 
 ## Closeout
 
-The implementation commit must update the module README, language reference,
-this task receipt, and current pointers together. Focused tests and
-`bash tools/checks/current_state_pointer_guard.sh` must be green. After close,
-stop and open `CALLABLE-CONTRACT-CONFORMANCE-D0`; do not continue directly to
-target or Recipe work.
+The implementation and same-slice documentation are landed. The private
+facts issuer is `src/mir/resolved_semantics/query_body_facts.rs` (265 lines)
+with focused tests in `query_body_facts_tests.rs` (123 lines), both below the
+800-line ceiling. The exact bounded receipt is:
 
+```text
+query_body_facts:                         4 passed
+body_shape_tests:                         3 passed
+instance_method_body_owner_tests:         3 passed
+resolver_tests:                           4 passed
+current_state_pointer_guard.sh:           passed
+```
+
+The implementation consumes only the landed owner-link/carrier products,
+preserves sparse selected-Query order, and emits no public contract,
+conformance, target, Recipe, or MIR meaning. The next design stop is
+`CALLABLE-CONTRACT-CONFORMANCE-D0`; do not continue directly to target or
+Recipe work.

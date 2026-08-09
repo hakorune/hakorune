@@ -29,10 +29,11 @@ source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
 declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
 body-source I0 and borrowed Query body-source projection I0 are also closed.
-The current bounded implementation row is:
+The bounded Query body-facts implementation is closed. The current design
+stop is:
 
 ```text
-CALLABLE-BODY-FACTS-QUERY-I0
+CALLABLE-CONTRACT-CONFORMANCE-D0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
@@ -56,9 +57,10 @@ extends the existing parser-private syntax lease and shadow traversal with
 one neutral AST-free shape inventory, bounded to receiver lexical reads and
 ordinary returns. The carrier keeps that shape from the same owner-tree walk
 and co-seals it with the declaration catalog's parser provenance and resolver
-brand. Direct field/state authority remains closed. The shape I0 is now
-closed; the bounded Query body-facts implementation is now the active row. No conformance,
-target, Recipe/CallSlot, Builder/MIR, or production work is open.
+brand. Direct field/state authority remains closed. The shape I0 and bounded
+Query body-facts I0 are now closed. The next design must define the complete
+same-brand declared-contract/body-conformance set. No target, Recipe/CallSlot,
+Builder/MIR, or production work is open.
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
 primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,

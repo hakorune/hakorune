@@ -33,6 +33,7 @@ mod instance_method_body_source;
 mod instance_method_function_carrier;
 mod home_relation;
 mod query_behavior;
+mod query_body_facts;
 mod instance_method_body_owner;
 mod loop_family_window;
 #[cfg(test)]
@@ -121,6 +122,12 @@ pub(crate) use instance_method_declaration::{
 pub(in crate::mir) use instance_method_body_owner::{
     InstanceMethodBodyOwnerBindingIssueV1, InstanceMethodBodyOwnerBindingIssuerV1,
     VerifiedInstanceMethodBodyOwnerCatalogV1, VerifiedInstanceMethodBodyOwnerRowV1,
+};
+pub(in crate::mir) use query_body_facts::{
+    QueryBodyFactsDeclineV1, QueryBodyFactsIssueV1, QueryBodyFactsIssuerV1,
+    QueryBodyFactsRejectV1, QueryBodyFactsUnresolvedV1,
+    ReceiverReadFactV1, OrdinaryReturnFactV1,
+    VerifiedCallableQueryBodyFactsCatalogV1, VerifiedCallableQueryBodyFactsRowV1,
 };
 pub(crate) use instance_method_body_source::{
     InstanceMethodBodySourceIssuerV1, InstanceMethodBodySourceIssueV1,

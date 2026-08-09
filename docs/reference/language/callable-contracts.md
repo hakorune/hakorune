@@ -172,13 +172,12 @@ declaration catalog is not co-sealed with a `VerifiedResolvedFunctionV1`
 owner. Therefore body conformance is not yet open: the body-source row must
 first issue a general exact same-source body catalog,
 then a separate Query projection must borrow the aggregate's already sealed
-selected view, and only then may owner binding open. The owner binding is now
-landed. Body facts remain closed until a separate resolver-side, profile-neutral
-AST-free body-shape inventory is issued during the existing syntax lease. The
-current `VerifiedResolvedFunctionV1` has no expression/statement kind,
-field/method identity, return-value relation, or complete effect/control
-vocabulary, so the resolved-shape D0 fixed a canonical issuer and the current
-bounded I0 is limited to receiver lexical reads and ordinary returns.
+selected view, and only then may owner binding open. The owner binding and
+resolver-issued neutral body-shape inventory are now landed. The bounded
+Query body-facts I0 accepts only receiver lexical reads with an ordinary
+return (`return me`); it does not infer field/method identity, result types,
+contracts, or complete effect/control absence. The body verifier remains the
+owner of declared-contract conformance.
 Missing,
 duplicate, foreign, or rejected conformance prevents the publishable catalog
 from being issued. Module publication consumes the publishable catalog and
@@ -242,16 +241,16 @@ link accepts no second function array, re-resolves nothing, and issues no
 owner. It compares parser provenance, resolver brand, nominal/source site,
 diagnostic name agreement, and exact ordered body coverage; empty coverage is
 valid and non-Query carrier rows remain unselected extras. The resolved-shape
-D0 and I0 are closed. The next design stop is
-`CALLABLE-BODY-FACTS-QUERY-D0`: a private projection over the selected Query
-owner link and each carrier's neutral AST-free shape inventory. The first
-facts cohort is exact `return me` (one Return, one receiver BindingRef, and one
-ReturnValue relation). It does not reselect Query, duplicate Home/signature/
-ABI, infer types or contracts, or claim complete effect absence. `return 0`,
+D0 and I0, and the bounded `CALLABLE-BODY-FACTS-QUERY-I0`, are now closed.
+The facts issuer is a private projection over the selected Query owner link
+and each carrier's neutral AST-free shape inventory. Its first cohort is exact
+`return me` (one Return, one receiver BindingRef, and one ReturnValue
+relation). It does not reselect Query, duplicate Home/signature/ABI, infer
+types or contracts, or claim a complete effect-absence proof. `return 0`,
 empty/multiple-return bodies, local reads, field/state reads, calls, and
-unsupported control are outside this bounded cohort. Direct field/state
-authority remains separate. Conformance, target, Recipe/CallSlot, and physical
-lowering remain closed.
+unsupported control remain outside this bounded cohort. Direct field/state
+authority remains separate. Conformance, target, Recipe/CallSlot, and
+physical lowering remain closed.
 
 ## Receiver Home rule
 

@@ -1,5 +1,5 @@
 ---
-Status: accepted design; I0 implementation not landed
+Status: accepted design; bounded I0 implementation closed
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-owner-binding-i0-implementation-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`

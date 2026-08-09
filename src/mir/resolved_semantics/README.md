@@ -126,13 +126,14 @@ parser/resolver brands, nominal Box, owner-bearing forest/function, root/body
 receipt, and exact body coverage. The owner-link I0 is now closed: it consumes
 only the selected Query projection and existing carrier/catalog, borrows the
 exact carrier-root function, and issues no owner or second function product.
-The owner-link I0 and resolved-shape issuer I0 are closed. The next design
-stop is `CALLABLE-BODY-FACTS-QUERY-D0`, whose accepted bounded projection reads
-only the selected Query owner rows and each carrier's neutral body-shape
-inventory. The first facts cohort is exact `return me`: one ordinary Return,
-one lexical receiver `Me` BindingRef, and one ReturnValue relation. It issues
-one atomic private Query facts catalog and does not reselect Query, reissue
-Home/signature/ABI, infer types or contracts, or open conformance. `return 0`,
+The owner-link I0 and resolved-shape issuer I0 are closed. The bounded
+`CALLABLE-BODY-FACTS-QUERY-I0` is now landed in the dedicated
+`query_body_facts.rs` module. It consumes only selected Query owner rows and
+each carrier's neutral body-shape inventory, then emits one atomic private
+`VerifiedCallableQueryBodyFactsCatalogV1`. The first facts cohort is exact
+`return me`: one ordinary Return, one lexical receiver `Me` BindingRef, and
+one ReturnValue relation. It does not reselect Query, reissue Home/signature/
+ABI, infer types or contracts, or open conformance. `return 0`,
 empty/multiple-return bodies, local reads, field/state reads, calls, and
 unsupported control remain outside this cohort. A missing issuer/evidence is
 development `NoSafeSlice`; fully observed out-of-cohort shapes are `Declined`,
