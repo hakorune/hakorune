@@ -1680,3 +1680,21 @@ reversed Add remain `NoSafeSlice`. Calls, iteration-local `ch`, early Return,
 Tail, Recipe, `MirType`, `ValueId`, Builder mutation, representation, PHI,
 backend policy, retry, fallback, and production selection remain outside this
 row.
+
+## Dynamic Loop prepared-ingress P0 receipt (2026-08-09)
+
+`DYNAMIC-LOOP-PREPARE-P0` is closed. A dedicated pre-effect issuer consumes
+the complete R0 source schedule and S0 operation set while borrowing the
+existing current Dynamic-origin state. The move-only result retains the exact
+source and operation products, prepares the sole carrier and every read-only
+entry operand, excludes iteration-local bindings from entry materialization,
+and records the carrier's expected Enter and Backedge roles.
+
+The representation receipt is opaque outside its issuer. Its private closed
+family contains Exact and source-backed Dynamic only; raw physical Unknown is
+not a variant and cannot authorize ingress. The unmodified production
+`skip_while/4` fixture prepares `i`, `src`, `end`, and `pred_chars`; `ch`
+remains iteration-local. Missing or stale current Dynamic evidence rejects
+without changing the current function's block count or value allocator.
+There is no Builder/CFG handle, operation emission, PHI, backend lookup,
+retry, fallback, or production route in this row.

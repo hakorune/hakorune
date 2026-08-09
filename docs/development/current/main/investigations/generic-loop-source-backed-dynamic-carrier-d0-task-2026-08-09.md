@@ -1,5 +1,5 @@
 ---
-Status: S0/P0, L0-R0, and L0-S0 closed; Dynamic prepare P0 ready
+Status: S0/P0 and L0 R0/S0/P0 closed; Dynamic atomic rebind P1 ready
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -561,6 +561,19 @@ Done:
 Stop:
   No Builder-global origin map, backend string, name lookup, TypeContext
   repair, PHI emission, retry, or fallback.
+
+Closeout:
+  Closed in the P0 implementation slice. One dedicated pre-effect issuer
+  consumes the R0 schedule and S0 operation set while borrowing the existing
+  current-origin owner. It retains all exact source rows, prepares the sole
+  carrier plus every read-only entry operand, skips iteration locals until
+  their own materialization owner, and seals the carrier's Enter/Backedge
+  expectations. The externally visible representation receipt is opaque; its
+  private closed family contains Exact and source-backed Dynamic only, with
+  no raw Unknown arm. The actual `skip_while/4` fixture prepares four entry
+  bindings, and a stale carrier rejects with block and value-allocation
+  snapshots unchanged. The issuer accepts no Builder/CFG handle and opens no
+  operation emission, PHI, backend, retry, fallback, or route activation.
 
 ##### L0-P1 — `DYNAMIC-LOOP-REBIND-P1`
 

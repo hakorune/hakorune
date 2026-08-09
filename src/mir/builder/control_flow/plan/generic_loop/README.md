@@ -248,6 +248,14 @@ cfg(test)-only candidate envelope exists, but no selected callsite or Generic
 demand exists. D4-S4-S0-D0 closes the future
 move-only source lease -> AST-free shape/candidate -> observation -> selector
 -> demand chain, with this Builder planner remaining outside it.
+
+The source-backed Dynamic L0-P0 prepared ingress is now landed outside this
+legacy planner. It consumes exact callable source/operation products and
+current Dynamic origins before any Loop allocation, and its opaque
+representation receipt has no raw Unknown arm. This planner does not issue,
+inspect, or reconstruct that receipt. GenericLoop production selection,
+operation emission, PHI, retry/fallback removal, and route cutover remain
+closed behind later L0 rows.
 GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 closes the typed shape contract. The bounded
 cfg(test)-only source-lease witness is now closed, and the bounded CarrierProof
 issuer is also closed. The next frontier is design-only role extension; no

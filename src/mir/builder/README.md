@@ -181,6 +181,16 @@ and targets the same carrier binding. The module does not import `MirType` or
 `ValueId`, mutate Builder state, relabel I64 Recipe operations, or claim the
 method-call/local/Return portions of the Loop.
 
+`normal_callable_dynamic_loop_prepare.rs` owns the P0 pre-effect co-seal. It
+consumes the exact Loop schedule and operation-source set, borrows the
+existing current-origin owner, and returns one move-only prepared ingress.
+Carrier and read-only entry bindings carry existing `ValueId`s plus opaque
+source-backed Dynamic representation receipts; iteration locals wait for
+their own materialization. The carrier also retains exact Enter/Backedge
+expectations. The issuer has no Builder/CFG handle, no raw Unknown
+representation arm, and no operation, PHI, backend, retry, fallback, or route
+authority.
+
 ## 原則（SSOT / Box-First）
 
 - **状態は Context が SSOT**: `MirBuilder` の状態は Context（箱）に分割され、二重管理をしない。

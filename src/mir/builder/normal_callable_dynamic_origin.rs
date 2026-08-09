@@ -131,6 +131,14 @@ impl CallableDynamicOriginLoweringStateV1 {
         self.owner
     }
 
+    pub(super) const fn source(&self) -> &VerifiedSourceBackedDynamicCallableV1 {
+        &self.source
+    }
+
+    pub(super) fn current_binding(&self, binding: BindingRefV1) -> Option<(ValueId, BindingRefV1)> {
+        self.active_origins.get(&binding).copied()
+    }
+
     pub(super) fn install_entry(
         &mut self,
         parameter_bindings: &[BindingRefV1],
