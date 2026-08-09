@@ -81,6 +81,16 @@ and fallback are forbidden. The ordered implementation starts with the
 behavior-neutral V2 operand-definition guard, then Dynamic value schema,
 source-value relations, and exact CallSlot/envelope co-seal.
 
+The atomic source/Recipe/envelope co-seal is now landed. One consuming issuer
+validates the complete six-binding and twenty-eight-source role tables, then
+binds I6 and I7 through exact resolver owner plus exact call site against a
+borrowed complete envelope catalog. Candidate and catalog must derive from the
+same branded semantic-source authority; an equal-looking foreign resolver
+owner is rejected. The issuer does not require the callable owner to have only
+two Dynamic rows: additional valid rows remain unselected in the complete
+catalog. The current seven/two/five counts are regression evidence only, not a
+language acceptance limit.
+
 The landed caller-zero V2 golden covers one consistent Dynamic input, binding,
 ReadBinding result, carrier, CallSlot normal result, WriteBinding, and Return.
 Eighteen focused schema tests reject forward/undefined/duplicate values,

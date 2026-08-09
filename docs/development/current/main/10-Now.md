@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. Dynamic source/origin, complete Loop source
+Current mode is `design_stop`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
@@ -44,19 +44,19 @@ the compiler acceptance was widened instead of rewriting or narrowing the
 source. The selector-independent language Decision and caller-zero complete
 semantic-envelope catalog are now closed. The Dynamic Recipe consultation,
 Dynamic operation D0, schema/verifier I0, V2 control/source parity R0, and the
-complete private producer I0 and atomic co-seal D0 are also closed. The
-current row is the bounded source/Recipe/envelope co-seal implementation:
+complete private producer I0 and atomic co-seal I0 are also closed. The
+current row is the iteration-local value/Home design stop:
 
 ```text
-LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-I0
+LOOP-V2-DYNAMIC-LOCAL-VALUE-D0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe
-V2 will gain one honest logical `Dynamic` class, while an external item/source
+V2 has one honest logical `Dynamic` class, while an external item/source
 relation retains the exact target and indivisible envelope. V1 remains
 unchanged and Fault is not a Recipe value or exit. The unchanged module
 catalog remains seven rows: three Loop-owned and four valid non-Loop; the
-first `skip_while/4` relation will select exact two while retaining all seven.
+first `skip_while/4` relation selects exact two while retaining all seven.
 The prerequisite R0 closes V2 operand use-before-definition and Return-value
 validation. Dynamic value I0 is also closed: V2 now has one honest logical
 Dynamic class across type-consistent structural domains, with exact I64/Text/
@@ -78,12 +78,12 @@ verifier boundary and the resolver-owned consuming V2 root adapter. I0 now
 consumes the unchanged inventory once and publishes the complete candidate.
 Its resolver Loop token moves into the artifact's structural path claim while
 frame/scope, six binding rows, twenty-eight source rows, two-site Completion,
-and private unsealed correspondence remain beside it. The next D0 must co-seal
-this full candidate with the borrowed complete envelope catalog and validate
-all six binding plus twenty-eight source claims atomically. Exact owner+site
-selects I6/I7; selector text is not authority. The fixture remains 7 total, 2
-selected, 5 valid unselected, but seven is not a language constant. If another
-valid row is unsupported, widen the compiler
+and private unsealed correspondence remain beside it. The atomic co-seal now
+consumes that correspondence, validates all six binding plus twenty-eight
+source claims, and selects I6/I7 by exact owner+site; selector text is not
+authority. The fixture remains 7 total, 2 selected, 5 valid unselected, but
+seven is not a language constant and additional valid owner rows are accepted.
+If another valid row is unsupported, widen the compiler
 or stop at a named design question; never narrow or rewrite source. Physical
 projection, provider plan, retry, and fallback remain closed.
 JoinSig-authorized If/Return and multi-return Completion still precede

@@ -133,6 +133,23 @@ impl DynamicFullLoopRecipeClaimsV2 {
         }
     }
 
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        Box<[DynamicFullLoopBindingClaimV2]>,
+        Box<[DynamicFullLoopSourceClaimV2]>,
+    ) {
+        (self.bindings, self.sources)
+    }
+
+    #[cfg(test)]
+    pub(super) fn from_parts_for_test(
+        bindings: Box<[DynamicFullLoopBindingClaimV2]>,
+        sources: Box<[DynamicFullLoopSourceClaimV2]>,
+    ) -> Self {
+        Self { bindings, sources }
+    }
+
     #[cfg(test)]
     pub(super) fn binding_rows(&self) -> &[DynamicFullLoopBindingClaimV2] {
         &self.bindings

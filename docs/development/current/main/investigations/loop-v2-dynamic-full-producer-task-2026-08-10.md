@@ -1,8 +1,8 @@
 ---
-Status: atomic co-seal D0 accepted; I0 next
+Status: atomic co-seal I0 closed; local-value D0 next
 Date: 2026-08-10
-Closed row: `LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0`
-Current row: `LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-I0`
+Closed row: `LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-I0`
+Current row: `LOOP-V2-DYNAMIC-LOCAL-VALUE-D0`
 Parent: `dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md`
 Mode: BoxShape first; unchanged-source producer second
 ---
@@ -504,6 +504,49 @@ API/lifetime:
 
 Implementation and focused tests must update this card, the module README,
 and `docs/reference/mir/loop-recipe-contract.md` in the same commit.
+
+### I0 closeout
+
+The sole consuming issuer is landed. It validates the complete 6/28 claim
+tables before binding exact I6/I7 source sites to the borrowed complete
+Dynamic envelope catalog. The output retains the complete source, verified
+Recipe artifact, verified coverage partition, two minimal call relation keys,
+and the catalog borrow. It stores no copied target or envelope.
+
+The implementation removed an overly narrow intermediate check that required
+exactly two Dynamic rows for the callable owner. Exact owner+site lookup is
+sufficient: the current fixture still proves seven total, two selected, and
+five valid unselected, while future additional valid rows do not invalidate
+the exact two Recipe relations. Candidate and catalog test evidence now come
+from the same canonical semantic-source batch through the existing branded
+catalog-callable owner link. Equal-looking source from a foreign resolver
+owner rejects.
+
+Focused evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q dynamic_full_body_recipe --lib
+  9 passed
+RUSTFLAGS='-Awarnings' cargo test -q dynamic_invocation_contract --lib
+  5 passed
+RUSTFLAGS='-Awarnings' cargo test -q source_call_target::dynamic_member_tests --lib
+  5 passed
+RUSTFLAGS='-Awarnings' cargo check -q
+  green
+bash tools/checks/current_state_pointer_guard.sh
+  green
+```
+
+All touched Rust files remain below 800 lines. No source was rewritten or
+narrowed. `ch` Home, JoinSigV2, Fault, Tail/Completion, physical lowering,
+provider execution, retry, fallback, and production activation remain absent.
+
+## Next design stop — iteration-local `ch`
+
+`LOOP-V2-DYNAMIC-LOCAL-VALUE-D0` must identify the sole authority that binds
+normal I6 result V10 to the exact `ch` declaration/read and the canonical Home
+owner. It must define Fault-side non-installation, reassignment/escape/share
+rejection, and cleanup ownership before any I0 product is added.
 
 ## Nonclaims
 

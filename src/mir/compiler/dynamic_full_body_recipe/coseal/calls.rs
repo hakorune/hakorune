@@ -1,0 +1,278 @@
+//! Exact CallSlot/source/envelope relation verification.
+
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+use crate::mir::dynamic_invocation_contract::{
+    DynamicInvocationEnvelopeLookupV1, VerifiedDynamicInvocationEnvelopeCatalogV1,
+    VerifiedDynamicInvocationEnvelopeRefV1,
+};
+use crate::mir::loop_recipe_contract::{
+    LoopItemKeyV1, LoopOperationV2, LoopRecipeItemV2, LoopValueClassV2, LoopValueKeyV1,
+    VerifiedLoopRecipeV2,
+};
+use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1};
+
+use super::super::super::dynamic_full_body_source::{
+    DynamicFullBodyBindingRoleV1, DynamicFullBodySourceRoleV1, DynamicFullBodySourceSiteV1,
+};
+use super::super::DynamicFullLoopRetainedSourceV1;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum DynamicFullLoopCallRelationRejectV2 {
+    Lookup(DynamicInvocationEnvelopeLookupV1),
+    DifferentCanonicalCaller,
+    MissingSourceRole,
+    MissingBindingRole,
+    TargetSourceMismatch,
+    TargetBindingMismatch,
+    TargetArgumentMismatch,
+    RecipeCallSlotMismatch,
+    RecipeValueClassMismatch,
+    ReusedTarget,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct DynamicFullLoopCallRelationKeyV2 {
+    pub(super) item: LoopItemKeyV1,
+    pub(super) call_role: DynamicFullBodySourceRoleV1,
+}
+
+#[derive(Debug)]
+pub(super) struct VerifiedDynamicFullLoopCallRelationsV2 {
+    caller: CanonicalSameModuleCallableKeyV1,
+    rows: [DynamicFullLoopCallRelationKeyV2; 2],
+}
+
+impl VerifiedDynamicFullLoopCallRelationsV2 {
+    #[cfg(test)]
+    pub(super) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.caller
+    }
+
+    #[cfg(test)]
+    pub(super) const fn rows(&self) -> &[DynamicFullLoopCallRelationKeyV2; 2] {
+        &self.rows
+    }
+}
+
+pub(super) fn verify_dynamic_call_relations_v2(
+    source: &DynamicFullLoopRetainedSourceV1,
+    recipe: &VerifiedLoopRecipeV2,
+    catalog: &VerifiedDynamicInvocationEnvelopeCatalogV1<'_>,
+) -> Result<VerifiedDynamicFullLoopCallRelationsV2, DynamicFullLoopCallRelationRejectV2> {
+    let substring = verify_one(
+        source,
+        recipe,
+        catalog,
+        DynamicCallExpectationV2::substring(),
+    )?;
+    let index_of = verify_one(
+        source,
+        recipe,
+        catalog,
+        DynamicCallExpectationV2::index_of(),
+    )?;
+    if substring.site() == index_of.site() {
+        return Err(DynamicFullLoopCallRelationRejectV2::ReusedTarget);
+    }
+    if substring.caller() != index_of.caller() {
+        return Err(DynamicFullLoopCallRelationRejectV2::DifferentCanonicalCaller);
+    }
+
+    Ok(VerifiedDynamicFullLoopCallRelationsV2 {
+        caller: substring.caller().clone(),
+        rows: [
+            DynamicFullLoopCallRelationKeyV2 {
+                item: LoopItemKeyV1::new(6),
+                call_role: DynamicFullBodySourceRoleV1::SubstringCall,
+            },
+            DynamicFullLoopCallRelationKeyV2 {
+                item: LoopItemKeyV1::new(7),
+                call_role: DynamicFullBodySourceRoleV1::IndexOfCall,
+            },
+        ],
+    })
+}
+
+struct DynamicCallExpectationV2 {
+    item: LoopItemKeyV1,
+    call: DynamicFullBodySourceRoleV1,
+    receiver_site: DynamicFullBodySourceRoleV1,
+    receiver_binding: DynamicFullBodyBindingRoleV1,
+    arguments: &'static [(u32, DynamicFullBodySourceRoleV1)],
+    recipe_receiver: LoopValueKeyV1,
+    recipe_arguments: &'static [u32],
+    recipe_result: LoopValueKeyV1,
+}
+
+impl DynamicCallExpectationV2 {
+    const fn substring() -> Self {
+        Self {
+            item: LoopItemKeyV1::new(6),
+            call: DynamicFullBodySourceRoleV1::SubstringCall,
+            receiver_site: DynamicFullBodySourceRoleV1::SubstringReceiverSrc,
+            receiver_binding: DynamicFullBodyBindingRoleV1::Src,
+            arguments: &[
+                (0, DynamicFullBodySourceRoleV1::SubstringStartI),
+                (1, DynamicFullBodySourceRoleV1::SubstringEndAdd),
+            ],
+            recipe_receiver: LoopValueKeyV1::new(0),
+            recipe_arguments: &[6, 9],
+            recipe_result: LoopValueKeyV1::new(10),
+        }
+    }
+
+    const fn index_of() -> Self {
+        Self {
+            item: LoopItemKeyV1::new(7),
+            call: DynamicFullBodySourceRoleV1::IndexOfCall,
+            receiver_site: DynamicFullBodySourceRoleV1::IndexOfReceiverPredChars,
+            receiver_binding: DynamicFullBodyBindingRoleV1::PredChars,
+            arguments: &[(0, DynamicFullBodySourceRoleV1::IndexOfArgumentCh)],
+            recipe_receiver: LoopValueKeyV1::new(3),
+            recipe_arguments: &[10],
+            recipe_result: LoopValueKeyV1::new(11),
+        }
+    }
+}
+
+fn verify_one<'a>(
+    source: &DynamicFullLoopRetainedSourceV1,
+    recipe: &VerifiedLoopRecipeV2,
+    catalog: &'a VerifiedDynamicInvocationEnvelopeCatalogV1<'_>,
+    expected: DynamicCallExpectationV2,
+) -> Result<VerifiedDynamicInvocationEnvelopeRefV1<'a>, DynamicFullLoopCallRelationRejectV2> {
+    let call_site = expr_site(source, expected.call)?;
+    let receiver_site = expr_site(source, expected.receiver_site)?;
+    let receiver_binding = binding(source, expected.receiver_binding)?;
+    let envelope = catalog
+        .envelope_for_exact_source(source.owner, call_site)
+        .map_err(DynamicFullLoopCallRelationRejectV2::Lookup)?;
+    let target = envelope.target();
+
+    if target.call_site() != call_site
+        || target.result_site() != call_site
+        || target.receiver_site() != receiver_site
+    {
+        return Err(DynamicFullLoopCallRelationRejectV2::TargetSourceMismatch);
+    }
+    if target.receiver_binding() != receiver_binding || target.dynamic_origin() != receiver_binding
+    {
+        return Err(DynamicFullLoopCallRelationRejectV2::TargetBindingMismatch);
+    }
+    if target.arguments().len() != expected.arguments.len()
+        || target
+            .arguments()
+            .iter()
+            .zip(expected.arguments.iter())
+            .any(|(actual, (ordinal, role))| {
+                actual.ordinal() != *ordinal
+                    || expr_site(source, *role).map_or(true, |site| actual.site() != site)
+            })
+    {
+        return Err(DynamicFullLoopCallRelationRejectV2::TargetArgumentMismatch);
+    }
+
+    verify_recipe_call(recipe, &expected)?;
+    Ok(envelope)
+}
+
+fn verify_recipe_call(
+    recipe: &VerifiedLoopRecipeV2,
+    expected: &DynamicCallExpectationV2,
+) -> Result<(), DynamicFullLoopCallRelationRejectV2> {
+    let recipe = recipe.as_recipe();
+    let Some(row) = recipe.items.iter().find(|row| row.key == expected.item) else {
+        return Err(DynamicFullLoopCallRelationRejectV2::RecipeCallSlotMismatch);
+    };
+    let LoopRecipeItemV2::Operation {
+        operation:
+            LoopOperationV2::CallSlot {
+                receiver: Some(receiver),
+                args,
+                result: Some(result),
+            },
+    } = &row.item
+    else {
+        return Err(DynamicFullLoopCallRelationRejectV2::RecipeCallSlotMismatch);
+    };
+    let expected_args = expected
+        .recipe_arguments
+        .iter()
+        .copied()
+        .map(LoopValueKeyV1::new)
+        .collect::<Vec<_>>();
+    if *receiver != expected.recipe_receiver
+        || args != &expected_args
+        || *result != expected.recipe_result
+    {
+        return Err(DynamicFullLoopCallRelationRejectV2::RecipeCallSlotMismatch);
+    }
+    for key in std::iter::once(receiver)
+        .chain(args.iter())
+        .chain(std::iter::once(result))
+    {
+        if recipe
+            .values
+            .iter()
+            .find(|row| row.key == *key)
+            .map(|row| row.class)
+            != Some(LoopValueClassV2::Dynamic)
+        {
+            return Err(DynamicFullLoopCallRelationRejectV2::RecipeValueClassMismatch);
+        }
+    }
+    Ok(())
+}
+
+fn expr_site(
+    source: &DynamicFullLoopRetainedSourceV1,
+    role: DynamicFullBodySourceRoleV1,
+) -> Result<&SourceExprSiteV1, DynamicFullLoopCallRelationRejectV2> {
+    source
+        .rows
+        .iter()
+        .find_map(|row| {
+            (row.role() == role).then(|| match row.site() {
+                DynamicFullBodySourceSiteV1::Expression(site) => Some(site),
+                DynamicFullBodySourceSiteV1::Statement(_) => None,
+            })?
+        })
+        .ok_or(DynamicFullLoopCallRelationRejectV2::MissingSourceRole)
+}
+
+fn binding(
+    source: &DynamicFullLoopRetainedSourceV1,
+    role: DynamicFullBodyBindingRoleV1,
+) -> Result<BindingRefV1, DynamicFullLoopCallRelationRejectV2> {
+    source
+        .bindings
+        .iter()
+        .find_map(|row| (row.role() == role).then(|| row.binding()))
+        .ok_or(DynamicFullLoopCallRelationRejectV2::MissingBindingRole)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::mir::loop_recipe_contract::{
+        LoopOperationV2, LoopRecipeItemV2, LoopRecipeVerifierV2,
+    };
+
+    use super::*;
+
+    #[test]
+    fn reordered_recipe_arguments_reject_without_selector_reasoning() {
+        let mut recipe = super::super::super::mapping::complete_dynamic_loop_recipe_v2();
+        let LoopRecipeItemV2::Operation {
+            operation: LoopOperationV2::CallSlot { args, .. },
+        } = &mut recipe.items[6].item
+        else {
+            panic!("I6 must be CallSlot")
+        };
+        args.swap(0, 1);
+        let verified = LoopRecipeVerifierV2::verify(recipe).expect("shape remains type-valid");
+        assert_eq!(
+            verify_recipe_call(&verified, &DynamicCallExpectationV2::substring()),
+            Err(DynamicFullLoopCallRelationRejectV2::RecipeCallSlotMismatch)
+        );
+    }
+}

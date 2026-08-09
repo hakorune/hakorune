@@ -233,6 +233,15 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         })
     }
 
+    /// Borrow one exact cataloged callable without exposing the mixed
+    /// top-level/catalog selection key outside this authority.
+    pub(in crate::mir) fn cataloged_loan<'loan>(
+        &'loan self,
+        key: &super::CanonicalSameModuleCallableKeyV1,
+    ) -> Result<VerifiedNormalCallableSemanticLoanV1<'source, 'loan>, String> {
+        self.loan(&SelectedNormalCallableKeyV1::Cataloged(key.clone()))
+    }
+
     pub(in crate::mir) fn keys(&self) -> impl Iterator<Item = &SelectedNormalCallableKeyV1> {
         self.rows.iter().map(|row| &row.key)
     }

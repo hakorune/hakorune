@@ -1,4 +1,5 @@
 use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1};
 use crate::mir::source_call_target::{
     VerifiedSourceCallTargetCatalogV1, VerifiedSourceCallTargetV1,
 };
@@ -10,6 +11,18 @@ pub(crate) enum DynamicInvocationEnvelopeIssueV1 {
     ForeignTargetCatalog,
     TargetOutsideDeclarationCatalog,
     MalformedDynamicTarget,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum DynamicInvocationEnvelopeLookupV1 {
+    Missing {
+        owner: FunctionOwnerIdV1,
+        site: SourceExprSiteV1,
+    },
+    Ambiguous {
+        owner: FunctionOwnerIdV1,
+        site: SourceExprSiteV1,
+    },
 }
 
 /// Complete route-neutral target catalog with an exact semantic envelope view
@@ -88,5 +101,30 @@ impl<'catalog> VerifiedDynamicInvocationEnvelopeCatalogV1<'catalog> {
                     })
                 }
             })
+    }
+
+    /// Resolve one already-admitted Dynamic target by exact semantic source
+    /// identity. Selector text is deliberately absent from this API.
+    pub(crate) fn envelope_for_exact_source(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<VerifiedDynamicInvocationEnvelopeRefV1<'_>, DynamicInvocationEnvelopeLookupV1> {
+        let mut matches = self
+            .envelopes()
+            .filter(|row| row.target().owner() == owner && row.site() == site);
+        let Some(row) = matches.next() else {
+            return Err(DynamicInvocationEnvelopeLookupV1::Missing {
+                owner,
+                site: site.clone(),
+            });
+        };
+        if matches.next().is_some() {
+            return Err(DynamicInvocationEnvelopeLookupV1::Ambiguous {
+                owner,
+                site: site.clone(),
+            });
+        }
+        Ok(row)
     }
 }
