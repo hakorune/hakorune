@@ -147,13 +147,17 @@ landed in `query_body_conformance_evidence.rs`. The issuer is limited to
 exact `return me` structural safety and a sibling Query Home no-transfer
 receipt. The facts catalog and evidence aggregate are not a general proof of
 no writes/Home escape/allocation/IO/FFI/failure/suspension/non-local control;
-any incomplete axis remains `NoSafeSlice`. The next bounded resolver-only
-implementation is `CALLABLE-BODY-EFFECT-CONTROL-I0`: a private
- `BodyEffectControlCoverageIssuerV1` consumes only one existing
- `ResolvedFunctionBodyShapeProductV1` and issues a non-`Clone` borrowed
- receipt for exact root-direct `return me.invoke()` (one Call effect, one
- same-function Return exit, and exact source relations). It does not widen
- `BodyEffectKindV1` or open Home flow. The general D0 defines four private
+any incomplete axis remains `NoSafeSlice`. The bounded
+`CALLABLE-BODY-EFFECT-CONTROL-I0` is now landed as a private
+`BodyEffectControlCoverageIssuerV1`: it consumes one existing
+`ResolvedFunctionBodyShapeProductV1` and issues a non-`Clone` borrowed
+receipt for exact root-direct `return me.invoke()` (one Call effect, one
+same-function Return exit, and exact source relations). Five focused tests
+pass; the receipt is not re-exported. It does not widen `BodyEffectKindV1`
+or open Home flow. The next design stop is `CALLABLE-BODY-HOME-FLOW-D0`:
+Home source events/grammar, a Home-demand issuer, and CFG-complete ownership
+witnesses are not yet available, so Home flow remains `NoSafeSlice`. The
+general D0 defines four private
  axis receipts or borrowed views—complete body
 coverage, effect events, control/exit events, and Home-flow events/state—then
 one same-root public execution-evidence co-seal. Existing body-shape effects are

@@ -1,5 +1,5 @@
 ---
-Status: D0 accepted; bounded Call+Return I0 open
+Status: D0 accepted; bounded Call+Return I0 landed; Home-flow D0 next
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -89,9 +89,13 @@ Do not add a semantic `NoHome` member to `BodyEffectKindV1`, copy partial
 shadow vectors into a verified receipt, or derive source Home/effect meaning
 from MIR `EffectMask`, `FunctionSignature`, or ownership SSA. If an axis
 cannot be issued and fully covered, the development state is `NoSafeSlice`.
-The first general implementation slice, after this D0 is accepted, must stay
-resolver-only and must not open target, Recipe, Builder, MIR, publication, or
-fallback.
+The bounded resolver-only Call+Return implementation slice is now landed and
+does not open target, Recipe, Builder, MIR, publication, or fallback. Its
+closeout is recorded in
+`own-home-callable-body-effect-control-i0-implementation-task-2026-08-09.md`.
+The next design boundary is the independent Home-flow D0; it remains
+`NoSafeSlice` until a source Home-event/grammar issuer, Home-demand issuer,
+and CFG-complete ownership witness exist.
 
 ## Authority table and co-seal contract
 
@@ -155,15 +159,14 @@ set.
 
 ## Minimal next implementation slice
 
-The D0 is accepted.  The next open row is the separate bounded implementation
-card:
+The D0 is accepted and the bounded Call+Return I0 is landed.  Its separate
+implementation receipt is:
 
 ```text
 docs/development/current/main/investigations/own-home-callable-body-effect-control-i0-implementation-task-2026-08-09.md
 ```
 
-It is intentionally smaller than general execution evidence and proceeds in
-this order:
+The implementation is intentionally smaller than general execution evidence:
 
 ```text
 1. issue one private `BodyEffectControlCoverageReceiptV1` from the existing
@@ -173,12 +176,11 @@ this order:
 3. keep unsupported/opaque/foreign shapes at private `NoSafeSlice` or
    `Rejected`, without adding a public semantic owner or widening the effect
    vocabulary;
-4. leave the landed exact `return me` evidence/conformance I0 unchanged;
-5. stop before Home-flow, general four-axis co-seal, conformance catalog,
-   target, Recipe, Builder, MIR, publication, or fallback.
+4. leave the landed exact `return me` evidence/conformance I0 unchanged.
 ```
 
-The first implementation slice must not add a Query-specific port, infer
+The next design stop is the independent Home-flow event/state issuer. The
+first implementation slice must not add a Query-specific port, infer
 contract behavior from method names, copy `Shadow*` vectors as verified facts,
 or use a test-only constructor. Coverage must borrow the existing
 body-owner/carrier/shape/forest identity; it is not a second source truth.

@@ -23,25 +23,25 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast` for one bounded resolver-only slice. The parser public-AST/postpass, V2 schema, typed
+Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
-source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
-D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
-declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
-body-source I0 and borrowed Query body-source projection I0 are also closed.
-The bounded Query body-facts implementation, complete-evidence design,
-bounded evidence I0, and bounded exact Query conformance catalog I0 are
-closed. The general evidence D0 is accepted. The current execution row is:
+source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
+D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, declared
+Query behavior D0/I0, aggregate D0/I0, general body-source I0, borrowed Query
+body-source projection I0, bounded Query body-facts, complete-evidence design,
+bounded evidence I0, bounded exact Query conformance catalog I0, and the
+bounded Call+Return effect/control I0 are closed. The current design stop is:
 
 ```text
-CALLABLE-BODY-EFFECT-CONTROL-I0
+CALLABLE-BODY-HOME-FLOW-D0
 ```
 
-This row is intentionally finite and resolver-only: one private borrowed
-receipt is issued from one `ResolvedFunctionBodyShapeProductV1` for exact
-root-direct `return me.invoke()` (Call + ordinary Return + exact source
-relations). Unsupported/opaque/foreign shapes remain `NoSafeSlice` or
-`Rejected`. Home flow, general conformance, target, Recipe/CallSlot,
+The Call+Return row landed one private borrowed receipt from one
+`ResolvedFunctionBodyShapeProductV1` for exact root-direct
+`return me.invoke()` (Call + ordinary Return + exact source relations), with
+five focused tests. Home-flow is not an implementation row yet: the source
+Home event/grammar issuer, Home-demand ABI issuer, and CFG-complete ownership
+witness are absent. Keep Home flow at `NoSafeSlice`; target, Recipe/CallSlot,
 Builder/MIR, publication, fallback, and production remain closed.
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed

@@ -1091,7 +1091,7 @@ Rejected > Unresolved > Declined > Candidate
     - landed issuer: `QueryBodyConformanceEvidenceIssuerV1`;
     - focused `query_body_facts` slice is green; general conformance remains
       unopened behind 22A's accepted evidence boundary.
-22A-I1. `CALLABLE-BODY-EFFECT-CONTROL-I0` (open bounded resolver-only slice)
+22A-I1. `CALLABLE-BODY-EFFECT-CONTROL-I0` (closed bounded resolver-only slice 2026-08-09)
     - use only one existing `ResolvedFunctionBodyShapeProductV1` as the
       canonical input to private `BodyEffectControlCoverageIssuerV1`;
     - issue a non-`Clone` borrowed receipt only for exact root-direct
@@ -1103,8 +1103,24 @@ Rejected > Unresolved > Declined > Candidate
     - no new public semantic owner, effect vocabulary widening, Home flow,
       conformance catalog, target, Recipe/CallSlot, Builder, MIR, or
       production route;
-    - task:
-      `docs/development/current/main/investigations/own-home-callable-body-effect-control-i0-implementation-task-2026-08-09.md`.
+    - landed task and closeout:
+      `docs/development/current/main/investigations/own-home-callable-body-effect-control-i0-implementation-task-2026-08-09.md`;
+    - focused evidence: 5 resolver-only tests passed; the private receipt is
+      not re-exported and does not widen the general four-axis owner.
+22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (current design stop)
+    - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
+      no-transfer receipt unchanged;
+    - define the future source event vocabulary (`Create`, `Consume`, `Share`,
+      `End`, `Forward`, `Escape`) and state transitions without making a
+      guessed Home-flow product;
+    - require a source Home-demand/root issuer and CFG-complete ownership
+      witness before opening any Home-flow I0;
+    - keep Home-flow state separate from Binding SSA (`BindingRef ->
+      HomeRoot/state`, never `BindingRef -> ValueId`);
+    - no fake/test-only constructor, public aggregate, target, Recipe/CallSlot,
+      FunctionOwner, Builder, MIR, DropPlan, fallback, or production route;
+    - task/design receipt:
+      `docs/development/current/main/investigations/own-home-callable-body-home-flow-d0-design-task-2026-08-09.md`.
 22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (closed bounded exact Query cohort)
     - consume only the declared contract catalog and landed bounded Query
       conformance-evidence catalog;

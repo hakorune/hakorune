@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, catalog-level body-owner binding I0, resolved body-shape issuer I0, bounded Query body-facts I0, bounded Query body-conformance evidence I0, bounded exact Query conformance catalog I0, and general body-execution evidence D0 are landed; the evidence aggregate and conformance catalog prove only exact `return me` structural safety plus Query Home no-transfer. The active bounded resolver-only Call+Return I0 admits only exact root-direct `return me.invoke()` through a private borrowed receipt. Unsupported/opaque/foreign shapes remain `NoSafeSlice` or `Rejected`. General conformance, resolver target, Recipe/CallSlot, and production remain `NoSafeSlice`; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, catalog-level body-owner binding I0, resolved body-shape issuer I0, bounded Query body-facts I0, bounded Query body-conformance evidence I0, bounded exact Query conformance catalog I0, general body-execution evidence D0, and the bounded resolver-only Call+Return effect/control I0 are landed; the evidence aggregate and conformance catalog prove only exact `return me` structural safety plus Query Home no-transfer. The Call+Return I0 admits only exact root-direct `return me.invoke()` through a private borrowed receipt and has five focused tests. The current design stop is Home-flow D0: source Home events/grammar, a Home-demand issuer, and CFG-complete ownership witnesses are not yet available, so Home flow remains `NoSafeSlice`. Unsupported/opaque/foreign shapes remain `NoSafeSlice` or `Rejected`. General conformance, resolver target, Recipe/CallSlot, and production remain `NoSafeSlice`; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -186,15 +186,18 @@ control/exit events, and Home-flow events/state—then one same-root public
 partial (Print/IO and unsupported control are not fully recorded), and
 `VerifiedHomeAbi` remains declaration-only. Until those issuers exist, the
 body verifier has issued only the bounded exact Query conformance catalog;
-broader conformance remains `NoSafeSlice`. The next bounded implementation is
-`CALLABLE-BODY-EFFECT-CONTROL-I0`: it consumes only one existing
-`ResolvedFunctionBodyShapeProductV1` and issues a private, non-`Clone` borrowed
-receipt for exact root-direct `return me.invoke()` with one Call effect, one
+broader conformance remains `NoSafeSlice`. The bounded
+`CALLABLE-BODY-EFFECT-CONTROL-I0` is now landed as a private
+`BodyEffectControlCoverageIssuerV1`: it consumes only one existing
+`ResolvedFunctionBodyShapeProductV1` and issues a non-`Clone` borrowed receipt
+for exact root-direct `return me.invoke()` with one Call effect, one
 same-function Return exit, and exact Return-value/MethodCall-receiver
-relations. It does not widen `BodyEffectKindV1`, issue Home flow, or open
-target/Recipe/Builder/MIR. Print, Await, field/write/allocation, branches,
-loops, nested owners, opaque shapes, and foreign products remain
-`NoSafeSlice`/`Rejected`.
+relations. Five focused tests pass. It does not widen `BodyEffectKindV1`,
+issue Home flow, or open target/Recipe/Builder/MIR. The next design stop is
+`CALLABLE-BODY-HOME-FLOW-D0`; its source event/grammar, Home-demand issuer,
+and CFG-complete ownership witness are not yet available. Print, Await,
+field/write/allocation, branches, loops, nested owners, opaque shapes, and
+foreign products remain `NoSafeSlice`/`Rejected`.
 Coverage is a relational check over the existing body-owner/carrier/shape/
 forest identity, not a second source-membership authority. `Await` belongs to
 the effect/suspension axis; control requires CFG-complete exit/branch/loop

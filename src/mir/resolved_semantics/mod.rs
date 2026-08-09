@@ -8,6 +8,7 @@
 
 mod callable_catalog;
 mod body_shape;
+mod body_effect_control_coverage;
 mod callable_catalog_candidate;
 mod callable_catalog_resolution_source;
 mod callable_header_source_unit;

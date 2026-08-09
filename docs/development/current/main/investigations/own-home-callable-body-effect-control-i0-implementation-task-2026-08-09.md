@@ -1,5 +1,5 @@
 ---
-Status: open bounded resolver-only implementation
+Status: landed bounded resolver-only implementation
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -86,7 +86,13 @@ retry, fallback, or production selection.
 
 ## Closeout
 
-The same implementation commit must update this card, the body evidence D0
-receipt, `src/mir/resolved_semantics/README.md`, and
-`docs/reference/language/callable-contracts.md`, then run the focused resolver
-tests and the current-state pointer guard.
+Landed in the implementation slice with the private
+`body_effect_control_coverage` module and five focused tests:
+
+```text
+5 passed; 0 failed
+```
+
+The receipt remains private and is not re-exported from `resolved_semantics`.
+The next design boundary is Home-flow evidence; this I0 does not promote its
+receipt into the general four-axis execution aggregate or conformance catalog.
