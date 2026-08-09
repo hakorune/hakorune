@@ -126,22 +126,22 @@ parser/resolver brands, nominal Box, owner-bearing forest/function, root/body
 receipt, and exact body coverage. The owner-link I0 is now closed: it consumes
 only the selected Query projection and existing carrier/catalog, borrows the
 exact carrier-root function, and issues no owner or second function product.
-The owner-link I0 is closed, and the resolved-shape D0 is accepted. The current
-bounded implementation row is closed; the next design stop is
-`CALLABLE-BODY-FACTS-QUERY-D0`.
-The body-facts row remains a `NoSafeSlice`:
-`VerifiedResolvedFunctionV1` and its source-site inventory do not expose
-expression/statement kind, field/method identity, return-value relation, or
-complete effect/control evidence. The current implementation row is
-`CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0`: the issuer runs during the existing
-parser-private syntax lease and returns one neutral AST-free body-shape
-inventory co-sealed to the exact owner/body root, source sites, and complete
-coverage. The carrier row then co-seals that shape with the declaration
-catalog's parser provenance and resolver brand. I0 is bounded to receiver
-lexical reads and ordinary returns; direct field/state authority remains
-separate. It must not reopen parser transport or add a second owner issuer.
-Only after that inventory lands may a private Query observer issue body facts;
-conformance remains unopened.
+The owner-link I0 and resolved-shape issuer I0 are closed. The next design
+stop is `CALLABLE-BODY-FACTS-QUERY-D0`, whose accepted bounded projection reads
+only the selected Query owner rows and each carrier's neutral body-shape
+inventory. The first facts cohort is exact `return me`: one ordinary Return,
+one lexical receiver `Me` BindingRef, and one ReturnValue relation. It issues
+one atomic private Query facts catalog and does not reselect Query, reissue
+Home/signature/ABI, infer types or contracts, or open conformance. `return 0`,
+empty/multiple-return bodies, local reads, field/state reads, calls, and
+unsupported control remain outside this cohort. A missing issuer/evidence is
+development `NoSafeSlice`; fully observed out-of-cohort shapes are `Declined`,
+opaque evidence is `Unresolved`, and identity/coverage mismatches are
+`Rejected`. The neutral shape issuer runs during the existing parser-private
+syntax lease and returns one AST-free inventory co-sealed to the exact
+owner/body root and source coverage; the carrier row co-seals parser
+provenance and resolver brand. Direct field/state authority, conformance,
+target, Recipe/CallSlot, Builder, MIR, and production remain separate.
 Missing issuer/evidence is `NoSafeSlice`, not a default body receipt. Body
 modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line

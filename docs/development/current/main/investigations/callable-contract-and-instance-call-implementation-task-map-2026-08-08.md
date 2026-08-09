@@ -1023,7 +1023,7 @@ Rejected > Unresolved > Declined > Candidate
       Builder, MIR, or production;
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-d0-design-task-2026-08-09.md`.
-21A. `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0` (current implementation)
+21A. `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0` (closed 2026-08-09)
     - extend the existing resolver shadow traversal with one neutral,
       profile-free AST-free shape inventory; first cohort is receiver lexical
       `Me`/receiver-binding reads plus ordinary return value relations;
@@ -1031,12 +1031,21 @@ Rejected > Unresolved > Declined > Candidate
       source sites, and complete coverage; no second owner issuer;
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-i0-implementation-task-2026-08-09.md`.
-21B. `CALLABLE-BODY-FACTS-QUERY-D0/I0` (parked behind resolved-shape issuer)
-    - project the general neutral body-shape inventory through the branded
-      owner link and the aggregate-owned selected Query view;
-    - issue source-derived facts only; no replacement Query/Home/signature,
-      target, Recipe, or MIR meaning;
-    - current result is development `NoSafeSlice`, not a source disposition.
+21B. `CALLABLE-BODY-FACTS-QUERY-D0` (accepted design; I0 not opened)
+    - consume only the already selected Query owner-link catalog and each
+      carrier's neutral `VerifiedResolvedBodyShapeInventoryV1`;
+    - issue one atomic private `VerifiedCallableQueryBodyFactsCatalogV1`;
+      the first cohort is exact `return me` with a receiver BindingRef and
+      ReturnValue relation;
+    - do not reselect Query, copy/reissue Home/signature/ABI, infer types or
+      contracts, or treat missing effect rows as complete conformance proof;
+    - `return 0`, empty/multiple-return bodies, local reads, field/state reads,
+      calls, and unsupported control remain outside this bounded cohort;
+    - `NoSafeSlice` is only the development state for a missing issuer/evidence;
+      fully observed out-of-cohort shapes are `Declined`, identity/coverage
+      mismatches are `Rejected`, and opaque evidence is `Unresolved`;
+    - task:
+      `docs/development/current/main/investigations/own-home-callable-body-facts-query-d0-design-task-2026-08-09.md`.
 22. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
     - verify direct receiver-read footprint, no writes/Home escape/allocation/
       IO/FFI/failure escape/suspension/non-local control;

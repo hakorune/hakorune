@@ -242,14 +242,15 @@ link accepts no second function array, re-resolves nothing, and issues no
 owner. It compares parser provenance, resolver brand, nominal/source site,
 diagnostic name agreement, and exact ordered body coverage; empty coverage is
 valid and non-Query carrier rows remain unselected extras. The resolved-shape
-D0 is accepted and its current implementation row is
-`CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0`: the existing shadow traversal must
-issue one neutral AST-free inventory for receiver lexical reads and ordinary
-returns, co-sealed to the exact owner/body root. The instance-method carrier
-then co-seals that inventory with the declaration catalog's parser provenance
-and resolver brand. Direct
-field/state authority remains a separate design row. Body facts remain parked
-until this inventory lands. Conformance, target, Recipe/CallSlot, and physical
+D0 and I0 are closed. The next design stop is
+`CALLABLE-BODY-FACTS-QUERY-D0`: a private projection over the selected Query
+owner link and each carrier's neutral AST-free shape inventory. The first
+facts cohort is exact `return me` (one Return, one receiver BindingRef, and one
+ReturnValue relation). It does not reselect Query, duplicate Home/signature/
+ABI, infer types or contracts, or claim complete effect absence. `return 0`,
+empty/multiple-return bodies, local reads, field/state reads, calls, and
+unsupported control are outside this bounded cohort. Direct field/state
+authority remains separate. Conformance, target, Recipe/CallSlot, and physical
 lowering remain closed.
 
 ## Receiver Home rule
@@ -350,7 +351,8 @@ ordered Box-method inventory + parser-owned source seal
   -> one-shot body-source transaction and AST-free body catalog
   -> resolver-issued instance-method function carrier
   -> exact resolved-function owner binding
-  -> body facts and complete body conformance set
+  -> bounded private Query body facts (`return me` cohort)
+  -> complete body effect/conformance set
   -> publishable callable catalog
   -> reusable resolver target
   -> exact source-bound call relation / CallSlot
