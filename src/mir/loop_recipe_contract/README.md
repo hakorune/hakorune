@@ -175,6 +175,13 @@ external source-value or target/envelope relation. That relation is the next
 design stop and must retain all seven module envelope rows while selecting
 only exact callable/Loop source sites.
 
+The source-value relation premise audit is `NoSafeSlice` as an executable row:
+there is no complete V2 Recipe producer, and the unchanged source still needs
+Dynamic Add/Less. A two-CallSlot key product would be partial truth. The order
+is corrected to Dynamic operations, full unchanged-source V2 producer, then a
+single atomic source/Recipe/envelope co-seal. The per-Recipe co-seal will
+borrow—not consume—the complete seven-row module envelope catalog.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one

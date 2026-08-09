@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic carrier P2C through semantic-envelope I0, the V2 operand-definition guard R0, and LOOP-RECIPE-V2-DYNAMIC-VALUE-I0 are closed. V2 now has one honest Dynamic logical class across type-consistent structural domains; V1 remains unchanged and the full envelope regression retains all 7 rows. The next design stop owns the exact source receiver/argument/result relation to producer-issued Recipe keys; target/envelope copying, selector refinement, Fault-as-value, physical/provider/runtime plans, retry, fallback, and fixture narrowing remain forbidden."
+status = "Dynamic carrier P2C through semantic-envelope I0, the V2 operand-definition guard R0, and Dynamic value I0 are closed. Source-value relation D0 is NoSafeSlice as an executable row: no complete V2 producer exists and the unchanged source still needs Dynamic Add/Less, so two-call Recipe keys would be partial truth. The corrected order is Dynamic operation vocabulary, full unchanged-source V2 producer, then one atomic source/Recipe/envelope co-seal borrowing all 7 module rows."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0"
+current_design_stop = "LOOP-V2-DYNAMIC-OPERATION-D0"
 work_mode = "design_stop"
-current_execution_row = "LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0"
-current_blocker_token = "LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0: decide one AST-free exact receiver/ordered-argument/result source relation to producer-issued Recipe keys, preserving the full 7-row envelope catalog without copying target/envelope truth; no relation code, selector refinement, Fault/value fusion, physical/provider/runtime plan, retry, fallback, or fixture narrowing before consultation"
+current_execution_row = "LOOP-V2-DYNAMIC-OPERATION-D0"
+current_blocker_token = "LOOP-V2-DYNAMIC-OPERATION-D0: decide the smallest selector-independent V2 operations for unchanged skip_while Add/Less, including literal/domain/result semantics and exact source evidence; no operation code, partial Recipe producer, source/envelope co-seal, selector refinement, Fault/value fusion, physical/provider/runtime plan, retry, fallback, or fixture narrowing before consultation"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"

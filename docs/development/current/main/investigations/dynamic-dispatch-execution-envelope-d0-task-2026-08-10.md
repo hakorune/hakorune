@@ -1,11 +1,11 @@
 ---
-Status: Dynamic value I0 closed; source-value relation D0 design stop
+Status: source-value relation D0 audited NoSafeSlice; Dynamic operation D0 next
 Date: 2026-08-10
 Decision row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`
 Closed row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0`
-Next row: `LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0`
+Next row: `LOOP-V2-DYNAMIC-OPERATION-D0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
-Mode: design stop / Dynamic source-to-Recipe relation
+Mode: design stop / Dynamic logical operation vocabulary
 ---
 
 # Dynamic dispatch execution envelope
@@ -525,3 +525,97 @@ The next row is the design-only
 source-issued relation from exact receiver/argument/result sites and roles to
 producer-issued Recipe keys without copying target/envelope truth. No relation
 code is allowed before that decision is accepted.
+
+## Source-value relation premise audit — `NoSafeSlice`
+
+`LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0` found that its proposed I0
+would be premature. The source authority is complete, but no full V2 Recipe
+producer currently exists: `LoopRecipeArtifactV2` has only schema/verifier
+fixtures. The unchanged `skip_while/4` also needs logical Dynamic Add/Less
+operations that the V2 algebra cannot yet express.
+
+Issuing Recipe keys for only the two calls would create a partial logical
+truth and a second pairing step. Therefore no standalone `Verified*`
+source-value product is opened now.
+
+### Existing complete source authority
+
+```text
+callable identity:
+  declaration catalog + exact catalog/owner link
+
+Loop identity:
+  VerifiedCallableLoopMembershipV1
+  + frame / scope / region
+
+full skip_while source:
+  6 exact binding roles
+  + 28 exact statement/expression roles
+  + existing two-site Completion
+
+neutral MethodCall source:
+  exact call/result site
+  + receiver site/binding
+  + ordered argument sites
+  + checked arity
+
+Dynamic target/envelope:
+  exact source-bound target
+  + complete module envelope catalog
+```
+
+The exact call placement is already source-sealed:
+
+```text
+substring:
+  Body(1)/LoopBody(0)/Initializer(0)
+
+indexOf:
+  Body(1)/LoopBody(1)/IfCondition/Lhs
+```
+
+No future issuer may rediscover this membership using selector names or raw
+path-prefix matching.
+
+### Final relation shape
+
+After a complete producer exists, source-to-Recipe validation becomes a
+private phase of one atomic CallSlot/source/envelope co-seal, not a durable
+partial product. The producer supplies unsealed item/receiver/ordered-argument/
+result key claims beside the complete Recipe. The canonical issuer validates
+them against the source inventory, verified Recipe, and borrowed module-wide
+envelope catalog, then retains only the minimal item-to-exact-source-call
+relation.
+
+The per-Recipe product must not consume the module-wide catalog or store an
+`EnvelopeRef` pointing into itself. It borrows the catalog, so the same seven
+rows can serve `skip_while/4` and later `scan_until_newline/3`. Borrow-scoped
+views resolve the original target/envelope on demand; selector, target,
+effect, Home, Fault, and operand keys are not copied.
+
+### Corrected prerequisite order
+
+```text
+LOOP-V2-DYNAMIC-OPERATION-D0/I0
+  -> unchanged skip_while full V2 Recipe producer D0/I0
+  -> private source-value claim validation
+  -> LOOP-V2-DYNAMIC-CALL-RELATION-COSEAL-I0
+```
+
+The future co-seal acceptance remains:
+
+```text
+complete module envelopes = 7
+skip_while selected        = 2
+valid retained unselected  = 5
+```
+
+All five unselected rows also use `substring`, proving that selection is by
+exact callable/Loop membership and source site rather than selector. Missing
+or duplicate roles/items, foreign owner/Loop/caller, reused sites/items,
+reordered arguments, wrong receiver/result site, resultless/non-Dynamic
+CallSlot, and extra relations reject atomically.
+
+`NoSafeSlice` here is a development-order result, not a source disposition.
+The source is unchanged; the compiler vocabulary and producer are widened
+first.

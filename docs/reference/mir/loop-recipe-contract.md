@@ -88,6 +88,14 @@ Dynamic predicates, I64/Text domain confusion, mixed carrier classes, and V1
 decode. The unchanged envelope regression retains all seven source rows. No
 source-value relation or semantic-program publication is claimed yet.
 
+Top-down audit found that a standalone source-value relation I0 would be
+partial truth: no complete production V2 Recipe producer exists yet, and the
+unchanged source still needs logical Dynamic Add/Less operations. The accepted
+order is therefore Dynamic operation vocabulary, complete full-body producer,
+then one atomic source/Recipe/CallSlot/envelope co-seal. No durable intermediate
+`Verified*` key relation is published. The module-wide seven-row envelope
+catalog is borrowed, never consumed by one Recipe.
+
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 
