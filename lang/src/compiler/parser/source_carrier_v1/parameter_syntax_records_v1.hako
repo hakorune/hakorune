@@ -1,9 +1,43 @@
 // Parser-only parameter syntax. These records carry no resolver type, Home
 // demand, ABI, or callable behavior meaning.
+box ParserParameterSyntaxIssuerSealV1 {
+}
+
+enum ParserParameterTransferKindV1 {
+  Ordinary(ParserParameterSyntaxIssuerSealV1)
+  Take(ParserParameterSyntaxIssuerSealV1)
+}
+
 box ParserParameterTransferSyntaxV1 {
-  _kind: String
+  _kind: ParserParameterTransferKindV1
   birth(kind) { me._kind = kind }
-  kind() { return me._kind }
+  accepts_ordinary() {
+    guard let ParserParameterTransferKindV1::Ordinary(issuer) = me._kind else { return false }
+    return issuer != null
+  }
+}
+
+enum ParserDeclaredParameterTypeKindV1 {
+  Absent(ParserParameterSyntaxIssuerSealV1)
+  Explicit(ParserParameterSyntaxIssuerSealV1)
+}
+
+box ParserDeclaredParameterTypeSyntaxV1 {
+  _kind: ParserDeclaredParameterTypeKindV1
+  _token: String
+  birth(kind, token) { me._kind = kind me._token = token }
+  is_valid() {
+    guard let ParserDeclaredParameterTypeKindV1::Absent(issuer) = me._kind else {
+      guard let ParserDeclaredParameterTypeKindV1::Explicit(explicit_issuer) = me._kind else { return false }
+      return explicit_issuer != null && me._token != ""
+    }
+    return issuer != null && me._token == ""
+  }
+  is_absent() {
+    guard let ParserDeclaredParameterTypeKindV1::Absent(issuer) = me._kind else { return false }
+    return issuer != null
+  }
+  token_or_empty() { return me._token }
 }
 
 box ParserParameterSourceSiteV1 {
@@ -20,15 +54,16 @@ box ParserParameterSourceSiteV1 {
 box ParserParameterSyntaxRowV1 {
   _site
   _name: String
-  _declared_type_token: String
+  _declared_type
   _transfer
-  birth(site, name, declared_type_token, transfer) {
+  birth(site, name, declared_type, transfer) {
     me._site = site me._name = name
-    me._declared_type_token = declared_type_token me._transfer = transfer
+    me._declared_type = declared_type me._transfer = transfer
   }
   site() { return me._site }
   name() { return me._name }
-  declared_type_token() { return me._declared_type_token }
+  declared_type() { return me._declared_type }
+  declared_type_token() { return me._declared_type.token_or_empty() }
   transfer() { return me._transfer }
 }
 
@@ -70,13 +105,23 @@ box ParserParameterListFinishV1 {
 }
 
 static box ParserParameterSyntaxRecordsV1Box {
-  ordinary_transfer() { return new ParserParameterTransferSyntaxV1("Ordinary") }
+  ordinary_transfer() {
+    local issuer = new ParserParameterSyntaxIssuerSealV1()
+    return new ParserParameterTransferSyntaxV1(ParserParameterTransferKindV1::Ordinary(issuer))
+  }
+  declared_type(token) {
+    local issuer = new ParserParameterSyntaxIssuerSealV1()
+    if token == "" {
+      return new ParserDeclaredParameterTypeSyntaxV1(ParserDeclaredParameterTypeKindV1::Absent(issuer), "")
+    }
+    return new ParserDeclaredParameterTypeSyntaxV1(ParserDeclaredParameterTypeKindV1::Explicit(issuer), token)
+  }
   site(method_site, ordinal) {
     if method_site == null || ordinal < 0 { return null }
     return new ParserParameterSourceSiteV1(method_site, ordinal)
   }
-  row(site, name, declared_type_token, transfer) {
-    return new ParserParameterSyntaxRowV1(site, name, declared_type_token, transfer)
+  row(site, name, declared_type, transfer) {
+    return new ParserParameterSyntaxRowV1(site, name, declared_type, transfer)
   }
   neutral(row) { return new ParserNeutralParameterDeclV1(row) }
   product(method_site, rows, neutral, sealed_token) {

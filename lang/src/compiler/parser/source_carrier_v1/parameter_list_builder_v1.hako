@@ -19,11 +19,11 @@ box ParserParameterListBuilderV1 {
   add_ordinary(name, declared_type_token) {
     if me._open() == false { return false }
     if name == "" { return me._poison("parser.parameter_list.empty_name") }
-    if declared_type_token == "" { return me._poison("parser.parameter_list.empty_type") }
     if me._duplicate(name) { return me._poison("parser.parameter_list.duplicate_name") }
     local site = ParserParameterSyntaxRecordsV1Box.site(me._method_site, me._rows.size())
     local transfer = ParserParameterSyntaxRecordsV1Box.ordinary_transfer()
-    me._rows.push(ParserParameterSyntaxRecordsV1Box.row(site, name, declared_type_token, transfer))
+    local declared_type = ParserParameterSyntaxRecordsV1Box.declared_type(declared_type_token)
+    me._rows.push(ParserParameterSyntaxRecordsV1Box.row(site, name, declared_type, transfer))
     return true
   }
 

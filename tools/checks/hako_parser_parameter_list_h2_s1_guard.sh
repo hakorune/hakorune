@@ -48,10 +48,14 @@ for path in paths:
 
 joined = "\n".join(path.read_text(encoding="utf-8") for path in sources)
 required = (
-    "ParserParameterTransferSyntaxV1", "ParserParameterSourceSiteV1",
+    "ParserParameterSyntaxIssuerSealV1", "ParserParameterTransferKindV1",
+    "ParserParameterTransferSyntaxV1",
+    "ParserDeclaredParameterTypeKindV1", "ParserDeclaredParameterTypeSyntaxV1",
+    "ParserParameterSourceSiteV1",
     "ParserParameterSyntaxRowV1", "ParserNeutralParameterDeclV1",
     "ParserParameterListProductV1", "ParserParameterListBuilderV1",
-    "ParserParameterListSealerV1Box", "Ordinary",
+    "ParserParameterListSealerV1Box", "Ordinary", "Take", "Absent", "Explicit",
+    "accepts_ordinary", "is_absent",
     "duplicate_name", "double_finish", "mutation_after_close",
 )
 for needle in required:
@@ -59,14 +63,16 @@ for needle in required:
         raise SystemExit(f"missing H2-S1 contract: {needle}")
 for forbidden in (
     "HomeDemand", "HomeAbi", "Resolver", "Recipe", "MIR",
-    "CallableContract", "FuncScanner", "JsonParser", "ParamDecl", "Take",
+    "CallableContract", "FuncScanner", "JsonParser", "ParamDecl",
     " clone", "clone_",
 ):
     if forbidden in joined:
         raise SystemExit(f"forbidden H2-S1 semantic or reconstruction dependency: {forbidden}")
 
 construction_allow = {
+    "ParserParameterSyntaxIssuerSealV1": sources[0],
     "ParserParameterTransferSyntaxV1": sources[0],
+    "ParserDeclaredParameterTypeSyntaxV1": sources[0],
     "ParserParameterSourceSiteV1": sources[0],
     "ParserParameterSyntaxRowV1": sources[0],
     "ParserNeutralParameterDeclV1": sources[0],
@@ -90,14 +96,31 @@ for path in parser_root.rglob("*.hako"):
 
 fixture_text = fixture.read_text(encoding="utf-8")
 for needle in (
-    "empty_exact_list", "ordered_ordinary_rows", "duplicate_and_empty_reject",
+    "empty_exact_list", "ordered_ordinary_rows", "duplicate_and_empty_name_reject",
+    "untyped_ordinary_is_explicit_absence",
     "foreign_and_ordinal_reject", "closed_state_rejects",
 ):
     if needle not in fixture_text:
         raise SystemExit(f"missing H2-S1 lifecycle fixture: {needle}")
 
+records_text = sources[0].read_text(encoding="utf-8")
+for path in paths:
+    text = path.read_text(encoding="utf-8")
+    if path != sources[0] and "ParserParameterTransferKindV1::" in text:
+        raise SystemExit(f"closed transfer vocabulary escaped its issuer: {path}")
+for forbidden in (
+    '.kind()', '== "Ordinary"', '!= "Ordinary"',
+    '== "Take"', '!= "Take"', 'take_transfer()',
+):
+    if forbidden in joined:
+        raise SystemExit(f"raw or prematurely active transfer authority: {forbidden}")
+if "ParserParameterTransferKindV1::Take(" in records_text:
+    raise SystemExit("Take vocabulary exists but must have no R0a issuer")
+
 print("parser_branch_connection=0")
 print("take_syntax_construction=0")
+print("raw_transfer_string_authority=0")
+print("untyped_parameter_explicit_absence=1")
 print("resolver_home_semantics=0")
 print("parameter_ordinals_source_ordered=1")
 print("neutral_projection_one_way=1")

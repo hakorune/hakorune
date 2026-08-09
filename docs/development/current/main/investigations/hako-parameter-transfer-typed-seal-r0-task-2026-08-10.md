@@ -1,6 +1,6 @@
 # HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0
 
-Status: R0a selected; R0b follows atomically
+Status: R0a closed; R0b selected
 Date: 2026-08-10
 Depends on: `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-D0`
 
@@ -67,3 +67,34 @@ Home demand / Home ABI
 Share / Release meaning
 Resolver target / Recipe / Builder / MIR
 ```
+
+## R0a closeout
+
+R0a is closed behavior-neutrally:
+
+- `ParserParameterTransferKindV1` is one closed parser-private
+  `Ordinary | Take` vocabulary backed by an opaque issuer seal;
+- only `Ordinary` has an issuing factory, and consumers use the limited
+  `accepts_ordinary()` capability instead of reading a raw kind;
+- declared parameter type syntax is explicit `Absent | Explicit`, so an
+  untyped ordinary parameter is admitted without treating an empty String as
+  a malformed or inferred type;
+- the guard rejects raw `"Ordinary"` / `"Take"` comparison, escaped enum
+  construction, a Take issuer, and files at or above 800 lines;
+- the focused fixture covers ordered typed rows, one untyped row, duplicate
+  and empty-name rejection, foreign site/ordinal rejection, and closed-state
+  rejection.
+
+Evidence:
+
+```text
+bash tools/checks/hako_parser_parameter_list_h2_s1_guard.sh
+  -> summary=ok
+  -> raw_transfer_string_authority=0
+  -> untyped_parameter_explicit_absence=1
+  -> take_syntax_construction=0
+```
+
+R0a does not make the builder a parser provenance authority. R0b remains the
+only next row and must bind the list seal to the exact parser session and
+method while removing `sealed_token()` and builder-as-brand.

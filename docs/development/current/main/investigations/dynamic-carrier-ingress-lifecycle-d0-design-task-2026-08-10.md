@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: ingress and parameter-transfer authority Decisions accepted; implementation pending
+Status: ingress and parameter-transfer authority Decisions accepted; Hako R0a closed
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0A`
+Current implementation row: `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0B`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
 
@@ -143,12 +143,16 @@ session issues one exact method-bound parameter-list seal, rejects duplicate
 issuance, and the final product exposes only limited same-source/ordinary-row
 queries. Builder identity and `sealed_token()` are not provenance.
 
-### 1A. `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0A` — selected
+### 1A. `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0A` — closed
 
 Replace raw `"Ordinary"` classification with the closed private vocabulary
 and opaque row capability. No grammar or semantic behavior changes.
 
-### 1B. `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0B`
+The landed row also represents an untyped ordinary parameter as explicit
+`Absent` declared-type syntax rather than rejecting or inferring an empty
+String token. `Take` remains vocabulary-only with no issuer.
+
+### 1B. `HAKO-PARAMETER-TRANSFER-TYPED-SEAL-R0B` — selected
 
 Issue the parameter-list seal from `ParserProgramSourceSessionV1`, bind it to
 the exact method, and remove builder-as-token plus `sealed_token()`.

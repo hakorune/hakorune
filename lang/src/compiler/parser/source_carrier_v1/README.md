@@ -104,7 +104,12 @@ member ordinal at zero for one exact Box. The invocation-wide member-ordinal
 issuer is removed, and the H1 guard limits raw site factories to the session
 module. H2-S1 is also closed: one atomic parser-private product owns ordered
 `Ordinary` parameter rows, while its neutral projection borrows sealed rows
-and omits transfer syntax. H2-S2 must retain
+and omits transfer syntax. The R0a cleanup replaces raw transfer strings with
+one parser-private closed `Ordinary | Take` vocabulary. Only `Ordinary` has an
+issuer; `Take` remains syntax-inactive. Declared parameter types are carried
+as explicit `Absent | Explicit` syntax, so an untyped ordinary parameter is
+not represented as an invalid or inferred empty type. Parser-session and exact
+method co-sealing remain the separate R0b boundary. H2-S2 must retain
 `ParserNodeProductV1` and its sealed tree from the same parse; ProgramJSON is
 only a projection. H2-S2 first closed a behavior-neutral ParserBox facade
 split. The compiler-side general static result publisher then removed the

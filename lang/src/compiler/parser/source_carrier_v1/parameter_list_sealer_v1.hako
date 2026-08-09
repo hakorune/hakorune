@@ -25,9 +25,10 @@ static box ParserParameterListSealerV1Box {
   }
 
   _valid_row(method_site, row, expected_ordinal) {
-    if row == null || row.site() == null || row.name() == "" || row.declared_type_token() == "" { return false }
+    if row == null || row.site() == null || row.name() == "" || row.declared_type() == null { return false }
+    if row.declared_type().is_valid() == false { return false }
     if row.site().method_site().same(method_site) == false || row.site().ordinal() != expected_ordinal { return false }
-    return row.transfer() != null && row.transfer().kind() == "Ordinary"
+    return row.transfer() != null && row.transfer().accepts_ordinary()
   }
 
   _duplicate_before(rows, end, name) {

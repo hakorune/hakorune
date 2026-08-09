@@ -35,7 +35,7 @@ static box ParserParameterListH2S1FixtureV1Box {
     local i = 0
     loop(i < 3) {
       if product.row(i).site().ordinal() != i { return 16 }
-      if product.row(i).transfer().kind() != "Ordinary" { return 17 }
+      if product.row(i).transfer().accepts_ordinary() == false { return 17 }
       if product.neutral_parameter(i).name() != product.row(i).name() { return 18 }
       if product.neutral_parameter(i).declared_type_token() != product.row(i).declared_type_token() { return 19 }
       i = i + 1
@@ -44,7 +44,7 @@ static box ParserParameterListH2S1FixtureV1Box {
     return 0
   }
 
-  duplicate_and_empty_reject() {
+  duplicate_and_empty_name_reject() {
     local session = ParserSourceSessionV1Box.open()
     local builder = ParserParameterListBuilderV1Box.open(me.method_source(session))
     if builder.add_ordinary("same", "Node") == false { return 21 }
@@ -54,8 +54,18 @@ static box ParserParameterListH2S1FixtureV1Box {
 
     local empty_name = ParserParameterListBuilderV1Box.open(me.method_source(ParserSourceSessionV1Box.open()))
     if empty_name.add_ordinary("", "Node") != false { return 25 }
-    local empty_type = ParserParameterListBuilderV1Box.open(me.method_source(ParserSourceSessionV1Box.open()))
-    if empty_type.add_ordinary("node", "") != false { return 26 }
+    return 0
+  }
+
+  untyped_ordinary_is_explicit_absence() {
+    local session = ParserSourceSessionV1Box.open()
+    local builder = ParserParameterListBuilderV1Box.open(me.method_source(session))
+    if builder.add_ordinary("source", "") == false { return 26 }
+    local result = builder.finish()
+    if result.status() != "Ready" { return 27 }
+    local row = result.product().row(0)
+    if row.declared_type().is_absent() == false { return 28 }
+    if row.declared_type_token() != "" { return 29 }
     return 0
   }
 
@@ -67,7 +77,8 @@ static box ParserParameterListH2S1FixtureV1Box {
     local rows = new ArrayBox()
     local site = ParserParameterSyntaxRecordsV1Box.site(second, 1)
     local transfer = ParserParameterSyntaxRecordsV1Box.ordinary_transfer()
-    rows.push(ParserParameterSyntaxRecordsV1Box.row(site, "node", "Node", transfer))
+    local declared_type = ParserParameterSyntaxRecordsV1Box.declared_type("Node")
+    rows.push(ParserParameterSyntaxRecordsV1Box.row(site, "node", declared_type, transfer))
     local result = ParserParameterListSealerV1Box.finish(first, rows, first_session)
     if result.status() != "InternalCarrierContractViolation" { return 31 }
     return 0
@@ -87,7 +98,8 @@ static box ParserParameterListH2S1FixtureV1Box {
   run() {
     local rc = me.empty_exact_list() if rc != 0 { return rc }
     rc = me.ordered_ordinary_rows() if rc != 0 { return rc }
-    rc = me.duplicate_and_empty_reject() if rc != 0 { return rc }
+    rc = me.duplicate_and_empty_name_reject() if rc != 0 { return rc }
+    rc = me.untyped_ordinary_is_explicit_absence() if rc != 0 { return rc }
     rc = me.foreign_and_ordinal_reject() if rc != 0 { return rc }
     return me.closed_state_rejects()
   }
