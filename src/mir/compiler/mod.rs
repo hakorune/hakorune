@@ -59,6 +59,8 @@ pub(in crate::mir) mod direct_accum_profile;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_projection;
 #[allow(dead_code)]
+pub(in crate::mir) mod dynamic_full_body_recipe;
+#[allow(dead_code)]
 pub(in crate::mir) mod dynamic_full_body_source;
 #[cfg(test)]
 mod dynamic_full_body_source_tests;

@@ -168,7 +168,21 @@ resolver-issued non-Clone Loop root has a consuming V2 adapter, so no caller
 may manufacture the Recipe root key. Six structure tests, thirty-seven V2
 schema tests, and the focused adapter test are green. The row adds no new
 source shape, operation, JoinSig, producer, physical route, or production
-caller. `LOOP-V2-DYNAMIC-FULL-PRODUCER-I0` is next.
+caller. This R0 is the prerequisite for the complete producer receipt below.
+
+Implementation receipt (`LOOP-V2-DYNAMIC-FULL-PRODUCER-I0`, 2026-08-10):
+the unchanged production `skip_while/4` source now issues the complete
+1-Loop/3-block/17-item verified V2 artifact. It retains all six binding rows,
+twenty-eight source rows, and the original two-site Completion beside the
+artifact. The non-Clone resolver Loop token moves exactly once into the
+artifact's structurally verified path claim; its frame and scope/region remain
+in the retained source product, so no authority is copied or discarded. Exact
+source-to-Recipe correspondence remains private unsealed candidate truth.
+Private role-to-key claims cover the complete source boundary while `ch`
+remains a V10 local-value relation and the outer Return remains Callable Tail.
+Three focused tests are green. No envelope co-seal, JoinSigV2, physical route,
+fallback, or production caller is introduced. The next row is the atomic
+source-bound Recipe/envelope co-seal design.
 
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).

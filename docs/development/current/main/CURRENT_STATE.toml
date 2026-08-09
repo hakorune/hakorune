@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "V2 control/source structural parity R0 is closed: exact root/block/If/Exit use and ownership, recursive preorder, terminal Exit, shared source-path validation, and a consuming V2 root adapter are live. The unchanged source remains intact; the complete private full-Recipe producer is next."
+status = "The complete unchanged-source Dynamic V2 producer I0 is closed: one verified 1-loop/3-block/17-item artifact owns the moved structural source-path claim while all 6 binding rows, 28 source rows, frame/scope, two-site Completion, and private unsealed correspondence remain beside it. Atomic source-bound Recipe/envelope co-seal design is next."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
+current_design_stop = "LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0: implementation remains closed until the active card fixes the sole issuer, borrowed catalog lifetime, exact full coverage, Fault boundary, and negative matrix"
 work_mode = "fast"
-current_execution_row = "LOOP-V2-DYNAMIC-FULL-PRODUCER-I0"
-current_blocker_token = "LOOP-V2-DYNAMIC-FULL-PRODUCER-I0: consume the unchanged full source inventory once and issue the exact 1-loop/3-block/17-item verified artifact inside one private unsealed candidate; retain all source roles and two-site Completion, no partial call product or fixture narrowing"
+current_execution_row = "LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0"
+current_blocker_token = "LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0: define one atomic full-coverage issuer over the complete candidate and borrowed seven-row envelope catalog; exactly two CallSlots, no call-only product, catalog consumption, selector inference, Fault folding, or fixture narrowing"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"

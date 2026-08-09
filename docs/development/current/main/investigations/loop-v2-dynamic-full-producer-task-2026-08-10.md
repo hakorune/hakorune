@@ -1,8 +1,8 @@
 ---
-Status: control/source parity R0 closed; complete producer I0 next
+Status: complete producer I0 closed; atomic co-seal D0 next
 Date: 2026-08-10
-Closed row: `LOOP-V2-CONTROL-STRUCTURE-GUARD-R0`
-Current row: `LOOP-V2-DYNAMIC-FULL-PRODUCER-I0`
+Closed row: `LOOP-V2-DYNAMIC-FULL-PRODUCER-I0`
+Current row: `LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0`
 Parent: `dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md`
 Mode: BoxShape first; unchanged-source producer second
 ---
@@ -301,6 +301,72 @@ The multi-exit row is mandatory before physical activation. The existing
 completion consumer handles only one explicit return; it must later claim the
 inner and outer exact site set once each, rejecting missing, duplicate, and
 foreign claims.
+
+### I0 closeout
+
+The unchanged production `skip_while/4` source now produces one complete,
+structurally verified V2 artifact inside one private unsealed candidate.
+
+```text
+1 Loop / 3 blocks / 1 Dynamic binding / 4 Dynamic inputs
+1 carrier / 18 values / 17 items / 1 inner Return Exit
+2 CallSlots / 2 DynamicAdd / 2 DynamicLess / 3 ConstI64
+```
+
+The resolver Loop membership is non-Clone. I0 therefore does not pretend it
+can retain that product and also copy its source authority into the artifact.
+The producer consumes the membership once:
+
+```text
+VerifiedCallableLoopMembershipV1
+  -> resolver Loop token -> verified artifact structural path claim
+  -> frame + scope/region -> retained source product
+```
+
+The retained product also owns all six binding rows, all twenty-eight source
+rows, and the original two-site Completion. The private claim table contains
+only source semantic roles and Recipe/sibling keys. It contains no source
+sites, operation copies, selector targets, envelopes, Home/Fault facts, or
+physical IDs. `ch` remains the V10 iteration-local relation; the outer Return
+remains Callable Tail.
+
+The source path is bound to the exact already-verified Recipe instance through
+one consuming artifact terminal. The producer neither clones the raw Recipe
+nor re-verifies and re-pairs a second instance. Source-to-key correspondence
+is not claimed by the artifact alone; it remains private candidate truth until
+the next atomic co-seal.
+
+Focused evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q dynamic_full_body_recipe --lib
+  3 passed
+```
+
+No source was rewritten or narrowed. No envelope co-seal, JoinSigV2,
+Completion consumption, Builder/MIR, provider route, fallback, or production
+activation is present.
+
+## Next design row — atomic co-seal
+
+`LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0` must fix one exact issuer
+before implementation:
+
+```text
+private complete candidate
++ complete seven-row Dynamic envelope catalog (borrowed)
+  -> exact two CallSlot target/envelope relations
+  -> complete source/Recipe relation coverage
+  -> one atomic verified source-bound Recipe product
+```
+
+The D0 must validate the entire six-binding/twenty-eight-source claim table,
+not only the two CallSlots. It must define ownership, full-coverage
+cardinality, foreign/duplicate/missing rejects, `ch` local-value deferral, and
+the boundary between normal Dynamic result and Fault. It must not add a
+call-only product, consume the envelope catalog, infer selector types, claim a
+final semantic program, or activate lowering. JoinSigV2, Fault compatibility,
+`ch` Home, Tail, and Completion remain later owners.
 
 ## Nonclaims
 

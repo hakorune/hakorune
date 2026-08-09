@@ -181,13 +181,25 @@ impl LoopRecipeVerifierV2 {
             });
         }
         let recipe = Self::verify(artifact.recipe)?;
+        Self::bind_verified_artifact(artifact.provenance, artifact.source_binding, recipe)
+    }
+
+    /// Bind source structure to this exact verified Recipe instance.
+    ///
+    /// Producers that already verified a logical Recipe use this consuming
+    /// terminal instead of cloning and re-verifying a second raw wire.
+    pub(crate) fn bind_verified_artifact(
+        provenance: super::schema::LoopRecipeProvenanceV1,
+        source_binding: super::schema::LoopRecipeSourceBindingV1,
+        recipe: VerifiedLoopRecipeV2,
+    ) -> Result<VerifiedLoopRecipeArtifactV2, LoopRecipeV2RejectReason> {
         let source_binding = super::source_binding::LoopRecipeSourceClaimVerifierV1::verify_v2(
             recipe.as_recipe(),
-            artifact.source_binding,
+            source_binding,
         )
         .map_err(LoopRecipeV2RejectReason::SourceBinding)?;
         Ok(VerifiedLoopRecipeArtifactV2 {
-            provenance: artifact.provenance,
+            provenance,
             source_binding,
             recipe,
         })
