@@ -1,5 +1,5 @@
 ---
-Status: parked — blocked by `CALLABLE-BODY-SOURCE-AUTHORITY-D0`
+Status: parked — blocked by Query projection I0 -> owner binding I0 -> body facts I0
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-declared-query-home-aggregate-i0-implementation-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`

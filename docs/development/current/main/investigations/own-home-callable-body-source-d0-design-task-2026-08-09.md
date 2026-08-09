@@ -44,9 +44,9 @@ The source/body path must become a one-way sequence:
 
 ```text
 parser-owned rich source product
-  + exact SourceBoxMethodSiteV1
+  + parser-issued direct source site
   + parser invocation brand
-  + exact method body root/order
+  + exact method body-item coverage/order
         |
         v
 resolver body-source issuer
@@ -98,9 +98,9 @@ parser authority and it does not change the existing declaration-only
 ParserBoxBodySourceEnvelopeV1   (private parser side, non-Clone)
   parser invocation brand
   declaration-only resolver handoff
-  exact direct SourceBoxMethodSiteV1 rows
-  exact body root for each row
-  ordered body-item source paths/cardinality
+  parser-issued direct source rows
+  resolver-normalized source-site coordinates
+  ordered body-item coverage/cardinality
   private syntax arena/view used only by one observer callback
 ```
 
@@ -112,9 +112,9 @@ API remains for declaration/signature consumers; the body envelope is a new
 parser-private ingress for this row.
 
 The resolver-facing result is a fresh non-`Clone`
-`VerifiedInstanceMethodBodySourceCatalogV1`. It contains only the exact
-resolver/catalog brand, direct method source identity, body-root identity, and
-complete ordered-body coverage. It does not contain an `ASTNode`, a
+`VerifiedInstanceMethodBodySourceCatalogV1`. It contains only the resolver
+brand, parser provenance, resolver-normalized direct method-site coordinate,
+and complete ordered body-item coverage. It does not contain an `ASTNode`, a
 `FunctionOwnerIdV1`, body effects, Query, Home, semantic types, target,
 Recipe, or MIR. The private observer callback may borrow the syntax arena while
 the envelope is alive; the callback must finish before the envelope is dropped.
@@ -168,10 +168,11 @@ AST pointer.
 For the bounded direct cohort, the parser-issued source site is normalized at
 the resolver boundary to `ResolverBoxMethodSourceSiteV1` (Box statement
 ordinal plus direct member ordinal) and remains branded by the parser
-provenance and resolver catalog. This is a resolver-normalized source site,
-not a bare ordinal. A method name, selected/generated inventory ordinal, or
-name-sorted map is not a source identity. The direct member ordinal inside the
-branded site is allowed; using that integer alone is forbidden.
+provenance and covered by the resolver catalog brand. This is a
+resolver-normalized source-site coordinate, not a bare ordinal. A method name,
+selected/generated inventory ordinal, or name-sorted map is not a source
+identity. The direct member ordinal inside the coordinate is allowed; using
+that integer alone is forbidden.
 
 Selected build-gate paths or generated/delegate origins are outside this I0.
 If they must become source identity in a later cohort, a separate parser
@@ -402,7 +403,7 @@ performs no semantic re-check.
 
 ```text
 1. CALLABLE-BODY-SOURCE-AUTHORITY-D0
-   source authority census, exact identity tuple, body-root/order contract,
+   source authority census, normalized source-site/body-item contract,
    parser body envelope, resolver borrow boundary, owner-link stop line, and
    fail-fast matrix, one-shot transaction decomposition, provenance bridge,
    selected identity/cardinality, owner-binding insertion, and module split

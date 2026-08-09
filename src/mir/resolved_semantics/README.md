@@ -69,7 +69,8 @@ parameter/result classes (`I64` or `Unit`). Parser invocation provenance is
 retained as provenance; it is not reused as nominal type identity. The issuer
 does not clone rows through the parser inspection API or issue partial
 receipts. `CallableContractSyntaxV1` is carried as typed syntax only; the
-Query D0 behavior boundary and bounded Query I0 issuer are closed. The
+declared Query behavior D0 and bounded Query behavior I0 issuer are closed.
+The separate Query body-source projection is not yet opened. The
 non-`Clone` `VerifiedDeclaredQueryBehaviorCatalogV1` contains only the exact
 non-empty typed Query subset, resolver/declaration identity, normalized
 behavior, and optional rune provenance. It never copies Home demands/results,
@@ -98,9 +99,11 @@ The general body-source I0 fixes the parser-side boundary before any
 conformance issuer opens. The existing declaration handoff remains body-free. A private
 non-`Clone` `ParserResolverBodyTransactionV1` must decompose exactly once via
 `into_parts()` into the declaration handoff and a body envelope. The envelope
-retains the complete branded direct `SourceBoxMethodSiteV1` tuple, normalized
-body-root/item paths, and a checked parser-invocation provenance token. A bare
-ordinal, name, selected inventory placement, or map order cannot pair a body.
+retains normalized direct method sites, ordered body-item coverage, and a
+checked parser-invocation provenance token. The bounded resolver catalog
+exposes a `ResolverBoxMethodSourceSiteV1` coordinate covered by its resolver
+brand plus parser provenance; a bare ordinal, name, selected inventory
+placement, or map order cannot pair a body.
 Its resolver result is AST-free and borrows the already landed declaration
 catalog; it never consumes Home/Query again or mints a
 `FunctionOwnerIdV1`. The current next row is a separate Query projection that

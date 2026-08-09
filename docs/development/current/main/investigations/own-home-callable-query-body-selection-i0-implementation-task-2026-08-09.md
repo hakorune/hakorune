@@ -1,5 +1,5 @@
 ---
-Status: parked behind D0 acceptance; implementation not open
+Status: ready after explicit D0-to-I0 transition; implementation not yet opened
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-query-body-selection-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -24,28 +24,35 @@ CALLABLE-BODY-SOURCE-AUTHORITY-I0
   -> VerifiedInstanceMethodBodySourceCatalogV1 is landed
 
 declared Query/Home aggregate
-  -> owns the private selected-pair relation
-  -> exposes one borrowed, read-only selected-contract view
+  -> remains the sole owner of the private selected-pair relation
+  -> the first operation in this I0 may add its borrowed, read-only
+     selected-contract view at that owner
+  -> projection code starts only after that view compiles and its focused
+     aggregate tests are green
 
 current work mode
-  -> implementation row, not design_stop
+  -> explicitly transitioned to the I0 implementation row, not design_stop
 ```
 
 If the aggregate cannot expose the selected view without rejoining parallel
 declaration/Home/Query vectors, stop with `NoSafeSlice`. Do not add a second
-selection authority or a test-only constructor to unblock this row.
+selection authority or a test-only constructor to unblock this row. The
+aggregate-view addition and the projection are one bounded I0, but the view is
+the required first compile/test boundary inside that I0.
 
 ## Input and output
 
 ```text
 VerifiedInstanceMethodBodySourceCatalogV1
   + aggregate-owned selected Query view
-  -> VerifiedDeclaredQueryBodySourceCatalogV1
+  -> VerifiedDeclaredQueryBodySourceCatalogV1<'body, 'contract>
 ```
 
 The input body catalog contains every supported direct instance-method body
-row. The output contains exactly the selected Query rows, in their original
-branded source order. The output is non-`Clone`, AST-free, and resolver-only.
+row. The output borrows exactly the selected Query rows, in their original
+branded source order. The output is non-`Clone`, AST-free, resolver-only, and
+does not consume or clone the general catalog; future non-Query observers can
+reuse that same general source authority.
 
 The aggregate view is borrow-scoped and read-only. A suitable shape is:
 
@@ -59,7 +66,23 @@ VerifiedDeclaredInstanceMethodContractCatalogV1::selected_contracts()
 ```
 
 The projection may inspect the view but must not copy or re-issue its Home or
-Query receipts. It must not read private pair indices directly.
+Query receipts. It must not read private pair indices directly. The projected
+row relation retains a body-row reference under `'body` and the aggregate
+selected-contract reference under `'contract`:
+
+```text
+VerifiedDeclaredQueryBodySourceRowRefV1<'body, 'contract>
+  body: &'body VerifiedInstanceMethodBodySourceRowV1
+  contract: DeclaredInstanceMethodContractRefV1<'contract>
+```
+
+This is a relational view, not a copied semantic receipt or an index-based
+lookup table.
+
+The output's `parser_provenance()` and `resolver_brand()` accessors inherit
+their proof from the enclosing body catalog and aggregate view. They are not
+per-row forgeable fields. The projection compares body-catalog provenance and
+aggregate provenance before issuing any row reference.
 
 ## Identity contract
 
@@ -133,24 +156,26 @@ original source order and source site retained
 one selected row per Query declaration
 empty Query body row retained as []
 valid non-Query row has no projected default
+general all-row catalog remains reusable after projection
 ```
 
 Negative:
 
 ```text
-missing selected Query row              -> Rejected
-duplicate selected Query row            -> Rejected
-foreign extra row                       -> Rejected
-same name, different source site        -> Rejected
-parser provenance mismatch              -> Rejected
-resolver brand mismatch                 -> Rejected
+general source seal missing/duplicate/foreign row -> Rejected upstream
+cross-catalog identity mismatch (parser provenance and/or resolver brand)
+                                          -> Rejected
+same name, different source site          -> Rejected
 raw rune/name/ordinal/vector rejoin     -> guard failure
 name-sorted or rebased sparse output    -> Rejected
 ```
 
 The tests must use real issued products from the parser/resolver path. Do not
 forge brands, source sites, or verified products with arbitrary test
-constructors.
+constructors. The general body-source issuer already owns complete direct
+cohort coverage, so missing/duplicate/foreign body rows are tested at that
+upstream seal; Query I0 tests only constructible projection-level mismatches
+and the sparse positive/empty/non-Query cases.
 
 ## Implementation files and same-commit closeout
 
@@ -196,5 +221,14 @@ fallback/retry
 production activation
 ```
 
+The explicit transition after D0 acceptance is:
+
+```text
+work_mode = fast
+current_execution_row = CALLABLE-QUERY-BODY-SELECTION-I0
+latest_card_path = this I0 card
+```
+
+Only after that transition may the aggregate view/projection code be edited.
 The next row is `CALLABLE-BODY-OWNER-BINDING-D0/I0`. It must consume this
 selected Query body-source product and must not reselect Query rows.

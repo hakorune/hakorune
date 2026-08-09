@@ -24,8 +24,10 @@ box TextLike {
 ```
 
 This row proves that every supported direct declaration has exactly one body,
-belongs to the exact `SourceBoxMethodSiteV1`, and has complete ordered
-body-root coverage. It does not select or reissue Query behavior, prove Query
+belongs to the parser-issued source site normalized at the resolver boundary
+as `ResolverBoxMethodSourceSiteV1`; the enclosing resolver brand and parser
+provenance cover that coordinate, and it has complete ordered
+body-item coverage. It does not select or reissue Query behavior, prove Query
 conformance, and does not connect to target, Recipe/CallSlot, Builder, MIR,
 runtime, provider, or production.
 
@@ -61,12 +63,15 @@ ParserResolverBodyTransactionV1 (non-Clone, parser-private)
 ```
 
 This is the only decomposition path. The body envelope contains normalized
-AST-free body-root/item-path DTOs and a checked parser-invocation provenance
+AST-free body-item coverage DTOs and a checked parser-invocation provenance
 token. A one-shot callback may borrow private syntax only while the envelope
 is alive and may return coverage receipts, never syntax or an AST pointer.
-The direct source identity is the complete branded
-`SourceBoxMethodSiteV1` tuple; a bare member ordinal, method name, or selected
-inventory ordinal is rejected as an identity.
+The direct source identity is the parser-issued site normalized downstream as
+`ResolverBoxMethodSourceSiteV1` plus enclosing resolver brand and parser
+provenance; a bare member
+ordinal, method name, or selected inventory ordinal is rejected as identity.
+This bounded cohort does not claim selected-gate paths or a separate
+body-root token.
 
 The resolver issuer borrows the existing
 `VerifiedInstanceMethodDeclarationCatalogV1`; it must not consume, clone, or
@@ -86,9 +91,9 @@ Positive:
 one ordinary direct Box with one or more direct instance bodies
 same parser invocation brand
 same resolver/declaration catalog anchor
-exact direct SourceBoxMethodSiteV1
-one body root per declaration
-ordered body item sites per declaration
+resolver-normalized source-site coordinate covered by brand/provenance
+one body-source row per declaration
+ordered body-item coverage per declaration
 complete declaration/body cardinality
 ```
 
@@ -100,7 +105,7 @@ foreign resolver/declaration anchor          -> Rejected
 method source site mismatch                  -> Rejected
 missing body row                             -> Rejected
 duplicate body row                           -> Rejected
-body/root cardinality mismatch               -> Rejected
+body-item coverage/cardinality mismatch      -> Rejected
 selected/generated/Hako/interface/static    -> NoSafeSlice
 body syntax unavailable with intact identity  -> Unresolved
 body observed outside direct cohort           -> Declined
@@ -128,7 +133,7 @@ compilation brands do not establish that link.
   envelope;
 * parser transaction decomposition occurs exactly once; no AST/body rescan or
   independent handoff/body pairing is available;
-* exact direct method site/body root/order are retained;
+* resolver-normalized direct method coordinate/body-item coverage/order are retained;
 * parser provenance is compared through a sealed token/receipt, not a raw
   number or name;
 * foreign/missing/duplicate/cardinality cases fail before semantic output;
@@ -193,7 +198,7 @@ The parser exposes one consuming
 `ParserResolverBodyTransactionV1::into_parts()` boundary. The resolver issuer
 now consumes the AST-free body envelope against the declaration catalog (not
 the Query aggregate), validates the complete direct cohort, preserves the
-branded source site and parser provenance, and rejects duplicate, foreign,
+resolver-normalized source coordinate covered by brand/provenance, and rejects duplicate, foreign,
 missing, or non-contiguous body coverage. The focused body-source gate is
 green with the complete direct-cohort positive (including empty body
 coverage), one-shot consumption, and foreign parser-provenance rejection

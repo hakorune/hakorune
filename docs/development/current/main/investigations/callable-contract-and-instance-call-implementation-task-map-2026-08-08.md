@@ -152,7 +152,7 @@ The body-source correction is now explicit in the task order:
 ```text
 general body source
   = all supported direct instance-method declarations
-  = parser provenance + exact SourceBoxMethodSite coverage
+  = parser provenance + resolver-normalized branded source-site coverage
 
 selected Query view
   = aggregate-owned borrowed relation
@@ -223,9 +223,10 @@ do not change the active R6 implementation lane:
 ```text
 CALLABLE-QUERY-BODY-SELECTION-D0/I0
   general body source is already closed; add only the aggregate-owned
-  selected Query view and the sparse AST-free projection. Co-seal parser
-  provenance/resolver brand, preserve SourceBoxMethodSite, keep empty bodies
-  valid, reject foreign/duplicate/missing rows, and update the focused
+  selected Query view and the sparse AST-free borrowed projection
+  (`<'body,'contract>`). Co-seal parser provenance/resolver brand, preserve
+  the resolver-normalized source site, keep empty bodies valid, and rely on
+  upstream general-seal receipts for foreign/duplicate/missing rows; update the focused
   reference/README/current mirrors in the same implementation commit. Do not
   open FunctionOwner, body Facts, conformance, target, Recipe, Builder/MIR, or
   production selection.
@@ -755,8 +756,9 @@ Rejected > Unresolved > Declined > Candidate
    - consume exactly one non-Clone `ParserBoxSourceSealV1` for the bounded
      ordinary top-level Rust Box cohort;
    - issue one opaque AST-free resolver source capability;
-   - preserve `SourceBoxMethodSiteV1` as identity and inventory ordinal only
-     as placement/diagnostic data;
+   - preserve the parser-issued source site, normalized downstream to
+     `ResolverBoxMethodSourceSiteV1`; inventory ordinal is placement/diagnostic
+     data only;
    - carry typed `CallableContractSyntaxV1::Query` without raw rune strings;
    - reject foreign/duplicate/generated-only/missing/reused rows;
    - no semantic signature, Home ABI, target, Recipe, Builder/MIR, or fallback;
@@ -831,7 +833,8 @@ Rejected > Unresolved > Declined > Candidate
     - decompose it into declaration handoff plus body envelope only through a
       consuming `into_parts` boundary;
     - retain the parser-issued source site through the resolver-normalized
-      branded `ResolverBoxMethodSourceSiteV1` plus checked parser provenance;
+      `ResolverBoxMethodSourceSiteV1` coordinate covered by resolver brand plus
+      checked parser provenance;
       never use a bare ordinal/name/inventory placement;
     - issue a general body-source catalog for every supported direct instance
       declaration; require one exact row per declaration, with no Query/Home
@@ -848,9 +851,10 @@ Rejected > Unresolved > Declined > Candidate
 17. `CALLABLE-QUERY-BODY-SELECTION-D0/I0` (current design stop)
     - project the already validated general body-source catalog through the
       declared aggregate's selected Query view;
-    - require exactly one body row per selected Query declaration, preserve
-      sparse branded source order, reject foreign/duplicate/missing rows, and
-      create no default row for non-Query methods;
+    - require exactly one borrowed body row per selected Query declaration,
+      preserve sparse resolver-normalized source order, and create no default
+      row for non-Query methods; missing/duplicate/foreign body rows belong to
+      the upstream general source seal;
     - never rebuild Query selection from rune syntax, names, ordinals, or
       vector positions;
     - D0 task:

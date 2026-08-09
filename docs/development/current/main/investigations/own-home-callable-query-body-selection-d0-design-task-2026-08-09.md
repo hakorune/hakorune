@@ -1,5 +1,5 @@
 ---
-Status: accepted design stop — implementation not open
+Status: accepted design — implementation opens only after explicit D0-to-I0 transition
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -17,13 +17,15 @@ that already validated catalog through the already sealed selected Query view.
 ```text
 VerifiedInstanceMethodBodySourceCatalogV1
   + borrowed selected Query contract view
-  -> VerifiedDeclaredQueryBodySourceCatalogV1
+  -> VerifiedDeclaredQueryBodySourceCatalogV1<'body, 'contract>
 ```
 
 The projection does not issue Query, Home, signature, effect, or FunctionOwner
 meaning. It only proves that each selected Query declaration has exactly one
 validated body-source row from the same parser transaction and resolver
-catalog.
+catalog. It borrows the general body-source catalog; it does not consume or
+clone its rows, so the complete general catalog remains reusable by a future
+non-Query observer.
 
 ## Input authority
 
@@ -72,9 +74,15 @@ DeclaredInstanceMethodContractRefV1<'catalog>
 
 with one aggregate-owned iterator such as
 `VerifiedDeclaredInstanceMethodContractCatalogV1::selected_contracts()`.
-The projection consumes only this iterator and the general body-source
-catalog. If this view cannot be provided without reconstructing the join, the
-row remains `NoSafeSlice`; no second selection authority is introduced.
+The projection consumes only this iterator and borrows the general body-source
+catalog through a non-`Clone` selected-row view, for example
+`VerifiedDeclaredQueryBodySourceCatalogV1<'body, 'contract>` containing
+borrowed row references. Its `parser_provenance()` and `resolver_brand()`
+accessors inherit proof from the enclosing body/aggregate receipts; they are
+not per-row forgeable fields. The projection compares body and aggregate
+provenance before issuing row refs. It must not copy source rows or semantic receipts. If either view
+cannot be provided without reconstructing a join, the row remains
+`NoSafeSlice`; no second selection authority is introduced.
 
 ### Identity axes
 
@@ -124,7 +132,7 @@ catalog is only a deterministic sparse projection over it:
 ```text
 general direct body rows (all supported declarations)
   -> selected Query declaration refs
-  -> selected Query body rows in original source order
+  -> borrowed selected Query body rows in original source order
 ```
 
 Non-Query rows remain valid source rows but are unselected. An extra body row
@@ -158,7 +166,7 @@ Positive:
 
 ```text
 Query / non-Query / Query sparse selection
-original source order and resolver-normalized branded source site retained
+original source order and resolver-normalized source-site coordinate retained
 exactly one selected row per Query declaration
 empty body coverage retained without behavior inference
 ```
@@ -166,9 +174,8 @@ empty body coverage retained without behavior inference
 Negative:
 
 ```text
-missing selected Query row                 -> Rejected
-duplicate selected Query row               -> Rejected
-foreign extra row                          -> Rejected
+general source seal missing/duplicate/foreign row -> Rejected upstream
+cross-catalog body/projection mismatch      -> Rejected
 same name but foreign source site          -> Rejected
 selection rebuilt from raw rune            -> guard failure
 name-sorted/rebased sparse projection      -> Rejected
@@ -178,9 +185,8 @@ non-Query row with no contract             -> unselected, no default row
 Additional identity/transaction tests:
 
 ```text
-body catalog from parser transaction A + contract catalog from B -> Rejected
-same numeric ordinals with foreign parser provenance            -> Rejected
-same parser provenance with foreign resolver brand              -> Rejected
+body/catalog from parser transaction A + contract catalog from B -> Rejected
+cross-catalog parser provenance and/or resolver brand mismatch   -> Rejected
 same declaration name but different source site                  -> Rejected
 empty Query body row                                             -> accepted source coverage
 one-shot parser transaction split twice                           -> compile/API failure
@@ -204,7 +210,7 @@ fallback/retry
 
 ## Implementation task
 
-`CALLABLE-QUERY-BODY-SELECTION-I0` (parked implementation card:
+`CALLABLE-QUERY-BODY-SELECTION-I0` (ready implementation card:
 `own-home-callable-query-body-selection-i0-implementation-task-2026-08-09.md`)
 may open only after
 `CALLABLE-BODY-SOURCE-AUTHORITY-I0` has landed with a general
@@ -215,10 +221,11 @@ the same slice. The implementation is one bounded projection slice:
 
 ```text
 1. add the aggregate-owned borrowed selected-contract view
-2. add parser-provenance and resolver-brand co-seal checks
-3. issue sparse Query body rows without copying semantic receipts
-4. add positive/negative tests above
-5. update reference/README/current mirrors in the same commit
+2. add the borrowed selected-row body view with an explicit `'body` lifetime
+3. add parser-provenance and resolver-brand co-seal checks
+4. project sparse Query body rows without copying source/semantic receipts
+5. add positive/negative tests above, including reuse of the general catalog
+6. update reference/README/current mirrors in the same commit
 ```
 
 The projection must remain resolver-only and AST-free. It must not open
