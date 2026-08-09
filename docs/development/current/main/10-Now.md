@@ -23,9 +23,9 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. The typed integer lexical-parts row is parked while
-one bounded canary declares the existing numeric scanner cursor parameter as
-`i64` and proves the existing parameter/local-copy publication chain.
+Current mode is `design_stop`. The typed integer lexical-parts row and cursor
+parameter I0 are parked while one bounded census traces why source
+`i: i64` does not reach the active parameter TypeContext publication path.
 The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
@@ -37,7 +37,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0
+HAKO-PARSER-NUMERIC-SCAN-PARAMETER-CARRIAGE-D0
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -64,7 +64,9 @@ stateless support owner and is 754 lines. The carrier census proved that
 `local j = i` creates one fresh local Copy and that its owner correctly
 propagates only an existing source type. The current I0 declares only formal
 `i` as `i64`; `src` remains untyped because the compatibility scanner accepts
-`null`. S0 stays parked until this direct scanner canary is green. There is
+`null`. That exact annotation probe still produced the same
+`MissingTransientType`, so the current D0 traces parser/module/header/entry
+carriage to its first loss boundary. Both I0 and S0 stay parked. There is
 still no typed
 expression/Return/body product, method
 connection, Take activation, or language activation.
@@ -157,7 +159,8 @@ typed syntax carriage (closed)
 -> H2-S2 same-pass rich body result design (closed)
 -> H2-S2-R0 ParserBox facade split (closed)
 -> numeric-scan carrier-source D0 (closed)
--> exact carrier parameter I0 + clean scan_int canary (current)
+-> exact carrier parameter I0 (parked after failed probe)
+-> parameter-carriage D0 (current design census)
 -> H2-S2-S0 private typed integer lexical parts (parked until canary green)
 -> H2-S3 unpublished direct-method transaction
 -> H2-I0 bounded ordinary Box direct-method parser connection

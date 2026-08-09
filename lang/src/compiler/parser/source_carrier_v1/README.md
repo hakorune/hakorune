@@ -100,8 +100,11 @@ split. S0 is parked because a clean-HEAD direct call to the existing numeric
 scanner already reaches GenericLoop with a carrier whose final ValueId lacks
 an exact transient type. The carrier-source D0 proved that `local j = i`
 creates one fresh local Copy and that formal `i` lacks source type truth. The
-current I0 declares only `i: i64`, keeps null-compatible `src` untyped, and
-reuses the existing parameter/copy owners. After that canary is green, S0 may add private numeric lexical parts plus exact
+first I0 declared only `i: i64`, kept null-compatible `src` untyped, and
+attempted to reuse the existing parameter/copy owners. The same missing-type
+failure remained, so that I0 is parked while the current carriage D0 traces
+the exact parser/module/header/entry loss boundary. After its canary is green,
+S0 may add private numeric lexical parts plus exact
 unsuffixed-decimal admission while keeping the live `JSON@pos` result as a
 compatibility projection of the same traversal.
 It does not connect an expression, Return, body, or method product. Later rows

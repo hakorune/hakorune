@@ -1,5 +1,5 @@
 ---
-Status: ready implementation task
+Status: parked — source annotation is not carried by the active executable path
 Date: 2026-08-09
 Row: `HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0`
 Parent: `HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0`
@@ -82,3 +82,29 @@ resolver target, Recipe, DraftSeal, publication, runtime
 Implementation, focused fixture/guard, check index, owner README receipt,
 current pointers, commit, and push close together. When this canary is green,
 resume the existing stashed `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0` work.
+
+## Failed probe receipt
+
+The exact one-line source change and focused direct-call canary were attempted
+without adding any new type/Loop owner. The executable still froze at the
+same boundary:
+
+```text
+GenericLoop carrier representation failed:
+MissingTransientType { init: ValueId(3) }
+```
+
+Therefore `i: i64` is truthful source syntax but is not sufficient evidence
+that the active source-to-callable-lowering path carries the `ParamDecl` into
+the existing parameter publisher. Do not add a local override or GenericLoop
+fallback.
+
+The failed slice is preserved as:
+
+```text
+stash@{0}: wip/numeric-scan-carrier-parameter-i0
+           (source i64 not carried to GenericLoop)
+```
+
+Resume only after `HAKO-PARSER-NUMERIC-SCAN-PARAMETER-CARRIAGE-D0` identifies
+the exact loss boundary and selects one canonical repair.
