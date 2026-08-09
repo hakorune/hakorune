@@ -46,7 +46,7 @@ semantic-envelope catalog are now closed. The Dynamic Recipe consultation is
 also closed. The current executable row is:
 
 ```text
-LOOP-V2-OPERAND-DEFINITION-GUARD-R0
+LOOP-RECIPE-V2-DYNAMIC-VALUE-I0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe
@@ -55,8 +55,10 @@ relation retains the exact target and indivisible envelope. V1 remains
 unchanged and Fault is not a Recipe value or exit. The unchanged module
 catalog remains seven rows: three Loop-owned and four valid non-Loop; the
 first `skip_while/4` relation will select exact two while retaining all seven.
-Before schema widening, the current R0 closes V2 operand use-before-definition
-and Return-value validation. If a valid row is unsupported, widen the compiler
+The prerequisite R0 now closes V2 operand use-before-definition and
+Return-value validation through one common checked-use path. The current I0
+adds only the honest V2 Dynamic logical class and structural tests. If a valid
+row is unsupported, widen the compiler
 or stop at a named design question; never narrow or rewrite source. Physical
 projection, provider plan, retry, and fallback remain closed.
 JoinSig-authorized If/Return and multi-return Completion still precede

@@ -27,12 +27,15 @@ policy belongs to the resolver/source relation row.
 
 `LoopRecipeVerifierV2` rejects unsupported schema versions, non-canonical
 keys, unknown references, duplicate value definitions, invalid numeric
-domains, and non-`Text` `TextEq` operands or non-`Bool` results. It does not
+domains, and non-`Text` `TextEq` operands or non-`Bool` results. The landed
+operand-definition guard also requires every CallSlot, numeric, TextEq,
+WriteBinding, If, and Return operand to have a verified prior definition; a
+declared value key alone is insufficient. It does not
 claim source existence, target resolution, input-source relations,
 ScanWithInit, Loop/Tail/Completion, Builder/MIR/physicalization, fallback, or
 production activation. The focused receipt is
-`typed_schema_v2_tests.rs` (seven tests, including independent duplicate and
-wrong-result-class negatives); all touched Rust files remain below the
+`typed_schema_v2_tests.rs` (twelve tests, including independent duplicate,
+forward-use, Return-key, and wrong-result-class negatives); all touched Rust files remain below the
 760-line design trigger and 800-line hard boundary.
 
 The next independent rows are resolver instance-target issuance, source-bound

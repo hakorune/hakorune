@@ -1,11 +1,11 @@
 ---
-Status: Dynamic Recipe value D0 accepted; operand-definition guard R0 next
+Status: operand-definition guard R0 closed; Dynamic value I0 next
 Date: 2026-08-10
 Decision row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`
 Closed row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0`
-Next row: `LOOP-V2-OPERAND-DEFINITION-GUARD-R0`
+Next row: `LOOP-RECIPE-V2-DYNAMIC-VALUE-I0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
-Mode: BoxShape / typed Recipe verifier repair
+Mode: BoxCount / typed Recipe V2 value vocabulary
 ---
 
 # Dynamic dispatch execution envelope
@@ -470,3 +470,25 @@ Every valid source row that exceeds the current compiler boundary opens the
 smallest named compiler-widening row or stops at `NoSafeSlice`. No task may
 rewrite the source, reduce the fixture, add a selector special case, or use a
 legacy fallback to bypass that boundary.
+
+## R0 closeout — V2 operand definition guard
+
+`LOOP-V2-OPERAND-DEFINITION-GUARD-R0` is closed. One common checked-use path
+now rejects known-but-not-yet-defined V2 operands for CallSlot receiver/args,
+numeric operations, TextEq, WriteBinding, If conditions, and Return values.
+Unknown Return keys reject at the Exit item instead of passing structural
+verification. Duplicate definitions remain a separate fail-fast error.
+
+```text
+focused test:
+  cargo test -q loop_recipe_contract::typed_schema_v2_tests --lib
+  12 passed
+
+new value classes/source shapes:
+  0
+```
+
+The row changes no V1 wire, source relation, Recipe operation, JoinSig,
+Builder/MIR path, provider/runtime route, retry, fallback, or production
+caller. `LOOP-RECIPE-V2-DYNAMIC-VALUE-I0` is the next bounded compiler
+acceptance row.

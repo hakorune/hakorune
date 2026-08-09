@@ -59,6 +59,10 @@ pub(crate) enum LoopRecipeV2RejectReason {
     UndefinedValue {
         key: LoopValueKeyV1,
     },
+    ValueUsedBeforeDefinition {
+        item: LoopItemKeyV1,
+        key: LoopValueKeyV1,
+    },
     ValueClassMismatch {
         key: LoopValueKeyV1,
     },
@@ -336,7 +340,11 @@ fn check_blocks_and_items(
         .iter()
         .map(|row| (row.key, &row.item))
         .collect();
-    let exits: BTreeSet<_> = recipe.exits.iter().map(|exit| exit.key).collect();
+    let exits: BTreeMap<_, _> = recipe
+        .exits
+        .iter()
+        .map(|exit| (exit.key, exit.kind))
+        .collect();
     let mut uses = BTreeSet::new();
     let mut definitions = recipe
         .inputs
@@ -398,7 +406,7 @@ fn check_item(
     item: &LoopRecipeItemV2,
     blocks: &BTreeSet<LoopBlockKeyV1>,
     loops: &BTreeSet<LoopNodeKeyV1>,
-    exits: &BTreeSet<LoopExitKeyV1>,
+    exits: &BTreeMap<LoopExitKeyV1, LoopExitKindV2>,
     bindings: &BTreeMap<LoopBindingKeyV1, LoopValueClassV2>,
     values: &BTreeMap<LoopValueKeyV1, LoopValueClassV2>,
     definitions: &mut BTreeMap<LoopValueKeyV1, Option<LoopItemKeyV1>>,
@@ -412,7 +420,8 @@ fn check_item(
             then_block,
             else_block,
         } => {
-            if values.get(condition) != Some(&LoopValueClassV2::Bool)
+            if expect_defined_value(*item_key, *condition, values, definitions)?
+                != LoopValueClassV2::Bool
                 || !blocks.contains(then_block)
                 || else_block.is_some_and(|block| !blocks.contains(&block))
             {
@@ -427,8 +436,11 @@ fn check_item(
             Ok(())
         }
         LoopRecipeItemV2::Exit { exit } => {
-            if !exits.contains(exit) {
+            let Some(kind) = exits.get(exit) else {
                 return Err(LoopRecipeV2RejectReason::UnknownExit { key: *exit });
+            };
+            if let LoopExitKindV2::Return { value: Some(value) } = kind {
+                expect_defined_value(*item_key, *value, values, definitions)?;
             }
             Ok(())
         }
@@ -442,39 +454,41 @@ fn check_operation(
     values: &BTreeMap<LoopValueKeyV1, LoopValueClassV2>,
     definitions: &mut BTreeMap<LoopValueKeyV1, Option<LoopItemKeyV1>>,
 ) -> Result<(), LoopRecipeV2RejectReason> {
-    let mut define = |key: LoopValueKeyV1, class: LoopValueClassV2| {
-        if values.get(&key) != Some(&class) {
-            return Err(LoopRecipeV2RejectReason::ValueClassMismatch { key });
-        }
-        if definitions.insert(key, Some(*item_key)).is_some() {
-            return Err(LoopRecipeV2RejectReason::DuplicateValueDefinition { key });
-        }
-        Ok(())
-    };
-    let expect_i64 = |key: LoopValueKeyV1| {
-        if values.get(&key) == Some(&LoopValueClassV2::I64) {
-            Ok(())
-        } else {
-            Err(LoopRecipeV2RejectReason::InvalidOperationDomain { item: *item_key })
-        }
-    };
     match operation {
         LoopOperationV2::ReadBinding { binding, result } => {
             let Some(class) = bindings.get(binding) else {
                 return Err(LoopRecipeV2RejectReason::UnknownBinding { key: *binding });
             };
-            define(*result, *class)
+            define_value(*item_key, *result, *class, values, definitions)
         }
-        LoopOperationV2::ConstI64 { result, .. } => define(*result, LoopValueClassV2::I64),
+        LoopOperationV2::ConstI64 { result, .. } => define_value(
+            *item_key,
+            *result,
+            LoopValueClassV2::I64,
+            values,
+            definitions,
+        ),
         LoopOperationV2::BinaryI64 {
             left,
             right,
             result,
             ..
         } => {
-            expect_i64(*left)?;
-            expect_i64(*right)?;
-            define(*result, LoopValueClassV2::I64)
+            expect_defined_class(*item_key, *left, LoopValueClassV2::I64, values, definitions)?;
+            expect_defined_class(
+                *item_key,
+                *right,
+                LoopValueClassV2::I64,
+                values,
+                definitions,
+            )?;
+            define_value(
+                *item_key,
+                *result,
+                LoopValueClassV2::I64,
+                values,
+                definitions,
+            )
         }
         LoopOperationV2::CompareI64 {
             left,
@@ -482,15 +496,27 @@ fn check_operation(
             result,
             ..
         } => {
-            expect_i64(*left)?;
-            expect_i64(*right)?;
-            define(*result, LoopValueClassV2::Bool)
+            expect_defined_class(*item_key, *left, LoopValueClassV2::I64, values, definitions)?;
+            expect_defined_class(
+                *item_key,
+                *right,
+                LoopValueClassV2::I64,
+                values,
+                definitions,
+            )?;
+            define_value(
+                *item_key,
+                *result,
+                LoopValueClassV2::Bool,
+                values,
+                definitions,
+            )
         }
         LoopOperationV2::WriteBinding { binding, value } => {
             let Some(class) = bindings.get(binding) else {
                 return Err(LoopRecipeV2RejectReason::UnknownBinding { key: *binding });
             };
-            if values.get(value) != Some(class) {
+            if expect_defined_value(*item_key, *value, values, definitions)? != *class {
                 return Err(LoopRecipeV2RejectReason::ValueClassMismatch { key: *value });
             }
             Ok(())
@@ -500,17 +526,17 @@ fn check_operation(
             args,
             result,
         } => {
-            if let Some(key) = receiver.filter(|key| !values.contains_key(key)) {
-                return Err(LoopRecipeV2RejectReason::UnknownValue { key });
+            if let Some(key) = receiver {
+                expect_defined_value(*item_key, *key, values, definitions)?;
             }
-            if let Some(key) = args.iter().copied().find(|key| !values.contains_key(key)) {
-                return Err(LoopRecipeV2RejectReason::UnknownValue { key });
+            for key in args {
+                expect_defined_value(*item_key, *key, values, definitions)?;
             }
             if let Some(result) = result {
                 let class = *values
                     .get(result)
                     .ok_or(LoopRecipeV2RejectReason::UnknownValue { key: *result })?;
-                define(*result, class)
+                define_value(*item_key, *result, class, values, definitions)
             } else {
                 Ok(())
             }
@@ -520,8 +546,10 @@ fn check_operation(
             right,
             result,
         } => {
-            if values.get(left) != Some(&LoopValueClassV2::Text)
-                || values.get(right) != Some(&LoopValueClassV2::Text)
+            if expect_defined_value(*item_key, *left, values, definitions)?
+                != LoopValueClassV2::Text
+                || expect_defined_value(*item_key, *right, values, definitions)?
+                    != LoopValueClassV2::Text
             {
                 return Err(LoopRecipeV2RejectReason::TextEqOperandClassMismatch {
                     item: *item_key,
@@ -532,10 +560,59 @@ fn check_operation(
                     item: *item_key,
                 });
             }
-            if definitions.insert(*result, Some(*item_key)).is_some() {
-                return Err(LoopRecipeV2RejectReason::DuplicateValueDefinition { key: *result });
-            }
-            Ok(())
+            define_value(
+                *item_key,
+                *result,
+                LoopValueClassV2::Bool,
+                values,
+                definitions,
+            )
         }
     }
+}
+
+fn expect_defined_value(
+    item: LoopItemKeyV1,
+    key: LoopValueKeyV1,
+    values: &BTreeMap<LoopValueKeyV1, LoopValueClassV2>,
+    definitions: &BTreeMap<LoopValueKeyV1, Option<LoopItemKeyV1>>,
+) -> Result<LoopValueClassV2, LoopRecipeV2RejectReason> {
+    let class = values
+        .get(&key)
+        .copied()
+        .ok_or(LoopRecipeV2RejectReason::UnknownValue { key })?;
+    if !definitions.contains_key(&key) {
+        return Err(LoopRecipeV2RejectReason::ValueUsedBeforeDefinition { item, key });
+    }
+    Ok(class)
+}
+
+fn expect_defined_class(
+    item: LoopItemKeyV1,
+    key: LoopValueKeyV1,
+    expected: LoopValueClassV2,
+    values: &BTreeMap<LoopValueKeyV1, LoopValueClassV2>,
+    definitions: &BTreeMap<LoopValueKeyV1, Option<LoopItemKeyV1>>,
+) -> Result<(), LoopRecipeV2RejectReason> {
+    if expect_defined_value(item, key, values, definitions)? == expected {
+        Ok(())
+    } else {
+        Err(LoopRecipeV2RejectReason::InvalidOperationDomain { item })
+    }
+}
+
+fn define_value(
+    item: LoopItemKeyV1,
+    key: LoopValueKeyV1,
+    class: LoopValueClassV2,
+    values: &BTreeMap<LoopValueKeyV1, LoopValueClassV2>,
+    definitions: &mut BTreeMap<LoopValueKeyV1, Option<LoopItemKeyV1>>,
+) -> Result<(), LoopRecipeV2RejectReason> {
+    if values.get(&key) != Some(&class) {
+        return Err(LoopRecipeV2RejectReason::ValueClassMismatch { key });
+    }
+    if definitions.insert(key, Some(item)).is_some() {
+        return Err(LoopRecipeV2RejectReason::DuplicateValueDefinition { key });
+    }
+    Ok(())
 }

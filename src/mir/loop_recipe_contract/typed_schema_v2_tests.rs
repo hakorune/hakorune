@@ -5,7 +5,8 @@ use super::schema::{
     LoopRecipeSourceOwnerV1, LoopSourcePathStepV1, LoopSourcePathV1,
 };
 use super::schema_v2::{
-    LoopConditionV2, LoopOperationV2, LoopRecipeArtifactV2, LoopRecipeBlockV2, LoopRecipeItemRowV2,
+    LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopOperationV2,
+    LoopRecipeArtifactV2, LoopRecipeBlockV2, LoopRecipeExitV2, LoopRecipeItemRowV2,
     LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2, LoopValueClassV2,
 };
 use super::typed_schema_v2::{LoopRecipeV2RejectReason, LoopRecipeVerifierV2};
@@ -140,12 +141,12 @@ fn v2_rejects_duplicate_result_definition() {
         operation: LoopOperationV2::CallSlot { result, .. },
     } = &mut artifact.recipe.items[0].item
     {
-        *result = Some(LoopValueKeyV1::new(3));
+        *result = Some(LoopValueKeyV1::new(0));
     }
     assert_eq!(
         LoopRecipeVerifierV2::verify_artifact(artifact),
         Err(LoopRecipeV2RejectReason::DuplicateValueDefinition {
-            key: LoopValueKeyV1::new(3),
+            key: LoopValueKeyV1::new(0),
         })
     );
 }
@@ -169,6 +170,116 @@ fn v2_rejects_unknown_call_slot_argument() {
     {
         args.push(LoopValueKeyV1::new(99));
     }
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::UnknownValue {
+            key: LoopValueKeyV1::new(99),
+        })
+    );
+}
+
+#[test]
+fn v2_rejects_call_receiver_used_before_definition() {
+    let mut artifact = minimal_typed_recipe();
+    if let LoopRecipeItemV2::Operation {
+        operation: LoopOperationV2::CallSlot { receiver, .. },
+    } = &mut artifact.recipe.items[0].item
+    {
+        *receiver = Some(LoopValueKeyV1::new(3));
+    }
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::ValueUsedBeforeDefinition {
+            item: LoopItemKeyV1::new(0),
+            key: LoopValueKeyV1::new(3),
+        })
+    );
+}
+
+#[test]
+fn v2_rejects_call_argument_used_before_definition() {
+    let mut artifact = minimal_typed_recipe();
+    if let LoopRecipeItemV2::Operation {
+        operation: LoopOperationV2::CallSlot { args, .. },
+    } = &mut artifact.recipe.items[0].item
+    {
+        args.push(LoopValueKeyV1::new(3));
+    }
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::ValueUsedBeforeDefinition {
+            item: LoopItemKeyV1::new(0),
+            key: LoopValueKeyV1::new(3),
+        })
+    );
+}
+
+#[test]
+fn v2_rejects_numeric_operand_used_before_definition() {
+    let mut artifact = minimal_typed_recipe();
+    artifact.recipe.values[0].class = LoopValueClassV2::I64;
+    artifact.recipe.values[1].class = LoopValueClassV2::I64;
+    artifact.recipe.values[2].class = LoopValueClassV2::I64;
+    artifact.recipe.items[0].item = LoopRecipeItemV2::Operation {
+        operation: LoopOperationV2::BinaryI64 {
+            op: LoopBinaryI64OpV2::Add,
+            left: LoopValueKeyV1::new(3),
+            right: LoopValueKeyV1::new(0),
+            result: LoopValueKeyV1::new(2),
+        },
+    };
+    artifact.recipe.items[1].item = LoopRecipeItemV2::Operation {
+        operation: LoopOperationV2::CompareI64 {
+            op: LoopCompareI64OpV2::Less,
+            left: LoopValueKeyV1::new(2),
+            right: LoopValueKeyV1::new(1),
+            result: LoopValueKeyV1::new(3),
+        },
+    };
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::ValueUsedBeforeDefinition {
+            item: LoopItemKeyV1::new(0),
+            key: LoopValueKeyV1::new(3),
+        })
+    );
+}
+
+#[test]
+fn v2_rejects_text_operand_used_before_definition() {
+    let mut artifact = minimal_typed_recipe();
+    if let LoopRecipeItemV2::Operation {
+        operation: LoopOperationV2::TextEq { left, .. },
+    } = &mut artifact.recipe.items[1].item
+    {
+        *left = LoopValueKeyV1::new(3);
+    }
+    assert_eq!(
+        LoopRecipeVerifierV2::verify_artifact(artifact),
+        Err(LoopRecipeV2RejectReason::ValueUsedBeforeDefinition {
+            item: LoopItemKeyV1::new(1),
+            key: LoopValueKeyV1::new(3),
+        })
+    );
+}
+
+#[test]
+fn v2_rejects_unknown_return_value() {
+    let mut artifact = minimal_typed_recipe();
+    artifact.recipe.items.push(LoopRecipeItemRowV2 {
+        key: LoopItemKeyV1::new(2),
+        item: LoopRecipeItemV2::Exit {
+            exit: super::ids::LoopExitKeyV1::new(0),
+        },
+    });
+    artifact.recipe.blocks[0].items.push(LoopItemKeyV1::new(2));
+    artifact.recipe.exits.push(LoopRecipeExitV2 {
+        key: super::ids::LoopExitKeyV1::new(0),
+        owner_loop: LoopNodeKeyV1::new(0),
+        kind: LoopExitKindV2::Return {
+            value: Some(LoopValueKeyV1::new(99)),
+        },
+    });
     assert_eq!(
         LoopRecipeVerifierV2::verify_artifact(artifact),
         Err(LoopRecipeV2RejectReason::UnknownValue {

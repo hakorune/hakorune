@@ -162,9 +162,10 @@ Loop-owned and four are valid non-Loop calls. The first bounded
 authority widens the compiler rather than narrowing the source. Fault stays
 outside Recipe values, exits, JoinSig, Completion, and Return.
 
-Before adding the enum member, `LOOP-V2-OPERAND-DEFINITION-GUARD-R0` repairs
-common V2 use-before-definition and Return-value validation without adding an
-accepted source shape. The later order is Dynamic value I0, source-value
+`LOOP-V2-OPERAND-DEFINITION-GUARD-R0` is landed. One common verifier path now
+rejects known-but-not-yet-defined CallSlot, numeric, TextEq, WriteBinding, If,
+and Return operands without adding an accepted source shape. The later order
+is Dynamic value I0, source-value
 relation, CallSlot/envelope co-seal, explicit Dynamic operations, local Home,
 then any required V2 JoinSig/After work. V1 remains unchanged.
 

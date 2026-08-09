@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic carrier P2C through the complete caller-zero Dynamic semantic-envelope catalog I0 are closed. LOOP-RECIPE-DYNAMIC-VALUE-D0 is accepted: V2 gains one honest logical Dynamic class plus an exact external item/source/envelope relation; V1 remains unchanged and Fault stays outside Recipe lexical/value control. The unchanged module catalog retains all 7 rows (3 Loop-owned, 4 non-Loop); skip_while selects exact 2 without shrinking the fixture. The current BoxShape row repairs V2 operand use-before-definition and Return-value validation before schema widening."
+status = "Dynamic carrier P2C through semantic-envelope I0 and LOOP-V2-OPERAND-DEFINITION-GUARD-R0 are closed. V2 now rejects use before definition and unknown Return keys through one common checked-use path. LOOP-RECIPE-DYNAMIC-VALUE-D0 is accepted: the next bounded row adds one honest V2 Dynamic logical class while V1, source/envelope co-seal, Fault, physical/provider/runtime routes, retry, and fallback remain unchanged."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
 work_mode = "fast"
-current_execution_row = "LOOP-V2-OPERAND-DEFINITION-GUARD-R0"
-current_blocker_token = "LOOP-V2-OPERAND-DEFINITION-GUARD-R0: add one common V2 checked-use path for operation operands and Return values before Dynamic schema widening; behavior-neutral BoxShape only, no new value class/source shape, no fixture narrowing, selector refinement, v1 change, physical/provider/runtime plan, retry, or fallback"
+current_execution_row = "LOOP-RECIPE-V2-DYNAMIC-VALUE-I0"
+current_blocker_token = "LOOP-RECIPE-V2-DYNAMIC-VALUE-I0: add only LoopValueClassV2::Dynamic plus structural verifier/tests; retain full 7-row envelope regression, V1 unchanged, exact I64/Text/Bool domains, no source/envelope co-seal, selector refinement, physical/provider/runtime plan, retry, fallback, or fixture narrowing"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
