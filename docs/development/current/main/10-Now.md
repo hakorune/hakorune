@@ -29,14 +29,13 @@ source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
 declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
 body-source I0 and borrowed Query body-source projection I0 are also closed.
-The bounded Query body-facts implementation, complete-evidence design, and
-bounded evidence I0 are closed. The bounded exact Query conformance catalog
-I0 is the next implementation row; general effect/control/Home-flow
-conformance remains parked by the general-evidence boundary. The current
-execution row is:
+The bounded Query body-facts implementation, complete-evidence design,
+bounded evidence I0, and bounded exact Query conformance catalog I0 are
+closed. General effect/control/Home-flow conformance remains parked by the
+general-evidence boundary. The current design stop is:
 
 ```text
-CALLABLE-CONTRACT-CONFORMANCE-I0 (bounded `return me` cohort)
+CALLABLE-CONTRACT-CONFORMANCE-GENERAL-D0 (bounded I0 closed)
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed

@@ -1,5 +1,5 @@
 ---
-Status: implementation-ready bounded I0; general conformance remains parked
+Status: landed bounded I0; general conformance remains parked
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -113,6 +113,29 @@ co-seal remains a separate row. This I0 does not open resolver targets,
 source-bound call relations, Recipe/CallSlot, Builder/MIR/CFG/PHI, physical
 ABI, module publication, or production selection.
 
+## Landed implementation
+
+`src/mir/resolved_semantics/query_body_conformance.rs` now provides:
+
+```text
+QueryBodyConformanceIssuerV1
+  -> VerifiedCallableBodyConformanceV1
+  -> VerifiedCallableBodyConformanceCatalogV1
+```
+
+The issuer compares the existing `ReceiverDirectReadNoEffects` declaration,
+catalog parser provenance/resolver brand, and aggregate-owned declaration
+identity. The evidence catalog carries its own batch provenance receipt; no
+vector position or `zip` operation is used as semantic identity.
+
+The real `query_body_facts` fixture covers one Query row and a sparse
+Query/non-Query/Query catalog. The focused slice is green:
+
+```text
+cargo test -q query_body_facts --lib
+4 passed
+```
+
 ## Acceptance tests
 
 ```text
@@ -130,4 +153,3 @@ Use real resolver fixtures. Do not add forged `Verified*` constructors or
 test-only authority shortcuts. Keep the implementation module and tests under
 the 800-line rule, update the resolver README/reference/task pointers in the
 same slice, run the focused gate and pointer guard, then commit and push.
-

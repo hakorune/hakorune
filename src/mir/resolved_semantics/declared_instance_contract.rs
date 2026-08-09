@@ -41,6 +41,16 @@ pub(crate) struct DeclaredInstanceMethodContractRefV1<'a> {
     query: &'a VerifiedDeclaredQueryBehaviorV1,
 }
 
+/// Stable identity used for exact selected-declaration row matching.
+/// Catalog provenance and source-site brands remain aggregate-level checks.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub(crate) struct DeclaredInstanceMethodIdentityV1 {
+    resolver_brand: ResolverCatalogBrandV1,
+    nominal_box_type: super::ResolverNominalBoxTypeIdV1,
+    box_statement_ordinal: u32,
+    method_member_ordinal: u32,
+}
+
 impl<'a> DeclaredInstanceMethodContractRefV1<'a> {
     pub(crate) fn declaration(&self) -> &'a VerifiedInstanceMethodDeclarationV1 {
         self.declaration
@@ -52,6 +62,15 @@ impl<'a> DeclaredInstanceMethodContractRefV1<'a> {
 
     pub(crate) fn query(&self) -> &'a VerifiedDeclaredQueryBehaviorV1 {
         self.query
+    }
+
+    pub(crate) const fn identity(&self) -> DeclaredInstanceMethodIdentityV1 {
+        DeclaredInstanceMethodIdentityV1 {
+            resolver_brand: self.declaration.resolver_brand(),
+            nominal_box_type: self.declaration.nominal_box_type(),
+            box_statement_ordinal: self.declaration.box_statement_ordinal(),
+            method_member_ordinal: self.declaration.method_member_ordinal(),
+        }
     }
 }
 

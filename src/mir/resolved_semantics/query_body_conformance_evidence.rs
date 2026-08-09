@@ -16,6 +16,8 @@ use super::query_body_facts::{
     VerifiedCallableQueryBodyFactsCatalogV1, VerifiedCallableQueryBodyFactsRowV1,
 };
 use super::source_site::{SourceExprSiteV1, SourcePathSegmentV1, SourceStmtSiteV1};
+use super::ResolverCatalogBrandV1;
+use crate::parser::ResolverSourceInvocationProvenanceV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum QueryBodyHomeTransferV1 {
@@ -105,12 +107,22 @@ pub(in crate::mir) struct VerifiedQueryBodyConformanceEvidenceCatalogV1<
     'contract,
     'carrier,
 > {
+    resolver_brand: ResolverCatalogBrandV1,
+    parser_provenance: &'body ResolverSourceInvocationProvenanceV1,
     rows: Box<[VerifiedQueryBodyConformanceEvidenceV1<'owner, 'body, 'contract, 'carrier>]>,
 }
 
 impl<'owner, 'body, 'contract, 'carrier>
     VerifiedQueryBodyConformanceEvidenceCatalogV1<'owner, 'body, 'contract, 'carrier>
 {
+    pub(crate) const fn resolver_brand(&self) -> ResolverCatalogBrandV1 {
+        self.resolver_brand
+    }
+
+    pub(crate) fn parser_provenance(&self) -> &'body ResolverSourceInvocationProvenanceV1 {
+        self.parser_provenance
+    }
+
     pub(crate) fn rows(
         &self,
     ) -> &[VerifiedQueryBodyConformanceEvidenceV1<'owner, 'body, 'contract, 'carrier>] {
@@ -141,7 +153,11 @@ impl QueryBodyConformanceEvidenceIssuerV1 {
             .map(|(owner_row, facts_row)| Self::issue_row(owner_row, facts_row))
             .collect::<Result<Vec<_>, _>>()?
             .into_boxed_slice();
-        Ok(VerifiedQueryBodyConformanceEvidenceCatalogV1 { rows })
+        Ok(VerifiedQueryBodyConformanceEvidenceCatalogV1 {
+            resolver_brand: owner.resolver_brand(),
+            parser_provenance: owner.parser_provenance(),
+            rows,
+        })
     }
 
     fn issue_row<'owner, 'body, 'contract, 'carrier>(

@@ -180,8 +180,9 @@ types, contracts, or complete effect/control absence. The accepted
 `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` now has its bounded I0 receipt landed:
 a separate structural-safety and Query Home no-transfer evidence pair.
 General effect/control/Home-flow completeness remains `NoSafeSlice`, so the
-body verifier has not issued the full conformance catalog and remains the
-owner of declared-contract conformance.
+body verifier has issued only the bounded exact Query conformance catalog; the
+general body verifier remains the owner of declared-contract conformance
+outside that cohort.
 Missing,
 duplicate, foreign, or rejected conformance prevents the publishable catalog
 from being issued. Module publication consumes the publishable catalog and

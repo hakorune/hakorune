@@ -5,7 +5,7 @@ use crate::mir::resolved_semantics::{
     DeclaredQueryBodySourceIssuerV1, FunctionSemanticResolverSessionV1,
     InstanceMethodBodyOwnerBindingIssuerV1, InstanceMethodBodySourceIssuerV1,
     InstanceMethodFunctionCarrierIssuerV1, QueryBodyConformanceEvidenceIssuerV1,
-    QueryBodyHomeTransferV1, ResolverHomeCapabilityEnvironmentV1,
+    QueryBodyConformanceIssuerV1, QueryBodyHomeTransferV1, ResolverHomeCapabilityEnvironmentV1,
     ResolverNominalBoxDeclarationInputV1, ResolverNominalTypeEnvironmentV1,
     SemanticInstanceDeclarationIssuerV1,
 };
@@ -21,6 +21,16 @@ fn nominal_environment() -> ResolverNominalTypeEnvironmentV1 {
 fn with_owner<R>(
     source: &str,
     check: impl FnOnce(VerifiedInstanceMethodBodyOwnerCatalogV1<'_, '_, '_>) -> R,
+) -> R {
+    with_contract_and_owner(source, |_, owner| check(owner))
+}
+
+fn with_contract_and_owner<R>(
+    source: &str,
+    check: impl FnOnce(
+        &crate::mir::resolved_semantics::VerifiedDeclaredInstanceMethodContractCatalogV1,
+        VerifiedInstanceMethodBodyOwnerCatalogV1<'_, '_, '_>,
+    ) -> R,
 ) -> R {
     let transaction = NyashParser::parse_from_string_with_resolver_body_source(
         source,
@@ -51,16 +61,16 @@ fn with_owner<R>(
                 .expect("selected Query body source should issue");
             let owner = InstanceMethodBodyOwnerBindingIssuerV1::issue(&selected, &carrier)
                 .expect("owner link should issue");
-            check(owner)
+            check(&contract, owner)
         })
         .expect("syntax callback should complete")
 }
 
 #[test]
 fn query_body_facts_accept_exact_return_me() {
-    with_owner(
+    with_contract_and_owner(
         "box TextLike { @rune CallableContract(query) length(): i64 { return me } }",
-        |owner| {
+        |contract, owner| {
             let facts = QueryBodyFactsIssuerV1::issue(&owner)
                 .expect("exact lexical-Me body should issue facts");
             assert_eq!(facts.rows().len(), 1);
@@ -85,6 +95,13 @@ fn query_body_facts_accept_exact_return_me() {
             assert_eq!(
                 evidence.rows()[0].home_flow().transfer(),
                 QueryBodyHomeTransferV1::None
+            );
+            let conformance = QueryBodyConformanceIssuerV1::issue(contract, &evidence)
+                .expect("bounded Query conformance should issue");
+            assert_eq!(conformance.rows().len(), 1);
+            assert_eq!(
+                conformance.rows()[0].contract().query().behavior(),
+                crate::mir::resolved_semantics::DeclaredQueryBehaviorV1::ReceiverDirectReadNoEffects
             );
         },
     );
@@ -144,14 +161,33 @@ fn query_body_facts_decline_field_and_extra_statement_shapes() {
 
 #[test]
 fn query_body_facts_preserve_sparse_selected_query_order() {
-    with_owner(
+    with_contract_and_owner(
         "box TextLike { @rune CallableContract(query) first(): i64 { return me } helper(): i64 { return 0 } @rune CallableContract(query) second(): i64 { return me } }",
-        |owner| {
+        |contract, owner| {
             let facts = QueryBodyFactsIssuerV1::issue(&owner)
                 .expect("both selected lexical-Me rows should issue");
             assert_eq!(facts.rows().len(), 2);
             assert_eq!(facts.rows()[0].owner().body().method_member_ordinal(), 0);
             assert_eq!(facts.rows()[1].owner().body().method_member_ordinal(), 2);
+            let evidence = QueryBodyConformanceEvidenceIssuerV1::issue(&owner, &facts)
+                .expect("sparse bounded evidence should issue");
+            let conformance = QueryBodyConformanceIssuerV1::issue(contract, &evidence)
+                .expect("sparse bounded conformance should issue");
+            assert_eq!(conformance.rows().len(), 2);
+            assert_eq!(
+                conformance.rows()[0]
+                    .contract()
+                    .declaration()
+                    .method_member_ordinal(),
+                0
+            );
+            assert_eq!(
+                conformance.rows()[1]
+                    .contract()
+                    .declaration()
+                    .method_member_ordinal(),
+                2
+            );
         },
     );
 }

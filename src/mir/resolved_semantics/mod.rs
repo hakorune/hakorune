@@ -35,6 +35,7 @@ mod home_relation;
 mod query_behavior;
 mod query_body_facts;
 mod query_body_conformance_evidence;
+mod query_body_conformance;
 mod instance_method_body_owner;
 mod loop_family_window;
 #[cfg(test)]
@@ -92,7 +93,8 @@ pub(crate) use callable_symbol::CanonicalCallableSymbolV1;
 pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
 pub(crate) use declared_instance_contract::{
     DeclaredInstanceMethodContractIssueV1, DeclaredInstanceMethodContractIssuerV1,
-    DeclaredInstanceMethodContractRefV1, VerifiedDeclaredInstanceMethodContractCatalogV1,
+    DeclaredInstanceMethodContractRefV1, DeclaredInstanceMethodIdentityV1,
+    VerifiedDeclaredInstanceMethodContractCatalogV1,
 };
 pub(crate) use declared_query_body_source::{
     DeclaredQueryBodySourceIssueV1, DeclaredQueryBodySourceIssuerV1,
@@ -136,6 +138,10 @@ pub(in crate::mir) use query_body_conformance_evidence::{
     QueryBodyConformanceEvidenceRejectV1, QueryBodyHomeTransferV1,
     VerifiedQueryBodyConformanceEvidenceCatalogV1, VerifiedQueryBodyConformanceEvidenceV1,
     VerifiedQueryBodyHomeFlowEvidenceV1,
+};
+pub(in crate::mir) use query_body_conformance::{
+    QueryBodyConformanceIssueV1, QueryBodyConformanceIssuerV1,
+    VerifiedCallableBodyConformanceCatalogV1, VerifiedCallableBodyConformanceV1,
 };
 pub(crate) use instance_method_body_source::{
     InstanceMethodBodySourceIssuerV1, InstanceMethodBodySourceIssueV1,

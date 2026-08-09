@@ -1078,7 +1078,7 @@ Rejected > Unresolved > Declined > Candidate
     - landed issuer: `QueryBodyConformanceEvidenceIssuerV1`;
     - focused `query_body_facts` slice is green; general conformance remains
       unopened.
-22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (bounded exact Query cohort; implementation row)
+22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (closed bounded exact Query cohort)
     - consume only the declared contract catalog and landed bounded Query
       conformance-evidence catalog;
     - require `DeclaredQueryBehaviorV1::ReceiverDirectReadNoEffects` and
@@ -1087,8 +1087,9 @@ Rejected > Unresolved > Declined > Candidate
     - issue one bounded conformance row per selected Query declaration and
       reject missing/duplicate/foreign/nonconforming rows;
     - preserve sparse Query/non-Query source order and emit no default row;
-    - implementation receipt:
+    - landed implementation receipt:
       `docs/development/current/main/investigations/own-home-callable-conformance-catalog-i0-implementation-task-2026-08-09.md`;
+    - focused `query_body_facts` slice is green (4 tests);
     - general effect/control/Home-flow conformance remains a separate
       `NoSafeSlice` future design and does not block this bounded row;
     - never infer or replace public contract meaning from the body.
