@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`, bounded by the active implementation-preflight card.
+Current mode is `fast`, bounded by the active BoxShape implementation card.
 The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
@@ -35,7 +35,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0
+HAKO-PARSER-BOX-SOURCE-SESSION-H2-S0
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -46,12 +46,13 @@ contextual forms: declaration `take node: Node`, expression
 `share <non-group postfix>`, and statement `release node`. All remain
 same-line `IDENT` spellings, and `share(...)` is permanently an ordinary call.
 The exact `release IDENT` Rust/Hako parser/source row is closed; it carries no
-Home meaning. The `take` census is also closed as NoSafeSlice: Rust has a
-shared parameter parser, while Hako has no connected canonical method-header
-owner. `FuncScannerBox`/ProgramJSON are compatibility-only and H1 is
-disconnected. The current design consultation decides how the existing H2/H3
-ordinary Box transaction and sole source seal carry typed parameter rows while
-keeping `ParamDecl` neutral and `VerifiedHomeAbiV1` the only demand authority.
+Home meaning. The `take` census is also closed as NoSafeSlice. The H2/H3
+parameter-carriage consultation is now accepted: keep `ParamDecl` neutral,
+use one parser-private atomic parameter product, retain the body result from
+the same parse, and publish only through the existing H3 seal. The current
+H2-S0 corrects the deeper prerequisite first: one program-owned parser source
+session and one fresh member cursor per exact Box, with no parser connection
+or language activation.
 Home capability and Home Flow remain closed; target,
 Recipe/CallSlot, Builder/MIR, publication, fallback, and production remain
 closed.
@@ -135,8 +136,12 @@ typed syntax carriage (closed)
 -> Home syntax D0 (closed target; production 0)
 -> release source I0 (closed; semantics 0)
 -> take declaration syntax preflight (closed NoSafeSlice)
--> Hako H2/H3 parameter carriage design consultation (current stop)
--> Hako H2/H3 method-header/source seal implementation
+-> Hako H2/H3 parameter carriage design consultation (closed)
+-> H2-S0 program source session + Box-scoped member cursor (current)
+-> H2-S1 atomic parameter-list product
+-> H2-S2 same-pass rich body result
+-> H2-I0 bounded ordinary Box direct-method transaction
+-> H3-I0 sole final source seal
 -> take parser/source implementation + Home-demand rows
 -> bounded linear Home Flow
 -> target / source-bound relation / Recipe CallSlot

@@ -532,13 +532,19 @@ OWN-HOME-TAKE-DECL-SYNTAX-I0-PREFLIGHT (closed NoSafeSlice 2026-08-09)
   Task:
   `docs/development/current/main/investigations/own-home-take-decl-syntax-i0-preflight-task-2026-08-09.md`
 
-HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0 (current design consultation)
-  refine the existing H2/H3 ordinary Box branch so one parser-private atomic
-  parameter-list product carries neutral AST projection plus exact typed
-  transfer rows into the sole final source seal. Keep `ParamDecl` neutral and
-  keep all Home-demand issuance in `VerifiedHomeAbiV1`.
+HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0 (closed accepted Decision)
+  keep `ParamDecl` neutral and the sole Home-demand authority in
+  `VerifiedHomeAbiV1`; split H2 into source-session, parameter-list, rich-body,
+  and bounded direct-method rows before the sole H3 seal.
   Task:
   `docs/development/current/main/investigations/hako-parser-take-parameter-carriage-h2-d0-consultation-2026-08-09.md`
+
+HAKO-PARSER-BOX-SOURCE-SESSION-H2-S0 (current implementation)
+  replace H1's caller-token/invocation-wide member cursor with one
+  program-owned parser session and one fresh exact-Box member cursor; no
+  parser connection, parameter parsing, or language activation.
+  Task:
+  `docs/development/current/main/investigations/hako-parser-box-source-session-h2-s0-implementation-task-2026-08-09.md`
 ```
 
 CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
@@ -1174,16 +1180,26 @@ Rejected > Unresolved > Declined > Candidate
       no Builder/MIR/runtime activation;
     - preflight card:
       `docs/development/current/main/investigations/own-home-take-decl-syntax-i0-preflight-task-2026-08-09.md`.
-22A-HOME-TAKE-H2-D0. `HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0` (current consultation)
+22A-HOME-TAKE-H2-D0. `HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0` (closed accepted Decision)
     - the census found no connected canonical Hako method-header/parameter
       authority; `FuncScannerBox` and ProgramJSON are non-authoritative;
     - integrate ordered parameter syntax into the already planned H2/H3
       ordinary Box transaction and sole final source seal;
     - prefer one parser-private parameter-list product with a neutral
       `ParamDecl` projection and typed exact-source rows;
-    - no code until the owner/product/cohort/fail-fast/test decisions close;
+    - the accepted ladder is H2-S0 source session -> H2-S1 parameter product
+      -> H2-S2 rich body -> H2-I0 direct method -> H3-I0 sole seal -> parity
+      -> Take syntax;
     - consultation card:
       `docs/development/current/main/investigations/hako-parser-take-parameter-carriage-h2-d0-consultation-2026-08-09.md`.
+22A-HOME-TAKE-H2-S0. `HAKO-PARSER-BOX-SOURCE-SESSION-H2-S0` (current)
+    - BoxShape only: program-owned invocation brand and Box-scoped member
+      cursors; member ordinal starts at zero for every Box;
+    - remove/quarantine the invocation-wide `_next_member` authority;
+    - keep the ordinary parser, parameter product, body product, H3 seal,
+      grammar registry, resolver, Home, and language acceptance closed;
+    - implementation card:
+      `docs/development/current/main/investigations/hako-parser-box-source-session-h2-s0-implementation-task-2026-08-09.md`.
 22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after release/take/Home-demand rows)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;

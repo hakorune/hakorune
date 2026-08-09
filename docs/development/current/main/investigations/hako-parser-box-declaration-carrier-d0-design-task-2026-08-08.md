@@ -324,8 +324,11 @@ before adding a call. Every new `.hako` file stays below 800 lines.
 H0 D0 owner/vocabulary/API decision
 H1 disconnected typed transaction/source-site/placement substrate + guard
 Rust R6 parser-owned source-site/seal cutover + sidecar retirement
-H2 canonical ordinary Box parser member-draft branch
-H3 atomic inventory + parser source-seal issuer
+H2-S0 program-owned parser session + Box-scoped member cursor
+H2-S1 atomic ordered parameter-list product (Ordinary rows first)
+H2-S2 same-pass rich body result; JSON is projection only
+H2-I0 bounded ordinary Box direct-method transaction
+H3-I0 atomic inventory + parser source-seal issuer
 H4 selected build-gate transaction/rebase
 H5 test-only normalized Rust/.hako parity
 H6 typed CallableContract(query) syntax carriage + reference update
@@ -334,7 +337,11 @@ H6 typed CallableContract(query) syntax carriage + reference update
 The cross-language executable order is owned by
 `callable-contract-and-instance-call-implementation-task-map-2026-08-08.md`.
 In particular, H2 does not open until the R6 source-site/seal boundary has
-replaced the Rust sidecar model.
+replaced the Rust sidecar model. H2-S0 is the first executable H2 row: it
+replaces H1's caller-token/invocation-wide member cursor with one program-owned
+source session and one exact-Box-scoped member cursor. H2-S1/H2-S2 remain
+closed until that receipt lands. The accepted parameter-carriage Decision is
+`hako-parser-take-parameter-carriage-h2-d0-consultation-2026-08-09.md`.
 
 ## H1 implementation handoff
 
@@ -387,13 +394,16 @@ not claim parser connection, resolver authority, callable semantics, Recipe,
 Builder, or publication.
 
 ```text
-H0  D0 owner/vocabulary/API decision                         accepted here
-H1  disconnected typed transaction/source-site substrate     next
-H2  canonical ordinary Box member-draft branch               after H1
-H3  atomic inventory + parser source seal                    after H2
-H4  selected build-gate transaction/rebase                   after H3
-H5  test-only normalized Rust/.hako parity                   after H4
-H6  typed CallableContract(query) carriage + reference       after H5
+H0     D0 owner/vocabulary/API decision                       closed
+H1     disconnected typed transaction/source-site substrate   closed
+H2-S0  program session + Box-scoped member cursor              next
+H2-S1  atomic ordered parameter-list product                   after H2-S0
+H2-S2  same-pass rich body result                              after H2-S1
+H2-I0  bounded ordinary Box direct-method transaction          after H2-S2
+H3-I0  atomic inventory + parser source seal                   after H2-I0
+H4     selected build-gate transaction/rebase                  after H3-I0
+H5     test-only normalized Rust/.hako parity                  after H4
+H6     typed CallableContract(query) carriage + reference      after H5
 ```
 
 The Rust-side `FRONTEND-PARSED-BOX-SOURCE-SEAL-R6-D0` design stop now owns the

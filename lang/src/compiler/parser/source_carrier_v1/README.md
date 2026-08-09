@@ -69,3 +69,28 @@ H1 connection and removal conditions.
 The focused receipt is `tools/checks/hako_parser_box_declaration_h1_guard.sh`.
 The P0 guard keeps an explicit seven-module manifest, so adding these H1
 modules cannot silently change the P0 scope.
+
+## H2/H3 parameter-carriage Decision
+
+The accepted next sequence is intentionally narrower than connecting the
+ordinary parser in one step:
+
+```text
+H2-S0  program-owned parser source session
+       + one member cursor per exact Box
+H2-S1  atomic ordered parameter-list product
+H2-S2  same-pass rich body result
+H2-I0  bounded ordinary Box direct-method transaction
+H3-I0  sole final declaration seal
+```
+
+H2-S0 must remove the invocation-wide member-ordinal authority: Box statement
+ordinals belong to the program session, while member ordinals restart at zero
+inside each Box cursor. H2-S1 keeps Clone `ParamDecl` neutral and carries exact
+parameter source rows in a parser-private non-Clone product. H2-S2 must retain
+`ParserNodeProductV1` from the same parse; ProgramJSON is only a projection.
+
+`FuncScannerBox`, saved-source rescans, JSON reconstruction, caller-supplied
+production brands, a second declaration/parameter sealer, and defaulting a
+missing parameter row to `Ordinary` are forbidden. The owning Decision is
+`docs/development/current/main/investigations/hako-parser-take-parameter-carriage-h2-d0-consultation-2026-08-09.md`.
