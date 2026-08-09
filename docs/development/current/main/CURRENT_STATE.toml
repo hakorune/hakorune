@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic carrier P2C, unchanged skip_while/4 full-body source I0, the neutral MethodCall source relation I0, source-bound Dynamic target I0, and the complete caller-zero Dynamic semantic-envelope catalog I0 are closed. The envelope owns the route-neutral target catalog and derives one selector-independent view per Dynamic arm without a second row truth; Static arms remain retained. Recipe v2 still lacks an accepted Dynamic value-carriage relation, so LOOP-RECIPE-DYNAMIC-VALUE-D0 is the current design stop. Valid source rows widen the compiler rather than narrow or rewrite the fixture; selector refinement, fabricated targets, permissive defaults, retry, and fallback are forbidden."
+status = "Dynamic carrier P2C through the complete caller-zero Dynamic semantic-envelope catalog I0 are closed. LOOP-RECIPE-DYNAMIC-VALUE-D0 is accepted: V2 gains one honest logical Dynamic class plus an exact external item/source/envelope relation; V1 remains unchanged and Fault stays outside Recipe lexical/value control. The unchanged module catalog retains all 7 rows (3 Loop-owned, 4 non-Loop); skip_while selects exact 2 without shrinking the fixture. The current BoxShape row repairs V2 operand use-before-definition and Return-value validation before schema widening."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "LOOP-RECIPE-DYNAMIC-VALUE-D0"
-work_mode = "design_stop"
-current_execution_row = "LOOP-RECIPE-DYNAMIC-VALUE-D0"
-current_blocker_token = "LOOP-RECIPE-DYNAMIC-VALUE-D0: decide whether and where the landed self-contained Dynamic result carrier enters typed Recipe v2, how CallSlot retains the exact target plus indivisible envelope, and how terminal Fault remains outside lexical/value control; no schema code, selector refinement, v1 widening, physical/provider/runtime plan, retry, or fallback before consultation"
+current_design_stop = "none"
+work_mode = "fast"
+current_execution_row = "LOOP-V2-OPERAND-DEFINITION-GUARD-R0"
+current_blocker_token = "LOOP-V2-OPERAND-DEFINITION-GUARD-R0: add one common V2 checked-use path for operation operands and Return values before Dynamic schema widening; behavior-neutral BoxShape only, no new value class/source shape, no fixture narrowing, selector refinement, v1 change, physical/provider/runtime plan, retry, or fallback"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"

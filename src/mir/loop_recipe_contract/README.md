@@ -150,6 +150,24 @@ source disposition. Every landed typed schema/observer/producer commit must
 update `docs/reference/mir/loop-recipe-contract.md`, this README, and the
 source Facts README with its focused tests.
 
+The next V2 extension is designed but not implemented. Its accepted logical
+class is `Dynamic`; it is never selector-refined to `Text`/`I64` and never
+means runtime `Unknown`, Home, or ABI. One external item/source relation must
+bind each Dynamic CallSlot to the exact borrowed target/envelope. The wire
+does not store that target or envelope.
+
+The unchanged module envelope catalog contains seven Dynamic rows: three are
+Loop-owned and four are valid non-Loop calls. The first bounded
+`skip_while/4` relation selects two and retains all seven. Missing membership
+authority widens the compiler rather than narrowing the source. Fault stays
+outside Recipe values, exits, JoinSig, Completion, and Return.
+
+Before adding the enum member, `LOOP-V2-OPERAND-DEFINITION-GUARD-R0` repairs
+common V2 use-before-definition and Return-value validation without adding an
+accepted source shape. The later order is Dynamic value I0, source-value
+relation, CallSlot/envelope co-seal, explicit Dynamic operations, local Home,
+then any required V2 JoinSig/After work. V1 remains unchanged.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one

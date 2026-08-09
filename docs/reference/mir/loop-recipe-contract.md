@@ -40,6 +40,44 @@ call relation verification, typed parameter/initializer input relations, and
 only then the S6C ScanWithInit observer/producer. No guessed scan counts or
 legacy deletion belongs to this receipt.
 
+## Accepted Dynamic value boundary — V2 only
+
+Decision: accepted — the source-backed Dynamic invocation result is represented
+honestly as `LoopValueClassV2::Dynamic`. It is a logical Recipe class, not
+`Unknown`, `Any`, a runtime tag, provider identity, Home state, or physical
+representation. V1 remains unchanged.
+
+The class and the source relation are complementary authorities:
+
+```text
+LoopValueClassV2::Dynamic
+  = Recipe-local type consistency
+
+item/source Dynamic call relation
+  = exact source call + resolver target + indivisible invocation envelope
+```
+
+The V2 wire stays target-free. A later item-keyed sibling co-seal borrows the
+complete Dynamic envelope catalog and relates one exact CallSlot to one exact
+source call without copying selector, Home, effect, suspension, Fault, or
+provider facts. Dynamic may appear in type-consistent V2 value/input/binding/
+carrier/CallSlot-result/Return positions, but semantic-program publication
+requires complete source relations. Loop/If predicates remain Bool; existing
+I64 and Text operations do not accept Dynamic. Dynamic JoinSig/After requires
+a separate V2 authority and is not claimed by the current V1 JoinSig.
+
+Fault is outside Recipe lexical/value control. A Dynamic CallSlot result is
+defined only on Normal completion; Fault is not a value, resultless CallSlot,
+Loop exit, JoinSig edge, Return, Completion, or DraftSeal result.
+
+The unchanged source module owns seven Dynamic envelopes. Exact membership is
+`3` Loop-owned calls and `4` valid non-Loop calls; the first `skip_while/4`
+Recipe relation selects its exact `2` Loop calls while retaining all `7`
+catalog rows. Fixture reduction, selector-based filtering, source rewriting,
+and fallback are forbidden. The ordered implementation starts with the
+behavior-neutral V2 operand-definition guard, then Dynamic value schema,
+source-value relations, and exact CallSlot/envelope co-seal.
+
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 

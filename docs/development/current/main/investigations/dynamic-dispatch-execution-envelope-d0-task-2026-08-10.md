@@ -1,11 +1,11 @@
 ---
-Status: D0 and semantic-envelope I0 closed; next Recipe value design stop
+Status: Dynamic Recipe value D0 accepted; operand-definition guard R0 next
 Date: 2026-08-10
 Decision row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`
 Closed row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0`
-Next row: `LOOP-RECIPE-DYNAMIC-VALUE-D0`
+Next row: `LOOP-V2-OPERAND-DEFINITION-GUARD-R0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
-Mode: design stop / Recipe value boundary
+Mode: BoxShape / typed Recipe verifier repair
 ---
 
 # Dynamic dispatch execution envelope
@@ -260,25 +260,213 @@ source file maximum in new owner:
 The issuer has no Recipe, Builder mutation, MIR effect, provider, runtime,
 retry, or fallback consumer. Production envelope consumer count remains zero.
 
-## Next design stop — Recipe Dynamic value
+## Recipe Dynamic value Decision — accepted
 
-`LOOP-RECIPE-DYNAMIC-VALUE-D0` must be reviewed before code changes. It owns
-only the logical value-carriage question between the landed envelope and the
-existing typed Recipe v2 schema.
+`LOOP-RECIPE-DYNAMIC-VALUE-D0` is closed. The unchanged source exposed a
+valid language value that the current Recipe v2 cannot name. The compiler is
+widened; the fixture is not reduced, rewritten, selector-refined, or copied
+into a smaller source.
 
-The consultation must decide:
+### One logical class plus one source relation
 
-1. whether `Dynamic` is one new `LoopValueClassV2` member or a distinct
-   source-bound carrier relation kept outside the semantic value-class enum;
-2. whether Dynamic is admitted for operation results only or also for Recipe
-   inputs, bindings, carriers, joins, and After payloads;
-3. how one CallSlot retains the exact source target and indivisible envelope
-   without copying selector, Home, effect, or Fault truth;
-4. how `Normal(carrier) | Fault` relates to Recipe control without turning
-   Fault into lexical Return/Break/Continue or an ordinary value;
-5. whether v1 remains unchanged and the extension is v2-only;
-6. the smallest full-fixture caller-zero golden and its negative matrix.
+The accepted boundary uses both products; neither replaces the other:
 
-Until that Decision is accepted, do not add `Dynamic` to either Recipe schema,
-invent a generic Unknown class, map it to Text/I64 from selectors, add a
-CallSlot result, or open physical/provider/runtime work.
+```text
+LoopValueClassV2::Dynamic
+  = the sole Recipe-local logical class truth
+
+source-bound Dynamic relation
+  = why an exact source value/call has that class
+  + exact target and indivisible invocation envelope
+```
+
+`Dynamic` is not `Unknown`, `Any`, `Opaque`, a runtime tag, a provider type,
+a Home state, or `MirType::Unknown`. Selector spellings such as `substring`
+and `indexOf` never refine it to `Text` or `I64`.
+
+The v2 wire may express type-consistent Dynamic values, inputs, bindings,
+reads/writes, carriers, CallSlot normal results, and Return values. This is
+logical expressivity only. Semantic-program publication still requires the
+exact source relations for every admitted Dynamic row. Dynamic predicates are
+forbidden, and the existing I64/Text/Bool operations keep their exact domains.
+Dynamic joins and After payloads require a future `LoopJoinSigV2`; the current
+V1 JoinSig is not widened or reused. An iteration-local result such as `ch`
+does not become a carrier merely because its class is Dynamic.
+
+V1 schema, verifier, normalization, JoinSig, and adapters remain unchanged.
+
+### CallSlot/source co-seal
+
+The V2 wire remains name- and target-free:
+
+```text
+CallSlot { receiver, args, result }
+```
+
+An item-keyed sibling relation later co-seals one exact CallSlot item with one
+borrowed `VerifiedDynamicInvocationEnvelopeRefV1`. It stores only the new
+relation between the Recipe item and the exact source call. It does not copy
+the selector, target, effect, Home, suspension, Fault, receiver/argument keys,
+or result keys already owned by the Recipe and envelope catalog.
+
+Issue-time validation checks the exact caller and source site, receiver,
+ordered arguments, result site, result presence, and Dynamic result class.
+Unknown, missing, duplicate, foreign, reordered, reused, or extra Loop-call
+relations reject before semantic-program publication. Valid envelopes for
+other functions remain retained and unselected.
+
+### Full-fixture membership census
+
+The unchanged module-wide envelope catalog contains seven Dynamic calls:
+
+```text
+skip_while/4:
+  substring/2 + indexOf/1 = 2 Loop-owned calls
+
+scan_until_newline/3:
+  substring/2 = 1 Loop-owned call
+
+scan_escape/4:
+  substring/2 x 2 = 2 non-Loop calls
+
+scan_escape_piece_and_skip/4:
+  substring/2 x 2 = 2 non-Loop calls
+```
+
+The first bounded Recipe relation uses the complete catalog and selects the
+exact two `skip_while/4` source sites while retaining all seven rows. It does
+not claim that all seven are Loop calls. The later module batch golden may
+select three Loop calls across two Recipes while retaining four valid
+non-Loop rows.
+
+```text
+module envelope catalog = 7
+skip_while Recipe relations = 2
+catalog after co-seal = 7
+```
+
+Selection is by exact callable/Loop membership and source site, never by
+selector. If that projection is unavailable, the compiler gains the missing
+membership authority; the source is not narrowed.
+
+### Fault boundary
+
+`CallSlot { result: Some(dynamic_value) }` defines that value on the Normal
+path only. Fault is not:
+
+```text
+a Recipe value
+a result=None encoding
+a LoopExitKindV2 row
+a JoinSig edge or payload
+a lexical Return/Break/Continue
+Completion or DraftSeal Return
+```
+
+Fault leaves Recipe lexical control and later binds to one callable-bounded
+failure/cleanup transaction. No result or `ch` Home exists on Fault. The
+physical preflight remains `NoSafeSlice` until that canonical failure issuer
+is designed; no fallback, retry, synthetic Return, or zero/Void result is
+allowed.
+
+### `ch` boundary
+
+The normal `substring` result may flow directly as a Recipe SSA value into
+the `indexOf` argument. A separate exact relation retains:
+
+```text
+CallSlot normal result
+-> local ch declaration
+-> exact lexical read
+-> zero rebind / no escape / same iteration scope
+```
+
+Home installation and iteration-scope cleanup are later Home rows. The Recipe
+producer must not synthesize a carrier, PHI, `WriteBinding`, After payload, or
+`release` for `ch`.
+
+## Revised ordered task ladder
+
+### 1. `LOOP-V2-OPERAND-DEFINITION-GUARD-R0`
+
+BoxShape-only verifier repair before widening the value vocabulary.
+
+```text
+implementation:
+  one common checked-use helper for all V2 operation operands
+  reject use before a verified input/operation definition
+  validate Return value-key existence
+
+acceptance:
+  existing seven typed-schema tests remain green
+  forward receiver/argument/numeric/TextEq/Return use rejects
+  no new value class or accepted source shape
+  reference and module README updated in the same commit
+```
+
+### 2. `LOOP-RECIPE-V2-DYNAMIC-VALUE-I0`
+
+```text
+implementation:
+  add LoopValueClassV2::Dynamic only
+  accept type-consistent V2 Dynamic input/value/read/write/carrier/
+    CallSlot normal result/Return structure
+  retain exact I64/Text/Bool operation domains
+  keep V1 byte- and behavior-unchanged
+
+acceptance:
+  Builder-free minimal V2 golden
+  Dynamic predicate/domain mismatch/duplicate/undefined rejects
+  V1 Dynamic decode/adapter absent
+  no source/envelope relation or semantic-program publication
+  full envelope regression still reports seven retained rows
+```
+
+### 3. `LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0/I0`
+
+Define and implement the exact source-site/role to Recipe operand/result-key
+relation. The source observer does not mint Recipe keys. This row contains no
+target, envelope, Home, or provider copy.
+
+### 4. `LOOP-V2-DYNAMIC-CALL-RELATION-COSEAL-I0`
+
+Issue the item-keyed sibling product over the verified Recipe and the borrowed
+complete envelope catalog. The unchanged fixture must prove seven retained,
+two exact `skip_while/4` relations, and five valid unselected rows. Missing,
+duplicate, foreign, reordered, wrong-class, resultless, static, or reused
+relations reject.
+
+### 5. `LOOP-V2-DYNAMIC-OPERATION-D0/I0`
+
+Add explicit selector-independent Dynamic numeric operations required by the
+source, including Add and Less. Do not overload `BinaryI64`/`CompareI64` and
+do not infer a result class from a method name.
+
+### 6. `LOOP-V2-DYNAMIC-LOCAL-VALUE-D0/I0`
+
+Seal normal call result to `ch` declaration/read, then install and clean up
+its Home through the canonical Home owner. Reassignment, escape, hidden share,
+synthetic release, and Fault-side installation reject.
+
+### 7. `LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0/I0`
+
+Open only when an actual Dynamic binding/carrier/After payload is required.
+Use a V2 class-bearing JoinSig; do not widen V1.
+
+### 8. control and execution rows
+
+```text
+JoinSig-authorized If / Return
+-> full semantic-program co-seal
+-> callable Fault propagation binding
+-> full-program preflight
+-> physical canary
+-> DraftSeal / collector
+-> provider/runtime plan
+-> named production cutover and same-edge legacy deletion
+```
+
+Every valid source row that exceeds the current compiler boundary opens the
+smallest named compiler-widening row or stops at `NoSafeSlice`. No task may
+rewrite the source, reduce the fixture, add a selector special case, or use a
+legacy fallback to bypass that boundary.
