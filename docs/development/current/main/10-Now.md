@@ -23,13 +23,14 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. Dynamic source/origin, complete Loop source
+Current mode is `fast`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress, and a bounded
 one-iteration operation/rebind P1 canary are closed for the unmodified
-production `skip_while/4` source. The active design correction is:
+production `skip_while/4` source. The PHI temporal-order correction is
+accepted. The next compiler-side row is:
 
 ```text
-DYNAMIC-LOOP-PHI-ORDER-D0
+DYNAMIC-LOOP-ENTER-HANDOFF-R0
 ```
 
 The previous post-P1-only PHI plan is rejected: landed P1 currently emits
@@ -43,10 +44,13 @@ P2A Header read / provisional PHI
 -> whole-session discard canary
 ```
 
-No implementation row is open until this boundary is fixed in the active
-card. Raw incoming vectors, route-local PHI writers, backend activation,
-retry/fallback, and source rewrites remain closed. The parser H2-S2-S1-R1
-worktree is preserved and must not be mixed into this compiler-side slice.
+P0 currently drops the exact local declaration/materialization relation that
+canonical identity needs. R0 retains and co-seals that relation with the
+existing entry ValueId and Dynamic origin. It emits no value, block, or PHI;
+the later P2A remains the sole canonical Enter/Header opener. Raw incoming
+vectors, route-local PHI writers, backend activation, retry/fallback, and
+source rewrites remain closed. The parser H2-S2-S1-R1 worktree is preserved
+and must not be mixed into this compiler-side slice.
 
 ### Historical context (non-authoritative; pending mirror compaction)
 

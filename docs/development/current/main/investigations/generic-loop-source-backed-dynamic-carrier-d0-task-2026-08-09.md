@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0 R0/S0/P0 closed; bounded Dynamic operation/rebind P1 canary closed; PHI temporal-order D0 active
+Status: S0/P0 and L0 R0/S0/P0 closed; bounded Dynamic operation/rebind P1 canary closed; PHI temporal-order D0 accepted; Enter handoff R0 next
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -653,8 +653,8 @@ Closeout:
 
 Row: `DYNAMIC-LOOP-PHI-ORDER-D0`
 
-Decision: `revise`; the former post-P1-only `DYNAMIC-LOOP-PHI-P2` row is
-rejected.
+Decision: `accepted correction`; the former post-P1-only
+`DYNAMIC-LOOP-PHI-P2` row is rejected.
 
 The landed P1 emits both Compare and Add from `carrier.entry()`. Opening a PHI
 afterward would create an unused value and would keep every iteration on the
@@ -740,6 +740,78 @@ The valid production source remains the fixture. If the legacy route cannot
 accept this sequence, repair or replace the compiler owner; never rewrite the
 source to fit the narrower route.
 
+The audit also found that current P0 has discarded one required relation. Its
+ingress retains only carrier `BindingRef`, entry `ValueId`, and Dynamic origin;
+canonical declaration adoption additionally requires the exact local
+declaration/materialization relation. P2A therefore remains `NoSafeSlice`
+until the following compiler handoff row lands.
+
+##### L0-R0 — `DYNAMIC-LOOP-ENTER-HANDOFF-R0`
+
+Change:
+  Retain one private exact relation from the already completed local terminal:
+
+```text
+owner
++ exact local SourceBindingSiteV1
++ exact local BindingRefV1
++ CompletedLocalBindingV1 {
+     initializer,
+     local entry ValueId,
+   }
++ source-backed Dynamic formal origin
++ exact Loop carrier membership
+  -> PreparedDynamicLoopEnterDefinitionV1
+```
+
+  The relation is co-sealed while the completed local receipt, resolved
+  function ledger, Dynamic origin state, and Loop schedule are simultaneously
+  available. The prepared Loop ingress retains it instead of reducing it to a
+  raw `(BindingRef, ValueId)` pair.
+
+Done:
+  The unmodified `skip_while/4` source produces exactly one carrier Enter row
+  for local `i`. Its declaration site resolves to the same BindingRef, the
+  completed local ValueId is the retained entry, its initializer is the exact
+  source-backed Dynamic formal value, and the origin/Loop membership all share
+  one owner. Foreign, missing, duplicate, stale, non-local, mismatched
+  initializer, or unrelated completed-local evidence rejects before Builder
+  mutation.
+
+  No new ValueId or declaration is published. P2A later consumes the row and
+  calls the existing canonical identity declaration publisher with the
+  resolved record's exact kind/name. A private exact-binding helper may hide
+  those record fields, but a raw `adopt(BindingRef, ValueId)` API is forbidden.
+
+Stop:
+  No block allocation, canonical declaration adoption, Header read, PHI,
+  operation emission, callable-current update, backend, retry, fallback, or
+  source rewrite. Do not use `MirType::Unknown` as Dynamic authority.
+
+Tests:
+
+```text
+positive:
+  exact declaration site / local completion / origin / Loop carrier co-seal
+
+negative:
+  foreign owner or declaration site
+  declaration -> different BindingRef
+  completed local -> different local ValueId or initializer
+  stale Dynamic origin
+  non-carrier local
+  duplicate Enter row
+  raw BindingRef + ValueId construction unavailable
+
+effect:
+  block / instruction / ValueId snapshots unchanged
+```
+
+Same-slice docs:
+  Update `src/mir/builder/README.md` and
+  `docs/reference/mir/generic-loop-stage-matrix.md`. Keep every source file
+  below 800 lines.
+
 ##### L0-P2A — `DYNAMIC-LOOP-PHI-OPEN-P2A`
 
 Change:
@@ -819,7 +891,8 @@ Stop:
 Implementation order after this D0 closes:
 
 ```text
-P2A Header-current open
+R0 exact Enter-definition handoff
+-> P2A Header-current open
 -> P1R operation correction
 -> P2B predecessor close / PHI patch
 -> P2C discard canary
