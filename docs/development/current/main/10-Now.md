@@ -44,11 +44,11 @@ the compiler acceptance was widened instead of rewriting or narrowing the
 source. The selector-independent language Decision and caller-zero complete
 semantic-envelope catalog are now closed. The Dynamic Recipe consultation,
 Dynamic operation D0, schema/verifier I0, V2 control/source parity R0, and the
-complete private producer I0 are also closed. The current row is the atomic
-source/Recipe/envelope co-seal design:
+complete private producer I0 and atomic co-seal D0 are also closed. The
+current row is the bounded source/Recipe/envelope co-seal implementation:
 
 ```text
-LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0
+LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-I0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe
@@ -79,9 +79,11 @@ consumes the unchanged inventory once and publishes the complete candidate.
 Its resolver Loop token moves into the artifact's structural path claim while
 frame/scope, six binding rows, twenty-eight source rows, two-site Completion,
 and private unsealed correspondence remain beside it. The next D0 must co-seal
-this full candidate with the borrowed seven-row
-envelope catalog and select exactly two CallSlot relations without creating a
-partial call product. If another valid row is unsupported, widen the compiler
+this full candidate with the borrowed complete envelope catalog and validate
+all six binding plus twenty-eight source claims atomically. Exact owner+site
+selects I6/I7; selector text is not authority. The fixture remains 7 total, 2
+selected, 5 valid unselected, but seven is not a language constant. If another
+valid row is unsupported, widen the compiler
 or stop at a named design question; never narrow or rewrite source. Physical
 projection, provider plan, retry, and fallback remain closed.
 JoinSig-authorized If/Return and multi-return Completion still precede

@@ -443,6 +443,19 @@ envelope catalog. The unchanged fixture must prove seven retained, two exact
 duplicate, foreign, reordered, wrong-class, resultless, static, or reused
 relations reject.
 
+Correction (`LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0`, 2026-08-10):
+the implementation row is not a two-call partial product. Its sole issuer
+consumes the complete full-Recipe candidate and validates all six binding
+claims and all twenty-eight source claims atomically. The exact partition is
+25 source/Recipe/prelude roles, one deferred `ch` local role, and two deferred
+Callable Tail roles; binding roles partition as five source/Recipe/prelude and
+one deferred `ch` local. The complete immutable envelope catalog is borrowed,
+not consumed. Exact owner plus exact source site selects I6 and I7; selector
+text is never authority. The current seven/two/five cardinality is a fixture
+golden, not a language constant. The output is a bounded source-bound Recipe
+product, not a final semantic program; JoinSigV2, Fault compatibility, `ch`
+Home, Tail, and Completion remain later owners.
+
 ### 6. `LOOP-V2-DYNAMIC-LOCAL-VALUE-D0/I0`
 
 Seal normal call result to `ch` declaration/read, then install and clean up

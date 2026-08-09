@@ -1,8 +1,8 @@
 ---
-Status: complete producer I0 closed; atomic co-seal D0 next
+Status: atomic co-seal D0 accepted; I0 next
 Date: 2026-08-10
-Closed row: `LOOP-V2-DYNAMIC-FULL-PRODUCER-I0`
-Current row: `LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0`
+Closed row: `LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-D0`
+Current row: `LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-I0`
 Parent: `dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md`
 Mode: BoxShape first; unchanged-source producer second
 ---
@@ -367,6 +367,143 @@ the boundary between normal Dynamic result and Fault. It must not add a
 call-only product, consume the envelope catalog, infer selector types, claim a
 final semantic program, or activate lowering. JoinSigV2, Fault compatibility,
 `ch` Home, Tail, and Completion remain later owners.
+
+### D0 decision — accepted
+
+The sole issuer consumes the complete private candidate and borrows the
+complete immutable envelope catalog:
+
+```text
+DynamicFullLoopRecipeCandidateV2
++ &VerifiedDynamicInvocationEnvelopeCatalogV1
+  -> VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'env, 'decl>
+```
+
+This is a bounded source/Recipe/envelope product, not the final semantic
+program. It owns no JoinSig/Continuation, `ch` Home, Tail capability,
+Completion consumption, or Fault path.
+
+#### Exact role partition
+
+All claims are consumed. No row is discarded or silently classified:
+
+```text
+source roles:
+  source/Recipe/prelude relation = 25
+  deferred ch local relation     = 1   // ChLocal
+  deferred Callable Tail         = 2   // OuterReturn + OuterReturnI
+  total                          = 28
+
+binding roles:
+  source/Recipe/prelude relation = 5
+  deferred ch local relation     = 1   // IterationLocalCh
+  total                          = 6
+```
+
+`IndexOfArgumentCh` is verified now as Recipe V10 flowing from I6 into I7.
+Only `V10 -> ch declaration/read -> Home` remains deferred. Prelude roles are
+part of the source-bound Recipe input/carrier relation even though they are
+not Loop items. The outer Return rows remain present but do not become a
+Recipe Exit.
+
+#### Exact CallSlot relations
+
+Selection uses exact owner plus exact source call site. Selector spelling is
+never an admission key.
+
+```text
+I6:
+  source call/result = SubstringCall
+  receiver site/binding/origin = SubstringReceiverSrc / Src
+  args[0] site/value = SubstringStartI / result(I2)=V6
+  args[1] site/value = SubstringEndAdd / result(I5)=V9
+  Recipe = CallSlot(receiver=V0,args=[V6,V9],result=V10:Dynamic)
+
+I7:
+  source call/result = IndexOfCall
+  receiver site/binding/origin = IndexOfReceiverPredChars / PredChars
+  args[0] site/value = IndexOfArgumentCh / V10
+  Recipe = CallSlot(receiver=V3,args=[V10],result=V11:Dynamic)
+```
+
+Both targets must be distinct and belong to one canonical caller. Their
+envelope is the existing indivisible language-wide Dynamic contract. Normal
+result values exist only on the normal path; Fault is not converted into a
+Recipe value, Exit, Return, false, Void, or Completion.
+
+#### Catalog lifetime and cardinality
+
+The output borrows the catalog; it does not consume, clone, or snapshot it.
+It stores the canonical caller and two minimal exact relation keys, not a
+self-reference or copied target/envelope. One catalog helper owns exact
+`(FunctionOwnerIdV1, SourceExprSiteV1)` lookup and missing/ambiguous rejection.
+Derived relation views may borrow the catalog later without reselecting by
+name.
+
+The current full-module fixture asserts:
+
+```text
+catalog rows = 7
+selected     = 2
+unselected   = 5 and still valid
+```
+
+Seven is evidence for this fixture, not a language-wide acceptance constant.
+The durable issuer requires complete catalog integrity and exactly two rows
+for this candidate, while permitting unrelated valid catalog rows.
+
+#### I0 file/task shape
+
+```text
+src/mir/compiler/dynamic_full_body_recipe/coseal/
+  mod.rs       // sole consuming issuer and bounded output
+  coverage.rs  // complete 6/28 role validation and partition
+  calls.rs     // exact I6/I7 source/Recipe/envelope validation
+  tests.rs     // positive, negative, lifetime, API guards
+
+src/mir/dynamic_invocation_contract/catalog.rs
+  exact owner+site lookup helper only
+```
+
+The claims owner gains one private consuming full-table `into_parts()` path.
+It gains no `first`, `select`, `filter`, or partial-product API.
+
+#### Required negative matrix
+
+```text
+identity/catalog:
+  foreign owner/frame/scope
+  missing or ambiguous exact envelope
+  Static row or different canonical caller
+  one target reused by both CallSlots
+
+coverage:
+  missing/duplicate/extra binding or source role
+  wrong statement/expression kind
+  wrong key domain/class/operation shape
+  unauthorized target reuse
+
+calls:
+  non-CallSlot item
+  resultless or non-Dynamic CallSlot
+  wrong receiver/argument key, site, order, or arity
+  receiver BindingRef/dynamic-origin mismatch
+  wrong producer result for V6/V9/V10/V11
+
+deferred boundaries:
+  ch represented as binding/carrier/write/escape
+  outer Return represented as Recipe Exit
+  inner Return/Exit/Completion site mismatch
+
+API/lifetime:
+  arbitrary verified/test constructor
+  Clone on candidate/output
+  partial claims accessor
+  catalog consumption or target/envelope copy
+```
+
+Implementation and focused tests must update this card, the module README,
+and `docs/reference/mir/loop-recipe-contract.md` in the same commit.
 
 ## Nonclaims
 
