@@ -386,15 +386,16 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current design stop:
+Current execution row:
 
 ```text
-DECLARED-QUERY-HOME-AGGREGATE-D0
-  define the sole co-seal for declaration identity, the Query subset, and
-  the landed Home ABI catalog; no body conformance, target, Recipe/CallSlot,
-  Builder/MIR, or production work.
+DECLARED-QUERY-HOME-AGGREGATE-I0
+  consume the Home catalog (which owns declarations) and the selected Query
+  catalog by value; issue only their same-brand/site/order relational co-seal.
   Task:
-  `docs/development/current/main/investigations/own-home-declared-query-home-aggregate-d0-design-task-2026-08-09.md`
+  `docs/development/current/main/investigations/own-home-declared-query-home-aggregate-i0-implementation-task-2026-08-09.md`
+  Next design stop:
+  `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`
 ```
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
@@ -740,13 +741,17 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-query-behavior-i0-implementation-task-2026-08-09.md`;
     - receipt: `src/mir/resolved_semantics/query_behavior.rs` and focused
       Query/Home tests; next stop is the aggregate co-seal D0.
-15. `RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0`
-    - co-seal declaration, semantic signature, Query behavior, and the exact
-      same-declaration `VerifiedHomeAbi`;
-    - publish one sealed declared callable catalog usable for recursive
-      target resolution and body verification;
-    - bounded positive fixture `length(): i64`; neither name nor physical ABI
-      is semantic authority.
+15. `DECLARED-QUERY-HOME-AGGREGATE-D0/I0`
+    - D0 fixes the sole two-input move-only co-seal: Home catalog (which owns
+      declarations) plus selected Query behavior catalog;
+    - I0 publishes only their same-brand/site/order relational contract and
+      never copies a Home or Query axis;
+    - bounded positive fixture `length(): i64` plus mixed Query/non-Query
+      subset coverage; neither name nor physical ABI is semantic authority;
+    - implementation task:
+      `docs/development/current/main/investigations/own-home-declared-query-home-aggregate-i0-implementation-task-2026-08-09.md`;
+    - next design stop:
+      `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`.
 
 ### D. Target and source-bound logical call
 

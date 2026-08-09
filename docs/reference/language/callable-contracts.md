@@ -203,9 +203,9 @@ one non-`Clone` Home ABI catalog. Its relation batch brand is provenance only
 and is never a nominal Box/method identity. The issuer maps receiver `Handle`,
 `I64`/`Unit` parameters to `Trivial`, `Unit` result to `Unit`, and `I64`
 result to `Trivial`; it does not read Query syntax or body facts. A later
-aggregate issuer will consume this Home catalog, typed Query behavior, and
-the declaration catalog to co-seal one declared aggregate and a conformant
-catalog. It does not restate Home or infer semantic types from
+aggregate issuer consumes this Home catalog (which owns the declaration
+catalog) and the selected typed Query behavior catalog to co-seal one declared
+aggregate and a conformant catalog. It does not restate Home or infer semantic types from
 `ExactTrivial*Abi`, `MirType`, or `FunctionSignature`.
 
 Parser errors own syntax only:

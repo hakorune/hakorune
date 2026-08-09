@@ -14,7 +14,7 @@ parser-owned non-Clone Box source seal
   -> exact resolver nominal Box/method declaration + semantic signature
   + typed Query behavior
   + same-declaration VerifiedHomeAbi
-  -> one VerifiedDeclaredInstanceMethodContractV1
+  -> one VerifiedDeclaredInstanceMethodContractCatalogV1
   -> typed positive/negative issuer guard
 ```
 

@@ -28,7 +28,7 @@ DeclaredQueryBehaviorIssuerV1::issue(&catalog)
 VerifiedDeclaredQueryBehaviorCatalogV1
       │
       ▼ later aggregate co-seal
-VerifiedDeclaredInstanceMethodContractV1
+VerifiedDeclaredInstanceMethodContractCatalogV1
   + VerifiedDeclaredInstanceMethodHomeCatalogV1
 ```
 

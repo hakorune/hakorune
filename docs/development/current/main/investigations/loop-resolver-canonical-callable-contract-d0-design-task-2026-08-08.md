@@ -16,7 +16,7 @@ one-shot ParserBoxResolverSourceHandoffV1 (consumed by value)
 + resolved semantic signature
 + typed CallableContractSyntaxV1::Query behavior
 + same-declaration VerifiedHomeAbi
-  -> one VerifiedDeclaredInstanceMethodContractV1
+  -> one VerifiedDeclaredInstanceMethodContractCatalogV1
 
 method body
   -> separate VerifiedCallableContractConformanceV1
@@ -86,16 +86,16 @@ to the canonical whole-call contract.
 
 ## Canonical issuer
 
-One public aggregate issuer consumes already-issued declaration, behavior,
-and Home capabilities and returns only the aggregate:
+One public aggregate issuer consumes the Home catalog (which already owns the
+declaration catalog) and the selected Query behavior catalog and returns only
+the aggregate:
 
 ```text
 DeclaredInstanceMethodContractIssuerV1::issue(
-  VerifiedInstanceMethodDeclarationCatalogV1,
-  VerifiedDeclaredQueryBehaviorCatalogV1,
   VerifiedDeclaredInstanceMethodHomeCatalogV1,
+  VerifiedDeclaredQueryBehaviorCatalogV1,
 )
-  -> VerifiedDeclaredInstanceMethodContractV1
+  -> VerifiedDeclaredInstanceMethodContractCatalogV1
 ```
 
 The declaration/signature issuer is a separate earlier boundary:

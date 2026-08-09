@@ -23,14 +23,15 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
-declared Query behavior D0/I0 are closed. The current design row is:
+declared Query behavior D0/I0, and aggregate D0 design are closed. The current
+execution row is:
 
 ```text
-DECLARED-QUERY-HOME-AGGREGATE-D0
+DECLARED-QUERY-HOME-AGGREGATE-I0
 ```
 
 The preceding I0 deleted the audited caller-zero body-inferred
@@ -43,9 +44,11 @@ slice, and its relation brand is batch provenance only—not the resolver
 catalog brand or nominal type identity. The closed ABI0 implementation issues
 only one non-`Clone` same-brand/site I64/Unit Home catalog. Query I0 issues
 only the typed non-empty Query subset and never duplicates Home relations.
-The current design stop defines their one same-brand/site aggregate co-seal.
-Resolver targets, source-bound CallSlot relations, ScanWithInit, physical
-lowering, production selection, and legacy retirement remain closed.
+Aggregate I0 now implements only their same-brand/site/order relational
+co-seal; Home remains the declaration owner. Resolver targets, source-bound
+CallSlot relations, ScanWithInit, physical lowering, production selection, and
+legacy retirement remain closed. After this row, stop at the parked callable
+conformance/catalog closure design.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No
