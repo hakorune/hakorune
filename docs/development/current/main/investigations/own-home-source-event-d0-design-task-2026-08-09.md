@@ -210,8 +210,10 @@ as the Home root identity.
    update the language reference only after one canonical choice is accepted
 
 3. OWN-HOME-SOURCE-EVENT-I0
-   parser rich-path carrier for `release IDENT`, grammar guard, and exact
-   contextual negatives; same-slice reference/EBNF updates
+   parser-private observer inside
+   `ParserResolverBodyTransactionV1::with_direct_method_syntax`; issue one
+   AST-free carrier for `release IDENT`, add grammar/contextual negatives,
+   and update reference/EBNF in the same slice
 
 4. OWN-HOME-CAPABILITY-TAXONOMY-D0
    freeze Create/Consume/Share/Forward/Escape/End capability meanings and
