@@ -20,6 +20,7 @@
 mod body_source;
 mod build_cfg;
 mod build_gate_selection;
+mod callable_parameter_source;
 mod callable_contract_syntax;
 mod common;
 mod contracts;
@@ -136,8 +137,7 @@ pub(crate) use body_source::{
 pub(crate) use callable_contract_syntax::CallableContractSyntaxV1;
 pub(crate) use source_resolver_handoff::{
     ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceRowV1, ResolverBoxMethodSourceSiteV1,
-    ResolverBoxSourceRowV1, ResolverMethodParameterSyntaxV1, ResolverMethodSignatureSyntaxV1,
-    ResolverSourceInvocationProvenanceV1,
+    ResolverBoxSourceRowV1, ResolverMethodSignatureSyntaxV1, ResolverSourceInvocationProvenanceV1,
 };
 
 /// Nyashパーサー - トークン列をASTに変換

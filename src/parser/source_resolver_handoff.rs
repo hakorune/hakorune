@@ -6,28 +6,15 @@
 
 use std::collections::HashSet;
 
-use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, ParamDecl};
+use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1};
 
 use super::callable_contract_syntax::CallableContractSyntaxV1;
+use super::callable_parameter_source::{
+    project_neutral_parameter_syntax_v1, ResolverMethodParameterSyntaxV1,
+};
 use super::source_authority::ParserInvocationBrandV1;
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{NyashParser, ParseError, ParserBuildConfig};
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ResolverMethodParameterSyntaxV1 {
-    name: Box<str>,
-    declared_type_name: Option<Box<str>>,
-}
-
-impl ResolverMethodParameterSyntaxV1 {
-    pub(crate) fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub(crate) fn declared_type_name(&self) -> Option<&str> {
-        self.declared_type_name.as_deref()
-    }
-}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ResolverMethodSignatureSyntaxV1 {
@@ -322,13 +309,7 @@ fn signature_from_declaration(
             name: name.to_owned().into_boxed_str(),
         });
     };
-    let params = ParamDecl::with_name_fallback(param_decls, params)
-        .iter()
-        .map(|param| ResolverMethodParameterSyntaxV1 {
-            name: param.name.clone().into_boxed_str(),
-            declared_type_name: param.declared_type_name.clone().map(String::into_boxed_str),
-        })
-        .collect();
+    let params = project_neutral_parameter_syntax_v1(param_decls, params);
     Ok(ResolverMethodSignatureSyntaxV1 {
         parameters: params,
         return_type_name: return_type_name.clone().map(String::into_boxed_str),

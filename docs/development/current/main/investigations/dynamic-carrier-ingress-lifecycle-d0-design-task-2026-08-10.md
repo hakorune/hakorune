@@ -161,14 +161,22 @@ The product now retains only parser-source and exact-method relations. Foreign
 session and duplicate method issuance reject before publication, and the
 guard prevents direct sealer/session/product bypasses.
 
-### 1C. `PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0` — selected
+### 1C. `PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0` — closed
 
 Before adding Rust parameter rows, extract their model/issuer from the
 near-limit parser owners. `source_seal.rs` is already above 750 lines and must
 not receive the new authority. Keep the sibling catalog in a dedicated
 `callable_parameter_source/` module and keep tests separate.
 
-### 2. `CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0`
+The behavior-neutral recut now owns the existing AST-free name/type model,
+the `ParamDecl` compatibility projection, focused tests, and a module-local
+README under `src/parser/callable_parameter_source/`. The general resolver
+handoff only consumes that owner. No transfer row, parser brand, declaration
+identity, `Take`, Home demand, Recipe key, or MIR fact was added;
+`source_seal.rs` remains unchanged at 751 lines and every touched Rust source
+remains below 800 lines.
+
+### 2. `CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0` — selected
 
 Land the complete parser/resolver handoff and Rust/Hako parity. First active
 cohort issues exact `Ordinary` rows for direct static Box methods and direct

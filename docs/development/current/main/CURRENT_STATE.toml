@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Hako parameter-transfer R0a/R0b are closed: typed Ordinary-only syntax is bound to parser session and exact method identity with no builder token. The selected Rust recut isolates the sibling callable-parameter source owner before adding rows."
+status = "Hako parameter-transfer R0a/R0b and the behavior-neutral Rust parameter-source recut are closed. The selected I0 adds the complete sibling parser parameter-source catalog without activating Take or Home."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none; CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0 accepted"
 work_mode = "fast"
-current_execution_row = "PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0"
-current_blocker_token = "PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0: split a dedicated callable_parameter_source model/issuer/tests owner from near-limit parser files without adding parameter rows, changing behavior, activating Take/Home, or exceeding 800 lines"
+current_execution_row = "CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0"
+current_blocker_token = "CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0: issue one complete sibling parser parameter-source catalog for exact Ordinary rows in direct static Box methods and direct ordinary instance methods; preserve parser provenance, declaration kind, and parameter ordinal; reject missing, duplicate, foreign, and partial coverage; do not activate Take, Home, Recipe, or production lowering"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -720,11 +720,11 @@ latest_card = "dynamic-carrier-ingress-lifecycle-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 next_design_card = "none; CALLABLE-PARAMETER-TRANSFER-AUTHORITY-D0 accepted"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-next_execution_card = "PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0"
+next_execution_card = "CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "Initial V1/C0/B0 is BorrowedIngressNoEnd. Hako R0a/R0b are closed with typed transfer, explicit type absence, and parser-session/method co-seal; the Rust sibling source owner recut and complete demand catalog precede Dynamic ingress I0."
+latest_card_summary = "Initial V1/C0/B0 is BorrowedIngressNoEnd. Hako R0a/R0b and the Rust sibling parameter-source owner recut are closed; the complete Ordinary-only parser source catalog and demand catalog precede Dynamic ingress I0."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
