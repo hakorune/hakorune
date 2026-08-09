@@ -1,5 +1,5 @@
 ---
-Status: ready — design stop
+Status: closed — no remaining scanner carrier blocker
 Date: 2026-08-09
 Row: `HAKO-PARSER-NUMERIC-SCAN-CARRIER-COMPILER-D0`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0`
@@ -84,3 +84,32 @@ source authority and physical publisher are not conflated
 one compiler-side next row or honest NoSafeSlice is selected
 H2-S2-S0 remains parked until that executable prerequisite is green
 ```
+
+## Closeout receipt
+
+After `GENERAL-STATIC-CALL-RESULT-PUBLICATION-I0`, the exact unmodified probe:
+
+```hako
+using lang.compiler.parser.scan.parser_number_scan_box as ParserNumberScanBox
+
+static box Main {
+  main() {
+    local result = ParserNumberScanBox.scan_int("42}", 0)
+    print(result)
+    return 0
+  }
+}
+```
+
+completed successfully and printed:
+
+```text
+{"type":"Int","value":42}@2
+RC: 0
+```
+
+The earlier `MissingTransientType` was fully preempted by the dependency
+`StringHelpers.int_to_str/1 -> to_i64/1` publication gap. No scanner-specific
+carrier repair, parameter annotation, GenericLoop default, or new publisher
+is required. `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0` is unblocked and may
+resume from its clean/stashed lexical-parts implementation boundary.

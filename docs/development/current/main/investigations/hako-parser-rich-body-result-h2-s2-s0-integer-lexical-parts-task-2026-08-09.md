@@ -1,5 +1,5 @@
 ---
-Status: parked — blocked by exact carrier-source census
+Status: ready — dependency carrier prerequisite is green
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0`
@@ -174,3 +174,13 @@ stash@{0}: wip/h2-s2-s0 numeric lexical parts
 Do not resume it until
 `HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0` identifies the exact producer,
 and the resulting producer-specific executable prerequisite is green.
+
+## Resume receipt
+
+`GENERAL-STATIC-CALL-RESULT-PUBLICATION-I0` closed the earlier imported
+`StringHelpers` result gap. The unmodified direct
+`ParserNumberScanBox.scan_int("42}", 0)` fixture now exits `0` and returns the
+expected compatibility `JSON@pos` result. No scanner source annotation or
+GenericLoop acceptance change was required. The failed probe above remains
+historical evidence only; S0 may now resume with its original lexical-parts
+scope and nonclaims.

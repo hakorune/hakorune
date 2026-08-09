@@ -23,12 +23,12 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The typed integer lexical-parts row and scanner
-cursor annotation row remain parked. The compiler-side dependency repair is
-closed: general exact rows now reach the sole source-bound publisher and the
-unmodified `StringHelpers` source passes its first GenericLoop. The current
-row reruns the unmodified numeric scanner and identifies its exact remaining
-producer/publication boundary without adding a source acceptance annotation.
+Current mode is `fast`. The compiler-side dependency repair is closed: general
+exact rows reach the sole source-bound publisher and the unmodified
+`StringHelpers` source passes its first GenericLoop. The follow-up unmodified
+`ParserNumberScanBox.scan_int("42}", 0)` probe also succeeds, so no scanner
+annotation or additional carrier publisher is needed. The parser-private
+numeric lexical-parts row is now unblocked.
 The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
@@ -40,7 +40,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-HAKO-PARSER-NUMERIC-SCAN-CARRIER-COMPILER-D0
+HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -73,8 +73,8 @@ the existing semantic result proof and the sole source-bound publication
 owner. The closed I0 connects exact general rows to that owner and suppresses
 the competing legacy signature annotation on the selected path; local Copy
 and GenericLoop remain verifier-only consumers. The scanner compiler census
-is now the sole open design row. Both the source-annotation row and S0 stay
-parked. There is
+then proved the unmodified direct scanner is green. The source-annotation row
+is retired and H2-S2-S0 is current. There is
 still no typed
 expression/Return/body product, method
 connection, Take activation, or language activation.
