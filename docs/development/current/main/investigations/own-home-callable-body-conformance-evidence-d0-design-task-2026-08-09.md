@@ -1,5 +1,5 @@
 ---
-Status: bounded I0 landed; general evidence remains at design stop
+Status: D0 accepted; bounded Call+Return I0 open
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -35,7 +35,7 @@ this card: it proves only the exact lexical receiver-read/ordinary-return
 cohort and its Query Home no-transfer relation. It does not open general body
 conformance.
 
-## General body execution evidence D0 (current design stop)
+## General body execution evidence D0 (accepted design)
 
 General conformance needs four source-level axes and one relational aggregate.
 The four axes are private receipts or borrowed views; the only new public
@@ -72,7 +72,9 @@ identity input, and `VerifiedSemanticOwnerForestV1` as nested-owner/upvar
 isolation input. None of them currently proves the complete general axes by
 itself.
 
-The current code gaps are intentional design blockers:
+The current code gaps were intentional design blockers.  The worker audit has
+now accepted this D0 boundary.  They remain implementation limits for the
+bounded next slice:
 
 * `BodyEffectKindV1` is partial and does not record Print/IO or every opaque
   expression class; an empty effect vector is therefore not a no-effect
@@ -151,22 +153,29 @@ Once an issuer exists, an opaque or unclassified site in an otherwise admitted
 cohort is `Unresolved`; it is not converted into an empty effect/control/Home
 set.
 
-## Minimal next implementation slice (not open yet)
+## Minimal next implementation slice
 
-After this D0 is accepted, implementation must proceed in this order:
+The D0 is accepted.  The next open row is the separate bounded implementation
+card:
 
 ```text
-1. neutral coverage + effect/control source inventory
-   using one existing owner-tree/shadow walk and existing resolved-exit /
-   region authority; unsupported classes stay NoSafeSlice rather than becoming
-   an incomplete Candidate
-2. independent language Home-flow event/state issuer
-   borrowing the declaration Home ABI but never reissuing it
-3. same-root VerifiedBodyExecutionEvidenceV1 co-seal for one finite,
-   root-direct resolver-only fixture (the landed `return me` I0 remains
-   unchanged)
-4. full-coverage conformance catalog
-5. stop before target / Recipe / Builder / MIR
+docs/development/current/main/investigations/own-home-callable-body-effect-control-i0-implementation-task-2026-08-09.md
+```
+
+It is intentionally smaller than general execution evidence and proceeds in
+this order:
+
+```text
+1. issue one private `BodyEffectControlCoverageReceiptV1` from the existing
+   `ResolvedFunctionBodyShapeProductV1` only;
+2. admit only exact root-direct `return me.invoke()` with one Call effect,
+   one ExplicitReturn exit, and exact source relations;
+3. keep unsupported/opaque/foreign shapes at private `NoSafeSlice` or
+   `Rejected`, without adding a public semantic owner or widening the effect
+   vocabulary;
+4. leave the landed exact `return me` evidence/conformance I0 unchanged;
+5. stop before Home-flow, general four-axis co-seal, conformance catalog,
+   target, Recipe, Builder, MIR, publication, or fallback.
 ```
 
 The first implementation slice must not add a Query-specific port, infer

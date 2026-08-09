@@ -142,13 +142,19 @@ opaque evidence is `Unresolved`, and identity/coverage mismatches are
 syntax lease and returns one AST-free inventory co-sealed to the exact
 owner/body root and source coverage; the carrier row co-seals parser
 provenance and resolver brand. Direct field/state authority and conformance
-remain separate. The complete-evidence design stop is accepted and its bounded
-I0 is landed in `query_body_conformance_evidence.rs`. The issuer is limited to
+remain separate. The complete-evidence D0 is accepted and its bounded I0 is
+landed in `query_body_conformance_evidence.rs`. The issuer is limited to
 exact `return me` structural safety and a sibling Query Home no-transfer
 receipt. The facts catalog and evidence aggregate are not a general proof of
 no writes/Home escape/allocation/IO/FFI/failure/suspension/non-local control;
-any incomplete axis remains `NoSafeSlice`. The current general design stop
-must define four private axis receipts or borrowed views—complete body
+any incomplete axis remains `NoSafeSlice`. The next bounded resolver-only
+implementation is `CALLABLE-BODY-EFFECT-CONTROL-I0`: a private
+ `BodyEffectControlCoverageIssuerV1` consumes only one existing
+ `ResolvedFunctionBodyShapeProductV1` and issues a non-`Clone` borrowed
+ receipt for exact root-direct `return me.invoke()` (one Call effect, one
+ same-function Return exit, and exact source relations). It does not widen
+ `BodyEffectKindV1` or open Home flow. The general D0 defines four private
+ axis receipts or borrowed views—complete body
 coverage, effect events, control/exit events, and Home-flow events/state—then
 one same-root public execution-evidence co-seal. Existing body-shape effects are
 partial (Print/IO and unsupported control are not fully recorded), and
@@ -158,7 +164,8 @@ evidence catalogs, compares the existing `ReceiverDirectReadNoEffects`
 behavior, and pairs by aggregate-owned identity. It does not use
 zip/name/ordinal pairing or reissue Query/Home/signature/ABI. General
 conformance, target, Recipe/CallSlot, Builder, MIR, and production remain
-separate and parked behind the general evidence D0.
+separate and parked behind the accepted evidence D0. Unsupported/opaque/
+foreign shapes remain `NoSafeSlice` or `Rejected`.
 The four axis receipts remain private or borrowed views; the only new public
 semantic owner is the body-root-scoped execution-evidence aggregate. Coverage
 borrows existing body-owner/carrier/shape/forest identity, `Await` belongs to

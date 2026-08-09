@@ -1061,7 +1061,7 @@ Rejected > Unresolved > Declined > Candidate
       allocation, IO/FFI, failure, suspension, or non-local control;
     - task:
       `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`.
-22A. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` (bounded I0 closed; general design stop)
+22A. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` (accepted 2026-08-09; bounded I0 closed)
     - keep the landed exact `return me` structural-safety and Query Home
       no-transfer evidence bounded to its cohort;
     - design four neutral source-level receipts before general conformance:
@@ -1077,6 +1077,9 @@ Rejected > Unresolved > Declined > Candidate
       ownership-changing-witness conditions;
     - no semantic `NoHome` effect, copied partial shadow vector, empty/default
       receipt, target, Recipe, Builder, MIR, or production switch;
+    - D0 is accepted after the independent worker audit.  The next bounded
+      resolver-only implementation is a separate I0 and does not reopen the
+      general four-axis conformance catalog.
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-d0-design-task-2026-08-09.md`.
 22A-I0. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-I0` (closed bounded implementation)
@@ -1087,7 +1090,21 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-i0-implementation-task-2026-08-09.md`.
     - landed issuer: `QueryBodyConformanceEvidenceIssuerV1`;
     - focused `query_body_facts` slice is green; general conformance remains
-      unopened behind 22A's evidence D0.
+      unopened behind 22A's accepted evidence boundary.
+22A-I1. `CALLABLE-BODY-EFFECT-CONTROL-I0` (open bounded resolver-only slice)
+    - use only one existing `ResolvedFunctionBodyShapeProductV1` as the
+      canonical input to private `BodyEffectControlCoverageIssuerV1`;
+    - issue a non-`Clone` borrowed receipt only for exact root-direct
+      `return me.invoke()` (`MethodCall` + `Me` + ordinary `Return`, one Call
+      effect, one same-function Return exit, and exact relations);
+    - unsupported/opaque/Print/await/field/write/allocation/loop/if/nested
+      owner shapes remain private `NoSafeSlice`; identity/coverage mismatch is
+      `Rejected`;
+    - no new public semantic owner, effect vocabulary widening, Home flow,
+      conformance catalog, target, Recipe/CallSlot, Builder, MIR, or
+      production route;
+    - task:
+      `docs/development/current/main/investigations/own-home-callable-body-effect-control-i0-implementation-task-2026-08-09.md`.
 22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (closed bounded exact Query cohort)
     - consume only the declared contract catalog and landed bounded Query
       conformance-evidence catalog;

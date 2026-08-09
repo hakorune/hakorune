@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `fast` for one bounded resolver-only slice. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
@@ -31,12 +31,18 @@ declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
 body-source I0 and borrowed Query body-source projection I0 are also closed.
 The bounded Query body-facts implementation, complete-evidence design,
 bounded evidence I0, and bounded exact Query conformance catalog I0 are
-closed. General effect/control/Home-flow conformance remains parked by the
-general-evidence boundary. The current design stop is:
+closed. The general evidence D0 is accepted. The current execution row is:
 
 ```text
-CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0 (bounded I0 closed; general design stop)
+CALLABLE-BODY-EFFECT-CONTROL-I0
 ```
+
+This row is intentionally finite and resolver-only: one private borrowed
+receipt is issued from one `ResolvedFunctionBodyShapeProductV1` for exact
+root-direct `return me.invoke()` (Call + ordinary Return + exact source
+relations). Unsupported/opaque/foreign shapes remain `NoSafeSlice` or
+`Rejected`. Home flow, general conformance, target, Recipe/CallSlot,
+Builder/MIR, publication, fallback, and production remain closed.
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
 selected-Query view and borrowed `<'body,'contract>` sparse projection check

@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, catalog-level body-owner binding I0, resolved body-shape issuer I0, bounded Query body-facts I0, bounded Query body-conformance evidence I0, and bounded exact Query conformance catalog I0 are landed; the evidence aggregate and conformance catalog prove only exact `return me` structural safety plus Query Home no-transfer. The current design stop is the general four-axis body execution evidence boundary: complete coverage, neutral effect/control, Home-flow event authority, and one same-root co-seal. General conformance, resolver target, Recipe/CallSlot, and production remain `NoSafeSlice`; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, catalog-level body-owner binding I0, resolved body-shape issuer I0, bounded Query body-facts I0, bounded Query body-conformance evidence I0, bounded exact Query conformance catalog I0, and general body-execution evidence D0 are landed; the evidence aggregate and conformance catalog prove only exact `return me` structural safety plus Query Home no-transfer. The active bounded resolver-only Call+Return I0 admits only exact root-direct `return me.invoke()` through a private borrowed receipt. Unsupported/opaque/foreign shapes remain `NoSafeSlice` or `Rejected`. General conformance, resolver target, Recipe/CallSlot, and production remain `NoSafeSlice`; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -177,16 +177,24 @@ resolver-issued neutral body-shape inventory, and bounded Query body-facts I0
 are now landed. The facts I0 accepts only receiver lexical reads with an
 ordinary return (`return me`); it does not infer field/method identity, result
 types, contracts, or complete effect/control absence. The accepted
-`CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` now has its bounded I0 receipt landed:
+`CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` has its bounded I0 receipt landed:
 a separate structural-safety and Query Home no-transfer evidence pair.
-General evidence is currently a design stop. It must define four private
+General evidence defines four private
 axis receipts or borrowed views—complete body coverage, effect events,
 control/exit events, and Home-flow events/state—then one same-root public
 `VerifiedBodyExecutionEvidenceV1` co-seal. Existing body-shape effects are
 partial (Print/IO and unsupported control are not fully recorded), and
 `VerifiedHomeAbi` remains declaration-only. Until those issuers exist, the
 body verifier has issued only the bounded exact Query conformance catalog;
-broader conformance remains `NoSafeSlice`.
+broader conformance remains `NoSafeSlice`. The next bounded implementation is
+`CALLABLE-BODY-EFFECT-CONTROL-I0`: it consumes only one existing
+`ResolvedFunctionBodyShapeProductV1` and issues a private, non-`Clone` borrowed
+receipt for exact root-direct `return me.invoke()` with one Call effect, one
+same-function Return exit, and exact Return-value/MethodCall-receiver
+relations. It does not widen `BodyEffectKindV1`, issue Home flow, or open
+target/Recipe/Builder/MIR. Print, Await, field/write/allocation, branches,
+loops, nested owners, opaque shapes, and foreign products remain
+`NoSafeSlice`/`Rejected`.
 Coverage is a relational check over the existing body-owner/carrier/shape/
 forest identity, not a second source-membership authority. `Await` belongs to
 the effect/suspension axis; control requires CFG-complete exit/branch/loop
