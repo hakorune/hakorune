@@ -234,6 +234,20 @@ Unknown(reason)
 It consumes Binding SSA identities and CFG edges; it must not become a second
 reaching-value map.
 
+A source-bound Dynamic normal result described as a self-contained carrier is
+not, by itself, a Home-root receipt. The carrier may be trivial,
+owner-bearing, or weak. A neutral destination classifier must first admit the
+exact local destination; Home Flow then owns normal-only installation,
+borrow-preserving use, and lexical cleanup obligations. Recipe value class,
+runtime tag, provider result decoder, and physical ValueId are non-authorities.
+
+For a Loop-local destination, the source `BindingRef` is stable while runtime
+carrier instances are per iteration. The required state shape is
+`Absent -> Available -> Absent` on every normal iteration. Fault before result
+publication leaves the destination Absent; Fault after installation and every
+normal/Return exit must discharge the same lexical cleanup obligation exactly
+once. An Available state may not reach the backedge.
+
 Loop legality is a data-flow property, not a syntax ban. A consume that reaches
 a backedge without a fresh replacement Home is rejected. A loop-local fresh
 Home, consume-followed-by-break, or consume-then-replenish may be admitted by

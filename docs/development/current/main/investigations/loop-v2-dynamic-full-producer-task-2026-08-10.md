@@ -1,8 +1,8 @@
 ---
-Status: atomic co-seal I0 closed; local-value D0 next
+Status: local-value D0 accepted with Home split; local-scope R0 next
 Date: 2026-08-10
-Closed row: `LOOP-V2-DYNAMIC-SOURCE-RECIPE-ENVELOPE-COSEAL-I0`
-Current row: `LOOP-V2-DYNAMIC-LOCAL-VALUE-D0`
+Closed row: `LOOP-V2-DYNAMIC-LOCAL-VALUE-D0`
+Current row: `LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0`
 Parent: `dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md`
 Mode: BoxShape first; unchanged-source producer second
 ---
@@ -547,6 +547,88 @@ provider execution, retry, fallback, and production activation remain absent.
 normal I6 result V10 to the exact `ch` declaration/read and the canonical Home
 owner. It must define Fault-side non-installation, reassignment/escape/share
 rejection, and cleanup ownership before any I0 product is added.
+
+### D0 decision — accepted with split
+
+The source/value relation and Home Flow are not one implementation row.
+Existing authority already co-seals I6 normal result V10, the exact `ch`
+declaration and BindingRef, its I7 argument read, and the two Dynamic
+envelopes. It must not publish a second standalone `VerifiedCh*` product or
+reconstruct those relations from names.
+
+Before that relation can be lent to later neutral owners, the resolver-backed
+source issuer must additionally close:
+
+```text
+ch declaration owner scope = exact Loop-body scope
+lexical reads              = exactly the I7 argument read
+assignment targets         = zero
+capture / return / store   = zero
+share / explicit release   = zero
+other escape               = zero
+```
+
+The next executable row is therefore behavior-neutral
+`LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0`. It strengthens the existing source/co-seal
+boundary and may expose only a borrow-scoped neutral local-value view from the
+existing verified product. It adds no owned semantic product, Recipe key,
+Home root, flow state, cleanup plan, or physical port. If the resolver lacks
+an exact scope/use-closure query, R0 widens that neutral compiler boundary;
+it never infers scope from names or raw ordinals and never narrows the source.
+
+Home installation remains `NoSafeSlice`. A self-contained Dynamic carrier is
+not unconditionally one Home: it may contain a trivial payload, an
+owner-bearing payload, or a weak payload. Runtime tags choose physical drop
+mechanics only and cannot issue semantic Home meaning. The future neutral
+Home destination classifier and CFG-complete Home Flow issuer must own:
+
+```text
+body entry:
+  ch absent
+
+I6 Fault:
+  V10 absent
+  ch install = 0
+  ch cleanup = 0
+
+I6 Normal(V10):
+  scope-local self-contained carrier becomes available exactly once
+
+I7 invocation:
+  borrowed-noescape use; availability unchanged
+
+I7 or later Fault:
+  lexical scope cleanup exactly once, then Fault
+
+inner Return:
+  lexical scope cleanup exactly once, then Return
+
+normal fallthrough/backedge:
+  lexical scope cleanup exactly once before the next iteration
+```
+
+The static `BindingRef(ch)` is not one runtime Home instance across all loop
+iterations. Each iteration must prove `Absent -> Available -> Absent`; an
+Available carrier may not cross the backedge. Cleanup timing belongs to the
+exact lexical Loop-body exit, not last-use optimization. Home Flow issues the
+release obligation, the common exit transaction orders cleanup, and C-prime
+DropPlan owns terminal hook/field/native teardown.
+
+Corrected order:
+
+```text
+1. LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0
+2. LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0/I0
+3. Dynamic Fault / callable exit-transaction authority
+4. HOME-LOCAL-SELF-CONTAINED-CARRIER-D0/I0
+5. final V2 semantic-program co-seal
+6. common physicalization and production cutover
+```
+
+Hard stops remain: no synthetic `release`, no `ch` Recipe
+binding/carrier/PHI/WriteBinding, no runtime-tag Home inference, no
+profile-specific Home or physical port, no Tail/Completion, provider route,
+retry, fallback, or production activation.
 
 ## Nonclaims
 

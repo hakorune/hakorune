@@ -456,11 +456,22 @@ golden, not a language constant. The output is a bounded source-bound Recipe
 product, not a final semantic program; JoinSigV2, Fault compatibility, `ch`
 Home, Tail, and Completion remain later owners.
 
-### 6. `LOOP-V2-DYNAMIC-LOCAL-VALUE-D0/I0`
+### 6. Dynamic iteration-local relation and Home
 
-Seal normal call result to `ch` declaration/read, then install and clean up
-its Home through the canonical Home owner. Reassignment, escape, hidden share,
-synthetic release, and Fault-side installation reject.
+The former combined `LOOP-V2-DYNAMIC-LOCAL-VALUE-D0/I0` is revised. The
+existing atomic co-seal already owns V10, the `ch` declaration/BindingRef,
+its exact I7 read, and the I6/I7 envelopes. The first executable row is the
+behavior-neutral `LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0`: close exact Loop-body scope
+and full-use coverage in the existing source issuer, then lend only a neutral
+borrow-scoped view from the existing product.
+
+Home remains `NoSafeSlice` until a general destination classifier, JoinSigV2,
+Dynamic Fault/callable exit authority, and CFG-complete Home Flow exist. A
+self-contained Dynamic carrier is not unconditionally one Home. I6 Fault
+installs nothing; any Fault after I6 Normal, inner Return, and normal backedge
+must later cross the same lexical cleanup owner exactly once. Synthetic
+`release`, runtime-tag semantic classification, and Dynamic-specific Home or
+physical ports are forbidden.
 
 ### 7. `LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0/I0`
 

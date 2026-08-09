@@ -166,8 +166,9 @@ outside Recipe values, exits, JoinSig, Completion, and Return.
 rejects known-but-not-yet-defined CallSlot, numeric, TextEq, WriteBinding, If,
 and Return operands without adding an accepted source shape. The later order
 is Dynamic value I0, source-value
-relation, CallSlot/envelope co-seal, explicit Dynamic operations, local Home,
-then any required V2 JoinSig/After work. V1 remains unchanged.
+relation, CallSlot/envelope co-seal, explicit Dynamic operations, exact local
+source/scope closure, V2 JoinSig/Fault authority, and only then neutral local
+Home Flow. V1 remains unchanged.
 
 The focused golden covers type-consistent Dynamic input, binding, carrier,
 CallSlot normal result, WriteBinding, and Return domains. It does not issue the

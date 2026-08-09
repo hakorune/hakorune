@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. Dynamic source/origin, complete Loop source
+Current mode is `fast`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
@@ -45,10 +45,10 @@ source. The selector-independent language Decision and caller-zero complete
 semantic-envelope catalog are now closed. The Dynamic Recipe consultation,
 Dynamic operation D0, schema/verifier I0, V2 control/source parity R0, and the
 complete private producer I0 and atomic co-seal I0 are also closed. The
-current row is the iteration-local value/Home design stop:
+current row is the behavior-neutral iteration-local source/scope closure:
 
 ```text
-LOOP-V2-DYNAMIC-LOCAL-VALUE-D0
+LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe

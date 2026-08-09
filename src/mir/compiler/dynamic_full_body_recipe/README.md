@@ -49,3 +49,15 @@ This directory does not own:
   fallback.
 
 The verified co-seal product is therefore not a final semantic program.
+
+## Next boundary
+
+The co-seal already owns the V10-to-`ch`-to-I7 logical relation. The next
+behavior-neutral row closes exact Loop-body scope and full-use coverage in the
+existing source issuer and exposes only a borrow-scoped neutral view. It does
+not add a standalone `VerifiedCh*` product.
+
+Local Home installation is not yet available. A self-contained Dynamic
+carrier may be trivial, owner-bearing, or weak; Recipe `Dynamic` and runtime
+tags cannot classify it. JoinSig/Fault/exit authority and the general Home
+destination/flow owners must land before any install or cleanup receipt.

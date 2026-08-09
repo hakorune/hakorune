@@ -95,6 +95,19 @@ Returning a borrow of the receiver or an argument is forbidden. Runtime tags
 may choose storage and drop mechanics only after the semantic contract is
 fixed; they never choose the ownership meaning.
 
+`SelfContainedDynamicCarrier` is not an unconditional claim that every result
+installs one Home. It is a closed carrier category spanning trivial,
+owner-bearing, and weak payloads. A local destination needs a separate neutral
+destination classification and CFG-complete Home Flow proof before it may
+issue install or cleanup obligations. Neither the Recipe `Dynamic` class nor a
+runtime tag can perform that classification.
+
+For a Loop-local carrier, one static source `BindingRef` may denote a fresh
+runtime carrier in each iteration. The future flow must prove
+`Absent -> Available -> Absent` per iteration and must not carry an Available
+carrier across the backedge. Cleanup occurs at the exact lexical scope exit,
+not automatically at the last read.
+
 On `Fault`, no result is published and caller input Homes remain unchanged.
 Effects that happened before the Fault are not rolled back. The invocation is
 not retried through another provider, arity, route, or compatibility writer.

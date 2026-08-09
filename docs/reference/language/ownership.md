@@ -452,6 +452,18 @@ may be admitted when its dedicated CFG proof closes.
 Home Flow must not synthesize an owner PHI or repair a conflict with hidden
 sharing.
 
+A self-contained Dynamic call result is not automatically one Home. It may be
+a trivial, owner-bearing, or weak carrier. Recipe `Dynamic`, runtime tags, and
+physical result decoding cannot choose among those meanings. A neutral local
+destination classifier and CFG-complete Home Flow proof are required before a
+local install/cleanup receipt exists.
+
+For a Loop-local Dynamic carrier, the same source binding may receive a fresh
+carrier on each iteration. The flow must prove `Absent -> Available -> Absent`
+per iteration. Fault before normal result publication installs nothing;
+Fault, Return, or fallthrough after installation must discharge the lexical
+scope cleanup exactly once before propagation/backedge.
+
 Home transfer also has an exact temporal boundary. Argument expressions are
 prepared in source order; a later argument failure must not leave an earlier
 caller Home consumed. The transfer/failure D0 selects one commit point before

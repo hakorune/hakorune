@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Atomic Dynamic source/Recipe/envelope co-seal I0 is closed. The sole issuer consumes all 6 binding and 28 source claims, binds exact I6/I7 by owner+site against the borrowed complete catalog, and permits additional valid rows. The next boundary is the iteration-local ch value/Home design."
+status = "Dynamic local-value D0 is accepted with a Home split. Existing co-seal owns V10/ch/I7; Home remains NoSafeSlice because self-contained Dynamic carriers are not unconditionally one Home and CFG/Fault cleanup authority is absent. The next behavior-neutral row closes exact ch Loop-body scope and full-use coverage."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "docs/development/current/main/investigations/loop-v2-dynamic-full-producer-task-2026-08-10.md#next-design-stop--iteration-local-ch"
-work_mode = "design_stop"
-current_execution_row = "LOOP-V2-DYNAMIC-LOCAL-VALUE-D0"
-current_blocker_token = "LOOP-V2-DYNAMIC-LOCAL-VALUE-D0: identify the sole V10 -> ch declaration/read -> canonical Home authority, Fault-side non-installation, reassignment/escape/share rejects, and cleanup owner; no I0 product, source narrowing, synthetic release, JoinSig, Tail/Completion, physical lowering, provider route, retry, or fallback before the Decision closes"
+current_design_stop = ""
+work_mode = "fast"
+current_execution_row = "LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0"
+current_blocker_token = "LOOP-V2-DYNAMIC-LOCAL-SCOPE-R0: strengthen the existing source/co-seal owner with exact ch Loop-body scope and full-use closure, then lend one neutral borrow-scoped view; add no standalone semantic product, Home root/flow, Recipe binding/carrier, source narrowing, synthetic release, physical port, retry, fallback, or production activation"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -210,7 +210,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "The complete unchanged-source V2 candidate now atomically co-seals all 6 binding and 28 source claims with exact I6/I7 Dynamic envelopes from the borrowed complete catalog. Candidate/catalog identity comes from one branded semantic-source batch, foreign resolver owners reject, and additional valid catalog rows remain accepted. The next row is the iteration-local ch value/Home design stop."
+current_execution_summary = "The local-value D0 keeps the existing atomic V10/ch/I7 relation and splits Home from the next executable row. Self-contained Dynamic carriers are not unconditionally one Home; general Home/Fault cleanup remains NoSafeSlice. R0 now closes exact ch Loop-body scope and full-use coverage without adding a second semantic owner."
 current_execution_design = "docs/development/current/main/investigations/loop-v2-dynamic-full-producer-task-2026-08-10.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
