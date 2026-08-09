@@ -130,8 +130,8 @@ pub use hakorune_frontend_parser::parser::ParseError;
 
 pub(crate) use callable_contract_syntax::CallableContractSyntaxV1;
 pub(crate) use body_source::{
-    ParserBoxBodySourceEnvelopeV1, ParserBoxMethodBodySourceRowV1,
-    ParserResolverBodyTransactionV1,
+    ParserBoxBodySourceEnvelopeV1, ParserBoxInstanceMethodSyntaxLeaseV1,
+    ParserBoxMethodBodySourceRowV1,
 };
 pub(crate) use source_resolver_handoff::{
     ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceRowV1,

@@ -29,6 +29,7 @@ mod if_region;
 mod home_abi;
 mod instance_method_declaration;
 mod instance_method_body_source;
+mod instance_method_function_carrier;
 mod home_relation;
 mod query_behavior;
 mod loop_family_window;
@@ -118,6 +119,11 @@ pub(crate) use instance_method_declaration::{
 pub(crate) use instance_method_body_source::{
     InstanceMethodBodySourceIssuerV1, InstanceMethodBodySourceIssueV1,
     VerifiedInstanceMethodBodySourceCatalogV1, VerifiedInstanceMethodBodySourceRowV1,
+};
+pub(in crate::mir) use instance_method_function_carrier::{
+    InstanceMethodFunctionCarrierIssueV1, InstanceMethodFunctionCarrierIssuerV1,
+    VerifiedInstanceMethodFunctionCarrierCatalogV1,
+    VerifiedInstanceMethodFunctionCarrierRowV1, VerifiedMethodBodyCoverageV1,
 };
 pub(crate) use home_relation::{
     HomeDemandV1, HomeDestinationV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1,
@@ -227,6 +233,8 @@ mod callable_header_source_unit_tests;
 mod callable_source_ledger_tests;
 #[cfg(test)]
 mod declared_instance_contract_tests;
+#[cfg(test)]
+mod instance_method_function_carrier_tests;
 #[cfg(test)]
 mod explicit_parameter_type_map;
 #[cfg(test)]

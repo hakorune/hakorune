@@ -9,7 +9,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::parser::{
     CallableContractSyntaxV1, ParserBoxResolverSourceHandoffV1,
-    ResolverBoxMethodSourceRowV1, ResolverSourceInvocationProvenanceV1,
+    ResolverBoxMethodSourceRowV1, ResolverBoxMethodSourceSiteV1,
+    ResolverSourceInvocationProvenanceV1,
 };
 
 static NEXT_RESOLVER_CATALOG_BRAND: AtomicU64 = AtomicU64::new(1);
@@ -192,6 +193,16 @@ impl VerifiedInstanceMethodDeclarationCatalogV1 {
 
     pub(crate) fn parser_provenance(&self) -> &ResolverSourceInvocationProvenanceV1 {
         &self.parser_provenance
+    }
+
+    pub(crate) fn declaration_at_source_site(
+        &self,
+        source_site: ResolverBoxMethodSourceSiteV1,
+    ) -> Option<&VerifiedInstanceMethodDeclarationV1> {
+        self.declarations.iter().find(|declaration| {
+            declaration.box_statement_ordinal == source_site.box_statement_ordinal()
+                && declaration.method_member_ordinal == source_site.member_ordinal()
+        })
     }
 }
 

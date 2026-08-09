@@ -1,5 +1,5 @@
 ---
-Status: active bounded implementation
+Status: closed bounded implementation 2026-08-09
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-owner-binding-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -44,31 +44,40 @@ exact ordered body-item coverage
 The parser syntax lease is private, non-`Clone`, and cannot escape the callback
 lifetime. No AST or syntax pointer may be stored in the carrier.
 
-## Required tests
+The implementation is source-authority only. The general body-source catalog
+and its borrowed Query projection remain separate inputs; this carrier does
+not select Query rows or perform the owner-link co-seal.
+
+## Bounded I0 tests
 
 Positive:
 
 ```text
 one direct instance method
 same source site and parser provenance
+resolver brand is retained from the declaration catalog
 forest root is the carrier owner
 root profile is DeclaredFunction(DeclaredInstance)
 body coverage equals the borrowed syntax body length
 empty body coverage remains representable
 ```
 
-Negative:
+The bounded I0 receipt covers the parser-provenance negative. The remaining
+identity/cardinality/profile cases stay as explicit owner-link or parser-seal
+guards rather than being forged through test-only carrier constructors:
 
 ```text
-static/generated/selected-gate source
-foreign parser provenance
-foreign resolver brand or nominal Box
-wrong source site
-wrong root profile/receiver policy
-body cardinality mismatch
-duplicate source row
-one carrier row reused for two declarations
+foreign parser provenance                    -> carrier I0
+static/generated/selected-gate source        -> parser/source seal
+wrong source site / duplicate source row     -> parser/declaration seal
+wrong root profile/receiver policy           -> carrier issuer
+one carrier row reused for two declarations  -> owner-link D0/I0
 ```
+
+Foreign resolver brand/nominal Box, body-source cardinality mismatch, and
+one-to-one reuse are owner-link D0/I0 negatives. The carrier trusts only the
+already sealed declaration catalog and retains its brand; it does not invent a
+second cross-catalog identity check.
 
 ## Forbidden
 
@@ -99,3 +108,14 @@ CURRENT_STATE.toml / 10-Now.md
 Keep each touched source file below the 760-line split trigger and below 800
 lines. Run the focused tests, `cargo check --lib`,
 `bash tools/checks/current_state_pointer_guard.sh`, and `git diff --check`.
+
+Receipt:
+
+```text
+cargo test --lib instance_method_function_carrier -- --nocapture
+  3 passed
+```
+
+The next design stop is `CALLABLE-BODY-OWNER-BINDING-D0`. No owner link,
+body facts, conformance, target, Recipe/CallSlot, or production route opens
+from this carrier receipt.

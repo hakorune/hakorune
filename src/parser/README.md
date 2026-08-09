@@ -57,7 +57,7 @@ selected Query view, preserves sparse source order, and emits no default row
 for non-Query methods. FunctionOwner binding, body facts, conformance,
 targets, Recipe/CallSlot, and MIR remain later owners.
 
-## Resolver instance-method syntax lease (carrier I0)
+## Resolver instance-method syntax lease (carrier I0 — landed)
 
 The accepted next boundary is transaction-scoped, not a second AST API:
 
@@ -72,6 +72,10 @@ the parser-issued direct source site. The resolver constructs its canonical
 `FunctionSyntaxViewV1` only inside this callback; after the callback returns,
 no resolver product retains an AST or syntax pointer. Name, inventory ordinal,
 legacy AST lookup, and caller-built function maps are forbidden.
+
+The carrier I0 receipt is closed. The lease is used only by the existing
+`FunctionSemanticResolverSessionV1` owner-forest issuer; the next semantic
+boundary is the catalog-level owner binding D0, not another parser API.
 
 ## C-S1 delegate target index
 

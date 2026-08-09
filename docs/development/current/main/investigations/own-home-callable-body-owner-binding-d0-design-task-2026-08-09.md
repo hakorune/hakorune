@@ -1,5 +1,5 @@
 ---
-Status: accepted design; next bounded execution is owner-carrier I0
+Status: accepted design; current design stop after owner-carrier I0
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -164,6 +164,18 @@ The carrier issuer and body-source issuer consume the same parser provenance;
 the owner-link issuer later co-seals their AST-free catalogs. No AST pointer,
 method-name lookup, inventory ordinal lookup, caller-built function map, or
 second `FunctionOwnerIdV1` issuer is permitted.
+
+## Carrier I0 receipt and next stop
+
+`CALLABLE-BODY-OWNER-CARRIER-I0` is closed. Its focused slice issues one
+AST-free direct-method carrier through the transaction-scoped syntax lease and
+the existing owner-forest resolver, retaining source identity, both brands,
+nominal Box, root/body receipts, and contiguous body coverage. The focused
+tests cover direct success, empty-body coverage, and foreign parser
+provenance. The carrier does not select Query rows or bind a body source.
+
+The current design stop is this document's owner-link D0. It must define the
+catalog-level relation before any owner-link I0 implementation starts.
 
 ## Acceptance and closeout
 

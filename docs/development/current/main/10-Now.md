@@ -23,30 +23,30 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
 declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
 body-source I0 and borrowed Query body-source projection I0 are also closed.
-The current execution row is:
+The current design stop is:
 
 ```text
-CALLABLE-BODY-OWNER-CARRIER-I0
+CALLABLE-BODY-OWNER-BINDING-D0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
 selected-Query view and borrowed `<'body,'contract>` sparse projection check
 parser provenance and resolver brand, preserve sparse source order, keep the
-general catalog reusable, and emit no default non-Query row. The current
-carrier D0 is accepted. The bounded I0 now has one permitted route: the
+general catalog reusable, and emit no default non-Query row. The carrier
+D0/I0 is closed. The next design row has one permitted route: the
 parser transaction keeps AST-backed syntax only inside a single
 transaction-scoped callback/lease, the resolver constructs
 `FunctionSyntaxViewV1` there, and only AST-free carrier/catalog products escape.
-The carrier must retain exact source identity, parser/resolver brands, nominal
-Box, owner-bearing forest/function, root/body receipt, and body coverage before
-the catalog-level owner co-seal opens. No body facts, conformance, target,
-Recipe/CallSlot, Builder/MIR, or production work is open.
+The carrier retains exact source identity, parser/resolver brands, nominal Box,
+owner-bearing forest/function, root/body receipt, and body coverage. The
+catalog-level owner co-seal is now the only open semantic row; no body facts,
+conformance, target, Recipe/CallSlot, Builder/MIR, or production work is open.
 
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view

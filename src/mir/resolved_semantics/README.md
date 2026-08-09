@@ -115,7 +115,7 @@ sparse source order and retaining the all-row catalog for future observers.
 It checks parser provenance and resolver brand once and emits no default
 non-Query row. A bare `VerifiedResolvedFunctionV1` is not enough for owner
 binding: it has no instance-method source identity or complete body coverage.
-The accepted carrier boundary is a single transaction-scoped parser-private
+The landed carrier boundary is a single transaction-scoped parser-private
 callback/lease: `ParserResolverBodyTransactionV1` keeps borrowed method
 parameters/body slices alive only while the resolver constructs
 `FunctionSyntaxViewV1`. The callback returns no AST or syntax pointer. The
@@ -128,6 +128,15 @@ exact resolved function. Missing carrier/owner link is `NoSafeSlice`, not a
 default body receipt. Body modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line
 split trigger.
+
+`CALLABLE-BODY-OWNER-CARRIER-I0` is now closed. The landed carrier owns the
+existing `VerifiedSemanticOwnerForestV1`, exposes its single resolved root by
+borrow, records the root `FunctionOriginV1` only as a consistency receipt, and
+stores the resolver-issued body-root pair plus contiguous body-item coverage.
+Its focused three-test slice proves direct-method success, empty-body source
+coverage, and foreign parser-provenance rejection. It does not perform Query
+selection or owner binding; the next design stop is the catalog-level
+`CALLABLE-BODY-OWNER-BINDING-D0` co-seal.
 
 ## Home relation vocabulary S0
 

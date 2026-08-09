@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, and borrowed Query body-source projection I0 landed; body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, and resolver-owned instance-method carrier I0 landed; owner binding/body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -222,6 +222,13 @@ brands, owner-bearing resolved function, and resolver-issued body-root/item
 coverage receipt. Only then may the catalog-level owner co-seal connect the
 selected Query body source to the exact function. `FunctionOriginV1`, names,
 ordinals, inventory placement, or compilation brands alone are never enough.
+
+The carrier I0 is a source-authority receipt only. It does not select Query
+rows, duplicate Home/Query contracts, issue a new `FunctionOwnerIdV1`, or
+bind a body-source row. The next accepted design boundary is the
+catalog-level owner co-seal, which must compare the selected Query projection,
+carrier/catalog, parser provenance, resolver brand, source site, root profile,
+and body coverage in one-to-one form before body facts can open.
 
 ## Receiver Home rule
 

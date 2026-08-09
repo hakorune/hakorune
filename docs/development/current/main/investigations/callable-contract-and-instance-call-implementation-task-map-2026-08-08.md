@@ -500,8 +500,7 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current execution row (D0 accepted; explicit I0 transition synchronized
-2026-08-09):
+Latest completed row / current design stop (synchronized 2026-08-09):
 
 ```text
 CALLABLE-QUERY-BODY-SELECTION-I0
@@ -529,14 +528,14 @@ CALLABLE-BODY-OWNER-CARRIER-D0 (closed 2026-08-09)
   No AST escape, name/ordinal/inventory lookup, caller-built map, or second
   FunctionOwner issuer.
 
-CALLABLE-BODY-OWNER-CARRIER-I0 (current execution row)
+CALLABLE-BODY-OWNER-CARRIER-I0 (closed 2026-08-09)
   issue one real bounded direct-method carrier through that callback and the
   existing FunctionSemanticResolverSessionV1 path. The carrier retains source
   identity, parser/resolver brands, nominal Box, owner-bearing forest/function,
   FunctionOrigin consistency, root profile/body pair, and exact body coverage.
   No owner link, body facts, or conformance.
 
-CALLABLE-BODY-OWNER-BINDING-D0/I0 (parked behind owner carrier I0)
+CALLABLE-BODY-OWNER-BINDING-D0/I0 (current design stop after owner carrier I0)
   co-seal the selected Query body-source projection with the exact resolver-
   issued carrier/catalog and resolved functions into a catalog-level one-to-one
   owner link. The link issues no owner and rejects foreign parser/resolver
@@ -952,8 +951,8 @@ Rejected > Unresolved > Declined > Candidate
       compares parser provenance and resolver brand without copying/reissuing
       Home or Query receipts, and leaves the general all-row body catalog
       reusable.
-18. `CALLABLE-BODY-OWNER-CARRIER-D0/I0` (D0 closed; I0 current execution)
-    - define then issue one resolver-owned instance-method function
+18. `CALLABLE-BODY-OWNER-CARRIER-D0/I0` (closed 2026-08-09)
+    - D0 defined, and the bounded I0 issued, one resolver-owned instance-method function
       carrier/catalog on the existing `FunctionSemanticResolverSessionV1`
       method-resolution path;
     - retain exact declaration/source identity, parser provenance, resolver
@@ -964,8 +963,8 @@ Rejected > Unresolved > Declined > Candidate
       caller-built map, or legacy AST lookup; never add a second owner issuer;
     - remain `NoSafeSlice` if the resolver cannot issue the exact body-root /
       coverage receipt without a re-scan or inference.
-19. `CALLABLE-BODY-OWNER-BINDING-D0/I0` (parked behind carrier I0)
-    - co-seal the selected Query body projection with the resolver-issued
+19. `CALLABLE-BODY-OWNER-BINDING-D0/I0` (current design stop after carrier I0)
+    - D0 must define, then I0 must co-seal, the selected Query body projection with the resolver-issued
       carrier/catalog and exact resolved functions into a catalog-level
       one-to-one owner link;
     - the link issues no owner and rejects foreign parser/resolver brand or
