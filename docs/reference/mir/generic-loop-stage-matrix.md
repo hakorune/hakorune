@@ -1662,3 +1662,21 @@ Foreign, duplicate, nested-Loop, incomplete carrier, and cross-binding rows
 reject. No Builder/MIR effect, Dynamic operation-result authority, raw
 `Unknown` admission, prepared representation, PHI, backend metadata, route
 selection, retry, or fallback is opened.
+
+## Dynamic Loop operation-source S0 receipt (2026-08-09)
+
+`DYNAMIC-LOOP-OPERATION-SOURCE-S0` is closed as a source-only semantic
+relation. The unmodified production `ParserScanLoopBox.skip_while/4` source
+seals exactly two carrier-lineage operations: `i < end` is a Dynamic/Dynamic
+`Less` relation with an exact Bool result, and `i = i + 1` is a current
+Dynamic carrier plus exact I64 literal `Add` with a Dynamic result and an
+exact same-binding rebind target.
+
+The non-`Clone` aggregate is issued only by co-sealing the existing resolved
+source ledger, source-backed Dynamic callable product, and R0 Loop binding
+schedule. It retains the exact operation, operand, literal, and target source
+sites. A typed comparison operand is not relabelled Dynamic; subtraction and
+reversed Add remain `NoSafeSlice`. Calls, iteration-local `ch`, early Return,
+Tail, Recipe, `MirType`, `ValueId`, Builder mutation, representation, PHI,
+backend policy, retry, fallback, and production selection remain outside this
+row.

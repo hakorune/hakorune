@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0-R0 closed; Dynamic operation-source S0 ready
+Status: S0/P0, L0-R0, and L0-S0 closed; Dynamic prepare P0 ready
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -531,6 +531,18 @@ Done:
 Stop:
   Missing call/method result authority is `NoSafeSlice`; do not infer it from
   raw Unknown or emitted opcodes.
+
+Closeout:
+  Closed in the S0 implementation slice. A dedicated source-only sibling
+  module co-seals the exact production `skip_while/4` condition
+  `i < end` as Dynamic operands with an exact Bool result, and the exact
+  `i = i + 1` update as current Dynamic carrier plus exact I64 literal with a
+  Dynamic result and same-binding rebind. The issuer consumes existing
+  resolver/dynamic/schedule authority and preserves exact source sites; it
+  contains no `MirType`, `ValueId`, Builder mutation, Recipe relabel, name
+  inference, or fallback. Typed `end`, subtraction, and reversed Add reject.
+  Existing method calls, `ch`, early Return, and Tail remain outside this
+  product.
 
 ##### L0-P0 — `DYNAMIC-LOOP-PREPARE-P0`
 

@@ -172,6 +172,15 @@ iteration-local. This remains source-only; Dynamic operation results,
 prepared representation, PHI, backend metadata, route selection, retry, and
 fallback remain closed.
 
+`normal_callable_dynamic_operation_source.rs` owns the next source-only S0
+co-seal. It combines the existing resolver ledger, source-backed Dynamic
+callable product, and R0 binding schedule to issue one move-only exact
+comparison/Add-rebind relation set. The production `skip_while/4` comparison
+has an explicit Bool result, while its Add-by-exact-I64 result remains Dynamic
+and targets the same carrier binding. The module does not import `MirType` or
+`ValueId`, mutate Builder state, relabel I64 Recipe operations, or claim the
+method-call/local/Return portions of the Loop.
+
 ## 原則（SSOT / Box-First）
 
 - **状態は Context が SSOT**: `MirBuilder` の状態は Context（箱）に分割され、二重管理をしない。

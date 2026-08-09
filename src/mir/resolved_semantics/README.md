@@ -864,3 +864,12 @@ while exact syntax and `VerifiedSourceProjectionV1` are still available. The
 resolver does not infer Dynamic from a missing type fact or `MirType::Unknown`.
 Plain binding assignment targets are lvalues in the neutral body-shape
 inventory and are no longer misclassified as lexical value reads.
+
+The callable Dynamic Loop operation-source S0 preserves this boundary. The
+resolver ledger remains the sole owner of lexical references, assignment
+targets, and exact expression sites. A compiler-side source-only co-seal may
+combine that ledger with already verified Dynamic and Loop-binding products
+to state the bounded `Less -> Bool` and `Add(exact I64) -> Dynamic` relations,
+but it may not infer Dynamic from `MirType::Unknown`, emitted opcodes, variable
+names, or an I64 Recipe operation. Calls, locals, exits, physical values, and
+PHI remain owned by their separate later stages.
